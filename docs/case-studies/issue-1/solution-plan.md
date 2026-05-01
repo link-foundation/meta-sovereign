@@ -327,3 +327,47 @@ broadcast`, `profile`, `resume`.
 
 Total automated tests: **61** JS + **7** Rust, all green.
 Lint, prettier, and jscpd remain clean.
+
+---
+
+## Iteration 4 additions (PR #2, hardening pass)
+
+Iteration 4 closes the duplication and polish gaps that built up while
+iteration 3 raced through the feature surface. The codebase now has one
+canonical implementation of every cross-cutting helper, and every
+helper is covered by tests.
+
+- **Shared audience DSL (`src/crm/audience.js`).** The set-algebra
+  parser used to be duplicated between `src/server/routes-derived.js`
+  and `src/cli/index.js`. Lifted into a single module with extended
+  predicate vocabulary: `network`, `chat`, `sender`, `fact`, `kind`,
+  `body`, `since`, `before`, plus the bare `me` token. Every consumer
+  (server, CLI, outreach planner) now speaks the same language.
+- **Contact aggregator (`src/server/aggregate.js`).** `aggregateContacts`
+  was inline in `routes-derived.js`; lifted so other server modules can
+  reuse it.
+- **Mass-personal outreach (R-D3, `src/broadcast/index.js`).**
+  `planOutreach({ audience, text, replyGroup, networks, mode })`
+  produces deterministic envelopes (one per contact × network) and
+  `runOutreach(plan)` invokes the broadcast adapter chain. CLI exposes
+  it as `meta-sovereign outreach --query=<expr> --text=<msg>`.
+  Templates support `{name}`, `{networks}`, `{chats}` placeholders;
+  reply-group fallback applies when no literal text is given.
+- **Backup scheduler (R-A4, `src/storage/backup.js`).**
+  `createBackupScheduler({ store, archiveDir, intervalMs, keep, ... })`
+  drops a snapshot every `intervalMs` and keeps at most `keep` archives
+  for long-running `meta-sovereign serve` processes. `setInterval` is
+  `.unref()`-ed so it doesn't block process exit.
+- **Pure-Rust pattern parity (R-G2).** `crates/meta-sovereign-core` now
+  exports `infer_regex`, `simplify_regex`, and `pattern_matches` —
+  one-to-one mirrors of the JS implementations in `src/patterns/`. The
+  matcher supports just the constructs `infer_regex` emits so the core
+  can run patterns end-to-end without pulling in the `regex` crate.
+- **Health endpoint.** `/api/health` returns `{ ok, links, time }` for
+  liveness probes from the Electron shell, k8s-style probes, and the
+  long-running serve.
+- **Tests.** Three new JS test files (`audience`, `outreach`,
+  `backup-scheduler`) and seven new Rust tests bring the totals to
+  **79** JS + **14** Rust, all green.
+
+Lint, prettier, and jscpd remain clean.

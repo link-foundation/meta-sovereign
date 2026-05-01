@@ -47,6 +47,16 @@ Iteration 3 (follow-up commits on the same PR) closes every remaining `[skeleton
 - `eslint.config.js`: extended with `location`/`confirm`/`alert` SPA globals and standard timer globals for tests.
 - `.prettierignore`: ignores `target/` Rust build artefacts and the generated `docs/api/`.
 
-Tests: 61/61 JS + 7/7 Rust pass. Lint: 0 errors. Format: clean. Duplication: clean.
+Iteration 4 (follow-up commits on the same PR) is a hardening pass that removes the duplication left over from iteration 3 and fills in the last unfinished side-quests:
+
+- `src/crm/audience.js`: shared audience expression DSL — the set-algebra parser used to be duplicated between `src/server/routes-derived.js` and `src/cli/index.js`. Lifted into a single module with extended predicate vocabulary (`network`, `chat`, `sender`, `fact`, `kind`, `body`, `since`, `before`, plus the bare `me` token). Server, CLI, and outreach planner now speak the same language.
+- `src/server/aggregate.js`: `aggregateContacts` extracted from `routes-derived.js` so other server modules can reuse it.
+- `src/broadcast/index.js`: `planOutreach({ audience, text, replyGroup, networks, mode })` produces deterministic envelopes (one per contact × network); `runOutreach(plan)` invokes the broadcast adapter chain. Templates support `{name}`, `{networks}`, `{chats}` placeholders. CLI exposes it as `meta-sovereign outreach --query=<expr> --text=<msg>` (R-D3).
+- `src/storage/backup.js`: `createBackupScheduler({ store, archiveDir, intervalMs, keep, ... })` drops a snapshot every `intervalMs` and keeps at most `keep` archives for long-running `meta-sovereign serve` processes; `setInterval` is `.unref()`-ed so it doesn't block process exit (R-A4).
+- `crates/meta-sovereign-core/`: ports `infer_regex`, `simplify_regex`, and `pattern_matches` to Rust as one-to-one mirrors of the JS implementations. The matcher supports just the constructs `infer_regex` emits so the core runs patterns end-to-end without pulling in the `regex` crate (R-G2).
+- `src/server/routes-derived.js`: adds `/api/health` for liveness probes from the Electron shell, k8s-style health checks, and the long-running serve.
+- `tests/audience.test.js`, `tests/outreach.test.js`, `tests/backup-scheduler.test.js`: cover the new code paths. Seven new Rust tests in the core crate.
+
+Tests: 79/79 JS + 14/14 Rust pass. Lint: 0 errors. Format: clean. Duplication: clean.
 
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, and SPA, with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, full WebRTC transport, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
