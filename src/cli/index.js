@@ -32,9 +32,11 @@ import {
   createPeer,
 } from '../sync/index.js';
 import { extractFacts } from '../facts/index.js';
-import { localSearch, intersect, union, difference } from '../crm/index.js';
+import { localSearch } from '../crm/index.js';
+import { evalAudience } from '../crm/audience.js';
 import { inferRegex, simplifyRegex, inferRegexLcs } from '../patterns/index.js';
 import { runGraph } from '../automation/index.js';
+import { planOutreach } from '../broadcast/index.js';
 
 const HELP = `meta-sovereign <command> [options]
 
@@ -58,6 +60,7 @@ Commands:
   resume        [--title=<t>] [--body=<b>] [--store=<dir>]
   sync-listen   [--port=<n>] [--store=<dir>]
   sync-connect  --port=<n> [--host=<h>] [--store=<dir>]
+  outreach      --query=<expr> --text=<msg> [--reply=<reply:id>] [--networks=t,vk] [--mode=preview|queue] [--store=<dir>]
   help
 `;
 
@@ -297,88 +300,22 @@ const syncConnectCmd = async (args, log) => {
   return 0;
 };
 
-// --- audience expression evaluator (mirrors server) ----------------------
-const evalAudience = (links, expression) => {
-  const ops = parseAudience(expression);
-  const evalExpr = (node) => {
-    if (node.kind === 'set') {
-      return links.filter(node.predicate);
-    }
-    if (node.kind === 'and') {
-      return intersect(evalExpr(node.left), evalExpr(node.right));
-    }
-    if (node.kind === 'or') {
-      return union(evalExpr(node.left), evalExpr(node.right));
-    }
-    if (node.kind === 'not') {
-      return difference(links, evalExpr(node.expr));
-    }
-    return [];
-  };
-  return evalExpr(ops);
-};
-
-const parseAudience = (expr) => {
-  const tokens = String(expr ?? '')
-    .replace(/([(),])/g, ' $1 ')
-    .split(/\s+/)
-    .filter(Boolean);
-  let i = 0;
-  const peek = () => tokens[i];
-  const eat = () => tokens[i++];
-  const parsePrimary = () => {
-    const t = eat();
-    if (t === 'NOT') {
-      return { kind: 'not', expr: parsePrimary() };
-    }
-    if (t === '(') {
-      const inner = parseOr();
-      eat();
-      return inner;
-    }
-    return makeSet(t);
-  };
-  const parseAnd = () => {
-    let left = parsePrimary();
-    while (peek() === 'AND') {
-      eat();
-      left = { kind: 'and', left, right: parsePrimary() };
-    }
-    return left;
-  };
-  const parseOr = () => {
-    let left = parseAnd();
-    while (peek() === 'OR') {
-      eat();
-      left = { kind: 'or', left, right: parseAnd() };
-    }
-    return left;
-  };
-  return parseOr();
-};
-
-const makeSet = (token) => {
-  const m = token?.match(/^(network|chat|sender|fact|kind):(.+)$/);
-  if (!m) {
-    return { kind: 'set', predicate: () => false };
-  }
-  const [, dim, value] = m;
-  if (dim === 'network') {
-    return { kind: 'set', predicate: (l) => l.source === value };
-  }
-  if (dim === 'chat') {
-    return { kind: 'set', predicate: (l) => l.chat === value };
-  }
-  if (dim === 'sender') {
-    return { kind: 'set', predicate: (l) => l.sender === value };
-  }
-  if (dim === 'kind') {
-    return { kind: 'set', predicate: (l) => l.id?.startsWith(`${value}:`) };
-  }
-  return {
-    kind: 'set',
-    predicate: (l) => (l.facts ?? []).some((f) => f.includes(value)),
-  };
+const outreachCmd = async (args, log) => {
+  const store = await openStore(args.store ?? '.meta-sovereign');
+  const all = await store.query();
+  const matched = evalAudience(all, args.query ?? '');
+  const replyGroup = args.reply
+    ? all.find((l) => l.id === args.reply)
+    : undefined;
+  const plan = planOutreach({
+    audience: matched,
+    text: args.text,
+    replyGroup,
+    networks: args.networks?.split(',') ?? null,
+    mode: args.mode ?? 'preview',
+  });
+  log(JSON.stringify(plan, null, 2));
+  return 0;
 };
 
 const COMMANDS = {
@@ -401,6 +338,7 @@ const COMMANDS = {
   resume: resumeCmd,
   'sync-listen': syncListenCmd,
   'sync-connect': syncConnectCmd,
+  outreach: outreachCmd,
   help: async (_a, log) => {
     log(HELP);
     return 0;

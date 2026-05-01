@@ -8,36 +8,9 @@
 
 import { json } from './util.js';
 import { extractFacts } from '../facts/index.js';
-import { intersect, union, difference, localSearch } from '../crm/index.js';
-
-const aggregateContacts = (links) => {
-  const messages = links.filter((l) => l.id?.startsWith('msg:'));
-  const byContact = new Map();
-  for (const m of messages) {
-    if (!m.sender) {
-      continue;
-    }
-    const entry = byContact.get(m.sender) ?? {
-      id: m.sender,
-      networks: new Set(),
-      chats: new Set(),
-      messageCount: 0,
-      lastSeen: null,
-    };
-    entry.networks.add(m.source);
-    entry.chats.add(m.chat);
-    entry.messageCount += 1;
-    if (!entry.lastSeen || (m.timestamp ?? '') > entry.lastSeen) {
-      entry.lastSeen = m.timestamp ?? null;
-    }
-    byContact.set(m.sender, entry);
-  }
-  return [...byContact.values()].map((c) => ({
-    ...c,
-    networks: [...c.networks],
-    chats: [...c.chats],
-  }));
-};
+import { localSearch } from '../crm/index.js';
+import { evalAudience } from '../crm/audience.js';
+import { aggregateContacts } from './aggregate.js';
 
 const computeStatus = (all, diffs) => ({
   links: all.length,
@@ -75,90 +48,6 @@ const completionsFor = (links, prefix, me, limit) => {
     .map(([body]) => body);
 };
 
-const buildAudience = (links, expression) => {
-  const ops = parseAudience(expression);
-  const evalExpr = (node) => {
-    if (node.kind === 'set') {
-      return links.filter(node.predicate);
-    }
-    if (node.kind === 'and') {
-      return intersect(evalExpr(node.left), evalExpr(node.right));
-    }
-    if (node.kind === 'or') {
-      return union(evalExpr(node.left), evalExpr(node.right));
-    }
-    if (node.kind === 'not') {
-      return difference(links, evalExpr(node.expr));
-    }
-    return [];
-  };
-  const linksMatched = evalExpr(ops);
-  return aggregateContacts(linksMatched);
-};
-
-const parseAudience = (expr) => {
-  const tokens = String(expr ?? '')
-    .replace(/([(),])/g, ' $1 ')
-    .split(/\s+/)
-    .filter(Boolean);
-  let i = 0;
-  const peek = () => tokens[i];
-  const eat = () => tokens[i++];
-  const parsePrimary = () => {
-    const t = eat();
-    if (t === 'NOT') {
-      return { kind: 'not', expr: parsePrimary() };
-    }
-    if (t === '(') {
-      const inner = parseOr();
-      eat();
-      return inner;
-    }
-    return makeSet(t);
-  };
-  const parseAnd = () => {
-    let left = parsePrimary();
-    while (peek() === 'AND') {
-      eat();
-      left = { kind: 'and', left, right: parsePrimary() };
-    }
-    return left;
-  };
-  const parseOr = () => {
-    let left = parseAnd();
-    while (peek() === 'OR') {
-      eat();
-      left = { kind: 'or', left, right: parseAnd() };
-    }
-    return left;
-  };
-  return parseOr();
-};
-
-const makeSet = (token) => {
-  const m = token.match(/^(network|chat|sender|fact|kind):(.+)$/);
-  if (!m) {
-    return { kind: 'set', predicate: () => false };
-  }
-  const [, dim, value] = m;
-  if (dim === 'network') {
-    return { kind: 'set', predicate: (l) => l.source === value };
-  }
-  if (dim === 'chat') {
-    return { kind: 'set', predicate: (l) => l.chat === value };
-  }
-  if (dim === 'sender') {
-    return { kind: 'set', predicate: (l) => l.sender === value };
-  }
-  if (dim === 'kind') {
-    return { kind: 'set', predicate: (l) => l.id?.startsWith(`${value}:`) };
-  }
-  return {
-    kind: 'set',
-    predicate: (l) => (l.facts ?? []).some((f) => f.includes(value)),
-  };
-};
-
 const facts = async (store) => {
   const all = await store.query();
   const messages = all.filter((l) => l.id?.startsWith('msg:'));
@@ -184,7 +73,9 @@ const HANDLERS = {
       Number(url.searchParams.get('limit') ?? 10)
     ),
   '/api/audience': async (store, url) =>
-    buildAudience(await store.query(), url.searchParams.get('q') ?? ''),
+    aggregateContacts(
+      evalAudience(await store.query(), url.searchParams.get('q') ?? '')
+    ),
   '/api/facts': async (store) => facts(store),
   '/api/search': async (store, url) =>
     localSearch(
@@ -194,6 +85,11 @@ const HANDLERS = {
         min: Number(url.searchParams.get('min') ?? 0.2),
       }
     ),
+  '/api/health': async (store) => ({
+    ok: true,
+    links: (await store.query()).length,
+    time: new Date().toISOString(),
+  }),
 };
 
 export const handleDerivedRoutes = async (store, req, res, p, url) => {
