@@ -14,6 +14,62 @@ export const tickVersion = (now = Date.now(), node = 'local') =>
 
 export const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
+/**
+ * Vector-clock primitives. A clock is `{ [nodeId]: counter }`. Two
+ * clocks are *concurrent* when neither dominates — those are the cases
+ * that need a deterministic tiebreak (we use lexicographic node id of
+ * the highest-counter writer, then JSON of the link).
+ */
+export const vcInit = () => ({});
+export const vcTick = (vc, node) => ({ ...vc, [node]: (vc[node] ?? 0) + 1 });
+export const vcMerge = (a, b) => {
+  const out = { ...a };
+  for (const [k, v] of Object.entries(b)) {
+    out[k] = Math.max(out[k] ?? 0, v);
+  }
+  return out;
+};
+const vcDominates = (a, b) => {
+  let strict = false;
+  for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    const av = a[k] ?? 0;
+    const bv = b[k] ?? 0;
+    if (av < bv) {
+      return false;
+    }
+    if (av > bv) {
+      strict = true;
+    }
+  }
+  return strict;
+};
+export const vcCompare = (a, b) => {
+  if (vcDominates(a, b)) {
+    return 1;
+  }
+  if (vcDominates(b, a)) {
+    return -1;
+  }
+  // Equal or concurrent.
+  const ka = Object.keys(a).sort().join('|');
+  const kb = Object.keys(b).sort().join('|');
+  if (ka === kb && Object.keys(a).every((k) => a[k] === b[k])) {
+    return 0;
+  }
+  return null; // concurrent
+};
+
+const tiebreak = (a, b) => {
+  const av = a.vc ?? {};
+  const bv = b.vc ?? {};
+  const aTop = Object.entries(av).sort((x, y) => y[1] - x[1])[0]?.[0] ?? '';
+  const bTop = Object.entries(bv).sort((x, y) => y[1] - x[1])[0]?.[0] ?? '';
+  if (aTop !== bTop) {
+    return aTop > bTop ? a : b;
+  }
+  return JSON.stringify(a) >= JSON.stringify(b) ? a : b;
+};
+
 export const merge = (a, b) => {
   if (!a) {
     return b;
@@ -21,7 +77,22 @@ export const merge = (a, b) => {
   if (!b) {
     return a;
   }
-  const winner = cmp(a.version ?? '', b.version ?? '') >= 0 ? a : b;
+  let winner;
+  if (a.vc && b.vc) {
+    const ord = vcCompare(a.vc, b.vc);
+    if (ord === 1) {
+      winner = a;
+    } else if (ord === -1) {
+      winner = b;
+    } else if (ord === 0) {
+      winner = a;
+    } else {
+      winner = tiebreak(a, b);
+    }
+    winner = { ...winner, vc: vcMerge(a.vc, b.vc) };
+  } else {
+    winner = cmp(a.version ?? '', b.version ?? '') >= 0 ? a : b;
+  }
   const childIds = new Set([...(a.children ?? []), ...(b.children ?? [])]);
   return { ...winner, children: [...childIds] };
 };
