@@ -135,6 +135,8 @@ export const createPeer = (store, { node = 'local' } = {}) => {
   };
 };
 
+export { startSyncListener, connectSyncPeer } from './tcp-transport.js';
+
 export const loopback = () => {
   const aHandlers = new Set();
   const bHandlers = new Set();

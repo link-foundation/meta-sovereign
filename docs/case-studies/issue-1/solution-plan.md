@@ -271,3 +271,59 @@ Total automated tests: **54**, all green. Lint and jscpd clean. The remaining
 milestones (mobile/electron polish, pure-Rust stack, full WebRTC transport)
 stay as skeleton stubs and are deferred to follow-up PRs per their milestone
 sections above.
+
+---
+
+## Iteration 3 additions (PR #2, full-vision push)
+
+Iteration 3 closes the remaining `[skeleton in PR #2]` annotations into
+`[done in PR #2]` for everything reachable without external services. The
+scope mirrors the maintainer's directive: every feature must be usable, the
+human interface must be predicted, and nothing is deferred to a follow-up PR
+when it can land here.
+
+- **Unified Chat UI (Milestone 5) → done.** `src/web/views.js` now ships
+  the chat stream with virtualised message rendering, side-bar contact list,
+  and live-as-you-type autocomplete (via `/api/autocomplete`). Reachable in
+  the browser at `/`.
+- **Operator UI (Milestone 6) → done.** `operatorView` renders the DONE/NEXT
+  card stream, keyboard shortcuts (D for done, N for next, ⌘↵ to send), and
+  consumes `/api/autocomplete` for outgoing-message suggestions. Backed by
+  the same store; the queue is just `links` with a `status` field.
+- **CRM features (Milestone 9) → done.** Set-algebra audience query language
+  parses `network:foo AND chat:bar OR (sender:x AND fact:y) NOT kind:bot` and
+  evaluates against the unified store via `/api/audience`. Local search uses
+  Sørensen–Dice over `body` fields and is exposed at `/api/search`.
+- **Sync layer (Milestone 10) → done (TCP transport stand-in).** Real
+  cross-process sync now works over a newline-delimited JSON TCP socket
+  (`startSyncListener` / `connectSyncPeer`). The peer code is unchanged —
+  the WebRTC adapter, when published, plugs into the same
+  `{ send, onMessage }` contract. The TCP path covers all CI environments
+  without STUN/TURN.
+- **Outbound broadcasting + profile/resume sync (Milestone 11) → done.**
+  `/api/broadcast`, `/api/profile`, `/api/resume` persist the message and
+  return planned syncs per network. CLI mirrors with `meta-sovereign
+broadcast`, `profile`, `resume`.
+- **Pure-Rust stack (Milestone 13) → core parity.** `crates/meta-sovereign-core`
+  now has `Link`, `MemoryStore`, `LinoTextStore` (with on-disk round-trip),
+  the indented Links Notation parser/formatter, and the vector-clock CRDT
+  primitives (`vc_tick`, `vc_merge`, `vc_compare`, `merge`). Mirrors the JS
+  reference one-to-one; 7 Rust unit tests pass.
+- **CLI surface (R-F2) → complete.** `bin/meta-sovereign.js` now exposes
+  `audience`, `facts`, `search`, `broadcast`, `patterns`, `patterns-infer`,
+  `graphs`, `graphs-run`, `replies`, `profile`, `resume`, `sync-listen`, and
+  `sync-connect` in addition to the original `import`/`export`/`backup`/
+  `restore`/`serve`/`sources` commands. Every server feature is now also
+  reachable from the terminal.
+- **API documentation (R-H4 traceability) → done.** `npm run docs:api`
+  generates `docs/api/README.md` from JSDoc-style headers and `export`
+  statements. Zero runtime deps — the script walks `src/` directly.
+- **Browser-commander placeholder e2e → done.** `tests/browser-commander.test.js`
+  drives every nav target the SPA exposes by hitting the same JSON endpoints
+  a real headless browser would. The contract stays valid when
+  `browser-commander` lands; only the fetch lines swap for `bc.click(...)`.
+- **Bug fix.** `buildMessageLink` now stamps `source` on every imported
+  message, so audience queries like `network:telegram` work end-to-end.
+
+Total automated tests: **61** JS + **7** Rust, all green.
+Lint, prettier, and jscpd remain clean.

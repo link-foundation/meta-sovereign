@@ -96,6 +96,21 @@ export default [
         window: 'readonly',
         document: 'readonly',
         fetch: 'readonly',
+        location: 'readonly',
+        confirm: 'readonly',
+        alert: 'readonly',
+      },
+    },
+  },
+  {
+    // Test files: setTimeout/clearTimeout are part of standard timers.
+    files: ['tests/**/*.js'],
+    languageOptions: {
+      globals: {
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
       },
     },
   },

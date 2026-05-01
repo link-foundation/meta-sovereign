@@ -1,9 +1,12 @@
 node_modules
 coverage
 dist
+target
 *.min.js
 package-lock.json
 .eslintcache
 CLAUDE.md
+# Generated API docs (built by scripts/build-api-docs.mjs).
+docs/api/
 # Case study raw data files (downloaded from external sources)
 docs/case-studies/*/data/

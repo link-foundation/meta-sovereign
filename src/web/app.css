@@ -15,11 +15,18 @@ body {
   padding: 0.5rem 1rem;
   background: #161b22;
   border-bottom: 1px solid #30363d;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }
 .topbar h1 {
   font-size: 1rem;
   margin: 0;
   letter-spacing: 0.02em;
+}
+.topbar nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 .topbar nav button {
   background: transparent;
@@ -28,7 +35,6 @@ body {
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   cursor: pointer;
-  margin-left: 0.25rem;
 }
 .topbar nav button.active,
 .topbar nav button:hover {
@@ -40,16 +46,24 @@ main {
   max-width: 1100px;
   margin: 0 auto;
 }
+h2,
+h3 {
+  margin: 0.6rem 0 0.4rem;
+}
 .chat {
   display: grid;
   grid-template-columns: 220px 1fr;
   gap: 1rem;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 130px);
 }
 .chat aside {
   border: 1px solid #30363d;
   border-radius: 8px;
   overflow-y: auto;
+}
+.chat aside .aside-h {
+  padding: 0.4rem;
+  opacity: 0.7;
 }
 .chat aside button {
   width: 100%;
@@ -68,6 +82,26 @@ main {
   border-radius: 8px;
   padding: 0.5rem;
   overflow-y: auto;
+  flex: 1 1 auto;
+}
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.4rem;
+}
+.composer .completions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.composer .completions button {
+  background: #21262d;
+  color: inherit;
+  border: 1px solid #30363d;
+  border-radius: 16px;
+  padding: 0.2rem 0.7rem;
+  cursor: pointer;
 }
 .msg {
   padding: 0.4rem 0.6rem;
@@ -75,9 +109,17 @@ main {
   border-radius: 6px;
   background: #161b22;
 }
+.msg.me {
+  background: #1f6feb33;
+  margin-left: 2rem;
+}
 .msg .meta {
   font-size: 0.75rem;
   opacity: 0.6;
+}
+.meta {
+  font-size: 0.75rem;
+  opacity: 0.7;
 }
 input,
 textarea,
@@ -88,6 +130,7 @@ select {
   border-radius: 6px;
   padding: 0.4rem 0.6rem;
   font: inherit;
+  width: 100%;
 }
 button.primary {
   background: #238636;
@@ -97,10 +140,19 @@ button.primary {
   border-radius: 6px;
   cursor: pointer;
 }
+button {
+  background: #21262d;
+  color: inherit;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
 .row {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 .col {
   display: flex;
@@ -131,4 +183,28 @@ th {
   border-radius: 6px;
   padding: 0.4rem 0.6rem;
   margin: 0.2rem;
+}
+.operator .card {
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #161b22;
+}
+.operator .big {
+  font-size: 1.4rem;
+  margin: 0.7rem 0 1rem;
+}
+.card {
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 0.7rem;
+  margin: 0.4rem 0;
+  background: #161b22;
+}
+pre {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0.5rem;
+  overflow-x: auto;
 }

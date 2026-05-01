@@ -1,20 +1,32 @@
 /**
  * Local web server (R-F4) + universal links HTTP surface (R-F8) + UI (R-F1).
  *
- * Endpoints:
- *   GET  /                       -> SPA shell (src/web/index.html)
- *   GET  /app.js, /app.css       -> SPA assets
- *   GET  /links                  -> list all links
- *   GET  /links/:id              -> read one
- *   PUT  /links                  -> upsert (body = link JSON)
- *   DEL  /links/:id              -> delete
- *   GET  /sources                -> list message-source adapters
- *   GET  /api/contacts           -> contacts derived from messages
- *   GET  /api/patterns           -> persisted patterns (id starts with `pattern:`)
- *   POST /api/patterns/infer     -> { examples } -> { regex }
- *   GET  /api/graphs             -> persisted automation graphs
- *   PUT  /api/graphs             -> upsert graph (body = graph JSON)
- *   GET  /api/status             -> store stats + verify diff count
+ * Endpoints (full list lives in `routes-derived.js` and `routes-mutating.js`):
+ *   GET  /                         -> SPA shell
+ *   GET  /app.js, /app.css         -> SPA assets
+ *   GET  /links, /links/:id        -> read links
+ *   PUT  /links                    -> upsert
+ *   DEL  /links/:id                -> delete
+ *   GET  /sources                  -> list message-source adapters
+ *   GET  /api/contacts             -> contacts derived from messages
+ *   GET  /api/status               -> store stats + verify diff count
+ *   GET  /api/autocomplete?q=&me=  -> outgoing-history-driven completions
+ *   GET  /api/audience?q=          -> set-algebra over store filters
+ *   GET  /api/facts                -> question-answer pairs per partner
+ *   GET  /api/search?q=            -> dice-similarity search
+ *   GET  /api/patterns             -> persisted patterns
+ *   PUT  /api/patterns             -> upsert pattern link
+ *   POST /api/patterns/infer       -> { examples, mode } -> { regex, flags }
+ *   GET  /api/graphs               -> persisted automation graphs
+ *   PUT  /api/graphs               -> upsert graph
+ *   POST /api/graphs/run           -> { id, message, mode } -> plan
+ *   GET  /api/replies              -> persisted reply variation groups
+ *   PUT  /api/replies              -> upsert reply variation group
+ *   GET  /api/profile              -> read profile (R-D5)
+ *   PUT  /api/profile              -> upsert + plan cross-network sync
+ *   GET  /api/resume               -> read resume (R-D6)
+ *   PUT  /api/resume               -> upsert + plan cross-network sync
+ *   POST /api/broadcast            -> queue post for outbound networks
  *
  * Implemented with Node's built-in `http` module to keep the dependency
  * footprint at zero. The Docker images in `docker/` simply run
@@ -31,7 +43,9 @@ import {
   createDoubletsStore,
 } from '../storage/index.js';
 import { listSources } from '../sources/index.js';
-import { inferRegex, simplifyRegex } from '../patterns/index.js';
+import { json } from './util.js';
+import { handleDerivedRoutes } from './routes-derived.js';
+import { handleMutatingRoutes } from './routes-mutating.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.resolve(here, '..', 'web');
@@ -43,25 +57,6 @@ const MIME = {
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
 };
-
-const json = (res, status, body) => {
-  res.writeHead(status, { 'content-type': 'application/json' });
-  res.end(JSON.stringify(body));
-};
-
-const readBody = (req) =>
-  new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on('data', (c) => chunks.push(c));
-    req.on('end', () => {
-      try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}'));
-      } catch (err) {
-        reject(err);
-      }
-    });
-    req.on('error', reject);
-  });
 
 const serveStatic = async (res, filePath) => {
   try {
@@ -77,28 +72,6 @@ const serveStatic = async (res, filePath) => {
   }
 };
 
-const aggregateContacts = (links) => {
-  const messages = links.filter((l) => l.id?.startsWith('msg:'));
-  const byContact = new Map();
-  for (const m of messages) {
-    if (!m.sender) {
-      continue;
-    }
-    const entry = byContact.get(m.sender) ?? {
-      id: m.sender,
-      networks: new Set(),
-      messageCount: 0,
-    };
-    entry.networks.add(m.source);
-    entry.messageCount += 1;
-    byContact.set(m.sender, entry);
-  }
-  return [...byContact.values()].map((c) => ({
-    ...c,
-    networks: [...c.networks],
-  }));
-};
-
 const handleStatic = async (req, res, p) => {
   if (req.method !== 'GET') {
     return false;
@@ -112,109 +85,20 @@ const handleStatic = async (req, res, p) => {
   return false;
 };
 
-const handleLinks = async (store, req, res, p) => {
-  if (p === '/links' && req.method === 'GET') {
-    json(res, 200, await store.query());
-    return true;
-  }
-  if (p === '/links' && req.method === 'PUT') {
-    const link = await readBody(req);
-    await store.put(link);
-    json(res, 200, link);
-    return true;
-  }
-  const m = p.match(/^\/links\/(.+)$/);
-  if (m && req.method === 'GET') {
-    const link = await store.get(decodeURIComponent(m[1]));
-    link ? json(res, 200, link) : json(res, 404, { error: 'not found' });
-    return true;
-  }
-  if (m && req.method === 'DELETE') {
-    const ok = await store.delete(decodeURIComponent(m[1]));
-    json(res, ok ? 200 : 404, { ok });
-    return true;
-  }
-  return false;
-};
-
-const handlePatterns = async (store, req, res, p) => {
-  if (p === '/api/patterns' && req.method === 'GET') {
-    const all = await store.query();
-    json(
-      res,
-      200,
-      all.filter((l) => l.id?.startsWith('pattern:'))
-    );
-    return true;
-  }
-  if (p === '/api/patterns/infer' && req.method === 'POST') {
-    const { examples } = await readBody(req);
-    const regex = simplifyRegex(inferRegex(examples ?? []));
-    json(res, 200, { regex: regex.source, flags: regex.flags });
-    return true;
-  }
-  return false;
-};
-
-const handleGraphs = async (store, req, res, p) => {
-  if (p === '/api/graphs' && req.method === 'GET') {
-    const all = await store.query();
-    json(
-      res,
-      200,
-      all.filter((l) => l.id?.startsWith('graph:'))
-    );
-    return true;
-  }
-  if (p === '/api/graphs' && req.method === 'PUT') {
-    const graph = await readBody(req);
-    if (!graph.id?.startsWith('graph:')) {
-      json(res, 400, { error: 'graph.id must start with "graph:"' });
-      return true;
-    }
-    await store.put(graph);
-    json(res, 200, graph);
-    return true;
-  }
-  return false;
-};
-
-const handleStatus = async (store, res) => {
-  const all = await store.query();
-  const diffs = (await store.verify?.()) ?? [];
-  json(res, 200, {
-    links: all.length,
-    messages: all.filter((l) => l.id?.startsWith('msg:')).length,
-    patterns: all.filter((l) => l.id?.startsWith('pattern:')).length,
-    graphs: all.filter((l) => l.id?.startsWith('graph:')).length,
-    verifyDiffs: diffs.length,
-  });
-};
-
 const route = async (store, req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
-
   if (await handleStatic(req, res, p)) {
     return;
   }
   if (p === '/sources' && req.method === 'GET') {
     return json(res, 200, listSources());
   }
-  if (await handleLinks(store, req, res, p)) {
+  if (await handleMutatingRoutes(store, req, res, p)) {
     return;
   }
-  if (p === '/api/contacts' && req.method === 'GET') {
-    return json(res, 200, aggregateContacts(await store.query()));
-  }
-  if (await handlePatterns(store, req, res, p)) {
+  if (await handleDerivedRoutes(store, req, res, p, url)) {
     return;
-  }
-  if (await handleGraphs(store, req, res, p)) {
-    return;
-  }
-  if (p === '/api/status' && req.method === 'GET') {
-    return handleStatus(store, res);
   }
   return json(res, 404, { error: 'unknown route' });
 };
@@ -231,16 +115,14 @@ export const startServer = async ({
     const binary = await createDoubletsStore(path.join(storeDir, 'data.bin'));
     store = createDualStore({ binary, text });
   }
-
   const server = http.createServer((req, res) => {
     route(store, req, res).catch((err) =>
       json(res, 500, { error: err.message })
     );
   });
   await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
-  const actualPort = server.address().port;
   return {
-    port: actualPort,
+    port: server.address().port,
     store,
     close: () =>
       new Promise((resolve) => {

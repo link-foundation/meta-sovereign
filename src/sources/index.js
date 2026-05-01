@@ -68,6 +68,7 @@ export const buildMessageLink = ({
     `ts:${source}:${externalId}`,
     ...(replyTo ? [`replyto:${source}:${replyTo}`] : []),
   ],
+  source,
   body,
   timestamp,
   sender,

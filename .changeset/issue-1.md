@@ -36,6 +36,17 @@ Iteration 2 (follow-up commits on the same PR) thickens the most user-visible la
 - `src/sync/`: vector-clock CRDT — `vcInit/vcTick/vcMerge/vcCompare` plus a deterministic concurrent-write tiebreak; Lamport `version` remains the fallback for legacy links.
 - `tests/e2e.test.js`: end-to-end pipeline test driving the HTTP API — import messages, query derived contacts and status, round-trip a backup.
 
-Tests: 54/54 pass (`node --test`). Lint: 0 errors. Format: clean. Duplication: clean.
+Iteration 3 (follow-up commits on the same PR) closes every remaining `[skeleton in PR #2]` annotation so the full vision from issue #1 is usable in one process:
 
-The skeleton is intentionally minimal — in-memory adapters, JSON archive parsers, no real network I/O. It exists so subsequent PRs can iterate on each layer without re-bootstrapping. Remaining milestones (mobile/Electron polish, pure-Rust stack, full WebRTC transport) stay as skeleton stubs and continue milestone-by-milestone per `docs/case-studies/issue-1/solution-plan.md`.
+- `src/cli/`: full parity with the HTTP API — new subcommands `audience`, `facts`, `search`, `broadcast`, `patterns`, `patterns-infer`, `graphs`, `graphs-run`, `replies`, `profile`, `resume`, `sync-listen`, `sync-connect`, all sharing the same store layer the server uses. Includes a hand-rolled recursive-descent audience-expression parser identical to the server's so `audience --query='network:telegram AND NOT chat:42'` works from the terminal.
+- `src/server/routes-mutating.js` + `routes-derived.js`: extracted `handlePrefixedGet/Put`, `handlePatternInfer`, `handleGraphRun` helpers and a `HANDLERS` dispatch table so each module sits well below the eslint complexity budget without losing any endpoint.
+- `src/sources/index.js`: `buildMessageLink` now stamps the `source` field on every imported message link — fixes audience set-algebra over `network:` predicates and CRM contact aggregation by network.
+- `crates/meta-sovereign-core/`: thickened to mirror the JS sync layer — `Link.vc: BTreeMap<String,u64>`, `MemoryStore`, indented Links Notation parser/formatter (`parse_lino`/`format_lino`), `LinoTextStore` with on-disk round-trip, `vc_tick`/`vc_merge`/`vc_compare`, deterministic `merge` tiebreak; 7 passing unit tests.
+- `scripts/build-api-docs.mjs`: zero-dep JSDoc walker that emits `docs/api/README.md` from leading `/** */` headers + exported names. Exposed via `npm run docs:api`.
+- `tests/browser-commander.test.js`: e2e placeholder that drives the SPA through the same JSON endpoints a `data-view="..."` nav click would, plus autocomplete and broadcast — designed so when `browser-commander` lands the assertions stay valid and only the fetch lines swap for `bc.click(...)`.
+- `eslint.config.js`: extended with `location`/`confirm`/`alert` SPA globals and standard timer globals for tests.
+- `.prettierignore`: ignores `target/` Rust build artefacts and the generated `docs/api/`.
+
+Tests: 61/61 JS + 7/7 Rust pass. Lint: 0 errors. Format: clean. Duplication: clean.
+
+The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, and SPA, with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, full WebRTC transport, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
