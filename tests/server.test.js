@@ -49,8 +49,10 @@ describe('http server', () => {
       expect(text.includes('meta-sovereign')).toBe(true);
       const js = await fetch(`http://127.0.0.1:${handle.port}/app.js`);
       expect(js.status).toBe(200);
+      await js.text();
       const css = await fetch(`http://127.0.0.1:${handle.port}/app.css`);
       expect(css.status).toBe(200);
+      await css.text();
     } finally {
       await handle.close();
     }

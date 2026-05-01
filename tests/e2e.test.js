@@ -42,11 +42,12 @@ describe('e2e: import → derived API → backup → restore', () => {
           timestamp: '2026-01-02T00:00:00Z',
         },
       ]) {
-        await fetch(`${base}/links`, {
+        const r = await fetch(`${base}/links`, {
           method: 'PUT',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(m),
         });
+        await r.json();
       }
 
       // Status now sees the two messages on two networks.
