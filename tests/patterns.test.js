@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'test-anywhere';
-import { inferRegex, simplifyRegex, matchAll } from '../src/patterns/index.js';
+import {
+  inferRegex,
+  simplifyRegex,
+  matchAll,
+  inferRegexLcs,
+  lcs,
+  compilePeg,
+} from '../src/patterns/index.js';
 import {
   dice,
   findCandidates,
@@ -29,6 +36,30 @@ describe('simplifyRegex', () => {
   it('returns a regex', () => {
     const r = inferRegex(['a b c', 'a x y']);
     expect(simplifyRegex(r) instanceof RegExp).toBe(true);
+  });
+});
+
+describe('lcs / inferRegexLcs / compilePeg', () => {
+  it('lcs finds the longest shared subsequence', () => {
+    expect(lcs(['a', 'b', 'c'], ['x', 'a', 'y', 'c']).join(',')).toBe('a,c');
+  });
+  it('inferRegexLcs handles different-length examples', () => {
+    const r = inferRegexLcs([
+      'hi alice how are you',
+      'hi bob and carol how are you doing',
+    ]);
+    expect(r.test('hi dave how are you')).toBe(true);
+    expect(r.test('bye dave how are you')).toBe(false);
+  });
+  it('inferRegexLcs picks digit class when all gaps are numeric', () => {
+    const r = inferRegexLcs(['order 17 confirmed', 'order 4242 confirmed']);
+    expect(r.test('order 9 confirmed')).toBe(true);
+    expect(r.test('order ABC confirmed')).toBe(false);
+  });
+  it('compilePeg produces a working regex with named captures', () => {
+    const r = compilePeg(['hello', { capture: 'name', class: '\\w+' }]);
+    const m = 'hello alice'.match(r);
+    expect(m?.groups?.name).toBe('alice');
   });
 });
 
