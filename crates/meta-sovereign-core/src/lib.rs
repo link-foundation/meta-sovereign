@@ -326,6 +326,159 @@ pub fn merge(a: &Link, b: &Link) -> Link {
     }
 }
 
+// -- Patterns ---------------------------------------------------------------
+
+fn escape_regex(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for ch in s.chars() {
+        if matches!(
+            ch,
+            '.' | '*'
+                | '+'
+                | '?'
+                | '^'
+                | '$'
+                | '{'
+                | '}'
+                | '('
+                | ')'
+                | '|'
+                | '['
+                | ']'
+                | '\\'
+        ) {
+            out.push('\\');
+        }
+        out.push(ch);
+    }
+    out
+}
+
+fn tokenise_pattern(s: &str) -> Vec<String> {
+    s.split_whitespace().map(|t| t.to_string()).collect()
+}
+
+/// Example-driven regex synthesis (R-C1) — Rust mirror of `inferRegex` in
+/// `src/patterns/index.js`. Returns the regex source string plus the `i`
+/// flag; the caller can compile it with the regex crate of their choice
+/// (or our minimal [`pattern_matches`] helper below).
+pub fn infer_regex(examples: &[&str]) -> String {
+    if examples.is_empty() {
+        return String::new();
+    }
+    let toks: Vec<Vec<String>> = examples.iter().map(|e| tokenise_pattern(e)).collect();
+    let len = toks[0].len();
+    if !toks.iter().all(|t| t.len() == len) {
+        let alts: Vec<String> = examples.iter().map(|e| escape_regex(e)).collect();
+        return format!("^(?:{})$", alts.join("|"));
+    }
+    let mut parts: Vec<String> = Vec::with_capacity(len);
+    for i in 0..len {
+        let col: Vec<&String> = toks.iter().map(|t| &t[i]).collect();
+        if col.iter().all(|c| **c == *col[0]) {
+            parts.push(escape_regex(col[0]));
+        } else {
+            parts.push("\\S+".to_string());
+        }
+    }
+    format!("^{}$", parts.join("\\s+"))
+}
+
+/// Replace a run of `(\\S+\\s+){2,}` with `(?:\\S+\\s+){n}` for
+/// readability — mirrors `simplifyRegex` in JS.
+pub fn simplify_regex(src: &str) -> String {
+    let unit = "\\S+\\s+";
+    let mut out = String::new();
+    let mut rest = src;
+    while let Some(idx) = rest.find(unit) {
+        out.push_str(&rest[..idx]);
+        let mut count = 0;
+        let mut probe = &rest[idx..];
+        while probe.starts_with(unit) {
+            count += 1;
+            probe = &probe[unit.len()..];
+        }
+        if count >= 2 {
+            out.push_str(&format!("(?:\\S+\\s+){{{count}}}"));
+        } else {
+            out.push_str(unit);
+        }
+        rest = probe;
+    }
+    out.push_str(rest);
+    out
+}
+
+/// Tiny matcher that supports just the constructs `infer_regex` emits
+/// (`^`, `$`, literals, `\\S+`, `\\s+`) so the pure-Rust core can run
+/// the patterns end-to-end without pulling in the `regex` crate. For
+/// production callers we recommend wiring the same source string into
+/// the upstream `regex` crate; this helper exists for fixture parity
+/// with the JS implementation in tests.
+pub fn pattern_matches(source: &str, input: &str) -> bool {
+    let mut chars: Vec<char> = source.chars().collect();
+    let anchored_start = chars.first() == Some(&'^');
+    let anchored_end = chars.last() == Some(&'$');
+    if anchored_start {
+        chars.remove(0);
+    }
+    if anchored_end {
+        chars.pop();
+    }
+    let pat: String = chars.into_iter().collect();
+    if !anchored_start || !anchored_end {
+        // Conservative fallback: substring contains.
+        return input.contains(&pat.replace('\\', ""));
+    }
+    let mut pi = 0usize;
+    let mut si = 0usize;
+    let pat_bytes: Vec<char> = pat.chars().collect();
+    let in_bytes: Vec<char> = input.chars().collect();
+    while pi < pat_bytes.len() {
+        if pi + 2 < pat_bytes.len() && pat_bytes[pi] == '\\' && pat_bytes[pi + 1] == 'S' && pat_bytes[pi + 2] == '+' {
+            let mut consumed = 0;
+            while si + consumed < in_bytes.len() && !in_bytes[si + consumed].is_whitespace() {
+                consumed += 1;
+            }
+            if consumed == 0 {
+                return false;
+            }
+            si += consumed;
+            pi += 3;
+            continue;
+        }
+        if pi + 2 < pat_bytes.len() && pat_bytes[pi] == '\\' && pat_bytes[pi + 1] == 's' && pat_bytes[pi + 2] == '+' {
+            let mut consumed = 0;
+            while si + consumed < in_bytes.len() && in_bytes[si + consumed].is_whitespace() {
+                consumed += 1;
+            }
+            if consumed == 0 {
+                return false;
+            }
+            si += consumed;
+            pi += 3;
+            continue;
+        }
+        if pat_bytes[pi] == '\\' && pi + 1 < pat_bytes.len() {
+            // Escaped literal.
+            if si >= in_bytes.len() || in_bytes[si] != pat_bytes[pi + 1] {
+                return false;
+            }
+            si += 1;
+            pi += 2;
+            continue;
+        }
+        if si >= in_bytes.len()
+            || in_bytes[si].to_ascii_lowercase() != pat_bytes[pi].to_ascii_lowercase()
+        {
+            return false;
+        }
+        si += 1;
+        pi += 1;
+    }
+    si == in_bytes.len()
+}
+
 // -- Tests ------------------------------------------------------------------
 
 #[cfg(test)]
@@ -405,5 +558,52 @@ mod tests {
         let s2 = LinoTextStore::open(&path).unwrap();
         assert!(s2.get("k").is_some());
         let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn infer_regex_aligns_columns() {
+        let r = infer_regex(&["where are you from", "where are you going"]);
+        assert_eq!(r, "^where\\s+are\\s+you\\s+\\S+$");
+    }
+
+    #[test]
+    fn infer_regex_falls_back_to_alternation_on_length_mismatch() {
+        let r = infer_regex(&["hi", "hello world"]);
+        assert!(r.starts_with("^(?:"));
+        assert!(r.ends_with(")$"));
+        assert!(r.contains("hi"));
+        assert!(r.contains("hello world"));
+    }
+
+    #[test]
+    fn infer_regex_empty_input_is_empty_string() {
+        assert_eq!(infer_regex(&[]), "");
+    }
+
+    #[test]
+    fn simplify_regex_collapses_repeats() {
+        let src = "^a\\s+\\S+\\s+\\S+\\s+\\S+\\s+b$";
+        let simplified = simplify_regex(src);
+        assert!(simplified.contains("(?:\\S+\\s+){3}"));
+    }
+
+    #[test]
+    fn simplify_regex_leaves_singletons_alone() {
+        let src = "^a\\s+\\S+\\s+b$";
+        assert_eq!(simplify_regex(src), src);
+    }
+
+    #[test]
+    fn pattern_matches_anchored_literal() {
+        assert!(pattern_matches("^hello$", "hello"));
+        assert!(!pattern_matches("^hello$", "hello world"));
+    }
+
+    #[test]
+    fn pattern_matches_with_word_class() {
+        let pat = infer_regex(&["where are you from", "where are you going"]);
+        assert!(pattern_matches(&pat, "where are you from"));
+        assert!(pattern_matches(&pat, "where are you going"));
+        assert!(!pattern_matches(&pat, "what time is it"));
     }
 }
