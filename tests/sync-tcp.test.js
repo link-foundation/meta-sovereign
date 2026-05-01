@@ -19,24 +19,25 @@ describe('sync over TCP transport', () => {
     const client = await connectSyncPeer({ port: listener.port });
     const offB = peerB.connect(client.transport);
 
+    // Subscribe to store B before the put so we get a deterministic
+    // signal when replication arrives — avoids a race against bun's
+    // 5-second test timeout on slower CI runners (notably macOS).
+    const replicatedSignal = new Promise((resolve) => {
+      const off = b.subscribe((event) => {
+        if (event.type === 'put' && event.link.id === 'x') {
+          off();
+          resolve(event.link);
+        }
+      });
+    });
+
     await a.put({
       id: 'x',
       tokens: ['hello'],
       vc: { a: 1 },
     });
 
-    // Poll for the replicated record instead of sleeping a fixed
-    // duration — bun on macOS occasionally needs more than a hundred
-    // milliseconds for the TCP roundtrip + async receive() to settle.
-    let replicated;
-    const deadline = Date.now() + 5000;
-    while (Date.now() < deadline) {
-      replicated = await b.get('x');
-      if (replicated?.tokens?.[0] === 'hello') {
-        break;
-      }
-      await new Promise((r) => setTimeout(r, 25));
-    }
+    const replicated = await replicatedSignal;
     expect(replicated?.tokens?.[0]).toBe('hello');
 
     offA();
