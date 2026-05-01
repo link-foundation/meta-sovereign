@@ -196,11 +196,7 @@ impl LinoTextStore {
                     store.put(Link {
                         id: id.clone(),
                         tokens: node.tokens.clone(),
-                        children: node
-                            .children
-                            .iter()
-                            .map(|c| c.tokens.join(" "))
-                            .collect(),
+                        children: node.children.iter().map(|c| c.tokens.join(" ")).collect(),
                         vc: BTreeMap::new(),
                     });
                 }
@@ -296,8 +292,16 @@ pub fn vc_compare(a: &VectorClock, b: &VectorClock) -> Option<Ordering> {
 }
 
 fn tiebreak<'a>(a: &'a Link, b: &'a Link) -> &'a Link {
-    let a_top = a.vc.iter().max_by_key(|(_, v)| *v).map(|(k, _)| k.clone()).unwrap_or_default();
-    let b_top = b.vc.iter().max_by_key(|(_, v)| *v).map(|(k, _)| k.clone()).unwrap_or_default();
+    let a_top =
+        a.vc.iter()
+            .max_by_key(|(_, v)| *v)
+            .map(|(k, _)| k.clone())
+            .unwrap_or_default();
+    let b_top =
+        b.vc.iter()
+            .max_by_key(|(_, v)| *v)
+            .map(|(k, _)| k.clone())
+            .unwrap_or_default();
     if a_top != b_top {
         return if a_top > b_top { a } else { b };
     }
@@ -333,19 +337,7 @@ fn escape_regex(s: &str) -> String {
     for ch in s.chars() {
         if matches!(
             ch,
-            '.' | '*'
-                | '+'
-                | '?'
-                | '^'
-                | '$'
-                | '{'
-                | '}'
-                | '('
-                | ')'
-                | '|'
-                | '['
-                | ']'
-                | '\\'
+            '.' | '*' | '+' | '?' | '^' | '$' | '{' | '}' | '(' | ')' | '|' | '[' | ']' | '\\'
         ) {
             out.push('\\');
         }
@@ -435,7 +427,11 @@ pub fn pattern_matches(source: &str, input: &str) -> bool {
     let pat_bytes: Vec<char> = pat.chars().collect();
     let in_bytes: Vec<char> = input.chars().collect();
     while pi < pat_bytes.len() {
-        if pi + 2 < pat_bytes.len() && pat_bytes[pi] == '\\' && pat_bytes[pi + 1] == 'S' && pat_bytes[pi + 2] == '+' {
+        if pi + 2 < pat_bytes.len()
+            && pat_bytes[pi] == '\\'
+            && pat_bytes[pi + 1] == 'S'
+            && pat_bytes[pi + 2] == '+'
+        {
             let mut consumed = 0;
             while si + consumed < in_bytes.len() && !in_bytes[si + consumed].is_whitespace() {
                 consumed += 1;
@@ -447,7 +443,11 @@ pub fn pattern_matches(source: &str, input: &str) -> bool {
             pi += 3;
             continue;
         }
-        if pi + 2 < pat_bytes.len() && pat_bytes[pi] == '\\' && pat_bytes[pi + 1] == 's' && pat_bytes[pi + 2] == '+' {
+        if pi + 2 < pat_bytes.len()
+            && pat_bytes[pi] == '\\'
+            && pat_bytes[pi + 1] == 's'
+            && pat_bytes[pi + 2] == '+'
+        {
             let mut consumed = 0;
             while si + consumed < in_bytes.len() && in_bytes[si + consumed].is_whitespace() {
                 consumed += 1;
@@ -468,9 +468,7 @@ pub fn pattern_matches(source: &str, input: &str) -> bool {
             pi += 2;
             continue;
         }
-        if si >= in_bytes.len()
-            || in_bytes[si].to_ascii_lowercase() != pat_bytes[pi].to_ascii_lowercase()
-        {
+        if si >= in_bytes.len() || !in_bytes[si].eq_ignore_ascii_case(&pat_bytes[pi]) {
             return false;
         }
         si += 1;
