@@ -23,8 +23,7 @@
  * Note: Uses --release-version instead of --version to avoid conflict with yargs' built-in --version flag.
  */
 
-// TODO: Update this to match your package name in package.json
-const PACKAGE_NAME = 'my-package';
+const PACKAGE_NAME = 'meta-sovereign';
 
 // Load use-m dynamically
 const { use } = eval(

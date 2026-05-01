@@ -1,7 +1,7 @@
 {
-  "name": "my-package",
+  "name": "meta-sovereign",
   "version": "0.8.0",
-  "description": "A JavaScript/TypeScript package template for AI-driven development",
+  "description": "Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services",
   "type": "module",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -26,16 +26,19 @@
     "changeset:status": "changeset status --since=origin/main"
   },
   "keywords": [
-    "template",
-    "javascript",
-    "typescript",
-    "ai-driven"
+    "personal-crm",
+    "local-first",
+    "privacy",
+    "links-notation",
+    "doublets",
+    "meta-profile",
+    "sovereign"
   ],
   "author": "",
   "license": "Unlicense",
   "repository": {
     "type": "git",
-    "url": "https://github.com/link-foundation/js-ai-driven-development-pipeline-template"
+    "url": "https://github.com/link-foundation/meta-sovereign"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -1,8 +1,28 @@
-# js-ai-driven-development-pipeline-template
+# meta-sovereign
 
-A comprehensive template for AI-driven JavaScript/TypeScript development with full CI/CD pipeline support.
+A personal meta profile **sovereign** system. Fully local, privacy-respecting. The user actually owns and controls their data about their network of contacts, connections, and partners — across every social, messenger, and job-board network they use.
 
-## Features
+Tracked by issue [#1 — Prototype version 0.0.1](https://github.com/link-foundation/meta-sovereign/issues/1). The full case study, requirements list, architecture sketch, and phased solution plan live in [`docs/case-studies/issue-1/`](docs/case-studies/issue-1/README.md).
+
+## What it will do (target capabilities)
+
+- **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru.
+- **Personal CRM**: contacts, communities, group memberships, intersections, mass-personal outreach.
+- **Personal memory**: structured `question → answer` facts captured automatically from conversations.
+- **Conversation automation platform**: pattern editors, reply-variation editors, n8n-style dialog graphs.
+- **Portable data store**: dual binary ([Doublets](https://github.com/linksplatform/doublets-rs)) + text ([Links Notation](https://github.com/link-foundation/links-notation)) representation, automated backups, `.lino` import/export.
+- **Local-first runtime**: WebRTC sync between user-owned devices, optional self-hosted personal cloud.
+- **Two stacks**: JS + Rust/WebAssembly (default) and pure Rust (server/microservice variant). The on-disk format is shared.
+
+This repository is built on top of [`link-foundation/js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template) and inherits its CI/CD jobs. The current `src/` is a placeholder; feature implementation will land milestone-by-milestone per [`solution-plan.md`](docs/case-studies/issue-1/solution-plan.md).
+
+## Status
+
+- **0.0.0**: scaffolding inherited from the JS template.
+- **0.0.1 (in progress, this PR #2)**: case study, requirements, solution plan, repository identity.
+- **0.0.2 → 0.0.x**: storage skeleton, importer adapters, UI surfaces — see [Solution Plan](docs/case-studies/issue-1/solution-plan.md).
+
+## Inherited features (CI/CD baseline)
 
 - **Multi-runtime support**: Works with Bun, Node.js, and Deno
 - **Universal testing**: Uses [test-anywhere](https://github.com/link-foundation/test-anywhere) for cross-runtime tests
@@ -12,20 +32,6 @@ A comprehensive template for AI-driven JavaScript/TypeScript development with fu
 - **Broken link checks**: Automated link validation with [lychee](https://github.com/lycheeverse/lychee-action) and Web Archive fallback suggestions
 
 ## Quick Start
-
-### Using This Template
-
-1. Click "Use this template" on GitHub to create a new repository
-2. Clone your new repository
-3. Update `package.json` with your package name and description
-4. Update the `PACKAGE_NAME` constant in these scripts:
-   - `scripts/validate-changeset.mjs`
-   - `scripts/merge-changesets.mjs`
-   - `scripts/publish-to-npm.mjs`
-   - `scripts/format-release-notes.mjs`
-   - `scripts/create-manual-changeset.mjs`
-5. Install dependencies: `bun install`
-6. Start developing!
 
 ### Development
 
@@ -171,14 +177,6 @@ Add regex patterns to `.lycheeignore` to exclude URLs from checks (e.g., local d
 
 ## Configuration
 
-### Updating Package Name
-
-After creating a repository from this template, update the package name in:
-
-1. `package.json`: `"name": "your-package-name"`
-2. `.changeset/config.json`: Package references
-3. Scripts that reference the package name (see Quick Start)
-
 ### ESLint Rules
 
 Customize ESLint in `eslint.config.js`. Current configuration:
@@ -228,7 +226,7 @@ Quick steps:
 
 ## Best Practices
 
-This template implements CI/CD best practices for AI-driven development. See [BEST-PRACTICES.md](docs/BEST-PRACTICES.md) for details on:
+The CI/CD pipeline inherited from `js-ai-driven-development-pipeline-template` covers the practices documented in [BEST-PRACTICES.md](docs/BEST-PRACTICES.md):
 
 - File size limits for AI readability
 - Automated formatting and linting

@@ -1,4 +1,4 @@
-# Contributing to js-ai-driven-development-pipeline-template
+# Contributing to meta-sovereign
 
 ## Development Workflow
 

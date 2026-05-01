@@ -15,8 +15,7 @@
 import { writeFileSync } from 'fs';
 import { randomBytes } from 'crypto';
 
-// TODO: Update this to match your package name in package.json
-const PACKAGE_NAME = 'my-package';
+const PACKAGE_NAME = 'meta-sovereign';
 
 // Load use-m dynamically
 const { use } = eval(
