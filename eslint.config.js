@@ -89,6 +89,17 @@ export default [
     },
   },
   {
+    // Browser-side SPA — needs DOM globals.
+    files: ['src/web/**/*.js'],
+    languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        fetch: 'readonly',
+      },
+    },
+  },
+  {
     ignores: [
       'node_modules/**',
       'coverage/**',

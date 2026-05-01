@@ -1,0 +1,134 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #0e1116;
+  color: #e6edf3;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+.topbar h1 {
+  font-size: 1rem;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+.topbar nav button {
+  background: transparent;
+  color: #c9d1d9;
+  border: 1px solid transparent;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 0.25rem;
+}
+.topbar nav button.active,
+.topbar nav button:hover {
+  background: #21262d;
+  border-color: #30363d;
+}
+main {
+  padding: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.chat {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+  height: calc(100vh - 100px);
+}
+.chat aside {
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow-y: auto;
+}
+.chat aside button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+}
+.chat aside button.active {
+  background: #21262d;
+}
+.chat .stream {
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+.msg {
+  padding: 0.4rem 0.6rem;
+  margin: 0.2rem 0;
+  border-radius: 6px;
+  background: #161b22;
+}
+.msg .meta {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+input,
+textarea,
+select {
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+}
+button.primary {
+  background: #238636;
+  color: white;
+  border: 0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+td,
+th {
+  border-bottom: 1px solid #30363d;
+  padding: 0.4rem;
+  text-align: left;
+}
+.graph {
+  border: 1px dashed #30363d;
+  border-radius: 8px;
+  min-height: 320px;
+  padding: 0.5rem;
+  position: relative;
+}
+.node {
+  display: inline-block;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  margin: 0.2rem;
+}
