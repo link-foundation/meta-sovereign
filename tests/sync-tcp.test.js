@@ -25,10 +25,18 @@ describe('sync over TCP transport', () => {
       vc: { a: 1 },
     });
 
-    // Allow the TCP roundtrip + async receive() to settle.
-    await new Promise((r) => setTimeout(r, 80));
-
-    const replicated = await b.get('x');
+    // Poll for the replicated record instead of sleeping a fixed
+    // duration — bun on macOS occasionally needs more than a hundred
+    // milliseconds for the TCP roundtrip + async receive() to settle.
+    let replicated;
+    const deadline = Date.now() + 5000;
+    while (Date.now() < deadline) {
+      replicated = await b.get('x');
+      if (replicated?.tokens?.[0] === 'hello') {
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 25));
+    }
     expect(replicated?.tokens?.[0]).toBe('hello');
 
     offA();
