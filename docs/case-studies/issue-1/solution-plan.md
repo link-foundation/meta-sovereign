@@ -17,13 +17,13 @@ The plan respects the issue's non-negotiables: simple code first (R-H2), no prem
 | R-I5                | `components.md` cataloguing every issue-linked repository plus relevant external libraries.                                          |
 | Repository identity | `package.json` `name` / `description`, README header reflecting Meta Sovereign instead of the template name.                         |
 
-**Status**: in progress in PR #2.
+**Status**: landed in PR #2.
 
-**Out of scope**: any feature implementation. Everything below is a follow-up PR.
+**Update (PR #2 expansion)**: at the maintainer's request the PR was expanded beyond docs to land a runnable, zero-dependency skeleton that exercises every architectural layer of the plan below. Each milestone's status is annotated with `[skeleton in PR #2]` where this PR ships an importable, tested implementation, and `[follow-up]` where production-grade work remains. The skeleton is intentionally minimal (in-memory adapters, JSON archive parsers, no real network I/O) — it lets the tests, CLI, server, Electron shell, Docker compose, and Rust workspace all boot end-to-end so subsequent PRs can iterate per layer without re-bootstrapping.
 
 ---
 
-## Milestone 1 — Storage skeleton (Universal Links Access)
+## Milestone 1 — Storage skeleton (Universal Links Access) [skeleton in PR #2]
 
 **Requirements:** R-A2, R-A3, R-A5, R-F8 (server side), R-G1.
 
@@ -49,7 +49,7 @@ The plan respects the issue's non-negotiables: simple code first (R-H2), no prem
 
 ---
 
-## Milestone 2 — Backups & `.lino` import/export
+## Milestone 2 — Backups & `.lino` import/export [skeleton in PR #2]
 
 **Requirements:** R-A1, R-A2, R-A4.
 
@@ -64,7 +64,7 @@ The plan respects the issue's non-negotiables: simple code first (R-H2), no prem
 
 ---
 
-## Milestone 3 — First importer adapter (Telegram)
+## Milestone 3 — First importer adapter (Telegram) [skeleton in PR #2]
 
 **Requirements:** R-E2, R-A1, partial R-D1.
 
@@ -80,7 +80,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 4 — Second importer (VK), establishes the adapter pattern
+## Milestone 4 — Second importer (VK), establishes the adapter pattern [skeleton in PR #2]
 
 **Requirements:** R-E1, R-A1.
 
@@ -92,7 +92,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 5 — Unified Chat UI (read-only)
+## Milestone 5 — Unified Chat UI (read-only) [follow-up]
 
 **Requirements:** R-B1.
 
@@ -107,7 +107,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 6 — Operator UI
+## Milestone 6 — Operator UI [follow-up]
 
 **Requirements:** R-B3, partial R-B2.
 
@@ -120,7 +120,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 7 — Pattern editor + reply-variation editor
+## Milestone 7 — Pattern editor + reply-variation editor [skeleton in PR #2]
 
 **Requirements:** R-C1, R-C2, R-C5.
 
@@ -133,7 +133,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 8 — Dialog automation graph
+## Milestone 8 — Dialog automation graph [skeleton in PR #2]
 
 **Requirements:** R-C3, R-C4.
 
@@ -146,7 +146,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 9 — CRM features
+## Milestone 9 — CRM features [skeleton in PR #2]
 
 **Requirements:** R-D1, R-D2, R-D3, R-D4, partial R-D5/R-D6.
 
@@ -159,7 +159,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 10 — Sync layer (WebRTC + CRDT)
+## Milestone 10 — Sync layer (WebRTC + CRDT) [skeleton in PR #2]
 
 **Requirements:** R-F5, R-F6.
 
@@ -172,7 +172,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 11 — Outbound broadcasting & profile sync
+## Milestone 11 — Outbound broadcasting & profile sync [skeleton in PR #2]
 
 **Requirements:** R-B4, R-D5, R-D6.
 
@@ -184,7 +184,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 12 — Remaining importers
+## Milestone 12 — Remaining importers [skeleton in PR #2]
 
 **Requirements:** R-E3, R-E4, R-E5, R-E6, R-E7, R-E8, R-E9.
 
@@ -200,7 +200,7 @@ Each follows the `MessageSource` interface finalised in milestone 4.
 
 ---
 
-## Milestone 13 — Pure-Rust stack
+## Milestone 13 — Pure-Rust stack [skeleton in PR #2]
 
 **Requirements:** R-G2.
 
@@ -212,7 +212,7 @@ Each follows the `MessageSource` interface finalised in milestone 4.
 
 ---
 
-## Milestone 14 — Mobile and Electron polish
+## Milestone 14 — Mobile and Electron polish [skeleton in PR #2]
 
 **Requirements:** R-F3, R-G3, R-H1.
 

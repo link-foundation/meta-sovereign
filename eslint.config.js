@@ -23,6 +23,8 @@ export default [
         // Node.js 18+ globals
         fetch: 'readonly',
         AbortController: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
         // Runtime-specific globals
         Bun: 'readonly',
         Deno: 'readonly',
@@ -33,7 +35,10 @@ export default [
       'prettier/prettier': 'error',
 
       // Code quality rules
-      'no-unused-vars': 'error',
+      'no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
       'no-console': 'off', // Allow console in this project
       'no-debugger': 'error',
 
@@ -52,7 +57,10 @@ export default [
 
       // Async/await
       'no-async-promise-executor': 'error',
-      'require-await': 'warn',
+      // Adapter interfaces are uniformly async even when a particular
+      // implementation has nothing to await — keeps consumers from caring
+      // which backend they got handed.
+      'require-await': 'off',
 
       // Comments and documentation
       'spaced-comment': ['error', 'always', { markers: ['/'] }],

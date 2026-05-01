@@ -5,11 +5,26 @@
   "type": "module",
   "main": "src/index.js",
   "types": "src/index.d.ts",
+  "bin": {
+    "meta-sovereign": "bin/meta-sovereign.js"
+  },
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
       "import": "./src/index.js"
-    }
+    },
+    "./storage": "./src/storage/index.js",
+    "./sources": "./src/sources/index.js",
+    "./patterns": "./src/patterns/index.js",
+    "./replies": "./src/replies/index.js",
+    "./automation": "./src/automation/index.js",
+    "./crm": "./src/crm/index.js",
+    "./facts": "./src/facts/index.js",
+    "./sync": "./src/sync/index.js",
+    "./broadcast": "./src/broadcast/index.js",
+    "./backup": "./src/storage/backup.js",
+    "./cli": "./src/cli/index.js",
+    "./server": "./src/server/index.js"
   },
   "scripts": {
     "test": "node --test tests/*.test.js",

@@ -1,28 +1,21 @@
 /**
- * Example module entry point
- * Replace this with your actual implementation
+ * meta-sovereign — Personal Meta Profile Sovereign system.
+ *
+ * Public entry point. The library is organised by subsystem; each
+ * sub-export is also published as its own NPM-importable path so
+ * downstream apps can depend on just the slice they need (R-F1).
  */
 
-/**
- * Example function that adds two numbers
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Sum of a and b
- */
-export const add = (a, b) => a + b;
+export * as storage from './storage/index.js';
+export * as sources from './sources/index.js';
+export * as patterns from './patterns/index.js';
+export * as replies from './replies/index.js';
+export * as automation from './automation/index.js';
+export * as crm from './crm/index.js';
+export * as facts from './facts/index.js';
+export * as sync from './sync/index.js';
+export * as broadcast from './broadcast/index.js';
+export * as backup from './storage/backup.js';
 
-/**
- * Example function that multiplies two numbers
- * @param {number} a - First number
- * @param {number} b - Second number
- * @returns {number} Product of a and b
- */
-export const multiply = (a, b) => a * b;
-
-/**
- * Example async function
- * @param {number} ms - Milliseconds to wait
- * @returns {Promise<void>}
- */
-export const delay = (ms) =>
-  new Promise((resolve) => globalThis.setTimeout(resolve, ms));
+export { runCli } from './cli/index.js';
+export { startServer } from './server/index.js';

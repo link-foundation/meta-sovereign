@@ -1,27 +1,22 @@
 /**
- * Example module type definitions
- * Replace this with your actual type definitions
+ * meta-sovereign — Personal Meta Profile Sovereign system.
+ * Top-level type surface. Each subsystem keeps its detailed types
+ * inside its own module; this file just enumerates the namespaces.
  */
 
-/**
- * Adds two numbers
- * @param a - First number
- * @param b - Second number
- * @returns Sum of a and b
- */
-export declare const add: (a: number, b: number) => number;
+export * as storage from './storage/index.js';
+export * as sources from './sources/index.js';
+export * as patterns from './patterns/index.js';
+export * as replies from './replies/index.js';
+export * as automation from './automation/index.js';
+export * as crm from './crm/index.js';
+export * as facts from './facts/index.js';
+export * as sync from './sync/index.js';
+export * as broadcast from './broadcast/index.js';
+export * as backup from './storage/backup.js';
 
-/**
- * Multiplies two numbers
- * @param a - First number
- * @param b - Second number
- * @returns Product of a and b
- */
-export declare const multiply: (a: number, b: number) => number;
-
-/**
- * Delays execution for specified milliseconds
- * @param ms - Milliseconds to wait
- * @returns Promise that resolves after the delay
- */
-export declare const delay: (ms: number) => Promise<void>;
+export declare const runCli: (argv: string[]) => Promise<number>;
+export declare const startServer: (opts: {
+  port?: number;
+  storeDir?: string;
+}) => Promise<{ port: number; close: () => Promise<void> }>;
