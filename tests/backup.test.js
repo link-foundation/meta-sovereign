@@ -7,6 +7,8 @@ import {
   createBackup,
   pruneBackups,
   restoreBackup,
+  encryptBackup,
+  decryptBackup,
 } from '../src/storage/backup.js';
 
 describe('backup', () => {
@@ -35,5 +37,31 @@ describe('backup', () => {
       f.startsWith('meta-sovereign-')
     );
     expect(remaining.length).toBe(2);
+  });
+  it('round-trips an encrypted backup', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-bk3-'));
+    const s = createMemoryStore();
+    await s.put({ id: 'secret', tokens: ['top', 'secret'] });
+    const file = await createBackup(s, {
+      archiveDir: dir,
+      passphrase: 'correct horse',
+    });
+    expect(file.endsWith('.json.enc')).toBe(true);
+    const onDisk = await fs.readFile(file, 'utf8');
+    expect(onDisk.includes('secret')).toBe(false);
+    const s2 = createMemoryStore();
+    const n = await restoreBackup(s2, file, { passphrase: 'correct horse' });
+    expect(n).toBe(1);
+    expect((await s2.get('secret')).tokens[1]).toBe('secret');
+  });
+  it('rejects the wrong passphrase', async () => {
+    const env = encryptBackup('hello', 'right');
+    let threw = false;
+    try {
+      decryptBackup(env, 'wrong');
+    } catch {
+      threw = true;
+    }
+    expect(threw).toBe(true);
   });
 });
