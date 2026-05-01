@@ -146,3 +146,6 @@ target/
 
 # Generated API docs (rebuilt by `npm run docs:api`)
 docs/api/
+
+# Deno lockfile (auto-generated when running deno tasks; not part of CI inputs)
+deno.lock

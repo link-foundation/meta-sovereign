@@ -42,14 +42,26 @@ export const startSyncListener = ({ port = 0 } = {}) =>
   new Promise((resolve) => {
     const handlers = new Set();
     const sockets = new Set();
+    // Buffer events emitted before any peer is connected so we don't
+    // silently drop the very first put. On bun/macOS the server's
+    // `connection` event can fire after the client's `connect` callback,
+    // which would otherwise lose the first message.
+    const pending = [];
     const server = net.createServer((socket) => {
       sockets.add(socket);
       wireRead(socket, handlers);
+      while (pending.length) {
+        wireSend(socket, pending.shift());
+      }
       socket.on('close', () => sockets.delete(socket));
     });
     server.listen(port, '127.0.0.1', () => {
       const transport = {
         send: (event) => {
+          if (sockets.size === 0) {
+            pending.push(event);
+            return;
+          }
           for (const s of sockets) {
             wireSend(s, event);
           }
