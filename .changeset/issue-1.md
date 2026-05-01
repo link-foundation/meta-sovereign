@@ -28,6 +28,14 @@ Runnable skeleton (each layer has unit/integration tests):
 - `docker/`: `web.Dockerfile`, `rtc.Dockerfile`, `docker-compose.yml` for the dual microservice topology.
 - `Cargo.toml` + `crates/meta-sovereign-core/`: workspace seed for the parallel pure-Rust stack with a `Link` struct, in-memory store, and unit test.
 
-Tests: 41/41 pass (`node --test`). Lint: 0 errors. Format: clean. Duplication: clean.
+Iteration 2 (follow-up commits on the same PR) thickens the most user-visible layers so the v0.0.1 demo path is reachable end-to-end in one process:
 
-The skeleton is intentionally minimal — in-memory adapters, JSON archive parsers, no real network I/O. It exists so subsequent PRs can iterate on each layer without re-bootstrapping. This release contains no runtime code beyond that skeleton; feature implementation lands milestone-by-milestone in subsequent PRs per `docs/case-studies/issue-1/solution-plan.md`.
+- `src/web/`: vanilla-JS SPA served by the local Node `http` server — chat, contacts, automation graph editor, pattern table with regex inference, broadcast composer, status. Backed by new `/api/contacts`, `/api/patterns`, `/api/patterns/infer`, `/api/graphs`, `/api/status` routes that derive views from the local store.
+- `src/patterns/`: `lcs`-based regex synthesis with character-class inference for variable gaps, plus `compilePeg` for declarative rules with named captures.
+- `src/storage/backup.js`: AES-256-GCM encryption with scrypt KDF; `createBackup` writes `.json.enc` when a passphrase is provided, `restoreBackup` auto-detects.
+- `src/sync/`: vector-clock CRDT — `vcInit/vcTick/vcMerge/vcCompare` plus a deterministic concurrent-write tiebreak; Lamport `version` remains the fallback for legacy links.
+- `tests/e2e.test.js`: end-to-end pipeline test driving the HTTP API — import messages, query derived contacts and status, round-trip a backup.
+
+Tests: 54/54 pass (`node --test`). Lint: 0 errors. Format: clean. Duplication: clean.
+
+The skeleton is intentionally minimal — in-memory adapters, JSON archive parsers, no real network I/O. It exists so subsequent PRs can iterate on each layer without re-bootstrapping. Remaining milestones (mobile/Electron polish, pure-Rust stack, full WebRTC transport) stay as skeleton stubs and continue milestone-by-milestone per `docs/case-studies/issue-1/solution-plan.md`.

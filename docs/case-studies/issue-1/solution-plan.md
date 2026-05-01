@@ -238,3 +238,36 @@ The smallest end-to-end demo that exercises every architectural layer is:
 > Import a Telegram archive, see the conversations in the Unified Chat UI, build a "thank-you" pattern + reply variation, run the dialog graph in semi-auto mode, accept the reply, see the reply broadcast back to the network, sync the new state to a second browser via WebRTC.
 
 Reaching this end-to-end demo requires Milestones 1, 2, 3, 5, 6, 7, 8, 10, 11. Milestones 4, 9, 12, 13, 14 expand the system but are not on the critical path for the first demo.
+
+---
+
+## Iteration 2 additions (PR #2, follow-up commits)
+
+Building on the layered skeleton, this iteration thickens the most user-visible
+surfaces so the v0.0.1 demo path is reachable end-to-end inside one process.
+
+- **Web UI (`src/web/`).** Vanilla-JS SPA served from the local Node `http`
+  server: chat, contacts, automation graph editor, pattern table + regex
+  inference form, broadcast composer, status. Backed by new `/api/*` routes
+  (`/api/contacts`, `/api/patterns`, `/api/patterns/infer`, `/api/graphs`,
+  `/api/status`) that derive views from the local store rather than stashing
+  state server-side.
+- **Pattern synthesis (`src/patterns/`).** Added `lcs`-based regex
+  synthesis with character-class inference for variable gaps (digits vs.
+  words), plus `compilePeg` for declarative rules with named captures —
+  preparing for a proper PEG editor in the UI.
+- **Encrypted backups (`src/storage/backup.js`).** AES-256-GCM with scrypt
+  KDF; `createBackup` writes `.json.enc` when a passphrase is supplied,
+  `restoreBackup` auto-detects ciphertext.
+- **Vector-clock CRDT (`src/sync/`).** `merge()` now prefers vector clocks
+  when both sides carry one, with a deterministic concurrent-write tiebreak
+  (highest-counter writer, then JSON ordering). Lamport `version` remains
+  the fallback for legacy links.
+- **End-to-end harness (`tests/e2e.test.js`).** Drives the full pipeline
+  over HTTP: import two messages, verify status, query derived contacts,
+  round-trip a backup.
+
+Total automated tests: **54**, all green. Lint and jscpd clean. The remaining
+milestones (mobile/electron polish, pure-Rust stack, full WebRTC transport)
+stay as skeleton stubs and are deferred to follow-up PRs per their milestone
+sections above.
