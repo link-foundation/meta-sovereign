@@ -11,6 +11,7 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { setInterval, clearInterval } from 'node:timers';
 import {
   randomBytes,
   scryptSync,
@@ -105,6 +106,51 @@ export const pruneBackups = async ({ archiveDir, keep }) => {
     await fs.unlink(path.join(archiveDir, f));
   }
   return toDelete;
+};
+
+/**
+ * Periodic backup scheduler (R-A4).
+ *
+ * Wraps `createBackup` + `pruneBackups` in a `setInterval` so a long-
+ * lived process (`meta-sovereign serve`) can drop a snapshot every
+ * `intervalMs` and keep at most `keep` archives. Returns `{ stop }`.
+ *
+ * Call sites that want a one-off snapshot still use `createBackup`
+ * directly; this is purely for the long-running case.
+ */
+export const createBackupScheduler = ({
+  store,
+  archiveDir,
+  intervalMs,
+  keep = 0,
+  passphrase = null,
+  onBackup = () => {},
+  onError = () => {},
+}) => {
+  if (!archiveDir || !intervalMs) {
+    throw new Error(
+      'createBackupScheduler: archiveDir and intervalMs required'
+    );
+  }
+  const tick = async () => {
+    try {
+      const file = await createBackup(store, { archiveDir, passphrase });
+      if (keep > 0) {
+        await pruneBackups({ archiveDir, keep });
+      }
+      onBackup(file);
+    } catch (err) {
+      onError(err);
+    }
+  };
+  const handle = setInterval(tick, intervalMs);
+  if (typeof handle.unref === 'function') {
+    handle.unref();
+  }
+  return {
+    runNow: tick,
+    stop: () => clearInterval(handle),
+  };
 };
 
 export const restoreBackup = async (
