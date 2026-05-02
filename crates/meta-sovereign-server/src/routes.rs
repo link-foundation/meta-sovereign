@@ -22,6 +22,15 @@ impl StaticRoot {
     }
 }
 
+/// Live counts the metrics endpoint mirrors back. Kept separate from
+/// [`ServerState`] because the underlying handles live in the HTTP
+/// layer (WebSocket peers, WebRTC signaling rooms).
+#[derive(Default, Clone, Copy)]
+pub struct MetricsCtx {
+    pub ws_peers: usize,
+    pub rtc_rooms: usize,
+}
+
 fn ext_mime(path: &str) -> &'static str {
     let lower = path.to_ascii_lowercase();
     if lower.ends_with(".html") {
@@ -118,12 +127,21 @@ fn serve_static(root: &StaticRoot, req: &Request) -> Option<Response> {
     serve_browser_mount(root, req)
 }
 
-pub fn dispatch(state: &ServerState, root: &StaticRoot, req: &Request) -> Response {
+pub fn dispatch(
+    state: &ServerState,
+    root: &StaticRoot,
+    req: &Request,
+    metrics: MetricsCtx,
+) -> Response {
     if let Some(r) = serve_static(root, req) {
         return r;
     }
     if req.path == "/sources" && req.method == "GET" {
         return handlers::sources(req);
+    }
+    if req.path == "/metrics" && req.method == "GET" {
+        let body = handlers::metrics_text(state, metrics.ws_peers, metrics.rtc_rooms);
+        return Response::bytes(200, "text/plain; version=0.0.4", body.into_bytes());
     }
     if let Some(r) = handlers::mutating(state, req) {
         return r;
@@ -149,11 +167,15 @@ mod tests {
         }
     }
 
+    fn ctx() -> MetricsCtx {
+        MetricsCtx::default()
+    }
+
     #[test]
     fn unknown_route_returns_404() {
         let s = ServerState::new();
         let root = StaticRoot::new(None);
-        let r = dispatch(&s, &root, &req("GET", "/no/such"));
+        let r = dispatch(&s, &root, &req("GET", "/no/such"), ctx());
         assert_eq!(r.status, 404);
     }
 
@@ -161,7 +183,7 @@ mod tests {
     fn sources_listed_via_dispatch() {
         let s = ServerState::new();
         let root = StaticRoot::new(None);
-        let r = dispatch(&s, &root, &req("GET", "/sources"));
+        let r = dispatch(&s, &root, &req("GET", "/sources"), ctx());
         assert_eq!(r.status, 200);
         assert!(r.body_string().contains("telegram"));
     }
@@ -187,28 +209,28 @@ mod tests {
         let s = ServerState::new();
         let root = StaticRoot::new(Some(web_root));
 
-        let r = dispatch(&s, &root, &req("GET", "/storage/browser-store.js"));
+        let r = dispatch(&s, &root, &req("GET", "/storage/browser-store.js"), ctx());
         assert_eq!(r.status, 200, "/storage/browser-store.js");
 
-        let r = dispatch(&s, &root, &req("GET", "/handlers/index.js"));
+        let r = dispatch(&s, &root, &req("GET", "/handlers/index.js"), ctx());
         assert_eq!(r.status, 200, "/handlers/index.js");
 
         // Defence-in-depth: traversal escape attempts return 404.
-        let r = dispatch(&s, &root, &req("GET", "/storage/../etc/passwd"));
+        let r = dispatch(&s, &root, &req("GET", "/storage/../etc/passwd"), ctx());
         assert_eq!(r.status, 404);
 
         // Only `.js` files are served from mount dirs.
-        let r = dispatch(&s, &root, &req("GET", "/storage/notes.txt"));
+        let r = dispatch(&s, &root, &req("GET", "/storage/notes.txt"), ctx());
         assert_eq!(r.status, 404);
 
         // Nested paths inside a mount are rejected (single flat file
         // only) so we never expose subdirectories by accident.
-        let r = dispatch(&s, &root, &req("GET", "/storage/sub/inner.js"));
+        let r = dispatch(&s, &root, &req("GET", "/storage/sub/inner.js"), ctx());
         assert_eq!(r.status, 404);
 
         // Unknown mount prefixes still 404 even when the file would
         // exist relative to src/.
-        let r = dispatch(&s, &root, &req("GET", "/cli/index.js"));
+        let r = dispatch(&s, &root, &req("GET", "/cli/index.js"), ctx());
         assert_eq!(r.status, 404);
     }
 }

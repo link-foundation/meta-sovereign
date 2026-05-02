@@ -51,6 +51,8 @@ import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleBackupRoutes } from './routes-backup.js';
+import { handleMetrics } from './metrics.js';
+import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
@@ -64,6 +66,29 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
+};
+
+// Conservative Content-Security-Policy. The SPA never loads remote
+// resources and ships no inline scripts/styles: only the same-origin
+// app.js (a module) and app.css. WebSockets connect to the same
+// origin (/ws + /rtc); discovery may also attempt 127.0.0.1 / localhost
+// on alternate ports. `connect-src` therefore allows local loopback.
+export const CSP =
+  "default-src 'self'; " +
+  "script-src 'self'; " +
+  "style-src 'self'; " +
+  "img-src 'self' data: blob:; " +
+  "connect-src 'self' ws: wss: http://127.0.0.1:* http://localhost:*; " +
+  "font-src 'self' data:; " +
+  "object-src 'none'; " +
+  "base-uri 'self'; " +
+  "frame-ancestors 'none'";
+
+const SECURITY_HEADERS = {
+  'content-security-policy': CSP,
+  'x-content-type-options': 'nosniff',
+  'referrer-policy': 'no-referrer',
+  'x-frame-options': 'DENY',
 };
 
 const serveStatic = async (res, filePath) => {
@@ -119,7 +144,16 @@ const handleStatic = async (req, res, p) => {
   return false;
 };
 
-const route = async (store, req, res, archiveDir) => {
+const applySecurityHeaders = (res) => {
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
+    if (!res.hasHeader(k)) {
+      res.setHeader(k, v);
+    }
+  }
+};
+
+const route = async (store, req, res, ctx) => {
+  applySecurityHeaders(res);
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
   if (await handleStatic(req, res, p)) {
@@ -128,10 +162,13 @@ const route = async (store, req, res, archiveDir) => {
   if (p === '/sources' && req.method === 'GET') {
     return json(res, 200, listSources());
   }
+  if (await handleMetrics(store, req, res, p, ctx)) {
+    return;
+  }
   if (await handleMutatingRoutes(store, req, res, p)) {
     return;
   }
-  if (await handleBackupRoutes(store, req, res, p, archiveDir)) {
+  if (await handleBackupRoutes(store, req, res, p, ctx.archiveDir)) {
     return;
   }
   if (await handleDerivedRoutes(store, req, res, p, url)) {
@@ -147,6 +184,7 @@ export const startServer = async ({
   store: providedStore,
   enableHandlers = true,
   enableSync = true,
+  log = process.env.MS_LOG_FORMAT === 'json' ? jsonLog() : null,
   node = 'server',
 } = {}) => {
   let store = providedStore;
@@ -161,10 +199,27 @@ export const startServer = async ({
       await fs.mkdir(resolvedArchiveDir, { recursive: true });
     }
   }
+  const ctx = { archiveDir: resolvedArchiveDir, sync: null, signaling: null };
   const server = http.createServer((req, res) => {
-    route(store, req, res, resolvedArchiveDir).catch((err) =>
-      json(res, 500, { error: err.message })
-    );
+    const start = Date.now();
+    res.on('finish', () => {
+      log?.({
+        event: 'http',
+        method: req.method,
+        path: (req.url ?? '').split('?')[0],
+        status: res.statusCode,
+        duration_ms: Date.now() - start,
+      });
+    });
+    route(store, req, res, ctx).catch((err) => {
+      log?.({
+        event: 'http_error',
+        method: req.method,
+        path: (req.url ?? '').split('?')[0],
+        error: err.message,
+      });
+      json(res, 500, { error: err.message });
+    });
   });
   let bus = null;
   if (enableHandlers) {
@@ -177,6 +232,8 @@ export const startServer = async ({
     const peer = createPeer(store, { node });
     peer.connect(wsHandle.transport);
     signaling = attachSignaling(server, { path: '/rtc' });
+    ctx.sync = wsHandle;
+    ctx.signaling = signaling;
   }
   await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
   return {

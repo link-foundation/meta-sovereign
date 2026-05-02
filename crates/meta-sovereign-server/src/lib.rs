@@ -25,5 +25,6 @@ pub mod signaling;
 pub mod state;
 pub mod ws;
 
-pub use http::{serve, ServerHandle, ServerOptions};
+pub use http::{serve, LogFormat, ServerHandle, ServerOptions};
+pub use routes::MetricsCtx;
 pub use state::ServerState;

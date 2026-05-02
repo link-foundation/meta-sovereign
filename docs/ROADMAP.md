@@ -109,18 +109,8 @@ flow): we'll close them as the underlying features land.
 - [ ] **`cargo doc --no-deps`** publish for the Rust crates on every
       release.
 
-## 7. Observability and ops
-
-- [ ] **Structured logging on the Rust server.** Currently stdout is
-      the only log channel; add a `--log json` mode for headless
-      deployments.
-- [ ] **Prometheus metrics endpoint.** `/metrics` returning link
-      count, WS peer count, RTC room count.
-
 ## 8. Security hardening
 
-- [ ] **CSP headers from both servers.** Lock down the SPA so
-      arbitrary `eval` / inline scripts are forbidden.
 - [ ] **Token storage encryption.** `secret:*` links should be
       encrypted-at-rest with a passphrase-derived key (the same
       AES-256-GCM helpers `createBackup` already uses).

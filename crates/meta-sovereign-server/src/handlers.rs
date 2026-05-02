@@ -709,6 +709,58 @@ pub fn mutating(state: &ServerState, req: &Request) -> Option<Response> {
     Some(res)
 }
 
+// -- Metrics ----------------------------------------------------------------
+
+/// Render the Prometheus exposition mirror of Node's `collectMetrics`.
+/// Counts links by id-prefix and exposes WebSocket peer + WebRTC room
+/// totals supplied by the caller (the HTTP layer owns those handles).
+pub fn metrics_text(state: &ServerState, ws_peers: usize, rtc_rooms: usize) -> String {
+    let all = state.query();
+    let total = all.len();
+    let count_prefix = |p: &str| -> usize {
+        all.iter()
+            .filter(|l| {
+                l.get("id")
+                    .and_then(|v| v.as_str())
+                    .is_some_and(|id| id.starts_with(p))
+            })
+            .count()
+    };
+    let kinds = [
+        ("message", "msg:"),
+        ("pattern", "pattern:"),
+        ("graph", "graph:"),
+        ("reply", "reply:"),
+        ("broadcast", "broadcast:"),
+        ("contact", "contact:"),
+        ("profile", "profile:"),
+        ("resume", "resume:"),
+        ("secret", "secret:"),
+    ];
+    let mut out = String::new();
+    out.push_str("# HELP meta_sovereign_links_total Total links in the store.\n");
+    out.push_str("# TYPE meta_sovereign_links_total gauge\n");
+    out.push_str(&format!("meta_sovereign_links_total {total}\n"));
+    out.push_str(
+        "# HELP meta_sovereign_links_by_kind Links grouped by id prefix \
+         (msg, pattern, graph, reply, ...).\n",
+    );
+    out.push_str("# TYPE meta_sovereign_links_by_kind gauge\n");
+    for (kind, prefix) in kinds {
+        let n = count_prefix(prefix);
+        out.push_str(&format!(
+            "meta_sovereign_links_by_kind{{kind=\"{kind}\"}} {n}\n"
+        ));
+    }
+    out.push_str("# HELP meta_sovereign_ws_peers Connected WebSocket sync peers.\n");
+    out.push_str("# TYPE meta_sovereign_ws_peers gauge\n");
+    out.push_str(&format!("meta_sovereign_ws_peers {ws_peers}\n"));
+    out.push_str("# HELP meta_sovereign_rtc_rooms Active WebRTC signaling rooms.\n");
+    out.push_str("# TYPE meta_sovereign_rtc_rooms gauge\n");
+    out.push_str(&format!("meta_sovereign_rtc_rooms {rtc_rooms}\n"));
+    out
+}
+
 // -- URL decode -------------------------------------------------------------
 
 pub fn url_decode(s: &str) -> String {

@@ -11,11 +11,15 @@ use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-use meta_sovereign_server::{serve, ServerOptions};
+use meta_sovereign_server::{serve, LogFormat, ServerOptions};
 
 fn parse_args() -> ServerOptions {
     let mut port: u16 = 8787;
     let mut web: Option<PathBuf> = None;
+    let mut log_format = match std::env::var("MS_LOG_FORMAT").ok().as_deref() {
+        Some("json") => LogFormat::Json,
+        _ => LogFormat::None,
+    };
     let mut args = std::env::args().skip(1);
     let mut subcmd_seen = false;
     while let Some(arg) = args.next() {
@@ -28,6 +32,16 @@ fn parse_args() -> ServerOptions {
             }
             "--web" => {
                 web = args.next().map(PathBuf::from);
+            }
+            "--log" => {
+                log_format = match args.next().as_deref() {
+                    Some("json") => LogFormat::Json,
+                    Some("none") | None => LogFormat::None,
+                    Some(other) => {
+                        eprintln!("unknown --log value: {other}");
+                        std::process::exit(2);
+                    }
+                };
             }
             "--help" | "-h" => {
                 print_help();
@@ -47,6 +61,7 @@ fn parse_args() -> ServerOptions {
     ServerOptions {
         port,
         static_root: web,
+        log_format,
     }
 }
 
@@ -54,11 +69,15 @@ fn print_help() {
     eprintln!("meta-sovereign-rs — pure-Rust local server");
     eprintln!();
     eprintln!("USAGE:");
-    eprintln!("  meta-sovereign-rs serve [--port <port>] [--web <dir>]");
+    eprintln!("  meta-sovereign-rs serve [--port <port>] [--web <dir>] [--log json]");
     eprintln!();
     eprintln!("OPTIONS:");
     eprintln!("  --port <port>   TCP port to listen on (default 8787)");
     eprintln!("  --web <dir>     directory containing the SPA assets");
+    eprintln!("  --log <fmt>     access log format: \"json\" (default: none)");
+    eprintln!();
+    eprintln!("ENVIRONMENT:");
+    eprintln!("  MS_LOG_FORMAT   sets default --log when unset on CLI");
 }
 
 fn main() {

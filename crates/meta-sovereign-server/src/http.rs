@@ -24,7 +24,7 @@ use std::thread;
 use std::time::Duration;
 
 use crate::handlers;
-use crate::routes::{dispatch, StaticRoot};
+use crate::routes::{dispatch, MetricsCtx, StaticRoot};
 use crate::signaling::Signaling;
 use crate::state::ServerState;
 use crate::ws::{accept_key, encode_pong_frame, encode_text_frame, Frame, FrameReader};
@@ -71,10 +71,20 @@ impl Response {
     }
 }
 
+#[derive(Default, Clone, Copy, PartialEq, Eq)]
+pub enum LogFormat {
+    /// No access logging — keeps stdout silent in tests and dev runs.
+    #[default]
+    None,
+    /// One JSON object per line, mirroring `src/server/log.js`.
+    Json,
+}
+
 #[derive(Default, Clone)]
 pub struct ServerOptions {
     pub port: u16,
     pub static_root: Option<PathBuf>,
+    pub log_format: LogFormat,
 }
 
 pub struct ServerHandle {
@@ -177,6 +187,7 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
     let sync_peers = Arc::new(AtomicUsize::new(0));
     let ws_outgoing = WsSender::default();
     let ws_incoming = Arc::new(Mutex::new(Vec::new()));
+    let log_format = opts.log_format;
 
     let stop_l = Arc::clone(&stop);
     let state_l = Arc::clone(&state);
@@ -197,14 +208,17 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
                     Ok(s) => s,
                     Err(_) => continue,
                 };
-                let state = Arc::clone(&state_l);
-                let root = Arc::clone(&static_l);
-                let sig = signaling_l.clone();
-                let peers = Arc::clone(&peers_l);
-                let ws_out = ws_out_l.clone();
-                let ws_in = Arc::clone(&ws_in_l);
+                let ctx = ConnectionCtx {
+                    state: Arc::clone(&state_l),
+                    root: Arc::clone(&static_l),
+                    signaling: signaling_l.clone(),
+                    sync_peers: Arc::clone(&peers_l),
+                    ws_outgoing: ws_out_l.clone(),
+                    ws_incoming: Arc::clone(&ws_in_l),
+                    log_format,
+                };
                 thread::spawn(move || {
-                    let _ = handle_connection(stream, state, root, sig, peers, ws_out, ws_in);
+                    let _ = handle_connection(stream, ctx);
                 });
             }
         })?;
@@ -221,15 +235,26 @@ pub fn serve(opts: ServerOptions) -> std::io::Result<ServerHandle> {
     })
 }
 
-fn handle_connection(
-    mut stream: TcpStream,
+struct ConnectionCtx {
     state: Arc<ServerState>,
     root: Arc<StaticRoot>,
     signaling: Signaling,
     sync_peers: Arc<AtomicUsize>,
     ws_outgoing: WsSender,
     ws_incoming: Arc<Mutex<Vec<String>>>,
-) -> std::io::Result<()> {
+    log_format: LogFormat,
+}
+
+fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Result<()> {
+    let ConnectionCtx {
+        state,
+        root,
+        signaling,
+        sync_peers,
+        ws_outgoing,
+        ws_incoming,
+        log_format,
+    } = ctx;
     let _ = stream.set_read_timeout(Some(Duration::from_secs(60)));
     let (head, leftover) = match read_head(&mut stream)? {
         Some(v) => v,
@@ -260,6 +285,7 @@ fn handle_connection(
         return Ok(());
     }
 
+    let started = std::time::Instant::now();
     let mut req = parsed;
     let need = content_length(&req.headers).unwrap_or(0);
     let mut body = leftover;
@@ -274,9 +300,81 @@ fn handle_connection(
     body.truncate(need.min(MAX_BODY_BYTES));
     req.body = body;
 
-    let response = dispatch(&state, &root, &req);
+    let metrics_ctx = MetricsCtx {
+        ws_peers: sync_peers.load(Ordering::SeqCst),
+        rtc_rooms: signaling.rooms().len(),
+    };
+    let response = dispatch(&state, &root, &req, metrics_ctx);
+    let status = response.status;
     write_response(&mut stream, &response)?;
+    if log_format == LogFormat::Json {
+        let duration_ms = started.elapsed().as_millis();
+        emit_json_log(&req.method, &req.path, status, duration_ms);
+    }
     Ok(())
+}
+
+fn emit_json_log(method: &str, path: &str, status: u16, duration_ms: u128) {
+    let ts = format_iso8601(std::time::SystemTime::now());
+    let line = format!(
+        "{{\"ts\":\"{ts}\",\"level\":\"info\",\"event\":\"http\",\
+         \"method\":\"{}\",\"path\":\"{}\",\"status\":{},\"duration_ms\":{}}}\n",
+        json_escape(method),
+        json_escape(path),
+        status,
+        duration_ms
+    );
+    let _ = std::io::Write::write_all(&mut std::io::stdout().lock(), line.as_bytes());
+}
+
+fn json_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            '\r' => out.push_str("\\r"),
+            '\t' => out.push_str("\\t"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out
+}
+
+fn format_iso8601(t: std::time::SystemTime) -> String {
+    let secs = t
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+    let total_ms = secs as i64;
+    let total_secs = total_ms / 1000;
+    let ms = (total_ms % 1000) as u32;
+    let (year, month, day, hour, minute, second) = unix_to_ymdhms(total_secs);
+    format!("{year:04}-{month:02}-{day:02}T{hour:02}:{minute:02}:{second:02}.{ms:03}Z")
+}
+
+/// Convert a UNIX timestamp (seconds) to (year, month, day, hour, min, sec).
+/// Pure-Rust, no chrono dependency.
+fn unix_to_ymdhms(secs: i64) -> (i32, u32, u32, u32, u32, u32) {
+    let days = secs.div_euclid(86_400);
+    let rem = secs.rem_euclid(86_400) as u32;
+    let hour = rem / 3600;
+    let minute = (rem % 3600) / 60;
+    let second = rem % 60;
+    // Days since 1970-01-01 -> civil date (Howard Hinnant's algorithm).
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z.rem_euclid(146_097) as u32;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let y = yoe as i64 + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    let year = if month <= 2 { y + 1 } else { y };
+    (year as i32, month, day, hour, minute, second)
 }
 
 fn read_head(stream: &mut TcpStream) -> std::io::Result<Option<(String, Vec<u8>)>> {
@@ -498,10 +596,38 @@ fn write_response(stream: &mut TcpStream, response: &Response) -> std::io::Resul
     if !sent_extra.contains_key("access-control-allow-origin") {
         head.push_str("access-control-allow-origin: *\r\n");
     }
+    for (k, v) in security_headers() {
+        if !sent_extra.contains_key(*k) {
+            head.push_str(&format!("{k}: {v}\r\n"));
+        }
+    }
     head.push_str("\r\n");
     stream.write_all(head.as_bytes())?;
     stream.write_all(&response.body)?;
     Ok(())
+}
+
+/// Hardening headers that match the Node server (`src/server/index.js`).
+/// Loopback-only deployment keeps this conservative: no inline scripts,
+/// no remote fetches, frame-ancestors none.
+pub fn security_headers() -> &'static [(&'static str, &'static str)] {
+    &[
+        (
+            "content-security-policy",
+            "default-src 'self'; \
+             script-src 'self'; \
+             style-src 'self'; \
+             img-src 'self' data: blob:; \
+             connect-src 'self' ws: wss: http://127.0.0.1:* http://localhost:*; \
+             font-src 'self' data:; \
+             object-src 'none'; \
+             base-uri 'self'; \
+             frame-ancestors 'none'",
+        ),
+        ("x-content-type-options", "nosniff"),
+        ("referrer-policy", "no-referrer"),
+        ("x-frame-options", "DENY"),
+    ]
 }
 
 fn status_reason(code: u16) -> &'static str {

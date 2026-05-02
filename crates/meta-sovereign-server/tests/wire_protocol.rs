@@ -42,6 +42,7 @@ fn sources_endpoint_lists_known_networks() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let resp = http_request(
@@ -71,6 +72,7 @@ fn status_endpoint_returns_object_for_discover() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let resp = http_request(
@@ -89,6 +91,7 @@ fn put_link_then_get_round_trips() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let body = "{\"id\":\"msg:t:1\",\"tokens\":[\"message\"],\"sender\":\"me\",\"source\":\"t\",\"chat\":\"c\",\"body\":\"hi\",\"timestamp\":\"2024-01-01\"}";
@@ -116,6 +119,7 @@ fn pattern_infer_returns_regex_and_flags() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let body = "{\"examples\":[\"hi a\",\"hi b\"]}";
@@ -136,6 +140,7 @@ fn unknown_route_returns_404() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let resp = http_request(
@@ -151,6 +156,7 @@ fn websocket_handshake_succeeds_on_ws_path() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let mut s = TcpStream::connect(("127.0.0.1", h.port())).expect("connect");
@@ -177,6 +183,7 @@ fn webrtc_signaling_relays_between_two_peers() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let mut a = open_ws(h.port(), "/rtc?room=test");
@@ -276,6 +283,7 @@ fn ws_broadcast_sends_to_connected_peer() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let mut s = open_ws(h.port(), "/ws");
@@ -292,6 +300,7 @@ fn ws_drain_collects_inbound_frames() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: None,
+        ..Default::default()
     })
     .expect("serve");
     let mut s = open_ws(h.port(), "/ws");
@@ -313,6 +322,7 @@ fn static_serve_returns_index_when_root_is_set() {
     let h = serve(ServerOptions {
         port: 0,
         static_root: Some(dir.clone()),
+        ..Default::default()
     })
     .expect("serve");
     let resp = http_request(
@@ -327,6 +337,86 @@ fn static_serve_returns_index_when_root_is_set() {
     assert!(resp.contains("console.log(1)"), "{resp}");
     h.shutdown();
     let _ = std::fs::remove_dir_all(dir);
+}
+
+#[test]
+fn responses_include_csp_and_hardening_headers() {
+    let h = serve(ServerOptions {
+        port: 0,
+        static_root: None,
+        ..Default::default()
+    })
+    .expect("serve");
+    let resp = http_request(
+        h.port(),
+        "GET /sources HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+    );
+    let lower = resp.to_ascii_lowercase();
+    assert!(
+        lower.contains("content-security-policy: default-src 'self'"),
+        "missing CSP: {resp}"
+    );
+    assert!(
+        lower.contains("x-content-type-options: nosniff"),
+        "missing nosniff: {resp}"
+    );
+    assert!(
+        lower.contains("x-frame-options: deny"),
+        "missing frame-options: {resp}"
+    );
+    assert!(
+        lower.contains("referrer-policy: no-referrer"),
+        "missing referrer-policy: {resp}"
+    );
+    h.shutdown();
+}
+
+#[test]
+fn metrics_endpoint_emits_prometheus_exposition() {
+    let h = serve(ServerOptions {
+        port: 0,
+        static_root: None,
+        ..Default::default()
+    })
+    .expect("serve");
+    let put = format!(
+        "PUT /links HTTP/1.1\r\nHost: x\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+        "{\"id\":\"msg:m1\",\"tokens\":[\"m\"]}".len(),
+        "{\"id\":\"msg:m1\",\"tokens\":[\"m\"]}"
+    );
+    let _ = http_request(h.port(), &put);
+    let resp = http_request(
+        h.port(),
+        "GET /metrics HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+    );
+    assert!(resp.starts_with("HTTP/1.1 200"), "{resp}");
+    let body = body_of(&resp);
+    assert!(
+        body.contains("# HELP meta_sovereign_links_total"),
+        "missing HELP: {body}"
+    );
+    assert!(
+        body.contains("# TYPE meta_sovereign_links_total gauge"),
+        "missing TYPE: {body}"
+    );
+    assert!(
+        body.contains("meta_sovereign_links_by_kind{kind=\"message\"} 1"),
+        "wrong message count: {body}"
+    );
+    assert!(
+        body.contains("meta_sovereign_ws_peers"),
+        "missing ws_peers: {body}"
+    );
+    assert!(
+        body.contains("meta_sovereign_rtc_rooms"),
+        "missing rtc_rooms: {body}"
+    );
+    let lower = resp.to_ascii_lowercase();
+    assert!(
+        lower.contains("content-type: text/plain"),
+        "metrics should be text/plain: {resp}"
+    );
+    h.shutdown();
 }
 
 fn tempdir() -> std::path::PathBuf {

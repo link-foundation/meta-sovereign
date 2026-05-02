@@ -168,3 +168,71 @@ describe('http server', () => {
     }
   });
 });
+
+describe('http server observability', () => {
+  it('exposes /metrics in Prometheus exposition format', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-mtr-'));
+    const handle = await startServer({ port: 0, storeDir: dir });
+    const base = `http://127.0.0.1:${handle.port}`;
+    try {
+      await fetch(`${base}/links`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: 'msg:m1', tokens: ['m'] }),
+      });
+      const r = await fetch(`${base}/metrics`);
+      expect(r.status).toBe(200);
+      const body = await r.text();
+      expect(body).toContain('# HELP meta_sovereign_links_total');
+      expect(body).toContain('# TYPE meta_sovereign_links_total gauge');
+      expect(body).toMatch(/meta_sovereign_links_by_kind\{kind="message"\} 1/);
+      expect(body).toMatch(/meta_sovereign_ws_peers \d+/);
+    } finally {
+      await handle.close();
+    }
+  });
+  it('writes JSON access logs when log option is provided', async () => {
+    const { jsonLog } = await import('../src/server/log.js');
+    const lines = [];
+    const log = jsonLog({ write: (line) => lines.push(line) });
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-log-'));
+    const handle = await startServer({ port: 0, storeDir: dir, log });
+    const base = `http://127.0.0.1:${handle.port}`;
+    try {
+      await fetch(`${base}/sources`).then((r) => r.text());
+      // wait for `finish` event to flush
+      await new Promise((r) => setTimeout(r, 25));
+      const httpLines = lines
+        .map((l) => JSON.parse(l))
+        .filter((e) => e.event === 'http');
+      expect(httpLines.length).toBeGreaterThan(0);
+      expect(httpLines.at(-1).path).toBe('/sources');
+      expect(httpLines.at(-1).status).toBe(200);
+      expect(typeof httpLines.at(-1).duration_ms).toBe('number');
+    } finally {
+      await handle.close();
+    }
+  });
+  it('emits Content-Security-Policy + hardening headers on every response', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-csp-'));
+    const handle = await startServer({ port: 0, storeDir: dir });
+    const base = `http://127.0.0.1:${handle.port}`;
+    try {
+      const html = await fetch(`${base}/`);
+      await html.text();
+      expect(html.headers.get('content-security-policy')).toMatch(
+        /default-src 'self'/
+      );
+      expect(html.headers.get('x-content-type-options')).toBe('nosniff');
+      expect(html.headers.get('x-frame-options')).toBe('DENY');
+      expect(html.headers.get('referrer-policy')).toBe('no-referrer');
+      const api = await fetch(`${base}/sources`);
+      await api.json();
+      expect(api.headers.get('content-security-policy')).toMatch(
+        /default-src 'self'/
+      );
+    } finally {
+      await handle.close();
+    }
+  });
+});
