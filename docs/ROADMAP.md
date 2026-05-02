@@ -111,9 +111,6 @@ flow): we'll close them as the underlying features land.
 
 ## 8. Security hardening
 
-- [ ] **Token storage encryption.** `secret:*` links should be
-      encrypted-at-rest with a passphrase-derived key (the same
-      AES-256-GCM helpers `createBackup` already uses).
 - [ ] **WebRTC TURN fallback.** Document how to point the SPA at a
       user-hosted `coturn` for cross-NAT sync.
 

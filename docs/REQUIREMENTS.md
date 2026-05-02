@@ -19,13 +19,13 @@ and code comments can reference it.
 
 ## A. Data layer
 
-| ID   | Requirement                                                                               | State                                                                                      |
-| ---- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| R-A1 | Import/export with the unified database via external services (live API + bulk archives). | Skeleton: `src/sources/` covers all 9 networks via archive parsers; live APIs are stubbed. |
-| R-A2 | Import/export via `.lino` files using `links-notation` + `lino-objects-codec`.            | Done: `LinoTextStore` + indented codec round-trip in JS and Rust.                          |
-| R-A3 | Unified database stored simultaneously in binary (Doublets) and text (`.lino`) form.      | Done: `DualStore` keeps both in sync with `verify()`.                                      |
-| R-A4 | Regular automatic backups to a configurable archive directory.                            | Done: `createBackupScheduler` (`.unref()`-ed interval), AES-256-GCM at rest.               |
-| R-A5 | Indented Links Notation preferred over bracketed form for human-readable data exchange.   | Done: codec emits indented form; parser accepts both.                                      |
+| ID   | Requirement                                                                               | State                                                                                                                                                                          |
+| ---- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| R-A1 | Import/export with the unified database via external services (live API + bulk archives). | Skeleton: `src/sources/` covers all 9 networks via archive parsers; live APIs are stubbed.                                                                                     |
+| R-A2 | Import/export via `.lino` files using `links-notation` + `lino-objects-codec`.            | Done: `LinoTextStore` + indented codec round-trip in JS and Rust.                                                                                                              |
+| R-A3 | Unified database stored simultaneously in binary (Doublets) and text (`.lino`) form.      | Done: `DualStore` keeps both in sync with `verify()`.                                                                                                                          |
+| R-A4 | Regular automatic backups to a configurable archive directory.                            | Done: `createBackupScheduler` (`.unref()`-ed interval), AES-256-GCM at rest; `secret:*` links are also encrypted-at-rest via `wrapSecretStore` and never leave the local node. |
+| R-A5 | Indented Links Notation preferred over bracketed form for human-readable data exchange.   | Done: codec emits indented form; parser accepts both.                                                                                                                          |
 
 ## B. Unified communication UI
 
@@ -99,7 +99,7 @@ and code comments can reference it.
 | R-H1 | UI follows Apple HIG / Google Material / Microsoft design best practices.     | Partial: SPA uses system fonts, large tap targets, semantic landmarks; full audit pending.                                                                                  |
 | R-H2 | Code is written simply; no premature optimisations.                           | Done: vanilla JS SPA, plain `node:http` server, plain `std` Rust server.                                                                                                    |
 | R-H3 | All code documented with automated API documentation generation.              | Done: `npm run docs:api` walks `src/`; rustdoc on `cargo doc`.                                                                                                              |
-| R-H4 | Test coverage spans unit, integration, and e2e (`browser-commander` for e2e). | Done: 122 JS + 52 Rust tests; real-browser e2e via `browser-commander` + Playwright in `tests/e2e-browser-spa.mjs` (run with `RUN_BROWSER_E2E=1 npm run test:e2e:browser`). |
+| R-H4 | Test coverage spans unit, integration, and e2e (`browser-commander` for e2e). | Done: 129 JS + 52 Rust tests; real-browser e2e via `browser-commander` + Playwright in `tests/e2e-browser-spa.mjs` (run with `RUN_BROWSER_E2E=1 npm run test:e2e:browser`). |
 | R-H5 | CI/CD parity with the JS + Rust AI-driven-development pipeline templates.     | Done: 9-job CI matrix (Node × {Ubuntu, macOS, Windows} + Deno × 3 + Bun × 3).                                                                                               |
 | R-H6 | Project is fully open-source / public domain (Unlicense).                     | Done: `LICENSE` is Unlicense.                                                                                                                                               |
 

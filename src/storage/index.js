@@ -10,3 +10,4 @@ export {
   createIndexedDbDriver,
   pickBrowserDriver,
 } from './browser-store.js';
+export { wrapSecretStore, isSecretLinkId } from './secret-store.js';

@@ -97,11 +97,25 @@ export const merge = (a, b) => {
   return { ...winner, children: [...childIds] };
 };
 
+// Secrets (`secret:*` ids) are local to the node — they hold OAuth
+// tokens, passphrases, and per-network bot credentials. They never
+// leave the originating peer and never travel to a remote browser
+// (ROADMAP §1, §8). Inbound `secret:*` events from a peer are also
+// dropped so a malicious peer can't pollute our key store.
+const isSecretEvent = (event) =>
+  event &&
+  event.link &&
+  typeof event.link.id === 'string' &&
+  event.link.id.startsWith('secret:');
+
 export const createPeer = (store, { node = 'local' } = {}) => {
   const subs = new Set();
   let muted = false;
   store.subscribe((event) => {
     if (muted) {
+      return;
+    }
+    if (isSecretEvent(event)) {
       return;
     }
     for (const s of subs) {
@@ -115,6 +129,9 @@ export const createPeer = (store, { node = 'local' } = {}) => {
       return () => subs.delete(handler);
     },
     async receive(event) {
+      if (isSecretEvent(event)) {
+        return;
+      }
       muted = true;
       try {
         if (event.type === 'put') {

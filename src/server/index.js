@@ -45,6 +45,7 @@ import {
   createDualStore,
   createLinoTextStore,
   createDoubletsStore,
+  wrapSecretStore,
 } from '../storage/index.js';
 import { listSources } from '../sources/index.js';
 import { json } from './util.js';
@@ -177,16 +178,12 @@ const route = async (store, req, res, ctx) => {
   return json(res, 404, { error: 'unknown route' });
 };
 
-export const startServer = async ({
-  port = 0,
-  storeDir = '.meta-sovereign',
+const initStore = async ({
+  providedStore,
+  storeDir,
   archiveDir,
-  store: providedStore,
-  enableHandlers = true,
-  enableSync = true,
-  log = process.env.MS_LOG_FORMAT === 'json' ? jsonLog() : null,
-  node = 'server',
-} = {}) => {
+  secretPassphrase,
+}) => {
   let store = providedStore;
   let resolvedArchiveDir = archiveDir;
   if (!store) {
@@ -199,6 +196,29 @@ export const startServer = async ({
       await fs.mkdir(resolvedArchiveDir, { recursive: true });
     }
   }
+  if (secretPassphrase) {
+    store = wrapSecretStore({ inner: store, passphrase: secretPassphrase });
+  }
+  return { store, resolvedArchiveDir };
+};
+
+export const startServer = async ({
+  port = 0,
+  storeDir = '.meta-sovereign',
+  archiveDir,
+  store: providedStore,
+  enableHandlers = true,
+  enableSync = true,
+  log = process.env.MS_LOG_FORMAT === 'json' ? jsonLog() : null,
+  node = 'server',
+  secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
+} = {}) => {
+  const { store, resolvedArchiveDir } = await initStore({
+    providedStore,
+    storeDir,
+    archiveDir,
+    secretPassphrase,
+  });
   const ctx = { archiveDir: resolvedArchiveDir, sync: null, signaling: null };
   const server = http.createServer((req, res) => {
     const start = Date.now();
