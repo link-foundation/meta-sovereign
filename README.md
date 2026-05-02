@@ -4,7 +4,7 @@ A personal meta profile **sovereign** system. Fully local, privacy-respecting. T
 
 Tracked by issue [#1 — Prototype version 0.0.1](https://github.com/link-foundation/meta-sovereign/issues/1). The full case study, requirements list, architecture sketch, and phased solution plan live in [`docs/case-studies/issue-1/`](docs/case-studies/issue-1/README.md).
 
-## What it will do (target capabilities)
+## What it does
 
 - **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru.
 - **Personal CRM**: contacts, communities, group memberships, intersections, mass-personal outreach.
@@ -26,7 +26,7 @@ The prototype targeted by issue #1 is implemented and tracked in PR #2:
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
 - **Distribution (R-F\*)**: NPM library, CLI (`bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
 - **Stacks (R-G\*)**: default JS server + React SPA + Rust/WASM heavy workloads; alternative pure-Rust server (`meta-sovereign-rs serve`).
-- **Quality (R-H\*)**: 146 JS tests + Rust workspace tests; real-browser e2e via [`browser-commander`](https://github.com/link-foundation/browser-commander); axe-core WCAG 2.0 A/AA audit; cross-runtime CI matrix (Node, Bun, Deno × Ubuntu, macOS, Windows).
+- **Quality (R-H\*)**: JS and Rust workspace tests; real-browser e2e via [`browser-commander`](https://github.com/link-foundation/browser-commander); axe-core WCAG 2.0 A/AA audit; cross-runtime CI matrix (Node, Bun, Deno × Ubuntu, macOS, Windows).
 
 ## Inherited features (CI/CD baseline)
 

@@ -2,10 +2,14 @@
 
 **Issue:** [#1 — Prototype version 0.0.1](https://github.com/link-foundation/meta-sovereign/issues/1)
 **Author:** [@konard](https://github.com/konard)
-**Status:** Open / In Progress
+**Status:** Implemented in PR #2; issue remains open until merge
 **Pull Request:** [#2](https://github.com/link-foundation/meta-sovereign/pull/2)
 
-This case study compiles all available information about the issue, decomposes it into atomic requirements, surveys the existing libraries and tools that can help, and proposes a phased solution plan that fits the local-first / privacy-first design constraints stated in the issue.
+This case study compiles all available information about the issue,
+decomposes it into atomic requirements, surveys the existing libraries
+and tools that can help, and records the phased solution plan that PR #2
+implemented against the local-first / privacy-first design constraints
+stated in the issue.
 
 The artefacts in this folder are:
 
@@ -17,7 +21,7 @@ The artefacts in this folder are:
 | `components.md`        | Catalogue of upstream libraries / repositories referenced in the issue, with a short note on relevance.                                                                                                               |
 | `external-research.md` | Summary of external (non-issue) research about local-first software, CRDTs, unified messaging, pattern editors, fuzzy search, node editors, WebRTC sync, encrypted local storage, Electron/Tauri, and related topics. |
 | `architecture.md`      | Proposed high-level architecture, with the Universal Links access layer and Rust+WASM heavy-workload split.                                                                                                           |
-| `data/`                | Raw artefacts used to build this study (issue body, comments, future PR snapshots).                                                                                                                                   |
+| `data/`                | Raw artefacts used to build this study (issue body, comments, PR snapshots).                                                                                                                                          |
 
 ---
 
@@ -42,12 +46,15 @@ The issue explicitly requests:
 
 > _We need to collect data related about the issue to this repository, make sure we compile that data to `./docs/case-studies/issue-{id}` folder, and use it to do deep case study analysis (also make sure to search online for additional facts and data), list of each and all requirements from the issue, and propose possible solutions and solution plans for each requirement (we should also check known existing components/libraries, that solve similar problem or can help in solutions)._
 
-This document is the central deliverable of that request. The implementation of the prototype itself is the next phase, planned in `solution-plan.md` and tracked through follow-up issues.
+This document is the central deliverable of that request. PR #2 now
+implements the prototype described by `solution-plan.md`; the top-level
+[`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md) and
+[`docs/ROADMAP.md`](../../ROADMAP.md) files are the live review ledgers.
 
 ## 3. Method
 
 1. **Source extraction** — issue body, labels and metadata captured via `gh` CLI to `data/issue-1.json`. Comments captured to `data/issue-1-comments.json` (currently empty).
-2. **Requirement decomposition** — each bullet of the issue body was split into atomic, testable requirements in `requirements.md`. Each requirement is tagged so it can be referenced by future PRs and follow-up issues.
+2. **Requirement decomposition** — each bullet of the issue body was split into atomic, testable requirements in `requirements.md`. Each requirement is tagged so it can be referenced by commits, changesets, PR descriptions, and review comments.
 3. **Component survey** — every repository explicitly linked from the issue was inspected via `gh repo view` to identify what already exists in the link-foundation / linksplatform / konard ecosystem. Results captured in `components.md`.
 4. **External research** — public web sources (no GitHub) consulted for areas where the issue does **not** prescribe a specific library: CRDT sync libraries, pattern-synthesis literature, node editors, WebRTC sync stacks, encrypted-at-rest options for Electron and browser. Results captured in `external-research.md`.
 5. **Plan synthesis** — `solution-plan.md` groups requirements into phased milestones: (a) prototype data layer, (b) importer corpus, (c) unified UI, (d) automation graph, (e) sync. `architecture.md` shows how these layers compose.
@@ -73,18 +80,19 @@ The proposed plan respects every non-negotiable constraint stated in the issue:
 - **Every feature is an importable NPM package** — the prototype repository is structured so each adapter, the storage layer, the CRDT sync, and each UI surface can be split into a workspace package as it stabilises.
 - **All tests cover unit + integration + e2e**, with e2e using `link-foundation/browser-commander`.
 - **Two stacks**: a JS+React+Rust/WASM stack (default) and a pure-Rust stack (server/microservice variant). The browser stack now includes React views, `doublets-web` storage, and the Rust `pattern_matches` port compiled to WASM; the data formats (Links Notation, Doublets) are language-neutral, so the two stacks share the same on-disk artefacts.
-- **Best-practice CI/CD parity** with `js-ai-driven-development-pipeline-template` and `rust-ai-driven-development-pipeline-template`. This repository was created from the JS template; gaps relative to the Rust template will be tracked as follow-up issues.
+- **Best-practice CI/CD parity** with `js-ai-driven-development-pipeline-template` and `rust-ai-driven-development-pipeline-template`. This repository was created from the JS template; template gaps found during PR #2 are documented in the solution plan and should be reported upstream.
 
-## 6. Next steps
+## 6. Current Status
 
-The prototype implementation of `0.0.1` is decomposed into the
-milestones in `solution-plan.md`. PR #2 has since expanded beyond the
-initial case-study scope into a runnable system: storage, archive
-importers, live connector surfaces, CLI, HTTP, React SPA, WebSocket/WebRTC
-sync, handlers, encrypted backups, and the pure-Rust server are all
-implemented and tested. Remaining gaps stay tracked in the top-level
-requirements table; the top-level roadmap file was deleted once its
-final checklist was closed.
+Implemented in PR #2. The prototype implementation of `0.0.1` is
+decomposed into the milestones in `solution-plan.md`, and the PR has
+expanded beyond the initial case-study scope into a runnable system:
+storage, archive importers, live connector surfaces, CLI, HTTP, React
+SPA, WebSocket/WebRTC sync, handlers, encrypted backups, Electron,
+mobile packaging, Docker deployment, and the pure-Rust server are all
+implemented and tested. Remaining review findings belong in the
+top-level `docs/ROADMAP.md` ledger before any corresponding
+`docs/REQUIREMENTS.md` row is marked Done.
 
 ---
 

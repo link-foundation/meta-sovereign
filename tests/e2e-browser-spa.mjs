@@ -19,9 +19,8 @@
 // the script exits 0 with a skip message so CI matrix jobs that don't
 // have the Playwright browsers stay green.
 //
-// Coverage maps directly to the critical UI paths in
-// `docs/ROADMAP.md` §4 that are reachable without external services
-// or a second browser tab:
+// Coverage maps directly to the critical UI paths originally tracked in
+// `docs/ROADMAP.md` and now closed in the final requirements ledger:
 //   1. Boot → write a message → reload → message survives.
 //   2. Click every nav button (chat, operator, contacts, automation,
 //      patterns, replies, facts, audience, broadcast, profile, status)
@@ -33,10 +32,9 @@
 //   6. Audience → outreach plan, backup → restore round-trip,
 //      dark-mode toggle, skip-link a11y (JS backend only).
 //
-// Critical paths that need external infrastructure (real Telegram
-// import, two browsers connected via WebRTC) are exercised by separate
-// suites — see `tests/sync.test.js` and the
-// `crates/meta-sovereign-server/tests/` integration tests.
+// External-service connectors are exercised with mocked HTTP in the
+// unit/integration suites. Two-browser WebRTC convergence is exercised
+// below as part of this browser run when the JS backend is active.
 
 import { promises as fs } from 'node:fs';
 import os from 'node:os';

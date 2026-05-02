@@ -2,7 +2,7 @@
 'meta-sovereign': minor
 ---
 
-Establish project identity as `meta-sovereign`, land the case study for issue #1, and ship a runnable, zero-dependency skeleton that exercises every architectural layer of the plan.
+Establish project identity as `meta-sovereign`, land the case study for issue #1, and ship the runnable prototype that exercises every architectural layer of the plan.
 
 Identity and case study:
 
@@ -11,7 +11,7 @@ Identity and case study:
 - `README.md`, `docs/CONTRIBUTING.md`: title and intro reflect the new project identity.
 - `docs/case-studies/issue-1/`: catalogues every requirement from issue #1, surveys the linked libraries (links-notation, lino-objects-codec, doublets-rs, doublets-web, link-cli, lino-arguments, deep-foundation/sdk, plus the konard ingestion tools), summarises external research on local-first software, CRDT sync, unified messaging, encrypted-at-rest storage, browser SQLite, fuzzy search, and node editors, and proposes a phased solution plan with stable requirement IDs.
 
-Runnable skeleton (each layer has unit/integration tests):
+Runnable prototype baseline (each layer has unit/integration tests):
 
 - `src/storage/`: Universal Links Access (`createMemoryStore`), `.lino` text codec + `LinoTextStore`, binary `DoubletsStore` stub with a length-prefixed JSON frame format, `DualStore` with cross-check `verify()`, and timestamped backup / prune / restore helpers.
 - `src/sources/`: `MessageSource` adapter framework with archive parsers and live-sync stubs for all nine networks — telegram, vk, x, whatsapp, facebook, linkedin, habr-career, hh, superjob — plus `importInto(store, source, archive)` that normalises records into the unified `Link` shape.
@@ -36,7 +36,7 @@ Iteration 2 (follow-up commits on the same PR) thickens the most user-visible la
 - `src/sync/`: vector-clock CRDT — `vcInit/vcTick/vcMerge/vcCompare` plus a deterministic concurrent-write tiebreak; Lamport `version` remains the fallback for legacy links.
 - `tests/e2e.test.js`: end-to-end pipeline test driving the HTTP API — import messages, query derived contacts and status, round-trip a backup.
 
-Iteration 3 (follow-up commits on the same PR) closes every remaining `[skeleton in PR #2]` annotation so the full vision from issue #1 is usable in one process:
+Iteration 3 (follow-up commits on the same PR) turns the early runnable layer into full-vision coverage from issue #1 in one process:
 
 - `src/cli/`: full parity with the HTTP API — new subcommands `audience`, `facts`, `search`, `broadcast`, `patterns`, `patterns-infer`, `graphs`, `graphs-run`, `replies`, `profile`, `resume`, `sync-listen`, `sync-connect`, all sharing the same store layer the server uses. Includes a hand-rolled recursive-descent audience-expression parser identical to the server's so `audience --query='network:telegram AND NOT chat:42'` works from the terminal.
 - `src/server/routes-mutating.js` + `routes-derived.js`: extracted `handlePrefixedGet/Put`, `handlePatternInfer`, `handleGraphRun` helpers and a `HANDLERS` dispatch table so each module sits well below the eslint complexity budget without losing any endpoint.
@@ -81,7 +81,7 @@ Tests: 118/118 JS pass under both Node and Bun. The CI matrix (Node × {Ubuntu, 
 Iteration 7 (follow-up commits on the same PR) lands the requirements + roadmap docs requested in PR #2, expands the pure-Rust server so the SPA boots against it identically, and fixes the `meta-sovereign serve` CLI bug that quietly killed the daemon on startup:
 
 - `docs/REQUIREMENTS.md`: canonical spec list — every `R-A1…R-I5` from issue #1 plus a `R-J1…R-J10` section capturing the maintainer directives from PR #2 (offline-first SPA, autodiscovery, dual WebSocket+WebRTC reach, store-as-API, handled-link stamping, decentralised browser deployment, e2e via `browser-commander`, full Rust local server, REQUIREMENTS+ROADMAP docs, "iterate until ROADMAP empty").
-- `docs/ROADMAP.md`: the live punch-list — every requirement that is still partial or skeleton lives here; closing it deletes the file.
+- `docs/ROADMAP.md`: the live punch-list — every requirement gap lives here until it is closed.
 - `crates/meta-sovereign-server/`: the JS server now has a pure-`std` Rust counterpart that speaks the same wire protocol — REST (`/links`, `/sources`, `/api/contacts`, `/api/status`, `/api/health`, `/api/patterns`, `/api/patterns/infer`, `/api/graphs`, `/api/broadcast`), WebSocket sync at `/ws` with a hand-rolled RFC 6455 frame reader and SHA-1+Base64 handshake, and a WebRTC signalling broker at `/rtc` with room-based fanout. 49 Rust tests including 10 wire-protocol integration tests cover the surface.
 - `src/server/index.js` + `crates/meta-sovereign-server/src/routes.rs`: both servers now mount browser-safe sibling modules — `/storage/<file>.js`, `/handlers/<file>.js`, `/sync/<file>.js` resolve to the matching directory under `src/`. Without this the SPA's `import '../storage/browser-store.js'` returned 404 from any static host. Mount paths are flat-file-only with traversal protection.
 - `src/web/dom.js`: imports browser-safe storage from `'../storage/browser-store.js'` directly so the bundle never tries to load the Node-only re-exports of the `storage/index.js` barrel.
@@ -277,8 +277,8 @@ Electron/mobile packaging and discovery roadmap items:
 - `tests/mobile-electron-packaging.test.js` pins the WebView discovery,
   Electron updater, and mobile build contracts.
 - `docs/REQUIREMENTS.md`: R-F3, R-G3, R-J2, R-J3, R-J9, and R-J10 now
-  record the completed packaging/discovery state; `docs/ROADMAP.md` is
-  deleted because the tracked roadmap is empty.
+  record the completed packaging/discovery state; `docs/ROADMAP.md`
+  records an empty tracked roadmap.
 
 Tests: focused Node mobile/electron coverage passes; full matrix pending
 the final local verification pass for this iteration.
@@ -319,3 +319,16 @@ The same `timeout-minutes` gap exists in the upstream
 `link-foundation/rust-ai-driven-development-pipeline-template`
 templates and will be reported back to them so every project bootstrapped
 from those templates inherits this behaviour by default.
+
+Iteration 27 (follow-up commits on the same PR) aligns the active docs
+with the final implementation state:
+
+- `docs/ROADMAP.md` is restored as an explicit empty roadmap ledger so
+  reviewers have the requested stable file path for new findings.
+- `docs/REQUIREMENTS.md`, `README.md`, and the issue #1 case study now
+  point at the implemented PR #2 state instead of older future-phase or
+  deleted-roadmap wording.
+- `tests/docs-consistency.test.js` guards against regressing the
+  requirements, roadmap, and case-study docs into contradictory states.
+- The documentation validation job now treats `docs/ROADMAP.md` and
+  `docs/REQUIREMENTS.md` as required files.

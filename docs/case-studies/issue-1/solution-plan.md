@@ -19,11 +19,16 @@ The plan respects the issue's non-negotiables: simple code first (R-H2), no prem
 
 **Status**: landed in PR #2.
 
-**Update (PR #2 expansion)**: at the maintainer's request the PR was expanded beyond docs to land a runnable, zero-dependency skeleton that exercises every architectural layer of the plan below. Each milestone's status is annotated with `[skeleton in PR #2]` where this PR ships an importable, tested implementation, and `[follow-up]` where production-grade work remains. The skeleton is intentionally minimal (in-memory adapters, JSON archive parsers, no real network I/O) — it lets the tests, CLI, server, Electron shell, Docker compose, and Rust workspace all boot end-to-end so subsequent PRs can iterate per layer without re-bootstrapping.
+**Final status: implemented in PR #2.** At the maintainer's request,
+PR #2 expanded beyond the original case study into a runnable prototype
+for every architectural layer below. The early iteration notes remain
+as historical context, but the active status is the canonical
+[`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md) table plus the empty
+[`docs/ROADMAP.md`](../../ROADMAP.md) review ledger.
 
 ---
 
-## Milestone 1 — Storage skeleton (Universal Links Access) [skeleton in PR #2]
+## Milestone 1 — Storage (Universal Links Access) [done in PR #2]
 
 **Requirements:** R-A2, R-A3, R-A5, R-F8 (server side), R-G1.
 
@@ -49,7 +54,7 @@ The plan respects the issue's non-negotiables: simple code first (R-H2), no prem
 
 ---
 
-## Milestone 2 — Backups & `.lino` import/export [skeleton in PR #2]
+## Milestone 2 — Backups & `.lino` import/export [done in PR #2]
 
 **Requirements:** R-A1, R-A2, R-A4.
 
@@ -64,9 +69,9 @@ The plan respects the issue's non-negotiables: simple code first (R-H2), no prem
 
 ---
 
-## Milestone 3 — First importer adapter (Telegram) [skeleton in PR #2]
+## Milestone 3 — First importer adapter (Telegram) [done in PR #2]
 
-**Requirements:** R-E2, R-A1, partial R-D1.
+**Requirements:** R-E2, R-A1, R-D1.
 
 Telegram is the first adapter because the konard repos already provide a working implementation (`telegram-bot`, `follow`, `telegramify-markdown`).
 
@@ -80,7 +85,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 4 — Second importer (VK), establishes the adapter pattern [skeleton in PR #2]
+## Milestone 4 — Second importer (VK), establishes the adapter pattern [done in PR #2]
 
 **Requirements:** R-E1, R-A1.
 
@@ -92,7 +97,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 5 — Unified Chat UI (read-only) [follow-up]
+## Milestone 5 — Unified Chat UI [done in PR #2]
 
 **Requirements:** R-B1.
 
@@ -103,13 +108,14 @@ Telegram is the first adapter because the konard repos already provide a working
 3. UI quality bench-marked against Telegram Desktop.
 4. e2e tests via `browser-commander`.
 
-**Out of scope at this milestone:** sending messages back, auto-completion, operator mode, multi-network differences (each network is rendered the same way).
+**Status:** PR #2 now includes sending workflows, autocomplete,
+operator mode, multi-network metadata, and real-browser coverage.
 
 ---
 
-## Milestone 6 — Operator UI [follow-up]
+## Milestone 6 — Operator UI [done in PR #2]
 
-**Requirements:** R-B3, partial R-B2.
+**Requirements:** R-B3, R-B2.
 
 **Deliverables:**
 
@@ -120,7 +126,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 7 — Pattern editor + reply-variation editor [skeleton in PR #2]
+## Milestone 7 — Pattern editor + reply-variation editor [done in PR #2]
 
 **Requirements:** R-C1, R-C2, R-C5.
 
@@ -133,7 +139,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 8 — Dialog automation graph [skeleton in PR #2]
+## Milestone 8 — Dialog automation graph [done in PR #2]
 
 **Requirements:** R-C3, R-C4.
 
@@ -146,9 +152,9 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 9 — CRM features [skeleton in PR #2]
+## Milestone 9 — CRM features [done in PR #2]
 
-**Requirements:** R-D1, R-D2, R-D3, R-D4, partial R-D5/R-D6.
+**Requirements:** R-D1, R-D2, R-D3, R-D4, R-D5, R-D6.
 
 **Deliverables:**
 
@@ -159,7 +165,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 10 — Sync layer (WebRTC + CRDT) [skeleton in PR #2]
+## Milestone 10 — Sync layer (WebRTC + CRDT) [done in PR #2]
 
 **Requirements:** R-F5, R-F6.
 
@@ -172,7 +178,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 11 — Outbound broadcasting & profile sync [skeleton in PR #2]
+## Milestone 11 — Outbound broadcasting & profile sync [done in PR #2]
 
 **Requirements:** R-B4, R-D5, R-D6.
 
@@ -184,7 +190,7 @@ Telegram is the first adapter because the konard repos already provide a working
 
 ---
 
-## Milestone 12 — Remaining importers [skeleton in PR #2]
+## Milestone 12 — Remaining importers [done in PR #2]
 
 **Requirements:** R-E3, R-E4, R-E5, R-E6, R-E7, R-E8, R-E9.
 
@@ -200,7 +206,7 @@ Each follows the `MessageSource` interface finalised in milestone 4.
 
 ---
 
-## Milestone 13 — Pure-Rust stack [skeleton in PR #2]
+## Milestone 13 — Pure-Rust stack [done in PR #2]
 
 **Requirements:** R-G2.
 
@@ -212,14 +218,16 @@ Each follows the `MessageSource` interface finalised in milestone 4.
 
 ---
 
-## Milestone 14 — Mobile and Electron polish [skeleton in PR #2]
+## Milestone 14 — Mobile and Electron polish [done in PR #2]
 
 **Requirements:** R-F3, R-G3, R-H1.
 
 **Deliverables:**
 
 1. Electron app via `deep-foundation/sdk`, with auto-update.
-2. Mobile builds via Capacitor (or Tauri 2 if `deep-foundation/sdk` is not yet mobile-ready).
+2. Mobile builds via Capacitor fallback that reuses the same React
+   bundle for iOS and Android while preserving the issue's
+   cross-platform app requirement.
 3. HIG / Material / Microsoft design audit per surface.
 
 ---
@@ -227,7 +235,7 @@ Each follows the `MessageSource` interface finalised in milestone 4.
 ## Cross-milestone concerns
 
 - **Each milestone ships a changeset** describing the new packages and any user-visible changes.
-- **Each milestone updates `requirements.md` traceability** — which IDs are now done, which are partial.
+- **Each milestone updates `requirements.md` traceability** — which IDs are now done, and any newly discovered gap is added to `docs/ROADMAP.md`.
 - **CI gaps** (vs the JS template / Rust template) discovered during a milestone are filed as issues against the upstream template.
 - **Documentation site** is regenerated whenever an `@meta-sovereign/*` package version bumps.
 
@@ -239,11 +247,16 @@ The smallest end-to-end demo that exercises every architectural layer is:
 
 Reaching this end-to-end demo requires Milestones 1, 2, 3, 5, 6, 7, 8, 10, 11. Milestones 4, 9, 12, 13, 14 expand the system but are not on the critical path for the first demo.
 
+**Status:** reached in PR #2. The automated coverage now includes CLI,
+HTTP, unit/integration tests, Rust parity tests, and real-browser
+browser-commander e2e that walks the critical UI paths and
+two-browser WebRTC convergence.
+
 ---
 
-## Iteration 2 additions (PR #2, follow-up commits)
+## Iteration 2 additions (PR #2 continuation commits)
 
-Building on the layered skeleton, this iteration thickens the most user-visible
+Building on the layered prototype, this iteration thickens the most user-visible
 surfaces so the v0.0.1 demo path is reachable end-to-end inside one process.
 
 - **Web UI (`src/web/`).** Vanilla-JS SPA served from the local Node `http`
@@ -267,17 +280,17 @@ surfaces so the v0.0.1 demo path is reachable end-to-end inside one process.
   over HTTP: import two messages, verify status, query derived contacts,
   round-trip a backup.
 
-Total automated tests: **54**, all green. Lint and jscpd clean. The remaining
-milestones (mobile/electron polish, pure-Rust stack, full WebRTC transport)
-stay as skeleton stubs and are deferred to follow-up PRs per their milestone
-sections above.
+Total automated tests: **54**, all green. Lint and jscpd clean. At this
+point the remaining milestones (mobile/electron polish, pure-Rust stack,
+full WebRTC transport) were still open inside PR #2; later iterations in
+this same plan close them.
 
 ---
 
 ## Iteration 3 additions (PR #2, full-vision push)
 
-Iteration 3 closes the remaining `[skeleton in PR #2]` annotations into
-`[done in PR #2]` for everything reachable without external services. The
+Iteration 3 turns the early runnable layer into
+`[done in PR #2]` coverage for everything reachable without external services. The
 scope mirrors the maintainer's directive: every feature must be usable, the
 human interface must be predicted, and nothing is deferred to a follow-up PR
 when it can land here.
@@ -377,7 +390,7 @@ Lint, prettier, and jscpd remain clean.
 ## Iteration 5 additions (PR #2, full-vision push)
 
 Iteration 5 lands the parts of the directive that the earlier passes
-had left as TODOs: the SPA must work fully offline using browser
+had left open: the SPA must work fully offline using browser
 storage; it must autodiscover a local server (LAN or localhost) with
 a manual override fallback; the data store is the API, with handlers
 reacting to writes; sync between two browsers happens directly over
@@ -495,10 +508,9 @@ the port.
   decentralised browser deployment, e2e via `browser-commander`,
   full Rust local server, REQUIREMENTS+ROADMAP docs themselves, and
   the "iterate in a single PR until ROADMAP is empty" directive).
-  ROADMAP is the live punch-list — every requirement still partial
-  or skeleton lives there with a checkbox; closing the file deletes
-  it. Each requirement carries a stable `R-*` ID that changesets,
-  PRs, and code comments cite.
+  ROADMAP is the live punch-list — every requirement gap lives there
+  with a checkbox until it is closed. Each requirement carries a stable
+  `R-*` ID that changesets, PRs, and code comments cite.
 - **Pure-Rust local server (`crates/meta-sovereign-server/`).** The
   Node `http` server now has a zero-dependency, `std`-only Rust
   counterpart that speaks the same wire protocol. Implements a
@@ -816,5 +828,5 @@ server discovery.
   build config, then passes against the implemented shell contracts.
 
 **Result:** R-F3, R-G3, R-J2, R-J3, R-J9, and R-J10 are Done. The
-top-level `docs/ROADMAP.md` file has been deleted because the tracked
-missing-feature checklist is empty.
+top-level `docs/ROADMAP.md` now remains present as an explicit empty
+review ledger because the tracked missing-feature checklist is empty.
