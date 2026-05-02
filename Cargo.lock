@@ -5,3 +5,10 @@ version = 4
 [[package]]
 name = "meta-sovereign-core"
 version = "0.0.1"
+
+[[package]]
+name = "meta-sovereign-server"
+version = "0.0.1"
+dependencies = [
+ "meta-sovereign-core",
+]

@@ -1,9 +1,12 @@
-# Cargo workspace seed for the pure-Rust port (R-G2).
+# Cargo workspace for the pure-Rust port (R-G2).
 # Crates here are the Rust counterparts of the JS modules in `src/`.
-# The first crate is `meta-sovereign-core`; importer adapters and the
-# Axum-based server land in follow-up PRs as separate crates inside
-# this workspace.
+#
+# - `meta-sovereign-core`: data types, indented Links Notation codec,
+#   `MemoryStore`, `LinoTextStore`, vector-clock CRDT, pattern synthesis.
+# - `meta-sovereign-server`: zero-dependency HTTP + WebSocket sync +
+#   WebRTC signalling broker, on the same wire protocol as the JS server,
+#   so the SPA boots against either backend without changes.
 
 [workspace]
 resolver = "2"
-members = ["crates/meta-sovereign-core"]
+members = ["crates/meta-sovereign-core", "crates/meta-sovereign-server"]
