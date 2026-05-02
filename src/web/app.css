@@ -208,3 +208,23 @@ pre {
   padding: 0.5rem;
   overflow-x: auto;
 }
+
+.mode-badge {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #30363d;
+  margin-left: auto;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.mode-badge.online {
+  background: #033a16;
+  color: #6dd58c;
+  border-color: #1a532e;
+}
+.mode-badge.offline {
+  background: #3a1a03;
+  color: #f0a36c;
+  border-color: #5a2c10;
+}

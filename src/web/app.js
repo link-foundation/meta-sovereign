@@ -1,6 +1,10 @@
-// meta-sovereign web UI — vanilla-JS SPA backed by the local HTTP server.
-// All state lives in the local store (R-A2/A3); this client is a thin view.
+// meta-sovereign web UI — vanilla-JS SPA. The store at the centre is
+// browser-local (R-A2/R-A3 + R-Offline). When a server is reachable
+// the SPA also replicates over /ws so the same data is consistent
+// across devices; when offline the SPA still works fully on the
+// device's own storage.
 
+import { api } from './dom.js';
 import {
   chatView,
   operatorView,
@@ -17,6 +21,25 @@ import {
 
 const root = document.getElementById('root');
 const nav = document.querySelector('.topbar nav');
+const topbar = document.querySelector('.topbar');
+
+const badge = document.createElement('span');
+badge.className = 'mode-badge offline';
+badge.textContent = '…';
+topbar.append(badge);
+
+const setBadge = (online) => {
+  badge.textContent = online ? 'online' : 'offline';
+  badge.classList.toggle('offline', !online);
+  badge.classList.toggle('online', online);
+};
+
+api.isOnline().then(setBadge);
+api.on((e) => {
+  if (e.type === 'mode-change') {
+    setBadge(e.online);
+  }
+});
 
 const views = {
   chat: chatView,
@@ -43,7 +66,9 @@ const show = async (name) => {
 nav.addEventListener('click', (e) => {
   const v = e.target.dataset?.view;
   if (v) {
-    show(v);
+    show(v).catch((err) => {
+      root.textContent = String(err);
+    });
   }
 });
 
