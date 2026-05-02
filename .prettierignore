@@ -10,3 +10,5 @@ CLAUDE.md
 docs/api/
 # Case study raw data files (downloaded from external sources)
 docs/case-studies/*/data/
+# Playwright MCP traces and snapshots
+.playwright-mcp/

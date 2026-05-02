@@ -149,3 +149,6 @@ docs/api/
 
 # Deno lockfile (auto-generated when running deno tasks; not part of CI inputs)
 deno.lock
+
+# Playwright MCP traces / snapshots (local-only verification artefacts)
+.playwright-mcp/
