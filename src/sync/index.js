@@ -141,6 +141,8 @@ export {
   startSyncWebSocketListener,
   connectSyncWebSocket,
 } from './ws-transport.js';
+export { attachSignaling } from './webrtc-signaling.js';
+export { signalingChannel, createWebRtcTransport } from './webrtc-transport.js';
 
 export const loopback = () => {
   const aHandlers = new Set();
