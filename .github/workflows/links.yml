@@ -20,6 +20,9 @@ jobs:
   link-checker:
     name: Check Links
     runs-on: ubuntu-latest
+    # Typical run: ~8s with the cache hit. Cap at 10min so a slow
+    # external host or Wayback Machine probe can't hang the workflow.
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:

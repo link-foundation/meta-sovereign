@@ -282,3 +282,40 @@ Electron/mobile packaging and discovery roadmap items:
 
 Tests: focused Node mobile/electron coverage passes; full matrix pending
 the final local verification pass for this iteration.
+
+Iteration 26 (follow-up commits on the same PR) makes CI fail fast on
+hangs and flaky tests so AI-driven iteration stays quick (R-J11):
+
+- `.github/workflows/release.yml` and `.github/workflows/links.yml`:
+  every job now declares an explicit `timeout-minutes`, sized at
+  roughly 5–10× the observed p95 of that job (5/10/15/30 min bands).
+  Without these caps a hung promise or flaky network call would only
+  fail after the GitHub Actions default of six hours per job, which
+  defeats the AI iteration loop. Each timeout has an inline comment
+  recording the typical run window vs. the cap so future tuning is
+  data-driven, not guesswork.
+- `package.json`: `npm test` now runs
+  `node --test --test-timeout=30000 tests/*.test.js` so an individual
+  hung test fails in 30s instead of waiting for the job-level cap.
+- `.github/workflows/release.yml` (test matrix): the Bun runner uses
+  `bun test --timeout 30000` to apply the same 30s per-test budget on
+  the Bun side. Deno has no global per-test timeout flag, so Deno
+  tests are protected only by the job-level `timeout-minutes: 10` —
+  documented in `docs/BEST-PRACTICES.md` §13.
+- `docs/BEST-PRACTICES.md`: new §13 "Reasonable Timeouts on Every Job
+  and Test" codifies the policy with the explicit per-job table
+  (detect-changes 5, lint 10, test 10, docs-build 15, release 30, …)
+  and the per-test 30s budget. The previous "Proper Cancellation
+  Propagation" section is renumbered to §14.
+- `README.md`: "Reasonable timeouts on every job" subsection added
+  under the testing section, summarising the band table and per-test
+  flags so contributors know what budget to size new jobs against.
+- `docs/REQUIREMENTS.md`: new R-J11 row records the directive (the
+  user's "fail faster, fix faster" ask) alongside the implementation
+  evidence.
+
+The same `timeout-minutes` gap exists in the upstream
+`link-foundation/js-ai-driven-development-pipeline-template` and
+`link-foundation/rust-ai-driven-development-pipeline-template`
+templates and will be reported back to them so every project bootstrapped
+from those templates inherits this behaviour by default.

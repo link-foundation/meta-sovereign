@@ -14,13 +14,19 @@ Tracked by issue [#1 — Prototype version 0.0.1](https://github.com/link-founda
 - **Local-first runtime**: WebRTC sync between user-owned devices, optional self-hosted personal cloud.
 - **Two stacks**: JS + Rust/WebAssembly (default) and pure Rust (server/microservice variant). The on-disk format is shared.
 
-This repository is built on top of [`link-foundation/js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template) and inherits its CI/CD jobs. The current `src/` is a placeholder; feature implementation will land milestone-by-milestone per [`solution-plan.md`](docs/case-studies/issue-1/solution-plan.md).
+This repository is built on top of [`link-foundation/js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template) and inherits its CI/CD jobs. PR #2 has since expanded the codebase into a runnable system: storage, archive importers, live service connectors, CLI, HTTP, React SPA, WebSocket/WebRTC sync, handler bus, encrypted backups, and the pure-Rust server are all implemented and tested. The full requirement → status mapping lives in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md); the per-iteration breakdown is in [`docs/case-studies/issue-1/`](docs/case-studies/issue-1/README.md).
 
 ## Status
 
-- **0.0.0**: scaffolding inherited from the JS template.
-- **0.0.1 (in progress, this PR #2)**: case study, requirements, solution plan, repository identity.
-- **0.0.2 → 0.0.x**: storage skeleton, importer adapters, UI surfaces — see [Solution Plan](docs/case-studies/issue-1/solution-plan.md).
+The prototype targeted by issue #1 is implemented and tracked in PR #2:
+
+- **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM at-rest backups (`createBackupScheduler`) and `secret:*` link encryption.
+- **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru.
+- **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
+- **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
+- **Distribution (R-F\*)**: NPM library, CLI (`bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
+- **Stacks (R-G\*)**: default JS server + React SPA + Rust/WASM heavy workloads; alternative pure-Rust server (`meta-sovereign-rs serve`).
+- **Quality (R-H\*)**: 146 JS tests + Rust workspace tests; real-browser e2e via [`browser-commander`](https://github.com/link-foundation/browser-commander); axe-core WCAG 2.0 A/AA audit; cross-runtime CI matrix (Node, Bun, Deno × Ubuntu, macOS, Windows).
 
 ## Inherited features (CI/CD baseline)
 
@@ -44,7 +50,13 @@ bun test
 
 # Or with other runtimes:
 npm test
-deno test --allow-read
+deno test --allow-read --allow-write --allow-env --allow-net --allow-sys
+
+# Run the real-browser e2e (opt-in; needs Playwright + Chromium)
+RUN_BROWSER_E2E=1 npm run test:e2e:browser
+
+# Run the Rust workspace tests
+cargo test --workspace
 
 # Lint code
 bun run lint
@@ -61,18 +73,24 @@ bun run check
 ```
 .
 ├── .changeset/           # Changeset configuration
-├── .github/workflows/    # GitHub Actions CI/CD
+├── .github/workflows/    # GitHub Actions CI/CD (release.yml, links.yml)
 ├── .husky/               # Git hooks (pre-commit)
+├── bin/                  # CLI entrypoint (meta-sovereign)
+├── crates/               # Pure-Rust workspace (core, server, wasm)
+├── docker/               # Web + WebRTC microservice Dockerfiles
+├── docs/                 # REQUIREMENTS, case studies, design docs, screenshots
+├── electron/             # Electron desktop shell + preload bridge
 ├── examples/             # Usage examples
-├── scripts/              # Build and release scripts
-├── src/                  # Source code
-│   ├── index.js          # Main entry point
-│   └── index.d.ts        # TypeScript definitions
-├── tests/                # Test files
-├── .eslintrc.js          # ESLint configuration
-├── .prettierrc           # Prettier configuration
+├── experiments/          # Throwaway/exploration scripts
+├── mobile/               # Capacitor mobile shell
+├── scripts/              # Build and release scripts (CI/CD parity with JS template)
+├── src/                  # Source code (storage, sources, sync, broadcast, handlers, server, web, ...)
+├── tests/                # Cross-runtime unit + integration tests, real-browser e2e
 ├── bunfig.toml           # Bun configuration
+├── capacitor.config.json # Capacitor mobile config
 ├── deno.json             # Deno configuration
+├── eslint.config.js      # ESLint configuration
+├── Cargo.toml            # Rust workspace manifest
 └── package.json          # Node.js package manifest
 ```
 
@@ -140,12 +158,35 @@ The GitHub Actions workflow (`.github/workflows/release.yml`) implements a fast-
 **Slow checks** (only run after all fast checks pass):
 
 7. **Test matrix**: 3 runtimes × 3 OS = 9 test combinations
-8. **Broken link checks**: Validates all links in Markdown/HTML files (separate workflow)
+8. **API doc build**: `npm run docs:api` + `cargo doc --no-deps --workspace`
+9. **Broken link checks**: Validates all links in Markdown/HTML files (separate workflow)
 
 **Release** (on merge to main):
 
-9. **Changeset merge**: Combines multiple pending changesets at release time
-10. **Release**: Automated versioning and npm publishing
+10. **Changeset merge**: Combines multiple pending changesets at release time
+11. **Release**: Automated versioning and npm publishing
+
+#### Reasonable timeouts on every job
+
+Every CI job declares an explicit `timeout-minutes` so a hung step
+fails fast instead of stalling for the GitHub default of six hours.
+The bands are sized at roughly 5–10× the observed p95 to absorb cold
+runners without hiding real flakiness:
+
+| Job                        | Cap      | Typical                                      |
+| -------------------------- | -------- | -------------------------------------------- |
+| Detect Changes / file size | 5 min    | ~3–6 s                                       |
+| Test Compilation           | 5 min    | ~4 s                                         |
+| Version / Changeset checks | 5–10 min | ~6–13 s                                      |
+| Lint and Format            | 10 min   | ~23 s                                        |
+| Build API Docs             | 15 min   | ~25 s                                        |
+| Test (per runtime × OS)    | 10 min   | ~13–55 s (deno-windows up to ~2 min on cold) |
+| Release / Instant Release  | 30 min   | well under 10 min                            |
+| Broken Link Checker        | 10 min   | ~8 s                                         |
+
+Per-test timeouts are also enforced inside the runners themselves so
+an individual hung promise surfaces in seconds rather than at the job
+cap: `node --test --test-timeout=30000` and `bun test --timeout 30000`.
 
 See [BEST-PRACTICES.md](docs/BEST-PRACTICES.md) for detailed explanations of each practice.
 

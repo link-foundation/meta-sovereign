@@ -147,7 +147,54 @@ Documentation files are validated in CI just like code:
 - Required files check (README.md, CHANGELOG.md, CONTRIBUTING.md, BEST-PRACTICES.md)
 - Only runs when documentation files change
 
-### 13. Proper Cancellation Propagation
+### 13. Reasonable Timeouts on Every Job and Test
+
+**Every CI job declares an explicit `timeout-minutes`**, sized at
+roughly 5–10× the observed p95 of that job. This guarantees:
+
+- A flaky network call or hung promise fails in minutes, not hours.
+- The default GitHub Actions timeout (six hours per job, 35 days per
+  workflow) never applies — feedback for AI solvers and humans stays
+  fast.
+- Real regressions show up before the queue fills with stuck runs.
+
+```yaml
+# Fast checks
+detect-changes: timeout-minutes: 5
+test-compilation: timeout-minutes: 5
+check-file-line-limits: timeout-minutes: 5
+version-check: timeout-minutes: 5
+validate-docs: timeout-minutes: 5
+changeset-check: timeout-minutes: 10
+lint: timeout-minutes: 10
+
+# Slow checks
+docs-build: timeout-minutes: 15
+test (per runtime × OS): timeout-minutes: 10
+
+# Release path
+release / instant-release: timeout-minutes: 30
+changeset-pr: timeout-minutes: 10
+
+# Out-of-band
+links-checker: timeout-minutes: 10
+```
+
+**Per-test timeouts** are also enforced inside the runners themselves
+so an individual test fails fast without waiting for the job-level
+cap:
+
+```bash
+node --test --test-timeout=30000 tests/*.test.js
+bun test --timeout 30000
+```
+
+The 30-second per-test budget is well above the slowest observed test
+(~250 ms) but small enough that a hung promise or socket surfaces in
+seconds. This is exactly the "fail fast to fix flaky tests faster"
+property requested for this repository.
+
+### 14. Proper Cancellation Propagation
 
 Use `!cancelled()` instead of `always()` in job conditions (hive-mind issue #1278):
 
