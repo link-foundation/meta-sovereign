@@ -87,11 +87,6 @@ Rust port exposes identical wire semantics.
       port to WASM and run it in the SPA so heavy-pattern UIs don't
       block the main thread.
 
-## 8. Security hardening
-
-- [ ] **WebRTC TURN fallback.** Document how to point the SPA at a
-      user-hosted `coturn` for cross-NAT sync.
-
 ---
 
 ## How to close items
