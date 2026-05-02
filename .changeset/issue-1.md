@@ -78,4 +78,17 @@ Iteration 6 (follow-up commits on the same PR) closes the last CI gap by making 
 
 Tests: 118/118 JS pass under both Node and Bun. The CI matrix (Node × {Ubuntu, macOS, Windows} + Deno × 3 + Bun × 3) is now green end-to-end.
 
+Iteration 7 (follow-up commits on the same PR) lands the requirements + roadmap docs requested in PR #2, expands the pure-Rust server so the SPA boots against it identically, and fixes the `meta-sovereign serve` CLI bug that quietly killed the daemon on startup:
+
+- `docs/REQUIREMENTS.md`: canonical spec list — every `R-A1…R-I5` from issue #1 plus a `R-J1…R-J10` section capturing the maintainer directives from PR #2 (offline-first SPA, autodiscovery, dual WebSocket+WebRTC reach, store-as-API, handled-link stamping, decentralised browser deployment, e2e via `browser-commander`, full Rust local server, REQUIREMENTS+ROADMAP docs, "iterate until ROADMAP empty").
+- `docs/ROADMAP.md`: the live punch-list — every requirement that is still partial or skeleton lives here; closing it deletes the file.
+- `crates/meta-sovereign-server/`: the JS server now has a pure-`std` Rust counterpart that speaks the same wire protocol — REST (`/links`, `/sources`, `/api/contacts`, `/api/status`, `/api/health`, `/api/patterns`, `/api/patterns/infer`, `/api/graphs`, `/api/broadcast`), WebSocket sync at `/ws` with a hand-rolled RFC 6455 frame reader and SHA-1+Base64 handshake, and a WebRTC signalling broker at `/rtc` with room-based fanout. 49 Rust tests including 10 wire-protocol integration tests cover the surface.
+- `src/server/index.js` + `crates/meta-sovereign-server/src/routes.rs`: both servers now mount browser-safe sibling modules — `/storage/<file>.js`, `/handlers/<file>.js`, `/sync/<file>.js` resolve to the matching directory under `src/`. Without this the SPA's `import '../storage/browser-store.js'` returned 404 from any static host. Mount paths are flat-file-only with traversal protection.
+- `src/web/dom.js`: imports browser-safe storage from `'../storage/browser-store.js'` directly so the bundle never tries to load the Node-only re-exports of the `storage/index.js` barrel.
+- `src/cli/index.js`: `serveCmd` now blocks on SIGINT/SIGTERM. Previously it returned 0 immediately, which `bin/meta-sovereign.js` propagated to `process.exit(0)` — the listener bound a port and then died before it could serve anything. Tests opt out via `args.foreground === false`.
+- `tests/server.test.js`: new `mounts browser-safe sibling modules` test exercising the JS mount, traversal rejection, .js-only filter, and nested-path rejection.
+- `crates/meta-sovereign-server/src/routes.rs`: new `browser_mount_serves_sibling_directory_files` unit test mirroring the JS coverage against the real `src/` tree.
+
+Tests: 119/119 JS + 49/49 Rust pass; lint, prettier, jscpd clean.
+
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, and SPA — including offline-first SPA, autodiscovered or manually configured server, and direct browser-to-browser sync over WebRTC — with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.

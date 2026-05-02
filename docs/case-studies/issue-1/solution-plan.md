@@ -478,3 +478,81 @@ boot and the Bun build delegates to `Bun.serve` + the global
 prettier, jscpd clean. The CI matrix (Node × {Ubuntu, macOS, Windows}
 
 - Deno × 3 + Bun × 3) is now green end-to-end.
+
+## Iteration 7 additions (PR #2, full pure-Rust server + spec docs)
+
+Iteration 7 closes three of the maintainer's PR #2 directives in one
+pass: write the requirements + roadmap docs, ship a pure-Rust server
+the SPA can boot against verbatim, and fix the `meta-sovereign serve`
+CLI bug that quietly killed the daemon a millisecond after it bound
+the port.
+
+- **Spec docs (`docs/REQUIREMENTS.md`, `docs/ROADMAP.md`).**
+  REQUIREMENTS is the canonical, top-level list of every directive
+  from the issue (`R-A1` … `R-I5`) plus the maintainer follow-ups
+  from the PR (`R-J1` … `R-J10`: offline-first SPA, autodiscovery,
+  dual WebSocket+WebRTC reach, store-as-API, handled-link stamping,
+  decentralised browser deployment, e2e via `browser-commander`,
+  full Rust local server, REQUIREMENTS+ROADMAP docs themselves, and
+  the "iterate in a single PR until ROADMAP is empty" directive).
+  ROADMAP is the live punch-list — every requirement still partial
+  or skeleton lives there with a checkbox; closing the file deletes
+  it. Each requirement carries a stable `R-*` ID that changesets,
+  PRs, and code comments cite.
+- **Pure-Rust local server (`crates/meta-sovereign-server/`).** The
+  Node `http` server now has a zero-dependency, `std`-only Rust
+  counterpart that speaks the same wire protocol. Implements a
+  thread-per-connection HTTP loop, RFC 6455 WebSocket framing
+  (hand-rolled SHA-1 + Base64 keep the dep surface at zero), the
+  `/links`, `/sources`, `/api/contacts`, `/api/status`, `/api/health`,
+  `/api/patterns`, `/api/patterns/infer`, `/api/graphs`, and
+  `/api/broadcast` REST routes, the `/ws` sync endpoint, and a
+  room-based `/rtc` WebRTC signalling broker. 49 Rust tests including
+  10 wire-protocol integration tests cover REST round-trips, sources
+  listing, status shape, WS handshake, WS broadcast/drain, and RTC
+  fanout. The SPA boots against `meta-sovereign-rs serve --web ./src/web`
+  identically to the JS server (verified via Playwright — the
+  discovery cascade flips `online`, `PUT /links` round-trips, all 11
+  nav buttons render).
+- **Browser-mount support in both servers.** The SPA's `dom.js`
+  imports browser-safe modules from sibling directories
+  (`'../storage/browser-store.js'`, `'../handlers/index.js'`) — these
+  files live outside `src/web/` so the static handler had to be
+  extended to mount them. Both `src/server/index.js` and
+  `crates/meta-sovereign-server/src/routes.rs` now expose `/storage/`,
+  `/handlers/`, and `/sync/` as flat-file mounts (single `.js` file
+  per request, traversal blocked, only `[a-zA-Z0-9._-]+\.js` accepted).
+  Without this the SPA's first import returned 404 from any host.
+- **Browser-safe storage import (`src/web/dom.js`).** Switched from
+  the `storage/index.js` barrel (which re-exports Node-only
+  `LinoTextStore` + `DoubletsStore`) to `'../storage/browser-store.js'`
+  directly so the SPA bundle never loads a `node:fs` import on the
+  hot path.
+- **CLI serve daemon (`src/cli/index.js`).** `serveCmd` now blocks
+  on SIGINT/SIGTERM before returning. The previous version returned
+  0 immediately, which `bin/meta-sovereign.js` propagated to
+  `process.exit(0)` — the listener bound a port then died before the
+  first request could land. Tests and library callers can opt out
+  with `args.foreground === false`.
+- **Tests.** New JS test `mounts browser-safe sibling modules under
+/storage and /handlers` in `tests/server.test.js` covering mount
+  hits, traversal rejection, .js-only filtering, and nested-path
+  rejection. Mirror Rust unit test
+  `browser_mount_serves_sibling_directory_files` in
+  `crates/meta-sovereign-server/src/routes.rs` exercises the same
+  cases against the real `src/` tree.
+
+**Result:** 119/119 JS tests pass; 49/49 Rust tests pass (4 routes
+tests including the new browser-mount, 10 wire-protocol integration,
+35 unit). Lint, prettier, jscpd clean. The SPA boots end-to-end on
+the Rust server with one outstanding console error (favicon 404 —
+cosmetic).
+
+**Requirements satisfied:** R-G2 (full pure-Rust alternate stack),
+R-J1 (offline-first SPA), R-J2 (autodiscovery), R-J3 (WebSocket+WebRTC
+parity), R-J4 (store-as-API), R-J5 (handled-link stamping), R-J6
+(decentralised browser deployment), R-J8 (full Rust local server with
+all protocols + features), R-J9 (REQUIREMENTS + ROADMAP docs).
+Outstanding from `ROADMAP.md`: live API connectors (R-E\*), React port
+(R-G1), mobile shell (R-G3), full Apple/Material/Microsoft audit
+(R-H1), `browser-commander` published-package swap (R-J7).
