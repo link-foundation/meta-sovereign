@@ -112,6 +112,20 @@ const serveCmd = async (args, log) => {
     storeDir: args.store ?? '.meta-sovereign',
   });
   log(`meta-sovereign listening on http://127.0.0.1:${handle.port}`);
+  // Block on SIGINT/SIGTERM so the CLI keeps the server alive until
+  // the user explicitly stops it. Tests pass `args.foreground = false`
+  // to skip the wait and reclaim control after startup.
+  if (args.foreground === false) {
+    return 0;
+  }
+  await new Promise((resolve) => {
+    const stop = async () => {
+      await handle.close();
+      resolve();
+    };
+    process.once('SIGINT', stop);
+    process.once('SIGTERM', stop);
+  });
   return 0;
 };
 
