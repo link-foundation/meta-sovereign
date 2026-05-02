@@ -167,6 +167,7 @@ const runRequestListeners = async (listeners, req) => {
     resolved = r;
   });
   const nodeReq = bunRequestToNode(req);
+  const finishHandlers = [];
   const nodeRes = {
     statusCode: 200,
     setHeader(k, v) {
@@ -174,6 +175,9 @@ const runRequestListeners = async (listeners, req) => {
     },
     getHeader(k) {
       return headers[k.toLowerCase()];
+    },
+    hasHeader(k) {
+      return Object.prototype.hasOwnProperty.call(headers, k.toLowerCase());
     },
     writeHead(s, hOrReason, maybeHeaders) {
       status = s;
@@ -201,7 +205,23 @@ const runRequestListeners = async (listeners, req) => {
       }
       // Honour either explicit `res.statusCode = N` or `writeHead(N)`.
       status = nodeRes.statusCode || status;
+      // Node's http.ServerResponse fires a 'finish' event once the
+      // response body is fully flushed; the JSON access logger in
+      // src/server/index.js subscribes to it. Fire it here so the
+      // logger works under Bun and Deno's compat shims too.
+      for (const cb of finishHandlers) {
+        try {
+          cb();
+        } catch {
+          // logger errors must not break the response
+        }
+      }
       resolved();
+    },
+    on(event, cb) {
+      if (event === 'finish') {
+        finishHandlers.push(cb);
+      }
     },
   };
   for (const l of listeners) {

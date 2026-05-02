@@ -179,7 +179,7 @@ describe('http server observability', () => {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ id: 'msg:m1', tokens: ['m'] }),
-      });
+      }).then((r) => r.text());
       const r = await fetch(`${base}/metrics`);
       expect(r.status).toBe(200);
       const body = await r.text();
