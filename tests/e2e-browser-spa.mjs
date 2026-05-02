@@ -466,6 +466,50 @@ const stepProfileSync = async ({ page, base, commander }) => {
   );
 };
 
+const stepAxeAudit = async ({ page, base }) => {
+  let axeSource;
+  try {
+    axeSource = await fs.readFile(
+      path.join(repoRoot, 'node_modules', 'axe-core', 'axe.min.js'),
+      'utf8'
+    );
+  } catch {
+    console.log('SKIP (axe-core not installed)');
+    return;
+  }
+  await page.goto(base, { waitUntil: 'load' });
+  // The SPA serves a CSP `script-src 'self'` header, which blocks
+  // `addScriptTag({ content })` (it injects an inline <script>). Run
+  // the axe-core source through `page.evaluate` instead — that goes
+  // via CDP `Runtime.evaluate`, which is not subject to the page CSP,
+  // and exposes `window.axe` for the subsequent run.
+  await page.evaluate(axeSource);
+  const violations = await page.evaluate(async () => {
+    const results = await window.axe.run(document, {
+      runOnly: ['wcag2a', 'wcag2aa'],
+      resultTypes: ['violations'],
+    });
+    return results.violations.map((v) => ({
+      id: v.id,
+      impact: v.impact,
+      help: v.help,
+      nodes: v.nodes.map((n) => n.target),
+    }));
+  });
+  const blocking = violations.filter(
+    (v) => v.impact === 'serious' || v.impact === 'critical'
+  );
+  assert(
+    blocking.length === 0,
+    `axe found ${blocking.length} serious/critical violation(s):\n${JSON.stringify(blocking, null, 2)}`
+  );
+  if (violations.length > 0) {
+    console.log(
+      `\n  (axe noted ${violations.length} non-blocking issue(s): ${violations.map((v) => `${v.id}/${v.impact}`).join(', ')})`
+    );
+  }
+};
+
 const stepSkipLink = async ({ page, base }) => {
   await page.goto(base, { waitUntil: 'load' });
   await page.keyboard.press('Tab');
@@ -528,6 +572,10 @@ const ALL_STEPS = [
     name: 'dark-mode toggle persists across reload',
     fn: stepThemeToggle,
     requires: 'theme',
+  },
+  {
+    name: 'axe-core finds no serious/critical WCAG violations',
+    fn: stepAxeAudit,
   },
   {
     name: 'skip-link is the first focusable element on the page',

@@ -73,6 +73,7 @@
     "test-anywhere": "^0.8.48"
   },
   "optionalDependencies": {
+    "axe-core": "^4.11.4",
     "browser-commander": "^0.8.0",
     "playwright": "^1.40.0"
   },

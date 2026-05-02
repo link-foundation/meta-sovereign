@@ -45,10 +45,6 @@ it produces so peer sync does not re-fire its handler (R-J5).
 - [ ] **Apple HIG / Material / Microsoft audit (R-H1).** Document one
       checklist per surface (chat, operator, contacts, automation graph,
       patterns, broadcast, settings) and resolve every gap.
-- [ ] **Dark mode toggle.** Currently follows the system theme via
-      CSS only.
-- [ ] **Accessibility pass.** Run axe-core in the
-      `browser-commander` e2e suite; fix every error.
 
 ## 3. Mobile + Electron polish (R-F3, R-G3)
 
@@ -70,10 +66,10 @@ test:e2e:browser`) drives the SPA in headless Chromium through
 covers boot → write → reload, every nav view, pattern infer → save,
 automation graph build, broadcast envelopes, audience → outreach plan,
 backup → restore round-trip, profile edit → per-network sync envelopes,
-dark-mode toggle, and skip-link a11y against the JS server; setting
-`RUN_BROWSER_E2E_RUST=1` re-runs the protocol-parity subset against
-`meta-sovereign-rs serve` to verify the Rust port exposes identical
-wire semantics.
+dark-mode toggle, an axe-core WCAG 2.0 A/AA audit, and skip-link a11y
+against the JS server; setting `RUN_BROWSER_E2E_RUST=1` re-runs the
+protocol-parity subset against `meta-sovereign-rs serve` to verify the
+Rust port exposes identical wire semantics.
 
 - [ ] **Two-browser WebRTC convergence.** Boot two SPA instances,
       connect over WebRTC, mutate in browser A, observe in browser B.

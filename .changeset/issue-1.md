@@ -148,4 +148,13 @@ Iteration 14 (follow-up commits on the same PR) closes ROADMAP §4 "Profile-sync
 - `docs/ROADMAP.md` §4: removes the "Profile-sync envelopes" bullet.
 - `docs/REQUIREMENTS.md`: R-D5 row mentions the SPA editor + e2e coverage.
 
+Iteration 15 (follow-up commits on the same PR) closes ROADMAP §2 "Accessibility pass via axe-core" and drops the now-stale "Dark mode toggle" bullet from the same section:
+
+- `package.json`: `axe-core@^4.11.4` declared under `optionalDependencies` so installs without the audit dep still succeed; the e2e step skips with a `SKIP (axe-core not installed)` line when missing.
+- `tests/e2e-browser-spa.mjs`: new `stepAxeAudit` step loads `node_modules/axe-core/axe.min.js` and injects it via `page.evaluate(axeSource)` (CDP `Runtime.evaluate` is not subject to the SPA's `script-src 'self'` CSP — `addScriptTag({ content })` would inline a `<script>` and be blocked), runs `axe.run(document, { runOnly: ['wcag2a', 'wcag2aa'], resultTypes: ['violations'] })`, and fails the suite if any violation has `impact: 'serious'` or `'critical'`. Step runs unconditionally (no `requires` flag) so the same audit gates both the JS server and the pure-Rust `meta-sovereign-rs serve` static SPA.
+- `docs/REQUIREMENTS.md`: R-H1 flips from "Partial" to "Done" referencing the axe-core audit; R-J7's coverage list adds `axe-core WCAG 2.0 A/AA audit`.
+- `docs/ROADMAP.md` §2: removes the "Accessibility pass" bullet and the now-stale "Dark mode toggle" bullet (the toggle is implemented, persisted, and exercised by `stepThemeToggle`); §4 preamble updated to mention the axe audit.
+
+Tests: 129/129 JS + 52/52 Rust pass; lint, prettier, clippy, fmt clean. Real-browser e2e: 13/13 steps pass against the JS server, 10/10 against `meta-sovereign-rs serve` (including the axe-core audit on both backends — zero serious/critical violations).
+
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
