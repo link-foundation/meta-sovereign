@@ -27,6 +27,10 @@
  *   GET  /api/resume               -> read resume (R-D6)
  *   PUT  /api/resume               -> upsert + plan cross-network sync
  *   POST /api/broadcast            -> queue post for outbound networks
+ *   POST /api/outreach             -> { query, text, networks, mode } -> plan
+ *   GET  /api/backups              -> list archives (gated on archiveDir)
+ *   POST /api/backups              -> { passphrase?, keep? } -> { file }
+ *   POST /api/backups/restore      -> { file, passphrase? } -> { restored }
  *
  * Implemented with Node's built-in `http` module to keep the dependency
  * footprint at zero. The Docker images in `docker/` simply run
@@ -46,6 +50,7 @@ import { listSources } from '../sources/index.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
+import { handleBackupRoutes } from './routes-backup.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
@@ -114,7 +119,7 @@ const handleStatic = async (req, res, p) => {
   return false;
 };
 
-const route = async (store, req, res) => {
+const route = async (store, req, res, archiveDir) => {
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
   if (await handleStatic(req, res, p)) {
@@ -126,6 +131,9 @@ const route = async (store, req, res) => {
   if (await handleMutatingRoutes(store, req, res, p)) {
     return;
   }
+  if (await handleBackupRoutes(store, req, res, p, archiveDir)) {
+    return;
+  }
   if (await handleDerivedRoutes(store, req, res, p, url)) {
     return;
   }
@@ -135,20 +143,26 @@ const route = async (store, req, res) => {
 export const startServer = async ({
   port = 0,
   storeDir = '.meta-sovereign',
+  archiveDir,
   store: providedStore,
   enableHandlers = true,
   enableSync = true,
   node = 'server',
 } = {}) => {
   let store = providedStore;
+  let resolvedArchiveDir = archiveDir;
   if (!store) {
     await fs.mkdir(storeDir, { recursive: true });
     const text = await createLinoTextStore(path.join(storeDir, 'data.lino'));
     const binary = await createDoubletsStore(path.join(storeDir, 'data.bin'));
     store = createDualStore({ binary, text });
+    if (!resolvedArchiveDir) {
+      resolvedArchiveDir = path.join(storeDir, 'archives');
+      await fs.mkdir(resolvedArchiveDir, { recursive: true });
+    }
   }
   const server = http.createServer((req, res) => {
-    route(store, req, res).catch((err) =>
+    route(store, req, res, resolvedArchiveDir).catch((err) =>
       json(res, 500, { error: err.message })
     );
   });
@@ -171,6 +185,7 @@ export const startServer = async ({
     bus,
     sync: wsHandle,
     signaling,
+    archiveDir: resolvedArchiveDir,
     close: () =>
       new Promise((resolve) => {
         bus?.close();

@@ -10,6 +10,9 @@ import { json, readBody } from './util.js';
 import { inferRegex, simplifyRegex, inferRegexLcs } from '../patterns/index.js';
 import { runGraph } from '../automation/index.js';
 import { listSources } from '../sources/index.js';
+import { planOutreach, runOutreach } from '../broadcast/index.js';
+import { evalAudience } from '../crm/audience.js';
+import { aggregateContacts } from './aggregate.js';
 
 const handleLinks = async (store, req, res, p) => {
   if (p === '/links' && req.method === 'GET') {
@@ -197,6 +200,26 @@ const handleBroadcast = async (store, req, res, p) => {
   return json(res, 200, post) ?? true;
 };
 
+const handleOutreach = async (store, req, res, p) => {
+  if (p !== '/api/outreach' || req.method !== 'POST') {
+    return false;
+  }
+  const {
+    query = '',
+    text = '',
+    networks = null,
+    mode = 'preview',
+  } = await readBody(req);
+  const all = await store.query();
+  const audience = aggregateContacts(evalAudience(all, query));
+  const plan = planOutreach({ audience, text, networks, mode });
+  if (mode === 'queue') {
+    const results = await runOutreach(plan);
+    return json(res, 200, { plan, results }) ?? true;
+  }
+  return json(res, 200, plan) ?? true;
+};
+
 export const handleMutatingRoutes = async (store, req, res, p) =>
   (await handleLinks(store, req, res, p)) ||
   (await handlePatterns(store, req, res, p)) ||
@@ -204,4 +227,5 @@ export const handleMutatingRoutes = async (store, req, res, p) =>
   (await handleReplies(store, req, res, p)) ||
   (await handleProfile(store, req, res, p)) ||
   (await handleResume(store, req, res, p)) ||
-  (await handleBroadcast(store, req, res, p));
+  (await handleBroadcast(store, req, res, p)) ||
+  (await handleOutreach(store, req, res, p));

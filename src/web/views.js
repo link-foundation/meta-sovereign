@@ -531,6 +531,160 @@ export const broadcastView = async () => {
   return wrap;
 };
 
+export const outreachView = async () => {
+  const sources = await api.sources();
+  const wrap = h('div', { class: 'col' });
+  const q = h('input', {
+    placeholder: 'audience query, e.g. network:telegram AND chat:vip',
+    style: 'min-width:32rem',
+  });
+  const txt = h('textarea', {
+    rows: 4,
+    placeholder:
+      'Body. Use {name}, {networks}, {chats} to personalise per recipient.',
+  });
+  const targets = h(
+    'div',
+    { class: 'row' },
+    sources.map((s) =>
+      h('label', { class: 'row' }, [
+        h('input', { type: 'checkbox', value: s, checked: true }),
+        h('span', {}, s),
+      ])
+    )
+  );
+  const out = h('pre');
+  const eval_ = async (mode) => {
+    const networks = [...targets.querySelectorAll('input:checked')].map(
+      (i) => i.value
+    );
+    const r = await api.outreach({
+      query: q.value,
+      text: txt.value,
+      networks,
+      mode,
+    });
+    out.textContent = JSON.stringify(r, null, 2);
+  };
+  wrap.append(
+    h('h2', {}, 'Outreach'),
+    h(
+      'div',
+      { class: 'meta' },
+      'Mass-personal outreach. Preview always; queue actually dispatches.'
+    ),
+    q,
+    txt,
+    targets,
+    h('div', { class: 'row' }, [
+      h(
+        'button',
+        { class: 'primary', on: { click: () => eval_('preview') } },
+        'preview'
+      ),
+      h('button', { on: { click: () => eval_('queue') } }, 'queue'),
+    ]),
+    out
+  );
+  return wrap;
+};
+
+export const backupView = async () => {
+  const wrap = h('div', { class: 'col' });
+  const list = h('div');
+  const status = h('pre');
+  const passphrase = h('input', {
+    type: 'password',
+    placeholder: 'optional passphrase',
+  });
+  const keep = h('input', {
+    type: 'number',
+    min: '0',
+    placeholder: 'keep N (optional)',
+    style: 'max-width:10rem',
+  });
+  const refresh = async () => {
+    const all = await api.listBackups();
+    list.innerHTML = '';
+    if (!Array.isArray(all) || all.length === 0) {
+      list.append(
+        h(
+          'div',
+          { class: 'meta' },
+          'No archives yet. Click "create backup" to make one.'
+        )
+      );
+      return;
+    }
+    for (const b of all) {
+      list.append(
+        h('div', { class: 'card row' }, [
+          h(
+            'div',
+            { class: 'col' },
+            [
+              h('strong', {}, b.file),
+              h(
+                'div',
+                { class: 'meta' },
+                `${b.size} bytes · ${fmtTs(b.mtime)} · ${b.encrypted ? 'encrypted' : 'plain'}`
+              ),
+            ].filter(Boolean)
+          ),
+          h(
+            'button',
+            {
+              on: {
+                click: async () => {
+                  const r = await api.restoreBackup(b.file, passphrase.value);
+                  status.textContent = JSON.stringify(r, null, 2);
+                },
+              },
+            },
+            'restore'
+          ),
+        ])
+      );
+    }
+  };
+  wrap.append(
+    h('h2', {}, 'Backup'),
+    h(
+      'div',
+      { class: 'meta' },
+      'Encrypted archives live under the server store directory.'
+    ),
+    h('div', { class: 'row' }, [
+      passphrase,
+      keep,
+      h(
+        'button',
+        {
+          class: 'primary',
+          on: {
+            click: async () => {
+              const opts = { passphrase: passphrase.value || null };
+              const k = parseInt(keep.value, 10);
+              if (Number.isFinite(k) && k > 0) {
+                opts.keep = k;
+              }
+              const r = await api.createBackup(opts);
+              status.textContent = JSON.stringify(r, null, 2);
+              await refresh();
+            },
+          },
+        },
+        'create backup'
+      ),
+      h('button', { on: { click: () => refresh() } }, 'refresh'),
+    ]),
+    list,
+    status
+  );
+  await refresh();
+  return wrap;
+};
+
 export const profileView = async () => {
   const profile = await api.profile();
   const resume = await api.resume();

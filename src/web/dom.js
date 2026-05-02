@@ -186,4 +186,23 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(p),
     })) ?? p,
+  outreach: async ({ query, text, networks, mode = 'preview' }) =>
+    (await serverFetch('/api/outreach', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ query, text, networks, mode }),
+    })) ?? { audience: [], plan: [], note: 'server required for outreach' },
+  listBackups: async () => (await serverFetch('/api/backups')) ?? [],
+  createBackup: async ({ passphrase = null, keep } = {}) =>
+    (await serverFetch('/api/backups', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ passphrase, ...(keep ? { keep } : {}) }),
+    })) ?? { error: 'server required for backups' },
+  restoreBackup: async (file, passphrase = null) =>
+    (await serverFetch('/api/backups/restore', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ file, passphrase }),
+    })) ?? { error: 'server required for restore' },
 };

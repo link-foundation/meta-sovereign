@@ -7,23 +7,36 @@
     <link rel="stylesheet" href="./app.css" />
   </head>
   <body>
-    <header class="topbar">
+    <a class="skip-link" href="#root">Skip to main content</a>
+    <header class="topbar" role="banner">
       <h1>meta-sovereign</h1>
-      <nav>
-        <button data-view="chat" class="active">Chat</button>
-        <button data-view="operator">Operator</button>
-        <button data-view="contacts">Contacts</button>
-        <button data-view="automation">Automation</button>
-        <button data-view="patterns">Patterns</button>
-        <button data-view="replies">Replies</button>
-        <button data-view="facts">Facts</button>
-        <button data-view="audience">Audience</button>
-        <button data-view="broadcast">Broadcast</button>
-        <button data-view="profile">Profile</button>
-        <button data-view="status">Status</button>
+      <nav aria-label="Primary">
+        <button type="button" data-view="chat" class="active">Chat</button>
+        <button type="button" data-view="operator">Operator</button>
+        <button type="button" data-view="contacts">Contacts</button>
+        <button type="button" data-view="automation">Automation</button>
+        <button type="button" data-view="patterns">Patterns</button>
+        <button type="button" data-view="replies">Replies</button>
+        <button type="button" data-view="facts">Facts</button>
+        <button type="button" data-view="audience">Audience</button>
+        <button type="button" data-view="broadcast">Broadcast</button>
+        <button type="button" data-view="outreach">Outreach</button>
+        <button type="button" data-view="profile">Profile</button>
+        <button type="button" data-view="backup">Backup</button>
+        <button type="button" data-view="status">Status</button>
       </nav>
+      <button
+        type="button"
+        class="theme-toggle"
+        data-action="theme-toggle"
+        aria-label="Toggle dark mode"
+        aria-pressed="false"
+        title="Toggle dark mode"
+      >
+        🌓
+      </button>
     </header>
-    <main id="root"></main>
+    <main id="root" role="main" tabindex="-1"></main>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

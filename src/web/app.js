@@ -15,7 +15,9 @@ import {
   factsView,
   audienceView,
   broadcastView,
+  outreachView,
   profileView,
+  backupView,
   statusView,
 } from './views.js';
 
@@ -51,9 +53,47 @@ const views = {
   facts: factsView,
   audience: audienceView,
   broadcast: broadcastView,
+  outreach: outreachView,
   profile: profileView,
+  backup: backupView,
   status: statusView,
 };
+
+// Dark-mode toggle. Persists the override in localStorage; without an
+// override the SPA follows the system theme (handled by CSS @media).
+const THEME_KEY = 'metaSovereignTheme';
+const themeBtn = topbar.querySelector('.theme-toggle');
+const applyTheme = (mode) => {
+  if (mode === 'light' || mode === 'dark') {
+    document.documentElement.dataset.theme = mode;
+    themeBtn?.setAttribute('aria-pressed', String(mode === 'dark'));
+  } else {
+    delete document.documentElement.dataset.theme;
+    themeBtn?.setAttribute('aria-pressed', 'false');
+  }
+};
+try {
+  const stored = globalThis.localStorage?.getItem(THEME_KEY);
+  if (stored === 'dark' || stored === 'light') {
+    applyTheme(stored);
+  }
+} catch {
+  // localStorage may be disabled (private browsing, restricted file:// origin)
+}
+themeBtn?.addEventListener('click', () => {
+  const current =
+    document.documentElement.dataset.theme ??
+    (globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light');
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  try {
+    globalThis.localStorage?.setItem(THEME_KEY, next);
+  } catch {
+    // see above
+  }
+});
 
 const show = async (name) => {
   for (const b of nav.querySelectorAll('button')) {

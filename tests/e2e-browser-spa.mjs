@@ -90,7 +90,9 @@ const navViews = [
   'facts',
   'audience',
   'broadcast',
+  'outreach',
   'profile',
+  'backup',
   'status',
 ];
 
@@ -247,6 +249,118 @@ try {
       `broadcast: networks=${JSON.stringify(body.networks)}`
     );
   });
+
+  await step('outreach plan personalises envelopes per recipient', async () => {
+    const r = await fetch(`${base}/api/outreach`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        query: 'network:telegram',
+        text: 'hi {name} on {networks}',
+        networks: ['telegram'],
+        mode: 'preview',
+      }),
+    });
+    assert(r.ok, `outreach status=${r.status}`);
+    const body = await r.json();
+    assert(
+      Array.isArray(body.envelopes),
+      `outreach: envelopes missing: ${JSON.stringify(body)}`
+    );
+    assert(
+      body.envelopes.length > 0,
+      'outreach: at least one envelope expected after seeding'
+    );
+    assert(
+      body.envelopes.every((e) => e.network === 'telegram'),
+      'outreach: filter networks=telegram not respected'
+    );
+  });
+
+  await step('backup → restore round-trip preserves seeded link', async () => {
+    const create = await fetch(`${base}/api/backups`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{}',
+    });
+    assert(create.ok, `create backup status=${create.status}`);
+    const created = await create.json();
+    assert(created.file, `create backup: ${JSON.stringify(created)}`);
+
+    const list = await fetch(`${base}/api/backups`).then((r) => r.json());
+    assert(
+      Array.isArray(list) && list.find((b) => b.file === created.file),
+      `list backups missing newly created file: ${JSON.stringify(list)}`
+    );
+
+    // delete the seeded link, then restore from the archive
+    const del = await fetch(`${base}/links/msg:telegram:1`, {
+      method: 'DELETE',
+    });
+    assert(del.ok, `delete pre-restore: status=${del.status}`);
+    const gone = await fetch(`${base}/links/msg:telegram:1`);
+    assert(gone.status === 404, `delete pre-restore: still present`);
+
+    const restore = await fetch(`${base}/api/backups/restore`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ file: created.file }),
+    });
+    assert(restore.ok, `restore status=${restore.status}`);
+    const back = await restore.json();
+    assert(
+      typeof back.restored === 'number',
+      `restore: ${JSON.stringify(back)}`
+    );
+
+    const after = await fetch(`${base}/links/msg:telegram:1`);
+    assert(
+      after.status === 200,
+      `post-restore: GET msg:telegram:1 status=${after.status}`
+    );
+  });
+
+  await step('dark-mode toggle persists across reload', async () => {
+    await page.click('button[data-action="theme-toggle"]');
+    const after = await page.evaluate(
+      () => document.documentElement.dataset.theme
+    );
+    assert(
+      after === 'dark' || after === 'light',
+      `theme toggle: data-theme=${after}`
+    );
+    await page.reload({ waitUntil: 'load' });
+    const persisted = await page.evaluate(
+      () => document.documentElement.dataset.theme
+    );
+    assert(
+      persisted === after,
+      `theme toggle: not persisted (was ${after}, now ${persisted})`
+    );
+  });
+
+  await step(
+    'skip-link is the first focusable element on the page',
+    async () => {
+      await page.goto(base, { waitUntil: 'load' });
+      await page.keyboard.press('Tab');
+      const focused = await page.evaluate(() => {
+        const el = document.activeElement;
+        if (!el) {
+          return null;
+        }
+        return {
+          tag: el.tagName,
+          className: el.className,
+          href: el.getAttribute('href'),
+        };
+      });
+      assert(
+        focused && focused.className.includes('skip-link'),
+        `skip-link not focused first: ${JSON.stringify(focused)}`
+      );
+    }
+  );
 } finally {
   await commander.destroy?.();
   await browser.close();
