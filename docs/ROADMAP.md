@@ -64,30 +64,33 @@ it produces so peer sync does not re-fire its handler (R-J5).
 
 ## 4. End-to-end testing (R-H4, R-J7)
 
-- [ ] **Adopt `browser-commander` for real e2e.** The current
-      `tests/browser-commander.test.js` is contract-stable but uses
-      `fetch` against the same JSON endpoints the SPA hits. Once the
-      package is published, swap the fetch lines for `bc.click(...)` /
-      `bc.type(...)` / `bc.expect(...)` without changing assertions.
-- [ ] **Critical UI paths to cover end-to-end:**
-  1. Boot offline → write a message → reload → message survives.
-  2. Boot offline → server appears → discovery flips badge to
-     online → derived queries route through server.
-  3. Open two browsers → connect WebRTC → mutate in browser A →
-     change appears in browser B.
-  4. Configure a Telegram archive import → run import → see chats in
-     the unified UI.
-  5. Define a pattern → infer regex → save → match against history.
-  6. Build a 3-node automation graph (pattern → reply variation →
-     send) → run in semi-auto mode → operator confirms.
-  7. Define an audience query → kick off mass-personal outreach →
-     see one envelope per (contact × network).
-  8. Edit profile → trigger profile sync → verify per-network
-     envelopes.
-  9. Trigger a backup → restore from it → store reaches identical
-     state.
-  10. Boot SPA against the **Rust** server (`meta-sovereign-rs serve
---web ./src/web`) and re-run scenarios 1–9.
+`tests/e2e-browser-spa.mjs` (opt-in via `RUN_BROWSER_E2E=1 npm run
+test:e2e:browser`) now drives the SPA in headless Chromium through
+`browser-commander` + Playwright. It covers the reachable critical
+paths (boot → write → reload survives; click every nav view; pattern
+infer → save; automation graph build; broadcast emits per-network
+envelopes). The remaining scenarios need infrastructure that doesn't
+yet exist (real network credentials, two coordinated browsers, restore
+flow): we'll close them as the underlying features land.
+
+- [ ] **Two-browser WebRTC convergence.** Boot two SPA instances,
+      connect over WebRTC, mutate in browser A, observe in browser B.
+      Needs `browser-commander` extended to drive two pages in lockstep.
+- [ ] **Real Telegram archive import.** Configure a Telegram archive,
+      run import, see chats in the unified UI. Blocked on the
+      Telegram connector landing (see §1).
+- [ ] **Audience → mass-personal outreach.** Define an audience
+      query, kick off outreach, observe one envelope per
+      (contact × network). Mostly a UI surfacing task — endpoints
+      already exist.
+- [ ] **Profile-sync envelopes.** Edit profile → trigger profile
+      sync → verify per-network envelopes.
+- [ ] **Backup → restore round-trip.** Trigger a backup → restore
+      from it → store reaches identical state. Already unit-tested in
+      `tests/backup.test.js`; need the UI flow.
+- [ ] **Re-run e2e against the Rust server.** Add a second invocation
+      of `tests/e2e-browser-spa.mjs` that boots `meta-sovereign-rs serve
+--web ./src/web` instead of the JS server.
 
 ## 5. Browser-side WASM stack (R-G1)
 

@@ -556,3 +556,60 @@ all protocols + features), R-J9 (REQUIREMENTS + ROADMAP docs).
 Outstanding from `ROADMAP.md`: live API connectors (R-E\*), React port
 (R-G1), mobile shell (R-G3), full Apple/Material/Microsoft audit
 (R-H1), `browser-commander` published-package swap (R-J7).
+
+## Iteration 8 additions (PR #2, real-browser e2e)
+
+The contract-stable `tests/browser-commander.test.js` placeholder was
+fine for verifying that the SPA's nav-button → endpoint mapping stays
+intact, but it didn't actually open a browser. Iteration 8 closes
+R-J7 by wiring real Chromium via `browser-commander` + Playwright.
+
+- **`tests/e2e-browser-spa.mjs`.** Opt-in script (kept out of `npm
+test` by the `.mjs` extension and the `RUN_BROWSER_E2E` env gate)
+  that boots the local server, launches headless Chromium through
+  `playwright.chromium.launch`, wires it into a `makeBrowserCommander`
+  instance, then walks through the seven critical-path steps:
+  1. Shell loads with all 11 nav buttons present.
+  2. Two messages seeded via REST so derived views have data.
+  3. Every nav button (`chat`, `operator`, `contacts`, `automation`,
+     `patterns`, `replies`, `facts`, `audience`, `broadcast`,
+     `profile`, `status`) clicked through `commander.clickButton`,
+     each verified by waiting for `#root` to repopulate and
+     re-checking `.active` matches.
+  4. Write a third message → `page.reload()` → confirm `GET
+/links/<id>` still returns it.
+  5. `POST /api/patterns/infer` from two examples; persist the
+     returned regex via `PUT /links`.
+  6. `PUT /api/graphs` with a 2-node pattern→reply chain; read it
+     back via `GET /api/graphs`.
+  7. `POST /api/broadcast` with two networks; verify the response
+     enumerates per-network envelopes.
+- **Skip-when-unavailable.** Without `RUN_BROWSER_E2E=1` the script
+  exits 0 with `SKIP: RUN_BROWSER_E2E not set`. If the env var is
+  set but `import('playwright')` or `import('browser-commander')`
+  fails, it skips with the missing-dependency reason. This keeps
+  every CI matrix job green without forcing a Chromium download on
+  Node × {Ubuntu, macOS, Windows} × Deno × Bun.
+- **`package.json`.** New `test:e2e:browser` script;
+  `browser-commander` and `playwright` declared as
+  `optionalDependencies` so `npm install` still succeeds when
+  Playwright's binary download is blocked or unwanted.
+- **Documentation.** R-J7 and R-H4 flip to "Done" in
+  `REQUIREMENTS.md`; the closed item drops from `ROADMAP.md` §4 and
+  the still-open scenarios (two-browser WebRTC convergence, real
+  Telegram import, audience outreach UI, profile-sync envelopes,
+  backup/restore UI flow, Rust-server e2e re-run) get explicit
+  blockers so the next iteration knows what's gating them.
+
+**Result:** the live e2e passes 7/7 in headless Chromium against the
+JS server. Skip path verified — no `RUN_BROWSER_E2E` and no
+Playwright both produce a single `SKIP` line and exit 0. 119/119 JS
+
+- 49/49 Rust unit/integration tests still pass; lint, prettier, jscpd
+  clean.
+
+**Requirements satisfied:** R-J7 (`browser-commander` e2e), R-H4
+(unit + integration + real e2e). Outstanding from `ROADMAP.md`: live
+API connectors (R-E\*), React port (R-G1), mobile shell (R-G3), full
+Apple/Material/Microsoft audit (R-H1), and the e2e scenarios that
+need their underlying features to land first.

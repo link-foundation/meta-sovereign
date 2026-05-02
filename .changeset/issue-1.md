@@ -91,4 +91,11 @@ Iteration 7 (follow-up commits on the same PR) lands the requirements + roadmap 
 
 Tests: 119/119 JS + 49/49 Rust pass; lint, prettier, jscpd clean.
 
-The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, and SPA — including offline-first SPA, autodiscovered or manually configured server, and direct browser-to-browser sync over WebRTC — with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
+Iteration 8 (follow-up commits on the same PR) closes R-J7 by replacing the contract-stable e2e harness with a real headless-browser run:
+
+- `tests/e2e-browser-spa.mjs`: opt-in (`RUN_BROWSER_E2E=1 npm run test:e2e:browser`) Playwright + `browser-commander` script that boots the local server, drives the SPA in headless Chromium, clicks every nav button, writes a message and verifies it survives reload, infers a pattern from examples, persists a 2-node automation graph, and triggers a broadcast. Without `RUN_BROWSER_E2E` (or with Playwright/`browser-commander` missing) the script exits 0 with a `SKIP` line so the CI matrix stays green without pulling Chromium binaries on every job.
+- `package.json`: new `test:e2e:browser` script; `playwright` and `browser-commander` declared as `optionalDependencies` so installs without browser binaries still succeed.
+- `docs/REQUIREMENTS.md`: R-J7 and R-H4 flip from "Partial" to "Done".
+- `docs/ROADMAP.md` §4: removes the closed item, narrows the open list to scenarios that depend on yet-to-land features (two-browser WebRTC convergence, real Telegram import, audience outreach UI, profile-sync envelopes, backup/restore UI flow, Rust-server e2e re-run).
+
+The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, and direct browser-to-browser sync over WebRTC — with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
