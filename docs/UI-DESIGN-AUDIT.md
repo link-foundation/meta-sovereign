@@ -78,8 +78,8 @@ References:
 | WebSocket and WebRTC sync are visible through real e2e.   | Done   | Two-browser WebRTC convergence is covered by `stepTwoBrowserWebRtcConvergence`.        |
 | Backup and restore are available without leaving the app. | Done   | Backup view covers create/list/restore and e2e validates round trip.                   |
 
-## Remaining UI Stack Work
+## UI Stack Status
 
-The design behavior audit is complete for the current vanilla-JS SPA.
-The remaining UI roadmap item is a React port (R-G1), which should
-preserve the checks above rather than changing the interaction model.
+The design behavior audit is preserved by the current React SPA. R-G1 is
+closed by the React shell, React view components, and the browser bundle
+covered by the real-browser e2e.

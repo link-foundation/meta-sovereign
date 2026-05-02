@@ -158,6 +158,7 @@ export default [
       'coverage/**',
       'dist/**',
       '*.min.js',
+      '**/*.min.js',
       '.eslintcache',
       // Case study raw data files (downloaded from external sources)
       'docs/case-studies/*/data/**',

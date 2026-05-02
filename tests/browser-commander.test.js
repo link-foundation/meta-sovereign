@@ -72,9 +72,9 @@ describe('browser-commander placeholder: drives every SPA nav target', () => {
         expect(shell.includes(`data-view="${view}"`)).toBe(true);
       }
 
-      // 2. SPA bootstraps app.js + app.css. Consume the bodies so
+      // 2. SPA bootstraps the React bundle + app.css. Consume bodies so
       // Deno's resource-leak detector stays happy.
-      const appJs = await fetch(`${base}/app.js`);
+      const appJs = await fetch(`${base}/app.min.js`);
       expect(appJs.status).toBe(200);
       await appJs.text();
       const appCss = await fetch(`${base}/app.css`);

@@ -15,13 +15,7 @@ are listed in rough priority order (highest first).
 
 ---
 
-## 1. UI stack (R-G1)
-
-- [ ] **React port of the SPA (R-G1).** The SPA is currently vanilla
-      JS for simplicity; the issue specifies React. Port view by view
-      while keeping the offline client and discovery cascade unchanged.
-
-## 2. Mobile + Electron polish (R-F3, R-G3)
+## 1. Mobile + Electron polish (R-F3, R-G3)
 
 - [ ] **Electron auto-update.** `electron/main.js` opens the URL but
       doesn't ship updates. Wire `electron-updater` (or the

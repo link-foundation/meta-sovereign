@@ -3,6 +3,7 @@ coverage
 dist
 target
 *.min.js
+**/*.min.js
 package-lock.json
 .eslintcache
 CLAUDE.md

@@ -669,8 +669,8 @@ audit item that remained under R-H1.
   the audit document and the remaining UI roadmap scope is narrowed to
   the React port required by R-G1.
 
-**Result:** the current vanilla-JS SPA has a documented design audit
-that must be preserved during the future React port.
+**Result:** the SPA design audit is documented and preserved by the
+React port landed in iteration 24.
 
 ## Iteration 21 additions (PR #2, Deno matrix hardening)
 
@@ -752,5 +752,32 @@ the React and packaging/mobile sections open.
   `.wasm` serving.
 
 **Result:** the browser-side database and pattern-preview hot path now
-have real WASM-backed implementations. The remaining roadmap scope is
-React UI port plus Electron/mobile packaging and discovery.
+have real WASM-backed implementations. The next roadmap scope after
+this iteration was the React UI port plus Electron/mobile packaging and
+discovery.
+
+## Iteration 24 additions (PR #2, React SPA port)
+
+Iteration 24 closes the R-G1 React UI stack item while preserving the
+offline-first/browser-WASM work from the previous iterations.
+
+- **React app shell.** `src/web/app.js` renders the topbar, navigation,
+  mode badge, theme toggle, skip link, and `<main id="root">` through
+  React. The static HTML keeps the same landmarks and `data-view`
+  buttons as a first-paint fallback, then the bundle takes ownership.
+- **React views.** `src/web/views.js` ports chat, operator, contacts,
+  automation graphs, patterns, replies, facts, audience, broadcast,
+  outreach, profile/resume, backup, and status to React components.
+  They still call the existing `api` object from `dom.js`, so discovery,
+  local browser storage, WebRTC sync, WASM pattern previews, and server
+  fallbacks keep the same behavior.
+- **Build artifact.** `scripts/build-web.mjs` uses esbuild to bundle the
+  React source into `src/web/app.min.js`, which `index.html` loads as the
+  browser entrypoint.
+- **Coverage.** `tests/web-react.test.js` pins the React packaging
+  contract; the existing browser-commander e2e passes against the JS
+  backend after the port.
+
+**Result:** R-G1 is Done: the default stack now has JavaScript server
+and client code, React UI, Rust/WASM heavy-workload paths, and the
+pure-Rust server alternative remains available under R-G2.

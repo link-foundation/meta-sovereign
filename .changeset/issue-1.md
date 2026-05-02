@@ -30,7 +30,7 @@ Runnable skeleton (each layer has unit/integration tests):
 
 Iteration 2 (follow-up commits on the same PR) thickens the most user-visible layers so the v0.0.1 demo path is reachable end-to-end in one process:
 
-- `src/web/`: vanilla-JS SPA served by the local Node `http` server — chat, contacts, automation graph editor, pattern table with regex inference, broadcast composer, status. Backed by new `/api/contacts`, `/api/patterns`, `/api/patterns/infer`, `/api/graphs`, `/api/status` routes that derive views from the local store.
+- `src/web/`: SPA served by the local Node `http` server — chat, contacts, automation graph editor, pattern table with regex inference, broadcast composer, status. Backed by new `/api/contacts`, `/api/patterns`, `/api/patterns/infer`, `/api/graphs`, `/api/status` routes that derive views from the local store.
 - `src/patterns/`: `lcs`-based regex synthesis with character-class inference for variable gaps, plus `compilePeg` for declarative rules with named captures.
 - `src/storage/backup.js`: AES-256-GCM encryption with scrypt KDF; `createBackup` writes `.json.enc` when a passphrase is provided, `restoreBackup` auto-detects.
 - `src/sync/`: vector-clock CRDT — `vcInit/vcTick/vcMerge/vcCompare` plus a deterministic concurrent-write tiebreak; Lamport `version` remains the fallback for legacy links.
@@ -183,7 +183,7 @@ Iteration 18 (follow-up commits on the same PR) closes ROADMAP §4 "Two-browser 
 
 Tests: Node 129/129 (unit), e2e-browser-spa 14/14 against the JS backend.
 
-The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC verified end-to-end with two real browsers in CI, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent iterations continue on the remaining React, mobile/Electron, and browser-WASM roadmap items per `docs/ROADMAP.md`.
+The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC verified end-to-end with two real browsers in CI, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent iterations continue closing the remaining roadmap items per `docs/ROADMAP.md`.
 
 Iteration 19 (follow-up commits on the same PR) closes the Telegram connector and real Telegram archive import roadmap items:
 
@@ -233,3 +233,27 @@ Iteration 23 (follow-up commits on the same PR) closes the browser-side WASM roa
 - `docs/REQUIREMENTS.md` and `docs/ROADMAP.md`: R-G1 now records the completed Rust/WASM pieces; the browser-side WASM roadmap section is removed.
 
 Tests: Node 142/142, Bun 142/142, Deno 142/142, Rust 53/53; `npm run check` clean.
+
+Iteration 24 (follow-up commits on the same PR) closes the React SPA
+port roadmap item:
+
+- `src/web/app.js` and `src/web/views.js`: the SPA shell and every view
+  now render as React components while continuing to use the existing
+  offline-first `api` facade, discovery cascade, WebRTC sync, and
+  browser storage stack. The static shell still exposes the same
+  landmarks and `data-view` navigation contract before hydration.
+- `scripts/build-web.mjs` and `src/web/app.min.js`: `npm run build:web`
+  bundles the editable React source into the same-origin browser asset
+  loaded by `index.html`.
+- `package.json`: adds React, ReactDOM, and esbuild as development
+  tooling for the web bundle.
+- `tests/web-react.test.js`: pins the React packaging contract so the
+  source, bundle, and script entrypoint cannot silently drift back to a
+  non-React shell.
+- `docs/REQUIREMENTS.md` and `docs/ROADMAP.md`: R-G1 is Done; the React
+  roadmap section is removed.
+
+Tests: Node 143/143, Bun 143/143, Deno 143/143, Rust 53/53;
+`npm run check` clean; real-browser
+`RUN_BROWSER_E2E=1 npm run test:e2e:browser` passes all JS-backend
+critical UI paths.

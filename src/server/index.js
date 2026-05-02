@@ -3,7 +3,7 @@
  *
  * Endpoints (full list lives in `routes-derived.js` and `routes-mutating.js`):
  *   GET  /                         -> SPA shell
- *   GET  /app.js, /app.css         -> SPA assets
+ *   GET  /app.js, /app.min.js, /app.css -> SPA assets
  *   GET  /links, /links/:id        -> read links
  *   PUT  /links                    -> upsert
  *   DEL  /links/:id                -> delete
@@ -71,8 +71,8 @@ const MIME = {
 };
 
 // Conservative Content-Security-Policy. The SPA never loads remote
-// resources and ships no inline scripts/styles: only the same-origin
-// app.js (a module) and app.css. WebSockets connect to the same
+// resources and ships no inline scripts/styles: only same-origin SPA
+// modules/bundles and app.css. WebSockets connect to the same
 // origin (/ws + /rtc); discovery may also attempt 127.0.0.1 / localhost
 // on alternate ports. `connect-src` therefore allows local loopback.
 export const CSP =
