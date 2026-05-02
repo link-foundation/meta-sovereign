@@ -17,13 +17,11 @@ are listed in rough priority order (highest first).
 
 ## 1. External-service connectors (R-E1 … R-E9)
 
-Live API integration is missing for every network. The archive parsers
-in `src/sources/` already produce normalised `Link` objects, but the
-live read/write side needs to call out to each service.
+Telegram now has a Bot API live connector and a real Telegram Desktop
+archive parser. The remaining archive parsers in `src/sources/`
+already produce normalised `Link` objects, but their live read/write
+side still needs to call out to each service.
 
-- [ ] **Telegram (R-E2).** Wire `konard/telegram-bot` so the SPA can
-      read/send DMs in real time. Token storage uses the universal store
-      with a `secret:*` key prefix and is never shipped to peers.
 - [ ] **VK (R-E1).** Wire `konard/vk-bot` for messaging and
       `konard/vk-export` for backfill.
 - [ ] **WhatsApp (R-E4).** WhatsApp Cloud API for opted-in flows;
@@ -32,19 +30,17 @@ live read/write side needs to call out to each service.
       archive import is already done.
 - [ ] **Facebook / LinkedIn (R-E5, R-E6).** API-side import/export.
 - [ ] **hh.ru / habr-career / superjob (R-E7, R-E8, R-E9).** Resume
-  - applications sync.
+      applications sync.
 
 Every connector must emit a `handled: { at, by }` stamp on every link
-it produces so peer sync does not re-fire its handler (R-J5).
+it produces so peer sync does not re-fire its handler (R-J5). Telegram
+already does this via `pullLiveInto()`.
 
-## 2. UI quality and design audit (R-G1, R-H1)
+## 2. UI stack (R-G1)
 
 - [ ] **React port of the SPA (R-G1).** The SPA is currently vanilla
       JS for simplicity; the issue specifies React. Port view by view
       while keeping the offline client and discovery cascade unchanged.
-- [ ] **Apple HIG / Material / Microsoft audit (R-H1).** Document one
-      checklist per surface (chat, operator, contacts, automation graph,
-      patterns, broadcast, settings) and resolve every gap.
 
 ## 3. Mobile + Electron polish (R-F3, R-G3)
 
@@ -58,27 +54,7 @@ it produces so peer sync does not re-fire its handler (R-J5).
       cascade has to be wired into the WebView shell so the mobile app
       finds a desktop server on the same LAN.
 
-## 4. End-to-end testing (R-H4, R-J7)
-
-`tests/e2e-browser-spa.mjs` (opt-in via `RUN_BROWSER_E2E=1 npm run
-test:e2e:browser`) drives the SPA in headless Chromium through
-`browser-commander` + Playwright across both backends. The default run
-covers boot → write → reload, every nav view, pattern infer → save,
-automation graph build, broadcast envelopes, audience → outreach plan,
-backup → restore round-trip, profile edit → per-network sync envelopes,
-dark-mode toggle, an axe-core WCAG 2.0 A/AA audit, skip-link a11y, and
-**two-browser WebRTC convergence** (page A writes a link, page B
-observes it via the peer-to-peer data channel — proves the
-`/rtc` signaling broker plus `attachWebRtcSync` round-trip is real)
-against the JS server; setting `RUN_BROWSER_E2E_RUST=1` re-runs the
-protocol-parity subset against `meta-sovereign-rs serve` to verify the
-Rust port exposes identical wire semantics.
-
-- [ ] **Real Telegram archive import.** Configure a Telegram archive,
-      run import, see chats in the unified UI. Blocked on the
-      Telegram connector landing (see §1).
-
-## 5. Browser-side WASM stack (R-G1)
+## 4. Browser-side WASM stack (R-G1)
 
 - [ ] **`doublets-web` integration.** Add a `BrowserStore` driver
       backed by `doublets-web` (WASM) so the browser-side database can

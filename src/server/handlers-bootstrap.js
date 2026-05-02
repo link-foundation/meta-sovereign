@@ -15,6 +15,7 @@ import {
   profileSyncHandler,
   resumeSyncHandler,
   outreachHandler,
+  sourcePullHandler,
   automationHandler,
 } from '../handlers/index.js';
 import {
@@ -24,7 +25,7 @@ import {
   runOutreach,
 } from '../broadcast/index.js';
 import { runGraph } from '../automation/index.js';
-import { listSources } from '../sources/index.js';
+import { listSources, pullLiveInto } from '../sources/index.js';
 
 const hydrate = (persisted) => {
   const nodes = new Map();
@@ -51,6 +52,12 @@ export const registerDefaultHandlers = (store) => {
   bus.register('resume-sync', resumeBuiltIn.selector, resumeBuiltIn.run);
   const outreachBuiltIn = outreachHandler({ runOutreach });
   bus.register('outreach', outreachBuiltIn.selector, outreachBuiltIn.run);
+  const sourcePullBuiltIn = sourcePullHandler({ pullLive: pullLiveInto });
+  bus.register(
+    'source-pull',
+    sourcePullBuiltIn.selector,
+    sourcePullBuiltIn.run
+  );
   const automationBuiltIn = automationHandler({ runGraph, hydrate });
   bus.register('automation', automationBuiltIn.selector, automationBuiltIn.run);
   return bus;

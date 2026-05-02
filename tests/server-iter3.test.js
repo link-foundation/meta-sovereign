@@ -60,7 +60,11 @@ const seedMessages = async (base) => {
 describe('server iteration 3 routes', () => {
   it('drives the full pipeline: patterns, replies, graphs, facts, audience', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-i3-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({
+      port: 0,
+      storeDir: dir,
+      enableHandlers: false,
+    });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       await seedMessages(base);

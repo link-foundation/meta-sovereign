@@ -10,10 +10,11 @@
  *   tokens    = ['message', source, externalId]
  *   children  = ids of sender, chat, body, timestamp links
  *
- * Adapters use the helpers below to keep their code small. Real
+ * Adapters use the helpers below to keep their code small. Live
  * network APIs (token flows, OAuth, rate limits) belong inside each
- * adapter's `live*` methods, which are stubbed for now and will be
- * thickened by follow-up PRs.
+ * adapter's `live*` methods; Telegram ships a Bot API implementation
+ * and the remaining adapters expose archive parsers until their live
+ * API credentials and flows are configured.
  */
 
 import { telegramSource } from './telegram.js';
@@ -76,6 +77,18 @@ export const buildMessageLink = ({
   replyTo,
 });
 
+export const sourceHandlerId = (source) => `source:${source}:live`;
+
+export const stampSourceLink = (link, source) => {
+  const at = Date.now();
+  const by = sourceHandlerId(source);
+  return {
+    ...link,
+    handled: { at, by },
+    handledBy: { ...(link.handledBy ?? {}), [by]: at },
+  };
+};
+
 export const importInto = async (store, source, archive) => {
   const adapter = getSource(source);
   const messages = await adapter.parseArchive(archive);
@@ -83,4 +96,41 @@ export const importInto = async (store, source, archive) => {
     await store.put(m);
   }
   return messages.length;
+};
+
+const secretToken = async (store, source, explicitId) => {
+  const ids = [
+    explicitId,
+    `secret:${source}:bot-token`,
+    `secret:${source}:token`,
+  ].filter(Boolean);
+  for (const id of ids) {
+    const link = await store.get(id);
+    const token = link?.token ?? link?.value ?? link?.body ?? link?.text;
+    if (token) {
+      return token;
+    }
+  }
+  return null;
+};
+
+export const pullLiveInto = async (store, source, options = {}) => {
+  const adapter = options.adapter ?? getSource(source);
+  const live = options.live ?? adapter.live;
+  if (!live?.pullMessages) {
+    throw new Error(`${source} live API does not support pullMessages`);
+  }
+  const token =
+    options.token ?? (await secretToken(store, source, options.secretId));
+  const result = await live.pullMessages({ ...options, token });
+  const links = result.links ?? [];
+  for (const link of links) {
+    await store.put(stampSourceLink(link, source));
+  }
+  return {
+    source,
+    imported: links.length,
+    nextOffset: result.nextOffset ?? null,
+    rawCount: result.rawCount ?? links.length,
+  };
 };

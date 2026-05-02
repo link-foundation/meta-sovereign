@@ -77,14 +77,13 @@ The proposed plan respects every non-negotiable constraint stated in the issue:
 
 ## 6. Next steps
 
-The prototype implementation of `0.0.1` is decomposed into the milestones in `solution-plan.md`. The intent of the linked PR (#2) is to land **this case study** plus the package metadata changes that establish the repository identity (`name`, description, README header), so subsequent feature PRs can reference the requirements catalogued here.
-
-Out of scope for this PR (will be follow-up issues / PRs):
-
-- Implementation of any importer adapter (VK, Telegram, etc.).
-- Any UI surface (chat, operator, automation graph, pattern editor).
-- WebRTC / CRDT sync layer.
-- Pure-Rust port of the server.
+The prototype implementation of `0.0.1` is decomposed into the
+milestones in `solution-plan.md`. PR #2 has since expanded beyond the
+initial case-study scope into a runnable system: storage, archive
+importers, Telegram live import/send, CLI, HTTP, SPA, WebSocket/WebRTC
+sync, handlers, encrypted backups, and the pure-Rust server are all
+implemented and tested. Remaining gaps stay tracked in the top-level
+[`docs/ROADMAP.md`](../../ROADMAP.md).
 
 ---
 

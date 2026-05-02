@@ -31,6 +31,7 @@ import {
 const PROTOCOL = 'meta-sovereign-sync.v1';
 
 const IS_BUN = typeof globalThis.Bun !== 'undefined';
+const IS_DENO = typeof globalThis.Deno !== 'undefined' && !IS_BUN;
 
 const broadcast = (sockets, text) => {
   const frame = encodeTextFrame(text);
@@ -171,6 +172,63 @@ export const connectSyncWebSocket = ({
 }) => {
   if (IS_BUN) {
     return bunConnectSyncWebSocket({ port, host, path });
+  }
+  if (IS_DENO && typeof globalThis.WebSocket === 'function') {
+    return new Promise((resolve, reject) => {
+      const handlers = new Set();
+      let settled = false;
+      const DenoWebSocket = globalThis.WebSocket;
+      const socket = new DenoWebSocket(`ws://${host}:${port}${path}`, PROTOCOL);
+      const fail = (err) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        reject(err);
+      };
+      socket.addEventListener('open', () => {
+        settled = true;
+        resolve({
+          transport: {
+            send: (event) => {
+              socket.send(JSON.stringify(event));
+            },
+            onMessage: (h) => {
+              handlers.add(h);
+              return () => handlers.delete(h);
+            },
+          },
+          close: () =>
+            new Promise((r) => {
+              if (
+                socket.readyState === DenoWebSocket.CLOSING ||
+                socket.readyState === DenoWebSocket.CLOSED
+              ) {
+                r();
+                return;
+              }
+              socket.addEventListener('close', () => r(), { once: true });
+              socket.close();
+            }),
+        });
+      });
+      socket.addEventListener('message', (event) => {
+        try {
+          const parsed = JSON.parse(String(event.data));
+          for (const h of handlers) {
+            h(parsed);
+          }
+        } catch {
+          // ignore
+        }
+      });
+      socket.addEventListener('error', () =>
+        fail(new Error('websocket handshake rejected'))
+      );
+      socket.addEventListener('close', () =>
+        fail(new Error('websocket closed before handshake'))
+      );
+    });
   }
   return new Promise((resolve, reject) => {
     const handlers = new Set();

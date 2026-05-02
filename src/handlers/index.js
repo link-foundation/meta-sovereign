@@ -201,6 +201,38 @@ export const outreachHandler = ({ runOutreach }) => ({
 });
 
 /**
+ * Built-in handler: a `source-pull:<source>:*` command link asks the
+ * matching live connector to fetch currently visible service updates
+ * and write them back as `msg:*` links. This keeps live external API
+ * reads inside the same data-driven contract as broadcasts/profile
+ * sync: creating a link is the API call, and the handler records the
+ * import result on the command link.
+ */
+export const sourcePullHandler = ({ pullLive }) => ({
+  selector: { idPrefix: 'source-pull:', event: 'put' },
+  async run({ link, store }) {
+    if (link.status === 'done') {
+      return false;
+    }
+    const source = link.source ?? link.id.split(':')[1];
+    const result = await pullLive(store, source, {
+      offset: link.offset,
+      limit: link.limit,
+      timeout: link.timeout,
+      allowedUpdates: link.allowedUpdates,
+    });
+    await store.put({
+      ...link,
+      status: 'done',
+      imported: result.imported,
+      nextOffset: result.nextOffset,
+      rawCount: result.rawCount,
+      completedAt: new Date().toISOString(),
+    });
+  },
+});
+
+/**
  * Built-in handler: when a new inbound `msg:*` arrives, run every
  * persisted automation graph against it and persist the planned
  * replies as `plan:<msgId>` links so the operator UI can render

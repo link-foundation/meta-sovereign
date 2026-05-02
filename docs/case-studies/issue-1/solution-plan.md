@@ -613,3 +613,79 @@ Playwright both produce a single `SKIP` line and exit 0. 119/119 JS
 API connectors (R-E\*), React port (R-G1), mobile shell (R-G3), full
 Apple/Material/Microsoft audit (R-H1), and the e2e scenarios that
 need their underlying features to land first.
+
+## Iteration 19 additions (PR #2, Telegram live + real archive import)
+
+Iteration 19 closes the Telegram-specific connector work that was still
+listed under `ROADMAP.md` and makes live service reads follow the same
+store-as-API contract as broadcasts, profile sync, outreach, and
+automation.
+
+- **Telegram Desktop archive import (`src/sources/telegram.js`).**
+  `parseArchive()` now accepts both per-chat exports and all-chats
+  exports, reads `text` and `text_entities`, preserves `date` or
+  `date_unixtime`, and avoids collisions when two chats reuse the same
+  local message id.
+- **Telegram Bot API live connector (`createTelegramBotLive`).** The
+  adapter implements `pullMessages()` over `getUpdates`, `post()` over
+  `sendMessage`, and `syncProfile()` over `setMyName` /
+  `setMyDescription`. It can use `TELEGRAM_BOT_TOKEN`, an explicit
+  token passed by library callers, or a local `secret:telegram:*` link
+  when live pulls are triggered from the store.
+- **Live import bridge (`src/sources/index.js`).** `pullLiveInto()`
+  pulls from any source whose `live.pullMessages()` is available,
+  writes the resulting `msg:*` links to the universal store, and stamps
+  each link with both `handled: { at, by }` and `handledBy` so connector
+  echoes do not re-fire.
+- **Source-pull handler (`src/handlers/index.js`).** Writing a
+  `source-pull:<source>:*` command link is now the live-import API.
+  The handler runs `pullLiveInto()`, updates the command link with
+  `status: "done"`, `imported`, `nextOffset`, and `rawCount`, then the
+  handler bus stamps it like every other handled link.
+- **CLI (`src/cli/index.js`).** New `meta-sovereign source-pull`
+  command for pulling bot-visible Telegram updates into the local
+  store from the terminal.
+- **Tests (`tests/telegram-live.test.js`).** Four new cases cover real
+  Telegram Desktop all-chats archive shape, duplicate local id
+  handling, mocked Bot API pull/send/profile calls, secret-token lookup
+  from the store, and one-shot source-pull handler execution.
+
+**Result:** 133/133 JS tests pass in the focused Node run for the
+source/handler slice; the full matrix remains covered by the normal CI
+workflow. `ROADMAP.md` no longer lists the real Telegram archive import
+item, and R-E2 is marked Done in `docs/REQUIREMENTS.md`.
+
+## Iteration 20 additions (PR #2, UI design audit)
+
+Iteration 20 closes the Apple HIG / Google Material / Microsoft Fluent
+audit item that remained under R-H1.
+
+- **`docs/UI-DESIGN-AUDIT.md`.** New per-surface checklist covering
+  the global shell, chat, operator, contacts/CRM, automation graph,
+  patterns/replies, broadcast/profile/resume, settings, sync, and
+  backup flows. Each check cites current code or e2e coverage as
+  evidence.
+- **`docs/REQUIREMENTS.md` and `docs/ROADMAP.md`.** R-H1 now points to
+  the audit document and the remaining UI roadmap scope is narrowed to
+  the React port required by R-G1.
+
+**Result:** the current vanilla-JS SPA has a documented design audit
+that must be preserved during the future React port.
+
+## Iteration 21 additions (PR #2, Deno matrix hardening)
+
+Iteration 21 keeps the multi-runtime CI matrix green after Telegram
+became a real live connector.
+
+- **Deno WebSocket client path (`src/sync/ws-transport.js`).** Deno
+  now uses its native `WebSocket` client for sync/signaling tests
+  instead of the Node `net` handshake path, which Deno's Node-compat
+  layer rejects on current 2.x releases.
+- **Deterministic route fixture (`tests/server-iter3.test.js`).** The
+  route-level full-pipeline test disables background handlers so a
+  developer or CI environment with `TELEGRAM_BOT_TOKEN` set does not
+  start a real Telegram profile-sync request while the test is only
+  asserting planned-sync route responses.
+
+**Result:** Node, Bun, Deno, and Rust local suites pass against the
+same final source.

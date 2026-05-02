@@ -184,3 +184,27 @@ Iteration 18 (follow-up commits on the same PR) closes ROADMAP §4 "Two-browser 
 Tests: Node 129/129 (unit), e2e-browser-spa 14/14 against the JS backend.
 
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC verified end-to-end with two real browsers in CI, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
+
+Iteration 19 (follow-up commits on the same PR) closes the Telegram connector and real Telegram archive import roadmap items:
+
+- `src/sources/telegram.js`: robust Telegram Desktop import now handles all-chats exports, per-chat exports, `text_entities`, `date_unixtime`, and duplicate local message ids across chats. The live connector now uses Telegram Bot API `getUpdates`, `sendMessage`, `setMyName`, and `setMyDescription` with either `TELEGRAM_BOT_TOKEN`, an explicit token, or a local `secret:telegram:*` token link.
+- `src/sources/index.js`: `pullLiveInto()` imports live updates into any Universal Links store and stamps each produced link with `handled: { at, by }` plus `handledBy[source:<name>:live]` so connector echoes are traceable and at-most-once.
+- `src/handlers/index.js` + `src/server/handlers-bootstrap.js`: `source-pull:<source>:*` links now trigger a live import through the handler bus and write completion metadata back to the command link.
+- `src/cli/index.js`: new `meta-sovereign source-pull --source=telegram` command.
+- `tests/telegram-live.test.js`: covers real Telegram export shape, mocked Bot API pull/send/profile sync, secret-token lookup, and one-shot source-pull handler execution.
+- `docs/REQUIREMENTS.md` and `docs/ROADMAP.md`: R-E2 is Done; the real Telegram archive import and Telegram live connector bullets are removed from the roadmap.
+
+Tests: focused Node source/handler slice passes; total JS coverage is now 133 tests.
+
+Iteration 20 (follow-up commits on the same PR) closes the UI design audit roadmap item:
+
+- `docs/UI-DESIGN-AUDIT.md`: adds a per-surface Apple HIG / Google Material / Microsoft Fluent audit for the global shell, chat, operator, contacts/CRM, automation graph, patterns/replies, broadcast/profile/resume, settings, sync, and backup flows.
+- `docs/REQUIREMENTS.md`: R-H1 now references the design audit alongside the semantic, keyboard, theme, ARIA, and axe-core evidence already enforced by the app and e2e tests.
+- `docs/ROADMAP.md`: removes the R-H1 audit checkbox and narrows the UI section to the remaining React port.
+
+Iteration 21 (follow-up commits on the same PR) hardens the Deno test matrix after Telegram gained real live side effects:
+
+- `src/sync/ws-transport.js`: Deno now uses its native `WebSocket` client for sync/signaling tests instead of the Node `net` handshake path that current Deno 2.x rejects.
+- `tests/server-iter3.test.js`: the route-level full-pipeline fixture disables background handlers so environments with `TELEGRAM_BOT_TOKEN` set do not start a real Telegram profile-sync request while asserting planned-sync route responses.
+
+Tests: Node 133/133, Bun 133/133, Deno 133/133, Rust 52/52; `npm run check` clean.

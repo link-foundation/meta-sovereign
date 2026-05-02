@@ -24,7 +24,7 @@ import {
   pruneBackups,
   restoreBackup,
 } from '../storage/backup.js';
-import { listSources, importInto } from '../sources/index.js';
+import { listSources, importInto, pullLiveInto } from '../sources/index.js';
 import { startServer } from '../server/index.js';
 import {
   startSyncListener,
@@ -47,6 +47,7 @@ Commands:
   restore       --file=<path> --store=<dir>
   serve         [--port=<n>] [--store=<dir>]
   sources
+  source-pull   --source=<name> [--offset=<n>] [--limit=<n>] [--store=<dir>]
   audience      --query=<expr> [--store=<dir>]
   facts         [--store=<dir>]
   search        --query=<text> [--min=<0..1>] [--store=<dir>]
@@ -131,6 +132,17 @@ const serveCmd = async (args, log) => {
 
 const sourcesCmd = async (_args, log) => {
   log(listSources().join('\n'));
+  return 0;
+};
+
+const sourcePullCmd = async (args, log) => {
+  const store = await openStore(args.store ?? '.meta-sovereign');
+  const result = await pullLiveInto(store, args.source, {
+    offset: args.offset ? Number(args.offset) : undefined,
+    limit: args.limit ? Number(args.limit) : undefined,
+    timeout: args.timeout ? Number(args.timeout) : undefined,
+  });
+  log(JSON.stringify(result, null, 2));
   return 0;
 };
 
@@ -339,6 +351,7 @@ const COMMANDS = {
   restore: restoreCmd,
   serve: serveCmd,
   sources: sourcesCmd,
+  'source-pull': sourcePullCmd,
   audience: audienceCmd,
   facts: factsCmd,
   search: searchCmd,
