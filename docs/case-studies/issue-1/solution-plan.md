@@ -781,3 +781,40 @@ offline-first/browser-WASM work from the previous iterations.
 **Result:** R-G1 is Done: the default stack now has JavaScript server
 and client code, React UI, Rust/WASM heavy-workload paths, and the
 pure-Rust server alternative remains available under R-G2.
+
+## Iteration 25 additions (PR #2, Electron/mobile packaging)
+
+Iteration 25 closes the final top-level roadmap section: Electron
+auto-update, iOS build pipeline, Android build pipeline, and mobile-side
+server discovery.
+
+- **Electron shell.** `electron/main.js` is now an import-safe module
+  with exported `startDesktop()`, `createMainWindow()`, and
+  `configureAutoUpdates()` helpers. The main process starts the local
+  server, opens the same React URL as local web, isolates the renderer
+  with `contextIsolation: true` and `nodeIntegration: false`, and calls
+  `electron-updater`'s `checkForUpdatesAndNotify()` when that optional
+  peer is available in a packaged app or explicit update feed mode.
+- **Electron preload discovery.** `electron/preload.cjs` exposes only a
+  small `metaSovereignShell` object to the renderer, carrying optional
+  LAN server candidates from `META_SOVEREIGN_SERVER_CANDIDATES`.
+- **Mobile discovery shell.** `src/web/discovery-shell.js` loads before
+  `app.min.js` and normalizes candidates from
+  `window.metaSovereignShell`, `META_SOVEREIGN_DISCOVERY_CANDIDATES`, a
+  discovery meta tag, or `?server=` / `?servers=` launch URLs. The
+  existing `discover.js` cascade now probes those WebView candidates
+  before localhost ports, so Capacitor shells can find a desktop server
+  on the same LAN and still fall back to fully local storage.
+- **Capacitor fallback.** `capacitor.config.json`, `mobile/README.md`,
+  `scripts/build-mobile.mjs`, and `scripts/mobile-platform.mjs` define
+  the iOS/Android build surface. `npm run build:mobile` writes
+  `mobile/www` from the checked-in web assets; `npm run mobile:ios` and
+  `npm run mobile:android` add/sync/open the corresponding native
+  project through Capacitor.
+- **Coverage.** `tests/mobile-electron-packaging.test.js` first failed
+  on missing WebView discovery, Electron updater wiring, and mobile
+  build config, then passes against the implemented shell contracts.
+
+**Result:** R-F3, R-G3, R-J2, R-J3, R-J9, and R-J10 are Done. The
+top-level `docs/ROADMAP.md` file has been deleted because the tracked
+missing-feature checklist is empty.

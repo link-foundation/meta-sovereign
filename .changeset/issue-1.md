@@ -183,7 +183,7 @@ Iteration 18 (follow-up commits on the same PR) closes ROADMAP §4 "Two-browser 
 
 Tests: Node 129/129 (unit), e2e-browser-spa 14/14 against the JS backend.
 
-The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC verified end-to-end with two real browsers in CI, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent iterations continue closing the remaining roadmap items per `docs/ROADMAP.md`.
+The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC verified end-to-end with two real browsers in CI, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent iterations continued closing the remaining roadmap items.
 
 Iteration 19 (follow-up commits on the same PR) closes the Telegram connector and real Telegram archive import roadmap items:
 
@@ -257,3 +257,28 @@ Tests: Node 143/143, Bun 143/143, Deno 143/143, Rust 53/53;
 `npm run check` clean; real-browser
 `RUN_BROWSER_E2E=1 npm run test:e2e:browser` passes all JS-backend
 critical UI paths.
+
+Iteration 25 (follow-up commits on the same PR) closes the final
+Electron/mobile packaging and discovery roadmap items:
+
+- `electron/main.js` now exports testable desktop boot helpers, opens
+  the same React/server URL with an isolated preload, and configures
+  `electron-updater` via `checkForUpdatesAndNotify()` when the optional
+  updater peer is available.
+- `electron/preload.cjs` passes shell-provided LAN candidates into the
+  renderer without enabling Node integration.
+- `src/web/discover.js` and `src/web/discovery-shell.js` now accept
+  Electron/Capacitor WebView candidates through
+  `window.metaSovereignShell`, query parameters, or a global injected by
+  native code before falling back to localhost/offline mode.
+- `capacitor.config.json`, `scripts/build-mobile.mjs`, and
+  `scripts/mobile-platform.mjs` provide the Capacitor fallback pipeline
+  for iOS and Android using the same React bundle in `mobile/www`.
+- `tests/mobile-electron-packaging.test.js` pins the WebView discovery,
+  Electron updater, and mobile build contracts.
+- `docs/REQUIREMENTS.md`: R-F3, R-G3, R-J2, R-J3, R-J9, and R-J10 now
+  record the completed packaging/discovery state; `docs/ROADMAP.md` is
+  deleted because the tracked roadmap is empty.
+
+Tests: focused Node mobile/electron coverage passes; full matrix pending
+the final local verification pass for this iteration.

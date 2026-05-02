@@ -13,8 +13,9 @@
  *      happens to be reachable on the same origin).
  *   2. A previously-saved override stored under `metaServer` in the
  *      injected `storage` (localStorage in the browser).
- *   3. A short list of common local ports on 127.0.0.1.
- *   4. A list of LAN candidates if the page knows them (passed in).
+ *   3. Runtime shell candidates injected by Electron/Capacitor WebViews.
+ *   4. A short list of common local ports on 127.0.0.1.
+ *   5. A list of LAN candidates if the page knows them (passed in).
  *
  * Returns `{ origin: string }` for the first reachable server, or
  * `null` when none answered. Callers use `null` to mean "go fully
@@ -27,6 +28,25 @@
 const HEALTH = '/api/status';
 const STORAGE_KEY = 'metaServer';
 const DEFAULT_PORTS = [8787, 8788, 7001, 7002, 3000];
+
+const candidateArray = (value) => {
+  if (!value) {
+    return [];
+  }
+  const raw = Array.isArray(value) ? value : String(value).split(/[,\s]+/);
+  return raw
+    .map((candidate) => String(candidate).trim())
+    .filter((candidate) => /^https?:\/\//.test(candidate));
+};
+
+const runtimeCandidates = () => {
+  const shell = globalThis.metaSovereignShell ?? {};
+  return [
+    ...candidateArray(shell.serverOrigin),
+    ...candidateArray(shell.discoveryCandidates),
+    ...candidateArray(globalThis.META_SOVEREIGN_DISCOVERY_CANDIDATES),
+  ];
+};
 
 const probe = async (origin, fetchImpl, signal) => {
   try {
@@ -59,6 +79,9 @@ const buildCandidateList = (origin, storage, candidates) => {
   const saved = readSavedOverride(storage);
   if (saved) {
     list.push(saved);
+  }
+  for (const c of runtimeCandidates()) {
+    list.push(c);
   }
   for (const port of DEFAULT_PORTS) {
     list.push(`http://127.0.0.1:${port}`);

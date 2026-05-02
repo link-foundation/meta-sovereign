@@ -37,6 +37,11 @@
     "check:duplication": "jscpd .",
     "check": "npm run lint && npm run format:check && npm run check:duplication",
     "build:web": "node scripts/build-web.mjs",
+    "build:mobile": "npm run build:web && node scripts/build-mobile.mjs",
+    "electron": "npm exec --yes --package electron@^41.5.0 -- electron electron/main.js",
+    "mobile:sync": "npm run build:mobile && node scripts/mobile-platform.mjs sync",
+    "mobile:ios": "npm run build:mobile && node scripts/mobile-platform.mjs ios open",
+    "mobile:android": "npm run build:mobile && node scripts/mobile-platform.mjs android open",
     "docs:api": "node scripts/build-api-docs.mjs",
     "prepare": "husky || true",
     "changeset": "changeset",
@@ -81,6 +86,34 @@
     "browser-commander": "^0.8.0",
     "doublets-web": "^0.1.2",
     "playwright": "^1.40.0"
+  },
+  "peerDependencies": {
+    "@capacitor/android": "^7.6.2",
+    "@capacitor/cli": "^7.6.2",
+    "@capacitor/core": "^7.6.2",
+    "@capacitor/ios": "^7.6.2",
+    "electron": "^41.5.0",
+    "electron-updater": "^6.8.3"
+  },
+  "peerDependenciesMeta": {
+    "@capacitor/android": {
+      "optional": true
+    },
+    "@capacitor/cli": {
+      "optional": true
+    },
+    "@capacitor/core": {
+      "optional": true
+    },
+    "@capacitor/ios": {
+      "optional": true
+    },
+    "electron": {
+      "optional": true
+    },
+    "electron-updater": {
+      "optional": true
+    }
   },
   "lint-staged": {
     "*.{js,mjs,cjs}": [

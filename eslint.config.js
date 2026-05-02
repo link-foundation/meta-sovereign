@@ -82,6 +82,18 @@ export default [
     },
   },
   {
+    // Electron preload runs as CommonJS even though the package uses ESM.
+    files: ['electron/**/*.cjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+      globals: {
+        process: 'readonly',
+        require: 'readonly',
+      },
+    },
+  },
+  {
     // Test files have different requirements
     files: ['tests/**/*.js', '**/*.test.js'],
     rules: {

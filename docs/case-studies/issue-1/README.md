@@ -83,7 +83,8 @@ initial case-study scope into a runnable system: storage, archive
 importers, live connector surfaces, CLI, HTTP, React SPA, WebSocket/WebRTC
 sync, handlers, encrypted backups, and the pure-Rust server are all
 implemented and tested. Remaining gaps stay tracked in the top-level
-[`docs/ROADMAP.md`](../../ROADMAP.md).
+requirements table; the top-level roadmap file was deleted once its
+final checklist was closed.
 
 ---
 

@@ -76,6 +76,11 @@ describe('http server', () => {
       const bundle = await fetch(`http://127.0.0.1:${handle.port}/app.min.js`);
       expect(bundle.status).toBe(200);
       await bundle.text();
+      const discovery = await fetch(
+        `http://127.0.0.1:${handle.port}/discovery-shell.js`
+      );
+      expect(discovery.status).toBe(200);
+      await discovery.text();
       const css = await fetch(`http://127.0.0.1:${handle.port}/app.css`);
       expect(css.status).toBe(200);
       await css.text();
