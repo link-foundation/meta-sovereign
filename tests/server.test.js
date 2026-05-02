@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'test-anywhere';
 import { promises as fs } from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../src/server/index.js';
@@ -8,6 +9,28 @@ const fetchJson = async (url, init) => {
   const r = await fetch(url, init);
   return { status: r.status, body: r.status === 204 ? null : await r.json() };
 };
+
+// Send a literal HTTP request line over a raw TCP socket so URL
+// normalisation in `fetch` (Bun, Deno, Node all collapse `..`) can't
+// rewrite the path before it reaches the server.
+const rawRequestStatus = (port, rawPath) =>
+  new Promise((resolve, reject) => {
+    const sock = net.createConnection({ host: '127.0.0.1', port }, () => {
+      sock.write(
+        `GET ${rawPath} HTTP/1.1\r\nHost: 127.0.0.1:${port}\r\nConnection: close\r\n\r\n`
+      );
+    });
+    let buf = '';
+    sock.setEncoding('utf8');
+    sock.on('data', (chunk) => {
+      buf += chunk;
+    });
+    sock.on('end', () => {
+      const m = /^HTTP\/1\.\d (\d{3})/.exec(buf);
+      resolve(m ? Number(m[1]) : 0);
+    });
+    sock.on('error', reject);
+  });
 
 describe('http server', () => {
   it('round-trips a link via HTTP', async () => {
@@ -121,10 +144,15 @@ describe('http server', () => {
       expect(handlers.status).toBe(200);
       await handlers.text();
 
-      // Traversal stays inside the mount dir.
-      const traversal = await fetch(`${base}/storage/../etc/passwd`);
-      expect([403, 404]).toContain(traversal.status);
-      await traversal.text();
+      // Traversal stays inside the mount dir. We send a raw HTTP
+      // request so the runtime's fetch URL-normaliser doesn't collapse
+      // `/storage/../etc/passwd` to `/etc/passwd` before it leaves the
+      // client (Bun, Deno, and Node all do this in `fetch`).
+      const traversalStatus = await rawRequestStatus(
+        handle.port,
+        '/storage/../etc/passwd'
+      );
+      expect([403, 404]).toContain(traversalStatus);
 
       // Only `.js` files are served from a mount.
       const txt = await fetch(`${base}/storage/notes.txt`);

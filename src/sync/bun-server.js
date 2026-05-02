@@ -175,8 +175,15 @@ const runRequestListeners = async (listeners, req) => {
     getHeader(k) {
       return headers[k.toLowerCase()];
     },
-    writeHead(s, h) {
+    writeHead(s, hOrReason, maybeHeaders) {
       status = s;
+      // Mirror Node's behaviour where writeHead also updates statusCode
+      // so subsequent reads of `res.statusCode` (and our `end()` below)
+      // see the value the route actually set.
+      nodeRes.statusCode = s;
+      const h =
+        maybeHeaders ??
+        (hOrReason && typeof hOrReason === 'object' ? hOrReason : null);
       if (h) {
         for (const [k, v] of Object.entries(h)) {
           headers[k.toLowerCase()] = v;
@@ -192,6 +199,7 @@ const runRequestListeners = async (listeners, req) => {
       if (chunk) {
         chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
       }
+      // Honour either explicit `res.statusCode = N` or `writeHead(N)`.
       status = nodeRes.statusCode || status;
       resolved();
     },
