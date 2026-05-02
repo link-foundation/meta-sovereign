@@ -46,6 +46,9 @@ import { listSources } from '../sources/index.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
+import { createPeer, attachSyncWebSocket } from '../sync/index.js';
+import { attachSignaling } from '../sync/webrtc-signaling.js';
+import { registerDefaultHandlers } from './handlers-bootstrap.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.resolve(here, '..', 'web');
@@ -107,6 +110,9 @@ export const startServer = async ({
   port = 0,
   storeDir = '.meta-sovereign',
   store: providedStore,
+  enableHandlers = true,
+  enableSync = true,
+  node = 'server',
 } = {}) => {
   let store = providedStore;
   if (!store) {
@@ -120,12 +126,30 @@ export const startServer = async ({
       json(res, 500, { error: err.message })
     );
   });
+  let bus = null;
+  if (enableHandlers) {
+    bus = registerDefaultHandlers(store);
+  }
+  let wsHandle = null;
+  let signaling = null;
+  if (enableSync) {
+    wsHandle = attachSyncWebSocket(server, { path: '/ws' });
+    const peer = createPeer(store, { node });
+    peer.connect(wsHandle.transport);
+    signaling = attachSignaling(server, { path: '/rtc' });
+  }
   await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
   return {
     port: server.address().port,
     store,
+    bus,
+    sync: wsHandle,
+    signaling,
     close: () =>
       new Promise((resolve) => {
+        bus?.close();
+        wsHandle?.close();
+        signaling?.close();
         server.close(() => resolve());
       }),
   };
