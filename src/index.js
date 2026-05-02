@@ -16,6 +16,7 @@ export * as facts from './facts/index.js';
 export * as sync from './sync/index.js';
 export * as broadcast from './broadcast/index.js';
 export * as backup from './storage/backup.js';
+export * as handlers from './handlers/index.js';
 
 export { runCli } from './cli/index.js';
 export { startServer } from './server/index.js';

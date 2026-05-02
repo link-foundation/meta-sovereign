@@ -14,6 +14,7 @@ export * as facts from './facts/index.js';
 export * as sync from './sync/index.js';
 export * as broadcast from './broadcast/index.js';
 export * as backup from './storage/backup.js';
+export * as handlers from './handlers/index.js';
 
 export declare const runCli: (argv: string[]) => Promise<number>;
 export declare const startServer: (opts: {
