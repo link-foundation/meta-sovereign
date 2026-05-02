@@ -133,12 +133,18 @@ export const createWebRtcTransport = ({
     }
   });
 
+  const startAsInitiator = async () => {
+    if (!dataChannel) {
+      // Late initiation: open the data channel now if we deferred it.
+      wireChannel(pc.createDataChannel(channelLabel));
+    }
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    signaling.sendOffer(offer.sdp);
+  };
+
   if (initiator) {
-    (async () => {
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      signaling.sendOffer(offer.sdp);
-    })();
+    startAsInitiator().catch(() => {});
   } else {
     signaling.on(TYPE_PEER_JOINED, async () => {
       // When a new peer joins, *they* become initiator; this side
@@ -171,6 +177,7 @@ export const createWebRtcTransport = ({
         // ignore
       }
     },
+    startAsInitiator,
     pc,
   };
 };

@@ -66,14 +66,14 @@ test:e2e:browser`) drives the SPA in headless Chromium through
 covers boot → write → reload, every nav view, pattern infer → save,
 automation graph build, broadcast envelopes, audience → outreach plan,
 backup → restore round-trip, profile edit → per-network sync envelopes,
-dark-mode toggle, an axe-core WCAG 2.0 A/AA audit, and skip-link a11y
+dark-mode toggle, an axe-core WCAG 2.0 A/AA audit, skip-link a11y, and
+**two-browser WebRTC convergence** (page A writes a link, page B
+observes it via the peer-to-peer data channel — proves the
+`/rtc` signaling broker plus `attachWebRtcSync` round-trip is real)
 against the JS server; setting `RUN_BROWSER_E2E_RUST=1` re-runs the
 protocol-parity subset against `meta-sovereign-rs serve` to verify the
 Rust port exposes identical wire semantics.
 
-- [ ] **Two-browser WebRTC convergence.** Boot two SPA instances,
-      connect over WebRTC, mutate in browser A, observe in browser B.
-      Needs `browser-commander` extended to drive two pages in lockstep.
 - [ ] **Real Telegram archive import.** Configure a Telegram archive,
       run import, see chats in the unified UI. Blocked on the
       Telegram connector landing (see §1).

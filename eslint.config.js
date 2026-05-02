@@ -139,6 +139,20 @@ export default [
     },
   },
   {
+    // Local debugging probes (experiments/*.mjs) often spin up headless
+    // browsers and call into the page context, so they need the same
+    // globals the real-browser e2e uses.
+    files: ['experiments/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        document: 'readonly',
+        window: 'readonly',
+      },
+    },
+  },
+  {
     ignores: [
       'node_modules/**',
       'coverage/**',

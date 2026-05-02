@@ -108,6 +108,11 @@ const startJsBackend = async () => {
       profile: true,
       theme: true,
       skipLink: true,
+      // JS backend exposes a symmetric /rtc signaling broker, so two
+      // SPAs in the same room can negotiate a WebRTC data channel
+      // through it. Rust backend's broker shape isn't exercised here,
+      // so the convergence step is gated to the JS run.
+      twoBrowserRtc: true,
       navViews: navViewsAll,
     },
     close: async () => {
@@ -187,6 +192,7 @@ const startRustBackend = async () => {
       profile: false,
       theme: true,
       skipLink: true,
+      twoBrowserRtc: false,
       // Rust server doesn't expose outreach/backup/profile endpoints,
       // so those views render an empty shell. Skip them.
       navViews: navViewsAll.filter(
@@ -510,6 +516,67 @@ const stepAxeAudit = async ({ page, base }) => {
   }
 };
 
+// Boot a *second* SPA in a fresh browser context (so it gets an
+// isolated IndexedDB) on the same backend, mutate in page A, observe
+// the same link materialise in page B's local store. Convergence has
+// to happen via the WebRTC data channel — the SPA's writes are local-
+// only (api.put → store.put), so page B can only see the link if
+// `attachWebRtcSync` wired the store to a peer transport that
+// delivered the event.
+const stepTwoBrowserWebRtcConvergence = async ({ browser, page, base }) => {
+  const contextB = await browser.newContext();
+  const pageB = await contextB.newPage();
+  try {
+    // Both pages load the SPA so each calls `attachWebRtcSync` and
+    // joins the /rtc room. Reload page A to ensure a fresh boot too
+    // since the previous step navigated it around.
+    await page.goto(base, { waitUntil: 'load' });
+    await pageB.goto(base, { waitUntil: 'load' });
+
+    // The dom.js boot is gated behind `ensure()` which runs lazily on
+    // the first api.* call. Trigger it on both pages by importing the
+    // module directly and calling `api.status()` — that resolves the
+    // boot promise, which constructs the local store, the offline
+    // client, *and* `attachWebRtcSync` on top of the discovered
+    // server. Stash `api` on window so the rest of the step can use
+    // it without re-importing.
+    const seed = async (p) => {
+      await p.evaluate(async () => {
+        const mod = await import('/dom.js');
+        window.__msApi = mod.api;
+        await mod.api.status();
+      });
+    };
+    await seed(page);
+    await seed(pageB);
+
+    // Page A writes a unique link via the SPA's own put path so it
+    // flows store → peer.onLocal → transport.send.
+    const probeId = `msg:rtc-probe-${Date.now()}`;
+    await page.evaluate(async (id) => {
+      await window.__msApi.put({
+        id,
+        tokens: ['rtc', 'probe'],
+        body: 'two-browser convergence',
+      });
+    }, probeId);
+
+    // Page B should observe the link in its local store. Poll for up
+    // to 20s — ICE negotiation + datagram handshake is not free in a
+    // headless browser.
+    await pageB.waitForFunction(
+      async (id) => {
+        const link = await window.__msApi.get(id);
+        return Boolean(link && link.id === id);
+      },
+      probeId,
+      { timeout: 20000, polling: 250 }
+    );
+  } finally {
+    await contextB.close();
+  }
+};
+
 const stepSkipLink = async ({ page, base }) => {
   await page.goto(base, { waitUntil: 'load' });
   await page.keyboard.press('Tab');
@@ -582,6 +649,11 @@ const ALL_STEPS = [
     fn: stepSkipLink,
     requires: 'skipLink',
   },
+  {
+    name: 'two browsers converge writes over WebRTC',
+    fn: stepTwoBrowserWebRtcConvergence,
+    requires: 'twoBrowserRtc',
+  },
 ];
 
 const runSuite = async (backend) => {
@@ -602,7 +674,7 @@ const runSuite = async (backend) => {
   });
 
   const failures = [];
-  const ctx = { page, base, supports, commander };
+  const ctx = { browser, page, base, supports, commander };
 
   try {
     for (const { name, fn, requires } of ALL_STEPS) {

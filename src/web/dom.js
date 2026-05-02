@@ -10,6 +10,7 @@ import {
 import { discoverServer } from './discover.js';
 import { createOfflineClient } from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
+import { attachWebRtcSync } from './webrtc-sync.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = document.createElement(tag);
@@ -56,7 +57,14 @@ const boot = async () => {
       }
     : null;
   const client = createOfflineClient({ store, server });
-  return { store, bus, client };
+  // When a server is reachable, also open a WebRTC peer sync over its
+  // /rtc broker so writes propagate browser-to-browser without the
+  // server relaying every byte (R-J7). Best-effort: a missing
+  // RTCPeerConnection (older browsers) just skips this path.
+  const rtc = discovered
+    ? attachWebRtcSync({ store, origin: discovered.origin })
+    : null;
+  return { store, bus, client, rtc };
 };
 
 const ensure = () => {
