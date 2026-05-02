@@ -26,6 +26,7 @@ import { linkedinSource } from './linkedin.js';
 import { habrCareerSource } from './habr-career.js';
 import { hhSource } from './hh.js';
 import { superjobSource } from './superjob.js';
+export { buildMessageLink } from './link.js';
 
 export const sourceRegistry = {
   telegram: telegramSource,
@@ -50,32 +51,6 @@ export const getSource = (name) => {
   }
   return s;
 };
-
-export const buildMessageLink = ({
-  source,
-  externalId,
-  sender,
-  chat,
-  body,
-  timestamp,
-  replyTo = null,
-}) => ({
-  id: `msg:${source}:${externalId}`,
-  tokens: ['message', source, externalId],
-  children: [
-    `sender:${source}:${sender}`,
-    `chat:${source}:${chat}`,
-    `body:${source}:${externalId}`,
-    `ts:${source}:${externalId}`,
-    ...(replyTo ? [`replyto:${source}:${replyTo}`] : []),
-  ],
-  source,
-  body,
-  timestamp,
-  sender,
-  chat,
-  replyTo,
-});
 
 export const sourceHandlerId = (source) => `source:${source}:live`;
 

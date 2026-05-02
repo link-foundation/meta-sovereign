@@ -183,7 +183,7 @@ Iteration 18 (follow-up commits on the same PR) closes ROADMAP §4 "Two-browser 
 
 Tests: Node 129/129 (unit), e2e-browser-spa 14/14 against the JS backend.
 
-The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC verified end-to-end with two real browsers in CI, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
+The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC verified end-to-end with two real browsers in CI, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent iterations continue on the remaining React, mobile/Electron, and browser-WASM roadmap items per `docs/ROADMAP.md`.
 
 Iteration 19 (follow-up commits on the same PR) closes the Telegram connector and real Telegram archive import roadmap items:
 
@@ -208,3 +208,17 @@ Iteration 21 (follow-up commits on the same PR) hardens the Deno test matrix aft
 - `tests/server-iter3.test.js`: the route-level full-pipeline fixture disables background handlers so environments with `TELEGRAM_BOT_TOKEN` set do not start a real Telegram profile-sync request while asserting planned-sync route responses.
 
 Tests: Node 133/133, Bun 133/133, Deno 133/133, Rust 52/52; `npm run check` clean.
+
+Iteration 22 (follow-up commits on the same PR) closes the remaining external-service connector roadmap items:
+
+- `src/sources/http.js` and `src/sources/link.js`: shared live-adapter HTTP helpers and a leaf `buildMessageLink` module, which removes the source-registry circular import when callers import individual adapters directly.
+- `src/sources/vk.js`: VK method API connector for conversation/history import, `messages.send`, `status.set`, and `account.saveProfileInfo`.
+- `src/sources/whatsapp.js`: WhatsApp Cloud API connector for webhook ingestion, opted-in text sends, and business profile updates.
+- `src/sources/x.js`: X API v2 connector for DM lookup/send, mention import, public post creation, and profile update.
+- `src/sources/facebook.js`: Graph/Messenger connector for page conversation import, webhook ingestion, replies, and page profile metadata updates.
+- `src/sources/linkedin.js`: LinkedIn REST Posts connector for API-side post import/export plus profile/resume publication.
+- `src/sources/hh.js`, `src/sources/habr-career.js`, `src/sources/superjob.js`: job-board live adapters for application/negotiation message import, reply sending, and resume create/update flows.
+- `tests/live-connectors.test.js`: mocked-fetch coverage for every non-Telegram live connector, keeping real credentials out of CI while verifying URL, header, body, and normalized-link behavior.
+- `docs/REQUIREMENTS.md` and `docs/ROADMAP.md`: R-A1 and R-E1/R-E3/R-E4/R-E5/R-E6/R-E7/R-E8/R-E9 are marked Done; the external-service connector section is removed from the roadmap.
+
+Tests: Node 139/139, Bun 139/139, Deno 139/139, Rust 52/52; `npm run check` clean.

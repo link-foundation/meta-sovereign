@@ -80,7 +80,7 @@ The proposed plan respects every non-negotiable constraint stated in the issue:
 The prototype implementation of `0.0.1` is decomposed into the
 milestones in `solution-plan.md`. PR #2 has since expanded beyond the
 initial case-study scope into a runnable system: storage, archive
-importers, Telegram live import/send, CLI, HTTP, SPA, WebSocket/WebRTC
+importers, live connector surfaces, CLI, HTTP, SPA, WebSocket/WebRTC
 sync, handlers, encrypted backups, and the pure-Rust server are all
 implemented and tested. Remaining gaps stay tracked in the top-level
 [`docs/ROADMAP.md`](../../ROADMAP.md).

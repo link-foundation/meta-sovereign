@@ -689,3 +689,35 @@ became a real live connector.
 
 **Result:** Node, Bun, Deno, and Rust local suites pass against the
 same final source.
+
+## Iteration 22 additions (PR #2, non-Telegram live connectors)
+
+Iteration 22 closes the remaining external-service connector roadmap
+items. The adapters still require each service's real OAuth/token
+setup at runtime, but the code paths are now implemented and verified
+with mocked HTTP instead of being stubs.
+
+- **Shared live-adapter primitives.** `src/sources/http.js` centralizes
+  token lookup, JSON requests, auth headers, and content/target
+  extraction. `src/sources/link.js` moves `buildMessageLink` out of the
+  registry barrel so callers can import individual adapters directly
+  without triggering a circular initialization path.
+- **Messaging/social connectors.** VK, WhatsApp Cloud API, X API v2,
+  Facebook Graph/Messenger, and LinkedIn REST Posts now each expose
+  live adapter factories with `pullMessages()` and outbound write
+  methods (`post()` and/or `syncProfile()` where the upstream API
+  offers one).
+- **Job-board connectors.** hh.ru, career.habr.com, and SuperJob now
+  expose live adapters for application/negotiation import, reply
+  sending, and resume create/update. Habr Career remains path
+  configurable because it does not publish a stable public API surface.
+- **Tests.** `tests/live-connectors.test.js` uses mocked `fetch` calls
+  to verify every connector's endpoint path, auth headers, request body,
+  and normalized `msg:*` link output without any live credentials.
+- **Requirements and roadmap.** R-A1 and the remaining R-E rows are now
+  Done. The external-service connector section has been removed from
+  `docs/ROADMAP.md`; the remaining roadmap scope is React, packaging,
+  mobile discovery, and browser-side WASM.
+
+**Result:** Node, Bun, and Deno each pass 139/139 JS tests; Rust
+passes 52/52 tests; `npm run check` is clean.

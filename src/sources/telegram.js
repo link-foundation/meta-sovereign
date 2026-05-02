@@ -8,7 +8,7 @@
  * pull incoming bot-visible messages and send queued replies.
  */
 
-import { buildMessageLink } from './index.js';
+import { buildMessageLink } from './link.js';
 
 const SOURCE = 'telegram';
 
