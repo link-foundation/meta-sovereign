@@ -69,10 +69,11 @@ test:e2e:browser`) drives the SPA in headless Chromium through
 `browser-commander` + Playwright across both backends. The default run
 covers boot → write → reload, every nav view, pattern infer → save,
 automation graph build, broadcast envelopes, audience → outreach plan,
-backup → restore round-trip, dark-mode toggle, and skip-link a11y
-against the JS server; setting `RUN_BROWSER_E2E_RUST=1` re-runs the
-protocol-parity subset against `meta-sovereign-rs serve` to verify the
-Rust port exposes identical wire semantics.
+backup → restore round-trip, profile edit → per-network sync envelopes,
+dark-mode toggle, and skip-link a11y against the JS server; setting
+`RUN_BROWSER_E2E_RUST=1` re-runs the protocol-parity subset against
+`meta-sovereign-rs serve` to verify the Rust port exposes identical
+wire semantics.
 
 - [ ] **Two-browser WebRTC convergence.** Boot two SPA instances,
       connect over WebRTC, mutate in browser A, observe in browser B.
@@ -80,8 +81,6 @@ Rust port exposes identical wire semantics.
 - [ ] **Real Telegram archive import.** Configure a Telegram archive,
       run import, see chats in the unified UI. Blocked on the
       Telegram connector landing (see §1).
-- [ ] **Profile-sync envelopes.** Edit profile → trigger profile
-      sync → verify per-network envelopes.
 
 ## 5. Browser-side WASM stack (R-G1)
 

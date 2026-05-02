@@ -54,7 +54,7 @@ and code comments can reference it.
 | R-D2 | Cross-reference / intersect sets to define a target audience.                            | Done: `src/crm/audience.js` DSL — `network:foo AND chat:bar OR (sender:x AND fact:y) NOT kind:bot`. |
 | R-D3 | Mass-personal outreach (start manual conversations with templated greeting per contact). | Done: `planOutreach` / `runOutreach` (1:1 envelopes); CLI `meta-sovereign outreach`.                |
 | R-D4 | Configurable local search for people, communities, companies, messages, chats.           | Done: `/api/search` Sørensen-Dice with field/network/time filters.                                  |
-| R-D5 | Profile sync across all connected services.                                              | Done: `/api/profile` enqueues per-network sync envelopes.                                           |
+| R-D5 | Profile sync across all connected services.                                              | Done: `/api/profile` enqueues per-network sync envelopes; SPA profile editor + e2e cover the flow.  |
 | R-D6 | Resume sync across job-board services.                                                   | Done: `/api/resume` for hh / habr-career / superjob / linkedin.                                     |
 
 ## E. External-service connectors

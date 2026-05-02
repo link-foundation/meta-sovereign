@@ -142,4 +142,10 @@ Iteration 13 (follow-up commits on the same PR) closes the ROADMAP §4 "Re-run e
 
 Tests: 129/129 JS + 52/52 Rust pass; lint, prettier, clippy, fmt clean. Real-browser e2e: 11/11 steps pass against the JS server, 9/9 against `meta-sovereign-rs serve`.
 
+Iteration 14 (follow-up commits on the same PR) closes ROADMAP §4 "Profile-sync envelopes":
+
+- `tests/e2e-browser-spa.mjs`: new `stepProfileSync` step navigates to the profile view, types a name + bio into the Profile editor, clicks "save profile", waits for the rendered `plannedSyncs` JSON, and asserts (1) the response contains a queued envelope per known network (telegram + vk specifically), (2) every envelope's `status` is `queued`, (3) the canonical `profile:me` link on the server reflects the edits. Gated on a new `profile` capability flag so the Rust pass (which doesn't yet implement `/api/profile`) auto-skips.
+- `docs/ROADMAP.md` §4: removes the "Profile-sync envelopes" bullet.
+- `docs/REQUIREMENTS.md`: R-D5 row mentions the SPA editor + e2e coverage.
+
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.

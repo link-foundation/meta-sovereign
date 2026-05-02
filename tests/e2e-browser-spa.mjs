@@ -105,6 +105,7 @@ const startJsBackend = async () => {
     supports: {
       outreach: true,
       backups: true,
+      profile: true,
       theme: true,
       skipLink: true,
       navViews: navViewsAll,
@@ -183,12 +184,14 @@ const startRustBackend = async () => {
     supports: {
       outreach: false,
       backups: false,
+      profile: false,
       theme: true,
       skipLink: true,
-      // Rust server doesn't expose outreach/backup endpoints, so the
-      // SPA's "outreach" + "backup" nav buttons render but the views
-      // can't fetch data. Skip those nav clicks for the Rust pass.
-      navViews: navViewsAll.filter((v) => v !== 'outreach' && v !== 'backup'),
+      // Rust server doesn't expose outreach/backup/profile endpoints,
+      // so those views render an empty shell. Skip them.
+      navViews: navViewsAll.filter(
+        (v) => v !== 'outreach' && v !== 'backup' && v !== 'profile'
+      ),
     },
     close: async () =>
       new Promise((resolve) => {
@@ -419,6 +422,50 @@ const stepThemeToggle = async ({ page }) => {
   );
 };
 
+const stepProfileSync = async ({ page, base, commander }) => {
+  await commander.clickButton({ selector: 'button[data-view="profile"]' });
+  await page.waitForFunction(
+    () => document.querySelector('input[placeholder="name"]'),
+    { timeout: 5000 }
+  );
+  await page.fill('input[placeholder="name"]', 'Alice E2E');
+  await page.fill('textarea[placeholder="bio"]', 'Hello from the profile e2e');
+  await page.evaluate(() => {
+    const btn = [...document.querySelectorAll('button.primary')].find(
+      (b) => b.textContent.trim() === 'save profile'
+    );
+    btn.click();
+  });
+  await page.waitForFunction(
+    () => {
+      const pre = document.querySelector('pre');
+      return pre && pre.textContent && pre.textContent.includes('"source"');
+    },
+    { timeout: 5000 }
+  );
+  const planned = await page.$eval('pre', (el) => JSON.parse(el.textContent));
+  assert(
+    Array.isArray(planned) && planned.length > 0,
+    `profile sync: plannedSyncs missing or empty: ${JSON.stringify(planned)}`
+  );
+  for (const want of ['telegram', 'vk']) {
+    assert(
+      planned.find((p) => p.source === want),
+      `profile sync: missing envelope for ${want} in ${JSON.stringify(planned)}`
+    );
+  }
+  assert(
+    planned.every((p) => p.status === 'queued'),
+    `profile sync: every envelope should be queued: ${JSON.stringify(planned)}`
+  );
+
+  const link = await fetch(`${base}/links/profile:me`).then((r) => r.json());
+  assert(
+    link.name === 'Alice E2E',
+    `profile sync: server-side link not updated: ${JSON.stringify(link)}`
+  );
+};
+
 const stepSkipLink = async ({ page, base }) => {
   await page.goto(base, { waitUntil: 'load' });
   await page.keyboard.press('Tab');
@@ -471,6 +518,11 @@ const ALL_STEPS = [
     name: 'backup → restore round-trip preserves seeded link',
     fn: stepBackupRestore,
     requires: 'backups',
+  },
+  {
+    name: 'profile edit emits per-network sync envelopes',
+    fn: stepProfileSync,
+    requires: 'profile',
   },
   {
     name: 'dark-mode toggle persists across reload',
