@@ -59,4 +59,15 @@ Iteration 4 (follow-up commits on the same PR) is a hardening pass that removes 
 
 Tests: 79/79 JS + 14/14 Rust pass. Lint: 0 errors. Format: clean. Duplication: clean.
 
-The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, and SPA, with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, full WebRTC transport, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
+Iteration 5 (follow-up commits on the same PR) lands the offline-first SPA pieces and the browser-side WebRTC transport so all apps can connect to a local links server (localhost or LAN) when one exists, fall back to fully-local browser storage when one doesn't, and sync browser-to-browser without going through a central server:
+
+- `src/storage/browser-store.js`: pluggable browser drivers — in-memory, `localStorage`, and `IndexedDB` — picked at boot via `pickBrowserDriver()`. Implements the same `UniversalLinksAccess` contract the server uses, so the handler bus, peer, and views attach unchanged.
+- `src/web/discover.js`: pure-function autodiscovery cascade (same-origin → saved override → common localhost ports → LAN candidates) plus `saveServerOverride` / `clearServerOverride` for manual config.
+- `src/web/client.js`: `createOfflineClient({ store, server })` — local-first writes, server-preferred derived queries (autocomplete, contacts, status), emits `mode-change` when the server flaps so the UI badge can update.
+- `src/sync/webrtc-transport.js`: `signalingChannel(transport)` typed JSON-over-WS wrapper, plus `createWebRtcTransport({ signaling, RTCPeerConnection, initiator })` that opens the data channel, queues sends until it's open, and exposes the standard `{ send, onMessage, close }` shape so `Peer.connect` plugs in. `RTCPeerConnection` is injected so the JS wiring is testable in Node without `wrtc`.
+- `src/web/dom.js`, `app.js`, `app.css`: SPA boot now wires the local handler bus + offline client and shows an `online` / `offline` badge in the topbar.
+- Tests: `browser-store`, `discover`, `offline-client`, `webrtc-transport`, and `e2e-offline-first` — 12 new cases across the new layer.
+
+Tests: 118/118 JS + 14/14 Rust pass. Lint, prettier, jscpd remain clean.
+
+The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, and SPA — including offline-first SPA, autodiscovered or manually configured server, and direct browser-to-browser sync over WebRTC — with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.

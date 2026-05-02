@@ -371,3 +371,70 @@ helper is covered by tests.
   **79** JS + **14** Rust, all green.
 
 Lint, prettier, and jscpd remain clean.
+
+---
+
+## Iteration 5 additions (PR #2, full-vision push)
+
+Iteration 5 lands the parts of the directive that the earlier passes
+had left as TODOs: the SPA must work fully offline using browser
+storage; it must autodiscover a local server (LAN or localhost) with
+a manual override fallback; the data store is the API, with handlers
+reacting to writes; sync between two browsers happens directly over
+WebRTC after a thin signalling broker.
+
+- **Browser-side storage drivers (`src/storage/browser-store.js`).**
+  Implements `UniversalLinksAccess` against three pluggable backends —
+  in-memory, `localStorage`, and `IndexedDB` — picked at boot via
+  `pickBrowserDriver()`. Snapshots are batched on a microtask so
+  bursty writes don't thrash storage. Returns the standard
+  `{put, get, delete, query, subscribe, flush}` shape so the existing
+  handler bus, peer, and views attach unchanged.
+- **Server autodiscovery (`src/web/discover.js`).** A pure-function
+  cascade: same-origin → previously-saved override (`metaServer` key
+  in `localStorage`) → common ports on `127.0.0.1` (8787, 8788, 7001,
+  7002, 3000) → caller-supplied LAN candidates. Returns
+  `{origin}` for the first reachable `/api/status`, or `null` (which
+  the SPA reads as "go fully offline").
+  `saveServerOverride` / `clearServerOverride` let the user pin or
+  reset the manual override.
+- **Offline-first client (`src/web/client.js`).** Wraps
+  `{store, server}` so callers issue `client.put(link)`,
+  `client.broadcast({...})`, etc., without caring whether a server
+  is reachable. Writes always go to the local store first; derived
+  queries (autocomplete, contacts, status) prefer the server when
+  online and fall back to in-process compute when offline. Emits a
+  `mode-change` event when the server flaps so the UI badge updates.
+- **WebRTC sync transport (`src/sync/webrtc-transport.js`).** Two
+  exports: `signalingChannel(transport)` is a typed JSON-over-WS
+  wrapper used to trade SDP and ICE; `createWebRtcTransport({
+signaling, RTCPeerConnection, initiator })` opens the data channel,
+  hooks ICE relay, queues sends until the channel is open, and
+  exposes the standard `{send, onMessage, close}` surface so
+  `Peer.connect(transport)` plugs straight in. `RTCPeerConnection` is
+  injected so the JS-side wiring is testable in Node without `wrtc`.
+- **DDD-aware SPA boot (`src/web/dom.js`, `app.js`, `app.css`).** The
+  SPA boots a local handler bus, registers the broadcast handler so
+  writes to `broadcast:*` fan out even fully offline, runs server
+  discovery, and constructs the offline client. The topbar shows an
+  `online` / `offline` mode badge that flips on `mode-change` events.
+- **Tests (4 new files, 12 new cases).**
+  - `tests/browser-store.test.js` — covers the in-memory and
+    `localStorage` drivers, plus a `setTimeout`-based IDB shim that
+    proves the IDB driver against the real surface contract.
+  - `tests/discover.test.js` — same-origin priority, stored override
+    fallback, default-port fallback, LAN candidate fallback, null
+    when nothing answers.
+  - `tests/offline-client.test.js` — offline writes, local
+    autocomplete fallback, server-routed autocomplete, server-flap
+    degradation, broadcast link shape.
+  - `tests/webrtc-transport.test.js` — `signalingChannel` type
+    routing, two transports exchanging messages over a faked data
+    channel, queue-while-connecting behaviour.
+  - `tests/e2e-offline-first.test.js` — three-scenario walk through
+    the critical SPA paths: offline boot writing through the DDD
+    handler bus, server discovery + degradation, and two browser
+    stores syncing via the WebRTC transport.
+
+**Tests:** 118/118 JS pass (Rust unchanged). Lint, prettier, jscpd
+remain clean.
