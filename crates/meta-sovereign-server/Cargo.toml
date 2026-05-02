@@ -1,0 +1,18 @@
+[package]
+name = "meta-sovereign-server"
+version = "0.0.1"
+edition = "2021"
+license = "Unlicense"
+description = "Pure-Rust local HTTP + WebSocket + WebRTC-signalling server for meta-sovereign (R-G2)."
+repository = "https://github.com/link-foundation/meta-sovereign"
+
+[lib]
+name = "meta_sovereign_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "meta-sovereign-rs"
+path = "src/main.rs"
+
+[dependencies]
+meta-sovereign-core = { path = "../meta-sovereign-core" }

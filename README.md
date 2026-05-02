@@ -1,8 +1,34 @@
-# js-ai-driven-development-pipeline-template
+# meta-sovereign
 
-A comprehensive template for AI-driven JavaScript/TypeScript development with full CI/CD pipeline support.
+A personal meta profile **sovereign** system. Fully local, privacy-respecting. The user actually owns and controls their data about their network of contacts, connections, and partners — across every social, messenger, and job-board network they use.
 
-## Features
+Tracked by issue [#1 — Prototype version 0.0.1](https://github.com/link-foundation/meta-sovereign/issues/1). The full case study, requirements list, architecture sketch, and phased solution plan live in [`docs/case-studies/issue-1/`](docs/case-studies/issue-1/README.md).
+
+## What it does
+
+- **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru.
+- **Personal CRM**: contacts, communities, group memberships, intersections, mass-personal outreach.
+- **Personal memory**: structured `question → answer` facts captured automatically from conversations.
+- **Conversation automation platform**: pattern editors, reply-variation editors, n8n-style dialog graphs.
+- **Portable data store**: dual binary ([Doublets](https://github.com/linksplatform/doublets-rs)) + text ([Links Notation](https://github.com/link-foundation/links-notation)) representation, automated backups, `.lino` import/export.
+- **Local-first runtime**: WebRTC sync between user-owned devices, optional self-hosted personal cloud.
+- **Two stacks**: JS + Rust/WebAssembly (default) and pure Rust (server/microservice variant). The on-disk format is shared.
+
+This repository is built on top of [`link-foundation/js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template) and inherits its CI/CD jobs. PR #2 has since expanded the codebase into a runnable system: storage, archive importers, live service connectors, CLI, HTTP, React SPA, WebSocket/WebRTC sync, handler bus, encrypted backups, and the pure-Rust server are all implemented and tested. The full requirement → status mapping lives in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md); the per-iteration breakdown is in [`docs/case-studies/issue-1/`](docs/case-studies/issue-1/README.md).
+
+## Status
+
+The prototype targeted by issue #1 is implemented and tracked in PR #2:
+
+- **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM at-rest backups (`createBackupScheduler`) and `secret:*` link encryption.
+- **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru.
+- **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
+- **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
+- **Distribution (R-F\*)**: NPM library, CLI (`bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
+- **Stacks (R-G\*)**: default JS server + React SPA + Rust/WASM heavy workloads; alternative pure-Rust server (`meta-sovereign-rs serve`).
+- **Quality (R-H\*)**: JS and Rust workspace tests; real-browser e2e via [`browser-commander`](https://github.com/link-foundation/browser-commander); axe-core WCAG 2.0 A/AA audit; cross-runtime CI matrix (Node, Bun, Deno × Ubuntu, macOS, Windows).
+
+## Inherited features (CI/CD baseline)
 
 - **Multi-runtime support**: Works with Bun, Node.js, and Deno
 - **Universal testing**: Uses [test-anywhere](https://github.com/link-foundation/test-anywhere) for cross-runtime tests
@@ -12,20 +38,6 @@ A comprehensive template for AI-driven JavaScript/TypeScript development with fu
 - **Broken link checks**: Automated link validation with [lychee](https://github.com/lycheeverse/lychee-action) and Web Archive fallback suggestions
 
 ## Quick Start
-
-### Using This Template
-
-1. Click "Use this template" on GitHub to create a new repository
-2. Clone your new repository
-3. Update `package.json` with your package name and description
-4. Update the `PACKAGE_NAME` constant in these scripts:
-   - `scripts/validate-changeset.mjs`
-   - `scripts/merge-changesets.mjs`
-   - `scripts/publish-to-npm.mjs`
-   - `scripts/format-release-notes.mjs`
-   - `scripts/create-manual-changeset.mjs`
-5. Install dependencies: `bun install`
-6. Start developing!
 
 ### Development
 
@@ -38,7 +50,13 @@ bun test
 
 # Or with other runtimes:
 npm test
-deno test --allow-read
+deno test --allow-read --allow-write --allow-env --allow-net --allow-sys
+
+# Run the real-browser e2e (opt-in; needs Playwright + Chromium)
+RUN_BROWSER_E2E=1 npm run test:e2e:browser
+
+# Run the Rust workspace tests
+cargo test --workspace
 
 # Lint code
 bun run lint
@@ -55,18 +73,24 @@ bun run check
 ```
 .
 ├── .changeset/           # Changeset configuration
-├── .github/workflows/    # GitHub Actions CI/CD
+├── .github/workflows/    # GitHub Actions CI/CD (release.yml, links.yml)
 ├── .husky/               # Git hooks (pre-commit)
+├── bin/                  # CLI entrypoint (meta-sovereign)
+├── crates/               # Pure-Rust workspace (core, server, wasm)
+├── docker/               # Web + WebRTC microservice Dockerfiles
+├── docs/                 # REQUIREMENTS, case studies, design docs, screenshots
+├── electron/             # Electron desktop shell + preload bridge
 ├── examples/             # Usage examples
-├── scripts/              # Build and release scripts
-├── src/                  # Source code
-│   ├── index.js          # Main entry point
-│   └── index.d.ts        # TypeScript definitions
-├── tests/                # Test files
-├── .eslintrc.js          # ESLint configuration
-├── .prettierrc           # Prettier configuration
+├── experiments/          # Throwaway/exploration scripts
+├── mobile/               # Capacitor mobile shell
+├── scripts/              # Build and release scripts (CI/CD parity with JS template)
+├── src/                  # Source code (storage, sources, sync, broadcast, handlers, server, web, ...)
+├── tests/                # Cross-runtime unit + integration tests, real-browser e2e
 ├── bunfig.toml           # Bun configuration
+├── capacitor.config.json # Capacitor mobile config
 ├── deno.json             # Deno configuration
+├── eslint.config.js      # ESLint configuration
+├── Cargo.toml            # Rust workspace manifest
 └── package.json          # Node.js package manifest
 ```
 
@@ -134,12 +158,35 @@ The GitHub Actions workflow (`.github/workflows/release.yml`) implements a fast-
 **Slow checks** (only run after all fast checks pass):
 
 7. **Test matrix**: 3 runtimes × 3 OS = 9 test combinations
-8. **Broken link checks**: Validates all links in Markdown/HTML files (separate workflow)
+8. **API doc build**: `npm run docs:api` + `cargo doc --no-deps --workspace`
+9. **Broken link checks**: Validates all links in Markdown/HTML files (separate workflow)
 
 **Release** (on merge to main):
 
-9. **Changeset merge**: Combines multiple pending changesets at release time
-10. **Release**: Automated versioning and npm publishing
+10. **Changeset merge**: Combines multiple pending changesets at release time
+11. **Release**: Automated versioning and npm publishing
+
+#### Reasonable timeouts on every job
+
+Every CI job declares an explicit `timeout-minutes` so a hung step
+fails fast instead of stalling for the GitHub default of six hours.
+The bands are sized at roughly 5–10× the observed p95 to absorb cold
+runners without hiding real flakiness:
+
+| Job                        | Cap      | Typical                                      |
+| -------------------------- | -------- | -------------------------------------------- |
+| Detect Changes / file size | 5 min    | ~3–6 s                                       |
+| Test Compilation           | 5 min    | ~4 s                                         |
+| Version / Changeset checks | 5–10 min | ~6–13 s                                      |
+| Lint and Format            | 10 min   | ~23 s                                        |
+| Build API Docs             | 15 min   | ~25 s                                        |
+| Test (per runtime × OS)    | 10 min   | ~13–55 s (deno-windows up to ~2 min on cold) |
+| Release / Instant Release  | 30 min   | well under 10 min                            |
+| Broken Link Checker        | 10 min   | ~8 s                                         |
+
+Per-test timeouts are also enforced inside the runners themselves so
+an individual hung promise surfaces in seconds rather than at the job
+cap: `node --test --test-timeout=30000` and `bun test --timeout 30000`.
 
 See [BEST-PRACTICES.md](docs/BEST-PRACTICES.md) for detailed explanations of each practice.
 
@@ -170,14 +217,6 @@ The link checker workflow (`.github/workflows/links.yml`) validates all links in
 Add regex patterns to `.lycheeignore` to exclude URLs from checks (e.g., local dev URLs, example.com, known rate-limited sites).
 
 ## Configuration
-
-### Updating Package Name
-
-After creating a repository from this template, update the package name in:
-
-1. `package.json`: `"name": "your-package-name"`
-2. `.changeset/config.json`: Package references
-3. Scripts that reference the package name (see Quick Start)
 
 ### ESLint Rules
 
@@ -228,7 +267,7 @@ Quick steps:
 
 ## Best Practices
 
-This template implements CI/CD best practices for AI-driven development. See [BEST-PRACTICES.md](docs/BEST-PRACTICES.md) for details on:
+The CI/CD pipeline inherited from `js-ai-driven-development-pipeline-template` covers the practices documented in [BEST-PRACTICES.md](docs/BEST-PRACTICES.md):
 
 - File size limits for AI readability
 - Automated formatting and linting

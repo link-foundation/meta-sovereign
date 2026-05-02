@@ -1,0 +1,9 @@
+[package]
+name = "meta-sovereign-core"
+version = "0.0.1"
+edition = "2021"
+license = "Unlicense"
+description = "Core types for the meta-sovereign personal CRM (Rust port)."
+repository = "https://github.com/link-foundation/meta-sovereign"
+
+[dependencies]

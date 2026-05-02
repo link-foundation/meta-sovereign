@@ -1,5 +1,6 @@
 # Logs
 logs
+ci-logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -140,3 +141,18 @@ vite.config.ts.timestamp-*
 
 # jscpd reports
 reports/
+
+# Rust workspace build artefacts
+target/
+
+# Generated API docs (rebuilt by `npm run docs:api`)
+docs/api/
+
+# Generated mobile web bundle (rebuilt by `npm run build:mobile`)
+mobile/www/
+
+# Deno lockfile (auto-generated when running deno tasks; not part of CI inputs)
+deno.lock
+
+# Playwright MCP traces / snapshots (local-only verification artefacts)
+.playwright-mcp/
