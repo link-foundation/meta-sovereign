@@ -65,13 +65,14 @@ it produces so peer sync does not re-fire its handler (R-J5).
 ## 4. End-to-end testing (R-H4, R-J7)
 
 `tests/e2e-browser-spa.mjs` (opt-in via `RUN_BROWSER_E2E=1 npm run
-test:e2e:browser`) now drives the SPA in headless Chromium through
-`browser-commander` + Playwright. It covers the reachable critical
-paths (boot → write → reload survives; click every nav view; pattern
-infer → save; automation graph build; broadcast emits per-network
-envelopes). The remaining scenarios need infrastructure that doesn't
-yet exist (real network credentials, two coordinated browsers, restore
-flow): we'll close them as the underlying features land.
+test:e2e:browser`) drives the SPA in headless Chromium through
+`browser-commander` + Playwright across both backends. The default run
+covers boot → write → reload, every nav view, pattern infer → save,
+automation graph build, broadcast envelopes, audience → outreach plan,
+backup → restore round-trip, dark-mode toggle, and skip-link a11y
+against the JS server; setting `RUN_BROWSER_E2E_RUST=1` re-runs the
+protocol-parity subset against `meta-sovereign-rs serve` to verify the
+Rust port exposes identical wire semantics.
 
 - [ ] **Two-browser WebRTC convergence.** Boot two SPA instances,
       connect over WebRTC, mutate in browser A, observe in browser B.
@@ -79,18 +80,8 @@ flow): we'll close them as the underlying features land.
 - [ ] **Real Telegram archive import.** Configure a Telegram archive,
       run import, see chats in the unified UI. Blocked on the
       Telegram connector landing (see §1).
-- [ ] **Audience → mass-personal outreach.** Define an audience
-      query, kick off outreach, observe one envelope per
-      (contact × network). Mostly a UI surfacing task — endpoints
-      already exist.
 - [ ] **Profile-sync envelopes.** Edit profile → trigger profile
       sync → verify per-network envelopes.
-- [ ] **Backup → restore round-trip.** Trigger a backup → restore
-      from it → store reaches identical state. Already unit-tested in
-      `tests/backup.test.js`; need the UI flow.
-- [ ] **Re-run e2e against the Rust server.** Add a second invocation
-      of `tests/e2e-browser-spa.mjs` that boots `meta-sovereign-rs serve
---web ./src/web` instead of the JS server.
 
 ## 5. Browser-side WASM stack (R-G1)
 

@@ -133,4 +133,13 @@ Iteration 12 (follow-up commits on the same PR) closes ROADMAP §6 by wiring the
 - `docs/REQUIREMENTS.md`: R-H3 row updated with the new CI surface.
 - `docs/ROADMAP.md`: §6 "Live-API documentation surface" deleted (both bullets closed).
 
+Iteration 13 (follow-up commits on the same PR) closes the ROADMAP §4 "Re-run e2e against the Rust server" item and tightens the surrounding section now that audience outreach + backup/restore are already covered by iteration 9's e2e:
+
+- `tests/e2e-browser-spa.mjs`: extracted the per-step assertions into 11 named helpers and a declarative `ALL_STEPS` table so the suite can run against multiple backends. Added a `startRustBackend()` that spawns `target/{release,debug}/meta-sovereign-rs serve --port 0 --web src/web`, parses the bound port from the binary's stdout, and tears it down with SIGTERM on completion. Each backend declares its capability set (`outreach`, `backups`, `theme`, `skipLink`, `navViews`); steps tagged with a `requires` capability are skipped when the backend doesn't support them, so the JS pass exercises the full 11-step path while the Rust pass runs the 9 steps that map onto its currently-implemented HTTP surface (no `/api/outreach`, no `/api/backups` yet). Setting `RUN_BROWSER_E2E_RUST=1` enables the second pass.
+- `eslint.config.js`: ignores `target/**` (rustdoc bundle) and `docs/api/**` (generated API docs) so locally building either doesn't produce thousands of false-positive lints.
+- `docs/REQUIREMENTS.md`: R-J7 + R-H4 rows updated to reflect dual-backend coverage and wire-protocol parity assertions.
+- `docs/ROADMAP.md` §4: Rust-server e2e bullet deleted; "Audience → mass-personal outreach" and "Backup → restore round-trip" bullets removed (both already covered by the existing e2e since iteration 9). Section preamble rewritten to describe the dual-backend default.
+
+Tests: 129/129 JS + 52/52 Rust pass; lint, prettier, clippy, fmt clean. Real-browser e2e: 11/11 steps pass against the JS server, 9/9 against `meta-sovereign-rs serve`.
+
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.
