@@ -5,8 +5,6 @@
  * Usage: node scripts/publish-to-npm.mjs [--should-pull] [--js-root <path>]
  *   should_pull: Optional flag to pull latest changes before publishing (for release job)
  *
- * IMPORTANT: Update the PACKAGE_NAME constant below to match your package.json
- *
  * Configuration:
  * - CLI: --js-root <path> to explicitly set JavaScript root
  * - Environment: JS_ROOT=<path>
@@ -22,16 +20,10 @@
  * - Reference: link-assistant/agent PR #114 (configurable package root)
  */
 
-import { readFileSync, appendFileSync } from 'fs';
+import { appendFileSync } from 'fs';
 
-import {
-  getJsRoot,
-  getPackageJsonPath,
-  needsCd,
-  parseJsRootConfig,
-} from './js-paths.mjs';
-
-const PACKAGE_NAME = 'meta-sovereign';
+import { getJsRoot, needsCd, parseJsRootConfig } from './js-paths.mjs';
+import { formatNpmPackageVersion, readPackageInfo } from './package-info.mjs';
 
 // Load use-m dynamically
 const { use } = eval(
@@ -64,6 +56,9 @@ const { shouldPull, jsRoot: jsRootArg } = config;
 // Get JavaScript package root (auto-detect or use explicit config)
 const jsRootConfig = jsRootArg || parseJsRootConfig();
 const jsRoot = getJsRoot({ jsRoot: jsRootConfig, verbose: true });
+const { name: packageName, version: currentPackageVersion } = readPackageInfo({
+  jsRoot,
+});
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 10000; // 10 seconds
@@ -215,7 +210,7 @@ async function attemptPublish(currentVersion) {
   // Verify the package is actually on npm (ultimate verification)
   console.log('Verifying package was published to npm...');
   await sleep(2000); // Wait for npm registry to propagate
-  const isPublished = await verifyPublished(PACKAGE_NAME, currentVersion);
+  const isPublished = await verifyPublished(packageName, currentVersion);
 
   if (isPublished) {
     return { success: true, error: null };
@@ -235,20 +230,17 @@ async function main() {
       await $`git pull origin main`;
     }
 
-    // Get current version
-    const packageJsonPath = getPackageJsonPath({ jsRoot });
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-    const currentVersion = packageJson.version;
+    const currentVersion = currentPackageVersion;
     console.log(`Current version to publish: ${currentVersion}`);
 
     // Check if this version is already published on npm
     console.log(
       `Checking if version ${currentVersion} is already published...`
     );
-    const checkResult =
-      await $`npm view "${PACKAGE_NAME}@${currentVersion}" version`.run({
-        capture: true,
-      });
+    const pkgSpec = formatNpmPackageVersion(packageName, currentVersion);
+    const checkResult = await $`npm view "${pkgSpec}" version`.run({
+      capture: true,
+    });
 
     // command-stream returns { code: 0 } on success, { code: 1 } on failure (e.g., E404)
     // Exit code 0 means version exists, non-zero means version not found
@@ -274,9 +266,7 @@ async function main() {
       if (success) {
         setOutput('published', 'true');
         setOutput('published_version', currentVersion);
-        console.log(
-          `\u2705 Published ${PACKAGE_NAME}@${currentVersion} to npm`
-        );
+        console.log(`\u2705 Published ${pkgSpec} to npm`);
         return;
       }
 

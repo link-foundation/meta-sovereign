@@ -12,8 +12,6 @@
  *
  * This script is run before `changeset version` to ensure a clean release
  * even when multiple PRs have merged before a release cycle.
- *
- * IMPORTANT: Update the package name below to match your package.json
  */
 
 import {
@@ -25,8 +23,12 @@ import {
 } from 'fs';
 import { join } from 'path';
 
-const PACKAGE_NAME = 'meta-sovereign';
-const CHANGESET_DIR = '.changeset';
+import { getChangesetDir, getJsRoot, parseJsRootConfig } from './js-paths.mjs';
+import {
+  formatChangesetHeader,
+  getChangesetVersionTypeRegex,
+  readPackageInfo,
+} from './package-info.mjs';
 
 // Version bump type priority (higher number = higher priority)
 const BUMP_PRIORITY = {
@@ -112,18 +114,18 @@ function generateChangesetName() {
 /**
  * Parse a changeset file and extract its metadata
  * @param {string} filePath
+ * @param {string} packageName
  * @returns {{type: string, description: string, mtime: Date} | null}
  */
-function parseChangeset(filePath) {
+function parseChangeset(filePath, packageName) {
   try {
     const content = readFileSync(filePath, 'utf-8');
     const stats = statSync(filePath);
 
     // Extract version type - support both quoted and unquoted package names
-    const versionTypeRegex = new RegExp(
-      `^['"]?${PACKAGE_NAME.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]?:\\s+(major|minor|patch)`,
-      'm'
-    );
+    const versionTypeRegex = getChangesetVersionTypeRegex(packageName, {
+      requireQuotes: false,
+    });
     const versionTypeMatch = content.match(versionTypeRegex);
 
     if (!versionTypeMatch) {
@@ -168,13 +170,14 @@ function getHighestBumpType(types) {
  * Create a merged changeset file
  * @param {string} type
  * @param {string[]} descriptions
+ * @param {string} packageName
  * @returns {string}
  */
-function createMergedChangeset(type, descriptions) {
+function createMergedChangeset(type, descriptions, packageName) {
   const combinedDescription = descriptions.join('\n\n');
 
   return `---
-'${PACKAGE_NAME}': ${type}
+${formatChangesetHeader(packageName, type)}
 ---
 
 ${combinedDescription}
@@ -184,8 +187,14 @@ ${combinedDescription}
 function main() {
   console.log('Checking for multiple changesets to merge...');
 
+  const jsRootConfig = parseJsRootConfig();
+  const jsRoot = getJsRoot({ jsRoot: jsRootConfig, verbose: true });
+  const changesetDir = getChangesetDir({ jsRoot });
+  const { name: packageName } = readPackageInfo({ jsRoot });
+  console.log(`Package: ${packageName}`);
+
   // Get all changeset files
-  const changesetFiles = readdirSync(CHANGESET_DIR).filter(
+  const changesetFiles = readdirSync(changesetDir).filter(
     (file) => file.endsWith('.md') && file !== 'README.md'
   );
 
@@ -203,8 +212,8 @@ function main() {
   // Parse all changesets
   const parsedChangesets = [];
   for (const file of changesetFiles) {
-    const filePath = join(CHANGESET_DIR, file);
-    const parsed = parseChangeset(filePath);
+    const filePath = join(changesetDir, file);
+    const parsed = parseChangeset(filePath, packageName);
     if (parsed) {
       parsedChangesets.push({
         file,
@@ -238,11 +247,15 @@ function main() {
   console.log(`  Descriptions to merge: ${descriptions.length}`);
 
   // Create merged changeset content
-  const mergedContent = createMergedChangeset(highestBumpType, descriptions);
+  const mergedContent = createMergedChangeset(
+    highestBumpType,
+    descriptions,
+    packageName
+  );
 
   // Generate a unique name for the merged changeset
   const mergedFileName = `merged-${generateChangesetName()}.md`;
-  const mergedFilePath = join(CHANGESET_DIR, mergedFileName);
+  const mergedFilePath = join(changesetDir, mergedFileName);
 
   // Write the merged changeset
   writeFileSync(mergedFilePath, mergedContent);
