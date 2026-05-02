@@ -33,17 +33,6 @@ are listed in rough priority order (highest first).
       cascade has to be wired into the WebView shell so the mobile app
       finds a desktop server on the same LAN.
 
-## 3. Browser-side WASM stack (R-G1)
-
-- [ ] **`doublets-web` integration.** Add a `BrowserStore` driver
-      backed by `doublets-web` (WASM) so the browser-side database can
-      share the binary store format with the server.
-- [ ] **WASM pattern matcher.** Compile the Rust `pattern_matches`
-      port to WASM and run it in the SPA so heavy-pattern UIs don't
-      block the main thread.
-
----
-
 ## How to close items
 
 1. Open a commit on `issue-1-fc41adad29ce` (this PR's branch) that

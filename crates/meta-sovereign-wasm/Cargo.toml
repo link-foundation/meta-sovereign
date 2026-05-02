@@ -1,0 +1,13 @@
+[package]
+name = "meta-sovereign-wasm"
+version = "0.0.1"
+edition = "2021"
+license = "Unlicense"
+description = "WebAssembly exports for browser-side meta-sovereign workloads."
+repository = "https://github.com/link-foundation/meta-sovereign"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+meta-sovereign-core = { path = "../meta-sovereign-core" }

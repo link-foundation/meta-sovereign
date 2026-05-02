@@ -72,7 +72,7 @@ The proposed plan respects every non-negotiable constraint stated in the issue:
 - **No premature optimisation**; simple code that works comes first.
 - **Every feature is an importable NPM package** — the prototype repository is structured so each adapter, the storage layer, the CRDT sync, and each UI surface can be split into a workspace package as it stabilises.
 - **All tests cover unit + integration + e2e**, with e2e using `link-foundation/browser-commander`.
-- **Two stacks**: a JS+Rust/WASM stack (default) and a pure-Rust stack (server/microservice variant). The data formats (Links Notation, Doublets) are language-neutral, so the two stacks share the same on-disk artefacts.
+- **Two stacks**: a JS+Rust/WASM stack (default) and a pure-Rust stack (server/microservice variant). The browser stack now includes `doublets-web` storage and the Rust `pattern_matches` port compiled to WASM; the data formats (Links Notation, Doublets) are language-neutral, so the two stacks share the same on-disk artefacts.
 - **Best-practice CI/CD parity** with `js-ai-driven-development-pipeline-template` and `rust-ai-driven-development-pipeline-template`. This repository was created from the JS template; gaps relative to the Rust template will be tracked as follow-up issues.
 
 ## 6. Next steps

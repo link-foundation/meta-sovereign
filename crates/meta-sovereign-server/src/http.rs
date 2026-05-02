@@ -615,10 +615,11 @@ pub fn security_headers() -> &'static [(&'static str, &'static str)] {
         (
             "content-security-policy",
             "default-src 'self'; \
-             script-src 'self'; \
+             script-src 'self' 'wasm-unsafe-eval'; \
              style-src 'self'; \
              img-src 'self' data: blob:; \
              connect-src 'self' ws: wss: http://127.0.0.1:* http://localhost:*; \
+             worker-src 'self'; \
              font-src 'self' data:; \
              object-src 'none'; \
              base-uri 'self'; \

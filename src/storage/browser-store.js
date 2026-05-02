@@ -23,6 +23,7 @@
  */
 
 const SNAPSHOT_KEY = 'meta-sovereign:store-snapshot';
+const DOUBLETS_WEB_SNAPSHOT_KEY = 'meta-sovereign:doublets-web-snapshot';
 
 const cloneLink = (link) => JSON.parse(JSON.stringify(link));
 
@@ -109,13 +110,158 @@ export const createIndexedDbDriver = ({
   };
 };
 
+const createBestSnapshotDriver = (key = SNAPSHOT_KEY) => {
+  if (typeof globalThis.indexedDB !== 'undefined') {
+    try {
+      return createIndexedDbDriver({
+        dbName: key.replaceAll(':', '-'),
+        storeName: 'snapshot',
+        key: 'current',
+      });
+    } catch {
+      // fall through
+    }
+  }
+  if (typeof globalThis.localStorage !== 'undefined') {
+    try {
+      return createLocalStorageDriver(globalThis.localStorage, key);
+    } catch {
+      // fall through
+    }
+  }
+  return createInMemoryDriver();
+};
+
+const resolveDoubletsWeb = (doubletsWeb) => {
+  const module =
+    doubletsWeb ?? globalThis.DoubletsWeb ?? globalThis.doubletsWeb ?? null;
+  if (!module?.LinksConstants || !module?.UnitedLinks || !module?.Link) {
+    throw new Error(
+      'doublets-web module with Link/LinksConstants/UnitedLinks is required'
+    );
+  }
+  return module;
+};
+
+const encodeDoubletsGraph = (doubletsWeb, snapshot) => {
+  const { LinksConstants, UnitedLinks } = resolveDoubletsWeb(doubletsWeb);
+  const constants = new LinksConstants();
+  const links = new UnitedLinks(constants);
+  const atoms = new Map();
+  const triples = [];
+  const intern = (value) => {
+    const key = String(value);
+    if (atoms.has(key)) {
+      return atoms.get(key);
+    }
+    const id = links.create();
+    links.update(id, id, id);
+    atoms.set(key, id);
+    return id;
+  };
+  const edge = (source, target) => {
+    const id = links.create();
+    links.update(id, source, target);
+    triples.push([id, source, target]);
+    return id;
+  };
+
+  const root = intern('meta-sovereign:browser-store');
+  for (const link of snapshot.links ?? []) {
+    const record = intern(`link:${link.id}`);
+    edge(root, record);
+    edge(record, intern(`id:${link.id}`));
+    edge(record, intern(`json:${JSON.stringify(link)}`));
+    for (const token of link.tokens ?? []) {
+      edge(record, intern(`token:${token}`));
+    }
+    for (const child of link.children ?? []) {
+      edge(record, intern(`child:${child}`));
+    }
+  }
+
+  return { constants, links, atoms, triples };
+};
+
+export const createDoubletsWebDriver = ({
+  doubletsWeb,
+  snapshotDriver = createBestSnapshotDriver(DOUBLETS_WEB_SNAPSHOT_KEY),
+  onGraph,
+} = {}) => {
+  const module = resolveDoubletsWeb(doubletsWeb);
+  let current = { links: [] };
+  let graph = encodeDoubletsGraph(module, current);
+
+  const rebuild = (snapshot) => {
+    current = {
+      links: Array.isArray(snapshot?.links)
+        ? snapshot.links.map(cloneLink)
+        : [],
+    };
+    graph = encodeDoubletsGraph(module, current);
+    onGraph?.({ graph, snapshot: { links: current.links.map(cloneLink) } });
+  };
+
+  return {
+    kind: 'doublets-web',
+    async load() {
+      const loaded = (await snapshotDriver.load()) ?? { links: [] };
+      rebuild(loaded);
+      return { links: current.links.map(cloneLink) };
+    },
+    async save(snapshot) {
+      rebuild(snapshot);
+      await snapshotDriver.save({
+        links: current.links.map(cloneLink),
+        doubletsWeb: this.stats(),
+      });
+    },
+    stats() {
+      return {
+        package: 'doublets-web',
+        records: current.links.length,
+        atoms: graph.atoms.size,
+        triples: graph.triples.length,
+        graphLinks:
+          typeof graph.links.count === 'function'
+            ? graph.links.count()
+            : graph.triples.length + graph.atoms.size,
+      };
+    },
+    graph() {
+      return graph;
+    },
+  };
+};
+
+export const loadDoubletsWebDriver = async (options = {}) => {
+  const {
+    importer = () => import('doublets-web'),
+    doubletsWeb,
+    ...rest
+  } = options;
+  return createDoubletsWebDriver({
+    ...rest,
+    doubletsWeb: doubletsWeb ?? (await importer()),
+  });
+};
+
 /**
  * Auto-pick the best driver available in the current browser env:
- *   1. IndexedDB if present (durable, larger quota)
- *   2. localStorage as fallback (older browsers, private mode)
- *   3. In-memory if nothing persistent works
+ *   1. doublets-web when a bundler or host exposes the WASM module
+ *   2. IndexedDB if present (durable, larger quota)
+ *   3. localStorage as fallback (older browsers, private mode)
+ *   4. In-memory if nothing persistent works
  */
 export const pickBrowserDriver = () => {
+  const doubletsWeb = globalThis.DoubletsWeb ?? globalThis.doubletsWeb ?? null;
+  if (doubletsWeb) {
+    try {
+      return createDoubletsWebDriver({ doubletsWeb });
+    } catch {
+      // fall through
+    }
+  }
   if (typeof globalThis.indexedDB !== 'undefined') {
     try {
       return createIndexedDbDriver();

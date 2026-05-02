@@ -12,3 +12,10 @@ version = "0.0.1"
 dependencies = [
  "meta-sovereign-core",
 ]
+
+[[package]]
+name = "meta-sovereign-wasm"
+version = "0.0.1"
+dependencies = [
+ "meta-sovereign-core",
+]

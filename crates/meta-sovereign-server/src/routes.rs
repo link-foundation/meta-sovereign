@@ -43,6 +43,8 @@ fn ext_mime(path: &str) -> &'static str {
         "application/json; charset=utf-8"
     } else if lower.ends_with(".svg") {
         "image/svg+xml"
+    } else if lower.ends_with(".wasm") {
+        "application/wasm"
     } else {
         "application/octet-stream"
     }
@@ -117,7 +119,11 @@ fn serve_static(root: &StaticRoot, req: &Request) -> Option<Response> {
         return Some(Response::bytes(200, "text/html; charset=utf-8", bytes));
     }
     if let Some(name) = safe_asset_name(&req.path) {
-        if name.ends_with(".js") || name.ends_with(".css") || name.ends_with(".svg") {
+        if name.ends_with(".js")
+            || name.ends_with(".css")
+            || name.ends_with(".svg")
+            || name.ends_with(".wasm")
+        {
             let file = dir.join(&name);
             if let Ok(bytes) = std::fs::read(&file) {
                 return Some(Response::bytes(200, ext_mime(&name), bytes));
@@ -211,6 +217,10 @@ mod tests {
 
         let r = dispatch(&s, &root, &req("GET", "/storage/browser-store.js"), ctx());
         assert_eq!(r.status, 200, "/storage/browser-store.js");
+
+        let r = dispatch(&s, &root, &req("GET", "/pattern-matcher.wasm"), ctx());
+        assert_eq!(r.status, 200, "/pattern-matcher.wasm");
+        assert_eq!(r.headers[0].1, "application/wasm");
 
         let r = dispatch(&s, &root, &req("GET", "/handlers/index.js"), ctx());
         assert_eq!(r.status, 200, "/handlers/index.js");

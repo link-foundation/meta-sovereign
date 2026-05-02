@@ -308,6 +308,7 @@ export const patternsView = async () => {
   const idIn = h('input', { placeholder: 'pattern id (e.g. greet)' });
   const labelIn = h('input', { placeholder: 'label' });
   const out = h('pre');
+  const preview = h('div', { class: 'meta' });
   const mode = h('select', {}, [
     h('option', { value: 'simple' }, 'simple'),
     h('option', { value: 'lcs' }, 'lcs (variable gaps)'),
@@ -333,6 +334,12 @@ export const patternsView = async () => {
               const r = await api.inferRegex(examples, mode.value);
               lastInfer = r;
               out.textContent = r.regex;
+              const matched = await api.matchPattern(
+                r.regex,
+                r.flags ?? 'i',
+                examples
+              );
+              preview.textContent = `${matched.engine} ${matched.count}/${examples.length}`;
             },
           },
         },
@@ -362,6 +369,7 @@ export const patternsView = async () => {
         'save'
       ),
     ]),
+    preview,
     out
   );
   return wrap;

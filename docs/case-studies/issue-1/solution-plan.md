@@ -721,3 +721,36 @@ with mocked HTTP instead of being stubs.
 
 **Result:** Node, Bun, and Deno each pass 139/139 JS tests; Rust
 passes 52/52 tests; `npm run check` is clean.
+
+## Iteration 23 additions (PR #2, browser-side WASM stack)
+
+Iteration 23 closes the browser-side WASM roadmap section while leaving
+the React and packaging/mobile sections open.
+
+- **`doublets-web` BrowserStore driver.** `createDoubletsWebDriver()`
+  indexes BrowserStore snapshots through the upstream `doublets-web`
+  WASM classes (`Link`, `LinksConstants`, `UnitedLinks`) when that
+  module is bundled or injected into the browser. The driver persists
+  the normal snapshot shape plus doublets-web graph metadata, so
+  existing offline-first callers keep the same API while the browser
+  has a real Doublets-backed binary graph path.
+- **Rust pattern matcher WASM.** New crate `meta-sovereign-wasm`
+  wraps `meta_sovereign_core::pattern_matches` behind a tiny C ABI and
+  produces `src/web/pattern-matcher.wasm` via
+  `scripts/build-pattern-wasm.sh`.
+- **SPA worker integration.** `patterns-wasm.js` instantiates the
+  checked-in WASM artifact, and `pattern-worker.js` runs supported
+  pattern previews off the main thread. Complex regexes remain on the
+  JS fallback so the existing LCS/PEG flows keep their full semantics.
+- **Static serving and CSP.** The Node and Rust servers now serve
+  `.wasm` assets as `application/wasm` and allow same-origin module
+  workers plus WebAssembly compilation in the CSP without enabling
+  inline scripts.
+- **Tests.** BrowserStore tests cover the doublets-web driver with a
+  mocked `doublets-web` module; `tests/wasm-patterns.test.js`
+  instantiates the real checked-in WASM artifact; server tests assert
+  `.wasm` serving.
+
+**Result:** the browser-side database and pattern-preview hot path now
+have real WASM-backed implementations. The remaining roadmap scope is
+React UI port plus Electron/mobile packaging and discovery.

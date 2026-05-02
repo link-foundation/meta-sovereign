@@ -67,6 +67,7 @@ const MIME = {
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.wasm': 'application/wasm',
 };
 
 // Conservative Content-Security-Policy. The SPA never loads remote
@@ -76,10 +77,11 @@ const MIME = {
 // on alternate ports. `connect-src` therefore allows local loopback.
 export const CSP =
   "default-src 'self'; " +
-  "script-src 'self'; " +
+  "script-src 'self' 'wasm-unsafe-eval'; " +
   "style-src 'self'; " +
   "img-src 'self' data: blob:; " +
   "connect-src 'self' ws: wss: http://127.0.0.1:* http://localhost:*; " +
+  "worker-src 'self'; " +
   "font-src 'self' data:; " +
   "object-src 'none'; " +
   "base-uri 'self'; " +
@@ -125,7 +127,7 @@ const handleStatic = async (req, res, p) => {
   if (p === '/' || p === '/index.html') {
     return serveStatic(res, path.join(webRoot, 'index.html'));
   }
-  if (/^\/[a-zA-Z0-9._-]+\.(js|css|svg)$/.test(p)) {
+  if (/^\/[a-zA-Z0-9._-]+\.(js|css|svg|wasm)$/.test(p)) {
     return serveStatic(res, path.join(webRoot, p.slice(1)));
   }
   for (const [prefix, dir] of BROWSER_MOUNTS) {

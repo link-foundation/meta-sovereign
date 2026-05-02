@@ -231,6 +231,10 @@ describe('http server observability', () => {
       expect(api.headers.get('content-security-policy')).toMatch(
         /default-src 'self'/
       );
+      const wasm = await fetch(`${base}/pattern-matcher.wasm`);
+      await wasm.arrayBuffer();
+      expect(wasm.status).toBe(200);
+      expect(wasm.headers.get('content-type')).toBe('application/wasm');
     } finally {
       await handle.close();
     }

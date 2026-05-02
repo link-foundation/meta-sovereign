@@ -14,6 +14,7 @@ import assert from 'node:assert/strict';
 
 import {
   createBrowserStore,
+  createDoubletsWebDriver,
   createInMemoryDriver,
   createLocalStorageDriver,
   createIndexedDbDriver,
@@ -74,6 +75,75 @@ test('browser store: localStorage driver persists snapshots', async () => {
 
   const b = await createBrowserStore({ driver });
   assert.equal((await b.get('l:p'))?.tokens[0], 'persist');
+});
+
+test('browser store: doublets-web driver indexes snapshots as triples', async () => {
+  class Link {
+    constructor(id, from_id, to_id) {
+      this.id = id;
+      this.from_id = from_id;
+      this.to_id = to_id;
+    }
+  }
+  class LinksConstants {
+    constructor() {
+      this.any = 0;
+    }
+  }
+  class UnitedLinks {
+    constructor(constants) {
+      this.constants = constants;
+      this.next = 0;
+      this.rows = new Map();
+    }
+    create() {
+      this.next += 1;
+      return this.next;
+    }
+    update(id, from_id, to_id) {
+      this.rows.set(id, new Link(id, from_id, to_id));
+      return id;
+    }
+    count(query = null) {
+      if (!query) {
+        return this.rows.size;
+      }
+      return [...this.rows.values()].filter((row) => {
+        const any = this.constants.any;
+        return (
+          (query.id === any || query.id === row.id) &&
+          (query.from_id === any || query.from_id === row.from_id) &&
+          (query.to_id === any || query.to_id === row.to_id)
+        );
+      }).length;
+    }
+  }
+
+  const snapshotDriver = createInMemoryDriver();
+  const driver = createDoubletsWebDriver({
+    doubletsWeb: { Link, LinksConstants, UnitedLinks },
+    snapshotDriver,
+  });
+  const store = await createBrowserStore({ driver });
+  await store.put({
+    id: 'l:doublets',
+    tokens: ['message', 'web'],
+    children: ['body:l:doublets'],
+  });
+  await store.flush();
+
+  const stats = driver.stats();
+  assert.equal(stats.package, 'doublets-web');
+  assert.equal(stats.records, 1);
+  assert.ok(stats.atoms >= 5);
+  assert.ok(stats.triples >= 5);
+
+  const raw = await snapshotDriver.load();
+  assert.equal(raw.doubletsWeb.package, 'doublets-web');
+  assert.equal(raw.links[0].id, 'l:doublets');
+
+  const reloaded = await createBrowserStore({ driver });
+  assert.equal((await reloaded.get('l:doublets'))?.tokens[1], 'web');
 });
 
 test('browser store: indexedDB driver works against a minimal IDB shim', async () => {

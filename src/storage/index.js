@@ -8,6 +8,8 @@ export {
   createInMemoryDriver,
   createLocalStorageDriver,
   createIndexedDbDriver,
+  createDoubletsWebDriver,
+  loadDoubletsWebDriver,
   pickBrowserDriver,
 } from './browser-store.js';
 export { wrapSecretStore, isSecretLinkId } from './secret-store.js';

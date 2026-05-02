@@ -86,6 +86,76 @@ const serverFetch = async (path, init) => {
   return fetch(path, init).then((r) => r.json());
 };
 
+let patternWorker = null;
+let patternSeq = 0;
+const patternPending = new Map();
+
+const matchPatternLocal = (pattern, flags = 'i', messages = []) => {
+  try {
+    const regex = new RegExp(pattern, flags);
+    const matches = messages
+      .map((m) => (typeof m === 'string' ? m : String(m?.body ?? '')))
+      .filter((text) => regex.test(text));
+    return { count: matches.length, matches, engine: 'js' };
+  } catch (err) {
+    return { count: 0, matches: [], engine: 'js', error: err.message };
+  }
+};
+
+const getPatternWorker = () => {
+  if (typeof globalThis.Worker === 'undefined') {
+    return null;
+  }
+  if (patternWorker) {
+    return patternWorker;
+  }
+  patternWorker = new globalThis.Worker(
+    new URL('./pattern-worker.js', import.meta.url),
+    {
+      type: 'module',
+    }
+  );
+  patternWorker.onmessage = (event) => {
+    const { id, ok, error, ...result } = event.data ?? {};
+    const pending = patternPending.get(id);
+    if (!pending) {
+      return;
+    }
+    patternPending.delete(id);
+    if (ok) {
+      pending.resolve(result);
+    } else {
+      pending.reject(new Error(error ?? 'pattern worker failed'));
+    }
+  };
+  patternWorker.onerror = (event) => {
+    const error = new Error(event.message ?? 'pattern worker failed');
+    for (const pending of patternPending.values()) {
+      pending.reject(error);
+    }
+    patternPending.clear();
+    patternWorker?.terminate();
+    patternWorker = null;
+  };
+  return patternWorker;
+};
+
+const matchPattern = async (pattern, flags, messages) => {
+  const worker = getPatternWorker();
+  if (!worker) {
+    return matchPatternLocal(pattern, flags, messages);
+  }
+  try {
+    return await new Promise((resolve, reject) => {
+      const id = (patternSeq += 1);
+      patternPending.set(id, { resolve, reject });
+      worker.postMessage({ id, pattern, flags, messages });
+    });
+  } catch {
+    return matchPatternLocal(pattern, flags, messages);
+  }
+};
+
 export const api = {
   links: async () => {
     const { client } = await ensure();
@@ -148,6 +218,7 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ examples, mode }),
     })) ?? { regex: '', flags: 'i' },
+  matchPattern,
   graphs: async () => (await serverFetch('/api/graphs')) ?? [],
   saveGraph: async (g) =>
     (await serverFetch('/api/graphs', {

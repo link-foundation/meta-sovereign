@@ -75,6 +75,7 @@
   "optionalDependencies": {
     "axe-core": "^4.11.4",
     "browser-commander": "^0.8.0",
+    "doublets-web": "^0.1.2",
     "playwright": "^1.40.0"
   },
   "lint-staged": {

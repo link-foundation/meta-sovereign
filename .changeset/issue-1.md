@@ -222,3 +222,14 @@ Iteration 22 (follow-up commits on the same PR) closes the remaining external-se
 - `docs/REQUIREMENTS.md` and `docs/ROADMAP.md`: R-A1 and R-E1/R-E3/R-E4/R-E5/R-E6/R-E7/R-E8/R-E9 are marked Done; the external-service connector section is removed from the roadmap.
 
 Tests: Node 139/139, Bun 139/139, Deno 139/139, Rust 52/52; `npm run check` clean.
+
+Iteration 23 (follow-up commits on the same PR) closes the browser-side WASM roadmap section:
+
+- `src/storage/browser-store.js`: adds `createDoubletsWebDriver()` and `loadDoubletsWebDriver()`, indexing BrowserStore snapshots through the real `doublets-web` `Link` / `LinksConstants` / `UnitedLinks` surface when the WASM module is bundled or injected. `pickBrowserDriver()` now prefers that driver before IndexedDB, localStorage, and in-memory fallback.
+- `crates/meta-sovereign-wasm`: new Rust `cdylib` wrapper around `meta_sovereign_core::pattern_matches`, exporting `ms_alloc`, `ms_dealloc`, and `pattern_matches` for browser WebAssembly calls.
+- `src/web/patterns-wasm.js`, `src/web/pattern-worker.js`, and `src/web/pattern-matcher.wasm`: browser wrapper + worker that runs supported pattern previews through the Rust WASM matcher and falls back to JS `RegExp` for complex regexes.
+- `src/server/index.js` and `crates/meta-sovereign-server/src/routes.rs`: both static servers now serve `.wasm` with `application/wasm`; CSP allows same-origin workers and WebAssembly compilation without allowing inline scripts.
+- `tests/browser-store.test.js`, `tests/wasm-patterns.test.js`, and server route tests cover the doublets-web driver, the actual checked-in WASM artifact, and the static serving contract.
+- `docs/REQUIREMENTS.md` and `docs/ROADMAP.md`: R-G1 now records the completed Rust/WASM pieces; the browser-side WASM roadmap section is removed.
+
+Tests: Node 142/142, Bun 142/142, Deno 142/142, Rust 53/53; `npm run check` clean.

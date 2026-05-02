@@ -484,7 +484,7 @@ const stepAxeAudit = async ({ page, base }) => {
     return;
   }
   await page.goto(base, { waitUntil: 'load' });
-  // The SPA serves a CSP `script-src 'self'` header, which blocks
+  // The SPA serves a CSP without inline scripts, which blocks
   // `addScriptTag({ content })` (it injects an inline <script>). Run
   // the axe-core source through `page.evaluate` instead — that goes
   // via CDP `Runtime.evaluate`, which is not subject to the page CSP,

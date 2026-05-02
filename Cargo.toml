@@ -9,4 +9,8 @@
 
 [workspace]
 resolver = "2"
-members = ["crates/meta-sovereign-core", "crates/meta-sovereign-server"]
+members = [
+  "crates/meta-sovereign-core",
+  "crates/meta-sovereign-server",
+  "crates/meta-sovereign-wasm",
+]
