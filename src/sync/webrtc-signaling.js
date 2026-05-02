@@ -20,8 +20,14 @@ import {
   encodeTextFrame,
   createFrameReader,
 } from './ws-frame.js';
+import { bunAttachSignaling } from './bun-server.js';
+
+const IS_BUN = typeof globalThis.Bun !== 'undefined';
 
 export const attachSignaling = (server, { path = '/rtc' } = {}) => {
+  if (IS_BUN) {
+    return bunAttachSignaling(server, { path });
+  }
   const rooms = new Map();
 
   const join = (room, socket) => {

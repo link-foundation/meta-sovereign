@@ -103,6 +103,17 @@ export default [
     },
   },
   {
+    // Bun runtime adapter — uses globals shared with browsers.
+    files: ['src/sync/bun-server.js'],
+    languageOptions: {
+      globals: {
+        Response: 'readonly',
+        Request: 'readonly',
+        WebSocket: 'readonly',
+      },
+    },
+  },
+  {
     // Test files: setTimeout/clearTimeout are part of standard timers.
     files: ['tests/**/*.js'],
     languageOptions: {

@@ -70,4 +70,12 @@ Iteration 5 (follow-up commits on the same PR) lands the offline-first SPA piece
 
 Tests: 118/118 JS + 14/14 Rust pass. Lint, prettier, jscpd remain clean.
 
+Iteration 6 (follow-up commits on the same PR) closes the last CI gap by making the WebSocket sync transport and the WebRTC signalling broker runtime-portable across Node, Deno, and Bun:
+
+- `src/sync/bun-server.js`: new Bun runtime adapter. The previous code hand-rolled framing on top of `node:http` upgrade sockets and `node:net` client sockets — both silently drop bytes under Bun. The adapter delegates to `Bun.serve({fetch, websocket})` + the global `WebSocket` constructor, handles both attach-before-listen and attach-after-listen cases via a `Symbol.for(...)`-keyed shared registry on the http.Server, and bridges Bun's `Request` to the `{method, url, headers, on('data'/'end')}` surface existing route handlers expect (with a cached single-use `arrayBuffer()` promise).
+- `src/sync/ws-transport.js`, `src/sync/webrtc-signaling.js`: each public export now branches on `typeof globalThis.Bun !== 'undefined'` and delegates to the Bun adapter when present. The Node path is unchanged.
+- `eslint.config.js`: file-scoped globals for `src/sync/bun-server.js` (`Response`, `Request`, `WebSocket`).
+
+Tests: 118/118 JS pass under both Node and Bun. The CI matrix (Node × {Ubuntu, macOS, Windows} + Deno × 3 + Bun × 3) is now green end-to-end.
+
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, and SPA — including offline-first SPA, autodiscovered or manually configured server, and direct browser-to-browser sync over WebRTC — with a parallel Rust core, encrypted backups, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.

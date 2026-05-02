@@ -438,3 +438,43 @@ signaling, RTCPeerConnection, initiator })` opens the data channel,
 
 **Tests:** 118/118 JS pass (Rust unchanged). Lint, prettier, jscpd
 remain clean.
+
+---
+
+## Iteration 6 additions (PR #2, runtime portability)
+
+Iteration 6 closes the last CI gap: the WebSocket sync transport and
+the WebRTC signalling broker were hand-rolled on `node:http` upgrade
+sockets and `node:net` client sockets, both of which silently drop
+bytes under Bun (`socket.write()` returns `true` but the bytes never
+deliver). Rather than rewrite the framing, the runtime is detected at
+boot and the Bun build delegates to `Bun.serve` + the global
+`WebSocket`, while Node and Deno keep the existing path.
+
+- **Bun runtime adapter (`src/sync/bun-server.js`).** A single module
+  that owns every Bun-specific code path. Detects a shared
+  http-server registry via `Symbol.for('meta-sovereign.bun-http-registry')`
+  so multiple `attach*` calls on the same `http.Server` cooperate, then
+  takes over the port using `Bun.serve({fetch, websocket})`. Two
+  install cases are handled: server already listening at attach time
+  (Case A — close the http server, claim the port immediately) and
+  attach before listen (Case B — hijack `httpServer.listen`). A
+  `bunRequestToNode` shim adapts Bun's `Request` to the
+  `{method, url, headers, on('data'/'end')}` surface the existing
+  route handlers expect, with a single-cached `arrayBuffer()` promise
+  so the body isn't read twice. Exports
+  `bunAttachWs`, `bunAttachSyncWebSocket`, `bunStartSyncWebSocketListener`,
+  `bunConnectSyncWebSocket`, and `bunAttachSignaling`.
+- **Runtime gates in transport modules.** `src/sync/ws-transport.js`
+  and `src/sync/webrtc-signaling.js` now branch on
+  `typeof globalThis.Bun !== 'undefined'` at the top of each public
+  export and delegate to the Bun adapter when present. The Node path
+  is unchanged.
+- **ESLint config.** Added a file-scoped section for
+  `src/sync/bun-server.js` that surfaces the browser-shared globals
+  (`Response`, `Request`, `WebSocket`) the adapter uses.
+
+**Result:** 118/118 JS tests pass under both Node and Bun. Lint,
+prettier, jscpd clean. The CI matrix (Node × {Ubuntu, macOS, Windows}
+
+- Deno × 3 + Bun × 3) is now green end-to-end.

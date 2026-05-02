@@ -22,8 +22,15 @@ import {
   createFrameReader,
   acceptKey,
 } from './ws-frame.js';
+import {
+  bunAttachSyncWebSocket,
+  bunStartSyncWebSocketListener,
+  bunConnectSyncWebSocket,
+} from './bun-server.js';
 
 const PROTOCOL = 'meta-sovereign-sync.v1';
+
+const IS_BUN = typeof globalThis.Bun !== 'undefined';
 
 const broadcast = (sockets, text) => {
   const frame = encodeTextFrame(text);
@@ -38,6 +45,9 @@ const broadcast = (sockets, text) => {
  * that detaches handlers without stopping the server itself.
  */
 export const attachSyncWebSocket = (server, { path = '/ws' } = {}) => {
+  if (IS_BUN) {
+    return bunAttachSyncWebSocket(server, { path });
+  }
   const sockets = new Set();
   const handlers = new Set();
   const pending = [];
@@ -124,8 +134,11 @@ export const attachSyncWebSocket = (server, { path = '/ws' } = {}) => {
  * a tiny http server and attaches the sync endpoint. Used by tests
  * and by the `meta-sovereign sync-ws-listen` CLI subcommand.
  */
-export const startSyncWebSocketListener = ({ port = 0, path = '/ws' } = {}) =>
-  new Promise((resolve) => {
+export const startSyncWebSocketListener = ({ port = 0, path = '/ws' } = {}) => {
+  if (IS_BUN) {
+    return bunStartSyncWebSocketListener({ port, path });
+  }
+  return new Promise((resolve) => {
     const server = http.createServer((_req, res) => {
       res.writeHead(200, { 'content-type': 'text/plain' });
       res.end('meta-sovereign sync ws');
@@ -144,6 +157,7 @@ export const startSyncWebSocketListener = ({ port = 0, path = '/ws' } = {}) =>
       });
     });
   });
+};
 
 /**
  * Node-side WebSocket sync client. Performs the RFC 6455 client
@@ -154,8 +168,11 @@ export const connectSyncWebSocket = ({
   port,
   host = '127.0.0.1',
   path = '/ws',
-}) =>
-  new Promise((resolve, reject) => {
+}) => {
+  if (IS_BUN) {
+    return bunConnectSyncWebSocket({ port, host, path });
+  }
+  return new Promise((resolve, reject) => {
     const handlers = new Set();
     let settled = false;
     const fail = (err) => {
@@ -241,3 +258,4 @@ export const connectSyncWebSocket = ({
     });
     socket.on('error', fail);
   });
+};
