@@ -125,4 +125,12 @@ Iteration 11 (follow-up commits on the same PR) closes the token-storage-encrypt
 
 Tests: 129/129 JS + 52/52 Rust pass; lint, prettier, clippy, fmt clean.
 
+Iteration 12 (follow-up commits on the same PR) closes ROADMAP §6 by wiring the API documentation surface into CI and the release pipeline (R-H3):
+
+- `.github/workflows/release.yml`: new `docs-build` job runs on every push and PR. It executes `npm run docs:api` (the existing JSDoc-style walker over `src/`) and `cargo doc --no-deps --workspace` (the Rust crates `meta-sovereign-core` + `meta-sovereign-server`), uploads both as workflow artefacts, and gates the `release` job behind it so a doc-comment regression fails CI before the version bump. The Rust toolchain is set up with `dtolnay/rust-toolchain@stable`.
+- `.github/workflows/release.yml` (release + instant-release jobs): after `Format GitHub release notes`, the workflow rebuilds the docs against the just-released commit and attaches `meta-sovereign-js-api-docs-<tag>.tar.gz` + `meta-sovereign-rust-api-docs-<tag>.tar.gz` to the GitHub Release via `gh release upload`.
+- `scripts/attach-api-docs.sh`: helper invoked from the release jobs. Tars `docs/api/` and `target/doc/` separately, uploads both to the release identified by the supplied tag (`--clobber` so re-runs of the workflow refresh the assets).
+- `docs/REQUIREMENTS.md`: R-H3 row updated with the new CI surface.
+- `docs/ROADMAP.md`: §6 "Live-API documentation surface" deleted (both bullets closed).
+
 The codebase now exercises every layer of the plan end-to-end from CLI, HTTP, real browser, and SPA — including offline-first SPA, autodiscovered or manually configured server, direct browser-to-browser sync over WebRTC, audience-driven mass-personal outreach, encrypted backups with a UI restore flow, dark mode + a11y, a Prometheus/JSON observability surface mirrored on both Node and Rust backends, and AES-256-GCM-encrypted-at-rest secret storage that never traverses peer sync — with a parallel Rust core, vector-clock sync, and full audit-driven test coverage. Subsequent PRs iterate on individual layers (mobile shell, real network adapters) per `docs/case-studies/issue-1/solution-plan.md`.

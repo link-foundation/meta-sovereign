@@ -101,14 +101,6 @@ flow): we'll close them as the underlying features land.
       port to WASM and run it in the SPA so heavy-pattern UIs don't
       block the main thread.
 
-## 6. Live-API documentation surface (R-H3)
-
-- [ ] **`docs/api/` autogeneration on CI.** `npm run docs:api` is in
-      place; wire it into the release workflow so the published artefact
-      always carries fresh docs.
-- [ ] **`cargo doc --no-deps`** publish for the Rust crates on every
-      release.
-
 ## 8. Security hardening
 
 - [ ] **WebRTC TURN fallback.** Document how to point the SPA at a
