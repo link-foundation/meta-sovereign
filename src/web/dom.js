@@ -3,7 +3,10 @@
 // (see ./client.js): it tries the discovered server first, and falls
 // back to the local browser store when offline.
 
-import { createBrowserStore, pickBrowserDriver } from '../storage/index.js';
+import {
+  createBrowserStore,
+  pickBrowserDriver,
+} from '../storage/browser-store.js';
 import { discoverServer } from './discover.js';
 import { createOfflineClient } from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';

@@ -107,4 +107,36 @@ describe('http server', () => {
       await handle.close();
     }
   });
+
+  it('mounts browser-safe sibling modules under /storage and /handlers', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv5-'));
+    const handle = await startServer({ port: 0, storeDir: dir });
+    const base = `http://127.0.0.1:${handle.port}`;
+    try {
+      const browserStore = await fetch(`${base}/storage/browser-store.js`);
+      expect(browserStore.status).toBe(200);
+      await browserStore.text();
+
+      const handlers = await fetch(`${base}/handlers/index.js`);
+      expect(handlers.status).toBe(200);
+      await handlers.text();
+
+      // Traversal stays inside the mount dir.
+      const traversal = await fetch(`${base}/storage/../etc/passwd`);
+      expect([403, 404]).toContain(traversal.status);
+      await traversal.text();
+
+      // Only `.js` files are served from a mount.
+      const txt = await fetch(`${base}/storage/notes.txt`);
+      expect(txt.status).toBe(404);
+      await txt.text();
+
+      // Subdirectories inside a mount are not exposed.
+      const nested = await fetch(`${base}/storage/sub/inner.js`);
+      expect(nested.status).toBe(404);
+      await nested.text();
+    } finally {
+      await handle.close();
+    }
+  });
 });

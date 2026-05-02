@@ -75,6 +75,18 @@ const serveStatic = async (res, filePath) => {
   }
 };
 
+// Browser-safe modules outside src/web that the SPA imports directly.
+// Each entry maps a URL prefix to the directory under src/ that holds
+// the matching file. Only files whose name matches the allow-list
+// regex are served, and the resolved path must stay under the mapped
+// directory (no `..`).
+const SRC_ROOT = path.resolve(here, '..');
+const BROWSER_MOUNTS = [
+  ['/storage/', path.join(SRC_ROOT, 'storage')],
+  ['/handlers/', path.join(SRC_ROOT, 'handlers')],
+  ['/sync/', path.join(SRC_ROOT, 'sync')],
+];
+
 const handleStatic = async (req, res, p) => {
   if (req.method !== 'GET') {
     return false;
@@ -84,6 +96,20 @@ const handleStatic = async (req, res, p) => {
   }
   if (/^\/[a-zA-Z0-9._-]+\.(js|css|svg)$/.test(p)) {
     return serveStatic(res, path.join(webRoot, p.slice(1)));
+  }
+  for (const [prefix, dir] of BROWSER_MOUNTS) {
+    if (!p.startsWith(prefix)) {
+      continue;
+    }
+    const tail = p.slice(prefix.length);
+    if (!/^[a-zA-Z0-9._-]+\.js$/.test(tail)) {
+      continue;
+    }
+    const resolved = path.join(dir, tail);
+    if (!resolved.startsWith(dir + path.sep) && resolved !== dir) {
+      continue;
+    }
+    return serveStatic(res, resolved);
   }
   return false;
 };
