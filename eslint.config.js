@@ -126,6 +126,19 @@ export default [
     },
   },
   {
+    // Real-browser e2e: Playwright callbacks (waitForFunction, $eval)
+    // execute in the page context so they need DOM globals.
+    files: ['tests/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        document: 'readonly',
+        window: 'readonly',
+      },
+    },
+  },
+  {
     ignores: [
       'node_modules/**',
       'coverage/**',

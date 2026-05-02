@@ -29,6 +29,7 @@
   },
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "test:e2e:browser": "node tests/e2e-browser-spa.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -70,6 +71,10 @@
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
     "test-anywhere": "^0.8.48"
+  },
+  "optionalDependencies": {
+    "browser-commander": "^0.8.0",
+    "playwright": "^1.40.0"
   },
   "lint-staged": {
     "*.{js,mjs,cjs}": [
