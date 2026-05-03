@@ -100,7 +100,7 @@ test('writePreference tolerates a storage that throws on setItem', () => {
 });
 
 test('every default step targets a real nav surface or is a shell-level step', async () => {
-  const { navItems } = await import('../src/web/views.js');
+  const { navItems } = await import('../src/web/nav-items.js');
   const validIds = new Set(navItems.map(([id]) => id));
   for (const step of defaultSteps) {
     if (step.target !== undefined) {

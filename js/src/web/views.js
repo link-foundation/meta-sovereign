@@ -6,25 +6,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
+import { navItems } from './nav-items.js';
 
 const el = React.createElement;
 const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
-export const navItems = [
-  ['chat', 'Chat'],
-  ['operator', 'Operator'],
-  ['contacts', 'Contacts'],
-  ['automation', 'Automation'],
-  ['patterns', 'Patterns'],
-  ['replies', 'Replies'],
-  ['facts', 'Facts'],
-  ['audience', 'Audience'],
-  ['broadcast', 'Broadcast'],
-  ['outreach', 'Outreach'],
-  ['profile', 'Profile'],
-  ['backup', 'Backup'],
-  ['status', 'Status'],
-];
+export { navItems };
 
 const useAsyncValue = (loader, deps, initialValue) => {
   const [state, setState] = useState({
