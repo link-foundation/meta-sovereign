@@ -8,8 +8,10 @@
 
 use std::path::PathBuf;
 
+use crate::email;
 use crate::handlers;
 use crate::http::{Request, Response};
+use crate::json;
 use crate::state::ServerState;
 
 pub struct StaticRoot {
@@ -149,6 +151,9 @@ pub fn dispatch(
         let body = handlers::metrics_text(state, metrics.ws_peers, metrics.rtc_rooms);
         return Response::bytes(200, "text/plain; version=0.0.4", body.into_bytes());
     }
+    if let Some(kind) = email::route_kind(req) {
+        return dispatch_email(state, req, kind);
+    }
     if let Some(r) = handlers::mutating(state, req) {
         return r;
     }
@@ -156,6 +161,29 @@ pub fn dispatch(
         return r;
     }
     Response::json(404, "{\"error\":\"unknown route\"}")
+}
+
+/// Mirror `handleEmail` in `js/src/server/routes-mutating.js` — parses
+/// the request body and dispatches to [`email::pull`] or [`email::send`].
+fn dispatch_email(state: &ServerState, req: &Request, kind: &str) -> Response {
+    let text = std::str::from_utf8(&req.body).unwrap_or_default();
+    let body = if text.trim().is_empty() {
+        json::Value::Object(json::obj())
+    } else {
+        match json::parse(text) {
+            Ok(v) => v,
+            Err(e) => {
+                let msg = format!("{{\"error\":\"bad body: {}\"}}", e.0.replace('"', "'"));
+                return Response::json(400, &msg);
+            }
+        }
+    };
+    let value = match kind {
+        "pull" => email::pull(state, &body),
+        "send" => email::send(state, &body),
+        _ => return Response::json(404, "{\"error\":\"unknown email route\"}"),
+    };
+    Response::json(200, &json::encode(&value))
 }
 
 #[cfg(test)]
@@ -199,6 +227,97 @@ mod tests {
         assert!(safe_asset_name("/../etc/passwd").is_none());
         assert!(safe_asset_name("/foo/bar.js").is_none());
         assert_eq!(safe_asset_name("/app.js").as_deref(), Some("app.js"));
+    }
+
+    fn body_req(method: &str, path: &str, body: &str) -> Request {
+        Request {
+            method: method.into(),
+            path: path.into(),
+            query: BTreeMap::new(),
+            headers: BTreeMap::new(),
+            body: body.as_bytes().to_vec(),
+        }
+    }
+
+    #[test]
+    fn email_pull_dispatch_persists_message_link() {
+        let s = ServerState::new();
+        let root = StaticRoot::new(None);
+        let body = r#"{"protocol":"gmail","messages":[
+            {"externalId":"abc","sender":"a@x.com","chat":"t","body":"hi"}
+        ]}"#;
+        let r = dispatch(
+            &s,
+            &root,
+            &body_req("POST", "/api/email/pull", body),
+            ctx(),
+        );
+        assert_eq!(r.status, 200);
+        let txt = r.body_string();
+        assert!(txt.contains("\"imported\":1"));
+        assert!(txt.contains("\"source\":\"email\""));
+        let g = dispatch(
+            &s,
+            &root,
+            &body_req("GET", "/links/msg%3Aemail%3Aabc", ""),
+            ctx(),
+        );
+        assert_eq!(g.status, 200);
+        assert!(g.body_string().contains("\"body\":\"hi\""));
+    }
+
+    #[test]
+    fn email_send_dispatch_returns_queued_envelope() {
+        let s = ServerState::new();
+        let root = StaticRoot::new(None);
+        let body = r#"{"protocol":"jmap","message":{"to":"b@x","subject":"hi","text":"x"}}"#;
+        let r = dispatch(
+            &s,
+            &root,
+            &body_req("POST", "/api/email/send", body),
+            ctx(),
+        );
+        assert_eq!(r.status, 200);
+        let txt = r.body_string();
+        assert!(txt.contains("\"status\":\"queued\""));
+        assert!(txt.contains("\"protocol\":\"jmap\""));
+    }
+
+    #[test]
+    fn email_send_dispatch_flags_raw_protocols() {
+        let s = ServerState::new();
+        let root = StaticRoot::new(None);
+        let body = r#"{"protocol":"smtp","message":{"to":"b@x","subject":"hi"}}"#;
+        let r = dispatch(
+            &s,
+            &root,
+            &body_req("POST", "/api/email/send", body),
+            ctx(),
+        );
+        assert_eq!(r.status, 200);
+        assert!(r.body_string().contains("\"status\":\"needs-local-server\""));
+    }
+
+    #[test]
+    fn email_pull_dispatch_rejects_bad_body() {
+        let s = ServerState::new();
+        let root = StaticRoot::new(None);
+        let r = dispatch(
+            &s,
+            &root,
+            &body_req("POST", "/api/email/pull", "{not-json"),
+            ctx(),
+        );
+        assert_eq!(r.status, 400);
+    }
+
+    #[test]
+    fn sources_listing_includes_email() {
+        let s = ServerState::new();
+        let root = StaticRoot::new(None);
+        let r = dispatch(&s, &root, &req("GET", "/sources"), ctx());
+        assert_eq!(r.status, 200);
+        assert!(r.body_string().contains("email"));
     }
 
     #[test]

@@ -17,6 +17,22 @@ import { saveServerOverride } from './discover.js';
 // the API-credential path (R-M4) so the user does not need to leave the
 // SPA (R-M7).
 export const providerCatalogue = {
+  email: {
+    label: 'Email',
+    archive: {
+      title: 'Import .eml or mbox mail exports',
+      hint: 'Export mail from your provider as .eml files or an mbox archive, including Gmail Takeout mbox files. Drop the file into the import box with source "email".',
+      fileHint: '*.eml, *.mbox',
+    },
+    apiCredentials: {
+      title: 'Connect email APIs and protocols',
+      envVar: 'EMAIL_ACCESS_TOKEN',
+      hint: 'Use JMAP, Gmail API, or Microsoft Graph directly from the browser when CORS allows it. IMAP, POP3, and SMTP require the local server because browsers cannot open raw TCP/TLS mail sockets.',
+      docsUrl: 'https://jmap.io/spec/',
+      apiBase: 'https://gmail.googleapis.com',
+      probeUrl: 'https://gmail.googleapis.com/gmail/v1/users/me/profile',
+    },
+  },
   telegram: {
     label: 'Telegram',
     archive: {
@@ -170,17 +186,34 @@ export const connectionGuides = {
   chat: {
     title: 'Your unified inbox starts empty.',
     body: 'meta-sovereign keeps every chat from every connected service in one place. Connect a provider below, or import an exported archive to populate this view.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    providers: [
+      'email',
+      'telegram',
+      'vk',
+      'x',
+      'whatsapp',
+      'facebook',
+      'linkedin',
+    ],
   },
   operator: {
     title: 'Operator queue is empty.',
     body: 'The operator card stream walks you through unread messages chat by chat. Connect a chat-capable provider below to start the queue.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    providers: [
+      'email',
+      'telegram',
+      'vk',
+      'x',
+      'whatsapp',
+      'facebook',
+      'linkedin',
+    ],
   },
   contacts: {
     title: 'No contacts yet.',
     body: 'Contacts are aggregated from every connected provider so the same person across networks shows up once. Add a provider to populate this list.',
     providers: [
+      'email',
       'telegram',
       'vk',
       'x',
@@ -195,27 +228,43 @@ export const connectionGuides = {
   automation: {
     title: 'No automation graphs yet.',
     body: 'Automation graphs route incoming messages from a pattern to a reply variation. Drop a node above, or import an archive first so you have data to match against.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook'],
+    providers: ['email', 'telegram', 'vk', 'x', 'whatsapp', 'facebook'],
   },
   patterns: {
     title: 'No patterns yet.',
     body: 'Patterns are inferred from example messages. Connect a provider, or import an archive, then come back here and feed the inferrer a few examples.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp'],
+    providers: ['email', 'telegram', 'vk', 'x', 'whatsapp'],
   },
   replies: {
     title: 'No reply variation groups yet.',
     body: 'Reply groups are extracted from your previous outgoing messages by fuzzy similarity. Connect a chat-capable provider to seed your reply library.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    providers: [
+      'email',
+      'telegram',
+      'vk',
+      'x',
+      'whatsapp',
+      'facebook',
+      'linkedin',
+    ],
   },
   facts: {
     title: 'No facts extracted yet.',
     body: 'Facts are question -> answer pairs extracted across messages by your patterns. Add a pattern with a capture group, or connect a chat provider to start gathering data.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp'],
+    providers: ['email', 'telegram', 'vk', 'x', 'whatsapp'],
   },
   audience: {
     title: 'Build your first audience.',
     body: 'Cross-reference contacts using AND/OR/NOT plus dimensions like network:, chat:, sender:, kind:, fact:. Connect at least one provider so you have contacts to filter.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    providers: [
+      'email',
+      'telegram',
+      'vk',
+      'x',
+      'whatsapp',
+      'facebook',
+      'linkedin',
+    ],
   },
   broadcast: {
     title: 'No broadcast targets yet.',
@@ -225,7 +274,7 @@ export const connectionGuides = {
   outreach: {
     title: 'No outreach surface yet.',
     body: 'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Connect a chat-capable provider to enable outreach.',
-    providers: ['telegram', 'vk', 'x', 'whatsapp', 'linkedin'],
+    providers: ['email', 'telegram', 'vk', 'x', 'whatsapp', 'linkedin'],
   },
   profile: {
     title: 'No profile yet.',

@@ -8,6 +8,7 @@ import { createSuperjobLive } from '../src/sources/superjob.js';
 import { createVkLive } from '../src/sources/vk.js';
 import { createWhatsAppCloudLive } from '../src/sources/whatsapp.js';
 import { createXLive } from '../src/sources/x.js';
+import { createEmailLive } from '../src/sources/email.js';
 
 const json = (body, init = {}) => ({
   ok: (init.status ?? 200) < 400,
@@ -332,6 +333,173 @@ describe('job-board live adapters', () => {
     await superjob.syncResume(
       { id: 44, title: 'Engineer' },
       { token: 'sj-token', appId: 'app' }
+    );
+  });
+});
+
+describe('Gmail email live adapter', () => {
+  it('pulls and sends Gmail messages through the Gmail HTTP API', async () => {
+    const fetchImpl = mockFetch(
+      (call) => {
+        expect(call.url.pathname).toBe('/gmail/v1/users/me/messages');
+        expect(call.url.searchParams.get('maxResults')).toBe('2');
+        expect(call.init.headers.Authorization).toBe('Bearer gmail-token');
+        return { messages: [{ id: 'gm1' }], nextPageToken: 'next' };
+      },
+      (call) => {
+        expect(call.url.pathname).toBe('/gmail/v1/users/me/messages/gm1');
+        expect(call.url.searchParams.get('format')).toBe('full');
+        return {
+          id: 'gm1',
+          threadId: 'thread1',
+          internalDate: '1777802400000',
+          payload: {
+            headers: [
+              { name: 'From', value: 'Alice <alice@example.com>' },
+              { name: 'To', value: 'Bob <bob@example.com>' },
+              { name: 'Subject', value: 'Gmail hello' },
+            ],
+            body: { data: 'SGVsbG8gZnJvbSBHbWFpbA' },
+          },
+          snippet: 'Hello from Gmail',
+        };
+      },
+      (call) => {
+        expect(call.url.pathname).toBe('/gmail/v1/users/me/messages/send');
+        expect(call.init.method).toBe('POST');
+        expect(typeof call.body.raw).toBe('string');
+        return { id: 'sent-gm1' };
+      }
+    );
+    const live = createEmailLive({
+      protocol: 'gmail',
+      fetchImpl,
+      baseUrl: 'https://gmail.test',
+    });
+    const pulled = await live.pullMessages({ token: 'gmail-token', limit: 2 });
+    expect(pulled.links[0].id).toBe('msg:email:gm1');
+    expect(pulled.links[0].provider).toBe('gmail');
+    expect(pulled.links[0].body).toBe('Hello from Gmail');
+    expect(pulled.nextOffset).toBe('next');
+    await live.post(
+      {
+        from: 'alice@example.com',
+        to: 'bob@example.com',
+        subject: 'Reply',
+        text: 'Hi',
+      },
+      { token: 'gmail-token' }
+    );
+  });
+});
+
+describe('Microsoft Graph email live adapter', () => {
+  it('pulls and sends Outlook mail through Microsoft Graph', async () => {
+    const fetchImpl = mockFetch(
+      (call) => {
+        expect(call.url.pathname).toBe('/v1.0/me/messages');
+        expect(call.url.searchParams.get('$top')).toBe('1');
+        expect(call.init.headers.Authorization).toBe('Bearer graph-token');
+        expect(call.init.headers.Prefer).toBe(
+          'outlook.body-content-type="text"'
+        );
+        return {
+          value: [
+            {
+              id: 'ms1',
+              conversationId: 'conv1',
+              subject: 'Graph hello',
+              receivedDateTime: '2026-05-03T10:00:00Z',
+              sender: {
+                emailAddress: {
+                  name: 'Alice',
+                  address: 'alice@example.com',
+                },
+              },
+              toRecipients: [{ emailAddress: { address: 'bob@example.com' } }],
+              body: { content: 'Hello from Graph' },
+            },
+          ],
+          '@odata.nextLink': 'https://graph.test/v1.0/me/messages?$skip=1',
+        };
+      },
+      (call) => {
+        expect(call.url.pathname).toBe('/v1.0/me/sendMail');
+        expect(call.init.method).toBe('POST');
+        expect(call.body.message.subject).toBe('Reply');
+        expect(call.body.message.toRecipients[0].emailAddress.address).toBe(
+          'bob@example.com'
+        );
+        return {};
+      }
+    );
+    const live = createEmailLive({
+      protocol: 'microsoft-graph',
+      fetchImpl,
+      baseUrl: 'https://graph.test/v1.0',
+    });
+    const pulled = await live.pullMessages({ token: 'graph-token', limit: 1 });
+    expect(pulled.links[0].id).toBe('msg:email:ms1');
+    expect(pulled.links[0].chat).toBe('conv1');
+    expect(pulled.links[0].body).toBe('Hello from Graph');
+    expect(pulled.nextOffset).toMatch(/skip=1/);
+    await live.post(
+      { to: 'bob@example.com', subject: 'Reply', text: 'Hi' },
+      { token: 'graph-token' }
+    );
+  });
+});
+
+describe('JMAP email live adapter', () => {
+  it('uses JMAP Email/query, Email/get, and EmailSubmission/set', async () => {
+    const fetchImpl = mockFetch(
+      (call) => {
+        expect(call.url.pathname).toBe('/jmap');
+        expect(call.body.methodCalls[0][0]).toBe('Email/query');
+        return {
+          methodResponses: [
+            ['Email/query', { ids: ['j1'] }, 'q'],
+            [
+              'Email/get',
+              {
+                list: [
+                  {
+                    id: 'j1',
+                    threadId: 'jt1',
+                    from: [{ email: 'alice@example.com', name: 'Alice' }],
+                    to: [{ email: 'bob@example.com' }],
+                    subject: 'JMAP hello',
+                    receivedAt: '2026-05-03T10:00:00Z',
+                    preview: 'Hello from JMAP',
+                  },
+                ],
+              },
+              'g',
+            ],
+          ],
+        };
+      },
+      (call) => {
+        expect(call.url.pathname).toBe('/jmap');
+        expect(call.body.methodCalls[0][0]).toBe('Email/set');
+        expect(call.body.methodCalls[1][0]).toBe('EmailSubmission/set');
+        return {
+          methodResponses: [['EmailSubmission/set', { created: {} }, 's']],
+        };
+      }
+    );
+    const live = createEmailLive({
+      protocol: 'jmap',
+      fetchImpl,
+      baseUrl: 'https://mail.test/jmap',
+      accountId: 'account-1',
+    });
+    const pulled = await live.pullMessages({ token: 'jmap-token', limit: 5 });
+    expect(pulled.links[0].id).toBe('msg:email:j1');
+    expect(pulled.links[0].provider).toBe('jmap');
+    await live.post(
+      { to: 'bob@example.com', subject: 'Reply', text: 'Hi' },
+      { token: 'jmap-token' }
     );
   });
 });

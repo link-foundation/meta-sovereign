@@ -59,6 +59,17 @@ behave identically on both servers (R-K1, R-K2, R-K3).
 | `/api/resume`         | GET    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
 | `/api/resume`         | PUT    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
 | `/api/broadcast`      | POST   | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/email/pull`     | POST   | `js/src/server/routes-mutating.js` | `rust/crates/.../email.rs`    | Parity |
+| `/api/email/send`     | POST   | `js/src/server/routes-mutating.js` | `rust/crates/.../email.rs`    | Parity |
+
+The Rust server's `/api/email/*` routes match the JS wire shape for
+archive ingest (`messages` / `value` / `list` / `emails` / `items`
+envelopes resolve into `msg:email:*` links). Live Gmail / Microsoft
+Graph / JMAP fetches and raw IMAP / POP3 / SMTP transport remain JS
+server features because the Rust crate is `std`-only and ships no
+outbound HTTP or TLS client; the Rust send route returns
+`result.status: "needs-local-server"` when called for `imap` / `pop3` /
+`smtp` so callers know to flip over to the JS backend.
 
 ## 4. Outreach, backups, hardening
 
@@ -114,15 +125,15 @@ directories.
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
 | Read (links + derived + meta)  | 14     | 14     | 0       |
-| Mutating CRUD                  | 13     | 13     | 0       |
+| Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **38** | **32** | **6**   |
+| **Total**                      | **40** | **34** | **6**   |
 
-The Rust server reaches **84 % route parity** today; the remaining
+The Rust server reaches **85 % route parity** today; the remaining
 routes are all in the "operator hardening" category (R-K\*) and have
 JS-implemented fallbacks. For the typical end-user flow — open the
 SPA, browse contacts, send messages, automate replies, sync between
-devices — the Rust server is a complete drop-in replacement for the JS
-server.
+devices, ingest email archives — the Rust server is a complete
+drop-in replacement for the JS server.

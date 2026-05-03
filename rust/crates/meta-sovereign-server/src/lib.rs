@@ -17,6 +17,7 @@
 
 #![forbid(unsafe_code)]
 
+pub mod email;
 pub mod handlers;
 pub mod http;
 pub mod json;
