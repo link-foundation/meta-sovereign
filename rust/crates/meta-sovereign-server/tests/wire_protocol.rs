@@ -61,6 +61,7 @@ fn sources_endpoint_lists_known_networks() {
         "habr-career",
         "hh",
         "superjob",
+        "email",
     ] {
         assert!(body.contains(src), "missing {src} in {body}");
     }
@@ -132,6 +133,47 @@ fn pattern_infer_returns_regex_and_flags() {
     let resp_body = body_of(&resp);
     assert!(resp_body.contains("\"flags\":\"i\""));
     assert!(resp_body.contains("\"regex\":"));
+    h.shutdown();
+}
+
+#[test]
+fn email_pull_imports_and_send_queues_over_http() {
+    let h = serve(ServerOptions {
+        port: 0,
+        static_root: None,
+        ..Default::default()
+    })
+    .expect("serve");
+    let pull_body = r#"{"protocol":"gmail","provider":"google","messages":[
+        {"externalId":"net-1","sender":"a@x.com","chat":"t","body":"hi"}
+    ]}"#;
+    let pull = format!(
+        "POST /api/email/pull HTTP/1.1\r\nHost: x\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+        pull_body.len(),
+        pull_body
+    );
+    let pull_resp = http_request(h.port(), &pull);
+    assert!(pull_resp.starts_with("HTTP/1.1 200"), "{pull_resp}");
+    let pb = body_of(&pull_resp);
+    assert!(pb.contains("\"imported\":1"), "{pb}");
+    assert!(pb.contains("\"source\":\"email\""));
+
+    // Stored msg link is fetchable through /links/<id>.
+    let get = http_request(
+        h.port(),
+        "GET /links/msg%3Aemail%3Anet-1 HTTP/1.1\r\nHost: x\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+    );
+    assert!(body_of(&get).contains("\"body\":\"hi\""), "{get}");
+
+    let send_body = r#"{"protocol":"gmail","message":{"to":"b@x.com","subject":"S","text":"T"}}"#;
+    let send = format!(
+        "POST /api/email/send HTTP/1.1\r\nHost: x\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
+        send_body.len(),
+        send_body
+    );
+    let send_resp = http_request(h.port(), &send);
+    let sb = body_of(&send_resp);
+    assert!(sb.contains("\"status\":\"queued\""), "{sb}");
     h.shutdown();
 }
 

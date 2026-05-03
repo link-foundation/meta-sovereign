@@ -1,6 +1,6 @@
 {
   "name": "meta-sovereign",
-  "version": "0.11.0",
+  "version": "0.13.0",
   "description": "Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services",
   "type": "module",
   "main": "js/src/index.js",
@@ -15,6 +15,8 @@
     },
     "./storage": "./js/src/storage/index.js",
     "./sources": "./js/src/sources/index.js",
+    "./sources/email": "./js/src/sources/email.js",
+    "./sources/email-node-transport": "./js/src/sources/email-node-transport.js",
     "./patterns": "./js/src/patterns/index.js",
     "./replies": "./js/src/replies/index.js",
     "./automation": "./js/src/automation/index.js",

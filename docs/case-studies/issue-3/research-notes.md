@@ -1,33 +1,33 @@
 # Research Notes for Issue #3
 
-## Changesets Documentation Research
+## Data Collection
 
-### Sources
+- Issue payload saved to `issue-data.json`.
+- Issue comments saved to `issue-comments.json` (currently empty).
+- The previous contents of this directory described an unrelated
+  release-note formatter issue from another repository. Those stale
+  artifacts were removed so this case study matches
+  `meta-sovereign` issue #3.
 
-- Official Changesets GitHub: https://github.com/changesets/changesets
-- Changesets Detailed Explanation: https://github.com/changesets/changesets/blob/main/docs/detailed-explanation.md
-- NPM Package: https://www.npmjs.com/package/@changesets/cli
-- LogRocket Guide: https://blog.logrocket.com/version-management-changesets/
+## Main Findings
 
-### Key Findings
+1. Email support cannot be one protocol. Provider coverage needs a
+   layered model:
+   - archive import: `.eml`, mbox, and provider JSON exports;
+   - browser-capable HTTP APIs: JMAP, Gmail API, Microsoft Graph;
+   - local-server-only raw protocols: IMAP, POP3, SMTP.
+2. Browser direct support is feasible for HTTP APIs but not for raw
+   mail sockets. Browser `fetch()` is HTTP-oriented and subject to CORS.
+3. Local-server fallback should not be a separate data model. It should
+   call the same adapter and store the same normalized `msg:email:*`
+   links.
+4. The existing `MessageSource` framework is the right place to add
+   email because it already powers archive import, live pulls, contacts,
+   search, automation, and unified inbox views.
 
-1. **Changesets Structure**
-   - Changesets use YAML front matter to declare package changes and semver bump types
-   - The CLI generates CHANGELOG.md files with section headers for each bump type
-   - Headers are: "### Major Changes", "### Minor Changes", "### Patch Changes"
+## Design Decision
 
-2. **CHANGELOG Generation**
-   - The `changeset version` command creates/updates CHANGELOG.md
-   - Changes are grouped by bump type (Major/Minor/Patch)
-   - Each section includes commit hashes and descriptions
-
-3. **Release Process**
-   - Changesets are created during development
-   - Version command aggregates changesets into CHANGELOG
-   - Publish command handles NPM publishing and git tagging
-
-4. **The Problem**
-   - Changesets CHANGELOG format is optimized for CHANGELOG.md files
-   - Section headers are useful for organizing large changelogs
-   - However, for GitHub Releases, these headers are redundant
-   - Release version already indicates the bump type (e.g., 0.1.0 is minor)
+The implementation adds a single `email` source with protocol-specific
+live modes instead of adding one source per provider. This keeps audience
+queries and source lists simple (`network:email`) while preserving
+provider/protocol metadata on each imported message.

@@ -12,11 +12,12 @@
  *
  * Adapters use the helpers below to keep their code small. Live
  * network APIs (token flows, OAuth, rate limits) belong inside each
- * adapter's `live*` methods; Telegram ships a Bot API implementation
- * and the remaining adapters expose archive parsers until their live
- * API credentials and flows are configured.
+ * adapter's `live*` methods; adapters expose browser-direct HTTP APIs
+ * where the upstream service permits them and local-server fallback
+ * hooks where browsers cannot speak the raw provider protocol.
  */
 
+import { emailSource } from './email.js';
 import { telegramSource } from './telegram.js';
 import { vkSource } from './vk.js';
 import { xSource } from './x.js';
@@ -29,6 +30,7 @@ import { superjobSource } from './superjob.js';
 export { buildMessageLink } from './link.js';
 
 export const sourceRegistry = {
+  email: emailSource,
   telegram: telegramSource,
   vk: vkSource,
   x: xSource,

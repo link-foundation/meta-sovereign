@@ -37,9 +37,9 @@ not ok 7 - TutorialOverlay resumes from stored step progress after page reload
   failureType: 'testCodeFailure'
   error: |-
     The input did not match the regular expression /data-tutorial-step="automation"/. Input:
-    
+
     '<div class="tutorial-overlay" role="presentation" data-tutorial-overlay=""><section class="tutorial-step card" role="dialog" aria-modal="true" aria-labelledby="tutorial-step-welcome" data-tutorial-step="welcome"><h2 id="tutorial-step-welcome">Welcome to meta-sovereign</h2><p>This is your local-first personal CRM and unified inbox. Nothing leaves your browser unless you point it at a server. Hit &quot;Next&quot; to walk through the headline flows.</p><div class="meta">Step 1 of 5</div><div class="row"><button type="button" data-action="tutorial-skip">Skip step</button><button type="button" class="primary" data-action="tutorial-next">Next</button><button type="button" data-action="tutorial-off">Turn off tutorial</button></div></section></div>'
-    
+
   code: 'ERR_ASSERTION'
   name: 'AssertionError'
   expected:

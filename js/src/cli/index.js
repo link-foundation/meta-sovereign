@@ -29,6 +29,8 @@ import {
 } from '../storage/backup.js';
 import { writeEncryptedExport } from '../storage/export-encrypted.js';
 import { listSources, importInto, pullLiveInto } from '../sources/index.js';
+import { createEmailLive } from '../sources/email.js';
+import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { startServer } from '../server/index.js';
 import {
   startSyncListener,
@@ -51,7 +53,8 @@ Commands:
   restore       --file=<path> --store=<dir>
   serve         [--port=<n>] [--store=<dir>]
   sources
-  source-pull   --source=<name> [--offset=<n>] [--limit=<n>] [--store=<dir>]
+  source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
+  email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
   audience      --query=<expr> [--store=<dir>]
   facts         [--store=<dir>]
   search        --query=<text> [--min=<0..1>] [--store=<dir>]
@@ -145,14 +148,71 @@ const sourcesCmd = async (_args, log) => {
   return 0;
 };
 
+const RAW_EMAIL_PROTOCOLS = new Set(['imap', 'pop3', 'smtp']);
+
+const rawEmailTransport = (args, protocol) =>
+  RAW_EMAIL_PROTOCOLS.has(String(protocol ?? '').toLowerCase())
+    ? createNodeEmailTransport({
+        protocol,
+        host: args.host,
+        port: args.port ? Number(args.port) : undefined,
+        secure: args.secure,
+        username: args.username ?? args.user,
+        password: args.password,
+        mailbox: args.mailbox,
+        token: args.token,
+      })
+    : null;
+
 const sourcePullCmd = async (args, log) => {
   const store = await openStore(args.store ?? '.meta-sovereign');
+  const protocol = args.protocol;
   const result = await pullLiveInto(store, args.source, {
+    protocol,
+    provider: args.provider,
+    baseUrl: args['base-url'],
+    accountId: args['account-id'],
+    userId: args['user-id'],
+    mailboxId: args['mailbox-id'],
+    mailbox: args.mailbox,
+    label: args.label,
+    query: args.query,
+    transport: rawEmailTransport(args, protocol),
     offset: args.offset ? Number(args.offset) : undefined,
     limit: args.limit ? Number(args.limit) : undefined,
     timeout: args.timeout ? Number(args.timeout) : undefined,
   });
   log(JSON.stringify(result, null, 2));
+  return 0;
+};
+
+const emailSendCmd = async (args, log) => {
+  const protocol = args.protocol ?? 'jmap';
+  const live = createEmailLive({
+    protocol,
+    provider: args.provider,
+    baseUrl: args['base-url'],
+    accountId: args['account-id'],
+    userId: args['user-id'],
+    token: args.token,
+    transport: rawEmailTransport(args, protocol),
+  });
+  const result = await live.post(
+    {
+      from: args.from,
+      to: args.to,
+      cc: args.cc,
+      bcc: args.bcc,
+      subject: args.subject ?? '',
+      text: args.text ?? args.body ?? '',
+    },
+    {
+      token: args.token,
+      identityId: args['identity-id'],
+      draftsMailboxId: args['drafts-mailbox-id'],
+    }
+  );
+  log(JSON.stringify({ source: 'email', protocol, result }, null, 2));
   return 0;
 };
 
@@ -451,6 +511,7 @@ const COMMANDS = {
   serve: serveCmd,
   sources: sourcesCmd,
   'source-pull': sourcePullCmd,
+  'email-send': emailSendCmd,
   audience: audienceCmd,
   facts: factsCmd,
   search: searchCmd,

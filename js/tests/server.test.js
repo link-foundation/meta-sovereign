@@ -177,6 +177,65 @@ describe('http server', () => {
   });
 });
 
+describe('email server routes', () => {
+  it('proxies email pull/send through local server fallback routes', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-email-'));
+    const handle = await startServer({
+      port: 0,
+      storeDir: dir,
+      emailLiveFactory: ({ protocol }) => {
+        expect(protocol).toBe('gmail');
+        return {
+          async pullMessages() {
+            return {
+              links: [
+                {
+                  id: 'msg:email:local-1',
+                  tokens: ['message', 'email', 'local-1'],
+                  source: 'email',
+                  sender: 'alice@example.com',
+                  chat: 'thread-1',
+                  body: 'local server mail',
+                },
+              ],
+              rawCount: 1,
+              nextOffset: null,
+            };
+          },
+          async post(message) {
+            return { id: 'sent-local', subject: message.subject };
+          },
+        };
+      },
+    });
+    const base = `http://127.0.0.1:${handle.port}`;
+    try {
+      const pulled = await fetchJson(`${base}/api/email/pull`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ protocol: 'gmail', provider: 'gmail' }),
+      });
+      expect(pulled.status).toBe(200);
+      expect(pulled.body.imported).toBe(1);
+      const stored = await fetchJson(`${base}/links/msg%3Aemail%3Alocal-1`);
+      expect(stored.body.body).toBe('local server mail');
+
+      const sent = await fetchJson(`${base}/api/email/send`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          protocol: 'gmail',
+          message: { to: 'bob@example.com', subject: 'Hi', text: 'hello' },
+        }),
+      });
+      expect(sent.status).toBe(200);
+      expect(sent.body.result.id).toBe('sent-local');
+    } finally {
+      await handle.close();
+    }
+  });
+});
+
 describe('http server observability', () => {
   it('exposes /metrics in Prometheus exposition format', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-mtr-'));
