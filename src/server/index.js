@@ -168,7 +168,7 @@ const route = async (store, req, res, ctx) => {
   if (await handleMetrics(store, req, res, p, ctx)) {
     return;
   }
-  if (await handleMutatingRoutes(store, req, res, p)) {
+  if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
     return;
   }
   if (await handleBackupRoutes(store, req, res, p, ctx.archiveDir)) {
@@ -221,7 +221,12 @@ export const startServer = async ({
     archiveDir,
     secretPassphrase,
   });
-  const ctx = { archiveDir: resolvedArchiveDir, sync: null, signaling: null };
+  const ctx = {
+    archiveDir: resolvedArchiveDir,
+    sync: null,
+    signaling: null,
+    secretPassphrase,
+  };
   const server = http.createServer((req, res) => {
     const start = Date.now();
     res.on('finish', () => {

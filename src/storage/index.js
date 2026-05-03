@@ -13,3 +13,24 @@ export {
   pickBrowserDriver,
 } from './browser-store.js';
 export { wrapSecretStore, isSecretLinkId } from './secret-store.js';
+export {
+  markDeleted,
+  isTombstone,
+  softDeleteLink,
+  purgeLink,
+  bulkPurge,
+  withSoftDelete,
+  TOMBSTONE_FIELD,
+} from './soft-delete.js';
+export {
+  createVault,
+  encryptWithKey,
+  decryptWithKey,
+  VAULT_KINDS,
+} from './vault.js';
+export {
+  exportEncrypted,
+  decryptExport,
+  writeEncryptedExport,
+  DEFAULT_WARNING,
+} from './export-encrypted.js';

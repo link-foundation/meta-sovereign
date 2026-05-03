@@ -13,32 +13,143 @@ import { listSources } from '../sources/index.js';
 import { planOutreach, runOutreach } from '../broadcast/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
+import {
+  softDeleteLink,
+  purgeLink,
+  isTombstone,
+} from '../storage/soft-delete.js';
+import { exportEncrypted } from '../storage/export-encrypted.js';
 
-const handleLinks = async (store, req, res, p) => {
+const includeTombstones = (url) => {
+  const v = url?.searchParams.get('include');
+  if (v === 'tombstones' || v === 'all') {
+    return true;
+  }
+  return url?.searchParams.get('showDeleted') === '1';
+};
+
+const listLinks = async (store, res, url) => {
+  const all = await store.query();
+  const visible = includeTombstones(url)
+    ? all
+    : all.filter((l) => !isTombstone(l));
+  return json(res, 200, visible) ?? true;
+};
+
+const putLink = async (store, req, res) => {
+  const link = await readBody(req);
+  await store.put(link);
+  return json(res, 200, link) ?? true;
+};
+
+const getLink = async (store, res, id, url) => {
+  const link = await store.get(id);
+  if (!link || (isTombstone(link) && !includeTombstones(url))) {
+    return json(res, 404, { error: 'not found' }) ?? true;
+  }
+  return json(res, 200, link) ?? true;
+};
+
+// Issue #6 / R-K1: soft-delete by default. The destructive path
+// requires *both* `purge=1` AND `confirm=1` so a stray query
+// string from a misconfigured client cannot wipe data.
+const deleteLink = async (store, res, id, url) => {
+  const purge = url?.searchParams.get('purge') === '1';
+  const confirm = url?.searchParams.get('confirm') === '1';
+  const reason = url?.searchParams.get('reason') ?? null;
+  if (purge) {
+    if (!confirm) {
+      return json(res, 400, { error: 'purge requires confirm=1' }) ?? true;
+    }
+    const ok = await purgeLink(store, id, { confirm: true });
+    return json(res, ok ? 200 : 404, { ok, purged: ok }) ?? true;
+  }
+  const tombstoned = await softDeleteLink(store, id, { by: 'http', reason });
+  if (!tombstoned) {
+    return json(res, 404, { ok: false }) ?? true;
+  }
+  return (
+    json(res, 200, {
+      ok: true,
+      soft: true,
+      deleted: tombstoned.deleted ?? null,
+      link: tombstoned,
+    }) ?? true
+  );
+};
+
+const handleLinks = async (store, req, res, p, url) => {
   if (p === '/links' && req.method === 'GET') {
-    return json(res, 200, await store.query()) ?? true;
+    return listLinks(store, res, url);
   }
   if (p === '/links' && req.method === 'PUT') {
-    const link = await readBody(req);
-    await store.put(link);
-    return json(res, 200, link) ?? true;
+    return putLink(store, req, res);
   }
   const m = p.match(/^\/links\/(.+)$/);
   if (!m) {
     return false;
   }
+  const id = decodeURIComponent(m[1]);
   if (req.method === 'GET') {
-    const link = await store.get(decodeURIComponent(m[1]));
-    return (
-      (link ? json(res, 200, link) : json(res, 404, { error: 'not found' })) ??
-      true
-    );
+    return getLink(store, res, id, url);
   }
   if (req.method === 'DELETE') {
-    const ok = await store.delete(decodeURIComponent(m[1]));
-    return json(res, ok ? 200 : 404, { ok }) ?? true;
+    return deleteLink(store, res, id, url);
   }
   return false;
+};
+
+const handleExportEncrypted = async (store, req, res, ctx) => {
+  const body = await readBody(req).catch(() => ({}));
+  const passphrase = body.passphrase ?? ctx?.secretPassphrase ?? null;
+  if (!passphrase) {
+    json(res, 400, {
+      error: 'export-encrypted requires a passphrase',
+    });
+    return true;
+  }
+  const envelope = await exportEncrypted(store, {
+    passphrase,
+    warning: body.warning,
+  });
+  json(res, 200, JSON.parse(envelope));
+  return true;
+};
+
+const handlePurgeTombstones = async (store, req, res) => {
+  const body = await readBody(req).catch(() => ({}));
+  if (body.confirm !== true) {
+    json(res, 400, {
+      error:
+        'purging tombstones requires { "confirm": true } in the request body',
+    });
+    return true;
+  }
+  const idPrefix = typeof body.idPrefix === 'string' ? body.idPrefix : null;
+  const olderThan = body.olderThan
+    ? new Date(body.olderThan).toISOString()
+    : null;
+  const all = await store.query();
+  const targets = all.filter((l) => {
+    if (!isTombstone(l)) {
+      return false;
+    }
+    if (idPrefix && !l.id?.startsWith(idPrefix)) {
+      return false;
+    }
+    if (olderThan && (l.deleted?.at ?? '') > olderThan) {
+      return false;
+    }
+    return true;
+  });
+  const purged = [];
+  for (const link of targets) {
+    if (await store.delete(link.id)) {
+      purged.push(link.id);
+    }
+  }
+  json(res, 200, { purged });
+  return true;
 };
 
 const handlePrefixedPut = async (store, req, res, prefix, kind) => {
@@ -220,12 +331,23 @@ const handleOutreach = async (store, req, res, p) => {
   return json(res, 200, plan) ?? true;
 };
 
-export const handleMutatingRoutes = async (store, req, res, p) =>
-  (await handleLinks(store, req, res, p)) ||
+const handleHardening = async (store, req, res, p, ctx) => {
+  if (p === '/api/export-encrypted' && req.method === 'POST') {
+    return handleExportEncrypted(store, req, res, ctx);
+  }
+  if (p === '/api/links/purge-tombstones' && req.method === 'POST') {
+    return handlePurgeTombstones(store, req, res);
+  }
+  return false;
+};
+
+export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
+  (await handleLinks(store, req, res, p, url)) ||
   (await handlePatterns(store, req, res, p)) ||
   (await handleGraphs(store, req, res, p)) ||
   (await handleReplies(store, req, res, p)) ||
   (await handleProfile(store, req, res, p)) ||
   (await handleResume(store, req, res, p)) ||
   (await handleBroadcast(store, req, res, p)) ||
-  (await handleOutreach(store, req, res, p));
+  (await handleOutreach(store, req, res, p)) ||
+  (await handleHardening(store, req, res, p, ctx));
