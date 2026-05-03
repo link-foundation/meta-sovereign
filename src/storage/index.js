@@ -13,3 +13,12 @@ export {
   pickBrowserDriver,
 } from './browser-store.js';
 export { wrapSecretStore, isSecretLinkId } from './secret-store.js';
+export {
+  markDeleted,
+  isTombstone,
+  softDeleteLink,
+  purgeLink,
+  bulkPurge,
+  withSoftDelete,
+  TOMBSTONE_FIELD,
+} from './soft-delete.js';
