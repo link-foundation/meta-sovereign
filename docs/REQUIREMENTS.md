@@ -246,6 +246,26 @@ the canonical surface is summarised below.
 | R-M17 | The case study must check known existing components / libraries that solve a similar problem.                                                                                                                                                            | Done: `docs/case-studies/issue-10/components.md` + `external-research.md`.                                                                                                      |
 | R-M18 | All work must land in a single PR (#11) and iterate until every requirement is fully addressed.                                                                                                                                                          | Done: PR #11 on branch `issue-10-a884af8ade4e`.                                                                                                                                 |
 
+## N. Tutorial progress persistence (issue #13)
+
+The following requirements arose from
+[issue #13](https://github.com/link-foundation/meta-sovereign/issues/13) -
+"After page refresh progress of tutorial is not saved". The full
+atomic list and traceability live in
+[`docs/case-studies/issue-13/requirements.md`](./case-studies/issue-13/requirements.md).
+
+| ID   | Requirement                                                                                                                         | State                                                                                                                                        |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-N1 | Tutorial step progress must survive a full page refresh.                                                                            | Done: `TutorialOverlay` initializes from `readProgressIndex(storage, steps)` and resumes a stored `stepId`.                                  |
+| R-N2 | The tutorial must persist progress when the user advances with `Next`.                                                              | Done: `advance()` writes the next step through `writeProgressPreference()`.                                                                  |
+| R-N3 | The tutorial must persist progress when the user skips an individual step.                                                          | Done: `Skip step` uses the same persisted advance path as `Next`.                                                                            |
+| R-N4 | Completing the tutorial must persist a completed/off state so refresh does not reopen it from step 1.                               | Done: the final advance writes `{ off: true, completed: true, at }` through `writeCompletedPreference()`.                                    |
+| R-N5 | Reopening the tutorial from the header must still start a fresh tutorial after a stored off/completed preference is cleared.        | Done: `useTutorialPreference().reopen()` clears the storage key before opening; the overlay reads current storage instead of stale memoized. |
+| R-N6 | Raw issue and PR data, comments, reviews, and screenshots must be compiled under `docs/case-studies/issue-13/`.                     | Done: data, the issue screenshot, and the after-fix screenshot are captured under `docs/case-studies/issue-13/{data,assets}/`.               |
+| R-N7 | The case study must reconstruct the timeline, requirements, root cause, known components/libraries, and solution plans.             | Done: `README.md`, `requirements.md`, `solution-plan.md`, and `components.md`.                                                               |
+| R-N8 | External research must be recorded for the browser and React state behavior that explains the bug.                                  | Done: `external-research.md` records MDN Web Storage and React state/effect references.                                                      |
+| R-N9 | If the root cause is in another project, an upstream GitHub issue must be filed with a reproduction and workaround; otherwise note. | Done: root cause is local to this repo's tutorial storage contract; `README.md` records that no upstream issue is required.                  |
+
 ---
 
 ## Traceability

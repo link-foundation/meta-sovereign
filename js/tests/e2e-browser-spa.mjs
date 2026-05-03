@@ -220,6 +220,39 @@ const stepShellLoadsNavButtons = async ({ page, base, supports }) => {
   }
 };
 
+const stepTutorialProgressPersists = async ({ page, base }) => {
+  await page.goto(base, { waitUntil: 'load' });
+  await page.evaluate(() =>
+    window.localStorage.removeItem('metaSovereignTutorial')
+  );
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForSelector('[data-tutorial-step="welcome"]', {
+    timeout: 5000,
+  });
+
+  await page.click('button[data-action="tutorial-next"]');
+  await page.waitForSelector('[data-tutorial-step="chat"]', {
+    timeout: 5000,
+  });
+  const stored = await page.evaluate(() =>
+    JSON.parse(window.localStorage.getItem('metaSovereignTutorial'))
+  );
+  assert(
+    stored?.stepId === 'chat',
+    `tutorial progress not stored after next: ${JSON.stringify(stored)}`
+  );
+
+  await page.reload({ waitUntil: 'load' });
+  await page.waitForSelector('[data-tutorial-step="chat"]', {
+    timeout: 5000,
+  });
+  await page.click('button[data-action="tutorial-off"]');
+  await page.waitForSelector('[data-tutorial-overlay]', {
+    state: 'detached',
+    timeout: 5000,
+  });
+};
+
 const stepSeedMessages = async ({ base }) => {
   for (const m of [
     {
@@ -599,6 +632,10 @@ const ALL_STEPS = [
   {
     name: 'shell loads with all expected nav buttons',
     fn: stepShellLoadsNavButtons,
+  },
+  {
+    name: 'tutorial progress survives a page reload',
+    fn: stepTutorialProgressPersists,
   },
   {
     name: 'seed two messages via REST so derived views have data',
