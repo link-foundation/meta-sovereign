@@ -37,6 +37,7 @@
     "check:duplication": "jscpd .",
     "check": "npm run lint && npm run format:check && npm run check:duplication",
     "build:web": "node scripts/build-web.mjs",
+    "build:pages": "node scripts/build-pages.mjs",
     "build:mobile": "npm run build:web && node scripts/build-mobile.mjs",
     "electron": "npm exec --yes --package electron@^41.5.0 -- electron electron/main.js",
     "mobile:sync": "npm run build:mobile && node scripts/mobile-platform.mjs sync",

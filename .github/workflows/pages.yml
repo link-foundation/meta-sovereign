@@ -1,0 +1,110 @@
+name: Deploy to GitHub Pages
+
+# Builds and deploys the SPA bundle (`src/web/`) to GitHub Pages so
+# any user can open the meta-sovereign web app from a browser without
+# cloning the repo first. The deployed bundle is the same React SPA
+# shipped with the desktop and mobile apps; it boots offline-first
+# via OfflineClient + BrowserStore and discovers a local Rust or JS
+# server when one is reachable.
+#
+# See docs/case-studies/issue-8/solution-plan.md for the requirement
+# trace (R-L1..R-L5, R-L3a..d, R-L4a..c).
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+# Allow only one concurrent deployment, queue future pushes so we
+# don't skip a deploy.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build SPA bundle
+    runs-on: ubuntu-latest
+    # Typical run: ~30s (esbuild + copy). 10min cap matches the
+    # rest of release.yml's fast jobs.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build static Pages bundle
+        run: node scripts/build-pages.mjs
+
+      - name: Verify required artefacts exist
+        run: |
+          set -e
+          for f in index.html 404.html .nojekyll manifest.webmanifest app.min.js app.css; do
+            if [ ! -f "dist/pages/$f" ]; then
+              echo "::error::missing required Pages artefact: $f"
+              exit 1
+            fi
+          done
+
+      - name: Configure Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/pages
+
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    # Typical run: ~30s (deploy-pages mostly waits on GitHub).
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Smoke-test the deployed bundle
+        run: |
+          url="${{ steps.deployment.outputs.page_url }}"
+          if [ -z "$url" ]; then
+            echo "::error::deploy-pages did not return a page_url"
+            exit 1
+          fi
+          echo "Probing $url"
+          # Retry a few times: Pages can take a few seconds to be
+          # reachable after deploy-pages reports success.
+          for attempt in 1 2 3 4 5; do
+            if curl -fsSL --max-time 30 "$url" -o /tmp/index.html; then
+              if grep -q "meta-sovereign" /tmp/index.html; then
+                echo "Smoke test passed on attempt $attempt"
+                exit 0
+              fi
+            fi
+            echo "Attempt $attempt failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::Pages bundle did not respond as expected after 5 attempts"
+          exit 1
