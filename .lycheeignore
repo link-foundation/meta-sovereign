@@ -24,3 +24,8 @@ https://medium\.com
 
 # Web Archive returns 502 to link checkers (bot protection)
 https://web\.archive\.org
+
+# GitHub Pages site for this repo: deployed by .github/workflows/pages.yml
+# on push to main, so it 404s on PRs and the very first main build until
+# the deploy job completes. Skip it in the link checker.
+https://link-foundation\.github\.io/meta-sovereign
