@@ -64,7 +64,7 @@ jobs:
 
       - name: Detect changes
         id: changes
-        run: node scripts/detect-code-changes.mjs
+        run: node js/scripts/detect-code-changes.mjs
 
   # === FAST CHECKS - run before slow tests for fastest feedback ===
   # See: hive-mind CI/CD best practices principle #5 (fast-fail job ordering)
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Check .mjs syntax
-        run: bash scripts/check-mjs-syntax.sh
+        run: bash js/scripts/check-mjs-syntax.sh
 
   # Enforce 1500-line limit on .mjs files and release.yml
   check-file-line-limits:
@@ -107,10 +107,10 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           BASE_REF: ${{ github.base_ref }}
-        run: bash scripts/simulate-fresh-merge.sh
+        run: bash js/scripts/simulate-fresh-merge.sh
 
       - name: Check file line limits
-        run: bash scripts/check-file-line-limits.sh
+        run: bash js/scripts/check-file-line-limits.sh
 
   # === VERSION CHANGE CHECK ===
   # Prohibit manual version changes in package.json - versions should only be changed by CI/CD
@@ -129,7 +129,7 @@ jobs:
         env:
           GITHUB_HEAD_REF: ${{ github.head_ref }}
           GITHUB_BASE_REF: ${{ github.base_ref }}
-        run: node scripts/check-version.mjs
+        run: node js/scripts/check-version.mjs
 
   # === CHANGESET CHECK - only runs on PRs with code changes ===
   # Docs-only PRs (./docs folder, markdown files) don't require changesets
@@ -169,7 +169,7 @@ jobs:
           # Run changeset validation script
           # This validates that exactly ONE changeset was ADDED by this PR
           # Pre-existing changesets from other merged PRs are ignored
-          node scripts/validate-changeset.mjs
+          node js/scripts/validate-changeset.mjs
 
   # === LINT AND FORMAT CHECK ===
   # Lint runs independently of changeset-check - it's a fast check that should always run
@@ -200,7 +200,7 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           BASE_REF: ${{ github.base_ref }}
-        run: bash scripts/simulate-fresh-merge.sh
+        run: bash js/scripts/simulate-fresh-merge.sh
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -266,7 +266,7 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         shell: bash
-        run: bash scripts/simulate-fresh-merge.sh
+        run: bash js/scripts/simulate-fresh-merge.sh
 
       - name: Setup Node.js
         if: matrix.runtime == 'node'
@@ -307,11 +307,11 @@ jobs:
 
       - name: Run tests (Deno)
         if: matrix.runtime == 'deno'
-        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-sys
+        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests
 
   # === API DOCUMENTATION BUILD ===
   # Build JS API docs (`npm run docs:api`) and Rust crate docs
-  # (`cargo doc --no-deps`) on every push and PR. This catches doc-comment
+  # (`cargo doc --manifest-path rust/Cargo.toml --no-deps`) on every push and PR. This catches doc-comment
   # errors before release and produces artefacts the `release` job attaches
   # to GitHub Releases (R-H3).
   docs-build:
@@ -343,7 +343,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Rust crate docs
-        run: cargo doc --no-deps --workspace
+        run: cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace
 
       - name: Upload JS API docs artifact
         uses: actions/upload-artifact@v4
@@ -357,7 +357,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: docs-api-rust
-          path: target/doc/
+          path: rust/target/doc/
           if-no-files-found: error
           retention-days: 30
 
@@ -467,28 +467,28 @@ jobs:
         run: npm install
 
       - name: Update npm for OIDC trusted publishing
-        run: node scripts/setup-npm.mjs
+        run: node js/scripts/setup-npm.mjs
 
       - name: Check for changesets
         id: check_changesets
-        run: node scripts/check-changesets.mjs
+        run: node js/scripts/check-changesets.mjs
 
       - name: Check if release is needed
         id: check_release
         env:
           HAS_CHANGESETS: ${{ steps.check_changesets.outputs.has_changesets }}
-        run: node scripts/check-release-needed.mjs
+        run: node js/scripts/check-release-needed.mjs
 
       - name: Merge multiple changesets
         if: steps.check_changesets.outputs.has_changesets == 'true' && steps.check_changesets.outputs.changeset_count > 1
         run: |
           echo "Multiple changesets detected, merging..."
-          node scripts/merge-changesets.mjs
+          node js/scripts/merge-changesets.mjs
 
       - name: Version packages and commit to main
         if: steps.check_changesets.outputs.has_changesets == 'true'
         id: version
-        run: node scripts/version-and-commit.mjs --mode changeset
+        run: node js/scripts/version-and-commit.mjs --mode changeset
 
       - name: Publish to npm
         # Run if version was committed, if a previous attempt already committed (for re-runs),
@@ -498,19 +498,19 @@ jobs:
           steps.version.outputs.already_released == 'true' ||
           (steps.check_release.outputs.should_release == 'true' && steps.check_release.outputs.skip_bump == 'true')
         id: publish
-        run: node scripts/publish-to-npm.mjs --should-pull
+        run: node js/scripts/publish-to-npm.mjs --should-pull
 
       - name: Create GitHub Release
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
+        run: node js/scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
 
       - name: Format GitHub release notes
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
+        run: node js/scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
 
       - name: Build JS API docs for release
         if: steps.publish.outputs.published == 'true'
@@ -522,13 +522,13 @@ jobs:
 
       - name: Build Rust crate docs for release
         if: steps.publish.outputs.published == 'true'
-        run: cargo doc --no-deps --workspace
+        run: cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace
 
       - name: Attach API docs to GitHub Release
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash scripts/attach-api-docs.sh "v${{ steps.publish.outputs.published_version }}"
+        run: bash js/scripts/attach-api-docs.sh "v${{ steps.publish.outputs.published_version }}"
 
   # Manual Instant Release - triggered via workflow_dispatch with instant mode
   # This job is in release.yml because npm trusted publishing
@@ -559,29 +559,29 @@ jobs:
         run: npm install
 
       - name: Update npm for OIDC trusted publishing
-        run: node scripts/setup-npm.mjs
+        run: node js/scripts/setup-npm.mjs
 
       - name: Version packages and commit to main
         id: version
-        run: node scripts/version-and-commit.mjs --mode instant --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
+        run: node js/scripts/version-and-commit.mjs --mode instant --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
 
       - name: Publish to npm
         # Run if version was committed OR if a previous attempt already committed (for re-runs)
         if: steps.version.outputs.version_committed == 'true' || steps.version.outputs.already_released == 'true'
         id: publish
-        run: node scripts/publish-to-npm.mjs
+        run: node js/scripts/publish-to-npm.mjs
 
       - name: Create GitHub Release
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
+        run: node js/scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
 
       - name: Format GitHub release notes
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
+        run: node js/scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
 
       - name: Build JS API docs for release
         if: steps.publish.outputs.published == 'true'
@@ -593,13 +593,13 @@ jobs:
 
       - name: Build Rust crate docs for release
         if: steps.publish.outputs.published == 'true'
-        run: cargo doc --no-deps --workspace
+        run: cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace
 
       - name: Attach API docs to GitHub Release
         if: steps.publish.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash scripts/attach-api-docs.sh "v${{ steps.publish.outputs.published_version }}"
+        run: bash js/scripts/attach-api-docs.sh "v${{ steps.publish.outputs.published_version }}"
 
   # Manual Changeset PR - creates a pull request with the changeset for review
   changeset-pr:
@@ -625,7 +625,7 @@ jobs:
         run: npm install
 
       - name: Create changeset file
-        run: node scripts/create-manual-changeset.mjs --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
+        run: node js/scripts/create-manual-changeset.mjs --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
 
       - name: Format changeset with Prettier
         run: |

@@ -5,10 +5,10 @@ FROM node:20-alpine
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev || npm install --omit=dev
-COPY src ./src
-COPY bin ./bin
+COPY js/src ./js/src
+COPY js/bin ./js/bin
 
 ENV STORE_DIR=/data
 VOLUME ["/data"]
 EXPOSE 8787
-CMD ["node", "bin/meta-sovereign.js", "serve", "--port=8787", "--store=/data"]
+CMD ["node", "js/bin/meta-sovereign.js", "serve", "--port=8787", "--store=/data"]
