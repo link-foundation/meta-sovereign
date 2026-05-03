@@ -12,7 +12,7 @@
 // docs/case-studies/issue-10/external-research.md section 3 for the
 // licensing analysis.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const el = React.createElement;
 
@@ -81,13 +81,44 @@ export const clearPreference = (storage) => {
   }
 };
 
-// Returns a small controller object: { isOff, dismiss, reopen }.
+export const stepIndexFromPreference = (steps, pref) => {
+  if (!Array.isArray(steps) || steps.length === 0 || pref?.off) {
+    return 0;
+  }
+  if (typeof pref?.stepId === 'string') {
+    const index = steps.findIndex((step) => step.id === pref.stepId);
+    if (index >= 0) {
+      return index;
+    }
+  }
+  return 0;
+};
+
+export const readProgressIndex = (storage, steps) =>
+  stepIndexFromPreference(steps, readPreference(storage));
+
+export const writeProgressPreference = (storage, step) => {
+  if (!step?.id) {
+    return;
+  }
+  writePreference(storage, { stepId: step.id, at: Date.now() });
+};
+
+export const writeCompletedPreference = (storage) =>
+  writePreference(storage, { off: true, completed: true, at: Date.now() });
+
+// Returns a small controller object: { isOff, dismiss, complete, reopen }.
 export const useTutorialPreference = (storage = globalThis.localStorage) => {
   const [pref, setPref] = useState(() => readPreference(storage));
-  const dismiss = () => {
-    const next = { off: true, at: Date.now() };
+  const setPreference = (next) => {
     setPref(next);
     writePreference(storage, next);
+  };
+  const dismiss = () => {
+    setPreference({ off: true, at: Date.now() });
+  };
+  const complete = () => {
+    setPreference({ off: true, completed: true, at: Date.now() });
   };
   const reopen = () => {
     setPref(null);
@@ -96,6 +127,7 @@ export const useTutorialPreference = (storage = globalThis.localStorage) => {
   return {
     isOff: Boolean(pref?.off),
     dismiss,
+    complete,
     reopen,
   };
 };
@@ -163,37 +195,50 @@ export const TutorialOverlay = ({
   storage = globalThis.localStorage,
   onClose,
   onDismiss,
+  onComplete,
 }) => {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(() => readProgressIndex(storage, steps));
   const total = steps.length;
-  const pref = useMemo(() => readPreference(storage), [storage]);
 
-  // Reset to step 0 every time the overlay opens.
+  // Pick up persisted progress after a page load or explicit reopen.
   useEffect(() => {
     if (open) {
-      setIndex(0);
+      setIndex(readProgressIndex(storage, steps));
     }
-  }, [open]);
+  }, [open, steps, storage]);
 
-  if (!open || pref?.off) {
+  if (!open || readPreference(storage)?.off) {
     return null;
   }
-  const step = steps[index];
+  const safeIndex = index >= 0 && index < total ? index : 0;
+  const step = steps[safeIndex];
   if (!step) {
     return null;
   }
 
   const advance = () => {
-    if (index + 1 >= total) {
+    if (safeIndex + 1 >= total) {
+      if (onComplete) {
+        onComplete();
+      } else {
+        writeCompletedPreference(storage);
+      }
+      setIndex(0);
       onClose?.();
       return;
     }
-    setIndex(index + 1);
+    const nextIndex = safeIndex + 1;
+    setIndex(nextIndex);
+    writeProgressPreference(storage, steps[nextIndex]);
   };
   const skip = () => advance();
   const dismiss = () => {
-    writePreference(storage, { off: true, at: Date.now() });
-    onDismiss?.();
+    if (onDismiss) {
+      onDismiss();
+    } else {
+      writePreference(storage, { off: true, at: Date.now() });
+    }
+    setIndex(0);
     onClose?.();
   };
 
@@ -206,7 +251,7 @@ export const TutorialOverlay = ({
     },
     el(Step, {
       step,
-      index,
+      index: safeIndex,
       total,
       onNext: advance,
       onSkip: skip,

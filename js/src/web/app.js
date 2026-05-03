@@ -157,6 +157,7 @@ const App = () => {
       open: tutorialOpen,
       onClose: closeTutorial,
       onDismiss: tutorial.dismiss,
+      onComplete: tutorial.complete,
     }),
   ]);
 };

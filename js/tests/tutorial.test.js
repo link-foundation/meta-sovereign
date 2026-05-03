@@ -4,12 +4,18 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 import {
   defaultSteps,
   TUTORIAL_STORAGE_KEY,
+  TutorialOverlay,
   readPreference,
+  readProgressIndex,
   writePreference,
+  writeProgressPreference,
+  writeCompletedPreference,
   clearPreference,
 } from '../src/web/tutorial.js';
 
@@ -60,6 +66,25 @@ test('writePreference + readPreference round-trips a dismissed tutorial', () => 
   assert.equal(storage.getItem(TUTORIAL_STORAGE_KEY), JSON.stringify(value));
 });
 
+test('writeProgressPreference stores the current tutorial step id', () => {
+  const storage = fakeStorage();
+  writeProgressPreference(storage, defaultSteps[2]);
+  const pref = readPreference(storage);
+
+  assert.equal(pref.stepId, defaultSteps[2].id);
+  assert.equal(typeof pref.at, 'number');
+  assert.equal(readProgressIndex(storage, defaultSteps), 2);
+});
+
+test('writeCompletedPreference persists completed tutorials as off', () => {
+  const storage = fakeStorage();
+  writeCompletedPreference(storage);
+  const pref = readPreference(storage);
+
+  assert.equal(pref.off, true);
+  assert.equal(pref.completed, true);
+});
+
 test('clearPreference removes the entry so readPreference is null again', () => {
   const storage = fakeStorage();
   writePreference(storage, { off: true, at: 1 });
@@ -72,6 +97,24 @@ test('readPreference returns null for malformed JSON', () => {
   const storage = fakeStorage();
   storage.setItem(TUTORIAL_STORAGE_KEY, 'not-json');
   assert.equal(readPreference(storage), null);
+});
+
+test('TutorialOverlay resumes from stored step progress after page reload', () => {
+  const storage = fakeStorage();
+  storage.setItem(
+    TUTORIAL_STORAGE_KEY,
+    JSON.stringify({ stepId: 'automation', at: 1700000000000 })
+  );
+  const html = renderToStaticMarkup(
+    React.createElement(TutorialOverlay, {
+      open: true,
+      steps: defaultSteps,
+      storage,
+    })
+  );
+
+  assert.match(html, /data-tutorial-step="automation"/);
+  assert.match(html, /Step 4 of 5/);
 });
 
 test('readPreference is null-safe when storage is undefined', () => {

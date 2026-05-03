@@ -1,195 +1,95 @@
-# Case Study: Robust Changeset CI/CD for Concurrent PRs
+# Case Study: Issue #13 - Persist tutorial progress across refresh
 
-## Issue Reference
+**Issue:** [#13 - After page refresh progress of tutorial is not saved](https://github.com/link-foundation/meta-sovereign/issues/13)
+**Author:** [@konard](https://github.com/konard)
+**Branch:** `issue-13-a1a0ad676c96`
+**Pull Request:** [#14](https://github.com/link-foundation/meta-sovereign/pull/14)
 
-- **Issue**: [#13 - Apply latest CI/CD experience from hive-mind project](https://github.com/link-foundation/js-ai-driven-development-pipeline-template/issues/13)
-- **Reference PR**: [hive-mind#961 - Improve changeset CI/CD robustness for concurrent PRs](https://github.com/link-assistant/hive-mind/pull/961)
-- **Reference Issue**: [hive-mind#960 - Better changeset CI/CD](https://github.com/link-assistant/hive-mind/issues/960)
+This case study records the raw issue data, screenshot, root cause,
+requirements, external research, and solution plan for the tutorial
+progress persistence bug.
 
-## Timeline of Events
+## Artefacts
 
-### 2025-12-21 18:23 UTC - CI Failure Trigger
+| File                   | Purpose                                                                    |
+| ---------------------- | -------------------------------------------------------------------------- |
+| `README.md`            | This case study and root-cause summary.                                    |
+| `requirements.md`      | Atomic requirements extracted from issue #13.                              |
+| `solution-plan.md`     | Requirement-to-change plan for PR #14.                                     |
+| `components.md`        | Existing in-tree components and library options reviewed.                  |
+| `external-research.md` | External facts about `localStorage` and React state lifetime.              |
+| `assets/`              | Downloaded issue screenshot and after-fix browser verification screenshot. |
+| `data/`                | Raw issue, issue comments, PR, PR comments, PR reviews, and test captures. |
 
-A CI failure occurred on hive-mind PR #728 during the changeset validation step:
+## Timeline
 
-```
-Found 4 changeset file(s)
-Error: Multiple changesets found (4). Each PR should have exactly ONE changeset.
-Error: Found changeset files:
-  fix-perlbrew-unbound-variable.md
-  increase-min-disk-space.md
-  readme-initialization.md
-  sync-package-lock-json.md
-Error: Process completed with exit code 1.
-```
+| Time (UTC)          | Event                                                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 2026-05-03 19:38:27 | Issue #13 opened with a screenshot showing the tutorial modal at step 1 after page refresh.                                |
+| 2026-05-03 19:39:39 | Draft PR #14 created on branch `issue-13-a1a0ad676c96`.                                                                    |
+| 2026-05-03 19:43    | Issue screenshot downloaded to `assets/issue-screenshot.png` and validated as a PNG by checking its file signature.        |
+| 2026-05-03 19:45    | A focused unit reproduction was added: seeded `stepId: "automation"` still rendered the welcome step.                      |
+| 2026-05-03 19:48    | Tutorial progress persistence was implemented and the focused test passed.                                                 |
+| 2026-05-03 19:58    | A Playwright browser check verified that step 2 survives reload; screenshot saved as `assets/tutorial-progress-after.png`. |
 
-**Source**: [GitHub Actions Run #20413963959](https://github.com/link-assistant/hive-mind/actions/runs/20413963959/job/58654854890?pr=728)
+## Reproduction
 
-### 2025-12-22 06:31 UTC - Issue Created
+1. Open the SPA with no stored tutorial preference.
+2. Click `Next` until the tutorial reaches a later step.
+3. Refresh the page.
+4. Before the fix, the overlay returns to `welcome` / step 1.
 
-Issue #960 was created describing the problem and proposing a more robust changeset CI/CD system.
+The automated reproduction in `js/tests/tutorial.test.js` simulates a
+fresh page load by seeding `localStorage` with
+`{ "stepId": "automation" }` and rendering `TutorialOverlay`. The old
+implementation ignored that preference and rendered step 1.
 
-### 2025-12-22 ~18:00 UTC - Solution Implemented
+## Root Cause
 
-PR #961 was created and merged implementing the solution.
+The tutorial had two independent state paths:
 
-### 2025-12-22 19:22 UTC - Issue Closed
+- `localStorage` under `metaSovereignTutorial` stored only the
+  complete-off state (`{ "off": true, "at": ... }`).
+- The current tutorial step lived only in React component state:
+  `const [index, setIndex] = useState(0)`.
 
-Issue #960 was closed as the fix was merged.
+Because React component state is tied to the mounted component instance,
+a full page refresh discards that state. Since no step id was written
+to storage, the overlay had no durable progress to restore.
 
-## Root Cause Analysis
+A secondary issue was that `TutorialOverlay` memoized the stored
+preference by storage object identity. That made storage reads stale
+when the same mounted overlay was reopened after changing the stored
+preference. PR #14 reads the current preference when the overlay
+renders and derives the initial index from stored progress.
 
-### The Problem
+## Solution
 
-The original `validate-changeset.mjs` script checked **all** changeset files in the `.changeset` directory:
+PR #14 keeps the current in-tree tutorial layer and extends its
+existing storage contract:
 
-```javascript
-// Original problematic approach
-const changesetFiles = readdirSync(changesetDir).filter(
-  (file) => file.endsWith('.md') && file !== 'README.md'
-);
+- `writeProgressPreference(storage, step)` stores the current step id
+  as `{ "stepId": "...", "at": ... }` whenever the user clicks
+  `Next` or `Skip step`.
+- `readProgressIndex(storage, steps)` maps the stored step id back to
+  the current step list on page load.
+- `writeCompletedPreference(storage)` marks a finished tutorial as
+  completed and off, so it does not reappear after a refresh.
+- The optional Playwright e2e suite now includes a real browser reload
+  check for tutorial progress.
 
-if (changesetCount > 1) {
-  console.error(`Multiple changesets found (${changesetCount})`);
-  process.exit(1);
-}
-```
+No third-party onboarding dependency is required. The existing custom
+React overlay is small, licensed consistently with the repository, and
+only needed durable state synchronization.
 
-This approach fails when:
+## Upstream Issues
 
-1. **Multiple PRs merge before a release cycle completes**: If PR-A merges with changeset-A, then PR-B opens, it will see changeset-A in the directory and fail validation even though PR-B only added changeset-B.
+The bug is inside this repository's tutorial state handling. No
+external project or library is the root cause, so no upstream GitHub
+issue is required.
 
-2. **Race condition in concurrent development**: In active repositories, multiple contributors work simultaneously. If their PRs don't merge fast enough between release cycles, changesets accumulate.
+## Status
 
-3. **Release process delay or failure**: If the release workflow fails (npm outage, CI failure), changesets accumulate and block all subsequent PRs.
-
-### Why This Happens
-
-The [changesets](https://github.com/changesets/changesets) workflow is designed to accumulate changes:
-
-> "When two changesets are included which are of the type minor, the minor release will only be bumped once."
-
-However, this design assumes:
-
-- The release workflow runs successfully after each merge
-- Or the PR validation is aware of what the PR actually added vs. what was pre-existing
-
-The original implementation violated the second assumption by treating all existing changesets as if they were added by the current PR.
-
-## Proposed Solutions
-
-### Solution 1: Check Only PR-Added Changesets (Implemented)
-
-Use `git diff` to compare the PR branch against the base branch and only validate changesets that were **added** by the current PR:
-
-```javascript
-// Get changeset files ADDED by this PR only
-const diffOutput = execSync(`git diff --name-status ${baseSha} ${headSha}`);
-const addedChangesets = [];
-
-for (const line of diffOutput.trim().split('\n')) {
-  const [status, filePath] = line.split('\t');
-  if (
-    status === 'A' &&
-    filePath.startsWith('.changeset/') &&
-    filePath.endsWith('.md')
-  ) {
-    addedChangesets.push(filePath);
-  }
-}
-```
-
-**Benefits**:
-
-- PRs are validated in isolation
-- Pre-existing changesets don't cause false failures
-- No need to merge default branch before PR can pass
-
-### Solution 2: Merge Multiple Changesets at Release Time
-
-During the release workflow, if multiple changesets exist, merge them into a single changeset before running `changeset version`:
-
-```javascript
-// Determine highest bump type (major > minor > patch)
-const highestBumpType = getHighestBumpType(parsedChangesets.map((c) => c.type));
-
-// Combine descriptions chronologically
-const descriptions = parsedChangesets
-  .sort((a, b) => a.mtime - b.mtime)
-  .map((c) => c.description);
-
-// Create merged changeset
-const mergedContent = createMergedChangeset(highestBumpType, descriptions);
-```
-
-**Benefits**:
-
-- Preserves changelog history from all changes
-- Uses correct version bump (highest severity wins)
-- Maintains chronological order of changes
-- Cleans up after merging
-
-### Solution 3: Environment Variables for Git Context
-
-Pass explicit SHA references from GitHub Actions to the validation script:
-
-```yaml
-- name: Check for changesets
-  env:
-    GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-    GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-  run: node scripts/validate-changeset.mjs
-```
-
-**Benefits**:
-
-- Reliable git context in CI
-- No need to fetch/calculate base branch
-- Works with shallow clones
-
-## Industry Best Practices
-
-According to [Changesets documentation](https://github.com/changesets/changesets):
-
-1. **Use the changeset bot** to detect missing changesets rather than failing builds
-2. **Not every commit needs a changeset** - docs and tests don't require releases
-3. **Changesets decouple intent from publishing** - team transparency
-
-According to [pnpm documentation](https://pnpm.io/using-changesets):
-
-1. **Changesets accumulate** and are processed together at release time
-2. **Multiple PRs with changesets** should merge cleanly
-3. **The release PR** handles version bumping and changelog generation
-
-According to [Infinum Frontend Handbook](https://infinum.com/handbook/frontend/changesets):
-
-1. **PRs created with GITHUB_TOKEN don't trigger other workflows**
-2. **Use a Personal Access Token (PAT)** for automated PRs that need CI checks
-3. **Changesets action** can automate versioning PRs
-
-## Files Changed in Reference PR #961
-
-| File                                     | Change Type | Purpose                                   |
-| ---------------------------------------- | ----------- | ----------------------------------------- |
-| `scripts/validate-changeset.mjs`         | Modified    | Check only PR-added changesets            |
-| `scripts/merge-changesets.mjs`           | Added       | Merge multiple changesets at release time |
-| `.github/workflows/release.yml`          | Modified    | Pass SHA env vars, add merge step         |
-| `experiments/test-changeset-scripts.mjs` | Added       | Comprehensive test suite                  |
-
-## Implementation Status
-
-This case study documents the analysis. The actual implementation will:
-
-1. Update `scripts/validate-changeset.mjs` to use git diff approach
-2. Add `scripts/merge-changesets.mjs` for release-time merging
-3. Update `.github/workflows/release.yml` with new steps
-4. Add tests in `experiments/test-changeset-scripts.mjs`
-5. Update README.md with design decision documentation
-
-## References
-
-- [Changesets GitHub Repository](https://github.com/changesets/changesets)
-- [Using Changesets with pnpm](https://pnpm.io/using-changesets)
-- [Infinum Frontend Handbook - Changesets](https://infinum.com/handbook/frontend/changesets)
-- [Automate NPM releases with changesets](https://dev.to/ignace/automate-npm-releases-on-github-using-changesets-25b8)
-- [Failed CI Run Log](https://github.com/link-assistant/hive-mind/actions/runs/20413963959/job/58654854890?pr=728)
+Implemented in PR #14. Traceability is recorded in
+[`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md) section
+**N. Tutorial progress persistence (issue #13)**.
