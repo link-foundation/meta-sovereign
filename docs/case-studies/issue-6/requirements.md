@@ -15,37 +15,33 @@ under section **K. Hardening (issue #6)**.
 | R-K3 | A `purge` operation physically removes a deleted link, but only after **explicit operator confirmation**.                                                 |
 | R-K4 | Bulk purge takes a query (e.g. "delete every msg:vk:\* tombstone older than 30 days") and refuses to run without a `confirm: true` flag.                  |
 | R-K5 | Soft-delete must propagate over sync so peers converge on the same tombstones, but `purge` must **not** propagate (it stays a local destructive op).      |
-| R-K6 | All provider adapters (VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru) report deletes as soft-deletes by default.     |
+| R-K6 | All provider adapters (VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru) report upstream deletes as soft-deletes.       |
 
 ## K2. Encryption at rest with master key
 
-| ID    | Requirement                                                                                                                                |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| R-K7  | Everything written to disk is encrypted by default; plaintext exists only in memory.                                                       |
-| R-K8  | Encryption uses a single per-vault **master key** (data-encryption key). Per-record keys derive from the master key.                       |
-| R-K9  | The master key is unlockable through **multiple methods**: passphrase, PIN, passkey (WebAuthn), authenticator-app TOTP recovery code.      |
-| R-K10 | Adding/removing a method does **not** require re-encrypting data. Each method stores its own ciphertext copy of the master key (key wrap). |
-| R-K11 | Losing all unlock methods means the user must re-import data from upstream services; the issue calls this out explicitly.                  |
-| R-K12 | The vault is loaded into memory only after a successful unlock; locking the vault zeroes the key and stops any in-flight encrypted writes. |
+| ID    | Requirement                                                                                                                                 |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-K7  | At-rest encryption uses a single per-vault **master key**; plaintext exists only in memory.                                                 |
+| R-K8  | The master key is unlockable through **multiple methods**: passphrase, PIN, passkey (WebAuthn `prf`), authenticator-app TOTP recovery code. |
+| R-K9  | Adding/removing a method does **not** require re-encrypting data. Each method stores its own wrapped copy of the master key.                |
+| R-K10 | Locking the vault zeroes the master key in memory and stops any in-flight encrypted writes.                                                 |
+| R-K11 | Removing the last unlock method is refused so users cannot accidentally orphan their data.                                                  |
+| R-K12 | Losing all unlock methods means the user must re-import data from upstream services; there is **no** recovery backdoor.                     |
 
 ## K3. Encrypted exports / backups
 
 | ID    | Requirement                                                                                                                     |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------- |
-| R-K13 | Export-to-file is encrypted by default; plaintext export requires an explicit opt-in.                                           |
-| R-K14 | The export envelope embeds a human-readable warning that the user is responsible for securing the file.                         |
-| R-K15 | Encrypted exports use the same envelope format as encrypted backups so a single passphrase decrypts both surfaces.              |
-| R-K16 | The CLI exposes `meta-sovereign export-encrypted --file=… --passphrase=…` so users can take encrypted backups manually.         |
-| R-K17 | The HTTP server exposes `POST /api/export-encrypted` that produces the same envelope, gated on a server-side passphrase config. |
+| R-K13 | Export-to-file is encrypted by default; the envelope embeds a human-readable warning that the user is responsible for the file. |
+| R-K14 | Encrypted exports round-trip through `decryptExport` and use the same envelope format as encrypted backups.                     |
+| R-K15 | The CLI exposes `meta-sovereign export-encrypted --file=… --passphrase=…`.                                                      |
+| R-K16 | The HTTP server exposes `POST /api/export-encrypted` returning the same envelope.                                               |
+| R-K17 | A documented `purge-tombstones` HTTP endpoint and CLI surface so operators can clean up after an audit.                         |
 
 ## K4. Documentation deliverable (issue #6)
 
-| ID    | Requirement                                                                          |
-| ----- | ------------------------------------------------------------------------------------ |
-| R-K18 | Compile data into `./docs/case-studies/issue-6/`.                                    |
-| R-K19 | Search online for additional facts; record findings in `external-research.md`.       |
-| R-K20 | List every requirement extracted from the issue (this file).                         |
-| R-K21 | Propose possible solutions and a solution plan per requirement (`solution-plan.md`). |
-| R-K22 | Check existing components/libraries that solve similar problems (`components.md`).   |
-| R-K23 | Update `docs/REQUIREMENTS.md` to reflect all of the above.                           |
-| R-K24 | Plan and execute everything in a single PR (#7).                                     |
+| ID    | Requirement                                                                                                                |
+| ----- | -------------------------------------------------------------------------------------------------------------------------- |
+| R-K18 | Compile data into `./docs/case-studies/issue-6/` — deep analysis, online research, requirements, plans, components survey. |
+| R-K19 | Update `docs/REQUIREMENTS.md` to reflect all of the above.                                                                 |
+| R-K20 | Plan and execute everything in a single PR (#7).                                                                           |

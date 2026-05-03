@@ -18,12 +18,16 @@ import {
   createDualStore,
   createLinoTextStore,
   createDoubletsStore,
+  bulkPurge,
+  isTombstone,
+  createVault,
 } from '../storage/index.js';
 import {
   createBackup,
   pruneBackups,
   restoreBackup,
 } from '../storage/backup.js';
+import { writeEncryptedExport } from '../storage/export-encrypted.js';
 import { listSources, importInto, pullLiveInto } from '../sources/index.js';
 import { startServer } from '../server/index.js';
 import {
@@ -62,6 +66,12 @@ Commands:
   sync-listen   [--port=<n>] [--store=<dir>]
   sync-connect  --port=<n> [--host=<h>] [--store=<dir>]
   outreach      --query=<expr> --text=<msg> [--reply=<reply:id>] [--networks=t,vk] [--mode=preview|queue] [--store=<dir>]
+  export-encrypted --file=<path> --passphrase=<pp> [--store=<dir>]
+  purge-tombstones --confirm=true [--id-prefix=<msg:tg>] [--older-than=<iso>] [--store=<dir>]
+  vault-init    --kind=passphrase|pin|passkey|totp-recovery --secret=<s> [--label=<l>] [--file=<path>]
+  vault-add     --secret=<old> --kind=<k> --new-secret=<s> [--label=<l>] [--file=<path>]
+  vault-remove  --secret=<s> --id=<unlock-id> [--file=<path>]
+  vault-list    [--file=<path>]
   help
 `;
 
@@ -344,9 +354,98 @@ const outreachCmd = async (args, log) => {
   return 0;
 };
 
+const exportEncryptedCmd = async (args, log) => {
+  if (!args.passphrase) {
+    log('export-encrypted: --passphrase is required (R-K13)');
+    return 1;
+  }
+  const store = await openStore(args.store ?? '.meta-sovereign');
+  const file = await writeEncryptedExport(store, args.file, {
+    passphrase: args.passphrase,
+  });
+  log(`encrypted export written to ${file}`);
+  return 0;
+};
+
+const purgeTombstonesCmd = async (args, log) => {
+  if (args.confirm !== 'true' && args.confirm !== true) {
+    log('purge-tombstones: refusing without --confirm=true (R-K4)');
+    return 1;
+  }
+  const store = await openStore(args.store ?? '.meta-sovereign');
+  const idPrefix = args['id-prefix'] ?? null;
+  const olderThan = args['older-than']
+    ? new Date(args['older-than']).toISOString()
+    : null;
+  const purged = await bulkPurge(
+    store,
+    (link) => {
+      if (!isTombstone(link)) {
+        return false;
+      }
+      if (idPrefix && !link.id?.startsWith(idPrefix)) {
+        return false;
+      }
+      if (olderThan && (link.deleted?.at ?? '') > olderThan) {
+        return false;
+      }
+      return true;
+    },
+    { confirm: true }
+  );
+  log(`purged ${purged.length} tombstones: ${JSON.stringify(purged)}`);
+  return 0;
+};
+
+const vaultFile = (args) =>
+  args.file ?? path.join(args.store ?? '.meta-sovereign', 'vault.json');
+
+const vaultInitCmd = async (args, log) => {
+  const file = vaultFile(args);
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  const v = createVault({ file });
+  await v.initialize({
+    kind: args.kind ?? 'passphrase',
+    secret: args.secret,
+    label: args.label,
+  });
+  log(`vault initialized at ${file}`);
+  return 0;
+};
+
+const vaultAddCmd = async (args, log) => {
+  const file = vaultFile(args);
+  const v = createVault({ file });
+  await v.unlock({ secret: args.secret });
+  const entry = await v.addUnlock({
+    kind: args.kind ?? 'passphrase',
+    secret: args['new-secret'],
+    label: args.label,
+  });
+  log(`added unlock ${entry.id} (${entry.kind}/${entry.label})`);
+  return 0;
+};
+
+const vaultRemoveCmd = async (args, log) => {
+  const file = vaultFile(args);
+  const v = createVault({ file });
+  await v.unlock({ secret: args.secret });
+  const ok = await v.removeUnlock({ id: args.id });
+  log(ok ? `removed unlock ${args.id}` : `unlock ${args.id} not found`);
+  return ok ? 0 : 1;
+};
+
+const vaultListCmd = async (args, log) => {
+  const file = vaultFile(args);
+  const v = createVault({ file });
+  log(JSON.stringify(await v.listUnlocks(), null, 2));
+  return 0;
+};
+
 const COMMANDS = {
   import: importCmd,
   export: exportCmd,
+  'export-encrypted': exportEncryptedCmd,
   backup: backupCmd,
   restore: restoreCmd,
   serve: serveCmd,
@@ -366,6 +465,11 @@ const COMMANDS = {
   'sync-listen': syncListenCmd,
   'sync-connect': syncConnectCmd,
   outreach: outreachCmd,
+  'purge-tombstones': purgeTombstonesCmd,
+  'vault-init': vaultInitCmd,
+  'vault-add': vaultAddCmd,
+  'vault-remove': vaultRemoveCmd,
+  'vault-list': vaultListCmd,
   help: async (_a, log) => {
     log(HELP);
     return 0;

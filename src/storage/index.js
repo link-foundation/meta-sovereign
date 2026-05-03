@@ -22,3 +22,15 @@ export {
   withSoftDelete,
   TOMBSTONE_FIELD,
 } from './soft-delete.js';
+export {
+  createVault,
+  encryptWithKey,
+  decryptWithKey,
+  VAULT_KINDS,
+} from './vault.js';
+export {
+  exportEncrypted,
+  decryptExport,
+  writeEncryptedExport,
+  DEFAULT_WARNING,
+} from './export-encrypted.js';
