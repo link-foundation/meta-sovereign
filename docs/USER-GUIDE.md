@@ -15,7 +15,7 @@ everything", so you can stop reading the moment you have what you need.
 2. The app boots immediately. There is **no sign-up**, **no telemetry**,
    and **nothing leaves your browser** until you point it at a server.
 3. Your data is kept in browser-local storage
-   ([`createBrowserStore`](../src/storage/browser-store.js): IndexedDB
+   ([`createBrowserStore`](../js/src/storage/browser-store.js): IndexedDB
    first, then localStorage, then in-memory). You can already:
    - Browse and search the contacts you import.
    - Create chat patterns and reply variations.
@@ -33,14 +33,14 @@ exposes the same wire protocol as the JS server (see
 ```bash
 git clone https://github.com/link-foundation/meta-sovereign
 cd meta-sovereign
-cargo run -p meta-sovereign-server -- serve
+cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-The server listens on <http://127.0.0.1:5176> by default. The
+The server listens on <http://127.0.0.1:8787> by default. The
 GitHub-Pages-hosted SPA discovers it automatically: it probes the
 saved override (`metaServer` in `localStorage`) and a short list of
 `127.0.0.1` ports, exactly the way `discoverServer()` does in
-`src/web/discover.js`.
+`js/src/web/discover.js`.
 
 If your browser does not auto-connect, open the in-app **Settings →
 Server** prompt and paste the URL the Rust binary printed.
@@ -79,7 +79,7 @@ you want offline-only mode without a browser tab.
 | iOS      | `npm run mobile:ios` (opens Xcode)              |
 | Android  | `npm run mobile:android` (opens Android Studio) |
 
-The Electron + Capacitor shells reuse `src/web/` verbatim, so the UI is
+The Electron + Capacitor shells reuse `js/src/web/` verbatim, so the UI is
 identical to the GitHub Pages app. The desktop shell additionally
 enables the [`electron-updater`](https://www.npmjs.com/package/electron-updater)
 auto-update flow when the optional peer dependency is installed.
@@ -87,7 +87,7 @@ auto-update flow when the optional peer dependency is installed.
 ## 5. Connect the SPA to your server
 
 The web SPA uses
-[`discoverServer()`](../src/web/discover.js) to pick a server. The
+[`discoverServer()`](../js/src/web/discover.js) to pick a server. The
 order is:
 
 1. **Same origin** — useful when you serve the SPA from the JS or
@@ -103,13 +103,13 @@ order is:
 
 If none of those answer, the SPA stays in **offline mode** and writes
 go to the local browser store. When a server appears later, the
-[`OfflineClient`](../src/web/client.js) replays the queued writes.
+[`OfflineClient`](../js/src/web/client.js) replays the queued writes.
 
 ## 6. Sync between your devices (WebRTC)
 
 Once your devices share the same server (Rust or JS), they sync over
 WebRTC via the server's `/rtc` signaling endpoint
-([`webrtc-sync.js`](../src/web/webrtc-sync.js)). All traffic is
+([`webrtc-sync.js`](../js/src/web/webrtc-sync.js)). All traffic is
 peer-to-peer; the server is only used for the initial handshake. See
 [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md) for using a TURN server when
 peers are behind symmetric NAT.
@@ -117,7 +117,7 @@ peers are behind symmetric NAT.
 ## 7. Encrypted backup and export
 
 Your data is encrypted at rest by default
-([`vault.js`](../src/storage/vault.js), AES-256-GCM, master key + per-method
+([`vault.js`](../js/src/storage/vault.js), AES-256-GCM, master key + per-method
 unlocks: passphrase, PIN, passkey, TOTP recovery code).
 
 Export an encrypted snapshot from the CLI:
@@ -152,7 +152,7 @@ list and per-source notes.
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | The SPA is stuck on a loading spinner.   | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled. |
 | The SPA cannot reach my local server.    | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                    |
-| The server reports `EADDRINUSE`.         | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run -p meta-sovereign-server -- serve --port=NNNN`.                                           |
+| The server reports `EADDRINUSE`.         | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.           |
 | WebRTC sync stops between two LANs.      | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                             |
 | `cargo build` fails with `linker` error. | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                |
 

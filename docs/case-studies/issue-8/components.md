@@ -6,42 +6,42 @@ already have.
 
 ## In-tree primitives (already implemented)
 
-| Component                                                                  | Role                                                                                                                                           |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/web/index.html`                                                       | The SPA shell. Already serves as the entry point for both the local server and any static host.                                                |
-| `src/web/app.js` / `app.min.js`                                            | The React SPA bundle. Built by `scripts/build-web.mjs` (esbuild).                                                                              |
-| `src/web/discover.js` (`discoverServer`)                                   | Probes same-origin → saved override (`metaServer` localStorage) → runtime shell candidates → 127.0.0.1 ports → caller-supplied LAN candidates. |
-| `src/web/client.js` (`createOfflineClient`)                                | Offline-first client: writes go to local store first; server is best-effort.                                                                   |
-| `src/storage/browser-store.js` (`createBrowserStore`, `pickBrowserDriver`) | Browser storage abstraction over `doublets-web` → IndexedDB → localStorage → in-memory.                                                        |
-| `src/server/index.js`                                                      | The JS server (Node/Bun/Deno).                                                                                                                 |
-| `crates/meta-sovereign-server/`                                            | The pure-Rust server (R-G2).                                                                                                                   |
-| `scripts/build-web.mjs`                                                    | Production esbuild bundle.                                                                                                                     |
-| `scripts/build-mobile.mjs`                                                 | Capacitor mobile bundle (reuses the web bundle).                                                                                               |
-| `electron/main.js`                                                         | Electron desktop shell that opens the same SPA.                                                                                                |
-| `mobile/` + `capacitor.config.json`                                        | Capacitor mobile shell that loads the same bundle.                                                                                             |
-| `docs/UI-DESIGN-AUDIT.md`                                                  | Apple HIG / Google Material / Microsoft Fluent compliance audit (R-H1).                                                                        |
+| Component                                                                     | Role                                                                                                                                           |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `js/src/web/index.html`                                                       | The SPA shell. Already serves as the entry point for both the local server and any static host.                                                |
+| `js/src/web/app.js` / `app.min.js`                                            | The React SPA bundle. Built by `js/scripts/build-web.mjs` (esbuild).                                                                           |
+| `js/src/web/discover.js` (`discoverServer`)                                   | Probes same-origin → saved override (`metaServer` localStorage) → runtime shell candidates → 127.0.0.1 ports → caller-supplied LAN candidates. |
+| `js/src/web/client.js` (`createOfflineClient`)                                | Offline-first client: writes go to local store first; server is best-effort.                                                                   |
+| `js/src/storage/browser-store.js` (`createBrowserStore`, `pickBrowserDriver`) | Browser storage abstraction over `doublets-web` → IndexedDB → localStorage → in-memory.                                                        |
+| `js/src/server/index.js`                                                      | The JS server (Node/Bun/Deno).                                                                                                                 |
+| `rust/crates/meta-sovereign-server/`                                          | The pure-Rust server (R-G2).                                                                                                                   |
+| `js/scripts/build-web.mjs`                                                    | Production esbuild bundle.                                                                                                                     |
+| `js/scripts/build-mobile.mjs`                                                 | Capacitor mobile bundle (reuses the web bundle).                                                                                               |
+| `js/electron/main.js`                                                         | Electron desktop shell that opens the same SPA.                                                                                                |
+| `mobile/` + `capacitor.config.json`                                           | Capacitor mobile shell that loads the same bundle.                                                                                             |
+| `docs/UI-DESIGN-AUDIT.md`                                                     | Apple HIG / Google Material / Microsoft Fluent compliance audit (R-H1).                                                                        |
 
 ## New primitives added in this PR
 
-| Component                     | Role                                                                                                                                     |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `scripts/build-pages.mjs`     | Copies `src/web/*` to `dist/pages/`, writes `.nojekyll` and a `404.html` SPA fallback, generates a `manifest.webmanifest`, and links it. |
-| `.github/workflows/pages.yml` | GitHub Actions workflow that builds and deploys the bundle to GitHub Pages on push to `main` and `workflow_dispatch`, build-only on PRs. |
-| `tests/build-pages.test.js`   | Unit test that runs the helper into a temp dir and asserts every required file is present.                                               |
-| `docs/USER-GUIDE.md`          | The long-form user-facing guide.                                                                                                         |
-| `docs/SERVER-PARITY.md`       | Route-by-route parity matrix between the JS and Rust servers.                                                                            |
-| `docs/case-studies/issue-8/`  | This case study.                                                                                                                         |
+| Component                      | Role                                                                                                                                        |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `js/scripts/build-pages.mjs`   | Copies `js/src/web/*` to `dist/pages/`, writes `.nojekyll` and a `404.html` SPA fallback, generates a `manifest.webmanifest`, and links it. |
+| `.github/workflows/pages.yml`  | GitHub Actions workflow that builds and deploys the bundle to GitHub Pages on push to `main` and `workflow_dispatch`, build-only on PRs.    |
+| `js/tests/build-pages.test.js` | Unit test that runs the helper into a temp dir and asserts every required file is present.                                                  |
+| `docs/USER-GUIDE.md`           | The long-form user-facing guide.                                                                                                            |
+| `docs/SERVER-PARITY.md`        | Route-by-route parity matrix between the JS and Rust servers.                                                                               |
+| `docs/case-studies/issue-8/`   | This case study.                                                                                                                            |
 
 ## Upstream tooling
 
-| Tool                            | Version | Role                                                                                                                  |
-| ------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
-| `actions/checkout`              | v6      | Standard checkout action. Already used by `release.yml`.                                                              |
-| `actions/setup-node`            | v6      | Node toolchain for the build step. Already used by `release.yml`.                                                     |
-| `actions/configure-pages`       | v5      | Sets the Pages site origin and writes the deployment metadata.                                                        |
-| `actions/upload-pages-artifact` | v3      | Uploads the `dist/pages/` directory as the Pages artifact.                                                            |
-| `actions/deploy-pages`          | v4      | Deploys the artifact and reports the deployment URL back to the workflow.                                             |
-| `esbuild`                       | ^0.28   | Already in `package.json` devDependencies; powers `scripts/build-web.mjs` and is reused by `scripts/build-pages.mjs`. |
+| Tool                            | Version | Role                                                                                                                        |
+| ------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `actions/checkout`              | v6      | Standard checkout action. Already used by `release.yml`.                                                                    |
+| `actions/setup-node`            | v6      | Node toolchain for the build step. Already used by `release.yml`.                                                           |
+| `actions/configure-pages`       | v5      | Sets the Pages site origin and writes the deployment metadata.                                                              |
+| `actions/upload-pages-artifact` | v3      | Uploads the `dist/pages/` directory as the Pages artifact.                                                                  |
+| `actions/deploy-pages`          | v4      | Deploys the artifact and reports the deployment URL back to the workflow.                                                   |
+| `esbuild`                       | ^0.28   | Already in `package.json` devDependencies; powers `js/scripts/build-web.mjs` and is reused by `js/scripts/build-pages.mjs`. |
 
 All four `actions/*-pages*` actions are first-party (the `actions/`
 org) and follow the same release cadence as the rest of the
@@ -50,12 +50,12 @@ GitHub Pages migrated off the legacy `gh-pages` branch deploy in 2022.
 
 ## Standards
 
-| Standard                  | Why it matters                                                                                                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| W3C Web App Manifest      | Drives "Install app" prompts in Chromium-based browsers and the iOS / Android home-screen install flow. Generated as `manifest.webmanifest` by `scripts/build-pages.mjs`. |
-| WHATWG Service Worker     | Optional. Not required for v1: the local server is the canonical persistence layer. Tracked as a follow-up in the case study.                                             |
-| RFC 8615 — `.well-known/` | Future option for advertising server-discovery candidates from the Pages origin. Not used in v1.                                                                          |
-| WCAG 2.0 A/AA             | Already audited by `tests/e2e-browser-spa.mjs` via axe-core (R-H1). The Pages bundle inherits this guarantee verbatim.                                                    |
+| Standard                  | Why it matters                                                                                                                                                               |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| W3C Web App Manifest      | Drives "Install app" prompts in Chromium-based browsers and the iOS / Android home-screen install flow. Generated as `manifest.webmanifest` by `js/scripts/build-pages.mjs`. |
+| WHATWG Service Worker     | Optional. Not required for v1: the local server is the canonical persistence layer. Tracked as a follow-up in the case study.                                                |
+| RFC 8615 — `.well-known/` | Future option for advertising server-discovery candidates from the Pages origin. Not used in v1.                                                                             |
+| WCAG 2.0 A/AA             | Already audited by `js/tests/e2e-browser-spa.mjs` via axe-core (R-H1). The Pages bundle inherits this guarantee verbatim.                                                    |
 
 ## Reference apps that ship the same shape
 

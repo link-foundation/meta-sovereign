@@ -5,8 +5,8 @@
 R-L1..R-L15: Browser-first publishing on GitHub Pages, user-friendly
 documentation rework, and CI/CD parity audit.
 
-- New `scripts/build-pages.mjs` builds the `dist/pages/` artifact from
-  `src/web/` (writes `404.html`, `.nojekyll`, `manifest.webmanifest`,
+- New `js/scripts/build-pages.mjs` builds the `dist/pages/` artifact from
+  `js/src/web/` (writes `404.html`, `.nojekyll`, `manifest.webmanifest`,
   injects the manifest link into a copy of `index.html`).
 - New `.github/workflows/pages.yml` deploys the artifact via the
   official `actions/configure-pages@v5`,
@@ -25,4 +25,6 @@ documentation rework, and CI/CD parity audit.
   payloads under `data/`.
 - New section **L. Browser-first publishing (issue #8)** in
   `docs/REQUIREMENTS.md`.
-- New `tests/build-pages.test.js` unit-tests the build helper.
+- All JavaScript code and tooling now live under `js/`; the Rust
+  workspace manifest, lockfile, and crates now live under `rust/`.
+- New `js/tests/build-pages.test.js` unit-tests the build helper.

@@ -17,7 +17,7 @@ To sync between devices, encrypt at rest, and unlock the full feature set, start
 ```bash
 git clone https://github.com/link-foundation/meta-sovereign
 cd meta-sovereign
-cargo run -p meta-sovereign-server -- serve
+cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
 ### JavaScript server — fallback (Node/Bun/Deno)
@@ -27,11 +27,11 @@ npm install -g meta-sovereign
 meta-sovereign serve
 ```
 
-Either backend listens on <http://127.0.0.1:5176> by default. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
+Either backend listens on <http://127.0.0.1:8787> by default. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
 
 ## Connect the SPA to your server
 
-The SPA picks a server in this order ([`src/web/discover.js`](src/web/discover.js)):
+The SPA picks a server in this order ([`js/src/web/discover.js`](js/src/web/discover.js)):
 
 1. **Same origin** — when you serve the SPA from the JS or Rust server directly.
 2. **Saved override** — `localStorage.metaServer`. Set via the in-app **Settings → Server** prompt.
@@ -39,7 +39,7 @@ The SPA picks a server in this order ([`src/web/discover.js`](src/web/discover.j
 4. **`127.0.0.1` ports** — the default local-server port is probed automatically.
 5. **Caller-supplied LAN candidates** — passed programmatically.
 
-If nothing answers, the SPA falls back to **offline mode**: writes go to the local browser store ([`createBrowserStore`](src/storage/browser-store.js): IndexedDB → localStorage → in-memory) and replay automatically through [`OfflineClient`](src/web/client.js) the next time a server appears.
+If nothing answers, the SPA falls back to **offline mode**: writes go to the local browser store ([`createBrowserStore`](js/src/storage/browser-store.js): IndexedDB → localStorage → in-memory) and replay automatically through [`OfflineClient`](js/src/web/client.js) the next time a server appears.
 
 The full user-facing flow — install nothing, install Rust server, install JS server, install desktop / mobile app, encrypted export, troubleshooting — is in [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md).
 
@@ -63,7 +63,7 @@ The prototype targeted by issue #1 is implemented and tracked in PR #2:
 - **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru.
 - **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
-- **Distribution (R-F\*)**: NPM library, CLI (`bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
+- **Distribution (R-F\*)**: NPM library, CLI (`js/bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
 - **Stacks (R-G\*)**: default JS server + React SPA + Rust/WASM heavy workloads; alternative pure-Rust server (`meta-sovereign-rs serve`).
 - **Hardening (R-K\*)**: soft-delete by default, AES-256-GCM master-key vault with multi-method unlock, encrypted export.
 - **Browser publishing (R-L\*)**: GitHub Pages CI workflow, SPA on a public URL, user-first README and user guide.
@@ -72,34 +72,24 @@ The prototype targeted by issue #1 is implemented and tracked in PR #2:
 
 `meta-sovereign` is multi-language. Each language tree mirrors the corresponding [link-foundation AI-driven-development pipeline template](https://github.com/link-foundation):
 
-- **JavaScript** lives under `src/` and `tests/` — the same layout as [`js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template), which uses `src/` for its single-language tree.
-- **Rust** lives under `crates/` (a Cargo workspace) — the [`rust-ai-driven-development-pipeline-template`](https://github.com/link-foundation/rust-ai-driven-development-pipeline-template) uses `src/` because it is single-crate; we use `crates/` because we ship a workspace (`meta-sovereign-server`, `meta-sovereign-core`, etc.).
-- **Native shells**: `electron/` (desktop), `mobile/` + `capacitor.config.json` (iOS/Android), `docker/` (web + WebRTC microservices).
-- **Operations**: `.github/workflows/` (CI/CD), `scripts/` (build helpers), `.changeset/` (release management), `docs/` (this guide and case studies).
-
-A literal rename to `./js` and `./rust` is **intentionally out of scope** of issue #8: the templates themselves do not use those names (each uses `src/` for its single language), and the rename would touch every test path, every build script, the npm exports map, and the workspace member list with no functional benefit. See [`docs/case-studies/issue-8/solution-plan.md`](docs/case-studies/issue-8/solution-plan.md) Phase 6 for the full rationale.
+- **JavaScript** lives under `js/`: `js/src/`, `js/tests/`, `js/scripts/`, `js/bin/`, `js/electron/`, `js/examples/`, and `js/experiments/`.
+- **Rust** lives under `rust/`: `rust/Cargo.toml`, `rust/Cargo.lock`, and the `rust/crates/` workspace (`meta-sovereign-server`, `meta-sovereign-core`, `meta-sovereign-wasm`).
+- **Native shells**: `js/electron/` (desktop), `mobile/` + `capacitor.config.json` (iOS/Android), `docker/` (web + WebRTC microservices).
+- **Operations**: `.github/workflows/` (CI/CD), `.changeset/` (release management), `docs/` (this guide and case studies).
 
 ```
 .
 ├── .changeset/           # Changeset configuration
 ├── .github/workflows/    # GitHub Actions CI/CD (release.yml, links.yml, pages.yml)
 ├── .husky/               # Git hooks (pre-commit)
-├── bin/                  # CLI entrypoint (meta-sovereign)
-├── crates/               # Pure-Rust workspace (core, server, wasm)
 ├── docker/               # Web + WebRTC microservice Dockerfiles
 ├── docs/                 # REQUIREMENTS, USER-GUIDE, SERVER-PARITY, case studies
-├── electron/             # Electron desktop shell + preload bridge
-├── examples/             # Usage examples
-├── experiments/          # Throwaway/exploration scripts
+├── js/                   # JavaScript tree (src, tests, scripts, bin, electron)
 ├── mobile/               # Capacitor mobile shell
-├── scripts/              # Build and release scripts (CI/CD parity with JS template)
-├── src/                  # JavaScript source (storage, sources, sync, server, web, ...)
-├── tests/                # Cross-runtime unit + integration tests, real-browser e2e
+├── rust/                 # Rust workspace manifest, lockfile, and crates
 ├── bunfig.toml           # Bun configuration
 ├── capacitor.config.json # Capacitor mobile config
 ├── deno.json             # Deno configuration
-├── eslint.config.js      # ESLint configuration
-├── Cargo.toml            # Rust workspace manifest
 └── package.json          # Node.js package manifest
 ```
 
@@ -130,13 +120,13 @@ bun test
 
 # Or with other runtimes:
 npm test
-deno test --allow-read --allow-write --allow-env --allow-net --allow-sys
+deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests
 
 # Run the real-browser e2e (opt-in; needs Playwright + Chromium)
 RUN_BROWSER_E2E=1 npm run test:e2e:browser
 
 # Run the Rust workspace tests
-cargo test --workspace
+cargo test --manifest-path rust/Cargo.toml --workspace
 
 # Build the SPA bundle
 npm run build:web
@@ -218,7 +208,7 @@ The GitHub Actions workflow (`.github/workflows/release.yml`) implements a fast-
 **Slow checks** (only run after all fast checks pass):
 
 7. **Test matrix**: 3 runtimes × 3 OS = 9 test combinations
-8. **API doc build**: `npm run docs:api` + `cargo doc --no-deps --workspace`
+8. **API doc build**: `npm run docs:api` + `cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace`
 9. **Broken link checks**: Validates all links in Markdown/HTML files (separate workflow)
 
 **Release** (on merge to main):
@@ -280,13 +270,13 @@ Add regex patterns to `.lycheeignore` to exclude URLs from checks (e.g., local d
 
 #### GitHub Pages publishing
 
-The `pages.yml` workflow (added in PR #9 / issue #8) builds `dist/pages/` from `src/web/` and deploys it to GitHub Pages on every push to `main`. The workflow uses the official `actions/configure-pages`, `actions/upload-pages-artifact`, and `actions/deploy-pages` actions. PRs run a build-only job for early feedback; only `main` and `workflow_dispatch` trigger an actual deploy. See [`docs/case-studies/issue-8/`](docs/case-studies/issue-8/README.md) for the full rationale, and [`scripts/build-pages.mjs`](scripts/build-pages.mjs) for the build helper.
+The `pages.yml` workflow (added in PR #9 / issue #8) builds `dist/pages/` from `js/src/web/` and deploys it to GitHub Pages on every push to `main`. The workflow uses the official `actions/configure-pages`, `actions/upload-pages-artifact`, and `actions/deploy-pages` actions. PRs run a build-only job for early feedback; only `main` and `workflow_dispatch` trigger an actual deploy. See [`docs/case-studies/issue-8/`](docs/case-studies/issue-8/README.md) for the full rationale, and [`js/scripts/build-pages.mjs`](js/scripts/build-pages.mjs) for the build helper.
 
 ### Configuration
 
 #### ESLint Rules
 
-Customize ESLint in `eslint.config.js`. Current configuration:
+Customize ESLint in `js/eslint.config.js`. Current configuration:
 
 - ES Modules support
 - Prettier integration

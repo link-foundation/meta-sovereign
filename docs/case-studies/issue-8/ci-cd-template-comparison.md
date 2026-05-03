@@ -1,7 +1,7 @@
 # Issue #8 — CI/CD comparison with the AI-driven-development pipeline templates
 
 This document compares every workflow file under `.github/workflows/`
-and every script under `scripts/` in `meta-sovereign` against the
+and every script under `js/scripts/` in `meta-sovereign` against the
 four templates listed in the issue:
 
 - [`link-foundation/js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template)
@@ -45,15 +45,15 @@ implement, in the same shape:
 
 `meta-sovereign` extends the template with:
 
-- A Rust workspace test job (`cargo test --workspace`) that the JS
+- A Rust workspace test job (`cargo test --manifest-path rust/Cargo.toml --workspace`) that the JS
   template does not have.
-- A `cargo doc --no-deps --workspace` step in the API docs job.
+- A `cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace` step in the API docs job.
 - A real-browser e2e job (opt-in via `RUN_BROWSER_E2E=1`).
 
 ### `links.yml` — parity
 
 Identical to the JS template version, including the Web Archive
-fallback step (`scripts/check-web-archive.mjs`) and the
+fallback step (`js/scripts/check-web-archive.mjs`) and the
 `docs/case-studies` exclusion.
 
 ### `pages.yml` — new in this PR
@@ -66,37 +66,37 @@ issue-#8-mandated GitHub Pages publish.
 The JS template ships 22 scripts. `meta-sovereign` ships 30 scripts
 (every JS-template script plus repo-specific ones):
 
-| Script                             | meta-sovereign | JS template | Notes                                                                                         |
-| ---------------------------------- | -------------- | ----------- | --------------------------------------------------------------------------------------------- |
-| `changeset-version.mjs`            | yes            | yes         | Parity                                                                                        |
-| `check-changesets.mjs`             | yes            | yes         | Parity                                                                                        |
-| `check-file-line-limits.sh`        | yes            | yes         | Parity                                                                                        |
-| `check-mjs-syntax.sh`              | yes            | yes         | Parity                                                                                        |
-| `check-release-needed.mjs`         | yes            | yes         | Parity                                                                                        |
-| `check-version.mjs`                | yes            | yes         | Parity                                                                                        |
-| `check-web-archive.mjs`            | yes            | yes         | Parity                                                                                        |
-| `create-github-release.mjs`        | yes            | yes         | Parity                                                                                        |
-| `create-manual-changeset.mjs`      | yes            | yes         | Parity                                                                                        |
-| `detect-code-changes.mjs`          | yes            | yes         | Parity                                                                                        |
-| `format-github-release.mjs`        | yes            | yes         | Parity                                                                                        |
-| `format-release-notes-helpers.mjs` | yes            | yes         | Parity                                                                                        |
-| `format-release-notes.mjs`         | yes            | yes         | Parity                                                                                        |
-| `instant-version-bump.mjs`         | yes            | yes         | Parity                                                                                        |
-| `js-paths.mjs`                     | yes            | yes         | Parity                                                                                        |
-| `merge-changesets.mjs`             | yes            | yes         | Parity                                                                                        |
-| `package-info.mjs`                 | yes            | yes         | Parity (added by commit `36a4a4c` "Align CI/CD scripts with JS template")                     |
-| `publish-to-npm.mjs`               | yes            | yes         | Parity                                                                                        |
-| `setup-npm.mjs`                    | yes            | yes         | Parity                                                                                        |
-| `simulate-fresh-merge.sh`          | yes            | yes         | Parity                                                                                        |
-| `validate-changeset.mjs`           | yes            | yes         | Parity                                                                                        |
-| `version-and-commit.mjs`           | yes            | yes         | Parity                                                                                        |
-| `attach-api-docs.sh`               | yes            | no          | Repo-specific: attaches `npm run docs:api` + `cargo doc` output to GitHub Releases.           |
-| `build-api-docs.mjs`               | yes            | no          | Repo-specific: drives `npm run docs:api` + `cargo doc`.                                       |
-| `build-mobile.mjs`                 | yes            | no          | Repo-specific: Capacitor mobile bundle.                                                       |
-| `build-pattern-wasm.sh`            | yes            | no          | Repo-specific: builds `pattern-matcher.wasm`.                                                 |
-| `build-web.mjs`                    | yes            | no          | Repo-specific: production esbuild bundle for SPA.                                             |
-| `build-pages.mjs`                  | **new**        | no          | New (this PR): copies `src/web/*` to `dist/pages/`, writes `404.html`, `.nojekyll`, manifest. |
-| `mobile-platform.mjs`              | yes            | no          | Repo-specific: Capacitor `sync` / `ios open` / `android open`.                                |
+| Script                             | meta-sovereign | JS template | Notes                                                                                            |
+| ---------------------------------- | -------------- | ----------- | ------------------------------------------------------------------------------------------------ |
+| `changeset-version.mjs`            | yes            | yes         | Parity                                                                                           |
+| `check-changesets.mjs`             | yes            | yes         | Parity                                                                                           |
+| `check-file-line-limits.sh`        | yes            | yes         | Parity                                                                                           |
+| `check-mjs-syntax.sh`              | yes            | yes         | Parity                                                                                           |
+| `check-release-needed.mjs`         | yes            | yes         | Parity                                                                                           |
+| `check-version.mjs`                | yes            | yes         | Parity                                                                                           |
+| `check-web-archive.mjs`            | yes            | yes         | Parity                                                                                           |
+| `create-github-release.mjs`        | yes            | yes         | Parity                                                                                           |
+| `create-manual-changeset.mjs`      | yes            | yes         | Parity                                                                                           |
+| `detect-code-changes.mjs`          | yes            | yes         | Parity                                                                                           |
+| `format-github-release.mjs`        | yes            | yes         | Parity                                                                                           |
+| `format-release-notes-helpers.mjs` | yes            | yes         | Parity                                                                                           |
+| `format-release-notes.mjs`         | yes            | yes         | Parity                                                                                           |
+| `instant-version-bump.mjs`         | yes            | yes         | Parity                                                                                           |
+| `js-paths.mjs`                     | yes            | yes         | Parity                                                                                           |
+| `merge-changesets.mjs`             | yes            | yes         | Parity                                                                                           |
+| `package-info.mjs`                 | yes            | yes         | Parity (added by commit `36a4a4c` "Align CI/CD scripts with JS template")                        |
+| `publish-to-npm.mjs`               | yes            | yes         | Parity                                                                                           |
+| `setup-npm.mjs`                    | yes            | yes         | Parity                                                                                           |
+| `simulate-fresh-merge.sh`          | yes            | yes         | Parity                                                                                           |
+| `validate-changeset.mjs`           | yes            | yes         | Parity                                                                                           |
+| `version-and-commit.mjs`           | yes            | yes         | Parity                                                                                           |
+| `attach-api-docs.sh`               | yes            | no          | Repo-specific: attaches `npm run docs:api` + `cargo doc` output to GitHub Releases.              |
+| `build-api-docs.mjs`               | yes            | no          | Repo-specific: drives `npm run docs:api` + `cargo doc`.                                          |
+| `build-mobile.mjs`                 | yes            | no          | Repo-specific: Capacitor mobile bundle.                                                          |
+| `build-pattern-wasm.sh`            | yes            | no          | Repo-specific: builds `pattern-matcher.wasm`.                                                    |
+| `build-web.mjs`                    | yes            | no          | Repo-specific: production esbuild bundle for SPA.                                                |
+| `build-pages.mjs`                  | **new**        | no          | New (this PR): copies `js/src/web/*` to `dist/pages/`, writes `404.html`, `.nojekyll`, manifest. |
+| `mobile-platform.mjs`              | yes            | no          | Repo-specific: Capacitor `sync` / `ios open` / `android open`.                                   |
 
 ## 3. Root-level files
 
@@ -109,25 +109,25 @@ The JS template ships 22 scripts. `meta-sovereign` ships 30 scripts
 | `.prettierignore`         | yes            | yes         | no                                     | no              | no          | Parity with JS template                                             |
 | `.prettierrc`             | yes            | yes         | no                                     | no              | no          | Parity with JS template                                             |
 | `.secretlintrc.json`      | yes            | yes         | no                                     | no              | no          | Parity with JS template                                             |
-| `eslint.config.js`        | yes            | yes         | no                                     | no              | no          | Parity with JS template                                             |
+| `js/eslint.config.js`     | yes            | yes         | no                                     | no              | no          | Parity with JS template                                             |
 | `bunfig.toml`             | yes            | yes         | no                                     | no              | no          | Parity with JS template                                             |
 | `deno.json`               | yes            | yes         | no                                     | no              | no          | Parity with JS template                                             |
-| `Cargo.toml`              | yes            | no          | yes                                    | no              | no          | Parity with Rust template                                           |
-| `Cargo.lock`              | yes            | no          | yes                                    | no              | no          | Parity with Rust template                                           |
+| `rust/Cargo.toml`         | yes            | no          | yes                                    | no              | no          | Parity with Rust template                                           |
+| `rust/Cargo.lock`         | yes            | no          | yes                                    | no              | no          | Parity with Rust template                                           |
 | `.pre-commit-config.yaml` | **no**         | no          | yes                                    | yes             | yes         | Upstream gap #2 (JS template)                                       |
 | `CONTRIBUTING.md`         | docs/          | no          | yes                                    | yes             | yes         | Intentional drift                                                   |
 | `capacitor.config.json`   | yes            | no          | no                                     | no              | no          | Repo-specific (mobile)                                              |
 | `docker/`                 | yes            | no          | no                                     | no              | no          | Repo-specific (microservices)                                       |
-| `electron/`               | yes            | no          | no                                     | no              | no          | Repo-specific (desktop)                                             |
+| `js/electron/`            | yes            | no          | no                                     | no              | no          | Repo-specific (desktop)                                             |
 | `mobile/`                 | yes            | no          | no                                     | no              | no          | Repo-specific (mobile)                                              |
-| `crates/`                 | yes            | no          | yes (`src/` for single-crate template) | no              | no          | Multi-crate workspace, intentional drift from single-crate template |
+| `rust/crates/`            | yes            | no          | yes (`src/` for single-crate template) | no              | no          | Multi-crate workspace, intentional drift from single-crate template |
 
 ## 4. Upstream gaps and proposed issues
 
 ### Upstream gap #1 — All four templates are missing a Pages publish workflow
 
 If any of the templates ship a frontend bundle (the JS template
-already has `src/`-level JS that could be a SPA), users would benefit
+already has `js/src/`-level JS that could be a SPA), users would benefit
 from a copy of `pages.yml` under `.github/workflows/`. This is a
 template enhancement, not a `meta-sovereign` issue.
 

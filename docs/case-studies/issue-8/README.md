@@ -64,8 +64,9 @@ This document is the central deliverable of that request.
 
 ## 3. Method
 
-1. **Source extraction** — issue body and comments captured via `gh`
-   to `data/issue-8.json` / `data/issue-8-comments.json`.
+1. **Source extraction** — issue body, issue comments, PR metadata, and
+   PR review-thread comments captured via `gh` to `data/issue-8.json`,
+   `data/issue-8-comments.json`, and `data/pr-9*.json`.
 2. **Requirement decomposition** — see `requirements.md`. Each item
    carries a stable `R-L*` identifier so changesets, PRs, and code
    comments can reference it.
@@ -83,7 +84,7 @@ This document is the central deliverable of that request.
    while talking to a local backend.
 5. **CI/CD comparison** — `ci-cd-template-comparison.md` walks every
    workflow file under `.github/workflows/` and every script under
-   `scripts/` against the four templates listed in the issue. Where
+   `js/scripts/` against the four templates listed in the issue. Where
    the templates are missing something we have, we propose an upstream
    issue in the same document.
 6. **Plan synthesis** — `solution-plan.md` maps each `R-L*` item to a
@@ -92,7 +93,7 @@ This document is the central deliverable of that request.
 ## 4. Headline findings
 
 - The repository **already has** a browser-discoverable architecture:
-  `src/web/discover.js` first probes the same origin, then a saved
+  `js/src/web/discover.js` first probes the same origin, then a saved
   override (`metaServer` in `localStorage`), then runtime-shell
   candidates injected by Electron/Capacitor, then a short list of
   `127.0.0.1` ports. When opened from `https://link-foundation.github.io/meta-sovereign/`
@@ -100,11 +101,11 @@ This document is the central deliverable of that request.
   the saved override and `127.0.0.1` ports cover the local server case.
   No code change is required on the discovery side; only a CI pipeline
   to publish the bundle to GitHub Pages.
-- The `scripts/build-web.mjs` script already produces a production
-  ESM bundle (`src/web/app.min.js`) via `esbuild`. The static surface
-  needed for Pages is just `src/web/index.html` + `app.css` + `app.min.js`
+- The `js/scripts/build-web.mjs` script already produces a production
+  ESM bundle (`js/src/web/app.min.js`) via `esbuild`. The static surface
+  needed for Pages is just `js/src/web/index.html` + `app.css` + `app.min.js`
   - `discovery-shell.js` + the WASM and worker side files. We add a
-    thin `scripts/build-pages.mjs` that copies these into `dist/pages/`
+    thin `js/scripts/build-pages.mjs` that copies these into `dist/pages/`
     with a `404.html` SPA fallback and a `.nojekyll` marker.
 - The published app must work even when the user has **no local server**
   yet. The existing `OfflineClient` gives that for free: writes go to
@@ -130,20 +131,14 @@ This document is the central deliverable of that request.
   propose adding it as an upstream improvement in the comparison doc
   (and not in this PR, since the issue scope is browser publishing,
   not pre-commit hardening).
-- The literal request **"Make sure all JavaScript code in `./js`
+- The reviewer requirement **"Make sure all JavaScript code in `./js`
   folder, and all rust code in `./rust` folder. Like in our templates."**
-  needs careful interpretation. The templates are single-language
-  repositories (JS template puts code in `src/`, Rust template puts
-  code in `src/`), so they do **not** themselves use `./js` or `./rust`
-  top-level folders. The intent — separate JS and Rust trees —
-  is already met by `src/` (JS) and `crates/` (Rust workspace),
-  matching the template structure for each language. We document
-  this explicitly in `solution-plan.md` so it is not repeatedly
-  re-interpreted, and we leave the on-disk layout alone to avoid a
-  branch-wide rename touching every test, every import, every
-  build script, and `Cargo.toml`'s workspace members. If the
-  maintainer prefers literal `./js` and `./rust` rename, that is a
-  separate PR scoped to that single concern.
+  is now implemented literally. The JavaScript sources, tests, scripts,
+  CLI entrypoint, Electron shell, examples, and experiments live under
+  `js/`; the Rust workspace manifest, lockfile, and crates live under
+  `rust/`. Package exports, npm scripts, workflows, Dockerfiles, docs,
+  and tests were updated so the repository behaves the same from the
+  user-facing commands while matching the requested language split.
 
 The complete reasoning — including library URLs and trade-offs — is in
 `external-research.md` and `components.md`.
@@ -155,11 +150,11 @@ The complete reasoning — including library URLs and trade-offs — is in
   YAML and the build helper is one Node script; no new dependencies
   are added.
 - **Backwards compatible**: existing `npm run build:web` still works;
-  the SPA still bundles to `src/web/app.min.js`; `meta-sovereign serve`
+  the SPA still bundles to `js/src/web/app.min.js`; `meta-sovereign serve`
   still serves the same files; we only add a `dist/pages/` build step.
 - **Tested**: the build helper has a unit test that asserts every
   asset is copied and the SPA fallback page exists. The discovery
-  flow already has unit tests in `tests/discover.test.js`; we add a
+  flow already has unit tests in `js/tests/discover.test.js`; we add a
   test that the SPA boots offline against an empty server list.
 
 ## 6. Current Status

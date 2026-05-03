@@ -129,8 +129,8 @@ The browser cannot freely scan a LAN. The viable patterns are:
 
 The Pages workflow does **not** enable Private Network Access
 preflight handling on its own — that is a property of the local
-server. The Rust server in `crates/meta-sovereign-server` and the JS
-server in `src/server/` both already permit any origin (`*`) on the
+server. The Rust server in `rust/crates/meta-sovereign-server` and the JS
+server in `js/src/server/` both already permit any origin (`*`) on the
 status endpoint, which is the only one used by `discoverServer`.
 
 ## 7. CI/CD best practices we already follow

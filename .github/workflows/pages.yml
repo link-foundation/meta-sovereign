@@ -1,6 +1,6 @@
 name: Deploy to GitHub Pages
 
-# Builds and deploys the SPA bundle (`src/web/`) to GitHub Pages so
+# Builds and deploys the SPA bundle (`js/src/web/`) to GitHub Pages so
 # any user can open the meta-sovereign web app from a browser without
 # cloning the repo first. The deployed bundle is the same React SPA
 # shipped with the desktop and mobile apps; it boots offline-first
@@ -49,7 +49,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build static Pages bundle
-        run: node scripts/build-pages.mjs
+        run: node js/scripts/build-pages.mjs
 
       - name: Verify required artefacts exist
         run: |

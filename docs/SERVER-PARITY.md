@@ -1,8 +1,8 @@
 # Server parity matrix — JS server vs. Rust server
 
 This page enumerates every HTTP route and transport surface exposed by
-both the JavaScript server (`src/server/index.js` + `routes-*.js`) and
-the pure-Rust server (`crates/meta-sovereign-server/src/routes.rs` +
+both the JavaScript server (`js/src/server/index.js` + `routes-*.js`) and
+the pure-Rust server (`rust/crates/meta-sovereign-server/src/routes.rs` +
 `handlers.rs`), so users can pick either backend with full knowledge
 of feature parity.
 
@@ -18,58 +18,58 @@ features today; works wherever Bun/Node/Deno work).
 
 ## 1. Read routes — links
 
-| Route        | Method | JS server                      | Rust server             | Status |
-| ------------ | ------ | ------------------------------ | ----------------------- | ------ |
-| `/links`     | GET    | `routes-mutating.js:82`        | `handlers.rs:72`        | Parity |
-| `/links/:id` | GET    | `routes-mutating.js:88`        | `handlers.rs:84`        | Parity |
-| `/links`     | PUT    | `routes-mutating.js:85`        | `handlers.rs:76`        | Parity |
-| `/links/:id` | DELETE | `routes-mutating.js:88` (soft) | `handlers.rs:84` (soft) | Parity |
+| Route        | Method | JS server                                 | Rust server                          | Status |
+| ------------ | ------ | ----------------------------------------- | ------------------------------------ | ------ |
+| `/links`     | GET    | `js/src/server/routes-mutating.js`        | `rust/crates/.../handlers.rs`        | Parity |
+| `/links/:id` | GET    | `js/src/server/routes-mutating.js`        | `rust/crates/.../handlers.rs`        | Parity |
+| `/links`     | PUT    | `js/src/server/routes-mutating.js`        | `rust/crates/.../handlers.rs`        | Parity |
+| `/links/:id` | DELETE | `js/src/server/routes-mutating.js` (soft) | `rust/crates/.../handlers.rs` (soft) | Parity |
 
 `?include=tombstones` (or `?showDeleted=1`) and `?purge=1&confirm=1`
 behave identically on both servers (R-K1, R-K2, R-K3).
 
 ## 2. Derived read routes
 
-| Route               | Method | JS server              | Rust server                        | Status |
-| ------------------- | ------ | ---------------------- | ---------------------------------- | ------ |
-| `/api/contacts`     | GET    | `routes-derived.js:65` | `handlers.rs:425`                  | Parity |
-| `/api/status`       | GET    | `routes-derived.js:66` | `handlers.rs:426`                  | Parity |
-| `/api/autocomplete` | GET    | `routes-derived.js:68` | `handlers.rs:427`                  | Parity |
-| `/api/audience`     | GET    | `routes-derived.js:75` | `handlers.rs:428`                  | Parity |
-| `/api/facts`        | GET    | `routes-derived.js:79` | `handlers.rs:429`                  | Parity |
-| `/api/search`       | GET    | `routes-derived.js:80` | `handlers.rs:430`                  | Parity |
-| `/api/health`       | GET    | `routes-derived.js:88` | `handlers.rs:431`                  | Parity |
-| `/sources`          | GET    | `index.js`             | `handlers.rs::sources`             | Parity |
-| `/metrics`          | GET    | `metrics.js:9`         | `handlers.rs:717` (`metrics_text`) | Parity |
+| Route               | Method | JS server                         | Rust server                                 | Status |
+| ------------------- | ------ | --------------------------------- | ------------------------------------------- | ------ |
+| `/api/contacts`     | GET    | `js/src/server/routes-derived.js` | `rust/crates/.../handlers.rs`               | Parity |
+| `/api/status`       | GET    | `js/src/server/routes-derived.js` | `rust/crates/.../handlers.rs`               | Parity |
+| `/api/autocomplete` | GET    | `js/src/server/routes-derived.js` | `rust/crates/.../handlers.rs`               | Parity |
+| `/api/audience`     | GET    | `js/src/server/routes-derived.js` | `rust/crates/.../handlers.rs`               | Parity |
+| `/api/facts`        | GET    | `js/src/server/routes-derived.js` | `rust/crates/.../handlers.rs`               | Parity |
+| `/api/search`       | GET    | `js/src/server/routes-derived.js` | `rust/crates/.../handlers.rs`               | Parity |
+| `/api/health`       | GET    | `js/src/server/routes-derived.js` | `rust/crates/.../handlers.rs`               | Parity |
+| `/sources`          | GET    | `js/src/server/index.js`          | `rust/crates/.../handlers.rs::sources`      | Parity |
+| `/metrics`          | GET    | `js/src/server/metrics.js`        | `rust/crates/.../handlers.rs::metrics_text` | Parity |
 
 ## 3. Mutating CRUD routes
 
-| Route                 | Method | JS server                | Rust server       | Status |
-| --------------------- | ------ | ------------------------ | ----------------- | ------ |
-| `/api/patterns`       | GET    | `routes-mutating.js:187` | `handlers.rs:583` | Parity |
-| `/api/patterns`       | PUT    | `routes-mutating.js:190` | `handlers.rs:584` | Parity |
-| `/api/patterns/infer` | POST   | `routes-mutating.js:193` | `handlers.rs:585` | Parity |
-| `/api/graphs`         | GET    | `routes-mutating.js:211` | `handlers.rs:586` | Parity |
-| `/api/graphs`         | PUT    | `routes-mutating.js:214` | `handlers.rs:587` | Parity |
-| `/api/graphs/run`     | POST   | `routes-mutating.js:217` | `handlers.rs:588` | Parity |
-| `/api/replies`        | GET    | `routes-mutating.js:236` | `handlers.rs:589` | Parity |
-| `/api/replies`        | PUT    | `routes-mutating.js:239` | `handlers.rs:590` | Parity |
-| `/api/profile`        | GET    | `routes-mutating.js:246` | `handlers.rs:591` | Parity |
-| `/api/profile`        | PUT    | `routes-mutating.js:253` | `handlers.rs:604` | Parity |
-| `/api/resume`         | GET    | `routes-mutating.js:272` | `handlers.rs:631` | Parity |
-| `/api/resume`         | PUT    | `routes-mutating.js:278` | `handlers.rs:641` | Parity |
-| `/api/broadcast`      | POST   | `routes-mutating.js:295` | `handlers.rs:668` | Parity |
+| Route                 | Method | JS server                          | Rust server                   | Status |
+| --------------------- | ------ | ---------------------------------- | ----------------------------- | ------ |
+| `/api/patterns`       | GET    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/patterns`       | PUT    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/patterns/infer` | POST   | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/graphs`         | GET    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/graphs`         | PUT    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/graphs/run`     | POST   | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/replies`        | GET    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/replies`        | PUT    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/profile`        | GET    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/profile`        | PUT    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/resume`         | GET    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/resume`         | PUT    | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
+| `/api/broadcast`      | POST   | `js/src/server/routes-mutating.js` | `rust/crates/.../handlers.rs` | Parity |
 
 ## 4. Outreach, backups, hardening
 
-| Route                         | Method | JS server                | Rust server | Status      |
-| ----------------------------- | ------ | ------------------------ | ----------- | ----------- |
-| `/api/outreach`               | POST   | `routes-mutating.js:315` | _missing_   | **JS only** |
-| `/api/backups`                | GET    | `routes-backup.js:100`   | _missing_   | **JS only** |
-| `/api/backups`                | POST   | `routes-backup.js:103`   | _missing_   | **JS only** |
-| `/api/backups/restore`        | POST   | `routes-backup.js:106`   | _missing_   | **JS only** |
-| `/api/export-encrypted`       | POST   | `routes-mutating.js:335` | _missing_   | **JS only** |
-| `/api/links/purge-tombstones` | POST   | `routes-mutating.js:338` | _missing_   | **JS only** |
+| Route                         | Method | JS server                          | Rust server | Status      |
+| ----------------------------- | ------ | ---------------------------------- | ----------- | ----------- |
+| `/api/outreach`               | POST   | `js/src/server/routes-mutating.js` | _missing_   | **JS only** |
+| `/api/backups`                | GET    | `js/src/server/routes-backup.js`   | _missing_   | **JS only** |
+| `/api/backups`                | POST   | `js/src/server/routes-backup.js`   | _missing_   | **JS only** |
+| `/api/backups/restore`        | POST   | `js/src/server/routes-backup.js`   | _missing_   | **JS only** |
+| `/api/export-encrypted`       | POST   | `js/src/server/routes-mutating.js` | _missing_   | **JS only** |
+| `/api/links/purge-tombstones` | POST   | `js/src/server/routes-mutating.js` | _missing_   | **JS only** |
 
 These five endpoints land in the JS server first because they wrap the
 JS-side AES-256-GCM vault, the JS-side outreach planner, and the
@@ -87,10 +87,10 @@ purge-tombstones` keep working against any backend because the CLI
 
 ## 5. Real-time transports
 
-| Surface                   | JS server      | Rust server               | Status |
-| ------------------------- | -------------- | ------------------------- | ------ |
-| WebSocket sync (`/ws`)    | `index.js:258` | `crates/.../ws.rs`        | Parity |
-| WebRTC signaling (`/rtc`) | `index.js:261` | `crates/.../signaling.rs` | Parity |
+| Surface                   | JS server                | Rust server                    | Status |
+| ------------------------- | ------------------------ | ------------------------------ | ------ |
+| WebSocket sync (`/ws`)    | `js/src/server/index.js` | `rust/crates/.../ws.rs`        | Parity |
+| WebRTC signaling (`/rtc`) | `js/src/server/index.js` | `rust/crates/.../signaling.rs` | Parity |
 
 Both servers implement the same wire protocol: peers connect to `/ws`
 for store-replication packets and to `/rtc` for the WebRTC
@@ -99,11 +99,11 @@ to know which backend it is talking to.
 
 ## 6. Static asset serving
 
-| Surface                                    | JS server  | Rust server                      | Status |
-| ------------------------------------------ | ---------- | -------------------------------- | ------ |
-| `/`, `/index.html`                         | `index.js` | `routes.rs::serve_static`        | Parity |
-| `/<asset>.js`/`.css`/`.wasm`               | `index.js` | `routes.rs::serve_static`        | Parity |
-| `/storage/`, `/handlers/`, `/sync/` mounts | `index.js` | `routes.rs::serve_browser_mount` | Parity |
+| Surface                                    | JS server                | Rust server                                      | Status |
+| ------------------------------------------ | ------------------------ | ------------------------------------------------ | ------ |
+| `/`, `/index.html`                         | `js/src/server/index.js` | `rust/crates/.../routes.rs::serve_static`        | Parity |
+| `/<asset>.js`/`.css`/`.wasm`               | `js/src/server/index.js` | `rust/crates/.../routes.rs::serve_static`        | Parity |
+| `/storage/`, `/handlers/`, `/sync/` mounts | `js/src/server/index.js` | `rust/crates/.../routes.rs::serve_browser_mount` | Parity |
 
 Both servers refuse path traversal (`..`), only emit known MIME types,
 and serve only flat single-file paths inside the browser mount

@@ -7,7 +7,7 @@ or Android native projects.
 
 Commands:
 
-- `npm run build:mobile` rebuilds `src/web/app.min.js` and writes
+- `npm run build:mobile` rebuilds `js/src/web/app.min.js` and writes
   `mobile/www`.
 - `npm run mobile:sync` syncs `mobile/www` into already-generated
   native projects.
