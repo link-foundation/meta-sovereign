@@ -26,6 +26,13 @@ Email is now a first-class `MessageSource` named `email`.
 - The local server exposes `POST /api/email/pull` and
   `POST /api/email/send` so the SPA can fall back to same-origin server
   calls when CORS or raw protocols block browser execution.
+- The pure-Rust server lists `email` in `/sources` and serves
+  `POST /api/email/pull` and `POST /api/email/send` with the same JSON
+  envelopes (`rust/crates/meta-sovereign-server/src/email.rs`). It
+  ingests archives into `msg:email:*` links and queues sends; live
+  fetches and raw IMAP/POP3/SMTP delivery still flow through the JS
+  server, and the Rust send route returns
+  `result.status:"needs-local-server"` for raw protocols.
 - CLI `source-pull --source=email --protocol=...` passes email protocol
   options through to the live adapter, and `email-send` sends through
   Gmail, Microsoft Graph, JMAP, or an injected SMTP transport.
