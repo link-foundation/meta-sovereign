@@ -1,14 +1,13 @@
 # Requirements
 
 This document is the canonical, top-level list of requirements that
-`meta-sovereign` is building against. It collects every directive from
-[issue #1](https://github.com/link-foundation/meta-sovereign/issues/1)
-plus the maintainer's clarifying comments on PR #2.
+`meta-sovereign` is building against. It collects directives from
+implemented issues and maintainer comments so later PRs can extend one
+stable requirements ledger.
 
-For an iteration-by-iteration breakdown of how requirements have been
-satisfied, see
-[`docs/case-studies/issue-1/requirements.md`](./case-studies/issue-1/requirements.md)
-and [`docs/case-studies/issue-1/solution-plan.md`](./case-studies/issue-1/solution-plan.md).
+For iteration-by-iteration breakdowns of how requirements have been
+satisfied, see the per-issue folders under
+[`docs/case-studies/`](./case-studies/).
 [`docs/ROADMAP.md`](./ROADMAP.md) is intentionally present as an empty
 review ledger; R-J10 records the single-PR completion criterion.
 
@@ -19,13 +18,13 @@ and code comments can reference it.
 
 ## A. Data layer
 
-| ID   | Requirement                                                                               | State                                                                                                                                                                                                                         |
-| ---- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R-A1 | Import/export with the unified database via external services (live API + bulk archives). | Done: all nine source adapters parse archives or API payloads and expose live read/write surfaces where the upstream service permits it; live imports are normalized into `msg:*` links and stamped through `pullLiveInto()`. |
-| R-A2 | Import/export via `.lino` files using `links-notation` + `lino-objects-codec`.            | Done: `LinoTextStore` + indented codec round-trip in JS and Rust.                                                                                                                                                             |
-| R-A3 | Unified database stored simultaneously in binary (Doublets) and text (`.lino`) form.      | Done: `DualStore` keeps both in sync with `verify()`.                                                                                                                                                                         |
-| R-A4 | Regular automatic backups to a configurable archive directory.                            | Done: `createBackupScheduler` (`.unref()`-ed interval), AES-256-GCM at rest; `secret:*` links are also encrypted-at-rest via `wrapSecretStore` and never leave the local node.                                                |
-| R-A5 | Indented Links Notation preferred over bracketed form for human-readable data exchange.   | Done: codec emits indented form; parser accepts both.                                                                                                                                                                         |
+| ID   | Requirement                                                                               | State                                                                                                                                                                                                                        |
+| ---- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-A1 | Import/export with the unified database via external services (live API + bulk archives). | Done: all ten source adapters parse archives or API payloads and expose live read/write surfaces where the upstream service permits it; live imports are normalized into `msg:*` links and stamped through `pullLiveInto()`. |
+| R-A2 | Import/export via `.lino` files using `links-notation` + `lino-objects-codec`.            | Done: `LinoTextStore` + indented codec round-trip in JS and Rust.                                                                                                                                                            |
+| R-A3 | Unified database stored simultaneously in binary (Doublets) and text (`.lino`) form.      | Done: `DualStore` keeps both in sync with `verify()`.                                                                                                                                                                        |
+| R-A4 | Regular automatic backups to a configurable archive directory.                            | Done: `createBackupScheduler` (`.unref()`-ed interval), AES-256-GCM at rest; `secret:*` links are also encrypted-at-rest via `wrapSecretStore` and never leave the local node.                                               |
+| R-A5 | Indented Links Notation preferred over bracketed form for human-readable data exchange.   | Done: codec emits indented form; parser accepts both.                                                                                                                                                                        |
 
 ## B. Unified communication UI
 
@@ -59,17 +58,18 @@ and code comments can reference it.
 
 ## E. External-service connectors
 
-| ID   | Requirement                             | State                                                                                                                                                                                                                            |
-| ---- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R-E1 | Native support for **VK**.              | Done: `vk-export`-style archive parser plus VK method API live connector for conversations/history, `messages.send`, and profile/status sync.                                                                                    |
-| R-E2 | Native support for **Telegram**.        | Done: Telegram Desktop archive parser handles all-chats exports and duplicate local message ids; Bot API live connector supports `getUpdates`, `sendMessage`, profile sync, `secret:telegram:*` tokens, and handled-link stamps. |
-| R-E3 | Native support for **X**.               | Done: archive parser plus X API v2 connector for DM lookup/send, mention timeline import, public post publishing, and profile update.                                                                                            |
-| R-E4 | Native support for **WhatsApp**.        | Done: per-chat export parser plus WhatsApp Cloud API connector for webhook message ingestion, opted-in text sends, and business profile updates.                                                                                 |
-| R-E5 | Native support for **Facebook**.        | Done: download-your-data parser plus Graph/Messenger connector for page conversation import, webhook ingestion, replies, and page profile metadata updates.                                                                      |
-| R-E6 | Native support for **LinkedIn**.        | Done: data-export parser plus LinkedIn REST Posts connector for API-side post import/export and resume/profile publication.                                                                                                      |
-| R-E7 | Native support for **career.habr.com**. | Done: applications archive parser plus configurable authenticated live connector for application messages and resume sync.                                                                                                       |
-| R-E8 | Native support for **hh.ru**.           | Done: negotiations archive parser plus hh.ru API connector for negotiations, reply messages, and resume create/update.                                                                                                           |
-| R-E9 | Native support for **superjob.ru**.     | Done: vacancy-response archive parser plus SuperJob API connector for response messages and resume create/update.                                                                                                                |
+| ID    | Requirement                             | State                                                                                                                                                                                                                            |
+| ----- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-E1  | Native support for **VK**.              | Done: `vk-export`-style archive parser plus VK method API live connector for conversations/history, `messages.send`, and profile/status sync.                                                                                    |
+| R-E2  | Native support for **Telegram**.        | Done: Telegram Desktop archive parser handles all-chats exports and duplicate local message ids; Bot API live connector supports `getUpdates`, `sendMessage`, profile sync, `secret:telegram:*` tokens, and handled-link stamps. |
+| R-E3  | Native support for **X**.               | Done: archive parser plus X API v2 connector for DM lookup/send, mention timeline import, public post publishing, and profile update.                                                                                            |
+| R-E4  | Native support for **WhatsApp**.        | Done: per-chat export parser plus WhatsApp Cloud API connector for webhook message ingestion, opted-in text sends, and business profile updates.                                                                                 |
+| R-E5  | Native support for **Facebook**.        | Done: download-your-data parser plus Graph/Messenger connector for page conversation import, webhook ingestion, replies, and page profile metadata updates.                                                                      |
+| R-E6  | Native support for **LinkedIn**.        | Done: data-export parser plus LinkedIn REST Posts connector for API-side post import/export and resume/profile publication.                                                                                                      |
+| R-E7  | Native support for **career.habr.com**. | Done: applications archive parser plus configurable authenticated live connector for application messages and resume sync.                                                                                                       |
+| R-E8  | Native support for **hh.ru**.           | Done: negotiations archive parser plus hh.ru API connector for negotiations, reply messages, and resume create/update.                                                                                                           |
+| R-E9  | Native support for **superjob.ru**.     | Done: vacancy-response archive parser plus SuperJob API connector for response messages and resume create/update.                                                                                                                |
+| R-E10 | Native support for **email**.           | Done: `.eml`/mbox archive parser, JSON mail normalization, browser-direct JMAP/Gmail/Microsoft Graph live connectors, Node local-server IMAP/POP3/SMTP fallback, and local-server `/api/email/pull` + `/api/email/send` routes.  |
 
 ## F. Distribution, sync, and deployment
 
@@ -245,6 +245,29 @@ the canonical surface is summarised below.
 | R-M16 | The case study must propose possible solutions and a solution plan for each requirement.                                                                                                                                                                 | Done: `docs/case-studies/issue-10/solution-plan.md`.                                                                                                                            |
 | R-M17 | The case study must check known existing components / libraries that solve a similar problem.                                                                                                                                                            | Done: `docs/case-studies/issue-10/components.md` + `external-research.md`.                                                                                                      |
 | R-M18 | All work must land in a single PR (#11) and iterate until every requirement is fully addressed.                                                                                                                                                          | Done: PR #11 on branch `issue-10-a884af8ade4e`.                                                                                                                                 |
+
+---
+
+## N. Email support (issue #3)
+
+The following requirements arose from
+[issue #3](https://github.com/link-foundation/meta-sovereign/issues/3) —
+"Add email support". The full atomic list and traceability live in
+[`docs/case-studies/issue-3/requirements.md`](./case-studies/issue-3/requirements.md);
+the canonical surface is summarised below.
+
+| ID    | Requirement                                                                                                       | State                                                                                                                                                                                                |
+| ----- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-N1  | Compile issue #3 research and evidence under `docs/case-studies/issue-3/`.                                        | Done: raw issue/comment JSON plus README, requirements, solution plan, components, research notes, and external research files are present.                                                          |
+| R-N2  | Research email protocols, browser constraints, and existing provider APIs before implementation.                  | Done: `external-research.md` records JMAP, IMAP, POP3, SMTP, Gmail, Microsoft Graph, Fetch, and CORS source notes.                                                                                   |
+| R-N3  | Enumerate every requirement from the issue and track completion.                                                  | Done: `docs/case-studies/issue-3/requirements.md` lists R-N1..R-N10.                                                                                                                                 |
+| R-N4  | Support email imports from provider exports and unified mail archive formats.                                     | Done: `emailSource.parseArchive()` handles `.eml`, mbox, provider JSON arrays, and common message-list envelope shapes.                                                                              |
+| R-N5  | Support receiving mail through live provider APIs where browser-direct access is possible.                        | Done: `createEmailLive()` pulls Gmail, Microsoft Graph, and JMAP messages over `fetch()` and normalizes them to `msg:email:*` links.                                                                 |
+| R-N6  | Support sending mail through live provider APIs where browser-direct access is possible.                          | Done: Gmail `users.messages.send`, Microsoft Graph `sendMail`, and JMAP `Email/set` + `EmailSubmission/set` are implemented.                                                                         |
+| R-N7  | Support all existing email protocols by using a local server fallback for protocols browsers cannot use directly. | Done: IMAP, POP3, and SMTP paths attach the Node local-server raw protocol transport and still return `LOCAL_SERVER_REQUIRED` in browser-only contexts.                                              |
+| R-N8  | Add local server endpoints for email import and send fallback.                                                    | Done: the JS server exposes `POST /api/email/pull` and `POST /api/email/send`, stores stamped imported links, and reads `secret:email:*` tokens from the store.                                      |
+| R-N9  | Add CLI/API surfaces so email support is available outside the SPA.                                               | Done: `source-pull --source=email ...`, `email-send ...`, `./sources/email` package export, and source registry integration expose the feature.                                                      |
+| R-N10 | Verify the fix with reproducing automated tests.                                                                  | Done: source parser tests, live connector tests, raw protocol transport tests, and server-route tests cover archive import, Gmail, Graph, JMAP, IMAP/POP3/SMTP, and the local server fallback route. |
 
 ---
 

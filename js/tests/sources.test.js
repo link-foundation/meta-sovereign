@@ -3,8 +3,9 @@ import { listSources, getSource, importInto } from '../src/sources/index.js';
 import { createMemoryStore } from '../src/storage/index.js';
 
 describe('source registry', () => {
-  it('lists all 9 networks', () => {
-    expect(listSources().length).toBe(9);
+  it('lists all 10 networks', () => {
+    expect(listSources().length).toBe(10);
+    expect(listSources().includes('email')).toBe(true);
   });
   it('throws on unknown source', () => {
     let caught = false;
@@ -14,6 +15,51 @@ describe('source registry', () => {
       caught = true;
     }
     expect(caught).toBe(true);
+  });
+});
+
+describe('email archives', () => {
+  it('imports a single .eml message', async () => {
+    const eml = [
+      'Message-ID: <m1@example.com>',
+      'From: Alice <alice@example.com>',
+      'To: Bob <bob@example.com>',
+      'Subject: Hello',
+      'Date: Sun, 03 May 2026 10:00:00 +0000',
+      '',
+      'Plain body',
+    ].join('\r\n');
+    const out = await getSource('email').parseArchive(eml);
+    expect(out.length).toBe(1);
+    expect(out[0].id).toBe('msg:email:m1@example.com');
+    expect(out[0].sender).toBe('alice@example.com');
+    expect(out[0].to[0].address).toBe('bob@example.com');
+    expect(out[0].subject).toBe('Hello');
+    expect(out[0].body).toBe('Plain body');
+  });
+
+  it('imports mbox archives as separate messages', async () => {
+    const mbox = [
+      'From alice@example.com Sun May  3 10:00:00 2026',
+      'Message-ID: <m1@example.com>',
+      'From: alice@example.com',
+      'To: bob@example.com',
+      'Subject: First',
+      '',
+      'one',
+      'From bob@example.com Sun May  3 11:00:00 2026',
+      'Message-ID: <m2@example.com>',
+      'From: bob@example.com',
+      'To: alice@example.com',
+      'Subject: Second',
+      '',
+      'two',
+    ].join('\n');
+    const out = await getSource('email').parseArchive(mbox);
+    expect(out.length).toBe(2);
+    expect(out[0].body).toBe('one');
+    expect(out[1].id).toBe('msg:email:m2@example.com');
+    expect(out[1].subject).toBe('Second');
   });
 });
 

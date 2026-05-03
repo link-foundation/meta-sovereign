@@ -28,6 +28,8 @@
  *   PUT  /api/resume               -> upsert + plan cross-network sync
  *   POST /api/broadcast            -> queue post for outbound networks
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
+ *   POST /api/email/pull           -> local-server email API/protocol proxy
+ *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/backups              -> list archives (gated on archiveDir)
  *   POST /api/backups              -> { passphrase?, keep? } -> { file }
  *   POST /api/backups/restore      -> { file, passphrase? } -> { restored }
@@ -74,13 +76,14 @@ const MIME = {
 // resources and ships no inline scripts/styles: only same-origin SPA
 // modules/bundles and app.css. WebSockets connect to the same
 // origin (/ws + /rtc); discovery may also attempt 127.0.0.1 / localhost
-// on alternate ports. `connect-src` therefore allows local loopback.
+// on alternate ports. Browser-first provider API calls (JMAP, Gmail,
+// Graph, etc.) use HTTPS directly when CORS allows them.
 export const CSP =
   "default-src 'self'; " +
   "script-src 'self' 'wasm-unsafe-eval'; " +
   "style-src 'self'; " +
   "img-src 'self' data: blob:; " +
-  "connect-src 'self' ws: wss: http://127.0.0.1:* http://localhost:*; " +
+  "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; " +
   "worker-src 'self'; " +
   "font-src 'self' data:; " +
   "object-src 'none'; " +
@@ -214,6 +217,7 @@ export const startServer = async ({
   log = process.env.MS_LOG_FORMAT === 'json' ? jsonLog() : null,
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
+  emailLiveFactory = null,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -226,6 +230,7 @@ export const startServer = async ({
     sync: null,
     signaling: null,
     secretPassphrase,
+    emailLiveFactory,
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();

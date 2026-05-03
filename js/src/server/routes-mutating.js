@@ -9,7 +9,9 @@
 import { json, readBody } from './util.js';
 import { inferRegex, simplifyRegex, inferRegexLcs } from '../patterns/index.js';
 import { runGraph } from '../automation/index.js';
-import { listSources } from '../sources/index.js';
+import { listSources, stampSourceLink } from '../sources/index.js';
+import { createEmailLive } from '../sources/email.js';
+import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { planOutreach, runOutreach } from '../broadcast/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
@@ -331,6 +333,129 @@ const handleOutreach = async (store, req, res, p) => {
   return json(res, 200, plan) ?? true;
 };
 
+const readEmailToken = async (store, { protocol, provider, secretId }) => {
+  const ids = [
+    secretId,
+    provider ? `secret:email:${provider}:token` : null,
+    protocol ? `secret:email:${protocol}:token` : null,
+    'secret:email:token',
+  ].filter(Boolean);
+  for (const id of ids) {
+    const link = await store.get(id);
+    const token = link?.token ?? link?.value ?? link?.body ?? link?.text;
+    if (token) {
+      return token;
+    }
+  }
+  return null;
+};
+
+const RAW_EMAIL_PROTOCOLS = new Set(['imap', 'pop3', 'smtp']);
+
+const bodyValue = (body, key, aliases = []) => {
+  const config = body.config ?? {};
+  for (const name of [key, ...aliases]) {
+    if (body[name] !== undefined) {
+      return body[name];
+    }
+    if (config[name] !== undefined) {
+      return config[name];
+    }
+  }
+  return undefined;
+};
+
+const buildEmailLiveConfig = (body, protocol, provider, token) => ({
+  ...(body.config ?? {}),
+  protocol,
+  provider,
+  token,
+  baseUrl: bodyValue(body, 'baseUrl'),
+  accountId: bodyValue(body, 'accountId'),
+  userId: bodyValue(body, 'userId'),
+  host: bodyValue(body, 'host'),
+  port: bodyValue(body, 'port'),
+  secure: bodyValue(body, 'secure'),
+  username: bodyValue(body, 'username', ['user']),
+  password: bodyValue(body, 'password'),
+  mailbox: bodyValue(body, 'mailbox'),
+});
+
+const withRawEmailTransport = (config) => {
+  if (
+    config.transport ||
+    !RAW_EMAIL_PROTOCOLS.has(String(config.protocol).toLowerCase())
+  ) {
+    return config;
+  }
+  return { ...config, transport: createNodeEmailTransport(config) };
+};
+
+const emailLive = async (store, body, ctx) => {
+  const protocol = bodyValue(body, 'protocol') ?? 'jmap';
+  const provider = bodyValue(body, 'provider') ?? protocol;
+  const token =
+    bodyValue(body, 'token') ??
+    (await readEmailToken(store, {
+      protocol,
+      provider,
+      secretId: bodyValue(body, 'secretId'),
+    }));
+  const config = withRawEmailTransport(
+    buildEmailLiveConfig(body, protocol, provider, token)
+  );
+  const factory = ctx?.emailLiveFactory ?? createEmailLive;
+  return {
+    protocol,
+    provider,
+    token,
+    live: factory(config),
+  };
+};
+
+const pullEmail = async (store, body, ctx) => {
+  const { protocol, provider, token, live } = await emailLive(store, body, ctx);
+  const result = await live.pullMessages({
+    ...(body.options ?? {}),
+    token,
+    limit: body.limit ?? body.options?.limit,
+    offset: body.offset ?? body.options?.offset,
+  });
+  const links = result.links ?? [];
+  for (const link of links) {
+    await store.put(stampSourceLink(link, 'email'));
+  }
+  return {
+    source: 'email',
+    protocol,
+    provider,
+    imported: links.length,
+    rawCount: result.rawCount ?? links.length,
+    nextOffset: result.nextOffset ?? null,
+  };
+};
+
+const sendEmail = async (store, body, ctx) => {
+  const { protocol, provider, token, live } = await emailLive(store, body, ctx);
+  const result = await live.post(body.message ?? body.content ?? body, {
+    ...(body.options ?? {}),
+    token,
+  });
+  return { source: 'email', protocol, provider, result };
+};
+
+const handleEmail = async (store, req, res, p, ctx) => {
+  if (p === '/api/email/pull' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await pullEmail(store, body, ctx)) ?? true;
+  }
+  if (p === '/api/email/send' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await sendEmail(store, body, ctx)) ?? true;
+  }
+  return false;
+};
+
 const handleHardening = async (store, req, res, p, ctx) => {
   if (p === '/api/export-encrypted' && req.method === 'POST') {
     return handleExportEncrypted(store, req, res, ctx);
@@ -350,4 +475,5 @@ export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
   (await handleResume(store, req, res, p)) ||
   (await handleBroadcast(store, req, res, p)) ||
   (await handleOutreach(store, req, res, p)) ||
+  (await handleEmail(store, req, res, p, ctx)) ||
   (await handleHardening(store, req, res, p, ctx));

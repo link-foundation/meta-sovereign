@@ -141,10 +141,15 @@ and run:
 meta-sovereign import
 ```
 
-Supported sources: VK, Telegram (Desktop), X, WhatsApp, Facebook,
-LinkedIn, career.habr.com, hh.ru, superjob.ru. See
+Supported sources: email (`.eml`/mbox), VK, Telegram (Desktop), X, WhatsApp,
+Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru. See
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section E for the full
 list and per-source notes.
+
+For live email, use `source-pull --source=email --protocol=gmail`,
+`microsoft-graph`, `jmap`, `imap`, or `pop3`. Raw IMAP/POP3/SMTP
+protocols also need `--host`, plus `--username` and `--password` unless
+the equivalent `EMAIL_*` environment variables are set.
 
 ## 9. Troubleshooting
 

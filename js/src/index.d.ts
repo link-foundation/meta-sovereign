@@ -20,4 +20,5 @@ export declare const runCli: (argv: string[]) => Promise<number>;
 export declare const startServer: (opts: {
   port?: number;
   storeDir?: string;
+  emailLiveFactory?: (config: unknown) => unknown;
 }) => Promise<{ port: number; close: () => Promise<void> }>;
