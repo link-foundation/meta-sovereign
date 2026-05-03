@@ -1,0 +1,85 @@
+TAP version 13
+# Subtest: TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key
+ok 1 - TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key
+  ---
+  duration_ms: 1.08477
+  ...
+# Subtest: defaultSteps is a non-empty list of unique-id steps
+ok 2 - defaultSteps is a non-empty list of unique-id steps
+  ---
+  duration_ms: 0.212387
+  ...
+# Subtest: readPreference returns null on a fresh storage
+ok 3 - readPreference returns null on a fresh storage
+  ---
+  duration_ms: 0.145117
+  ...
+# Subtest: writePreference + readPreference round-trips a dismissed tutorial
+ok 4 - writePreference + readPreference round-trips a dismissed tutorial
+  ---
+  duration_ms: 0.585464
+  ...
+# Subtest: clearPreference removes the entry so readPreference is null again
+ok 5 - clearPreference removes the entry so readPreference is null again
+  ---
+  duration_ms: 0.171216
+  ...
+# Subtest: readPreference returns null for malformed JSON
+ok 6 - readPreference returns null for malformed JSON
+  ---
+  duration_ms: 0.085057
+  ...
+# Subtest: TutorialOverlay resumes from stored step progress after page reload
+not ok 7 - TutorialOverlay resumes from stored step progress after page reload
+  ---
+  duration_ms: 9.02565
+  location: '/tmp/gh-issue-solver-1777837177833/js/tests/tutorial.test.js:80:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /data-tutorial-step="automation"/. Input:
+    
+    '<div class="tutorial-overlay" role="presentation" data-tutorial-overlay=""><section class="tutorial-step card" role="dialog" aria-modal="true" aria-labelledby="tutorial-step-welcome" data-tutorial-step="welcome"><h2 id="tutorial-step-welcome">Welcome to meta-sovereign</h2><p>This is your local-first personal CRM and unified inbox. Nothing leaves your browser unless you point it at a server. Hit &quot;Next&quot; to walk through the headline flows.</p><div class="meta">Step 1 of 5</div><div class="row"><button type="button" data-action="tutorial-skip">Skip step</button><button type="button" class="primary" data-action="tutorial-next">Next</button><button type="button" data-action="tutorial-off">Turn off tutorial</button></div></section></div>'
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: '<div class="tutorial-overlay" role="presentation" data-tutorial-overlay=""><section class="tutorial-step card" role="dialog" aria-modal="true" aria-labelledby="tutorial-step-welcome" data-tutorial-step="welcome"><h2 id="tutorial-step-welcome">Welcome to meta-sovereign</h2><p>This is your local-first personal CRM and unified inbox. Nothing leaves your browser unless you point it at a server. Hit &quot;Next&quot; to walk through the headline flows.</p><div class="meta">Step 1 of 5</div><div class="row"><button type="button" data-action="tutorial-skip">Skip step</button><button type="button" class="primary" data-action="tutorial-next">Next</button><button type="button" data-action="tutorial-off">Turn off tutorial</button></div></section></div>'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/gh-issue-solver-1777837177833/js/tests/tutorial.test.js:94:10)
+    Test.runInAsyncScope (node:async_hooks:206:9)
+    Test.run (node:internal/test_runner/test:796:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:526:18)
+    Test.postRun (node:internal/test_runner/test:889:19)
+    Test.run (node:internal/test_runner/test:835:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+  ...
+# Subtest: readPreference is null-safe when storage is undefined
+ok 8 - readPreference is null-safe when storage is undefined
+  ---
+  duration_ms: 0.271775
+  ...
+# Subtest: writePreference and clearPreference tolerate a null storage
+ok 9 - writePreference and clearPreference tolerate a null storage
+  ---
+  duration_ms: 0.212238
+  ...
+# Subtest: writePreference tolerates a storage that throws on setItem
+ok 10 - writePreference tolerates a storage that throws on setItem
+  ---
+  duration_ms: 1.508834
+  ...
+# Subtest: every default step targets a real nav surface or is a shell-level step
+ok 11 - every default step targets a real nav surface or is a shell-level step
+  ---
+  duration_ms: 7.785216
+  ...
+1..11
+# tests 11
+# suites 0
+# pass 10
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 114.652793

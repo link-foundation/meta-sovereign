@@ -1,0 +1,75 @@
+TAP version 13
+# Subtest: TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key
+ok 1 - TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key
+  ---
+  duration_ms: 1.143428
+  ...
+# Subtest: defaultSteps is a non-empty list of unique-id steps
+ok 2 - defaultSteps is a non-empty list of unique-id steps
+  ---
+  duration_ms: 0.276082
+  ...
+# Subtest: readPreference returns null on a fresh storage
+ok 3 - readPreference returns null on a fresh storage
+  ---
+  duration_ms: 0.16759
+  ...
+# Subtest: writePreference + readPreference round-trips a dismissed tutorial
+ok 4 - writePreference + readPreference round-trips a dismissed tutorial
+  ---
+  duration_ms: 0.708548
+  ...
+# Subtest: writeProgressPreference stores the current tutorial step id
+ok 5 - writeProgressPreference stores the current tutorial step id
+  ---
+  duration_ms: 0.281009
+  ...
+# Subtest: writeCompletedPreference persists completed tutorials as off
+ok 6 - writeCompletedPreference persists completed tutorials as off
+  ---
+  duration_ms: 0.116504
+  ...
+# Subtest: clearPreference removes the entry so readPreference is null again
+ok 7 - clearPreference removes the entry so readPreference is null again
+  ---
+  duration_ms: 0.116103
+  ...
+# Subtest: readPreference returns null for malformed JSON
+ok 8 - readPreference returns null for malformed JSON
+  ---
+  duration_ms: 0.167971
+  ...
+# Subtest: TutorialOverlay resumes from stored step progress after page reload
+ok 9 - TutorialOverlay resumes from stored step progress after page reload
+  ---
+  duration_ms: 7.232481
+  ...
+# Subtest: readPreference is null-safe when storage is undefined
+ok 10 - readPreference is null-safe when storage is undefined
+  ---
+  duration_ms: 1.956573
+  ...
+# Subtest: writePreference and clearPreference tolerate a null storage
+ok 11 - writePreference and clearPreference tolerate a null storage
+  ---
+  duration_ms: 0.208991
+  ...
+# Subtest: writePreference tolerates a storage that throws on setItem
+ok 12 - writePreference tolerates a storage that throws on setItem
+  ---
+  duration_ms: 0.353669
+  ...
+# Subtest: every default step targets a real nav surface or is a shell-level step
+ok 13 - every default step targets a real nav surface or is a shell-level step
+  ---
+  duration_ms: 12.558263
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 124.935145
