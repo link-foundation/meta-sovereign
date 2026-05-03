@@ -112,6 +112,8 @@ describe('Settings credentials roundtrip (issue #16)', () => {
 
       const after = await fetch(`${base}/links/secret:telegram:bot-token`);
       expect(after.status).toBe(404);
+      // Deno's test runner flags any unread response body as a leak.
+      await after.body?.cancel();
 
       // After forgetting, buildProbeUrl returns null (R-O2: never fire
       // a request when credentials are missing).
