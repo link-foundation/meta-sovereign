@@ -1,6 +1,6 @@
 {
   "name": "meta-sovereign",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services",
   "type": "module",
   "main": "src/index.js",
