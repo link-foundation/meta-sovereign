@@ -1,8 +1,47 @@
 # meta-sovereign
 
-A personal meta profile **sovereign** system. Fully local, privacy-respecting. The user actually owns and controls their data about their network of contacts, connections, and partners — across every social, messenger, and job-board network they use.
+A personal **meta profile sovereign** system — a unified inbox + CRM + automation platform that the user actually owns. Local-first, privacy-respecting, with all your contacts, chats, and patterns from VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, and superjob.ru.
 
-Tracked by issue [#1 — Prototype version 0.0.1](https://github.com/link-foundation/meta-sovereign/issues/1). The full case study, requirements list, architecture sketch, and phased solution plan live in [`docs/case-studies/issue-1/`](docs/case-studies/issue-1/README.md).
+## Try it now (no install)
+
+Open <https://link-foundation.github.io/meta-sovereign/> in any modern browser. The web app boots immediately, runs entirely in your browser, and writes to local storage by default — nothing leaves your device until you point it at a server.
+
+> If the link is not yet live, the GitHub Pages workflow (`.github/workflows/pages.yml`) publishes it on the next push to `main`.
+
+## Run a local server (recommended for sync)
+
+To sync between devices, encrypt at rest, and unlock the full feature set, start a local server next to the SPA. Two backends are available; both implement the same wire protocol (see [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md)).
+
+### Rust server — preferred (single binary, no runtime)
+
+```bash
+git clone https://github.com/link-foundation/meta-sovereign
+cd meta-sovereign
+cargo run -p meta-sovereign-server -- serve
+```
+
+### JavaScript server — fallback (Node/Bun/Deno)
+
+```bash
+npm install -g meta-sovereign
+meta-sovereign serve
+```
+
+Either backend listens on <http://127.0.0.1:5176> by default. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
+
+## Connect the SPA to your server
+
+The SPA picks a server in this order ([`src/web/discover.js`](src/web/discover.js)):
+
+1. **Same origin** — when you serve the SPA from the JS or Rust server directly.
+2. **Saved override** — `localStorage.metaServer`. Set via the in-app **Settings → Server** prompt.
+3. **Runtime shell candidates** — Electron and Capacitor inject the embedded server URL.
+4. **`127.0.0.1` ports** — the default local-server port is probed automatically.
+5. **Caller-supplied LAN candidates** — passed programmatically.
+
+If nothing answers, the SPA falls back to **offline mode**: writes go to the local browser store ([`createBrowserStore`](src/storage/browser-store.js): IndexedDB → localStorage → in-memory) and replay automatically through [`OfflineClient`](src/web/client.js) the next time a server appears.
+
+The full user-facing flow — install nothing, install Rust server, install JS server, install desktop / mobile app, encrypted export, troubleshooting — is in [`docs/USER-GUIDE.md`](docs/USER-GUIDE.md).
 
 ## What it does
 
@@ -14,7 +53,7 @@ Tracked by issue [#1 — Prototype version 0.0.1](https://github.com/link-founda
 - **Local-first runtime**: WebRTC sync between user-owned devices, optional self-hosted personal cloud.
 - **Two stacks**: JS + Rust/WebAssembly (default) and pure Rust (server/microservice variant). The on-disk format is shared.
 
-This repository is built on top of [`link-foundation/js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template) and inherits its CI/CD jobs. PR #2 has since expanded the codebase into a runnable system: storage, archive importers, live service connectors, CLI, HTTP, React SPA, WebSocket/WebRTC sync, handler bus, encrypted backups, and the pure-Rust server are all implemented and tested. The full requirement → status mapping lives in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md); the per-iteration breakdown is in [`docs/case-studies/issue-1/`](docs/case-studies/issue-1/README.md).
+The full requirement → status mapping lives in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md); the per-issue case studies live in [`docs/case-studies/`](docs/case-studies/).
 
 ## Status
 
@@ -26,20 +65,61 @@ The prototype targeted by issue #1 is implemented and tracked in PR #2:
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
 - **Distribution (R-F\*)**: NPM library, CLI (`bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
 - **Stacks (R-G\*)**: default JS server + React SPA + Rust/WASM heavy workloads; alternative pure-Rust server (`meta-sovereign-rs serve`).
-- **Quality (R-H\*)**: JS and Rust workspace tests; real-browser e2e via [`browser-commander`](https://github.com/link-foundation/browser-commander); axe-core WCAG 2.0 A/AA audit; cross-runtime CI matrix (Node, Bun, Deno × Ubuntu, macOS, Windows).
+- **Hardening (R-K\*)**: soft-delete by default, AES-256-GCM master-key vault with multi-method unlock, encrypted export.
+- **Browser publishing (R-L\*)**: GitHub Pages CI workflow, SPA on a public URL, user-first README and user guide.
 
-## Inherited features (CI/CD baseline)
+## Repository structure
 
-- **Multi-runtime support**: Works with Bun, Node.js, and Deno
-- **Universal testing**: Uses [test-anywhere](https://github.com/link-foundation/test-anywhere) for cross-runtime tests
-- **Automated releases**: Changesets-based versioning with GitHub Actions
-- **Code quality**: ESLint + Prettier with pre-commit hooks via Husky
-- **Package manager agnostic**: Works with bun, npm, yarn, pnpm, and deno
-- **Broken link checks**: Automated link validation with [lychee](https://github.com/lycheeverse/lychee-action) and Web Archive fallback suggestions
+`meta-sovereign` is multi-language. Each language tree mirrors the corresponding [link-foundation AI-driven-development pipeline template](https://github.com/link-foundation):
 
-## Quick Start
+- **JavaScript** lives under `src/` and `tests/` — the same layout as [`js-ai-driven-development-pipeline-template`](https://github.com/link-foundation/js-ai-driven-development-pipeline-template), which uses `src/` for its single-language tree.
+- **Rust** lives under `crates/` (a Cargo workspace) — the [`rust-ai-driven-development-pipeline-template`](https://github.com/link-foundation/rust-ai-driven-development-pipeline-template) uses `src/` because it is single-crate; we use `crates/` because we ship a workspace (`meta-sovereign-server`, `meta-sovereign-core`, etc.).
+- **Native shells**: `electron/` (desktop), `mobile/` + `capacitor.config.json` (iOS/Android), `docker/` (web + WebRTC microservices).
+- **Operations**: `.github/workflows/` (CI/CD), `scripts/` (build helpers), `.changeset/` (release management), `docs/` (this guide and case studies).
 
-### Development
+A literal rename to `./js` and `./rust` is **intentionally out of scope** of issue #8: the templates themselves do not use those names (each uses `src/` for its single language), and the rename would touch every test path, every build script, the npm exports map, and the workspace member list with no functional benefit. See [`docs/case-studies/issue-8/solution-plan.md`](docs/case-studies/issue-8/solution-plan.md) Phase 6 for the full rationale.
+
+```
+.
+├── .changeset/           # Changeset configuration
+├── .github/workflows/    # GitHub Actions CI/CD (release.yml, links.yml, pages.yml)
+├── .husky/               # Git hooks (pre-commit)
+├── bin/                  # CLI entrypoint (meta-sovereign)
+├── crates/               # Pure-Rust workspace (core, server, wasm)
+├── docker/               # Web + WebRTC microservice Dockerfiles
+├── docs/                 # REQUIREMENTS, USER-GUIDE, SERVER-PARITY, case studies
+├── electron/             # Electron desktop shell + preload bridge
+├── examples/             # Usage examples
+├── experiments/          # Throwaway/exploration scripts
+├── mobile/               # Capacitor mobile shell
+├── scripts/              # Build and release scripts (CI/CD parity with JS template)
+├── src/                  # JavaScript source (storage, sources, sync, server, web, ...)
+├── tests/                # Cross-runtime unit + integration tests, real-browser e2e
+├── bunfig.toml           # Bun configuration
+├── capacitor.config.json # Capacitor mobile config
+├── deno.json             # Deno configuration
+├── eslint.config.js      # ESLint configuration
+├── Cargo.toml            # Rust workspace manifest
+└── package.json          # Node.js package manifest
+```
+
+---
+
+## Developer reference
+
+Everything below is for contributors. End-users do not need to read it.
+
+### Inherited features (CI/CD baseline)
+
+- **Multi-runtime support**: Works with Bun, Node.js, and Deno.
+- **Universal testing**: Uses [test-anywhere](https://github.com/link-foundation/test-anywhere) for cross-runtime tests.
+- **Automated releases**: Changesets-based versioning with GitHub Actions.
+- **Code quality**: ESLint + Prettier with pre-commit hooks via Husky.
+- **Package manager agnostic**: Works with bun, npm, yarn, pnpm, and deno.
+- **Broken link checks**: Automated link validation with [lychee](https://github.com/lycheeverse/lychee-action) and Web Archive fallback suggestions.
+- **GitHub Pages publishing**: `pages.yml` deploys the SPA on every push to `main` (this PR).
+
+### Quick Start
 
 ```bash
 # Install dependencies
@@ -58,6 +138,12 @@ RUN_BROWSER_E2E=1 npm run test:e2e:browser
 # Run the Rust workspace tests
 cargo test --workspace
 
+# Build the SPA bundle
+npm run build:web
+
+# Build the GitHub Pages artifact (writes dist/pages/)
+npm run build:pages
+
 # Lint code
 bun run lint
 
@@ -68,35 +154,9 @@ bun run format
 bun run check
 ```
 
-## Project Structure
+### Design Choices
 
-```
-.
-├── .changeset/           # Changeset configuration
-├── .github/workflows/    # GitHub Actions CI/CD (release.yml, links.yml)
-├── .husky/               # Git hooks (pre-commit)
-├── bin/                  # CLI entrypoint (meta-sovereign)
-├── crates/               # Pure-Rust workspace (core, server, wasm)
-├── docker/               # Web + WebRTC microservice Dockerfiles
-├── docs/                 # REQUIREMENTS, case studies, design docs, screenshots
-├── electron/             # Electron desktop shell + preload bridge
-├── examples/             # Usage examples
-├── experiments/          # Throwaway/exploration scripts
-├── mobile/               # Capacitor mobile shell
-├── scripts/              # Build and release scripts (CI/CD parity with JS template)
-├── src/                  # Source code (storage, sources, sync, broadcast, handlers, server, web, ...)
-├── tests/                # Cross-runtime unit + integration tests, real-browser e2e
-├── bunfig.toml           # Bun configuration
-├── capacitor.config.json # Capacitor mobile config
-├── deno.json             # Deno configuration
-├── eslint.config.js      # ESLint configuration
-├── Cargo.toml            # Rust workspace manifest
-└── package.json          # Node.js package manifest
-```
-
-## Design Choices
-
-### Multi-Runtime Support
+#### Multi-Runtime Support
 
 This template is designed to work seamlessly with all major JavaScript runtimes:
 
@@ -106,7 +166,7 @@ This template is designed to work seamlessly with all major JavaScript runtimes:
 
 The [test-anywhere](https://github.com/link-foundation/test-anywhere) framework provides a unified testing API that works identically across all runtimes.
 
-### Package Manager Agnostic
+#### Package Manager Agnostic
 
 While `package.json` is the source of truth for dependencies, the template supports:
 
@@ -118,14 +178,14 @@ While `package.json` is the source of truth for dependencies, the template suppo
 
 Note: `package-lock.json` is not committed by default to allow any package manager.
 
-### Code Quality
+#### Code Quality
 
 - **ESLint**: Configured with recommended rules + Prettier integration
 - **Prettier**: Consistent code formatting
 - **Husky + lint-staged**: Pre-commit hooks ensure code quality
 - **File size limit**: Files must stay under 1500 lines for maintainability (enforced via ESLint and CI)
 
-### Release Workflow
+#### Release Workflow
 
 The release workflow uses [Changesets](https://github.com/changesets/changesets) for version management:
 
@@ -135,14 +195,14 @@ The release workflow uses [Changesets](https://github.com/changesets/changesets)
 4. **npm publishing**: Automated via OIDC trusted publishing (no tokens needed)
 5. **GitHub releases**: Auto-created with formatted release notes
 
-#### Manual Releases
+##### Manual Releases
 
 Two manual release modes are available via GitHub Actions:
 
 - **Instant release**: Immediately bump version and publish
 - **Changeset PR**: Create a PR with changeset for review
 
-### CI/CD Pipeline
+#### CI/CD Pipeline
 
 The GitHub Actions workflow (`.github/workflows/release.yml`) implements a fast-fail pipeline:
 
@@ -165,8 +225,9 @@ The GitHub Actions workflow (`.github/workflows/release.yml`) implements a fast-
 
 10. **Changeset merge**: Combines multiple pending changesets at release time
 11. **Release**: Automated versioning and npm publishing
+12. **GitHub Pages**: `pages.yml` publishes the SPA bundle (this PR).
 
-#### Reasonable timeouts on every job
+##### Reasonable timeouts on every job
 
 Every CI job declares an explicit `timeout-minutes` so a hung step
 fails fast instead of stalling for the GitHub default of six hours.
@@ -183,6 +244,7 @@ runners without hiding real flakiness:
 | Test (per runtime × OS)    | 10 min   | ~13–55 s (deno-windows up to ~2 min on cold) |
 | Release / Instant Release  | 30 min   | well under 10 min                            |
 | Broken Link Checker        | 10 min   | ~8 s                                         |
+| GitHub Pages build/deploy  | 10 min   | ~30–60 s                                     |
 
 Per-test timeouts are also enforced inside the runners themselves so
 an individual hung promise surfaces in seconds rather than at the job
@@ -190,7 +252,7 @@ cap: `node --test --test-timeout=30000` and `bun test --timeout 30000`.
 
 See [BEST-PRACTICES.md](docs/BEST-PRACTICES.md) for detailed explanations of each practice.
 
-#### Robust Changeset Handling
+##### Robust Changeset Handling
 
 The CI/CD pipeline is designed to handle concurrent PRs gracefully:
 
@@ -202,7 +264,7 @@ The CI/CD pipeline is designed to handle concurrent PRs gracefully:
 
 This design decouples PR validation from the need to pull changes from the default branch, reducing conflicts and ensuring that even if CI/CD fails, all unpublished changesets will still get published when the error is resolved.
 
-### Broken Link Checker
+#### Broken Link Checker
 
 The link checker workflow (`.github/workflows/links.yml`) validates all links in Markdown and HTML files:
 
@@ -216,9 +278,13 @@ The link checker workflow (`.github/workflows/links.yml`) validates all links in
 
 Add regex patterns to `.lycheeignore` to exclude URLs from checks (e.g., local dev URLs, example.com, known rate-limited sites).
 
-## Configuration
+#### GitHub Pages publishing
 
-### ESLint Rules
+The `pages.yml` workflow (added in PR #9 / issue #8) builds `dist/pages/` from `src/web/` and deploys it to GitHub Pages on every push to `main`. The workflow uses the official `actions/configure-pages`, `actions/upload-pages-artifact`, and `actions/deploy-pages` actions. PRs run a build-only job for early feedback; only `main` and `workflow_dispatch` trigger an actual deploy. See [`docs/case-studies/issue-8/`](docs/case-studies/issue-8/README.md) for the full rationale, and [`scripts/build-pages.mjs`](scripts/build-pages.mjs) for the build helper.
+
+### Configuration
+
+#### ESLint Rules
 
 Customize ESLint in `eslint.config.js`. Current configuration:
 
@@ -229,7 +295,7 @@ Customize ESLint in `eslint.config.js`. Current configuration:
 - Async/await best practices
 - **Strict unused variables rule**: No exceptions - all unused variables, arguments, and caught errors must be removed (no `_` prefix exceptions)
 
-### Prettier Options
+#### Prettier Options
 
 Configured in `.prettierrc`:
 
@@ -240,19 +306,22 @@ Configured in `.prettierrc`:
 - ES5 trailing commas
 - LF line endings
 
-## Scripts Reference
+### Scripts Reference
 
-| Script                 | Description                             |
-| ---------------------- | --------------------------------------- |
-| `bun test`             | Run tests with Bun                      |
-| `bun run lint`         | Check code with ESLint                  |
-| `bun run lint:fix`     | Fix ESLint issues automatically         |
-| `bun run format`       | Format code with Prettier               |
-| `bun run format:check` | Check formatting without changing files |
-| `bun run check`        | Run all checks (lint + format)          |
-| `bun run changeset`    | Create a new changeset                  |
+| Script                 | Description                                      |
+| ---------------------- | ------------------------------------------------ |
+| `bun test`             | Run tests with Bun                               |
+| `bun run lint`         | Check code with ESLint                           |
+| `bun run lint:fix`     | Fix ESLint issues automatically                  |
+| `bun run format`       | Format code with Prettier                        |
+| `bun run format:check` | Check formatting without changing files          |
+| `bun run check`        | Run all checks (lint + format)                   |
+| `bun run changeset`    | Create a new changeset                           |
+| `bun run build:web`    | Build the production SPA bundle                  |
+| `bun run build:pages`  | Build the GitHub Pages artifact in `dist/pages/` |
+| `bun run build:mobile` | Build the Capacitor mobile bundle                |
 
-## Contributing
+### Contributing
 
 See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed contribution guidelines.
 
@@ -265,7 +334,7 @@ Quick steps:
 5. Commit your changes (pre-commit hooks will run automatically)
 6. Push and create a Pull Request
 
-## Best Practices
+### Best Practices
 
 The CI/CD pipeline inherited from `js-ai-driven-development-pipeline-template` covers the practices documented in [BEST-PRACTICES.md](docs/BEST-PRACTICES.md):
 
