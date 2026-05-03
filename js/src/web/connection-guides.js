@@ -16,6 +16,23 @@ import { saveServerOverride } from './discover.js';
 // js/src/sources/. Each entry inlines the install paragraph (R-M3) and
 // the API-credential path (R-M4) so the user does not need to leave the
 // SPA (R-M7).
+//
+// Issue #16 / R-O1, R-O2 additions per provider:
+//   - `apiCredentials.fields` enumerates the credential inputs the
+//     Settings → Connections card renders (text/password). Each field
+//     names the `secret:*` link id it persists into.
+//   - `apiCredentials.probeUrlTemplate` is a string with `{token}` /
+//     `{phoneNumberId}` / `{appId}` placeholders that resolve against
+//     the entered credentials. `buildProbeUrl()` returns `null` when a
+//     required field is missing so the UI can show "Enter a token to
+//     enable probe" rather than firing a guaranteed-404/400 request.
+//   - `apiCredentials.probeRequiresAll` lists the field ids that must
+//     be present before a probe can run. Empty / missing fields cause
+//     `buildProbeUrl()` to return `null`.
+//   - `apiCredentials.errorHints` maps an HTTP status to a user-facing
+//     remediation hint surfaced by `<ProbeRow>`.
+//   - `archive.accept` is the `<input type="file" accept>` filter used
+//     by the Settings → Connections archive uploader (R-O4).
 export const providerCatalogue = {
   telegram: {
     label: 'Telegram',
@@ -23,6 +40,7 @@ export const providerCatalogue = {
       title: 'Import a Telegram Desktop archive',
       hint: 'Telegram Desktop -> Settings -> Advanced -> Export Telegram data. Pick "Personal chats" + "JSON" and drop the resulting "result.json" into the import box below.',
       fileHint: 'result.json',
+      accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the Telegram Bot API',
@@ -31,6 +49,21 @@ export const providerCatalogue = {
       docsUrl: 'https://core.telegram.org/bots#how-do-i-create-a-bot',
       apiBase: 'https://api.telegram.org',
       probeUrl: 'https://api.telegram.org/bot/getMe',
+      probeUrlTemplate: 'https://api.telegram.org/bot{token}/getMe',
+      probeRequiresAll: ['token'],
+      fields: [
+        {
+          id: 'token',
+          label: 'Bot token',
+          type: 'password',
+          placeholder: '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11',
+          secretId: 'secret:telegram:bot-token',
+        },
+      ],
+      errorHints: {
+        401: 'Token rejected. Ask @BotFather for a fresh token or revoke the leaked one.',
+        404: 'Endpoint not found. Double-check there is no whitespace in the bot token.',
+      },
     },
   },
   vk: {
@@ -39,6 +72,7 @@ export const providerCatalogue = {
       title: 'Import a VK conversations archive',
       hint: 'Open https://vk.com/data_protection, request your archive, unzip it and load the "messages" JSON files.',
       fileHint: 'messages*.json',
+      accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the VK API',
@@ -47,6 +81,21 @@ export const providerCatalogue = {
       docsUrl: 'https://dev.vk.com/api/access-token/getting-started',
       apiBase: 'https://api.vk.com',
       probeUrl: 'https://api.vk.com/method/users.get?v=5.199',
+      probeUrlTemplate:
+        'https://api.vk.com/method/users.get?v=5.199&access_token={token}',
+      probeRequiresAll: ['token'],
+      fields: [
+        {
+          id: 'token',
+          label: 'Access token',
+          type: 'password',
+          placeholder: 'vk1.a.…',
+          secretId: 'secret:vk:access-token',
+        },
+      ],
+      errorHints: {
+        401: 'Access token expired. Re-run the implicit flow at id.vk.com.',
+      },
     },
   },
   x: {
@@ -55,6 +104,7 @@ export const providerCatalogue = {
       title: 'Import an X data archive',
       hint: 'Settings -> Your account -> Download an archive of your data. Once the archive is ready, unzip it and select the JSON files under data/ for tweets and direct messages.',
       fileHint: 'tweets.js, direct-messages.js',
+      accept: '.js,.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the X API v2',
@@ -63,6 +113,22 @@ export const providerCatalogue = {
       docsUrl: 'https://developer.x.com/en/docs/authentication/oauth-2-0',
       apiBase: 'https://api.x.com',
       probeUrl: 'https://api.x.com/2/users/me',
+      probeUrlTemplate: 'https://api.x.com/2/users/me',
+      probeRequiresAll: ['token'],
+      probeHeaders: { Authorization: 'Bearer {token}' },
+      fields: [
+        {
+          id: 'token',
+          label: 'Bearer token',
+          type: 'password',
+          placeholder: 'AAAAAAAAAAAAAAAAAAAAAA…',
+          secretId: 'secret:x:bearer-token',
+        },
+      ],
+      errorHints: {
+        401: 'Bearer token rejected. Generate a new one in the X developer portal.',
+        403: 'Token is valid but lacks the users.read scope.',
+      },
     },
   },
   whatsapp: {
@@ -71,6 +137,7 @@ export const providerCatalogue = {
       title: 'Import a WhatsApp chat export',
       hint: 'In the WhatsApp app, open a chat -> ... -> More -> Export chat (no media). Drop the resulting "WhatsApp Chat with NAME.txt" into the import box.',
       fileHint: 'WhatsApp Chat with *.txt',
+      accept: '.txt,text/plain',
     },
     apiCredentials: {
       title: 'Connect the WhatsApp Cloud API',
@@ -80,6 +147,30 @@ export const providerCatalogue = {
         'https://developers.facebook.com/docs/whatsapp/cloud-api/get-started',
       apiBase: 'https://graph.facebook.com',
       probeUrl: 'https://graph.facebook.com/v22.0/me',
+      probeUrlTemplate:
+        'https://graph.facebook.com/v22.0/me?access_token={token}',
+      probeRequiresAll: ['token'],
+      fields: [
+        {
+          id: 'token',
+          label: 'Access token',
+          type: 'password',
+          placeholder: 'EAAG…',
+          secretId: 'secret:whatsapp:access-token',
+        },
+        {
+          id: 'phoneNumberId',
+          label: 'Phone number ID',
+          type: 'text',
+          placeholder: '15550012345',
+          secretId: 'secret:whatsapp:phone-number-id',
+          optional: true,
+        },
+      ],
+      errorHints: {
+        400: 'Meta returned 400. Re-check the access token and that the app is in Live mode.',
+        401: 'Access token rejected. Generate a new system-user token in Meta Business.',
+      },
     },
   },
   facebook: {
@@ -88,6 +179,7 @@ export const providerCatalogue = {
       title: 'Import a Facebook download',
       hint: 'Settings & privacy -> Settings -> Your information -> Download your information. Choose "JSON" and select the categories you need (messages, posts).',
       fileHint: 'messages_*.json, posts_*.json',
+      accept: '.json,application/json,.zip,application/zip',
     },
     apiCredentials: {
       title: 'Connect the Facebook Graph API',
@@ -96,6 +188,30 @@ export const providerCatalogue = {
       docsUrl: 'https://developers.facebook.com/docs/pages-api/getting-started',
       apiBase: 'https://graph.facebook.com',
       probeUrl: 'https://graph.facebook.com/v22.0/me',
+      probeUrlTemplate:
+        'https://graph.facebook.com/v22.0/me?access_token={token}',
+      probeRequiresAll: ['token'],
+      fields: [
+        {
+          id: 'token',
+          label: 'Page access token',
+          type: 'password',
+          placeholder: 'EAAG…',
+          secretId: 'secret:facebook:access-token',
+        },
+        {
+          id: 'pageId',
+          label: 'Page ID',
+          type: 'text',
+          placeholder: '123456789012345',
+          secretId: 'secret:facebook:page-id',
+          optional: true,
+        },
+      ],
+      errorHints: {
+        400: 'Graph returned 400. Verify the access token has not expired (page tokens are short-lived).',
+        401: 'Access token rejected. Re-issue a fresh page token in Graph API Explorer.',
+      },
     },
   },
   linkedin: {
@@ -104,6 +220,7 @@ export const providerCatalogue = {
       title: 'Import a LinkedIn data export',
       hint: 'Settings & Privacy -> Data privacy -> Get a copy of your data. Pick "Want something in particular?" and request "Messages" + "Posts".',
       fileHint: 'messages.csv, Shares.csv',
+      accept: '.csv,text/csv,.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the LinkedIn REST API',
@@ -113,6 +230,29 @@ export const providerCatalogue = {
         'https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication',
       apiBase: 'https://api.linkedin.com',
       probeUrl: 'https://api.linkedin.com/v2/me',
+      probeUrlTemplate: 'https://api.linkedin.com/v2/me',
+      probeRequiresAll: ['token'],
+      probeHeaders: { Authorization: 'Bearer {token}' },
+      fields: [
+        {
+          id: 'token',
+          label: 'Access token',
+          type: 'password',
+          placeholder: 'AQU…',
+          secretId: 'secret:linkedin:access-token',
+        },
+        {
+          id: 'authorUrn',
+          label: 'Author URN',
+          type: 'text',
+          placeholder: 'urn:li:person:abc',
+          secretId: 'secret:linkedin:author-urn',
+          optional: true,
+        },
+      ],
+      errorHints: {
+        401: 'OAuth2 access token rejected. Re-run the auth code flow.',
+      },
     },
   },
   'habr-career': {
@@ -121,6 +261,7 @@ export const providerCatalogue = {
       title: 'Import a career.habr.com applications JSON',
       hint: 'On career.habr.com, open your account, go to "Отклики на вакансии" and use the export-to-JSON action. Save the file and load it into the SPA.',
       fileHint: 'applications.json',
+      accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the career.habr.com private API',
@@ -129,6 +270,20 @@ export const providerCatalogue = {
       docsUrl: 'https://career.habr.com/info/agreement',
       apiBase: 'https://career.habr.com',
       probeUrl: 'https://career.habr.com/api/frontend/me',
+      probeUrlTemplate: 'https://career.habr.com/api/frontend/me',
+      probeRequiresAll: ['token'],
+      probeHeaders: { Authorization: 'Bearer {token}' },
+      fields: [
+        {
+          id: 'token',
+          label: 'Personal access token',
+          type: 'password',
+          secretId: 'secret:habr-career:access-token',
+        },
+      ],
+      errorHints: {
+        401: 'career.habr.com rejected the token. Re-issue it from Settings -> Tokens.',
+      },
     },
   },
   hh: {
@@ -137,6 +292,7 @@ export const providerCatalogue = {
       title: 'Import an hh.ru negotiations archive',
       hint: 'Open https://hh.ru/applicant/negotiations, use the JSON export, save the file and load it here.',
       fileHint: 'negotiations.json',
+      accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the hh.ru API',
@@ -145,6 +301,20 @@ export const providerCatalogue = {
       docsUrl: 'https://github.com/hhru/api',
       apiBase: 'https://api.hh.ru',
       probeUrl: 'https://api.hh.ru/me',
+      probeUrlTemplate: 'https://api.hh.ru/me',
+      probeRequiresAll: ['token'],
+      probeHeaders: { Authorization: 'Bearer {token}' },
+      fields: [
+        {
+          id: 'token',
+          label: 'Access token',
+          type: 'password',
+          secretId: 'secret:hh:access-token',
+        },
+      ],
+      errorHints: {
+        401: 'hh.ru rejected the token. Refresh it via your app at https://dev.hh.ru/.',
+      },
     },
   },
   superjob: {
@@ -153,6 +323,7 @@ export const providerCatalogue = {
       title: 'Import a SuperJob responses archive',
       hint: 'On superjob.ru, open your applicant cabinet -> "Отклики" and use the JSON export action. Save the file and load it here.',
       fileHint: 'responses.json',
+      accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the SuperJob API',
@@ -161,21 +332,49 @@ export const providerCatalogue = {
       docsUrl: 'https://api.superjob.ru/',
       apiBase: 'https://api.superjob.ru',
       probeUrl: 'https://api.superjob.ru/2.0/user/current/',
+      probeUrlTemplate: 'https://api.superjob.ru/2.0/user/current/',
+      probeRequiresAll: ['appId'],
+      probeHeaders: { 'X-Api-App-Id': '{appId}' },
+      fields: [
+        {
+          id: 'appId',
+          label: 'App ID (X-Api-App-Id)',
+          type: 'password',
+          secretId: 'secret:superjob:app-id',
+        },
+        {
+          id: 'token',
+          label: 'Access token',
+          type: 'password',
+          secretId: 'secret:superjob:access-token',
+          optional: true,
+        },
+      ],
+      errorHints: {
+        401: 'SuperJob rejected the App ID. Re-check it in your applicant cabinet.',
+      },
     },
   },
 };
 
 // Section -> guide. Keys mirror `navItems` in views.js (R-M1).
+//
+// Issue #16 / R-O7 additions:
+//   - `connectFirst` is the per-section deep-link the empty-state card
+//     shows. It points the user at Settings → Connections and scrolls to
+//     the first relevant provider card (`#conn-{providerId}`).
 export const connectionGuides = {
   chat: {
     title: 'Your unified inbox starts empty.',
     body: 'meta-sovereign keeps every chat from every connected service in one place. Connect a provider below, or import an exported archive to populate this view.',
     providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    connectFirst: { providerId: 'telegram' },
   },
   operator: {
     title: 'Operator queue is empty.',
     body: 'The operator card stream walks you through unread messages chat by chat. Connect a chat-capable provider below to start the queue.',
     providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    connectFirst: { providerId: 'telegram' },
   },
   contacts: {
     title: 'No contacts yet.',
@@ -191,41 +390,49 @@ export const connectionGuides = {
       'hh',
       'superjob',
     ],
+    connectFirst: { providerId: 'telegram' },
   },
   automation: {
     title: 'No automation graphs yet.',
     body: 'Automation graphs route incoming messages from a pattern to a reply variation. Drop a node above, or import an archive first so you have data to match against.',
     providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook'],
+    connectFirst: { providerId: 'telegram' },
   },
   patterns: {
     title: 'No patterns yet.',
     body: 'Patterns are inferred from example messages. Connect a provider, or import an archive, then come back here and feed the inferrer a few examples.',
     providers: ['telegram', 'vk', 'x', 'whatsapp'],
+    connectFirst: { providerId: 'telegram' },
   },
   replies: {
     title: 'No reply variation groups yet.',
     body: 'Reply groups are extracted from your previous outgoing messages by fuzzy similarity. Connect a chat-capable provider to seed your reply library.',
     providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    connectFirst: { providerId: 'telegram' },
   },
   facts: {
     title: 'No facts extracted yet.',
     body: 'Facts are question -> answer pairs extracted across messages by your patterns. Add a pattern with a capture group, or connect a chat provider to start gathering data.',
     providers: ['telegram', 'vk', 'x', 'whatsapp'],
+    connectFirst: { providerId: 'telegram' },
   },
   audience: {
     title: 'Build your first audience.',
     body: 'Cross-reference contacts using AND/OR/NOT plus dimensions like network:, chat:, sender:, kind:, fact:. Connect at least one provider so you have contacts to filter.',
     providers: ['telegram', 'vk', 'x', 'whatsapp', 'facebook', 'linkedin'],
+    connectFirst: { providerId: 'telegram' },
   },
   broadcast: {
     title: 'No broadcast targets yet.',
     body: 'Broadcasts post the same message to every connected feed. Connect a public-posting provider below to enable a target checkbox.',
     providers: ['x', 'vk', 'facebook', 'linkedin', 'telegram'],
+    connectFirst: { providerId: 'x' },
   },
   outreach: {
     title: 'No outreach surface yet.',
     body: 'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Connect a chat-capable provider to enable outreach.',
     providers: ['telegram', 'vk', 'x', 'whatsapp', 'linkedin'],
+    connectFirst: { providerId: 'telegram' },
   },
   profile: {
     title: 'No profile yet.',
@@ -239,6 +446,7 @@ export const connectionGuides = {
       'hh',
       'superjob',
     ],
+    connectFirst: { providerId: 'linkedin' },
   },
   backup: {
     title: 'No backup archives yet.',
@@ -248,6 +456,11 @@ export const connectionGuides = {
   status: {
     title: 'Status is showing the local store only.',
     body: 'Status fields appear once a server is reachable. Either start a local server below, or keep working fully offline — the SPA writes straight to your browser store.',
+    providers: [],
+  },
+  settings: {
+    title: 'Settings',
+    body: 'Provider connections, credentials, and archive imports live here. The list below mirrors every catalogued provider; pick one to enter its credentials, upload an archive, and probe the live API.',
     providers: [],
   },
 };
@@ -379,4 +592,93 @@ export const getProvider = (id) => {
     throw new Error(`unknown provider "${id}"`);
   }
   return provider;
+};
+
+// ---- R-O1, R-O2: probe URL templates ---------------------------------
+//
+// `buildProbeUrl({ provider, credentials })` resolves the provider's
+// `probeUrlTemplate` against entered credentials. Returns a string when
+// every field listed in `probeRequiresAll` is present and non-empty, and
+// `null` otherwise — the UI uses the `null` to surface "Enter a token to
+// enable probe" instead of firing a guaranteed-404/400 request (the
+// exact bug from issue #16).
+//
+// Pure function. Templates allow `{token}`, `{phoneNumberId}`, `{appId}`
+// and any other field id surfaced by `provider.apiCredentials.fields`.
+export const interpolate = (template, values) =>
+  String(template).replace(/\{(\w+)\}/g, (match, key) => {
+    if (Object.prototype.hasOwnProperty.call(values, key)) {
+      const next = values[key];
+      return next === undefined || next === null ? '' : String(next);
+    }
+    return match;
+  });
+
+const requiredFieldsFor = (provider) => {
+  const required = provider.apiCredentials?.probeRequiresAll;
+  if (Array.isArray(required) && required.length > 0) {
+    return required;
+  }
+  return (provider.apiCredentials?.fields ?? [])
+    .filter((field) => !field.optional)
+    .map((field) => field.id);
+};
+
+export const hasRequiredCredentials = (provider, credentials = {}) => {
+  for (const id of requiredFieldsFor(provider)) {
+    const value = credentials[id];
+    if (typeof value !== 'string' || value.length === 0) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const buildProbeUrl = ({ provider, credentials = {} } = {}) => {
+  if (!provider || !provider.apiCredentials) {
+    return null;
+  }
+  const template = provider.apiCredentials.probeUrlTemplate;
+  if (typeof template !== 'string' || template.length === 0) {
+    return null;
+  }
+  if (!hasRequiredCredentials(provider, credentials)) {
+    return null;
+  }
+  return interpolate(template, credentials);
+};
+
+export const buildProbeHeaders = ({ provider, credentials = {} } = {}) => {
+  const headers = provider?.apiCredentials?.probeHeaders;
+  if (!headers || typeof headers !== 'object') {
+    return {};
+  }
+  if (!hasRequiredCredentials(provider, credentials)) {
+    return {};
+  }
+  const out = {};
+  for (const [name, value] of Object.entries(headers)) {
+    out[name] = interpolate(value, credentials);
+  }
+  return out;
+};
+
+// Convenience: used by the Settings UI to read every credential field
+// for a provider out of an array of `secret:*` links.
+export const credentialsFromLinks = (provider, links = []) => {
+  const fields = provider?.apiCredentials?.fields ?? [];
+  const byId = new Map();
+  for (const link of links) {
+    if (link?.id) {
+      byId.set(link.id, link);
+    }
+  }
+  const out = {};
+  for (const field of fields) {
+    const link = byId.get(field.secretId);
+    if (link && typeof link.value === 'string') {
+      out[field.id] = link.value;
+    }
+  }
+  return out;
 };

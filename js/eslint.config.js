@@ -111,6 +111,7 @@ export default [
         location: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
+        CustomEvent: 'readonly',
       },
     },
   },

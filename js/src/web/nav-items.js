@@ -17,4 +17,5 @@ export const navItems = [
   ['profile', 'Profile'],
   ['backup', 'Backup'],
   ['status', 'Status'],
+  ['settings', 'Settings'],
 ];
