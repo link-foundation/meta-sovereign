@@ -306,3 +306,92 @@ pre {
 .skip-link:focus {
   left: 0;
 }
+
+/* Connection guides (issue #10, R-M1..R-M8). */
+.connection-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+.connection-guide > h2 {
+  margin: 0;
+}
+.connection-guide-provider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.connection-guide-provider .col {
+  gap: 0.25rem;
+}
+.connection-guide-provider h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.connection-guide-provider h4 {
+  margin: 0.25rem 0 0;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.connection-guide-provider .probe-row {
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.local-server-help {
+  background: var(--bg-elev);
+  border: 1px dashed var(--border);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--text);
+}
+.local-server-help-opt pre {
+  margin: 0.25rem 0;
+  padding: 0.5rem;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+
+/* Tutorial overlay (issue #10, R-M9..R-M12). */
+.tutorial-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+.tutorial-overlay .tutorial-step {
+  max-width: 32rem;
+  width: 100%;
+  background: var(--bg-elev);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+.tutorial-overlay .tutorial-step h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+.tutorial-overlay .tutorial-step .meta {
+  font-size: 0.8rem;
+  opacity: 0.75;
+  margin: 0.5rem 0 0.75rem;
+}
+.tutorial-overlay .tutorial-step .row {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.tutorial-toggle {
+  margin-left: 0.5rem;
+}

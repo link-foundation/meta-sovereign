@@ -6,6 +6,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { api } from './dom.js';
 import { navItems, views } from './views.js';
+import {
+  TutorialButton,
+  TutorialOverlay,
+  useTutorialPreference,
+} from './tutorial.js';
 
 const el = React.createElement;
 const THEME_KEY = 'metaSovereignTheme';
@@ -84,6 +89,15 @@ const App = () => {
   const [active, setActive] = useState('chat');
   const online = useOnlineMode();
   const { theme, toggle } = useTheme();
+  const tutorial = useTutorialPreference();
+  // The overlay opens automatically on first run (no stored preference)
+  // and otherwise only when the user clicks the header button (R-M12).
+  const [tutorialOpen, setTutorialOpen] = useState(() => !tutorial.isOff);
+  const openTutorial = () => {
+    tutorial.reopen();
+    setTutorialOpen(true);
+  };
+  const closeTutorial = () => setTutorialOpen(false);
   const View = useMemo(() => views[active] ?? views.chat, [active]);
 
   return el(React.Fragment, {}, [
@@ -117,6 +131,7 @@ const App = () => {
         },
         online ? 'online' : 'offline'
       ),
+      el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
       el(
         'button',
         {
@@ -137,6 +152,12 @@ const App = () => {
       { key: 'main', id: 'root', role: 'main', tabIndex: -1 },
       el(View)
     ),
+    el(TutorialOverlay, {
+      key: 'tutorial-overlay',
+      open: tutorialOpen,
+      onClose: closeTutorial,
+      onDismiss: tutorial.dismiss,
+    }),
   ]);
 };
 
