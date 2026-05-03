@@ -1,0 +1,168 @@
+{
+  "captured_at": "2026-05-03",
+  "templates": [
+    {
+      "repo": "js-ai-driven-development-pipeline-template",
+      "workflows": [
+        "links.yml",
+        "release.yml"
+      ],
+      "scripts": [
+        "changeset-version.mjs",
+        "check-changesets.mjs",
+        "check-file-line-limits.sh",
+        "check-mjs-syntax.sh",
+        "check-release-needed.mjs",
+        "check-version.mjs",
+        "check-web-archive.mjs",
+        "create-github-release.mjs",
+        "create-manual-changeset.mjs",
+        "detect-code-changes.mjs",
+        "format-github-release.mjs",
+        "format-release-notes-helpers.mjs",
+        "format-release-notes.mjs",
+        "instant-version-bump.mjs",
+        "js-paths.mjs",
+        "merge-changesets.mjs",
+        "package-info.mjs",
+        "publish-to-npm.mjs",
+        "setup-npm.mjs",
+        "simulate-fresh-merge.sh",
+        "validate-changeset.mjs",
+        "version-and-commit.mjs"
+      ],
+      "root": [
+        ".changeset",
+        ".github",
+        ".gitignore",
+        ".gitkeep",
+        ".husky",
+        ".jscpd.json",
+        ".lycheeignore",
+        ".prettierignore",
+        ".prettierrc",
+        ".secretlintrc.json",
+        "CHANGELOG.md",
+        "LICENSE",
+        "README.md",
+        "bunfig.toml",
+        "deno.json",
+        "docs",
+        "eslint.config.js",
+        "examples",
+        "experiments",
+        "package-lock.json",
+        "package.json",
+        "scripts",
+        "src",
+        "tests"
+      ]
+    },
+    {
+      "repo": "rust-ai-driven-development-pipeline-template",
+      "workflows": [
+        "release.yml"
+      ],
+      "scripts": [
+        "bump-version.rs",
+        "check-changelog-fragment.rs",
+        "check-file-size.rs",
+        "check-release-needed.rs",
+        "check-version-modification.rs",
+        "collect-changelog.rs",
+        "create-changelog-fragment.rs",
+        "create-github-release.rs",
+        "detect-code-changes.rs",
+        "get-bump-type.rs",
+        "get-version.rs",
+        "git-config.rs",
+        "publish-crate.rs",
+        "rust-paths.rs",
+        "version-and-commit.rs"
+      ],
+      "root": [
+        ".github",
+        ".gitignore",
+        ".pre-commit-config.yaml",
+        "CHANGELOG.md",
+        "CONTRIBUTING.md",
+        "Cargo.lock",
+        "Cargo.toml",
+        "LICENSE",
+        "README.md",
+        "changelog.d",
+        "docs",
+        "examples",
+        "experiments",
+        "scripts",
+        "src",
+        "tests"
+      ]
+    },
+    {
+      "repo": "python-ai-driven-development-pipeline-template",
+      "workflows": [
+        "release.yml"
+      ],
+      "scripts": [
+        "bump_version.py",
+        "check_file_size.py",
+        "create_github_release.py",
+        "create_manual_changeset.py",
+        "detect_code_changes.py",
+        "format_release_notes.py",
+        "publish_to_pypi.py",
+        "validate_changeset.py",
+        "version_and_commit.py"
+      ],
+      "root": [
+        ".github",
+        ".gitignore",
+        ".pre-commit-config.yaml",
+        ".ruff.toml",
+        "CHANGELOG.md",
+        "CONTRIBUTING.md",
+        "LICENSE",
+        "README.md",
+        "changelog.d",
+        "examples",
+        "pyproject.toml",
+        "scripts",
+        "src",
+        "tests"
+      ]
+    },
+    {
+      "repo": "csharp-ai-driven-development-pipeline-template",
+      "workflows": [
+        "release.yml"
+      ],
+      "scripts": [
+        "bump-version.mjs",
+        "check-file-size.mjs",
+        "create-github-release.mjs",
+        "detect-code-changes.mjs",
+        "merge-changesets.mjs",
+        "validate-changeset.mjs",
+        "version-and-commit.mjs"
+      ],
+      "root": [
+        ".changeset",
+        ".editorconfig",
+        ".github",
+        ".gitignore",
+        ".pre-commit-config.yaml",
+        "CHANGELOG.md",
+        "CONTRIBUTING.md",
+        "Directory.Build.props",
+        "LICENSE",
+        "MyPackage.sln",
+        "README.md",
+        "examples",
+        "scripts",
+        "src",
+        "tests"
+      ]
+    }
+  ]
+}
