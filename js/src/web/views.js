@@ -5,25 +5,13 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
+import { ConnectionGuide } from './connection-guide.js';
+import { navItems } from './nav-items.js';
 
 const el = React.createElement;
 const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
-export const navItems = [
-  ['chat', 'Chat'],
-  ['operator', 'Operator'],
-  ['contacts', 'Contacts'],
-  ['automation', 'Automation'],
-  ['patterns', 'Patterns'],
-  ['replies', 'Replies'],
-  ['facts', 'Facts'],
-  ['audience', 'Audience'],
-  ['broadcast', 'Broadcast'],
-  ['outreach', 'Outreach'],
-  ['profile', 'Profile'],
-  ['backup', 'Backup'],
-  ['status', 'Status'],
-];
+export { navItems };
 
 const useAsyncValue = (loader, deps, initialValue) => {
   const [state, setState] = useState({
@@ -137,8 +125,11 @@ export const ChatView = () => {
     setRefresh(refreshReducer);
   };
 
-  return el(AsyncFrame, { state }, () =>
-    el('div', { className: 'chat' }, [
+  return el(AsyncFrame, { state }, () => {
+    if (chats.length === 0) {
+      return el(ConnectionGuide, { section: 'chat' });
+    }
+    return el('div', { className: 'chat' }, [
       el('aside', { key: 'aside' }, [
         el('div', { key: 'h', className: 'aside-h' }, 'Chats'),
         ...chats.map((chat) =>
@@ -214,8 +205,8 @@ export const ChatView = () => {
           ),
         ]),
       ]),
-    ])
-  );
+    ]);
+  });
 };
 
 export const OperatorView = () => {
@@ -242,41 +233,40 @@ export const OperatorView = () => {
 
   return el(AsyncFrame, { state }, () => {
     const msg = queue[index];
+    if (!msg) {
+      return el(ConnectionGuide, { section: 'operator' });
+    }
     return el('div', { className: 'col operator' }, [
       el('h2', { key: 'h' }, 'Operator'),
       el(
         'div',
         { key: 'status', className: 'meta' },
-        msg ? `${index + 1} / ${queue.length}` : ''
+        `${index + 1} / ${queue.length}`
       ),
       el('div', { key: 'card', className: 'card' }, [
-        msg
-          ? [
-              el(
-                'div',
-                { key: 'meta', className: 'meta' },
-                `${msg.source} - ${msg.chat} - ${msg.sender} - ${fmtTs(msg.timestamp)}`
-              ),
-              el('div', { key: 'body', className: 'big' }, msg.body ?? ''),
-              el('div', { key: 'actions', className: 'row' }, [
-                el(
-                  'button',
-                  { key: 'next', type: 'button', onClick: next },
-                  'NEXT (N)'
-                ),
-                el(
-                  'button',
-                  {
-                    key: 'done',
-                    type: 'button',
-                    className: 'primary',
-                    onClick: next,
-                  },
-                  'DONE (D)'
-                ),
-              ]),
-            ]
-          : el('div', {}, 'Inbox empty.'),
+        el(
+          'div',
+          { key: 'meta', className: 'meta' },
+          `${msg.source} - ${msg.chat} - ${msg.sender} - ${fmtTs(msg.timestamp)}`
+        ),
+        el('div', { key: 'body', className: 'big' }, msg.body ?? ''),
+        el('div', { key: 'actions', className: 'row' }, [
+          el(
+            'button',
+            { key: 'next', type: 'button', onClick: next },
+            'NEXT (N)'
+          ),
+          el(
+            'button',
+            {
+              key: 'done',
+              type: 'button',
+              className: 'primary',
+              onClick: next,
+            },
+            'DONE (D)'
+          ),
+        ]),
       ]),
     ]);
   });
@@ -284,8 +274,11 @@ export const OperatorView = () => {
 
 export const ContactsView = () => {
   const state = useAsyncValue(() => api.contacts(), [], []);
-  return el(AsyncFrame, { state }, (contacts) =>
-    el('div', {}, [
+  return el(AsyncFrame, { state }, (contacts) => {
+    if (!contacts || contacts.length === 0) {
+      return el(ConnectionGuide, { section: 'contacts' });
+    }
+    return el('div', {}, [
       el('h2', { key: 'h' }, `Contacts (${contacts.length})`),
       el('table', { key: 'table' }, [
         el('thead', { key: 'head' }, [
@@ -311,8 +304,8 @@ export const ContactsView = () => {
           )
         ),
       ]),
-    ])
-  );
+    ]);
+  });
 };
 
 const GraphPreview = ({ graph }) =>
@@ -373,8 +366,11 @@ export const AutomationView = () => {
     setRefresh(refreshReducer);
   };
 
-  return el(AsyncFrame, { state }, () =>
-    el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, () => {
+    if (graphs.length === 0 && (selected.nodes ?? []).length === 0) {
+      return el(ConnectionGuide, { section: 'automation' });
+    }
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, 'Automation graphs'),
       el('div', { key: 'actions', className: 'row' }, [
         ...['pattern', 'reply', 'send', 'wait'].map((kind) =>
@@ -406,8 +402,8 @@ export const AutomationView = () => {
         )
       ),
       el(GraphPreview, { key: 'graph', graph: selected }),
-    ])
-  );
+    ]);
+  });
 };
 
 export const PatternsView = () => {
@@ -450,8 +446,11 @@ export const PatternsView = () => {
     setRefresh(refreshReducer);
   };
 
-  return el(AsyncFrame, { state }, (patterns) =>
-    el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, (patterns) => {
+    if (!patterns || patterns.length === 0) {
+      return el(ConnectionGuide, { section: 'patterns' });
+    }
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, 'Patterns'),
       el('table', { key: 'table' }, [
         el('thead', { key: 'head' }, [
@@ -515,8 +514,8 @@ export const PatternsView = () => {
       ]),
       el('div', { key: 'preview', className: 'meta' }, preview),
       el('pre', { key: 'out' }, output),
-    ])
-  );
+    ]);
+  });
 };
 
 export const RepliesView = () => {
@@ -539,22 +538,23 @@ export const RepliesView = () => {
     setRefresh(refreshReducer);
   };
 
-  return el(AsyncFrame, { state }, (groups) =>
-    el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, (groups) => {
+    if (!groups || groups.length === 0) {
+      return el(ConnectionGuide, { section: 'replies' });
+    }
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, 'Reply variation groups'),
       el(
         'div',
         { key: 'groups' },
-        groups.length === 0
-          ? el('div', { className: 'meta' }, 'No reply groups yet.')
-          : groups.map((group) =>
-              el('div', { key: group.id, className: 'card' }, [
-                el('div', { key: 'id', className: 'meta' }, group.id),
-                ...(group.variations ?? []).map((variation) =>
-                  el('div', { key: variation }, variation)
-                ),
-              ])
-            )
+        groups.map((group) =>
+          el('div', { key: group.id, className: 'card' }, [
+            el('div', { key: 'id', className: 'meta' }, group.id),
+            ...(group.variations ?? []).map((variation) =>
+              el('div', { key: variation }, variation)
+            ),
+          ])
+        )
       ),
       el('h3', { key: 'new' }, 'New / update group'),
       el('div', { key: 'row', className: 'row' }, [
@@ -583,8 +583,8 @@ export const RepliesView = () => {
         { key: 'save', type: 'button', className: 'primary', onClick: save },
         'save group'
       ),
-    ])
-  );
+    ]);
+  });
 };
 
 export const FactsView = () => {
@@ -592,9 +592,13 @@ export const FactsView = () => {
     facts: [],
     byAnswerer: {},
   });
-  return el(AsyncFrame, { state }, (facts) =>
-    el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, `Facts (${facts.facts?.length ?? 0})`),
+  return el(AsyncFrame, { state }, (facts) => {
+    const factCount = facts?.facts?.length ?? 0;
+    if (factCount === 0) {
+      return el(ConnectionGuide, { section: 'facts' });
+    }
+    return el('div', { className: 'col' }, [
+      el('h2', { key: 'h' }, `Facts (${factCount})`),
       ...Object.entries(facts.byAnswerer ?? {}).map(([answerer, list]) =>
         el('section', { key: answerer }, [
           el('h3', { key: 'h' }, answerer),
@@ -620,14 +624,18 @@ export const FactsView = () => {
           ]),
         ])
       ),
-    ])
-  );
+    ]);
+  });
 };
 
 export const AudienceView = () => {
   const [query, setQuery] = useState('');
   const [contacts, setContacts] = useState(null);
+  const known = useAsyncValue(() => api.contacts(), [], []);
   const evaluate = async () => setContacts(await api.audience(query));
+  if (!known.loading && (known.value ?? []).length === 0 && !contacts) {
+    return el(ConnectionGuide, { section: 'audience' });
+  }
   return el('div', { className: 'col' }, [
     el('h2', { key: 'h' }, 'Audience builder'),
     el(
@@ -720,8 +728,11 @@ export const BroadcastView = () => {
       `queued ${result.id} to ${(result.networks ?? []).length} networks`
     );
   };
-  return el(AsyncFrame, { state }, (sources) =>
-    el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, (sources) => {
+    if (!sources || sources.length === 0) {
+      return el(ConnectionGuide, { section: 'broadcast' });
+    }
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, 'Broadcast'),
       el('textarea', {
         key: 'msg',
@@ -741,8 +752,8 @@ export const BroadcastView = () => {
         'send'
       ),
       el('div', { key: 'status' }, status),
-    ])
-  );
+    ]);
+  });
 };
 
 export const OutreachView = () => {
@@ -759,8 +770,11 @@ export const OutreachView = () => {
     });
     setOutput(JSON.stringify(result, null, 2));
   };
-  return el(AsyncFrame, { state }, (sources) =>
-    el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, (sources) => {
+    if (!sources || sources.length === 0) {
+      return el(ConnectionGuide, { section: 'outreach' });
+    }
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, 'Outreach'),
       el(
         'div',
@@ -806,8 +820,8 @@ export const OutreachView = () => {
         ),
       ]),
       el('pre', { key: 'out' }, output),
-    ])
-  );
+    ]);
+  });
 };
 
 export const BackupView = () => {
@@ -883,11 +897,7 @@ export const BackupView = () => {
         'div',
         { key: 'list' },
         backups.length === 0
-          ? el(
-              'div',
-              { className: 'meta' },
-              'No archives yet. Click "create backup" to make one.'
-            )
+          ? el(ConnectionGuide, { section: 'backup' })
           : backups.map((backup) =>
               el('div', { key: backup.file, className: 'card row' }, [
                 el('div', { key: 'info', className: 'col' }, [
@@ -958,8 +968,14 @@ export const ProfileView = () => {
     setStatus(JSON.stringify(result.plannedSyncs, null, 2));
   };
 
-  return el(AsyncFrame, { state }, () =>
-    el('div', { className: 'col' }, [
+  return el(AsyncFrame, { state }, () => {
+    const { profile, resume } = state.value;
+    const profileEmpty =
+      !(profile?.name || profile?.bio) && !(resume?.title || resume?.body);
+    if (profileEmpty && !name && !bio && !title && !body) {
+      return el(ConnectionGuide, { section: 'profile' });
+    }
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'profile-h' }, 'Profile'),
       el('div', { key: 'profile', className: 'col' }, [
         el('input', {
@@ -1013,14 +1029,17 @@ export const ProfileView = () => {
         ),
       ]),
       el('pre', { key: 'status' }, status),
-    ])
-  );
+    ]);
+  });
 };
 
 export const StatusView = () => {
   const state = useAsyncValue(() => api.status(), [], {});
-  return el(AsyncFrame, { state }, (status) =>
-    el('div', {}, [
+  return el(AsyncFrame, { state }, (status) => {
+    if (!status || Object.keys(status).length === 0) {
+      return el(ConnectionGuide, { section: 'status' });
+    }
+    return el('div', {}, [
       el('h2', { key: 'h' }, 'Status'),
       el('table', { key: 'table' }, [
         el(
@@ -1031,8 +1050,8 @@ export const StatusView = () => {
           )
         ),
       ]),
-    ])
-  );
+    ]);
+  });
 };
 
 export const views = {
