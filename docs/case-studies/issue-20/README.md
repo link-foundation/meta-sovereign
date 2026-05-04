@@ -6,6 +6,7 @@
 **Initial failed run studied:** [25310893905](https://github.com/link-foundation/meta-sovereign/actions/runs/25310893905)
 **Initial failed job studied:** [74197364665](https://github.com/link-foundation/meta-sovereign/actions/runs/25310893905/job/74197364665)
 **Post-push cancellation studied:** [25319077285](https://github.com/link-foundation/meta-sovereign/actions/runs/25319077285)
+**Post-push Windows Node failure studied:** [25320219414](https://github.com/link-foundation/meta-sovereign/actions/runs/25320219414)
 
 Issue #20 asks for a complete CI/CD investigation, not just a retry of
 the failed workflow. This folder preserves the raw issue, PR, workflow,
@@ -51,6 +52,14 @@ the fix.
   cancelled while macOS Deno was still waiting on tests that had already
   completed their assertions but were blocked by idle HTTP keep-alive
   shutdown.
+- 2026-05-04 12:55:48 UTC: Post-push workflow run `25320219414`
+  started on PR head `cd3f2e2720c96dc41d2af8fc5fb89acc0434309c`.
+- 2026-05-04 12:56:57 UTC: macOS Deno completed all tests in 9 seconds,
+  proving the HTTP keep-alive shutdown fix removed the 3-minute delays.
+- 2026-05-04 12:57:30 UTC: Windows Deno completed all tests in 12 seconds.
+- 2026-05-04 12:57:55 UTC: Windows Node failed only
+  `js\tests\sync-tcp.test.js`, exposing a separate TCP transport teardown
+  gap.
 
 ## Evidence
 
@@ -88,6 +97,24 @@ writes`.
   after `3m0s`.
 - `data/ci-run-25319077285.log:4536` is the job cancellation.
 
+Post-push run `25320219414` proved both Deno-specific failures were fixed,
+then exposed the next matrix cell failure:
+
+- `data/ci-run-25320219414.log:3979` shows macOS Deno passing the
+  keep-alive shutdown regression in 7 ms.
+- `data/ci-run-25320219414.log:4077` shows macOS Deno finishing with
+  `253 passed | 0 failed` in 9 seconds.
+- `data/ci-run-25320219414.log:10147` shows Windows Deno passing the
+  keep-alive shutdown regression in 12 ms.
+- `data/ci-run-25320219414.log:10245` shows Windows Deno finishing with
+  `253 passed | 0 failed` in 12 seconds.
+- `data/ci-run-25320219414.log:5979` and
+  `data/test-node-windows-74227244848.log:509` show Windows Node failing
+  `js\tests\sync-tcp.test.js`.
+- `data/test-node-windows-74227244848.log:587` through
+  `data/test-node-windows-74227244848.log:589` contain the failing-test
+  summary.
+
 ## Root Cause
 
 `createIndexedDbDriver.save()` started a write transaction and awaited
@@ -108,6 +135,15 @@ actively close idle keep-alive sockets. On macOS Deno, those idle
 connections delayed test completion until the runtime's three-minute
 idle expiry, which consumed the 10-minute matrix job budget.
 
+The later Windows Node failure in `sync-tcp.test.js` exposed the same
+class of shutdown problem in the TCP sync transport. Peer disconnects
+only removed local outbound handlers and did not call transport-provided
+remote-handler cleanup. The TCP client close path resolved on
+`socket.end()` instead of the socket `close` event, and the listener
+destroyed accepted sockets without waiting for their closure. On Windows
+Node 24 this could leave the test file process with unsettled socket work
+after assertions had completed.
+
 ## Fix
 
 The fix attaches transaction completion and failure handlers immediately
@@ -120,6 +156,13 @@ The server shutdown fix tracks accepted HTTP sockets and destroys any
 remaining sockets after shutdown begins. The new server lifecycle test
 opens a raw `Connection: keep-alive` socket and verifies `handle.close()`
 does not wait for idle expiry.
+
+The TCP sync fix makes peer disconnects symmetrical by invoking
+transport-provided remote cleanup callbacks. It also clears pending TCP
+handlers during close and waits for socket `close` events on both client
+and listener teardown. The TCP integration test now uses `try`/`finally`
+so failed assertions still tear down sockets, and a loopback regression
+asserts disconnect removes both outbound and inbound handlers.
 
 This is intentionally an application-level fix, not a workflow
 workaround. The workflow already has the relevant template hardening:
@@ -137,6 +180,12 @@ The branch changes:
 - Fix `js/src/server/index.js` so local server shutdown tears down idle
   HTTP keep-alive sockets.
 - Add a lifecycle regression test in `js/tests/server.test.js`.
+- Fix `js/src/sync/peer.js` so disconnect removes remote transport
+  handlers as well as local outbound handlers.
+- Fix `js/src/sync/tcp-transport.js` so TCP close paths clear handlers and
+  wait for socket closure.
+- Add regression coverage in `js/tests/sync.test.js` and harden
+  `js/tests/sync-tcp.test.js` teardown.
 - Add a patch changeset.
 - Preserve the CI failure evidence and template comparison under this
   folder.

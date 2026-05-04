@@ -1,0 +1,623 @@
+Test (node on windows-latest)	Set up job	﻿2026-05-04T12:56:39.4856376Z Current runner version: '2.334.0'
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4945531Z ##[group]Runner Image Provisioner
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4946761Z Hosted Compute Agent
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4947755Z Version: 20260422.526
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4948646Z Commit: e1a9e573f4d0838b3a7c1b07401aeb29ed3635a9
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4949716Z Build Date: 2026-04-22T09:31:31Z
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4950730Z Worker ID: {6aeb4599-e048-4871-8fe4-4ed460967011}
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4951904Z Azure Region: eastus
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4952685Z ##[endgroup]
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4955042Z ##[group]Operating System
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4956049Z Microsoft Windows Server 2025
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4956939Z 10.0.26100
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4957764Z Datacenter
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4958500Z ##[endgroup]
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4959262Z ##[group]Runner Image
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4960130Z Image: windows-2025
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4960985Z Version: 20260428.110.2
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4963174Z Included Software: https://github.com/actions/runner-images/blob/win25/20260428.110/images/windows/Windows2025-Readme.md
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4966926Z Image Release: https://github.com/actions/runner-images/releases/tag/win25%2F20260428.110
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4968559Z ##[endgroup]
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4973586Z ##[group]GITHUB_TOKEN Permissions
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4976478Z Actions: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4977380Z ArtifactMetadata: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4978168Z Attestations: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4978917Z Checks: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4979366Z Contents: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4979820Z Deployments: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4980257Z Discussions: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4980755Z Issues: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4981485Z Metadata: read
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4982695Z Models: read
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4983485Z Packages: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4984224Z Pages: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4985175Z PullRequests: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4986079Z RepositoryProjects: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4987007Z SecurityEvents: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4988010Z Statuses: write
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4988902Z VulnerabilityAlerts: read
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4989783Z ##[endgroup]
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4992932Z Secret source: Actions
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.4994030Z Prepare workflow directory
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.5331701Z Prepare all required actions
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.5372333Z Getting action download info
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:39.8131652Z Download action repository 'actions/checkout@v6' (SHA:de0fac2e4500dabe0009e67214ff5f5447ce83dd)
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:40.0236772Z Download action repository 'actions/setup-node@v6' (SHA:48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e)
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:40.2360627Z Download action repository 'oven-sh/setup-bun@v2' (SHA:0c5077e51419868618aeaa5fe8019c62421857d6)
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:40.3945640Z Download action repository 'denoland/setup-deno@v2' (SHA:667a34cdef165d8d2b2e98dde39547c9daac7282)
+Test (node on windows-latest)	Set up job	2026-05-04T12:56:40.7904423Z Complete job name: Test (node on windows-latest)
+Test (node on windows-latest)	Run actions/checkout@v6	﻿2026-05-04T12:56:40.9353081Z ##[group]Run actions/checkout@v6
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9354370Z with:
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9354816Z   fetch-depth: 0
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9355281Z   repository: link-foundation/meta-sovereign
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9356177Z   token: ***
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9356624Z   ssh-strict: true
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9357182Z   ssh-user: git
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9357671Z   persist-credentials: true
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9358148Z   clean: true
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9358567Z   sparse-checkout-cone-mode: true
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9359109Z   fetch-tags: false
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9359542Z   show-progress: true
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9359972Z   lfs: false
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9360392Z   submodules: false
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9360811Z   set-safe-directory: true
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:40.9362021Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.0962672Z Syncing repository: link-foundation/meta-sovereign
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.0966002Z ##[group]Getting Git version info
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.0967150Z Working directory is 'D:\a\meta-sovereign\meta-sovereign'
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.2014196Z [command]"C:\Program Files\Git\bin\git.exe" version
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.3570485Z git version 2.54.0.windows.1
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.3625713Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.3649733Z Temporarily overriding HOME='D:\a\_temp\43c7dd2b-0722-4e8e-ac08-0bbc47f0f5a2' before making global git config changes
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.3651940Z Adding repository directory to the temporary git global config as a safe directory
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.3661624Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.4123204Z Deleting the contents of 'D:\a\meta-sovereign\meta-sovereign'
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.4128898Z ##[group]Initializing the repository
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.4140320Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\meta-sovereign\meta-sovereign
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.4653039Z Initialized empty Git repository in D:/a/meta-sovereign/meta-sovereign/.git/
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.4709088Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/link-foundation/meta-sovereign
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5116648Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5118997Z ##[group]Disabling automatic garbage collection
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5130934Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5513188Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5514444Z ##[group]Setting up auth
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5516224Z Removing SSH command configuration
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5530096Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:41.5914950Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:42.6007202Z Removing HTTP extra header
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:42.6020694Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:42.6364554Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:43.2626306Z Removing includeIf entries pointing to credentials config files
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:43.2642948Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:43.2972802Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:43.9148222Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:43.9506785Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:43.9854212Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:44.0205939Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:44.0533932Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:44.0853004Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:44.0853852Z ##[group]Fetching the repository
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:44.0868400Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +05c89241d64ffc64782c91378184a8de30103d15:refs/remotes/pull/21/merge
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0668257Z From https://github.com/link-foundation/meta-sovereign
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0670936Z  * [new branch]      issue-1-fc41adad29ce                     -> origin/issue-1-fc41adad29ce
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0672080Z  * [new branch]      issue-10-a884af8ade4e                    -> origin/issue-10-a884af8ade4e
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0673054Z  * [new branch]      issue-13-a1a0ad676c96                    -> origin/issue-13-a1a0ad676c96
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0674076Z  * [new branch]      issue-16-d636f69ce59c                    -> origin/issue-16-d636f69ce59c
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0675070Z  * [new branch]      issue-18-511583e63fad                    -> origin/issue-18-511583e63fad
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0676103Z  * [new branch]      issue-20-2e1bcf090e36                    -> origin/issue-20-2e1bcf090e36
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0677202Z  * [new branch]      issue-3-98d902f006cb                     -> origin/issue-3-98d902f006cb
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0678259Z  * [new branch]      issue-6-adb97494d4d6                     -> origin/issue-6-adb97494d4d6
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0679500Z  * [new branch]      issue-8-c22927792fe8                     -> origin/issue-8-c22927792fe8
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0680320Z  * [new branch]      main                                     -> origin/main
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.0681197Z  * [new ref]         05c89241d64ffc64782c91378184a8de30103d15 -> pull/21/merge
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.1186190Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.1187485Z ##[group]Determining the checkout info
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.1188622Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.1198656Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.1648391Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.1997429Z ##[group]Checking out the ref
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.2007362Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/21/merge
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4081668Z Note: switching to 'refs/remotes/pull/21/merge'.
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4086274Z
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4086922Z You are in 'detached HEAD' state. You can look around, make experimental
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4087948Z changes and commit them, and you can discard any commits you make in this
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4088949Z state without impacting any branches by switching back to a branch.
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4089492Z
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4089862Z If you want to create a new branch to retain commits you create, you may
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4090724Z do so (now or later) by using -c with the switch command. Example:
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4091290Z
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4091542Z   git switch -c <new-branch-name>
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4091876Z
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4092114Z Or undo this operation with:
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4092412Z
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4092563Z   git switch -
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4094247Z
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4094680Z Turn off this advice by setting config variable advice.detachedHead to false
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4095286Z
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4095992Z HEAD is now at 05c8924 Merge cd3f2e2720c96dc41d2af8fc5fb89acc0434309c into 6d76325c666eaea928be2e86d7ce7747cabcb98b
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4164169Z ##[endgroup]
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4539424Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+Test (node on windows-latest)	Run actions/checkout@v6	2026-05-04T12:56:45.4857703Z 05c89241d64ffc64782c91378184a8de30103d15
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	﻿2026-05-04T12:56:45.5321652Z ##[group]Run bash js/scripts/simulate-fresh-merge.sh
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.5322278Z [36;1mbash js/scripts/simulate-fresh-merge.sh[0m
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.5341424Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.5386953Z env:
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.5387238Z   BASE_REF: main
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.5387513Z ##[endgroup]
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.6153844Z === Synchronizing PR with latest main ===
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.6154564Z This prevents stale merge preview issues (see docs/case-studies/issue-23)
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.6155479Z
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.6830938Z Fetching latest main...
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.9057855Z From https://github.com/link-foundation/meta-sovereign
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:45.9058911Z  * branch            main       -> FETCH_HEAD
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:46.0032614Z Current checkout (merge preview): 05c89241d64ffc64782c91378184a8de30103d15
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:46.0033895Z Latest base branch (main): 6d76325c666eaea928be2e86d7ce7747cabcb98b
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:46.0034455Z
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:46.0482101Z Merge preview is up-to-date with main. No simulation needed.
+Test (node on windows-latest)	Simulate fresh merge with base branch (PR only)	2026-05-04T12:56:46.0483168Z
+Test (node on windows-latest)	Setup Node.js	﻿2026-05-04T12:56:46.0760538Z ##[group]Run actions/setup-node@v6
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.0760868Z with:
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.0761036Z   node-version: 24.x
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.0761224Z   check-latest: false
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.0761548Z   token: ***
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.0761719Z   package-manager-cache: true
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.0761922Z ##[endgroup]
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.2940528Z Found in cache @ C:\hostedtoolcache\windows\node\24.15.0\x64
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:56:46.2949211Z ##[group]Environment details
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:57:15.2163883Z node: v24.15.0
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:57:15.2164460Z npm: 11.12.1
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:57:15.2164721Z yarn: 1.22.22
+Test (node on windows-latest)	Setup Node.js	2026-05-04T12:57:15.2165385Z ##[endgroup]
+Test (node on windows-latest)	Install dependencies (Node.js)	﻿2026-05-04T12:57:15.2437726Z ##[group]Run npm install
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:15.2438030Z [36;1mnpm install[0m
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:15.2852595Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:15.2852979Z ##[endgroup]
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.3840084Z
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.3846518Z > meta-sovereign@0.14.0 prepare
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.3846951Z > husky || true
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.3847070Z
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6003049Z
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6004063Z added 331 packages, and audited 332 packages in 17s
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6006845Z
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6007373Z 74 packages are looking for funding
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6008293Z   run `npm fund` for details
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6089076Z
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6089632Z 6 vulnerabilities (3 moderate, 3 high)
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6090021Z
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6090207Z To address all issues, run:
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6090571Z   npm audit fix
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6090767Z
+Test (node on windows-latest)	Install dependencies (Node.js)	2026-05-04T12:57:43.6090915Z Run `npm audit` for details.
+Test (node on windows-latest)	Run tests (Node.js)	﻿2026-05-04T12:57:48.6918840Z ##[group]Run npm test
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:48.6919139Z [36;1mnpm test[0m
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:48.6982466Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:48.6982797Z ##[endgroup]
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:49.5417260Z
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:49.5417876Z > meta-sovereign@0.14.0 test
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:49.5418503Z > node --test --test-timeout=30000 js/tests/*.test.js
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:49.5418888Z
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2405790Z ▶ audience DSL
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2409636Z   ✔ filters by network (2.4009ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2410516Z   ✔ combines AND / OR / NOT (0.545ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2424398Z   ✔ matches body substring (case-insensitive) (0.2817ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2426022Z   ✔ filters by since timestamp (0.2707ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2427845Z   ✔ filters by before timestamp (0.2162ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2428716Z   ✔ matches the bare "me" predicate (0.3067ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2429634Z   ✔ matches by fact substring (0.3373ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2430613Z   ✔ parses to an AST without throwing on empty input (0.3064ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2431771Z ✔ audience DSL (6.749ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2625390Z ▶ automation graph
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2626756Z   ✔ fires a pattern and emits a reply plan (2.4685ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2628329Z   ✔ does not fire when message does not match (0.4424ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2628981Z ✔ automation graph (4.4819ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2846865Z ▶ createBackupScheduler
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2854406Z   ✔ runs immediately via runNow and produces a snapshot (16.1039ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.2983449Z   ✔ prunes to keep N when keep > 0 (14.7895ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.3101874Z   ✔ reports errors via onError and continues running (2.0823ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.3103460Z   ✔ throws when archiveDir or intervalMs is missing (0.3815ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.3106389Z ✔ createBackupScheduler (35.4971ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.3801219Z ▶ backup
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.3802627Z   ✔ writes a snapshot and restores it (8.9043ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.3968059Z   ✔ prunes to keep N (16.7668ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.6564131Z   ✔ round-trips an encrypted backup (159.7064ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.6579358Z   ✔ rejects the wrong passphrase (99.483ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:50.6580302Z ✔ backup (286.3418ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.4439537Z ▶ browser-commander placeholder: drives every SPA nav target
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.4441678Z   ✔ serves the SPA shell + every JSON endpoint a nav click triggers (313.9748ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.4446787Z ✔ browser-commander placeholder: drives every SPA nav target (315.813ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6683051Z ✔ browser store: put / get / delete / query / subscribe (28.5706ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6692176Z ✔ browser store: in-memory driver round-trips via reload (0.6477ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6708019Z ✔ browser store: localStorage driver persists snapshots (0.7697ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6715917Z ✔ browser store: doublets-web driver indexes snapshots as triples (1.9101ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6717705Z ✔ browser store: indexedDB driver works against a minimal IDB shim (66.1632ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6722888Z ✔ browser store: indexedDB driver attaches transaction completion before writes (6.4819ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6725885Z ▶ build-pages
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6728307Z   ✔ writes every required artefact into dist dir (140.8162ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6730789Z   ✔ 404.html mirrors index.html so SPA deep links resolve on Pages (71.9324ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6731910Z   ✔ injects the web app manifest link and theme-color meta (81.0217ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6732914Z   ✔ writes a valid web app manifest (47.6222ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6733894Z   ✔ is idempotent — re-running does not duplicate manifest tags (71.4224ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6734751Z ✔ build-pages (416.0589ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6735292Z ▶ cli iteration 3 subcommands
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6735977Z   ✔ infers a regex from examples (2.7594ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6736651Z   ✔ runs broadcast and search (29.5657ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6737497Z   ✔ updates profile and resume with planned syncs (24.3213ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6765901Z   ✔ evaluates an audience set-algebra query (10.4984ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6766681Z ✔ cli iteration 3 subcommands (69.8159ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6767246Z ▶ lino-args parser
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6767763Z   ✔ parses flags and positionals (1.0011ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6768342Z ✔ lino-args parser (1.9826ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6811551Z ▶ cli end-to-end
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6838126Z   ✔ imports a telegram archive and exports it back (15.4742ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6849771Z   ✔ lists sources (0.3646ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6854732Z ✔ cli end-to-end (16.0965ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6856893Z ✔ every provider exposes a probeUrlTemplate and a non-empty fields schema (2.3514ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6859291Z ✔ buildProbeUrl returns null when required credentials are missing (0.4651ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6861710Z ✔ buildProbeUrl returns the interpolated URL when credentials are present (0.647ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6863807Z ✔ Telegram template interpolates the bot token in the path (0.3188ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6865369Z ✔ Meta Graph (WhatsApp + Facebook) template interpolates access_token query param (0.332ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6866770Z ✔ VK template adds &access_token query parameter (0.2337ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6868158Z ✔ buildProbeHeaders fills Authorization for X / LinkedIn / hh / habr-career (0.3327ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6869494Z ✔ buildProbeHeaders fills X-Api-App-Id for SuperJob (0.2157ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6870826Z ✔ buildProbeHeaders returns {} when required credentials are missing (0.9778ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6872374Z ✔ hasRequiredCredentials respects probeRequiresAll and skips optional fields (0.4464ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6873942Z ✔ credentialsFromLinks reads secret:* link values into a field-id map (0.4458ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6901724Z ✔ interpolate leaves unknown placeholders intact (0.2062ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6903062Z ✔ connectFirst rows on every guide point at a known provider (0.2706ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6910676Z ✔ legacy probeUrl is preserved for backward compatibility but never matches the new template (0.6147ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6913923Z ✔ every nav surface has a matching connection guide (1.8246ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6917300Z ✔ guides only cite providers that exist in providerCatalogue (0.3369ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6920299Z ✔ every provider in the catalogue is referenced by at least one guide (0.3842ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6922306Z ✔ every provider entry has archive + apiCredentials with required fields (0.3882ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6923626Z ✔ localServerHelp covers Rust, Node, and a manual override hint (0.3305ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6924688Z ✔ isCrossOrigin compares URL.origin (0.4067ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6925585Z ✔ tryDirect resolves ok=true when fetch succeeds (1.7252ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6927014Z ✔ tryDirect classifies http error responses (0.3237ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6928412Z ✔ tryDirect classifies cross-origin TypeError as cors (0.5661ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6929662Z ✔ tryDirect classifies same-origin failures as plain network errors (0.5929ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6930713Z ✔ tryDirect requires a url (23.6485ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6931699Z ✔ tryDirect returns a network error when no fetch is available (1.4254ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6933196Z ✔ listGuideSections returns the same keys as connectionGuides (0.224ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6934659Z ✔ getGuide throws on an unknown nav surface (0.3449ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6935592Z ✔ getProvider throws on an unknown provider id (0.2599ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6936281Z ▶ crm
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6936916Z   ✔ aggregates a contact across chats (1.3894ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6937677Z   ✔ set algebra works (0.5058ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6938775Z   ✔ local search ranks by similarity (0.7028ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6939632Z ✔ crm (4.2525ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6939998Z ▶ fact extraction
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6940526Z   ✔ extracts question/answer pairs (17.5643ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.6941249Z ✔ fact extraction (17.856ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7250506Z ✔ discover prefers same origin when reachable (3.3251ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7254755Z ✔ discover falls back to stored override when same-origin fails (0.4943ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7256786Z ✔ discover falls back to default localhost ports (1.3843ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7269865Z ✔ discover tries caller-supplied LAN candidates last (0.4721ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7272868Z ✔ discover returns null when nothing answers (0.5084ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7551960Z ▶ issue #1 documentation consistency
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7557189Z   ✔ keeps the roadmap path present as an explicit empty checklist (8.2452ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7559612Z   ✔ keeps the active issue #1 docs aligned with the implemented prototype (3.4359ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7566871Z ✔ issue #1 documentation consistency (13.3263ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.7903277Z ✔ tracked user-facing Markdown docs have four localized siblings with hive-mind switchers (45.7526ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.8498716Z ✔ tracked localized Markdown switcher links resolve to existing siblings (62.382ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.9268781Z ✔ offline boot: write a link, see it locally, run a broadcast handler with no server (10.8766ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.9281117Z ✔ server discovery picks the first reachable candidate, then degrades on failure (2.5029ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:51.9646364Z ✔ two browsers sync via WebRTC: writing a link on A appears on B (37.4093ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.0785375Z ▶ e2e: import → derived API → backup → restore
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.0809644Z   ✔ walks the full pipeline (108.3342ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.0861656Z ✔ e2e: import → derived API → backup → restore (110.5534ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.1683112Z ▶ Node email raw protocol transport
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.1694102Z   ✔ pulls POP3 messages through the local server transport (31.9483ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.1726304Z   ✔ pulls IMAP messages through the local server transport (13.3124ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.1732139Z   ✔ sends SMTP messages through the local server transport (8.7693ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.1733304Z ✔ Node email raw protocol transport (56.1275ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.3206640Z ▶ encrypted export (R-K13..R-K17)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.3219793Z   ✔ refuses to export without a passphrase (R-K13) (4.3859ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.3222747Z   ✔ round-trips an envelope through decryptExport (R-K14) (119.7154ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.4549432Z   ✔ writeEncryptedExport produces a file usable by decryptExport (140.0967ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.5807361Z   ✔ POST /api/export-encrypted refuses without a passphrase (116.9344ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.5808370Z ✔ encrypted export (R-K13..R-K17) (383.4224ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6691553Z ✔ handler fires on matching put and stamps handledBy (11.129ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6712602Z ✔ handler is skipped when handledBy already records it (1.571ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6715351Z ✔ handler does not loop on its own write-back (1.8569ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6717262Z ✔ built-in broadcastHandler wires through the broadcast adapter (1.3906ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6718945Z ✔ profileSyncHandler fans out + skips on echo (1.676ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6730742Z ✔ automationHandler creates plan links for inbound messages (1.4613ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6731925Z ✔ automationHandler skips messages from "me" (1.4256ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6732838Z ✔ replay fires for existing links (0.5927ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.6734156Z ✔ errors in one handler do not block subsequent handlers (1.7671ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8120459Z ▶ hardening CLI surface (issue #6)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8132362Z   ✔ export-encrypted writes a passphrase-protected file (145.5612ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8174007Z   ✔ export-encrypted fails without --passphrase (26.214ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8213432Z   ✔ vault-init/list/add/remove via the CLI (298.5852ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8218785Z   ✔ purge-tombstones requires --confirm=true (1.6101ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8219695Z ✔ hardening CLI surface (issue #6) (474.0459ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8484435Z ✔ LOCALE_STORAGE_KEY is the documented metaSovereignLocale key (1.9197ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8515423Z ✔ availableLocales lists en, ru, zh, hi with ltr direction (1.2959ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8524873Z ✔ every non-en dictionary mirrors the en key set exactly (0.5459ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8528934Z ✔ every translated string is non-empty in every locale (1.0524ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8530728Z ✔ translate falls back to en for unknown locales (0.5208ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8531988Z ✔ translate returns the key when missing in every dictionary (0.2126ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8533178Z ✔ translate interpolates {placeholders} (0.3239ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8534252Z ✔ translate leaves unknown placeholders intact (0.1798ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8538124Z ✔ translate works for every locale that defines the same key (0.463ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8539776Z ✔ detectInitialLocale prefers a stored override over navigator (1.4889ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8541445Z ✔ detectInitialLocale walks navigator.languages and prefix-matches zh-Hans-CN → zh (0.4713ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8542899Z ✔ detectInitialLocale handles BCP-47 underscore form (en_US) (0.2178ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8544243Z ✔ detectInitialLocale falls back to default when nothing matches (0.2335ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8545529Z ✔ detectInitialLocale tolerates a navigator without languages array (0.2413ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8546677Z ✔ detectInitialLocale tolerates a missing storage (0.2509ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8547680Z ✔ detectInitialLocale tolerates a storage that throws (0.294ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8548821Z ✔ applyLocale sets <html lang> and <html dir> when document is available (0.9915ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8550021Z ✔ applyLocale is a no-op when document is unavailable (SSR-safe) (0.1459ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8551295Z ✔ LanguageSwitcher renders a system-default option plus every locale (10.5496ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8562806Z ✔ LanguageSwitcher pre-selects the active locale via the <select value> (1.0994ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8564299Z ✔ default LocaleContext returns translations from the default locale (0.3897ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8565345Z ▶ public api
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8566006Z   ✔ exposes every subsystem namespace (1.3587ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8566815Z ✔ public api (2.6136ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8568455Z ▶ VK live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8569550Z   ✔ pulls conversation messages and sends replies through VK methods (3.0001ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8570668Z ✔ VK live adapter (4.3487ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8571397Z ▶ WhatsApp Cloud live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8572452Z   ✔ normalizes webhook messages and posts Cloud API text messages (1.0615ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8573593Z ✔ WhatsApp Cloud live adapter (1.2324ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8574441Z ▶ X live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8575738Z   ✔ pulls DM events and can publish a post (1.1257ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8576680Z ✔ X live adapter (1.2913ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8577390Z ▶ Facebook live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8578330Z   ✔ pulls page conversations and sends Messenger replies (1.9567ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8581613Z ✔ Facebook live adapter (2.2096ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8583013Z ▶ LinkedIn live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8584324Z   ✔ imports author posts and exports resume updates as posts (1.6734ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8585375Z ✔ LinkedIn live adapter (2.0634ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8586081Z ▶ job-board live adapters
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8586940Z   ✔ syncs hh, Habr Career, and SuperJob messages/resumes (2.0994ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8587814Z ✔ job-board live adapters (2.2832ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8592349Z ▶ Gmail email live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8614847Z   ✔ pulls and sends Gmail messages through the Gmail HTTP API (3.5738ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8616352Z ✔ Gmail email live adapter (3.7017ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8618469Z ▶ Microsoft Graph email live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8621696Z   ✔ pulls and sends Outlook mail through Microsoft Graph (1.2055ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8622925Z ✔ Microsoft Graph email live adapter (1.3085ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8623728Z ▶ JMAP email live adapter
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8624679Z   ✔ uses JMAP Email/query, Email/get, and EmailSubmission/set (1.8494ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8627600Z ✔ JMAP email live adapter (1.9539ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8633144Z ▶ mobile and Electron packaging
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8641149Z   ✔ uses WebView-provided LAN candidates in server discovery (4.2261ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8642677Z   ✔ wires Electron auto-updates through electron-updater (2.3604ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8644764Z   ✔ ships a Capacitor mobile build surface for iOS and Android (8.6658ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8646188Z ✔ mobile and Electron packaging (17.8561ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8805590Z ✔ offline mode: writes/reads land in local store with no server (4.0503ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8819386Z ✔ offline mode: autocomplete is computed locally from history (1.1335ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8827706Z ✔ online mode: derived query routes to the server (1.0738ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8835405Z ✔ server failure flips client to offline and keeps working (0.6541ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.8850808Z ✔ writing a broadcast link triggers the local handler bus when offline (0.5021ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9224927Z ▶ planOutreach
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9249264Z   ✔ renders a literal text into one envelope per (contact × network) (1.8267ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9253143Z   ✔ forces a single network when networks override is given (0.3284ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9256522Z   ✔ falls back to a reply-group variation when text is omitted (0.3173ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9260035Z   ✔ skips contacts when neither text nor variation is available (0.2679ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9261185Z   ✔ renders {networks} and {chats} placeholders (0.333ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9262017Z ✔ planOutreach (4.581ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9268398Z ▶ runOutreach
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9270547Z   ✔ invokes broadcast for each envelope and returns ok=false for missing live.post (0.6582ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9276426Z ✔ runOutreach (0.9214ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9493546Z ▶ inferRegex
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9496658Z   ✔ finds shared tokens (2.177ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9500402Z   ✔ falls back to alternation when lengths differ (0.403ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9505009Z   ✔ matches all messages it should (0.5695ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9507419Z ✔ inferRegex (4.6886ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9518491Z ▶ simplifyRegex
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9523212Z   ✔ returns a regex (0.5276ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9528953Z ✔ simplifyRegex (0.8717ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9608274Z ▶ lcs / inferRegexLcs / compilePeg
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9614556Z   ✔ lcs finds the longest shared subsequence (0.6028ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9616996Z   ✔ inferRegexLcs handles different-length examples (1.276ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9618307Z   ✔ inferRegexLcs picks digit class when all gaps are numeric (0.4415ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9619592Z   ✔ compilePeg produces a working regex with named captures (0.3831ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9620746Z ✔ lcs / inferRegexLcs / compilePeg (3.2855ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9621391Z ▶ replies
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9621874Z   ✔ dice similarity is symmetric (0.4838ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9622689Z   ✔ finds candidates above threshold (0.6638ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9623524Z   ✔ pickVariation returns one of the variations (0.2987ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:52.9624240Z ✔ replies (2.6598ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.3904513Z ▶ secret store encryption
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.3910099Z   ✔ encrypts secret:* payload at rest and decrypts on read (173.1565ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.3918510Z   ✔ passes non-secret links through untouched (0.4087ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.3925023Z   ✔ returns inner store unchanged when no passphrase (0.3397ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.3932047Z   ✔ rejects reads with the wrong passphrase (105.9225ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.3933308Z ✔ secret store encryption (281.949ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.3997348Z ▶ secret store + sync
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.4001158Z   ✔ does not broadcast secret:* events to peers (1.0899ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.4002397Z   ✔ drops inbound secret:* events from a hostile peer (0.2102ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.4003325Z ✔ secret store + sync (1.488ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.6887509Z ▶ http server with secret passphrase
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.6888491Z   ✔ round-trips a secret link via HTTP (305.7514ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.6893773Z ✔ http server with secret passphrase (306.08ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7757643Z ▶ server iteration 3 routes
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7759187Z   ✔ drives the full pipeline: patterns, replies, graphs, facts, audience (146.3063ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7760284Z ✔ server iteration 3 routes (147.5639ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7761215Z ✔ main server exposes /ws sync alongside REST (157.9553ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7762079Z ✔ main server exposes /rtc signaling broker (44.3183ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7763017Z ✔ writing a broadcast link fires the bootstrapped handler (264.731ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7764080Z ✔ REST + sync coexist: PUT /links also replicates over /ws (109.2273ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7768170Z ▶ http server lifecycle
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7771349Z   ✔ tears down idle keep-alive sockets during shutdown (35.4896ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7772706Z ✔ http server lifecycle (37.0703ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7773202Z ▶ http server
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7774063Z   ✔ round-trips a link via HTTP (46.083ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7775004Z   ✔ exposes /sources (14.8942ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7798146Z   ✔ serves the SPA shell at / (27.5111ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7800041Z   ✔ exposes derived API routes (27.3608ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7803325Z   ✔ mounts browser-safe sibling modules under /storage and /handlers (16.7652ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7804465Z ✔ http server (133.4444ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7805974Z ▶ email server routes
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7808014Z   ✔ proxies email pull/send through local server fallback routes (18.0032ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7810998Z ✔ email server routes (18.444ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7812755Z ▶ http server observability
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7814824Z   ✔ exposes /metrics in Prometheus exposition format (15.1011ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7818321Z   ✔ writes JSON access logs when log option is provided (35.8158ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7842753Z   ✔ emits Content-Security-Policy + hardening headers on every response (10.826ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:53.7846755Z ✔ http server observability (62.1528ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.2827638Z ▶ Settings credentials roundtrip (issue #16)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.2908719Z   ✔ persists secret:* via api.put, reads it back, and feeds buildProbeUrl (350.9882ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.8507679Z   ✔ forgetting a credential clears it from /links (450.6313ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.8509195Z ✔ Settings credentials roundtrip (issue #16) (803.3366ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9083850Z ▶ soft-delete (R-K1..R-K6)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9084827Z   ✔ markDeleted is pure and idempotent on the first stamp (1.4756ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9087745Z   ✔ softDeleteLink writes a tombstone but keeps the row (1.4048ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9089614Z   ✔ purgeLink refuses without explicit confirm (0.7486ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9090690Z   ✔ bulkPurge only touches tombstones (0.7159ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9093016Z   ✔ withSoftDelete decorator exposes softDelete/purge/bulkPurge (0.5081ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9095437Z   ✔ HTTP DELETE soft-deletes by default and ?purge=1&confirm=1 hard-deletes (96.8649ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9097722Z   ✔ POST /api/links/purge-tombstones requires { confirm: true } (43.5493ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9099093Z ✔ soft-delete (R-K1..R-K6) (147.6648ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9099612Z ▶ source registry
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9100181Z   ✔ lists all 10 networks (1.6685ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9102075Z   ✔ throws on unknown source (0.3766ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9103061Z ✔ source registry (4.0763ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9139063Z ▶ email archives
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9139952Z   ✔ imports a single .eml message (2.6404ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9140749Z   ✔ imports mbox archives as separate messages (1.0492ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9141482Z ✔ email archives (4.0132ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9142004Z ▶ telegram archive
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9142542Z   ✔ extracts messages (1.8313ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9143080Z ✔ telegram archive (2.0469ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9143619Z ▶ whatsapp archive
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9144134Z   ✔ parses bracketed lines (1.225ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9145204Z ✔ whatsapp archive (2.3045ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9146441Z ▶ vk and x archives
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9147100Z   ✔ parse a single record each (1.6489ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9147749Z ✔ vk and x archives (2.1504ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9148292Z ▶ lino codec
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9148875Z   ✔ round-trips an indented document (1.8711ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9149598Z   ✔ handles quoted tokens with whitespace (0.3584ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9150262Z ✔ lino codec (4.3513ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9150717Z ▶ memory store
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9151206Z   ✔ puts, gets, and deletes (1.4979ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9152151Z   ✔ emits events to subscribers (0.4021ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9152826Z ✔ memory store (2.2275ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9153401Z ▶ lino text store
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9153975Z   ✔ persists across reopen (16.4978ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9154627Z ✔ lino text store (16.8623ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9155178Z ▶ doublets store
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9155742Z   ✔ persists across reopen (6.5655ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9156365Z ✔ doublets store (7.0292ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9156836Z ▶ dual store
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9157509Z   ✔ writes to both backends and verify is empty after sync (7.4471ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9158897Z ✔ dual store (7.8718ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9696770Z ✖ js\tests\sync-tcp.test.js (843.5558ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9697975Z ✔ ws transport replicates puts both ways (166.5555ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9699572Z ✔ attachSyncWebSocket can ride on an existing http server (77.0423ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:54.9708085Z ✔ client connection to wrong path is refused (4.6997ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0382500Z ▶ crdt merge
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0385885Z   ✔ picks the higher version on conflict (1.4026ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0387510Z   ✔ unions children (0.2797ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0389404Z ✔ crdt merge (3.181ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0402179Z ▶ vector clocks
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0418878Z   ✔ vcCompare detects dominance and concurrency (0.6954ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0423504Z   ✔ vcMerge takes the per-node max (0.3902ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0428969Z   ✔ merge picks the dominant vector clock (0.3235ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0435168Z   ✔ merge uses deterministic tiebreak on concurrent edits (0.4197ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0442933Z ✔ vector clocks (2.2909ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0444159Z ▶ peer loopback sync
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0447798Z   ✔ replicates puts between two stores (1.2544ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0450168Z ✔ peer loopback sync (1.5198ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0815722Z ▶ tag prefix logic
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0816751Z   ✔ defaults to "v" prefix (backward compatible) (2.7993ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0818004Z   ✔ supports "js-v" prefix for multi-language repos (0.2694ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0819353Z   ✔ supports "rust-v" prefix (0.3066ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0820173Z   ✔ supports empty prefix (0.2569ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0824482Z   ✔ works with pre-release versions (0.243ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.0827928Z ✔ tag prefix logic (5.7894ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1121221Z ▶ telegram real archive import
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1127883Z   ✔ parses Telegram Desktop all-chats exports without id collisions (2.3383ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1130758Z ✔ telegram real archive import (4.5147ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1144101Z ▶ telegram bot live connector
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1149115Z   ✔ pulls updates, sends messages, and syncs bot profile fields (3.6868ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1154798Z   ✔ imports pulled updates into the store with connector handled stamps (1.3981ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1168791Z ✔ telegram bot live connector (5.4241ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1198793Z ▶ source-pull handler
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1202466Z   ✔ runs live imports from a datastore command link once (14.7442ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1203659Z ✔ source-pull handler (14.9922ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1938289Z ✔ TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key (1.8389ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1941365Z ✔ defaultSteps is a non-empty list of unique-id steps (0.629ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1947379Z ✔ readPreference returns null on a fresh storage (0.7904ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1955687Z ✔ writePreference + readPreference round-trips a dismissed tutorial (2.1759ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1966825Z ✔ writeProgressPreference stores the current tutorial step id (0.4766ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.1983604Z ✔ writeCompletedPreference persists completed tutorials as off (0.2507ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2004506Z ✔ clearPreference removes the entry so readPreference is null again (0.4207ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2016936Z ✔ readPreference returns null for malformed JSON (0.2972ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2022482Z ✔ TutorialOverlay resumes from stored step progress after page reload (16.2679ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2029335Z ✔ readPreference is null-safe when storage is undefined (0.534ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2038717Z ✔ writePreference and clearPreference tolerate a null storage (0.2515ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2043988Z ✔ writePreference tolerates a storage that throws on setItem (0.3055ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2053352Z ✔ every default step targets a real nav surface or is a shell-level step (1.1918ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2988036Z ▶ master-key vault (R-K7..R-K12)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.2989843Z   ✔ initialize → encrypt → lock → unlock → decrypt round-trips (122.7024ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.4178166Z   ✔ rejects unlock with the wrong secret (120.0096ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.6016897Z   ✔ addUnlock lets a second method open the same master key (R-K8) (184.1963ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.6923894Z   ✔ removeUnlock cannot orphan the vault (R-K12) (90.5176ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7416843Z   ✔ addUnlock requires the vault to be unlocked (48.8846ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7420101Z   ✔ encryptWithKey + decryptWithKey are deterministic round-trips (0.4809ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7847367Z   ✔ initialize refuses to clobber an existing vault (42.8587ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7849339Z ✔ master-key vault (R-K7..R-K12) (611.6168ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7992690Z ✔ wasm pattern matcher runs the Rust pattern_matches export (8.418ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7993608Z ✔ wasm pattern support detector leaves complex regexes to JS fallback (0.4144ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7994093Z ▶ React SPA packaging
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7994521Z   ✔ ships a bundled React entrypoint while keeping source editable (9.8909ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7994968Z ✔ React SPA packaging (11.5005ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7995397Z ✔ signaling relays SDP frames between peers in same room (95.8702ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7995816Z ✔ rooms are isolated (45.0445ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7996244Z ✔ peer-joined fires for existing peers when new one arrives (38.4573ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7997855Z ✔ signalingChannel routes typed messages by `type` (8.6945ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7998446Z ✔ two webrtc transports exchange messages over the data channel (55.0799ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7999031Z ✔ webrtc transport queues sends until the data channel opens (24.4915ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7999418Z ℹ tests 253
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7999582Z ℹ suites 62
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7999756Z ℹ pass 252
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.7999929Z ℹ fail 1
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8000091Z ℹ cancelled 0
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8000305Z ℹ skipped 0
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8000465Z ℹ todo 0
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8000656Z ℹ duration_ms 5847.8852
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8000779Z
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8000876Z ✖ failing tests:
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8000978Z
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8001117Z test at js\tests\sync-tcp.test.js:1:1
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8001454Z ✖ js\tests\sync-tcp.test.js (843.5558ms)
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.8001698Z   'test failed'
+Test (node on windows-latest)	Run tests (Node.js)	2026-05-04T12:57:55.9196805Z ##[error]Process completed with exit code 1.
+Test (node on windows-latest)	Post Run actions/checkout@v6	﻿2026-05-04T12:57:55.9461587Z Post job cleanup.
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.1623392Z [command]"C:\Program Files\Git\bin\git.exe" version
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.1931464Z git version 2.54.0.windows.1
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.2011128Z Temporarily overriding HOME='D:\a\_temp\466afcfa-7c40-4f29-a8bc-13f669565871' before making global git config changes
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.2012655Z Adding repository directory to the temporary git global config as a safe directory
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.2022310Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.2370707Z Removing SSH command configuration
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.2383075Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.2740601Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.9171762Z Removing HTTP extra header
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.9185692Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:56.9528330Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.5432038Z Removing includeIf entries pointing to credentials config files
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.5448696Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.5739873Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.5740872Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.5741621Z includeif.gitdir:/github/workspace/.git.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.5742264Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.5787194Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.6086239Z D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.6134976Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.6466422Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.6746799Z D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.6797458Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.7133293Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.7424328Z /github/runner_temp/git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.7474627Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.7825969Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.8120936Z /github/runner_temp/git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.8170490Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:57.8520125Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+Test (node on windows-latest)	Post Run actions/checkout@v6	2026-05-04T12:57:58.4390706Z Removing credentials config 'D:\a\_temp\git-credentials-61cfe254-443d-4e82-8622-827e526a6641.config'
+Test (node on windows-latest)	Complete job	﻿2026-05-04T12:57:58.4616659Z Cleaning up orphan processes

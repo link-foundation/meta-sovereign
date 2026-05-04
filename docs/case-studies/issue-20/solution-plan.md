@@ -40,6 +40,14 @@ quickly. Tracking accepted sockets and destroying remaining sockets when
 `handle.close()` begins keeps shutdown deterministic without increasing
 workflow timeouts.
 
+### Option G: Make TCP sync disconnect wait for socket closure
+
+Accepted for the post-push Windows Node failure. The later CI run proved
+the Deno failures were fixed and narrowed the remaining failure to
+`sync-tcp.test.js`. The TCP transport and peer disconnect paths should
+release both handlers and sockets deterministically instead of relying on
+runtime-specific socket cleanup timing.
+
 ## Implementation
 
 1. In `js/src/storage/browser-store.js`, create the transaction
@@ -54,11 +62,16 @@ workflow timeouts.
    any remaining sockets during `handle.close()`.
 6. Add a server lifecycle regression test that opens a raw keep-alive
    socket and asserts shutdown completes quickly.
-7. Add a patch changeset.
-8. Preserve case-study data and template comparison artifacts in this
-   directory.
-9. Run focused and broad local checks.
-10. Push PR #21, update the PR description, mark it ready, and inspect
+7. In `js/src/sync/peer.js`, call the cleanup returned by
+   `transport.onMessage()` during disconnect.
+8. In `js/src/sync/tcp-transport.js`, clear message handlers during close
+   and wait for socket `close` events on client and listener teardown.
+9. Add peer and TCP regression coverage for deterministic disconnect.
+10. Add a patch changeset.
+11. Preserve case-study data and template comparison artifacts in this
+    directory.
+12. Run focused and broad local checks.
+13. Push PR #21, update the PR description, mark it ready, and inspect
     post-push CI runs.
 
 ## Verification Strategy
@@ -67,8 +80,11 @@ Focused checks:
 
 - `deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests/browser-store.test.js`
 - `deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests/server.test.js`
+- `deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests/sync-tcp.test.js js/tests/sync.test.js`
 - `node --test --test-timeout=30000 js/tests/browser-store.test.js`
 - `node --test --test-timeout=30000 js/tests/server.test.js`
+- `node --test --test-timeout=30000 js/tests/sync-tcp.test.js js/tests/sync.test.js`
+- `npx --yes -p node@24 node --test --test-timeout=30000 js/tests/sync-tcp.test.js js/tests/sync.test.js`
 
 Broad local checks before push:
 

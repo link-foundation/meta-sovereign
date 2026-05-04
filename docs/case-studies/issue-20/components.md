@@ -49,6 +49,27 @@ The new lifecycle regression opens a raw TCP HTTP request with
 `Connection: keep-alive`, then verifies `handle.close()` completes
 without waiting for the runtime's idle socket expiry.
 
+### `js/src/sync/peer.js`
+
+`createPeer().connect()` used to unsubscribe only the peer's local
+outbound store listener. Transports can also return a cleanup callback
+from `onMessage()`, and disconnect must call it so inbound remote
+handlers are removed.
+
+### `js/src/sync/tcp-transport.js`
+
+The Windows Node follow-up failure was isolated to the TCP sync test. The
+fixed transport clears message handlers during close, consumes socket
+errors after connection setup, and resolves close promises only after the
+underlying sockets emit `close`.
+
+### `js/tests/sync.test.js` and `js/tests/sync-tcp.test.js`
+
+The peer unit regression verifies disconnect invokes both local and remote
+transport cleanup. The TCP integration test now wraps peer/client/listener
+cleanup in `try`/`finally` so a failed assertion cannot leave sockets
+behind for the test runner.
+
 ## CI/CD
 
 ### `.github/workflows/release.yml`
