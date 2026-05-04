@@ -31,34 +31,40 @@ import {
   tryDirect,
 } from './connection-guides.js';
 import { LocalServerHelp } from './connection-guide.js';
+import { useT } from './i18n.js';
 
 const el = React.createElement;
 
-const fmtClassification = (result, provider) => {
+const fmtClassification = (t, result, provider) => {
   if (!result) {
     return null;
   }
   if (result.ok) {
-    return { tone: 'ok', text: `Connected (HTTP ${result.status})` };
+    return {
+      tone: 'ok',
+      text: t('settings.probe.connected', { status: result.status }),
+    };
   }
   if (result.classification === 'http') {
     const hint = provider?.apiCredentials?.errorHints?.[result.status];
     return {
       tone: 'warn',
       text: hint
-        ? `API responded with ${result.status}. ${hint}`
-        : `API responded with ${result.status}.`,
+        ? t('settings.probe.httpHint', { status: result.status, hint })
+        : t('settings.probe.httpNoHint', { status: result.status }),
     };
   }
   if (result.classification === 'cors') {
     return {
       tone: 'error',
-      text: 'Browser blocked the request (CORS). Start a local server below to proxy the call.',
+      text: t('settings.probe.cors'),
     };
   }
   return {
     tone: 'warn',
-    text: `Network error: ${result.error?.message ?? 'fetch failed'}.`,
+    text: t('settings.probe.network', {
+      message: result.error?.message ?? t('settings.probe.fetchFailed'),
+    }),
   };
 };
 
@@ -68,6 +74,7 @@ const ProviderCredentialsForm = ({
   initialValues,
   refresh,
 }) => {
+  const t = useT();
   const [values, setValues] = useState(initialValues);
   const [status, setStatus] = useState('');
 
@@ -79,7 +86,7 @@ const ProviderCredentialsForm = ({
   const fields = provider.apiCredentials?.fields ?? [];
 
   const save = async () => {
-    setStatus('saving...');
+    setStatus(t('settings.saving'));
     for (const field of fields) {
       const value = values[field.id] ?? '';
       if (value.length === 0) {
@@ -94,24 +101,24 @@ const ProviderCredentialsForm = ({
         updated: new Date().toISOString(),
       });
     }
-    setStatus('saved.');
+    setStatus(t('settings.saved'));
     await refresh();
   };
 
   const forget = async (field) => {
-    setStatus(`forgetting ${field.label}...`);
+    setStatus(t('settings.forgetting', { label: field.label }));
     try {
       await api.del(field.secretId);
     } catch {
       // Fine — link may not exist yet.
     }
     setValues((current) => ({ ...current, [field.id]: '' }));
-    setStatus(`${field.label} forgotten.`);
+    setStatus(t('settings.forgotten', { label: field.label }));
     await refresh();
   };
 
   return el('div', { className: 'col provider-credentials' }, [
-    el('h4', { key: 'h', className: 'meta' }, 'Credentials'),
+    el('h4', { key: 'h', className: 'meta' }, t('settings.credentials')),
     ...fields.map((field) =>
       el(
         'label',
@@ -124,7 +131,11 @@ const ProviderCredentialsForm = ({
           el('span', { key: 'label' }, [
             field.label,
             field.optional
-              ? el('span', { key: 'opt', className: 'meta' }, ' (optional)')
+              ? el(
+                  'span',
+                  { key: 'opt', className: 'meta' },
+                  ` ${t('settings.optional')}`
+                )
               : null,
           ]),
           el('div', { key: 'row', className: 'row' }, [
@@ -149,13 +160,13 @@ const ProviderCredentialsForm = ({
                 type: 'button',
                 onClick: () => forget(field),
               },
-              'Forget'
+              t('settings.forget')
             ),
           ]),
           el(
             'div',
             { key: 'meta', className: 'meta' },
-            `Stored as ${field.secretId}`
+            t('settings.storedAs', { id: field.secretId })
           ),
         ]
       )
@@ -170,7 +181,7 @@ const ProviderCredentialsForm = ({
           onClick: save,
           'data-action': 'save-credentials',
         },
-        'Save credentials'
+        t('settings.saveCredentials')
       ),
       el('span', { key: 'status', className: 'meta' }, status),
     ]),
@@ -178,15 +189,16 @@ const ProviderCredentialsForm = ({
 };
 
 const ProviderArchiveImport = ({ providerId, provider }) => {
+  const t = useT();
   const [paste, setPaste] = useState('');
   const [status, setStatus] = useState('');
 
   const importPayload = async (raw, label) => {
     if (!raw || (typeof raw === 'string' && raw.trim().length === 0)) {
-      setStatus('nothing to import.');
+      setStatus(t('settings.nothingToImport'));
       return;
     }
-    setStatus(`importing ${label}...`);
+    setStatus(t('settings.importing', { label }));
     try {
       // Lazy import keeps the source adapters out of the initial bundle
       // for users who never open Settings.
@@ -212,9 +224,11 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
         await api.put(message);
         count += 1;
       }
-      setStatus(`imported ${count} messages from ${label}.`);
+      setStatus(t('settings.importedCount', { label, count }));
     } catch (error) {
-      setStatus(`import failed: ${error.message ?? String(error)}`);
+      setStatus(
+        t('settings.importFailed', { message: error.message ?? String(error) })
+      );
     }
   };
 
@@ -232,7 +246,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
   };
 
   return el('div', { className: 'col provider-archive-import' }, [
-    el('h4', { key: 'h', className: 'meta' }, 'Archive import'),
+    el('h4', { key: 'h', className: 'meta' }, t('settings.archive')),
     el('p', { key: 'hint' }, provider.archive.hint),
     el('div', { key: 'file-row', className: 'row' }, [
       el('input', {
@@ -246,14 +260,14 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
     el(
       'div',
       { key: 'paste-h', className: 'meta' },
-      'or paste the archive contents below:'
+      t('settings.archivePasteHint')
     ),
     el('textarea', {
       key: 'paste',
       rows: 5,
       placeholder: provider.archive.fileHint
-        ? `Paste ${provider.archive.fileHint} contents`
-        : 'Paste archive contents here',
+        ? t('settings.archivePasteWith', { label: provider.archive.fileHint })
+        : t('settings.archivePastePlaceholder'),
       value: paste,
       'data-action': 'archive-paste',
       onChange: (event) => setPaste(event.target.value),
@@ -267,7 +281,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
           onClick: onPaste,
           'data-action': 'archive-import',
         },
-        'Import pasted contents'
+        t('settings.importPasted')
       ),
       el('span', { key: 'status', className: 'meta' }, status),
     ]),
@@ -275,6 +289,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
 };
 
 const SettingsProbeRow = ({ provider, credentials }) => {
+  const t = useT();
   const [state, setState] = useState({ status: 'idle' });
   const url = buildProbeUrl({ provider, credentials });
   const headers = buildProbeHeaders({ provider, credentials });
@@ -289,7 +304,7 @@ const SettingsProbeRow = ({ provider, credentials }) => {
   };
 
   const result = state.result;
-  const formatted = fmtClassification(result, provider);
+  const formatted = fmtClassification(t, result, provider);
 
   return el('div', { className: 'col probe-row' }, [
     el('div', { key: 'row', className: 'row' }, [
@@ -303,7 +318,9 @@ const SettingsProbeRow = ({ provider, credentials }) => {
           disabled: !ready || state.status === 'pending',
           'data-action': 'probe',
         },
-        state.status === 'pending' ? 'probing...' : 'Try directly'
+        state.status === 'pending'
+          ? t('settings.probe.probing')
+          : t('settings.probe.button')
       ),
       el(
         'span',
@@ -317,8 +334,8 @@ const SettingsProbeRow = ({ provider, credentials }) => {
         formatted
           ? formatted.text
           : ready
-            ? `Endpoint: ${url}`
-            : 'Enter a token to enable probe'
+            ? t('settings.probe.idle', { url })
+            : t('settings.probe.notReady')
       ),
     ]),
     result && !result.ok && result.classification === 'cors'
@@ -328,6 +345,7 @@ const SettingsProbeRow = ({ provider, credentials }) => {
 };
 
 const SettingsProviderCard = ({ providerId, provider, links, refresh }) => {
+  const t = useT();
   const credentials = credentialsFromLinks(provider, links);
   const ready = hasRequiredCredentials(provider, credentials);
   return el(
@@ -346,7 +364,7 @@ const SettingsProviderCard = ({ providerId, provider, links, refresh }) => {
             key: 'state',
             className: `meta provider-state ${ready ? 'ready' : 'not-ready'}`,
           },
-          ready ? 'credentials saved' : 'no credentials yet'
+          ready ? t('settings.credentialsSaved') : t('settings.noCredentials')
         ),
       ]),
       el(
@@ -359,7 +377,7 @@ const SettingsProviderCard = ({ providerId, provider, links, refresh }) => {
             target: '_blank',
             rel: 'noopener noreferrer',
           },
-          'How to obtain the credentials ↗'
+          t('settings.docsLink')
         )
       ),
       el(ProviderCredentialsForm, {
@@ -380,6 +398,7 @@ const SettingsProviderCard = ({ providerId, provider, links, refresh }) => {
 };
 
 export const SettingsView = () => {
+  const t = useT();
   const [refreshKey, setRefreshKey] = useState(0);
   const [links, setLinks] = useState(null);
 
@@ -414,16 +433,12 @@ export const SettingsView = () => {
   };
 
   if (links === null) {
-    return el('div', { className: 'meta' }, 'Loading...');
+    return el('div', { className: 'meta' }, t('common.loading'));
   }
 
   return el('div', { className: 'col settings-view' }, [
-    el('h2', { key: 'h' }, 'Settings'),
-    el(
-      'p',
-      { key: 'intro', className: 'meta' },
-      'Every provider connection lives here. Paste credentials, upload an archive, and probe the live API. Credentials are stored as encrypted-at-rest secret:* links and are never broadcast to peers.'
-    ),
+    el('h2', { key: 'h' }, t('settings.title')),
+    el('p', { key: 'intro', className: 'meta' }, t('settings.intro')),
     ...Object.entries(providerCatalogue).map(([providerId, provider]) =>
       el(SettingsProviderCard, {
         key: providerId,

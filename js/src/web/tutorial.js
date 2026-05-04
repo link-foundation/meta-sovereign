@@ -13,6 +13,7 @@
 // licensing analysis.
 
 import React, { useEffect, useState } from 'react';
+import { useT } from './i18n.js';
 
 const el = React.createElement;
 
@@ -20,38 +21,60 @@ export const TUTORIAL_STORAGE_KEY = 'metaSovereignTutorial';
 
 // Default tour steps. `target` is a `data-view` attribute on the nav
 // buttons so the overlay can highlight the right tab; an undefined
-// target means "shell-level step".
+// target means "shell-level step". The English `title` / `body`
+// strings double as the source-language fallback when no translator
+// is supplied (the i18n parity test guarantees the same keys exist
+// for every locale — see issue #18).
 export const defaultSteps = [
   {
     id: 'welcome',
+    titleKey: 'tutorial.welcome.title',
+    bodyKey: 'tutorial.welcome.body',
     title: 'Welcome to meta-sovereign',
     body: 'This is your local-first personal CRM and unified inbox. Nothing leaves your browser unless you point it at a server. Hit "Next" to walk through the headline flows.',
   },
   {
     id: 'chat',
     target: 'chat',
+    titleKey: 'tutorial.chat.title',
+    bodyKey: 'tutorial.chat.body',
     title: 'Chat — your unified inbox',
     body: 'Every chat from every connected service shows up here. If a section is empty, it explains how to plug in a provider — try opening the "Chat" tab once you finish the tour.',
   },
   {
     id: 'contacts',
     target: 'contacts',
+    titleKey: 'tutorial.contacts.title',
+    bodyKey: 'tutorial.contacts.body',
     title: 'Contacts — one row per person',
     body: 'Contacts are merged across networks. Connect at least one provider to populate this list.',
   },
   {
     id: 'automation',
     target: 'automation',
+    titleKey: 'tutorial.automation.title',
+    bodyKey: 'tutorial.automation.body',
     title: 'Automation — patterns to replies',
     body: 'Build node graphs that route incoming messages from a regex pattern to a reply variation. Patterns + reply groups feed this graph editor.',
   },
   {
     id: 'backup',
     target: 'backup',
+    titleKey: 'tutorial.backup.title',
+    bodyKey: 'tutorial.backup.body',
     title: 'Backup — encrypted at rest',
     body: 'Backups encrypt the local store with a passphrase. If you started a local server, the archive lives next to the server data directory.',
   },
 ];
+
+// Translate a step list with the active locale's `t()`. Steps without
+// translation keys (custom callers, tests) keep their literal strings.
+export const localizeSteps = (t, steps = defaultSteps) =>
+  steps.map((step) => ({
+    ...step,
+    title: step.titleKey ? t(step.titleKey) : step.title,
+    body: step.bodyKey ? t(step.bodyKey) : step.body,
+  }));
 
 export const readPreference = (storage) => {
   try {
@@ -132,8 +155,9 @@ export const useTutorialPreference = (storage = globalThis.localStorage) => {
   };
 };
 
-const Step = ({ step, index, total, onNext, onSkip, onDismiss }) =>
-  el(
+const Step = ({ step, index, total, onNext, onSkip, onDismiss }) => {
+  const t = useT();
+  return el(
     'section',
     {
       className: 'tutorial-step card',
@@ -148,7 +172,7 @@ const Step = ({ step, index, total, onNext, onSkip, onDismiss }) =>
       el(
         'div',
         { key: 'meta', className: 'meta' },
-        `Step ${index + 1} of ${total}`
+        t('tutorial.progress', { current: index + 1, total })
       ),
       el('div', { key: 'actions', className: 'row' }, [
         el(
@@ -159,7 +183,7 @@ const Step = ({ step, index, total, onNext, onSkip, onDismiss }) =>
             'data-action': 'tutorial-skip',
             onClick: onSkip,
           },
-          'Skip step'
+          t('tutorial.skip')
         ),
         el(
           'button',
@@ -170,7 +194,7 @@ const Step = ({ step, index, total, onNext, onSkip, onDismiss }) =>
             'data-action': 'tutorial-next',
             onClick: onNext,
           },
-          index + 1 === total ? 'Finish' : 'Next'
+          index + 1 === total ? t('tutorial.finish') : t('tutorial.next')
         ),
         el(
           'button',
@@ -180,11 +204,12 @@ const Step = ({ step, index, total, onNext, onSkip, onDismiss }) =>
             'data-action': 'tutorial-off',
             onClick: onDismiss,
           },
-          'Turn off tutorial'
+          t('tutorial.off')
         ),
       ]),
     ]
   );
+};
 
 // `<TutorialOverlay />` mounts at the SPA shell. It is a no-op when the
 // preference is dismissed, so re-opening is a single toggle in the
@@ -197,13 +222,20 @@ export const TutorialOverlay = ({
   onDismiss,
   onComplete,
 }) => {
-  const [index, setIndex] = useState(() => readProgressIndex(storage, steps));
-  const total = steps.length;
+  const t = useT();
+  const localized = localizeSteps(t, steps);
+  const [index, setIndex] = useState(() =>
+    readProgressIndex(storage, localized)
+  );
+  const total = localized.length;
 
   // Pick up persisted progress after a page load or explicit reopen.
+  // We key this effect on `steps` (the source list, identity-stable
+  // across renders) rather than the freshly-localized array so the
+  // effect doesn't re-fire on every locale change.
   useEffect(() => {
     if (open) {
-      setIndex(readProgressIndex(storage, steps));
+      setIndex(readProgressIndex(storage, localized));
     }
   }, [open, steps, storage]);
 
@@ -211,7 +243,7 @@ export const TutorialOverlay = ({
     return null;
   }
   const safeIndex = index >= 0 && index < total ? index : 0;
-  const step = steps[safeIndex];
+  const step = localized[safeIndex];
   if (!step) {
     return null;
   }
@@ -260,15 +292,17 @@ export const TutorialOverlay = ({
   );
 };
 
-export const TutorialButton = ({ onOpen }) =>
-  el(
+export const TutorialButton = ({ onOpen }) => {
+  const t = useT();
+  return el(
     'button',
     {
       type: 'button',
       className: 'tutorial-toggle',
       'data-action': 'tutorial-open',
-      'aria-label': 'Open tutorial',
+      'aria-label': t('header.tutorialAria'),
       onClick: onOpen,
     },
-    'Tutorial'
+    t('header.tutorial')
   );
+};
