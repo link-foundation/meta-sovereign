@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.14.1
+
+### Patch Changes
+
+- e2f0047: Fix IndexedDB snapshot persistence so transaction completion handlers are attached before write requests start. Also make HTTP and TCP sync shutdown deterministic by closing idle server sockets, invoking transport disconnect cleanup, and waiting for TCP socket close events.
+
 ## 0.14.0
 
 ### Minor Changes
