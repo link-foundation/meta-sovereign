@@ -1,4 +1,4 @@
-# Solution plan for issue #18
+# Solution plan for issue #18 (languages: en • [zh](solution-plan.zh.md) • [hi](solution-plan.hi.md) • [ru](solution-plan.ru.md))
 
 This document maps every `R-I*` requirement to a concrete deliverable
 in PR #19. The plan is organised in landing order so the PR is
@@ -127,6 +127,25 @@ Test cases:
   link the requirements, and embed a screenshot of the switcher.
 
 **Requirements covered:** R-I9, R-I10.
+
+## Phase 6 — Markdown documentation localisation
+
+**Deliverable:** language-switcher H1s plus `.zh.md`, `.hi.md`, and
+`.ru.md` siblings for root `README`, `CHANGELOG`, `mobile/README`,
+top-level `docs/*.md`, and this issue-18 case-study folder.
+
+The implementation follows the hive-mind convention:
+
+```markdown
+# Title (languages: en • [zh](FILE.zh.md) • [hi](FILE.hi.md) • [ru](FILE.ru.md))
+```
+
+Localized siblings keep the active locale unlinked and link the other
+three. `js/tests/docs-language.test.js` walks the tracked
+user-facing Markdown groups, verifies that all siblings exist, and
+checks that every switcher link resolves inside the same directory.
+
+**Requirements covered:** R-I11, R-I12.
 
 ## Out of scope (not in this PR)
 

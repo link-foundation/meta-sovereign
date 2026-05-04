@@ -1,4 +1,4 @@
-# External research for issue #18
+# External research for issue #18 (languages: en • [zh](external-research.zh.md) • [hi](external-research.hi.md) • [ru](external-research.ru.md))
 
 This file collects the external facts and references consulted while
 designing the i18n solution. Each entry cites the upstream source so

@@ -1,4 +1,4 @@
-# Best Practices for AI-Driven Development
+# Best Practices for AI-Driven Development (languages: en • [zh](BEST-PRACTICES.zh.md) • [hi](BEST-PRACTICES.hi.md) • [ru](BEST-PRACTICES.ru.md))
 
 This document describes CI/CD best practices that significantly improve the quality and reliability of AI-driven development workflows. When properly configured, AI solvers are forced to iterate with CI/CD checks until all tests pass, ensuring code quality meets the highest standards.
 

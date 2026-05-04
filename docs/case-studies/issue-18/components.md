@@ -1,4 +1,4 @@
-# Components and prior art consulted
+# Components and prior art consulted (languages: en • [zh](components.zh.md) • [hi](components.hi.md) • [ru](components.ru.md))
 
 This document records every existing component / library / standard
 that informed the i18n solution shipped in PR #19.

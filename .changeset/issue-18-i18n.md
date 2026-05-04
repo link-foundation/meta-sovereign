@@ -15,3 +15,9 @@ enforced by the new `js/tests/i18n.test.js` suite, which fails the
 build if a key drifts. Provider names ("Telegram", "WhatsApp") and API
 URLs stay in source form because they are proper nouns / brand
 identifiers.
+
+R-I11..R-I12 / R-Q7..R-Q8: Add hive-mind-style language-switcher H1s
+and `zh` / `hi` / `ru` sibling files for the root README, changelog,
+mobile README, top-level user-facing docs, and the issue-18 case-study
+documents. `js/tests/docs-language.test.js` now enforces sibling
+presence and switcher link resolution for that tracked Markdown surface.

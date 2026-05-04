@@ -1,4 +1,4 @@
-# Server parity matrix — JS server vs. Rust server
+# Server parity matrix — JS server vs. Rust server (languages: en • [zh](SERVER-PARITY.zh.md) • [hi](SERVER-PARITY.hi.md) • [ru](SERVER-PARITY.ru.md))
 
 This page enumerates every HTTP route and transport surface exposed by
 both the JavaScript server (`js/src/server/index.js` + `routes-*.js`) and

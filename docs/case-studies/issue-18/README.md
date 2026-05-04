@@ -1,4 +1,4 @@
-# Case Study: Issue #18 — Support i18n of UI for en, zh, hi, ru
+# Case Study: Issue #18 — Support i18n of UI for en, zh, hi, ru (languages: en • [zh](README.zh.md) • [hi](README.hi.md) • [ru](README.ru.md))
 
 **Issue:** [#18 — Support i18n of UI for en (english), ch (chinese), hi (hindi), and ru (russian)](https://github.com/link-foundation/meta-sovereign/issues/18)
 **Author:** [@konard](https://github.com/konard)
@@ -172,7 +172,12 @@ PR #19 ships:
   fallback, placeholder substitution, `<html>` attribute updates),
   plus a parity test that asserts every locale dictionary exposes
   the same keys as `en`;
-- the case study artefacts in this folder.
+- translated **Markdown documentation** for root `README`,
+  `CHANGELOG`, `mobile/README`, top-level `docs/*.md`, and this
+  issue-18 case study, with hive-mind-style language switchers on
+  every tracked H1;
+- the case study artefacts in this folder, also available in `zh`,
+  `hi`, and `ru`.
 
 The mapping from issue text → `R-I*` → deliverable lives in
 [`solution-plan.md`](./solution-plan.md).

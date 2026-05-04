@@ -1,4 +1,4 @@
-# Contributing to meta-sovereign
+# Contributing to meta-sovereign (languages: en • [zh](CONTRIBUTING.zh.md) • [hi](CONTRIBUTING.hi.md) • [ru](CONTRIBUTING.ru.md))
 
 ## Development Workflow
 

@@ -1,4 +1,4 @@
-# Requirements extracted from issue #18
+# Requirements extracted from issue #18 (languages: en • [zh](requirements.zh.md) • [hi](requirements.hi.md) • [ru](requirements.ru.md))
 
 Each row carries a stable `R-I*` identifier (the `I` is for
 internationalisation) so changesets, PRs, and code comments can
@@ -153,3 +153,37 @@ test layer; see issue #10 (R-M*) and issue #16 (R-O*) for precedent.
 - `docs/case-studies/issue-18/` contains `README.md`,
   `requirements.md`, `solution-plan.md`, `components.md`,
   `external-research.md`, and `data/issue-18.json`.
+
+## R-I11 — Translate user-facing Markdown docs into the same four languages
+
+**Source:** PR #19 follow-up comment: _"Also make sure all our docs and README.md file and other user facing .md files are translated in these 4 languages"_
+
+The documentation surface must mirror the UI locale list. The tracked
+user-facing Markdown set for this PR is root `README`, `CHANGELOG`,
+`mobile/README`, top-level `docs/*.md`, and the issue-18 case-study
+documents introduced by this PR. Historical case-study evidence files
+remain archival source material unless a future issue explicitly asks
+to localise every old research artefact.
+
+**Acceptance:**
+
+- Every tracked English Markdown file has `.zh.md`, `.hi.md`, and
+  `.ru.md` siblings in the same directory.
+- The localized docs preserve user workflows, command snippets,
+  requirement IDs, route names, and traceability links.
+
+## R-I12 — Add language switchers to Markdown documents
+
+**Source:** PR #19 follow-up comment: _"each markdown document has language switcher as in http://github.com/link-assistant/hive-mind"_
+
+Markdown headings must follow the hive-mind convention: the H1 includes
+`(languages: ...)`, the current locale appears as plain text, and the
+other locales link to sibling files.
+
+**Acceptance:**
+
+- `README.md` starts with `# meta-sovereign (languages: en • [zh](README.zh.md) • [hi](README.hi.md) • [ru](README.ru.md))`.
+- Localized siblings make their own locale plain text and link back to
+  the other three variants.
+- `js/tests/docs-language.test.js` validates sibling presence and
+  switcher links.

@@ -1,4 +1,4 @@
-# Changelog
+# Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
 ## 0.13.0
 
