@@ -1,0 +1,8 @@
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/.github/workflows/release.yml
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/scripts/bump-version.mjs
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/scripts/check-file-size.mjs
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/scripts/create-github-release.mjs
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/scripts/detect-code-changes.mjs
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/scripts/merge-changesets.mjs
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/scripts/validate-changeset.mjs
+/tmp/meta-sovereign-templates-work/csharp-ai-driven-development-pipeline-template/scripts/version-and-commit.mjs

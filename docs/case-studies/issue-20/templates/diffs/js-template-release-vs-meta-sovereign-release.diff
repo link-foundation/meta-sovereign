@@ -1,0 +1,403 @@
+--- /tmp/meta-sovereign-templates-work/js-ai-driven-development-pipeline-template/.github/workflows/release.yml	2026-05-04 12:14:00.432184808 +0000
++++ .github/workflows/release.yml	2026-05-04 12:08:10.879994790 +0000
+@@ -46,7 +46,7 @@
+   detect-changes:
+     name: Detect Changes
+     runs-on: ubuntu-latest
+-    # Typical run: ~6s. Cap at 5min so a hung detection step
++    # Typical run: ~5s. Cap at 5min so a hung detection step
+     # surfaces quickly instead of stalling the whole pipeline.
+     timeout-minutes: 5
+     if: github.event_name != 'workflow_dispatch'
+@@ -64,7 +64,7 @@
+ 
+       - name: Detect changes
+         id: changes
+-        run: node scripts/detect-code-changes.mjs
++        run: node js/scripts/detect-code-changes.mjs
+ 
+   # === FAST CHECKS - run before slow tests for fastest feedback ===
+   # See: hive-mind CI/CD best practices principle #5 (fast-fail job ordering)
+@@ -73,7 +73,7 @@
+   test-compilation:
+     name: Test Compilation
+     runs-on: ubuntu-latest
+-    # Typical run: <10s. Tight cap fails fast on syntax-check hangs.
++    # Typical run: ~4s. Tight cap fails fast on accidental infinite loops.
+     timeout-minutes: 5
+     needs: [detect-changes]
+     if: |
+@@ -84,13 +84,13 @@
+       - uses: actions/checkout@v6
+ 
+       - name: Check .mjs syntax
+-        run: bash scripts/check-mjs-syntax.sh
++        run: bash js/scripts/check-mjs-syntax.sh
+ 
+   # Enforce 1500-line limit on .mjs files and release.yml
+   check-file-line-limits:
+     name: Check File Line Limits
+     runs-on: ubuntu-latest
+-    # Typical run: <10s. This job only walks tracked files and counts lines.
++    # Typical run: ~3s. Just walks the tree counting lines.
+     timeout-minutes: 5
+     needs: [detect-changes]
+     if: |
+@@ -107,17 +107,17 @@
+         if: github.event_name == 'pull_request'
+         env:
+           BASE_REF: ${{ github.base_ref }}
+-        run: bash scripts/simulate-fresh-merge.sh
++        run: bash js/scripts/simulate-fresh-merge.sh
+ 
+       - name: Check file line limits
+-        run: bash scripts/check-file-line-limits.sh
++        run: bash js/scripts/check-file-line-limits.sh
+ 
+   # === VERSION CHANGE CHECK ===
+   # Prohibit manual version changes in package.json - versions should only be changed by CI/CD
+   version-check:
+     name: Check for Manual Version Changes
+     runs-on: ubuntu-latest
+-    # Typical run: ~6s. Read-only package.json diff inspection.
++    # Typical run: ~6s. Read-only diff inspection.
+     timeout-minutes: 5
+     if: github.event_name == 'pull_request'
+     steps:
+@@ -129,14 +129,14 @@
+         env:
+           GITHUB_HEAD_REF: ${{ github.head_ref }}
+           GITHUB_BASE_REF: ${{ github.base_ref }}
+-        run: node scripts/check-version.mjs
++        run: node js/scripts/check-version.mjs
+ 
+   # === CHANGESET CHECK - only runs on PRs with code changes ===
+   # Docs-only PRs (./docs folder, markdown files) don't require changesets
+   changeset-check:
+     name: Check for Changesets
+     runs-on: ubuntu-latest
+-    # Typical run: <30s including npm install. 10min covers cold runners.
++    # Typical run: ~13s including npm install. 10min covers cold cache.
+     timeout-minutes: 10
+     needs: [detect-changes]
+     if: github.event_name == 'pull_request' && needs.detect-changes.outputs.any-code-changed == 'true'
+@@ -169,7 +169,7 @@
+           # Run changeset validation script
+           # This validates that exactly ONE changeset was ADDED by this PR
+           # Pre-existing changesets from other merged PRs are ignored
+-          node scripts/validate-changeset.mjs
++          node js/scripts/validate-changeset.mjs
+ 
+   # === LINT AND FORMAT CHECK ===
+   # Lint runs independently of changeset-check - it's a fast check that should always run
+@@ -179,8 +179,8 @@
+   lint:
+     name: Lint and Format Check
+     runs-on: ubuntu-latest
+-    # Typical run: <1min including install, ESLint, Prettier, jscpd,
+-    # and secretlint. 10min protects against a hung lint plugin.
++    # Typical run: ~23s including npm install + ESLint + Prettier + jscpd
++    # + secretlint. 10min cap protects against a hung lint plugin.
+     timeout-minutes: 10
+     needs: [detect-changes]
+     if: |
+@@ -200,7 +200,7 @@
+         if: github.event_name == 'pull_request'
+         env:
+           BASE_REF: ${{ github.base_ref }}
+-        run: bash scripts/simulate-fresh-merge.sh
++        run: bash js/scripts/simulate-fresh-merge.sh
+ 
+       - name: Setup Node.js
+         uses: actions/setup-node@v6
+@@ -229,9 +229,9 @@
+   test:
+     name: Test (${{ matrix.runtime }} on ${{ matrix.os }})
+     runs-on: ${{ matrix.os }}
+-    # Typical run: <1min per runtime/OS on warm runners, with Windows
+-    # sometimes slower on cold starts. 10min fails hung tests well
+-    # before GitHub Actions' 6h default.
++    # Typical run: 13–55s (deno on Windows can spike to ~2min on cold runners).
++    # 10min cap surfaces a hung test or flaky network well before the
++    # 6h GitHub default — the user wants flaky tests to fail fast.
+     timeout-minutes: 10
+     needs:
+       [
+@@ -266,7 +266,7 @@
+         env:
+           BASE_REF: ${{ github.base_ref }}
+         shell: bash
+-        run: bash scripts/simulate-fresh-merge.sh
++        run: bash js/scripts/simulate-fresh-merge.sh
+ 
+       - name: Setup Node.js
+         if: matrix.runtime == 'node'
+@@ -294,8 +294,9 @@
+ 
+       - name: Run tests (Bun)
+         if: matrix.runtime == 'bun'
+-        # --timeout caps an individual test at 30s, matching Node's
+-        # --test-timeout budget while leaving headroom for cold runners.
++        # --timeout caps an individual test at 30s. Default is 5s but a few
++        # WebRTC / WebSocket scenarios run slower on cold runners; 30s leaves
++        # headroom while still failing fast on a hung promise.
+         run: bun test --timeout 30000
+ 
+       - name: Setup Deno
+@@ -306,14 +307,66 @@
+ 
+       - name: Run tests (Deno)
+         if: matrix.runtime == 'deno'
+-        run: deno test --allow-read
++        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests
++
++  # === API DOCUMENTATION BUILD ===
++  # Build JS API docs (`npm run docs:api`) and Rust crate docs
++  # (`cargo doc --manifest-path rust/Cargo.toml --no-deps`) on every push and PR. This catches doc-comment
++  # errors before release and produces artefacts the `release` job attaches
++  # to GitHub Releases (R-H3).
++  docs-build:
++    name: Build API Docs
++    runs-on: ubuntu-latest
++    # Typical run: ~25s. cargo doc dominates and is well-bounded.
++    timeout-minutes: 15
++    needs: [detect-changes]
++    if: |
++      github.event_name == 'push' ||
++      needs.detect-changes.outputs.mjs-changed == 'true' ||
++      needs.detect-changes.outputs.js-changed == 'true' ||
++      needs.detect-changes.outputs.docs-changed == 'true'
++    steps:
++      - uses: actions/checkout@v6
++
++      - name: Setup Node.js
++        uses: actions/setup-node@v6
++        with:
++          node-version: '24.x'
++
++      - name: Install dependencies
++        run: npm install
++
++      - name: Build JS API docs
++        run: npm run docs:api
++
++      - name: Setup Rust toolchain
++        uses: dtolnay/rust-toolchain@stable
++
++      - name: Build Rust crate docs
++        run: cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace
++
++      - name: Upload JS API docs artifact
++        uses: actions/upload-artifact@v4
++        with:
++          name: docs-api-js
++          path: docs/api/
++          if-no-files-found: error
++          retention-days: 30
++
++      - name: Upload Rust crate docs artifact
++        uses: actions/upload-artifact@v4
++        with:
++          name: docs-api-rust
++          path: rust/target/doc/
++          if-no-files-found: error
++          retention-days: 30
+ 
+   # === DOCUMENTATION VALIDATION ===
+   # Validate documentation files when docs change (hive-mind principle #12)
+   validate-docs:
+     name: Validate Documentation
+     runs-on: ubuntu-latest
+-    # Typical run: <10s. Pure shell checks over documentation files.
++    # Typical run: <5s. Pure shell file walk.
+     timeout-minutes: 5
+     needs: [detect-changes]
+     if: |
+@@ -351,6 +404,8 @@
+           REQUIRED_FILES=(
+             "docs/BEST-PRACTICES.md"
+             "docs/CONTRIBUTING.md"
++            "docs/ROADMAP.md"
++            "docs/REQUIREMENTS.md"
+             "README.md"
+             "CHANGELOG.md"
+           )
+@@ -377,10 +432,11 @@
+   # Release - only runs on main after tests pass (for push events)
+   release:
+     name: Release
+-    needs: [lint, test]
+-    # Typical run is well under 10min. 30min gives npm and GitHub
+-    # release APIs room for retries without allowing a 6h hang.
++    # Cap publish work (changeset merge, version commit, npm publish,
++    # GitHub release, doc upload). Typical run is well under 10min;
++    # 30min covers npm registry retries on a bad day.
+     timeout-minutes: 30
++    needs: [lint, test, docs-build]
+     # Use !cancelled() instead of always() so cancellation propagates correctly (hive-mind issue #1278)
+     # This is needed because lint/test jobs have a transitive dependency on changeset-check
+     if: |
+@@ -388,7 +444,8 @@
+       github.ref == 'refs/heads/main' &&
+       github.event_name == 'push' &&
+       needs.lint.result == 'success' &&
+-      needs.test.result == 'success'
++      needs.test.result == 'success' &&
++      (needs.docs-build.result == 'success' || needs.docs-build.result == 'skipped')
+     runs-on: ubuntu-latest
+     # Permissions required for npm OIDC trusted publishing
+     permissions:
+@@ -410,28 +467,28 @@
+         run: npm install
+ 
+       - name: Update npm for OIDC trusted publishing
+-        run: node scripts/setup-npm.mjs
++        run: node js/scripts/setup-npm.mjs
+ 
+       - name: Check for changesets
+         id: check_changesets
+-        run: node scripts/check-changesets.mjs
++        run: node js/scripts/check-changesets.mjs
+ 
+       - name: Check if release is needed
+         id: check_release
+         env:
+           HAS_CHANGESETS: ${{ steps.check_changesets.outputs.has_changesets }}
+-        run: node scripts/check-release-needed.mjs
++        run: node js/scripts/check-release-needed.mjs
+ 
+       - name: Merge multiple changesets
+         if: steps.check_changesets.outputs.has_changesets == 'true' && steps.check_changesets.outputs.changeset_count > 1
+         run: |
+           echo "Multiple changesets detected, merging..."
+-          node scripts/merge-changesets.mjs
++          node js/scripts/merge-changesets.mjs
+ 
+       - name: Version packages and commit to main
+         if: steps.check_changesets.outputs.has_changesets == 'true'
+         id: version
+-        run: node scripts/version-and-commit.mjs --mode changeset
++        run: node js/scripts/version-and-commit.mjs --mode changeset
+ 
+       - name: Publish to npm
+         # Run if version was committed, if a previous attempt already committed (for re-runs),
+@@ -441,19 +498,37 @@
+           steps.version.outputs.already_released == 'true' ||
+           (steps.check_release.outputs.should_release == 'true' && steps.check_release.outputs.skip_bump == 'true')
+         id: publish
+-        run: node scripts/publish-to-npm.mjs --should-pull
++        run: node js/scripts/publish-to-npm.mjs --should-pull
+ 
+       - name: Create GitHub Release
+         if: steps.publish.outputs.published == 'true'
+         env:
+           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-        run: node scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
++        run: node js/scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
+ 
+       - name: Format GitHub release notes
+         if: steps.publish.outputs.published == 'true'
+         env:
+           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-        run: node scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
++        run: node js/scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
++
++      - name: Build JS API docs for release
++        if: steps.publish.outputs.published == 'true'
++        run: npm run docs:api
++
++      - name: Setup Rust toolchain for release docs
++        if: steps.publish.outputs.published == 'true'
++        uses: dtolnay/rust-toolchain@stable
++
++      - name: Build Rust crate docs for release
++        if: steps.publish.outputs.published == 'true'
++        run: cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace
++
++      - name: Attach API docs to GitHub Release
++        if: steps.publish.outputs.published == 'true'
++        env:
++          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
++        run: bash js/scripts/attach-api-docs.sh "v${{ steps.publish.outputs.published_version }}"
+ 
+   # Manual Instant Release - triggered via workflow_dispatch with instant mode
+   # This job is in release.yml because npm trusted publishing
+@@ -462,7 +537,7 @@
+     name: Instant Release
+     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_mode == 'instant'
+     runs-on: ubuntu-latest
+-    # Same publish envelope as the automated release path.
++    # Same envelope as the automated release path.
+     timeout-minutes: 30
+     # Permissions required for npm OIDC trusted publishing
+     permissions:
+@@ -484,36 +559,54 @@
+         run: npm install
+ 
+       - name: Update npm for OIDC trusted publishing
+-        run: node scripts/setup-npm.mjs
++        run: node js/scripts/setup-npm.mjs
+ 
+       - name: Version packages and commit to main
+         id: version
+-        run: node scripts/version-and-commit.mjs --mode instant --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
++        run: node js/scripts/version-and-commit.mjs --mode instant --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
+ 
+       - name: Publish to npm
+         # Run if version was committed OR if a previous attempt already committed (for re-runs)
+         if: steps.version.outputs.version_committed == 'true' || steps.version.outputs.already_released == 'true'
+         id: publish
+-        run: node scripts/publish-to-npm.mjs
++        run: node js/scripts/publish-to-npm.mjs
+ 
+       - name: Create GitHub Release
+         if: steps.publish.outputs.published == 'true'
+         env:
+           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-        run: node scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
++        run: node js/scripts/create-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}"
+ 
+       - name: Format GitHub release notes
+         if: steps.publish.outputs.published == 'true'
+         env:
+           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+-        run: node scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
++        run: node js/scripts/format-github-release.mjs --release-version "${{ steps.publish.outputs.published_version }}" --repository "${{ github.repository }}" --commit-sha "${{ github.sha }}"
++
++      - name: Build JS API docs for release
++        if: steps.publish.outputs.published == 'true'
++        run: npm run docs:api
++
++      - name: Setup Rust toolchain for release docs
++        if: steps.publish.outputs.published == 'true'
++        uses: dtolnay/rust-toolchain@stable
++
++      - name: Build Rust crate docs for release
++        if: steps.publish.outputs.published == 'true'
++        run: cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace
++
++      - name: Attach API docs to GitHub Release
++        if: steps.publish.outputs.published == 'true'
++        env:
++          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
++        run: bash js/scripts/attach-api-docs.sh "v${{ steps.publish.outputs.published_version }}"
+ 
+   # Manual Changeset PR - creates a pull request with the changeset for review
+   changeset-pr:
+     name: Create Changeset PR
+     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_mode == 'changeset-pr'
+     runs-on: ubuntu-latest
+-    # PR creation only: install, create a changeset, format, and open a PR.
++    # PR creation only — install + format + open PR. 10min is generous.
+     timeout-minutes: 10
+     permissions:
+       contents: write
+@@ -532,7 +625,7 @@
+         run: npm install
+ 
+       - name: Create changeset file
+-        run: node scripts/create-manual-changeset.mjs --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
++        run: node js/scripts/create-manual-changeset.mjs --bump-type "${{ github.event.inputs.bump_type }}" --description "${{ github.event.inputs.description }}"
+ 
+       - name: Format changeset with Prettier
+         run: |

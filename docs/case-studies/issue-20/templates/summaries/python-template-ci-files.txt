@@ -1,0 +1,10 @@
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/.github/workflows/release.yml
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/bump_version.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/check_file_size.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/create_github_release.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/create_manual_changeset.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/detect_code_changes.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/format_release_notes.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/publish_to_pypi.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/validate_changeset.py
+/tmp/meta-sovereign-templates-work/python-ai-driven-development-pipeline-template/scripts/version_and_commit.py

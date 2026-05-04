@@ -1,0 +1,22 @@
+--- /tmp/meta-sovereign-templates-work/js-ai-driven-development-pipeline-template/.github/workflows/links.yml	2026-05-04 12:14:00.431184816 +0000
++++ .github/workflows/links.yml	2026-05-04 12:08:10.879994790 +0000
+@@ -20,8 +20,8 @@
+   link-checker:
+     name: Check Links
+     runs-on: ubuntu-latest
+-    # Typical run: <1min with lychee cache. 10min prevents slow
+-    # external hosts or Wayback Machine probes from hanging the workflow.
++    # Typical run: ~8s with the cache hit. Cap at 10min so a slow
++    # external host or Wayback Machine probe can't hang the workflow.
+     timeout-minutes: 10
+     permissions:
+       contents: read
+@@ -58,7 +58,7 @@
+       - name: Check broken links against Web Archive
+         if: steps.lychee.outputs.exit_code != 0
+         id: webarchive
+-        run: node scripts/check-web-archive.mjs
++        run: node js/scripts/check-web-archive.mjs
+         env:
+           LYCHEE_OUTPUT: lychee/out.md
+ 

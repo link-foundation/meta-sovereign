@@ -1,0 +1,16 @@
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/.github/workflows/release.yml
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/bump-version.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/check-changelog-fragment.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/check-file-size.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/check-release-needed.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/check-version-modification.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/collect-changelog.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/create-changelog-fragment.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/create-github-release.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/detect-code-changes.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/get-bump-type.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/get-version.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/git-config.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/publish-crate.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/rust-paths.rs
+/tmp/meta-sovereign-templates-work/rust-ai-driven-development-pipeline-template/scripts/version-and-commit.rs
