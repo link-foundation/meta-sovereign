@@ -1,0 +1,10 @@
+running 6 tests from ./js/tests/browser-store.test.js
+browser store: put / get / delete / query / subscribe ... ok (0ms)
+browser store: in-memory driver round-trips via reload ... ok (0ms)
+browser store: localStorage driver persists snapshots ... ok (0ms)
+browser store: doublets-web driver indexes snapshots as triples ... ok (0ms)
+browser store: indexedDB driver works against a minimal IDB shim ... ok (27ms)
+browser store: indexedDB driver attaches transaction completion before writes ... ok (3ms)
+
+ok | 6 passed | 0 failed (46ms)
+
