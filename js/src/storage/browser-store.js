@@ -99,13 +99,14 @@ export const createIndexedDbDriver = ({
     async save(snapshot) {
       const db = await open();
       const tx = db.transaction(storeName, 'readwrite');
-      const obj = tx.objectStore(storeName);
-      await idbReq(obj.put(snapshot, key));
-      await new Promise((resolve, reject) => {
+      const txDone = new Promise((resolve, reject) => {
         tx.oncomplete = () => resolve();
         tx.onabort = () => reject(tx.error);
         tx.onerror = () => reject(tx.error);
       });
+      const obj = tx.objectStore(storeName);
+      await idbReq(obj.put(snapshot, key));
+      await txDone;
     },
   };
 };

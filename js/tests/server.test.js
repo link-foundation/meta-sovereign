@@ -32,6 +32,80 @@ const rawRequestStatus = (port, rawPath) =>
     sock.on('error', reject);
   });
 
+const rawKeepAliveSocket = (port, rawPath = '/sources') =>
+  new Promise((resolve, reject) => {
+    const sock = net.createConnection({ host: '127.0.0.1', port }, () => {
+      sock.write(
+        `GET ${rawPath} HTTP/1.1\r\nHost: 127.0.0.1:${port}\r\nConnection: keep-alive\r\n\r\n`
+      );
+    });
+    let buf = '';
+    let settled = false;
+    sock.setEncoding('utf8');
+    sock.on('data', (chunk) => {
+      buf += chunk;
+      if (!settled && buf.includes('\r\n\r\n')) {
+        settled = true;
+        resolve(sock);
+      }
+    });
+    sock.on('error', (err) => {
+      if (!settled) {
+        reject(err);
+      }
+    });
+  });
+
+const withDeadline = (promise, ms, message) =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+
+describe('http server lifecycle', () => {
+  it('tears down idle keep-alive sockets during shutdown', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-keepalive-'));
+    const handle = await startServer({ port: 0, storeDir: dir });
+    let sock = null;
+    let closePromise = null;
+    let closedHandle = false;
+    try {
+      sock = await rawKeepAliveSocket(handle.port);
+      const socketClosed = new Promise((resolve) =>
+        sock.once('close', resolve)
+      );
+      closePromise = handle.close();
+      await withDeadline(
+        closePromise,
+        2000,
+        'server close timed out with an idle keep-alive socket open'
+      );
+      closedHandle = true;
+      await withDeadline(
+        socketClosed,
+        2000,
+        'idle keep-alive socket stayed open after server close'
+      );
+    } finally {
+      sock?.destroy();
+      if (closePromise && !closedHandle) {
+        await closePromise;
+      } else if (!closePromise) {
+        await handle.close();
+      }
+    }
+  });
+});
+
 describe('http server', () => {
   it('round-trips a link via HTTP', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv-'));

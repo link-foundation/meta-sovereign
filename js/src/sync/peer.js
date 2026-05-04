@@ -131,8 +131,13 @@ export const createPeer = (store, { node = 'local' } = {}) => {
     },
     connect(transport) {
       const offLocal = this.onLocal((e) => transport.send(e));
-      transport.onMessage((e) => this.receive(e));
-      return () => offLocal();
+      const offRemote = transport.onMessage((e) => this.receive(e));
+      return () => {
+        offLocal();
+        if (typeof offRemote === 'function') {
+          offRemote();
+        }
+      };
     },
   };
 };
@@ -145,12 +150,18 @@ export const loopback = () => {
     a: {
       send: (e) =>
         bHandlers.forEach((h) => pending.push(Promise.resolve(h(e)))),
-      onMessage: (h) => aHandlers.add(h),
+      onMessage: (h) => {
+        aHandlers.add(h);
+        return () => aHandlers.delete(h);
+      },
     },
     b: {
       send: (e) =>
         aHandlers.forEach((h) => pending.push(Promise.resolve(h(e)))),
-      onMessage: (h) => bHandlers.add(h),
+      onMessage: (h) => {
+        bHandlers.add(h);
+        return () => bHandlers.delete(h);
+      },
     },
     async settle() {
       while (pending.length) {

@@ -68,4 +68,28 @@ describe('peer loopback sync', () => {
     await lp.settle();
     expect((await sb.get('k')).tokens[0]).toBe('hello');
   });
+
+  it('disconnects local and remote transport handlers', async () => {
+    const store = createMemoryStore();
+    const peer = createPeer(store, { node: 'a' });
+    const transport = {
+      sent: 0,
+      offRemote: 0,
+      send() {
+        this.sent += 1;
+      },
+      onMessage() {
+        return () => {
+          this.offRemote += 1;
+        };
+      },
+    };
+
+    const off = peer.connect(transport);
+    off();
+
+    await store.put({ id: 'after-disconnect', tokens: ['x'] });
+    expect(transport.sent).toBe(0);
+    expect(transport.offRemote).toBe(1);
+  });
 });

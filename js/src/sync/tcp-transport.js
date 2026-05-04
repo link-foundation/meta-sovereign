@@ -15,6 +15,20 @@ const wireSend = (socket, event) => {
   socket.write(`${JSON.stringify(event)}\n`);
 };
 
+const closeSocket = (socket, { force = false } = {}) =>
+  new Promise((resolve) => {
+    if (socket.destroyed || socket.closed) {
+      resolve();
+      return;
+    }
+    socket.once('close', resolve);
+    if (force) {
+      socket.destroy();
+    } else {
+      socket.end();
+    }
+  });
+
 const wireRead = (socket, handlers) => {
   let buf = '';
   socket.on('data', (chunk) => {
@@ -54,6 +68,7 @@ export const startSyncListener = ({ port = 0 } = {}) =>
         wireSend(socket, pending.shift());
       }
       socket.on('close', () => sockets.delete(socket));
+      socket.on('error', () => sockets.delete(socket));
     });
     server.listen(port, '127.0.0.1', () => {
       const transport = {
@@ -74,13 +89,15 @@ export const startSyncListener = ({ port = 0 } = {}) =>
       resolve({
         port: server.address().port,
         transport,
-        close: () =>
-          new Promise((r) => {
-            for (const s of sockets) {
-              s.destroy();
-            }
-            server.close(() => r());
-          }),
+        close: async () => {
+          pending.length = 0;
+          handlers.clear();
+          const socketCloses = [...sockets].map((s) =>
+            closeSocket(s, { force: true })
+          );
+          await new Promise((r) => server.close(() => r()));
+          await Promise.all(socketCloses);
+        },
       });
     });
   });
@@ -88,7 +105,9 @@ export const startSyncListener = ({ port = 0 } = {}) =>
 export const connectSyncPeer = ({ port, host = '127.0.0.1' } = {}) =>
   new Promise((resolve, reject) => {
     const handlers = new Set();
+    let settled = false;
     const socket = net.createConnection({ port, host }, () => {
+      settled = true;
       wireRead(socket, handlers);
       resolve({
         transport: {
@@ -98,11 +117,16 @@ export const connectSyncPeer = ({ port, host = '127.0.0.1' } = {}) =>
             return () => handlers.delete(h);
           },
         },
-        close: () =>
-          new Promise((r) => {
-            socket.end(() => r());
-          }),
+        close: () => {
+          handlers.clear();
+          return closeSocket(socket);
+        },
       });
     });
-    socket.on('error', reject);
+    socket.on('error', (err) => {
+      if (!settled) {
+        settled = true;
+        reject(err);
+      }
+    });
   });

@@ -253,6 +253,11 @@ export const startServer = async ({
       json(res, 500, { error: err.message });
     });
   });
+  const sockets = new Set();
+  server.on('connection', (socket) => {
+    sockets.add(socket);
+    socket.on('close', () => sockets.delete(socket));
+  });
   let bus = null;
   if (enableHandlers) {
     bus = registerDefaultHandlers(store);
@@ -281,6 +286,9 @@ export const startServer = async ({
         wsHandle?.close();
         signaling?.close();
         server.close(() => resolve());
+        for (const socket of sockets) {
+          socket.destroy();
+        }
       }),
   };
 };
