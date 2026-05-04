@@ -35,6 +35,20 @@ contract directly:
 This makes the failure mode reproducible without needing a Windows
 runner.
 
+### `js/src/server/index.js`
+
+The post-push macOS Deno cancellation involved tests that start the local
+HTTP server and then call `handle.close()`. The old shutdown path called
+`server.close()` but did not actively close idle keep-alive sockets. The
+fixed server tracks accepted sockets and destroys remaining sockets when
+shutdown begins.
+
+### `js/tests/server.test.js`
+
+The new lifecycle regression opens a raw TCP HTTP request with
+`Connection: keep-alive`, then verifies `handle.close()` completes
+without waiting for the runtime's idle socket expiry.
+
 ## CI/CD
 
 ### `.github/workflows/release.yml`

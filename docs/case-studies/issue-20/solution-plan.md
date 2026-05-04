@@ -32,6 +32,14 @@ Accepted. This fixes the root cause in `createIndexedDbDriver.save()`,
 keeps the CI matrix intact, and makes the IndexedDB driver safer in any
 fast completion ordering.
 
+### Option F: Actively close idle HTTP sockets on local server shutdown
+
+Accepted for the post-push macOS Deno cancellation. The tests should not
+depend on Deno's Node compatibility layer closing idle keep-alive sockets
+quickly. Tracking accepted sockets and destroying remaining sockets when
+`handle.close()` begins keeps shutdown deterministic without increasing
+workflow timeouts.
+
 ## Implementation
 
 1. In `js/src/storage/browser-store.js`, create the transaction
@@ -42,19 +50,25 @@ fast completion ordering.
    promise.
 4. Add a regression test that asserts `tx.oncomplete` is attached
    before `put()` starts.
-5. Add a patch changeset.
-6. Preserve case-study data and template comparison artifacts in this
+5. In `js/src/server/index.js`, track accepted HTTP sockets and destroy
+   any remaining sockets during `handle.close()`.
+6. Add a server lifecycle regression test that opens a raw keep-alive
+   socket and asserts shutdown completes quickly.
+7. Add a patch changeset.
+8. Preserve case-study data and template comparison artifacts in this
    directory.
-7. Run focused and broad local checks.
-8. Push PR #21, update the PR description, mark it ready, and inspect
-   post-push CI runs.
+9. Run focused and broad local checks.
+10. Push PR #21, update the PR description, mark it ready, and inspect
+    post-push CI runs.
 
 ## Verification Strategy
 
 Focused checks:
 
 - `deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests/browser-store.test.js`
+- `deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests/server.test.js`
 - `node --test --test-timeout=30000 js/tests/browser-store.test.js`
+- `node --test --test-timeout=30000 js/tests/server.test.js`
 
 Broad local checks before push:
 
