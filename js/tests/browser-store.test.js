@@ -223,3 +223,66 @@ test('browser store: indexedDB driver works against a minimal IDB shim', async (
   const b = await createBrowserStore({ driver: driver2 });
   assert.equal((await b.get('l:idb'))?.tokens[0], 'stored');
 });
+
+test('browser store: indexedDB driver attaches transaction completion before writes', async () => {
+  let completionHandlerWasAttachedBeforePut = null;
+  let snapshot = null;
+  const objectStoreNames = new Set(['snapshot']);
+  const makeRequest = (run) => {
+    const req = {};
+    Promise.resolve().then(() => {
+      try {
+        req.result = run();
+        req.onsuccess?.();
+      } catch (error) {
+        req.error = error;
+        req.onerror?.();
+      }
+    });
+    return req;
+  };
+
+  const db = {
+    objectStoreNames: { contains: (name) => objectStoreNames.has(name) },
+    createObjectStore(name) {
+      objectStoreNames.add(name);
+    },
+    transaction() {
+      const tx = {
+        oncomplete: null,
+        onabort: null,
+        onerror: null,
+        objectStore: () => ({
+          get() {
+            return makeRequest(() => snapshot);
+          },
+          put(value) {
+            completionHandlerWasAttachedBeforePut =
+              typeof tx.oncomplete === 'function';
+            const req = makeRequest(() => {
+              snapshot = value;
+              return undefined;
+            });
+            setTimeout(() => tx.oncomplete?.(), 0);
+            return req;
+          },
+        }),
+      };
+      return tx;
+    },
+  };
+
+  const factory = {
+    open() {
+      return makeRequest(() => db);
+    },
+  };
+
+  const store = await createBrowserStore({
+    driver: createIndexedDbDriver({ factory }),
+  });
+  await store.put({ id: 'l:idb-listener-order', tokens: ['stored'] });
+  await store.flush();
+
+  assert.equal(completionHandlerWasAttachedBeforePut, true);
+});
