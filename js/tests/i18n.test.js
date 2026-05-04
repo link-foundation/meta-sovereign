@@ -36,25 +36,6 @@ const fakeStorage = () => {
   };
 };
 
-const withGlobals = (overrides, fn) => {
-  const previous = {};
-  for (const key of Object.keys(overrides)) {
-    previous[key] = globalThis[key];
-    globalThis[key] = overrides[key];
-  }
-  try {
-    return fn();
-  } finally {
-    for (const key of Object.keys(overrides)) {
-      if (previous[key] === undefined) {
-        delete globalThis[key];
-      } else {
-        globalThis[key] = previous[key];
-      }
-    }
-  }
-};
-
 test('LOCALE_STORAGE_KEY is the documented metaSovereignLocale key', () => {
   assert.equal(LOCALE_STORAGE_KEY, 'metaSovereignLocale');
 });
@@ -128,78 +109,62 @@ test('translate works for every locale that defines the same key', () => {
 test('detectInitialLocale prefers a stored override over navigator', () => {
   const storage = fakeStorage();
   storage.setItem(LOCALE_STORAGE_KEY, 'ru');
-  withGlobals(
-    {
-      localStorage: storage,
+  assert.equal(
+    detectInitialLocale({
+      storage,
       navigator: { languages: ['zh-CN'], language: 'zh-CN' },
-    },
-    () => {
-      assert.equal(detectInitialLocale(), 'ru');
-    }
+    }),
+    'ru'
   );
 });
 
 test('detectInitialLocale walks navigator.languages and prefix-matches zh-Hans-CN → zh', () => {
-  const storage = fakeStorage();
-  withGlobals(
-    {
-      localStorage: storage,
+  assert.equal(
+    detectInitialLocale({
+      storage: fakeStorage(),
       navigator: { languages: ['zh-Hans-CN', 'en'], language: 'zh-Hans-CN' },
-    },
-    () => {
-      assert.equal(detectInitialLocale(), 'zh');
-    }
+    }),
+    'zh'
   );
 });
 
 test('detectInitialLocale handles BCP-47 underscore form (en_US)', () => {
-  const storage = fakeStorage();
-  withGlobals(
-    {
-      localStorage: storage,
+  assert.equal(
+    detectInitialLocale({
+      storage: fakeStorage(),
       navigator: { languages: ['en_US'], language: 'en_US' },
-    },
-    () => {
-      assert.equal(detectInitialLocale(), 'en');
-    }
+    }),
+    'en'
   );
 });
 
 test('detectInitialLocale falls back to default when nothing matches', () => {
-  const storage = fakeStorage();
-  withGlobals(
-    {
-      localStorage: storage,
+  assert.equal(
+    detectInitialLocale({
+      storage: fakeStorage(),
       navigator: { languages: ['fr-FR', 'es-ES'], language: 'fr-FR' },
-    },
-    () => {
-      assert.equal(detectInitialLocale(), DEFAULT_LOCALE);
-    }
+    }),
+    DEFAULT_LOCALE
   );
 });
 
 test('detectInitialLocale tolerates a navigator without languages array', () => {
-  const storage = fakeStorage();
-  withGlobals(
-    {
-      localStorage: storage,
+  assert.equal(
+    detectInitialLocale({
+      storage: fakeStorage(),
       navigator: { language: 'hi-IN' },
-    },
-    () => {
-      assert.equal(detectInitialLocale(), 'hi');
-    }
+    }),
+    'hi'
   );
 });
 
 test('detectInitialLocale tolerates a missing storage', () => {
-  withGlobals(
-    {
-      localStorage: undefined,
+  assert.equal(
+    detectInitialLocale({
+      storage: null,
       navigator: { languages: ['ru-RU'], language: 'ru-RU' },
-    },
-    () => {
-      assert.equal(detectInitialLocale(), 'ru');
-    }
+    }),
+    'ru'
   );
 });
 
@@ -211,14 +176,12 @@ test('detectInitialLocale tolerates a storage that throws', () => {
     setItem: () => {},
     removeItem: () => {},
   };
-  withGlobals(
-    {
-      localStorage: broken,
+  assert.equal(
+    detectInitialLocale({
+      storage: broken,
       navigator: { languages: ['hi'], language: 'hi' },
-    },
-    () => {
-      assert.equal(detectInitialLocale(), 'hi');
-    }
+    }),
+    'hi'
   );
 });
 
@@ -231,17 +194,13 @@ test('applyLocale sets <html lang> and <html dir> when document is available', (
       },
     },
   };
-  withGlobals({ document: fakeDocument }, () => {
-    applyLocale('zh');
-  });
+  applyLocale('zh', { document: fakeDocument });
   assert.equal(attrs.lang, 'zh');
   assert.equal(attrs.dir, 'ltr');
 });
 
 test('applyLocale is a no-op when document is unavailable (SSR-safe)', () => {
-  withGlobals({ document: undefined }, () => {
-    applyLocale('ru');
-  });
+  applyLocale('ru', { document: null });
 });
 
 test('LanguageSwitcher renders a system-default option plus every locale', () => {

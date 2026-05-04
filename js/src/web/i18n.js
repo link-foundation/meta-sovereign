@@ -52,21 +52,28 @@ const matchTag = (tag) => {
   return '';
 };
 
-const browserPreferences = () => {
-  const nav = globalThis.navigator;
-  if (!nav) {
+const browserPreferences = (navigator) => {
+  if (!navigator) {
     return [];
   }
-  const list = Array.isArray(nav.languages) ? [...nav.languages] : [];
-  if (typeof nav.language === 'string' && nav.language) {
-    list.push(nav.language);
+  const list = Array.isArray(navigator.languages)
+    ? [...navigator.languages]
+    : [];
+  if (typeof navigator.language === 'string' && navigator.language) {
+    list.push(navigator.language);
   }
   return list;
 };
 
-export const detectInitialLocale = () => {
+// `env` lets tests inject a navigator + storage without touching the
+// real (often read-only in Node/Deno) `globalThis` slots.
+export const detectInitialLocale = (env = {}) => {
+  const storage =
+    'storage' in env ? env.storage : (globalThis.localStorage ?? null);
+  const navigator =
+    'navigator' in env ? env.navigator : (globalThis.navigator ?? null);
   try {
-    const stored = globalThis.localStorage?.getItem(LOCALE_STORAGE_KEY);
+    const stored = storage?.getItem?.(LOCALE_STORAGE_KEY);
     const matchedStored = matchTag(stored);
     if (matchedStored) {
       return matchedStored;
@@ -74,7 +81,7 @@ export const detectInitialLocale = () => {
   } catch {
     // Storage can be disabled in restricted browser contexts.
   }
-  for (const tag of browserPreferences()) {
+  for (const tag of browserPreferences(navigator)) {
     const matched = matchTag(tag);
     if (matched) {
       return matched;
@@ -115,10 +122,11 @@ export const translate = (locale, key, vars) => {
   return key;
 };
 
-export const applyLocale = (locale) => {
+export const applyLocale = (locale, env = {}) => {
   const entry =
     availableLocales.find((item) => item.id === locale) ?? availableLocales[0];
-  const root = globalThis.document?.documentElement;
+  const doc = 'document' in env ? env.document : (globalThis.document ?? null);
+  const root = doc?.documentElement;
   if (root) {
     root.setAttribute('lang', entry.id);
     root.setAttribute('dir', entry.dir);
