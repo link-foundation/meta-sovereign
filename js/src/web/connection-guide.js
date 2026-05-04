@@ -19,15 +19,17 @@ import {
   providerCatalogue,
   applyLocalServerOverride,
 } from './connection-guides.js';
+import { useT } from './i18n.js';
 
 const el = React.createElement;
 
 const ProbeRow = ({ provider }) => {
+  const t = useT();
   // R-O1: per-section ProbeRow refuses to fire when no credentials are
   // saved (which would always 404/400 — the original bug). It points
   // the user at Settings → Connections instead.
   const ready = false;
-  const placeholder = `Enter credentials in Settings to enable the ${provider.label} probe.`;
+  const placeholder = t('guide.probeDisabled', { label: provider.label });
   return el('div', { className: 'col probe-row' }, [
     el('div', { key: 'row', className: 'row' }, [
       el(
@@ -38,7 +40,7 @@ const ProbeRow = ({ provider }) => {
           className: 'primary',
           disabled: !ready,
         },
-        'Try directly'
+        t('settings.probe.button')
       ),
       el('span', { key: 'meta', className: 'meta' }, placeholder),
     ]),
@@ -46,6 +48,7 @@ const ProbeRow = ({ provider }) => {
 };
 
 const ProviderCard = ({ providerId }) => {
+  const t = useT();
   const provider = getProvider(providerId);
   return el('section', { className: 'card connection-guide-provider' }, [
     el('h3', { key: 'h' }, provider.label),
@@ -76,7 +79,7 @@ const ProviderCard = ({ providerId }) => {
             target: '_blank',
             rel: 'noopener noreferrer',
           },
-          'How to obtain the credentials ↗'
+          t('settings.docsLink')
         )
       ),
       el(ProbeRow, { key: 'probe', provider }),
@@ -85,6 +88,7 @@ const ProviderCard = ({ providerId }) => {
 };
 
 export const LocalServerHelp = () => {
+  const t = useT();
   const [override, setOverride] = useState('');
   const apply = () => {
     if (!override) {
@@ -123,7 +127,7 @@ export const LocalServerHelp = () => {
           className: 'primary',
           onClick: apply,
         },
-        'Use this server'
+        t('guide.useThisServer')
       ),
     ]),
   ]);
@@ -134,10 +138,11 @@ export const LocalServerHelp = () => {
 // matching provider card via the `meta-sovereign:navigate` event that
 // app.js listens for.
 export const SettingsConnectFirstCta = ({ providerId }) => {
+  const t = useT();
   const provider = providerId ? providerCatalogue[providerId] : null;
   const target = provider
-    ? `Settings → Connections → ${provider.label}`
-    : 'Settings → Connections';
+    ? t('guide.openSettingsTarget', { label: provider.label })
+    : t('guide.openSettingsRoot');
   const navigate = () => {
     const anchor = providerId ? `#conn-${providerId}` : '';
     globalThis.dispatchEvent?.(
@@ -147,11 +152,7 @@ export const SettingsConnectFirstCta = ({ providerId }) => {
     );
   };
   return el('div', { className: 'connection-guide-connect-first row' }, [
-    el(
-      'p',
-      { key: 'copy', className: 'meta' },
-      'You must connect a provider first before any data can show up here.'
-    ),
+    el('p', { key: 'copy', className: 'meta' }, t('guide.connectFirstHint')),
     el(
       'button',
       {
@@ -162,7 +163,7 @@ export const SettingsConnectFirstCta = ({ providerId }) => {
         'data-action': 'open-settings',
         'data-target-anchor': providerId ? `#conn-${providerId}` : '',
       },
-      `Open ${target}`
+      t('guide.openSettings', { target })
     ),
   ]);
 };

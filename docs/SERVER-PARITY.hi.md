@@ -1,0 +1,66 @@
+# Server parity matrix — JS server vs. Rust server (languages: [en](SERVER-PARITY.md) • [zh](SERVER-PARITY.zh.md) • hi • [ru](SERVER-PARITY.ru.md))
+
+यह page JavaScript server (`js/src/server/index.js` + `routes-*.js`) और
+pure-Rust server (`rust/crates/meta-sovereign-server/src/routes.rs` +
+`handlers.rs`) के HTTP routes और transport surfaces गिनता है ताकि user
+backend चुनते समय feature parity समझ सके।
+
+Rust server preferred local backend है: single binary, no runtime,
+fastest cold start। JS server fallback है: आज अधिक features देता है और
+Bun/Node/Deno वाले environment में चलता है।
+
+| Status    | Meaning                                      |
+| --------- | -------------------------------------------- |
+| Parity    | दोनों servers same route और wire shape देते। |
+| JS only   | JS server में है, Rust में अभी नहीं।         |
+| Rust only | Rust server में है, JS में नहीं।             |
+
+## 1. Links routes
+
+`/links` और `/links/:id` के GET/PUT/DELETE दोनों servers पर parity हैं।
+`?include=tombstones`, `?showDeleted=1`, `?purge=1&confirm=1` का behavior
+same है।
+
+## 2. Derived read routes
+
+`/api/contacts`, `/api/status`, `/api/autocomplete`, `/api/audience`,
+`/api/facts`, `/api/search`, `/api/health`, `/sources` और `/metrics`
+दोनों servers पर parity में हैं।
+
+## 3. Mutating CRUD routes
+
+patterns, graphs, replies, profile, resume, broadcast और
+`/api/email/pull` / `/api/email/send` wire parity रखते हैं। Rust email
+routes JS जैसा archive ingest envelope accept करते हैं। Live Gmail,
+Microsoft Graph, JMAP और raw IMAP/POP3/SMTP अभी JS server features हैं,
+क्योंकि Rust crate `std`-only रहता है।
+
+## 4. Outreach, backups, hardening
+
+`/api/outreach`, `/api/backups`, `/api/backups/restore`,
+`/api/export-encrypted` और `/api/links/purge-tombstones` अभी JS only हैं।
+Rust server `404` दे तो SPA related features hide या fallback करता है; CLI
+local JS implementation से चलता रहता है।
+
+## 5. Real-time transports और static assets
+
+`/ws` WebSocket sync और `/rtc` WebRTC signalling दोनों servers पर parity
+में हैं। `/`, `/index.html`, flat assets, `/storage/`, `/handlers/` और
+`/sync/` mounts भी same static behavior रखते हैं और path traversal reject
+करते हैं।
+
+## 6. Summary
+
+| Category                       | Routes | Parity | JS only |
+| ------------------------------ | ------ | ------ | ------- |
+| Read + derived + meta          | 14     | 14     | 0       |
+| Mutating CRUD                  | 15     | 15     | 0       |
+| Outreach / backups / hardening | 6      | 0      | 6       |
+| Real-time transports           | 2      | 2      | 0       |
+| Static asset serving           | 3      | 3      | 0       |
+| **Total**                      | **40** | **34** | **6**   |
+
+Rust server आज **85% route parity** पर है। Typical user flow - SPA खोलना,
+contacts देखना, messages भेजना, replies automate करना, devices sync
+करना, email archives ingest करना - Rust server को JS server का drop-in
+replacement बना देता है।

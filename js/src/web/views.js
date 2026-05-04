@@ -8,6 +8,7 @@ import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
+import { useT } from './i18n.js';
 
 const el = React.createElement;
 const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
@@ -48,7 +49,10 @@ const useAsyncValue = (loader, deps, initialValue) => {
   return state;
 };
 
-const Loading = () => el('div', { className: 'meta' }, 'Loading...');
+const Loading = () => {
+  const t = useT();
+  return el('div', { className: 'meta' }, t('common.loading'));
+};
 
 const ErrorMessage = ({ error }) =>
   error ? el('pre', { role: 'alert' }, String(error.message ?? error)) : null;
@@ -66,6 +70,7 @@ const AsyncFrame = ({ state, children }) => {
 const refreshReducer = (value) => value + 1;
 
 export const ChatView = () => {
+  const t = useT();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.links(), [refresh], []);
   const [active, setActive] = useState('');
@@ -132,7 +137,7 @@ export const ChatView = () => {
     }
     return el('div', { className: 'chat' }, [
       el('aside', { key: 'aside' }, [
-        el('div', { key: 'h', className: 'aside-h' }, 'Chats'),
+        el('div', { key: 'h', className: 'aside-h' }, t('chat.aside')),
         ...chats.map((chat) =>
           el(
             'button',
@@ -190,7 +195,7 @@ export const ChatView = () => {
           el('textarea', {
             key: 'input',
             rows: 2,
-            placeholder: 'Type a message...',
+            placeholder: t('chat.placeholder'),
             value: text,
             onChange: (event) => updateText(event.target.value),
           }),
@@ -202,7 +207,7 @@ export const ChatView = () => {
               className: 'primary',
               onClick: send,
             },
-            'send'
+            t('common.send')
           ),
         ]),
       ]),
@@ -211,6 +216,7 @@ export const ChatView = () => {
 };
 
 export const OperatorView = () => {
+  const t = useT();
   const state = useAsyncValue(() => api.links(), [], []);
   const [index, setIndex] = useState(0);
   const queue = useMemo(
@@ -238,11 +244,14 @@ export const OperatorView = () => {
       return el(ConnectionGuide, { section: 'operator' });
     }
     return el('div', { className: 'col operator' }, [
-      el('h2', { key: 'h' }, 'Operator'),
+      el('h2', { key: 'h' }, t('operator.title')),
       el(
         'div',
         { key: 'status', className: 'meta' },
-        `${index + 1} / ${queue.length}`
+        t('operator.progress', {
+          current: index + 1,
+          total: queue.length,
+        })
       ),
       el('div', { key: 'card', className: 'card' }, [
         el(
@@ -255,7 +264,7 @@ export const OperatorView = () => {
           el(
             'button',
             { key: 'next', type: 'button', onClick: next },
-            'NEXT (N)'
+            t('operator.next')
           ),
           el(
             'button',
@@ -265,7 +274,7 @@ export const OperatorView = () => {
               className: 'primary',
               onClick: next,
             },
-            'DONE (D)'
+            t('operator.done')
           ),
         ]),
       ]),
@@ -274,21 +283,22 @@ export const OperatorView = () => {
 };
 
 export const ContactsView = () => {
+  const t = useT();
   const state = useAsyncValue(() => api.contacts(), [], []);
   return el(AsyncFrame, { state }, (contacts) => {
     if (!contacts || contacts.length === 0) {
       return el(ConnectionGuide, { section: 'contacts' });
     }
     return el('div', {}, [
-      el('h2', { key: 'h' }, `Contacts (${contacts.length})`),
+      el('h2', { key: 'h' }, t('contacts.title', { count: contacts.length })),
       el('table', { key: 'table' }, [
         el('thead', { key: 'head' }, [
           el('tr', {}, [
-            el('th', {}, 'Identity'),
-            el('th', {}, 'Networks'),
-            el('th', {}, 'Chats'),
-            el('th', {}, 'Messages'),
-            el('th', {}, 'Last seen'),
+            el('th', {}, t('contacts.identity')),
+            el('th', {}, t('contacts.networks')),
+            el('th', {}, t('contacts.chats')),
+            el('th', {}, t('contacts.messages')),
+            el('th', {}, t('contacts.lastSeen')),
           ]),
         ]),
         el(
@@ -309,8 +319,9 @@ export const ContactsView = () => {
   });
 };
 
-const GraphPreview = ({ graph }) =>
-  el('div', { className: 'graph' }, [
+const GraphPreview = ({ graph }) => {
+  const t = useT();
+  return el('div', { className: 'graph' }, [
     ...(graph.nodes ?? []).map((node) =>
       el(
         'span',
@@ -321,11 +332,13 @@ const GraphPreview = ({ graph }) =>
     el(
       'div',
       { key: 'edges', className: 'meta', style: { marginTop: '0.5rem' } },
-      `${(graph.edges ?? []).length} edges`
+      t('automation.edges', { count: (graph.edges ?? []).length })
     ),
   ]);
+};
 
 export const AutomationView = () => {
+  const t = useT();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.graphs(), [refresh], []);
   const [current, setCurrent] = useState(null);
@@ -372,7 +385,7 @@ export const AutomationView = () => {
       return el(ConnectionGuide, { section: 'automation' });
     }
     return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, 'Automation graphs'),
+      el('h2', { key: 'h' }, t('automation.title')),
       el('div', { key: 'actions', className: 'row' }, [
         ...['pattern', 'reply', 'send', 'wait'].map((kind) =>
           el(
@@ -384,7 +397,7 @@ export const AutomationView = () => {
         el(
           'button',
           { key: 'save', type: 'button', className: 'primary', onClick: save },
-          'save'
+          t('common.save')
         ),
       ]),
       el(
@@ -408,6 +421,7 @@ export const AutomationView = () => {
 };
 
 export const PatternsView = () => {
+  const t = useT();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.patterns(), [refresh], []);
   const [examples, setExamples] = useState('');
@@ -452,10 +466,13 @@ export const PatternsView = () => {
       return el(ConnectionGuide, { section: 'patterns' });
     }
     return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, 'Patterns'),
+      el('h2', { key: 'h' }, t('patterns.title')),
       el('table', { key: 'table' }, [
         el('thead', { key: 'head' }, [
-          el('tr', {}, [el('th', {}, 'id'), el('th', {}, 'regex')]),
+          el('tr', {}, [
+            el('th', {}, t('patterns.colId')),
+            el('th', {}, t('patterns.colRegex')),
+          ]),
         ]),
         el(
           'tbody',
@@ -468,11 +485,11 @@ export const PatternsView = () => {
           )
         ),
       ]),
-      el('h3', { key: 'infer-h' }, 'Infer regex from examples'),
+      el('h3', { key: 'infer-h' }, t('patterns.inferTitle')),
       el('textarea', {
         key: 'examples',
         rows: 5,
-        placeholder: 'one example per line',
+        placeholder: t('patterns.examplesPlaceholder'),
         value: examples,
         onChange: (event) => setExamples(event.target.value),
       }),
@@ -485,8 +502,12 @@ export const PatternsView = () => {
             onChange: (event) => setMode(event.target.value),
           },
           [
-            el('option', { key: 'simple', value: 'simple' }, 'simple'),
-            el('option', { key: 'lcs', value: 'lcs' }, 'lcs (variable gaps)'),
+            el(
+              'option',
+              { key: 'simple', value: 'simple' },
+              t('patterns.modeSimple')
+            ),
+            el('option', { key: 'lcs', value: 'lcs' }, t('patterns.modeLcs')),
           ]
         ),
         el(
@@ -497,21 +518,25 @@ export const PatternsView = () => {
             className: 'primary',
             onClick: infer,
           },
-          'infer'
+          t('common.infer')
         ),
         el('input', {
           key: 'id',
-          placeholder: 'pattern id (e.g. greet)',
+          placeholder: t('patterns.idPlaceholder'),
           value: patternId,
           onChange: (event) => setPatternId(event.target.value),
         }),
         el('input', {
           key: 'label',
-          placeholder: 'label',
+          placeholder: t('patterns.labelPlaceholder'),
           value: label,
           onChange: (event) => setLabel(event.target.value),
         }),
-        el('button', { key: 'save', type: 'button', onClick: save }, 'save'),
+        el(
+          'button',
+          { key: 'save', type: 'button', onClick: save },
+          t('common.save')
+        ),
       ]),
       el('div', { key: 'preview', className: 'meta' }, preview),
       el('pre', { key: 'out' }, output),
@@ -520,6 +545,7 @@ export const PatternsView = () => {
 };
 
 export const RepliesView = () => {
+  const t = useT();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.replies(), [refresh], []);
   const [groupId, setGroupId] = useState('');
@@ -544,7 +570,7 @@ export const RepliesView = () => {
       return el(ConnectionGuide, { section: 'replies' });
     }
     return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, 'Reply variation groups'),
+      el('h2', { key: 'h' }, t('replies.title')),
       el(
         'div',
         { key: 'groups' },
@@ -557,17 +583,17 @@ export const RepliesView = () => {
           ])
         )
       ),
-      el('h3', { key: 'new' }, 'New / update group'),
+      el('h3', { key: 'new' }, t('replies.newTitle')),
       el('div', { key: 'row', className: 'row' }, [
         el('input', {
           key: 'id',
-          placeholder: 'group id (e.g. thanks)',
+          placeholder: t('replies.idPlaceholder'),
           value: groupId,
           onChange: (event) => setGroupId(event.target.value),
         }),
         el('input', {
           key: 'label',
-          placeholder: 'label',
+          placeholder: t('patterns.labelPlaceholder'),
           value: label,
           onChange: (event) => setLabel(event.target.value),
         }),
@@ -575,20 +601,21 @@ export const RepliesView = () => {
       el('textarea', {
         key: 'vars',
         rows: 4,
-        placeholder: 'one variation per line',
+        placeholder: t('replies.variationsPlaceholder'),
         value: variations,
         onChange: (event) => setVariations(event.target.value),
       }),
       el(
         'button',
         { key: 'save', type: 'button', className: 'primary', onClick: save },
-        'save group'
+        t('replies.saveGroup')
       ),
     ]);
   });
 };
 
 export const FactsView = () => {
+  const t = useT();
   const state = useAsyncValue(() => api.facts(), [], {
     facts: [],
     byAnswerer: {},
@@ -599,16 +626,16 @@ export const FactsView = () => {
       return el(ConnectionGuide, { section: 'facts' });
     }
     return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, `Facts (${factCount})`),
+      el('h2', { key: 'h' }, t('facts.title', { count: factCount })),
       ...Object.entries(facts.byAnswerer ?? {}).map(([answerer, list]) =>
         el('section', { key: answerer }, [
           el('h3', { key: 'h' }, answerer),
           el('table', { key: 'table' }, [
             el('thead', { key: 'head' }, [
               el('tr', {}, [
-                el('th', {}, 'Question'),
-                el('th', {}, 'Answer'),
-                el('th', {}, 'Pattern'),
+                el('th', {}, t('facts.colQuestion')),
+                el('th', {}, t('facts.colAnswer')),
+                el('th', {}, t('facts.colPattern')),
               ]),
             ]),
             el(
@@ -630,6 +657,7 @@ export const FactsView = () => {
 };
 
 export const AudienceView = () => {
+  const t = useT();
   const [query, setQuery] = useState('');
   const [contacts, setContacts] = useState(null);
   const known = useAsyncValue(() => api.contacts(), [], []);
@@ -638,16 +666,12 @@ export const AudienceView = () => {
     return el(ConnectionGuide, { section: 'audience' });
   }
   return el('div', { className: 'col' }, [
-    el('h2', { key: 'h' }, 'Audience builder'),
-    el(
-      'div',
-      { key: 'meta', className: 'meta' },
-      'Operators: AND, OR, NOT, parens. Dimensions: network:, chat:, sender:, kind:, fact:'
-    ),
+    el('h2', { key: 'h' }, t('audience.title')),
+    el('div', { key: 'meta', className: 'meta' }, t('audience.hint')),
     el('div', { key: 'row', className: 'row' }, [
       el('input', {
         key: 'q',
-        placeholder: 'e.g. network:telegram AND chat:general',
+        placeholder: t('audience.queryPlaceholder'),
         style: { minWidth: '32rem' },
         value: query,
         onChange: (event) => setQuery(event.target.value),
@@ -660,7 +684,7 @@ export const AudienceView = () => {
           className: 'primary',
           onClick: evaluate,
         },
-        'evaluate'
+        t('common.evaluate')
       ),
     ]),
     contacts
@@ -668,7 +692,7 @@ export const AudienceView = () => {
           el(
             'div',
             { key: 'count', className: 'meta' },
-            `${contacts.length} contacts`
+            t('audience.contactsCount', { count: contacts.length })
           ),
           ...contacts.map((contact) =>
             el(
@@ -720,6 +744,7 @@ const useSources = () => {
 };
 
 export const BroadcastView = () => {
+  const t = useT();
   const { state, selected, setSelected } = useSources();
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('');
@@ -734,7 +759,7 @@ export const BroadcastView = () => {
       return el(ConnectionGuide, { section: 'broadcast' });
     }
     return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, 'Broadcast'),
+      el('h2', { key: 'h' }, t('broadcast.title')),
       el('textarea', {
         key: 'msg',
         rows: 4,
@@ -750,7 +775,7 @@ export const BroadcastView = () => {
       el(
         'button',
         { key: 'send', type: 'button', className: 'primary', onClick: send },
-        'send'
+        t('common.send')
       ),
       el('div', { key: 'status' }, status),
     ]);
@@ -758,6 +783,7 @@ export const BroadcastView = () => {
 };
 
 export const OutreachView = () => {
+  const t = useT();
   const { state, selected, setSelected } = useSources();
   const [query, setQuery] = useState('');
   const [text, setText] = useState('');
@@ -776,15 +802,11 @@ export const OutreachView = () => {
       return el(ConnectionGuide, { section: 'outreach' });
     }
     return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, 'Outreach'),
-      el(
-        'div',
-        { key: 'meta', className: 'meta' },
-        'Mass-personal outreach. Preview always; queue actually dispatches.'
-      ),
+      el('h2', { key: 'h' }, t('outreach.title')),
+      el('div', { key: 'meta', className: 'meta' }, t('outreach.hint')),
       el('input', {
         key: 'q',
-        placeholder: 'audience query, e.g. network:telegram AND chat:vip',
+        placeholder: t('outreach.queryPlaceholder'),
         style: { minWidth: '32rem' },
         value: query,
         onChange: (event) => setQuery(event.target.value),
@@ -792,8 +814,7 @@ export const OutreachView = () => {
       el('textarea', {
         key: 'text',
         rows: 4,
-        placeholder:
-          'Body. Use {name}, {networks}, {chats} to personalise per recipient.',
+        placeholder: t('outreach.bodyPlaceholder'),
         value: text,
         onChange: (event) => setText(event.target.value),
       }),
@@ -812,12 +833,12 @@ export const OutreachView = () => {
             className: 'primary',
             onClick: () => run('preview'),
           },
-          'preview'
+          t('common.preview')
         ),
         el(
           'button',
           { key: 'queue', type: 'button', onClick: () => run('queue') },
-          'queue'
+          t('common.queue')
         ),
       ]),
       el('pre', { key: 'out' }, output),
@@ -826,6 +847,7 @@ export const OutreachView = () => {
 };
 
 export const BackupView = () => {
+  const t = useT();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.listBackups(), [refresh], []);
   const [passphrase, setPassphrase] = useState('');
@@ -851,17 +873,13 @@ export const BackupView = () => {
 
   return el(AsyncFrame, { state }, (backups) =>
     el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, 'Backup'),
-      el(
-        'div',
-        { key: 'meta', className: 'meta' },
-        'Encrypted archives live under the server store directory.'
-      ),
+      el('h2', { key: 'h' }, t('backup.title')),
+      el('div', { key: 'meta', className: 'meta' }, t('backup.hint')),
       el('div', { key: 'row', className: 'row' }, [
         el('input', {
           key: 'pass',
           type: 'password',
-          placeholder: 'optional passphrase',
+          placeholder: t('backup.passphrasePlaceholder'),
           value: passphrase,
           onChange: (event) => setPassphrase(event.target.value),
         }),
@@ -869,7 +887,7 @@ export const BackupView = () => {
           key: 'keep',
           type: 'number',
           min: '0',
-          placeholder: 'keep N (optional)',
+          placeholder: t('backup.keepPlaceholder'),
           style: { maxWidth: '10rem' },
           value: keep,
           onChange: (event) => setKeep(event.target.value),
@@ -882,7 +900,7 @@ export const BackupView = () => {
             className: 'primary',
             onClick: create,
           },
-          'create backup'
+          t('backup.create')
         ),
         el(
           'button',
@@ -891,7 +909,7 @@ export const BackupView = () => {
             type: 'button',
             onClick: () => setRefresh(refreshReducer),
           },
-          'refresh'
+          t('common.refresh')
         ),
       ]),
       el(
@@ -906,9 +924,13 @@ export const BackupView = () => {
                   el(
                     'div',
                     { key: 'meta', className: 'meta' },
-                    `${backup.size} bytes - ${fmtTs(backup.mtime)} - ${
-                      backup.encrypted ? 'encrypted' : 'plain'
-                    }`
+                    t('backup.itemMeta', {
+                      size: backup.size,
+                      timestamp: fmtTs(backup.mtime),
+                      state: backup.encrypted
+                        ? t('backup.encrypted')
+                        : t('backup.plain'),
+                    })
                   ),
                 ]),
                 el(
@@ -918,7 +940,7 @@ export const BackupView = () => {
                     type: 'button',
                     onClick: () => restore(backup.file),
                   },
-                  'restore'
+                  t('backup.restore')
                 ),
               ])
             )
@@ -929,6 +951,7 @@ export const BackupView = () => {
 };
 
 export const ProfileView = () => {
+  const t = useT();
   const state = useAsyncValue(
     async () => ({
       profile: (await api.profile()) ?? {},
@@ -977,18 +1000,18 @@ export const ProfileView = () => {
       return el(ConnectionGuide, { section: 'profile' });
     }
     return el('div', { className: 'col' }, [
-      el('h2', { key: 'profile-h' }, 'Profile'),
+      el('h2', { key: 'profile-h' }, t('profile.title')),
       el('div', { key: 'profile', className: 'col' }, [
         el('input', {
           key: 'name',
           value: name,
-          placeholder: 'name',
+          placeholder: t('profile.namePlaceholder'),
           onChange: (event) => setName(event.target.value),
         }),
         el('textarea', {
           key: 'bio',
           rows: 3,
-          placeholder: 'bio',
+          placeholder: t('profile.bioPlaceholder'),
           value: bio,
           onChange: (event) => setBio(event.target.value),
         }),
@@ -1000,21 +1023,21 @@ export const ProfileView = () => {
             className: 'primary',
             onClick: saveProfile,
           },
-          'save profile'
+          t('profile.saveProfile')
         ),
       ]),
-      el('h2', { key: 'resume-h' }, 'Resume'),
+      el('h2', { key: 'resume-h' }, t('profile.resumeTitle')),
       el('div', { key: 'resume', className: 'col' }, [
         el('input', {
           key: 'title',
           value: title,
-          placeholder: 'job title',
+          placeholder: t('profile.titlePlaceholder'),
           onChange: (event) => setTitle(event.target.value),
         }),
         el('textarea', {
           key: 'body',
           rows: 5,
-          placeholder: 'experience',
+          placeholder: t('profile.bodyPlaceholder'),
           value: body,
           onChange: (event) => setBody(event.target.value),
         }),
@@ -1026,7 +1049,7 @@ export const ProfileView = () => {
             className: 'primary',
             onClick: saveResume,
           },
-          'save resume'
+          t('profile.saveResume')
         ),
       ]),
       el('pre', { key: 'status' }, status),
@@ -1035,13 +1058,14 @@ export const ProfileView = () => {
 };
 
 export const StatusView = () => {
+  const t = useT();
   const state = useAsyncValue(() => api.status(), [], {});
   return el(AsyncFrame, { state }, (status) => {
     if (!status || Object.keys(status).length === 0) {
       return el(ConnectionGuide, { section: 'status' });
     }
     return el('div', {}, [
-      el('h2', { key: 'h' }, 'Status'),
+      el('h2', { key: 'h' }, t('status.title')),
       el('table', { key: 'table' }, [
         el(
           'tbody',

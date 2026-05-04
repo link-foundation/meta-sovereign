@@ -11,6 +11,8 @@ import {
   TutorialOverlay,
   useTutorialPreference,
 } from './tutorial.js';
+import { LocaleContext, useLocale } from './i18n.js';
+import { LanguageSwitcher } from './language-switcher.js';
 
 const el = React.createElement;
 const THEME_KEY = 'metaSovereignTheme';
@@ -89,6 +91,8 @@ const App = () => {
   const [active, setActive] = useState('chat');
   const online = useOnlineMode();
   const { theme, toggle } = useTheme();
+  const localeApi = useLocale();
+  const { t } = localeApi;
   const tutorial = useTutorialPreference();
   // The overlay opens automatically on first run (no stored preference)
   // and otherwise only when the user clicks the header button (R-M12).
@@ -121,65 +125,68 @@ const App = () => {
   const closeTutorial = () => setTutorialOpen(false);
   const View = useMemo(() => views[active] ?? views.chat, [active]);
 
-  return el(React.Fragment, {}, [
-    el('a', { key: 'skip', className: 'skip-link', href: '#root' }, [
-      'Skip to main content',
-    ]),
-    el('header', { key: 'header', className: 'topbar', role: 'banner' }, [
-      el('h1', { key: 'brand' }, 'meta-sovereign'),
-      el(
-        'nav',
-        { key: 'nav', 'aria-label': 'Primary' },
-        navItems.map(([id, label]) =>
-          el(
-            'button',
-            {
-              key: id,
-              type: 'button',
-              'data-view': id,
-              className: id === active ? 'active' : '',
-              onClick: () => setActive(id),
-            },
-            label
+  return el(LocaleContext.Provider, { value: localeApi }, [
+    el(React.Fragment, { key: 'shell' }, [
+      el('a', { key: 'skip', className: 'skip-link', href: '#root' }, [
+        t('skipLink'),
+      ]),
+      el('header', { key: 'header', className: 'topbar', role: 'banner' }, [
+        el('h1', { key: 'brand' }, t('appName')),
+        el(
+          'nav',
+          { key: 'nav', 'aria-label': 'Primary' },
+          navItems.map(([id, labelKey]) =>
+            el(
+              'button',
+              {
+                key: id,
+                type: 'button',
+                'data-view': id,
+                className: id === active ? 'active' : '',
+                onClick: () => setActive(id),
+              },
+              t(labelKey)
+            )
           )
-        )
-      ),
+        ),
+        el(
+          'span',
+          {
+            key: 'mode',
+            className: `mode-badge ${online ? 'online' : 'offline'}`,
+          },
+          online ? t('header.online') : t('header.offline')
+        ),
+        el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
+        el(LanguageSwitcher, { key: 'lang' }),
+        el(
+          'button',
+          {
+            key: 'theme',
+            type: 'button',
+            className: 'theme-toggle',
+            'data-action': 'theme-toggle',
+            'aria-label': t('header.themeAria'),
+            'aria-pressed': String((theme || '') === 'dark'),
+            title: t('header.themeAria'),
+            onClick: toggle,
+          },
+          t('header.theme')
+        ),
+      ]),
       el(
-        'span',
-        {
-          key: 'mode',
-          className: `mode-badge ${online ? 'online' : 'offline'}`,
-        },
-        online ? 'online' : 'offline'
+        'main',
+        { key: 'main', id: 'root', role: 'main', tabIndex: -1 },
+        el(View)
       ),
-      el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
-      el(
-        'button',
-        {
-          key: 'theme',
-          type: 'button',
-          className: 'theme-toggle',
-          'data-action': 'theme-toggle',
-          'aria-label': 'Toggle dark mode',
-          'aria-pressed': String((theme || '') === 'dark'),
-          title: 'Toggle dark mode',
-          onClick: toggle,
-        },
-        'Theme'
-      ),
+      el(TutorialOverlay, {
+        key: 'tutorial-overlay',
+        open: tutorialOpen,
+        onClose: closeTutorial,
+        onDismiss: tutorial.dismiss,
+        onComplete: tutorial.complete,
+      }),
     ]),
-    el(
-      'main',
-      { key: 'main', id: 'root', role: 'main', tabIndex: -1 },
-      el(View)
-    ),
-    el(TutorialOverlay, {
-      key: 'tutorial-overlay',
-      open: tutorialOpen,
-      onClose: closeTutorial,
-      onDismiss: tutorial.dismiss,
-      onComplete: tutorial.complete,
-    }),
   ]);
 };
 

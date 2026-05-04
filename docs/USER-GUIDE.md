@@ -1,4 +1,4 @@
-# User Guide
+# User Guide (languages: en • [zh](USER-GUIDE.zh.md) • [hi](USER-GUIDE.hi.md) • [ru](USER-GUIDE.ru.md))
 
 This page collects the user-facing flows for `meta-sovereign` in one
 place. The flows are ordered from "install nothing" to "install

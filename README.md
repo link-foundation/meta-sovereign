@@ -1,4 +1,4 @@
-# meta-sovereign
+# meta-sovereign (languages: en • [zh](README.zh.md) • [hi](README.hi.md) • [ru](README.ru.md))
 
 A personal **meta profile sovereign** system — a unified inbox + CRM + automation platform that the user actually owns. Local-first, privacy-respecting, with all your contacts, chats, email, and patterns from VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, and email providers.
 

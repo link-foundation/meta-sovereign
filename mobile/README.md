@@ -1,4 +1,4 @@
-# Mobile Shell
+# Mobile Shell (languages: en • [zh](README.zh.md) • [hi](README.hi.md) • [ru](README.ru.md))
 
 The mobile shell uses Capacitor's web-native container model. The build
 pipeline copies the same React bundle used by the local web server into

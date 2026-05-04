@@ -1,4 +1,4 @@
-# Requirements
+# Requirements (languages: en • [zh](REQUIREMENTS.zh.md) • [hi](REQUIREMENTS.hi.md) • [ru](REQUIREMENTS.ru.md))
 
 This document is the canonical, top-level list of requirements that
 `meta-sovereign` is building against. It collects directives from
@@ -320,6 +320,31 @@ The full atomic list and traceability live in
 | R-O17 | The case study must propose possible solutions and a solution plan for each requirement.                                                                                                                                             | Done: `solution-plan.md`.                                                                                                                                                                                                         |
 | R-O18 | The case study must check known existing components / libraries that solve a similar problem.                                                                                                                                        | Done: `components.md` + `external-research.md`.                                                                                                                                                                                   |
 | R-O19 | All work lands in a single PR (#17) and iterates until every requirement is fully addressed.                                                                                                                                         | In progress: PR #17 on branch `issue-16-d636f69ce59c`.                                                                                                                                                                            |
+
+---
+
+## Q. UI and documentation internationalisation (issue #18)
+
+The following requirements arose from
+[issue #18](https://github.com/link-foundation/meta-sovereign/issues/18) -
+"Support i18n of UI for en (english), ch (chinese), hi (hindi), and
+ru (russian)" and the follow-up PR #19 review comment asking for
+Markdown documentation parity. The full atomic list and traceability
+live in
+[`docs/case-studies/issue-18/requirements.md`](./case-studies/issue-18/requirements.md).
+
+| ID    | Requirement                                                                                                                                        | State                                                                                                                                                                                     |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-Q1  | The SPA must let users switch the visible UI language between English, Chinese, Hindi, and Russian.                                                | Done: the header language switcher uses `availableLocales` and `useLocale()` from `js/src/web/i18n.js`.                                                                                   |
+| R-Q2  | The first visit must auto-detect the closest supported language from browser data, then allow an explicit app override.                            | Done: `detectInitialLocale()` reads `localStorage.metaSovereignLocale`, then `navigator.languages`, then `navigator.language`, and falls back to `en`.                                    |
+| R-Q3  | Locale selection must persist locally without leaking to peers.                                                                                    | Done: explicit locale picks are stored only in `localStorage`; peer sync continues to filter preferences and secrets.                                                                     |
+| R-Q4  | Changing language must update accessibility metadata.                                                                                              | Done: `applyLocale()` writes `<html lang>` and `<html dir>` on every locale change.                                                                                                       |
+| R-Q5  | Every authored, user-facing SPA string must move behind a stable translation key.                                                                  | Done: nav, shell, tutorial, settings, guides, view headings, placeholders, status labels, and common actions use `t()`; provider names and API identifiers remain source data.            |
+| R-Q6  | All four locale dictionaries must stay structurally identical.                                                                                     | Done: `js/tests/i18n.test.js` asserts non-English dictionaries expose the same flattened key set as `en`.                                                                                 |
+| R-Q7  | User-facing Markdown docs must expose language-switcher headers and translated siblings for `en`, `zh`, `hi`, and `ru`.                            | Done: `README`, `CHANGELOG`, `mobile/README`, top-level `docs/*.md`, and issue-18 case-study docs have `*.zh.md`, `*.hi.md`, and `*.ru.md` siblings with H1 switchers matching hive-mind. |
+| R-Q8  | Markdown localisation must be covered by automation so new docs cannot silently drop a language sibling or switcher link.                          | Done: `js/tests/docs-language.test.js` checks the tracked user-facing Markdown groups, validates sibling files, and verifies each switcher link resolves.                                 |
+| R-Q9  | A deep case study must capture issue data, online research, requirements, component survey, and solution plan under `docs/case-studies/issue-18/`. | Done: the issue-18 folder contains raw issue data plus `README`, `requirements`, `solution-plan`, `components`, and `external-research` in all four requested languages.                  |
+| R-Q10 | All work lands in single PR #19 and iterates until every requirement is addressed.                                                                 | In progress: PR #19 on branch `issue-18-511583e63fad`.                                                                                                                                    |
 
 ---
 
