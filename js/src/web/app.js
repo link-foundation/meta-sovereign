@@ -93,6 +93,27 @@ const App = () => {
   // The overlay opens automatically on first run (no stored preference)
   // and otherwise only when the user clicks the header button (R-M12).
   const [tutorialOpen, setTutorialOpen] = useState(() => !tutorial.isOff);
+
+  // Listen for cross-component "switch to view N and scroll to anchor"
+  // events fired by the per-section "Connect first" CTAs (R-O7).
+  useEffect(() => {
+    const onNavigate = (event) => {
+      const detail = event.detail ?? {};
+      if (typeof detail.view === 'string') {
+        setActive(detail.view);
+      }
+      if (typeof detail.anchor === 'string') {
+        // Update the URL hash so the Settings view can scroll to the
+        // matching `id="conn-{provider}"` card on first paint.
+        if (globalThis.location) {
+          globalThis.location.hash = detail.anchor;
+        }
+      }
+    };
+    globalThis.addEventListener('meta-sovereign:navigate', onNavigate);
+    return () =>
+      globalThis.removeEventListener('meta-sovereign:navigate', onNavigate);
+  }, []);
   const openTutorial = () => {
     tutorial.reopen();
     setTutorialOpen(true);

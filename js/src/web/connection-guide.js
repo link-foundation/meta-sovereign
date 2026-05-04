@@ -16,20 +16,18 @@ import {
   getProvider,
   isCrossOrigin,
   localServerHelp,
-  tryDirect,
+  providerCatalogue,
   applyLocalServerOverride,
 } from './connection-guides.js';
 
 const el = React.createElement;
 
 const ProbeRow = ({ provider }) => {
-  const [state, setState] = useState({ status: 'idle' });
-  const probe = async () => {
-    setState({ status: 'pending' });
-    const result = await tryDirect({ url: provider.apiCredentials.probeUrl });
-    setState({ status: 'done', result });
-  };
-  const result = state.result;
+  // R-O1: per-section ProbeRow refuses to fire when no credentials are
+  // saved (which would always 404/400 — the original bug). It points
+  // the user at Settings → Connections instead.
+  const ready = false;
+  const placeholder = `Enter credentials in Settings to enable the ${provider.label} probe.`;
   return el('div', { className: 'col probe-row' }, [
     el('div', { key: 'row', className: 'row' }, [
       el(
@@ -38,28 +36,12 @@ const ProbeRow = ({ provider }) => {
           key: 'probe',
           type: 'button',
           className: 'primary',
-          onClick: probe,
-          disabled: state.status === 'pending',
+          disabled: !ready,
         },
-        state.status === 'pending' ? 'probing...' : 'Try directly'
+        'Try directly'
       ),
-      el(
-        'span',
-        { key: 'meta', className: 'meta' },
-        result
-          ? result.ok
-            ? `OK ${result.status}`
-            : result.classification === 'cors'
-              ? 'Blocked by CORS'
-              : `Failed (${result.classification}${
-                  result.status ? ` ${result.status}` : ''
-                })`
-          : `Endpoint: ${provider.apiCredentials.probeUrl}`
-      ),
+      el('span', { key: 'meta', className: 'meta' }, placeholder),
     ]),
-    result && !result.ok && result.classification === 'cors'
-      ? el(LocalServerHelp, { key: 'help' })
-      : null,
   ]);
 };
 
@@ -147,6 +129,44 @@ export const LocalServerHelp = () => {
   ]);
 };
 
+// R-O7: per-section "Connect first" CTA. Renders above the in-place
+// guide and deep-links into Settings → Connections, scrolling to the
+// matching provider card via the `meta-sovereign:navigate` event that
+// app.js listens for.
+export const SettingsConnectFirstCta = ({ providerId }) => {
+  const provider = providerId ? providerCatalogue[providerId] : null;
+  const target = provider
+    ? `Settings → Connections → ${provider.label}`
+    : 'Settings → Connections';
+  const navigate = () => {
+    const anchor = providerId ? `#conn-${providerId}` : '';
+    globalThis.dispatchEvent?.(
+      new CustomEvent('meta-sovereign:navigate', {
+        detail: { view: 'settings', anchor },
+      })
+    );
+  };
+  return el('div', { className: 'connection-guide-connect-first row' }, [
+    el(
+      'p',
+      { key: 'copy', className: 'meta' },
+      'You must connect a provider first before any data can show up here.'
+    ),
+    el(
+      'button',
+      {
+        key: 'cta',
+        type: 'button',
+        className: 'primary',
+        onClick: navigate,
+        'data-action': 'open-settings',
+        'data-target-anchor': providerId ? `#conn-${providerId}` : '',
+      },
+      `Open ${target}`
+    ),
+  ]);
+};
+
 export const ConnectionGuide = ({ section }) => {
   const guide = connectionGuides[section]
     ? getGuide(section)
@@ -161,6 +181,12 @@ export const ConnectionGuide = ({ section }) => {
     [
       el('h2', { key: 'h' }, guide.title),
       el('p', { key: 'body' }, guide.body),
+      guide.providers.length > 0
+        ? el(SettingsConnectFirstCta, {
+            key: 'cta',
+            providerId: guide.connectFirst?.providerId ?? guide.providers[0],
+          })
+        : null,
       ...guide.providers.map((id) =>
         el(ProviderCard, { key: id, providerId: id })
       ),

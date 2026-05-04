@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { navItems } from './nav-items.js';
+import { SettingsView } from './settings-view.js';
 
 const el = React.createElement;
 const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
@@ -1068,4 +1069,5 @@ export const views = {
   profile: ProfileView,
   backup: BackupView,
   status: StatusView,
+  settings: SettingsView,
 };

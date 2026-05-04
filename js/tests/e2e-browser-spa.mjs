@@ -90,6 +90,7 @@ const navViewsAll = [
   'profile',
   'backup',
   'status',
+  'settings',
 ];
 
 // JS backend (full surface, including outreach + backup + theme + a11y).
@@ -608,6 +609,103 @@ const stepTwoBrowserWebRtcConvergence = async ({ browser, page, base }) => {
   }
 };
 
+// Issue #16 / R-O3, R-O7, R-O11: Settings → Connections credential
+// roundtrip in a real browser. Saves a Telegram bot token via the
+// SPA's own input + button, asserts the stored secret:* link comes back
+// from /links, and verifies that the per-section "Connect first" CTA
+// from #chat deep-links into the Telegram card via the navigate event.
+const stepSettingsCredentialRoundtrip = async ({ page, base, commander }) => {
+  await page.goto(base, { waitUntil: 'load' });
+  await commander.clickButton({ selector: 'button[data-view="settings"]' });
+  await page.waitForSelector('section[data-provider="telegram"]', {
+    timeout: 5000,
+  });
+
+  const sampleToken = `e2e-token-${Date.now()}`;
+  // Per-provider card uses data-field-input="<id>" and
+  // data-action="save-credentials" attributes (settings-view.js).
+  await page.fill(
+    'section[data-provider="telegram"] input[data-field-input="token"]',
+    sampleToken
+  );
+  await commander.clickButton({
+    selector:
+      'section[data-provider="telegram"] button[data-action="save-credentials"]',
+  });
+
+  // Wait for the "saved." status update.
+  await page.waitForFunction(
+    () => {
+      const card = document.querySelector('section[data-provider="telegram"]');
+      if (!card) {
+        return false;
+      }
+      return /saved/.test(card.textContent);
+    },
+    { timeout: 5000 }
+  );
+
+  // The credential should now be visible to the server as a secret:*
+  // link. The /links payload returns plaintext (decryption happens in
+  // wrapSecretStore on the way out).
+  const got = await fetch(`${base}/links/secret:telegram:bot-token`).then((r) =>
+    r.json()
+  );
+  assert(
+    got.value === sampleToken,
+    `settings credential not stored: ${JSON.stringify(got)}`
+  );
+
+  // The probe button should now be enabled and labelled "Try directly".
+  const probeDisabled = await page.$eval(
+    'section[data-provider="telegram"] button[data-action="probe"]',
+    (btn) => btn.disabled
+  );
+  assert(
+    probeDisabled === false,
+    'settings: probe button still disabled after credentials saved'
+  );
+
+  // Status meta should no longer say "Enter a token to enable probe".
+  const status = await page.$eval(
+    'section[data-provider="telegram"] [data-probe-status]',
+    (el) => el.getAttribute('data-probe-status')
+  );
+  assert(
+    status === 'idle',
+    `settings: probe status meta should be idle before probing, got ${status}`
+  );
+
+  // R-O7 deep-link: from chat view, the "Connect first" CTA should
+  // dispatch meta-sovereign:navigate, switch us back to settings, and
+  // scroll to #conn-telegram.
+  await commander.clickButton({ selector: 'button[data-view="chat"]' });
+  await page.waitForSelector(
+    'button[data-action="open-settings"][data-target-anchor="#conn-telegram"]',
+    { timeout: 5000 }
+  );
+  await commander.clickButton({
+    selector:
+      'button[data-action="open-settings"][data-target-anchor="#conn-telegram"]',
+  });
+  await page.waitForSelector('section[data-provider="telegram"]', {
+    timeout: 5000,
+  });
+  const activeAfterCta = await page.$eval(
+    'button.active',
+    (el) => el.dataset.view
+  );
+  assert(
+    activeAfterCta === 'settings',
+    `settings: CTA did not switch view, active=${activeAfterCta}`
+  );
+  const hash = await page.evaluate(() => window.location.hash);
+  assert(
+    hash === '#conn-telegram',
+    `settings: CTA did not set hash, got "${hash}"`
+  );
+};
+
 const stepSkipLink = async ({ page, base }) => {
   await page.goto(base, { waitUntil: 'load' });
   await page.keyboard.press('Tab');
@@ -674,6 +772,10 @@ const ALL_STEPS = [
     name: 'dark-mode toggle persists across reload',
     fn: stepThemeToggle,
     requires: 'theme',
+  },
+  {
+    name: 'settings → connections credential roundtrip + connect-first CTA',
+    fn: stepSettingsCredentialRoundtrip,
   },
   {
     name: 'axe-core finds no serious/critical WCAG violations',
