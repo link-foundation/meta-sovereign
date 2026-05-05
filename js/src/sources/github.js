@@ -379,8 +379,13 @@ const stripLeadingDir = (name) => {
   return slash === -1 ? name : name.slice(slash + 1);
 };
 
+// Hide the `node:zlib` specifier from static bundlers (esbuild) so the
+// SPA build doesn't try to resolve a Node-only module. `cloneRepo` is
+// the only caller and only ever runs in Node.
+const dynamicImport = new Function('id', 'return import(id)');
+
 const gunzip = async (bytes) => {
-  const zlib = await import('node:zlib');
+  const zlib = await dynamicImport('node:zlib');
   return new Promise((resolve, reject) => {
     zlib.gunzip(Buffer.from(bytes), (err, out) => {
       if (err) {
