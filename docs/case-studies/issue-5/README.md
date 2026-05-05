@@ -13,14 +13,14 @@ already established in [`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md).
 
 The artefacts in this folder are:
 
-| File                   | Purpose                                                                                                           |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `README.md`            | This document — case study analysis.                                                                              |
-| `requirements.md`      | Atomic requirement list (`R-R*`) extracted from the issue.                                                        |
-| `solution-plan.md`     | Phased plan mapping each requirement to a concrete deliverable in PR #22.                                         |
-| `components.md`        | Catalogue of upstream tooling and standards consulted, plus the components reused from this repository.           |
-| `external-research.md` | Summary of external research about the GitHub REST API, CORS, personal access tokens, and tar/zip decompression.  |
-| `data/`                | Raw artefacts (`issue.json`, `comments.json`) used to build this study.                                           |
+| File                   | Purpose                                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `README.md`            | This document — case study analysis.                                                                             |
+| `requirements.md`      | Atomic requirement list (`R-R*`) extracted from the issue.                                                       |
+| `solution-plan.md`     | Phased plan mapping each requirement to a concrete deliverable in PR #22.                                        |
+| `components.md`        | Catalogue of upstream tooling and standards consulted, plus the components reused from this repository.          |
+| `external-research.md` | Summary of external research about the GitHub REST API, CORS, personal access tokens, and tar/zip decompression. |
+| `data/`                | Raw artefacts (`issue.json`, `comments.json`) used to build this study.                                          |
 
 ---
 
@@ -108,7 +108,7 @@ The implementation lives almost entirely in
   probe URL with `Bearer {token}` interpolation.
 
 The full per-requirement deliverable map lives in
-[`solution-plan.md`](./solution-plan.md); the libraries we *did not*
+[`solution-plan.md`](./solution-plan.md); the libraries we _did not_
 adopt (Octokit, isomorphic-git, simple-git, `gh` shell-out) are
 documented with rationale in [`components.md`](./components.md).
 

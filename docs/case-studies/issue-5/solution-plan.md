@@ -45,8 +45,8 @@ them.
      routed via `pullLiveInto`).
    - `github-clone --owner=<o> --repo=<r> [--ref=<r>] [--store=<dir>]`.
    - `github-comment --owner=<o> --repo=<r> --issue=<n> --text=<t>`.
-   The new commands write through the same `pullLiveInto` /
-   `createGithubLive` paths — covers `R-R9`, `R-R5`, `R-R6`.
+     The new commands write through the same `pullLiveInto` /
+     `createGithubLive` paths — covers `R-R9`, `R-R5`, `R-R6`.
 6. **Add the connection guide.** Add a `github` entry to
    `providerCatalogue` in
    `js/src/web/connection-guides.js`:
@@ -75,12 +75,12 @@ them.
    - `post()` issuing the right URL/body for an issue comment.
    - Source registry sanity (`listSources()` includes `github`,
      `importInto(store, 'github', envelope)` writes the expected links).
-   Covers `R-R16`.
+     Covers `R-R16`.
 8. **Update top-level docs.**
    - Append a new `R-R*` table to `docs/REQUIREMENTS.md`.
    - Mention GitHub in the README "Unified inbox" line and the
      repository-structure paragraph.
-   Covers `R-R17`.
+     Covers `R-R17`.
 9. **Add a changeset.** `bun run changeset` style: drop a
    `*.md` file under `.changeset/` so the release workflow can pick it
    up. The summary cites `R-R*` per the traceability rule.
