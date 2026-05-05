@@ -27,6 +27,7 @@ import { linkedinSource } from './linkedin.js';
 import { habrCareerSource } from './habr-career.js';
 import { hhSource } from './hh.js';
 import { superjobSource } from './superjob.js';
+import { githubSource } from './github.js';
 export { buildMessageLink } from './link.js';
 
 export const sourceRegistry = {
@@ -40,6 +41,7 @@ export const sourceRegistry = {
   'habr-career': habrCareerSource,
   hh: hhSource,
   superjob: superjobSource,
+  github: githubSource,
 };
 
 export const listSources = () => Object.keys(sourceRegistry);
