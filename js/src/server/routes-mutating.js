@@ -13,6 +13,7 @@ import { listSources, stampSourceLink } from '../sources/index.js';
 import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { createGithubLive } from '../sources/github.js';
+import { createUpworkLive } from '../sources/upwork.js';
 import { planOutreach, runOutreach } from '../broadcast/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
@@ -541,6 +542,92 @@ const handleGithub = async (store, req, res, p, ctx) => {
   return false;
 };
 
+const readUpworkToken = async (store, { secretId } = {}) => {
+  const ids = [
+    secretId,
+    'secret:upwork:access-token',
+    'secret:upwork:token',
+  ].filter(Boolean);
+  for (const id of ids) {
+    const link = await store.get(id);
+    const token = link?.token ?? link?.value ?? link?.body ?? link?.text;
+    if (token) {
+      return token;
+    }
+  }
+  return null;
+};
+
+const upworkLive = async (store, body, ctx) => {
+  const token = body.token ?? (await readUpworkToken(store, body));
+  const factory = ctx?.upworkLiveFactory ?? createUpworkLive;
+  const live = factory({
+    token,
+    baseUrl: body.baseUrl,
+    organizationId: body.organizationId ?? null,
+    operationOverrides: body.operationOverrides ?? {},
+  });
+  return { token, live };
+};
+
+const pullUpwork = async (store, body, ctx) => {
+  const { token, live } = await upworkLive(store, body, ctx);
+  const result = await live.pullMessages({ ...body, token });
+  const links = result.links ?? [];
+  for (const link of links) {
+    await store.put(stampSourceLink(link, 'upwork'));
+  }
+  return {
+    source: 'upwork',
+    imported: links.length,
+    rawCount: result.rawCount ?? links.length,
+    nextOffset: result.nextOffset ?? null,
+  };
+};
+
+const searchUpwork = async (store, body, ctx) => {
+  const { token, live } = await upworkLive(store, body, ctx);
+  const result = await live.searchJobs({ ...body, token });
+  const links = result.links ?? [];
+  for (const link of links) {
+    await store.put(stampSourceLink(link, 'upwork'));
+  }
+  return {
+    source: 'upwork',
+    imported: links.length,
+    rawCount: result.rawCount ?? links.length,
+    links,
+  };
+};
+
+const postUpworkMessage = async (store, body, ctx) => {
+  const { token, live } = await upworkLive(store, body, ctx);
+  const result = await live.post(body.content ?? body.message ?? body, {
+    ...body,
+    token,
+  });
+  if (result?.id) {
+    await store.put(stampSourceLink(result, 'upwork'));
+  }
+  return { source: 'upwork', result };
+};
+
+const handleUpwork = async (store, req, res, p, ctx) => {
+  if (p === '/api/upwork/pull' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await pullUpwork(store, body, ctx)) ?? true;
+  }
+  if (p === '/api/upwork/search' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await searchUpwork(store, body, ctx)) ?? true;
+  }
+  if (p === '/api/upwork/post-message' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await postUpworkMessage(store, body, ctx)) ?? true;
+  }
+  return false;
+};
+
 const handleHardening = async (store, req, res, p, ctx) => {
   if (p === '/api/export-encrypted' && req.method === 'POST') {
     return handleExportEncrypted(store, req, res, ctx);
@@ -562,4 +649,5 @@ export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
   (await handleOutreach(store, req, res, p)) ||
   (await handleEmail(store, req, res, p, ctx)) ||
   (await handleGithub(store, req, res, p, ctx)) ||
+  (await handleUpwork(store, req, res, p, ctx)) ||
   (await handleHardening(store, req, res, p, ctx));

@@ -62,6 +62,8 @@ fn sources_endpoint_lists_known_networks() {
         "hh",
         "superjob",
         "email",
+        "github",
+        "upwork",
     ] {
         assert!(body.contains(src), "missing {src} in {body}");
     }

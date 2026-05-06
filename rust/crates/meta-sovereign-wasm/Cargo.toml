@@ -1,6 +1,6 @@
 [package]
 name = "meta-sovereign-wasm"
-version = "0.0.1"
+version = "0.15.0"
 edition = "2021"
 license = "Unlicense"
 description = "WebAssembly exports for browser-side meta-sovereign workloads."
