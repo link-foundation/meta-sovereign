@@ -527,12 +527,12 @@ const cacheStamp = (link, now) => ({
   softCache: true,
 });
 
-const graphql = async (ctx, operationName, query, variables) => {
+const graphql = async (ctx, operationName, query, variables, token) => {
   const { fetchImpl, baseUrl, headers } = ctx;
   const body = { query, variables };
   const result = await requestJson(fetchImpl, baseUrl, {
     method: 'POST',
-    headers: headers(),
+    headers: headers(token),
     body,
   });
   if (result?.errors?.length) {
@@ -547,16 +547,20 @@ const paginateConnection = async (
   operationName,
   query,
   variables,
-  picker
+  picker,
+  token
 ) => {
   let after = null;
   let pages = 0;
   const collected = [];
   while (pages < (variables.maxPages ?? 50)) {
-    const data = await graphql(ctx, operationName, query, {
-      ...variables,
-      after,
-    });
+    const data = await graphql(
+      ctx,
+      operationName,
+      query,
+      { ...variables, after },
+      token
+    );
     const conn = picker(data);
     const edges = conn?.edges ?? [];
     for (const edge of edges) {
@@ -589,7 +593,8 @@ const liveSearchJobs = async (ctx, options = {}) => {
     'searchJobs',
     operation,
     variables,
-    (data) => data.marketplaceJobPostingsSearch
+    (data) => data.marketplaceJobPostingsSearch,
+    options.token
   );
   const now = Date.now();
   const links = nodes.map(jobLink).map((l) => cacheStamp(l, now));
@@ -612,7 +617,8 @@ const liveListContracts = async (ctx, options = {}) => {
     'listContracts',
     operation,
     variables,
-    (data) => data.contracts
+    (data) => data.contracts,
+    options.token
   );
   return nodes;
 };
@@ -621,7 +627,9 @@ const liveListRoomsForContract = async (ctx, contractId, options) => {
   const operation = ctx.operation('listRooms');
   const variables = {
     organizationId: ctx.organizationId,
-    filter: { contractId },
+    filter: contractId
+      ? { contractId, ...(options.filter ?? {}) }
+      : (options.filter ?? null),
     first: options.perPage ?? 50,
     maxPages: options.maxPages ?? 5,
   };
@@ -630,7 +638,8 @@ const liveListRoomsForContract = async (ctx, contractId, options) => {
     'listRooms',
     operation,
     variables,
-    (data) => data.roomsListRooms
+    (data) => data.roomsListRooms,
+    options.token
   );
 };
 
@@ -646,7 +655,8 @@ const liveRoomMessages = async (ctx, roomId, options) => {
     'roomMessages',
     operation,
     variables,
-    (data) => data.roomsRoomMessages
+    (data) => data.roomsRoomMessages,
+    options.token
   );
 };
 
@@ -755,7 +765,13 @@ const livePost = async (ctx, content, options = {}) => {
     throw new Error('upwork post requires options.roomId');
   }
   const operation = ctx.operation('createMessage');
-  const data = await graphql(ctx, 'createMessage', operation, { roomId, text });
+  const data = await graphql(
+    ctx,
+    'createMessage',
+    operation,
+    { roomId, text },
+    options.token
+  );
   const node = data.roomsCreateMessage?.message ?? null;
   if (!node) {
     throw new Error('upwork post: empty response');

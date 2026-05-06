@@ -32,6 +32,7 @@ import { listSources, importInto, pullLiveInto } from '../sources/index.js';
 import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { createGithubLive } from '../sources/github.js';
+import { createUpworkLive } from '../sources/upwork.js';
 import { startServer } from '../server/index.js';
 import {
   startSyncListener,
@@ -58,6 +59,8 @@ Commands:
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
   github-clone  --owner=<o> --repo=<r> [--ref=<branch>] --token=<pat> [--store=<dir>]
   github-comment --owner=<o> --repo=<r> --issue-number=<n> --text=<body> --token=<pat>
+  upwork-search --query=<q> [--limit=<n>] [--sort=<s>] --token=<pat> [--store=<dir>]
+  upwork-message --room-id=<r> --text=<body> --token=<pat> [--store=<dir>]
   audience      --query=<expr> [--store=<dir>]
   facts         [--store=<dir>]
   search        --query=<text> [--min=<0..1>] [--store=<dir>]
@@ -183,6 +186,14 @@ const sourcePullCmd = async (args, log) => {
     owner: args.owner,
     repo: args.repo,
     state: args.state,
+    stage: args.stage,
+    perspective: args.perspective,
+    jobId: args['job-id'],
+    contractId: args['contract-id'],
+    proposalId: args['proposal-id'],
+    roomId: args['room-id'],
+    organizationId: args['organization-id'],
+    token: args.token,
     transport: rawEmailTransport(args, protocol),
     offset: args.offset ? Number(args.offset) : undefined,
     limit: args.limit ? Number(args.limit) : undefined,
@@ -266,6 +277,44 @@ const githubCommentCmd = async (args, log) => {
     }
   );
   log(JSON.stringify({ source: 'github', result }, null, 2));
+  return 0;
+};
+
+const upworkLiveFromArgs = (args) =>
+  createUpworkLive({
+    token: args.token,
+    baseUrl: args['base-url'],
+    organizationId: args['organization-id'],
+  });
+
+const upworkSearchCmd = async (args, log) => {
+  const live = upworkLiveFromArgs(args);
+  const result = await live.searchJobs({
+    query: args.query ?? '',
+    limit: args.limit ? Number(args.limit) : undefined,
+    sort: args.sort,
+  });
+  log(
+    JSON.stringify(
+      {
+        source: 'upwork',
+        count: result.links?.length ?? 0,
+        links: result.links ?? [],
+      },
+      null,
+      2
+    )
+  );
+  return 0;
+};
+
+const upworkMessageCmd = async (args, log) => {
+  const live = upworkLiveFromArgs(args);
+  const result = await live.post(
+    { text: args.text ?? args.body ?? '' },
+    { roomId: args['room-id'] }
+  );
+  log(JSON.stringify({ source: 'upwork', result }, null, 2));
   return 0;
 };
 
@@ -567,6 +616,8 @@ const COMMANDS = {
   'email-send': emailSendCmd,
   'github-clone': githubCloneCmd,
   'github-comment': githubCommentCmd,
+  'upwork-search': upworkSearchCmd,
+  'upwork-message': upworkMessageCmd,
   audience: audienceCmd,
   facts: factsCmd,
   search: searchCmd,
