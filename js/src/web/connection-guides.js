@@ -855,6 +855,13 @@ export const connectionGuides = {
     bodyKey: 'guide.status.body',
     providers: [],
   },
+  connections: {
+    title: 'Connections',
+    titleKey: 'guide.connections.title',
+    body: 'External services live on this dedicated screen. Pick a provider to enter its credentials, upload an archive, and probe the live API. Settings only keeps app-level preferences.',
+    bodyKey: 'guide.connections.body',
+    providers: [],
+  },
   settings: {
     title: 'Settings',
     titleKey: 'guide.settings.title',

@@ -30,7 +30,9 @@ export const en = {
   'nav.profile': 'Profile',
   'nav.backup': 'Backup',
   'nav.status': 'Status',
+  'nav.connections': 'Connections',
   'nav.settings': 'Settings',
+  'shell.primaryNavAria': 'Primary navigation',
   'common.loading': 'Loading...',
   'common.refresh': 'refresh',
   'common.save': 'save',
@@ -202,6 +204,9 @@ export const en = {
   'guide.status.title': 'Status is showing the local store only.',
   'guide.status.body':
     'Status fields appear once a server is reachable. Either start a local server below, or keep working fully offline — the SPA writes straight to your browser store.',
+  'guide.connections.title': 'Connections',
+  'guide.connections.body':
+    'External services live on this dedicated screen. Pick a provider to enter its credentials, upload an archive, and probe the live API. Settings only keeps app-level preferences.',
   'guide.settings.title': 'Settings',
   'guide.settings.body':
     'Provider connections, credentials, and archive imports live here. The list below mirrors every catalogued provider; pick one to enter its credentials, upload an archive, and probe the live API.',

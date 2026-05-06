@@ -30,7 +30,9 @@ export const zh = {
   'nav.profile': '个人资料',
   'nav.backup': '备份',
   'nav.status': '状态',
+  'nav.connections': '连接',
   'nav.settings': '设置',
+  'shell.primaryNavAria': '主导航',
   'common.loading': '加载中...',
   'common.refresh': '刷新',
   'common.save': '保存',
@@ -198,6 +200,9 @@ export const zh = {
   'guide.status.title': '状态仅显示本地存储。',
   'guide.status.body':
     '只有当服务器可达时,才会显示状态字段。可在下方启动本地服务器,或者完全离线工作——SPA 会直接写入浏览器存储。',
+  'guide.connections.title': '连接',
+  'guide.connections.body':
+    '外部服务集中在这个独立页面。选择一个提供方以输入凭据、上传归档并检测线上 API。设置页只保留应用层级偏好。',
   'guide.settings.title': '设置',
   'guide.settings.body':
     '提供方连接、凭据和归档导入都在这里。下方列出每个已收录的提供方;选择一个以输入其凭据、上传归档并检测线上 API。',

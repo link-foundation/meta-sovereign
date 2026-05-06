@@ -1079,6 +1079,11 @@ export const StatusView = () => {
   });
 };
 
+// Connections nav surface (R-N5). The full per-provider grid + detail
+// screen is shipped from `./connections/`; this view re-exports it so
+// app.js wiring stays in one place.
+const ConnectionsView = () => el(ConnectionGuide, { section: 'settings' });
+
 export const views = {
   chat: ChatView,
   operator: OperatorView,
@@ -1093,5 +1098,6 @@ export const views = {
   profile: ProfileView,
   backup: BackupView,
   status: StatusView,
+  connections: ConnectionsView,
   settings: SettingsView,
 };
