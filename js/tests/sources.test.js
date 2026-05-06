@@ -3,10 +3,11 @@ import { listSources, getSource, importInto } from '../src/sources/index.js';
 import { createMemoryStore } from '../src/storage/index.js';
 
 describe('source registry', () => {
-  it('lists all 11 networks', () => {
-    expect(listSources().length).toBe(11);
+  it('lists all 12 networks', () => {
+    expect(listSources().length).toBe(12);
     expect(listSources().includes('email')).toBe(true);
     expect(listSources().includes('github')).toBe(true);
+    expect(listSources().includes('upwork')).toBe(true);
   });
   it('throws on unknown source', () => {
     let caught = false;
