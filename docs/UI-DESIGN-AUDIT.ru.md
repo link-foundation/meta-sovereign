@@ -49,3 +49,18 @@ sync.
 
 Current React SPA preserves design behavior audit. R-G1 closed by React
 shell, React view components и real-browser e2e.
+
+## Mobile-first overhaul (issue #25)
+
+Issue [#25](https://github.com/link-foundation/meta-sovereign/issues/25)
+переводит global shell на phone-first design. Новый `<AppShell>` в
+`js/src/web/shell/` свопает navigation между bottom-nav (≤640 px),
+side-rail (641-1023 px) и permanent drawer (≥1024 px); все controls
+держат 44 × 44 px tap target и `:focus-visible` ring. `app.css`
+определяет `--surface-glass` (backdrop-filter blur 28px) с solid
+fallback под `prefers-reduced-transparency`. Dedicated Connections page
+показывает по одной card на provider с translated state badge,
+tutorial spotlight (`tutorial.js`) обводит target rect и dim-ит всё
+остальное. Полные R-N1..R-N12 строки и evidence:
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U и
+[`docs/case-studies/issue-25/`](./case-studies/issue-25/README.md).

@@ -112,6 +112,18 @@ translation keys、dictionary parity tests、Markdown language switchers、
 translated docs siblings、docs-language automation、issue #18 case study 和 PR
 #19 single-PR delivery。状态：PR #19 in progress。
 
+## U. Mobile-first UI 改造 (issue #25)
+
+R-N1..R-N12 覆盖 mobile-first AppShell（bottom-nav / side-rail /
+permanent drawer）、Apple Liquid Glass tokens 与
+`prefers-reduced-transparency` fallback、完整的 translation 覆盖（non-EN
+build 不会出现 English literal）、独立的 Connections 页面（每个 provider
+一张 card 并带 `connected/not-connected/action-required` state badge）、
+独立的 setup detail screen 与 per-provider `setupSteps[]`、anchored
+tutorial spotlight，以及以 "Connect a service" 起步的默认 tutorial 序列。
+状态：PR #26 in progress（分支 `issue-25-dac43a780b5c`）。详细表参见
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U。
+
 ## Traceability
 
 后续 PR 或 commit 完成功能时，请在 changeset 和 PR 描述中引用对应 `R-*`

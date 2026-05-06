@@ -118,6 +118,18 @@ authored UI strings, dictionary parity tests, Markdown language
 switchers, translated docs siblings, docs-language automation, issue #18
 case study и single-PR delivery in PR #19. State: PR #19 in progress.
 
+## U. Mobile-first UI overhaul (issue #25)
+
+R-N1..R-N12 покрывают mobile-first AppShell (bottom-nav / side-rail /
+permanent drawer), Apple-glass tokens с `prefers-reduced-transparency`
+fallback, full translation coverage (no English literal в non-EN
+builds), separate Connections page с одним card per provider и
+`connected/not-connected/action-required` state badge, dedicated detail
+screen и `setupSteps[]` per provider, element-anchored tutorial
+spotlight и "Connect a service" opening step. State: PR #26 in progress
+on branch `issue-25-dac43a780b5c`. Detailed table:
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U.
+
 ## Traceability
 
 Когда future PR или commit добавляет feature, reference matching `R-*` ID

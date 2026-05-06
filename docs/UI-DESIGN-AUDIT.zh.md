@@ -47,3 +47,18 @@ peer sync 过滤。
 
 当前 React SPA 保留了设计行为审计。R-G1 由 React shell、React view
 components 和真实浏览器 e2e 覆盖。
+
+## Mobile-first 改造 (issue #25)
+
+Issue [#25](https://github.com/link-foundation/meta-sovereign/issues/25)
+以 phone-first 为目标重做 global shell。新的 `<AppShell>`
+（`js/src/web/shell/`) 在 bottom-nav（≤640 px）、side-rail
+（641-1023 px）和 permanent drawer（≥1024 px）之间切换；所有控件保持
+44 × 44 px 的 tap target 和 `:focus-visible` ring。`app.css` 定义
+`--surface-glass`（backdrop-filter blur 28px），并在
+`prefers-reduced-transparency` 下退回到实色。独立的 Connections page
+为每个 provider 渲染一张 card 并附带 translated state badge；tutorial
+spotlight（`tutorial.js`）勾出目标 rect 并将其余部分变暗。完整的
+R-N1..R-N12 行与证据见
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U 和
+[`docs/case-studies/issue-25/`](./case-studies/issue-25/README.md)。
