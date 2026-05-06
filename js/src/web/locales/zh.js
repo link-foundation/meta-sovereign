@@ -212,6 +212,125 @@ export const zh = {
   'connections.state.notConnected': '未连接',
   'connections.state.actionRequired': '需要操作',
   'connections.openDetail': '设置',
+  // BEGIN setup-steps (issue #25 R-N8) — auto-generated
+  'connections.email.setup.step1.title': '准备 Email 凭据',
+  'connections.email.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.email.setup.step2.title': '保存到 meta-sovereign',
+  'connections.email.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.email.setup.step3.title': '执行探测',
+  'connections.email.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.telegram.setup.step1.title': '准备 Telegram 凭据',
+  'connections.telegram.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.telegram.setup.step2.title': '保存到 meta-sovereign',
+  'connections.telegram.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.telegram.setup.step3.title': '执行探测',
+  'connections.telegram.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.vk.setup.step1.title': '准备 VK 凭据',
+  'connections.vk.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.vk.setup.step2.title': '保存到 meta-sovereign',
+  'connections.vk.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.vk.setup.step3.title': '执行探测',
+  'connections.vk.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.x.setup.step1.title': '准备 X (Twitter) 凭据',
+  'connections.x.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.x.setup.step2.title': '保存到 meta-sovereign',
+  'connections.x.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.x.setup.step3.title': '执行探测',
+  'connections.x.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.whatsapp.setup.step1.title': '准备 WhatsApp 凭据',
+  'connections.whatsapp.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.whatsapp.setup.step2.title': '保存到 meta-sovereign',
+  'connections.whatsapp.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.whatsapp.setup.step3.title': '执行探测',
+  'connections.whatsapp.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.facebook.setup.step1.title': '准备 Facebook 凭据',
+  'connections.facebook.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.facebook.setup.step2.title': '保存到 meta-sovereign',
+  'connections.facebook.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.facebook.setup.step3.title': '执行探测',
+  'connections.facebook.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.linkedin.setup.step1.title': '准备 LinkedIn 凭据',
+  'connections.linkedin.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.linkedin.setup.step2.title': '保存到 meta-sovereign',
+  'connections.linkedin.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.linkedin.setup.step3.title': '执行探测',
+  'connections.linkedin.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.habr-career.setup.step1.title': '准备 career.habr.com 凭据',
+  'connections.habr-career.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.habr-career.setup.step2.title': '保存到 meta-sovereign',
+  'connections.habr-career.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.habr-career.setup.step3.title': '执行探测',
+  'connections.habr-career.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.hh.setup.step1.title': '准备 hh.ru 凭据',
+  'connections.hh.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.hh.setup.step2.title': '保存到 meta-sovereign',
+  'connections.hh.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.hh.setup.step3.title': '执行探测',
+  'connections.hh.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.github.setup.step1.title': '准备 GitHub 凭据',
+  'connections.github.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.github.setup.step2.title': '保存到 meta-sovereign',
+  'connections.github.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.github.setup.step3.title': '执行探测',
+  'connections.github.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.upwork.setup.step1.title': '准备 Upwork 凭据',
+  'connections.upwork.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.upwork.setup.step2.title': '保存到 meta-sovereign',
+  'connections.upwork.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.upwork.setup.step3.title': '执行探测',
+  'connections.upwork.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.peopleperhour.setup.step1.title': '准备 PeoplePerHour 凭据',
+  'connections.peopleperhour.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.peopleperhour.setup.step2.title': '保存到 meta-sovereign',
+  'connections.peopleperhour.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.peopleperhour.setup.step3.title': '执行探测',
+  'connections.peopleperhour.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.superjob.setup.step1.title': '准备 SuperJob 凭据',
+  'connections.superjob.setup.step1.body':
+    '打开下方文档链接,按上游服务的要求创建 API 令牌、OAuth 凭据或开发者密钥。',
+  'connections.superjob.setup.step2.title': '保存到 meta-sovereign',
+  'connections.superjob.setup.step2.body':
+    '将凭据粘贴到此页面的字段。值会以 `secret:*` 键保存,绝不会离开浏览器。',
+  'connections.superjob.setup.step3.title': '执行探测',
+  'connections.superjob.setup.step3.body':
+    '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  // END setup-steps
   'connections.back': '返回连接',
   'connections.email.label': '电子邮件',
   'connections.email.archive.title': '导入 .eml 或 mbox 邮件导出',

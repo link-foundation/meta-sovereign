@@ -9,6 +9,7 @@ import { ConnectionGuide } from './connection-guide.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
 import { useT } from './i18n.js';
+import { ConnectionsList, ConnectionDetail } from './connections/index.js';
 
 const el = React.createElement;
 const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
@@ -1079,10 +1080,36 @@ export const StatusView = () => {
   });
 };
 
-// Connections nav surface (R-N5). The full per-provider grid + detail
-// screen is shipped from `./connections/`; this view re-exports it so
-// app.js wiring stays in one place.
-const ConnectionsView = () => el(ConnectionGuide, { section: 'settings' });
+// Connections nav surface (R-N5..R-N8). The full per-provider grid + detail
+// screen is shipped from `./connections/`; this view threads the saved
+// `secret:*` link ids in as `status.savedSecretIds` so each provider card
+// can classify itself as connected / not-connected / action-required.
+const ConnectionsView = () => {
+  const [refresh, setRefresh] = useState(0);
+  const [activeProviderId, setActiveProviderId] = useState(null);
+  const linksState = useAsyncValue(() => api.links(), [refresh], []);
+  const status = useMemo(() => {
+    const all = linksState.value ?? [];
+    const savedSecretIds = all
+      .map((link) => link.id)
+      .filter((id) => typeof id === 'string' && id.startsWith('secret:'));
+    return { savedSecretIds };
+  }, [linksState.value]);
+  if (activeProviderId) {
+    return el(ConnectionDetail, {
+      providerId: activeProviderId,
+      status,
+      onBack: () => {
+        setActiveProviderId(null);
+        setRefresh((value) => value + 1);
+      },
+    });
+  }
+  return el(ConnectionsList, {
+    status,
+    onOpen: (providerId) => setActiveProviderId(providerId),
+  });
+};
 
 export const views = {
   chat: ChatView,

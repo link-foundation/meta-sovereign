@@ -217,6 +217,128 @@ export const en = {
   'connections.state.notConnected': 'Not connected',
   'connections.state.actionRequired': 'Action required',
   'connections.openDetail': 'Set up',
+  // BEGIN setup-steps (issue #25 R-N8) — auto-generated
+  'connections.email.setup.step1.title': 'Prepare your Email credential',
+  'connections.email.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.email.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.email.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.email.setup.step3.title': 'Run the probe',
+  'connections.email.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.telegram.setup.step1.title': 'Prepare your Telegram credential',
+  'connections.telegram.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.telegram.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.telegram.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.telegram.setup.step3.title': 'Run the probe',
+  'connections.telegram.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.vk.setup.step1.title': 'Prepare your VK credential',
+  'connections.vk.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.vk.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.vk.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.vk.setup.step3.title': 'Run the probe',
+  'connections.vk.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.x.setup.step1.title': 'Prepare your X (Twitter) credential',
+  'connections.x.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.x.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.x.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.x.setup.step3.title': 'Run the probe',
+  'connections.x.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.whatsapp.setup.step1.title': 'Prepare your WhatsApp credential',
+  'connections.whatsapp.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.whatsapp.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.whatsapp.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.whatsapp.setup.step3.title': 'Run the probe',
+  'connections.whatsapp.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.facebook.setup.step1.title': 'Prepare your Facebook credential',
+  'connections.facebook.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.facebook.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.facebook.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.facebook.setup.step3.title': 'Run the probe',
+  'connections.facebook.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.linkedin.setup.step1.title': 'Prepare your LinkedIn credential',
+  'connections.linkedin.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.linkedin.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.linkedin.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.linkedin.setup.step3.title': 'Run the probe',
+  'connections.linkedin.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.habr-career.setup.step1.title':
+    'Prepare your career.habr.com credential',
+  'connections.habr-career.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.habr-career.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.habr-career.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.habr-career.setup.step3.title': 'Run the probe',
+  'connections.habr-career.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.hh.setup.step1.title': 'Prepare your hh.ru credential',
+  'connections.hh.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.hh.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.hh.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.hh.setup.step3.title': 'Run the probe',
+  'connections.hh.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.github.setup.step1.title': 'Prepare your GitHub credential',
+  'connections.github.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.github.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.github.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.github.setup.step3.title': 'Run the probe',
+  'connections.github.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.upwork.setup.step1.title': 'Prepare your Upwork credential',
+  'connections.upwork.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.upwork.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.upwork.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.upwork.setup.step3.title': 'Run the probe',
+  'connections.upwork.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.peopleperhour.setup.step1.title':
+    'Prepare your PeoplePerHour credential',
+  'connections.peopleperhour.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.peopleperhour.setup.step2.title':
+    'Save it inside meta-sovereign',
+  'connections.peopleperhour.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.peopleperhour.setup.step3.title': 'Run the probe',
+  'connections.peopleperhour.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.superjob.setup.step1.title': 'Prepare your SuperJob credential',
+  'connections.superjob.setup.step1.body':
+    'Open the linked docs and create an API token, OAuth credential, or developer key as the upstream service requires.',
+  'connections.superjob.setup.step2.title': 'Save it inside meta-sovereign',
+  'connections.superjob.setup.step2.body':
+    'Paste the credential into the field on this screen. The value is stored under a `secret:*` key and never leaves your browser.',
+  'connections.superjob.setup.step3.title': 'Run the probe',
+  'connections.superjob.setup.step3.body':
+    'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  // END setup-steps
   'connections.back': 'Back to connections',
   'connections.email.label': 'Email',
   'connections.email.archive.title': 'Import .eml or mbox mail exports',

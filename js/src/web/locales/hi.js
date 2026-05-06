@@ -217,6 +217,127 @@ export const hi = {
   'connections.state.notConnected': 'जुड़ा नहीं',
   'connections.state.actionRequired': 'कार्रवाई आवश्यक',
   'connections.openDetail': 'सेट अप',
+  // BEGIN setup-steps (issue #25 R-N8) — auto-generated
+  'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
+  'connections.email.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.email.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.email.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.email.setup.step3.title': 'जाँच चलाएँ',
+  'connections.email.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.telegram.setup.step1.title': 'Telegram क्रेडेंशियल तैयार करें',
+  'connections.telegram.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.telegram.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.telegram.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.telegram.setup.step3.title': 'जाँच चलाएँ',
+  'connections.telegram.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.vk.setup.step1.title': 'VK क्रेडेंशियल तैयार करें',
+  'connections.vk.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.vk.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.vk.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.vk.setup.step3.title': 'जाँच चलाएँ',
+  'connections.vk.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.x.setup.step1.title': 'X (Twitter) क्रेडेंशियल तैयार करें',
+  'connections.x.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.x.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.x.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.x.setup.step3.title': 'जाँच चलाएँ',
+  'connections.x.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.whatsapp.setup.step1.title': 'WhatsApp क्रेडेंशियल तैयार करें',
+  'connections.whatsapp.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.whatsapp.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.whatsapp.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.whatsapp.setup.step3.title': 'जाँच चलाएँ',
+  'connections.whatsapp.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.facebook.setup.step1.title': 'Facebook क्रेडेंशियल तैयार करें',
+  'connections.facebook.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.facebook.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.facebook.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.facebook.setup.step3.title': 'जाँच चलाएँ',
+  'connections.facebook.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.linkedin.setup.step1.title': 'LinkedIn क्रेडेंशियल तैयार करें',
+  'connections.linkedin.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.linkedin.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.linkedin.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.linkedin.setup.step3.title': 'जाँच चलाएँ',
+  'connections.linkedin.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.habr-career.setup.step1.title':
+    'career.habr.com क्रेडेंशियल तैयार करें',
+  'connections.habr-career.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.habr-career.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.habr-career.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.habr-career.setup.step3.title': 'जाँच चलाएँ',
+  'connections.habr-career.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.hh.setup.step1.title': 'hh.ru क्रेडेंशियल तैयार करें',
+  'connections.hh.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.hh.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.hh.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.hh.setup.step3.title': 'जाँच चलाएँ',
+  'connections.hh.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.github.setup.step1.title': 'GitHub क्रेडेंशियल तैयार करें',
+  'connections.github.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.github.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.github.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.github.setup.step3.title': 'जाँच चलाएँ',
+  'connections.github.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.upwork.setup.step1.title': 'Upwork क्रेडेंशियल तैयार करें',
+  'connections.upwork.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.upwork.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.upwork.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.upwork.setup.step3.title': 'जाँच चलाएँ',
+  'connections.upwork.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.peopleperhour.setup.step1.title':
+    'PeoplePerHour क्रेडेंशियल तैयार करें',
+  'connections.peopleperhour.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.peopleperhour.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.peopleperhour.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.peopleperhour.setup.step3.title': 'जाँच चलाएँ',
+  'connections.peopleperhour.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.superjob.setup.step1.title': 'SuperJob क्रेडेंशियल तैयार करें',
+  'connections.superjob.setup.step1.body':
+    'नीचे दिए गए दस्तावेज़ खोलें और सेवा की आवश्यकता के अनुसार API टोकन, OAuth क्रेडेंशियल या डेवलपर कुंजी बनाएँ।',
+  'connections.superjob.setup.step2.title': 'meta-sovereign में सहेजें',
+  'connections.superjob.setup.step2.body':
+    'क्रेडेंशियल को इस स्क्रीन पर फ़ील्ड में चिपकाएँ। यह `secret:*` कुंजी के तहत सहेजा जाता है और कभी ब्राउज़र नहीं छोड़ता।',
+  'connections.superjob.setup.step3.title': 'जाँच चलाएँ',
+  'connections.superjob.setup.step3.body':
+    '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  // END setup-steps
   'connections.back': 'कनेक्शन पर वापस',
   'connections.email.label': 'ईमेल',
   'connections.email.archive.title': '.eml या mbox मेल निर्यात आयात करें',

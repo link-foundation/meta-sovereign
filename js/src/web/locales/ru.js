@@ -217,6 +217,134 @@ export const ru = {
   'connections.state.notConnected': 'Не подключено',
   'connections.state.actionRequired': 'Требуется действие',
   'connections.openDetail': 'Настроить',
+  // BEGIN setup-steps (issue #25 R-N8) — auto-generated
+  'connections.email.setup.step1.title': 'Подготовьте учётные данные Email',
+  'connections.email.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.email.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.email.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.email.setup.step3.title': 'Запустите проверку',
+  'connections.email.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.telegram.setup.step1.title':
+    'Подготовьте учётные данные Telegram',
+  'connections.telegram.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.telegram.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.telegram.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.telegram.setup.step3.title': 'Запустите проверку',
+  'connections.telegram.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.vk.setup.step1.title': 'Подготовьте учётные данные VK',
+  'connections.vk.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.vk.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.vk.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.vk.setup.step3.title': 'Запустите проверку',
+  'connections.vk.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.x.setup.step1.title': 'Подготовьте учётные данные X (Twitter)',
+  'connections.x.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.x.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.x.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.x.setup.step3.title': 'Запустите проверку',
+  'connections.x.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.whatsapp.setup.step1.title':
+    'Подготовьте учётные данные WhatsApp',
+  'connections.whatsapp.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.whatsapp.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.whatsapp.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.whatsapp.setup.step3.title': 'Запустите проверку',
+  'connections.whatsapp.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.facebook.setup.step1.title':
+    'Подготовьте учётные данные Facebook',
+  'connections.facebook.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.facebook.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.facebook.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.facebook.setup.step3.title': 'Запустите проверку',
+  'connections.facebook.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.linkedin.setup.step1.title':
+    'Подготовьте учётные данные LinkedIn',
+  'connections.linkedin.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.linkedin.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.linkedin.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.linkedin.setup.step3.title': 'Запустите проверку',
+  'connections.linkedin.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.habr-career.setup.step1.title':
+    'Подготовьте учётные данные career.habr.com',
+  'connections.habr-career.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.habr-career.setup.step2.title':
+    'Сохраните данные в meta-sovereign',
+  'connections.habr-career.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.habr-career.setup.step3.title': 'Запустите проверку',
+  'connections.habr-career.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.hh.setup.step1.title': 'Подготовьте учётные данные hh.ru',
+  'connections.hh.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.hh.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.hh.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.hh.setup.step3.title': 'Запустите проверку',
+  'connections.hh.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.github.setup.step1.title': 'Подготовьте учётные данные GitHub',
+  'connections.github.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.github.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.github.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.github.setup.step3.title': 'Запустите проверку',
+  'connections.github.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.upwork.setup.step1.title': 'Подготовьте учётные данные Upwork',
+  'connections.upwork.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.upwork.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.upwork.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.upwork.setup.step3.title': 'Запустите проверку',
+  'connections.upwork.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.peopleperhour.setup.step1.title':
+    'Подготовьте учётные данные PeoplePerHour',
+  'connections.peopleperhour.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.peopleperhour.setup.step2.title':
+    'Сохраните данные в meta-sovereign',
+  'connections.peopleperhour.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.peopleperhour.setup.step3.title': 'Запустите проверку',
+  'connections.peopleperhour.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.superjob.setup.step1.title':
+    'Подготовьте учётные данные SuperJob',
+  'connections.superjob.setup.step1.body':
+    'Откройте документацию по ссылке и создайте API-токен, OAuth-приложение или ключ разработчика так, как требует сервис.',
+  'connections.superjob.setup.step2.title': 'Сохраните данные в meta-sovereign',
+  'connections.superjob.setup.step2.body':
+    'Вставьте полученное значение в поле на этом экране. Оно хранится под ключом `secret:*` и никогда не покидает браузер.',
+  'connections.superjob.setup.step3.title': 'Запустите проверку',
+  'connections.superjob.setup.step3.body':
+    'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  // END setup-steps
   'connections.back': 'К подключениям',
   'connections.email.label': 'Электронная почта',
   'connections.email.archive.title': 'Импорт экспорта почты в .eml или mbox',
