@@ -23,13 +23,29 @@ import { useT } from './i18n.js';
 
 const el = React.createElement;
 
+// Translate a registry value using its `*Key` reference when present, falling
+// back to the raw English string. This lets the underlying registry keep
+// English literals (the existing tests still introspect them) while rendered
+// UI prefers the active-locale dictionary entry.
+const tx = (t, value, key) => {
+  if (key) {
+    const translated = t(key);
+    if (translated !== key) {
+      return translated;
+    }
+  }
+  return value;
+};
+
 const ProbeRow = ({ provider }) => {
   const t = useT();
   // R-O1: per-section ProbeRow refuses to fire when no credentials are
   // saved (which would always 404/400 — the original bug). It points
   // the user at Settings → Connections instead.
   const ready = false;
-  const placeholder = t('guide.probeDisabled', { label: provider.label });
+  const placeholder = t('guide.probeDisabled', {
+    label: tx(t, provider.label, provider.labelKey),
+  });
   return el('div', { className: 'col probe-row' }, [
     el('div', { key: 'row', className: 'row' }, [
       el(
@@ -51,23 +67,39 @@ const ProviderCard = ({ providerId }) => {
   const t = useT();
   const provider = getProvider(providerId);
   return el('section', { className: 'card connection-guide-provider' }, [
-    el('h3', { key: 'h' }, provider.label),
+    el('h3', { key: 'h' }, tx(t, provider.label, provider.labelKey)),
     el('div', { key: 'archive', className: 'col' }, [
-      el('h4', { key: 'h', className: 'meta' }, provider.archive.title),
-      el('p', { key: 'p' }, provider.archive.hint),
+      el(
+        'h4',
+        { key: 'h', className: 'meta' },
+        tx(t, provider.archive.title, provider.archive.titleKey)
+      ),
+      el(
+        'p',
+        { key: 'p' },
+        tx(t, provider.archive.hint, provider.archive.hintKey)
+      ),
       el(
         'div',
         { key: 'fileHint', className: 'meta' },
-        `Files: ${provider.archive.fileHint}`
+        t('guide.filesLabel', { hint: provider.archive.fileHint })
       ),
     ]),
     el('div', { key: 'api', className: 'col' }, [
-      el('h4', { key: 'h', className: 'meta' }, provider.apiCredentials.title),
-      el('p', { key: 'p' }, provider.apiCredentials.hint),
+      el(
+        'h4',
+        { key: 'h', className: 'meta' },
+        tx(t, provider.apiCredentials.title, provider.apiCredentials.titleKey)
+      ),
+      el(
+        'p',
+        { key: 'p' },
+        tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey)
+      ),
       el(
         'div',
         { key: 'env', className: 'meta' },
-        `Env var: ${provider.apiCredentials.envVar}`
+        t('guide.envVarLabel', { name: provider.apiCredentials.envVar })
       ),
       el(
         'div',
@@ -97,19 +129,35 @@ export const LocalServerHelp = () => {
     applyLocalServerOverride(override);
   };
   return el('aside', { className: 'card local-server-help', role: 'note' }, [
-    el('h4', { key: 'h' }, localServerHelp.title),
-    el('p', { key: 'p' }, localServerHelp.body),
+    el(
+      'h4',
+      { key: 'h' },
+      tx(t, localServerHelp.title, localServerHelp.titleKey)
+    ),
+    el('p', { key: 'p' }, tx(t, localServerHelp.body, localServerHelp.bodyKey)),
     ...localServerHelp.options.map((option) =>
       el('div', { key: option.id, className: 'col local-server-help-opt' }, [
-        el('div', { key: 'h', className: 'meta' }, option.heading),
+        el(
+          'div',
+          { key: 'h', className: 'meta' },
+          tx(t, option.heading, option.headingKey)
+        ),
         el('pre', { key: 'cmd' }, option.command),
-        el('div', { key: 'hint', className: 'meta' }, option.hint),
+        el(
+          'div',
+          { key: 'hint', className: 'meta' },
+          tx(t, option.hint, option.hintKey)
+        ),
       ])
     ),
     el(
       'div',
       { key: 'override-h', className: 'meta' },
-      localServerHelp.manualOverride.hint
+      tx(
+        t,
+        localServerHelp.manualOverride.hint,
+        localServerHelp.manualOverride.hintKey
+      )
     ),
     el('div', { key: 'override-row', className: 'row' }, [
       el('input', {
@@ -141,7 +189,9 @@ export const SettingsConnectFirstCta = ({ providerId }) => {
   const t = useT();
   const provider = providerId ? providerCatalogue[providerId] : null;
   const target = provider
-    ? t('guide.openSettingsTarget', { label: provider.label })
+    ? t('guide.openSettingsTarget', {
+        label: tx(t, provider.label, provider.labelKey),
+      })
     : t('guide.openSettingsRoot');
   const navigate = () => {
     const anchor = providerId ? `#conn-${providerId}` : '';
@@ -169,9 +219,15 @@ export const SettingsConnectFirstCta = ({ providerId }) => {
 };
 
 export const ConnectionGuide = ({ section }) => {
+  const t = useT();
   const guide = connectionGuides[section]
     ? getGuide(section)
-    : { title: 'Nothing here yet.', body: '', providers: [] };
+    : {
+        title: 'Nothing here yet.',
+        titleKey: 'guide.fallbackTitle',
+        body: '',
+        providers: [],
+      };
   return el(
     'section',
     {
@@ -180,8 +236,8 @@ export const ConnectionGuide = ({ section }) => {
       role: 'note',
     },
     [
-      el('h2', { key: 'h' }, guide.title),
-      el('p', { key: 'body' }, guide.body),
+      el('h2', { key: 'h' }, tx(t, guide.title, guide.titleKey)),
+      el('p', { key: 'body' }, tx(t, guide.body, guide.bodyKey)),
       guide.providers.length > 0
         ? el(SettingsConnectFirstCta, {
             key: 'cta',
