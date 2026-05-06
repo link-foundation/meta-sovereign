@@ -31,6 +31,7 @@ import { writeEncryptedExport } from '../storage/export-encrypted.js';
 import { listSources, importInto, pullLiveInto } from '../sources/index.js';
 import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
+import { createGithubLive } from '../sources/github.js';
 import { startServer } from '../server/index.js';
 import {
   startSyncListener,
@@ -53,8 +54,10 @@ Commands:
   restore       --file=<path> --store=<dir>
   serve         [--port=<n>] [--store=<dir>]
   sources
-  source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
+  source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
+  github-clone  --owner=<o> --repo=<r> [--ref=<branch>] --token=<pat> [--store=<dir>]
+  github-comment --owner=<o> --repo=<r> --issue-number=<n> --text=<body> --token=<pat>
   audience      --query=<expr> [--store=<dir>]
   facts         [--store=<dir>]
   search        --query=<text> [--min=<0..1>] [--store=<dir>]
@@ -177,6 +180,9 @@ const sourcePullCmd = async (args, log) => {
     mailbox: args.mailbox,
     label: args.label,
     query: args.query,
+    owner: args.owner,
+    repo: args.repo,
+    state: args.state,
     transport: rawEmailTransport(args, protocol),
     offset: args.offset ? Number(args.offset) : undefined,
     limit: args.limit ? Number(args.limit) : undefined,
@@ -213,6 +219,53 @@ const emailSendCmd = async (args, log) => {
     }
   );
   log(JSON.stringify({ source: 'email', protocol, result }, null, 2));
+  return 0;
+};
+
+const githubLiveFromArgs = (args) =>
+  createGithubLive({
+    token: args.token,
+    owner: args.owner,
+    repo: args.repo,
+    baseUrl: args['base-url'],
+  });
+
+const githubCloneCmd = async (args, log) => {
+  const store = await openStore(args.store ?? '.meta-sovereign');
+  const live = githubLiveFromArgs(args);
+  const result = await live.cloneRepo({
+    owner: args.owner,
+    repo: args.repo,
+    ref: args.ref,
+    store,
+  });
+  log(
+    JSON.stringify(
+      {
+        source: 'github',
+        indexId: result.indexLink?.id ?? null,
+        fileCount: result.fileLinks?.length ?? 0,
+      },
+      null,
+      2
+    )
+  );
+  return 0;
+};
+
+const githubCommentCmd = async (args, log) => {
+  const live = githubLiveFromArgs(args);
+  const result = await live.post(
+    { text: args.text ?? args.body ?? '' },
+    {
+      owner: args.owner,
+      repo: args.repo,
+      issueNumber: args['issue-number']
+        ? Number(args['issue-number'])
+        : undefined,
+    }
+  );
+  log(JSON.stringify({ source: 'github', result }, null, 2));
   return 0;
 };
 
@@ -512,6 +565,8 @@ const COMMANDS = {
   sources: sourcesCmd,
   'source-pull': sourcePullCmd,
   'email-send': emailSendCmd,
+  'github-clone': githubCloneCmd,
+  'github-comment': githubCommentCmd,
   audience: audienceCmd,
   facts: factsCmd,
   search: searchCmd,

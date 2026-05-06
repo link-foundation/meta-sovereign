@@ -25,6 +25,8 @@ export default [
         AbortController: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
         // Runtime-specific globals
         Bun: 'readonly',
         Deno: 'readonly',

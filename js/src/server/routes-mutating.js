@@ -12,6 +12,7 @@ import { runGraph } from '../automation/index.js';
 import { listSources, stampSourceLink } from '../sources/index.js';
 import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
+import { createGithubLive } from '../sources/github.js';
 import { planOutreach, runOutreach } from '../broadcast/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
@@ -456,6 +457,90 @@ const handleEmail = async (store, req, res, p, ctx) => {
   return false;
 };
 
+const readGithubToken = async (store, { secretId } = {}) => {
+  const ids = [
+    secretId,
+    'secret:github:access-token',
+    'secret:github:token',
+  ].filter(Boolean);
+  for (const id of ids) {
+    const link = await store.get(id);
+    const token = link?.token ?? link?.value ?? link?.body ?? link?.text;
+    if (token) {
+      return token;
+    }
+  }
+  return null;
+};
+
+const githubLive = async (store, body, ctx) => {
+  const token = body.token ?? (await readGithubToken(store, body));
+  const factory = ctx?.githubLiveFactory ?? createGithubLive;
+  const live = factory({
+    token,
+    owner: body.owner ?? null,
+    repo: body.repo ?? null,
+  });
+  return { token, live };
+};
+
+const pullGithub = async (store, body, ctx) => {
+  const { token, live } = await githubLive(store, body, ctx);
+  const result = await live.pullMessages({ ...body, token });
+  const links = result.links ?? [];
+  for (const link of links) {
+    await store.put(stampSourceLink(link, 'github'));
+  }
+  return {
+    source: 'github',
+    imported: links.length,
+    rawCount: result.rawCount ?? links.length,
+    nextOffset: result.nextOffset ?? null,
+  };
+};
+
+const cloneGithub = async (store, body, ctx) => {
+  const { token, live } = await githubLive(store, body, ctx);
+  const result = await live.cloneRepo({ ...body, token, store });
+  const stamped = (result.links ?? []).map((link) =>
+    stampSourceLink(link, 'github')
+  );
+  for (const link of stamped) {
+    await store.put(link);
+  }
+  return {
+    source: 'github',
+    indexId: result.indexLink?.id ?? null,
+    fileCount: result.fileLinks?.length ?? 0,
+    imported: stamped.length,
+  };
+};
+
+const postGithubComment = async (store, body, ctx) => {
+  const { token, live } = await githubLive(store, body, ctx);
+  const result = await live.post(body.content ?? body.message ?? body, {
+    ...body,
+    token,
+  });
+  return { source: 'github', result };
+};
+
+const handleGithub = async (store, req, res, p, ctx) => {
+  if (p === '/api/github/pull' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await pullGithub(store, body, ctx)) ?? true;
+  }
+  if (p === '/api/github/clone' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await cloneGithub(store, body, ctx)) ?? true;
+  }
+  if (p === '/api/github/post-comment' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await postGithubComment(store, body, ctx)) ?? true;
+  }
+  return false;
+};
+
 const handleHardening = async (store, req, res, p, ctx) => {
   if (p === '/api/export-encrypted' && req.method === 'POST') {
     return handleExportEncrypted(store, req, res, ctx);
@@ -476,4 +561,5 @@ export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
   (await handleBroadcast(store, req, res, p)) ||
   (await handleOutreach(store, req, res, p)) ||
   (await handleEmail(store, req, res, p, ctx)) ||
+  (await handleGithub(store, req, res, p, ctx)) ||
   (await handleHardening(store, req, res, p, ctx));

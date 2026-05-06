@@ -351,6 +351,45 @@ export const providerCatalogue = {
       },
     },
   },
+  github: {
+    label: 'GitHub',
+    archive: {
+      title: 'Import a gh api JSON dump',
+      hint: 'Save a JSON dump from `gh api` (e.g. `gh api repos/OWNER/REPO/issues --paginate > issues.json`) or an envelope `{ issues, comments, pulls, reviews, reviewComments, discussions }` and drop the file here.',
+      fileHint: 'issues.json, pulls.json, comments.json, envelope.json',
+      accept: '.json,application/json',
+    },
+    apiCredentials: {
+      title: 'Connect the GitHub REST API',
+      envVar: 'GITHUB_TOKEN',
+      hint: 'Create a fine-grained personal access token at https://github.com/settings/personal-access-tokens with read access to issues, pull requests, and the repositories you want to clone, plus write access to issues if you intend to post comments. Paste it as "secret:github:access-token".',
+      docsUrl:
+        'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens',
+      apiBase: 'https://api.github.com',
+      probeUrl: 'https://api.github.com/user',
+      probeUrlTemplate: 'https://api.github.com/user',
+      probeRequiresAll: ['token'],
+      probeHeaders: {
+        Authorization: 'Bearer {token}',
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      fields: [
+        {
+          id: 'token',
+          label: 'Personal access token',
+          type: 'password',
+          placeholder: 'github_pat_… or ghp_…',
+          secretId: 'secret:github:access-token',
+        },
+      ],
+      errorHints: {
+        401: 'Token rejected. Re-issue a personal access token at https://github.com/settings/personal-access-tokens.',
+        403: 'GitHub returned 403. The token may be missing scopes (issues:read, pull_requests:read, contents:read) or hitting a secondary rate limit.',
+        404: 'Repository not found or not visible. Confirm the token has access to the target owner/repo.',
+      },
+    },
+  },
   superjob: {
     label: 'superjob.ru',
     archive: {
@@ -409,6 +448,7 @@ export const connectionGuides = {
       'whatsapp',
       'facebook',
       'linkedin',
+      'github',
     ],
     connectFirst: { providerId: 'telegram' },
   },
@@ -423,6 +463,7 @@ export const connectionGuides = {
       'whatsapp',
       'facebook',
       'linkedin',
+      'github',
     ],
     connectFirst: { providerId: 'telegram' },
   },
@@ -440,13 +481,22 @@ export const connectionGuides = {
       'habr-career',
       'hh',
       'superjob',
+      'github',
     ],
     connectFirst: { providerId: 'telegram' },
   },
   automation: {
     title: 'No automation graphs yet.',
     body: 'Automation graphs route incoming messages from a pattern to a reply variation. Drop a node above, or import an archive first so you have data to match against.',
-    providers: ['email', 'telegram', 'vk', 'x', 'whatsapp', 'facebook'],
+    providers: [
+      'email',
+      'telegram',
+      'vk',
+      'x',
+      'whatsapp',
+      'facebook',
+      'github',
+    ],
     connectFirst: { providerId: 'telegram' },
   },
   patterns: {
@@ -466,6 +516,7 @@ export const connectionGuides = {
       'whatsapp',
       'facebook',
       'linkedin',
+      'github',
     ],
     connectFirst: { providerId: 'telegram' },
   },
@@ -486,6 +537,7 @@ export const connectionGuides = {
       'whatsapp',
       'facebook',
       'linkedin',
+      'github',
     ],
     connectFirst: { providerId: 'telegram' },
   },
@@ -498,7 +550,15 @@ export const connectionGuides = {
   outreach: {
     title: 'No outreach surface yet.',
     body: 'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Connect a chat-capable provider to enable outreach.',
-    providers: ['email', 'telegram', 'vk', 'x', 'whatsapp', 'linkedin'],
+    providers: [
+      'email',
+      'telegram',
+      'vk',
+      'x',
+      'whatsapp',
+      'linkedin',
+      'github',
+    ],
     connectFirst: { providerId: 'telegram' },
   },
   profile: {
