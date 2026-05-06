@@ -512,6 +512,9 @@ export const zh = {
   'tutorial.finish': '完成',
   'tutorial.off': '关闭教程',
   'tutorial.progress': '第 {current} 步，共 {total} 步',
+  'tutorial.connect.title': '先连接一个服务',
+  'tutorial.connect.body':
+    'meta-sovereign 在你接入至少一个服务之前是空的。点击高亮的「连接」入口打开各服务的设置屏幕——你随时可以回到这个引导。',
   'tutorial.welcome.title': '欢迎使用 meta-sovereign',
   'tutorial.welcome.body':
     '这是你的本地优先个人 CRM 和统一收件箱。除非你主动指向服务器，否则数据不会离开浏览器。点击「下一步」浏览主要流程。',

@@ -524,6 +524,9 @@ export const en = {
   'tutorial.finish': 'Finish',
   'tutorial.off': 'Turn off tutorial',
   'tutorial.progress': 'Step {current} of {total}',
+  'tutorial.connect.title': 'Connect a service first',
+  'tutorial.connect.body':
+    'meta-sovereign is empty until you plug in at least one provider. Tap the highlighted "Connections" entry to open the per-provider setup screen — you can come back to this tour any time.',
   'tutorial.welcome.title': 'Welcome to meta-sovereign',
   'tutorial.welcome.body':
     'This is your local-first personal CRM and unified inbox. Nothing leaves your browser unless you point it at a server. Hit "Next" to walk through the headline flows.',

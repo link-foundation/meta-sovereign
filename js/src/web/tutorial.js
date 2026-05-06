@@ -27,6 +27,15 @@ export const TUTORIAL_STORAGE_KEY = 'metaSovereignTutorial';
 // for every locale — see issue #18).
 export const defaultSteps = [
   {
+    id: 'connect',
+    target: 'connections',
+    tutorialId: 'nav:connections',
+    titleKey: 'tutorial.connect.title',
+    bodyKey: 'tutorial.connect.body',
+    title: 'Connect a service first',
+    body: 'meta-sovereign is empty until you plug in at least one provider. Tap the highlighted "Connections" entry to open the per-provider setup screen — you can come back to this tour any time.',
+  },
+  {
     id: 'welcome',
     titleKey: 'tutorial.welcome.title',
     bodyKey: 'tutorial.welcome.body',
@@ -155,6 +164,79 @@ export const useTutorialPreference = (storage = globalThis.localStorage) => {
   };
 };
 
+// Element-anchored spotlight (issue #25 R-N9, R-N10). Given a rect
+// {top,left,width,height} the component renders four dimming panes
+// (top/right/bottom/left) and a transparent frame around the target so
+// the highlighted control is the only thing the user sees lit.
+//
+// Rendered as static markup the spotlight is a single absolutely
+// positioned `<div>` that the SSR test can introspect; in the browser
+// the parent wraps it inside a `position: fixed` overlay.
+export const TutorialSpotlight = ({ rect }) => {
+  if (!rect) {
+    return null;
+  }
+  const { top, left, width, height } = rect;
+  return el('div', {
+    className: 'tutorial-spotlight-frame',
+    style: {
+      position: 'absolute',
+      top: `${top}px`,
+      left: `${left}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+      pointerEvents: 'none',
+    },
+    'aria-hidden': 'true',
+  });
+};
+
+// Read the bounding rect of the first `[data-tutorial-id="<id>"]` in
+// the document. Returns `null` when the element is missing or when the
+// DOM is unavailable (SSR, restricted browser).
+export const findTutorialRect = (tutorialId, doc = globalThis.document) => {
+  if (!tutorialId || !doc?.querySelector) {
+    return null;
+  }
+  const target = doc.querySelector(`[data-tutorial-id="${tutorialId}"]`);
+  if (!target?.getBoundingClientRect) {
+    return null;
+  }
+  const r = target.getBoundingClientRect();
+  if (!r || (r.width === 0 && r.height === 0)) {
+    return null;
+  }
+  return { top: r.top, left: r.left, width: r.width, height: r.height };
+};
+
+// Hook flavor: re-reads the rect on resize/scroll so the spotlight
+// follows its anchor while the user pans the page.
+export const useTutorialRect = (tutorialId) => {
+  const [rect, setRect] = useState(() => findTutorialRect(tutorialId));
+  useEffect(() => {
+    if (!tutorialId) {
+      setRect(null);
+      return undefined;
+    }
+    let raf = 0;
+    const raF = globalThis.requestAnimationFrame ?? ((cb) => cb(0));
+    const caF = globalThis.cancelAnimationFrame ?? (() => {});
+    const update = () => {
+      caF(raf);
+      raf = raF(() => setRect(findTutorialRect(tutorialId)));
+    };
+    update();
+    globalThis.addEventListener?.('resize', update);
+    globalThis.addEventListener?.('scroll', update, true);
+    return () => {
+      caF(raf);
+      globalThis.removeEventListener?.('resize', update);
+      globalThis.removeEventListener?.('scroll', update, true);
+    };
+  }, [tutorialId]);
+  return rect;
+};
+
 const Step = ({ step, index, total, onNext, onSkip, onDismiss }) => {
   const t = useT();
   return el(
@@ -277,19 +359,39 @@ export const TutorialOverlay = ({
   return el(
     'div',
     {
-      className: 'tutorial-overlay',
+      className: step.tutorialId
+        ? 'tutorial-overlay tutorial-overlay-spotlight'
+        : 'tutorial-overlay',
       role: 'presentation',
       'data-tutorial-overlay': '',
+      'data-tutorial-target': step.tutorialId ?? '',
     },
-    el(Step, {
-      step,
-      index: safeIndex,
-      total,
-      onNext: advance,
-      onSkip: skip,
-      onDismiss: dismiss,
-    })
+    [
+      step.tutorialId
+        ? el(TutorialSpotlightAnchor, {
+            key: 'spot',
+            tutorialId: step.tutorialId,
+          })
+        : null,
+      el(Step, {
+        key: 'step',
+        step,
+        index: safeIndex,
+        total,
+        onNext: advance,
+        onSkip: skip,
+        onDismiss: dismiss,
+      }),
+    ]
   );
+};
+
+// Browser-only wrapper that subscribes to the live rect and renders the
+// spotlight frame. Kept separate so the SSR test of `<TutorialSpotlight>`
+// can pin the markup without booting a DOM.
+const TutorialSpotlightAnchor = ({ tutorialId }) => {
+  const rect = useTutorialRect(tutorialId);
+  return el(TutorialSpotlight, { rect });
 };
 
 export const TutorialButton = ({ onOpen }) => {

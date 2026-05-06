@@ -396,6 +396,39 @@ pre {
   margin-left: 0.5rem;
 }
 
+/* Tutorial spotlight (issue #25 R-N9, R-N10). When a step has a
+   `tutorialId` the overlay drops the centred backdrop and instead lays
+   four dimming panes around a transparent frame so the highlighted
+   control reads as "the only lit thing on screen". The frame is
+   absolutely positioned by JS using the target's bounding rect.
+   Implementation note: we use `box-shadow` with a giant spread to dim
+   everything *outside* the frame in a single element — that avoids
+   coordinating four sibling rectangles whose sizes depend on the
+   target rect. */
+.tutorial-overlay-spotlight {
+  background: transparent;
+  align-items: flex-end;
+  padding: 1rem;
+}
+.tutorial-overlay-spotlight .tutorial-spotlight-frame {
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.55),
+    0 0 0 3px rgba(102, 178, 255, 0.85);
+}
+.tutorial-overlay-spotlight .tutorial-step {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .tutorial-overlay-spotlight .tutorial-spotlight-frame {
+    box-shadow:
+      0 0 0 9999px rgba(0, 0, 0, 0.85),
+      0 0 0 3px rgba(102, 178, 255, 1);
+  }
+}
+
 /* ----- Issue #25 — mobile-first AppShell + glass tokens ------------- */
 
 /* Glass surface token (R-N11). The `prefers-reduced-transparency`

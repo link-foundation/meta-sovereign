@@ -114,7 +114,12 @@ test('TutorialOverlay resumes from stored step progress after page reload', () =
   );
 
   assert.match(html, /data-tutorial-step="automation"/);
-  assert.match(html, /Step 4 of 5/);
+  // Position in the sequence is derived from defaultSteps so the
+  // assertion stays in sync when the list grows (issue #25 prepended a
+  // "connect" step).
+  const total = defaultSteps.length;
+  const idx = defaultSteps.findIndex((step) => step.id === 'automation') + 1;
+  assert.match(html, new RegExp(`Step ${idx} of ${total}`));
 });
 
 test('readPreference is null-safe when storage is undefined', () => {
