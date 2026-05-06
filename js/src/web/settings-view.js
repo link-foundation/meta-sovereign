@@ -35,6 +35,30 @@ import { useT } from './i18n.js';
 
 const el = React.createElement;
 
+// Translate a registry value using its `*Key` reference when present, falling
+// back to the literal English copy. Mirrors the helper in connection-guide.js.
+const tx = (t, value, key) => {
+  if (key) {
+    const translated = t(key);
+    if (translated !== key) {
+      return translated;
+    }
+  }
+  return value;
+};
+
+const errorHintFor = (t, provider, status) => {
+  const keys = provider?.apiCredentials?.errorHintKeys;
+  const key = keys?.[status];
+  if (key) {
+    const translated = t(key);
+    if (translated !== key) {
+      return translated;
+    }
+  }
+  return provider?.apiCredentials?.errorHints?.[status];
+};
+
 const fmtClassification = (t, result, provider) => {
   if (!result) {
     return null;
@@ -46,7 +70,7 @@ const fmtClassification = (t, result, provider) => {
     };
   }
   if (result.classification === 'http') {
-    const hint = provider?.apiCredentials?.errorHints?.[result.status];
+    const hint = errorHintFor(t, provider, result.status);
     return {
       tone: 'warn',
       text: hint
@@ -106,14 +130,15 @@ const ProviderCredentialsForm = ({
   };
 
   const forget = async (field) => {
-    setStatus(t('settings.forgetting', { label: field.label }));
+    const label = tx(t, field.label, field.labelKey);
+    setStatus(t('settings.forgetting', { label }));
     try {
       await api.del(field.secretId);
     } catch {
       // Fine — link may not exist yet.
     }
     setValues((current) => ({ ...current, [field.id]: '' }));
-    setStatus(t('settings.forgotten', { label: field.label }));
+    setStatus(t('settings.forgotten', { label }));
     await refresh();
   };
 
@@ -129,7 +154,7 @@ const ProviderCredentialsForm = ({
         },
         [
           el('span', { key: 'label' }, [
-            field.label,
+            tx(t, field.label, field.labelKey),
             field.optional
               ? el(
                   'span',
@@ -247,7 +272,11 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
 
   return el('div', { className: 'col provider-archive-import' }, [
     el('h4', { key: 'h', className: 'meta' }, t('settings.archive')),
-    el('p', { key: 'hint' }, provider.archive.hint),
+    el(
+      'p',
+      { key: 'hint' },
+      tx(t, provider.archive.hint, provider.archive.hintKey)
+    ),
     el('div', { key: 'file-row', className: 'row' }, [
       el('input', {
         key: 'file',
@@ -357,7 +386,7 @@ const SettingsProviderCard = ({ providerId, provider, links, refresh }) => {
     },
     [
       el('header', { key: 'h', className: 'row' }, [
-        el('h3', { key: 'label' }, provider.label),
+        el('h3', { key: 'label' }, tx(t, provider.label, provider.labelKey)),
         el(
           'span',
           {

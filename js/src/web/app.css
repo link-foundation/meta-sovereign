@@ -395,3 +395,212 @@ pre {
 .tutorial-toggle {
   margin-left: 0.5rem;
 }
+
+/* Tutorial spotlight (issue #25 R-N9, R-N10). When a step has a
+   `tutorialId` the overlay drops the centred backdrop and instead lays
+   four dimming panes around a transparent frame so the highlighted
+   control reads as "the only lit thing on screen". The frame is
+   absolutely positioned by JS using the target's bounding rect.
+   Implementation note: we use `box-shadow` with a giant spread to dim
+   everything *outside* the frame in a single element — that avoids
+   coordinating four sibling rectangles whose sizes depend on the
+   target rect. */
+.tutorial-overlay-spotlight {
+  background: transparent;
+  align-items: flex-end;
+  padding: 1rem;
+  /* Let pointer events fall through the overlay to the spotlighted
+     control. The dialog card and the spotlight frame restore their own
+     pointer behaviour below. Without this, the fixed-position overlay
+     would swallow taps on the very nav button the spotlight is asking
+     the user to tap. */
+  pointer-events: none;
+}
+/* Place the dialog card opposite the spotlighted control so the card
+   never overlaps its own anchor. `data-spotlight-side` is set by JS
+   from the target's bounding rect (R-N9, R-N10). */
+.tutorial-overlay-spotlight[data-spotlight-side='top'] {
+  align-items: flex-start;
+}
+.tutorial-overlay-spotlight[data-spotlight-side='top'] .tutorial-step {
+  margin-top: 0;
+  margin-bottom: auto;
+}
+.tutorial-overlay-spotlight .tutorial-spotlight-frame {
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.55),
+    0 0 0 3px rgba(102, 178, 255, 0.85);
+}
+.tutorial-overlay-spotlight .tutorial-step {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  pointer-events: auto;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .tutorial-overlay-spotlight .tutorial-spotlight-frame {
+    box-shadow:
+      0 0 0 9999px rgba(0, 0, 0, 0.85),
+      0 0 0 3px rgba(102, 178, 255, 1);
+  }
+}
+
+/* ----- Issue #25 — mobile-first AppShell + glass tokens ------------- */
+
+/* Glass surface token (R-N11). The `prefers-reduced-transparency`
+   media query ships a solid fallback so users who opt out of
+   translucency still get a fully opaque chrome. */
+:root {
+  --surface-glass-bg: rgba(22, 27, 34, 0.62);
+  --surface-glass-border: rgba(240, 246, 252, 0.08);
+  --surface-glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+:root[data-theme='light'] {
+  --surface-glass-bg: rgba(255, 255, 255, 0.72);
+  --surface-glass-border: rgba(15, 23, 42, 0.08);
+  --surface-glass-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+.glass {
+  background: var(--surface-glass-bg);
+  border: 1px solid var(--surface-glass-border);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--bg-elev);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* AppShell layout — flex container that swaps the primary-nav surface
+   based on viewport classification (compact/medium/expanded). */
+.app-shell {
+  display: flex;
+  width: 100%;
+  min-height: calc(100vh - 56px);
+}
+.app-shell-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.app-shell-compact {
+  flex-direction: column;
+  /* Reserve space for the bottom-nav (R-N1) including safe-area inset. */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+.app-shell-medium {
+  flex-direction: row;
+}
+.app-shell-expanded {
+  flex-direction: row;
+}
+
+/* Bottom navigation (compact ≤ 640 px). 56 × 56 px tap targets per
+   Material 3 + WCAG 2.2 AAA touch guidance (R-N2). */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  overflow-x: auto;
+  padding: 0.25rem;
+  padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  gap: 0.25rem;
+  z-index: 50;
+  box-shadow: var(--surface-glass-shadow);
+}
+.bottom-nav .nav-item {
+  flex: 0 0 auto;
+  min-width: 64px;
+  min-height: 56px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.bottom-nav .nav-item.active {
+  background: var(--accent-bg);
+  color: var(--text);
+}
+
+/* Navigation rail (medium 641-1023 px). 80 px wide, full-height. */
+.side-rail {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+  height: 100vh;
+  padding: 0.5rem;
+  gap: 0.25rem;
+  overflow-y: auto;
+  box-shadow: var(--surface-glass-shadow);
+}
+.side-rail .nav-item {
+  min-height: 56px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 12px;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  text-align: center;
+  word-break: keep-all;
+}
+.side-rail .nav-item.active {
+  background: var(--accent-bg);
+  color: var(--text);
+}
+
+/* Permanent drawer (expanded ≥ 1024 px). 256 px wide. */
+.permanent-drawer {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  width: 256px;
+  height: 100vh;
+  padding: 1rem 0.5rem;
+  gap: 0.25rem;
+  overflow-y: auto;
+  box-shadow: var(--surface-glass-shadow);
+}
+.permanent-drawer .nav-item {
+  min-height: 48px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.permanent-drawer .nav-item.active {
+  background: var(--accent-bg);
+  color: var(--text);
+}
+
+/* Hide the legacy header nav block (now provided by AppShell). The
+   topbar still hosts the brand, mode badge, tutorial / language /
+   theme controls. */
+.topbar > nav[aria-label='Primary'] {
+  display: none;
+}
+
+/* Topbar gets the glass token so it visually matches the new nav. */
+.topbar.glass {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}

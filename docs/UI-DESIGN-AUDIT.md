@@ -83,3 +83,22 @@ References:
 The design behavior audit is preserved by the current React SPA. R-G1 is
 closed by the React shell, React view components, and the browser bundle
 covered by the real-browser e2e.
+
+## Mobile-first overhaul (issue #25)
+
+Issue [#25](https://github.com/link-foundation/meta-sovereign/issues/25)
+revisits the global shell with a phone-first lens. The mapping below
+links each row in this audit's "Global Shell" table to the new
+mobile-first work tracked under `R-N1..R-N12` in
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U.
+
+| Audit row                                | Issue #25 evidence                                                                                                                                                                                                               |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Semantic landmarks for fast orientation. | `js/src/web/shell/app-shell.js` keeps `<header>` / `<nav>` / `<main>` while swapping the navigation between bottom-nav, side-rail, and drawer at ≤640 / 641-1023 / ≥1024 px.                                                     |
+| Visible focus for every control.         | `js/src/web/app.css` carries `:focus-visible` rules onto every shell control, including the new bottom-nav buttons.                                                                                                              |
+| Tap targets are accessible.              | All shell controls are 44 × 44 px or larger; bottom-nav respects `safe-area-inset-bottom`.                                                                                                                                       |
+| Glass surfaces with reduced-motion path. | `--surface-glass` (backdrop-filter blur 28px, saturate 180%) is applied to top-bar, bottom-nav, drawer, modal cards, and the tutorial card; falls back to a solid surface under `@media (prefers-reduced-transparency: reduce)`. |
+| Tutorial guidance is anchored to UI.     | `js/src/web/tutorial.js` exports `<TutorialSpotlight>`; the default tutorial sequence starts by anchoring on the Connections nav entry (R-N9, R-N10).                                                                            |
+
+The full atomic table, component survey, and screenshots are in
+[`docs/case-studies/issue-25/`](./case-studies/issue-25/README.md).

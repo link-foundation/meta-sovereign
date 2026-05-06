@@ -36,16 +36,21 @@ import { saveServerOverride } from './discover.js';
 export const providerCatalogue = {
   email: {
     label: 'Email',
+    labelKey: 'connections.email.label',
     archive: {
       title: 'Import .eml or mbox mail exports',
+      titleKey: 'connections.email.archive.title',
       hint: 'Export mail from your provider as .eml files or an mbox archive, including Gmail Takeout mbox files. Drop the file into the import box with source "email".',
+      hintKey: 'connections.email.archive.hint',
       fileHint: '*.eml, *.mbox',
       accept: '.eml,.mbox,message/rfc822,application/mbox',
     },
     apiCredentials: {
       title: 'Connect email APIs and protocols',
+      titleKey: 'connections.email.api.title',
       envVar: 'EMAIL_ACCESS_TOKEN',
       hint: 'Use JMAP, Gmail API, or Microsoft Graph directly from the browser when CORS allows it. IMAP, POP3, and SMTP require the local server because browsers cannot open raw TCP/TLS mail sockets.',
+      hintKey: 'connections.email.api.hint',
       docsUrl: 'https://jmap.io/spec/',
       apiBase: 'https://gmail.googleapis.com',
       probeUrl: 'https://gmail.googleapis.com/gmail/v1/users/me/profile',
@@ -57,6 +62,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'OAuth access token',
+          labelKey: 'connections.email.fields.token.label',
           type: 'password',
           placeholder: 'ya29.…',
           secretId: 'secret:email:access-token',
@@ -66,20 +72,29 @@ export const providerCatalogue = {
         401: 'Token rejected. Re-issue an OAuth token with the gmail.readonly scope.',
         403: 'Insufficient scope. Re-issue the token with gmail.readonly or jmap permissions.',
       },
+      errorHintKeys: {
+        401: 'connections.email.errorHints.401',
+        403: 'connections.email.errorHints.403',
+      },
     },
   },
   telegram: {
     label: 'Telegram',
+    labelKey: 'connections.telegram.label',
     archive: {
       title: 'Import a Telegram Desktop archive',
+      titleKey: 'connections.telegram.archive.title',
       hint: 'Telegram Desktop -> Settings -> Advanced -> Export Telegram data. Pick "Personal chats" + "JSON" and drop the resulting "result.json" into the import box below.',
+      hintKey: 'connections.telegram.archive.hint',
       fileHint: 'result.json',
       accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the Telegram Bot API',
+      titleKey: 'connections.telegram.api.title',
       envVar: 'TELEGRAM_BOT_TOKEN',
       hint: 'Talk to @BotFather inside Telegram, run /newbot, copy the bot token and paste it as the secret named "secret:telegram:bot-token".',
+      hintKey: 'connections.telegram.api.hint',
       docsUrl: 'https://core.telegram.org/bots#how-do-i-create-a-bot',
       apiBase: 'https://api.telegram.org',
       probeUrl: 'https://api.telegram.org/bot/getMe',
@@ -89,6 +104,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Bot token',
+          labelKey: 'connections.telegram.fields.token.label',
           type: 'password',
           placeholder: '123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11',
           secretId: 'secret:telegram:bot-token',
@@ -98,20 +114,29 @@ export const providerCatalogue = {
         401: 'Token rejected. Ask @BotFather for a fresh token or revoke the leaked one.',
         404: 'Endpoint not found. Double-check there is no whitespace in the bot token.',
       },
+      errorHintKeys: {
+        401: 'connections.telegram.errorHints.401',
+        404: 'connections.telegram.errorHints.404',
+      },
     },
   },
   vk: {
     label: 'VK',
+    labelKey: 'connections.vk.label',
     archive: {
       title: 'Import a VK conversations archive',
+      titleKey: 'connections.vk.archive.title',
       hint: 'Open https://vk.com/data_protection, request your archive, unzip it and load the "messages" JSON files.',
+      hintKey: 'connections.vk.archive.hint',
       fileHint: 'messages*.json',
       accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the VK API',
+      titleKey: 'connections.vk.api.title',
       envVar: 'VK_ACCESS_TOKEN',
       hint: 'Create a Standalone application at https://vk.com/apps?act=manage and request an access token with the messages scope. Paste it as "secret:vk:token".',
+      hintKey: 'connections.vk.api.hint',
       docsUrl: 'https://dev.vk.com/api/access-token/getting-started',
       apiBase: 'https://api.vk.com',
       probeUrl: 'https://api.vk.com/method/users.get?v=5.199',
@@ -122,6 +147,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Access token',
+          labelKey: 'connections.vk.fields.token.label',
           type: 'password',
           placeholder: 'vk1.a.…',
           secretId: 'secret:vk:access-token',
@@ -130,20 +156,28 @@ export const providerCatalogue = {
       errorHints: {
         401: 'Access token expired. Re-run the implicit flow at id.vk.com.',
       },
+      errorHintKeys: {
+        401: 'connections.vk.errorHints.401',
+      },
     },
   },
   x: {
     label: 'X (Twitter)',
+    labelKey: 'connections.x.label',
     archive: {
       title: 'Import an X data archive',
+      titleKey: 'connections.x.archive.title',
       hint: 'Settings -> Your account -> Download an archive of your data. Once the archive is ready, unzip it and select the JSON files under data/ for tweets and direct messages.',
+      hintKey: 'connections.x.archive.hint',
       fileHint: 'tweets.js, direct-messages.js',
       accept: '.js,.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the X API v2',
+      titleKey: 'connections.x.api.title',
       envVar: 'X_ACCESS_TOKEN',
       hint: 'Create an app at https://developer.x.com/, generate a user-context bearer token, and paste it as "secret:x:token".',
+      hintKey: 'connections.x.api.hint',
       docsUrl: 'https://developer.x.com/en/docs/authentication/oauth-2-0',
       apiBase: 'https://api.x.com',
       probeUrl: 'https://api.x.com/2/users/me',
@@ -154,6 +188,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Bearer token',
+          labelKey: 'connections.x.fields.token.label',
           type: 'password',
           placeholder: 'AAAAAAAAAAAAAAAAAAAAAA…',
           secretId: 'secret:x:bearer-token',
@@ -163,20 +198,29 @@ export const providerCatalogue = {
         401: 'Bearer token rejected. Generate a new one in the X developer portal.',
         403: 'Token is valid but lacks the users.read scope.',
       },
+      errorHintKeys: {
+        401: 'connections.x.errorHints.401',
+        403: 'connections.x.errorHints.403',
+      },
     },
   },
   whatsapp: {
     label: 'WhatsApp',
+    labelKey: 'connections.whatsapp.label',
     archive: {
       title: 'Import a WhatsApp chat export',
+      titleKey: 'connections.whatsapp.archive.title',
       hint: 'In the WhatsApp app, open a chat -> ... -> More -> Export chat (no media). Drop the resulting "WhatsApp Chat with NAME.txt" into the import box.',
+      hintKey: 'connections.whatsapp.archive.hint',
       fileHint: 'WhatsApp Chat with *.txt',
       accept: '.txt,text/plain',
     },
     apiCredentials: {
       title: 'Connect the WhatsApp Cloud API',
+      titleKey: 'connections.whatsapp.api.title',
       envVar: 'WHATSAPP_ACCESS_TOKEN',
       hint: 'Create a Meta for Developers app, add the WhatsApp product, copy the temporary or system-user access token and the phone number id (WHATSAPP_PHONE_NUMBER_ID).',
+      hintKey: 'connections.whatsapp.api.hint',
       docsUrl:
         'https://developers.facebook.com/docs/whatsapp/cloud-api/get-started',
       apiBase: 'https://graph.facebook.com',
@@ -188,6 +232,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Access token',
+          labelKey: 'connections.whatsapp.fields.token.label',
           type: 'password',
           placeholder: 'EAAG…',
           secretId: 'secret:whatsapp:access-token',
@@ -195,6 +240,7 @@ export const providerCatalogue = {
         {
           id: 'phoneNumberId',
           label: 'Phone number ID',
+          labelKey: 'connections.whatsapp.fields.phoneNumberId.label',
           type: 'text',
           placeholder: '15550012345',
           secretId: 'secret:whatsapp:phone-number-id',
@@ -205,20 +251,29 @@ export const providerCatalogue = {
         400: 'Meta returned 400. Re-check the access token and that the app is in Live mode.',
         401: 'Access token rejected. Generate a new system-user token in Meta Business.',
       },
+      errorHintKeys: {
+        400: 'connections.whatsapp.errorHints.400',
+        401: 'connections.whatsapp.errorHints.401',
+      },
     },
   },
   facebook: {
     label: 'Facebook',
+    labelKey: 'connections.facebook.label',
     archive: {
       title: 'Import a Facebook download',
+      titleKey: 'connections.facebook.archive.title',
       hint: 'Settings & privacy -> Settings -> Your information -> Download your information. Choose "JSON" and select the categories you need (messages, posts).',
+      hintKey: 'connections.facebook.archive.hint',
       fileHint: 'messages_*.json, posts_*.json',
       accept: '.json,application/json,.zip,application/zip',
     },
     apiCredentials: {
       title: 'Connect the Facebook Graph API',
+      titleKey: 'connections.facebook.api.title',
       envVar: 'FACEBOOK_PAGE_ACCESS_TOKEN',
       hint: 'In your Meta for Developers app, add a Facebook Page, generate a page access token (FACEBOOK_PAGE_ACCESS_TOKEN) and note the page id (FACEBOOK_PAGE_ID).',
+      hintKey: 'connections.facebook.api.hint',
       docsUrl: 'https://developers.facebook.com/docs/pages-api/getting-started',
       apiBase: 'https://graph.facebook.com',
       probeUrl: 'https://graph.facebook.com/v22.0/me',
@@ -229,6 +284,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Page access token',
+          labelKey: 'connections.facebook.fields.token.label',
           type: 'password',
           placeholder: 'EAAG…',
           secretId: 'secret:facebook:access-token',
@@ -236,6 +292,7 @@ export const providerCatalogue = {
         {
           id: 'pageId',
           label: 'Page ID',
+          labelKey: 'connections.facebook.fields.pageId.label',
           type: 'text',
           placeholder: '123456789012345',
           secretId: 'secret:facebook:page-id',
@@ -246,20 +303,29 @@ export const providerCatalogue = {
         400: 'Graph returned 400. Verify the access token has not expired (page tokens are short-lived).',
         401: 'Access token rejected. Re-issue a fresh page token in Graph API Explorer.',
       },
+      errorHintKeys: {
+        400: 'connections.facebook.errorHints.400',
+        401: 'connections.facebook.errorHints.401',
+      },
     },
   },
   linkedin: {
     label: 'LinkedIn',
+    labelKey: 'connections.linkedin.label',
     archive: {
       title: 'Import a LinkedIn data export',
+      titleKey: 'connections.linkedin.archive.title',
       hint: 'Settings & Privacy -> Data privacy -> Get a copy of your data. Pick "Want something in particular?" and request "Messages" + "Posts".',
+      hintKey: 'connections.linkedin.archive.hint',
       fileHint: 'messages.csv, Shares.csv',
       accept: '.csv,text/csv,.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the LinkedIn REST API',
+      titleKey: 'connections.linkedin.api.title',
       envVar: 'LINKEDIN_ACCESS_TOKEN',
       hint: 'Create an app at https://www.linkedin.com/developers/, request the "Share on LinkedIn" + "Sign In with LinkedIn using OpenID Connect" products, and paste the OAuth2 access token plus your author URN (LINKEDIN_AUTHOR_URN).',
+      hintKey: 'connections.linkedin.api.hint',
       docsUrl:
         'https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication',
       apiBase: 'https://api.linkedin.com',
@@ -271,6 +337,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Access token',
+          labelKey: 'connections.linkedin.fields.token.label',
           type: 'password',
           placeholder: 'AQU…',
           secretId: 'secret:linkedin:access-token',
@@ -278,6 +345,7 @@ export const providerCatalogue = {
         {
           id: 'authorUrn',
           label: 'Author URN',
+          labelKey: 'connections.linkedin.fields.authorUrn.label',
           type: 'text',
           placeholder: 'urn:li:person:abc',
           secretId: 'secret:linkedin:author-urn',
@@ -287,20 +355,28 @@ export const providerCatalogue = {
       errorHints: {
         401: 'OAuth2 access token rejected. Re-run the auth code flow.',
       },
+      errorHintKeys: {
+        401: 'connections.linkedin.errorHints.401',
+      },
     },
   },
   'habr-career': {
     label: 'career.habr.com',
+    labelKey: 'connections.habr-career.label',
     archive: {
       title: 'Import a career.habr.com applications JSON',
+      titleKey: 'connections.habr-career.archive.title',
       hint: 'On career.habr.com, open your account, go to "Отклики на вакансии" and use the export-to-JSON action. Save the file and load it into the SPA.',
+      hintKey: 'connections.habr-career.archive.hint',
       fileHint: 'applications.json',
       accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the career.habr.com private API',
+      titleKey: 'connections.habr-career.api.title',
       envVar: 'HABR_CAREER_ACCESS_TOKEN',
       hint: 'Generate a personal access token from career.habr.com -> Settings -> Tokens, and paste it as "secret:habr-career:token".',
+      hintKey: 'connections.habr-career.api.hint',
       docsUrl: 'https://career.habr.com/info/agreement',
       apiBase: 'https://career.habr.com',
       probeUrl: 'https://career.habr.com/api/frontend/me',
@@ -311,6 +387,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Personal access token',
+          labelKey: 'connections.habr-career.fields.token.label',
           type: 'password',
           secretId: 'secret:habr-career:access-token',
         },
@@ -318,20 +395,28 @@ export const providerCatalogue = {
       errorHints: {
         401: 'career.habr.com rejected the token. Re-issue it from Settings -> Tokens.',
       },
+      errorHintKeys: {
+        401: 'connections.habr-career.errorHints.401',
+      },
     },
   },
   hh: {
     label: 'hh.ru',
+    labelKey: 'connections.hh.label',
     archive: {
       title: 'Import an hh.ru negotiations archive',
+      titleKey: 'connections.hh.archive.title',
       hint: 'Open https://hh.ru/applicant/negotiations, use the JSON export, save the file and load it here.',
+      hintKey: 'connections.hh.archive.hint',
       fileHint: 'negotiations.json',
       accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the hh.ru API',
+      titleKey: 'connections.hh.api.title',
       envVar: 'HH_ACCESS_TOKEN',
       hint: 'Register an app at https://dev.hh.ru/, run the OAuth2 client-credentials/authorisation-code flow and paste the access token as "secret:hh:token".',
+      hintKey: 'connections.hh.api.hint',
       docsUrl: 'https://github.com/hhru/api',
       apiBase: 'https://api.hh.ru',
       probeUrl: 'https://api.hh.ru/me',
@@ -342,6 +427,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Access token',
+          labelKey: 'connections.hh.fields.token.label',
           type: 'password',
           secretId: 'secret:hh:access-token',
         },
@@ -349,20 +435,28 @@ export const providerCatalogue = {
       errorHints: {
         401: 'hh.ru rejected the token. Refresh it via your app at https://dev.hh.ru/.',
       },
+      errorHintKeys: {
+        401: 'connections.hh.errorHints.401',
+      },
     },
   },
   github: {
     label: 'GitHub',
+    labelKey: 'connections.github.label',
     archive: {
       title: 'Import a gh api JSON dump',
+      titleKey: 'connections.github.archive.title',
       hint: 'Save a JSON dump from `gh api` (e.g. `gh api repos/OWNER/REPO/issues --paginate > issues.json`) or an envelope `{ issues, comments, pulls, reviews, reviewComments, discussions }` and drop the file here.',
+      hintKey: 'connections.github.archive.hint',
       fileHint: 'issues.json, pulls.json, comments.json, envelope.json',
       accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the GitHub REST API',
+      titleKey: 'connections.github.api.title',
       envVar: 'GITHUB_TOKEN',
       hint: 'Create a fine-grained personal access token at https://github.com/settings/personal-access-tokens with read access to issues, pull requests, and the repositories you want to clone, plus write access to issues if you intend to post comments. Paste it as "secret:github:access-token".',
+      hintKey: 'connections.github.api.hint',
       docsUrl:
         'https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens',
       apiBase: 'https://api.github.com',
@@ -378,6 +472,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'Personal access token',
+          labelKey: 'connections.github.fields.token.label',
           type: 'password',
           placeholder: 'github_pat_… or ghp_…',
           secretId: 'secret:github:access-token',
@@ -388,20 +483,30 @@ export const providerCatalogue = {
         403: 'GitHub returned 403. The token may be missing scopes (issues:read, pull_requests:read, contents:read) or hitting a secondary rate limit.',
         404: 'Repository not found or not visible. Confirm the token has access to the target owner/repo.',
       },
+      errorHintKeys: {
+        401: 'connections.github.errorHints.401',
+        403: 'connections.github.errorHints.403',
+        404: 'connections.github.errorHints.404',
+      },
     },
   },
   upwork: {
     label: 'Upwork',
+    labelKey: 'connections.upwork.label',
     archive: {
       title: 'Import an Upwork data export',
+      titleKey: 'connections.upwork.archive.title',
       hint: 'Upwork lets you export transaction history (Reports → Transaction History → Download CSV), per-job archives, and internal admin envelopes (`{ jobs, contracts, rooms, messages, transactions }`). Drop the resulting CSV or JSON file here with source "upwork".',
+      hintKey: 'connections.upwork.archive.hint',
       fileHint: 'transactions.csv, jobs.json, contracts.json, envelope.json',
       accept: '.csv,text/csv,.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the Upwork GraphQL API',
+      titleKey: 'connections.upwork.api.title',
       envVar: 'UPWORK_TOKEN',
       hint: 'Register an OAuth2 application at https://www.upwork.com/services/api/apply, run the 3-legged authorisation-code flow, and paste the access token as "secret:upwork:access-token". Store the optional refresh token at "secret:upwork:refresh-token".',
+      hintKey: 'connections.upwork.api.hint',
       docsUrl:
         'https://www.upwork.com/developer/documentation/graphql/api/docs/index.html',
       apiBase: 'https://api.upwork.com',
@@ -416,6 +521,7 @@ export const providerCatalogue = {
         {
           id: 'token',
           label: 'OAuth access token',
+          labelKey: 'connections.upwork.fields.token.label',
           type: 'password',
           placeholder: 'oauth2v2_…',
           secretId: 'secret:upwork:access-token',
@@ -423,6 +529,7 @@ export const providerCatalogue = {
         {
           id: 'refreshToken',
           label: 'Refresh token',
+          labelKey: 'connections.upwork.fields.refreshToken.label',
           type: 'password',
           secretId: 'secret:upwork:refresh-token',
           optional: true,
@@ -430,6 +537,7 @@ export const providerCatalogue = {
         {
           id: 'organizationId',
           label: 'Organization (tenant) ID',
+          labelKey: 'connections.upwork.fields.organizationId.label',
           type: 'text',
           placeholder: 'optional',
           secretId: 'secret:upwork:organization-id',
@@ -441,20 +549,30 @@ export const providerCatalogue = {
         403: 'Token valid but missing scope. Re-issue with the messaging, search, and reports scopes you need.',
         429: 'Upwork rate-limited the call. Back off; the adapter caches results for 24 hours per the API ToS.',
       },
+      errorHintKeys: {
+        401: 'connections.upwork.errorHints.401',
+        403: 'connections.upwork.errorHints.403',
+        429: 'connections.upwork.errorHints.429',
+      },
     },
   },
   peopleperhour: {
     label: 'PeoplePerHour',
+    labelKey: 'connections.peopleperhour.label',
     archive: {
       title: 'Import a PeoplePerHour data export',
+      titleKey: 'connections.peopleperhour.archive.title',
       hint: 'PeoplePerHour exposes account-level exports through the GDPR data-subject access request bundle (Settings → Privacy → Request my data) and the Earnings CSV (Reports → Earnings → Export). Drop the resulting JSON or CSV here with source "peopleperhour".',
+      hintKey: 'connections.peopleperhour.archive.hint',
       fileHint: 'projects.json, proposals.json, workstreams.json, earnings.csv',
       accept: '.json,application/json,.csv,text/csv',
     },
     apiCredentials: {
       title: 'Connect the PeoplePerHour REST API',
+      titleKey: 'connections.peopleperhour.api.title',
       envVar: 'PEOPLEPERHOUR_TOKEN',
       hint: 'Register an OAuth2 application via the PeoplePerHour developer portal (https://www.peopleperhour.com/site/developers), run the authorisation-code flow, and paste the access token as "secret:peopleperhour:access-token". Store the optional refresh token at "secret:peopleperhour:refresh-token". The adapter caches every response for 24 hours per the PPH API ToS.',
+      hintKey: 'connections.peopleperhour.api.hint',
       docsUrl: 'https://www.peopleperhour.com/site/developers',
       apiBase: 'https://www.peopleperhour.com/api/v1',
       probeUrl: 'https://www.peopleperhour.com/api/v1/me',
@@ -468,6 +586,7 @@ export const providerCatalogue = {
         {
           id: 'accessToken',
           label: 'OAuth access token',
+          labelKey: 'connections.peopleperhour.fields.accessToken.label',
           type: 'password',
           placeholder: 'pph_…',
           secretId: 'secret:peopleperhour:access-token',
@@ -475,6 +594,7 @@ export const providerCatalogue = {
         {
           id: 'refreshToken',
           label: 'Refresh token',
+          labelKey: 'connections.peopleperhour.fields.refreshToken.label',
           type: 'password',
           secretId: 'secret:peopleperhour:refresh-token',
           optional: true,
@@ -485,20 +605,30 @@ export const providerCatalogue = {
         403: 'Token valid but missing scope. Re-issue with the projects, proposals, and workstreams scopes you need.',
         429: 'PeoplePerHour rate-limited the call. Back off; the adapter caches results for 24 hours per the API ToS.',
       },
+      errorHintKeys: {
+        401: 'connections.peopleperhour.errorHints.401',
+        403: 'connections.peopleperhour.errorHints.403',
+        429: 'connections.peopleperhour.errorHints.429',
+      },
     },
   },
   superjob: {
     label: 'superjob.ru',
+    labelKey: 'connections.superjob.label',
     archive: {
       title: 'Import a SuperJob responses archive',
+      titleKey: 'connections.superjob.archive.title',
       hint: 'On superjob.ru, open your applicant cabinet -> "Отклики" and use the JSON export action. Save the file and load it here.',
+      hintKey: 'connections.superjob.archive.hint',
       fileHint: 'responses.json',
       accept: '.json,application/json',
     },
     apiCredentials: {
       title: 'Connect the SuperJob API',
+      titleKey: 'connections.superjob.api.title',
       envVar: 'SUPERJOB_ACCESS_TOKEN',
       hint: 'Register an application at https://api.superjob.ru/register/, copy the secret key as SUPERJOB_APP_ID and the access token as "secret:superjob:token".',
+      hintKey: 'connections.superjob.api.hint',
       docsUrl: 'https://api.superjob.ru/',
       apiBase: 'https://api.superjob.ru',
       probeUrl: 'https://api.superjob.ru/2.0/user/current/',
@@ -509,12 +639,14 @@ export const providerCatalogue = {
         {
           id: 'appId',
           label: 'App ID (X-Api-App-Id)',
+          labelKey: 'connections.superjob.fields.appId.label',
           type: 'password',
           secretId: 'secret:superjob:app-id',
         },
         {
           id: 'token',
           label: 'Access token',
+          labelKey: 'connections.superjob.fields.token.label',
           type: 'password',
           secretId: 'secret:superjob:access-token',
           optional: true,
@@ -522,6 +654,9 @@ export const providerCatalogue = {
       ],
       errorHints: {
         401: 'SuperJob rejected the App ID. Re-check it in your applicant cabinet.',
+      },
+      errorHintKeys: {
+        401: 'connections.superjob.errorHints.401',
       },
     },
   },
@@ -536,7 +671,9 @@ export const providerCatalogue = {
 export const connectionGuides = {
   chat: {
     title: 'Your unified inbox starts empty.',
+    titleKey: 'guide.chat.title',
     body: 'meta-sovereign keeps every chat from every connected service in one place. Connect a provider below, or import an exported archive to populate this view.',
+    bodyKey: 'guide.chat.body',
     providers: [
       'email',
       'telegram',
@@ -553,7 +690,9 @@ export const connectionGuides = {
   },
   operator: {
     title: 'Operator queue is empty.',
+    titleKey: 'guide.operator.title',
     body: 'The operator card stream walks you through unread messages chat by chat. Connect a chat-capable provider below to start the queue.',
+    bodyKey: 'guide.operator.body',
     providers: [
       'email',
       'telegram',
@@ -570,7 +709,9 @@ export const connectionGuides = {
   },
   contacts: {
     title: 'No contacts yet.',
+    titleKey: 'guide.contacts.title',
     body: 'Contacts are aggregated from every connected provider so the same person across networks shows up once. Add a provider to populate this list.',
+    bodyKey: 'guide.contacts.body',
     providers: [
       'email',
       'telegram',
@@ -590,7 +731,9 @@ export const connectionGuides = {
   },
   automation: {
     title: 'No automation graphs yet.',
+    titleKey: 'guide.automation.title',
     body: 'Automation graphs route incoming messages from a pattern to a reply variation. Drop a node above, or import an archive first so you have data to match against.',
+    bodyKey: 'guide.automation.body',
     providers: [
       'email',
       'telegram',
@@ -604,13 +747,17 @@ export const connectionGuides = {
   },
   patterns: {
     title: 'No patterns yet.',
+    titleKey: 'guide.patterns.title',
     body: 'Patterns are inferred from example messages. Connect a provider, or import an archive, then come back here and feed the inferrer a few examples.',
+    bodyKey: 'guide.patterns.body',
     providers: ['email', 'telegram', 'vk', 'x', 'whatsapp'],
     connectFirst: { providerId: 'telegram' },
   },
   replies: {
     title: 'No reply variation groups yet.',
+    titleKey: 'guide.replies.title',
     body: 'Reply groups are extracted from your previous outgoing messages by fuzzy similarity. Connect a chat-capable provider to seed your reply library.',
+    bodyKey: 'guide.replies.body',
     providers: [
       'email',
       'telegram',
@@ -625,13 +772,17 @@ export const connectionGuides = {
   },
   facts: {
     title: 'No facts extracted yet.',
+    titleKey: 'guide.facts.title',
     body: 'Facts are question -> answer pairs extracted across messages by your patterns. Add a pattern with a capture group, or connect a chat provider to start gathering data.',
+    bodyKey: 'guide.facts.body',
     providers: ['email', 'telegram', 'vk', 'x', 'whatsapp'],
     connectFirst: { providerId: 'telegram' },
   },
   audience: {
     title: 'Build your first audience.',
+    titleKey: 'guide.audience.title',
     body: 'Cross-reference contacts using AND/OR/NOT plus dimensions like network:, chat:, sender:, kind:, fact:. Connect at least one provider so you have contacts to filter.',
+    bodyKey: 'guide.audience.body',
     providers: [
       'email',
       'telegram',
@@ -648,13 +799,17 @@ export const connectionGuides = {
   },
   broadcast: {
     title: 'No broadcast targets yet.',
+    titleKey: 'guide.broadcast.title',
     body: 'Broadcasts post the same message to every connected feed. Connect a public-posting provider below to enable a target checkbox.',
+    bodyKey: 'guide.broadcast.body',
     providers: ['x', 'vk', 'facebook', 'linkedin', 'telegram'],
     connectFirst: { providerId: 'x' },
   },
   outreach: {
     title: 'No outreach surface yet.',
+    titleKey: 'guide.outreach.title',
     body: 'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Connect a chat-capable provider to enable outreach.',
+    bodyKey: 'guide.outreach.body',
     providers: [
       'email',
       'telegram',
@@ -670,7 +825,9 @@ export const connectionGuides = {
   },
   profile: {
     title: 'No profile yet.',
+    titleKey: 'guide.profile.title',
     body: 'Edit your profile and resume here; saves are pushed to every connected provider. Connect at least one provider so the sync envelope has somewhere to go.',
+    bodyKey: 'guide.profile.body',
     providers: [
       'telegram',
       'vk',
@@ -686,17 +843,30 @@ export const connectionGuides = {
   },
   backup: {
     title: 'No backup archives yet.',
+    titleKey: 'guide.backup.title',
     body: 'Backups are encrypted-at-rest archives of the local store. Set a passphrase above, click "create backup" once you have data worth saving, or start a local server first if you want backups to live on disk.',
+    bodyKey: 'guide.backup.body',
     providers: [],
   },
   status: {
     title: 'Status is showing the local store only.',
+    titleKey: 'guide.status.title',
     body: 'Status fields appear once a server is reachable. Either start a local server below, or keep working fully offline — the SPA writes straight to your browser store.',
+    bodyKey: 'guide.status.body',
+    providers: [],
+  },
+  connections: {
+    title: 'Connections',
+    titleKey: 'guide.connections.title',
+    body: 'External services live on this dedicated screen. Pick a provider to enter its credentials, upload an archive, and probe the live API. Settings only keeps app-level preferences.',
+    bodyKey: 'guide.connections.body',
     providers: [],
   },
   settings: {
     title: 'Settings',
+    titleKey: 'guide.settings.title',
     body: 'Provider connections, credentials, and archive imports live here. The list below mirrors every catalogued provider; pick one to enter its credentials, upload an archive, and probe the live API.',
+    bodyKey: 'guide.settings.body',
     providers: [],
   },
 };
@@ -769,31 +939,40 @@ export const tryDirect = async ({
 // tests can assert on the strings without booting JSX.
 export const localServerHelp = {
   title: 'Start a local server to unblock this provider',
+  titleKey: 'guide.localServer.title',
   body: 'A same-origin local server proxies the provider request and side-steps the browsers CORS rule. Pick the runtime you have installed.',
+  bodyKey: 'guide.localServer.body',
   options: [
     {
       id: 'rust',
       heading: 'Rust (recommended)',
+      headingKey: 'guide.localServer.rust',
       command:
         'cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve',
       hint: 'Uses the pure-Rust binary from this repository. Defaults to http://127.0.0.1:8787.',
+      hintKey: 'guide.localServer.rustHint',
     },
     {
       id: 'js-node',
       heading: 'Node / Bun / Deno',
+      headingKey: 'guide.localServer.node',
       command: 'npx -y meta-sovereign serve',
       hint: 'Reuses the published JS server. Defaults to http://127.0.0.1:8787.',
+      hintKey: 'guide.localServer.nodeHint',
     },
     {
       id: 'docker',
       heading: 'Docker',
+      headingKey: 'guide.localServer.docker',
       command: 'docker compose up web',
       hint: 'Spins up the same JS server in a container. See docker/web.Dockerfile.',
+      hintKey: 'guide.localServer.dockerHint',
     },
   ],
   manualOverride: {
     storageKey: 'metaServer',
     hint: 'Once the server is running, paste its URL below and click "use this server" — the SPA will store it and reload.',
+    hintKey: 'guide.localServer.overrideHint',
   },
 };
 

@@ -64,6 +64,67 @@ test('every non-en dictionary mirrors the en key set exactly', () => {
   }
 });
 
+test('no English literal leaks into a non-en dictionary (issue #25)', () => {
+  // Issue #25: translated builds must not show English copy when the
+  // locale is non-English. The heuristic: for every en value that
+  // contains 3+ consecutive Latin letters, every non-en dictionary
+  // must define a different value. Brand names and identifiers stay
+  // on an allow-list because they are language-neutral.
+  const HAS_LATIN_WORD = /[A-Za-z]{3,}/;
+  // Brand names and runtime identifiers stay in English in every
+  // locale. Listing the exact keys keeps the heuristic strict for
+  // every other entry.
+  const LANG_NEUTRAL = new Set([
+    'appName',
+    'guide.localServer.rust',
+    'guide.localServer.node',
+    'guide.localServer.docker',
+    // Provider-supplied identifiers that mirror the API's own naming
+    // (HTTP header names, env var keys) stay verbatim across locales.
+    'connections.superjob.fields.appId.label',
+  ]);
+  // Some keys hold only filename glob patterns or other technical
+  // identifiers (e.g. "*.eml, *.mbox", "result.json", "messages.csv").
+  // The convention is that *.archive.fileHint values never contain a
+  // translatable sentence, only file globs.
+  const isFileHintKey = (key) => key.endsWith('.archive.fileHint');
+  // The connections.<provider>.label keys hold the provider's brand
+  // name (Telegram, GitHub, WhatsApp, …) and are language-neutral.
+  const isProviderLabelKey = (key) =>
+    /^connections\.[a-z0-9-]+\.label$/.test(key);
+  // Strip ICU-lite placeholders ({name}) before deciding whether the
+  // value carries English copy: '{current} / {total}' is a layout
+  // primitive, not a translatable sentence.
+  const stripPlaceholders = (s) => s.replace(/\{[^}]+\}/g, '');
+  for (const [key, enValue] of Object.entries(dictionaries.en)) {
+    if (typeof enValue !== 'string') {
+      continue;
+    }
+    if (LANG_NEUTRAL.has(key)) {
+      continue;
+    }
+    if (isFileHintKey(key)) {
+      continue;
+    }
+    if (isProviderLabelKey(key)) {
+      continue;
+    }
+    if (!HAS_LATIN_WORD.test(stripPlaceholders(enValue))) {
+      continue;
+    }
+    for (const id of Object.keys(dictionaries)) {
+      if (id === 'en') {
+        continue;
+      }
+      assert.notStrictEqual(
+        dictionaries[id][key],
+        enValue,
+        `${id}.${key} is identical to en — translation missing`
+      );
+    }
+  }
+});
+
 test('every translated string is non-empty in every locale', () => {
   for (const id of Object.keys(dictionaries)) {
     for (const [key, value] of Object.entries(dictionaries[id])) {

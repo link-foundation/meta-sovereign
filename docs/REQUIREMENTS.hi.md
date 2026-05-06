@@ -119,6 +119,20 @@ translation keys, dictionary parity tests, Markdown language switchers,
 translated docs siblings, docs-language automation, issue #18 case study
 और PR #19 single-PR delivery cover करते हैं। State: PR #19 in progress।
 
+## U. Mobile-first UI overhaul (issue #25)
+
+R-N1..R-N12 mobile-first AppShell (bottom-nav / side-rail / permanent
+drawer), Apple Liquid Glass tokens जिनके साथ
+`prefers-reduced-transparency` fallback है, पूरा translation coverage
+(non-EN build में कोई English literal नहीं), अलग Connections page
+(हर provider के लिए एक card और
+`connected/not-connected/action-required` state badge), dedicated setup
+detail screen, per-provider `setupSteps[]`, element-anchored tutorial
+spotlight, और "Connect a service" से शुरू होने वाला default tutorial
+sequence cover करते हैं। State: PR #26 branch `issue-25-dac43a780b5c`
+पर in progress। विस्तृत table के लिए
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U देखें।
+
 ## Traceability
 
 Future PR या commit feature land करे तो changeset और PR description में

@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { api } from './dom.js';
-import { navItems, views } from './views.js';
+import { views } from './views.js';
 import {
   TutorialButton,
   TutorialOverlay,
@@ -13,6 +13,7 @@ import {
 } from './tutorial.js';
 import { LocaleContext, useLocale } from './i18n.js';
 import { LanguageSwitcher } from './language-switcher.js';
+import { AppShell } from './shell/app-shell.js';
 
 const el = React.createElement;
 const THEME_KEY = 'metaSovereignTheme';
@@ -64,6 +65,18 @@ const useOnlineMode = () => {
   return online;
 };
 
+const useViewportWidth = () => {
+  const initial =
+    typeof globalThis.innerWidth === 'number' ? globalThis.innerWidth : 1024;
+  const [width, setWidth] = useState(initial);
+  useEffect(() => {
+    const onResize = () => setWidth(globalThis.innerWidth ?? 1024);
+    globalThis.addEventListener?.('resize', onResize);
+    return () => globalThis.removeEventListener?.('resize', onResize);
+  }, []);
+  return width;
+};
+
 const useTheme = () => {
   const [theme, setTheme] = useState(initialTheme);
   useEffect(() => {
@@ -94,6 +107,7 @@ const App = () => {
   const localeApi = useLocale();
   const { t } = localeApi;
   const tutorial = useTutorialPreference();
+  const width = useViewportWidth();
   // The overlay opens automatically on first run (no stored preference)
   // and otherwise only when the user clicks the header button (R-M12).
   const [tutorialOpen, setTutorialOpen] = useState(() => !tutorial.isOff);
@@ -130,54 +144,50 @@ const App = () => {
       el('a', { key: 'skip', className: 'skip-link', href: '#root' }, [
         t('skipLink'),
       ]),
-      el('header', { key: 'header', className: 'topbar', role: 'banner' }, [
-        el('h1', { key: 'brand' }, t('appName')),
-        el(
-          'nav',
-          { key: 'nav', 'aria-label': 'Primary' },
-          navItems.map(([id, labelKey]) =>
-            el(
-              'button',
-              {
-                key: id,
-                type: 'button',
-                'data-view': id,
-                className: id === active ? 'active' : '',
-                onClick: () => setActive(id),
-              },
-              t(labelKey)
-            )
-          )
-        ),
-        el(
-          'span',
-          {
-            key: 'mode',
-            className: `mode-badge ${online ? 'online' : 'offline'}`,
-          },
-          online ? t('header.online') : t('header.offline')
-        ),
-        el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
-        el(LanguageSwitcher, { key: 'lang' }),
-        el(
-          'button',
-          {
-            key: 'theme',
-            type: 'button',
-            className: 'theme-toggle',
-            'data-action': 'theme-toggle',
-            'aria-label': t('header.themeAria'),
-            'aria-pressed': String((theme || '') === 'dark'),
-            title: t('header.themeAria'),
-            onClick: toggle,
-          },
-          t('header.theme')
-        ),
-      ]),
       el(
-        'main',
-        { key: 'main', id: 'root', role: 'main', tabIndex: -1 },
-        el(View)
+        'header',
+        { key: 'header', className: 'topbar glass', role: 'banner' },
+        [
+          el('h1', { key: 'brand' }, t('appName')),
+          el(
+            'span',
+            {
+              key: 'mode',
+              className: `mode-badge ${online ? 'online' : 'offline'}`,
+            },
+            online ? t('header.online') : t('header.offline')
+          ),
+          el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
+          el(LanguageSwitcher, { key: 'lang' }),
+          el(
+            'button',
+            {
+              key: 'theme',
+              type: 'button',
+              className: 'theme-toggle',
+              'data-action': 'theme-toggle',
+              'aria-label': t('header.themeAria'),
+              'aria-pressed': String((theme || '') === 'dark'),
+              title: t('header.themeAria'),
+              onClick: toggle,
+            },
+            t('header.theme')
+          ),
+        ]
+      ),
+      el(
+        AppShell,
+        {
+          key: 'shell-nav',
+          width,
+          active,
+          onSelect: setActive,
+        },
+        el(
+          'main',
+          { key: 'main', id: 'root', role: 'main', tabIndex: -1 },
+          el(View)
+        )
       ),
       el(TutorialOverlay, {
         key: 'tutorial-overlay',

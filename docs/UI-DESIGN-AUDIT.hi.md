@@ -49,3 +49,19 @@ server discovery real e2e में covered हैं। `secret:*` links encryp
 
 Current React SPA design behavior audit preserve करता है। R-G1 React
 shell, React view components और real-browser e2e से closed है।
+
+## Mobile-first overhaul (issue #25)
+
+Issue [#25](https://github.com/link-foundation/meta-sovereign/issues/25)
+global shell को phone-first दृष्टिकोण से दोबारा design करता है। नया
+`<AppShell>` (`js/src/web/shell/`) navigation को bottom-nav (≤640 px),
+side-rail (641-1023 px), और permanent drawer (≥1024 px) के बीच switch
+करता है; सभी controls 44 × 44 px tap target और `:focus-visible` ring
+रखते हैं। `app.css` `--surface-glass` (backdrop-filter blur 28px)
+define करता है, और `prefers-reduced-transparency` के तहत solid surface
+पर fall back होता है। अलग Connections page हर provider के लिए एक card
+और translated state badge render करता है; tutorial spotlight
+(`tutorial.js`) target rect को outline करता है और बाकी सब को dim कर
+देता है। पूरी R-N1..R-N12 list और evidence:
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U और
+[`docs/case-studies/issue-25/`](./case-studies/issue-25/README.md)।
