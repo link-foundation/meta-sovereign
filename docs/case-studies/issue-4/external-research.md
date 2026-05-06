@@ -101,7 +101,7 @@ patch release.
   (**unverified** in numeric form).
 - Pagination: standard Relay-style **cursor connections** —
   `edges { cursor node { … } }` + `pageInfo { hasNextPage,
-  endCursor }`; pass `after: endCursor` to advance. The adapter's
+endCursor }`; pass `after: endCursor` to advance. The adapter's
   `paginateConnection()` helper follows `hasNextPage` and bounds
   the walk with a configurable `maxPages` (default 50).
 
@@ -112,7 +112,7 @@ patch release.
   subscription is **manually approved by Upwork** (stays in
   `REVIEW` until then).
 - Payload shape is minimal: `{ "entity": "OFFER", "action": "CREATE",
-  "id": "…" }` — you must call back into GraphQL to fetch the
+"id": "…" }` — you must call back into GraphQL to fetch the
   actual record.
 - **No streaming / pubsub for new chat messages.** Freelancer-side
   message ingestion has to **poll** the rooms / messages queries.

@@ -47,13 +47,13 @@ them.
 
 5. **Add CLI subcommands.** Extend `js/src/cli/index.js` with:
    - `source-pull --source=upwork [--stage=<proposal|contract|all>]
-     [--perspective=<client|freelancer|both>]
-     [--organization-id=<id>] [--token=<pat>]` (already routed
+[--perspective=<client|freelancer|both>]
+[--organization-id=<id>] [--token=<pat>]` (already routed
      through `pullLiveInto` once registered).
    - `upwork-search --query=<q> --token=<pat> [--limit=<n>]
-     [--sort=<spec>]`.
+[--sort=<spec>]`.
    - `upwork-message --room-id=<r> --text=<t> [--contract-id=<c>]
-     --token=<pat>`.
+--token=<pat>`.
    - The existing `import --source=upwork --file=<path>` path picks
      up CSV / JSON archives via `parseArchive` automatically. Covers
      `R-S13`.

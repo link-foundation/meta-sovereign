@@ -15,14 +15,14 @@ and the GitHub case study under
 
 The artefacts in this folder are:
 
-| File                   | Purpose                                                                                                                                                  |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `README.md`            | This document — case study analysis.                                                                                                                     |
-| `requirements.md`      | Atomic requirement list (`R-S*`) extracted from the issue.                                                                                               |
-| `solution-plan.md`     | Phased plan mapping each requirement to a concrete deliverable in PR #23.                                                                                |
-| `components.md`        | Catalogue of upstream tooling and standards consulted, plus the components reused from this repository.                                                  |
-| `external-research.md` | Summary of external research about the Upwork GraphQL API, OAuth2 flow, data-export options, ToS caching constraints, and existing libraries.            |
-| `data/`                | Raw artefacts (`issue.json`, `comments.json`) used to build this study.                                                                                  |
+| File                   | Purpose                                                                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `README.md`            | This document — case study analysis.                                                                                                          |
+| `requirements.md`      | Atomic requirement list (`R-S*`) extracted from the issue.                                                                                    |
+| `solution-plan.md`     | Phased plan mapping each requirement to a concrete deliverable in PR #23.                                                                     |
+| `components.md`        | Catalogue of upstream tooling and standards consulted, plus the components reused from this repository.                                       |
+| `external-research.md` | Summary of external research about the Upwork GraphQL API, OAuth2 flow, data-export options, ToS caching constraints, and existing libraries. |
+| `data/`                | Raw artefacts (`issue.json`, `comments.json`) used to build this study.                                                                       |
 
 ---
 
