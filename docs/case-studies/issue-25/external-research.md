@@ -108,12 +108,12 @@ re-deriving them.
 
 ## 5. Element-anchored tutorial libraries
 
-| Library     | Approach                                                                                | Why we did NOT take a hard dep                                                                                                    |
-| ----------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Shepherd.js | Renders a full-page mask + tooltip pointer, supports keyboard nav.                       | MIT, ~30 KB gzip. The repo already has a custom `tutorial.js` with preference store and step model — adding Shepherd duplicates it. |
-| Driver.js   | Pure DOM, ~5 KB gzip, very small.                                                       | Smaller than Shepherd but still adds a runtime + CSS conflict (its mask is a full overlay element with `clip-path`, which we DIY). |
-| Reactour    | React-native API; adds @reach/popover under the hood.                                   | MIT, ~50 KB gzip including deps. Excessive for one component.                                                                     |
-| Intro.js    | jQuery-flavoured, AGPL for commercial use.                                               | License conflict with this repo's Unlicense.                                                                                      |
+| Library     | Approach                                                           | Why we did NOT take a hard dep                                                                                                      |
+| ----------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Shepherd.js | Renders a full-page mask + tooltip pointer, supports keyboard nav. | MIT, ~30 KB gzip. The repo already has a custom `tutorial.js` with preference store and step model — adding Shepherd duplicates it. |
+| Driver.js   | Pure DOM, ~5 KB gzip, very small.                                  | Smaller than Shepherd but still adds a runtime + CSS conflict (its mask is a full overlay element with `clip-path`, which we DIY).  |
+| Reactour    | React-native API; adds @reach/popover under the hood.              | MIT, ~50 KB gzip including deps. Excessive for one component.                                                                       |
+| Intro.js    | jQuery-flavoured, AGPL for commercial use.                         | License conflict with this repo's Unlicense.                                                                                        |
 
 The chosen approach: a **custom 4-panel mask** (top, right, bottom,
 left rectangles around the target's bounding box) with a CSS variable

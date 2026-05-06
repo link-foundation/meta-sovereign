@@ -165,8 +165,9 @@ dims the page around a target element identified by
     if (LANG_NEUTRAL.has(key)) continue; // appName, brand
     if (!HAS_LATIN_WORD.test(enValue)) continue;
     assert.notStrictEqual(
-      ru[key], enValue,
-      `ru.${key} is identical to en — translation missing`,
+      ru[key],
+      enValue,
+      `ru.${key} is identical to en — translation missing`
     );
   }
   ```
@@ -194,13 +195,13 @@ the translated requirement files, and bump the version.
 
 ## Risks & mitigations
 
-| Risk                                                                         | Mitigation                                                                                                                                  |
-| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Risk                                                                         | Mitigation                                                                                                                                    |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | Breaking existing e2e (`js/tests/e2e-browser-spa.mjs`) due to new selectors. | Add `data-view` aliases on the new shell so the existing test selectors keep working; update the e2e if the structural change is unavoidable. |
-| Glass surfaces hurt low-end mobile GPUs.                                     | Limit to 4 simultaneous glass layers; respect `prefers-reduced-transparency`; gate via `@supports (backdrop-filter: blur(1px))`.             |
+| Glass surfaces hurt low-end mobile GPUs.                                     | Limit to 4 simultaneous glass layers; respect `prefers-reduced-transparency`; gate via `@supports (backdrop-filter: blur(1px))`.              |
 | Translation leaks not caught by the new assert (string equality is fragile). | Add a regex-based "looks like an English sentence" detector as a second guard; allow-list a small set of brand names (`appName`, `Telegram`). |
-| Tutorial spotlight covers the target on small screens.                        | When the target rect occupies more than 60% of the viewport, fall back to a centred card — log this branch for review.                       |
-| Provider `setupSteps[]` schema drift between providers.                       | A schema test (`connection-guides-templates.test.js`) asserts each step has `id`, `titleKey`, `bodyKey`. Extra fields are optional.          |
+| Tutorial spotlight covers the target on small screens.                       | When the target rect occupies more than 60% of the viewport, fall back to a centred card — log this branch for review.                        |
+| Provider `setupSteps[]` schema drift between providers.                      | A schema test (`connection-guides-templates.test.js`) asserts each step has `id`, `titleKey`, `bodyKey`. Extra fields are optional.           |
 
 ## Rollback plan
 
