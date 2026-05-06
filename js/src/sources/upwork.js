@@ -212,7 +212,13 @@ const roomLink = (payload) => {
 
 const transactionLink = (payload) => {
   const id = String(
-    pickFirst(payload.id, payload.refId, payload.ref_id, payload.transactionId)
+    pickFirst(
+      payload.id,
+      payload.refId,
+      payload.ref_id,
+      payload.transactionId,
+      payload['Ref ID']
+    )
   );
   return {
     id: `transaction:${SOURCE}:${id}`,
@@ -667,8 +673,8 @@ const roomsForContract = async (ctx, contract, options) => {
 const collectContractStage = async (ctx, options, now) => {
   const perspective = options.perspective ?? 'both';
   const contracts = await liveListContracts(ctx, {
-    perspective: perspective === 'both' ? 'BOTH' : perspective.toUpperCase(),
     ...options,
+    perspective: perspective === 'both' ? 'BOTH' : perspective.toUpperCase(),
   });
   const filtered = options.contractId
     ? contracts.filter((c) => c.id === options.contractId)
