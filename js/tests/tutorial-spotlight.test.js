@@ -88,6 +88,52 @@ test('TutorialSpotlight renders nothing when no rect is supplied', () => {
   assert.equal(html, '');
 });
 
+test('spotlight overlay CSS lets pointer events fall through to the spotlighted control', async () => {
+  // Regression for the click pass-through bug found while taking issue
+  // #25 PR screenshots: the fixed-position .tutorial-overlay-spotlight
+  // div was swallowing taps on the very nav button the spotlight was
+  // asking the user to tap. The overlay must declare
+  // `pointer-events: none` and the dialog card must restore
+  // `pointer-events: auto` so its Skip / Next / Off buttons stay clickable.
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const url = await import('node:url');
+  const here = path.dirname(url.fileURLToPath(import.meta.url));
+  const css = await fs.readFile(
+    path.join(here, '..', 'src', 'web', 'app.css'),
+    'utf8'
+  );
+  const overlayBlock = css.match(
+    /\.tutorial-overlay-spotlight\s*\{[^}]*\}/
+  )?.[0];
+  assert.ok(overlayBlock, '.tutorial-overlay-spotlight rule must exist');
+  assert.match(
+    overlayBlock,
+    /pointer-events:\s*none/,
+    '.tutorial-overlay-spotlight must declare pointer-events: none so taps reach the spotlighted control'
+  );
+  const stepBlock = css.match(
+    /\.tutorial-overlay-spotlight \.tutorial-step\s*\{[^}]*\}/
+  )?.[0];
+  assert.ok(
+    stepBlock,
+    '.tutorial-overlay-spotlight .tutorial-step rule must exist'
+  );
+  assert.match(
+    stepBlock,
+    /pointer-events:\s*auto/,
+    '.tutorial-overlay-spotlight .tutorial-step must restore pointer-events: auto so the dialog buttons stay clickable'
+  );
+  // The dialog card must move to the top of the viewport when the
+  // spotlight target is in the bottom half (e.g. mobile bottom-nav)
+  // so the card does not visually cover its own anchor.
+  assert.match(
+    css,
+    /\.tutorial-overlay-spotlight\[data-spotlight-side='top'\]\s*\{[^}]*align-items:\s*flex-start[^}]*\}/,
+    'data-spotlight-side="top" must flip the overlay to align-items: flex-start'
+  );
+});
+
 test('connect step copy is translated into ru/zh/hi (no English leak)', () => {
   const connect = defaultSteps[0];
   for (const locale of ['ru', 'zh', 'hi']) {

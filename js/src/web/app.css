@@ -409,6 +409,22 @@ pre {
   background: transparent;
   align-items: flex-end;
   padding: 1rem;
+  /* Let pointer events fall through the overlay to the spotlighted
+     control. The dialog card and the spotlight frame restore their own
+     pointer behaviour below. Without this, the fixed-position overlay
+     would swallow taps on the very nav button the spotlight is asking
+     the user to tap. */
+  pointer-events: none;
+}
+/* Place the dialog card opposite the spotlighted control so the card
+   never overlaps its own anchor. `data-spotlight-side` is set by JS
+   from the target's bounding rect (R-N9, R-N10). */
+.tutorial-overlay-spotlight[data-spotlight-side='top'] {
+  align-items: flex-start;
+}
+.tutorial-overlay-spotlight[data-spotlight-side='top'] .tutorial-step {
+  margin-top: 0;
+  margin-bottom: auto;
 }
 .tutorial-overlay-spotlight .tutorial-spotlight-frame {
   border-radius: 12px;
@@ -420,6 +436,7 @@ pre {
   position: relative;
   z-index: 1;
   margin-top: auto;
+  pointer-events: auto;
 }
 @media (prefers-reduced-transparency: reduce) {
   .tutorial-overlay-spotlight .tutorial-spotlight-frame {

@@ -356,23 +356,26 @@ export const TutorialOverlay = ({
     onClose?.();
   };
 
+  if (step.tutorialId) {
+    return el(TutorialSpotlightOverlay, {
+      step,
+      index: safeIndex,
+      total,
+      onNext: advance,
+      onSkip: skip,
+      onDismiss: dismiss,
+    });
+  }
+
   return el(
     'div',
     {
-      className: step.tutorialId
-        ? 'tutorial-overlay tutorial-overlay-spotlight'
-        : 'tutorial-overlay',
+      className: 'tutorial-overlay',
       role: 'presentation',
       'data-tutorial-overlay': '',
-      'data-tutorial-target': step.tutorialId ?? '',
+      'data-tutorial-target': '',
     },
     [
-      step.tutorialId
-        ? el(TutorialSpotlightAnchor, {
-            key: 'spot',
-            tutorialId: step.tutorialId,
-          })
-        : null,
       el(Step, {
         key: 'step',
         step,
@@ -386,12 +389,53 @@ export const TutorialOverlay = ({
   );
 };
 
-// Browser-only wrapper that subscribes to the live rect and renders the
-// spotlight frame. Kept separate so the SSR test of `<TutorialSpotlight>`
-// can pin the markup without booting a DOM.
-const TutorialSpotlightAnchor = ({ tutorialId }) => {
-  const rect = useTutorialRect(tutorialId);
-  return el(TutorialSpotlight, { rect });
+// Spotlight variant of the overlay. The rect is lifted to this level so
+// the dialog card can be placed *opposite* the highlighted control —
+// anchoring at the top when the target sits in the bottom half (e.g. the
+// mobile bottom-nav) and at the bottom otherwise. Without this, the
+// dialog sat on top of the bottom-nav and intercepted the very tap the
+// step is asking for.
+const TutorialSpotlightOverlay = ({
+  step,
+  index,
+  total,
+  onNext,
+  onSkip,
+  onDismiss,
+}) => {
+  const rect = useTutorialRect(step.tutorialId);
+  const viewportHeight =
+    typeof globalThis.innerHeight === 'number' ? globalThis.innerHeight : 0;
+  const targetCenter = rect ? rect.top + rect.height / 2 : 0;
+  // Place the dialog at the top of the viewport when the spotlighted
+  // control is in the lower half of the screen, so the card never
+  // overlaps its own anchor (R-N9, R-N10).
+  const side =
+    rect && viewportHeight > 0 && targetCenter > viewportHeight / 2
+      ? 'top'
+      : 'bottom';
+  return el(
+    'div',
+    {
+      className: 'tutorial-overlay tutorial-overlay-spotlight',
+      role: 'presentation',
+      'data-tutorial-overlay': '',
+      'data-tutorial-target': step.tutorialId ?? '',
+      'data-spotlight-side': side,
+    },
+    [
+      el(TutorialSpotlight, { key: 'spot', rect }),
+      el(Step, {
+        key: 'step',
+        step,
+        index,
+        total,
+        onNext,
+        onSkip,
+        onDismiss,
+      }),
+    ]
+  );
 };
 
 export const TutorialButton = ({ onOpen }) => {
