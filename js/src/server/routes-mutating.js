@@ -14,6 +14,7 @@ import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { createGithubLive } from '../sources/github.js';
 import { createUpworkLive } from '../sources/upwork.js';
+import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
 import { planOutreach, runOutreach } from '../broadcast/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
@@ -628,6 +629,93 @@ const handleUpwork = async (store, req, res, p, ctx) => {
   return false;
 };
 
+const readPeoplePerHourToken = async (store, { secretId } = {}) => {
+  const ids = [
+    secretId,
+    'secret:peopleperhour:access-token',
+    'secret:peopleperhour:token',
+  ].filter(Boolean);
+  for (const id of ids) {
+    const link = await store.get(id);
+    const token = link?.token ?? link?.value ?? link?.body ?? link?.text;
+    if (token) {
+      return token;
+    }
+  }
+  return null;
+};
+
+const peoplePerHourLive = async (store, body, ctx) => {
+  const token = body.token ?? (await readPeoplePerHourToken(store, body));
+  const factory = ctx?.peoplePerHourLiveFactory ?? createPeoplePerHourLive;
+  const live = factory({
+    token,
+    baseUrl: body.baseUrl,
+    endpointOverrides: body.endpointOverrides ?? {},
+  });
+  return { token, live };
+};
+
+const pullPeoplePerHour = async (store, body, ctx) => {
+  const { token, live } = await peoplePerHourLive(store, body, ctx);
+  const result = await live.pullMessages({ ...body, token });
+  const links = result.links ?? [];
+  for (const link of links) {
+    await store.put(stampSourceLink(link, 'peopleperhour'));
+  }
+  return {
+    source: 'peopleperhour',
+    imported: links.length,
+    rawCount: result.rawCount ?? links.length,
+    nextOffset: result.nextOffset ?? null,
+  };
+};
+
+const searchPeoplePerHour = async (store, body, ctx) => {
+  const { token, live } = await peoplePerHourLive(store, body, ctx);
+  const result = await live.searchProjects({ ...body, token });
+  const links = result.links ?? [];
+  for (const link of links) {
+    await store.put(stampSourceLink(link, 'peopleperhour'));
+  }
+  return {
+    source: 'peopleperhour',
+    imported: links.length,
+    rawCount: result.rawCount ?? links.length,
+    links,
+  };
+};
+
+const postPeoplePerHourMessage = async (store, body, ctx) => {
+  const { token, live } = await peoplePerHourLive(store, body, ctx);
+  const result = await live.post(body.content ?? body.message ?? body, {
+    ...body,
+    token,
+  });
+  if (result?.id) {
+    await store.put(stampSourceLink(result, 'peopleperhour'));
+  }
+  return { source: 'peopleperhour', result };
+};
+
+const handlePeoplePerHour = async (store, req, res, p, ctx) => {
+  if (p === '/api/peopleperhour/pull' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await pullPeoplePerHour(store, body, ctx)) ?? true;
+  }
+  if (p === '/api/peopleperhour/search' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return json(res, 200, await searchPeoplePerHour(store, body, ctx)) ?? true;
+  }
+  if (p === '/api/peopleperhour/post-message' && req.method === 'POST') {
+    const body = await readBody(req).catch(() => ({}));
+    return (
+      json(res, 200, await postPeoplePerHourMessage(store, body, ctx)) ?? true
+    );
+  }
+  return false;
+};
+
 const handleHardening = async (store, req, res, p, ctx) => {
   if (p === '/api/export-encrypted' && req.method === 'POST') {
     return handleExportEncrypted(store, req, res, ctx);
@@ -650,4 +738,5 @@ export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
   (await handleEmail(store, req, res, p, ctx)) ||
   (await handleGithub(store, req, res, p, ctx)) ||
   (await handleUpwork(store, req, res, p, ctx)) ||
+  (await handlePeoplePerHour(store, req, res, p, ctx)) ||
   (await handleHardening(store, req, res, p, ctx));

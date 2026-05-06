@@ -1,6 +1,6 @@
 [package]
 name = "meta-sovereign-server"
-version = "0.15.0"
+version = "0.17.0"
 edition = "2021"
 license = "Unlicense"
 description = "Pure-Rust local HTTP + WebSocket + WebRTC-signalling server for meta-sovereign (R-G2)."

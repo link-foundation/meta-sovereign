@@ -26,6 +26,7 @@ pub const SOURCES: &[&str] = &[
     "email",
     "github",
     "upwork",
+    "peopleperhour",
 ];
 
 const RESUME_TARGETS: &[&str] = &["hh", "habr-career", "superjob", "linkedin"];

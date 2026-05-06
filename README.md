@@ -1,6 +1,6 @@
 # meta-sovereign (languages: en • [zh](README.zh.md) • [hi](README.hi.md) • [ru](README.ru.md))
 
-A personal **meta profile sovereign** system — a unified inbox + CRM + automation platform that the user actually owns. Local-first, privacy-respecting, with all your contacts, chats, email, and patterns from VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, and Upwork providers.
+A personal **meta profile sovereign** system — a unified inbox + CRM + automation platform that the user actually owns. Local-first, privacy-respecting, with all your contacts, chats, email, and patterns from VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour providers.
 
 ## Try it now (no install)
 
@@ -45,7 +45,7 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 
 ## What it does
 
-- **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, and Upwork.
+- **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
 - **Personal CRM**: contacts, communities, group memberships, intersections, mass-personal outreach.
 - **Personal memory**: structured `question → answer` facts captured automatically from conversations.
 - **Conversation automation platform**: pattern editors, reply-variation editors, n8n-style dialog graphs.
@@ -60,7 +60,7 @@ The full requirement → status mapping lives in [`docs/REQUIREMENTS.md`](docs/R
 The prototype targeted by issue #1 is implemented and tracked in PR #2:
 
 - **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM at-rest backups (`createBackupScheduler`) and `secret:*` link encryption.
-- **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, and Upwork.
+- **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
 - **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
 - **Distribution (R-F\*)**: NPM library, CLI (`js/bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.

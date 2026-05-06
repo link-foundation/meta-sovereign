@@ -33,6 +33,7 @@ import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { createGithubLive } from '../sources/github.js';
 import { createUpworkLive } from '../sources/upwork.js';
+import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
 import { startServer } from '../server/index.js';
 import {
   startSyncListener,
@@ -61,6 +62,8 @@ Commands:
   github-comment --owner=<o> --repo=<r> --issue-number=<n> --text=<body> --token=<pat>
   upwork-search --query=<q> [--limit=<n>] [--sort=<s>] --token=<pat> [--store=<dir>]
   upwork-message --room-id=<r> --text=<body> --token=<pat> [--store=<dir>]
+  peopleperhour-search --query=<q> [--limit=<n>] [--sort=<s>] --token=<pat> [--store=<dir>]
+  peopleperhour-message --workstream-id=<w> | --proposal-id=<p> --text=<body> --token=<pat> [--store=<dir>]
   audience      --query=<expr> [--store=<dir>]
   facts         [--store=<dir>]
   search        --query=<text> [--min=<0..1>] [--store=<dir>]
@@ -315,6 +318,46 @@ const upworkMessageCmd = async (args, log) => {
     { roomId: args['room-id'] }
   );
   log(JSON.stringify({ source: 'upwork', result }, null, 2));
+  return 0;
+};
+
+const peoplePerHourLiveFromArgs = (args) =>
+  createPeoplePerHourLive({
+    token: args.token,
+    baseUrl: args['base-url'],
+  });
+
+const peoplePerHourSearchCmd = async (args, log) => {
+  const live = peoplePerHourLiveFromArgs(args);
+  const result = await live.searchProjects({
+    query: args.query ?? '',
+    limit: args.limit ? Number(args.limit) : undefined,
+    sort: args.sort,
+  });
+  log(
+    JSON.stringify(
+      {
+        source: 'peopleperhour',
+        count: result.links?.length ?? 0,
+        links: result.links ?? [],
+      },
+      null,
+      2
+    )
+  );
+  return 0;
+};
+
+const peoplePerHourMessageCmd = async (args, log) => {
+  const live = peoplePerHourLiveFromArgs(args);
+  const result = await live.post(
+    { text: args.text ?? args.body ?? '' },
+    {
+      workstreamId: args['workstream-id'],
+      proposalId: args['proposal-id'],
+    }
+  );
+  log(JSON.stringify({ source: 'peopleperhour', result }, null, 2));
   return 0;
 };
 
@@ -618,6 +661,8 @@ const COMMANDS = {
   'github-comment': githubCommentCmd,
   'upwork-search': upworkSearchCmd,
   'upwork-message': upworkMessageCmd,
+  'peopleperhour-search': peoplePerHourSearchCmd,
+  'peopleperhour-message': peoplePerHourMessageCmd,
   audience: audienceCmd,
   facts: factsCmd,
   search: searchCmd,

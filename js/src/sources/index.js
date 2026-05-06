@@ -29,6 +29,7 @@ import { hhSource } from './hh.js';
 import { superjobSource } from './superjob.js';
 import { githubSource } from './github.js';
 import { upworkSource } from './upwork.js';
+import { peoplePerHourSource } from './peopleperhour.js';
 export { buildMessageLink } from './link.js';
 
 export const sourceRegistry = {
@@ -44,6 +45,7 @@ export const sourceRegistry = {
   superjob: superjobSource,
   github: githubSource,
   upwork: upworkSource,
+  peopleperhour: peoplePerHourSource,
 };
 
 export const listSources = () => Object.keys(sourceRegistry);

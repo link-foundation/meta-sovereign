@@ -4,18 +4,18 @@ version = 4
 
 [[package]]
 name = "meta-sovereign-core"
-version = "0.15.0"
+version = "0.17.0"
 
 [[package]]
 name = "meta-sovereign-server"
-version = "0.15.0"
+version = "0.17.0"
 dependencies = [
  "meta-sovereign-core",
 ]
 
 [[package]]
 name = "meta-sovereign-wasm"
-version = "0.15.0"
+version = "0.17.0"
 dependencies = [
  "meta-sovereign-core",
 ]
