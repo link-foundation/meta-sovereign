@@ -317,27 +317,6 @@ pre {
 .connection-guide > h2 {
   margin: 0;
 }
-.connection-guide-provider {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.connection-guide-provider .col {
-  gap: 0.25rem;
-}
-.connection-guide-provider h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-.connection-guide-provider h4 {
-  margin: 0.25rem 0 0;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-.connection-guide-provider .probe-row {
-  gap: 0.5rem;
-  align-items: flex-start;
-}
 .local-server-help {
   background: var(--bg-elev);
   border: 1px dashed var(--border);

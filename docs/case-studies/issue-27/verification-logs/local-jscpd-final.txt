@@ -1,0 +1,5 @@
+
+> meta-sovereign@0.18.0 check:duplication
+> jscpd .
+
+[3m[90mDetection time:[39m[23m: 0.173ms

@@ -105,7 +105,8 @@ export const zh = {
   'status.title': '状态',
   'settings.title': '设置',
   'settings.intro':
-    '所有提供方连接都在这里。粘贴凭据、上传归档并检测线上 API。凭据以静态加密的 secret:* 链接形式存储，绝不会广播给其他对等节点。',
+    '应用级偏好保留在这里。提供方凭据、归档导入和实时检测集中在专用的“连接”页面。',
+  'settings.openConnections': '打开连接',
   'settings.credentials': '凭据',
   'settings.optional': '(可选)',
   'settings.storedAs': '存储为 {id}',
@@ -140,9 +141,12 @@ export const zh = {
   'settings.probe.fetchFailed': 'fetch 失败',
   'guide.connectFirstHint': '必须先连接一个提供方，这里才会有数据。',
   'guide.openSettings': '打开 {target}',
-  'guide.openSettingsTarget': '设置 → 连接 → {label}',
-  'guide.openSettingsRoot': '设置 → 连接',
-  'guide.probeDisabled': '在设置中输入凭据以启用 {label} 检测。',
+  'guide.openSettingsTarget': '连接 → {label}',
+  'guide.openSettingsRoot': '连接',
+  'guide.openConnections': '打开 {target}',
+  'guide.openConnectionsTarget': '连接 → {label}',
+  'guide.openConnectionsRoot': '连接',
+  'guide.probeDisabled': '在连接中输入凭据以启用 {label} 检测。',
   'guide.useThisServer': '使用此服务器',
   'guide.fallbackTitle': '此处暂无内容。',
   'guide.filesLabel': '文件：{hint}',
@@ -163,37 +167,37 @@ export const zh = {
     '服务器运行后，将其 URL 粘贴到下方并点击「使用此服务器」——SPA 会保存它并重新加载。',
   'guide.chat.title': '统一收件箱当前为空。',
   'guide.chat.body':
-    'meta-sovereign 将所有已连接服务的每条聊天集中在一处。请在下方连接一个提供方，或导入已导出的归档以填充此视图。',
+    'meta-sovereign 将所有已连接服务的每条聊天集中在一处。打开“连接”来添加提供方或导入归档，然后回到这里。',
   'guide.operator.title': '操作员队列为空。',
   'guide.operator.body':
-    '操作员卡片流逐条带你处理未读消息。请在下方连接支持聊天的提供方以启动队列。',
+    '操作员卡片流逐条带你处理未读消息。打开“连接”并添加支持聊天的提供方以启动队列。',
   'guide.contacts.title': '尚无联系人。',
   'guide.contacts.body':
-    '联系人会跨提供方汇总,同一人在不同网络中只会出现一次。添加一个提供方以填充此列表。',
+    '联系人会跨提供方汇总，同一人在不同网络中只会出现一次。打开“连接”添加提供方以填充此列表。',
   'guide.automation.title': '尚无自动化图。',
   'guide.automation.body':
-    '自动化图把匹配某模式的入站消息路由到回复变体。先放置一个节点,或先导入归档以便有数据可匹配。',
+    '自动化图把匹配某模式的入站消息路由到回复变体。打开“连接”导入提供方数据后再构建自动化。',
   'guide.patterns.title': '尚无模式。',
   'guide.patterns.body':
-    '模式是从示例消息中推断出的。请连接一个提供方或导入归档,然后回到这里向推断器提供几个示例。',
+    '模式是从示例消息中推断出的。打开“连接”连接提供方或导入归档，然后带着示例回到这里。',
   'guide.replies.title': '尚无回复变体组。',
   'guide.replies.body':
-    '回复组通过模糊相似度从你过去的发出消息中提取。连接一个支持聊天的提供方以填充回复库。',
+    '回复组通过模糊相似度从你过去的发出消息中提取。打开“连接”添加支持聊天的提供方以填充回复库。',
   'guide.facts.title': '尚未提取事实。',
   'guide.facts.body':
-    '事实是模式跨消息提取出的「问题 → 答案」对。添加带捕获组的模式,或连接聊天提供方以开始收集数据。',
+    '事实是模式跨消息提取出的「问题 → 答案」对。打开“连接”收集提供方数据，然后在这里添加捕获模式。',
   'guide.audience.title': '构建你的第一个受众。',
   'guide.audience.body':
-    '使用 AND/OR/NOT 加上 network:、chat:、sender:、kind:、fact: 等维度交叉筛选联系人。请至少连接一个提供方,以便有联系人可筛选。',
+    '使用 AND/OR/NOT 加上 network:、chat:、sender:、kind:、fact: 等维度交叉筛选联系人。请先打开“连接”添加至少一个提供方。',
   'guide.broadcast.title': '尚无广播目标。',
   'guide.broadcast.body':
-    '广播会将相同消息发布到每个已连接的信息流。在下方连接支持公开发布的提供方以启用相应的目标复选框。',
+    '广播会将相同消息发布到每个已连接的信息流。打开“连接”添加支持公开发布的提供方以启用目标复选框。',
   'guide.outreach.title': '尚无触达对象。',
   'guide.outreach.body':
-    '大规模个性化触达把模板消息按 1:1 发送给受众查询中的每个联系人。连接支持聊天的提供方以启用触达。',
+    '大规模个性化触达把模板消息按 1:1 发送给受众查询中的每个联系人。打开“连接”添加支持聊天的提供方。',
   'guide.profile.title': '尚无个人资料。',
   'guide.profile.body':
-    '在此编辑个人资料和简历;保存后会同步到每个已连接的提供方。请至少连接一个提供方,这样同步信封才有去处。',
+    '在此编辑个人资料和简历；保存后会同步到每个已连接的提供方。打开“连接”添加至少一个提供方用于资料同步。',
   'guide.backup.title': '尚无备份归档。',
   'guide.backup.body':
     '备份是本地存储的静态加密归档。在上方设置口令,有数据值得保存时点击「创建备份」,或先启动本地服务器以便备份保存到磁盘。',
@@ -205,13 +209,14 @@ export const zh = {
     '外部服务集中在这个独立页面。选择一个提供方以输入凭据、上传归档并检测线上 API。设置页只保留应用层级偏好。',
   'guide.settings.title': '设置',
   'guide.settings.body':
-    '提供方连接、凭据和归档导入都在这里。下方列出每个已收录的提供方;选择一个以输入其凭据、上传归档并检测线上 API。',
+    '应用级偏好保留在这里。提供方凭据、归档导入和实时检测集中在专用的“连接”页面。',
   'connections.title': '连接',
   'connections.intro': '选择一个提供方以输入凭据、导入归档并检测线上 API。',
   'connections.state.connected': '已连接',
   'connections.state.notConnected': '未连接',
   'connections.state.actionRequired': '需要操作',
   'connections.openDetail': '设置',
+  'connections.controlsTitle': '连接控制',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':

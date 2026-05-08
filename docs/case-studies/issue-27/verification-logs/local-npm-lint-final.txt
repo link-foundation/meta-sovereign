@@ -1,0 +1,4 @@
+
+> meta-sovereign@0.18.0 lint
+> eslint --config js/eslint.config.js .
+

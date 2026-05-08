@@ -1080,14 +1080,37 @@ export const StatusView = () => {
   });
 };
 
-// Connections nav surface (R-N5..R-N8). The full per-provider grid + detail
-// screen is shipped from `./connections/`; this view threads the saved
-// `secret:*` link ids in as `status.savedSecretIds` so each provider card
-// can classify itself as connected / not-connected / action-required.
+const connectionProviderFromHash = () => {
+  const hash = globalThis.location?.hash ?? '';
+  return hash.startsWith('#conn-') ? hash.slice('#conn-'.length) : null;
+};
+
+const clearConnectionHash = () => {
+  const location = globalThis.location;
+  if (!location?.hash?.startsWith('#conn-')) {
+    return;
+  }
+  const next = `${location.pathname}${location.search}`;
+  globalThis.history?.replaceState?.(null, '', next);
+};
+
+// Connections nav surface (R-N5..R-N8, issue #27). The full per-provider
+// grid + detail screen is shipped from `./connections/`; this view threads
+// the saved `secret:*` links in so each provider card can classify itself
+// and each detail page can render credentials/import/probe controls.
 const ConnectionsView = () => {
   const [refresh, setRefresh] = useState(0);
-  const [activeProviderId, setActiveProviderId] = useState(null);
+  const [activeProviderId, setActiveProviderId] = useState(
+    connectionProviderFromHash
+  );
   const linksState = useAsyncValue(() => api.links(), [refresh], []);
+
+  useEffect(() => {
+    const onHash = () => setActiveProviderId(connectionProviderFromHash());
+    globalThis.addEventListener?.('hashchange', onHash);
+    return () => globalThis.removeEventListener?.('hashchange', onHash);
+  }, []);
+
   const status = useMemo(() => {
     const all = linksState.value ?? [];
     const savedSecretIds = all
@@ -1099,15 +1122,23 @@ const ConnectionsView = () => {
     return el(ConnectionDetail, {
       providerId: activeProviderId,
       status,
+      links: linksState.value ?? [],
+      refresh: async () => setRefresh((value) => value + 1),
       onBack: () => {
         setActiveProviderId(null);
+        clearConnectionHash();
         setRefresh((value) => value + 1);
       },
     });
   }
   return el(ConnectionsList, {
     status,
-    onOpen: (providerId) => setActiveProviderId(providerId),
+    onOpen: (providerId) => {
+      setActiveProviderId(providerId);
+      if (globalThis.location) {
+        globalThis.location.hash = `#conn-${providerId}`;
+      }
+    },
   });
 };
 

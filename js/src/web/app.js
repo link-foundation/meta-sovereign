@@ -121,8 +121,8 @@ const App = () => {
         setActive(detail.view);
       }
       if (typeof detail.anchor === 'string') {
-        // Update the URL hash so the Settings view can scroll to the
-        // matching `id="conn-{provider}"` card on first paint.
+        // Update the URL hash so the Connections view can open the
+        // matching `id="conn-{provider}"` detail on first paint.
         if (globalThis.location) {
           globalThis.location.hash = detail.anchor;
         }

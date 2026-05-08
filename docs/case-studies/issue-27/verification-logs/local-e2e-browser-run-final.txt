@@ -1,0 +1,24 @@
+
+> meta-sovereign@0.18.0 test:e2e:browser
+> node js/tests/e2e-browser-spa.mjs
+
+[e2e-browser-spa] JS server up at http://127.0.0.1:45645, store=/tmp/ms-e2e-js-crJ8TS
+
+[e2e-browser-spa] === backend=js base=http://127.0.0.1:45645 ===
+[e2e-browser-spa:js] shell loads with all expected nav buttons ... ok
+[e2e-browser-spa:js] tutorial progress survives a page reload ... ok
+[e2e-browser-spa:js] seed two messages via REST so derived views have data ... ok
+[e2e-browser-spa:js] click every supported nav button and confirm view rendered ... ok
+[e2e-browser-spa:js] reload after writing a message and verify it survives ... ok
+[e2e-browser-spa:js] infer pattern from examples and save ... ok
+[e2e-browser-spa:js] persist a 2-node automation graph and read it back ... ok
+[e2e-browser-spa:js] broadcast emits per-network envelopes ... ok
+[e2e-browser-spa:js] outreach plan personalises envelopes per recipient ... ok
+[e2e-browser-spa:js] backup → restore round-trip preserves seeded link ... ok
+[e2e-browser-spa:js] profile edit emits per-network sync envelopes ... ok
+[e2e-browser-spa:js] dark-mode toggle persists across reload ... ok
+[e2e-browser-spa:js] connections credential roundtrip + connect-first CTA ... ok
+[e2e-browser-spa:js] axe-core finds no serious/critical WCAG violations ... ok
+[e2e-browser-spa:js] skip-link is the first focusable element on the page ... ok
+[e2e-browser-spa:js] two browsers converge writes over WebRTC ... ok
+[e2e-browser-spa] all steps passed

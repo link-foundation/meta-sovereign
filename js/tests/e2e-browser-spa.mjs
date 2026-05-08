@@ -227,6 +227,11 @@ const stepTutorialProgressPersists = async ({ page, base }) => {
     window.localStorage.removeItem('metaSovereignTutorial')
   );
   await page.reload({ waitUntil: 'load' });
+  await page.waitForSelector('[data-tutorial-step="connect"]', {
+    timeout: 5000,
+  });
+
+  await page.click('button[data-action="tutorial-next"]');
   await page.waitForSelector('[data-tutorial-step="welcome"]', {
     timeout: 5000,
   });
@@ -291,6 +296,7 @@ const stepClickEveryNavButton = async ({ page, commander, supports }) => {
       () =>
         document.querySelector('#root') &&
         document.querySelector('#root').children.length > 0,
+      undefined,
       { timeout: 5000 }
     );
     const active = await page.$eval('button.active', (el) => el.dataset.view);
@@ -461,9 +467,20 @@ const stepThemeToggle = async ({ page }) => {
 };
 
 const stepProfileSync = async ({ page, base, commander }) => {
+  const seed = await fetch(`${base}/api/profile`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      name: 'Existing E2E profile',
+      bio: 'Seed profile editor visibility',
+    }),
+  });
+  assert(seed.ok, `profile seed status=${seed.status}`);
+
   await commander.clickButton({ selector: 'button[data-view="profile"]' });
   await page.waitForFunction(
     () => document.querySelector('input[placeholder="name"]'),
+    undefined,
     { timeout: 5000 }
   );
   await page.fill('input[placeholder="name"]', 'Alice E2E');
@@ -479,6 +496,7 @@ const stepProfileSync = async ({ page, base, commander }) => {
       const pre = document.querySelector('pre');
       return pre && pre.textContent && pre.textContent.includes('"source"');
     },
+    undefined,
     { timeout: 5000 }
   );
   const planned = await page.$eval('pre', (el) => JSON.parse(el.textContent));
@@ -609,21 +627,33 @@ const stepTwoBrowserWebRtcConvergence = async ({ browser, page, base }) => {
   }
 };
 
-// Issue #16 / R-O3, R-O7, R-O11: Settings → Connections credential
-// roundtrip in a real browser. Saves a Telegram bot token via the
-// SPA's own input + button, asserts the stored secret:* link comes back
-// from /links, and verifies that the per-section "Connect first" CTA
-// from #chat deep-links into the Telegram card via the navigate event.
-const stepSettingsCredentialRoundtrip = async ({ page, base, commander }) => {
+// Issue #16 / R-O3, R-O7, R-O11: Connections credential roundtrip in a
+// real browser. Saves a Telegram bot token via the SPA's own input +
+// button, asserts the stored secret:* link is visible to the SPA
+// client store, and verifies that the per-section "Connect first" CTA
+// from #chat deep-links into the Telegram detail via the navigate
+// event.
+const stepConnectionsCredentialRoundtrip = async ({
+  page,
+  base,
+  commander,
+}) => {
   await page.goto(base, { waitUntil: 'load' });
-  await commander.clickButton({ selector: 'button[data-view="settings"]' });
+  await page.click('button[data-view="connections"]');
+  await page.waitForSelector(
+    'article[data-provider-id="telegram"] button[data-action="open-connection-detail"]',
+    { timeout: 5000 }
+  );
+  await page.click(
+    'article[data-provider-id="telegram"] button[data-action="open-connection-detail"]'
+  );
   await page.waitForSelector('section[data-provider="telegram"]', {
     timeout: 5000,
   });
 
   const sampleToken = `e2e-token-${Date.now()}`;
   // Per-provider card uses data-field-input="<id>" and
-  // data-action="save-credentials" attributes (settings-view.js).
+  // data-action="save-credentials" attributes.
   await page.fill(
     'section[data-provider="telegram"] input[data-field-input="token"]',
     sampleToken
@@ -642,18 +672,19 @@ const stepSettingsCredentialRoundtrip = async ({ page, base, commander }) => {
       }
       return /saved/.test(card.textContent);
     },
+    undefined,
     { timeout: 5000 }
   );
 
-  // The credential should now be visible to the server as a secret:*
-  // link. The /links payload returns plaintext (decryption happens in
-  // wrapSecretStore on the way out).
-  const got = await fetch(`${base}/links/secret:telegram:bot-token`).then((r) =>
-    r.json()
-  );
+  // Browser saves go through the offline-first SPA client, so verify
+  // with the same client API instead of the server's /links endpoint.
+  const got = await page.evaluate(async () => {
+    const mod = await import('/dom.js');
+    return mod.api.get('secret:telegram:bot-token');
+  });
   assert(
     got.value === sampleToken,
-    `settings credential not stored: ${JSON.stringify(got)}`
+    `connection credential not stored: ${JSON.stringify(got)}`
   );
 
   // The probe button should now be enabled and labelled "Try directly".
@@ -663,7 +694,7 @@ const stepSettingsCredentialRoundtrip = async ({ page, base, commander }) => {
   );
   assert(
     probeDisabled === false,
-    'settings: probe button still disabled after credentials saved'
+    'connections: probe button still disabled after credentials saved'
   );
 
   // Status meta should no longer say "Enter a token to enable probe".
@@ -673,21 +704,20 @@ const stepSettingsCredentialRoundtrip = async ({ page, base, commander }) => {
   );
   assert(
     status === 'idle',
-    `settings: probe status meta should be idle before probing, got ${status}`
+    `connections: probe status meta should be idle before probing, got ${status}`
   );
 
   // R-O7 deep-link: from chat view, the "Connect first" CTA should
-  // dispatch meta-sovereign:navigate, switch us back to settings, and
+  // dispatch meta-sovereign:navigate, switch us back to connections, and
   // scroll to #conn-telegram.
-  await commander.clickButton({ selector: 'button[data-view="chat"]' });
+  await page.click('button[data-view="chat"]');
   await page.waitForSelector(
-    'button[data-action="open-settings"][data-target-anchor="#conn-telegram"]',
+    'button[data-action="open-connections"][data-target-anchor="#conn-telegram"]',
     { timeout: 5000 }
   );
-  await commander.clickButton({
-    selector:
-      'button[data-action="open-settings"][data-target-anchor="#conn-telegram"]',
-  });
+  await page.click(
+    'button[data-action="open-connections"][data-target-anchor="#conn-telegram"]'
+  );
   await page.waitForSelector('section[data-provider="telegram"]', {
     timeout: 5000,
   });
@@ -696,13 +726,13 @@ const stepSettingsCredentialRoundtrip = async ({ page, base, commander }) => {
     (el) => el.dataset.view
   );
   assert(
-    activeAfterCta === 'settings',
-    `settings: CTA did not switch view, active=${activeAfterCta}`
+    activeAfterCta === 'connections',
+    `connections: CTA did not switch view, active=${activeAfterCta}`
   );
   const hash = await page.evaluate(() => window.location.hash);
   assert(
     hash === '#conn-telegram',
-    `settings: CTA did not set hash, got "${hash}"`
+    `connections: CTA did not set hash, got "${hash}"`
   );
 };
 
@@ -774,8 +804,8 @@ const ALL_STEPS = [
     requires: 'theme',
   },
   {
-    name: 'settings → connections credential roundtrip + connect-first CTA',
-    fn: stepSettingsCredentialRoundtrip,
+    name: 'connections credential roundtrip + connect-first CTA',
+    fn: stepConnectionsCredentialRoundtrip,
   },
   {
     name: 'axe-core finds no serious/critical WCAG violations',

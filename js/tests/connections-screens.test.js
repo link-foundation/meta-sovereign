@@ -91,6 +91,8 @@ test('ConnectionDetail renders translated setupSteps[] for the requested provide
     React.createElement(ConnectionDetail, {
       providerId: 'telegram',
       status: { savedSecretIds: [] },
+      links: [],
+      refresh: async () => {},
       onBack: () => {},
     })
   );
@@ -98,6 +100,35 @@ test('ConnectionDetail renders translated setupSteps[] for the requested provide
   assert.ok(
     html.includes(dictionaries.zh['connections.telegram.setup.step1.title']),
     'first telegram setup step title must appear in zh'
+  );
+});
+
+test('ConnectionDetail owns credentials, archive import, and probe controls', () => {
+  const html = renderInLocale(
+    'en',
+    React.createElement(ConnectionDetail, {
+      providerId: 'telegram',
+      status: { savedSecretIds: [] },
+      links: [],
+      refresh: async () => {},
+      onBack: () => {},
+    })
+  );
+  assert.ok(
+    html.includes('data-field-input="token"'),
+    'telegram token input must live on the provider detail page'
+  );
+  assert.ok(
+    html.includes('data-action="archive-file"'),
+    'archive file import must live on the provider detail page'
+  );
+  assert.ok(
+    html.includes('data-action="archive-import"'),
+    'pasted archive import must live on the provider detail page'
+  );
+  assert.ok(
+    html.includes('data-action="probe"'),
+    'direct probe must live on the provider detail page'
   );
 });
 
