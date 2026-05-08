@@ -1,5 +1,13 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.18.1
+
+### Patch Changes
+
+- 83b94b4: Move provider credential, archive import, and direct probe controls onto
+  Connections provider detail pages while keeping data-section empty states as
+  compact links into Connections.
+
 ## 0.18.0
 
 ### Minor Changes
