@@ -1,0 +1,2151 @@
+
+> meta-sovereign@0.18.0 test
+> node --test --test-timeout=30000 js/tests/*.test.js
+
+TAP version 13
+# Subtest: audience DSL
+    # Subtest: filters by network
+    ok 1 - filters by network
+      ---
+      duration_ms: 1.010008
+      ...
+    # Subtest: combines AND / OR / NOT
+    ok 2 - combines AND / OR / NOT
+      ---
+      duration_ms: 0.258346
+      ...
+    # Subtest: matches body substring (case-insensitive)
+    ok 3 - matches body substring (case-insensitive)
+      ---
+      duration_ms: 0.117064
+      ...
+    # Subtest: filters by since timestamp
+    ok 4 - filters by since timestamp
+      ---
+      duration_ms: 0.138026
+      ...
+    # Subtest: filters by before timestamp
+    ok 5 - filters by before timestamp
+      ---
+      duration_ms: 0.12785
+      ...
+    # Subtest: matches the bare "me" predicate
+    ok 6 - matches the bare "me" predicate
+      ---
+      duration_ms: 0.119548
+      ...
+    # Subtest: matches by fact substring
+    ok 7 - matches by fact substring
+      ---
+      duration_ms: 0.138647
+      ...
+    # Subtest: parses to an AST without throwing on empty input
+    ok 8 - parses to an AST without throwing on empty input
+      ---
+      duration_ms: 0.076385
+      ...
+    1..8
+ok 1 - audience DSL
+  ---
+  duration_ms: 3.177905
+  type: 'suite'
+  ...
+# Subtest: automation graph
+    # Subtest: fires a pattern and emits a reply plan
+    ok 1 - fires a pattern and emits a reply plan
+      ---
+      duration_ms: 0.922787
+      ...
+    # Subtest: does not fire when message does not match
+    ok 2 - does not fire when message does not match
+      ---
+      duration_ms: 0.124686
+      ...
+    1..2
+ok 2 - automation graph
+  ---
+  duration_ms: 1.702312
+  type: 'suite'
+  ...
+# Subtest: createBackupScheduler
+    # Subtest: runs immediately via runNow and produces a snapshot
+    ok 1 - runs immediately via runNow and produces a snapshot
+      ---
+      duration_ms: 5.631016
+      ...
+    # Subtest: prunes to keep N when keep > 0
+    ok 2 - prunes to keep N when keep > 0
+      ---
+      duration_ms: 8.877943
+      ...
+    # Subtest: reports errors via onError and continues running
+    ok 3 - reports errors via onError and continues running
+      ---
+      duration_ms: 1.87589
+      ...
+    # Subtest: throws when archiveDir or intervalMs is missing
+    ok 4 - throws when archiveDir or intervalMs is missing
+      ---
+      duration_ms: 0.183164
+      ...
+    1..4
+ok 3 - createBackupScheduler
+  ---
+  duration_ms: 17.529712
+  type: 'suite'
+  ...
+# Subtest: backup
+    # Subtest: writes a snapshot and restores it
+    ok 1 - writes a snapshot and restores it
+      ---
+      duration_ms: 9.273405
+      ...
+    # Subtest: prunes to keep N
+    ok 2 - prunes to keep N
+      ---
+      duration_ms: 2.210409
+      ...
+    # Subtest: round-trips an encrypted backup
+    ok 3 - round-trips an encrypted backup
+      ---
+      duration_ms: 72.109935
+      ...
+    # Subtest: rejects the wrong passphrase
+    ok 4 - rejects the wrong passphrase
+      ---
+      duration_ms: 63.363147
+      ...
+    1..4
+ok 4 - backup
+  ---
+  duration_ms: 148.833639
+  type: 'suite'
+  ...
+# Subtest: browser-commander placeholder: drives every SPA nav target
+    # Subtest: serves the SPA shell + every JSON endpoint a nav click triggers
+    ok 1 - serves the SPA shell + every JSON endpoint a nav click triggers
+      ---
+      duration_ms: 116.918862
+      ...
+    1..1
+ok 5 - browser-commander placeholder: drives every SPA nav target
+  ---
+  duration_ms: 117.779858
+  type: 'suite'
+  ...
+# Subtest: browser store: put / get / delete / query / subscribe
+ok 6 - browser store: put / get / delete / query / subscribe
+  ---
+  duration_ms: 1.74171
+  ...
+# Subtest: browser store: in-memory driver round-trips via reload
+ok 7 - browser store: in-memory driver round-trips via reload
+  ---
+  duration_ms: 1.031089
+  ...
+# Subtest: browser store: localStorage driver persists snapshots
+ok 8 - browser store: localStorage driver persists snapshots
+  ---
+  duration_ms: 0.363382
+  ...
+# Subtest: browser store: doublets-web driver indexes snapshots as triples
+ok 9 - browser store: doublets-web driver indexes snapshots as triples
+  ---
+  duration_ms: 0.808498
+  ...
+# Subtest: browser store: indexedDB driver works against a minimal IDB shim
+ok 10 - browser store: indexedDB driver works against a minimal IDB shim
+  ---
+  duration_ms: 18.894539
+  ...
+# Subtest: browser store: indexedDB driver attaches transaction completion before writes
+ok 11 - browser store: indexedDB driver attaches transaction completion before writes
+  ---
+  duration_ms: 2.713662
+  ...
+# Subtest: build-pages
+    # Subtest: writes every required artefact into dist dir
+    ok 1 - writes every required artefact into dist dir
+      ---
+      duration_ms: 16.661565
+      ...
+    # Subtest: 404.html mirrors index.html so SPA deep links resolve on Pages
+    ok 2 - 404.html mirrors index.html so SPA deep links resolve on Pages
+      ---
+      duration_ms: 9.720091
+      ...
+    # Subtest: injects the web app manifest link and theme-color meta
+    ok 3 - injects the web app manifest link and theme-color meta
+      ---
+      duration_ms: 16.282489
+      ...
+    # Subtest: writes a valid web app manifest
+    ok 4 - writes a valid web app manifest
+      ---
+      duration_ms: 11.126591
+      ...
+    # Subtest: is idempotent — re-running does not duplicate manifest tags
+    ok 5 - is idempotent — re-running does not duplicate manifest tags
+      ---
+      duration_ms: 23.210372
+      ...
+    1..5
+ok 12 - build-pages
+  ---
+  duration_ms: 78.573194
+  type: 'suite'
+  ...
+# Subtest: cli iteration 3 subcommands
+    # Subtest: infers a regex from examples
+    ok 1 - infers a regex from examples
+      ---
+      duration_ms: 0.97117
+      ...
+    # Subtest: runs broadcast and search
+    ok 2 - runs broadcast and search
+      ---
+      duration_ms: 11.442522
+      ...
+    # Subtest: updates profile and resume with planned syncs
+    ok 3 - updates profile and resume with planned syncs
+      ---
+      duration_ms: 9.939738
+      ...
+    # Subtest: evaluates an audience set-algebra query
+    ok 4 - evaluates an audience set-algebra query
+      ---
+      duration_ms: 5.390839
+      ...
+    1..4
+ok 13 - cli iteration 3 subcommands
+  ---
+  duration_ms: 28.678465
+  type: 'suite'
+  ...
+# Subtest: lino-args parser
+    # Subtest: parses flags and positionals
+    ok 1 - parses flags and positionals
+      ---
+      duration_ms: 0.657432
+      ...
+    1..1
+ok 14 - lino-args parser
+  ---
+  duration_ms: 1.359891
+  type: 'suite'
+  ...
+# Subtest: cli end-to-end
+    # Subtest: imports a telegram archive and exports it back
+    ok 1 - imports a telegram archive and exports it back
+      ---
+      duration_ms: 10.825121
+      ...
+    # Subtest: lists sources
+    ok 2 - lists sources
+      ---
+      duration_ms: 0.299878
+      ...
+    1..2
+ok 15 - cli end-to-end
+  ---
+  duration_ms: 11.43445
+  type: 'suite'
+  ...
+# Subtest: ConnectionGuide chat surface renders Russian copy when locale=ru
+ok 16 - ConnectionGuide chat surface renders Russian copy when locale=ru
+  ---
+  duration_ms: 8.324217
+  ...
+# Subtest: ConnectionGuide renders a compact Connections CTA instead of provider cards
+ok 17 - ConnectionGuide renders a compact Connections CTA instead of provider cards
+  ---
+  duration_ms: 4.101903
+  ...
+# Subtest: ConnectionGuide does not render archive or probe setup controls inline
+ok 18 - ConnectionGuide does not render archive or probe setup controls inline
+  ---
+  duration_ms: 1.35282
+  ...
+# Subtest: every provider exposes a probeUrlTemplate and a non-empty fields schema
+ok 19 - every provider exposes a probeUrlTemplate and a non-empty fields schema
+  ---
+  duration_ms: 1.509424
+  ...
+# Subtest: buildProbeUrl returns null when required credentials are missing
+ok 20 - buildProbeUrl returns null when required credentials are missing
+  ---
+  duration_ms: 0.358846
+  ...
+# Subtest: buildProbeUrl returns the interpolated URL when credentials are present
+ok 21 - buildProbeUrl returns the interpolated URL when credentials are present
+  ---
+  duration_ms: 0.547528
+  ...
+# Subtest: Telegram template interpolates the bot token in the path
+ok 22 - Telegram template interpolates the bot token in the path
+  ---
+  duration_ms: 0.183374
+  ...
+# Subtest: Meta Graph (WhatsApp + Facebook) template interpolates access_token query param
+ok 23 - Meta Graph (WhatsApp + Facebook) template interpolates access_token query param
+  ---
+  duration_ms: 0.170124
+  ...
+# Subtest: VK template adds &access_token query parameter
+ok 24 - VK template adds &access_token query parameter
+  ---
+  duration_ms: 0.173288
+  ...
+# Subtest: buildProbeHeaders fills Authorization for X / LinkedIn / hh / habr-career
+ok 25 - buildProbeHeaders fills Authorization for X / LinkedIn / hh / habr-career
+  ---
+  duration_ms: 0.290614
+  ...
+# Subtest: buildProbeHeaders fills X-Api-App-Id for SuperJob
+ok 26 - buildProbeHeaders fills X-Api-App-Id for SuperJob
+  ---
+  duration_ms: 0.135072
+  ...
+# Subtest: buildProbeHeaders returns {} when required credentials are missing
+ok 27 - buildProbeHeaders returns {} when required credentials are missing
+  ---
+  duration_ms: 1.61384
+  ...
+# Subtest: hasRequiredCredentials respects probeRequiresAll and skips optional fields
+ok 28 - hasRequiredCredentials respects probeRequiresAll and skips optional fields
+  ---
+  duration_ms: 0.22134
+  ...
+# Subtest: credentialsFromLinks reads secret:* link values into a field-id map
+ok 29 - credentialsFromLinks reads secret:* link values into a field-id map
+  ---
+  duration_ms: 0.28086
+  ...
+# Subtest: interpolate leaves unknown placeholders intact
+ok 30 - interpolate leaves unknown placeholders intact
+  ---
+  duration_ms: 0.151797
+  ...
+# Subtest: connectFirst rows on every guide point at a known provider
+ok 31 - connectFirst rows on every guide point at a known provider
+  ---
+  duration_ms: 0.217004
+  ...
+# Subtest: legacy probeUrl is preserved for backward compatibility but never matches the new template
+ok 32 - legacy probeUrl is preserved for backward compatibility but never matches the new template
+  ---
+  duration_ms: 0.192337
+  ...
+# Subtest: every nav surface has a matching connection guide
+ok 33 - every nav surface has a matching connection guide
+  ---
+  duration_ms: 1.321102
+  ...
+# Subtest: guides only cite providers that exist in providerCatalogue
+ok 34 - guides only cite providers that exist in providerCatalogue
+  ---
+  duration_ms: 2.956444
+  ...
+# Subtest: every provider in the catalogue is referenced by at least one guide
+ok 35 - every provider in the catalogue is referenced by at least one guide
+  ---
+  duration_ms: 0.29474
+  ...
+# Subtest: every provider entry has archive + apiCredentials with required fields
+ok 36 - every provider entry has archive + apiCredentials with required fields
+  ---
+  duration_ms: 0.230664
+  ...
+# Subtest: localServerHelp covers Rust, Node, and a manual override hint
+ok 37 - localServerHelp covers Rust, Node, and a manual override hint
+  ---
+  duration_ms: 0.131396
+  ...
+# Subtest: isCrossOrigin compares URL.origin
+ok 38 - isCrossOrigin compares URL.origin
+  ---
+  duration_ms: 0.242563
+  ...
+# Subtest: tryDirect resolves ok=true when fetch succeeds
+ok 39 - tryDirect resolves ok=true when fetch succeeds
+  ---
+  duration_ms: 1.544947
+  ...
+# Subtest: tryDirect classifies http error responses
+ok 40 - tryDirect classifies http error responses
+  ---
+  duration_ms: 0.198848
+  ...
+# Subtest: tryDirect classifies cross-origin TypeError as cors
+ok 41 - tryDirect classifies cross-origin TypeError as cors
+  ---
+  duration_ms: 0.367149
+  ...
+# Subtest: tryDirect classifies same-origin failures as plain network errors
+ok 42 - tryDirect classifies same-origin failures as plain network errors
+  ---
+  duration_ms: 0.236334
+  ...
+# Subtest: tryDirect requires a url
+ok 43 - tryDirect requires a url
+  ---
+  duration_ms: 0.409862
+  ...
+# Subtest: tryDirect returns a network error when no fetch is available
+ok 44 - tryDirect returns a network error when no fetch is available
+  ---
+  duration_ms: 0.129473
+  ...
+# Subtest: listGuideSections returns the same keys as connectionGuides
+ok 45 - listGuideSections returns the same keys as connectionGuides
+  ---
+  duration_ms: 0.101601
+  ...
+# Subtest: getGuide throws on an unknown nav surface
+ok 46 - getGuide throws on an unknown nav surface
+  ---
+  duration_ms: 0.194351
+  ...
+# Subtest: getProvider throws on an unknown provider id
+ok 47 - getProvider throws on an unknown provider id
+  ---
+  duration_ms: 0.10072
+  ...
+# Subtest: classifyConnectionState reports connected/not-connected/action-required
+ok 48 - classifyConnectionState reports connected/not-connected/action-required
+  ---
+  duration_ms: 1.215255
+  ...
+# Subtest: ConnectionsList renders one card per provider with translated label and state badge
+ok 49 - ConnectionsList renders one card per provider with translated label and state badge
+  ---
+  duration_ms: 10.101731
+  ...
+# Subtest: ConnectionDetail renders translated setupSteps[] for the requested provider
+ok 50 - ConnectionDetail renders translated setupSteps[] for the requested provider
+  ---
+  duration_ms: 5.031682
+  ...
+# Subtest: ConnectionDetail owns credentials, archive import, and probe controls
+ok 51 - ConnectionDetail owns credentials, archive import, and probe controls
+  ---
+  duration_ms: 2.673813
+  ...
+# Subtest: every provider in providerCatalogue has at least one setupSteps[] entry
+ok 52 - every provider in providerCatalogue has at least one setupSteps[] entry
+  ---
+  duration_ms: 0.75663
+  ...
+# Subtest: crm
+    # Subtest: aggregates a contact across chats
+    ok 1 - aggregates a contact across chats
+      ---
+      duration_ms: 0.857559
+      ...
+    # Subtest: set algebra works
+    ok 2 - set algebra works
+      ---
+      duration_ms: 0.231786
+      ...
+    # Subtest: local search ranks by similarity
+    ok 3 - local search ranks by similarity
+      ---
+      duration_ms: 0.332055
+      ...
+    1..3
+ok 53 - crm
+  ---
+  duration_ms: 2.471389
+  type: 'suite'
+  ...
+# Subtest: fact extraction
+    # Subtest: extracts question/answer pairs
+    ok 1 - extracts question/answer pairs
+      ---
+      duration_ms: 7.849068
+      ...
+    1..1
+ok 54 - fact extraction
+  ---
+  duration_ms: 7.992722
+  type: 'suite'
+  ...
+# Subtest: discover prefers same origin when reachable
+ok 55 - discover prefers same origin when reachable
+  ---
+  duration_ms: 2.794321
+  ...
+# Subtest: discover falls back to stored override when same-origin fails
+ok 56 - discover falls back to stored override when same-origin fails
+  ---
+  duration_ms: 0.282842
+  ...
+# Subtest: discover falls back to default localhost ports
+ok 57 - discover falls back to default localhost ports
+  ---
+  duration_ms: 0.197905
+  ...
+# Subtest: discover tries caller-supplied LAN candidates last
+ok 58 - discover tries caller-supplied LAN candidates last
+  ---
+  duration_ms: 1.522633
+  ...
+# Subtest: discover returns null when nothing answers
+ok 59 - discover returns null when nothing answers
+  ---
+  duration_ms: 0.211164
+  ...
+# Subtest: issue \#1 documentation consistency
+    # Subtest: keeps the roadmap path present as an explicit empty checklist
+    ok 1 - keeps the roadmap path present as an explicit empty checklist
+      ---
+      duration_ms: 3.69101
+      ...
+    # Subtest: keeps the active issue \#1 docs aligned with the implemented prototype
+    ok 2 - keeps the active issue \#1 docs aligned with the implemented prototype
+      ---
+      duration_ms: 6.00155
+      ...
+    1..2
+ok 60 - issue \#1 documentation consistency
+  ---
+  duration_ms: 10.843769
+  type: 'suite'
+  ...
+# Subtest: tracked user-facing Markdown docs have four localized siblings with hive-mind switchers
+ok 61 - tracked user-facing Markdown docs have four localized siblings with hive-mind switchers
+  ---
+  duration_ms: 40.893932
+  ...
+# Subtest: tracked localized Markdown switcher links resolve to existing siblings
+ok 62 - tracked localized Markdown switcher links resolve to existing siblings
+  ---
+  duration_ms: 39.37217
+  ...
+# Subtest: offline boot: write a link, see it locally, run a broadcast handler with no server
+ok 63 - offline boot: write a link, see it locally, run a broadcast handler with no server
+  ---
+  duration_ms: 9.727482
+  ...
+# Subtest: server discovery picks the first reachable candidate, then degrades on failure
+ok 64 - server discovery picks the first reachable candidate, then degrades on failure
+  ---
+  duration_ms: 0.865082
+  ...
+# Subtest: two browsers sync via WebRTC: writing a link on A appears on B
+ok 65 - two browsers sync via WebRTC: writing a link on A appears on B
+  ---
+  duration_ms: 23.606304
+  ...
+# Subtest: e2e: import → derived API → backup → restore
+    # Subtest: walks the full pipeline
+    ok 1 - walks the full pipeline
+      ---
+      duration_ms: 59.725566
+      ...
+    1..1
+ok 66 - e2e: import → derived API → backup → restore
+  ---
+  duration_ms: 60.695846
+  type: 'suite'
+  ...
+# Subtest: Node email raw protocol transport
+    # Subtest: pulls POP3 messages through the local server transport
+    ok 1 - pulls POP3 messages through the local server transport
+      ---
+      duration_ms: 12.708263
+      ...
+    # Subtest: pulls IMAP messages through the local server transport
+    ok 2 - pulls IMAP messages through the local server transport
+      ---
+      duration_ms: 3.686164
+      ...
+    # Subtest: sends SMTP messages through the local server transport
+    ok 3 - sends SMTP messages through the local server transport
+      ---
+      duration_ms: 4.013341
+      ...
+    1..3
+ok 67 - Node email raw protocol transport
+  ---
+  duration_ms: 22.082738
+  type: 'suite'
+  ...
+# Subtest: encrypted export (R-K13..R-K17)
+    # Subtest: refuses to export without a passphrase (R-K13)
+    ok 1 - refuses to export without a passphrase (R-K13)
+      ---
+      duration_ms: 1.025402
+      ...
+    # Subtest: round-trips an envelope through decryptExport (R-K14)
+    ok 2 - round-trips an envelope through decryptExport (R-K14)
+      ---
+      duration_ms: 83.304948
+      ...
+    # Subtest: writeEncryptedExport produces a file usable by decryptExport
+    ok 3 - writeEncryptedExport produces a file usable by decryptExport
+      ---
+      duration_ms: 67.875374
+      ...
+    # Subtest: POST /api/export-encrypted refuses without a passphrase
+    ok 4 - POST /api/export-encrypted refuses without a passphrase
+      ---
+      duration_ms: 79.526809
+      ...
+    1..4
+ok 68 - encrypted export (R-K13..R-K17)
+  ---
+  duration_ms: 233.018873
+  type: 'suite'
+  ...
+# Subtest: github archive import
+    # Subtest: parses an envelope of issues, comments, pulls, review comments, reviews, and discussions
+    ok 1 - parses an envelope of issues, comments, pulls, review comments, reviews, and discussions
+      ---
+      duration_ms: 1.452439
+      ...
+    # Subtest: classifies a flat array of mixed gh api dumps
+    ok 2 - classifies a flat array of mixed gh api dumps
+      ---
+      duration_ms: 0.265296
+      ...
+    # Subtest: importInto registers github links with the right shape
+    ok 3 - importInto registers github links with the right shape
+      ---
+      duration_ms: 0.35457
+      ...
+    1..3
+ok 69 - github archive import
+  ---
+  duration_ms: 3.122321
+  type: 'suite'
+  ...
+# Subtest: github live pullMessages
+    # Subtest: walks issues, comments, pulls, review comments, and per-PR reviews
+    ok 1 - walks issues, comments, pulls, review comments, and per-PR reviews
+      ---
+      duration_ms: 1.522012
+      ...
+    # Subtest: skips pull-request entries when /issues echoes them
+    ok 2 - skips pull-request entries when /issues echoes them
+      ---
+      duration_ms: 0.584533
+      ...
+    1..2
+ok 70 - github live pullMessages
+  ---
+  duration_ms: 2.238642
+  type: 'suite'
+  ...
+# Subtest: paginate via Link rel="next"
+    # Subtest: joins two pages and stops when next is absent
+    ok 1 - joins two pages and stops when next is absent
+      ---
+      duration_ms: 0.370153
+      ...
+    # Subtest: listRepos paginates /user/repos
+    ok 2 - listRepos paginates /user/repos
+      ---
+      duration_ms: 0.587217
+      ...
+    1..2
+ok 71 - paginate via Link rel="next"
+  ---
+  duration_ms: 1.155845
+  type: 'suite'
+  ...
+# Subtest: cloneRepo
+    # Subtest: reads tar entries from an in-memory USTAR tarball
+    ok 1 - reads tar entries from an in-memory USTAR tarball
+      ---
+      duration_ms: 1.526187
+      ...
+    # Subtest: downloads the tarball and writes one link per file plus a repo index
+    ok 2 - downloads the tarball and writes one link per file plus a repo index
+      ---
+      duration_ms: 15.536194
+      ...
+    1..2
+ok 72 - cloneRepo
+  ---
+  duration_ms: 17.280629
+  type: 'suite'
+  ...
+# Subtest: github post
+    # Subtest: issues POST /repos/o/r/issues/{n}/comments with the right body
+    ok 1 - issues POST /repos/o/r/issues/{n}/comments with the right body
+      ---
+      duration_ms: 0.343303
+      ...
+    # Subtest: refuses to post without an issueNumber
+    ok 2 - refuses to post without an issueNumber
+      ---
+      duration_ms: 0.265025
+      ...
+    1..2
+ok 73 - github post
+  ---
+  duration_ms: 0.751441
+  type: 'suite'
+  ...
+# Subtest: source registry integration
+    # Subtest: exposes github through listSources and getSource
+    ok 1 - exposes github through listSources and getSource
+      ---
+      duration_ms: 0.09348
+      ...
+    # Subtest: pullLiveInto wires the github adapter when an explicit live is supplied
+    ok 2 - pullLiveInto wires the github adapter when an explicit live is supplied
+      ---
+      duration_ms: 0.38861
+      ...
+    1..2
+ok 74 - source registry integration
+  ---
+  duration_ms: 0.559526
+  type: 'suite'
+  ...
+# Subtest: handler fires on matching put and stamps handledBy
+ok 75 - handler fires on matching put and stamps handledBy
+  ---
+  duration_ms: 5.360163
+  ...
+# Subtest: handler is skipped when handledBy already records it
+ok 76 - handler is skipped when handledBy already records it
+  ---
+  duration_ms: 0.565965
+  ...
+# Subtest: handler does not loop on its own write-back
+ok 77 - handler does not loop on its own write-back
+  ---
+  duration_ms: 0.636521
+  ...
+# Subtest: built-in broadcastHandler wires through the broadcast adapter
+ok 78 - built-in broadcastHandler wires through the broadcast adapter
+  ---
+  duration_ms: 0.605675
+  ...
+# Subtest: profileSyncHandler fans out + skips on echo
+ok 79 - profileSyncHandler fans out + skips on echo
+  ---
+  duration_ms: 1.699477
+  ...
+# Subtest: automationHandler creates plan links for inbound messages
+ok 80 - automationHandler creates plan links for inbound messages
+  ---
+  duration_ms: 0.858942
+  ...
+# Subtest: automationHandler skips messages from "me"
+ok 81 - automationHandler skips messages from "me"
+  ---
+  duration_ms: 0.627476
+  ...
+# Subtest: replay fires for existing links
+ok 82 - replay fires for existing links
+  ---
+  duration_ms: 0.31455
+  ...
+# Subtest: errors in one handler do not block subsequent handlers
+ok 83 - errors in one handler do not block subsequent handlers
+  ---
+  duration_ms: 1.259671
+  ...
+# Subtest: hardening CLI surface (issue \#6)
+    # Subtest: export-encrypted writes a passphrase-protected file
+    ok 1 - export-encrypted writes a passphrase-protected file
+      ---
+      duration_ms: 93.061174
+      ...
+    # Subtest: export-encrypted fails without --passphrase
+    ok 2 - export-encrypted fails without --passphrase
+      ---
+      duration_ms: 1.48709
+      ...
+    # Subtest: vault-init/list/add/remove via the CLI
+    ok 3 - vault-init/list/add/remove via the CLI
+      ---
+      duration_ms: 165.729634
+      ...
+    # Subtest: purge-tombstones requires --confirm=true
+    ok 4 - purge-tombstones requires --confirm=true
+      ---
+      duration_ms: 0.787015
+      ...
+    1..4
+ok 84 - hardening CLI surface (issue \#6)
+  ---
+  duration_ms: 262.349451
+  type: 'suite'
+  ...
+# Subtest: LOCALE_STORAGE_KEY is the documented metaSovereignLocale key
+ok 85 - LOCALE_STORAGE_KEY is the documented metaSovereignLocale key
+  ---
+  duration_ms: 0.770721
+  ...
+# Subtest: availableLocales lists en, ru, zh, hi with ltr direction
+ok 86 - availableLocales lists en, ru, zh, hi with ltr direction
+  ---
+  duration_ms: 0.425165
+  ...
+# Subtest: every non-en dictionary mirrors the en key set exactly
+ok 87 - every non-en dictionary mirrors the en key set exactly
+  ---
+  duration_ms: 0.498494
+  ...
+# Subtest: no English literal leaks into a non-en dictionary (issue \#25)
+ok 88 - no English literal leaks into a non-en dictionary (issue \#25)
+  ---
+  duration_ms: 4.053742
+  ...
+# Subtest: every translated string is non-empty in every locale
+ok 89 - every translated string is non-empty in every locale
+  ---
+  duration_ms: 1.136926
+  ...
+# Subtest: translate falls back to en for unknown locales
+ok 90 - translate falls back to en for unknown locales
+  ---
+  duration_ms: 0.206378
+  ...
+# Subtest: translate returns the key when missing in every dictionary
+ok 91 - translate returns the key when missing in every dictionary
+  ---
+  duration_ms: 0.109543
+  ...
+# Subtest: translate interpolates {placeholders}
+ok 92 - translate interpolates {placeholders}
+  ---
+  duration_ms: 0.225077
+  ...
+# Subtest: translate leaves unknown placeholders intact
+ok 93 - translate leaves unknown placeholders intact
+  ---
+  duration_ms: 0.208462
+  ...
+# Subtest: translate works for every locale that defines the same key
+ok 94 - translate works for every locale that defines the same key
+  ---
+  duration_ms: 0.299277
+  ...
+# Subtest: detectInitialLocale prefers a stored override over navigator
+ok 95 - detectInitialLocale prefers a stored override over navigator
+  ---
+  duration_ms: 0.308019
+  ...
+# Subtest: detectInitialLocale walks navigator.languages and prefix-matches zh-Hans-CN → zh
+ok 96 - detectInitialLocale walks navigator.languages and prefix-matches zh-Hans-CN → zh
+  ---
+  duration_ms: 0.178206
+  ...
+# Subtest: detectInitialLocale handles BCP-47 underscore form (en_US)
+ok 97 - detectInitialLocale handles BCP-47 underscore form (en_US)
+  ---
+  duration_ms: 0.1138
+  ...
+# Subtest: detectInitialLocale falls back to default when nothing matches
+ok 98 - detectInitialLocale falls back to default when nothing matches
+  ---
+  duration_ms: 0.172076
+  ...
+# Subtest: detectInitialLocale tolerates a navigator without languages array
+ok 99 - detectInitialLocale tolerates a navigator without languages array
+  ---
+  duration_ms: 0.16082
+  ...
+# Subtest: detectInitialLocale tolerates a missing storage
+ok 100 - detectInitialLocale tolerates a missing storage
+  ---
+  duration_ms: 0.161681
+  ...
+# Subtest: detectInitialLocale tolerates a storage that throws
+ok 101 - detectInitialLocale tolerates a storage that throws
+  ---
+  duration_ms: 0.188281
+  ...
+# Subtest: applyLocale sets <html lang> and <html dir> when document is available
+ok 102 - applyLocale sets <html lang> and <html dir> when document is available
+  ---
+  duration_ms: 0.286999
+  ...
+# Subtest: applyLocale is a no-op when document is unavailable (SSR-safe)
+ok 103 - applyLocale is a no-op when document is unavailable (SSR-safe)
+  ---
+  duration_ms: 0.12699
+  ...
+# Subtest: LanguageSwitcher renders a system-default option plus every locale
+ok 104 - LanguageSwitcher renders a system-default option plus every locale
+  ---
+  duration_ms: 6.399444
+  ...
+# Subtest: LanguageSwitcher pre-selects the active locale via the <select value>
+ok 105 - LanguageSwitcher pre-selects the active locale via the <select value>
+  ---
+  duration_ms: 1.483625
+  ...
+# Subtest: default LocaleContext returns translations from the default locale
+ok 106 - default LocaleContext returns translations from the default locale
+  ---
+  duration_ms: 0.282451
+  ...
+# Subtest: public api
+    # Subtest: exposes every subsystem namespace
+    ok 1 - exposes every subsystem namespace
+      ---
+      duration_ms: 0.793555
+      ...
+    1..1
+ok 107 - public api
+  ---
+  duration_ms: 1.643934
+  type: 'suite'
+  ...
+# Subtest: VK live adapter
+    # Subtest: pulls conversation messages and sends replies through VK methods
+    ok 1 - pulls conversation messages and sends replies through VK methods
+      ---
+      duration_ms: 1.376856
+      ...
+    1..1
+ok 108 - VK live adapter
+  ---
+  duration_ms: 2.049831
+  type: 'suite'
+  ...
+# Subtest: WhatsApp Cloud live adapter
+    # Subtest: normalizes webhook messages and posts Cloud API text messages
+    ok 1 - normalizes webhook messages and posts Cloud API text messages
+      ---
+      duration_ms: 0.447358
+      ...
+    1..1
+ok 109 - WhatsApp Cloud live adapter
+  ---
+  duration_ms: 0.530712
+  type: 'suite'
+  ...
+# Subtest: X live adapter
+    # Subtest: pulls DM events and can publish a post
+    ok 1 - pulls DM events and can publish a post
+      ---
+      duration_ms: 0.635429
+      ...
+    1..1
+ok 110 - X live adapter
+  ---
+  duration_ms: 0.801778
+  type: 'suite'
+  ...
+# Subtest: Facebook live adapter
+    # Subtest: pulls page conversations and sends Messenger replies
+    ok 1 - pulls page conversations and sends Messenger replies
+      ---
+      duration_ms: 0.493076
+      ...
+    1..1
+ok 111 - Facebook live adapter
+  ---
+  duration_ms: 0.59609
+  type: 'suite'
+  ...
+# Subtest: LinkedIn live adapter
+    # Subtest: imports author posts and exports resume updates as posts
+    ok 1 - imports author posts and exports resume updates as posts
+      ---
+      duration_ms: 0.850971
+      ...
+    1..1
+ok 112 - LinkedIn live adapter
+  ---
+  duration_ms: 1.032181
+  type: 'suite'
+  ...
+# Subtest: job-board live adapters
+    # Subtest: syncs hh, Habr Career, and SuperJob messages/resumes
+    ok 1 - syncs hh, Habr Career, and SuperJob messages/resumes
+      ---
+      duration_ms: 2.268396
+      ...
+    1..1
+ok 113 - job-board live adapters
+  ---
+  duration_ms: 2.370239
+  type: 'suite'
+  ...
+# Subtest: Gmail email live adapter
+    # Subtest: pulls and sends Gmail messages through the Gmail HTTP API
+    ok 1 - pulls and sends Gmail messages through the Gmail HTTP API
+      ---
+      duration_ms: 1.86908
+      ...
+    1..1
+ok 114 - Gmail email live adapter
+  ---
+  duration_ms: 1.957963
+  type: 'suite'
+  ...
+# Subtest: Microsoft Graph email live adapter
+    # Subtest: pulls and sends Outlook mail through Microsoft Graph
+    ok 1 - pulls and sends Outlook mail through Microsoft Graph
+      ---
+      duration_ms: 0.543151
+      ...
+    1..1
+ok 115 - Microsoft Graph email live adapter
+  ---
+  duration_ms: 0.702288
+  type: 'suite'
+  ...
+# Subtest: JMAP email live adapter
+    # Subtest: uses JMAP Email/query, Email/get, and EmailSubmission/set
+    ok 1 - uses JMAP Email/query, Email/get, and EmailSubmission/set
+      ---
+      duration_ms: 0.963408
+      ...
+    1..1
+ok 116 - JMAP email live adapter
+  ---
+  duration_ms: 1.037679
+  type: 'suite'
+  ...
+# Subtest: mobile and Electron packaging
+    # Subtest: uses WebView-provided LAN candidates in server discovery
+    ok 1 - uses WebView-provided LAN candidates in server discovery
+      ---
+      duration_ms: 0.876349
+      ...
+    # Subtest: wires Electron auto-updates through electron-updater
+    ok 2 - wires Electron auto-updates through electron-updater
+      ---
+      duration_ms: 4.161914
+      ...
+    # Subtest: ships a Capacitor mobile build surface for iOS and Android
+    ok 3 - ships a Capacitor mobile build surface for iOS and Android
+      ---
+      duration_ms: 2.2435
+      ...
+    1..3
+ok 117 - mobile and Electron packaging
+  ---
+  duration_ms: 8.117308
+  type: 'suite'
+  ...
+# Subtest: offline mode: writes/reads land in local store with no server
+ok 118 - offline mode: writes/reads land in local store with no server
+  ---
+  duration_ms: 0.995286
+  ...
+# Subtest: offline mode: autocomplete is computed locally from history
+ok 119 - offline mode: autocomplete is computed locally from history
+  ---
+  duration_ms: 1.320472
+  ...
+# Subtest: online mode: derived query routes to the server
+ok 120 - online mode: derived query routes to the server
+  ---
+  duration_ms: 0.54223
+  ...
+# Subtest: server failure flips client to offline and keeps working
+ok 121 - server failure flips client to offline and keeps working
+  ---
+  duration_ms: 0.340287
+  ...
+# Subtest: writing a broadcast link triggers the local handler bus when offline
+ok 122 - writing a broadcast link triggers the local handler bus when offline
+  ---
+  duration_ms: 0.225027
+  ...
+# Subtest: planOutreach
+    # Subtest: renders a literal text into one envelope per (contact × network)
+    ok 1 - renders a literal text into one envelope per (contact × network)
+      ---
+      duration_ms: 0.958431
+      ...
+    # Subtest: forces a single network when networks override is given
+    ok 2 - forces a single network when networks override is given
+      ---
+      duration_ms: 0.198847
+      ...
+    # Subtest: falls back to a reply-group variation when text is omitted
+    ok 3 - falls back to a reply-group variation when text is omitted
+      ---
+      duration_ms: 0.157394
+      ...
+    # Subtest: skips contacts when neither text nor variation is available
+    ok 4 - skips contacts when neither text nor variation is available
+      ---
+      duration_ms: 0.112408
+      ...
+    # Subtest: renders {networks} and {chats} placeholders
+    ok 5 - renders {networks} and {chats} placeholders
+      ---
+      duration_ms: 0.229052
+      ...
+    1..5
+ok 123 - planOutreach
+  ---
+  duration_ms: 2.702865
+  type: 'suite'
+  ...
+# Subtest: runOutreach
+    # Subtest: invokes broadcast for each envelope and returns ok=false for missing live.post
+    ok 1 - invokes broadcast for each envelope and returns ok=false for missing live.post
+      ---
+      duration_ms: 1.545838
+      ...
+    1..1
+ok 124 - runOutreach
+  ---
+  duration_ms: 1.661921
+  type: 'suite'
+  ...
+# Subtest: inferRegex
+    # Subtest: finds shared tokens
+    ok 1 - finds shared tokens
+      ---
+      duration_ms: 1.173201
+      ...
+    # Subtest: falls back to alternation when lengths differ
+    ok 2 - falls back to alternation when lengths differ
+      ---
+      duration_ms: 0.255502
+      ...
+    # Subtest: matches all messages it should
+    ok 3 - matches all messages it should
+      ---
+      duration_ms: 0.226378
+      ...
+    1..3
+ok 125 - inferRegex
+  ---
+  duration_ms: 2.718519
+  type: 'suite'
+  ...
+# Subtest: simplifyRegex
+    # Subtest: returns a regex
+    ok 1 - returns a regex
+      ---
+      duration_ms: 0.195182
+      ...
+    1..1
+ok 126 - simplifyRegex
+  ---
+  duration_ms: 0.288661
+  type: 'suite'
+  ...
+# Subtest: lcs / inferRegexLcs / compilePeg
+    # Subtest: lcs finds the longest shared subsequence
+    ok 1 - lcs finds the longest shared subsequence
+      ---
+      duration_ms: 0.319086
+      ...
+    # Subtest: inferRegexLcs handles different-length examples
+    ok 2 - inferRegexLcs handles different-length examples
+      ---
+      duration_ms: 0.731041
+      ...
+    # Subtest: inferRegexLcs picks digit class when all gaps are numeric
+    ok 3 - inferRegexLcs picks digit class when all gaps are numeric
+      ---
+      duration_ms: 0.287219
+      ...
+    # Subtest: compilePeg produces a working regex with named captures
+    ok 4 - compilePeg produces a working regex with named captures
+      ---
+      duration_ms: 0.303573
+      ...
+    1..4
+ok 127 - lcs / inferRegexLcs / compilePeg
+  ---
+  duration_ms: 1.930452
+  type: 'suite'
+  ...
+# Subtest: replies
+    # Subtest: dice similarity is symmetric
+    ok 1 - dice similarity is symmetric
+      ---
+      duration_ms: 1.199501
+      ...
+    # Subtest: finds candidates above threshold
+    ok 2 - finds candidates above threshold
+      ---
+      duration_ms: 0.259758
+      ...
+    # Subtest: pickVariation returns one of the variations
+    ok 3 - pickVariation returns one of the variations
+      ---
+      duration_ms: 0.17415
+      ...
+    1..3
+ok 128 - replies
+  ---
+  duration_ms: 1.770343
+  type: 'suite'
+  ...
+# Subtest: peopleperhour archive import
+    # Subtest: parses an envelope of projects, workstreams, rooms, messages, invoices, and hourstreams
+    ok 1 - parses an envelope of projects, workstreams, rooms, messages, invoices, and hourstreams
+      ---
+      duration_ms: 2.014678
+      ...
+    # Subtest: classifies a flat array of mixed payloads
+    ok 2 - classifies a flat array of mixed payloads
+      ---
+      duration_ms: 0.213388
+      ...
+    # Subtest: parses a CSV earnings string
+    ok 3 - parses a CSV earnings string
+      ---
+      duration_ms: 0.379987
+      ...
+    # Subtest: importInto writes peopleperhour links into a memory store
+    ok 4 - importInto writes peopleperhour links into a memory store
+      ---
+      duration_ms: 0.26122
+      ...
+    1..4
+ok 129 - peopleperhour archive import
+  ---
+  duration_ms: 3.601277
+  type: 'suite'
+  ...
+# Subtest: peopleperhour live searchProjects
+    # Subtest: runs GET /projects/search and stamps a 24h soft cache
+    ok 1 - runs GET /projects/search and stamps a 24h soft cache
+      ---
+      duration_ms: 1.018331
+      ...
+    1..1
+ok 130 - peopleperhour live searchProjects
+  ---
+  duration_ms: 1.142156
+  type: 'suite'
+  ...
+# Subtest: peopleperhour live pullMessages
+    # Subtest: walks workstreams -> messages from the freelancer perspective
+    ok 1 - walks workstreams -> messages from the freelancer perspective
+      ---
+      duration_ms: 0.714397
+      ...
+    # Subtest: runs the same code path with perspective=buyer
+    ok 2 - runs the same code path with perspective=buyer
+      ---
+      duration_ms: 0.331154
+      ...
+    # Subtest: walks proposal-room messages when a projectId is passed
+    ok 3 - walks proposal-room messages when a projectId is passed
+      ---
+      duration_ms: 0.419847
+      ...
+    1..3
+ok 131 - peopleperhour live pullMessages
+  ---
+  duration_ms: 1.652036
+  type: 'suite'
+  ...
+# Subtest: peopleperhour live post
+    # Subtest: issues POST /workstreams/{id}/messages by default
+    ok 1 - issues POST /workstreams/{id}/messages by default
+      ---
+      duration_ms: 0.534438
+      ...
+    # Subtest: routes to POST /proposals/{id}/messages when proposalId is given
+    ok 2 - routes to POST /proposals/{id}/messages when proposalId is given
+      ---
+      duration_ms: 0.34906
+      ...
+    # Subtest: throws when text is missing
+    ok 3 - throws when text is missing
+      ---
+      duration_ms: 0.272367
+      ...
+    # Subtest: throws when neither workstreamId nor proposalId is supplied
+    ok 4 - throws when neither workstreamId nor proposalId is supplied
+      ---
+      duration_ms: 0.351504
+      ...
+    1..4
+ok 132 - peopleperhour live post
+  ---
+  duration_ms: 1.686027
+  type: 'suite'
+  ...
+# Subtest: peopleperhour source registry integration
+    # Subtest: includes peopleperhour in listSources()
+    ok 1 - includes peopleperhour in listSources()
+      ---
+      duration_ms: 0.131587
+      ...
+    1..1
+ok 133 - peopleperhour source registry integration
+  ---
+  duration_ms: 0.212927
+  type: 'suite'
+  ...
+# Subtest: peopleperhour softCacheRetention
+    # Subtest: purges expired live links and leaves archive links alone
+    ok 1 - purges expired live links and leaves archive links alone
+      ---
+      duration_ms: 0.442782
+      ...
+    1..1
+ok 134 - peopleperhour softCacheRetention
+  ---
+  duration_ms: 0.539736
+  type: 'suite'
+  ...
+# Subtest: secret store encryption
+    # Subtest: encrypts secret:* payload at rest and decrypts on read
+    ok 1 - encrypts secret:* payload at rest and decrypts on read
+      ---
+      duration_ms: 99.623602
+      ...
+    # Subtest: passes non-secret links through untouched
+    ok 2 - passes non-secret links through untouched
+      ---
+      duration_ms: 0.239768
+      ...
+    # Subtest: returns inner store unchanged when no passphrase
+    ok 3 - returns inner store unchanged when no passphrase
+      ---
+      duration_ms: 0.085897
+      ...
+    # Subtest: rejects reads with the wrong passphrase
+    ok 4 - rejects reads with the wrong passphrase
+      ---
+      duration_ms: 53.043711
+      ...
+    1..4
+ok 135 - secret store encryption
+  ---
+  duration_ms: 153.917519
+  type: 'suite'
+  ...
+# Subtest: secret store + sync
+    # Subtest: does not broadcast secret:* events to peers
+    ok 1 - does not broadcast secret:* events to peers
+      ---
+      duration_ms: 0.627216
+      ...
+    # Subtest: drops inbound secret:* events from a hostile peer
+    ok 2 - drops inbound secret:* events from a hostile peer
+      ---
+      duration_ms: 0.196323
+      ...
+    1..2
+ok 136 - secret store + sync
+  ---
+  duration_ms: 0.965382
+  type: 'suite'
+  ...
+# Subtest: http server with secret passphrase
+    # Subtest: round-trips a secret link via HTTP
+    ok 1 - round-trips a secret link via HTTP
+      ---
+      duration_ms: 177.354579
+      ...
+    1..1
+ok 137 - http server with secret passphrase
+  ---
+  duration_ms: 177.685995
+  type: 'suite'
+  ...
+# Subtest: server iteration 3 routes
+    # Subtest: drives the full pipeline: patterns, replies, graphs, facts, audience
+    ok 1 - drives the full pipeline: patterns, replies, graphs, facts, audience
+      ---
+      duration_ms: 111.9537
+      ...
+    1..1
+ok 138 - server iteration 3 routes
+  ---
+  duration_ms: 113.050057
+  type: 'suite'
+  ...
+# Subtest: main server exposes /ws sync alongside REST
+ok 139 - main server exposes /ws sync alongside REST
+  ---
+  duration_ms: 132.558782
+  ...
+# Subtest: main server exposes /rtc signaling broker
+ok 140 - main server exposes /rtc signaling broker
+  ---
+  duration_ms: 37.230773
+  ...
+# Subtest: writing a broadcast link fires the bootstrapped handler
+ok 141 - writing a broadcast link fires the bootstrapped handler
+  ---
+  duration_ms: 247.119704
+  ...
+# Subtest: REST + sync coexist: PUT /links also replicates over /ws
+ok 142 - REST + sync coexist: PUT /links also replicates over /ws
+  ---
+  duration_ms: 92.500888
+  ...
+# Subtest: http server lifecycle
+    # Subtest: tears down idle keep-alive sockets during shutdown
+    ok 1 - tears down idle keep-alive sockets during shutdown
+      ---
+      duration_ms: 16.601314
+      ...
+    1..1
+ok 143 - http server lifecycle
+  ---
+  duration_ms: 17.741777
+  type: 'suite'
+  ...
+# Subtest: http server
+    # Subtest: round-trips a link via HTTP
+    ok 1 - round-trips a link via HTTP
+      ---
+      duration_ms: 46.201356
+      ...
+    # Subtest: exposes /sources
+    ok 2 - exposes /sources
+      ---
+      duration_ms: 6.143281
+      ...
+    # Subtest: serves the SPA shell at /
+    ok 3 - serves the SPA shell at /
+      ---
+      duration_ms: 15.271149
+      ...
+    # Subtest: exposes derived API routes
+    ok 4 - exposes derived API routes
+      ---
+      duration_ms: 21.039752
+      ...
+    # Subtest: mounts browser-safe sibling modules under /storage and /handlers
+    ok 5 - mounts browser-safe sibling modules under /storage and /handlers
+      ---
+      duration_ms: 24.09354
+      ...
+    1..5
+ok 144 - http server
+  ---
+  duration_ms: 113.299058
+  type: 'suite'
+  ...
+# Subtest: email server routes
+    # Subtest: proxies email pull/send through local server fallback routes
+    ok 1 - proxies email pull/send through local server fallback routes
+      ---
+      duration_ms: 15.723583
+      ...
+    1..1
+ok 145 - email server routes
+  ---
+  duration_ms: 16.00821
+  type: 'suite'
+  ...
+# Subtest: http server observability
+    # Subtest: exposes /metrics in Prometheus exposition format
+    ok 1 - exposes /metrics in Prometheus exposition format
+      ---
+      duration_ms: 10.247479
+      ...
+    # Subtest: writes JSON access logs when log option is provided
+    ok 2 - writes JSON access logs when log option is provided
+      ---
+      duration_ms: 33.485131
+      ...
+    # Subtest: emits Content-Security-Policy + hardening headers on every response
+    ok 3 - emits Content-Security-Policy + hardening headers on every response
+      ---
+      duration_ms: 6.918348
+      ...
+    1..3
+ok 146 - http server observability
+  ---
+  duration_ms: 51.008794
+  type: 'suite'
+  ...
+# Subtest: Provider credentials roundtrip (issue \#16)
+    # Subtest: persists secret:* via api.put, reads it back, and feeds buildProbeUrl
+    ok 1 - persists secret:* via api.put, reads it back, and feeds buildProbeUrl
+      ---
+      duration_ms: 184.515871
+      ...
+    # Subtest: forgetting a credential clears it from /links
+    ok 2 - forgetting a credential clears it from /links
+      ---
+      duration_ms: 341.144769
+      ...
+    1..2
+ok 147 - Provider credentials roundtrip (issue \#16)
+  ---
+  duration_ms: 526.651589
+  type: 'suite'
+  ...
+# Subtest: soft-delete (R-K1..R-K6)
+    # Subtest: markDeleted is pure and idempotent on the first stamp
+    ok 1 - markDeleted is pure and idempotent on the first stamp
+      ---
+      duration_ms: 0.869959
+      ...
+    # Subtest: softDeleteLink writes a tombstone but keeps the row
+    ok 2 - softDeleteLink writes a tombstone but keeps the row
+      ---
+      duration_ms: 0.612555
+      ...
+    # Subtest: purgeLink refuses without explicit confirm
+    ok 3 - purgeLink refuses without explicit confirm
+      ---
+      duration_ms: 0.364474
+      ...
+    # Subtest: bulkPurge only touches tombstones
+    ok 4 - bulkPurge only touches tombstones
+      ---
+      duration_ms: 0.327499
+      ...
+    # Subtest: withSoftDelete decorator exposes softDelete/purge/bulkPurge
+    ok 5 - withSoftDelete decorator exposes softDelete/purge/bulkPurge
+      ---
+      duration_ms: 0.182943
+      ...
+    # Subtest: HTTP DELETE soft-deletes by default and ?purge=1&confirm=1 hard-deletes
+    ok 6 - HTTP DELETE soft-deletes by default and ?purge=1&confirm=1 hard-deletes
+      ---
+      duration_ms: 59.264759
+      ...
+    # Subtest: POST /api/links/purge-tombstones requires { confirm: true }
+    ok 7 - POST /api/links/purge-tombstones requires { confirm: true }
+      ---
+      duration_ms: 21.729542
+      ...
+    1..7
+ok 148 - soft-delete (R-K1..R-K6)
+  ---
+  duration_ms: 84.600082
+  type: 'suite'
+  ...
+# Subtest: source registry
+    # Subtest: lists all 13 networks
+    ok 1 - lists all 13 networks
+      ---
+      duration_ms: 1.907367
+      ...
+    # Subtest: throws on unknown source
+    ok 2 - throws on unknown source
+      ---
+      duration_ms: 0.233689
+      ...
+    1..2
+ok 149 - source registry
+  ---
+  duration_ms: 3.203322
+  type: 'suite'
+  ...
+# Subtest: email archives
+    # Subtest: imports a single .eml message
+    ok 1 - imports a single .eml message
+      ---
+      duration_ms: 1.154423
+      ...
+    # Subtest: imports mbox archives as separate messages
+    ok 2 - imports mbox archives as separate messages
+      ---
+      duration_ms: 0.486867
+      ...
+    1..2
+ok 150 - email archives
+  ---
+  duration_ms: 1.7748
+  type: 'suite'
+  ...
+# Subtest: telegram archive
+    # Subtest: extracts messages
+    ok 1 - extracts messages
+      ---
+      duration_ms: 0.50274
+      ...
+    1..1
+ok 151 - telegram archive
+  ---
+  duration_ms: 0.605334
+  type: 'suite'
+  ...
+# Subtest: whatsapp archive
+    # Subtest: parses bracketed lines
+    ok 1 - parses bracketed lines
+      ---
+      duration_ms: 0.396843
+      ...
+    1..1
+ok 152 - whatsapp archive
+  ---
+  duration_ms: 0.580306
+  type: 'suite'
+  ...
+# Subtest: vk and x archives
+    # Subtest: parse a single record each
+    ok 1 - parse a single record each
+      ---
+      duration_ms: 0.320639
+      ...
+    1..1
+ok 153 - vk and x archives
+  ---
+  duration_ms: 0.421399
+  type: 'suite'
+  ...
+# Subtest: lino codec
+    # Subtest: round-trips an indented document
+    ok 1 - round-trips an indented document
+      ---
+      duration_ms: 0.95786
+      ...
+    # Subtest: handles quoted tokens with whitespace
+    ok 2 - handles quoted tokens with whitespace
+      ---
+      duration_ms: 0.174701
+      ...
+    1..2
+ok 154 - lino codec
+  ---
+  duration_ms: 1.922249
+  type: 'suite'
+  ...
+# Subtest: memory store
+    # Subtest: puts, gets, and deletes
+    ok 1 - puts, gets, and deletes
+      ---
+      duration_ms: 0.374138
+      ...
+    # Subtest: emits events to subscribers
+    ok 2 - emits events to subscribers
+      ---
+      duration_ms: 0.135573
+      ...
+    1..2
+ok 155 - memory store
+  ---
+  duration_ms: 0.667155
+  type: 'suite'
+  ...
+# Subtest: lino text store
+    # Subtest: persists across reopen
+    ok 1 - persists across reopen
+      ---
+      duration_ms: 7.161032
+      ...
+    1..1
+ok 156 - lino text store
+  ---
+  duration_ms: 7.32732
+  type: 'suite'
+  ...
+# Subtest: doublets store
+    # Subtest: persists across reopen
+    ok 1 - persists across reopen
+      ---
+      duration_ms: 4.066321
+      ...
+    1..1
+ok 157 - doublets store
+  ---
+  duration_ms: 4.365678
+  type: 'suite'
+  ...
+# Subtest: dual store
+    # Subtest: writes to both backends and verify is empty after sync
+    ok 1 - writes to both backends and verify is empty after sync
+      ---
+      duration_ms: 3.965811
+      ...
+    1..1
+ok 158 - dual store
+  ---
+  duration_ms: 4.177727
+  type: 'suite'
+  ...
+# Subtest: sync over TCP transport
+    # Subtest: replicates a put from one store to another
+    ok 1 - replicates a put from one store to another
+      ---
+      duration_ms: 8.405529
+      ...
+    1..1
+ok 159 - sync over TCP transport
+  ---
+  duration_ms: 9.267937
+  type: 'suite'
+  ...
+# Subtest: ws transport replicates puts both ways
+ok 160 - ws transport replicates puts both ways
+  ---
+  duration_ms: 135.219555
+  ...
+# Subtest: attachSyncWebSocket can ride on an existing http server
+ok 161 - attachSyncWebSocket can ride on an existing http server
+  ---
+  duration_ms: 64.746883
+  ...
+# Subtest: client connection to wrong path is refused
+ok 162 - client connection to wrong path is refused
+  ---
+  duration_ms: 2.072054
+  ...
+# Subtest: crdt merge
+    # Subtest: picks the higher version on conflict
+    ok 1 - picks the higher version on conflict
+      ---
+      duration_ms: 0.691743
+      ...
+    # Subtest: unions children
+    ok 2 - unions children
+      ---
+      duration_ms: 0.164336
+      ...
+    1..2
+ok 163 - crdt merge
+  ---
+  duration_ms: 1.886957
+  type: 'suite'
+  ...
+# Subtest: vector clocks
+    # Subtest: vcCompare detects dominance and concurrency
+    ok 1 - vcCompare detects dominance and concurrency
+      ---
+      duration_ms: 0.320749
+      ...
+    # Subtest: vcMerge takes the per-node max
+    ok 2 - vcMerge takes the per-node max
+      ---
+      duration_ms: 0.264445
+      ...
+    # Subtest: merge picks the dominant vector clock
+    ok 3 - merge picks the dominant vector clock
+      ---
+      duration_ms: 0.117836
+      ...
+    # Subtest: merge uses deterministic tiebreak on concurrent edits
+    ok 4 - merge uses deterministic tiebreak on concurrent edits
+      ---
+      duration_ms: 0.185057
+      ...
+    1..4
+ok 164 - vector clocks
+  ---
+  duration_ms: 1.04465
+  type: 'suite'
+  ...
+# Subtest: peer loopback sync
+    # Subtest: replicates puts between two stores
+    ok 1 - replicates puts between two stores
+      ---
+      duration_ms: 0.419667
+      ...
+    # Subtest: disconnects local and remote transport handlers
+    ok 2 - disconnects local and remote transport handlers
+      ---
+      duration_ms: 0.356241
+      ...
+    1..2
+ok 165 - peer loopback sync
+  ---
+  duration_ms: 0.909168
+  type: 'suite'
+  ...
+# Subtest: tag prefix logic
+    # Subtest: defaults to "v" prefix (backward compatible)
+    ok 1 - defaults to "v" prefix (backward compatible)
+      ---
+      duration_ms: 1.595362
+      ...
+    # Subtest: supports "js-v" prefix for multi-language repos
+    ok 2 - supports "js-v" prefix for multi-language repos
+      ---
+      duration_ms: 0.169272
+      ...
+    # Subtest: supports "rust-v" prefix
+    ok 3 - supports "rust-v" prefix
+      ---
+      duration_ms: 0.128933
+      ...
+    # Subtest: supports empty prefix
+    ok 4 - supports empty prefix
+      ---
+      duration_ms: 0.090034
+      ...
+    # Subtest: works with pre-release versions
+    ok 5 - works with pre-release versions
+      ---
+      duration_ms: 0.072199
+      ...
+    1..5
+ok 166 - tag prefix logic
+  ---
+  duration_ms: 3.004035
+  type: 'suite'
+  ...
+# Subtest: telegram real archive import
+    # Subtest: parses Telegram Desktop all-chats exports without id collisions
+    ok 1 - parses Telegram Desktop all-chats exports without id collisions
+      ---
+      duration_ms: 1.525957
+      ...
+    1..1
+ok 167 - telegram real archive import
+  ---
+  duration_ms: 2.554704
+  type: 'suite'
+  ...
+# Subtest: telegram bot live connector
+    # Subtest: pulls updates, sends messages, and syncs bot profile fields
+    ok 1 - pulls updates, sends messages, and syncs bot profile fields
+      ---
+      duration_ms: 2.754513
+      ...
+    # Subtest: imports pulled updates into the store with connector handled stamps
+    ok 2 - imports pulled updates into the store with connector handled stamps
+      ---
+      duration_ms: 0.516992
+      ...
+    1..2
+ok 168 - telegram bot live connector
+  ---
+  duration_ms: 3.451422
+  type: 'suite'
+  ...
+# Subtest: source-pull handler
+    # Subtest: runs live imports from a datastore command link once
+    ok 1 - runs live imports from a datastore command link once
+      ---
+      duration_ms: 6.090242
+      ...
+    1..1
+ok 169 - source-pull handler
+  ---
+  duration_ms: 6.257723
+  type: 'suite'
+  ...
+# Subtest: default sequence opens with a "Connect a service" step pointing at nav:connections
+ok 170 - default sequence opens with a "Connect a service" step pointing at nav:connections
+  ---
+  duration_ms: 1.108465
+  ...
+# Subtest: every step that declares a tutorialId references a known target
+ok 171 - every step that declares a tutorialId references a known target
+  ---
+  duration_ms: 0.238146
+  ...
+# Subtest: TutorialSpotlight renders an inset frame anchored to the target rect
+ok 172 - TutorialSpotlight renders an inset frame anchored to the target rect
+  ---
+  duration_ms: 5.674011
+  ...
+# Subtest: TutorialSpotlight renders nothing when no rect is supplied
+ok 173 - TutorialSpotlight renders nothing when no rect is supplied
+  ---
+  duration_ms: 1.711665
+  ...
+# Subtest: spotlight overlay CSS lets pointer events fall through to the spotlighted control
+ok 174 - spotlight overlay CSS lets pointer events fall through to the spotlighted control
+  ---
+  duration_ms: 4.866376
+  ...
+# Subtest: connect step copy is translated into ru/zh/hi (no English leak)
+ok 175 - connect step copy is translated into ru/zh/hi (no English leak)
+  ---
+  duration_ms: 0.255721
+  ...
+# Subtest: TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key
+ok 176 - TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key
+  ---
+  duration_ms: 0.97743
+  ...
+# Subtest: defaultSteps is a non-empty list of unique-id steps
+ok 177 - defaultSteps is a non-empty list of unique-id steps
+  ---
+  duration_ms: 0.227058
+  ...
+# Subtest: readPreference returns null on a fresh storage
+ok 178 - readPreference returns null on a fresh storage
+  ---
+  duration_ms: 0.221351
+  ...
+# Subtest: writePreference + readPreference round-trips a dismissed tutorial
+ok 179 - writePreference + readPreference round-trips a dismissed tutorial
+  ---
+  duration_ms: 0.690081
+  ...
+# Subtest: writeProgressPreference stores the current tutorial step id
+ok 180 - writeProgressPreference stores the current tutorial step id
+  ---
+  duration_ms: 0.367778
+  ...
+# Subtest: writeCompletedPreference persists completed tutorials as off
+ok 181 - writeCompletedPreference persists completed tutorials as off
+  ---
+  duration_ms: 0.129473
+  ...
+# Subtest: clearPreference removes the entry so readPreference is null again
+ok 182 - clearPreference removes the entry so readPreference is null again
+  ---
+  duration_ms: 0.164866
+  ...
+# Subtest: readPreference returns null for malformed JSON
+ok 183 - readPreference returns null for malformed JSON
+  ---
+  duration_ms: 0.124666
+  ...
+# Subtest: TutorialOverlay resumes from stored step progress after page reload
+ok 184 - TutorialOverlay resumes from stored step progress after page reload
+  ---
+  duration_ms: 6.30259
+  ...
+# Subtest: readPreference is null-safe when storage is undefined
+ok 185 - readPreference is null-safe when storage is undefined
+  ---
+  duration_ms: 0.168322
+  ...
+# Subtest: writePreference and clearPreference tolerate a null storage
+ok 186 - writePreference and clearPreference tolerate a null storage
+  ---
+  duration_ms: 0.136033
+  ...
+# Subtest: writePreference tolerates a storage that throws on setItem
+ok 187 - writePreference tolerates a storage that throws on setItem
+  ---
+  duration_ms: 0.141772
+  ...
+# Subtest: every default step targets a real nav surface or is a shell-level step
+ok 188 - every default step targets a real nav surface or is a shell-level step
+  ---
+  duration_ms: 9.104142
+  ...
+# Subtest: upwork archive import
+    # Subtest: parses an envelope of jobs, contracts, rooms, messages, and transactions
+    ok 1 - parses an envelope of jobs, contracts, rooms, messages, and transactions
+      ---
+      duration_ms: 1.726147
+      ...
+    # Subtest: classifies a flat array of mixed payloads
+    ok 2 - classifies a flat array of mixed payloads
+      ---
+      duration_ms: 0.489201
+      ...
+    # Subtest: parses a CSV transaction-history string
+    ok 3 - parses a CSV transaction-history string
+      ---
+      duration_ms: 0.500797
+      ...
+    # Subtest: importInto writes upwork links into a memory store
+    ok 4 - importInto writes upwork links into a memory store
+      ---
+      duration_ms: 0.533847
+      ...
+    1..4
+ok 189 - upwork archive import
+  ---
+  duration_ms: 6.010914
+  type: 'suite'
+  ...
+# Subtest: upwork live searchJobs
+    # Subtest: runs the marketplaceJobPostingsSearch operation and stamps a 24h soft cache
+    ok 1 - runs the marketplaceJobPostingsSearch operation and stamps a 24h soft cache
+      ---
+      duration_ms: 0.876508
+      ...
+    1..1
+ok 190 - upwork live searchJobs
+  ---
+  duration_ms: 1.017289
+  type: 'suite'
+  ...
+# Subtest: upwork live pullMessages
+    # Subtest: walks contracts -> rooms -> messages from the freelancer perspective
+    ok 1 - walks contracts -> rooms -> messages from the freelancer perspective
+      ---
+      duration_ms: 0.849379
+      ...
+    # Subtest: runs the same code path with perspective=client
+    ok 2 - runs the same code path with perspective=client
+      ---
+      duration_ms: 0.551413
+      ...
+    1..2
+ok 191 - upwork live pullMessages
+  ---
+  duration_ms: 1.6005
+  type: 'suite'
+  ...
+# Subtest: upwork live post
+    # Subtest: issues the roomsCreateMessage mutation
+    ok 1 - issues the roomsCreateMessage mutation
+      ---
+      duration_ms: 0.36862
+      ...
+    # Subtest: throws when text is missing
+    ok 2 - throws when text is missing
+      ---
+      duration_ms: 0.358064
+      ...
+    1..2
+ok 192 - upwork live post
+  ---
+  duration_ms: 0.925382
+  type: 'suite'
+  ...
+# Subtest: upwork source registry integration
+    # Subtest: includes upwork in listSources()
+    ok 1 - includes upwork in listSources()
+      ---
+      duration_ms: 0.200559
+      ...
+    1..1
+ok 193 - upwork source registry integration
+  ---
+  duration_ms: 0.312587
+  type: 'suite'
+  ...
+# Subtest: upwork softCacheRetention
+    # Subtest: purges expired live links and leaves archive links alone
+    ok 1 - purges expired live links and leaves archive links alone
+      ---
+      duration_ms: 0.510692
+      ...
+    1..1
+ok 194 - upwork softCacheRetention
+  ---
+  duration_ms: 0.693946
+  type: 'suite'
+  ...
+# Subtest: master-key vault (R-K7..R-K12)
+    # Subtest: initialize → encrypt → lock → unlock → decrypt round-trips
+    ok 1 - initialize → encrypt → lock → unlock → decrypt round-trips
+      ---
+      duration_ms: 92.248612
+      ...
+    # Subtest: rejects unlock with the wrong secret
+    ok 2 - rejects unlock with the wrong secret
+      ---
+      duration_ms: 59.987748
+      ...
+    # Subtest: addUnlock lets a second method open the same master key (R-K8)
+    ok 3 - addUnlock lets a second method open the same master key (R-K8)
+      ---
+      duration_ms: 112.515779
+      ...
+    # Subtest: removeUnlock cannot orphan the vault (R-K12)
+    ok 4 - removeUnlock cannot orphan the vault (R-K12)
+      ---
+      duration_ms: 55.460048
+      ...
+    # Subtest: addUnlock requires the vault to be unlocked
+    ok 5 - addUnlock requires the vault to be unlocked
+      ---
+      duration_ms: 28.66799
+      ...
+    # Subtest: encryptWithKey + decryptWithKey are deterministic round-trips
+    ok 6 - encryptWithKey + decryptWithKey are deterministic round-trips
+      ---
+      duration_ms: 0.484764
+      ...
+    # Subtest: initialize refuses to clobber an existing vault
+    ok 7 - initialize refuses to clobber an existing vault
+      ---
+      duration_ms: 29.818797
+      ...
+    1..7
+ok 195 - master-key vault (R-K7..R-K12)
+  ---
+  duration_ms: 380.844478
+  type: 'suite'
+  ...
+# Subtest: wasm pattern matcher runs the Rust pattern_matches export
+ok 196 - wasm pattern matcher runs the Rust pattern_matches export
+  ---
+  duration_ms: 7.157065
+  ...
+# Subtest: wasm pattern support detector leaves complex regexes to JS fallback
+ok 197 - wasm pattern support detector leaves complex regexes to JS fallback
+  ---
+  duration_ms: 0.381048
+  ...
+# Subtest: React SPA packaging
+    # Subtest: ships a bundled React entrypoint while keeping source editable
+    ok 1 - ships a bundled React entrypoint while keeping source editable
+      ---
+      duration_ms: 15.039363
+      ...
+    1..1
+ok 198 - React SPA packaging
+  ---
+  duration_ms: 16.355529
+  type: 'suite'
+  ...
+# Subtest: classifyViewport: ≤640 → compact, 641-1023 → medium, ≥1024 → expanded
+ok 199 - classifyViewport: ≤640 → compact, 641-1023 → medium, ≥1024 → expanded
+  ---
+  duration_ms: 0.889829
+  ...
+# Subtest: AppShell at 320px renders a bottom-nav with role=navigation
+ok 200 - AppShell at 320px renders a bottom-nav with role=navigation
+  ---
+  duration_ms: 6.83935
+  ...
+# Subtest: AppShell at 768px renders a navigation rail (no bottom-nav)
+ok 201 - AppShell at 768px renders a navigation rail (no bottom-nav)
+  ---
+  duration_ms: 1.191359
+  ...
+# Subtest: AppShell at 1280px renders a permanent drawer (no bottom-nav, no rail)
+ok 202 - AppShell at 1280px renders a permanent drawer (no bottom-nav, no rail)
+  ---
+  duration_ms: 0.814176
+  ...
+# Subtest: AppShell exposes a Connections entry in the primary nav
+ok 203 - AppShell exposes a Connections entry in the primary nav
+  ---
+  duration_ms: 1.003629
+  ...
+# Subtest: AppShell topbar uses the glass surface class (R-N11)
+ok 204 - AppShell topbar uses the glass surface class (R-N11)
+  ---
+  duration_ms: 0.75747
+  ...
+# Subtest: AppShell marks the active nav button via aria-current=page
+ok 205 - AppShell marks the active nav button via aria-current=page
+  ---
+  duration_ms: 1.255113
+  ...
+# Subtest: signaling relays SDP frames between peers in same room
+ok 206 - signaling relays SDP frames between peers in same room
+  ---
+  duration_ms: 75.771412
+  ...
+# Subtest: rooms are isolated
+ok 207 - rooms are isolated
+  ---
+  duration_ms: 32.621472
+  ...
+# Subtest: peer-joined fires for existing peers when new one arrives
+ok 208 - peer-joined fires for existing peers when new one arrives
+  ---
+  duration_ms: 34.450712
+  ...
+# Subtest: signalingChannel routes typed messages by `type`
+ok 209 - signalingChannel routes typed messages by `type`
+  ---
+  duration_ms: 7.457834
+  ...
+# Subtest: two webrtc transports exchange messages over the data channel
+ok 210 - two webrtc transports exchange messages over the data channel
+  ---
+  duration_ms: 22.150349
+  ...
+# Subtest: webrtc transport queues sends until the data channel opens
+ok 211 - webrtc transport queues sends until the data channel opens
+  ---
+  duration_ms: 10.997528
+  ...
+1..211
+# tests 314
+# suites 81
+# pass 314
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1882.84634
