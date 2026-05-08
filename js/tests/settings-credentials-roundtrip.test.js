@@ -1,6 +1,6 @@
-// Issue #16 / R-O8, R-O3, R-O11: Settings credentials roundtrip.
+// Issue #16 / R-O8, R-O3, R-O11: provider credential roundtrip.
 //
-// End-to-end check that the Settings → Connections form contract still
+// End-to-end check that the Connections provider-detail form contract
 // holds when the SPA talks to a real `startServer` instance with
 // `secretPassphrase`:
 //
@@ -23,7 +23,7 @@ import {
   providerCatalogue,
 } from '../src/web/connection-guides.js';
 
-describe('Settings credentials roundtrip (issue #16)', () => {
+describe('Provider credentials roundtrip (issue #16)', () => {
   it('persists secret:* via api.put, reads it back, and feeds buildProbeUrl', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-issue16-'));
     const handle = await startServer({
@@ -34,8 +34,7 @@ describe('Settings credentials roundtrip (issue #16)', () => {
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       // The SPA's `api.put` POSTs to /links via the dom.js layer; the
-      // shape below is identical to what `<ProviderCredentialsForm>` in
-      // settings-view.js emits.
+      // shape below is identical to what `<ProviderCredentialsForm>` emits.
       const sampleToken = '123456:ABC-roundtrip-sample';
       const put = await fetch(`${base}/links`, {
         method: 'PUT',
@@ -58,7 +57,7 @@ describe('Settings credentials roundtrip (issue #16)', () => {
       expect(links[0].id).toBe('secret:telegram:bot-token');
       expect(links[0].value).toBe(sampleToken);
 
-      // The Settings card recovers a field-id map from secret:* links
+      // The provider detail recovers a field-id map from secret:* links
       // and hands it to buildProbeUrl unchanged.
       const provider = providerCatalogue.telegram;
       const credentials = credentialsFromLinks(provider, links);

@@ -107,7 +107,8 @@ export const en = {
   'status.title': 'Status',
   'settings.title': 'Settings',
   'settings.intro':
-    'Every provider connection lives here. Paste credentials, upload an archive, and probe the live API. Credentials are stored as encrypted-at-rest secret:* links and are never broadcast to peers.',
+    'App-level preferences live here. Provider credentials, archive imports, and live probes live on the dedicated Connections screen.',
+  'settings.openConnections': 'Open Connections',
   'settings.credentials': 'Credentials',
   'settings.optional': '(optional)',
   'settings.storedAs': 'Stored as {id}',
@@ -143,10 +144,13 @@ export const en = {
   'guide.connectFirstHint':
     'You must connect a provider first before any data can show up here.',
   'guide.openSettings': 'Open {target}',
-  'guide.openSettingsTarget': 'Settings → Connections → {label}',
-  'guide.openSettingsRoot': 'Settings → Connections',
+  'guide.openSettingsTarget': 'Connections → {label}',
+  'guide.openSettingsRoot': 'Connections',
+  'guide.openConnections': 'Open {target}',
+  'guide.openConnectionsTarget': 'Connections → {label}',
+  'guide.openConnectionsRoot': 'Connections',
   'guide.probeDisabled':
-    'Enter credentials in Settings to enable the {label} probe.',
+    'Enter credentials in Connections to enable the {label} probe.',
   'guide.useThisServer': 'Use this server',
   'guide.fallbackTitle': 'Nothing here yet.',
   'guide.filesLabel': 'Files: {hint}',
@@ -167,37 +171,37 @@ export const en = {
     'Once the server is running, paste its URL below and click "use this server" — the SPA will store it and reload.',
   'guide.chat.title': 'Your unified inbox starts empty.',
   'guide.chat.body':
-    'meta-sovereign keeps every chat from every connected service in one place. Connect a provider below, or import an exported archive to populate this view.',
+    'meta-sovereign keeps every chat from every connected service in one place. Open Connections to connect a provider or import an exported archive, then come back here.',
   'guide.operator.title': 'Operator queue is empty.',
   'guide.operator.body':
-    'The operator card stream walks you through unread messages chat by chat. Connect a chat-capable provider below to start the queue.',
+    'The operator card stream walks you through unread messages chat by chat. Open Connections and add a chat-capable provider to start the queue.',
   'guide.contacts.title': 'No contacts yet.',
   'guide.contacts.body':
-    'Contacts are aggregated from every connected provider so the same person across networks shows up once. Add a provider to populate this list.',
+    'Contacts are aggregated from every connected provider so the same person across networks shows up once. Open Connections to add a provider and populate this list.',
   'guide.automation.title': 'No automation graphs yet.',
   'guide.automation.body':
-    'Automation graphs route incoming messages from a pattern to a reply variation. Drop a node above, or import an archive first so you have data to match against.',
+    'Automation graphs route incoming messages from a pattern to a reply variation. Open Connections to import provider data before building automations.',
   'guide.patterns.title': 'No patterns yet.',
   'guide.patterns.body':
-    'Patterns are inferred from example messages. Connect a provider, or import an archive, then come back here and feed the inferrer a few examples.',
+    'Patterns are inferred from example messages. Open Connections to connect a provider or import an archive, then return with examples to infer from.',
   'guide.replies.title': 'No reply variation groups yet.',
   'guide.replies.body':
-    'Reply groups are extracted from your previous outgoing messages by fuzzy similarity. Connect a chat-capable provider to seed your reply library.',
+    'Reply groups are extracted from your previous outgoing messages by fuzzy similarity. Open Connections to add a chat-capable provider and seed your reply library.',
   'guide.facts.title': 'No facts extracted yet.',
   'guide.facts.body':
-    'Facts are question -> answer pairs extracted across messages by your patterns. Add a pattern with a capture group, or connect a chat provider to start gathering data.',
+    'Facts are question -> answer pairs extracted across messages by your patterns. Open Connections to gather provider data, then add a capture pattern here.',
   'guide.audience.title': 'Build your first audience.',
   'guide.audience.body':
-    'Cross-reference contacts using AND/OR/NOT plus dimensions like network:, chat:, sender:, kind:, fact:. Connect at least one provider so you have contacts to filter.',
+    'Cross-reference contacts using AND/OR/NOT plus dimensions like network:, chat:, sender:, kind:, fact:. Open Connections to add at least one provider first.',
   'guide.broadcast.title': 'No broadcast targets yet.',
   'guide.broadcast.body':
-    'Broadcasts post the same message to every connected feed. Connect a public-posting provider below to enable a target checkbox.',
+    'Broadcasts post the same message to every connected feed. Open Connections to connect a public-posting provider and enable target checkboxes.',
   'guide.outreach.title': 'No outreach surface yet.',
   'guide.outreach.body':
-    'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Connect a chat-capable provider to enable outreach.',
+    'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Open Connections to add a chat-capable provider first.',
   'guide.profile.title': 'No profile yet.',
   'guide.profile.body':
-    'Edit your profile and resume here; saves are pushed to every connected provider. Connect at least one provider so the sync envelope has somewhere to go.',
+    'Edit your profile and resume here; saves are pushed to every connected provider. Open Connections to add at least one provider for profile sync.',
   'guide.backup.title': 'No backup archives yet.',
   'guide.backup.body':
     'Backups are encrypted-at-rest archives of the local store. Set a passphrase above, click "create backup" once you have data worth saving, or start a local server first if you want backups to live on disk.',
@@ -209,7 +213,7 @@ export const en = {
     'External services live on this dedicated screen. Pick a provider to enter its credentials, upload an archive, and probe the live API. Settings only keeps app-level preferences.',
   'guide.settings.title': 'Settings',
   'guide.settings.body':
-    'Provider connections, credentials, and archive imports live here. The list below mirrors every catalogued provider; pick one to enter its credentials, upload an archive, and probe the live API.',
+    'App-level preferences live here. Provider credentials, archive imports, and live probes live on the dedicated Connections screen.',
   'connections.title': 'Connections',
   'connections.intro':
     'Pick a provider to enter credentials, import an archive, and probe the live API.',
@@ -217,6 +221,7 @@ export const en = {
   'connections.state.notConnected': 'Not connected',
   'connections.state.actionRequired': 'Action required',
   'connections.openDetail': 'Set up',
+  'connections.controlsTitle': 'Connection controls',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':

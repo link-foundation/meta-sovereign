@@ -58,32 +58,36 @@ test('ConnectionGuide chat surface renders Russian copy when locale=ru', () => {
   );
 });
 
-test('ConnectionGuide renders translated provider labels and api hints in zh', () => {
+test('ConnectionGuide renders a compact Connections CTA instead of provider cards', () => {
   const html = renderInLocale(
     'zh',
     React.createElement(ConnectionGuide, { section: 'chat' })
   );
-  // Telegram provider should display the translated archive title.
   assert.ok(
-    html.includes(dictionaries.zh['connections.telegram.archive.title']),
-    'Chinese telegram archive title must render'
+    html.includes(dictionaries.zh['guide.chat.title']),
+    'Chinese guide.chat.title must render'
+  );
+  assert.ok(
+    html.includes('data-action="open-connections"'),
+    'empty data sections must link to the dedicated Connections screen'
+  );
+  assert.ok(
+    !html.includes('connection-guide-provider'),
+    'empty data sections must not repeat provider setup cards inline'
   );
 });
 
-test('ConnectionGuide renders Hindi guide.filesLabel with the file hint', () => {
+test('ConnectionGuide does not render archive or probe setup controls inline', () => {
   const html = renderInLocale(
     'hi',
     React.createElement(ConnectionGuide, { section: 'chat' })
   );
-  // The hi translation of "Files: {hint}" should be rendered with the
-  // English file-glob pattern interpolated.
-  const expectedTpl = dictionaries.hi['guide.filesLabel'];
-  assert.equal(typeof expectedTpl, 'string');
-  // Pull a known fileHint (telegram is in the chat surface).
-  const hint = 'result.json';
-  const expected = expectedTpl.replace('{hint}', hint);
   assert.ok(
-    html.includes(expected),
-    `expected hi guide.filesLabel "${expected}" in the rendered html`
+    !html.includes('data-action="archive-file"'),
+    'archive import belongs on the provider detail page'
+  );
+  assert.ok(
+    !html.includes('data-action="probe"'),
+    'live probing belongs on the provider detail page'
   );
 });

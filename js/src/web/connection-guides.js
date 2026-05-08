@@ -19,7 +19,7 @@ import { saveServerOverride } from './discover.js';
 //
 // Issue #16 / R-O1, R-O2 additions per provider:
 //   - `apiCredentials.fields` enumerates the credential inputs the
-//     Settings → Connections card renders (text/password). Each field
+//     Connections provider detail renders (text/password). Each field
 //     names the `secret:*` link id it persists into.
 //   - `apiCredentials.probeUrlTemplate` is a string with `{token}` /
 //     `{phoneNumberId}` / `{appId}` placeholders that resolve against
@@ -32,7 +32,7 @@ import { saveServerOverride } from './discover.js';
 //   - `apiCredentials.errorHints` maps an HTTP status to a user-facing
 //     remediation hint surfaced by `<ProbeRow>`.
 //   - `archive.accept` is the `<input type="file" accept>` filter used
-//     by the Settings → Connections archive uploader (R-O4).
+//     by the Connections archive uploader (R-O4).
 export const providerCatalogue = {
   email: {
     label: 'Email',
@@ -664,15 +664,15 @@ export const providerCatalogue = {
 
 // Section -> guide. Keys mirror `navItems` in views.js (R-M1).
 //
-// Issue #16 / R-O7 additions:
+// Issue #16 / R-O7 and issue #27 additions:
 //   - `connectFirst` is the per-section deep-link the empty-state card
-//     shows. It points the user at Settings → Connections and scrolls to
-//     the first relevant provider card (`#conn-{providerId}`).
+//     shows. It points the user at Connections -> provider detail, where
+//     the matching provider owns credentials, archive import, and probe.
 export const connectionGuides = {
   chat: {
     title: 'Your unified inbox starts empty.',
     titleKey: 'guide.chat.title',
-    body: 'meta-sovereign keeps every chat from every connected service in one place. Connect a provider below, or import an exported archive to populate this view.',
+    body: 'meta-sovereign keeps every chat from every connected service in one place. Open Connections to connect a provider or import an exported archive, then come back here.',
     bodyKey: 'guide.chat.body',
     providers: [
       'email',
@@ -691,7 +691,7 @@ export const connectionGuides = {
   operator: {
     title: 'Operator queue is empty.',
     titleKey: 'guide.operator.title',
-    body: 'The operator card stream walks you through unread messages chat by chat. Connect a chat-capable provider below to start the queue.',
+    body: 'The operator card stream walks you through unread messages chat by chat. Open Connections and add a chat-capable provider to start the queue.',
     bodyKey: 'guide.operator.body',
     providers: [
       'email',
@@ -710,7 +710,7 @@ export const connectionGuides = {
   contacts: {
     title: 'No contacts yet.',
     titleKey: 'guide.contacts.title',
-    body: 'Contacts are aggregated from every connected provider so the same person across networks shows up once. Add a provider to populate this list.',
+    body: 'Contacts are aggregated from every connected provider so the same person across networks shows up once. Open Connections to add a provider and populate this list.',
     bodyKey: 'guide.contacts.body',
     providers: [
       'email',
@@ -732,7 +732,7 @@ export const connectionGuides = {
   automation: {
     title: 'No automation graphs yet.',
     titleKey: 'guide.automation.title',
-    body: 'Automation graphs route incoming messages from a pattern to a reply variation. Drop a node above, or import an archive first so you have data to match against.',
+    body: 'Automation graphs route incoming messages from a pattern to a reply variation. Open Connections to import provider data before building automations.',
     bodyKey: 'guide.automation.body',
     providers: [
       'email',
@@ -748,7 +748,7 @@ export const connectionGuides = {
   patterns: {
     title: 'No patterns yet.',
     titleKey: 'guide.patterns.title',
-    body: 'Patterns are inferred from example messages. Connect a provider, or import an archive, then come back here and feed the inferrer a few examples.',
+    body: 'Patterns are inferred from example messages. Open Connections to connect a provider or import an archive, then return with examples to infer from.',
     bodyKey: 'guide.patterns.body',
     providers: ['email', 'telegram', 'vk', 'x', 'whatsapp'],
     connectFirst: { providerId: 'telegram' },
@@ -756,7 +756,7 @@ export const connectionGuides = {
   replies: {
     title: 'No reply variation groups yet.',
     titleKey: 'guide.replies.title',
-    body: 'Reply groups are extracted from your previous outgoing messages by fuzzy similarity. Connect a chat-capable provider to seed your reply library.',
+    body: 'Reply groups are extracted from your previous outgoing messages by fuzzy similarity. Open Connections to add a chat-capable provider and seed your reply library.',
     bodyKey: 'guide.replies.body',
     providers: [
       'email',
@@ -773,7 +773,7 @@ export const connectionGuides = {
   facts: {
     title: 'No facts extracted yet.',
     titleKey: 'guide.facts.title',
-    body: 'Facts are question -> answer pairs extracted across messages by your patterns. Add a pattern with a capture group, or connect a chat provider to start gathering data.',
+    body: 'Facts are question -> answer pairs extracted across messages by your patterns. Open Connections to gather provider data, then add a capture pattern here.',
     bodyKey: 'guide.facts.body',
     providers: ['email', 'telegram', 'vk', 'x', 'whatsapp'],
     connectFirst: { providerId: 'telegram' },
@@ -781,7 +781,7 @@ export const connectionGuides = {
   audience: {
     title: 'Build your first audience.',
     titleKey: 'guide.audience.title',
-    body: 'Cross-reference contacts using AND/OR/NOT plus dimensions like network:, chat:, sender:, kind:, fact:. Connect at least one provider so you have contacts to filter.',
+    body: 'Cross-reference contacts using AND/OR/NOT plus dimensions like network:, chat:, sender:, kind:, fact:. Open Connections to add at least one provider first.',
     bodyKey: 'guide.audience.body',
     providers: [
       'email',
@@ -800,7 +800,7 @@ export const connectionGuides = {
   broadcast: {
     title: 'No broadcast targets yet.',
     titleKey: 'guide.broadcast.title',
-    body: 'Broadcasts post the same message to every connected feed. Connect a public-posting provider below to enable a target checkbox.',
+    body: 'Broadcasts post the same message to every connected feed. Open Connections to connect a public-posting provider and enable target checkboxes.',
     bodyKey: 'guide.broadcast.body',
     providers: ['x', 'vk', 'facebook', 'linkedin', 'telegram'],
     connectFirst: { providerId: 'x' },
@@ -808,7 +808,7 @@ export const connectionGuides = {
   outreach: {
     title: 'No outreach surface yet.',
     titleKey: 'guide.outreach.title',
-    body: 'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Connect a chat-capable provider to enable outreach.',
+    body: 'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Open Connections to add a chat-capable provider first.',
     bodyKey: 'guide.outreach.body',
     providers: [
       'email',
@@ -826,7 +826,7 @@ export const connectionGuides = {
   profile: {
     title: 'No profile yet.',
     titleKey: 'guide.profile.title',
-    body: 'Edit your profile and resume here; saves are pushed to every connected provider. Connect at least one provider so the sync envelope has somewhere to go.',
+    body: 'Edit your profile and resume here; saves are pushed to every connected provider. Open Connections to add at least one provider for profile sync.',
     bodyKey: 'guide.profile.body',
     providers: [
       'telegram',
@@ -865,7 +865,7 @@ export const connectionGuides = {
   settings: {
     title: 'Settings',
     titleKey: 'guide.settings.title',
-    body: 'Provider connections, credentials, and archive imports live here. The list below mirrors every catalogued provider; pick one to enter its credentials, upload an archive, and probe the live API.',
+    body: 'App-level preferences live here. Provider credentials, archive imports, and live probes live on the dedicated Connections screen.',
     bodyKey: 'guide.settings.body',
     providers: [],
   },
@@ -1078,8 +1078,8 @@ export const buildProbeHeaders = ({ provider, credentials = {} } = {}) => {
   return out;
 };
 
-// Convenience: used by the Settings UI to read every credential field
-// for a provider out of an array of `secret:*` links.
+// Convenience: used by the Connections UI to read every credential
+// field for a provider out of an array of `secret:*` links.
 export const credentialsFromLinks = (provider, links = []) => {
   const fields = provider?.apiCredentials?.fields ?? [];
   const byId = new Map();

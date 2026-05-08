@@ -13,7 +13,6 @@ import React, { useState } from 'react';
 import {
   connectionGuides,
   getGuide,
-  getProvider,
   isCrossOrigin,
   localServerHelp,
   providerCatalogue,
@@ -35,88 +34,6 @@ const tx = (t, value, key) => {
     }
   }
   return value;
-};
-
-const ProbeRow = ({ provider }) => {
-  const t = useT();
-  // R-O1: per-section ProbeRow refuses to fire when no credentials are
-  // saved (which would always 404/400 — the original bug). It points
-  // the user at Settings → Connections instead.
-  const ready = false;
-  const placeholder = t('guide.probeDisabled', {
-    label: tx(t, provider.label, provider.labelKey),
-  });
-  return el('div', { className: 'col probe-row' }, [
-    el('div', { key: 'row', className: 'row' }, [
-      el(
-        'button',
-        {
-          key: 'probe',
-          type: 'button',
-          className: 'primary',
-          disabled: !ready,
-        },
-        t('settings.probe.button')
-      ),
-      el('span', { key: 'meta', className: 'meta' }, placeholder),
-    ]),
-  ]);
-};
-
-const ProviderCard = ({ providerId }) => {
-  const t = useT();
-  const provider = getProvider(providerId);
-  return el('section', { className: 'card connection-guide-provider' }, [
-    el('h3', { key: 'h' }, tx(t, provider.label, provider.labelKey)),
-    el('div', { key: 'archive', className: 'col' }, [
-      el(
-        'h4',
-        { key: 'h', className: 'meta' },
-        tx(t, provider.archive.title, provider.archive.titleKey)
-      ),
-      el(
-        'p',
-        { key: 'p' },
-        tx(t, provider.archive.hint, provider.archive.hintKey)
-      ),
-      el(
-        'div',
-        { key: 'fileHint', className: 'meta' },
-        t('guide.filesLabel', { hint: provider.archive.fileHint })
-      ),
-    ]),
-    el('div', { key: 'api', className: 'col' }, [
-      el(
-        'h4',
-        { key: 'h', className: 'meta' },
-        tx(t, provider.apiCredentials.title, provider.apiCredentials.titleKey)
-      ),
-      el(
-        'p',
-        { key: 'p' },
-        tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey)
-      ),
-      el(
-        'div',
-        { key: 'env', className: 'meta' },
-        t('guide.envVarLabel', { name: provider.apiCredentials.envVar })
-      ),
-      el(
-        'div',
-        { key: 'docs', className: 'meta' },
-        el(
-          'a',
-          {
-            href: provider.apiCredentials.docsUrl,
-            target: '_blank',
-            rel: 'noopener noreferrer',
-          },
-          t('settings.docsLink')
-        )
-      ),
-      el(ProbeRow, { key: 'probe', provider }),
-    ]),
-  ]);
 };
 
 export const LocalServerHelp = () => {
@@ -181,23 +98,22 @@ export const LocalServerHelp = () => {
   ]);
 };
 
-// R-O7: per-section "Connect first" CTA. Renders above the in-place
-// guide and deep-links into Settings → Connections, scrolling to the
-// matching provider card via the `meta-sovereign:navigate` event that
-// app.js listens for.
-export const SettingsConnectFirstCta = ({ providerId }) => {
+// Issue #27: per-section "Connect first" CTA. Empty data surfaces keep
+// their explanation but deep-link into the dedicated Connections detail
+// page instead of repeating provider setup cards inline.
+export const ConnectionsConnectFirstCta = ({ providerId }) => {
   const t = useT();
   const provider = providerId ? providerCatalogue[providerId] : null;
   const target = provider
-    ? t('guide.openSettingsTarget', {
+    ? t('guide.openConnectionsTarget', {
         label: tx(t, provider.label, provider.labelKey),
       })
-    : t('guide.openSettingsRoot');
+    : t('guide.openConnectionsRoot');
   const navigate = () => {
     const anchor = providerId ? `#conn-${providerId}` : '';
     globalThis.dispatchEvent?.(
       new CustomEvent('meta-sovereign:navigate', {
-        detail: { view: 'settings', anchor },
+        detail: { view: 'connections', anchor },
       })
     );
   };
@@ -210,10 +126,11 @@ export const SettingsConnectFirstCta = ({ providerId }) => {
         type: 'button',
         className: 'primary',
         onClick: navigate,
-        'data-action': 'open-settings',
+        'data-action': 'open-connections',
+        'data-target-provider': providerId ?? '',
         'data-target-anchor': providerId ? `#conn-${providerId}` : '',
       },
-      t('guide.openSettings', { target })
+      t('guide.openConnections', { target })
     ),
   ]);
 };
@@ -232,6 +149,7 @@ export const ConnectionGuide = ({ section }) => {
     'section',
     {
       className: 'connection-guide',
+      'data-guide-mode': guide.providers.length > 0 ? 'compact' : 'help',
       'data-connection-guide': section,
       role: 'note',
     },
@@ -239,14 +157,11 @@ export const ConnectionGuide = ({ section }) => {
       el('h2', { key: 'h' }, tx(t, guide.title, guide.titleKey)),
       el('p', { key: 'body' }, tx(t, guide.body, guide.bodyKey)),
       guide.providers.length > 0
-        ? el(SettingsConnectFirstCta, {
+        ? el(ConnectionsConnectFirstCta, {
             key: 'cta',
             providerId: guide.connectFirst?.providerId ?? guide.providers[0],
           })
         : null,
-      ...guide.providers.map((id) =>
-        el(ProviderCard, { key: id, providerId: id })
-      ),
       guide.providers.length === 0
         ? el(LocalServerHelp, { key: 'help' })
         : null,
