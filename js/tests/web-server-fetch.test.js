@@ -50,8 +50,12 @@ describe('serverFetch talks to the discovered server', () => {
     globalThis.META_SOVEREIGN_DISCOVERY_CANDIDATES = stub.origin;
     try {
       // Imported here, after the candidate is published, because the
-      // module boots (and discovers) on first use.
-      const { api } = await import('../src/web/dom.js');
+      // module boots (and discovers) on first use — and rebound
+      // explicitly, because bun and deno share one module registry
+      // across test files, so another file may have booted it offline
+      // already.
+      const { api, resetServerBinding } = await import('../src/web/dom.js');
+      resetServerBinding();
 
       // 3. An implemented route resolves to its body…
       const stored = await api.cvStored();
@@ -78,6 +82,9 @@ describe('serverFetch talks to the discovered server', () => {
       expect(read.failures[0].code).toBe('server-required');
     } finally {
       delete globalThis.META_SOVEREIGN_DISCOVERY_CANDIDATES;
+      // Leave nothing bound to a server that is about to close.
+      const { resetServerBinding } = await import('../src/web/dom.js');
+      resetServerBinding();
       await new Promise((resolve) => stub.server.close(resolve));
     }
   });

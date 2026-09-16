@@ -74,6 +74,20 @@ const ensure = () => {
   return bootPromise;
 };
 
+/**
+ * Forget the discovered server so the next API call boots again.
+ *
+ * Discovery is memoised, which is right for a page that lives as long
+ * as its tab (the SPA reloads itself after a manual override is saved,
+ * see `applyLocalServerOverride`). Tests need the undo: node runs each
+ * test file in its own process, but bun and deno share one module
+ * registry across files, so whichever file touched `api` first would
+ * otherwise decide the binding for every file after it.
+ */
+export const resetServerBinding = () => {
+  bootPromise = null;
+};
+
 const serverFetch = async (path, init) => {
   const { client, origin } = await ensure();
   if (!client.isOnline()) {
