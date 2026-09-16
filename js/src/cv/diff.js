@@ -13,6 +13,7 @@ import {
   LIST_SECTIONS,
   MAP_SECTIONS,
   RECORD_SECTIONS,
+  emptyCv,
   normalizeCv,
   recordKey,
 } from './model.js';
@@ -177,4 +178,94 @@ export const reconcileCvs = (entries = [], { prefer = null } = {}) => {
       ),
     };
   });
+};
+
+const FLAT_RECORD = /^([a-z]+)\[(.*)\]\.([a-zA-Z]+)$/;
+const FLAT_LIST = /^([a-z]+)\[(.*)\]$/;
+
+const mergeRecordGroup = (cv, section, key, fields) => {
+  const existing = cv[section].find(
+    (record) => recordKey(section, record) === key
+  );
+  if (existing) {
+    Object.assign(existing, fields);
+    return;
+  }
+  cv[section].push({ ...fields });
+};
+
+const collectRecord = (records, match, value) => {
+  const groupKey = `${match[1]}::${match[2]}`;
+  const group = records.get(groupKey) ?? {
+    section: match[1],
+    key: match[2],
+    fields: {},
+  };
+  group.fields[match[3]] = value;
+  records.set(groupKey, group);
+};
+
+const addListValue = (cv, section, value) => {
+  const known = cv[section].some(
+    (item) => item.toLowerCase() === String(value).toLowerCase()
+  );
+  if (!known) {
+    cv[section].push(String(value));
+  }
+};
+
+/**
+ * Apply flat `path -> value` changes (as produced by {@link flattenCv},
+ * {@link diffCv} or {@link reconcileCvs}) back onto a CV. This is the
+ * inverse direction of the diff and is what turns a reconciliation
+ * plan into a CV the runner can write.
+ *
+ * Records are merged by identity key rather than by position, so a
+ * plan that touches one field of one job leaves the rest alone.
+ *
+ * @param {object} cv base snapshot (not mutated)
+ * @param {Array<{path: string, value: any}>} changes
+ * @returns {object} normalised result
+ */
+export const applyFlatChanges = (cv, changes = []) => {
+  const next = normalizeCv(cv);
+  const records = new Map();
+  for (const { path, value } of changes) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+    const record = path.match(FLAT_RECORD);
+    if (record && RECORD_SECTIONS[record[1]]) {
+      collectRecord(records, record, value);
+      continue;
+    }
+    const list = path.match(FLAT_LIST);
+    if (list && LIST_SECTIONS[list[1]]) {
+      addListValue(next, list[1], value);
+      continue;
+    }
+    const [section, field] = path.split('.');
+    if (MAP_SECTIONS[section]?.includes(field)) {
+      next[section][field] = value;
+    }
+  }
+  for (const group of records.values()) {
+    mergeRecordGroup(next, group.section, group.key, group.fields);
+  }
+  return normalizeCv(next);
+};
+
+/**
+ * Rebuild a CV from flat pairs - the exact inverse of
+ * {@link flattenCv} for every value the model can hold.
+ * @param {Map<string, any>|Array<[string, any]>|Array<{path: string, value: any}>} pairs
+ */
+export const cvFromFlat = (pairs) => {
+  const list = Array.isArray(pairs) ? pairs : [...pairs];
+  return applyFlatChanges(
+    emptyCv(),
+    list.map((entry) =>
+      Array.isArray(entry) ? { path: entry[0], value: entry[1] } : entry
+    )
+  );
 };
