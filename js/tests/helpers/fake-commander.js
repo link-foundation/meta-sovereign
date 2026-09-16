@@ -8,6 +8,8 @@
  * `js/tests/e2e-cv-browser.mjs`.
  */
 
+import { selectorCandidates } from '../../src/cv/runner.js';
+
 const makeNode = (entry) => ({
   textContent: entry.text ?? '',
   outerHTML: entry.html ?? `<div>${entry.text ?? ''}</div>`,
@@ -18,13 +20,22 @@ const makeNode = (entry) => ({
       : null,
 });
 
+/**
+ * A browser matches every branch of a selector list (`a, b`), so the
+ * fixture lookup unions the candidates the same way — otherwise tests
+ * would have to mirror each plan's exact fallback string.
+ */
+const entriesFor = (page, selector) =>
+  selectorCandidates(selector).flatMap(
+    (candidate) => page.nodes?.[candidate] ?? []
+  );
+
 const withDocument = async (page, fn, arg) => {
   const previous = globalThis.document;
   globalThis.document = {
-    querySelectorAll: (selector) =>
-      (page.nodes?.[selector] ?? []).map(makeNode),
+    querySelectorAll: (selector) => entriesFor(page, selector).map(makeNode),
     querySelector: (selector) => {
-      const [first] = page.nodes?.[selector] ?? [];
+      const [first] = entriesFor(page, selector);
       return first ? makeNode(first) : null;
     },
   };
@@ -44,7 +55,7 @@ export const createFakeCommander = ({ pages, url = Object.keys(pages)[0] }) => {
   const calls = { goto: [], click: [], fill: [], press: [], screenshot: 0 };
   let current = url;
   const page = () => pages[current] ?? { nodes: {} };
-  const nodes = (selector) => page().nodes?.[selector] ?? [];
+  const nodes = (selector) => entriesFor(page(), selector);
 
   return {
     calls,

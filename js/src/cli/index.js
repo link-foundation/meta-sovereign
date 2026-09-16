@@ -28,7 +28,12 @@ import {
   restoreBackup,
 } from '../storage/backup.js';
 import { writeEncryptedExport } from '../storage/export-encrypted.js';
-import { listSources, importInto, pullLiveInto } from '../sources/index.js';
+import {
+  listCvSources,
+  listSources,
+  importInto,
+  pullLiveInto,
+} from '../sources/index.js';
 import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { createGithubLive } from '../sources/github.js';
@@ -500,7 +505,8 @@ const resumeCmd = async (args, log) => {
       body: args.body,
     };
     await store.put(resume);
-    const targets = ['hh', 'habr-career', 'superjob', 'linkedin'];
+    // Every board with a CV plan is a resume target (issue #29).
+    const targets = listCvSources();
     log(
       JSON.stringify(
         {

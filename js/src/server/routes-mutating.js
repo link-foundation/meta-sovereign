@@ -9,7 +9,11 @@
 import { json, readBody } from './util.js';
 import { inferRegex, simplifyRegex, inferRegexLcs } from '../patterns/index.js';
 import { runGraph } from '../automation/index.js';
-import { listSources, stampSourceLink } from '../sources/index.js';
+import {
+  listCvSources,
+  listSources,
+  stampSourceLink,
+} from '../sources/index.js';
 import { createEmailLive } from '../sources/email.js';
 import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { createGithubLive } from '../sources/github.js';
@@ -285,7 +289,8 @@ const handleResume = async (store, req, res, p) => {
     resume.id = 'resume:me';
     resume.tokens = resume.tokens ?? ['resume'];
     await store.put(resume);
-    const targets = ['hh', 'habr-career', 'superjob', 'linkedin'];
+    // Every board with a CV plan is a resume target (issue #29).
+    const targets = listCvSources();
     return (
       json(res, 200, {
         resume,

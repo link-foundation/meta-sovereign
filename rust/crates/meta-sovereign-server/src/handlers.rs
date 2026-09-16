@@ -27,9 +27,21 @@ pub const SOURCES: &[&str] = &[
     "github",
     "upwork",
     "peopleperhour",
+    "naukri",
+    "vietnamworks",
+    "topcv",
 ];
 
-const RESUME_TARGETS: &[&str] = &["hh", "habr-career", "superjob", "linkedin"];
+// Every board with a declarative CV plan is a resume target (issue #29).
+const RESUME_TARGETS: &[&str] = &[
+    "linkedin",
+    "habr-career",
+    "hh",
+    "superjob",
+    "naukri",
+    "vietnamworks",
+    "topcv",
+];
 
 // -- Helpers ----------------------------------------------------------------
 
