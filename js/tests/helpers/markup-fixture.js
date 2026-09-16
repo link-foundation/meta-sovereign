@@ -1,5 +1,5 @@
 /**
- * Markup fixtures generated from a CV plan (issue #29).
+ * Markup fixtures generated from a CV plan (issue #29, R-V21).
  *
  * The plans in `js/src/cv/platforms` are declarative, so the markup a
  * plan expects can be derived from the plan itself: every selector is

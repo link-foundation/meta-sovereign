@@ -1,5 +1,5 @@
 /**
- * Real-browser CV end-to-end run (issue #29).
+ * Real-browser CV end-to-end run (issue #29, R-V21).
  *
  * Issue #29 asks for the whole CV pipeline to be exercisable before we
  * have authenticated access to any job board: "even if we don't have
