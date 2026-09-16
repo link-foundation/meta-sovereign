@@ -24,6 +24,9 @@ const PROVIDER_IDS = [
   'upwork',
   'peopleperhour',
   'superjob',
+  'naukri',
+  'vietnamworks',
+  'topcv',
 ];
 
 const buildSteps = (id) => [

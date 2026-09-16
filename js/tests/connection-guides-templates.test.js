@@ -27,6 +27,20 @@ const SAMPLE_TOKEN = '123456:ABC-DEFsample';
 const SAMPLE_PHONE = '15550009999';
 const SAMPLE_APP_ID = 'sj_app_id_42';
 
+// Naukri, VietnamWorks and TopCV publish no API at all: the local
+// server drives a signed-in browser session instead (issue #29), so
+// they carry a `session` block where the others carry `apiCredentials`
+// and are exempt from every probe-template assertion below.
+const apiProviders = () =>
+  Object.entries(providerCatalogue).filter(
+    ([, provider]) => !provider.browserOnly
+  );
+
+const browserOnlyProviders = () =>
+  Object.entries(providerCatalogue).filter(
+    ([, provider]) => provider.browserOnly
+  );
+
 const sampleCredentials = (provider) => {
   const out = {};
   for (const field of provider.apiCredentials.fields) {
@@ -46,7 +60,7 @@ const sampleCredentials = (provider) => {
 };
 
 test('every provider exposes a probeUrlTemplate and a non-empty fields schema', () => {
-  for (const [id, provider] of Object.entries(providerCatalogue)) {
+  for (const [id, provider] of apiProviders()) {
     const creds = provider.apiCredentials;
     assert.equal(
       typeof creds.probeUrlTemplate,
@@ -77,7 +91,7 @@ test('buildProbeUrl returns null when required credentials are missing', () => {
 });
 
 test('buildProbeUrl returns the interpolated URL when credentials are present', () => {
-  for (const [id, provider] of Object.entries(providerCatalogue)) {
+  for (const [id, provider] of apiProviders()) {
     const url = buildProbeUrl({
       provider,
       credentials: sampleCredentials(provider),
@@ -218,7 +232,7 @@ test('connectFirst rows on every guide point at a known provider', () => {
 });
 
 test('legacy probeUrl is preserved for backward compatibility but never matches the new template', () => {
-  for (const [id, provider] of Object.entries(providerCatalogue)) {
+  for (const [id, provider] of apiProviders()) {
     const legacy = provider.apiCredentials.probeUrl;
     const template = provider.apiCredentials.probeUrlTemplate;
     assert.equal(typeof legacy, 'string', `${id}: legacy probeUrl missing`);
@@ -229,5 +243,33 @@ test('legacy probeUrl is preserved for backward compatibility but never matches 
         `${id}: template should differ from legacy probeUrl when it contains placeholders`
       );
     }
+  }
+});
+
+test('browser-only boards declare a session instead of API credentials', () => {
+  const ids = browserOnlyProviders().map(([id]) => id);
+  assert.deepEqual(
+    ids.sort(),
+    ['naukri', 'topcv', 'vietnamworks'],
+    'the boards with no public API must be marked browserOnly'
+  );
+  for (const [id, provider] of browserOnlyProviders()) {
+    assert.equal(
+      provider.apiCredentials,
+      undefined,
+      `${id}: a browser-only board must not pretend to have an API`
+    );
+    assert.equal(typeof provider.session, 'object', `${id}: missing session`);
+    assert.equal(provider.session.cvPlatform, id, `${id}: cvPlatform mismatch`);
+    for (const key of ['title', 'titleKey', 'hint', 'hintKey']) {
+      assert.equal(typeof provider.session[key], 'string', `${id}: ${key}`);
+    }
+    for (const key of ['profileUrl', 'loginUrl']) {
+      assert.match(provider.session[key], /^https:\/\//, `${id}: ${key}`);
+    }
+    // No probe is offered, so the helpers must stay silent rather than
+    // build a URL against an API that does not exist.
+    assert.equal(buildProbeUrl({ provider, credentials: {} }), null);
+    assert.deepEqual(buildProbeHeaders({ provider, credentials: {} }), {});
   }
 });

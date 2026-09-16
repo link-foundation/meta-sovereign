@@ -224,6 +224,10 @@ export const hi = {
   'connections.state.connected': 'जुड़ा',
   'connections.state.notConnected': 'जुड़ा नहीं',
   'connections.state.actionRequired': 'कार्रवाई आवश्यक',
+  'connections.state.browserSession': 'ब्राउज़र सत्र',
+  'connections.session.login': 'साइन-इन पृष्ठ खोलें',
+  'connections.session.profile': 'प्रोफ़ाइल पृष्ठ खोलें',
+  'connections.session.openCv': 'CV स्क्रीन खोलें',
   'connections.openDetail': 'सेट अप',
   'connections.controlsTitle': 'कनेक्शन नियंत्रण',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
@@ -346,6 +350,33 @@ export const hi = {
   'connections.superjob.setup.step3.title': 'जाँच चलाएँ',
   'connections.superjob.setup.step3.body':
     '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.naukri.setup.step1.title': 'ब्राउज़र ड्राइवर स्थापित करें',
+  'connections.naukri.setup.step1.body':
+    'Naukri कोई सार्वजनिक API प्रकाशित नहीं करता। स्थानीय सर्वर चलाने वाली मशीन पर Playwright स्थापित करें ताकि browser-commander एक वास्तविक सत्र चला सके।',
+  'connections.naukri.setup.step2.title': 'एक बार साइन इन करें',
+  'connections.naukri.setup.step2.body':
+    'CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र naukri.com खोलता है — वहाँ एक बार साइन इन करें; ब्राउज़र प्रोफ़ाइल निर्देशिका सत्र को सहेज लेती है।',
+  'connections.naukri.setup.step3.title': 'पढ़ें, तुलना करें, सिंक करें',
+  'connections.naukri.setup.step3.body':
+    'CV पढ़ें, अन्य बोर्डों के साथ अंतर देखें, फिर सिंक की योजना बनाएँ। हर रन मार्कअप फ़िंगरप्रिंट के साथ cv:telemetry में दर्ज होता है, इसलिए टूटा हुआ सिलेक्टर आसानी से दिखता है।',
+  'connections.vietnamworks.setup.step1.title': 'ब्राउज़र ड्राइवर स्थापित करें',
+  'connections.vietnamworks.setup.step1.body':
+    'VietnamWorks कोई सार्वजनिक API प्रकाशित नहीं करता। स्थानीय सर्वर चलाने वाली मशीन पर Playwright स्थापित करें ताकि browser-commander एक वास्तविक सत्र चला सके।',
+  'connections.vietnamworks.setup.step2.title': 'एक बार साइन इन करें',
+  'connections.vietnamworks.setup.step2.body':
+    'CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र vietnamworks.com खोलता है — वहाँ एक बार साइन इन करें; ब्राउज़र प्रोफ़ाइल निर्देशिका सत्र को सहेज लेती है।',
+  'connections.vietnamworks.setup.step3.title': 'पढ़ें, तुलना करें, सिंक करें',
+  'connections.vietnamworks.setup.step3.body':
+    'CV पढ़ें, अन्य बोर्डों के साथ अंतर देखें, फिर सिंक की योजना बनाएँ। हर रन मार्कअप फ़िंगरप्रिंट के साथ cv:telemetry में दर्ज होता है, इसलिए टूटा हुआ सिलेक्टर आसानी से दिखता है।',
+  'connections.topcv.setup.step1.title': 'ब्राउज़र ड्राइवर स्थापित करें',
+  'connections.topcv.setup.step1.body':
+    'TopCV कोई सार्वजनिक API प्रकाशित नहीं करता। स्थानीय सर्वर चलाने वाली मशीन पर Playwright स्थापित करें ताकि browser-commander एक वास्तविक सत्र चला सके।',
+  'connections.topcv.setup.step2.title': 'एक बार साइन इन करें',
+  'connections.topcv.setup.step2.body':
+    'CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र topcv.vn खोलता है — वहाँ एक बार साइन इन करें; ब्राउज़र प्रोफ़ाइल निर्देशिका सत्र को सहेज लेती है।',
+  'connections.topcv.setup.step3.title': 'पढ़ें, तुलना करें, सिंक करें',
+  'connections.topcv.setup.step3.body':
+    'CV पढ़ें, अन्य बोर्डों के साथ अंतर देखें, फिर सिंक की योजना बनाएँ। हर रन मार्कअप फ़िंगरप्रिंट के साथ cv:telemetry में दर्ज होता है, इसलिए टूटा हुआ सिलेक्टर आसानी से दिखता है।',
   // END setup-steps
   'connections.back': 'कनेक्शन पर वापस',
   'connections.email.label': 'ईमेल',
@@ -524,6 +555,35 @@ export const hi = {
   'connections.superjob.fields.token.label': 'एक्सेस टोकन',
   'connections.superjob.errorHints.401':
     'SuperJob ने App ID अस्वीकृत किया। आवेदक कैबिनेट में फिर से जाँचें।',
+  'connections.naukri.label': 'naukri.com',
+  'connections.naukri.archive.title':
+    'Naukri रिक्रूटर इनबॉक्स निर्यात आयात करें',
+  'connections.naukri.archive.hint':
+    'naukri.com -> "Recruiter messages" खोलें, ब्राउज़र निर्यात का उपयोग करें (या नेटवर्क टैब से लौटा JSON सहेजें) और फ़ाइल यहाँ लोड करें।',
+  'connections.naukri.archive.fileHint': 'inbox.json',
+  'connections.naukri.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.naukri.session.hint':
+    'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र naukri.com खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
+  'connections.vietnamworks.label': 'vietnamworks.com',
+  'connections.vietnamworks.archive.title':
+    'VietnamWorks संदेश केंद्र निर्यात आयात करें',
+  'connections.vietnamworks.archive.hint':
+    'vietnamworks.com -> "My Jobs" -> संदेश खोलें, पृष्ठ द्वारा लोड किया गया JSON सहेजें और उसे यहाँ आयात करें।',
+  'connections.vietnamworks.archive.fileHint': 'messages.json',
+  'connections.vietnamworks.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.vietnamworks.session.hint':
+    'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र vietnamworks.com खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
+  'connections.topcv.label': 'topcv.vn',
+  'connections.topcv.archive.title': 'TopCV नियोक्ता संदेश निर्यात आयात करें',
+  'connections.topcv.archive.hint':
+    'topcv.vn -> "Tin nhắn" खोलें, पृष्ठ द्वारा लोड किया गया JSON सहेजें और उसे यहाँ आयात करें।',
+  'connections.topcv.archive.fileHint': 'messages.json',
+  'connections.topcv.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.topcv.session.hint':
+    'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र topcv.vn खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
   'tutorial.button': 'ट्यूटोरियल',
   'tutorial.skip': 'चरण छोड़ें',
   'tutorial.next': 'अगला',

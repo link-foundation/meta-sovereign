@@ -85,6 +85,10 @@ const fmtClassification = (t, result, provider) => {
   };
 };
 
+/** Where "read the docs" points: the API reference, or the driver. */
+const docsUrlOf = (provider) =>
+  provider.session?.docsUrl ?? provider.apiCredentials?.docsUrl ?? null;
+
 // Determine which secret IDs the provider expects, so we can detect
 // whether the user has saved at least one of them.
 const expectedSecretIds = (providerId) => {
@@ -97,6 +101,12 @@ const expectedSecretIds = (providerId) => {
 };
 
 export const classifyConnectionState = (status, providerId) => {
+  // Naukri, VietnamWorks and TopCV publish no API, so there is no
+  // credential to classify: the sign-in lives in the browser profile
+  // the local server drives (issue #29).
+  if (providerCatalogue[providerId]?.browserOnly) {
+    return 'browser-session';
+  }
   const saved = new Set(status?.savedSecretIds ?? []);
   const expected = expectedSecretIds(providerId);
   const lastProbe = status?.lastProbe;
@@ -117,6 +127,7 @@ const STATE_LABEL_KEY = {
   connected: 'connections.state.connected',
   'not-connected': 'connections.state.notConnected',
   'action-required': 'connections.state.actionRequired',
+  'browser-session': 'connections.state.browserSession',
 };
 
 const StateBadge = ({ state }) => {
@@ -453,6 +464,66 @@ export const ProviderConnectionControls = ({
   );
 };
 
+/**
+ * Controls for a board with no public API (issue #29). There is nothing
+ * to paste and nothing to probe: the user signs in once in the browser
+ * profile the local server drives, and the CV screen does the rest.
+ * The archive import stays, because exported message dumps still parse.
+ */
+const BrowserSessionPanel = ({ providerId, provider }) => {
+  const t = useT();
+  const session = provider.session;
+  const openCv = () =>
+    globalThis.dispatchEvent?.(
+      new CustomEvent('meta-sovereign:navigate', { detail: { view: 'cv' } })
+    );
+  const link = (key, href, label) =>
+    el(
+      'a',
+      {
+        key,
+        href,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        'data-action': `open-${key}`,
+      },
+      label
+    );
+  return el(
+    'div',
+    { className: 'col provider-browser-session', 'data-browser-only': 'true' },
+    [
+      el(
+        'h4',
+        { key: 'h', className: 'meta' },
+        tx(t, session.title, session.titleKey)
+      ),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        tx(t, session.hint, session.hintKey)
+      ),
+      el('div', { key: 'links', className: 'row' }, [
+        link('login', session.loginUrl, t('connections.session.login')),
+        link('profile', session.profileUrl, t('connections.session.profile')),
+      ]),
+      el(
+        'button',
+        {
+          key: 'cv',
+          type: 'button',
+          className: 'primary',
+          'data-action': 'open-cv',
+          'data-target-platform': session.cvPlatform,
+          onClick: openCv,
+        },
+        t('connections.session.openCv')
+      ),
+      el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
+    ]
+  );
+};
+
 const ProviderCard = ({ providerId, status, onOpen }) => {
   const t = useT();
   const provider = providerCatalogue[providerId];
@@ -550,7 +621,9 @@ export const ConnectionDetail = ({
       el(
         'p',
         { key: 'hint', className: 'meta' },
-        tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey)
+        provider.browserOnly
+          ? tx(t, provider.session.hint, provider.session.hintKey)
+          : tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey)
       ),
       el(
         'ol',
@@ -570,12 +643,12 @@ export const ConnectionDetail = ({
           )
         )
       ),
-      provider.apiCredentials.docsUrl
+      docsUrlOf(provider)
         ? el(
             'a',
             {
               key: 'docs',
-              href: provider.apiCredentials.docsUrl,
+              href: docsUrlOf(provider),
               target: '_blank',
               rel: 'noopener noreferrer',
               className: 'connections-detail-docs',
@@ -583,13 +656,15 @@ export const ConnectionDetail = ({
             t('settings.docsLink')
           )
         : null,
-      el(ProviderConnectionControls, {
-        key: 'controls',
-        providerId,
-        provider,
-        links,
-        refresh,
-      }),
+      provider.browserOnly
+        ? el(BrowserSessionPanel, { key: 'controls', providerId, provider })
+        : el(ProviderConnectionControls, {
+            key: 'controls',
+            providerId,
+            provider,
+            links,
+            refresh,
+          }),
     ]
   );
 };

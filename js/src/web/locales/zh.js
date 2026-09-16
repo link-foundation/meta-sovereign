@@ -219,6 +219,10 @@ export const zh = {
   'connections.state.connected': '已连接',
   'connections.state.notConnected': '未连接',
   'connections.state.actionRequired': '需要操作',
+  'connections.state.browserSession': '浏览器会话',
+  'connections.session.login': '打开登录页面',
+  'connections.session.profile': '打开个人资料页',
+  'connections.session.openCv': '打开简历界面',
   'connections.openDetail': '设置',
   'connections.controlsTitle': '连接控制',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
@@ -339,6 +343,33 @@ export const zh = {
   'connections.superjob.setup.step3.title': '执行探测',
   'connections.superjob.setup.step3.body':
     '点击"探测连接"——返回成功即说明凭据有效。失败时会显示带下一步操作的翻译提示。',
+  'connections.naukri.setup.step1.title': '安装浏览器驱动',
+  'connections.naukri.setup.step1.body':
+    'Naukri 没有公开 API。请在运行本地服务器的机器上安装 Playwright，让 browser-commander 可以驱动真实会话。',
+  'connections.naukri.setup.step2.title': '登录一次',
+  'connections.naukri.setup.step2.body':
+    '打开简历界面并执行读取。浏览器会打开 naukri.com —— 在那里登录一次；浏览器配置目录会保存会话供后续运行使用。',
+  'connections.naukri.setup.step3.title': '读取、比较、同步',
+  'connections.naukri.setup.step3.body':
+    '读取简历，与其它平台比较差异，然后规划同步。每次运行都会连同标记指纹记录在 cv:telemetry 中，因此失效的选择器很容易发现。',
+  'connections.vietnamworks.setup.step1.title': '安装浏览器驱动',
+  'connections.vietnamworks.setup.step1.body':
+    'VietnamWorks 没有公开 API。请在运行本地服务器的机器上安装 Playwright，让 browser-commander 可以驱动真实会话。',
+  'connections.vietnamworks.setup.step2.title': '登录一次',
+  'connections.vietnamworks.setup.step2.body':
+    '打开简历界面并执行读取。浏览器会打开 vietnamworks.com —— 在那里登录一次；浏览器配置目录会保存会话供后续运行使用。',
+  'connections.vietnamworks.setup.step3.title': '读取、比较、同步',
+  'connections.vietnamworks.setup.step3.body':
+    '读取简历，与其它平台比较差异，然后规划同步。每次运行都会连同标记指纹记录在 cv:telemetry 中，因此失效的选择器很容易发现。',
+  'connections.topcv.setup.step1.title': '安装浏览器驱动',
+  'connections.topcv.setup.step1.body':
+    'TopCV 没有公开 API。请在运行本地服务器的机器上安装 Playwright，让 browser-commander 可以驱动真实会话。',
+  'connections.topcv.setup.step2.title': '登录一次',
+  'connections.topcv.setup.step2.body':
+    '打开简历界面并执行读取。浏览器会打开 topcv.vn —— 在那里登录一次；浏览器配置目录会保存会话供后续运行使用。',
+  'connections.topcv.setup.step3.title': '读取、比较、同步',
+  'connections.topcv.setup.step3.body':
+    '读取简历，与其它平台比较差异，然后规划同步。每次运行都会连同标记指纹记录在 cv:telemetry 中，因此失效的选择器很容易发现。',
   // END setup-steps
   'connections.back': '返回连接',
   'connections.email.label': '电子邮件',
@@ -515,6 +546,30 @@ export const zh = {
   'connections.superjob.fields.token.label': '访问令牌',
   'connections.superjob.errorHints.401':
     'SuperJob 拒绝了 App ID。请在求职者控制台重新核对。',
+  'connections.naukri.label': 'naukri.com',
+  'connections.naukri.archive.title': '导入 Naukri 招聘方收件箱导出',
+  'connections.naukri.archive.hint':
+    '打开 naukri.com -> “招聘方消息”，使用浏览器导出（或保存网络面板返回的 JSON），然后在此加载文件。',
+  'connections.naukri.archive.fileHint': 'inbox.json',
+  'connections.naukri.session.title': '在本地浏览器会话中登录一次',
+  'connections.naukri.session.hint':
+    '启动本地服务器，打开简历界面并执行读取。浏览器会打开 naukri.com；在那里登录一次，配置目录会保存会话供后续运行使用。',
+  'connections.vietnamworks.label': 'vietnamworks.com',
+  'connections.vietnamworks.archive.title': '导入 VietnamWorks 消息中心导出',
+  'connections.vietnamworks.archive.hint':
+    '打开 vietnamworks.com -> “My Jobs” -> 消息，保存页面加载的 JSON，然后在此导入。',
+  'connections.vietnamworks.archive.fileHint': 'messages.json',
+  'connections.vietnamworks.session.title': '在本地浏览器会话中登录一次',
+  'connections.vietnamworks.session.hint':
+    '启动本地服务器，打开简历界面并执行读取。浏览器会打开 vietnamworks.com；在那里登录一次，配置目录会保存会话供后续运行使用。',
+  'connections.topcv.label': 'topcv.vn',
+  'connections.topcv.archive.title': '导入 TopCV 雇主消息导出',
+  'connections.topcv.archive.hint':
+    '打开 topcv.vn -> “Tin nhắn”，保存页面加载的 JSON，然后在此导入。',
+  'connections.topcv.archive.fileHint': 'messages.json',
+  'connections.topcv.session.title': '在本地浏览器会话中登录一次',
+  'connections.topcv.session.hint':
+    '启动本地服务器，打开简历界面并执行读取。浏览器会打开 topcv.vn；在那里登录一次，配置目录会保存会话供后续运行使用。',
   'tutorial.button': '教程',
   'tutorial.skip': '跳过此步',
   'tutorial.next': '下一步',

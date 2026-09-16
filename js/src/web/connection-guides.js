@@ -612,6 +612,84 @@ export const providerCatalogue = {
       },
     },
   },
+  naukri: {
+    label: 'naukri.com',
+    labelKey: 'connections.naukri.label',
+    archive: {
+      title: 'Import a Naukri recruiter inbox export',
+      titleKey: 'connections.naukri.archive.title',
+      hint: 'Open naukri.com -> "Recruiter messages", use the browser export (or save the JSON the network tab returns) and load the file here.',
+      hintKey: 'connections.naukri.archive.hint',
+      fileHint: 'inbox.json',
+      accept: '.json,application/json',
+    },
+    // No public API exists for this board: everything — reading the CV,
+    // diffing it and writing it back — happens in a real browser session
+    // driven by browser-commander from the local server (issue #29).
+    browserOnly: true,
+    session: {
+      title: 'Sign in once in the local browser session',
+      titleKey: 'connections.naukri.session.title',
+      hint: 'Start the local server, open the CV screen and run a read. The browser opens naukri.com; sign in there once and the profile directory keeps the session for later runs.',
+      hintKey: 'connections.naukri.session.hint',
+      cvPlatform: 'naukri',
+      profileUrl: 'https://www.naukri.com/mnjuser/profile',
+      loginUrl: 'https://www.naukri.com/nlogin/login',
+      docsUrl: 'https://github.com/link-foundation/browser-commander',
+    },
+  },
+  vietnamworks: {
+    label: 'vietnamworks.com',
+    labelKey: 'connections.vietnamworks.label',
+    archive: {
+      title: 'Import a VietnamWorks message centre export',
+      titleKey: 'connections.vietnamworks.archive.title',
+      hint: 'Open vietnamworks.com -> "My Jobs" -> messages, save the JSON payload the page loads and import it here.',
+      hintKey: 'connections.vietnamworks.archive.hint',
+      fileHint: 'messages.json',
+      accept: '.json,application/json',
+    },
+    // No public API exists for this board: everything — reading the CV,
+    // diffing it and writing it back — happens in a real browser session
+    // driven by browser-commander from the local server (issue #29).
+    browserOnly: true,
+    session: {
+      title: 'Sign in once in the local browser session',
+      titleKey: 'connections.vietnamworks.session.title',
+      hint: 'Start the local server, open the CV screen and run a read. The browser opens vietnamworks.com; sign in there once and the profile directory keeps the session for later runs.',
+      hintKey: 'connections.vietnamworks.session.hint',
+      cvPlatform: 'vietnamworks',
+      profileUrl: 'https://www.vietnamworks.com/my-profile',
+      loginUrl: 'https://secure.vietnamworks.com/login/en?client_id=3',
+      docsUrl: 'https://github.com/link-foundation/browser-commander',
+    },
+  },
+  topcv: {
+    label: 'topcv.vn',
+    labelKey: 'connections.topcv.label',
+    archive: {
+      title: 'Import a TopCV employer message export',
+      titleKey: 'connections.topcv.archive.title',
+      hint: 'Open topcv.vn -> "Tin nhắn", save the JSON payload the page loads and import it here.',
+      hintKey: 'connections.topcv.archive.hint',
+      fileHint: 'messages.json',
+      accept: '.json,application/json',
+    },
+    // No public API exists for this board: everything — reading the CV,
+    // diffing it and writing it back — happens in a real browser session
+    // driven by browser-commander from the local server (issue #29).
+    browserOnly: true,
+    session: {
+      title: 'Sign in once in the local browser session',
+      titleKey: 'connections.topcv.session.title',
+      hint: 'Start the local server, open the CV screen and run a read. The browser opens topcv.vn; sign in there once and the profile directory keeps the session for later runs.',
+      hintKey: 'connections.topcv.session.hint',
+      cvPlatform: 'topcv',
+      profileUrl: 'https://www.topcv.vn/ho-so',
+      loginUrl: 'https://www.topcv.vn/dang-nhap',
+      docsUrl: 'https://github.com/link-foundation/browser-commander',
+    },
+  },
   superjob: {
     label: 'superjob.ru',
     labelKey: 'connections.superjob.label',
@@ -867,7 +945,7 @@ export const connectionGuides = {
     titleKey: 'guide.cv.title',
     body: 'This screen drives a real browser session over your job-platform profiles: it reads each CV, compares them field by field, and only writes when you apply a sync. Sign in to each platform once in the browser profile the local server uses — no API keys exist for most of these boards.',
     bodyKey: 'guide.cv.body',
-    providers: ['linkedin', 'hh'],
+    providers: ['linkedin', 'hh', 'naukri', 'vietnamworks', 'topcv'],
     connectFirst: { providerId: 'linkedin' },
   },
   settings: {

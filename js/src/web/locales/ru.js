@@ -224,6 +224,10 @@ export const ru = {
   'connections.state.connected': 'Подключено',
   'connections.state.notConnected': 'Не подключено',
   'connections.state.actionRequired': 'Требуется действие',
+  'connections.state.browserSession': 'Сессия браузера',
+  'connections.session.login': 'Открыть страницу входа',
+  'connections.session.profile': 'Открыть страницу профиля',
+  'connections.session.openCv': 'Открыть экран резюме',
   'connections.openDetail': 'Настроить',
   'connections.controlsTitle': 'Управление подключением',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
@@ -353,6 +357,34 @@ export const ru = {
   'connections.superjob.setup.step3.title': 'Запустите проверку',
   'connections.superjob.setup.step3.body':
     'Нажмите «Проверить соединение» — успешный ответ подтвердит учётные данные. При ошибке появится перевод подсказки со следующим действием.',
+  'connections.naukri.setup.step1.title': 'Установите драйвер браузера',
+  'connections.naukri.setup.step1.body':
+    'Naukri не публикует общедоступный API. Установите Playwright на машине с локальным сервером, чтобы browser-commander мог открыть настоящую сессию.',
+  'connections.naukri.setup.step2.title': 'Войдите один раз',
+  'connections.naukri.setup.step2.body':
+    'Откройте экран резюме и выполните чтение. Браузер откроет naukri.com — войдите там один раз; каталог профиля браузера сохранит сессию для следующих запусков.',
+  'connections.naukri.setup.step3.title': 'Чтение, сравнение, синхронизация',
+  'connections.naukri.setup.step3.body':
+    'Прочитайте резюме, сравните различия с другими площадками и запланируйте синхронизацию. Каждый запуск записывается в cv:telemetry с отпечатком разметки, поэтому сломанный селектор легко заметить.',
+  'connections.vietnamworks.setup.step1.title': 'Установите драйвер браузера',
+  'connections.vietnamworks.setup.step1.body':
+    'VietnamWorks не публикует общедоступный API. Установите Playwright на машине с локальным сервером, чтобы browser-commander мог открыть настоящую сессию.',
+  'connections.vietnamworks.setup.step2.title': 'Войдите один раз',
+  'connections.vietnamworks.setup.step2.body':
+    'Откройте экран резюме и выполните чтение. Браузер откроет vietnamworks.com — войдите там один раз; каталог профиля браузера сохранит сессию для следующих запусков.',
+  'connections.vietnamworks.setup.step3.title':
+    'Чтение, сравнение, синхронизация',
+  'connections.vietnamworks.setup.step3.body':
+    'Прочитайте резюме, сравните различия с другими площадками и запланируйте синхронизацию. Каждый запуск записывается в cv:telemetry с отпечатком разметки, поэтому сломанный селектор легко заметить.',
+  'connections.topcv.setup.step1.title': 'Установите драйвер браузера',
+  'connections.topcv.setup.step1.body':
+    'TopCV не публикует общедоступный API. Установите Playwright на машине с локальным сервером, чтобы browser-commander мог открыть настоящую сессию.',
+  'connections.topcv.setup.step2.title': 'Войдите один раз',
+  'connections.topcv.setup.step2.body':
+    'Откройте экран резюме и выполните чтение. Браузер откроет topcv.vn — войдите там один раз; каталог профиля браузера сохранит сессию для следующих запусков.',
+  'connections.topcv.setup.step3.title': 'Чтение, сравнение, синхронизация',
+  'connections.topcv.setup.step3.body':
+    'Прочитайте резюме, сравните различия с другими площадками и запланируйте синхронизацию. Каждый запуск записывается в cv:telemetry с отпечатком разметки, поэтому сломанный селектор легко заметить.',
   // END setup-steps
   'connections.back': 'К подключениям',
   'connections.email.label': 'Электронная почта',
@@ -533,6 +565,36 @@ export const ru = {
   'connections.superjob.fields.token.label': 'Токен доступа',
   'connections.superjob.errorHints.401':
     'SuperJob отклонил App ID. Проверьте его в кабинете соискателя.',
+  'connections.naukri.label': 'naukri.com',
+  'connections.naukri.archive.title':
+    'Импорт выгрузки входящих от рекрутеров Naukri',
+  'connections.naukri.archive.hint':
+    'Откройте naukri.com -> «Сообщения рекрутеров», используйте экспорт браузера (или сохраните JSON из вкладки сети) и загрузите файл здесь.',
+  'connections.naukri.archive.fileHint': 'inbox.json',
+  'connections.naukri.session.title':
+    'Войдите один раз в локальной сессии браузера',
+  'connections.naukri.session.hint':
+    'Запустите локальный сервер, откройте экран резюме и выполните чтение. Браузер откроет naukri.com; войдите там один раз — каталог профиля сохранит сессию для следующих запусков.',
+  'connections.vietnamworks.label': 'vietnamworks.com',
+  'connections.vietnamworks.archive.title':
+    'Импорт выгрузки центра сообщений VietnamWorks',
+  'connections.vietnamworks.archive.hint':
+    'Откройте vietnamworks.com -> «My Jobs» -> сообщения, сохраните JSON, который загружает страница, и импортируйте его здесь.',
+  'connections.vietnamworks.archive.fileHint': 'messages.json',
+  'connections.vietnamworks.session.title':
+    'Войдите один раз в локальной сессии браузера',
+  'connections.vietnamworks.session.hint':
+    'Запустите локальный сервер, откройте экран резюме и выполните чтение. Браузер откроет vietnamworks.com; войдите там один раз — каталог профиля сохранит сессию для следующих запусков.',
+  'connections.topcv.label': 'topcv.vn',
+  'connections.topcv.archive.title':
+    'Импорт выгрузки сообщений работодателей TopCV',
+  'connections.topcv.archive.hint':
+    'Откройте topcv.vn -> «Tin nhắn», сохраните JSON, который загружает страница, и импортируйте его здесь.',
+  'connections.topcv.archive.fileHint': 'messages.json',
+  'connections.topcv.session.title':
+    'Войдите один раз в локальной сессии браузера',
+  'connections.topcv.session.hint':
+    'Запустите локальный сервер, откройте экран резюме и выполните чтение. Браузер откроет topcv.vn; войдите там один раз — каталог профиля сохранит сессию для следующих запусков.',
   'tutorial.button': 'Руководство',
   'tutorial.skip': 'Пропустить шаг',
   'tutorial.next': 'Далее',
