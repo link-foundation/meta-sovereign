@@ -9,7 +9,10 @@
  *
  * The CV modules are imported lazily so that loading the registry —
  * which the CLI and the server do on every start — never pulls in the
- * browser stack.
+ * browser stack. The specifier is held in a constant so bundlers can
+ * not follow it either: `js/src/cv/index.js` reaches `playwright`,
+ * `node:fs/promises` and `node:os`, none of which exist in a browser
+ * bundle, and the SPA only ever talks to `/api/cv/*` anyway.
  */
 
 import { getCvPlatform } from '../cv/platforms/index.js';
@@ -25,7 +28,27 @@ export const cvPlatformIdOf = (source) =>
  */
 export const cvPlatformOf = (source) => getCvPlatform(cvPlatformIdOf(source));
 
-const cvModule = () => import('../cv/index.js');
+const CV_ENTRY = '../cv/index.js';
+
+/** Raised when the Node-only CV runtime is asked for outside Node. */
+export class CvRuntimeUnavailableError extends Error {
+  constructor(platformId) {
+    super(
+      `the CV runtime for "${platformId}" needs Node with a browser session; ` +
+        'in the browser call the local server at /api/cv instead'
+    );
+    this.name = 'CvRuntimeUnavailableError';
+    this.code = 'cv-runtime-unavailable';
+    this.platform = platformId;
+  }
+}
+
+const cvModule = async (platformId) => {
+  if (!globalThis.process?.versions?.node) {
+    throw new CvRuntimeUnavailableError(platformId);
+  }
+  return import(CV_ENTRY);
+};
 
 /**
  * Read a source's resume through its declarative CV plan.
@@ -33,8 +56,9 @@ const cvModule = () => import('../cv/index.js');
  * @param {object} [options] as `readCvFrom` (commander, store, vars, …)
  */
 export const readSourceCv = async (source, options = {}) => {
-  const { readCvFrom } = await cvModule();
-  return readCvFrom(cvPlatformIdOf(source), options);
+  const id = cvPlatformIdOf(source);
+  const { readCvFrom } = await cvModule(id);
+  return readCvFrom(id, options);
 };
 
 /**
@@ -46,8 +70,9 @@ export const readSourceCv = async (source, options = {}) => {
  * @param {object} [options] as `updateCvOn` (`paths`, `groups`, …)
  */
 export const writeSourceCv = async (source, cv, options = {}) => {
-  const { normalizeCv, updateCvOn } = await cvModule();
-  return updateCvOn(cvPlatformIdOf(source), normalizeCv(cv), options);
+  const id = cvPlatformIdOf(source);
+  const { normalizeCv, updateCvOn } = await cvModule(id);
+  return updateCvOn(id, normalizeCv(cv), options);
 };
 
 /**

@@ -41,6 +41,7 @@ export {
   jobBoardArchiveToLinks,
 } from './job-board.js';
 export {
+  CvRuntimeUnavailableError,
   cvPlatformIdOf,
   cvPlatformOf,
   readSourceCv,

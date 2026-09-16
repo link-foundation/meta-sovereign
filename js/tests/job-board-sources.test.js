@@ -8,10 +8,12 @@ import { describe, it, expect } from 'test-anywhere';
 import { createFakeCommander } from './helpers/fake-commander.js';
 import {
   BrowserOnlySourceError,
+  CvRuntimeUnavailableError,
   cvPlatformOf,
   getSource,
   jobBoardArchiveToLinks,
   listCvSources,
+  readSourceCv,
 } from '../src/sources/index.js';
 
 describe('job-board archives', () => {
@@ -153,5 +155,26 @@ describe('sources bound to CV plans', () => {
     expect(typeof getSource('linkedin').readResume).toBe('function');
     expect(typeof getSource('superjob').writeResume).toBe('function');
     expect(getSource('habr-career').cvPlatform).toBe('habr-career');
+  });
+});
+
+describe('cv runtime availability', () => {
+  it('refuses to load the Node-only CV runtime in a browser', async () => {
+    // The SPA reaches the same registry; without Node there is no
+    // playwright and no filesystem, so the caller gets a typed error
+    // pointing at the local server instead of a bundler-level crash.
+    const realProcess = globalThis.process;
+    globalThis.process = undefined;
+    try {
+      await readSourceCv('topcv');
+      expect('unreachable').toBe('threw');
+    } catch (error) {
+      expect(error instanceof CvRuntimeUnavailableError).toBe(true);
+      expect(error.code).toBe('cv-runtime-unavailable');
+      expect(error.platform).toBe('topcv');
+      expect(error.message).toContain('/api/cv');
+    } finally {
+      globalThis.process = realProcess;
+    }
   });
 });
