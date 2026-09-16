@@ -138,7 +138,7 @@ export const createJobBoardSource = ({
   inboxUrl,
   notes = [],
 }) => {
-  const hint = `cv sync --platform ${name}`;
+  const hint = `cv-sync --platforms=${name}`;
   const unsupported = (capability) => {
     throw new BrowserOnlySourceError(name, capability, hint);
   };

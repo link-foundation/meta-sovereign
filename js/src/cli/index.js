@@ -5,7 +5,8 @@
  * server exposes is also reachable from the terminal: import/export,
  * backup/restore, serve, sources, audience, facts, search, broadcast,
  * sync (listen/connect), patterns (infer/list), graphs (run/list),
- * replies (list), profile/resume.
+ * replies (list), profile/resume, cv (platforms/plan/read/diff/sync/
+ * telemetry over browser-commander).
  *
  * Returns an exit code instead of calling `process.exit`, keeping the
  * entry point unit-testable.
@@ -14,6 +15,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
+import { CV_HELP, createCvCommands } from './cv-commands.js';
 import {
   createDualStore,
   createLinoTextStore,
@@ -89,6 +91,7 @@ Commands:
   vault-add     --secret=<old> --kind=<k> --new-secret=<s> [--label=<l>] [--file=<path>]
   vault-remove  --secret=<s> --id=<unlock-id> [--file=<path>]
   vault-list    [--file=<path>]
+${CV_HELP}
   help
 `;
 
@@ -688,6 +691,8 @@ const COMMANDS = {
   'vault-add': vaultAddCmd,
   'vault-remove': vaultRemoveCmd,
   'vault-list': vaultListCmd,
+  // CV read/diff/sync/telemetry over browser-commander (issue #29).
+  ...createCvCommands({ openStore }),
   help: async (_a, log) => {
     log(HELP);
     return 0;

@@ -95,7 +95,7 @@ describe('browser-only boards', () => {
       }
       expect(error instanceof BrowserOnlySourceError).toBe(true);
       expect(error.code).toBe('browser-only-source');
-      expect(error.message).toContain(`cv sync --platform ${name}`);
+      expect(error.message).toContain(`cv-sync --platforms=${name}`);
       expect(live.browserOnly).toBe(true);
     }
   });
