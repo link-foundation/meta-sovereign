@@ -654,6 +654,7 @@ export const ru = {
   'cv.applied': 'Применено — перечисленные площадки обновлены.',
   'cv.action':
     '{platform}: {writable} записываемых, {unsupported} неподдерживаемых — {paths}',
+  'cv.morePaths': '(ещё {count})',
   'cv.telemetry': 'Недавние запуски',
   'cv.noRuns': 'Запусков пока не записано.',
   'cv.unavailable':

@@ -160,6 +160,28 @@ test('a dry run is labelled as such and lists its per-platform actions', () => {
   assert.match(html, /2 writable, 1 unsupported — basics\.name/);
 });
 
+test('a long path list is previewed, counted and kept in full in the title', () => {
+  // A real sync touches hundreds of paths (every field of every
+  // experience record). The panel must stay readable without hiding
+  // what is about to be written.
+  const paths = Array.from({ length: 20 }, (_, index) => `skills[${index}]`);
+  const html = render(
+    baseState({
+      sync: {
+        dryRun: true,
+        actions: [
+          { platform: 'linkedin', writable: 20, unsupported: 0, paths },
+        ],
+      },
+    })
+  );
+  assert.match(html, /data-paths="20"/);
+  assert.match(html, /skills\[5\] \(\+14 more\)/);
+  assert.doesNotMatch(html, /skills\[6\] \(/);
+  // Nothing is lost: the full list stays available on hover.
+  assert.ok(html.includes(`title="${paths.join(', ')}"`));
+});
+
 test('failures name the platform, the code and the message', () => {
   const html = render(
     baseState({

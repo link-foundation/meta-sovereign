@@ -628,6 +628,7 @@ export const zh = {
   'cv.applied': '已应用 — 所列平台已更新。',
   'cv.action':
     '{platform}：{writable} 个可写，{unsupported} 个不支持 — {paths}',
+  'cv.morePaths': '(另有 {count} 项)',
   'cv.telemetry': '最近的运行',
   'cv.noRuns': '尚未记录任何运行。',
   'cv.unavailable':

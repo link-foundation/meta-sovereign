@@ -96,6 +96,25 @@ const ComparisonTable = ({ comparison }) => {
   ]);
 };
 
+/**
+ * A sync across seven platforms routinely touches hundreds of paths —
+ * every field of every experience record — and printing all of them
+ * turns the panel into a wall of text nobody reads. Show enough to
+ * recognise what is about to change, count the rest, and keep the full
+ * list in the element's `title` so nothing is actually lost.
+ */
+const PATH_PREVIEW = 6;
+
+const previewPaths = (paths, t) => {
+  if (paths.length === 0) {
+    return '—';
+  }
+  const head = paths.slice(0, PATH_PREVIEW).join(', ');
+  return paths.length > PATH_PREVIEW
+    ? `${head} ${t('cv.morePaths', { count: paths.length - PATH_PREVIEW })}`
+    : head;
+};
+
 const SyncPlan = ({ result }) => {
   const t = useT();
   if (!result) {
@@ -113,12 +132,17 @@ const SyncPlan = ({ result }) => {
       (result.actions ?? []).map((action) =>
         el(
           'li',
-          { key: action.platform, 'data-platform': action.platform },
+          {
+            key: action.platform,
+            'data-platform': action.platform,
+            'data-paths': String((action.paths ?? []).length),
+            title: (action.paths ?? []).join(', '),
+          },
           t('cv.action', {
             platform: action.platform,
             writable: action.writable,
             unsupported: action.unsupported,
-            paths: action.paths.join(', ') || '—',
+            paths: previewPaths(action.paths ?? [], t),
           })
         )
       )

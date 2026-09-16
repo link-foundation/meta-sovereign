@@ -643,6 +643,7 @@ export const hi = {
   'cv.applied': 'लागू — सूचीबद्ध प्लेटफ़ॉर्म अपडेट कर दिए गए।',
   'cv.action':
     '{platform}: {writable} लिखने योग्य, {unsupported} असमर्थित — {paths}',
+  'cv.morePaths': '(+{count} और)',
   'cv.telemetry': 'हाल के रन',
   'cv.noRuns': 'अभी तक कोई रन दर्ज नहीं हुआ।',
   'cv.unavailable':

@@ -645,6 +645,7 @@ export const en = {
   'cv.applied': 'Applied — the listed platforms were updated.',
   'cv.action':
     '{platform}: {writable} writable, {unsupported} unsupported — {paths}',
+  'cv.morePaths': '(+{count} more)',
   'cv.telemetry': 'Recent runs',
   'cv.noRuns': 'No runs recorded yet.',
   'cv.unavailable':
