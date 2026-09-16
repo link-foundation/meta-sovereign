@@ -291,6 +291,28 @@ export const cvFromLink = (link) => {
   return link.lino ? cvFromLino(link.lino) : emptyCv();
 };
 
+/**
+ * Is `path` addressable in the canonical model? Accepts `section` for
+ * list and record sections, `section.field` for scalar sections and
+ * `section[].field` for a field inside a repeated record.
+ * @param {string} path
+ */
+export const isCvPath = (path) => {
+  if (typeof path !== 'string' || path.length === 0) {
+    return false;
+  }
+  const record = path.match(/^([a-z]+)\[\]\.([a-zA-Z]+)$/);
+  if (record) {
+    const spec = RECORD_SECTIONS[record[1]];
+    return Boolean(spec) && spec.fields.includes(record[2]);
+  }
+  const [section, field] = path.split('.');
+  if (field === undefined) {
+    return Boolean(LIST_SECTIONS[section] || RECORD_SECTIONS[section]);
+  }
+  return Boolean(MAP_SECTIONS[section]?.includes(field));
+};
+
 /** Count of populated leaf values — used for coverage telemetry. */
 export const cvFieldCount = (cv) => {
   const normalized = normalizeCv(cv);

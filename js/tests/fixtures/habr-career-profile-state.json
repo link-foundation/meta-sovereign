@@ -1,0 +1,253 @@
+{
+  "visitor": {
+    "isGuest": true
+  },
+  "user": {
+    "id": "lightalloy",
+    "title": "Анна Буянова",
+    "personalHref": null,
+    "site": null,
+    "availability": "Рассмотрю предложения",
+    "salary": null,
+    "qualification": "Ведущий (Lead)",
+    "divisions": [
+      {
+        "title": "Бэкенд разработчик"
+      }
+    ],
+    "age": "38 лет",
+    "experience": "16 лет и 10 месяцев",
+    "location": "Россия, Вологда",
+    "relocation": "готов к удаленной работе",
+    "href": "/lightalloy",
+    "isOwner": false,
+    "skills": [
+      {
+        "title": "Ruby",
+        "alias": "ruby"
+      },
+      {
+        "title": "Ruby on Rails",
+        "alias": "ruby-on-rails"
+      },
+      {
+        "title": "Git",
+        "alias": "git"
+      },
+      {
+        "title": "PostgreSQL",
+        "alias": "postgresql"
+      },
+      {
+        "title": "Linux",
+        "alias": "linux"
+      },
+      {
+        "title": "JavaScript",
+        "alias": "javascript"
+      },
+      {
+        "title": "RSpec",
+        "alias": "rspec"
+      },
+      {
+        "title": "SQL",
+        "alias": "sql"
+      },
+      {
+        "title": "Управление разработкой",
+        "alias": "upravlenie-razrabotkoy"
+      },
+      {
+        "title": "Docker",
+        "alias": "docker"
+      },
+      {
+        "title": "Управление людьми",
+        "alias": "upravlenie-personalom"
+      },
+      {
+        "title": "Apache Kafka",
+        "alias": "kafka"
+      },
+      {
+        "title": "CI/CD",
+        "alias": "ci-cd-methodologies"
+      },
+      {
+        "title": "Микросервисная архитектура",
+        "alias": "microservices"
+      },
+      {
+        "title": "Golang",
+        "alias": "golang"
+      },
+      {
+        "title": "Redis",
+        "alias": "redis"
+      }
+    ],
+    "foreignLanguages": [
+      {
+        "title": "Английский В2",
+        "language_id": 1,
+        "grade_id": 4
+      }
+    ],
+    "citizenships": [
+      {
+        "title": "Россия",
+        "href": ""
+      }
+    ],
+    "contacts": {
+      "contactsAvailable": false,
+      "edit": null,
+      "items": [
+        {
+          "title": "Телефон",
+          "value": {
+            "title": null,
+            "href": null
+          },
+          "kind": "phone_mobile",
+          "type": "phone"
+        },
+        {
+          "title": "Телеграм",
+          "value": {
+            "title": null,
+            "href": null
+          },
+          "kind": "telegram",
+          "type": "messenger"
+        },
+        {
+          "title": "Почта",
+          "value": {
+            "title": null,
+            "href": null
+          },
+          "kind": "email",
+          "type": "email"
+        },
+        {
+          "title": "LinkedIn",
+          "value": {
+            "title": null,
+            "href": null
+          },
+          "kind": "linkedin",
+          "type": "social"
+        },
+        {
+          "title": "Stackoverflow",
+          "value": {
+            "title": null,
+            "href": null
+          },
+          "kind": "stackoverflow",
+          "type": "site"
+        },
+        {
+          "title": "GitHub",
+          "value": {
+            "title": null,
+            "href": null
+          },
+          "kind": "github",
+          "type": "site"
+        }
+      ]
+    }
+  },
+  "resume": {
+    "about": {
+      "edit": null,
+      "value": "<ul><li>10+ лет коммерческой разработки в разных средах: аутсорс, стартап, банк</li><li><strong></strong>полный цикл управления фичами и проектами - от бизнес-требований до релиза и пост-релизной поддержки</li><li>широкий технический стек: основная специализация - бэкенд (ruby, go, python), также есть опыт во фронтенде, devops</li><li><strong></strong>принимаю архитектурные и инженерные решения, учитывая сроки и ограничения - с фокусом на долгосрочную поддержку</li><li>организую работу кросс-функциональной команды: планирование работы и релизов, координация со смежными командами</li></ul>"
+    },
+    "companies": {
+      "edit": null,
+      "items": [
+        {
+          "title": "ПСБ цифровая лаборатория",
+          "href": "https://career.habr.com/companies/psb",
+          "subtitle": "Разработка ПО банковского сектора",
+          "positions": [
+            {
+              "title": "Старший бэкенд разработчик",
+              "short_title": "",
+              "duration": "Январь 2025 — По настоящее время  (1 год и 9 месяцев)",
+              "message": "<p>Отвечаю за полный цикл разработки фич и сервисов деловой сети \"содружество\" (7 сервисов) -&nbsp;от проработки требований (совместно с pm и аналитиком) до релиза.</p>",
+              "specialization": "Бэкенд разработчик",
+              "qualification": "Старший"
+            }
+          ]
+        },
+        {
+          "title": "dev.to",
+          "href": null,
+          "subtitle": null,
+          "positions": [
+            {
+              "title": "Senior Software Developer",
+              "short_title": "Senior Software Developer",
+              "duration": "Январь 2019 — Май 2024  (5 лет и 5 месяцев)",
+              "message": "<ul><li>работала над oss-платформой&nbsp;для&nbsp;сообществ&nbsp;на Ruby (Ruby on Rails)</li></ul>",
+              "specialization": "Бэкенд разработчик",
+              "qualification": "Старший"
+            }
+          ]
+        }
+      ]
+    },
+    "education": {
+      "edit": null,
+      "items": [
+        {
+          "title": "МПГУ",
+          "subtitle": "Московский педагогический государственный университет",
+          "courses": [
+            {
+              "title": "Институт международного образования",
+              "duration": "Октябрь 2022 — Январь 2025 (2 года и 4 месяца)",
+              "message": "<p><strong>Специальность: </strong>Проектирование образовательного опыта (магистратура)<br><strong><br>Тема диплома:&nbsp;</strong></p>"
+            }
+          ]
+        },
+        {
+          "title": "ВоГУ",
+          "subtitle": "Вологодский государственный университет (бывш. ВоГТУ)",
+          "courses": [
+            {
+              "title": "Электроэнергетический",
+              "duration": "Сентябрь 2004 — Июнь 2009 (4 года и 10 месяцев)",
+              "message": "<p><strong>Квалификация: </strong>Инженер<strong><br>Специализация</strong>: Вычислительные машины, комплексы, системы и сети<strong><br>Тема диплома:</strong> разработка веб-приложения для рынка недв"
+            }
+          ]
+        }
+      ]
+    },
+    "additionalEducation": {
+      "edit": null,
+      "items": [
+        {
+          "title": "Thinknetica",
+          "subtitle": null,
+          "courses": [
+            {
+              "title": "Domain-Driven-Design в Ruby-приложениях",
+              "duration": "Сентябрь 2025 — Сентябрь 2025 (1 месяц)",
+              "message": ""
+            },
+            {
+              "title": "Тимлид: руководство по выживанию",
+              "duration": "Июнь 2025 — Август 2025 (3 месяца)",
+              "message": ""
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
