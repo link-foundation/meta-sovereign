@@ -17,6 +17,7 @@ import {
   createStoreSink,
   createTelemetryRun,
   diffFingerprint,
+  fileSafeSegment,
   fingerprintMarkup,
   redactText,
 } from '../src/cv/telemetry.js';
@@ -244,6 +245,36 @@ describe('telemetry sinks', () => {
     // The contents are still redacted — only the location is verbatim.
     const html = await readFile(join(dir, run.runId, 'profile.html'), 'utf8');
     expect(html).toContain('<email>');
+  });
+
+  it('writes artifacts under a path every file system accepts', async () => {
+    // Windows reads `:` as an alternate-data-stream separator, so an ISO
+    // timestamp inside a run id turned every artifact write into ENOENT
+    // there while Linux and macOS stayed green.
+    const dir = await mkdtemp(join(tmpdir(), 'cv-telemetry-'));
+    const run = createTelemetryRun({
+      platform: 'linkedin',
+      sink: createMemorySink(),
+      now: tick(),
+      // A caller may pass any run id, and step names come from plan data.
+      runId: 'linkedin-2026-09-16T07:00:00.000Z',
+      artifactDir: dir,
+    });
+    await run.start();
+    await run.snapshot('intro block', '<b>x</b>');
+    await run.screenshot('intro block', Buffer.from('png'));
+    await run.finish();
+
+    const runDir = join(dir, 'linkedin-2026-09-16T07-00-00.000Z');
+    const written = await readdir(runDir);
+    expect(written.includes('intro-block.html')).toBe(true);
+    expect(written.includes('intro-block.png')).toBe(true);
+    for (const segment of (await readdir(dir)).concat(written)) {
+      expect(/[<>:"/\\|?*]/.test(segment)).toBe(false);
+    }
+    // The default run id needs no rewriting at all.
+    const plain = createTelemetryRun({ platform: 'hh', now: tick() });
+    expect(fileSafeSegment(plain.runId)).toBe(plain.runId);
   });
 
   it('keeps the run envelope intact when a payload repeats its keys', async () => {

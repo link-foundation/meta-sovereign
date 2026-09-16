@@ -191,6 +191,29 @@ export const createJsonlSink = (filePath) => ({
   },
 });
 
+/**
+ * Make one path segment safe on every file system we run on. A run id
+ * and a step name both become directory/file names under `artifactDir`,
+ * and Windows reads `:` as an alternate-data-stream separator, so an ISO
+ * timestamp there fails the write with `ENOENT` instead of recording
+ * anything — exactly when a recording matters most. Keep the value
+ * readable and sortable, spell the rest with `-`.
+ * @param {string} value
+ * @returns {string}
+ */
+export const fileSafeSegment = (value) =>
+  String(value).replace(/[^\w.-]+/g, '-');
+
+/**
+ * The default run id: identifies the platform, sorts by time, and is
+ * usable as a directory name unchanged.
+ * @param {string} platform
+ * @param {number|string|Date} at
+ * @returns {string}
+ */
+export const runIdFor = (platform, at) =>
+  `${platform}-${fileSafeSegment(new Date(at).toISOString())}`;
+
 /** Persist each run as a link so telemetry syncs like everything else. */
 export const createStoreSink = (store, { prefix = 'cv-telemetry' } = {}) => ({
   kind: 'store',
@@ -207,7 +230,7 @@ export const createStoreSink = (store, { prefix = 'cv-telemetry' } = {}) => ({
 /**
  * Payload keys that name a place on disk rather than content. A run id
  * looks exactly like an API token to {@link redactText} — compare
- * `habr-career-2026-09-16T12:51:05.971Z` — so redacting an artifact
+ * `habr-career-2026-09-16T12-51-05.971Z` — so redacting an artifact
  * path would hand the reader a file name that points nowhere, which is
  * the one thing a recording must never do. The artifact's *contents*
  * are still redacted before they are written.
@@ -271,7 +294,7 @@ export const createTelemetryRun = ({
   redact = true,
   baseline = {},
   artifactDir = null,
-  runId = `${platform}-${new Date(now()).toISOString()}`,
+  runId = runIdFor(platform, now()),
   verbose = false,
 } = {}) => {
   const startedAt = now();
@@ -279,6 +302,15 @@ export const createTelemetryRun = ({
   const fingerprints = {};
   const problems = [];
   let seq = 0;
+
+  // A caller may pass its own run id, and step names come from plan
+  // data, so neither is trusted to be a legal path segment.
+  const artifactPath = (name, extension) =>
+    join(
+      artifactDir,
+      fileSafeSegment(runId),
+      `${fileSafeSegment(name)}.${extension}`
+    );
 
   const emit = async (type, data = {}) => {
     seq += 1;
@@ -383,7 +415,7 @@ export const createTelemetryRun = ({
         await emit('markup.changed', { name, ...drift });
       }
       if (artifactDir && typeof html === 'string') {
-        const file = join(artifactDir, runId, `${name}.html`);
+        const file = artifactPath(name, 'html');
         await mkdir(dirname(file), { recursive: true });
         await writeFile(file, redact ? redactText(html) : html, 'utf8');
         await emit('screenshot', { name, kind: 'html', path: file });
@@ -395,7 +427,7 @@ export const createTelemetryRun = ({
       if (!artifactDir || !buffer) {
         return emit('screenshot', { name, kind: 'skipped', path: null });
       }
-      const file = join(artifactDir, runId, `${name}.png`);
+      const file = artifactPath(name, 'png');
       await mkdir(dirname(file), { recursive: true });
       await writeFile(file, buffer);
       return emit('screenshot', { name, kind: 'png', path: file });
