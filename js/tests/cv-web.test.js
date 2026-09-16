@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { CvScreen, CvView } from '../src/web/cv-view.js';
+import { CvScreen, CvView, clientFailure } from '../src/web/cv-view.js';
 import { navItems } from '../src/web/nav-items.js';
 import { views } from '../src/web/views.js';
 import { LocaleContext, availableLocales } from '../src/web/i18n.js';
@@ -176,6 +176,18 @@ test('failures name the platform, the code and the message', () => {
   assert.match(html, /topcv: browser-unavailable — install playwright/);
 });
 
+test('a thrown error reaches the same failure list as a platform failure', () => {
+  const failure = clientFailure('read', new TypeError('fetch failed'));
+  assert.deepEqual(failure, {
+    platform: 'read',
+    code: 'client-error',
+    message: 'fetch failed',
+  });
+  // Whatever was thrown, the screen gets something printable.
+  assert.equal(clientFailure('sync', 'boom').message, 'boom');
+  assert.match(render(baseState({ failures: [failure] })), /client-error/);
+});
+
 test('telemetry runs surface their counts and problems', () => {
   const html = render(
     baseState({
@@ -197,6 +209,15 @@ test('telemetry runs surface their counts and problems', () => {
   assert.match(html, /data-run-id="run-1"/);
   assert.match(html, /run\.start=1 markup\.fingerprint=3/);
   assert.match(html, /matched 0 nodes/);
+});
+
+test('a backend without the CV routes says so instead of showing an empty table', () => {
+  // `docs/SERVER-PARITY.md`: /api/cv/* is JS only, so the Rust server
+  // (or no server at all) leaves the catalogue empty.
+  const html = render(baseState({ platforms: [], selected: [] }));
+  assert.match(html, /data-cv="unavailable"/);
+  assert.match(html, /does not provide the CV routes/);
+  assert.doesNotMatch(html, /class="cv-platforms"/);
 });
 
 test('an idle telemetry panel explains that no run happened yet', () => {

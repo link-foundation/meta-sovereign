@@ -64,7 +64,7 @@ const boot = async () => {
   const rtc = discovered
     ? attachWebRtcSync({ store, origin: discovered.origin })
     : null;
-  return { store, bus, client, rtc };
+  return { store, bus, client, rtc, origin: discovered?.origin ?? null };
 };
 
 const ensure = () => {
@@ -75,15 +75,28 @@ const ensure = () => {
 };
 
 const serverFetch = async (path, init) => {
-  const { client } = await ensure();
+  const { client, origin } = await ensure();
   if (!client.isOnline()) {
     return null;
   }
-  // Re-derive origin from the discovery cycle inside client.
-  // For brevity we lean on the client's `status()` to prove liveness
-  // and on globalThis.fetch for the actual call. Same-origin SPAs
-  // will resolve relative paths correctly without an explicit origin.
-  return fetch(path, init).then((r) => r.json());
+  // The discovered origin is not always the page's own origin: the
+  // SPA on GitHub Pages (or opened from a file) talks to a server on
+  // 127.0.0.1, so a relative path would hit the page's host instead
+  // of the server. `new URL` keeps same-origin deployments unchanged
+  // and points cross-origin ones at the backend the client is using.
+  const url = origin ? new URL(path, origin).toString() : path;
+  // "Online" does not mean "implements this route": the Rust backend
+  // answers routes it does not have with a 404 and a JSON error body
+  // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
+  // with HTML. Both mean the same thing as being offline, so both
+  // return null and let the caller's `??` default take over —
+  // otherwise `{error: 'unknown route'}` would reach the screens as
+  // if it were data.
+  const response = await fetch(url, init).catch(() => null);
+  if (!response?.ok) {
+    return null;
+  }
+  return response.json().catch(() => null);
 };
 
 let patternWorker = null;

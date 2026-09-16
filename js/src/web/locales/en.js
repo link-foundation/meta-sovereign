@@ -647,4 +647,6 @@ export const en = {
     '{platform}: {writable} writable, {unsupported} unsupported — {paths}',
   'cv.telemetry': 'Recent runs',
   'cv.noRuns': 'No runs recorded yet.',
+  'cv.unavailable':
+    'This server does not provide the CV routes. Start the JS server (`meta-sovereign serve`) or use the `meta-sovereign cv-*` commands, which drive the browser locally.',
 };

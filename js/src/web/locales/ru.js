@@ -656,4 +656,6 @@ export const ru = {
     '{platform}: {writable} записываемых, {unsupported} неподдерживаемых — {paths}',
   'cv.telemetry': 'Недавние запуски',
   'cv.noRuns': 'Запусков пока не записано.',
+  'cv.unavailable':
+    'Этот сервер не предоставляет маршруты CV. Запустите JS-сервер (`meta-sovereign serve`) или используйте команды `meta-sovereign cv-*`, которые управляют браузером локально.',
 };

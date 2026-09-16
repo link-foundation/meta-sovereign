@@ -630,4 +630,6 @@ export const zh = {
     '{platform}：{writable} 个可写，{unsupported} 个不支持 — {paths}',
   'cv.telemetry': '最近的运行',
   'cv.noRuns': '尚未记录任何运行。',
+  'cv.unavailable':
+    '此服务器未提供 CV 路由。请启动 JS 服务器（`meta-sovereign serve`），或使用在本地驱动浏览器的 `meta-sovereign cv-*` 命令。',
 };

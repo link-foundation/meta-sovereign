@@ -176,6 +176,17 @@ const Failures = ({ failures }) =>
         )
       );
 
+/**
+ * Shape a thrown error like the `failures` entries the API returns,
+ * so one list on the screen holds both kinds of bad news. Exported
+ * for `js/tests/cv-web.test.js`.
+ */
+export const clientFailure = (name, error) => ({
+  platform: name,
+  code: 'client-error',
+  message: String(error?.message ?? error),
+});
+
 /** Everything the screen does, kept out of the render for clarity. */
 const useCvState = (api) => {
   const [platforms, setPlatforms] = useState([]);
@@ -189,8 +200,8 @@ const useCvState = (api) => {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([api.cvPlatforms(), api.cvStored(), api.cvTelemetry({})]).then(
-      ([catalogue, snapshots, runs]) => {
+    Promise.all([api.cvPlatforms(), api.cvStored(), api.cvTelemetry({})])
+      .then(([catalogue, snapshots, runs]) => {
         if (cancelled) {
           return;
         }
@@ -203,8 +214,12 @@ const useCvState = (api) => {
             ? entries.map((entry) => entry.platform)
             : catalogue.map((platform) => platform.id)
         );
-      }
-    );
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setFailures([clientFailure('load', error)]);
+        }
+      });
     return () => {
       cancelled = true;
     };
@@ -212,8 +227,16 @@ const useCvState = (api) => {
 
   const run = useCallback(async (name, fn) => {
     setBusy(name);
+    setFailures([]);
     try {
       return await fn();
+    } catch (error) {
+      // A screen that quietly does nothing is the worst outcome when
+      // something breaks, so a client-side failure is reported in the
+      // same list as a platform failure instead of ending up as an
+      // unhandled rejection in the console.
+      setFailures([clientFailure(name, error)]);
+      return null;
     } finally {
       setBusy('');
     }
@@ -364,7 +387,16 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
   return el('div', { className: 'col cv-view' }, [
     el('h2', { key: 'h' }, t('cv.title')),
     el('p', { key: 'intro', className: 'meta' }, t('cv.intro')),
-    el(CvPlatforms, { key: 'platforms', state }),
+    // An empty catalogue means the backend has no `/api/cv/*` routes
+    // (the Rust server, or no server at all), which is worth saying
+    // out loud rather than showing an empty table.
+    state.platforms.length === 0
+      ? el(
+          'p',
+          { key: 'unavailable', className: 'meta', 'data-cv': 'unavailable' },
+          t('cv.unavailable')
+        )
+      : el(CvPlatforms, { key: 'platforms', state }),
     el(CvControls, { key: 'controls', state, login, setLogin }),
     state.busy
       ? el('p', { key: 'busy', className: 'meta' }, t('cv.busy'))

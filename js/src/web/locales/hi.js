@@ -645,4 +645,6 @@ export const hi = {
     '{platform}: {writable} लिखने योग्य, {unsupported} असमर्थित — {paths}',
   'cv.telemetry': 'हाल के रन',
   'cv.noRuns': 'अभी तक कोई रन दर्ज नहीं हुआ।',
+  'cv.unavailable':
+    'यह सर्वर CV रूट नहीं देता। JS सर्वर चलाएँ (`meta-sovereign serve`) या `meta-sovereign cv-*` कमांड इस्तेमाल करें, जो ब्राउज़र को स्थानीय रूप से चलाते हैं।',
 };
