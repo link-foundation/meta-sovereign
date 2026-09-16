@@ -204,6 +204,24 @@ export const createStoreSink = (store, { prefix = 'cv-telemetry' } = {}) => ({
   },
 });
 
+/**
+ * Payload keys that name a place on disk rather than content. A run id
+ * looks exactly like an API token to {@link redactText} — compare
+ * `habr-career-2026-09-16T12:51:05.971Z` — so redacting an artifact
+ * path would hand the reader a file name that points nowhere, which is
+ * the one thing a recording must never do. The artifact's *contents*
+ * are still redacted before they are written.
+ */
+const RAW_KEYS = new Set(['path']);
+
+const redactPayload = (data) =>
+  Object.fromEntries(
+    Object.entries(data).map(([key, value]) => [
+      key,
+      RAW_KEYS.has(key) ? value : redactValue(value),
+    ])
+  );
+
 /** Keys the run envelope owns; payloads may not overwrite them. */
 const ENVELOPE_KEYS = [
   'seq',
@@ -264,7 +282,7 @@ export const createTelemetryRun = ({
 
   const emit = async (type, data = {}) => {
     seq += 1;
-    const payload = { ...(redact ? redactValue(data) : data) };
+    const payload = { ...(redact ? redactPayload(data) : data) };
     // The envelope identifies the run; a payload key of the same name
     // must never shadow it. `run.finish` repeats `runId`/`platform`,
     // and redaction would otherwise rewrite the run id (it looks like

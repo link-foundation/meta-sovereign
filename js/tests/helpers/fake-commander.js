@@ -21,14 +21,25 @@ const makeNode = (entry) => ({
 });
 
 /**
+ * Playwright's `:nth-match(selector, n)` extension, which the runner
+ * wraps around a selector that matched more than one node so a strict
+ * locator still resolves. The fake honours it the same way a browser
+ * would: same match set, one element picked out of it.
+ */
+const NTH_MATCH = /^:nth-match\((.+),\s*(\d+)\)$/;
+
+/**
  * A browser matches every branch of a selector list (`a, b`), so the
  * fixture lookup unions the candidates the same way — otherwise tests
  * would have to mirror each plan's exact fallback string.
  */
-const entriesFor = (page, selector) =>
-  selectorCandidates(selector).flatMap(
+const entriesFor = (page, selector) => {
+  const nth = NTH_MATCH.exec(selector.trim());
+  const entries = selectorCandidates(nth ? nth[1] : selector).flatMap(
     (candidate) => page.nodes?.[candidate] ?? []
   );
+  return nth ? entries.slice(Number(nth[2]) - 1, Number(nth[2])) : entries;
+};
 
 const withDocument = async (page, fn, arg) => {
   const previous = globalThis.document;
@@ -77,7 +88,23 @@ export const createFakeCommander = ({ pages, url = Object.keys(pages)[0] }) => {
     async count({ selector }) {
       return nodes(selector).length;
     },
-    async waitForSelector({ selector }) {
+    async waitForSelector({ selector, timeout = 15000 }) {
+      // `waitFails` lets a test reproduce what a live page does to a
+      // wait: browser-commander re-throws Playwright's TimeoutError,
+      // and a selector matching several nodes raises strict mode.
+      const failure = page().waitFails?.[selector];
+      if (failure === 'timeout') {
+        const error = new Error(
+          `locator.waitFor: Timeout ${timeout}ms exceeded.`
+        );
+        error.name = 'TimeoutError';
+        throw error;
+      }
+      if (failure === 'strict') {
+        throw new Error(
+          `locator.waitFor: Error: strict mode violation: locator('${selector}') resolved to 2 elements`
+        );
+      }
       return nodes(selector).length > 0;
     },
     async textContent({ selector }) {

@@ -2,7 +2,7 @@
 // its log alone — which selector missed, which fallback saved it, how
 // long each step took, and whether the markup changed under us.
 
-import { mkdtemp, readFile, readdir } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -215,6 +215,35 @@ describe('telemetry sinks', () => {
 
     const artifacts = await readdir(join(dir, run.runId));
     expect(artifacts).toContain('intro.html');
+  });
+
+  it('reports an artifact path a human can actually open', async () => {
+    // A run id reads like an API token — `habr-career-2026-09-16T07…`
+    // is 25 characters of `[A-Za-z0-9-]` — so redacting the path would
+    // point the reader at a file that does not exist.
+    const dir = await mkdtemp(join(tmpdir(), 'cv-telemetry-'));
+    const memory = createMemorySink();
+    const run = createTelemetryRun({
+      platform: 'habr-career',
+      sink: memory,
+      now: tick(),
+      artifactDir: dir,
+    });
+    await run.start();
+    await run.snapshot('profile', '<section>mail anna@example.com</section>');
+    await run.screenshot('profile', Buffer.from('png'));
+    await run.finish();
+
+    const artifacts = memory.filter('screenshot');
+    expect(artifacts.length).toBe(2);
+    for (const event of artifacts) {
+      expect(event.path).toContain(run.runId);
+      expect(event.path).not.toContain('<token>');
+      expect((await stat(event.path)).size).toBeGreaterThan(0);
+    }
+    // The contents are still redacted — only the location is verbatim.
+    const html = await readFile(join(dir, run.runId, 'profile.html'), 'utf8');
+    expect(html).toContain('<email>');
   });
 
   it('keeps the run envelope intact when a payload repeats its keys', async () => {

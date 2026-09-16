@@ -87,6 +87,20 @@ describe('runner helpers', () => {
     expect(valueAtPath(cv, 'basics.name')).toBe('Anna');
   });
 
+  it('addresses one record of a repeated section as section[].field', () => {
+    // Naukri's employment drawer edits a single row at a time, so its
+    // plan writes `experience[].title`; `isCvPath` accepts the form and
+    // the runner has to resolve it in both directions.
+    const cv = emptyCv();
+    assignPath(cv, 'experience[].title', '  Staff Engineer ');
+    assignPath(cv, 'experience[].company', 'Acme');
+    expect(cv.experience).toEqual([
+      { title: 'Staff Engineer', company: 'Acme' },
+    ]);
+    expect(valueAtPath(cv, 'experience[].title')).toBe('Staff Engineer');
+    expect(valueAtPath(emptyCv(), 'experience[].title')).toBe('');
+  });
+
   it('refuses to assign a path the model does not know', () => {
     let message = '';
     try {
@@ -173,6 +187,71 @@ describe('runner read plans', () => {
       code = error.code;
     }
     expect(code).toBe('step-missed');
+  });
+
+  it('narrows a selector that matches twice to its first match', async () => {
+    // Playwright resolves locators strictly, and real boards repeat
+    // their markup — Naukri renders one `.card.profile-container` per
+    // section. The runner must address the first, not blow up.
+    const pages = habrPages();
+    pages['https://career.habr.com/anna'].nodes['.page-title__title'] = [
+      { text: 'Анна Буянова' },
+      { text: 'somebody else' },
+    ];
+    const sink = createMemorySink();
+    const runner = createCvRunner({
+      platform: habrCareerCvPlatform,
+      commander: createFakeCommander({ pages }),
+      vars: { login: 'anna' },
+      sink,
+    });
+    const result = await runner.read();
+    expect(result.cv.basics.name).toBe('Анна Буянова');
+    const step = sink
+      .filter('step.ok')
+      .find((event) => event.step.includes('basics.name'));
+    expect(step.selector).toBe(':nth-match(.page-title__title, 1)');
+  });
+
+  it('reports a wait that timed out as a miss, not a crash', async () => {
+    // browser-commander re-throws Playwright's TimeoutError. Letting it
+    // escape would discard the run report — the one thing a first
+    // authenticated run needs — so the runner turns it into a miss.
+    const pages = habrPages();
+    pages['https://career.habr.com/anna'].waitFails = { [SSR]: 'timeout' };
+    const sink = createMemorySink();
+    const runner = createCvRunner({
+      platform: habrCareerCvPlatform,
+      commander: createFakeCommander({ pages }),
+      vars: { login: 'anna' },
+      sink,
+    });
+    let code = '';
+    try {
+      await runner.read();
+    } catch (error) {
+      code = error.code;
+    }
+    expect(code).toBe('step-missed');
+    expect(sink.filter('step.miss')[0].reason).toContain('timeout after');
+  });
+
+  it('treats a strict-mode violation as "the element is there, twice"', async () => {
+    const pages = habrPages();
+    pages['https://career.habr.com/anna'].waitFails = { [SSR]: 'strict' };
+    const sink = createMemorySink();
+    const runner = createCvRunner({
+      platform: habrCareerCvPlatform,
+      commander: createFakeCommander({ pages }),
+      vars: { login: 'anna' },
+      sink,
+    });
+    const result = await runner.read();
+    expect(result.cv.basics.name).toBe('Анна Буянова');
+    expect(sink.filter('step.miss').length).toBe(0);
+    expect(
+      sink.filter('step.ok').some((event) => event.matches === 'multiple')
+    ).toBe(true);
   });
 
   it('detects an expired session from the redirect to login', async () => {

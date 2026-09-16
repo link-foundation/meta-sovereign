@@ -109,10 +109,40 @@ const recordFromRaw = (section, raw, durationField) => {
 };
 
 /**
+ * `experience[].title`: one field of one repeated record. Plans that
+ * edit a single record at a time — Naukri's employment drawer, for
+ * instance — address the first row, the one every board shows on top.
+ */
+const RECORD_FIELD = /^([a-z]+)\[\]\.([a-zA-Z]+)$/;
+
+const recordFieldOf = (path) => {
+  const match = RECORD_FIELD.exec(path);
+  if (!match) {
+    return null;
+  }
+  const [, section, field] = match;
+  return RECORD_SECTIONS[section]?.fields.includes(field)
+    ? { section, field }
+    : null;
+};
+
+/**
  * Write a value into the canonical CV at `path`. Lists merge, records
  * replace, scalars coerce — the same rules the model's normaliser uses.
  */
 export const assignPath = (cv, path, value, { durationField = null } = {}) => {
+  const indexed = recordFieldOf(path);
+  if (indexed) {
+    const rows = cv[indexed.section]?.length ? cv[indexed.section] : [{}];
+    rows[0] = {
+      ...rows[0],
+      [indexed.field]: BOOLEAN_FIELDS.has(indexed.field)
+        ? toBoolean(value)
+        : clean(value),
+    };
+    cv[indexed.section] = rows;
+    return cv;
+  }
   const [section, field] = path.split('.');
   if (MAP_SECTIONS[section] && field) {
     cv[section][field] = BOOLEAN_FIELDS.has(field)
@@ -141,6 +171,10 @@ export const assignPath = (cv, path, value, { durationField = null } = {}) => {
 
 /** Read a value out of a CV for a `fill` step. */
 export const valueAtPath = (cv, path) => {
+  const indexed = recordFieldOf(path);
+  if (indexed) {
+    return cv?.[indexed.section]?.[0]?.[indexed.field] ?? '';
+  }
   const [section, field] = path.split('.');
   if (MAP_SECTIONS[section] && field) {
     return cv?.[section]?.[field] ?? '';
@@ -176,8 +210,28 @@ const pageHtml = ({ selector }) => {
 
 const missed = (reason) => ({ missed: true, reason });
 
-/** First selector candidate that matches, reporting any fallback used. */
-const pickSelector = async (ctx, selector, report) => {
+/**
+ * Playwright resolves a locator strictly: a selector matching two nodes
+ * throws instead of picking one, and real profile pages repeat their
+ * markup — Naukri renders one `.card.profile-container` per section.
+ * Steps that address a single element therefore narrow to the first
+ * match, which is what a person reading the page would do, and the
+ * narrowing stays visible in telemetry because it is part of the
+ * selector we report.
+ */
+const firstMatch = (selector) => `:nth-match(${selector}, 1)`;
+
+/**
+ * First selector candidate that matches, reporting any fallback used.
+ *
+ * @param {object} ctx run context
+ * @param {string} selector raw selector from the step, possibly a
+ *   comma-separated candidate list
+ * @param {object} report telemetry reporter for the step
+ * @param {{unique?: boolean}} [options] `unique` narrows a selector
+ *   that matched more than once to its first match
+ */
+const pickSelector = async (ctx, selector, report, { unique = false } = {}) => {
   const candidates = selectorCandidates(resolveTemplate(selector, ctx.vars));
   for (const [index, candidate] of candidates.entries()) {
     const count = await ctx.commander.count({ selector: candidate });
@@ -185,11 +239,26 @@ const pickSelector = async (ctx, selector, report) => {
       if (index > 0) {
         await report.fallback(candidates[0], candidate);
       }
-      return candidate;
+      return unique && count > 1 ? firstMatch(candidate) : candidate;
     }
   }
   return null;
 };
+
+/**
+ * Elements that never render. A `<script type="application/json">` blob
+ * — Habr Career and VietnamWorks both publish their profile state in
+ * one — is attached but permanently invisible, so waiting for it to
+ * become *visible* could only ever time out.
+ */
+const NEVER_VISIBLE = /(^|[\s>+~,])(script|template|meta|link|style)\b/i;
+
+const isTimeout = (error) =>
+  error?.name === 'TimeoutError' ||
+  /timeout\s+\d+ms exceeded/i.test(error?.message ?? '');
+
+const isStrictViolation = (error) =>
+  /strict mode violation/i.test(error?.message ?? '');
 
 const handlers = {
   async goto(step, ctx) {
@@ -208,11 +277,29 @@ const handlers = {
 
   async waitFor(step, ctx) {
     const selector = resolveTemplate(step.selector, ctx.vars);
-    const found = await ctx.commander.waitForSelector({
-      selector,
-      timeout: step.timeout ?? 15000,
-      throwOnNavigation: false,
-    });
+    const timeout = step.timeout ?? 15000;
+    let found;
+    try {
+      found = await ctx.commander.waitForSelector({
+        selector,
+        timeout,
+        visible: !NEVER_VISIBLE.test(selector),
+        throwOnNavigation: false,
+      });
+    } catch (error) {
+      if (isStrictViolation(error)) {
+        // Several nodes match, so the thing the plan waited for is on
+        // the page — twice over. Steps that follow address the first.
+        return { telemetry: { selector, matches: 'multiple' } };
+      }
+      if (!isTimeout(error)) {
+        throw error;
+      }
+      // "Still not there" is drift, not a crash: reporting it as a miss
+      // keeps the run report — and every event leading up to it — intact
+      // instead of unwinding the plan with a browser stack trace.
+      return missed(`timeout after ${timeout}ms ${selector}`);
+    }
     return found ? { telemetry: { selector } } : missed(`no match ${selector}`);
   },
 
@@ -233,7 +320,9 @@ const handlers = {
   },
 
   async click(step, ctx, report) {
-    const selector = await pickSelector(ctx, step.selector, report);
+    const selector = await pickSelector(ctx, step.selector, report, {
+      unique: true,
+    });
     if (!selector) {
       return missed(`no match ${step.selector}`);
     }
@@ -252,7 +341,9 @@ const handlers = {
     if (!text) {
       return { skipped: true, reason: `no value for ${step.path}` };
     }
-    const selector = await pickSelector(ctx, step.selector, report);
+    const selector = await pickSelector(ctx, step.selector, report, {
+      unique: true,
+    });
     if (!selector) {
       return missed(`no match ${step.selector}`);
     }
@@ -279,7 +370,9 @@ const handlers = {
   },
 
   async read(step, ctx, report) {
-    const selector = await pickSelector(ctx, step.selector, report);
+    const selector = await pickSelector(ctx, step.selector, report, {
+      unique: true,
+    });
     if (!selector) {
       return missed(`no match ${step.selector}`);
     }
@@ -331,7 +424,9 @@ const handlers = {
   },
 
   async extractJson(step, ctx, report) {
-    const selector = await pickSelector(ctx, step.selector, report);
+    const selector = await pickSelector(ctx, step.selector, report, {
+      unique: true,
+    });
     if (!selector) {
       return missed(`no match ${step.selector}`);
     }
