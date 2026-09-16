@@ -18,10 +18,16 @@ describe('public api', () => {
       'sync',
       'broadcast',
       'backup',
+      'cv',
     ]) {
       expect(typeof ms[name]).toBe('object');
     }
     expect(typeof ms.runCli).toBe('function');
     expect(typeof ms.startServer).toBe('function');
+    // The CV subsystem is the whole point of issue #29: platforms,
+    // the read/compare/sync facade and the telemetry reader.
+    expect(typeof ms.cv.listCvPlatforms).toBe('function');
+    expect(typeof ms.cv.syncCvAcross).toBe('function');
+    expect(typeof ms.cv.loadCvTelemetry).toBe('function');
   });
 });

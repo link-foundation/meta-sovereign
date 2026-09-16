@@ -26,6 +26,8 @@
     "./broadcast": "./js/src/broadcast/index.js",
     "./backup": "./js/src/storage/backup.js",
     "./handlers": "./js/src/handlers/index.js",
+    "./cv": "./js/src/cv/index.js",
+    "./cv/platforms": "./js/src/cv/platforms/index.js",
     "./cli": "./js/src/cli/index.js",
     "./server": "./js/src/server/index.js"
   },

@@ -17,6 +17,8 @@ export * as sync from './sync/index.js';
 export * as broadcast from './broadcast/index.js';
 export * as backup from './storage/backup.js';
 export * as handlers from './handlers/index.js';
+// CV read/compare/update across job boards (issue #29).
+export * as cv from './cv/index.js';
 
 export { runCli } from './cli/index.js';
 export { startServer } from './server/index.js';
