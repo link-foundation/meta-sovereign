@@ -204,6 +204,17 @@ export const createStoreSink = (store, { prefix = 'cv-telemetry' } = {}) => ({
   },
 });
 
+/** Keys the run envelope owns; payloads may not overwrite them. */
+const ENVELOPE_KEYS = [
+  'seq',
+  'runId',
+  'platform',
+  'mode',
+  'type',
+  'at',
+  'elapsedMs',
+];
+
 /** Fan an event out to several sinks; one failing sink never kills a run. */
 export const combineSinks = (...sinks) => ({
   kind: 'combined',
@@ -253,6 +264,14 @@ export const createTelemetryRun = ({
 
   const emit = async (type, data = {}) => {
     seq += 1;
+    const payload = { ...(redact ? redactValue(data) : data) };
+    // The envelope identifies the run; a payload key of the same name
+    // must never shadow it. `run.finish` repeats `runId`/`platform`,
+    // and redaction would otherwise rewrite the run id (it looks like
+    // a token) and split one run into two in every telemetry query.
+    for (const key of ENVELOPE_KEYS) {
+      delete payload[key];
+    }
     const event = {
       seq,
       runId,
@@ -261,7 +280,7 @@ export const createTelemetryRun = ({
       type,
       at: new Date(now()).toISOString(),
       elapsedMs: now() - startedAt,
-      ...(redact ? redactValue(data) : data),
+      ...payload,
     };
     events.push(event);
     if (verbose) {

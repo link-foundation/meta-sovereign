@@ -56,12 +56,15 @@ export {
 } from './platforms/index.js';
 export { createCvRunner, dryRunPlan } from './runner.js';
 
+/** Token prefix `createStoreSink` writes telemetry links under. */
+export const CV_TELEMETRY_PREFIX = 'cv-telemetry';
+
 const sinkFor = ({ store, sink, recordTelemetry }) => {
   const memory = createMemorySink();
   if (!store || recordTelemetry === false) {
     return sink ? combineSinks(memory, sink) : memory;
   }
-  const storeSink = createStoreSink(store);
+  const storeSink = createStoreSink(store, { prefix: CV_TELEMETRY_PREFIX });
   return sink
     ? combineSinks(memory, storeSink, sink)
     : combineSinks(memory, storeSink);
@@ -374,4 +377,71 @@ export const syncCvAcross = async (
       entries.length > 1 &&
       entries.every((entry) => cvsEqual(entry.cv, target)),
   };
+};
+
+/**
+ * Read back the telemetry a store sink recorded. This is what makes a
+ * failed live run debuggable after the fact: every step, every
+ * selector fallback and every markup fingerprint is queryable.
+ *
+ * @param {object} store
+ * @param {object} [filter]
+ * @param {string|null} [filter.runId] one run only
+ * @param {string|null} [filter.platform]
+ * @param {string|null} [filter.type] event type, e.g. `step.error`
+ * @param {number} [filter.limit] keep the newest N events (0 = all)
+ * @returns {Promise<object[]>} events ordered by run then sequence
+ */
+export const loadCvTelemetry = async (
+  store,
+  { runId = null, platform = null, type = null, limit = 500 } = {}
+) => {
+  const links = await store.query(
+    (link) => link?.tokens?.[0] === CV_TELEMETRY_PREFIX
+  );
+  const events = links
+    .map((link) => link.event)
+    .filter(
+      (event) =>
+        event &&
+        (!runId || event.runId === runId) &&
+        (!platform || event.platform === platform) &&
+        (!type || event.type === type)
+    )
+    .sort(
+      (a, b) =>
+        String(a.at).localeCompare(String(b.at)) ||
+        a.runId.localeCompare(b.runId) ||
+        a.seq - b.seq
+    );
+  return limit > 0 ? events.slice(-limit) : events;
+};
+
+/**
+ * Group telemetry events into runs, newest first — the shape the CLI
+ * prints and the SPA lists.
+ * @param {object[]} events as returned by {@link loadCvTelemetry}
+ */
+export const summarizeCvRuns = (events = []) => {
+  const runs = new Map();
+  for (const event of events) {
+    const run = runs.get(event.runId) ?? {
+      runId: event.runId,
+      platform: event.platform,
+      mode: event.mode,
+      startedAt: event.at,
+      finishedAt: event.at,
+      counts: {},
+      problems: [],
+    };
+    run.finishedAt = event.at;
+    run.counts[event.type] = (run.counts[event.type] ?? 0) + 1;
+    if (event.type === 'step.error' || event.type === 'step.miss') {
+      run.problems.push(`${event.step}: ${event.message ?? event.reason}`);
+    }
+    runs.set(event.runId, run);
+  }
+  return [...runs.values()].sort((a, b) =>
+    String(b.startedAt).localeCompare(String(a.startedAt))
+  );
 };

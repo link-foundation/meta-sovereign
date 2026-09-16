@@ -217,6 +217,28 @@ describe('telemetry sinks', () => {
     expect(artifacts).toContain('intro.html');
   });
 
+  it('keeps the run envelope intact when a payload repeats its keys', async () => {
+    const memory = createMemorySink();
+    const run = createTelemetryRun({
+      // Long enough to look like a token to the redactor.
+      platform: 'habr-career',
+      runId: 'habr-career-2026-09-16T07:00:00.000Z',
+      sink: memory,
+      now: tick(),
+    });
+    await run.start();
+    await run.emit('custom', { runId: 'spoofed', type: 'nope', note: 'kept' });
+    const report = await run.finish();
+    const finish = memory.events[memory.events.length - 1];
+    expect(finish.runId).toBe('habr-career-2026-09-16T07:00:00.000Z');
+    expect(finish.type).toBe('run.finish');
+    expect(finish.platform).toBe('habr-career');
+    expect(memory.events[1].runId).toBe(run.runId);
+    expect(memory.events[1].note).toBe('kept');
+    expect(new Set(memory.events.map((event) => event.runId)).size).toBe(1);
+    expect(report.runId).toBe(run.runId);
+  });
+
   it('survives a sink that throws', async () => {
     const memory = createMemorySink();
     const broken = {
