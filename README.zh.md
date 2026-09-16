@@ -46,6 +46,7 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 ## 功能概览
 
 - **统一收件箱**：覆盖 VK、Telegram、X、WhatsApp、Facebook、LinkedIn、career.habr.com、hh.ru、superjob.ru 和电子邮件。
+- **简历同步**：覆盖 LinkedIn、hh.ru、Habr Career、Naukri、VietnamWorks、TopCV 和 SuperJob——通过你自己的浏览器读取每份简历，逐字段查看差异，再把商定的内容写回去（[`docs/CV-SYNC.zh.md`](docs/CV-SYNC.zh.md)）。
 - **个人 CRM**：联系人、社区、群组成员、交集、批量个性化触达。
 - **个人记忆**：自动从对话中抽取结构化 `question → answer` 事实。
 - **对话自动化平台**：模式编辑器、回复变体编辑器、类似 n8n 的对话图。
@@ -63,6 +64,7 @@ issue #1 目标原型已实现并在 PR #2 中跟踪：
 - **服务连接器（R-E\*）**：VK、Telegram、X、WhatsApp、Facebook、LinkedIn、career.habr.com、hh.ru、superjob.ru 和 email 的归档解析器与可用 live API 连接器。
 - **模式匹配和自动化（R-C\*）**：`inferRegex`、`simplifyRegex`、`compilePeg`、模糊回复变体抽取和 `createGraph` / `runGraph`。
 - **CRM（R-D\*）**：联系人聚合、audience DSL、批量个性化触达、资料和简历同步 envelope。
+- **简历同步（R-V\*）**：七个求职平台的声明式浏览器计划、跨平台差异比较、可选择字段的写入，以及每次运行都带 HTML/截图产物的脱敏遥测流。
 - **分发（R-F\*）**：NPM 库、CLI、本地服务器、Electron shell、Capacitor 移动 shell、Docker web + WebRTC 微服务。
 - **技术栈（R-G\*）**：默认 JS server + React SPA + Rust/WASM 重型任务；纯 Rust 服务器作为替代。
 - **加固（R-K\*）**：默认软删除、AES-256-GCM 主密钥 vault、多种解锁方式、加密导出。

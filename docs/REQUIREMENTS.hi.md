@@ -39,7 +39,9 @@ outreach, configurable search, profile sync और resume sync cover करत�
 R-E1..R-E10 VK, Telegram, X, WhatsApp, Facebook, LinkedIn,
 career.habr.com, hh.ru, superjob.ru और email के archive/live support की
 मांग करते हैं। State: done; adapters data को unified links में normalize
-करते हैं।
+करते हैं। R-E11..R-E13 Naukri, VietnamWorks और TopCV जोड़ते हैं: इनका
+कोई public API नहीं है, इसलिए data exports और browser session से आता है
+(section V देखें)।
 
 ## F. Distribution, sync, deployment
 
@@ -132,6 +134,21 @@ spotlight, और "Connect a service" से शुरू होने वाल
 sequence cover करते हैं। State: PR #26 branch `issue-25-dac43a780b5c`
 पर in progress। विस्तृत table के लिए
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U देखें।
+
+## V. Job platforms के बीच CV synchronisation (issue #29)
+
+R-V1..R-V22 links notation में canonical CV model, cross-platform diff
+और reconcile, सात platforms (LinkedIn, hh.ru, Habr Career, Naukri,
+VietnamWorks, TopCV, SuperJob) के declarative browser plans,
+verified/documented/draft steps गिनने वाला registry validation,
+redaction तथा HTML/screenshot artifacts वाली telemetry,
+browser-commander पर चलने वाला plan runner, facade / HTTP routes / CLI
+commands / SPA screen, web bundle की शुद्धता, `--paths` और `--groups`
+से चुनिंदा writes, fixture markup पर असली browser से हर plan का run, और
+backend के पास `/api/cv/*` न होने पर दिखने वाला graceful degradation
+cover करते हैं। State: PR #30 में done। विस्तृत table के लिए
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V देखें; काम कैसे
+करता है यह [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
 
 ## Traceability
 

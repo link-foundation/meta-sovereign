@@ -36,7 +36,9 @@ R-D1..R-D6 覆盖联系人详情聚合、audience DSL、mass-personal outreach�
 
 R-E1..R-E10 要求 VK、Telegram、X、WhatsApp、Facebook、LinkedIn、
 career.habr.com、hh.ru、superjob.ru 和 email 的 archive/live support。状态：
-已完成；各 adapter 将数据规范化为 unified links。
+已完成；各 adapter 将数据规范化为 unified links。R-E11..R-E13 增加了
+Naukri、VietnamWorks 和 TopCV：它们没有公开 API，因此数据来自导出文件和
+浏览器会话（见 section V）。
 
 ## F. 分发、同步和部署
 
@@ -123,6 +125,19 @@ build 不会出现 English literal）、独立的 Connections 页面（每个 pr
 tutorial spotlight，以及以 "Connect a service" 起步的默认 tutorial 序列。
 状态：PR #26 in progress（分支 `issue-25-dac43a780b5c`）。详细表参见
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U。
+
+## V. 跨求职平台的简历同步 (issue #29)
+
+R-V1..R-V22 覆盖 links notation 中的规范简历模型、跨平台 diff 与
+reconcile、七个平台（LinkedIn、hh.ru、Habr Career、Naukri、
+VietnamWorks、TopCV、SuperJob）的声明式浏览器计划、带
+verified/documented/draft 步骤统计的 registry 校验、带脱敏和
+HTML/截图产物的 telemetry、基于 browser-commander 的 plan runner、
+facade / HTTP routes / CLI 命令 / SPA 页面、web bundle 纯净性、用
+`--paths` 和 `--groups` 做的选择性写入、在 fixture markup 上用真实浏览器
+跑完每个计划，以及后端没有 `/api/cv/*` 时的可见降级。状态：已在 PR #30
+完成。详细表参见 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V；
+工作原理见 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
 ## Traceability
 

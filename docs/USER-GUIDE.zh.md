@@ -99,7 +99,65 @@ meta-sovereign import
 
 Live email 可使用 `source-pull --source=email --protocol=gmail`、`microsoft-graph`、`jmap`、`imap` 或 `pop3`。原始 IMAP/POP3/SMTP 还需要 `--host`、`--username`、`--password`，除非设置了等价的 `EMAIL_*` 环境变量。
 
-## 9. 故障排除
+## 9. 在求职平台之间同步简历
+
+简历通常同时存在于 LinkedIn、hh.ru、Habr Career、Naukri、VietnamWorks、
+TopCV 和 SuperJob 上，这七份副本会逐渐不一致。`meta-sovereign` 通过你自己
+机器上的浏览器读取全部简历，显示差异，并把商定的值写回去。
+
+这需要 CLI：一个网页无法驱动另一个网页，因此 app 里的 **CV** 页面展示覆盖
+范围、差异和运行历史，真正的运行交给终端。
+
+```bash
+# 一次性：安装浏览器引擎（可选依赖）
+npm install playwright browser-commander
+npx playwright install chromium
+
+# 查看支持哪些平台，以及标记已验证的比例
+meta-sovereign cv-platforms
+
+# 用可见浏览器登录一次；session 会保存在 profile 目录里
+meta-sovereign cv-read --platforms=linkedin --headed --profile=~/.meta-sovereign/cv
+
+# 读取多个资料，并保留页面快照以便事后检查
+meta-sovereign cv-read --platforms=linkedin,hh,naukri --login=<你的登录名> --artifacts=./cv-runs
+
+# 比较已读取的内容 — 不需要浏览器
+meta-sovereign cv-diff --prefer=linkedin
+
+# 先看 sync 会改什么，再执行
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri --apply
+
+# 只写一个字段或一个编辑区块，其余不动
+meta-sovereign cv-sync --platforms=linkedin --paths=basics.headline --apply
+meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
+
+# 最近几次运行发生了什么
+meta-sovereign cv-telemetry --type=step.miss
+```
+
+不会有人向你索要平台密码：浏览器以 `--headed` 打开，你像平时一样登录，
+session 保存在你指定的 profile 目录中。
+
+本地 server 运行时，同样的操作也可以通过 HTTP 使用：
+`GET /api/cv/platforms`、`GET /api/cv/plan?platform=…`、
+`GET /api/cv/stored`、`POST /api/cv/read`、`POST /api/cv/compare`、
+`POST /api/cv/sync`、`GET /api/cv/telemetry`。
+
+| 现象                                 | 含义                                                                                           |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `browser-commander is not installed` | 安装上面的可选依赖，或改用 `cv-platforms` / `cv-plan` / `cv-diff`，它们不会打开浏览器。        |
+| 运行以 `login-required` 结束         | 平台把你跳转到了登录页。加上 `--headed` 重新运行并登录。                                       |
+| 运行以 `step-missed` 结束            | 站点改了 markup。原因里写明了 selector；`cv-telemetry` 和 `--artifacts` 中的 HTML 可还原页面。 |
+| 平台报告 `unsupported`               | 该字段在平台计划里没有编辑器 — 这个改动会被报告，而不是被悄悄丢弃。                            |
+| 字段被标记为 `deselected`            | 它是可写的，但被你的 `--paths`/`--groups` 过滤掉了。                                           |
+| CV 页面提示需要 JS server            | 当前连接的 backend（例如 Rust server）没有 `/api/cv/*` 路由。                                  |
+
+规范简历结构、步骤词汇、telemetry 事件以及每个平台已验证的内容，详见
+[`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
+
+## 10. 故障排除
 
 | 现象                           | 处理方式                                                                                               |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
@@ -109,10 +167,11 @@ Live email 可使用 `source-pull --source=email --protocol=gmail`、`microsoft-
 | WebRTC 跨网络停止同步。        | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                 |
 | `cargo build` 出现 linker 错。 | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                     |
 
-## 10. 下一步
+## 11. 下一步
 
 - [`README.zh.md`](../README.zh.md) — 项目概览和开发者说明。
 - [`docs/REQUIREMENTS.zh.md`](./REQUIREMENTS.zh.md) — canonical requirement list。
 - [`docs/SERVER-PARITY.zh.md`](./SERVER-PARITY.zh.md) — JS 与 Rust server routes。
+- [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md) — 简历同步的工作方式，逐个平台说明。
 - [`docs/UI-DESIGN-AUDIT.zh.md`](./UI-DESIGN-AUDIT.zh.md) — accessibility 与 HIG/Material/Fluent audit。
 - [`docs/case-studies/`](./case-studies/) — 每个 issue 的完整案例研究。

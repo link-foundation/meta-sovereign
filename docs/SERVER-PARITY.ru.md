@@ -44,24 +44,36 @@ Microsoft Graph, JMAP и raw IMAP/POP3/SMTP остаются JS server features,
 соответствующие features; CLI продолжает использовать локальную JS
 implementation.
 
-## 5. Real-time transports и static assets
+## 5. Синхронизация CV
+
+`/api/cv/platforms`, `/api/cv/plan`, `/api/cv/stored`, `/api/cv/read`,
+`/api/cv/compare`, `/api/cv/sync` и `/api/cv/telemetry` (R-V16) - JS
+only, и по структурной причине: `read` и `sync` управляют настоящим
+браузером через `browser-commander` + Playwright, а Rust crate
+использует только `std` и не может запустить такой процесс. Остальные
+четыре маршрута браузера не трогают и портируемы; до этого SPA
+показывает на CV screen явное сообщение "нужен JS server" вместо пустой
+таблицы. Подробности: [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
+
+## 6. Real-time transports и static assets
 
 `/ws` WebSocket sync и `/rtc` WebRTC signalling имеют parity. `/`,
 `/index.html`, flat assets, `/storage/`, `/handlers/` и `/sync/` mounts
 также обслуживаются одинаково и отвергают path traversal.
 
-## 6. Summary
+## 7. Summary
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
 | Read + derived + meta          | 14     | 14     | 0       |
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
+| Синхронизация CV               | 7      | 0      | 7       |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **40** | **34** | **6**   |
+| **Total**                      | **47** | **34** | **13**  |
 
-Rust server сегодня достиг **85% route parity**. Для типичного user flow
+Rust server сегодня достиг **72% route parity**. Для типичного user flow
 
 - открыть SPA, просмотреть contacts, отправить messages, automate
   replies, sync между devices, ingest email archives - Rust server является

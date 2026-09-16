@@ -46,6 +46,7 @@ SPA server को इस क्रम में चुनता है ([`js/src
 ## यह क्या करता है
 
 - **Unified inbox**: VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru और email।
+- **CV synchronisation**: LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV और SuperJob — हर profile को अपने ही browser से पढ़ें, field दर field अंतर देखें और तय किए गए values वापस लिखें ([`docs/CV-SYNC.hi.md`](docs/CV-SYNC.hi.md))।
 - **Personal CRM**: contacts, communities, group memberships, intersections और mass-personal outreach।
 - **Personal memory**: conversations से structured `question → answer` facts।
 - **Conversation automation platform**: pattern editors, reply-variation editors और n8n-style dialog graphs।
@@ -63,6 +64,7 @@ issue #1 का prototype implement हो चुका है और PR #2 म�
 - **Service connectors (R-E\*)**: VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru और email के archive parsers तथा live connectors।
 - **Pattern matching और automation (R-C\*)**: `inferRegex`, `simplifyRegex`, `compilePeg`, fuzzy reply variation extraction और `createGraph` / `runGraph`।
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile और resume sync envelopes।
+- **CV synchronisation (R-V\*)**: सात job platforms के declarative browser plans, cross-platform diff, चुनिंदा writes और हर run के लिए HTML/screenshot artifacts वाली redacted telemetry stream।
 - **Distribution (R-F\*)**: NPM library, CLI, local server, Electron shell, Capacitor mobile shell और Docker web + WebRTC microservices।
 - **Stacks (R-G\*)**: JS server + React SPA + Rust/WASM heavy workloads, साथ में pure Rust server।
 - **Hardening (R-K\*)**: soft delete by default, AES-256-GCM master-key vault, multiple unlock methods और encrypted export।

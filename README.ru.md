@@ -46,6 +46,7 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 ## Что умеет система
 
 - **Единый inbox** для VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email.
+- **Синхронизация CV** между LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV и SuperJob: прочитать каждый профиль через собственный браузер, увидеть различия по полям и записать согласованные значения обратно ([`docs/CV-SYNC.ru.md`](docs/CV-SYNC.ru.md)).
 - **Personal CRM**: контакты, сообщества, членства в группах, пересечения, массовый персонализированный outreach.
 - **Personal memory**: структурированные факты `question → answer`, автоматически извлеченные из разговоров.
 - **Платформа conversation automation**: редакторы паттернов, варианты ответов, n8n-style dialog graphs.
@@ -63,6 +64,7 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 - **Service connectors (R-E\*)**: archive parsers и live API connectors для VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email.
 - **Pattern matching and automation (R-C\*)**: `inferRegex`, `simplifyRegex`, `compilePeg`, fuzzy reply-variation extraction и `createGraph` / `runGraph`.
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile и resume sync envelopes.
+- **Синхронизация CV (R-V\*)**: декларативные browser plans для семи job platforms, cross-platform diff, выборочная запись и redacted telemetry с HTML/screenshot artifacts для каждого запуска.
 - **Distribution (R-F\*)**: NPM library, CLI, local server, Electron shell, Capacitor mobile shell, Docker microservices для web + WebRTC.
 - **Stacks (R-G\*)**: JS server + React SPA + Rust/WASM heavy workloads; alternative pure Rust server.
 - **Hardening (R-K\*)**: soft-delete by default, AES-256-GCM master-key vault, несколько методов unlock, encrypted export.

@@ -17,6 +17,7 @@ const localizedDocGroups = [
   'mobile/README.md',
   'docs/BEST-PRACTICES.md',
   'docs/CONTRIBUTING.md',
+  'docs/CV-SYNC.md',
   'docs/REQUIREMENTS.md',
   'docs/ROADMAP.md',
   'docs/SERVER-PARITY.md',

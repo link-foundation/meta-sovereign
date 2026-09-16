@@ -42,25 +42,37 @@ Microsoft Graph, JMAP और raw IMAP/POP3/SMTP अभी JS server features ह
 Rust server `404` दे तो SPA related features hide या fallback करता है; CLI
 local JS implementation से चलता रहता है।
 
-## 5. Real-time transports और static assets
+## 5. CV synchronisation
+
+`/api/cv/platforms`, `/api/cv/plan`, `/api/cv/stored`, `/api/cv/read`,
+`/api/cv/compare`, `/api/cv/sync` और `/api/cv/telemetry` (R-V16) JS only
+हैं, और इसकी वजह structural है: `read` तथा `sync` `browser-commander` +
+Playwright से असली browser चलाते हैं, जबकि Rust crate सिर्फ `std` पर है
+और ऐसा process शुरू नहीं कर सकता। बाकी चार routes browser को छूते ही
+नहीं, इसलिए portable हैं; तब तक SPA का CV screen खाली table के बजाय साफ
+कहता है कि "JS server चाहिए"। विवरण:
+[`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md)।
+
+## 6. Real-time transports और static assets
 
 `/ws` WebSocket sync और `/rtc` WebRTC signalling दोनों servers पर parity
 में हैं। `/`, `/index.html`, flat assets, `/storage/`, `/handlers/` और
 `/sync/` mounts भी same static behavior रखते हैं और path traversal reject
 करते हैं।
 
-## 6. Summary
+## 7. Summary
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
 | Read + derived + meta          | 14     | 14     | 0       |
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
+| CV synchronisation             | 7      | 0      | 7       |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **40** | **34** | **6**   |
+| **Total**                      | **47** | **34** | **13**  |
 
-Rust server आज **85% route parity** पर है। Typical user flow - SPA खोलना,
+Rust server आज **72% route parity** पर है। Typical user flow - SPA खोलना,
 contacts देखना, messages भेजना, replies automate करना, devices sync
 करना, email archives ingest करना - Rust server को JS server का drop-in
 replacement बना देता है।
