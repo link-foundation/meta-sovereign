@@ -1,0 +1,875 @@
+Initialize eslint-plugin-prettier@5.5.6
+Initialize react-dom@19.3.0
+Initialize jscpd@4.3.0
+Initialize react@19.3.0
+Initialize eslint@9.39.5
+Initialize @changesets/cli@2.31.1
+Initialize eslint-config-prettier@10.1.8
+Initialize esbuild@0.28.2
+Initialize test-anywhere@0.8.50
+Initialize husky@9.1.7
+Initialize lint-staged@16.4.0
+Initialize prettier@3.9.6
+Initialize prettier-linter-helpers@1.0.1
+Initialize synckit@0.11.13
+Initialize scheduler@0.28.0
+Initialize colors@1.4.0
+Initialize @jscpd/finder@4.3.0
+Initialize commander@15.0.0
+Initialize @jscpd/html-reporter@4.2.5
+Initialize jscpd-sarif-reporter@4.2.5
+Initialize @jscpd/core@4.2.5
+Initialize fs-extra@11.4.0
+Initialize @jscpd/badge-reporter@4.2.5
+Initialize @jscpd/tokenizer@4.2.6
+Initialize ignore@5.3.2
+Initialize esquery@1.7.0
+Initialize natural-compare@1.4.0
+Initialize debug@4.4.3
+Initialize escape-string-regexp@4.0.0
+Initialize find-up@5.0.0
+Initialize @eslint/plugin-kit@0.4.1
+Initialize @humanwhocodes/retry@0.4.3
+Initialize eslint-scope@8.4.0
+Initialize @types/estree@1.0.9
+Initialize imurmurhash@0.1.4
+Initialize @eslint/config-helpers@0.4.2
+Initialize @eslint/js@9.39.5
+Initialize @humanfs/node@0.16.8
+Initialize ajv@6.15.0
+Initialize fast-deep-equal@3.1.3
+Initialize espree@10.4.0
+Initialize eslint-visitor-keys@4.2.1
+Initialize optionator@0.9.4
+Initialize esutils@2.0.3
+Initialize lodash.merge@4.6.2
+Initialize cross-spawn@7.0.6
+Initialize chalk@4.1.2
+Initialize glob-parent@6.0.2
+Initialize @humanwhocodes/module-importer@1.0.1
+Initialize @eslint-community/regexpp@4.12.2
+Initialize json-stable-stringify-without-jsonify@1.0.1
+Initialize @eslint/core@0.17.0
+Initialize file-entry-cache@8.0.0
+Initialize is-glob@4.0.3
+Initialize minimatch@3.1.5
+Initialize @eslint/config-array@0.21.2
+Initialize @eslint/eslintrc@3.3.7
+Initialize @eslint-community/eslint-utils@4.10.1
+Initialize spawndamnit@3.0.1
+Initialize @changesets/git@3.0.4
+Initialize @changesets/get-release-plan@4.0.16
+Initialize @changesets/apply-release-plan@7.1.1
+Initialize @changesets/write@0.4.0
+Initialize @inquirer/external-editor@1.0.3
+Initialize @changesets/config@3.1.4
+Initialize @changesets/should-skip-package@0.1.2
+Initialize enquirer@2.4.1
+Initialize @changesets/types@6.1.0
+Initialize mri@1.2.0
+Initialize resolve-from@5.0.0
+Initialize @changesets/errors@0.2.0
+Initialize @changesets/changelog-git@0.2.1
+Initialize @changesets/pre@2.0.2
+Initialize @manypkg/get-packages@1.1.3
+Initialize picocolors@1.1.1
+Initialize fs-extra@7.0.1
+Initialize term-size@2.2.1
+Initialize @changesets/assemble-release-plan@6.0.10
+Initialize @changesets/logger@0.1.1
+Initialize ansi-colors@4.1.3
+Initialize semver@7.8.5
+Initialize @changesets/read@0.6.7
+Initialize package-manager-detector@0.2.11
+Initialize @changesets/get-dependents-graph@2.1.4
+Initialize @esbuild/linux-x64@0.28.2
+Initialize listr2@9.0.5
+Initialize yaml@2.9.1
+Initialize tinyexec@1.3.1
+Initialize string-argv@0.3.2
+Initialize commander@14.0.3
+Initialize picomatch@4.0.7
+Initialize fast-diff@1.3.0
+Initialize @pkgr/core@0.3.6
+Initialize cli-table3@0.6.5
+Initialize pug@3.0.4
+Initialize fast-glob@3.3.3
+Initialize bytes@3.1.2
+Initialize blamer@1.0.7
+Initialize markdown-table@2.0.0
+Initialize node-sarif-builder@4.1.0
+Initialize eventemitter3@5.0.4
+Initialize universalify@2.0.1
+Initialize graceful-fs@4.2.11
+Initialize jsonfile@6.2.1
+Initialize badgen@3.3.2
+Initialize spark-md5@3.0.2
+Initialize estraverse@5.3.0
+Initialize ms@2.1.3
+Initialize path-exists@4.0.0
+Initialize locate-path@6.0.0
+Initialize levn@0.4.1
+Initialize esrecurse@4.3.0
+Initialize @humanfs/core@0.19.2
+Initialize @humanfs/types@0.15.0
+Initialize uri-js@4.4.1
+Initialize json-schema-traverse@0.4.1
+Initialize fast-json-stable-stringify@2.1.0
+Initialize acorn@8.18.0
+Initialize acorn-jsx@5.3.2
+Initialize prelude-ls@1.2.1
+Initialize word-wrap@1.2.5
+Initialize fast-levenshtein@2.0.6
+Initialize type-check@0.4.0
+Initialize deep-is@0.1.4
+Initialize path-key@3.1.1
+Initialize shebang-command@2.0.0
+Initialize which@2.0.2
+Initialize supports-color@7.2.0
+Initialize ansi-styles@4.3.0
+Initialize @types/json-schema@7.0.15
+Initialize flat-cache@4.0.1
+Initialize is-extglob@2.1.1
+Initialize brace-expansion@1.1.21
+Initialize @eslint/object-schema@2.1.7
+Initialize js-yaml@4.3.2
+Initialize import-fresh@3.3.1
+Initialize strip-json-comments@3.1.1
+Initialize globals@14.0.0
+Initialize eslint-visitor-keys@3.4.3
+Initialize signal-exit@4.1.0
+Initialize is-subdir@1.2.0
+Initialize micromatch@4.0.8
+Initialize prettier@2.8.8
+Initialize lodash.startcase@4.4.0
+Initialize @changesets/get-version-range-type@0.4.0
+Initialize outdent@0.5.0
+Initialize detect-indent@6.1.0
+Initialize human-id@4.2.1
+Initialize chardet@2.2.0
+Initialize iconv-lite@0.7.3
+Initialize strip-ansi@6.0.1
+Initialize extendable-error@0.1.7
+Initialize @changesets/types@4.1.0
+Initialize globby@11.1.0
+Initialize read-yaml-file@1.1.0
+Initialize @manypkg/find-root@1.1.0
+Initialize fs-extra@8.1.0
+Initialize @babel/runtime@7.29.7
+Initialize jsonfile@4.0.0
+Initialize universalify@0.1.2
+Initialize p-filter@2.1.0
+Initialize @changesets/parse@0.4.3
+Initialize quansync@0.2.11
+Initialize log-update@6.1.0
+Initialize colorette@2.0.20
+Initialize cli-truncate@5.2.0
+Initialize rfdc@1.4.1
+Initialize wrap-ansi@9.0.2
+Initialize @colors/colors@1.5.0
+Initialize string-width@4.2.3
+Initialize pug-lexer@5.0.1
+Initialize pug-filters@4.0.0
+Initialize pug-runtime@3.0.1
+Initialize pug-parser@6.0.0
+Initialize pug-load@3.0.0
+Initialize pug-code-gen@3.0.4
+Initialize pug-linker@4.0.0
+Initialize pug-strip-comments@2.0.0
+Initialize @nodelib/fs.stat@2.0.5
+Initialize merge2@1.4.1
+Initialize @nodelib/fs.walk@1.2.8
+Initialize glob-parent@5.1.2
+Initialize execa@4.1.0
+Initialize repeat-string@1.6.1
+Initialize @types/sarif@2.1.7
+Initialize p-locate@5.0.0
+Initialize punycode@2.3.1
+Initialize shebang-regex@3.0.0
+Initialize isexe@2.0.0
+Initialize has-flag@4.0.0
+Initialize color-convert@2.0.1
+Initialize keyv@4.5.4
+Initialize flatted@3.4.4
+Initialize balanced-match@1.0.2
+Initialize concat-map@0.0.1
+Initialize argparse@2.0.1
+Initialize parent-module@1.0.1
+Initialize resolve-from@4.0.0
+Initialize better-path-resolve@1.0.0
+Initialize picomatch@2.3.2
+Initialize braces@3.0.3
+Initialize safer-buffer@2.1.2
+Initialize ansi-regex@5.0.1
+Initialize dir-glob@3.0.1
+Initialize slash@3.0.0
+Initialize array-union@2.1.0
+Initialize js-yaml@3.15.2
+Initialize pify@4.0.1
+Initialize strip-bom@3.0.0
+Initialize find-up@4.1.0
+Initialize @types/node@12.20.55
+Initialize p-map@2.1.0
+Initialize strip-ansi@7.2.0
+Initialize ansi-escapes@7.3.0
+Initialize cli-cursor@5.0.0
+Initialize slice-ansi@7.1.2
+Initialize slice-ansi@8.0.0
+Initialize string-width@8.2.2
+Initialize ansi-styles@6.2.3
+Initialize string-width@7.2.0
+Initialize emoji-regex@8.0.0
+Initialize is-fullwidth-code-point@3.0.0
+Initialize is-expression@4.0.0
+Initialize pug-error@2.1.0
+Initialize character-parser@2.2.0
+Initialize jstransformer@1.0.0
+Initialize resolve@1.22.12
+Initialize pug-walk@2.0.0
+Initialize constantinople@4.0.1
+Initialize token-stream@1.0.0
+Initialize object-assign@4.1.1
+Initialize pug-attrs@3.0.0
+Initialize void-elements@3.1.0
+Initialize doctypes@1.1.0
+Initialize js-stringify@1.0.2
+Initialize with@7.0.2
+Initialize @nodelib/fs.scandir@2.1.5
+Initialize fastq@1.20.3
+Initialize strip-final-newline@2.0.0
+Initialize merge-stream@2.0.0
+Initialize signal-exit@3.0.7
+Initialize human-signals@1.1.1
+Initialize is-stream@2.0.1
+Initialize get-stream@5.2.0
+Initialize npm-run-path@4.0.1
+Initialize onetime@5.1.2
+Initialize p-limit@3.1.0
+Initialize color-name@1.1.4
+Initialize json-buffer@3.0.1
+Initialize callsites@3.1.0
+Initialize is-windows@1.0.2
+Initialize fill-range@7.1.1
+Initialize path-type@4.0.0
+Initialize esprima@4.0.1
+Initialize argparse@1.0.10
+Initialize locate-path@5.0.0
+Initialize ansi-regex@6.3.0
+Initialize environment@1.1.0
+Initialize restore-cursor@5.1.0
+Initialize is-fullwidth-code-point@5.1.0
+Initialize get-east-asian-width@1.6.0
+Initialize emoji-regex@10.6.0
+Initialize acorn@7.4.1
+Initialize is-regex@1.2.1
+Initialize is-promise@2.2.2
+Initialize promise@7.3.1
+Initialize es-errors@1.3.0
+Initialize supports-preserve-symlinks-flag@1.0.0
+Initialize path-parse@1.0.7
+Initialize is-core-module@2.16.2
+Initialize @babel/types@7.29.8
+Initialize @babel/parser@7.29.8
+Initialize assert-never@1.4.0
+Initialize babel-walk@3.0.0-canary-5
+Initialize run-parallel@1.2.0
+Initialize reusify@1.1.0
+Initialize pump@3.0.4
+Initialize mimic-fn@2.1.0
+Initialize yocto-queue@0.1.0
+Initialize to-regex-range@5.0.1
+Initialize sprintf-js@1.0.3
+Initialize p-locate@4.1.0
+Initialize onetime@7.0.0
+Initialize gopd@1.2.0
+Initialize has-tostringtag@1.0.2
+Initialize hasown@2.0.4
+Initialize call-bound@1.0.4
+Initialize asap@2.0.6
+Initialize @babel/helper-validator-identifier@7.29.7
+Initialize @babel/helper-string-parser@7.29.7
+Initialize queue-microtask@1.2.3
+Initialize once@1.4.0
+Initialize end-of-stream@1.4.5
+Initialize is-number@7.0.0
+Initialize p-limit@2.3.0
+Initialize mimic-function@5.0.1
+Initialize has-symbols@1.1.0
+Initialize function-bind@1.1.2
+Initialize get-intrinsic@1.3.0
+Initialize call-bind-apply-helpers@1.0.2
+Initialize wrappy@1.0.2
+Initialize p-try@2.2.0
+Initialize es-object-atoms@1.1.2
+Initialize get-proto@1.0.1
+Initialize es-define-property@1.0.1
+Initialize math-intrinsics@1.1.0
+Initialize dunder-proto@1.0.1
+╭ Warning
+│
+│  The following packages are deprecated:
+│  npm:eslint@9.39.5 (This version is no longer supported. Please see https://eslint.org/version-support for other options.)
+╰─
+running 8 tests from ./js/tests/audience.test.js
+filters by network ... ok (2ms)
+combines AND / OR / NOT ... ok (700µs)
+matches body substring (case-insensitive) ... ok (632µs)
+filters by since timestamp ... ok (253µs)
+filters by before timestamp ... ok (465µs)
+matches the bare "me" predicate ... ok (304µs)
+matches by fact substring ... ok (405µs)
+parses to an AST without throwing on empty input ... ok (149µs)
+running 2 tests from ./js/tests/automation.test.js
+fires a pattern and emits a reply plan ... ok (2ms)
+does not fire when message does not match ... ok (280µs)
+running 4 tests from ./js/tests/backup-scheduler.test.js
+runs immediately via runNow and produces a snapshot ... ok (30ms)
+prunes to keep N when keep > 0 ... ok (23ms)
+reports errors via onError and continues running ... ok (3ms)
+throws when archiveDir or intervalMs is missing ... ok (1ms)
+running 4 tests from ./js/tests/backup.test.js
+writes a snapshot and restores it ... ok (13ms)
+prunes to keep N ... ok (8ms)
+round-trips an encrypted backup ... ok (219ms)
+rejects the wrong passphrase ... ok (175ms)
+running 1 test from ./js/tests/browser-commander.test.js
+serves the SPA shell + every JSON endpoint a nav click triggers ... ok (286ms)
+running 6 tests from ./js/tests/browser-store.test.js
+browser store: put / get / delete / query / subscribe ... ok (4ms)
+browser store: in-memory driver round-trips via reload ... ok (378µs)
+browser store: localStorage driver persists snapshots ... ok (596µs)
+browser store: doublets-web driver indexes snapshots as triples ... ok (1ms)
+browser store: indexedDB driver works against a minimal IDB shim ... ok (22ms)
+browser store: indexedDB driver attaches transaction completion before writes ... ok (5ms)
+running 5 tests from ./js/tests/build-pages.test.js
+writes every required artefact into dist dir ... ok (71ms)
+404.html mirrors index.html so SPA deep links resolve on Pages ... ok (38ms)
+injects the web app manifest link and theme-color meta ... ok (25ms)
+writes a valid web app manifest ... ok (44ms)
+is idempotent — re-running does not duplicate manifest tags ... ok (47ms)
+running 4 tests from ./js/tests/cli-iter3.test.js
+infers a regex from examples ... ok (9ms)
+runs broadcast and search ... ok (113ms)
+updates profile and resume with planned syncs ... ok (47ms)
+evaluates an audience set-algebra query ... ok (49ms)
+running 3 tests from ./js/tests/cli.test.js
+parses flags and positionals ... ok (1ms)
+imports a telegram archive and exports it back ... ok (25ms)
+lists sources ... ok (460µs)
+running 3 tests from ./js/tests/connection-guide-i18n.test.js
+ConnectionGuide chat surface renders Russian copy when locale=ru ... ok (142ms)
+ConnectionGuide renders a compact Connections CTA instead of provider cards ... ok (1ms)
+ConnectionGuide does not render archive or probe setup controls inline ... ok (1ms)
+running 15 tests from ./js/tests/connection-guides-templates.test.js
+every provider exposes a probeUrlTemplate and a non-empty fields schema ... ok (3ms)
+buildProbeUrl returns null when required credentials are missing ... ok (674µs)
+buildProbeUrl returns the interpolated URL when credentials are present ... ok (1ms)
+Telegram template interpolates the bot token in the path ... ok (308µs)
+Meta Graph (WhatsApp + Facebook) template interpolates access_token query param ... ok (239µs)
+VK template adds &access_token query parameter ... ok (248µs)
+buildProbeHeaders fills Authorization for X / LinkedIn / hh / habr-career ... ok (354µs)
+buildProbeHeaders fills X-Api-App-Id for SuperJob ... ok (135µs)
+buildProbeHeaders returns {} when required credentials are missing ... ok (726µs)
+hasRequiredCredentials respects probeRequiresAll and skips optional fields ... ok (269µs)
+credentialsFromLinks reads secret:* link values into a field-id map ... ok (644µs)
+interpolate leaves unknown placeholders intact ... ok (218µs)
+connectFirst rows on every guide point at a known provider ... ok (475µs)
+legacy probeUrl is preserved for backward compatibility but never matches the new template ... ok (217µs)
+browser-only boards declare a session instead of API credentials ... ok (2ms)
+running 15 tests from ./js/tests/connection-guides.test.js
+every nav surface has a matching connection guide ... ok (2ms)
+guides only cite providers that exist in providerCatalogue ... ok (601µs)
+every provider in the catalogue is referenced by at least one guide ... ok (352µs)
+every provider entry has archive + apiCredentials with required fields ... ok (374µs)
+localServerHelp covers Rust, Node, and a manual override hint ... ok (245µs)
+isCrossOrigin compares URL.origin ... ok (1ms)
+tryDirect resolves ok=true when fetch succeeds ... ok (1ms)
+tryDirect classifies http error responses ... ok (291µs)
+tryDirect classifies cross-origin TypeError as cors ... ok (498µs)
+tryDirect classifies same-origin failures as plain network errors ... ok (428µs)
+tryDirect requires a url ... ok (757µs)
+tryDirect returns a network error when no fetch is available ... ok (646µs)
+listGuideSections returns the same keys as connectionGuides ... ok (1ms)
+getGuide throws on an unknown nav surface ... ok (814µs)
+getProvider throws on an unknown provider id ... ok (337µs)
+running 7 tests from ./js/tests/connections-screens.test.js
+classifyConnectionState reports connected/not-connected/action-required ... ok (22ms)
+ConnectionsList renders one card per provider with translated label and state badge ... ok (35ms)
+ConnectionDetail renders translated setupSteps[] for the requested provider ... ok (10ms)
+ConnectionDetail owns credentials, archive import, and probe controls ... ok (5ms)
+every provider in providerCatalogue has at least one setupSteps[] entry ... ok (1ms)
+browser-only providers render a session panel instead of a probe ... ok (18ms)
+the browser-session state badge is translated in every locale ... ok (1ms)
+running 4 tests from ./js/tests/crm.test.js
+aggregates a contact across chats ... ok (1ms)
+set algebra works ... ok (794µs)
+local search ranks by similarity ... ok (3ms)
+extracts question/answer pairs ... ok (1ms)
+running 11 tests from ./js/tests/cv-cli.test.js
+lists every platform the issue names ... ok (1ms)
+prints a plan with its steps, write groups and evidence ... ok (1ms)
+reports an unknown platform as a message, not a stack trace ... ok (1ms)
+advertises the cv commands in the help text ... ok (372µs)
+defaults to every platform and validates the requested ids ... ok (865µs)
+parses --paths/--groups and treats "absent" as "everything" ... ok (199µs)
+merges --login into the --vars object ... ok (997µs)
+reads a platform, then diffs and replays what it stored ... ok (25ms)
+says so when no snapshot has been read yet ... ok (413µs)
+plans a sync without writing to a live profile by default ... ok (5ms)
+reports a failing platform with its code and exits non-zero ... ok (5ms)
+running 9 tests from ./js/tests/cv-diff.test.js
+keys repeated records by identity, not by position ... ok (8ms)
+reports no changes for equal CVs regardless of list order ... ok (24ms)
+classifies added, removed and changed fields ... ok (538µs)
+does not renumber untouched entries when a record is prepended ... ok (371µs)
+renders a readable patch ... ok (510µs)
+lists conflicting and missing fields per platform ... ok (524µs)
+reconciles to the newest value and lists platforms to update ... ok (588µs)
+honours an explicitly preferred platform ... ok (225µs)
+handles an empty comparison ... ok (147µs)
+running 14 tests from ./js/tests/cv-model.test.js
+provides every section even for an empty CV ... ok (1ms)
+drops unknown fields and trims values ... ok (720µs)
+parses boolean fields from strings ... ok (105ms)
+is idempotent ... ok (899µs)
+tolerates missing input ... ok (1ms)
+counts populated leaf fields ... ok (865µs)
+renders an indented cv tree headed by the platform ... ok (1ms)
+round-trips without loss ... ok (2ms)
+omits empty sections from the notation ... ok (345µs)
+returns an empty CV for empty notation ... ok (163µs)
+keys experience by company, title and start ... ok (144µs)
+keys links by url alone so labels can change ... ok (67µs)
+stamps a platform-scoped id and carries the notation ... ok (417µs)
+reads a CV back from a link, falling back to the notation ... ok (830µs)
+running 40 tests from ./js/tests/cv-plans.test.js
+registers every platform named in the issue ... ok (1ms)
+looks platforms up by id and reports unknown ones ... ok (1ms)
+validates all descriptors against the canonical model ... ok (2ms)
+serialises a catalogue entry per platform ... ok (2ms)
+linkedin: has read and update plans with a login URL ... ok (704µs)
+linkedin: reads every path it claims to write ... ok (494µs)
+linkedin: records evidence and keeps drafts labelled ... ok (452µs)
+linkedin: every step keeps the shape the runner expects ... ok (455µs)
+hh: has read and update plans with a login URL ... ok (242µs)
+hh: reads every path it claims to write ... ok (107µs)
+hh: records evidence and keeps drafts labelled ... ok (196µs)
+hh: every step keeps the shape the runner expects ... ok (771µs)
+habr-career: has read and update plans with a login URL ... ok (840µs)
+habr-career: reads every path it claims to write ... ok (183µs)
+habr-career: records evidence and keeps drafts labelled ... ok (200µs)
+habr-career: every step keeps the shape the runner expects ... ok (1ms)
+naukri: has read and update plans with a login URL ... ok (314µs)
+naukri: reads every path it claims to write ... ok (83µs)
+naukri: records evidence and keeps drafts labelled ... ok (156µs)
+naukri: every step keeps the shape the runner expects ... ok (436µs)
+vietnamworks: has read and update plans with a login URL ... ok (834µs)
+vietnamworks: reads every path it claims to write ... ok (321µs)
+vietnamworks: records evidence and keeps drafts labelled ... ok (145µs)
+vietnamworks: every step keeps the shape the runner expects ... ok (1ms)
+topcv: has read and update plans with a login URL ... ok (235µs)
+topcv: reads every path it claims to write ... ok (90µs)
+topcv: records evidence and keeps drafts labelled ... ok (84µs)
+topcv: every step keeps the shape the runner expects ... ok (211µs)
+superjob: has read and update plans with a login URL ... ok (198µs)
+superjob: reads every path it claims to write ... ok (143µs)
+superjob: records evidence and keeps drafts labelled ... ok (369µs)
+superjob: every step keeps the shape the runner expects ... ok (263µs)
+maps the captured SSR state onto the canonical model ... ok (250µs)
+turns rich HTML into plain text without leaking markup ... ok (194µs)
+parses Russian durations into sortable months ... ok (574µs)
+extracts education and remote preferences ... ok (100µs)
+produces a populated canonical CV ... ok (300µs)
+reports which sections are editable for this session ... ok (240µs)
+maps a __NEXT_DATA__ profile payload defensively ... ok (967µs)
+survives a payload without any profile at all ... ok (148µs)
+running 17 tests from ./js/tests/cv-runner.test.js
+splits selector candidates without breaking attribute selectors ... ok (1ms)
+resolves templates and reports what it could not resolve ... ok (542µs)
+assigns scalars, lists and records at canonical paths ... ok (2ms)
+addresses one record of a repeated section as section[].field ... ok (303µs)
+refuses to assign a path the model does not know ... ok (766µs)
+merges only the sections a mapper claims to provide ... ok (262µs)
+reads a CV through the real habr plan against a fake page ... ok (10ms)
+tolerates optional misses and lists them as warnings ... ok (10ms)
+fails a required step instead of returning an empty CV ... ok (3ms)
+narrows a selector that matches twice to its first match ... ok (9ms)
+reports a wait that timed out as a miss, not a crash ... ok (1ms)
+treats a strict-mode violation as "the element is there, twice" ... ok (2ms)
+detects an expired session from the redirect to login ... ok (1ms)
+fills only the group guarding the requested path ... ok (2ms)
+skips a fill when the CV has nothing for that path ... ok (962µs)
+warns when a field was written but could not be verified ... ok (1ms)
+describes a plan without a browser ... ok (865µs)
+running 9 tests from ./js/tests/cv-server.test.js
+lists every platform the issue names ... ok (38ms)
+returns a dry-run plan with its evidence ... ok (11ms)
+reports an unknown platform as a 400 listing the known ids ... ok (7ms)
+reads a platform, stores the snapshot and serves it back ... ok (26ms)
+compares stored snapshots and reports the conflicts ... ok (8ms)
+plans a sync without touching a live profile by default ... ok (12ms)
+narrows a sync to the paths the request selected ... ok (28ms)
+serves the telemetry a run recorded ... ok (24ms)
+reports a failed platform without hiding the rest ... ok (10ms)
+running 15 tests from ./js/tests/cv-sync.test.js
+reports which optional packages are missing instead of throwing ... ok (2ms)
+wraps the launched page in a commander and closes both ... ok (1ms)
+fails with a typed error when browser-commander is absent ... ok (996µs)
+reads one platform and persists the snapshot as a link ... ok (15ms)
+records the telemetry of every read in the same store ... ok (5ms)
+keeps going when one platform fails and reports why ... ok (5ms)
+builds a matrix, flags conflicts and lists per-platform updates ... ok (11ms)
+diffs every platform against a canonical CV ... ok (5ms)
+round-trips a CV through its flat representation ... ok (4ms)
+plans without touching anything by default ... ok (7ms)
+applies the reconciled values when the dry run is lifted ... ok (8ms)
+fails loudly when a platform hides its edit URLs from us ... ok (2ms)
+narrows a sync to the paths the user selected ... ok (4ms)
+writes only the selected paths when the dry run is lifted ... ok (5ms)
+pushes a locally edited CV to one platform ... ok (2ms)
+running 14 tests from ./js/tests/cv-telemetry.test.js
+ignores text edits but notices structural change ... ok (2ms)
+reports the test ids a platform dropped ... ok (568µs)
+counts the interactive surface of a page ... ok (404µs)
+replaces personal data with typed placeholders ... ok (435µs)
+redacts values nested inside logged events ... ok (2ms)
+records the full lifecycle of a step with timings ... ok (932µs)
+keeps the error and the surrounding events when a step throws ... ok (1ms)
+flags markup drift against the previous run and feeds the next one ... ok (1ms)
+skips steps explicitly instead of silently ... ok (334µs)
+streams events to JSON Lines and to a store ... ok (19ms)
+reports an artifact path a human can actually open ... ok (6ms)
+writes artifacts under a path every file system accepts ... ok (7ms)
+keeps the run envelope intact when a payload repeats its keys ... ok (407µs)
+survives a sink that throws ...
+------- post-test output -------
+telemetry sink broken failed: disk full
+----- post-test output end -----
+survives a sink that throws ... ok (1ms)
+running 16 tests from ./js/tests/cv-web.test.js
+the CV screen is a registered nav surface ... ok (22ms)
+the catalogue renders one row per platform with its plan confidence ... ok (20ms)
+a stored snapshot replaces the "never read" marker ... ok (54ms)
+conflicting fields are listed and agreeing ones are not ... ok (7ms)
+an empty comparison says so instead of rendering an empty table ... ok (4ms)
+a dry run is labelled as such and lists its per-platform actions ... ok (5ms)
+a long path list is previewed, counted and kept in full in the title ... ok (5ms)
+failures name the platform, the code and the message ... ok (8ms)
+a thrown error reaches the same failure list as a platform failure ... ok (9ms)
+telemetry runs surface their counts and problems ... ok (7ms)
+a backend without the CV routes says so instead of showing an empty table ... ok (2ms)
+an idle telemetry panel explains that no run happened yet ... ok (4ms)
+every locale translates the CV screen ... ok (16ms)
+each locale defines every key the CV screen and nav use ... ok (1ms)
+the offline client answers every CV call the screen makes ... ok (74ms)
+the catalogue covers every platform the CV subsystem knows ... ok (284µs)
+running 5 tests from ./js/tests/discover.test.js
+discover prefers same origin when reachable ... ok (3ms)
+discover falls back to stored override when same-origin fails ... ok (567µs)
+discover falls back to default localhost ports ... ok (464µs)
+discover tries caller-supplied LAN candidates last ... ok (664µs)
+discover returns null when nothing answers ... ok (281µs)
+running 2 tests from ./js/tests/docs-consistency.test.js
+keeps the roadmap path present as an explicit empty checklist ... ok (9ms)
+keeps the active issue #1 docs aligned with the implemented prototype ... ok (3ms)
+running 2 tests from ./js/tests/docs-language.test.js
+tracked user-facing Markdown docs have four localized siblings with hive-mind switchers ... ok (98ms)
+tracked localized Markdown switcher links resolve to existing siblings ... ok (89ms)
+running 3 tests from ./js/tests/e2e-offline-first.test.js
+offline boot: write a link, see it locally, run a broadcast handler with no server ... ok (13ms)
+server discovery picks the first reachable candidate, then degrades on failure ... ok (2ms)
+two browsers sync via WebRTC: writing a link on A appears on B ... ok (28ms)
+running 1 test from ./js/tests/e2e.test.js
+walks the full pipeline ... ok (82ms)
+running 3 tests from ./js/tests/email-node-transport.test.js
+pulls POP3 messages through the local server transport ... ok (28ms)
+pulls IMAP messages through the local server transport ... ok (7ms)
+sends SMTP messages through the local server transport ... ok (10ms)
+running 4 tests from ./js/tests/encrypted-export.test.js
+refuses to export without a passphrase (R-K13) ... ok (1ms)
+round-trips an envelope through decryptExport (R-K14) ... ok (154ms)
+writeEncryptedExport produces a file usable by decryptExport ... ok (151ms)
+POST /api/export-encrypted refuses without a passphrase ... ok (131ms)
+running 13 tests from ./js/tests/github-source.test.js
+parses an envelope of issues, comments, pulls, review comments, reviews, and discussions ... ok (2ms)
+classifies a flat array of mixed gh api dumps ... ok (317µs)
+importInto registers github links with the right shape ... ok (799µs)
+walks issues, comments, pulls, review comments, and per-PR reviews ... ok (3ms)
+skips pull-request entries when /issues echoes them ... ok (1ms)
+joins two pages and stops when next is absent ... ok (2ms)
+listRepos paginates /user/repos ... ok (1ms)
+reads tar entries from an in-memory USTAR tarball ... ok (2ms)
+downloads the tarball and writes one link per file plus a repo index ... ok (11ms)
+issues POST /repos/o/r/issues/{n}/comments with the right body ... ok (2ms)
+refuses to post without an issueNumber ... ok (973µs)
+exposes github through listSources and getSource ... ok (170µs)
+pullLiveInto wires the github adapter when an explicit live is supplied ... ok (682µs)
+running 9 tests from ./js/tests/handlers.test.js
+handler fires on matching put and stamps handledBy ... ok (5ms)
+handler is skipped when handledBy already records it ... ok (651µs)
+handler does not loop on its own write-back ... ok (1ms)
+built-in broadcastHandler wires through the broadcast adapter ... ok (919µs)
+profileSyncHandler fans out + skips on echo ... ok (752µs)
+automationHandler creates plan links for inbound messages ... ok (864µs)
+automationHandler skips messages from "me" ... ok (451µs)
+replay fires for existing links ... ok (2ms)
+errors in one handler do not block subsequent handlers ... ok (3ms)
+running 4 tests from ./js/tests/hardening-cli.test.js
+export-encrypted writes a passphrase-protected file ... ok (167ms)
+export-encrypted fails without --passphrase ... ok (1ms)
+vault-init/list/add/remove via the CLI ... ok (348ms)
+purge-tombstones requires --confirm=true ... ok (1ms)
+running 22 tests from ./js/tests/i18n.test.js
+LOCALE_STORAGE_KEY is the documented metaSovereignLocale key ... ok (21ms)
+availableLocales lists en, ru, zh, hi with ltr direction ... ok (3ms)
+every non-en dictionary mirrors the en key set exactly ... ok (2ms)
+no English literal leaks into a non-en dictionary (issue #25) ... ok (3ms)
+every translated string is non-empty in every locale ... ok (8ms)
+translate falls back to en for unknown locales ... ok (680µs)
+translate returns the key when missing in every dictionary ... ok (483µs)
+translate interpolates {placeholders} ... ok (1ms)
+translate leaves unknown placeholders intact ... ok (857µs)
+translate works for every locale that defines the same key ... ok (852µs)
+detectInitialLocale prefers a stored override over navigator ... ok (1ms)
+detectInitialLocale walks navigator.languages and prefix-matches zh-Hans-CN → zh ... ok (2ms)
+detectInitialLocale handles BCP-47 underscore form (en_US) ... ok (440µs)
+detectInitialLocale falls back to default when nothing matches ... ok (202µs)
+detectInitialLocale tolerates a navigator without languages array ... ok (1ms)
+detectInitialLocale tolerates a missing storage ... ok (266µs)
+detectInitialLocale tolerates a storage that throws ... ok (887µs)
+applyLocale sets <html lang> and <html dir> when document is available ... ok (969µs)
+applyLocale is a no-op when document is unavailable (SSR-safe) ... ok (176µs)
+LanguageSwitcher renders a system-default option plus every locale ... ok (17ms)
+LanguageSwitcher pre-selects the active locale via the <select value> ... ok (2ms)
+default LocaleContext returns translations from the default locale ... ok (1ms)
+running 1 test from ./js/tests/index.test.js
+exposes every subsystem namespace ... ok (1ms)
+running 10 tests from ./js/tests/job-board-sources.test.js
+maps a Naukri recruiter inbox dump to message links ... ok (2ms)
+flattens VietnamWorks conversations and inherits the thread id ... ok (470µs)
+reads TopCV rows with Vietnamese field names ... ok (209µs)
+ignores collections a dump does not contain ... ok (998µs)
+refuses message API calls with a typed error ... ok (9ms)
+points at the inbox a human can open instead ... ok (182µs)
+binds every job board to its declarative plan ... ok (578µs)
+writes a Naukri resume through the CV plan in a browser ... ok (12ms)
+exposes readResume on the boards that already had an API ... ok (1ms)
+refuses to load the Node-only CV runtime in a browser ... ok (976µs)
+running 9 tests from ./js/tests/live-connectors.test.js
+pulls conversation messages and sends replies through VK methods ... ok (4ms)
+normalizes webhook messages and posts Cloud API text messages ... ok (1ms)
+pulls DM events and can publish a post ... ok (1ms)
+pulls page conversations and sends Messenger replies ... ok (1ms)
+imports author posts and exports resume updates as posts ... ok (1ms)
+syncs hh, Habr Career, and SuperJob messages/resumes ... ok (3ms)
+pulls and sends Gmail messages through the Gmail HTTP API ... ok (20ms)
+pulls and sends Outlook mail through Microsoft Graph ... ok (1ms)
+uses JMAP Email/query, Email/get, and EmailSubmission/set ... ok (2ms)
+running 13 tests from ./js/tests/markup-fixture.test.js
+splits a compound selector into tag, id, classes and attributes ... ok (1ms)
+keeps whitespace and combinators inside attribute values ... ok (516µs)
+builds the smallest DOM a selector would match ... ok (4ms)
+emits a sibling before the subtree for `+` and `~` ... ok (231µs)
+gives each step the element it needs ... ok (557µs)
+renders list and record sections with several rows ... ok (2ms)
+writes a JSON payload a browser hands back verbatim ... ok (507µs)
+leaves the blob out when no payload is declared ... ok (723µs)
+generates one page per URL the plan visits ... ok (3ms)
+nests the page inside the snapshot containers the plan declares ... ok (4ms)
+resolves template variables so the URLs match the runner ... ok (1ms)
+omits a path so a test can simulate markup drift ... ok (1ms)
+realises an update group instead of the read plan ... ok (880µs)
+running 3 tests from ./js/tests/mobile-electron-packaging.test.js
+uses WebView-provided LAN candidates in server discovery ... ok (3ms)
+wires Electron auto-updates through electron-updater ... ok (5ms)
+ships a Capacitor mobile build surface for iOS and Android ... ok (12ms)
+running 5 tests from ./js/tests/offline-client.test.js
+offline mode: writes/reads land in local store with no server ... ok (3ms)
+offline mode: autocomplete is computed locally from history ... ok (900µs)
+online mode: derived query routes to the server ... ok (1ms)
+server failure flips client to offline and keeps working ... ok (926µs)
+writing a broadcast link triggers the local handler bus when offline ... ok (2ms)
+running 6 tests from ./js/tests/outreach.test.js
+renders a literal text into one envelope per (contact × network) ... ok (1ms)
+forces a single network when networks override is given ... ok (221µs)
+falls back to a reply-group variation when text is omitted ... ok (171µs)
+skips contacts when neither text nor variation is available ... ok (149µs)
+renders {networks} and {chats} placeholders ... ok (206µs)
+invokes broadcast for each envelope and returns ok=false for missing live.post ... ok (941µs)
+running 11 tests from ./js/tests/patterns.test.js
+finds shared tokens ... ok (1ms)
+falls back to alternation when lengths differ ... ok (2ms)
+matches all messages it should ... ok (332µs)
+returns a regex ... ok (445µs)
+lcs finds the longest shared subsequence ... ok (454µs)
+inferRegexLcs handles different-length examples ... ok (1ms)
+inferRegexLcs picks digit class when all gaps are numeric ... ok (20ms)
+compilePeg produces a working regex with named captures ... ok (543µs)
+dice similarity is symmetric ... ok (276µs)
+finds candidates above threshold ... ok (297µs)
+pickVariation returns one of the variations ... ok (310µs)
+running 14 tests from ./js/tests/peopleperhour-source.test.js
+parses an envelope of projects, workstreams, rooms, messages, invoices, and hourstreams ... ok (3ms)
+classifies a flat array of mixed payloads ... ok (953µs)
+parses a CSV earnings string ... ok (713µs)
+importInto writes peopleperhour links into a memory store ... ok (661µs)
+runs GET /projects/search and stamps a 24h soft cache ... ok (2ms)
+walks workstreams -> messages from the freelancer perspective ... ok (1ms)
+runs the same code path with perspective=buyer ... ok (1ms)
+walks proposal-room messages when a projectId is passed ... ok (3ms)
+issues POST /workstreams/{id}/messages by default ... ok (850µs)
+routes to POST /proposals/{id}/messages when proposalId is given ... ok (1ms)
+throws when text is missing ... ok (844µs)
+throws when neither workstreamId nor proposalId is supplied ... ok (2ms)
+includes peopleperhour in listSources() ... ok (157µs)
+purges expired live links and leaves archive links alone ... ok (810µs)
+running 7 tests from ./js/tests/secret-store.test.js
+encrypts secret:* payload at rest and decrypts on read ... ok (216ms)
+passes non-secret links through untouched ... ok (292µs)
+returns inner store unchanged when no passphrase ... ok (167µs)
+rejects reads with the wrong passphrase ... ok (154ms)
+does not broadcast secret:* events to peers ... ok (998µs)
+drops inbound secret:* events from a hostile peer ... ok (285µs)
+round-trips a secret link via HTTP ... ok (342ms)
+running 1 test from ./js/tests/server-iter3.test.js
+drives the full pipeline: patterns, replies, graphs, facts, audience ... ok (179ms)
+running 4 tests from ./js/tests/server-sync.test.js
+main server exposes /ws sync alongside REST ... ok (399ms)
+main server exposes /rtc signaling broker ... ok (52ms)
+writing a broadcast link fires the bootstrapped handler ... ok (263ms)
+REST + sync coexist: PUT /links also replicates over /ws ... ok (92ms)
+running 10 tests from ./js/tests/server.test.js
+tears down idle keep-alive sockets during shutdown ... ok (34ms)
+round-trips a link via HTTP ... ok (35ms)
+exposes /sources ... ok (15ms)
+serves the SPA shell at / ... ok (108ms)
+exposes derived API routes ... ok (34ms)
+mounts browser-safe sibling modules under /storage and /handlers ... ok (20ms)
+proxies email pull/send through local server fallback routes ... ok (27ms)
+exposes /metrics in Prometheus exposition format ... ok (26ms)
+writes JSON access logs when log option is provided ... ok (44ms)
+emits Content-Security-Policy + hardening headers on every response ... ok (21ms)
+running 2 tests from ./js/tests/settings-credentials-roundtrip.test.js
+persists secret:* via api.put, reads it back, and feeds buildProbeUrl ... ok (347ms)
+forgetting a credential clears it from /links ... ok (733ms)
+running 7 tests from ./js/tests/soft-delete.test.js
+markDeleted is pure and idempotent on the first stamp ... ok (1ms)
+softDeleteLink writes a tombstone but keeps the row ... ok (445µs)
+purgeLink refuses without explicit confirm ... ok (639µs)
+bulkPurge only touches tombstones ... ok (445µs)
+withSoftDelete decorator exposes softDelete/purge/bulkPurge ... ok (316µs)
+HTTP DELETE soft-deletes by default and ?purge=1&confirm=1 hard-deletes ... ok (89ms)
+POST /api/links/purge-tombstones requires { confirm: true } ... ok (39ms)
+running 7 tests from ./js/tests/sources.test.js
+lists all 16 networks ... ok (1ms)
+throws on unknown source ... ok (636µs)
+imports a single .eml message ... ok (1ms)
+imports mbox archives as separate messages ... ok (959µs)
+extracts messages ... ok (1ms)
+parses bracketed lines ... ok (638µs)
+parse a single record each ... ok (647µs)
+running 7 tests from ./js/tests/storage.test.js
+round-trips an indented document ... ok (1ms)
+handles quoted tokens with whitespace ... ok (311µs)
+puts, gets, and deletes ... ok (499µs)
+emits events to subscribers ... ok (713µs)
+persists across reopen ... ok (12ms)
+persists across reopen ... ok (11ms)
+writes to both backends and verify is empty after sync ... ok (9ms)
+running 1 test from ./js/tests/sync-tcp.test.js
+replicates a put from one store to another ... ok (25ms)
+running 3 tests from ./js/tests/sync-ws.test.js
+ws transport replicates puts both ways ... ok (166ms)
+attachSyncWebSocket can ride on an existing http server ... ok (73ms)
+client connection to wrong path is refused ... ok (7ms)
+running 8 tests from ./js/tests/sync.test.js
+picks the higher version on conflict ... ok (1ms)
+unions children ... ok (236µs)
+vcCompare detects dominance and concurrency ... ok (350µs)
+vcMerge takes the per-node max ... ok (249µs)
+merge picks the dominant vector clock ... ok (377µs)
+merge uses deterministic tiebreak on concurrent edits ... ok (690µs)
+replicates puts between two stores ... ok (1ms)
+disconnects local and remote transport handlers ... ok (236µs)
+running 5 tests from ./js/tests/tag-prefix.test.js
+defaults to "v" prefix (backward compatible) ... ok (1ms)
+supports "js-v" prefix for multi-language repos ... ok (138µs)
+supports "rust-v" prefix ... ok (330µs)
+supports empty prefix ... ok (97µs)
+works with pre-release versions ... ok (192µs)
+running 4 tests from ./js/tests/telegram-live.test.js
+parses Telegram Desktop all-chats exports without id collisions ... ok (1ms)
+pulls updates, sends messages, and syncs bot profile fields ... ok (991µs)
+imports pulled updates into the store with connector handled stamps ... ok (1ms)
+runs live imports from a datastore command link once ... ok (2ms)
+running 6 tests from ./js/tests/tutorial-spotlight.test.js
+default sequence opens with a "Connect a service" step pointing at nav:connections ... ok (22ms)
+every step that declares a tutorialId references a known target ... ok (2ms)
+TutorialSpotlight renders an inset frame anchored to the target rect ... ok (15ms)
+TutorialSpotlight renders nothing when no rect is supplied ... ok (940µs)
+spotlight overlay CSS lets pointer events fall through to the spotlighted control ... ok (22ms)
+connect step copy is translated into ru/zh/hi (no English leak) ... ok (370µs)
+running 13 tests from ./js/tests/tutorial.test.js
+TUTORIAL_STORAGE_KEY is the documented metaSovereignTutorial key ... ok (24ms)
+defaultSteps is a non-empty list of unique-id steps ... ok (3ms)
+readPreference returns null on a fresh storage ... ok (322µs)
+writePreference + readPreference round-trips a dismissed tutorial ... ok (945µs)
+writeProgressPreference stores the current tutorial step id ... ok (496µs)
+writeCompletedPreference persists completed tutorials as off ... ok (621µs)
+clearPreference removes the entry so readPreference is null again ... ok (503µs)
+readPreference returns null for malformed JSON ... ok (773µs)
+TutorialOverlay resumes from stored step progress after page reload ... ok (21ms)
+readPreference is null-safe when storage is undefined ... ok (388µs)
+writePreference and clearPreference tolerate a null storage ... ok (179µs)
+writePreference tolerates a storage that throws on setItem ... ok (351µs)
+every default step targets a real nav surface or is a shell-level step ... ok (844µs)
+running 11 tests from ./js/tests/upwork-source.test.js
+parses an envelope of jobs, contracts, rooms, messages, and transactions ... ok (2ms)
+classifies a flat array of mixed payloads ... ok (2ms)
+parses a CSV transaction-history string ... ok (827µs)
+importInto writes upwork links into a memory store ... ok (945µs)
+runs the marketplaceJobPostingsSearch operation and stamps a 24h soft cache ... ok (2ms)
+walks contracts -> rooms -> messages from the freelancer perspective ... ok (2ms)
+runs the same code path with perspective=client ... ok (1ms)
+issues the roomsCreateMessage mutation ... ok (1ms)
+throws when text is missing ... ok (3ms)
+includes upwork in listSources() ... ok (164µs)
+purges expired live links and leaves archive links alone ... ok (722µs)
+running 7 tests from ./js/tests/vault.test.js
+initialize → encrypt → lock → unlock → decrypt round-trips ... ok (201ms)
+rejects unlock with the wrong secret ... ok (166ms)
+addUnlock lets a second method open the same master key (R-K8) ... ok (295ms)
+removeUnlock cannot orphan the vault (R-K12) ... ok (168ms)
+addUnlock requires the vault to be unlocked ... ok (96ms)
+encryptWithKey + decryptWithKey are deterministic round-trips ... ok (544µs)
+initialize refuses to clobber an existing vault ... ok (104ms)
+running 2 tests from ./js/tests/wasm-patterns.test.js
+wasm pattern matcher runs the Rust pattern_matches export ... ok (33ms)
+wasm pattern support detector leaves complex regexes to JS fallback ... ok (903µs)
+running 3 tests from ./js/tests/web-bundle.test.js
+the SPA import graph never reaches a Node-only module ... ok (133ms)
+the SPA never pulls in the CV runtime, only its plan data ... ok (68ms)
+importSpecifiers reads multi-line, bare and dynamic imports ... ok (3ms)
+running 1 test from ./js/tests/web-react.test.js
+ships a bundled React entrypoint while keeping source editable ... ok (10ms)
+running 1 test from ./js/tests/web-server-fetch.test.js
+uses the discovered origin and falls back when a route is missing ... ok (69ms)
+running 7 tests from ./js/tests/web-shell.test.js
+classifyViewport: ≤640 → compact, 641-1023 → medium, ≥1024 → expanded ... ok (24ms)
+AppShell at 320px renders a bottom-nav with role=navigation ... ok (28ms)
+AppShell at 768px renders a navigation rail (no bottom-nav) ... ok (4ms)
+AppShell at 1280px renders a permanent drawer (no bottom-nav, no rail) ... ok (4ms)
+AppShell exposes a Connections entry in the primary nav ... ok (3ms)
+AppShell topbar uses the glass surface class (R-N11) ... ok (8ms)
+AppShell marks the active nav button via aria-current=page ... ok (6ms)
+running 3 tests from ./js/tests/webrtc-signaling.test.js
+signaling relays SDP frames between peers in same room ... ok (110ms)
+rooms are isolated ... ok (49ms)
+peer-joined fires for existing peers when new one arrives ... ok (51ms)
+running 3 tests from ./js/tests/webrtc-transport.test.js
+signalingChannel routes typed messages by `type` ... ok (11ms)
+two webrtc transports exchange messages over the data channel ... ok (28ms)
+webrtc transport queues sends until the data channel opens ... ok (14ms)
+
+ok | 489 passed | 0 failed (27s)
+

@@ -38,7 +38,9 @@ State: done.
 
 R-E1..R-E10 требуют archive/live support для VK, Telegram, X, WhatsApp,
 Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email. State:
-done; adapters normalize data into unified links.
+done; adapters normalize data into unified links. R-E11..R-E13
+добавляют Naukri, VietnamWorks и TopCV: у них нет публичного API, поэтому
+данные приходят из экспортов и из browser session (см. секцию V).
 
 ## F. Distribution, sync, deployment
 
@@ -129,6 +131,21 @@ screen и `setupSteps[]` per provider, element-anchored tutorial
 spotlight и "Connect a service" opening step. State: PR #26 in progress
 on branch `issue-25-dac43a780b5c`. Detailed table:
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section U.
+
+## V. Синхронизация CV между job platforms (issue #29)
+
+R-V1..R-V22 покрывают канонический CV model в links notation,
+cross-platform diff и reconcile, declarative browser plans для семи
+платформ (LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV,
+SuperJob), registry validation с подсчетом verified/documented/draft
+steps, telemetry с redaction и HTML/screenshot artifacts, plan runner
+поверх browser-commander, facade / HTTP routes / CLI commands / SPA
+screen, чистоту web bundle, выборочную запись по `--paths` и
+`--groups`, прогон каждого плана через настоящий браузер на fixture
+markup и честную деградацию, когда backend не отдает `/api/cv/*`.
+State: done в PR #30. Подробная таблица:
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V; описание работы —
+[`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
 
 ## Traceability
 

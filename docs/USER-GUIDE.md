@@ -151,7 +151,69 @@ For live email, use `source-pull --source=email --protocol=gmail`,
 protocols also need `--host`, plus `--username` and `--password` unless
 the equivalent `EMAIL_*` environment variables are set.
 
-## 9. Troubleshooting
+## 9. Sync your CV across job platforms
+
+Your CV usually lives on LinkedIn, hh.ru, Habr Career, Naukri,
+VietnamWorks, TopCV and SuperJob at the same time, and the seven
+copies drift apart. `meta-sovereign` reads all of them through a
+browser running on your own machine, shows the differences, and writes
+the agreed values back.
+
+This needs the CLI: a web page cannot drive another web page, so the
+**CV** screen in the app shows coverage, differences and run history
+but hands live runs to the terminal.
+
+```bash
+# one-off: install the browser engine (optional dependency)
+npm install playwright browser-commander
+npx playwright install chromium
+
+# what is supported, and how much of it is verified markup
+meta-sovereign cv-platforms
+
+# sign in once, with a visible browser; the session is remembered
+meta-sovereign cv-read --platforms=linkedin --headed --profile=~/.meta-sovereign/cv
+
+# read several profiles, keeping page snapshots for later inspection
+meta-sovereign cv-read --platforms=linkedin,hh,naukri --login=<your-login> --artifacts=./cv-runs
+
+# compare what was read — no browser involved
+meta-sovereign cv-diff --prefer=linkedin
+
+# see what a sync would change, then do it
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri --apply
+
+# write one field, or one editor section, and nothing else
+meta-sovereign cv-sync --platforms=linkedin --paths=basics.headline --apply
+meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
+
+# what happened during the last runs
+meta-sovereign cv-telemetry --type=step.miss
+```
+
+You are never asked for a platform password: the browser opens with
+`--headed`, you sign in the way you normally would, and the session
+stays in the profile directory you passed.
+
+The same operations are available over HTTP when a local server is
+running: `GET /api/cv/platforms`, `GET /api/cv/plan?platform=…`,
+`GET /api/cv/stored`, `POST /api/cv/read`, `POST /api/cv/compare`,
+`POST /api/cv/sync`, `GET /api/cv/telemetry`.
+
+| Symptom                                  | What it means                                                                                                        |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `browser-commander is not installed`     | Install the optional dependencies above, or use `cv-platforms` / `cv-plan` / `cv-diff`, which never open a browser.  |
+| A run stops with `login-required`        | The platform bounced you to its login page. Re-run with `--headed` and sign in.                                      |
+| A run stops with `step-missed`           | The site changed its markup. The reason names the selector; `cv-telemetry` and the `--artifacts` HTML show the page. |
+| A platform reports `unsupported` changes | That field has no editor in the platform's plan — the change is reported instead of being silently dropped.          |
+| A field is listed as `deselected`        | It is writable, but your `--paths`/`--groups` filter left it out.                                                    |
+
+Details — the canonical CV shape, the step vocabulary, the telemetry
+events, and what is verified per platform — are in
+[`docs/CV-SYNC.md`](./CV-SYNC.md).
+
+## 10. Troubleshooting
 
 | Symptom                                  | Fix                                                                                                                                                  |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -161,13 +223,15 @@ the equivalent `EMAIL_*` environment variables are set.
 | WebRTC sync stops between two LANs.      | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                             |
 | `cargo build` fails with `linker` error. | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                |
 
-## 10. Where to go next
+## 11. Where to go next
 
 - [`README.md`](../README.md) — project overview and developer notes.
 - [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) — canonical requirement
   list.
 - [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md) — JS vs. Rust server
   routes.
+- [`docs/CV-SYNC.md`](./CV-SYNC.md) — how CV synchronisation works,
+  platform by platform.
 - [`docs/UI-DESIGN-AUDIT.md`](./UI-DESIGN-AUDIT.md) — accessibility +
   HIG/Material/Fluent compliance audit.
 - [`docs/case-studies/`](./case-studies/) — full case studies for

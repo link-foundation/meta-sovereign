@@ -1,0 +1,5 @@
+$ npm run check:duplication    (issue-29 final gate, 2026-09-16T08:56:37Z)
+npm notice run meta-sovereign@0.18.1 check:duplication
+npm notice run jscpd .
+Detection time:: 0.171ms
+[exit 0]

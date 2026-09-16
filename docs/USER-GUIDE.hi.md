@@ -99,7 +99,69 @@ Supported sources: email (`.eml`/mbox), VK, Telegram Desktop, X, WhatsApp, Faceb
 
 Live email के लिए `source-pull --source=email --protocol=gmail`, `microsoft-graph`, `jmap`, `imap` या `pop3` इस्तेमाल करें। Raw IMAP/POP3/SMTP में `--host`, `--username`, `--password` भी चाहिए, जब तक equivalent `EMAIL_*` env vars set न हों।
 
-## 9. Troubleshooting
+## 9. Job platforms के बीच CV sync करें
+
+CV अक्सर एक साथ LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks,
+TopCV और SuperJob पर रहता है, और ये सातों copies अलग-अलग होती चली जाती
+हैं। `meta-sovereign` इन सबको आपकी अपनी machine के browser से पढ़ता है,
+अंतर दिखाता है और तय किए गए values वापस लिख देता है।
+
+इसके लिए CLI चाहिए: एक web page दूसरी web page को drive नहीं कर सकती,
+इसलिए app का **CV** screen coverage, differences और run history दिखाता
+है, जबकि live runs terminal को सौंप देता है।
+
+```bash
+# एक बार: browser engine install करें (optional dependency)
+npm install playwright browser-commander
+npx playwright install chromium
+
+# क्या-क्या supported है और कितना markup verified है
+meta-sovereign cv-platforms
+
+# एक बार दिखने वाले browser में sign in करें; session profile में रहती है
+meta-sovereign cv-read --platforms=linkedin --headed --profile=~/.meta-sovereign/cv
+
+# कई profiles पढ़ें और page snapshots रखें
+meta-sovereign cv-read --platforms=linkedin,hh,naukri --login=<आपका-login> --artifacts=./cv-runs
+
+# जो पढ़ा गया उसकी तुलना करें — browser की जरूरत नहीं
+meta-sovereign cv-diff --prefer=linkedin
+
+# पहले देखें कि sync क्या बदलेगा, फिर चलाएँ
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri --apply
+
+# सिर्फ एक field या एक editor section लिखें, और कुछ नहीं
+meta-sovereign cv-sync --platforms=linkedin --paths=basics.headline --apply
+meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
+
+# पिछले runs में क्या हुआ
+meta-sovereign cv-telemetry --type=step.miss
+```
+
+Platform password कभी नहीं पूछा जाता: browser `--headed` के साथ खुलता है,
+आप हमेशा की तरह sign in करते हैं, और session आपके दिए profile directory
+में रहती है।
+
+Local server चलने पर यही operations HTTP से भी उपलब्ध हैं:
+`GET /api/cv/platforms`, `GET /api/cv/plan?platform=…`,
+`GET /api/cv/stored`, `POST /api/cv/read`, `POST /api/cv/compare`,
+`POST /api/cv/sync`, `GET /api/cv/telemetry`।
+
+| Symptom                              | इसका मतलब                                                                                                                   |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `browser-commander is not installed` | ऊपर दी optional dependencies install करें, या `cv-platforms` / `cv-plan` / `cv-diff` इस्तेमाल करें — वे browser नहीं खोलते। |
+| Run `login-required` पर रुका         | Platform ने login page पर भेज दिया। `--headed` के साथ दोबारा चलाकर sign in करें।                                            |
+| Run `step-missed` पर रुका            | Site ने markup बदल दिया। कारण में selector लिखा है; `cv-telemetry` और `--artifacts` का HTML page दिखाते हैं।                |
+| Platform `unsupported` बताता है      | उस field के लिए platform के plan में editor नहीं है — change चुपचाप गिराया नहीं जाता, report होता है।                       |
+| Field `deselected` दिखता है          | वह writable है, पर आपके `--paths`/`--groups` filter ने उसे छोड़ दिया।                                                       |
+| CV screen कहता है JS server चाहिए    | जुड़ा हुआ backend (जैसे Rust server) `/api/cv/*` routes नहीं देता।                                                          |
+
+Canonical CV shape, step vocabulary, telemetry events और हर platform पर
+क्या verified है — यह सब
+[`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
+
+## 10. Troubleshooting
 
 | Symptom                              | Fix                                                                                                   |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
@@ -109,10 +171,11 @@ Live email के लिए `source-pull --source=email --protocol=gmail`, `micr
 | WebRTC sync दो LANs के बीच रुकता है। | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                          |
 | `cargo build` linker error देता है।  | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                      |
 
-## 10. आगे कहाँ जाएँ
+## 11. आगे कहाँ जाएँ
 
 - [`README.hi.md`](../README.hi.md) — project overview और developer notes।
 - [`docs/REQUIREMENTS.hi.md`](./REQUIREMENTS.hi.md) — canonical requirements।
 - [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md) — JS vs. Rust routes।
+- [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) — CV synchronisation कैसे काम करता है, platform दर platform।
 - [`docs/UI-DESIGN-AUDIT.hi.md`](./UI-DESIGN-AUDIT.hi.md) — accessibility और design audit।
 - [`docs/case-studies/`](./case-studies/) — हर issue की case studies।

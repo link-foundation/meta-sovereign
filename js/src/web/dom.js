@@ -64,7 +64,7 @@ const boot = async () => {
   const rtc = discovered
     ? attachWebRtcSync({ store, origin: discovered.origin })
     : null;
-  return { store, bus, client, rtc };
+  return { store, bus, client, rtc, origin: discovered?.origin ?? null };
 };
 
 const ensure = () => {
@@ -74,16 +74,43 @@ const ensure = () => {
   return bootPromise;
 };
 
+/**
+ * Forget the discovered server so the next API call boots again.
+ *
+ * Discovery is memoised, which is right for a page that lives as long
+ * as its tab (the SPA reloads itself after a manual override is saved,
+ * see `applyLocalServerOverride`). Tests need the undo: node runs each
+ * test file in its own process, but bun and deno share one module
+ * registry across files, so whichever file touched `api` first would
+ * otherwise decide the binding for every file after it.
+ */
+export const resetServerBinding = () => {
+  bootPromise = null;
+};
+
 const serverFetch = async (path, init) => {
-  const { client } = await ensure();
+  const { client, origin } = await ensure();
   if (!client.isOnline()) {
     return null;
   }
-  // Re-derive origin from the discovery cycle inside client.
-  // For brevity we lean on the client's `status()` to prove liveness
-  // and on globalThis.fetch for the actual call. Same-origin SPAs
-  // will resolve relative paths correctly without an explicit origin.
-  return fetch(path, init).then((r) => r.json());
+  // The discovered origin is not always the page's own origin: the
+  // SPA on GitHub Pages (or opened from a file) talks to a server on
+  // 127.0.0.1, so a relative path would hit the page's host instead
+  // of the server. `new URL` keeps same-origin deployments unchanged
+  // and points cross-origin ones at the backend the client is using.
+  const url = origin ? new URL(path, origin).toString() : path;
+  // "Online" does not mean "implements this route": the Rust backend
+  // answers routes it does not have with a 404 and a JSON error body
+  // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
+  // with HTML. Both mean the same thing as being offline, so both
+  // return null and let the caller's `??` default take over —
+  // otherwise `{error: 'unknown route'}` would reach the screens as
+  // if it were data.
+  const response = await fetch(url, init).catch(() => null);
+  if (!response?.ok) {
+    return null;
+  }
+  return response.json().catch(() => null);
 };
 
 let patternWorker = null;
@@ -155,6 +182,20 @@ const matchPattern = async (pattern, flags, messages) => {
     return matchPatternLocal(pattern, flags, messages);
   }
 };
+
+const cvPost = (path, body) =>
+  serverFetch(path, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+/** Offline answer shared by every live CV call. */
+const cvOffline = (platforms) => ({
+  platform: (platforms ?? []).join(',') || 'all',
+  code: 'server-required',
+  message: 'the local server drives the browser for CV reads and writes',
+});
 
 export const api = {
   links: async () => {
@@ -271,6 +312,57 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ query, text, networks, mode }),
     })) ?? { audience: [], plan: [], note: 'server required for outreach' },
+  // ---- CV synchronisation (issue #29) -----------------------------
+  // Reading a live profile needs a browser, which only the local
+  // server has; offline the SPA still shows the catalogue, the stored
+  // snapshots it holds and a clear "server required" answer.
+  cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
+  cvPlan: async (platform) =>
+    (await serverFetch(
+      `/api/cv/plan?platform=${encodeURIComponent(platform)}`
+    )) ?? null,
+  cvStored: async (platforms = []) =>
+    (await serverFetch(
+      `/api/cv/stored${platforms.length ? `?platforms=${encodeURIComponent(platforms.join(','))}` : ''}`
+    )) ?? { entries: [] },
+  cvRead: async ({ platforms, vars = {} } = {}) =>
+    (await cvPost('/api/cv/read', { platforms, vars })) ?? {
+      entries: [],
+      failures: [cvOffline(platforms)],
+    },
+  cvCompare: async ({ platforms, entries, prefer = null } = {}) =>
+    (await cvPost('/api/cv/compare', { platforms, entries, prefer })) ?? {
+      entries: [],
+      comparison: { rows: [], plan: [], updates: {}, agreed: 0 },
+      diffs: [],
+    },
+  cvSync: async ({ platforms, dryRun = true, prefer = null, vars = {} } = {}) =>
+    (await cvPost('/api/cv/sync', { platforms, dryRun, prefer, vars })) ?? {
+      dryRun,
+      actions: [],
+      applied: [],
+      entries: [],
+      failures: [cvOffline(platforms)],
+    },
+  cvTelemetry: async ({
+    runId = null,
+    platform = null,
+    type = null,
+    limit = 200,
+  } = {}) => {
+    const search = new URLSearchParams({ limit: String(limit) });
+    for (const [key, value] of Object.entries({ runId, platform, type })) {
+      if (value) {
+        search.set(key, value);
+      }
+    }
+    return (
+      (await serverFetch(`/api/cv/telemetry?${search}`)) ?? {
+        runs: [],
+        events: [],
+      }
+    );
+  },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
   createBackup: async ({ passphrase = null, keep } = {}) =>
     (await serverFetch('/api/backups', {

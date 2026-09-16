@@ -41,23 +41,34 @@ crate 保持 `std`-only。
 SPA 会在 Rust server 返回 `404` 时隐藏或回退相关功能；CLI 仍可在本地运行
 JS implementation。
 
-## 5. Real-time transports 与静态资源
+## 5. 简历同步
+
+`/api/cv/platforms`、`/api/cv/plan`、`/api/cv/stored`、`/api/cv/read`、
+`/api/cv/compare`、`/api/cv/sync` 和 `/api/cv/telemetry`（R-V16）是 JS
+only，原因是结构性的：`read` 和 `sync` 通过 `browser-commander` +
+Playwright 驱动真实浏览器，而 Rust crate 只用 `std`，无法启动这样的进程。
+其余四个路由不碰浏览器，是可移植的；在移植完成之前，SPA 的 CV 页面会明确
+显示“需要 JS server”，而不是展示一张空表。详情见
+[`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
+
+## 6. Real-time transports 与静态资源
 
 `/ws` WebSocket sync 和 `/rtc` WebRTC signalling 在两个 server 上 parity。
 `/`、`/index.html`、flat assets、`/storage/`、`/handlers/` 和 `/sync/`
 mount 也都保持同样的静态资源服务行为，并拒绝 path traversal。
 
-## 6. 摘要
+## 7. 摘要
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
 | Read + derived + meta          | 14     | 14     | 0       |
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
+| 简历同步                       | 7      | 0      | 7       |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **40** | **34** | **6**   |
+| **Total**                      | **47** | **34** | **13**  |
 
-Rust server 当前达到 **85% route parity**。典型终端用户流程（打开 SPA、浏览
+Rust server 当前达到 **72% route parity**。典型终端用户流程（打开 SPA、浏览
 联系人、发送消息、自动化回复、设备间同步、导入 email archive）可以把 Rust
 server 当作 JS server 的 drop-in replacement。

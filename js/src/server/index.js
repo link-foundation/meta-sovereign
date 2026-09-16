@@ -53,6 +53,7 @@ import { listSources } from '../sources/index.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
+import { handleCvRoutes } from './routes-cv.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
@@ -150,6 +151,17 @@ const handleStatic = async (req, res, p) => {
   return false;
 };
 
+/**
+ * CV routes accept an injected browser so tests — and any embedder
+ * that already owns a session — never open a second one.
+ * @param {{commander?: object, sessionFactory?: Function, artifactDir?: string}} cv
+ */
+const cvContext = (cv = {}) => ({
+  cvCommander: cv.commander ?? null,
+  cvSessionFactory: cv.sessionFactory ?? null,
+  cvArtifactDir: cv.artifactDir ?? null,
+});
+
 const applySecurityHeaders = (res) => {
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!res.hasHeader(k)) {
@@ -169,6 +181,9 @@ const route = async (store, req, res, ctx) => {
     return json(res, 200, listSources());
   }
   if (await handleMetrics(store, req, res, p, ctx)) {
+    return;
+  }
+  if (await handleCvRoutes(store, req, res, p, url, ctx)) {
     return;
   }
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
@@ -218,6 +233,7 @@ export const startServer = async ({
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
+  cv = {},
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -231,6 +247,7 @@ export const startServer = async ({
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
+    ...cvContext(cv),
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();

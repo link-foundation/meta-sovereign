@@ -99,7 +99,68 @@ Supported sources: email (`.eml`/mbox), VK, Telegram Desktop, X, WhatsApp, Faceb
 
 Для live email используйте `source-pull --source=email --protocol=gmail`, `microsoft-graph`, `jmap`, `imap` или `pop3`. Raw IMAP/POP3/SMTP требуют `--host`, `--username`, `--password`, если не заданы эквивалентные `EMAIL_*` env vars.
 
-## 9. Troubleshooting
+## 9. Sync CV между job platforms
+
+CV обычно живет одновременно на LinkedIn, hh.ru, Habr Career, Naukri,
+VietnamWorks, TopCV и SuperJob, и эти семь копий расходятся.
+`meta-sovereign` читает их все через браузер на вашей машине, показывает
+различия и записывает согласованные значения обратно.
+
+Для этого нужен CLI: web page не может управлять другой web page,
+поэтому экран **CV** в приложении показывает покрытие, различия и историю
+запусков, а сами запуски отдает терминалу.
+
+```bash
+# один раз: поставить browser engine (optional dependency)
+npm install playwright browser-commander
+npx playwright install chromium
+
+# что поддерживается и насколько markup уже проверен
+meta-sovereign cv-platforms
+
+# войти один раз в видимом браузере; session сохранится в profile
+meta-sovereign cv-read --platforms=linkedin --headed --profile=~/.meta-sovereign/cv
+
+# прочитать несколько профилей, сохраняя snapshots страниц
+meta-sovereign cv-read --platforms=linkedin,hh,naukri --login=<ваш-логин> --artifacts=./cv-runs
+
+# сравнить прочитанное — браузер не нужен
+meta-sovereign cv-diff --prefer=linkedin
+
+# посмотреть, что изменит sync, и выполнить его
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri
+meta-sovereign cv-sync --platforms=linkedin,hh,naukri --apply
+
+# записать одно поле или одну секцию редактора и ничего больше
+meta-sovereign cv-sync --platforms=linkedin --paths=basics.headline --apply
+meta-sovereign cv-sync --platforms=linkedin --groups=intro --apply
+
+# что происходило в последних запусках
+meta-sovereign cv-telemetry --type=step.miss
+```
+
+Пароль платформы никто не спрашивает: браузер открывается с `--headed`,
+вы входите как обычно, а session остается в указанном profile directory.
+
+Те же операции доступны по HTTP, когда запущен локальный server:
+`GET /api/cv/platforms`, `GET /api/cv/plan?platform=…`,
+`GET /api/cv/stored`, `POST /api/cv/read`, `POST /api/cv/compare`,
+`POST /api/cv/sync`, `GET /api/cv/telemetry`.
+
+| Симптом                               | Что это значит                                                                                                          |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `browser-commander is not installed`  | Поставьте optional dependencies выше или используйте `cv-platforms` / `cv-plan` / `cv-diff` — они браузер не открывают. |
+| Запуск остановился с `login-required` | Платформа перебросила на страницу входа. Повторите с `--headed` и войдите.                                              |
+| Запуск остановился с `step-missed`    | Сайт изменил markup. В причине указан selector; `cv-telemetry` и HTML из `--artifacts` показывают страницу.             |
+| Платформа сообщает `unsupported`      | Для этого поля у платформы нет редактора — изменение не теряется молча, а попадает в отчет.                             |
+| Поле помечено `deselected`            | Оно записываемое, но ваш фильтр `--paths`/`--groups` его не выбрал.                                                     |
+| Экран CV говорит, что нужен JS server | Подключенный backend (например, Rust server) не отдает маршруты `/api/cv/*`.                                            |
+
+Подробности — канонический формат CV, словарь шагов, события telemetry и
+что именно проверено на каждой платформе — в
+[`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
+
+## 10. Troubleshooting
 
 | Symptom                               | Fix                                                                                                   |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -109,10 +170,11 @@ Supported sources: email (`.eml`/mbox), VK, Telegram Desktop, X, WhatsApp, Faceb
 | WebRTC sync ломается между двумя LAN. | Настройте TURN server: [`docs/WEBRTC-TURN.ru.md`](./WEBRTC-TURN.ru.md).                               |
 | `cargo build` падает с linker error.  | Установите C toolchain (`build-essential` на Debian/Ubuntu, Xcode CLI tools на macOS).                |
 
-## 10. Дальше
+## 11. Дальше
 
 - [`README.ru.md`](../README.ru.md) — overview проекта и developer notes.
 - [`docs/REQUIREMENTS.ru.md`](./REQUIREMENTS.ru.md) — canonical requirements.
 - [`docs/SERVER-PARITY.ru.md`](./SERVER-PARITY.ru.md) — JS vs. Rust routes.
+- [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md) — как устроена синхронизация CV, платформа за платформой.
 - [`docs/UI-DESIGN-AUDIT.ru.md`](./UI-DESIGN-AUDIT.ru.md) — accessibility и design audit.
 - [`docs/case-studies/`](./case-studies/) — case studies по каждому issue.

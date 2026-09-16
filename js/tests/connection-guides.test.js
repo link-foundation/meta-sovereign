@@ -76,6 +76,22 @@ test('every provider entry has archive + apiCredentials with required fields', (
       'string',
       `${id}: missing archive.hint`
     );
+    if (provider.browserOnly) {
+      // Boards with no public API (Naukri, VietnamWorks, TopCV) carry a
+      // browser-session block instead — see issue #29.
+      assert.ok(provider.session, `${id}: missing session section`);
+      assert.equal(
+        typeof provider.session.hint,
+        'string',
+        `${id}: missing session.hint`
+      );
+      assert.equal(
+        typeof provider.session.cvPlatform,
+        'string',
+        `${id}: missing session.cvPlatform`
+      );
+      continue;
+    }
     assert.ok(provider.apiCredentials, `${id}: missing apiCredentials section`);
     assert.equal(
       typeof provider.apiCredentials.envVar,

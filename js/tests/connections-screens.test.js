@@ -156,3 +156,73 @@ test('every provider in providerCatalogue has at least one setupSteps[] entry', 
     }
   }
 });
+
+// Issue #29: Naukri, VietnamWorks and TopCV publish no API. Their detail
+// screen must therefore render a browser-session panel — sign-in links and
+// a jump to the CV screen — instead of a credential form and a probe that
+// could never succeed.
+test('browser-only providers render a session panel instead of a probe', () => {
+  for (const id of ['naukri', 'vietnamworks', 'topcv']) {
+    assert.equal(
+      classifyConnectionState({ savedSecretIds: [] }, id),
+      'browser-session',
+      `"${id}" has no credential to classify`
+    );
+    const html = renderInLocale(
+      'en',
+      React.createElement(ConnectionDetail, {
+        providerId: id,
+        status: { savedSecretIds: [] },
+        links: [],
+        refresh: async () => {},
+        onBack: () => {},
+      })
+    );
+    const session = providerCatalogue[id].session;
+    assert.ok(
+      html.includes('data-browser-only="true"'),
+      `"${id}" detail must mark itself browser-only`
+    );
+    assert.ok(
+      html.includes(`href="${session.loginUrl.replace(/&/g, '&amp;')}"`),
+      `"${id}" detail must link to the sign-in page`
+    );
+    assert.ok(
+      html.includes(`href="${session.profileUrl}"`),
+      `"${id}" detail must link to the profile page`
+    );
+    assert.ok(
+      html.includes(`data-target-platform="${id}"`),
+      `"${id}" detail must offer a jump to the CV screen`
+    );
+    // The archive import survives: exported message dumps still parse.
+    assert.ok(
+      html.includes('data-action="archive-file"'),
+      `"${id}" detail keeps the archive import`
+    );
+    assert.ok(
+      !html.includes('data-action="probe"'),
+      `"${id}" must not offer a probe against an API that does not exist`
+    );
+    assert.ok(
+      !html.includes('data-field-input='),
+      `"${id}" must not ask for credentials`
+    );
+    assert.ok(
+      html.includes('browser-commander'),
+      `"${id}" detail must point at the driver docs`
+    );
+  }
+});
+
+test('the browser-session state badge is translated in every locale', () => {
+  for (const locale of availableLocales) {
+    const label =
+      dictionaries[locale.id ?? locale]?.['connections.state.browserSession'];
+    assert.equal(
+      typeof label,
+      'string',
+      `locale "${locale.id ?? locale}" must translate the browser-session badge`
+    );
+  }
+});

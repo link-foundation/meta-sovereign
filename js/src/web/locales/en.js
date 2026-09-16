@@ -31,6 +31,7 @@ export const en = {
   'nav.backup': 'Backup',
   'nav.status': 'Status',
   'nav.connections': 'Connections',
+  'nav.cv': 'CV sync',
   'nav.settings': 'Settings',
   'shell.primaryNavAria': 'Primary navigation',
   'common.loading': 'Loading...',
@@ -211,6 +212,9 @@ export const en = {
   'guide.connections.title': 'Connections',
   'guide.connections.body':
     'External services live on this dedicated screen. Pick a provider to enter its credentials, upload an archive, and probe the live API. Settings only keeps app-level preferences.',
+  'guide.cv.title': 'CV synchronisation',
+  'guide.cv.body':
+    'This screen drives a real browser session over your job-platform profiles: it reads each CV, compares them field by field, and only writes when you apply a sync. Sign in to each platform once in the browser profile the local server uses — no API keys exist for most of these boards.',
   'guide.settings.title': 'Settings',
   'guide.settings.body':
     'App-level preferences live here. Provider credentials, archive imports, and live probes live on the dedicated Connections screen.',
@@ -220,6 +224,10 @@ export const en = {
   'connections.state.connected': 'Connected',
   'connections.state.notConnected': 'Not connected',
   'connections.state.actionRequired': 'Action required',
+  'connections.state.browserSession': 'Browser session',
+  'connections.session.login': 'Open the sign-in page',
+  'connections.session.profile': 'Open the profile page',
+  'connections.session.openCv': 'Open the CV screen',
   'connections.openDetail': 'Set up',
   'connections.controlsTitle': 'Connection controls',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
@@ -343,6 +351,33 @@ export const en = {
   'connections.superjob.setup.step3.title': 'Run the probe',
   'connections.superjob.setup.step3.body':
     'Tap "Probe connection" — a successful response confirms the credential. Failures surface a translated hint with the exact next action.',
+  'connections.naukri.setup.step1.title': 'Install the browser driver',
+  'connections.naukri.setup.step1.body':
+    'Naukri publishes no public API. Install Playwright on the machine that runs the local server so browser-commander can drive a real session.',
+  'connections.naukri.setup.step2.title': 'Sign in once',
+  'connections.naukri.setup.step2.body':
+    'Open the CV screen and run a read. The browser opens naukri.com — sign in there once; the browser profile directory keeps the session for later runs.',
+  'connections.naukri.setup.step3.title': 'Read, compare, sync',
+  'connections.naukri.setup.step3.body':
+    'Read the CV, review the differences against the other boards, then plan a sync. Every run is recorded under cv:telemetry with a markup fingerprint, so a broken selector is easy to spot.',
+  'connections.vietnamworks.setup.step1.title': 'Install the browser driver',
+  'connections.vietnamworks.setup.step1.body':
+    'VietnamWorks publishes no public API. Install Playwright on the machine that runs the local server so browser-commander can drive a real session.',
+  'connections.vietnamworks.setup.step2.title': 'Sign in once',
+  'connections.vietnamworks.setup.step2.body':
+    'Open the CV screen and run a read. The browser opens vietnamworks.com — sign in there once; the browser profile directory keeps the session for later runs.',
+  'connections.vietnamworks.setup.step3.title': 'Read, compare, sync',
+  'connections.vietnamworks.setup.step3.body':
+    'Read the CV, review the differences against the other boards, then plan a sync. Every run is recorded under cv:telemetry with a markup fingerprint, so a broken selector is easy to spot.',
+  'connections.topcv.setup.step1.title': 'Install the browser driver',
+  'connections.topcv.setup.step1.body':
+    'TopCV publishes no public API. Install Playwright on the machine that runs the local server so browser-commander can drive a real session.',
+  'connections.topcv.setup.step2.title': 'Sign in once',
+  'connections.topcv.setup.step2.body':
+    'Open the CV screen and run a read. The browser opens topcv.vn — sign in there once; the browser profile directory keeps the session for later runs.',
+  'connections.topcv.setup.step3.title': 'Read, compare, sync',
+  'connections.topcv.setup.step3.body':
+    'Read the CV, review the differences against the other boards, then plan a sync. Every run is recorded under cv:telemetry with a markup fingerprint, so a broken selector is easy to spot.',
   // END setup-steps
   'connections.back': 'Back to connections',
   'connections.email.label': 'Email',
@@ -523,6 +558,34 @@ export const en = {
   'connections.superjob.fields.token.label': 'Access token',
   'connections.superjob.errorHints.401':
     'SuperJob rejected the App ID. Re-check it in your applicant cabinet.',
+  'connections.naukri.label': 'naukri.com',
+  'connections.naukri.archive.title': 'Import a Naukri recruiter inbox export',
+  'connections.naukri.archive.hint':
+    'Open naukri.com -> "Recruiter messages", use the browser export (or save the JSON the network tab returns) and load the file here.',
+  'connections.naukri.archive.fileHint': 'inbox.json',
+  'connections.naukri.session.title':
+    'Sign in once in the local browser session',
+  'connections.naukri.session.hint':
+    'Start the local server, open the CV screen and run a read. The browser opens naukri.com; sign in there once and the profile directory keeps the session for later runs.',
+  'connections.vietnamworks.label': 'vietnamworks.com',
+  'connections.vietnamworks.archive.title':
+    'Import a VietnamWorks message centre export',
+  'connections.vietnamworks.archive.hint':
+    'Open vietnamworks.com -> "My Jobs" -> messages, save the JSON payload the page loads and import it here.',
+  'connections.vietnamworks.archive.fileHint': 'messages.json',
+  'connections.vietnamworks.session.title':
+    'Sign in once in the local browser session',
+  'connections.vietnamworks.session.hint':
+    'Start the local server, open the CV screen and run a read. The browser opens vietnamworks.com; sign in there once and the profile directory keeps the session for later runs.',
+  'connections.topcv.label': 'topcv.vn',
+  'connections.topcv.archive.title': 'Import a TopCV employer message export',
+  'connections.topcv.archive.hint':
+    'Open topcv.vn -> "Tin nhắn", save the JSON payload the page loads and import it here.',
+  'connections.topcv.archive.fileHint': 'messages.json',
+  'connections.topcv.session.title':
+    'Sign in once in the local browser session',
+  'connections.topcv.session.hint':
+    'Start the local server, open the CV screen and run a read. The browser opens topcv.vn; sign in there once and the profile directory keeps the session for later runs.',
   'tutorial.button': 'Tutorial',
   'tutorial.skip': 'Skip step',
   'tutorial.next': 'Next',
@@ -553,4 +616,38 @@ export const en = {
   'tutorial.connectionDetail.title': 'Follow the per-service walkthrough',
   'tutorial.connectionDetail.body':
     'The provider screen lists every step needed to obtain credentials, plus the live API probe to confirm the connection works.',
+
+  // CV synchronisation screen (issue #29).
+  'cv.title': 'CV synchronisation',
+  'cv.intro':
+    'Read your CV from every supported job platform through the local browser session, compare the versions field by field, then plan and apply an update. Nothing is written until you press Apply.',
+  'cv.use': 'Use',
+  'cv.platform': 'Platform',
+  'cv.markup': 'Markup access',
+  'cv.steps': 'Plan steps',
+  'cv.snapshot': 'Last snapshot',
+  'cv.confidence': '{verified} verified / {draft} draft',
+  'cv.noSnapshot': 'never read',
+  'cv.loginPlaceholder': 'profile login or id',
+  'cv.read': 'Read selected',
+  'cv.compare': 'Compare',
+  'cv.planSync': 'Plan sync',
+  'cv.applySync': 'Apply sync',
+  'cv.busy': 'Working — the browser session is driving the platform…',
+  'cv.differences': 'Differences',
+  'cv.field': 'Field',
+  'cv.values': 'Values',
+  'cv.missing': 'Missing on',
+  'cv.noConflicts':
+    'No conflicts: every platform agrees on the fields that were read.',
+  'cv.syncTitle': 'Sync plan',
+  'cv.dryRun': 'Dry run — nothing was written to any platform.',
+  'cv.applied': 'Applied — the listed platforms were updated.',
+  'cv.action':
+    '{platform}: {writable} writable, {unsupported} unsupported — {paths}',
+  'cv.morePaths': '(+{count} more)',
+  'cv.telemetry': 'Recent runs',
+  'cv.noRuns': 'No runs recorded yet.',
+  'cv.unavailable':
+    'This server does not provide the CV routes. Start the JS server (`meta-sovereign serve`) or use the `meta-sovereign cv-*` commands, which drive the browser locally.',
 };

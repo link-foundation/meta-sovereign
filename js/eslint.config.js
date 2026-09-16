@@ -154,10 +154,21 @@ export default [
     },
   },
   {
-    // Local debugging probes (js/experiments/*.mjs) often spin up headless
-    // browsers and call into the page context, so they need the same
-    // globals the real-browser e2e uses.
-    files: ['js/experiments/**/*.mjs'],
+    // CV plan runner: its extractor callbacks are serialised into the
+    // page by browser-commander, so they run with DOM globals.
+    files: ['js/src/cv/runner.js'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        window: 'readonly',
+      },
+    },
+  },
+  {
+    // Local debugging probes (js/experiments/*.mjs and the repository-root
+    // experiments/*.mjs) often spin up headless browsers and call into the
+    // page context, so they need the same globals the real-browser e2e uses.
+    files: ['js/experiments/**/*.mjs', 'experiments/**/*.mjs'],
     languageOptions: {
       globals: {
         setTimeout: 'readonly',

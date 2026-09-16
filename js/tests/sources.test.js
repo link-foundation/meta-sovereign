@@ -3,12 +3,16 @@ import { listSources, getSource, importInto } from '../src/sources/index.js';
 import { createMemoryStore } from '../src/storage/index.js';
 
 describe('source registry', () => {
-  it('lists all 13 networks', () => {
-    expect(listSources().length).toBe(13);
+  it('lists all 16 networks', () => {
+    expect(listSources().length).toBe(16);
     expect(listSources().includes('email')).toBe(true);
     expect(listSources().includes('github')).toBe(true);
     expect(listSources().includes('upwork')).toBe(true);
     expect(listSources().includes('peopleperhour')).toBe(true);
+    // The job boards named in issue #29.
+    expect(listSources().includes('naukri')).toBe(true);
+    expect(listSources().includes('vietnamworks')).toBe(true);
+    expect(listSources().includes('topcv')).toBe(true);
   });
   it('throws on unknown source', () => {
     let caught = false;

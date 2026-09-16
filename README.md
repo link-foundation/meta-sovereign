@@ -46,6 +46,7 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 ## What it does
 
 - **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
+- **CV synchronisation** across LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV and SuperJob: read every profile through your own browser, see the differences field by field, and push the agreed values back ([`docs/CV-SYNC.md`](docs/CV-SYNC.md)).
 - **Personal CRM**: contacts, communities, group memberships, intersections, mass-personal outreach.
 - **Personal memory**: structured `question → answer` facts captured automatically from conversations.
 - **Conversation automation platform**: pattern editors, reply-variation editors, n8n-style dialog graphs.
@@ -63,6 +64,7 @@ The prototype targeted by issue #1 is implemented and tracked in PR #2:
 - **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
 - **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
+- **CV synchronisation (R-V\*)**: declarative browser plans for seven job platforms, cross-platform diff, selective writes, and a redacted telemetry stream with HTML/screenshot artifacts for every run.
 - **Distribution (R-F\*)**: NPM library, CLI (`js/bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
 - **Stacks (R-G\*)**: default JS server + React SPA + Rust/WASM heavy workloads; alternative pure-Rust server (`meta-sovereign-rs serve`).
 - **Hardening (R-K\*)**: soft-delete by default, AES-256-GCM master-key vault with multi-method unlock, encrypted export.

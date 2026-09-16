@@ -1,0 +1,8 @@
+$ npm run build:web    (issue-29 final gate, 2026-09-16T08:56:39Z)
+npm notice run meta-sovereign@0.18.1 build:web
+npm notice run node js/scripts/build-web.mjs
+
+  js/src/web/app.min.js  722.7kb
+
+⚡ Done in 215ms
+[exit 0]

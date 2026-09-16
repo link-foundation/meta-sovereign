@@ -233,4 +233,4 @@ Each layer catches different issues, ensuring no problematic code reaches produc
 - [hive-mind CI/CD Case Studies](https://github.com/link-assistant/hive-mind/tree/main/docs/case-studies)
 - [Issue #1274 Analysis](./case-studies/issue-25/data/issue-1274-case-study.md) - Concurrency blocking
 - [Issue #1278 Analysis](./case-studies/issue-25/data/issue-1278-case-study.md) - always() cancellation prevention
-- [Issue #29 Analysis](./case-studies/issue-29/README.md) - CI/CD best practices alignment
+- [Pipeline template issue #29 analysis](./case-studies/pipeline-template-issue-29/README.md) - CI/CD best practices alignment

@@ -1,0 +1,4 @@
+$ npm run lint    (issue-29 final gate, 2026-09-16T08:55:59Z)
+npm notice run meta-sovereign@0.18.1 lint
+npm notice run eslint --config js/eslint.config.js .
+[exit 0]

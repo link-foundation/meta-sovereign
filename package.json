@@ -26,12 +26,15 @@
     "./broadcast": "./js/src/broadcast/index.js",
     "./backup": "./js/src/storage/backup.js",
     "./handlers": "./js/src/handlers/index.js",
+    "./cv": "./js/src/cv/index.js",
+    "./cv/platforms": "./js/src/cv/platforms/index.js",
     "./cli": "./js/src/cli/index.js",
     "./server": "./js/src/server/index.js"
   },
   "scripts": {
     "test": "node --test --test-timeout=30000 js/tests/*.test.js",
     "test:e2e:browser": "node js/tests/e2e-browser-spa.mjs",
+    "test:e2e:cv": "node js/tests/e2e-cv-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
     "format": "prettier --write .",

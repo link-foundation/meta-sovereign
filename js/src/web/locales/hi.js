@@ -31,6 +31,7 @@ export const hi = {
   'nav.backup': 'बैकअप',
   'nav.status': 'स्थिति',
   'nav.connections': 'कनेक्शन',
+  'nav.cv': 'CV सिंक',
   'nav.settings': 'सेटिंग्स',
   'shell.primaryNavAria': 'मुख्य नेविगेशन',
   'common.loading': 'लोड हो रहा है...',
@@ -211,6 +212,9 @@ export const hi = {
   'guide.connections.title': 'कनेक्शन',
   'guide.connections.body':
     'बाहरी सेवाएँ इस अलग स्क्रीन पर रहती हैं। प्रदाता चुनें ताकि उसके क्रेडेंशियल दर्ज करें, संग्रह अपलोड करें और लाइव API जाँचें। सेटिंग्स में केवल ऐप-स्तरीय वरीयताएँ रहती हैं।',
+  'guide.cv.title': 'CV सिंक्रनाइज़ेशन',
+  'guide.cv.body':
+    'यह स्क्रीन आपके जॉब-प्लेटफ़ॉर्म प्रोफ़ाइलों पर एक वास्तविक ब्राउज़र सत्र चलाती है: यह हर CV को पढ़ती है, उनकी फ़ील्ड-दर-फ़ील्ड तुलना करती है, और तभी लिखती है जब आप सिंक लागू करते हैं। स्थानीय सर्वर जिस ब्राउज़र प्रोफ़ाइल का उपयोग करता है, उसमें हर प्लेटफ़ॉर्म पर एक बार साइन इन करें — इनमें से अधिकांश बोर्ड के लिए कोई API कुंजी मौजूद ही नहीं है।',
   'guide.settings.title': 'सेटिंग्स',
   'guide.settings.body':
     'ऐप-स्तरीय प्राथमिकताएँ यहाँ रहती हैं। प्रदाता क्रेडेंशियल, संग्रह आयात और लाइव जाँचें समर्पित कनेक्शन स्क्रीन पर रहती हैं।',
@@ -220,6 +224,10 @@ export const hi = {
   'connections.state.connected': 'जुड़ा',
   'connections.state.notConnected': 'जुड़ा नहीं',
   'connections.state.actionRequired': 'कार्रवाई आवश्यक',
+  'connections.state.browserSession': 'ब्राउज़र सत्र',
+  'connections.session.login': 'साइन-इन पृष्ठ खोलें',
+  'connections.session.profile': 'प्रोफ़ाइल पृष्ठ खोलें',
+  'connections.session.openCv': 'CV स्क्रीन खोलें',
   'connections.openDetail': 'सेट अप',
   'connections.controlsTitle': 'कनेक्शन नियंत्रण',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
@@ -342,6 +350,33 @@ export const hi = {
   'connections.superjob.setup.step3.title': 'जाँच चलाएँ',
   'connections.superjob.setup.step3.body':
     '"कनेक्शन जाँचें" पर टैप करें — सफल उत्तर क्रेडेंशियल की पुष्टि करता है। विफल होने पर अगले कदम के साथ अनुवादित संकेत दिखेगा।',
+  'connections.naukri.setup.step1.title': 'ब्राउज़र ड्राइवर स्थापित करें',
+  'connections.naukri.setup.step1.body':
+    'Naukri कोई सार्वजनिक API प्रकाशित नहीं करता। स्थानीय सर्वर चलाने वाली मशीन पर Playwright स्थापित करें ताकि browser-commander एक वास्तविक सत्र चला सके।',
+  'connections.naukri.setup.step2.title': 'एक बार साइन इन करें',
+  'connections.naukri.setup.step2.body':
+    'CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र naukri.com खोलता है — वहाँ एक बार साइन इन करें; ब्राउज़र प्रोफ़ाइल निर्देशिका सत्र को सहेज लेती है।',
+  'connections.naukri.setup.step3.title': 'पढ़ें, तुलना करें, सिंक करें',
+  'connections.naukri.setup.step3.body':
+    'CV पढ़ें, अन्य बोर्डों के साथ अंतर देखें, फिर सिंक की योजना बनाएँ। हर रन मार्कअप फ़िंगरप्रिंट के साथ cv:telemetry में दर्ज होता है, इसलिए टूटा हुआ सिलेक्टर आसानी से दिखता है।',
+  'connections.vietnamworks.setup.step1.title': 'ब्राउज़र ड्राइवर स्थापित करें',
+  'connections.vietnamworks.setup.step1.body':
+    'VietnamWorks कोई सार्वजनिक API प्रकाशित नहीं करता। स्थानीय सर्वर चलाने वाली मशीन पर Playwright स्थापित करें ताकि browser-commander एक वास्तविक सत्र चला सके।',
+  'connections.vietnamworks.setup.step2.title': 'एक बार साइन इन करें',
+  'connections.vietnamworks.setup.step2.body':
+    'CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र vietnamworks.com खोलता है — वहाँ एक बार साइन इन करें; ब्राउज़र प्रोफ़ाइल निर्देशिका सत्र को सहेज लेती है।',
+  'connections.vietnamworks.setup.step3.title': 'पढ़ें, तुलना करें, सिंक करें',
+  'connections.vietnamworks.setup.step3.body':
+    'CV पढ़ें, अन्य बोर्डों के साथ अंतर देखें, फिर सिंक की योजना बनाएँ। हर रन मार्कअप फ़िंगरप्रिंट के साथ cv:telemetry में दर्ज होता है, इसलिए टूटा हुआ सिलेक्टर आसानी से दिखता है।',
+  'connections.topcv.setup.step1.title': 'ब्राउज़र ड्राइवर स्थापित करें',
+  'connections.topcv.setup.step1.body':
+    'TopCV कोई सार्वजनिक API प्रकाशित नहीं करता। स्थानीय सर्वर चलाने वाली मशीन पर Playwright स्थापित करें ताकि browser-commander एक वास्तविक सत्र चला सके।',
+  'connections.topcv.setup.step2.title': 'एक बार साइन इन करें',
+  'connections.topcv.setup.step2.body':
+    'CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र topcv.vn खोलता है — वहाँ एक बार साइन इन करें; ब्राउज़र प्रोफ़ाइल निर्देशिका सत्र को सहेज लेती है।',
+  'connections.topcv.setup.step3.title': 'पढ़ें, तुलना करें, सिंक करें',
+  'connections.topcv.setup.step3.body':
+    'CV पढ़ें, अन्य बोर्डों के साथ अंतर देखें, फिर सिंक की योजना बनाएँ। हर रन मार्कअप फ़िंगरप्रिंट के साथ cv:telemetry में दर्ज होता है, इसलिए टूटा हुआ सिलेक्टर आसानी से दिखता है।',
   // END setup-steps
   'connections.back': 'कनेक्शन पर वापस',
   'connections.email.label': 'ईमेल',
@@ -520,6 +555,35 @@ export const hi = {
   'connections.superjob.fields.token.label': 'एक्सेस टोकन',
   'connections.superjob.errorHints.401':
     'SuperJob ने App ID अस्वीकृत किया। आवेदक कैबिनेट में फिर से जाँचें।',
+  'connections.naukri.label': 'naukri.com',
+  'connections.naukri.archive.title':
+    'Naukri रिक्रूटर इनबॉक्स निर्यात आयात करें',
+  'connections.naukri.archive.hint':
+    'naukri.com -> "Recruiter messages" खोलें, ब्राउज़र निर्यात का उपयोग करें (या नेटवर्क टैब से लौटा JSON सहेजें) और फ़ाइल यहाँ लोड करें।',
+  'connections.naukri.archive.fileHint': 'inbox.json',
+  'connections.naukri.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.naukri.session.hint':
+    'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र naukri.com खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
+  'connections.vietnamworks.label': 'vietnamworks.com',
+  'connections.vietnamworks.archive.title':
+    'VietnamWorks संदेश केंद्र निर्यात आयात करें',
+  'connections.vietnamworks.archive.hint':
+    'vietnamworks.com -> "My Jobs" -> संदेश खोलें, पृष्ठ द्वारा लोड किया गया JSON सहेजें और उसे यहाँ आयात करें।',
+  'connections.vietnamworks.archive.fileHint': 'messages.json',
+  'connections.vietnamworks.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.vietnamworks.session.hint':
+    'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र vietnamworks.com खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
+  'connections.topcv.label': 'topcv.vn',
+  'connections.topcv.archive.title': 'TopCV नियोक्ता संदेश निर्यात आयात करें',
+  'connections.topcv.archive.hint':
+    'topcv.vn -> "Tin nhắn" खोलें, पृष्ठ द्वारा लोड किया गया JSON सहेजें और उसे यहाँ आयात करें।',
+  'connections.topcv.archive.fileHint': 'messages.json',
+  'connections.topcv.session.title':
+    'स्थानीय ब्राउज़र सत्र में एक बार साइन इन करें',
+  'connections.topcv.session.hint':
+    'स्थानीय सर्वर शुरू करें, CV स्क्रीन खोलें और एक रीड चलाएँ। ब्राउज़र topcv.vn खोलता है; वहाँ एक बार साइन इन करें और प्रोफ़ाइल निर्देशिका आगे के रन के लिए सत्र रखती है।',
   'tutorial.button': 'ट्यूटोरियल',
   'tutorial.skip': 'चरण छोड़ें',
   'tutorial.next': 'अगला',
@@ -550,4 +614,38 @@ export const hi = {
   'tutorial.connectionDetail.title': 'प्रदाता-विशिष्ट चरणों का पालन करें',
   'tutorial.connectionDetail.body':
     'प्रदाता स्क्रीन पर क्रेडेंशियल पाने के सभी चरण दिखते हैं, साथ ही कनेक्शन काम कर रहा है इसकी पुष्टि के लिए लाइव API जाँच भी।',
+
+  // CV synchronisation screen (issue #29).
+  'cv.title': 'CV सिंक्रनाइज़ेशन',
+  'cv.intro':
+    'स्थानीय ब्राउज़र सत्र के ज़रिए हर समर्थित जॉब प्लेटफ़ॉर्म से अपना CV पढ़ें, संस्करणों की फ़ील्ड-दर-फ़ील्ड तुलना करें, फिर अपडेट की योजना बनाकर उसे लागू करें। जब तक आप «लागू करें» नहीं दबाते, कुछ भी नहीं लिखा जाता।',
+  'cv.use': 'चुनें',
+  'cv.platform': 'प्लेटफ़ॉर्म',
+  'cv.markup': 'मार्कअप पहुँच',
+  'cv.steps': 'योजना चरण',
+  'cv.snapshot': 'अंतिम स्नैपशॉट',
+  'cv.confidence': '{verified} सत्यापित / {draft} ड्राफ़्ट',
+  'cv.noSnapshot': 'कभी नहीं पढ़ा गया',
+  'cv.loginPlaceholder': 'प्रोफ़ाइल लॉगिन या id',
+  'cv.read': 'चयनित पढ़ें',
+  'cv.compare': 'तुलना करें',
+  'cv.planSync': 'सिंक की योजना बनाएँ',
+  'cv.applySync': 'सिंक लागू करें',
+  'cv.busy': 'काम जारी है — ब्राउज़र सत्र प्लेटफ़ॉर्म चला रहा है…',
+  'cv.differences': 'अंतर',
+  'cv.field': 'फ़ील्ड',
+  'cv.values': 'मान',
+  'cv.missing': 'यहाँ अनुपस्थित',
+  'cv.noConflicts':
+    'कोई टकराव नहीं: पढ़ी गई फ़ील्ड पर सभी प्लेटफ़ॉर्म सहमत हैं।',
+  'cv.syncTitle': 'सिंक योजना',
+  'cv.dryRun': 'ड्राई रन — किसी भी प्लेटफ़ॉर्म पर कुछ नहीं लिखा गया।',
+  'cv.applied': 'लागू — सूचीबद्ध प्लेटफ़ॉर्म अपडेट कर दिए गए।',
+  'cv.action':
+    '{platform}: {writable} लिखने योग्य, {unsupported} असमर्थित — {paths}',
+  'cv.morePaths': '(+{count} और)',
+  'cv.telemetry': 'हाल के रन',
+  'cv.noRuns': 'अभी तक कोई रन दर्ज नहीं हुआ।',
+  'cv.unavailable':
+    'यह सर्वर CV रूट नहीं देता। JS सर्वर चलाएँ (`meta-sovereign serve`) या `meta-sovereign cv-*` कमांड इस्तेमाल करें, जो ब्राउज़र को स्थानीय रूप से चलाते हैं।',
 };

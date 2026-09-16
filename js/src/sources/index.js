@@ -30,7 +30,24 @@ import { superjobSource } from './superjob.js';
 import { githubSource } from './github.js';
 import { upworkSource } from './upwork.js';
 import { peoplePerHourSource } from './peopleperhour.js';
+import { naukriSource } from './naukri.js';
+import { vietnamworksSource } from './vietnamworks.js';
+import { topcvSource } from './topcv.js';
+import { withCvPlatform } from './cv-bridge.js';
 export { buildMessageLink } from './link.js';
+export {
+  BrowserOnlySourceError,
+  createJobBoardSource,
+  jobBoardArchiveToLinks,
+} from './job-board.js';
+export {
+  CvRuntimeUnavailableError,
+  cvPlatformIdOf,
+  cvPlatformOf,
+  readSourceCv,
+  withCvPlatform,
+  writeSourceCv,
+} from './cv-bridge.js';
 
 export const sourceRegistry = {
   email: emailSource,
@@ -39,14 +56,24 @@ export const sourceRegistry = {
   x: xSource,
   whatsapp: whatsappSource,
   facebook: facebookSource,
-  linkedin: linkedinSource,
-  'habr-career': habrCareerSource,
-  hh: hhSource,
-  superjob: superjobSource,
+  // Job boards carry a declarative CV plan on top of their message API.
+  linkedin: withCvPlatform(linkedinSource),
+  'habr-career': withCvPlatform(habrCareerSource),
+  hh: withCvPlatform(hhSource),
+  superjob: withCvPlatform(superjobSource),
   github: githubSource,
   upwork: upworkSource,
   peopleperhour: peoplePerHourSource,
+  naukri: naukriSource,
+  vietnamworks: vietnamworksSource,
+  topcv: topcvSource,
 };
+
+/** Sources that map to a declarative CV plan. */
+export const listCvSources = () =>
+  Object.values(sourceRegistry)
+    .filter((source) => source.cvPlatform)
+    .map((source) => source.name);
 
 export const listSources = () => Object.keys(sourceRegistry);
 

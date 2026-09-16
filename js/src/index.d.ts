@@ -15,10 +15,16 @@ export * as sync from './sync/index.js';
 export * as broadcast from './broadcast/index.js';
 export * as backup from './storage/backup.js';
 export * as handlers from './handlers/index.js';
+export * as cv from './cv/index.js';
 
 export declare const runCli: (argv: string[]) => Promise<number>;
 export declare const startServer: (opts: {
   port?: number;
   storeDir?: string;
   emailLiveFactory?: (config: unknown) => unknown;
+  cv?: {
+    commander?: unknown;
+    sessionFactory?: (options?: unknown) => unknown;
+    artifactDir?: string | null;
+  };
 }) => Promise<{ port: number; close: () => Promise<void> }>;
