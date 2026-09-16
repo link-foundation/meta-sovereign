@@ -154,6 +154,17 @@ export default [
     },
   },
   {
+    // CV plan runner: its extractor callbacks are serialised into the
+    // page by browser-commander, so they run with DOM globals.
+    files: ['js/src/cv/runner.js'],
+    languageOptions: {
+      globals: {
+        document: 'readonly',
+        window: 'readonly',
+      },
+    },
+  },
+  {
     // Local debugging probes (js/experiments/*.mjs) often spin up headless
     // browsers and call into the page context, so they need the same
     // globals the real-browser e2e uses.
