@@ -96,7 +96,33 @@ purge-tombstones` keep working against any backend because the CLI
   always uses the JS implementation locally — the operator does not
   need a server at all to run them.
 
-## 5. Real-time transports
+## 5. CV synchronisation
+
+| Route               | Method | JS server                    | Rust server | Status      |
+| ------------------- | ------ | ---------------------------- | ----------- | ----------- |
+| `/api/cv/platforms` | GET    | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
+| `/api/cv/plan`      | GET    | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
+| `/api/cv/stored`    | GET    | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
+| `/api/cv/read`      | POST   | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
+| `/api/cv/compare`   | POST   | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
+| `/api/cv/sync`      | POST   | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
+| `/api/cv/telemetry` | GET    | `js/src/server/routes-cv.js` | _missing_   | **JS only** |
+
+These seven routes (R-V16) drive the CV screen described in
+[`docs/CV-SYNC.md`](./CV-SYNC.md). They are JS only for a structural
+reason rather than a scheduling one: `/api/cv/read` and `/api/cv/sync`
+drive a real browser through `browser-commander` + Playwright, which is
+a Node process. The Rust crate is `std`-only and cannot launch one.
+
+The four routes that never touch a browser — `platforms`, `plan`,
+`stored`, `compare` — are pure functions of the plan catalogue and the
+store, so they are portable, and a Rust port is tracked in
+`docs/ROADMAP.md`. Until then the SPA degrades the same way it does
+for backups: the CV screen keeps its catalogue and diff views, and the
+"read" and "sync" buttons explain that live runs need the JS server or
+the `meta-sovereign cv-*` CLI.
+
+## 6. Real-time transports
 
 | Surface                   | JS server                | Rust server                    | Status |
 | ------------------------- | ------------------------ | ------------------------------ | ------ |
@@ -108,7 +134,7 @@ for store-replication packets and to `/rtc` for the WebRTC
 offer/answer/ICE rendezvous. `webrtc-sync.js` in the SPA does not need
 to know which backend it is talking to.
 
-## 6. Static asset serving
+## 7. Static asset serving
 
 | Surface                                    | JS server                | Rust server                                      | Status |
 | ------------------------------------------ | ------------------------ | ------------------------------------------------ | ------ |
@@ -120,20 +146,24 @@ Both servers refuse path traversal (`..`), only emit known MIME types,
 and serve only flat single-file paths inside the browser mount
 directories.
 
-## 7. Summary
+## 8. Summary
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
 | Read (links + derived + meta)  | 14     | 14     | 0       |
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
+| CV synchronisation             | 7      | 0      | 7       |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **40** | **34** | **6**   |
+| **Total**                      | **47** | **34** | **13**  |
 
-The Rust server reaches **85 % route parity** today; the remaining
-routes are all in the "operator hardening" category (R-K\*) and have
-JS-implemented fallbacks. For the typical end-user flow — open the
-SPA, browse contacts, send messages, automate replies, sync between
-devices, ingest email archives — the Rust server is a complete
-drop-in replacement for the JS server.
+The Rust server reaches **72 % route parity** today. The remaining
+routes split into two groups: the "operator hardening" category
+(R-K\*), which has JS-implemented fallbacks and is a porting backlog
+item, and CV synchronisation (R-V\*), three of whose seven routes
+cannot be ported at all while the Rust crate stays `std`-only, because
+they drive a browser. For the typical end-user flow — open the SPA,
+browse contacts, send messages, automate replies, sync between devices,
+ingest email archives — the Rust server is a complete drop-in
+replacement for the JS server.
