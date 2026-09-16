@@ -34,6 +34,7 @@
   "scripts": {
     "test": "node --test --test-timeout=30000 js/tests/*.test.js",
     "test:e2e:browser": "node js/tests/e2e-browser-spa.mjs",
+    "test:e2e:cv": "node js/tests/e2e-cv-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
     "format": "prettier --write .",

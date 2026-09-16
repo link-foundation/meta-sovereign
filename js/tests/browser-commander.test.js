@@ -1,13 +1,13 @@
 /**
- * Browser-commander placeholder e2e (R-F4).
+ * Browser-driven navigation contract (R-F4).
  *
- * The full browser-commander integration awaits the npm package; this
- * test simulates the navigation a real headless browser would perform
- * by exercising every endpoint the SPA's nav buttons trigger when the
- * user clicks them. The contract here is the exact list of `api.*`
- * methods in `js/src/web/dom.js`. When `browser-commander` lands we
- * replace the fetch calls with `bc.click('[data-view=chat]')`-style
- * commands and these assertions stay valid.
+ * This test walks the SPA the way a headless browser does — one
+ * request per nav button — without paying for a browser, so the
+ * contract between `js/src/web/dom.js` and the server stays checked on
+ * every `npm test`. Browser-commander itself now drives real Chromium
+ * in `js/tests/e2e-cv-browser.mjs` (`npm run test:e2e:cv`), which
+ * covers the click-and-type side; the assertions here cover the
+ * endpoints those clicks reach.
  */
 import { describe, it, expect } from 'test-anywhere';
 import { promises as fs } from 'node:fs';
