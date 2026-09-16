@@ -174,6 +174,11 @@ recording है जो issue माँगता है: जब कोई site �
 है, तो उसे पकड़ने वाली run के पास event stream के बगल में HTML और तस्वीर
 दोनों होती हैं।
 
+उस path के दोनों segment ऐसे लिखे जाते हैं जिन्हें हर file system स्वीकार
+करे: run id `linkedin-2026-09-16T07-00-00.000Z` जैसा दिखता है, ISO
+timestamp जैसा नहीं — क्योंकि Windows path में आए `:` को
+alternate-data-stream separator मानता है और directory बनाता ही नहीं।
+
 ## 7. Drift पकड़ना
 
 किसी स्वस्थ run के `markup.fingerprint` events baseline बनाते हैं। बाद की

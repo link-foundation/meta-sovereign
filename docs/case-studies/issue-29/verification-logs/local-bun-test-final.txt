@@ -1,0 +1,8 @@
+bun test v1.4.2 (744846f84)
+
+js/tests/cv-telemetry.test.js:
+telemetry sink broken failed: disk full
+
+ 489 pass
+ 0 fail
+Ran 489 tests across 67 files. [8.95s]

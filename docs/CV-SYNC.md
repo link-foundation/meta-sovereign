@@ -181,6 +181,12 @@ With `--artifacts=<dir>`, `snapshot` and `screenshot` steps write
 markup change the issue asks for: when a site moves a field, the run
 that noticed it has the HTML and the picture next to the event stream.
 
+Both segments of that path are spelled so that every file system
+accepts them: a run id reads `linkedin-2026-09-16T07-00-00.000Z`
+rather than an ISO timestamp, because Windows treats a `:` in a path
+as an alternate-data-stream separator and refuses to create the
+directory at all.
+
 ## 7. Drift detection
 
 `markup.fingerprint` events from a healthy run form a baseline. A

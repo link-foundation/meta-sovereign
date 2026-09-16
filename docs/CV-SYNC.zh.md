@@ -162,6 +162,10 @@ cv
 记录：当站点挪动了某个字段，发现它的那次运行会把 HTML 和图片放在事件流
 旁边。
 
+该路径的两个片段都拼写成任何文件系统都接受的形式：run id 形如
+`linkedin-2026-09-16T07-00-00.000Z`，而不是 ISO 时间戳，因为 Windows 会把
+路径里的 `:` 当作 alternate data stream 的分隔符，从而根本不会创建该目录。
+
 ## 7. drift 检测
 
 一次健康运行产生的 `markup.fingerprint` 事件构成 baseline。之后的运行会

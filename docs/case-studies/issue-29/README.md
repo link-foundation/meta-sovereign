@@ -43,6 +43,9 @@ Final local verification logs are preserved under `verification-logs/`:
 - `local-jscpd-final.txt`
 - `local-build-web-final.txt`
 - `local-e2e-cv-browser-final.txt`
+- `local-bun-test-final.txt` and `local-deno-test-final.txt` — the
+  same suite under the other two runtimes CI's matrix covers, which
+  is where the module-registry defect below came from
 
 Verification screenshots are preserved under `screenshots/`. They were
 produced by `experiments/cv-screen-screenshot.mjs`, which serves every
@@ -184,6 +187,43 @@ No external upstream issue was filed. Every obstacle — login walls,
 `403` responses, hashed CSS module names, hh.ru's read-only applicant
 API — is the platforms' intended behaviour, not a defect in
 `browser-commander` or in any other dependency.
+
+## Defects Found After The First Green Local Run
+
+Two defects survived a fully green Linux/node run and were caught by the
+CI matrix (run
+[35075705638](https://github.com/link-foundation/meta-sovereign/actions/runs/35075705638)).
+Both were real bugs in this PR's code, not test artefacts:
+
+1. **Telemetry artifacts could not be written on Windows.** A run id was
+   `<platform>-<ISO timestamp>`, and it became a directory name under
+   `artifactDir`. Windows reads `:` in a path as an alternate-data-stream
+   separator, so `mkdir` failed with `ENOENT` on node, bun and deno on
+   `windows-latest` — losing exactly the recording the issue asks for, on
+   a platform many of these CV editors are used from. Fixed by
+   `runIdFor` / `fileSafeSegment` in `js/src/cv/telemetry.js`, which
+   sanitises the run id (a caller may supply one) and the step name
+   (which comes from plan data). `js/tests/cv-telemetry.test.js` now
+   asserts the written file names contain no character Windows rejects,
+   so the bug cannot hide behind a POSIX-only run again.
+
+2. **The SPA's server binding leaked between test files.**
+   `js/src/web/dom.js` discovers a server once and memoises it. Node runs
+   each test file in its own process, so the file under test always boots
+   the module itself; bun and deno share one module registry, so whichever
+   file sorted first fixed the binding for every file after it, and
+   `js/tests/web-server-fetch.test.js` read `0` entries from a stub that
+   was answering `1`. Reproduced in one process by
+   `experiments/dom-boot-cache.mjs` (`{withCachedBoot: 0, afterReset: 1}`
+   under both node and bun); `experiments/module-cache-bust.mjs` records
+   why the usual `?fresh=…` import trick cannot fix it (bun resolves the
+   query to the same module). Fixed by exporting `resetServerBinding()`.
+
+A third, non-code trap is worth recording: running an experiment with
+`deno run -A` rewrites `node_modules` into Deno's layout and may resolve
+different dependency versions (`react` 19.2.5 → 19.3.0 here), which
+silently changed what `npm run build:web` produced. `npm ci` restores it;
+the note now lives in `experiments/module-cache-bust.mjs`.
 
 ## Verification Plan
 

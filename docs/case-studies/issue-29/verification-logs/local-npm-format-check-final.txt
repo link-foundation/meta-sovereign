@@ -1,4 +1,4 @@
-$ npm run format:check    (issue-29 final gate, 2026-09-16T08:40:20Z)
+$ npm run format:check    (issue-29 final gate, 2026-09-16T08:56:17Z)
 npm notice run meta-sovereign@0.18.1 format:check
 npm notice run prettier --check .
 Checking formatting...
