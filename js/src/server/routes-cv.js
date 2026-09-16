@@ -12,7 +12,8 @@
  *   GET  /api/cv/stored               snapshots the store already holds
  *   POST /api/cv/read                 live read of one or more platforms
  *   POST /api/cv/compare              cross-platform matrix + diffs
- *   POST /api/cv/sync                 reconcile and (optionally) push
+ *   POST /api/cv/sync                 reconcile and (optionally) push,
+ *                                     narrowed by `paths`/`groups`
  *   GET  /api/cv/telemetry            recorded run events
  */
 
@@ -140,6 +141,8 @@ const handleSync = async (store, req, res, p, ctx) => {
       dryRun: body.dryRun !== false,
       prefer: body.prefer ?? null,
       canonical: body.canonical ?? null,
+      paths: Array.isArray(body.paths) ? body.paths : null,
+      groups: Array.isArray(body.groups) ? body.groups : null,
     });
     return json(res, 200, result);
   });

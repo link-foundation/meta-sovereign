@@ -29,7 +29,7 @@ export const CV_HELP = `  cv-platforms  [--json]
   cv-plan       --platform=<id> [--json]
   cv-read       --platforms=<a,b> [--login=<l>] [--vars=<json>] [--headed] [--profile=<dir>] [--artifacts=<dir>] [--no-save] [--store=<dir>]
   cv-diff       [--platforms=<a,b>] [--prefer=<id>] [--json] [--store=<dir>]
-  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--login=<l>] [--vars=<json>] [--headed] [--store=<dir>]
+  cv-sync       [--platforms=<a,b>] [--apply] [--prefer=<id>] [--paths=<a,b>] [--groups=<a,b>] [--login=<l>] [--vars=<json>] [--headed] [--store=<dir>]
   cv-telemetry  [--run=<id>] [--platform=<id>] [--type=<event>] [--limit=<n>] [--json] [--store=<dir>]`;
 
 /** `--platforms=a,b` (or repeated commas) — defaults to every platform. */
@@ -46,6 +46,23 @@ export const parsePlatforms = (value) => {
     getCvPlatform(id);
   }
   return ids;
+};
+
+/**
+ * `--paths=basics.headline,skills` / `--groups=intro,skills` — the
+ * user narrowing a write to part of the CV. Absent means "everything
+ * the platform allows".
+ * @returns {string[]|null}
+ */
+export const parseList = (value) => {
+  if (typeof value !== 'string' || !value.trim()) {
+    return null;
+  }
+  const items = value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return items.length > 0 ? items : null;
 };
 
 /**
@@ -186,6 +203,8 @@ const syncCmd = async (args, log, openStore, injected) => {
     ...liveOptions(args, store, injected),
     dryRun: !(args.apply === true || args.apply === 'true'),
     prefer: args.prefer ?? null,
+    paths: parseList(args.paths),
+    groups: parseList(args.groups),
   });
   if (args.json) {
     log(asJson(result));
@@ -193,7 +212,10 @@ const syncCmd = async (args, log, openStore, injected) => {
   }
   log(result.dryRun ? 'dry run — nothing was written' : 'applying changes');
   for (const action of result.actions) {
-    log(`  ${action.platform}\t${action.paths.join(', ')}`);
+    const narrowed = action.deselected
+      ? `\t(${action.deselected} deselected)`
+      : '';
+    log(`  ${action.platform}\t${action.paths.join(', ')}${narrowed}`);
   }
   for (const applied of result.applied) {
     log(

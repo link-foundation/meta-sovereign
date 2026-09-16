@@ -256,30 +256,25 @@ export const updateCvOn = async (platformId, cv, options = {}) => {
   );
 };
 
-const writablePaths = (platform, changes) =>
-  changes.filter((change) =>
-    platform.writePaths.some(
-      (guarded) =>
-        change.path === guarded ||
-        change.path.startsWith(`${guarded}.`) ||
-        change.path.startsWith(`${guarded}[`)
-    )
+/**
+ * Does `path` fall inside a selection such as `['basics', 'skills']`?
+ * An entry covers itself and everything under it, so `basics` means
+ * the whole section and `basics.headline` means one field. Used both
+ * for a platform's `writePaths` allow-list and for the user's own
+ * `--paths` filter.
+ */
+const covers = (selection, path) =>
+  selection.some(
+    (entry) =>
+      path === entry ||
+      path.startsWith(`${entry}.`) ||
+      path.startsWith(`${entry}[`)
   );
 
-/**
- * Read every requested platform, reconcile the differences and push
- * the agreed values back to the platforms that disagree.
- *
- * `dryRun` (the default) stops after the plan, which is what the CLI
- * and the SPA show before anyone touches a live profile.
- *
- * @param {string[]} [platformIds]
- * @param {object} [options]
- * @param {boolean} [options.dryRun] default true
- * @param {string|null} [options.prefer] platform whose values win ties
- * @param {object|null} [options.canonical] CV to push instead of a
- *   reconciled one — use when the user edited a CV locally
- */
+const writablePaths = (platform, changes) =>
+  changes.filter((change) => covers(platform.writePaths, change.path));
+
+/** Changes a platform reports for one sync target. */
 const changesFor = (id, { canonical, target, entries, comparison }) => {
   if (canonical) {
     const current = entries.find((entry) => entry.platform === id);
@@ -296,13 +291,20 @@ const syncActions = (platformIds, context) =>
   platformIds.map((id) => {
     const platform = getCvPlatform(id);
     const changes = changesFor(id, context);
-    const writable = writablePaths(platform, changes);
+    const supported = writablePaths(platform, changes);
+    // `paths` is the user narrowing the run ("just the headline"),
+    // which is a different thing from the platform refusing a field:
+    // the first is counted as deselected, the second as unsupported.
+    const writable = context.paths
+      ? supported.filter((change) => covers(context.paths, change.path))
+      : supported;
     const seen = context.entries.some((entry) => entry.platform === id);
     return {
       platform: id,
       pending: changes.length,
       writable: writable.length,
-      unsupported: changes.length - writable.length,
+      unsupported: changes.length - supported.length,
+      deselected: supported.length - writable.length,
       paths: [...new Set(writable.map((change) => change.path))],
       skipped: seen || context.canonical ? null : 'no snapshot read',
     };
@@ -342,6 +344,8 @@ const applyActions = async (actions, target, options, failures) => {
  * @param {string|null} [options.prefer] platform whose values win ties
  * @param {object|null} [options.canonical] CV to push instead of a
  *   reconciled one - use when the user edited a CV locally
+ * @param {string[]|null} [options.paths] only sync these CV paths (R-V20)
+ * @param {string[]|null} [options.groups] only run these update groups (R-V20)
  */
 export const syncCvAcross = async (
   platformIds = listCvPlatforms(),
@@ -361,6 +365,7 @@ export const syncCvAcross = async (
     target,
     entries,
     comparison,
+    paths: options.paths ?? null,
   });
   const applied = dryRun
     ? []

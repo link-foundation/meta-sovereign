@@ -154,6 +154,29 @@ describe('cv api live routes', () => {
     });
   });
 
+  it('narrows a sync to the paths the request selected', async () => {
+    await withServer({ cv: { commander: habrCommander() } }, async (base) => {
+      const canonical = { basics: { headline: 'Staff Engineer' } };
+      const all = await post(base, '/api/cv/sync', {
+        platforms: ['habr-career'],
+        vars: { login: 'anna' },
+        canonical,
+      });
+      expect(all.body.actions[0].paths).toContain('basics.headline');
+
+      const narrowed = await post(base, '/api/cv/sync', {
+        platforms: ['habr-career'],
+        vars: { login: 'anna' },
+        canonical,
+        paths: ['basics.summary'],
+      });
+      // `basics.headline` is writable on Habr Career but was not
+      // selected, so it is reported as deselected, not unsupported.
+      expect(narrowed.body.actions[0].paths).not.toContain('basics.headline');
+      expect(narrowed.body.actions[0].deselected).toBeGreaterThan(0);
+    });
+  });
+
   it('serves the telemetry a run recorded', async () => {
     await withServer({ cv: { commander: habrCommander() } }, async (base) => {
       await post(base, '/api/cv/read', {

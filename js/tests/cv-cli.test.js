@@ -11,7 +11,9 @@ import { createFakeCommander } from './helpers/fake-commander.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { runCli } from '../src/cli/index.js';
 import {
+  CV_HELP,
   createCvCommands,
+  parseList,
   parsePlatforms,
   parseVars,
 } from '../src/cli/cv-commands.js';
@@ -120,6 +122,17 @@ describe('cv cli option parsing', () => {
       message = error.message;
     }
     expect(message).toContain('Unknown CV platform: nope');
+  });
+
+  it('parses --paths/--groups and treats "absent" as "everything"', () => {
+    expect(parseList('basics.headline, skills')).toEqual([
+      'basics.headline',
+      'skills',
+    ]);
+    expect(parseList('')).toBe(null);
+    expect(parseList(undefined)).toBe(null);
+    expect(CV_HELP).toContain('--paths=');
+    expect(CV_HELP).toContain('--groups=');
   });
 
   it('merges --login into the --vars object', () => {

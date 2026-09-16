@@ -310,6 +310,41 @@ describe('syncing CVs across platforms', () => {
     expect(commander.calls.fill.length).toBe(0);
   });
 
+  it('narrows a sync to the paths the user selected', async () => {
+    const commander = createFakeCommander({ pages: pages() });
+    const result = await syncCvAcross(['habr-career', 'linkedin'], {
+      commander,
+      vars,
+      prefer: 'habr-career',
+      paths: ['basics.headline'],
+    });
+    const linkedin = result.actions.find(
+      (action) => action.platform === 'linkedin'
+    );
+    expect(linkedin.paths).toEqual(['basics.headline']);
+    // Deselecting a field is not the same as the platform refusing it:
+    // the skills change is still writable, it was just left out.
+    expect(linkedin.deselected).toBeGreaterThan(0);
+    expect(linkedin.pending).toBeGreaterThan(linkedin.writable);
+  });
+
+  it('writes only the selected paths when the dry run is lifted', async () => {
+    const commander = createFakeCommander({ pages: pages() });
+    const result = await syncCvAcross(['habr-career', 'linkedin'], {
+      commander,
+      vars,
+      prefer: 'habr-career',
+      paths: ['basics.headline'],
+      dryRun: false,
+    });
+    expect(result.applied.length).toBe(1);
+    expect(result.applied[0].applied).toEqual(['intro']);
+    // No skills group ran, so nothing typed a skill into the page.
+    expect(
+      commander.calls.fill.some((call) => String(call.text).includes('Ruby'))
+    ).toBe(false);
+  });
+
   it('pushes a locally edited CV to one platform', async () => {
     const commander = createFakeCommander({ pages: pages() });
     const { cv } = await readCvFrom('habr-career', { commander, vars });
