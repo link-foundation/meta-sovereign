@@ -862,6 +862,14 @@ export const connectionGuides = {
     bodyKey: 'guide.connections.body',
     providers: [],
   },
+  cv: {
+    title: 'CV synchronisation',
+    titleKey: 'guide.cv.title',
+    body: 'This screen drives a real browser session over your job-platform profiles: it reads each CV, compares them field by field, and only writes when you apply a sync. Sign in to each platform once in the browser profile the local server uses — no API keys exist for most of these boards.',
+    bodyKey: 'guide.cv.body',
+    providers: ['linkedin', 'hh'],
+    connectFirst: { providerId: 'linkedin' },
+  },
   settings: {
     title: 'Settings',
     titleKey: 'guide.settings.title',

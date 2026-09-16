@@ -6,6 +6,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
+import { CvView } from './cv-view.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
 import { useT } from './i18n.js';
@@ -1157,5 +1158,6 @@ export const views = {
   backup: BackupView,
   status: StatusView,
   connections: ConnectionsView,
+  cv: CvView,
   settings: SettingsView,
 };

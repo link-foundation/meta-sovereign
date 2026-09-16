@@ -31,6 +31,7 @@ export const zh = {
   'nav.backup': '备份',
   'nav.status': '状态',
   'nav.connections': '连接',
+  'nav.cv': '简历同步',
   'nav.settings': '设置',
   'shell.primaryNavAria': '主导航',
   'common.loading': '加载中...',
@@ -207,6 +208,9 @@ export const zh = {
   'guide.connections.title': '连接',
   'guide.connections.body':
     '外部服务集中在这个独立页面。选择一个提供方以输入凭据、上传归档并检测线上 API。设置页只保留应用层级偏好。',
+  'guide.cv.title': '简历同步',
+  'guide.cv.body':
+    '此界面通过真实的浏览器会话操作你在各招聘平台上的个人资料：读取每份简历，逐字段比较，只有在你应用同步时才会写入。请在本地服务器使用的浏览器配置文件中登录每个平台一次 — 这些平台大多没有可用的 API 密钥。',
   'guide.settings.title': '设置',
   'guide.settings.body':
     '应用级偏好保留在这里。提供方凭据、归档导入和实时检测集中在专用的“连接”页面。',
@@ -541,4 +545,34 @@ export const zh = {
   'tutorial.connectionDetail.title': '按提供方流程逐步操作',
   'tutorial.connectionDetail.body':
     '提供方页面列出获取凭据所需的每一步，以及用于确认连接是否生效的实时 API 检测。',
+
+  // CV synchronisation screen (issue #29).
+  'cv.title': '简历同步',
+  'cv.intro':
+    '通过本地浏览器会话从每个受支持的招聘平台读取简历，逐字段比较各版本，然后规划并应用更新。在你按下“应用”之前不会写入任何内容。',
+  'cv.use': '选用',
+  'cv.platform': '平台',
+  'cv.markup': '标记访问',
+  'cv.steps': '计划步骤',
+  'cv.snapshot': '最近快照',
+  'cv.confidence': '{verified} 已验证 / {draft} 草稿',
+  'cv.noSnapshot': '从未读取',
+  'cv.loginPlaceholder': '账号登录名或 ID',
+  'cv.read': '读取所选',
+  'cv.compare': '比较',
+  'cv.planSync': '规划同步',
+  'cv.applySync': '应用同步',
+  'cv.busy': '处理中 — 浏览器会话正在操作平台…',
+  'cv.differences': '差异',
+  'cv.field': '字段',
+  'cv.values': '值',
+  'cv.missing': '缺失于',
+  'cv.noConflicts': '没有冲突：所有平台在已读取的字段上一致。',
+  'cv.syncTitle': '同步计划',
+  'cv.dryRun': '试运行 — 未向任何平台写入内容。',
+  'cv.applied': '已应用 — 所列平台已更新。',
+  'cv.action':
+    '{platform}：{writable} 个可写，{unsupported} 个不支持 — {paths}',
+  'cv.telemetry': '最近的运行',
+  'cv.noRuns': '尚未记录任何运行。',
 };

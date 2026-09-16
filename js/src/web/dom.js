@@ -156,6 +156,20 @@ const matchPattern = async (pattern, flags, messages) => {
   }
 };
 
+const cvPost = (path, body) =>
+  serverFetch(path, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+/** Offline answer shared by every live CV call. */
+const cvOffline = (platforms) => ({
+  platform: (platforms ?? []).join(',') || 'all',
+  code: 'server-required',
+  message: 'the local server drives the browser for CV reads and writes',
+});
+
 export const api = {
   links: async () => {
     const { client } = await ensure();
@@ -271,6 +285,57 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ query, text, networks, mode }),
     })) ?? { audience: [], plan: [], note: 'server required for outreach' },
+  // ---- CV synchronisation (issue #29) -----------------------------
+  // Reading a live profile needs a browser, which only the local
+  // server has; offline the SPA still shows the catalogue, the stored
+  // snapshots it holds and a clear "server required" answer.
+  cvPlatforms: async () => (await serverFetch('/api/cv/platforms')) ?? [],
+  cvPlan: async (platform) =>
+    (await serverFetch(
+      `/api/cv/plan?platform=${encodeURIComponent(platform)}`
+    )) ?? null,
+  cvStored: async (platforms = []) =>
+    (await serverFetch(
+      `/api/cv/stored${platforms.length ? `?platforms=${encodeURIComponent(platforms.join(','))}` : ''}`
+    )) ?? { entries: [] },
+  cvRead: async ({ platforms, vars = {} } = {}) =>
+    (await cvPost('/api/cv/read', { platforms, vars })) ?? {
+      entries: [],
+      failures: [cvOffline(platforms)],
+    },
+  cvCompare: async ({ platforms, entries, prefer = null } = {}) =>
+    (await cvPost('/api/cv/compare', { platforms, entries, prefer })) ?? {
+      entries: [],
+      comparison: { rows: [], plan: [], updates: {}, agreed: 0 },
+      diffs: [],
+    },
+  cvSync: async ({ platforms, dryRun = true, prefer = null, vars = {} } = {}) =>
+    (await cvPost('/api/cv/sync', { platforms, dryRun, prefer, vars })) ?? {
+      dryRun,
+      actions: [],
+      applied: [],
+      entries: [],
+      failures: [cvOffline(platforms)],
+    },
+  cvTelemetry: async ({
+    runId = null,
+    platform = null,
+    type = null,
+    limit = 200,
+  } = {}) => {
+    const search = new URLSearchParams({ limit: String(limit) });
+    for (const [key, value] of Object.entries({ runId, platform, type })) {
+      if (value) {
+        search.set(key, value);
+      }
+    }
+    return (
+      (await serverFetch(`/api/cv/telemetry?${search}`)) ?? {
+        runs: [],
+        events: [],
+      }
+    );
+  },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
   createBackup: async ({ passphrase = null, keep } = {}) =>
     (await serverFetch('/api/backups', {

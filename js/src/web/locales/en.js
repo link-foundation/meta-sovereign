@@ -31,6 +31,7 @@ export const en = {
   'nav.backup': 'Backup',
   'nav.status': 'Status',
   'nav.connections': 'Connections',
+  'nav.cv': 'CV sync',
   'nav.settings': 'Settings',
   'shell.primaryNavAria': 'Primary navigation',
   'common.loading': 'Loading...',
@@ -211,6 +212,9 @@ export const en = {
   'guide.connections.title': 'Connections',
   'guide.connections.body':
     'External services live on this dedicated screen. Pick a provider to enter its credentials, upload an archive, and probe the live API. Settings only keeps app-level preferences.',
+  'guide.cv.title': 'CV synchronisation',
+  'guide.cv.body':
+    'This screen drives a real browser session over your job-platform profiles: it reads each CV, compares them field by field, and only writes when you apply a sync. Sign in to each platform once in the browser profile the local server uses — no API keys exist for most of these boards.',
   'guide.settings.title': 'Settings',
   'guide.settings.body':
     'App-level preferences live here. Provider credentials, archive imports, and live probes live on the dedicated Connections screen.',
@@ -553,4 +557,35 @@ export const en = {
   'tutorial.connectionDetail.title': 'Follow the per-service walkthrough',
   'tutorial.connectionDetail.body':
     'The provider screen lists every step needed to obtain credentials, plus the live API probe to confirm the connection works.',
+
+  // CV synchronisation screen (issue #29).
+  'cv.title': 'CV synchronisation',
+  'cv.intro':
+    'Read your CV from every supported job platform through the local browser session, compare the versions field by field, then plan and apply an update. Nothing is written until you press Apply.',
+  'cv.use': 'Use',
+  'cv.platform': 'Platform',
+  'cv.markup': 'Markup access',
+  'cv.steps': 'Plan steps',
+  'cv.snapshot': 'Last snapshot',
+  'cv.confidence': '{verified} verified / {draft} draft',
+  'cv.noSnapshot': 'never read',
+  'cv.loginPlaceholder': 'profile login or id',
+  'cv.read': 'Read selected',
+  'cv.compare': 'Compare',
+  'cv.planSync': 'Plan sync',
+  'cv.applySync': 'Apply sync',
+  'cv.busy': 'Working — the browser session is driving the platform…',
+  'cv.differences': 'Differences',
+  'cv.field': 'Field',
+  'cv.values': 'Values',
+  'cv.missing': 'Missing on',
+  'cv.noConflicts':
+    'No conflicts: every platform agrees on the fields that were read.',
+  'cv.syncTitle': 'Sync plan',
+  'cv.dryRun': 'Dry run — nothing was written to any platform.',
+  'cv.applied': 'Applied — the listed platforms were updated.',
+  'cv.action':
+    '{platform}: {writable} writable, {unsupported} unsupported — {paths}',
+  'cv.telemetry': 'Recent runs',
+  'cv.noRuns': 'No runs recorded yet.',
 };
