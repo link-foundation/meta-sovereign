@@ -10,6 +10,8 @@ import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/index.js';
 import { DAY_MS } from '../src/crm/reengage.js';
 import { buildMessageLink } from '../src/sources/link.js';
+import { memberLink } from '../src/sources/live-links.js';
+import { listLink } from '../src/crm/people.js';
 import {
   automationPresets,
   normalizeAutomation,
@@ -375,4 +377,43 @@ test('incoming triggers draft a reply in the chat that matched', async () => {
   } finally {
     scheduler.stop();
   }
+});
+
+test('an automation runs on an audience: friends minus a list', async () => {
+  const store = await seeded([
+    ...fixture(),
+    memberLink({
+      source: 'vk',
+      group: 'friends',
+      groupKind: 'friends',
+      user: 'alice',
+    }),
+    memberLink({
+      source: 'vk',
+      group: 'friends',
+      groupKind: 'friends',
+      user: 'bob',
+    }),
+    memberLink({
+      source: 'vk',
+      group: 'friends',
+      groupKind: 'friends',
+      user: '777',
+      name: 'Новый друг',
+    }),
+    listLink({ id: 'do-not-write', members: ['vk:bob'] }),
+  ]);
+  const runner = createAutomationRunner({ store, clock: clockAt(NOW).clock });
+  const plan = await runner.plan(
+    await runner.load({
+      ...preset('reengage-dormant'),
+      audience: 'friends:vk - list:do-not-write',
+      conditions: { silentDays: 90, mutual: false },
+    })
+  );
+  assert.deepEqual(plan.drafts.map((d) => d.contact).sort(), ['777', 'alice']);
+  const fresh = plan.drafts.find((d) => d.contact === '777');
+  assert.equal(fresh.daysSilent, Infinity);
+  assert.equal(fresh.chat, '777');
+  assert.equal(fresh.form, 'formal');
 });

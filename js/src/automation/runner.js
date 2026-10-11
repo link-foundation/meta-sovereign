@@ -21,6 +21,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { clearInterval, setInterval } from 'node:timers';
 import { DAY_MS } from '../crm/reengage.js';
 import { typingLink } from '../sources/live-links.js';
+import { resolveAudience as resolvePeople } from '../crm/people.js';
 import {
   AUTOMATION_PREFIX,
   DRAFT_PREFIX,
@@ -161,13 +162,14 @@ const draftOperations = ({ store, load, deliver, nowIso }) => {
 /**
  * `send(draft)` delivers one message (normally `createDefaultSender`);
  * `setTyping({ source, chat })` shows the typing status on the network;
- * `resolveAudience(links, spec)` comes from people.js.
+ * `resolveAudience(links, spec)` turns the audience into people
+ * (people.js: friends, chats, communities, lists and their algebra).
  */
 export const createAutomationRunner = ({
   store,
   send = null,
   setTyping = null,
-  resolveAudience = null,
+  resolveAudience = resolvePeople,
   self = [],
   clock = () => new Date(),
   sleep = delay,

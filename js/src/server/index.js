@@ -31,6 +31,7 @@
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
  *   POST /api/reengage/{plan,send,mark,run} -> dormant contacts (routes-reengage.js)
  *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
+ *   /api/people, /api/audiences, /api/lists -> routes-people.js
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/backups              -> list archives (gated on archiveDir)
@@ -61,6 +62,7 @@ import { handleReengageRoutes } from './routes-reengage.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
 import { handleAutomationRoutes } from './routes-automations.js';
+import { handlePeopleRoutes } from './routes-people.js';
 import {
   createAutomationRunner,
   createAutomationScheduler,
@@ -224,7 +226,7 @@ const automationContext = (store, automations = {}, log = null) => {
     store,
     send,
     setTyping,
-    resolveAudience: automations.resolveAudience ?? null,
+    resolveAudience: automations.resolveAudience,
     self,
     log: say,
   });
@@ -280,6 +282,9 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   if (await handleAutomationRoutes(store, req, res, p, url, ctx)) {
+    return;
+  }
+  if (await handlePeopleRoutes(store, req, res, p, url)) {
     return;
   }
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
