@@ -104,6 +104,21 @@ describe('electron-builder config', () => {
     expect(builderConfig.executableName).toBe('meta-sovereign');
   });
 
+  it('gives ad-hoc macOS builds an identity, so the sign hook runs', async () => {
+    // Without `mac.identity: '-'` electron-builder 26 finds no identity
+    // (auto-discovery is off), returns before calling `mac.sign` and
+    // ships an unsigned bundle that Apple silicon refuses to open.
+    const workflow = await readFile(
+      new URL('../../.github/workflows/desktop-release.yml', import.meta.url),
+      'utf8'
+    );
+    const adhoc = workflow
+      .split('\n')
+      .find((line) => line.includes('adhoc-sign-mac.cjs'));
+    expect(adhoc).toContain('-c.mac.identity=-');
+    expect(adhoc).toContain('-c.mac.notarize=false');
+  });
+
   it('produces the catalogue name for every download option', () => {
     for (const opt of DOWNLOAD_OPTIONS) {
       const arch =
