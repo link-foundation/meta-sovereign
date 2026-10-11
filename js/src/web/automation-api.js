@@ -248,7 +248,8 @@ const peopleCalls = ({ remote, store }) => ({
     (await remote.get('/api/audiences')) ??
     (await store.query()).filter((l) => l?.id?.startsWith(AUDIENCE_PREFIX)),
   saveAudience: async ({ id, name, spec }) => {
-    const answer = await remote.report('/api/audiences', { id, name, spec });
+    // A spec the server refuses (400) is refused locally the same way.
+    const answer = await remote.put('/api/audiences', { id, name, spec });
     if (answer) {
       return answer;
     }
@@ -273,6 +274,9 @@ const peopleCalls = ({ remote, store }) => ({
       spec,
       limit,
     });
+    if (answer?.error) {
+      return { status: 'failed', code: 'bad-audience', error: answer.error };
+    }
     if (answer) {
       return answer;
     }

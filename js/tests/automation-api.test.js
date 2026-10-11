@@ -176,3 +176,23 @@ test('online: the server answer wins and its error is kept', async () => {
     ['/api/send', '/api/automations/run']
   );
 });
+
+test('online: audiences are saved with PUT and refusals come back failed', async () => {
+  const store = await seeded();
+  const puts = [];
+  const remote = {
+    ...offline,
+    put: async (path, body) => {
+      puts.push(path);
+      return { audience: { id: `audience:${body.name}` }, count: 3 };
+    },
+    report: async () => ({ error: 'unknown audience kind', httpStatus: 400 }),
+  };
+  const api = createAutomationApi({ remote, store });
+  const saved = await api.saveAudience({ name: 'vip', spec: 'personal' });
+  assert.equal(saved.count, 3);
+  assert.deepEqual(puts, ['/api/audiences']);
+  const bad = await api.resolveAudience({ spec: 'nonsense:1' });
+  assert.equal(bad.status, 'failed');
+  assert.equal(bad.error, 'unknown audience kind');
+});
