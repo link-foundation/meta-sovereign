@@ -28,6 +28,7 @@
  *   PUT  /api/resume               -> upsert + plan cross-network sync
  *   POST /api/broadcast            -> queue post for outbound networks
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
+ *   POST /api/reengage/{plan,send,mark,run} -> dormant contacts (routes-reengage.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/backups              -> list archives (gated on archiveDir)
@@ -54,6 +55,7 @@ import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
+import { handleReengageRoutes } from './routes-reengage.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
@@ -162,6 +164,11 @@ const cvContext = (cv = {}) => ({
   cvArtifactDir: cv.artifactDir ?? null,
 });
 
+/** `{ send }` stands in for the source adapters on /api/reengage. */
+const reengageContext = (reengage = {}) => ({
+  reengageSend: reengage.send ?? null,
+});
+
 const applySecurityHeaders = (res) => {
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!res.hasHeader(k)) {
@@ -184,6 +191,9 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   if (await handleCvRoutes(store, req, res, p, url, ctx)) {
+    return;
+  }
+  if (await handleReengageRoutes(store, req, res, p, ctx)) {
     return;
   }
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
@@ -234,6 +244,8 @@ export const startServer = async ({
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
   cv = {},
+  // `{ send }` replaces the source adapters for /api/reengage (tests).
+  reengage,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -248,6 +260,7 @@ export const startServer = async ({
     secretPassphrase,
     emailLiveFactory,
     ...cvContext(cv),
+    ...reengageContext(reengage),
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();

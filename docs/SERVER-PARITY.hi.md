@@ -53,6 +53,18 @@ Playwright से असली browser चलाते हैं, जबकि R
 कहता है कि "JS server चाहिए"। विवरण:
 [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md)।
 
+## 5a. पुराने contacts से दोबारा संपर्क
+
+`/api/reengage/plan`, `/api/reengage/send`, `/api/reengage/mark` और
+`/api/reengage/run` (issue #31, R-W9) JS only हैं; ये
+`js/src/crm/reengage.js` पर पतली परत हैं। "फिर से संपर्क" screen को plan
+बनाने के लिए server नहीं चाहिए: वही planner browser में पहले से मौजूद
+links पर चलता है, और "भेजा हुआ चिह्नित करें" / "छोड़ें" साधारण link writes
+हैं। Server सिर्फ "भेजें" के लिए चाहिए, क्योंकि भेजना credentials वाले
+source adapter से होता है। Server `404` दे तो screen copy / chat खोलें /
+चिह्नित करें वाला रास्ता रखता है, और CLI का `reengage` command बिना server
+के चलता है।
+
 ## 6. Real-time transports और static assets
 
 `/ws` WebSocket sync और `/rtc` WebRTC signalling दोनों servers पर parity

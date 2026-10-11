@@ -51,6 +51,16 @@ Playwright 驱动真实浏览器，而 Rust crate 只用 `std`，无法启动这
 显示“需要 JS server”，而不是展示一张空表。详情见
 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
+## 5a. 重新联系久未联络的联系人
+
+`/api/reengage/plan`、`/api/reengage/send`、`/api/reengage/mark` 和
+`/api/reengage/run`（issue #31，R-W9）是 JS only，它们只是
+`js/src/crm/reengage.js` 的一层薄封装。“重新联系”页面做规划时不需要
+服务器：同一个规划器直接运行在浏览器已有的 links 上，“标记为已发送”和
+“跳过”只是普通的 link 写入。只有“发送”需要服务器，因为发送要经过带凭据
+的 source adapter。服务器返回 `404` 时，页面保留“复制 / 打开聊天 /
+标记”这条路径，CLI 的 `reengage` 命令则完全不需要服务器。
+
 ## 6. Real-time transports 与静态资源
 
 `/ws` WebSocket sync 和 `/rtc` WebRTC signalling 在两个 server 上 parity。
