@@ -51,17 +51,33 @@ Playwright 驱动真实浏览器，而 Rust crate 只用 `std`，无法启动这
 显示“需要 JS server”，而不是展示一张空表。详情见
 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
-## 5a. 重新联系久未联络的联系人
+## 5a. 自动化、联系人、发送与建议
 
-`/api/reengage/plan`、`/api/reengage/send`、`/api/reengage/mark` 和
-`/api/reengage/run`（issue #31，R-X9）是 JS only，它们只是
-`js/src/crm/reengage.js` 的一层薄封装。“重新联系”页面先请求
-`/api/reengage/plan`，因为服务器保存了所有导入的归档；没有服务器时，
-同一个规划器直接运行在浏览器已有的 links 上。“我已自行发送”和“跳过”
-只是普通的 link 写入（写到本地，服务器在线时再通过 `PUT /links` 同步）。
-只有“发送”需要服务器，因为发送要经过带凭据的 source adapter。服务器
-返回 `404` 时，页面保留“复制 / 打开聊天 / 标记”这条路径，CLI 的
-`reengage` 命令则完全不需要服务器。
+| Route                                           | Method           | JS server                             | Rust server | Status      |
+| ----------------------------------------------- | ---------------- | ------------------------------------- | ----------- | ----------- |
+| `/api/automations`                              | GET, PUT         | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/<id>`                         | DELETE           | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/presets`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/plan`                         | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/run`                          | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts`                       | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts/{send,form,mark,skip}` | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/history`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/send`                                     | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/typing`                                   | GET, POST        | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/people`, `/api/people/xref`               | GET              | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences`, `/api/lists`                  | GET, PUT, DELETE | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences/resolve`                        | POST             | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/suggest`, `/api/suggest/stats`            | GET              | `js/src/server/routes-suggest.js`     | _missing_   | **JS only** |
+
+这些路由（issue #31 和 PR #34，R-X6..R-X18）只是 `js/src/automation/`、
+`js/src/crm/people.js` 和 `js/src/replies/` 的一层薄封装。SPA 先请求服务器，
+因为服务器保存了所有导入的归档和 adapters 的凭据；否则就在浏览器已有的
+links 上运行同一份代码（`js/src/web/automation-api.js`）：离线时它仍然可以
+列出、编辑和预览自动化，把安全模式的草稿保留在各自的聊天中，搜索联系人，
+解析受众并建议回复。只有真正投递消息需要服务器；没有服务器时，在聊天输入框
+中输入的消息会保存在浏览器里，直到某个服务器把它同步出去。CLI 的
+`automations` 命令完全不需要服务器。
 
 ## 6. Real-time transports 与静态资源
 

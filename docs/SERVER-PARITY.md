@@ -122,25 +122,36 @@ for backups: the CV screen keeps its catalogue and diff views, and the
 "read" and "sync" buttons explain that live runs need the JS server or
 the `meta-sovereign cv-*` CLI.
 
-## 5a. Re-engaging dormant contacts
+## 5a. Automations, people, sending and suggestions
 
-| Route                | Method | JS server                          | Rust server | Status      |
-| -------------------- | ------ | ---------------------------------- | ----------- | ----------- |
-| `/api/reengage/plan` | POST   | `js/src/server/routes-reengage.js` | _missing_   | **JS only** |
-| `/api/reengage/send` | POST   | `js/src/server/routes-reengage.js` | _missing_   | **JS only** |
-| `/api/reengage/mark` | POST   | `js/src/server/routes-reengage.js` | _missing_   | **JS only** |
-| `/api/reengage/run`  | POST   | `js/src/server/routes-reengage.js` | _missing_   | **JS only** |
+| Route                                           | Method           | JS server                             | Rust server | Status      |
+| ----------------------------------------------- | ---------------- | ------------------------------------- | ----------- | ----------- |
+| `/api/automations`                              | GET, PUT         | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/<id>`                         | DELETE           | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/presets`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/plan`                         | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/run`                          | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts`                       | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts/{send,form,mark,skip}` | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/history`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/send`                                     | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/typing`                                   | GET, POST        | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/people`, `/api/people/xref`               | GET              | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences`, `/api/lists`                  | GET, PUT, DELETE | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences/resolve`                        | POST             | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/suggest`, `/api/suggest/stats`            | GET              | `js/src/server/routes-suggest.js`     | _missing_   | **JS only** |
 
-These four routes (issue #31, R-X9) are thin wrappers over
-`js/src/crm/reengage.js`. The Re-engage screen asks
-`/api/reengage/plan` first, because the server holds every imported
-archive, and otherwise runs the same planner over the links the
-browser already holds. "I sent it myself" and "Skip" are plain link
-writes (local, mirrored to `PUT /links` when a server is up). Only
-"Send" needs a server, because sending goes through a source adapter
-with credentials. Against a server without these routes (`404`) the
-screen keeps the copy / open-chat / mark-as-sent path, and the CLI
-`reengage` command works without any server.
+These routes (issue #31 and PR #34, R-X6..R-X18) are thin wrappers over
+`js/src/automation/`, `js/src/crm/people.js` and `js/src/replies/`.
+The SPA asks the server first, because it holds every imported archive
+and the adapters' credentials, and otherwise runs the same code over
+the links the browser already holds (`js/src/web/automation-api.js`):
+offline it still lists, edits and previews automations, keeps
+safe-mode drafts in their chats, searches people, resolves audiences
+and suggests replies. Only delivering a message needs the server; a
+message typed in the chat composer without one is kept in the browser
+until a server syncs it. The `automations` CLI command works without
+any server.
 
 ## 6. Real-time transports
 

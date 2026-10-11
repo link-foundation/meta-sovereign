@@ -157,41 +157,69 @@ session 保存在你指定的 profile 目录中。
 规范简历结构、步骤词汇、telemetry 事件以及每个平台已验证的内容，详见
 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
-## 10. 重新联系很久没聊过的人
+## 10. 自动化：按规则安全地给人发消息
 
-**重新联系**页面（以及 `reengage` 命令）列出至少 90 天没有任何消息的
-个人 1:1 聊天——群组、频道和机器人不包括在内——并为每个联系人准备一条
-消息：
+一个自动化规定给谁发消息、何时发、满足什么条件以及用哪段文字。打开
+**自动化** 标签页即可编辑、预览和运行它们。第一个是 issue #31 的
+“Say hi to contacts silent for 90 days”（向沉默 90 天的联系人打招呼）：
+每个至少 90 天没有任何消息的个人 1:1 聊天——群组、频道和机器人不包括在
+内——都会收到一条消息：
 
 - 如果你们之间用 "ты"，就用 "Привет … Тебе или твоим друзьям …"；如果用
   "вы"，就用 "Здравствуйте … Вам или вашим друзьям …"。称呼形式由对话中的
-  词级规则判断；卡片会显示依据，**切换为…** 可以改用另一种形式。没有依据
-  或打平时使用礼貌的 "вы"。
-- **安全模式默认开启**：一次只显示一条预填消息，可以编辑，只有按下
-  **发送** 才会发出。**我已自行发送** 记录你手动发出的消息（可借助
-  **打开聊天** / **复制**），**跳过** 则进入下一条。
-- 关闭安全模式后会出现 **全部发送**，发送剩余消息前会再确认一次。
+  词级规则判断；没有依据或打平时使用礼貌的 "вы"。两段文字都可以编辑，
+  支持 `{name}`、`{days}` 和 `{network}`。
+- 其他预设会询问空缺职位、提供合同工作，或回应向你打招呼的人。
+  **新建自动化** 会创建一个空白的自动化。
 
-每次发送、手动发送、跳过和失败都会被记住，所以同一个人要等再次超过阈值
-才会被重新列出。在应用中发送需要连接了该网络的本地服务器；没有服务器时，
-请使用“复制” / “打开聊天”和 **我已自行发送**。
+每个自动化包含：
+
+- **何时运行**：手动、从聊天菜单、按计划（`30m`、`12h`、`1d`、`2w`），
+  和/或在收到匹配某个正则表达式的消息时。
+- **发给谁**：一个受众——`personal`、`friends:vk`、`chat:vk:<id>`、
+  `community:vk:<id>`、`list:<id>`、`audience:<id>` 或 `person:vk:<id>`，
+  用 `|`（或）、`&`（且）、`-`（除外）和括号组合，例如
+  `friends:vk & chat:vk:2000000001 - list:blocked`。
+- **条件**：至少沉默 N 天、N 天内不重复、仅限你也发过消息的聊天、仅限
+  私聊、最后一条消息由谁发出、哪些网络。
+- **模式**：**安全**（默认）在每个聊天中留下一份草稿；**自动** 在询问你
+  一次之后直接发送，带“正在输入”指示、随机间隔和每日上限。
+
+**预览** 列出谁会收到哪段文字，以及其余的人为什么被排除（“最近聊过”、
+“已有草稿在等待”……）；不会发送任何内容。在安全模式下，每份草稿都会出现
+在对应的聊天中：可以编辑它、**发送**（点击即确认）、切换 ты/вы、在该网络
+中 **打开聊天**、**我自己发了**，或 **跳过**。每个结果都会被记住，所以
+不会意外地给同一个人发两次消息。
+
+**联系人** 在所有网络中搜索每个人（同一个人在其他网络上的账号显示为交叉
+引用）；选择一些人，就可以只对他们运行某个自动化，或把他们保存为列表。
+**受众** 保存命名的规格，并统计它们匹配多少人。要在一个人身上测试自动化，
+打开与他的聊天，使用 **⚡ 自动化 → 在此聊天中测试**。
+
+聊天本身（**聊天** 标签页）会在你输入时建议回复：先是你以前对该聊天最后
+一条消息给出的完整回复，用得最多的排在前面，然后是来自你自己消息的逐词
+续写；**Tab** 选取第一条建议。它会显示对方——或代表你的自动化——正在输入。
+发送使用该网络的 API，不行时回退到它的官方 web UI。**设置 → 外观** 选择
+主题（跟随系统、浅色、深色，或按时间自动切换）和皮肤（t3.codes、
+Telegram、WhatsApp 或 Signal）。
 
 ```bash
-# who has been silent for 90+ days, which form was detected, what would be sent
-meta-sovereign reengage
-meta-sovereign reengage --days=180 --networks=telegram,vk
-
-# 安全（debug）模式：一次一条草稿 —— [y] 发送、[m] 已自行发送、[e] 编辑、[f] 切换 ты/вы、[s] 跳过、[q] 退出
-meta-sovereign reengage --interactive
-
-# 不再询问，全部发送
-meta-sovereign reengage --mode=batch --confirm=true
+# 已保存的自动化和预设
+meta-sovereign automations
+# 谁会收到什么，其余的人为什么被排除 —— 不写入任何内容
+meta-sovereign automations plan reengage-dormant
+# 安全模式：为每个人排队一份草稿
+meta-sovereign automations run reengage-dormant
+# 一次一份草稿 —— [y] 发送、[m] 我自己发了、[e] 编辑、[f] 切换 ты/вы、[s] 跳过、[q] 退出
+meta-sovereign automations review
+# 自动模式只有带 --confirm=true 才会发送；--chat 把范围缩小到指定的聊天
+meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 ```
 
-自定义文本：`--informal="Привет, {name}!\n\n…"`、`--formal="…"`，或
-包含 `informal` 和 `formal` 键的 `--templates=texts.json`。`{name}` 会被
-替换为联系人名字。HTTP：`POST /api/reengage/plan`、`/send`、`/mark` 和
-`/run`。背景说明见
+HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`、
+`/run`、`/drafts`、`/drafts/{send,form,mark,skip}` 和 `/history`；
+`/api/people`、`/api/audiences`、`/api/lists`、`/api/send`、
+`/api/typing` 和 `/api/suggest`。背景说明见
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)。
 
 ## 11. 故障排除

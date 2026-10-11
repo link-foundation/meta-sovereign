@@ -161,46 +161,80 @@ Canonical CV shape, step vocabulary, telemetry events और हर platform प
 क्या verified है — यह सब
 [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
 
-## 10. जिनसे लंबे समय से बात नहीं हुई, उनसे फिर से जुड़ें
+## 10. Automations: नियम के अनुसार, सुरक्षित तरीके से लोगों को संदेश भेजें
 
-**फिर से जुड़ें** screen (और `reengage` command) उन सभी निजी 1:1 chats
-को दिखाता है जिनमें कम से कम 90 दिन से कोई संदेश नहीं है — groups,
-channels और bots शामिल नहीं होते — और हर संपर्क के लिए एक संदेश तैयार
-करता है:
+एक automation बताता है कि किसे, कब, किन शर्तों पर और कौन-सा text
+भेजना है। उन्हें edit, preview और run करने के लिए **स्वचालन** tab
+खोलें। पहला automation issue #31 का "Say hi to contacts silent for 90
+days" है: हर निजी 1:1 chat, जिसमें कम से कम 90 दिन से कोई संदेश नहीं
+है — groups, channels और bots शामिल नहीं होते — उसे एक संदेश मिलता है:
 
 - अगर आप और वह व्यक्ति "ты" से बात करते थे तो "Привет … Тебе или твоим
   друзьям …", और "вы" से करते थे तो "Здравствуйте … Вам или вашим
-  друзьям …"। रूप dialog से word-level rules द्वारा पहचाना जाता है; card
-  सबूत दिखाता है, और **… पर बदलें** उसे पलट देता है। सबूत न हो या
-  बराबरी हो तो विनम्र "вы" वाला text इस्तेमाल होता है।
-- **Safe mode default रूप से चालू है**: एक बार में एक pre-filled संदेश
-  दिखता है, आप उसे बदल सकते हैं, और वह सिर्फ़ **भेजें** दबाने पर जाता
-  है। **मैंने खुद भेज दिया** हाथ से भेजे संदेश को दर्ज करता है (**चैट
-  खोलें** / **कॉपी करें** मदद करते हैं), **छोड़ें** अगले पर ले जाता है।
-- Safe mode बंद करने पर **सभी भेजें** दिखता है, जो बाकी संदेश भेजने से
-  पहले एक बार फिर पूछता है।
+  друзьям …"। रूप dialog से word-level rules द्वारा पहचाना जाता है;
+  सबूत न हो या बराबरी हो तो विनम्र "вы" वाला text इस्तेमाल होता है।
+  दोनों texts बदले जा सकते हैं, और उनमें `{name}`, `{days}` और
+  `{network}` इस्तेमाल हो सकते हैं।
+- बाकी presets खुली positions के बारे में पूछते हैं, contract work
+  offer करते हैं, या hi कहने वाले को जवाब में hi कहते हैं। **नया
+  ऑटोमेशन** एक खाली automation शुरू करता है।
 
-हर भेजना, हाथ से भेजना, छोड़ना और विफलता याद रखी जाती है, ताकि वही
-व्यक्ति तब तक दोबारा न दिखे जब तक सीमा फिर से पार न हो। App से भेजने के
-लिए उस network से जुड़ा local server चाहिए; उसके बिना कॉपी / चैट खोलें
-और **मैंने खुद भेज दिया** इस्तेमाल करें।
+हर automation में होता है:
+
+- **कब चलता है**: हाथ से, chat के menu से, schedule पर (`30m`, `12h`,
+  `1d`, `2w`) और/या किसी regular expression से मेल खाते आने वाले
+  संदेश पर।
+- **किसे**: एक audience — `personal`, `friends:vk`, `chat:vk:<id>`,
+  `community:vk:<id>`, `list:<id>`, `audience:<id>` या `person:vk:<id>`,
+  जिन्हें `|` (या), `&` (और), `-` (के सिवा) और brackets से जोड़ा जाता है,
+  जैसे `friends:vk & chat:vk:2000000001 - list:blocked`।
+- **शर्तें**: कम से कम N दिन से बात नहीं हुई, N दिन तक दोबारा नहीं,
+  सिर्फ़ वे chats जिनमें आपने भी लिखा, सिर्फ़ निजी chats, आख़िरी संदेश
+  किसका, कौन-से networks।
+- **मोड**: **सुरक्षित** (safe, default) हर chat में एक draft छोड़ता है;
+  **स्वचालित** (auto) एक बार आपसे पूछने के बाद typing indicator, random
+  pauses और daily cap के साथ भेजता है।
+
+**पूर्वावलोकन** बताता है कि किसे कौन-सा text मिलेगा और बाकी लोग क्यों
+छूटे ("हाल ही में बात हुई", "एक मसौदा पहले से इंतज़ार में है", …); कुछ
+भेजा नहीं जाता। Safe mode में हर draft अपने chat में दिखता है: उसे बदलें,
+**भेजें** (click ही पुष्टि है), ты/вы बदलें, network में **चैट खोलें**,
+**मैंने खुद भेज दिया**, या **छोड़ें**। हर नतीजा याद रखा जाता है, ताकि
+वही व्यक्ति गलती से दो बार संदेश न पाए।
+
+**लोग** सभी networks पर हर किसी को खोजता है (दूसरे networks पर वही
+व्यक्ति cross references के रूप में दिखता है); लोगों को चुनकर automation
+सिर्फ़ उन पर चलाएँ, या उन्हें list के रूप में सहेजें। **दर्शक** नाम वाले
+specs सहेजता है और गिनता है कि वे कितने लोगों से मेल खाते हैं। किसी एक
+व्यक्ति पर automation परखने के लिए उसका chat खोलें और **⚡ स्वचालन → इस
+चैट में परखें** इस्तेमाल करें।
+
+Chat खुद (**चैट** tab) लिखते समय जवाब सुझाता है: पहले वे पूरे जवाब जो
+आपने chat के आख़िरी संदेश पर पहले दिए थे, सबसे ज़्यादा इस्तेमाल वाले
+पहले, फिर आपके अपने संदेशों से शब्द-दर-शब्द; **Tab** पहला सुझाव लेता है।
+यह दिखाता है कि सामने वाला — या आपकी ओर से कोई automation — कब लिख रहा
+है। भेजना network की API से होता है, और वह न चले तो उसके official web UI
+से। **सेटिंग्स → रूप-रंग** theme (system, light, dark, या दिन के समय के
+अनुसार auto) और skin (t3.codes, Telegram, WhatsApp या Signal) चुनता है।
 
 ```bash
-# who has been silent for 90+ days, which form was detected, what would be sent
-meta-sovereign reengage
-meta-sovereign reengage --days=180 --networks=telegram,vk
-
-# safe (debug) mode: एक बार में एक draft — [y] भेजें, [m] खुद भेज दिया, [e] बदलें, [f] ты/вы बदलें, [s] छोड़ें, [q] बाहर
-meta-sovereign reengage --interactive
-
-# बिना पूछे सब भेजें
-meta-sovereign reengage --mode=batch --confirm=true
+# सहेजे गए automations और presets
+meta-sovereign automations
+# किसे क्या मिलेगा, और बाकी क्यों छूटे — कुछ लिखा नहीं जाता
+meta-sovereign automations plan reengage-dormant
+# safe mode: हर व्यक्ति के लिए एक draft queue करें
+meta-sovereign automations run reengage-dormant
+# एक बार में एक draft — [y] भेजें, [m] खुद भेज दिया, [e] बदलें, [f] ты/вы बदलें, [s] छोड़ें, [q] बाहर
+meta-sovereign automations review
+# auto mode सिर्फ़ --confirm=true के साथ भेजता है; --chat चुने हुए chats तक सीमित करता है
+meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 ```
 
-अपने texts: `--informal="Привет, {name}!\n\n…"`, `--formal="…"`, या
-`informal` और `formal` keys वाली `--templates=texts.json`। `{name}` की
-जगह संपर्क का नाम आता है। HTTP पर: `POST /api/reengage/plan`, `/send`,
-`/mark` और `/run`। पृष्ठभूमि:
+HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`),
+`/api/automations/plan`, `/run`, `/drafts`,
+`/drafts/{send,form,mark,skip}` और `/history`; `/api/people`,
+`/api/audiences`, `/api/lists`, `/api/send`, `/api/typing` और
+`/api/suggest`। पृष्ठभूमि:
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)।
 
 ## 11. Troubleshooting

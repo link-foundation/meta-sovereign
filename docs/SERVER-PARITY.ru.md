@@ -55,19 +55,37 @@ only, и по структурной причине: `read` и `sync` управ
 показывает на CV screen явное сообщение "нужен JS server" вместо пустой
 таблицы. Подробности: [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
 
-## 5a. Повторный контакт с давними собеседниками
+## 5a. Автоматизации, люди, отправка и подсказки
 
-`/api/reengage/plan`, `/api/reengage/send`, `/api/reengage/mark` и
-`/api/reengage/run` (issue #31, R-X9) - JS only. Это тонкая обёртка над
-`js/src/crm/reengage.js`. Экран "Возобновить связь" сначала спрашивает
-`/api/reengage/plan`, потому что на сервере лежат все импортированные
-архивы, а без сервера запускает тот же планировщик над ссылками, которые
-уже есть в браузере. "Уже отправлено вручную" и "Пропустить" - обычная
-запись ссылки (локально и, если сервер доступен, через `PUT /links`).
-Сервер нужен только для кнопки "Отправить", потому что отправка идёт
-через адаптер источника с учётными данными. Если сервер отвечает `404`,
-экран оставляет путь "копировать / открыть чат / отметить", а команда
-CLI `reengage` работает вообще без сервера.
+| Route                                           | Method           | JS server                             | Rust server | Status      |
+| ----------------------------------------------- | ---------------- | ------------------------------------- | ----------- | ----------- |
+| `/api/automations`                              | GET, PUT         | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/<id>`                         | DELETE           | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/presets`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/plan`                         | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/run`                          | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts`                       | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts/{send,form,mark,skip}` | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/history`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/send`                                     | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/typing`                                   | GET, POST        | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/people`, `/api/people/xref`               | GET              | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences`, `/api/lists`                  | GET, PUT, DELETE | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences/resolve`                        | POST             | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/suggest`, `/api/suggest/stats`            | GET              | `js/src/server/routes-suggest.js`     | _missing_   | **JS only** |
+
+Эти маршруты (issue #31 и PR #34, R-X6..R-X18) - тонкие обёртки над
+`js/src/automation/`, `js/src/crm/people.js` и `js/src/replies/`. SPA
+сначала спрашивает сервер, потому что на нём лежат все импортированные
+архивы и учётные данные адаптеров, а без сервера запускает тот же код
+над ссылками, которые уже есть в браузере
+(`js/src/web/automation-api.js`): offline она по-прежнему показывает
+список автоматизаций, редактирует их и строит предпросмотр, держит
+черновики безопасного режима в их чатах, ищет людей, вычисляет
+аудитории и подсказывает ответы. Сервер нужен только для доставки
+сообщения; сообщение, набранное в поле ввода чата без сервера,
+хранится в браузере, пока сервер его не синхронизирует. Команда CLI
+`automations` работает вообще без сервера.
 
 ## 6. Real-time transports и static assets
 

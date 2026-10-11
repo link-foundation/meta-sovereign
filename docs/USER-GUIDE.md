@@ -213,45 +213,77 @@ Details — the canonical CV shape, the step vocabulary, the telemetry
 events, and what is verified per platform — are in
 [`docs/CV-SYNC.md`](./CV-SYNC.md).
 
-## 10. Re-engage contacts you have not talked to for a while
+## 10. Automations: message people by rule, safely
 
-The **Re-engage** screen (and the `reengage` command) lists every
-personal 1:1 chat with no messages for at least 90 days — groups,
-channels and bots are left out — and prepares one message per contact:
+An automation says who to message, when, on what conditions and with
+which text. Open the **Automation** tab to edit, preview and run them.
+The first one is issue #31's "Say hi to contacts silent for 90 days":
+every personal 1:1 chat with no messages for at least 90 days — groups,
+channels and bots are left out — gets one message:
 
 - "Привет … Тебе или твоим друзьям …" when you and that person used
   "ты", and "Здравствуйте … Вам или вашим друзьям …" when you used
   "вы". The form is detected from the dialog with word-level rules;
-  the card shows the evidence, and **Switch to …** flips it. With no
-  evidence, or a tie, the polite "вы" text is used.
-- **Safe mode is on by default**: you see one prefilled message at a
-  time, can edit it, and it is sent only when you press **Send**.
-  **I sent it myself** records a message you sent by hand (**Open
-  chat** / **Copy** help with that), **Skip** moves on.
-- Turning safe mode off shows **Send all**, which asks once more before
-  sending the rest.
+  with no evidence, or a tie, the polite "вы" text is used. Both texts
+  are editable, with `{name}`, `{days}` and `{network}`.
+- Other presets ask about open positions, offer contract work, or greet
+  back someone who says hi. **New automation** starts an empty one.
 
-Every send, manual send, skip and failure is remembered, so the same
-person is not offered again until the threshold has passed once more.
-Sending from the app needs a local server with that network
-connected; without one, use Copy / Open chat and **I sent it myself**.
+Each automation has:
+
+- **When it runs**: by hand, from a chat's menu, on a schedule
+  (`30m`, `12h`, `1d`, `2w`) and/or on an incoming message matching a
+  regular expression.
+- **Who**: an audience — `personal`, `friends:vk`, `chat:vk:<id>`,
+  `community:vk:<id>`, `list:<id>`, `audience:<id>` or `person:vk:<id>`,
+  joined with `|` (or), `&` (and), `-` (except) and brackets, e.g.
+  `friends:vk & chat:vk:2000000001 - list:blocked`.
+- **Conditions**: silent for at least N days, not again for N days,
+  only chats where you wrote too, only personal chats, who wrote last,
+  which networks.
+- **Mode**: **safe** (default) leaves a draft in each chat; **auto**
+  sends with a typing indicator, random pauses and a daily cap, after
+  asking you once.
+
+**Preview** lists who would get which text and why the rest are left
+out ("talked recently", "a draft is already waiting", …); nothing is
+sent. In safe mode every draft appears in its chat: edit it, **Send**
+(the click is the confirmation), switch ты/вы, **Open chat** in the
+network, **I sent it myself**, or **Skip**. Every outcome is
+remembered, so the same person is not messaged twice by accident.
+
+**People** searches everyone across networks (with the same person on
+other networks shown as cross references); select people to run an
+automation on just them, or save them as a list. **Audiences** saves
+named specs and counts who they match. To test an automation on one
+person, open their chat and use **⚡ Automations → Test in this chat**.
+
+The chat itself (**Chat** tab) suggests replies while you type: first
+the whole replies you gave before to the chat's last message, most used
+first, then word by word from your own messages; **Tab** takes the
+first suggestion. It shows when the other person — or an automation on
+your behalf — is typing. Sending uses the network's API and falls back
+to its official web UI. **Settings → Appearance** picks the theme
+(system, light, dark, or auto by the time of day) and the skin (t3.codes,
+Telegram, WhatsApp or Signal).
 
 ```bash
-# who has been silent for 90+ days, which form was detected, what would be sent
-meta-sovereign reengage
-meta-sovereign reengage --days=180 --networks=telegram,vk
-
-# safe (debug) mode: one draft at a time — [y] send, [m] I sent it myself, [e] edit, [f] switch ты/вы, [s] skip, [q] quit
-meta-sovereign reengage --interactive
-
-# send everything without asking
-meta-sovereign reengage --mode=batch --confirm=true
+# saved automations and presets
+meta-sovereign automations
+# who would get what, and why the rest are left out — nothing is written
+meta-sovereign automations plan reengage-dormant
+# safe mode: queue one draft per person
+meta-sovereign automations run reengage-dormant
+# one draft at a time — [y] send, [m] I sent it myself, [e] edit, [f] switch ты/вы, [s] skip, [q] quit
+meta-sovereign automations review
+# auto mode sends only with --confirm=true; --chat narrows to chosen chats
+meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 ```
 
-Your own texts: `--informal="Привет, {name}!\n\n…"`,
-`--formal="…"`, or `--templates=texts.json` with `informal` and
-`formal` keys. `{name}` becomes the contact's name. Over HTTP:
-`POST /api/reengage/plan`, `/send`, `/mark` and `/run`. Background:
+Over HTTP: `/api/automations` (list, `PUT` to save), `/api/automations/plan`,
+`/run`, `/drafts`, `/drafts/{send,form,mark,skip}` and `/history`;
+`/api/people`, `/api/audiences`, `/api/lists`, `/api/send`,
+`/api/typing` and `/api/suggest`. Background:
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md).
 
 ## 11. Troubleshooting
