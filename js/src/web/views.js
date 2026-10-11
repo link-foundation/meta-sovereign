@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatView } from './chat-view.js';
+import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
@@ -194,7 +195,8 @@ const GraphPreview = ({ graph }) => {
   ]);
 };
 
-export const AutomationView = () => {
+// Reply graphs (pattern → reply → send → wait) under the automations.
+const GraphEditor = () => {
   const t = useT();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.graphs(), [refresh], []);
@@ -238,11 +240,12 @@ export const AutomationView = () => {
   };
 
   return el(AsyncFrame, { state }, () => {
-    if (graphs.length === 0 && (selected.nodes ?? []).length === 0) {
-      return el(ConnectionGuide, { section: 'automation' });
-    }
-    return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, t('automation.title')),
+    const empty = graphs.length === 0 && (selected.nodes ?? []).length === 0;
+    return el('section', { className: 'col automation-graphs' }, [
+      el('h3', { key: 'h' }, t('automation.title')),
+      empty
+        ? el(ConnectionGuide, { key: 'guide', section: 'automation' })
+        : null,
       el('div', { key: 'actions', className: 'row' }, [
         ...['pattern', 'reply', 'send', 'wait'].map((kind) =>
           el(
@@ -272,10 +275,16 @@ export const AutomationView = () => {
           )
         )
       ),
-      el(GraphPreview, { key: 'graph', graph: selected }),
+      empty ? null : el(GraphPreview, { key: 'graph', graph: selected }),
     ]);
   });
 };
+
+export const AutomationView = () =>
+  el('div', { className: 'col' }, [
+    el(AutomationsView, { key: 'automations' }),
+    el(GraphEditor, { key: 'graphs' }),
+  ]);
 
 export const PatternsView = () => {
   const t = useT();

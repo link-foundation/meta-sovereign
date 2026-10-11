@@ -15,7 +15,7 @@ import {
 
 const TYPING_EVERY_MS = 4000;
 
-const defaultConfirm = (message) =>
+export const defaultConfirm = (message) =>
   typeof globalThis.confirm === 'function'
     ? globalThis.confirm(message)
     : false;
@@ -31,7 +31,7 @@ const useInterval = (fn, ms, deps) => {
 };
 
 /** Load once per `deps`, ignoring answers that arrive after a change. */
-const useLoaded = (load, deps, initial) => {
+export const useLoaded = (load, deps, initial) => {
   const [value, setValue] = useState(initial);
   useEffect(() => {
     let live = true;
@@ -78,7 +78,7 @@ const useTypingOut = (api, current) => {
   }, [api, current?.key]);
 };
 
-const runNotice = (result) => {
+export const runNotice = (result) => {
   if (result.code || result.status === 'failed') {
     return { kind: 'failed', error: result.error ?? result.code };
   }

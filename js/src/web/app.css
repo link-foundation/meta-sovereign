@@ -856,3 +856,153 @@ pre {
   top: 0;
   z-index: 40;
 }
+/* Automations screen (issue #31 / PR #34): list, editor, preview,
+   history, people search and saved audiences. */
+.automations button.link {
+  background: none;
+  border: 0;
+  padding: 0.2rem 0.4rem;
+  color: var(--accent);
+  text-decoration: underline;
+}
+.automations .chat-notice button.link {
+  color: inherit;
+  text-decoration: none;
+}
+.automations button.danger {
+  border-color: #da3633;
+  color: #da3633;
+}
+.automations .error {
+  color: #da3633;
+  font-size: 0.85rem;
+  margin: 0.3rem 0;
+}
+.automations-head h2 {
+  margin: 0;
+  flex: 1;
+}
+.automations-body {
+  display: grid;
+  grid-template-columns: minmax(14rem, 18rem) 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+.automations-body + .automations-body {
+  grid-template-columns: 1fr 1fr;
+}
+.automation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.automation-list button {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: var(--bg-elev);
+}
+.automation-list li.active button {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.automation-editor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.7rem;
+}
+.automation-editor > .error,
+.automation-actions {
+  grid-column: 1 / -1;
+}
+.automation-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--bg-elev);
+}
+.automation-fieldset legend {
+  padding: 0 0.3rem;
+  font-weight: 600;
+}
+.automations .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.automations .field-label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.automations .check {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.automations .check input {
+  width: auto;
+}
+.automations [aria-invalid='true'] {
+  border-color: #da3633;
+}
+.chips {
+  gap: 0.3rem;
+}
+.automation-drafts blockquote {
+  margin: 0.3rem 0 0.6rem;
+  padding: 0.3rem 0.6rem;
+  border-left: 3px solid var(--accent);
+  white-space: pre-wrap;
+}
+.automation-history,
+.people-results,
+.automation-audiences ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.people-results li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.automation-audiences li {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.automations .status {
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  background: var(--bg-active);
+}
+.automations .status.sent {
+  background: var(--accent);
+  color: white;
+}
+.automations .status.failed {
+  background: #da3633;
+  color: white;
+}
+@media (max-width: 720px) {
+  .automations-body,
+  .automations-body + .automations-body {
+    grid-template-columns: 1fr;
+  }
+}

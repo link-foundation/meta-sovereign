@@ -1,0 +1,500 @@
+{
+  "automations.title": {
+    "en": "Automations",
+    "ru": "Автоматизации",
+    "zh": "自动化",
+    "hi": "ऑटोमेशन"
+  },
+  "automations.intro": {
+    "en": "Each automation says who to message, when, on what conditions and with which text. Safe mode leaves a draft in each chat for you to confirm; automatic mode sends with typing and pauses.",
+    "ru": "Каждая автоматизация задаёт, кому писать, когда, при каких условиях и каким текстом. В безопасном режиме в каждом чате остаётся черновик для подтверждения; в автоматическом сообщения уходят с набором текста и паузами.",
+    "zh": "每个自动化规定给谁发消息、何时发送、满足什么条件以及使用什么文本。安全模式会在每个聊天中留下草稿等待你确认；自动模式会带着“正在输入”状态和停顿自动发送。",
+    "hi": "हर ऑटोमेशन तय करता है कि किसे, कब, किन शर्तों पर और कौन-सा संदेश भेजना है। सुरक्षित मोड हर चैट में पुष्टि के लिए ड्राफ़्ट छोड़ता है; स्वचालित मोड टाइपिंग और विराम के साथ भेजता है।"
+  },
+  "automations.new": {
+    "en": "New automation",
+    "ru": "Новая автоматизация",
+    "zh": "新建自动化",
+    "hi": "नया ऑटोमेशन"
+  },
+  "automations.newName": {
+    "en": "New automation",
+    "ru": "Новая автоматизация",
+    "zh": "新建自动化",
+    "hi": "नया ऑटोमेशन"
+  },
+  "automations.pick": {
+    "en": "Pick an automation to edit, preview or run it, or start a new one.",
+    "ru": "Выберите автоматизацию, чтобы изменить, проверить или запустить её, или создайте новую.",
+    "zh": "选择一个自动化以编辑、预览或运行，或者新建一个。",
+    "hi": "संपादित करने, पूर्वावलोकन करने या चलाने के लिए कोई ऑटोमेशन चुनें, या नया बनाएँ।"
+  },
+  "automations.preset": {
+    "en": "preset",
+    "ru": "шаблон",
+    "zh": "预设",
+    "hi": "पहले से तैयार"
+  },
+  "automations.off": {
+    "en": "off",
+    "ru": "выключена",
+    "zh": "已关闭",
+    "hi": "बंद"
+  },
+  "automations.edit": {
+    "en": "Edit {name}",
+    "ru": "Изменить «{name}»",
+    "zh": "编辑 {name}",
+    "hi": "{name} संपादित करें"
+  },
+  "automations.close": {
+    "en": "close",
+    "ru": "закрыть",
+    "zh": "关闭",
+    "hi": "बंद करें"
+  },
+  "automations.delete": {
+    "en": "delete",
+    "ru": "удалить",
+    "zh": "删除",
+    "hi": "हटाएँ"
+  },
+  "automations.confirmDelete": {
+    "en": "Delete the automation \"{name}\"?",
+    "ru": "Удалить автоматизацию «{name}»?",
+    "zh": "删除自动化“{name}”？",
+    "hi": "ऑटोमेशन \"{name}\" हटाएँ?"
+  },
+  "automations.preview": {
+    "en": "preview",
+    "ru": "предпросмотр",
+    "zh": "预览",
+    "hi": "पूर्वावलोकन"
+  },
+  "automations.runSafe": {
+    "en": "save and queue drafts",
+    "ru": "сохранить и подготовить черновики",
+    "zh": "保存并生成草稿",
+    "hi": "सहेजें और ड्राफ़्ट बनाएँ"
+  },
+  "automations.runAuto": {
+    "en": "save and send now",
+    "ru": "сохранить и отправить сейчас",
+    "zh": "保存并立即发送",
+    "hi": "सहेजें और अभी भेजें"
+  },
+  "automations.history": {
+    "en": "History",
+    "ru": "История",
+    "zh": "历史记录",
+    "hi": "इतिहास"
+  },
+  "automations.useSelection": {
+    "en": "the {count} selected",
+    "ru": "выбранные ({count})",
+    "zh": "已选的 {count} 人",
+    "hi": "चुने गए {count}"
+  },
+  "automations.section.about": {
+    "en": "Automation",
+    "ru": "Автоматизация",
+    "zh": "自动化",
+    "hi": "ऑटोमेशन"
+  },
+  "automations.section.triggers": {
+    "en": "When it runs",
+    "ru": "Когда запускается",
+    "zh": "何时运行",
+    "hi": "कब चलता है"
+  },
+  "automations.section.audience": {
+    "en": "Who",
+    "ru": "Кому",
+    "zh": "发给谁",
+    "hi": "किसे"
+  },
+  "automations.section.conditions": {
+    "en": "Conditions",
+    "ru": "Условия",
+    "zh": "条件",
+    "hi": "शर्तें"
+  },
+  "automations.section.message": {
+    "en": "Message",
+    "ru": "Сообщение",
+    "zh": "消息",
+    "hi": "संदेश"
+  },
+  "automations.section.pacing": {
+    "en": "Pacing",
+    "ru": "Темп",
+    "zh": "节奏",
+    "hi": "गति"
+  },
+  "automations.field.name": {
+    "en": "Name",
+    "ru": "Название",
+    "zh": "名称",
+    "hi": "नाम"
+  },
+  "automations.field.description": {
+    "en": "Description",
+    "ru": "Описание",
+    "zh": "说明",
+    "hi": "विवरण"
+  },
+  "automations.field.enabled": {
+    "en": "enabled (schedules and incoming messages fire it)",
+    "ru": "включена (срабатывает по расписанию и на входящие)",
+    "zh": "已启用（按计划和收到消息时触发）",
+    "hi": "चालू (शेड्यूल और आने वाले संदेश इसे चलाते हैं)"
+  },
+  "automations.field.mode": {
+    "en": "Mode",
+    "ru": "Режим",
+    "zh": "模式",
+    "hi": "मोड"
+  },
+  "automations.field.audience": {
+    "en": "Audience",
+    "ru": "Аудитория",
+    "zh": "受众",
+    "hi": "दर्शक"
+  },
+  "automations.field.silentDays": {
+    "en": "Silent for at least (days)",
+    "ru": "Не общались не меньше (дней)",
+    "zh": "至少未联系（天）",
+    "hi": "कम से कम इतने दिन से बात नहीं हुई"
+  },
+  "automations.field.cooldownDays": {
+    "en": "Not again for (days)",
+    "ru": "Не повторять (дней)",
+    "zh": "多少天内不重复（天）",
+    "hi": "इतने दिन तक दोबारा नहीं"
+  },
+  "automations.field.mutual": {
+    "en": "only chats where you wrote too",
+    "ru": "только чаты, где вы тоже писали",
+    "zh": "仅限你也发过消息的聊天",
+    "hi": "सिर्फ़ वे चैट जिनमें आपने भी लिखा"
+  },
+  "automations.field.personal": {
+    "en": "only personal chats",
+    "ru": "только личные чаты",
+    "zh": "仅限私聊",
+    "hi": "सिर्फ़ निजी चैट"
+  },
+  "automations.field.lastFrom": {
+    "en": "Last message from",
+    "ru": "Последнее сообщение от",
+    "zh": "最后一条消息来自",
+    "hi": "आख़िरी संदेश किसका"
+  },
+  "automations.field.networks": {
+    "en": "Networks (empty: all)",
+    "ru": "Сети (пусто: все)",
+    "zh": "网络（留空：全部）",
+    "hi": "नेटवर्क (ख़ाली: सभी)"
+  },
+  "automations.field.form": {
+    "en": "Address form",
+    "ru": "Обращение",
+    "zh": "称呼方式",
+    "hi": "संबोधन"
+  },
+  "automations.field.limit": {
+    "en": "At most per run",
+    "ru": "Не больше за запуск",
+    "zh": "每次运行最多",
+    "hi": "हर बार ज़्यादा से ज़्यादा"
+  },
+  "automations.field.dailyCap": {
+    "en": "At most per day",
+    "ru": "Не больше в день",
+    "zh": "每天最多",
+    "hi": "हर दिन ज़्यादा से ज़्यादा"
+  },
+  "automations.field.minDelay": {
+    "en": "Pause from (seconds)",
+    "ru": "Пауза от (секунд)",
+    "zh": "间隔至少（秒）",
+    "hi": "विराम कम से कम (सेकंड)"
+  },
+  "automations.field.maxDelay": {
+    "en": "Pause up to (seconds)",
+    "ru": "Пауза до (секунд)",
+    "zh": "间隔至多（秒）",
+    "hi": "विराम ज़्यादा से ज़्यादा (सेकंड)"
+  },
+  "automations.field.typing": {
+    "en": "show typing before each message",
+    "ru": "показывать набор текста перед сообщением",
+    "zh": "发送前显示“正在输入”",
+    "hi": "हर संदेश से पहले टाइपिंग दिखाएँ"
+  },
+  "automations.trigger.manual": {
+    "en": "by hand",
+    "ru": "вручную",
+    "zh": "手动",
+    "hi": "हाथ से"
+  },
+  "automations.trigger.chat-menu": {
+    "en": "from a chat's menu",
+    "ru": "из меню чата",
+    "zh": "从聊天菜单",
+    "hi": "चैट के मेनू से"
+  },
+  "automations.trigger.schedule": {
+    "en": "every",
+    "ru": "каждые",
+    "zh": "每隔",
+    "hi": "हर"
+  },
+  "automations.trigger.incoming": {
+    "en": "on an incoming message matching",
+    "ru": "на входящее сообщение по шаблону",
+    "zh": "收到匹配的消息时",
+    "hi": "मेल खाते आने वाले संदेश पर"
+  },
+  "automations.hint.schedule": {
+    "en": "30m, 12h, 1d or 2w; empty: no schedule",
+    "ru": "30m, 12h, 1d или 2w; пусто: без расписания",
+    "zh": "30m、12h、1d 或 2w；留空：不按计划",
+    "hi": "30m, 12h, 1d या 2w; ख़ाली: कोई शेड्यूल नहीं"
+  },
+  "automations.hint.incoming": {
+    "en": "a regular expression; empty: not on messages",
+    "ru": "регулярное выражение; пусто: не реагировать на сообщения",
+    "zh": "正则表达式；留空：不响应消息",
+    "hi": "रेगुलर एक्सप्रेशन; ख़ाली: संदेशों पर नहीं"
+  },
+  "automations.hint.audience": {
+    "en": "personal, friends:vk, chat:vk:<id>, community:vk:<id>, list:<id>, audience:<id>, person:vk:<id>; join with | (or), & (and), - (except) and brackets",
+    "ru": "personal, friends:vk, chat:vk:<id>, community:vk:<id>, list:<id>, audience:<id>, person:vk:<id>; объединяйте через | (или), & (и), - (кроме) и скобки",
+    "zh": "personal、friends:vk、chat:vk:<id>、community:vk:<id>、list:<id>、audience:<id>、person:vk:<id>；用 |（或）、&（且）、-（除外）和括号组合",
+    "hi": "personal, friends:vk, chat:vk:<id>, community:vk:<id>, list:<id>, audience:<id>, person:vk:<id>; | (या), & (और), - (छोड़कर) और कोष्ठक से जोड़ें"
+  },
+  "automations.hint.template": {
+    "en": "{name}, {days} and {network} are filled in for each person",
+    "ru": "{name}, {days} и {network} подставляются для каждого человека",
+    "zh": "{name}、{days} 和 {network} 会为每个人自动填入",
+    "hi": "{name}, {days} और {network} हर व्यक्ति के लिए भरे जाते हैं"
+  },
+  "automations.form.auto": {
+    "en": "detect ты/вы",
+    "ru": "определять ты/вы",
+    "zh": "自动识别 ты/вы",
+    "hi": "ты/вы अपने आप पहचानें"
+  },
+  "automations.form.informal": {
+    "en": "informal (ты)",
+    "ru": "на «ты»",
+    "zh": "非正式（ты）",
+    "hi": "अनौपचारिक (ты)"
+  },
+  "automations.form.formal": {
+    "en": "formal (вы)",
+    "ru": "на «Вы»",
+    "zh": "正式（вы）",
+    "hi": "औपचारिक (вы)"
+  },
+  "automations.lastFrom.any": {
+    "en": "anyone",
+    "ru": "кого угодно",
+    "zh": "任何人",
+    "hi": "कोई भी"
+  },
+  "automations.lastFrom.me": {
+    "en": "me",
+    "ru": "меня",
+    "zh": "我",
+    "hi": "मैं"
+  },
+  "automations.lastFrom.contact": {
+    "en": "them",
+    "ru": "собеседника",
+    "zh": "对方",
+    "hi": "सामने वाला"
+  },
+  "automations.status.sent": {
+    "en": "sent",
+    "ru": "отправлено",
+    "zh": "已发送",
+    "hi": "भेजा गया"
+  },
+  "automations.status.failed": {
+    "en": "not sent",
+    "ru": "не отправлено",
+    "zh": "未发送",
+    "hi": "नहीं भेजा गया"
+  },
+  "automations.status.skipped": {
+    "en": "skipped",
+    "ru": "пропущено",
+    "zh": "已跳过",
+    "hi": "छोड़ा गया"
+  },
+  "automations.plan.title": {
+    "en": "{count} to message",
+    "ru": "Кому написать: {count}",
+    "zh": "将发送给 {count} 人",
+    "hi": "{count} को संदेश"
+  },
+  "automations.plan.nothingSent": {
+    "en": "A preview: nothing was sent or queued.",
+    "ru": "Это предпросмотр: ничего не отправлено и не поставлено в очередь.",
+    "zh": "这只是预览：没有发送也没有排队任何消息。",
+    "hi": "यह पूर्वावलोकन है: कुछ भी भेजा या कतार में नहीं डाला गया।"
+  },
+  "automations.plan.leftOut": {
+    "en": "Left out: {reasons}",
+    "ru": "Не вошли: {reasons}",
+    "zh": "未包括：{reasons}",
+    "hi": "छूटे हुए: {reasons}"
+  },
+  "automations.notice.saved": {
+    "en": "Saved \"{name}\".",
+    "ru": "«{name}» сохранена.",
+    "zh": "已保存“{name}”。",
+    "hi": "\"{name}\" सहेजा गया।"
+  },
+  "automations.notice.deleted": {
+    "en": "Deleted \"{name}\".",
+    "ru": "«{name}» удалена.",
+    "zh": "已删除“{name}”。",
+    "hi": "\"{name}\" हटाया गया।"
+  },
+  "automations.notice.queued": {
+    "en": "{count} draft(s) wait in their chats: open each chat to review and send.",
+    "ru": "Черновиков в чатах: {count}. Откройте чат, чтобы проверить и отправить.",
+    "zh": "{count} 份草稿已放在各自的聊天中：打开聊天查看并发送。",
+    "hi": "{count} ड्राफ़्ट अपनी चैट में इंतज़ार कर रहे हैं: देखने और भेजने के लिए चैट खोलें।"
+  },
+  "automations.notice.listSaved": {
+    "en": "Saved the list \"{name}\" ({count} people).",
+    "ru": "Список «{name}» сохранён (людей: {count}).",
+    "zh": "已保存列表“{name}”（{count} 人）。",
+    "hi": "सूची \"{name}\" सहेजी गई ({count} लोग)।"
+  },
+  "automations.notice.audienceSaved": {
+    "en": "Saved the audience \"{name}\" ({count} people).",
+    "ru": "Аудитория «{name}» сохранена (людей: {count}).",
+    "zh": "已保存受众“{name}”（{count} 人）。",
+    "hi": "दर्शक \"{name}\" सहेजा गया ({count} लोग)।"
+  },
+  "automations.error.name": {
+    "en": "Give the automation a name",
+    "ru": "Дайте автоматизации название",
+    "zh": "请为自动化命名",
+    "hi": "ऑटोमेशन को नाम दें"
+  },
+  "automations.error.number": {
+    "en": "Numbers must be zero or more",
+    "ru": "Числа должны быть не меньше нуля",
+    "zh": "数字必须大于或等于零",
+    "hi": "संख्याएँ शून्य या उससे ज़्यादा होनी चाहिए"
+  },
+  "automations.error.audience": {
+    "en": "The audience does not parse",
+    "ru": "Не удалось разобрать аудиторию",
+    "zh": "无法解析受众",
+    "hi": "दर्शक समझ नहीं आया"
+  },
+  "automations.error.trigger": {
+    "en": "Choose at least one way to run it",
+    "ru": "Выберите хотя бы один способ запуска",
+    "zh": "请至少选择一种运行方式",
+    "hi": "चलाने का कम से कम एक तरीक़ा चुनें"
+  },
+  "automations.error.invalid": {
+    "en": "The automation is not valid",
+    "ru": "Автоматизация заполнена неверно",
+    "zh": "自动化无效",
+    "hi": "ऑटोमेशन सही नहीं है"
+  },
+  "automations.people.title": {
+    "en": "People",
+    "ru": "Люди",
+    "zh": "联系人",
+    "hi": "लोग"
+  },
+  "automations.people.search": {
+    "en": "Search people by name, handle or network",
+    "ru": "Искать людей по имени, нику или сети",
+    "zh": "按姓名、用户名或网络搜索联系人",
+    "hi": "नाम, हैंडल या नेटवर्क से लोग खोजें"
+  },
+  "automations.people.sameAs": {
+    "en": "also on {count} more network(s)",
+    "ru": "ещё в сетях: {count}",
+    "zh": "还在另外 {count} 个网络上",
+    "hi": "{count} और नेटवर्क पर भी"
+  },
+  "automations.people.selected": {
+    "en": "{count} selected",
+    "ru": "Выбрано: {count}",
+    "zh": "已选 {count} 人",
+    "hi": "{count} चुने गए"
+  },
+  "automations.people.test": {
+    "en": "test: ignore the conditions",
+    "ru": "проверка: без условий",
+    "zh": "测试：忽略条件",
+    "hi": "परीक्षण: शर्तें अनदेखी करें"
+  },
+  "automations.people.run": {
+    "en": "run \"{name}\" on them",
+    "ru": "запустить «{name}» для них",
+    "zh": "对他们运行“{name}”",
+    "hi": "उन पर \"{name}\" चलाएँ"
+  },
+  "automations.people.pickAutomation": {
+    "en": "Open an automation to run it on the selected people.",
+    "ru": "Откройте автоматизацию, чтобы запустить её для выбранных.",
+    "zh": "打开一个自动化，即可对已选的人运行。",
+    "hi": "चुने गए लोगों पर चलाने के लिए कोई ऑटोमेशन खोलें।"
+  },
+  "automations.people.listName": {
+    "en": "List name",
+    "ru": "Название списка",
+    "zh": "列表名称",
+    "hi": "सूची का नाम"
+  },
+  "automations.people.saveList": {
+    "en": "save as a list",
+    "ru": "сохранить списком",
+    "zh": "保存为列表",
+    "hi": "सूची के रूप में सहेजें"
+  },
+  "automations.people.clear": {
+    "en": "clear the selection",
+    "ru": "снять выбор",
+    "zh": "清除选择",
+    "hi": "चयन हटाएँ"
+  },
+  "automations.audiences.title": {
+    "en": "Audiences",
+    "ru": "Аудитории",
+    "zh": "受众",
+    "hi": "दर्शक"
+  },
+  "automations.audiences.use": {
+    "en": "use",
+    "ru": "использовать",
+    "zh": "使用",
+    "hi": "इस्तेमाल करें"
+  },
+  "automations.audiences.count": {
+    "en": "count",
+    "ru": "посчитать",
+    "zh": "统计",
+    "hi": "गिनें"
+  },
+  "automations.audiences.resolved": {
+    "en": "{count} people: {names}",
+    "ru": "Людей: {count}. {names}",
+    "zh": "{count} 人：{names}",
+    "hi": "{count} लोग: {names}"
+  }
+}
