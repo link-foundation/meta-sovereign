@@ -47,6 +47,7 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 
 - **统一收件箱**：覆盖 VK、Telegram、X、WhatsApp、Facebook、LinkedIn、career.habr.com、hh.ru、superjob.ru 和电子邮件。
 - **简历同步**：覆盖 LinkedIn、hh.ru、Habr Career、Naukri、VietnamWorks、TopCV 和 SuperJob——通过你自己的浏览器读取每份简历，逐字段查看差异，再把商定的内容写回去（[`docs/CV-SYNC.zh.md`](docs/CV-SYNC.zh.md)）。
+- **问候**：像 [konard/vk-bot](https://github.com/konard/vk-bot) 那样，用一句“你好”或一个问候贴纸在 VK、Telegram、WhatsApp、Messenger、X 和电子邮件中开启对话——在界面中挑选贴纸，预览谁会收到什么，并在消息之间留出间隔发送（[`docs/GREETINGS.zh.md`](docs/GREETINGS.zh.md)）。
 - **个人 CRM**：联系人、社区、群组成员、交集、批量个性化触达。
 - **个人记忆**：自动从对话中抽取结构化 `question → answer` 事实。
 - **对话自动化平台**：模式编辑器、回复变体编辑器、类似 n8n 的对话图。

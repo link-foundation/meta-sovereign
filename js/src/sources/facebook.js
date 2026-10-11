@@ -17,6 +17,7 @@ import {
   requestJson,
   resolveOption,
 } from './http.js';
+import { contentSticker } from './sticker.js';
 
 const SOURCE = 'facebook';
 
@@ -114,11 +115,13 @@ export const createFacebookLive = ({
       const page = resolvedPage(options.pageId);
       const to = options.to ?? contentTarget(content);
       const text = contentText(content);
+      // Messenger sends public first-party stickers by id (issue #35).
+      const sticker = contentSticker(content);
       if (!to) {
         throw new Error('facebook post recipient id is required');
       }
-      if (!text) {
-        throw new Error('facebook post text is required');
+      if (!text && !sticker?.id) {
+        throw new Error('facebook post text or sticker is required');
       }
       return requestJson(fetchImpl, `${baseUrl}/${page}/messages`, {
         method: 'POST',
@@ -131,7 +134,7 @@ export const createFacebookLive = ({
               : undefined) ??
             'RESPONSE',
           recipient: { id: to },
-          message: { text },
+          message: sticker?.id ? { sticker_id: Number(sticker.id) } : { text },
         },
       });
     },

@@ -6,7 +6,8 @@
  * backup/restore, serve, sources, audience, facts, search, broadcast,
  * sync (listen/connect), patterns (infer/list), graphs (run/list),
  * replies (list), profile/resume, cv (platforms/plan/read/diff/sync/
- * telemetry over browser-commander).
+ * telemetry over browser-commander), greetings (stickers/select/plan/
+ * send).
  *
  * Returns an exit code instead of calling `process.exit`, keeping the
  * entry point unit-testable.
@@ -16,6 +17,10 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
+import {
+  GREETINGS_HELP,
+  createGreetingCommands,
+} from './greetings-commands.js';
 import {
   createDualStore,
   createLinoTextStore,
@@ -92,6 +97,7 @@ Commands:
   vault-remove  --secret=<s> --id=<unlock-id> [--file=<path>]
   vault-list    [--file=<path>]
 ${CV_HELP}
+${GREETINGS_HELP}
   help
 `;
 
@@ -696,6 +702,8 @@ const COMMANDS = {
   'vault-list': vaultListCmd,
   // CV read/diff/sync/telemetry over browser-commander (issue #29).
   ...createCvCommands({ openStore }),
+  // Hi/hello and greeting-sticker openers (issue #35).
+  ...createGreetingCommands({ openStore }),
   help: async (_a, log) => {
     log(HELP);
     return 0;

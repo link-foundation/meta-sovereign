@@ -28,6 +28,7 @@
  *   PUT  /api/resume               -> upsert + plan cross-network sync
  *   POST /api/broadcast            -> queue post for outbound networks
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
+ *   GET  /api/greetings/*          -> greeting stickers/texts (routes-greetings.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/backups              -> list archives (gated on archiveDir)
@@ -54,6 +55,7 @@ import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
+import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
@@ -74,8 +76,10 @@ const MIME = {
   '.wasm': 'application/wasm',
 };
 
-// Conservative Content-Security-Policy. The SPA never loads remote
-// resources and ships no inline scripts/styles: only same-origin SPA
+// Conservative Content-Security-Policy. The SPA loads no remote
+// resources except VK greeting-sticker previews from https://vk.com
+// (issue #35; Telegram thumbnails are proxied through
+// /api/greetings/file) and ships no inline scripts/styles: only same-origin SPA
 // modules/bundles and app.css. WebSockets connect to the same
 // origin (/ws + /rtc); discovery may also attempt 127.0.0.1 / localhost
 // on alternate ports. Browser-first provider API calls (JMAP, Gmail,
@@ -84,7 +88,7 @@ export const CSP =
   "default-src 'self'; " +
   "script-src 'self' 'wasm-unsafe-eval'; " +
   "style-src 'self'; " +
-  "img-src 'self' data: blob:; " +
+  "img-src 'self' data: blob: https://vk.com; " +
   "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; " +
   "worker-src 'self'; " +
   "font-src 'self' data:; " +
@@ -163,6 +167,16 @@ const cvContext = (cv = {}) => ({
   cvArtifactDir: cv.artifactDir ?? null,
 });
 
+/**
+ * Greeting routes accept injected sources (and a sleep) so tests send
+ * nothing to a real network.
+ * @param {{resolveSource?: Function, sleep?: Function}} greetings
+ */
+const greetingContext = (greetings = {}) => ({
+  greetingSources: greetings.resolveSource ?? null,
+  greetingSleep: greetings.sleep ?? null,
+});
+
 const applySecurityHeaders = (res) => {
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!res.hasHeader(k)) {
@@ -188,6 +202,9 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   if (await handleCvRoutes(store, req, res, p, url, ctx)) {
+    return;
+  }
+  if (await handleGreetingRoutes(store, req, res, p, url, ctx)) {
     return;
   }
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
@@ -238,6 +255,7 @@ export const startServer = async ({
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
   cv = {},
+  greetings,
   allowOrigins,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
@@ -254,6 +272,7 @@ export const startServer = async ({
     emailLiveFactory,
     allowOrigins: parseAllowedOrigins(allowOrigins),
     ...cvContext(cv),
+    ...greetingContext(greetings),
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
