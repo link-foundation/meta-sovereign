@@ -6,6 +6,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
+import { ChatView } from './chat-view.js';
 import { CvView } from './cv-view.js';
 import { ReengageView } from './reengage-view.js';
 import { navItems } from './nav-items.js';
@@ -16,7 +17,7 @@ import { ConnectionsList, ConnectionDetail } from './connections/index.js';
 const el = React.createElement;
 const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
-export { navItems };
+export { ChatView, navItems };
 
 const useAsyncValue = (loader, deps, initialValue) => {
   const [state, setState] = useState({
@@ -71,152 +72,6 @@ const AsyncFrame = ({ state, children }) => {
 };
 
 const refreshReducer = (value) => value + 1;
-
-export const ChatView = () => {
-  const t = useT();
-  const [refresh, setRefresh] = useState(0);
-  const state = useAsyncValue(() => api.links(), [refresh], []);
-  const [active, setActive] = useState('');
-  const [text, setText] = useState('');
-  const [completions, setCompletions] = useState([]);
-
-  const messages = useMemo(
-    () =>
-      state.value
-        .filter((link) => link.id?.startsWith('msg:'))
-        .sort((a, b) => String(a.timestamp).localeCompare(String(b.timestamp))),
-    [state.value]
-  );
-  const chats = useMemo(
-    () => [...new Set(messages.map((msg) => `${msg.source}:${msg.chat}`))],
-    [messages]
-  );
-
-  useEffect(() => {
-    if (!active && chats[0]) {
-      setActive(chats[0]);
-    } else if (active && chats.length > 0 && !chats.includes(active)) {
-      setActive(chats[0]);
-    }
-  }, [active, chats]);
-
-  const activeMessages = messages.filter(
-    (msg) => `${msg.source}:${msg.chat}` === active
-  );
-
-  const updateText = async (next) => {
-    setText(next);
-    if (!next) {
-      setCompletions([]);
-      return;
-    }
-    const items = await api.autocomplete(next);
-    setCompletions(items.map((item) => item.text ?? item));
-  };
-
-  const send = async () => {
-    if (!text.trim() || !active) {
-      return;
-    }
-    const [source, chat] = active.split(':');
-    const now = Date.now();
-    await api.put({
-      id: `msg:${source}:${now}`,
-      tokens: ['message', source, String(now)],
-      sender: 'me',
-      chat,
-      source,
-      body: text,
-      timestamp: new Date().toISOString(),
-    });
-    setText('');
-    setCompletions([]);
-    setRefresh(refreshReducer);
-  };
-
-  return el(AsyncFrame, { state }, () => {
-    if (chats.length === 0) {
-      return el(ConnectionGuide, { section: 'chat' });
-    }
-    return el('div', { className: 'chat' }, [
-      el('aside', { key: 'aside' }, [
-        el('div', { key: 'h', className: 'aside-h' }, t('chat.aside')),
-        ...chats.map((chat) =>
-          el(
-            'button',
-            {
-              key: chat,
-              type: 'button',
-              className: chat === active ? 'active' : '',
-              onClick: () => setActive(chat),
-            },
-            chat
-          )
-        ),
-      ]),
-      el('div', { key: 'col', className: 'col' }, [
-        el(
-          'div',
-          { key: 'stream', className: 'stream' },
-          activeMessages.map((msg) =>
-            el(
-              'div',
-              {
-                key: msg.id,
-                className: msg.sender === 'me' ? 'msg me' : 'msg',
-              },
-              [
-                el(
-                  'div',
-                  { key: 'meta', className: 'meta' },
-                  `${msg.sender} - ${fmtTs(msg.timestamp)}`
-                ),
-                el('div', { key: 'body' }, msg.body ?? ''),
-              ]
-            )
-          )
-        ),
-        el('div', { key: 'composer', className: 'composer' }, [
-          el(
-            'div',
-            { key: 'completions', className: 'completions' },
-            completions.map((item) =>
-              el(
-                'button',
-                {
-                  key: item,
-                  type: 'button',
-                  onClick: () => {
-                    setText(item);
-                    setCompletions([]);
-                  },
-                },
-                item
-              )
-            )
-          ),
-          el('textarea', {
-            key: 'input',
-            rows: 2,
-            placeholder: t('chat.placeholder'),
-            value: text,
-            onChange: (event) => updateText(event.target.value),
-          }),
-          el(
-            'button',
-            {
-              key: 'send',
-              type: 'button',
-              className: 'primary',
-              onClick: send,
-            },
-            t('common.send')
-          ),
-        ]),
-      ]),
-    ]);
-  });
-};
 
 export const OperatorView = () => {
   const t = useT();

@@ -1,0 +1,249 @@
+// Issue #31 / PR #34: the t3-style chat screen — conversation list with
+// search and date sections, typing status both ways, the automation menu
+// inside each chat, drafts settled in place and the two-stage composer
+// suggestions.
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+
+import { LocaleContext, translate } from '../src/web/i18n.js';
+import {
+  avatarFor,
+  chatMenuAutomations,
+  chatMessages,
+  dayGroup,
+  groupChats,
+  senderNames,
+  summarizeChats,
+  typingStatus,
+} from '../src/web/chat-model.js';
+import { ChatScreen, reasonText } from '../src/web/chat-view.js';
+
+const NOW = Date.parse('2026-10-11T12:00:00Z');
+const at = (hoursAgo) => new Date(NOW - hoursAgo * 3_600_000).toISOString();
+let seq = 0;
+const msg = (chat, sender, body, hoursAgo, extra = {}) => ({
+  id: `msg:vk:${(seq += 1)}`,
+  source: 'vk',
+  chat,
+  sender,
+  body,
+  timestamp: at(hoursAgo),
+  ...extra,
+});
+
+const links = [
+  msg('101', 'me', 'Привет! Как ты?', 30, {}),
+  msg('101', 'alice', 'Норм', 29, { senderName: 'Alice Smith' }),
+  msg('2000000001', 'bob', 'Всем привет', 2, { chatName: 'Team' }),
+  msg('2000000001', 'carol', 'Hi', 1, { senderName: 'Carol' }),
+  msg('2000000001', 'me', 'Hello', 0.5),
+  msg('303', 'dave', 'Long ago', 24 * 40),
+  { id: 'typing:vk:101:alice', kind: 'typing' },
+];
+
+test('chats: one row per conversation, newest first, searchable', () => {
+  const chats = summarizeChats(links);
+  assert.deepEqual(
+    chats.map((c) => [c.chat, c.name, c.personal]),
+    [
+      ['2000000001', 'Team', false],
+      ['101', 'Alice Smith', true],
+      ['303', 'dave', true],
+    ]
+  );
+  assert.deepEqual(chats[0].last, { body: 'Hello', mine: true, at: at(0.5) });
+  assert.deepEqual(chats[0].people.sort(), ['bob', 'carol']);
+  // Any message, the name or the network matches; every word must.
+  assert.deepEqual(
+    summarizeChats(links, { query: 'норм alice' }).map((c) => c.chat),
+    ['101']
+  );
+  assert.equal(summarizeChats(links, { query: 'nobody' }).length, 0);
+  assert.deepEqual(
+    chatMessages(links, 'vk:101').map((m) => m.body),
+    ['Привет! Как ты?', 'Норм']
+  );
+});
+
+test('chats: t3-style date sections', () => {
+  const local = new Date(NOW);
+  local.setHours(0, 0, 0, 0);
+  const midnight = local.getTime();
+  assert.equal(dayGroup(new Date(midnight + 1000).toISOString(), NOW), 'today');
+  assert.equal(
+    dayGroup(new Date(midnight - 1000).toISOString(), NOW),
+    'yesterday'
+  );
+  assert.equal(
+    dayGroup(new Date(midnight - 3 * 86_400_000).toISOString(), NOW),
+    'week'
+  );
+  assert.equal(dayGroup(at(24 * 40), NOW), 'older');
+  assert.equal(dayGroup('not a date', NOW), 'older');
+  const groups = groupChats(summarizeChats(links), NOW);
+  assert.equal(groups.at(-1).group, 'older');
+  assert.deepEqual(
+    groups.at(-1).chats.map((c) => c.chat),
+    ['303']
+  );
+});
+
+test('typing: other people by name, an automation on our behalf', () => {
+  const names = senderNames(chatMessages(links, 'vk:101'));
+  assert.deepEqual(
+    typingStatus([{ user: 'alice' }, { user: 'me' }], { names }),
+    { people: ['Alice Smith'], automation: null }
+  );
+  assert.deepEqual(
+    typingStatus([
+      {
+        user: 'me',
+        automation: 'automation:reengage-dormant',
+        automationName: 'Say hi',
+      },
+    ]),
+    { people: [], automation: 'Say hi' }
+  );
+});
+
+test('menu: only automations with a chat-menu trigger; avatars are stable', () => {
+  const offered = chatMenuAutomations([
+    { id: 'a', triggers: [{ kind: 'manual' }] },
+    { id: 'b', triggers: [{ kind: 'manual' }, { kind: 'chat-menu' }] },
+    { id: 'c', invalid: 'broken', triggers: [{ kind: 'chat-menu' }] },
+  ]);
+  assert.deepEqual(
+    offered.map((a) => a.id),
+    ['b']
+  );
+  assert.deepEqual(avatarFor('Alice Smith'), avatarFor('Alice Smith'));
+  assert.equal(avatarFor('Alice Smith').initials, 'AS');
+  assert.equal(avatarFor('  ').initials, '?');
+});
+
+const render = (state, locale = 'en') =>
+  renderToStaticMarkup(
+    React.createElement(
+      LocaleContext.Provider,
+      {
+        value: {
+          locale,
+          setLocale: () => {},
+          t: (key, vars) => translate(locale, key, vars),
+        },
+      },
+      React.createElement(ChatScreen, { state })
+    )
+  );
+
+const noop = () => {};
+const screenState = (overrides = {}) => {
+  const chats = summarizeChats(links);
+  const current = chats.find((c) => c.chat === '101');
+  return {
+    loading: false,
+    chats,
+    total: chats.length,
+    query: '',
+    setQuery: noop,
+    current,
+    select: noop,
+    messages: chatMessages(links, current.key),
+    typing: { people: [], automation: null },
+    composer: { text: 'При', setText: noop, send: noop },
+    suggest: {
+      stage: 'reply',
+      suggestions: [
+        { text: 'Привет! Как дела?', count: 3 },
+        { text: 'Привет', count: 1 },
+      ],
+    },
+    menu: {
+      open: true,
+      toggle: noop,
+      run: noop,
+      automations: [
+        {
+          id: 'automation:reengage-dormant',
+          name: 'Say hi',
+          mode: 'safe',
+          triggers: [{ kind: 'chat-menu' }],
+        },
+      ],
+    },
+    drafts: {
+      drafts: [
+        {
+          id: 'automation-draft:reengage-dormant:vk:101',
+          automation: 'automation:reengage-dormant',
+          automationName: 'Say hi',
+          form: 'informal',
+          text: 'Привет\nТебе удобно сейчас пообщаться?',
+          prefill: { url: 'https://vk.com/im?sel=101', prefillsText: false },
+        },
+      ],
+      act: noop,
+      edit: noop,
+    },
+    notice: { kind: 'queued', count: 1 },
+    dismiss: noop,
+    refresh: noop,
+    ...overrides,
+  };
+};
+
+test('screen: sidebar, header, menu, draft, composer chips', () => {
+  const html = render(screenState());
+  assert.match(html, /class="chat-shell"/);
+  // The sections follow the real clock; 40 days back is always older.
+  assert.match(html, /<h3>Older<\/h3>/);
+  assert.match(html, /data-chat="vk:101" aria-current="true"/);
+  assert.match(html, /vk · personal chat/);
+  assert.match(html, /data-action="chat-automation-test"/);
+  assert.match(html, /Test in this chat/);
+  assert.match(html, /Draft from Say hi · informal/);
+  assert.match(html, /data-action="draft-send"/);
+  assert.match(html, /Switch to formal/);
+  assert.match(html, /href="https:\/\/vk.com\/im\?sel=101"/);
+  assert.match(html, /1 draft\(s\) ready below/);
+  assert.match(html, /data-stage="reply"/);
+  assert.match(html, /title="Used 3 time\(s\)"/);
+  assert.match(html, /class="bubble out"/);
+  assert.match(html, /class="bubble in"/);
+});
+
+test('screen: typing status, translated, and the empty states', () => {
+  const typing = render(
+    screenState({ typing: { people: [], automation: 'Say hi' } }),
+    'ru'
+  );
+  assert.match(typing, /Say hi печатает за вас…/);
+  const people = render(
+    screenState({ typing: { people: ['Alice Smith'], automation: null } })
+  );
+  assert.match(people, /data-typing="people">Alice Smith typing…/);
+  assert.match(render(screenState({ loading: true })), /Loading/);
+  // No chats at all: the connection guide explains how to import some.
+  assert.doesNotMatch(
+    render(screenState({ total: 0, chats: [] })),
+    /chat-shell/
+  );
+  const none = render(
+    screenState({ menu: { ...screenState().menu, automations: [] } })
+  );
+  assert.match(none, /chat menu/);
+});
+
+test('notice: exclusion reasons in words, unknown ones as they are', () => {
+  const t = (key, vars) => translate('en', key, vars);
+  assert.equal(reasonText(t, 'talked-recently'), 'talked recently');
+  assert.equal(reasonText(t, null), 'no one matched');
+  assert.equal(reasonText(t, 'something-new'), 'something-new');
+  const html = render(
+    screenState({ notice: { kind: 'nothing', reason: 'draft-pending' } })
+  );
+  assert.match(html, /Nothing to send here: a draft is already waiting\./);
+});
