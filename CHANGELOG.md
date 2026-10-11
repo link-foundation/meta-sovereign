@@ -1,5 +1,73 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.19.0
+
+### Minor Changes
+
+- R-V1..R-V22, R-E11..R-E13: CV synchronisation across job platforms. A new
+  `js/src/cv/` subsystem reads, compares and updates the user's CV on
+  LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV and superjob.ru
+  through a local [browser-commander](https://github.com/link-foundation/browser-commander)
+  session, with the canonical CV stored in links notation like every other
+  entity (`js/src/cv/model.js`, `diff.js`).
+
+  Each platform contributes a **declarative plan** — data, not code:
+  `js/src/cv/platforms/*.js` list URLs, an auth check, ordered steps built
+  from 12 step actions, selector candidate lists, per-step
+  `verified` / `documented` / `draft` confidence, write groups, and an
+  `evidence` array citing the public observation each step was derived from.
+  Plans are validated when the registry loads, so coverage is visible and
+  countable without a browser (`cv-platforms` prints "TopCV: 32 steps,
+  0 verified"), and `js/tests/helpers/markup-fixture.js` regenerates each
+  plan's expected DOM from the plan itself so
+  `RUN_BROWSER_E2E=1 npm run test:e2e:cv` drives all seven plans through a
+  real Chromium instance, including a deliberate markup-drift case each.
+
+  `js/src/cv/telemetry.js` records every run: 13 event types, FNV-1a markup
+  fingerprints, HTML and PNG artifacts under `<artifactDir>/<runId>/`, and
+  redaction of e-mails, phone numbers and long tokens on by default — so the
+  first run against a real profile is debuggable after the fact rather than
+  only under a debugger.
+
+  The same facade is exposed three ways: seven `/api/cv/*` routes
+  (`js/src/server/routes-cv.js`), six CLI commands (`cv-platforms`,
+  `cv-plan`, `cv-read`, `cv-diff`, `cv-sync`, `cv-telemetry`), and a CV
+  screen in the SPA (`js/src/web/cv-view.js`, translated in en/ru/zh/hi).
+  Writes never happen implicitly: planning is the default and an explicit
+  `--apply` / `dryRun: false` is required, with `--paths` / `--groups`
+  narrowing a sync to chosen fields or editor groups. A backend without the
+  CV routes (the `std`-only Rust server, which cannot launch a browser) says
+  so on the screen instead of rendering an empty table. `playwright` and
+  `browser-commander` stay optional dependencies and are kept out of the web
+  bundle, enforced by `js/tests/web-bundle.test.js`. Documented in
+  `docs/CV-SYNC.md` (+ ru/zh/hi) and `docs/case-studies/issue-29/`.
+
+  R-W1..R-W5: VK token sources after the Kate Mobile ban. VK no longer
+  grants the user `messages` right to new applications, and Kate Mobile's
+  client_id has answered "Flood control" since 2026-09-08. A new
+  `js/src/sources/vk-auth.js` module (also exported as
+  `meta-sovereign/sources/vk-auth`) turns the issue-32 research into code:
+  - `VK_TOKEN_SOURCES` and `rankVkTokenSources()` cover every
+    vkhost.github.io client plus VK's native apps. Each entry carries its
+    publisher, its OAuth-gate result on 2026-10-11 and dated community
+    evidence. VK-owned clients rank first (vk.com 6287487, then VK Calls
+    7793118). Third-party clients are left out unless explicitly requested.
+  - `classifyVkOAuthGate()` / `probeVkOAuthGate()` re-run the
+    unauthenticated `messages,offline` gate probe
+    (`experiments/issue-32/probe-vk-oauth-apps.mjs`).
+  - `inspectVkToken()` makes three read-only calls to say whether a token
+    the user already holds is invalid, a community token, or can or cannot
+    read messages. `describeVkError()` explains VK error codes.
+    `examples/vk-token-check.mjs` wraps both.
+
+  The VK connection guide (all four locales) no longer suggests creating a
+  Standalone app with the messages scope. It points to the archive import,
+  community tokens and, at the user's own risk, VK's own web client, and it
+  names the real secret id `secret:vk:access-token`. The VK connector and
+  guide now use the `vk.ru` domain (`api.vk.ru`, `dev.vk.ru`), and VK API
+  errors carry `error.vkCode`. Research and evidence:
+  `docs/case-studies/issue-32/`.
+
 ## 0.18.1
 
 ### Patch Changes
