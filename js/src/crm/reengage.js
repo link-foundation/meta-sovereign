@@ -275,14 +275,19 @@ export const templateFor = (templates, form) =>
  * - Telegram: `tg://user?id=<id>` opens the chat with that user (Bot
  *   API docs); the text still has to be pasted, because Telegram has no
  *   pre-fill parameter for a user chat.
+ * - VK: `https://vk.com/im?sel=<peer>` opens the dialog with a user.
  */
-export const prefillLinkFor = ({ source, contact, text }) => {
+export const prefillLinkFor = ({ source, contact, chat, text }) => {
   const id = String(contact ?? '');
+  const peer = String(chat ?? id);
   if (source === 'email' && /^[^\s@]+@[^\s@]+$/.test(id)) {
     const body = encodeURIComponent(
       String(text ?? '').replace(/\r?\n/g, '\r\n')
     );
     return { url: `mailto:${id}?body=${body}`, prefillsText: true };
+  }
+  if (source === 'vk' && /^\d+$/.test(peer) && Number(peer) < 2e9) {
+    return { url: `https://vk.com/im?sel=${peer}`, prefillsText: false };
   }
   const tg = source === 'telegram' ? id.match(/^(?:user)?(\d+)$/) : null;
   if (tg) {

@@ -234,7 +234,10 @@ describe('renderReengageText / prefillLinkFor', () => {
     });
     expect(link.url).toBe('mailto:a@b.c?body=Hi%0D%0Athere');
     expect(link.prefillsText).toBe(true);
-    expect(prefillLinkFor({ source: 'vk', contact: '1', text: 'x' })).toBe(
+    expect(prefillLinkFor({ source: 'vk', contact: '1', text: 'x' }).url).toBe(
+      'https://vk.com/im?sel=1'
+    );
+    expect(prefillLinkFor({ source: 'slack', contact: 'U1', text: 'x' })).toBe(
       null
     );
   });
