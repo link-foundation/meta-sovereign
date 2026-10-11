@@ -1,0 +1,24 @@
+probed at 2026-10-11T16:07:27.777Z (scope=messages,offline)
+ 6121396  vkhost    401  blocked          VK Admin (Android)
+ 5776857  vkhost    401  security-error   VK Admin (iOS)
+ 6463690  vkhost    200  login-page       Marusya
+ 7556576  vkhost    200  login-page       Sferum
+ 7598572  vkhost    401  disabled         Sferum Android
+ 7571751  vkhost    401  disabled         VK Education iOS
+ 7793118  vkhost    200  login-page       VK Calls
+ 6287487  vkhost    200  login-page       vk.com (web)
+ 7799655  vkhost    200  login-page       VK Mail
+ 7539952  vkhost    401  security-error   Mail.ru Mail
+ 7497650  vkhost    200  login-page       VK Connect
+ 5530956  vkhost    200  login-page       Prisma
+ 3698024  vkhost    200  login-page       Instagram
+ 2685278  vkhost    200  login-page       Kate Mobile
+ 4083558  vkhost    200  login-page       VFeed
+ 2274003  official  401  direct-auth-only VK for Android (official)
+ 3140623  official  401  direct-auth-only VK for iPhone (official)
+ 3682744  official  401  direct-auth-only VK for iPad (official)
+ 3697615  official  401  direct-auth-only VK for Windows (official)
+ 3502557  official  401  disabled         VK for Windows Phone (official)
+ 6146827  official  401  direct-auth-only VK Me (official)
+999999999  control   401  deleted          control: never existed
+   12345  control   401  no-messages      control: web app without messages

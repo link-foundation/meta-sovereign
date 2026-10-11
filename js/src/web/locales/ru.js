@@ -424,10 +424,10 @@ export const ru = {
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': 'Подключите API ВКонтакте',
   'connections.vk.api.hint':
-    'Создайте Standalone-приложение по адресу https://vk.com/apps?act=manage и запросите access token с правом messages. Вставьте его как «secret:vk:token».',
+    'Новым приложениям VK больше не выдаёт право messages, а токены Kate Mobile перестали работать 8 сентября 2026 года. Лучше импортируйте архив ниже. Для бесед сообщества вставьте ключ доступа сообщества (Управление → Дополнительно → Работа с API). Старый пользовательский токен веб-клиента VK (client_id 6287487 через oauth.vk.ru) может ещё работать — на ваш риск заморозки аккаунта. Значение хранится как «secret:vk:access-token».',
   'connections.vk.fields.token.label': 'Токен доступа',
   'connections.vk.errorHints.401':
-    'Access token истёк. Повторите неявный поток на id.vk.com.',
+    'VK отклонил токен (ошибка 5). Получите новый: токены заблокированных клиентов, таких как Kate Mobile или VK Admin, не восстановятся.',
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': 'Импорт архива данных X',
   'connections.x.archive.hint':

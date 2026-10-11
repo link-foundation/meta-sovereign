@@ -139,6 +139,15 @@ facade / HTTP routes / CLI 命令 / SPA 页面、web bundle 纯净性、用
 完成。详细表参见 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V；
 工作原理见 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
+## W. Kate Mobile 被封后的 VK 令牌来源 (issue #32)
+
+R-W1..R-W5 覆盖：用 VK 当前的 OAuth 网关检查 vkhost.github.io 列出的全部
+客户端；`VK_TOKEN_SOURCES` 目录及其排序（VK 自家客户端排在小型第三方发布者
+之前）；只用文档化方法检查已有令牌的 `inspectVkToken()`；四种语言中修正后的
+VK 提示；以及连接器迁移到 `api.vk.ru` 域名。状态：PR #33。详细表参见
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section W；研究见
+[`docs/case-studies/issue-32/`](./case-studies/issue-32/README.md)。
+
 ## Traceability
 
 后续 PR 或 commit 完成功能时，请在 changeset 和 PR 描述中引用对应 `R-*`

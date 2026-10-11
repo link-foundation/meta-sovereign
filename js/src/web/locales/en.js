@@ -417,10 +417,10 @@ export const en = {
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': 'Connect the VK API',
   'connections.vk.api.hint':
-    'Create a Standalone application at https://vk.com/apps?act=manage and request an access token with the messages scope. Paste it as "secret:vk:token".',
+    'New VK apps can no longer get the messages right, and Kate Mobile tokens stopped working on 2026-09-08. Prefer the archive import below. For community chats, paste a community token (community settings -> API usage). A legacy user token issued for VK\'s own web client (client_id 6287487 via oauth.vk.ru) may still work, at your own risk of an account freeze. The value is stored as "secret:vk:access-token".',
   'connections.vk.fields.token.label': 'Access token',
   'connections.vk.errorHints.401':
-    'Access token expired. Re-run the implicit flow at id.vk.com.',
+    'VK rejected the token (error 5). Issue a new one: tokens of blocked clients such as Kate Mobile or VK Admin will not recover.',
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': 'Import an X data archive',
   'connections.x.archive.hint':

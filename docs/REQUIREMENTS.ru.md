@@ -147,6 +147,17 @@ State: done в PR #30. Подробная таблица:
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V; описание работы —
 [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
 
+## W. Источники токенов VK после блокировки Kate Mobile (issue #32)
+
+R-W1..R-W5 покрывают проверку всех клиентов vkhost.github.io на текущем
+OAuth-шлюзе VK, каталог `VK_TOKEN_SOURCES` с ранжированием, при котором
+клиенты самой VK идут раньше небольших сторонних издателей,
+`inspectVkToken()` для проверки уже имеющегося токена только
+документированными методами, исправленную подсказку VK во всех четырёх
+локалях и переход коннектора на домен `api.vk.ru`. State: PR #33.
+Подробная таблица: [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section W;
+исследование — [`docs/case-studies/issue-32/`](./case-studies/issue-32/README.md).
+
 ## Traceability
 
 Когда future PR или commit добавляет feature, reference matching `R-*` ID
