@@ -25,7 +25,7 @@ import {
   listLiveGreetingStickers,
   loadGreetingCredentials,
   loadGreetingSelection,
-  planGreetings,
+  planFromStore,
   runGreetings,
   saveGreetingSelection,
 } from '../greetings/index.js';
@@ -79,19 +79,13 @@ const handleStickers = async (store, req, res, p, ctx) => {
   return json(res, 200, result) ?? true;
 };
 
-const greetedIds = async (store) =>
-  (await store.query((l) => l.id?.startsWith('greeting:'))).map((l) => l.id);
-
 const handlePlan = async (store, req, res, p, ctx) => {
   if (p !== '/api/greetings/plan' || req.method !== 'POST') {
     return false;
   }
   const body = await readBody(req).catch(() => ({}));
-  const plan = planGreetings({
-    links: await store.query((l) => l.id?.startsWith('msg:')),
+  const plan = await planFromStore(store, {
     mode: body.mode === 'reply' ? 'reply' : 'initiate',
-    selection: await loadGreetingSelection(store),
-    greeted: await greetedIds(store),
     networks: listOrNull(body.networks),
     me: listOrNull([body.me ?? []].flat()),
     limit: clamp(body.limit, 10, MAX_LIMIT),

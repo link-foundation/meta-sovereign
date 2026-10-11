@@ -346,6 +346,21 @@ export const planGreetings = ({
 };
 
 /**
+ * `planGreetings` over everything the store holds: its message links,
+ * the saved selection and the greetings already sent. Shared by the
+ * HTTP API and the CLI so both plan from the same state.
+ */
+export const planFromStore = async (store, options = {}) =>
+  planGreetings({
+    ...options,
+    links: await store.query((l) => l.id?.startsWith('msg:')),
+    selection: await loadGreetingSelection(store),
+    greeted: (await store.query((l) => l.id?.startsWith('greeting:'))).map(
+      (l) => l.id
+    ),
+  });
+
+/**
  * Secret links holding each network's credentials, named as in the
  * connection guides. Missing secrets fall back to the adapters'
  * environment variables (VK_ACCESS_TOKEN, TELEGRAM_BOT_TOKEN, …).
