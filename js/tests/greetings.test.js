@@ -253,7 +253,7 @@ describe('VK greeting stickers', () => {
     expect(failures).toEqual([]);
     expect(stickers.map((s) => s.id)).toEqual(['21', '72789']);
     expect(stickers[0].owned).toBe(true);
-    expect(stickers[0].previewUrl).toBe('https://vk.test/21-512.png');
+    expect(stickers[0].previewUrl).toBe('https://vk.com/sticker/1-21-512');
     expect(stickers[1].owned).toBe(false);
     expect(stickers[1].previewUrl).toBe('https://vk.com/sticker/1-72789-512');
   });

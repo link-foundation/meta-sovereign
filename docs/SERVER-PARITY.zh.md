@@ -51,13 +51,26 @@ Playwright 驱动真实浏览器，而 Rust crate 只用 `std`，无法启动这
 显示“需要 JS server”，而不是展示一张空表。详情见
 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
-## 6. Real-time transports 与静态资源
+## 6. 问候
+
+`/api/greetings/catalogue`、`/api/greetings/selection`（GET 与 PUT）、
+`/api/greetings/stickers`、`/api/greetings/plan` 和 `/api/greetings/file`
+（issue #35）是 JS only，它们支撑
+[`docs/GREETINGS.zh.md`](./GREETINGS.zh.md) 中的“问候”页面。`catalogue`、
+`selection` 和 `plan` 预览只依赖目录与 store，可以移植；`stickers`、排队发送的
+`plan` 和 `file` 通过 JS source adapters 调用 VK、Telegram、WhatsApp 和
+Messenger API。缺少这些路由时，SPA 仍显示内置目录和预览，发送可改用
+`meta-sovereign greetings-*` CLI。两个 server 发送相同的 CSP：`img-src` 允许
+`https://vk.com` 以直接加载 VK 贴纸预览；Telegram 缩略图的下载 URL 含有
+bot token，因此经由 `/api/greetings/file` 代理。
+
+## 7. Real-time transports 与静态资源
 
 `/ws` WebSocket sync 和 `/rtc` WebRTC signalling 在两个 server 上 parity。
 `/`、`/index.html`、flat assets、`/storage/`、`/handlers/` 和 `/sync/`
 mount 也都保持同样的静态资源服务行为，并拒绝 path traversal。
 
-## 7. 摘要
+## 8. 摘要
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
@@ -65,10 +78,11 @@ mount 也都保持同样的静态资源服务行为，并拒绝 path traversal�
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
 | 简历同步                       | 7      | 0      | 7       |
+| 问候                           | 6      | 0      | 6       |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **47** | **34** | **13**  |
+| **Total**                      | **53** | **34** | **19**  |
 
-Rust server 当前达到 **72% route parity**。典型终端用户流程（打开 SPA、浏览
+Rust server 当前达到 **64% route parity**。典型终端用户流程（打开 SPA、浏览
 联系人、发送消息、自动化回复、设备间同步、导入 email archive）可以把 Rust
 server 当作 JS server 的 drop-in replacement。

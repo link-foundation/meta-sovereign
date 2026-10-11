@@ -19,6 +19,7 @@ import {
 } from './http.js';
 import { contentSticker } from './sticker.js';
 import { isGreetingText } from '../greetings/detect.js';
+import { vkStickerPreview } from '../greetings/catalog.js';
 
 const SOURCE = 'vk';
 
@@ -56,12 +57,6 @@ const vkStickerOf = (msg) => {
   };
 };
 
-const vkPreviewOf = (sticker) => {
-  const images = sticker.images ?? [];
-  const best = images.find((image) => image.width === 512) ?? images.at(-1);
-  return best?.url ?? `https://vk.com/sticker/1-${sticker.sticker_id}-512`;
-};
-
 const vkKeywordStickers = (response, match) => {
   const seen = new Map();
   for (const item of response?.dictionary ?? []) {
@@ -83,7 +78,8 @@ const vkKeywordStickers = (response, match) => {
           packId: sticker.product_id ?? sticker.pack_id ?? null,
           owned: sticker.is_allowed !== false,
           keywords: words,
-          previewUrl: vkPreviewOf(sticker),
+          // Always vk.com, the one sticker origin the CSP allows.
+          previewUrl: vkStickerPreview(id),
         });
       }
     }
