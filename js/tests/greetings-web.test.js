@@ -118,11 +118,18 @@ test('the Greetings screen is a registered nav surface with a guide', () => {
   assert.equal(connectionGuides.greetings.titleKey, 'guide.greetings.title');
 });
 
+// Deno and Bun run this suite too, but only Node's own binary takes the
+// V8 flag below.
+const onNode = !globalThis.Deno && !globalThis.Bun;
+
 test('the screens load under a CSP without unsafe-eval', () => {
   // The SPA's CSP forbids string evaluation. Some network adapters call
   // `new Function` when their module loads, so if the screens pull the
   // adapters in (as `greetings/index.js` would), the whole app fails to
   // start. Node's flag applies the same rule.
+  if (!onNode) {
+    return;
+  }
   const views = new URL('../src/web/views.js', import.meta.url).href;
   const out = execFileSync(
     process.execPath,
