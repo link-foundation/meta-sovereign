@@ -30,6 +30,7 @@
  *   POST /api/broadcast            -> queue post for outbound networks
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
  *   POST /api/reengage/{plan,send,mark,run} -> dormant contacts (routes-reengage.js)
+ *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/backups              -> list archives (gated on archiveDir)
@@ -51,7 +52,7 @@ import {
   createDoubletsStore,
   wrapSecretStore,
 } from '../storage/index.js';
-import { listSources } from '../sources/index.js';
+import { getSource, listSources } from '../sources/index.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
@@ -59,6 +60,13 @@ import { handleCvRoutes } from './routes-cv.js';
 import { handleReengageRoutes } from './routes-reengage.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
+import { handleAutomationRoutes } from './routes-automations.js';
+import {
+  createAutomationRunner,
+  createAutomationScheduler,
+} from '../automation/runner.js';
+import { createDefaultSender } from '../sources/browser-sender.js';
+import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleMetrics } from './metrics.js';
@@ -187,6 +195,60 @@ const replyService = (store, storeDir, replies = {}) => {
   return createReplyService({ store, self: replies.self ?? [], clink });
 };
 
+/**
+ * Sending, typing and automations. `automations.send` and `.setTyping`
+ * replace the adapters (tests); by default a message goes through the
+ * network's API and falls back to its official web UI. The scheduler
+ * fires schedule and incoming triggers unless `scheduler: false`.
+ */
+const automationContext = (store, automations = {}, log = null) => {
+  const say = (event) => log?.(event);
+  const send =
+    automations.send ??
+    createDefaultSender({
+      getSource,
+      options: automations.options,
+      browser: automations.browser,
+      log: say,
+    });
+  const setTyping =
+    automations.setTyping ??
+    (({ source, chat }) =>
+      setTypingFor(getSource, { source, chat }).catch((error) => ({
+        supported: false,
+        source,
+        error: error.message,
+      })));
+  const self = (automations.self ?? []).map(String);
+  const runner = createAutomationRunner({
+    store,
+    send,
+    setTyping,
+    resolveAudience: automations.resolveAudience ?? null,
+    self,
+    log: say,
+  });
+  const scheduler = createAutomationScheduler({
+    store,
+    runner,
+    isSelf: (sender) => sender === 'me' || self.includes(String(sender)),
+    tickMs: automations.tickMs,
+    log: say,
+  });
+  if (automations.scheduler !== false) {
+    scheduler.start();
+  }
+  return {
+    send,
+    setTyping,
+    automations: { runner, scheduler },
+    closeAutomations: async () => {
+      scheduler.stop();
+      await send.close?.();
+    },
+  };
+};
+
 const applySecurityHeaders = (res) => {
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!res.hasHeader(k)) {
@@ -215,6 +277,9 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   if (await handleSuggestRoutes(req, res, p, url, ctx)) {
+    return;
+  }
+  if (await handleAutomationRoutes(store, req, res, p, url, ctx)) {
     return;
   }
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
@@ -269,6 +334,8 @@ export const startServer = async ({
   reengage,
   // `{ self?, clink? }` for the reply-graph autocomplete (/api/suggest).
   replies,
+  // `{ send?, setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
+  automations,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -285,6 +352,7 @@ export const startServer = async ({
     ...cvContext(cv),
     ...reengageContext(reengage),
     replies: replyService(store, storeDir, replies),
+    ...automationContext(store, automations, log),
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
@@ -338,6 +406,7 @@ export const startServer = async ({
       new Promise((resolve) => {
         bus?.close();
         ctx.replies.close().catch(() => {});
+        ctx.closeAutomations().catch(() => {});
         wsHandle?.close();
         signaling?.close();
         server.close(() => resolve());

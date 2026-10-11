@@ -27,6 +27,7 @@ import {
   RUN_PREFIX,
   STATE_PREFIX,
   automationKey,
+  automationPresets,
   hasTrigger,
   incomingTrigger,
   normalizeAutomation,
@@ -182,7 +183,9 @@ export const createAutomationRunner = ({
     const id = automationOrId.startsWith(AUTOMATION_PREFIX)
       ? automationOrId
       : `${AUTOMATION_PREFIX}${automationOrId}`;
-    const link = await store.get(id);
+    // A preset can be run before the user has saved a copy of it.
+    const link =
+      (await store.get(id)) ?? automationPresets().find((a) => a.id === id);
     if (!link) {
       throw new Error(`no automation ${id}`);
     }
