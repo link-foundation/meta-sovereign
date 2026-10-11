@@ -161,7 +161,48 @@ Canonical CV shape, step vocabulary, telemetry events और हर platform प
 क्या verified है — यह सब
 [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
 
-## 10. Automations: नियम के अनुसार, सुरक्षित तरीके से लोगों को संदेश भेजें
+## 10. hi या sticker से लोगों का अभिवादन करें
+
+लोगों से बात करने में dialog शुरू करना ही सबसे धीमा हिस्सा है।
+**अभिवादन** screen आपकी ओर से "hi" या greeting sticker भेजती है, ठीक
+वैसे जैसे [konard/vk-bot](https://github.com/konard/vk-bot) VK पर करता
+है, ताकि आप सीधे उस message पर पहुँच सकें जिसे आप सच में test करना
+चाहते हैं।
+
+1. **अभिवादन** खोलें। Sticker grid VK के greeting stickers (तस्वीरें
+   सीधे vk.com से load होती हैं) और Messenger का thumbs-up दिखाती है।
+   जिनसे अभिवादन करना है उन्हें tick करें।
+2. अपने accounts से और stickers लाने के लिए **स्टिकर लाइव सूचीबद्ध करें**
+   दबाएँ: VK stickers जिनके keywords अभिवादन हैं, और grid के नीचे listed
+   Telegram sets के 👋 stickers। किसी set को उसके `t.me` link से Telegram
+   में जोड़ा जा सकता है।
+3. Greeting texts की भाषा चुनें और यह कि आप sticker पसंद करते हैं या
+   text, फिर **चयन सहेजें**।
+4. **योजना** को **नई बातचीत शुरू करें** (जिन लोगों को आपने कभी नहीं लिखा,
+   सबसे पुराने पहले) या **अभिवादन का जवाब दें** (जिन्होंने "hi" कहा और
+   इंतज़ार कर रहे हैं) पर set करें, फिर **योजना देखें**। Table दिखाती है
+   कि किसे क्या मिलेगा, और किसी को skip क्यों किया गया — जैसे WhatsApp
+   और Messenger free-form messages सिर्फ उस व्यक्ति के आखिरी message के
+   24 घंटे के अंदर allow करते हैं, और Telegram bot सिर्फ जवाब दे सकता है।
+5. **अभिवादन भेजें** plan को messages के बीच pause के साथ queue करता है
+   (default 30 seconds)। किसी का अभिवादन दो बार नहीं होता।
+
+यही terminal से:
+
+```bash
+meta-sovereign greetings-stickers --live --networks=vk,telegram
+meta-sovereign greetings-select --stickers=vk:72789,vk:21 --language=ru
+meta-sovereign greetings-plan --mode=initiate --limit=10
+meta-sovereign greetings-send --mode=reply
+```
+
+Listing और sending के लिए JS server (`meta-sovereign serve`) और आपके
+जुड़े हुए VK, Telegram, WhatsApp या Messenger accounts चाहिए। Server के
+बिना भी screen catalogue और preview दिखाती है। खाली chats के लिए
+Telegram के अपने सुझाव bots को उपलब्ध नहीं हैं — इसके और बाकी details के
+लिए [`docs/GREETINGS.hi.md`](./GREETINGS.hi.md) देखें।
+
+## 11. Automations: नियम के अनुसार, सुरक्षित तरीके से लोगों को संदेश भेजें
 
 एक automation बताता है कि किसे, कब, किन शर्तों पर और कौन-सा text
 भेजना है। उन्हें edit, preview और run करने के लिए **स्वचालन** tab
@@ -237,7 +278,7 @@ HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`
 `/api/suggest`। पृष्ठभूमि:
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)।
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 | Symptom                              | Fix                                                                                                   |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
@@ -247,11 +288,12 @@ HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`
 | WebRTC sync दो LANs के बीच रुकता है। | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                          |
 | `cargo build` linker error देता है।  | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                      |
 
-## 12. आगे कहाँ जाएँ
+## 13. आगे कहाँ जाएँ
 
 - [`README.hi.md`](../README.hi.md) — project overview और developer notes।
 - [`docs/REQUIREMENTS.hi.md`](./REQUIREMENTS.hi.md) — canonical requirements।
 - [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md) — JS vs. Rust routes।
 - [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) — CV synchronisation कैसे काम करता है, platform दर platform।
+- [`docs/GREETINGS.hi.md`](./GREETINGS.hi.md) — greeting stickers और texts, network दर network।
 - [`docs/UI-DESIGN-AUDIT.hi.md`](./UI-DESIGN-AUDIT.hi.md) — accessibility और design audit।
 - [`docs/case-studies/`](./case-studies/) — हर issue की case studies।

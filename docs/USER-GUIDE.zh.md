@@ -157,7 +157,41 @@ session 保存在你指定的 profile 目录中。
 规范简历结构、步骤词汇、telemetry 事件以及每个平台已验证的内容，详见
 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
-## 10. 自动化：按规则安全地给人发消息
+## 10. 用问候语或贴纸打招呼
+
+开启对话是与人交流中最慢的部分。**问候** 页面会替你发送一句 "hi" 或一张
+问候贴纸，就像 [konard/vk-bot](https://github.com/konard/vk-bot) 在 VK 上
+做的那样，让你可以直接进入真正想测试的那条消息。
+
+1. 打开 **问候**。贴纸网格显示 VK 的问候贴纸（图片直接从 vk.com 加载）和
+   Messenger 的点赞贴纸。勾选你想用来问候的贴纸。
+2. 点击 **实时列出贴纸**，从你的账号获取更多贴纸：关键词为问候的 VK 贴纸，
+   以及网格下方列出的 Telegram 贴纸集中的 👋 贴纸。你可以通过贴纸集的
+   `t.me` 链接把它添加到 Telegram。
+3. 选择问候文本的语言，以及更偏好贴纸还是文字，然后点击 **保存选择**。
+4. 把 **计划** 设为 **开启新对话**（从未联系过的人，最早的在前）或
+   **回复问候**（说了 "hi" 正在等待回复的人），然后点击 **预览计划**。表格
+   显示谁会收到什么，以及某人为何被跳过 — 例如，WhatsApp 和 Messenger 只
+   允许在对方最后一条消息后的 24 小时内发送自由格式消息，而 Telegram bot
+   只能回复。
+5. **发送问候** 会把计划加入队列，消息之间留有停顿（默认 30 秒）。任何人都
+   不会被问候两次。
+
+在终端中也可以完成同样的操作：
+
+```bash
+meta-sovereign greetings-stickers --live --networks=vk,telegram
+meta-sovereign greetings-select --stickers=vk:72789,vk:21 --language=ru
+meta-sovereign greetings-plan --mode=initiate --limit=10
+meta-sovereign greetings-send --mode=reply
+```
+
+列出贴纸和发送需要 JS server（`meta-sovereign serve`）以及你已连接的 VK、
+Telegram、WhatsApp 或 Messenger 账号。没有 server 时，页面仍会显示目录和
+预览。Telegram 自带的空聊天推荐贴纸无法供 bot 使用 — 这一点及其他细节见
+[`docs/GREETINGS.zh.md`](./GREETINGS.zh.md)。
+
+## 11. 自动化：按规则安全地给人发消息
 
 一个自动化规定给谁发消息、何时发、满足什么条件以及用哪段文字。打开
 **自动化** 标签页即可编辑、预览和运行它们。第一个是 issue #31 的
@@ -222,7 +256,7 @@ HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`�
 `/api/typing` 和 `/api/suggest`。背景说明见
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)。
 
-## 11. 故障排除
+## 12. 故障排除
 
 | 现象                           | 处理方式                                                                                               |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
@@ -232,11 +266,12 @@ HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`�
 | WebRTC 跨网络停止同步。        | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                 |
 | `cargo build` 出现 linker 错。 | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                     |
 
-## 12. 下一步
+## 13. 下一步
 
 - [`README.zh.md`](../README.zh.md) — 项目概览和开发者说明。
 - [`docs/REQUIREMENTS.zh.md`](./REQUIREMENTS.zh.md) — canonical requirement list。
 - [`docs/SERVER-PARITY.zh.md`](./SERVER-PARITY.zh.md) — JS 与 Rust server routes。
 - [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md) — 简历同步的工作方式，逐个平台说明。
+- [`docs/GREETINGS.zh.md`](./GREETINGS.zh.md) — 问候贴纸和文本，逐个网络说明。
 - [`docs/UI-DESIGN-AUDIT.zh.md`](./UI-DESIGN-AUDIT.zh.md) — accessibility 与 HIG/Material/Fluent audit。
 - [`docs/case-studies/`](./case-studies/) — 每个 issue 的完整案例研究。

@@ -12,6 +12,12 @@ import { createOfflineClient } from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
+import {
+  greetingCatalogue,
+  loadGreetingSelection,
+  planFromStore,
+  saveGreetingSelection,
+} from '../greetings/plan.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = document.createElement(tag);
@@ -269,6 +275,15 @@ const AUTOMATION_CALLS = [
   'saveList',
 ];
 
+/**
+ * Offline answer for the greeting calls that need a network adapter:
+ * listing stickers live and sending a queued plan (issue #35).
+ */
+const greetingsOffline = (networks) => ({
+  network: (networks ?? []).join(',') || 'all',
+  error: 'server-required',
+});
+
 export const api = {
   ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),
   links: async () => {
@@ -439,6 +454,49 @@ export const api = {
         events: [],
       }
     );
+  },
+  // Greetings (issue #35). The catalogue, the selection and the plan
+  // preview work from the browser store when no server answers; live
+  // sticker lists, sends and Telegram thumbnails need the server,
+  // which holds the tokens.
+  greetingCatalogue: async () =>
+    (await serverFetch('/api/greetings/catalogue')) ?? greetingCatalogue(),
+  greetingSelection: async () =>
+    (await serverFetch('/api/greetings/selection')) ??
+    loadGreetingSelection((await ensure()).store),
+  saveGreetingSelection: async (selection) =>
+    (await serverFetch('/api/greetings/selection', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(selection),
+    })) ?? saveGreetingSelection((await ensure()).store, selection),
+  greetingStickers: async (networks) =>
+    (await postJson('/api/greetings/stickers', { networks })) ?? {
+      stickers: [],
+      failures: [greetingsOffline(networks)],
+    },
+  greetingPlan: async (options = {}) => {
+    const answer = await postJson('/api/greetings/plan', options);
+    if (answer) {
+      return answer;
+    }
+    if (options.run === 'queue') {
+      return {
+        plan: null,
+        results: [],
+        failures: [greetingsOffline(options.networks)],
+      };
+    }
+    return planFromStore((await ensure()).store, options);
+  },
+  /** Proxy URL for a Telegram thumbnail, or null without a server. */
+  greetingFileUrl: async (fileId) => {
+    const { client, origin } = await ensure();
+    if (!fileId || !client.isOnline()) {
+      return null;
+    }
+    const path = `/api/greetings/file?id=${encodeURIComponent(fileId)}`;
+    return origin ? new URL(path, origin).toString() : path;
   },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
   createBackup: async ({ passphrase = null, keep } = {}) =>

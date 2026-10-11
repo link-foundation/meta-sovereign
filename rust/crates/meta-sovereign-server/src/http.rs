@@ -609,7 +609,9 @@ fn write_response(stream: &mut TcpStream, response: &Response) -> std::io::Resul
 
 /// Hardening headers that match the Node server (`js/src/server/index.js`).
 /// Loopback-only deployment keeps this conservative: no inline scripts,
-/// no remote fetches, frame-ancestors none.
+/// no remote scripts, frame-ancestors none. Images may come from
+/// `https://vk.com` so VK greeting-sticker previews (issue #35) load
+/// without storing any artwork locally.
 pub fn security_headers() -> &'static [(&'static str, &'static str)] {
     &[
         (
@@ -617,7 +619,7 @@ pub fn security_headers() -> &'static [(&'static str, &'static str)] {
             "default-src 'self'; \
              script-src 'self' 'wasm-unsafe-eval'; \
              style-src 'self'; \
-             img-src 'self' data: blob:; \
+             img-src 'self' data: blob: https://vk.com; \
              connect-src 'self' ws: wss: http://127.0.0.1:* http://localhost:*; \
              worker-src 'self'; \
              font-src 'self' data:; \

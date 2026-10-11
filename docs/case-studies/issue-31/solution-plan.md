@@ -104,7 +104,7 @@ listed. Paths are relative to `js/src/`.
 ## 9. Documentation
 
 - `docs/REQUIREMENTS*.md` section X (R-X1 … R-X21),
-  `docs/USER-GUIDE*.md` section 10, `docs/SERVER-PARITY*.md` section 5a,
+  `docs/USER-GUIDE*.md` section 11, `docs/SERVER-PARITY*.md` section 5a,
   in en/ru/zh/hi.
 - This case study with screenshots, verification logs and raw issue /
   PR data.

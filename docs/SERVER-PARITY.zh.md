@@ -79,13 +79,26 @@ links 上运行同一份代码（`js/src/web/automation-api.js`）：离线时�
 中输入的消息会保存在浏览器里，直到某个服务器把它同步出去。CLI 的
 `automations` 命令完全不需要服务器。
 
-## 6. Real-time transports 与静态资源
+## 6. 问候
+
+`/api/greetings/catalogue`、`/api/greetings/selection`（GET 与 PUT）、
+`/api/greetings/stickers`、`/api/greetings/plan` 和 `/api/greetings/file`
+（issue #35）是 JS only，它们支撑
+[`docs/GREETINGS.zh.md`](./GREETINGS.zh.md) 中的“问候”页面。`catalogue`、
+`selection` 和 `plan` 预览只依赖目录与 store，可以移植；`stickers`、排队发送的
+`plan` 和 `file` 通过 JS source adapters 调用 VK、Telegram、WhatsApp 和
+Messenger API。缺少这些路由时，SPA 仍显示内置目录和预览，发送可改用
+`meta-sovereign greetings-*` CLI。两个 server 发送相同的 CSP：`img-src` 允许
+`https://vk.com` 以直接加载 VK 贴纸预览；Telegram 缩略图的下载 URL 含有
+bot token，因此经由 `/api/greetings/file` 代理。
+
+## 7. Real-time transports 与静态资源
 
 `/ws` WebSocket sync 和 `/rtc` WebRTC signalling 在两个 server 上 parity。
 `/`、`/index.html`、flat assets、`/storage/`、`/handlers/` 和 `/sync/`
 mount 也都保持同样的静态资源服务行为，并拒绝 path traversal。
 
-## 7. 摘要
+## 8. 摘要
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
@@ -93,10 +106,12 @@ mount 也都保持同样的静态资源服务行为，并拒绝 path traversal�
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
 | 简历同步                       | 7      | 0      | 7       |
+| 问候                           | 6      | 0      | 6       |
+| 自动化、联系人、建议           | 14     | 0      | 14      |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **47** | **34** | **13**  |
+| **Total**                      | **67** | **34** | **33**  |
 
-Rust server 当前达到 **72% route parity**。典型终端用户流程（打开 SPA、浏览
+Rust server 当前达到 **51% route parity**。典型终端用户流程（打开 SPA、浏览
 联系人、发送消息、自动化回复、设备间同步、导入 email archive）可以把 Rust
 server 当作 JS server 的 drop-in replacement。

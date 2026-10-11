@@ -4,6 +4,11 @@
  * `chatType`, `chatName` and `senderName` are optional: adapters that
  * know them (Telegram exports carry `personal_chat`/`private_group`…)
  * pass them on, and links from adapters that do not stay unchanged.
+ *
+ * `sticker` (issue #35) is only set when the message is a sticker, so
+ * text messages keep their historical shape: `{id, pack}` with the
+ * network's own sticker id and optional pack/set name, plus `emoji`
+ * where the network reports one (Telegram).
  */
 
 export const buildMessageLink = ({
@@ -17,6 +22,7 @@ export const buildMessageLink = ({
   chatType = null,
   chatName = null,
   senderName = null,
+  sticker = null,
 }) => ({
   id: `msg:${source}:${externalId}`,
   tokens: ['message', source, externalId],
@@ -36,4 +42,5 @@ export const buildMessageLink = ({
   ...(chatType ? { chatType } : {}),
   ...(chatName ? { chatName } : {}),
   ...(senderName ? { senderName } : {}),
+  ...(sticker ? { sticker } : {}),
 });

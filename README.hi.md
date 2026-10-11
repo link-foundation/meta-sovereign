@@ -47,6 +47,7 @@ SPA server को इस क्रम में चुनता है ([`js/src
 
 - **Unified inbox**: VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru और email।
 - **CV synchronisation**: LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV और SuperJob — हर profile को अपने ही browser से पढ़ें, field दर field अंतर देखें और तय किए गए values वापस लिखें ([`docs/CV-SYNC.hi.md`](docs/CV-SYNC.hi.md))।
+- **Greetings**: VK, Telegram, WhatsApp, Messenger, X और email पर "hi" या greeting sticker से बातचीत शुरू करें, जैसे [konard/vk-bot](https://github.com/konard/vk-bot) करता है — UI में stickers चुनें, देखें किसे क्या जाएगा, और messages के बीच pause के साथ भेजें ([`docs/GREETINGS.hi.md`](docs/GREETINGS.hi.md))।
 - **Personal CRM**: contacts, communities, group memberships, intersections और mass-personal outreach।
 - **Personal memory**: conversations से structured `question → answer` facts।
 - **Conversation automation platform**: pattern editors, reply-variation editors और n8n-style dialog graphs।

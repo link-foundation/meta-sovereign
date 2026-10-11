@@ -9,6 +9,9 @@
  * go to `/{phone-number-id}/messages`, profile updates go to
  * `/{phone-number-id}/whatsapp_business_profile`, and inbound reads
  * normalize webhook payloads because Cloud API delivery is webhook-led.
+ * Greeting stickers (issue #35) are `type: 'sticker'` messages carrying
+ * an uploaded media id or a public `.webp` link; outside the 24-hour
+ * customer-service window only approved templates may be sent.
  *
  * Issue #31 / PR #34: `setTyping` shows a typing indicator. Cloud API
  * ties typing indicators to the incoming message being answered (it
@@ -24,6 +27,7 @@ import {
   requestJson,
   resolveOption,
 } from './http.js';
+import { contentSticker } from './sticker.js';
 
 const SOURCE = 'whatsapp';
 const LINE = /^\[([^\]]+)\]\s+([^:]+):\s+(.*)$/;
@@ -41,6 +45,11 @@ const messageBody = (message) => {
   return message.caption ?? message.body ?? '';
 };
 
+const webhookSticker = (message) =>
+  message.type === 'sticker' && message.sticker
+    ? { id: String(message.sticker.id), pack: null }
+    : null;
+
 export const whatsappWebhookToLinks = (payload) => {
   const links = [];
   for (const entry of payload?.entry ?? []) {
@@ -56,6 +65,7 @@ export const whatsappWebhookToLinks = (payload) => {
             chat: String(message.from ?? businessPhone),
             body: messageBody(message),
             timestamp: message.timestamp ?? null,
+            sticker: webhookSticker(message),
           })
         );
       }
@@ -124,13 +134,20 @@ export const createWhatsAppCloudLive = ({
     async post(content, options = {}) {
       const to = options.to ?? contentTarget(content);
       const text = contentText(content);
+      const sticker = contentSticker(content);
       if (!to) {
         throw new Error('whatsapp post recipient is required');
       }
-      if (!text) {
-        throw new Error('whatsapp post text is required');
+      if (!text && !sticker) {
+        throw new Error('whatsapp post text or sticker is required');
       }
-      return sendMessages({ to, type: 'text', text: { body: text } }, options);
+      const message = sticker
+        ? {
+            type: 'sticker',
+            sticker: sticker.id ? { id: sticker.id } : { link: sticker.url },
+          }
+        : { type: 'text', text: { body: text } };
+      return sendMessages({ to, ...message }, options);
     },
     async syncProfile(profile, options = {}) {
       const phone = resolvedPhone(options.phoneNumberId);

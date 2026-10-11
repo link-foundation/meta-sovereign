@@ -6,7 +6,8 @@
  * backup/restore, serve, sources, audience, facts, search, broadcast,
  * sync (listen/connect), patterns (infer/list), graphs (run/list),
  * replies (list), profile/resume, cv (platforms/plan/read/diff/sync/
- * telemetry over browser-commander), automations (plan/run/review drafts).
+ * telemetry over browser-commander), automations (plan/run/review drafts),
+ * greetings (stickers/select/plan/send).
  *
  * Returns an exit code instead of calling `process.exit`, keeping the
  * entry point unit-testable.
@@ -20,6 +21,10 @@ import {
   AUTOMATION_HELP,
   createAutomationCommands,
 } from './automation-commands.js';
+import {
+  GREETINGS_HELP,
+  createGreetingCommands,
+} from './greetings-commands.js';
 import {
   createDualStore,
   createLinoTextStore,
@@ -97,6 +102,7 @@ ${AUTOMATION_HELP}
   vault-remove  --secret=<s> --id=<unlock-id> [--file=<path>]
   vault-list    [--file=<path>]
 ${CV_HELP}
+${GREETINGS_HELP}
   help
 `;
 
@@ -700,6 +706,8 @@ const COMMANDS = {
   ...createCvCommands({ openStore }),
   // Automations: plan, run and review drafts one by one (issue #31).
   ...createAutomationCommands({ openStore }),
+  // Hi/hello and greeting-sticker openers (issue #35).
+  ...createGreetingCommands({ openStore }),
   help: async (_a, log) => {
     log(HELP);
     return 0;

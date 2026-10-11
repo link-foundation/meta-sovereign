@@ -9,6 +9,7 @@ import { ConnectionGuide } from './connection-guide.js';
 import { ChatView } from './chat-view.js';
 import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
+import { GreetingsView } from './greetings-view.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
 import { useT } from './i18n.js';
@@ -1023,5 +1024,6 @@ export const views = {
   status: StatusView,
   connections: ConnectionsView,
   cv: CvView,
+  greetings: GreetingsView,
   settings: SettingsView,
 };

@@ -87,13 +87,28 @@ only, и по структурной причине: `read` и `sync` управ
 хранится в браузере, пока сервер его не синхронизирует. Команда CLI
 `automations` работает вообще без сервера.
 
-## 6. Real-time transports и static assets
+## 6. Приветствия
+
+`/api/greetings/catalogue`, `/api/greetings/selection` (GET и PUT),
+`/api/greetings/stickers`, `/api/greetings/plan` и `/api/greetings/file`
+(issue #35) - JS only. Они обслуживают экран «Приветствия» из
+[`docs/GREETINGS.ru.md`](./GREETINGS.ru.md). `catalogue`, `selection` и
+preview в `plan` - чистые функции каталога и store и портируемы;
+`stickers`, отправка через `plan` и `file` вызывают API VK, Telegram,
+WhatsApp и Messenger через JS source adapters. Без них SPA показывает
+встроенный каталог и preview, а отправка доступна через CLI
+`meta-sovereign greetings-*`. Оба сервера отдают одинаковый CSP: `img-src`
+разрешает `https://vk.com` для превью стикеров VK; миниатюры Telegram
+проксируются через `/api/greetings/file`, потому что их URL содержит
+токен бота.
+
+## 7. Real-time transports и static assets
 
 `/ws` WebSocket sync и `/rtc` WebRTC signalling имеют parity. `/`,
 `/index.html`, flat assets, `/storage/`, `/handlers/` и `/sync/` mounts
 также обслуживаются одинаково и отвергают path traversal.
 
-## 7. Summary
+## 8. Summary
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
@@ -101,11 +116,13 @@ only, и по структурной причине: `read` и `sync` управ
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
 | Синхронизация CV               | 7      | 0      | 7       |
+| Приветствия                    | 6      | 0      | 6       |
+| Автоматизации, люди, подсказки | 14     | 0      | 14      |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **47** | **34** | **13**  |
+| **Total**                      | **67** | **34** | **33**  |
 
-Rust server сегодня достиг **72% route parity**. Для типичного user flow
+Rust server сегодня достиг **51% route parity**. Для типичного user flow
 
 - открыть SPA, просмотреть contacts, отправить messages, automate
   replies, sync между devices, ingest email archives - Rust server является

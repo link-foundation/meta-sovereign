@@ -1103,3 +1103,59 @@ pre {
 .appearance .check input {
   width: auto;
 }
+
+/* Greetings (issue #35): a grid of sticker cards with direct previews. */
+.greetings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 0.5rem;
+}
+.greetings-sticker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  cursor: pointer;
+}
+.greetings-sticker.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.greetings-sticker img {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+.greetings-sticker input {
+  width: auto;
+}
+.greetings-emoji {
+  font-size: 3.5rem;
+  line-height: 96px;
+}
+.greetings-set-list {
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  gap: 0.75rem;
+}
+.greetings-set-list input {
+  width: auto;
+  margin-right: 0.25rem;
+}
+.greetings-controls {
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.greetings-field {
+  min-width: 10rem;
+  max-width: 16rem;
+}
+.greetings-failures {
+  color: var(--danger, #c0392b);
+}

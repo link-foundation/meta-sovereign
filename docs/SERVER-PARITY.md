@@ -153,7 +153,31 @@ message typed in the chat composer without one is kept in the browser
 until a server syncs it. The `automations` CLI command works without
 any server.
 
-## 6. Real-time transports
+## 6. Greetings
+
+| Route                      | Method | JS server                           | Rust server | Status      |
+| -------------------------- | ------ | ----------------------------------- | ----------- | ----------- |
+| `/api/greetings/catalogue` | GET    | `js/src/server/routes-greetings.js` | _missing_   | **JS only** |
+| `/api/greetings/selection` | GET    | `js/src/server/routes-greetings.js` | _missing_   | **JS only** |
+| `/api/greetings/selection` | PUT    | `js/src/server/routes-greetings.js` | _missing_   | **JS only** |
+| `/api/greetings/stickers`  | POST   | `js/src/server/routes-greetings.js` | _missing_   | **JS only** |
+| `/api/greetings/plan`      | POST   | `js/src/server/routes-greetings.js` | _missing_   | **JS only** |
+| `/api/greetings/file`      | GET    | `js/src/server/routes-greetings.js` | _missing_   | **JS only** |
+
+These six routes (issue #35) drive the Greetings screen described in
+[`docs/GREETINGS.md`](./GREETINGS.md). `catalogue`, `selection` and the
+`plan` preview are pure functions of the catalogue and the store and
+are portable; `stickers`, the queued `plan` and `file` call the VK,
+Telegram, WhatsApp and Messenger APIs through the JS source adapters.
+Without them the SPA keeps the built-in catalogue and the preview, and
+sending falls back to the `meta-sovereign greetings-*` CLI.
+
+Both servers send the same Content-Security-Policy, whose `img-src`
+allows `https://vk.com` so VK sticker previews load straight from VK.
+Telegram thumbnails are never linked directly: their download URL
+embeds the bot token, so `/api/greetings/file` proxies them.
+
+## 7. Real-time transports
 
 | Surface                   | JS server                | Rust server                    | Status |
 | ------------------------- | ------------------------ | ------------------------------ | ------ |
@@ -165,7 +189,7 @@ for store-replication packets and to `/rtc` for the WebRTC
 offer/answer/ICE rendezvous. `webrtc-sync.js` in the SPA does not need
 to know which backend it is talking to.
 
-## 7. Static asset serving
+## 8. Static asset serving
 
 | Surface                                    | JS server                | Rust server                                      | Status |
 | ------------------------------------------ | ------------------------ | ------------------------------------------------ | ------ |
@@ -177,24 +201,29 @@ Both servers refuse path traversal (`..`), only emit known MIME types,
 and serve only flat single-file paths inside the browser mount
 directories.
 
-## 8. Summary
+## 9. Summary
 
-| Category                       | Routes | Parity | JS only |
-| ------------------------------ | ------ | ------ | ------- |
-| Read (links + derived + meta)  | 14     | 14     | 0       |
-| Mutating CRUD                  | 15     | 15     | 0       |
-| Outreach / backups / hardening | 6      | 0      | 6       |
-| CV synchronisation             | 7      | 0      | 7       |
-| Real-time transports           | 2      | 2      | 0       |
-| Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **47** | **34** | **13**  |
+| Category                         | Routes | Parity | JS only |
+| -------------------------------- | ------ | ------ | ------- |
+| Read (links + derived + meta)    | 14     | 14     | 0       |
+| Mutating CRUD                    | 15     | 15     | 0       |
+| Outreach / backups / hardening   | 6      | 0      | 6       |
+| CV synchronisation               | 7      | 0      | 7       |
+| Greetings                        | 6      | 0      | 6       |
+| Automations, people, suggestions | 14     | 0      | 14      |
+| Real-time transports             | 2      | 2      | 0       |
+| Static asset serving             | 3      | 3      | 0       |
+| **Total**                        | **67** | **34** | **33**  |
 
-The Rust server reaches **72 % route parity** today. The remaining
-routes split into two groups: the "operator hardening" category
+The Rust server reaches **51 % route parity** today. The remaining
+routes split into four groups: the "operator hardening" category
 (R-K\*), which has JS-implemented fallbacks and is a porting backlog
 item, and CV synchronisation (R-V\*), three of whose seven routes
 cannot be ported at all while the Rust crate stays `std`-only, because
-they drive a browser. For the typical end-user flow — open the SPA,
-browse contacts, send messages, automate replies, sync between devices,
-ingest email archives — the Rust server is a complete drop-in
-replacement for the JS server.
+they drive a browser, the greeting routes (issue #35), which wait
+on a Rust port of the source adapters, and the automation, people and
+suggestion routes (issue #31, section 5a), which wait on a Rust port of
+the automation runner, the people directory and the reply graph. For the typical end-user flow —
+open the SPA, browse contacts, send messages, automate replies, sync
+between devices, ingest email archives — the Rust server is a complete
+drop-in replacement for the JS server.

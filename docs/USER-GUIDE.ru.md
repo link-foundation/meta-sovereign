@@ -160,7 +160,50 @@ meta-sovereign cv-telemetry --type=step.miss
 что именно проверено на каждой платформе — в
 [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
 
-## 10. Автоматизации: писать людям по правилам, безопасно
+## 10. Начать диалог с привета или стикера
+
+Начать диалог — самая медленная часть общения с людьми. Экран
+**Приветствия** отправляет за вас «привет» или приветственный стикер,
+как это делает [konard/vk-bot](https://github.com/konard/vk-bot) во VK,
+чтобы вы сразу перешли к сообщению, которое действительно хотите
+проверить.
+
+1. Откройте **Приветствия**. Сетка стикеров показывает приветственные
+   стикеры VK (картинки грузятся прямо с vk.com) и thumbs-up из
+   Messenger. Отметьте те, которыми хотите приветствовать.
+2. Нажмите **Получить стикеры из сетей**, чтобы подтянуть больше из ваших
+   аккаунтов: стикеры VK, чьи keywords — приветствия, и стикеры 👋 из
+   Telegram sets, перечисленных под сеткой. Set можно добавить в
+   Telegram по его ссылке `t.me`.
+3. Выберите язык текстов приветствия и что вы предпочитаете — стикер или
+   текст, затем нажмите **Сохранить выбор**.
+4. Установите **План** в **начать новые диалоги** (люди, которым вы
+   никогда не писали, сначала самые старые) или **ответить на
+   приветствия** (люди, которые сказали «привет» и ждут), затем нажмите
+   **Показать план**. Таблица показывает, кто что получит и почему
+   кто-то пропущен — например, WhatsApp и Messenger разрешают
+   произвольные сообщения только в течение 24 часов после последнего
+   сообщения человека, а Telegram bot может только отвечать.
+5. **Отправить приветствия** ставит план в очередь с паузой между
+   сообщениями (по умолчанию 30 секунд). Никто не получит приветствие
+   дважды.
+
+То же самое из терминала:
+
+```bash
+meta-sovereign greetings-stickers --live --networks=vk,telegram
+meta-sovereign greetings-select --stickers=vk:72789,vk:21 --language=ru
+meta-sovereign greetings-plan --mode=initiate --limit=10
+meta-sovereign greetings-send --mode=reply
+```
+
+Для получения стикеров и отправки нужны JS server (`meta-sovereign serve`)
+и подключённые аккаунты VK, Telegram, WhatsApp или Messenger. Без server
+экран всё равно показывает каталог и preview. Собственные подсказки
+Telegram для пустых чатов ботам недоступны — подробности об этом и
+остальном в [`docs/GREETINGS.ru.md`](./GREETINGS.ru.md).
+
+## 11. Автоматизации: писать людям по правилам, безопасно
 
 Автоматизация задаёт, кому писать, когда, при каких условиях и каким
 текстом. Откройте вкладку **Автоматизация**, чтобы редактировать,
@@ -239,7 +282,7 @@ meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 `/api/suggest`. Подробности:
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md).
 
-## 11. Troubleshooting
+## 12. Troubleshooting
 
 | Symptom                               | Fix                                                                                                   |
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -249,11 +292,12 @@ meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 | WebRTC sync ломается между двумя LAN. | Настройте TURN server: [`docs/WEBRTC-TURN.ru.md`](./WEBRTC-TURN.ru.md).                               |
 | `cargo build` падает с linker error.  | Установите C toolchain (`build-essential` на Debian/Ubuntu, Xcode CLI tools на macOS).                |
 
-## 12. Дальше
+## 13. Дальше
 
 - [`README.ru.md`](../README.ru.md) — overview проекта и developer notes.
 - [`docs/REQUIREMENTS.ru.md`](./REQUIREMENTS.ru.md) — canonical requirements.
 - [`docs/SERVER-PARITY.ru.md`](./SERVER-PARITY.ru.md) — JS vs. Rust routes.
 - [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md) — как устроена синхронизация CV, платформа за платформой.
+- [`docs/GREETINGS.ru.md`](./GREETINGS.ru.md) — приветственные стикеры и тексты, сеть за сетью.
 - [`docs/UI-DESIGN-AUDIT.ru.md`](./UI-DESIGN-AUDIT.ru.md) — accessibility и design audit.
 - [`docs/case-studies/`](./case-studies/) — case studies по каждому issue.

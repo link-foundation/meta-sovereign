@@ -31,6 +31,7 @@
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
  *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
  *   /api/people, /api/audiences, /api/lists -> routes-people.js
+ *   GET  /api/greetings/*          -> greeting stickers/texts (routes-greetings.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/backups              -> list archives (gated on archiveDir)
@@ -57,6 +58,7 @@ import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
+import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
 import { handleAutomationRoutes } from './routes-automations.js';
@@ -87,8 +89,10 @@ const MIME = {
   '.wasm': 'application/wasm',
 };
 
-// Conservative Content-Security-Policy. The SPA never loads remote
-// resources and ships no inline scripts/styles: only same-origin SPA
+// Conservative Content-Security-Policy. The SPA loads no remote
+// resources except VK greeting-sticker previews from https://vk.com
+// (issue #35; Telegram thumbnails are proxied through
+// /api/greetings/file) and ships no inline scripts/styles: only same-origin SPA
 // modules/bundles and app.css. WebSockets connect to the same
 // origin (/ws + /rtc); discovery may also attempt 127.0.0.1 / localhost
 // on alternate ports. Browser-first provider API calls (JMAP, Gmail,
@@ -97,7 +101,7 @@ export const CSP =
   "default-src 'self'; " +
   "script-src 'self' 'wasm-unsafe-eval'; " +
   "style-src 'self'; " +
-  "img-src 'self' data: blob:; " +
+  "img-src 'self' data: blob: https://vk.com; " +
   "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; " +
   "worker-src 'self'; " +
   "font-src 'self' data:; " +
@@ -244,6 +248,16 @@ const automationContext = (store, automations = {}, log = null) => {
   };
 };
 
+/**
+ * Greeting routes accept injected sources (and a sleep) so tests send
+ * nothing to a real network.
+ * @param {{resolveSource?: Function, sleep?: Function}} greetings
+ */
+const greetingContext = (greetings = {}) => ({
+  greetingSources: greetings.resolveSource ?? null,
+  greetingSleep: greetings.sleep ?? null,
+});
+
 const applySecurityHeaders = (res) => {
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!res.hasHeader(k)) {
@@ -275,6 +289,9 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   if (await handlePeopleRoutes(store, req, res, p, url)) {
+    return;
+  }
+  if (await handleGreetingRoutes(store, req, res, p, url, ctx)) {
     return;
   }
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
@@ -329,6 +346,7 @@ export const startServer = async ({
   replies,
   // `{ send?, setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   automations,
+  greetings,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -345,6 +363,7 @@ export const startServer = async ({
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
     ...automationContext(store, automations, log),
+    ...greetingContext(greetings),
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
