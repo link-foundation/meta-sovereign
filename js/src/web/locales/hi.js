@@ -793,4 +793,17 @@ export const hi = {
   'automations.audiences.use': 'इस्तेमाल करें',
   'automations.audiences.count': 'गिनें',
   'automations.audiences.resolved': '{count} लोग: {names}',
+  'settings.appearance.title': 'रूप-रंग',
+  'settings.appearance.intro':
+    'थीम और स्किन हर स्क्रीन पर लागू होती हैं और इसी ब्राउज़र में सहेजी जाती हैं। हेडर का थीम बटन हल्की और गहरी थीम के बीच बदलता है।',
+  'settings.appearance.theme': 'थीम',
+  'settings.appearance.skin': 'स्किन',
+  'settings.theme.system': 'सिस्टम के अनुसार',
+  'settings.theme.light': 'हल्की',
+  'settings.theme.dark': 'गहरी',
+  'settings.theme.auto': 'ऑटो: दिन में (7–19) हल्की, रात में गहरी',
+  'settings.skin.t3': 't3.codes जैसा (डिफ़ॉल्ट)',
+  'settings.skin.telegram': 'Telegram जैसा',
+  'settings.skin.whatsapp': 'WhatsApp जैसा',
+  'settings.skin.signal': 'Signal जैसा',
 };

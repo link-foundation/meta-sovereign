@@ -773,4 +773,17 @@ export const zh = {
   'automations.audiences.use': '使用',
   'automations.audiences.count': '统计',
   'automations.audiences.resolved': '{count} 人：{names}',
+  'settings.appearance.title': '外观',
+  'settings.appearance.intro':
+    '主题和皮肤作用于所有界面，并保存在此浏览器中。页眉中的“主题”按钮可在浅色和深色之间切换。',
+  'settings.appearance.theme': '主题',
+  'settings.appearance.skin': '皮肤',
+  'settings.theme.system': '跟随系统',
+  'settings.theme.light': '浅色',
+  'settings.theme.dark': '深色',
+  'settings.theme.auto': '自动：白天（7–19 点）浅色，夜间深色',
+  'settings.skin.t3': '类似 t3.codes（默认）',
+  'settings.skin.telegram': '类似 Telegram',
+  'settings.skin.whatsapp': '类似 WhatsApp',
+  'settings.skin.signal': '类似 Signal',
 };

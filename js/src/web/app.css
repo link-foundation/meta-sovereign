@@ -366,6 +366,12 @@ h3 {
   gap: 0.4rem;
   align-items: center;
 }
+.draft-card .meta {
+  margin: 0;
+}
+.draft-card a {
+  color: var(--chat-accent);
+}
 .chat-composer {
   position: absolute;
   left: 50%;
@@ -1005,4 +1011,95 @@ pre {
   .automations-body + .automations-body {
     grid-template-columns: 1fr;
   }
+}
+/* Skins (issue #31 / PR #34): Settings → Appearance sets
+   <html data-skin> and the resolved <html data-theme>. t3 is the
+   default above; the others take the colours and bubble shapes of
+   Telegram (Web A / tdesktop night), WhatsApp Web and Signal Desktop. */
+:root[data-skin='telegram'] {
+  --accent: #3390ec;
+  --accent-bg: #3390ec22;
+  --chat-accent: #3390ec;
+  --chat-bg: linear-gradient(135deg, #dbddbb, #6ba587, #d5d88d, #88b884);
+  --chat-sidebar: #ffffff;
+  --bubble-in: #ffffff;
+  --bubble-in-text: #000000;
+  --bubble-in-pad: 0.4rem 0.7rem;
+  --bubble-out: #effdde;
+  --bubble-out-text: #000000;
+  --bubble-radius: 15px;
+  --bubble-tail: 15px;
+  --chat-column: 44rem;
+}
+:root[data-skin='telegram'][data-theme='dark'] {
+  --chat-bg: #0e1621;
+  --chat-sidebar: #17212b;
+  --bubble-in: #182533;
+  --bubble-in-text: #f5f5f5;
+  --bubble-out: #2b5278;
+  --bubble-out-text: #f5f5f5;
+  --chat-accent: #6ab3f3;
+}
+:root[data-skin='whatsapp'] {
+  --accent: #00a884;
+  --accent-bg: #00a88422;
+  --chat-accent: #00a884;
+  --chat-bg: #efeae2;
+  --chat-sidebar: #ffffff;
+  --bubble-in: #ffffff;
+  --bubble-in-text: #111b21;
+  --bubble-in-pad: 0.35rem 0.6rem;
+  --bubble-out: #d9fdd3;
+  --bubble-out-text: #111b21;
+  --bubble-radius: 7.5px;
+  --bubble-tail: 11.5px;
+}
+:root[data-skin='whatsapp'][data-theme='dark'] {
+  --chat-bg: #0b141a;
+  --chat-sidebar: #111b21;
+  --bubble-in: #202c33;
+  --bubble-in-text: #e9edef;
+  --bubble-out: #005c4b;
+  --bubble-out-text: #e9edef;
+}
+:root[data-skin='signal'] {
+  --accent: #2c6bed;
+  --accent-bg: #2c6bed22;
+  --chat-accent: #2c6bed;
+  --chat-bg: #ffffff;
+  --chat-sidebar: #f6f6f6;
+  --bubble-in: #e9e9e9;
+  --bubble-in-text: #000000;
+  --bubble-in-pad: 0.45rem 0.75rem;
+  --bubble-out: #2c6bed;
+  --bubble-out-text: #ffffff;
+  --bubble-radius: 18px;
+  --bubble-tail: 18px;
+}
+:root[data-skin='signal'][data-theme='dark'] {
+  --chat-bg: #121212;
+  --chat-sidebar: #1b1b1b;
+  --bubble-in: #3b3b3b;
+  --bubble-in-text: #ffffff;
+  --chat-accent: #6191f3;
+}
+.appearance-row {
+  align-items: flex-start;
+  gap: 1rem;
+}
+.appearance-choices {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.appearance .check {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.appearance .check input {
+  width: auto;
 }

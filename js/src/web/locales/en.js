@@ -796,4 +796,17 @@ export const en = {
   'automations.audiences.use': 'use',
   'automations.audiences.count': 'count',
   'automations.audiences.resolved': '{count} people: {names}',
+  'settings.appearance.title': 'Appearance',
+  'settings.appearance.intro':
+    'The theme and skin apply to every screen and are kept in this browser. The Theme button in the header switches between light and dark.',
+  'settings.appearance.theme': 'Theme',
+  'settings.appearance.skin': 'Skin',
+  'settings.theme.system': 'follow the system',
+  'settings.theme.light': 'light',
+  'settings.theme.dark': 'dark',
+  'settings.theme.auto': 'auto: light by day (7–19), dark at night',
+  'settings.skin.t3': 'like t3.codes (default)',
+  'settings.skin.telegram': 'like Telegram',
+  'settings.skin.whatsapp': 'like WhatsApp',
+  'settings.skin.signal': 'like Signal',
 };

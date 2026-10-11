@@ -807,4 +807,17 @@ export const ru = {
   'automations.audiences.use': 'использовать',
   'automations.audiences.count': 'посчитать',
   'automations.audiences.resolved': 'Людей: {count}. {names}',
+  'settings.appearance.title': 'Внешний вид',
+  'settings.appearance.intro':
+    'Тема и оформление действуют на всех экранах и сохраняются в этом браузере. Кнопка «Тема» в шапке переключает светлую и тёмную.',
+  'settings.appearance.theme': 'Тема',
+  'settings.appearance.skin': 'Оформление',
+  'settings.theme.system': 'как в системе',
+  'settings.theme.light': 'светлая',
+  'settings.theme.dark': 'тёмная',
+  'settings.theme.auto': 'авто: днём (7–19) светлая, ночью тёмная',
+  'settings.skin.t3': 'как в t3.codes (по умолчанию)',
+  'settings.skin.telegram': 'как в Telegram',
+  'settings.skin.whatsapp': 'как в WhatsApp',
+  'settings.skin.signal': 'как в Signal',
 };

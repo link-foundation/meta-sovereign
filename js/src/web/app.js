@@ -14,29 +14,9 @@ import {
 import { LocaleContext, useLocale } from './i18n.js';
 import { LanguageSwitcher } from './language-switcher.js';
 import { AppShell } from './shell/app-shell.js';
+import { useAppearance, useApplyAppearance } from './appearance.js';
 
 const el = React.createElement;
-const THEME_KEY = 'metaSovereignTheme';
-
-const initialTheme = () => {
-  try {
-    const stored = globalThis.localStorage?.getItem(THEME_KEY);
-    if (stored === 'dark' || stored === 'light') {
-      return stored;
-    }
-  } catch {
-    // Storage can be disabled in restricted browser contexts.
-  }
-  return '';
-};
-
-const applyTheme = (mode) => {
-  if (mode === 'light' || mode === 'dark') {
-    document.documentElement.dataset.theme = mode;
-  } else {
-    delete document.documentElement.dataset.theme;
-  }
-};
 
 const useOnlineMode = () => {
   const [online, setOnline] = useState(null);
@@ -77,33 +57,11 @@ const useViewportWidth = () => {
   return width;
 };
 
-const useTheme = () => {
-  const [theme, setTheme] = useState(initialTheme);
-  useEffect(() => {
-    applyTheme(theme);
-    try {
-      if (theme) {
-        globalThis.localStorage?.setItem(THEME_KEY, theme);
-      }
-    } catch {
-      // See initialTheme().
-    }
-  }, [theme]);
-  const toggle = () => {
-    const current =
-      theme ||
-      (globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light');
-    setTheme(current === 'dark' ? 'light' : 'dark');
-  };
-  return { theme, toggle };
-};
-
 const App = () => {
   const [active, setActive] = useState('chat');
   const online = useOnlineMode();
-  const { theme, toggle } = useTheme();
+  useApplyAppearance();
+  const { theme, toggle } = useAppearance();
   const localeApi = useLocale();
   const { t } = localeApi;
   const tutorial = useTutorialPreference();
@@ -167,7 +125,7 @@ const App = () => {
               className: 'theme-toggle',
               'data-action': 'theme-toggle',
               'aria-label': t('header.themeAria'),
-              'aria-pressed': String((theme || '') === 'dark'),
+              'aria-pressed': String(theme === 'dark'),
               title: t('header.themeAria'),
               onClick: toggle,
             },
