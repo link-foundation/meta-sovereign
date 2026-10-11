@@ -2,4 +2,4 @@
 > meta-sovereign@0.18.1 check:duplication
 > jscpd .
 
-Detection time:: 0.304ms
+Detection time:: 0.331ms

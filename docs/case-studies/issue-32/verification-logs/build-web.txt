@@ -5,4 +5,4 @@
 
   js/src/web/app.min.js  735.8kb
 
-⚡ Done in 258ms
+⚡ Done in 331ms

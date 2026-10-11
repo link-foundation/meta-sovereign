@@ -198,6 +198,9 @@ Two control client_ids pin the meaning of each answer:
   - The token checker against the real api.vk.ru with a bogus token,
     which shows VK error 5 and its hint.
   - Local test, lint, format and duplication runs.
+- `screenshots/`: the rewritten VK connection guide in English and
+  Russian, produced by `experiments/issue-32/vk-guide-screenshot.mjs`
+  against the real server.
 - [requirements.md](./requirements.md): issue sentences mapped to
   evidence.
 - [solution-plan.md](./solution-plan.md): options considered and why

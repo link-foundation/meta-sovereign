@@ -135,7 +135,7 @@ export const providerCatalogue = {
       title: 'Connect the VK API',
       titleKey: 'connections.vk.api.title',
       envVar: 'VK_ACCESS_TOKEN',
-      hint: 'New VK apps can no longer get the messages right, and Kate Mobile tokens stopped working on 2026-09-08. Prefer the archive import above. For community chats, paste a community token (community settings -> API usage). A legacy user token issued for VK\'s own web client (client_id 6287487 via oauth.vk.ru) may still work, at your own risk of an account freeze. The value is stored as "secret:vk:access-token".',
+      hint: 'New VK apps can no longer get the messages right, and Kate Mobile tokens stopped working on 2026-09-08. Prefer the archive import below. For community chats, paste a community token (community settings -> API usage). A legacy user token issued for VK\'s own web client (client_id 6287487 via oauth.vk.ru) may still work, at your own risk of an account freeze. The value is stored as "secret:vk:access-token".',
       hintKey: 'connections.vk.api.hint',
       docsUrl: 'https://dev.vk.ru/ru/api/access-token/getting-started',
       apiBase: 'https://api.vk.ru',
