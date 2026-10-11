@@ -24,21 +24,26 @@ const SYNTAX_ERROR = /^\(error: .?invalid LiNo/;
 
 /**
  * The clink binary to use: `$CLINK_BIN`, then the cargo and dotnet tool
- * folders, then `$PATH`; `null` when there is none.
+ * folders, then `$PATH`; `null` when there is none. On Windows both
+ * tool installers name the binary `clink.exe`.
  */
 export const findClink = ({
   env = process.env,
   home = os.homedir(),
   exists = existsSync,
+  platform = process.platform,
 } = {}) => {
-  const candidates = [
-    env.CLINK_BIN,
-    path.join(home, '.cargo', 'bin', 'clink'),
-    path.join(home, '.dotnet', 'tools', 'clink'),
+  const names = platform === 'win32' ? ['clink.exe', 'clink'] : ['clink'];
+  const dirs = [
+    path.join(home, '.cargo', 'bin'),
+    path.join(home, '.dotnet', 'tools'),
     ...String(env.PATH ?? '')
       .split(path.delimiter)
-      .filter(Boolean)
-      .map((dir) => path.join(dir, 'clink')),
+      .filter(Boolean),
+  ];
+  const candidates = [
+    env.CLINK_BIN,
+    ...dirs.flatMap((dir) => names.map((name) => path.join(dir, name))),
   ].filter(Boolean);
   return candidates.find((candidate) => exists(candidate)) ?? null;
 };

@@ -89,20 +89,24 @@ test('parseClinkReply reads changes and raises clink errors', () => {
 });
 
 test('findClink prefers $CLINK_BIN, then tool folders, then PATH', () => {
-  const exists = (p) => p.startsWith('/opt/') || p === '/h/.cargo/bin/clink';
+  // Paths are built with the host's separator so the test runs on Windows.
+  const custom = path.join('/opt', 'clink');
+  const opt = path.join('/opt', 'bin');
+  const cargo = path.join('/h', '.cargo', 'bin', 'clink');
+  const exists = (p) => p.startsWith(path.join('/opt')) || p === cargo;
+  const posix = { home: '/h', exists, platform: 'linux' };
+  assert.equal(findClink({ ...posix, env: { CLINK_BIN: custom } }), custom);
+  assert.equal(findClink({ ...posix, env: {} }), cargo);
   assert.equal(
-    findClink({ env: { CLINK_BIN: '/opt/clink' }, home: '/h', exists }),
-    '/opt/clink'
-  );
-  assert.equal(
-    findClink({ env: {}, home: '/h', exists }),
-    '/h/.cargo/bin/clink'
-  );
-  assert.equal(
-    findClink({ env: { PATH: '/opt/bin' }, home: '/x', exists }),
-    '/opt/bin/clink'
+    findClink({ ...posix, env: { PATH: opt }, home: '/x' }),
+    path.join(opt, 'clink')
   );
   assert.equal(findClink({ env: {}, home: '/x', exists: () => false }), null);
+  // Windows installs clink.exe, which is tried first.
+  assert.equal(
+    findClink({ ...posix, env: { PATH: opt }, home: '/x', platform: 'win32' }),
+    path.join(opt, 'clink.exe')
+  );
 });
 
 // A stand-in for `clink --serve`: answers `ok`, hangs up after `bad`
