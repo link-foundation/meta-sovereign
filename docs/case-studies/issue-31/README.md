@@ -1,4 +1,4 @@
-# Issue 31 Case Study: re-engaging personal contacts after a long silence
+# Issue 31 Case Study: automations that re-engage personal contacts after a long silence
 
 Issue: https://github.com/link-foundation/meta-sovereign/issues/31
 
@@ -28,57 +28,113 @@ peg grammars or similar", ideally through the project's own rules. The
 issue also requires a safe (debug) mode in which only one message is
 pre-filled at a time and goes out only after the user confirms it.
 
-The implemented solution adds three layers on top of the message links
-the archive importers already produce:
+The first round (commits up to 127e7a1) built this as a dedicated
+**Re-engage** screen, a `reengage` command and `/api/reengage/*` routes.
+The review of PR 34 asked for something more general: outreach should
+be an **automation** — a trigger, an audience, conditions and an action
+the user can change — that runs in the ordinary chat, and the work
+should also bring message-to-message autocomplete, typing status, a
+t3.codes-like chat with switchable themes and skins, the associative
+storage stack (links notation text + binary, link-cli), sending through
+the official web UIs when an API fails, and every dependency updated.
+The second round replaced the dedicated screen with that design.
 
-1. `js/src/crm/address-form.js` — a data-driven table of word-level
-   regex rules (Russian ты/вы plus Chinese 你/您 and Hindi तुम/आप) and an
-   explainable `detectAddressForm()` that reports the winning form, the
-   reason (`majority`, `tie`, `no-evidence`), a confidence and which
-   rules fired. Users can add rules as `pattern:*` links labelled
-   `address:informal` / `address:formal`.
-2. `js/src/crm/reengage.js` — finds 1:1 chats with a silence of at
-   least N days (90 by default, groups, channels and bots excluded),
-   picks the template for the detected form, and drives a session that
-   in **safe mode (the default)** can only send the current draft after
-   an explicit `confirm()`. Every decision is stored as a
-   `reengage:<source>:<chat>` link, so a contact is not offered again
-   until the threshold passes once more.
-3. Three front ends over the same core: the `reengage` CLI command
-   (preview, `--interactive` one-by-one, `--mode=batch --confirm=true`),
-   the `/api/reengage/{plan,send,mark,run}` HTTP routes, and a
-   **Re-engage** screen in the SPA.
+What is in the pull request now:
+
+1. **Detection, unchanged in substance.** `js/src/crm/address-form.js`
+   is a data-driven table of word-level regex rules (Russian ты/вы plus
+   Chinese 你/您 and Hindi तुम/आप) with an explainable
+   `detectAddressForm()`: the winning form, the reason (`majority`,
+   `tie`, `no-evidence`), a confidence and the rules that fired. Users
+   can add rules as `pattern:*` links labelled `address:informal` /
+   `address:formal`. `js/src/crm/reengage.js` remains the library that
+   finds 1:1 chats silent for at least N days and picks the template.
+2. **Automations** (`js/src/automation/`). An `automation:<id>` link
+   holds triggers (manual, chat menu, schedule, incoming message
+   pattern — after konard/vk-bot's triggers), an audience, conditions
+   (silent days, mutual, personal, who wrote last, networks, cooldown),
+   the ты/вы templates, the mode and the pacing. Issue 31 is the
+   `reengage-dormant` preset; job search, contract search and greet-back
+   are others. **Safe mode** (the default) writes one
+   `automation-draft:*` link per person, shown prefilled in that chat,
+   and nothing leaves until the user clicks Send. **Auto mode** sends
+   like a person — typing status for as long as the text takes to type,
+   a random pause, a daily cap (vk-bot's outgoing queue, plus
+   hh-job-application-automation's caps, de-duplication ledger and
+   confirm-before-send). Every outcome is an `automation-run:*` link,
+   which is also the cooldown.
+3. **People and audiences** (`js/src/crm/people.js`). One searchable
+   entry per `<source>:<user>` built from messages, `person:`,
+   `member:` (friends, chat and community membership) and `list:`
+   links, with cross-network matches suggested as `sameAs`. Audiences
+   are specs like `friends:vk & chat:vk:2000000001 - list:blocked`
+   (union, intersection, difference), saved and resolved anywhere.
+4. **Reply graph** (`js/src/replies/`). Every (incoming message → our
+   reply) pair is a link with a count; the composer first offers every
+   reply used before for the chat's last message, deduplicated and most
+   used first, then word-by-word completion from the owner's own
+   messages. It learns from imported archives and in real time. A
+   link-cli (`clink`) database mirrors the graph
+   (`reply-store-clink.js`, `MS_REPLY_CLINK=1`).
+5. **Storage**: `doublets-archive.js` writes records as a deduplicated
+   doublets network in the link-cli binary archive layout
+   (`clink --import-binary` reads it), and `lino-store.js` keeps the text
+   half as one links-notation record per line (`lino-objects-codec`).
+6. **Delivery and typing** (`js/src/sources/`). VK, Telegram and
+   WhatsApp adapters show and receive typing status; `browser-sender.js`
+   sends through vk.com, web.telegram.org and web.whatsapp.com via
+   browser-commander when the API throws or is not configured.
+7. **Front ends.** The **Chat** tab (t3.codes-like by default) has a
+   ⚡ Automations menu in every chat, the drafts, typing indicators and
+   suggestions; the **Automation** tab edits, previews and runs
+   automations, searches people and saves audiences; **Settings →
+   Appearance** chooses system / light / dark / auto (by the hour) and
+   the t3.codes, Telegram, WhatsApp or Signal skin. The `automations`
+   CLI and `/api/automations`, `/api/people`, `/api/audiences`,
+   `/api/lists`, `/api/send`, `/api/typing`, `/api/suggest` routes cover
+   the same ground; the SPA falls back to its local links offline.
+8. **Dependencies**: every npm package and GitHub Action at its latest
+   release (eslint 10, jscpd 5, React 19.3, playwright 1.64,
+   browser-commander 0.31, links-notation 0.25, …).
 
 ## Local Artifacts
 
-Raw GitHub data is preserved under `data/`:
+Raw GitHub data is preserved under `data/`: `issue-31.json`,
+`issue-31-comments.json` (none), `pr-34.json`,
+`pr-34-conversation-comments.json` (the review that started the second
+round is the comment of 2026-10-11T17:26:45Z), `pr-34-review-comments.json`
+and `pr-34-reviews.json` (none).
 
-- `issue-31.json` and `issue-31-comments.json` (no comments were posted)
-- `pr-34.json`, `pr-34-conversation-comments.json`,
-  `pr-34-review-comments.json` and `pr-34-reviews.json` (all empty —
-  the PR received no feedback during implementation)
+Screenshots under `screenshots/` were taken with Playwright against
+`experiments/automations-spa-server.mjs`, which seeds a store (Telegram
+"Аня" on "ты" and VK 2002 on "вы", both silent for months; an e-mail
+contact whose fake sender always fails; a recent VK chat; three chats
+where the owner answered "Как дела?" twice one way and once another)
+and replaces sending and typing with fakes that only log:
 
-Verification screenshots are preserved under `screenshots/`. They were
-taken with Playwright against `experiments/automations-spa-server.mjs`,
-which seeds a store with four dialogs (Telegram "Аня" on "ты", VK 2002
-on "вы", an e-mail contact on "ты" whose sender always fails, and a
-recent VK chat that must not be offered) and replaces the adapters with
-a fake sender:
+- `chat-skin-{t3,telegram,whatsapp,signal}-{light,dark}.png` — the same
+  chat with issue 31's draft in every skin and theme.
+- `chat-automation-menu.png` — the ⚡ Automations menu of a chat: test an
+  automation on this chat, or run it with its conditions.
+- `chat-reply-suggestions.png` — "Как дела?" was answered before, so the
+  composer offers both answers, the one used twice first.
+- `chat-word-suggestions.png` — no reply matches "Привет!", so typing
+  "Отлично, " completes word by word; "спасибо", the word that followed
+  "Отлично" in the owner's messages, comes first.
+- `automations-editor-preview.png` — issue 31's automation in the
+  editor with its preview: two to message (one formal, one informal) and
+  why the rest are left out.
+- `settings-appearance.png` — Settings → Appearance.
 
-- `reengage-safe-mode.png` — first open: 3 contacts silent for ≥ 90
-  days, draft 1/3 to Аня with the informal text, the evidence line and
-  safe mode on.
-- `reengage-formal-after-send.png` — after **Send**: "Sent." and the
-  next draft (VK 2002) prefilled with the formal text.
-- `reengage-send-failed.png` — the e-mail sender throws; the error is
-  shown as an alert and the draft stays current so it can be edited,
-  sent by hand or skipped.
-- `reengage-batch-mode.png` — safe mode switched off: **Send all (1)**
-  appears; it still asks for one confirmation before sending.
+The first round's `reengage-*.png` screenshots showed the removed
+screen; they are in the history at commit 127e7a1.
 
-`experiments/reengage-cli-roundtrip.mjs` drives the CLI in interactive
-mode with scripted answers (`y`, `f`, `m`, `s`, `q`) against a temporary
-store and prints the resulting `reengage:*` records.
+`experiments/automations-cli-roundtrip.mjs` runs issue 31's automation
+from the terminal against an on-disk store (plan, run in safe mode,
+review with scripted answers `f`, `m`, `s`, then plan again from the
+reopened store); its output is `verification-logs/automations-cli-roundtrip.log`.
+The `experiments/clink-*.mjs` probes measure link-cli's query and import
+costs that shaped the reply store.
 
 ## Root Questions and Answers
 
@@ -111,24 +167,43 @@ safe to count morphologically. `js/tests/address-form.test.js` keeps
 these collisions as regression tests ("выход", "работы", "тыква",
 "в интернете", "на сайте" must not count).
 
-**What does "safe mode" guarantee?** In safe mode a session has no way
-to send anything but the current draft, and only through `confirm()`;
-`sendAll()` throws `SafeModeError`. The HTTP API refuses `/send`
-without `confirm: true` and `/run` without `mode: "batch"` and
-`confirm: true`. The SPA starts with safe mode on, and switching it off
-still asks once before sending the rest. A failed send never advances
-the session.
+**What does "safe mode" guarantee?** A safe-mode run only writes
+drafts. A draft is sent by `sendDraft(id, { confirm: true })` and by
+nothing else; without `confirm` it throws `ConfirmationRequiredError`,
+and `POST /api/automations/drafts/send` answers 400 `confirm-required`.
+In the app the confirmation is the Send click on that one draft. A
+failed send keeps the draft so it can be edited, sent by hand or
+skipped. Auto mode started by hand or from a chat menu also needs
+`confirm: true` (the app asks once); schedule and incoming triggers
+were authorised when the automation was switched on, and still respect
+the pacing and the daily cap.
 
-**What if the app cannot send through a network?** Each draft carries
-an "Open chat" link where the platform documents one (`mailto:` with the
-body prefilled, `tg://user?id=`, `https://vk.com/im?sel=`) and a Copy
-button; **I sent it myself** records the manual send, so the contact is
-handled either way.
+**Why automations instead of a feature?** The review asked for
+"universal configurable solutions, not specific features that are not
+changeable by user". Every part of issue 31 — 90 days, personal chats
+only, the two texts, ты/вы, safe mode — is now a field of an editable
+automation, and the same machinery covers asking about vacancies,
+offering contract work or greeting back.
+
+**Why is the reply graph answered from memory when link-cli is the
+store?** link-cli 1.0.0 (Rust) and 4.0.0 (.NET) scan every link per
+query, so a lookup costs tens to hundreds of milliseconds as the graph
+grows (`experiments/clink-query-scaling.mjs`) — too slow per keystroke.
+The in-memory index answers keystrokes; the clink database is the
+persisted, queryable mirror kept in step with it.
+
+**What if the app cannot send through a network?** The adapter's API
+is tried first and the official web UI second, through
+browser-commander in a persistent profile the user signed into once.
+If both fail the draft stays, with an "Open chat" link where the
+platform documents one (`mailto:` with the body prefilled,
+`tg://user?id=`, `https://vk.com/im?sel=`), and **I sent it myself**
+records a manual send, so the contact is handled either way.
 
 ## Requirements
 
 See [`requirements.md`](./requirements.md) for the full mapping of the
-issue text to R-X1 … R-X11 and to the tests that cover them. The same
+issue text and of the PR 34 review to R-X1 … R-X21 and to the tests that cover them. The same
 table is section X of [`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md).
 
 ## Solution Plan
@@ -151,5 +226,13 @@ chat type.
 - Address-form rules cover Russian, Chinese and Hindi. Other languages
   with a T–V distinction (German du/Sie, French tu/vous, …) can be added
   as `pattern:*` links without code changes, but none ship by default.
-- Sending from the app uses each adapter's `live.post`. A network
-  without a live sender produces a clear error and the manual path.
+- Web UI sending depends on each site's markup (`WEB_UIS` in
+  `browser-sender.js`); a redesign of vk.com, web.telegram.org or
+  web.whatsapp.com needs that table updated. It is tested against a fake
+  browser session, not against the live sites.
+- WhatsApp Cloud API ties typing indicators to the incoming message
+  being answered, so it can only show typing in a reply.
+- The link-cli mirror needs the `clink` binary and is off unless
+  `MS_REPLY_CLINK=1`; suggestions never wait for it.
+- The Rust server does not implement the automation, people and
+  suggestion routes yet (see `docs/SERVER-PARITY.md` section 5a).
