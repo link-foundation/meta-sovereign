@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'test-anywhere';
 import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { discoverServer } from '../src/web/discover.js';
 
 const ok = () => ({ ok: true, json: async () => ({ links: 0 }) });
@@ -57,6 +58,45 @@ describe('mobile and Electron packaging', () => {
     });
     expect(events.includes('update-downloaded')).toBe(true);
     expect(checked).toBe(true);
+  });
+
+  it('skips auto-updates on Windows arm64, whose latest.yml is shared with x64 (issue #37)', async () => {
+    const { configureAutoUpdates } = await import('../electron/main.js');
+    let checked = false;
+    const result = configureAutoUpdates({
+      app: { isPackaged: true },
+      feedUrl: '',
+      platform: 'win32',
+      arch: 'arm64',
+      logger: { info() {}, error() {} },
+      autoUpdater: {
+        checkForUpdatesAndNotify: () => {
+          checked = true;
+          return Promise.resolve(null);
+        },
+      },
+    });
+    expect(result).toEqual({ enabled: false, reason: 'unsupported-arch' });
+    expect(checked).toBe(false);
+  });
+
+  it('keeps the packaged desktop store in userData, not the cwd (issue #37)', async () => {
+    const { resolveDesktopStoreDir } = await import('../electron/main.js');
+    const app = { getPath: (name) => `/home/u/.config/Meta Sovereign/${name}` };
+    expect(resolveDesktopStoreDir({ app, env: {} })).toBe(
+      path.join('/home/u/.config/Meta Sovereign/userData', 'store')
+    );
+    expect(
+      resolveDesktopStoreDir({ app, env: { META_SOVEREIGN_STORE_DIR: '/x' } })
+    ).toBe('/x');
+  });
+
+  it('starts the desktop shell from package.json#main in packaged apps (issue #37)', async () => {
+    const src = await fs.readFile('js/electron/main.js', 'utf8');
+    // Packaged Electron apps have no script path in process.argv, so an
+    // argv-based "is main module" guard would never start the window.
+    expect(src.includes('process.argv[1]')).toBe(false);
+    expect(src).toContain("process.type === 'browser'");
   });
 
   it('ships a Capacitor mobile build surface for iOS and Android', async () => {
