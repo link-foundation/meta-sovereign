@@ -948,6 +948,14 @@ export const connectionGuides = {
     providers: ['linkedin', 'hh', 'naukri', 'vietnamworks', 'topcv'],
     connectFirst: { providerId: 'linkedin' },
   },
+  greetings: {
+    title: 'Greetings',
+    titleKey: 'guide.greetings.title',
+    body: 'Open dialogs in bulk with a "hi" or a greeting sticker, the way konard/vk-bot does on VK. Connect a network first: listing stickers live and sending use the tokens the local server keeps.',
+    bodyKey: 'guide.greetings.body',
+    providers: ['vk', 'telegram', 'whatsapp', 'facebook', 'x', 'email'],
+    connectFirst: { providerId: 'vk' },
+  },
   settings: {
     title: 'Settings',
     titleKey: 'guide.settings.title',
