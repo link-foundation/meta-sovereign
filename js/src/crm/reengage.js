@@ -130,7 +130,8 @@ export const detectSelfIds = (messages, explicit = []) => {
   return ids;
 };
 
-const groupByChat = (messages) => {
+/** Messages grouped per `<source>:<chat>` conversation. */
+export const groupByChat = (messages) => {
   const chats = new Map();
   for (const m of messages) {
     const key = `${m.source}:${m.chat}`;
@@ -166,14 +167,25 @@ const SORTERS = {
   recent: (a, b) => a.daysSilent - b.daysSilent,
 };
 
-const describeChat = (entry, { isSelf, now, requireMutual }) => {
+/**
+ * The one other person in a 1:1 conversation (an entry of
+ * `groupByChat`), or `null` for groups and chats nobody answered in.
+ * A chat is personal when its adapter says so (`chatType`), or — when
+ * it does not — when exactly one person besides the owner wrote in it.
+ */
+export const personalPartner = (entry, isSelf) => {
   const kind = chatKind(entry.source, entry.chat, entry.messages);
   const others = new Set(
     entry.messages.map((m) => m.sender).filter((s) => s && !isSelf(s))
   );
   const personal = kind === 'personal' || (kind === null && others.size === 1);
+  return personal && others.size === 1 ? [...others][0] : null;
+};
+
+const describeChat = (entry, { isSelf, now, requireMutual }) => {
+  const contact = personalPartner(entry, isSelf);
   const mine = entry.messages.filter((m) => isSelf(m.sender)).length;
-  if (!personal || others.size !== 1) {
+  if (contact === null) {
     return null;
   }
   if (requireMutual && mine === 0) {
@@ -187,7 +199,7 @@ const describeChat = (entry, { isSelf, now, requireMutual }) => {
     key: entry.key,
     source: entry.source,
     chat: entry.chat,
-    contact: [...others][0],
+    contact,
     name:
       entry.messages.find((m) => m.chatName)?.chatName ??
       entry.messages.find((m) => !isSelf(m.sender) && m.senderName)
@@ -204,12 +216,10 @@ const describeChat = (entry, { isSelf, now, requireMutual }) => {
 };
 
 /**
- * Every personal conversation silent for at least `days`.
- *
- * A chat counts as personal when its adapter says so (`chatType`), or —
- * when it does not — when exactly one person besides the owner wrote in
- * it. With `requireMutual` (the default) the owner must have written at
- * least once, so a stranger's unanswered spam is not a "contact".
+ * Every personal conversation silent for at least `days` (see
+ * `personalPartner` for what counts as personal). With `requireMutual`
+ * (the default) the owner must have written at least once, so a
+ * stranger's unanswered spam is not a "contact".
  */
 export const findDormantContacts = (
   links = [],
