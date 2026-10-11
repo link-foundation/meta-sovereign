@@ -147,7 +147,9 @@ const normalizeAction = (action = {}) => {
   };
 };
 
-const normalizeMode = (mode = 'safe') => {
+// Issue #31 calls safe mode "safe or debug mode"; both names work.
+const normalizeMode = (input = 'safe') => {
+  const mode = input === 'debug' ? 'safe' : input;
   if (!AUTOMATION_MODES.includes(mode)) {
     throw new Error(
       `unknown mode "${mode}"; known: ${AUTOMATION_MODES.join(', ')}`

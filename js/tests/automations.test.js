@@ -82,6 +82,8 @@ test('normalizeAutomation fills defaults and rejects bad input', () => {
   assert.deepEqual(a.triggers, [{ kind: 'manual' }]);
   assert.equal(a.audience.kind, 'personal');
   assert.equal(a.pacing.charsPerMinute, 450);
+  // The issue's "debug mode" is safe mode.
+  assert.equal(normalizeAutomation({ mode: 'debug' }).mode, 'safe');
   assert.throws(() => normalizeAutomation({ mode: 'yolo' }), /unknown mode/);
   assert.throws(
     () => normalizeAutomation({ triggers: [{ kind: 'cron' }] }),
