@@ -153,7 +153,11 @@ const createWordModel = () => {
   // The spelling the owner actually used most for each lower-cased word.
   const spellings = new Map();
   const candidates = (previous) => {
-    const [p2, p1] = previous.slice(-2).map((w) => w.toLowerCase());
+    // p1 is the last word typed, p2 the one before it (if any).
+    const [p1, p2] = previous
+      .slice(-2)
+      .reverse()
+      .map((w) => w.toLowerCase());
     return [
       p2 && p1 ? trigrams.get(`${p2} ${p1}`) : null,
       p1 ? bigrams.get(p1) : null,
