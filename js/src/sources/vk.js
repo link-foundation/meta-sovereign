@@ -4,7 +4,9 @@
  * Accepts the JSON shape produced by konard/vk-export. The live side
  * uses VK's method API (`messages.getConversations`, `messages.getHistory`,
  * `messages.send`, `status.set`, and `account.saveProfileInfo`) behind
- * an injectable fetch/baseUrl pair for testability.
+ * an injectable fetch/baseUrl pair for testability. Greeting stickers
+ * (issue #35) go out through `messages.send` with `sticker_id`, and
+ * `listGreetingStickers` finds them via `store.getStickersKeywords`.
  */
 
 import { buildMessageLink } from './link.js';
@@ -15,6 +17,8 @@ import {
   requestJson,
   resolveOption,
 } from './http.js';
+import { contentSticker } from './sticker.js';
+import { isGreetingText } from '../greetings/detect.js';
 
 const SOURCE = 'vk';
 
@@ -38,6 +42,55 @@ const vkReplyTo = (msg) => {
   return msg.reply_to ? String(msg.reply_to) : null;
 };
 
+const vkStickerOf = (msg) => {
+  const attachment = (msg.attachments ?? []).find(
+    (item) => item?.type === 'sticker' && item.sticker
+  );
+  if (!attachment) {
+    return null;
+  }
+  const { sticker } = attachment;
+  return {
+    id: String(sticker.sticker_id ?? sticker.id),
+    pack: sticker.product_id ? String(sticker.product_id) : null,
+  };
+};
+
+const vkPreviewOf = (sticker) => {
+  const images = sticker.images ?? [];
+  const best = images.find((image) => image.width === 512) ?? images.at(-1);
+  return best?.url ?? `https://vk.com/sticker/1-${sticker.sticker_id}-512`;
+};
+
+const vkKeywordStickers = (response, match) => {
+  const seen = new Map();
+  for (const item of response?.dictionary ?? []) {
+    const words = (item.words ?? []).filter((word) => match(word));
+    if (words.length === 0) {
+      continue;
+    }
+    const stickers = [
+      ...(item.user_stickers ?? item.stickers ?? []),
+      // Promoted stickers belong to packs the user does not own yet.
+      ...(item.promoted_stickers ?? []),
+    ];
+    for (const sticker of stickers) {
+      const id = String(sticker.sticker_id);
+      if (!seen.has(id)) {
+        seen.set(id, {
+          network: SOURCE,
+          id,
+          packId: sticker.product_id ?? sticker.pack_id ?? null,
+          owned: sticker.is_allowed !== false,
+          keywords: words,
+          previewUrl: vkPreviewOf(sticker),
+        });
+      }
+    }
+  }
+  return [...seen.values()];
+};
+
 const asMessageLink = (msg, conversation = null) =>
   buildMessageLink({
     source: SOURCE,
@@ -47,6 +100,7 @@ const asMessageLink = (msg, conversation = null) =>
     body: msg.text ?? msg.body ?? '',
     timestamp: msg.date ?? msg.created_at ?? null,
     replyTo: vkReplyTo(msg),
+    sticker: vkStickerOf(msg),
   });
 
 const unwrapVk = (payload) => {
@@ -142,17 +196,19 @@ export const createVkLive = ({
       const peerId =
         options.peerId ?? contentTarget(content) ?? options.to ?? options.chat;
       const message = contentText(content);
+      const sticker = contentSticker(content);
       if (!peerId) {
         throw new Error('vk post peer_id is required');
       }
-      if (!message) {
-        throw new Error('vk post message text is required');
+      if (!message && !sticker) {
+        throw new Error('vk post message text or sticker is required');
       }
       return call(
         'messages.send',
         {
           peer_id: peerId,
-          message,
+          message: message || undefined,
+          sticker_id: sticker?.id,
           random_id:
             options.randomId ??
             (typeof content === 'object' ? content.randomId : undefined) ??
@@ -160,6 +216,21 @@ export const createVkLive = ({
         },
         options.token
       );
+    },
+    /**
+     * Stickers whose VK keywords are greetings ("привет", "hi", 👋…).
+     * `owned` is VK's `is_allowed`: only owned stickers can be sent.
+     */
+    async listGreetingStickers(options = {}) {
+      const response = await call(
+        'store.getStickersKeywords',
+        { all_products: 1, need_stickers: 1 },
+        options.token
+      );
+      return {
+        stickers: vkKeywordStickers(response, options.match ?? isGreetingText),
+        failures: [],
+      };
     },
     async syncProfile(profile, options = {}) {
       const results = [];
@@ -205,6 +276,7 @@ export const vkSource = {
             replyTo: msg.reply_message?.id
               ? String(msg.reply_message.id)
               : null,
+            sticker: vkStickerOf(msg),
           })
         );
       }

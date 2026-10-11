@@ -6,9 +6,15 @@
  * The live side uses Telegram's Bot API (`getUpdates`, `sendMessage`,
  * `setMyName`, `setMyDescription`) so a user-provided bot token can
  * pull incoming bot-visible messages and send queued replies.
+ * Greeting stickers (issue #35) go out through `sendSticker`; packs are
+ * enumerated with `getStickerSet`, and their thumbnails are fetched by
+ * the local server (`fetchFile`) because Bot API file links embed the
+ * bot token and must never reach the browser.
  */
 
 import { buildMessageLink } from './link.js';
+import { contentSticker } from './sticker.js';
+import { greetingEmoji } from '../greetings/detect.js';
 
 const SOURCE = 'telegram';
 
@@ -81,6 +87,72 @@ const botSender = (message) =>
       'unknown'
   );
 
+const botSticker = (message) =>
+  message.sticker
+    ? {
+        id: String(message.sticker.file_unique_id ?? message.sticker.file_id),
+        fileId: message.sticker.file_id ?? null,
+        pack: message.sticker.set_name ?? null,
+        emoji: message.sticker.emoji ?? null,
+      }
+    : null;
+
+const archiveSticker = (msg) =>
+  msg.media_type === 'sticker'
+    ? { id: msg.file ?? null, pack: null, emoji: msg.sticker_emoji ?? null }
+    : null;
+
+const isGreetingEmoji = (emoji) =>
+  Boolean(emoji) && greetingEmoji.some((wave) => emoji.includes(wave));
+
+const stickerFormat = (sticker) => {
+  if (sticker.is_animated) {
+    return 'tgs';
+  }
+  return sticker.is_video ? 'webm' : 'webp';
+};
+
+/** One `getStickerSet` result reduced to its greeting stickers. */
+const greetingStickersOfSet = (set, entry) => {
+  const name = set.name ?? entry.name;
+  return (set.stickers ?? [])
+    .filter((sticker) => entry.all || isGreetingEmoji(sticker.emoji))
+    .map((sticker) => ({
+      network: SOURCE,
+      id: sticker.file_id,
+      uniqueId: sticker.file_unique_id ?? null,
+      pack: name,
+      packTitle: set.title ?? name,
+      emoji: sticker.emoji ?? null,
+      format: stickerFormat(sticker),
+      thumbnailFileId:
+        sticker.thumbnail?.file_id ?? sticker.thumb?.file_id ?? null,
+      addUrl: `https://t.me/addstickers/${name}`,
+    }));
+};
+
+/** `sendSticker` for sticker content, `sendMessage` otherwise. */
+const sendRequest = (content, chat) => {
+  const sticker = contentSticker(content);
+  const business = content?.businessConnectionId;
+  if (sticker) {
+    return [
+      'sendSticker',
+      {
+        chat_id: chat,
+        sticker: sticker.id ?? sticker.url,
+        business_connection_id: business,
+      },
+    ];
+  }
+  const text =
+    typeof content === 'string' ? content : (content?.text ?? content?.body);
+  return [
+    'sendMessage',
+    { chat_id: chat, text, business_connection_id: business },
+  ];
+};
+
 const botChat = (message) =>
   String(message.chat?.id ?? message.business_connection_id ?? 'unknown');
 
@@ -104,6 +176,7 @@ export const telegramUpdatesToLinks = (updates) => {
         replyTo: message.reply_to_message?.message_id
           ? String(message.reply_to_message.message_id)
           : null,
+        sticker: botSticker(message),
       })
     );
   }
@@ -180,20 +253,62 @@ export const createTelegramBotLive = ({
       }
       return [...chats.values()];
     },
-    async post(content) {
+    async post(content, { token: tokenOverride = null } = {}) {
       const chat = content?.chat ?? content?.chatId ?? content?.to;
-      const text =
-        typeof content === 'string'
-          ? content
-          : (content?.text ?? content?.body);
       if (!chat) {
         throw new Error('telegram live.post requires a chat/chatId target');
       }
-      const result = await call('sendMessage', { chat_id: chat, text });
+      const result = await call(...sendRequest(content, chat), tokenOverride);
       return {
         ok: true,
         messageId: String(result.message_id),
         chat: String(result.chat?.id ?? chat),
+      };
+    },
+    /**
+     * Greeting stickers from the named sets. A sticker qualifies when
+     * its emoji is a greeting gesture, or when the set is listed with
+     * `{all: true}` because the whole pack is greetings. `file_id`s are
+     * only valid for the bot that listed them, so they are fetched live
+     * rather than stored in the catalogue.
+     */
+    async listGreetingStickers({
+      sets = [],
+      token: tokenOverride = null,
+    } = {}) {
+      const stickers = [];
+      const failures = [];
+      for (const raw of sets) {
+        const entry = typeof raw === 'string' ? { name: raw } : raw;
+        try {
+          const set = await call(
+            'getStickerSet',
+            { name: entry.name },
+            tokenOverride
+          );
+          stickers.push(...greetingStickersOfSet(set, entry));
+        } catch (err) {
+          failures.push({ pack: entry.name, error: err.message });
+        }
+      }
+      return { stickers, failures };
+    },
+    /**
+     * Downloads a file (e.g. a sticker thumbnail) through `getFile`.
+     * Server-side only: the download URL contains the bot token.
+     */
+    async fetchFile(fileId, { token: tokenOverride = null } = {}) {
+      const file = await call('getFile', { file_id: fileId }, tokenOverride);
+      const authToken = tokenOverride ?? token ?? liveToken();
+      const res = await fetchImpl(
+        `${root}/file/bot${authToken}/${file.file_path}`
+      );
+      if (!res.ok) {
+        throw new Error(`telegram getFile: HTTP ${res.status}`);
+      }
+      return {
+        bytes: new Uint8Array(await res.arrayBuffer()),
+        path: file.file_path,
       };
     },
     async syncProfile(profile) {
@@ -245,6 +360,7 @@ export const telegramSource = {
             replyTo: msg.reply_to_message_id
               ? String(msg.reply_to_message_id)
               : null,
+            sticker: archiveSticker(msg),
           })
         );
       }
