@@ -262,13 +262,18 @@ jobs:
           ls -la
           deb=$(ls meta-sovereign-desktop-linux-*.deb)
           dpkg-deb --info "$deb"
-          dpkg-deb --contents "$deb" | grep -q 'opt/Meta Sovereign/meta-sovereign'
+          # Listings go to files first: `cmd | grep -q` closes the pipe
+          # early, the writer dies of SIGPIPE and pipefail fails the step.
+          dpkg-deb --contents "$deb" > deb-contents.txt
+          grep -q 'opt/Meta Sovereign/meta-sovereign' deb-contents.txt
           appimage=$(ls meta-sovereign-desktop-linux-*.AppImage)
           chmod +x "$appimage"
           ./"$appimage" --appimage-extract > /dev/null
           test -x squashfs-root/meta-sovereign
           rm -rf squashfs-root
-          tar -tzf meta-sovereign-desktop-linux-*.tar.gz | grep -q '/meta-sovereign$'
+          tar -tzf meta-sovereign-desktop-linux-*.tar.gz > tar-contents.txt
+          grep -q '/meta-sovereign$' tar-contents.txt
+          rm deb-contents.txt tar-contents.txt
           test -f latest-linux*.yml
 
       - name: Smoke test (macOS)
@@ -278,12 +283,23 @@ jobs:
           set -euo pipefail
           cd dist/desktop/release
           ls -la
+          check_app() {
+            local app="$1" id
+            ls -la "$app/Contents"
+            id=$(plutil -extract CFBundleIdentifier raw -o - "$app/Contents/Info.plist")
+            echo "$app: $id"
+            test "$id" = foundation.link.meta.sovereign
+            codesign --verify --deep --strict --verbose=2 "$app"
+          }
+          for dir in mac mac-arm64; do
+            ls -la "$dir"
+            check_app "$(find "$dir" -maxdepth 1 -name '*.app' | head -n 1)"
+          done
           for dmg in meta-sovereign-desktop-macos-*.dmg; do
             mount=$(mktemp -d)
-            hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mount" > /dev/null
-            app="$mount/Meta Sovereign.app"
-            test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist")" = foundation.link.meta.sovereign
-            codesign --verify --deep --strict --verbose=2 "$app"
+            hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mount"
+            ls -la "$mount"
+            check_app "$(find "$mount" -maxdepth 1 -name '*.app' | head -n 1)"
             hdiutil detach "$mount" > /dev/null
           done
           test -f latest-mac.yml
@@ -298,7 +314,7 @@ jobs:
           $installers = Get-ChildItem 'meta-sovereign-desktop-windows-installer-*.exe'
           $portables = Get-ChildItem 'meta-sovereign-desktop-windows-portable-*.exe'
           if ($installers.Count -ne 1 -or $portables.Count -ne 1) { throw 'expected one installer and one portable exe' }
-          foreach ($exe in $installers + $portables) {
+          foreach ($exe in @($installers) + @($portables)) {
             if ($exe.Length -lt 10MB) { throw "$($exe.Name) is suspiciously small" }
           }
 
