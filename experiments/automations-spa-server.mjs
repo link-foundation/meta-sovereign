@@ -62,6 +62,16 @@ const rows = [
   ],
   ['vk', '2003', 'me', 'Привет', 3, null, null],
   ['vk', '2003', '2003', 'Привет!', 3, null, null],
+  // Replies the owner gave before, for the composer's suggestions: the
+  // same question answered twice one way and once another, then asked
+  // again in an open chat.
+  ['vk', '2005', '2005', 'Как дела?', 40, null, null],
+  ['vk', '2005', 'me', 'Отлично, спасибо! А у тебя?', 40, null, null],
+  ['vk', '2006', '2006', 'Как дела?', 30, null, null],
+  ['vk', '2006', 'me', 'Отлично, спасибо! А у тебя?', 30, null, null],
+  ['vk', '2007', '2007', 'Как дела?', 20, null, null],
+  ['vk', '2007', 'me', 'Нормально, работаю над проектом', 20, null, null],
+  ['vk', '2004', '2004', 'Как дела?', 1, null, null],
 ];
 for (const [source, chat, sender, body, days, chatType, chatName] of rows) {
   await store.put(
