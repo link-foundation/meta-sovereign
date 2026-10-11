@@ -48,6 +48,14 @@ export {
   withCvPlatform,
   writeSourceCv,
 } from './cv-bridge.js';
+export {
+  VK_TOKEN_SOURCES,
+  classifyVkOAuthGate,
+  describeVkError,
+  inspectVkToken,
+  probeVkOAuthGate,
+  rankVkTokenSources,
+} from './vk-auth.js';
 
 export const sourceRegistry = {
   email: emailSource,

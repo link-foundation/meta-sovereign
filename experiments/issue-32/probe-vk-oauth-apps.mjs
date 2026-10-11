@@ -21,14 +21,22 @@
  *   - `security-error`  `{"error":"invalid_request","error_description":"Security Error"}`
  *                       (usually redirect_uri / platform mismatch: the app is
  *                       not allowed to use the implicit flow with blank.html)
- *   - `other:<text>`    anything else, verbatim.
+ *   - `unknown:<text>`  anything else, verbatim.
  *
  * A `login-page` result only proves the OAuth gate is open. Kate Mobile still
  * returns `login-page` although VK stopped serving its API traffic on
  * 2026-09-08, so the result is necessary but not sufficient.
  *
- * Usage: node experiments/issue-32/probe-vk-oauth-apps.mjs [--json]
+ * The classifier lives in js/src/sources/vk-auth.js (`classifyVkOAuthGate`)
+ * so the library and this probe can never disagree.
+ *
+ * Usage: node experiments/issue-32/probe-vk-oauth-apps.mjs [--json] [--vk-ru]
  */
+
+import {
+  buildVkAuthorizeUrl,
+  classifyVkOAuthGate,
+} from '../../js/src/sources/vk-auth.js';
 
 const APPS = [
   // Everything listed on https://vkhost.github.io/ (script.js?210829).
@@ -61,51 +69,25 @@ const APPS = [
 ];
 
 const SCOPE = 'messages,offline';
-
-const classify = (status, body) => {
-  if (/<form[^>]+login/i.test(body) || /<!DOCTYPE html>/i.test(body)) {
-    return 'login-page';
-  }
-  try {
-    const json = JSON.parse(body);
-    const description = json.error_description ?? json.error ?? '';
-    const known = [
-      [/application is blocked/i, 'blocked'],
-      [/application is disabled/i, 'disabled'],
-      [/application was deleted/i, 'deleted'],
-      [/unavailable for apps with direct auth/i, 'direct-auth-only'],
-      [/only desktop applications have access/i, 'no-messages'],
-      [/security error/i, 'security-error'],
-    ];
-    for (const [pattern, outcome] of known) {
-      if (pattern.test(description)) {
-        return outcome;
-      }
-    }
-    return `other:${status}:${description}`;
-  } catch {
-    return `other:${status}:${body.slice(0, 120).replace(/\s+/g, ' ')}`;
-  }
-};
+const HOST = process.argv.includes('--vk-ru')
+  ? 'https://oauth.vk.ru'
+  : 'https://oauth.vk.com';
 
 const probe = async (app) => {
-  const url = new URL('https://oauth.vk.com/authorize');
-  url.searchParams.set('client_id', String(app.id));
-  url.searchParams.set('scope', SCOPE);
-  url.searchParams.set('redirect_uri', 'https://oauth.vk.com/blank.html');
-  url.searchParams.set('display', 'page');
-  url.searchParams.set('response_type', 'token');
-  url.searchParams.set('v', '5.199');
-  const response = await fetch(url, {
-    redirect: 'manual',
-    headers: { 'Accept-Language': 'en' },
-  });
+  const response = await fetch(
+    buildVkAuthorizeUrl({ clientId: app.id, scope: SCOPE, host: HOST }),
+    { redirect: 'manual', headers: { 'Accept-Language': 'en' } }
+  );
   const body = await response.text();
+  const outcome = classifyVkOAuthGate({ status: response.status, body });
   return {
     ...app,
     status: response.status,
     location: response.headers.get('location'),
-    outcome: classify(response.status, body),
+    outcome:
+      outcome === 'unknown'
+        ? `unknown:${body.slice(0, 120).replace(/\s+/g, ' ')}`
+        : outcome,
   };
 };
 
@@ -123,7 +105,9 @@ if (process.argv.includes('--json')) {
     JSON.stringify({ probedAt: new Date().toISOString(), results }, null, 2)
   );
 } else {
-  console.log(`probed at ${new Date().toISOString()} (scope=${SCOPE})`);
+  console.log(
+    `probed at ${new Date().toISOString()} (host=${HOST}, scope=${SCOPE})`
+  );
   for (const r of results) {
     console.log(
       `${String(r.id).padStart(8)}  ${r.source.padEnd(8)}  ${String(r.status ?? '-').padEnd(4)} ${r.outcome.padEnd(16)} ${r.name}${r.location ? `  -> ${r.location}` : ''}`

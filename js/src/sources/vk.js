@@ -5,6 +5,10 @@
  * uses VK's method API (`messages.getConversations`, `messages.getHistory`,
  * `messages.send`, `status.set`, and `account.saveProfileInfo`) behind
  * an injectable fetch/baseUrl pair for testability.
+ *
+ * VK moved its developer endpoints to the vk.ru domain in 2025
+ * (api.vk.ru, oauth.vk.ru, dev.vk.ru), so that is the default host;
+ * tokens issued through oauth.vk.com work against either host.
  */
 
 import { buildMessageLink } from './link.js';
@@ -53,16 +57,21 @@ const unwrapVk = (payload) => {
   if (payload?.error) {
     const code = payload.error.error_code ?? 'unknown';
     const message = payload.error.error_msg ?? 'VK API error';
-    throw new Error(`vk API ${code}: ${message}`);
+    const error = new Error(`vk API ${code}: ${message}`);
+    error.vkCode = code;
+    throw error;
   }
   return payload?.response ?? payload;
 };
 
+export const VK_API_BASE = 'https://api.vk.ru';
+export const VK_API_VERSION = '5.199';
+
 export const createVkLive = ({
   token = null,
   fetchImpl = globalThis.fetch,
-  baseUrl = 'https://api.vk.com',
-  apiVersion = '5.199',
+  baseUrl = VK_API_BASE,
+  apiVersion = VK_API_VERSION,
 } = {}) => {
   const call = async (method, params = {}, overrideToken = null) => {
     const accessToken = resolveOption(
@@ -88,6 +97,7 @@ export const createVkLive = ({
   };
 
   return {
+    call,
     async listChats(options = {}) {
       return call(
         'messages.getConversations',
