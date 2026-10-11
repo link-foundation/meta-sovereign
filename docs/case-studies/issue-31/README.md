@@ -59,7 +59,7 @@ Raw GitHub data is preserved under `data/`:
   the PR received no feedback during implementation)
 
 Verification screenshots are preserved under `screenshots/`. They were
-taken with Playwright against `experiments/reengage-spa-server.mjs`,
+taken with Playwright against `experiments/automations-spa-server.mjs`,
 which seeds a store with four dialogs (Telegram "Аня" on "ты", VK 2002
 on "вы", an e-mail contact on "ты" whose sender always fails, and a
 recent VK chat that must not be offered) and replaces the adapters with

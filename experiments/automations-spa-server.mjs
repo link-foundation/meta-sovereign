@@ -1,8 +1,9 @@
-// Issue #31: serve the SPA with a seeded store so the re-engage screen
-// can be exercised in a browser. Sending goes to a fake sender that
-// only logs, so nothing leaves the machine.
+// Issue #31 / PR #34: serve the SPA with a seeded store so the
+// Automations screen and the chat's automation menu can be exercised in
+// a browser. Sending and typing go to fakes that only log, so nothing
+// leaves the machine and the scheduler is off.
 //
-//   node experiments/reengage-spa-server.mjs [port]
+//   node experiments/automations-spa-server.mjs [port]
 import { createMemoryStore } from '../js/src/storage/index.js';
 import { buildMessageLink } from '../js/src/sources/link.js';
 import { startServer } from '../js/src/server/index.js';
@@ -82,7 +83,12 @@ const handle = await startServer({
   store,
   enableHandlers: false,
   enableSync: true,
-  reengage: {
+  automations: {
+    scheduler: false,
+    setTyping: async ({ source, chat }) => {
+      console.log(`[fake typing] ${source}:${chat}`);
+      return { supported: true, demo: true };
+    },
     send: async (draft) => {
       console.log(`[fake send] ${draft.source}:${draft.chat}\n${draft.text}`);
       if (draft.source === 'email') {
