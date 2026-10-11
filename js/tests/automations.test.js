@@ -141,6 +141,31 @@ test('targets narrow the plan; a group chat is not personal', () => {
   assert.equal(groups.drafts[0].personal, false);
 });
 
+test('a chat-menu test ignores the conditions but not pending drafts', () => {
+  const automation = preset('reengage-dormant');
+  // Carol talked 10 days ago: the 90-day rule leaves her out…
+  const targets = [{ source: 'vk', chat: '103' }];
+  const strict = planAutomation(fixture(), automation, { now: NOW, targets });
+  assert.equal(strict.excluded[0].reason, 'talked-recently');
+  // …but testing the automation in her chat drafts it anyway.
+  const tried = planAutomation(fixture(), automation, {
+    now: NOW,
+    targets,
+    test: true,
+  });
+  assert.equal(tried.drafts.length, 1);
+  assert.match(tried.drafts[0].text, /^Привет\n/);
+  const again = planAutomation(
+    [...fixture(), { ...tried.drafts[0], status: 'pending' }],
+    automation,
+    { now: NOW, targets, test: true }
+  );
+  assert.equal(again.excluded[0].reason, 'draft-pending');
+  // Without targets `test` means nothing: the audience keeps its rules.
+  const all = planAutomation(fixture(), automation, { now: NOW, test: true });
+  assert.ok(all.excluded.some((e) => e.reason === 'talked-recently'));
+});
+
 test('an audience resolver adds people we never wrote to', () => {
   const plan = planAutomation(
     fixture(),

@@ -92,6 +92,9 @@ const sentToday = (links, automation, now) =>
       now - Date.parse(l.at) < DAY_MS
   ).length;
 
+const pick = (object, keys) =>
+  Object.fromEntries(keys.map((key) => [key, object[key]]));
+
 /** What the user can do with a pending safe-mode draft. */
 const draftOperations = ({ store, load, deliver, nowIso }) => {
   const pendingDraft = async (id) => {
@@ -194,11 +197,10 @@ export const createAutomationRunner = ({
     return normalizeAutomation(link);
   };
 
-  const plan = async (automation, { targets, now, limit } = {}) =>
+  const plan = async (automation, options = {}) =>
     planAutomation(await store.query(), automation, {
-      targets,
-      now: now ?? clock().getTime(),
-      limit,
+      ...pick(options, ['targets', 'test', 'limit']),
+      now: options.now ?? clock().getTime(),
       self,
       resolveAudience,
     });

@@ -9,9 +9,10 @@
  *   POST   /api/automations/plan       { automation, targets?, limit? }
  *                                      → who it would message and why not
  *   POST   /api/automations/run        { automation, targets?, confirm?,
- *                                        trigger?, limit? }
+ *                                        trigger?, test?, limit? }
  *          Safe mode queues drafts; auto mode sends paced and needs
- *          `confirm: true` for manual and chat-menu runs.
+ *          `confirm: true` for manual and chat-menu runs. `test: true`
+ *          with targets ignores the conditions (the chat menu's "test").
  *   GET    /api/automations/drafts?source=&chat=&automation=
  *   POST   /api/automations/drafts/send { id, confirm: true, text?, form? }
  *   POST   /api/automations/drafts/form { id, form }
@@ -155,7 +156,11 @@ const POST = {
       200,
       await ctx.automations.runner.plan(
         await ctx.automations.runner.load(automationOf(body)),
-        { targets: targetsOf(body), limit: body.limit }
+        {
+          targets: targetsOf(body),
+          limit: body.limit,
+          test: body.test === true,
+        }
       )
     ),
   '/api/automations/run': async (store, res, body, ctx) =>
@@ -166,6 +171,7 @@ const POST = {
         targets: targetsOf(body),
         confirm: body.confirm === true,
         trigger: body.trigger === 'chat-menu' ? 'chat-menu' : 'manual',
+        test: body.test === true,
         limit: body.limit,
       })
     ),

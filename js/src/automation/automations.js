@@ -394,8 +394,10 @@ const ledgerReason = (candidate, automation, ctx) => {
   return cooling ? `already-${record.status}` : null;
 };
 
+// A test from a chat's menu skips the conditions (it is *this* chat
+// the user wants to try), never the ledger: a waiting draft stays one.
 const exclusionReason = (candidate, automation, ctx) =>
-  conditionReason(candidate, automation.conditions) ??
+  (ctx.test ? null : conditionReason(candidate, automation.conditions)) ??
   ledgerReason(candidate, automation, ctx);
 
 /** Render the action's text for one candidate, "ты"/"вы" detected. */
@@ -439,7 +441,8 @@ export const redraftWithForm = (automation, draft, form) => {
  * Who the automation would message now, and why everyone else is left
  * out. `targets` (`[{ source, chat }]`) narrows it to chosen chats — the
  * chat menu and "run on selected people"; otherwise the audience is
- * resolved with `resolveAudience(links, spec)` (people.js).
+ * resolved with `resolveAudience(links, spec)` (people.js). `test: true`
+ * with targets ignores the conditions, so a chat menu can try any chat.
  */
 export const planAutomation = (links = [], input, options = {}) => {
   const automation = normalizeAutomation(input);
@@ -456,6 +459,7 @@ export const planAutomation = (links = [], input, options = {}) => {
     self: options.self ?? [],
     contacts: contacts.map((c) => ({ ...c, personal: true })),
     targets: options.targets ?? null,
+    test: Boolean(options.test && options.targets),
     resolveAudience: options.resolveAudience ?? null,
     drafts: byId(links, DRAFT_PREFIX),
     records: byId(links, RUN_PREFIX),
