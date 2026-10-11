@@ -11,6 +11,10 @@
 
 import { dice } from '../replies/index.js';
 
+// Re-engage dormant personal contacts with a ты/вы-aware message (issue #31).
+export * from './address-form.js';
+export * from './reengage.js';
+
 export const aggregateContact = async (store, contactId) => {
   const all = await store.query();
   const messages = all.filter(

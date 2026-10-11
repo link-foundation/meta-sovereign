@@ -104,6 +104,7 @@ export const telegramUpdatesToLinks = (updates) => {
         replyTo: message.reply_to_message?.message_id
           ? String(message.reply_to_message.message_id)
           : null,
+        chatType: message.chat?.type ?? null,
       })
     );
   }
@@ -245,6 +246,9 @@ export const telegramSource = {
             replyTo: msg.reply_to_message_id
               ? String(msg.reply_to_message_id)
               : null,
+            chatType: chat.type ?? null,
+            chatName: chat.type === 'personal_chat' ? chat.name : null,
+            senderName: typeof msg.from === 'string' ? msg.from : null,
           })
         );
       }

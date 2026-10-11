@@ -1,5 +1,9 @@
 /**
  * Shared normalized Link builders for source adapters.
+ *
+ * `chatType`, `chatName` and `senderName` are optional: adapters that
+ * know them (Telegram exports carry `personal_chat`/`private_group`…)
+ * pass them on, and links from adapters that do not stay unchanged.
  */
 
 export const buildMessageLink = ({
@@ -10,6 +14,9 @@ export const buildMessageLink = ({
   body,
   timestamp,
   replyTo = null,
+  chatType = null,
+  chatName = null,
+  senderName = null,
 }) => ({
   id: `msg:${source}:${externalId}`,
   tokens: ['message', source, externalId],
@@ -26,4 +33,7 @@ export const buildMessageLink = ({
   sender,
   chat,
   replyTo,
+  ...(chatType ? { chatType } : {}),
+  ...(chatName ? { chatName } : {}),
+  ...(senderName ? { senderName } : {}),
 });
