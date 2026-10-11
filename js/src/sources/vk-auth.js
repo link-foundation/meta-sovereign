@@ -211,7 +211,7 @@ export const VK_TOKEN_SOURCES = Object.freeze([
     gate: 'login-page',
     recommendation: 'prefer',
     evidence:
-      '2026-07-16: works with offline and messages (gist AlexanderPro/26e13137…, comment by DmitrMarch).',
+      '2026-07-16: works with offline and messages (gist AlexanderPro/26e13137…); the same reporter expected freezes to follow.',
   }),
   source({
     clientId: 6463690,
@@ -220,7 +220,7 @@ export const VK_TOKEN_SOURCES = Object.freeze([
     gate: 'login-page',
     recommendation: 'fallback',
     evidence:
-      '2026-07-15/16: one message sent, then the account was frozen for 4 days; another user frozen 1-2 days after issuing the token.',
+      '2026-07-15: an account frozen 1-2 days after only issuing the token; 2026-07-16: one message sent, then a 4-day freeze.',
   }),
   source({
     clientId: 7799655,
@@ -253,7 +253,7 @@ export const VK_TOKEN_SOURCES = Object.freeze([
     gate: 'login-page',
     recommendation: 'avoid',
     evidence:
-      '2026-05-24: works for wall posts; 2026-07-07: account blocked while using it. Third-party publisher.',
+      '2026-05-24: reported working; the same user was blocked by 2026-07-07 (client not named). Third-party publisher.',
   }),
   source({
     clientId: 3698024,
@@ -270,7 +270,7 @@ export const VK_TOKEN_SOURCES = Object.freeze([
     gate: 'login-page',
     recommendation: 'avoid',
     evidence:
-      '2026-05-21: account banned for a day while using it. Small third-party iOS client.',
+      '2026-05-21: an account suspended for a day after using it. Small third-party iOS client.',
   }),
   source({
     clientId: 2685278,

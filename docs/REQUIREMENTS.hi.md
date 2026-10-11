@@ -150,6 +150,16 @@ cover करते हैं। State: PR #30 में done। विस्त�
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V देखें; काम कैसे
 करता है यह [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
 
+## W. Kate Mobile पर रोक के बाद VK token स्रोत (issue #32)
+
+R-W1..R-W5 cover करते हैं: vkhost.github.io के सभी clients की VK के मौजूदा
+OAuth gate पर जाँच, `VK_TOKEN_SOURCES` catalogue जिसमें VK के अपने clients
+छोटे third-party publishers से पहले आते हैं, पहले से मौजूद token को केवल
+documented methods से जाँचने वाला `inspectVkToken()`, चारों locales में सुधारा
+गया VK hint, और connector का `api.vk.ru` domain पर जाना। State: PR #33।
+विस्तृत table के लिए [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section W
+देखें; research [`docs/case-studies/issue-32/`](./case-studies/issue-32/README.md) में है।
+
 ## Traceability
 
 Future PR या commit feature land करे तो changeset और PR description में
