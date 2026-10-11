@@ -3,6 +3,7 @@
 // intersect / union / difference) that automation can be triggered for.
 
 import assert from 'node:assert/strict';
+import { Readable } from 'node:stream';
 import { describe, it, expect } from 'test-anywhere';
 
 import {
@@ -18,6 +19,8 @@ import {
 } from '../src/crm/people.js';
 import { buildMessageLink } from '../src/sources/link.js';
 import { memberLink, personLink } from '../src/sources/live-links.js';
+import { createMemoryStore } from '../src/storage/index.js';
+import { handlePeopleRoutes } from '../src/server/routes-people.js';
 
 // test-anywhere's toThrow does not check the error, so assert does.
 const expectError = (fn) => ({
@@ -415,6 +418,114 @@ describe('audience text form', () => {
     }
     expectError(() => formatAudienceSpec({ kind: 'enemies' })).toThrow(
       /unknown/
+    );
+  });
+});
+
+// A request is a readable stream (what `readBody` consumes); the
+// response records what the handler wrote.
+const call = async (store, method, path, body) => {
+  const req = Readable.from(
+    body === undefined ? [] : [Buffer.from(JSON.stringify(body))]
+  );
+  req.method = method;
+  const res = {
+    writeHead(status) {
+      this.status = status;
+    },
+    end(payload) {
+      this.body = JSON.parse(payload);
+    },
+  };
+  const url = new URL(path, 'http://localhost');
+  const handled = await handlePeopleRoutes(store, req, res, url.pathname, url);
+  return { handled, status: res.status, body: res.body };
+};
+
+describe('people routes', () => {
+  const seeded = async () => {
+    const store = createMemoryStore();
+    for (const link of links) {
+      await store.put(link);
+    }
+    return store;
+  };
+
+  it('searches people and lists cross references', async () => {
+    const store = await seeded();
+    const found = await call(store, 'GET', '/api/people?q=alice&limit=1');
+    expect(found.status).toBe(200);
+    expect(found.body.map((p) => p.key)).toEqual(['telegram:u100']);
+    const xref = await call(store, 'GET', '/api/people/xref');
+    expect(xref.body[0].keys).toEqual(['telegram:u200', 'vk:4']);
+  });
+
+  it('saves, lists, resolves and deletes audiences', async () => {
+    const store = await seeded();
+    const saved = await call(store, 'PUT', '/api/audiences', {
+      name: 'VIP clients',
+      text: 'list:vip & list:clients - list:blocked',
+    });
+    expect(saved.status).toBe(200);
+    expect(saved.body.audience.id).toBe('audience:vip-clients');
+    expect(saved.body.count).toBe(2);
+    const listed = await call(store, 'GET', '/api/audiences');
+    expect(listed.body.map((l) => l.id)).toEqual(['audience:vip-clients']);
+    const resolved = await call(store, 'POST', '/api/audiences/resolve', {
+      spec: { kind: 'saved', id: 'vip-clients' },
+      limit: 1,
+    });
+    expect(resolved.body.count).toBe(2);
+    expect(resolved.body.people.length).toBe(1);
+    const gone = await call(store, 'DELETE', '/api/audiences/vip-clients');
+    expect(gone.body).toEqual({ id: 'audience:vip-clients', deleted: true });
+    const again = await call(store, 'DELETE', '/api/audiences/vip-clients');
+    expect(again.status).toBe(404);
+  });
+
+  it('answers 400 for bad specs and self-referencing audiences', async () => {
+    const store = await seeded();
+    const bad = await call(store, 'PUT', '/api/audiences', {
+      name: 'x',
+      text: 'friends &',
+    });
+    expect(bad.status).toBe(400);
+    expect(bad.body.error).toMatch(/ends where/);
+    const unknown = await call(store, 'POST', '/api/audiences/resolve', {
+      spec: { kind: 'enemies' },
+    });
+    expect(unknown.status).toBe(400);
+    const loop = await call(store, 'PUT', '/api/audiences', {
+      id: 'loop',
+      spec: { kind: 'union', of: [{ kind: 'saved', id: 'loop' }] },
+    });
+    expect(loop.body.error).toBe('audience cycle: loop -> loop');
+    expect((await call(store, 'GET', '/api/audiences')).body).toEqual([]);
+  });
+
+  it('saves lists that audiences can use', async () => {
+    const store = await seeded();
+    const saved = await call(store, 'PUT', '/api/lists', {
+      name: 'Hot leads',
+      members: ['vk:4', 'vk:6', 'vk:4'],
+    });
+    expect(saved.body.list.id).toBe('list:hot-leads');
+    expect(saved.body.list.members).toEqual(['vk:4', 'vk:6']);
+    const lists = await call(store, 'GET', '/api/lists');
+    expect(lists.body.map((l) => l.id)).toContain('list:hot-leads');
+    const resolved = await call(store, 'POST', '/api/audiences/resolve', {
+      text: 'list:hot-leads & chat:vk:2000000001',
+    });
+    expect(resolved.body.people.map((p) => p.key)).toEqual(['vk:4', 'vk:6']);
+    const bad = await call(store, 'PUT', '/api/lists', { name: 'x' });
+    expect(bad.status).toBe(400);
+  });
+
+  it('leaves other paths to other handlers', async () => {
+    const store = await seeded();
+    expect((await call(store, 'GET', '/api/contacts')).handled).toBe(false);
+    expect((await call(store, 'DELETE', '/api/messages/1')).handled).toBe(
+      false
     );
   });
 });
