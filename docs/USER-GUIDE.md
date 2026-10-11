@@ -213,7 +213,47 @@ Details — the canonical CV shape, the step vocabulary, the telemetry
 events, and what is verified per platform — are in
 [`docs/CV-SYNC.md`](./CV-SYNC.md).
 
-## 10. Troubleshooting
+## 10. Greet people with a hi or a sticker
+
+Opening a dialog is the slow part of talking to people. The
+**Greetings** screen sends a "hi" or a greeting sticker for you,
+the way [konard/vk-bot](https://github.com/konard/vk-bot) does on VK,
+so you can get to the message you actually want to test.
+
+1. Open **Greetings**. The sticker grid shows VK's greeting stickers
+   (pictures load straight from vk.com) and Messenger's thumbs-up. Tick
+   the ones you want to greet with.
+2. Press **List stickers live** to fetch more from your accounts: VK
+   stickers whose keywords are greetings, and the 👋 stickers from the
+   Telegram sets listed under the grid. You can add a set to Telegram
+   from its `t.me` link.
+3. Pick the language for greeting texts and whether you prefer a
+   sticker or text, then **Save selection**.
+4. Set **Plan** to **start new dialogs** (people you have never written
+   to, oldest first) or **answer greetings** (people who said "hi" and
+   are waiting), then **Preview plan**. The table shows who gets what, and why someone is
+   skipped — for example, WhatsApp and Messenger only allow free-form
+   messages within 24 hours of the person's last message, and a Telegram
+   bot can only answer.
+5. **Send greetings** queues the plan with a pause between messages (30 seconds by
+   default). Nobody is greeted twice.
+
+The same from a terminal:
+
+```bash
+meta-sovereign greetings-stickers --live --networks=vk,telegram
+meta-sovereign greetings-select --stickers=vk:72789,vk:21 --language=ru
+meta-sovereign greetings-plan --mode=initiate --limit=10
+meta-sovereign greetings-send --mode=reply
+```
+
+Listing and sending need the JS server (`meta-sovereign serve`) and
+your connected VK, Telegram, WhatsApp or Messenger accounts. Without a
+server the screen still shows the catalogue and the preview. Telegram's
+own suggestions for empty chats are not available to bots — see
+[`docs/GREETINGS.md`](./GREETINGS.md) for this and the other details.
+
+## 11. Troubleshooting
 
 | Symptom                                  | Fix                                                                                                                                                  |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -223,7 +263,7 @@ events, and what is verified per platform — are in
 | WebRTC sync stops between two LANs.      | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                             |
 | `cargo build` fails with `linker` error. | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                |
 
-## 11. Where to go next
+## 12. Where to go next
 
 - [`README.md`](../README.md) — project overview and developer notes.
 - [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) — canonical requirement
@@ -232,6 +272,8 @@ events, and what is verified per platform — are in
   routes.
 - [`docs/CV-SYNC.md`](./CV-SYNC.md) — how CV synchronisation works,
   platform by platform.
+- [`docs/GREETINGS.md`](./GREETINGS.md) — greeting stickers and texts,
+  network by network.
 - [`docs/UI-DESIGN-AUDIT.md`](./UI-DESIGN-AUDIT.md) — accessibility +
   HIG/Material/Fluent compliance audit.
 - [`docs/case-studies/`](./case-studies/) — full case studies for

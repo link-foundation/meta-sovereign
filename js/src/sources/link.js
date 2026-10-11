@@ -1,5 +1,10 @@
 /**
  * Shared normalized Link builders for source adapters.
+ *
+ * `sticker` (issue #35) is only set when the message is a sticker, so
+ * text messages keep their historical shape: `{id, pack}` with the
+ * network's own sticker id and optional pack/set name, plus `emoji`
+ * where the network reports one (Telegram).
  */
 
 export const buildMessageLink = ({
@@ -10,6 +15,7 @@ export const buildMessageLink = ({
   body,
   timestamp,
   replyTo = null,
+  sticker = null,
 }) => ({
   id: `msg:${source}:${externalId}`,
   tokens: ['message', source, externalId],
@@ -26,4 +32,5 @@ export const buildMessageLink = ({
   sender,
   chat,
   replyTo,
+  ...(sticker ? { sticker } : {}),
 });

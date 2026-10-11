@@ -53,14 +53,29 @@ Playwright से असली browser चलाते हैं, जबकि R
 कहता है कि "JS server चाहिए"। विवरण:
 [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md)।
 
-## 6. Real-time transports और static assets
+## 6. अभिवादन
+
+`/api/greetings/catalogue`, `/api/greetings/selection` (GET और PUT),
+`/api/greetings/stickers`, `/api/greetings/plan` और `/api/greetings/file`
+(issue #35) JS only हैं; ये
+[`docs/GREETINGS.hi.md`](./GREETINGS.hi.md) वाली "अभिवादन" screen चलाते
+हैं। `catalogue`, `selection` और `plan` preview सिर्फ catalogue और store
+पर निर्भर हैं, इसलिए portable हैं; `stickers`, queued `plan` और `file` JS
+source adapters से VK, Telegram, WhatsApp और Messenger APIs बुलाते हैं।
+इनके बिना SPA built-in catalogue और preview दिखाता है, और भेजना
+`meta-sovereign greetings-*` CLI से होता है। दोनों servers एक ही CSP भेजते
+हैं: `img-src` में `https://vk.com` है ताकि VK sticker previews सीधे VK से
+आएँ; Telegram thumbnails के download URL में bot token होता है, इसलिए वे
+`/api/greetings/file` से proxy होते हैं।
+
+## 7. Real-time transports और static assets
 
 `/ws` WebSocket sync और `/rtc` WebRTC signalling दोनों servers पर parity
 में हैं। `/`, `/index.html`, flat assets, `/storage/`, `/handlers/` और
 `/sync/` mounts भी same static behavior रखते हैं और path traversal reject
 करते हैं।
 
-## 7. Summary
+## 8. Summary
 
 | Category                       | Routes | Parity | JS only |
 | ------------------------------ | ------ | ------ | ------- |
@@ -68,11 +83,12 @@ Playwright से असली browser चलाते हैं, जबकि R
 | Mutating CRUD                  | 15     | 15     | 0       |
 | Outreach / backups / hardening | 6      | 0      | 6       |
 | CV synchronisation             | 7      | 0      | 7       |
+| अभिवादन                        | 6      | 0      | 6       |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **47** | **34** | **13**  |
+| **Total**                      | **53** | **34** | **19**  |
 
-Rust server आज **72% route parity** पर है। Typical user flow - SPA खोलना,
+Rust server आज **64% route parity** पर है। Typical user flow - SPA खोलना,
 contacts देखना, messages भेजना, replies automate करना, devices sync
 करना, email archives ingest करना - Rust server को JS server का drop-in
 replacement बना देता है।
