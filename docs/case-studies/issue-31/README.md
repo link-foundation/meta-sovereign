@@ -81,7 +81,8 @@ What is in the pull request now:
    (`clink --import-binary` reads it), and `lino-store.js` keeps the text
    half as one links-notation record per line (`lino-objects-codec`).
 6. **Delivery and typing** (`js/src/sources/`). VK, Telegram and
-   WhatsApp adapters show and receive typing status; `browser-sender.js`
+   WhatsApp adapters show our typing status, and VK long-poll typing
+   events show the other person's; `browser-sender.js`
    sends through vk.com, web.telegram.org and web.whatsapp.com via
    browser-commander when the API throws or is not configured.
 7. **Front ends.** The **Chat** tab (t3.codes-like by default) has a
@@ -230,6 +231,9 @@ chat type.
   `browser-sender.js`); a redesign of vk.com, web.telegram.org or
   web.whatsapp.com needs that table updated. It is tested against a fake
   browser session, not against the live sites.
+- Only VK reports when the other person is typing. The Telegram Bot API
+  and WhatsApp Cloud API deliver no typing events to bots or business
+  numbers, so there the chat shows our own typing only.
 - WhatsApp Cloud API ties typing indicators to the incoming message
   being answered, so it can only show typing in a reply.
 - The link-cli mirror needs the `clink` binary and is off unless
