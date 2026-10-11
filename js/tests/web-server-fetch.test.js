@@ -37,7 +37,7 @@ const startStub = async () => {
       json(200, { entries: [{ platform: 'hh', capturedAt: 'now', cv: {} }] });
       return;
     }
-    if (req.url === '/api/reengage/send') {
+    if (req.url === '/api/automations/drafts/send') {
       // The adapter refused the message (issue #31): the reason must
       // reach the screen, not collapse into "server required".
       json(502, { status: 'failed', error: 'blocked by privacy settings' });
@@ -88,7 +88,9 @@ describe('serverFetch talks to the discovered server', () => {
       expect(read.failures[0].code).toBe('server-required');
 
       // A route that answers with an error status keeps its reason.
-      const refused = await api.reengageSend({ source: 'vk', chat: '1' });
+      const refused = await api.draftAction('send', {
+        id: 'automation-draft:x',
+      });
       expect(refused.status).toBe('failed');
       expect(refused.error).toBe('blocked by privacy settings');
       expect(refused.httpStatus).toBe(502);

@@ -24,27 +24,27 @@ import { typingLink } from '../sources/live-links.js';
 import { resolveAudience as resolvePeople } from '../crm/people.js';
 import {
   AUTOMATION_PREFIX,
-  DRAFT_PREFIX,
   RUN_PREFIX,
   STATE_PREFIX,
   automationKey,
-  automationPresets,
   hasTrigger,
   incomingTrigger,
   normalizeAutomation,
   parseDuration,
   planAutomation,
-  redraftWithForm,
-  runRecordId,
 } from './automations.js';
+import {
+  ConfirmationRequiredError,
+  draftOperations,
+  loadAutomation,
+  queueDrafts,
+  runRecord,
+} from './drafts.js';
 
-export class ConfirmationRequiredError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = 'ConfirmationRequiredError';
-    this.code = 'confirm-required';
-  }
-}
+export { ConfirmationRequiredError };
+
+const pick = (object, keys) =>
+  Object.fromEntries(keys.map((key) => [key, object[key]]));
 
 /** How long a person would take to type `text`. */
 export const typingDurationMs = (text, pacing) =>
@@ -55,22 +55,6 @@ export const typingDurationMs = (text, pacing) =>
         60_000
     )
   );
-
-const runRecord = (automation, draft, { status, at, ...extra }) => ({
-  id: runRecordId(automation, draft),
-  tokens: ['automation-run', automationKey(automation), draft.source, status],
-  automation: automation.id,
-  source: draft.source,
-  chat: String(draft.chat),
-  contact: draft.contact ?? null,
-  status,
-  at,
-  form: draft.form ?? null,
-  text: draft.text ?? '',
-  ...Object.fromEntries(
-    Object.entries(extra).filter(([, value]) => value !== undefined)
-  ),
-});
 
 const sentMessage = (draft, { at, via, automation }) => ({
   id: `msg:${draft.source}:${draft.chat}:out-${Date.parse(at)}`,
@@ -92,76 +76,6 @@ const sentToday = (links, automation, now) =>
       now - Date.parse(l.at) < DAY_MS
   ).length;
 
-const pick = (object, keys) =>
-  Object.fromEntries(keys.map((key) => [key, object[key]]));
-
-/** What the user can do with a pending safe-mode draft. */
-const draftOperations = ({ store, load, deliver, nowIso }) => {
-  const pendingDraft = async (id) => {
-    const draft = await store.get(id);
-    if (!draft?.id?.startsWith(DRAFT_PREFIX)) {
-      throw new Error(`no draft ${id}`);
-    }
-    return { draft, automation: await load(draft.automation) };
-  };
-
-  const settleDraft = async (id, status, extra = {}) => {
-    const { draft, automation } = await pendingDraft(id);
-    const record = runRecord(automation, draft, {
-      status,
-      at: nowIso(),
-      ...extra,
-    });
-    await store.put(record);
-    await store.delete(id);
-    return { status, draft, record };
-  };
-
-  return {
-    /** Pending drafts, optionally for one chat or one automation. */
-    async drafts({ source, chat, automation } = {}) {
-      const owner = automation
-        ? `${AUTOMATION_PREFIX}${automationKey(automation)}`
-        : null;
-      return (await store.query()).filter(
-        (l) =>
-          l?.id?.startsWith(DRAFT_PREFIX) &&
-          (!source || l.source === source) &&
-          (chat === undefined || String(l.chat) === String(chat)) &&
-          (!owner || l.automation === owner)
-      );
-    },
-    /** Send one draft after the user confirmed it (optionally edited). */
-    async sendDraft(id, { confirm = false, text, form } = {}) {
-      if (!confirm) {
-        throw new ConfirmationRequiredError(
-          'safe mode sends one message per confirmation; pass confirm: true'
-        );
-      }
-      const { draft: stored, automation } = await pendingDraft(id);
-      let draft = form ? redraftWithForm(automation, stored, form) : stored;
-      if (typeof text === 'string') {
-        draft = { ...draft, text };
-      }
-      const outcome = await deliver(automation, draft);
-      if (outcome.status === 'sent') {
-        await store.delete(id);
-      }
-      return outcome;
-    },
-    /** Re-render a pending draft in the other "ты"/"вы" form. */
-    async setDraftForm(id, form) {
-      const { draft, automation } = await pendingDraft(id);
-      const next = redraftWithForm(automation, draft, form);
-      await store.put(next);
-      return next;
-    },
-    /** The user sent it in their own app. */
-    markSent: (id) => settleDraft(id, 'sent', { manual: true }),
-    skip: (id) => settleDraft(id, 'skipped'),
-  };
-};
-
 /**
  * `send(draft)` delivers one message (normally `createDefaultSender`);
  * `setTyping({ source, chat })` shows the typing status on the network;
@@ -181,21 +95,7 @@ export const createAutomationRunner = ({
 } = {}) => {
   const nowIso = () => clock().toISOString();
 
-  const load = async (automationOrId) => {
-    if (typeof automationOrId !== 'string') {
-      return normalizeAutomation(automationOrId);
-    }
-    const id = automationOrId.startsWith(AUTOMATION_PREFIX)
-      ? automationOrId
-      : `${AUTOMATION_PREFIX}${automationOrId}`;
-    // A preset can be run before the user has saved a copy of it.
-    const link =
-      (await store.get(id)) ?? automationPresets().find((a) => a.id === id);
-    if (!link) {
-      throw new Error(`no automation ${id}`);
-    }
-    return normalizeAutomation(link);
-  };
+  const load = (automationOrId) => loadAutomation(store, automationOrId);
 
   const plan = async (automation, options = {}) =>
     planAutomation(await store.query(), automation, {
@@ -250,22 +150,8 @@ export const createAutomationRunner = ({
     }
   };
 
-  const queue = async (automation, drafts) => {
-    const at = nowIso();
-    // A draft is settled against its automation later; keep an unsaved one.
-    if (drafts.length > 0 && !(await store.get(automation.id))) {
-      await store.put(automation);
-    }
-    for (const draft of drafts) {
-      await store.put({
-        ...draft,
-        tokens: ['automation-draft', automationKey(automation), draft.source],
-        status: 'pending',
-        createdAt: at,
-      });
-    }
-    return drafts;
-  };
+  const queue = (automation, drafts) =>
+    queueDrafts(store, automation, drafts, nowIso());
 
   const sendPaced = async (automation, drafts) => {
     const { pacing } = automation;

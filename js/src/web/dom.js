@@ -10,7 +10,7 @@ import {
 import { discoverServer } from './discover.js';
 import { createOfflineClient } from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
-import { planReengagement } from '../crm/reengage.js';
+import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
 
 export const h = (tag, attrs = {}, children = []) => {
@@ -87,6 +87,7 @@ const ensure = () => {
  */
 export const resetServerBinding = () => {
   bootPromise = null;
+  automationApi = null;
 };
 
 const serverResponse = async (path, init) => {
@@ -120,7 +121,7 @@ const serverFetch = async (path, init) => {
 
 /**
  * POST that keeps the server's own answer on an error status — a
- * re-engage send that the network refused (502) must show *why*. A
+ * draft send that the network refused (502) must show *why*. A
  * missing route (`unknown route`, an HTML proxy page) or no server at
  * all still collapses to null, like `serverFetch`.
  */
@@ -221,7 +222,55 @@ const cvOffline = (platforms) => ({
   message: 'the local server drives the browser for CV reads and writes',
 });
 
+const jsonInit = (method, body) => ({
+  method,
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify(body),
+});
+
+/** The server bridge for ./automation-api.js; null means "no server". */
+const remote = {
+  get: (path) => serverFetch(path),
+  post: (path, body) => postJson(path, body),
+  report: (path, body) => serverPostReport(path, body),
+  put: (path, body) => serverFetch(path, jsonInit('PUT', body)),
+  del: (path) => serverFetch(path, { method: 'DELETE' }),
+};
+
+let automationApi = null;
+const automationCall =
+  (name) =>
+  async (...args) => {
+    const { store } = await ensure();
+    automationApi ??= createAutomationApi({ remote, store });
+    return automationApi[name](...args);
+  };
+
+// Issue #31 / PR #34: automations, their drafts, the composer's send and
+// typing status, people, lists and audiences — see ./automation-api.js.
+const AUTOMATION_CALLS = [
+  'automations',
+  'saveAutomation',
+  'deleteAutomation',
+  'planAutomation',
+  'runAutomation',
+  'drafts',
+  'draftAction',
+  'automationHistory',
+  'sendMessage',
+  'setTyping',
+  'typing',
+  'people',
+  'audiences',
+  'saveAudience',
+  'deleteAudience',
+  'resolveAudience',
+  'lists',
+  'saveList',
+];
+
 export const api = {
+  ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),
   links: async () => {
     const { client } = await ensure();
     return client.links();
@@ -340,34 +389,6 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ query, text, networks, mode }),
     })) ?? { audience: [], plan: [], note: 'server required for outreach' },
-  // ---- Re-engage dormant contacts (issue #31) ---------------------
-  // The plan prefers the server (it holds every imported archive) and
-  // falls back to the links this browser holds. Decisions are written
-  // locally and, when a server is up, to its store too, so neither
-  // side offers a contacted or skipped person again. Sending needs the
-  // server, which has the adapters' credentials: one draft per
-  // request, always with `confirm: true` (safe mode, R-X6).
-  reengagePlan: async (options = {}) =>
-    (await postJson('/api/reengage/plan', options)) ??
-    planReengagement(await api.links(), options),
-  reengageRecord: async (link) => {
-    await api.put(link);
-    await serverFetch('/links', {
-      method: 'PUT',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(link),
-    });
-    return link;
-  },
-  reengageSend: async (draft) =>
-    (await serverPostReport('/api/reengage/send', {
-      draft,
-      confirm: true,
-    })) ?? {
-      status: 'failed',
-      code: 'server-required',
-      error: 'sending needs the local server',
-    },
   // ---- CV synchronisation (issue #29) -----------------------------
   // Reading a live profile needs a browser, which only the local
   // server has; offline the SPA still shows the catalogue, the stored

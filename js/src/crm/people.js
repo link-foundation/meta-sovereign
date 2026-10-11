@@ -484,8 +484,12 @@ const slug = (text) =>
     .replace(/[^\p{L}\p{N}]+/gu, '-')
     .replace(/^-+|-+$/g, '');
 
-const linkId = (id, name, kind) => {
-  const value = String(id ?? '').trim() || slug(name);
+// `id` may be given whole (`list:x`, as read back from the store).
+const linkId = (id, name, kind, prefix) => {
+  const given = String(id ?? '').trim();
+  const value =
+    (given.startsWith(prefix) ? given.slice(prefix.length) : given) ||
+    slug(name);
   if (!value) {
     throw new Error(`a ${kind} needs an id or a name`);
   }
@@ -494,7 +498,7 @@ const linkId = (id, name, kind) => {
 
 /** `audience:<id>` — a saved audience; `id` defaults to the name's slug. */
 export const audienceLink = ({ id, name, spec, at = new Date() }) => {
-  const key = linkId(id, name, 'saved audience');
+  const key = linkId(id, name, 'saved audience', AUDIENCE_PREFIX);
   const resolved = toAudienceSpec(spec);
   return {
     id: `${AUDIENCE_PREFIX}${key}`,
@@ -509,7 +513,7 @@ export const audienceLink = ({ id, name, spec, at = new Date() }) => {
 
 /** `list:<id>` — a hand-picked list of `<source>:<user>` keys. */
 export const listLink = ({ id, name, members, at = new Date() }) => {
-  const key = linkId(id, name, 'list');
+  const key = linkId(id, name, 'list', LIST_PREFIX);
   if (!Array.isArray(members)) {
     throw new Error('a list needs "members": ["<source>:<user>", ...]');
   }
