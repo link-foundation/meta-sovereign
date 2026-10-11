@@ -17,54 +17,18 @@
  * or a missing primary download button.
  */
 
-import http from 'node:http';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { fileURLToPath } from 'node:url';
 
 import { chromium } from 'playwright';
 
 import { expectedReleaseAssets } from '../../js/src/web/download/downloads.js';
+import { ROOT, servePages } from './pages-server.mjs';
 
-const ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../..'
-);
-const PAGES = path.join(ROOT, 'dist', 'pages');
 const OUT = path.resolve(
   process.argv[2] ?? path.join(ROOT, 'docs/screenshots/issue-37')
 );
 const VERSION = '0.21.0';
-
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript',
-  '.css': 'text/css',
-  '.svg': 'image/svg+xml',
-};
-
-const serve = () =>
-  new Promise((resolve) => {
-    const server = http.createServer(async (req, res) => {
-      // Mirror the project-site prefix GitHub Pages uses.
-      const url = new URL(req.url, 'http://x');
-      let rel = url.pathname.replace(/^\/meta-sovereign/, '');
-      if (rel.endsWith('/')) {
-        rel += 'index.html';
-      }
-      try {
-        const body = await fs.readFile(path.join(PAGES, rel));
-        res.writeHead(200, {
-          'content-type': MIME[path.extname(rel)] ?? 'application/octet-stream',
-        });
-        res.end(body);
-      } catch {
-        res.writeHead(404);
-        res.end('not found');
-      }
-    });
-    server.listen(0, '127.0.0.1', () => resolve(server));
-  });
 
 const mockRelease = () => [
   {
@@ -114,8 +78,8 @@ const STATES = [
 
 const main = async () => {
   await fs.mkdir(OUT, { recursive: true });
-  const server = await serve();
-  const base = `http://127.0.0.1:${server.address().port}/meta-sovereign/download/`;
+  const { server, base: site } = await servePages();
+  const base = `${site}download/`;
   const browser = await chromium.launch({ channel: 'chromium' });
   let failed = false;
   try {

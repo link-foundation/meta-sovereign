@@ -17,6 +17,17 @@ export const en = {
   'header.systemDefault': 'System default',
   'header.online': 'online',
   'header.offline': 'offline',
+  'webMode.title': 'Browser-only mode',
+  'webMode.body':
+    'No local server was found, so the app works with the data stored in this browser. Imports from mail and messengers, scheduled automations, sync between devices, CV sync and greetings turn on once a local server is running. Start one with Node.js 20 or newer:',
+  'webMode.retry': 'Check again',
+  'webMode.checking': 'Looking for a local server…',
+  'webMode.notFound':
+    'Still no server answering at http://127.0.0.1:8787. Start it and check again.',
+  'webMode.download': 'Get the desktop app (server included)',
+  'webMode.dismiss': 'Hide',
+  'webMode.safari':
+    'Safari does not let https pages reach http://127.0.0.1. In Safari, open http://127.0.0.1:8787 directly once the server runs, or use the desktop app.',
   'nav.chat': 'Chat',
   'nav.operator': 'Operator',
   'nav.contacts': 'Contacts',
@@ -166,6 +177,9 @@ export const en = {
   'guide.localServer.node': 'Node / Bun / Deno',
   'guide.localServer.nodeHint':
     'Reuses the published JS server. Defaults to http://127.0.0.1:8787.',
+  'guide.localServer.github': 'Straight from GitHub',
+  'guide.localServer.githubHint':
+    'Use this while npm answers 404: npx fetches the same server from the GitHub repository. Defaults to http://127.0.0.1:8787.',
   'guide.localServer.docker': 'Docker',
   'guide.localServer.dockerHint':
     'Spins up the same JS server in a container. See docker/web.Dockerfile.',

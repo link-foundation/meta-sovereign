@@ -17,6 +17,17 @@ export const zh = {
   'header.systemDefault': '跟随系统',
   'header.online': '在线',
   'header.offline': '离线',
+  'webMode.title': '仅浏览器模式',
+  'webMode.body':
+    '未找到本地服务器,应用将使用此浏览器中保存的数据。启动本地服务器后,将启用邮件和即时通讯导入、定时自动化、设备间同步、简历同步和问候功能。使用 Node.js 20 或更高版本启动：',
+  'webMode.retry': '重新检测',
+  'webMode.checking': '正在查找本地服务器…',
+  'webMode.notFound':
+    'http://127.0.0.1:8787 上仍没有服务器响应。请启动后重新检测。',
+  'webMode.download': '下载桌面应用（内置服务器）',
+  'webMode.dismiss': '隐藏',
+  'webMode.safari':
+    'Safari 不允许 https 页面访问 http://127.0.0.1。在 Safari 中,请在服务器启动后直接打开 http://127.0.0.1:8787,或使用桌面应用。',
   'nav.chat': '聊天',
   'nav.operator': '操作员',
   'nav.contacts': '联系人',
@@ -162,6 +173,9 @@ export const zh = {
   'guide.localServer.node': 'Node / Bun / Deno',
   'guide.localServer.nodeHint':
     '复用已发布的 JS 服务器。默认地址 http://127.0.0.1:8787。',
+  'guide.localServer.github': '直接从 GitHub 运行',
+  'guide.localServer.githubHint':
+    '在 npm 返回 404 时使用：npx 会从 GitHub 仓库获取同一个服务器。默认地址 http://127.0.0.1:8787。',
   'guide.localServer.docker': 'Docker',
   'guide.localServer.dockerHint':
     '在容器中启动同一个 JS 服务器。参见 docker/web.Dockerfile。',
