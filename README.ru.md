@@ -47,6 +47,7 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 
 - **Единый inbox** для VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email.
 - **Синхронизация CV** между LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV и SuperJob: прочитать каждый профиль через собственный браузер, увидеть различия по полям и записать согласованные значения обратно ([`docs/CV-SYNC.ru.md`](docs/CV-SYNC.ru.md)).
+- **Приветствия**: начинать диалоги в VK, Telegram, WhatsApp, Messenger, X и email с «привет» или стикера-приветствия, как это делает [konard/vk-bot](https://github.com/konard/vk-bot), — выбрать стикеры в интерфейсе, посмотреть, кому что уйдёт, и отправить с паузой между сообщениями ([`docs/GREETINGS.ru.md`](docs/GREETINGS.ru.md)).
 - **Personal CRM**: контакты, сообщества, членства в группах, пересечения, массовый персонализированный outreach.
 - **Personal memory**: структурированные факты `question → answer`, автоматически извлеченные из разговоров.
 - **Платформа conversation automation**: редакторы паттернов, варианты ответов, n8n-style dialog graphs.
