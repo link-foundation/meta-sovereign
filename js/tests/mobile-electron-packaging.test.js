@@ -80,6 +80,18 @@ describe('mobile and Electron packaging', () => {
     expect(checked).toBe(false);
   });
 
+  it('finds the CommonJS autoUpdater getter behind the ESM default export (issue #37)', async () => {
+    const { pickAutoUpdater } = await import('../electron/main.js');
+    const updater = { checkForUpdatesAndNotify() {} };
+    // Shape of `await import('electron-updater')`: no named export, the
+    // updater is a lazy getter on module.exports.
+    const cjs = {};
+    Object.defineProperty(cjs, 'autoUpdater', { get: () => updater });
+    expect(pickAutoUpdater({ default: cjs })).toBe(updater);
+    expect(pickAutoUpdater({ autoUpdater: updater })).toBe(updater);
+    expect(pickAutoUpdater({})).toBe(null);
+  });
+
   it('keeps the packaged desktop store in userData, not the cwd (issue #37)', async () => {
     const { resolveDesktopStoreDir } = await import('../electron/main.js');
     const app = { getPath: (name) => `/home/u/.config/Meta Sovereign/${name}` };

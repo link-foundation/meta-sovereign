@@ -28,9 +28,16 @@ const loadElectron = async () => {
   return electron;
 };
 
+// electron-updater is CommonJS and defines `autoUpdater` with a lazy
+// getter, which Node's ESM named-export detection cannot see: the named
+// import is undefined and the updater is only reachable through the
+// default (module.exports) object (issue #37).
+export const pickAutoUpdater = (mod) =>
+  mod?.autoUpdater ?? mod?.default?.autoUpdater ?? null;
+
 const loadAutoUpdater = async () => {
   const mod = await import('electron-updater').catch(() => ({}));
-  return mod.autoUpdater ?? null;
+  return pickAutoUpdater(mod);
 };
 
 const updateEvents = [
