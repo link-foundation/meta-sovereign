@@ -97,6 +97,13 @@ describe('electron-builder config', () => {
     });
   });
 
+  it('names the macOS bundle after the product, not the executable', () => {
+    // electron-builder names the .app after `mac.executableName`,
+    // falling back to the top-level (Linux/Windows) `meta-sovereign`.
+    expect(builderConfig.mac.executableName).toBe(builderConfig.productName);
+    expect(builderConfig.executableName).toBe('meta-sovereign');
+  });
+
   it('produces the catalogue name for every download option', () => {
     for (const opt of DOWNLOAD_OPTIONS) {
       const arch =

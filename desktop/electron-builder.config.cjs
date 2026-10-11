@@ -69,6 +69,9 @@ module.exports = {
     artifactName: `${PREFIX}-linux-\${arch}-\${version}.\${ext}`,
   },
   mac: {
+    // The top-level `executableName` also names the .app bundle, so
+    // macOS gets the product name back ("Meta Sovereign.app").
+    executableName: 'Meta Sovereign',
     target: ['dmg', 'zip'],
     category: 'public.app-category.productivity',
     artifactName: `${PREFIX}-macos-\${arch}-\${version}.\${ext}`,

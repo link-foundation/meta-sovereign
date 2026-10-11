@@ -216,7 +216,10 @@ jobs:
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: |
           set -euo pipefail
-          if [ -n "$MAC_CSC_LINK" ] && [ -n "$MAC_CSC_KEY_PASSWORD" ] && \
+          # Pull requests never get the Developer ID: they build the
+          # ad-hoc variant, which needs no secrets.
+          if [ "$GITHUB_EVENT_NAME" != pull_request ] && \
+             [ -n "$MAC_CSC_LINK" ] && [ -n "$MAC_CSC_KEY_PASSWORD" ] && \
              [ -n "$APPLE_API_KEY_CONTENT" ] && [ -n "$APPLE_API_KEY_ID" ] && \
              [ -n "$APPLE_API_ISSUER" ]; then
             # notarytool wants a path to the .p8 key, not its contents.
@@ -232,10 +235,13 @@ jobs:
             echo "mode=signed" >> "$GITHUB_OUTPUT"
             echo "args=" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::macOS signing secrets not configured; building an ad-hoc signed app"
+            echo "::notice::building an ad-hoc signed macOS app (pull request or no signing secrets)"
+            # electron-builder skips signing on pull requests unless
+            # CSC_FOR_PULL_REQUEST is set; ad-hoc signing uses no secret.
             {
               echo "MACOS_ADHOC_SIGN=1"
               echo "CSC_IDENTITY_AUTO_DISCOVERY=false"
+              echo "CSC_FOR_PULL_REQUEST=true"
             } >> "$GITHUB_ENV"
             echo "mode=adhoc" >> "$GITHUB_OUTPUT"
             echo "args=-c.mac.notarize=false -c.mac.sign=$GITHUB_WORKSPACE/desktop/adhoc-sign-mac.cjs" >> "$GITHUB_OUTPUT"
@@ -286,6 +292,7 @@ jobs:
           check_app() {
             local app="$1" id
             ls -la "$app/Contents"
+            test "$(basename "$app")" = 'Meta Sovereign.app'
             id=$(plutil -extract CFBundleIdentifier raw -o - "$app/Contents/Info.plist")
             echo "$app: $id"
             test "$id" = foundation.link.meta.sovereign
