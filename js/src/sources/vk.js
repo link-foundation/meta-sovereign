@@ -108,7 +108,7 @@ export const createVkLive = ({
     async pullMessages(options = {}) {
       const count = options.limit ?? options.count ?? 20;
       let response;
-      let raw = [];
+      let raw;
       if (options.peerId) {
         response = await call(
           'messages.getHistory',

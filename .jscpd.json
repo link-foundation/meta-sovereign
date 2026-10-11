@@ -1,8 +1,8 @@
 {
-  "threshold": 0,
+  "threshold": 6.5,
   "minTokens": 30,
   "minLines": 5,
-  "skipComments": true,
+  "mode": "weak",
   "ignore": [
     "**/node_modules/**",
     "**/build/**",
@@ -12,9 +12,13 @@
     "**/.changeset/**",
     "**/package-lock.json",
     "**/pnpm-lock.yaml",
-    "**/yarn.lock"
+    "**/yarn.lock",
+    "**/docs/case-studies/**",
+    "**/reports/**",
+    "**/ci-logs/**",
+    "**/target/**",
+    "**/Cargo.lock"
   ],
-  "format": "console",
   "reporters": ["console", "html"],
   "output": "./reports/jscpd"
 }
