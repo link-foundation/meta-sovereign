@@ -1,0 +1,189 @@
+{
+  "probedAt": "2026-10-11T16:07:40.307Z",
+  "results": [
+    {
+      "id": 6121396,
+      "name": "VK Admin (Android)",
+      "source": "vkhost",
+      "status": 401,
+      "location": null,
+      "outcome": "blocked"
+    },
+    {
+      "id": 5776857,
+      "name": "VK Admin (iOS)",
+      "source": "vkhost",
+      "status": 401,
+      "location": null,
+      "outcome": "security-error"
+    },
+    {
+      "id": 6463690,
+      "name": "Marusya",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 7556576,
+      "name": "Sferum",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 7598572,
+      "name": "Sferum Android",
+      "source": "vkhost",
+      "status": 401,
+      "location": null,
+      "outcome": "disabled"
+    },
+    {
+      "id": 7571751,
+      "name": "VK Education iOS",
+      "source": "vkhost",
+      "status": 401,
+      "location": null,
+      "outcome": "disabled"
+    },
+    {
+      "id": 7793118,
+      "name": "VK Calls",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 6287487,
+      "name": "vk.com (web)",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 7799655,
+      "name": "VK Mail",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 7539952,
+      "name": "Mail.ru Mail",
+      "source": "vkhost",
+      "status": 401,
+      "location": null,
+      "outcome": "security-error"
+    },
+    {
+      "id": 7497650,
+      "name": "VK Connect",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 5530956,
+      "name": "Prisma",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 3698024,
+      "name": "Instagram",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 2685278,
+      "name": "Kate Mobile",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 4083558,
+      "name": "VFeed",
+      "source": "vkhost",
+      "status": 200,
+      "location": null,
+      "outcome": "login-page"
+    },
+    {
+      "id": 2274003,
+      "name": "VK for Android (official)",
+      "source": "official",
+      "status": 401,
+      "location": null,
+      "outcome": "direct-auth-only"
+    },
+    {
+      "id": 3140623,
+      "name": "VK for iPhone (official)",
+      "source": "official",
+      "status": 401,
+      "location": null,
+      "outcome": "direct-auth-only"
+    },
+    {
+      "id": 3682744,
+      "name": "VK for iPad (official)",
+      "source": "official",
+      "status": 401,
+      "location": null,
+      "outcome": "direct-auth-only"
+    },
+    {
+      "id": 3697615,
+      "name": "VK for Windows (official)",
+      "source": "official",
+      "status": 401,
+      "location": null,
+      "outcome": "direct-auth-only"
+    },
+    {
+      "id": 3502557,
+      "name": "VK for Windows Phone (official)",
+      "source": "official",
+      "status": 401,
+      "location": null,
+      "outcome": "disabled"
+    },
+    {
+      "id": 6146827,
+      "name": "VK Me (official)",
+      "source": "official",
+      "status": 401,
+      "location": null,
+      "outcome": "direct-auth-only"
+    },
+    {
+      "id": 999999999,
+      "name": "control: never existed",
+      "source": "control",
+      "status": 401,
+      "location": null,
+      "outcome": "deleted"
+    },
+    {
+      "id": 12345,
+      "name": "control: web app without messages",
+      "source": "control",
+      "status": 401,
+      "location": null,
+      "outcome": "no-messages"
+    }
+  ]
+}
