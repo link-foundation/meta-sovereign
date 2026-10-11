@@ -110,15 +110,18 @@ export const createAutomationRunner = ({
       return;
     }
     const ms = typingDurationMs(draft.text, automation.pacing);
-    await store.put(
-      typingLink({
+    // `automation` lets the chat say who is typing on the user's behalf.
+    await store.put({
+      ...typingLink({
         source: draft.source,
         chat: draft.chat,
         user: 'me',
         at: nowIso(),
         ttlMs: ms + 2000,
-      })
-    );
+      }),
+      automation: automation.id,
+      automationName: automation.name,
+    });
     await setTyping?.({ source: draft.source, chat: draft.chat }).catch(
       (error) => log({ event: 'typing_failed', error: error.message })
     );

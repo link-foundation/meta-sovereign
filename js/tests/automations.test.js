@@ -240,10 +240,9 @@ test('safe mode queues drafts and sends only after confirmation', async () => {
     (l) => l.id.startsWith('msg:vk:101:out-') && l.sender === 'me'
   );
   assert.equal(chat.length, 1);
-  assert.ok(
-    (await store.query()).some((l) => l.id === 'typing:vk:101:me'),
-    'our typing status is stored for the chat header'
-  );
+  const typed = await store.get('typing:vk:101:me');
+  assert.ok(typed, 'our typing status is stored for the chat header');
+  assert.equal(typed.automation, 'automation:reengage-dormant');
 
   const bob = pending.find((d) => d.contact === 'bob');
   const skipped = await runner.skip(bob.id);
