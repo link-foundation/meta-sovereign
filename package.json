@@ -17,6 +17,7 @@
     "./sources": "./js/src/sources/index.js",
     "./sources/email": "./js/src/sources/email.js",
     "./sources/email-node-transport": "./js/src/sources/email-node-transport.js",
+    "./sources/vk-auth": "./js/src/sources/vk-auth.js",
     "./patterns": "./js/src/patterns/index.js",
     "./replies": "./js/src/replies/index.js",
     "./automation": "./js/src/automation/index.js",

@@ -1,0 +1,26 @@
+$ node examples/vk-token-check.mjs --sources
+VK clients whose OAuth gate was open on 2026-10-11:
+   6287487  prefer    vk           vk.com (web client)
+   7793118  prefer    vk           VK Calls (Звонки ВКонтакте)
+   6463690  fallback  vk           Marusya (Маруся)
+   7799655  fallback  vk           VK Mail (VK Почта)
+   7556576  fallback  vk           Sferum (web)
+   7497650  fallback  vk           VK Connect
+   5530956  avoid     third-party  Prisma
+   3698024  avoid     third-party  Instagram (legacy VK integration)
+   4083558  avoid     third-party  VFeed
+
+$ VK_ACCESS_TOKEN=bogus node examples/vk-token-check.mjs   # real api.vk.ru, 2026-10-11T16:17:58Z
+{
+  "verdict": "invalid",
+  "user": null,
+  "scopes": [],
+  "offline": false,
+  "messages": {
+    "ok": false,
+    "code": 5,
+    "message": "vk API 5: User authorization failed: invalid access_token (4).",
+    "hint": "Authorization failed: the token is invalid, expired or revoked. Issue a new one."
+  }
+}
+exit=1

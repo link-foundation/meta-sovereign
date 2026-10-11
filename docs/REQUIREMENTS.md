@@ -518,6 +518,23 @@ verification logs live in
 | R-V21 | Every plan is exercised against a real browser before it meets a real profile.             | Done: `js/tests/helpers/markup-fixture.js` rebuilds each plan's expected DOM from the plan itself and `RUN_BROWSER_E2E=1 npm run test:e2e:cv` serves it at the platforms' own URLs through Playwright interception, driving all seven plans.                                                              |
 | R-V22 | A backend without the CV routes degrades visibly, never silently.                          | Done: `serverFetch` in `js/src/web/dom.js` resolves against the discovered origin and treats a 404 (the Rust server's catch-all) as "unavailable", so the screen shows the "start the JS server" notice instead of an empty table. Tests: `js/tests/web-server-fetch.test.js`, `js/tests/cv-web.test.js`. |
 
+## W. VK token sources after the Kate Mobile ban (issue #32)
+
+The following requirements arise from
+[issue #32](https://github.com/link-foundation/meta-sovereign/issues/32) —
+"research which applications still have elevated permissions like kate
+mobile previously had … reduce probability of using untrusted and small
+applications". The research, the probe results and every source live in
+[`docs/case-studies/issue-32/`](./case-studies/issue-32/README.md).
+
+| ID   | Requirement                                                                                       | State                                                                                                                                                                                               |
+| ---- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-W1 | Every client listed on vkhost.github.io is checked against VK's current OAuth gate.               | Done: `experiments/issue-32/probe-vk-oauth-apps.mjs` probes all 15 vkhost clients, 6 official VK clients and 2 controls on oauth.vk.com and oauth.vk.ru without an account; logs in the case study. |
+| R-W2 | The findings are reusable as data, ranked so first-party VK clients come before small publishers. | Done: `VK_TOKEN_SOURCES` and `rankVkTokenSources()` in `js/src/sources/vk-auth.js`; third-party clients are excluded unless asked for. Tests: `js/tests/vk-auth.test.js`.                           |
+| R-W3 | A user can check what a token they already hold can still do, using documented methods only.      | Done: `inspectVkToken()` (`users.get`, `account.getAppPermissions`, `messages.getConversations`) and `describeVkError()`; CLI demo `examples/vk-token-check.mjs`.                                   |
+| R-W4 | The in-app VK guide must not send users down a path VK has closed.                                | Done: `connections.vk.api.hint` in all four locales now points to the archive, community tokens and, at the user's risk, VK's own web client; it names the right secret id.                         |
+| R-W5 | The VK connector follows VK's move to the vk.ru domain.                                           | Done: `createVkLive` and the connection guide default to `https://api.vk.ru`; docs link to dev.vk.ru.                                                                                               |
+
 ---
 
 ## Traceability
