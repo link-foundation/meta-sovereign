@@ -39,7 +39,8 @@ const TYPES = [
 const needsEscape = (text) =>
   text === '' || text.startsWith('ms:') || /^\d+$/.test(text);
 
-const scalarName = (value) => {
+/** The point name a scalar is stored under (see the module header). */
+export const scalarName = (value) => {
   if (typeof value === 'number') {
     return `ms:n:${value}`;
   }
@@ -132,9 +133,12 @@ const namesPacket = (names) => {
   return { external: true, sections };
 };
 
-/** Encode records to the link-cli compatible binary archive. */
-export const encodeArchive = (records) => {
-  const { links, names } = encodeNetwork(records);
+/**
+ * Write a raw network — `links` as `[source, target]` rows (address =
+ * row index + 1) and `names` as `Map(name → address)` — in the link-cli
+ * archive layout.
+ */
+export const encodeLinksArchive = ({ links, names }) => {
   const a = encodePacket(linksPacket(links));
   const b = encodePacket(namesPacket(names));
   const out = new Uint8Array(a.length + b.length);
@@ -142,6 +146,10 @@ export const encodeArchive = (records) => {
   out.set(b, a.length);
   return out;
 };
+
+/** Encode records to the link-cli compatible binary archive. */
+export const encodeArchive = (records) =>
+  encodeLinksArchive(encodeNetwork(records));
 
 /** Read the raw network (links + names) from archive bytes. */
 export const readNetwork = (bytes) => {
@@ -156,7 +164,8 @@ export const readNetwork = (bytes) => {
   return { links, names };
 };
 
-const scalarFrom = (name) => {
+/** The scalar a point name stands for (the inverse of `scalarName`). */
+export const scalarFrom = (name) => {
   if (name.startsWith('ms:n:')) {
     return Number(name.slice(5));
   }
