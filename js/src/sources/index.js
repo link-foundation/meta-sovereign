@@ -50,6 +50,16 @@ export {
   writeSourceCv,
 } from './cv-bridge.js';
 export {
+  MEMBER_GROUP_KINDS,
+  isTypingActive,
+  memberLink,
+  personLink,
+  setTypingFor,
+  syncMembership,
+  typingLink,
+} from './live-links.js';
+export { vkTypingFromUpdate } from './vk.js';
+export {
   VK_TOKEN_SOURCES,
   classifyVkOAuthGate,
   describeVkError,

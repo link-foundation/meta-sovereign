@@ -9,6 +9,10 @@
  * go to `/{phone-number-id}/messages`, profile updates go to
  * `/{phone-number-id}/whatsapp_business_profile`, and inbound reads
  * normalize webhook payloads because Cloud API delivery is webhook-led.
+ *
+ * Issue #31 / PR #34: `setTyping` shows a typing indicator. Cloud API
+ * ties typing indicators to the incoming message being answered (it
+ * also marks that message read), so a `messageId` is required.
  */
 
 import { buildMessageLink } from './link.js';
@@ -79,7 +83,33 @@ export const createWhatsAppCloudLive = ({
       'WhatsApp phone number id'
     );
 
+  const sendMessages = (body, options = {}) =>
+    requestJson(
+      fetchImpl,
+      `${baseUrl}/${resolvedPhone(options.phoneNumberId)}/messages`,
+      {
+        method: 'POST',
+        headers: authHeaders(resolvedToken(options.token)),
+        body: { messaging_product: 'whatsapp', ...body },
+      }
+    );
+
   return {
+    async setTyping({ messageId } = {}, options = {}) {
+      if (!messageId) {
+        throw new Error(
+          'whatsapp setTyping requires messageId (the incoming message being replied to)'
+        );
+      }
+      return sendMessages(
+        {
+          status: 'read',
+          message_id: messageId,
+          typing_indicator: { type: 'text' },
+        },
+        options
+      );
+    },
     async pullMessages(options = {}) {
       const payload =
         options.webhookPayload ?? options.payload ?? options.updates ?? null;
@@ -100,17 +130,7 @@ export const createWhatsAppCloudLive = ({
       if (!text) {
         throw new Error('whatsapp post text is required');
       }
-      const phone = resolvedPhone(options.phoneNumberId);
-      return requestJson(fetchImpl, `${baseUrl}/${phone}/messages`, {
-        method: 'POST',
-        headers: authHeaders(resolvedToken(options.token)),
-        body: {
-          messaging_product: 'whatsapp',
-          to,
-          type: 'text',
-          text: { body: text },
-        },
-      });
+      return sendMessages({ to, type: 'text', text: { body: text } }, options);
     },
     async syncProfile(profile, options = {}) {
       const phone = resolvedPhone(options.phoneNumberId);

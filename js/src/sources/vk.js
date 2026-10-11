@@ -6,12 +6,20 @@
  * `messages.send`, `status.set`, and `account.saveProfileInfo`) behind
  * an injectable fetch/baseUrl pair for testability.
  *
+ * Issue #31 / PR #34: the live side also shows typing status
+ * (`messages.setActivity`, the konard/vk-bot read -> typing -> reply
+ * pacing) and lists audiences automation can target: friends
+ * (`friends.get`), community members (`groups.getMembers`) and chat
+ * members (`messages.getConversationMembers`). `vkTypingFromUpdate`
+ * maps long-poll typing events to `typing` links.
+ *
  * VK moved its developer endpoints to the vk.ru domain in 2025
  * (api.vk.ru, oauth.vk.ru, dev.vk.ru), so that is the default host;
  * tokens issued through oauth.vk.com work against either host.
  */
 
 import { buildMessageLink } from './link.js';
+import { typingLink } from './live-links.js';
 import {
   compact,
   contentTarget,
@@ -64,6 +72,134 @@ const unwrapVk = (payload) => {
   return payload?.response ?? payload;
 };
 
+const PEOPLE_FIELDS = 'first_name,last_name,domain,screen_name';
+
+const vkPerson = (profile) => ({
+  user: String(profile.id),
+  name:
+    [profile.first_name, profile.last_name].filter(Boolean).join(' ') ||
+    profile.name ||
+    null,
+  handle: profile.domain ?? profile.screen_name ?? null,
+});
+
+const vkUnixIso = (seconds) =>
+  seconds ? new Date(Number(seconds) * 1000).toISOString() : undefined;
+
+/**
+ * Map one VK long-poll update to typing links (possibly empty).
+ *
+ * - Bots Long Poll: `{ type: 'message_typing_state', object: { state,
+ *   from_id, to_id } }` — the user `from_id` types in the dialog with
+ *   the community, so the chat peer is `from_id`.
+ * - User Long Poll arrays: `[61, user_id]` (typing in a dialog),
+ *   `[62, user_id, chat_id]` (typing in a chat, chat peer is
+ *   2000000000 + chat_id) and `[63, peer_id, [user_ids], total, ts]`
+ *   (current API: users typing in a conversation).
+ */
+export const vkTypingFromUpdate = (update, { now = Date.now() } = {}) => {
+  const at = new Date(now).toISOString();
+  if (update?.type === 'message_typing_state') {
+    const { state, from_id: user } = update.object ?? {};
+    return [
+      typingLink({
+        source: SOURCE,
+        chat: user,
+        user,
+        state: state === 'typing' ? 'typing' : 'idle',
+        at,
+      }),
+    ];
+  }
+  if (!Array.isArray(update)) {
+    return [];
+  }
+  const [code, first, second, , ts] = update;
+  if (code === 61) {
+    return [typingLink({ source: SOURCE, chat: first, user: first, at })];
+  }
+  if (code === 62) {
+    const chat = 2000000000 + Number(second);
+    return [typingLink({ source: SOURCE, chat, user: first, at })];
+  }
+  if (code === 63) {
+    const users = Array.isArray(second) ? second : [second];
+    return users.map((user) =>
+      typingLink({ source: SOURCE, chat: first, user, at: vkUnixIso(ts) ?? at })
+    );
+  }
+  return [];
+};
+
+// Typing status and audience listing (issue #31 / PR #34), built on the
+// adapter's `call` so every request shares its auth and error handling.
+const vkLiveAudience = (call) => {
+  // Walk `count`/`offset` pages until VK's reported total is reached.
+  const paginate = async (method, params, options = {}, pageSize = 1000) => {
+    const out = [];
+    let offset = Number(options.offset ?? 0);
+    for (;;) {
+      const page = await call(
+        method,
+        { ...params, count: pageSize, offset, fields: PEOPLE_FIELDS },
+        options.token
+      );
+      const items = page?.items ?? [];
+      out.push(...items.map(vkPerson));
+      offset += items.length;
+      const total = Number(page?.count ?? out.length);
+      if (items.length === 0 || offset >= total) {
+        return out;
+      }
+    }
+  };
+
+  return {
+    async setTyping({ chat, peerId } = {}, options = {}) {
+      const peer = chat ?? peerId;
+      if (!peer) {
+        throw new Error('vk setTyping peer_id is required');
+      }
+      return call(
+        'messages.setActivity',
+        { peer_id: peer, type: 'typing' },
+        options.token
+      );
+    },
+    async friends(options = {}) {
+      return paginate('friends.get', {}, options, 5000);
+    },
+    async communityMembers(groupId, options = {}) {
+      if (!groupId) {
+        throw new Error('vk communityMembers group_id is required');
+      }
+      return paginate('groups.getMembers', { group_id: groupId }, options);
+    },
+    async chatMembers(peerId, options = {}) {
+      if (!peerId) {
+        throw new Error('vk chatMembers peer_id is required');
+      }
+      const response = await call(
+        'messages.getConversationMembers',
+        { peer_id: peerId, fields: PEOPLE_FIELDS },
+        options.token
+      );
+      // Communities appear as negative member ids; their names live in
+      // `groups` while people come from `profiles`.
+      const known = new Map(
+        [
+          ...(response?.profiles ?? []),
+          ...(response?.groups ?? []).map((g) => ({ ...g, id: -g.id })),
+        ].map((profile) => [String(profile.id), vkPerson(profile)])
+      );
+      return (response?.items ?? []).map((item) => {
+        const user = String(item.member_id);
+        return known.get(user) ?? { user, name: null, handle: null };
+      });
+    },
+  };
+};
+
 export const VK_API_BASE = 'https://api.vk.ru';
 export const VK_API_VERSION = '5.199';
 
@@ -98,6 +234,7 @@ export const createVkLive = ({
 
   return {
     call,
+    ...vkLiveAudience(call),
     async listChats(options = {}) {
       return call(
         'messages.getConversations',

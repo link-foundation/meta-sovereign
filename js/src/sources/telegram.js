@@ -6,6 +6,10 @@
  * The live side uses Telegram's Bot API (`getUpdates`, `sendMessage`,
  * `setMyName`, `setMyDescription`) so a user-provided bot token can
  * pull incoming bot-visible messages and send queued replies.
+ *
+ * Issue #31 / PR #34: `setTyping` shows the bot's typing status via
+ * `sendChatAction`, and `chatMembers` lists what the Bot API exposes
+ * about a chat's members (see the limitation note on the method).
  */
 
 import { buildMessageLink } from './link.js';
@@ -168,6 +172,51 @@ export const createTelegramBotLive = ({
         nextOffset,
         rawCount: result.length,
       };
+    },
+    async setTyping({ chat, chatId } = {}, options = {}) {
+      const target = chat ?? chatId;
+      if (!target) {
+        throw new Error('telegram setTyping requires a chat/chatId target');
+      }
+      return call(
+        'sendChatAction',
+        { chat_id: target, action: 'typing' },
+        options.token
+      );
+    },
+    async friends() {
+      throw new Error(
+        'telegram Bot API has no friends/contacts list; use chatMembers'
+      );
+    },
+    /**
+     * The Bot API cannot enumerate every member of a group: only the
+     * administrators (`getChatAdministrators`) and the total head count
+     * (`getChatMemberCount`) are available. Regular members only become
+     * known as they post (see `pullMessages`). Returns the admins plus
+     * the reported total so callers can tell the list is partial.
+     */
+    async chatMembers(chatId, options = {}) {
+      if (!chatId) {
+        throw new Error('telegram chatMembers requires a chat id');
+      }
+      const admins = await call(
+        'getChatAdministrators',
+        { chat_id: chatId },
+        options.token
+      );
+      const count = await call(
+        'getChatMemberCount',
+        { chat_id: chatId },
+        options.token
+      );
+      const members = (admins ?? []).map(({ user = {} }) => ({
+        user: String(user.id),
+        name:
+          [user.first_name, user.last_name].filter(Boolean).join(' ') || null,
+        handle: user.username ?? null,
+      }));
+      return { members, count: Number(count), partial: true };
     },
     async listChats(options = {}) {
       const pulled = await this.pullMessages(options);
