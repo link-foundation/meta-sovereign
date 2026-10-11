@@ -157,7 +157,44 @@ session 保存在你指定的 profile 目录中。
 规范简历结构、步骤词汇、telemetry 事件以及每个平台已验证的内容，详见
 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
-## 10. 故障排除
+## 10. 重新联系很久没聊过的人
+
+**重新联系**页面（以及 `reengage` 命令）列出至少 90 天没有任何消息的
+个人 1:1 聊天——群组、频道和机器人不包括在内——并为每个联系人准备一条
+消息：
+
+- 如果你们之间用 "ты"，就用 "Привет … Тебе или твоим друзьям …"；如果用
+  "вы"，就用 "Здравствуйте … Вам или вашим друзьям …"。称呼形式由对话中的
+  词级规则判断；卡片会显示依据，**切换为…** 可以改用另一种形式。没有依据
+  或打平时使用礼貌的 "вы"。
+- **安全模式默认开启**：一次只显示一条预填消息，可以编辑，只有按下
+  **发送** 才会发出。**我已自行发送** 记录你手动发出的消息（可借助
+  **打开聊天** / **复制**），**跳过** 则进入下一条。
+- 关闭安全模式后会出现 **全部发送**，发送剩余消息前会再确认一次。
+
+每次发送、手动发送、跳过和失败都会被记住，所以同一个人要等再次超过阈值
+才会被重新列出。在应用中发送需要连接了该网络的本地服务器；没有服务器时，
+请使用“复制” / “打开聊天”和 **我已自行发送**。
+
+```bash
+# who has been silent for 90+ days, which form was detected, what would be sent
+meta-sovereign reengage
+meta-sovereign reengage --days=180 --networks=telegram,vk
+
+# 安全（debug）模式：一次一条草稿 —— [y] 发送、[m] 已自行发送、[e] 编辑、[f] 切换 ты/вы、[s] 跳过、[q] 退出
+meta-sovereign reengage --interactive
+
+# 不再询问，全部发送
+meta-sovereign reengage --mode=batch --confirm=true
+```
+
+自定义文本：`--informal="Привет, {name}!\n\n…"`、`--formal="…"`，或
+包含 `informal` 和 `formal` 键的 `--templates=texts.json`。`{name}` 会被
+替换为联系人名字。HTTP：`POST /api/reengage/plan`、`/send`、`/mark` 和
+`/run`。背景说明见
+[`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)。
+
+## 11. 故障排除
 
 | 现象                           | 处理方式                                                                                               |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------ |
@@ -167,7 +204,7 @@ session 保存在你指定的 profile 目录中。
 | WebRTC 跨网络停止同步。        | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                 |
 | `cargo build` 出现 linker 错。 | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                     |
 
-## 11. 下一步
+## 12. 下一步
 
 - [`README.zh.md`](../README.zh.md) — 项目概览和开发者说明。
 - [`docs/REQUIREMENTS.zh.md`](./REQUIREMENTS.zh.md) — canonical requirement list。

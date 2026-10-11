@@ -342,7 +342,7 @@ export const api = {
   // locally and, when a server is up, to its store too, so neither
   // side offers a contacted or skipped person again. Sending needs the
   // server, which has the adapters' credentials: one draft per
-  // request, always with `confirm: true` (safe mode, R-W5).
+  // request, always with `confirm: true` (safe mode, R-W6).
   reengagePlan: async (options = {}) =>
     (await postJson('/api/reengage/plan', options)) ??
     planReengagement(await api.links(), options),

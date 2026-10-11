@@ -147,6 +147,23 @@ State: done в PR #30. Подробная таблица:
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V; описание работы —
 [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
 
+## W. Возобновление связи с давними личными контактами (issue #31)
+
+R-W1..R-W11 покрывают поиск личных (1:1) диалогов без сообщений не
+меньше N дней (по умолчанию 90), два текста из issue как шаблоны по
+умолчанию с возможностью замены, определение "ты"/"вы" по regex-правилам
+с весами (и расширение правил через `pattern:*` ссылки с меткой
+`address:informal`/`address:formal`), объяснимый результат с безопасным
+вариантом "вы" при ничьей или без данных, безопасный (debug) режим по
+умолчанию — одно подготовленное сообщение за раз, отправка только после
+подтверждения, — экран "Возобновить связь" в SPA, команду CLI `reengage`
+(`--interactive`, `--mode=batch --confirm=true`), маршруты
+`/api/reengage/*`, записи `reengage:<source>:<chat>` против повторной
+отправки и ручную отправку через `mailto:` / `tg://user` /
+`vk.com/im?sel=`. State: done в PR #34. Подробная таблица:
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section W; case study —
+[`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md).
+
 ## Traceability
 
 Когда future PR или commit добавляет feature, reference matching `R-*` ID

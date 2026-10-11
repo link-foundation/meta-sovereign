@@ -55,11 +55,13 @@ Playwright 驱动真实浏览器，而 Rust crate 只用 `std`，无法启动这
 
 `/api/reengage/plan`、`/api/reengage/send`、`/api/reengage/mark` 和
 `/api/reengage/run`（issue #31，R-W9）是 JS only，它们只是
-`js/src/crm/reengage.js` 的一层薄封装。“重新联系”页面做规划时不需要
-服务器：同一个规划器直接运行在浏览器已有的 links 上，“标记为已发送”和
-“跳过”只是普通的 link 写入。只有“发送”需要服务器，因为发送要经过带凭据
-的 source adapter。服务器返回 `404` 时，页面保留“复制 / 打开聊天 /
-标记”这条路径，CLI 的 `reengage` 命令则完全不需要服务器。
+`js/src/crm/reengage.js` 的一层薄封装。“重新联系”页面先请求
+`/api/reengage/plan`，因为服务器保存了所有导入的归档；没有服务器时，
+同一个规划器直接运行在浏览器已有的 links 上。“我已自行发送”和“跳过”
+只是普通的 link 写入（写到本地，服务器在线时再通过 `PUT /links` 同步）。
+只有“发送”需要服务器，因为发送要经过带凭据的 source adapter。服务器
+返回 `404` 时，页面保留“复制 / 打开聊天 / 标记”这条路径，CLI 的
+`reengage` 命令则完全不需要服务器。
 
 ## 6. Real-time transports 与静态资源
 

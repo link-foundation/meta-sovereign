@@ -213,7 +213,48 @@ Details — the canonical CV shape, the step vocabulary, the telemetry
 events, and what is verified per platform — are in
 [`docs/CV-SYNC.md`](./CV-SYNC.md).
 
-## 10. Troubleshooting
+## 10. Re-engage contacts you have not talked to for a while
+
+The **Re-engage** screen (and the `reengage` command) lists every
+personal 1:1 chat with no messages for at least 90 days — groups,
+channels and bots are left out — and prepares one message per contact:
+
+- "Привет … Тебе или твоим друзьям …" when you and that person used
+  "ты", and "Здравствуйте … Вам или вашим друзьям …" when you used
+  "вы". The form is detected from the dialog with word-level rules;
+  the card shows the evidence, and **Switch to …** flips it. With no
+  evidence, or a tie, the polite "вы" text is used.
+- **Safe mode is on by default**: you see one prefilled message at a
+  time, can edit it, and it is sent only when you press **Send**.
+  **I sent it myself** records a message you sent by hand (**Open
+  chat** / **Copy** help with that), **Skip** moves on.
+- Turning safe mode off shows **Send all**, which asks once more before
+  sending the rest.
+
+Every send, manual send, skip and failure is remembered, so the same
+person is not offered again until the threshold has passed once more.
+Sending from the app needs a local server with that network
+connected; without one, use Copy / Open chat and **I sent it myself**.
+
+```bash
+# who has been silent for 90+ days, which form was detected, what would be sent
+meta-sovereign reengage
+meta-sovereign reengage --days=180 --networks=telegram,vk
+
+# safe (debug) mode: one draft at a time — [y] send, [m] I sent it myself, [e] edit, [f] switch ты/вы, [s] skip, [q] quit
+meta-sovereign reengage --interactive
+
+# send everything without asking
+meta-sovereign reengage --mode=batch --confirm=true
+```
+
+Your own texts: `--informal="Привет, {name}!\n\n…"`,
+`--formal="…"`, or `--templates=texts.json` with `informal` and
+`formal` keys. `{name}` becomes the contact's name. Over HTTP:
+`POST /api/reengage/plan`, `/send`, `/mark` and `/run`. Background:
+[`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md).
+
+## 11. Troubleshooting
 
 | Symptom                                  | Fix                                                                                                                                                  |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -223,7 +264,7 @@ events, and what is verified per platform — are in
 | WebRTC sync stops between two LANs.      | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                             |
 | `cargo build` fails with `linker` error. | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                |
 
-## 11. Where to go next
+## 12. Where to go next
 
 - [`README.md`](../README.md) — project overview and developer notes.
 - [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) — canonical requirement

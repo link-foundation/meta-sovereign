@@ -132,13 +132,15 @@ the `meta-sovereign cv-*` CLI.
 | `/api/reengage/run`  | POST   | `js/src/server/routes-reengage.js` | _missing_   | **JS only** |
 
 These four routes (issue #31, R-W9) are thin wrappers over
-`js/src/crm/reengage.js`. The Re-engage screen does not need them to
-plan: it runs the same planner over the links it already holds, and
-"Mark as sent" / "Skip" are plain link writes. Only "Send" needs a
-server, because sending goes through a source adapter with credentials.
-Against a server without these routes (`404`) the screen keeps the
-copy / open-chat / mark-as-sent path, and the CLI `reengage` command
-works without any server.
+`js/src/crm/reengage.js`. The Re-engage screen asks
+`/api/reengage/plan` first, because the server holds every imported
+archive, and otherwise runs the same planner over the links the
+browser already holds. "I sent it myself" and "Skip" are plain link
+writes (local, mirrored to `PUT /links` when a server is up). Only
+"Send" needs a server, because sending goes through a source adapter
+with credentials. Against a server without these routes (`404`) the
+screen keeps the copy / open-chat / mark-as-sent path, and the CLI
+`reengage` command works without any server.
 
 ## 6. Real-time transports
 

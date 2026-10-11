@@ -139,6 +139,21 @@ facade / HTTP routes / CLI 命令 / SPA 页面、web bundle 纯净性、用
 完成。详细表参见 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V；
 工作原理见 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
+## W. 重新联系久未联络的个人联系人 (issue #31)
+
+R-W1..R-W11 覆盖：查找至少 N 天（默认 90 天）没有任何消息的个人（1:1）
+对话；以 issue 中的两段文字为默认模板且可替换；用带权重的 regex 规则判断
+对话中 "ты" 还是 "вы" 用得更多（可通过标记为
+`address:informal`/`address:formal` 的 `pattern:*` links 扩展规则）；
+结果可解释，平局或无证据时使用礼貌的 "вы"；默认的安全（debug）模式——
+每次只预填一条消息，用户确认后才发送；SPA 中的“重新联系”页面；CLI 命令
+`reengage`（`--interactive`、`--mode=batch --confirm=true`）；
+`/api/reengage/*` 路由；用 `reengage:<source>:<chat>` 记录防止重复发送；
+以及通过 `mailto:` / `tg://user` / `vk.com/im?sel=` 手动发送。状态：已在
+PR #34 完成。详细表参见 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md)
+section W；case study 见
+[`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)。
+
 ## Traceability
 
 后续 PR 或 commit 完成功能时，请在 changeset 和 PR 描述中引用对应 `R-*`

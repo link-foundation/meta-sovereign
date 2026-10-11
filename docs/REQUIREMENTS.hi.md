@@ -150,6 +150,24 @@ cover करते हैं। State: PR #30 में done। विस्त�
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V देखें; काम कैसे
 करता है यह [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
 
+## W. लंबे समय से चुप निजी संपर्कों से फिर से जुड़ना (issue #31)
+
+R-W1..R-W11 cover करते हैं: कम से कम N दिन (default 90) से बिना किसी
+संदेश वाले निजी (1:1) dialogs खोजना; issue के दो texts को default
+templates बनाना और उन्हें बदलने देना; weighted regex rules से तय करना कि
+dialog में "ты" ज़्यादा था या "вы" (`address:informal`/`address:formal`
+label वाले `pattern:*` links से rules बढ़ाए जा सकते हैं); समझाने योग्य
+नतीजा, और बराबरी या सबूत न होने पर विनम्र "вы"; default safe (debug)
+mode — एक बार में एक pre-filled संदेश, जो user की पुष्टि के बाद ही भेजा
+जाता है; SPA में "फिर से जुड़ें" screen; CLI command `reengage`
+(`--interactive`, `--mode=batch --confirm=true`); `/api/reengage/*`
+routes; दोबारा भेजने से बचाने वाले `reengage:<source>:<chat>` records;
+और `mailto:` / `tg://user` / `vk.com/im?sel=` से हाथ से भेजना। State:
+PR #34 में done। विस्तृत table के लिए
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section W और case study के
+लिए [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)
+देखें।
+
 ## Traceability
 
 Future PR या commit feature land करे तो changeset और PR description में

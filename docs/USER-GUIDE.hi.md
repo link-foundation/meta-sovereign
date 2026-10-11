@@ -161,7 +161,49 @@ Canonical CV shape, step vocabulary, telemetry events और हर platform प
 क्या verified है — यह सब
 [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
 
-## 10. Troubleshooting
+## 10. जिनसे लंबे समय से बात नहीं हुई, उनसे फिर से जुड़ें
+
+**फिर से जुड़ें** screen (और `reengage` command) उन सभी निजी 1:1 chats
+को दिखाता है जिनमें कम से कम 90 दिन से कोई संदेश नहीं है — groups,
+channels और bots शामिल नहीं होते — और हर संपर्क के लिए एक संदेश तैयार
+करता है:
+
+- अगर आप और वह व्यक्ति "ты" से बात करते थे तो "Привет … Тебе или твоим
+  друзьям …", और "вы" से करते थे तो "Здравствуйте … Вам или вашим
+  друзьям …"। रूप dialog से word-level rules द्वारा पहचाना जाता है; card
+  सबूत दिखाता है, और **… पर बदलें** उसे पलट देता है। सबूत न हो या
+  बराबरी हो तो विनम्र "вы" वाला text इस्तेमाल होता है।
+- **Safe mode default रूप से चालू है**: एक बार में एक pre-filled संदेश
+  दिखता है, आप उसे बदल सकते हैं, और वह सिर्फ़ **भेजें** दबाने पर जाता
+  है। **मैंने खुद भेज दिया** हाथ से भेजे संदेश को दर्ज करता है (**चैट
+  खोलें** / **कॉपी करें** मदद करते हैं), **छोड़ें** अगले पर ले जाता है।
+- Safe mode बंद करने पर **सभी भेजें** दिखता है, जो बाकी संदेश भेजने से
+  पहले एक बार फिर पूछता है।
+
+हर भेजना, हाथ से भेजना, छोड़ना और विफलता याद रखी जाती है, ताकि वही
+व्यक्ति तब तक दोबारा न दिखे जब तक सीमा फिर से पार न हो। App से भेजने के
+लिए उस network से जुड़ा local server चाहिए; उसके बिना कॉपी / चैट खोलें
+और **मैंने खुद भेज दिया** इस्तेमाल करें।
+
+```bash
+# who has been silent for 90+ days, which form was detected, what would be sent
+meta-sovereign reengage
+meta-sovereign reengage --days=180 --networks=telegram,vk
+
+# safe (debug) mode: एक बार में एक draft — [y] भेजें, [m] खुद भेज दिया, [e] बदलें, [f] ты/вы बदलें, [s] छोड़ें, [q] बाहर
+meta-sovereign reengage --interactive
+
+# बिना पूछे सब भेजें
+meta-sovereign reengage --mode=batch --confirm=true
+```
+
+अपने texts: `--informal="Привет, {name}!\n\n…"`, `--formal="…"`, या
+`informal` और `formal` keys वाली `--templates=texts.json`। `{name}` की
+जगह संपर्क का नाम आता है। HTTP पर: `POST /api/reengage/plan`, `/send`,
+`/mark` और `/run`। पृष्ठभूमि:
+[`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)।
+
+## 11. Troubleshooting
 
 | Symptom                              | Fix                                                                                                   |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
@@ -171,7 +213,7 @@ Canonical CV shape, step vocabulary, telemetry events और हर platform प
 | WebRTC sync दो LANs के बीच रुकता है। | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                          |
 | `cargo build` linker error देता है।  | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                      |
 
-## 11. आगे कहाँ जाएँ
+## 12. आगे कहाँ जाएँ
 
 - [`README.hi.md`](../README.hi.md) — project overview और developer notes।
 - [`docs/REQUIREMENTS.hi.md`](./REQUIREMENTS.hi.md) — canonical requirements।

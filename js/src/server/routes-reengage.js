@@ -1,8 +1,10 @@
 /**
  * Re-engage API (issue #31, R-W9).
  *
- * The SPA plans locally (it holds the same links), so the server is
- * only needed to send through an adapter that has credentials here.
+ * The SPA asks `/plan` first (the server holds every imported archive)
+ * and falls back to planning over the links it holds itself, so the
+ * server is only required to send through an adapter that has
+ * credentials here.
  * Sending is gated twice: one draft per request with `confirm: true`
  * (safe mode), or the whole plan only with `mode: "batch"` and
  * `confirm: true`. Tests inject `ctx.reengageSend` instead of adapters.
