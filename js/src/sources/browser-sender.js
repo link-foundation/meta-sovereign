@@ -18,7 +18,7 @@
  * - `createFallbackSender()` tries the API first and falls back to the
  *   browser when the API throws (or is not configured).
  * - `createDefaultSender()` wires the source adapters and the browser
- *   together for the re-engage session.
+ *   together for automations and the chat composer.
  *
  * The browser session itself comes from `../cv/browser.js`, so the
  * optional-dependency story (`browser-commander` + `playwright`,
@@ -618,7 +618,7 @@ export const createFallbackSender =
   };
 
 /**
- * The sender the re-engage session should use: the source adapter's
+ * The sender automations and the chat composer use: the source adapter's
  * `live.post` first, the official web UI second.
  *
  * @param {object} [options]
