@@ -1,0 +1,22 @@
+# node js/scripts/build-desktop.mjs --linux --x64 (local, 2026-10-11, electron 41.10.7)
+npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
+
+added 16 packages in 1s
+electron 41.10.7
+  • electron-builder  version=26.15.3 os=6.8.0-146-generic
+  • loaded configuration  file=<repo>/desktop/electron-builder.config.cjs
+  • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=npm detected=<repo>
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=linux arch=x64 electron=41.10.7 appOutDir=dist/desktop/release/linux-unpacked
+  • downloaded      label=electron progress=100%
+  • downloaded electron zip extracted successfully  output=<repo>/dist/desktop/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=<repo>/dist/desktop/app
+  • building        target=AppImage arch=x64 file=dist/desktop/release/meta-sovereign-desktop-linux-x86_64-0.20.0.AppImage
+  • building        target=tar.gz arch=x64 file=dist/desktop/release/meta-sovereign-desktop-linux-x64-0.20.0.tar.gz
+  • building embedded block map  file=dist/desktop/release/meta-sovereign-desktop-linux-x86_64-0.20.0.AppImage
+  • building        target=deb arch=x64 file=dist/desktop/release/meta-sovereign-desktop-linux-amd64-0.20.0.deb
+  • adding autoupdate files for: deb  resourceDir=dist/desktop/release/linux-unpacked/resources
+renamed meta-sovereign-desktop-linux-amd64-0.20.0.deb -> meta-sovereign-desktop-linux-x64-0.20.0.deb
+renamed meta-sovereign-desktop-linux-x86_64-0.20.0.AppImage -> meta-sovereign-desktop-linux-x64-0.20.0.AppImage
+rewrote update feed latest-linux.yml
+exit 0

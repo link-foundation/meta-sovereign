@@ -96,6 +96,20 @@ export default [
     },
   },
   {
+    // electron-builder loads its config and signing hooks as CommonJS.
+    files: ['desktop/**/*.cjs'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'commonjs',
+      globals: {
+        __dirname: 'readonly',
+        module: 'writable',
+        process: 'readonly',
+        require: 'readonly',
+      },
+    },
+  },
+  {
     // Test files have different requirements
     files: ['js/tests/**/*.js', '**/*.test.js'],
     rules: {

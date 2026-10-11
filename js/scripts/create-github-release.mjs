@@ -39,6 +39,12 @@ const config = makeConfig({
         default: getenv('REPOSITORY', ''),
         describe: 'GitHub repository (e.g., owner/repo)',
       })
+      .option('target', {
+        type: 'string',
+        default: getenv('TARGET_COMMITISH', ''),
+        describe:
+          'Commit the tag points at when it does not exist yet (default: the default branch)',
+      })
       .option('tag-prefix', {
         type: 'string',
         default: getenv('TAG_PREFIX', 'v'),
@@ -47,7 +53,7 @@ const config = makeConfig({
       }),
 });
 
-const { releaseVersion: version, repository, tagPrefix } = config;
+const { releaseVersion: version, repository, tagPrefix, target } = config;
 
 if (!version || !repository) {
   console.error('Error: Missing required arguments');
@@ -60,6 +66,18 @@ if (!version || !repository) {
 const tag = `${tagPrefix}${version}`;
 
 console.log(`Creating GitHub release for ${tag}...`);
+
+// Idempotent: the desktop release workflow (issue #37) creates the
+// release when npm publishing is unavailable, and the npm release path
+// must not fail when it later publishes the same version.
+const existing =
+  await $`gh api "repos/${repository}/releases/tags/${tag}" --jq '.id'`
+    .run({ capture: true })
+    .catch(() => null);
+if (existing && existing.code === 0 && existing.stdout.trim()) {
+  console.log(`\u2705 GitHub release ${tag} already exists, skipping`);
+  process.exit(0);
+}
 
 try {
   // Read CHANGELOG.md
@@ -87,6 +105,7 @@ try {
     tag_name: tag,
     name: tag,
     body: releaseNotes,
+    ...(target ? { target_commitish: target } : {}),
   });
 
   await $`gh api repos/${repository}/releases -X POST --input -`.run({
