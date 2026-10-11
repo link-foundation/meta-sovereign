@@ -8,6 +8,12 @@
 
 > 如果链接暂时还不可用，GitHub Pages 工作流（`.github/workflows/pages.yml`）会在下一次推送到 `main` 后发布。
 
+没有服务器时，托管的 app 以 **browser-only mode** 运行：联系人、模式和群发使用浏览器存储工作，而导入、自动化、同步、简历同步和问候需要等待本地服务器。提示中会给出启动服务器的命令和 **Check again** 按钮。
+
+## 桌面应用
+
+从 <https://link-foundation.github.io/meta-sovereign/download/> 或 [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) 下载适合你系统的安装包：Linux（AppImage、deb、tar.gz）、macOS（dmg、zip）和 Windows（安装版、便携版），均提供 x64 和 arm64。桌面应用内置服务器，因此无需自己启动服务器即可使用全部功能。未签名构建的首次启动步骤、校验和与更新说明见 [`docs/USER-GUIDE.zh.md` §4](docs/USER-GUIDE.zh.md#4-安装桌面或移动-app)。
+
 ## 运行本地服务器（推荐用于同步）
 
 如果要在设备之间同步、启用静态加密并使用完整功能，请在 SPA 旁边启动本地服务器。当前有两个后端，它们实现同一套 wire protocol（见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)）。
@@ -23,11 +29,12 @@ cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ### JavaScript 服务器 — 备用（Node/Bun/Deno）
 
 ```bash
-npm install -g meta-sovereign
-meta-sovereign serve
+npx -y meta-sovereign serve
+# 或安装：npm install -g meta-sovereign && meta-sovereign serve
+# 首次 npm 发布之前：npx -y github:link-foundation/meta-sovereign serve
 ```
 
-两个后端默认监听 <http://127.0.0.1:8787>。托管的 SPA 会通过 `discoverServer()` 自动发现本地服务器（保存的覆盖值 → `127.0.0.1` 端口）。如果浏览器没有自动连接，请打开应用内 **Settings → Server**，粘贴服务器打印的 URL。
+两个后端默认监听 <http://127.0.0.1:8787>。JS 服务器会对托管 app 的 origin（`https://link-foundation.github.io`）返回 CORS 头；其他 origin 可以用 `meta-sovereign serve --allow-origin=<origins>` 或 `MS_ALLOW_ORIGINS` 允许。Safari 不允许 `https` 页面访问 `http://127.0.0.1`，所以在 Safari 中请直接打开 <http://127.0.0.1:8787>。托管的 SPA 会通过 `discoverServer()` 自动发现本地服务器（保存的覆盖值 → `127.0.0.1` 端口）。如果浏览器没有自动连接，请打开应用内 **Settings → Server**，粘贴服务器打印的 URL。
 
 ## 将 SPA 连接到服务器
 

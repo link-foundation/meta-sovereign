@@ -8,6 +8,12 @@ Open <https://link-foundation.github.io/meta-sovereign/> in any modern browser. 
 
 > If the link is not yet live, the GitHub Pages workflow (`.github/workflows/pages.yml`) publishes it on the next push to `main`.
 
+Without a server the hosted app runs in **browser-only mode**: contacts, patterns and broadcasts work from the browser store, while imports, automations, sync, CV sync and greetings wait for a local server. A notice shows the command to start one and a **Check again** button.
+
+## Desktop app
+
+Download the installer for your system from <https://link-foundation.github.io/meta-sovereign/download/>, or from [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases): Linux (AppImage, deb, tar.gz), macOS (dmg, zip) and Windows (installer, portable), each for x64 and arm64. The desktop app bundles the server, so every feature works without starting one yourself. First-launch steps for unsigned builds, checksums and update notes are in [`docs/USER-GUIDE.md` §4](docs/USER-GUIDE.md#4-install-the-desktop-or-mobile-app).
+
 ## Run a local server (recommended for sync)
 
 To sync between devices, encrypt at rest, and unlock the full feature set, start a local server next to the SPA. Two backends are available; both implement the same wire protocol (see [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md)).
@@ -23,11 +29,12 @@ cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ### JavaScript server — fallback (Node/Bun/Deno)
 
 ```bash
-npm install -g meta-sovereign
-meta-sovereign serve
+npx -y meta-sovereign serve
+# or install it: npm install -g meta-sovereign && meta-sovereign serve
+# before the first npm release: npx -y github:link-foundation/meta-sovereign serve
 ```
 
-Either backend listens on <http://127.0.0.1:8787> by default. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
+Either backend listens on <http://127.0.0.1:8787> by default. The JS server answers the hosted app's origin (`https://link-foundation.github.io`) with CORS headers; allow other origins with `meta-sovereign serve --allow-origin=<origins>` or `MS_ALLOW_ORIGINS`. Safari does not let `https` pages reach `http://127.0.0.1`, so in Safari open <http://127.0.0.1:8787> directly. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
 
 ## Connect the SPA to your server
 

@@ -67,22 +67,67 @@ bunx meta-sovereign serve
 The JS server listens on the same port and speaks the same wire
 protocol; the SPA does not care which one is on the other end.
 
+If npm answers `404` (the package is not on npm yet), run the same
+server straight from GitHub:
+
+```bash
+npx -y github:link-foundation/meta-sovereign serve
+```
+
 ## 4. Install the desktop or mobile app
 
 The desktop and mobile apps wrap the **same** SPA you get from
 GitHub Pages, plus a built-in server, in a native shell. Use them if
-you want offline-only mode without a browser tab.
+you want the full app without starting a server yourself.
+
+### Desktop (Linux, macOS, Windows)
+
+Open <https://link-foundation.github.io/meta-sovereign/download/>. The
+page detects your system, offers the matching installer from the
+newest release, and lists every other build. Each file is also
+attached to the [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases).
+
+| System  | Files (x64 and arm64)                                                |
+| ------- | -------------------------------------------------------------------- |
+| Linux   | `.AppImage` (auto-updates), `.deb`, `.tar.gz`                        |
+| macOS   | `.dmg` (drag to Applications), `.zip`                                |
+| Windows | `windows-installer` `.exe` (auto-updates), `windows-portable` `.exe` |
+
+First launch:
+
+- **macOS.** Builds without an Apple Developer ID are ad-hoc signed,
+  so macOS blocks the first launch ("Apple could not verify…"). Go to
+  System Settings → Privacy & Security and click **Open Anyway**. These
+  builds do not auto-update; download new versions from the page.
+- **Windows.** If SmartScreen shows "Windows protected your PC",
+  click **More info** → **Run anyway**.
+- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` and run
+  it, or install the `.deb` with `sudo apt install ./<file>.deb`.
+
+Check a download against the release's `SHA256SUMS.txt`, either in
+the download page's **Verify your download** section (pick the file
+and `SHA256SUMS.txt`; nothing leaves the browser) or in a terminal:
+
+```bash
+sha256sum --check --ignore-missing SHA256SUMS.txt
+gh attestation verify <file> --repo link-foundation/meta-sovereign
+```
+
+The app keeps its data in the system's per-user app folder, so it
+survives updates. To build the installers yourself:
+`npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64`
+(see `js/scripts/build-desktop.mjs`).
+
+### Mobile and development builds
 
 | Platform | Build command                                   |
 | -------- | ----------------------------------------------- |
-| Electron | `npm run electron`                              |
+| Electron | `npm run electron` (runs from the source tree)  |
 | iOS      | `npm run mobile:ios` (opens Xcode)              |
 | Android  | `npm run mobile:android` (opens Android Studio) |
 
 The Electron + Capacitor shells reuse `js/src/web/` verbatim, so the UI is
-identical to the GitHub Pages app. The desktop shell additionally
-enables the [`electron-updater`](https://www.npmjs.com/package/electron-updater)
-auto-update flow when the optional peer dependency is installed.
+identical to the GitHub Pages app.
 
 ## 5. Connect the SPA to your server
 
@@ -104,6 +149,31 @@ order is:
 If none of those answer, the SPA stays in **offline mode** and writes
 go to the local browser store. When a server appears later, the
 [`OfflineClient`](../js/src/web/client.js) replays the queued writes.
+
+In offline mode the hosted app shows a **browser-only mode** notice
+with the commands to start a local server, a **Check again** button,
+and a link to the desktop app. Imports, automations, sync, CV sync and
+greetings need the server. Contacts, patterns and broadcasts keep
+working from the browser store.
+
+The hosted app lives on `https://link-foundation.github.io`, so the
+browser asks the local server for permission first (CORS). The JS
+server allows that origin and the Capacitor app by default. To allow
+another origin, for example your own copy of the SPA:
+
+```bash
+meta-sovereign serve --allow-origin=https://example.org
+# or: MS_ALLOW_ORIGINS="https://example.org https://link-foundation.github.io"
+# --allow-origin=none turns cross-origin access off
+```
+
+Browser notes:
+
+- **Chrome and Edge** (and newer Firefox) ask once whether the page may
+  reach devices on your local network. Allow it.
+- **Safari** does not let `https` pages reach `http://127.0.0.1`. Open
+  <http://127.0.0.1:8787> directly once the server runs, or use the
+  desktop app.
 
 ## 6. Sync between your devices (WebRTC)
 
@@ -255,13 +325,14 @@ own suggestions for empty chats are not available to bots — see
 
 ## 11. Troubleshooting
 
-| Symptom                                  | Fix                                                                                                                                                  |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The SPA is stuck on a loading spinner.   | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled. |
-| The SPA cannot reach my local server.    | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                    |
-| The server reports `EADDRINUSE`.         | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.           |
-| WebRTC sync stops between two LANs.      | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                             |
-| `cargo build` fails with `linker` error. | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                |
+| Symptom                                                          | Fix                                                                                                                                                                                                   |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The SPA is stuck on a loading spinner.                           | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled.                                                  |
+| The SPA cannot reach my local server.                            | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                                                                     |
+| The hosted app stays in browser-only mode while the server runs. | Click **Check again**. Allow the browser's local network prompt. On Safari, open <http://127.0.0.1:8787> instead. If you host the SPA yourself, start the server with `--allow-origin=<your origin>`. |
+| The server reports `EADDRINUSE`.                                 | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.                                                            |
+| WebRTC sync stops between two LANs.                              | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                                                                              |
+| `cargo build` fails with `linker` error.                         | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                                                                 |
 
 ## 12. Where to go next
 
