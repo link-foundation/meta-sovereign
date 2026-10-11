@@ -139,9 +139,18 @@ facade / HTTP routes / CLI 命令 / SPA 页面、web bundle 纯净性、用
 完成。详细表参见 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V；
 工作原理见 [`docs/CV-SYNC.zh.md`](./CV-SYNC.zh.md)。
 
-## W. 重新联系久未联络的个人联系人 (issue #31)
+## W. Kate Mobile 被封后的 VK 令牌来源 (issue #32)
 
-R-W1..R-W11 覆盖：查找至少 N 天（默认 90 天）没有任何消息的个人（1:1）
+R-W1..R-W5 覆盖：用 VK 当前的 OAuth 网关检查 vkhost.github.io 列出的全部
+客户端；`VK_TOKEN_SOURCES` 目录及其排序（VK 自家客户端排在小型第三方发布者
+之前）；只用文档化方法检查已有令牌的 `inspectVkToken()`；四种语言中修正后的
+VK 提示；以及连接器迁移到 `api.vk.ru` 域名。状态：PR #33。详细表参见
+[`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section W；研究见
+[`docs/case-studies/issue-32/`](./case-studies/issue-32/README.md)。
+
+## X. 重新联系久未联络的个人联系人 (issue #31)
+
+R-X1..R-X11 覆盖：查找至少 N 天（默认 90 天）没有任何消息的个人（1:1）
 对话；以 issue 中的两段文字为默认模板且可替换；用带权重的 regex 规则判断
 对话中 "ты" 还是 "вы" 用得更多（可通过标记为
 `address:informal`/`address:formal` 的 `pattern:*` links 扩展规则）；

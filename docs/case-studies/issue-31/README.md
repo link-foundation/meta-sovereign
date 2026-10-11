@@ -128,8 +128,8 @@ handled either way.
 ## Requirements
 
 See [`requirements.md`](./requirements.md) for the full mapping of the
-issue text to R-W1 … R-W11 and to the tests that cover them. The same
-table is section W of [`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md).
+issue text to R-X1 … R-X11 and to the tests that cover them. The same
+table is section X of [`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md).
 
 ## Solution Plan
 

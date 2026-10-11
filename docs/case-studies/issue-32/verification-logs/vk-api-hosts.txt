@@ -1,0 +1,5 @@
+# 2026-10-11T16:28:44Z users.get without a token
+## api.vk.com
+{"error":{"error_code":15,"error_msg":"Access denied: token required","request_params":[{"key":"v","value":"5.199"},{"key":"user_ids","value":"1"},{"key":"method","value":"users.get"},{"key":"oauth","value":"1"}]}}
+## api.vk.ru
+{"error":{"error_code":15,"error_msg":"Access denied: token required","request_params":[{"key":"v","value":"5.199"},{"key":"user_ids","value":"1"},{"key":"method","value":"users.get"},{"key":"oauth","value":"1"}]}}

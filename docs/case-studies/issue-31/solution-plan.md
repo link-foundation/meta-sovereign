@@ -56,7 +56,7 @@ The work was split into atomic commits, each useful on its own.
 
 ## 5. Documentation
 
-- `docs/REQUIREMENTS*.md` section W, `docs/USER-GUIDE*.md` section 10,
+- `docs/REQUIREMENTS*.md` section X, `docs/USER-GUIDE*.md` section 10,
   `docs/SERVER-PARITY*.md` section 5a, in en/ru/zh/hi.
 - This case study with screenshots and raw issue / PR data.
 

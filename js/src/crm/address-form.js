@@ -1,5 +1,5 @@
 /**
- * Address-form detection (issue #31, R-W3..R-W5).
+ * Address-form detection (issue #31, R-X3..R-X5).
  *
  * Russian — like Chinese, Hindi and most European languages — has two
  * ways to say "you": the familiar "ты" and the polite "вы". A message

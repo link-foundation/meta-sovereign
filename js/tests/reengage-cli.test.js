@@ -1,4 +1,4 @@
-// Issue #31 / R-W8: the `reengage` command previews by default, sends
+// Issue #31 / R-X8: the `reengage` command previews by default, sends
 // one message per "y" in interactive (safe) mode, and sends the whole
 // plan only with --mode=batch --confirm=true.
 

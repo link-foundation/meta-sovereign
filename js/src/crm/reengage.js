@@ -1,5 +1,5 @@
 /**
- * Re-engage dormant personal contacts (issue #31, R-W1..R-W9).
+ * Re-engage dormant personal contacts (issue #31, R-X1..R-X9).
  *
  * The flow is: find every 1:1 conversation that has been silent for at
  * least `days` (90 by default), work out whether the two people used

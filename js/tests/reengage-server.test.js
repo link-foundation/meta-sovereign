@@ -1,4 +1,4 @@
-// Issue #31 / R-W9: the re-engage API plans dormant contacts, sends one
+// Issue #31 / R-X9: the re-engage API plans dormant contacts, sends one
 // confirmed draft at a time, records manual sends and skips, and sends
 // a whole plan only in batch mode with an explicit confirmation.
 

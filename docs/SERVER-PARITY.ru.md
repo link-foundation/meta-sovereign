@@ -58,7 +58,7 @@ only, и по структурной причине: `read` и `sync` управ
 ## 5a. Повторный контакт с давними собеседниками
 
 `/api/reengage/plan`, `/api/reengage/send`, `/api/reengage/mark` и
-`/api/reengage/run` (issue #31, R-W9) - JS only. Это тонкая обёртка над
+`/api/reengage/run` (issue #31, R-X9) - JS only. Это тонкая обёртка над
 `js/src/crm/reengage.js`. Экран "Возобновить связь" сначала спрашивает
 `/api/reengage/plan`, потому что на сервере лежат все импортированные
 архивы, а без сервера запускает тот же планировщик над ссылками, которые

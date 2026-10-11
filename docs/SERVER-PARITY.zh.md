@@ -54,7 +54,7 @@ Playwright 驱动真实浏览器，而 Rust crate 只用 `std`，无法启动这
 ## 5a. 重新联系久未联络的联系人
 
 `/api/reengage/plan`、`/api/reengage/send`、`/api/reengage/mark` 和
-`/api/reengage/run`（issue #31，R-W9）是 JS only，它们只是
+`/api/reengage/run`（issue #31，R-X9）是 JS only，它们只是
 `js/src/crm/reengage.js` 的一层薄封装。“重新联系”页面先请求
 `/api/reengage/plan`，因为服务器保存了所有导入的归档；没有服务器时，
 同一个规划器直接运行在浏览器已有的 links 上。“我已自行发送”和“跳过”

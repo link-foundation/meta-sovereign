@@ -416,10 +416,10 @@ export const hi = {
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': 'VK API जोड़ें',
   'connections.vk.api.hint':
-    'https://vk.com/apps?act=manage पर Standalone एप्लिकेशन बनाएँ और messages स्कोप वाला एक्सेस टोकन माँगें। उसे "secret:vk:token" के रूप में चिपकाएँ।',
+    'VK अब नए एप्लिकेशन को messages अधिकार नहीं देता, और Kate Mobile टोकन 2026-09-08 से काम नहीं करते। नीचे दिया गया संग्रह आयात बेहतर है। समुदाय की बातचीत के लिए समुदाय एक्सेस कुंजी चिपकाएँ (समुदाय सेटिंग्स → API उपयोग)। VK के अपने वेब क्लाइंट (client_id 6287487, oauth.vk.ru के ज़रिए) का पुराना उपयोगकर्ता टोकन शायद अब भी काम करे — खाता फ़्रीज़ होने का जोखिम आपका। मान "secret:vk:access-token" के रूप में सहेजा जाता है।',
   'connections.vk.fields.token.label': 'एक्सेस टोकन',
   'connections.vk.errorHints.401':
-    'एक्सेस टोकन समाप्त। id.vk.com पर implicit प्रवाह दोबारा चलाएँ।',
+    'VK ने टोकन अस्वीकार किया (त्रुटि 5)। नया टोकन बनाएँ: Kate Mobile या VK Admin जैसे अवरुद्ध क्लाइंट के टोकन वापस नहीं आएँगे।',
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': 'X डेटा संग्रह आयात करें',
   'connections.x.archive.hint':

@@ -131,7 +131,7 @@ the `meta-sovereign cv-*` CLI.
 | `/api/reengage/mark` | POST   | `js/src/server/routes-reengage.js` | _missing_   | **JS only** |
 | `/api/reengage/run`  | POST   | `js/src/server/routes-reengage.js` | _missing_   | **JS only** |
 
-These four routes (issue #31, R-W9) are thin wrappers over
+These four routes (issue #31, R-X9) are thin wrappers over
 `js/src/crm/reengage.js`. The Re-engage screen asks
 `/api/reengage/plan` first, because the server holds every imported
 archive, and otherwise runs the same planner over the links the

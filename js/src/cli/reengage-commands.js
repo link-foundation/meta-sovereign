@@ -1,5 +1,5 @@
 /**
- * Re-engage subcommands (issue #31, R-W8).
+ * Re-engage subcommands (issue #31, R-X8).
  *
  * `reengage` previews the plan: every personal contact silent for at
  * least `--days` (90), the "ты"/"вы" form detected in the dialog and

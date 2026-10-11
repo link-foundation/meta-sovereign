@@ -1,4 +1,4 @@
-// Re-engage view (issue #31, R-W7).
+// Re-engage view (issue #31, R-X7).
 //
 // Every personal contact silent for at least 90 days, one at a time:
 // who it is, how long the silence is, whether the dialog was on "ты"

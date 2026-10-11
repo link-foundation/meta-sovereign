@@ -56,7 +56,7 @@ Playwright से असली browser चलाते हैं, जबकि R
 ## 5a. पुराने contacts से दोबारा संपर्क
 
 `/api/reengage/plan`, `/api/reengage/send`, `/api/reengage/mark` और
-`/api/reengage/run` (issue #31, R-W9) JS only हैं; ये
+`/api/reengage/run` (issue #31, R-X9) JS only हैं; ये
 `js/src/crm/reengage.js` पर पतली परत हैं। "फिर से जुड़ें" screen पहले
 `/api/reengage/plan` से पूछता है, क्योंकि server पर सभी imported archives
 होते हैं; server न हो तो वही planner browser में पहले से मौजूद links पर

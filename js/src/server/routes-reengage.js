@@ -1,5 +1,5 @@
 /**
- * Re-engage API (issue #31, R-W9).
+ * Re-engage API (issue #31, R-X9).
  *
  * The SPA asks `/plan` first (the server holds every imported archive)
  * and falls back to planning over the links it holds itself, so the

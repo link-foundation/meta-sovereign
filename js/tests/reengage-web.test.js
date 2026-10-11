@@ -1,4 +1,4 @@
-// Issue #31 / R-W7: the re-engage screen. `ReengageScreen` is pure, so
+// Issue #31 / R-X7: the re-engage screen. `ReengageScreen` is pure, so
 // rendering it server-side with a plan built from real message links
 // exercises the whole surface — the draft, the detected form and its
 // evidence, the safe-mode switch, notices and progress — without a

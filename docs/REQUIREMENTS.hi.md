@@ -150,9 +150,19 @@ cover करते हैं। State: PR #30 में done। विस्त�
 [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section V देखें; काम कैसे
 करता है यह [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md) में है।
 
-## W. लंबे समय से चुप निजी संपर्कों से फिर से जुड़ना (issue #31)
+## W. Kate Mobile पर रोक के बाद VK token स्रोत (issue #32)
 
-R-W1..R-W11 cover करते हैं: कम से कम N दिन (default 90) से बिना किसी
+R-W1..R-W5 cover करते हैं: vkhost.github.io के सभी clients की VK के मौजूदा
+OAuth gate पर जाँच, `VK_TOKEN_SOURCES` catalogue जिसमें VK के अपने clients
+छोटे third-party publishers से पहले आते हैं, पहले से मौजूद token को केवल
+documented methods से जाँचने वाला `inspectVkToken()`, चारों locales में सुधारा
+गया VK hint, और connector का `api.vk.ru` domain पर जाना। State: PR #33।
+विस्तृत table के लिए [`docs/REQUIREMENTS.md`](./REQUIREMENTS.md) section W
+देखें; research [`docs/case-studies/issue-32/`](./case-studies/issue-32/README.md) में है।
+
+## X. लंबे समय से चुप निजी संपर्कों से फिर से जुड़ना (issue #31)
+
+R-X1..R-X11 cover करते हैं: कम से कम N दिन (default 90) से बिना किसी
 संदेश वाले निजी (1:1) dialogs खोजना; issue के दो texts को default
 templates बनाना और उन्हें बदलने देना; weighted regex rules से तय करना कि
 dialog में "ты" ज़्यादा था या "вы" (`address:informal`/`address:formal`
