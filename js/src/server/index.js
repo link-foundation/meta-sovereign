@@ -11,6 +11,7 @@
  *   GET  /api/contacts             -> contacts derived from messages
  *   GET  /api/status               -> store stats + verify diff count
  *   GET  /api/autocomplete?q=&me=  -> outgoing-history-driven completions
+ *   GET  /api/suggest?source=&chat=&typed= -> reply-graph autocomplete
  *   GET  /api/audience?q=          -> set-algebra over store filters
  *   GET  /api/facts                -> question-answer pairs per partner
  *   GET  /api/search?q=            -> dice-similarity search
@@ -57,6 +58,9 @@ import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
 import { handleReengageRoutes } from './routes-reengage.js';
 import { handleBackupRoutes } from './routes-backup.js';
+import { handleSuggestRoutes } from './routes-suggest.js';
+import { createReplyService } from '../replies/reply-service.js';
+import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -169,6 +173,20 @@ const reengageContext = (reengage = {}) => ({
   reengageSend: reengage.send ?? null,
 });
 
+/**
+ * The reply service behind /api/suggest. `replies.clink` (or
+ * `MS_REPLY_CLINK=1`) mirrors the reply graph into a link-cli database
+ * next to the store.
+ */
+const replyService = (store, storeDir, replies = {}) => {
+  const option = replies.clink ?? process.env.MS_REPLY_CLINK === '1';
+  const clink =
+    option === true
+      ? createClinkReplyStore({ db: path.join(storeDir, 'replies.links') })
+      : option || null;
+  return createReplyService({ store, self: replies.self ?? [], clink });
+};
+
 const applySecurityHeaders = (res) => {
   for (const [k, v] of Object.entries(SECURITY_HEADERS)) {
     if (!res.hasHeader(k)) {
@@ -194,6 +212,9 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   if (await handleReengageRoutes(store, req, res, p, ctx)) {
+    return;
+  }
+  if (await handleSuggestRoutes(req, res, p, url, ctx)) {
     return;
   }
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
@@ -246,6 +267,8 @@ export const startServer = async ({
   cv = {},
   // `{ send }` replaces the source adapters for /api/reengage (tests).
   reengage,
+  // `{ self?, clink? }` for the reply-graph autocomplete (/api/suggest).
+  replies,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -261,6 +284,7 @@ export const startServer = async ({
     emailLiveFactory,
     ...cvContext(cv),
     ...reengageContext(reengage),
+    replies: replyService(store, storeDir, replies),
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
@@ -313,6 +337,7 @@ export const startServer = async ({
     close: () =>
       new Promise((resolve) => {
         bus?.close();
+        ctx.replies.close().catch(() => {});
         wsHandle?.close();
         signaling?.close();
         server.close(() => resolve());

@@ -257,6 +257,10 @@ export const api = {
     const { client } = await ensure();
     return client.autocomplete(q, me);
   },
+  suggest: async (query) => {
+    const { client } = await ensure();
+    return client.suggest(query);
+  },
   contacts: async () => {
     const { client } = await ensure();
     return client.contacts();

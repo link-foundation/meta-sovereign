@@ -19,6 +19,8 @@
  * server) so the UI can surface a visible badge.
  */
 
+import { createReplyService } from '../replies/reply-service.js';
+
 const computeAutocomplete = async (store, q, me = 'me') => {
   if (!q) {
     return [];
@@ -70,6 +72,11 @@ export const createOfflineClient = ({ store, server }) => {
     emit({ type: 'mode-change', online });
   };
 
+  // The same reply graph as the server's /api/suggest, learned from
+  // the local store, for offline use.
+  let localReplies = null;
+  const replies = () => (localReplies ??= createReplyService({ store }));
+
   const fetchOrLocal = async (path, fallback) => {
     if (!online || !server?.fetchImpl) {
       return fallback();
@@ -119,6 +126,25 @@ export const createOfflineClient = ({ store, server }) => {
       return fetchOrLocal(
         `/api/autocomplete?q=${encodeURIComponent(q)}&me=${encodeURIComponent(me)}`,
         () => computeAutocomplete(store, q, me)
+      );
+    },
+    /**
+     * Message-to-message autocomplete: whole replies we used for the
+     * chat's last incoming message, then word by word over `typed`.
+     */
+    async suggest({ source, chat, lastMessage, typed = '', limit = 8 } = {}) {
+      const params = new URLSearchParams({ typed, limit: String(limit) });
+      for (const [key, value] of Object.entries({
+        source,
+        chat,
+        last: lastMessage,
+      })) {
+        if (value !== undefined && value !== null) {
+          params.set(key, String(value));
+        }
+      }
+      return fetchOrLocal(`/api/suggest?${params}`, () =>
+        replies().autocomplete({ source, chat, lastMessage, typed, limit })
       );
     },
     async contacts() {

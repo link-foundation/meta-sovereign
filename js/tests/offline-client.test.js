@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 
 import { createBrowserStore } from '../src/storage/browser-store.js';
 import { createOfflineClient } from '../src/web/client.js';
+import { createMemoryStore } from '../src/storage/index.js';
 
 test('offline mode: writes/reads land in local store with no server', async () => {
   const store = await createBrowserStore();
@@ -110,4 +111,59 @@ test('writing a broadcast link triggers the local handler bus when offline', asy
 
   const persisted = await client.get(link.id);
   assert.equal(persisted.id, link.id);
+});
+
+test('offline mode: suggest answers from the local reply graph', async () => {
+  const store = createMemoryStore();
+  const client = createOfflineClient({ store, server: null });
+  const at = (minute) =>
+    new Date(Date.UTC(2026, 0, 1, 0, minute)).toISOString();
+  await client.put({
+    id: 'msg:vk:1',
+    source: 'vk',
+    chat: '1',
+    sender: 'u1',
+    body: 'Привет',
+    timestamp: at(0),
+  });
+  await client.put({
+    id: 'msg:vk:2',
+    source: 'vk',
+    chat: '1',
+    sender: 'me',
+    body: 'Привет, как дела?',
+    timestamp: at(1),
+  });
+  await client.put({
+    id: 'msg:vk:3',
+    source: 'vk',
+    chat: '2',
+    sender: 'u2',
+    body: 'привет!',
+    timestamp: at(2),
+  });
+  const out = await client.suggest({ source: 'vk', chat: '2' });
+  assert.equal(out.stage, 'reply');
+  assert.deepEqual(
+    out.suggestions.map((s) => s.text),
+    ['Привет, как дела?']
+  );
+  await client.put({
+    id: 'msg:vk:4',
+    source: 'vk',
+    chat: '2',
+    sender: 'me',
+    body: 'Привет!',
+    timestamp: at(3),
+  });
+  await client.put({
+    id: 'msg:vk:5',
+    source: 'vk',
+    chat: '3',
+    sender: 'u3',
+    body: 'Привет',
+    timestamp: at(4),
+  });
+  const live = await client.suggest({ source: 'vk', chat: '3' });
+  assert.equal(live.suggestions.length, 2);
 });
