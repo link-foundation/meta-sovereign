@@ -54,6 +54,9 @@ CORS headers.
 - `verification-logs/download-page-check.txt` and `web-mode-check.txt`:
   the landing page and the browser-only notice in Chromium
   (`experiments/issue-37/download-page-check.mjs`, `web-mode-check.mjs`).
+- `verification-logs/macos-adhoc-sign.txt`: an excerpt of the CI macOS
+  job, showing the ad-hoc sign hook and `codesign --verify` passing for
+  the x64 and arm64 apps and the apps inside the dmg files.
 - Screenshots in [`../../screenshots/issue-37/`](../../screenshots/issue-37/):
   the packaged Linux app (`desktop-linux-x64.png`), the download page
   with a release (`download-page-ready.png`), without one
@@ -141,7 +144,10 @@ not signed at all`). There were two causes:
 
    The ad-hoc path now sets both. formal-ai's `desktop-release.yml`
    records the same finding at `d209aac6` (lines 394–400). Pull requests
-   never receive the Developer ID secrets.
+   never receive the Developer ID secrets. In desktop run 38178457136
+   both `.app` bundles, and the copies inside both dmg files, pass
+   `codesign --verify --deep --strict`
+   (`verification-logs/macos-adhoc-sign.txt`).
 
 7. **The desktop release never ran on `main`.** "Checks and release"
    ends in failure because `Publish to npm` returns E404 (next section).
