@@ -1,38 +1,42 @@
 /**
- * DoubletsStore — UniversalLinksAccess shim for the binary doublets
- * substrate (`doublets-rs`, `doublets-web`, `link-cli`).
+ * DoubletsStore — UniversalLinksAccess over the binary half of the
+ * associative stack (R-A3, R-G1, R-G2, issue #31).
  *
- * The real binary backend lives in those upstream crates; this shim
- * exposes the same JS surface area today using an in-memory map plus
- * a binary-encoded sidecar on disk so the prototype already exercises
- * the dual-store invariants. Replacing the encoder with N-API bindings
- * to `doublets-rs` is a follow-up that does not require call-site
- * changes (R-A3, R-G1, R-G2).
+ * Records live in memory for reads; on every change the whole store is
+ * written as a doublets network in the link-cli store archive layout
+ * (binary links notation links packet + names packet, see
+ * `doublets-archive.js`). The file opens directly in link-cli:
+ *
+ *   clink --db store.links --import-binary .meta-sovereign/data.bin
+ *
+ * Files written by the earlier `MSDB1` JSON shim are still read and are
+ * migrated to the archive format on the next write.
  */
 
 import { promises as fs } from 'node:fs';
-import path from 'node:path';
 import { createMemoryStore } from './universal.js';
+import { decodeArchive, encodeArchive } from './doublets-archive.js';
+import { createFileWriter } from './file-writer.js';
 
-const MAGIC = Buffer.from('MSDB1\n', 'utf8');
+const LEGACY_MAGIC = Buffer.from('MSDB1\n', 'utf8');
 
-const encode = (links) => {
-  const json = Buffer.from(JSON.stringify(links), 'utf8');
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(json.length, 0);
-  return Buffer.concat([MAGIC, len, json]);
+const decodeLegacy = (buf) => {
+  const len = buf.readUInt32BE(LEGACY_MAGIC.length);
+  const start = LEGACY_MAGIC.length + 4;
+  return JSON.parse(buf.subarray(start, start + len).toString('utf8'));
 };
 
-const decode = (buf) => {
-  if (
-    buf.length < MAGIC.length + 4 ||
-    !buf.slice(0, MAGIC.length).equals(MAGIC)
-  ) {
+export const decodeStoreFile = (buf) => {
+  if (buf.length === 0) {
     return [];
   }
-  const len = buf.readUInt32BE(MAGIC.length);
-  const start = MAGIC.length + 4;
-  return JSON.parse(buf.slice(start, start + len).toString('utf8'));
+  if (
+    buf.length >= LEGACY_MAGIC.length + 4 &&
+    buf.subarray(0, LEGACY_MAGIC.length).equals(LEGACY_MAGIC)
+  ) {
+    return decodeLegacy(buf);
+  }
+  return decodeArchive(new Uint8Array(buf.buffer, buf.byteOffset, buf.length));
 };
 
 export const createDoubletsStore = async (filePath) => {
@@ -40,25 +44,27 @@ export const createDoubletsStore = async (filePath) => {
 
   try {
     const buf = await fs.readFile(filePath);
-    for (const link of decode(buf)) {
-      await mem.put(link);
-    }
+    await mem.putMany(decodeStoreFile(buf));
   } catch (err) {
     if (err.code !== 'ENOENT') {
       throw err;
     }
   }
 
-  const flush = async () => {
-    const links = await mem.query();
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, encode(links));
-  };
+  const writer = createFileWriter(filePath, async () =>
+    encodeArchive(await mem.query())
+  );
+  const flush = () => writer.request();
 
   return {
     ...mem,
     async put(link) {
       const out = await mem.put(link);
+      await flush();
+      return out;
+    },
+    async putMany(links) {
+      const out = await mem.putMany(links);
       await flush();
       return out;
     },

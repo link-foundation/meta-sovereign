@@ -9,11 +9,22 @@
  * before snapshotting (R-A4).
  */
 
+const putEach = async (store, links) => {
+  for (const link of links) {
+    await store.put(link);
+  }
+};
+
 export const createDualStore = ({ binary, text }) => ({
   async put(link) {
     await binary.put(link);
     await text.put(link);
     return link;
+  },
+  async putMany(links) {
+    await (binary.putMany ? binary.putMany(links) : putEach(binary, links));
+    await (text.putMany ? text.putMany(links) : putEach(text, links));
+    return links;
   },
   async get(id) {
     return binary.get(id);

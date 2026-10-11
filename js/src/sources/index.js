@@ -18,6 +18,7 @@
  */
 
 import { emailSource } from './email.js';
+import { putAll } from '../storage/universal.js';
 import { telegramSource } from './telegram.js';
 import { vkSource } from './vk.js';
 import { xSource } from './x.js';
@@ -110,10 +111,7 @@ export const stampSourceLink = (link, source) => {
 export const importInto = async (store, source, archive) => {
   const adapter = getSource(source);
   const messages = await adapter.parseArchive(archive);
-  for (const m of messages) {
-    await store.put(m);
-  }
-  return messages.length;
+  return putAll(store, messages);
 };
 
 const secretToken = async (store, source, explicitId) => {
@@ -142,9 +140,10 @@ export const pullLiveInto = async (store, source, options = {}) => {
     options.token ?? (await secretToken(store, source, options.secretId));
   const result = await live.pullMessages({ ...options, token });
   const links = result.links ?? [];
-  for (const link of links) {
-    await store.put(stampSourceLink(link, source));
-  }
+  await putAll(
+    store,
+    links.map((link) => stampSourceLink(link, source))
+  );
   return {
     source,
     imported: links.length,

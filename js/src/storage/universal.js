@@ -20,6 +20,8 @@
 /**
  * @typedef {Object} UniversalLinksAccess
  * @property {(link: Link) => Promise<Link>} put
+ * @property {(links: Link[]) => Promise<Link[]>} [putMany] bulk put; file
+ *   backed stores write once for the whole batch
  * @property {(id: string) => Promise<Link | null>} get
  * @property {(id: string) => Promise<boolean>} delete
  * @property {(filter?: (l: Link) => boolean) => Promise<Link[]>} query
@@ -31,14 +33,21 @@ export const createMemoryStore = () => {
   const handlers = new Set();
   const emit = (event) => handlers.forEach((h) => h(event));
 
+  const put = (link) => {
+    if (!link || typeof link.id !== 'string') {
+      throw new Error('link.id is required');
+    }
+    data.set(link.id, { ...link });
+    emit({ type: 'put', link });
+    return link;
+  };
+
   return {
     async put(link) {
-      if (!link || typeof link.id !== 'string') {
-        throw new Error('link.id is required');
-      }
-      data.set(link.id, { ...link });
-      emit({ type: 'put', link });
-      return link;
+      return put(link);
+    },
+    async putMany(links) {
+      return links.map(put);
     },
     async get(id) {
       const v = data.get(id);
@@ -62,4 +71,19 @@ export const createMemoryStore = () => {
       return () => handlers.delete(handler);
     },
   };
+};
+
+/**
+ * Put a batch through `putMany` when the store offers it (file-backed
+ * stores then write once), else one `put` at a time.
+ */
+export const putAll = async (store, links) => {
+  if (typeof store.putMany === 'function') {
+    await store.putMany(links);
+    return links.length;
+  }
+  for (const link of links) {
+    await store.put(link);
+  }
+  return links.length;
 };

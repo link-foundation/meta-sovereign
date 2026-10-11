@@ -1,6 +1,16 @@
-export { createMemoryStore } from './universal.js';
-export { createLinoTextStore } from './lino-store.js';
-export { createDoubletsStore } from './doublets-store.js';
+export { createMemoryStore, putAll } from './universal.js';
+export {
+  createLinoTextStore,
+  formatLinoRecords,
+  parseLinoRecords,
+} from './lino-store.js';
+export { createDoubletsStore, decodeStoreFile } from './doublets-store.js';
+export {
+  encodeArchive,
+  decodeArchive,
+  encodeNetwork,
+  readNetwork,
+} from './doublets-archive.js';
 export { createDualStore } from './dual-store.js';
 export { parseLino, formatLino } from './lino.js';
 export {
