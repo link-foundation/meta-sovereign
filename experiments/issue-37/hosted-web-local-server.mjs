@@ -16,11 +16,14 @@
  *
  * Usage:
  *
- *   node experiments/issue-37/hosted-web-local-server.mjs [pagesOrigin]
+ *   node experiments/issue-37/hosted-web-local-server.mjs \
+ *     [--allow-page] [--server=<path to js/src/server/index.js>]
  *
- * When `pagesOrigin` is given, the server is started with that origin
- * in its allow-list (after the CORS fix), so the same script shows the
- * before/after behaviour.
+ * `--allow-page` puts the probe page's origin on the server's CORS
+ * allow-list (what `https://link-foundation.github.io` gets by
+ * default after the fix). `--server` loads another checkout's server
+ * (e.g. a `main` worktree), so the same script shows the before/after
+ * behaviour.
  */
 
 import http from 'node:http';
@@ -28,9 +31,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 
-import { chromium, firefox, webkit } from 'playwright';
+import { pathToFileURL } from 'node:url';
 
-import { startServer } from '../../js/src/server/index.js';
+import { chromium, firefox, webkit } from 'playwright';
 
 const PAGE = (serverOrigin) => `<!doctype html>
 <meta charset="utf-8">
@@ -58,29 +61,43 @@ window.results = (async () => {
 })();
 </script>`;
 
-const startPageHost = (serverOrigin) =>
-  new Promise((resolve) => {
-    const host = http.createServer((req, res) => {
-      res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-      res.end(PAGE(serverOrigin));
-    });
-    // `localhost` vs `127.0.0.1` keeps the two origins distinct.
-    host.listen(0, '127.0.0.1', () => resolve(host));
-  });
+const option = (name) =>
+  process.argv
+    .slice(2)
+    .find((arg) => arg.startsWith(`--${name}=`))
+    ?.slice(name.length + 3);
+
+const listen = (server) =>
+  new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 
 const main = async () => {
-  const allowOrigins = process.argv.slice(2);
+  const serverModule = path.resolve(
+    option('server') ??
+      new URL('../../js/src/server/index.js', import.meta.url).pathname
+  );
+  const { startServer } = await import(pathToFileURL(serverModule).href);
+  // The page host answers on `localhost`, the API on `127.0.0.1`, so
+  // the two origins differ the way GitHub Pages and loopback do.
+  const target = {};
+  const host = http.createServer((req, res) => {
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    res.end(PAGE(target.origin));
+  });
+  await listen(host);
+  const pageUrl = `http://localhost:${host.address().port}/`;
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-cors-'));
   const server = await startServer({
     port: 0,
     storeDir,
     enableHandlers: false,
     enableSync: false,
-    ...(allowOrigins.length ? { allowOrigins } : {}),
+    ...(process.argv.includes('--allow-page')
+      ? { allowOrigins: [new URL(pageUrl).origin] }
+      : {}),
   });
   const serverOrigin = `http://127.0.0.1:${server.port}`;
-  const host = await startPageHost(serverOrigin);
-  const pageUrl = `http://localhost:${host.address().port}/`;
+  target.origin = serverOrigin;
+  console.log(`server module ${path.relative(process.cwd(), serverModule)}`);
   console.log(`server ${serverOrigin}, page ${pageUrl}`);
   const report = {};
   for (const [name, engine] of Object.entries({ chromium, firefox, webkit })) {

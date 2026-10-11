@@ -1,0 +1,37 @@
+$ node experiments/issue-37/hosted-web-local-server.mjs   # origin not on the allow-list
+server module js/src/server/index.js
+server http://127.0.0.1:36531, page http://localhost:39757/
+{
+  "chromium": {
+    "status": "error: Failed to fetch",
+    "put": "error: Failed to fetch"
+  },
+  "firefox": {
+    "status": "error: NetworkError when attempting to fetch resource.",
+    "put": "error: NetworkError when attempting to fetch resource."
+  },
+  "webkit": {
+    "status": "error: Load failed",
+    "put": "error: Load failed"
+  }
+}
+exit=0
+
+$ node experiments/issue-37/hosted-web-local-server.mjs --allow-page
+server module js/src/server/index.js
+server http://127.0.0.1:45423, page http://localhost:42591/
+{
+  "chromium": {
+    "status": "ok",
+    "put": "ok"
+  },
+  "firefox": {
+    "status": "ok",
+    "put": "ok"
+  },
+  "webkit": {
+    "status": "ok",
+    "put": "ok"
+  }
+}
+exit=0
