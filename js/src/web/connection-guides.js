@@ -135,13 +135,13 @@ export const providerCatalogue = {
       title: 'Connect the VK API',
       titleKey: 'connections.vk.api.title',
       envVar: 'VK_ACCESS_TOKEN',
-      hint: 'Create a Standalone application at https://vk.com/apps?act=manage and request an access token with the messages scope. Paste it as "secret:vk:token".',
+      hint: 'New VK apps can no longer get the messages right, and Kate Mobile tokens stopped working on 2026-09-08. Prefer the archive import above. For community chats, paste a community token (community settings -> API usage). A legacy user token issued for VK\'s own web client (client_id 6287487 via oauth.vk.ru) may still work, at your own risk of an account freeze. The value is stored as "secret:vk:access-token".',
       hintKey: 'connections.vk.api.hint',
-      docsUrl: 'https://dev.vk.com/api/access-token/getting-started',
-      apiBase: 'https://api.vk.com',
-      probeUrl: 'https://api.vk.com/method/users.get?v=5.199',
+      docsUrl: 'https://dev.vk.ru/ru/api/access-token/getting-started',
+      apiBase: 'https://api.vk.ru',
+      probeUrl: 'https://api.vk.ru/method/users.get?v=5.199',
       probeUrlTemplate:
-        'https://api.vk.com/method/users.get?v=5.199&access_token={token}',
+        'https://api.vk.ru/method/users.get?v=5.199&access_token={token}',
       probeRequiresAll: ['token'],
       fields: [
         {
@@ -154,7 +154,7 @@ export const providerCatalogue = {
         },
       ],
       errorHints: {
-        401: 'Access token expired. Re-run the implicit flow at id.vk.com.',
+        401: 'VK rejected the token (error 5). Issue a new one: tokens of blocked clients such as Kate Mobile or VK Admin will not recover.',
       },
       errorHintKeys: {
         401: 'connections.vk.errorHints.401',

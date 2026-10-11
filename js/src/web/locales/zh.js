@@ -405,10 +405,10 @@ export const zh = {
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': '连接 VK API',
   'connections.vk.api.hint':
-    '在 https://vk.com/apps?act=manage 创建独立应用,申请带 messages 范围的访问令牌。粘贴为 "secret:vk:token"。',
+    'VK 不再向新应用授予 messages 权限,Kate Mobile 令牌已于 2026-09-08 停止工作。建议使用上方的归档导入。社区会话请粘贴社区访问密钥(社区设置 → API 使用)。VK 自家网页客户端(client_id 6287487,经 oauth.vk.ru)签发的旧用户令牌可能仍可用,但账号可能被冻结,风险自负。该值保存为 "secret:vk:access-token"。',
   'connections.vk.fields.token.label': '访问令牌',
   'connections.vk.errorHints.401':
-    '访问令牌已过期。请在 id.vk.com 重新执行 implicit 流程。',
+    'VK 拒绝了该令牌(错误 5)。请重新签发:Kate Mobile、VK Admin 等被封禁客户端的令牌不会恢复。',
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': '导入 X 数据归档',
   'connections.x.archive.hint':
