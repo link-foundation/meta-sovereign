@@ -16,7 +16,7 @@ import {
   loadGreetingSelection,
   planFromStore,
   saveGreetingSelection,
-} from '../greetings/index.js';
+} from '../greetings/plan.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = document.createElement(tag);

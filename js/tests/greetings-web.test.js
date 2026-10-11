@@ -6,6 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
@@ -115,6 +116,25 @@ test('the Greetings screen is a registered nav surface with a guide', () => {
   );
   assert.equal(views.greetings, GreetingsView);
   assert.equal(connectionGuides.greetings.titleKey, 'guide.greetings.title');
+});
+
+test('the screens load under a CSP without unsafe-eval', () => {
+  // The SPA's CSP forbids string evaluation. Some network adapters call
+  // `new Function` when their module loads, so if the screens pull the
+  // adapters in (as `greetings/index.js` would), the whole app fails to
+  // start. Node's flag applies the same rule.
+  const views = new URL('../src/web/views.js', import.meta.url).href;
+  const out = execFileSync(
+    process.execPath,
+    [
+      '--disallow-code-generation-from-strings',
+      '--input-type=module',
+      '-e',
+      `await import(${JSON.stringify(views)}); console.log('loaded');`,
+    ],
+    { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
+  );
+  assert.match(out, /loaded/);
 });
 
 test('every locale names the screen and its controls', () => {
