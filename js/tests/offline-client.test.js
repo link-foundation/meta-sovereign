@@ -167,3 +167,47 @@ test('offline mode: suggest answers from the local reply graph', async () => {
   const live = await client.suggest({ source: 'vk', chat: '3' });
   assert.equal(live.suggestions.length, 2);
 });
+
+test('online mode: links() adds the server links to the local ones', async () => {
+  // Issue #31 / PR #34: the chat lists api.links(); with the archive on
+  // the server, an online browser used to see an empty inbox.
+  const store = await createBrowserStore();
+  await store.put({ id: 'msg:tg:1', body: 'edited here' });
+  await store.put({ id: 'note:local', body: 'only here' });
+  const calls = [];
+  const fetchImpl = async (url) => {
+    calls.push(url);
+    return {
+      ok: true,
+      json: async () => [
+        { id: 'msg:tg:1', body: 'old copy' },
+        { id: 'msg:vk:2', body: 'only on the server' },
+      ],
+    };
+  };
+  const client = createOfflineClient({
+    store,
+    server: { origin: 'http://x', fetchImpl },
+  });
+  const byId = Object.fromEntries(
+    (await client.links()).map((link) => [link.id, link.body])
+  );
+  assert.deepEqual(calls, ['http://x/links']);
+  assert.deepEqual(byId, {
+    'msg:tg:1': 'edited here',
+    'note:local': 'only here',
+    'msg:vk:2': 'only on the server',
+  });
+
+  const down = createOfflineClient({
+    store,
+    server: {
+      origin: 'http://x',
+      fetchImpl: async () => {
+        throw new Error('network down');
+      },
+    },
+  });
+  assert.equal((await down.links()).length, 2);
+  assert.equal(down.isOnline(), false);
+});

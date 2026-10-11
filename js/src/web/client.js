@@ -117,8 +117,20 @@ export const createOfflineClient = ({ store, server }) => {
     async delete(id) {
       return store.delete(id);
     },
+    /**
+     * Every link: the local store's, plus — when online — the server's
+     * (imports, live messages), so views see server-side data. A link
+     * held in both comes from the local store, which has the user's
+     * latest edits.
+     */
     async links() {
-      return store.query();
+      const local = await store.query();
+      const remote = await fetchOrLocal('/links', () => []);
+      if (!Array.isArray(remote) || remote.length === 0) {
+        return local;
+      }
+      const ids = new Set(local.map((link) => link.id));
+      return [...local, ...remote.filter((link) => !ids.has(link.id))];
     },
 
     // ---- derived queries (server when online, local fallback) ---------
