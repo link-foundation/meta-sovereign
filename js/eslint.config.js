@@ -125,6 +125,7 @@ export default [
         document: 'readonly',
         fetch: 'readonly',
         location: 'readonly',
+        navigator: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
         CustomEvent: 'readonly',

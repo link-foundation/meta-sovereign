@@ -86,7 +86,11 @@ const main = async () => {
   for (const [name, engine] of Object.entries({ chromium, firefox, webkit })) {
     let browser;
     try {
-      browser = await engine.launch();
+      // The full Chromium build also works when only it is installed
+      // (no headless shell).
+      browser = await engine.launch(
+        name === 'chromium' ? { channel: 'chromium' } : {}
+      );
     } catch (err) {
       report[name] = `launch failed: ${err.message.split('\n')[0]}`;
       continue;

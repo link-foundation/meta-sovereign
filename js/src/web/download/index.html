@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- Download landing page for the desktop apps (issue #37). page.js
+     replaces the static fallback below; without JavaScript the
+     releases link still works. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Download Meta Sovereign for Windows, macOS and Linux, or use the web app in your browser."
+    />
+    <title>Download Meta Sovereign</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./download.css" />
+  </head>
+  <body>
+    <div id="root" data-status="loading">
+      <main>
+        <section class="hero">
+          <h1>Meta Sovereign</h1>
+          <p>
+            <a href="https://github.com/link-foundation/meta-sovereign/releases"
+              >Download the desktop app from GitHub Releases</a
+            >
+            or <a href="../">open the web app</a>.
+          </p>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./page.js"></script>
+  </body>
+</html>
