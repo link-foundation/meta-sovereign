@@ -55,6 +55,26 @@ export const loadAutomation = async (store, automationOrId) => {
   return normalizeAutomation(link);
 };
 
+/** Saved automations first, then the presets not saved yet. */
+export const listAutomations = async (store) => {
+  const saved = (await store.query())
+    .filter((l) => l?.id?.startsWith(AUTOMATION_PREFIX))
+    .map((l) => {
+      try {
+        return { ...normalizeAutomation(l), saved: true };
+      } catch (error) {
+        return { id: l.id, name: l.name ?? l.id, invalid: error.message };
+      }
+    });
+  const ids = new Set(saved.map((a) => a.id));
+  return [
+    ...saved,
+    ...automationPresets()
+      .filter((a) => !ids.has(a.id))
+      .map((a) => ({ ...a, saved: false })),
+  ];
+};
+
 /** Write planned drafts; they are shown in their chats until settled. */
 export const queueDrafts = async (store, automation, drafts, at) => {
   // A draft is settled against its automation later; keep an unsaved one.

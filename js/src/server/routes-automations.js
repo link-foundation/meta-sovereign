@@ -34,29 +34,11 @@ import {
   automationPresets,
   normalizeAutomation,
 } from '../automation/automations.js';
+import { listAutomations } from '../automation/drafts.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
-
-const listAutomations = async (store) => {
-  const saved = (await store.query())
-    .filter((l) => l?.id?.startsWith(AUTOMATION_PREFIX))
-    .map((l) => {
-      try {
-        return { ...normalizeAutomation(l), saved: true };
-      } catch (error) {
-        return { id: l.id, name: l.name ?? l.id, invalid: error.message };
-      }
-    });
-  const ids = new Set(saved.map((a) => a.id));
-  return [
-    ...saved,
-    ...automationPresets()
-      .filter((a) => !ids.has(a.id))
-      .map((a) => ({ ...a, saved: false })),
-  ];
-};
 
 const validChat = (body) =>
   typeof body.source === 'string' &&

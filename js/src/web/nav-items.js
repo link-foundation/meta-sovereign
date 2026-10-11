@@ -19,7 +19,6 @@ export const navItems = [
   ['audience', 'nav.audience'],
   ['broadcast', 'nav.broadcast'],
   ['outreach', 'nav.outreach'],
-  ['reengage', 'nav.reengage'],
   ['profile', 'nav.profile'],
   ['backup', 'nav.backup'],
   ['status', 'nav.status'],

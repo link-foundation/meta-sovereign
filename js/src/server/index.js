@@ -29,7 +29,6 @@
  *   PUT  /api/resume               -> upsert + plan cross-network sync
  *   POST /api/broadcast            -> queue post for outbound networks
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
- *   POST /api/reengage/{plan,send,mark,run} -> dormant contacts (routes-reengage.js)
  *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
  *   /api/people, /api/audiences, /api/lists -> routes-people.js
  *   POST /api/email/pull           -> local-server email API/protocol proxy
@@ -58,7 +57,6 @@ import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
-import { handleReengageRoutes } from './routes-reengage.js';
 import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
 import { handleAutomationRoutes } from './routes-automations.js';
@@ -178,11 +176,6 @@ const cvContext = (cv = {}) => ({
   cvArtifactDir: cv.artifactDir ?? null,
 });
 
-/** `{ send }` stands in for the source adapters on /api/reengage. */
-const reengageContext = (reengage = {}) => ({
-  reengageSend: reengage.send ?? null,
-});
-
 /**
  * The reply service behind /api/suggest. `replies.clink` (or
  * `MS_REPLY_CLINK=1`) mirrors the reply graph into a link-cli database
@@ -275,9 +268,6 @@ const route = async (store, req, res, ctx) => {
   if (await handleCvRoutes(store, req, res, p, url, ctx)) {
     return;
   }
-  if (await handleReengageRoutes(store, req, res, p, ctx)) {
-    return;
-  }
   if (await handleSuggestRoutes(req, res, p, url, ctx)) {
     return;
   }
@@ -335,8 +325,6 @@ export const startServer = async ({
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
   cv = {},
-  // `{ send }` replaces the source adapters for /api/reengage (tests).
-  reengage,
   // `{ self?, clink? }` for the reply-graph autocomplete (/api/suggest).
   replies,
   // `{ send?, setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
@@ -355,7 +343,6 @@ export const startServer = async ({
     secretPassphrase,
     emailLiveFactory,
     ...cvContext(cv),
-    ...reengageContext(reengage),
     replies: replyService(store, storeDir, replies),
     ...automationContext(store, automations, log),
   };
