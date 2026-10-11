@@ -901,6 +901,14 @@ export const connectionGuides = {
     ],
     connectFirst: { providerId: 'telegram' },
   },
+  reengage: {
+    title: 'No dormant contacts found yet.',
+    titleKey: 'guide.reengage.title',
+    body: 'Re-engaging finds personal chats silent for 90 days or more and drafts a message in the form ("ты" or "вы") the dialog used. Import a chat archive or connect a chat-capable provider in Connections first.',
+    bodyKey: 'guide.reengage.body',
+    providers: ['telegram', 'vk', 'email'],
+    connectFirst: { providerId: 'telegram' },
+  },
   profile: {
     title: 'No profile yet.',
     titleKey: 'guide.profile.title',

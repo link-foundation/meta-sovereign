@@ -329,6 +329,17 @@ describe('createReengageSession', () => {
     }
     expect(error).not.toBe(null);
   });
+  it('pending() hands the rest of the plan, edits included, to a new session', async () => {
+    const session = createReengageSession({ drafts: drafts() });
+    session.edit('Свой текст');
+    const pending = session.pending();
+    expect(pending.length).toBe(2);
+    expect(pending[0].text).toBe('Свой текст');
+    pending[0].text = 'changed outside';
+    expect(session.current().text).toBe('Свой текст');
+    await session.skip();
+    expect(session.pending().length).toBe(1);
+  });
   it('batch mode sends everything and continues past failures', async () => {
     const session = createReengageSession({
       drafts: drafts(),

@@ -10,6 +10,7 @@ import {
 import { discoverServer } from './discover.js';
 import { createOfflineClient } from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
+import { planReengagement } from '../crm/reengage.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
 
 export const h = (tag, attrs = {}, children = []) => {
@@ -88,7 +89,7 @@ export const resetServerBinding = () => {
   bootPromise = null;
 };
 
-const serverFetch = async (path, init) => {
+const serverResponse = async (path, init) => {
   const { client, origin } = await ensure();
   if (!client.isOnline()) {
     return null;
@@ -99,6 +100,11 @@ const serverFetch = async (path, init) => {
   // of the server. `new URL` keeps same-origin deployments unchanged
   // and points cross-origin ones at the backend the client is using.
   const url = origin ? new URL(path, origin).toString() : path;
+  return fetch(url, init).catch(() => null);
+};
+
+const serverFetch = async (path, init) => {
+  const response = await serverResponse(path, init);
   // "Online" does not mean "implements this route": the Rust backend
   // answers routes it does not have with a 404 and a JSON error body
   // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
@@ -106,11 +112,29 @@ const serverFetch = async (path, init) => {
   // return null and let the caller's `??` default take over —
   // otherwise `{error: 'unknown route'}` would reach the screens as
   // if it were data.
-  const response = await fetch(url, init).catch(() => null);
   if (!response?.ok) {
     return null;
   }
   return response.json().catch(() => null);
+};
+
+/**
+ * POST that keeps the server's own answer on an error status — a
+ * re-engage send that the network refused (502) must show *why*. A
+ * missing route (`unknown route`, an HTML proxy page) or no server at
+ * all still collapses to null, like `serverFetch`.
+ */
+const serverPostReport = async (path, body) => {
+  const response = await serverResponse(path, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = response ? await response.json().catch(() => null) : null;
+  if (!data || data.error === 'unknown route') {
+    return null;
+  }
+  return { ...data, httpStatus: response.status };
 };
 
 let patternWorker = null;
@@ -183,7 +207,7 @@ const matchPattern = async (pattern, flags, messages) => {
   }
 };
 
-const cvPost = (path, body) =>
+const postJson = (path, body) =>
   serverFetch(path, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -312,6 +336,34 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ query, text, networks, mode }),
     })) ?? { audience: [], plan: [], note: 'server required for outreach' },
+  // ---- Re-engage dormant contacts (issue #31) ---------------------
+  // The plan prefers the server (it holds every imported archive) and
+  // falls back to the links this browser holds. Decisions are written
+  // locally and, when a server is up, to its store too, so neither
+  // side offers a contacted or skipped person again. Sending needs the
+  // server, which has the adapters' credentials: one draft per
+  // request, always with `confirm: true` (safe mode, R-W5).
+  reengagePlan: async (options = {}) =>
+    (await postJson('/api/reengage/plan', options)) ??
+    planReengagement(await api.links(), options),
+  reengageRecord: async (link) => {
+    await api.put(link);
+    await serverFetch('/links', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(link),
+    });
+    return link;
+  },
+  reengageSend: async (draft) =>
+    (await serverPostReport('/api/reengage/send', {
+      draft,
+      confirm: true,
+    })) ?? {
+      status: 'failed',
+      code: 'server-required',
+      error: 'sending needs the local server',
+    },
   // ---- CV synchronisation (issue #29) -----------------------------
   // Reading a live profile needs a browser, which only the local
   // server has; offline the SPA still shows the catalogue, the stored
@@ -326,18 +378,18 @@ export const api = {
       `/api/cv/stored${platforms.length ? `?platforms=${encodeURIComponent(platforms.join(','))}` : ''}`
     )) ?? { entries: [] },
   cvRead: async ({ platforms, vars = {} } = {}) =>
-    (await cvPost('/api/cv/read', { platforms, vars })) ?? {
+    (await postJson('/api/cv/read', { platforms, vars })) ?? {
       entries: [],
       failures: [cvOffline(platforms)],
     },
   cvCompare: async ({ platforms, entries, prefer = null } = {}) =>
-    (await cvPost('/api/cv/compare', { platforms, entries, prefer })) ?? {
+    (await postJson('/api/cv/compare', { platforms, entries, prefer })) ?? {
       entries: [],
       comparison: { rows: [], plan: [], updates: {}, agreed: 0 },
       diffs: [],
     },
   cvSync: async ({ platforms, dryRun = true, prefer = null, vars = {} } = {}) =>
-    (await cvPost('/api/cv/sync', { platforms, dryRun, prefer, vars })) ?? {
+    (await postJson('/api/cv/sync', { platforms, dryRun, prefer, vars })) ?? {
       dryRun,
       actions: [],
       applied: [],

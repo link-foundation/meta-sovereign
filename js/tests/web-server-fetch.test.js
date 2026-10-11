@@ -37,6 +37,12 @@ const startStub = async () => {
       json(200, { entries: [{ platform: 'hh', capturedAt: 'now', cv: {} }] });
       return;
     }
+    if (req.url === '/api/reengage/send') {
+      // The adapter refused the message (issue #31): the reason must
+      // reach the screen, not collapse into "server required".
+      json(502, { status: 'failed', error: 'blocked by privacy settings' });
+      return;
+    }
     // Everything else behaves like the Rust server's catch-all.
     json(404, { error: 'unknown route' });
   });
@@ -80,6 +86,12 @@ describe('serverFetch talks to the discovered server', () => {
       // the fully offline SPA gives.
       const read = await api.cvRead({ platforms: ['hh'] });
       expect(read.failures[0].code).toBe('server-required');
+
+      // A route that answers with an error status keeps its reason.
+      const refused = await api.reengageSend({ source: 'vk', chat: '1' });
+      expect(refused.status).toBe('failed');
+      expect(refused.error).toBe('blocked by privacy settings');
+      expect(refused.httpStatus).toBe(502);
     } finally {
       delete globalThis.META_SOVEREIGN_DISCOVERY_CANDIDATES;
       // Leave nothing bound to a server that is about to close.

@@ -27,6 +27,7 @@ export const en = {
   'nav.audience': 'Audience',
   'nav.broadcast': 'Broadcast',
   'nav.outreach': 'Outreach',
+  'nav.reengage': 'Re-engage',
   'nav.profile': 'Profile',
   'nav.backup': 'Backup',
   'nav.status': 'Status',
@@ -200,6 +201,9 @@ export const en = {
   'guide.outreach.title': 'No outreach surface yet.',
   'guide.outreach.body':
     'Mass-personal outreach sends a templated message 1:1 to each contact in an audience query. Open Connections to add a chat-capable provider first.',
+  'guide.reengage.title': 'No dormant contacts found yet.',
+  'guide.reengage.body':
+    'Re-engaging finds personal chats silent for 90 days or more and drafts a message in the form ("ты" or "вы") the dialog used. Import a chat archive or connect a chat-capable provider in Connections first.',
   'guide.profile.title': 'No profile yet.',
   'guide.profile.body':
     'Edit your profile and resume here; saves are pushed to every connected provider. Open Connections to add at least one provider for profile sync.',
@@ -650,4 +654,45 @@ export const en = {
   'cv.noRuns': 'No runs recorded yet.',
   'cv.unavailable':
     'This server does not provide the CV routes. Start the JS server (`meta-sovereign serve`) or use the `meta-sovereign cv-*` commands, which drive the browser locally.',
+  'reengage.title': 'Re-engage dormant contacts',
+  'reengage.intro':
+    'Personal chats with no messages for the chosen number of days. The form of address ("ты" or "вы") is detected from the dialog; safe mode sends one message per click.',
+  'reengage.days': 'Silent for at least (days)',
+  'reengage.find': 'Find',
+  'reengage.safeMode': 'Safe mode: one message per confirmation',
+  'reengage.sendAll': 'Send all ({left})',
+  'reengage.confirmAll':
+    'Send {left} message(s) now without reviewing each one?',
+  'reengage.summary':
+    '{total} personal contact(s) silent for ≥ {days} days; {excluded} contacted or skipped recently.',
+  'reengage.position': '{position}/{total}: {name} ({network})',
+  'reengage.silence':
+    'Silent for {days} days · {messages} messages in the dialog',
+  'reengage.detected': 'Form of address: {form}',
+  'reengage.informal': 'informal ("ты")',
+  'reengage.formal': 'formal ("вы")',
+  'reengage.reason.majority': 'detected from the dialog ({percent}%)',
+  'reengage.reason.tie': 'equal evidence — using the default form',
+  'reengage.reason.no-evidence':
+    'no evidence in the dialog — using the default form',
+  'reengage.text': 'Message',
+  'reengage.send': 'Send',
+  'reengage.copy': 'Copy',
+  'reengage.open': 'Open chat',
+  'reengage.openFilled': 'Open with the text filled in',
+  'reengage.switchTo': 'Switch to {form}',
+  'reengage.markSent': 'I sent it myself',
+  'reengage.skip': 'Skip',
+  'reengage.notice.sent': 'Sent.',
+  'reengage.notice.manual': 'Marked as sent.',
+  'reengage.notice.skipped':
+    'Skipped; it will not be offered again for a while.',
+  'reengage.notice.copied': 'Copied to the clipboard.',
+  'reengage.notice.failed':
+    'Not sent: {error}. Retry, edit, send it yourself or skip.',
+  'reengage.done': 'All drafts handled.',
+  'reengage.empty':
+    'No personal contact has been silent for {days} days or more.',
+  'reengage.progress':
+    'Sent {sent}, skipped {skipped}, failed {failed}, left {left}',
 };

@@ -560,5 +560,7 @@ export const createReengageSession = ({
       ...counts,
     }),
     history: () => [...history],
+    /** The current draft and every one after it, edits included. */
+    pending: () => items.slice(index).map((d) => ({ ...d })),
   };
 };
