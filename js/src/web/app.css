@@ -1075,30 +1075,60 @@ pre {
   margin: 0;
 }
 
-/* Tutorial overlay (issue #10, R-M9..R-M12). */
+/* Tutorial overlay (issue #10, R-M9..R-M12).
+
+   Two layouts share one card:
+   - spotlight: the target is lit by a ring whose huge box-shadow dims
+     everything else; the card sits beside the target with an arrow
+     (side chosen in tutorial-placement.js) and the page stays usable,
+     so the user can click the very control the step describes;
+   - centred: no target on screen, so a dimmed modal card.
+   Ring and card are tied to the target with CSS anchor positioning
+   where supported, so they move with it while anything scrolls. */
 .tutorial-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 2000;
-  padding: 1rem;
+}
+.tutorial-overlay-centered {
+  background: rgba(0, 0, 0, 0.55);
+}
+.tutorial-overlay-waiting {
+  background: transparent;
+  pointer-events: none;
 }
 .tutorial-overlay .tutorial-step {
-  max-width: 32rem;
-  width: 100%;
+  position: fixed;
+  box-sizing: border-box;
+  width: min(23rem, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  margin: 0;
+  overflow: visible;
   background: var(--bg-elev);
   color: var(--text);
   border: 1px solid var(--border);
-  padding: 1.25rem 1.5rem;
-  border-radius: 8px;
+  padding: 1.1rem 1.25rem 1rem;
+  border-radius: 10px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  outline: none;
+  animation: tutorial-card-in 160ms ease-out;
+}
+/* The card takes focus so screen readers announce it; it is not a
+   control itself, so no focus ring (its buttons keep theirs). */
+.tutorial-overlay .tutorial-step:focus {
+  outline: none;
+}
+@keyframes tutorial-card-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .tutorial-overlay .tutorial-step h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.35rem;
+  margin: 0 0 0.4rem;
+  font-size: 1.2rem;
   line-height: 1.25;
 }
 .tutorial-overlay .tutorial-step .tutorial-progress {
@@ -1106,19 +1136,19 @@ pre {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   opacity: 0.7;
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.3rem;
 }
 .tutorial-overlay .tutorial-step .tutorial-body {
-  font-size: 1rem;
-  line-height: 1.55;
-  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 0.9rem;
 }
 .tutorial-overlay .tutorial-examples {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
-  margin: 0 0 1.25rem;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
   overflow: visible;
 }
 .tutorial-overlay .tutorial-examples .meta {
@@ -1132,9 +1162,9 @@ pre {
   padding: 0;
 }
 .tutorial-overlay .tutorial-brands li {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 0.2rem 0.6rem;
+  padding: 0.15rem 0.55rem;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--bg-active);
@@ -1145,6 +1175,7 @@ pre {
   gap: 0.5rem;
   align-items: center;
   justify-content: flex-end;
+  overflow: visible;
 }
 .tutorial-overlay .tutorial-step .tutorial-actions button {
   font-size: 0.9rem;
@@ -1154,48 +1185,64 @@ pre {
    the opposite edge from the primary "Next". */
 .tutorial-overlay .tutorial-step .tutorial-actions .tutorial-off {
   margin-right: auto;
+  padding-left: 0;
   background: transparent;
   border-color: transparent;
   text-decoration: underline;
   opacity: 0.8;
 }
 
-/* Tutorial spotlight (issue #25 R-N9, R-N10). When a step has a
-   `tutorialId` the overlay drops the centred backdrop and instead lays
-   four dimming panes around a transparent frame so the highlighted
-   control reads as "the only lit thing on screen". The frame is
-   absolutely positioned by JS using the target's bounding rect.
-   Implementation note: we use `box-shadow` with a giant spread to dim
-   everything *outside* the frame in a single element — that avoids
-   coordinating four sibling rectangles whose sizes depend on the
-   target rect. */
+/* Spotlight (issue #25 R-N9, R-N10). */
 .tutorial-overlay-spotlight {
   background: transparent;
-  align-items: flex-end;
-  padding: 1rem;
   /* Let pointer events fall through the overlay to the spotlighted
-     control. The dialog card and the spotlight frame restore their own
-     pointer behaviour below. Without this, the fixed-position overlay
-     would swallow taps on the very nav button the spotlight is asking
-     the user to tap. */
+     control. The dialog card restores its own pointer behaviour below.
+     Without this, the fixed-position overlay would swallow taps on the
+     very nav button the spotlight is asking the user to tap. */
   pointer-events: none;
 }
-/* Place the dialog card opposite the spotlighted control so the card
-   never overlaps its own anchor. `data-spotlight-side` is set by JS
-   from the target's bounding rect (R-N9, R-N10). */
-.tutorial-overlay-spotlight[data-spotlight-side='top'] {
-  align-items: flex-start;
+.tutorial-overlay-spotlight .tutorial-step {
+  z-index: 1;
+  pointer-events: auto;
 }
-.tutorial-overlay-spotlight[data-spotlight-side='top'] .tutorial-step {
-  margin-top: 0;
-  margin-bottom: auto;
+/* The arrow: a rotated square on the card edge that faces the target,
+   offset along that edge by JS or by an anchor() expression. */
+.tutorial-arrow {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  overflow: visible;
 }
-/* Anchor-positioned frame: the browser keeps it on the control while
-   the page or the nav drawer scrolls, with no frame of delay. Hidden
-   while the control is scrolled out of view. */
+.tutorial-step[data-side='right'] .tutorial-arrow {
+  left: -8px;
+  border-top-color: transparent;
+  border-right-color: transparent;
+}
+.tutorial-step[data-side='left'] .tutorial-arrow {
+  right: -8px;
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+}
+.tutorial-step[data-side='bottom'] .tutorial-arrow {
+  top: -8px;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+.tutorial-step[data-side='top'] .tutorial-arrow {
+  bottom: -8px;
+  border-top-color: transparent;
+  border-left-color: transparent;
+}
 [data-tutorial-anchor] {
   anchor-name: --tutorial-target;
 }
+/* Anchored ring and card: the browser keeps them on the control while
+   the page or the nav drawer scrolls, with no frame of delay. The ring
+   hides while the control is scrolled out of view. */
 .tutorial-overlay-spotlight .tutorial-spotlight-anchored {
   position: fixed;
   position-anchor: --tutorial-target;
@@ -1206,23 +1253,29 @@ pre {
   position-visibility: anchors-visible;
   pointer-events: none;
 }
+.tutorial-overlay-spotlight .tutorial-step,
+.tutorial-overlay-spotlight .tutorial-arrow {
+  position-anchor: --tutorial-target;
+  /* The default (anchors-visible) would hide the card, and with it the
+     Next / Back buttons, whenever the target is clipped. */
+  position-visibility: always;
+}
 .tutorial-overlay-spotlight .tutorial-spotlight-frame {
   border-radius: 12px;
   box-shadow:
     0 0 0 9999px rgba(0, 0, 0, 0.55),
     0 0 0 3px rgba(102, 178, 255, 0.85);
 }
-.tutorial-overlay-spotlight .tutorial-step {
-  position: relative;
-  z-index: 1;
-  margin-top: auto;
-  pointer-events: auto;
-}
 @media (prefers-reduced-transparency: reduce) {
   .tutorial-overlay-spotlight .tutorial-spotlight-frame {
     box-shadow:
       0 0 0 9999px rgba(0, 0, 0, 0.85),
       0 0 0 3px rgba(102, 178, 255, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-overlay .tutorial-step {
+    animation: none;
   }
 }
 

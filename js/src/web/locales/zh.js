@@ -617,12 +617,12 @@ export const zh = {
   'tutorial.button': '教程',
   'tutorial.skip': '跳过此步',
   'tutorial.next': '下一步',
+  'tutorial.back': '上一步',
   'tutorial.finish': '完成',
   'tutorial.off': '关闭教程',
   'tutorial.progress': '第 {current} 步，共 {total} 步',
   'tutorial.connect.title': '连接你的第一个服务',
-  'tutorial.connect.body':
-    '把聊天和联系人汇集到一处。打开菜单中的「连接」即可开始。',
+  'tutorial.connect.body': '把聊天和联系人汇集到一处。打开「连接」即可开始。',
   'tutorial.connect.examples': '例如：',
   'tutorial.connect.more': '以及更多',
   'tutorial.welcome.title': '欢迎使用 meta-sovereign',
@@ -637,12 +637,12 @@ export const zh = {
     '自动回复：当消息匹配某个模式时，应用会建议或发送预设的回答。',
   'tutorial.backup.title': '备份',
   'tutorial.backup.body': '保存数据的加密副本，只有你的口令才能打开。',
-  'tutorial.connections.title': '连接你的第一个服务',
+  'tutorial.connections.title': '选择一个服务',
   'tutorial.connections.body':
-    '打开「连接」并选择一个服务，设置步骤会直接显示在应用中。',
-  'tutorial.connectionDetail.title': '按设置步骤操作',
+    '每张卡片代表一个服务。在你最常用的那个上点击「设置」。',
+  'tutorial.connectionDetail.title': '通过浏览器导入',
   'tutorial.connectionDetail.body':
-    '按顺序完成各步骤，或让应用通过浏览器导入数据，然后确认连接可用。',
+    '点击「打开浏览器」并登录。在那里开始数据导出，下载的文件会自动导入。',
 
   // CV synchronisation screen (issue #29).
   'cv.title': '简历同步',

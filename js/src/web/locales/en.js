@@ -633,12 +633,13 @@ export const en = {
   'tutorial.button': 'Tutorial',
   'tutorial.skip': 'Skip step',
   'tutorial.next': 'Next',
+  'tutorial.back': 'Back',
   'tutorial.finish': 'Finish',
   'tutorial.off': 'Turn off tutorial',
   'tutorial.progress': 'Step {current} of {total}',
   'tutorial.connect.title': 'Connect your first service',
   'tutorial.connect.body':
-    'Bring your chats and contacts into one place. Open Connections in the menu to start.',
+    'Bring your chats and contacts into one place. Open Connections to start.',
   'tutorial.connect.examples': 'For example:',
   'tutorial.connect.more': 'and more',
   'tutorial.welcome.title': 'Welcome to meta-sovereign',
@@ -656,12 +657,12 @@ export const en = {
   'tutorial.backup.title': 'Backup',
   'tutorial.backup.body':
     'Save an encrypted copy of your data. Only your passphrase can open it.',
-  'tutorial.connections.title': 'Connect your first service',
+  'tutorial.connections.title': 'Pick a service',
   'tutorial.connections.body':
-    'Open Connections and pick a service. The setup steps are shown right in the app.',
-  'tutorial.connectionDetail.title': 'Follow the setup steps',
+    'Each card is one service. Press "Set up" on the one you use most.',
+  'tutorial.connectionDetail.title': 'Import with a browser',
   'tutorial.connectionDetail.body':
-    'Do the steps in order, or let the app import your data through a browser. Then check that the connection works.',
+    'Press "Open browser" and sign in. Start the data export there and the downloaded file is imported automatically.',
 
   // CV synchronisation screen (issue #29).
   'cv.title': 'CV synchronisation',

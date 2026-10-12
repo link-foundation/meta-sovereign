@@ -231,25 +231,24 @@ const stepTutorialProgressPersists = async ({ page, base }) => {
     timeout: 5000,
   });
 
+  // "Next" on the first step opens Connections, as the step asks.
   await page.click('button[data-action="tutorial-next"]');
-  await page.waitForSelector('[data-tutorial-step="welcome"]', {
+  await page.waitForSelector('[data-tutorial-step="pick"]', {
     timeout: 5000,
   });
-
-  await page.click('button[data-action="tutorial-next"]');
-  await page.waitForSelector('[data-tutorial-step="chat"]', {
+  await page.waitForSelector('main[data-view="connections"]', {
     timeout: 5000,
   });
   const stored = await page.evaluate(() =>
     JSON.parse(window.localStorage.getItem('metaSovereignTutorial'))
   );
   assert(
-    stored?.stepId === 'chat',
+    stored?.stepId === 'pick',
     `tutorial progress not stored after next: ${JSON.stringify(stored)}`
   );
 
   await page.reload({ waitUntil: 'load' });
-  await page.waitForSelector('[data-tutorial-step="chat"]', {
+  await page.waitForSelector('[data-tutorial-step="pick"]', {
     timeout: 5000,
   });
   await page.click('button[data-action="tutorial-off"]');

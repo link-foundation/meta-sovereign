@@ -53,7 +53,7 @@ test('default sequence opens with a "Connect a service" step pointing at nav:con
 test('every step that declares a tutorialId references a known target', () => {
   // Recognised data-tutorial-id values: nav:<id> for nav buttons,
   // connections:<provider> for provider cards.
-  const knownPrefixes = ['nav:', 'connections:'];
+  const knownPrefixes = ['nav:', 'connections:', 'auto-import'];
   for (const step of defaultSteps) {
     if (!step.tutorialId) {
       continue;
@@ -151,14 +151,8 @@ test('spotlight overlay CSS lets pointer events fall through to the spotlighted 
     /pointer-events:\s*auto/,
     '.tutorial-overlay-spotlight .tutorial-step must restore pointer-events: auto so the dialog buttons stay clickable'
   );
-  // The dialog card must move to the top of the viewport when the
-  // spotlight target is in the bottom half (e.g. mobile bottom-nav)
-  // so the card does not visually cover its own anchor.
-  assert.match(
-    css,
-    /\.tutorial-overlay-spotlight\[data-spotlight-side='top'\]\s*\{[^}]*align-items:\s*flex-start[^}]*\}/,
-    'data-spotlight-side="top" must flip the overlay to align-items: flex-start'
-  );
+  // Where the card goes is decided by tutorial-placement.js (beside
+  // the target, never on it) — see tutorial-placement.test.js.
 });
 
 test('connect step copy is translated into ru/zh/hi (no English leak)', () => {

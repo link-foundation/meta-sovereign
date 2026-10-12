@@ -642,12 +642,13 @@ export const ru = {
   'tutorial.button': 'Руководство',
   'tutorial.skip': 'Пропустить шаг',
   'tutorial.next': 'Далее',
+  'tutorial.back': 'Назад',
   'tutorial.finish': 'Завершить',
   'tutorial.off': 'Отключить руководство',
   'tutorial.progress': 'Шаг {current} из {total}',
   'tutorial.connect.title': 'Подключите первый сервис',
   'tutorial.connect.body':
-    'Соберите чаты и контакты в одном месте. Чтобы начать, откройте «Подключения» в меню.',
+    'Соберите чаты и контакты в одном месте. Чтобы начать, откройте «Подключения».',
   'tutorial.connect.examples': 'Например:',
   'tutorial.connect.more': 'и другие',
   'tutorial.welcome.title': 'Добро пожаловать в meta-sovereign',
@@ -665,12 +666,12 @@ export const ru = {
   'tutorial.backup.title': 'Резервная копия',
   'tutorial.backup.body':
     'Сохраните зашифрованную копию данных. Открыть её можно только вашей парольной фразой.',
-  'tutorial.connections.title': 'Подключите первый сервис',
+  'tutorial.connections.title': 'Выберите сервис',
   'tutorial.connections.body':
-    'Откройте «Подключения» и выберите сервис. Шаги настройки показаны прямо в приложении.',
-  'tutorial.connectionDetail.title': 'Следуйте шагам настройки',
+    'Каждая карточка — один сервис. Нажмите «Настроить» у того, которым пользуетесь чаще всего.',
+  'tutorial.connectionDetail.title': 'Импорт через браузер',
   'tutorial.connectionDetail.body':
-    'Выполните шаги по порядку или дайте приложению импортировать данные через браузер. Затем проверьте, что подключение работает.',
+    'Нажмите «Открыть браузер» и войдите. Запустите там выгрузку данных — скачанный файл импортируется автоматически.',
 
   // CV synchronisation screen (issue #29).
   'cv.title': 'Синхронизация резюме',

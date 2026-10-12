@@ -38,6 +38,7 @@
     "test:e2e:browser": "node js/tests/e2e-browser-spa.mjs",
     "test:e2e:cv": "node js/tests/e2e-cv-browser.mjs",
     "test:e2e:greetings": "node js/tests/e2e-greetings-browser.mjs",
+    "test:e2e:tutorial": "node js/tests/e2e-tutorial-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
     "format": "prettier --write .",

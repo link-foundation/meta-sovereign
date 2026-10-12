@@ -581,6 +581,7 @@ export const ProviderAutoImport = ({
     {
       className: 'col provider-auto-import',
       'data-provider': providerId,
+      'data-tutorial-id': 'auto-import',
       'data-auto-import-state': job?.state ?? 'idle',
     },
     [

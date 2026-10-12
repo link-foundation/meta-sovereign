@@ -148,6 +148,7 @@ const BottomNav = ({ active, onSelect, t }) => {
             'data-action': 'nav-more',
             'aria-expanded': String(open),
             'aria-controls': 'more-sheet',
+            'data-tutorial-id': 'nav:more',
             onClick: () => setOpen(!open),
           },
           [

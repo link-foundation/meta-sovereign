@@ -632,12 +632,13 @@ export const hi = {
   'tutorial.button': 'ट्यूटोरियल',
   'tutorial.skip': 'चरण छोड़ें',
   'tutorial.next': 'अगला',
+  'tutorial.back': 'पीछे',
   'tutorial.finish': 'समाप्त',
   'tutorial.off': 'ट्यूटोरियल बंद करें',
   'tutorial.progress': 'चरण {current} / {total}',
   'tutorial.connect.title': 'अपनी पहली सेवा जोड़ें',
   'tutorial.connect.body':
-    'अपनी चैट और संपर्क एक जगह लाएँ। शुरू करने के लिए मेनू में "कनेक्शन" खोलें।',
+    'अपनी चैट और संपर्क एक जगह लाएँ। शुरू करने के लिए "कनेक्शन" खोलें।',
   'tutorial.connect.examples': 'उदाहरण:',
   'tutorial.connect.more': 'और भी',
   'tutorial.welcome.title': 'meta-sovereign में आपका स्वागत है',
@@ -654,12 +655,12 @@ export const hi = {
   'tutorial.backup.title': 'बैकअप',
   'tutorial.backup.body':
     'अपने डेटा की एन्क्रिप्टेड कॉपी सहेजें। इसे केवल आपका पासफ़्रेज़ खोल सकता है।',
-  'tutorial.connections.title': 'अपनी पहली सेवा जोड़ें',
+  'tutorial.connections.title': 'एक सेवा चुनें',
   'tutorial.connections.body':
-    '"कनेक्शन" खोलें और एक सेवा चुनें। सेटअप के चरण ऐप में ही दिखते हैं।',
-  'tutorial.connectionDetail.title': 'सेटअप के चरणों का पालन करें',
+    'हर कार्ड एक सेवा है। जिसे आप सबसे ज़्यादा इस्तेमाल करते हैं, उस पर "सेट अप" दबाएँ।',
+  'tutorial.connectionDetail.title': 'ब्राउज़र से आयात',
   'tutorial.connectionDetail.body':
-    'चरणों को क्रम से करें, या ऐप को ब्राउज़र से डेटा आयात करने दें। फिर जाँचें कि कनेक्शन काम कर रहा है।',
+    '"ब्राउज़र खोलें" दबाएँ और साइन इन करें। वहाँ डेटा एक्सपोर्ट शुरू करें, डाउनलोड हुई फ़ाइल अपने आप आयात हो जाएगी।',
 
   // CV synchronisation screen (issue #29).
   'cv.title': 'CV सिंक्रनाइज़ेशन',
