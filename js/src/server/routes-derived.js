@@ -12,17 +12,13 @@ import { localSearch } from '../crm/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
 
-// The user is not their own contact; the offline client skips 'me' too.
-const contactsOf = (links) =>
-  aggregateContacts(links).filter((c) => c.id !== 'me');
-
 const computeStatus = (all, diffs) => ({
   links: all.length,
   messages: all.filter((l) => l.id?.startsWith('msg:')).length,
   patterns: all.filter((l) => l.id?.startsWith('pattern:')).length,
   graphs: all.filter((l) => l.id?.startsWith('graph:')).length,
   replies: all.filter((l) => l.id?.startsWith('reply:')).length,
-  contacts: contactsOf(all).length,
+  contacts: aggregateContacts(all).length,
   chats: new Set(
     all
       .filter((l) => l.id?.startsWith('msg:'))
@@ -66,7 +62,7 @@ const facts = async (store) => {
 };
 
 const HANDLERS = {
-  '/api/contacts': async (store) => contactsOf(await store.query()),
+  '/api/contacts': async (store) => aggregateContacts(await store.query()),
   '/api/status': async (store) =>
     computeStatus(await store.query(), (await store.verify?.()) ?? []),
   '/api/autocomplete': async (store, url) =>

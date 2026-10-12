@@ -180,7 +180,20 @@ export const ContactsView = () => {
           { key: 'body' },
           contacts.map((contact) =>
             el('tr', { key: contact.id }, [
-              cell(0, contact.id),
+              // A name when a message gave one, its id beside it.
+              cell(
+                0,
+                contact.name && contact.name !== contact.id
+                  ? [
+                      el('span', { key: 'name' }, contact.name),
+                      el(
+                        'span',
+                        { key: 'id', className: 'meta' },
+                        ` ${contact.id}`
+                      ),
+                    ]
+                  : contact.id
+              ),
               cell(
                 1,
                 (contact.networks ?? [])

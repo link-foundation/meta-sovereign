@@ -20,6 +20,7 @@
  */
 
 import { createReplyService } from '../replies/reply-service.js';
+import { aggregateContacts } from '../server/aggregate.js';
 
 const computeAutocomplete = async (store, q, me = 'me') => {
   if (!q) {
@@ -42,18 +43,8 @@ const computeAutocomplete = async (store, q, me = 'me') => {
     .map(([text, count]) => ({ text, count }));
 };
 
-const computeContacts = async (store) => {
-  const links = await store.query();
-  const seen = new Map();
-  for (const l of links) {
-    if (!l.id?.startsWith('msg:') || !l.sender || l.sender === 'me') {
-      continue;
-    }
-    const key = `${l.source ?? '?'}:${l.sender}`;
-    seen.set(key, (seen.get(key) ?? 0) + 1);
-  }
-  return [...seen.entries()].map(([id, count]) => ({ id, count }));
-};
+// The same contacts as the server's /api/contacts, from the local store.
+const computeContacts = async (store) => aggregateContacts(await store.query());
 
 export const createOfflineClient = ({ store, server }) => {
   const handlers = new Set();
