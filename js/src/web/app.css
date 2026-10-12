@@ -616,6 +616,20 @@ pre {
   font-size: 0.85rem;
 }
 
+/* Browser-only mode notice (issue #37); reuses .local-server-help. */
+.web-mode-banner {
+  border-style: solid;
+  border-left: 4px solid var(--accent);
+  margin: 0 0 1rem;
+}
+.web-mode-banner > h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.web-mode-banner p {
+  margin: 0;
+}
+
 /* Tutorial overlay (issue #10, R-M9..R-M12). */
 .tutorial-overlay {
   position: fixed;

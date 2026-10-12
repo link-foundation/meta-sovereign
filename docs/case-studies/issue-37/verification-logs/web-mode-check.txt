@@ -1,0 +1,4 @@
+{"step":"offline","ok":true,"badge":"mode-badge offline","shown":true,"runtime":"web","title":"Browser-only mode","commands":["npx -y meta-sovereign serve","npx -y github:link-foundation/meta-sovereign serve"],"download":"https://link-foundation.github.io/meta-sovereign/download/","status":null,"safari":false}
+{"step":"retry-not-found","ok":true,"status":"Still no server answering at http://127.0.0.1:8787. Start it and check again."}
+{"step":"retry-found","ok":true,"badge":"mode-badge online","shown":false}
+{"step":"mobile-ru-safari","ok":true,"badge":"mode-badge offline","shown":true,"runtime":"web","title":"Режим только браузера","commands":["npx -y meta-sovereign serve","npx -y github:link-foundation/meta-sovereign serve"],"download":"https://link-foundation.github.io/meta-sovereign/download/","status":null,"safari":true}

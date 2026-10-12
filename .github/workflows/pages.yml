@@ -54,7 +54,7 @@ jobs:
       - name: Verify required artefacts exist
         run: |
           set -e
-          for f in index.html 404.html .nojekyll manifest.webmanifest app.min.js app.css; do
+          for f in index.html 404.html .nojekyll manifest.webmanifest app.min.js app.css download/index.html download/page.js download/downloads.js; do
             if [ ! -f "dist/pages/$f" ]; then
               echo "::error::missing required Pages artefact: $f"
               exit 1

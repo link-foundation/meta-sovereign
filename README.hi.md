@@ -8,6 +8,12 @@
 
 > अगर link अभी live नहीं है, तो GitHub Pages workflow (`.github/workflows/pages.yml`) अगली `main` push पर इसे publish करेगा।
 
+Server के बिना hosted app **browser-only mode** में चलता है: contacts, patterns और broadcasts browser store से काम करते हैं, जबकि imports, automations, sync, CV sync और greetings local server का इंतज़ार करते हैं। एक notice server start करने का command और **Check again** button दिखाता है।
+
+## Desktop app
+
+अपने system का installer <https://link-foundation.github.io/meta-sovereign/download/> से या [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) से download करें: Linux (AppImage, deb, tar.gz), macOS (dmg, zip) और Windows (installer, portable), हर एक x64 और arm64 के लिए। Desktop app में server bundled है, इसलिए खुद server start किए बिना हर feature काम करता है। Unsigned builds की पहली launch, checksums और updates [`docs/USER-GUIDE.hi.md` §4](docs/USER-GUIDE.hi.md#4-desktop-या-mobile-app-install-करें) में हैं।
+
 ## local server चलाएँ (sync के लिए recommended)
 
 Devices के बीच sync, at-rest encryption और पूरा feature set इस्तेमाल करने के लिए SPA के पास local server start करें। दो backend उपलब्ध हैं; दोनों समान wire protocol लागू करते हैं (देखें [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md))।
@@ -23,11 +29,12 @@ cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ### JavaScript server — fallback (Node/Bun/Deno)
 
 ```bash
-npm install -g meta-sovereign
-meta-sovereign serve
+npx -y meta-sovereign serve
+# या install करें: npm install -g meta-sovereign && meta-sovereign serve
+# पहली npm release से पहले: npx -y github:link-foundation/meta-sovereign serve
 ```
 
-दोनों backend default रूप से <http://127.0.0.1:8787> पर listen करते हैं। Hosted SPA `discoverServer()` से local server खोजता है (saved override → `127.0.0.1` ports)। अगर browser auto-connect नहीं करता, app में **Settings → Server** खोलें और binary द्वारा print किया गया URL paste करें।
+दोनों backend default रूप से <http://127.0.0.1:8787> पर listen करते हैं। JS server hosted app के origin (`https://link-foundation.github.io`) को CORS headers के साथ जवाब देता है; दूसरे origins `meta-sovereign serve --allow-origin=<origins>` या `MS_ALLOW_ORIGINS` से allow करें। Safari `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, इसलिए Safari में <http://127.0.0.1:8787> सीधे खोलें। Hosted SPA `discoverServer()` से local server खोजता है (saved override → `127.0.0.1` ports)। अगर browser auto-connect नहीं करता, app में **Settings → Server** खोलें और binary द्वारा print किया गया URL paste करें।
 
 ## SPA को server से जोड़ें
 

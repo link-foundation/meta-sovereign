@@ -70,7 +70,7 @@ Commands:
   export        --file=<path> --store=<dir>
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
   restore       --file=<path> --store=<dir>
-  serve         [--port=<n>] [--store=<dir>]
+  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>]
   sources
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
@@ -152,6 +152,9 @@ const serveCmd = async (args, log) => {
   const handle = await startServer({
     port: Number(args.port ?? 8787),
     storeDir: args.store ?? '.meta-sovereign',
+    // Hosted web origins allowed to use this server (issue #37); falls
+    // back to MS_ALLOW_ORIGINS and then the built-in defaults.
+    ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
   });
   log(`meta-sovereign listening on http://127.0.0.1:${handle.port}`);
   // Block on SIGINT/SIGTERM so the CLI keeps the server alive until

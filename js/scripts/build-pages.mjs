@@ -20,6 +20,9 @@
 //   - manifest.webmanifest       — minimal Web App Manifest so
 //                                  Chromium browsers offer "Install".
 //   - app.css, app.min.js, …     — every static asset under js/src/web/.
+//   - download/                  — the desktop download landing page
+//                                  (issue #37) with the app icon from
+//                                  desktop/icon.svg.
 //
 // The script is idempotent: it deletes `dist/pages/` first, then
 // recreates it. It always re-runs the production esbuild bundle so
@@ -128,6 +131,33 @@ const copyAdditionalAssets = async (srcDir, destDir) => {
   return copied;
 };
 
+// Sub-pages published next to the SPA. Each is a directory of
+// static files under js/src/web/ (issue #37).
+const PAGE_DIRS = ['download'];
+const DESKTOP_ICON = resolve(ROOT, 'desktop/icon.svg');
+
+const copyPageDirs = async (srcDir, destDir) => {
+  const copied = [];
+  for (const dir of PAGE_DIRS) {
+    const from = join(srcDir, dir);
+    if (!existsSync(from)) {
+      continue;
+    }
+    await mkdir(join(destDir, dir), { recursive: true });
+    for (const entry of await readdir(from, { withFileTypes: true })) {
+      if (entry.isFile() && !entry.name.startsWith('.')) {
+        await copyFile(join(from, entry.name), join(destDir, dir, entry.name));
+        copied.push(`${dir}/${entry.name}`);
+      }
+    }
+    if (existsSync(DESKTOP_ICON)) {
+      await copyFile(DESKTOP_ICON, join(destDir, dir, 'icon.svg'));
+      copied.push(`${dir}/icon.svg`);
+    }
+  }
+  return copied;
+};
+
 export const buildPages = async ({
   srcDir = SRC,
   destDir = resolve(ROOT, 'dist/pages'),
@@ -160,6 +190,7 @@ export const buildPages = async ({
 
   const extras = await copyAdditionalAssets(srcDir, destDir);
   written.push(...extras);
+  written.push(...(await copyPageDirs(srcDir, destDir)));
 
   // Inject manifest link into the deployed index.html, leaving the
   // source file untouched (the local server keeps serving the

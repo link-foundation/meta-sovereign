@@ -1,0 +1,34 @@
+# Desktop release run 38178457136 (commit 2f80de7), job Build (macos)
+# https://github.com/link-foundation/meta-sovereign/actions/runs/38178457136
+# Excerpt: signing mode, build command, sign hook and codesign verification.
+
+Choose macOS signing mode	2026-10-11T21:57:56.3819230Z ##[notice]building an ad-hoc signed macOS app (pull request or no signing secrets)
+Build desktop app	2026-10-11T21:57:56.3996250Z ##[group]Run node js/scripts/build-desktop.mjs --mac --x64 --arm64 -c.mac.identity=- -c.mac.notarize=false -c.mac.sign=desktop/adhoc-sign-mac.cjs
+Build desktop app	2026-10-11T21:58:07.9961780Z   • executing custom sign  file=dist/desktop/release/mac/Meta Sovereign.app platform=darwin type=distribution identityName=- identityHash=none provisioningProfile=none
+Build desktop app	2026-10-11T21:58:30.2163680Z   • building        target=DMG arch=x64 file=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.20.0.dmg
+Build desktop app	2026-10-11T21:58:30.2364220Z dist/desktop/release/mac/Meta Sovereign.app: valid on disk
+Build desktop app	2026-10-11T21:58:30.2365270Z dist/desktop/release/mac/Meta Sovereign.app: satisfies its Designated Requirement
+Build desktop app	2026-10-11T21:58:38.5478440Z   • executing custom sign  file=dist/desktop/release/mac-arm64/Meta Sovereign.app platform=darwin type=distribution identityName=- identityHash=none provisioningProfile=none
+Build desktop app	2026-10-11T21:59:13.2830300Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.20.0.dmg.blockmap
+Build desktop app	2026-10-11T21:59:23.3243810Z   • building        target=DMG arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.20.0.dmg
+Build desktop app	2026-10-11T21:59:23.4072300Z dist/desktop/release/mac-arm64/Meta Sovereign.app: valid on disk
+Build desktop app	2026-10-11T21:59:23.4073170Z dist/desktop/release/mac-arm64/Meta Sovereign.app: satisfies its Designated Requirement
+Build desktop app	2026-10-11T21:59:36.4333740Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.20.0.dmg.blockmap
+Smoke test (macOS)	2026-10-11T21:59:48.2510400Z -rw-r--r--@  1 runner  staff  111009365 Oct 11 21:59 meta-sovereign-desktop-macos-arm64-0.20.0.dmg
+Smoke test (macOS)	2026-10-11T21:59:48.2511500Z -rw-r--r--   1 runner  staff     115964 Oct 11 21:59 meta-sovereign-desktop-macos-arm64-0.20.0.dmg.blockmap
+Smoke test (macOS)	2026-10-11T21:59:48.2559950Z -rw-r--r--@  1 runner  staff  119680462 Oct 11 21:59 meta-sovereign-desktop-macos-x64-0.20.0.dmg
+Smoke test (macOS)	2026-10-11T21:59:48.2561840Z -rw-r--r--   1 runner  staff     126461 Oct 11 21:59 meta-sovereign-desktop-macos-x64-0.20.0.dmg.blockmap
+Smoke test (macOS)	2026-10-11T21:59:48.2877190Z mac/Meta Sovereign.app: foundation.link.meta.sovereign
+Smoke test (macOS)	2026-10-11T21:59:48.8934920Z mac/Meta Sovereign.app: valid on disk
+Smoke test (macOS)	2026-10-11T21:59:48.9041250Z mac/Meta Sovereign.app: satisfies its Designated Requirement
+Smoke test (macOS)	2026-10-11T21:59:48.9375820Z mac-arm64/Meta Sovereign.app: foundation.link.meta.sovereign
+Smoke test (macOS)	2026-10-11T21:59:49.3336460Z mac-arm64/Meta Sovereign.app: valid on disk
+Smoke test (macOS)	2026-10-11T21:59:49.3336880Z mac-arm64/Meta Sovereign.app: satisfies its Designated Requirement
+Smoke test (macOS)	2026-10-11T21:59:52.1957640Z /var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/tmp.zAMtUYwZCz/Meta Sovereign.app: foundation.link.meta.sovereign
+Smoke test (macOS)	2026-10-11T21:59:53.6548200Z /var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/tmp.zAMtUYwZCz/Meta Sovereign.app: valid on disk
+Smoke test (macOS)	2026-10-11T21:59:53.6549700Z /var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/tmp.zAMtUYwZCz/Meta Sovereign.app: satisfies its Designated Requirement
+Smoke test (macOS)	2026-10-11T21:59:57.2066850Z /var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/tmp.PqWHcmhJMp/Meta Sovereign.app: foundation.link.meta.sovereign
+Smoke test (macOS)	2026-10-11T22:00:02.0162030Z /var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/tmp.PqWHcmhJMp/Meta Sovereign.app: valid on disk
+Smoke test (macOS)	2026-10-11T22:00:02.0165660Z /var/folders/36/tjdph2t965j8snz9_vkdnw0r0000gn/T/tmp.PqWHcmhJMp/Meta Sovereign.app: satisfies its Designated Requirement
+Checksums and provenance	2026-10-11T22:00:03.1453720Z   - meta-sovereign-desktop-macos-arm64-0.20.0.dmg
+Checksums and provenance	2026-10-11T22:00:03.1454750Z   - meta-sovereign-desktop-macos-x64-0.20.0.dmg

@@ -47,17 +47,50 @@ bunx meta-sovereign serve
 
 JS server слушает тот же port и говорит тем же wire protocol; SPA не важно, какой backend на другой стороне.
 
+Если npm отвечает `404` (пакета еще нет в npm), запустите тот же server прямо из GitHub:
+
+```bash
+npx -y github:link-foundation/meta-sovereign serve
+```
+
 ## 4. Установить desktop или mobile app
 
-Desktop и mobile apps заворачивают тот же SPA с GitHub Pages и встроенный server в native shell. Используйте их, если нужен offline-only mode без вкладки браузера.
+Desktop и mobile apps заворачивают тот же SPA с GitHub Pages и встроенный server в native shell. Используйте их, если нужно полное приложение без отдельного запуска server.
+
+### Desktop (Linux, macOS, Windows)
+
+Откройте <https://link-foundation.github.io/meta-sovereign/download/>. Страница определяет вашу систему, предлагает подходящий installer из самого нового release и показывает все остальные сборки. Каждый файл также приложен к [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases).
+
+| Система | Файлы (x64 и arm64)                                                     |
+| ------- | ----------------------------------------------------------------------- |
+| Linux   | `.AppImage` (обновляется сам), `.deb`, `.tar.gz`                        |
+| macOS   | `.dmg` (перетащите в Applications), `.zip`                              |
+| Windows | `windows-installer` `.exe` (обновляется сам), `windows-portable` `.exe` |
+
+Первый запуск:
+
+- **macOS.** Сборки без Apple Developer ID подписаны ad-hoc, поэтому macOS блокирует первый запуск («Apple could not verify…»). Откройте System Settings → Privacy & Security и нажмите **Open Anyway**. Такие сборки не обновляются сами; новые версии скачивайте со страницы.
+- **Windows.** Если SmartScreen показывает «Windows protected your PC», нажмите **More info** → **Run anyway**.
+- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` и запустите его, или установите `.deb` через `sudo apt install ./<file>.deb`.
+
+Проверьте скачанный файл по `SHA256SUMS.txt` из release: в разделе **Verify your download** на странице загрузки (выберите файл и `SHA256SUMS.txt`; ничего не покидает браузер) или в терминале:
+
+```bash
+sha256sum --check --ignore-missing SHA256SUMS.txt
+gh attestation verify <file> --repo link-foundation/meta-sovereign
+```
+
+Приложение хранит данные в системной папке приложений пользователя, поэтому они переживают обновления. Чтобы собрать installers самостоятельно: `npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64` (см. `js/scripts/build-desktop.mjs`).
+
+### Mobile и development сборки
 
 | Platform | Build command                                       |
 | -------- | --------------------------------------------------- |
-| Electron | `npm run electron`                                  |
+| Electron | `npm run electron` (запуск из исходников)           |
 | iOS      | `npm run mobile:ios` (открывает Xcode)              |
 | Android  | `npm run mobile:android` (открывает Android Studio) |
 
-Electron и Capacitor shell переиспользуют `js/src/web/` без изменений. Desktop shell также включает `electron-updater`, если optional peer dependency установлена.
+Electron и Capacitor shell переиспользуют `js/src/web/` без изменений, поэтому UI совпадает с приложением на GitHub Pages.
 
 ## 5. Подключить SPA к server
 
@@ -70,6 +103,21 @@ Electron и Capacitor shell переиспользуют `js/src/web/` без и
 5. **Caller-supplied LAN candidates** — список передается программно.
 
 Если ничего не отвечает, SPA остается в **offline mode** и пишет в local browser store. Когда server появляется позже, [`OfflineClient`](../js/src/web/client.js) replay-ит queued writes.
+
+В offline mode hosted app показывает уведомление **browser-only mode** с командами запуска локального server, кнопкой **Check again** и ссылкой на desktop app. Imports, automations, sync, CV sync и greetings требуют server. Contacts, patterns и broadcasts продолжают работать из browser store.
+
+Hosted app живет на `https://link-foundation.github.io`, поэтому браузер сначала спрашивает у локального server разрешение (CORS). JS server по умолчанию разрешает этот origin и Capacitor app. Чтобы разрешить другой origin, например вашу копию SPA:
+
+```bash
+meta-sovereign serve --allow-origin=https://example.org
+# или: MS_ALLOW_ORIGINS="https://example.org https://link-foundation.github.io"
+# --allow-origin=none выключает cross-origin доступ
+```
+
+Заметки о браузерах:
+
+- **Chrome и Edge** (и новые версии Firefox) один раз спрашивают, может ли страница обращаться к устройствам в локальной сети. Разрешите.
+- **Safari** не пускает `https` страницы на `http://127.0.0.1`. Когда server запущен, откройте <http://127.0.0.1:8787> напрямую или используйте desktop app.
 
 ## 6. Sync между устройствами (WebRTC)
 
@@ -284,13 +332,14 @@ meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 
 ## 12. Troubleshooting
 
-| Symptom                               | Fix                                                                                                   |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| SPA завис на loading spinner.         | Dev tools → Application → IndexedDB: проверьте database `meta-sovereign`; возможно, storage disabled. |
-| SPA не видит local server.            | В app откройте **Settings → Server** и вставьте точный URL.                                           |
-| Server сообщает `EADDRINUSE`.         | Передайте `--port=NNNN` в `meta-sovereign serve` или Rust `serve --port=NNNN`.                        |
-| WebRTC sync ломается между двумя LAN. | Настройте TURN server: [`docs/WEBRTC-TURN.ru.md`](./WEBRTC-TURN.ru.md).                               |
-| `cargo build` падает с linker error.  | Установите C toolchain (`build-essential` на Debian/Ubuntu, Xcode CLI tools на macOS).                |
+| Symptom                                                       | Fix                                                                                                                                                                                        |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| SPA завис на loading spinner.                                 | Dev tools → Application → IndexedDB: проверьте database `meta-sovereign`; возможно, storage disabled.                                                                                      |
+| SPA не видит local server.                                    | В app откройте **Settings → Server** и вставьте точный URL.                                                                                                                                |
+| Hosted app остается в browser-only mode, хотя server запущен. | Нажмите **Check again**. Разрешите запрос браузера о локальной сети. В Safari откройте <http://127.0.0.1:8787>. Если SPA размещен у вас, запустите server с `--allow-origin=<ваш origin>`. |
+| Server сообщает `EADDRINUSE`.                                 | Передайте `--port=NNNN` в `meta-sovereign serve` или Rust `serve --port=NNNN`.                                                                                                             |
+| WebRTC sync ломается между двумя LAN.                         | Настройте TURN server: [`docs/WEBRTC-TURN.ru.md`](./WEBRTC-TURN.ru.md).                                                                                                                    |
+| `cargo build` падает с linker error.                          | Установите C toolchain (`build-essential` на Debian/Ubuntu, Xcode CLI tools на macOS).                                                                                                     |
 
 ## 13. Дальше
 

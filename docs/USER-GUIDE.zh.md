@@ -47,17 +47,50 @@ bunx meta-sovereign serve
 
 JS server 使用同一端口和 wire protocol；SPA 不需要关心另一端是哪种 backend。
 
+如果 npm 返回 `404`（包还没有发布到 npm），可以直接从 GitHub 运行同一个 server：
+
+```bash
+npx -y github:link-foundation/meta-sovereign serve
+```
+
 ## 4. 安装桌面或移动 app
 
-桌面和移动 app 把 GitHub Pages 上的同一个 SPA 加上内置 server，封装到 native shell 中。需要无浏览器标签页的离线模式时使用它们。
+桌面和移动 app 把 GitHub Pages 上的同一个 SPA 加上内置 server，封装到 native shell 中。想使用完整功能又不想自己启动 server 时使用它们。
+
+### 桌面（Linux、macOS、Windows）
+
+打开 <https://link-foundation.github.io/meta-sovereign/download/>。页面会识别你的系统，提供最新 release 中匹配的安装包，并列出其他所有构建。每个文件也附在 [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) 上。
+
+| 系统    | 文件（x64 和 arm64）                                              |
+| ------- | ----------------------------------------------------------------- |
+| Linux   | `.AppImage`（自动更新）、`.deb`、`.tar.gz`                        |
+| macOS   | `.dmg`（拖到 Applications）、`.zip`                               |
+| Windows | `windows-installer` `.exe`（自动更新）、`windows-portable` `.exe` |
+
+首次启动：
+
+- **macOS。** 没有 Apple Developer ID 的构建使用 ad-hoc 签名，macOS 会阻止首次启动（“Apple could not verify…”）。打开 System Settings → Privacy & Security，点击 **Open Anyway**。这类构建不会自动更新，请从下载页获取新版本。
+- **Windows。** 如果 SmartScreen 显示 “Windows protected your PC”，点击 **More info** → **Run anyway**。
+- **Linux。** 执行 `chmod +x meta-sovereign-desktop-linux-*.AppImage` 后运行，或用 `sudo apt install ./<file>.deb` 安装 `.deb`。
+
+用 release 中的 `SHA256SUMS.txt` 校验下载的文件：可以在下载页的 **Verify your download** 区域进行（选择文件和 `SHA256SUMS.txt`，数据不会离开浏览器），也可以在终端中执行：
+
+```bash
+sha256sum --check --ignore-missing SHA256SUMS.txt
+gh attestation verify <file> --repo link-foundation/meta-sovereign
+```
+
+应用把数据保存在系统的用户应用目录中，因此更新后数据仍然保留。自行构建安装包：`npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64`（见 `js/scripts/build-desktop.mjs`）。
+
+### 移动端和开发构建
 
 | 平台     | 构建命令                                        |
 | -------- | ----------------------------------------------- |
-| Electron | `npm run electron`                              |
+| Electron | `npm run electron`（从源码运行）                |
 | iOS      | `npm run mobile:ios`（打开 Xcode）              |
 | Android  | `npm run mobile:android`（打开 Android Studio） |
 
-Electron 和 Capacitor shell 复用 `js/src/web/`。安装 optional peer dependency 后，desktop shell 还会启用 `electron-updater` auto-update。
+Electron 和 Capacitor shell 原样复用 `js/src/web/`，所以界面与 GitHub Pages 上的 app 相同。
 
 ## 5. 将 SPA 连接到 server
 
@@ -70,6 +103,21 @@ Electron 和 Capacitor shell 复用 `js/src/web/`。安装 optional peer depende
 5. **Caller-supplied LAN candidates** — 可以传入列表。
 
 如果都无响应，SPA 保持 **offline mode** 并写入本地 browser store。以后 server 出现时，[`OfflineClient`](../js/src/web/client.js) 会重放排队写入。
+
+在 offline mode 下，托管的 app 会显示 **browser-only mode** 提示，包含启动本地 server 的命令、**Check again** 按钮和桌面 app 的链接。导入、自动化、同步、简历同步和问候需要 server；联系人、模式和群发继续使用浏览器存储工作。
+
+托管的 app 位于 `https://link-foundation.github.io`，因此浏览器会先向本地 server 请求许可（CORS）。JS server 默认允许该 origin 和 Capacitor app。要允许其他 origin，例如你自己部署的 SPA：
+
+```bash
+meta-sovereign serve --allow-origin=https://example.org
+# 或：MS_ALLOW_ORIGINS="https://example.org https://link-foundation.github.io"
+# --allow-origin=none 关闭跨源访问
+```
+
+浏览器说明：
+
+- **Chrome 和 Edge**（以及较新的 Firefox）会询问一次页面能否访问本地网络中的设备。请允许。
+- **Safari** 不允许 `https` 页面访问 `http://127.0.0.1`。server 运行后直接打开 <http://127.0.0.1:8787>，或使用桌面 app。
 
 ## 6. 在设备之间同步（WebRTC）
 
@@ -258,13 +306,14 @@ HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`�
 
 ## 12. 故障排除
 
-| 现象                           | 处理方式                                                                                               |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| SPA 卡在 loading spinner。     | 打开 dev tools → Application → IndexedDB，确认存在 `meta-sovereign` 数据库；否则浏览器可能禁用了存储。 |
-| SPA 无法访问本地 server。      | 在 app 中打开 **Settings → Server**，粘贴准确 URL。                                                    |
-| Server 报告 `EADDRINUSE`。     | 传入 `--port=NNNN` 给 `meta-sovereign serve` 或 Rust `serve --port=NNNN`。                             |
-| WebRTC 跨网络停止同步。        | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                 |
-| `cargo build` 出现 linker 错。 | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                     |
+| 现象                                                 | 处理方式                                                                                                                                                               |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPA 卡在 loading spinner。                           | 打开 dev tools → Application → IndexedDB，确认存在 `meta-sovereign` 数据库；否则浏览器可能禁用了存储。                                                                 |
+| SPA 无法访问本地 server。                            | 在 app 中打开 **Settings → Server**，粘贴准确 URL。                                                                                                                    |
+| server 已运行，托管的 app 仍处于 browser-only mode。 | 点击 **Check again**。允许浏览器的本地网络提示。在 Safari 中改为打开 <http://127.0.0.1:8787>。如果 SPA 是你自己托管的，用 `--allow-origin=<你的 origin>` 启动 server。 |
+| Server 报告 `EADDRINUSE`。                           | 传入 `--port=NNNN` 给 `meta-sovereign serve` 或 Rust `serve --port=NNNN`。                                                                                             |
+| WebRTC 跨网络停止同步。                              | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                                                                                 |
+| `cargo build` 出现 linker 错。                       | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                                                                                     |
 
 ## 13. 下一步
 

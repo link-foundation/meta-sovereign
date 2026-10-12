@@ -15,6 +15,7 @@ import { LocaleContext, useLocale } from './i18n.js';
 import { LanguageSwitcher } from './language-switcher.js';
 import { AppShell } from './shell/app-shell.js';
 import { useAppearance, useApplyAppearance } from './appearance.js';
+import { WebModeBanner } from './web-mode-banner.js';
 
 const el = React.createElement;
 
@@ -141,11 +142,14 @@ const App = () => {
           active,
           onSelect: setActive,
         },
-        el(
-          'main',
-          { key: 'main', id: 'root', role: 'main', tabIndex: -1 },
-          el(View)
-        )
+        el('main', { key: 'main', id: 'root', role: 'main', tabIndex: -1 }, [
+          el(WebModeBanner, {
+            key: 'web-mode',
+            online,
+            onRetry: () => api.rediscover(),
+          }),
+          el(View, { key: 'view' }),
+        ])
       ),
       el(TutorialOverlay, {
         key: 'tutorial-overlay',

@@ -1,6 +1,6 @@
 {
   "name": "meta-sovereign",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "description": "Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services",
   "type": "module",
   "main": "js/src/index.js",
@@ -47,6 +47,9 @@
     "build:pages": "node js/scripts/build-pages.mjs",
     "build:mobile": "npm run build:web && node js/scripts/build-mobile.mjs",
     "electron": "npm exec --yes --package electron@^44.7.0 -- electron js/electron/main.js",
+    "desktop:prepare": "npm run build:web && node js/scripts/prepare-desktop.mjs",
+    "desktop:build": "npm run build:web && node js/scripts/build-desktop.mjs",
+    "desktop:icon": "node js/scripts/render-desktop-icon.mjs",
     "mobile:sync": "npm run build:mobile && node js/scripts/mobile-platform.mjs sync",
     "mobile:ios": "npm run build:mobile && node js/scripts/mobile-platform.mjs ios open",
     "mobile:android": "npm run build:mobile && node js/scripts/mobile-platform.mjs android open",

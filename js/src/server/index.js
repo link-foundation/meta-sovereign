@@ -76,6 +76,7 @@ import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
+import { handleCors, parseAllowedOrigins } from './cors.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.resolve(here, '..', 'web');
@@ -268,6 +269,9 @@ const applySecurityHeaders = (res) => {
 
 const route = async (store, req, res, ctx) => {
   applySecurityHeaders(res);
+  if (handleCors(req, res, ctx.allowOrigins)) {
+    return;
+  }
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
   if (await handleStatic(req, res, p)) {
@@ -347,6 +351,7 @@ export const startServer = async ({
   // `{ send?, setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   automations,
   greetings,
+  allowOrigins,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -360,6 +365,7 @@ export const startServer = async ({
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
+    allowOrigins: parseAllowedOrigins(allowOrigins),
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
     ...automationContext(store, automations, log),
@@ -413,6 +419,7 @@ export const startServer = async ({
     sync: wsHandle,
     signaling,
     archiveDir: resolvedArchiveDir,
+    allowOrigins: ctx.allowOrigins,
     close: () =>
       new Promise((resolve) => {
         bus?.close();

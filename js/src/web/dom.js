@@ -314,6 +314,20 @@ export const api = {
     const { client } = await ensure();
     return client.on(handler);
   },
+  // "Check again" in the browser-only notice (issue #37). A server
+  // that appears later needs the full boot (sync, WebRTC), so a hit
+  // reloads the page the same way a manual override does.
+  rediscover: async ({
+    discover = discoverServer,
+    reload = () => globalThis.location?.reload?.(),
+  } = {}) => {
+    const found = await discover({});
+    if (found) {
+      resetServerBinding();
+      reload();
+    }
+    return Boolean(found);
+  },
   // The endpoints below are derived queries that prefer the server
   // (richer source data) but transparently fall back to local store
   // when the server is unreachable.

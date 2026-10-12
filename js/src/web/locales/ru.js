@@ -16,6 +16,17 @@ export const ru = {
   'header.systemDefault': 'Системный',
   'header.online': 'онлайн',
   'header.offline': 'оффлайн',
+  'webMode.title': 'Режим только браузера',
+  'webMode.body':
+    'Локальный сервер не найден, поэтому приложение работает с данными, сохранёнными в этом браузере. Импорт из почты и мессенджеров, автоматизации по расписанию, синхронизация между устройствами, синхронизация резюме и приветствия включатся, когда будет запущен локальный сервер. Запустите его с Node.js 20 или новее:',
+  'webMode.retry': 'Проверить снова',
+  'webMode.checking': 'Ищем локальный сервер…',
+  'webMode.notFound':
+    'Сервер на http://127.0.0.1:8787 всё ещё не отвечает. Запустите его и проверьте снова.',
+  'webMode.download': 'Скачать десктопное приложение (сервер внутри)',
+  'webMode.dismiss': 'Скрыть',
+  'webMode.safari':
+    'Safari не позволяет https-страницам обращаться к http://127.0.0.1. В Safari откройте http://127.0.0.1:8787 напрямую после запуска сервера или используйте десктопное приложение.',
   'nav.chat': 'Чат',
   'nav.operator': 'Оператор',
   'nav.contacts': 'Контакты',
@@ -166,6 +177,9 @@ export const ru = {
   'guide.localServer.node': 'Node / Bun / Deno',
   'guide.localServer.nodeHint':
     'Использует опубликованный JS-сервер. По умолчанию http://127.0.0.1:8787.',
+  'guide.localServer.github': 'Напрямую из GitHub',
+  'guide.localServer.githubHint':
+    'Используйте, пока npm отвечает 404: npx загрузит тот же сервер из репозитория GitHub. По умолчанию http://127.0.0.1:8787.',
   'guide.localServer.docker': 'Docker',
   'guide.localServer.dockerHint':
     'Запускает тот же JS-сервер в контейнере. См. docker/web.Dockerfile.',

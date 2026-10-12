@@ -1,0 +1,23 @@
+[96188:1011/210529.577494:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[96188:1011/210530.460647:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[96188:1011/210530.460771:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+[96188:1011/210530.460810:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Failed to connect to socket /run/dbus/system_bus_socket: No such file or directory
+
+DevTools listening on ws://127.0.0.1:9333/devtools/browser/6eaa1bc3-7263-411c-95f1-4a93f04545b5
+[96188:1011/210530.483195:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[96188:1011/210530.484999:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[96188:1011/210530.490660:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+APPIMAGE env is not defined, current application is not an AppImage
+[96188:1011/210530.677757:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+checkForUpdatesAndNotify called, downloadPromise is null
+window url: http://127.0.0.1:38049/
+title: meta-sovereign
+GET /api/health: 200
+[96188:1011/210531.589418:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[96188:1011/210531.589812:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+[96188:1011/210531.589900:ERROR:dbus/bus.cc:405] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+[96188:1011/210531.589983:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+screenshot: docs/screenshots/issue-37/desktop-linux-x64.png
+DESKTOP-LAUNCH-OK
+[96227:1011/210532.111228:ERROR:ui/gfx/x/connection.cc:66] X connection error received.
+[96227:1011/210532.111106:ERROR:ui/gfx/x/connection.cc:66] X connection error received.

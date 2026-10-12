@@ -1,0 +1,18 @@
+$ node experiments/issue-37/hosted-web-local-server.mjs --allow-page --server=<main @ a9c6256>/js/src/server/index.js
+server module ../ms-main/js/src/server/index.js
+server http://127.0.0.1:45485, page http://localhost:40643/
+{
+  "chromium": {
+    "status": "error: Failed to fetch",
+    "put": "error: Failed to fetch"
+  },
+  "firefox": {
+    "status": "error: NetworkError when attempting to fetch resource.",
+    "put": "error: NetworkError when attempting to fetch resource."
+  },
+  "webkit": {
+    "status": "error: Load failed",
+    "put": "error: Load failed"
+  }
+}
+exit=0

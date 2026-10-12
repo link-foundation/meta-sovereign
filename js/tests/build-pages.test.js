@@ -94,4 +94,35 @@ describe('build-pages', () => {
       await rm(dest, { recursive: true, force: true });
     }
   });
+
+  it('publishes the desktop download page with every module it imports (issue #37)', async () => {
+    const dest = await mkdtemp(join(tmpdir(), 'meta-sov-pages-'));
+    try {
+      const { written } = await buildPages({ destDir: dest, skipBundle: true });
+      expect(written).toContain('download/index.html');
+      expect(written).toContain('download/icon.svg');
+      const html = await readFile(join(dest, 'download/index.html'), 'utf8');
+      const referenced = [...html.matchAll(/(?:src|href)="\.\/([^"]+)"/g)];
+      const pending = referenced.map((match) => match[1]);
+      const seen = new Set();
+      while (pending.length) {
+        const name = pending.pop();
+        if (seen.has(name)) {
+          continue;
+        }
+        seen.add(name);
+        expect(existsSync(join(dest, 'download', name))).toBe(true);
+        if (name.endsWith('.js')) {
+          const src = await readFile(join(dest, 'download', name), 'utf8');
+          for (const match of src.matchAll(/from '\.\/([^']+)'/g)) {
+            pending.push(match[1]);
+          }
+        }
+      }
+      expect(seen.has('page.js')).toBe(true);
+      expect(seen.has('downloads.js')).toBe(true);
+    } finally {
+      await rm(dest, { recursive: true, force: true });
+    }
+  });
 });
