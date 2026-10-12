@@ -90,11 +90,11 @@ test('Settings → Appearance: every mode and skin, the current one checked', ()
   for (const skin of SKINS) {
     assert.match(html, new RegExp(`value="${skin}"`));
   }
-  assert.match(html, /checked="" value="auto"\/> auto: light by day/);
-  assert.match(html, /checked="" value="whatsapp"\/> like WhatsApp/);
-  assert.match(html, /like t3.codes \(default\)/);
+  assert.match(html, /checked="" value="auto"\/> Auto: light by day/);
+  assert.match(html, /checked="" value="whatsapp"\/> Like WhatsApp/);
+  assert.match(html, /Like t3.codes \(default\)/);
   const ru = render({ mode: 'system', skin: 't3' }, 'ru');
   assert.match(ru, /Внешний вид/);
-  assert.match(ru, /как в системе/);
-  assert.match(ru, /как в Telegram/);
+  assert.match(ru, /Как в системе/);
+  assert.match(ru, /Как в Telegram/);
 });

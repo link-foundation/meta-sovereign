@@ -334,7 +334,9 @@ test('times follow the interface language, not the browser', () => {
   const en = formatTime(at, 'en');
   assert.equal(ru, '14:05', 'Russian uses a 24-hour clock');
   assert.match(en, /^02:05\sPM$/, 'English uses AM/PM');
-  assert.notEqual(formatDateTime(at, 'ru'), formatDateTime(at, 'en'));
+  // Dates are spelled out and seconds dropped: "Oct 12, 2026, 2:05 PM".
+  assert.match(formatDateTime(at, 'en'), /^Oct 12, 2026, 2:05\sPM$/);
+  assert.match(formatDateTime(at, 'ru'), /^12 окт\. 2026 г\., 14:05$/);
   assert.equal(formatTime(null, 'ru'), '');
   assert.equal(formatDateTime('not a date', 'ru'), '');
 });

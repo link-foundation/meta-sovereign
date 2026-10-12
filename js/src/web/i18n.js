@@ -220,10 +220,11 @@ const formatDate = (ts, locale, options) => {
 
 /**
  * Dates and times in the interface language rather than the browser's,
- * so a Russian screen says "14:05", not "02:05 PM".
+ * so a Russian screen says "14:05", not "02:05 PM". Seconds are noise
+ * in a history list, so they are left out.
  */
 export const formatDateTime = (ts, locale = DEFAULT_LOCALE) =>
-  formatDate(ts, locale);
+  formatDate(ts, locale, { dateStyle: 'medium', timeStyle: 'short' });
 
 export const formatTime = (ts, locale = DEFAULT_LOCALE) =>
   formatDate(ts, locale, { hour: '2-digit', minute: '2-digit' });

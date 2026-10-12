@@ -11,14 +11,23 @@ import React from 'react';
 import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
 import { reasonText } from './chat-view.js';
+import { Icon } from './icons.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
 
 const el = React.createElement;
 
+// Trigger, mode and form names are fragments in the list's meta line
+// ("safe: drafts to confirm · by hand"); as labels and options they
+// start with a capital, like every other label.
+const sentence = (text) =>
+  typeof text === 'string' && text
+    ? text[0].toLocaleUpperCase() + text.slice(1)
+    : text;
+
 const field = (props, control) =>
   el('label', { className: 'field', key: props.name }, [
-    el('span', { key: 'l', className: 'field-label' }, props.label),
+    el('span', { key: 'l', className: 'field-label' }, sentence(props.label)),
     control,
     props.hint
       ? el('small', { key: 'h', className: 'meta' }, props.hint)
@@ -49,7 +58,7 @@ const Check = ({ form, set, name, label }) =>
       checked: Boolean(form[name]),
       onChange: (event) => set(name, event.target.checked),
     }),
-    ` ${label}`,
+    ` ${sentence(label)}`,
   ]);
 
 const Choice = ({ form, set, name, label, options }) =>
@@ -63,7 +72,9 @@ const Choice = ({ form, set, name, label, options }) =>
         value: form[name],
         onChange: (event) => set(name, event.target.value),
       },
-      options.map(([value, text]) => el('option', { key: value, value }, text))
+      options.map(([value, text]) =>
+        el('option', { key: value, value }, sentence(text))
+      )
     )
   );
 
@@ -97,16 +108,27 @@ const Notice = ({ notice, dismiss }) => {
       'data-notice': notice.kind,
     },
     [
-      t(NOTICE[notice.kind] ?? NOTICE.failed, {
-        count: notice.count ?? 0,
-        name: notice.name ?? '',
-        error: notice.error ?? '',
-        reason: reasonText(t, notice.reason),
-      }),
+      el(
+        'span',
+        { key: 'text' },
+        t(NOTICE[notice.kind] ?? NOTICE.failed, {
+          count: notice.count ?? 0,
+          name: notice.name ?? '',
+          error: notice.error ?? '',
+          reason: reasonText(t, notice.reason),
+        })
+      ),
       el(
         'button',
-        { key: 'x', type: 'button', className: 'link', onClick: dismiss },
-        '×'
+        {
+          key: 'x',
+          type: 'button',
+          className: 'icon-btn',
+          'aria-label': t('chat.notice.dismiss'),
+          title: t('chat.notice.dismiss'),
+          onClick: dismiss,
+        },
+        el(Icon, { name: 'close', size: 16 })
       ),
     ]
   );
@@ -599,7 +621,8 @@ const PeoplePanel = ({ state }) => {
             'span',
             { key: 'm', className: 'meta' },
             [
-              person.key,
+              // A nameless person is already labelled by their id.
+              person.name ? person.key : null,
               person.handle ? `@${person.handle}` : null,
               person.lastAt ? fmtTs(person.lastAt) : null,
               person.sameAs?.length

@@ -84,7 +84,7 @@ test('the catalogue renders one row per platform with its plan confidence', () =
   assert.match(html, /data-platform="habr-career"/);
   assert.match(html, /data-platform="topcv"/);
   assert.match(html, /7 verified \/ 2 draft/);
-  assert.match(html, /never read/);
+  assert.match(html, /Never read/);
   for (const action of ['read', 'compare', 'plan-sync', 'apply-sync']) {
     assert.match(html, new RegExp(`data-action="cv-${action}"`));
   }
@@ -112,7 +112,7 @@ test('a stored snapshot replaces the "never read" marker', () => {
   );
   assert.doesNotMatch(
     html.split('data-platform="topcv"')[0],
-    /never read/,
+    /Never read/,
     'the read platform still claims it was never read'
   );
 });

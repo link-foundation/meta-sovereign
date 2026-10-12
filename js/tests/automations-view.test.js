@@ -169,6 +169,7 @@ const fakeState = (overrides = {}) => {
           handle: 'alice',
           sameAs: ['telegram:alice'],
         },
+        { key: 'vk:2004' },
       ],
       selected: [{ key: 'vk:alice' }],
       isSelected: () => true,
@@ -223,20 +224,22 @@ test('screen: list, editor, preview, history, people and audiences', () => {
   assert.match(html, /preset · off/);
   // The editor shows issue #31's automation as editable fields.
   assert.match(html, /name="silentDays" value="90"/);
-  assert.match(html, /<option value="auto" selected="">detect ты\/вы/);
+  assert.match(html, /<option value="auto" selected="">Detect ты\/вы/);
   assert.match(html, /name="informal"[^>]*>Привет/);
-  assert.match(html, /save and queue drafts/);
-  assert.match(html, /class="danger">delete</);
+  assert.match(html, /Save and queue drafts/);
+  assert.match(html, /class="danger">Delete</);
   // Preview, why the rest are left out, and the history.
   assert.match(html, /1 to message/);
   assert.match(html, /Left out: talked recently × 1/);
   assert.match(html, /Привет! Тебе или твоим друзьям/);
-  assert.match(html, /status sent">sent</);
+  assert.match(html, /status sent">Sent</);
   // People search with selection, run on them, save as a list.
-  assert.match(html, /also on 1 more network/);
+  assert.match(html, /<span class="meta">vk:alice · @alice · also on 1/);
+  // Without a name the id is the label, and is not repeated.
+  assert.match(html, /\/> vk:2004<\/label><span class="meta"><\/span>/);
   assert.match(html, /1 selected/);
-  assert.match(html, /run &quot;Say hi/);
-  assert.match(html, /the 1 selected/);
+  assert.match(html, /Run &quot;Say hi/);
+  assert.match(html, /The 1 selected/);
   // Saved audiences and a resolved count.
   assert.match(html, /<strong>VIP<\/strong>/);
   assert.match(html, /2 people: Alice, vk:bob/);
@@ -259,7 +262,7 @@ test('screen: auto mode says it sends; errors and empty editor', () => {
     notice: { kind: 'failed', error: 'captcha' },
   });
   const html = render(state);
-  assert.match(html, /save and send now/);
+  assert.match(html, /Save and send now/);
   // Not saved yet, so nothing to delete.
   assert.doesNotMatch(html, /class="danger"/);
   assert.match(html, /role="alert">The audience does not parse: bad/);

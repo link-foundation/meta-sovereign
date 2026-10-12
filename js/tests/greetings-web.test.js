@@ -219,7 +219,7 @@ test('shows a plan with skipped chats and per-chat send results', () => {
   );
   assert.ok(html.includes('data-chat="vk:100"'));
   assert.ok(html.includes('data-skipped="outside-messaging-window"'));
-  assert.ok(html.includes('skipped: outside-messaging-window'));
+  assert.ok(html.includes('Skipped: outside-messaging-window'));
   assert.ok(html.includes('! vk API 901'));
   const sendButton = html.match(
     /<button[^>]*data-action="greetings-send"[^>]*>/
@@ -247,8 +247,8 @@ test('keeps sending disabled until a plan has someone to greet', () => {
 test('shows network capabilities, including networks without stickers', () => {
   const html = render(baseState());
   assert.ok(html.includes('data-network="x"'));
-  assert.ok(html.includes('within 24 h of their last message'));
-  assert.ok(html.includes('replies only'));
+  assert.ok(html.includes('Within 24 h of their last message'));
+  assert.ok(html.includes('Replies only'));
 });
 
 test('phones stack the network and plan tables into labelled cards', () => {
