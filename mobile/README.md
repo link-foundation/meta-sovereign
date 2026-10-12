@@ -16,8 +16,8 @@ Commands:
 - `npm run mobile:android` creates/syncs the Android project if needed
   and opens it in Android Studio.
 
-The wrapper invokes `@capacitor/cli@^7.6.2`, the latest Capacitor major
-that supports this package's Node 20 engine.
+The wrapper invokes `@capacitor/cli@^8.5.3`, the latest Capacitor major
+(Capacitor 8 requires Node 22+, matching this package.s engine).
 
 The WebView loads `discovery-shell.js` before the React bundle. Native
 code or launch URLs can provide LAN server candidates through

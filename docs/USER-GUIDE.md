@@ -151,6 +151,38 @@ For live email, use `source-pull --source=email --protocol=gmail`,
 protocols also need `--host`, plus `--username` and `--password` unless
 the equivalent `EMAIL_*` environment variables are set.
 
+### Import with a browser
+
+Every service in **Connections** has an **Import with browser** panel.
+It needs the JS server (`meta-sovereign serve`) on the same computer;
+the server drives Chrome through
+[browser-commander](https://github.com/link-foundation/browser-commander).
+
+1. Press **Open browser**. The service opens in a separate Chrome window
+   with its own profile (`<store>/auto-import/profiles/<service>`,
+   owner-only access), so you sign in only once.
+2. Start the service's data export there. Every file that window
+   downloads is captured; ZIP and tar.gz archives are unpacked and the
+   export files inside are imported.
+3. Telegram Web and WhatsApp Web have no export: open a chat and press
+   **Capture this chat**.
+4. Press **Finish** or close the window. An idle browser closes itself
+   after 30 minutes.
+
+The server needs permission to start a browser process and to write to
+its store directory. Optional settings:
+
+| Variable                                       | Effect                                                                                                                                          |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MS_BROWSER_CDP_URL`                           | Attach to a running Chrome (`chrome --remote-debugging-port=9222`, then `http://127.0.0.1:9222`). Use it with Docker, where there is no screen. |
+| `MS_BROWSER_CHANNEL` / `MS_BROWSER_EXECUTABLE` | Use another Chromium-based browser.                                                                                                             |
+| `MS_BROWSER_HEADLESS=1`                        | No window (only for profiles that are already signed in).                                                                                       |
+| `MS_BROWSER_VERBOSE=1`                         | browser-commander debug logs.                                                                                                                   |
+
+Under Deno start the server with `deno task serve`; it grants
+`--allow-run` for the browser process. Auto-import can only be started
+from the app itself: the server rejects requests from other websites.
+
 ## 9. Troubleshooting
 
 | Symptom                                  | Fix                                                                                                                                                  |

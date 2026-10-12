@@ -407,6 +407,201 @@ const ConnectionProbeRow = ({ provider, credentials }) => {
   ]);
 };
 
+const AUTO_IMPORT_ACTIVE = new Set(['launching', 'waiting', 'importing']);
+const AUTO_IMPORT_POLL_MS = 1500;
+
+const autoImportStateText = (t, job) =>
+  job.state === 'failed'
+    ? t('autoImport.state.failed', { error: job.error ?? '' })
+    : t(`autoImport.state.${job.state}`);
+
+// Loads the server's auto-import status, adopts a job already running
+// for this provider (e.g. after a page reload) and polls it while active.
+const useAutoImportJob = (providerId, initialStatus, initialJob) => {
+  const [status, setStatus] = useState(initialStatus);
+  const [job, setJob] = useState(initialJob);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    api.autoImportStatus().then((next) => {
+      if (cancelled) {
+        return;
+      }
+      setStatus(next);
+      const running = (next.jobs ?? []).find(
+        (j) => j.provider === providerId && AUTO_IMPORT_ACTIVE.has(j.state)
+      );
+      if (running) {
+        setJob(running);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [providerId]);
+
+  const jobId = job?.id;
+  const active = job ? AUTO_IMPORT_ACTIVE.has(job.state) : false;
+  useEffect(() => {
+    if (!jobId || !active) {
+      return undefined;
+    }
+    const timer = globalThis.setInterval(async () => {
+      const next = await api.autoImportJob(jobId);
+      if (next?.id) {
+        setJob(next);
+      }
+    }, AUTO_IMPORT_POLL_MS);
+    return () => globalThis.clearInterval(timer);
+  }, [jobId, active]);
+
+  const apply = (result) => {
+    if (result?.error) {
+      setError(result.error);
+    } else if (result?.id) {
+      setError('');
+      setJob(result);
+    }
+  };
+
+  return { status, job, active, error, apply };
+};
+
+const AutoImportActions = ({ providerId, status, job, active, apply }) => {
+  const t = useT();
+  const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
+  const button = (key, label, onClick, extra = {}) =>
+    el(
+      'button',
+      {
+        key,
+        type: 'button',
+        'data-action': `auto-import-${key}`,
+        onClick,
+        ...extra,
+      },
+      t(label)
+    );
+  if (!active) {
+    return el('div', { className: 'row' }, [
+      button(
+        'start',
+        'autoImport.start',
+        async () => apply(await api.startAutoImport(providerId)),
+        { className: 'primary', disabled: !status?.available }
+      ),
+      job ? el(AutoImportState, { key: 'state', job }) : null,
+    ]);
+  }
+  return el('div', { className: 'row' }, [
+    canCapture
+      ? button(
+          'capture',
+          'autoImport.capture',
+          async () => apply(await api.autoImportAction(job.id, 'capture')),
+          { className: 'primary', disabled: job.state !== 'waiting' }
+        )
+      : null,
+    button('finish', 'autoImport.finish', async () =>
+      apply(await api.autoImportAction(job.id, 'stop'))
+    ),
+    el(AutoImportState, { key: 'state', job }),
+  ]);
+};
+
+const AutoImportState = ({ job }) => {
+  const t = useT();
+  return el(
+    'span',
+    { className: 'meta', role: 'status' },
+    `${autoImportStateText(t, job)} ${t('autoImport.imported', {
+      count: job.imported,
+    })}`
+  );
+};
+
+const AutoImportFiles = ({ files }) =>
+  el(
+    'ul',
+    { className: 'meta auto-import-files' },
+    files
+      .slice(-5)
+      .map((file, index) =>
+        el(
+          'li',
+          { key: `${index}-${file.name}` },
+          `${file.name}: ${file.error ?? file.imported}`
+        )
+      )
+  );
+
+const AutoImportUnavailable = ({ status }) => {
+  const t = useT();
+  return el(
+    'p',
+    { className: 'meta', role: 'status' },
+    status.reason
+      ? t('autoImport.unavailableReason', { reason: status.reason })
+      : t('autoImport.unavailable')
+  );
+};
+
+// "Import with browser": the local server opens the provider in a real
+// browser (browser-commander), captures every downloaded export and,
+// for chat apps without an export, the chat currently open there.
+export const ProviderAutoImport = ({
+  providerId,
+  provider,
+  initialStatus = null,
+  initialJob = null,
+}) => {
+  const t = useT();
+  const { status, job, active, error, apply } = useAutoImportJob(
+    providerId,
+    initialStatus,
+    initialJob
+  );
+  const service = tx(t, provider.label, provider.labelKey);
+  const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
+  const unavailable = status && !status.available;
+  return el(
+    'div',
+    {
+      className: 'col provider-auto-import',
+      'data-provider': providerId,
+      'data-auto-import-state': job?.state ?? 'idle',
+    },
+    [
+      el('h4', { key: 'h', className: 'meta' }, t('autoImport.title')),
+      el(
+        'p',
+        { key: 'intro' },
+        t(canCapture ? 'autoImport.introCapture' : 'autoImport.intro', {
+          service,
+        })
+      ),
+      unavailable
+        ? el(AutoImportUnavailable, { key: 'unavailable', status })
+        : null,
+      el(AutoImportActions, {
+        key: 'actions',
+        providerId,
+        status,
+        job,
+        active,
+        apply,
+      }),
+      error
+        ? el('p', { key: 'error', className: 'meta', role: 'alert' }, error)
+        : null,
+      job?.files?.length
+        ? el(AutoImportFiles, { key: 'files', files: job.files })
+        : null,
+    ]
+  );
+};
+
 export const ProviderConnectionControls = ({
   providerId,
   provider,
@@ -436,6 +631,7 @@ export const ProviderConnectionControls = ({
           ready ? t('settings.credentialsSaved') : t('settings.noCredentials')
         ),
       ]),
+      el(ProviderAutoImport, { key: 'auto', providerId, provider }),
       el(ProviderCredentialsForm, {
         key: 'creds',
         providerId,

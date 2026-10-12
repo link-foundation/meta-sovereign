@@ -41,6 +41,11 @@ crate 保持 `std`-only。
 SPA 会在 Rust server 返回 `404` 时隐藏或回退相关功能；CLI 仍可在本地运行
 JS implementation。
 
+Browser auto-import（`/api/auto-import`、`/api/auto-import/jobs/:id`、
+`/capture`、`/stop`）是 JS only：它通过 browser-commander（Node library）
+驱动浏览器。连接 Rust server 时，Connections 面板会提示需要 JS server；
+手动导入归档仍然可用。
+
 ## 5. Real-time transports 与静态资源
 
 `/ws` WebSocket sync 和 `/rtc` WebRTC signalling 在两个 server 上 parity。

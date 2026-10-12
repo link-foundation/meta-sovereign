@@ -518,7 +518,9 @@ const restRequest = async (
       body,
     });
   } catch (err) {
-    throw new Error(`peopleperhour ${operationName}: ${err.message}`);
+    throw new Error(`peopleperhour ${operationName}: ${err.message}`, {
+      cause: err,
+    });
   }
 };
 

@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 const [platform, action = 'open'] = process.argv.slice(2);
 const valid = new Set(['ios', 'android']);
 const actions = new Set(['open', 'sync']);
-const cliPackage = '@capacitor/cli@^7.6.2';
+const cliPackage = '@capacitor/cli@^8.5.3';
 if (platform !== 'sync' && (!valid.has(platform) || !actions.has(action))) {
   console.error(
     'usage: node js/scripts/mobile-platform.mjs <ios|android> [open|sync]\n       node js/scripts/mobile-platform.mjs sync'

@@ -16,8 +16,8 @@ directory в сгенерированные iOS или Android native projects.
 - `npm run mobile:android` при необходимости создает/синхронизирует
   Android project и открывает его в Android Studio.
 
-Wrapper вызывает `@capacitor/cli@^7.6.2`, последний major Capacitor,
-который поддерживает Node 20 engine этого package.
+Wrapper вызывает `@capacitor/cli@^8.5.3`, последний major Capacitor
+(Capacitor 8 требует Node 22+, как и engine этого package).
 
 WebView загружает `discovery-shell.js` перед React bundle. Native code
 или launch URLs могут передать LAN server candidates через

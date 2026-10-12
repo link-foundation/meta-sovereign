@@ -33,6 +33,8 @@
  *   GET  /api/backups              -> list archives (gated on archiveDir)
  *   POST /api/backups              -> { passphrase?, keep? } -> { file }
  *   POST /api/backups/restore      -> { file, passphrase? } -> { restored }
+ *   GET  /api/auto-import          -> browser auto-import status + jobs
+ *   POST /api/auto-import          -> { provider } -> job (see routes-auto-import.js)
  *
  * Implemented with Node's built-in `http` module to keep the dependency
  * footprint at zero. The Docker images in `docker/` simply run
@@ -54,6 +56,7 @@ import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleBackupRoutes } from './routes-backup.js';
+import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -177,6 +180,9 @@ const route = async (store, req, res, ctx) => {
   if (await handleBackupRoutes(store, req, res, p, ctx.archiveDir)) {
     return;
   }
+  if (await handleAutoImportRoutes(store, req, res, p, ctx)) {
+    return;
+  }
   if (await handleDerivedRoutes(store, req, res, p, url)) {
     return;
   }
@@ -218,6 +224,7 @@ export const startServer = async ({
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
+  autoImportLauncher = null,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -231,6 +238,10 @@ export const startServer = async ({
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
+    storeDir,
+    log,
+    autoImport: null,
+    autoImportLauncher,
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
@@ -283,6 +294,7 @@ export const startServer = async ({
     close: () =>
       new Promise((resolve) => {
         bus?.close();
+        ctx.autoImport?.close();
         wsHandle?.close();
         signaling?.close();
         server.close(() => resolve());

@@ -96,6 +96,21 @@ purge-tombstones` keep working against any backend because the CLI
   always uses the JS implementation locally — the operator does not
   need a server at all to run them.
 
+### Browser auto-import
+
+| Route                               | Method | JS server                             | Rust server | Status      |
+| ----------------------------------- | ------ | ------------------------------------- | ----------- | ----------- |
+| `/api/auto-import`                  | GET    | `js/src/server/routes-auto-import.js` | _missing_   | **JS only** |
+| `/api/auto-import`                  | POST   | `js/src/server/routes-auto-import.js` | _missing_   | **JS only** |
+| `/api/auto-import/jobs/:id`         | GET    | `js/src/server/routes-auto-import.js` | _missing_   | **JS only** |
+| `/api/auto-import/jobs/:id/capture` | POST   | `js/src/server/routes-auto-import.js` | _missing_   | **JS only** |
+| `/api/auto-import/jobs/:id/stop`    | POST   | `js/src/server/routes-auto-import.js` | _missing_   | **JS only** |
+
+Auto-import drives a real browser through browser-commander, a Node
+library, so it stays a JS server feature. Against the Rust server the
+Connections panel shows that browser import needs the JS server, and
+manual archive import keeps working.
+
 ## 5. Real-time transports
 
 | Surface                   | JS server                | Rust server                    | Status |

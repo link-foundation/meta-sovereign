@@ -99,6 +99,34 @@ meta-sovereign import
 
 Live email 可使用 `source-pull --source=email --protocol=gmail`、`microsoft-graph`、`jmap`、`imap` 或 `pop3`。原始 IMAP/POP3/SMTP 还需要 `--host`、`--username`、`--password`，除非设置了等价的 `EMAIL_*` 环境变量。
 
+### 通过浏览器导入
+
+**连接** 中的每个服务都有 **通过浏览器导入** 面板。它需要在同一台电脑上
+运行 JS server（`meta-sovereign serve`）；server 通过
+[browser-commander](https://github.com/link-foundation/browser-commander)
+驱动 Chrome。
+
+1. 点击 **打开浏览器**。服务会在单独的 Chrome 窗口中打开，并使用独立的
+   profile（`<store>/auto-import/profiles/<service>`，仅所有者可访问），
+   因此只需登录一次。
+2. 在那里开始该服务的数据导出。该窗口下载的每个文件都会被捕获；ZIP 和
+   tar.gz 会被解压，其中的导出文件会被导入。
+3. Telegram Web 和 WhatsApp Web 没有导出功能：打开一个聊天并点击
+   **保存此聊天**。
+4. 点击 **完成** 或关闭窗口。空闲的浏览器会在 30 分钟后自动关闭。
+
+server 需要启动浏览器进程以及写入存储目录的权限。可选设置：
+
+| 变量                                           | 作用                                                                                                                    |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `MS_BROWSER_CDP_URL`                           | 连接到已运行的 Chrome（`chrome --remote-debugging-port=9222`，然后 `http://127.0.0.1:9222`）。适用于没有屏幕的 Docker。 |
+| `MS_BROWSER_CHANNEL` / `MS_BROWSER_EXECUTABLE` | 使用其他基于 Chromium 的浏览器。                                                                                        |
+| `MS_BROWSER_HEADLESS=1`                        | 无窗口（仅适用于已登录的 profile）。                                                                                    |
+| `MS_BROWSER_VERBOSE=1`                         | browser-commander 调试日志。                                                                                            |
+
+在 Deno 下用 `deno task serve` 启动 server，它为浏览器进程授予
+`--allow-run`。导入只能从应用本身启动：server 会拒绝来自其他网站的请求。
+
 ## 9. 故障排除
 
 | 现象                           | 处理方式                                                                                               |

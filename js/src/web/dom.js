@@ -284,4 +284,28 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ file, passphrase }),
     })) ?? { error: 'server required for restore' },
+  // Browser auto-import (local JS server only).
+  autoImportStatus: async () =>
+    (await serverFetch('/api/auto-import').catch(() => null)) ?? {
+      available: false,
+      offline: true,
+    },
+  startAutoImport: async (provider) =>
+    (await serverFetch('/api/auto-import', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ provider }),
+    })) ?? { error: 'server required for auto-import' },
+  autoImportJob: async (id) =>
+    (await serverFetch(`/api/auto-import/jobs/${encodeURIComponent(id)}`)) ??
+    null,
+  autoImportAction: async (id, action) =>
+    (await serverFetch(
+      `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: '{}',
+      }
+    )) ?? { error: 'server required for auto-import' },
 };

@@ -99,6 +99,38 @@ Supported sources: email (`.eml`/mbox), VK, Telegram Desktop, X, WhatsApp, Faceb
 
 Live email के लिए `source-pull --source=email --protocol=gmail`, `microsoft-graph`, `jmap`, `imap` या `pop3` इस्तेमाल करें। Raw IMAP/POP3/SMTP में `--host`, `--username`, `--password` भी चाहिए, जब तक equivalent `EMAIL_*` env vars set न हों।
 
+### ब्राउज़र से आयात
+
+**कनेक्शन** में हर सेवा के पास **ब्राउज़र से आयात करें** पैनल है।
+इसके लिए उसी कंप्यूटर पर JS server (`meta-sovereign serve`) चाहिए; server
+[browser-commander](https://github.com/link-foundation/browser-commander)
+से Chrome चलाता है।
+
+1. **ब्राउज़र खोलें** दबाएँ। सेवा अपनी profile
+   (`<store>/auto-import/profiles/<service>`, केवल owner की पहुँच) वाली
+   अलग Chrome विंडो में खुलती है, इसलिए साइन इन एक ही बार करना होता है।
+2. वहाँ सेवा का डेटा एक्सपोर्ट शुरू करें। उस विंडो में डाउनलोड हुई हर
+   फ़ाइल पकड़ी जाती है; ZIP और tar.gz खोले जाते हैं और एक्सपोर्ट फ़ाइलें
+   आयात होती हैं।
+3. Telegram Web और WhatsApp Web में एक्सपोर्ट नहीं है: कोई चैट खोलें और
+   **यह चैट सहेजें** दबाएँ।
+4. **समाप्त** दबाएँ या विंडो बंद करें। निष्क्रिय ब्राउज़र 30 मिनट बाद
+   अपने आप बंद हो जाता है।
+
+server को browser process शुरू करने और store directory में लिखने की
+अनुमति चाहिए। वैकल्पिक settings:
+
+| Variable                                       | असर                                                                                                                                  |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `MS_BROWSER_CDP_URL`                           | चल रहे Chrome से जुड़ें (`chrome --remote-debugging-port=9222`, फिर `http://127.0.0.1:9222`)। Docker के लिए, जहाँ स्क्रीन नहीं होती। |
+| `MS_BROWSER_CHANNEL` / `MS_BROWSER_EXECUTABLE` | कोई दूसरा Chromium-आधारित ब्राउज़र।                                                                                                  |
+| `MS_BROWSER_HEADLESS=1`                        | बिना विंडो (केवल उन profiles के लिए जिनमें पहले से साइन इन है)।                                                                      |
+| `MS_BROWSER_VERBOSE=1`                         | browser-commander debug logs।                                                                                                        |
+
+Deno में server को `deno task serve` से चलाएँ; यह browser process के लिए
+`--allow-run` देता है। आयात केवल app से ही शुरू हो सकता है: दूसरी
+websites के requests server अस्वीकार करता है।
+
 ## 9. Troubleshooting
 
 | Symptom                              | Fix                                                                                                   |
