@@ -38,6 +38,15 @@ were replaced by the Automation tab, the chat ⚡ menu,
 `meta-sovereign automations list/plan/run/review/drafts/history/save/delete`
 and the `/api/automations*`, `/api/people`, `/api/audiences` and
 `/api/suggest` routes. Every npm dependency and GitHub Action is on its
-latest release. Documented in REQUIREMENTS section X, USER-GUIDE section
+latest release.
+
+Interface polish across the app: sentence case, plurals and dates in
+the user's language, networks shown by name, translated preset names,
+a three-word suggestion strip, phone (bottom bar and "More" sheet),
+tablet (rail) and desktop layouts checked for overflow, tap targets and
+contrast. Contacts are named by their messages, newest first, without
+the owner. The desktop window opens in the app's background colour
+instead of flashing white, and download cards no longer wrap a size
+onto a line starting with "·". Documented in REQUIREMENTS section X, USER-GUIDE section
 11, SERVER-PARITY section 5a (en/ru/zh/hi) and
 `docs/case-studies/issue-31/`.
