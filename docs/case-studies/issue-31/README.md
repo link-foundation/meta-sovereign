@@ -167,7 +167,9 @@ Human Interface Guidelines:
   `sentence()` capitalises lines joined from parts ("Safe: drafts to
   confirm · by hand").
 - **Plurals and dates in the user's language**: an ICU plural subset
-  for every count, and `Intl` dates and times.
+  for every count, and `Intl` dates and times. The chat list dates rows
+  like a messenger (the time today, the weekday this week, then the
+  date) instead of a bare time on a months-old chat.
 - **Networks by name**: "VK", "Telegram", "Email" ("Почта" in Russian,
   short enough for a chat-list tag) instead of internal ids.
 - **Preset automations in the user's language**: an untouched preset
