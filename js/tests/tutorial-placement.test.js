@@ -105,13 +105,28 @@ test('steps that describe a click advance on it; Next performs it', () => {
   const byId = Object.fromEntries(defaultSteps.map((s) => [s.id, s]));
   assert.deepEqual(
     defaultSteps.map((s) => s.id),
-    ['connect', 'pick', 'setup', 'chat', 'contacts', 'automation', 'backup']
+    [
+      'connect',
+      'signIns',
+      'pick',
+      'setup',
+      'chat',
+      'contacts',
+      'automation',
+      'backup',
+    ]
   );
   assert.equal(byId.connect.action, true);
   assert.match(byId.connect.advanceOn, /nav:connections/);
   assert.equal(byId.pick.action, true);
   assert.match(byId.pick.advanceOn, /open-connection-detail/);
-  assert.match(byId.pick.actionTarget, /connections:telegram/);
+  assert.match(byId.pick.advanceOn, /connection-auto-import/);
+  // The biggest service, first in the list, is the suggested one.
+  assert.match(byId.pick.actionTarget, /connections:email/);
+  // Browser sign-ins need the local server; without it the step is
+  // passed over instead of showing a card about nothing.
+  assert.equal(byId.signIns.optional, true);
+  assert.equal(byId.signIns.action, undefined);
   assert.equal(byId.setup.tutorialId, 'auto-import');
   // Sections hidden in the phone's More sheet point at "More".
   assert.deepEqual(byId.backup.fallbacks, ['nav:more']);

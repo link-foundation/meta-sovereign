@@ -1013,8 +1013,123 @@ pre {
   margin: 0;
   flex: 1;
 }
-.connections-card > button {
-  align-self: flex-start;
+.connections-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.connections-card-actions > p {
+  flex-basis: 100%;
+  margin: 0;
+}
+.connections-card-actions > button.primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.connections-card > p.connections-card-facts {
+  flex: none;
+  font-size: 0.8rem;
+}
+.connections-card-actions > button:not(.primary) {
+  background: transparent;
+}
+.connections-detail-auto {
+  margin: 0.5rem 0 0;
+  border-left: 4px solid var(--accent);
+}
+.connections-detail-auto > .provider-auto-import > p {
+  margin: 0.25rem 0;
+}
+.connections-detail-manual {
+  margin: 1.25rem 0 0;
+  font-size: 1rem;
+}
+/* "Recommended" marks the easiest route: on a primary button it reads
+   as a light chip inside it, elsewhere as an accent pill. */
+.recommended-tag {
+  flex: none;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+button.primary .recommended-tag {
+  color: inherit;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+.provider-auto-import-header,
+.sign-ins-header {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.provider-auto-import-header > h4,
+.sign-ins-header > h3 {
+  margin: 0;
+}
+.sign-ins {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0 0 0.75rem;
+  border-left: 4px solid var(--accent);
+}
+.sign-ins > p {
+  margin: 0;
+}
+.sign-ins-browsers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: 0.5rem;
+}
+.sign-ins-browser > label {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.sign-ins-browser[data-state='unavailable'] > label {
+  cursor: default;
+  opacity: 0.75;
+}
+.sign-ins-browser input {
+  margin-top: 0.2rem;
+  flex: none;
+}
+.sign-ins-browser-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.25rem;
+  min-width: 0;
+}
+.sign-ins-browser-text > .meta:last-child {
+  flex-basis: 100%;
+  overflow-wrap: anywhere;
+}
+.sign-ins-access {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+.sign-ins-access > p,
+.sign-ins-result > p {
+  margin: 0;
 }
 .connections-card-header,
 .connections-detail-header {

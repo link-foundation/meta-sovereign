@@ -540,6 +540,12 @@ export const api = {
   autoImportJob: async (id) =>
     (await serverFetch(`/api/auto-import/jobs/${encodeURIComponent(id)}`)) ??
     null,
+  // Sign-ins from the user's own browsers: scan (counts only), import
+  // (explicit), and the macOS Full Disk Access settings pane.
+  browserSignIns: async (action, body = {}) =>
+    (await serverPostReport(`/api/auto-import/browsers/${action}`, body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for browser sign-ins' },
   autoImportAction: async (id, action) =>
     (await serverFetch(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,

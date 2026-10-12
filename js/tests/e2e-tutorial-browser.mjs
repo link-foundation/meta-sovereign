@@ -7,7 +7,8 @@
  *   - every step's card is inside the viewport and never overlaps the
  *     control it points at (so that control stays clickable/visible);
  *   - clicking the highlighted control advances the tour: Connections
- *     → a provider's "Set up" → the "Import with browser" panel;
+ *     → browser sign-ins → Email (first: biggest service) → its
+ *     "Import with browser" panel;
  *   - "Next" on an action step performs the click (the app follows);
  *   - Back goes back, Esc closes; the card takes focus once the user
  *     is in the tour (not on page load: the skip link stays first);
@@ -161,22 +162,34 @@ const walk = async (engineName, viewport, base) => {
       );
     }
 
-    // The user does what the step says: click Connections.
+    // The user does what the step says: click Connections. With a
+    // local server the browser sign-ins panel is shown next.
     await page.click('[data-tutorial-id="nav:connections"] >> visible=true');
-    await waitForStep(page, 'pick');
+    await waitForStep(page, 'signIns');
     await settle(page);
     await assertPlacement(page, label);
+    const first = await page.evaluate(
+      () =>
+        document
+          .querySelector('[data-provider-id]')
+          ?.getAttribute('data-provider-id') ?? null
+    );
+    check(first === 'email', `${label}: first service is ${first}, not email`);
 
     // Back returns to the previous step; Next on it performs the click.
     await page.click('[data-action="tutorial-back"]');
     await waitForStep(page, 'connect');
     await page.click('[data-action="tutorial-next"]');
+    await waitForStep(page, 'signIns');
+    await page.click('[data-action="tutorial-next"]');
     await waitForStep(page, 'pick');
     await settle(page);
+    await assertPlacement(page, label);
 
-    // Pick a service by clicking its "Set up".
+    // Pick Email by its "Set up" (the recommended "Import with browser"
+    // would open a real browser window).
     await page.click(
-      '[data-tutorial-id="connections:telegram"] [data-action="open-connection-detail"]'
+      '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]'
     );
     await waitForStep(page, 'setup');
     await settle(page);
@@ -193,12 +206,16 @@ const walk = async (engineName, viewport, base) => {
     // Short desktop: the drawer scrolls; ring and card must follow in
     // the same frame.
     if (viewport.name === 'short-desktop') {
-      await page.click('[data-action="tutorial-back"]');
-      await page.click('[data-action="tutorial-back"]');
-      await page.click('[data-action="tutorial-back"]');
-      await page.click('[data-action="tutorial-back"]');
-      await page.click('[data-action="tutorial-back"]');
-      await page.click('[data-action="tutorial-back"]');
+      // Back to the start (the sign-ins step is passed over on the
+      // provider page, where its panel is not shown).
+      for (let i = 0; i < 12; i += 1) {
+        if ((await geometry(page)).step === 'connect') {
+          break;
+        }
+        await page
+          .click('[data-action="tutorial-back"]', { timeout: 1500 })
+          .catch(() => {});
+      }
       await waitForStep(page, 'connect');
       await settle(page);
       const drift = await page.evaluate(() => {
@@ -258,7 +275,7 @@ const walk = async (engineName, viewport, base) => {
 };
 
 const engines = [];
-for (const name of ['chromium', 'webkit']) {
+for (const name of (process.env.E2E_ENGINES ?? 'chromium,webkit').split(',')) {
   try {
     const browser = await playwright[name].launch();
     await browser.close();

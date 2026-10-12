@@ -246,7 +246,7 @@ export const hi = {
     'ऐप-स्तरीय प्राथमिकताएँ यहाँ रहती हैं। प्रदाता क्रेडेंशियल, संग्रह आयात और लाइव जाँचें समर्पित कनेक्शन स्क्रीन पर रहती हैं।',
   'connections.title': 'कनेक्शन',
   'connections.intro':
-    'क्रेडेंशियल दर्ज करने, संग्रह आयात करने और लाइव API जाँचने के लिए प्रदाता चुनें।',
+    '"ब्राउज़र से आयात करें" से शुरू करें: ऐप सेवा खोलता है, आप वहाँ अपना डेटा डाउनलोड करते हैं, और वह अपने आप आयात हो जाता है। सबसे ज़्यादा इस्तेमाल होने वाली सेवाएँ सबसे ऊपर हैं।',
   'connections.state.connected': 'जुड़ा',
   'connections.state.notConnected': 'जुड़ा नहीं',
   'connections.state.actionRequired': 'कार्रवाई आवश्यक',
@@ -275,6 +275,35 @@ export const hi = {
   'autoImport.unavailable':
     'ब्राउज़र से आयात के लिए इस कंप्यूटर पर meta-sovereign सर्वर चलना चाहिए।',
   'autoImport.unavailableReason': 'ब्राउज़र से आयात उपलब्ध नहीं है: {reason}',
+  'connections.manualTitle': 'या हाथ से कनेक्ट करें',
+  'connections.recommended': 'अनुशंसित',
+  'connections.users': '{count} उपयोगकर्ता',
+  'connections.signedInFrom': '{browsers} में साइन इन',
+  'autoImport.signedInFrom': 'विंडो {browsers} के आपके साइन-इन के साथ खुलेगी।',
+  'signIns.title': 'अपने ब्राउज़र के साइन-इन इस्तेमाल करें',
+  'signIns.intro':
+    'देखें कि Chrome, Safari, Firefox और दूसरे ब्राउज़र में आप किन सेवाओं में पहले से साइन इन हैं, और आयात विंडो साइन इन के साथ खोलें। आपके ब्राउज़र सिर्फ़ पढ़े जाते हैं, और कुछ भी इस कंप्यूटर से बाहर नहीं जाता।',
+  'signIns.scan': 'साइन-इन खोजें',
+  'signIns.rescan': 'फिर से देखें',
+  'signIns.scanning': 'आपके ब्राउज़र देखे जा रहे हैं…',
+  'signIns.none': 'इस कंप्यूटर पर कोई ब्राउज़र नहीं मिला।',
+  'signIns.default': 'डिफ़ॉल्ट ब्राउज़र',
+  'signIns.found': 'साइन इन: {services}',
+  'signIns.nothing': 'इनमें से किसी सेवा में साइन इन नहीं',
+  'signIns.needsAccess': 'पूर्ण डिस्क एक्सेस चाहिए',
+  'signIns.error': 'पढ़ा नहीं जा सका: {error}',
+  'signIns.use': 'ये साइन-इन इस्तेमाल करें',
+  'signIns.importing':
+    'साइन-इन कॉपी हो रहे हैं… आपका ब्राउज़र या macOS अनुमति माँग सकता है।',
+  'signIns.ready': 'तैयार: {services}। हर आयात विंडो साइन इन के साथ खुलेगी।',
+  'signIns.readyNone': 'कोई साइन-इन कॉपी नहीं हुआ।',
+  'signIns.fdaTitle': 'Safari तक पहुँच की अनुमति दें',
+  'signIns.fdaBody':
+    'macOS Safari का डेटा सुरक्षित रखता है। System Settings → Privacy & Security → Full Disk Access में {app} चालू करें, फिर meta-sovereign सर्वर दोबारा शुरू करें।',
+  'signIns.fdaOpen': 'System Settings खोलें',
+  'tutorial.signIns.title': 'अपने ब्राउज़र के साइन-इन इस्तेमाल करें',
+  'tutorial.signIns.body':
+    'अनुशंसित: "साइन-इन खोजें" दबाकर देखें कि आप कहाँ पहले से साइन इन हैं। फिर आयात विंडो साइन इन के साथ खुलेगी, पासवर्ड टाइप करने की ज़रूरत नहीं।',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
   'connections.email.setup.step1.body':
@@ -657,7 +686,7 @@ export const hi = {
     'अपने डेटा की एन्क्रिप्टेड कॉपी सहेजें। इसे केवल आपका पासफ़्रेज़ खोल सकता है।',
   'tutorial.connections.title': 'एक सेवा चुनें',
   'tutorial.connections.body':
-    'हर कार्ड एक सेवा है। जिसे आप सबसे ज़्यादा इस्तेमाल करते हैं, उस पर "सेट अप" दबाएँ।',
+    'सबसे ज़्यादा इस्तेमाल होने वाली सेवाएँ सबसे ऊपर हैं। Email पर, या जिस भी सेवा का आप इस्तेमाल करते हैं उस पर "ब्राउज़र से आयात करें" दबाएँ।',
   'tutorial.connectionDetail.title': 'ब्राउज़र से आयात',
   'tutorial.connectionDetail.body':
     '"ब्राउज़र खोलें" दबाएँ और साइन इन करें। वहाँ डेटा एक्सपोर्ट शुरू करें, डाउनलोड हुई फ़ाइल अपने आप आयात हो जाएगी।',

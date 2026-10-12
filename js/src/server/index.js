@@ -372,6 +372,8 @@ export const startServer = async ({
   greetings,
   allowOrigins,
   autoImportLauncher,
+  // Tests inject a fake `createSignIns()` (no real browsers are read).
+  autoImportSignIns,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -394,6 +396,7 @@ export const startServer = async ({
     log,
     autoImport: null,
     autoImportLauncher,
+    autoImportSignIns,
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();

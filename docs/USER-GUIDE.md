@@ -240,6 +240,24 @@ the server drives Chrome through
 4. Press **Finish** or close the window. An idle browser closes itself
    after 30 minutes.
 
+**Use your browser sign-ins (recommended).** At the top of
+**Connections**, **Find sign-ins** lists every browser on the computer
+(Chrome, Safari, Firefox, Edge, Brave, Arc, Yandex and others) and the
+services each one is signed in to. Only site names are read for this.
+**Use these sign-ins** then copies those services' cookies from the
+browsers you ticked into an owner-only file
+(`<store>/auto-import/sign-ins/<service>.json`); the next import window
+for that service opens signed in and the copy is deleted. Your browsers
+are only read and nothing leaves the computer. Telegram Web and
+WhatsApp Web keep their sign-in outside cookies, so scan their QR code
+once. On macOS Safari's data needs **Full Disk Access**: the panel names
+the app to allow (your terminal, or the desktop app) and opens System
+Settings → Privacy & Security → Full Disk Access; restart the server
+afterwards. Chrome may ask for your Keychain password once.
+
+Services are listed by how many people use them, biggest first, so
+Email comes first.
+
 The server needs permission to start a browser process and to write to
 its store directory. Optional settings:
 

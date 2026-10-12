@@ -69,6 +69,7 @@ export const launchWithBrowserCommander = async ({
   url,
   userDataDir,
   downloadsDir,
+  cookies = [],
   env = process.env,
 }) => {
   const bc = await import('browser-commander');
@@ -87,6 +88,8 @@ export const launchWithBrowserCommander = async ({
         ...common,
         headless: env.MS_BROWSER_HEADLESS === '1',
         userDataDir,
+        // Sign-ins the user chose to bring over from their own browsers.
+        ...(cookies.length ? { storageState: { cookies, origins: [] } } : {}),
         ...(env.MS_BROWSER_CHANNEL ? { channel: env.MS_BROWSER_CHANNEL } : {}),
         ...(env.MS_BROWSER_EXECUTABLE
           ? { executablePath: env.MS_BROWSER_EXECUTABLE }
@@ -139,6 +142,7 @@ const snapshot = (job) => ({
   state: job.state,
   url: job.url,
   canCapture: job.canCapture,
+  signedIn: job.signedIn,
   imported: job.imported,
   files: job.files.slice(),
   error: job.error,
@@ -171,6 +175,25 @@ const prepareDirs = async (dataDir, provider) => {
   return { userDataDir, downloadsDir };
 };
 
+// Opens the provider's window, seeded once with the sign-ins the user
+// chose to bring over from their own browsers (./sign-ins.js).
+const openSession = async (job, { launcher, signIns, dataDir, env }) => {
+  const dirs = await prepareDirs(dataDir, job.provider);
+  const cookies = (await signIns?.peek(job.provider)) ?? [];
+  const session = await launcher({
+    provider: job.provider,
+    url: job.url,
+    env,
+    cookies,
+    ...dirs,
+  });
+  if (cookies.length) {
+    await signIns.consume(job.provider);
+    job.signedIn = true;
+  }
+  return session;
+};
+
 const captureOpenChat = async (store, job, scrape) => {
   const rows = await job.session.commander.evaluate({
     fn: extractVisibleMessages,
@@ -188,11 +211,13 @@ export const createAutoImportManager = ({
   store,
   dataDir,
   launcher = launchWithBrowserCommander,
+  signIns = null,
   env = process.env,
   log = null,
   idleTimeoutMs = DEFAULT_IDLE_TIMEOUT_MS,
 } = {}) => {
   const jobs = new Map();
+  const deps = { launcher, signIns, dataDir, env };
 
   const touch = (job, patch = {}) => {
     Object.assign(job, patch, { updatedAt: new Date().toISOString() });
@@ -237,13 +262,7 @@ export const createAutoImportManager = ({
 
   const launch = async (job) => {
     try {
-      const dirs = await prepareDirs(dataDir, job.provider);
-      const session = await launcher({
-        provider: job.provider,
-        url: job.url,
-        env,
-        ...dirs,
-      });
+      const session = await openSession(job, deps);
       if (job.state !== 'launching') {
         await session.close().catch(() => {});
         return;
@@ -297,6 +316,7 @@ export const createAutoImportManager = ({
         error: null,
         startedAt: now,
         updatedAt: now,
+        signedIn: false,
         session: null,
         idleTimer: null,
       };

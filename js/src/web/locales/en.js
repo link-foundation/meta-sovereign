@@ -246,7 +246,7 @@ export const en = {
     'App-level preferences live here. Provider credentials, archive imports, and live probes live on the dedicated Connections screen.',
   'connections.title': 'Connections',
   'connections.intro':
-    'Pick a provider to enter credentials, import an archive, and probe the live API.',
+    'Start with "Import with browser": the app opens the service, you download your data there, and it is imported automatically. The most used services come first.',
   'connections.state.connected': 'Connected',
   'connections.state.notConnected': 'Not connected',
   'connections.state.actionRequired': 'Action required',
@@ -274,6 +274,36 @@ export const en = {
   'autoImport.unavailable':
     'Browser import needs the meta-sovereign server running on this computer.',
   'autoImport.unavailableReason': 'Browser import is unavailable: {reason}',
+  'connections.manualTitle': 'Or connect by hand',
+  'connections.recommended': 'Recommended',
+  'connections.users': '{count} users',
+  'connections.signedInFrom': 'Signed in via {browsers}',
+  'autoImport.signedInFrom':
+    'The window opens with your sign-in from {browsers}.',
+  'signIns.title': 'Use your browser sign-ins',
+  'signIns.intro':
+    'See which services you are already signed in to in Chrome, Safari, Firefox and other browsers, and open the import window signed in. Your browsers are only read, and nothing leaves this computer.',
+  'signIns.scan': 'Find sign-ins',
+  'signIns.rescan': 'Look again',
+  'signIns.scanning': 'Looking through your browsers…',
+  'signIns.none': 'No browsers found on this computer.',
+  'signIns.default': 'default browser',
+  'signIns.found': 'Signed in to {services}',
+  'signIns.nothing': 'Not signed in to any of these services',
+  'signIns.needsAccess': 'Needs Full Disk Access',
+  'signIns.error': 'Could not read it: {error}',
+  'signIns.use': 'Use these sign-ins',
+  'signIns.importing':
+    'Copying sign-ins… Your browser or macOS may ask for permission.',
+  'signIns.ready': 'Ready: {services}. Each import window opens signed in.',
+  'signIns.readyNone': 'No sign-ins were copied.',
+  'signIns.fdaTitle': 'Allow access to Safari',
+  'signIns.fdaBody':
+    'macOS protects Safari data. In System Settings → Privacy & Security → Full Disk Access, turn on {app}, then restart the meta-sovereign server.',
+  'signIns.fdaOpen': 'Open System Settings',
+  'tutorial.signIns.title': 'Use your browser sign-ins',
+  'tutorial.signIns.body':
+    'Recommended: press "Find sign-ins" to see where you are already signed in. The import window then opens signed in, with no passwords to type.',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':
@@ -659,7 +689,7 @@ export const en = {
     'Save an encrypted copy of your data. Only your passphrase can open it.',
   'tutorial.connections.title': 'Pick a service',
   'tutorial.connections.body':
-    'Each card is one service. Press "Set up" on the one you use most.',
+    'The most used services come first. Press "Import with browser" on Email, or on any service you use.',
   'tutorial.connectionDetail.title': 'Import with a browser',
   'tutorial.connectionDetail.body':
     'Press "Open browser" and sign in. Start the data export there and the downloaded file is imported automatically.',

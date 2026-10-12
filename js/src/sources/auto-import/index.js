@@ -16,6 +16,12 @@ export {
   probeBrowserAutomation,
 } from './manager.js';
 export {
+  createSignIns,
+  browserName,
+  hostAppName,
+  FULL_DISK_ACCESS_URL,
+} from './sign-ins.js';
+export {
   readZipEntries,
   readTarGzEntries,
   parseCsv,

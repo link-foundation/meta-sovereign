@@ -16,7 +16,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { api } from '../dom.js';
-import { useT } from '../i18n.js';
+import { useLocaleContext, useT } from '../i18n.js';
 import { LocalServerHelp } from '../connection-guide.js';
 import {
   buildProbeHeaders,
@@ -27,6 +27,8 @@ import {
   tryDirect,
 } from '../connection-guides.js';
 import { providerSetupSteps } from './setup-steps.js';
+import { byPopularity, formatUsers, serviceUsers } from './popularity.js';
+import { BrowserSignIns, listOf } from './browser-sign-ins.js';
 
 const el = React.createElement;
 
@@ -558,6 +560,41 @@ const AutoImportUnavailable = ({ status }) => {
   );
 };
 
+// Title (recommended), what happens, and whose sign-in it reuses.
+const AutoImportIntro = ({ providerId, provider, status, job }) => {
+  const t = useT();
+  const { locale } = useLocaleContext();
+  const service = tx(t, provider.label, provider.labelKey);
+  const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
+  const signIn = job ? null : status?.signIns?.[providerId];
+  return el(React.Fragment, null, [
+    el('header', { key: 'h', className: 'row provider-auto-import-header' }, [
+      el('h4', { key: 'title', className: 'meta' }, t('autoImport.title')),
+      el(
+        'span',
+        { key: 'tag', className: 'recommended-tag' },
+        t('connections.recommended')
+      ),
+    ]),
+    el(
+      'p',
+      { key: 'intro' },
+      t(canCapture ? 'autoImport.introCapture' : 'autoImport.intro', {
+        service,
+      })
+    ),
+    signIn
+      ? el(
+          'p',
+          { key: 'signed-in', className: 'meta', 'data-signed-in': 'true' },
+          t('autoImport.signedInFrom', {
+            browsers: listOf(signIn.from ?? [], locale),
+          })
+        )
+      : null,
+  ]);
+};
+
 // "Import with browser": the local server opens the provider in a real
 // browser (browser-commander), captures every downloaded export and,
 // for chat apps without an export, the chat currently open there.
@@ -567,14 +604,11 @@ export const ProviderAutoImport = ({
   initialStatus = null,
   initialJob = null,
 }) => {
-  const t = useT();
   const { status, job, active, error, apply } = useAutoImportJob(
     providerId,
     initialStatus,
     initialJob
   );
-  const service = tx(t, provider.label, provider.labelKey);
-  const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
   const unavailable = status && !status.available;
   return el(
     'div',
@@ -585,14 +619,7 @@ export const ProviderAutoImport = ({
       'data-auto-import-state': job?.state ?? 'idle',
     },
     [
-      el('h4', { key: 'h', className: 'meta' }, t('autoImport.title')),
-      el(
-        'p',
-        { key: 'intro' },
-        t(canCapture ? 'autoImport.introCapture' : 'autoImport.intro', {
-          service,
-        })
-      ),
+      el(AutoImportIntro, { key: 'intro', providerId, provider, status, job }),
       unavailable
         ? el(AutoImportUnavailable, { key: 'unavailable', status })
         : null,
@@ -643,7 +670,6 @@ export const ProviderConnectionControls = ({
           ready ? t('settings.credentialsSaved') : t('settings.noCredentials')
         ),
       ]),
-      el(ProviderAutoImport, { key: 'auto', providerId, provider }),
       el(ProviderCredentialsForm, {
         key: 'creds',
         providerId,
@@ -721,10 +747,75 @@ const BrowserSessionPanel = ({ providerId, provider }) => {
   );
 };
 
-const ProviderCard = ({ providerId, status, onOpen }) => {
+// The card's own actions: "Import with browser" (recommended: the local
+// server opens the service, the user exports, the file is imported) and
+// "Set up" for the manual routes (API keys, a file, a pasted export).
+const ProviderCardActions = ({ providerId, canImport, onOpen }) => {
   const t = useT();
+  const [error, setError] = useState('');
+  const [starting, setStarting] = useState(false);
+  const startImport = async () => {
+    setStarting(true);
+    const job = await api.startAutoImport(providerId);
+    setStarting(false);
+    if (job?.error) {
+      setError(job.error);
+      return;
+    }
+    onOpen?.(providerId);
+  };
+  return el('div', { className: 'connections-card-actions' }, [
+    canImport
+      ? el(
+          'button',
+          {
+            key: 'import',
+            type: 'button',
+            className: 'primary',
+            'data-action': 'connection-auto-import',
+            'data-target-provider': providerId,
+            disabled: starting,
+            onClick: startImport,
+          },
+          [
+            t('autoImport.title'),
+            el(
+              'span',
+              { key: 'tag', className: 'recommended-tag' },
+              t('connections.recommended')
+            ),
+          ]
+        )
+      : null,
+    el(
+      'button',
+      {
+        key: 'open',
+        type: 'button',
+        className: canImport ? '' : 'primary',
+        'data-action': 'open-connection-detail',
+        'data-target-provider': providerId,
+        onClick: () => onOpen?.(providerId),
+      },
+      t('connections.openDetail')
+    ),
+    error
+      ? el('p', { key: 'error', className: 'meta', role: 'alert' }, error)
+      : null,
+  ]);
+};
+
+const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
+  const t = useT();
+  const { locale } = useLocaleContext();
   const provider = providerCatalogue[providerId];
   const state = classifyConnectionState(status, providerId);
+  const users = serviceUsers[providerId];
+  const signedIn = autoImport?.signIns?.[providerId];
+  const canImport =
+    !provider.browserOnly &&
+    autoImport?.available !== false &&
+    Boolean(autoImport?.providers?.[providerId] ?? !autoImport);
   return el(
     'article',
     {
@@ -737,39 +828,89 @@ const ProviderCard = ({ providerId, status, onOpen }) => {
         el('h3', { key: 'label' }, tx(t, provider.label, provider.labelKey)),
         el(StateBadge, { key: 'badge', state }),
       ]),
+      users || signedIn
+        ? el(
+            'p',
+            { key: 'facts', className: 'meta connections-card-facts' },
+            [
+              users
+                ? t('connections.users', {
+                    count: formatUsers(users, locale),
+                  })
+                : null,
+              signedIn
+                ? t('connections.signedInFrom', {
+                    browsers: listOf(signedIn.from ?? [], locale),
+                  })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')
+          )
+        : null,
       el(
         'p',
         { key: 'hint', className: 'meta' },
         tx(t, provider.archive.hint, provider.archive.hintKey)
       ),
-      el(
-        'button',
-        {
-          key: 'open',
-          type: 'button',
-          className: 'primary',
-          'data-action': 'open-connection-detail',
-          'data-target-provider': providerId,
-          onClick: () => onOpen?.(providerId),
-        },
-        t('connections.openDetail')
-      ),
+      el(ProviderCardActions, {
+        key: 'actions',
+        providerId,
+        canImport,
+        onOpen,
+      }),
     ]
   );
 };
 
-export const ConnectionsList = ({ status, onOpen }) => {
+// The server's auto-import status (null while loading or without one).
+const useAutoImportStatus = () => {
+  const [status, setStatus] = useState(null);
+  const [version, setVersion] = useState(0);
+  useEffect(() => {
+    let cancelled = false;
+    api.autoImportStatus().then((next) => {
+      if (!cancelled) {
+        setStatus(next);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [version]);
+  return [status, () => setVersion((v) => v + 1)];
+};
+
+export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
   const t = useT();
+  const [loaded, reload] = useAutoImportStatus();
+  const autoImport = loaded ?? initialAutoImport ?? null;
+  const ids = byPopularity(Object.keys(providerCatalogue));
   return el('section', { className: 'connections-list' }, [
     el('header', { key: 'h', className: 'connections-list-header' }, [
       el('h2', { key: 'title' }, t('connections.title')),
       el('p', { key: 'intro', className: 'meta' }, t('connections.intro')),
     ]),
+    // Shown while the status loads (so it never pops in late) and
+    // hidden only once the server says browser import is unavailable.
+    autoImport?.available === false
+      ? null
+      : el(BrowserSignIns, {
+          key: 'sign-ins',
+          status: autoImport,
+          onImported: reload,
+        }),
     el(
       'div',
       { key: 'grid', className: 'connections-grid' },
-      Object.keys(providerCatalogue).map((id) =>
-        el(ProviderCard, { key: id, providerId: id, status, onOpen })
+      ids.map((id) =>
+        el(ProviderCard, {
+          key: id,
+          providerId: id,
+          status,
+          autoImport,
+          onOpen,
+        })
       )
     ),
   ]);
@@ -822,6 +963,21 @@ export const ConnectionDetail = ({
           ? tx(t, provider.session.hint, provider.session.hintKey)
           : tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey)
       ),
+      // The recommended route first, then the manual one.
+      provider.browserOnly
+        ? null
+        : el(
+            'section',
+            { key: 'auto', className: 'card glass connections-detail-auto' },
+            el(ProviderAutoImport, { providerId, provider })
+          ),
+      provider.browserOnly
+        ? null
+        : el(
+            'h3',
+            { key: 'manual', className: 'connections-detail-manual' },
+            t('connections.manualTitle')
+          ),
       el(
         'ol',
         { key: 'steps', className: 'connections-detail-steps' },

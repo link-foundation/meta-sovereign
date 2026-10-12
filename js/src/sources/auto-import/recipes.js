@@ -13,6 +13,9 @@
  * scripts). Without it JSON files are parsed and anything else is
  * passed through as text.
  *
+ * `domains` are the sites whose sign-in cookies the import window may
+ * reuse from the user's own browsers (see ./sign-ins.js).
+ *
  * Services without a downloadable export in the browser (Telegram Web,
  * WhatsApp Web) also carry a `scrape` config: "Capture this page"
  * reads the messages of the chat currently open in the browser.
@@ -63,10 +66,12 @@ const linkedinToArchive = (_name, text) => ({
 export const autoImportRecipes = {
   email: {
     url: 'https://takeout.google.com/settings/takeout/custom/gmail',
+    domains: ['google.com'],
     files: /\.(mbox|eml)$/i,
   },
   telegram: {
     url: 'https://web.telegram.org/a/',
+    domains: ['telegram.org'],
     files: /(^|\/)result\.json$/i,
     scrape: {
       chat: '.MiddleHeader .fullName, .chat-info .peer-title',
@@ -80,15 +85,18 @@ export const autoImportRecipes = {
   },
   vk: {
     url: 'https://vk.com/data_protection?section=rules',
+    domains: ['vk.com', 'vk.ru'],
     files: /messages.*\.json$/i,
   },
   x: {
     url: 'https://x.com/settings/download_your_data',
+    domains: ['x.com', 'twitter.com'],
     files: /(^|\/)(tweets|direct-messages)(-part\d+)?\.js(on)?$/i,
     toArchive: xToArchive,
   },
   whatsapp: {
     url: 'https://web.whatsapp.com/',
+    domains: ['whatsapp.com'],
     files: /\.txt$/i,
     scrape: {
       chat: '#main header span[dir="auto"]',
@@ -103,47 +111,58 @@ export const autoImportRecipes = {
   },
   facebook: {
     url: 'https://accountscenter.facebook.com/info_and_permissions/dyi/',
+    domains: ['facebook.com'],
     files: /(message_\d+|messages_[^/]*|posts_[^/]*)\.json$/i,
   },
   linkedin: {
     url: 'https://www.linkedin.com/mypreferences/d/download-my-data',
+    domains: ['linkedin.com'],
     files: /(^|\/)messages\.csv$/i,
     toArchive: linkedinToArchive,
   },
   'habr-career': {
     url: 'https://career.habr.com/',
+    domains: ['habr.com'],
     files: /\.json$/i,
   },
   hh: {
     url: 'https://hh.ru/applicant/negotiations',
+    domains: ['hh.ru'],
     files: /\.json$/i,
   },
   superjob: {
     url: 'https://www.superjob.ru/',
+    domains: ['superjob.ru'],
     files: /\.json$/i,
   },
   github: {
     url: 'https://github.com/settings/admin',
+    domains: ['github.com'],
     files: /(issues|pull_requests|pulls|issue_comments|comments)[^/]*\.json$/i,
   },
   upwork: {
     url: 'https://www.upwork.com/nx/reports/transaction-history',
+    domains: ['upwork.com'],
     files: /\.(csv|json)$/i,
   },
   peopleperhour: {
     url: 'https://www.peopleperhour.com/',
+    domains: ['peopleperhour.com'],
     files: /\.(json|csv)$/i,
   },
   naukri: {
     url: 'https://www.naukri.com/',
+    domains: ['naukri.com'],
     files: /\.json$/i,
   },
   topcv: {
     url: 'https://www.topcv.vn/',
+    domains: ['topcv.vn'],
     files: /\.json$/i,
   },
   vietnamworks: {
     url: 'https://www.vietnamworks.com/',
+    domains: ['vietnamworks.com'],
     files: /\.json$/i,
   },
 };
@@ -153,6 +172,10 @@ export const describeRecipes = () =>
   Object.fromEntries(
     Object.entries(autoImportRecipes).map(([id, recipe]) => [
       id,
-      { url: recipe.url, canCapture: Boolean(recipe.scrape) },
+      {
+        url: recipe.url,
+        domains: recipe.domains,
+        canCapture: Boolean(recipe.scrape),
+      },
     ])
   );

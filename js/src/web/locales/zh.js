@@ -241,7 +241,8 @@ export const zh = {
   'guide.settings.body':
     '应用级偏好保留在这里。提供方凭据、归档导入和实时检测集中在专用的“连接”页面。',
   'connections.title': '连接',
-  'connections.intro': '选择一个提供方以输入凭据、导入归档并检测线上 API。',
+  'connections.intro':
+    '从「通过浏览器导入」开始：应用打开该服务，你在那里下载自己的数据，数据会自动导入。用户最多的服务排在最前。',
   'connections.state.connected': '已连接',
   'connections.state.notConnected': '未连接',
   'connections.state.actionRequired': '需要操作',
@@ -269,6 +270,34 @@ export const zh = {
   'autoImport.unavailable':
     '通过浏览器导入需要在本机运行 meta-sovereign 服务器。',
   'autoImport.unavailableReason': '通过浏览器导入不可用：{reason}',
+  'connections.manualTitle': '或手动连接',
+  'connections.recommended': '推荐',
+  'connections.users': '{count} 用户',
+  'connections.signedInFrom': '已在 {browsers} 中登录',
+  'autoImport.signedInFrom': '窗口会带着你在 {browsers} 中的登录状态打开。',
+  'signIns.title': '使用浏览器中的登录',
+  'signIns.intro':
+    '查看你已在 Chrome、Safari、Firefox 等浏览器中登录了哪些服务，让导入窗口直接以登录状态打开。只读取你的浏览器，任何数据都不会离开这台电脑。',
+  'signIns.scan': '查找登录',
+  'signIns.rescan': '重新查找',
+  'signIns.scanning': '正在查看你的浏览器…',
+  'signIns.none': '这台电脑上没有找到浏览器。',
+  'signIns.default': '默认浏览器',
+  'signIns.found': '已登录：{services}',
+  'signIns.nothing': '没有登录这些服务',
+  'signIns.needsAccess': '需要完全磁盘访问权限',
+  'signIns.error': '无法读取：{error}',
+  'signIns.use': '使用这些登录',
+  'signIns.importing': '正在复制登录… 浏览器或 macOS 可能会请求授权。',
+  'signIns.ready': '已就绪：{services}。每个导入窗口都会以登录状态打开。',
+  'signIns.readyNone': '没有复制任何登录。',
+  'signIns.fdaTitle': '允许访问 Safari',
+  'signIns.fdaBody':
+    'macOS 会保护 Safari 的数据。在「系统设置」→「隐私与安全性」→「完全磁盘访问权限」中打开 {app}，然后重启 meta-sovereign 服务器。',
+  'signIns.fdaOpen': '打开系统设置',
+  'tutorial.signIns.title': '使用浏览器中的登录',
+  'tutorial.signIns.body':
+    '推荐：点击「查找登录」，看看你已经在哪里登录。导入窗口随后会以登录状态打开，无需输入密码。',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':
@@ -639,7 +668,7 @@ export const zh = {
   'tutorial.backup.body': '保存数据的加密副本，只有你的口令才能打开。',
   'tutorial.connections.title': '选择一个服务',
   'tutorial.connections.body':
-    '每张卡片代表一个服务。在你最常用的那个上点击「设置」。',
+    '用户最多的服务排在最前。在 Email 或你使用的任意服务上点击「通过浏览器导入」。',
   'tutorial.connectionDetail.title': '通过浏览器导入',
   'tutorial.connectionDetail.body':
     '点击「打开浏览器」并登录。在那里开始数据导出，下载的文件会自动导入。',

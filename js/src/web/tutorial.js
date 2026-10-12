@@ -76,16 +76,28 @@ export const defaultSteps = [
     examples: SERVICE_EXAMPLES,
   },
   {
+    // Only with a local server (the panel is not rendered otherwise):
+    // `optional` steps are skipped when their target never appears.
+    id: 'signIns',
+    tutorialId: 'connections:sign-ins',
+    optional: true,
+    titleKey: 'tutorial.signIns.title',
+    bodyKey: 'tutorial.signIns.body',
+    title: 'Use your browser sign-ins',
+    body: 'Recommended: press "Find sign-ins" to see which services you are already signed in to in Chrome, Safari or Firefox. The import window then opens signed in.',
+  },
+  {
     id: 'pick',
-    tutorialId: 'connections:telegram',
-    advanceOn: '[data-action="open-connection-detail"]',
+    tutorialId: 'connections:email',
+    advanceOn:
+      '[data-action="open-connection-detail"], [data-action="connection-auto-import"]',
     action: true,
     actionTarget:
-      '[data-tutorial-id="connections:telegram"] [data-action="open-connection-detail"]',
+      '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]',
     titleKey: 'tutorial.connections.title',
     bodyKey: 'tutorial.connections.body',
     title: 'Pick a service',
-    body: 'Each card is one service. Press "Set up" on the one you use most.',
+    body: 'The most used services come first. Press "Import with browser" on Email or on any service you use.',
   },
   {
     id: 'setup',
@@ -689,10 +701,17 @@ const TutorialLayer = ({
   onAdvance,
   onBack,
   onDismiss,
+  onSkip,
 }) => {
   const { element, rect } = useTutorialTarget(step.tutorialId, step.fallbacks);
   const anchored = useSpotlightAnchor(element);
   const expired = useTargetDeadline(step.id, Boolean(step.tutorialId));
+  const skip = Boolean(step.optional && expired && !rect);
+  useEffect(() => {
+    if (skip) {
+      onSkip?.();
+    }
+  }, [skip]);
   const cardRef = useRef(null);
   const [cardSize, setCardSize] = useState(null);
 
@@ -720,7 +739,8 @@ const TutorialLayer = ({
   useTourKeys(cardRef, { onNext, onBack, onDismiss });
 
   const spotlight = Boolean(rect);
-  const waiting = Boolean(step.tutorialId) && !rect && !expired;
+  const waiting =
+    Boolean(step.tutorialId) && !rect && (!expired || step.optional);
   const layout = cardLayout({
     rect,
     cardSize,
@@ -778,6 +798,8 @@ export const TutorialOverlay = ({
     readProgressIndex(storage, localized)
   );
   const total = localized.length;
+  // Which way the user is going, so a skipped step keeps that direction.
+  const direction = useRef(1);
 
   // Pick up persisted progress after a page load or explicit reopen.
   // We key this effect on `steps` (the source list, identity-stable
@@ -799,6 +821,7 @@ export const TutorialOverlay = ({
   }
 
   const goTo = (nextIndex) => {
+    direction.current = nextIndex < safeIndex ? -1 : 1;
     setIndex(nextIndex);
     writeProgressPreference(storage, steps[nextIndex]);
   };
@@ -844,6 +867,11 @@ export const TutorialOverlay = ({
     onClose?.();
   };
 
+  // An optional step whose target never appeared (no local server for
+  // the browser sign-ins panel) is passed over in the current direction.
+  const skip = () =>
+    direction.current < 0 && safeIndex > 0 ? goTo(safeIndex - 1) : advance();
+
   return el(TutorialLayer, {
     key: 'layer',
     step,
@@ -853,6 +881,7 @@ export const TutorialOverlay = ({
     onAdvance: advance,
     onBack: back,
     onDismiss: dismiss,
+    onSkip: skip,
   });
 };
 
