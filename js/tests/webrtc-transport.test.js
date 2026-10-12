@@ -19,6 +19,15 @@ import {
 
 const settle = () => new Promise((r) => setTimeout(r, 5));
 
+// Polls instead of a fixed number of settles, so a loaded CI host that
+// delays the fake data channel's timers does not fail the test.
+const waitFor = async (predicate, timeoutMs = 2000) => {
+  const deadline = Date.now() + timeoutMs;
+  while (!predicate() && Date.now() < deadline) {
+    await settle();
+  }
+};
+
 const makeBus = () => {
   const peers = new Set();
   return {
@@ -181,8 +190,7 @@ test('two webrtc transports exchange messages over the data channel', async () =
   tA.send({ type: 'put', link: { id: 'l:1', tokens: ['x'] } });
   tB.send({ type: 'put', link: { id: 'l:2', tokens: ['y'] } });
 
-  await settle();
-  await settle();
+  await waitFor(() => seenA.length > 0 && seenB.length > 0);
 
   assert.equal(seenB[0]?.link.id, 'l:1');
   assert.equal(seenA[0]?.link.id, 'l:2');
@@ -214,8 +222,7 @@ test('webrtc transport queues sends until the data channel opens', async () => {
   const seenB = [];
   tB.onMessage((m) => seenB.push(m));
 
-  await settle();
-  await settle();
+  await waitFor(() => seenB.length > 0);
 
   assert.equal(seenB[0]?.link.id, 'l:queued');
   tA.close();
