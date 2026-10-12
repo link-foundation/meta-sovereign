@@ -41,6 +41,10 @@ export const ru = {
   'nav.backup': 'Резервная копия',
   'nav.status': 'Статус',
   'nav.connections': 'Подключения',
+  // Shorter labels for the phone's bottom bar and the tablet rail.
+  'nav.short.automation': 'Сценарии',
+  'nav.short.cv': 'Резюме',
+  'nav.short.connections': 'Аккаунты',
   'nav.cv': 'Синхронизация CV',
   'nav.greetings': 'Приветствия',
   'nav.settings': 'Настройки',

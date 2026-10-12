@@ -42,6 +42,10 @@ export const zh = {
   'nav.backup': '备份',
   'nav.status': '状态',
   'nav.connections': '连接',
+  // Shorter labels for the phone's bottom bar and the tablet rail.
+  'nav.short.automation': '自动化',
+  'nav.short.cv': '简历同步',
+  'nav.short.connections': '连接',
   'nav.cv': '简历同步',
   'nav.greetings': '问候',
   'nav.settings': '设置',

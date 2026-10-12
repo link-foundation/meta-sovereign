@@ -177,3 +177,41 @@ test('app.css: phones stack tables and forms instead of cutting them off', () =>
   // Key/value tables keep values near their keys.
   assert.match(css, /\.kv-table \{\s*max-width: 32rem/);
 });
+
+test('AppShell on phones and tablets: a locale may shorten nav labels', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(
+      LocaleContext.Provider,
+      {
+        value: {
+          locale: 'ru',
+          t: (key) => dictionaries.ru[key] ?? key,
+          setLocale: () => {},
+          clearLocale: () => {},
+          available: availableLocales,
+        },
+      },
+      React.createElement(AppShell, {
+        width: 390,
+        active: 'chat',
+        onSelect: () => {},
+        children: null,
+      })
+    )
+  );
+  const bar = html.slice(html.indexOf('class="bottom-nav'));
+  const sheet = html.slice(0, html.indexOf('class="bottom-nav'));
+  // "Автоматизация" does not fit a ~70 px slot; the bar says "Сценарии"
+  // and keeps the full name as the tooltip.
+  assert.match(
+    bar,
+    /data-view="automation"[^>]*title="Автоматизация"[^>]*>.*?<span class="nav-label">Сценарии<\/span>/
+  );
+  assert.ok(!sheet.includes('Сценарии'), 'the More sheet keeps full names');
+  for (const [id] of navItems) {
+    const short = dictionaries.ru[`nav.short.${id}`];
+    if (short) {
+      assert.ok(short.length <= 9, `${id}: "${short}" is too long`);
+    }
+  }
+});

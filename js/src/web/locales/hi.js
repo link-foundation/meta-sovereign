@@ -42,6 +42,10 @@ export const hi = {
   'nav.backup': 'बैकअप',
   'nav.status': 'स्थिति',
   'nav.connections': 'कनेक्शन',
+  // Shorter labels for the phone's bottom bar and the tablet rail.
+  'nav.short.automation': 'स्वचालन',
+  'nav.short.cv': 'CV सिंक',
+  'nav.short.connections': 'कनेक्शन',
   'nav.cv': 'CV सिंक',
   'nav.greetings': 'अभिवादन',
   'nav.settings': 'सेटिंग्स',

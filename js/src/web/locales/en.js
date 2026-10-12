@@ -42,6 +42,10 @@ export const en = {
   'nav.backup': 'Backup',
   'nav.status': 'Status',
   'nav.connections': 'Connections',
+  // Shorter labels for the phone's bottom bar and the tablet rail.
+  'nav.short.automation': 'Automation',
+  'nav.short.cv': 'CV sync',
+  'nav.short.connections': 'Connections',
   'nav.cv': 'CV sync',
   'nav.greetings': 'Greetings',
   'nav.settings': 'Settings',

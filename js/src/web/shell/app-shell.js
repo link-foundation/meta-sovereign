@@ -50,7 +50,7 @@ export const COMPACT_PRIMARY = [
   'connections',
 ];
 
-const NavButton = ({ id, label, active, onSelect, variant }) =>
+const NavButton = ({ id, label, short, active, onSelect, variant }) =>
   el(
     'button',
     {
@@ -59,14 +59,24 @@ const NavButton = ({ id, label, active, onSelect, variant }) =>
       'data-tutorial-id': `nav:${id}`,
       className: `nav-item nav-item-${variant}${active ? ' active' : ''}`,
       'aria-current': active ? 'page' : undefined,
-      title: variant === 'rail' ? label : undefined,
+      title: variant === 'rail' || short !== label ? label : undefined,
       onClick: () => onSelect(id),
     },
     [
       el(Icon, { key: 'i', name: id }),
-      el('span', { key: 'l', className: 'nav-label' }, label),
+      el('span', { key: 'l', className: 'nav-label' }, short),
     ]
   );
+
+// The bottom bar's slots and the rail are ~70 px wide, so a locale may
+// give a section a shorter `nav.short.<id>` label there (Material 3 asks for
+// labels that fit rather than truncate); the full name stays as the
+// tooltip. The visible label remains the accessible name (WCAG 2.5.3).
+const shortLabel = (t, id, label, variant) => {
+  const key = `nav.short.${id}`;
+  const short = variant === 'bottom' || variant === 'rail' ? t(key) : key;
+  return short === key ? label : short;
+};
 
 const renderNavButtons = (t, active, onSelect, variant, items = navItems) =>
   items.map(([id, labelKey]) =>
@@ -74,6 +84,7 @@ const renderNavButtons = (t, active, onSelect, variant, items = navItems) =>
       key: id,
       id,
       label: t(labelKey),
+      short: shortLabel(t, id, t(labelKey), variant),
       active: id === active,
       onSelect,
       variant,

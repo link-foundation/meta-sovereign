@@ -4,6 +4,7 @@
 //   * overflow  — an element wider than the viewport (horizontal scroll);
 //   * clipped   — text cut by its own box (scrollWidth > clientWidth
 //                 without an ellipsis or a scroll container);
+//   * truncated — a navigation label shortened with an ellipsis;
 //   * tap       — an interactive control under 24×24 CSS px (WCAG 2.2
 //                 2.5.8), or under 36 px tall in the phone's bars;
 //   * overlap   — two visible interactive controls that intersect;
@@ -12,7 +13,7 @@
 //
 //   node experiments/automations-spa-server.mjs 4799 &
 //   node experiments/ui-audit.mjs [url] [outDir] [views,comma,separated]
-//   THEMES=dark SKIN=telegram node experiments/ui-audit.mjs …
+//   THEMES=dark SKIN=telegram LOCALE=ru node experiments/ui-audit.mjs …
 /* global getComputedStyle, localStorage */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -35,6 +36,7 @@ const VIEWPORTS = [
 ];
 const THEMES = (process.env.THEMES ?? 'light,dark').split(',');
 const SKIN = process.env.SKIN ?? 't3';
+const LOCALE = process.env.LOCALE ?? 'en';
 const VIEWS = [
   'chat',
   'operator',
@@ -60,14 +62,8 @@ const VIEWS = [
 const inspect = (phone) => {
   const visible = (el) => {
     const r = el.getBoundingClientRect();
-    const s = getComputedStyle(el);
-    return (
-      r.width > 0 &&
-      r.height > 0 &&
-      s.visibility !== 'hidden' &&
-      s.display !== 'none' &&
-      Number(s.opacity) > 0
-    );
+    const opts = { opacityProperty: true, visibilityProperty: true };
+    return r.width > 0 && r.height > 0 && el.checkVisibility(opts);
   };
   const name = (el) => {
     const id = el.id ? `#${el.id}` : '';
@@ -94,8 +90,7 @@ const inspect = (phone) => {
     anyAncestor(el.parentElement, (s) =>
       ['auto', 'scroll', 'hidden'].includes(s.overflowX)
     );
-  // Visually hidden on purpose: the skip link until focused, screen-reader
-  // text, and the headers of a table stacked into cards on phones.
+  // Hidden on purpose: skip link, sr-only text, stacked tables' headers.
   const clippedAway = (el) =>
     anyAncestor(el, (s) => s.clipPath === 'inset(50%)');
   const shown = (el) =>
@@ -112,6 +107,8 @@ const inspect = (phone) => {
       !['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)
     );
   };
+  const truncatedNav = (el) =>
+    el.matches('.nav-label') && el.scrollWidth > el.clientWidth + 1;
   const overflowAndClipping = () => {
     const out = [];
     if (document.documentElement.scrollWidth > vw + 1) {
@@ -126,8 +123,10 @@ const inspect = (phone) => {
           `overflow: ${name(el)} spans ${Math.round(r.left)}..${Math.round(r.right)} of ${vw}`
         );
       }
-      if (isClipped(el)) {
-        out.push(`clipped: ${name(el)} ${el.scrollWidth} > ${el.clientWidth}`);
+      // A navigation label must fit: an ellipsis hides where a tap goes.
+      const cut = isClipped(el) ? 'clipped' : truncatedNav(el) && 'truncated';
+      if (cut) {
+        out.push(`${cut}: ${name(el)} ${el.scrollWidth} > ${el.clientWidth}`);
       }
     }
     return out;
@@ -137,8 +136,7 @@ const inspect = (phone) => {
       'button, a[href], input:not([type=hidden]), select, textarea, [role=button], summary'
     ),
   ].filter(visible);
-  // Inline links inside running text, checkboxes and radios (which sit in
-  // a larger label) are exempt from target size.
+  // Inline links, checkboxes and radios (in a larger label) are exempt.
   const sized = (c) =>
     !(c.tagName === 'A' && getComputedStyle(c).display === 'inline') &&
     c.type !== 'checkbox' &&
@@ -177,8 +175,7 @@ const inspect = (phone) => {
         )
         .map((y) => `overlap: ${name(x)} × ${name(y)}`)
     );
-  // Rows: flex containers whose direct button/input/select children sit
-  // on the same line but have different heights.
+  // Rows: flex lines whose button/input/select children differ in height.
   const isRow = (el) => {
     const s = getComputedStyle(el);
     return s.display.includes('flex') && !s.flexDirection.startsWith('column');
@@ -228,15 +225,16 @@ for (const theme of THEMES) {
       bypassCSP: true,
     });
     await context.addInitScript(
-      ([mode, skin]) => {
+      ([mode, skin, locale]) => {
         localStorage.setItem('metaSovereignTheme', mode);
         localStorage.setItem('metaSovereignSkin', skin);
+        localStorage.setItem('metaSovereignLocale', locale);
         localStorage.setItem(
           'metaSovereignTutorial',
           JSON.stringify({ off: true, completed: true, at: 0 })
         );
       },
-      [theme, SKIN]
+      [theme, SKIN, LOCALE]
     );
     const page = await context.newPage();
     const errors = [];
@@ -275,7 +273,7 @@ for (const theme of THEMES) {
       await page.screenshot({
         path: path.join(
           outDir,
-          `${view}-${vpName}-${theme}${SKIN === 't3' ? '' : `-${SKIN}`}.png`
+          `${view}-${vpName}-${theme}${SKIN === 't3' ? '' : `-${SKIN}`}${LOCALE === 'en' ? '' : `-${LOCALE}`}.png`
         ),
         fullPage: false,
       });
