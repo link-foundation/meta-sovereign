@@ -17,6 +17,7 @@ import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { avatarFor, groupChats } from './chat-model.js';
+import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
 
@@ -121,7 +122,9 @@ const TypingLine = ({ typing }) => {
     return el(
       'span',
       { className: 'typing', 'data-typing': 'automation' },
-      t('chat.typingAutomation', { name: typing.automation })
+      t('chat.typingAutomation', {
+        name: presetName(t, typing.automation),
+      })
     );
   }
   if (typing.people.length > 0) {
@@ -300,7 +303,7 @@ const DraftCard = ({ draft, drafts }) => {
         'p',
         { key: 'h', className: 'meta' },
         t('chat.draft.title', {
-          name: draft.automationName ?? draft.automation,
+          name: presetName(t, draft.automationName ?? draft.automation),
           form: t(FORM_KEYS[draft.form] ?? FORM_KEYS.informal),
         })
       ),

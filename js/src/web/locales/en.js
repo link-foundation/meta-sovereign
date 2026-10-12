@@ -744,6 +744,19 @@ export const en = {
     'Pick an automation to edit, preview or run it, or start a new one.',
   'automations.preset': 'preset',
   'automations.off': 'off',
+  'automations.presets.reengage-dormant.name':
+    'Say hi to contacts silent for 90 days',
+  'automations.presets.reengage-dormant.description':
+    'Personal chats with no messages for 90 days get a hello asking whether they or their friends need help with automation.',
+  'automations.presets.job-search.name': 'Ask about open positions',
+  'automations.presets.job-search.description':
+    'Tell contacts you are open to new roles; pair with an audience of colleagues or recruiters.',
+  'automations.presets.contract-search.name': 'Offer contract work',
+  'automations.presets.contract-search.description':
+    'Let contacts know you take contract projects; intersect lists to reach exactly the right people.',
+  'automations.presets.greet-back.name': 'Greet back',
+  'automations.presets.greet-back.description':
+    'When someone says hi in a personal chat, draft a greeting in the right form (at most once a day).',
   'automations.edit': 'Edit {name}',
   'automations.close': 'Close',
   'automations.delete': 'Delete',

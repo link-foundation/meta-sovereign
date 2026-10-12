@@ -6,11 +6,42 @@
 
 import {
   automationKey,
+  automationPresets,
   normalizeAutomation,
 } from '../automation/automations.js';
 import { formatAudienceSpec, parseAudienceSpec } from '../crm/people.js';
 
 const DEFAULT_AUDIENCE = { kind: 'personal' };
+
+const PRESETS = automationPresets();
+
+/**
+ * A preset's name in the user's language while it still is the stored
+ * (English) default; a name the user chose is shown as it is. Works on
+ * names alone, so drafts and typing status that only carry the name
+ * are translated too.
+ */
+export const presetName = (t, name) => {
+  const preset = PRESETS.find((p) => p.name === name);
+  return preset ? t(`automations.presets.${preset.preset}.name`) : name;
+};
+
+/** An automation with its untouched preset name and description translated. */
+export const localizePreset = (t, automation) => {
+  const preset = PRESETS.find((p) => p.preset === automation.preset);
+  if (!preset) {
+    return automation;
+  }
+  const text = (field) =>
+    automation[field] === preset[field]
+      ? t(`automations.presets.${preset.preset}.${field}`)
+      : automation[field];
+  return {
+    ...automation,
+    name: text('name'),
+    description: text('description'),
+  };
+};
 
 const triggerOf = (automation, kind) =>
   (automation.triggers ?? []).find((t) => t.kind === kind) ?? null;

@@ -12,6 +12,7 @@ import {
   summarizeChats,
   typingStatus,
 } from './chat-model.js';
+import { localizePreset } from './automations-model.js';
 
 const TYPING_EVERY_MS = 4000;
 
@@ -116,7 +117,9 @@ const useAutomationMenu = ({ api, current, confirm, t, after }) => {
     return result;
   };
   return {
-    automations: chatMenuAutomations(automations),
+    automations: chatMenuAutomations(automations).map((a) =>
+      localizePreset(t, a)
+    ),
     open,
     toggle: () => setOpen((v) => !v),
     run,

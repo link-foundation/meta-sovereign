@@ -11,6 +11,7 @@ import { defaultConfirm, runNotice, useLoaded } from './chat-state.js';
 import {
   blankAutomation,
   checkForm,
+  localizePreset,
   selectionAudience,
   targetsFor,
   toForm,
@@ -26,7 +27,7 @@ const useEditor = ({ api, tick, refresh, setNotice, confirm, t }) => {
   const [base, setBase] = useState(null);
   const [form, setForm] = useState(null);
   const [error, setError] = useState(null);
-  const list = automations ?? [];
+  const list = (automations ?? []).map((a) => localizePreset(t, a));
   const open = (automation) => {
     setBase(automation);
     setForm(toForm(automation));

@@ -739,6 +739,19 @@ export const hi = {
     'संपादित करने, पूर्वावलोकन करने या चलाने के लिए कोई ऑटोमेशन चुनें, या नया बनाएँ।',
   'automations.preset': 'पहले से तैयार',
   'automations.off': 'बंद',
+  'automations.presets.reengage-dormant.name':
+    '90 दिनों से चुप संपर्कों को नमस्ते कहें',
+  'automations.presets.reengage-dormant.description':
+    'जिन निजी चैट में 90 दिनों से कोई संदेश नहीं है, उन्हें नमस्ते भेजा जाता है और पूछा जाता है कि क्या उन्हें या उनके दोस्तों को ऑटोमेशन में मदद चाहिए।',
+  'automations.presets.job-search.name': 'खुली नौकरियों के बारे में पूछें',
+  'automations.presets.job-search.description':
+    'संपर्कों को बताएं कि आप नई भूमिकाओं के लिए तैयार हैं; सहकर्मियों या भर्तीकर्ताओं के दर्शकों के साथ इस्तेमाल करें।',
+  'automations.presets.contract-search.name': 'अनुबंध पर काम की पेशकश करें',
+  'automations.presets.contract-search.description':
+    'संपर्कों को बताएं कि आप अनुबंध पर प्रोजेक्ट लेते हैं; सही लोगों तक पहुँचने के लिए सूचियों का प्रतिच्छेदन करें।',
+  'automations.presets.greet-back.name': 'नमस्ते का जवाब दें',
+  'automations.presets.greet-back.description':
+    'जब कोई निजी चैट में नमस्ते कहे, तो सही रूप में अभिवादन का ड्राफ़्ट बनाएं (दिन में अधिकतम एक बार)।',
   'automations.edit': '{name} संपादित करें',
   'automations.close': 'बंद करें',
   'automations.delete': 'हटाएँ',

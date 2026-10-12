@@ -722,6 +722,18 @@ export const zh = {
   'automations.pick': '选择一个自动化以编辑、预览或运行，或者新建一个。',
   'automations.preset': '预设',
   'automations.off': '已关闭',
+  'automations.presets.reengage-dormant.name': '问候沉默 90 天的联系人',
+  'automations.presets.reengage-dormant.description':
+    '90 天没有消息的私聊会收到一条问候，询问对方或其朋友是否需要自动化方面的帮助。',
+  'automations.presets.job-search.name': '询问空缺职位',
+  'automations.presets.job-search.description':
+    '告诉联系人你在寻找新职位；可搭配同事或招聘人员的受众使用。',
+  'automations.presets.contract-search.name': '承接合同工作',
+  'automations.presets.contract-search.description':
+    '让联系人知道你承接合同项目；对列表取交集，精准联系合适的人。',
+  'automations.presets.greet-back.name': '回复问候',
+  'automations.presets.greet-back.description':
+    '有人在私聊中打招呼时，按正确的称呼形式起草问候（每天最多一次）。',
   'automations.edit': '编辑 {name}',
   'automations.close': '关闭',
   'automations.delete': '删除',

@@ -750,6 +750,18 @@ export const ru = {
     'Выберите автоматизацию, чтобы изменить, проверить или запустить её, или создайте новую.',
   'automations.preset': 'шаблон',
   'automations.off': 'выключена',
+  'automations.presets.reengage-dormant.name': 'Привет тем, кто молчит 90 дней',
+  'automations.presets.reengage-dormant.description':
+    'Личные чаты без сообщений 90 дней получают приветствие с вопросом, не нужна ли им или их друзьям помощь с автоматизацией.',
+  'automations.presets.job-search.name': 'Спросить об открытых вакансиях',
+  'automations.presets.job-search.description':
+    'Расскажите контактам, что вы открыты к новым ролям; сочетайте с аудиторией коллег или рекрутеров.',
+  'automations.presets.contract-search.name': 'Предложить работу по контракту',
+  'automations.presets.contract-search.description':
+    'Сообщите контактам, что берёте проекты на контракт; пересекайте списки, чтобы написать именно тем, кому нужно.',
+  'automations.presets.greet-back.name': 'Ответить на приветствие',
+  'automations.presets.greet-back.description':
+    'Когда кто-то здоровается в личном чате, подготовить приветствие в нужной форме (не чаще раза в день).',
   'automations.edit': 'Изменить «{name}»',
   'automations.close': 'Закрыть',
   'automations.delete': 'Удалить',
@@ -820,7 +832,7 @@ export const ru = {
   'automations.error.trigger': 'Выберите хотя бы один способ запуска',
   'automations.error.invalid': 'Автоматизация заполнена неверно',
   'automations.people.title': 'Люди',
-  'automations.people.search': 'Искать людей по имени, нику или сети',
+  'automations.people.search': 'Поиск по имени, нику или сети',
   'automations.people.sameAs': 'ещё в сетях: {count}',
   'automations.people.selected': 'Выбрано: {count}',
   'automations.people.test': 'Проверка: без условий',

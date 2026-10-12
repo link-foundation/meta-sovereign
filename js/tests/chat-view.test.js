@@ -258,6 +258,17 @@ test('screen: typing status, translated, and the empty states', () => {
     'ru'
   );
   assert.match(typing, /Say hi печатает за вас…/);
+  // A preset's stored English name is shown in the user's language.
+  const preset = render(
+    screenState({
+      typing: {
+        people: [],
+        automation: 'Say hi to contacts silent for 90 days',
+      },
+    }),
+    'ru'
+  );
+  assert.match(preset, /Привет тем, кто молчит 90 дней печатает за вас…/);
   const people = render(
     screenState({ typing: { people: ['Alice Smith'], automation: null } })
   );

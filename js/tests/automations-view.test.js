@@ -15,6 +15,8 @@ import {
   checkForm,
   exclusionSummary,
   fromForm,
+  localizePreset,
+  presetName,
   selectionAudience,
   targetsFor,
   toForm,
@@ -84,6 +86,29 @@ test('form: refuses what would not run, saying where', () => {
   );
   assert.match(checkForm({ ...form, schedule: 'often' }).detail, /duration/);
   assert.ok(checkForm(form).automation);
+});
+
+test("presets: untouched names and descriptions in the user's language", () => {
+  const ru = (k, v) => translate('ru', k, v);
+  const en = (k, v) => translate('en', k, v);
+  const dormant = preset('reengage-dormant');
+  const shown = localizePreset(ru, dormant);
+  assert.equal(shown.name, 'Привет тем, кто молчит 90 дней');
+  assert.match(shown.description, /^Личные чаты без сообщений 90 дней/);
+  assert.equal(shown.id, dormant.id);
+  // English keys say exactly what the presets store.
+  for (const a of automationPresets()) {
+    assert.deepEqual(localizePreset(en, a), a, a.id);
+  }
+  // A name the user chose stays; a non-preset is left alone.
+  const renamed = { ...dormant, name: 'Мой привет' };
+  assert.equal(localizePreset(ru, renamed).name, 'Мой привет');
+  assert.match(localizePreset(ru, renamed).description, /^Личные/);
+  const own = { id: 'automation:x', name: 'Greet back' };
+  assert.equal(localizePreset(ru, own), own);
+  // Drafts and typing status only carry the name.
+  assert.equal(presetName(ru, 'Greet back'), 'Ответить на приветствие');
+  assert.equal(presetName(ru, 'Мой привет'), 'Мой привет');
 });
 
 test('selection: targets prefer the 1:1 chat; an audience of people', () => {
