@@ -47,6 +47,8 @@ tablet (rail) and desktop layouts checked for overflow, tap targets and
 contrast. Contacts are named by their messages, newest first, without
 the owner. The desktop window opens in the app's background colour
 instead of flashing white, and download cards no longer wrap a size
-onto a line starting with "·". Documented in REQUIREMENTS section X, USER-GUIDE section
+onto a line starting with "·".
+
+Documented in REQUIREMENTS section X, USER-GUIDE section
 11, SERVER-PARITY section 5a (en/ru/zh/hi) and
 `docs/case-studies/issue-31/`.
