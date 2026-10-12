@@ -185,4 +185,32 @@ export const useT = () => React.useContext(LocaleContext).t;
 
 export const useLocaleContext = () => React.useContext(LocaleContext);
 
+const formatDate = (ts, locale, options) => {
+  const date = ts ? new Date(ts) : null;
+  return date && !Number.isNaN(date.getTime())
+    ? date.toLocaleString(locale, options)
+    : '';
+};
+
+/**
+ * Dates and times in the interface language rather than the browser's,
+ * so a Russian screen says "14:05", not "02:05 PM".
+ */
+export const formatDateTime = (ts, locale = DEFAULT_LOCALE) =>
+  formatDate(ts, locale);
+
+export const formatTime = (ts, locale = DEFAULT_LOCALE) =>
+  formatDate(ts, locale, { hour: '2-digit', minute: '2-digit' });
+
+export const useDates = () => {
+  const { locale } = React.useContext(LocaleContext);
+  return useMemo(
+    () => ({
+      dateTime: (ts) => formatDateTime(ts, locale),
+      time: (ts) => formatTime(ts, locale),
+    }),
+    [locale]
+  );
+};
+
 export { availableLocales, DEFAULT_LOCALE };

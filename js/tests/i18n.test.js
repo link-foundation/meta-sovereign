@@ -22,6 +22,8 @@ import {
   LocaleContext,
   availableLocales,
   DEFAULT_LOCALE,
+  formatDateTime,
+  formatTime,
 } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { LanguageSwitcher } from '../src/web/language-switcher.js';
@@ -323,4 +325,16 @@ test('default LocaleContext returns translations from the default locale', () =>
   };
   const html = renderToStaticMarkup(React.createElement(Probe));
   assert.ok(html.includes(dictionaries[DEFAULT_LOCALE]['common.save']));
+});
+
+test('times follow the interface language, not the browser', () => {
+  // 14:05 local time, whatever the machine's time zone.
+  const at = new Date(2026, 9, 12, 14, 5).toISOString();
+  const ru = formatTime(at, 'ru');
+  const en = formatTime(at, 'en');
+  assert.equal(ru, '14:05', 'Russian uses a 24-hour clock');
+  assert.match(en, /^02:05\sPM$/, 'English uses AM/PM');
+  assert.notEqual(formatDateTime(at, 'ru'), formatDateTime(at, 'en'));
+  assert.equal(formatTime(null, 'ru'), '');
+  assert.equal(formatDateTime('not a date', 'ru'), '');
 });

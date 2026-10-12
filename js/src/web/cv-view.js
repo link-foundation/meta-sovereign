@@ -12,11 +12,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
-import { useT } from './i18n.js';
+import { useDates, useT } from './i18n.js';
 
 const el = React.createElement;
-
-const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
 /** `{platform: value}` → `platform=value` cells, in a stable order. */
 const valueCells = (row) =>
@@ -27,6 +25,7 @@ const valueCells = (row) =>
 
 const PlatformRow = ({ platform, stored, checked, onToggle }) => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   return el('tr', { 'data-platform': platform.id }, [
     el(
       'td',
@@ -156,6 +155,7 @@ const SyncPlan = ({ result }) => {
 
 const TelemetryPanel = ({ telemetry }) => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const runs = telemetry?.runs ?? [];
   if (runs.length === 0) {
     return el('p', { className: 'meta' }, t('cv.noRuns'));

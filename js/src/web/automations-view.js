@@ -9,13 +9,12 @@
 
 import React from 'react';
 import { api as defaultApi } from './dom.js';
-import { useT } from './i18n.js';
+import { useDates, useT } from './i18n.js';
 import { reasonText } from './chat-view.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
 
 const el = React.createElement;
-const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
 const field = (props, control) =>
   el('label', { className: 'field', key: props.name }, [
@@ -538,6 +537,7 @@ const PlanPreview = ({ runs }) => {
 
 const History = ({ runs }) => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   if (runs.history.length === 0) {
     return null;
   }
@@ -566,6 +566,7 @@ const History = ({ runs }) => {
 
 const PeoplePanel = ({ state }) => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const { people, runs, editor } = state;
   const [test, setTest] = React.useState(false);
   const [listName, setListName] = React.useState('');

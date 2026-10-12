@@ -12,11 +12,10 @@ import { CvView } from './cv-view.js';
 import { GreetingsView } from './greetings-view.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
-import { useT } from './i18n.js';
+import { useDates, useT } from './i18n.js';
 import { ConnectionsList, ConnectionDetail } from './connections/index.js';
 
 const el = React.createElement;
-const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
 export { ChatView, navItems };
 
@@ -76,6 +75,7 @@ const refreshReducer = (value) => value + 1;
 
 export const OperatorView = () => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const state = useAsyncValue(() => api.links(), [], []);
   const [index, setIndex] = useState(0);
   const queue = useMemo(
@@ -143,6 +143,7 @@ export const OperatorView = () => {
 
 export const ContactsView = () => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const state = useAsyncValue(() => api.contacts(), [], []);
   return el(AsyncFrame, { state }, (contacts) => {
     if (!contacts || contacts.length === 0) {
@@ -732,6 +733,7 @@ export const OutreachView = () => {
 
 export const BackupView = () => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.listBackups(), [refresh], []);
   const [passphrase, setPassphrase] = useState('');
