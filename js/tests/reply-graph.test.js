@@ -101,6 +101,9 @@ test('autocomplete tries whole replies first, then words', () => {
 
   const next = index.autocomplete({ typed: 'Привет, как ' });
   assert.equal(next.suggestions[0].word, 'дела');
+  // Like a keyboard's strip: whole replies may be many, words three.
+  assert.ok(next.suggestions.length <= 3);
+  assert.ok(index.suggestWords('Привет, ', { limit: 8 }).length > 3);
   // One word typed: the word that followed it beats more frequent ones.
   const after = index.autocomplete({ typed: 'Пожалуйста, ' });
   assert.equal(after.suggestions[0].word, 'обращайтесь');

@@ -147,6 +147,8 @@ const wordSuggestion = ({ text, partial, spelled, count }) => {
 const SENTENCE_END = /[.!?…]+(?=\s|$)|\n+/u;
 // The context before the first word of a sentence.
 const START = '\u0002';
+// A keyboard's suggestion strip holds three words (Gboard, iOS).
+const WORD_LIMIT = 3;
 
 const sentences = (text) => String(text ?? '').split(SENTENCE_END);
 
@@ -387,14 +389,17 @@ export const createReplyIndex = ({
       words.suggest(typed, limit),
     /**
      * The two stages together: whole replies to `lastMessage` first,
-     * word-by-word over `typed` when none match.
+     * word-by-word over `typed` when none match. Words stop at three,
+     * like a phone keyboard's strip: past the top few they are guesses.
      */
     autocomplete({ lastMessage = '', typed = '', limit = 8 } = {}) {
       const whole = lastMessage ? pairs.suggest(lastMessage, typed, limit) : [];
       if (whole.length > 0) {
         return { stage: 'reply', suggestions: whole };
       }
-      const byWord = typed ? words.suggest(typed, limit) : [];
+      const byWord = typed
+        ? words.suggest(typed, Math.min(limit, WORD_LIMIT))
+        : [];
       return {
         stage: byWord.length > 0 ? 'word' : 'none',
         suggestions: byWord,
