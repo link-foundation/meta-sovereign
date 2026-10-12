@@ -1,0 +1,465 @@
+name: Desktop release
+
+# Builds the Electron desktop app for Windows, macOS and Linux (x64 and
+# arm64) and attaches the installers, SHA256SUMS.txt, BUILD-PROVENANCE.txt
+# and the electron-updater feeds (latest*.yml) to the GitHub release of
+# the current package version (issue #37). The download page
+# (https://link-foundation.github.io/meta-sovereign/download/) and the
+# in-app updater read those assets; their names come from one catalogue,
+# js/src/web/download/downloads.js.
+#
+# Triggers:
+#   - after "Checks and release" finishes on main. That workflow creates
+#     the release with GITHUB_TOKEN, which does not emit a `release`
+#     event, so `workflow_run` is the hook that actually fires. A run
+#     whose only failure is `Publish to npm` still counts
+#     (js/scripts/desktop-release-gate.mjs);
+#   - `release: published` for releases created by people or PATs;
+#   - manual `workflow_dispatch` (optionally for an existing tag);
+#   - pull requests touching the packaging, as a build-only dry run.
+#
+# When the release for the current version does not exist yet (npm
+# publishing failed or was skipped), this workflow creates it from
+# CHANGELOG.md, so desktop users are never blocked on npm. A release
+# that already has SHA256SUMS.txt is skipped (idempotent re-runs).
+#
+# macOS signing: with the MAC_CSC_LINK, MAC_CSC_KEY_PASSWORD,
+# APPLE_API_KEY (.p8 contents), APPLE_API_KEY_ID and APPLE_API_ISSUER
+# secrets the app is signed with a Developer ID and notarized; without
+# them it is ad-hoc signed (runs after "Open Anyway", no auto-update).
+# See docs/case-studies/issue-37/README.md.
+
+on:
+  workflow_run:
+    workflows: ['Checks and release']
+    types: [completed]
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to build for (default: v<package.json version> on main)'
+        required: false
+        type: string
+  pull_request:
+    paths:
+      - '.github/workflows/desktop-release.yml'
+      - 'desktop/**'
+      - 'js/electron/**'
+      - 'js/scripts/build-desktop.mjs'
+      - 'js/scripts/desktop-release-gate.mjs'
+      - 'js/scripts/prepare-desktop.mjs'
+      - 'js/scripts/normalize-desktop-artifacts.mjs'
+      - 'js/scripts/validate-desktop-assets.mjs'
+      - 'js/src/web/download/downloads.js'
+
+concurrency:
+  group: desktop-release-${{ github.event.pull_request.number || 'main' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  resolve:
+    name: Resolve release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: >-
+      github.event_name != 'workflow_run' ||
+      ((github.event.workflow_run.conclusion == 'success' ||
+        github.event.workflow_run.conclusion == 'failure') &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.event == 'push')
+    permissions:
+      contents: write
+      # Read the jobs of the triggering "Checks and release" run.
+      actions: read
+    outputs:
+      build: ${{ steps.resolve.outputs.build }}
+      publish: ${{ steps.resolve.outputs.publish }}
+      tag: ${{ steps.resolve.outputs.tag }}
+      ref: ${{ steps.resolve.outputs.ref }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # The release job pushes a version commit after the run that
+          # triggered us started, so build the current tip of main.
+          ref: ${{ github.event_name == 'pull_request' && github.sha || github.event.release.tag_name || inputs.tag || 'main' }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+
+      - name: Resolve tag and decide what to do
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./package.json').version")
+          sha=$(git rev-parse HEAD)
+          tag="${RELEASE_TAG:-${INPUT_TAG:-v$version}}"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "ref=$sha" >> "$GITHUB_OUTPUT"
+
+          if [ "$EVENT" = "pull_request" ]; then
+            echo "Pull request: build-only dry run for $tag"
+            echo "build=true" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # The release job commits the version before `Publish to npm`;
+          # while npm publishing fails (e.g. E404 before the package's
+          # first publish), desktop users still get the GitHub release.
+          if [ "$EVENT" = "workflow_run" ] && [ "$RUN_CONCLUSION" != "success" ]; then
+            gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" --paginate \
+              | node js/scripts/desktop-release-gate.mjs > gate.txt
+            if ! grep -qx 'build=true' gate.txt; then
+              echo "build=false" >> "$GITHUB_OUTPUT"
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::warning::npm publishing failed; building the desktop release for $tag anyway"
+          fi
+
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            if [ "$tag" != "v$version" ]; then
+              echo "::error::release $tag does not exist"
+              exit 1
+            fi
+            echo "Release $tag does not exist yet; creating it from CHANGELOG.md at $sha"
+            node js/scripts/create-github-release.mjs \
+              --release-version "$version" \
+              --repository "$GITHUB_REPOSITORY" \
+              --target "$sha"
+          fi
+
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets \
+              --jq '.assets[].name' | grep -qx 'SHA256SUMS.txt'; then
+            echo "Release $tag already has desktop assets; nothing to do"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "build=true" >> "$GITHUB_OUTPUT"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: resolve
+    if: needs.resolve.outputs.build == 'true'
+    runs-on: ${{ matrix.runner }}
+    # Typical run: 6–12 min (Electron download + compression);
+    # notarization can add up to 15 min.
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x64
+            runner: ubuntu-latest
+            os: linux
+            args: --linux --x64
+          - name: linux-arm64
+            runner: ubuntu-24.04-arm
+            os: linux
+            args: --linux --arm64
+          - name: macos
+            runner: macos-latest
+            os: macos
+            args: --mac --x64 --arm64
+          - name: windows-x64
+            runner: windows-latest
+            os: windows
+            args: --win --x64
+          - name: windows-arm64
+            runner: windows-11-arm
+            os: windows
+            args: --win --arm64
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.resolve.outputs.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        shell: bash
+        env:
+          # electron-builder downloads its own Electron per target arch.
+          ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-audit --no-fund electron-builder@^26
+
+      - name: Resolve Electron version
+        shell: bash
+        run: |
+          range=$(node -p "require('./package.json').peerDependencies.electron")
+          version=$(npm view "electron@$range" version --json | node -e \
+            "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(Array.isArray(v)?v.at(-1):v)")
+          echo "Electron $version (peer range $range)"
+          echo "META_SOVEREIGN_ELECTRON_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Install fpm (Linux arm64)
+        if: matrix.name == 'linux-arm64'
+        # electron-builder's bundled fpm is x86_64-only.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ruby ruby-dev rpm
+          sudo gem install --no-document fpm
+          echo "USE_SYSTEM_FPM=true" >> "$GITHUB_ENV"
+
+      - name: Build web bundle
+        run: npm run build:web
+
+      - name: Choose macOS signing mode
+        if: matrix.os == 'macos'
+        id: macsign
+        shell: bash
+        env:
+          MAC_CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          MAC_CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          set -euo pipefail
+          # Pull requests never get the Developer ID: they build the
+          # ad-hoc variant, which needs no secrets.
+          if [ "$GITHUB_EVENT_NAME" != pull_request ] && \
+             [ -n "$MAC_CSC_LINK" ] && [ -n "$MAC_CSC_KEY_PASSWORD" ] && \
+             [ -n "$APPLE_API_KEY_CONTENT" ] && [ -n "$APPLE_API_KEY_ID" ] && \
+             [ -n "$APPLE_API_ISSUER" ]; then
+            # notarytool wants a path to the .p8 key, not its contents.
+            key="$RUNNER_TEMP/AuthKey_$APPLE_API_KEY_ID.p8"
+            printf '%s' "$APPLE_API_KEY_CONTENT" > "$key"
+            {
+              echo "CSC_LINK=$MAC_CSC_LINK"
+              echo "CSC_KEY_PASSWORD=$MAC_CSC_KEY_PASSWORD"
+              echo "APPLE_API_KEY=$key"
+              echo "APPLE_API_KEY_ID=$APPLE_API_KEY_ID"
+              echo "APPLE_API_ISSUER=$APPLE_API_ISSUER"
+            } >> "$GITHUB_ENV"
+            echo "mode=signed" >> "$GITHUB_OUTPUT"
+            echo "args=" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::building an ad-hoc signed macOS app (pull request or no signing secrets)"
+            # electron-builder skips signing on pull requests unless
+            # CSC_FOR_PULL_REQUEST is set; ad-hoc signing uses no secret.
+            # With auto-discovery off it also needs `mac.identity=-`:
+            # without an identity it returns before calling `mac.sign`.
+            {
+              echo "MACOS_ADHOC_SIGN=1"
+              echo "CSC_IDENTITY_AUTO_DISCOVERY=false"
+              echo "CSC_FOR_PULL_REQUEST=true"
+            } >> "$GITHUB_ENV"
+            echo "mode=adhoc" >> "$GITHUB_OUTPUT"
+            echo "args=-c.mac.identity=- -c.mac.notarize=false -c.mac.sign=$GITHUB_WORKSPACE/desktop/adhoc-sign-mac.cjs" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build desktop app
+        shell: bash
+        run: node js/scripts/build-desktop.mjs ${{ matrix.args }} ${{ steps.macsign.outputs.args }}
+
+      - name: Drop the Windows arm64 update feed
+        if: matrix.name == 'windows-arm64'
+        shell: bash
+        # electron-updater on Windows reads one latest.yml; the x64 job
+        # owns it, and the app disables auto-update on win-arm64
+        # (js/electron/main.js `unsupportedUpdateArch`).
+        run: rm -f dist/desktop/release/latest.yml
+
+      - name: Smoke test (Linux)
+        if: matrix.os == 'linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist/desktop/release
+          ls -la
+          deb=$(ls meta-sovereign-desktop-linux-*.deb)
+          dpkg-deb --info "$deb"
+          # Listings go to files first: `cmd | grep -q` closes the pipe
+          # early, the writer dies of SIGPIPE and pipefail fails the step.
+          dpkg-deb --contents "$deb" > deb-contents.txt
+          grep -q 'opt/Meta Sovereign/meta-sovereign' deb-contents.txt
+          appimage=$(ls meta-sovereign-desktop-linux-*.AppImage)
+          chmod +x "$appimage"
+          ./"$appimage" --appimage-extract > /dev/null
+          test -x squashfs-root/meta-sovereign
+          rm -rf squashfs-root
+          tar -tzf meta-sovereign-desktop-linux-*.tar.gz > tar-contents.txt
+          grep -q '/meta-sovereign$' tar-contents.txt
+          rm deb-contents.txt tar-contents.txt
+          test -f latest-linux*.yml
+
+      - name: Smoke test (macOS)
+        if: matrix.os == 'macos'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist/desktop/release
+          ls -la
+          check_app() {
+            local app="$1" id
+            ls -la "$app/Contents"
+            test "$(basename "$app")" = 'Meta Sovereign.app'
+            id=$(plutil -extract CFBundleIdentifier raw -o - "$app/Contents/Info.plist")
+            echo "$app: $id"
+            test "$id" = foundation.link.meta.sovereign
+            codesign --verify --deep --strict --verbose=2 "$app"
+          }
+          for dir in mac mac-arm64; do
+            ls -la "$dir"
+            check_app "$(find "$dir" -maxdepth 1 -name '*.app' | head -n 1)"
+          done
+          for dmg in meta-sovereign-desktop-macos-*.dmg; do
+            mount=$(mktemp -d)
+            hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mount"
+            ls -la "$mount"
+            check_app "$(find "$mount" -maxdepth 1 -name '*.app' | head -n 1)"
+            hdiutil detach "$mount" > /dev/null
+          done
+          test -f latest-mac.yml
+
+      - name: Smoke test (Windows)
+        if: matrix.os == 'windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Set-Location dist/desktop/release
+          Get-ChildItem
+          $installers = Get-ChildItem 'meta-sovereign-desktop-windows-installer-*.exe'
+          $portables = Get-ChildItem 'meta-sovereign-desktop-windows-portable-*.exe'
+          if ($installers.Count -ne 1 -or $portables.Count -ne 1) { throw 'expected one installer and one portable exe' }
+          foreach ($exe in @($installers) + @($portables)) {
+            if ($exe.Length -lt 10MB) { throw "$($exe.Name) is suspiciously small" }
+          }
+
+      - name: Checksums and provenance
+        shell: bash
+        env:
+          MAC_SIGNING: ${{ steps.macsign.outputs.mode }}
+        run: |
+          set -euo pipefail
+          cd dist/desktop/release
+          files=$(ls meta-sovereign-desktop-* latest*.yml 2>/dev/null | grep -v '\.blockmap$' || true)
+          if command -v sha256sum > /dev/null; then sum='sha256sum'; else sum='shasum -a 256'; fi
+          $sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-${{ matrix.name }}.txt"
+          {
+            echo "## ${{ matrix.name }}"
+            echo "runner: ${{ matrix.runner }} ($RUNNER_OS $RUNNER_ARCH)"
+            echo "commit: ${{ needs.resolve.outputs.ref }}"
+            echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"
+            echo "electron-builder: $(node -p "require('electron-builder/package.json').version")"
+            echo "node: $(node --version)"
+            [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"
+            echo "files:"
+            for f in $files; do echo "  - $f"; done
+          } > "provenance-${{ matrix.name }}.txt"
+          cat "provenance-${{ matrix.name }}.txt"
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.name }}
+          path: |
+            dist/desktop/release/meta-sovereign-desktop-*
+            dist/desktop/release/latest*.yml
+            dist/desktop/release/SHA256SUMS-*.txt
+            dist/desktop/release/provenance-*.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish to release
+    needs: [resolve, build]
+    if: needs.resolve.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      artifact-metadata: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.resolve.outputs.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+
+      - name: Download builds
+        uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          path: dist
+          merge-multiple: true
+
+      - name: Aggregate checksums and provenance
+        run: |
+          set -euo pipefail
+          cd dist
+          cat SHA256SUMS-*.txt | sort -k2 > SHA256SUMS.txt
+          {
+            echo "# Meta Sovereign desktop ${{ needs.resolve.outputs.tag }}"
+            echo "repository: $GITHUB_REPOSITORY"
+            echo "workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            cat provenance-*.txt
+          } > BUILD-PROVENANCE.txt
+          rm SHA256SUMS-*.txt provenance-*.txt
+          ls -la
+          sha256sum --check SHA256SUMS.txt
+
+      - name: Validate release assets
+        run: node js/scripts/validate-desktop-assets.mjs --tag=${{ needs.resolve.outputs.tag }} --dist=dist
+
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            dist/meta-sovereign-desktop-*
+
+      - name: Upload to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.resolve.outputs.tag }}
+        run: |
+          set -euo pipefail
+          # SHA256SUMS.txt goes last: its presence marks the release as
+          # complete for the idempotency check in the resolve job.
+          find dist -maxdepth 1 -type f ! -name SHA256SUMS.txt -print0 \
+            | xargs -0 gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload "$TAG" dist/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber
+
+      - name: Verify published assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.resolve.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' \
+            | node js/scripts/validate-desktop-assets.mjs --tag="$TAG" --names=-
+          for f in dist/*; do
+            name=$(basename "$f")
+            url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$TAG/$name"
+            curl --fail --silent --show-error --location --range 0-0 --output /dev/null "$url"
+            echo "ok $name"
+          done

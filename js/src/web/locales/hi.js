@@ -17,6 +17,17 @@ export const hi = {
   'header.systemDefault': 'सिस्टम डिफ़ॉल्ट',
   'header.online': 'ऑनलाइन',
   'header.offline': 'ऑफ़लाइन',
+  'webMode.title': 'केवल ब्राउज़र मोड',
+  'webMode.body':
+    'कोई लोकल सर्वर नहीं मिला, इसलिए ऐप इस ब्राउज़र में सहेजे गए डेटा के साथ काम करता है। मेल और मैसेंजर से इम्पोर्ट, शेड्यूल किए गए ऑटोमेशन, डिवाइसों के बीच सिंक, CV सिंक और ग्रीटिंग्स लोकल सर्वर चलने पर चालू होते हैं। Node.js 20 या नए के साथ इसे शुरू करें:',
+  'webMode.retry': 'फिर से जाँचें',
+  'webMode.checking': 'लोकल सर्वर खोजा जा रहा है…',
+  'webMode.notFound':
+    'http://127.0.0.1:8787 पर अब भी कोई सर्वर जवाब नहीं दे रहा। इसे शुरू करें और फिर से जाँचें।',
+  'webMode.download': 'डेस्कटॉप ऐप पाएँ (सर्वर शामिल)',
+  'webMode.dismiss': 'छिपाएँ',
+  'webMode.safari':
+    'Safari https पेजों को http://127.0.0.1 तक पहुँचने नहीं देता। Safari में सर्वर चलने के बाद सीधे http://127.0.0.1:8787 खोलें, या डेस्कटॉप ऐप का उपयोग करें।',
   'nav.chat': 'चैट',
   'nav.operator': 'ऑपरेटर',
   'nav.contacts': 'संपर्क',
@@ -166,6 +177,9 @@ export const hi = {
   'guide.localServer.node': 'Node / Bun / Deno',
   'guide.localServer.nodeHint':
     'पब्लिश किए गए JS सर्वर का पुनः उपयोग करता है। डिफ़ॉल्ट http://127.0.0.1:8787।',
+  'guide.localServer.github': 'सीधे GitHub से',
+  'guide.localServer.githubHint':
+    'जब तक npm 404 देता है, इसका उपयोग करें: npx वही सर्वर GitHub रिपॉज़िटरी से लाता है। डिफ़ॉल्ट http://127.0.0.1:8787।',
   'guide.localServer.docker': 'Docker',
   'guide.localServer.dockerHint':
     'कंटेनर में वही JS सर्वर शुरू करता है। docker/web.Dockerfile देखें।',

@@ -1055,6 +1055,14 @@ export const localServerHelp = {
       hintKey: 'guide.localServer.nodeHint',
     },
     {
+      id: 'js-github',
+      heading: 'Straight from GitHub',
+      headingKey: 'guide.localServer.github',
+      command: 'npx -y github:link-foundation/meta-sovereign serve',
+      hint: 'Use this while npm answers 404: npx fetches the same server from the GitHub repository. Defaults to http://127.0.0.1:8787.',
+      hintKey: 'guide.localServer.githubHint',
+    },
+    {
       id: 'docker',
       heading: 'Docker',
       headingKey: 'guide.localServer.docker',

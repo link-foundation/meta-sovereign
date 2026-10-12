@@ -1,0 +1,36 @@
+# Linux smoke test steps from .github/workflows/desktop-release.yml, run locally
+592 latest-linux.yml
+120570548 meta-sovereign-desktop-linux-x64-0.20.0.AppImage
+94629464 meta-sovereign-desktop-linux-x64-0.20.0.deb
+113987384 meta-sovereign-desktop-linux-x64-0.20.0.tar.gz
+
+version: 0.20.0
+files:
+  - url: meta-sovereign-desktop-linux-x64-0.20.0.AppImage
+    sha512: gkk6W87zGThdcUOwi2BUZeDgx8cJ2Fag1SjvNjX4/xH4w7CUwOlpplYmJTGZzMoThOjHE3FGO6YyIvM+HPoPBQ==
+    size: 120570548
+    blockMapSize: 127688
+  - url: meta-sovereign-desktop-linux-x64-0.20.0.deb
+    sha512: JvvMWd/8OD2NmkGiGfR9XKqXbPhvoqW9ueD21WsRVCFZSnQW8wn3ZdaatBkepU7BxjhRdJ+3sQHaDR2cq5RgfA==
+    size: 94629464
+path: meta-sovereign-desktop-linux-x64-0.20.0.AppImage
+sha512: gkk6W87zGThdcUOwi2BUZeDgx8cJ2Fag1SjvNjX4/xH4w7CUwOlpplYmJTGZzMoThOjHE3FGO6YyIvM+HPoPBQ==
+
+ Package: meta-sovereign-desktop
+ Version: 0.20.0
+ License: Unlicense
+ Vendor: Link Foundation <link-foundation@users.noreply.github.com>
+ Architecture: amd64
+ Maintainer: Link Foundation <link-foundation@users.noreply.github.com>
+ Installed-Size: 308129
+ Depends: libgtk-3-0, libnotify4, libnss3, libxss1, libxtst6, xdg-utils, libatspi2.0-0, libuuid1, libsecret-1-0
+ Recommends: libappindicator3-1
+ Section: default
+ Priority: optional
+ Homepage: https://link-foundation.github.io/meta-sovereign/
+ Description: Local-first personal CRM and unified messenger
+   Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services
+-rw-r--r-- 0/0             315 2026-10-11 20:57 ./usr/share/applications/meta-sovereign.desktop
+-rw-r--r-- 0/0           69023 2026-10-11 20:53 ./usr/share/icons/hicolor/1024x1024/apps/meta-sovereign.png
+-rwxr-xr-x 0/0       207289560 2026-10-11 20:57 ./opt/Meta Sovereign/meta-sovereign
+meta-sovereign-desktop-linux-x64-0.20.0/meta-sovereign

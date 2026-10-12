@@ -47,17 +47,50 @@ bunx meta-sovereign serve
 
 JS server वही port और wire protocol बोलता है; SPA के लिए backend type मायने नहीं रखता।
 
+अगर npm `404` देता है (package अभी npm पर नहीं है), तो वही server सीधे GitHub से चलाएँ:
+
+```bash
+npx -y github:link-foundation/meta-sovereign serve
+```
+
 ## 4. desktop या mobile app install करें
 
-Desktop और mobile apps GitHub Pages वाले उसी SPA को built-in server के साथ native shell में wrap करते हैं। Browser tab के बिना offline mode चाहिए तो इन्हें इस्तेमाल करें।
+Desktop और mobile apps GitHub Pages वाले उसी SPA को built-in server के साथ native shell में wrap करते हैं। खुद server start किए बिना पूरा app चाहिए तो इन्हें इस्तेमाल करें।
+
+### Desktop (Linux, macOS, Windows)
+
+<https://link-foundation.github.io/meta-sovereign/download/> खोलें। Page आपका system पहचानता है, newest release से matching installer देता है, और बाकी सभी builds की list दिखाता है। हर file [GitHub releases](https://github.com/link-foundation/meta-sovereign/releases) पर भी attached है।
+
+| System  | Files (x64 और arm64)                                                       |
+| ------- | -------------------------------------------------------------------------- |
+| Linux   | `.AppImage` (खुद update होता है), `.deb`, `.tar.gz`                        |
+| macOS   | `.dmg` (Applications में drag करें), `.zip`                                |
+| Windows | `windows-installer` `.exe` (खुद update होता है), `windows-portable` `.exe` |
+
+पहली बार चलाना:
+
+- **macOS.** Apple Developer ID के बिना builds ad-hoc signed होते हैं, इसलिए macOS पहली launch रोकता है ("Apple could not verify…")। System Settings → Privacy & Security खोलें और **Open Anyway** click करें। ये builds खुद update नहीं होते; नए versions page से download करें।
+- **Windows.** अगर SmartScreen "Windows protected your PC" दिखाए, तो **More info** → **Run anyway** click करें।
+- **Linux.** `chmod +x meta-sovereign-desktop-linux-*.AppImage` करके चलाएँ, या `.deb` को `sudo apt install ./<file>.deb` से install करें।
+
+Download की गई file को release के `SHA256SUMS.txt` से check करें: download page के **Verify your download** section में (file और `SHA256SUMS.txt` चुनें; कुछ भी browser से बाहर नहीं जाता) या terminal में:
+
+```bash
+sha256sum --check --ignore-missing SHA256SUMS.txt
+gh attestation verify <file> --repo link-foundation/meta-sovereign
+```
+
+App अपना data system के per-user app folder में रखता है, इसलिए updates के बाद भी data रहता है। Installers खुद build करने के लिए: `npm i --no-save electron-builder@^26 && npm run desktop:build -- --linux --x64` (देखें `js/scripts/build-desktop.mjs`)।
+
+### Mobile और development builds
 
 | Platform | Build command                                      |
 | -------- | -------------------------------------------------- |
-| Electron | `npm run electron`                                 |
+| Electron | `npm run electron` (source tree से चलता है)        |
 | iOS      | `npm run mobile:ios` (Xcode खोलता है)              |
 | Android  | `npm run mobile:android` (Android Studio खोलता है) |
 
-Electron और Capacitor shell `js/src/web/` को verbatim reuse करते हैं। Optional peer dependency install होने पर desktop shell `electron-updater` auto-update भी enable करता है।
+Electron और Capacitor shell `js/src/web/` को verbatim reuse करते हैं, इसलिए UI GitHub Pages app जैसा ही है।
 
 ## 5. SPA को server से जोड़ें
 
@@ -70,6 +103,21 @@ Electron और Capacitor shell `js/src/web/` को verbatim reuse करते
 5. **Caller-supplied LAN candidates** — programmatic list।
 
 अगर कोई जवाब नहीं देता, SPA **offline mode** में local browser store में लिखता है। Server मिलने पर [`OfflineClient`](../js/src/web/client.js) queued writes replay करता है।
+
+Offline mode में hosted app एक **browser-only mode** notice दिखाता है, जिसमें local server start करने के commands, **Check again** button और desktop app का link होता है। Imports, automations, sync, CV sync और greetings को server चाहिए। Contacts, patterns और broadcasts browser store से काम करते रहते हैं।
+
+Hosted app `https://link-foundation.github.io` पर है, इसलिए browser पहले local server से permission माँगता है (CORS)। JS server default रूप से यह origin और Capacitor app allow करता है। किसी दूसरे origin को allow करने के लिए, जैसे SPA की आपकी अपनी copy:
+
+```bash
+meta-sovereign serve --allow-origin=https://example.org
+# या: MS_ALLOW_ORIGINS="https://example.org https://link-foundation.github.io"
+# --allow-origin=none cross-origin access बंद करता है
+```
+
+Browser notes:
+
+- **Chrome और Edge** (और नए Firefox) एक बार पूछते हैं कि क्या page local network के devices तक पहुँच सकता है। Allow करें।
+- **Safari** `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता। Server चलने पर <http://127.0.0.1:8787> सीधे खोलें, या desktop app इस्तेमाल करें।
 
 ## 6. devices के बीच sync (WebRTC)
 
@@ -204,13 +252,14 @@ Telegram के अपने सुझाव bots को उपलब्ध न�
 
 ## 11. Troubleshooting
 
-| Symptom                              | Fix                                                                                                   |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| SPA loading spinner पर अटका है।      | Dev tools → Application → IndexedDB में `meta-sovereign` database देखें; storage disabled हो सकता है। |
-| SPA local server तक नहीं पहुँचता।    | App में **Settings → Server** खोलकर exact URL paste करें।                                             |
-| Server `EADDRINUSE` report करता है।  | `meta-sovereign serve --port=NNNN` या Rust `serve --port=NNNN` चलाएँ।                                 |
-| WebRTC sync दो LANs के बीच रुकता है। | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                          |
-| `cargo build` linker error देता है।  | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                      |
+| Symptom                                                       | Fix                                                                                                                                                                                                    |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| SPA loading spinner पर अटका है।                               | Dev tools → Application → IndexedDB में `meta-sovereign` database देखें; storage disabled हो सकता है।                                                                                                  |
+| SPA local server तक नहीं पहुँचता।                             | App में **Settings → Server** खोलकर exact URL paste करें।                                                                                                                                              |
+| Server चल रहा है, फिर भी hosted app browser-only mode में है। | **Check again** click करें। Browser का local network prompt allow करें। Safari में <http://127.0.0.1:8787> खोलें। SPA खुद host करते हैं तो server को `--allow-origin=<आपका origin>` के साथ start करें। |
+| Server `EADDRINUSE` report करता है।                           | `meta-sovereign serve --port=NNNN` या Rust `serve --port=NNNN` चलाएँ।                                                                                                                                  |
+| WebRTC sync दो LANs के बीच रुकता है।                          | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                                                                                                                           |
+| `cargo build` linker error देता है।                           | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                                                                                                                       |
 
 ## 12. आगे कहाँ जाएँ
 

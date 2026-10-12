@@ -1,0 +1,114 @@
+// Browser-only mode notice (issue #37). Shown above every view while
+// no local server answers discovery: explains what still works, how
+// to start a server (npm or GitHub npx), re-runs discovery on demand
+// and, in a plain browser, links the desktop download page.
+
+import React, { useState } from 'react';
+import { useT } from './i18n.js';
+import { DISMISS_STORAGE_KEY, webModeNotice } from './web-mode.js';
+
+const el = React.createElement;
+
+const readDismissed = () => {
+  try {
+    return globalThis.sessionStorage?.getItem(DISMISS_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const saveDismissed = () => {
+  try {
+    globalThis.sessionStorage?.setItem(DISMISS_STORAGE_KEY, '1');
+  } catch {
+    // Storage can be disabled; the notice then just hides for this render.
+  }
+};
+
+/**
+ * @param {{ online: boolean|null, onRetry: () => Promise<boolean>,
+ *           notice?: object }} props `notice` overrides the computed
+ *           webModeNotice() (tests render it without browser globals).
+ */
+export const WebModeBanner = ({ online, onRetry, notice: given }) => {
+  const t = useT();
+  const [dismissed, setDismissed] = useState(readDismissed);
+  const [retry, setRetry] = useState('idle');
+  const notice = given ?? webModeNotice({ online });
+  if (!notice || dismissed) {
+    return null;
+  }
+  const check = async () => {
+    setRetry('checking');
+    const found = await onRetry?.().catch(() => false);
+    setRetry(found ? 'idle' : 'not-found');
+  };
+  const dismiss = () => {
+    saveDismissed();
+    setDismissed(true);
+  };
+  const status = {
+    checking: t('webMode.checking'),
+    'not-found': t('webMode.notFound'),
+  }[retry];
+  return el(
+    'aside',
+    {
+      className: 'card local-server-help web-mode-banner',
+      role: 'note',
+      'data-runtime': notice.runtime,
+      'aria-labelledby': 'web-mode-title',
+    },
+    [
+      el('h2', { key: 'h', id: 'web-mode-title' }, t('webMode.title')),
+      el('p', { key: 'body' }, t('webMode.body')),
+      ...notice.commands.map((option) =>
+        el('div', { key: option.id, className: 'col local-server-help-opt' }, [
+          el('div', { key: 'h', className: 'meta' }, t(option.headingKey)),
+          el('pre', { key: 'cmd' }, option.command),
+        ])
+      ),
+      notice.safariHint
+        ? el('p', { key: 'safari', className: 'meta' }, t('webMode.safari'))
+        : null,
+      el('div', { key: 'actions', className: 'row' }, [
+        el(
+          'button',
+          {
+            key: 'retry',
+            type: 'button',
+            className: 'primary',
+            'data-action': 'web-mode-retry',
+            disabled: retry === 'checking',
+            onClick: check,
+          },
+          t('webMode.retry')
+        ),
+        notice.downloadHref
+          ? el(
+              'a',
+              {
+                key: 'download',
+                className: 'web-mode-download',
+                href: notice.downloadHref,
+              },
+              t('webMode.download')
+            )
+          : null,
+        el(
+          'button',
+          {
+            key: 'dismiss',
+            type: 'button',
+            'data-action': 'web-mode-dismiss',
+            onClick: dismiss,
+          },
+          t('webMode.dismiss')
+        ),
+      ]),
+      status
+        ? el('p', { key: 'status', className: 'meta', role: 'status' }, status)
+        : null,
+    ]
+  );
+};
