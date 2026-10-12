@@ -68,6 +68,29 @@ test('chats: one row per conversation, newest first, searchable', () => {
   );
 });
 
+test('chats: every adapter chat type the CRM calls personal is personal', () => {
+  // Telegram exports say `personal_chat`, the Bot API `private`, VK
+  // `user`; anything else (`private_group`, `channel`) is a group.
+  const typed = (chat, chatType) => [
+    msg(chat, 'me', 'Привет', 2, { chatType }),
+    msg(chat, `u${chat}`, 'Привет!', 1, { chatType }),
+  ];
+  const chats = summarizeChats([
+    ...typed('1', 'personal_chat'),
+    ...typed('2', 'private'),
+    ...typed('3', 'user'),
+    ...typed('4', 'private_group'),
+    ...typed('5', 'channel'),
+  ]);
+  assert.deepEqual(chats.map((c) => [c.chat, c.personal]).sort(), [
+    ['1', true],
+    ['2', true],
+    ['3', true],
+    ['4', false],
+    ['5', false],
+  ]);
+});
+
 test('chats: t3-style date sections', () => {
   const local = new Date(NOW);
   local.setHours(0, 0, 0, 0);

@@ -3,6 +3,8 @@
 // one chat's messages, who is typing, and which automations the chat
 // menu offers. Pure, so it is tested without React or a browser.
 
+import { isPersonalChatType } from '../crm/reengage.js';
+
 const DAY_MS = 86_400_000;
 
 export const chatKey = (source, chat) => `${source}:${chat}`;
@@ -35,8 +37,11 @@ const summarize = (key, messages, self) => {
     source: last.source,
     chat: String(last.chat),
     name: title ?? String(last.chat),
-    // A chat type from the adapter wins; otherwise one other person.
-    personal: last.chatType ? last.chatType === 'private' : people.size <= 1,
+    // A chat type from the adapter wins (the same rule as the CRM's);
+    // otherwise one other person.
+    personal: last.chatType
+      ? isPersonalChatType(last.chatType)
+      : people.size <= 1,
     people: [...people],
     count: sorted.length,
     last: {

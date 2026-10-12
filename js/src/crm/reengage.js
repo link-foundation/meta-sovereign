@@ -65,6 +65,10 @@ export const normalizeReengageMode = (mode) => {
 // (`private`, `group`, `supergroup`, `channel`) and VK peer types.
 const PERSONAL_CHAT_TYPES = new Set(['personal_chat', 'private', 'user']);
 
+/** Whether an adapter's `chatType` names a one-to-one conversation. */
+export const isPersonalChatType = (chatType) =>
+  PERSONAL_CHAT_TYPES.has(chatType);
+
 const toMs = (value) => {
   if (value instanceof Date) {
     return value.getTime();
@@ -78,7 +82,7 @@ const toMs = (value) => {
 
 const chatKind = (source, chat, messages) => {
   const types = new Set(messages.map((m) => m.chatType).filter(Boolean));
-  if ([...types].some((t) => PERSONAL_CHAT_TYPES.has(t))) {
+  if ([...types].some(isPersonalChatType)) {
     return 'personal';
   }
   if (types.size > 0) {
