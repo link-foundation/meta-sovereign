@@ -8,6 +8,9 @@ import { createMemoryStore } from '../js/src/storage/index.js';
 import { buildMessageLink } from '../js/src/sources/link.js';
 import { startServer } from '../js/src/server/index.js';
 import { DAY_MS } from '../js/src/crm/reengage.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const port = Number(process.argv[2] ?? 4791);
 const ago = (n) => new Date(Date.now() - n * DAY_MS).toISOString();
@@ -93,6 +96,8 @@ const handle = await startServer({
   store,
   enableHandlers: false,
   enableSync: true,
+  // A throwaway archive folder so the Backup screen lists real archives.
+  archiveDir: fs.mkdtempSync(path.join(os.tmpdir(), 'ms-demo-backups-')),
   automations: {
     scheduler: false,
     setTyping: async ({ source, chat }) => {
