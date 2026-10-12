@@ -782,7 +782,7 @@ export const en = {
   'automations.trigger.schedule': 'every',
   'automations.trigger.incoming': 'on an incoming message matching',
   'automations.hint.schedule': '30m, 12h, 1d or 2w; empty: no schedule',
-  'automations.hint.incoming': 'a regular expression; empty: not on messages',
+  'automations.hint.incoming': 'A regular expression; empty: not on messages',
   'automations.hint.audience':
     'personal, friends:vk, chat:vk:<id>, community:vk:<id>, list:<id>, audience:<id>, person:vk:<id>; join with | (or), & (and), - (except) and brackets',
   'automations.hint.template':

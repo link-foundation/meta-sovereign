@@ -131,7 +131,7 @@ const fakeState = (overrides = {}) => {
     runs: {
       busy: false,
       plan: {
-        total: 1,
+        total: 2,
         drafts: [
           {
             id: 'd1',
@@ -140,6 +140,13 @@ const fakeState = (overrides = {}) => {
             chat: '101',
             form: 'informal',
             text: 'Привет! Тебе или твоим друзьям…',
+          },
+          {
+            id: 'd2',
+            source: 'vk',
+            chat: '2002',
+            form: 'formal',
+            text: 'Здравствуйте!',
           },
         ],
         excluded: [{ reason: 'talked-recently' }],
@@ -229,11 +236,14 @@ test('screen: list, editor, preview, history, people and audiences', () => {
   assert.match(html, /Save and queue drafts/);
   assert.match(html, /class="danger">Delete</);
   // Preview, why the rest are left out, and the history.
-  assert.match(html, /1 to message/);
+  assert.match(html, /2 to message/);
   assert.match(html, /Left out: talked recently × 1/);
   assert.match(html, /Привет! Тебе или твоим друзьям/);
   assert.match(html, /status sent">Sent</);
   // People search with selection, run on them, save as a list.
+  // A preview row repeats the chat id only next to a real name.
+  assert.match(html, /<strong>Alice<\/strong><span class="meta"> vk:101 · /);
+  assert.match(html, /<strong>2002<\/strong><span class="meta"> vk · formal/);
   assert.match(html, /<span class="meta">vk:alice · @alice · also on 1/);
   // Without a name the id is the label, and is not repeated.
   assert.match(html, /\/> vk:2004<\/label><span class="meta"><\/span>/);

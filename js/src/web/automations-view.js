@@ -524,7 +524,12 @@ const PlanPreview = ({ runs }) => {
             el(
               'span',
               { key: 's', className: 'meta' },
-              ` ${draft.source}:${draft.chat} · ${t(`automations.form.${draft.form}`)}`
+              // The chat id only adds something next to a real name.
+              ` ${
+                draft.name && draft.name !== draft.chat
+                  ? `${draft.source}:${draft.chat}`
+                  : draft.source
+              } · ${t(`automations.form.${draft.form}`)}`
             ),
             el('blockquote', { key: 't' }, draft.text),
           ])

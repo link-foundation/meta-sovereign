@@ -227,7 +227,7 @@ export const formatDateTime = (ts, locale = DEFAULT_LOCALE) =>
   formatDate(ts, locale, { dateStyle: 'medium', timeStyle: 'short' });
 
 export const formatTime = (ts, locale = DEFAULT_LOCALE) =>
-  formatDate(ts, locale, { hour: '2-digit', minute: '2-digit' });
+  formatDate(ts, locale, { timeStyle: 'short' });
 
 export const useDates = () => {
   const { locale } = React.useContext(LocaleContext);

@@ -789,7 +789,7 @@ export const ru = {
   'automations.trigger.incoming': 'на входящее сообщение по шаблону',
   'automations.hint.schedule': '30m, 12h, 1d или 2w; пусто: без расписания',
   'automations.hint.incoming':
-    'регулярное выражение; пусто: не реагировать на сообщения',
+    'Регулярное выражение; пусто: не реагировать на сообщения',
   'automations.hint.audience':
     'personal, friends:vk, chat:vk:<id>, community:vk:<id>, list:<id>, audience:<id>, person:vk:<id>; объединяйте через | (или), & (и), - (кроме) и скобки',
   'automations.hint.template':

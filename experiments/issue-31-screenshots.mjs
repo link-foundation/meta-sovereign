@@ -97,8 +97,10 @@ Object.assign(SHOTS, {
       await page.waitForTimeout(500);
     },
   },
+  // A tall window instead of fullPage, so the sticky header and the
+  // drawer stay where they belong instead of repeating mid-image.
   'automations-editor-preview': {
-    setup: { viewport: { width: 1280, height: 1100 } },
+    setup: { viewport: { width: 1280, height: 2000 } },
     run: async (page) => {
       await go(page, 'automation');
       await page.locator('.automation-list button').first().click();
@@ -107,8 +109,8 @@ Object.assign(SHOTS, {
         .locator('.automation-actions button', { hasText: 'Preview' })
         .click();
       await page.waitForTimeout(800);
+      await page.evaluate(() => window.scrollTo(0, 0));
     },
-    fullPage: true,
   },
   'settings-appearance': {
     setup: { viewport: DESKTOP },
@@ -148,10 +150,7 @@ for (const [name, shot] of Object.entries(SHOTS)) {
   }
   const { context, page } = await open(browser, shot.setup);
   await shot.run(page);
-  await page.screenshot({
-    path: path.join(outDir, `${name}.png`),
-    fullPage: Boolean(shot.fullPage),
-  });
+  await page.screenshot({ path: path.join(outDir, `${name}.png`) });
   await context.close();
   console.log(name);
 }
