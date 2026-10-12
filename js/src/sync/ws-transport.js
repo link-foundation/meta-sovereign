@@ -20,6 +20,7 @@ import {
   encodeTextFrame,
   encodeClientTextFrame,
   createFrameReader,
+  rejectForeignOrigin,
   acceptKey,
 } from './ws-frame.js';
 import {
@@ -45,9 +46,12 @@ const broadcast = (sockets, text) => {
  * existing http server. Returns a transport object plus a `close()`
  * that detaches handlers without stopping the server itself.
  */
-export const attachSyncWebSocket = (server, { path = '/ws' } = {}) => {
+export const attachSyncWebSocket = (
+  server,
+  { path = '/ws', verifyOrigin = null } = {}
+) => {
   if (IS_BUN) {
-    return bunAttachSyncWebSocket(server, { path });
+    return bunAttachSyncWebSocket(server, { path, verifyOrigin });
   }
   const sockets = new Set();
   const handlers = new Set();
@@ -63,6 +67,9 @@ export const attachSyncWebSocket = (server, { path = '/ws' } = {}) => {
         socket.write('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
         socket.destroy();
       }
+      return;
+    }
+    if (rejectForeignOrigin(req, socket, verifyOrigin)) {
       return;
     }
     if (!isWebSocketUpgrade(req)) {

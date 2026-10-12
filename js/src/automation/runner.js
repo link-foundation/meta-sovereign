@@ -180,27 +180,34 @@ export const createAutomationRunner = ({
     load,
     plan,
     /**
-     * Run an automation. Safe mode queues drafts. Auto mode sends, but a
-     * manual run must say `confirm: true`; schedule and incoming
-     * triggers were authorised when the automation was switched on.
+     * Run an automation. Nothing is ever sent without the user's say:
+     *   - safe mode, and every `schedule` / `incoming` trigger in any
+     *     mode, only queue drafts for the user to review and send;
+     *   - auto mode sends on a manual or chat-menu run the user
+     *     confirmed. `confirmed` is the exact list of drafts they saw
+     *     (from the preview); only those still due are sent.
      */
     async run(automationOrId, options = {}) {
       const automation = await load(automationOrId);
       const trigger = options.trigger ?? 'manual';
       const planned = await plan(automation, options);
-      if (automation.mode === 'safe') {
+      const byUser = ['manual', 'chat-menu'].includes(trigger);
+      if (automation.mode === 'safe' || !byUser) {
         return {
           ...planned,
           trigger,
           queued: await queue(automation, planned.drafts),
         };
       }
-      if (['manual', 'chat-menu'].includes(trigger) && !options.confirm) {
+      if (!Array.isArray(options.confirmed)) {
         throw new ConfirmationRequiredError(
-          'auto mode sends without asking; pass confirm: true to start it'
+          'auto mode sends messages; confirm the previewed drafts first'
         );
       }
-      const outcome = await sendPaced(automation, planned.drafts);
+      const outcome = await sendPaced(
+        automation,
+        stillConfirmed(planned.drafts, options.confirmed)
+      );
       await store.put({
         id: `${STATE_PREFIX}${automationKey(automation)}`,
         tokens: ['automation-state', automationKey(automation)],
@@ -223,6 +230,14 @@ export const createAutomationRunner = ({
   };
 };
 
+// Drafts both confirmed by the user (same chat, same text) and still
+// planned now — so nothing unconfirmed and nothing twice is sent.
+const draftKey = (d) => `${d.source}\u0000${d.chat}\u0000${d.text}`;
+export const stillConfirmed = (planned, confirmed) => {
+  const ok = new Set(confirmed.map(draftKey));
+  return planned.filter((draft) => ok.has(draftKey(draft)));
+};
+
 const enabledAutomations = async (store) =>
   (await store.query())
     .filter((l) => l?.id?.startsWith(AUTOMATION_PREFIX))
@@ -238,6 +253,8 @@ const enabledAutomations = async (store) =>
 /**
  * Fire `schedule` triggers every `tickMs` and `incoming` triggers on
  * every new message someone else sends — vk-bot's `executeTrigger`.
+ * Triggered runs only queue drafts (see `run`): nothing is sent until
+ * the user confirms.
  */
 export const createAutomationScheduler = ({
   store,

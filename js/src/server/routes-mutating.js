@@ -19,7 +19,14 @@ import { createNodeEmailTransport } from '../sources/email-node-transport.js';
 import { createGithubLive } from '../sources/github.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
-import { planOutreach, runOutreach } from '../broadcast/index.js';
+import {
+  broadcast,
+  planOutreach,
+  runOutreach,
+  syncProfile,
+  syncResume,
+} from '../broadcast/index.js';
+import { confirmed } from './confirmations.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
 import {
@@ -251,7 +258,7 @@ const handleReplies = async (store, req, res, p) => {
   return false;
 };
 
-const handleProfile = async (store, req, res, p) => {
+const handleProfile = async (store, req, res, p, ctx) => {
   if (p === '/api/profile' && req.method === 'GET') {
     const profile = await store.get('profile:me');
     return (
@@ -263,21 +270,48 @@ const handleProfile = async (store, req, res, p) => {
     const profile = await readBody(req);
     profile.id = 'profile:me';
     profile.tokens = profile.tokens ?? ['profile'];
+    // Saved locally only; publishing it is a separate, confirmed step.
     await store.put(profile);
-    return (
-      json(res, 200, {
-        profile,
-        plannedSyncs: listSources().map((s) => ({
-          source: s,
-          status: 'queued',
-        })),
-      }) ?? true
-    );
+    return json(res, 200, { profile }) ?? true;
+  }
+  if (p === '/api/profile/sync' && req.method === 'POST') {
+    return confirmedSync(store, req, res, ctx, {
+      id: 'profile:me',
+      action: 'profile.sync',
+      run: syncProfile,
+    });
   }
   return false;
 };
 
-const handleResume = async (store, req, res, p) => {
+/**
+ * Publish the saved profile or CV to the chosen networks, after the
+ * user confirmed exactly that profile and those networks.
+ */
+const confirmedSync = async (store, req, res, ctx, { id, action, run }) => {
+  const body = await readBody(req).catch(() => ({}));
+  const networks = Array.isArray(body.networks)
+    ? body.networks.filter((n) => listSources().includes(n))
+    : [];
+  if (networks.length === 0) {
+    return json(res, 400, { error: 'choose the networks to update' }) ?? true;
+  }
+  const ok = await confirmed(ctx, res, {
+    action,
+    body,
+    prepare: async () => {
+      const link = await store.get(id);
+      return { preview: { networks, fields: link ?? {} }, data: link };
+    },
+  });
+  if (!ok) {
+    return true;
+  }
+  const results = await run(networks, ok.data ?? {});
+  return json(res, 200, { networks, results }) ?? true;
+};
+
+const handleResume = async (store, req, res, p, ctx) => {
   if (p === '/api/resume' && req.method === 'GET') {
     const resume = await store.get('resume:me');
     return (
@@ -288,57 +322,87 @@ const handleResume = async (store, req, res, p) => {
     const resume = await readBody(req);
     resume.id = 'resume:me';
     resume.tokens = resume.tokens ?? ['resume'];
+    // Saved locally only; publishing it is a separate, confirmed step.
     await store.put(resume);
-    // Every board with a CV plan is a resume target (issue #29).
-    const targets = listCvSources();
-    return (
-      json(res, 200, {
-        resume,
-        plannedSyncs: targets.map((s) => ({ source: s, status: 'queued' })),
-      }) ?? true
-    );
+    return json(res, 200, { resume, targets: listCvSources() }) ?? true;
+  }
+  if (p === '/api/resume/sync' && req.method === 'POST') {
+    return confirmedSync(store, req, res, ctx, {
+      id: 'resume:me',
+      action: 'resume.sync',
+      run: syncResume,
+    });
   }
   return false;
 };
 
-const handleBroadcast = async (store, req, res, p) => {
+// A public post on every chosen network: confirmed, then sent, then
+// recorded with each network's result.
+const handleBroadcast = async (store, req, res, p, ctx) => {
   if (p !== '/api/broadcast' || req.method !== 'POST') {
     return false;
   }
-  const { text: body, networks } = await readBody(req);
-  const targets = (networks ?? listSources()).filter((n) =>
-    listSources().includes(n)
-  );
+  const request = await readBody(req);
+  const text = String(request.text ?? '');
+  const targets = (
+    Array.isArray(request.networks) ? request.networks : []
+  ).filter((n) => listSources().includes(n));
+  if (!text.trim() || targets.length === 0) {
+    return json(res, 400, { error: 'text and networks are needed' }) ?? true;
+  }
+  const ok = await confirmed(ctx, res, {
+    action: 'broadcast.post',
+    body: request,
+    prepare: async () => ({ preview: { networks: targets, text } }),
+  });
+  if (!ok) {
+    return true;
+  }
+  const results = await broadcast(targets, text);
   const post = {
     id: `broadcast:${Date.now()}`,
     tokens: ['broadcast', ...targets],
-    body,
+    body: text,
     networks: targets,
     timestamp: new Date().toISOString(),
-    status: 'queued',
+    status: 'sent',
+    dispatched: true,
+    results,
   };
   await store.put(post);
   return json(res, 200, post) ?? true;
 };
 
-const handleOutreach = async (store, req, res, p) => {
+const handleOutreach = async (store, req, res, p, ctx) => {
   if (p !== '/api/outreach' || req.method !== 'POST') {
     return false;
   }
-  const {
-    query = '',
-    text = '',
-    networks = null,
-    mode = 'preview',
-  } = await readBody(req);
-  const all = await store.query();
-  const audience = aggregateContacts(evalAudience(all, query));
-  const plan = planOutreach({ audience, text, networks, mode });
-  if (mode === 'queue') {
-    const results = await runOutreach(plan);
-    return json(res, 200, { plan, results }) ?? true;
+  const body = await readBody(req);
+  const { query = '', text = '', networks = null, mode = 'preview' } = body;
+  const makePlan = async () => {
+    const audience = aggregateContacts(
+      evalAudience(await store.query(), query)
+    );
+    return planOutreach({ audience, text, networks, mode });
+  };
+  if (mode !== 'queue') {
+    return json(res, 200, await makePlan()) ?? true;
   }
-  return json(res, 200, plan) ?? true;
+  // Sending: the user confirms the previewed envelopes, and exactly
+  // those are sent.
+  const ok = await confirmed(ctx, res, {
+    action: 'outreach.send',
+    body,
+    prepare: async () => {
+      const plan = await makePlan();
+      return { preview: plan, data: plan };
+    },
+  });
+  if (!ok) {
+    return true;
+  }
+  const results = await runOutreach(ok.data);
+  return json(res, 200, { plan: ok.data, results }) ?? true;
 };
 
 const readEmailToken = async (store, { protocol, provider, secretId }) => {
@@ -443,6 +507,40 @@ const pullEmail = async (store, body, ctx) => {
   };
 };
 
+// What the confirmation shows for a direct message, comment or email.
+const RECIPIENT_FIELDS = ['to', 'chat', 'room', 'issue', 'repo'];
+const firstOf = (objects, fields) => {
+  for (const object of objects) {
+    for (const field of fields) {
+      if (object?.[field] !== undefined && object?.[field] !== null) {
+        return object[field];
+      }
+    }
+  }
+  return null;
+};
+
+const messagePreview = (service, body) => {
+  const content = firstOf([body], ['content', 'message', 'text']);
+  const isText = typeof content === 'string';
+  return {
+    service,
+    to: firstOf([isText ? null : content, body], RECIPIENT_FIELDS),
+    subject: firstOf([isText ? null : content, body], ['subject']),
+    text: isText ? content : firstOf([content], ['text', 'body']),
+  };
+};
+
+/** Send only what the user confirmed (see ./confirmations.js). */
+const confirmedSend = async (res, ctx, body, service, send) => {
+  const ok = await confirmed(ctx, res, {
+    action: `${service}.send`,
+    body,
+    prepare: async () => ({ preview: messagePreview(service, body) }),
+  });
+  return ok ? (json(res, 200, await send()) ?? true) : true;
+};
+
 const sendEmail = async (store, body, ctx) => {
   const { protocol, provider, token, live } = await emailLive(store, body, ctx);
   const result = await live.post(body.message ?? body.content ?? body, {
@@ -459,7 +557,9 @@ const handleEmail = async (store, req, res, p, ctx) => {
   }
   if (p === '/api/email/send' && req.method === 'POST') {
     const body = await readBody(req).catch(() => ({}));
-    return json(res, 200, await sendEmail(store, body, ctx)) ?? true;
+    return confirmedSend(res, ctx, body, 'email', () =>
+      sendEmail(store, body, ctx)
+    );
   }
   return false;
 };
@@ -543,7 +643,9 @@ const handleGithub = async (store, req, res, p, ctx) => {
   }
   if (p === '/api/github/post-comment' && req.method === 'POST') {
     const body = await readBody(req).catch(() => ({}));
-    return json(res, 200, await postGithubComment(store, body, ctx)) ?? true;
+    return confirmedSend(res, ctx, body, 'github', () =>
+      postGithubComment(store, body, ctx)
+    );
   }
   return false;
 };
@@ -629,7 +731,9 @@ const handleUpwork = async (store, req, res, p, ctx) => {
   }
   if (p === '/api/upwork/post-message' && req.method === 'POST') {
     const body = await readBody(req).catch(() => ({}));
-    return json(res, 200, await postUpworkMessage(store, body, ctx)) ?? true;
+    return confirmedSend(res, ctx, body, 'upwork', () =>
+      postUpworkMessage(store, body, ctx)
+    );
   }
   return false;
 };
@@ -714,8 +818,8 @@ const handlePeoplePerHour = async (store, req, res, p, ctx) => {
   }
   if (p === '/api/peopleperhour/post-message' && req.method === 'POST') {
     const body = await readBody(req).catch(() => ({}));
-    return (
-      json(res, 200, await postPeoplePerHourMessage(store, body, ctx)) ?? true
+    return confirmedSend(res, ctx, body, 'peopleperhour', () =>
+      postPeoplePerHourMessage(store, body, ctx)
     );
   }
   return false;
@@ -736,10 +840,10 @@ export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
   (await handlePatterns(store, req, res, p)) ||
   (await handleGraphs(store, req, res, p)) ||
   (await handleReplies(store, req, res, p)) ||
-  (await handleProfile(store, req, res, p)) ||
-  (await handleResume(store, req, res, p)) ||
-  (await handleBroadcast(store, req, res, p)) ||
-  (await handleOutreach(store, req, res, p)) ||
+  (await handleProfile(store, req, res, p, ctx)) ||
+  (await handleResume(store, req, res, p, ctx)) ||
+  (await handleBroadcast(store, req, res, p, ctx)) ||
+  (await handleOutreach(store, req, res, p, ctx)) ||
   (await handleEmail(store, req, res, p, ctx)) ||
   (await handleGithub(store, req, res, p, ctx)) ||
   (await handleUpwork(store, req, res, p, ctx)) ||

@@ -8,6 +8,7 @@
 // one syncs it).
 //
 // `remote` is `{ get(path), post(path, body), report(path, body),
+// confirmed(path, body, ask),
 // put(path, body), del(path) }` from ./dom.js; each answers null when no
 // server (or no such route) is there.
 
@@ -112,7 +113,7 @@ const localAutomations = (store) => {
 
 const draftBody = (action, { id, text, form }) =>
   ({
-    send: { id, confirm: true, text, form },
+    send: { id, text, form },
     form: { id, form },
   })[action] ?? { id };
 
@@ -142,14 +143,21 @@ const automationCalls = ({ remote, store, local }) => ({
   planAutomation: async ({ automation, ...options }) =>
     (await remote.post('/api/automations/plan', { automation, ...options })) ??
     local.plan(automation, options),
-  /** Errors come back as `{ status: 'failed', code, error }`. */
-  runAutomation: async ({ automation, ...options }) =>
+  /**
+   * Errors come back as `{ status: 'failed', code, error }`. Auto mode
+   * sends: `ask(answer)` gets the planned drafts (`answer.preview`) and
+   * resolves true to send exactly those; otherwise `{ status: 'cancelled' }`.
+   */
+  runAutomation: async ({ automation, ask, ...options }) =>
     asOutcome(
       async () =>
-        (await remote.report('/api/automations/run', {
-          automation,
-          ...options,
-        })) ?? local.run(automation, options)
+        (await remote.confirmed(
+          '/api/automations/run',
+          { automation, ...options },
+          ask
+        )) ??
+        // Without a server auto mode answers "server required".
+        local.run(automation, options)
     ),
   drafts: async ({ source, chat, automation } = {}) => {
     const q = new URLSearchParams();
@@ -167,15 +175,17 @@ const automationCalls = ({ remote, store, local }) => ({
   draftAction: async (action, draft) =>
     asOutcome(async () => {
       const body = draftBody(action, draft);
-      const answer = await remote.report(
+      // The draft card's Send shows the very text: the press confirms it.
+      const answer = await remote.confirmed(
         `/api/automations/drafts/${action}`,
-        body
+        body,
+        () => true
       );
       if (answer) {
         return answer;
       }
       return {
-        send: () => local.sendDraft(body.id, body),
+        send: () => local.sendDraft(body.id, { ...body, confirm: true }),
         form: () => local.setDraftForm(body.id, body.form),
         mark: () => local.markSent(body.id),
         skip: () => local.skip(body.id),
@@ -200,7 +210,8 @@ const chatCalls = ({ remote, store }) => ({
    * it is not lost (`status: 'stored'`).
    */
   sendMessage: async (message) => {
-    const answer = await remote.report('/api/send', message);
+    // The composer's Send press confirms exactly this text.
+    const answer = await remote.confirmed('/api/send', message, () => true);
     if (answer?.link) {
       await store.put(answer.link);
       return answer;

@@ -24,6 +24,7 @@ import {
   summarizeCvRuns,
   syncCvAcross,
 } from '../cv/index.js';
+import { confirmCli } from './confirm.js';
 
 export const CV_HELP = `  cv-platforms  [--json]
   cv-plan       --platform=<id> [--json]
@@ -196,16 +197,41 @@ const diffCmd = async (args, log, openStore) => {
   return 0;
 };
 
+// Show the dry run's plan, then write exactly it once the user agrees;
+// null when they did not.
+const applyConfirmed = async (preview, { args, log, ask, run }) => {
+  for (const action of preview.actions) {
+    log(`  ${action.platform}\t${action.paths.join(', ')}`);
+  }
+  const ok = await confirmCli(
+    `Write these changes to ${preview.actions.length} platform(s)?`,
+    { args, log, ask }
+  );
+  return ok
+    ? run(false, { target: preview.target, actions: preview.actions })
+    : null;
+};
+
 const syncCmd = async (args, log, openStore, injected) => {
   const store = await openStore(args.store ?? '.meta-sovereign');
   const ids = parsePlatforms(args.platforms);
-  const result = await syncCvAcross(ids, {
-    ...liveOptions(args, store, injected),
-    dryRun: !(args.apply === true || args.apply === 'true'),
-    prefer: args.prefer ?? null,
-    paths: parseList(args.paths),
-    groups: parseList(args.groups),
-  });
+  const run = (dryRun, confirmed = null) =>
+    syncCvAcross(ids, {
+      ...liveOptions(args, store, injected),
+      dryRun,
+      confirmed,
+      prefer: args.prefer ?? null,
+      paths: parseList(args.paths),
+      groups: parseList(args.groups),
+    });
+  const preview = await run(true);
+  const apply = args.apply === true || args.apply === 'true';
+  const result = apply
+    ? await applyConfirmed(preview, { args, log, ask: injected?.ask, run })
+    : preview;
+  if (!result) {
+    return 1;
+  }
   if (args.json) {
     log(asJson(result));
     return result.failures.length ? 1 : 0;

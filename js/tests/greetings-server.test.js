@@ -170,11 +170,17 @@ describe('greetings api plans', () => {
       async (base, store) => {
         await seed(store);
         await store.put({ id: 'secret:vk:token', tokens: [], value: 'vk-t' });
+        const request = { networks: ['vk'], run: 'queue', delayMs: 30000 };
+        // Nothing goes out before the user confirms the previewed plan.
+        const asked = await send(base, '/api/greetings/plan', 'POST', request);
+        expect(asked.status).toBe(428);
+        expect(asked.body.preview.envelopes.length).toBe(1);
+        expect(calls).toEqual([]);
         const { body } = await send(base, '/api/greetings/plan', 'POST', {
-          networks: ['vk'],
-          run: 'queue',
-          delayMs: 30000,
+          ...request,
+          confirmToken: asked.body.confirm.token,
         });
+        expect(body.plan.envelopes).toEqual(asked.body.preview.envelopes);
         expect(body.results.map((r) => r.ok)).toEqual([true]);
         expect(calls[0].name).toBe('vk');
         expect(calls[0].content.chat).toBe('100');
@@ -211,10 +217,15 @@ describe('greetings api plans', () => {
             timestamp: hoursAgo(600),
           })
         );
-        await send(base, '/api/greetings/plan', 'POST', {
+        const request = {
           networks: ['vk'],
           run: 'queue',
           delayMs: 10_000_000,
+        };
+        const asked = await send(base, '/api/greetings/plan', 'POST', request);
+        await send(base, '/api/greetings/plan', 'POST', {
+          ...request,
+          confirmToken: asked.body.confirm.token,
         });
         expect(sleeps).toEqual([60000]);
       }

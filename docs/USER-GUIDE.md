@@ -447,6 +447,19 @@ Over HTTP: `/api/automations` (list, `PUT` to save), `/api/automations/plan`,
 `/api/typing` and `/api/suggest`. Background:
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md).
 
+**Nothing is sent without you.** Reading — importing, pulling new
+messages, previewing — happens whenever needed. Anything that writes to
+another service or that other people would see (a message, a post, a
+greeting, an outreach batch, a profile or CV update) is shown first and
+sent only after you confirm exactly that: the Send button under the
+text you typed, the Send button on a draft, or a confirmation that
+lists what will go out. Schedules and incoming-message triggers only
+prepare drafts, even in auto mode. Saving your profile or CV keeps it on
+this device; **Update other services** on the Profile screen publishes it
+to the networks you tick. "Typing…" is shared only when you turn it on in
+**Settings → Privacy**. On the command line, sending commands show the
+plan and ask y/N; scripts pass `--yes`.
+
 ## 12. Troubleshooting
 
 | Symptom                                                          | Fix                                                                                                                                                                                                   |

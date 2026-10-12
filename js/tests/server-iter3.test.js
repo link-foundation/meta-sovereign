@@ -147,30 +147,47 @@ describe('server iteration 3 routes', () => {
       const sr = await fetchJson(`${base}/api/search?q=Berlin&min=0.1`);
       expect(sr.body.length).toBeGreaterThan(0);
 
-      // Profile + resume sync planning (R-D5, R-D6).
+      // Profile + resume (R-D5, R-D6): saving is local; publishing to
+      // networks is a separate request that previews and needs a token.
+      const post = (p, body) =>
+        fetchJson(`${base}${p}`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
       const prof = await fetchJson(`${base}/api/profile`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name: 'me', bio: 'hi' }),
       });
-      expect(prof.body.plannedSyncs.length).toBeGreaterThan(0);
+      expect(prof.body.profile.name).toBe('me');
+      expect(prof.body.plannedSyncs).toBe(undefined);
       const res = await fetchJson(`${base}/api/resume`, {
         method: 'PUT',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ title: 'engineer', body: '...' }),
       });
-      expect(res.body.plannedSyncs.length).toBeGreaterThan(0);
+      expect(res.body.resume.title).toBe('engineer');
+      expect((await post('/api/profile/sync', {})).status).toBe(400);
+      const publish = await post('/api/profile/sync', { networks: ['vk'] });
+      expect(publish.status).toBe(428);
+      expect(publish.body.preview.networks).toEqual(['vk']);
+      expect(publish.body.preview.fields.name).toBe('me');
+      const cv = await post('/api/resume/sync', { networks: ['hh'] });
+      expect(cv.status).toBe(428);
+      expect(cv.body.preview.fields.title).toBe('engineer');
 
-      // Broadcast (R-B4).
-      const bc = await fetchJson(`${base}/api/broadcast`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          text: 'hello world',
-          networks: ['telegram', 'vk'],
-        }),
+      // Broadcast (R-B4): explicit networks, previewed before posting.
+      expect((await post('/api/broadcast', { text: 'hello' })).status).toBe(
+        400
+      );
+      const bc = await post('/api/broadcast', {
+        text: 'hello world',
+        networks: ['telegram', 'vk'],
       });
-      expect(bc.body.networks).toEqual(['telegram', 'vk']);
+      expect(bc.status).toBe(428);
+      expect(bc.body.preview.networks).toEqual(['telegram', 'vk']);
+      expect(bc.body.preview.text).toBe('hello world');
 
       // Status now reflects the new entities.
       const st = await fetchJson(`${base}/api/status`);

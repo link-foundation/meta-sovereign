@@ -173,16 +173,35 @@ describe('greetings cli plan and send', () => {
     expect(calls).toEqual([]);
   });
 
+  it('shows the plan and sends nothing without a confirmation', async () => {
+    const { run, calls } = greetingsCli(await seed(createMemoryStore()));
+    const { code, text } = await run('greetings-send', { networks: 'vk' });
+    expect(code).toBe(1);
+    expect(calls).toEqual([]);
+    expect(text).toMatch(/Send 2 greeting\(s\)\? Not sent: pass --yes/);
+  });
+
+  it('caps --limit so a typo never means everyone', () => {
+    expect(planOptions({ limit: 'abc' }).limit).toBe(10);
+    expect(planOptions({ limit: 'Infinity' }).limit).toBe(100);
+    expect(planOptions({ limit: '5000' }).limit).toBe(100);
+    expect(planOptions({ limit: '0' }).limit).toBe(10);
+  });
+
   it('sends with a pause between messages and records what went out', async () => {
     const { run, store, calls, sleeps } = greetingsCli(
       await seed(createMemoryStore())
     );
-    const { code, out } = await run('greetings-send', { networks: 'vk' });
+    const { code, out } = await run('greetings-send', {
+      networks: 'vk',
+      yes: true,
+    });
     expect(code).toBe(1);
     expect(calls.map((c) => c.content.chat)).toEqual(['200', '100']);
     expect(sleeps).toEqual([DEFAULT_SEND_DELAY_MS]);
-    expect(out[0]).toContain('! vk API 901');
-    expect(out[1]).toMatch(/^sent\tvk\t100/);
+    const results = out.filter((line) => !line.startsWith('  '));
+    expect(results[0]).toContain('! vk API 901');
+    expect(results[1]).toMatch(/^sent\tvk\t100/);
     expect(await store.get(greetingLinkId('vk', '100'))).toBeTruthy();
     expect(await store.get(greetingLinkId('vk', '200'))).toBeNull();
   });
@@ -193,7 +212,10 @@ describe('greetings cli plan and send', () => {
       ROWS.filter((row) => row[2] !== '200')
     );
     const { run, sleeps } = greetingsCli(store);
-    const { code, text } = await run('greetings-send', { 'delay-ms': '0' });
+    const { code, text } = await run('greetings-send', {
+      'delay-ms': '0',
+      yes: true,
+    });
     expect(code).toBe(0);
     expect(sleeps).toEqual([]);
     expect(text).toContain('! outside-messaging-window');

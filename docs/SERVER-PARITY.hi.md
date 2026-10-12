@@ -89,6 +89,25 @@ server के बिना chat composer में लिखा संदेश 
 है जब तक कोई server उसे sync न कर दे। `automations` CLI command बिना
 किसी server के चलता है।
 
+**दूसरी सेवाओं में लिखने के लिए पुष्टि ज़रूरी है।** हर रूट जो किसी
+दूसरी सेवा पर कुछ भेजता, पोस्ट करता या बदलता है — `/api/send`,
+`/api/automations/run` (auto मोड), `/api/automations/drafts/send`,
+`/api/email/send`, `/api/github/post-comment`,
+`/api/upwork/post-message`, `/api/peopleperhour/post-message`,
+`/api/broadcast`, `/api/outreach` (`mode: "queue"`),
+`/api/greetings/plan` (`run: "queue"`), `/api/cv/sync` (`dryRun: false`),
+`/api/profile/sync` और `/api/resume/sync` — पहले `428 Precondition
+Required` के साथ `{ needsConfirmation, action, preview, confirm: { token,
+expiresAt } }` लौटाता है और कुछ नहीं करता। क्लाइंट पूर्वावलोकन दिखाता है
+और वही बॉडी `confirmToken` के साथ दोहराता है; टोकन एक बार चलता है, उसी
+बॉडी से बँधा है, पाँच मिनट तक मान्य है, और सर्वर ठीक वही योजना चलाता है
+जो दिखाई गई थी (`js/src/server/confirmations.js`)। CV का ड्राई रन अपनी
+योजना लागू करने का टोकन पहले से साथ लाता है। `PUT /api/profile` और `PUT
+/api/resume` सिर्फ़ सहेजते हैं; `broadcast:*`, `outreach:*`, `profile:*`
+या `resume:*` लिंक को सहेजने या सिंक करने से कुछ नहीं भेजा जाता। `/ws`
+और `/rtc` CORS सूची से बाहर के origin से WebSocket अस्वीकार करते हैं।
+Rust सर्वर में ये रूट नहीं हैं, इसलिए वहाँ SPA "सर्वर चाहिए" बताता है।
+
 ## 6. अभिवादन
 
 `/api/greetings/catalogue`, `/api/greetings/selection` (GET और PUT),

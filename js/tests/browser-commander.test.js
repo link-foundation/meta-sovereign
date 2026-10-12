@@ -110,14 +110,17 @@ describe('browser-commander placeholder: drives every SPA nav target', () => {
       const acBody = await ac.json();
       expect(Array.isArray(acBody)).toBe(true);
 
-      // 5. Broadcast button posts to every selected network.
+      // 5. Broadcast previews the selected networks; nothing is posted
+      // until the user confirms with the returned token.
       const bcRes = await fetch(`${base}/api/broadcast`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ text: 'hi', networks: ['telegram', 'vk'] }),
       });
+      expect(bcRes.status).toBe(428);
       const bc = await bcRes.json();
-      expect(bc.networks).toEqual(['telegram', 'vk']);
+      expect(bc.preview.networks).toEqual(['telegram', 'vk']);
+      expect(typeof bc.confirm.token).toBe('string');
     } finally {
       await handle.close();
     }

@@ -274,6 +274,29 @@ export const ru = {
   'autoImport.unavailable':
     'Для импорта через браузер нужен сервер meta-sovereign на этом компьютере.',
   'autoImport.unavailableReason': 'Импорт через браузер недоступен: {reason}',
+  'common.cancelled': 'Отменено. Ничего не отправлено.',
+  'outreach.send': 'Отправить',
+  'outreach.confirmSend':
+    'Отправить этим людям {count, plural, one {# сообщение} few {# сообщения} other {# сообщений}} сейчас?',
+  'greetings.confirmSend':
+    'Отправить {count, plural, one {# приветствие} few {# приветствия} other {# приветствий}} сейчас?',
+  'cv.confirmApply':
+    'Записать {count, plural, one {# изменение} few {# изменения} other {# изменений}} в резюме на площадках сейчас?',
+  'profile.savedLocally':
+    'Сохранено на этом устройстве. На других сервисах ничего не изменено.',
+  'profile.publishTitle': 'Обновить на других сервисах',
+  'profile.publishHint':
+    'Сохранение оставляет профиль и резюме здесь. Чтобы изменить их на других сервисах, отметьте сети и подтвердите изменения.',
+  'profile.publish.profile': 'Обновить профиль там',
+  'profile.publish.resume': 'Обновить резюме там',
+  'profile.confirmPublish.profile':
+    'Обновить профиль в {networks}? Люди там увидят изменения.',
+  'profile.confirmPublish.resume':
+    'Обновить резюме в {networks}? Работодатели там увидят изменения.',
+  'settings.privacy.title': 'Конфиденциальность',
+  'settings.shareTyping': 'Показывать собеседнику, что я печатаю',
+  'settings.shareTypingHint':
+    'По умолчанию выключено. Когда включено, VK и Telegram показывают «печатает…» тому, кому вы пишете.',
   'connections.manualTitle': 'Или подключите вручную',
   'connections.recommended': 'Рекомендуем',
   'connections.users': '{count} пользователей',
@@ -692,7 +715,7 @@ export const ru = {
     'Каждый человек показан один раз, даже если вы общаетесь в нескольких сервисах.',
   'tutorial.automation.title': 'Автоматизация',
   'tutorial.automation.body':
-    'Автоответы: если сообщение совпадает с шаблоном, приложение предложит или отправит готовый ответ.',
+    'Автоответы: если сообщение совпадает с шаблоном, приложение готовит черновик ответа. Ничего не отправляется без вашего подтверждения.',
   'tutorial.backup.title': 'Резервная копия',
   'tutorial.backup.body':
     'Сохраните зашифрованную копию данных. Открыть её можно только вашей парольной фразой.',
@@ -753,7 +776,7 @@ export const ru = {
   'chat.automation.test': 'Проверить в этом чате',
   'chat.automation.run': 'Запустить с условиями',
   'chat.automation.confirmAuto':
-    '«{name}» отправляет без проверки. Запустить в этом чате сейчас?',
+    '«{name}» отправит {count, plural, one {# сообщение} few {# сообщения} other {# сообщений}} сейчас. Отправить?',
   'chat.empty': 'В этом чате пока нет сообщений.',
   'chat.form.informal': 'на «ты»',
   'chat.form.formal': 'на «вы»',

@@ -275,6 +275,26 @@ export const hi = {
   'autoImport.unavailable':
     'ब्राउज़र से आयात के लिए इस कंप्यूटर पर meta-sovereign सर्वर चलना चाहिए।',
   'autoImport.unavailableReason': 'ब्राउज़र से आयात उपलब्ध नहीं है: {reason}',
+  'common.cancelled': 'रद्द किया गया। कुछ भी नहीं भेजा गया।',
+  'outreach.send': 'भेजें',
+  'outreach.confirmSend': 'इन लोगों को अभी {count} संदेश भेजें?',
+  'greetings.confirmSend': 'अभी {count} अभिवादन भेजें?',
+  'cv.confirmApply': 'जॉब प्लेटफ़ॉर्म पर आपके CV में अभी {count} बदलाव लिखें?',
+  'profile.savedLocally':
+    'इस डिवाइस पर सहेजा गया। दूसरी सेवाओं पर कुछ नहीं बदला।',
+  'profile.publishTitle': 'दूसरी सेवाओं पर अपडेट करें',
+  'profile.publishHint':
+    'सहेजने से आपकी प्रोफ़ाइल और CV यहीं रहते हैं। उन्हें दूसरी सेवाओं पर बदलने के लिए नेटवर्क चुनें और बदलावों की पुष्टि करें।',
+  'profile.publish.profile': 'वहाँ प्रोफ़ाइल अपडेट करें',
+  'profile.publish.resume': 'वहाँ CV अपडेट करें',
+  'profile.confirmPublish.profile':
+    '{networks} पर अपनी प्रोफ़ाइल अपडेट करें? वहाँ लोग बदलाव देखेंगे।',
+  'profile.confirmPublish.resume':
+    '{networks} पर अपना CV अपडेट करें? वहाँ नियोक्ता बदलाव देखेंगे।',
+  'settings.privacy.title': 'गोपनीयता',
+  'settings.shareTyping': 'दूसरों को दिखाएँ कि मैं टाइप कर रहा हूँ',
+  'settings.shareTypingHint':
+    'डिफ़ॉल्ट रूप से बंद। चालू होने पर VK और Telegram उस व्यक्ति को "टाइप कर रहे हैं…" दिखाते हैं जिसे आप लिख रहे हैं।',
   'connections.manualTitle': 'या हाथ से कनेक्ट करें',
   'connections.recommended': 'अनुशंसित',
   'connections.users': '{count} उपयोगकर्ता',
@@ -680,7 +700,7 @@ export const hi = {
     'हर व्यक्ति एक ही बार दिखता है, चाहे आप कई सेवाओं पर बात करें।',
   'tutorial.automation.title': 'ऑटोमेशन',
   'tutorial.automation.body':
-    'स्वचालित जवाब: जब कोई संदेश पैटर्न से मेल खाता है, ऐप तैयार जवाब सुझाता या भेजता है।',
+    'स्वचालित जवाब: जब कोई संदेश पैटर्न से मेल खाता है, ऐप जवाब का मसौदा बनाता है। आपकी पुष्टि के बिना कुछ नहीं भेजा जाता।',
   'tutorial.backup.title': 'बैकअप',
   'tutorial.backup.body':
     'अपने डेटा की एन्क्रिप्टेड कॉपी सहेजें। इसे केवल आपका पासफ़्रेज़ खोल सकता है।',
@@ -740,8 +760,7 @@ export const hi = {
     'चैट में अभी कोई स्वचालन उपलब्ध नहीं है। स्वचालन में किसी एक में "चैट मेनू" ट्रिगर जोड़ें।',
   'chat.automation.test': 'इस चैट में परखें',
   'chat.automation.run': 'शर्तों के साथ चलाएँ',
-  'chat.automation.confirmAuto':
-    '"{name}" बिना समीक्षा के भेजता है। क्या इसे अभी इस चैट में चलाएँ?',
+  'chat.automation.confirmAuto': '"{name}" अभी {count} संदेश भेजेगा। भेजें?',
   'chat.empty': 'इस चैट में अभी कोई संदेश नहीं है।',
   'chat.form.informal': 'अनौपचारिक ("ты")',
   'chat.form.formal': 'औपचारिक ("вы")',

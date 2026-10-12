@@ -123,22 +123,29 @@ const useRuns = ({ api, editor, people, tick, after, confirm, t }) => {
     if (!draft) {
       return null;
     }
-    const auto = draft.mode === 'auto';
-    if (auto && !confirm(t('chat.automation.confirmAuto', draft))) {
-      return null;
-    }
     const automation = await editor.save();
     if (!automation) {
       return null;
     }
     setBusy(true);
+    // Auto mode: the server returns the planned messages first and
+    // sends exactly those once the user agrees.
     const result = await api.runAutomation({
       automation: automation.id,
       trigger: 'manual',
-      confirm: auto,
       ...scope(onSelected, test),
+      ask: (answer) =>
+        confirm(
+          t('chat.automation.confirmAuto', {
+            name: draft.name,
+            count: answer.preview?.drafts?.length ?? 0,
+          })
+        ),
     });
     setBusy(false);
+    if (result?.cancelled) {
+      return null;
+    }
     setPlan(null);
     after(runNotice(result ?? { code: 'no-answer' }));
     return result;

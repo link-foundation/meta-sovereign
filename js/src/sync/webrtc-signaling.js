@@ -19,14 +19,18 @@ import {
   writeAcceptHandshake,
   encodeTextFrame,
   createFrameReader,
+  rejectForeignOrigin,
 } from './ws-frame.js';
 import { bunAttachSignaling } from './bun-server.js';
 
 const IS_BUN = typeof globalThis.Bun !== 'undefined';
 
-export const attachSignaling = (server, { path = '/rtc' } = {}) => {
+export const attachSignaling = (
+  server,
+  { path = '/rtc', verifyOrigin = null } = {}
+) => {
   if (IS_BUN) {
-    return bunAttachSignaling(server, { path });
+    return bunAttachSignaling(server, { path, verifyOrigin });
   }
   const rooms = new Map();
 
@@ -48,6 +52,9 @@ export const attachSignaling = (server, { path = '/rtc' } = {}) => {
     const url = new URL(req.url ?? '/', 'http://x');
     if (url.pathname !== path) {
       // Leave non-matching paths to other upgrade handlers.
+      return;
+    }
+    if (rejectForeignOrigin(req, socket, verifyOrigin)) {
       return;
     }
     if (!isWebSocketUpgrade(req)) {

@@ -190,6 +190,19 @@ describe('cv cli live commands', () => {
     expect(sync.text).toContain('habr-career');
   });
 
+  it('--apply shows the plan and writes nothing without a confirmation', async () => {
+    const { run } = cvCli();
+    const sync = await run('cv-sync', {
+      platforms: 'habr-career',
+      login: 'anna',
+      apply: true,
+    });
+    expect(sync.code).toBe(1);
+    expect(sync.text).toContain('habr-career');
+    expect(sync.text).toContain('pass --yes');
+    expect(sync.text).not.toContain('applying changes');
+  });
+
   it('reports a failing platform with its code and exits non-zero', async () => {
     const { run } = cvCli();
     const read = await run('cv-read', {

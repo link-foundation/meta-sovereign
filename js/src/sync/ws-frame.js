@@ -168,3 +168,17 @@ export const createFrameReader = (handlers) => {
     }
   };
 };
+
+/**
+ * A page on another website must not join the sync (it could write any
+ * link into the store): `verifyOrigin(req)` decides, as for HTTP
+ * (see server/cors.js). Returns true when the socket was rejected.
+ */
+export const rejectForeignOrigin = (req, socket, verifyOrigin) => {
+  if (!verifyOrigin || verifyOrigin(req)) {
+    return false;
+  }
+  socket.write('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');
+  socket.destroy();
+  return true;
+};

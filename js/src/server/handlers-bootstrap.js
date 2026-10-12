@@ -1,9 +1,10 @@
 /**
- * Wires the built-in DDD handlers (broadcast, profile/resume sync,
- * outreach, automation) onto a server-side store. This is where the
- * imperative `/api/broadcast`, `/api/profile`, etc. routes
- * effectively become *no-ops over the bus* — the route just writes
- * a link, the handler does the work asynchronously.
+ * Wires the built-in DDD handlers (live source pulls, automation
+ * graphs) onto a server-side store: storing a command link runs it.
+ * Only reads and local planning are wired this way. Writes to other
+ * services (broadcast, profile/CV sync, outreach) are deliberately not:
+ * a stored or synced link must never send anything; they run from
+ * their routes after an explicit confirmation (./confirmations.js).
  *
  * Kept separate from `index.js` so the server module stays small and
  * easy to read.
@@ -11,21 +12,11 @@
 
 import {
   createHandlerBus,
-  broadcastHandler,
-  profileSyncHandler,
-  resumeSyncHandler,
-  outreachHandler,
   sourcePullHandler,
   automationHandler,
 } from '../handlers/index.js';
-import {
-  broadcast,
-  syncProfile,
-  syncResume,
-  runOutreach,
-} from '../broadcast/index.js';
 import { runGraph } from '../automation/index.js';
-import { listSources, pullLiveInto } from '../sources/index.js';
+import { pullLiveInto } from '../sources/index.js';
 
 const hydrate = (persisted) => {
   const nodes = new Map();
@@ -40,18 +31,6 @@ const hydrate = (persisted) => {
 
 export const registerDefaultHandlers = (store) => {
   const bus = createHandlerBus(store);
-  const networks = listSources();
-  const broadcastBuiltIn = broadcastHandler({ broadcast });
-  bus.register('broadcast', broadcastBuiltIn.selector, broadcastBuiltIn.run);
-  const profileBuiltIn = profileSyncHandler({ syncProfile, networks });
-  bus.register('profile-sync', profileBuiltIn.selector, profileBuiltIn.run);
-  const resumeBuiltIn = resumeSyncHandler({
-    syncResume,
-    networks: ['hh', 'habr-career', 'superjob', 'linkedin'],
-  });
-  bus.register('resume-sync', resumeBuiltIn.selector, resumeBuiltIn.run);
-  const outreachBuiltIn = outreachHandler({ runOutreach });
-  bus.register('outreach', outreachBuiltIn.selector, outreachBuiltIn.run);
   const sourcePullBuiltIn = sourcePullHandler({ pullLive: pullLiveInto });
   bus.register(
     'source-pull',

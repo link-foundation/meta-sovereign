@@ -61,7 +61,18 @@ const boot = async () => {
     });
     return { status: res.status, body: await res.json() };
   };
-  return { server, store, sent, typing, call };
+  // A write to another service: preview (428 + token), then confirm.
+  const confirmCall = async (path, body) => {
+    const asked = await call('POST', path, body);
+    assert.equal(asked.status, 428, `${path} must ask first`);
+    assert.equal(asked.body.needsConfirmation, true);
+    const done = await call('POST', path, {
+      ...body,
+      confirmToken: asked.body.confirm.token,
+    });
+    return { ...done, preview: asked.body.preview };
+  };
+  return { server, store, sent, typing, call, confirmCall };
 };
 
 test('presets are listed, saved, edited and deleted', async () => {
@@ -98,7 +109,7 @@ test('presets are listed, saved, edited and deleted', async () => {
 });
 
 test('a safe run drafts, and a draft is sent only with confirm', async () => {
-  const { server, sent, typing, call } = await boot();
+  const { server, sent, typing, call, confirmCall } = await boot();
   try {
     const plan = await call('POST', '/api/automations/plan', {
       automation: 'reengage-dormant',
@@ -120,17 +131,17 @@ test('a safe run drafts, and a draft is sent only with confirm', async () => {
     assert.equal(draft.form, 'informal');
     const refused = await call('POST', '/api/automations/drafts/send', {
       id: draft.id,
+      confirm: true, // a flag is not a confirmation
     });
-    assert.equal(refused.status, 400);
-    assert.equal(refused.body.code, 'confirm-required');
+    assert.equal(refused.status, 428);
+    assert.equal(sent.length, 0);
     const formal = await call('POST', '/api/automations/drafts/form', {
       id: draft.id,
       form: 'formal',
     });
     assert.match(formal.body.text, /^Здравствуйте/);
-    const done = await call('POST', '/api/automations/drafts/send', {
+    const done = await confirmCall('/api/automations/drafts/send', {
       id: draft.id,
-      confirm: true,
     });
     assert.equal(done.body.status, 'sent');
     assert.equal(done.body.record.via, 'browser');
@@ -143,8 +154,8 @@ test('a safe run drafts, and a draft is sent only with confirm', async () => {
   }
 });
 
-test('an auto run needs confirm for a manual trigger', async () => {
-  const { server, sent, call } = await boot();
+test('an auto run sends only the drafts the user confirmed', async () => {
+  const { server, sent, call, confirmCall } = await boot();
   try {
     const automation = {
       name: 'Hello fast',
@@ -154,13 +165,17 @@ test('an auto run needs confirm for a manual trigger', async () => {
     };
     const refused = await call('POST', '/api/automations/run', {
       automation,
-    });
-    assert.equal(refused.body.code, 'confirm-required');
-    const ran = await call('POST', '/api/automations/run', {
-      automation,
       confirm: true,
     });
+    assert.equal(refused.status, 428);
+    assert.equal(refused.body.preview.drafts.length, 2);
+    assert.equal(sent.length, 0);
+    const ran = await confirmCall('/api/automations/run', { automation });
     assert.equal(ran.body.results.length, 2);
+    assert.equal(sent.length, 2);
+    // Already sent: a second confirmed run sends nothing again.
+    const again = await confirmCall('/api/automations/run', { automation });
+    assert.equal(again.body.results.length, 0);
     assert.equal(sent.length, 2);
   } finally {
     await server.close();
@@ -168,9 +183,17 @@ test('an auto run needs confirm for a manual trigger', async () => {
 });
 
 test('the composer sends through /api/send and stores the message', async () => {
-  const { server, store, call } = await boot();
+  const { server, store, sent, call, confirmCall } = await boot();
   try {
-    const ok = await call('POST', '/api/send', {
+    const unconfirmed = await call('POST', '/api/send', {
+      source: 'vk',
+      chat: '101',
+      text: 'Как дела?',
+    });
+    assert.equal(unconfirmed.status, 428);
+    assert.equal(unconfirmed.body.preview.text, 'Как дела?');
+    assert.equal(sent.length, 0);
+    const ok = await confirmCall('/api/send', {
       source: 'vk',
       chat: '101',
       text: 'Как дела?',
@@ -179,7 +202,7 @@ test('the composer sends through /api/send and stores the message', async () => 
     const stored = await store.get(ok.body.link.id);
     assert.equal(stored.body, 'Как дела?');
     assert.equal(stored.sender, 'me');
-    const failed = await call('POST', '/api/send', {
+    const failed = await confirmCall('/api/send', {
       source: 'vk',
       chat: '101',
       text: 'fail',

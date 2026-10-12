@@ -29,6 +29,7 @@ const offline = {
   get: async () => null,
   post: async () => null,
   report: async () => null,
+  confirmed: async () => null,
   put: async () => null,
   del: async () => null,
 };
@@ -150,14 +151,17 @@ test('offline: people search, lists and audiences', async () => {
 test('online: the server answer wins and its error is kept', async () => {
   const store = await seeded();
   const calls = [];
+  const asked = [];
   const remote = {
     ...offline,
-    report: async (path, body) => {
+    confirmed: async (path, body, ask) => {
       calls.push([path, body]);
       if (path === '/api/send') {
+        // The composer's Send press is the confirmation.
+        asked.push(await ask({ preview: body }));
         return { error: 'captcha', code: 'captcha', httpStatus: 502 };
       }
-      return { code: 'confirm-required', error: 'confirm', httpStatus: 400 };
+      return { status: 'cancelled', cancelled: true };
     },
   };
   const api = createAutomationApi({ remote, store });
@@ -169,8 +173,14 @@ test('online: the server answer wins and its error is kept', async () => {
     (await store.query()).filter((l) => l.id.includes(':out-')).length,
     0
   );
-  const run = await api.runAutomation({ automation: 'x', confirm: false });
-  assert.equal(run.code, 'confirm-required');
+  assert.deepEqual(asked, [true]);
+  const run = await api.runAutomation({
+    automation: 'x',
+    ask: async () => false,
+  });
+  assert.equal(run.cancelled, true);
+  // `ask` is a callback, never part of the request body.
+  assert.equal('ask' in calls[1][1], false);
   assert.deepEqual(
     calls.map(([path]) => path),
     ['/api/send', '/api/automations/run']

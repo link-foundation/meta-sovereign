@@ -475,6 +475,7 @@ const toggleIn = (list, item, same) =>
 
 /** Everything the screen does, kept out of the render for clarity. */
 const useGreetingsState = (api) => {
+  const t = useT();
   const [catalogue, setCatalogue] = useState(null);
   const [selection, setSelection] = useState(null);
   const [dirty, setDirty] = useState(false);
@@ -563,12 +564,22 @@ const useGreetingsState = (api) => {
           ...(queue
             ? { run: 'queue', delayMs: Number(delaySeconds) * 1000 }
             : {}),
+          // Sending: the server plans, the user confirms that plan.
+          ask: (reply) =>
+            globalThis.confirm(
+              t('greetings.confirmSend', {
+                count: reply.preview?.envelopes?.length ?? 0,
+              })
+            ),
         });
+        if (answer?.cancelled) {
+          return;
+        }
         setPlan(queue ? (answer.plan ?? plan) : answer);
         setResults(queue ? answer.results : null);
         setFailures(answer.failures ?? []);
       }),
-    [api, run, dirty, selection, mode, delaySeconds, plan]
+    [api, run, dirty, selection, mode, delaySeconds, plan, t]
   );
 
   return {

@@ -8,6 +8,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
+import { useShareTyping } from './privacy-prefs.js';
 
 const el = React.createElement;
 
@@ -69,6 +70,34 @@ export const AppearanceSettings = ({ appearance }) => {
   );
 };
 
+/** What other people may see; everything here is off by default. */
+export const PrivacySettings = () => {
+  const t = useT();
+  const [shareTyping, setShareTyping] = useShareTyping();
+  return el(
+    'section',
+    { className: 'card privacy', 'aria-labelledby': 'privacy-title' },
+    [
+      el('h3', { key: 'h', id: 'privacy-title' }, t('settings.privacy.title')),
+      el('label', { key: 'typing', className: 'check' }, [
+        el('input', {
+          key: 'i',
+          type: 'checkbox',
+          checked: shareTyping,
+          'data-action': 'share-typing',
+          onChange: (event) => setShareTyping(event.target.checked),
+        }),
+        ` ${t('settings.shareTyping')}`,
+      ]),
+      el(
+        'p',
+        { key: 'hint', className: 'meta' },
+        t('settings.shareTypingHint')
+      ),
+    ]
+  );
+};
+
 export const SettingsView = () => {
   const t = useT();
   const appearance = useAppearance();
@@ -95,5 +124,6 @@ export const SettingsView = () => {
       t('settings.openConnections')
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
+    el(PrivacySettings, { key: 'privacy' }),
   ]);
 };

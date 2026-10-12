@@ -29,6 +29,7 @@
  */
 
 import { json, readBody } from './util.js';
+import { confirmed } from './confirmations.js';
 import {
   AUTOMATION_PREFIX,
   automationPresets,
@@ -87,6 +88,15 @@ const handleSend = async (store, res, body, ctx) => {
     contact: body.contact ?? null,
     text: String(body.text),
   };
+  // The composer's Send press confirms exactly this text.
+  const ok = await confirmed(ctx, res, {
+    action: 'message.send',
+    body,
+    prepare: async () => ({ preview: draft }),
+  });
+  if (!ok) {
+    return true;
+  }
   try {
     const result = await ctx.send(draft);
     const link = sentMessage(draft, {
@@ -116,10 +126,23 @@ const draftAction = (method) => async (store, res, body, ctx) => {
     return fail(res, 400, 'bad-draft', 'id is required');
   }
   const runner = ctx.automations.runner;
+  if (method === 'send') {
+    // One draft per confirmation, exactly as the user saw (or edited) it.
+    const ok = await confirmed(ctx, res, {
+      action: 'draft.send',
+      body,
+      prepare: async () => ({
+        preview: { id: body.id, text: body.text ?? null, form: body.form },
+      }),
+    });
+    if (!ok) {
+      return true;
+    }
+  }
   const result = {
     send: () =>
       runner.sendDraft(body.id, {
-        confirm: body.confirm === true,
+        confirm: true,
         text: body.text,
         form: body.form,
       }),
@@ -129,6 +152,38 @@ const draftAction = (method) => async (store, res, body, ctx) => {
   }[method]();
   const outcome = await result;
   return json(res, outcome.status === 'failed' ? 502 : 200, outcome);
+};
+
+// Safe mode only queues drafts. Auto mode sends, so the user first sees
+// the planned messages and confirms them; exactly those are sent.
+const handleRun = async (store, res, body, ctx) => {
+  const runner = ctx.automations.runner;
+  const automation = await runner.load(automationOf(body));
+  const options = {
+    targets: targetsOf(body),
+    trigger: body.trigger === 'chat-menu' ? 'chat-menu' : 'manual',
+    test: body.test === true,
+    limit: body.limit,
+  };
+  if (automation.mode !== 'auto') {
+    return json(res, 200, await runner.run(automation, options));
+  }
+  const ok = await confirmed(ctx, res, {
+    action: 'automation.send',
+    body,
+    prepare: async () => {
+      const planned = await runner.plan(automation, options);
+      return { preview: planned, data: planned.drafts };
+    },
+  });
+  if (!ok) {
+    return true;
+  }
+  return json(
+    res,
+    200,
+    await runner.run(automation, { ...options, confirmed: ok.data })
+  );
 };
 
 const POST = {
@@ -145,18 +200,7 @@ const POST = {
         }
       )
     ),
-  '/api/automations/run': async (store, res, body, ctx) =>
-    json(
-      res,
-      200,
-      await ctx.automations.runner.run(automationOf(body), {
-        targets: targetsOf(body),
-        confirm: body.confirm === true,
-        trigger: body.trigger === 'chat-menu' ? 'chat-menu' : 'manual',
-        test: body.test === true,
-        limit: body.limit,
-      })
-    ),
+  '/api/automations/run': handleRun,
   '/api/automations/drafts/send': draftAction('send'),
   '/api/automations/drafts/form': draftAction('form'),
   '/api/automations/drafts/mark': draftAction('mark'),

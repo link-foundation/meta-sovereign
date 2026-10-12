@@ -18,6 +18,7 @@
  */
 
 import { json, readBody } from './util.js';
+import { confirmed, offerConfirmation } from './confirmations.js';
 import {
   compareAllCvs,
   cvPlatformCatalogue,
@@ -136,15 +137,41 @@ const handleSync = async (store, req, res, p, ctx) => {
   const body = await readBody(req).catch(() => ({}));
   return guarded(res, async () => {
     const ids = platformIds(body.platforms);
-    const result = await syncCvAcross(ids, {
-      ...liveOptions(store, body, ctx),
-      dryRun: body.dryRun !== false,
-      prefer: body.prefer ?? null,
-      canonical: body.canonical ?? null,
-      paths: Array.isArray(body.paths) ? body.paths : null,
-      groups: Array.isArray(body.groups) ? body.groups : null,
+    const run = (dryRun, confirmedPlan = null) =>
+      syncCvAcross(ids, {
+        ...liveOptions(store, body, ctx),
+        dryRun,
+        confirmed: confirmedPlan,
+        prefer: body.prefer ?? null,
+        canonical: body.canonical ?? null,
+        paths: Array.isArray(body.paths) ? body.paths : null,
+        groups: Array.isArray(body.groups) ? body.groups : null,
+      });
+    const planOf = (result) => ({
+      target: result.target,
+      actions: result.actions,
     });
-    return json(res, 200, result);
+    if (body.dryRun !== false) {
+      // The dry run is the preview; it carries the token that applies
+      // exactly these changes.
+      const result = await run(true);
+      const confirm = offerConfirmation(
+        ctx,
+        'cv.apply',
+        { ...body, dryRun: false },
+        planOf(result)
+      );
+      return json(res, 200, { ...result, confirm });
+    }
+    const ok = await confirmed(ctx, res, {
+      action: 'cv.apply',
+      body,
+      prepare: async () => {
+        const result = await run(true);
+        return { preview: result, data: planOf(result) };
+      },
+    });
+    return ok ? json(res, 200, await run(false, ok.data)) : true;
   });
 };
 

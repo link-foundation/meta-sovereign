@@ -13,6 +13,7 @@ import {
   typingStatus,
 } from './chat-model.js';
 import { localizePreset } from './automations-model.js';
+import { readShareTyping } from './privacy-prefs.js';
 
 const TYPING_EVERY_MS = 4000;
 
@@ -65,11 +66,13 @@ const useSuggestions = (api, current, text, tick) => {
   return suggest ?? { stage: 'none', suggestions: [] };
 };
 
-const useTypingOut = (api, current) => {
+// "typing…" reaches the other person, so it is sent only when the user
+// turned it on (Settings → Privacy) and only for real keystrokes.
+const useTypingOut = (api, current, shareTyping = readShareTyping) => {
   const last = useRef(0);
   return useCallback(() => {
     const now = Date.now();
-    if (!current || now - last.current < TYPING_EVERY_MS) {
+    if (!current || !shareTyping() || now - last.current < TYPING_EVERY_MS) {
       return;
     }
     last.current = now;
@@ -99,20 +102,23 @@ const useAutomationMenu = ({ api, current, confirm, t, after }) => {
   const [open, setOpen] = useState(false);
   const run = async (automation, { test }) => {
     setOpen(false);
-    const auto = automation.mode === 'auto';
-    if (
-      auto &&
-      !confirm(t('chat.automation.confirmAuto', { name: automation.name }))
-    ) {
-      return null;
-    }
     const result = await api.runAutomation({
       automation: automation.id,
       trigger: 'chat-menu',
       test,
-      confirm: auto,
       targets: [{ source: current.source, chat: current.chat }],
+      // Auto mode: confirm the planned message(s) before they go out.
+      ask: (answer) =>
+        confirm(
+          t('chat.automation.confirmAuto', {
+            name: automation.name,
+            count: answer.preview?.drafts?.length ?? 0,
+          })
+        ),
     });
+    if (result?.cancelled) {
+      return null;
+    }
     after(runNotice(result ?? { code: 'no-answer' }));
     return result;
   };
@@ -174,9 +180,10 @@ const useComposer = ({ api, current, after }) => {
   };
   return {
     text,
-    setText: (next) => {
+    // `typed`: the user typed it (not a suggestion chip).
+    setText: (next, { typed = false } = {}) => {
       setText(next);
-      if (next) {
+      if (next && typed) {
         typingOut();
       }
     },

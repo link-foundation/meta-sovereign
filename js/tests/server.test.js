@@ -308,16 +308,41 @@ describe('email server routes', () => {
       const stored = await fetchJson(`${base}/links/msg%3Aemail%3Alocal-1`);
       expect(stored.body.body).toBe('local server mail');
 
-      const sent = await fetchJson(`${base}/api/email/send`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          protocol: 'gmail',
-          message: { to: 'bob@example.com', subject: 'Hi', text: 'hello' },
-        }),
+      // Sending needs the user's confirmation: a preview and a token
+      // first, then the same request with the token.
+      const mail = {
+        protocol: 'gmail',
+        message: { to: 'bob@example.com', subject: 'Hi', text: 'hello' },
+      };
+      const post = (body) =>
+        fetchJson(`${base}/api/email/send`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+      const asked = await post(mail);
+      expect(asked.status).toBe(428);
+      expect(asked.body.preview.to).toBe('bob@example.com');
+      expect(asked.body.preview.subject).toBe('Hi');
+      const token = asked.body.confirm.token;
+      const changed = await post({
+        ...mail,
+        message: { ...mail.message, to: 'eve@example.com' },
+        confirmToken: token,
+      });
+      expect(changed.status).toBe(428);
+      const again = await post(mail);
+      const sent = await post({
+        ...mail,
+        confirmToken: again.body.confirm.token,
       });
       expect(sent.status).toBe(200);
       expect(sent.body.result.id).toBe('sent-local');
+      const reused = await post({
+        ...mail,
+        confirmToken: again.body.confirm.token,
+      });
+      expect(reused.status).toBe(428);
     } finally {
       await handle.close();
     }

@@ -274,6 +274,29 @@ export const en = {
   'autoImport.unavailable':
     'Browser import needs the meta-sovereign server running on this computer.',
   'autoImport.unavailableReason': 'Browser import is unavailable: {reason}',
+  'common.cancelled': 'Cancelled. Nothing was sent.',
+  'outreach.send': 'Send',
+  'outreach.confirmSend':
+    'Send {count, plural, one {# message} other {# messages}} to these people now?',
+  'greetings.confirmSend':
+    'Send {count, plural, one {# greeting} other {# greetings}} now?',
+  'cv.confirmApply':
+    'Write {count, plural, one {# change} other {# changes}} to your CV on the job platforms now?',
+  'profile.savedLocally':
+    'Saved on this device. Nothing was changed on other services.',
+  'profile.publishTitle': 'Update other services',
+  'profile.publishHint':
+    'Saving keeps your profile and CV here. To change them on other services, tick the networks and confirm what will change.',
+  'profile.publish.profile': 'Update profile there',
+  'profile.publish.resume': 'Update CV there',
+  'profile.confirmPublish.profile':
+    'Update your profile on {networks}? People there will see the change.',
+  'profile.confirmPublish.resume':
+    'Update your CV on {networks}? Employers there will see the change.',
+  'settings.privacy.title': 'Privacy',
+  'settings.shareTyping': 'Show others when I am typing',
+  'settings.shareTypingHint':
+    'Off by default. When on, VK and Telegram show "typing…" to the person you are writing to.',
   'connections.manualTitle': 'Or connect by hand',
   'connections.recommended': 'Recommended',
   'connections.users': '{count} users',
@@ -683,7 +706,7 @@ export const en = {
     'Each person appears once, even if you talk on several services.',
   'tutorial.automation.title': 'Automation',
   'tutorial.automation.body':
-    'Automatic replies: when a message matches a pattern, the app suggests or sends a prepared answer.',
+    'Automatic replies: when a message matches a pattern, the app drafts an answer. Nothing is sent until you confirm it.',
   'tutorial.backup.title': 'Backup',
   'tutorial.backup.body':
     'Save an encrypted copy of your data. Only your passphrase can open it.',
@@ -745,7 +768,7 @@ export const en = {
   'chat.automation.test': 'Test in this chat',
   'chat.automation.run': 'Run with its conditions',
   'chat.automation.confirmAuto':
-    '"{name}" sends without review. Run it in this chat now?',
+    '"{name}" will send {count, plural, one {# message} other {# messages}} now. Send?',
   'chat.empty': 'No messages in this chat yet.',
   'chat.form.informal': 'informal ("ты")',
   'chat.form.formal': 'formal ("вы")',

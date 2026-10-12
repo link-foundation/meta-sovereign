@@ -168,6 +168,26 @@ message typed in the chat composer without one is kept in the browser
 until a server syncs it. The `automations` CLI command works without
 any server.
 
+**Writes to other services need a confirmation.** Every route that
+sends, posts or changes something on another service — `/api/send`,
+`/api/automations/run` (auto mode), `/api/automations/drafts/send`,
+`/api/email/send`, `/api/github/post-comment`,
+`/api/upwork/post-message`, `/api/peopleperhour/post-message`,
+`/api/broadcast`, `/api/outreach` (`mode: "queue"`),
+`/api/greetings/plan` (`run: "queue"`), `/api/cv/sync` (`dryRun: false`),
+`/api/profile/sync` and `/api/resume/sync` — first answers
+`428 Precondition Required` with `{ needsConfirmation, action, preview,
+confirm: { token, expiresAt } }` and does nothing. The client shows the
+preview and repeats the identical body with `confirmToken`; the token is
+single-use, bound to that body, valid for five minutes, and the server
+performs exactly the previewed plan (`js/src/server/confirmations.js`).
+A CV dry run already carries the token for applying its plan. `PUT
+/api/profile` and `PUT /api/resume` only save; storing or syncing a
+`broadcast:*`, `outreach:*`, `profile:*` or `resume:*` link never sends
+anything. `/ws` and `/rtc` refuse WebSocket upgrades from origins outside
+the CORS allow-list. The Rust server has none of these routes, so the
+SPA reports "server required" there.
+
 ## 6. Greetings
 
 | Route                      | Method | JS server                           | Rust server | Status      |

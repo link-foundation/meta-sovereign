@@ -19,6 +19,7 @@
  */
 
 import { json, readBody, text } from './util.js';
+import { confirmed } from './confirmations.js';
 import { getSource } from '../sources/index.js';
 import {
   greetingCatalogue,
@@ -84,24 +85,37 @@ const handlePlan = async (store, req, res, p, ctx) => {
     return false;
   }
   const body = await readBody(req).catch(() => ({}));
-  const plan = await planFromStore(store, {
-    mode: body.mode === 'reply' ? 'reply' : 'initiate',
-    networks: listOrNull(body.networks),
-    me: listOrNull([body.me ?? []].flat()),
-    limit: clamp(body.limit, 10, MAX_LIMIT),
-    staleDays: clamp(body.staleDays, 30, 3650),
-  });
+  const makePlan = () =>
+    planFromStore(store, {
+      mode: body.mode === 'reply' ? 'reply' : 'initiate',
+      networks: listOrNull(body.networks),
+      me: listOrNull([body.me ?? []].flat()),
+      limit: clamp(body.limit, 10, MAX_LIMIT),
+      staleDays: clamp(body.staleDays, 30, 3650),
+    });
   if (body.run !== 'queue') {
-    return json(res, 200, plan) ?? true;
+    return json(res, 200, await makePlan()) ?? true;
   }
-  const results = await runGreetings(plan, {
+  // Sending: only the plan the user saw and confirmed.
+  const ok = await confirmed(ctx, res, {
+    action: 'greetings.send',
+    body,
+    prepare: async () => {
+      const plan = await makePlan();
+      return { preview: plan, data: plan };
+    },
+  });
+  if (!ok) {
+    return true;
+  }
+  const results = await runGreetings(ok.data, {
     store,
     resolveSource: resolverOf(ctx),
     credentials: await loadGreetingCredentials(store),
     delayMs: clamp(body.delayMs, 0, MAX_DELAY_MS),
     ...(ctx?.greetingSleep ? { sleep: ctx.greetingSleep } : {}),
   });
-  return json(res, 200, { plan, results }) ?? true;
+  return json(res, 200, { plan: ok.data, results }) ?? true;
 };
 
 const handleFile = async (store, req, res, p, url, ctx) => {

@@ -84,6 +84,23 @@ links 上运行同一份代码（`js/src/web/automation-api.js`）：离线时�
 中输入的消息会保存在浏览器里，直到某个服务器把它同步出去。CLI 的
 `automations` 命令完全不需要服务器。
 
+**写入其他服务需要确认。** 所有会在其他服务上发送、发布或修改内容的
+路由——`/api/send`、`/api/automations/run`（auto 模式）、
+`/api/automations/drafts/send`、`/api/email/send`、
+`/api/github/post-comment`、`/api/upwork/post-message`、
+`/api/peopleperhour/post-message`、`/api/broadcast`、`/api/outreach`
+（`mode: "queue"`）、`/api/greetings/plan`（`run: "queue"`）、
+`/api/cv/sync`（`dryRun: false`）、`/api/profile/sync` 和
+`/api/resume/sync`——都会先返回 `428 Precondition Required` 以及
+`{ needsConfirmation, action, preview, confirm: { token, expiresAt } }`，
+不做任何操作。客户端展示预览后，用 `confirmToken` 重复完全相同的请求体；
+令牌只能使用一次、绑定该请求体、五分钟内有效，服务器只执行预览过的计划
+（`js/src/server/confirmations.js`）。简历的试运行已附带应用其计划的令牌。
+`PUT /api/profile` 和 `PUT /api/resume` 只保存；存储或同步 `broadcast:*`、
+`outreach:*`、`profile:*`、`resume:*` 链接不会发送任何内容。`/ws` 和
+`/rtc` 会拒绝来自 CORS 允许列表之外来源的 WebSocket 升级。Rust 服务器
+没有这些路由，因此 SPA 在那里会提示需要服务器。
+
 ## 6. 问候
 
 `/api/greetings/catalogue`、`/api/greetings/selection`（GET 与 PUT）、

@@ -354,19 +354,28 @@ export const syncCvAcross = async (
   const { dryRun = true, prefer = null, canonical = null } = options;
   const { entries, failures } = await readAllCvs(platformIds, options);
   const comparison = compareAllCvs(entries, { prefer });
-  const target = canonical
-    ? normalizeCv(canonical)
-    : applyFlatChanges(
-        emptyCv(),
-        comparison.plan.map((item) => ({ path: item.path, value: item.value }))
-      );
-  const actions = syncActions(platformIds, {
-    canonical,
-    target,
-    entries,
-    comparison,
-    paths: options.paths ?? null,
-  });
+  // `confirmed`: the target and actions of the dry run the user
+  // approved — applied as they were, not re-planned from this read.
+  const target =
+    options.confirmed?.target ??
+    (canonical
+      ? normalizeCv(canonical)
+      : applyFlatChanges(
+          emptyCv(),
+          comparison.plan.map((item) => ({
+            path: item.path,
+            value: item.value,
+          }))
+        ));
+  const actions =
+    options.confirmed?.actions ??
+    syncActions(platformIds, {
+      canonical,
+      target,
+      entries,
+      comparison,
+      paths: options.paths ?? null,
+    });
   const applied = dryRun
     ? []
     : await applyActions(actions, target, options, failures);

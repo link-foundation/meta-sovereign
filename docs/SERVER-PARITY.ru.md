@@ -92,6 +92,26 @@ only, и по структурной причине: `read` и `sync` управ
 хранится в браузере, пока сервер его не синхронизирует. Команда CLI
 `automations` работает вообще без сервера.
 
+**Запись в другие сервисы требует подтверждения.** Каждый маршрут,
+который отправляет, публикует или меняет что-то в другом сервисе, —
+`/api/send`, `/api/automations/run` (режим auto),
+`/api/automations/drafts/send`, `/api/email/send`,
+`/api/github/post-comment`, `/api/upwork/post-message`,
+`/api/peopleperhour/post-message`, `/api/broadcast`, `/api/outreach`
+(`mode: "queue"`), `/api/greetings/plan` (`run: "queue"`), `/api/cv/sync`
+(`dryRun: false`), `/api/profile/sync` и `/api/resume/sync` — сначала
+отвечает `428 Precondition Required` с `{ needsConfirmation, action,
+preview, confirm: { token, expiresAt } }` и ничего не делает. Клиент
+показывает предпросмотр и повторяет тот же запрос с `confirmToken`;
+токен одноразовый, привязан к этому телу запроса, действует пять минут,
+а сервер выполняет ровно показанный план
+(`js/src/server/confirmations.js`). Пробный прогон CV уже содержит токен
+для применения своего плана. `PUT /api/profile` и `PUT /api/resume`
+только сохраняют; запись или синхронизация ссылок `broadcast:*`,
+`outreach:*`, `profile:*` и `resume:*` ничего не отправляет. `/ws` и
+`/rtc` отклоняют WebSocket с источников вне списка CORS. В Rust-сервере
+этих маршрутов нет, поэтому SPA там сообщает «нужен сервер».
+
 ## 6. Приветствия
 
 `/api/greetings/catalogue`, `/api/greetings/selection` (GET и PUT),

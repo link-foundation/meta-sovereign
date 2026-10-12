@@ -164,7 +164,7 @@ test('review: a failed send keeps the draft and says so', async () => {
   assert.match((await run(['drafts'])).text, /2 pending draft\(s\)/);
 });
 
-test('auto mode: refuses without --confirm=true, then sends paced', async () => {
+test('auto mode: shows the plan, sends only once confirmed', async () => {
   const store = await seed();
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-automation-'));
   const file = path.join(dir, 'auto.json');
@@ -184,7 +184,10 @@ test('auto mode: refuses without --confirm=true, then sends paced', async () => 
   );
   const refused = await run(['run', 'say-hi-auto']);
   assert.equal(refused.code, 1);
-  assert.match(refused.text, /add --confirm=true/);
+  // The user sees who would get what before anything is sent.
+  assert.match(refused.text, /2 to message \(preview — nothing was sent\)/);
+  assert.match(refused.text, /Send 2 messages now\?|Send 2 message\(s\) now\?/);
+  assert.match(refused.text, /pass --yes/);
   assert.equal(sent.length, 0);
   const ok = await run(['run', 'say-hi-auto'], { confirm: 'true' });
   assert.equal(ok.code, 0);

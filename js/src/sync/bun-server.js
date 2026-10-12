@@ -49,6 +49,14 @@ const startBunServer = (httpServer, registry, host, port) => {
       const url = new URL(req.url);
       const pathname = url.pathname;
       if (registry.wsByPath.has(pathname)) {
+        const verify = registry.wsByPath.get(pathname).verifyOrigin;
+        const headers = {
+          origin: req.headers.get('origin') ?? undefined,
+          host: req.headers.get('host') ?? undefined,
+        };
+        if (verify && !verify({ headers })) {
+          return new Response('Forbidden', { status: 403 });
+        }
         const ok = srv.upgrade(req, {
           data: { path: pathname, query: url.search },
         });
@@ -331,10 +339,13 @@ const wireSyncWsHandlers = () => {
   };
 };
 
-export const bunAttachSyncWebSocket = (httpServer, { path = '/ws' } = {}) => {
+export const bunAttachSyncWebSocket = (
+  httpServer,
+  { path = '/ws', verifyOrigin = null } = {}
+) => {
   const wired = wireSyncWsHandlers();
   const registry = installRegistry(httpServer);
-  registry.registerWs(path, wired.handlers);
+  registry.registerWs(path, { ...wired.handlers, verifyOrigin });
   return {
     transport: wired.transport,
     close: () => {
@@ -507,10 +518,13 @@ const wireSignalingHandlers = () => {
   };
 };
 
-export const bunAttachSignaling = (httpServer, { path = '/rtc' } = {}) => {
+export const bunAttachSignaling = (
+  httpServer,
+  { path = '/rtc', verifyOrigin = null } = {}
+) => {
   const wired = wireSignalingHandlers();
   const registry = installRegistry(httpServer);
-  registry.registerWs(path, wired.handlers);
+  registry.registerWs(path, { ...wired.handlers, verifyOrigin });
   return {
     close: () => {
       registry.unregisterWs(path);

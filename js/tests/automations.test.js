@@ -285,7 +285,7 @@ test('markSent records a message the user sent by hand', async () => {
   assert.equal(marked.record.manual, true);
 });
 
-test('auto mode needs confirm for manual runs, then paces and caps', async () => {
+test('auto mode sends only confirmed drafts, paced and capped', async () => {
   const links = fixture();
   for (let i = 0; i < 5; i += 1) {
     links.push(m(`30${i}`, 'me', 'Здравствуйте', 150));
@@ -315,24 +315,73 @@ test('auto mode needs confirm for manual runs, then paces and caps', async () =>
     pacing: { minDelayMs: 1000, maxDelayMs: 3000, dailyCap: 4 },
   };
   await assert.rejects(runner.run(automation), ConfirmationRequiredError);
-  const out = await runner.run(automation, { confirm: true });
-  assert.equal(out.total, 7);
-  assert.equal(out.results.length, 4);
+  // A flag is not a confirmation: the drafts the user saw are.
+  await assert.rejects(
+    runner.run(automation, { confirm: true }),
+    ConfirmationRequiredError
+  );
+  const preview = await runner.plan(automation);
+  assert.equal(sent.length, 0);
+  // Only what was confirmed goes out (one chat left out here).
+  const partial = await runner.run(automation, {
+    confirmed: preview.drafts.slice(0, 1),
+  });
+  assert.equal(partial.results.length, 1);
+  sent.length = 0;
+  slept.length = 0;
+  const out = await runner.run(automation, {
+    confirmed: (await runner.plan(automation)).drafts,
+  });
+  assert.equal(out.total, 6);
+  assert.equal(out.results.length, 3);
   assert.equal(out.capped, 3);
-  assert.equal(sent.length, 4);
+  assert.equal(sent.length, 3);
   const failed = out.results.filter((r) => r.status === 'failed');
   assert.deepEqual(
     failed.map((r) => r.error),
     ['flood control']
   );
-  // Typing pauses for each message plus three 2s gaps between them.
+  // Typing pauses for each message plus two 2s gaps between them.
   const gaps = slept.filter((ms) => ms === 2000);
-  assert.equal(gaps.length, 3);
+  assert.equal(gaps.length, 2);
   assert.ok(slept.some((ms) => ms > 2000 && ms <= 8000));
 
   // Three were sent today, so the cap leaves room for one more.
-  const next = await runner.run(automation, { confirm: true });
+  const next = await runner.run(automation, {
+    confirmed: (await runner.plan(automation)).drafts,
+  });
   assert.equal(next.results.length, 1);
+});
+
+test('schedule and incoming triggers never send, even in auto mode', async () => {
+  const store = await seeded();
+  const { clock } = clockAt(NOW);
+  const sent = [];
+  const runner = createAutomationRunner({
+    store,
+    clock,
+    sleep: async () => {},
+    send: async (draft) => {
+      sent.push(draft);
+      return { via: 'api' };
+    },
+  });
+  const automation = {
+    ...preset('reengage-dormant'),
+    mode: 'auto',
+    triggers: [{ kind: 'schedule', every: '1d' }],
+  };
+  const scheduled = await runner.run(automation, {
+    trigger: 'schedule',
+    confirmed: (await runner.plan(automation)).drafts,
+  });
+  assert.ok(scheduled.queued.length > 0, 'drafts wait for the user');
+  const incoming = await runner.run(
+    { ...preset('greet-back'), mode: 'auto' },
+    { trigger: 'incoming', targets: [{ source: 'vk', chat: '103' }] }
+  );
+  assert.ok(Array.isArray(incoming.queued));
+  assert.deepEqual(sent, []);
 });
 
 test('typing time follows 450 chars/min and is capped', () => {

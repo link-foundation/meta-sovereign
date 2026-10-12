@@ -698,8 +698,19 @@ export const OutreachView = () => {
       text,
       networks: selected,
       mode,
+      // Sending: the server shows the envelopes first; the user agrees.
+      ask: (answer) =>
+        globalThis.confirm(
+          t('outreach.confirmSend', {
+            count: answer.preview?.envelopes?.length ?? 0,
+          })
+        ),
     });
-    setOutput(JSON.stringify(result, null, 2));
+    setOutput(
+      result?.cancelled
+        ? t('common.cancelled')
+        : JSON.stringify(result, null, 2)
+    );
   };
   return el(AsyncFrame, { state }, (sources) => {
     if (!sources || sources.length === 0) {
@@ -741,8 +752,13 @@ export const OutreachView = () => {
         ),
         el(
           'button',
-          { key: 'queue', type: 'button', onClick: () => run('queue') },
-          t('common.queue')
+          {
+            key: 'queue',
+            type: 'button',
+            'data-action': 'outreach-send',
+            onClick: () => run('queue'),
+          },
+          t('outreach.send')
         ),
       ]),
       el('pre', { key: 'out' }, output),
@@ -883,22 +899,15 @@ export const ProfileView = () => {
     setBody(resume.body ?? '');
   }, [state.value]);
 
+  // Saving is local; other services change only via ProfilePublish.
   const saveProfile = async () => {
-    const result = await api.putProfile({
-      ...state.value.profile,
-      name,
-      bio,
-    });
-    setStatus(JSON.stringify(result.plannedSyncs, null, 2));
+    await api.putProfile({ ...state.value.profile, name, bio });
+    setStatus(t('profile.savedLocally'));
   };
 
   const saveResume = async () => {
-    const result = await api.putResume({
-      ...state.value.resume,
-      title,
-      body,
-    });
-    setStatus(JSON.stringify(result.plannedSyncs, null, 2));
+    await api.putResume({ ...state.value.resume, title, body });
+    setStatus(t('profile.savedLocally'));
   };
 
   return el(AsyncFrame, { state }, () => {
@@ -961,9 +970,63 @@ export const ProfileView = () => {
           t('profile.saveResume')
         ),
       ]),
+      el(ProfilePublish, { key: 'publish', setStatus }),
       el('pre', { key: 'status' }, status),
     ]);
   });
+};
+
+/**
+ * Change the saved profile / CV on other services. Nothing is ticked
+ * by default, and the server shows what would change before it does.
+ */
+const ProfilePublish = ({ setStatus }) => {
+  const t = useT();
+  const sources = useAsyncValue(() => api.sources(), [], []);
+  const [targets, setTargets] = useState([]);
+  const publish = async (kind) => {
+    const call = kind === 'profile' ? api.publishProfile : api.publishResume;
+    const result = await call({
+      networks: targets,
+      ask: (answer) =>
+        globalThis.confirm(
+          t(`profile.confirmPublish.${kind}`, {
+            networks: (answer.preview?.networks ?? []).join(', '),
+          })
+        ),
+    });
+    setStatus(
+      result?.cancelled
+        ? t('common.cancelled')
+        : JSON.stringify(result?.results ?? result, null, 2)
+    );
+  };
+  const button = (kind) =>
+    el(
+      'button',
+      {
+        key: kind,
+        type: 'button',
+        'data-action': `publish-${kind}`,
+        disabled: targets.length === 0,
+        onClick: () => publish(kind),
+      },
+      t(`profile.publish.${kind}`)
+    );
+  return el('section', { className: 'col profile-publish' }, [
+    el('h2', { key: 'h' }, t('profile.publishTitle')),
+    el('p', { key: 'hint', className: 'meta' }, t('profile.publishHint')),
+    el(SourceChecks, {
+      key: 'targets',
+      sources: sources.value ?? [],
+      selected: targets,
+      setSelected: setTargets,
+    }),
+    el('div', { key: 'actions', className: 'row' }, [
+      button('profile'),
+      button('resume'),
+    ]),
+  ]);
 };
 
 export const StatusView = () => {

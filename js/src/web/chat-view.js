@@ -497,7 +497,8 @@ const Composer = ({ state }) => {
           placeholder: t('chat.placeholder'),
           'aria-label': t('chat.placeholder'),
           value: composer.text,
-          onChange: (event) => composer.setText(event.target.value),
+          onChange: (event) =>
+            composer.setText(event.target.value, { typed: true }),
           onKeyDown,
         }),
         el(

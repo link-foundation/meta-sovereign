@@ -79,7 +79,7 @@ import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
-import { handleCors, parseAllowedOrigins } from './cors.js';
+import { classifyOrigin, handleCors, parseAllowedOrigins } from './cors.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.resolve(here, '..', 'web');
@@ -431,10 +431,13 @@ export const startServer = async ({
   let wsHandle = null;
   let signaling = null;
   if (enableSync) {
-    wsHandle = attachSyncWebSocket(server, { path: '/ws' });
+    // Same rule as HTTP: no sockets for pages on other websites.
+    const verifyOrigin = (req) =>
+      classifyOrigin(req, ctx.allowOrigins) !== 'denied';
+    wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
     const peer = createPeer(store, { node });
     peer.connect(wsHandle.transport);
-    signaling = attachSignaling(server, { path: '/rtc' });
+    signaling = attachSignaling(server, { path: '/rtc', verifyOrigin });
     ctx.sync = wsHandle;
     ctx.signaling = signaling;
   }

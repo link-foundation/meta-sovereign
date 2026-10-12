@@ -24,6 +24,7 @@ import {
   saveGreetingSelection,
   vkStickerPreview,
 } from '../greetings/index.js';
+import { confirmCli } from './confirm.js';
 
 export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,telegram] [--json] [--store=<dir>]
   greetings-select   [--stickers=vk:21,facebook:<id>] [--sets=<a,b>] [--language=en|ru|zh|hi|vi] [--prefer=sticker|text] [--json] [--store=<dir>]
@@ -64,7 +65,8 @@ export const planOptions = (args) => ({
   mode: args.mode === 'reply' ? 'reply' : 'initiate',
   networks: parseList(args.networks),
   me: parseList(args.me),
-  limit: Number(args.limit ?? 10),
+  // 1–100: a typo must never mean "everyone".
+  limit: Math.min(Math.max(Math.trunc(Number(args.limit ?? 10)) || 10, 1), 100),
   staleDays: Number(args['stale-days'] ?? 30),
 });
 
@@ -163,6 +165,16 @@ const planCmd = async (args, log, deps) => {
 const sendCmd = async (args, log, deps) => {
   const store = await storeOf(args, deps.openStore);
   const plan = await planFromStore(store, planOptions(args));
+  // Show who gets what, then send exactly this plan once confirmed.
+  plan.envelopes.forEach((envelope) => log(`  ${envelopeLine(envelope)}`));
+  const ok = await confirmCli(`Send ${plan.envelopes.length} greeting(s)?`, {
+    args,
+    log,
+    ask: deps.ask,
+  });
+  if (!ok) {
+    return 1;
+  }
   const results = await runGreetings(plan, {
     store,
     resolveSource: deps.resolveSource,

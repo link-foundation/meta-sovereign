@@ -217,6 +217,7 @@ export const clientFailure = (name, error) => ({
 
 /** Everything the screen does, kept out of the render for clarity. */
 const useCvState = (api) => {
+  const t = useT();
   const [platforms, setPlatforms] = useState([]);
   const [stored, setStored] = useState([]);
   const [selected, setSelected] = useState([]);
@@ -299,15 +300,39 @@ const useCvState = (api) => {
     [api, run, selected]
   );
 
+  // Applying writes to the job boards: the user confirms the dry run on
+  // screen, and its token applies exactly that plan.
   const planSync = useCallback(
-    (dryRun, vars) =>
-      run(dryRun ? 'plan' : 'apply', async () => {
-        const result = await api.cvSync({ platforms: selected, dryRun, vars });
+    (dryRun, vars) => {
+      const ask = () =>
+        globalThis.confirm(
+          t('cv.confirmApply', { count: sync?.actions?.length ?? 0 })
+        );
+      if (!dryRun && !ask()) {
+        return null;
+      }
+      return run(dryRun ? 'plan' : 'apply', async () => {
+        const result = await api.cvSync({
+          platforms: selected,
+          dryRun,
+          vars,
+          confirmToken: dryRun ? undefined : sync?.confirm?.token,
+          ask: (answer) =>
+            globalThis.confirm(
+              t('cv.confirmApply', {
+                count: answer.preview?.actions?.length ?? 0,
+              })
+            ),
+        });
+        if (result?.cancelled) {
+          return;
+        }
         setSync(result);
         setFailures(result.failures ?? []);
         setTelemetry(await api.cvTelemetry({}));
-      }),
-    [api, run, selected]
+      });
+    },
+    [api, run, selected, sync, t]
   );
 
   return {

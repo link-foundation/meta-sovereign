@@ -6,7 +6,9 @@
  * - `automations plan <id>` — who would get what, and why the rest are
  *   left out. Nothing is written.
  * - `automations run <id>` — safe mode queues one draft per person; auto
- *   mode sends (typing, pacing, daily cap) only with `--confirm=true`.
+ *   mode shows the planned messages and sends exactly those (typing,
+ *   pacing, daily cap) after a y on the terminal, or with `--yes`
+ *   (`--confirm=true`) in scripts.
  * - `automations review` — safe (debug) mode: one pending draft at a
  *   time; each is sent only after the user answers `y`, and can be
  *   edited, switched to the other "ты"/"вы" form, marked as sent by
@@ -28,10 +30,11 @@ import {
 } from '../automation/automations.js';
 import { listAutomations } from '../automation/drafts.js';
 import { createAutomationRunner } from '../automation/runner.js';
+import { confirmCli } from './confirm.js';
 
 export const AUTOMATION_HELP = `  automations   [list] | plan <id> | run <id> | review | drafts | history | save <file.json> | delete <id>
                 [--chat=<source:chat,...>] [--test] [--limit=<n>] [--self=<id,id>] [--automation=<id>] [--json] [--store=<dir>]
-                run: safe mode queues drafts; auto mode sends only with --confirm=true
+                run: safe mode queues drafts; auto mode shows the plan and sends after y (or --yes)
                 review: safe mode — send, edit, switch ты/вы, mark sent or skip one draft at a time`;
 
 const parseCsv = (value) =>
@@ -152,16 +155,40 @@ const planCmd = async ({ args, runner, log }) => {
 
 const isConfirmed = (args) => args.confirm === true || args.confirm === 'true';
 
-const runCmd = async ({ args, runner, log }) => {
+// Auto mode sends: show the planned messages and send exactly those
+// once confirmed (`--confirm=true`/`--yes`, or y on a terminal).
+const confirmedDrafts = async ({ args, runner, log, automation, ask }) => {
+  const plan = await runner.plan(automation, runOptions(args));
+  if (!args.json) {
+    logPlan(plan, log);
+  }
+  const ok = await confirmCli(`Send ${plan.drafts.length} message(s) now?`, {
+    args: { yes: isConfirmed(args) || args.yes },
+    log,
+    ask,
+  });
+  return ok ? plan.drafts : null;
+};
+
+const runCmd = async ({ args, runner, log, confirmAsk }) => {
   const automation = await runner.load(idArg(args));
-  if (automation.mode === 'auto' && !isConfirmed(args)) {
-    log('auto mode sends without asking; add --confirm=true');
+  const confirmed =
+    automation.mode === 'auto'
+      ? await confirmedDrafts({
+          args,
+          runner,
+          log,
+          automation,
+          ask: confirmAsk,
+        })
+      : undefined;
+  if (confirmed === null) {
     return 1;
   }
   const result = await runner.run(automation, {
     ...runOptions(args),
     trigger: 'manual',
-    confirm: isConfirmed(args),
+    confirmed,
   });
   if (args.json) {
     log(JSON.stringify(result, null, 2));
@@ -365,6 +392,8 @@ const automationsCmd = async (args, log, deps) => {
       runner,
       log,
       ask: deps.ask ?? defaultAsk,
+      // y/N before sending (tests answer it; otherwise the terminal).
+      confirmAsk: deps.confirm ?? null,
     });
   } finally {
     await close();
@@ -375,6 +404,7 @@ const automationsCmd = async (args, log, deps) => {
  * @param {object} deps
  * @param {Function} deps.openStore directory → store
  * @param {Function} [deps.ask] question → answer (tests script the answers)
+ * @param {Function} [deps.confirm] question → boolean before a send
  * @param {Function} [deps.send] draft → result (defaults to the adapters
  *   with the official web UI as the fallback)
  * @param {Function} [deps.setTyping] `{ source, chat }` → typing shown

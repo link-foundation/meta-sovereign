@@ -138,7 +138,7 @@ export const defaultSteps = [
     titleKey: 'tutorial.automation.title',
     bodyKey: 'tutorial.automation.body',
     title: 'Automation',
-    body: 'Automatic replies: when a message matches a pattern, the app suggests or sends a prepared answer.',
+    body: 'Automatic replies: when a message matches a pattern, the app drafts an answer. Nothing is sent until you confirm it.',
   },
   {
     id: 'backup',

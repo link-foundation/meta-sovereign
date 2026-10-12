@@ -270,6 +270,25 @@ export const zh = {
   'autoImport.unavailable':
     '通过浏览器导入需要在本机运行 meta-sovereign 服务器。',
   'autoImport.unavailableReason': '通过浏览器导入不可用：{reason}',
+  'common.cancelled': '已取消，未发送任何内容。',
+  'outreach.send': '发送',
+  'outreach.confirmSend': '现在向这些人发送 {count} 条消息吗？',
+  'greetings.confirmSend': '现在发送 {count} 条问候吗？',
+  'cv.confirmApply': '现在把 {count} 处修改写入你在招聘平台上的简历吗？',
+  'profile.savedLocally': '已保存在此设备上，其他服务上没有任何改动。',
+  'profile.publishTitle': '更新到其他服务',
+  'profile.publishHint':
+    '保存只会把个人资料和简历留在这里。要在其他服务上修改，请勾选网络并确认将要做的修改。',
+  'profile.publish.profile': '在那里更新个人资料',
+  'profile.publish.resume': '在那里更新简历',
+  'profile.confirmPublish.profile':
+    '在 {networks} 上更新你的个人资料吗？那里的人会看到改动。',
+  'profile.confirmPublish.resume':
+    '在 {networks} 上更新你的简历吗？那里的雇主会看到改动。',
+  'settings.privacy.title': '隐私',
+  'settings.shareTyping': '向对方显示我正在输入',
+  'settings.shareTypingHint':
+    '默认关闭。开启后，VK 和 Telegram 会向你正在联系的人显示“正在输入…”。',
   'connections.manualTitle': '或手动连接',
   'connections.recommended': '推荐',
   'connections.users': '{count} 用户',
@@ -663,7 +682,7 @@ export const zh = {
   'tutorial.contacts.body': '同一个人只出现一次，即使你们在多个服务上交流。',
   'tutorial.automation.title': '自动化',
   'tutorial.automation.body':
-    '自动回复：当消息匹配某个模式时，应用会建议或发送预设的回答。',
+    '自动回复：当消息匹配某个模式时，应用会起草回答。未经你确认，不会发送任何内容。',
   'tutorial.backup.title': '备份',
   'tutorial.backup.body': '保存数据的加密副本，只有你的口令才能打开。',
   'tutorial.connections.title': '选择一个服务',
@@ -722,7 +741,7 @@ export const zh = {
   'chat.automation.test': '在此聊天中测试',
   'chat.automation.run': '按条件运行',
   'chat.automation.confirmAuto':
-    '“{name}”会直接发送而不经审核。现在在此聊天中运行吗？',
+    '“{name}”现在将发送 {count} 条消息。要发送吗？',
   'chat.empty': '此聊天中还没有消息。',
   'chat.form.informal': '非正式（“ты”）',
   'chat.form.formal': '正式（“вы”）',

@@ -231,9 +231,10 @@ const stepTutorialProgressPersists = async ({ page, base }) => {
     timeout: 5000,
   });
 
-  // "Next" on the first step opens Connections, as the step asks.
+  // "Next" on the first step opens Connections, as the step asks; with
+  // a local server the browser sign-ins step comes next.
   await page.click('button[data-action="tutorial-next"]');
-  await page.waitForSelector('[data-tutorial-step="pick"]', {
+  await page.waitForSelector('[data-tutorial-step="signIns"]', {
     timeout: 5000,
   });
   await page.waitForSelector('main[data-view="connections"]', {
@@ -243,14 +244,17 @@ const stepTutorialProgressPersists = async ({ page, base }) => {
     JSON.parse(window.localStorage.getItem('metaSovereignTutorial'))
   );
   assert(
-    stored?.stepId === 'pick',
+    stored?.stepId === 'signIns',
     `tutorial progress not stored after next: ${JSON.stringify(stored)}`
   );
 
+  // After a reload the tour resumes there (or just after it when the
+  // page opens elsewhere and the optional step's panel is not shown).
   await page.reload({ waitUntil: 'load' });
-  await page.waitForSelector('[data-tutorial-step="pick"]', {
-    timeout: 5000,
-  });
+  await page.waitForSelector(
+    '[data-tutorial-step="signIns"], [data-tutorial-step="pick"]',
+    { timeout: 5000 }
+  );
   await page.click('button[data-action="tutorial-off"]');
   await page.waitForSelector('[data-tutorial-overlay]', {
     state: 'detached',
@@ -373,10 +377,12 @@ const stepBroadcast = async ({ base }) => {
       networks: ['telegram', 'vk'],
     }),
   });
+  // Posting publicly needs the user's confirmation: a preview first.
   const body = await r.json();
+  assert(r.status === 428, `broadcast: expected 428, got ${r.status}`);
   assert(
-    Array.isArray(body.networks) && body.networks.length === 2,
-    `broadcast: networks=${JSON.stringify(body.networks)}`
+    body.preview?.networks?.length === 2 && body.confirm?.token,
+    `broadcast: preview=${JSON.stringify(body.preview)}`
   );
 };
 
@@ -478,46 +484,49 @@ const stepProfileSync = async ({ page, base, commander }) => {
 
   await commander.clickButton({ selector: 'button[data-view="profile"]' });
   await page.waitForFunction(
-    () => document.querySelector('input[placeholder="name"]'),
+    () => document.querySelector('input[placeholder="Name"]'),
     undefined,
     { timeout: 5000 }
   );
-  await page.fill('input[placeholder="name"]', 'Alice E2E');
-  await page.fill('textarea[placeholder="bio"]', 'Hello from the profile e2e');
-  await page.evaluate(() => {
-    const btn = [...document.querySelectorAll('button.primary')].find(
-      (b) => b.textContent.trim() === 'save profile'
-    );
-    btn.click();
-  });
+  await page.fill('input[placeholder="Name"]', 'Alice E2E');
+  await page.fill('textarea[placeholder="Bio"]', 'Hello from the profile e2e');
+  await page.getByRole('button', { name: /save profile/i }).click();
+  // Saving is local: nothing is published to the networks.
   await page.waitForFunction(
-    () => {
-      const pre = document.querySelector('pre');
-      return pre && pre.textContent && pre.textContent.includes('"source"');
-    },
+    () =>
+      /Nothing was changed on other services/.test(
+        document.querySelector('pre')?.textContent ?? ''
+      ),
     undefined,
     { timeout: 5000 }
   );
-  const planned = await page.$eval('pre', (el) => JSON.parse(el.textContent));
-  assert(
-    Array.isArray(planned) && planned.length > 0,
-    `profile sync: plannedSyncs missing or empty: ${JSON.stringify(planned)}`
-  );
-  for (const want of ['telegram', 'vk']) {
-    assert(
-      planned.find((p) => p.source === want),
-      `profile sync: missing envelope for ${want} in ${JSON.stringify(planned)}`
-    );
-  }
-  assert(
-    planned.every((p) => p.status === 'queued'),
-    `profile sync: every envelope should be queued: ${JSON.stringify(planned)}`
-  );
-
   const link = await fetch(`${base}/links/profile:me`).then((r) => r.json());
   assert(
     link.name === 'Alice E2E',
-    `profile sync: server-side link not updated: ${JSON.stringify(link)}`
+    `profile: server-side link not updated: ${JSON.stringify(link)}`
+  );
+
+  // Publishing needs ticked networks and a confirmation that names them;
+  // declining it sends nothing.
+  const publish = page.locator('button[data-action="publish-profile"]');
+  assert(await publish.isDisabled(), 'publish enabled with no networks');
+  await page
+    .locator('.profile-publish input[type="checkbox"][value="vk"]')
+    .check();
+  const dialog = new Promise((resolve) =>
+    page.once('dialog', async (d) => {
+      resolve(d.message());
+      await d.dismiss();
+    })
+  );
+  await publish.click();
+  const message = await dialog;
+  assert(/vk/.test(message), `publish: dialog did not name vk: ${message}`);
+  await page.waitForFunction(
+    () =>
+      /Nothing was sent/.test(document.querySelector('pre')?.textContent ?? ''),
+    undefined,
+    { timeout: 5000 }
   );
 };
 
@@ -793,7 +802,7 @@ const ALL_STEPS = [
     requires: 'backups',
   },
   {
-    name: 'profile edit emits per-network sync envelopes',
+    name: 'profile saves locally; publishing asks first',
     fn: stepProfileSync,
     requires: 'profile',
   },

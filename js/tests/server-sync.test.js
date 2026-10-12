@@ -5,7 +5,7 @@
  * directive requires: SPA hits one origin, picks up REST + sync +
  * signaling without any cross-origin gymnastics.
  *
- * Also verifies a written `broadcast:*` link fires the broadcast
+ * Also verifies a written `broadcast:*` link does NOT fire the broadcast
  * handler that was bootstrapped onto the store.
  */
 
@@ -81,26 +81,27 @@ test('main server exposes /rtc signaling broker', async () => {
   await handle.close();
 });
 
-test('writing a broadcast link fires the bootstrapped handler', async () => {
+test('a stored or synced broadcast link sends nothing by itself', async () => {
+  // Posting is a write to other services: only the confirmed
+  // /api/broadcast route does it, never a link arriving in the store.
   const store = createMemoryStore();
   const handle = await startServer({ port: 0, store });
-
-  await store.put({
-    id: 'broadcast:tic',
-    tokens: ['broadcast'],
-    networks: ['telegram'],
-    body: 'hi',
-  });
-  for (let i = 0; i < 8; i += 1) {
-    await settle();
+  try {
+    await store.put({
+      id: 'broadcast:tic',
+      tokens: ['broadcast'],
+      networks: ['telegram'],
+      body: 'hi',
+    });
+    for (let i = 0; i < 8; i += 1) {
+      await settle();
+    }
+    const persisted = await store.get('broadcast:tic');
+    assert.equal(persisted.dispatched, undefined);
+    assert.equal(persisted.results, undefined);
+  } finally {
+    await handle.close();
   }
-
-  const persisted = await store.get('broadcast:tic');
-  assert.equal(persisted.dispatched, true);
-  assert.ok(Array.isArray(persisted.results));
-  assert.equal(persisted.handledBy?.broadcast !== undefined, true);
-
-  await handle.close();
 });
 
 test('REST + sync coexist: PUT /links also replicates over /ws', async () => {

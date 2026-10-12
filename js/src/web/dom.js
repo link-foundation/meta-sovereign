@@ -234,11 +234,31 @@ const jsonInit = (method, body) => ({
   body: JSON.stringify(body),
 });
 
+/**
+ * A write to another service (a message, a post, a profile or CV
+ * update). The server first answers 428 with a preview and a single-use
+ * token (server/confirmations.js); `ask(answer)` shows that preview to
+ * the user and resolves true to go ahead with exactly it. A press on a
+ * Send button that shows the very text being sent is itself the
+ * confirmation, so such callers pass `() => true`.
+ */
+export const serverPostConfirmed = async (path, body, ask) => {
+  const first = await serverPostReport(path, body);
+  if (!first?.needsConfirmation) {
+    return first;
+  }
+  if (!(await ask?.(first))) {
+    return { status: 'cancelled', cancelled: true };
+  }
+  return serverPostReport(path, { ...body, confirmToken: first.confirm.token });
+};
+
 /** The server bridge for ./automation-api.js; null means "no server". */
 const remote = {
   get: (path) => serverFetch(path),
   post: (path, body) => postJson(path, body),
   report: (path, body) => serverPostReport(path, body),
+  confirmed: (path, body, ask) => serverPostConfirmed(path, body, ask),
   put: (path, body) => serverFetch(path, jsonInit('PUT', body)),
   del: (path) => serverFetch(path, { method: 'DELETE' }),
 };
@@ -394,8 +414,7 @@ export const api = {
   profile: async () => (await serverFetch('/api/profile')) ?? null,
   putProfile: async (p) => {
     const { client } = await ensure();
-    // Profile updates flow through the store too so the offline
-    // handler bus could resync later.
+    // Saved locally (and to the server); never published by itself.
     await client.syncProfile(p);
     return (
       (await serverFetch('/api/profile', {
@@ -412,12 +431,29 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(p),
     })) ?? p,
-  outreach: async ({ query, text, networks, mode = 'preview' }) =>
-    (await serverFetch('/api/outreach', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ query, text, networks, mode }),
-    })) ?? { audience: [], plan: [], note: 'server required for outreach' },
+  // Publishing the saved profile / CV is a write to other services:
+  // `ask(answer)` confirms the networks and fields in `answer.preview`.
+  publishProfile: async ({ networks, ask }) =>
+    (await serverPostConfirmed('/api/profile/sync', { networks }, ask)) ?? {
+      error: 'server required to update other services',
+    },
+  publishResume: async ({ networks, ask }) =>
+    (await serverPostConfirmed('/api/resume/sync', { networks }, ask)) ?? {
+      error: 'server required to update other services',
+    },
+  // `mode: 'queue'` sends: `ask(answer)` confirms `answer.preview`.
+  outreach: async ({ query, text, networks, mode = 'preview', ask }) =>
+    (mode === 'queue'
+      ? await serverPostConfirmed(
+          '/api/outreach',
+          { query, text, networks, mode },
+          ask
+        )
+      : await serverFetch('/api/outreach', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ query, text, networks, mode }),
+        })) ?? { audience: [], plan: [], note: 'server required for outreach' },
   // ---- CV synchronisation (issue #29) -----------------------------
   // Reading a live profile needs a browser, which only the local
   // server has; offline the SPA still shows the catalogue, the stored
@@ -442,8 +478,23 @@ export const api = {
       comparison: { rows: [], plan: [], updates: {}, agreed: 0 },
       diffs: [],
     },
-  cvSync: async ({ platforms, dryRun = true, prefer = null, vars = {} } = {}) =>
-    (await postJson('/api/cv/sync', { platforms, dryRun, prefer, vars })) ?? {
+  // A dry run returns `confirm.token` for applying exactly its plan;
+  // applying passes it back (`ask` covers an expired token).
+  cvSync: async ({
+    platforms,
+    dryRun = true,
+    prefer = null,
+    vars = {},
+    confirmToken,
+    ask,
+  } = {}) =>
+    (dryRun
+      ? await postJson('/api/cv/sync', { platforms, dryRun, prefer, vars })
+      : await serverPostConfirmed(
+          '/api/cv/sync',
+          { platforms, dryRun, prefer, vars, confirmToken },
+          ask
+        )) ?? {
       dryRun,
       actions: [],
       applied: [],
@@ -489,8 +540,13 @@ export const api = {
       stickers: [],
       failures: [greetingsOffline(networks)],
     },
-  greetingPlan: async (options = {}) => {
-    const answer = await postJson('/api/greetings/plan', options);
+  // `run: 'queue'` sends: `ask(answer)` confirms the plan in
+  // `answer.preview`, and exactly that plan is sent.
+  greetingPlan: async ({ ask, ...options } = {}) => {
+    const answer =
+      options.run === 'queue'
+        ? await serverPostConfirmed('/api/greetings/plan', options, ask)
+        : await postJson('/api/greetings/plan', options);
     if (answer) {
       return answer;
     }
