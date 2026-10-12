@@ -126,6 +126,13 @@ and replaces sending and typing with fakes that only log:
   editor with its preview: two to message (one formal, one informal) and
   why the rest are left out.
 - `settings-appearance.png` — Settings → Appearance.
+- `phone-chat-list.png`, `phone-chat-draft.png`, `phone-more-sheet.png`,
+  `phone-contacts.png` — a 390 px phone: the chat list, issue 31's draft
+  in Аня's chat, the "More" sheet behind the bottom bar, and contacts
+  (newest first, the owner not among them).
+- `phone-automation-ru.png`, `tablet-chat-rail-ru.png` — the Russian
+  interface on a phone (the automation editor) and on an 800 px tablet
+  (the chat with the navigation rail).
 
 The first round's `reengage-*.png` screenshots showed the removed
 screen; they are in the history at commit 127e7a1.
@@ -136,6 +143,44 @@ review with scripted answers `f`, `m`, `s`, then plan again from the
 reopened store); its output is `verification-logs/automations-cli-roundtrip.log`.
 The `experiments/clink-*.mjs` probes measure link-cli's query and import
 costs that shaped the reply store.
+
+### UI/UX review (second round)
+
+The review asked for every element in every place to be aligned and the
+screen used wisely. `experiments/issue-31-screenshots.mjs` regenerates
+the shots above, and `experiments/ui-audit.mjs` (run with `LOCALE=en`
+and `LOCALE=ru`) visits every view at desktop, tablet and phone widths in
+light and dark. It reports horizontal overflow, clipped or truncated
+labels, controls under WCAG 2.2's 24×24 px target (36 px in the phone's
+bars), overlapping controls, uneven rows and axe-core contrast
+violations. The last runs found no layout defects. In English, the only
+findings were four failed `vk.com` sticker requests (`ERR_HTTP2_PROTOCOL_ERROR`)
+from the demo's external images. `experiments/ui-probe-phone.mjs`,
+`probe-failed-requests.mjs`, `button-label-keys.mjs` and
+`contacts-named-shot.mjs` are the narrower probes behind individual fixes.
+
+What the review changed, following Material 3 and Apple's
+Human Interface Guidelines:
+
+- **Sentence case** for buttons, headings and meta lines
+  (`sentence-case-keys.mjs` rewrote the locale strings), and
+  `sentence()` capitalises lines joined from parts ("Safe: drafts to
+  confirm · by hand").
+- **Plurals and dates in the user's language**: an ICU plural subset
+  for every count, and `Intl` dates and times.
+- **Networks by name**: "VK", "Telegram", "Email" ("Почта" in Russian,
+  short enough for a chat-list tag) instead of internal ids.
+- **Preset automations in the user's language**: an untouched preset
+  shows its translated name and description (`preset-locale-keys.mjs`);
+  a name the user typed stays as typed.
+- **Three word suggestions**, like the suggestion strip of Gboard or
+  iOS QuickType, instead of eight chips. Whole replies used before are
+  still all offered.
+- **Contacts** are named by their messages (`senderName`), newest first,
+  without the owner, and the offline client lists the same as
+  `/api/contacts`.
+- Material 3 window-size classes: a bottom bar with a "More" sheet on
+  phones, a navigation rail on tablets, and the full sidebar on desktops.
 
 ## Root Questions and Answers
 
@@ -238,5 +283,11 @@ chat type.
   being answered, so it can only show typing in a reply.
 - The link-cli mirror needs the `clink` binary and is off unless
   `MS_REPLY_CLINK=1`; suggestions never wait for it.
+- With three or more SPA tabs in one sync room, the browser console
+  shows "Failed to set remote answer sdp: Called in wrong state".
+  `js/src/sync/webrtc-transport.js` broadcasts offers and answers to
+  every peer in the room, so the answers collide. This predates the PR
+  (the transport is unchanged); the audit runs the views one tab at a
+  time to avoid it.
 - The Rust server does not implement the automation, people and
   suggestion routes yet (see `docs/SERVER-PARITY.md` section 5a).
