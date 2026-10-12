@@ -240,12 +240,44 @@ export const formatDateTime = (ts, locale = DEFAULT_LOCALE) =>
 export const formatTime = (ts, locale = DEFAULT_LOCALE) =>
   formatDate(ts, locale, { timeStyle: 'short' });
 
+/**
+ * A chat list's date, as messengers show it: the time today, the
+ * weekday within the last week, the day and month this year, and the
+ * full date before that — never a bare time for a months-old chat.
+ */
+export const formatChatTime = (
+  ts,
+  locale = DEFAULT_LOCALE,
+  now = Date.now()
+) => {
+  const date = ts ? new Date(ts) : null;
+  if (!date || Number.isNaN(date.getTime())) {
+    return '';
+  }
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const weekAgo = new Date(today);
+  weekAgo.setDate(today.getDate() - 6);
+  if (date >= today) {
+    return formatTime(ts, locale);
+  }
+  if (date >= weekAgo) {
+    return date.toLocaleString(locale, { weekday: 'short' });
+  }
+  return date.toLocaleString(locale, {
+    day: 'numeric',
+    month: 'short',
+    ...(date.getFullYear() === today.getFullYear() ? {} : { year: 'numeric' }),
+  });
+};
+
 export const useDates = () => {
   const { locale } = React.useContext(LocaleContext);
   return useMemo(
     () => ({
       dateTime: (ts) => formatDateTime(ts, locale),
       time: (ts) => formatTime(ts, locale),
+      chatTime: (ts) => formatChatTime(ts, locale),
     }),
     [locale]
   );

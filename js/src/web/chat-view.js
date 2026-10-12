@@ -39,7 +39,7 @@ const Avatar = ({ name, small }) => {
 
 const ChatItem = ({ chat, active, onSelect }) => {
   const t = useT();
-  const { time } = useDates();
+  const { chatTime } = useDates();
   return el(
     'button',
     {
@@ -57,7 +57,7 @@ const ChatItem = ({ chat, active, onSelect }) => {
           el(
             'span',
             { key: 't', className: 'chat-item-time' },
-            time(chat.last.at)
+            chatTime(chat.last.at)
           ),
         ]),
         el('span', { key: 'bottom', className: 'chat-item-bottom' }, [

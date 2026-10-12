@@ -22,6 +22,7 @@ import {
   LocaleContext,
   availableLocales,
   DEFAULT_LOCALE,
+  formatChatTime,
   formatDateTime,
   formatTime,
 } from '../src/web/i18n.js';
@@ -339,6 +340,26 @@ test('times follow the interface language, not the browser', () => {
   assert.match(formatDateTime(at, 'ru'), /^12 окт\. 2026 г\., 14:05$/);
   assert.equal(formatTime(null, 'ru'), '');
   assert.equal(formatDateTime('not a date', 'ru'), '');
+});
+
+test('a chat list dates rows as messengers do', () => {
+  // Monday 12 Oct 2026, 15:00 local time.
+  const now = new Date(2026, 9, 12, 15, 0).getTime();
+  const at = (...ymdhm) => new Date(...ymdhm).toISOString();
+  // Today: the time.
+  assert.equal(formatChatTime(at(2026, 9, 12, 9, 30), 'ru', now), '09:30');
+  // Within the week: the weekday (Wednesday the 7th).
+  assert.equal(formatChatTime(at(2026, 9, 7, 9, 30), 'en', now), 'Wed');
+  assert.equal(formatChatTime(at(2026, 9, 7, 9, 30), 'ru', now), 'ср');
+  // Earlier this year: day and month, no time.
+  assert.equal(formatChatTime(at(2026, 4, 26, 4, 10), 'en', now), 'May 26');
+  assert.equal(formatChatTime(at(2026, 4, 26, 4, 10), 'ru', now), '26 мая');
+  // Another year: with the year.
+  assert.equal(
+    formatChatTime(at(2025, 8, 12, 4, 10), 'en', now),
+    'Sep 12, 2025'
+  );
+  assert.equal(formatChatTime(null, 'en', now), '');
 });
 
 test('translate picks the plural form for the locale (ICU subset)', () => {
