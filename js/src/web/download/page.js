@@ -17,7 +17,7 @@ import {
   MACOS_QUARANTINE_COMMAND,
   SERVER_COMMANDS,
   buildViewModel,
-  formatSize,
+  assetMeta,
   loadDesktopRelease,
   optionLabel,
   pickLocale,
@@ -94,7 +94,7 @@ const downloadLink = (entry, { primary = false } = {}) => {
   const href = entry.href ?? (primary ? RELEASES_URL : null);
   let meta = missingText();
   if (entry.href) {
-    meta = [entry.name, formatSize(entry.size)].filter(Boolean).join(' · ');
+    meta = assetMeta(entry.name, entry.size);
   } else if (href) {
     meta = t('openReleases');
   }
