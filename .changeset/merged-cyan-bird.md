@@ -64,3 +64,9 @@ onto a line starting with "·".
 Documented in REQUIREMENTS section X, USER-GUIDE section
 11, SERVER-PARITY section 5a (en/ru/zh/hi) and
 `docs/case-studies/issue-31/`.
+
+The tutorial's highlight now stays on the menu button while the menu
+scrolls (CSS anchor positioning instead of coordinates copied after each
+scroll, which trailed one frame behind). The server makes browsers
+revalidate the app's files (`Cache-Control: no-cache` plus an ETag), so
+Safari no longer keeps running an old version after an update.
