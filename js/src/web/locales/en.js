@@ -297,7 +297,8 @@ export const en = {
   'settings.shareTyping': 'Show others when I am typing',
   'settings.shareTypingHint':
     'Off by default. When on, VK and Telegram show "typing…" to the person you are writing to.',
-  'connections.manualTitle': 'Or connect by hand',
+  'connections.enterManually': 'Enter manually',
+  'connections.howToConnect': 'How to connect',
   'connections.recommended': 'Recommended',
   'connections.users': '{count} users',
   'connections.signedInFrom': 'Signed in via {browsers}',
@@ -713,10 +714,10 @@ export const en = {
     'Save an encrypted copy of your data. Only your passphrase can open it.',
   'tutorial.connections.title': 'Pick a service',
   'tutorial.connections.body':
-    'The most used services come first. Press "Import with browser" on Email, or on any service you use.',
-  'tutorial.connectionDetail.title': 'Import with a browser',
+    'The most used services come first. Each one can be connected in two ways: "Import with browser" (recommended) signs you in and imports the export for you, "Enter manually" takes API keys or an export file. Next opens Email.',
+  'tutorial.connectionDetail.title': 'Import or enter manually',
   'tutorial.connectionDetail.body':
-    'Press "Open browser" and sign in. Start the data export there and the downloaded file is imported automatically.',
+    'On "Import with browser", press "Open browser" and sign in, start the data export there and the downloaded file is imported automatically. Prefer to do it yourself? Switch to "Enter manually".',
 
   // CV synchronisation screen (issue #29).
   'cv.title': 'CV synchronisation',

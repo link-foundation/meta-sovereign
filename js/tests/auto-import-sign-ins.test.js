@@ -288,7 +288,7 @@ test('Connections cards recommend "Import with browser" and show sizes', () => {
   assert.match(html, /data-tutorial-id="connections:sign-ins"/);
   assert.match(
     html,
-    /data-action="connection-auto-import" data-target-provider="email"/
+    /data-target-provider="email" class="primary" data-action="connection-auto-import"/
   );
   assert.match(html, /Recommended/);
   assert.match(html, /4\.6B users/);
@@ -296,7 +296,7 @@ test('Connections cards recommend "Import with browser" and show sizes', () => {
   // Browser-only boards keep their own flow.
   assert.doesNotMatch(
     html,
-    /data-action="connection-auto-import" data-target-provider="naukri"/
+    /data-target-provider="naukri"[^>]*data-action="connection-auto-import"/
   );
 
   const offline = renderToStaticMarkup(

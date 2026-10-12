@@ -659,6 +659,13 @@ select {
 textarea {
   min-height: 4.5rem;
 }
+/* One control height: a text field's line box is no taller than a
+   select's or a button's, so fields, selects and buttons in a row
+   share their top and bottom edges. */
+input:not([type='checkbox'], [type='radio']),
+select {
+  line-height: 1.25;
+}
 input[type='checkbox'],
 input[type='radio'] {
   flex: none;
@@ -779,12 +786,25 @@ table {
     display: block;
     overflow-x: auto;
   }
+  /* Two-column key/value tables always fit: keep them full width so
+     values line up on the right edge. */
+  table.kv-table {
+    display: table;
+    max-width: none;
+  }
+  /* Commands and code wrap instead of hiding their ends. */
+  pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
 }
 td,
 th {
   border-bottom: 1px solid var(--border);
   padding: 0.4rem;
   text-align: left;
+  /* Cells of different sizes in a row share the first text line. */
+  vertical-align: baseline;
 }
 /* Network checkboxes: more space between choices than inside one, so
    each box reads as part of its own label. */
@@ -833,7 +853,8 @@ th {
   .stack-table td {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
+    font-size: 0.85rem;
     gap: 1rem;
     padding: 0.1rem 0;
     border: 0;
@@ -849,6 +870,7 @@ th {
   }
   .stack-table td[data-title] {
     order: -1;
+    font-size: 1rem;
     font-weight: 600;
     text-align: left;
     overflow-wrap: anywhere;
@@ -1004,6 +1026,9 @@ pre {
 .connections-grid > .card {
   margin: 0;
 }
+/* Cards in a row share one height; the two ways to connect sit at the
+   foot of each, full width and stacked, so they line up across a row
+   whatever the length of the text above. */
 .connections-card {
   display: flex;
   flex-direction: column;
@@ -1011,22 +1036,25 @@ pre {
 }
 .connections-card > p {
   margin: 0;
-  flex: 1;
 }
 .connections-card-actions {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
 }
 .connections-card-actions > p {
-  flex-basis: 100%;
   margin: 0;
 }
-.connections-card-actions > button.primary {
-  display: inline-flex;
+.connections-card-actions > button {
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  width: 100%;
 }
 .connections-card > p.connections-card-facts {
   flex: none;
@@ -1042,9 +1070,130 @@ pre {
 .connections-detail-auto > .provider-auto-import > p {
   margin: 0.25rem 0;
 }
-.connections-detail-manual {
-  margin: 1.25rem 0 0;
-  font-size: 1rem;
+/* Provider page: Back on its own line, then the name with its state,
+   then "Import with browser" | "Enter manually" as tabs. */
+.connections-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.connections-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+}
+.connections-detail > .connections-detail-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+.connections-detail-header > h2 {
+  margin: 0;
+}
+/* Two equal tabs side by side at every width; a long label wraps
+   inside its tab instead of pushing the other one to a new line. */
+.connections-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+@media (max-width: 520px) {
+  .connections-tabs {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.connections-tab {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem 0.5rem;
+  margin-bottom: -1px;
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: transparent;
+  color: var(--text-muted);
+}
+.connections-tab[aria-selected='true'] {
+  color: var(--text);
+  border-color: var(--border);
+  border-bottom: 2px solid var(--accent);
+  background: var(--bg-elev);
+}
+.connections-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.connections-panel > .card {
+  margin: 0;
+}
+.connections-manual-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.connections-manual-intro > p,
+.connections-detail-steps {
+  margin: 0;
+}
+.connections-detail-docs {
+  align-self: flex-start;
+}
+/* The tab already names the route: no second "Import with browser". */
+.connections-detail-auto .provider-auto-import-header {
+  display: none;
+}
+.connections-panel p:not(.meta) {
+  margin: 0;
+  max-width: 80ch;
+  font-size: 0.95rem;
+}
+/* Numbers sit on the panel's left edge; title and text share a column. */
+.connections-detail-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-left: 1.25rem;
+}
+.connections-detail-step > h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+.connections-detail-step > p {
+  margin: 0.15rem 0 0;
+}
+.connections-detail-step::marker {
+  font-weight: 600;
+}
+/* Credentials, archive and probe: one gap between blocks, none doubled
+   by margins, and every row of controls spaced alike. */
+.connections-detail-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.connections-detail-controls > * {
+  margin: 0;
+}
+.connections-detail-controls .col > h4 {
+  margin: 0;
+}
+.connections-detail-controls > header {
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+.connections-detail-controls > header > h3 {
+  margin: 0;
 }
 /* "Recommended" marks the easiest route: on a primary button it reads
    as a light chip inside it, elsewhere as an accent pill. */
@@ -1091,8 +1240,16 @@ button.primary .recommended-tag {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
   gap: 0.5rem;
 }
-.sign-ins-browser > label {
+.sign-ins-browser {
   display: flex;
+}
+/* Beats the global checkbox-label rule (inline-flex, centred): each
+   row fills its grid cell, rows in a line are equally tall, and the
+   box sits on the first line of text. */
+.sign-ins-browser > label.sign-ins-browser-row {
+  display: flex;
+  flex: 1;
+  width: 100%;
   gap: 0.6rem;
   align-items: flex-start;
   padding: 0.5rem 0.65rem;
@@ -1110,12 +1267,25 @@ button.primary .recommended-tag {
 }
 .sign-ins-browser-text {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0 0.25rem;
+  flex-direction: column;
+  gap: 0.15rem;
   min-width: 0;
 }
-.sign-ins-browser-text > .meta:last-child {
-  flex-basis: 100%;
+.sign-ins-browser-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+.sign-ins-default {
+  border-radius: 999px;
+  padding: 0 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-active);
+}
+.sign-ins-browser-text > .meta {
   overflow-wrap: anywhere;
 }
 .sign-ins-access {
@@ -1131,10 +1301,11 @@ button.primary .recommended-tag {
 .sign-ins-result > p {
   margin: 0;
 }
-.connections-card-header,
-.connections-detail-header {
+.connections-card-header {
   justify-content: space-between;
+  align-items: flex-start;
   flex-wrap: nowrap;
+  gap: 0.5rem;
 }
 .connections-card-header > h3 {
   margin: 0;
@@ -1636,8 +1807,24 @@ button.primary .recommended-tag {
   gap: 1rem;
   align-items: start;
 }
+/* People and Audiences side by side: one height, one bottom edge. */
 .automations-body + .automations-body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+.automations-body + .automations-body > * {
+  margin: 0;
+}
+/* Level with the first automation's title (the list buttons' padding
+   plus their border). */
+.automation-pick {
+  margin: 0;
+  padding-top: calc(0.55rem + 1px);
+}
+@media (max-width: 720px) {
+  .automation-pick {
+    padding-top: 0;
+  }
 }
 .automation-list {
   list-style: none;
@@ -1697,9 +1884,6 @@ button.primary .recommended-tag {
   display: flex;
   gap: 0.4rem;
   align-items: center;
-}
-.automations .check input {
-  width: auto;
 }
 .automations [aria-invalid='true'] {
   border-color: #da3633;
@@ -1858,7 +2042,6 @@ button.primary .recommended-tag {
   align-items: flex-start;
 }
 .appearance .check input {
-  width: auto;
   margin-top: calc((1lh - 1.1rem) / 2);
 }
 
@@ -1888,9 +2071,6 @@ button.primary .recommended-tag {
   height: 96px;
   object-fit: contain;
 }
-.greetings-sticker input {
-  width: auto;
-}
 .greetings-emoji {
   font-size: 3.5rem;
   line-height: 96px;
@@ -1911,11 +2091,6 @@ button.primary .recommended-tag {
   display: inline-flex;
   align-items: center;
   min-height: 2rem;
-}
-.greetings-set-list input {
-  width: 1.5rem;
-  height: 1.5rem;
-  margin: 0;
 }
 .greetings-controls {
   flex-wrap: wrap;

@@ -289,7 +289,8 @@ export const zh = {
   'settings.shareTyping': '向对方显示我正在输入',
   'settings.shareTypingHint':
     '默认关闭。开启后，VK 和 Telegram 会向你正在联系的人显示“正在输入…”。',
-  'connections.manualTitle': '或手动连接',
+  'connections.enterManually': '手动填写',
+  'connections.howToConnect': '如何连接',
   'connections.recommended': '推荐',
   'connections.users': '{count} 用户',
   'connections.signedInFrom': '已在 {browsers} 中登录',
@@ -688,10 +689,10 @@ export const zh = {
   'tutorial.backup.body': '保存数据的加密副本，只有你的口令才能打开。',
   'tutorial.connections.title': '选择一个服务',
   'tutorial.connections.body':
-    '用户最多的服务排在最前。在 Email 或你使用的任意服务上点击「通过浏览器导入」。',
-  'tutorial.connectionDetail.title': '通过浏览器导入',
+    '用户最多的服务排在最前。每个服务都有两种连接方式：「通过浏览器导入」（推荐）帮你登录并自动导入导出文件；「手动填写」使用 API 密钥或导出文件。点击「下一步」打开 Email。',
+  'tutorial.connectionDetail.title': '导入或手动填写',
   'tutorial.connectionDetail.body':
-    '点击「打开浏览器」并登录。在那里开始数据导出，下载的文件会自动导入。',
+    '在「通过浏览器导入」中点击「打开浏览器」并登录，在那里开始数据导出，下载的文件会自动导入。想自己来？切换到「手动填写」。',
 
   // CV synchronisation screen (issue #29).
   'cv.title': '简历同步',

@@ -851,7 +851,11 @@ export const AutomationsScreen = ({ state }) => {
       el('div', { key: 'e', className: 'col' }, [
         editor.form
           ? el(Editor, { key: 'ed', state })
-          : el('p', { key: 'pick', className: 'meta' }, t('automations.pick')),
+          : el(
+              'p',
+              { key: 'pick', className: 'meta automation-pick' },
+              t('automations.pick')
+            ),
         el(PlanPreview, { key: 'plan', runs: state.runs }),
         editor.form ? el(History, { key: 'hist', runs: state.runs }) : null,
       ]),

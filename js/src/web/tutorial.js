@@ -27,7 +27,13 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
-import { anchoredCardStyle, choosePlacement } from './tutorial-placement.js';
+import {
+  anchoredCardStyle,
+  choosePlacement,
+  GAP,
+  MARGIN,
+} from './tutorial-placement.js';
+import { parseConnectionHash } from './connections/hash.js';
 
 const el = React.createElement;
 
@@ -96,27 +102,29 @@ export const defaultSteps = [
     body: 'Recommended: press "Find sign-ins" to see which services you are already signed in to in Chrome, Safari or Firefox. The import window then opens signed in.',
   },
   {
+    // The whole grid: every service connects the same two ways. Next
+    // opens Email (the setup step's route); a click on any card's
+    // button gets there too (`completeAt`).
     id: 'pick',
-    tutorialId: 'connections:email',
+    tutorialId: 'connections:grid',
     route: { view: 'connections', detail: false },
     completeAt: { view: 'connections', detail: true },
-    action: true,
-    actionTarget:
-      '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]',
     titleKey: 'tutorial.connections.title',
     bodyKey: 'tutorial.connections.body',
     title: 'Pick a service',
-    body: 'The most used services come first. Press "Import with browser" on Email or on any service you use.',
+    body: 'The most used services come first. Each one can be connected in two ways: "Import with browser" (recommended) signs you in and imports the export for you, "Enter manually" takes API keys or an export file. Next opens Email.',
   },
   {
     id: 'setup',
     tutorialId: 'auto-import',
+    // On the "Enter manually" tab the card points at its steps instead.
+    fallbacks: ['manual-setup'],
     // Any provider page; Email when none is open.
     route: { view: 'connections', detail: true },
     titleKey: 'tutorial.connectionDetail.title',
     bodyKey: 'tutorial.connectionDetail.body',
-    title: 'Import with a browser',
-    body: 'Press "Open browser" and sign in. Start the data export there and the downloaded file is imported automatically.',
+    title: 'Import or enter manually',
+    body: 'On "Import with browser", press "Open browser" and sign in, start the data export there and the downloaded file is imported automatically. Prefer to do it yourself? Switch to "Enter manually".',
   },
   {
     id: 'chat',
@@ -408,21 +416,34 @@ export const SPOTLIGHT_ANCHOR_ATTR = 'data-tutorial-anchor';
 const supportsAnchorPositioning = () =>
   Boolean(globalThis.CSS?.supports?.('anchor-name: --tutorial-target'));
 
+const useIsomorphicLayoutEffect =
+  typeof globalThis.document === 'undefined' ? useEffect : useLayoutEffect;
+
 // Marks the spotlighted control as the CSS anchor (`anchor-name` comes
 // from the stylesheet) for as long as the step is shown. Returns
 // whether ring and card can rely on anchor positioning.
 export const useSpotlightAnchor = (element) => {
   const [anchored] = useState(supportsAnchorPositioning);
-  useEffect(() => {
+  const marked = useRef(null);
+  // On every commit, before paint (the card's anchor() styles land in
+  // the same commit). Not keyed on `element`: the target is read from
+  // the page during render, and a render React throws away can record
+  // a new element without running a keyed effect for it (seen in
+  // WebKit), which left the card at the corner of the screen.
+  useIsomorphicLayoutEffect(() => {
     const target = anchored ? element : null;
-    target?.setAttribute(SPOTLIGHT_ANCHOR_ATTR, '');
-    return () => target?.removeAttribute(SPOTLIGHT_ANCHOR_ATTR);
-  }, [anchored, element]);
+    if (marked.current !== target) {
+      marked.current?.removeAttribute(SPOTLIGHT_ANCHOR_ATTR);
+      target?.setAttribute(SPOTLIGHT_ANCHOR_ATTR, '');
+      marked.current = target;
+    }
+  });
+  useEffect(
+    () => () => marked.current?.removeAttribute(SPOTLIGHT_ANCHOR_ATTR),
+    []
+  );
   return anchored;
 };
-
-const useIsomorphicLayoutEffect =
-  typeof globalThis.document === 'undefined' ? useEffect : useLayoutEffect;
 
 // Latest-value ref, so long-lived listeners call current callbacks.
 const useLatest = (value) => {
@@ -441,7 +462,7 @@ export const readPlace = (doc = globalThis.document) => {
     view:
       doc?.querySelector?.('main[data-view]')?.getAttribute('data-view') ??
       null,
-    provider: hash.startsWith('#conn-') ? hash.slice('#conn-'.length) : null,
+    provider: parseConnectionHash(hash).provider,
   };
 };
 
@@ -578,16 +599,19 @@ const prefersReducedMotion = () =>
 // fully visible target and otherwise scrolls every clipping container
 // (the nav drawer, the page) just enough — a target can be inside the
 // viewport yet clipped by its own scroll container.
-// Fully on screen; a target taller than the screen counts when its top
-// is visible.
-const inView = (element) => {
+// Fully on screen. A target too tall to share the screen with the card
+// (the grid of services) counts when its top sits `room` below the top
+// of the screen — the card goes in that room, above it, never over it.
+const tooTall = (r, room) => r.height > (globalThis.innerHeight ?? 0) - room;
+
+const inView = (element, room) => {
   const r = element.getBoundingClientRect();
   const height = globalThis.innerHeight ?? 0;
   const width = globalThis.innerWidth ?? 0;
   const across = r.left >= 0 && r.right <= width;
-  return r.height <= height
-    ? across && r.top >= 0 && r.bottom <= height
-    : across && r.top >= 0 && r.top < height;
+  return tooTall(r, room)
+    ? across && r.top >= room - 1 && r.top <= Math.max(room, height / 2)
+    : across && r.top >= 0 && r.bottom <= height;
 };
 
 const REVEAL_RETRY_MS = 500;
@@ -597,33 +621,51 @@ const REVEAL_TRIES = 3;
 // A smooth scroll can be cut short when the page re-renders under it
 // (a provider page replacing the list), so it is checked again and
 // finished instantly — at most three times, and never once the target
-// is on screen, so the user's own scrolling is left alone.
-const useRevealTarget = (stepId, element) => {
+// is on screen, so the user's own scrolling is left alone. `room` is
+// the card's height plus its gap: a tall target scrolls its top there.
+const useRevealTarget = (stepId, element, room = 0) => {
+  // Checked on every commit rather than keyed on `element` (see
+  // useSpotlightAnchor): a new step, element or room starts a reveal.
+  const last = useRef({ stepId: null, element: null, room: null, timer: 0 });
   useEffect(() => {
+    const seen = last.current;
+    if (
+      seen.stepId === stepId &&
+      seen.element === element &&
+      seen.room === room
+    ) {
+      return;
+    }
+    globalThis.clearTimeout(seen.timer);
+    last.current = { stepId, element, room, timer: 0 };
     if (!element) {
-      return undefined;
+      return;
     }
     let tries = 0;
-    let timer = null;
     const reveal = () => {
-      if (!element.isConnected || inView(element)) {
+      if (!element.isConnected || inView(element, room)) {
         return;
       }
-      const tall =
-        element.getBoundingClientRect().height > (globalThis.innerHeight ?? 0);
-      element.scrollIntoView?.({
-        block: tall ? 'start' : 'nearest',
-        inline: 'nearest',
-        behavior: tries === 0 && !prefersReducedMotion() ? 'smooth' : 'auto',
-      });
+      const behavior =
+        tries === 0 && !prefersReducedMotion() ? 'smooth' : 'auto';
+      const r = element.getBoundingClientRect();
+      if (tooTall(r, room)) {
+        globalThis.scrollBy?.({ top: r.top - room, behavior });
+      } else {
+        element.scrollIntoView?.({
+          block: 'nearest',
+          inline: 'nearest',
+          behavior,
+        });
+      }
       tries += 1;
       if (tries < REVEAL_TRIES) {
-        timer = globalThis.setTimeout(reveal, REVEAL_RETRY_MS);
+        last.current.timer = globalThis.setTimeout(reveal, REVEAL_RETRY_MS);
       }
     };
     reveal();
-    return () => globalThis.clearTimeout(timer);
-  }, [stepId, element]);
+  });
+  useEffect(() => () => globalThis.clearTimeout(last.current.timer), []);
 };
 
 // Focus moves to the card on every step (screen readers announce the
@@ -905,7 +947,11 @@ const TutorialLayer = ({
   }, [step.id]);
 
   useAdvanceOn(step.advanceOn, onAdvance);
-  useRevealTarget(step.id, element);
+  useRevealTarget(
+    step.id,
+    element,
+    cardSize ? cardSize.height + GAP + MARGIN : 0
+  );
   useTourKeys(cardRef, { onNext: next, onBack, onDismiss });
 
   const spotlight = Boolean(rect);

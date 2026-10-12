@@ -73,7 +73,7 @@ const BrowserRow = ({ browser, checked, onToggle }) => {
       'data-browser': browser.browser,
       'data-state': disabled ? 'unavailable' : 'ready',
     },
-    el('label', null, [
+    el('label', { className: 'sign-ins-browser-row' }, [
       el('input', {
         key: 'check',
         type: 'checkbox',
@@ -82,14 +82,16 @@ const BrowserRow = ({ browser, checked, onToggle }) => {
         onChange: onToggle,
       }),
       el('span', { key: 'text', className: 'sign-ins-browser-text' }, [
-        el('strong', { key: 'name' }, browser.label),
-        browser.isDefault
-          ? el(
-              'span',
-              { key: 'default', className: 'meta' },
-              ` · ${t('signIns.default')}`
-            )
-          : null,
+        el('span', { key: 'name', className: 'sign-ins-browser-name' }, [
+          el('strong', { key: 'label' }, browser.label),
+          browser.isDefault
+            ? el(
+                'span',
+                { key: 'default', className: 'sign-ins-default' },
+                t('signIns.default')
+              )
+            : null,
+        ]),
         el('span', { key: 'detail', className: 'meta' }, detail),
       ]),
     ])

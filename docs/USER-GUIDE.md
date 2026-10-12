@@ -223,8 +223,13 @@ the equivalent `EMAIL_*` environment variables are set.
 
 ### Import with a browser
 
-Every service in **Connections** has an **Import with browser** panel.
-It needs the JS server (`meta-sovereign serve`, Node.js 22.12 or newer)
+Every service card in **Connections** offers two separate ways to
+connect: **Import with browser** (recommended) and **Enter manually**
+(API keys, an export file or pasted contents). The service page shows
+them as two tabs, and its address (`#conn-<service>` or
+`#conn-<service>/manual`) keeps the open tab across reloads.
+**Import with browser**
+needs the JS server (`meta-sovereign serve`, Node.js 22.12 or newer)
 on the same computer;
 the server drives Chrome through
 [browser-commander](https://github.com/link-foundation/browser-commander).

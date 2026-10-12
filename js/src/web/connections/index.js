@@ -154,10 +154,13 @@ const ProviderCredentialsForm = ({
   const [values, setValues] = useState(initialValues);
   const [status, setStatus] = useState('');
 
+  // Reset only when the saved values really change: the parent builds a
+  // new object on every render, which used to wipe "Saved." at once.
+  const initialKey = JSON.stringify(initialValues ?? {});
   useEffect(() => {
     setValues(initialValues);
     setStatus('');
-  }, [initialValues]);
+  }, [initialKey]);
 
   const fields = provider.apiCredentials?.fields ?? [];
 
@@ -747,10 +750,17 @@ const BrowserSessionPanel = ({ providerId, provider }) => {
   );
 };
 
-// The card's own actions: "Import with browser" (recommended: the local
-// server opens the service, the user exports, the file is imported) and
-// "Set up" for the manual routes (API keys, a file, a pasted export).
-const ProviderCardActions = ({ providerId, canImport, onOpen }) => {
+// The card's two separate ways to connect, one under the other at the
+// card's foot (aligned across a row): "Import with browser" — the
+// local server opens the service, the user exports, the file is
+// imported (recommended) — and "Enter manually" (API keys, a file, a
+// pasted export). Browser-only boards have their own single route.
+const ProviderCardActions = ({
+  providerId,
+  canImport,
+  browserOnly,
+  onOpen,
+}) => {
   const t = useT();
   const [error, setError] = useState('');
   const [starting, setStarting] = useState(false);
@@ -762,23 +772,26 @@ const ProviderCardActions = ({ providerId, canImport, onOpen }) => {
       setError(job.error);
       return;
     }
-    onOpen?.(providerId);
+    onOpen?.(providerId, 'import');
   };
+  const button = (key, props, label) =>
+    el(
+      'button',
+      { key, type: 'button', 'data-target-provider': providerId, ...props },
+      label
+    );
   return el('div', { className: 'connections-card-actions' }, [
     canImport
-      ? el(
-          'button',
+      ? button(
+          'import',
           {
-            key: 'import',
-            type: 'button',
             className: 'primary',
             'data-action': 'connection-auto-import',
-            'data-target-provider': providerId,
             disabled: starting,
             onClick: startImport,
           },
           [
-            t('autoImport.title'),
+            el('span', { key: 'l' }, t('autoImport.title')),
             el(
               'span',
               { key: 'tag', className: 'recommended-tag' },
@@ -787,17 +800,15 @@ const ProviderCardActions = ({ providerId, canImport, onOpen }) => {
           ]
         )
       : null,
-    el(
-      'button',
+    button(
+      'open',
       {
-        key: 'open',
-        type: 'button',
         className: canImport ? '' : 'primary',
         'data-action': 'open-connection-detail',
-        'data-target-provider': providerId,
-        onClick: () => onOpen?.(providerId),
+        'data-mode': 'manual',
+        onClick: () => onOpen?.(providerId, 'manual'),
       },
-      t('connections.openDetail')
+      browserOnly ? t('connections.openDetail') : t('connections.enterManually')
     ),
     error
       ? el('p', { key: 'error', className: 'meta', role: 'alert' }, error)
@@ -857,6 +868,7 @@ const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
         key: 'actions',
         providerId,
         canImport,
+        browserOnly: Boolean(provider.browserOnly),
         onOpen,
       }),
     ]
@@ -902,7 +914,11 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
         }),
     el(
       'div',
-      { key: 'grid', className: 'connections-grid' },
+      {
+        key: 'grid',
+        className: 'connections-grid',
+        'data-tutorial-id': 'connections:grid',
+      },
       ids.map((id) =>
         el(ProviderCard, {
           key: id,
@@ -916,68 +932,74 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
   ]);
 };
 
-export const ConnectionDetail = ({
-  providerId,
-  status,
-  links = [],
-  refresh = async () => {},
-  onBack,
-}) => {
+const DETAIL_MODES = ['import', 'manual'];
+
+// "Import with browser" | "Enter manually": two separate ways to
+// connect, one shown at a time (WAI-ARIA tabs, ←/→ between them).
+const SetupTabs = ({ providerId, mode, onMode }) => {
   const t = useT();
-  const provider = providerCatalogue[providerId];
-  if (!provider) {
-    return el(
-      'section',
-      { className: 'connections-detail' },
-      el('p', null, t('guide.fallbackTitle'))
+  const onKeyDown = (event) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      return;
+    }
+    event.preventDefault();
+    const next = DETAIL_MODES[(DETAIL_MODES.indexOf(mode) + 1) % 2];
+    onMode?.(next);
+    globalThis.document?.getElementById(`conn-tab-${next}`)?.focus();
+  };
+  const tab = (id, label, extra = null) =>
+    el(
+      'button',
+      {
+        key: id,
+        id: `conn-tab-${id}`,
+        type: 'button',
+        role: 'tab',
+        'aria-selected': mode === id ? 'true' : 'false',
+        'aria-controls': `conn-panel-${id}`,
+        tabIndex: mode === id ? 0 : -1,
+        className: 'connections-tab',
+        'data-action': `connection-mode-${id}`,
+        'data-target-provider': providerId,
+        onClick: () => onMode?.(id),
+      },
+      [el('span', { key: 'l' }, label), extra]
     );
-  }
-  const steps = providerSetupSteps[providerId] ?? [];
-  const state = classifyConnectionState(status, providerId);
   return el(
-    'section',
+    'div',
     {
-      className: 'connections-detail',
-      id: `conn-${providerId}`,
-      'data-provider-id': providerId,
+      className: 'connections-tabs',
+      role: 'tablist',
+      'aria-label': t('connections.howToConnect'),
+      onKeyDown,
     },
     [
-      el('header', { key: 'h', className: 'row connections-detail-header' }, [
+      tab(
+        'import',
+        t('autoImport.title'),
         el(
-          'button',
-          {
-            key: 'back',
-            type: 'button',
-            'data-action': 'back-to-connections',
-            onClick: () => onBack?.(),
-          },
-          t('connections.back')
-        ),
-        el('h2', { key: 'title' }, tx(t, provider.label, provider.labelKey)),
-        el(StateBadge, { key: 'badge', state }),
-      ]),
-      el(
-        'p',
-        { key: 'hint', className: 'meta' },
-        provider.browserOnly
-          ? tx(t, provider.session.hint, provider.session.hintKey)
-          : tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey)
+          'span',
+          { key: 'tag', className: 'recommended-tag' },
+          t('connections.recommended')
+        )
       ),
-      // The recommended route first, then the manual one.
-      provider.browserOnly
-        ? null
-        : el(
-            'section',
-            { key: 'auto', className: 'card glass connections-detail-auto' },
-            el(ProviderAutoImport, { providerId, provider })
-          ),
-      provider.browserOnly
-        ? null
-        : el(
-            'h3',
-            { key: 'manual', className: 'connections-detail-manual' },
-            t('connections.manualTitle')
-          ),
+      tab('manual', t('connections.enterManually')),
+    ]
+  );
+};
+
+// What to do by hand, step by step (the tutorial points here too).
+const ManualIntro = ({ providerId, provider, hint }) => {
+  const t = useT();
+  const steps = providerSetupSteps[providerId] ?? [];
+  return el(
+    'div',
+    {
+      className: 'connections-manual-intro',
+      'data-tutorial-id': 'manual-setup',
+    },
+    [
+      el('p', { key: 'hint', className: 'meta' }, hint),
       el(
         'ol',
         { key: 'steps', className: 'connections-detail-steps' },
@@ -1009,10 +1031,115 @@ export const ConnectionDetail = ({
             t('settings.docsLink')
           )
         : null,
+    ]
+  );
+};
+
+const manualHint = (t, provider) =>
+  provider.browserOnly
+    ? tx(t, provider.session.hint, provider.session.hintKey)
+    : tx(t, provider.apiCredentials.hint, provider.apiCredentials.hintKey);
+
+const ManualPanel = ({ providerId, provider, links, refresh }) => {
+  const t = useT();
+  return el(
+    'div',
+    {
+      id: 'conn-panel-manual',
+      role: provider.browserOnly ? undefined : 'tabpanel',
+      'aria-labelledby': provider.browserOnly ? undefined : 'conn-tab-manual',
+      className: 'connections-panel',
+    },
+    [
+      el(ManualIntro, {
+        key: 'intro',
+        providerId,
+        provider,
+        hint: manualHint(t, provider),
+      }),
       provider.browserOnly
         ? el(BrowserSessionPanel, { key: 'controls', providerId, provider })
         : el(ProviderConnectionControls, {
             key: 'controls',
+            providerId,
+            provider,
+            links,
+            refresh,
+          }),
+    ]
+  );
+};
+
+const ImportPanel = ({ providerId, provider }) =>
+  el(
+    'div',
+    {
+      id: 'conn-panel-import',
+      role: 'tabpanel',
+      'aria-labelledby': 'conn-tab-import',
+      className: 'connections-panel',
+    },
+    el(
+      'section',
+      { className: 'card glass connections-detail-auto' },
+      el(ProviderAutoImport, { providerId, provider })
+    )
+  );
+
+export const ConnectionDetail = ({
+  providerId,
+  status,
+  links = [],
+  refresh = async () => {},
+  onBack,
+  mode = 'import',
+  onMode,
+}) => {
+  const t = useT();
+  const provider = providerCatalogue[providerId];
+  if (!provider) {
+    return el(
+      'section',
+      { className: 'connections-detail' },
+      el('p', null, t('guide.fallbackTitle'))
+    );
+  }
+  const state = classifyConnectionState(status, providerId);
+  const shown = provider.browserOnly ? 'manual' : mode;
+  return el(
+    'section',
+    {
+      className: 'connections-detail',
+      id: `conn-${providerId}`,
+      'data-provider-id': providerId,
+      'data-mode': shown,
+    },
+    [
+      el(
+        'button',
+        {
+          key: 'back',
+          type: 'button',
+          className: 'connections-back',
+          'data-action': 'back-to-connections',
+          onClick: () => onBack?.(),
+        },
+        [
+          el('span', { key: 'i', 'aria-hidden': 'true' }, '←'),
+          el('span', { key: 'l' }, t('connections.back')),
+        ]
+      ),
+      el('header', { key: 'h', className: 'connections-detail-header' }, [
+        el('h2', { key: 'title' }, tx(t, provider.label, provider.labelKey)),
+        el(StateBadge, { key: 'badge', state }),
+      ]),
+      provider.browserOnly
+        ? null
+        : el(SetupTabs, { key: 'tabs', providerId, mode: shown, onMode }),
+      shown === 'import'
+        ? el(ImportPanel, { key: 'panel', providerId, provider })
+        : el(ManualPanel, {
+            key: 'panel',
             providerId,
             provider,
             links,

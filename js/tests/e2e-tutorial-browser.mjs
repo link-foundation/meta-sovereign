@@ -85,6 +85,7 @@ const geometry = (page) =>
       focused: document.activeElement === card,
       card: card ? box(card) : null,
       target: target ? box(target) : null,
+      targetId: target ? id : null,
       scrollY: globalThis.scrollY,
       viewport: {
         width: globalThis.innerWidth,
@@ -139,6 +140,34 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
   return g;
 };
 
+// Pick Email by "Enter manually" (the recommended "Import with
+// browser" would open a real browser window): the setup step then
+// points at the manual steps, and at the import panel on its tab.
+const pickEmailManually = async (page, label) => {
+  await page.click(
+    '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]'
+  );
+  await waitForStep(page, 'setup');
+  await settle(page);
+  const manual = await assertPlacement(page, label);
+  check(
+    manual.targetId === 'manual-setup',
+    `${label}: setup on "Enter manually" points at ${manual.targetId}`
+  );
+  // The user's own click on the tab takes focus there, as it should.
+  await page.click('[data-action="connection-mode-import"]');
+  await settle(page);
+  const setup = await assertPlacement(page, label, { focus: false });
+  check(
+    setup.targetId === 'auto-import',
+    `${label}: setup on "Import with browser" points at ${setup.targetId}`
+  );
+  check(
+    (await placeOf(page)).hash === '#conn-email',
+    `${label}: the import tab is #conn-email`
+  );
+};
+
 const walk = async (engineName, viewport, base) => {
   const browser = await playwright[engineName].launch();
   const page = await browser.newPage({ viewport });
@@ -188,17 +217,14 @@ const walk = async (engineName, viewport, base) => {
     await page.click('[data-action="tutorial-next"]');
     await waitForStep(page, 'pick');
     await settle(page);
-    await assertPlacement(page, label);
-
-    // Pick Email by its "Set up" (the recommended "Import with browser"
-    // would open a real browser window).
-    await page.click(
-      '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]'
+    // The whole grid is lit; the card sits above it, never over it.
+    const pick = await assertPlacement(page, label);
+    check(
+      pick.targetId === 'connections:grid' && pick.side === 'top',
+      `${label}: pick lights ${pick.targetId}, card on ${pick.side}`
     );
-    await waitForStep(page, 'setup');
-    await settle(page);
-    const setup = await assertPlacement(page, label);
-    check(setup.target !== null, `${label}: setup step found its panel`);
+
+    await pickEmailManually(page, label);
 
     for (const id of ['chat', 'contacts', 'automation', 'backup']) {
       await page.click('[data-action="tutorial-next"]');
@@ -357,13 +383,14 @@ const edgeCases = async (engineName, viewport, base) => {
       `${label}: "Show me" turns back into Next`
     );
 
-    // 3. Another service's Set up: the tour follows that page.
+    // 3. Another service's "Enter manually": the tour follows that
+    //    page and tab.
     await page.click(
       '[data-tutorial-id="connections:telegram"] [data-action="open-connection-detail"]'
     );
     await at('setup', 'connections', true, 'setup on Telegram');
     check(
-      (await placeOf(page)).hash === '#conn-telegram',
+      (await placeOf(page)).hash === '#conn-telegram/manual',
       `${label}: setup must stay on the chosen service`
     );
 
@@ -377,7 +404,7 @@ const edgeCases = async (engineName, viewport, base) => {
       `${label}: Back to "pick" must stay on "pick"`
     );
 
-    // 5. Next performs Email's Set up, exactly one step forward.
+    // 5. Next opens Email's page, exactly one step forward.
     await page.click('[data-action="tutorial-next"]');
     await at('setup', 'connections', true, 'setup on Email');
     await page.waitForTimeout(400);

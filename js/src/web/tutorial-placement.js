@@ -75,12 +75,15 @@ const placeOnSide = (side, target, card, viewport) => {
 };
 
 // No side fits: dock to the top or bottom edge, whichever leaves the
-// target visible (the one farther from it).
+// target visible (the one farther from it). A target taller than the
+// screen is read from its top, so that top — and whatever leads to it,
+// like the tabs above a panel — stays clear: the card docks below.
 const dock = (target, card, viewport) => {
   const left = Math.max(MARGIN, (viewport.width - card.width) / 2);
   const targetCenter = target.top + target.height / 2;
+  const startsHigh = target.top < viewport.height / 2;
   const top =
-    targetCenter > viewport.height / 2
+    targetCenter > viewport.height / 2 && !startsHigh
       ? MARGIN
       : Math.max(MARGIN, viewport.height - MARGIN - card.height);
   return { side: 'dock', top, left, arrow: null };

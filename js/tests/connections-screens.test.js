@@ -94,6 +94,7 @@ test('ConnectionDetail renders translated setupSteps[] for the requested provide
       links: [],
       refresh: async () => {},
       onBack: () => {},
+      mode: 'manual',
     })
   );
   // Each step has a translated title & body.
@@ -101,6 +102,35 @@ test('ConnectionDetail renders translated setupSteps[] for the requested provide
     html.includes(dictionaries.zh['connections.telegram.setup.step1.title']),
     'first telegram setup step title must appear in zh'
   );
+});
+
+test('ConnectionDetail separates "Import with browser" from "Enter manually"', () => {
+  const props = {
+    providerId: 'telegram',
+    status: { savedSecretIds: [] },
+    links: [],
+    refresh: async () => {},
+    onBack: () => {},
+  };
+  // Import is the default tab and holds only the browser import.
+  const imported = renderInLocale(
+    'en',
+    React.createElement(ConnectionDetail, props)
+  );
+  assert.match(imported, /role="tablist"/);
+  assert.match(
+    imported,
+    /id="conn-tab-import"[^>]*aria-selected="true"|aria-selected="true"[^>]*id="conn-tab-import"/
+  );
+  assert.match(imported, /data-tutorial-id="auto-import"/);
+  assert.doesNotMatch(imported, /data-field-input="token"/);
+  // Browser-only boards have one route and no tabs.
+  const naukri = renderInLocale(
+    'en',
+    React.createElement(ConnectionDetail, { ...props, providerId: 'naukri' })
+  );
+  assert.doesNotMatch(naukri, /role="tablist"/);
+  assert.match(naukri, /data-mode="manual"/);
 });
 
 test('ConnectionDetail owns credentials, archive import, and probe controls', () => {
@@ -112,8 +142,10 @@ test('ConnectionDetail owns credentials, archive import, and probe controls', ()
       links: [],
       refresh: async () => {},
       onBack: () => {},
+      mode: 'manual',
     })
   );
+  assert.match(html, /data-tutorial-id="manual-setup"/);
   assert.ok(
     html.includes('data-field-input="token"'),
     'telegram token input must live on the provider detail page'

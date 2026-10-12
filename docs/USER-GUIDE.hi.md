@@ -149,8 +149,11 @@ Live email के लिए `source-pull --source=email --protocol=gmail`, `micr
 
 ### ब्राउज़र से आयात
 
-**कनेक्शन** में हर सेवा के पास **ब्राउज़र से आयात करें** पैनल है।
-इसके लिए उसी कंप्यूटर पर JS server (`meta-sovereign serve`, Node.js 22.12
+**कनेक्शन** में हर सेवा के कार्ड पर जोड़ने के दो अलग तरीके हैं:
+**ब्राउज़र से आयात करें** (अनुशंसित) और **हाथ से दर्ज करें** (API कुंजियाँ,
+एक्सपोर्ट फ़ाइल या चिपकाई गई सामग्री)। सेवा के पेज पर ये दो टैब हैं, और
+उसका पता (`#conn-<service>` या `#conn-<service>/manual`) रीलोड के बाद भी
+खुला टैब याद रखता है। **ब्राउज़र से आयात करें** के लिए उसी कंप्यूटर पर JS server (`meta-sovereign serve`, Node.js 22.12
 या नया) चाहिए; server
 [browser-commander](https://github.com/link-foundation/browser-commander)
 से Chrome चलाता है।

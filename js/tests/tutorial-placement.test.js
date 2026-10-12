@@ -89,6 +89,15 @@ test('without room on any side the card docks away from the target', () => {
   assert.ok(inside(boxOf(p), { width: phone.width + 1, height: phone.height }));
 });
 
+test('a target taller than the screen keeps its top clear', () => {
+  const tall = { top: 120, left: 10, width: 370, height: 1400 };
+  const p = choosePlacement({ target: tall, card, viewport: phone });
+  assert.equal(p.side, 'dock');
+  assert.ok(p.top > tall.top, 'docked below the top of the target');
+  const low = { top: phone.height - 120, left: 10, width: 370, height: 100 };
+  assert.equal(choosePlacement({ target: low, card, viewport: phone }).top, 12);
+});
+
 test('no target means a centred card without an arrow', () => {
   const p = choosePlacement({ target: null, card, viewport: desktop });
   assert.equal(p.side, 'center');
@@ -122,18 +131,21 @@ test('steps that describe a click advance on it; Next performs it', () => {
   );
   assert.equal(byId.connect.action, true);
   assert.match(byId.connect.advanceOn, /nav:connections/);
-  assert.equal(byId.pick.action, true);
+  // "Pick" points at the whole grid (every service connects the same
+  // two ways) and Next simply moves on; the setup step opens Email.
+  assert.equal(byId.pick.action, undefined);
+  assert.equal(byId.pick.tutorialId, 'connections:grid');
   // "Pick" ends when a provider page opens, whichever button did it.
   assert.deepEqual(byId.pick.completeAt, { view: 'connections', detail: true });
   assert.deepEqual(byId.pick.route, { view: 'connections', detail: false });
   assert.deepEqual(byId.setup.route, { view: 'connections', detail: true });
-  // The biggest service, first in the list, is the suggested one.
-  assert.match(byId.pick.actionTarget, /connections:email/);
   // Browser sign-ins need the local server; without it the step is
   // passed over instead of showing a card about nothing.
   assert.equal(byId.signIns.optional, true);
   assert.equal(byId.signIns.action, undefined);
   assert.equal(byId.setup.tutorialId, 'auto-import');
+  // On the "Enter manually" tab it points at the manual steps.
+  assert.deepEqual(byId.setup.fallbacks, ['manual-setup']);
   // Sections hidden in the phone's More sheet point at "More".
   assert.deepEqual(byId.backup.fallbacks, ['nav:more']);
 });

@@ -21,6 +21,7 @@ import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
 import { useDates, useT } from './i18n.js';
 import { ConnectionsList, ConnectionDetail } from './connections/index.js';
+import { connectionHash, parseConnectionHash } from './connections/hash.js';
 
 const el = React.createElement;
 
@@ -1057,10 +1058,8 @@ export const StatusView = () => {
   });
 };
 
-const connectionProviderFromHash = () => {
-  const hash = globalThis.location?.hash ?? '';
-  return hash.startsWith('#conn-') ? hash.slice('#conn-'.length) : null;
-};
+const connectionPlace = () =>
+  parseConnectionHash(globalThis.location?.hash ?? '');
 
 const clearConnectionHash = () => {
   const location = globalThis.location;
@@ -1099,14 +1098,13 @@ const useListScroll = (activeProviderId) => {
 // and each detail page can render credentials/import/probe controls.
 const ConnectionsView = () => {
   const [refresh, setRefresh] = useState(0);
-  const [activeProviderId, setActiveProviderId] = useState(
-    connectionProviderFromHash
-  );
+  const [place, setPlace] = useState(connectionPlace);
+  const activeProviderId = place.provider;
   const linksState = useAsyncValue(() => api.links(), [refresh], []);
   useListScroll(activeProviderId);
 
   useEffect(() => {
-    const onHash = () => setActiveProviderId(connectionProviderFromHash());
+    const onHash = () => setPlace(connectionPlace());
     globalThis.addEventListener?.('hashchange', onHash);
     return () => globalThis.removeEventListener?.('hashchange', onHash);
   }, []);
@@ -1124,8 +1122,19 @@ const ConnectionsView = () => {
       status,
       links: linksState.value ?? [],
       refresh: async () => setRefresh((value) => value + 1),
+      mode: place.mode,
+      // Switching tabs replaces the hash: Back still leaves the page.
+      onMode: (mode) => {
+        setPlace({ provider: activeProviderId, mode });
+        const { pathname = '', search = '' } = globalThis.location ?? {};
+        globalThis.history?.replaceState?.(
+          null,
+          '',
+          `${pathname}${search}${connectionHash(activeProviderId, mode)}`
+        );
+      },
       onBack: () => {
-        setActiveProviderId(null);
+        setPlace({ provider: null, mode: 'import' });
         clearConnectionHash();
         setRefresh((value) => value + 1);
       },
@@ -1133,10 +1142,10 @@ const ConnectionsView = () => {
   }
   return el(ConnectionsList, {
     status,
-    onOpen: (providerId) => {
-      setActiveProviderId(providerId);
+    onOpen: (providerId, mode = 'import') => {
+      setPlace({ provider: providerId, mode });
       if (globalThis.location) {
-        globalThis.location.hash = `#conn-${providerId}`;
+        globalThis.location.hash = connectionHash(providerId, mode);
       }
     },
   });

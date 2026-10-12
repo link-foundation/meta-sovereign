@@ -726,9 +726,11 @@ const stepConnectionsCredentialRoundtrip = async ({
   await page.click(
     'button[data-action="open-connections"][data-target-anchor="#conn-telegram"]'
   );
-  await page.waitForSelector('section[data-provider="telegram"]', {
-    timeout: 5000,
-  });
+  // The provider page opens on the recommended "Import with browser".
+  await page.waitForSelector(
+    'section.connections-detail[data-provider-id="telegram"][data-mode="import"]',
+    { timeout: 5000 }
+  );
   const activeAfterCta = await page.$eval(
     'button.active',
     (el) => el.dataset.view

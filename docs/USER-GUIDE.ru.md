@@ -149,8 +149,12 @@ Supported sources: email (`.eml`/mbox), VK, Telegram Desktop, X, WhatsApp, Faceb
 
 ### Импорт через браузер
 
-У каждого сервиса в **Подключениях** есть панель **Импорт через браузер**.
-Нужен JS server (`meta-sovereign serve`, Node.js 22.12 или новее) на этом
+На карточке каждого сервиса в **Подключениях** — два отдельных способа:
+**Импорт через браузер** (рекомендуем) и **Ввести вручную** (ключи API,
+файл выгрузки или вставленный текст). На странице сервиса это две
+вкладки, а адрес (`#conn-<service>` или `#conn-<service>/manual`)
+сохраняет открытую вкладку после перезагрузки. **Импорту через браузер**
+нужен JS server (`meta-sovereign serve`, Node.js 22.12 или новее) на этом
 же компьютере; он
 управляет Chrome через
 [browser-commander](https://github.com/link-foundation/browser-commander).
