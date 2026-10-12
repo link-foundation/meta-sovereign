@@ -11,6 +11,7 @@
  *   GET  /api/contacts             -> contacts derived from messages
  *   GET  /api/status               -> store stats + verify diff count
  *   GET  /api/autocomplete?q=&me=  -> outgoing-history-driven completions
+ *   GET  /api/suggest?source=&chat=&typed= -> reply-graph autocomplete
  *   GET  /api/audience?q=          -> set-algebra over store filters
  *   GET  /api/facts                -> question-answer pairs per partner
  *   GET  /api/search?q=            -> dice-similarity search
@@ -28,6 +29,8 @@
  *   PUT  /api/resume               -> upsert + plan cross-network sync
  *   POST /api/broadcast            -> queue post for outbound networks
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
+ *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
+ *   /api/people, /api/audiences, /api/lists -> routes-people.js
  *   GET  /api/greetings/*          -> greeting stickers/texts (routes-greetings.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
@@ -50,13 +53,24 @@ import {
   createDoubletsStore,
   wrapSecretStore,
 } from '../storage/index.js';
-import { listSources } from '../sources/index.js';
+import { getSource, listSources } from '../sources/index.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
 import { handleGreetingRoutes } from './routes-greetings.js';
 import { handleBackupRoutes } from './routes-backup.js';
+import { handleSuggestRoutes } from './routes-suggest.js';
+import { handleAutomationRoutes } from './routes-automations.js';
+import { handlePeopleRoutes } from './routes-people.js';
+import {
+  createAutomationRunner,
+  createAutomationScheduler,
+} from '../automation/runner.js';
+import { createDefaultSender } from '../sources/browser-sender.js';
+import { setTypingFor } from '../sources/live-links.js';
+import { createReplyService } from '../replies/reply-service.js';
+import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -168,6 +182,74 @@ const cvContext = (cv = {}) => ({
 });
 
 /**
+ * The reply service behind /api/suggest. `replies.clink` (or
+ * `MS_REPLY_CLINK=1`) mirrors the reply graph into a link-cli database
+ * next to the store.
+ */
+const replyService = (store, storeDir, replies = {}) => {
+  const option = replies.clink ?? process.env.MS_REPLY_CLINK === '1';
+  const clink =
+    option === true
+      ? createClinkReplyStore({ db: path.join(storeDir, 'replies.links') })
+      : option || null;
+  return createReplyService({ store, self: replies.self ?? [], clink });
+};
+
+/**
+ * Sending, typing and automations. `automations.send` and `.setTyping`
+ * replace the adapters (tests); by default a message goes through the
+ * network's API and falls back to its official web UI. The scheduler
+ * fires schedule and incoming triggers unless `scheduler: false`.
+ */
+const automationContext = (store, automations = {}, log = null) => {
+  const say = (event) => log?.(event);
+  const send =
+    automations.send ??
+    createDefaultSender({
+      getSource,
+      options: automations.options,
+      browser: automations.browser,
+      log: say,
+    });
+  const setTyping =
+    automations.setTyping ??
+    (({ source, chat }) =>
+      setTypingFor(getSource, { source, chat }).catch((error) => ({
+        supported: false,
+        source,
+        error: error.message,
+      })));
+  const self = (automations.self ?? []).map(String);
+  const runner = createAutomationRunner({
+    store,
+    send,
+    setTyping,
+    resolveAudience: automations.resolveAudience,
+    self,
+    log: say,
+  });
+  const scheduler = createAutomationScheduler({
+    store,
+    runner,
+    isSelf: (sender) => sender === 'me' || self.includes(String(sender)),
+    tickMs: automations.tickMs,
+    log: say,
+  });
+  if (automations.scheduler !== false) {
+    scheduler.start();
+  }
+  return {
+    send,
+    setTyping,
+    automations: { runner, scheduler },
+    closeAutomations: async () => {
+      scheduler.stop();
+      await send.close?.();
+    },
+  };
+};
+
+/**
  * Greeting routes accept injected sources (and a sleep) so tests send
  * nothing to a real network.
  * @param {{resolveSource?: Function, sleep?: Function}} greetings
@@ -202,6 +284,15 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   if (await handleCvRoutes(store, req, res, p, url, ctx)) {
+    return;
+  }
+  if (await handleSuggestRoutes(req, res, p, url, ctx)) {
+    return;
+  }
+  if (await handleAutomationRoutes(store, req, res, p, url, ctx)) {
+    return;
+  }
+  if (await handlePeopleRoutes(store, req, res, p, url)) {
     return;
   }
   if (await handleGreetingRoutes(store, req, res, p, url, ctx)) {
@@ -255,6 +346,10 @@ export const startServer = async ({
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
   cv = {},
+  // `{ self?, clink? }` for the reply-graph autocomplete (/api/suggest).
+  replies,
+  // `{ send?, setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
+  automations,
   greetings,
   allowOrigins,
 } = {}) => {
@@ -272,6 +367,8 @@ export const startServer = async ({
     emailLiveFactory,
     allowOrigins: parseAllowedOrigins(allowOrigins),
     ...cvContext(cv),
+    replies: replyService(store, storeDir, replies),
+    ...automationContext(store, automations, log),
     ...greetingContext(greetings),
   };
   const server = http.createServer((req, res) => {
@@ -326,6 +423,8 @@ export const startServer = async ({
     close: () =>
       new Promise((resolve) => {
         bus?.close();
+        ctx.replies.close().catch(() => {});
+        ctx.closeAutomations().catch(() => {});
         wsHandle?.close();
         signaling?.close();
         server.close(() => resolve());

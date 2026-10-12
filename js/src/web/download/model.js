@@ -94,6 +94,14 @@ export const formatSize = (bytes) => {
   return `${value.toFixed(unit === 0 || value >= 10 ? 0 : 1)} ${units[unit]}`;
 };
 
+// "file · size" for a download card. The file name may wrap anywhere,
+// but "·" stays after the name and "115 MB" stays whole, so a line
+// never starts with the separator or splits a number from its unit.
+export const assetMeta = (name, bytes) =>
+  [name, formatSize(bytes).replace(' ', '\u00a0')]
+    .filter(Boolean)
+    .join('\u00a0· ');
+
 const readCache = (storage, now) => {
   try {
     const cached = JSON.parse(storage?.getItem?.(RELEASE_CACHE_KEY) ?? 'null');

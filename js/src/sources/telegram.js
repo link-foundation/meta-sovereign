@@ -10,6 +10,10 @@
  * enumerated with `getStickerSet`, and their thumbnails are fetched by
  * the local server (`fetchFile`) because Bot API file links embed the
  * bot token and must never reach the browser.
+ *
+ * Issue #31 / PR #34: `setTyping` shows the bot's typing status via
+ * `sendChatAction`, and `chatMembers` lists what the Bot API exposes
+ * about a chat's members (see the limitation note on the method).
  */
 
 import { buildMessageLink } from './link.js';
@@ -176,12 +180,50 @@ export const telegramUpdatesToLinks = (updates) => {
         replyTo: message.reply_to_message?.message_id
           ? String(message.reply_to_message.message_id)
           : null,
+        chatType: message.chat?.type ?? null,
         sticker: botSticker(message),
       })
     );
   }
   return out;
 };
+
+/** Membership calls (issue #31 audiences) over the Bot API `call`. */
+const membershipMethods = (call) => ({
+  async friends() {
+    throw new Error(
+      'telegram Bot API has no friends/contacts list; use chatMembers'
+    );
+  },
+  /**
+   * The Bot API cannot enumerate every member of a group: only the
+   * administrators (`getChatAdministrators`) and the total head count
+   * (`getChatMemberCount`) are available. Regular members only become
+   * known as they post (see `pullMessages`). Returns the admins plus
+   * the reported total so callers can tell the list is partial.
+   */
+  async chatMembers(chatId, options = {}) {
+    if (!chatId) {
+      throw new Error('telegram chatMembers requires a chat id');
+    }
+    const admins = await call(
+      'getChatAdministrators',
+      { chat_id: chatId },
+      options.token
+    );
+    const count = await call(
+      'getChatMemberCount',
+      { chat_id: chatId },
+      options.token
+    );
+    const members = (admins ?? []).map(({ user = {} }) => ({
+      user: String(user.id),
+      name: [user.first_name, user.last_name].filter(Boolean).join(' ') || null,
+      handle: user.username ?? null,
+    }));
+    return { members, count: Number(count), partial: true };
+  },
+});
 
 export const createTelegramBotLive = ({
   token = null,
@@ -241,6 +283,18 @@ export const createTelegramBotLive = ({
         rawCount: result.length,
       };
     },
+    async setTyping({ chat, chatId } = {}, options = {}) {
+      const target = chat ?? chatId;
+      if (!target) {
+        throw new Error('telegram setTyping requires a chat/chatId target');
+      }
+      return call(
+        'sendChatAction',
+        { chat_id: target, action: 'typing' },
+        options.token
+      );
+    },
+    ...membershipMethods(call),
     async listChats(options = {}) {
       const pulled = await this.pullMessages(options);
       const chats = new Map();
@@ -360,6 +414,9 @@ export const telegramSource = {
             replyTo: msg.reply_to_message_id
               ? String(msg.reply_to_message_id)
               : null,
+            chatType: chat.type ?? null,
+            chatName: chat.type === 'personal_chat' ? chat.name : null,
+            senderName: typeof msg.from === 'string' ? msg.from : null,
             sticker: archiveSticker(msg),
           })
         );

@@ -2,15 +2,76 @@
 //
 // Provider credentials, archive import, and live probing now belong to
 // Connections -> provider detail. Settings stays available for app-level
-// preferences and points users to the dedicated connection surface.
+// preferences — the appearance (issue #31 / PR #34: theme mode and skin)
+// — and points users to the dedicated connection surface.
 
 import React from 'react';
 import { useT } from './i18n.js';
+import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
 
 const el = React.createElement;
 
+const Choices = ({ name, legend, options, value, onChange, label }) =>
+  el('fieldset', { className: 'appearance-choices' }, [
+    el('legend', { key: 'l' }, legend),
+    ...options.map((option) =>
+      el('label', { key: option, className: 'check' }, [
+        el('input', {
+          key: 'i',
+          type: 'radio',
+          name,
+          value: option,
+          checked: value === option,
+          'data-action': name,
+          onChange: () => onChange(option),
+        }),
+        ` ${label(option)}`,
+      ])
+    ),
+  ]);
+
+/** Theme mode (system, light, dark, auto) and skin (t3, Telegram, …). */
+export const AppearanceSettings = ({ appearance }) => {
+  const t = useT();
+  return el(
+    'section',
+    { className: 'card appearance', 'aria-labelledby': 'appearance-title' },
+    [
+      el(
+        'h3',
+        { key: 'h', id: 'appearance-title' },
+        t('settings.appearance.title')
+      ),
+      el('p', { key: 'p', className: 'meta' }, t('settings.appearance.intro')),
+      el(
+        'div',
+        { key: 'c', className: 'row appearance-row' },
+        el(Choices, {
+          key: 'theme',
+          name: 'theme-mode',
+          legend: t('settings.appearance.theme'),
+          options: THEME_MODES,
+          value: appearance.mode,
+          onChange: appearance.setMode,
+          label: (mode) => t(`settings.theme.${mode}`),
+        }),
+        el(Choices, {
+          key: 'skin',
+          name: 'skin',
+          legend: t('settings.appearance.skin'),
+          options: SKINS,
+          value: appearance.skin,
+          onChange: appearance.setSkin,
+          label: (skin) => t(`settings.skin.${skin}`),
+        })
+      ),
+    ]
+  );
+};
+
 export const SettingsView = () => {
   const t = useT();
+  const appearance = useAppearance();
   const navigate = () => {
     globalThis.dispatchEvent?.(
       new CustomEvent('meta-sovereign:navigate', {
@@ -33,5 +94,6 @@ export const SettingsView = () => {
       },
       t('settings.openConnections')
     ),
+    el(AppearanceSettings, { key: 'appearance', appearance }),
   ]);
 };

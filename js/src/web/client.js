@@ -19,6 +19,9 @@
  * server) so the UI can surface a visible badge.
  */
 
+import { createReplyService } from '../replies/reply-service.js';
+import { aggregateContacts } from '../server/aggregate.js';
+
 const computeAutocomplete = async (store, q, me = 'me') => {
   if (!q) {
     return [];
@@ -40,18 +43,8 @@ const computeAutocomplete = async (store, q, me = 'me') => {
     .map(([text, count]) => ({ text, count }));
 };
 
-const computeContacts = async (store) => {
-  const links = await store.query();
-  const seen = new Map();
-  for (const l of links) {
-    if (!l.id?.startsWith('msg:') || !l.sender || l.sender === 'me') {
-      continue;
-    }
-    const key = `${l.source ?? '?'}:${l.sender}`;
-    seen.set(key, (seen.get(key) ?? 0) + 1);
-  }
-  return [...seen.entries()].map(([id, count]) => ({ id, count }));
-};
+// The same contacts as the server's /api/contacts, from the local store.
+const computeContacts = async (store) => aggregateContacts(await store.query());
 
 export const createOfflineClient = ({ store, server }) => {
   const handlers = new Set();
@@ -69,6 +62,11 @@ export const createOfflineClient = ({ store, server }) => {
     online = next;
     emit({ type: 'mode-change', online });
   };
+
+  // The same reply graph as the server's /api/suggest, learned from
+  // the local store, for offline use.
+  let localReplies = null;
+  const replies = () => (localReplies ??= createReplyService({ store }));
 
   const fetchOrLocal = async (path, fallback) => {
     if (!online || !server?.fetchImpl) {
@@ -110,8 +108,20 @@ export const createOfflineClient = ({ store, server }) => {
     async delete(id) {
       return store.delete(id);
     },
+    /**
+     * Every link: the local store's, plus — when online — the server's
+     * (imports, live messages), so views see server-side data. A link
+     * held in both comes from the local store, which has the user's
+     * latest edits.
+     */
     async links() {
-      return store.query();
+      const local = await store.query();
+      const remote = await fetchOrLocal('/links', () => []);
+      if (!Array.isArray(remote) || remote.length === 0) {
+        return local;
+      }
+      const ids = new Set(local.map((link) => link.id));
+      return [...local, ...remote.filter((link) => !ids.has(link.id))];
     },
 
     // ---- derived queries (server when online, local fallback) ---------
@@ -119,6 +129,25 @@ export const createOfflineClient = ({ store, server }) => {
       return fetchOrLocal(
         `/api/autocomplete?q=${encodeURIComponent(q)}&me=${encodeURIComponent(me)}`,
         () => computeAutocomplete(store, q, me)
+      );
+    },
+    /**
+     * Message-to-message autocomplete: whole replies we used for the
+     * chat's last incoming message, then word by word over `typed`.
+     */
+    async suggest({ source, chat, lastMessage, typed = '', limit = 8 } = {}) {
+      const params = new URLSearchParams({ typed, limit: String(limit) });
+      for (const [key, value] of Object.entries({
+        source,
+        chat,
+        last: lastMessage,
+      })) {
+        if (value !== undefined && value !== null) {
+          params.set(key, String(value));
+        }
+      }
+      return fetchOrLocal(`/api/suggest?${params}`, () =>
+        replies().autocomplete({ source, chat, lastMessage, typed, limit })
       );
     },
     async contacts() {

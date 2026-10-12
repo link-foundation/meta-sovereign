@@ -13,6 +13,7 @@ import {
   RELEASE_CACHE_TTL_MS,
   SERVER_COMMANDS,
   buildViewModel,
+  assetMeta,
   formatSize,
   loadDesktopRelease,
   optionLabel,
@@ -114,6 +115,11 @@ describe('labels', () => {
     expect(formatSize(512)).toBe('512 B');
     expect(formatSize(1536)).toBe('1.5 KB');
     expect(formatSize(118 * 1024 * 1024)).toBe('118 MB');
+    // A card never wraps to a line that starts with "·" or splits "MB".
+    expect(assetMeta('a.dmg', 118 * 1024 * 1024)).toBe(
+      'a.dmg\u00a0· 118\u00a0MB'
+    );
+    expect(assetMeta('a.dmg', 0)).toBe('a.dmg');
   });
 });
 

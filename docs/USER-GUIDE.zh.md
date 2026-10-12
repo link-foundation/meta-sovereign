@@ -239,7 +239,72 @@ Telegram、WhatsApp 或 Messenger 账号。没有 server 时，页面仍会显�
 预览。Telegram 自带的空聊天推荐贴纸无法供 bot 使用 — 这一点及其他细节见
 [`docs/GREETINGS.zh.md`](./GREETINGS.zh.md)。
 
-## 11. 故障排除
+## 11. 自动化：按规则安全地给人发消息
+
+一个自动化规定给谁发消息、何时发、满足什么条件以及用哪段文字。打开
+**自动化** 标签页即可编辑、预览和运行它们。第一个是 issue #31 的
+“Say hi to contacts silent for 90 days”（向沉默 90 天的联系人打招呼）：
+每个至少 90 天没有任何消息的个人 1:1 聊天——群组、频道和机器人不包括在
+内——都会收到一条消息：
+
+- 如果你们之间用 "ты"，就用 "Привет … Тебе или твоим друзьям …"；如果用
+  "вы"，就用 "Здравствуйте … Вам или вашим друзьям …"。称呼形式由对话中的
+  词级规则判断；没有依据或打平时使用礼貌的 "вы"。两段文字都可以编辑，
+  支持 `{name}`、`{days}` 和 `{network}`。
+- 其他预设会询问空缺职位、提供合同工作，或回应向你打招呼的人。
+  **新建自动化** 会创建一个空白的自动化。
+
+每个自动化包含：
+
+- **何时运行**：手动、从聊天菜单、按计划（`30m`、`12h`、`1d`、`2w`），
+  和/或在收到匹配某个正则表达式的消息时。
+- **发给谁**：一个受众——`personal`、`friends:vk`、`chat:vk:<id>`、
+  `community:vk:<id>`、`list:<id>`、`audience:<id>` 或 `person:vk:<id>`，
+  用 `|`（或）、`&`（且）、`-`（除外）和括号组合，例如
+  `friends:vk & chat:vk:2000000001 - list:blocked`。
+- **条件**：至少沉默 N 天、N 天内不重复、仅限你也发过消息的聊天、仅限
+  私聊、最后一条消息由谁发出、哪些网络。
+- **模式**：**安全**（默认）在每个聊天中留下一份草稿；**自动** 在询问你
+  一次之后直接发送，带“正在输入”指示、随机间隔和每日上限。
+
+**预览** 列出谁会收到哪段文字，以及其余的人为什么被排除（“最近聊过”、
+“已有草稿在等待”……）；不会发送任何内容。在安全模式下，每份草稿都会出现
+在对应的聊天中：可以编辑它、**发送**（点击即确认）、切换 ты/вы、在该网络
+中 **打开聊天**、**我自己发了**，或 **跳过**。每个结果都会被记住，所以
+不会意外地给同一个人发两次消息。
+
+**联系人** 在所有网络中搜索每个人（同一个人在其他网络上的账号显示为交叉
+引用）；选择一些人，就可以只对他们运行某个自动化，或把他们保存为列表。
+**受众** 保存命名的规格，并统计它们匹配多少人。要在一个人身上测试自动化，
+打开与他的聊天，使用 **⚡ 自动化 → 在此聊天中测试**。
+
+聊天本身（**聊天** 标签页）会在你输入时建议回复：先是你以前对该聊天最后
+一条消息给出的完整回复，用得最多的排在前面，然后是来自你自己消息的逐词
+续写；**Tab** 选取第一条建议。它会显示对方——或代表你的自动化——正在输入。
+发送使用该网络的 API，不行时回退到它的官方 web UI。**设置 → 外观** 选择
+主题（跟随系统、浅色、深色，或按时间自动切换）和皮肤（t3.codes、
+Telegram、WhatsApp 或 Signal）。
+
+```bash
+# 已保存的自动化和预设
+meta-sovereign automations
+# 谁会收到什么，其余的人为什么被排除 —— 不写入任何内容
+meta-sovereign automations plan reengage-dormant
+# 安全模式：为每个人排队一份草稿
+meta-sovereign automations run reengage-dormant
+# 一次一份草稿 —— [y] 发送、[m] 我自己发了、[e] 编辑、[f] 切换 ты/вы、[s] 跳过、[q] 退出
+meta-sovereign automations review
+# 自动模式只有带 --confirm=true 才会发送；--chat 把范围缩小到指定的聊天
+meta-sovereign automations run job-search --chat=vk:101 --confirm=true
+```
+
+HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`、
+`/run`、`/drafts`、`/drafts/{send,form,mark,skip}` 和 `/history`；
+`/api/people`、`/api/audiences`、`/api/lists`、`/api/send`、
+`/api/typing` 和 `/api/suggest`。背景说明见
+[`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)。
+
+## 12. 故障排除
 
 | 现象                                                 | 处理方式                                                                                                                                                               |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -250,7 +315,7 @@ Telegram、WhatsApp 或 Messenger 账号。没有 server 时，页面仍会显�
 | WebRTC 跨网络停止同步。                              | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                                                                                 |
 | `cargo build` 出现 linker 错。                       | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                                                                                     |
 
-## 12. 下一步
+## 13. 下一步
 
 - [`README.zh.md`](../README.zh.md) — 项目概览和开发者说明。
 - [`docs/REQUIREMENTS.zh.md`](./REQUIREMENTS.zh.md) — canonical requirement list。

@@ -117,16 +117,35 @@ export const configureAutoUpdates = ({
   return { enabled: true, reason: 'checking' };
 };
 
-export const createMainWindow = async ({ BrowserWindow, port }) => {
+// The page's own background (`--bg` in app.css) for the OS theme, so a
+// dark desktop does not flash white before the app paints. The window
+// shows once the first frame is ready (Electron's "showing the window
+// gracefully"); it narrows to a phone's width, where the app switches to
+// its bottom bar, and no further.
+const WINDOW_BACKGROUND = { light: '#ffffff', dark: '#0e1116' };
+export const MIN_WINDOW = { width: 360, height: 480 };
+
+export const createMainWindow = async ({
+  BrowserWindow,
+  port,
+  nativeTheme,
+}) => {
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
+    minWidth: MIN_WINDOW.width,
+    minHeight: MIN_WINDOW.height,
+    show: false,
+    backgroundColor: nativeTheme?.shouldUseDarkColors
+      ? WINDOW_BACKGROUND.dark
+      : WINDOW_BACKGROUND.light,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
       preload,
     },
   });
+  win.once('ready-to-show', () => win.show());
   await win.loadURL(`http://127.0.0.1:${port}/`);
   return win;
 };
@@ -140,7 +159,7 @@ export const resolveDesktopStoreDir = ({ app, env = process.env } = {}) =>
   env.META_SOVEREIGN_STORE_DIR || path.join(app.getPath('userData'), 'store');
 
 export const startDesktop = async () => {
-  const [{ app, BrowserWindow }, { startServer }, autoUpdater] =
+  const [{ app, BrowserWindow, nativeTheme }, { startServer }, autoUpdater] =
     await Promise.all([
       loadElectron(),
       import('../src/server/index.js'),
@@ -153,11 +172,11 @@ export const startDesktop = async () => {
 
   await app.whenReady();
   configureAutoUpdates({ app, autoUpdater });
-  await createMainWindow({ BrowserWindow, port: handle.port });
+  await createMainWindow({ BrowserWindow, nativeTheme, port: handle.port });
 
   app.on('activate', async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      await createMainWindow({ BrowserWindow, port: handle.port });
+      await createMainWindow({ BrowserWindow, nativeTheme, port: handle.port });
     }
   });
   app.on('window-all-closed', () => {

@@ -10,6 +10,7 @@ import {
 import { discoverServer } from './discover.js';
 import { createOfflineClient } from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
+import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
 import {
   greetingCatalogue,
@@ -92,9 +93,10 @@ const ensure = () => {
  */
 export const resetServerBinding = () => {
   bootPromise = null;
+  automationApi = null;
 };
 
-const serverFetch = async (path, init) => {
+const serverResponse = async (path, init) => {
   const { client, origin } = await ensure();
   if (!client.isOnline()) {
     return null;
@@ -105,6 +107,11 @@ const serverFetch = async (path, init) => {
   // of the server. `new URL` keeps same-origin deployments unchanged
   // and points cross-origin ones at the backend the client is using.
   const url = origin ? new URL(path, origin).toString() : path;
+  return fetch(url, init).catch(() => null);
+};
+
+const serverFetch = async (path, init) => {
+  const response = await serverResponse(path, init);
   // "Online" does not mean "implements this route": the Rust backend
   // answers routes it does not have with a 404 and a JSON error body
   // (`docs/SERVER-PARITY.md`), and a proxy in front of it may answer
@@ -112,11 +119,29 @@ const serverFetch = async (path, init) => {
   // return null and let the caller's `??` default take over —
   // otherwise `{error: 'unknown route'}` would reach the screens as
   // if it were data.
-  const response = await fetch(url, init).catch(() => null);
   if (!response?.ok) {
     return null;
   }
   return response.json().catch(() => null);
+};
+
+/**
+ * POST that keeps the server's own answer on an error status — a
+ * draft send that the network refused (502) must show *why*. A
+ * missing route (`unknown route`, an HTML proxy page) or no server at
+ * all still collapses to null, like `serverFetch`.
+ */
+const serverPostReport = async (path, body) => {
+  const response = await serverResponse(path, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = response ? await response.json().catch(() => null) : null;
+  if (!data || data.error === 'unknown route') {
+    return null;
+  }
+  return { ...data, httpStatus: response.status };
 };
 
 let patternWorker = null;
@@ -189,7 +214,7 @@ const matchPattern = async (pattern, flags, messages) => {
   }
 };
 
-const cvPost = (path, body) =>
+const postJson = (path, body) =>
   serverFetch(path, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -203,6 +228,53 @@ const cvOffline = (platforms) => ({
   message: 'the local server drives the browser for CV reads and writes',
 });
 
+const jsonInit = (method, body) => ({
+  method,
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify(body),
+});
+
+/** The server bridge for ./automation-api.js; null means "no server". */
+const remote = {
+  get: (path) => serverFetch(path),
+  post: (path, body) => postJson(path, body),
+  report: (path, body) => serverPostReport(path, body),
+  put: (path, body) => serverFetch(path, jsonInit('PUT', body)),
+  del: (path) => serverFetch(path, { method: 'DELETE' }),
+};
+
+let automationApi = null;
+const automationCall =
+  (name) =>
+  async (...args) => {
+    const { store } = await ensure();
+    automationApi ??= createAutomationApi({ remote, store });
+    return automationApi[name](...args);
+  };
+
+// Issue #31 / PR #34: automations, their drafts, the composer's send and
+// typing status, people, lists and audiences — see ./automation-api.js.
+const AUTOMATION_CALLS = [
+  'automations',
+  'saveAutomation',
+  'deleteAutomation',
+  'planAutomation',
+  'runAutomation',
+  'drafts',
+  'draftAction',
+  'automationHistory',
+  'sendMessage',
+  'setTyping',
+  'typing',
+  'people',
+  'audiences',
+  'saveAudience',
+  'deleteAudience',
+  'resolveAudience',
+  'lists',
+  'saveList',
+];
+
 /**
  * Offline answer for the greeting calls that need a network adapter:
  * listing stickers live and sending a queued plan (issue #35).
@@ -213,6 +285,7 @@ const greetingsOffline = (networks) => ({
 });
 
 export const api = {
+  ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),
   links: async () => {
     const { client } = await ensure();
     return client.links();
@@ -261,6 +334,10 @@ export const api = {
   autocomplete: async (q, me = 'me') => {
     const { client } = await ensure();
     return client.autocomplete(q, me);
+  },
+  suggest: async (query) => {
+    const { client } = await ensure();
+    return client.suggest(query);
   },
   contacts: async () => {
     const { client } = await ensure();
@@ -355,18 +432,18 @@ export const api = {
       `/api/cv/stored${platforms.length ? `?platforms=${encodeURIComponent(platforms.join(','))}` : ''}`
     )) ?? { entries: [] },
   cvRead: async ({ platforms, vars = {} } = {}) =>
-    (await cvPost('/api/cv/read', { platforms, vars })) ?? {
+    (await postJson('/api/cv/read', { platforms, vars })) ?? {
       entries: [],
       failures: [cvOffline(platforms)],
     },
   cvCompare: async ({ platforms, entries, prefer = null } = {}) =>
-    (await cvPost('/api/cv/compare', { platforms, entries, prefer })) ?? {
+    (await postJson('/api/cv/compare', { platforms, entries, prefer })) ?? {
       entries: [],
       comparison: { rows: [], plan: [], updates: {}, agreed: 0 },
       diffs: [],
     },
   cvSync: async ({ platforms, dryRun = true, prefer = null, vars = {} } = {}) =>
-    (await cvPost('/api/cv/sync', { platforms, dryRun, prefer, vars })) ?? {
+    (await postJson('/api/cv/sync', { platforms, dryRun, prefer, vars })) ?? {
       dryRun,
       actions: [],
       applied: [],
@@ -408,12 +485,12 @@ export const api = {
       body: JSON.stringify(selection),
     })) ?? saveGreetingSelection((await ensure()).store, selection),
   greetingStickers: async (networks) =>
-    (await cvPost('/api/greetings/stickers', { networks })) ?? {
+    (await postJson('/api/greetings/stickers', { networks })) ?? {
       stickers: [],
       failures: [greetingsOffline(networks)],
     },
   greetingPlan: async (options = {}) => {
-    const answer = await cvPost('/api/greetings/plan', options);
+    const answer = await postJson('/api/greetings/plan', options);
     if (answer) {
       return answer;
     }

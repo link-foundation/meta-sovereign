@@ -18,6 +18,7 @@ import {
   createCipheriv,
   createDecipheriv,
 } from 'node:crypto';
+import { putAll } from './universal.js';
 
 const ENC_VERSION = 1;
 const KDF_N = 1 << 14;
@@ -166,8 +167,5 @@ export const restoreBackup = async (
     raw = decryptBackup(raw, passphrase);
   }
   const manifest = JSON.parse(raw);
-  for (const link of manifest.links) {
-    await store.put(link);
-  }
-  return manifest.links.length;
+  return putAll(store, manifest.links);
 };

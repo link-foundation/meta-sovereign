@@ -11,6 +11,7 @@
 
 import React from 'react';
 import { useLocaleContext } from './i18n.js';
+import { Icon } from './icons.js';
 
 const el = React.createElement;
 
@@ -29,10 +30,11 @@ export const LanguageSwitcher = () => {
   return el(
     'label',
     {
-      className: 'language-switcher',
+      className: 'language-switcher header-btn',
       'data-action': 'language-switcher',
     },
     [
+      el(Icon, { key: 'icon', name: 'globe', size: 18 }),
       el(
         'span',
         { key: 'label', className: 'sr-only' },

@@ -22,6 +22,9 @@ import {
   LocaleContext,
   availableLocales,
   DEFAULT_LOCALE,
+  formatChatTime,
+  formatDateTime,
+  formatTime,
 } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { LanguageSwitcher } from '../src/web/language-switcher.js';
@@ -323,4 +326,64 @@ test('default LocaleContext returns translations from the default locale', () =>
   };
   const html = renderToStaticMarkup(React.createElement(Probe));
   assert.ok(html.includes(dictionaries[DEFAULT_LOCALE]['common.save']));
+});
+
+test('times follow the interface language, not the browser', () => {
+  // 14:05 local time, whatever the machine's time zone.
+  const at = new Date(2026, 9, 12, 14, 5).toISOString();
+  const ru = formatTime(at, 'ru');
+  const en = formatTime(at, 'en');
+  assert.equal(ru, '14:05', 'Russian uses a 24-hour clock');
+  assert.match(en, /^2:05\sPM$/, 'English uses AM/PM');
+  // Dates are spelled out and seconds dropped: "Oct 12, 2026, 2:05 PM".
+  // Newer CLDR data (macOS's ICU, used by Bun there) joins date and time
+  // with "at" / "в" instead of a comma; both are right.
+  assert.match(formatDateTime(at, 'en'), /^Oct 12, 2026(,| at) 2:05\sPM$/);
+  assert.match(formatDateTime(at, 'ru'), /^12 окт\. 2026 г\.(,| в) 14:05$/);
+  assert.equal(formatTime(null, 'ru'), '');
+  assert.equal(formatDateTime('not a date', 'ru'), '');
+});
+
+test('a chat list dates rows as messengers do', () => {
+  // Monday 12 Oct 2026, 15:00 local time.
+  const now = new Date(2026, 9, 12, 15, 0).getTime();
+  const at = (...ymdhm) => new Date(...ymdhm).toISOString();
+  // Today: the time.
+  assert.equal(formatChatTime(at(2026, 9, 12, 9, 30), 'ru', now), '09:30');
+  // Within the week: the weekday (Wednesday the 7th).
+  // CLDR versions differ on the case of Russian weekdays ("ср", "Ср").
+  assert.equal(formatChatTime(at(2026, 9, 7, 9, 30), 'en', now), 'Wed');
+  assert.equal(
+    formatChatTime(at(2026, 9, 7, 9, 30), 'ru', now).toLowerCase(),
+    'ср'
+  );
+  // Earlier this year: day and month, no time.
+  assert.equal(formatChatTime(at(2026, 4, 26, 4, 10), 'en', now), 'May 26');
+  assert.equal(formatChatTime(at(2026, 4, 26, 4, 10), 'ru', now), '26 мая');
+  // Another year: with the year.
+  assert.equal(
+    formatChatTime(at(2025, 8, 12, 4, 10), 'en', now),
+    'Sep 12, 2025'
+  );
+  assert.equal(formatChatTime(null, 'en', now), '');
+});
+
+test('translate picks the plural form for the locale (ICU subset)', () => {
+  const t = (n) => translate('en', 'chat.notice.queued', { count: n });
+  assert.equal(t(1), '1 draft is ready below: review, then send.');
+  assert.equal(t(3), '3 drafts are ready below: review, then send.');
+  assert.equal(
+    translate('en', 'chat.suggest.count', { count: 1 }),
+    'Used once'
+  );
+  assert.equal(
+    translate('en', 'chat.subtitle.group', { source: 'vk', count: 1 }),
+    'vk · 1 person'
+  );
+  // Without the variable the message stays as written.
+  assert.match(translate('en', 'chat.notice.sentAuto'), /\{count, plural,/);
+  // No English string asks the reader to decode "(s)".
+  for (const [key, value] of Object.entries(dictionaries.en)) {
+    assert.ok(!/\w\(s\)/.test(value), `${key}: "${value}"`);
+  }
 });

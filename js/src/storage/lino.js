@@ -1,13 +1,12 @@
 /**
- * Indented Links Notation reader/writer.
+ * Indented token-list reader/writer.
  *
- * Implements a minimal subset of the indented dialect described in
- * link-foundation/links-notation: each line is a link, indentation
- * encodes nesting, tokens are whitespace-separated.
- *
- * This is a pragmatic local implementation so the storage layer has
- * something to round-trip in tests today; it can be replaced by the
- * upstream npm package as soon as that is published.
+ * A minimal indented subset of Links Notation: each line is a list of
+ * whitespace-separated tokens and indentation encodes nesting. The store
+ * itself now uses the upstream `links-notation` / `lino-objects-codec`
+ * packages (see `lino-store.js` and `doublets-archive.js`); this reader
+ * remains for the indented CV documents and for reading `.lino` stores
+ * written before the switch.
  */
 
 const INDENT = '  ';

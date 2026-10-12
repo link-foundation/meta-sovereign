@@ -180,6 +180,19 @@ describe('http server', () => {
           body: 'hi',
         }),
       });
+      // Our own message does not make us a contact.
+      await fetchJson(`${base}/links`, {
+        method: 'PUT',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          id: 'msg:telegram:2',
+          tokens: ['message', 'telegram', '2'],
+          sender: 'me',
+          chat: 'general',
+          source: 'telegram',
+          body: 'hello',
+        }),
+      });
       const contacts = await fetchJson(`${base}/api/contacts`);
       expect(contacts.body.length).toBe(1);
       expect(contacts.body[0].id).toBe('alice');
@@ -206,7 +219,8 @@ describe('http server', () => {
 
       const status = await fetchJson(`${base}/api/status`);
       expect(typeof status.body.links).toBe('number');
-      expect(status.body.messages).toBe(1);
+      expect(status.body.messages).toBe(2);
+      expect(status.body.contacts).toBe(1);
       expect(status.body.graphs).toBe(1);
     } finally {
       await handle.close();

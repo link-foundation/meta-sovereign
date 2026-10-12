@@ -250,7 +250,83 @@ Listing और sending के लिए JS server (`meta-sovereign serve`) औ�
 Telegram के अपने सुझाव bots को उपलब्ध नहीं हैं — इसके और बाकी details के
 लिए [`docs/GREETINGS.hi.md`](./GREETINGS.hi.md) देखें।
 
-## 11. Troubleshooting
+## 11. Automations: नियम के अनुसार, सुरक्षित तरीके से लोगों को संदेश भेजें
+
+एक automation बताता है कि किसे, कब, किन शर्तों पर और कौन-सा text
+भेजना है। उन्हें edit, preview और run करने के लिए **स्वचालन** tab
+खोलें। पहला automation issue #31 का "Say hi to contacts silent for 90
+days" है: हर निजी 1:1 chat, जिसमें कम से कम 90 दिन से कोई संदेश नहीं
+है — groups, channels और bots शामिल नहीं होते — उसे एक संदेश मिलता है:
+
+- अगर आप और वह व्यक्ति "ты" से बात करते थे तो "Привет … Тебе или твоим
+  друзьям …", और "вы" से करते थे तो "Здравствуйте … Вам или вашим
+  друзьям …"। रूप dialog से word-level rules द्वारा पहचाना जाता है;
+  सबूत न हो या बराबरी हो तो विनम्र "вы" वाला text इस्तेमाल होता है।
+  दोनों texts बदले जा सकते हैं, और उनमें `{name}`, `{days}` और
+  `{network}` इस्तेमाल हो सकते हैं।
+- बाकी presets खुली positions के बारे में पूछते हैं, contract work
+  offer करते हैं, या hi कहने वाले को जवाब में hi कहते हैं। **नया
+  ऑटोमेशन** एक खाली automation शुरू करता है।
+
+हर automation में होता है:
+
+- **कब चलता है**: हाथ से, chat के menu से, schedule पर (`30m`, `12h`,
+  `1d`, `2w`) और/या किसी regular expression से मेल खाते आने वाले
+  संदेश पर।
+- **किसे**: एक audience — `personal`, `friends:vk`, `chat:vk:<id>`,
+  `community:vk:<id>`, `list:<id>`, `audience:<id>` या `person:vk:<id>`,
+  जिन्हें `|` (या), `&` (और), `-` (के सिवा) और brackets से जोड़ा जाता है,
+  जैसे `friends:vk & chat:vk:2000000001 - list:blocked`।
+- **शर्तें**: कम से कम N दिन से बात नहीं हुई, N दिन तक दोबारा नहीं,
+  सिर्फ़ वे chats जिनमें आपने भी लिखा, सिर्फ़ निजी chats, आख़िरी संदेश
+  किसका, कौन-से networks।
+- **मोड**: **सुरक्षित** (safe, default) हर chat में एक draft छोड़ता है;
+  **स्वचालित** (auto) एक बार आपसे पूछने के बाद typing indicator, random
+  pauses और daily cap के साथ भेजता है।
+
+**पूर्वावलोकन** बताता है कि किसे कौन-सा text मिलेगा और बाकी लोग क्यों
+छूटे ("हाल ही में बात हुई", "एक मसौदा पहले से इंतज़ार में है", …); कुछ
+भेजा नहीं जाता। Safe mode में हर draft अपने chat में दिखता है: उसे बदलें,
+**भेजें** (click ही पुष्टि है), ты/вы बदलें, network में **चैट खोलें**,
+**मैंने खुद भेज दिया**, या **छोड़ें**। हर नतीजा याद रखा जाता है, ताकि
+वही व्यक्ति गलती से दो बार संदेश न पाए।
+
+**लोग** सभी networks पर हर किसी को खोजता है (दूसरे networks पर वही
+व्यक्ति cross references के रूप में दिखता है); लोगों को चुनकर automation
+सिर्फ़ उन पर चलाएँ, या उन्हें list के रूप में सहेजें। **दर्शक** नाम वाले
+specs सहेजता है और गिनता है कि वे कितने लोगों से मेल खाते हैं। किसी एक
+व्यक्ति पर automation परखने के लिए उसका chat खोलें और **⚡ स्वचालन → इस
+चैट में परखें** इस्तेमाल करें।
+
+Chat खुद (**चैट** tab) लिखते समय जवाब सुझाता है: पहले वे पूरे जवाब जो
+आपने chat के आख़िरी संदेश पर पहले दिए थे, सबसे ज़्यादा इस्तेमाल वाले
+पहले, फिर आपके अपने संदेशों से शब्द-दर-शब्द; **Tab** पहला सुझाव लेता है।
+यह दिखाता है कि सामने वाला — या आपकी ओर से कोई automation — कब लिख रहा
+है। भेजना network की API से होता है, और वह न चले तो उसके official web UI
+से। **सेटिंग्स → रूप-रंग** theme (system, light, dark, या दिन के समय के
+अनुसार auto) और skin (t3.codes, Telegram, WhatsApp या Signal) चुनता है।
+
+```bash
+# सहेजे गए automations और presets
+meta-sovereign automations
+# किसे क्या मिलेगा, और बाकी क्यों छूटे — कुछ लिखा नहीं जाता
+meta-sovereign automations plan reengage-dormant
+# safe mode: हर व्यक्ति के लिए एक draft queue करें
+meta-sovereign automations run reengage-dormant
+# एक बार में एक draft — [y] भेजें, [m] खुद भेज दिया, [e] बदलें, [f] ты/вы बदलें, [s] छोड़ें, [q] बाहर
+meta-sovereign automations review
+# auto mode सिर्फ़ --confirm=true के साथ भेजता है; --chat चुने हुए chats तक सीमित करता है
+meta-sovereign automations run job-search --chat=vk:101 --confirm=true
+```
+
+HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`),
+`/api/automations/plan`, `/run`, `/drafts`,
+`/drafts/{send,form,mark,skip}` और `/history`; `/api/people`,
+`/api/audiences`, `/api/lists`, `/api/send`, `/api/typing` और
+`/api/suggest`। पृष्ठभूमि:
+[`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)।
+
+## 12. Troubleshooting
 
 | Symptom                                                       | Fix                                                                                                                                                                                                    |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -261,7 +337,7 @@ Telegram के अपने सुझाव bots को उपलब्ध न�
 | WebRTC sync दो LANs के बीच रुकता है।                          | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                                                                                                                           |
 | `cargo build` linker error देता है।                           | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                                                                                                                       |
 
-## 12. आगे कहाँ जाएँ
+## 13. आगे कहाँ जाएँ
 
 - [`README.hi.md`](../README.hi.md) — project overview और developer notes।
 - [`docs/REQUIREMENTS.hi.md`](./REQUIREMENTS.hi.md) — canonical requirements।

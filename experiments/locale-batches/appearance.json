@@ -1,0 +1,74 @@
+{
+  "settings.appearance.title": {
+    "en": "Appearance",
+    "ru": "Внешний вид",
+    "zh": "外观",
+    "hi": "रूप-रंग"
+  },
+  "settings.appearance.intro": {
+    "en": "The theme and skin apply to every screen and are kept in this browser. The Theme button in the header switches between light and dark.",
+    "ru": "Тема и оформление действуют на всех экранах и сохраняются в этом браузере. Кнопка «Тема» в шапке переключает светлую и тёмную.",
+    "zh": "主题和皮肤作用于所有界面，并保存在此浏览器中。页眉中的“主题”按钮可在浅色和深色之间切换。",
+    "hi": "थीम और स्किन हर स्क्रीन पर लागू होती हैं और इसी ब्राउज़र में सहेजी जाती हैं। हेडर का थीम बटन हल्की और गहरी थीम के बीच बदलता है।"
+  },
+  "settings.appearance.theme": {
+    "en": "Theme",
+    "ru": "Тема",
+    "zh": "主题",
+    "hi": "थीम"
+  },
+  "settings.appearance.skin": {
+    "en": "Skin",
+    "ru": "Оформление",
+    "zh": "皮肤",
+    "hi": "स्किन"
+  },
+  "settings.theme.system": {
+    "en": "follow the system",
+    "ru": "как в системе",
+    "zh": "跟随系统",
+    "hi": "सिस्टम के अनुसार"
+  },
+  "settings.theme.light": {
+    "en": "light",
+    "ru": "светлая",
+    "zh": "浅色",
+    "hi": "हल्की"
+  },
+  "settings.theme.dark": {
+    "en": "dark",
+    "ru": "тёмная",
+    "zh": "深色",
+    "hi": "गहरी"
+  },
+  "settings.theme.auto": {
+    "en": "auto: light by day (7–19), dark at night",
+    "ru": "авто: днём (7–19) светлая, ночью тёмная",
+    "zh": "自动：白天（7–19 点）浅色，夜间深色",
+    "hi": "ऑटो: दिन में (7–19) हल्की, रात में गहरी"
+  },
+  "settings.skin.t3": {
+    "en": "like t3.codes (default)",
+    "ru": "как в t3.codes (по умолчанию)",
+    "zh": "类似 t3.codes（默认）",
+    "hi": "t3.codes जैसा (डिफ़ॉल्ट)"
+  },
+  "settings.skin.telegram": {
+    "en": "like Telegram",
+    "ru": "как в Telegram",
+    "zh": "类似 Telegram",
+    "hi": "Telegram जैसा"
+  },
+  "settings.skin.whatsapp": {
+    "en": "like WhatsApp",
+    "ru": "как в WhatsApp",
+    "zh": "类似 WhatsApp",
+    "hi": "WhatsApp जैसा"
+  },
+  "settings.skin.signal": {
+    "en": "like Signal",
+    "ru": "как в Signal",
+    "zh": "类似 Signal",
+    "hi": "Signal जैसा"
+  }
+}

@@ -55,6 +55,38 @@ only, и по структурной причине: `read` и `sync` управ
 показывает на CV screen явное сообщение "нужен JS server" вместо пустой
 таблицы. Подробности: [`docs/CV-SYNC.ru.md`](./CV-SYNC.ru.md).
 
+## 5a. Автоматизации, люди, отправка и подсказки
+
+| Route                                           | Method           | JS server                             | Rust server | Status      |
+| ----------------------------------------------- | ---------------- | ------------------------------------- | ----------- | ----------- |
+| `/api/automations`                              | GET, PUT         | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/<id>`                         | DELETE           | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/presets`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/plan`                         | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/run`                          | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts`                       | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts/{send,form,mark,skip}` | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/history`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/send`                                     | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/typing`                                   | GET, POST        | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/people`, `/api/people/xref`               | GET              | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences`, `/api/lists`                  | GET, PUT, DELETE | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences/resolve`                        | POST             | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/suggest`, `/api/suggest/stats`            | GET              | `js/src/server/routes-suggest.js`     | _missing_   | **JS only** |
+
+Эти маршруты (issue #31 и PR #34, R-X6..R-X18) - тонкие обёртки над
+`js/src/automation/`, `js/src/crm/people.js` и `js/src/replies/`. SPA
+сначала спрашивает сервер, потому что на нём лежат все импортированные
+архивы и учётные данные адаптеров, а без сервера запускает тот же код
+над ссылками, которые уже есть в браузере
+(`js/src/web/automation-api.js`): offline она по-прежнему показывает
+список автоматизаций, редактирует их и строит предпросмотр, держит
+черновики безопасного режима в их чатах, ищет людей, вычисляет
+аудитории и подсказывает ответы. Сервер нужен только для доставки
+сообщения; сообщение, набранное в поле ввода чата без сервера,
+хранится в браузере, пока сервер его не синхронизирует. Команда CLI
+`automations` работает вообще без сервера.
+
 ## 6. Приветствия
 
 `/api/greetings/catalogue`, `/api/greetings/selection` (GET и PUT),
@@ -85,11 +117,12 @@ WhatsApp и Messenger через JS source adapters. Без них SPA пока�
 | Outreach / backups / hardening | 6      | 0      | 6       |
 | Синхронизация CV               | 7      | 0      | 7       |
 | Приветствия                    | 6      | 0      | 6       |
+| Автоматизации, люди, подсказки | 14     | 0      | 14      |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **53** | **34** | **19**  |
+| **Total**                      | **67** | **34** | **33**  |
 
-Rust server сегодня достиг **64% route parity**. Для типичного user flow
+Rust server сегодня достиг **51% route parity**. Для типичного user flow
 
 - открыть SPA, просмотреть contacts, отправить messages, automate
   replies, sync между devices, ingest email archives - Rust server является

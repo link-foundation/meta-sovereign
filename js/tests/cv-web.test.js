@@ -15,6 +15,7 @@ import { LocaleContext, availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { listCvPlatforms } from '../src/cv/index.js';
 import { api } from '../src/web/dom.js';
+import { assertStackTable } from './helpers/stack-table.js';
 
 const renderInLocale = (locale, node) => {
   const t = (key, vars) => {
@@ -83,12 +84,18 @@ test('the catalogue renders one row per platform with its plan confidence', () =
   assert.match(html, /data-platform="habr-career"/);
   assert.match(html, /data-platform="topcv"/);
   assert.match(html, /7 verified \/ 2 draft/);
-  assert.match(html, /never read/);
+  assert.match(html, /Never read/);
   for (const action of ['read', 'compare', 'plan-sync', 'apply-sync']) {
     assert.match(html, new RegExp(`data-action="cv-${action}"`));
   }
   // Nothing may be written before a dry run has been planned.
   assert.match(html, /data-action="cv-apply-sync"[^>]*disabled/);
+});
+
+test('phones stack the platform table into labelled cards', () => {
+  assertStackTable(render(baseState()), 'cv-platforms');
+  // The column names are translated like the table headers.
+  assertStackTable(render(baseState(), 'ru'), 'cv-platforms');
 });
 
 test('a stored snapshot replaces the "never read" marker', () => {
@@ -105,7 +112,7 @@ test('a stored snapshot replaces the "never read" marker', () => {
   );
   assert.doesNotMatch(
     html.split('data-platform="topcv"')[0],
-    /never read/,
+    /Never read/,
     'the read platform still claims it was never read'
   );
 });

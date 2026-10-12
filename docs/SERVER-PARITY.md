@@ -122,6 +122,37 @@ for backups: the CV screen keeps its catalogue and diff views, and the
 "read" and "sync" buttons explain that live runs need the JS server or
 the `meta-sovereign cv-*` CLI.
 
+## 5a. Automations, people, sending and suggestions
+
+| Route                                           | Method           | JS server                             | Rust server | Status      |
+| ----------------------------------------------- | ---------------- | ------------------------------------- | ----------- | ----------- |
+| `/api/automations`                              | GET, PUT         | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/<id>`                         | DELETE           | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/presets`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/plan`                         | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/run`                          | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts`                       | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts/{send,form,mark,skip}` | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/history`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/send`                                     | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/typing`                                   | GET, POST        | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/people`, `/api/people/xref`               | GET              | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences`, `/api/lists`                  | GET, PUT, DELETE | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences/resolve`                        | POST             | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/suggest`, `/api/suggest/stats`            | GET              | `js/src/server/routes-suggest.js`     | _missing_   | **JS only** |
+
+These routes (issue #31 and PR #34, R-X6..R-X18) are thin wrappers over
+`js/src/automation/`, `js/src/crm/people.js` and `js/src/replies/`.
+The SPA asks the server first, because it holds every imported archive
+and the adapters' credentials, and otherwise runs the same code over
+the links the browser already holds (`js/src/web/automation-api.js`):
+offline it still lists, edits and previews automations, keeps
+safe-mode drafts in their chats, searches people, resolves audiences
+and suggests replies. Only delivering a message needs the server; a
+message typed in the chat composer without one is kept in the browser
+until a server syncs it. The `automations` CLI command works without
+any server.
+
 ## 6. Greetings
 
 | Route                      | Method | JS server                           | Rust server | Status      |
@@ -172,24 +203,27 @@ directories.
 
 ## 9. Summary
 
-| Category                       | Routes | Parity | JS only |
-| ------------------------------ | ------ | ------ | ------- |
-| Read (links + derived + meta)  | 14     | 14     | 0       |
-| Mutating CRUD                  | 15     | 15     | 0       |
-| Outreach / backups / hardening | 6      | 0      | 6       |
-| CV synchronisation             | 7      | 0      | 7       |
-| Greetings                      | 6      | 0      | 6       |
-| Real-time transports           | 2      | 2      | 0       |
-| Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **53** | **34** | **19**  |
+| Category                         | Routes | Parity | JS only |
+| -------------------------------- | ------ | ------ | ------- |
+| Read (links + derived + meta)    | 14     | 14     | 0       |
+| Mutating CRUD                    | 15     | 15     | 0       |
+| Outreach / backups / hardening   | 6      | 0      | 6       |
+| CV synchronisation               | 7      | 0      | 7       |
+| Greetings                        | 6      | 0      | 6       |
+| Automations, people, suggestions | 14     | 0      | 14      |
+| Real-time transports             | 2      | 2      | 0       |
+| Static asset serving             | 3      | 3      | 0       |
+| **Total**                        | **67** | **34** | **33**  |
 
-The Rust server reaches **64 % route parity** today. The remaining
-routes split into three groups: the "operator hardening" category
+The Rust server reaches **51 % route parity** today. The remaining
+routes split into four groups: the "operator hardening" category
 (R-K\*), which has JS-implemented fallbacks and is a porting backlog
 item, and CV synchronisation (R-V\*), three of whose seven routes
 cannot be ported at all while the Rust crate stays `std`-only, because
-they drive a browser, and the greeting routes (issue #35), which wait
-on a Rust port of the source adapters. For the typical end-user flow —
+they drive a browser, the greeting routes (issue #35), which wait
+on a Rust port of the source adapters, and the automation, people and
+suggestion routes (issue #31, section 5a), which wait on a Rust port of
+the automation runner, the people directory and the reply graph. For the typical end-user flow —
 open the SPA, browse contacts, send messages, automate replies, sync
 between devices, ingest email archives — the Rust server is a complete
 drop-in replacement for the JS server.

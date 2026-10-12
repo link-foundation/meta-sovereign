@@ -1,26 +1,25 @@
 /**
- * LinoTextStore — UniversalLinksAccess backed by an indented `.lino`
- * file on disk. Persistence is lazy: writes batch into memory and flush
- * on `flush()` or process exit. Suitable for the prototype; can be
- * swapped for a streaming implementation once size becomes an issue.
+ * LinoTextStore — UniversalLinksAccess over the text half of the
+ * associative stack: a `.lino` file in Links Notation with one record per
+ * line, encoded by `lino-objects-codec` so every field (bodies with new
+ * lines and quotes, numbers, booleans, null, nested objects) round-trips
+ * exactly and every line parses with the upstream `links-notation`
+ * parser (R-A2, R-A3, R-A5, issue #31):
  *
- * Requirements: R-A2, R-A3 (text half), R-A5 (indented).
+ *   (o: (id "msg:vk:1") (tokens ("msg" "vk" "1")) (body "Привет") ...)
+ *
+ * Files written by the earlier indented `id token…` format (which kept
+ * only id/tokens/children) are still read and are rewritten in the
+ * record format on the next write.
  */
 
 import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore } from './universal.js';
-import { parseLino, formatLino } from './lino.js';
+import { parseLino } from './lino.js';
+import { createFileWriter } from './file-writer.js';
 
-const linkToNode = (link) => ({
-  tokens: [link.id, ...link.tokens],
-  children: (link.children ?? []).map((cid) => ({
-    tokens: ['child', cid],
-    children: [],
-  })),
-});
-
-const nodeToLink = (node) => {
+const legacyNodeToLink = (node) => {
   const [id, ...tokens] = node.tokens;
   const children = node.children
     .filter((c) => c.tokens[0] === 'child')
@@ -28,32 +27,51 @@ const nodeToLink = (node) => {
   return { id, tokens, children };
 };
 
+const isRecordLine = (line) => line.startsWith('(');
+
+/** Format links as Links Notation text, one record per line. */
+export const formatLinoRecords = (links) =>
+  links.map((obj) => `${encodeLine({ obj })}\n`).join('');
+
+/** Parse `.lino` text (record lines or the legacy indented format). */
+export const parseLinoRecords = (text) => {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  if (lines.length === 0) {
+    return [];
+  }
+  if (lines.some(isRecordLine)) {
+    return lines
+      .filter(isRecordLine)
+      .map((notation) => decodeLine({ notation }));
+  }
+  return parseLino(text).map(legacyNodeToLink);
+};
+
 export const createLinoTextStore = async (filePath) => {
   const mem = createMemoryStore();
 
-  let existing = '';
   try {
-    existing = await fs.readFile(filePath, 'utf8');
+    await mem.putMany(parseLinoRecords(await fs.readFile(filePath, 'utf8')));
   } catch (err) {
     if (err.code !== 'ENOENT') {
       throw err;
     }
   }
-  for (const node of parseLino(existing)) {
-    await mem.put(nodeToLink(node));
-  }
 
-  const flush = async () => {
-    const links = await mem.query();
-    const text = formatLino(links.map(linkToNode));
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, text, 'utf8');
-  };
+  const writer = createFileWriter(filePath, async () =>
+    formatLinoRecords(await mem.query())
+  );
+  const flush = () => writer.request();
 
   return {
     ...mem,
     async put(link) {
       const out = await mem.put(link);
+      await flush();
+      return out;
+    },
+    async putMany(links) {
+      const out = await mem.putMany(links);
       await flush();
       return out;
     },

@@ -1,97 +1,295 @@
-# Case Study: Per-commit diff for change detection
+# Issue 31 Case Study: automations that re-engage personal contacts after a long silence
 
-**Issue:** [#31](https://github.com/link-foundation/js-ai-driven-development-pipeline-template/issues/31)
-**Source:** [link-assistant/web-capture#50](https://github.com/link-assistant/web-capture/issues/50), [link-assistant/web-capture#51](https://github.com/link-assistant/web-capture/pull/51)
+Issue: https://github.com/link-foundation/meta-sovereign/issues/31
 
-## Problem Statement
+Prepared on 2026-10-11 UTC for PR 34.
 
-The `scripts/detect-code-changes.mjs` script compared `GITHUB_BASE_SHA` to `GITHUB_HEAD_SHA` for pull request events. This returns **all files changed across the entire PR**, not just what the latest push changed. A commit that only modifies non-code files (e.g., `.gitkeep`, `README.md`) still triggers all CI jobs if any earlier commit in the same PR touched code files.
+## Summary
 
-## Root Cause
+Issue 31 asks for a way to message every personal contact the user has
+not talked to for a long time — "at least 90 days" — with one of two
+fixed texts:
 
-Two separate mechanisms cause full-PR diffs instead of per-commit diffs:
+```
+Привет
 
-### 1. `GITHUB_BASE_SHA...GITHUB_HEAD_SHA` comparison
-
-The original script used environment variables to compare the PR base against the PR head:
-
-```javascript
-const output = exec(`git diff --name-only ${baseSha} ${headSha}`);
+Тебе или твоим друзьям на текущий момент нужна помощь с автоматизацией? Есть открытые вакансии?
 ```
 
-This gives the same result as GitHub Actions `paths:` filters — the full PR diff.
+```
+Здравствуйте
 
-### 2. GitHub Actions synthetic merge commit
-
-GitHub Actions creates a **synthetic merge commit** for `pull_request` events:
-
-- `HEAD` = synthetic merge commit (not the actual PR head)
-- `HEAD^` = base branch (first parent)
-- `HEAD^2` = actual PR head commit (second parent)
-
-Even `git diff HEAD^ HEAD` gives the full PR diff, because `HEAD^` is the base branch.
-
-### Evidence
-
-In [link-assistant/web-capture PR #49](https://github.com/link-assistant/web-capture/pull/49), commit `0e9b6e8c` only modified `.gitkeep` but triggered all 8 CI jobs (lint, test on 3 OSes, build, changeset check) because the PR as a whole contained code changes.
-
-## Timeline
-
-1. PR #49 in web-capture opened with commits touching `js/` and `rust/` code
-2. Commit `0e9b6e8c` pushed — only modifies `.gitkeep` at repo root
-3. Full CI suite triggered because diff evaluates all PR files, not just the latest push
-4. [web-capture#50](https://github.com/link-assistant/web-capture/issues/50) filed requesting fix
-5. [web-capture#51](https://github.com/link-assistant/web-capture/pull/51) implements fix with per-commit diff via merge commit detection
-6. [This issue (#31)](https://github.com/link-foundation/js-ai-driven-development-pipeline-template/issues/31) filed to port the fix to this template repo
-
-## Solution
-
-### Per-commit diff via merge commit detection
-
-The script now detects GitHub Actions' synthetic merge commit and uses the correct diff range:
-
-```javascript
-function isMergeCommit() {
-  const parentCount = exec('git cat-file -p HEAD')
-    .split('\n')
-    .filter((line) => line.startsWith('parent ')).length;
-  return parentCount > 1;
-}
+Вам или вашим друзьям на текущий момент нужна помощь с автоматизацией? Есть открытые вакансии?
 ```
 
-For merge commits (PR events): `git diff HEAD^2^ HEAD^2` — the per-commit diff of the actual PR head commit.
+Which text a contact gets depends on whether the dialog used "ты" or
+"вы" more, and that has to be detected automatically "using regexes or
+peg grammars or similar", ideally through the project's own rules. The
+issue also requires a safe (debug) mode in which only one message is
+pre-filled at a time and goes out only after the user confirms it.
 
-For push events (non-merge): `git diff HEAD^ HEAD` — regular per-commit diff.
+The first round (commits up to 127e7a1) built this as a dedicated
+**Re-engage** screen, a `reengage` command and `/api/reengage/*` routes.
+The review of PR 34 asked for something more general: outreach should
+be an **automation** — a trigger, an audience, conditions and an action
+the user can change — that runs in the ordinary chat, and the work
+should also bring message-to-message autocomplete, typing status, a
+t3.codes-like chat with switchable themes and skins, the associative
+storage stack (links notation text + binary, link-cli), sending through
+the official web UIs when an API fails, and every dependency updated.
+The second round replaced the dedicated screen with that design.
 
-### Fallback handling
+What is in the pull request now:
 
-- If `HEAD^2^` doesn't exist (first commit in PR), falls back to `git diff HEAD^ HEAD^2` (full diff against base)
-- If `HEAD^` doesn't exist (first commit ever), falls back to `git ls-tree --name-only -r HEAD`
+1. **Detection, unchanged in substance.** `js/src/crm/address-form.js`
+   is a data-driven table of word-level regex rules (Russian ты/вы plus
+   Chinese 你/您 and Hindi तुम/आप) with an explainable
+   `detectAddressForm()`: the winning form, the reason (`majority`,
+   `tie`, `no-evidence`), a confidence and the rules that fired. Users
+   can add rules as `pattern:*` links labelled `address:informal` /
+   `address:formal`. `js/src/crm/reengage.js` remains the library that
+   finds 1:1 chats silent for at least N days and picks the template.
+2. **Automations** (`js/src/automation/`). An `automation:<id>` link
+   holds triggers (manual, chat menu, schedule, incoming message
+   pattern — after konard/vk-bot's triggers), an audience, conditions
+   (silent days, mutual, personal, who wrote last, networks, cooldown),
+   the ты/вы templates, the mode and the pacing. Issue 31 is the
+   `reengage-dormant` preset; job search, contract search and greet-back
+   are others. **Safe mode** (the default) writes one
+   `automation-draft:*` link per person, shown prefilled in that chat,
+   and nothing leaves until the user clicks Send. **Auto mode** sends
+   like a person — typing status for as long as the text takes to type,
+   a random pause, a daily cap (vk-bot's outgoing queue, plus
+   hh-job-application-automation's caps, de-duplication ledger and
+   confirm-before-send). Every outcome is an `automation-run:*` link,
+   which is also the cooldown.
+3. **People and audiences** (`js/src/crm/people.js`). One searchable
+   entry per `<source>:<user>` built from messages, `person:`,
+   `member:` (friends, chat and community membership) and `list:`
+   links, with cross-network matches suggested as `sameAs`. Audiences
+   are specs like `friends:vk & chat:vk:2000000001 - list:blocked`
+   (union, intersection, difference), saved and resolved anywhere.
+4. **Reply graph** (`js/src/replies/`). Every (incoming message → our
+   reply) pair is a link with a count; the composer first offers every
+   reply used before for the chat's last message, deduplicated and most
+   used first, then word-by-word completion from the owner's own
+   messages. It learns from imported archives and in real time. A
+   link-cli (`clink`) database mirrors the graph
+   (`reply-store-clink.js`, `MS_REPLY_CLINK=1`).
+5. **Storage**: `doublets-archive.js` writes records as a deduplicated
+   doublets network in the link-cli binary archive layout
+   (`clink --import-binary` reads it), and `lino-store.js` keeps the text
+   half as one links-notation record per line (`lino-objects-codec`).
+6. **Delivery and typing** (`js/src/sources/`). VK, Telegram and
+   WhatsApp adapters show our typing status, and VK long-poll typing
+   events show the other person's; `browser-sender.js`
+   sends through vk.com, web.telegram.org and web.whatsapp.com via
+   browser-commander when the API throws or is not configured.
+7. **Front ends.** The **Chat** tab (t3.codes-like by default) has a
+   ⚡ Automations menu in every chat, the drafts, typing indicators and
+   suggestions; the **Automation** tab edits, previews and runs
+   automations, searches people and saves audiences; **Settings →
+   Appearance** chooses system / light / dark / auto (by the hour) and
+   the t3.codes, Telegram, WhatsApp or Signal skin. The `automations`
+   CLI and `/api/automations`, `/api/people`, `/api/audiences`,
+   `/api/lists`, `/api/send`, `/api/typing`, `/api/suggest` routes cover
+   the same ground; the SPA falls back to its local links offline.
+8. **Dependencies**: every npm package and GitHub Action at its latest
+   release (eslint 10, jscpd 5, React 19.3, playwright 1.64,
+   browser-commander 0.31, links-notation 0.25, …).
 
-### Environment variable cleanup
+## Local Artifacts
 
-The `GITHUB_BASE_SHA` and `GITHUB_HEAD_SHA` environment variables were removed from the workflow since the script no longer uses them — merge commit detection via `git cat-file` is self-contained.
+Raw GitHub data is preserved under `data/`: `issue-31.json`,
+`issue-31-comments.json` (none), `pr-34.json`,
+`pr-34-conversation-comments.json` (the review that started the second
+round is the comment of 2026-10-11T17:26:45Z), `pr-34-review-comments.json`
+and `pr-34-reviews.json` (none).
 
-## Files Changed
+Screenshots under `screenshots/` were taken with Playwright against
+`experiments/automations-spa-server.mjs`, which seeds a store (Telegram
+"Аня" on "ты" and VK 2002 on "вы", both silent for months; an e-mail
+contact whose fake sender always fails; a recent VK chat; three chats
+where the owner answered "Как дела?" twice one way and once another)
+and replaces sending and typing with fakes that only log:
 
-| File                                  | Change                                                               |
-| ------------------------------------- | -------------------------------------------------------------------- |
-| `scripts/detect-code-changes.mjs`     | Replace full-PR diff with per-commit diff via merge commit detection |
-| `.github/workflows/release.yml`       | Remove unused `GITHUB_BASE_SHA`/`GITHUB_HEAD_SHA` env vars           |
-| `experiments/test-detect-changes.mjs` | 17 edge-case tests for change classification logic                   |
+- `chat-skin-{t3,telegram,whatsapp,signal}-{light,dark}.png` — the same
+  chat with issue 31's draft in every skin and theme.
+- `chat-automation-menu.png` — the ⚡ Automations menu of a chat: test an
+  automation on this chat, or run it with its conditions.
+- `chat-reply-suggestions.png` — "Как дела?" was answered before, so the
+  composer offers both answers, the one used twice first.
+- `chat-word-suggestions.png` — no reply matches "Привет!", so typing
+  "Отлично, " completes word by word; "спасибо", the word that followed
+  "Отлично" in the owner's messages, comes first.
+- `automations-editor-preview.png` — issue 31's automation in the
+  editor with its preview: two to message (one formal, one informal) and
+  why the rest are left out.
+- `settings-appearance.png` — Settings → Appearance.
+- `phone-chat-list.png`, `phone-chat-draft.png`, `phone-more-sheet.png`,
+  `phone-contacts.png` — a 390 px phone: the chat list, issue 31's draft
+  in Аня's chat, the "More" sheet behind the bottom bar, and contacts
+  (newest first, the owner not among them).
+- `phone-automation-ru.png`, `tablet-chat-rail-ru.png` — the Russian
+  interface on a phone (the automation editor) and on an 800 px tablet
+  (the chat with the navigation rail).
 
-## Verification
+The first round's `reengage-*.png` screenshots showed the removed
+screen; they are in the history at commit 127e7a1.
 
-With this fix, if a commit only modifies `.gitkeep`:
+`experiments/automations-cli-roundtrip.mjs` runs issue 31's automation
+from the terminal against an on-disk store (plan, run in safe mode,
+review with scripted answers `f`, `m`, `s`, then plan again from the
+reopened store); its output is `verification-logs/automations-cli-roundtrip.log`.
+The `experiments/clink-*.mjs` probes measure link-cli's query and import
+costs that shaped the reply store.
 
-- `detect-changes` job runs (lightweight, ~5s)
-- Merge commit detected, per-commit diff used (`HEAD^2^..HEAD^2`)
-- All outputs are `false` (only `.gitkeep` changed)
-- All downstream jobs (lint, test, changeset check) are **skipped**
-- CI minutes saved: ~15-30 minutes per non-code commit
+### UI/UX review (second round)
 
-## References
+The review asked for every element in every place to be aligned and the
+screen used wisely. `experiments/issue-31-screenshots.mjs` regenerates
+the shots above, and `experiments/ui-audit.mjs` (run with `LOCALE=en`
+and `LOCALE=ru`) visits every view at desktop, tablet and phone widths in
+light and dark. It reports horizontal overflow, clipped or truncated
+labels, controls under WCAG 2.2's 24×24 px target (36 px in the phone's
+bars), overlapping controls, uneven rows and axe-core contrast
+violations. The last runs found no layout defects. In English, the only
+findings were four failed `vk.com` sticker requests (`ERR_HTTP2_PROTOCOL_ERROR`)
+from the demo's external images. `experiments/ui-probe-phone.mjs`,
+`probe-failed-requests.mjs`, `button-label-keys.mjs` and
+`contacts-named-shot.mjs` are the narrower probes behind individual fixes.
 
-- [web-capture PR #51](https://github.com/link-assistant/web-capture/pull/51) — original implementation with CI verification
-- [web-capture issue #50](https://github.com/link-assistant/web-capture/issues/50) — original bug report with evidence
-- [rust-ai-driven-development-pipeline-template#34](https://github.com/link-foundation/rust-ai-driven-development-pipeline-template/issues/34) — same bug in Rust template
+What the review changed, following Material 3 and Apple's
+Human Interface Guidelines:
+
+- **Sentence case** for buttons, headings and meta lines
+  (`sentence-case-keys.mjs` rewrote the locale strings), and
+  `sentence()` capitalises lines joined from parts ("Safe: drafts to
+  confirm · by hand").
+- **Plurals and dates in the user's language**: an ICU plural subset
+  for every count, and `Intl` dates and times. The chat list dates rows
+  like a messenger (the time today, the weekday this week, then the
+  date) instead of a bare time on a months-old chat.
+- **Networks by name**: "VK", "Telegram", "Email" ("Почта" in Russian,
+  short enough for a chat-list tag) instead of internal ids.
+- **Preset automations in the user's language**: an untouched preset
+  shows its translated name and description (`preset-locale-keys.mjs`);
+  a name the user typed stays as typed.
+- **Three word suggestions**, like the suggestion strip of Gboard or
+  iOS QuickType, instead of eight chips. Whole replies used before are
+  still all offered.
+- **Contacts** are named by their messages (`senderName`), newest first,
+  without the owner, and the offline client lists the same as
+  `/api/contacts`.
+- Material 3 window-size classes: a bottom bar with a "More" sheet on
+  phones, a navigation rail on tablets, and the full sidebar on desktops.
+
+## Root Questions and Answers
+
+**What is a "personal contact"?** A chat is personal when the adapter
+says so (Telegram exports' `personal_chat`, Bot API `private`) or, for
+VK, when the peer id is a user id (positive and below 2 000 000 000).
+Groups, channels, saved messages and bots are excluded. By default the
+owner must have written in the chat at least once (`requireMutual`),
+so spam that was never answered is not "a contact we used to talk to".
+
+**Who is the owner?** `me` always is; `--self=<ids>` adds more. With no
+explicit ids, the sender that appears in the most chats of a source is
+taken to be the owner when it appears in at least two — in a pile of
+1:1 dialogs only the owner is in all of them.
+
+**How is ты/вы decided?** Each message is scored with the rule table;
+the owner's own messages count twice (the new message is the owner's,
+so how the owner addressed the contact matters most). The larger total
+wins. A tie or no evidence falls back to the polite "вы": an unexpected
+"вы" is merely stiff, an unexpected "ты" can be rude. The decision is
+always shown with its evidence and can be flipped with one click / key.
+
+**Why not a full PEG grammar?** The decision only needs counts of
+second-person markers, and word-level regexes with Unicode-aware
+boundaries are enough for that while staying editable as data. The
+hard cases are lexical, not syntactic: `-ете`/`-ите` endings also close
+nouns in the prepositional case ("в интернете", "на сайте"), so only a
+curated list of polite verbs is counted, while `-ешь`/`-ишь` endings are
+safe to count morphologically. `js/tests/address-form.test.js` keeps
+these collisions as regression tests ("выход", "работы", "тыква",
+"в интернете", "на сайте" must not count).
+
+**What does "safe mode" guarantee?** A safe-mode run only writes
+drafts. A draft is sent by `sendDraft(id, { confirm: true })` and by
+nothing else; without `confirm` it throws `ConfirmationRequiredError`,
+and `POST /api/automations/drafts/send` answers 400 `confirm-required`.
+In the app the confirmation is the Send click on that one draft. A
+failed send keeps the draft so it can be edited, sent by hand or
+skipped. Auto mode started by hand or from a chat menu also needs
+`confirm: true` (the app asks once); schedule and incoming triggers
+were authorised when the automation was switched on, and still respect
+the pacing and the daily cap.
+
+**Why automations instead of a feature?** The review asked for
+"universal configurable solutions, not specific features that are not
+changeable by user". Every part of issue 31 — 90 days, personal chats
+only, the two texts, ты/вы, safe mode — is now a field of an editable
+automation, and the same machinery covers asking about vacancies,
+offering contract work or greeting back.
+
+**Why is the reply graph answered from memory when link-cli is the
+store?** link-cli 1.0.0 (Rust) and 4.0.0 (.NET) scan every link per
+query, so a lookup costs tens to hundreds of milliseconds as the graph
+grows (`experiments/clink-query-scaling.mjs`) — too slow per keystroke.
+The in-memory index answers keystrokes; the clink database is the
+persisted, queryable mirror kept in step with it.
+
+**What if the app cannot send through a network?** The adapter's API
+is tried first and the official web UI second, through
+browser-commander in a persistent profile the user signed into once.
+If both fail the draft stays, with an "Open chat" link where the
+platform documents one (`mailto:` with the body prefilled,
+`tg://user?id=`, `https://vk.com/im?sel=`), and **I sent it myself**
+records a manual send, so the contact is handled either way.
+
+## Requirements
+
+See [`requirements.md`](./requirements.md) for the full mapping of the
+issue text and of the PR 34 review to R-X1 … R-X21 and to the tests that cover them. The same
+table is section X of [`docs/REQUIREMENTS.md`](../../REQUIREMENTS.md).
+
+## Solution Plan
+
+See [`solution-plan.md`](./solution-plan.md).
+
+## External Research
+
+See [`external-research.md`](./external-research.md) — deep links that
+open a chat (RFC 6068, Telegram, VK) and how VK peer ids encode the
+chat type.
+
+## Known Limits
+
+- Telegram contacts imported from an export are numeric ids, so the
+  "Open chat" link is `tg://user?id=…`, which opens the chat but cannot
+  prefill text. Telegram does document a prefilled link for usernames
+  and phone numbers (`t.me/<username>?text=…`), which can be used once
+  an importer records usernames.
+- Address-form rules cover Russian, Chinese and Hindi. Other languages
+  with a T–V distinction (German du/Sie, French tu/vous, …) can be added
+  as `pattern:*` links without code changes, but none ship by default.
+- Web UI sending depends on each site's markup (`WEB_UIS` in
+  `browser-sender.js`); a redesign of vk.com, web.telegram.org or
+  web.whatsapp.com needs that table updated. It is tested against a fake
+  browser session, not against the live sites.
+- Only VK reports when the other person is typing. The Telegram Bot API
+  and WhatsApp Cloud API deliver no typing events to bots or business
+  numbers, so there the chat shows our own typing only.
+- WhatsApp Cloud API ties typing indicators to the incoming message
+  being answered, so it can only show typing in a reply.
+- The link-cli mirror needs the `clink` binary and is off unless
+  `MS_REPLY_CLINK=1`; suggestions never wait for it.
+- With three or more SPA tabs in one sync room, the browser console
+  shows "Failed to set remote answer sdp: Called in wrong state".
+  `js/src/sync/webrtc-transport.js` broadcasts offers and answers to
+  every peer in the room, so the answers collide. This predates the PR
+  (the transport is unchanged); the audit runs the views one tab at a
+  time to avoid it.
+- The Rust server does not implement the automation, people and
+  suggestion routes yet (see `docs/SERVER-PARITY.md` section 5a).

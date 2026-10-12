@@ -6,9 +6,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
+import { readFileSync } from 'node:fs';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { AppShell, classifyViewport } from '../src/web/shell/app-shell.js';
+import {
+  AppShell,
+  COMPACT_PRIMARY,
+  classifyViewport,
+} from '../src/web/shell/app-shell.js';
+import { Icon, iconNames } from '../src/web/icons.js';
+import { navItems } from '../src/web/nav-items.js';
 import { LocaleContext, availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 
@@ -106,4 +113,105 @@ test('AppShell marks the active nav button via aria-current=page', () => {
     html,
     /<button[^>]*data-view="settings"[^>]*aria-current="page"/
   );
+});
+
+test('AppShell on phones: four primary sections, the rest under More', () => {
+  const html = renderShell({ width: 390 });
+  const bar = html.slice(html.indexOf('class="bottom-nav'));
+  for (const id of COMPACT_PRIMARY) {
+    assert.match(bar, new RegExp(`data-view="${id}"`));
+  }
+  assert.match(
+    bar,
+    /data-action="nav-more" aria-expanded="false" aria-controls="more-sheet"/
+  );
+  // Material 3 allows three to five destinations in a navigation bar.
+  assert.equal((bar.match(/nav-item-bottom/g) ?? []).length, 5);
+  // The sheet stays in the DOM (hidden) so every section is reachable.
+  const sheet = html.slice(
+    html.indexOf('id="more-sheet"'),
+    html.indexOf('class="bottom-nav')
+  );
+  assert.match(html, /id="more-sheet"[^>]*hidden/);
+  const rest = navItems.filter(([id]) => !COMPACT_PRIMARY.includes(id));
+  for (const [id] of rest) {
+    assert.match(sheet, new RegExp(`data-view="${id}"`));
+  }
+});
+
+test('Nav items: every section has an icon and a visible label', () => {
+  for (const [id] of navItems) {
+    assert.ok(iconNames.includes(id), `missing icon for ${id}`);
+  }
+  const html = renderShell({ width: 1280 });
+  assert.equal(
+    (html.match(/<svg class="icon icon-/g) ?? []).length,
+    navItems.length
+  );
+  assert.match(html, /<span class="nav-label">Connections<\/span>/);
+  const svg = renderToStaticMarkup(React.createElement(Icon, { name: 'send' }));
+  assert.match(svg, /aria-hidden="true"/);
+  assert.match(svg, /focusable="false"/);
+  assert.match(svg, /stroke="currentColor"/);
+});
+
+test('app.css: phones stack tables and forms instead of cutting them off', () => {
+  const css = readFileSync(
+    new URL('../src/web/app.css', import.meta.url),
+    'utf8'
+  );
+  // Each phone rule must sit inside a compact-width media query.
+  const phone = css
+    .split('@media (max-width: 640px)')
+    .slice(1)
+    .map((block) => block.slice(0, block.indexOf('\n}\n')))
+    .join('\n');
+  assert.match(
+    phone,
+    /\.stack-table td::before \{\s*content: attr\(data-label\)/
+  );
+  assert.match(phone, /\.stack-table td\[data-title\] \{\s*order: -1/);
+  assert.match(phone, /\.row > \.narrow \{\s*flex-basis: 100%/);
+  // A wrapped radio label keeps its radio on the first line.
+  assert.match(css, /\.appearance \.check \{[^}]*align-items: flex-start/);
+  // Key/value tables keep values near their keys.
+  assert.match(css, /\.kv-table \{\s*max-width: 32rem/);
+});
+
+test('AppShell on phones and tablets: a locale may shorten nav labels', () => {
+  const html = renderToStaticMarkup(
+    React.createElement(
+      LocaleContext.Provider,
+      {
+        value: {
+          locale: 'ru',
+          t: (key) => dictionaries.ru[key] ?? key,
+          setLocale: () => {},
+          clearLocale: () => {},
+          available: availableLocales,
+        },
+      },
+      React.createElement(AppShell, {
+        width: 390,
+        active: 'chat',
+        onSelect: () => {},
+        children: null,
+      })
+    )
+  );
+  const bar = html.slice(html.indexOf('class="bottom-nav'));
+  const sheet = html.slice(0, html.indexOf('class="bottom-nav'));
+  // "Автоматизация" does not fit a ~70 px slot; the bar says "Сценарии"
+  // and keeps the full name as the tooltip.
+  assert.match(
+    bar,
+    /data-view="automation"[^>]*title="Автоматизация"[^>]*>.*?<span class="nav-label">Сценарии<\/span>/
+  );
+  assert.ok(!sheet.includes('Сценарии'), 'the More sheet keeps full names');
+  for (const [id] of navItems) {
+    const short = dictionaries.ru[`nav.short.${id}`];
+    if (short) {
+      assert.ok(short.length <= 9, `${id}: "${short}" is too long`);
+    }
+  }
 });

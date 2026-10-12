@@ -12,11 +12,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
-import { useT } from './i18n.js';
+import { useDates, useT } from './i18n.js';
 
 const el = React.createElement;
-
-const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
 /** `{platform: value}` → `platform=value` cells, in a stable order. */
 const valueCells = (row) =>
@@ -27,10 +25,11 @@ const valueCells = (row) =>
 
 const PlatformRow = ({ platform, stored, checked, onToggle }) => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   return el('tr', { 'data-platform': platform.id }, [
     el(
       'td',
-      { key: 'pick' },
+      { key: 'pick', 'data-label': t('cv.use') },
       el('input', {
         type: 'checkbox',
         checked,
@@ -38,11 +37,15 @@ const PlatformRow = ({ platform, stored, checked, onToggle }) => {
         onChange: () => onToggle(platform.id),
       })
     ),
-    el('td', { key: 'label' }, platform.label),
-    el('td', { key: 'markup', className: 'meta' }, platform.markupAccess),
+    el('td', { key: 'label', 'data-title': '' }, platform.label),
     el(
       'td',
-      { key: 'confidence', className: 'meta' },
+      { key: 'markup', className: 'meta', 'data-label': t('cv.markup') },
+      platform.markupAccess
+    ),
+    el(
+      'td',
+      { key: 'confidence', className: 'meta', 'data-label': t('cv.steps') },
       t('cv.confidence', {
         verified: platform.confidence.verified,
         draft: platform.confidence.draft,
@@ -50,7 +53,7 @@ const PlatformRow = ({ platform, stored, checked, onToggle }) => {
     ),
     el(
       'td',
-      { key: 'stored', className: 'meta' },
+      { key: 'stored', className: 'meta', 'data-label': t('cv.snapshot') },
       stored ? fmtTs(stored.capturedAt) : t('cv.noSnapshot')
     ),
   ]);
@@ -152,6 +155,7 @@ const SyncPlan = ({ result }) => {
 
 const TelemetryPanel = ({ telemetry }) => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const runs = telemetry?.runs ?? [];
   if (runs.length === 0) {
     return el('p', { className: 'meta' }, t('cv.noRuns'));
@@ -373,7 +377,7 @@ const CvControls = ({ state, login, setLogin }) => {
 const CvPlatforms = ({ state }) => {
   const t = useT();
   const storedFor = (id) => state.stored.find((entry) => entry.platform === id);
-  return el('table', { className: 'cv-platforms' }, [
+  return el('table', { className: 'cv-platforms stack-table' }, [
     el(
       'thead',
       { key: 'head' },

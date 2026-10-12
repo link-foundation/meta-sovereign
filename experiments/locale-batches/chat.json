@@ -1,0 +1,303 @@
+{
+  "chat.search": {
+    "en": "Search chats and messages",
+    "ru": "Поиск по чатам и сообщениям",
+    "zh": "搜索聊天和消息",
+    "hi": "चैट और संदेश खोजें"
+  },
+  "chat.noMatches": {
+    "en": "No chats match.",
+    "ru": "Подходящих чатов нет.",
+    "zh": "没有匹配的聊天。",
+    "hi": "कोई चैट मेल नहीं खाती।"
+  },
+  "chat.you": { "en": "You", "ru": "Вы", "zh": "你", "hi": "आप" },
+  "chat.group.today": {
+    "en": "Today",
+    "ru": "Сегодня",
+    "zh": "今天",
+    "hi": "आज"
+  },
+  "chat.group.yesterday": {
+    "en": "Yesterday",
+    "ru": "Вчера",
+    "zh": "昨天",
+    "hi": "कल"
+  },
+  "chat.group.week": {
+    "en": "This week",
+    "ru": "На этой неделе",
+    "zh": "本周",
+    "hi": "इस सप्ताह"
+  },
+  "chat.group.older": {
+    "en": "Older",
+    "ru": "Ранее",
+    "zh": "更早",
+    "hi": "पुराने"
+  },
+  "chat.typing": {
+    "en": "{names} typing…",
+    "ru": "{names} печатает…",
+    "zh": "{names} 正在输入…",
+    "hi": "{names} लिख रहे हैं…"
+  },
+  "chat.typingAutomation": {
+    "en": "{name} is typing for you…",
+    "ru": "{name} печатает за вас…",
+    "zh": "{name} 正在替你输入…",
+    "hi": "{name} आपकी ओर से लिख रहा है…"
+  },
+  "chat.subtitle.personal": {
+    "en": "{source} · personal chat",
+    "ru": "{source} · личный чат",
+    "zh": "{source} · 私聊",
+    "hi": "{source} · निजी चैट"
+  },
+  "chat.subtitle.group": {
+    "en": "{source} · {count} people",
+    "ru": "{source} · участников: {count}",
+    "zh": "{source} · {count} 人",
+    "hi": "{source} · {count} लोग"
+  },
+  "chat.automations": {
+    "en": "Automations",
+    "ru": "Автоматизации",
+    "zh": "自动化",
+    "hi": "स्वचालन"
+  },
+  "chat.automation.none": {
+    "en": "No automation is offered in chats yet. Add the \"chat menu\" trigger to one under Automation.",
+    "ru": "В чатах пока нет автоматизаций. Добавьте триггер «меню чата» в разделе «Автоматизация».",
+    "zh": "聊天中还没有可用的自动化。请在“自动化”中为某个自动化添加“聊天菜单”触发器。",
+    "hi": "चैट में अभी कोई स्वचालन उपलब्ध नहीं है। स्वचालन में किसी एक में \"चैट मेनू\" ट्रिगर जोड़ें।"
+  },
+  "chat.automation.test": {
+    "en": "Test in this chat",
+    "ru": "Проверить в этом чате",
+    "zh": "在此聊天中测试",
+    "hi": "इस चैट में परखें"
+  },
+  "chat.automation.run": {
+    "en": "Run with its conditions",
+    "ru": "Запустить с условиями",
+    "zh": "按条件运行",
+    "hi": "शर्तों के साथ चलाएँ"
+  },
+  "chat.automation.confirmAuto": {
+    "en": "\"{name}\" sends without review. Run it in this chat now?",
+    "ru": "«{name}» отправляет без проверки. Запустить в этом чате сейчас?",
+    "zh": "“{name}”会直接发送而不经审核。现在在此聊天中运行吗？",
+    "hi": "\"{name}\" बिना समीक्षा के भेजता है। क्या इसे अभी इस चैट में चलाएँ?"
+  },
+  "chat.empty": {
+    "en": "No messages in this chat yet.",
+    "ru": "В этом чате пока нет сообщений.",
+    "zh": "此聊天中还没有消息。",
+    "hi": "इस चैट में अभी कोई संदेश नहीं है।"
+  },
+  "chat.form.informal": {
+    "en": "informal (\"ты\")",
+    "ru": "на «ты»",
+    "zh": "非正式（“ты”）",
+    "hi": "अनौपचारिक (\"ты\")"
+  },
+  "chat.form.formal": {
+    "en": "formal (\"вы\")",
+    "ru": "на «вы»",
+    "zh": "正式（“вы”）",
+    "hi": "औपचारिक (\"вы\")"
+  },
+  "chat.draft.title": {
+    "en": "Draft from {name} · {form}",
+    "ru": "Черновик от «{name}» · {form}",
+    "zh": "来自“{name}”的草稿 · {form}",
+    "hi": "\"{name}\" का मसौदा · {form}"
+  },
+  "chat.draft.text": {
+    "en": "Message",
+    "ru": "Сообщение",
+    "zh": "消息",
+    "hi": "संदेश"
+  },
+  "chat.draft.send": {
+    "en": "Send",
+    "ru": "Отправить",
+    "zh": "发送",
+    "hi": "भेजें"
+  },
+  "chat.draft.switchTo": {
+    "en": "Switch to {form}",
+    "ru": "Переключить {form}",
+    "zh": "切换为{form}",
+    "hi": "{form} में बदलें"
+  },
+  "chat.draft.open": {
+    "en": "Open chat",
+    "ru": "Открыть чат",
+    "zh": "打开聊天",
+    "hi": "चैट खोलें"
+  },
+  "chat.draft.openFilled": {
+    "en": "Open with the text filled in",
+    "ru": "Открыть с заполненным текстом",
+    "zh": "打开并填入文本",
+    "hi": "पाठ भरकर खोलें"
+  },
+  "chat.draft.markSent": {
+    "en": "I sent it myself",
+    "ru": "Я отправил(а) сам(а)",
+    "zh": "我自己发了",
+    "hi": "मैंने खुद भेज दिया"
+  },
+  "chat.draft.skip": {
+    "en": "Skip",
+    "ru": "Пропустить",
+    "zh": "跳过",
+    "hi": "छोड़ें"
+  },
+  "chat.notice.queued": {
+    "en": "{count} draft(s) ready below: review, then send.",
+    "ru": "Черновиков ниже: {count}. Проверьте и отправьте.",
+    "zh": "下方有 {count} 份草稿：请审核后发送。",
+    "hi": "नीचे {count} मसौदे तैयार हैं: जाँचें, फिर भेजें।"
+  },
+  "chat.notice.nothing": {
+    "en": "Nothing to send here: {reason}.",
+    "ru": "Здесь нечего отправлять: {reason}.",
+    "zh": "这里没有要发送的内容：{reason}。",
+    "hi": "यहाँ भेजने को कुछ नहीं: {reason}।"
+  },
+  "chat.notice.sentAuto": {
+    "en": "Sent {count} message(s).",
+    "ru": "Отправлено сообщений: {count}.",
+    "zh": "已发送 {count} 条消息。",
+    "hi": "{count} संदेश भेजे गए।"
+  },
+  "chat.notice.stored": {
+    "en": "No local server: the message is saved in this browser only. Start the server to deliver it.",
+    "ru": "Нет локального сервера: сообщение сохранено только в этом браузере. Запустите сервер, чтобы доставить его.",
+    "zh": "没有本地服务器：消息仅保存在此浏览器中。启动服务器才能发送。",
+    "hi": "कोई स्थानीय सर्वर नहीं: संदेश केवल इस ब्राउज़र में सहेजा गया। भेजने के लिए सर्वर शुरू करें।"
+  },
+  "chat.notice.sent": {
+    "en": "Sent.",
+    "ru": "Отправлено.",
+    "zh": "已发送。",
+    "hi": "भेज दिया।"
+  },
+  "chat.notice.manual": {
+    "en": "Marked as sent.",
+    "ru": "Отмечено как отправленное.",
+    "zh": "已标记为已发送。",
+    "hi": "भेजा हुआ चिह्नित किया।"
+  },
+  "chat.notice.skipped": {
+    "en": "Skipped; it will not be offered again for a while.",
+    "ru": "Пропущено; какое-то время предлагаться не будет.",
+    "zh": "已跳过；一段时间内不会再提供。",
+    "hi": "छोड़ दिया; कुछ समय तक फिर नहीं सुझाया जाएगा।"
+  },
+  "chat.notice.failed": {
+    "en": "Not sent: {error}. Retry, edit, send it yourself or skip.",
+    "ru": "Не отправлено: {error}. Повторите, измените, отправьте сами или пропустите.",
+    "zh": "未发送：{error}。请重试、编辑、自行发送或跳过。",
+    "hi": "नहीं भेजा गया: {error}। फिर कोशिश करें, बदलें, खुद भेजें या छोड़ें।"
+  },
+  "chat.suggest.reply": {
+    "en": "Replies you gave to this message before",
+    "ru": "Ваши прежние ответы на такое сообщение",
+    "zh": "你以前对这条消息的回复",
+    "hi": "इस संदेश पर आपके पिछले जवाब"
+  },
+  "chat.suggest.word": {
+    "en": "Next words from your own messages",
+    "ru": "Следующие слова из ваших сообщений",
+    "zh": "来自你自己消息的下一个词",
+    "hi": "आपके अपने संदेशों से अगले शब्द"
+  },
+  "chat.suggest.count": {
+    "en": "Used {count} time(s)",
+    "ru": "Использовано раз: {count}",
+    "zh": "使用过 {count} 次",
+    "hi": "{count} बार इस्तेमाल"
+  },
+  "automations.mode.safe": {
+    "en": "safe: drafts to confirm",
+    "ru": "безопасный: черновики на подтверждение",
+    "zh": "安全：草稿需确认",
+    "hi": "सुरक्षित: पुष्टि के लिए मसौदे"
+  },
+  "automations.mode.auto": {
+    "en": "automatic",
+    "ru": "автоматический",
+    "zh": "自动",
+    "hi": "स्वचालित"
+  },
+  "automations.reason.none": {
+    "en": "no one matched",
+    "ru": "никто не подошёл",
+    "zh": "没有匹配的人",
+    "hi": "कोई मेल नहीं खाया"
+  },
+  "automations.reason.network": {
+    "en": "another network",
+    "ru": "другая сеть",
+    "zh": "其他网络",
+    "hi": "दूसरा नेटवर्क"
+  },
+  "automations.reason.not-personal": {
+    "en": "not a personal chat",
+    "ru": "не личный чат",
+    "zh": "不是私聊",
+    "hi": "निजी चैट नहीं"
+  },
+  "automations.reason.not-mutual": {
+    "en": "you never wrote there",
+    "ru": "вы там ни разу не писали",
+    "zh": "你从未在那里发过消息",
+    "hi": "आपने वहाँ कभी नहीं लिखा"
+  },
+  "automations.reason.talked-recently": {
+    "en": "talked recently",
+    "ru": "недавно общались",
+    "zh": "最近聊过",
+    "hi": "हाल ही में बात हुई"
+  },
+  "automations.reason.last-from-me": {
+    "en": "the last message is yours",
+    "ru": "последнее сообщение ваше",
+    "zh": "最后一条消息是你的",
+    "hi": "आख़िरी संदेश आपका है"
+  },
+  "automations.reason.last-from-contact": {
+    "en": "the last message is theirs",
+    "ru": "последнее сообщение от собеседника",
+    "zh": "最后一条消息是对方的",
+    "hi": "आख़िरी संदेश उनका है"
+  },
+  "automations.reason.last-from-nobody": {
+    "en": "no messages",
+    "ru": "нет сообщений",
+    "zh": "没有消息",
+    "hi": "कोई संदेश नहीं"
+  },
+  "automations.reason.draft-pending": {
+    "en": "a draft is already waiting",
+    "ru": "черновик уже ждёт",
+    "zh": "已有草稿在等待",
+    "hi": "एक मसौदा पहले से इंतज़ार में है"
+  },
+  "automations.reason.already-sent": {
+    "en": "already sent recently",
+    "ru": "уже отправлено недавно",
+    "zh": "最近已发送",
+    "hi": "हाल ही में भेजा जा चुका"
+  },
+  "automations.reason.already-skipped": {
+    "en": "skipped recently",
+    "ru": "недавно пропущено",
+    "zh": "最近已跳过",
+    "hi": "हाल ही में छोड़ा गया"
+  }
+}

@@ -53,6 +53,37 @@ Playwright से असली browser चलाते हैं, जबकि R
 कहता है कि "JS server चाहिए"। विवरण:
 [`docs/CV-SYNC.hi.md`](./CV-SYNC.hi.md)।
 
+## 5a. Automations, people, sending और suggestions
+
+| Route                                           | Method           | JS server                             | Rust server | Status      |
+| ----------------------------------------------- | ---------------- | ------------------------------------- | ----------- | ----------- |
+| `/api/automations`                              | GET, PUT         | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/<id>`                         | DELETE           | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/presets`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/plan`                         | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/run`                          | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts`                       | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/drafts/{send,form,mark,skip}` | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/automations/history`                      | GET              | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/send`                                     | POST             | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/typing`                                   | GET, POST        | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
+| `/api/people`, `/api/people/xref`               | GET              | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences`, `/api/lists`                  | GET, PUT, DELETE | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/audiences/resolve`                        | POST             | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
+| `/api/suggest`, `/api/suggest/stats`            | GET              | `js/src/server/routes-suggest.js`     | _missing_   | **JS only** |
+
+ये routes (issue #31 और PR #34, R-X6..R-X18) `js/src/automation/`,
+`js/src/crm/people.js` और `js/src/replies/` पर पतली परत हैं। SPA पहले
+server से पूछता है, क्योंकि उसके पास सभी imported archives और adapters
+के credentials होते हैं; server न हो तो वही code browser में पहले से
+मौजूद links पर चलता है (`js/src/web/automation-api.js`): offline भी यह
+automations की list दिखाता है, उन्हें edit और preview करता है, safe-mode
+drafts को उनके chats में रखता है, लोगों को खोजता है, audiences resolve
+करता है और जवाब सुझाता है। Server सिर्फ़ संदेश पहुँचाने के लिए चाहिए;
+server के बिना chat composer में लिखा संदेश browser में तब तक रखा रहता
+है जब तक कोई server उसे sync न कर दे। `automations` CLI command बिना
+किसी server के चलता है।
+
 ## 6. अभिवादन
 
 `/api/greetings/catalogue`, `/api/greetings/selection` (GET और PUT),
@@ -84,11 +115,12 @@ source adapters से VK, Telegram, WhatsApp और Messenger APIs बुला
 | Outreach / backups / hardening | 6      | 0      | 6       |
 | CV synchronisation             | 7      | 0      | 7       |
 | अभिवादन                        | 6      | 0      | 6       |
+| Automations, लोग, suggestions  | 14     | 0      | 14      |
 | Real-time transports           | 2      | 2      | 0       |
 | Static asset serving           | 3      | 3      | 0       |
-| **Total**                      | **53** | **34** | **19**  |
+| **Total**                      | **67** | **34** | **33**  |
 
-Rust server आज **64% route parity** पर है। Typical user flow - SPA खोलना,
+Rust server आज **51% route parity** पर है। Typical user flow - SPA खोलना,
 contacts देखना, messages भेजना, replies automate करना, devices sync
 करना, email archives ingest करना - Rust server को JS server का drop-in
 replacement बना देता है।

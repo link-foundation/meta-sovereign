@@ -6,8 +6,8 @@
  * backup/restore, serve, sources, audience, facts, search, broadcast,
  * sync (listen/connect), patterns (infer/list), graphs (run/list),
  * replies (list), profile/resume, cv (platforms/plan/read/diff/sync/
- * telemetry over browser-commander), greetings (stickers/select/plan/
- * send).
+ * telemetry over browser-commander), automations (plan/run/review drafts),
+ * greetings (stickers/select/plan/send).
  *
  * Returns an exit code instead of calling `process.exit`, keeping the
  * entry point unit-testable.
@@ -17,6 +17,10 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
+import {
+  AUTOMATION_HELP,
+  createAutomationCommands,
+} from './automation-commands.js';
 import {
   GREETINGS_HELP,
   createGreetingCommands,
@@ -90,6 +94,7 @@ Commands:
   sync-listen   [--port=<n>] [--store=<dir>]
   sync-connect  --port=<n> [--host=<h>] [--store=<dir>]
   outreach      --query=<expr> --text=<msg> [--reply=<reply:id>] [--networks=t,vk] [--mode=preview|queue] [--store=<dir>]
+${AUTOMATION_HELP}
   export-encrypted --file=<path> --passphrase=<pp> [--store=<dir>]
   purge-tombstones --confirm=true [--id-prefix=<msg:tg>] [--older-than=<iso>] [--store=<dir>]
   vault-init    --kind=passphrase|pin|passkey|totp-recovery --secret=<s> [--label=<l>] [--file=<path>]
@@ -702,6 +707,8 @@ const COMMANDS = {
   'vault-list': vaultListCmd,
   // CV read/diff/sync/telemetry over browser-commander (issue #29).
   ...createCvCommands({ openStore }),
+  // Automations: plan, run and review drafts one by one (issue #31).
+  ...createAutomationCommands({ openStore }),
   // Hi/hello and greeting-sticker openers (issue #35).
   ...createGreetingCommands({ openStore }),
   help: async (_a, log) => {

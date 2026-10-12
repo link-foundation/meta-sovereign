@@ -6,17 +6,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
+import { networkName } from './connection-guides.js';
+import { ChatView } from './chat-view.js';
+import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
 import { GreetingsView } from './greetings-view.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
-import { useT } from './i18n.js';
+import { useDates, useT } from './i18n.js';
 import { ConnectionsList, ConnectionDetail } from './connections/index.js';
 
 const el = React.createElement;
-const fmtTs = (ts) => (ts ? new Date(ts).toLocaleString() : '');
 
-export { navItems };
+export { ChatView, navItems };
 
 const useAsyncValue = (loader, deps, initialValue) => {
   const [state, setState] = useState({
@@ -72,154 +74,9 @@ const AsyncFrame = ({ state, children }) => {
 
 const refreshReducer = (value) => value + 1;
 
-export const ChatView = () => {
-  const t = useT();
-  const [refresh, setRefresh] = useState(0);
-  const state = useAsyncValue(() => api.links(), [refresh], []);
-  const [active, setActive] = useState('');
-  const [text, setText] = useState('');
-  const [completions, setCompletions] = useState([]);
-
-  const messages = useMemo(
-    () =>
-      state.value
-        .filter((link) => link.id?.startsWith('msg:'))
-        .sort((a, b) => String(a.timestamp).localeCompare(String(b.timestamp))),
-    [state.value]
-  );
-  const chats = useMemo(
-    () => [...new Set(messages.map((msg) => `${msg.source}:${msg.chat}`))],
-    [messages]
-  );
-
-  useEffect(() => {
-    if (!active && chats[0]) {
-      setActive(chats[0]);
-    } else if (active && chats.length > 0 && !chats.includes(active)) {
-      setActive(chats[0]);
-    }
-  }, [active, chats]);
-
-  const activeMessages = messages.filter(
-    (msg) => `${msg.source}:${msg.chat}` === active
-  );
-
-  const updateText = async (next) => {
-    setText(next);
-    if (!next) {
-      setCompletions([]);
-      return;
-    }
-    const items = await api.autocomplete(next);
-    setCompletions(items.map((item) => item.text ?? item));
-  };
-
-  const send = async () => {
-    if (!text.trim() || !active) {
-      return;
-    }
-    const [source, chat] = active.split(':');
-    const now = Date.now();
-    await api.put({
-      id: `msg:${source}:${now}`,
-      tokens: ['message', source, String(now)],
-      sender: 'me',
-      chat,
-      source,
-      body: text,
-      timestamp: new Date().toISOString(),
-    });
-    setText('');
-    setCompletions([]);
-    setRefresh(refreshReducer);
-  };
-
-  return el(AsyncFrame, { state }, () => {
-    if (chats.length === 0) {
-      return el(ConnectionGuide, { section: 'chat' });
-    }
-    return el('div', { className: 'chat' }, [
-      el('aside', { key: 'aside' }, [
-        el('div', { key: 'h', className: 'aside-h' }, t('chat.aside')),
-        ...chats.map((chat) =>
-          el(
-            'button',
-            {
-              key: chat,
-              type: 'button',
-              className: chat === active ? 'active' : '',
-              onClick: () => setActive(chat),
-            },
-            chat
-          )
-        ),
-      ]),
-      el('div', { key: 'col', className: 'col' }, [
-        el(
-          'div',
-          { key: 'stream', className: 'stream' },
-          activeMessages.map((msg) =>
-            el(
-              'div',
-              {
-                key: msg.id,
-                className: msg.sender === 'me' ? 'msg me' : 'msg',
-              },
-              [
-                el(
-                  'div',
-                  { key: 'meta', className: 'meta' },
-                  `${msg.sender} - ${fmtTs(msg.timestamp)}`
-                ),
-                el('div', { key: 'body' }, msg.body ?? ''),
-              ]
-            )
-          )
-        ),
-        el('div', { key: 'composer', className: 'composer' }, [
-          el(
-            'div',
-            { key: 'completions', className: 'completions' },
-            completions.map((item) =>
-              el(
-                'button',
-                {
-                  key: item,
-                  type: 'button',
-                  onClick: () => {
-                    setText(item);
-                    setCompletions([]);
-                  },
-                },
-                item
-              )
-            )
-          ),
-          el('textarea', {
-            key: 'input',
-            rows: 2,
-            placeholder: t('chat.placeholder'),
-            value: text,
-            onChange: (event) => updateText(event.target.value),
-          }),
-          el(
-            'button',
-            {
-              key: 'send',
-              type: 'button',
-              className: 'primary',
-              onClick: send,
-            },
-            t('common.send')
-          ),
-        ]),
-      ]),
-    ]);
-  });
-};
-
 export const OperatorView = () => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const state = useAsyncValue(() => api.links(), [], []);
   const [index, setIndex] = useState(0);
   const queue = useMemo(
@@ -287,33 +144,65 @@ export const OperatorView = () => {
 
 export const ContactsView = () => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const state = useAsyncValue(() => api.contacts(), [], []);
   return el(AsyncFrame, { state }, (contacts) => {
     if (!contacts || contacts.length === 0) {
       return el(ConnectionGuide, { section: 'contacts' });
     }
-    return el('div', {}, [
+    const columns = [
+      'contacts.identity',
+      'contacts.networks',
+      'contacts.chats',
+      'contacts.messages',
+      'contacts.lastSeen',
+    ].map((key) => t(key));
+    const cell = (index, value) =>
+      el(
+        'td',
+        index === 0
+          ? { key: index, 'data-title': '' }
+          : { key: index, 'data-label': columns[index] },
+        value
+      );
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('contacts.title', { count: contacts.length })),
-      el('table', { key: 'table' }, [
+      el('table', { key: 'table', className: 'stack-table' }, [
         el('thead', { key: 'head' }, [
-          el('tr', {}, [
-            el('th', {}, t('contacts.identity')),
-            el('th', {}, t('contacts.networks')),
-            el('th', {}, t('contacts.chats')),
-            el('th', {}, t('contacts.messages')),
-            el('th', {}, t('contacts.lastSeen')),
-          ]),
+          el(
+            'tr',
+            {},
+            columns.map((label) => el('th', { key: label }, label))
+          ),
         ]),
         el(
           'tbody',
           { key: 'body' },
           contacts.map((contact) =>
             el('tr', { key: contact.id }, [
-              el('td', {}, contact.id),
-              el('td', {}, (contact.networks ?? []).join(', ')),
-              el('td', {}, String((contact.chats ?? []).length)),
-              el('td', {}, String(contact.messageCount ?? contact.count ?? 0)),
-              el('td', {}, fmtTs(contact.lastSeen)),
+              // A name when a message gave one, its id beside it.
+              cell(
+                0,
+                contact.name && contact.name !== contact.id
+                  ? [
+                      el('span', { key: 'name' }, contact.name),
+                      el(
+                        'span',
+                        { key: 'id', className: 'meta' },
+                        ` ${contact.id}`
+                      ),
+                    ]
+                  : contact.id
+              ),
+              cell(
+                1,
+                (contact.networks ?? [])
+                  .map((n) => networkName(t, n))
+                  .join(', ')
+              ),
+              cell(2, String((contact.chats ?? []).length)),
+              cell(3, String(contact.messageCount ?? contact.count ?? 0)),
+              cell(4, fmtTs(contact.lastSeen)),
             ])
           )
         ),
@@ -340,7 +229,8 @@ const GraphPreview = ({ graph }) => {
   ]);
 };
 
-export const AutomationView = () => {
+// Reply graphs (pattern → reply → send → wait) under the automations.
+const GraphEditor = () => {
   const t = useT();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.graphs(), [refresh], []);
@@ -384,11 +274,12 @@ export const AutomationView = () => {
   };
 
   return el(AsyncFrame, { state }, () => {
-    if (graphs.length === 0 && (selected.nodes ?? []).length === 0) {
-      return el(ConnectionGuide, { section: 'automation' });
-    }
-    return el('div', { className: 'col' }, [
-      el('h2', { key: 'h' }, t('automation.title')),
+    const empty = graphs.length === 0 && (selected.nodes ?? []).length === 0;
+    return el('section', { className: 'col automation-graphs' }, [
+      el('h3', { key: 'h' }, t('automation.title')),
+      empty
+        ? el(ConnectionGuide, { key: 'guide', section: 'automation' })
+        : null,
       el('div', { key: 'actions', className: 'row' }, [
         ...['pattern', 'reply', 'send', 'wait'].map((kind) =>
           el(
@@ -418,10 +309,16 @@ export const AutomationView = () => {
           )
         )
       ),
-      el(GraphPreview, { key: 'graph', graph: selected }),
+      empty ? null : el(GraphPreview, { key: 'graph', graph: selected }),
     ]);
   });
 };
+
+export const AutomationView = () =>
+  el('div', { className: 'col' }, [
+    el(AutomationsView, { key: 'automations' }),
+    el(GraphEditor, { key: 'graphs' }),
+  ]);
 
 export const PatternsView = () => {
   const t = useT();
@@ -674,8 +571,9 @@ export const AudienceView = () => {
     el('div', { key: 'row', className: 'row' }, [
       el('input', {
         key: 'q',
+        className: 'grow',
         placeholder: t('audience.queryPlaceholder'),
-        style: { minWidth: '32rem' },
+        'aria-label': t('audience.title'),
         value: query,
         onChange: (event) => setQuery(event.target.value),
       }),
@@ -701,7 +599,7 @@ export const AudienceView = () => {
             el(
               'div',
               { key: contact.id },
-              `${contact.id} (${(contact.networks ?? []).join(', ')})`
+              `${contact.id} (${(contact.networks ?? []).map((n) => networkName(t, n)).join(', ')})`
             )
           ),
         ])
@@ -709,12 +607,12 @@ export const AudienceView = () => {
   ]);
 };
 
-const SourceChecks = ({ sources, selected, setSelected }) =>
-  el(
-    'div',
-    { className: 'row' },
-    sources.map((source) =>
-      el('label', { key: source, className: 'row' }, [
+const SourceChecks = ({ sources, selected, setSelected }) => {
+  const t = useT();
+  return el('fieldset', { className: 'source-checks' }, [
+    el('legend', { key: 'legend' }, t('contacts.networks')),
+    ...sources.map((source) =>
+      el('label', { key: source }, [
         el('input', {
           key: 'input',
           type: 'checkbox',
@@ -728,10 +626,11 @@ const SourceChecks = ({ sources, selected, setSelected }) =>
             );
           },
         }),
-        el('span', { key: 'label' }, source),
+        el('span', { key: 'label' }, networkName(t, source)),
       ])
-    )
-  );
+    ),
+  ]);
+};
 
 const useSources = () => {
   const state = useAsyncValue(() => api.sources(), [], []);
@@ -766,6 +665,8 @@ export const BroadcastView = () => {
       el('textarea', {
         key: 'msg',
         rows: 4,
+        placeholder: t('broadcast.placeholder'),
+        'aria-label': t('broadcast.placeholder'),
         value: message,
         onChange: (event) => setMessage(event.target.value),
       }),
@@ -810,7 +711,7 @@ export const OutreachView = () => {
       el('input', {
         key: 'q',
         placeholder: t('outreach.queryPlaceholder'),
-        style: { minWidth: '32rem' },
+        'aria-label': t('outreach.queryPlaceholder'),
         value: query,
         onChange: (event) => setQuery(event.target.value),
       }),
@@ -851,6 +752,7 @@ export const OutreachView = () => {
 
 export const BackupView = () => {
   const t = useT();
+  const { dateTime: fmtTs } = useDates();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.listBackups(), [refresh], []);
   const [passphrase, setPassphrase] = useState('');
@@ -883,6 +785,8 @@ export const BackupView = () => {
           key: 'pass',
           type: 'password',
           placeholder: t('backup.passphrasePlaceholder'),
+          'aria-label': t('backup.passphrasePlaceholder'),
+          className: 'grow',
           value: passphrase,
           onChange: (event) => setPassphrase(event.target.value),
         }),
@@ -891,7 +795,9 @@ export const BackupView = () => {
           type: 'number',
           min: '0',
           placeholder: t('backup.keepPlaceholder'),
-          style: { maxWidth: '10rem' },
+          title: t('backup.keepPlaceholder'),
+          'aria-label': t('backup.keepPlaceholder'),
+          className: 'narrow',
           value: keep,
           onChange: (event) => setKeep(event.target.value),
         }),
@@ -1067,9 +973,9 @@ export const StatusView = () => {
     if (!status || Object.keys(status).length === 0) {
       return el(ConnectionGuide, { section: 'status' });
     }
-    return el('div', {}, [
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('status.title')),
-      el('table', { key: 'table' }, [
+      el('table', { key: 'table', className: 'kv-table' }, [
         el(
           'tbody',
           {},

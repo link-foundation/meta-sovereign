@@ -15,9 +15,10 @@
 // `classifyViewport(width)` is exported on its own so tests can pin
 // the boundary behaviour without rendering the whole shell.
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useT } from '../i18n.js';
 import { navItems } from '../nav-items.js';
+import { Icon } from '../icons.js';
 
 const el = React.createElement;
 
@@ -38,7 +39,18 @@ export const classifyViewport = (width) => {
   return 'expanded';
 };
 
-const NavButton = ({ id, label, active, onSelect, variant }) =>
+// The bottom bar keeps five thumb-sized slots (Material 3 allows 3–5):
+// the four most used sections plus "More", which opens a sheet with
+// the rest. The sheet stays in the DOM (hidden) so every section keeps
+// its `data-view` button and `aria-current` at every width.
+export const COMPACT_PRIMARY = [
+  'chat',
+  'contacts',
+  'automation',
+  'connections',
+];
+
+const NavButton = ({ id, label, short, active, onSelect, variant }) =>
   el(
     'button',
     {
@@ -47,33 +59,106 @@ const NavButton = ({ id, label, active, onSelect, variant }) =>
       'data-tutorial-id': `nav:${id}`,
       className: `nav-item nav-item-${variant}${active ? ' active' : ''}`,
       'aria-current': active ? 'page' : undefined,
+      title: variant === 'rail' || short !== label ? label : undefined,
       onClick: () => onSelect(id),
     },
-    label
+    [
+      el(Icon, { key: 'i', name: id }),
+      el('span', { key: 'l', className: 'nav-label' }, short),
+    ]
   );
 
-const renderNavButtons = (t, active, onSelect, variant) =>
-  navItems.map(([id, labelKey]) =>
+// The bottom bar's slots and the rail are ~70 px wide, so a locale may
+// give a section a shorter `nav.short.<id>` label there (Material 3 asks for
+// labels that fit rather than truncate); the full name stays as the
+// tooltip. The visible label remains the accessible name (WCAG 2.5.3).
+const shortLabel = (t, id, label, variant) => {
+  const key = `nav.short.${id}`;
+  const short = variant === 'bottom' || variant === 'rail' ? t(key) : key;
+  return short === key ? label : short;
+};
+
+const renderNavButtons = (t, active, onSelect, variant, items = navItems) =>
+  items.map(([id, labelKey]) =>
     el(NavButton, {
       key: id,
       id,
       label: t(labelKey),
+      short: shortLabel(t, id, t(labelKey), variant),
       active: id === active,
       onSelect,
       variant,
     })
   );
 
-const BottomNav = ({ active, onSelect, t }) =>
-  el(
-    'nav',
-    {
-      className: 'bottom-nav glass',
-      role: 'navigation',
-      'aria-label': t('shell.primaryNavAria'),
-    },
-    renderNavButtons(t, active, onSelect, 'bottom')
-  );
+const BottomNav = ({ active, onSelect, t }) => {
+  const [open, setOpen] = useState(false);
+  const primary = navItems.filter(([id]) => COMPACT_PRIMARY.includes(id));
+  const rest = navItems.filter(([id]) => !COMPACT_PRIMARY.includes(id));
+  const inRest = rest.some(([id]) => id === active);
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+    const onKey = (event) => event.key === 'Escape' && setOpen(false);
+    globalThis.addEventListener?.('keydown', onKey);
+    return () => globalThis.removeEventListener?.('keydown', onKey);
+  }, [open]);
+  const pick = (id) => {
+    setOpen(false);
+    onSelect(id);
+  };
+  return el(React.Fragment, null, [
+    el('div', {
+      key: 'scrim',
+      className: 'more-scrim',
+      hidden: !open,
+      onClick: () => setOpen(false),
+    }),
+    el(
+      'div',
+      {
+        key: 'sheet',
+        id: 'more-sheet',
+        className: 'more-sheet glass',
+        role: 'group',
+        'aria-label': t('shell.moreAria'),
+        hidden: !open,
+      },
+      renderNavButtons(t, active, pick, 'sheet', rest)
+    ),
+    el(
+      'nav',
+      {
+        key: 'bar',
+        className: 'bottom-nav glass',
+        role: 'navigation',
+        'aria-label': t('shell.primaryNavAria'),
+      },
+      [
+        ...renderNavButtons(t, active, pick, 'bottom', primary),
+        el(
+          'button',
+          {
+            key: 'more',
+            type: 'button',
+            className: `nav-item nav-item-bottom nav-more${
+              inRest || open ? ' active' : ''
+            }`,
+            'data-action': 'nav-more',
+            'aria-expanded': String(open),
+            'aria-controls': 'more-sheet',
+            onClick: () => setOpen(!open),
+          },
+          [
+            el(Icon, { key: 'i', name: 'more' }),
+            el('span', { key: 'l', className: 'nav-label' }, t('shell.more')),
+          ]
+        ),
+      ]
+    ),
+  ]);
+};
 
 const SideRail = ({ active, onSelect, t }) =>
   el(
