@@ -413,7 +413,7 @@ export const ru = {
     'Прочитайте резюме, сравните различия с другими площадками и запланируйте синхронизацию. Каждый запуск записывается в cv:telemetry с отпечатком разметки, поэтому сломанный селектор легко заметить.',
   // END setup-steps
   'connections.back': 'К подключениям',
-  'connections.email.label': 'Электронная почта',
+  'connections.email.label': 'Почта',
   'connections.email.archive.title': 'Импорт экспорта почты в .eml или mbox',
   'connections.email.archive.hint':
     'Экспортируйте почту от вашего провайдера в файлы .eml или архив mbox, включая mbox-файлы Gmail Takeout. Перетащите файл в окно импорта с источником «email».',
