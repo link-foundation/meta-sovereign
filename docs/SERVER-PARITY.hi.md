@@ -42,6 +42,11 @@ Microsoft Graph, JMAP और raw IMAP/POP3/SMTP अभी JS server features ह
 Rust server `404` दे तो SPA related features hide या fallback करता है; CLI
 local JS implementation से चलता रहता है।
 
+Browser auto-import (`/api/auto-import`, `/api/auto-import/jobs/:id`,
+`/capture`, `/stop`) JS only है: यह browser-commander (Node library) से
+browser चलाता है। Rust server के साथ Connections panel बताता है कि JS
+server चाहिए; manual archive import काम करता रहता है।
+
 ## 5. CV synchronisation
 
 `/api/cv/platforms`, `/api/cv/plan`, `/api/cv/stored`, `/api/cv/read`,

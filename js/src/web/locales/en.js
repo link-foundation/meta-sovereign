@@ -256,6 +256,24 @@ export const en = {
   'connections.session.openCv': 'Open the CV screen',
   'connections.openDetail': 'Set up',
   'connections.controlsTitle': 'Connection controls',
+  'autoImport.title': 'Import with browser',
+  'autoImport.intro':
+    'Opens {service} in a separate browser window. Sign in, start the data export there, and every file you download is imported automatically. You stay signed in for next time.',
+  'autoImport.introCapture':
+    'Opens {service} in a separate browser window. Sign in, open a chat and press "Capture this chat". Downloaded export files are imported automatically too.',
+  'autoImport.start': 'Open browser',
+  'autoImport.capture': 'Capture this chat',
+  'autoImport.finish': 'Finish',
+  'autoImport.state.launching': 'Opening the browser…',
+  'autoImport.state.waiting': 'The browser is open. Waiting for your export…',
+  'autoImport.state.importing': 'Importing…',
+  'autoImport.state.done': 'Finished.',
+  'autoImport.state.stopped': 'Stopped after a long pause.',
+  'autoImport.state.failed': 'Could not open the browser: {error}',
+  'autoImport.imported': 'Messages imported: {count}',
+  'autoImport.unavailable':
+    'Browser import needs the meta-sovereign server running on this computer.',
+  'autoImport.unavailableReason': 'Browser import is unavailable: {reason}',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':
@@ -618,30 +636,32 @@ export const en = {
   'tutorial.finish': 'Finish',
   'tutorial.off': 'Turn off tutorial',
   'tutorial.progress': 'Step {current} of {total}',
-  'tutorial.connect.title': 'Connect a service first',
+  'tutorial.connect.title': 'Connect your first service',
   'tutorial.connect.body':
-    'meta-sovereign is empty until you plug in at least one provider. Tap the highlighted "Connections" entry to open the per-provider setup screen — you can come back to this tour any time.',
+    'Bring your chats and contacts into one place. Open Connections in the menu to start.',
+  'tutorial.connect.examples': 'For example:',
+  'tutorial.connect.more': 'and more',
   'tutorial.welcome.title': 'Welcome to meta-sovereign',
   'tutorial.welcome.body':
-    'This is your local-first personal CRM and unified inbox. Nothing leaves your browser unless you point it at a server. Hit "Next" to walk through the headline flows.',
-  'tutorial.chat.title': 'Chat — your unified inbox',
+    'Your personal CRM and one inbox for all your messages. Your data stays on your device unless you connect your own server.',
+  'tutorial.chat.title': 'Chat',
   'tutorial.chat.body':
-    'Every chat from every connected service shows up here. If a section is empty, it explains how to plug in a provider — try opening the "Chat" tab once you finish the tour.',
-  'tutorial.contacts.title': 'Contacts — one row per person',
+    'Conversations from all your connected services, in one inbox.',
+  'tutorial.contacts.title': 'Contacts',
   'tutorial.contacts.body':
-    'Contacts are merged across networks. Connect at least one provider to populate this list.',
-  'tutorial.automation.title': 'Automation — patterns to replies',
+    'Each person appears once, even if you talk on several services.',
+  'tutorial.automation.title': 'Automation',
   'tutorial.automation.body':
-    'Build node graphs that route incoming messages from a regex pattern to a reply variation. Patterns + reply groups feed this graph editor.',
-  'tutorial.backup.title': 'Backup — encrypted at rest',
+    'Automatic replies: when a message matches a pattern, the app suggests or sends a prepared answer.',
+  'tutorial.backup.title': 'Backup',
   'tutorial.backup.body':
-    'Backups encrypt the local store with a passphrase. If you started a local server, the archive lives next to the server data directory.',
-  'tutorial.connections.title': 'Connect a service first',
+    'Save an encrypted copy of your data. Only your passphrase can open it.',
+  'tutorial.connections.title': 'Connect your first service',
   'tutorial.connections.body':
-    'Tap Connections to pick a provider. Each provider walks you through how to obtain credentials in-app — no external instructions needed.',
-  'tutorial.connectionDetail.title': 'Follow the per-service walkthrough',
+    'Open Connections and pick a service. The setup steps are shown right in the app.',
+  'tutorial.connectionDetail.title': 'Follow the setup steps',
   'tutorial.connectionDetail.body':
-    'The provider screen lists every step needed to obtain credentials, plus the live API probe to confirm the connection works.',
+    'Do the steps in order, or let the app import your data through a browser. Then check that the connection works.',
 
   // CV synchronisation screen (issue #29).
   'cv.title': 'CV synchronisation',

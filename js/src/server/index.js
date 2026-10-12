@@ -37,6 +37,8 @@
  *   GET  /api/backups              -> list archives (gated on archiveDir)
  *   POST /api/backups              -> { passphrase?, keep? } -> { file }
  *   POST /api/backups/restore      -> { file, passphrase? } -> { restored }
+ *   GET  /api/auto-import          -> browser auto-import status + jobs
+ *   POST /api/auto-import          -> { provider } -> job (see routes-auto-import.js)
  *
  * Implemented with Node's built-in `http` module to keep the dependency
  * footprint at zero. The Docker images in `docker/` simply run
@@ -71,6 +73,7 @@ import { createDefaultSender } from '../sources/browser-sender.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
+import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -304,6 +307,9 @@ const route = async (store, req, res, ctx) => {
   if (await handleBackupRoutes(store, req, res, p, ctx.archiveDir)) {
     return;
   }
+  if (await handleAutoImportRoutes(store, req, res, p, ctx)) {
+    return;
+  }
   if (await handleDerivedRoutes(store, req, res, p, url)) {
     return;
   }
@@ -352,6 +358,7 @@ export const startServer = async ({
   automations,
   greetings,
   allowOrigins,
+  autoImportLauncher,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -370,6 +377,10 @@ export const startServer = async ({
     replies: replyService(store, storeDir, replies),
     ...automationContext(store, automations, log),
     ...greetingContext(greetings),
+    storeDir,
+    log,
+    autoImport: null,
+    autoImportLauncher,
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
@@ -425,6 +436,7 @@ export const startServer = async ({
         bus?.close();
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
+        ctx.autoImport?.close();
         wsHandle?.close();
         signaling?.close();
         server.close(() => resolve());

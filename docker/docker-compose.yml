@@ -5,6 +5,11 @@ services:
       dockerfile: docker/web.Dockerfile
     ports:
       - '8787:8787'
+    environment:
+      # Browser auto-import: the container has no screen, so attach to a
+      # Chrome on the host started with --remote-debugging-port=9222,
+      # e.g. MS_BROWSER_CDP_URL=http://host.docker.internal:9222.
+      MS_BROWSER_CDP_URL: ${MS_BROWSER_CDP_URL:-}
     volumes:
       - meta-sovereign-data:/data
   rtc:

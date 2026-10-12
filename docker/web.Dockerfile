@@ -1,6 +1,6 @@
 # Web/API microservice (R-F7).
 # Runs `meta-sovereign serve` against a mounted data volume.
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 COPY package.json package-lock.json ./

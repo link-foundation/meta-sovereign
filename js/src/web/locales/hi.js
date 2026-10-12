@@ -256,6 +256,25 @@ export const hi = {
   'connections.session.openCv': 'CV स्क्रीन खोलें',
   'connections.openDetail': 'सेट अप',
   'connections.controlsTitle': 'कनेक्शन नियंत्रण',
+  'autoImport.title': 'ब्राउज़र से आयात करें',
+  'autoImport.intro':
+    '{service} को एक अलग ब्राउज़र विंडो में खोलता है। साइन इन करें, वहाँ डेटा एक्सपोर्ट शुरू करें, और डाउनलोड की गई हर फ़ाइल अपने आप आयात हो जाएगी। अगली बार के लिए आप साइन इन रहेंगे।',
+  'autoImport.introCapture':
+    '{service} को एक अलग ब्राउज़र विंडो में खोलता है। साइन इन करें, कोई चैट खोलें और "यह चैट सहेजें" दबाएँ। डाउनलोड की गई एक्सपोर्ट फ़ाइलें भी अपने आप आयात होती हैं।',
+  'autoImport.start': 'ब्राउज़र खोलें',
+  'autoImport.capture': 'यह चैट सहेजें',
+  'autoImport.finish': 'समाप्त',
+  'autoImport.state.launching': 'ब्राउज़र खुल रहा है…',
+  'autoImport.state.waiting':
+    'ब्राउज़र खुला है। आपके एक्सपोर्ट की प्रतीक्षा है…',
+  'autoImport.state.importing': 'आयात हो रहा है…',
+  'autoImport.state.done': 'समाप्त।',
+  'autoImport.state.stopped': 'लंबे विराम के बाद रोका गया।',
+  'autoImport.state.failed': 'ब्राउज़र नहीं खुल सका: {error}',
+  'autoImport.imported': 'आयात किए गए संदेश: {count}',
+  'autoImport.unavailable':
+    'ब्राउज़र से आयात के लिए इस कंप्यूटर पर meta-sovereign सर्वर चलना चाहिए।',
+  'autoImport.unavailableReason': 'ब्राउज़र से आयात उपलब्ध नहीं है: {reason}',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
   'connections.email.setup.step1.body':
@@ -616,30 +635,31 @@ export const hi = {
   'tutorial.finish': 'समाप्त',
   'tutorial.off': 'ट्यूटोरियल बंद करें',
   'tutorial.progress': 'चरण {current} / {total}',
-  'tutorial.connect.title': 'पहले कोई सेवा जोड़ें',
+  'tutorial.connect.title': 'अपनी पहली सेवा जोड़ें',
   'tutorial.connect.body':
-    'जब तक आप कम से कम एक प्रदाता नहीं जोड़ते तब तक meta-sovereign खाली रहता है। हाइलाइट किए गए "कनेक्शन" बटन पर टैप करके प्रति-प्रदाता सेटअप स्क्रीन खोलें — आप इस ट्यूटोरियल पर कभी भी लौट सकते हैं।',
+    'अपनी चैट और संपर्क एक जगह लाएँ। शुरू करने के लिए मेनू में "कनेक्शन" खोलें।',
+  'tutorial.connect.examples': 'उदाहरण:',
+  'tutorial.connect.more': 'और भी',
   'tutorial.welcome.title': 'meta-sovereign में आपका स्वागत है',
   'tutorial.welcome.body':
-    'यह आपका लोकल-फर्स्ट व्यक्तिगत CRM और एकीकृत इनबॉक्स है। जब तक आप इसे किसी सर्वर से न जोड़ें, कुछ भी आपके ब्राउज़र से बाहर नहीं जाता। मुख्य प्रवाह देखने के लिए "अगला" दबाएँ।',
-  'tutorial.chat.title': 'चैट — आपका एकीकृत इनबॉक्स',
-  'tutorial.chat.body':
-    'हर जुड़ी सेवा की हर चैट यहीं दिखती है। यदि कोई खंड खाली है, तो वह बताता है कि प्रदाता कैसे जोड़ें — टूर के बाद "चैट" टैब खोलें।',
-  'tutorial.contacts.title': 'संपर्क — हर व्यक्ति के लिए एक पंक्ति',
+    'आपका निजी CRM और सभी संदेशों के लिए एक इनबॉक्स। जब तक आप अपना सर्वर न जोड़ें, डेटा आपके डिवाइस पर ही रहता है।',
+  'tutorial.chat.title': 'चैट',
+  'tutorial.chat.body': 'सभी जुड़ी सेवाओं की बातचीत, एक ही इनबॉक्स में।',
+  'tutorial.contacts.title': 'संपर्क',
   'tutorial.contacts.body':
-    'संपर्क सभी नेटवर्क में मिलाकर दिखाए जाते हैं। सूची भरने के लिए कम से कम एक प्रदाता जोड़ें।',
-  'tutorial.automation.title': 'स्वचालन — पैटर्न से जवाब तक',
+    'हर व्यक्ति एक ही बार दिखता है, चाहे आप कई सेवाओं पर बात करें।',
+  'tutorial.automation.title': 'ऑटोमेशन',
   'tutorial.automation.body':
-    'नोड ग्राफ़ बनाएँ जो आने वाले संदेशों को रेगेक्स पैटर्न से जवाब विविधता तक रूट करें। पैटर्न और जवाब समूह इस ग्राफ़ संपादक को संचालित करते हैं।',
-  'tutorial.backup.title': 'बैकअप — विश्राम के दौरान एन्क्रिप्टेड',
+    'स्वचालित जवाब: जब कोई संदेश पैटर्न से मेल खाता है, ऐप तैयार जवाब सुझाता या भेजता है।',
+  'tutorial.backup.title': 'बैकअप',
   'tutorial.backup.body':
-    'बैकअप पासफ़्रेज़ से लोकल स्टोर को एन्क्रिप्ट करते हैं। यदि आपने लोकल सर्वर शुरू किया है, तो संग्रह उसके डेटा निर्देशिका के पास रहता है।',
-  'tutorial.connections.title': 'पहले एक सेवा जोड़ें',
+    'अपने डेटा की एन्क्रिप्टेड कॉपी सहेजें। इसे केवल आपका पासफ़्रेज़ खोल सकता है।',
+  'tutorial.connections.title': 'अपनी पहली सेवा जोड़ें',
   'tutorial.connections.body':
-    'प्रदाता चुनने के लिए कनेक्शन पर टैप करें। हर प्रदाता ऐप के अंदर ही क्रेडेंशियल पाने के चरण दिखाता है — बाहरी निर्देशों की ज़रूरत नहीं।',
-  'tutorial.connectionDetail.title': 'प्रदाता-विशिष्ट चरणों का पालन करें',
+    '"कनेक्शन" खोलें और एक सेवा चुनें। सेटअप के चरण ऐप में ही दिखते हैं।',
+  'tutorial.connectionDetail.title': 'सेटअप के चरणों का पालन करें',
   'tutorial.connectionDetail.body':
-    'प्रदाता स्क्रीन पर क्रेडेंशियल पाने के सभी चरण दिखते हैं, साथ ही कनेक्शन काम कर रहा है इसकी पुष्टि के लिए लाइव API जाँच भी।',
+    'चरणों को क्रम से करें, या ऐप को ब्राउज़र से डेटा आयात करने दें। फिर जाँचें कि कनेक्शन काम कर रहा है।',
 
   // CV synchronisation screen (issue #29).
   'cv.title': 'CV सिंक्रनाइज़ेशन',

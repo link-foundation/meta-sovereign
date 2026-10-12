@@ -251,6 +251,24 @@ export const zh = {
   'connections.session.openCv': '打开简历界面',
   'connections.openDetail': '设置',
   'connections.controlsTitle': '连接控制',
+  'autoImport.title': '通过浏览器导入',
+  'autoImport.intro':
+    '在单独的浏览器窗口中打开 {service}。登录后在那里开始数据导出，下载的每个文件都会自动导入。下次无需重新登录。',
+  'autoImport.introCapture':
+    '在单独的浏览器窗口中打开 {service}。登录并打开一个聊天，然后点击「保存此聊天」。下载的导出文件也会自动导入。',
+  'autoImport.start': '打开浏览器',
+  'autoImport.capture': '保存此聊天',
+  'autoImport.finish': '完成',
+  'autoImport.state.launching': '正在打开浏览器…',
+  'autoImport.state.waiting': '浏览器已打开，正在等待你的导出文件…',
+  'autoImport.state.importing': '正在导入…',
+  'autoImport.state.done': '已完成。',
+  'autoImport.state.stopped': '长时间无操作，已停止。',
+  'autoImport.state.failed': '无法打开浏览器：{error}',
+  'autoImport.imported': '已导入消息：{count}',
+  'autoImport.unavailable':
+    '通过浏览器导入需要在本机运行 meta-sovereign 服务器。',
+  'autoImport.unavailableReason': '通过浏览器导入不可用：{reason}',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':
@@ -602,30 +620,29 @@ export const zh = {
   'tutorial.finish': '完成',
   'tutorial.off': '关闭教程',
   'tutorial.progress': '第 {current} 步，共 {total} 步',
-  'tutorial.connect.title': '先连接一个服务',
+  'tutorial.connect.title': '连接你的第一个服务',
   'tutorial.connect.body':
-    'meta-sovereign 在你接入至少一个服务之前是空的。点击高亮的「连接」入口打开各服务的设置屏幕——你随时可以回到这个引导。',
+    '把聊天和联系人汇集到一处。打开菜单中的「连接」即可开始。',
+  'tutorial.connect.examples': '例如：',
+  'tutorial.connect.more': '以及更多',
   'tutorial.welcome.title': '欢迎使用 meta-sovereign',
   'tutorial.welcome.body':
-    '这是你的本地优先个人 CRM 和统一收件箱。除非你主动指向服务器，否则数据不会离开浏览器。点击「下一步」浏览主要流程。',
-  'tutorial.chat.title': '聊天 — 你的统一收件箱',
-  'tutorial.chat.body':
-    '所有已连接服务的聊天都会汇总到这里。如果某个版块为空，它会说明如何接入提供方——结束教程后试着打开「聊天」标签页。',
-  'tutorial.contacts.title': '联系人 — 每人一行',
-  'tutorial.contacts.body':
-    '联系人在各个网络间合并显示。至少连接一个提供方才能填充此列表。',
-  'tutorial.automation.title': '自动化 — 从模式到回复',
+    '你的个人 CRM，所有消息汇于一个收件箱。除非你连接自己的服务器，数据始终留在你的设备上。',
+  'tutorial.chat.title': '聊天',
+  'tutorial.chat.body': '所有已连接服务的对话，集中在一个收件箱。',
+  'tutorial.contacts.title': '联系人',
+  'tutorial.contacts.body': '同一个人只出现一次，即使你们在多个服务上交流。',
+  'tutorial.automation.title': '自动化',
   'tutorial.automation.body':
-    '构建节点图，将匹配正则模式的入站消息路由到对应的回复变体。模式与回复组共同驱动这个图编辑器。',
-  'tutorial.backup.title': '备份 — 静态加密',
-  'tutorial.backup.body':
-    '备份会用口令加密本地存储。如果你启动了本地服务器，归档会保存在其数据目录旁边。',
-  'tutorial.connections.title': '先连接一个服务',
+    '自动回复：当消息匹配某个模式时，应用会建议或发送预设的回答。',
+  'tutorial.backup.title': '备份',
+  'tutorial.backup.body': '保存数据的加密副本，只有你的口令才能打开。',
+  'tutorial.connections.title': '连接你的第一个服务',
   'tutorial.connections.body':
-    '点击「连接」选择一个提供方。每个提供方都会在应用内引导你获取凭据——无需外部说明。',
-  'tutorial.connectionDetail.title': '按提供方流程逐步操作',
+    '打开「连接」并选择一个服务，设置步骤会直接显示在应用中。',
+  'tutorial.connectionDetail.title': '按设置步骤操作',
   'tutorial.connectionDetail.body':
-    '提供方页面列出获取凭据所需的每一步，以及用于确认连接是否生效的实时 API 检测。',
+    '按顺序完成各步骤，或让应用通过浏览器导入数据，然后确认连接可用。',
 
   // CV synchronisation screen (issue #29).
   'cv.title': '简历同步',

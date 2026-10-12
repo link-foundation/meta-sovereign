@@ -4,7 +4,7 @@
 # in a follow-up PR; this Dockerfile reserves the deployable shape so
 # the surrounding infrastructure (compose files, Helm charts) can be
 # wired up in parallel.
-FROM node:20-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 COPY package.json package-lock.json ./

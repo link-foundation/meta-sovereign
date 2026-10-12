@@ -26,6 +26,21 @@ export const TUTORIAL_STORAGE_KEY = 'metaSovereignTutorial';
 // strings double as the source-language fallback when no translator
 // is supplied (the i18n parity test guarantees the same keys exist
 // for every locale — see issue #18).
+// Brand names shown under the first step so "service" reads as
+// something concrete. Proper nouns, so they are not translated.
+export const SERVICE_EXAMPLES = [
+  'Telegram',
+  'WhatsApp',
+  'Gmail',
+  'Outlook',
+  'VK',
+  'LinkedIn',
+  'X',
+  'Facebook',
+  'GitHub',
+  'Upwork',
+];
+
 export const defaultSteps = [
   {
     id: 'connect',
@@ -33,47 +48,48 @@ export const defaultSteps = [
     tutorialId: 'nav:connections',
     titleKey: 'tutorial.connect.title',
     bodyKey: 'tutorial.connect.body',
-    title: 'Connect a service first',
-    body: 'meta-sovereign is empty until you plug in at least one provider. Tap the highlighted "Connections" entry to open the per-provider setup screen — you can come back to this tour any time.',
+    title: 'Connect your first service',
+    body: 'Bring your chats and contacts into one place. Open Connections in the menu to start.',
+    examples: SERVICE_EXAMPLES,
   },
   {
     id: 'welcome',
     titleKey: 'tutorial.welcome.title',
     bodyKey: 'tutorial.welcome.body',
     title: 'Welcome to meta-sovereign',
-    body: 'This is your local-first personal CRM and unified inbox. Nothing leaves your browser unless you point it at a server. Hit "Next" to walk through the headline flows.',
+    body: 'Your personal CRM and one inbox for all your messages. Your data stays on your device unless you connect your own server.',
   },
   {
     id: 'chat',
     target: 'chat',
     titleKey: 'tutorial.chat.title',
     bodyKey: 'tutorial.chat.body',
-    title: 'Chat — your unified inbox',
-    body: 'Every chat from every connected service shows up here. If a section is empty, it explains how to plug in a provider — try opening the "Chat" tab once you finish the tour.',
+    title: 'Chat',
+    body: 'Conversations from all your connected services, in one inbox.',
   },
   {
     id: 'contacts',
     target: 'contacts',
     titleKey: 'tutorial.contacts.title',
     bodyKey: 'tutorial.contacts.body',
-    title: 'Contacts — one row per person',
-    body: 'Contacts are merged across networks. Connect at least one provider to populate this list.',
+    title: 'Contacts',
+    body: 'Each person appears once, even if you talk on several services.',
   },
   {
     id: 'automation',
     target: 'automation',
     titleKey: 'tutorial.automation.title',
     bodyKey: 'tutorial.automation.body',
-    title: 'Automation — patterns to replies',
-    body: 'Build node graphs that route incoming messages from a regex pattern to a reply variation. Patterns + reply groups feed this graph editor.',
+    title: 'Automation',
+    body: 'Automatic replies: when a message matches a pattern, the app suggests or sends a prepared answer.',
   },
   {
     id: 'backup',
     target: 'backup',
     titleKey: 'tutorial.backup.title',
     bodyKey: 'tutorial.backup.body',
-    title: 'Backup — encrypted at rest',
-    body: 'Backups encrypt the local store with a passphrase. If you started a local server, the archive lives next to the server data directory.',
+    title: 'Backup',
+    body: 'Save an encrypted copy of your data. Only your passphrase can open it.',
   },
 ];
 
@@ -250,14 +266,28 @@ const Step = ({ step, index, total, onNext, onSkip, onDismiss }) => {
       'data-tutorial-step': step.id,
     },
     [
-      el('h2', { key: 'h', id: `tutorial-step-${step.id}` }, step.title),
-      el('p', { key: 'body' }, step.body),
       el(
         'div',
-        { key: 'meta', className: 'meta' },
+        { key: 'meta', className: 'meta tutorial-progress' },
         t('tutorial.progress', { current: index + 1, total })
       ),
-      el('div', { key: 'actions', className: 'row' }, [
+      el('h2', { key: 'h', id: `tutorial-step-${step.id}` }, step.title),
+      el('p', { key: 'body', className: 'tutorial-body' }, step.body),
+      step.examples?.length
+        ? el(TutorialExamples, { key: 'examples', examples: step.examples })
+        : null,
+      el('div', { key: 'actions', className: 'row tutorial-actions' }, [
+        el(
+          'button',
+          {
+            key: 'off',
+            type: 'button',
+            className: 'tutorial-off',
+            'data-action': 'tutorial-off',
+            onClick: onDismiss,
+          },
+          t('tutorial.off')
+        ),
         el(
           'button',
           {
@@ -279,17 +309,33 @@ const Step = ({ step, index, total, onNext, onSkip, onDismiss }) => {
           },
           index + 1 === total ? t('tutorial.finish') : t('tutorial.next')
         ),
-        el(
-          'button',
-          {
-            key: 'off',
-            type: 'button',
-            'data-action': 'tutorial-off',
-            onClick: onDismiss,
-          },
-          t('tutorial.off')
-        ),
       ]),
+    ]
+  );
+};
+
+// Row of brand names under a step ("For example: Telegram, Gmail, ...").
+const TutorialExamples = ({ examples }) => {
+  const t = useT();
+  return el(
+    'div',
+    { className: 'tutorial-examples', 'data-tutorial-examples': '' },
+    [
+      el(
+        'span',
+        { key: 'label', className: 'meta' },
+        t('tutorial.connect.examples')
+      ),
+      el(
+        'ul',
+        { key: 'list', className: 'tutorial-brands' },
+        examples.map((name) => el('li', { key: name }, name))
+      ),
+      el(
+        'span',
+        { key: 'more', className: 'meta' },
+        t('tutorial.connect.more')
+      ),
     ]
   );
 };

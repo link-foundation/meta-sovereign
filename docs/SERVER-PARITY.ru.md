@@ -44,6 +44,11 @@ Microsoft Graph, JMAP и raw IMAP/POP3/SMTP остаются JS server features,
 соответствующие features; CLI продолжает использовать локальную JS
 implementation.
 
+Browser auto-import (`/api/auto-import`, `/api/auto-import/jobs/:id`,
+`/capture`, `/stop`) — JS only: он управляет браузером через
+browser-commander (Node library). С Rust server панель в Connections
+сообщает, что нужен JS server; ручной импорт архивов работает.
+
 ## 5. Синхронизация CV
 
 `/api/cv/platforms`, `/api/cv/plan`, `/api/cv/stored`, `/api/cv/read`,
