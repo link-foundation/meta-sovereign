@@ -209,6 +209,17 @@ export const LocaleContext = React.createContext({
 
 export const useT = () => React.useContext(LocaleContext).t;
 
+/**
+ * Text with its first letter capitalized. Trigger, mode and form names
+ * are fragments joined into meta lines ("safe: drafts to confirm · by
+ * hand"); as labels, options and the start of a line they take sentence
+ * case, like every other label.
+ */
+export const sentence = (text) =>
+  typeof text === 'string' && text
+    ? text[0].toLocaleUpperCase() + text.slice(1)
+    : text;
+
 export const useLocaleContext = () => React.useContext(LocaleContext);
 
 const formatDate = (ts, locale, options) => {

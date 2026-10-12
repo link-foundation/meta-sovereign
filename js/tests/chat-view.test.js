@@ -227,6 +227,7 @@ test('screen: sidebar, header, menu, draft, composer chips', () => {
   assert.match(html, /vk · personal chat/);
   assert.match(html, /data-action="chat-automation-test"/);
   assert.match(html, /Test in this chat/);
+  assert.match(html, /class="meta">Safe: drafts to confirm</);
   assert.match(html, /Draft from Say hi · informal/);
   assert.match(html, /data-action="draft-send"/);
   assert.match(html, /Switch to formal/);

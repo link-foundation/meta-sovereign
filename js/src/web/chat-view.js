@@ -14,7 +14,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
-import { useDates, useT } from './i18n.js';
+import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { avatarFor, groupChats } from './chat-model.js';
 import { presetName } from './automations-model.js';
@@ -174,7 +174,7 @@ const AutomationMenu = ({ menu }) => {
                     el(
                       'small',
                       { key: 'm', className: 'meta' },
-                      t(`automations.mode.${a.mode}`)
+                      sentence(t(`automations.mode.${a.mode}`))
                     ),
                   ]),
                   el(

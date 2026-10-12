@@ -9,21 +9,13 @@
 
 import React from 'react';
 import { api as defaultApi } from './dom.js';
-import { useDates, useT } from './i18n.js';
+import { sentence, useDates, useT } from './i18n.js';
 import { reasonText } from './chat-view.js';
 import { Icon } from './icons.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
 
 const el = React.createElement;
-
-// Trigger, mode and form names are fragments in the list's meta line
-// ("safe: drafts to confirm · by hand"); as labels and options they
-// start with a capital, like every other label.
-const sentence = (text) =>
-  typeof text === 'string' && text
-    ? text[0].toLocaleUpperCase() + text.slice(1)
-    : text;
 
 const field = (props, control) =>
   el('label', { className: 'field', key: props.name }, [
@@ -163,14 +155,16 @@ const AutomationList = ({ editor }) => {
               'span',
               { key: 'm', className: 'meta' },
               automation.invalid ??
-                [
-                  t(`automations.mode.${automation.mode}`),
-                  triggerSummary(t, automation),
-                  automation.saved ? null : t('automations.preset'),
-                  automation.enabled ? null : t('automations.off'),
-                ]
-                  .filter(Boolean)
-                  .join(' · ')
+                sentence(
+                  [
+                    t(`automations.mode.${automation.mode}`),
+                    triggerSummary(t, automation),
+                    automation.saved ? null : t('automations.preset'),
+                    automation.enabled ? null : t('automations.off'),
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')
+                )
             ),
           ]
         )

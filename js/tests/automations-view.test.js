@@ -251,7 +251,11 @@ test('screen: list, editor, preview, history, people and audiences', () => {
   assert.match(html, /<h2>Automations<\/h2>/);
   // Saved and preset automations, with mode and triggers in words.
   assert.match(html, /data-automation="automation:reengage-dormant"/);
-  assert.match(html, /by hand · from a chat&#x27;s menu/);
+  // A meta line starts with a capital, like a sentence.
+  assert.match(
+    html,
+    /"meta">Safe: drafts to confirm · by hand · from a chat&#x27;s menu/
+  );
   assert.match(html, /on an incoming message matching · from a chat/);
   assert.match(html, /preset · off/);
   // The editor shows issue #31's automation as editable fields.
