@@ -142,57 +142,75 @@ const wordSuggestion = ({ text, partial, spelled, count }) => {
   };
 };
 
+// Sentences end at . ! ? … or a line break; words never follow each
+// other across one, and the first word's capital is not its spelling.
+const SENTENCE_END = /[.!?…]+(?=\s|$)|\n+/u;
+// The context before the first word of a sentence.
+const START = '\u0002';
+
+const sentences = (text) => String(text ?? '').split(SENTENCE_END);
+
+const capitalize = (word) => word[0].toLocaleUpperCase() + word.slice(1);
+
 /**
  * The word model: counts of words and of the words that follow one or
- * two previous words, learned from the owner's messages.
+ * two previous words (or a sentence start), learned from the owner's
+ * messages.
  */
 const createWordModel = () => {
   const unigrams = new Map();
   const bigrams = new Map();
   const trigrams = new Map();
-  // The spelling the owner actually used most for each lower-cased word.
+  // The spelling the owner used most for each lower-cased word inside a
+  // sentence: "Аня" stays capitalised, "А" opening a sentence does not.
   const spellings = new Map();
   const candidates = (previous) => {
     // p1 is the last word typed, p2 the one before it (if any).
-    const [p1, p2] = previous
-      .slice(-2)
-      .reverse()
-      .map((w) => w.toLowerCase());
+    const [p1, p2] = previous.slice(-2).reverse();
     return [
       p2 && p1 ? trigrams.get(`${p2} ${p1}`) : null,
       p1 ? bigrams.get(p1) : null,
       unigrams,
     ].filter(Boolean);
   };
+  const learnSentence = (sentence, by) => {
+    const words = tokenizeWords(sentence);
+    const lower = [START, ...words.map((w) => w.toLowerCase())];
+    words.forEach((word, n) => {
+      const i = n + 1;
+      bump(unigrams, lower[i], by);
+      if (n > 0) {
+        nestedBump(spellings, lower[i], word, by);
+      }
+      nestedBump(bigrams, lower[i - 1], lower[i], by);
+      if (i > 1) {
+        nestedBump(trigrams, `${lower[i - 2]} ${lower[i - 1]}`, lower[i], by);
+      }
+    });
+  };
   return {
     learn(text, by = 1) {
-      const words = tokenizeWords(text);
-      const lower = words.map((w) => w.toLowerCase());
-      lower.forEach((w, i) => {
-        bump(unigrams, w, by);
-        nestedBump(spellings, w, words[i], by);
-        if (i > 0) {
-          nestedBump(bigrams, lower[i - 1], w, by);
-        }
-        if (i > 1) {
-          nestedBump(trigrams, `${lower[i - 2]} ${lower[i - 1]}`, w, by);
-        }
-      });
+      for (const sentence of sentences(text)) {
+        learnSentence(sentence, by);
+      }
     },
     /**
      * The rest of the current word when `typed` does not end with a
-     * space, else the likeliest next words (trigram → bigram → unigram).
+     * space, else the likeliest next words (trigram → bigram → unigram)
+     * within the current sentence.
      */
     suggest(typed, limit) {
       const text = String(typed ?? '');
-      const tokens = tokenizeWords(text);
+      const tokens = tokenizeWords(sentences(text).at(-1));
       const partial = /[\p{L}\p{N}'’-]$/u.test(text)
         ? (tokens.pop() ?? '')
         : '';
       const lowerPartial = partial.toLowerCase();
-      const seen = new Set();
+      const previous = [START, ...tokens.map((w) => w.toLowerCase())];
+      // "Отлично, отлично" is never what the owner means.
+      const seen = new Set([previous.at(-1)]);
       const out = [];
-      for (const tier of candidates(tokens)) {
+      for (const tier of candidates(previous)) {
         const ranked = [...tier.entries()]
           .filter(
             ([w]) =>
@@ -204,7 +222,14 @@ const createWordModel = () => {
         for (const [w, count] of ranked) {
           seen.add(w);
           const spelled = mostUsed(spellings.get(w), w);
-          out.push(wordSuggestion({ text, partial, spelled, count }));
+          out.push(
+            wordSuggestion({
+              text,
+              partial,
+              spelled: tokens.length ? spelled : capitalize(spelled),
+              count,
+            })
+          );
         }
       }
       return out.slice(0, limit);

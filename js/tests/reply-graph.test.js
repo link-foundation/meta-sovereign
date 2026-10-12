@@ -111,6 +111,36 @@ test('autocomplete tries whole replies first, then words', () => {
   });
 });
 
+test('word-by-word stays inside a sentence and spells words as used in one', () => {
+  const index = createReplyIndex();
+  for (const body of [
+    'Отлично. А ты как?',
+    'Отлично. А у тебя?',
+    'Отлично, спасибо',
+    'Передай привет Ане',
+    'Ане тоже',
+  ]) {
+    index.learnFromMessages([msg('1', 'me', body, 0)]);
+  }
+  // "А" opened a new sentence: it never follows "отлично" in one, and
+  // the word just typed is not offered again.
+  const next = index.suggestWords('Отлично, ').map((s) => s.word);
+  assert.equal(next[0], 'спасибо');
+  assert.ok(!next.includes('Отлично') && !next.includes('А'));
+  // Mid-sentence words keep their lower case, names their capital…
+  const later = index.suggestWords('Отлично, спасибо ').map((s) => s.word);
+  assert.ok(later.includes('а') && !later.includes('А'));
+  assert.equal(index.suggestWords('Привет ')[0].word, 'Ане');
+  // …and after a full stop the sentence openers come first, capitalised.
+  assert.deepEqual(
+    index
+      .suggestWords('Хорошо. ')
+      .map((s) => s.word)
+      .slice(0, 2),
+    ['Отлично', 'А']
+  );
+});
+
 test('word-by-word learns from our own messages only by default', () => {
   const links = [msg('5', 'u5', 'Абракадабра', 0)];
   assert.equal(buildReplyIndex(links).suggestWords('Абр').length, 0);
