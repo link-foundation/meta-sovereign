@@ -336,8 +336,10 @@ test('times follow the interface language, not the browser', () => {
   assert.equal(ru, '14:05', 'Russian uses a 24-hour clock');
   assert.match(en, /^2:05\sPM$/, 'English uses AM/PM');
   // Dates are spelled out and seconds dropped: "Oct 12, 2026, 2:05 PM".
-  assert.match(formatDateTime(at, 'en'), /^Oct 12, 2026, 2:05\sPM$/);
-  assert.match(formatDateTime(at, 'ru'), /^12 окт\. 2026 г\., 14:05$/);
+  // Newer CLDR data (macOS's ICU, used by Bun there) joins date and time
+  // with "at" / "в" instead of a comma; both are right.
+  assert.match(formatDateTime(at, 'en'), /^Oct 12, 2026(,| at) 2:05\sPM$/);
+  assert.match(formatDateTime(at, 'ru'), /^12 окт\. 2026 г\.(,| в) 14:05$/);
   assert.equal(formatTime(null, 'ru'), '');
   assert.equal(formatDateTime('not a date', 'ru'), '');
 });
@@ -349,8 +351,12 @@ test('a chat list dates rows as messengers do', () => {
   // Today: the time.
   assert.equal(formatChatTime(at(2026, 9, 12, 9, 30), 'ru', now), '09:30');
   // Within the week: the weekday (Wednesday the 7th).
+  // CLDR versions differ on the case of Russian weekdays ("ср", "Ср").
   assert.equal(formatChatTime(at(2026, 9, 7, 9, 30), 'en', now), 'Wed');
-  assert.equal(formatChatTime(at(2026, 9, 7, 9, 30), 'ru', now), 'ср');
+  assert.equal(
+    formatChatTime(at(2026, 9, 7, 9, 30), 'ru', now).toLowerCase(),
+    'ср'
+  );
   // Earlier this year: day and month, no time.
   assert.equal(formatChatTime(at(2026, 4, 26, 4, 10), 'en', now), 'May 26');
   assert.equal(formatChatTime(at(2026, 4, 26, 4, 10), 'ru', now), '26 мая');
