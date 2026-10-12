@@ -189,9 +189,20 @@ export const useTutorialPreference = (storage = globalThis.localStorage) => {
 // Rendered as static markup the spotlight is a single absolutely
 // positioned `<div>` that the SSR test can introspect; in the browser
 // the parent wraps it inside a `position: fixed` overlay.
-export const TutorialSpotlight = ({ rect }) => {
+//
+// With `anchored` the frame is tied to the target through CSS anchor
+// positioning (see `useSpotlightAnchor`), so the browser moves it in
+// the same frame as a scroll. Coordinates copied from JS only catch up
+// one frame later, which reads as the outline trailing the control.
+export const TutorialSpotlight = ({ rect, anchored = false }) => {
   if (!rect) {
     return null;
+  }
+  if (anchored) {
+    return el('div', {
+      className: 'tutorial-spotlight-frame tutorial-spotlight-anchored',
+      'aria-hidden': 'true',
+    });
   }
   const { top, left, width, height } = rect;
   return el('div', {
@@ -252,6 +263,30 @@ export const useTutorialRect = (tutorialId) => {
     };
   }, [tutorialId]);
   return rect;
+};
+
+export const SPOTLIGHT_ANCHOR_ATTR = 'data-tutorial-anchor';
+
+const supportsAnchorPositioning = () =>
+  Boolean(globalThis.CSS?.supports?.('anchor-name: --tutorial-target'));
+
+// Marks the spotlighted control as the CSS anchor (`anchor-name` comes
+// from the stylesheet) for as long as the step is shown. Returns
+// whether the frame can rely on anchor positioning.
+export const useSpotlightAnchor = (tutorialId, rect) => {
+  const [anchored] = useState(supportsAnchorPositioning);
+  const found = Boolean(rect);
+  useEffect(() => {
+    const target =
+      anchored && found
+        ? globalThis.document?.querySelector(
+            `[data-tutorial-id="${tutorialId}"]`
+          )
+        : null;
+    target?.setAttribute(SPOTLIGHT_ANCHOR_ATTR, '');
+    return () => target?.removeAttribute(SPOTLIGHT_ANCHOR_ATTR);
+  }, [anchored, found, tutorialId]);
+  return anchored;
 };
 
 const Step = ({ step, index, total, onNext, onSkip, onDismiss }) => {
@@ -451,6 +486,7 @@ const TutorialSpotlightOverlay = ({
   onDismiss,
 }) => {
   const rect = useTutorialRect(step.tutorialId);
+  const anchored = useSpotlightAnchor(step.tutorialId, rect);
   const viewportHeight =
     typeof globalThis.innerHeight === 'number' ? globalThis.innerHeight : 0;
   const targetCenter = rect ? rect.top + rect.height / 2 : 0;
@@ -471,7 +507,7 @@ const TutorialSpotlightOverlay = ({
       'data-spotlight-side': side,
     },
     [
-      el(TutorialSpotlight, { key: 'spot', rect }),
+      el(TutorialSpotlight, { key: 'spot', rect, anchored }),
       el(Step, {
         key: 'step',
         step,

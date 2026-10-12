@@ -1190,6 +1190,22 @@ pre {
   margin-top: 0;
   margin-bottom: auto;
 }
+/* Anchor-positioned frame: the browser keeps it on the control while
+   the page or the nav drawer scrolls, with no frame of delay. Hidden
+   while the control is scrolled out of view. */
+[data-tutorial-anchor] {
+  anchor-name: --tutorial-target;
+}
+.tutorial-overlay-spotlight .tutorial-spotlight-anchored {
+  position: fixed;
+  position-anchor: --tutorial-target;
+  top: anchor(top);
+  left: anchor(left);
+  right: anchor(right);
+  bottom: anchor(bottom);
+  position-visibility: anchors-visible;
+  pointer-events: none;
+}
 .tutorial-overlay-spotlight .tutorial-spotlight-frame {
   border-radius: 12px;
   box-shadow:

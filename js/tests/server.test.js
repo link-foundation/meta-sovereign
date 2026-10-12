@@ -395,3 +395,27 @@ describe('http server observability', () => {
     }
   });
 });
+
+describe('static asset caching', () => {
+  it('makes browsers revalidate SPA assets so updates are never stale', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv-cache-'));
+    const handle = await startServer({ port: 0, storeDir: dir });
+    const base = `http://127.0.0.1:${handle.port}`;
+    try {
+      for (const asset of ['/', '/app.min.js', '/app.css']) {
+        const r = await fetch(`${base}${asset}`);
+        await r.text();
+        expect(r.headers.get('cache-control')).toBe('no-cache');
+        const etag = r.headers.get('etag');
+        expect(Boolean(etag)).toBe(true);
+        const again = await fetch(`${base}${asset}`, {
+          headers: { 'if-none-match': etag },
+        });
+        await again.text();
+        expect(again.status).toBe(304);
+      }
+    } finally {
+      await handle.close();
+    }
+  });
+});

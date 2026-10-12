@@ -120,11 +120,24 @@ const SECURITY_HEADERS = {
   'x-frame-options': 'DENY',
 };
 
-const serveStatic = async (res, filePath) => {
+// SPA assets keep their names across releases, so browsers must
+// revalidate them (`no-cache`) instead of guessing a lifetime — Safari
+// otherwise kept running an old bundle after an update. The ETag makes
+// the revalidation a cheap 304 when nothing changed.
+const serveStatic = async (req, res, filePath) => {
   try {
+    const stat = await fs.stat(filePath);
+    const etag = `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`;
+    const headers = { 'cache-control': 'no-cache', etag };
+    if (req.headers['if-none-match'] === etag) {
+      res.writeHead(304, headers);
+      res.end();
+      return true;
+    }
     const buf = await fs.readFile(filePath);
     const ext = path.extname(filePath).toLowerCase();
     res.writeHead(200, {
+      ...headers,
       'content-type': MIME[ext] ?? 'application/octet-stream',
     });
     res.end(buf);
@@ -151,10 +164,10 @@ const handleStatic = async (req, res, p) => {
     return false;
   }
   if (p === '/' || p === '/index.html') {
-    return serveStatic(res, path.join(webRoot, 'index.html'));
+    return serveStatic(req, res, path.join(webRoot, 'index.html'));
   }
   if (/^\/[a-zA-Z0-9._-]+\.(js|css|svg|wasm)$/.test(p)) {
-    return serveStatic(res, path.join(webRoot, p.slice(1)));
+    return serveStatic(req, res, path.join(webRoot, p.slice(1)));
   }
   for (const [prefix, dir] of BROWSER_MOUNTS) {
     if (!p.startsWith(prefix)) {
@@ -168,7 +181,7 @@ const handleStatic = async (req, res, p) => {
     if (!resolved.startsWith(dir + path.sep) && resolved !== dir) {
       continue;
     }
-    return serveStatic(res, resolved);
+    return serveStatic(req, res, resolved);
   }
   return false;
 };

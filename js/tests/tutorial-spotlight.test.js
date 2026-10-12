@@ -80,6 +80,33 @@ test('TutorialSpotlight renders an inset frame anchored to the target rect', () 
   assert.match(html, /height:\s*60px/);
 });
 
+test('anchored TutorialSpotlight leaves positioning to CSS anchors', async () => {
+  // Coordinates copied from JS lag one frame behind a scroll, so the
+  // outline trailed the nav button; the anchored frame carries none.
+  const html = renderInLocale(
+    'en',
+    React.createElement(TutorialSpotlight, {
+      rect: { top: 100, left: 50, width: 200, height: 60 },
+      anchored: true,
+    })
+  );
+  assert.match(html, /tutorial-spotlight-anchored/);
+  assert.doesNotMatch(html, /top:\s*100px/);
+  const fs = await import('node:fs/promises');
+  const path = await import('node:path');
+  const url = await import('node:url');
+  const here = path.dirname(url.fileURLToPath(import.meta.url));
+  const css = await fs.readFile(
+    path.join(here, '..', 'src', 'web', 'app.css'),
+    'utf8'
+  );
+  assert.match(
+    css,
+    /\[data-tutorial-anchor\]\s*\{\s*anchor-name:\s*--tutorial-target/
+  );
+  assert.match(css, /position-anchor:\s*--tutorial-target/);
+});
+
 test('TutorialSpotlight renders nothing when no rect is supplied', () => {
   const html = renderInLocale(
     'en',
