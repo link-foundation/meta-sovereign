@@ -98,26 +98,52 @@ const lookup = (locale, key) => {
   return undefined;
 };
 
-const interpolate = (template, vars) => {
+// ICU MessageFormat's plural subset, so English can say "1 draft" and
+// "2 drafts" in one string: {count, plural, one {# draft} other {# drafts}}.
+// `#` is the number; the category comes from Intl.PluralRules.
+const PLURAL = /\{(\w+), plural,((?:\s*(?:=\d+|\w+) \{[^{}]*\})+)\s*\}/g;
+const PLURAL_CASE = /(=\d+|\w+) \{([^{}]*)\}/g;
+
+const pluralize = (template, vars, locale) =>
+  template.replace(PLURAL, (match, name, body) => {
+    const n = Number(vars[name]);
+    if (!Object.prototype.hasOwnProperty.call(vars, name) || Number.isNaN(n)) {
+      return match;
+    }
+    const cases = Object.fromEntries(
+      [...body.matchAll(PLURAL_CASE)].map(([, k, v]) => [k, v])
+    );
+    const text =
+      cases[`=${n}`] ??
+      cases[new Intl.PluralRules(locale).select(n)] ??
+      cases.other ??
+      match;
+    return text.replace(/#/g, String(vars[name]));
+  });
+
+const interpolate = (template, vars, locale) => {
   if (!vars) {
     return template;
   }
-  return template.replace(/\{(\w+)\}/g, (match, name) => {
-    if (Object.prototype.hasOwnProperty.call(vars, name)) {
-      return String(vars[name]);
+  return pluralize(template, vars, locale).replace(
+    /\{(\w+)\}/g,
+    (match, name) => {
+      if (Object.prototype.hasOwnProperty.call(vars, name)) {
+        return String(vars[name]);
+      }
+      return match;
     }
-    return match;
-  });
+  );
 };
 
 export const translate = (locale, key, vars) => {
   const direct = lookup(locale, key);
   if (typeof direct === 'string') {
-    return interpolate(direct, vars);
+    return interpolate(direct, vars, locale);
   }
   const fallback = lookup(DEFAULT_LOCALE, key);
   if (typeof fallback === 'string') {
-    return interpolate(fallback, vars);
+    return interpolate(fallback, vars, DEFAULT_LOCALE);
   }
   return key;
 };

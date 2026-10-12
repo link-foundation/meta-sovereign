@@ -231,9 +231,9 @@ test('screen: sidebar, header, menu, draft, composer chips', () => {
   assert.match(html, /data-action="draft-send"/);
   assert.match(html, /Switch to formal/);
   assert.match(html, /href="https:\/\/vk.com\/im\?sel=101"/);
-  assert.match(html, /1 draft\(s\) ready below/);
+  assert.match(html, /1 draft is ready below/);
   assert.match(html, /data-stage="reply"/);
-  assert.match(html, /title="Used 3 time\(s\)"/);
+  assert.match(html, /title="Used 3 times"/);
   assert.match(html, /class="bubble out"/);
   assert.match(html, /class="bubble in"/);
 });

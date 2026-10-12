@@ -686,7 +686,8 @@ export const en = {
   'chat.typing': '{names} typing…',
   'chat.typingAutomation': '{name} is typing for you…',
   'chat.subtitle.personal': '{source} · personal chat',
-  'chat.subtitle.group': '{source} · {count} people',
+  'chat.subtitle.group':
+    '{source} · {count, plural, one {# person} other {# people}}',
   'chat.automations': 'Automations',
   'chat.automation.none':
     'No automation is offered in chats yet. Add the "chat menu" trigger to one under Automation.',
@@ -705,9 +706,11 @@ export const en = {
   'chat.draft.openFilled': 'Open with the text filled in',
   'chat.draft.markSent': 'I sent it myself',
   'chat.draft.skip': 'Skip',
-  'chat.notice.queued': '{count} draft(s) ready below: review, then send.',
+  'chat.notice.queued':
+    '{count, plural, one {# draft is} other {# drafts are}} ready below: review, then send.',
   'chat.notice.nothing': 'Nothing to send here: {reason}.',
-  'chat.notice.sentAuto': 'Sent {count} message(s).',
+  'chat.notice.sentAuto':
+    'Sent {count, plural, one {# message} other {# messages}}.',
   'chat.notice.stored':
     'No local server: the message is saved in this browser only. Start the server to deliver it.',
   'chat.notice.sent': 'Sent.',
@@ -718,7 +721,7 @@ export const en = {
     'Not sent: {error}. Retry, edit, send it yourself or skip.',
   'chat.suggest.reply': 'Replies you gave to this message before',
   'chat.suggest.word': 'Next words from your own messages',
-  'chat.suggest.count': 'Used {count} time(s)',
+  'chat.suggest.count': 'Used {count, plural, one {once} other {# times}}',
   'automations.mode.safe': 'safe: drafts to confirm',
   'automations.mode.auto': 'automatic',
   'automations.reason.none': 'no one matched',
@@ -799,10 +802,11 @@ export const en = {
   'automations.notice.saved': 'Saved "{name}".',
   'automations.notice.deleted': 'Deleted "{name}".',
   'automations.notice.queued':
-    '{count} draft(s) wait in their chats: open each chat to review and send.',
-  'automations.notice.listSaved': 'Saved the list "{name}" ({count} people).',
+    '{count, plural, one {# draft waits in its chat: open it} other {# drafts wait in their chats: open each chat}} to review and send.',
+  'automations.notice.listSaved':
+    'Saved the list "{name}" ({count, plural, one {# person} other {# people}}).',
   'automations.notice.audienceSaved':
-    'Saved the audience "{name}" ({count} people).',
+    'Saved the audience "{name}" ({count, plural, one {# person} other {# people}}).',
   'automations.error.name': 'Give the automation a name',
   'automations.error.number': 'Numbers must be zero or more',
   'automations.error.audience': 'The audience does not parse',
@@ -810,7 +814,8 @@ export const en = {
   'automations.error.invalid': 'The automation is not valid',
   'automations.people.title': 'People',
   'automations.people.search': 'Search people by name, handle or network',
-  'automations.people.sameAs': 'also on {count} more network(s)',
+  'automations.people.sameAs':
+    'also on {count, plural, one {# more network} other {# more networks}}',
   'automations.people.selected': '{count} selected',
   'automations.people.test': 'test: ignore the conditions',
   'automations.people.run': 'run "{name}" on them',

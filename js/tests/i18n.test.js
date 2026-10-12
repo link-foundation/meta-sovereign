@@ -338,3 +338,23 @@ test('times follow the interface language, not the browser', () => {
   assert.equal(formatTime(null, 'ru'), '');
   assert.equal(formatDateTime('not a date', 'ru'), '');
 });
+
+test('translate picks the plural form for the locale (ICU subset)', () => {
+  const t = (n) => translate('en', 'chat.notice.queued', { count: n });
+  assert.equal(t(1), '1 draft is ready below: review, then send.');
+  assert.equal(t(3), '3 drafts are ready below: review, then send.');
+  assert.equal(
+    translate('en', 'chat.suggest.count', { count: 1 }),
+    'Used once'
+  );
+  assert.equal(
+    translate('en', 'chat.subtitle.group', { source: 'vk', count: 1 }),
+    'vk · 1 person'
+  );
+  // Without the variable the message stays as written.
+  assert.match(translate('en', 'chat.notice.sentAuto'), /\{count, plural,/);
+  // No English string asks the reader to decode "(s)".
+  for (const [key, value] of Object.entries(dictionaries.en)) {
+    assert.ok(!/\w\(s\)/.test(value), `${key}: "${value}"`);
+  }
+});

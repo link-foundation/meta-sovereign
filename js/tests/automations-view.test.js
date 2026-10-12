@@ -240,7 +240,7 @@ test('screen: list, editor, preview, history, people and audiences', () => {
   // Saved audiences and a resolved count.
   assert.match(html, /<strong>VIP<\/strong>/);
   assert.match(html, /2 people: Alice, vk:bob/);
-  assert.match(html, /2 draft\(s\) wait in their chats/);
+  assert.match(html, /2 drafts wait in their chats/);
 });
 
 test('screen: auto mode says it sends; errors and empty editor', () => {
