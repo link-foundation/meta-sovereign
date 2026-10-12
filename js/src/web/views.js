@@ -6,6 +6,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
+import { networkName } from './connection-guides.js';
 import { ChatView } from './chat-view.js';
 import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
@@ -180,7 +181,12 @@ export const ContactsView = () => {
           contacts.map((contact) =>
             el('tr', { key: contact.id }, [
               cell(0, contact.id),
-              cell(1, (contact.networks ?? []).join(', ')),
+              cell(
+                1,
+                (contact.networks ?? [])
+                  .map((n) => networkName(t, n))
+                  .join(', ')
+              ),
               cell(2, String((contact.chats ?? []).length)),
               cell(3, String(contact.messageCount ?? contact.count ?? 0)),
               cell(4, fmtTs(contact.lastSeen)),
@@ -580,7 +586,7 @@ export const AudienceView = () => {
             el(
               'div',
               { key: contact.id },
-              `${contact.id} (${(contact.networks ?? []).join(', ')})`
+              `${contact.id} (${(contact.networks ?? []).map((n) => networkName(t, n)).join(', ')})`
             )
           ),
         ])
@@ -607,7 +613,7 @@ const SourceChecks = ({ sources, selected, setSelected }) => {
             );
           },
         }),
-        el('span', { key: 'label' }, source),
+        el('span', { key: 'label' }, networkName(t, source)),
       ])
     ),
   ]);
