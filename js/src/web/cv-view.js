@@ -30,7 +30,7 @@ const PlatformRow = ({ platform, stored, checked, onToggle }) => {
   return el('tr', { 'data-platform': platform.id }, [
     el(
       'td',
-      { key: 'pick' },
+      { key: 'pick', 'data-label': t('cv.use') },
       el('input', {
         type: 'checkbox',
         checked,
@@ -38,11 +38,15 @@ const PlatformRow = ({ platform, stored, checked, onToggle }) => {
         onChange: () => onToggle(platform.id),
       })
     ),
-    el('td', { key: 'label' }, platform.label),
-    el('td', { key: 'markup', className: 'meta' }, platform.markupAccess),
+    el('td', { key: 'label', 'data-title': '' }, platform.label),
     el(
       'td',
-      { key: 'confidence', className: 'meta' },
+      { key: 'markup', className: 'meta', 'data-label': t('cv.markup') },
+      platform.markupAccess
+    ),
+    el(
+      'td',
+      { key: 'confidence', className: 'meta', 'data-label': t('cv.steps') },
       t('cv.confidence', {
         verified: platform.confidence.verified,
         draft: platform.confidence.draft,
@@ -50,7 +54,7 @@ const PlatformRow = ({ platform, stored, checked, onToggle }) => {
     ),
     el(
       'td',
-      { key: 'stored', className: 'meta' },
+      { key: 'stored', className: 'meta', 'data-label': t('cv.snapshot') },
       stored ? fmtTs(stored.capturedAt) : t('cv.noSnapshot')
     ),
   ]);
@@ -373,7 +377,7 @@ const CvControls = ({ state, login, setLogin }) => {
 const CvPlatforms = ({ state }) => {
   const t = useT();
   const storedFor = (id) => state.stored.find((entry) => entry.platform === id);
-  return el('table', { className: 'cv-platforms' }, [
+  return el('table', { className: 'cv-platforms stack-table' }, [
     el(
       'thead',
       { key: 'head' },

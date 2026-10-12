@@ -6,9 +6,19 @@
   --border: #30363d;
   --text: #e6edf3;
   --text-muted: #c9d1d9;
+  --text-subtle: #9198a1;
   --accent: #238636;
   --accent-bg: #1f6feb33;
+  --danger: #f85149;
+  --link: #4493f8;
   --shadow: rgba(0, 0, 0, 0.4);
+  /* One height for every button, input and select; one header height
+     the sticky drawer, rail and full-height chat measure against. */
+  --control-h: 2.25rem;
+  --radius: 8px;
+  --topbar-h: 3.5rem;
+  --bottom-nav-h: 4rem;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 :root[data-theme='light'] {
   --bg: #ffffff;
@@ -18,6 +28,9 @@
   --border: #d0d7de;
   --text: #1f2328;
   --text-muted: #424a53;
+  --text-subtle: #59636e;
+  --danger: #cf222e;
+  --link: #0969da;
   --accent: #1a7f37;
   --accent-bg: #ddf4ff;
   --shadow: rgba(0, 0, 0, 0.08);
@@ -31,6 +44,9 @@
     --border: #d0d7de;
     --text: #1f2328;
     --text-muted: #424a53;
+    --text-subtle: #59636e;
+    --danger: #cf222e;
+    --link: #0969da;
     --accent: #1a7f37;
     --accent-bg: #ddf4ff;
     --shadow: rgba(0, 0, 0, 0.08);
@@ -39,36 +55,108 @@
 * {
   box-sizing: border-box;
 }
+a {
+  color: var(--link);
+}
 body {
   margin: 0;
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.45;
   background: var(--bg);
   color: var(--text);
+}
+/* Visually hidden, still announced by screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.icon {
+  flex: none;
 }
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 1rem;
+  height: var(--topbar-h);
+  padding: 0 1rem;
   background: var(--bg-elev);
   border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-.theme-toggle {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 6px;
-  padding: 0.3rem 0.6rem;
-  cursor: pointer;
-  font-size: 1rem;
+  gap: 0.5rem;
 }
 .topbar h1 {
   font-size: 1rem;
   margin: 0;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+/* Header controls: one height, one outline style, icon + label; the
+   label folds away on phones (the aria-label stays). */
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: var(--control-h);
+  min-height: 0;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.header-btn:hover {
+  background: var(--bg-active);
+}
+.language-switcher {
+  position: relative;
+  padding: 0 0.25rem 0 0.75rem;
+}
+.language-switcher:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.language-switcher select {
+  width: auto;
+  min-height: 0;
+  height: calc(var(--control-h) - 2px);
+  padding: 0 0.25rem;
+  border: 0;
+  background: transparent;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.language-switcher select:focus-visible {
+  outline: none;
+}
+@media (max-width: 640px) {
+  .topbar {
+    padding: 0 0.5rem 0 0.75rem;
+    gap: 0.35rem;
+  }
+  .header-btn {
+    width: var(--control-h);
+    padding: 0;
+  }
+  .btn-label {
+    display: none;
+  }
+  /* The select still opens natively; it covers the globe icon. */
+  .language-switcher select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
 }
 .topbar nav {
   display: flex;
@@ -91,13 +179,44 @@ body {
   outline: none;
 }
 main {
-  padding: 1rem;
+  padding: 1rem 1.25rem 2rem;
   max-width: 1100px;
   margin: 0 auto;
+}
+main:focus {
+  outline: none;
 }
 h2,
 h3 {
   margin: 0.6rem 0 0.4rem;
+  line-height: 1.25;
+}
+h2 {
+  font-size: 1.3rem;
+}
+h3 {
+  font-size: 1.05rem;
+}
+h4 {
+  margin: 0.5rem 0 0.3rem;
+  font-size: 0.95rem;
+}
+/* The chat fills the space between the header and the bottom bar (or
+   the screen's edge), edge to edge, like the messengers it imitates. */
+main[data-view='chat']:has(> .chat-shell) {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  height: calc(100dvh - var(--topbar-h));
+  padding: 0;
+}
+.app-shell-compact main[data-view='chat']:has(> .chat-shell) {
+  height: calc(
+    100dvh - var(--topbar-h) - var(--bottom-nav-h) - var(--safe-bottom)
+  );
+}
+main[data-view='chat'] > .web-mode-banner {
+  margin: 0.75rem;
 }
 /* Chat screen (issue #31 / PR #34). The default skin follows t3.codes:
    a quiet sidebar with date sections, a centred message column where
@@ -120,11 +239,9 @@ h3 {
 }
 .chat-shell {
   display: grid;
-  grid-template-columns: minmax(220px, 280px) 1fr;
-  height: calc(100vh - 120px);
-  min-height: 420px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: hidden;
   background: var(--chat-bg);
 }
@@ -150,28 +267,29 @@ h3 {
 .chat-list {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 0 0.4rem 0.6rem;
+  padding: 0 0.375rem 0.6rem;
 }
 .chat-group h3 {
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--chat-accent);
-  margin: 0.8rem 0.5rem 0.3rem;
+  color: var(--text-subtle);
+  margin: 0.8rem 0.375rem 0.3rem;
 }
 .chat-item {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   width: 100%;
+  min-height: 3.5rem;
   text-align: left;
   background: transparent;
   color: inherit;
   border: 0;
-  border-radius: 8px;
-  padding: 0.45rem 0.5rem;
+  border-radius: var(--radius);
+  padding: 0.45rem 0.375rem;
   cursor: pointer;
 }
 .chat-item:hover,
@@ -181,12 +299,16 @@ h3 {
 .chat-item-body {
   display: flex;
   flex-direction: column;
+  gap: 0.1rem;
   min-width: 0;
 }
-.chat-item-top {
+.chat-item-top,
+.chat-item-bottom {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  min-width: 0;
 }
 .chat-item-name,
 .chat-item-preview {
@@ -199,12 +321,13 @@ h3 {
 }
 .chat-item-time,
 .chat-item-source {
-  font-size: 0.7rem;
-  opacity: 0.6;
+  flex: none;
+  font-size: 0.72rem;
+  color: var(--text-subtle);
 }
 .chat-item-preview {
-  font-size: 0.8rem;
-  opacity: 0.7;
+  font-size: 0.82rem;
+  color: var(--text-subtle);
 }
 .avatar {
   --avatar-hue: 260;
@@ -235,7 +358,8 @@ h3 {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.6rem 1rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border);
   background: var(--chat-sidebar);
 }
@@ -253,6 +377,7 @@ h3 {
   position: relative;
 }
 .chat-menu-toggle {
+  gap: 0.4rem;
   border-radius: 8px;
 }
 .chat-menu-list {
@@ -346,8 +471,11 @@ h3 {
 }
 .bubble-time {
   align-self: flex-end;
-  font-size: 0.68rem;
-  opacity: 0.6;
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+:root[data-skin='signal'] .bubble.out .bubble-time {
+  opacity: 1;
 }
 .draft-card {
   display: flex;
@@ -402,12 +530,12 @@ h3 {
   background: transparent;
 }
 .chat-composer .send {
-  width: 2.4rem;
-  height: 2.4rem;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
   padding: 0;
   border-radius: 50%;
-  background: var(--chat-accent);
-  font-size: 1.1rem;
+  background: var(--accent-fill, var(--chat-accent));
 }
 .chat-composer .send:disabled {
   opacity: 0.4;
@@ -419,13 +547,29 @@ h3 {
   gap: 0.3rem;
 }
 .chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  max-width: 100%;
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 0.2rem 0.7rem;
+  padding: 0 0.8rem;
   background: var(--bg-active);
   color: inherit;
   cursor: pointer;
   font-size: 0.82rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.icon-btn {
+  width: var(--control-h);
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+.chat-back {
+  display: none;
 }
 @media (prefers-reduced-transparency: reduce) {
   .chat-composer {
@@ -434,20 +578,33 @@ h3 {
     backdrop-filter: none;
   }
 }
+/* Narrow screens: one pane at a time, list first, back to the list
+   from the conversation header. */
 @media (max-width: 720px) {
   .chat-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(8rem, 30%) 1fr;
-    height: calc(100vh - 150px);
   }
   .chat-sidebar {
     border-right: 0;
-    border-bottom: 1px solid var(--border);
+  }
+  .chat-shell[data-pane='list'] .chat-main,
+  .chat-shell[data-pane='chat']:has(.chat-main) .chat-sidebar {
+    display: none;
+  }
+  .chat-back {
+    display: inline-flex;
+    margin-left: -0.5rem;
+  }
+  .chat-header {
+    padding: 0.5rem 0.75rem;
+  }
+  .chat-scroll {
+    padding-inline: 0.75rem;
   }
 }
 .meta {
-  font-size: 0.75rem;
-  opacity: 0.7;
+  font-size: 0.8rem;
+  color: var(--text-subtle);
 }
 input,
 textarea,
@@ -455,10 +612,41 @@ select {
   background: var(--bg-input);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius);
+  min-height: var(--control-h);
+  padding: 0.4rem 0.7rem;
   font: inherit;
   width: 100%;
+}
+textarea {
+  min-height: 4.5rem;
+}
+input[type='checkbox'],
+input[type='radio'] {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+input[type='file'] {
+  padding: 0.3rem;
+}
+input[type='color'] {
+  width: 3rem;
+  padding: 0.15rem;
+}
+/* A checkbox or radio with its text: one line, a comfortable target. */
+label:has(> input[type='checkbox']),
+label:has(> input[type='radio']) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 1.75rem;
+  cursor: pointer;
 }
 input:focus-visible,
 textarea:focus-visible,
@@ -467,21 +655,42 @@ button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
-button.primary {
-  background: var(--accent);
-  color: white;
-  border: 0;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: var(--control-h);
   background: var(--bg-active);
   color: inherit;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius);
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.2;
   cursor: pointer;
+}
+button:hover:not(:disabled) {
+  border-color: var(--text-subtle);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button.primary {
+  background: var(--accent-fill, var(--accent));
+  color: white;
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+button.primary:hover:not(:disabled) {
+  border-color: transparent;
+  filter: brightness(1.1);
+}
+/* A button in a column keeps its own width instead of the column's. */
+.col > button {
+  align-self: flex-start;
 }
 .row {
   display: flex;
@@ -489,20 +698,142 @@ button {
   align-items: center;
   flex-wrap: wrap;
 }
+/* Fields in a row share it and wrap on narrow screens. */
+.row > :where(input:not([type='checkbox'], [type='radio']), select) {
+  flex: 1 1 12rem;
+  width: auto;
+  min-width: 0;
+}
+.row > .grow {
+  flex: 1 1 16rem;
+}
+.row > .narrow {
+  /* Wide enough for its placeholder; wraps instead of truncating it. */
+  flex: 0 0 11rem;
+}
+@media (max-width: 640px) {
+  /* Phones stack the fields full width and keep the actions together. */
+  .row > .narrow {
+    flex-basis: 100%;
+  }
+}
 .col {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
+/* Flex columns do not collapse margins: the gap spaces the children, so
+   text keeps only the extra room above a sub-heading. */
+.col > p,
+.col > h2 {
+  margin-block: 0;
+}
+.col > :is(h3, h4) {
+  margin-bottom: 0;
+}
 table {
   width: 100%;
   border-collapse: collapse;
+}
+@media (max-width: 720px) {
+  /* Wide tables scroll inside themselves, not the whole page. */
+  table {
+    display: block;
+    overflow-x: auto;
+  }
 }
 td,
 th {
   border-bottom: 1px solid var(--border);
   padding: 0.4rem;
   text-align: left;
+}
+/* Network checkboxes: more space between choices than inside one, so
+   each box reads as part of its own label. */
+.source-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.source-checks > legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 0.25rem;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.source-checks > label {
+  gap: 0.4rem;
+}
+/* Phones: each row of a .stack-table becomes a small card: the
+   [data-title] cell on top, every other cell a "label  value" line taken
+   from its data-label, so no column is cut off. */
+@media (max-width: 640px) {
+  .stack-table,
+  .stack-table tbody {
+    display: block;
+    overflow: visible;
+  }
+  .stack-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .stack-table tr {
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stack-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.1rem 0;
+    border: 0;
+    text-align: right;
+  }
+  .stack-table td::before {
+    content: attr(data-label);
+    flex: none;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    text-align: left;
+  }
+  .stack-table td[data-title] {
+    order: -1;
+    font-weight: 600;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+  .stack-table td[data-title]::before {
+    content: none;
+  }
+}
+/* Checkboxes in table cells line up with the cell text. */
+td > input[type='checkbox'] {
+  vertical-align: middle;
+}
+/* Key/value tables: keep each value near its key, numbers aligned. */
+.kv-table {
+  max-width: 32rem;
+}
+.kv-table th {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.kv-table td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .graph {
   border: 1px dashed var(--border);
@@ -531,10 +862,19 @@ th {
 }
 .card {
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.7rem;
-  margin: 0.4rem 0;
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
   background: var(--bg-elev);
+}
+.card > :first-child {
+  margin-top: 0;
+}
+.card > :last-child {
+  margin-bottom: 0;
+}
+pre:empty {
+  display: none;
 }
 pre {
   background: var(--bg-elev);
@@ -545,11 +885,11 @@ pre {
 }
 
 .mode-badge {
-  font-size: 0.75rem;
-  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.5rem;
   border-radius: 999px;
   border: 1px solid var(--border);
-  margin-left: auto;
+  margin-right: auto;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -577,7 +917,7 @@ pre {
   position: absolute;
   left: -9999px;
   top: 0;
-  background: var(--accent);
+  background: var(--accent-fill, var(--accent));
   color: white;
   padding: 0.5rem 1rem;
   z-index: 1000;
@@ -586,15 +926,82 @@ pre {
   left: 0;
 }
 
-/* Connection guides (issue #10, R-M1..R-M8). */
+/* Connection guides (issue #10, R-M1..R-M8): the empty state of a
+   screen, aligned with the page's own text rather than indented. */
 .connection-guide {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  max-width: 46rem;
 }
 .connection-guide > h2 {
   margin: 0;
+  font-size: 1.1rem;
+}
+.connection-guide > p {
+  margin: 0;
+  color: var(--text-muted);
+}
+.connection-guide > p:empty {
+  display: none;
+}
+.local-server-help > :is(h4, p) {
+  margin: 0;
+}
+.local-server-help {
+  border-radius: var(--radius);
+}
+
+/* Connections (issue #25): one card per provider in a grid that fills
+   wide screens, each with its state as a pill. */
+.connections-list-header > p {
+  margin: 0 0 0.75rem;
+}
+.connections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 0.75rem;
+}
+.connections-grid > .card {
+  margin: 0;
+}
+.connections-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.connections-card > p {
+  margin: 0;
+  flex: 1;
+}
+.connections-card > button {
+  align-self: flex-start;
+}
+.connections-card-header,
+.connections-detail-header {
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+.connections-card-header > h3 {
+  margin: 0;
+  min-width: 0;
+}
+.connections-state {
+  flex: none;
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-active);
+}
+.connections-state-connected {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+.connections-state-action-required {
+  color: var(--danger);
 }
 .local-server-help {
   background: var(--bg-elev);
@@ -663,9 +1070,6 @@ pre {
 .tutorial-overlay .tutorial-step .row {
   flex-wrap: wrap;
   gap: 0.5rem;
-}
-.tutorial-toggle {
-  margin-left: 0.5rem;
 }
 
 /* Tutorial spotlight (issue #25 R-N9, R-N10). When a step has a
@@ -752,7 +1156,7 @@ pre {
 .app-shell {
   display: flex;
   width: 100%;
-  min-height: calc(100vh - 56px);
+  min-height: calc(100dvh - var(--topbar-h));
 }
 .app-shell-body {
   flex: 1 1 auto;
@@ -761,7 +1165,7 @@ pre {
 .app-shell-compact {
   flex-direction: column;
   /* Reserve space for the bottom-nav (R-N1) including safe-area inset. */
-  padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottom-nav-h) + var(--safe-bottom));
 }
 .app-shell-medium {
   flex-direction: row;
@@ -769,98 +1173,142 @@ pre {
 .app-shell-expanded {
   flex-direction: row;
 }
+.nav-item {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.nav-item:hover {
+  background: var(--bg-active);
+  color: var(--text);
+}
+.nav-item.active {
+  background: var(--accent-bg);
+  color: var(--text);
+  font-weight: 600;
+}
+.nav-label {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 
-/* Bottom navigation (compact ≤ 640 px). 56 × 56 px tap targets per
-   Material 3 + WCAG 2.2 AAA touch guidance (R-N2). */
+/* Bottom navigation (compact ≤ 640 px): five equal slots, 64 px tall,
+   icon over label (Material 3 navigation bar); "More" opens a sheet
+   with the remaining sections (R-N2). */
 .bottom-nav {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  display: flex;
-  overflow-x: auto;
-  padding: 0.25rem;
-  padding-bottom: calc(0.25rem + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  height: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  padding: 0.25rem 0.25rem calc(0.25rem + var(--safe-bottom));
   gap: 0.25rem;
   z-index: 50;
-  box-shadow: var(--surface-glass-shadow);
+  border-width: 1px 0 0;
 }
-.bottom-nav .nav-item {
-  flex: 0 0 auto;
-  min-width: 64px;
-  min-height: 56px;
-  border: 0;
-  background: transparent;
-  color: var(--text-muted);
+.bottom-nav .nav-item,
+.more-sheet .nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.25rem;
   border-radius: 12px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.78rem;
-  cursor: pointer;
+  font-size: 0.72rem;
 }
-.bottom-nav .nav-item.active {
-  background: var(--accent-bg);
-  color: var(--text);
+.more-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: rgba(0, 0, 0, 0.4);
+}
+.more-sheet {
+  position: fixed;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: calc(var(--bottom-nav-h) + var(--safe-bottom) + 0.5rem);
+  z-index: 55;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.25rem;
+  max-height: 60dvh;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px var(--shadow);
+}
+.more-sheet .nav-item {
+  min-height: 4.25rem;
+}
+.more-scrim[hidden],
+.more-sheet[hidden] {
+  display: none;
 }
 
-/* Navigation rail (medium 641-1023 px). 80 px wide, full-height. */
+/* Navigation rail (medium 641-1023 px): 88 px, icon over label, sticks
+   under the header and scrolls on its own. */
 .side-rail {
   position: sticky;
-  top: 0;
+  top: var(--topbar-h);
   align-self: flex-start;
   display: flex;
   flex-direction: column;
-  width: 80px;
-  height: 100vh;
-  padding: 0.5rem;
-  gap: 0.25rem;
+  flex: none;
+  width: 88px;
+  height: calc(100dvh - var(--topbar-h));
+  padding: 0.5rem 0.375rem;
+  gap: 0.125rem;
   overflow-y: auto;
-  box-shadow: var(--surface-glass-shadow);
+  border-width: 0 1px 0 0;
 }
 .side-rail .nav-item {
-  min-height: 56px;
-  border: 0;
-  background: transparent;
-  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  flex: none;
+  min-height: 3.25rem;
+  padding: 0.3rem 0.2rem;
   border-radius: 12px;
-  padding: 0.5rem 0.25rem;
-  font-size: 0.7rem;
-  cursor: pointer;
-  text-align: center;
-  word-break: keep-all;
-}
-.side-rail .nav-item.active {
-  background: var(--accent-bg);
-  color: var(--text);
+  font-size: 0.68rem;
 }
 
-/* Permanent drawer (expanded ≥ 1024 px). 256 px wide. */
+/* Permanent drawer (expanded ≥ 1024 px): 232 px, icon + label rows,
+   sticks under the header and scrolls on its own. */
 .permanent-drawer {
   position: sticky;
-  top: 0;
+  top: var(--topbar-h);
   align-self: flex-start;
   display: flex;
   flex-direction: column;
-  width: 256px;
-  height: 100vh;
-  padding: 1rem 0.5rem;
-  gap: 0.25rem;
+  flex: none;
+  width: 232px;
+  height: calc(100dvh - var(--topbar-h));
+  padding: 0.5rem;
+  gap: 0.125rem;
   overflow-y: auto;
-  box-shadow: var(--surface-glass-shadow);
+  border-width: 0 1px 0 0;
 }
 .permanent-drawer .nav-item {
-  min-height: 48px;
-  border: 0;
-  background: transparent;
-  color: var(--text-muted);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  flex: none;
+  min-height: 2.25rem;
+  padding: 0 0.75rem;
+  border-radius: var(--radius);
   text-align: left;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-.permanent-drawer .nav-item.active {
-  background: var(--accent-bg);
-  color: var(--text);
+  font-size: 0.9rem;
 }
 
 /* Hide the legacy header nav block (now provided by AppShell). The
@@ -875,6 +1323,7 @@ pre {
   position: sticky;
   top: 0;
   z-index: 40;
+  border-width: 0 0 1px;
 }
 /* Automations screen (issue #31 / PR #34): list, editor, preview,
    history, people search and saved audiences. */
@@ -904,12 +1353,12 @@ pre {
 }
 .automations-body {
   display: grid;
-  grid-template-columns: minmax(14rem, 18rem) 1fr;
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
 }
 .automations-body + .automations-body {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .automation-list {
   list-style: none;
@@ -924,7 +1373,9 @@ pre {
   text-align: left;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 0.15rem;
+  padding: 0.55rem 0.75rem;
   background: var(--bg-elev);
 }
 .automation-list li.active button {
@@ -995,10 +1446,15 @@ pre {
   max-height: 22rem;
   overflow-y: auto;
 }
+.people-results {
+  margin-top: 0.5rem;
+}
 .people-results li {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: 0 0.75rem;
 }
 .automation-audiences li {
   display: flex;
@@ -1013,7 +1469,7 @@ pre {
   background: var(--bg-active);
 }
 .automations .status.sent {
-  background: var(--accent);
+  background: var(--accent-fill, var(--accent));
   color: white;
 }
 .automations .status.failed {
@@ -1023,7 +1479,7 @@ pre {
 @media (max-width: 720px) {
   .automations-body,
   .automations-body + .automations-body {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 /* Skins (issue #31 / PR #34): Settings → Appearance sets
@@ -1032,6 +1488,8 @@ pre {
    Telegram (Web A / tdesktop night), WhatsApp Web and Signal Desktop. */
 :root[data-skin='telegram'] {
   --accent: #3390ec;
+  /* Fills under white text are a shade darker to keep 4.5:1 (WCAG). */
+  --accent-fill: #1f75c7;
   --accent-bg: #3390ec22;
   --chat-accent: #3390ec;
   --chat-bg: linear-gradient(135deg, #dbddbb, #6ba587, #d5d88d, #88b884);
@@ -1056,6 +1514,7 @@ pre {
 }
 :root[data-skin='whatsapp'] {
   --accent: #00a884;
+  --accent-fill: #008069;
   --accent-bg: #00a88422;
   --chat-accent: #00a884;
   --chat-bg: #efeae2;
@@ -1102,6 +1561,10 @@ pre {
   gap: 1rem;
 }
 .appearance-choices {
+  /* Side by side when they fit, otherwise stacked at the same width. */
+  flex: 1 1 14rem;
+  min-width: 0;
+  margin: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.5rem 0.8rem;
@@ -1112,10 +1575,12 @@ pre {
 .appearance .check {
   display: flex;
   gap: 0.4rem;
-  align-items: center;
+  /* The radio stays on the first line when its label wraps. */
+  align-items: flex-start;
 }
 .appearance .check input {
   width: auto;
+  margin-top: calc((1lh - 1.1rem) / 2);
 }
 
 /* Greetings (issue #35): a grid of sticker cards with direct previews. */
@@ -1155,11 +1620,23 @@ pre {
   flex-wrap: wrap;
   list-style: none;
   padding: 0;
-  gap: 0.75rem;
+  gap: 0.25rem 1rem;
+}
+.greetings-set-list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+}
+.greetings-set-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
 }
 .greetings-set-list input {
-  width: auto;
-  margin-right: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
 }
 .greetings-controls {
   flex-wrap: wrap;
@@ -1167,8 +1644,15 @@ pre {
   gap: 0.5rem;
 }
 .greetings-field {
-  min-width: 10rem;
+  flex: 1 1 10rem;
   max-width: 16rem;
+  gap: 0.25rem;
+}
+@media (max-width: 640px) {
+  .greetings-field {
+    flex-basis: 100%;
+    max-width: none;
+  }
 }
 .greetings-failures {
   color: var(--danger, #c0392b);

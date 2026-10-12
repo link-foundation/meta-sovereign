@@ -747,6 +747,7 @@ const AudiencesPanel = ({ state }) => {
           value: audiences.name,
           placeholder: t('automations.field.name'),
           'aria-label': t('automations.field.name'),
+          className: 'narrow',
           onChange: (event) => audiences.setName(event.target.value),
         }),
         el('input', {
@@ -754,6 +755,7 @@ const AudiencesPanel = ({ state }) => {
           value: audiences.spec,
           placeholder: 'friends:vk & chat:vk:2000000001',
           'aria-label': t('automations.field.audience'),
+          className: 'grow',
           onChange: (event) => audiences.setSpec(event.target.value),
         }),
         el(

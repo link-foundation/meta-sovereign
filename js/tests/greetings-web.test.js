@@ -22,6 +22,7 @@ import { views } from '../src/web/views.js';
 import { connectionGuides } from '../src/web/connection-guides.js';
 import { LocaleContext, availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
+import { assertStackTable } from './helpers/stack-table.js';
 import {
   defaultGreetingSelection,
   greetingCatalogue,
@@ -248,6 +249,12 @@ test('shows network capabilities, including networks without stickers', () => {
   assert.ok(html.includes('data-network="x"'));
   assert.ok(html.includes('within 24 h of their last message'));
   assert.ok(html.includes('replies only'));
+});
+
+test('phones stack the network and plan tables into labelled cards', () => {
+  const html = render(baseState({ plan }));
+  assertStackTable(html, 'greetings-networks');
+  assertStackTable(html, 'greetings-plan');
 });
 
 test('reports failures, including server-required ones, as an alert', () => {

@@ -14,6 +14,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { Icon } from './icons.js';
 
 const el = React.createElement;
 
@@ -444,11 +445,15 @@ export const TutorialButton = ({ onOpen }) => {
     'button',
     {
       type: 'button',
-      className: 'tutorial-toggle',
+      className: 'tutorial-toggle header-btn',
       'data-action': 'tutorial-open',
       'aria-label': t('header.tutorialAria'),
+      title: t('header.tutorialAria'),
       onClick: onOpen,
     },
-    t('header.tutorial')
+    [
+      el(Icon, { key: 'i', name: 'help', size: 18 }),
+      el('span', { key: 'l', className: 'btn-label' }, t('header.tutorial')),
+    ]
   );
 };

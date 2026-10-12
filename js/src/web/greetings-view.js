@@ -68,7 +68,7 @@ const initiateLabel = (network, t) =>
 
 const NetworksTable = ({ networks }) => {
   const t = useT();
-  return el('table', { className: 'greetings-networks' }, [
+  return el('table', { className: 'greetings-networks stack-table' }, [
     el(
       'thead',
       { key: 'head' },
@@ -84,14 +84,30 @@ const NetworksTable = ({ networks }) => {
       { key: 'body' },
       Object.entries(networks ?? {}).map(([id, network]) =>
         el('tr', { key: id, 'data-network': id }, [
-          el('td', { key: 'network' }, id),
+          el('td', { key: 'network', 'data-title': '' }, id),
           el(
             'td',
-            { key: 'sticker', className: 'meta' },
+            {
+              key: 'sticker',
+              className: 'meta',
+              'data-label': t('greetings.addressing'),
+            },
             network.sticker ?? t('greetings.textOnly')
           ),
-          el('td', { key: 'initiate' }, initiateLabel(network, t)),
-          el('td', { key: 'note', className: 'meta' }, network.note),
+          el(
+            'td',
+            { key: 'initiate', 'data-label': t('greetings.initiate') },
+            initiateLabel(network, t)
+          ),
+          el(
+            'td',
+            {
+              key: 'note',
+              className: 'meta',
+              'data-label': t('greetings.note'),
+            },
+            network.note
+          ),
         ])
       )
     ),
@@ -330,7 +346,7 @@ const PlanTable = ({ plan, results }) => {
     (results ?? []).find(
       (r) => r.network === envelope.network && r.chat === envelope.chat
     );
-  return el('table', { className: 'greetings-plan' }, [
+  return el('table', { className: 'greetings-plan stack-table' }, [
     el(
       'thead',
       { key: 'head' },
@@ -354,13 +370,37 @@ const PlanTable = ({ plan, results }) => {
             'data-skipped': envelope.skipped ?? '',
           },
           [
-            el('td', { key: 'network' }, envelope.network),
-            el('td', { key: 'chat' }, envelope.contact ?? envelope.chat),
-            el('td', { key: 'lang', className: 'meta' }, envelope.language),
-            el('td', { key: 'what' }, greetingOf(envelope)),
             el(
               'td',
-              { key: 'status', className: 'meta' },
+              { key: 'network', 'data-label': t('greetings.network') },
+              envelope.network
+            ),
+            el(
+              'td',
+              { key: 'chat', 'data-title': '' },
+              envelope.contact ?? envelope.chat
+            ),
+            el(
+              'td',
+              {
+                key: 'lang',
+                className: 'meta',
+                'data-label': t('greetings.lang'),
+              },
+              envelope.language
+            ),
+            el(
+              'td',
+              { key: 'what', 'data-label': t('greetings.what') },
+              greetingOf(envelope)
+            ),
+            el(
+              'td',
+              {
+                key: 'status',
+                className: 'meta',
+                'data-label': t('greetings.status'),
+              },
               envelopeStatus(envelope, resultFor(envelope), t)
             ),
           ]

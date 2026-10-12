@@ -215,6 +215,20 @@ test('screen: sidebar, header, menu, draft, composer chips', () => {
   assert.match(html, /class="bubble in"/);
 });
 
+test('screen: phones show one pane at a time, with a way back', () => {
+  const html = render(screenState());
+  // The list shows first; picking a chat switches the pane, and the
+  // header's back button (hidden by CSS on wider screens) returns.
+  assert.match(html, /class="chat-shell" data-pane="list"/);
+  assert.match(
+    html,
+    /<button[^>]*class="chat-back icon-btn"[^>]*data-action="chat-back"[^>]*aria-label="Back to chats"/
+  );
+  // Icons are decorative; every icon-only control has a name.
+  assert.match(html, /<svg class="icon icon-back"[^>]*aria-hidden="true"/);
+  assert.match(html, /data-action="chat-automations"[^>]*>.*Automations/);
+});
+
 test('screen: typing status, translated, and the empty states', () => {
   const typing = render(
     screenState({ typing: { people: [], automation: 'Say hi' } }),

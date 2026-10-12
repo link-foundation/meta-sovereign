@@ -148,28 +148,41 @@ export const ContactsView = () => {
     if (!contacts || contacts.length === 0) {
       return el(ConnectionGuide, { section: 'contacts' });
     }
-    return el('div', {}, [
+    const columns = [
+      'contacts.identity',
+      'contacts.networks',
+      'contacts.chats',
+      'contacts.messages',
+      'contacts.lastSeen',
+    ].map((key) => t(key));
+    const cell = (index, value) =>
+      el(
+        'td',
+        index === 0
+          ? { key: index, 'data-title': '' }
+          : { key: index, 'data-label': columns[index] },
+        value
+      );
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('contacts.title', { count: contacts.length })),
-      el('table', { key: 'table' }, [
+      el('table', { key: 'table', className: 'stack-table' }, [
         el('thead', { key: 'head' }, [
-          el('tr', {}, [
-            el('th', {}, t('contacts.identity')),
-            el('th', {}, t('contacts.networks')),
-            el('th', {}, t('contacts.chats')),
-            el('th', {}, t('contacts.messages')),
-            el('th', {}, t('contacts.lastSeen')),
-          ]),
+          el(
+            'tr',
+            {},
+            columns.map((label) => el('th', { key: label }, label))
+          ),
         ]),
         el(
           'tbody',
           { key: 'body' },
           contacts.map((contact) =>
             el('tr', { key: contact.id }, [
-              el('td', {}, contact.id),
-              el('td', {}, (contact.networks ?? []).join(', ')),
-              el('td', {}, String((contact.chats ?? []).length)),
-              el('td', {}, String(contact.messageCount ?? contact.count ?? 0)),
-              el('td', {}, fmtTs(contact.lastSeen)),
+              cell(0, contact.id),
+              cell(1, (contact.networks ?? []).join(', ')),
+              cell(2, String((contact.chats ?? []).length)),
+              cell(3, String(contact.messageCount ?? contact.count ?? 0)),
+              cell(4, fmtTs(contact.lastSeen)),
             ])
           )
         ),
@@ -538,8 +551,9 @@ export const AudienceView = () => {
     el('div', { key: 'row', className: 'row' }, [
       el('input', {
         key: 'q',
+        className: 'grow',
         placeholder: t('audience.queryPlaceholder'),
-        style: { minWidth: '32rem' },
+        'aria-label': t('audience.title'),
         value: query,
         onChange: (event) => setQuery(event.target.value),
       }),
@@ -573,12 +587,12 @@ export const AudienceView = () => {
   ]);
 };
 
-const SourceChecks = ({ sources, selected, setSelected }) =>
-  el(
-    'div',
-    { className: 'row' },
-    sources.map((source) =>
-      el('label', { key: source, className: 'row' }, [
+const SourceChecks = ({ sources, selected, setSelected }) => {
+  const t = useT();
+  return el('fieldset', { className: 'source-checks' }, [
+    el('legend', { key: 'legend' }, t('contacts.networks')),
+    ...sources.map((source) =>
+      el('label', { key: source }, [
         el('input', {
           key: 'input',
           type: 'checkbox',
@@ -594,8 +608,9 @@ const SourceChecks = ({ sources, selected, setSelected }) =>
         }),
         el('span', { key: 'label' }, source),
       ])
-    )
-  );
+    ),
+  ]);
+};
 
 const useSources = () => {
   const state = useAsyncValue(() => api.sources(), [], []);
@@ -630,6 +645,8 @@ export const BroadcastView = () => {
       el('textarea', {
         key: 'msg',
         rows: 4,
+        placeholder: t('broadcast.placeholder'),
+        'aria-label': t('broadcast.placeholder'),
         value: message,
         onChange: (event) => setMessage(event.target.value),
       }),
@@ -674,7 +691,7 @@ export const OutreachView = () => {
       el('input', {
         key: 'q',
         placeholder: t('outreach.queryPlaceholder'),
-        style: { minWidth: '32rem' },
+        'aria-label': t('outreach.queryPlaceholder'),
         value: query,
         onChange: (event) => setQuery(event.target.value),
       }),
@@ -747,6 +764,8 @@ export const BackupView = () => {
           key: 'pass',
           type: 'password',
           placeholder: t('backup.passphrasePlaceholder'),
+          'aria-label': t('backup.passphrasePlaceholder'),
+          className: 'grow',
           value: passphrase,
           onChange: (event) => setPassphrase(event.target.value),
         }),
@@ -755,7 +774,9 @@ export const BackupView = () => {
           type: 'number',
           min: '0',
           placeholder: t('backup.keepPlaceholder'),
-          style: { maxWidth: '10rem' },
+          title: t('backup.keepPlaceholder'),
+          'aria-label': t('backup.keepPlaceholder'),
+          className: 'narrow',
           value: keep,
           onChange: (event) => setKeep(event.target.value),
         }),
@@ -931,9 +952,9 @@ export const StatusView = () => {
     if (!status || Object.keys(status).length === 0) {
       return el(ConnectionGuide, { section: 'status' });
     }
-    return el('div', {}, [
+    return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('status.title')),
-      el('table', { key: 'table' }, [
+      el('table', { key: 'table', className: 'kv-table' }, [
         el(
           'tbody',
           {},

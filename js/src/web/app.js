@@ -16,6 +16,7 @@ import { LanguageSwitcher } from './language-switcher.js';
 import { AppShell } from './shell/app-shell.js';
 import { useAppearance, useApplyAppearance } from './appearance.js';
 import { WebModeBanner } from './web-mode-banner.js';
+import { Icon } from './icons.js';
 
 const el = React.createElement;
 
@@ -123,14 +124,25 @@ const App = () => {
             {
               key: 'theme',
               type: 'button',
-              className: 'theme-toggle',
+              className: 'theme-toggle header-btn',
               'data-action': 'theme-toggle',
               'aria-label': t('header.themeAria'),
               'aria-pressed': String(theme === 'dark'),
               title: t('header.themeAria'),
               onClick: toggle,
             },
-            t('header.theme')
+            [
+              el(Icon, {
+                key: 'i',
+                name: theme === 'dark' ? 'moon' : 'sun',
+                size: 18,
+              }),
+              el(
+                'span',
+                { key: 'l', className: 'btn-label' },
+                t('header.theme')
+              ),
+            ]
           ),
         ]
       ),
@@ -142,14 +154,24 @@ const App = () => {
           active,
           onSelect: setActive,
         },
-        el('main', { key: 'main', id: 'root', role: 'main', tabIndex: -1 }, [
-          el(WebModeBanner, {
-            key: 'web-mode',
-            online,
-            onRetry: () => api.rediscover(),
-          }),
-          el(View, { key: 'view' }),
-        ])
+        el(
+          'main',
+          {
+            key: 'main',
+            id: 'root',
+            role: 'main',
+            tabIndex: -1,
+            'data-view': active,
+          },
+          [
+            el(WebModeBanner, {
+              key: 'web-mode',
+              online,
+              onRetry: () => api.rediscover(),
+            }),
+            el(View, { key: 'view' }),
+          ]
+        )
       ),
       el(TutorialOverlay, {
         key: 'tutorial-overlay',

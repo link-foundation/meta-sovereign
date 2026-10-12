@@ -12,12 +12,13 @@
 //     drafts automations left here: send (one click is the
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { avatarFor, groupChats } from './chat-model.js';
 import { useChatState } from './chat-state.js';
+import { Icon } from './icons.js';
 
 const el = React.createElement;
 
@@ -64,13 +65,15 @@ const ChatItem = ({ chat, active, onSelect }) => {
             time(chat.last.at)
           ),
         ]),
-        el(
-          'span',
-          { key: 'p', className: 'chat-item-preview' },
-          `${chat.last.mine ? `${t('chat.you')}: ` : ''}${chat.last.body}`
-        ),
+        el('span', { key: 'bottom', className: 'chat-item-bottom' }, [
+          el(
+            'span',
+            { key: 'p', className: 'chat-item-preview' },
+            `${chat.last.mine ? `${t('chat.you')}: ` : ''}${chat.last.body}`
+          ),
+          el('span', { key: 's', className: 'chat-item-source' }, chat.source),
+        ]),
       ]),
-      el('span', { key: 's', className: 'chat-item-source' }, chat.source),
     ]
   );
 };
@@ -151,7 +154,10 @@ const AutomationMenu = ({ menu }) => {
         'data-action': 'chat-automations',
         onClick: menu.toggle,
       },
-      `⚡ ${t('chat.automations')}`
+      [
+        el(Icon, { key: 'i', name: 'automation', size: 16 }),
+        el('span', { key: 'l' }, t('chat.automations')),
+      ]
     ),
     menu.open
       ? el(
@@ -205,10 +211,23 @@ const AutomationMenu = ({ menu }) => {
   ]);
 };
 
-const Header = ({ state }) => {
+const Header = ({ state, onBack }) => {
   const t = useT();
   const chat = state.current;
   return el('header', { className: 'chat-header' }, [
+    el(
+      'button',
+      {
+        key: 'back',
+        type: 'button',
+        className: 'chat-back icon-btn',
+        'data-action': 'chat-back',
+        'aria-label': t('chat.back'),
+        title: t('chat.back'),
+        onClick: onBack,
+      },
+      el(Icon, { name: 'back' })
+    ),
     el(Avatar, { key: 'a', name: chat.name }),
     el('div', { key: 't', className: 'chat-header-title' }, [
       el('strong', { key: 'n' }, chat.name),
@@ -475,7 +494,7 @@ const Composer = ({ state }) => {
             disabled: !composer.text.trim(),
             'aria-label': t('common.send'),
           },
-          '↑'
+          el(Icon, { name: 'send', size: 18 })
         ),
       ]),
     ]
@@ -485,17 +504,24 @@ const Composer = ({ state }) => {
 /** The screen itself, pure: everything comes from `state`. */
 export const ChatScreen = ({ state }) => {
   const t = useT();
+  const [pane, setPane] = useState('list');
   if (state.loading) {
     return el('div', { className: 'meta' }, t('common.loading'));
   }
   if (state.total === 0) {
     return el(ConnectionGuide, { section: 'chat' });
   }
-  return el('div', { className: 'chat-shell' }, [
-    el(Sidebar, { key: 'side', state }),
+  // Phones show one pane at a time (list → conversation → back), as
+  // Telegram and WhatsApp do; wider screens show both and ignore it.
+  const select = (key) => {
+    state.select(key);
+    setPane('chat');
+  };
+  return el('div', { className: 'chat-shell', 'data-pane': pane }, [
+    el(Sidebar, { key: 'side', state: { ...state, select } }),
     state.current
       ? el('section', { key: 'main', className: 'chat-main' }, [
-          el(Header, { key: 'h', state }),
+          el(Header, { key: 'h', state, onBack: () => setPane('list') }),
           el(Notice, {
             key: 'n',
             notice: state.notice,
