@@ -57,10 +57,13 @@ const openChat = async (page, name) => {
 };
 
 // Issue 31's automation, tested on Аня's chat, leaves an informal draft.
+// The server keeps it, so later shots show the same draft.
 const draftForAnya = async (page) => {
   await openChat(page, 'Аня');
-  await page.click('[data-action="chat-automations"]');
-  await page.locator('[data-action="chat-automation-test"]').first().click();
+  if (!(await page.locator('.draft-card').count())) {
+    await page.click('[data-action="chat-automations"]');
+    await page.locator('[data-action="chat-automation-test"]').first().click();
+  }
   await page.waitForSelector('.draft-card');
   await page.waitForTimeout(300);
 };
