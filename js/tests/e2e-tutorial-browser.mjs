@@ -13,7 +13,10 @@
  *   - Back goes back, Esc closes; the card takes focus once the user
  *     is in the tour (not on page load: the skip link stays first);
  *   - after the nav drawer scrolls, ring and card are still on the
- *     target in the very same frame (no trailing outline).
+ *     target in the very same frame (no trailing outline);
+ *   - every step is shown on its own page: after a reload (the app
+ *     reopens on Chat), after Back across pages, after leaving mid-step
+ *     ("Show me"), and when another service than Email is picked.
  *
  * Playwright and its browsers are optional dependencies, so this is
  * not part of `npm test`. Run it explicitly:
@@ -82,6 +85,7 @@ const geometry = (page) =>
       focused: document.activeElement === card,
       card: card ? box(card) : null,
       target: target ? box(target) : null,
+      scrollY: globalThis.scrollY,
       viewport: {
         width: globalThis.innerWidth,
         height: globalThis.innerHeight,
@@ -121,7 +125,7 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
       card.top >= 0 &&
       card.left + card.width <= viewport.width + 0.5 &&
       card.top + card.height <= viewport.height + 0.5,
-    `${where}: card inside viewport ${JSON.stringify(card)}`
+    `${where}: card inside viewport ${JSON.stringify(card)} target ${JSON.stringify(g.target)} scrollY ${g.scrollY}`
   );
   if (g.target && g.side !== 'dock') {
     check(
@@ -274,6 +278,145 @@ const walk = async (engineName, viewport, base) => {
   }
 };
 
+// Edge cases around pages: reloads (the app always reopens on Chat),
+// leaving mid-step, Back across pages, and picking another service.
+const placeOf = (page) =>
+  page.evaluate(() => ({
+    view:
+      document.querySelector('main[data-view]')?.getAttribute('data-view') ??
+      null,
+    hash: globalThis.location.hash,
+    step:
+      document
+        .querySelector('.tutorial-step')
+        ?.getAttribute('data-tutorial-step') ?? null,
+    next:
+      document
+        .querySelector('[data-action="tutorial-next"]')
+        ?.textContent.trim() ?? null,
+  }));
+
+const waitForPlace = (page, view, detail) =>
+  page.waitForFunction(
+    ([v, d]) => {
+      const main = document.querySelector('main[data-view]');
+      const onDetail = globalThis.location.hash.startsWith('#conn-');
+      return main?.getAttribute('data-view') === v && onDetail === d;
+    },
+    [view, detail],
+    { timeout: 5000 }
+  );
+
+const edgeCases = async (engineName, viewport, base) => {
+  const browser = await playwright[engineName].launch();
+  const page = await browser.newPage({ viewport });
+  const label = `${engineName}/${viewport.name}/pages`;
+  console.log(`- ${label}`);
+  const at = async (step, view, detail, what) => {
+    await waitForStep(page, step);
+    await waitForPlace(page, view, detail);
+    await settle(page);
+    const g = await assertPlacement(page, `${label} ${what}`, {
+      focus: false,
+    });
+    check(g.target !== null, `${label} ${what}: target on screen`);
+  };
+  try {
+    await page.goto(base, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => globalThis.localStorage.clear());
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await waitForStep(page, 'connect');
+    await page.click('[data-action="tutorial-next"]');
+    await page.click('[data-action="tutorial-next"]');
+    await at('pick', 'connections', false, 'pick');
+
+    // 1. Reload on "pick": the app opens on Chat, the tour reopens
+    //    Connections and points at Email again.
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await at('pick', 'connections', false, 'pick after reload');
+
+    // 2. The user leaves mid-step: the tour stays put, Next becomes
+    //    "Show me" and brings them back.
+    await page.click('[data-tutorial-id="nav:chat"] >> visible=true');
+    await waitForPlace(page, 'chat', false);
+    await page.waitForFunction(
+      () =>
+        document.querySelector('[data-action="tutorial-next"]')?.textContent ===
+        'Show me',
+      undefined,
+      { timeout: 5000 }
+    );
+    check(
+      (await placeOf(page)).step === 'pick',
+      `${label}: leaving the page must not advance the tour`
+    );
+    await page.click('[data-action="tutorial-next"]');
+    await at('pick', 'connections', false, 'pick after "Show me"');
+    check(
+      (await placeOf(page)).next === 'Next',
+      `${label}: "Show me" turns back into Next`
+    );
+
+    // 3. Another service's Set up: the tour follows that page.
+    await page.click(
+      '[data-tutorial-id="connections:telegram"] [data-action="open-connection-detail"]'
+    );
+    await at('setup', 'connections', true, 'setup on Telegram');
+    check(
+      (await placeOf(page)).hash === '#conn-telegram',
+      `${label}: setup must stay on the chosen service`
+    );
+
+    // 4. Back from the provider page: "pick" is on the list, and being
+    //    on a provider page a moment ago does not skip it forward.
+    await page.click('[data-action="tutorial-back"]');
+    await at('pick', 'connections', false, 'pick after Back');
+    await page.waitForTimeout(400);
+    check(
+      (await placeOf(page)).step === 'pick',
+      `${label}: Back to "pick" must stay on "pick"`
+    );
+
+    // 5. Next performs Email's Set up, exactly one step forward.
+    await page.click('[data-action="tutorial-next"]');
+    await at('setup', 'connections', true, 'setup on Email');
+    await page.waitForTimeout(400);
+    check(
+      (await placeOf(page)).step === 'setup',
+      `${label}: one Next must move exactly one step`
+    );
+
+    // 6. Reload on "setup": a provider page is reopened.
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await at('setup', 'connections', true, 'setup after reload');
+
+    // 7. Back to Chat later in the tour and Back again onto "setup":
+    //    the provider page opens again.
+    await page.click('[data-action="tutorial-next"]');
+    await waitForStep(page, 'chat');
+    await page.click('[data-tutorial-id="nav:chat"] >> visible=true');
+    await waitForStep(page, 'contacts');
+    await page.click('[data-action="tutorial-back"]');
+    await page.click('[data-action="tutorial-back"]');
+    await at('setup', 'connections', true, 'setup via Back from Chat');
+  } catch (error) {
+    const where = await placeOf(page).catch(() => ({}));
+    const message = `${error.message.split('\n')[0]} (at ${JSON.stringify(where)})`;
+    failures.push(`${label}: ${message}`);
+    console.log(`  ✗ ${message}`);
+    await page
+      .screenshot({
+        path: path.join(
+          os.tmpdir(),
+          `tutorial-${label.replaceAll('/', '-')}.png`
+        ),
+      })
+      .catch(() => {});
+  } finally {
+    await browser.close();
+  }
+};
+
 const engines = [];
 for (const name of (process.env.E2E_ENGINES ?? 'chromium,webkit').split(',')) {
   try {
@@ -295,6 +438,11 @@ try {
   for (const engineName of engines) {
     for (const viewport of VIEWPORTS) {
       await walk(engineName, viewport, base);
+    }
+    for (const viewport of VIEWPORTS.filter((v) =>
+      ['desktop', 'phone'].includes(v.name)
+    )) {
+      await edgeCases(engineName, viewport, base);
     }
   }
 } finally {

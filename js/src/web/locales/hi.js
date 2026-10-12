@@ -681,6 +681,7 @@ export const hi = {
   'tutorial.button': 'ट्यूटोरियल',
   'tutorial.skip': 'चरण छोड़ें',
   'tutorial.next': 'अगला',
+  'tutorial.showMe': 'दिखाएँ',
   'tutorial.back': 'पीछे',
   'tutorial.finish': 'समाप्त',
   'tutorial.off': 'ट्यूटोरियल बंद करें',

@@ -695,6 +695,7 @@ export const ru = {
   'tutorial.button': 'Руководство',
   'tutorial.skip': 'Пропустить шаг',
   'tutorial.next': 'Далее',
+  'tutorial.showMe': 'Показать',
   'tutorial.back': 'Назад',
   'tutorial.finish': 'Завершить',
   'tutorial.off': 'Отключить руководство',

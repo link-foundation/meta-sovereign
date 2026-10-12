@@ -11,7 +11,11 @@ import {
   choosePlacement,
   intersects,
 } from '../src/web/tutorial-placement.js';
-import { defaultSteps } from '../src/web/tutorial.js';
+import {
+  defaultSteps,
+  navigationFor,
+  placeMatches,
+} from '../src/web/tutorial.js';
 
 const card = { width: 368, height: 290 };
 const desktop = { width: 1440, height: 900 };
@@ -119,8 +123,10 @@ test('steps that describe a click advance on it; Next performs it', () => {
   assert.equal(byId.connect.action, true);
   assert.match(byId.connect.advanceOn, /nav:connections/);
   assert.equal(byId.pick.action, true);
-  assert.match(byId.pick.advanceOn, /open-connection-detail/);
-  assert.match(byId.pick.advanceOn, /connection-auto-import/);
+  // "Pick" ends when a provider page opens, whichever button did it.
+  assert.deepEqual(byId.pick.completeAt, { view: 'connections', detail: true });
+  assert.deepEqual(byId.pick.route, { view: 'connections', detail: false });
+  assert.deepEqual(byId.setup.route, { view: 'connections', detail: true });
   // The biggest service, first in the list, is the suggested one.
   assert.match(byId.pick.actionTarget, /connections:email/);
   // Browser sign-ins need the local server; without it the step is
@@ -130,4 +136,29 @@ test('steps that describe a click advance on it; Next performs it', () => {
   assert.equal(byId.setup.tutorialId, 'auto-import');
   // Sections hidden in the phone's More sheet point at "More".
   assert.deepEqual(byId.backup.fallbacks, ['nav:more']);
+});
+
+test('steps know their page and how to get there', () => {
+  const list = { view: 'connections', detail: false };
+  const detail = { view: 'connections', detail: true };
+  const chat = { view: 'chat', provider: null };
+  const stale = { view: 'chat', provider: 'telegram' };
+  const onList = { view: 'connections', provider: null };
+  const onEmail = { view: 'connections', provider: 'email' };
+  assert.ok(placeMatches(undefined, chat), 'nav steps work anywhere');
+  assert.ok(!placeMatches(list, chat));
+  assert.ok(placeMatches(list, onList));
+  assert.ok(!placeMatches(list, onEmail));
+  assert.ok(placeMatches(detail, onEmail));
+  // To the list: clear a provider hash, even a stale one.
+  assert.deepEqual(navigationFor(list, stale), {
+    view: 'connections',
+    anchor: '',
+  });
+  // To a provider page: keep the one in the hash, else Email.
+  assert.deepEqual(navigationFor(detail, stale), { view: 'connections' });
+  assert.deepEqual(navigationFor(detail, chat), {
+    view: 'connections',
+    anchor: '#conn-email',
+  });
 });

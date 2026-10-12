@@ -59,6 +59,14 @@ export const SERVICE_EXAMPLES = [
 // a matching element moves the tour to the next step. `action` steps
 // describe a click, so "Next" performs it (on `actionTarget`, or the
 // target itself) instead of just skipping ahead.
+//
+// `route` is the page a step lives on (`{ view, detail }`, detail: a
+// provider page is open or not). Entering the step — Next, Back, or
+// resuming after a reload, which always starts on Chat — opens that
+// page, so a card never talks about a page that is not on screen.
+// Steps that point at the navigation work on any page and have none.
+// `completeAt` advances the tour when the app *arrives* at that place,
+// whichever button got it there (and not when a click fails).
 // Sections that phones keep in the More sheet are reached through it.
 const NAV_FALLBACKS = ['nav:more'];
 
@@ -80,6 +88,7 @@ export const defaultSteps = [
     // `optional` steps are skipped when their target never appears.
     id: 'signIns',
     tutorialId: 'connections:sign-ins',
+    route: { view: 'connections', detail: false },
     optional: true,
     titleKey: 'tutorial.signIns.title',
     bodyKey: 'tutorial.signIns.body',
@@ -89,8 +98,8 @@ export const defaultSteps = [
   {
     id: 'pick',
     tutorialId: 'connections:email',
-    advanceOn:
-      '[data-action="open-connection-detail"], [data-action="connection-auto-import"]',
+    route: { view: 'connections', detail: false },
+    completeAt: { view: 'connections', detail: true },
     action: true,
     actionTarget:
       '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]',
@@ -102,6 +111,8 @@ export const defaultSteps = [
   {
     id: 'setup',
     tutorialId: 'auto-import',
+    // Any provider page; Email when none is open.
+    route: { view: 'connections', detail: true },
     titleKey: 'tutorial.connectionDetail.title',
     bodyKey: 'tutorial.connectionDetail.body',
     title: 'Import with a browser',
@@ -422,6 +433,126 @@ const useLatest = (value) => {
 
 // A click on `selector` anywhere in the app (outside the card) moves
 // the tour on — after the app has handled the click itself.
+// Where the app is: the view in <main data-view> and the provider page
+// from the `#conn-<id>` hash (only meaningful on Connections).
+export const readPlace = (doc = globalThis.document) => {
+  const hash = globalThis.location?.hash ?? '';
+  return {
+    view:
+      doc?.querySelector?.('main[data-view]')?.getAttribute('data-view') ??
+      null,
+    provider: hash.startsWith('#conn-') ? hash.slice('#conn-'.length) : null,
+  };
+};
+
+export const placeMatches = (route, place) =>
+  !route ||
+  (place.view === route.view &&
+    (route.detail === undefined || Boolean(place.provider) === route.detail));
+
+/** The `meta-sovereign:navigate` detail that takes the app to `route`. */
+export const navigationFor = (route, place) => {
+  const detail = { view: route.view };
+  if (route.detail === false) {
+    // Back to the list (also clears a stale provider hash).
+    detail.anchor = '';
+  } else if (route.detail === true && !place.provider) {
+    detail.anchor = `#conn-${route.provider ?? 'email'}`;
+  }
+  return detail;
+};
+
+const goToRoute = (route) => {
+  globalThis.dispatchEvent?.(
+    new CustomEvent('meta-sovereign:navigate', {
+      detail: navigationFor(route, readPlace()),
+    })
+  );
+};
+
+const samePlace = (a, b) => a.view === b.view && a.provider === b.provider;
+
+// The current place, kept up to date as views and hashes change.
+const usePlace = () => {
+  const [place, setPlace] = useState(readPlace);
+  useEffect(() => {
+    const update = () =>
+      setPlace((prev) => {
+        const next = readPlace();
+        return samePlace(prev, next) ? prev : next;
+      });
+    globalThis.addEventListener?.('hashchange', update);
+    const Observer = globalThis.MutationObserver;
+    const observer = Observer ? new Observer(update) : null;
+    const body = globalThis.document?.body;
+    if (observer && body) {
+      observer.observe(body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['data-view'],
+      });
+    }
+    update();
+    return () => {
+      globalThis.removeEventListener?.('hashchange', update);
+      observer?.disconnect();
+    };
+  }, []);
+  return place;
+};
+
+// Open the step's page when the step starts (and on resume). Deferred
+// one task: on a fresh load this effect runs before the app shell has
+// subscribed to navigation (child effects run before parent ones), and
+// an event sent now would be lost.
+const useStepRoute = (step) => {
+  useEffect(() => {
+    if (!step.route) {
+      return undefined;
+    }
+    const timer = globalThis.setTimeout(() => {
+      if (!placeMatches(step.route, readPlace())) {
+        goToRoute(step.route);
+      }
+    }, 0);
+    return () => globalThis.clearTimeout(timer);
+  }, [step.id]);
+};
+
+// Advance when the app arrives at `completeAt` during this step. Being
+// there already when the step starts (Back from a provider page) does
+// not count: only a change into it does.
+const useCompleteAt = (step, place, onAdvance) => {
+  const done = Boolean(step.completeAt) && placeMatches(step.completeAt, place);
+  const seen = useRef({ id: null, done: false });
+  const latest = useLatest(onAdvance);
+  useEffect(() => {
+    if (seen.current.id !== step.id) {
+      seen.current = { id: step.id, done };
+      return;
+    }
+    const arrived = done && !seen.current.done;
+    seen.current.done = done;
+    if (arrived) {
+      latest.current();
+    }
+  }, [step.id, done]);
+};
+
+/**
+ * The step's page: opened when the step starts, `completeAt` watched.
+ * When the user went elsewhere mid-step (`offPage`) the tour does not
+ * drag them back; "Next" becomes "Show me" and takes them there.
+ */
+const useStepPage = (step, { onNext, onAdvance }) => {
+  const place = usePlace();
+  useStepRoute(step);
+  useCompleteAt(step, place, onAdvance);
+  const offPage = Boolean(step.route) && !placeMatches(step.route, place);
+  return { offPage, next: offPage ? () => goToRoute(step.route) : onNext };
+};
+
 const useAdvanceOn = (selector, onAdvance) => {
   const latest = useLatest(onAdvance);
   useEffect(() => {
@@ -447,18 +578,51 @@ const prefersReducedMotion = () =>
 // fully visible target and otherwise scrolls every clipping container
 // (the nav drawer, the page) just enough — a target can be inside the
 // viewport yet clipped by its own scroll container.
+// Fully on screen; a target taller than the screen counts when its top
+// is visible.
+const inView = (element) => {
+  const r = element.getBoundingClientRect();
+  const height = globalThis.innerHeight ?? 0;
+  const width = globalThis.innerWidth ?? 0;
+  const across = r.left >= 0 && r.right <= width;
+  return r.height <= height
+    ? across && r.top >= 0 && r.bottom <= height
+    : across && r.top >= 0 && r.top < height;
+};
+
+const REVEAL_RETRY_MS = 500;
+const REVEAL_TRIES = 3;
+
+// Bring the target into view when the step (or its element) appears.
+// A smooth scroll can be cut short when the page re-renders under it
+// (a provider page replacing the list), so it is checked again and
+// finished instantly — at most three times, and never once the target
+// is on screen, so the user's own scrolling is left alone.
 const useRevealTarget = (stepId, element) => {
-  const revealed = useRef(null);
   useEffect(() => {
-    if (!element || revealed.current === stepId) {
-      return;
+    if (!element) {
+      return undefined;
     }
-    revealed.current = stepId;
-    element.scrollIntoView?.({
-      block: 'nearest',
-      inline: 'nearest',
-      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-    });
+    let tries = 0;
+    let timer = null;
+    const reveal = () => {
+      if (!element.isConnected || inView(element)) {
+        return;
+      }
+      const tall =
+        element.getBoundingClientRect().height > (globalThis.innerHeight ?? 0);
+      element.scrollIntoView?.({
+        block: tall ? 'start' : 'nearest',
+        inline: 'nearest',
+        behavior: tries === 0 && !prefersReducedMotion() ? 'smooth' : 'auto',
+      });
+      tries += 1;
+      if (tries < REVEAL_TRIES) {
+        timer = globalThis.setTimeout(reveal, REVEAL_RETRY_MS);
+      }
+    };
+    reveal();
+    return () => globalThis.clearTimeout(timer);
   }, [stepId, element]);
 };
 
@@ -541,6 +705,7 @@ const Step = ({
   onNext,
   onBack,
   onDismiss,
+  offPage = false,
   cardRef,
   modal,
   style,
@@ -619,7 +784,11 @@ const Step = ({
             'data-action': 'tutorial-next',
             onClick: onNext,
           },
-          index + 1 === total ? t('tutorial.finish') : t('tutorial.next')
+          offPage
+            ? t('tutorial.showMe')
+            : index + 1 === total
+              ? t('tutorial.finish')
+              : t('tutorial.next')
         ),
       ]),
     ]
@@ -706,7 +875,8 @@ const TutorialLayer = ({
   const { element, rect } = useTutorialTarget(step.tutorialId, step.fallbacks);
   const anchored = useSpotlightAnchor(element);
   const expired = useTargetDeadline(step.id, Boolean(step.tutorialId));
-  const skip = Boolean(step.optional && expired && !rect);
+  const { offPage, next } = useStepPage(step, { onNext, onAdvance });
+  const skip = Boolean(step.optional && expired && !rect && !offPage);
   useEffect(() => {
     if (skip) {
       onSkip?.();
@@ -736,7 +906,7 @@ const TutorialLayer = ({
 
   useAdvanceOn(step.advanceOn, onAdvance);
   useRevealTarget(step.id, element);
-  useTourKeys(cardRef, { onNext, onBack, onDismiss });
+  useTourKeys(cardRef, { onNext: next, onBack, onDismiss });
 
   const spotlight = Boolean(rect);
   const waiting =
@@ -768,7 +938,8 @@ const TutorialLayer = ({
         step,
         index,
         total,
-        onNext,
+        onNext: next,
+        offPage,
         onBack,
         onDismiss,
         cardRef,
@@ -847,8 +1018,12 @@ export const TutorialOverlay = ({
         : findTutorialTarget(step.tutorialId)
       : null;
     target?.click();
-    // A click that `advanceOn` recognises moves the tour by itself.
-    if (!target || !step.advanceOn || !target.closest?.(step.advanceOn)) {
+    // A click that `advanceOn` recognises, or the arrival at
+    // `completeAt` it causes, moves the tour by itself.
+    const selfAdvancing = step.completeAt
+      ? true
+      : Boolean(step.advanceOn && target?.closest?.(step.advanceOn));
+    if (!target || !selfAdvancing) {
       advance();
     }
   };

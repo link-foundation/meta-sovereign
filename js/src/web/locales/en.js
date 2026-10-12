@@ -686,6 +686,7 @@ export const en = {
   'tutorial.button': 'Tutorial',
   'tutorial.skip': 'Skip step',
   'tutorial.next': 'Next',
+  'tutorial.showMe': 'Show me',
   'tutorial.back': 'Back',
   'tutorial.finish': 'Finish',
   'tutorial.off': 'Turn off tutorial',

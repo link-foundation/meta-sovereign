@@ -3,7 +3,13 @@
 // offline storage, discovery, WebRTC sync, and server fallbacks stay
 // unchanged.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { networkName } from './connection-guides.js';
@@ -1065,6 +1071,28 @@ const clearConnectionHash = () => {
   globalThis.history?.replaceState?.(null, '', next);
 };
 
+// A provider page opens at its top; Back to the list returns to where
+// the user was in it (the list is long on phones).
+const useListScroll = (activeProviderId) => {
+  const listScroll = useRef(0);
+  const previous = useRef(activeProviderId);
+  useLayoutEffect(() => {
+    const was = previous.current;
+    previous.current = activeProviderId;
+    if (was === activeProviderId) {
+      return;
+    }
+    if (activeProviderId) {
+      if (!was) {
+        listScroll.current = globalThis.scrollY ?? 0;
+      }
+      globalThis.scrollTo?.(0, 0);
+    } else {
+      globalThis.scrollTo?.(0, listScroll.current);
+    }
+  }, [activeProviderId]);
+};
+
 // Connections nav surface (R-N5..R-N8, issue #27). The full per-provider
 // grid + detail screen is shipped from `./connections/`; this view threads
 // the saved `secret:*` links in so each provider card can classify itself
@@ -1075,6 +1103,7 @@ const ConnectionsView = () => {
     connectionProviderFromHash
   );
   const linksState = useAsyncValue(() => api.links(), [refresh], []);
+  useListScroll(activeProviderId);
 
   useEffect(() => {
     const onHash = () => setActiveProviderId(connectionProviderFromHash());

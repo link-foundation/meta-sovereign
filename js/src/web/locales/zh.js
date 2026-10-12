@@ -665,6 +665,7 @@ export const zh = {
   'tutorial.button': '教程',
   'tutorial.skip': '跳过此步',
   'tutorial.next': '下一步',
+  'tutorial.showMe': '带我去',
   'tutorial.back': '上一步',
   'tutorial.finish': '完成',
   'tutorial.off': '关闭教程',

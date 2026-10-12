@@ -2,7 +2,13 @@
 // ./dom.js keeps the offline-first storage, discovery, WebRTC sync,
 // and server fallback contracts stable.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { createRoot } from 'react-dom/client';
 import { api } from './dom.js';
 import { views } from './views.js';
@@ -98,6 +104,14 @@ const App = () => {
   };
   const closeTutorial = () => setTutorialOpen(false);
   const View = useMemo(() => views[active] ?? views.chat, [active]);
+  // Another section starts at its top, not at the old one's scroll.
+  const shownView = useRef(active);
+  useLayoutEffect(() => {
+    if (shownView.current !== active) {
+      shownView.current = active;
+      globalThis.scrollTo?.(0, 0);
+    }
+  }, [active]);
 
   return el(LocaleContext.Provider, { value: localeApi }, [
     el(React.Fragment, { key: 'shell' }, [
