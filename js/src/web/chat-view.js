@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
+import { networkName } from './connection-guides.js';
 import { avatarFor, groupChats } from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
@@ -65,7 +66,11 @@ const ChatItem = ({ chat, active, onSelect }) => {
             { key: 'p', className: 'chat-item-preview' },
             `${chat.last.mine ? `${t('chat.you')}: ` : ''}${chat.last.body}`
           ),
-          el('span', { key: 's', className: 'chat-item-source' }, chat.source),
+          el(
+            'span',
+            { key: 's', className: 'chat-item-source' },
+            networkName(t, chat.source)
+          ),
         ]),
       ]),
     ]
@@ -235,7 +240,7 @@ const Header = ({ state, onBack }) => {
           : t(
               chat.personal ? 'chat.subtitle.personal' : 'chat.subtitle.group',
               {
-                source: chat.source,
+                source: networkName(t, chat.source),
                 count: chat.people.length,
               }
             )

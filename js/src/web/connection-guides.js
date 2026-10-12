@@ -1111,6 +1111,15 @@ export const getProvider = (id) => {
   return provider;
 };
 
+/**
+ * A network as people write it ("VK", "Telegram") for a message
+ * source id ("vk", "telegram"); unknown ids are shown as they are.
+ */
+export const networkName = (t, source) => {
+  const provider = providerCatalogue[source];
+  return provider ? t(provider.labelKey) : source;
+};
+
 // ---- R-O1, R-O2: probe URL templates ---------------------------------
 //
 // `buildProbeUrl({ provider, credentials })` resolves the provider's

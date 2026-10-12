@@ -12,6 +12,7 @@ import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
 import { reasonText } from './chat-view.js';
 import { Icon } from './icons.js';
+import { networkName } from './connection-guides.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
 
@@ -522,7 +523,7 @@ const PlanPreview = ({ runs }) => {
               ` ${
                 draft.name && draft.name !== draft.chat
                   ? `${draft.source}:${draft.chat}`
-                  : draft.source
+                  : networkName(t, draft.source)
               } · ${t(`automations.form.${draft.form}`)}`
             ),
             el('blockquote', { key: 't' }, draft.text),

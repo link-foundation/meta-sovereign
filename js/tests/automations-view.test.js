@@ -272,7 +272,7 @@ test('screen: list, editor, preview, history, people and audiences', () => {
   // People search with selection, run on them, save as a list.
   // A preview row repeats the chat id only next to a real name.
   assert.match(html, /<strong>Alice<\/strong><span class="meta"> vk:101 · /);
-  assert.match(html, /<strong>2002<\/strong><span class="meta"> vk · formal/);
+  assert.match(html, /<strong>2002<\/strong><span class="meta"> VK · formal/);
   assert.match(html, /<span class="meta">vk:alice · @alice · also on 1/);
   // Without a name the id is the label, and is not repeated.
   assert.match(html, /\/> vk:2004<\/label><span class="meta"><\/span>/);

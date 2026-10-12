@@ -224,7 +224,9 @@ test('screen: sidebar, header, menu, draft, composer chips', () => {
   // The sections follow the real clock; 40 days back is always older.
   assert.match(html, /<h3>Older<\/h3>/);
   assert.match(html, /data-chat="vk:101" aria-current="true"/);
-  assert.match(html, /vk · personal chat/);
+  // Networks by their names, not their ids.
+  assert.match(html, /VK · personal chat/);
+  assert.match(html, /class="chat-item-source">VK</);
   assert.match(html, /data-action="chat-automation-test"/);
   assert.match(html, /Test in this chat/);
   assert.match(html, /class="meta">Safe: drafts to confirm</);
