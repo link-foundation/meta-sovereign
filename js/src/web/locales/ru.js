@@ -722,6 +722,7 @@ export const ru = {
   'chat.notice.sent': 'Отправлено.',
   'chat.notice.manual': 'Отмечено как отправленное.',
   'chat.notice.skipped': 'Пропущено; какое-то время предлагаться не будет.',
+  'chat.notice.dismiss': 'Скрыть',
   'chat.notice.failed':
     'Не отправлено: {error}. Повторите, измените, отправьте сами или пропустите.',
   'chat.suggest.reply': 'Ваши прежние ответы на такое сообщение',

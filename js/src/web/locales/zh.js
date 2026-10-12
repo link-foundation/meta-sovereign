@@ -696,6 +696,7 @@ export const zh = {
   'chat.notice.sent': '已发送。',
   'chat.notice.manual': '已标记为已发送。',
   'chat.notice.skipped': '已跳过；一段时间内不会再提供。',
+  'chat.notice.dismiss': '关闭',
   'chat.notice.failed': '未发送：{error}。请重试、编辑、自行发送或跳过。',
   'chat.suggest.reply': '你以前对这条消息的回复',
   'chat.suggest.word': '来自你自己消息的下一个词',

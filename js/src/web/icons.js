@@ -143,6 +143,10 @@ const ICONS = {
     ['path', { d: 'm5 12 7-7 7 7' }],
     ['path', { d: 'M12 19V5' }],
   ],
+  close: [
+    ['path', { d: 'M18 6 6 18' }],
+    ['path', { d: 'm6 6 12 12' }],
+  ],
 };
 
 export const iconNames = Object.keys(ICONS);

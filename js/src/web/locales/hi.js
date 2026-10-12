@@ -711,6 +711,7 @@ export const hi = {
   'chat.notice.sent': 'भेज दिया।',
   'chat.notice.manual': 'भेजा हुआ चिह्नित किया।',
   'chat.notice.skipped': 'छोड़ दिया; कुछ समय तक फिर नहीं सुझाया जाएगा।',
+  'chat.notice.dismiss': 'छिपाएँ',
   'chat.notice.failed':
     'नहीं भेजा गया: {error}। फिर कोशिश करें, बदलें, खुद भेजें या छोड़ें।',
   'chat.suggest.reply': 'इस संदेश पर आपके पिछले जवाब',

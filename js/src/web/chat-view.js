@@ -14,21 +14,13 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
-import { useT } from './i18n.js';
+import { useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { avatarFor, groupChats } from './chat-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
 
 const el = React.createElement;
-
-const time = (iso) =>
-  iso
-    ? new Date(iso).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : '';
 
 const Avatar = ({ name, small }) => {
   const { initials, hue } = avatarFor(name);
@@ -45,6 +37,7 @@ const Avatar = ({ name, small }) => {
 
 const ChatItem = ({ chat, active, onSelect }) => {
   const t = useT();
+  const { time } = useDates();
   return el(
     'button',
     {
@@ -174,11 +167,11 @@ const AutomationMenu = ({ menu }) => {
             : menu.automations.map((a) =>
                 el('div', { key: a.id, className: 'chat-menu-item' }, [
                   el('span', { key: 'n', className: 'chat-menu-name' }, [
-                    a.name,
+                    el('strong', { key: 'n' }, a.name),
                     el(
                       'small',
-                      { key: 'm' },
-                      ` · ${t(`automations.mode.${a.mode}`)}`
+                      { key: 'm', className: 'meta' },
+                      t(`automations.mode.${a.mode}`)
                     ),
                   ]),
                   el(
@@ -249,8 +242,9 @@ const Header = ({ state, onBack }) => {
   ]);
 };
 
-const Message = ({ message, showName }) =>
-  el(
+const Message = ({ message, showName }) => {
+  const { time } = useDates();
+  return el(
     'div',
     {
       className: message.sender === 'me' ? 'bubble out' : 'bubble in',
@@ -272,6 +266,7 @@ const Message = ({ message, showName }) =>
       ),
     ]
   );
+};
 
 const FORM_KEYS = {
   informal: 'chat.form.informal',
@@ -330,6 +325,7 @@ const DraftCard = ({ draft, drafts }) => {
               'a',
               {
                 key: 'open',
+                className: 'button',
                 href: draft.prefill.url,
                 target: '_blank',
                 rel: 'noopener noreferrer',
@@ -382,15 +378,26 @@ const Notice = ({ notice, dismiss }) => {
       'data-notice': notice.kind,
     },
     [
-      t(NOTICE[notice.kind] ?? NOTICE.failed, {
-        count: notice.count ?? 0,
-        error: notice.error ?? '',
-        reason: reasonText(t, notice.reason),
-      }),
+      el(
+        'span',
+        { key: 'text' },
+        t(NOTICE[notice.kind] ?? NOTICE.failed, {
+          count: notice.count ?? 0,
+          error: notice.error ?? '',
+          reason: reasonText(t, notice.reason),
+        })
+      ),
       el(
         'button',
-        { key: 'x', type: 'button', className: 'link', onClick: dismiss },
-        '×'
+        {
+          key: 'x',
+          type: 'button',
+          className: 'icon-btn',
+          'aria-label': t('chat.notice.dismiss'),
+          title: t('chat.notice.dismiss'),
+          onClick: dismiss,
+        },
+        el(Icon, { name: 'close', size: 16 })
       ),
     ]
   );

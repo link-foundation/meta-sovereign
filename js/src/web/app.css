@@ -385,7 +385,9 @@ main[data-view='chat'] > .web-mode-banner {
   right: 0;
   top: calc(100% + 0.3rem);
   z-index: 20;
-  width: min(22rem, 80vw);
+  width: min(26rem, calc(100vw - 1.5rem));
+  max-height: min(70vh, 34rem);
+  overflow-y: auto;
   padding: 0.4rem;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -394,30 +396,41 @@ main[data-view='chat'] > .web-mode-banner {
 }
 .chat-menu-item {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.3rem;
-  padding: 0.4rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  padding: 0.5rem 0.4rem;
   border-bottom: 1px solid var(--border);
 }
 .chat-menu-item:last-child {
   border-bottom: 0;
 }
-.chat-menu-item button {
-  text-align: left;
+/* Name over its mode, then "Test" and "Run" side by side. */
+.chat-menu-name {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.9rem;
 }
 .chat-notice {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
   margin: 0.5rem auto 0;
   width: min(var(--chat-column), calc(100% - 2rem));
-  padding: 0.5rem 0.8rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.8rem;
   border-radius: 8px;
   background: var(--accent-bg);
   font-size: 0.85rem;
 }
 .chat-notice.failed {
   background: #f8514933;
+}
+.chat-notice .icon-btn {
+  flex: none;
+  width: 2rem;
+  min-height: 2rem;
 }
 .chat-notice .link {
   background: transparent;
@@ -482,7 +495,8 @@ main[data-view='chat'] > .web-mode-banner {
   flex-direction: column;
   gap: 0.5rem;
   align-self: flex-end;
-  width: min(32rem, 100%);
+  /* Wide enough for all five actions on one line. */
+  width: min(36rem, 100%);
   padding: 0.75rem;
   border: 1px dashed var(--chat-accent);
   border-radius: var(--bubble-radius);
@@ -497,8 +511,27 @@ main[data-view='chat'] > .web-mode-banner {
 .draft-card .meta {
   margin: 0;
 }
+/* Show the whole draft before it is sent; older browsers keep 4 rows. */
+.draft-card textarea {
+  field-sizing: content;
+  min-height: 4lh;
+  max-height: 50vh;
+}
 .draft-card a {
   color: var(--chat-accent);
+}
+/* A link that looks like its sibling buttons. */
+a.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-h);
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-active);
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-decoration: none;
 }
 .chat-composer {
   position: absolute;

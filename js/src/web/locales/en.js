@@ -713,6 +713,7 @@ export const en = {
   'chat.notice.sent': 'Sent.',
   'chat.notice.manual': 'Marked as sent.',
   'chat.notice.skipped': 'Skipped; it will not be offered again for a while.',
+  'chat.notice.dismiss': 'Dismiss',
   'chat.notice.failed':
     'Not sent: {error}. Retry, edit, send it yourself or skip.',
   'chat.suggest.reply': 'Replies you gave to this message before',
