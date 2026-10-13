@@ -179,7 +179,8 @@ body {
   outline: none;
 }
 main {
-  padding: 1rem 1.25rem 2rem;
+  /* --tutorial-dock-space: room for a tutorial card docked below. */
+  padding: 1rem 1.25rem calc(2rem + var(--tutorial-dock-space, 0px));
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -1532,10 +1533,12 @@ button.primary .recommended-tag {
 .tutorial-overlay-spotlight .tutorial-spotlight-anchored {
   position: fixed;
   position-anchor: --tutorial-target;
-  top: anchor(top);
-  left: anchor(left);
-  right: anchor(right);
-  bottom: anchor(bottom);
+  /* Just outside the target (inside the card's 12px gap), so text at
+     the target's edge never touches the ring. */
+  top: calc(anchor(top) - 6px);
+  left: calc(anchor(left) - 6px);
+  right: calc(anchor(right) - 6px);
+  bottom: calc(anchor(bottom) - 6px);
   position-visibility: anchors-visible;
   pointer-events: none;
 }

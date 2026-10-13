@@ -315,9 +315,6 @@ export const zh = {
   'signIns.fdaBody':
     'macOS 会保护 Safari 的数据。在「系统设置」→「隐私与安全性」→「完全磁盘访问权限」中打开 {app}，然后重启 meta-sovereign 服务器。',
   'signIns.fdaOpen': '打开系统设置',
-  'tutorial.signIns.title': '使用浏览器中的登录',
-  'tutorial.signIns.body':
-    '推荐：点击「查找登录」，看看你已经在哪里登录。导入窗口随后会以登录状态打开，无需输入密码。',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':
@@ -689,7 +686,7 @@ export const zh = {
   'tutorial.backup.body': '保存数据的加密副本，只有你的口令才能打开。',
   'tutorial.connections.title': '选择一个服务',
   'tutorial.connections.body':
-    '用户最多的服务排在最前。每个服务都有两种连接方式：「通过浏览器导入」（推荐）帮你登录并自动导入导出文件；「手动填写」使用 API 密钥或导出文件。点击「下一步」打开 Email。',
+    '这里的一切现在都可以使用：「查找登录」（推荐，需要本地服务器）会检查你的浏览器已登录了哪些服务。在任意服务上，「通过浏览器导入」（推荐）帮你登录并导入导出文件，「手动填写」使用 API 密钥或文件。点击「下一步」打开 Email。',
   'tutorial.connectionDetail.title': '导入或手动填写',
   'tutorial.connectionDetail.body':
     '在「通过浏览器导入」中点击「打开浏览器」并登录，在那里开始数据导出，下载的文件会自动导入。想自己来？切换到「手动填写」。',

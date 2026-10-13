@@ -73,11 +73,11 @@ test('TutorialSpotlight renders an inset frame anchored to the target rect', () 
     })
   );
   assert.match(html, /class="tutorial-spotlight-frame"/);
-  // The frame inset is computed from the rect.
-  assert.match(html, /top:\s*100px/);
-  assert.match(html, /left:\s*50px/);
-  assert.match(html, /width:\s*200px/);
-  assert.match(html, /height:\s*60px/);
+  // The frame is computed from the rect, 6px outside it all round.
+  assert.match(html, /top:\s*94px/);
+  assert.match(html, /left:\s*44px/);
+  assert.match(html, /width:\s*212px/);
+  assert.match(html, /height:\s*72px/);
 });
 
 test('anchored TutorialSpotlight leaves positioning to CSS anchors', async () => {

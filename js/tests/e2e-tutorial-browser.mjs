@@ -7,8 +7,9 @@
  *   - every step's card is inside the viewport and never overlaps the
  *     control it points at (so that control stays clickable/visible);
  *   - clicking the highlighted control advances the tour: Connections
- *     → browser sign-ins → Email (first: biggest service) → its
- *     "Import with browser" panel;
+ *     → the whole section lit (sign-ins and every service, each
+ *     reachable past the card) → Email (first: biggest service) → its
+ *     "Enter manually" steps and "Import with browser" panel;
  *   - "Next" on an action step performs the click (the app follows);
  *   - Back goes back, Esc closes; the card takes focus once the user
  *     is in the tour (not on page load: the skip link stays first);
@@ -143,6 +144,47 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
 // Pick Email by "Enter manually" (the recommended "Import with
 // browser" would open a real browser window): the setup step then
 // points at the manual steps, and at the import panel on its tab.
+// The whole Connections section is lit: sign-ins and every service.
+// However the card is placed, each of them can be scrolled clear of it
+// and clicked (the last service included).
+const assertSectionReachable = async (page, label) => {
+  const lit = await page.evaluate(() => {
+    const section = document.querySelector(
+      '[data-tutorial-id="connections:list"]'
+    );
+    return {
+      signIns: Boolean(
+        section?.querySelector('[data-tutorial-id="connections:sign-ins"]')
+      ),
+      services: section?.querySelectorAll('[data-provider-id]').length ?? 0,
+    };
+  });
+  check(
+    lit.signIns && lit.services > 10,
+    `${label}: pick must light sign-ins and all services ${JSON.stringify(lit)}`
+  );
+  const last = await page.evaluate(() => {
+    globalThis.scrollTo(0, document.documentElement.scrollHeight);
+    const cards = document.querySelectorAll(
+      '[data-tutorial-id="connections:list"] [data-provider-id]'
+    );
+    const r = cards[cards.length - 1].getBoundingClientRect();
+    const c = document.querySelector('.tutorial-step').getBoundingClientRect();
+    const covered =
+      r.left < c.right &&
+      c.left < r.right &&
+      r.top < c.bottom &&
+      c.top < r.bottom;
+    return { covered, card: c.top, service: r.bottom };
+  });
+  check(
+    !last.covered,
+    `${label}: the last service stays under the card ${JSON.stringify(last)}`
+  );
+  await page.evaluate(() => globalThis.scrollTo(0, 0));
+  await page.waitForTimeout(150);
+};
+
 const pickEmailManually = async (page, label) => {
   await page.click(
     '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]'
@@ -195,10 +237,9 @@ const walk = async (engineName, viewport, base) => {
       );
     }
 
-    // The user does what the step says: click Connections. With a
-    // local server the browser sign-ins panel is shown next.
+    // The user does what the step says: click Connections.
     await page.click('[data-tutorial-id="nav:connections"] >> visible=true');
-    await waitForStep(page, 'signIns');
+    await waitForStep(page, 'pick');
     await settle(page);
     await assertPlacement(page, label);
     const first = await page.evaluate(
@@ -213,16 +254,14 @@ const walk = async (engineName, viewport, base) => {
     await page.click('[data-action="tutorial-back"]');
     await waitForStep(page, 'connect');
     await page.click('[data-action="tutorial-next"]');
-    await waitForStep(page, 'signIns');
-    await page.click('[data-action="tutorial-next"]');
     await waitForStep(page, 'pick');
     await settle(page);
-    // The whole grid is lit; the card sits above it, never over it.
     const pick = await assertPlacement(page, label);
     check(
-      pick.targetId === 'connections:grid' && pick.side === 'top',
-      `${label}: pick lights ${pick.targetId}, card on ${pick.side}`
+      pick.targetId === 'connections:list',
+      `${label}: pick lights ${pick.targetId}, not the whole section`
     );
+    await assertSectionReachable(page, label);
 
     await pickEmailManually(page, label);
 
@@ -236,8 +275,7 @@ const walk = async (engineName, viewport, base) => {
     // Short desktop: the drawer scrolls; ring and card must follow in
     // the same frame.
     if (viewport.name === 'short-desktop') {
-      // Back to the start (the sign-ins step is passed over on the
-      // provider page, where its panel is not shown).
+      // Back to the start.
       for (let i = 0; i < 12; i += 1) {
         if ((await geometry(page)).step === 'connect') {
           break;
@@ -352,7 +390,6 @@ const edgeCases = async (engineName, viewport, base) => {
     await page.evaluate(() => globalThis.localStorage.clear());
     await page.reload({ waitUntil: 'domcontentloaded' });
     await waitForStep(page, 'connect');
-    await page.click('[data-action="tutorial-next"]');
     await page.click('[data-action="tutorial-next"]');
     await at('pick', 'connections', false, 'pick');
 

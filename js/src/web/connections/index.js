@@ -898,38 +898,41 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
   const [loaded, reload] = useAutoImportStatus();
   const autoImport = loaded ?? initialAutoImport ?? null;
   const ids = byPopularity(Object.keys(providerCatalogue));
-  return el('section', { className: 'connections-list' }, [
-    el('header', { key: 'h', className: 'connections-list-header' }, [
-      el('h2', { key: 'title' }, t('connections.title')),
-      el('p', { key: 'intro', className: 'meta' }, t('connections.intro')),
-    ]),
-    // Shown while the status loads (so it never pops in late) and
-    // hidden only once the server says browser import is unavailable.
-    autoImport?.available === false
-      ? null
-      : el(BrowserSignIns, {
-          key: 'sign-ins',
-          status: autoImport,
-          onImported: reload,
-        }),
-    el(
-      'div',
-      {
-        key: 'grid',
-        className: 'connections-grid',
-        'data-tutorial-id': 'connections:grid',
-      },
-      ids.map((id) =>
-        el(ProviderCard, {
-          key: id,
-          providerId: id,
-          status,
-          autoImport,
-          onOpen,
-        })
-      )
-    ),
-  ]);
+  return el(
+    'section',
+    {
+      className: 'connections-list',
+      'data-tutorial-id': 'connections:list',
+    },
+    [
+      el('header', { key: 'h', className: 'connections-list-header' }, [
+        el('h2', { key: 'title' }, t('connections.title')),
+        el('p', { key: 'intro', className: 'meta' }, t('connections.intro')),
+      ]),
+      // Shown while the status loads (so it never pops in late) and
+      // hidden only once the server says browser import is unavailable.
+      autoImport?.available === false
+        ? null
+        : el(BrowserSignIns, {
+            key: 'sign-ins',
+            status: autoImport,
+            onImported: reload,
+          }),
+      el(
+        'div',
+        { key: 'grid', className: 'connections-grid' },
+        ids.map((id) =>
+          el(ProviderCard, {
+            key: id,
+            providerId: id,
+            status,
+            autoImport,
+            onOpen,
+          })
+        )
+      ),
+    ]
+  );
 };
 
 const DETAIL_MODES = ['import', 'manual'];

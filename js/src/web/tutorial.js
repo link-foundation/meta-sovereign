@@ -90,29 +90,18 @@ export const defaultSteps = [
     examples: SERVICE_EXAMPLES,
   },
   {
-    // Only with a local server (the panel is not rendered otherwise):
-    // `optional` steps are skipped when their target never appears.
-    id: 'signIns',
-    tutorialId: 'connections:sign-ins',
-    route: { view: 'connections', detail: false },
-    optional: true,
-    titleKey: 'tutorial.signIns.title',
-    bodyKey: 'tutorial.signIns.body',
-    title: 'Use your browser sign-ins',
-    body: 'Recommended: press "Find sign-ins" to see which services you are already signed in to in Chrome, Safari or Firefox. The import window then opens signed in.',
-  },
-  {
-    // The whole grid: every service connects the same two ways. Next
-    // opens Email (the setup step's route); a click on any card's
-    // button gets there too (`completeAt`).
+    // The whole Connections section — browser sign-ins and every
+    // service — is lit and usable: we cannot know where the user will
+    // click. Next opens Email (the setup step's route); opening any
+    // service page gets there too (`completeAt`).
     id: 'pick',
-    tutorialId: 'connections:grid',
+    tutorialId: 'connections:list',
     route: { view: 'connections', detail: false },
     completeAt: { view: 'connections', detail: true },
     titleKey: 'tutorial.connections.title',
     bodyKey: 'tutorial.connections.body',
     title: 'Pick a service',
-    body: 'The most used services come first. Each one can be connected in two ways: "Import with browser" (recommended) signs you in and imports the export for you, "Enter manually" takes API keys or an export file. Next opens Email.',
+    body: 'Everything here works now: "Find sign-ins" (recommended, with a local server) checks which services your browsers are already signed in to. On any service, "Import with browser" (recommended) signs you in and imports its export, "Enter manually" takes API keys or a file. Next opens Email.',
   },
   {
     id: 'setup',
@@ -273,6 +262,9 @@ export const useTutorialPreference = (storage = globalThis.localStorage) => {
 // positioning (see `useSpotlightAnchor`), so the browser moves it in
 // the same frame as a scroll. Coordinates copied from JS only catch up
 // one frame later, which reads as the outline trailing the control.
+// The ring sits this far outside the target (within the card's GAP).
+const RING_OUTSET = 6;
+
 export const TutorialSpotlight = ({ rect, anchored = false }) => {
   if (!rect) {
     return null;
@@ -288,10 +280,10 @@ export const TutorialSpotlight = ({ rect, anchored = false }) => {
     className: 'tutorial-spotlight-frame',
     style: {
       position: 'absolute',
-      top: `${top}px`,
-      left: `${left}px`,
-      width: `${width}px`,
-      height: `${height}px`,
+      top: `${top - RING_OUTSET}px`,
+      left: `${left - RING_OUTSET}px`,
+      width: `${width + 2 * RING_OUTSET}px`,
+      height: `${height + 2 * RING_OUTSET}px`,
       pointerEvents: 'none',
     },
     'aria-hidden': 'true',
@@ -863,9 +855,19 @@ const TutorialExamples = ({ examples }) => {
   );
 };
 
+// The part of the screen a card may use: above the phone's bottom
+// navigation, so the card never hides the way to another section.
+const bottomNavHeight = () => {
+  const nav = globalThis.document?.querySelector?.('.bottom-nav');
+  const r = nav?.getBoundingClientRect?.();
+  return r && r.height > 0
+    ? Math.max(0, (globalThis.innerHeight ?? 0) - r.top)
+    : 0;
+};
+
 const viewportSize = () => ({
   width: globalThis.innerWidth ?? 1024,
-  height: globalThis.innerHeight ?? 768,
+  height: (globalThis.innerHeight ?? 768) - bottomNavHeight(),
 });
 
 // Card coordinates: CSS anchor expressions when the browser can keep
@@ -900,6 +902,27 @@ const cardLayout = ({ rect, cardSize, anchored, waiting }) => {
       ? { top: `${placement.arrow - 7}px` }
       : { left: `${placement.arrow - 7}px` },
   };
+};
+
+// A card docked at the bottom of the screen covers the end of a long
+// page: the page grows by the card's height while it is there, so the
+// user can still scroll every part of the target clear of it.
+const dockSpace = (layout, cardSize) =>
+  layout.side === 'dock' && cardSize && parseFloat(layout.style.top) > MARGIN
+    ? Math.ceil(cardSize.height + 2 * MARGIN)
+    : 0;
+
+const DOCK_SPACE_VAR = '--tutorial-dock-space';
+
+const useDockSpace = (space) => {
+  useIsomorphicLayoutEffect(() => {
+    const root = globalThis.document?.documentElement;
+    if (!root || !space) {
+      return undefined;
+    }
+    root.style.setProperty(DOCK_SPACE_VAR, `${space}px`);
+    return () => root.style.removeProperty(DOCK_SPACE_VAR);
+  }, [space]);
 };
 
 // One layer for every step: ring + card when the target is on screen,
@@ -964,6 +987,7 @@ const TutorialLayer = ({
     waiting,
   });
   useDialogFocus(cardRef, step.id, layout.side !== 'pending');
+  useDockSpace(dockSpace(layout, cardSize));
   return el(
     'div',
     {

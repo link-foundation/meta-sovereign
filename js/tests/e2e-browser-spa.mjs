@@ -231,10 +231,9 @@ const stepTutorialProgressPersists = async ({ page, base }) => {
     timeout: 5000,
   });
 
-  // "Next" on the first step opens Connections, as the step asks; with
-  // a local server the browser sign-ins step comes next.
+  // "Next" on the first step opens Connections, as the step asks.
   await page.click('button[data-action="tutorial-next"]');
-  await page.waitForSelector('[data-tutorial-step="signIns"]', {
+  await page.waitForSelector('[data-tutorial-step="pick"]', {
     timeout: 5000,
   });
   await page.waitForSelector('main[data-view="connections"]', {
@@ -244,17 +243,15 @@ const stepTutorialProgressPersists = async ({ page, base }) => {
     JSON.parse(window.localStorage.getItem('metaSovereignTutorial'))
   );
   assert(
-    stored?.stepId === 'signIns',
+    stored?.stepId === 'pick',
     `tutorial progress not stored after next: ${JSON.stringify(stored)}`
   );
 
-  // After a reload the tour resumes there (or just after it when the
-  // page opens elsewhere and the optional step's panel is not shown).
+  // After a reload the tour resumes there.
   await page.reload({ waitUntil: 'load' });
-  await page.waitForSelector(
-    '[data-tutorial-step="signIns"], [data-tutorial-step="pick"]',
-    { timeout: 5000 }
-  );
+  await page.waitForSelector('[data-tutorial-step="pick"]', {
+    timeout: 5000,
+  });
   await page.click('button[data-action="tutorial-off"]');
   await page.waitForSelector('[data-tutorial-overlay]', {
     state: 'detached',

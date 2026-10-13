@@ -325,9 +325,6 @@ export const en = {
   'signIns.fdaBody':
     'macOS protects Safari data. In System Settings → Privacy & Security → Full Disk Access, turn on {app}, then restart the meta-sovereign server.',
   'signIns.fdaOpen': 'Open System Settings',
-  'tutorial.signIns.title': 'Use your browser sign-ins',
-  'tutorial.signIns.body':
-    'Recommended: press "Find sign-ins" to see where you are already signed in. The import window then opens signed in, with no passwords to type.',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':
@@ -714,7 +711,7 @@ export const en = {
     'Save an encrypted copy of your data. Only your passphrase can open it.',
   'tutorial.connections.title': 'Pick a service',
   'tutorial.connections.body':
-    'The most used services come first. Each one can be connected in two ways: "Import with browser" (recommended) signs you in and imports the export for you, "Enter manually" takes API keys or an export file. Next opens Email.',
+    'Everything here works now: "Find sign-ins" (recommended, with a local server) checks which services your browsers are already signed in to. On any service, "Import with browser" (recommended) signs you in and imports its export, "Enter manually" takes API keys or a file. Next opens Email.',
   'tutorial.connectionDetail.title': 'Import or enter manually',
   'tutorial.connectionDetail.body':
     'On "Import with browser", press "Open browser" and sign in, start the data export there and the downloaded file is imported automatically. Prefer to do it yourself? Switch to "Enter manually".',

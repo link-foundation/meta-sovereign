@@ -118,31 +118,18 @@ test('steps that describe a click advance on it; Next performs it', () => {
   const byId = Object.fromEntries(defaultSteps.map((s) => [s.id, s]));
   assert.deepEqual(
     defaultSteps.map((s) => s.id),
-    [
-      'connect',
-      'signIns',
-      'pick',
-      'setup',
-      'chat',
-      'contacts',
-      'automation',
-      'backup',
-    ]
+    ['connect', 'pick', 'setup', 'chat', 'contacts', 'automation', 'backup']
   );
   assert.equal(byId.connect.action, true);
   assert.match(byId.connect.advanceOn, /nav:connections/);
   // "Pick" points at the whole grid (every service connects the same
   // two ways) and Next simply moves on; the setup step opens Email.
   assert.equal(byId.pick.action, undefined);
-  assert.equal(byId.pick.tutorialId, 'connections:grid');
+  assert.equal(byId.pick.tutorialId, 'connections:list');
   // "Pick" ends when a provider page opens, whichever button did it.
   assert.deepEqual(byId.pick.completeAt, { view: 'connections', detail: true });
   assert.deepEqual(byId.pick.route, { view: 'connections', detail: false });
   assert.deepEqual(byId.setup.route, { view: 'connections', detail: true });
-  // Browser sign-ins need the local server; without it the step is
-  // passed over instead of showing a card about nothing.
-  assert.equal(byId.signIns.optional, true);
-  assert.equal(byId.signIns.action, undefined);
   assert.equal(byId.setup.tutorialId, 'auto-import');
   // On the "Enter manually" tab it points at the manual steps.
   assert.deepEqual(byId.setup.fallbacks, ['manual-setup']);
