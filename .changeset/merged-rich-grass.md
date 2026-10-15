@@ -185,3 +185,9 @@ Telegram session finder: list only live sign-ins, deduplicated by account. The s
 Tutorial: reopening a provider page (tutorial Back then Next, "Show me" after "Back to services", or a reload on the list) now returns to the service and tab you picked — e.g. Telegram → Enter manually — instead of always opening Email.
 
 Tutorial: version bumped to 3, so saved tutorial progress and the remembered service are reset and the tour starts again from step 1.
+
+Fix the Telegram session finder crashing with "Do not know how to serialize a BigInt": GramJS returns account ids as BigInt, which broke the scan response and its on-disk cache. Ids are now normalized to strings, and every server JSON response and the finder cache are hardened against stray BigInt values.
+
+Telegram finder: collapse each account to one entry per type. Several different sessions for the same account (verified by connecting over MTProto, or grouped by phone) now show as a single "Login by session" with every location listed, instead of one row per file. A credential is only dropped when Telegram actually rejects it; a network or timeout error keeps it, so a working session is never hidden by a transient failure.
+
+`meta-sovereign serve` now writes verbose logs to `<store>/logs/meta-sovereign.log` by default — every request, event and error (with full stack traces), plus any uncaught exception or unhandled rejection — so the root cause of an issue is always on disk. Pass `--quiet-logs` to opt out. Route handlers that previously swallowed their errors now log them with a stack first.
