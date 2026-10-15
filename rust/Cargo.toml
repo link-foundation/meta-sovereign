@@ -6,6 +6,11 @@
 # - `meta-sovereign-server`: zero-dependency HTTP + WebSocket sync +
 #   WebRTC signalling broker, on the same wire protocol as the JS server,
 #   so the SPA boots against either backend without changes.
+# - `meta-sovereign-wasm`: WebAssembly exports for browser-side workloads.
+#
+# None of them is published to crates.io (`publish = false` in each
+# crate, issue #39): they are the app's server and WASM build, run from
+# this repository or bundled into the desktop app, not reusable libraries.
 
 [workspace]
 resolver = "2"

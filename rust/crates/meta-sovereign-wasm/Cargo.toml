@@ -5,6 +5,7 @@ edition = "2021"
 license = "Unlicense"
 description = "WebAssembly exports for browser-side meta-sovereign workloads."
 repository = "https://github.com/link-foundation/meta-sovereign"
+publish = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]
