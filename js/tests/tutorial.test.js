@@ -10,6 +10,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import {
   defaultSteps,
   TUTORIAL_STORAGE_KEY,
+  TUTORIAL_VERSION,
   TutorialOverlay,
   readPreference,
   readProgressIndex,
@@ -61,9 +62,36 @@ test('writePreference + readPreference round-trips a dismissed tutorial', () => 
   const value = { off: true, at: 1700000000000 };
   writePreference(storage, value);
   const read = readPreference(storage);
-  assert.deepEqual(read, value);
-  // Persisted shape on disk is JSON.
-  assert.equal(storage.getItem(TUTORIAL_STORAGE_KEY), JSON.stringify(value));
+  // The current tutorial version is stamped on write.
+  assert.deepEqual(read, { ...value, v: TUTORIAL_VERSION });
+  assert.equal(
+    storage.getItem(TUTORIAL_STORAGE_KEY),
+    JSON.stringify({ ...value, v: TUTORIAL_VERSION })
+  );
+});
+
+test('progress saved by an older tutorial version is force-reset', () => {
+  const storage = fakeStorage();
+  // An old build left the user "off" (or mid-step) with no version, or a
+  // different one — this is exactly what made a Telegram selection resume
+  // onto Email after the tour changed.
+  storage.setItem(
+    TUTORIAL_STORAGE_KEY,
+    JSON.stringify({ off: true, stepId: 'setup', at: 1 })
+  );
+  // readPreference forgets the stale progress and clears it from storage,
+  // so the tour re-opens from the start on the new version.
+  assert.equal(readPreference(storage), null);
+  assert.equal(storage.getItem(TUTORIAL_STORAGE_KEY), null);
+  assert.equal(readProgressIndex(storage, defaultSteps), 0);
+});
+
+test('progress saved by the current version is kept', () => {
+  const storage = fakeStorage();
+  writeProgressPreference(storage, defaultSteps[1]);
+  const pref = readPreference(storage);
+  assert.equal(pref.stepId, defaultSteps[1].id);
+  assert.equal(pref.v, TUTORIAL_VERSION);
 });
 
 test('writeProgressPreference stores the current tutorial step id', () => {
@@ -103,7 +131,11 @@ test('TutorialOverlay resumes from stored step progress after page reload', () =
   const storage = fakeStorage();
   storage.setItem(
     TUTORIAL_STORAGE_KEY,
-    JSON.stringify({ stepId: 'automation', at: 1700000000000 })
+    JSON.stringify({
+      stepId: 'automation',
+      at: 1700000000000,
+      v: TUTORIAL_VERSION,
+    })
   );
   const html = renderToStaticMarkup(
     React.createElement(TutorialOverlay, {

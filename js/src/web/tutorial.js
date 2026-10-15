@@ -42,6 +42,13 @@ const el = React.createElement;
 
 export const TUTORIAL_STORAGE_KEY = 'metaSovereignTutorial';
 
+// Saved tutorial progress (which step, or "turned off") is stamped with
+// this version. Bump it whenever the tour's steps or flow change, so a
+// user whose saved progress predates the change is reset to the start of
+// the new tour instead of resuming a step that no longer means the same
+// thing (which is how a Telegram selection could resume onto Email).
+export const TUTORIAL_VERSION = 2;
+
 // Default tour steps. `target` is a `data-view` attribute on the nav
 // buttons so the overlay can highlight the right tab; an undefined
 // target means "shell-level step". The English `title` / `body`
@@ -173,13 +180,27 @@ export const localizeSteps = (t, steps = defaultSteps) =>
     body: step.bodyKey ? t(step.bodyKey) : step.body,
   }));
 
+export const clearPreference = (storage) => {
+  try {
+    storage?.removeItem?.(TUTORIAL_STORAGE_KEY);
+  } catch {
+    // See readPreference().
+  }
+};
+
 export const readPreference = (storage) => {
   try {
     const raw = storage?.getItem?.(TUTORIAL_STORAGE_KEY);
     if (!raw) {
       return null;
     }
-    return JSON.parse(raw);
+    const pref = JSON.parse(raw);
+    // Saved by an earlier, different tour: forget it and start fresh.
+    if (pref?.v !== TUTORIAL_VERSION) {
+      clearPreference(storage);
+      return null;
+    }
+    return pref;
   } catch {
     return null;
   }
@@ -187,17 +208,12 @@ export const readPreference = (storage) => {
 
 export const writePreference = (storage, value) => {
   try {
-    storage?.setItem?.(TUTORIAL_STORAGE_KEY, JSON.stringify(value));
+    storage?.setItem?.(
+      TUTORIAL_STORAGE_KEY,
+      JSON.stringify({ ...value, v: TUTORIAL_VERSION })
+    );
   } catch {
     // Storage can be disabled in restricted browser contexts.
-  }
-};
-
-export const clearPreference = (storage) => {
-  try {
-    storage?.removeItem?.(TUTORIAL_STORAGE_KEY);
-  } catch {
-    // See readPreference().
   }
 };
 
