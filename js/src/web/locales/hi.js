@@ -339,6 +339,21 @@ export const hi = {
   'telegramSessions.badgeUser': 'उपयोगकर्ता',
   'telegramSessions.verified': 'Telegram से पुष्टि',
   'telegramSessions.telethonHint': 'साइन इन करने के लिए यह प्रोजेक्ट खोलें',
+
+  // MTProto (GramJS) के ज़रिये अपने Telegram यूज़र खाते में साइन इन, konard/telegram-bot की तरह।
+  'telegramLogin.title': 'अपने Telegram खाते से लॉग इन करें',
+  'telegramLogin.intro':
+    'Telegram Desktop की तरह फ़ोन से साइन इन करें — api_id, api_hash और आपका नंबर, फिर Telegram द्वारा भेजा कोड (और 2FA पासवर्ड यदि हो)। सेशन अगली बार के लिए यहाँ सहेजा जाता है।',
+  'telegramLogin.apiId': 'API ID',
+  'telegramLogin.apiHash': 'API hash',
+  'telegramLogin.phone': 'फ़ोन नंबर',
+  'telegramLogin.code': 'लॉगिन कोड',
+  'telegramLogin.password': '2FA पासवर्ड (यदि हो)',
+  'telegramLogin.sendCode': 'कोड भेजें',
+  'telegramLogin.signIn': 'साइन इन',
+  'telegramLogin.working': 'काम जारी…',
+  'telegramLogin.connected': 'साइन इन हो गया',
+  'telegramLogin.you': 'आपका खाता',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
   'connections.email.setup.step1.body':
@@ -497,6 +512,9 @@ export const hi = {
   'connections.email.api.hint':
     'जब CORS अनुमति दे, सीधे ब्राउज़र से JMAP, Gmail API या Microsoft Graph का उपयोग करें। IMAP, POP3 और SMTP को लोकल सर्वर चाहिए क्योंकि ब्राउज़र कच्चे TCP/TLS मेल सॉकेट नहीं खोल सकते।',
   'connections.email.fields.token.label': 'OAuth एक्सेस टोकन',
+  'connections.email.fields.host.label': 'IMAP/SMTP सर्वर',
+  'connections.email.fields.username.label': 'लॉगिन (ईमेल पता)',
+  'connections.email.fields.password.label': 'पासवर्ड या ऐप पासवर्ड',
   'connections.email.errorHints.401':
     'टोकन अस्वीकृत। gmail.readonly स्कोप के साथ नया OAuth टोकन जारी करें।',
   'connections.email.errorHints.403':

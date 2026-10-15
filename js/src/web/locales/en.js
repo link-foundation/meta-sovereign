@@ -342,6 +342,21 @@ export const en = {
   'telegramSessions.badgeUser': 'User',
   'telegramSessions.verified': 'confirmed with Telegram',
   'telegramSessions.telethonHint': 'open this project to sign in',
+
+  // Sign in to a Telegram user account over MTProto (GramJS), like konard/telegram-bot.
+  'telegramLogin.title': 'Log in with your Telegram account',
+  'telegramLogin.intro':
+    'Sign in with your phone like Telegram Desktop — api_id, api_hash and your number, then the code Telegram sends you (and your 2FA password if you have one). The session is saved here for next time.',
+  'telegramLogin.apiId': 'API ID',
+  'telegramLogin.apiHash': 'API hash',
+  'telegramLogin.phone': 'Phone number',
+  'telegramLogin.code': 'Login code',
+  'telegramLogin.password': '2FA password (if you have one)',
+  'telegramLogin.sendCode': 'Send code',
+  'telegramLogin.signIn': 'Sign in',
+  'telegramLogin.working': 'Working…',
+  'telegramLogin.connected': 'Signed in',
+  'telegramLogin.you': 'your account',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':
@@ -501,6 +516,9 @@ export const en = {
   'connections.email.api.hint':
     'Use JMAP, Gmail API, or Microsoft Graph directly from the browser when CORS allows it. IMAP, POP3, and SMTP require the local server because browsers cannot open raw TCP/TLS mail sockets.',
   'connections.email.fields.token.label': 'OAuth access token',
+  'connections.email.fields.host.label': 'IMAP/SMTP server',
+  'connections.email.fields.username.label': 'Login (email address)',
+  'connections.email.fields.password.label': 'Password or app password',
   'connections.email.errorHints.401':
     'Token rejected. Re-issue an OAuth token with the gmail.readonly scope.',
   'connections.email.errorHints.403':

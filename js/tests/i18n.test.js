@@ -85,6 +85,9 @@ test('no English literal leaks into a non-en dictionary (issue #25)', () => {
     // Provider-supplied identifiers that mirror the API's own naming
     // (HTTP header names, env var keys) stay verbatim across locales.
     'connections.superjob.fields.appId.label',
+    // Telegram's own credential names, verbatim in every language.
+    'telegramLogin.apiId',
+    'telegramLogin.apiHash',
   ]);
   // Some keys hold only filename glob patterns or other technical
   // identifiers (e.g. "*.eml, *.mbox", "result.json", "messages.csv").

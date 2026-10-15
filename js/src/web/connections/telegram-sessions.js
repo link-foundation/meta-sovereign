@@ -7,7 +7,7 @@
 // account they belong to, and connects the one the user picks. The browser
 // only ever sees kinds, paths and masked hints — never a token or session.
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
 
@@ -134,6 +134,171 @@ const useFinder = (onConnected) => {
   };
 
   return { groups, busy, error, scanned, find, use };
+};
+
+// Sign in to a Telegram USER account over MTProto, like konard/telegram-bot:
+// api_id + api_hash + phone -> a login code -> an optional 2FA password ->
+// a reusable session stored under secret:telegram:*.
+const LoginField = ({ id, type, value, onChange, placeholder }) => {
+  const t = useT();
+  return el('label', { className: 'col provider-credential-row' }, [
+    el('span', { key: 'l' }, t(`telegramLogin.${id}`)),
+    el('input', {
+      key: 'i',
+      type: type ?? 'text',
+      value,
+      placeholder,
+      autoComplete: 'off',
+      'data-field': id,
+      onChange: (e) => onChange(e.target.value),
+    }),
+  ]);
+};
+
+const useTelegramLogin = (onConnected) => {
+  const [form, setForm] = useState({
+    apiId: '',
+    apiHash: '',
+    phone: '',
+    code: '',
+    password: '',
+  });
+  const [needs, setNeeds] = useState('start'); // start | code | password | done
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [account, setAccount] = useState(null);
+  const idRef = useRef(null); // the login id returned by `start`
+  const set = (key) => (value) => setForm((f) => ({ ...f, [key]: value }));
+
+  const apply = (result) => {
+    if (result?.error) {
+      setError(result.error);
+      return;
+    }
+    if (result.id) {
+      idRef.current = result.id;
+    }
+    if (result.done) {
+      setNeeds('done');
+      setAccount(result.account);
+      onConnected?.();
+      return;
+    }
+    setNeeds(result.needs ?? 'code');
+  };
+
+  const run = async (action, body) => {
+    setBusy(true);
+    setError('');
+    const result = await api.telegramLogin(action, body);
+    setBusy(false);
+    apply(result);
+  };
+
+  return {
+    form,
+    set,
+    needs,
+    busy,
+    error,
+    account,
+    start: () =>
+      run('start', {
+        apiId: form.apiId,
+        apiHash: form.apiHash,
+        phone: form.phone,
+      }),
+    submitCode: () => run('code', { id: idRef.current, code: form.code }),
+    submitPassword: () =>
+      run('password', { id: idRef.current, password: form.password }),
+  };
+};
+
+export const TelegramLoginForm = ({ onConnected }) => {
+  const t = useT();
+  const l = useTelegramLogin(onConnected);
+  if (l.needs === 'done') {
+    return el('section', { className: 'card tg-login tg-login-done' }, [
+      el('strong', { key: 't' }, t('telegramLogin.connected')),
+      el(
+        'p',
+        { key: 'a', className: 'meta' },
+        l.account?.username ? `@${l.account.username}` : t('telegramLogin.you')
+      ),
+    ]);
+  }
+  const action =
+    l.needs === 'password'
+      ? { key: 'telegramLogin.signIn', on: l.submitPassword }
+      : l.needs === 'code'
+        ? { key: 'telegramLogin.signIn', on: l.submitCode }
+        : { key: 'telegramLogin.sendCode', on: l.start };
+  return el(
+    'section',
+    { className: 'card tg-login', 'data-tutorial-id': 'telegram-login' },
+    [
+      el('header', { key: 'h', className: 'tg-login-head' }, [
+        el('h3', { key: 't' }, t('telegramLogin.title')),
+        el('p', { key: 'i', className: 'meta' }, t('telegramLogin.intro')),
+      ]),
+      el(LoginField, {
+        key: 'apiId',
+        id: 'apiId',
+        value: l.form.apiId,
+        onChange: l.set('apiId'),
+        placeholder: '2040',
+      }),
+      el(LoginField, {
+        key: 'apiHash',
+        id: 'apiHash',
+        type: 'password',
+        value: l.form.apiHash,
+        onChange: l.set('apiHash'),
+        placeholder: '0123456789abcdef…',
+      }),
+      el(LoginField, {
+        key: 'phone',
+        id: 'phone',
+        value: l.form.phone,
+        onChange: l.set('phone'),
+        placeholder: '+1 555 123 4567',
+      }),
+      l.needs === 'code' || l.needs === 'password'
+        ? el(LoginField, {
+            key: 'code',
+            id: 'code',
+            value: l.form.code,
+            onChange: l.set('code'),
+            placeholder: '12345',
+          })
+        : null,
+      l.needs === 'password'
+        ? el(LoginField, {
+            key: 'password',
+            id: 'password',
+            type: 'password',
+            value: l.form.password,
+            onChange: l.set('password'),
+            placeholder: '••••••••',
+          })
+        : null,
+      el(
+        'button',
+        {
+          key: 'go',
+          type: 'button',
+          className: 'primary',
+          'data-action': 'telegram-login',
+          disabled: l.busy,
+          onClick: action.on,
+        },
+        t(l.busy ? 'telegramLogin.working' : action.key)
+      ),
+      l.error
+        ? el('p', { key: 'e', className: 'meta', role: 'alert' }, l.error)
+        : null,
+    ]
+  );
 };
 
 export const TelegramSessionsPanel = ({ onConnected }) => {

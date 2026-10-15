@@ -32,6 +32,7 @@ import {
   describeRecipes,
   probeBrowserAutomation,
 } from '../sources/auto-import/index.js';
+import { createTelegramMtproto } from '../sources/telegram-mtproto.js';
 
 const PREFIX = '/api/auto-import';
 const JOB_ROUTE =
@@ -52,10 +53,22 @@ const signInsFor = (ctx) => {
   return ctx.autoImportSignIns;
 };
 
+// User-account auth over MTProto (GramJS). Injected in tests; the real
+// client is lazy-loaded, so a machine without GramJS still runs — the
+// finder then groups user sessions by phone instead of by @username.
+const mtprotoFor = (ctx) => {
+  ctx.telegramMtproto ??= createTelegramMtproto(
+    ctx.telegramMtprotoOptions ?? {}
+  );
+  return ctx.telegramMtproto;
+};
+
 const telegramCredsFor = (ctx) => {
   ctx.telegramCreds ??= createTelegramCreds({
     dataDir: ctx.storeDir,
-    mtproto: ctx.telegramMtproto ?? null,
+    // Verify a discovered session -> real account when GramJS is present.
+    mtproto: (opts) =>
+      Promise.resolve({ getMe: () => mtprotoFor(ctx).identify(opts) }),
   });
   return ctx.telegramCreds;
 };
@@ -158,6 +171,101 @@ const telegramRoute = async (store, req, res, ctx, action) => {
   return json(res, 200, result) ?? true;
 };
 
+// Sign in to a Telegram **user** account (not a bot) over MTProto, the way
+// konard/telegram-bot does: api_id/api_hash/phone -> a login code -> an
+// optional 2FA password -> a reusable session string, stored under
+// secret:telegram:*. The live GramJS client is held between requests in
+// ctx.telegramLogins, keyed by an opaque id.
+const TELEGRAM_LOGIN_ROUTE =
+  /^\/api\/auto-import\/telegram\/login\/(start|code|password|cancel)$/;
+
+const loginsFor = (ctx) => (ctx.telegramLogins ??= new Map());
+
+const saveUserSession = async (store, apiId, apiHash, session) => {
+  const stamp = new Date().toISOString();
+  const put = (id, tokens, value) =>
+    store.put({ id, tokens, value, updated: stamp });
+  await put(
+    'secret:telegram:user-session',
+    ['secret', 'telegram', 'user-session'],
+    session
+  );
+  await put(
+    'secret:telegram:api-id',
+    ['secret', 'telegram', 'api-id'],
+    String(apiId)
+  );
+  await put(
+    'secret:telegram:api-hash',
+    ['secret', 'telegram', 'api-hash'],
+    apiHash
+  );
+};
+
+// Turn a controller's current state into the response, saving the session
+// and dropping the controller once the sign-in is complete.
+const loginReply = async (store, logins, id, login, meta) => {
+  if (login.state === 'done') {
+    await saveUserSession(store, meta.apiId, meta.apiHash, login.session);
+    logins.delete(id);
+    return { done: true, account: login.account };
+  }
+  if (login.state === 'password') {
+    return { needs: 'password' };
+  }
+  if (login.state === 'code') {
+    return { needs: 'code', id };
+  }
+  return { needs: login.state };
+};
+
+const startLogin = async (store, body, ctx) => {
+  const { apiId, apiHash, phone } = body;
+  if (!apiId || !apiHash || !phone) {
+    throw Object.assign(new Error('api_id, api_hash and phone are required'), {
+      status: 400,
+    });
+  }
+  const login = await mtprotoFor(ctx).createLogin({ apiId, apiHash, phone });
+  await login.ready();
+  const id = `tg-login-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const logins = loginsFor(ctx);
+  logins.set(id, { login, apiId, apiHash });
+  return loginReply(store, logins, id, login, { apiId, apiHash });
+};
+
+const continueLogin = async (store, action, body, ctx) => {
+  const logins = loginsFor(ctx);
+  const entry = logins.get(String(body.id ?? ''));
+  if (!entry) {
+    throw Object.assign(new Error('no such login (it may have expired)'), {
+      status: 404,
+    });
+  }
+  const { login, apiId, apiHash } = entry;
+  if (action === 'cancel') {
+    await login.cancel();
+    logins.delete(body.id);
+    return { cancelled: true };
+  }
+  if (action === 'code') {
+    await login.submitCode(body.code);
+  } else {
+    await login.submitPassword(body.password);
+  }
+  return loginReply(store, logins, body.id, login, { apiId, apiHash });
+};
+
+const telegramLoginRoute = async (store, req, res, ctx, action) => {
+  const body = await readBody(req).catch(() => ({}));
+  const result =
+    action === 'start'
+      ? await startLogin(store, body, ctx)
+      : await continueLogin(store, action, body, ctx);
+  ctx.log?.({ event: 'telegram_login', action, state: result.needs ?? 'done' });
+  return json(res, 200, result) ?? true;
+};
+
 const startRoute = async (manager, req, res, ctx) => {
   const { available, reason } = await availability(ctx);
   if (!available) {
@@ -174,6 +282,10 @@ const dispatch = async (store, req, res, p, ctx) => {
   const browsers = BROWSERS_ROUTE.exec(p);
   if (browsers && req.method === 'POST') {
     return browsersRoute(req, res, ctx, browsers[1]);
+  }
+  const login = TELEGRAM_LOGIN_ROUTE.exec(p);
+  if (login && req.method === 'POST') {
+    return telegramLoginRoute(store, req, res, ctx, login[1]);
   }
   const telegram = TELEGRAM_ROUTE.exec(p);
   if (telegram && req.method === 'POST') {

@@ -332,6 +332,21 @@ export const zh = {
   'telegramSessions.badgeUser': '用户',
   'telegramSessions.verified': '已通过 Telegram 确认',
   'telegramSessions.telethonHint': '打开此项目以登录',
+
+  // 通过 MTProto(GramJS)登录你的 Telegram 用户账号,与 konard/telegram-bot 一致。
+  'telegramLogin.title': '用你的 Telegram 账号登录',
+  'telegramLogin.intro':
+    '像 Telegram Desktop 一样用手机登录——api_id、api_hash 和你的号码,然后输入 Telegram 发来的验证码(以及二步验证密码,如果有)。会话会保存在本机以备下次使用。',
+  'telegramLogin.apiId': 'API ID',
+  'telegramLogin.apiHash': 'API hash',
+  'telegramLogin.phone': '手机号码',
+  'telegramLogin.code': '登录验证码',
+  'telegramLogin.password': '二步验证密码(如有)',
+  'telegramLogin.sendCode': '发送验证码',
+  'telegramLogin.signIn': '登录',
+  'telegramLogin.working': '处理中…',
+  'telegramLogin.connected': '已登录',
+  'telegramLogin.you': '你的账号',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':
@@ -488,6 +503,9 @@ export const zh = {
   'connections.email.api.hint':
     '当 CORS 允许时,可直接在浏览器中使用 JMAP、Gmail API 或 Microsoft Graph。IMAP、POP3 与 SMTP 需要本地服务器,因为浏览器无法打开原始 TCP/TLS 邮件套接字。',
   'connections.email.fields.token.label': 'OAuth 访问令牌',
+  'connections.email.fields.host.label': 'IMAP/SMTP 服务器',
+  'connections.email.fields.username.label': '登录(邮箱地址)',
+  'connections.email.fields.password.label': '密码或应用专用密码',
   'connections.email.errorHints.401':
     '令牌被拒绝。请使用 gmail.readonly 范围重新签发 OAuth 令牌。',
   'connections.email.errorHints.403':

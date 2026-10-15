@@ -342,6 +342,21 @@ export const ru = {
   'telegramSessions.badgeUser': 'Пользователь',
   'telegramSessions.verified': 'подтверждено через Telegram',
   'telegramSessions.telethonHint': 'откройте этот проект, чтобы войти',
+
+  // Вход в пользовательский аккаунт Telegram через MTProto (GramJS), как в konard/telegram-bot.
+  'telegramLogin.title': 'Войти в свой аккаунт Telegram',
+  'telegramLogin.intro':
+    'Вход по номеру, как в Telegram Desktop — api_id, api_hash и номер, затем код из Telegram (и пароль 2FA, если он есть). Сессия сохраняется здесь на будущее.',
+  'telegramLogin.apiId': 'API ID',
+  'telegramLogin.apiHash': 'API hash',
+  'telegramLogin.phone': 'Номер телефона',
+  'telegramLogin.code': 'Код входа',
+  'telegramLogin.password': 'Пароль 2FA (если есть)',
+  'telegramLogin.sendCode': 'Отправить код',
+  'telegramLogin.signIn': 'Войти',
+  'telegramLogin.working': 'Выполняется…',
+  'telegramLogin.connected': 'Вход выполнен',
+  'telegramLogin.you': 'ваш аккаунт',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Подготовьте учётные данные Email',
   'connections.email.setup.step1.body':
@@ -508,6 +523,9 @@ export const ru = {
   'connections.email.api.hint':
     'Используйте JMAP, Gmail API или Microsoft Graph прямо из браузера, когда CORS позволяет. IMAP, POP3 и SMTP требуют локального сервера, поскольку браузеры не открывают сырые TCP/TLS-сокеты для почты.',
   'connections.email.fields.token.label': 'OAuth-токен доступа',
+  'connections.email.fields.host.label': 'Сервер IMAP/SMTP',
+  'connections.email.fields.username.label': 'Логин (адрес почты)',
+  'connections.email.fields.password.label': 'Пароль или пароль приложения',
   'connections.email.errorHints.401':
     'Токен отклонён. Перевыпустите OAuth-токен с областью gmail.readonly.',
   'connections.email.errorHints.403':

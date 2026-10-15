@@ -374,6 +374,9 @@ export const startServer = async ({
   autoImportLauncher,
   // Tests inject a fake `createSignIns()` (no real browsers are read).
   autoImportSignIns,
+  // Tests inject a fake MTProto (no real GramJS / network for Telegram login).
+  telegramMtproto,
+  telegramCreds,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
@@ -397,6 +400,8 @@ export const startServer = async ({
     autoImport: null,
     autoImportLauncher,
     autoImportSignIns,
+    telegramMtproto,
+    telegramCreds,
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();

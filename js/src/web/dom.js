@@ -609,6 +609,15 @@ export const api = {
     (await serverPostReport(`/api/auto-import/telegram/${action}`, body).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required to find Telegram sessions' },
+  // Sign in to a Telegram user account over MTProto: start (send code),
+  // code, password (2FA), cancel. Returns { needs } or { done, account }.
+  telegramLogin: async (action, body = {}) =>
+    (await serverPostReport(
+      `/api/auto-import/telegram/login/${action}`,
+      body
+    ).catch((error) => ({ error: error.message }))) ?? {
+      error: 'server required for Telegram login',
+    },
   autoImportAction: async (id, action) =>
     (await serverFetch(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,

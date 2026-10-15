@@ -1223,6 +1223,23 @@ button.primary .recommended-tag {
 .sign-ins-header > h3 {
   margin: 0;
 }
+.tg-login {
+  margin: 0.5rem 0;
+  border-left: 4px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.tg-login-head > h3 {
+  margin: 0 0 0.15rem;
+}
+.tg-login .provider-credential-row {
+  gap: 0.2rem;
+}
+.tg-login-done {
+  border-left-color: var(--accent);
+}
+
 .tg-sessions {
   margin: 0.5rem 0;
   border-left: 4px solid var(--accent);

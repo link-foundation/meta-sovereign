@@ -386,3 +386,7 @@ GramJS 用户*字符串会话*(保存为 `.telegram_session`)。在
 `getMe` 确认;用户会话按手机号分组(在可用 GramJS 客户端时同样确认)。文件夹只被
 读取;浏览器只会看到类型、路径和一个打码提示(最后四位)——绝不会看到令牌或会话。
 选中的会存入 `secret:telegram:*`(设置口令时静态加密),且只发送给 Telegram。
+
+**用手机登录 Telegram。** 在查找下方,"用你的 Telegram 账号登录" 像 Telegram Desktop 以及 konard/telegram-bot 那样登录:输入 `api_id`、`api_hash` 和号码,点击"发送验证码",输入 Telegram 发来的验证码(以及二步验证密码,如有),生成的用户会话保存在 `secret:telegram:*` 下。机器人令牌和完整用户账号都受支持。登录在本地服务器(GramJS)上进行;安装了 GramJS 时,找到的 `.telegram_session` 会与真实账号核对。
+
+**邮箱登录名和密码。** 邮箱的"手动输入"可填写 IMAP/SMTP 服务器、登录名(地址)和密码(或应用专用密码),除 OAuth 令牌外,分别保存为 `secret:email:host` / `secret:email:username` / `secret:email:password`。

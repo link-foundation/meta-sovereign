@@ -279,6 +279,22 @@ never the token or session. Picking one stores it under
 `secret:telegram:*` (encrypted at rest when a passphrase is set) and never
 sends it anywhere but Telegram.
 
+**Log in with your Telegram account (phone).** Below the finder, "Log in
+with your Telegram account" signs in like Telegram Desktop — the same way
+konard/telegram-bot does: enter your `api_id`, `api_hash` and phone number,
+press **Send code**, type the code Telegram sends you (and your 2FA
+password if you set one), and the resulting user session is saved under
+`secret:telegram:*`. Both bot tokens and full user accounts are supported.
+The sign-in runs on the local server (GramJS); a discovered
+`.telegram_session` is verified against the real account when GramJS is
+installed, so it is grouped by `@username` rather than just by phone.
+
+**Email login and password.** Email → Enter manually accepts an IMAP/SMTP
+server, your login (email address) and a password or app password, stored
+as `secret:email:host` / `secret:email:username` / `secret:email:password`,
+in addition to the OAuth token — so mailboxes that use password auth work
+without an OAuth flow.
+
 The server needs permission to start a browser process and to write to
 its store directory. Optional settings:
 
