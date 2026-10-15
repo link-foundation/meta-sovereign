@@ -41,13 +41,16 @@ import { parseConnectionHash } from './connections/hash.js';
 const el = React.createElement;
 
 export const TUTORIAL_STORAGE_KEY = 'metaSovereignTutorial';
+// The service the tour reopens (see rememberProvider below).
+export const TUTORIAL_PROVIDER_KEY = 'metaSovereignTutorialProvider';
 
 // Saved tutorial progress (which step, or "turned off") is stamped with
 // this version. Bump it whenever the tour's steps or flow change, so a
 // user whose saved progress predates the change is reset to the start of
 // the new tour instead of resuming a step that no longer means the same
 // thing (which is how a Telegram selection could resume onto Email).
-export const TUTORIAL_VERSION = 2;
+// v3: the tour remembers the service the user picked.
+export const TUTORIAL_VERSION = 3;
 
 // Default tour steps. `target` is a `data-view` attribute on the nav
 // buttons so the overlay can highlight the right tab; an undefined
@@ -183,6 +186,7 @@ export const localizeSteps = (t, steps = defaultSteps) =>
 export const clearPreference = (storage) => {
   try {
     storage?.removeItem?.(TUTORIAL_STORAGE_KEY);
+    storage?.removeItem?.(TUTORIAL_PROVIDER_KEY);
   } catch {
     // See readPreference().
   }
@@ -505,7 +509,6 @@ export const placeMatches = (route, place) =>
 // `#conn-` hash tail: `telegram/manual`. When the tour has to reopen a
 // provider page (Back then Next, "Show me", a reload on the list) it
 // returns to *their* choice — never swaps Telegram for Email.
-const LAST_PROVIDER_KEY = 'metaSovereignTutorialProvider';
 const PROVIDER_ID = /^[a-z0-9-]{1,40}(\/manual)?$/;
 
 export const rememberProvider = (
@@ -516,7 +519,7 @@ export const rememberProvider = (
     return;
   }
   try {
-    storage?.setItem(LAST_PROVIDER_KEY, provider);
+    storage?.setItem(TUTORIAL_PROVIDER_KEY, provider);
   } catch {
     // Restricted storage: the tour falls back to Email.
   }
@@ -524,7 +527,7 @@ export const rememberProvider = (
 
 export const rememberedProvider = (storage = globalThis.localStorage) => {
   try {
-    const provider = storage?.getItem(LAST_PROVIDER_KEY);
+    const provider = storage?.getItem(TUTORIAL_PROVIDER_KEY);
     return provider && PROVIDER_ID.test(provider) ? provider : null;
   } catch {
     return null;

@@ -10,6 +10,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import {
   defaultSteps,
   TUTORIAL_STORAGE_KEY,
+  TUTORIAL_PROVIDER_KEY,
   TUTORIAL_VERSION,
   TutorialOverlay,
   readPreference,
@@ -84,6 +85,17 @@ test('progress saved by an older tutorial version is force-reset', () => {
   assert.equal(readPreference(storage), null);
   assert.equal(storage.getItem(TUTORIAL_STORAGE_KEY), null);
   assert.equal(readProgressIndex(storage, defaultSteps), 0);
+});
+
+test('a version reset also forgets the remembered service', () => {
+  const storage = fakeStorage();
+  storage.setItem(
+    TUTORIAL_STORAGE_KEY,
+    JSON.stringify({ stepId: 'setup', at: 1, v: TUTORIAL_VERSION - 1 })
+  );
+  storage.setItem(TUTORIAL_PROVIDER_KEY, 'email');
+  assert.equal(readPreference(storage), null);
+  assert.equal(storage.getItem(TUTORIAL_PROVIDER_KEY), null);
 });
 
 test('progress saved by the current version is kept', () => {
