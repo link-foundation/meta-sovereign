@@ -141,9 +141,6 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
   return g;
 };
 
-// Pick Email by "Enter manually" (the recommended "Import with
-// browser" would open a real browser window): the setup step then
-// points at the manual steps, and at the import panel on its tab.
 // The whole Connections section is lit: sign-ins and every service.
 // However the card is placed, each of them can be scrolled clear of it
 // and clicked (the last service included).
@@ -185,6 +182,42 @@ const assertSectionReachable = async (page, label) => {
   await page.waitForTimeout(150);
 };
 
+// The whole provider page is lit: Back, both tabs and the open panel,
+// and the tabs are never under the card (the step tells the user to
+// switch between them).
+const assertDetailLit = async (page, label, mode) => {
+  const lit = await page.evaluate(() => {
+    const section = document.querySelector(
+      '[data-tutorial-id="connections:detail"]'
+    );
+    const card = document.querySelector('.tutorial-step');
+    const c = card?.getBoundingClientRect();
+    const covered = (el) => {
+      const r = el.getBoundingClientRect();
+      return Boolean(
+        c &&
+        r.left < c.right &&
+        c.left < r.right &&
+        r.top < c.bottom &&
+        c.top < r.bottom
+      );
+    };
+    const tabs = [...(section?.querySelectorAll('[role="tab"]') ?? [])];
+    return {
+      mode: section?.getAttribute('data-mode') ?? null,
+      back: Boolean(section?.querySelector('.connections-back')),
+      tabs: tabs.length,
+      tabsCovered: tabs.some(covered),
+    };
+  });
+  check(
+    lit.mode === mode && lit.back && lit.tabs === 2 && !lit.tabsCovered,
+    `${label}: setup lights the whole ${mode} page ${JSON.stringify(lit)}`
+  );
+};
+
+// Pick Email by "Enter manually" (the recommended "Import with
+// browser" would open a real browser window).
 const pickEmailManually = async (page, label) => {
   await page.click(
     '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]'
@@ -193,17 +226,19 @@ const pickEmailManually = async (page, label) => {
   await settle(page);
   const manual = await assertPlacement(page, label);
   check(
-    manual.targetId === 'manual-setup',
+    manual.targetId === 'connections:detail',
     `${label}: setup on "Enter manually" points at ${manual.targetId}`
   );
+  await assertDetailLit(page, label, 'manual');
   // The user's own click on the tab takes focus there, as it should.
   await page.click('[data-action="connection-mode-import"]');
   await settle(page);
   const setup = await assertPlacement(page, label, { focus: false });
   check(
-    setup.targetId === 'auto-import',
+    setup.targetId === 'connections:detail',
     `${label}: setup on "Import with browser" points at ${setup.targetId}`
   );
+  await assertDetailLit(page, label, 'import');
   check(
     (await placeOf(page)).hash === '#conn-email',
     `${label}: the import tab is #conn-email`

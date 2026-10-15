@@ -104,10 +104,10 @@ export const defaultSteps = [
     body: 'Everything here works now: "Find sign-ins" (recommended, with a local server) checks which services your browsers are already signed in to. On any service, "Import with browser" (recommended) signs you in and imports its export, "Enter manually" takes API keys or a file. Next opens Email.',
   },
   {
+    // The whole provider page is lit and usable — Back, both tabs and
+    // the open panel — whichever way the user chooses to connect.
     id: 'setup',
-    tutorialId: 'auto-import',
-    // On the "Enter manually" tab the card points at its steps instead.
-    fallbacks: ['manual-setup'],
+    tutorialId: 'connections:detail',
     // Any provider page; Email when none is open.
     route: { view: 'connections', detail: true },
     titleKey: 'tutorial.connectionDetail.title',

@@ -130,9 +130,9 @@ test('steps that describe a click advance on it; Next performs it', () => {
   assert.deepEqual(byId.pick.completeAt, { view: 'connections', detail: true });
   assert.deepEqual(byId.pick.route, { view: 'connections', detail: false });
   assert.deepEqual(byId.setup.route, { view: 'connections', detail: true });
-  assert.equal(byId.setup.tutorialId, 'auto-import');
-  // On the "Enter manually" tab it points at the manual steps.
-  assert.deepEqual(byId.setup.fallbacks, ['manual-setup']);
+  // "Setup" lights the whole provider page: Back, both tabs, the panel.
+  assert.equal(byId.setup.tutorialId, 'connections:detail');
+  assert.equal(byId.setup.fallbacks, undefined);
   // Sections hidden in the phone's More sheet point at "More".
   assert.deepEqual(byId.backup.fallbacks, ['nav:more']);
 });

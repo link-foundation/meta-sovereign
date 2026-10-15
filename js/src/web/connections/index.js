@@ -998,7 +998,7 @@ const ManualIntro = ({ providerId, provider, hint }) => {
   return el(
     'div',
     {
-      className: 'connections-manual-intro',
+      className: 'card connections-manual-intro',
       'data-tutorial-id': 'manual-setup',
     },
     [
@@ -1116,6 +1116,7 @@ export const ConnectionDetail = ({
       id: `conn-${providerId}`,
       'data-provider-id': providerId,
       'data-mode': shown,
+      'data-tutorial-id': 'connections:detail',
     },
     [
       el(
