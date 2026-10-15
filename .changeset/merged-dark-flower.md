@@ -179,3 +179,9 @@ Telegram now supports **user-account auth over MTProto**, the way konard/telegra
 Email manual entry now also accepts **login and password** (IMAP/SMTP server, email address, password or app password), stored as `secret:email:host` / `secret:email:username` / `secret:email:password`, in addition to the OAuth token.
 
 Tutorial progress is now versioned (`TUTORIAL_VERSION`) and force-reset when the tour changes. Saved progress from an older build no longer resumes onto a step that has since changed meaning — which is what made a Telegram selection resume onto the Email page after the tour was reworked. Bump `TUTORIAL_VERSION` whenever the steps or flow change and every user starts the new tour from the beginning.
+
+Telegram session finder: list only live sign-ins, deduplicated by account. The same bot token or user session found across many repositories now collapses to one connectable entry (every location is still shown), each credential is checked against Telegram so revoked ones are dropped, user sessions resolve to their phone number so they group by account, and entries are typed — bot token, login by session, or login by phone & password (which starts the sign-in inline).
+
+Tutorial: reopening a provider page (tutorial Back then Next, "Show me" after "Back to services", or a reload on the list) now returns to the service and tab you picked — e.g. Telegram → Enter manually — instead of always opening Email.
+
+Tutorial: version bumped to 3, so saved tutorial progress and the remembered service are reset and the tour starts again from step 1.
