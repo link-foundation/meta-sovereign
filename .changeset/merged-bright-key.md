@@ -160,3 +160,5 @@ folded into it (7 steps). A card docked below a long page now sits
 above the phone's bottom navigation and adds room at the end of the
 page, so every service can be scrolled clear of it, and the ring sits
 just outside its target instead of touching the text inside it.
+
+Tutorial: the "Import or enter manually" step lights the whole provider page — Back, both tabs and the open panel — so either route can be chosen while the tour is on. The "Enter manually" instructions sit in a card, aligned with the import panel and the connection controls.
