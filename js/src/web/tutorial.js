@@ -12,8 +12,10 @@
 //     on such a step performs that click, so the app and the tour never
 //     disagree about where the user is;
 //   - the card sits beside its target with an arrow and never covers it
-//     (./tutorial-placement.js); ring and card are tied to the target
-//     with CSS anchor positioning so they move with it during a scroll;
+//     (./tutorial-placement.js); the ring is tied to the target with
+//     CSS anchor positioning and the card is placed once in the frame
+//     the target scrolls in (./tutorial-follow.js), so both move with
+//     it during a scroll without a frame of delay or a jump;
 //   - the target is scrolled into view, and a step whose target is not
 //     on screen falls back to a centred card;
 //   - the card is a labelled dialog that takes focus, Esc closes the
@@ -27,12 +29,13 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { choosePlacement, GAP, MARGIN } from './tutorial-placement.js';
 import {
-  anchoredCardStyle,
-  choosePlacement,
-  GAP,
-  MARGIN,
-} from './tutorial-placement.js';
+  pageRectOf,
+  targetFrame,
+  useCardPlacement,
+  useResettle,
+} from './tutorial-follow.js';
 import { parseConnectionHash } from './connections/hash.js';
 
 const el = React.createElement;
@@ -265,7 +268,11 @@ export const useTutorialPreference = (storage = globalThis.localStorage) => {
 // The ring sits this far outside the target (within the card's GAP).
 const RING_OUTSET = 6;
 
-export const TutorialSpotlight = ({ rect, anchored = false }) => {
+export const TutorialSpotlight = ({
+  rect,
+  anchored = false,
+  position = 'absolute',
+}) => {
   if (!rect) {
     return null;
   }
@@ -279,7 +286,7 @@ export const TutorialSpotlight = ({ rect, anchored = false }) => {
   return el('div', {
     className: 'tutorial-spotlight-frame',
     style: {
-      position: 'absolute',
+      position,
       top: `${top - RING_OUTSET}px`,
       left: `${left - RING_OUTSET}px`,
       width: `${width + 2 * RING_OUTSET}px`,
@@ -341,14 +348,31 @@ const sameRect = (a, b) =>
 // Tracks the step's target while the app changes around it: scrolling,
 // resizing, and views mounting after a navigation (the next step's
 // target usually appears a moment after the click that advanced to it).
+// `frame` is where it scrolls (see ./tutorial-follow.js) and `page` its
+// rect in document coordinates, which a scroll of the page leaves alone.
 const readTarget = (tutorialId, fallbacks) => {
   const element = findTutorialTarget(
     tutorialId,
     globalThis.document,
     fallbacks
   );
-  return { tutorialId, element, rect: rectOf(element) };
+  const rect = rectOf(element);
+  const frame = element ? targetFrame(element) : null;
+  return {
+    tutorialId,
+    element,
+    rect,
+    frame,
+    page: frame === 'page' ? pageRectOf(rect) : null,
+  };
 };
+
+// Same place in its own frame: a page target is not re-rendered while
+// the page scrolls (its card and ring scroll with it by themselves).
+const sameTargetPlace = (a, b) =>
+  a.element === b.element &&
+  a.frame === b.frame &&
+  (a.frame === 'page' ? sameRect(a.page, b.page) : sameRect(a.rect, b.rect));
 
 const NO_FALLBACKS = [];
 
@@ -369,9 +393,7 @@ export const useTutorialTarget = (tutorialId, fallbacks = NO_FALLBACKS) => {
       raf = raF(() => {
         const next = readTarget(tutorialId, fallbacks);
         setState((prev) =>
-          prev.tutorialId === tutorialId &&
-          prev.element === next.element &&
-          sameRect(prev.rect, next.rect)
+          prev.tutorialId === tutorialId && sameTargetPlace(prev, next)
             ? prev
             : next
         );
@@ -744,6 +766,7 @@ const Step = ({
   modal,
   style,
   side,
+  follow,
   arrowStyle,
 }) => {
   const t = useT();
@@ -759,6 +782,7 @@ const Step = ({
       'aria-describedby': `${titleId}-body`,
       'data-tutorial-step': step.id,
       'data-side': side,
+      'data-follow': follow,
       tabIndex: -1,
       style,
     },
@@ -870,38 +894,64 @@ const viewportSize = () => ({
   height: (globalThis.innerHeight ?? 768) - bottomNavHeight(),
 });
 
-// Card coordinates: CSS anchor expressions when the browser can keep
-// the card attached to the target by itself, pixels otherwise.
-const cardLayout = ({ rect, cardSize, anchored, waiting }) => {
+const GLIDE = 'top 240ms ease, left 240ms ease';
+
+// The card's style: hidden while it is measured or waits for its
+// target, centred without one, otherwise placed in the frame its target
+// scrolls in (./tutorial-follow.js).
+const cardLayout = ({ placed, cardSize, waiting }) => {
   if (!cardSize || waiting) {
     return { side: 'pending', style: { visibility: 'hidden' } };
   }
-  const placement = choosePlacement({
-    target: rect,
-    card: cardSize,
-    viewport: viewportSize(),
-  });
-  const { side } = placement;
-  const sided = side !== 'center' && side !== 'dock';
-  if (!sided) {
+  if (!placed) {
+    const center = choosePlacement({
+      target: null,
+      card: cardSize,
+      viewport: viewportSize(),
+    });
     return {
-      side,
-      style: { top: `${placement.top}px`, left: `${placement.left}px` },
+      side: center.side,
+      style: { top: `${center.top}px`, left: `${center.left}px` },
     };
   }
-  // The arrow's offset along the card edge only changes when the card
-  // is clamped against the viewport, so the JS value is exact even
-  // while the anchored card moves with a scroll.
+  const { side, arrow, mode } = placed;
+  const style = placed.animate
+    ? { ...placed.style, transition: GLIDE }
+    : placed.style;
+  if (arrow === null || side === 'center' || side === 'dock') {
+    return { side, mode, style };
+  }
   const vertical = side === 'left' || side === 'right';
   return {
     side,
-    style: anchored
-      ? anchoredCardStyle(side, cardSize)
-      : { top: `${placement.top}px`, left: `${placement.left}px` },
+    mode,
+    style,
     arrowStyle: vertical
-      ? { top: `${placement.arrow - 7}px` }
-      : { left: `${placement.arrow - 7}px` },
+      ? { top: `${arrow - 7}px` }
+      : { left: `${arrow - 7}px` },
   };
+};
+
+// The ring: for a target on the page, in document coordinates next to
+// the card, so both scroll with the page in the same frame; for one in
+// a fixed bar (the navigation drawer scrolls on its own), tied to it by
+// CSS anchors where the browser has them, else on the screen.
+const ringPlace = (tracked, anchored, overlay) => {
+  if (tracked.frame === 'page' && tracked.page && overlay) {
+    const o = overlay.getBoundingClientRect();
+    const origin = pageRectOf({ top: o.top, left: o.left });
+    return {
+      rect: {
+        ...tracked.page,
+        top: tracked.page.top - origin.top,
+        left: tracked.page.left - origin.left,
+      },
+      position: 'absolute',
+    };
+  }
+  return anchored
+    ? { rect: tracked.rect, anchored }
+    : { rect: tracked.rect, position: 'fixed' };
 };
 
 // A card docked at the bottom of the screen covers the end of a long
@@ -925,31 +975,20 @@ const useDockSpace = (space) => {
   }, [space]);
 };
 
-// One layer for every step: ring + card when the target is on screen,
-// a centred modal card when it is not.
-const TutorialLayer = ({
-  step,
-  index,
-  total,
-  onNext,
-  onAdvance,
-  onBack,
-  onDismiss,
-  onSkip,
-}) => {
-  const { element, rect } = useTutorialTarget(step.tutorialId, step.fallbacks);
-  const anchored = useSpotlightAnchor(element);
-  const expired = useTargetDeadline(step.id, Boolean(step.tutorialId));
-  const { offPage, next } = useStepPage(step, { onNext, onAdvance });
-  const skip = Boolean(step.optional && expired && !rect && !offPage);
-  useEffect(() => {
-    if (skip) {
-      onSkip?.();
-    }
-  }, [skip]);
-  const cardRef = useRef(null);
-  const [cardSize, setCardSize] = useState(null);
+const overlayProps = ({ step, element, spotlight, waiting }) => ({
+  className: spotlight
+    ? 'tutorial-overlay tutorial-overlay-spotlight'
+    : `tutorial-overlay tutorial-overlay-centered${waiting ? ' tutorial-overlay-waiting' : ''}`,
+  role: 'presentation',
+  'data-tutorial-overlay': '',
+  'data-tutorial-target': spotlight
+    ? (element.getAttribute?.('data-tutorial-id') ?? step.tutorialId)
+    : '',
+});
 
+// The card's measured size, kept up to date while it is on screen.
+const useCardSize = (cardRef, stepId) => {
+  const [cardSize, setCardSize] = useState(null);
   useIsomorphicLayoutEffect(() => {
     const card = cardRef.current;
     if (!card) {
@@ -967,7 +1006,37 @@ const TutorialLayer = ({
     const observer = Observer ? new Observer(measure) : null;
     observer?.observe(card);
     return () => observer?.disconnect();
-  }, [step.id]);
+  }, [stepId]);
+  return cardSize;
+};
+
+// One layer for every step: ring + card when the target is on screen,
+// a centred modal card when it is not.
+const TutorialLayer = ({
+  step,
+  index,
+  total,
+  onNext,
+  onAdvance,
+  onBack,
+  onDismiss,
+  onSkip,
+}) => {
+  const tracked = useTutorialTarget(step.tutorialId, step.fallbacks);
+  const { element, rect } = tracked;
+  const anchored = useSpotlightAnchor(element);
+  const expired = useTargetDeadline(step.id, Boolean(step.tutorialId));
+  const { offPage, next } = useStepPage(step, { onNext, onAdvance });
+  const skip = Boolean(step.optional && expired && !rect && !offPage);
+  useEffect(() => {
+    if (skip) {
+      onSkip?.();
+    }
+  }, [skip]);
+  const cardRef = useRef(null);
+  const overlayRef = useRef(null);
+  const cardSize = useCardSize(cardRef, step.id);
+  const version = useResettle({ cardRef, element, viewportOf: viewportSize });
 
   useAdvanceOn(step.advanceOn, onAdvance);
   useRevealTarget(
@@ -980,29 +1049,31 @@ const TutorialLayer = ({
   const spotlight = Boolean(rect);
   const waiting =
     Boolean(step.tutorialId) && !rect && (!expired || step.optional);
-  const layout = cardLayout({
-    rect,
-    cardSize,
-    anchored: anchored && spotlight,
-    waiting,
+  const placed = useCardPlacement({
+    stepId: step.id,
+    target: spotlight ? tracked : null,
+    cardSize: waiting ? null : cardSize,
+    viewport: viewportSize(),
+    overlayRef,
+    version,
   });
+  const layout = cardLayout({ placed, cardSize, waiting });
   useDialogFocus(cardRef, step.id, layout.side !== 'pending');
   useDockSpace(dockSpace(layout, cardSize));
   return el(
     'div',
     {
-      className: spotlight
-        ? 'tutorial-overlay tutorial-overlay-spotlight'
-        : `tutorial-overlay tutorial-overlay-centered${waiting ? ' tutorial-overlay-waiting' : ''}`,
-      role: 'presentation',
-      'data-tutorial-overlay': '',
-      'data-tutorial-target': spotlight
-        ? (element.getAttribute?.('data-tutorial-id') ?? step.tutorialId)
-        : '',
+      ref: overlayRef,
+      ...overlayProps({ step, element, spotlight, waiting }),
       'data-spotlight-side': layout.side,
     },
     [
-      spotlight ? el(TutorialSpotlight, { key: 'spot', rect, anchored }) : null,
+      spotlight
+        ? el(TutorialSpotlight, {
+            key: 'spot',
+            ...ringPlace(tracked, anchored, overlayRef.current),
+          })
+        : null,
       el(Step, {
         key: 'step',
         step,
@@ -1016,6 +1087,7 @@ const TutorialLayer = ({
         modal: !spotlight,
         style: layout.style,
         side: layout.side,
+        follow: layout.mode,
         arrowStyle: layout.arrowStyle,
       }),
     ]

@@ -13,8 +13,8 @@
 //     from the target (phones, huge targets) — still not covering it
 //     whenever the viewport allows.
 //
-// Pure functions only: the overlay feeds measured rects in and either
-// applies the pixels or turns the side into CSS anchor() expressions.
+// Pure functions only: the overlay feeds measured rects in and
+// ./tutorial-follow.js decides which frame the pixels apply in.
 
 export const GAP = 12; // between target and card (the arrow lives here)
 export const MARGIN = 12; // between card and viewport edge
@@ -118,27 +118,3 @@ export const intersects = (a, b) =>
   b.left < a.left + a.width &&
   a.top < b.top + b.height &&
   b.top < a.top + a.height;
-
-// CSS for a card on `side` that the browser keeps attached to the
-// anchored target while anything scrolls (no JS in the loop). The
-// cross axis is clamped to the viewport exactly like placeOnSide().
-const A = (edge) => `anchor(--tutorial-target ${edge})`;
-
-export const anchoredCardStyle = (side, card) => {
-  const h = `${card.height}px`;
-  const w = `${card.width}px`;
-  const vertical = `clamp(${MARGIN}px, calc(${A('center')} - ${card.height / 2}px), calc(100% - ${MARGIN}px - ${h}))`;
-  const horizontal = `clamp(${MARGIN}px, calc(${A('center')} - ${card.width / 2}px), calc(100% - ${MARGIN}px - ${w}))`;
-  switch (side) {
-    case 'right':
-      return { left: `calc(${A('right')} + ${GAP}px)`, top: vertical };
-    case 'left':
-      return { right: `calc(${A('left')} + ${GAP}px)`, top: vertical };
-    case 'bottom':
-      return { top: `calc(${A('bottom')} + ${GAP}px)`, left: horizontal };
-    case 'top':
-      return { bottom: `calc(${A('top')} + ${GAP}px)`, left: horizontal };
-    default:
-      return null;
-  }
-};

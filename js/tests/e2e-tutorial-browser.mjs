@@ -182,6 +182,50 @@ const assertSectionReachable = async (page, label) => {
   await page.waitForTimeout(150);
 };
 
+// While the page scrolls the card never jumps: beside a target on the
+// page it keeps its distance to it (both scroll together), pinned to
+// the screen it does not move at all; the ring stays 6px outside the
+// target. Read synchronously after each scroll, as the next frame
+// paints it.
+const assertSteadyOnScroll = async (page, label) => {
+  const drift = await page.evaluate(async () => {
+    const card = document.querySelector('.tutorial-step');
+    const ring = document.querySelector('.tutorial-spotlight-frame');
+    const overlay = document.querySelector('[data-tutorial-overlay]');
+    const id = overlay.getAttribute('data-tutorial-target');
+    const target = document.querySelector(`[data-tutorial-id="${id}"]`);
+    const read = () => {
+      const t = target.getBoundingClientRect().top;
+      return {
+        card: card.getBoundingClientRect().top,
+        toTarget: card.getBoundingClientRect().top - t,
+        ring: ring.getBoundingClientRect().top - t,
+      };
+    };
+    const follow = card.dataset.follow;
+    const first = read();
+    let worst = 0;
+    let ringWorst = 0;
+    for (let i = 0; i < 8; i += 1) {
+      globalThis.scrollBy(0, 40);
+      const now = read();
+      const moved =
+        follow === 'page'
+          ? Math.abs(now.toTarget - first.toTarget)
+          : Math.abs(now.card - first.card);
+      worst = Math.max(worst, moved);
+      ringWorst = Math.max(ringWorst, Math.abs(now.ring + 6));
+    }
+    globalThis.scrollTo(0, 0);
+    return { follow, worst, ringWorst, scrolled: globalThis.scrollY };
+  });
+  check(
+    drift.worst < 1 && drift.ringWorst < 1,
+    `${label}: card or ring moves while the page scrolls ${JSON.stringify(drift)}`
+  );
+  await page.waitForTimeout(250);
+};
+
 // The whole provider page is lit: Back, both tabs and the open panel,
 // and the tabs are never under the card (the step tells the user to
 // switch between them).
@@ -296,6 +340,7 @@ const walk = async (engineName, viewport, base) => {
       pick.targetId === 'connections:list',
       `${label}: pick lights ${pick.targetId}, not the whole section`
     );
+    await assertSteadyOnScroll(page, label);
     await assertSectionReachable(page, label);
 
     await pickEmailManually(page, label);

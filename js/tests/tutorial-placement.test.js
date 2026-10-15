@@ -7,7 +7,6 @@ import assert from 'node:assert/strict';
 import {
   GAP,
   MARGIN,
-  anchoredCardStyle,
   choosePlacement,
   intersects,
 } from '../src/web/tutorial-placement.js';
@@ -103,15 +102,6 @@ test('no target means a centred card without an arrow', () => {
   assert.equal(p.side, 'center');
   assert.equal(p.arrow, null);
   assert.equal(p.left, (desktop.width - card.width) / 2);
-});
-
-test('anchored styles attach the card to the anchor on the chosen side', () => {
-  const right = anchoredCardStyle('right', card);
-  assert.match(right.left, /anchor\(--tutorial-target right\)/);
-  assert.match(right.top, /clamp\(/);
-  const top = anchoredCardStyle('top', card);
-  assert.match(top.bottom, /anchor\(--tutorial-target top\)/);
-  assert.equal(anchoredCardStyle('center', card), null);
 });
 
 test('steps that describe a click advance on it; Next performs it', () => {

@@ -1370,8 +1370,9 @@ button.primary .recommended-tag {
      (side chosen in tutorial-placement.js) and the page stays usable,
      so the user can click the very control the step describes;
    - centred: no target on screen, so a dimmed modal card.
-   Ring and card are tied to the target with CSS anchor positioning
-   where supported, so they move with it while anything scrolls. */
+   The ring is tied to the target with CSS anchor positioning where
+   supported; the card is placed in the frame the target scrolls in
+   (tutorial-follow.js), so both move with it while anything scrolls. */
 .tutorial-overlay {
   position: fixed;
   inset: 0;
@@ -1479,8 +1480,14 @@ button.primary .recommended-tag {
   opacity: 0.8;
 }
 
-/* Spotlight (issue #25 R-N9, R-N10). */
+/* Spotlight (issue #25 R-N9, R-N10). The layer sits at the top of the
+   document and scrolls with it: a card beside a target on the page is
+   positioned in it (position: absolute) and moves with the page in the
+   same frame; cards and rings fixed to the screen ignore it. */
 .tutorial-overlay-spotlight {
+  position: absolute;
+  bottom: auto;
+  height: 0;
   background: transparent;
   /* Let pointer events fall through the overlay to the spotlighted
      control. The dialog card restores its own pointer behaviour below.
@@ -1493,7 +1500,7 @@ button.primary .recommended-tag {
   pointer-events: auto;
 }
 /* The arrow: a rotated square on the card edge that faces the target,
-   offset along that edge by JS or by an anchor() expression. */
+   offset along that edge by JS. */
 .tutorial-arrow {
   position: absolute;
   width: 14px;
@@ -1527,8 +1534,8 @@ button.primary .recommended-tag {
 [data-tutorial-anchor] {
   anchor-name: --tutorial-target;
 }
-/* Anchored ring and card: the browser keeps them on the control while
-   the page or the nav drawer scrolls, with no frame of delay. The ring
+/* Anchored ring (a target in the navigation): the browser keeps it on
+   the control while the nav drawer scrolls, with no frame of delay. It
    hides while the control is scrolled out of view. */
 .tutorial-overlay-spotlight .tutorial-spotlight-anchored {
   position: fixed;
@@ -1541,13 +1548,6 @@ button.primary .recommended-tag {
   bottom: calc(anchor(bottom) - 6px);
   position-visibility: anchors-visible;
   pointer-events: none;
-}
-.tutorial-overlay-spotlight .tutorial-step,
-.tutorial-overlay-spotlight .tutorial-arrow {
-  position-anchor: --tutorial-target;
-  /* The default (anchors-visible) would hide the card, and with it the
-     Next / Back buttons, whenever the target is clipped. */
-  position-visibility: always;
 }
 .tutorial-overlay-spotlight .tutorial-spotlight-frame {
   border-radius: 12px;
