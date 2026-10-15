@@ -260,6 +260,38 @@ test('sessions and a phone-login on one number fold into one verified account', 
   assert.deepEqual(types, ['session']);
 });
 
+test('different sessions for one account collapse to a single entry', async () => {
+  const root = await tmpDir();
+  // Two DIFFERENT session strings for the same user, in three repos, each
+  // beside the api_id/api_hash needed to verify them.
+  const sessionA = `1${'Aa1Bb'.repeat(14)}`;
+  const sessionB = `2${'Cc3Dd'.repeat(14)}`;
+  const env = `TELEGRAM_API_ID=${API_ID}\nTELEGRAM_API_HASH=${API_HASH}\nTELEGRAM_PHONE=${PHONE}\n`;
+  for (const [name, session] of [
+    ['broadcast', sessionA],
+    ['follow', sessionA],
+    ['telegram-bot', sessionB],
+  ]) {
+    const repo = path.join(root, name);
+    await fs.mkdir(repo, { recursive: true });
+    await fs.writeFile(path.join(repo, '.env'), env);
+    await fs.writeFile(path.join(repo, '.telegram_session'), `${session}\n`);
+  }
+  // MTProto resolves every session to the same account.
+  const mtproto = async () => ({
+    getMe: async () => ({ id: 567, username: 'konard', phone: '15551234567' }),
+  });
+  const { creds } = await credsFor({ mtproto });
+  const result = await creds.scan({ roots: [root] });
+  assert.equal(result.groups.length, 1, 'one account');
+  assert.equal(result.groups[0].entries.length, 1, 'one login-by-session row');
+  const entry = result.groups[0].entries[0];
+  assert.equal(entry.type, 'session');
+  // All three repos are remembered on the single entry.
+  assert.equal(entry.wheres.length, 3);
+  assert.equal(result.entries.length, 1, 'the flat list agrees');
+});
+
 test('use writes the matching secret links and no plaintext escapes', async () => {
   const { root } = await makeTree();
   const { creds } = await credsFor();

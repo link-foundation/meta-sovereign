@@ -453,12 +453,29 @@ const withTimeout = (promise, ms) => {
   );
 };
 
-// Resolve a bot token to its account with the Bot API (no dependency).
+// An error that means the credential is genuinely dead — Telegram answered
+// and rejected it — as opposed to a network/timeout error that proves
+// nothing. Only the former drops a credential from the list.
+const deadError = (message) =>
+  Object.assign(new Error(message), { dead: true });
+
+const DEAD_SESSION =
+  /AUTH_KEY_UNREGISTERED|SESSION_REVOKED|SESSION_EXPIRED|USER_DEACTIVATED|AUTH_KEY_DUPLICATED|UNAUTHORIZED/i;
+
+const isDeadError = (error) =>
+  error?.dead === true ||
+  DEAD_SESSION.test(
+    error?.errorMessage ?? error?.className ?? error?.message ?? ''
+  );
+
+// Resolve a bot token to its account with the Bot API (no dependency). A
+// reachable API that rejects the token is a dead credential; a network error
+// is not (it rethrows untagged and the token is kept, unverified).
 const identifyBot = async (value, fetchImpl) => {
   const res = await fetchImpl(`https://api.telegram.org/bot${value}/getMe`);
   const me = (await res.json())?.result;
   if (!me) {
-    throw new Error('not a live bot');
+    throw deadError('bot token rejected by Telegram');
   }
   return {
     kind: 'bot',
@@ -555,9 +572,11 @@ const verifyRecord = async (record, { fetchImpl, mtproto, timeout }) => {
       record.account = localAccount(record);
       record.active = null; // could not check
     }
-  } catch {
+  } catch (error) {
     record.account = localAccount(record);
-    record.active = false; // Telegram rejected it — it is dead
+    // Only a credential Telegram actually rejected is dropped. A network or
+    // timeout error proves nothing, so the credential is kept, unverified.
+    record.active = isDeadError(error) ? false : null;
   }
   return record;
 };
@@ -583,26 +602,59 @@ const mergeByPhone = (records) => {
   return records;
 };
 
-// Group the kept records by their account, each entry carrying its type.
+const accountView = (account) => ({
+  kind: account.kind,
+  label: account.label,
+  verified: Boolean(account.verified),
+  phone: account.phone ? maskHint(account.phone) : null,
+});
+
+// How good a credential is to keep when several of the same type belong to
+// one account: a live one beats an unchecked one, a verified account beats a
+// phone guess, and one with a session value and api context beats a bare one.
+const rankRecord = (r) =>
+  (r.active === true ? 8 : 0) +
+  (r.account?.verified ? 4 : 0) +
+  (r.value ? 2 : 0) +
+  (r.apiId ? 1 : 0) +
+  (r.apiHash ? 1 : 0);
+
+// Merge two credentials of the same account and type into one: keep the
+// stronger, but remember every place either was found.
+const mergeRecords = (keep, extra) => {
+  const best =
+    rankRecord(extra) > rankRecord(keep) ? { ...extra } : { ...keep };
+  best.wheres = [
+    ...new Set([
+      ...(keep.wheres ?? [keep.where]),
+      ...(extra.wheres ?? [extra.where]),
+    ]),
+  ];
+  return best;
+};
+
+// Group by account and collapse to ONE entry per type, so an account shows a
+// single "login by session" (whichever session still works), a single bot
+// token, and/or a single "login by phone & password" — never one row per
+// file. Every location stays, listed on the entry it was merged into.
 const groupRecords = (records) => {
   const groups = new Map();
   for (const record of records) {
     const account = record.account ?? localAccount(record);
-    const key = account.key;
-    if (!groups.has(key)) {
-      groups.set(key, {
-        account: {
-          kind: account.kind,
-          label: account.label,
-          verified: Boolean(account.verified),
-          phone: account.phone ? maskHint(account.phone) : null,
-        },
-        entries: [],
-      });
+    if (!groups.has(account.key)) {
+      groups.set(account.key, { account, byType: new Map() });
     }
-    groups.get(key).entries.push(publicEntry(record));
+    const byType = groups.get(account.key).byType;
+    const type = typeOf(record);
+    byType.set(
+      type,
+      byType.has(type) ? mergeRecords(byType.get(type), record) : record
+    );
   }
-  return [...groups.values()];
+  return [...groups.values()].map(({ account, byType }) => ({
+    account: accountView(account),
+    entries: [...byType.values()].map(publicEntry),
+  }));
 };
 
 // The `secret:telegram:*` links to write for a connected credential.
@@ -703,10 +755,13 @@ export const createTelegramCreds = ({
       scannedAt: new Date(now()).toISOString(),
       records: Object.fromEntries(live.map((r) => [r.id, r])),
     });
+    // The groups are collapsed to one entry per account and type; the flat
+    // entry list is just those same entries, so both agree.
+    const groups = groupRecords(live);
     return {
       roots: scanRoots,
-      entries: live.map(publicEntry),
-      groups: groupRecords(live),
+      entries: groups.flatMap((group) => group.entries),
+      groups,
     };
   };
 
