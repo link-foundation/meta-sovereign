@@ -3,11 +3,11 @@
 // only on this computer and never returns a raw value — the assertions
 // below guard that masking contract.
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
-import os from 'node:os';
+import { test } from 'node:test';
 import path from 'node:path';
+import os from 'node:os';
+import { promises as fs } from 'node:fs';
 
 import {
   createTelegramCreds,
@@ -167,6 +167,97 @@ test('identify verifies a user session when an MTProto client is given', async (
   // The sibling .env api_id/api_hash were paired with the session file.
   assert.equal(seen[0].apiId, 2040);
   assert.equal(seen[0].session, USER_SESSION);
+});
+
+test('the same token in many repos collapses to one entry, all locations kept', async () => {
+  const root = await tmpDir();
+  for (const name of ['repo-a', 'repo-b', 'repo-c']) {
+    const repo = path.join(root, name);
+    await fs.mkdir(repo, { recursive: true });
+    await fs.writeFile(path.join(repo, '.env'), `BOT_TOKEN=${BOT_TOKEN}\n`);
+  }
+  const { creds } = await credsFor();
+  const result = await creds.scan({ roots: [root] });
+  const bots = result.entries.filter((e) => e.kind === 'bot-token');
+  assert.equal(bots.length, 1, 'one distinct token, not three');
+  assert.equal(bots[0].wheres.length, 3, 'every location is remembered');
+  assert.equal(result.groups.length, 1, 'one account group');
+});
+
+test('scan lists only live credentials; a token Telegram rejects is dropped', async () => {
+  const root = await tmpDir();
+  const good = path.join(root, 'good');
+  const dead = path.join(root, 'dead');
+  await fs.mkdir(good, { recursive: true });
+  await fs.mkdir(dead, { recursive: true });
+  const DEAD = '111222:AADeadRevokedBotTokenForTestsOnly_zyxwvut';
+  await fs.writeFile(path.join(good, '.env'), `BOT_TOKEN=${BOT_TOKEN}\n`);
+  await fs.writeFile(path.join(dead, '.env'), `BOT_TOKEN=${DEAD}\n`);
+  const fetchImpl = async (url) => ({
+    ok: true,
+    json: async () =>
+      url.includes(DEAD)
+        ? { ok: false, result: null }
+        : { ok: true, result: { id: 5, username: 'live_bot' } },
+  });
+  const creds = createTelegramCreds({ dataDir: await tmpDir(), fetchImpl });
+  const result = await creds.scan({ roots: [root] });
+  const hints = result.entries.map((e) => e.hint);
+  assert.equal(result.entries.length, 1, 'the revoked token is not listed');
+  assert.equal(result.entries[0].active, true);
+  assert.ok(!hints.includes(maskHint(DEAD)));
+});
+
+test('a bare api_id/api_hash/phone trio becomes a phone-login entry', async () => {
+  const root = await tmpDir();
+  const repo = path.join(root, 'creds-only');
+  await fs.mkdir(repo, { recursive: true });
+  await fs.writeFile(
+    path.join(repo, '.env'),
+    `TELEGRAM_API_ID=${API_ID}\nTELEGRAM_API_HASH=${API_HASH}\nTELEGRAM_PHONE=${PHONE}\n`
+  );
+  const { creds } = await credsFor();
+  const result = await creds.scan({ roots: [root] });
+  const login = result.entries.find((e) => e.type === 'user-password');
+  assert.ok(login, 'a phone & password login is offered');
+  assert.equal(login.hint, null, 'no secret value for a phone-login');
+  assert.match(login.phone, /^••••/);
+  // No value escapes, and `use` reports it needs the interactive sign-in.
+  assert.doesNotMatch(JSON.stringify(result), /0123456789abcdef/);
+  const outcome = await creds.use(login.id, { store: { put: async () => {} } });
+  assert.equal(outcome.needsLogin, true);
+  const ctx = await creds.loginContext(login.id);
+  assert.equal(ctx.apiId, API_ID);
+  assert.equal(ctx.phone, PHONE);
+});
+
+test('sessions and a phone-login on one number fold into one verified account', async () => {
+  const root = await tmpDir();
+  const a = path.join(root, 'repo-a');
+  const b = path.join(root, 'repo-b');
+  await fs.mkdir(a, { recursive: true });
+  await fs.mkdir(b, { recursive: true });
+  // repo-a: a session + its api trio. repo-b: only the api trio (phone-login).
+  await fs.writeFile(
+    path.join(a, '.env'),
+    `TELEGRAM_API_ID=${API_ID}\nTELEGRAM_API_HASH=${API_HASH}\nTELEGRAM_PHONE=${PHONE}\n`
+  );
+  await fs.writeFile(path.join(a, '.telegram_session'), `${USER_SESSION}\n`);
+  await fs.writeFile(
+    path.join(b, '.env'),
+    `API_ID=${API_ID}\nAPI_HASH=${API_HASH}\nPHONE=${PHONE}\n`
+  );
+  const mtproto = async () => ({
+    getMe: async () => ({ id: 42, username: 'konard', phone: '15551234567' }),
+  });
+  const { creds } = await credsFor({ mtproto });
+  const result = await creds.scan({ roots: [root] });
+  assert.equal(result.groups.length, 1, 'all one account');
+  assert.equal(result.groups[0].account.label, '@konard');
+  assert.equal(result.groups[0].account.verified, true);
+  // The redundant phone-login beside a working session is dropped.
+  const types = result.entries.map((e) => e.type).sort();
+  assert.deepEqual(types, ['session']);
 });
 
 test('use writes the matching secret links and no plaintext escapes', async () => {

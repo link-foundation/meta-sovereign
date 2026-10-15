@@ -2,28 +2,31 @@
  * Find the Telegram sign-ins the user already has on this computer.
  *
  * People who experiment with Telegram scatter their own credentials across
- * repositories: a bot token in one project's `.env`, a GramJS user
- * "string session" saved beside another (konard/telegram-bot writes it to
- * `.telegram_session`), an `api_id`/`api_hash`/phone trio in a third. This
- * module walks folders the user chooses and collects those, so the account
- * can be connected here without hunting for them again.
+ * repositories: the same bot token in a dozen project `.env` files, a GramJS
+ * user "string session" saved beside another (konard/telegram-bot writes it
+ * to `.telegram_session`), an `api_id`/`api_hash`/phone trio in a third.
+ * This module walks folders the user chooses and distils them down to the
+ * few real accounts behind them, so the account can be connected here
+ * without hunting for them again.
  *
- *   scan({ roots })  read-only walk of the chosen folders for `.env`/`.lenv`
- *                    files and session files; returns one entry per found
- *                    credential with its kind, where it was found and a
- *                    MASKED hint (last four characters) — never the value.
- *   identify(ids)    resolve each entry to the Telegram account it belongs
- *                    to and group entries by account: bot tokens via the Bot
- *                    API `getMe` (plain fetch), user sessions via MTProto
- *                    when a client is available, otherwise by their phone.
+ *   scan({ roots })  read-only walk of the chosen folders. The same token or
+ *                    session found in many files collapses to ONE entry
+ *                    (every location kept for display). Each distinct
+ *                    credential is checked LIVE — bot tokens via the Bot API
+ *                    `getMe`, user sessions via MTProto — so only accounts
+ *                    that still work are listed, and a user session resolves
+ *                    to its real phone number. Entries are grouped by the
+ *                    account they belong to and typed: a bot token, a login
+ *                    by session, or a login by phone & password.
  *   use(id, {store}) connect the chosen credential — store it under the
- *                    `secret:telegram:*` keys the app already reads.
+ *                    `secret:telegram:*` keys the app already reads. A
+ *                    phone & password credential has no stored session yet,
+ *                    so `use` reports `needsLogin` and the caller starts the
+ *                    interactive sign-in with `loginContext(id)`.
  *
- * Supports both **bot tokens** (`123456:ABC…`) and **user sessions**
- * (GramJS `StringSession`). Everything stays on this computer: raw values
- * are kept in an owner-only file (0600) until the user connects one, and
- * are never logged or returned to the browser — callers see kinds, paths
- * and masked hints only.
+ * Everything stays on this computer: raw values live in an owner-only file
+ * (0600) until the user connects one, and are never logged or returned to
+ * the browser — callers see types, locations and masked hints only.
  */
 
 import { promises as fs } from 'node:fs';
@@ -167,6 +170,10 @@ export const maskHint = (value) => {
   return tail ? `••••${tail}` : '••••';
 };
 
+// The digits of a phone number, as a stable grouping key (`+1 555…` and
+// `15 55…` for the same line collapse). Never shown — only maskHint is.
+const phoneKey = (phone) => String(phone ?? '').replace(/\D/g, '');
+
 /** Parse `KEY=VALUE` lines from a `.env` / `.lenv` file. */
 export const parseEnv = (text) => {
   const out = [];
@@ -236,10 +243,10 @@ const apiContext = (fields) => {
   };
 };
 
-const idFor = (source, key) =>
+const idForValue = (kind, value) =>
   crypto
     .createHash('sha1')
-    .update(`${source}\u0000${key}`)
+    .update(`${kind}\u0000${value}`)
     .digest('hex')
     .slice(0, 16);
 
@@ -257,13 +264,24 @@ const envRecords = (file, roots, fields) => {
       continue;
     }
     records.push({
-      id: idFor(file, field.key),
       kind: field.kind,
       source: file,
       where: relativeTo(roots, file),
       key: field.key,
       value: field.value,
       ...(field.kind === 'user-session' ? ctx : {}),
+    });
+  }
+  // A bare api_id/api_hash/phone trio (no session beside it) is a
+  // "sign in by phone & password" credential in its own right.
+  if (ctx.apiId && ctx.apiHash && ctx.phone) {
+    records.push({
+      kind: 'user-password',
+      source: file,
+      where: relativeTo(roots, file),
+      key: 'phone',
+      value: null,
+      ...ctx,
     });
   }
   return records;
@@ -296,7 +314,6 @@ const siblingApiContext = async (file) => {
 const recordFromSession = async (file, roots) => {
   if (isTelethonSession(file)) {
     return {
-      id: idFor(file, 'telethon'),
       kind: 'telethon-session',
       source: file,
       where: relativeTo(roots, file),
@@ -309,7 +326,6 @@ const recordFromSession = async (file, roots) => {
     return null;
   }
   return {
-    id: idFor(file, 'session'),
     kind: 'user-session',
     source: file,
     where: relativeTo(roots, file),
@@ -319,52 +335,84 @@ const recordFromSession = async (file, roots) => {
   };
 };
 
-// A record as the caller sees it: never the value, only a masked hint.
+// Collapse records that are the same credential found in different files
+// into ONE, keeping every location. A session or token repeated across a
+// dozen repos becomes a single connectable entry. Distinct kinds keep
+// distinct keys; connectables key on their value, phone-logins on the line.
+const dedupeKey = (record) => {
+  if (record.kind === 'user-password') {
+    return `user-password\u0000${phoneKey(record.phone)}`;
+  }
+  if (record.kind === 'telethon-session') {
+    return `telethon\u0000${record.source}`;
+  }
+  return `${record.kind}\u0000${record.value}`;
+};
+
+// Prefer the copy that carries the most context (api_id/api_hash/phone):
+// any repo's `.env` may hold the token, but only some sit beside the trio
+// needed to verify a session or to sign in by phone.
+const richer = (a, b) => {
+  const score = (r) =>
+    (r.apiId ? 1 : 0) + (r.apiHash ? 1 : 0) + (r.phone ? 1 : 0);
+  return score(b) > score(a) ? b : a;
+};
+
+const dedupeRecords = (records) => {
+  const byKey = new Map();
+  for (const record of records) {
+    const key = dedupeKey(record);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, { ...record, wheres: [record.where] });
+      continue;
+    }
+    const merged = richer(existing, record);
+    byKey.set(key, {
+      ...merged,
+      wheres: [...new Set([...existing.wheres, record.where])],
+    });
+  }
+  // A phone-login is redundant when a working session for the same line is
+  // present (the session is the stronger credential) — drop it so each
+  // account shows "by session" OR "by phone & password", not a stray dup.
+  const sessionPhones = new Set(
+    [...byKey.values()]
+      .filter((r) => r.kind === 'user-session' && r.phone)
+      .map((r) => phoneKey(r.phone))
+  );
+  const kept = [...byKey.values()].filter(
+    (r) => r.kind !== 'user-password' || !sessionPhones.has(phoneKey(r.phone))
+  );
+  for (const record of kept) {
+    record.id = idForValue(record.kind, record.value ?? dedupeKey(record));
+  }
+  return kept;
+};
+
+// The credential type the UI groups by: a bot token, a login by session,
+// or a login by phone & password.
+const typeOf = (record) =>
+  record.kind === 'bot-token'
+    ? 'bot'
+    : record.kind === 'user-password'
+      ? 'user-password'
+      : 'session';
+
+// A record as the caller sees it: never the value, only a masked hint, the
+// type, whether it is live, and every place it was found.
 const publicEntry = (record) => ({
   id: record.id,
   kind: record.kind,
-  where: record.where,
+  type: typeOf(record),
+  where: record.wheres?.[0] ?? record.where,
+  wheres: record.wheres ?? [record.where],
   key: record.key,
   hint: record.value ? maskHint(record.value) : null,
   phone: record.phone ? maskHint(record.phone) : null,
+  active: record.active ?? null,
   account: record.account ?? null,
 });
-
-// A cheap account label from the file alone — no network. Bot tokens and
-// sessions each get a stable group key so the same account found in
-// several repositories lands in one group immediately, before (optional)
-// online verification ever runs.
-const localAccount = (record) => {
-  if (record.kind === 'bot-token') {
-    return {
-      kind: 'bot',
-      key: `bot:${maskHint(record.value)}`,
-      label: `bot token ${maskHint(record.value)}`,
-      verified: false,
-    };
-  }
-  const phone = record.phone ? maskHint(record.phone) : null;
-  return {
-    kind: 'user',
-    key: phone ? `phone:${record.phone}` : `session:${record.id}`,
-    label: phone ? `user ${phone}` : 'user session',
-    verified: false,
-  };
-};
-
-// Group records by their local account, newest-first grouping preserved.
-const groupRecords = (records) => {
-  const groups = new Map();
-  for (const record of records) {
-    const account = localAccount(record);
-    record.account = account;
-    if (!groups.has(account.key)) {
-      groups.set(account.key, { account, entries: [] });
-    }
-    groups.get(account.key).entries.push(publicEntry(record));
-  }
-  return [...groups.values()];
-};
 
 // Walk the chosen folders and read every credential they hold.
 const collectRecords = async (scanRoots) => {
@@ -388,82 +436,174 @@ const collectRecords = async (scanRoots) => {
   return records;
 };
 
-// Resolve a bot token to its account with the Bot API (no dependency).
-const identifyBot = async (value, fetchImpl) => {
-  if (!fetchImpl) {
-    return null;
+// Give a slow or hung network check a hard deadline so one bad credential
+// can never freeze the whole scan.
+const withTimeout = (promise, ms) => {
+  if (!ms) {
+    return promise;
   }
-  try {
-    const res = await fetchImpl(`https://api.telegram.org/bot${value}/getMe`);
-    const me = (await res.json())?.result;
-    if (!me) {
-      return null;
-    }
-    return {
-      kind: 'bot',
-      key: `bot:${me.id}`,
-      id: me.id,
-      username: me.username ?? null,
-      label: me.username
-        ? `@${me.username}`
-        : (me.first_name ?? `bot ${me.id}`),
-      verified: true,
-    };
-  } catch {
-    return null;
-  }
+  let timer;
+  const guard = new Promise((_resolve, reject) => {
+    timer = globalThis.setTimeout(() => reject(new Error('timeout')), ms);
+  });
+  // Clear the timer whichever way the race ends, so a resolved check never
+  // leaves a 12s timeout holding the event loop open.
+  return Promise.race([promise, guard]).finally(() =>
+    globalThis.clearTimeout(timer)
+  );
 };
 
-const userViaMtproto = async (record, mtproto) => {
+// Resolve a bot token to its account with the Bot API (no dependency).
+const identifyBot = async (value, fetchImpl) => {
+  const res = await fetchImpl(`https://api.telegram.org/bot${value}/getMe`);
+  const me = (await res.json())?.result;
+  if (!me) {
+    throw new Error('not a live bot');
+  }
+  return {
+    kind: 'bot',
+    key: `bot:${me.id}`,
+    id: me.id,
+    username: me.username ?? null,
+    label: me.username ? `@${me.username}` : (me.first_name ?? `bot ${me.id}`),
+    verified: true,
+  };
+};
+
+// Resolve a user session via MTProto: connect with the paired
+// api_id/api_hash and read the account, including its phone number.
+const identifyUser = async (record, mtproto) => {
   const me = await mtproto({
     apiId: Number(record.apiId),
     apiHash: record.apiHash,
     session: record.value,
   }).then((client) => client.getMe());
   const name = [me.firstName, me.lastName].filter(Boolean).join(' ');
+  const phone = me.phone ?? (phoneKey(record.phone) || null);
   return {
     kind: 'user',
     key: `user:${me.id}`,
     id: me.id,
     username: me.username ?? null,
-    label: me.username ? `@${me.username}` : name || `user ${me.id}`,
+    phone,
+    label: me.username ? `@${me.username}` : name || `user ${maskHint(phone)}`,
     verified: true,
   };
 };
 
-// Resolve a user session via MTProto when available; otherwise group it by
-// its phone (the user confirms the account is theirs).
-const identifyUser = async (record, mtproto) => {
-  if (mtproto && record.apiId && record.apiHash) {
-    try {
-      return await userViaMtproto(record, mtproto);
-    } catch {
-      // fall through to the phone-based grouping.
-    }
+// The account a phone-login (api_id/api_hash/phone) belongs to, before any
+// sign-in: known only by its phone number, so unverified.
+const phoneAccount = (record) => ({
+  kind: 'user',
+  key: `phone:${phoneKey(record.phone)}`,
+  id: null,
+  username: null,
+  phone: phoneKey(record.phone),
+  label: `user ${maskHint(record.phone)}`,
+  verified: false,
+});
+
+// A fallback account label from the file alone, when no live check ran.
+const localAccount = (record) => {
+  if (record.kind === 'bot-token') {
+    return {
+      kind: 'bot',
+      key: `bot:${maskHint(record.value)}`,
+      label: `bot token ${maskHint(record.value)}`,
+      verified: false,
+    };
   }
+  const phone = record.phone ? maskHint(record.phone) : null;
   return {
     kind: 'user',
-    key: record.phone ? `phone:${record.phone}` : `session:${record.id}`,
-    id: null,
-    username: null,
-    label: record.phone ? `user ${maskHint(record.phone)}` : 'user session',
+    key: phone ? `phone:${phoneKey(record.phone)}` : `session:${record.id}`,
+    phone: phoneKey(record.phone),
+    label: phone ? `user ${phone}` : 'user session',
     verified: false,
   };
 };
 
-const accountFor = (record, { fetchImpl, mtproto }) =>
-  record.kind === 'bot-token'
-    ? identifyBot(record.value, fetchImpl).then(
-        (account) =>
-          account ?? {
-            kind: 'bot',
-            key: `bot:${record.id}`,
-            id: null,
-            label: 'bot token',
-            verified: false,
-          }
-      )
-    : identifyUser(record, mtproto);
+// Check one credential live and attach its account + whether it works.
+// A proven-dead credential (a token Telegram rejects, a revoked session)
+// gets active=false; one we cannot check (a session with no api_id, or no
+// MTProto client) stays active=null and is kept — we never hide a
+// credential just because we could not reach the network.
+const verifyRecord = async (record, { fetchImpl, mtproto, timeout }) => {
+  try {
+    if (record.kind === 'bot-token' && fetchImpl) {
+      record.account = await withTimeout(
+        identifyBot(record.value, fetchImpl),
+        timeout
+      );
+      record.active = true;
+    } else if (
+      record.kind === 'user-session' &&
+      mtproto &&
+      record.apiId &&
+      record.apiHash
+    ) {
+      record.account = await withTimeout(
+        identifyUser(record, mtproto),
+        timeout
+      );
+      record.phone = record.account.phone ?? record.phone;
+      record.active = true;
+    } else if (record.kind === 'user-password') {
+      record.account = phoneAccount(record);
+      record.active = null; // ready to sign in, not yet proven
+    } else {
+      record.account = localAccount(record);
+      record.active = null; // could not check
+    }
+  } catch {
+    record.account = localAccount(record);
+    record.active = false; // Telegram rejected it — it is dead
+  }
+  return record;
+};
+
+// After the live checks, fold every credential for one phone line into the
+// same account: a verified session tells us the real @username and id for a
+// phone, so a phone-login on that same number joins its group instead of
+// sitting alone.
+const mergeByPhone = (records) => {
+  const verifiedByPhone = new Map();
+  for (const record of records) {
+    const phone = record.account?.verified && record.account.phone;
+    if (phone) {
+      verifiedByPhone.set(phoneKey(phone), record.account);
+    }
+  }
+  for (const record of records) {
+    const mine = phoneKey(record.phone);
+    if (!record.account?.verified && mine && verifiedByPhone.has(mine)) {
+      record.account = verifiedByPhone.get(mine);
+    }
+  }
+  return records;
+};
+
+// Group the kept records by their account, each entry carrying its type.
+const groupRecords = (records) => {
+  const groups = new Map();
+  for (const record of records) {
+    const account = record.account ?? localAccount(record);
+    const key = account.key;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        account: {
+          kind: account.kind,
+          label: account.label,
+          verified: Boolean(account.verified),
+          phone: account.phone ? maskHint(account.phone) : null,
+        },
+        entries: [],
+      });
+    }
+    groups.get(key).entries.push(publicEntry(record));
+  }
+  return [...groups.values()];
+};
 
 // The `secret:telegram:*` links to write for a connected credential.
 const secretLinks = (record, stamp) => {
@@ -509,8 +649,11 @@ export const createTelegramCreds = ({
   dataDir,
   fetchImpl = globalThis.fetch,
   // Optional MTProto client factory ({apiId,apiHash,session}) -> getMe(),
-  // injected where GramJS is available; absent keeps the module dep-free.
+  // injected where GramJS is available; absent keeps the module dep-free
+  // and user sessions are listed unverified (grouped by phone).
   mtproto = null,
+  // Per-credential network deadline; 0 disables it (handy in tests).
+  verifyTimeout = 12000,
   homeDir = os.homedir(),
   cwd = process.cwd(),
   now = () => Date.now(),
@@ -536,57 +679,75 @@ export const createTelegramCreds = ({
     await fs.rename(temp, cacheFile);
   };
 
+  const verifyAll = (records) =>
+    Promise.all(
+      records.map((record) =>
+        verifyRecord(record, { fetchImpl, mtproto, timeout: verifyTimeout })
+      )
+    );
+
   const scan = async ({ roots } = {}) => {
     const scanRoots = roots?.length
       ? roots
       : await defaultRoots({ homeDir, cwd });
-    const records = await collectRecords(scanRoots);
-    const byId = new Map(records.map((r) => [r.id, r]));
-    // Group locally, with no network, so the results appear at once.
-    const groups = groupRecords([...byId.values()]);
+    // Collapse duplicates first, so each distinct credential is checked
+    // once however many repos hold it, then verify them all at once.
+    const records = dedupeRecords(await collectRecords(scanRoots));
+    await verifyAll(records);
+    mergeByPhone(records);
+    // "Only active": a credential Telegram proved dead is dropped; one we
+    // could not check is kept (active=null).
+    const live = records.filter((record) => record.active !== false);
     await writeCache({
       roots: scanRoots,
       scannedAt: new Date(now()).toISOString(),
-      records: Object.fromEntries(byId),
+      records: Object.fromEntries(live.map((r) => [r.id, r])),
     });
     return {
       roots: scanRoots,
-      entries: [...byId.values()].map(publicEntry),
-      groups,
+      entries: live.map(publicEntry),
+      groups: groupRecords(live),
     };
   };
 
+  // Re-group whatever the last scan cached (used by the HTTP route); the
+  // live checks already ran during scan, so this is cheap.
   const identify = async (ids = null) => {
     const cache = await readCache();
     const records = Object.values(cache.records ?? {}).filter(
-      (r) => r.value && (!ids || ids.includes(r.id))
+      (r) => !ids || ids.includes(r.id)
     );
-    const groups = new Map();
-    for (const record of records) {
-      const account = await accountFor(record, { fetchImpl, mtproto });
-      record.account = {
-        label: account.label,
-        kind: account.kind,
-        verified: account.verified,
-      };
-      if (!groups.has(account.key)) {
-        groups.set(account.key, { account, entries: [] });
-      }
-      groups.get(account.key).entries.push(publicEntry(record));
-    }
-    cache.records = {
-      ...cache.records,
-      ...Object.fromEntries(records.map((r) => [r.id, r])),
-    };
-    await writeCache(cache);
-    return { groups: [...groups.values()] };
+    return { groups: groupRecords(records) };
   };
 
-  // Connect the chosen credential: write the secrets the app reads.
+  // The api_id/api_hash/phone behind a phone-login entry, so the caller can
+  // start the interactive sign-in. Server-side only — never sent to a browser.
+  const loginContext = async (id) => {
+    const cache = await readCache();
+    const record = cache.records?.[id];
+    if (!record || record.kind !== 'user-password') {
+      return null;
+    }
+    return {
+      apiId: record.apiId,
+      apiHash: record.apiHash,
+      phone: record.phone,
+    };
+  };
+
+  // Connect the chosen credential: write the secrets the app reads. A
+  // phone-login has no session yet, so it reports `needsLogin` and the
+  // caller drives the sign-in flow (see loginContext).
   const use = async (id, { store } = {}) => {
     const cache = await readCache();
     const record = cache.records?.[id];
-    if (!record || !record.value) {
+    if (!record) {
+      throw statusError('unknown or unreadable credential', 404);
+    }
+    if (record.kind === 'user-password') {
+      return { needsLogin: true, id, account: record.account ?? null };
+    }
+    if (!record.value) {
       throw statusError('unknown or unreadable credential', 404);
     }
     if (!store) {
@@ -606,6 +767,7 @@ export const createTelegramCreds = ({
     defaultRoots: () => defaultRoots({ homeDir, cwd }),
     scan,
     identify,
+    loginContext,
     use,
   };
 };

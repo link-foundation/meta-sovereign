@@ -56,14 +56,17 @@ test('identify connects with a session and reads the account', async () => {
   assert.equal(account.id, 7);
 });
 
-test('login without 2FA: start -> code -> done with a saved session', async () => {
-  const client = fakeClient({ twoFa: false });
-  const mt = createTelegramMtproto({ clientFactory: async () => client });
-  const login = await mt.createLogin({
+// Build a login controller over a fake client with a fixed api/phone.
+const loginFor = (client) =>
+  createTelegramMtproto({ clientFactory: async () => client }).createLogin({
     apiId: 2040,
     apiHash: 'hash',
     phone: '+15551234567',
   });
+
+test('login without 2FA: start -> code -> done with a saved session', async () => {
+  const client = fakeClient({ twoFa: false });
+  const login = await loginFor(client);
   // After ready(), the client is waiting for the code.
   assert.equal(await login.ready(), 'code');
   const state = await login.submitCode('12345');
@@ -75,12 +78,7 @@ test('login without 2FA: start -> code -> done with a saved session', async () =
 
 test('login with 2FA: start -> code -> password -> done', async () => {
   const client = fakeClient({ twoFa: true });
-  const mt = createTelegramMtproto({ clientFactory: async () => client });
-  const login = await mt.createLogin({
-    apiId: 2040,
-    apiHash: 'hash',
-    phone: '+15551234567',
-  });
+  const login = await loginFor(client);
   await login.ready();
   assert.equal(await login.submitCode('12345'), 'password');
   assert.equal(await login.submitPassword('s3cret'), 'done');

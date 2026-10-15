@@ -10,56 +10,150 @@
 import React, { useRef, useState } from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
+import { RecommendedHeader } from './recommended.js';
 
 const el = React.createElement;
 
-const KIND_LABEL = {
-  'bot-token': 'telegramSessions.kindBot',
-  'user-session': 'telegramSessions.kindUser',
-  'telethon-session': 'telegramSessions.kindTelethon',
+// Each entry is one distinct credential (the same token found in ten repos
+// is one row). Its TYPE says how connecting works: a bot token, a login by
+// saved session, or a login by phone & password.
+const TYPE_LABEL = {
+  bot: 'telegramSessions.typeBot',
+  session: 'telegramSessions.typeSession',
+  'user-password': 'telegramSessions.typePassword',
 };
 
-const EntryRow = ({ entry, busy, onUse }) => {
+// Where the credential was found: the first location, plus a count of the
+// rest so a widely-copied token does not flood the row.
+const WhereLine = ({ entry }) => {
   const t = useT();
-  const connectable = entry.kind !== 'telethon-session';
-  return el('li', { className: 'tg-session-entry', 'data-kind': entry.kind }, [
-    el('span', { key: 'text', className: 'tg-session-text' }, [
-      el('span', { key: 'where', className: 'tg-session-where' }, entry.where),
-      el(
-        'span',
-        { key: 'meta', className: 'meta tg-session-meta' },
-        [
-          t(KIND_LABEL[entry.kind] ?? 'telegramSessions.kindUser'),
-          entry.hint,
-          entry.phone,
-        ]
-          .filter(Boolean)
-          .join(' · ')
-      ),
-    ]),
-    connectable
+  const wheres = entry.wheres ?? [entry.where];
+  const extra = wheres.length - 1;
+  return el('span', { className: 'tg-session-where' }, [
+    el('span', { key: 'first' }, wheres[0]),
+    extra > 0
       ? el(
-          'button',
-          {
-            key: 'use',
-            type: 'button',
-            className: 'primary tg-session-use',
-            'data-action': 'telegram-session-use',
-            'data-entry': entry.id,
-            disabled: Boolean(busy),
-            onClick: () => onUse(entry.id),
-          },
-          t('telegramSessions.connect')
-        )
-      : el(
           'span',
-          { key: 'manual', className: 'meta' },
-          t('telegramSessions.telethonHint')
-        ),
+          { key: 'more', className: 'meta tg-session-more' },
+          ` ${t('telegramSessions.more').replace('{n}', String(extra))}`
+        )
+      : null,
   ]);
 };
 
-const AccountGroup = ({ group, busy, onUse }) => {
+// One labelled `telegramLogin.*` input, shared by the manual login form and
+// the finder's inline phone-login so the markup lives in a single place.
+const CredentialField = ({
+  id,
+  type,
+  value,
+  placeholder,
+  dataField,
+  onChange,
+}) => {
+  const t = useT();
+  return el('label', { key: id, className: 'col provider-credential-row' }, [
+    el('span', { key: 'l' }, t(`telegramLogin.${id}`)),
+    el('input', {
+      key: 'i',
+      type: type ?? 'text',
+      value: value ?? '',
+      placeholder,
+      autoComplete: 'off',
+      'data-field': dataField ?? id,
+      onChange: (e) => onChange(e.target.value),
+    }),
+  ]);
+};
+
+// The inline sign-in a phone & password login needs: Connect starts it on
+// the server (which already holds the api_id/api_hash/phone), then the user
+// types the code Telegram sent and, if set, their 2FA password — right here,
+// without leaving the list.
+const EntryLogin = ({ login, onField, onSubmit, busy }) => {
+  const t = useT();
+  const field = (id, type) =>
+    el(CredentialField, {
+      key: id,
+      id,
+      type,
+      value: login[id],
+      dataField: `entry-${id}`,
+      onChange: (value) => onField(id, value),
+    });
+  return el('div', { className: 'tg-session-login' }, [
+    el(
+      'p',
+      { key: 'sent', className: 'meta' },
+      t(
+        login.needs === 'password'
+          ? 'telegramLogin.twoFactor'
+          : 'telegramLogin.codeSent'
+      )
+    ),
+    login.needs === 'code' ? field('code') : null,
+    login.needs === 'password' ? field('password', 'password') : null,
+    el(
+      'button',
+      {
+        key: 'go',
+        type: 'button',
+        className: 'primary',
+        'data-action': 'telegram-session-login',
+        disabled: Boolean(busy),
+        onClick: onSubmit,
+      },
+      t(busy ? 'telegramLogin.working' : 'telegramLogin.signIn')
+    ),
+    login.error
+      ? el('p', { key: 'e', className: 'meta', role: 'alert' }, login.error)
+      : null,
+  ]);
+};
+
+const EntryRow = ({ entry, busy, login, onUse, onField, onSubmit }) => {
+  const t = useT();
+  const connectable = entry.kind !== 'telethon-session';
+  const meta = [
+    t(TYPE_LABEL[entry.type] ?? 'telegramSessions.typeSession'),
+    entry.hint,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  return el('li', { className: 'tg-session-entry', 'data-kind': entry.kind }, [
+    el('span', { key: 'text', className: 'tg-session-text' }, [
+      el(WhereLine, { key: 'where', entry }),
+      el('span', { key: 'meta', className: 'meta tg-session-meta' }, meta),
+    ]),
+    login
+      ? el(EntryLogin, { key: 'login', login, onField, onSubmit, busy })
+      : connectable
+        ? el(
+            'button',
+            {
+              key: 'use',
+              type: 'button',
+              className: 'primary tg-session-use',
+              'data-action': 'telegram-session-use',
+              'data-entry': entry.id,
+              disabled: Boolean(busy),
+              onClick: () => onUse(entry.id),
+            },
+            t(
+              entry.type === 'user-password'
+                ? 'telegramSessions.signIn'
+                : 'telegramSessions.connect'
+            )
+          )
+        : el(
+            'span',
+            { key: 'manual', className: 'meta' },
+            t('telegramSessions.telethonHint')
+          ),
+  ]);
+};
+
+const AccountGroup = ({ group, busy, logins, onUse, onField, onSubmit }) => {
   const t = useT();
   const { account } = group;
   return el('section', { className: 'tg-session-group' }, [
@@ -89,23 +183,38 @@ const AccountGroup = ({ group, busy, onUse }) => {
       'ul',
       { key: 'list', className: 'tg-session-entries' },
       group.entries.map((entry) =>
-        el(EntryRow, { key: entry.id, entry, busy, onUse })
+        el(EntryRow, {
+          key: entry.id,
+          entry,
+          busy: busy === entry.id,
+          login: logins[entry.id] ?? null,
+          onUse,
+          onField: (field, value) => onField(entry.id, field, value),
+          onSubmit: () => onSubmit(entry.id),
+        })
       )
     ),
   ]);
 };
 
-// The scan groups results from the files alone — no network — so they
-// appear at once and a slow or offline Telegram can never block them.
+// The scan dedupes every discovered credential, checks each one is still
+// live, resolves user sessions to their phone/@username, and groups them by
+// account — so the list shows one connectable entry per real sign-in.
 const useFinder = (onConnected) => {
   const [groups, setGroups] = useState(null);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [scanned, setScanned] = useState(false);
+  // Phone-logins that have started an inline sign-in: id -> { needs, code,
+  // password, error }.
+  const [logins, setLogins] = useState({});
+  const patch = (id, next) =>
+    setLogins((all) => ({ ...all, [id]: { ...all[id], ...next } }));
 
   const find = async () => {
     setBusy('scan');
     setError('');
+    setLogins({});
     const scan = await api.telegramSessions('scan');
     setBusy('');
     setScanned(true);
@@ -125,30 +234,55 @@ const useFinder = (onConnected) => {
       setError(result.error);
       return;
     }
+    // A phone & password login: reveal the inline code/2FA step, keeping
+    // the server-side login id to submit the code against.
+    if (result.needsLogin) {
+      patch(id, {
+        needs: result.needs ?? 'code',
+        loginId: result.id,
+        error: '',
+      });
+      return;
+    }
     await onConnected?.();
   };
 
-  return { groups, busy, error, scanned, find, use };
+  const field = (id, key, value) => patch(id, { [key]: value });
+
+  const submit = async (id) => {
+    const login = logins[id] ?? {};
+    setBusy(id);
+    const action = login.needs === 'password' ? 'password' : 'code';
+    const result = await api.telegramLogin(action, {
+      id: login.loginId ?? id,
+      code: login.code,
+      password: login.password,
+    });
+    setBusy('');
+    if (result?.error) {
+      patch(id, { error: result.error });
+      return;
+    }
+    if (result.done) {
+      setLogins((all) => {
+        const next = { ...all };
+        delete next[id];
+        return next;
+      });
+      await onConnected?.();
+      return;
+    }
+    patch(id, { needs: result.needs ?? 'code', error: '' });
+  };
+
+  return { groups, busy, error, scanned, logins, find, use, field, submit };
 };
 
 // Sign in to a Telegram USER account over MTProto, like konard/telegram-bot:
 // api_id + api_hash + phone -> a login code -> an optional 2FA password ->
 // a reusable session stored under secret:telegram:*.
-const LoginField = ({ id, type, value, onChange, placeholder }) => {
-  const t = useT();
-  return el('label', { className: 'col provider-credential-row' }, [
-    el('span', { key: 'l' }, t(`telegramLogin.${id}`)),
-    el('input', {
-      key: 'i',
-      type: type ?? 'text',
-      value,
-      placeholder,
-      autoComplete: 'off',
-      'data-field': id,
-      onChange: (e) => onChange(e.target.value),
-    }),
-  ]);
-};
+const LoginField = ({ id, type, value, onChange, placeholder }) =>
+  el(CredentialField, { id, type, value, placeholder, onChange });
 
 const useTelegramLogin = (onConnected) => {
   const [form, setForm] = useState({
@@ -298,7 +432,8 @@ export const TelegramLoginForm = ({ onConnected }) => {
 
 export const TelegramSessionsPanel = ({ onConnected }) => {
   const t = useT();
-  const { groups, busy, error, scanned, find, use } = useFinder(onConnected);
+  const { groups, busy, error, scanned, logins, find, use, field, submit } =
+    useFinder(onConnected);
   const empty = scanned && (groups?.length ?? 0) === 0;
   return el(
     'section',
@@ -308,14 +443,12 @@ export const TelegramSessionsPanel = ({ onConnected }) => {
       'aria-busy': busy ? 'true' : 'false',
     },
     [
-      el('header', { key: 'h', className: 'row tg-sessions-head' }, [
-        el('h3', { key: 'title' }, t('telegramSessions.title')),
-        el(
-          'span',
-          { key: 'tag', className: 'recommended-tag' },
-          t('connections.recommended')
-        ),
-      ]),
+      el(RecommendedHeader, {
+        key: 'h',
+        tag: 'h3',
+        titleKey: 'telegramSessions.title',
+        className: 'tg-sessions-head',
+      }),
       el('p', { key: 'intro', className: 'meta' }, t('telegramSessions.intro')),
       el(
         'button',
@@ -354,7 +487,10 @@ export const TelegramSessionsPanel = ({ onConnected }) => {
                 key: group.account.label + index,
                 group,
                 busy,
+                logins,
                 onUse: use,
+                onField: field,
+                onSubmit: submit,
               })
             )
           )

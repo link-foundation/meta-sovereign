@@ -329,10 +329,10 @@ export const ru = {
   // Поиск входов в Telegram (токены ботов и пользовательские сессии) на этом компьютере.
   'telegramSessions.title': 'Найти сессии Telegram на этом компьютере',
   'telegramSessions.intro':
-    'Просматривает папки с проектами и находит уже имеющиеся входы в Telegram — токены ботов и пользовательские сессии — и группирует их по аккаунтам. Всё остаётся на этом компьютере; подключаете только вы.',
+    'Просматривает папки с проектами и находит уже имеющиеся входы в Telegram — токены ботов и пользовательские сессии — убирает повторы, проверяет, что каждый вход ещё работает, и показывает по одному на аккаунт. Всё остаётся на этом компьютере; подключаете только вы.',
   'telegramSessions.scan': 'Найти мои сессии Telegram',
   'telegramSessions.rescan': 'Искать снова',
-  'telegramSessions.scanning': 'Просматриваю ваши папки…',
+  'telegramSessions.scanning': 'Ищу и проверяю сессии…',
   'telegramSessions.none': 'В этих папках входы в Telegram не найдены.',
   'telegramSessions.connect': 'Подключить',
   'telegramSessions.kindBot': 'токен бота',
@@ -342,6 +342,11 @@ export const ru = {
   'telegramSessions.badgeUser': 'Пользователь',
   'telegramSessions.verified': 'подтверждено через Telegram',
   'telegramSessions.telethonHint': 'откройте этот проект, чтобы войти',
+  'telegramSessions.typeBot': 'Токен бота',
+  'telegramSessions.typeSession': 'Вход по сессии',
+  'telegramSessions.typePassword': 'Вход по телефону и паролю',
+  'telegramSessions.more': '+ ещё {n}',
+  'telegramSessions.signIn': 'Войти',
 
   // Вход в пользовательский аккаунт Telegram через MTProto (GramJS), как в konard/telegram-bot.
   'telegramLogin.title': 'Войти в свой аккаунт Telegram',
@@ -357,6 +362,10 @@ export const ru = {
   'telegramLogin.working': 'Выполняется…',
   'telegramLogin.connected': 'Вход выполнен',
   'telegramLogin.you': 'ваш аккаунт',
+  'telegramLogin.codeSent':
+    'Telegram отправил код в приложение. Введите его ниже.',
+  'telegramLogin.twoFactor':
+    'На аккаунте включён пароль двухфакторной защиты. Введите его, чтобы завершить.',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Подготовьте учётные данные Email',
   'connections.email.setup.step1.body':

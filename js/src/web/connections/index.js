@@ -15,6 +15,7 @@
 // rendering the components.
 
 import React, { useEffect, useState } from 'react';
+import { RecommendedHeader } from './recommended.js';
 import { api } from '../dom.js';
 import { useLocaleContext, useT } from '../i18n.js';
 import { LocalServerHelp } from '../connection-guide.js';
@@ -575,14 +576,13 @@ const AutoImportIntro = ({ providerId, provider, status, job }) => {
   const canCapture = Boolean(status?.providers?.[providerId]?.canCapture);
   const signIn = job ? null : status?.signIns?.[providerId];
   return el(React.Fragment, null, [
-    el('header', { key: 'h', className: 'row provider-auto-import-header' }, [
-      el('h4', { key: 'title', className: 'meta' }, t('autoImport.title')),
-      el(
-        'span',
-        { key: 'tag', className: 'recommended-tag' },
-        t('connections.recommended')
-      ),
-    ]),
+    el(RecommendedHeader, {
+      key: 'h',
+      tag: 'h4',
+      titleClass: 'meta',
+      titleKey: 'autoImport.title',
+      className: 'provider-auto-import-header',
+    }),
     el(
       'p',
       { key: 'intro' },

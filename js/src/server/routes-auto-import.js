@@ -166,7 +166,17 @@ const telegramRoute = async (store, req, res, ctx, action) => {
   if (action === 'identify') {
     return json(res, 200, await creds.identify(body.ids ?? null)) ?? true;
   }
-  const result = await creds.use(String(body.id ?? ''), { store });
+  const id = String(body.id ?? '');
+  const result = await creds.use(id, { store });
+  // A phone & password credential has no session yet: start the interactive
+  // MTProto sign-in from its stored api_id/api_hash/phone and hand the UI
+  // the next step (a login code), exactly like the manual login form.
+  if (result.needsLogin) {
+    const context = await creds.loginContext(id);
+    const login = await startLogin(store, context ?? {}, ctx);
+    ctx.log?.({ event: 'telegram_creds_use', kind: 'user-password' });
+    return json(res, 200, { ...login, needsLogin: true }) ?? true;
+  }
   ctx.log?.({ event: 'telegram_creds_use', kind: result.kind });
   return json(res, 200, result) ?? true;
 };

@@ -329,10 +329,10 @@ export const en = {
   // Find Telegram sign-ins (bot tokens and user sessions) on this computer.
   'telegramSessions.title': 'Find Telegram sessions on this computer',
   'telegramSessions.intro':
-    'Looks through your project folders for Telegram sign-ins you already have — bot tokens and user sessions — and groups them by account. Everything stays on this computer; only you connect one.',
+    'Looks through your project folders for Telegram sign-ins you already have — bot tokens and user sessions — collapses duplicates, checks each one still works, and lists one per account. Everything stays on this computer; only you connect one.',
   'telegramSessions.scan': 'Find my Telegram sessions',
   'telegramSessions.rescan': 'Look again',
-  'telegramSessions.scanning': 'Looking through your folders…',
+  'telegramSessions.scanning': 'Finding and checking your sessions…',
   'telegramSessions.none': 'No Telegram sign-ins found in those folders.',
   'telegramSessions.connect': 'Connect',
   'telegramSessions.kindBot': 'bot token',
@@ -342,6 +342,11 @@ export const en = {
   'telegramSessions.badgeUser': 'User',
   'telegramSessions.verified': 'confirmed with Telegram',
   'telegramSessions.telethonHint': 'open this project to sign in',
+  'telegramSessions.typeBot': 'Bot token',
+  'telegramSessions.typeSession': 'Login by session',
+  'telegramSessions.typePassword': 'Login by phone & password',
+  'telegramSessions.more': '+{n} more',
+  'telegramSessions.signIn': 'Sign in',
 
   // Sign in to a Telegram user account over MTProto (GramJS), like konard/telegram-bot.
   'telegramLogin.title': 'Log in with your Telegram account',
@@ -357,6 +362,9 @@ export const en = {
   'telegramLogin.working': 'Working…',
   'telegramLogin.connected': 'Signed in',
   'telegramLogin.you': 'your account',
+  'telegramLogin.codeSent': 'Telegram sent a code to your app. Enter it below.',
+  'telegramLogin.twoFactor':
+    'Your account has a 2FA password. Enter it to finish.',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':

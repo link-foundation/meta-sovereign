@@ -319,10 +319,10 @@ export const zh = {
   // 在这台电脑上查找 Telegram 登录（机器人令牌和用户会话）。
   'telegramSessions.title': '在这台电脑上查找 Telegram 会话',
   'telegramSessions.intro':
-    '在你的项目文件夹中查找已有的 Telegram 登录——机器人令牌和用户会话——并按账号分组。所有内容都留在本机;只有你能连接。',
+    '在你的项目文件夹中查找已有的 Telegram 登录——机器人令牌和用户会话——合并重复项,核对每个是否仍然有效,并按账号各列一个。所有内容都留在本机;只有你能连接。',
   'telegramSessions.scan': '查找我的 Telegram 会话',
   'telegramSessions.rescan': '再查一次',
-  'telegramSessions.scanning': '正在查看你的文件夹…',
+  'telegramSessions.scanning': '正在查找并核对你的会话…',
   'telegramSessions.none': '这些文件夹中未找到 Telegram 登录。',
   'telegramSessions.connect': '连接',
   'telegramSessions.kindBot': '机器人令牌',
@@ -332,6 +332,11 @@ export const zh = {
   'telegramSessions.badgeUser': '用户',
   'telegramSessions.verified': '已通过 Telegram 确认',
   'telegramSessions.telethonHint': '打开此项目以登录',
+  'telegramSessions.typeBot': '机器人令牌',
+  'telegramSessions.typeSession': '用会话登录',
+  'telegramSessions.typePassword': '用手机号和密码登录',
+  'telegramSessions.more': '+{n} 个',
+  'telegramSessions.signIn': '登录',
 
   // 通过 MTProto(GramJS)登录你的 Telegram 用户账号,与 konard/telegram-bot 一致。
   'telegramLogin.title': '用你的 Telegram 账号登录',
@@ -347,6 +352,8 @@ export const zh = {
   'telegramLogin.working': '处理中…',
   'telegramLogin.connected': '已登录',
   'telegramLogin.you': '你的账号',
+  'telegramLogin.codeSent': 'Telegram 已向你的应用发送验证码,请在下方输入。',
+  'telegramLogin.twoFactor': '你的账号设置了两步验证密码,请输入以完成登录。',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':

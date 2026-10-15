@@ -326,10 +326,10 @@ export const hi = {
   // इस कंप्यूटर पर Telegram साइन-इन (बॉट टोकन और उपयोगकर्ता सेशन) खोजें।
   'telegramSessions.title': 'इस कंप्यूटर पर Telegram सेशन खोजें',
   'telegramSessions.intro':
-    'आपके प्रोजेक्ट फ़ोल्डरों में पहले से मौजूद Telegram साइन-इन — बॉट टोकन और उपयोगकर्ता सेशन — ढूँढ़कर खाते के अनुसार समूहित करता है। सब कुछ इसी कंप्यूटर पर रहता है; जोड़ते केवल आप हैं।',
+    'आपके प्रोजेक्ट फ़ोल्डरों में पहले से मौजूद Telegram साइन-इन — बॉट टोकन और उपयोगकर्ता सेशन — ढूँढ़ता है, दोहराव हटाता है, जाँचता है कि हर एक अब भी काम करता है, और प्रति खाता एक दिखाता है। सब कुछ इसी कंप्यूटर पर रहता है; जोड़ते केवल आप हैं।',
   'telegramSessions.scan': 'मेरे Telegram सेशन खोजें',
   'telegramSessions.rescan': 'फिर देखें',
-  'telegramSessions.scanning': 'आपके फ़ोल्डर देखे जा रहे हैं…',
+  'telegramSessions.scanning': 'आपके सेशन ढूँढ़ और जाँच रहा हूँ…',
   'telegramSessions.none': 'उन फ़ोल्डरों में कोई Telegram साइन-इन नहीं मिला।',
   'telegramSessions.connect': 'जोड़ें',
   'telegramSessions.kindBot': 'बॉट टोकन',
@@ -339,6 +339,11 @@ export const hi = {
   'telegramSessions.badgeUser': 'उपयोगकर्ता',
   'telegramSessions.verified': 'Telegram से पुष्टि',
   'telegramSessions.telethonHint': 'साइन इन करने के लिए यह प्रोजेक्ट खोलें',
+  'telegramSessions.typeBot': 'बॉट टोकन',
+  'telegramSessions.typeSession': 'सेशन से लॉगिन',
+  'telegramSessions.typePassword': 'फ़ोन और पासवर्ड से लॉगिन',
+  'telegramSessions.more': '+{n} और',
+  'telegramSessions.signIn': 'साइन इन करें',
 
   // MTProto (GramJS) के ज़रिये अपने Telegram यूज़र खाते में साइन इन, konard/telegram-bot की तरह।
   'telegramLogin.title': 'अपने Telegram खाते से लॉग इन करें',
@@ -354,6 +359,10 @@ export const hi = {
   'telegramLogin.working': 'काम जारी…',
   'telegramLogin.connected': 'साइन इन हो गया',
   'telegramLogin.you': 'आपका खाता',
+  'telegramLogin.codeSent':
+    'Telegram ने आपके ऐप में एक कोड भेजा है। उसे नीचे दर्ज करें।',
+  'telegramLogin.twoFactor':
+    'आपके खाते में 2FA पासवर्ड है। पूरा करने के लिए उसे दर्ज करें।',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
   'connections.email.setup.step1.body':
