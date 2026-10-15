@@ -5,6 +5,7 @@ edition = "2021"
 license = "Unlicense"
 description = "Pure-Rust local HTTP + WebSocket + WebRTC-signalling server for meta-sovereign (R-G2)."
 repository = "https://github.com/link-foundation/meta-sovereign"
+publish = false
 
 [lib]
 name = "meta_sovereign_server"
