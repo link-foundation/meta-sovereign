@@ -21,6 +21,8 @@ import { avatarFor, groupChats } from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
+import { Notice } from './notice.js';
+export { reasonText } from './notice.js';
 
 const el = React.createElement;
 
@@ -363,54 +365,6 @@ const NOTICE = {
   failed: 'chat.notice.failed',
 };
 
-/** Why a run queued nothing for this chat, in words when we have them. */
-export const reasonText = (t, reason) => {
-  if (!reason) {
-    return t('automations.reason.none');
-  }
-  const key = `automations.reason.${reason}`;
-  const text = t(key);
-  return text === key ? reason : text;
-};
-
-const Notice = ({ notice, dismiss }) => {
-  const t = useT();
-  if (!notice) {
-    return null;
-  }
-  return el(
-    'div',
-    {
-      className: `chat-notice ${notice.kind}`,
-      role: notice.kind === 'failed' ? 'alert' : 'status',
-      'data-notice': notice.kind,
-    },
-    [
-      el(
-        'span',
-        { key: 'text' },
-        t(NOTICE[notice.kind] ?? NOTICE.failed, {
-          count: notice.count ?? 0,
-          error: notice.error ?? '',
-          reason: reasonText(t, notice.reason),
-        })
-      ),
-      el(
-        'button',
-        {
-          key: 'x',
-          type: 'button',
-          className: 'icon-btn',
-          'aria-label': t('chat.notice.dismiss'),
-          title: t('chat.notice.dismiss'),
-          onClick: dismiss,
-        },
-        el(Icon, { name: 'close', size: 16 })
-      ),
-    ]
-  );
-};
-
 const Stream = ({ state }) => {
   const t = useT();
   const end = useRef(null);
@@ -541,6 +495,7 @@ export const ChatScreen = ({ state }) => {
           el(Notice, {
             key: 'n',
             notice: state.notice,
+            labels: NOTICE,
             dismiss: state.dismiss,
           }),
           el(Stream, { key: 's', state }),

@@ -8,7 +8,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 
 import {
   GreetingsScreen,
@@ -20,36 +19,14 @@ import {
 import { navItems } from '../src/web/nav-items.js';
 import { views } from '../src/web/views.js';
 import { connectionGuides } from '../src/web/connection-guides.js';
-import { LocaleContext, availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { assertStackTable } from './helpers/stack-table.js';
+import { renderInLocale, screenRenderer } from './util-render.js';
 import {
   defaultGreetingSelection,
   greetingCatalogue,
   vkGreetingStickers,
 } from '../src/greetings/index.js';
-
-const renderInLocale = (locale, node) => {
-  const t = (key, vars) => {
-    const tpl = dictionaries[locale]?.[key] ?? dictionaries.en[key] ?? key;
-    if (!vars) {
-      return tpl;
-    }
-    return String(tpl).replace(/\{(\w+)\}/g, (m, name) =>
-      Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : m
-    );
-  };
-  const ctx = {
-    locale,
-    t,
-    setLocale: () => {},
-    clearLocale: () => {},
-    available: availableLocales,
-  };
-  return renderToStaticMarkup(
-    React.createElement(LocaleContext.Provider, { value: ctx }, node)
-  );
-};
 
 const liveTelegram = {
   network: 'telegram',
@@ -83,8 +60,7 @@ const baseState = (overrides = {}) => ({
   ...overrides,
 });
 
-const render = (state, locale = 'en') =>
-  renderInLocale(locale, React.createElement(GreetingsScreen, { state }));
+const render = screenRenderer(GreetingsScreen);
 
 const plan = {
   mode: 'initiate',

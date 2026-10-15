@@ -6,7 +6,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 
 import {
   ConnectionsList,
@@ -14,30 +13,9 @@ import {
   classifyConnectionState,
 } from '../src/web/connections/index.js';
 import { providerCatalogue } from '../src/web/connection-guides.js';
-import { LocaleContext, availableLocales } from '../src/web/i18n.js';
+import { availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
-
-const renderInLocale = (locale, node) => {
-  const t = (key, vars) => {
-    const tpl = dictionaries[locale]?.[key] ?? dictionaries.en[key] ?? key;
-    if (!vars) {
-      return tpl;
-    }
-    return String(tpl).replace(/\{(\w+)\}/g, (m, name) =>
-      Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : m
-    );
-  };
-  const ctx = {
-    locale,
-    t,
-    setLocale: () => {},
-    clearLocale: () => {},
-    available: availableLocales,
-  };
-  return renderToStaticMarkup(
-    React.createElement(LocaleContext.Provider, { value: ctx }, node)
-  );
-};
+import { renderInLocale } from './util-render.js';
 
 test('classifyConnectionState reports connected/not-connected/action-required', () => {
   // Saved credential → connected.

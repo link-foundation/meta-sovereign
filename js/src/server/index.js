@@ -416,10 +416,12 @@ export const startServer = async ({
     });
     route(store, req, res, ctx).catch((err) => {
       log?.({
+        level: 'error',
         event: 'http_error',
         method: req.method,
         path: (req.url ?? '').split('?')[0],
         error: err.message,
+        stack: err.stack ?? null,
       });
       json(res, 500, { error: err.message });
     });

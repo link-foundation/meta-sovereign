@@ -10,8 +10,7 @@
 import React from 'react';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
-import { reasonText } from './chat-view.js';
-import { Icon } from './icons.js';
+import { Notice, reasonText } from './notice.js';
 import { networkName } from './connection-guides.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
@@ -86,45 +85,6 @@ const NOTICE = {
   nothing: 'chat.notice.nothing',
   'sent-auto': 'chat.notice.sentAuto',
   failed: 'chat.notice.failed',
-};
-
-const Notice = ({ notice, dismiss }) => {
-  const t = useT();
-  if (!notice) {
-    return null;
-  }
-  return el(
-    'div',
-    {
-      className: `chat-notice ${notice.kind}`,
-      role: notice.kind === 'failed' ? 'alert' : 'status',
-      'data-notice': notice.kind,
-    },
-    [
-      el(
-        'span',
-        { key: 'text' },
-        t(NOTICE[notice.kind] ?? NOTICE.failed, {
-          count: notice.count ?? 0,
-          name: notice.name ?? '',
-          error: notice.error ?? '',
-          reason: reasonText(t, notice.reason),
-        })
-      ),
-      el(
-        'button',
-        {
-          key: 'x',
-          type: 'button',
-          className: 'icon-btn',
-          'aria-label': t('chat.notice.dismiss'),
-          title: t('chat.notice.dismiss'),
-          onClick: dismiss,
-        },
-        el(Icon, { name: 'close', size: 16 })
-      ),
-    ]
-  );
 };
 
 const triggerSummary = (t, automation) =>
@@ -843,7 +803,12 @@ export const AutomationsScreen = ({ state }) => {
       ),
     ]),
     el('p', { key: 'i', className: 'meta' }, t('automations.intro')),
-    el(Notice, { key: 'notice', notice: state.notice, dismiss: state.dismiss }),
+    el(Notice, {
+      key: 'notice',
+      notice: state.notice,
+      labels: NOTICE,
+      dismiss: state.dismiss,
+    }),
     el('div', { key: 'b', className: 'automations-body' }, [
       editor.loading
         ? el('div', { key: 'l', className: 'meta' }, t('common.loading'))

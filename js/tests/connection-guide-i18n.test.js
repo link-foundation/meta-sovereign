@@ -6,41 +6,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 
 import { ConnectionGuide } from '../src/web/connection-guide.js';
 import { connectionGuides } from '../src/web/connection-guides.js';
-import { LocaleContext } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
-
-const renderInLocale = (locale, node) => {
-  const t = (key, vars) => {
-    const dict = dictionaries[locale];
-    const fallback = dictionaries.en;
-    const tpl = dict?.[key] ?? fallback?.[key] ?? key;
-    if (!vars) {
-      return tpl;
-    }
-    return String(tpl).replace(/\{(\w+)\}/g, (m, name) =>
-      Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : m
-    );
-  };
-  return renderToStaticMarkup(
-    React.createElement(
-      LocaleContext.Provider,
-      {
-        value: {
-          locale,
-          t,
-          setLocale: () => {},
-          clearLocale: () => {},
-          available: [],
-        },
-      },
-      node
-    )
-  );
-};
+import { renderInLocale } from './util-render.js';
 
 test('ConnectionGuide chat surface renders Russian copy when locale=ru', () => {
   const html = renderInLocale(

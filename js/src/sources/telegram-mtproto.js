@@ -28,8 +28,13 @@ const deferred = () => {
   return { promise, resolve, reject };
 };
 
-// GramJS returns a BigInteger id and camelCase names; normalize both.
-const idOf = (me) => me.id?.value ?? me.id ?? null;
+// GramJS returns the id as a BigInt (or a big-integer object) and camelCase
+// names; normalize the id to a plain string so it survives JSON.stringify
+// (a raw BigInt throws "Do not know how to serialize a BigInt").
+const idOf = (me) => {
+  const raw = me?.id ?? null;
+  return raw === null ? null : String(raw.value ?? raw);
+};
 
 const accountOf = (me = {}) => ({
   id: idOf(me),

@@ -51,6 +51,7 @@ import { createGithubLive } from '../sources/github.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
 import { startServer } from '../server/index.js';
+import { createServerLog, installCrashLogging } from '../server/log.js';
 import {
   startSyncListener,
   connectSyncPeer,
@@ -70,7 +71,8 @@ Commands:
   export        --file=<path> --store=<dir>
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
   restore       --file=<path> --store=<dir>
-  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>]
+  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--quiet-logs]
+                verbose logs are written to <store>/logs/meta-sovereign.log by default
   sources
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
@@ -149,23 +151,43 @@ const restoreCmd = async (args, log) => {
 };
 
 const serveCmd = async (args, log) => {
+  const storeDir = args.store ?? '.meta-sovereign';
+  // Verbose logging is on by default: every request, event and error is
+  // written to a file in the app folder (and echoed here), so the root
+  // cause of any issue is always on disk. `--quiet-logs` opts out.
+  const serverLog =
+    args['quiet-logs'] === true
+      ? null
+      : await createServerLog({
+          storeDir,
+          toStdout: args.foreground !== false,
+        });
+  if (serverLog) {
+    installCrashLogging(serverLog.log);
+  }
   const handle = await startServer({
     port: Number(args.port ?? 8787),
-    storeDir: args.store ?? '.meta-sovereign',
+    storeDir,
+    ...(serverLog ? { log: serverLog.log } : {}),
     // Hosted web origins allowed to use this server (issue #37); falls
     // back to MS_ALLOW_ORIGINS and then the built-in defaults.
     ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
   });
   log(`meta-sovereign listening on http://127.0.0.1:${handle.port}`);
+  if (serverLog) {
+    log(`verbose logs → ${serverLog.file}`);
+  }
   // Block on SIGINT/SIGTERM so the CLI keeps the server alive until
   // the user explicitly stops it. Tests pass `args.foreground = false`
   // to skip the wait and reclaim control after startup.
   if (args.foreground === false) {
+    await serverLog?.close();
     return 0;
   }
   await new Promise((resolve) => {
     const stop = async () => {
       await handle.close();
+      await serverLog?.close();
       resolve();
     };
     process.once('SIGINT', stop);
@@ -312,57 +334,24 @@ const upworkLiveFromArgs = (args) =>
     organizationId: args['organization-id'],
   });
 
-const upworkSearchCmd = async (args, log) => {
-  const live = upworkLiveFromArgs(args);
-  const result = await live.searchJobs({
-    query: args.query ?? '',
-    limit: args.limit ? Number(args.limit) : undefined,
-    sort: args.sort,
-  });
-  log(
-    JSON.stringify(
-      {
-        source: 'upwork',
-        count: result.links?.length ?? 0,
-        links: result.links ?? [],
-      },
-      null,
-      2
-    )
-  );
-  return 0;
-};
-
-const upworkMessageCmd = async (args, log) => {
-  const live = upworkLiveFromArgs(args);
-  const result = await live.post(
-    { text: args.text ?? args.body ?? '' },
-    { roomId: args['room-id'] }
-  );
-  log(JSON.stringify({ source: 'upwork', result }, null, 2));
-  return 0;
-};
-
 const peoplePerHourLiveFromArgs = (args) =>
   createPeoplePerHourLive({
     token: args.token,
     baseUrl: args['base-url'],
   });
 
-const peoplePerHourSearchCmd = async (args, log) => {
-  const live = peoplePerHourLiveFromArgs(args);
-  const result = await live.searchProjects({
+// Search and message commands for a freelancing source differ only in the
+// source name, how the live client is built, and which search/post shape the
+// board uses — so they share one factory each instead of a copy per source.
+const boardSearchCmd = (source, liveFromArgs, method) => async (args, log) => {
+  const result = await liveFromArgs(args)[method]({
     query: args.query ?? '',
     limit: args.limit ? Number(args.limit) : undefined,
     sort: args.sort,
   });
   log(
     JSON.stringify(
-      {
-        source: 'peopleperhour',
-        count: result.links?.length ?? 0,
-        links: result.links ?? [],
-      },
+      { source, count: result.links?.length ?? 0, links: result.links ?? [] },
       null,
       2
     )
@@ -370,18 +359,40 @@ const peoplePerHourSearchCmd = async (args, log) => {
   return 0;
 };
 
-const peoplePerHourMessageCmd = async (args, log) => {
-  const live = peoplePerHourLiveFromArgs(args);
-  const result = await live.post(
+const boardMessageCmd = (source, liveFromArgs, target) => async (args, log) => {
+  const result = await liveFromArgs(args).post(
     { text: args.text ?? args.body ?? '' },
-    {
-      workstreamId: args['workstream-id'],
-      proposalId: args['proposal-id'],
-    }
+    target(args)
   );
-  log(JSON.stringify({ source: 'peopleperhour', result }, null, 2));
+  log(JSON.stringify({ source, result }, null, 2));
   return 0;
 };
+
+const upworkSearchCmd = boardSearchCmd(
+  'upwork',
+  upworkLiveFromArgs,
+  'searchJobs'
+);
+const upworkMessageCmd = boardMessageCmd(
+  'upwork',
+  upworkLiveFromArgs,
+  (args) => ({
+    roomId: args['room-id'],
+  })
+);
+const peoplePerHourSearchCmd = boardSearchCmd(
+  'peopleperhour',
+  peoplePerHourLiveFromArgs,
+  'searchProjects'
+);
+const peoplePerHourMessageCmd = boardMessageCmd(
+  'peopleperhour',
+  peoplePerHourLiveFromArgs,
+  (args) => ({
+    workstreamId: args['workstream-id'],
+    proposalId: args['proposal-id'],
+  })
+);
 
 const audienceCmd = async (args, log) => {
   const store = await openStore(args.store ?? '.meta-sovereign');

@@ -53,7 +53,8 @@ test('identify connects with a session and reads the account', async () => {
   });
   assert.deepEqual(built, { apiId: 2040, apiHash: 'hash', session: 'SESS' });
   assert.equal(account.username, 'tester');
-  assert.equal(account.id, 7);
+  // The id is normalized to a string so a BigInt from GramJS stays safe.
+  assert.equal(account.id, '7');
 });
 
 // Build a login controller over a fake client with a fixed api/phone.

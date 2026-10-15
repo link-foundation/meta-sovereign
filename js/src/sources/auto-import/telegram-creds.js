@@ -497,10 +497,13 @@ const identifyUser = async (record, mtproto) => {
   }).then((client) => client.getMe());
   const name = [me.firstName, me.lastName].filter(Boolean).join(' ');
   const phone = me.phone ?? (phoneKey(record.phone) || null);
+  // GramJS ids are BigInt; keep them as strings so the result stays
+  // JSON-serializable (a raw BigInt throws on JSON.stringify).
+  const id = me.id === null || me.id === undefined ? null : String(me.id);
   return {
     kind: 'user',
-    key: `user:${me.id}`,
-    id: me.id,
+    key: `user:${id}`,
+    id,
     username: me.username ?? null,
     phone,
     label: me.username ? `@${me.username}` : name || `user ${maskHint(phone)}`,
@@ -727,7 +730,11 @@ export const createTelegramCreds = ({
   const writeCache = async (cache) => {
     await fs.mkdir(dir, { recursive: true, mode: 0o700 });
     const temp = `${cacheFile}.${process.pid}.tmp`;
-    await fs.writeFile(temp, JSON.stringify(cache), { mode: 0o600 });
+    // A BigInt account id (from GramJS) would otherwise throw here.
+    const text = JSON.stringify(cache, (_k, v) =>
+      typeof v === 'bigint' ? v.toString() : v
+    );
+    await fs.writeFile(temp, text, { mode: 0o600 });
     await fs.rename(temp, cacheFile);
   };
 

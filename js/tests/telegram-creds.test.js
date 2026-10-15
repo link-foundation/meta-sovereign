@@ -292,6 +292,19 @@ test('different sessions for one account collapse to a single entry', async () =
   assert.equal(result.entries.length, 1, 'the flat list agrees');
 });
 
+test('a BigInt account id from GramJS never breaks serialization', async () => {
+  const { root } = await makeTree();
+  // GramJS returns the user id as a BigInt; the result must still stringify.
+  const mtproto = async () => ({
+    getMe: async () => ({ id: 42n, username: 'konard', phone: '15551234567' }),
+  });
+  const { creds } = await credsFor({ mtproto });
+  const result = await creds.scan({ roots: [root] });
+  assert.doesNotThrow(() => JSON.stringify(result), 'result is serializable');
+  // And a second scan reads the cache it just wrote without throwing.
+  await assert.doesNotReject(() => creds.scan({ roots: [root] }));
+});
+
 test('use writes the matching secret links and no plaintext escapes', async () => {
   const { root } = await makeTree();
   const { creds } = await credsFor();

@@ -5,39 +5,16 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 
 import { CvScreen, CvView, clientFailure } from '../src/web/cv-view.js';
 import { navItems } from '../src/web/nav-items.js';
 import { views } from '../src/web/views.js';
-import { LocaleContext, availableLocales } from '../src/web/i18n.js';
+import { availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { listCvPlatforms } from '../src/cv/index.js';
 import { api } from '../src/web/dom.js';
 import { assertStackTable } from './helpers/stack-table.js';
-
-const renderInLocale = (locale, node) => {
-  const t = (key, vars) => {
-    const tpl = dictionaries[locale]?.[key] ?? dictionaries.en[key] ?? key;
-    if (!vars) {
-      return tpl;
-    }
-    return String(tpl).replace(/\{(\w+)\}/g, (m, name) =>
-      Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : m
-    );
-  };
-  const ctx = {
-    locale,
-    t,
-    setLocale: () => {},
-    clearLocale: () => {},
-    available: availableLocales,
-  };
-  return renderToStaticMarkup(
-    React.createElement(LocaleContext.Provider, { value: ctx }, node)
-  );
-};
+import { screenRenderer } from './util-render.js';
 
 const baseState = (overrides = {}) => ({
   platforms: [
@@ -68,8 +45,7 @@ const baseState = (overrides = {}) => ({
   ...overrides,
 });
 
-const render = (state, locale = 'en') =>
-  renderInLocale(locale, React.createElement(CvScreen, { state }));
+const render = screenRenderer(CvScreen);
 
 test('the CV screen is a registered nav surface', () => {
   assert.ok(

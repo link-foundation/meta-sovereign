@@ -4,6 +4,12 @@
  * eslint complexity budget.
  */
 
+// JSON.stringify throws on a BigInt ("Do not know how to serialize a
+// BigInt"), which some upstream libraries (GramJS account ids) hand us —
+// render those as strings so one stray BigInt can never fail a response.
+const jsonSafe = (_key, value) =>
+  typeof value === 'bigint' ? value.toString() : value;
+
 export const json = (res, status, body) => {
   // Never write twice: a slow handler whose client already gave up (or a
   // late error after a response was sent) must not throw ERR_HTTP_HEADERS_
@@ -12,7 +18,7 @@ export const json = (res, status, body) => {
     return;
   }
   res.writeHead(status, { 'content-type': 'application/json' });
-  res.end(JSON.stringify(body));
+  res.end(JSON.stringify(body, jsonSafe));
 };
 
 export const text = (res, status, body, type = 'text/plain; charset=utf-8') => {

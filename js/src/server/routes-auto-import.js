@@ -323,6 +323,17 @@ export const handleAutoImportRoutes = async (store, req, res, p, ctx) => {
   try {
     return await dispatch(store, req, res, p, ctx);
   } catch (error) {
+    // Log the full stack before answering: these handlers catch their own
+    // errors (so they never reach the server's http_error logger), which is
+    // exactly how a failure like a BigInt serialization crash stayed
+    // invisible. The client still gets only the message.
+    ctx.log?.({
+      level: 'error',
+      event: 'auto_import_error',
+      path: p,
+      error: error.message,
+      stack: error.stack ?? null,
+    });
     return fail(res, error);
   }
 };
