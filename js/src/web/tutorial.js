@@ -111,7 +111,7 @@ export const defaultSteps = [
     titleKey: 'tutorial.connections.title',
     bodyKey: 'tutorial.connections.body',
     title: 'Pick a service',
-    body: 'Everything here works now: "Find sign-ins" (recommended, with a local server) checks which services your browsers are already signed in to. On any service, "Import with browser" (recommended) signs you in and imports its export, "Enter manually" takes API keys or a file. Next opens Email.',
+    body: 'Everything here works now: "Find sign-ins" (recommended, with a local server) checks which services your browsers are already signed in to. On any service, "Import with browser" (recommended) signs you in and imports its export, "Enter manually" takes API keys or a file. Next opens the service you picked last (Email at first).',
   },
   {
     // The whole provider page is lit and usable — Back, both tabs and
@@ -501,14 +501,44 @@ export const placeMatches = (route, place) =>
   (place.view === route.view &&
     (route.detail === undefined || Boolean(place.provider) === route.detail));
 
+// The service (and tab) the user last opened during the tour, as the
+// `#conn-` hash tail: `telegram/manual`. When the tour has to reopen a
+// provider page (Back then Next, "Show me", a reload on the list) it
+// returns to *their* choice — never swaps Telegram for Email.
+const LAST_PROVIDER_KEY = 'metaSovereignTutorialProvider';
+const PROVIDER_ID = /^[a-z0-9-]{1,40}(\/manual)?$/;
+
+export const rememberProvider = (
+  provider,
+  storage = globalThis.localStorage
+) => {
+  if (!provider || !PROVIDER_ID.test(provider)) {
+    return;
+  }
+  try {
+    storage?.setItem(LAST_PROVIDER_KEY, provider);
+  } catch {
+    // Restricted storage: the tour falls back to Email.
+  }
+};
+
+export const rememberedProvider = (storage = globalThis.localStorage) => {
+  try {
+    const provider = storage?.getItem(LAST_PROVIDER_KEY);
+    return provider && PROVIDER_ID.test(provider) ? provider : null;
+  } catch {
+    return null;
+  }
+};
+
 /** The `meta-sovereign:navigate` detail that takes the app to `route`. */
-export const navigationFor = (route, place) => {
+export const navigationFor = (route, place, remembered = null) => {
   const detail = { view: route.view };
   if (route.detail === false) {
     // Back to the list (also clears a stale provider hash).
     detail.anchor = '';
   } else if (route.detail === true && !place.provider) {
-    detail.anchor = `#conn-${route.provider ?? 'email'}`;
+    detail.anchor = `#conn-${route.provider ?? remembered ?? 'email'}`;
   }
   return detail;
 };
@@ -516,7 +546,7 @@ export const navigationFor = (route, place) => {
 const goToRoute = (route) => {
   globalThis.dispatchEvent?.(
     new CustomEvent('meta-sovereign:navigate', {
-      detail: navigationFor(route, readPlace()),
+      detail: navigationFor(route, readPlace(), rememberedProvider()),
     })
   );
 };
@@ -530,6 +560,9 @@ const usePlace = () => {
     const update = () =>
       setPlace((prev) => {
         const next = readPlace();
+        if (next.provider) {
+          rememberProvider(globalThis.location?.hash?.slice('#conn-'.length));
+        }
         return samePlace(prev, next) ? prev : next;
       });
     globalThis.addEventListener?.('hashchange', update);

@@ -746,7 +746,7 @@ export const en = {
     'Save an encrypted copy of your data. Only your passphrase can open it.',
   'tutorial.connections.title': 'Pick a service',
   'tutorial.connections.body':
-    'Everything here works now: "Find sign-ins" (recommended, with a local server) checks which services your browsers are already signed in to. On any service, "Import with browser" (recommended) signs you in and imports its export, "Enter manually" takes API keys or a file. Next opens Email.',
+    'Everything here works now: "Find sign-ins" (recommended, with a local server) checks which services your browsers are already signed in to. On any service, "Import with browser" (recommended) signs you in and imports its export, "Enter manually" takes API keys or a file. Next opens the service you picked last (Email at first).',
   'tutorial.connectionDetail.title': 'Import or enter manually',
   'tutorial.connectionDetail.body':
     'On "Import with browser", press "Open browser" and sign in, start the data export there and the downloaded file is imported automatically. Prefer to do it yourself? Switch to "Enter manually".',

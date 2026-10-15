@@ -521,13 +521,38 @@ const edgeCases = async (engineName, viewport, base) => {
       `${label}: Back to "pick" must stay on "pick"`
     );
 
-    // 5. Next opens Email's page, exactly one step forward.
+    // 5. Next reopens the service the user picked (Telegram, on the
+    //    same tab), never Email — exactly one step forward.
     await page.click('[data-action="tutorial-next"]');
-    await at('setup', 'connections', true, 'setup on Email');
+    await at('setup', 'connections', true, 'setup back on Telegram');
     await page.waitForTimeout(400);
     check(
       (await placeOf(page)).step === 'setup',
       `${label}: one Next must move exactly one step`
+    );
+    check(
+      (await placeOf(page)).hash === '#conn-telegram/manual',
+      `${label}: Next after Back must reopen Telegram, not Email`
+    );
+
+    // 5b. The app's own "Back to services", then "Show me": Telegram.
+    await page.click('[data-action="back-to-connections"]');
+    await waitForPlace(page, 'connections', false);
+    await page.click('[data-action="tutorial-next"]');
+    await at('setup', 'connections', true, '"Show me" back on Telegram');
+    check(
+      (await placeOf(page)).hash === '#conn-telegram/manual',
+      `${label}: "Show me" must reopen Telegram, not Email`
+    );
+
+    // 5c. Back to services and reload: still Telegram.
+    await page.click('[data-action="back-to-connections"]');
+    await waitForPlace(page, 'connections', false);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await at('setup', 'connections', true, 'reload back on Telegram');
+    check(
+      (await placeOf(page)).hash === '#conn-telegram/manual',
+      `${label}: a reload must reopen Telegram, not Email`
     );
 
     // 6. Reload on "setup": a provider page is reopened.

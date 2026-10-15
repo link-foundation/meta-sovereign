@@ -13,6 +13,8 @@ import {
 import {
   defaultSteps,
   navigationFor,
+  rememberProvider,
+  rememberedProvider,
   placeMatches,
 } from '../src/web/tutorial.js';
 
@@ -113,7 +115,8 @@ test('steps that describe a click advance on it; Next performs it', () => {
   assert.equal(byId.connect.action, true);
   assert.match(byId.connect.advanceOn, /nav:connections/);
   // "Pick" points at the whole grid (every service connects the same
-  // two ways) and Next simply moves on; the setup step opens Email.
+  // two ways) and Next simply moves on; the setup step reopens the
+  // service the user picked last (Email at first).
   assert.equal(byId.pick.action, undefined);
   assert.equal(byId.pick.tutorialId, 'connections:list');
   // "Pick" ends when a provider page opens, whichever button did it.
@@ -150,4 +153,34 @@ test('steps know their page and how to get there', () => {
     view: 'connections',
     anchor: '#conn-email',
   });
+  // ...but a service the user already picked wins over Email.
+  assert.deepEqual(navigationFor(detail, chat, 'telegram/manual'), {
+    view: 'connections',
+    anchor: '#conn-telegram/manual',
+  });
+});
+
+test('the tour remembers the service the user picked, not Email', () => {
+  const map = new Map();
+  const storage = {
+    getItem: (k) => (map.has(k) ? map.get(k) : null),
+    setItem: (k, v) => map.set(k, String(v)),
+  };
+  assert.equal(rememberedProvider(storage), null);
+  rememberProvider('telegram/manual', storage);
+  assert.equal(rememberedProvider(storage), 'telegram/manual');
+  // Junk never becomes a hash.
+  rememberProvider('x"><img', storage);
+  rememberProvider('', storage);
+  assert.equal(rememberedProvider(storage), 'telegram/manual');
+  const broken = {
+    getItem: () => {
+      throw new Error('blocked');
+    },
+    setItem: () => {
+      throw new Error('blocked');
+    },
+  };
+  rememberProvider('vk', broken);
+  assert.equal(rememberedProvider(broken), null);
 });
