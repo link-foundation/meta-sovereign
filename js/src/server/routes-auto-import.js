@@ -28,6 +28,7 @@ import { classifyOrigin } from './cors.js';
 import {
   createAutoImportManager,
   createSignIns,
+  createTelegramCreds,
   describeRecipes,
   probeBrowserAutomation,
 } from '../sources/auto-import/index.js';
@@ -49,6 +50,14 @@ export const isTrustedMutation = (req, allowedOrigins = []) => {
 const signInsFor = (ctx) => {
   ctx.autoImportSignIns ??= createSignIns({ dataDir: ctx.storeDir });
   return ctx.autoImportSignIns;
+};
+
+const telegramCredsFor = (ctx) => {
+  ctx.telegramCreds ??= createTelegramCreds({
+    dataDir: ctx.storeDir,
+    mtproto: ctx.telegramMtproto ?? null,
+  });
+  return ctx.telegramCreds;
 };
 
 const managerFor = (store, ctx) => {
@@ -127,6 +136,28 @@ const browsersRoute = async (req, res, ctx, action) => {
   return json(res, 200, await signIns.openFullDiskAccessSettings()) ?? true;
 };
 
+const TELEGRAM_ROUTE = /^\/api\/auto-import\/telegram\/(scan|identify|use)$/;
+
+// Find the user's own Telegram sign-ins (bot tokens and user sessions)
+// scattered across their repositories, group them by account, and connect
+// the chosen one. Values stay on this computer; the responses carry only
+// kinds, paths and masked hints (see ../sources/auto-import/telegram-creds.js).
+const telegramRoute = async (store, req, res, ctx, action) => {
+  const creds = telegramCredsFor(ctx);
+  const body = await readBody(req).catch(() => ({}));
+  if (action === 'scan') {
+    const result = await creds.scan({ roots: body.roots });
+    ctx.log?.({ event: 'telegram_creds_scan', found: result.entries.length });
+    return json(res, 200, result) ?? true;
+  }
+  if (action === 'identify') {
+    return json(res, 200, await creds.identify(body.ids ?? null)) ?? true;
+  }
+  const result = await creds.use(String(body.id ?? ''), { store });
+  ctx.log?.({ event: 'telegram_creds_use', kind: result.kind });
+  return json(res, 200, result) ?? true;
+};
+
 const startRoute = async (manager, req, res, ctx) => {
   const { available, reason } = await availability(ctx);
   if (!available) {
@@ -143,6 +174,10 @@ const dispatch = async (store, req, res, p, ctx) => {
   const browsers = BROWSERS_ROUTE.exec(p);
   if (browsers && req.method === 'POST') {
     return browsersRoute(req, res, ctx, browsers[1]);
+  }
+  const telegram = TELEGRAM_ROUTE.exec(p);
+  if (telegram && req.method === 'POST') {
+    return telegramRoute(store, req, res, ctx, telegram[1]);
   }
   const manager = managerFor(store, ctx);
   if (p === PREFIX && req.method === 'POST') {

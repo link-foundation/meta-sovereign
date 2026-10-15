@@ -263,6 +263,22 @@ afterwards. Chrome may ask for your Keychain password once.
 Services are listed by how many people use them, biggest first, so
 Email comes first.
 
+**Find Telegram sessions on this computer.** If you have experimented with
+Telegram across several repositories, your sign-ins are already on this
+machine — a bot token in one project's `.env`, a GramJS user _string
+session_ (saved as `.telegram_session`) beside another. On
+**Connections → Telegram → Enter manually**, **Find my Telegram sessions**
+walks your project folders (`~/Code`, `~/projects`, … and the current
+directory), collects both **bot tokens** and **user sessions**, and groups
+them by the account each belongs to — so the same account found in three
+repositories shows as one. Bot tokens are confirmed with Telegram's
+`getMe`; user sessions are grouped by their phone (and confirmed too when a
+GramJS client is available). The folders are only read; the browser only
+ever sees the kind, the path and a masked hint (last four characters) —
+never the token or session. Picking one stores it under
+`secret:telegram:*` (encrypted at rest when a passphrase is set) and never
+sends it anywhere but Telegram.
+
 The server needs permission to start a browser process and to write to
 its store directory. Optional settings:
 

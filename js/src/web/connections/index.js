@@ -27,6 +27,7 @@ import {
   tryDirect,
 } from '../connection-guides.js';
 import { providerSetupSteps } from './setup-steps.js';
+import { TelegramSessionsPanel } from './telegram-sessions.js';
 import { byPopularity, formatUsers, serviceUsers } from './popularity.js';
 import { BrowserSignIns, listOf } from './browser-sign-ins.js';
 
@@ -1060,6 +1061,9 @@ const ManualPanel = ({ providerId, provider, links, refresh }) => {
         provider,
         hint: manualHint(t, provider),
       }),
+      providerId === 'telegram'
+        ? el(TelegramSessionsPanel, { key: 'find', onConnected: refresh })
+        : null,
       provider.browserOnly
         ? el(BrowserSessionPanel, { key: 'controls', providerId, provider })
         : el(ProviderConnectionControls, {

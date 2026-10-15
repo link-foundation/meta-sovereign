@@ -315,6 +315,23 @@ export const zh = {
   'signIns.fdaBody':
     'macOS 会保护 Safari 的数据。在「系统设置」→「隐私与安全性」→「完全磁盘访问权限」中打开 {app}，然后重启 meta-sovereign 服务器。',
   'signIns.fdaOpen': '打开系统设置',
+
+  // 在这台电脑上查找 Telegram 登录（机器人令牌和用户会话）。
+  'telegramSessions.title': '在这台电脑上查找 Telegram 会话',
+  'telegramSessions.intro':
+    '在你的项目文件夹中查找已有的 Telegram 登录——机器人令牌和用户会话——并按账号分组。所有内容都留在本机;只有你能连接。',
+  'telegramSessions.scan': '查找我的 Telegram 会话',
+  'telegramSessions.rescan': '再查一次',
+  'telegramSessions.scanning': '正在查看你的文件夹…',
+  'telegramSessions.none': '这些文件夹中未找到 Telegram 登录。',
+  'telegramSessions.connect': '连接',
+  'telegramSessions.kindBot': '机器人令牌',
+  'telegramSessions.kindUser': '用户会话',
+  'telegramSessions.kindTelethon': 'Telethon 会话文件',
+  'telegramSessions.badgeBot': '机器人',
+  'telegramSessions.badgeUser': '用户',
+  'telegramSessions.verified': '已通过 Telegram 确认',
+  'telegramSessions.telethonHint': '打开此项目以登录',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':

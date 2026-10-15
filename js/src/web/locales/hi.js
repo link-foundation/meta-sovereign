@@ -322,6 +322,23 @@ export const hi = {
   'signIns.fdaBody':
     'macOS Safari का डेटा सुरक्षित रखता है। System Settings → Privacy & Security → Full Disk Access में {app} चालू करें, फिर meta-sovereign सर्वर दोबारा शुरू करें।',
   'signIns.fdaOpen': 'System Settings खोलें',
+
+  // इस कंप्यूटर पर Telegram साइन-इन (बॉट टोकन और उपयोगकर्ता सेशन) खोजें।
+  'telegramSessions.title': 'इस कंप्यूटर पर Telegram सेशन खोजें',
+  'telegramSessions.intro':
+    'आपके प्रोजेक्ट फ़ोल्डरों में पहले से मौजूद Telegram साइन-इन — बॉट टोकन और उपयोगकर्ता सेशन — ढूँढ़कर खाते के अनुसार समूहित करता है। सब कुछ इसी कंप्यूटर पर रहता है; जोड़ते केवल आप हैं।',
+  'telegramSessions.scan': 'मेरे Telegram सेशन खोजें',
+  'telegramSessions.rescan': 'फिर देखें',
+  'telegramSessions.scanning': 'आपके फ़ोल्डर देखे जा रहे हैं…',
+  'telegramSessions.none': 'उन फ़ोल्डरों में कोई Telegram साइन-इन नहीं मिला।',
+  'telegramSessions.connect': 'जोड़ें',
+  'telegramSessions.kindBot': 'बॉट टोकन',
+  'telegramSessions.kindUser': 'उपयोगकर्ता सेशन',
+  'telegramSessions.kindTelethon': 'Telethon सेशन फ़ाइल',
+  'telegramSessions.badgeBot': 'बॉट',
+  'telegramSessions.badgeUser': 'उपयोगकर्ता',
+  'telegramSessions.verified': 'Telegram से पुष्टि',
+  'telegramSessions.telethonHint': 'साइन इन करने के लिए यह प्रोजेक्ट खोलें',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
   'connections.email.setup.step1.body':

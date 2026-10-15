@@ -22,6 +22,12 @@ export {
   FULL_DISK_ACCESS_URL,
 } from './sign-ins.js';
 export {
+  createTelegramCreds,
+  defaultRoots,
+  parseEnv,
+  maskHint,
+} from './telegram-creds.js';
+export {
   readZipEntries,
   readTarGzEntries,
   parseCsv,

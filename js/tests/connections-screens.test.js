@@ -102,6 +102,12 @@ test('ConnectionDetail renders translated setupSteps[] for the requested provide
     html.includes(dictionaries.zh['connections.telegram.setup.step1.title']),
     'first telegram setup step title must appear in zh'
   );
+  // The "Find Telegram sessions on this computer" finder is offered here.
+  assert.match(html, /tg-sessions/);
+  assert.ok(
+    html.includes(dictionaries.zh['telegramSessions.title']),
+    'the Telegram sessions finder title must appear in zh'
+  );
 });
 
 test('ConnectionDetail separates "Import with browser" from "Enter manually"', () => {

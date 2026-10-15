@@ -414,3 +414,17 @@ HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`
 - [`docs/GREETINGS.hi.md`](./GREETINGS.hi.md) — greeting stickers और texts, network दर network।
 - [`docs/UI-DESIGN-AUDIT.hi.md`](./UI-DESIGN-AUDIT.hi.md) — accessibility और design audit।
 - [`docs/case-studies/`](./case-studies/) — हर issue की case studies।
+
+**इस कंप्यूटर पर Telegram सेशन खोजें।** यदि आपने कई रिपॉज़िटरी में Telegram के
+प्रयोग किए हैं, तो आपके साइन-इन पहले से इसी मशीन पर हैं — किसी प्रोजेक्ट के
+`.env` में बॉट टोकन, किसी और के पास GramJS उपयोगकर्ता _स्ट्रिंग सेशन_
+(`.telegram_session` के रूप में सहेजा)। **Connections → Telegram → Enter
+manually** पर **Find my Telegram sessions** आपके प्रोजेक्ट फ़ोल्डरों (`~/Code`,
+`~/projects`, … और वर्तमान डायरेक्टरी) को देखता है, **बॉट टोकन** और
+**उपयोगकर्ता सेशन** दोनों इकट्ठा करता है, और उन्हें खाते के अनुसार समूहित करता
+है — तीन रिपॉज़िटरी में मिला एक ही खाता एक के रूप में दिखता है। बॉट टोकन
+`getMe` से पुष्ट होते हैं; उपयोगकर्ता सेशन फ़ोन से समूहित (और GramJS क्लाइंट
+उपलब्ध होने पर पुष्ट भी)। फ़ोल्डर केवल पढ़े जाते हैं; ब्राउज़र को केवल प्रकार,
+पथ और एक मास्क किया हिंट (अंतिम चार अक्षर) दिखता है — कभी टोकन या सेशन नहीं।
+चुना हुआ `secret:telegram:*` के तहत सहेजा जाता है (पासफ़्रेज़ सेट होने पर
+एन्क्रिप्टेड) और Telegram के अलावा कहीं नहीं भेजा जाता।

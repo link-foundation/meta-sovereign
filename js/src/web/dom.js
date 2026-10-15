@@ -602,6 +602,13 @@ export const api = {
     (await serverPostReport(`/api/auto-import/browsers/${action}`, body).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for browser sign-ins' },
+  // Find the user's own Telegram sign-ins on this computer: scan folders
+  // for bot tokens and user sessions, identify the account each belongs
+  // to, and connect the chosen one. Masked hints only, never the value.
+  telegramSessions: async (action, body = {}) =>
+    (await serverPostReport(`/api/auto-import/telegram/${action}`, body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required to find Telegram sessions' },
   autoImportAction: async (id, action) =>
     (await serverFetch(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,

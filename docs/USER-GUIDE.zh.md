@@ -376,3 +376,13 @@ HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`�
 - [`docs/GREETINGS.zh.md`](./GREETINGS.zh.md) — 问候贴纸和文本，逐个网络说明。
 - [`docs/UI-DESIGN-AUDIT.zh.md`](./UI-DESIGN-AUDIT.zh.md) — accessibility 与 HIG/Material/Fluent audit。
 - [`docs/case-studies/`](./case-studies/) — 每个 issue 的完整案例研究。
+
+**在这台电脑上查找 Telegram 会话。** 如果你在多个仓库里尝试过 Telegram,你的登录
+其实已经在这台机器上——某个项目 `.env` 里的机器人令牌,另一个项目旁边保存的
+GramJS 用户*字符串会话*(保存为 `.telegram_session`)。在
+**连接 → Telegram → 手动输入** 中,**查找我的 Telegram 会话** 会遍历你的项目文件夹
+(`~/Code`、`~/projects` …… 以及当前目录),同时收集**机器人令牌**和**用户会话**,
+并按所属账号分组——在三个仓库中找到的同一账号会显示为一个。机器人令牌通过
+`getMe` 确认;用户会话按手机号分组(在可用 GramJS 客户端时同样确认)。文件夹只被
+读取;浏览器只会看到类型、路径和一个打码提示(最后四位)——绝不会看到令牌或会话。
+选中的会存入 `secret:telegram:*`(设置口令时静态加密),且只发送给 Telegram。

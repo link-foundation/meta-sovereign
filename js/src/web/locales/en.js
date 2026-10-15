@@ -325,6 +325,23 @@ export const en = {
   'signIns.fdaBody':
     'macOS protects Safari data. In System Settings → Privacy & Security → Full Disk Access, turn on {app}, then restart the meta-sovereign server.',
   'signIns.fdaOpen': 'Open System Settings',
+
+  // Find Telegram sign-ins (bot tokens and user sessions) on this computer.
+  'telegramSessions.title': 'Find Telegram sessions on this computer',
+  'telegramSessions.intro':
+    'Looks through your project folders for Telegram sign-ins you already have — bot tokens and user sessions — and groups them by account. Everything stays on this computer; only you connect one.',
+  'telegramSessions.scan': 'Find my Telegram sessions',
+  'telegramSessions.rescan': 'Look again',
+  'telegramSessions.scanning': 'Looking through your folders…',
+  'telegramSessions.none': 'No Telegram sign-ins found in those folders.',
+  'telegramSessions.connect': 'Connect',
+  'telegramSessions.kindBot': 'bot token',
+  'telegramSessions.kindUser': 'user session',
+  'telegramSessions.kindTelethon': 'Telethon session file',
+  'telegramSessions.badgeBot': 'Bot',
+  'telegramSessions.badgeUser': 'User',
+  'telegramSessions.verified': 'confirmed with Telegram',
+  'telegramSessions.telethonHint': 'open this project to sign in',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':

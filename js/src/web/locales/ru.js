@@ -325,6 +325,23 @@ export const ru = {
   'signIns.fdaBody':
     'macOS защищает данные Safari. В «Системных настройках» → «Конфиденциальность и безопасность» → «Полный доступ к диску» включите {app}, затем перезапустите сервер meta-sovereign.',
   'signIns.fdaOpen': 'Открыть Системные настройки',
+
+  // Поиск входов в Telegram (токены ботов и пользовательские сессии) на этом компьютере.
+  'telegramSessions.title': 'Найти сессии Telegram на этом компьютере',
+  'telegramSessions.intro':
+    'Просматривает папки с проектами и находит уже имеющиеся входы в Telegram — токены ботов и пользовательские сессии — и группирует их по аккаунтам. Всё остаётся на этом компьютере; подключаете только вы.',
+  'telegramSessions.scan': 'Найти мои сессии Telegram',
+  'telegramSessions.rescan': 'Искать снова',
+  'telegramSessions.scanning': 'Просматриваю ваши папки…',
+  'telegramSessions.none': 'В этих папках входы в Telegram не найдены.',
+  'telegramSessions.connect': 'Подключить',
+  'telegramSessions.kindBot': 'токен бота',
+  'telegramSessions.kindUser': 'пользовательская сессия',
+  'telegramSessions.kindTelethon': 'файл сессии Telethon',
+  'telegramSessions.badgeBot': 'Бот',
+  'telegramSessions.badgeUser': 'Пользователь',
+  'telegramSessions.verified': 'подтверждено через Telegram',
+  'telegramSessions.telethonHint': 'откройте этот проект, чтобы войти',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Подготовьте учётные данные Email',
   'connections.email.setup.step1.body':
