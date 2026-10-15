@@ -54,16 +54,25 @@ export const defaultRoots = async ({
     ].map((name) => path.join(homeDir, name)),
   ];
   const existing = [];
+  const seen = new Set();
   for (const dir of candidates) {
     try {
-      if ((await fs.stat(dir)).isDirectory()) {
+      if (!(await fs.stat(dir)).isDirectory()) {
+        continue;
+      }
+      // Dedupe by real path: on a case-insensitive macOS filesystem
+      // `~/Code` and `~/code` are the same directory, so scanning both
+      // would walk the whole tree twice.
+      const real = await fs.realpath(dir);
+      if (!seen.has(real)) {
+        seen.add(real);
         existing.push(dir);
       }
     } catch {
       // not there — skip.
     }
   }
-  return [...new Set(existing)];
+  return existing;
 };
 
 const SKIP_DIRS = new Set([
@@ -75,6 +84,19 @@ const SKIP_DIRS = new Set([
   'dist',
   'build',
   '.cache',
+  // Heavy build / dependency / virtualenv trees that never hold a
+  // hand-written .env, skipped so the walk stays fast.
+  'target',
+  'venv',
+  '.venv',
+  '__pycache__',
+  '.next',
+  '.nuxt',
+  'coverage',
+  '.pytest_cache',
+  '.gradle',
+  'Pods',
+  'DerivedData',
 ]);
 
 // `.env.example`, `.env.template`, `.env.sample`, `.env.dist` hold
@@ -99,8 +121,13 @@ const isSessionFile = (name) =>
 
 const isTelethonSession = (name) => /\.session$/i.test(name);
 
+// A directory not worth descending into: a known heavy tree, or any
+// dot-directory (.git, .github, .vscode, .venv, …) — project `.env` files
+// live in ordinary folders, so skipping these keeps the walk fast.
+const skipDir = (name) => SKIP_DIRS.has(name) || name.startsWith('.');
+
 /** Walk `root`, breadth-capped, for env and session files. No reads yet. */
-const walkFiles = async (root, { maxDepth = 6, limit = 4000 } = {}) => {
+const walkFiles = async (root, { maxDepth = 5, limit = 4000 } = {}) => {
   const found = [];
   const queue = [{ dir: root, depth: 0 }];
   while (queue.length && found.length < limit) {
@@ -114,7 +141,7 @@ const walkFiles = async (root, { maxDepth = 6, limit = 4000 } = {}) => {
     for (const entry of entries) {
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
-        if (depth < maxDepth && !SKIP_DIRS.has(entry.name)) {
+        if (depth < maxDepth && !skipDir(entry.name)) {
           queue.push({ dir: full, depth: depth + 1 });
         }
       } else if (
@@ -303,6 +330,42 @@ const publicEntry = (record) => ({
   account: record.account ?? null,
 });
 
+// A cheap account label from the file alone — no network. Bot tokens and
+// sessions each get a stable group key so the same account found in
+// several repositories lands in one group immediately, before (optional)
+// online verification ever runs.
+const localAccount = (record) => {
+  if (record.kind === 'bot-token') {
+    return {
+      kind: 'bot',
+      key: `bot:${maskHint(record.value)}`,
+      label: `bot token ${maskHint(record.value)}`,
+      verified: false,
+    };
+  }
+  const phone = record.phone ? maskHint(record.phone) : null;
+  return {
+    kind: 'user',
+    key: phone ? `phone:${record.phone}` : `session:${record.id}`,
+    label: phone ? `user ${phone}` : 'user session',
+    verified: false,
+  };
+};
+
+// Group records by their local account, newest-first grouping preserved.
+const groupRecords = (records) => {
+  const groups = new Map();
+  for (const record of records) {
+    const account = localAccount(record);
+    record.account = account;
+    if (!groups.has(account.key)) {
+      groups.set(account.key, { account, entries: [] });
+    }
+    groups.get(account.key).entries.push(publicEntry(record));
+  }
+  return [...groups.values()];
+};
+
 // Walk the chosen folders and read every credential they hold.
 const collectRecords = async (scanRoots) => {
   const files = (await Promise.all(scanRoots.map((r) => walkFiles(r)))).flat();
@@ -479,6 +542,8 @@ export const createTelegramCreds = ({
       : await defaultRoots({ homeDir, cwd });
     const records = await collectRecords(scanRoots);
     const byId = new Map(records.map((r) => [r.id, r]));
+    // Group locally, with no network, so the results appear at once.
+    const groups = groupRecords([...byId.values()]);
     await writeCache({
       roots: scanRoots,
       scannedAt: new Date(now()).toISOString(),
@@ -487,6 +552,7 @@ export const createTelegramCreds = ({
     return {
       roots: scanRoots,
       entries: [...byId.values()].map(publicEntry),
+      groups,
     };
   };
 

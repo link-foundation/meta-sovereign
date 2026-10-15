@@ -5,6 +5,12 @@
  */
 
 export const json = (res, status, body) => {
+  // Never write twice: a slow handler whose client already gave up (or a
+  // late error after a response was sent) must not throw ERR_HTTP_HEADERS_
+  // SENT, which would otherwise crash the whole server process.
+  if (res.headersSent || res.writableEnded) {
+    return;
+  }
   res.writeHead(status, { 'content-type': 'application/json' });
   res.end(JSON.stringify(body));
 };

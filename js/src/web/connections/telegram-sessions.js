@@ -95,7 +95,8 @@ const AccountGroup = ({ group, busy, onUse }) => {
   ]);
 };
 
-// Report a scan/identify result that may be an error envelope.
+// The scan groups results from the files alone — no network — so they
+// appear at once and a slow or offline Telegram can never block them.
 const useFinder = (onConnected) => {
   const [groups, setGroups] = useState(null);
   const [busy, setBusy] = useState('');
@@ -106,19 +107,13 @@ const useFinder = (onConnected) => {
     setBusy('scan');
     setError('');
     const scan = await api.telegramSessions('scan');
-    if (scan?.error) {
-      setError(scan.error);
-      setBusy('');
-      return;
-    }
-    const identified = await api.telegramSessions('identify');
     setBusy('');
     setScanned(true);
-    if (identified?.error) {
-      setError(identified.error);
+    if (scan?.error) {
+      setError(scan.error);
       return;
     }
-    setGroups(identified.groups ?? []);
+    setGroups(scan.groups ?? []);
   };
 
   const use = async (id) => {
