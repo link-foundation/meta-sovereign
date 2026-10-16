@@ -191,3 +191,20 @@ Fix the Telegram session finder crashing with "Do not know how to serialize a Bi
 Telegram finder: collapse each account to one entry per type. Several different sessions for the same account (verified by connecting over MTProto, or grouped by phone) now show as a single "Login by session" with every location listed, instead of one row per file. A credential is only dropped when Telegram actually rejects it; a network or timeout error keeps it, so a working session is never hidden by a transient failure.
 
 `meta-sovereign serve` now writes verbose logs to `<store>/logs/meta-sovereign.log` by default — every request, event and error (with full stack traces), plus any uncaught exception or unhandled rejection — so the root cause of an issue is always on disk. Pass `--quiet-logs` to opt out. Route handlers that previously swallowed their errors now log them with a stack first.
+
+Telegram finder: a bot-token or saved-session "Connect" now shows a
+"Connected" badge on that entry instead of leaving the click without any
+visible result. The credential was already stored server-side; the panel
+just gave no feedback, so it looked like nothing happened and invited
+repeated clicks.
+
+Telegram credential finder: list user accounts before bots; show every
+location a credential was found with the shortest path first and the rest
+behind an expandable "+N more" toggle; reveal a little of both ends of a
+masked token/session hint (first three and last three characters);
+replace the "confirmed with Telegram" text with a small check-mark icon
+whose words live in its tooltip (shared `VerifiedMark`). Fix the tutorial
+spotlight ring floating over the top menu bar by keeping the header above
+the overlay. Document these as durable UI conventions (R-Y1..R-Y10 in
+docs/REQUIREMENTS) and exclude the generated CHANGELOG.md from the
+duplication gate so release automation can no longer trip it.
