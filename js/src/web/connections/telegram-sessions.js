@@ -111,7 +111,15 @@ const EntryLogin = ({ login, onField, onSubmit, busy }) => {
   ]);
 };
 
-const EntryRow = ({ entry, busy, login, onUse, onField, onSubmit }) => {
+const EntryRow = ({
+  entry,
+  busy,
+  login,
+  connected,
+  onUse,
+  onField,
+  onSubmit,
+}) => {
   const t = useT();
   const connectable = entry.kind !== 'telethon-session';
   const meta = [
@@ -125,35 +133,54 @@ const EntryRow = ({ entry, busy, login, onUse, onField, onSubmit }) => {
       el(WhereLine, { key: 'where', entry }),
       el('span', { key: 'meta', className: 'meta tg-session-meta' }, meta),
     ]),
-    login
-      ? el(EntryLogin, { key: 'login', login, onField, onSubmit, busy })
-      : connectable
-        ? el(
-            'button',
-            {
-              key: 'use',
-              type: 'button',
-              className: 'primary tg-session-use',
-              'data-action': 'telegram-session-use',
-              'data-entry': entry.id,
-              disabled: Boolean(busy),
-              onClick: () => onUse(entry.id),
-            },
-            t(
-              entry.type === 'user-password'
-                ? 'telegramSessions.signIn'
-                : 'telegramSessions.connect'
+    connected
+      ? el(
+          'span',
+          {
+            key: 'done',
+            className: 'meta tg-session-connected',
+            'data-connected': entry.id,
+            role: 'status',
+          },
+          t('telegramSessions.connected')
+        )
+      : login
+        ? el(EntryLogin, { key: 'login', login, onField, onSubmit, busy })
+        : connectable
+          ? el(
+              'button',
+              {
+                key: 'use',
+                type: 'button',
+                className: 'primary tg-session-use',
+                'data-action': 'telegram-session-use',
+                'data-entry': entry.id,
+                disabled: Boolean(busy),
+                onClick: () => onUse(entry.id),
+              },
+              t(
+                entry.type === 'user-password'
+                  ? 'telegramSessions.signIn'
+                  : 'telegramSessions.connect'
+              )
             )
-          )
-        : el(
-            'span',
-            { key: 'manual', className: 'meta' },
-            t('telegramSessions.telethonHint')
-          ),
+          : el(
+              'span',
+              { key: 'manual', className: 'meta' },
+              t('telegramSessions.telethonHint')
+            ),
   ]);
 };
 
-const AccountGroup = ({ group, busy, logins, onUse, onField, onSubmit }) => {
+const AccountGroup = ({
+  group,
+  busy,
+  logins,
+  connected,
+  onUse,
+  onField,
+  onSubmit,
+}) => {
   const t = useT();
   const { account } = group;
   return el('section', { className: 'tg-session-group' }, [
@@ -188,6 +215,7 @@ const AccountGroup = ({ group, busy, logins, onUse, onField, onSubmit }) => {
           entry,
           busy: busy === entry.id,
           login: logins[entry.id] ?? null,
+          connected: Boolean(connected[entry.id]),
           onUse,
           onField: (field, value) => onField(entry.id, field, value),
           onSubmit: () => onSubmit(entry.id),
@@ -208,6 +236,9 @@ const useFinder = (onConnected) => {
   // Phone-logins that have started an inline sign-in: id -> { needs, code,
   // password, error }.
   const [logins, setLogins] = useState({});
+  // Entries whose credential is now stored (bot/session): id -> result. Shown
+  // as a "Connected" badge so the click is not silent.
+  const [connected, setConnected] = useState({});
   const patch = (id, next) =>
     setLogins((all) => ({ ...all, [id]: { ...all[id], ...next } }));
 
@@ -215,6 +246,7 @@ const useFinder = (onConnected) => {
     setBusy('scan');
     setError('');
     setLogins({});
+    setConnected({});
     const scan = await api.telegramSessions('scan');
     setBusy('');
     setScanned(true);
@@ -244,6 +276,9 @@ const useFinder = (onConnected) => {
       });
       return;
     }
+    // A bot token or saved session: it is now stored. Mark it so the row
+    // shows "Connected" instead of leaving the click without any feedback.
+    setConnected((all) => ({ ...all, [id]: result }));
     await onConnected?.();
   };
 
@@ -269,13 +304,25 @@ const useFinder = (onConnected) => {
         delete next[id];
         return next;
       });
+      setConnected((all) => ({ ...all, [id]: result }));
       await onConnected?.();
       return;
     }
     patch(id, { needs: result.needs ?? 'code', error: '' });
   };
 
-  return { groups, busy, error, scanned, logins, find, use, field, submit };
+  return {
+    groups,
+    busy,
+    error,
+    scanned,
+    logins,
+    connected,
+    find,
+    use,
+    field,
+    submit,
+  };
 };
 
 // Sign in to a Telegram USER account over MTProto, like konard/telegram-bot:
@@ -432,8 +479,18 @@ export const TelegramLoginForm = ({ onConnected }) => {
 
 export const TelegramSessionsPanel = ({ onConnected }) => {
   const t = useT();
-  const { groups, busy, error, scanned, logins, find, use, field, submit } =
-    useFinder(onConnected);
+  const {
+    groups,
+    busy,
+    error,
+    scanned,
+    logins,
+    connected,
+    find,
+    use,
+    field,
+    submit,
+  } = useFinder(onConnected);
   const empty = scanned && (groups?.length ?? 0) === 0;
   return el(
     'section',
@@ -488,6 +545,7 @@ export const TelegramSessionsPanel = ({ onConnected }) => {
                 group,
                 busy,
                 logins,
+                connected,
                 onUse: use,
                 onField: field,
                 onSubmit: submit,

@@ -347,6 +347,7 @@ export const en = {
   'telegramSessions.typePassword': 'Login by phone & password',
   'telegramSessions.more': '+{n} more',
   'telegramSessions.signIn': 'Sign in',
+  'telegramSessions.connected': 'Connected',
 
   // Sign in to a Telegram user account over MTProto (GramJS), like konard/telegram-bot.
   'telegramLogin.title': 'Log in with your Telegram account',

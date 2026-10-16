@@ -347,6 +347,7 @@ export const ru = {
   'telegramSessions.typePassword': 'Вход по телефону и паролю',
   'telegramSessions.more': '+ ещё {n}',
   'telegramSessions.signIn': 'Войти',
+  'telegramSessions.connected': 'Подключено',
 
   // Вход в пользовательский аккаунт Telegram через MTProto (GramJS), как в konard/telegram-bot.
   'telegramLogin.title': 'Войти в свой аккаунт Telegram',

@@ -1284,6 +1284,14 @@ button.primary .recommended-tag {
   color: var(--accent);
   font-size: 0.75rem;
 }
+.tg-session-connected {
+  color: var(--ok, var(--accent));
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tg-session-connected::before {
+  content: '✓ ';
+}
 .tg-session-entries {
   list-style: none;
   margin: 0;

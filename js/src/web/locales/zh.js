@@ -337,6 +337,7 @@ export const zh = {
   'telegramSessions.typePassword': '用手机号和密码登录',
   'telegramSessions.more': '+{n} 个',
   'telegramSessions.signIn': '登录',
+  'telegramSessions.connected': '已连接',
 
   // 通过 MTProto(GramJS)登录你的 Telegram 用户账号,与 konard/telegram-bot 一致。
   'telegramLogin.title': '用你的 Telegram 账号登录',

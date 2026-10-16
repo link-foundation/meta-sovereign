@@ -344,6 +344,7 @@ export const hi = {
   'telegramSessions.typePassword': 'फ़ोन और पासवर्ड से लॉगिन',
   'telegramSessions.more': '+{n} और',
   'telegramSessions.signIn': 'साइन इन करें',
+  'telegramSessions.connected': 'कनेक्ट हो गया',
 
   // MTProto (GramJS) के ज़रिये अपने Telegram यूज़र खाते में साइन इन, konard/telegram-bot की तरह।
   'telegramLogin.title': 'अपने Telegram खाते से लॉग इन करें',
