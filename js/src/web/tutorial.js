@@ -50,7 +50,7 @@ export const TUTORIAL_PROVIDER_KEY = 'metaSovereignTutorialProvider';
 // the new tour instead of resuming a step that no longer means the same
 // thing (which is how a Telegram selection could resume onto Email).
 // v3: the tour remembers the service the user picked.
-export const TUTORIAL_VERSION = 3;
+export const TUTORIAL_VERSION = 4;
 
 // Default tour steps. `target` is a `data-view` attribute on the nav
 // buttons so the overlay can highlight the right tab; an undefined
@@ -86,6 +86,8 @@ export const SERVICE_EXAMPLES = [
 // Steps that point at the navigation work on any page and have none.
 // `completeAt` advances the tour when the app *arrives* at that place,
 // whichever button got it there (and not when a click fails).
+// `completeOnConnect` advances when any service finishes connecting,
+// however the user did it, so the connect step clears once it is done.
 // Sections that phones keep in the More sheet are reached through it.
 const NAV_FALLBACKS = ['nav:more'];
 
@@ -123,6 +125,9 @@ export const defaultSteps = [
     tutorialId: 'connections:detail',
     // Any provider page; Email when none is open.
     route: { view: 'connections', detail: true },
+    // A finished connection (session, phone login, bot token or API keys)
+    // advances the tour — the user did the thing this step teaches.
+    completeOnConnect: true,
     titleKey: 'tutorial.connectionDetail.title',
     bodyKey: 'tutorial.connectionDetail.body',
     title: 'Import or enter manually',
@@ -658,6 +663,23 @@ const useAdvanceOn = (selector, onAdvance) => {
   }, [selector]);
 };
 
+// A service connected while the tour sat on its "connect" step: advance,
+// whichever way the user connected (a saved session, a phone login, a bot
+// token or API keys all dispatch `meta-sovereign:connected`). The listener
+// lives only while the step is active, so it cannot advance a later step.
+const useCompleteOnConnect = (active, onAdvance) => {
+  const latest = useLatest(onAdvance);
+  useEffect(() => {
+    if (!active) {
+      return undefined;
+    }
+    const onConnected = () => globalThis.setTimeout(() => latest.current(), 0);
+    globalThis.addEventListener?.('meta-sovereign:connected', onConnected);
+    return () =>
+      globalThis.removeEventListener?.('meta-sovereign:connected', onConnected);
+  }, [active]);
+};
+
 const prefersReducedMotion = () =>
   Boolean(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches);
 
@@ -1091,6 +1113,7 @@ const TutorialLayer = ({
   const version = useResettle({ cardRef, element, viewportOf: viewportSize });
 
   useAdvanceOn(step.advanceOn, onAdvance);
+  useCompleteOnConnect(Boolean(step.completeOnConnect), onAdvance);
   useRevealTarget(
     step.id,
     element,

@@ -15,20 +15,32 @@ import { RecommendedHeader } from './recommended.js';
 
 const el = React.createElement;
 
+// Tell the tutorial (and anyone else listening) that a service just
+// connected, so the tour can advance past its "connect a service" step
+// no matter how the user connected — a saved session, a phone login, a
+// bot token or API keys all fire the same event.
+export const announceConnected = () =>
+  globalThis.dispatchEvent?.(new CustomEvent('meta-sovereign:connected'));
+
 // A small check mark that means "this credential was confirmed with
-// Telegram". It replaces the old text badge; the words live in the tooltip
-// (title + aria-label) so the row stays compact. Shared so every place that
-// shows a confirmed credential uses exactly the same mark.
+// Telegram". It replaces the old text badge; the words live in a tooltip
+// (a styled CSS tooltip, with `aria-label` for screen readers) so the row
+// stays compact. Shared so every confirmed credential uses the same mark.
 export const VerifiedMark = ({ labelKey = 'telegramSessions.verified' }) => {
   const t = useT();
   const label = t(labelKey);
+  // `data-tooltip` drives a CSS tooltip (reliable and styled, unlike the
+  // native `title`, which is slow to appear and easy to miss); `aria-label`
+  // keeps the words available to screen readers. `tabIndex` lets keyboard
+  // users surface the tooltip with focus too.
   return el(
     'span',
     {
       className: 'verified-mark',
       role: 'img',
+      tabIndex: 0,
       'aria-label': label,
-      title: label,
+      'data-tooltip': label,
     },
     el(Icon, { name: 'check', size: 14 })
   );
@@ -318,6 +330,7 @@ const useFinder = (onConnected) => {
     // A bot token or saved session: it is now stored. Mark it so the row
     // shows "Connected" instead of leaving the click without any feedback.
     setConnected((all) => ({ ...all, [id]: result }));
+    announceConnected();
     await onConnected?.();
   };
 
@@ -344,6 +357,7 @@ const useFinder = (onConnected) => {
         return next;
       });
       setConnected((all) => ({ ...all, [id]: result }));
+      announceConnected();
       await onConnected?.();
       return;
     }
@@ -396,6 +410,7 @@ const useTelegramLogin = (onConnected) => {
     if (result.done) {
       setNeeds('done');
       setAccount(result.account);
+      announceConnected();
       onConnected?.();
       return;
     }

@@ -53,6 +53,16 @@ test('defaultSteps is a non-empty list of unique-id steps', () => {
   }
 });
 
+test('the connect-setup step advances once a service connects', () => {
+  const setup = defaultSteps.find((s) => s.id === 'setup');
+  assert.ok(setup, 'expected a "setup" step');
+  assert.equal(
+    setup.completeOnConnect,
+    true,
+    'the setup step must advance when a connection finishes'
+  );
+});
+
 test('readPreference returns null on a fresh storage', () => {
   const storage = fakeStorage();
   assert.equal(readPreference(storage), null);

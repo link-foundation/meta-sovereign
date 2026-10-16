@@ -31,6 +31,7 @@ import { providerSetupSteps } from './setup-steps.js';
 import {
   TelegramSessionsPanel,
   TelegramLoginForm,
+  announceConnected,
 } from './telegram-sessions.js';
 import { byPopularity, formatUsers, serviceUsers } from './popularity.js';
 import { BrowserSignIns, listOf } from './browser-sign-ins.js';
@@ -171,6 +172,7 @@ const ProviderCredentialsForm = ({
 
   const save = async () => {
     setStatus(t('settings.saving'));
+    let saved = 0;
     for (const field of fields) {
       const value = values[field.id] ?? '';
       if (value.length === 0) {
@@ -182,8 +184,12 @@ const ProviderCredentialsForm = ({
         value,
         updated: new Date().toISOString(),
       });
+      saved += 1;
     }
     setStatus(t('settings.saved'));
+    if (saved > 0) {
+      announceConnected();
+    }
     await refresh?.();
   };
 

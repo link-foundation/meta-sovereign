@@ -1288,8 +1288,53 @@ button.primary .recommended-tag {
   color: var(--ok, var(--accent));
   cursor: help;
 }
+.verified-mark:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 .verified-mark .icon {
   stroke-width: 2.5;
+}
+
+/* A styled tooltip that actually shows up — the native `title` is slow and
+   easy to miss. Any element with `data-tooltip` gets a chip on hover or
+   keyboard focus; it sits above every overlay (z-index > the tutorial's
+   2000/2001). Keep an `aria-label` alongside for screen readers. */
+[data-tooltip] {
+  position: relative;
+}
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px var(--shadow);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+  z-index: 3000;
+}
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-tooltip]::after {
+    transition: none;
+  }
 }
 .tg-session-connected {
   color: var(--ok, var(--accent));
