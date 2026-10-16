@@ -1280,9 +1280,16 @@ button.primary .recommended-tag {
   padding: 0 0.5rem;
   font-size: 0.75rem;
 }
-.tg-session-verified {
-  color: var(--accent);
-  font-size: 0.75rem;
+/* A confirmed-credential check mark (the words are in its tooltip). Shared
+   by every place that shows a verified credential. */
+.verified-mark {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ok, var(--accent));
+  cursor: help;
+}
+.verified-mark .icon {
+  stroke-width: 2.5;
 }
 .tg-session-connected {
   color: var(--ok, var(--accent));
@@ -1291,6 +1298,32 @@ button.primary .recommended-tag {
 }
 .tg-session-connected::before {
   content: '✓ ';
+}
+/* "+N more" / "Show less": a quiet inline toggle, not a chunky button. */
+.tg-session-more {
+  display: inline;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: underline;
+}
+.tg-session-more:hover {
+  color: var(--text);
+}
+.tg-session-where-list {
+  list-style: none;
+  margin: 0.1rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.tg-session-where-item {
+  overflow-wrap: anywhere;
 }
 .tg-session-entries {
   list-style: none;
@@ -1877,7 +1910,12 @@ button.primary .recommended-tag {
 .topbar.glass {
   position: sticky;
   top: 0;
-  z-index: 40;
+  /* Above the tutorial spotlight overlay (z-index 2000): the header is
+     persistent chrome, so the spotlight ring and its dimming must clip at
+     the header's bottom edge instead of floating over the top menu. No
+     tutorial step targets a header control, so nothing needs the ring up
+     here. */
+  z-index: 2001;
   border-width: 0 0 1px;
 }
 /* Automations screen (issue #31 / PR #34): list, editor, preview,

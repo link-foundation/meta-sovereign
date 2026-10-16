@@ -336,6 +336,7 @@ export const zh = {
   'telegramSessions.typeSession': '用会话登录',
   'telegramSessions.typePassword': '用手机号和密码登录',
   'telegramSessions.more': '+{n} 个',
+  'telegramSessions.less': '收起',
   'telegramSessions.signIn': '登录',
   'telegramSessions.connected': '已连接',
 

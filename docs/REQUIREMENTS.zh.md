@@ -181,6 +181,25 @@ VK 提示；以及连接器迁移到 `api.vk.ru` 域名。状态：PR #33。详�
 | R-X20 | 主题：跟随系统、浅色、深色和自动。                                               | 已完成：`resolveTheme` 跟随操作系统（`prefers-color-scheme`）、固定选择或当前时间（07:00–19:00 为浅色）；标题栏按钮仍可切换浅色/深色。测试：`js/tests/appearance.test.js`。                                                                                                                                                                                                                                        |
 | R-X21 | 每个依赖都使用最新版本。                                                         | 已在 commit `chore(deps)` 中完成：更新了 npm 包和 GitHub Actions；修复了 ESLint 10 和 jscpd 5 的问题。                                                                                                                                                                                                                                                                                                             |
 
+## Y. Telegram 凭据查找器与共享 UI 约定
+
+以下需求来自在构建"在这台电脑上查找 Telegram 会话"查找器（Telegram → 手动
+输入）时维护者的指示。它们写成持久性约定，以便后续工作在所有适用之处都应用
+它们，而不是每个页面重新发现。每条都在应用的所有适用界面上**统一**应用。
+
+| ID    | 需求                                                                                                                                                                     | 状态                                                                                                                       |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| R-Y1  | 查找器只列出已证实有效的凭据：Telegram 主动拒绝的 token 或会话会被丢弃；无法检查的（网络/超时）会保留并标记为未验证。                                                    | 已完成：`js/src/sources/auto-import/telegram-creds.js` 中的 `verifyRecord`/`isDeadError`；`scan` 过滤 `active !== false`。 |
+| R-Y2  | 凭据按账户去重，并按类型折叠为每种一个可连接条目（会话登录、bot token、手机号和密码登录）——绝不每个文件一行。                                                            | 已完成：`dedupeRecords` + `groupRecords`/`mergeRecords`；在 `js/tests/telegram-creds.test.js` 中测试。                     |
+| R-Y3  | 用户账户排在机器人账户之前。                                                                                                                                             | 已完成：`groupRecords` 按账户类型稳定排序（user 0，bot 1）；测试 "user accounts are listed before bot accounts"。          |
+| R-Y4  | 保留凭据被发现的每个位置；最短路径优先显示，其余位置在 "+N more" / "Show less" 切换后展开。                                                                              | 已完成：查找器 `byLength` 对 `wheres` 排序；`js/src/web/connections/telegram-sessions.js` 中的 `WhereLine` 是可展开列表。  |
+| R-Y5  | 脱敏提示最多显示 token/会话的前三个和后三个字符（较短的值回退为仅尾部掩码）；原始密钥值绝不离开本机或进入日志。                                                          | 已完成：`maskEnds`/`maskHint`；全程使用 BigInt 安全的 JSON；值绝不返回浏览器或写入日志。                                   |
+| R-Y6  | 连接凭据始终给出明确的可见反馈（"Connected" 标记）——成功的点击绝不无声。                                                                                                 | 已完成：`useFinder` 中的 `connected` 状态；条目用带勾的 "Connected" 徽章替换其按钮。                                       |
+| R-Y7  | 验证状态（"confirmed with Telegram"）渲染为一个小的勾选图标，文字在其 tooltip（`title` + `aria-label`）中，通过共享的 `VerifiedMark`，在任何显示已确认凭据之处统一使用。 | 已完成：`VerifiedMark` + `js/src/web/icons.js` 中的 `check` 图标；`app.css` 中的 `.verified-mark`。                        |
+| R-Y8  | 持久性框架（顶部菜单栏）始终位于临时浮层之上：教程聚光灯的边框及其遮罩在页眉底部裁剪，绝不浮在顶部菜单之上。                                                             | 已完成：`.topbar.glass` 位于 `z-index: 2001`，高于 `z-index: 2000` 的教程浮层；没有教程步骤指向页眉控件。                  |
+| R-Y9  | 应用文件夹中默认开启详细服务器日志，记录每个请求和每个带堆栈的错误，使任何失败的根因已在磁盘上。                                                                         | 已完成：`createServerLog`/`installCrashLogging` 写入 `<store>/logs/meta-sovereign.log`；`--quiet-logs` 可关闭。            |
+| R-Y10 | 生成的产物（如 `CHANGELOG.md`）从复制粘贴重复检测门中排除，使发布自动化不会触发它；该门只度量人工编写的源码。                                                            | 已完成：`**/CHANGELOG.md` 在 `.jscpd.json` 的 `ignore` 中。                                                                |
+
 ## Traceability
 
 后续 PR 或 commit 完成功能时，请在 changeset 和 PR 描述中引用对应 `R-*`

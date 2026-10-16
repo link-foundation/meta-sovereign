@@ -13,6 +13,7 @@ import {
   createTelegramCreds,
   parseEnv,
   maskHint,
+  maskEnds,
 } from '../src/web/../sources/auto-import/telegram-creds.js';
 
 const BOT_TOKEN = '7654321:AAFakeBotTokenForTestsOnly_abcdefghijklmn';
@@ -93,6 +94,13 @@ test('maskHint shows only the last four characters', () => {
   assert.equal(maskHint(''), '••••');
 });
 
+test('maskEnds reveals three characters at each end of a long value', () => {
+  assert.equal(maskEnds('ABCdefghij1234567'), 'ABC•••••567');
+  // Short values are not over-exposed: they fall back to the tail-only mask.
+  assert.equal(maskEnds('short'), '••••hort');
+  assert.equal(maskEnds(''), '••••');
+});
+
 test('scan finds bot tokens and user sessions, never returns values', async () => {
   const { root } = await makeTree();
   const { creds } = await credsFor();
@@ -110,9 +118,11 @@ test('scan finds bot tokens and user sessions, never returns values', async () =
   assert.doesNotMatch(blob, /AAFakeBotToken/, 'bot token value leaked');
   assert.doesNotMatch(blob, new RegExp(USER_SESSION), 'session value leaked');
   assert.doesNotMatch(blob, /0123456789abcdef/, 'api hash leaked');
-  // The user entry carries a masked hint and a masked phone, nothing more.
+  // The user entry carries a masked hint (both ends shown, middle hidden)
+  // and a masked phone, nothing more.
   const user = result.entries.find((e) => e.kind === 'user-session');
-  assert.match(user.hint, /^••••/);
+  assert.match(user.hint, /^.{3}•••••.{3}$/);
+  assert.equal(user.hint, maskEnds(USER_SESSION));
   assert.match(user.phone, /^••••/);
   assert.match(user.where, /telegram-bot/);
 });
@@ -292,6 +302,19 @@ test('different sessions for one account collapse to a single entry', async () =
   assert.equal(result.entries.length, 1, 'the flat list agrees');
 });
 
+test('user accounts are listed before bot accounts', async () => {
+  // makeTree has one bot repo and one user-session repo; the finder must
+  // put the user account first and the bot after.
+  const { root } = await makeTree();
+  const { creds } = await credsFor();
+  const result = await creds.scan({ roots: [root] });
+  const kinds = result.groups.map((g) => g.account.kind);
+  assert.deepEqual(kinds, ['user', 'bot'], 'users first, bots after');
+  // The flat entry list follows the same order.
+  assert.equal(result.entries[0].type, 'session');
+  assert.equal(result.entries[result.entries.length - 1].type, 'bot');
+});
+
 test('a BigInt account id from GramJS never breaks serialization', async () => {
   const { root } = await makeTree();
   // GramJS returns the user id as a BigInt; the result must still stringify.
@@ -317,7 +340,7 @@ test('use writes the matching secret links and no plaintext escapes', async () =
 
   const botResult = await creds.use(botId, { store });
   assert.equal(botResult.kind, 'bot-token');
-  assert.match(botResult.hint, /^••••/);
+  assert.match(botResult.hint, /•••••/);
   assert.ok(puts.find((l) => l.id === 'secret:telegram:bot-token'));
 
   await creds.use(userId, { store });

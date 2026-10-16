@@ -10,6 +10,7 @@
     "**/*.min.js",
     "**/coverage/**",
     "**/.changeset/**",
+    "**/CHANGELOG.md",
     "**/package-lock.json",
     "**/pnpm-lock.yaml",
     "**/yarn.lock",

@@ -343,6 +343,7 @@ export const hi = {
   'telegramSessions.typeSession': 'सेशन से लॉगिन',
   'telegramSessions.typePassword': 'फ़ोन और पासवर्ड से लॉगिन',
   'telegramSessions.more': '+{n} और',
+  'telegramSessions.less': 'कम दिखाएँ',
   'telegramSessions.signIn': 'साइन इन करें',
   'telegramSessions.connected': 'कनेक्ट हो गया',
 

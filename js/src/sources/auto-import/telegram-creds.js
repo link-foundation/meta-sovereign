@@ -170,6 +170,22 @@ export const maskHint = (value) => {
   return tail ? `••••${tail}` : '••••';
 };
 
+// A token/session hint that shows a little of both ends: the first three and
+// last three characters, the middle hidden (`123•••••xyz`). Only when the
+// value is long enough that doing so still hides most of it; shorter values
+// fall back to the tail-only mask so nothing short is over-exposed.
+export const maskEnds = (value) => {
+  const text = String(value ?? '');
+  if (text.length < 10) {
+    return maskHint(text);
+  }
+  return `${text.slice(0, 3)}•••••${text.slice(-3)}`;
+};
+
+// Paths sorted shortest first, so the most concise location leads the list.
+const byLength = (paths) =>
+  [...paths].sort((a, b) => a.length - b.length || a.localeCompare(b));
+
 // The digits of a phone number, as a stable grouping key (`+1 555…` and
 // `15 55…` for the same line collapse). Never shown — only maskHint is.
 const phoneKey = (phone) => String(phone ?? '').replace(/\D/g, '');
@@ -401,18 +417,21 @@ const typeOf = (record) =>
 
 // A record as the caller sees it: never the value, only a masked hint, the
 // type, whether it is live, and every place it was found.
-const publicEntry = (record) => ({
-  id: record.id,
-  kind: record.kind,
-  type: typeOf(record),
-  where: record.wheres?.[0] ?? record.where,
-  wheres: record.wheres ?? [record.where],
-  key: record.key,
-  hint: record.value ? maskHint(record.value) : null,
-  phone: record.phone ? maskHint(record.phone) : null,
-  active: record.active ?? null,
-  account: record.account ?? null,
-});
+const publicEntry = (record) => {
+  const wheres = byLength(record.wheres ?? [record.where]);
+  return {
+    id: record.id,
+    kind: record.kind,
+    type: typeOf(record),
+    where: wheres[0],
+    wheres,
+    key: record.key,
+    hint: record.value ? maskEnds(record.value) : null,
+    phone: record.phone ? maskHint(record.phone) : null,
+    active: record.active ?? null,
+    account: record.account ?? null,
+  };
+};
 
 // Walk the chosen folders and read every credential they hold.
 const collectRecords = async (scanRoots) => {
@@ -654,10 +673,15 @@ const groupRecords = (records) => {
       byType.has(type) ? mergeRecords(byType.get(type), record) : record
     );
   }
-  return [...groups.values()].map(({ account, byType }) => ({
-    account: accountView(account),
-    entries: [...byType.values()].map(publicEntry),
-  }));
+  // User accounts first, bot accounts after; otherwise keep discovery order
+  // (a stable sort on the kind rank preserves it within each group).
+  const kindRank = (account) => (account.kind === 'bot' ? 1 : 0);
+  return [...groups.values()]
+    .sort((a, b) => kindRank(a.account) - kindRank(b.account))
+    .map(({ account, byType }) => ({
+      account: accountView(account),
+      entries: [...byType.values()].map(publicEntry),
+    }));
 };
 
 // The `secret:telegram:*` links to write for a connected credential.
@@ -820,7 +844,7 @@ export const createTelegramCreds = ({
     }
     return {
       kind: record.kind,
-      hint: maskHint(record.value),
+      hint: maskEnds(record.value),
       account: record.account ?? null,
     };
   };

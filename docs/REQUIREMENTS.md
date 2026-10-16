@@ -572,6 +572,29 @@ live in [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md).
 
 ---
 
+## Y. Telegram credential finder and shared UI conventions
+
+These requirements come from maintainer directives while building the
+"Find Telegram sessions on this computer" finder (Telegram → Enter
+manually). They are written as durable conventions so later work applies
+them everywhere they fit instead of rediscovering them per screen. Each
+applies **uniformly** across every applicable surface of the app.
+
+| ID    | Requirement                                                                                                                                                                                                                 | State                                                                                                                                 |
+| ----- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| R-Y1  | The finder lists only credentials proven live: a token or session Telegram actively rejects is dropped; one that cannot be checked (network/timeout) is kept, marked unverified.                                            | Done: `verifyRecord`/`isDeadError` in `js/src/sources/auto-import/telegram-creds.js`; `scan` filters `active !== false`.              |
+| R-Y2  | Credentials are deduplicated by account and collapsed to one connectable entry per type (login by session, bot token, login by phone & password) — never one row per file.                                                  | Done: `dedupeRecords` + `groupRecords`/`mergeRecords`; tested in `js/tests/telegram-creds.test.js`.                                   |
+| R-Y3  | User accounts are listed before bot accounts.                                                                                                                                                                               | Done: `groupRecords` stable-sorts by account kind (user rank 0, bot rank 1); test "user accounts are listed before bot accounts".     |
+| R-Y4  | Every place a credential was found is kept; the shortest path is shown first and the remaining locations expand behind a "+N more" / "Show less" toggle.                                                                    | Done: finder `byLength` sorts `wheres`; `WhereLine` in `js/src/web/connections/telegram-sessions.js` is an expandable list.           |
+| R-Y5  | Masked hints reveal at most the first three and last three characters of a token/session (short values fall back to a tail-only mask); raw secret values never leave the machine or reach logs.                             | Done: `maskEnds`/`maskHint`; BigInt-safe JSON everywhere; values are never returned to the browser or logged.                         |
+| R-Y6  | Connecting a credential always gives explicit visible feedback (a "Connected" mark) — a successful click is never silent.                                                                                                   | Done: `connected` state in `useFinder`; the entry replaces its button with a check-marked "Connected" badge.                          |
+| R-Y7  | Verification states ("confirmed with Telegram") render as a single small check-mark icon whose words live in its tooltip (`title` + `aria-label`), via the shared `VerifiedMark`, wherever a confirmed credential is shown. | Done: `VerifiedMark` + the `check` icon in `js/src/web/icons.js`; `.verified-mark` in `app.css`.                                      |
+| R-Y8  | Persistent chrome (the top menu bar) stays above transient overlays: the tutorial spotlight ring and its dimming clip at the header's bottom edge and never float over the top menu.                                        | Done: `.topbar.glass` sits at `z-index: 2001`, above the `z-index: 2000` tutorial overlay; no tutorial step targets a header control. |
+| R-Y9  | Verbose server logs are on by default in the app folder, capturing every request and every error with its stack, so any failure's root cause is already on disk.                                                            | Done: `createServerLog`/`installCrashLogging` write `<store>/logs/meta-sovereign.log`; `--quiet-logs` opts out.                       |
+| R-Y10 | Generated artefacts (e.g. `CHANGELOG.md`) are excluded from the copy-paste duplication gate, so release automation cannot trip it; the gate measures authored source only.                                                  | Done: `**/CHANGELOG.md` is in `.jscpd.json` `ignore`.                                                                                 |
+
+---
+
 ## Traceability
 
 When a future PR or commit lands a feature, reference the requirement

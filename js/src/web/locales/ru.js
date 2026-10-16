@@ -346,6 +346,7 @@ export const ru = {
   'telegramSessions.typeSession': 'Вход по сессии',
   'telegramSessions.typePassword': 'Вход по телефону и паролю',
   'telegramSessions.more': '+ ещё {n}',
+  'telegramSessions.less': 'Свернуть',
   'telegramSessions.signIn': 'Войти',
   'telegramSessions.connected': 'Подключено',
 

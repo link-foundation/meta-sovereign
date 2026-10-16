@@ -346,6 +346,7 @@ export const en = {
   'telegramSessions.typeSession': 'Login by session',
   'telegramSessions.typePassword': 'Login by phone & password',
   'telegramSessions.more': '+{n} more',
+  'telegramSessions.less': 'Show less',
   'telegramSessions.signIn': 'Sign in',
   'telegramSessions.connected': 'Connected',
 

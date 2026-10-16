@@ -10,9 +10,29 @@
 import React, { useRef, useState } from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
+import { Icon } from '../icons.js';
 import { RecommendedHeader } from './recommended.js';
 
 const el = React.createElement;
+
+// A small check mark that means "this credential was confirmed with
+// Telegram". It replaces the old text badge; the words live in the tooltip
+// (title + aria-label) so the row stays compact. Shared so every place that
+// shows a confirmed credential uses exactly the same mark.
+export const VerifiedMark = ({ labelKey = 'telegramSessions.verified' }) => {
+  const t = useT();
+  const label = t(labelKey);
+  return el(
+    'span',
+    {
+      className: 'verified-mark',
+      role: 'img',
+      'aria-label': label,
+      title: label,
+    },
+    el(Icon, { name: 'check', size: 14 })
+  );
+};
 
 // Each entry is one distinct credential (the same token found in ten repos
 // is one row). Its TYPE says how connecting works: a bot token, a login by
@@ -23,21 +43,46 @@ const TYPE_LABEL = {
   'user-password': 'telegramSessions.typePassword',
 };
 
-// Where the credential was found: the first location, plus a count of the
-// rest so a widely-copied token does not flood the row.
+// Where the credential was found. The shortest path leads (the finder sorts
+// `wheres` by length); the rest hide behind a "+N more" toggle so a widely
+// copied token does not flood the row, and expand to the full list on click.
 const WhereLine = ({ entry }) => {
   const t = useT();
+  const [open, setOpen] = useState(false);
   const wheres = entry.wheres ?? [entry.where];
   const extra = wheres.length - 1;
-  return el('span', { className: 'tg-session-where' }, [
-    el('span', { key: 'first' }, wheres[0]),
+  const toggle =
     extra > 0
       ? el(
-          'span',
-          { key: 'more', className: 'meta tg-session-more' },
-          ` ${t('telegramSessions.more').replace('{n}', String(extra))}`
+          'button',
+          {
+            key: 'more',
+            type: 'button',
+            className: 'meta tg-session-more',
+            'aria-expanded': open ? 'true' : 'false',
+            onClick: () => setOpen((v) => !v),
+          },
+          open
+            ? t('telegramSessions.less')
+            : t('telegramSessions.more').replace('{n}', String(extra))
         )
-      : null,
+      : null;
+  if (open) {
+    return el('span', { className: 'tg-session-where' }, [
+      el(
+        'ul',
+        { key: 'list', className: 'tg-session-where-list' },
+        wheres.map((where, index) =>
+          el('li', { key: index, className: 'tg-session-where-item' }, where)
+        )
+      ),
+      toggle,
+    ]);
+  }
+  return el('span', { className: 'tg-session-where' }, [
+    el('span', { key: 'first' }, wheres[0]),
+    toggle ? el('span', { key: 'sp' }, ' ') : null,
+    toggle,
   ]);
 };
 
@@ -198,13 +243,7 @@ const AccountGroup = ({
             : 'telegramSessions.badgeUser'
         )
       ),
-      account.verified
-        ? el(
-            'span',
-            { key: 'ok', className: 'meta tg-session-verified' },
-            t('telegramSessions.verified')
-          )
-        : null,
+      account.verified ? el(VerifiedMark, { key: 'ok' }) : null,
     ]),
     el(
       'ul',
