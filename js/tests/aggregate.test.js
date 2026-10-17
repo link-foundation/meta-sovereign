@@ -42,3 +42,47 @@ describe('aggregateContacts', () => {
     expect(await client.contacts()).toEqual(aggregateContacts(links));
   });
 });
+
+describe('aggregateContacts with people', () => {
+  const telegram = [
+    {
+      id: 'msg:telegram:42:2',
+      source: 'telegram',
+      chat: '42',
+      sender: '42',
+      senderName: 'Alice',
+      chatType: 'personal_chat',
+      timestamp: '2026-10-01T00:00:00Z',
+    },
+    {
+      id: 'person:telegram:42',
+      source: 'telegram',
+      user: '42',
+      name: 'Alice Liddell',
+      handle: 'alice',
+      contact: true,
+    },
+    {
+      id: 'person:telegram:77',
+      source: 'telegram',
+      user: '77',
+      name: 'Bob',
+      handle: null,
+      contact: true,
+    },
+  ];
+
+  it('adds the address book, each person once, with a chat to open', () => {
+    const contacts = aggregateContacts(telegram, { people: true });
+    expect(contacts.map((c) => c.id)).toEqual(['42', '77']);
+    expect(contacts[0].name).toBe('Alice');
+    expect(contacts[0].handle).toBe('alice');
+    expect(contacts[0].open).toEqual({ source: 'telegram', chat: '42' });
+    expect(contacts[1].messageCount).toBe(0);
+    expect(contacts[1].open).toEqual({ source: 'telegram', chat: '77' });
+  });
+
+  it('leaves audiences to people who wrote (no people option)', () => {
+    expect(aggregateContacts(telegram).map((c) => c.id)).toEqual(['42']);
+  });
+});

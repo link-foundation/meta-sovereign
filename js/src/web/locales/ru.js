@@ -73,6 +73,10 @@ export const ru = {
   'contacts.chats': 'Чаты',
   'contacts.messages': 'Сообщения',
   'contacts.lastSeen': 'Последняя активность',
+  'contacts.actions': 'Действия',
+  'contacts.message': 'Написать',
+  'contacts.messageTo': 'Написать {name}',
+  'contacts.search': 'Поиск контактов',
   'automation.title': 'Графы автоматизации',
   'automation.edges': 'Связей: {count}',
   'patterns.title': 'Шаблоны',
@@ -754,10 +758,13 @@ export const ru = {
     'Ваша личная CRM и единый ящик для всех сообщений. Данные остаются на вашем устройстве, пока вы сами не подключите свой сервер.',
   'tutorial.chat.title': 'Чат',
   'tutorial.chat.body':
-    'Переписка из всех подключённых сервисов в одном месте.',
+    'Переписка из всех подключённых сервисов в одном месте. Напишите ответ внизу и нажмите «Отправить»; строка под списком показывает подключённый аккаунт и «Синхронизировать».',
   'tutorial.contacts.title': 'Контакты',
   'tutorial.contacts.body':
-    'Каждый человек показан один раз, даже если вы общаетесь в нескольких сервисах.',
+    'Все, с кем вы общаетесь, и ваши контакты Telegram — каждый человек один раз, даже в нескольких сервисах. Откройте «Контакты».',
+  'tutorial.contactsOpen.title': 'Открыть чат',
+  'tutorial.contactsOpen.body':
+    'Нажмите «Написать» рядом с человеком, чтобы открыть чат с ним, даже если вы ещё не переписывались. Поиск находит по имени или @username.',
   'tutorial.automation.title': 'Автоматизация',
   'tutorial.automation.body':
     'Автоответы: если сообщение совпадает с шаблоном, приложение готовит черновик ответа. Ничего не отправляется без вашего подтверждения.',
@@ -807,6 +814,20 @@ export const ru = {
   'chat.search': 'Поиск по чатам и сообщениям',
   'chat.noMatches': 'Подходящих чатов нет.',
   'chat.you': 'Вы',
+  'chat.account.connected': 'Telegram подключён',
+  'chat.account.connectedAs': 'Подключено как {name}',
+  'chat.account.bot': 'Подключён бот Telegram',
+  'chat.account.loading':
+    'Загружаем ваши чаты и контакты… Они появятся здесь через мгновение.',
+  'chat.account.noChats':
+    'Чатов пока нет. Напишите кому-нибудь в Telegram или откройте «Контакты» и нажмите «Написать».',
+  'chat.account.botHint':
+    'Бот видит только сообщения, отправленные ему. Попросите кого-нибудь написать боту и нажмите «Синхронизировать».',
+  'chat.account.failed': 'Telegram не синхронизировался: {error}',
+  'chat.account.failedShort': 'Telegram не синхронизировался',
+  'chat.account.syncNow': 'Синхронизировать',
+  'chat.account.syncing': 'Синхронизация…',
+  'chat.account.openConnection': 'Открыть подключение Telegram',
   'chat.group.today': 'Сегодня',
   'chat.group.yesterday': 'Вчера',
   'chat.group.week': 'На этой неделе',

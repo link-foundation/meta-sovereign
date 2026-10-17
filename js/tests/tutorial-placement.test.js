@@ -110,7 +110,16 @@ test('steps that describe a click advance on it; Next performs it', () => {
   const byId = Object.fromEntries(defaultSteps.map((s) => [s.id, s]));
   assert.deepEqual(
     defaultSteps.map((s) => s.id),
-    ['connect', 'pick', 'setup', 'chat', 'contacts', 'automation', 'backup']
+    [
+      'connect',
+      'pick',
+      'setup',
+      'contacts',
+      'contacts-open',
+      'chat',
+      'automation',
+      'backup',
+    ]
   );
   assert.equal(byId.connect.action, true);
   assert.match(byId.connect.advanceOn, /nav:connections/);

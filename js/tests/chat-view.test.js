@@ -298,3 +298,70 @@ test('notice: exclusion reasons in words, unknown ones as they are', () => {
   );
   assert.match(html, /Nothing to send here: a draft is already waiting\./);
 });
+
+test('screen: a connected Telegram account never asks to connect again', () => {
+  const telegram = (extra) => ({
+    connected: true,
+    kind: 'user',
+    account: { username: 'owner' },
+    syncNow: noop,
+    ...extra,
+  });
+  const syncing = render(
+    screenState({ total: 0, chats: [], telegram: telegram({ syncing: true }) })
+  );
+  assert.match(syncing, /Connected as @owner/);
+  assert.match(syncing, /Loading your chats and contacts/);
+  assert.match(syncing, /data-state="syncing"/);
+  const failed = render(
+    screenState({
+      total: 0,
+      chats: [],
+      telegram: telegram({ error: 'AUTH_KEY_UNREGISTERED' }),
+    })
+  );
+  assert.match(failed, /Telegram did not sync: AUTH_KEY_UNREGISTERED/);
+  assert.match(failed, /Open Telegram connection/);
+  // With chats, the list carries the account and "Sync now".
+  const list = render(screenState({ telegram: telegram({}) }));
+  assert.match(list, /class="chat-account-line"/);
+  assert.match(list, /Sync now/);
+});
+
+test('chats: a contact opened from Contacts gets a chat before any message', async () => {
+  const { chatFromHash, emptyChat } = await import('../src/web/chat-state.js');
+  assert.deepEqual(chatFromHash('#chat=telegram:42'), {
+    source: 'telegram',
+    chat: '42',
+  });
+  assert.deepEqual(chatFromHash('#chat=telegram:-100%3A1'), {
+    source: 'telegram',
+    chat: '-100:1',
+  });
+  assert.equal(chatFromHash('#conn-telegram'), null);
+  const chat = emptyChat(
+    [{ id: 'person:telegram:42', name: 'Alice Liddell', handle: 'alice' }],
+    { source: 'telegram', chat: '42' }
+  );
+  assert.equal(chat.key, 'telegram:42');
+  assert.equal(chat.name, 'Alice Liddell');
+  assert.equal(chat.personal, true);
+  assert.equal(emptyChat([], { source: 'telegram', chat: '7' }).name, '7');
+});
+
+test('chats: a chat started from Contacts is named after the person', () => {
+  const [chat] = summarizeChats([
+    {
+      id: 'msg:telegram:77:101',
+      source: 'telegram',
+      chat: '77',
+      sender: 'me',
+      body: 'Hello Bob',
+      chatType: 'personal_chat',
+      timestamp: at(0),
+    },
+    { id: 'person:telegram:77', source: 'telegram', user: '77', name: 'Bob' },
+  ]);
+  assert.equal(chat.name, 'Bob');
+  assert.equal(chat.personal, true);
+});

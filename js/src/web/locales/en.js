@@ -74,6 +74,10 @@ export const en = {
   'contacts.chats': 'Chats',
   'contacts.messages': 'Messages',
   'contacts.lastSeen': 'Last seen',
+  'contacts.actions': 'Actions',
+  'contacts.message': 'Message',
+  'contacts.messageTo': 'Message {name}',
+  'contacts.search': 'Search contacts',
   'automation.title': 'Automation graphs',
   'automation.edges': '{count} edges',
   'patterns.title': 'Patterns',
@@ -744,10 +748,13 @@ export const en = {
     'Your personal CRM and one inbox for all your messages. Your data stays on your device unless you connect your own server.',
   'tutorial.chat.title': 'Chat',
   'tutorial.chat.body':
-    'Conversations from all your connected services, in one inbox.',
+    'Conversations from all your connected services, in one inbox. Type below and press Send to reply; the line under the list shows the connected account and "Sync now".',
   'tutorial.contacts.title': 'Contacts',
   'tutorial.contacts.body':
-    'Each person appears once, even if you talk on several services.',
+    'Everyone you talk to, and your Telegram contacts, each person once even across services. Open Contacts.',
+  'tutorial.contactsOpen.title': 'Open a chat',
+  'tutorial.contactsOpen.body':
+    'Press "Message" next to a person to open your chat with them, even if you never wrote to them before. Search finds anyone by name or @username.',
   'tutorial.automation.title': 'Automation',
   'tutorial.automation.body':
     'Automatic replies: when a message matches a pattern, the app drafts an answer. Nothing is sent until you confirm it.',
@@ -797,6 +804,20 @@ export const en = {
   'chat.search': 'Search chats and messages',
   'chat.noMatches': 'No chats match.',
   'chat.you': 'You',
+  'chat.account.connected': 'Telegram is connected',
+  'chat.account.connectedAs': 'Connected as {name}',
+  'chat.account.bot': 'A Telegram bot is connected',
+  'chat.account.loading':
+    'Loading your chats and contacts… They appear here in a moment.',
+  'chat.account.noChats':
+    'No chats were found yet. Write to someone in Telegram, or open Contacts and press "Message".',
+  'chat.account.botHint':
+    'A bot only sees messages people send to it. Ask someone to write to your bot, then press "Sync now".',
+  'chat.account.failed': 'Telegram did not sync: {error}',
+  'chat.account.failedShort': 'Telegram did not sync',
+  'chat.account.syncNow': 'Sync now',
+  'chat.account.syncing': 'Syncing…',
+  'chat.account.openConnection': 'Open Telegram connection',
   'chat.group.today': 'Today',
   'chat.group.yesterday': 'Yesterday',
   'chat.group.week': 'This week',

@@ -99,10 +99,15 @@ const handleSend = async (store, res, body, ctx) => {
   }
   try {
     const result = await ctx.send(draft);
-    const link = sentMessage(draft, {
-      at: new Date().toISOString(),
-      via: result?.via,
-    });
+    // An adapter that knows the network's message id (a connected Telegram
+    // account) returns the canonical link, so the next sync does not show
+    // the message twice.
+    const link = result?.link
+      ? { ...result.link, ...(result.via ? { via: result.via } : {}) }
+      : sentMessage(draft, {
+          at: new Date().toISOString(),
+          via: result?.via,
+        });
     await store.put(link);
     return json(res, 200, { status: 'sent', via: result?.via, link });
   } catch (error) {

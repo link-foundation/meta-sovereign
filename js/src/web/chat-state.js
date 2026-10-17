@@ -6,6 +6,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  chatKey,
   chatMenuAutomations,
   chatMessages,
   senderNames,
@@ -191,6 +192,117 @@ const useComposer = ({ api, current, after }) => {
   };
 };
 
+const STATUS_EVERY_MS = 4000;
+
+/**
+ * The connected Telegram account behind Chat: its status (who, last sync,
+ * an error) polled while the screen is open, a fresh link load whenever a
+ * sync wrote something, and "Sync now".
+ */
+const useTelegramAccount = (api, refresh, pollMs = STATUS_EVERY_MS) => {
+  const [status, setStatus] = useState(null);
+  const seen = useRef(undefined);
+  const supported = typeof api.telegramStatus === 'function';
+  const load = useCallback(() => {
+    if (!supported) {
+      return Promise.resolve(null);
+    }
+    return api.telegramStatus().then(
+      (next) => {
+        setStatus(next);
+        const changed = next?.changedAt ?? null;
+        if (seen.current !== undefined && changed !== seen.current) {
+          refresh();
+        }
+        seen.current = changed;
+        return next;
+      },
+      () => null
+    );
+  }, [api]);
+  useEffect(() => {
+    load();
+  }, [load]);
+  // Faster while a sync runs, so its result shows as soon as it lands.
+  const every = status?.syncing ? Math.min(pollMs, 1000) : pollMs;
+  useInterval(load, supported ? every : 0, [load, every]);
+  const [syncing, setSyncing] = useState(false);
+  const syncNow = async () => {
+    setSyncing(true);
+    try {
+      const result = await api.telegramSync({ full: true });
+      setStatus((before) => ({ ...(before ?? {}), ...result }));
+      refresh();
+      return result;
+    } finally {
+      setSyncing(false);
+    }
+  };
+  return {
+    ...(status ?? { connected: false }),
+    syncing: syncing || Boolean(status?.syncing),
+    syncNow,
+  };
+};
+
+// Opening a Telegram chat pulls more of its history once per visit.
+const useChatHistory = (api, current, refresh) => {
+  const loaded = useRef(new Set());
+  useEffect(() => {
+    if (
+      current?.source !== 'telegram' ||
+      typeof api.telegramHistory !== 'function' ||
+      loaded.current.has(current.key)
+    ) {
+      return;
+    }
+    loaded.current.add(current.key);
+    api.telegramHistory(current.chat).then(
+      (result) => result?.written > 0 && refresh(),
+      () => {}
+    );
+  }, [api, current?.key]);
+};
+
+/** `#chat=<source>:<chat>` — a chat opened from Contacts. */
+export const chatFromHash = (hash = '') => {
+  const match = /^#chat=([a-z0-9_-]+):(.+)$/i.exec(String(hash));
+  return match
+    ? { source: match[1], chat: decodeURIComponent(match[2]) }
+    : null;
+};
+
+const useHashChat = () => {
+  const read = () => chatFromHash(globalThis.location?.hash);
+  const [target, setTarget] = useState(read);
+  useEffect(() => {
+    const onHash = () => setTarget(read());
+    globalThis.addEventListener?.('hashchange', onHash);
+    return () => globalThis.removeEventListener?.('hashchange', onHash);
+  }, []);
+  return target;
+};
+
+/**
+ * A chat with no messages here yet (a contact never written to, or one
+ * whose history is still loading), named from its person link.
+ */
+export const emptyChat = (links = [], { source, chat }) => {
+  const person = links.find((l) => l?.id === `person:${source}:${chat}`);
+  return {
+    key: chatKey(source, chat),
+    source,
+    chat: String(chat),
+    name: person?.name ?? person?.handle ?? String(chat),
+    personal: true,
+    people: [String(chat)],
+    count: 0,
+    last: { body: '', mine: false, at: null },
+    search: '',
+    empty: true,
+  };
+};
+
 /** Everything the chat screen shows and does. */
 export const useChatState = (
   api,
@@ -202,7 +314,23 @@ export const useChatState = (
   const [query, setQuery] = useState('');
   const [active, setActive] = useState('');
   const [notice, setNotice] = useState(null);
-  const all = useMemo(() => summarizeChats(links ?? []), [links]);
+  const telegram = useTelegramAccount(api, refresh);
+  const target = useHashChat();
+  const all = useMemo(() => {
+    const list = summarizeChats(links ?? []);
+    if (
+      !target ||
+      list.some((c) => c.key === chatKey(target.source, target.chat))
+    ) {
+      return list;
+    }
+    return [emptyChat(links ?? [], target), ...list];
+  }, [links, target]);
+  useEffect(() => {
+    if (target) {
+      setActive(chatKey(target.source, target.chat));
+    }
+  }, [target?.source, target?.chat]);
   const chats = useMemo(
     () => (query ? summarizeChats(links ?? [], { query }) : all),
     [links, query, all]
@@ -213,6 +341,7 @@ export const useChatState = (
     }
   }, [all, active]);
   const current = all.find((c) => c.key === active) ?? null;
+  useChatHistory(api, current, refresh);
   const messages = useMemo(
     () => (current ? chatMessages(links ?? [], current.key) : []),
     [links, current?.key]
@@ -243,6 +372,7 @@ export const useChatState = (
   const composer = useComposer({ api, current, after });
   return {
     loading: links === null,
+    telegram,
     chats,
     total: all.length,
     query,

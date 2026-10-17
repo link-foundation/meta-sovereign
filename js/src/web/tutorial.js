@@ -50,7 +50,7 @@ export const TUTORIAL_PROVIDER_KEY = 'metaSovereignTutorialProvider';
 // the new tour instead of resuming a step that no longer means the same
 // thing (which is how a Telegram selection could resume onto Email).
 // v3: the tour remembers the service the user picked.
-export const TUTORIAL_VERSION = 4;
+export const TUTORIAL_VERSION = 5;
 
 // Default tour steps. `target` is a `data-view` attribute on the nav
 // buttons so the overlay can highlight the right tab; an undefined
@@ -134,17 +134,6 @@ export const defaultSteps = [
     body: 'On "Import with browser", press "Open browser" and sign in, start the data export there and the downloaded file is imported automatically. Prefer to do it yourself? Switch to "Enter manually".',
   },
   {
-    id: 'chat',
-    target: 'chat',
-    tutorialId: 'nav:chat',
-    fallbacks: NAV_FALLBACKS,
-    advanceOn: '[data-tutorial-id="nav:chat"]',
-    titleKey: 'tutorial.chat.title',
-    bodyKey: 'tutorial.chat.body',
-    title: 'Chat',
-    body: 'Conversations from all your connected services, in one inbox.',
-  },
-  {
     id: 'contacts',
     target: 'contacts',
     tutorialId: 'nav:contacts',
@@ -153,7 +142,32 @@ export const defaultSteps = [
     titleKey: 'tutorial.contacts.title',
     bodyKey: 'tutorial.contacts.body',
     title: 'Contacts',
-    body: 'Each person appears once, even if you talk on several services.',
+    body: 'Everyone you talk to, and your Telegram contacts, each person once even across services. Open Contacts.',
+  },
+  {
+    // Writing to someone starts here: "Message" opens their chat, even
+    // one with no messages yet. Skipped while there are no contacts.
+    id: 'contacts-open',
+    tutorialId: 'contacts:open-chat',
+    route: { view: 'contacts' },
+    action: true,
+    optional: true,
+    completeAt: { view: 'chat' },
+    titleKey: 'tutorial.contactsOpen.title',
+    bodyKey: 'tutorial.contactsOpen.body',
+    title: 'Open a chat',
+    body: 'Press "Message" next to a person to open your chat with them, even if you never wrote to them before. Search finds anyone by name or @username.',
+  },
+  {
+    id: 'chat',
+    target: 'chat',
+    tutorialId: 'nav:chat',
+    fallbacks: NAV_FALLBACKS,
+    advanceOn: '[data-tutorial-id="nav:chat"]',
+    titleKey: 'tutorial.chat.title',
+    bodyKey: 'tutorial.chat.body',
+    title: 'Chat',
+    body: 'Conversations from all your connected services, in one inbox. Type below and press Send to reply; the line under the list shows the connected account and "Sync now".',
   },
   {
     id: 'automation',

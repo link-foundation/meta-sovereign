@@ -36,7 +36,7 @@ const idOf = (me) => {
   return raw === null ? null : String(raw.value ?? raw);
 };
 
-const accountOf = (me = {}) => ({
+export const accountOf = (me = {}) => ({
   id: idOf(me),
   username: me.username ?? null,
   firstName: me.firstName ?? me.first_name ?? null,

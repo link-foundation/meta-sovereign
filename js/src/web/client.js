@@ -44,7 +44,8 @@ const computeAutocomplete = async (store, q, me = 'me') => {
 };
 
 // The same contacts as the server's /api/contacts, from the local store.
-const computeContacts = async (store) => aggregateContacts(await store.query());
+const computeContacts = async (store) =>
+  aggregateContacts(await store.query(), { people: true });
 
 export const createOfflineClient = ({ store, server }) => {
   const handlers = new Set();

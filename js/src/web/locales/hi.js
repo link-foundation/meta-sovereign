@@ -74,6 +74,10 @@ export const hi = {
   'contacts.chats': 'चैट',
   'contacts.messages': 'संदेश',
   'contacts.lastSeen': 'पिछली बार देखा',
+  'contacts.actions': 'कार्रवाइयाँ',
+  'contacts.message': 'संदेश',
+  'contacts.messageTo': '{name} को संदेश',
+  'contacts.search': 'संपर्क खोजें',
   'automation.title': 'स्वचालन ग्राफ़',
   'automation.edges': '{count} किनारे',
   'patterns.title': 'पैटर्न',
@@ -739,10 +743,14 @@ export const hi = {
   'tutorial.welcome.body':
     'आपका निजी CRM और सभी संदेशों के लिए एक इनबॉक्स। जब तक आप अपना सर्वर न जोड़ें, डेटा आपके डिवाइस पर ही रहता है।',
   'tutorial.chat.title': 'चैट',
-  'tutorial.chat.body': 'सभी जुड़ी सेवाओं की बातचीत, एक ही इनबॉक्स में।',
+  'tutorial.chat.body':
+    'सभी जुड़ी सेवाओं की बातचीत, एक ही इनबॉक्स में। नीचे लिखें और जवाब देने के लिए भेजें दबाएँ; सूची के नीचे की पंक्ति जुड़ा खाता और "अभी सिंक करें" दिखाती है।',
   'tutorial.contacts.title': 'संपर्क',
   'tutorial.contacts.body':
-    'हर व्यक्ति एक ही बार दिखता है, चाहे आप कई सेवाओं पर बात करें।',
+    'जिनसे भी आप बात करते हैं और आपके Telegram संपर्क — हर व्यक्ति एक बार, कई सेवाओं में भी। संपर्क खोलें।',
+  'tutorial.contactsOpen.title': 'चैट खोलें',
+  'tutorial.contactsOpen.body':
+    'किसी व्यक्ति के पास "संदेश" दबाएँ और उनसे चैट खोलें, भले ही आपने पहले कभी न लिखा हो। खोज नाम या @username से ढूँढती है।',
   'tutorial.automation.title': 'ऑटोमेशन',
   'tutorial.automation.body':
     'स्वचालित जवाब: जब कोई संदेश पैटर्न से मेल खाता है, ऐप जवाब का मसौदा बनाता है। आपकी पुष्टि के बिना कुछ नहीं भेजा जाता।',
@@ -792,6 +800,20 @@ export const hi = {
   'chat.search': 'चैट और संदेश खोजें',
   'chat.noMatches': 'कोई चैट मेल नहीं खाती।',
   'chat.you': 'आप',
+  'chat.account.connected': 'Telegram जुड़ा है',
+  'chat.account.connectedAs': '{name} के रूप में जुड़ा',
+  'chat.account.bot': 'एक Telegram बॉट जुड़ा है',
+  'chat.account.loading':
+    'आपकी चैट और संपर्क लोड हो रहे हैं… वे कुछ ही पल में यहाँ दिखेंगे।',
+  'chat.account.noChats':
+    'अभी कोई चैट नहीं मिली। Telegram में किसी को लिखें, या संपर्क खोलकर "संदेश" दबाएँ।',
+  'chat.account.botHint':
+    'बॉट केवल उसे भेजे गए संदेश देखता है। किसी से अपने बॉट को लिखने को कहें, फिर "अभी सिंक करें" दबाएँ।',
+  'chat.account.failed': 'Telegram सिंक नहीं हुआ: {error}',
+  'chat.account.failedShort': 'Telegram सिंक नहीं हुआ',
+  'chat.account.syncNow': 'अभी सिंक करें',
+  'chat.account.syncing': 'सिंक हो रहा है…',
+  'chat.account.openConnection': 'Telegram कनेक्शन खोलें',
   'chat.group.today': 'आज',
   'chat.group.yesterday': 'कल',
   'chat.group.week': 'इस सप्ताह',

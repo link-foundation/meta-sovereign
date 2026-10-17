@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
+import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
 import { avatarFor, groupChats } from './chat-model.js';
 import { presetName } from './automations-model.js';
@@ -117,6 +118,7 @@ const Sidebar = ({ state }) => {
             ])
           )
     ),
+    el(ChatAccountLine, { key: 'acct', telegram: state.telegram }),
   ]);
 };
 
@@ -479,7 +481,10 @@ export const ChatScreen = ({ state }) => {
     return el('div', { className: 'meta' }, t('common.loading'));
   }
   if (state.total === 0) {
-    return el(ConnectionGuide, { section: 'chat' });
+    // Connected but nothing synced yet: say so, never "connect" again.
+    return state.telegram?.connected
+      ? el(ChatAccountEmpty, { telegram: state.telegram })
+      : el(ConnectionGuide, { section: 'chat' });
   }
   // Phones show one pane at a time (list → conversation → back), as
   // Telegram and WhatsApp do; wider screens show both and ignore it.

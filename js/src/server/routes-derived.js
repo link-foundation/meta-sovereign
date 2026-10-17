@@ -62,7 +62,8 @@ const facts = async (store) => {
 };
 
 const HANDLERS = {
-  '/api/contacts': async (store) => aggregateContacts(await store.query()),
+  '/api/contacts': async (store) =>
+    aggregateContacts(await store.query(), { people: true }),
   '/api/status': async (store) =>
     computeStatus(await store.query(), (await store.verify?.()) ?? []),
   '/api/autocomplete': async (store, url) =>

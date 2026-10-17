@@ -63,6 +63,19 @@ test('the connect-setup step advances once a service connects', () => {
   );
 });
 
+test('the tour shows Contacts, then opens a chat from there', () => {
+  const ids = defaultSteps.map((s) => s.id);
+  assert.ok(ids.indexOf('contacts') < ids.indexOf('contacts-open'));
+  assert.ok(ids.indexOf('contacts-open') < ids.indexOf('chat'));
+  const open = defaultSteps.find((s) => s.id === 'contacts-open');
+  assert.equal(open.tutorialId, 'contacts:open-chat');
+  assert.deepEqual(open.route, { view: 'contacts' });
+  assert.deepEqual(open.completeAt, { view: 'chat' });
+  // No contacts yet (nothing synced): the step is skipped, not stuck.
+  assert.equal(open.optional, true);
+  assert.equal(open.action, true);
+});
+
 test('readPreference returns null on a fresh storage', () => {
   const storage = fakeStorage();
   assert.equal(readPreference(storage), null);

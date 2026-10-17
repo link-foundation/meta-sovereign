@@ -55,7 +55,11 @@ import {
   createDoubletsStore,
   wrapSecretStore,
 } from '../storage/index.js';
-import { getSource, listSources } from '../sources/index.js';
+import {
+  getSource as getSourceDefault,
+  listSources,
+} from '../sources/index.js';
+import { createTelegramAccount } from '../sources/telegram-account.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
@@ -74,6 +78,7 @@ import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
+import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -217,7 +222,12 @@ const replyService = (store, storeDir, replies = {}) => {
  * network's API and falls back to its official web UI. The scheduler
  * fires schedule and incoming triggers unless `scheduler: false`.
  */
-const automationContext = (store, automations = {}, log = null) => {
+const automationContext = (
+  store,
+  automations = {},
+  log = null,
+  getSource = getSourceDefault
+) => {
   const say = (event) => log?.(event);
   const send =
     automations.send ??
@@ -270,6 +280,32 @@ const automationContext = (store, automations = {}, log = null) => {
  * nothing to a real network.
  * @param {{resolveSource?: Function, sleep?: Function}} greetings
  */
+/**
+ * The connected Telegram account (sync, history, sending). Tests that
+ * inject a fake login (`telegramMtproto`/`telegramCreds`) get no real
+ * account unless they pass one, so nothing ever dials Telegram.
+ */
+const telegramAccountFor = (store, log, options) => {
+  if (options.telegramAccount !== undefined) {
+    return options.telegramAccount || null;
+  }
+  if (options.telegramMtproto || options.telegramCreds) {
+    return null;
+  }
+  const account = createTelegramAccount({ store, log: (e) => log?.(e) });
+  account.start();
+  return account;
+};
+
+// `telegram` sends and types through the connected account; every other
+// network keeps its adapter.
+const accountSources = (account) => (name) => {
+  const adapter = getSourceDefault(name);
+  return name === 'telegram' && account && adapter
+    ? { ...adapter, live: { ...adapter.live, ...account.live } }
+    : adapter;
+};
+
 const greetingContext = (greetings = {}) => ({
   greetingSources: greetings.resolveSource ?? null,
   greetingSleep: greetings.sleep ?? null,
@@ -320,11 +356,14 @@ const route = async (store, req, res, ctx) => {
   if (await handleBackupRoutes(store, req, res, p, ctx.archiveDir)) {
     return;
   }
-  if (await handleAutoImportRoutes(store, req, res, p, ctx)) {
-    return;
-  }
-  if (await handleDerivedRoutes(store, req, res, p, url)) {
-    return;
+  for (const handle of [
+    () => handleAutoImportRoutes(store, req, res, p, ctx),
+    () => handleTelegramRoutes(req, res, p, ctx),
+    () => handleDerivedRoutes(store, req, res, p, url),
+  ]) {
+    if (await handle()) {
+      return;
+    }
   }
   return json(res, 404, { error: 'unknown route' });
 };
@@ -377,12 +416,19 @@ export const startServer = async ({
   // Tests inject a fake MTProto (no real GramJS / network for Telegram login).
   telegramMtproto,
   telegramCreds,
+  // A `createTelegramAccount()` (or `false` for none); see telegramAccountFor.
+  telegramAccount: telegramAccountOption,
 } = {}) => {
   const { store, resolvedArchiveDir } = await initStore({
     providedStore,
     storeDir,
     archiveDir,
     secretPassphrase,
+  });
+  const telegramAccount = telegramAccountFor(store, log, {
+    telegramAccount: telegramAccountOption,
+    telegramMtproto,
+    telegramCreds,
   });
   const ctx = {
     archiveDir: resolvedArchiveDir,
@@ -393,7 +439,12 @@ export const startServer = async ({
     allowOrigins: parseAllowedOrigins(allowOrigins),
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
-    ...automationContext(store, automations, log),
+    ...automationContext(
+      store,
+      automations,
+      log,
+      accountSources(telegramAccount)
+    ),
     ...greetingContext(greetings),
     storeDir,
     log,
@@ -402,6 +453,7 @@ export const startServer = async ({
     autoImportSignIns,
     telegramMtproto,
     telegramCreds,
+    telegramAccount,
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
@@ -463,6 +515,7 @@ export const startServer = async ({
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
         ctx.autoImport?.close();
+        telegramAccount?.stop().catch(() => {});
         wsHandle?.close();
         signaling?.close();
         server.close(() => resolve());

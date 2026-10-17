@@ -74,6 +74,10 @@ export const zh = {
   'contacts.chats': '聊天',
   'contacts.messages': '消息',
   'contacts.lastSeen': '最近活跃',
+  'contacts.actions': '操作',
+  'contacts.message': '发消息',
+  'contacts.messageTo': '给 {name} 发消息',
+  'contacts.search': '搜索联系人',
   'automation.title': '自动化图',
   'automation.edges': '{count} 条边',
   'patterns.title': '模式',
@@ -720,9 +724,14 @@ export const zh = {
   'tutorial.welcome.body':
     '你的个人 CRM，所有消息汇于一个收件箱。除非你连接自己的服务器，数据始终留在你的设备上。',
   'tutorial.chat.title': '聊天',
-  'tutorial.chat.body': '所有已连接服务的对话，集中在一个收件箱。',
+  'tutorial.chat.body':
+    '所有已连接服务的对话，集中在一个收件箱。在下方输入并按发送即可回复；列表下方一行显示已连接的账号和"立即同步"。',
   'tutorial.contacts.title': '联系人',
-  'tutorial.contacts.body': '同一个人只出现一次，即使你们在多个服务上交流。',
+  'tutorial.contacts.body':
+    '所有与你交流的人以及你的 Telegram 联系人，每人只出现一次，即使跨多个服务。打开联系人。',
+  'tutorial.contactsOpen.title': '打开聊天',
+  'tutorial.contactsOpen.body':
+    '点击某人旁边的"发消息"即可打开与其的聊天，即使你们从未聊过。搜索可按姓名或 @username 查找。',
   'tutorial.automation.title': '自动化',
   'tutorial.automation.body':
     '自动回复：当消息匹配某个模式时，应用会起草回答。未经你确认，不会发送任何内容。',
@@ -770,6 +779,19 @@ export const zh = {
   'chat.search': '搜索聊天和消息',
   'chat.noMatches': '没有匹配的聊天。',
   'chat.you': '你',
+  'chat.account.connected': 'Telegram 已连接',
+  'chat.account.connectedAs': '已连接为 {name}',
+  'chat.account.bot': '已连接 Telegram 机器人',
+  'chat.account.loading': '正在加载你的聊天和联系人…稍后即会显示在这里。',
+  'chat.account.noChats':
+    '暂未找到聊天。在 Telegram 中给某人发消息，或打开联系人并点击"发消息"。',
+  'chat.account.botHint':
+    '机器人只能看到发给它的消息。请人给你的机器人发消息，然后点击"立即同步"。',
+  'chat.account.failed': 'Telegram 同步失败：{error}',
+  'chat.account.failedShort': 'Telegram 同步失败',
+  'chat.account.syncNow': '立即同步',
+  'chat.account.syncing': '同步中…',
+  'chat.account.openConnection': '打开 Telegram 连接',
   'chat.group.today': '今天',
   'chat.group.yesterday': '昨天',
   'chat.group.week': '本周',

@@ -149,6 +149,19 @@ const browsersRoute = async (req, res, ctx, action) => {
   return json(res, 200, await signIns.openFullDiskAccessSettings()) ?? true;
 };
 
+// A new credential is stored: the connected account reconnects and pulls
+// the chats in the background, so Chat fills without another click.
+const accountConnected = (ctx) => {
+  ctx.telegramAccount?.connected().catch((error) => {
+    ctx.log?.({
+      level: 'error',
+      event: 'telegram_sync_failed',
+      reason: 'connect',
+      error: error.message,
+    });
+  });
+};
+
 const TELEGRAM_ROUTE = /^\/api\/auto-import\/telegram\/(scan|identify|use)$/;
 
 // Find the user's own Telegram sign-ins (bot tokens and user sessions)
@@ -178,6 +191,9 @@ const telegramRoute = async (store, req, res, ctx, action) => {
     return json(res, 200, { ...login, needsLogin: true }) ?? true;
   }
   ctx.log?.({ event: 'telegram_creds_use', kind: result.kind });
+  if (result.ok !== false) {
+    accountConnected(ctx);
+  }
   return json(res, 200, result) ?? true;
 };
 
@@ -273,6 +289,9 @@ const telegramLoginRoute = async (store, req, res, ctx, action) => {
       ? await startLogin(store, body, ctx)
       : await continueLogin(store, action, body, ctx);
   ctx.log?.({ event: 'telegram_login', action, state: result.needs ?? 'done' });
+  if (result.done) {
+    accountConnected(ctx);
+  }
   return json(res, 200, result) ?? true;
 };
 

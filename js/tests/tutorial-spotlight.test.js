@@ -29,8 +29,9 @@ test('default sequence opens with a "Connect a service" step pointing at nav:con
 
 test('every step that declares a tutorialId references a known target', () => {
   // Recognised data-tutorial-id values: nav:<id> for nav buttons,
-  // connections:<provider> for provider cards.
-  const knownPrefixes = ['nav:', 'connections:', 'auto-import'];
+  // connections:<provider> for provider cards, contacts:open-chat for
+  // the first contact's "Message" button.
+  const knownPrefixes = ['nav:', 'connections:', 'auto-import', 'contacts:'];
   for (const step of defaultSteps) {
     if (!step.tutorialId) {
       continue;

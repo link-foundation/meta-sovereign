@@ -618,6 +618,21 @@ export const api = {
     ).catch((error) => ({ error: error.message }))) ?? {
       error: 'server required for Telegram login',
     },
+  // The connected Telegram account: is one connected, how did the last
+  // sync go, and pull now / one chat's history (server only).
+  telegramStatus: async () =>
+    (await serverFetch('/api/telegram/status').catch(() => null)) ?? {
+      connected: false,
+      offline: true,
+    },
+  telegramSync: async (body = {}) =>
+    (await serverPostReport('/api/telegram/sync', body).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for Telegram sync' },
+  telegramHistory: async (chat) =>
+    (await serverPostReport('/api/telegram/history', { chat }).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for Telegram history' },
   autoImportAction: async (id, action) =>
     (await serverFetch(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,

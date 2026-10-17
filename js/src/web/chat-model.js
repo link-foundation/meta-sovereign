@@ -55,6 +55,20 @@ const summarize = (key, messages, self) => {
   };
 };
 
+// A one-to-one chat with only our own messages (written from Contacts)
+// takes the person's name from their `person:` link.
+const named = (chat, links) => {
+  if (!chat.personal || chat.name !== chat.chat) {
+    return chat;
+  }
+  const id = `person:${chat.source}:${chat.chat}`;
+  const person = links.find((l) => l?.id === id);
+  const name = person?.name ?? person?.handle;
+  return name
+    ? { ...chat, name, search: `${fold(name)}\n${chat.search}` }
+    : chat;
+};
+
 /**
  * One row per conversation, newest first. `query` matches the name, the
  * chat id, the network and any message in it.
@@ -76,7 +90,7 @@ export const summarizeChats = (
   }
   const words = fold(query).split(/\s+/).filter(Boolean);
   return [...groups.entries()]
-    .map(([key, messages]) => summarize(key, messages, self))
+    .map(([key, messages]) => named(summarize(key, messages, self), links))
     .filter((c) => words.every((w) => c.search.includes(w)))
     .sort((a, b) => String(b.last.at).localeCompare(String(a.last.at)));
 };

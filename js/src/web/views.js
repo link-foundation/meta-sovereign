@@ -149,20 +149,59 @@ export const OperatorView = () => {
   });
 };
 
+// "Message" on a contact: open their one-to-one chat (it appears in Chat
+// even before the first message, named from the contact).
+export const openContactChat = ({ source, chat }) =>
+  globalThis.dispatchEvent?.(
+    new CustomEvent('meta-sovereign:navigate', {
+      detail: {
+        view: 'chat',
+        anchor: `#chat=${source}:${encodeURIComponent(chat)}`,
+      },
+    })
+  );
+
+const contactMatches = (contact, words) => {
+  const text = [contact.name, contact.handle, contact.id]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase();
+  return words.every((w) => text.includes(w));
+};
+
+const ContactIdentity = ({ contact }) => {
+  const extra = [contact.handle ? `@${contact.handle}` : null, contact.id]
+    .filter((v) => v && v !== contact.name)
+    .join(' · ');
+  return contact.name
+    ? [
+        el('span', { key: 'name' }, contact.name),
+        extra
+          ? el('span', { key: 'id', className: 'meta' }, ` ${extra}`)
+          : null,
+      ]
+    : extra;
+};
+
 export const ContactsView = () => {
   const t = useT();
   const { dateTime: fmtTs } = useDates();
   const state = useAsyncValue(() => api.contacts(), [], []);
+  const [query, setQuery] = useState('');
   return el(AsyncFrame, { state }, (contacts) => {
     if (!contacts || contacts.length === 0) {
       return el(ConnectionGuide, { section: 'contacts' });
     }
+    const words = query.toLocaleLowerCase().split(/\s+/).filter(Boolean);
+    const shown = contacts.filter((c) => contactMatches(c, words));
+    const firstOpen = shown.find((c) => c.open);
     const columns = [
       'contacts.identity',
       'contacts.networks',
       'contacts.chats',
       'contacts.messages',
       'contacts.lastSeen',
+      'contacts.actions',
     ].map((key) => t(key));
     const cell = (index, value) =>
       el(
@@ -172,8 +211,34 @@ export const ContactsView = () => {
           : { key: index, 'data-label': columns[index] },
         value
       );
+    const messageButton = (contact) =>
+      contact.open
+        ? el(
+            'button',
+            {
+              type: 'button',
+              className: 'ghost',
+              'data-tutorial-id':
+                contact === firstOpen ? 'contacts:open-chat' : undefined,
+              'aria-label': t('contacts.messageTo', {
+                name: contact.name ?? contact.handle ?? contact.id,
+              }),
+              onClick: () => openContactChat(contact.open),
+            },
+            t('contacts.message')
+          )
+        : null;
     return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('contacts.title', { count: contacts.length })),
+      el('input', {
+        key: 'q',
+        type: 'search',
+        className: 'contacts-search',
+        placeholder: t('contacts.search'),
+        'aria-label': t('contacts.search'),
+        value: query,
+        onChange: (event) => setQuery(event.target.value),
+      }),
       el('table', { key: 'table', className: 'stack-table' }, [
         el('thead', { key: 'head' }, [
           el(
@@ -185,22 +250,9 @@ export const ContactsView = () => {
         el(
           'tbody',
           { key: 'body' },
-          contacts.map((contact) =>
+          shown.map((contact) =>
             el('tr', { key: contact.id }, [
-              // A name when a message gave one, its id beside it.
-              cell(
-                0,
-                contact.name && contact.name !== contact.id
-                  ? [
-                      el('span', { key: 'name' }, contact.name),
-                      el(
-                        'span',
-                        { key: 'id', className: 'meta' },
-                        ` ${contact.id}`
-                      ),
-                    ]
-                  : contact.id
-              ),
+              cell(0, el(ContactIdentity, { contact })),
               cell(
                 1,
                 (contact.networks ?? [])
@@ -209,7 +261,8 @@ export const ContactsView = () => {
               ),
               cell(2, String((contact.chats ?? []).length)),
               cell(3, String(contact.messageCount ?? contact.count ?? 0)),
-              cell(4, fmtTs(contact.lastSeen)),
+              cell(4, contact.lastSeen ? fmtTs(contact.lastSeen) : '—'),
+              cell(5, messageButton(contact)),
             ])
           )
         ),
