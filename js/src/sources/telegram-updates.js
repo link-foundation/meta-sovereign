@@ -14,6 +14,10 @@
  *                                                 whose ids are account-wide)
  *   { kind: 'read', chat, maxId }                 the other side read our
  *                                                 messages up to maxId
+ *   { kind: 'read-inbox', chat, maxId }           we read theirs up to
+ *                                                 maxId (on any device)
+ *   { kind: 'draft', chat, text, date }           the chat's cloud draft
+ *                                                 changed (another device)
  *   { kind: 'typing', chat, user, typing }        someone types (or stops)
  *
  * Chat ids are GramJS "marked" peer ids, the same ones dialogs use: a
@@ -89,6 +93,16 @@ const typingEffect = (update) => {
   return { kind: 'typing', chat, user, typing };
 };
 
+/**
+ * GramJS's connection state, which it hands to update handlers as an
+ * `UpdateConnectionState` (no TL `className`): 1 connected, 0 broken,
+ * -1 disconnected; null for anything else.
+ */
+export const connectionStateOf = (update) =>
+  update && !update.className && [-1, 0, 1].includes(update.state)
+    ? update.state
+    : null;
+
 const ids = (update) => (update.messages ?? []).map(Number);
 const channelOf = (update) => `-100${text(update.channelId)}`;
 
@@ -110,6 +124,26 @@ const SIMPLE_EFFECTS = {
     chat: channelOf(u),
     maxId: Number(u.maxId),
   }),
+  UpdateReadHistoryInbox: (u) => ({
+    kind: 'read-inbox',
+    chat: peerChatId(u.peer),
+    maxId: Number(u.maxId),
+  }),
+  UpdateReadChannelInbox: (u) => ({
+    kind: 'read-inbox',
+    chat: channelOf(u),
+    maxId: Number(u.maxId),
+  }),
+  // A forum topic's draft (topMsgId) is not the chat's own.
+  UpdateDraftMessage: (u) =>
+    u.topMsgId
+      ? null
+      : {
+          kind: 'draft',
+          chat: peerChatId(u.peer),
+          text: u.draft?.message ?? '',
+          date: Number(u.draft?.date) || null,
+        },
 };
 
 /** What one raw update means for the app, or null when nothing. */

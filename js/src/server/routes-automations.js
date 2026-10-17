@@ -21,7 +21,8 @@
  *   GET    /api/automations/history?automation=
  *   POST   /api/send   { source, chat, text, contact? } → the chat composer;
  *                      API first, the official web UI when it fails
- *   POST   /api/typing { source, chat } → show our typing status
+ *   POST   /api/typing { source, chat, cancel? } → show our typing status
+ *                      (`cancel`: stop showing it)
  *   GET    /api/typing?source=&chat=   → who is typing now
  *
  * `automation` is an id (saved or preset) or a whole definition, so the
@@ -186,9 +187,20 @@ const handleTyping = async (store, res, body, ctx) => {
     return fail(res, 400, 'bad-chat', 'source and chat are needed');
   }
   // Shown in our own UI even when the network has no typing API.
-  const link = typingLink({ source: body.source, chat: body.chat, user: 'me' });
+  // `cancel`: the user sent or cleared the message, typing stops now.
+  const cancel = body.cancel === true;
+  const link = typingLink({
+    source: body.source,
+    chat: body.chat,
+    user: 'me',
+    ...(cancel ? { state: 'idle' } : {}),
+  });
   await store.put(link);
-  const out = await ctx.setTyping({ source: body.source, chat: body.chat });
+  const out = await ctx.setTyping({
+    source: body.source,
+    chat: body.chat,
+    ...(cancel ? { cancel } : {}),
+  });
   return json(res, 200, { ...out, link });
 };
 

@@ -173,14 +173,30 @@ export const syncMembership = async ({
  */
 export const setTypingFor = async (
   getSource,
-  { source, chat, messageId, user = 'me', put = null, options = {} }
+  {
+    source,
+    chat,
+    messageId,
+    user = 'me',
+    put = null,
+    options = {},
+    cancel = false,
+  }
 ) => {
   const live = getSource(source)?.live;
   if (typeof live?.setTyping !== 'function') {
     return { supported: false, source };
   }
-  const result = await live.setTyping({ chat, messageId }, options);
-  const link = typingLink({ source, chat, user });
+  const result = await live.setTyping(
+    { chat, messageId, ...(cancel ? { cancel: true } : {}) },
+    options
+  );
+  const link = typingLink({
+    source,
+    chat,
+    user,
+    ...(cancel ? { state: 'idle' } : {}),
+  });
   if (put) {
     await put(link);
   }

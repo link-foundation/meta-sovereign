@@ -42,7 +42,34 @@ const chatTitle = (messages, self) => {
   return other?.senderName ?? other?.sender ?? null;
 };
 
-const summarize = (key, messages, self) => {
+/** A chat's read link (`read:<source>:<chat>`), or null. */
+const readLinkOf = (links, key) =>
+  links.find(
+    (l) => l?.id?.startsWith('read:') && chatKey(l.source, l.chat) === key
+  ) ?? null;
+
+/**
+ * How many messages the user has not read in a chat, as Telegram counts
+ * them: the count the network gave with the chat list, plus incoming
+ * messages that arrived after it. Reading the chat (here or on another
+ * device) moves `inboxMaxId` on and resets the count. 0 without a read
+ * link (networks that do not say).
+ */
+export const unreadCount = (messages, read, self = ['me']) => {
+  if (!read) {
+    return 0;
+  }
+  const after = Math.max(
+    Number(read.unreadTopId ?? 0),
+    Number(read.inboxMaxId ?? 0)
+  );
+  const newer = messages.filter(
+    (m) => !isMine(m, self) && (networkMessageId(m) ?? 0) > after
+  ).length;
+  return Number(read.unreadCount ?? 0) + newer;
+};
+
+const summarize = (key, messages, self, read = null) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
   const people = new Set(
@@ -61,6 +88,7 @@ const summarize = (key, messages, self) => {
       : people.size <= 1,
     people: [...people],
     count: sorted.length,
+    unread: unreadCount(sorted, read, self),
     last: {
       body: String(last.body ?? ''),
       mine: isMine(last, self),
@@ -95,7 +123,11 @@ export const summarizeChats = (
   { query = '', self = ['me'] } = {}
 ) => {
   const groups = new Map();
+  const reads = new Map();
   for (const link of links) {
+    if (link?.id?.startsWith('read:')) {
+      reads.set(chatKey(link.source, link.chat), link);
+    }
     if (!isShownMessage(link)) {
       continue;
     }
@@ -107,27 +139,49 @@ export const summarizeChats = (
   }
   const words = fold(query).split(/\s+/).filter(Boolean);
   return [...groups.entries()]
-    .map(([key, messages]) => named(summarize(key, messages, self), links))
+    .map(([key, messages]) =>
+      named(summarize(key, messages, self, reads.get(key)), links)
+    )
     .filter((c) => words.every((w) => c.search.includes(w)))
     .sort((a, b) => String(b.last.at).localeCompare(String(a.last.at)));
 };
 
 /** How far the other side has read our messages in a chat (0: unknown). */
 export const readUpTo = (links = [], key) =>
-  links.find(
-    (l) => l?.id?.startsWith('read:') && chatKey(l.source, l.chat) === key
-  )?.outboxMaxId ?? 0;
+  readLinkOf(links, key)?.outboxMaxId ?? 0;
+
+/** How far the user has read a chat (0: unknown). */
+export const readInboxUpTo = (links = [], key) =>
+  Number(readLinkOf(links, key)?.inboxMaxId ?? 0);
+
+/** A chat's draft saved on the network (Telegram), or undefined. */
+export const cloudDraft = (links = [], key) => {
+  const draft = readLinkOf(links, key)?.draft;
+  return typeof draft === 'string' ? draft : undefined;
+};
+
+// The composer's states that still show a clock (queued behind another
+// message, or waiting to be tried again) and the ones shown as they are.
+const ON_THE_WAY = new Set(['queued', 'sending', 'waiting']);
+const AS_IS = new Set(['failed', 'stored']);
 
 /**
  * Where one of our messages is, as Telegram shows it:
- *   sending (clock) → sent (✓) → read (✓✓); failed (!) and stored (kept
- * here while offline, not sent yet). Others' messages have none.
+ *   sending (clock) → sent (✓) → read (✓✓); waiting (clock, tried again
+ * by itself), failed (!) and stored (kept here while offline, not sent
+ * yet). Others' messages have none.
  */
 export const deliveryStatus = (message, readMax = 0) => {
   if (message?.sender !== 'me') {
     return null;
   }
-  if (['sending', 'failed', 'stored'].includes(message.status)) {
+  if (message.status === 'waiting') {
+    return 'waiting';
+  }
+  if (ON_THE_WAY.has(message.status)) {
+    return 'sending';
+  }
+  if (AS_IS.has(message.status)) {
     return message.status;
   }
   const id = networkMessageId(message);
@@ -147,6 +201,7 @@ const pendingMessage = (item) => ({
   error: item.error ?? null,
   code: item.code ?? null,
   retryAfter: item.retryAfter ?? null,
+  retryAt: item.retryAt ?? null,
   pending: true,
 });
 
@@ -245,3 +300,16 @@ export const avatarFor = (name) => {
   }
   return { initials: initials || '?', hue: hash };
 };
+
+/**
+ * Where the "Unread messages" line goes: before the first incoming
+ * message newer than `after` (how far the chat was read when it was
+ * opened), or null when there is none.
+ */
+export const firstUnreadId = (messages = [], after = 0) =>
+  after > 0
+    ? (messages.find(
+        (m) =>
+          m.sender !== 'me' && !m.pending && (networkMessageId(m) ?? 0) > after
+      )?.id ?? null)
+    : null;

@@ -55,6 +55,7 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 - **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
 - **CV synchronisation** across LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV and SuperJob: read every profile through your own browser, see the differences field by field, and push the agreed values back ([`docs/CV-SYNC.md`](docs/CV-SYNC.md)).
 - **Greetings**: open dialogs on VK, Telegram, WhatsApp, Messenger, X and email with a "hi" or a greeting sticker, the way [konard/vk-bot](https://github.com/konard/vk-bot) does — pick stickers in the UI, preview who gets what, send with a pause between messages ([`docs/GREETINGS.md`](docs/GREETINGS.md)).
+- **Chat** with the connected Telegram account that behaves like Telegram's own apps: each message sent once, delivery ticks, live updates and catch-up after a gap, read marking, cloud drafts, retries that survive a reload. How the open-source Telegram, Signal and Element clients do it, pinned to the commits we read, is in [`docs/CHAT-REFERENCES.md`](docs/CHAT-REFERENCES.md).
 - **Personal CRM**: contacts, communities, group memberships, intersections, mass-personal outreach.
 - **Personal memory**: structured `question → answer` facts captured automatically from conversations.
 - **Conversation automation platform**: pattern editors, reply-variation editors, n8n-style dialog graphs.

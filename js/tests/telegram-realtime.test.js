@@ -286,7 +286,8 @@ test('the account listens on every client it connects', async () => {
     pollMs: 0,
   });
   await account.sync({ full: true });
-  assert.equal(handlers.length, 1);
+  // The live handler and the catch-up's (the update counter).
+  assert.equal(handlers.length, 2);
   await handlers[0]({
     className: 'UpdateNewMessage',
     message: {

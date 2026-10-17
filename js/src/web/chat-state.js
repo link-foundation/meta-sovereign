@@ -9,12 +9,15 @@ import {
   chatKey,
   chatMenuAutomations,
   chatMessages,
+  cloudDraft,
+  firstUnreadId,
+  readInboxUpTo,
   senderNames,
   summarizeChats,
   typingStatus,
 } from './chat-model.js';
 import { localizePreset } from './automations-model.js';
-import { readShareTyping } from './privacy-prefs.js';
+import { readReadReceipts, readShareTyping } from './privacy-prefs.js';
 import { useComposer, useLiveLinks } from './chat-live.js';
 import { isTypingActive } from '../sources/live-links.js';
 
@@ -70,19 +73,199 @@ const useSuggestions = (api, current, text, tick) => {
 };
 
 // "typing…" reaches the other person, so it is sent only when the user
-// turned it on (Settings → Privacy) and only for real keystrokes.
+// turned it on (Settings → Privacy) and only for real keystrokes. Sending
+// the message or clearing the box stops it at once (`cancel`), as
+// Telegram's apps do, instead of leaving "typing…" for 6 more seconds.
+const TYPING_SHOWN_MS = 6000;
+
 const useTypingOut = (api, current, shareTyping = readShareTyping) => {
   const last = useRef(0);
-  return useCallback(() => {
-    const now = Date.now();
-    if (!current || !shareTyping() || now - last.current < TYPING_EVERY_MS) {
+  const set = (cancel) =>
+    api
+      .setTyping({
+        source: current.source,
+        chat: current.chat,
+        ...(cancel ? { cancel: true } : {}),
+      })
+      .catch(() => {});
+  return useMemo(
+    () => ({
+      start: () => {
+        const now = Date.now();
+        if (
+          !current ||
+          !shareTyping() ||
+          now - last.current < TYPING_EVERY_MS
+        ) {
+          return;
+        }
+        last.current = now;
+        set(false);
+      },
+      cancel: () => {
+        if (!current || Date.now() - last.current > TYPING_SHOWN_MS) {
+          return;
+        }
+        last.current = 0;
+        set(true);
+      },
+    }),
+    [api, current?.key]
+  );
+};
+
+const READ_AFTER_MS = 500;
+
+const pageActive = () => {
+  const doc = globalThis.document;
+  return (
+    doc?.visibilityState !== 'hidden' &&
+    (typeof doc?.hasFocus === 'function' ? doc.hasFocus() : true)
+  );
+};
+
+/**
+ * Reading a Telegram chat marks it read there (Telegram Web and TDLib do
+ * the same): the view reports the newest incoming message on screen
+ * (`seen`), and while the window is in front, half a second later, the
+ * chat is marked read up to it — never backwards, never twice. Off when
+ * the user turned read receipts off (Settings → Privacy).
+ */
+const useReadMarker = (
+  api,
+  current,
+  inboxMaxId,
+  enabled = readReadReceipts
+) => {
+  const seen = useRef(0);
+  const marked = useRef(new Map()); // chat key → the id marked up to
+  const timer = useRef(null);
+  const latest = useRef({ current, inboxMaxId });
+  latest.current = { current, inboxMaxId };
+
+  const flush = useCallback(() => {
+    timer.current = null;
+    const { current: chat, inboxMaxId: read } = latest.current;
+    if (
+      chat?.source !== 'telegram' ||
+      typeof api.telegramRead !== 'function' ||
+      !enabled() ||
+      !pageActive()
+    ) {
       return;
     }
-    last.current = now;
-    api
-      .setTyping({ source: current.source, chat: current.chat })
-      .catch(() => {});
-  }, [api, current?.key]);
+    const upTo = seen.current;
+    if (upTo <= Math.max(read, marked.current.get(chat.key) ?? 0)) {
+      return;
+    }
+    marked.current.set(chat.key, upTo);
+    api.telegramRead({ chat: chat.chat, maxId: upTo }).then(
+      (answer) => answer?.error && marked.current.delete(chat.key),
+      () => marked.current.delete(chat.key)
+    );
+  }, [api]);
+  const schedule = useCallback(() => {
+    globalThis.clearTimeout(timer.current);
+    timer.current = globalThis.setTimeout(flush, READ_AFTER_MS);
+  }, [flush]);
+
+  useEffect(() => {
+    seen.current = 0;
+  }, [current?.key]);
+  useEffect(() => {
+    const doc = globalThis.document;
+    globalThis.addEventListener?.('focus', schedule);
+    doc?.addEventListener?.('visibilitychange', schedule);
+    return () => {
+      globalThis.removeEventListener?.('focus', schedule);
+      doc?.removeEventListener?.('visibilitychange', schedule);
+      globalThis.clearTimeout(timer.current);
+    };
+  }, [schedule]);
+
+  return useCallback(
+    (id) => {
+      if (id > seen.current) {
+        seen.current = id;
+        schedule();
+      }
+    },
+    [schedule]
+  );
+};
+
+/**
+ * The "Unread messages" line stays where it was when the chat was
+ * opened (Telegram, Element): reading the chat moves the count, not the
+ * line, until the user opens the chat again.
+ */
+const useUnreadLine = (current, inboxMaxId, loaded) => {
+  const at = useRef({ key: null, after: 0 });
+  if (loaded && at.current.key !== (current?.key ?? null)) {
+    at.current = { key: current?.key ?? null, after: inboxMaxId };
+  }
+  return at.current.after;
+};
+
+// What reading the open chat needs: where it was read up to, the marker
+// and the unread line.
+const useReading = (api, current, links) => {
+  const inboxMaxId = current ? readInboxUpTo(links ?? [], current.key) : 0;
+  return {
+    seen: useReadMarker(api, current, inboxMaxId),
+    unreadAfter: useUnreadLine(current, inboxMaxId, links !== null),
+  };
+};
+
+const DOWN_AFTER_MS = 3000;
+
+const useOnline = () => {
+  const read = () => globalThis.navigator?.onLine !== false;
+  const [online, setOnline] = useState(read);
+  useEffect(() => {
+    const update = () => setOnline(read());
+    globalThis.addEventListener?.('online', update);
+    globalThis.addEventListener?.('offline', update);
+    return () => {
+      globalThis.removeEventListener?.('online', update);
+      globalThis.removeEventListener?.('offline', update);
+    };
+  }, []);
+  return online;
+};
+
+/**
+ * What the connection banner says, if anything: no network, the local
+ * server's event stream gone for more than 3 s after it was open (a
+ * restart, sleep), or Telegram reconnecting.
+ */
+const useConnectionBanner = (live, telegram) => {
+  const online = useOnline();
+  const [down, setDown] = useState(false);
+  const opened = useRef(false);
+  useEffect(() => {
+    if (live) {
+      opened.current = true;
+      setDown(false);
+      return undefined;
+    }
+    if (!opened.current) {
+      return undefined;
+    }
+    const id = globalThis.setTimeout(() => setDown(true), DOWN_AFTER_MS);
+    return () => globalThis.clearTimeout(id);
+  }, [live]);
+  if (!online) {
+    return 'offline';
+  }
+  if (down) {
+    return 'server';
+  }
+  return telegram?.connected &&
+    telegram.connection &&
+    telegram.connection !== 'connected'
+    ? 'telegram'
+    : null;
 };
 
 export const runNotice = (result) => {
@@ -360,7 +543,8 @@ export const useChatState = (
     current,
     after: setNotice,
     addLinks: add,
-    typingOut: useTypingOut(api, current),
+    typing: useTypingOut(api, current),
+    cloud: cloudDraft(links ?? [], current?.key),
   });
   const messages = useMemo(
     () =>
@@ -369,6 +553,8 @@ export const useChatState = (
         : [],
     [links, current?.key, composer.pending]
   );
+  const { seen, unreadAfter } = useReading(api, current, links);
+  const banner = useConnectionBanner(live, telegram);
 
   const [typing, setTyping] = useLoaded(
     () =>
@@ -391,6 +577,7 @@ export const useChatState = (
   return {
     loading: links === null,
     live,
+    banner,
     telegram,
     chats,
     total: all.length,
@@ -402,6 +589,8 @@ export const useChatState = (
       setNotice(null);
     },
     messages,
+    unreadLine: firstUnreadId(messages, unreadAfter),
+    seen,
     typing: typingStatus(typingNow, { names: senderNames(messages) }),
     composer,
     suggest: useSuggestions(api, current, composer.text, tick),

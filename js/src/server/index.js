@@ -240,8 +240,8 @@ const automationContext = (
     });
   const setTyping =
     automations.setTyping ??
-    (({ source, chat }) =>
-      setTypingFor(getSource, { source, chat }).catch((error) => ({
+    (({ source, chat, cancel }) =>
+      setTypingFor(getSource, { source, chat, cancel }).catch((error) => ({
         supported: false,
         source,
         error: error.message,

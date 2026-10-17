@@ -8,7 +8,7 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
-import { useShareTyping } from './privacy-prefs.js';
+import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 
 const el = React.createElement;
 
@@ -70,10 +70,14 @@ export const AppearanceSettings = ({ appearance }) => {
   );
 };
 
-/** What other people may see; everything here is off by default. */
+/**
+ * What other people may see: "typing…" (off by default) and that a chat
+ * was read (on by default, as in Telegram's own apps).
+ */
 export const PrivacySettings = () => {
   const t = useT();
   const [shareTyping, setShareTyping] = useShareTyping();
+  const [readReceipts, setReadReceipts] = useReadReceipts();
   return el(
     'section',
     { className: 'card privacy', 'aria-labelledby': 'privacy-title' },
@@ -93,6 +97,21 @@ export const PrivacySettings = () => {
         'p',
         { key: 'hint', className: 'meta' },
         t('settings.shareTypingHint')
+      ),
+      el('label', { key: 'read', className: 'check' }, [
+        el('input', {
+          key: 'i',
+          type: 'checkbox',
+          checked: readReceipts,
+          'data-action': 'read-receipts',
+          onChange: (event) => setReadReceipts(event.target.checked),
+        }),
+        ` ${t('settings.readReceipts')}`,
+      ]),
+      el(
+        'p',
+        { key: 'read-hint', className: 'meta' },
+        t('settings.readReceiptsHint')
       ),
     ]
   );

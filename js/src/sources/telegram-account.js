@@ -11,8 +11,13 @@
  *   - history(chat): more of one chat's messages, when it is opened.
  *   - post() / setTyping(): the chat composer sends through the same
  *     account — a user session as the user, a bot token as the bot.
- *   - start(): a light poll keeps new messages of a user session coming
- *     (only dialogs whose newest message changed are re-read).
+ *   - markRead() / saveDraft(): reading a chat here marks it read on
+ *     Telegram, and the composer's draft is the chat's cloud draft, as in
+ *     Telegram's own apps (a user session only).
+ *   - live updates (./telegram-account-live.js) and the catch-up after a
+ *     gap or a reconnect (./telegram-catchup.js) keep a user session
+ *     current; start() adds a light poll as the last safety net (only
+ *     dialogs whose newest message changed are re-read).
  *
  * A user session wins over a bot token when both are stored: a bot only
  * sees messages sent to it, a user account sees their real chats. Bots
@@ -34,11 +39,20 @@ import {
   dialogInfo,
   readLink,
 } from './telegram-account-live.js';
-import { sendError, sendText } from './telegram-send.js';
+import { createTelegramCatchUp } from './telegram-catchup.js';
+import {
+  MAX_MESSAGE_LENGTH,
+  sendError,
+  sendText,
+  splitMessage,
+} from './telegram-send.js';
 
 const SOURCE = 'telegram';
 export const TELEGRAM_SYNC_ID = 'sync:telegram';
 const CONTACTS_EVERY_MS = 10 * 60_000;
+// A channel's gap re-reads the dialogs; no more often than this.
+const RESYNC_EVERY_MS = 15_000;
+const CONNECTION = { 1: 'connected', 0: 'broken', '-1': 'disconnected' };
 
 const secretValue = (link) =>
   link?.value ?? link?.token ?? link?.body ?? link?.text ?? null;
@@ -159,6 +173,10 @@ const SHOWN_FIELDS = [
   'chatName',
   'senderName',
   'outboxMaxId',
+  'inboxMaxId',
+  'unreadCount',
+  'unreadTopId',
+  'draft',
 ];
 const writeChanged = async (store, links) => {
   const byId = new Map();
@@ -193,13 +211,15 @@ const PUBLIC_FIELDS = [
   'contacts',
   'error',
   'code',
+  'connection',
 ];
 
 const publicStatus = (link = {}) =>
   Object.fromEntries(PUBLIC_FIELDS.map((f) => [f, link?.[f] ?? null]));
 
 // One connected GramJS client per stored session, reused across requests.
-// `onOpen(client)` runs once per new client (live updates attach there).
+// `onOpen(client, me)` runs once per new client (live updates attach
+// there).
 const createUserConnection = ({ clientFactory, dialogLimit, onOpen }) => {
   let connection = null; // { key, client, me }
   const disconnect = async () => {
@@ -232,7 +252,7 @@ const createUserConnection = ({ clientFactory, dialogLimit, onOpen }) => {
     await client.connect();
     const me = accountOf(await client.getMe());
     connection = { key, client, me };
-    onOpen?.(client);
+    onOpen?.(client, me);
     return connection;
   };
   // GramJS resolves a bare chat id only for peers it has seen; after a
@@ -267,6 +287,20 @@ const readContacts = async (client, { importer, log }) => {
   }
 };
 
+// What Telegram knows about a chat's reading and draft, as listed.
+const dialogReadLink = (chat, dialog) => {
+  const state = dialog.dialog ?? {};
+  const draft = state.draft;
+  return readLink(chat, {
+    outboxMaxId: state.readOutboxMaxId,
+    inboxMaxId: state.readInboxMaxId,
+    unreadCount: dialog.unreadCount ?? state.unreadCount,
+    unreadTopId: dialog.message?.id ?? state.topMessage,
+    draft: draft?.message ?? '',
+    draftAt: draft?.date ? isoOf(draft.date) : null,
+  });
+};
+
 // The recent dialogs; only those whose newest message changed since the
 // last sync (`tops`, updated in place) have their messages read again.
 const readDialogs = async (
@@ -283,10 +317,7 @@ const readDialogs = async (
     }
     chats += 1;
     known?.set(chat, dialogInfo(chat, dialog.entity));
-    const outbox = dialog.dialog?.readOutboxMaxId;
-    if (outbox) {
-      links.push(readLink(chat, outbox));
-    }
+    links.push(dialogReadLink(chat, dialog));
     if (dialog.isUser && dialog.entity) {
       partners.push(dialog.entity);
     }
@@ -438,18 +469,61 @@ const sentLink = (chat, messageId, text, at) =>
       ])[0]
     : null;
 
+// Telegram's message length limit (help.getConfig), once per client.
+const lengthLimits = new WeakMap();
+const messageLengthMax = async (client, Api) => {
+  if (!lengthLimits.has(client)) {
+    const ask =
+      Api?.help?.GetConfig && typeof client.invoke === 'function'
+        ? client
+            .invoke(new Api.help.GetConfig())
+            .then((config) => Number(config?.messageLengthMax) || null)
+            .catch(() => null)
+        : Promise.resolve(null);
+    lengthLimits.set(client, ask);
+  }
+  return (await lengthLimits.get(client)) ?? MAX_MESSAGE_LENGTH;
+};
+
 // Send as the user: exactly once (random_id), plain text, long text in
 // parts; returns the network's links for what was sent.
 const postAsUser = async (env, creds, { chat, text, clientId }) => {
   const { client } = await env.connection.open(creds);
   const { Api, helpers } = await env.importer().catch(() => ({}));
+  const maxLength = await messageLengthMax(client, Api);
+  const release = env.live.expectOwn({
+    chat,
+    clientId,
+    texts: splitMessage(text, maxLength),
+  });
   let sent;
   try {
     sent = await env.connection.withPeer(client, chat, (peer) =>
-      sendText({ client, Api, helpers, peer, text, clientId })
+      sendText({
+        client,
+        Api,
+        helpers,
+        peer,
+        text,
+        clientId,
+        maxLength,
+        onResult: (result) => env.catchUp?.observeResult(result),
+      })
     );
   } catch (error) {
     throw sendError(error);
+  } finally {
+    release();
+  }
+  // The send cleared the chat's cloud draft (`clear_draft`); so does its
+  // read link, or the composer would take the sent text back as a draft.
+  await Promise.resolve(
+    env.live.draft?.({ chat, text: '', date: Math.floor(env.now() / 1000) })
+  ).catch(() => {});
+  if (sent.some((part) => part.duplicate)) {
+    // An earlier try got through but its answer was lost: the catch-up
+    // brings that message in.
+    env.catchUp?.run('duplicate').catch(() => {});
   }
   const at = new Date(env.now());
   const links = sent
@@ -511,10 +585,18 @@ const createMessaging = (env) => {
     });
   };
 
-  const setTyping = async ({ chat, chatId } = {}, options = {}) => {
+  // `cancel`: the user sent the message or cleared the box, so the
+  // other side stops showing "typing…" at once (Telegram Desktop, Web A).
+  const setTyping = async (
+    { chat, chatId, cancel = false } = {},
+    options = {}
+  ) => {
     const creds = await readTelegramCredentials(store);
     const target = chat ?? chatId;
     if (creds?.kind !== 'user') {
+      if (cancel) {
+        return { ok: true, supported: false }; // bots have no cancel
+      }
       const token = creds?.token ?? options.token;
       return botLive.setTyping({ chat: target }, token ? { token } : options);
     }
@@ -524,13 +606,76 @@ const createMessaging = (env) => {
       client.invoke(
         new Api.messages.SetTyping({
           peer,
-          action: new Api.SendMessageTypingAction(),
+          action: cancel
+            ? new Api.SendMessageCancelAction()
+            : new Api.SendMessageTypingAction(),
         })
       )
     );
   };
 
-  return { history, post, setTyping };
+  // A user session and the chat to act on, else null (a bot, no chat).
+  const userChat = async (chat) => {
+    const creds = await readTelegramCredentials(store);
+    if (creds?.kind !== 'user' || chat === undefined || chat === null) {
+      return null;
+    }
+    const { client } = await connection.open(creds);
+    return { client, chat: String(chat), Api: (await importer()).Api };
+  };
+
+  /**
+   * Mark the chat read up to `maxId` on Telegram (the user saw those
+   * messages here). Only forward: an older id than already read is a
+   * no-op, as in TDLib and Element.
+   */
+  const markRead = async ({ chat, maxId } = {}) => {
+    const max = Number(maxId);
+    const target =
+      Number.isInteger(max) && max > 0 ? await userChat(chat) : null;
+    if (!target) {
+      return { ok: false, supported: false };
+    }
+    const before = await store.get(`read:${SOURCE}:${target.chat}`);
+    if ((before?.inboxMaxId ?? 0) >= max) {
+      return { ok: true, already: true };
+    }
+    const { client, Api } = target;
+    const result = await connection.withPeer(client, target.chat, (peer) =>
+      client.invoke(
+        target.chat.startsWith('-100')
+          ? new Api.channels.ReadHistory({ channel: peer, maxId: max })
+          : new Api.messages.ReadHistory({ peer, maxId: max })
+      )
+    );
+    env.catchUp?.observeResult(result);
+    await env.live.readInbox({ chat: target.chat, maxId: max });
+    return { ok: true };
+  };
+
+  /** The chat's cloud draft (empty text clears it). */
+  const saveDraft = async ({ chat, text = '' } = {}) => {
+    const target = await userChat(chat);
+    if (!target) {
+      return { ok: false, supported: false };
+    }
+    const draft = String(text ?? '');
+    const { client, Api } = target;
+    await connection.withPeer(client, target.chat, (peer) =>
+      client.invoke(new Api.messages.SaveDraft({ peer, message: draft }))
+    );
+    const before = await store.get(`read:${SOURCE}:${target.chat}`);
+    await store.put({
+      ...(before ?? {}),
+      ...readLink(target.chat, {
+        draft,
+        draftAt: new Date(now()).toISOString(),
+      }),
+    });
+    return { ok: true };
+  };
+
+  return { history, post, setTyping, markRead, saveDraft };
 };
 
 export const createTelegramAccount = ({
@@ -553,15 +698,36 @@ export const createTelegramAccount = ({
     touch: () =>
       recordSync(store, { changedAt: new Date(now()).toISOString() }),
   });
+  let resync = async () => {}; // set once `sync` exists
+  let connectionState = null;
+  const catchUp = createTelegramCatchUp({
+    store,
+    handle: live.handle,
+    resync: (reason) => resync(reason),
+    importer,
+    log,
+    // Shown in Chat ("Telegram: reconnecting…"); written on change only.
+    onConnection: (state) => {
+      const next = CONNECTION[state] ?? null;
+      if (next !== connectionState) {
+        connectionState = next;
+        recordSync(store, { connection: next }).catch(() => {});
+      }
+    },
+  });
   const connection = createUserConnection({
     clientFactory,
     dialogLimit,
-    onOpen: live.attach,
+    onOpen: (client, me) => {
+      live.attach(client);
+      catchUp.attach(client, me).catch(() => {});
+    },
   });
-  const env = { store, connection, botLive, importer, log, now, live };
+  const env = { store, connection, botLive, importer, log, now, live, catchUp };
   const messaging = createMessaging(env);
   let running = null; // the sync in flight
   let timer = null;
+  let resyncedAt = 0;
 
   /** Pull chats, messages and contacts into the store (one at a time). */
   const sync = ({
@@ -576,6 +742,13 @@ export const createTelegramAccount = ({
       }
     );
     return running;
+  };
+  resync = async (reason) => {
+    if (now() - resyncedAt < RESYNC_EVERY_MS) {
+      return;
+    }
+    resyncedAt = now();
+    await sync({ reason });
   };
 
   /** Whether an account is connected, and how the last sync went. */
@@ -609,6 +782,9 @@ export const createTelegramAccount = ({
     const tick = async () => {
       const creds = await readTelegramCredentials(store);
       if (creds?.kind === 'user') {
+        // Ask Telegram what we missed (cheap when nothing: Web A does it
+        // on every ping), then re-read changed dialogs (channels).
+        await catchUp.run('poll');
         await sync({ reason: 'poll' });
       }
     };
@@ -622,6 +798,7 @@ export const createTelegramAccount = ({
   const stop = async () => {
     globalThis.clearInterval(timer);
     timer = null;
+    await catchUp.stop();
     await connection.disconnect();
   };
 
@@ -632,6 +809,7 @@ export const createTelegramAccount = ({
     connected,
     start,
     stop,
+    catchUp: () => catchUp.run('manual'),
     // The adapter shape the sender and the typing helper look up.
     live: { post: messaging.post, setTyping: messaging.setTyping },
   };

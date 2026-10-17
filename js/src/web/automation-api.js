@@ -212,7 +212,8 @@ const chatCalls = ({ remote, store }) => ({
   /**
    * The composer: the server sends through the network's API, then its
    * official web UI. Without a server the message is stored locally so
-   * it is not lost (`status: 'stored'`).
+   * it is not lost (`status: 'stored'`); a server that stopped answering
+   * mid-send is a failure the composer tries again (`code: 'network'`).
    *
    * `message.clientId` names this one draft: the server sends a draft at
    * most once, so a retry (or a second request racing the first) never
@@ -221,7 +222,9 @@ const chatCalls = ({ remote, store }) => ({
    */
   sendMessage: async (message) => {
     // The composer's Send press confirms exactly this text.
-    const answer = await remote.confirmed('/api/send', message, () => true);
+    const answer = await remote.confirmed('/api/send', message, () => true, {
+      network: true,
+    });
     if (answer?.status === 'sent') {
       return {
         ...answer,
@@ -235,11 +238,21 @@ const chatCalls = ({ remote, store }) => ({
     await store.put(link);
     return { status: 'stored', link, links: [link] };
   },
-  setTyping: async ({ source, chat }) => {
-    const link = typingLink({ source, chat, user: 'me' });
+  // `cancel`: the message was sent or the box cleared — typing stops.
+  setTyping: async ({ source, chat, cancel = false }) => {
+    const link = typingLink({
+      source,
+      chat,
+      user: 'me',
+      ...(cancel ? { state: 'idle' } : {}),
+    });
     await store.put(link);
     return (
-      (await remote.post('/api/typing', { source, chat })) ?? {
+      (await remote.post('/api/typing', {
+        source,
+        chat,
+        ...(cancel ? { cancel: true } : {}),
+      })) ?? {
         supported: false,
         link,
       }

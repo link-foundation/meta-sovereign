@@ -96,7 +96,19 @@ export const resetServerBinding = () => {
   automationApi = null;
 };
 
-const serverResponse = async (path, init) => {
+// A request that left but got no answer (the server stopped, the
+// connection dropped): not "offline", a failure worth trying again.
+const NO_ANSWER = Object.freeze({
+  ok: false,
+  status: 0,
+  json: async () => ({
+    status: 'failed',
+    code: 'network',
+    error: 'no answer from the local server',
+  }),
+});
+
+const serverResponse = async (path, init, { network = false } = {}) => {
   const { client, origin } = await ensure();
   if (!client.isOnline()) {
     return null;
@@ -107,7 +119,7 @@ const serverResponse = async (path, init) => {
   // of the server. `new URL` keeps same-origin deployments unchanged
   // and points cross-origin ones at the backend the client is using.
   const url = origin ? new URL(path, origin).toString() : path;
-  return fetch(url, init).catch(() => null);
+  return fetch(url, init).catch(() => (network ? NO_ANSWER : null));
 };
 
 const serverFetch = async (path, init) => {
@@ -131,12 +143,16 @@ const serverFetch = async (path, init) => {
  * missing route (`unknown route`, an HTML proxy page) or no server at
  * all still collapses to null, like `serverFetch`.
  */
-const serverPostReport = async (path, body) => {
-  const response = await serverResponse(path, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+const serverPostReport = async (path, body, options) => {
+  const response = await serverResponse(
+    path,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    },
+    options
+  );
   const data = response ? await response.json().catch(() => null) : null;
   if (!data || data.error === 'unknown route') {
     return null;
@@ -242,15 +258,19 @@ const jsonInit = (method, body) => ({
  * Send button that shows the very text being sent is itself the
  * confirmation, so such callers pass `() => true`.
  */
-export const serverPostConfirmed = async (path, body, ask) => {
-  const first = await serverPostReport(path, body);
+export const serverPostConfirmed = async (path, body, ask, options) => {
+  const first = await serverPostReport(path, body, options);
   if (!first?.needsConfirmation) {
     return first;
   }
   if (!(await ask?.(first))) {
     return { status: 'cancelled', cancelled: true };
   }
-  return serverPostReport(path, { ...body, confirmToken: first.confirm.token });
+  return serverPostReport(
+    path,
+    { ...body, confirmToken: first.confirm.token },
+    options
+  );
 };
 
 /** The server bridge for ./automation-api.js; null means "no server". */
@@ -258,7 +278,10 @@ const remote = {
   get: (path) => serverFetch(path),
   post: (path, body) => postJson(path, body),
   report: (path, body) => serverPostReport(path, body),
-  confirmed: (path, body, ask) => serverPostConfirmed(path, body, ask),
+  // `{ network: true }`: a request that got no answer comes back as
+  // `{ status: 'failed', code: 'network' }` instead of null ("no server").
+  confirmed: (path, body, ask, options) =>
+    serverPostConfirmed(path, body, ask, options),
   put: (path, body) => serverFetch(path, jsonInit('PUT', body)),
   del: (path) => serverFetch(path, { method: 'DELETE' }),
 };
@@ -657,6 +680,16 @@ export const api = {
     source.addEventListener('error', () => onState('closed'));
     return () => source.close();
   },
+  // Mark a chat read up to a message on Telegram, and save its draft
+  // there, so the phone and other apps show the same.
+  telegramRead: async ({ chat, maxId }) =>
+    (await serverPostReport('/api/telegram/read', { chat, maxId }).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required' },
+  telegramDraft: async ({ chat, text }) =>
+    (await serverPostReport('/api/telegram/draft', { chat, text }).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required' },
   telegramHistory: async (chat) =>
     (await serverPostReport('/api/telegram/history', { chat }).catch(
       (error) => ({ error: error.message })

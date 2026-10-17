@@ -3,6 +3,11 @@
  *   GET  /api/telegram/status          -> { connected, kind, account, at, … }
  *   POST /api/telegram/sync    {full?} -> the status after a sync
  *   POST /api/telegram/history {chat}  -> { written }
+ *   POST /api/telegram/read {chat, maxId}
+ *                                      -> { ok } marks the chat read up to
+ *                                         maxId on Telegram (forward only)
+ *   POST /api/telegram/draft {chat, text}
+ *                                      -> { ok } the chat's cloud draft
  * Responses carry the account's public name and counts, never a secret.
  */
 
@@ -12,6 +17,32 @@ import { isTrustedMutation } from './routes-auto-import.js';
 const PREFIX = '/api/telegram/';
 
 const NONE = { connected: false, kind: null, account: null };
+
+// POST /api/telegram/<name>: [status, answer] for one request body.
+const POSTS = {
+  sync: async (account, body) => [
+    200,
+    await account.sync({ full: Boolean(body.full), reason: 'manual' }),
+  ],
+  read: async (account, body) => [
+    200,
+    await account.markRead({ chat: body.chat, maxId: body.maxId }),
+  ],
+  draft: async (account, body) => {
+    const text = typeof body.text === 'string' ? body.text : '';
+    if (text.length > 20_000) {
+      return [400, { error: 'draft too long', code: 'too-long' }];
+    }
+    return [200, await account.saveDraft({ chat: body.chat, text })];
+  },
+  history: async (account, body) => [
+    200,
+    await account.history({
+      chat: body.chat,
+      limit: Math.min(Number(body.limit) || 50, 200),
+    }),
+  ],
+};
 
 const dispatch = async (account, req, res, p) => {
   if (p === `${PREFIX}status` && req.method === 'GET') {
@@ -24,23 +55,13 @@ const dispatch = async (account, req, res, p) => {
     }
     return json(res, 200, status) ?? true;
   }
-  if (req.method !== 'POST') {
+  const post = POSTS[p.slice(PREFIX.length)];
+  if (req.method !== 'POST' || !Object.hasOwn(POSTS, p.slice(PREFIX.length))) {
     return false;
   }
   const body = await readBody(req).catch(() => ({}));
-  if (p === `${PREFIX}sync`) {
-    const result = await account.sync({
-      full: Boolean(body.full),
-      reason: 'manual',
-    });
-    return json(res, 200, result) ?? true;
-  }
-  if (p === `${PREFIX}history`) {
-    const limit = Math.min(Number(body.limit) || 50, 200);
-    const result = await account.history({ chat: body.chat, limit });
-    return json(res, 200, result) ?? true;
-  }
-  return false;
+  const [status, answer] = await post(account, body);
+  return json(res, status, answer) ?? true;
 };
 
 export const handleTelegramRoutes = async (req, res, p, ctx) => {

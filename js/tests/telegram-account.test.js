@@ -206,7 +206,8 @@ test('a re-sync reads only chats with new messages', async () => {
   });
   const busy = await account.sync();
   assert.equal(client.calls.getMessages, before + 1);
-  assert.equal(busy.written, 1);
+  // The new message, and the chat's unread state (its top message moved).
+  assert.equal(busy.written, 2);
   assert.equal((await store.get('msg:telegram:42:4')).body, 'ping');
 });
 

@@ -18,7 +18,7 @@ import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
-import { avatarFor, groupChats } from './chat-model.js';
+import { avatarFor, groupChats, networkMessageId } from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
@@ -69,11 +69,22 @@ const ChatItem = ({ chat, active, onSelect }) => {
             { key: 'p', className: 'chat-item-preview' },
             `${chat.last.mine ? `${t('chat.you')}: ` : ''}${chat.last.body}`
           ),
-          el(
-            'span',
-            { key: 's', className: 'chat-item-source' },
-            networkName(t, chat.source)
-          ),
+          chat.unread > 0
+            ? el(
+                'span',
+                {
+                  key: 'u',
+                  className: 'chat-item-unread',
+                  'data-unread': chat.unread,
+                  'aria-label': t('chat.unread', { count: chat.unread }),
+                },
+                chat.unread > 999 ? '999+' : String(chat.unread)
+              )
+            : el(
+                'span',
+                { key: 's', className: 'chat-item-source' },
+                networkName(t, chat.source)
+              ),
         ]),
       ]),
     ]
@@ -255,10 +266,13 @@ const Header = ({ state, onBack }) => {
 };
 
 // A message's delivery, as messengers show it: a clock while it goes
-// out, ✓ once the network has it, ✓✓ once the other side read it, ! when
-// it failed. A message kept here while offline shows the clock too.
+// out (only after a second, so a quick send never flashes it — Telegram
+// Web), ✓ once the network has it, ✓✓ once the other side read it, !
+// when it failed. A message kept here while offline, or waiting to be
+// tried again, shows the clock too.
 const DELIVERY_ICON = {
   sending: 'clock',
+  waiting: 'clock',
   stored: 'clock',
   sent: 'check',
   read: 'check-double',
@@ -294,6 +308,11 @@ export const failureText = (t, message) => {
       return t('chat.failure.unknownChat');
     case 'too-long':
       return t('chat.failure.tooLong');
+    case 'after-failure':
+      return t('chat.failure.afterFailure');
+    case 'network':
+    case 'no-answer':
+      return t('chat.failure.network');
     default:
       return t('chat.failure.other', {
         error: message.error ?? message.code ?? '',
@@ -328,52 +347,123 @@ const FailedActions = ({ message, composer }) => {
   ]);
 };
 
+// Re-render every second while something counts down.
+const useNow = (active) => {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) {
+      return undefined;
+    }
+    const id = globalThis.setInterval(() => setNow(Date.now()), 1000);
+    return () => globalThis.clearInterval(id);
+  }, [active]);
+  return now;
+};
+
+/** A message that will be tried again by itself: why, and when. */
+export const waitingText = (t, message, now = Date.now()) => {
+  const seconds = Math.max(
+    0,
+    Math.ceil((Number(message.retryAt ?? 0) - now) / 1000)
+  );
+  if (message.code === 'flood-wait') {
+    return t('chat.waiting.flood', { seconds });
+  }
+  if (globalThis.navigator?.onLine === false) {
+    return t('chat.waiting.offline');
+  }
+  return t('chat.waiting.retry', { seconds });
+};
+
+const WaitingLine = ({ message, composer }) => {
+  const t = useT();
+  const now = useNow(true);
+  return el('div', { className: 'bubble-waiting', role: 'status' }, [
+    el('span', { key: 'why' }, waitingText(t, message, now)),
+    el(
+      'button',
+      {
+        key: 'now',
+        type: 'button',
+        'data-action': 'retry-now',
+        onClick: () => composer.retryNow(message.clientId),
+      },
+      t('chat.waiting.now')
+    ),
+    el(
+      'button',
+      {
+        key: 'discard',
+        type: 'button',
+        'data-action': 'discard',
+        onClick: () => composer.discard(message.clientId),
+      },
+      t('chat.failure.discard')
+    ),
+  ]);
+};
+
+// A bubble's class and data attributes. `data-seen-id`: an incoming
+// message the read marker watches.
+const bubbleProps = (message) => {
+  const mine = message.sender === 'me';
+  const seenId = !mine && !message.pending ? networkMessageId(message) : null;
+  return {
+    className: [
+      'bubble',
+      mine ? 'out' : 'in',
+      message.pending ? 'pending' : null,
+      message.delivery === 'failed' ? 'failed' : null,
+    ]
+      .filter(Boolean)
+      .join(' '),
+    'data-message': message.id,
+    ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
+    ...(seenId === null ? {} : { 'data-seen-id': seenId }),
+  };
+};
+
+// Under one of ours that did not go out: Retry / Delete, or the wait.
+const BubbleActions = ({ message, composer }) => {
+  if (!composer) {
+    return null;
+  }
+  if (message.delivery === 'failed') {
+    return el(FailedActions, { message, composer });
+  }
+  return message.delivery === 'waiting'
+    ? el(WaitingLine, { message, composer })
+    : null;
+};
+
 const Message = ({ message, showName, composer }) => {
   const t = useT();
   const { time } = useDates();
   const mine = message.sender === 'me';
-  const failed = message.delivery === 'failed';
-  return el(
-    'div',
-    {
-      className: [
-        'bubble',
-        mine ? 'out' : 'in',
-        message.pending ? 'pending' : null,
-        failed ? 'failed' : null,
-      ]
-        .filter(Boolean)
-        .join(' '),
-      'data-message': message.id,
-      ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
-    },
-    [
-      showName && !mine
+  return el('div', bubbleProps(message), [
+    showName && !mine
+      ? el(
+          'span',
+          { key: 'who', className: 'bubble-name' },
+          message.senderName ?? message.sender
+        )
+      : null,
+    el('span', { key: 'body', className: 'bubble-body' }, message.body ?? ''),
+    el('span', { key: 'time', className: 'bubble-time' }, [
+      message.edited
         ? el(
             'span',
-            { key: 'who', className: 'bubble-name' },
-            message.senderName ?? message.sender
+            { key: 'e', className: 'bubble-edited', title: message.edited },
+            t('chat.edited')
           )
         : null,
-      el('span', { key: 'body', className: 'bubble-body' }, message.body ?? ''),
-      el('span', { key: 'time', className: 'bubble-time' }, [
-        message.edited
-          ? el(
-              'span',
-              { key: 'e', className: 'bubble-edited', title: message.edited },
-              t('chat.edited')
-            )
-          : null,
-        `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
-        message.delivery
-          ? el(Delivery, { key: 'd', status: message.delivery })
-          : null,
-      ]),
-      failed && composer
-        ? el(FailedActions, { key: 'f', message, composer })
+      `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
+      message.delivery
+        ? el(Delivery, { key: 'd', status: message.delivery })
         : null,
-    ]
-  );
+    ]),
+    el(BubbleActions, { key: 'actions', message, composer }),
+  ]);
 };
 
 const FORM_KEYS = {
@@ -465,36 +555,71 @@ const NOTICE = {
 
 const NEAR_BOTTOM_PX = 80;
 
-// Follows the conversation like a messenger: to the end when the user is
-// already there or just sent something; otherwise new messages wait
+// Follows the conversation like a messenger: a chat opens at its first
+// unread message (or at the end), then follows to the end when the user
+// is already there or just sent something; otherwise new messages wait
 // below a "new messages" button instead of yanking the view away from
 // what the user is reading.
 const useFollow = (state) => {
   const box = useRef(null);
   const end = useRef(null);
+  const line = useRef(null);
   const near = useRef(true);
   const seen = useRef({ key: null, count: 0 });
   const [unseen, setUnseen] = useState(0);
   const count = state.messages.length;
   const last = state.messages.at(-1);
+  // To the very bottom, past the padding the floating composer covers
+  // (`scrollIntoView` on the last bubble would leave it underneath).
+  const bottom = () => {
+    const node = box.current;
+    if (node && typeof node.scrollHeight === 'number') {
+      node.scrollTop = node.scrollHeight;
+    } else {
+      end.current?.scrollIntoView?.({ block: 'end' });
+    }
+  };
   const toEnd = () => {
-    end.current?.scrollIntoView?.({ block: 'end' });
+    bottom();
     near.current = true;
     setUnseen(0);
   };
+  const toLine = () => {
+    line.current.scrollIntoView?.({ block: 'start' });
+    near.current = false;
+    setUnseen(0);
+  };
   useEffect(() => {
+    const key = state.current?.key;
     const before = seen.current;
-    seen.current = { key: state.current?.key, count };
-    const added =
-      count - (before.key === state.current?.key ? before.count : 0);
-    if (before.key !== state.current?.key || near.current) {
-      toEnd();
-    } else if (added > 0 && last?.sender === 'me' && last?.pending) {
+    seen.current = { key, count };
+    const opened = before.key !== key;
+    const added = count - (opened ? 0 : before.count);
+    const justSent = last?.sender === 'me' && Boolean(last?.pending);
+    if (opened && line.current) {
+      toLine();
+    } else if (opened || near.current || (added > 0 && justSent)) {
       toEnd();
     } else if (added > 0) {
       setUnseen((n) => n + added);
     }
   }, [count, state.current?.key]);
+  // A bubble that grows (a failure's actions, a late link preview) keeps
+  // the end in view when the user was there.
+  useEffect(() => {
+    const Observer = globalThis.ResizeObserver;
+    const column = end.current?.parentElement;
+    if (typeof Observer !== 'function' || !column) {
+      return undefined;
+    }
+    const observer = new Observer(() => {
+      if (near.current) {
+        bottom();
+      }
+    });
+    observer.observe(column);
+    return () => observer.disconnect();
+  }, []);
   const onScroll = () => {
     const node = box.current;
     if (!node) {
@@ -506,25 +631,66 @@ const useFollow = (state) => {
       setUnseen(0);
     }
   };
-  return { box, end, unseen, onScroll, toEnd };
+  return { box, end, line, unseen, onScroll, toEnd };
+};
+
+// Tells `seen(id)` the newest incoming message that is on screen (at
+// least half of it), so reading marks the chat read only that far.
+const useSeen = (box, seen, messages) => {
+  useEffect(() => {
+    const Observer = globalThis.IntersectionObserver;
+    const root = box.current;
+    if (typeof Observer !== 'function' || !root || !seen) {
+      return undefined;
+    }
+    const observer = new Observer(
+      (entries) => {
+        const ids = entries
+          .filter((e) => e.isIntersecting)
+          .map((e) => Number(e.target.dataset.seenId))
+          .filter(Number.isFinite);
+        if (ids.length > 0) {
+          seen(Math.max(...ids));
+        }
+      },
+      { root, threshold: 0.5 }
+    );
+    for (const node of root.querySelectorAll('[data-seen-id]')) {
+      observer.observe(node);
+    }
+    return () => observer.disconnect();
+  }, [box, seen, messages]);
+};
+
+const UnreadLine = ({ lineRef }) => {
+  const t = useT();
+  return el(
+    'div',
+    { ref: lineRef, className: 'chat-unread-line', role: 'separator' },
+    el('span', null, t('chat.unreadLine'))
+  );
 };
 
 const Stream = ({ state }) => {
   const t = useT();
   const follow = useFollow(state);
+  useSeen(follow.box, state.seen, state.messages);
   return el(
     'div',
     { className: 'chat-scroll', ref: follow.box, onScroll: follow.onScroll },
     [
       el('div', { key: 'col', className: 'chat-column' }, [
-        ...state.messages.map((message) =>
+        ...state.messages.flatMap((message) => [
+          message.id === state.unreadLine
+            ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
+            : null,
           el(Message, {
             key: message.id,
             message,
             showName: !state.current.personal,
             composer: state.composer,
-          })
-        ),
+          }),
+        ]),
         ...state.drafts.drafts.map((draft) =>
           el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
         ),
@@ -577,6 +743,53 @@ const Suggestions = ({ state }) => {
       )
     )
   );
+};
+
+// Several messages not sent: deal with them at once (Element's bar).
+const FailedBar = ({ composer }) => {
+  const t = useT();
+  if (composer.failed < 2) {
+    return null;
+  }
+  return el('div', { className: 'chat-failed-bar', role: 'alert' }, [
+    el('span', { key: 'n' }, t('chat.failedCount', { count: composer.failed })),
+    el(
+      'button',
+      {
+        key: 'resend',
+        type: 'button',
+        'data-action': 'resend-all',
+        onClick: composer.resendAll,
+      },
+      t('chat.resendAll')
+    ),
+    el(
+      'button',
+      {
+        key: 'delete',
+        type: 'button',
+        'data-action': 'delete-all',
+        onClick: composer.deleteAll,
+      },
+      t('chat.deleteAll')
+    ),
+  ]);
+};
+
+/** No network, the local server restarting, Telegram reconnecting. */
+const ConnectionBanner = ({ banner }) => {
+  const t = useT();
+  return banner
+    ? el(
+        'div',
+        {
+          className: 'chat-banner',
+          role: 'status',
+          'data-banner': banner,
+        },
+        t(`chat.banner.${banner}`)
+      )
+    : null;
 };
 
 const Composer = ({ state }) => {
@@ -660,6 +873,8 @@ export const ChatScreen = ({ state }) => {
     state.current
       ? el('section', { key: 'main', className: 'chat-main' }, [
           el(Header, { key: 'h', state, onBack: () => setPane('list') }),
+          el(ConnectionBanner, { key: 'b', banner: state.banner }),
+          el(FailedBar, { key: 'failed', composer: state.composer }),
           el(Notice, {
             key: 'n',
             notice: state.notice,

@@ -9,10 +9,25 @@
 //     twice;
 //   - messages of a chat go out one after another, in order, each shown
 //     with a clock until it is sent, then ✓, then ✓✓ once read;
-//   - a failed one stays with its reason and Retry / Delete;
-//   - every chat keeps its own unsent draft.
+//   - a failure that passes by itself is tried again by itself; one that
+//     does not stays with its reason and Retry / Delete (./chat-outbox.js);
+//   - the queue and every chat's unsent draft survive a reload, and a
+//     Telegram chat's draft follows the one on the user's other devices.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  DRAFTS_KEY,
+  OUTBOX_KEY,
+  afterFailure,
+  cascade,
+  keptDrafts,
+  nextToSend,
+  readSaved,
+  requeueFailed,
+  restoreOutbox,
+  waitsForNetwork,
+  writeSaved,
+} from './chat-outbox.js';
 
 const BATCH_MS = 80;
 
@@ -156,39 +171,47 @@ const sendResult = async (api, item) => {
   }
 };
 
-const failure = (result) => ({
-  status: 'failed',
-  error: result.error ?? result.code ?? 'failed',
-  code: result.code ?? null,
-  retryAfter: result.retryAfter ?? null,
-});
+const isOffline = () => globalThis.navigator?.onLine === false;
 
-/** The composer: per-chat drafts and an ordered, exactly-once send queue. */
-export const useComposer = ({ api, current, after, addLinks, typingOut }) => {
-  const [drafts, setDrafts] = useState({});
-  const draftsRef = useRef({});
-  const [pending, setPending] = useState([]);
-  const pendingRef = useRef([]);
-  const queues = useRef(new Map());
-  const key = current?.key ?? null;
+const listen = (target, event, fn) => {
+  if (typeof target?.addEventListener !== 'function') {
+    return () => {};
+  }
+  target.addEventListener(event, fn);
+  return () => target.removeEventListener(event, fn);
+};
 
-  const writeDraft = (chat, next) => {
-    draftsRef.current = { ...draftsRef.current, [chat]: next };
-    setDrafts(draftsRef.current);
-  };
+/**
+ * The send queue: every chat's messages in order, each `queued`,
+ * `sending`, `waiting` (to be tried again at `retryAt`) or `failed`.
+ * Saved in the browser on every change and resumed on load.
+ */
+const useOutbox = ({ api, addLinks, after, storage }) => {
+  const [items, setItems] = useState(() =>
+    restoreOutbox(readSaved(OUTBOX_KEY, [], storage))
+  );
+  const ref = useRef(items);
+  const timers = useRef(new Map());
+  const [kept, setKept] = useState(true);
+  const live = useRef(true);
+
   const mutate = (change) => {
-    pendingRef.current = change(pendingRef.current);
-    setPending(pendingRef.current);
+    ref.current = change(ref.current);
+    setKept(writeSaved(OUTBOX_KEY, ref.current, storage));
+    setItems(ref.current);
   };
-  const patch = (clientId, fields) =>
+  const patch = (clientId, change) =>
     mutate((all) =>
-      fields
-        ? all.map((p) => (p.clientId === clientId ? { ...p, ...fields } : p))
+      change
+        ? all.map((p) => (p.clientId === clientId ? change(p) : p))
         : all.filter((p) => p.clientId !== clientId)
     );
 
   const deliver = async (item) => {
     const result = await sendResult(api, item);
+    if (!live.current) {
+      return result;
+    }
     if (result.status === 'sent' || result.status === 'stored') {
       // The network's links replace the pending bubble in the same render.
       addLinks(result.links ?? [result.link]);
@@ -196,94 +219,294 @@ export const useComposer = ({ api, current, after, addLinks, typingOut }) => {
       if (result.status === 'stored') {
         after({ kind: 'stored' });
       }
-      return result;
+    } else {
+      const next = afterFailure(item, result);
+      patch(item.clientId, () => next);
+      if (next.status === 'failed') {
+        mutate((all) => cascade(all, next));
+      }
     }
-    patch(item.clientId, failure(result));
     return result;
   };
 
-  // One chat's messages leave one after another, in the order sent.
-  const enqueue = (item) => {
-    const before = queues.current.get(item.key) ?? Promise.resolve();
-    const next = before.then(() => deliver(item));
-    queues.current.set(item.key, next);
-    return next;
+  // Send a chat's next message, or wake up when it may be tried again.
+  const pump = (key) => {
+    globalThis.clearTimeout(timers.current.get(key));
+    timers.current.delete(key);
+    if (!live.current || isOffline()) {
+      return null; // the `online` event pumps again
+    }
+    const next = nextToSend(ref.current, key);
+    if (next?.wait !== undefined) {
+      timers.current.set(
+        key,
+        globalThis.setTimeout(() => pump(key), next.wait)
+      );
+      return null;
+    }
+    if (!next?.item) {
+      return null;
+    }
+    patch(next.item.clientId, (p) => ({ ...p, status: 'sending' }));
+    return deliver(next.item).then((result) => {
+      pump(key);
+      return result;
+    });
   };
+  const pumpAll = () => {
+    for (const key of new Set(ref.current.map((p) => p.key))) {
+      pump(key);
+    }
+  };
+
+  useEffect(() => {
+    live.current = true;
+    pumpAll(); // what the last visit left
+    // Back online: what waited for the network goes now.
+    const stop = listen(globalThis, 'online', () => {
+      mutate((all) =>
+        all.map((p) => (waitsForNetwork(p) ? { ...p, retryAt: 0 } : p))
+      );
+      pumpAll();
+    });
+    return () => {
+      live.current = false;
+      stop();
+      for (const timer of timers.current.values()) {
+        globalThis.clearTimeout(timer);
+      }
+      timers.current.clear();
+    };
+  }, [api]);
+
+  const find = (clientId) => ref.current.find((p) => p.clientId === clientId);
+  return {
+    items,
+    kept,
+    add: (item) => {
+      mutate((all) => [...all, item]);
+      return pump(item.key);
+    },
+    /** Send a failed message again — the same one, never a copy. */
+    retry: (clientId) => {
+      const item = find(clientId);
+      if (item?.status !== 'failed') {
+        return null;
+      }
+      patch(clientId, (p) => requeueFailed([p], p.key)[0]);
+      return pump(item.key);
+    },
+    /** Do not wait: try a waiting message now. */
+    retryNow: (clientId) => {
+      const item = find(clientId);
+      if (item?.status !== 'waiting') {
+        return null;
+      }
+      patch(clientId, (p) => ({ ...p, retryAt: 0 }));
+      return pump(item.key);
+    },
+    resendAll: (key) => {
+      mutate((all) => requeueFailed(all, key));
+      return pump(key);
+    },
+    remove: (clientId) => {
+      const item = find(clientId);
+      if (!item || item.status === 'sending') {
+        return null;
+      }
+      patch(clientId, null);
+      pump(item.key);
+      return item;
+    },
+    removeFailed: (key) =>
+      mutate((all) =>
+        all.filter((p) => !(p.key === key && p.status === 'failed'))
+      ),
+  };
+};
+
+const DRAFT_SAVE_MS = 400;
+const CLOUD_DRAFT_MS = 2500;
+
+/**
+ * Every chat's unsent text, kept in the browser; a Telegram chat's also
+ * saved to Telegram (so the phone shows it) and taken from there when
+ * the user wrote it on another device and has not typed here since.
+ */
+const useDraftBox = ({ api, current, cloud, storage }) => {
+  const [drafts, setDrafts] = useState(() =>
+    keptDrafts(readSaved(DRAFTS_KEY, {}, storage))
+  );
+  const ref = useRef(drafts);
+  const saveTimer = useRef(null);
+  const cloudTimer = useRef(null);
+  const cloudSeen = useRef({}); // chat key → the cloud text last seen
+  const key = current?.key ?? null;
+
+  const save = () => {
+    globalThis.clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    writeSaved(DRAFTS_KEY, keptDrafts(ref.current), storage);
+  };
+  const toCloud = (chat) => {
+    globalThis.clearTimeout(cloudTimer.current);
+    cloudTimer.current = null;
+    if (
+      chat?.source !== 'telegram' ||
+      typeof api.telegramDraft !== 'function'
+    ) {
+      return;
+    }
+    const text = String(ref.current[chat.key] ?? '');
+    if (text.trim() === String(cloudSeen.current[chat.key] ?? '').trim()) {
+      return;
+    }
+    cloudSeen.current[chat.key] = text;
+    api.telegramDraft({ chat: chat.chat, text }).catch(() => {});
+  };
+
+  const write = (chatKey, next, { local = true } = {}) => {
+    ref.current = { ...ref.current, [chatKey]: next };
+    setDrafts(ref.current);
+    saveTimer.current ??= globalThis.setTimeout(save, DRAFT_SAVE_MS);
+    if (local && current?.key === chatKey) {
+      globalThis.clearTimeout(cloudTimer.current);
+      cloudTimer.current = globalThis.setTimeout(
+        () => toCloud(current),
+        CLOUD_DRAFT_MS
+      );
+    }
+  };
+
+  // A draft from another device: taken only over an empty box or the
+  // text this one took from there before (what the user typed wins).
+  useEffect(() => {
+    if (!key || cloud === undefined || cloud === null) {
+      return;
+    }
+    const seen = cloudSeen.current[key];
+    cloudSeen.current[key] = cloud;
+    const local = String(ref.current[key] ?? '');
+    if (cloud !== seen && (!local.trim() || local === seen)) {
+      write(key, cloud, { local: false });
+    }
+  }, [key, cloud]);
+
+  // Leaving a chat or the page: save now.
+  useEffect(() => {
+    const chat = current;
+    const flush = () => {
+      if (cloudTimer.current) {
+        toCloud(chat);
+      }
+      save();
+    };
+    const stop = listen(globalThis, 'pagehide', flush);
+    return () => {
+      stop();
+      flush();
+    };
+  }, [key]);
+
+  return {
+    text: key ? (drafts[key] ?? '') : '',
+    get: (chatKey) => String(ref.current[chatKey] ?? ''),
+    write,
+    // Sent: the box is empty here, and Telegram cleared its own copy
+    // (the send carries `clear_draft`).
+    sent: (chatKey) => {
+      cloudSeen.current[chatKey] = '';
+      globalThis.clearTimeout(cloudTimer.current);
+      cloudTimer.current = null;
+      write(chatKey, '', { local: false });
+    },
+  };
+};
+
+/**
+ * The composer: per-chat drafts and an ordered, exactly-once send queue.
+ *   typing   { start(), cancel() } — our "typing…" to the other side
+ *   cloud    the current chat's draft on Telegram (its read link)
+ */
+export const useComposer = ({
+  api,
+  current,
+  after,
+  addLinks,
+  typing = { start: () => {}, cancel: () => {} },
+  cloud,
+  storage,
+}) => {
+  const outbox = useOutbox({ api, addLinks, after, storage });
+  const box = useDraftBox({ api, current, cloud, storage });
+  const key = current?.key ?? null;
 
   const send = () => {
     if (!current) {
       return null;
     }
-    const body = String(draftsRef.current[key] ?? '').trim();
+    const body = box.get(key).trim();
     if (!body) {
       return null;
     }
-    writeDraft(key, '');
-    const item = {
+    box.sent(key);
+    typing.cancel();
+    return outbox.add({
       clientId: newClientId(),
       key,
       source: current.source,
       chat: current.chat,
       text: body,
       at: new Date().toISOString(),
-      status: 'sending',
-    };
-    mutate((all) => [...all, item]);
-    return enqueue(item);
+      status: 'queued',
+      attempts: 0,
+    });
   };
 
-  /** Send a failed message again — the same one, never a copy. */
-  const retry = (clientId) => {
-    const item = pendingRef.current.find((p) => p.clientId === clientId);
-    if (!item || item.status !== 'failed') {
-      return null;
-    }
-    patch(clientId, { status: 'sending', error: null, code: null });
-    return enqueue({ ...item, status: 'sending' });
-  };
-
-  /** Forget a failed message (its text goes back to the box if empty). */
+  /** Forget a message not sent (its text goes back to an empty box). */
   const discard = (clientId) => {
-    const item = pendingRef.current.find((p) => p.clientId === clientId);
-    if (!item || item.status !== 'failed') {
-      return;
-    }
-    patch(clientId, null);
-    if (!draftsRef.current[item.key]) {
-      writeDraft(item.key, item.text);
+    const item = outbox.remove(clientId);
+    if (item && !box.get(item.key).trim()) {
+      box.write(item.key, item.text, { local: false });
     }
   };
 
-  // Leaving the page with messages still going out would lose them.
-  const busy = pending.some((p) => p.status === 'sending');
+  // A page closing with messages going out keeps them only when the
+  // browser saved the queue; otherwise ask before leaving.
+  const busy = !outbox.kept && outbox.items.some((p) => p.status !== 'failed');
   useEffect(() => {
-    if (!busy || typeof globalThis.addEventListener !== 'function') {
+    if (!busy) {
       return undefined;
     }
-    const warn = (event) => {
+    return listen(globalThis, 'beforeunload', (event) => {
       event.preventDefault();
       event.returnValue = '';
-    };
-    globalThis.addEventListener('beforeunload', warn);
-    return () => globalThis.removeEventListener('beforeunload', warn);
+    });
   }, [busy]);
 
+  const mine = outbox.items.filter((p) => p.key === key);
   return {
-    text: key ? (drafts[key] ?? '') : '',
+    text: box.text,
     // `typed`: the user typed it (not a suggestion chip).
     setText: (next, { typed = false } = {}) => {
       if (!key) {
         return;
       }
-      writeDraft(key, next);
-      if (next && typed) {
-        typingOut();
+      box.write(key, next);
+      if (typed && next) {
+        typing.start();
+      } else if (typed) {
+        typing.cancel();
       }
     },
     send,
-    retry,
+    retry: outbox.retry,
+    retryNow: outbox.retryNow,
     discard,
-    pending,
-    sending: pending.some((p) => p.key === key && p.status === 'sending'),
+    resendAll: () => outbox.resendAll(key),
+    deleteAll: () => outbox.removeFailed(key),
+    pending: outbox.items,
+    failed: mine.filter((p) => p.status === 'failed').length,
+    sending: mine.some((p) => p.status !== 'failed'),
   };
 };

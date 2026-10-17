@@ -7,14 +7,20 @@
  *     composer's `clientId`, so a retry of the same draft reuses it.
  *   - Plain text: what was typed is what is sent (no markdown parsing
  *     eating `*` and `_`).
- *   - Long text is split at 4096 characters (Telegram's limit), on a line
- *     or word break when there is one, and sent in order.
+ *   - Long text is split at Telegram's limit (`message_length_max` from
+ *     the server's config, 4096 by default; UTF-16 units, like JS
+ *     strings), on a line or word break when there is one, never inside
+ *     an emoji, and sent in order.
+ *   - Sending clears the chat's cloud draft (`clear_draft`), as Telegram
+ *     Desktop always does.
  *   - Telegram's errors become codes the composer can explain.
  */
 
 import { createHash } from 'node:crypto';
 
 export const MAX_MESSAGE_LENGTH = 4096;
+
+const isHighSurrogate = (code) => code >= 0xd800 && code <= 0xdbff;
 
 /** Split text into Telegram-sized parts, preferring line/word breaks. */
 export const splitMessage = (text, max = MAX_MESSAGE_LENGTH) => {
@@ -23,8 +29,12 @@ export const splitMessage = (text, max = MAX_MESSAGE_LENGTH) => {
   while (rest.length > max) {
     const window = rest.slice(0, max);
     const cut = Math.max(window.lastIndexOf('\n'), window.lastIndexOf(' '));
-    // A break in the first half would leave a tiny part; cut hard instead.
-    const at = cut > max / 2 ? cut : max;
+    // A break in the first half would leave a tiny part; cut hard instead,
+    // but not between the two halves of an emoji (a surrogate pair).
+    let at = cut > max / 2 ? cut : max;
+    if (at === max && isHighSurrogate(rest.charCodeAt(max - 1))) {
+      at -= 1;
+    }
     parts.push(rest.slice(0, at));
     rest = rest.slice(at).replace(/^[\n ]/, '');
   }
@@ -78,8 +88,11 @@ export const sendError = (error) => {
   return codeError(error?.code ?? 'send-failed', text || 'send failed');
 };
 
-// One part through messages.SendMessage, with our random_id.
-const sendPart = async ({ client, Api, peer, text, randomId }) => {
+// One part through messages.SendMessage, with our random_id. `onResult`
+// sees Telegram's raw answer: it carries the update counter (pts) that
+// the catch-up tracks, and GramJS does not pass RPC answers to the
+// update handlers.
+const sendPart = async ({ client, Api, peer, text, randomId, onResult }) => {
   if (!Api?.messages?.SendMessage || typeof client.invoke !== 'function') {
     // A client without raw invoke (tests, other libraries).
     return client.sendMessage(peer, { message: text, parseMode: false });
@@ -88,9 +101,11 @@ const sendPart = async ({ client, Api, peer, text, randomId }) => {
     peer: await client.getInputEntity(peer),
     message: text,
     randomId,
+    clearDraft: true,
   });
   try {
     const result = await client.invoke(request);
+    onResult?.(result);
     if (result?.className === 'UpdateShortSentMessage') {
       return { id: result.id, date: result.date };
     }
@@ -116,12 +131,21 @@ export const sendText = async ({
   peer,
   text,
   clientId,
+  maxLength = MAX_MESSAGE_LENGTH,
+  onResult,
 }) => {
-  const parts = splitMessage(text);
+  const parts = splitMessage(text, maxLength);
   const sent = [];
   for (const [index, part] of parts.entries()) {
     const randomId = helpers ? randomIdOf(clientId, index, helpers) : undefined;
-    const message = await sendPart({ client, Api, peer, text: part, randomId });
+    const message = await sendPart({
+      client,
+      Api,
+      peer,
+      text: part,
+      randomId,
+      onResult,
+    });
     sent.push({
       id: message?.id ?? null,
       date: message?.date ?? null,

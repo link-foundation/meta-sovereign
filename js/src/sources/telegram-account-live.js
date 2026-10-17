@@ -9,12 +9,19 @@
  * live and the next sync agree, and nothing shows twice:
  *
  *   msg:telegram:<chat>:<id>   new / edited (`edited`) / deleted (`deleted`)
- *   read:telegram:<chat>       `outboxMaxId`: our messages up to that id
- *                              were read by the other side
+ *   read:telegram:<chat>       the chat's read and draft state:
+ *                              `outboxMaxId`  the other side read our
+ *                                             messages up to this id
+ *                              `inboxMaxId`   we read theirs up to it
+ *                              `unreadCount`  unread at `unreadTopId`
+ *                                             (Telegram's count; newer
+ *                                             ones are counted from links)
+ *                              `draft`, `draftAt`  the cloud draft
  *   typing:telegram:<chat>:<user>
  *
- * The background poll stays as the safety net for anything missed while
- * the connection was down.
+ * Updates missed while the connection was down come through the same
+ * handler from the catch-up (./telegram-catchup.js); the background poll
+ * stays as the last safety net.
  */
 
 import { typingLink } from './live-links.js';
@@ -25,14 +32,23 @@ const SOURCE = 'telegram';
 
 export const readLinkId = (chat) => `read:${SOURCE}:${chat}`;
 
-/** The "read up to" marker of one chat (outgoing messages). */
-export const readLink = (chat, outboxMaxId) => ({
+const READ_FIELDS = ['outboxMaxId', 'inboxMaxId', 'unreadCount', 'unreadTopId'];
+
+/** One chat's read (and draft) state; only the given fields are set. */
+export const readLink = (chat, fields = {}) => ({
   id: readLinkId(chat),
   tokens: ['read', SOURCE, String(chat)],
   kind: 'read',
   source: SOURCE,
   chat: String(chat),
-  outboxMaxId: Number(outboxMaxId) || 0,
+  ...Object.fromEntries(
+    READ_FIELDS.filter(
+      (f) => fields[f] !== undefined && fields[f] !== null
+    ).map((f) => [f, Number(fields[f]) || 0])
+  ),
+  ...(fields.draft !== undefined
+    ? { draft: String(fields.draft ?? ''), draftAt: fields.draftAt ?? null }
+    : {}),
 });
 
 const isoOf = (date) =>
@@ -51,6 +67,96 @@ export const dialogInfo = (chat, entity) => {
     isGroup: kind === 'Chat' || Boolean(entity?.megagroup),
     isChannel: kind === 'Channel',
   };
+};
+
+/**
+ * Our own messages being sent right now, by chat, with their text: the
+ * copy Telegram echoes (another device's view, a catch-up) is matched to
+ * the composer's bubble (`clientId`) instead of showing twice. This plays
+ * the role of Telegram Web K's pendingByRandomId: GramJS does not expose
+ * the random_id on the message it hands us.
+ */
+const createOwnMessages = () => {
+  const own = new Map(); // chat -> [{ clientId, texts }]
+  const expect = ({ chat, clientId, texts }) => {
+    if (!clientId) {
+      return () => {};
+    }
+    const entry = { clientId, texts: new Set(texts) };
+    own.set(chat, [...(own.get(chat) ?? []), entry]);
+    return () => {
+      const rest = (own.get(chat) ?? []).filter((e) => e !== entry);
+      if (rest.length > 0) {
+        own.set(chat, rest);
+      } else {
+        own.delete(chat);
+      }
+    };
+  };
+  const clientIdOf = (chat, link) =>
+    link.sender === 'me'
+      ? ((own.get(chat) ?? []).find((e) => e.texts.has(link.body))?.clientId ??
+        null)
+      : null;
+  return { expect, clientIdOf };
+};
+
+// The read markers, the cloud draft and typing of a chat, as links.
+const chatStateWriters = ({ store, now }) => {
+  // Read markers only move forward (Element never rewinds a receipt).
+  const onRead = async ({ chat, maxId }) => {
+    const before = await store.get(readLinkId(chat));
+    if ((before?.outboxMaxId ?? 0) >= maxId) {
+      return false;
+    }
+    await store.put({
+      ...(before ?? {}),
+      ...readLink(chat, { outboxMaxId: maxId }),
+    });
+    return false; // a marker, not a message: no refresh needed for it
+  };
+
+  // We read the chat up to maxId (here or on another device): what is
+  // still unread is newer than maxId, so it is counted from the links.
+  const onReadInbox = async ({ chat, maxId }) => {
+    const before = await store.get(readLinkId(chat));
+    if ((before?.inboxMaxId ?? 0) >= maxId) {
+      return false;
+    }
+    await store.put({
+      ...(before ?? {}),
+      ...readLink(chat, {
+        inboxMaxId: maxId,
+        unreadCount: 0,
+        unreadTopId: maxId,
+      }),
+    });
+    return false;
+  };
+
+  const onDraft = async ({ chat, text: draft, date }) => {
+    const before = await store.get(readLinkId(chat));
+    await store.put({
+      ...(before ?? {}),
+      ...readLink(chat, { draft, draftAt: isoOf(date) }),
+    });
+    return false;
+  };
+
+  const onTyping = async ({ chat, user, typing }) => {
+    await store.put(
+      typingLink({
+        source: SOURCE,
+        chat,
+        user,
+        state: typing ? 'typing' : 'idle',
+        at: new Date(now()).toISOString(),
+      })
+    );
+    return false;
+  };
+
+  return { onRead, onReadInbox, onDraft, onTyping };
 };
 
 /**
@@ -92,6 +198,8 @@ export const createTelegramLive = ({
     return dialog;
   };
 
+  const own = createOwnMessages();
+
   const merge = async (link) => {
     const before = await store.get(link.id);
     const next = stampSourceLink({ ...(before ?? {}), ...link }, SOURCE);
@@ -112,7 +220,12 @@ export const createTelegramLive = ({
       return false;
     }
     const edited = kind === 'edit' ? isoOf(message.editDate) : null;
-    await merge({ ...link, ...(edited ? { edited } : {}) });
+    const clientId = own.clientIdOf(chat, link);
+    await merge({
+      ...link,
+      ...(edited ? { edited } : {}),
+      ...(clientId ? { clientId } : {}),
+    });
     if (kind === 'message' && link.sender !== 'me') {
       await stopTyping(chat, link.sender);
     }
@@ -146,27 +259,10 @@ export const createTelegramLive = ({
     return matches.length > 0;
   };
 
-  const onRead = async ({ chat, maxId }) => {
-    const before = await store.get(readLinkId(chat));
-    if ((before?.outboxMaxId ?? 0) >= maxId) {
-      return false;
-    }
-    await store.put({ ...(before ?? {}), ...readLink(chat, maxId) });
-    return false; // a marker, not a message: no refresh needed for it
-  };
-
-  const onTyping = async ({ chat, user, typing }) => {
-    await store.put(
-      typingLink({
-        source: SOURCE,
-        chat,
-        user,
-        state: typing ? 'typing' : 'idle',
-        at: new Date(now()).toISOString(),
-      })
-    );
-    return false;
-  };
+  const { onRead, onReadInbox, onDraft, onTyping } = chatStateWriters({
+    store,
+    now,
+  });
 
   const apply = async (client, effect) => {
     if (!effect?.chat && effect?.kind !== 'delete') {
@@ -180,6 +276,10 @@ export const createTelegramLive = ({
         return onDelete(effect);
       case 'read':
         return onRead(effect);
+      case 'read-inbox':
+        return onReadInbox(effect);
+      case 'draft':
+        return onDraft(effect);
       case 'typing':
         return onTyping(effect);
       default:
@@ -215,5 +315,12 @@ export const createTelegramLive = ({
     client.addEventHandler((update) => handle(client, update));
   };
 
-  return { attach, handle, chats };
+  return {
+    attach,
+    handle,
+    chats,
+    expectOwn: own.expect,
+    readInbox: onReadInbox,
+    draft: onDraft,
+  };
 };
