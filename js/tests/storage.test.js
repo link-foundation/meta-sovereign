@@ -61,6 +61,7 @@ describe('doublets store', () => {
     const file = path.join(dir, 'data.bin');
     const s1 = await createDoubletsStore(file);
     await s1.put({ id: 'a', tokens: ['b'] });
+    await s1.flush(); // the binary file is a snapshot written on an interval
     const s2 = await createDoubletsStore(file);
     expect((await s2.get('a')).tokens[0]).toBe('b');
   });

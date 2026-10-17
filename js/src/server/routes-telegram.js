@@ -2,7 +2,14 @@
  * The connected Telegram account (see ../sources/telegram-account.js).
  *   GET  /api/telegram/status          -> { connected, kind, account, at, … }
  *   POST /api/telegram/sync    {full?} -> the status after a sync
- *   POST /api/telegram/history {chat}  -> { written }
+ *   POST /api/telegram/history {chat, before?, limit?, priority?}
+ *                                      -> { written, cached, complete } the
+ *                                         chat's newest messages, or the page
+ *                                         before message `before`; the store
+ *                                         answers what it already holds
+ *   POST /api/telegram/dialogs {priority?}
+ *                                      -> { written, complete } the next page
+ *                                         of the chat list
  *   POST /api/telegram/read {chat, maxId}
  *                                      -> { ok } marks the chat read up to
  *                                         maxId on Telegram (forward only)
@@ -17,6 +24,10 @@ import { isTrustedMutation } from './routes-auto-import.js';
 const PREFIX = '/api/telegram/';
 
 const NONE = { connected: false, kind: null, account: null };
+
+// Only the page asks for what the user looks at; anything else waits.
+const PRIORITIES = new Set(['view', 'list', 'prefetch']);
+const priorityOf = (value) => (PRIORITIES.has(value) ? value : 'prefetch');
 
 // POST /api/telegram/<name>: [status, answer] for one request body.
 const POSTS = {
@@ -39,8 +50,18 @@ const POSTS = {
     200,
     await account.history({
       chat: body.chat,
-      limit: Math.min(Number(body.limit) || 50, 200),
+      limit: Math.min(Number(body.limit) || 50, 100),
+      before:
+        Number.isInteger(body.before) && body.before > 0 ? body.before : null,
+      priority: priorityOf(body.priority),
     }),
+  ],
+  dialogs: async (account, body) => [
+    200,
+    (await account.moreDialogs?.({ priority: priorityOf(body.priority) })) ?? {
+      written: 0,
+      complete: true,
+    },
   ],
 };
 
@@ -88,6 +109,12 @@ export const handleTelegramRoutes = async (req, res, p, ctx) => {
       path: p,
       error: error.message,
     });
-    return json(res, 502, { error: error.message, code: error.code }) ?? true;
+    return (
+      json(res, 502, {
+        error: error.message,
+        code: error.code,
+        ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
+      }) ?? true
+    );
   }
 };

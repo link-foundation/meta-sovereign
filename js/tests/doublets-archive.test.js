@@ -218,6 +218,7 @@ test('legacy indented .lino and MSDB1 files are still read', async () => {
   const store = await createDoubletsStore(file);
   assert.deepEqual(await store.get('old'), { id: 'old', tokens: ['t'] });
   await store.put({ id: 'new', tokens: [] });
+  await store.flush(); // the snapshot is written on an interval
   const migrated = decodeArchive(await fs.readFile(file));
   assert.deepEqual(
     migrated.map((l) => l.id),
@@ -232,6 +233,7 @@ test('dual store keeps every field in both halves across reopen', async () => {
   const dual = createDualStore({ binary, text });
   await dual.putMany(records());
   assert.deepEqual(await dual.verify(), []);
+  await dual.flush();
   const reopened = createDualStore({
     text: await createLinoTextStore(path.join(dir, 'data.lino')),
     binary: await createDoubletsStore(path.join(dir, 'data.bin')),
@@ -247,6 +249,7 @@ test('concurrent puts share coalesced writes and all persist', async () => {
   await Promise.all(
     Array.from({ length: 20 }, (_, i) => store.put({ id: `k${i}`, n: i }))
   );
+  await store.flush();
   const again = await createDoubletsStore(file);
   assert.equal((await again.query()).length, 20);
 });

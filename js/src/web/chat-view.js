@@ -12,13 +12,18 @@
 //     drafts automations left here: send (one click is the
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
-import { avatarFor, groupChats, networkMessageId } from './chat-model.js';
+import {
+  CHAT_FILTERS,
+  avatarFor,
+  groupChats,
+  networkMessageId,
+} from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
@@ -91,8 +96,83 @@ const ChatItem = ({ chat, active, onSelect }) => {
   );
 };
 
+// All / Private / Groups / Channels — newest chat first under each.
+const FilterTabs = ({ state }) => {
+  const t = useT();
+  if (typeof state.setFilter !== 'function') {
+    return null;
+  }
+  return el(
+    'div',
+    {
+      className: 'chat-filters',
+      role: 'tablist',
+      'aria-label': t('chat.filter.label'),
+    },
+    CHAT_FILTERS.map((filter) =>
+      el(
+        'button',
+        {
+          key: filter,
+          type: 'button',
+          role: 'tab',
+          className:
+            state.filter === filter ? 'chat-filter active' : 'chat-filter',
+          'aria-selected': state.filter === filter ? 'true' : 'false',
+          'data-filter': filter,
+          onClick: () => state.setFilter(filter),
+        },
+        t(`chat.filter.${filter}`)
+      )
+    )
+  );
+};
+
+// Chats that show in the list (or are one screen away) are prefetched;
+// the list's end, one screen before it shows, reads its next page.
+const useListLoading = (list, state) => {
+  const { chats, prefetch, moreChats, query } = state;
+  useEffect(() => {
+    const Observer = globalThis.IntersectionObserver;
+    const root = list.current;
+    if (typeof Observer !== 'function' || !root) {
+      return undefined;
+    }
+    const byKey = new Map(chats.map((chat) => [chat.key, chat]));
+    const observer = new Observer(
+      (entries) => {
+        for (const entry of entries.filter((e) => e.isIntersecting)) {
+          if (entry.target.dataset.more !== undefined) {
+            moreChats?.more();
+          } else {
+            const chat = byKey.get(entry.target.dataset.chat);
+            if (chat) {
+              prefetch?.(chat);
+            }
+          }
+        }
+      },
+      { root, rootMargin: '100% 0px' }
+    );
+    for (const node of root.querySelectorAll('[data-chat], [data-more]')) {
+      observer.observe(node);
+    }
+    return () => observer.disconnect();
+  }, [chats, prefetch, moreChats?.more, moreChats?.available, query]);
+};
+
 const Sidebar = ({ state }) => {
   const t = useT();
+  const list = useRef(null);
+  useListLoading(list, state);
+  const moreRow =
+    state.moreChats?.available && !state.query
+      ? el(
+          'p',
+          { key: 'more', className: 'meta chat-list-more', 'data-more': '' },
+          t('chat.loadingChats')
+        )
+      : null;
   return el('aside', { className: 'chat-sidebar' }, [
     el('div', { key: 'h', className: 'chat-sidebar-head' }, [
       el(
@@ -109,25 +189,37 @@ const Sidebar = ({ state }) => {
         value: state.query,
         onChange: (event) => state.setQuery(event.target.value),
       }),
+      el(FilterTabs, { key: 'f', state }),
     ]),
     el(
       'nav',
-      { key: 'list', className: 'chat-list', 'aria-label': t('chat.aside') },
+      {
+        key: 'list',
+        ref: list,
+        className: 'chat-list',
+        'aria-label': t('chat.aside'),
+      },
       state.chats.length === 0
-        ? [el('p', { key: 'none', className: 'meta' }, t('chat.noMatches'))]
-        : groupChats(state.chats).map(({ group, chats }) =>
-            el('section', { key: group, className: 'chat-group' }, [
-              el('h3', { key: 'h' }, t(`chat.group.${group}`)),
-              ...chats.map((chat) =>
-                el(ChatItem, {
-                  key: chat.key,
-                  chat,
-                  active: chat.key === state.current?.key,
-                  onSelect: state.select,
-                })
-              ),
-            ])
-          )
+        ? [
+            el('p', { key: 'none', className: 'meta' }, t('chat.noMatches')),
+            moreRow,
+          ]
+        : [
+            ...groupChats(state.chats).map(({ group, chats }) =>
+              el('section', { key: group, className: 'chat-group' }, [
+                el('h3', { key: 'h' }, t(`chat.group.${group}`)),
+                ...chats.map((chat) =>
+                  el(ChatItem, {
+                    key: chat.key,
+                    chat,
+                    active: chat.key === state.current?.key,
+                    onSelect: state.select,
+                  })
+                ),
+              ])
+            ),
+            moreRow,
+          ]
     ),
     el(ChatAccountLine, { key: 'acct', telegram: state.telegram }),
   ]);
@@ -555,6 +647,118 @@ const NOTICE = {
 
 const NEAR_BOTTOM_PX = 80;
 
+// One message across its life: a queued one and the link it becomes
+// share the `clientId`.
+const identity = (message) => message?.clientId ?? message?.id ?? null;
+
+/** How many messages follow the one that was last (all when unknown). */
+export const addedAfter = (messages, lastBefore) => {
+  if (lastBefore === null || lastBefore === undefined) {
+    return messages.length;
+  }
+  const at = messages.findIndex((m) => identity(m) === lastBefore);
+  if (at >= 0) {
+    return messages.length - 1 - at;
+  }
+  return identity(messages.at(-1)) === lastBefore ? 0 : 1;
+};
+
+/** What a change in the open chat does to the view. */
+export const followMove = ({ opened, line, near, added, justSent }) => {
+  if (line) {
+    return 'line';
+  }
+  if (opened || near || (added > 0 && justSent)) {
+    return 'end';
+  }
+  return added > 0 ? 'count' : null;
+};
+
+// Older messages are asked for while the top is closer than this many
+// screens, so scrolling up never reaches a stretch that is not loaded.
+const AHEAD_SCREENS = 2;
+
+const useOlder = (box, state) => {
+  const history = state.history;
+  const check = () => {
+    const node = box.current;
+    if (!node || !history?.older || history.loading || history.failed) {
+      return;
+    }
+    if (node.scrollTop < AHEAD_SCREENS * node.clientHeight) {
+      history.loadOlder();
+    }
+  };
+  useEffect(check, [
+    state.messages.length,
+    history?.older,
+    history?.loading,
+    state.current?.key,
+  ]);
+  return check;
+};
+
+// A page added above keeps what the user reads where it was: the
+// distance to the bottom stays the same.
+const useKeepPlace = (box, state) => {
+  const fromBottom = useRef(0);
+  const first = useRef({ key: null, id: null });
+  useLayoutEffect(() => {
+    const node = box.current;
+    if (!node || typeof node.scrollHeight !== 'number') {
+      return;
+    }
+    const key = state.current?.key ?? null;
+    const id = state.messages[0]?.id ?? null;
+    if (
+      first.current.key === key &&
+      first.current.id !== null &&
+      first.current.id !== id &&
+      node.scrollHeight > 0
+    ) {
+      node.scrollTop = node.scrollHeight - fromBottom.current;
+    }
+    first.current = { key, id };
+    fromBottom.current = node.scrollHeight - node.scrollTop;
+  });
+  return () => {
+    const node = box.current;
+    if (node) {
+      fromBottom.current = node.scrollHeight - node.scrollTop;
+    }
+  };
+};
+
+const OlderRow = ({ history }) => {
+  const t = useT();
+  if (!history?.older && !history?.loading) {
+    return null;
+  }
+  return el(
+    'div',
+    {
+      className: 'chat-older',
+      role: 'status',
+      'data-older': history.failed ? 'failed' : 'loading',
+    },
+    history.failed
+      ? [
+          el('span', { key: 't' }, t('chat.earlierFailed')),
+          el(
+            'button',
+            {
+              key: 'r',
+              type: 'button',
+              'data-action': 'load-older',
+              onClick: () => history.loadOlder(),
+            },
+            t('chat.failure.retry')
+          ),
+        ]
+      : t('chat.loadingEarlier')
+  );
+};
+
 // Follows the conversation like a messenger: a chat opens at its first
 // unread message (or at the end), then follows to the end when the user
 // is already there or just sent something; otherwise new messages wait
@@ -565,10 +769,12 @@ const useFollow = (state) => {
   const end = useRef(null);
   const line = useRef(null);
   const near = useRef(true);
-  const seen = useRef({ key: null, count: 0 });
+  const seen = useRef({ key: null, last: null });
+  const waitLine = useRef(false);
   const [unseen, setUnseen] = useState(0);
   const count = state.messages.length;
   const last = state.messages.at(-1);
+  const lastId = identity(last);
   // To the very bottom, past the padding the floating composer covers
   // (`scrollIntoView` on the last bubble would leave it underneath).
   const bottom = () => {
@@ -592,18 +798,29 @@ const useFollow = (state) => {
   useEffect(() => {
     const key = state.current?.key;
     const before = seen.current;
-    seen.current = { key, count };
+    seen.current = { key, last: lastId };
     const opened = before.key !== key;
-    const added = count - (opened ? 0 : before.count);
+    // Older pages come in above: only what follows the last one is new.
+    const added = opened ? count : addedAfter(state.messages, before.last);
     const justSent = last?.sender === 'me' && Boolean(last?.pending);
-    if (opened && line.current) {
+    // The unread line may come with the chat's first page, just after.
+    const lineWanted = opened || waitLine.current;
+    waitLine.current = opened && !line.current;
+    const move = followMove({
+      opened,
+      line: lineWanted && Boolean(line.current),
+      near: near.current,
+      added,
+      justSent,
+    });
+    if (move === 'line') {
       toLine();
-    } else if (opened || near.current || (added > 0 && justSent)) {
+    } else if (move === 'end') {
       toEnd();
-    } else if (added > 0) {
+    } else if (move === 'count') {
       setUnseen((n) => n + added);
     }
-  }, [count, state.current?.key]);
+  }, [count, lastId, state.current?.key]);
   // A bubble that grows (a failure's actions, a late link preview) keeps
   // the end in view when the user was there.
   useEffect(() => {
@@ -674,46 +891,50 @@ const UnreadLine = ({ lineRef }) => {
 const Stream = ({ state }) => {
   const t = useT();
   const follow = useFollow(state);
+  const keep = useKeepPlace(follow.box, state);
+  const older = useOlder(follow.box, state);
   useSeen(follow.box, state.seen, state.messages);
-  return el(
-    'div',
-    { className: 'chat-scroll', ref: follow.box, onScroll: follow.onScroll },
-    [
-      el('div', { key: 'col', className: 'chat-column' }, [
-        ...state.messages.flatMap((message) => [
-          message.id === state.unreadLine
-            ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
-            : null,
-          el(Message, {
-            key: message.id,
-            message,
-            showName: !state.current.personal,
-            composer: state.composer,
-          }),
-        ]),
-        ...state.drafts.drafts.map((draft) =>
-          el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
-        ),
-        state.messages.length === 0
-          ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
+  const onScroll = () => {
+    follow.onScroll();
+    keep();
+    older();
+  };
+  return el('div', { className: 'chat-scroll', ref: follow.box, onScroll }, [
+    el('div', { key: 'col', className: 'chat-column' }, [
+      el(OlderRow, { key: 'older', history: state.history }),
+      ...state.messages.flatMap((message) => [
+        message.id === state.unreadLine
+          ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
           : null,
-        el('div', { key: 'end', ref: follow.end }),
+        el(Message, {
+          key: message.id,
+          message,
+          showName: !state.current.personal,
+          composer: state.composer,
+        }),
       ]),
-      follow.unseen > 0
-        ? el(
-            'button',
-            {
-              key: 'new',
-              type: 'button',
-              className: 'chat-new-pill',
-              'data-action': 'scroll-new',
-              onClick: follow.toEnd,
-            },
-            t('chat.newMessages', { count: follow.unseen })
-          )
+      ...state.drafts.drafts.map((draft) =>
+        el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
+      ),
+      state.messages.length === 0
+        ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
         : null,
-    ]
-  );
+      el('div', { key: 'end', ref: follow.end }),
+    ]),
+    follow.unseen > 0
+      ? el(
+          'button',
+          {
+            key: 'new',
+            type: 'button',
+            className: 'chat-new-pill',
+            'data-action': 'scroll-new',
+            onClick: follow.toEnd,
+          },
+          t('chat.newMessages', { count: follow.unseen })
+        )
+      : null,
+  ]);
 };
 
 const Suggestions = ({ state }) => {

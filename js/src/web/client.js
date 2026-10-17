@@ -125,6 +125,36 @@ export const createOfflineClient = ({ store, server }) => {
       return [...local, ...remote.filter((link) => !ids.has(link.id))];
     },
 
+    /**
+     * What the chat screen needs: every link but messages, plus each
+     * chat's newest message — the server's store may hold whole
+     * histories, read by page through `chatPage`. Offline (or before a
+     * server answers), the local store's links.
+     */
+    async chatLinks() {
+      const local = await store.query();
+      const remote = await fetchOrLocal('/links?except=msg:', () => null);
+      if (!Array.isArray(remote)) {
+        return local;
+      }
+      const heads = await fetchOrLocal('/api/chat/heads', () => []);
+      const ids = new Set(local.map((link) => link.id));
+      return [
+        ...local,
+        ...[...remote, ...(Array.isArray(heads) ? heads : [])].filter(
+          (link) => !ids.has(link.id)
+        ),
+      ];
+    },
+    /** A page of one chat from the server's store; null without one. */
+    async chatPage({ key, before = null, limit = 50 }) {
+      const params = new URLSearchParams({ key, limit: String(limit) });
+      if (before) {
+        params.set('before', before);
+      }
+      return fetchOrLocal(`/api/chat/messages?${params}`, () => null);
+    },
+
     // ---- derived queries (server when online, local fallback) ---------
     async autocomplete(q, me = 'me') {
       return fetchOrLocal(

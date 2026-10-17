@@ -20,6 +20,11 @@ import {
   writeCompletedPreference,
   clearPreference,
 } from '../src/web/tutorial.js';
+import {
+  anyConnection,
+  shouldAutoOpen,
+  startIndex,
+} from '../src/web/tutorial-start.js';
 
 const fakeStorage = () => {
   const map = new Map();
@@ -96,18 +101,80 @@ test('writePreference + readPreference round-trips a dismissed tutorial', () => 
 
 test('progress saved by an older tutorial version is force-reset', () => {
   const storage = fakeStorage();
-  // An old build left the user "off" (or mid-step) with no version, or a
-  // different one — this is exactly what made a Telegram selection resume
-  // onto Email after the tour changed.
+  // An old build left the user mid-step with no version, or a different
+  // one — this is exactly what made a Telegram selection resume onto
+  // Email after the tour changed.
   storage.setItem(
     TUTORIAL_STORAGE_KEY,
-    JSON.stringify({ off: true, stepId: 'setup', at: 1 })
+    JSON.stringify({ stepId: 'setup', at: 1 })
   );
   // readPreference forgets the stale progress and clears it from storage,
   // so the tour re-opens from the start on the new version.
   assert.equal(readPreference(storage), null);
   assert.equal(storage.getItem(TUTORIAL_STORAGE_KEY), null);
   assert.equal(readProgressIndex(storage, defaultSteps), 0);
+});
+
+test('a tour turned off or finished stays off across versions (R-M11)', () => {
+  for (const saved of [
+    { off: true, stepId: 'setup', at: 1 },
+    { off: true, completed: true, at: 2, v: TUTORIAL_VERSION - 1 },
+  ]) {
+    const storage = fakeStorage();
+    storage.setItem(TUTORIAL_STORAGE_KEY, JSON.stringify(saved));
+    const pref = readPreference(storage);
+    assert.equal(pref.off, true);
+    assert.equal(pref.stepId, undefined);
+    assert.equal(Boolean(pref.completed), Boolean(saved.completed));
+    // Saved again under the current version.
+    assert.equal(readPreference(storage).v, TUTORIAL_VERSION);
+  }
+});
+
+test('the tour opens by itself only for a new user or a tour in progress', () => {
+  assert.equal(shouldAutoOpen(null, false), true);
+  assert.equal(shouldAutoOpen(null, true), false);
+  assert.equal(shouldAutoOpen(null, null), false);
+  assert.equal(shouldAutoOpen({ stepId: 'chat' }, true), true);
+  assert.equal(shouldAutoOpen({ off: true }, false), false);
+  assert.equal(shouldAutoOpen({ off: true, completed: true }, false), false);
+});
+
+test('with a service connected the tour starts after the connection steps', () => {
+  const contacts = defaultSteps.findIndex((s) => s.id === 'contacts');
+  assert.deepEqual(
+    defaultSteps.filter((s) => s.connecting).map((s) => s.id),
+    ['connect', 'pick', 'setup']
+  );
+  assert.equal(startIndex(defaultSteps, 0, true), contacts);
+  assert.equal(startIndex(defaultSteps, 2, true), contacts);
+  assert.equal(startIndex(defaultSteps, 0, false), 0);
+  assert.equal(startIndex(defaultSteps, 0, null), 0);
+  assert.equal(startIndex(defaultSteps, contacts + 1, true), contacts + 1);
+});
+
+test('a connection is the Telegram account or a saved credential', async () => {
+  const api = (connected, links) => ({
+    telegramStatus: async () => ({ connected }),
+    links: async () => links,
+  });
+  assert.equal(await anyConnection(api(true, [])), true);
+  assert.equal(
+    await anyConnection(api(false, [{ id: 'secret:github:token' }])),
+    true
+  );
+  assert.equal(await anyConnection(api(false, [{ id: 'msg:1' }])), false);
+  assert.equal(
+    await anyConnection({
+      telegramStatus: async () => {
+        throw new Error('offline');
+      },
+      links: async () => {
+        throw new Error('offline');
+      },
+    }),
+    false
+  );
 });
 
 test('a version reset also forgets the remembered service', () => {

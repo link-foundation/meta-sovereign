@@ -21,7 +21,8 @@ export const networkMessageId = (message) => {
   return /^\d+$/.test(tail) ? Number(tail) : null;
 };
 
-const byTime = (a, b) =>
+/** Oldest first: by time, then by the network's number. */
+export const byTime = (a, b) =>
   String(a.timestamp ?? '').localeCompare(String(b.timestamp ?? '')) ||
   (networkMessageId(a) ?? 0) - (networkMessageId(b) ?? 0);
 
@@ -69,6 +70,38 @@ export const unreadCount = (messages, read, self = ['me']) => {
   return Number(read.unreadCount ?? 0) + newer;
 };
 
+const PRIVATE_TYPES = new Set(['bot_chat', 'saved_messages']);
+
+/**
+ * Which tab a chat is under: `private` (one other person, a bot, saved
+ * messages), `group` or `channel` (a broadcast one), from the adapter's
+ * `chatType` — or, without one, from how many people wrote in it.
+ */
+export const chatKind = (chatType, people = 1) => {
+  if (!chatType) {
+    return people <= 1 ? 'private' : 'group';
+  }
+  if (isPersonalChatType(chatType) || PRIVATE_TYPES.has(chatType)) {
+    return 'private';
+  }
+  return chatType === 'channel' || chatType.endsWith('_channel')
+    ? 'channel'
+    : 'group';
+};
+
+export const CHAT_FILTERS = Object.freeze([
+  'all',
+  'private',
+  'group',
+  'channel',
+]);
+
+/** The chats under one tab (`all`: every chat), newest first as given. */
+export const filterChats = (chats = [], filter = 'all') =>
+  filter === 'all' || !CHAT_FILTERS.includes(filter)
+    ? chats
+    : chats.filter((c) => (c.kind ?? 'private') === filter);
+
 const summarize = (key, messages, self, read = null) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
@@ -86,6 +119,7 @@ const summarize = (key, messages, self, read = null) => {
     personal: last.chatType
       ? isPersonalChatType(last.chatType)
       : people.size <= 1,
+    kind: chatKind(last.chatType, people.size),
     people: [...people],
     count: sorted.length,
     unread: unreadCount(sorted, read, self),

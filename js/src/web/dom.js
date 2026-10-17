@@ -337,6 +337,14 @@ export const api = {
     const { client } = await ensure();
     return client.get(id);
   },
+  chatLinks: async () => {
+    const { client } = await ensure();
+    return client.chatLinks();
+  },
+  chatPage: async (request) => {
+    const { client } = await ensure();
+    return client.chatPage(request);
+  },
   put: async (link) => {
     const { client } = await ensure();
     return client.put(link);
@@ -690,10 +698,20 @@ export const api = {
     (await serverPostReport('/api/telegram/draft', { chat, text }).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required' },
-  telegramHistory: async (chat) =>
-    (await serverPostReport('/api/telegram/history', { chat }).catch(
+  // A chat's newest messages, or the page before message `before`; the
+  // server answers from the store when it has them (`cached`).
+  telegramHistory: async (request) =>
+    (await serverPostReport(
+      '/api/telegram/history',
+      typeof request === 'object' ? request : { chat: request }
+    ).catch((error) => ({ error: error.message }))) ?? {
+      error: 'server required for Telegram history',
+    },
+  // The next page of the chat list.
+  telegramDialogs: async ({ priority = 'list' } = {}) =>
+    (await serverPostReport('/api/telegram/dialogs', { priority }).catch(
       (error) => ({ error: error.message })
-    )) ?? { error: 'server required for Telegram history' },
+    )) ?? { error: 'server required for Telegram dialogs' },
   autoImportAction: async (id, action) =>
     (await serverFetch(
       `/api/auto-import/jobs/${encodeURIComponent(id)}/${action}`,

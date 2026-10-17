@@ -15,6 +15,7 @@ import { views } from './views.js';
 import {
   TutorialButton,
   TutorialOverlay,
+  readPreference,
   useTutorialPreference,
 } from './tutorial.js';
 import { LocaleContext, useLocale } from './i18n.js';
@@ -22,6 +23,7 @@ import { LanguageSwitcher } from './language-switcher.js';
 import { AppShell } from './shell/app-shell.js';
 import { useAppearance, useApplyAppearance } from './appearance.js';
 import { WebModeBanner } from './web-mode-banner.js';
+import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
 
 const el = React.createElement;
@@ -74,9 +76,21 @@ const App = () => {
   const { t } = localeApi;
   const tutorial = useTutorialPreference();
   const width = useViewportWidth();
-  // The overlay opens automatically on first run (no stored preference)
-  // and otherwise only when the user clicks the header button (R-M12).
-  const [tutorialOpen, setTutorialOpen] = useState(() => !tutorial.isOff);
+  // The overlay opens by itself for a new user (nothing saved, no
+  // service connected) or a tour in progress, and otherwise only from
+  // the header button (R-M12) — see ./tutorial-start.js.
+  const connected = useAnyConnection(api);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const decided = useRef(false);
+  useEffect(() => {
+    if (connected === null || decided.current) {
+      return;
+    }
+    decided.current = true;
+    if (shouldAutoOpen(readPreference(globalThis.localStorage), connected)) {
+      setTutorialOpen(true);
+    }
+  }, [connected]);
 
   // Listen for cross-component "switch to view N and scroll to anchor"
   // events fired by the per-section "Connect first" CTAs (R-O7).
@@ -190,6 +204,7 @@ const App = () => {
       el(TutorialOverlay, {
         key: 'tutorial-overlay',
         open: tutorialOpen,
+        connected,
         onClose: closeTutorial,
         onDismiss: tutorial.dismiss,
         onComplete: tutorial.complete,

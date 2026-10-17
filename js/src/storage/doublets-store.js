@@ -2,10 +2,16 @@
  * DoubletsStore — UniversalLinksAccess over the binary half of the
  * associative stack (R-A3, R-G1, R-G2, issue #31).
  *
- * Records live in memory for reads; on every change the whole store is
+ * Records live in memory for reads; after a change the whole store is
  * written as a doublets network in the link-cli store archive layout
  * (binary links notation links packet + names packet, see
- * `doublets-archive.js`). The file opens directly in link-cli:
+ * `doublets-archive.js`). That file is a snapshot: it is written at most
+ * once per interval — `minIntervalMs`, or ten times what the last write
+ * took when that is longer, so a large store does not spend its time
+ * re-encoding — and changes do not wait for it. `flush()` writes now.
+ * The dual store keeps the durable copy in the text log and repairs a
+ * snapshot that missed the last changes (`reconcile`). The file opens
+ * directly in link-cli:
  *
  *   clink --db store.links --import-binary .meta-sovereign/data.bin
  *
@@ -39,7 +45,44 @@ export const decodeStoreFile = (buf) => {
   return decodeArchive(new Uint8Array(buf.buffer, buf.byteOffset, buf.length));
 };
 
-export const createDoubletsStore = async (filePath) => {
+const MIN_INTERVAL_MS = 5000;
+
+// Snapshot writes: the first change after a quiet interval is written
+// at once, later ones wait for the interval; `now()` writes immediately.
+const createSnapshots = (writer, minIntervalMs) => {
+  let timer = null;
+  let lastAt = 0;
+  let lastCost = 0;
+  const interval = () => Math.max(minIntervalMs, 10 * lastCost);
+  const now = async () => {
+    globalThis.clearTimeout(timer);
+    timer = null;
+    const started = Date.now();
+    try {
+      await writer.request();
+    } finally {
+      lastAt = Date.now();
+      lastCost = lastAt - started;
+    }
+  };
+  const later = () => {
+    if (timer) {
+      return;
+    }
+    const wait = Math.max(0, lastAt + interval() - Date.now());
+    timer = globalThis.setTimeout(() => {
+      // A failed write is tried again after the next interval.
+      now().catch(later);
+    }, wait);
+    timer.unref?.();
+  };
+  return { now, later };
+};
+
+export const createDoubletsStore = async (
+  filePath,
+  { minIntervalMs = MIN_INTERVAL_MS } = {}
+) => {
   const mem = createMemoryStore();
 
   try {
@@ -54,28 +97,29 @@ export const createDoubletsStore = async (filePath) => {
   const writer = createFileWriter(filePath, async () =>
     encodeArchive(await mem.query())
   );
-  const flush = () => writer.request();
+  const snapshots = createSnapshots(writer, minIntervalMs);
 
   return {
     ...mem,
     async put(link) {
       const out = await mem.put(link);
-      await flush();
+      snapshots.later();
       return out;
     },
     async putMany(links) {
       const out = await mem.putMany(links);
-      await flush();
+      snapshots.later();
       return out;
     },
     async delete(id) {
       const ok = await mem.delete(id);
       if (ok) {
-        await flush();
+        snapshots.later();
       }
       return ok;
     },
-    flush,
+    /** Write the snapshot now and wait for it. */
+    flush: () => snapshots.now(),
     filePath,
   };
 };

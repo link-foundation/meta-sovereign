@@ -66,7 +66,9 @@ export const useLiveLinks = (api, tick, refresh) => {
     const seen = [];
     during.current = seen;
     Promise.resolve()
-      .then(() => api.links())
+      // The chat list and each chat's newest message; the open chat's
+      // history comes by page (./chat-window.js).
+      .then(() => (api.chatLinks ? api.chatLinks() : api.links()))
       .then(
         (next) => {
           if (current && next !== undefined) {

@@ -7,6 +7,11 @@
  * `verify()` cross-checks the two backends and returns the set of
  * links that disagree; this is the primitive the backup job runs
  * before snapshotting (R-A4).
+ *
+ * The text side is the durable log; the binary side is a snapshot
+ * written on an interval. `reconcile()` brings the binary side back in
+ * line with the text (a snapshot that missed the last writes before a
+ * crash) and is run when the server opens the store.
  */
 
 const putEach = async (store, links) => {
@@ -43,6 +48,26 @@ export const createDualStore = ({ binary, text }) => ({
   async flush() {
     await binary.flush?.();
     await text.flush?.();
+  },
+  async reconcile() {
+    const textLinks = await text.query();
+    const binaryById = new Map((await binary.query()).map((l) => [l.id, l]));
+    const stale = textLinks.filter((link) => {
+      const other = binaryById.get(link.id);
+      return !other || JSON.stringify(other) !== JSON.stringify(link);
+    });
+    for (const link of textLinks) {
+      binaryById.delete(link.id);
+    }
+    const extra = [...binaryById.keys()];
+    await (binary.putMany ? binary.putMany(stale) : putEach(binary, stale));
+    for (const id of extra) {
+      await binary.delete(id);
+    }
+    if (stale.length > 0 || extra.length > 0) {
+      await binary.flush?.();
+    }
+    return { put: stale.length, deleted: extra.length };
   },
   async verify() {
     const a = await binary.query();

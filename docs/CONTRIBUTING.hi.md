@@ -96,6 +96,23 @@ git merge origin/main
 git push
 ```
 
+<a id="working-rules"></a>
+
+## काम के नियम
+
+ये हर बदलाव पर लागू होते हैं — लोगों और AI agents दोनों पर (repository root का `CLAUDE.md` यहीं इशारा करता है)। हर नियम maintainer के निर्देश से आया है; जिन product requirements की ये रक्षा करते हैं वे [REQUIREMENTS.hi.md](REQUIREMENTS.hi.md) में हैं।
+
+1. **हर बदलाव commit और push।** Checks पास होते ही `main` पर commit और push; इस बीच `main` आगे बढ़ा हो तो पहले उस पर rebase। Changeset में बताएँ कि बदलाव किन requirement IDs के लिए है।
+2. **हर requirement track होती है।** नया निर्देश [REQUIREMENTS.hi.md](REQUIREMENTS.hi.md) में ID और status के साथ, चारों भाषाओं में, एक row बनता है; जो अभी खुला है उसका नाम status में होता है, छोड़ा नहीं जाता।
+3. **चार भाषाओं में docs।** हर `docs/*.md` page अंग्रेज़ी, रूसी, हिंदी और चीनी में language header के साथ होता है; `docs/case-studies/` के case studies केवल अंग्रेज़ी में।
+4. **Secrets machine से बाहर नहीं जाते।** Session strings, tokens, passwords और keys कभी print, log, commit या कहीं भेजे नहीं जाते; masked hints अधिकतम पहले और आख़िरी तीन अक्षर दिखाते हैं (R-Y5)।
+5. **Tests और checks में केवल fakes।** Tests और जाँच कभी असली networks से नहीं जुड़ते, असली browser profiles या credential stores नहीं पढ़ते, user की machine scan नहीं करते और असली account से नहीं भेजते; वे fakes देते हैं (`clientFactory`, `telegramMtproto`, memory stores, अस्थायी folders) और असली app folder को नहीं छूते।
+6. **चलते app को गिनती से देखें, सामग्री से नहीं।** चलते server को उसके status (`/api/telegram/status`) और log lines की गिनती से जाँचें; debugging में user के संदेश, contacts या credentials print न करें।
+7. **हर network से एक बार पूछें।** पहले store, network से केवल जो नहीं है, account की priority queue से (R-Y24, R-Y25); network ने जो बताया सब रखें (R-Y28)।
+8. **दूसरों का code reference है, dependency नहीं।** जिन open-source clients से हम सीखते हैं वे [CHAT-REFERENCES.hi.md](CHAT-REFERENCES.hi.md) में हैं; download की गई copies केवल पढ़ी जाती हैं — कभी build, install या run नहीं।
+9. **Quality gates चालू रहते हैं।** Commit से पहले `npm run check` (बिना warnings के ESLint, Prettier, duplication) और `npm test` पास हों; complexity या length limit से बड़ा function छूट नहीं पाता, बँटता है। Web app बदलने के बाद `js/src/web/app.min.js` फिर build करें (`npm run build:web`)।
+10. **अपने user के लिए local app।** meta-sovereign open source है और user की अपनी machine पर, उसके अपने accounts के साथ, उसकी सुविधा के लिए चलता है: यह तभी और वैसे ही काम करता है जैसे user कहे, हर network की अनुमति वाली गति से।
+
 ## Questions?
 
 Contribution process पर सवाल हो तो discussion के लिए issue खोलें।

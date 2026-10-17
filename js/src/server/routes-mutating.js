@@ -44,8 +44,13 @@ const includeTombstones = (url) => {
   return url?.searchParams.get('showDeleted') === '1';
 };
 
+// `?except=msg:` leaves out links whose id starts with that prefix (the
+// chat screen reads messages by page, ./routes-chat.js).
 const listLinks = async (store, res, url) => {
-  const all = await store.query();
+  const except = url.searchParams.get('except');
+  const all = await store.query(
+    except ? (l) => !String(l?.id ?? '').startsWith(except) : undefined
+  );
   const visible = includeTombstones(url)
     ? all
     : all.filter((l) => !isTombstone(l));

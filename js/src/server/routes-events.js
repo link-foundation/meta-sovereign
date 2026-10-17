@@ -8,7 +8,8 @@
  *   : ping         a comment every 25 s keeps proxies from closing it
  *
  * Only what the chat shows is streamed — messages, read markers, typing,
- * people and the Telegram sync status — never `secret:` links. Other
+ * people, chat history marks and the Telegram sync status — never
+ * `secret:` links, and no history read ahead of the user. Other
  * sites' pages may not listen (an Origin outside the allow-list is
  * refused).
  */
@@ -21,6 +22,7 @@ export const EVENT_PREFIXES = Object.freeze([
   'read:',
   'typing:',
   'person:',
+  'history:',
   'sync:telegram',
 ]);
 
@@ -51,9 +53,12 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
   // Reconnect quickly after the server restarts.
   res.write('retry: 2000\n\n');
   res.write(frame('ready', { at: new Date().toISOString() }));
-  const unsubscribe = store.subscribe((event) => {
+  // History read ahead (older than its chat's newest message) is left
+  // out: the page asks for it by page (./chat-index.js).
+  const feed = ctx.chatIndex ?? store;
+  const unsubscribe = feed.subscribe((event) => {
     const id = event?.link?.id;
-    if (!isStreamedId(id)) {
+    if (!isStreamedId(id) || event.quiet) {
       return;
     }
     res.write(

@@ -76,6 +76,8 @@ import {
 import { createDefaultSender } from '../sources/browser-sender.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
+import { createChatIndex } from './chat-index.js';
+import { handleChatRoutes } from './routes-chat.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
@@ -281,6 +283,17 @@ const automationContext = (
  * nothing to a real network.
  * @param {{resolveSource?: Function, sleep?: Function}} greetings
  */
+// The Telegram chats the background download goes through: each with
+// its type and newest message, from the chat index.
+const telegramChats = async (chatIndex) =>
+  (await chatIndex.heads())
+    .filter((link) => link.source === 'telegram')
+    .map((link) => ({
+      chat: String(link.chat),
+      chatType: link.chatType ?? null,
+      at: link.timestamp ?? null,
+    }));
+
 /**
  * The connected Telegram account (sync, history, sending). Tests that
  * inject a fake login (`telegramMtproto`/`telegramCreds`) get no real
@@ -293,7 +306,11 @@ const telegramAccountFor = (store, log, options) => {
   if (options.telegramMtproto || options.telegramCreds) {
     return null;
   }
-  const account = createTelegramAccount({ store, log: (e) => log?.(e) });
+  const account = createTelegramAccount({
+    store,
+    log: (e) => log?.(e),
+    chats: options.chats,
+  });
   account.start();
   return account;
 };
@@ -361,6 +378,7 @@ const route = async (store, req, res, ctx) => {
     () => handleEventRoutes(store, req, res, p, ctx),
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
+    () => handleChatRoutes(req, res, p, url, ctx),
     () => handleDerivedRoutes(store, req, res, p, url),
   ]) {
     if (await handle()) {
@@ -383,15 +401,22 @@ const initStore = async ({
     const text = await createLinoTextStore(path.join(storeDir, 'data.lino'));
     const binary = await createDoubletsStore(path.join(storeDir, 'data.bin'));
     store = createDualStore({ binary, text });
+    // The binary snapshot may have missed the last writes (a crash).
+    await store.reconcile();
     if (!resolvedArchiveDir) {
       resolvedArchiveDir = path.join(storeDir, 'archives');
       await fs.mkdir(resolvedArchiveDir, { recursive: true });
     }
   }
+  // Kept before wrapping: the secret wrapper does not pass `flush` on.
+  const unwrapped = store;
+  const flush = async () => {
+    await unwrapped.flush?.();
+  };
   if (secretPassphrase) {
     store = wrapSecretStore({ inner: store, passphrase: secretPassphrase });
   }
-  return { store, resolvedArchiveDir };
+  return { store, resolvedArchiveDir, flush };
 };
 
 export const startServer = async ({
@@ -421,16 +446,18 @@ export const startServer = async ({
   // A `createTelegramAccount()` (or `false` for none); see telegramAccountFor.
   telegramAccount: telegramAccountOption,
 } = {}) => {
-  const { store, resolvedArchiveDir } = await initStore({
+  const { store, resolvedArchiveDir, flush } = await initStore({
     providedStore,
     storeDir,
     archiveDir,
     secretPassphrase,
   });
+  const chatIndex = createChatIndex(store);
   const telegramAccount = telegramAccountFor(store, log, {
     telegramAccount: telegramAccountOption,
     telegramMtproto,
     telegramCreds,
+    chats: () => telegramChats(chatIndex),
   });
   const ctx = {
     archiveDir: resolvedArchiveDir,
@@ -456,6 +483,7 @@ export const startServer = async ({
     telegramMtproto,
     telegramCreds,
     telegramAccount,
+    chatIndex,
   };
   const server = http.createServer((req, res) => {
     const start = Date.now();
@@ -517,6 +545,7 @@ export const startServer = async ({
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
         ctx.autoImport?.close();
+        ctx.chatIndex.close();
         telegramAccount?.stop().catch(() => {});
         wsHandle?.close();
         signaling?.close();
@@ -524,6 +553,8 @@ export const startServer = async ({
         for (const socket of sockets) {
           socket.destroy();
         }
-      }),
+      })
+        // The binary snapshot is written on an interval: write it now.
+        .then(() => flush().catch(() => {})),
   };
 };

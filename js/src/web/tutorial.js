@@ -37,6 +37,7 @@ import {
   useResettle,
 } from './tutorial-follow.js';
 import { parseConnectionHash } from './connections/hash.js';
+import { startIndex } from './tutorial-start.js';
 
 const el = React.createElement;
 
@@ -94,6 +95,7 @@ const NAV_FALLBACKS = ['nav:more'];
 export const defaultSteps = [
   {
     id: 'connect',
+    connecting: true,
     target: 'connections',
     tutorialId: 'nav:connections',
     advanceOn: '[data-tutorial-id="nav:connections"]',
@@ -110,6 +112,7 @@ export const defaultSteps = [
     // click. Next opens Email (the setup step's route); opening any
     // service page gets there too (`completeAt`).
     id: 'pick',
+    connecting: true,
     tutorialId: 'connections:list',
     route: { view: 'connections', detail: false },
     completeAt: { view: 'connections', detail: true },
@@ -122,6 +125,7 @@ export const defaultSteps = [
     // The whole provider page is lit and usable — Back, both tabs and
     // the open panel — whichever way the user chooses to connect.
     id: 'setup',
+    connecting: true,
     tutorialId: 'connections:detail',
     // Any provider page; Email when none is open.
     route: { view: 'connections', detail: true },
@@ -218,10 +222,20 @@ export const readPreference = (storage) => {
       return null;
     }
     const pref = JSON.parse(raw);
-    // Saved by an earlier, different tour: forget it and start fresh.
+    // Saved by an earlier, different tour: its step may mean something
+    // else now, so the progress is forgotten. "Turned off" or "finished"
+    // stays as it was (R-M11): a new version never reopens the tour.
     if (pref?.v !== TUTORIAL_VERSION) {
       clearPreference(storage);
-      return null;
+      if (!pref?.off) {
+        return null;
+      }
+      const kept = {
+        off: true,
+        ...(pref.completed ? { completed: true } : {}),
+      };
+      writePreference(storage, { ...kept, at: pref.at ?? Date.now() });
+      return { ...kept, at: pref.at ?? null, v: TUTORIAL_VERSION };
     }
     return pref;
   } catch {
@@ -1193,12 +1207,13 @@ export const TutorialOverlay = ({
   onClose,
   onDismiss,
   onComplete,
+  connected = null,
 }) => {
   const t = useT();
   const localized = localizeSteps(t, steps);
-  const [index, setIndex] = useState(() =>
-    readProgressIndex(storage, localized)
-  );
+  const firstIndex = () =>
+    startIndex(localized, readProgressIndex(storage, localized), connected);
+  const [index, setIndex] = useState(firstIndex);
   const total = localized.length;
   // Which way the user is going, so a skipped step keeps that direction.
   const direction = useRef(1);
@@ -1209,9 +1224,9 @@ export const TutorialOverlay = ({
   // effect doesn't re-fire on every locale change.
   useEffect(() => {
     if (open) {
-      setIndex(readProgressIndex(storage, localized));
+      setIndex(firstIndex());
     }
-  }, [open, steps, storage]);
+  }, [open, steps, storage, connected]);
 
   if (!open || readPreference(storage)?.off) {
     return null;

@@ -176,6 +176,23 @@ git merge origin/main
 git push
 ```
 
+<a id="working-rules"></a>
+
+## Working rules
+
+These apply to every change, by people and AI agents alike (`CLAUDE.md` at the repository root points here). Each one came from a maintainer directive; [REQUIREMENTS.md](REQUIREMENTS.md) holds the product requirements they protect.
+
+1. **Commit and push every change.** Once the checks pass, commit and push to `main`; if `main` moved meanwhile, rebase onto it first. Name the requirement IDs a change serves in its changeset.
+2. **Track every requirement.** A new directive becomes a row in [REQUIREMENTS.md](REQUIREMENTS.md) with an ID and a status, in all four languages; what is still open is named in the status, never left out.
+3. **Docs in four languages.** Every `docs/*.md` page exists in English, Russian, Hindi and Chinese with the language header; case studies under `docs/case-studies/` are English only.
+4. **Secrets never leave the machine.** Session strings, tokens, passwords and keys are never printed, logged, committed or sent anywhere; masked hints show at most the first and last three characters (R-Y5).
+5. **Fakes in tests and checks.** Tests and verification never dial real networks, read real browser profiles or credential stores, scan the user's machine or send from a real account; they inject fakes (`clientFactory`, `telegramMtproto`, memory stores, temporary folders) and never touch the real app folder.
+6. **Look at a running app by counts, not contents.** Check a running server through its status (`/api/telegram/status`) and log line counts; never print the user's messages, contacts or credentials while debugging.
+7. **Ask each network once.** Read the store first and ask the network only for what is missing, through the account's priority queue (R-Y24, R-Y25); keep everything the network said (R-Y28).
+8. **Third-party code is a reference, not a dependency.** Open-source clients we learn from are listed in [CHAT-REFERENCES.md](CHAT-REFERENCES.md); downloaded copies are read only — never built, installed or run.
+9. **Quality gates stay on.** `npm run check` (ESLint with no warnings, Prettier, duplication) and `npm test` pass before a commit; a function over the complexity or length limit is split, not exempted. Rebuild `js/src/web/app.min.js` (`npm run build:web`) after changing the web app.
+10. **A local app for its user.** meta-sovereign is open source and runs on the user's own machine, on the user's own accounts, for the user's convenience: it acts only when and as the user asks, at the pace each network allows.
+
 ## Questions?
 
 If you have questions about contributing, feel free to open an issue for discussion.

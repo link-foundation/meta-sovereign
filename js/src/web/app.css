@@ -265,6 +265,39 @@ main[data-view='chat'] > .web-mode-banner {
 .chat-search {
   border-radius: 8px;
 }
+.chat-filters {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.chat-filter {
+  flex: 0 0 auto;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-subtle);
+  font-size: 0.8rem;
+}
+.chat-filter.active {
+  background: var(--bg-elev);
+  color: inherit;
+  font-weight: 600;
+}
+.chat-list-more,
+.chat-older {
+  padding: 0.5rem;
+  text-align: center;
+  color: var(--text-subtle);
+  font-size: 0.8rem;
+}
+.chat-older {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
 .chat-list {
   flex: 1 1 auto;
   overflow-y: auto;

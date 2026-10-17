@@ -6,10 +6,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  CHAT_FILTERS,
   chatKey,
   chatMenuAutomations,
-  chatMessages,
   cloudDraft,
+  filterChats,
   firstUnreadId,
   readInboxUpTo,
   senderNames,
@@ -20,6 +21,12 @@ import { localizePreset } from './automations-model.js';
 import { readReadReceipts, readShareTyping } from './privacy-prefs.js';
 import { useComposer, useLiveLinks } from './chat-live.js';
 import { isTypingActive } from '../sources/live-links.js';
+import {
+  useChatWindow,
+  useMoreChats,
+  usePrefetch,
+  windowMessages,
+} from './chat-window.js';
 
 const TYPING_EVERY_MS = 4000;
 
@@ -408,23 +415,29 @@ const useTelegramAccount = (
   };
 };
 
-// Opening a Telegram chat pulls more of its history once per visit.
-const useChatHistory = (api, current, refresh) => {
-  const loaded = useRef(new Set());
-  useEffect(() => {
-    if (
-      current?.source !== 'telegram' ||
-      typeof api.telegramHistory !== 'function' ||
-      loaded.current.has(current.key)
-    ) {
-      return;
+const FILTER_KEY = 'meta-sovereign.chat.filter';
+
+// All / Private / Groups / Channels, remembered in this browser.
+const useChatFilter = (storage = globalThis.localStorage) => {
+  const read = () => {
+    try {
+      const saved = storage?.getItem(FILTER_KEY);
+      return CHAT_FILTERS.includes(saved) ? saved : 'all';
+    } catch {
+      return 'all';
     }
-    loaded.current.add(current.key);
-    api.telegramHistory(current.chat).then(
-      (result) => result?.written > 0 && refresh(),
-      () => {}
-    );
-  }, [api, current?.key]);
+  };
+  const [filter, setFilter] = useState(read);
+  const choose = (next) => {
+    const value = CHAT_FILTERS.includes(next) ? next : 'all';
+    setFilter(value);
+    try {
+      storage?.setItem(FILTER_KEY, value);
+    } catch {
+      // Private mode: the choice lasts until the page closes.
+    }
+  };
+  return [filter, choose];
 };
 
 /** `#chat=<source>:<chat>` — a chat opened from Contacts. */
@@ -458,6 +471,7 @@ export const emptyChat = (links = [], { source, chat }) => {
     chat: String(chat),
     name: person?.name ?? person?.handle ?? String(chat),
     personal: true,
+    kind: 'private',
     people: [String(chat)],
     count: 0,
     last: { body: '', mine: false, at: null },
@@ -495,67 +509,8 @@ export const mergeTyping = (polled, links, key, now = Date.now()) => {
   return list.filter((t) => isTypingActive(t, now));
 };
 
-/** Everything the chat screen shows and does. */
-export const useChatState = (
-  api,
-  { t, confirm = defaultConfirm, pollMs = 2500 } = {}
-) => {
-  const [tick, setTick] = useState(0);
-  const refresh = () => setTick((n) => n + 1);
-  const { links, live, add } = useLiveLinks(api, tick, refresh);
-  const [query, setQuery] = useState('');
-  const [active, setActive] = useState('');
-  const [notice, setNotice] = useState(null);
-  const telegram = useTelegramAccount(api, refresh, { live });
-  const target = useHashChat();
-  const all = useMemo(() => {
-    const list = summarizeChats(links ?? []);
-    if (
-      !target ||
-      list.some((c) => c.key === chatKey(target.source, target.chat))
-    ) {
-      return list;
-    }
-    return [emptyChat(links ?? [], target), ...list];
-  }, [links, target]);
-  useEffect(() => {
-    if (target) {
-      setActive(chatKey(target.source, target.chat));
-    }
-  }, [target?.source, target?.chat]);
-  const chats = useMemo(
-    () => (query ? summarizeChats(links ?? [], { query }) : all),
-    [links, query, all]
-  );
-  useEffect(() => {
-    if (all.length && !all.some((c) => c.key === active)) {
-      setActive(all[0].key);
-    }
-  }, [all, active]);
-  const current = all.find((c) => c.key === active) ?? null;
-  useChatHistory(api, current, refresh);
-  const after = (next) => {
-    setNotice(next);
-    refresh();
-  };
-  const composer = useComposer({
-    api,
-    current,
-    after: setNotice,
-    addLinks: add,
-    typing: useTypingOut(api, current),
-    cloud: cloudDraft(links ?? [], current?.key),
-  });
-  const messages = useMemo(
-    () =>
-      current
-        ? chatMessages(links ?? [], current.key, { pending: composer.pending })
-        : [],
-    [links, current?.key, composer.pending]
-  );
-  const { seen, unreadAfter } = useReading(api, current, links);
-  const banner = useConnectionBanner(live, telegram);
-
+// Who types in the open chat: polled, and kept current by the stream.
+const useTypingIn = (api, current, { tick, pollMs, links }) => {
   const [typing, setTyping] = useLoaded(
     () =>
       current ? api.typing({ source: current.source, chat: current.chat }) : [],
@@ -573,7 +528,87 @@ export const useChatState = (
     pollMs,
     [api, current?.key, pollMs]
   );
-  const typingNow = mergeTyping(typing ?? [], links ?? [], current?.key);
+  return mergeTyping(typing ?? [], links ?? [], current?.key);
+};
+
+/**
+ * The chat list: every chat newest first (with a chat opened from
+ * Contacts that has no messages yet), and the ones the search and the
+ * tab show.
+ */
+const useChatList = (links, target, query) => {
+  const all = useMemo(() => {
+    const list = summarizeChats(links ?? []);
+    if (
+      !target ||
+      list.some((c) => c.key === chatKey(target.source, target.chat))
+    ) {
+      return list;
+    }
+    return [emptyChat(links ?? [], target), ...list];
+  }, [links, target]);
+  const [filter, setFilter] = useChatFilter();
+  const chats = useMemo(
+    () =>
+      filterChats(query ? summarizeChats(links ?? [], { query }) : all, filter),
+    [links, query, all, filter]
+  );
+  return { all, chats, filter, setFilter };
+};
+
+/** Everything the chat screen shows and does. */
+export const useChatState = (
+  api,
+  { t, confirm = defaultConfirm, pollMs = 2500 } = {}
+) => {
+  const [tick, setTick] = useState(0);
+  const refresh = () => setTick((n) => n + 1);
+  const { links, live, add } = useLiveLinks(api, tick, refresh);
+  const [query, setQuery] = useState('');
+  const [active, setActive] = useState('');
+  const [notice, setNotice] = useState(null);
+  const telegram = useTelegramAccount(api, refresh, { live });
+  const target = useHashChat();
+  const { all, chats, filter, setFilter } = useChatList(links, target, query);
+  useEffect(() => {
+    if (target) {
+      setActive(chatKey(target.source, target.chat));
+    }
+  }, [target?.source, target?.chat]);
+  useEffect(() => {
+    if (all.length && !all.some((c) => c.key === active)) {
+      setActive(all[0].key);
+    }
+  }, [all, active]);
+  const current = all.find((c) => c.key === active) ?? null;
+  const history = useChatWindow(api, current, links);
+  const prefetch = usePrefetch(api, links);
+  const moreChats = useMoreChats(api, telegram, live ? null : refresh);
+  const after = (next) => {
+    setNotice(next);
+    refresh();
+  };
+  const composer = useComposer({
+    api,
+    current,
+    after: setNotice,
+    addLinks: add,
+    typing: useTypingOut(api, current),
+    cloud: cloudDraft(links ?? [], current?.key),
+  });
+  const messages = useMemo(
+    () =>
+      current
+        ? windowMessages(links ?? [], current.key, history.window, {
+            pending: composer.pending,
+          })
+        : [],
+    [links, current?.key, composer.pending, history.window]
+  );
+  const { seen, unreadAfter } = useReading(api, current, links);
+  const banner = useConnectionBanner(live, telegram);
+
+  const typingNow = useTypingIn(api, current, { tick, pollMs, links });
   return {
     loading: links === null,
     live,
@@ -583,6 +618,16 @@ export const useChatState = (
     total: all.length,
     query,
     setQuery,
+    filter,
+    setFilter,
+    prefetch,
+    moreChats,
+    history: {
+      older: history.older,
+      loading: history.loading,
+      failed: history.failed,
+      loadOlder: history.loadOlder,
+    },
     current,
     select: (key) => {
       setActive(key);
