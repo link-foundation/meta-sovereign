@@ -41,7 +41,10 @@ import {
 } from './telegram-account-live.js';
 import { BACKFILL_EVERY_MS, createBackfill } from './telegram-backfill.js';
 import { createTelegramCatchUp } from './telegram-catchup.js';
+import { createChannelSync } from './telegram-channels.js';
 import { createFetchQueue, rawMessage } from './telegram-history.js';
+import { createPeers } from './telegram-peers.js';
+import { createActions } from './telegram-actions.js';
 import { createPageReader, dialogsCursor } from './telegram-pages.js';
 import {
   MAX_MESSAGE_LENGTH,
@@ -52,7 +55,11 @@ import {
 
 const SOURCE = 'telegram';
 export const TELEGRAM_SYNC_ID = 'sync:telegram';
-const CONTACTS_EVERY_MS = 10 * 60_000;
+// The address book changes seldom; Telegram turns down asking for it
+// often (R-Y34).
+const CONTACTS_EVERY_MS = 6 * 60 * 60_000;
+// Listing the dialogs so GramJS knows a chat: at most this often.
+const PEER_LOOKUP_EVERY_MS = 10 * 60_000;
 // The chat list is re-read this often by the poll; live updates and the
 // catch-up bring new messages in between (R-Y24).
 const DIALOGS_EVERY_MS = 5 * 60_000;
@@ -113,14 +120,19 @@ const isoOf = (date) => {
 // A media message without a caption still shows up in the chat.
 const bodyOf = (message) => message.message || (message.media ? '📎' : '');
 
+// A service message (a join, a pin, a call) has no text: what happened
+// is its action's name, and the chat shows it as a line of its own.
+const serviceOf = (message) => message.action?.className ?? null;
+
 /** One dialog's GramJS messages as `msg:telegram:<chat>:<id>` links. */
 export const telegramDialogLinks = (dialog, messages = []) => {
   const chat = idText(dialog.id);
   const chatType = chatTypeOf(dialog);
   const chatName = dialog.title ?? dialog.name ?? fullName(dialog.entity);
   return messages
-    .filter((m) => m && m.id !== undefined && bodyOf(m))
+    .filter((m) => m && m.id !== undefined && (bodyOf(m) || serviceOf(m)))
     .map((m) => {
+      const service = serviceOf(m);
       const mine = Boolean(m.out);
       const replyId = m.replyTo?.replyToMsgId;
       const link = buildMessageLink({
@@ -138,7 +150,7 @@ export const telegramDialogLinks = (dialog, messages = []) => {
           : (fullName(m.sender) ?? (dialog.isUser ? chatName : null)),
       });
       // Everything Telegram said about it, for offline analysis (R-Y28).
-      return { ...link, raw: rawMessage(m) };
+      return { ...link, ...(service ? { service } : {}), raw: rawMessage(m) };
     });
 };
 
@@ -246,8 +258,16 @@ const publicStatus = (link = {}) =>
 
 // One connected GramJS client per stored session, reused across requests.
 // `onOpen(client, me)` runs once per new client (live updates attach
-// there).
-const createUserConnection = ({ clientFactory, dialogLimit, onOpen }) => {
+// there). Chats are addressed by their stored input peer (`peers`).
+const createUserConnection = ({
+  clientFactory,
+  dialogLimit,
+  onOpen,
+  peers,
+  request,
+  now,
+}) => {
+  let lookedUpAt = -Infinity;
   let connection = null; // { key, client, me }
   const disconnect = async () => {
     const current = connection;
@@ -282,34 +302,50 @@ const createUserConnection = ({ clientFactory, dialogLimit, onOpen }) => {
     onOpen?.(client, me);
     return connection;
   };
-  // GramJS resolves a bare chat id only for peers it has seen; after a
-  // restart, list the dialogs once so it knows them, then retry.
+  // The stored input peer when there is one. Otherwise GramJS resolves
+  // a bare chat id only for peers it has seen: after a restart the
+  // dialogs are listed so it knows them — at most every ten minutes, so
+  // an unknown chat never costs a request each time.
   const withPeer = async (client, chat, use) => {
+    const stored = await peers?.input(chat).catch(() => null);
     try {
-      return await use(chat);
+      return await use(stored ?? chat);
     } catch (error) {
-      if (!/input entity|PEER_ID_INVALID/i.test(error.message ?? '')) {
+      const unknown = /input entity|PEER_ID_INVALID/i.test(error.message ?? '');
+      if (!unknown || now() - lookedUpAt < PEER_LOOKUP_EVERY_MS) {
         throw error;
       }
-      await client.getDialogs({ limit: dialogLimit });
+      lookedUpAt = now();
+      await request('dialogs:lookup', () =>
+        client.getDialogs({ limit: dialogLimit })
+      );
       return use(chat);
     }
   };
   return { open, disconnect, withPeer };
 };
 
-const readContacts = async (client, { importer, log }) => {
-  if (typeof client.getContacts === 'function') {
-    return client.getContacts();
-  }
+const readContacts = async (client, { importer, log, queue }) => {
   try {
+    if (typeof client.getContacts === 'function') {
+      return await queue.run('contacts', 'background', () =>
+        client.getContacts()
+      );
+    }
     const { Api, helpers } = await importer();
-    const result = await client.invoke(
-      new Api.contacts.GetContacts({ hash: helpers.returnBigInt(0) })
+    const result = await queue.run('contacts', 'background', () =>
+      client.invoke(
+        new Api.contacts.GetContacts({ hash: helpers.returnBigInt(0) })
+      )
     );
     return result?.users ?? [];
   } catch (error) {
-    log({ event: 'telegram_contacts_failed', error: error.message });
+    log({
+      level: 'warn',
+      event: 'telegram_contacts_failed',
+      code: error.code ?? null,
+      error: error.message,
+    });
     return null;
   }
 };
@@ -345,7 +381,7 @@ const readDialogs = async (
       client.getDialogs({ limit: dialogs })
     )) ?? []),
   ];
-  env.pages.remember(listed);
+  await env.pages.remember(listed);
   for (const dialog of listed) {
     const chat = idText(dialog.id);
     if (!chat) {
@@ -376,14 +412,19 @@ const readDialogs = async (
   return { links, covers, chats, listed };
 };
 
-// The address book is re-read on a full sync, for a new account, and
-// every CONTACTS_EVERY_MS otherwise.
-const contactsDue = (state, { full, sameAccount, now }) =>
-  full ||
+// The address book is read for a new account and every
+// CONTACTS_EVERY_MS otherwise — counted from the last try, so a refusal
+// is not asked again on every sync.
+const contactsDue = (state, { sameAccount, now }) =>
   !sameAccount ||
-  now() - (Date.parse(state.contactsAt ?? '') || 0) >= CONTACTS_EVERY_MS;
+  now() -
+    Math.max(
+      Date.parse(state.contactsAt ?? '') || 0,
+      Date.parse(state.contactsTriedAt ?? '') || 0
+    ) >=
+    CONTACTS_EVERY_MS;
 
-const syncUser = async (env, creds, state, { full, dialogs, messages }) => {
+const syncUser = async (env, creds, state, { dialogs, messages }) => {
   const { client, me } = await env.connection.open(creds);
   // Another account than last time: forget what was seen. The same one
   // keeps it even on a full sync: what is stored is not read again.
@@ -397,7 +438,9 @@ const syncUser = async (env, creds, state, { full, dialogs, messages }) => {
   });
   let contacts = state.contacts ?? 0;
   let contactsAt = state.contactsAt ?? null;
-  if (contactsDue(state, { full, sameAccount, now: env.now })) {
+  let contactsTriedAt = state.contactsTriedAt ?? null;
+  if (contactsDue(state, { sameAccount, now: env.now })) {
+    contactsTriedAt = new Date(env.now()).toISOString();
     const users = await readContacts(client, env);
     if (users) {
       links.push(...telegramPersonLinks(users));
@@ -414,6 +457,7 @@ const syncUser = async (env, creds, state, { full, dialogs, messages }) => {
     chats,
     contacts,
     contactsAt,
+    contactsTriedAt,
     tops,
     dialogsAt: new Date(env.now()).toISOString(),
     dialogsCursor: keepCursor ? state.dialogsCursor : dialogsCursor(listed),
@@ -509,18 +553,19 @@ const runSync = async (env, { full, reason, dialogs, messages }) => {
 
 // The same link the next sync gives a message we just sent, so it is
 // never shown twice. Its full data comes with Telegram's echo of it.
-const sentLink = (chat, messageId, text, at) => {
+const sentLink = (chat, messageId, text, at, replyTo = null) => {
   if (!messageId) {
     return null;
   }
+  const reply = replyTo ? { replyToMsgId: replyTo } : undefined;
   // GramJS gives users positive ids, groups and channels negative ones.
   const [link] = telegramDialogLinks(
     { id: chat, isUser: !chat.startsWith('-') },
-    [{ id: messageId, out: true, message: text, date: at }]
+    [{ id: messageId, out: true, message: text, date: at, replyTo: reply }]
   );
-  return Object.fromEntries(
-    Object.entries(link).filter(([key]) => key !== 'raw')
-  );
+  const { raw: _raw, ...known } = link;
+  // The quote shows at once; the rest of `raw` comes with the echo.
+  return reply ? { ...known, raw: { replyTo: reply } } : known;
 };
 
 // Telegram's message length limit (help.getConfig), once per client.
@@ -541,7 +586,7 @@ const messageLengthMax = async (client, Api) => {
 
 // Send as the user: exactly once (random_id), plain text, long text in
 // parts; returns the network's links for what was sent.
-const postAsUser = async (env, creds, { chat, text, clientId }) => {
+const postAsUser = async (env, creds, { chat, text, clientId, replyTo }) => {
   const { client } = await env.connection.open(creds);
   const { Api, helpers } = await env.importer().catch(() => ({}));
   const maxLength = await messageLengthMax(client, Api);
@@ -561,6 +606,7 @@ const postAsUser = async (env, creds, { chat, text, clientId }) => {
         text,
         clientId,
         maxLength,
+        replyTo,
         onResult: (result) => env.catchUp?.observeResult(result),
       })
     );
@@ -581,7 +627,15 @@ const postAsUser = async (env, creds, { chat, text, clientId }) => {
   }
   const at = new Date(env.now());
   const links = sent
-    .map((part) => sentLink(chat, idText(part.id), part.text, part.date ?? at))
+    .map((part, index) =>
+      sentLink(
+        chat,
+        idText(part.id),
+        part.text,
+        part.date ?? at,
+        index === 0 ? replyTo : null
+      )
+    )
     .filter(Boolean);
   return {
     ok: true,
@@ -610,10 +664,12 @@ const createMessaging = (env) => {
     if (!target) {
       throw new Error('telegram post requires a chat/chatId target');
     }
+    const replyTo = Number(draft.replyTo);
     return postAsUser(env, creds, {
       chat: String(target),
       text,
       clientId: draft.clientId,
+      replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
     });
   };
 
@@ -710,11 +766,34 @@ const createMessaging = (env) => {
   return { post, setTyping, markRead, saveDraft };
 };
 
-// The account's request queue and page reader (on `env`).
-const addReaders = (env) => {
+// The account's request queue, stored peers, channel catch-up, page
+// reader and message actions (on `env`).
+const addReaders = (env, { pace, mediaDir }) => {
   const { store, now, log } = env;
-  // Every Telegram read goes through one queue, the most urgent first.
-  env.queue = createFetchQueue({ now, log });
+  // Every Telegram request goes through one queue, the most urgent first,
+  // paced; Telegram's "wait" is kept across restarts (R-Y34).
+  env.queue = createFetchQueue({
+    now,
+    log,
+    ...(pace ? { pace } : {}),
+    onHold: (holds) => recordSync(store, { holds }).catch(() => {}),
+  });
+  env.peers = createPeers({ store, importer: env.importer });
+  env.channels = createChannelSync({
+    store,
+    peers: env.peers,
+    request: env.queue.run,
+    handle: env.live.handle,
+    client: async () => {
+      const creds = await readTelegramCredentials(store);
+      return creds?.kind === 'user'
+        ? (await env.connection.open(creds)).client
+        : null;
+    },
+    importer: env.importer,
+    log,
+    now,
+  });
   env.pages = createPageReader(env, {
     credentials: () => readTelegramCredentials(store),
     toLinks: telegramDialogLinks,
@@ -730,7 +809,43 @@ const addReaders = (env) => {
     recordSync,
     syncId: TELEGRAM_SYNC_ID,
   });
+  env.actions = createActions(
+    env,
+    {
+      credentials: () => readTelegramCredentials(store),
+      toLinks: telegramDialogLinks,
+      writeChanged,
+    },
+    { mediaDir }
+  );
 };
+
+// Telegram's "wait" for any request of the client — a send, a read
+// marker, GramJS's own lookups — holds the queue too (R-Y34).
+const watchFloods = (client, queue) => {
+  if (typeof client?.invoke !== 'function' || client.invoke.watched) {
+    return;
+  }
+  const invoke = client.invoke.bind(client);
+  client.invoke = Object.assign(
+    async (request, ...rest) => {
+      try {
+        return await invoke(request, ...rest);
+      } catch (error) {
+        queue.note(error, { method: request?.className ?? null });
+        throw error;
+      }
+    },
+    { watched: true }
+  );
+};
+
+// Telegram's "wait" from before a restart still holds.
+const restoreHolds = ({ store, queue }) =>
+  store
+    .get(TELEGRAM_SYNC_ID)
+    .then((state) => queue.hold(state?.holds ?? {}))
+    .catch(() => {});
 
 // The slow download of whole histories, through the account's readers.
 const backfillOf = (env, { chats, everyMs }) =>
@@ -760,6 +875,10 @@ export const createTelegramAccount = ({
   // request this often; 0 turns it off. `chats()` lists the chats.
   backfillMs = BACKFILL_EVERY_MS,
   chats = null,
+  // The queue's pace (./telegram-history.js PACE); tests pass NO_PACE.
+  pace = null,
+  // Where downloaded pictures are kept (null: none are downloaded).
+  mediaDir = null,
 } = {}) => {
   const live = createTelegramLive({
     store,
@@ -772,10 +891,14 @@ export const createTelegramAccount = ({
   });
   let resync = async () => {}; // set once `sync` exists
   let connectionState = null;
+  const env = { store, botLive, importer, log, now, live };
   const catchUp = createTelegramCatchUp({
     store,
     handle: live.handle,
     resync: (reason) => resync(reason),
+    // A channel's gap: that channel's own catch-up, not the chat list.
+    channelTooLong: (update) => env.channels.observe(update),
+    request: (key, task) => env.queue.run(key, 'list', task),
     importer,
     log,
     // Shown in Chat ("Telegram: reconnecting…"); written on change only.
@@ -790,13 +913,18 @@ export const createTelegramAccount = ({
   const connection = createUserConnection({
     clientFactory,
     dialogLimit,
+    peers: { input: (chat) => env.peers.input(chat) },
+    request: (key, task) => env.queue.run(key, 'list', task),
+    now,
     onOpen: (client, me) => {
+      watchFloods(client, env.queue);
       live.attach(client);
+      client.addEventHandler?.((update) => env.channels.observe(update));
       catchUp.attach(client, me).catch(() => {});
     },
   });
-  const env = { store, connection, botLive, importer, log, now, live, catchUp };
-  addReaders(env);
+  Object.assign(env, { connection, catchUp });
+  addReaders(env, { pace, mediaDir });
   const messaging = createMessaging(env);
   const backfill = backfillOf(env, { chats, everyMs: backfillMs });
   let running = null; // the sync in flight
@@ -837,6 +965,8 @@ export const createTelegramAccount = ({
       // Only a user session is kept up to date in the background.
       auto: creds?.kind === 'user',
       backfill: backfill.progress(),
+      // How fast Telegram is asked now, and any wait it asked for.
+      requests: env.queue.state(),
     };
   };
 
@@ -854,6 +984,7 @@ export const createTelegramAccount = ({
     if (timer || !pollMs) {
       return;
     }
+    restoreHolds(env);
     const tick = async () => {
       const creds = await readTelegramCredentials(store);
       if (creds?.kind === 'user') {
@@ -881,6 +1012,7 @@ export const createTelegramAccount = ({
     globalThis.clearInterval(timer);
     timer = null;
     backfill.stop();
+    await env.channels.flush().catch(() => {});
     await catchUp.stop();
     await connection.disconnect();
   };
@@ -889,6 +1021,7 @@ export const createTelegramAccount = ({
     sync,
     status,
     ...messaging,
+    ...env.actions,
     history: env.pages.history,
     moreDialogs: env.pages.moreDialogs,
     connected,

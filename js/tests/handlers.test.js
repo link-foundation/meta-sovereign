@@ -228,3 +228,41 @@ test('errors in one handler do not block subsequent handlers', async () => {
   await flush();
   assert.deepEqual(calls, ['ok']);
 });
+
+test('automationHandler leaves service notes and old history alone', async () => {
+  const store = createMemoryStore();
+  await store.put({
+    id: 'graph:hello',
+    tokens: ['graph'],
+    nodes: [],
+    edges: [],
+  });
+  let runs = 0;
+  const now = Date.parse('2026-01-02T00:00:00Z');
+  const { selector, run } = automationHandler({
+    runGraph: () => ((runs += 1), []),
+    hydrate: (g) => g,
+    now: () => now,
+  });
+  const bus = createHandlerBus(store);
+  bus.register('automation', selector, run);
+  const message = (id, extra) =>
+    store.put({
+      id,
+      tokens: ['message'],
+      sender: 'alice',
+      body: 'hi',
+      ...extra,
+    });
+  await message('msg:tg:pin', {
+    body: '',
+    service: 'MessageActionPinMessage',
+    timestamp: '2026-01-01T23:00:00Z',
+  });
+  await message('msg:tg:old', { timestamp: '2025-06-01T00:00:00Z' });
+  await message('msg:tg:new', { timestamp: '2026-01-01T23:00:00Z' });
+  for (let i = 0; i < 6; i += 1) {
+    await flush();
+  }
+  assert.equal(runs, 1, 'only the fresh message is planned for');
+});

@@ -294,6 +294,10 @@ const telegramChats = async (chatIndex) =>
       at: link.timestamp ?? null,
     }));
 
+// Pictures shown in Chat are kept next to the store.
+const mediaDirOf = (storeDir) =>
+  storeDir ? path.join(storeDir, 'media', 'telegram') : null;
+
 /**
  * The connected Telegram account (sync, history, sending). Tests that
  * inject a fake login (`telegramMtproto`/`telegramCreds`) get no real
@@ -310,6 +314,7 @@ const telegramAccountFor = (store, log, options) => {
     store,
     log: (e) => log?.(e),
     chats: options.chats,
+    mediaDir: options.mediaDir ?? null,
   });
   account.start();
   return account;
@@ -458,6 +463,7 @@ export const startServer = async ({
     telegramMtproto,
     telegramCreds,
     chats: () => telegramChats(chatIndex),
+    mediaDir: mediaDirOf(storeDir),
   });
   const ctx = {
     archiveDir: resolvedArchiveDir,

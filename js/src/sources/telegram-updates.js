@@ -53,9 +53,10 @@ const TYPING = new Set([
   'UpdateChannelUserTyping',
 ]);
 
-// Service messages (joins, pins, calls) have `action` and no text.
+// A chat's message, service messages (joins, pins, calls) included:
+// they are stored with their action and shown as a line of their own.
 const isChatMessage = (message) =>
-  message && message.className !== 'MessageService' && !message.action;
+  Boolean(message) && message.className !== 'MessageEmpty';
 
 // The short forms Telegram uses for a private / basic-group message
 // carry the fields of a message without the Message object around them.
@@ -133,6 +134,19 @@ const SIMPLE_EFFECTS = {
     kind: 'read-inbox',
     chat: channelOf(u),
     maxId: Number(u.maxId),
+  }),
+  // Pinned or unpinned: the chat's pinned bar follows.
+  UpdatePinnedMessages: (u) => ({
+    kind: 'pin',
+    chat: peerChatId(u.peer),
+    ids: ids(u),
+    pinned: Boolean(u.pinned),
+  }),
+  UpdatePinnedChannelMessages: (u) => ({
+    kind: 'pin',
+    chat: channelOf(u),
+    ids: ids(u),
+    pinned: Boolean(u.pinned),
   }),
   // A forum topic's draft (topMsgId) is not the chat's own.
   UpdateDraftMessage: (u) =>

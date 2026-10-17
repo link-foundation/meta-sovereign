@@ -28,6 +28,12 @@ import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
 import { Notice } from './notice.js';
+import {
+  MessageBubble,
+  DeleteDialog,
+  ForwardPicker,
+  ReplyQuote,
+} from './chat-message.js';
 export { reasonText } from './notice.js';
 
 const el = React.createElement;
@@ -359,34 +365,6 @@ const Header = ({ state, onBack }) => {
 
 // A message's delivery, as messengers show it: a clock while it goes
 // out (only after a second, so a quick send never flashes it — Telegram
-// Web), ✓ once the network has it, ✓✓ once the other side read it, !
-// when it failed. A message kept here while offline, or waiting to be
-// tried again, shows the clock too.
-const DELIVERY_ICON = {
-  sending: 'clock',
-  waiting: 'clock',
-  stored: 'clock',
-  sent: 'check',
-  read: 'check-double',
-  failed: 'alert',
-};
-
-const Delivery = ({ status }) => {
-  const t = useT();
-  const label = t(`chat.delivery.${status}`);
-  return el(
-    'span',
-    {
-      className: `bubble-status ${status}`,
-      'data-delivery': status,
-      title: label,
-      role: 'img',
-      'aria-label': label,
-    },
-    el(Icon, { name: DELIVERY_ICON[status] ?? 'check', size: 14 })
-  );
-};
-
 /** Why a message did not go out, in words. */
 export const failureText = (t, message) => {
   switch (message.code) {
@@ -412,46 +390,6 @@ export const failureText = (t, message) => {
   }
 };
 
-const FailedActions = ({ message, composer }) => {
-  const t = useT();
-  return el('div', { className: 'bubble-failed', role: 'alert' }, [
-    el('span', { key: 'why' }, failureText(t, message)),
-    el(
-      'button',
-      {
-        key: 'retry',
-        type: 'button',
-        'data-action': 'retry',
-        onClick: () => composer.retry(message.clientId),
-      },
-      t('chat.failure.retry')
-    ),
-    el(
-      'button',
-      {
-        key: 'discard',
-        type: 'button',
-        'data-action': 'discard',
-        onClick: () => composer.discard(message.clientId),
-      },
-      t('chat.failure.discard')
-    ),
-  ]);
-};
-
-// Re-render every second while something counts down.
-const useNow = (active) => {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!active) {
-      return undefined;
-    }
-    const id = globalThis.setInterval(() => setNow(Date.now()), 1000);
-    return () => globalThis.clearInterval(id);
-  }, [active]);
-  return now;
-};
-
 /** A message that will be tried again by itself: why, and when. */
 export const waitingText = (t, message, now = Date.now()) => {
   const seconds = Math.max(
@@ -465,97 +403,6 @@ export const waitingText = (t, message, now = Date.now()) => {
     return t('chat.waiting.offline');
   }
   return t('chat.waiting.retry', { seconds });
-};
-
-const WaitingLine = ({ message, composer }) => {
-  const t = useT();
-  const now = useNow(true);
-  return el('div', { className: 'bubble-waiting', role: 'status' }, [
-    el('span', { key: 'why' }, waitingText(t, message, now)),
-    el(
-      'button',
-      {
-        key: 'now',
-        type: 'button',
-        'data-action': 'retry-now',
-        onClick: () => composer.retryNow(message.clientId),
-      },
-      t('chat.waiting.now')
-    ),
-    el(
-      'button',
-      {
-        key: 'discard',
-        type: 'button',
-        'data-action': 'discard',
-        onClick: () => composer.discard(message.clientId),
-      },
-      t('chat.failure.discard')
-    ),
-  ]);
-};
-
-// A bubble's class and data attributes. `data-seen-id`: an incoming
-// message the read marker watches.
-const bubbleProps = (message) => {
-  const mine = message.sender === 'me';
-  const seenId = !mine && !message.pending ? networkMessageId(message) : null;
-  return {
-    className: [
-      'bubble',
-      mine ? 'out' : 'in',
-      message.pending ? 'pending' : null,
-      message.delivery === 'failed' ? 'failed' : null,
-    ]
-      .filter(Boolean)
-      .join(' '),
-    'data-message': message.id,
-    ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
-    ...(seenId === null ? {} : { 'data-seen-id': seenId }),
-  };
-};
-
-// Under one of ours that did not go out: Retry / Delete, or the wait.
-const BubbleActions = ({ message, composer }) => {
-  if (!composer) {
-    return null;
-  }
-  if (message.delivery === 'failed') {
-    return el(FailedActions, { message, composer });
-  }
-  return message.delivery === 'waiting'
-    ? el(WaitingLine, { message, composer })
-    : null;
-};
-
-const Message = ({ message, showName, composer }) => {
-  const t = useT();
-  const { time } = useDates();
-  const mine = message.sender === 'me';
-  return el('div', bubbleProps(message), [
-    showName && !mine
-      ? el(
-          'span',
-          { key: 'who', className: 'bubble-name' },
-          message.senderName ?? message.sender
-        )
-      : null,
-    el('span', { key: 'body', className: 'bubble-body' }, message.body ?? ''),
-    el('span', { key: 'time', className: 'bubble-time' }, [
-      message.edited
-        ? el(
-            'span',
-            { key: 'e', className: 'bubble-edited', title: message.edited },
-            t('chat.edited')
-          )
-        : null,
-      `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
-      message.delivery
-        ? el(Delivery, { key: 'd', status: message.delivery })
-        : null,
-    ]),
-    el(BubbleActions, { key: 'actions', message, composer }),
-  ]);
 };
 
 const FORM_KEYS = {
@@ -888,7 +735,20 @@ const UnreadLine = ({ lineRef }) => {
   );
 };
 
-const Stream = ({ state }) => {
+// Who spoke last — used to show avatar/name only on first in a run.
+const runFlags = (messages) => {
+  const flags = new Map();
+  for (let i = 0; i < messages.length; i++) {
+    const m = messages[i];
+    const prev = messages[i - 1];
+    const isFirst =
+      !prev || prev.sender !== m.sender || m.service || prev.service;
+    flags.set(m.id, isFirst);
+  }
+  return flags;
+};
+
+const Stream = ({ state, api, onAction }) => {
   const t = useT();
   const follow = useFollow(state);
   const keep = useKeepPlace(follow.box, state);
@@ -899,6 +759,16 @@ const Stream = ({ state }) => {
     keep();
     older();
   };
+  // Map for reply lookups.
+  const msgById = new Map(state.messages.map((m) => [m.id, m]));
+  const firstInRun = runFlags(state.messages);
+  // Scroll to a message by its link id.
+  const onScrollTo = (id) => {
+    const node = follow.box.current?.querySelector(
+      `[data-message="${globalThis.CSS?.escape(id) ?? String(id)}"]`
+    );
+    node?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  };
   return el('div', { className: 'chat-scroll', ref: follow.box, onScroll }, [
     el('div', { key: 'col', className: 'chat-column' }, [
       el(OlderRow, { key: 'older', history: state.history }),
@@ -906,11 +776,18 @@ const Stream = ({ state }) => {
         message.id === state.unreadLine
           ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
           : null,
-        el(Message, {
+        el(MessageBubble, {
           key: message.id,
           message,
-          showName: !state.current.personal,
+          showAvatar: firstInRun.get(message.id) !== false,
+          showName:
+            !state.current.personal && firstInRun.get(message.id) !== false,
+          isPersonal: Boolean(state.current.personal),
+          msgById,
           composer: state.composer,
+          api,
+          onScrollTo,
+          onAction,
         }),
       ]),
       ...state.drafts.drafts.map((draft) =>
@@ -1013,6 +890,28 @@ const ConnectionBanner = ({ banner }) => {
     : null;
 };
 
+// Reply bar shown above the input when user chose to reply.
+const ReplyBar = ({ replyTo, onClear }) => {
+  const t = useT();
+  if (!replyTo) {
+    return null;
+  }
+  return el('div', { className: 'composer-reply-bar' }, [
+    el(ReplyQuote, { key: 'q', replyRef: replyTo }),
+    el(
+      'button',
+      {
+        key: 'x',
+        type: 'button',
+        className: 'composer-reply-clear',
+        'aria-label': t('chat.replyCancel'),
+        onClick: onClear,
+      },
+      '✕'
+    ),
+  ]);
+};
+
 const Composer = ({ state }) => {
   const t = useT();
   const { composer } = state;
@@ -1042,6 +941,11 @@ const Composer = ({ state }) => {
     },
     [
       el(Suggestions, { key: 's', state }),
+      el(ReplyBar, {
+        key: 'rb',
+        replyTo: composer.replyTo ?? null,
+        onClear: composer.clearReplyTo,
+      }),
       el('div', { key: 'row', className: 'chat-composer-row' }, [
         el('textarea', {
           key: 'input',
@@ -1070,10 +974,37 @@ const Composer = ({ state }) => {
   );
 };
 
+// Pinned message bar shown when the newest loaded pinned message is known.
+const PinnedBar = ({ messages }) => {
+  const t = useT();
+  if (!messages?.length) {
+    return null;
+  }
+  const pinned = messages.find((m) => m.raw?.pinned);
+  if (!pinned) {
+    return null;
+  }
+  const text = pinned.body || t('chat.pinnedMessage');
+  return el('div', { className: 'chat-pinned-bar', role: 'status' }, [
+    el(
+      'span',
+      { key: 'icon', className: 'chat-pinned-icon', 'aria-hidden': 'true' },
+      '📌'
+    ),
+    el(
+      'span',
+      { key: 'txt', className: 'chat-pinned-text' },
+      text.length > 80 ? `${text.slice(0, 80)}…` : text
+    ),
+  ]);
+};
+
 /** The screen itself, pure: everything comes from `state`. */
-export const ChatScreen = ({ state }) => {
+export const ChatScreen = ({ state, api }) => {
   const t = useT();
   const [pane, setPane] = useState('list');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [forwardTarget, setForwardTarget] = useState(null);
   if (state.loading) {
     return el('div', { className: 'meta' }, t('common.loading'));
   }
@@ -1089,11 +1020,60 @@ export const ChatScreen = ({ state }) => {
     state.select(key);
     setPane('chat');
   };
+
+  const onAction = (action, message) => {
+    if (action === 'reply') {
+      const netId = networkMessageId(message);
+      state.composer.setReplyTo({
+        msgId: netId,
+        linkId: message.id,
+        senderName: message.senderName ?? message.sender,
+        text: message.body ?? '',
+      });
+    } else if (action === 'copy' && message.body) {
+      globalThis.navigator?.clipboard?.writeText(message.body).catch(() => {});
+    } else if (action === 'forward') {
+      setForwardTarget(message);
+    } else if (action === 'delete') {
+      setDeleteTarget(message);
+    }
+  };
+
+  const doDelete = async (message, { revoke }) => {
+    const netId = networkMessageId(message);
+    if (!netId || !state.current || typeof api?.telegramDelete !== 'function') {
+      return;
+    }
+    await api.telegramDelete({
+      chat: state.current.chat,
+      ids: [netId],
+      revoke,
+    });
+  };
+
+  const doForward = async (message, toChat) => {
+    const netId = networkMessageId(message);
+    if (
+      !netId ||
+      !state.current ||
+      typeof api?.telegramForward !== 'function'
+    ) {
+      return;
+    }
+    await api.telegramForward({
+      fromChat: state.current.chat,
+      ids: [netId],
+      toChat: toChat.chat,
+    });
+    setForwardTarget(null);
+  };
+
   return el('div', { className: 'chat-shell', 'data-pane': pane }, [
     el(Sidebar, { key: 'side', state: { ...state, select } }),
     state.current
       ? el('section', { key: 'main', className: 'chat-main' }, [
           el(Header, { key: 'h', state, onBack: () => setPane('list') }),
+          el(PinnedBar, { key: 'pin', messages: state.messages }),
           el(ConnectionBanner, { key: 'b', banner: state.banner }),
           el(FailedBar, { key: 'failed', composer: state.composer }),
           el(Notice, {
@@ -1102,8 +1082,28 @@ export const ChatScreen = ({ state }) => {
             labels: NOTICE,
             dismiss: state.dismiss,
           }),
-          el(Stream, { key: 's', state }),
+          el(Stream, { key: 's', state, api, onAction }),
           el(Composer, { key: 'c', state }),
+          deleteTarget
+            ? el(DeleteDialog, {
+                key: 'del',
+                message: deleteTarget,
+                isGroup: !state.current.personal,
+                onClose: () => setDeleteTarget(null),
+                onDelete: (opts) => {
+                  doDelete(deleteTarget, opts);
+                  setDeleteTarget(null);
+                },
+              })
+            : null,
+          forwardTarget
+            ? el(ForwardPicker, {
+                key: 'fwd',
+                chats: state.chats,
+                onClose: () => setForwardTarget(null),
+                onForward: (toChat) => doForward(forwardTarget, toChat),
+              })
+            : null,
         ])
       : null,
   ]);
@@ -1111,5 +1111,5 @@ export const ChatScreen = ({ state }) => {
 
 export const ChatView = ({ api = defaultApi, ...options }) => {
   const t = useT();
-  return el(ChatScreen, { state: useChatState(api, { t, ...options }) });
+  return el(ChatScreen, { state: useChatState(api, { t, ...options }), api });
 };

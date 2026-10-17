@@ -1,0 +1,218 @@
+/**
+ * Pictures of Telegram messages, store first (R-Y36): a photo, a link
+ * preview's photo, a file's thumbnail or a small picture sent as a file
+ * (a sticker), for the chat to show inline as Telegram's apps do.
+ *
+ * Where a picture is comes from the stored message (`raw.media`, R-Y28):
+ * its id, access hash, file reference and data centre. So showing it is
+ * one download, never a re-read of the message first; only when Telegram
+ * says the file reference expired is the message read again (by its
+ * stored peer, through the queue) and the download tried once more.
+ *
+ * Each picture is downloaded once: it is kept in the app folder
+ * (`<store>/media/telegram/<chat>/<id>-<size>`) and served from there.
+ * Downloads go through the account's queue at `list` priority — after
+ * what the user scrolls to, before anything read ahead (R-Y34). Videos,
+ * voice notes and large files are never downloaded here.
+ */
+
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+
+// Pictures larger than this are not downloaded (a thumbnail is).
+const MAX_BYTES = 2 * 1024 * 1024;
+// Photo sizes, the largest first, for `size=x`; `m` prefers the medium.
+const SIZE_ORDER = ['w', 'y', 'x', 'm', 's'];
+const SIZES = new Set(['s', 'm', 'x', 'y', 'w']);
+
+const CHAT = /^-?\d{1,20}$/;
+
+const text = (value) =>
+  value === null || value === undefined ? null : String(value.value ?? value);
+
+const bytesOf = (value) => {
+  if (value instanceof Uint8Array) {
+    return Buffer.from(value);
+  }
+  if (typeof value?.bytes === 'string') {
+    return Buffer.from(value.bytes, 'base64');
+  }
+  return Buffer.alloc(0);
+};
+
+const sizeBytes = (s) =>
+  Array.isArray(s?.sizes) ? Math.max(...s.sizes) : Number(s?.size ?? 0);
+
+// Downloadable sizes (not the inline stripped one) and their type.
+const realSizes = (sizes = []) =>
+  sizes.filter(
+    (s) =>
+      s?.className === 'PhotoSize' || s?.className === 'PhotoSizeProgressive'
+  );
+
+/** The size type to download for `want` among `sizes`, or null. */
+export const pickSize = (sizes, want = 'm') => {
+  const real = realSizes(sizes).filter((s) => sizeBytes(s) <= MAX_BYTES);
+  const has = (type) => real.some((s) => s.type === type);
+  if (has(want)) {
+    return want;
+  }
+  const from = SIZE_ORDER.indexOf(want);
+  const order =
+    from < 0
+      ? SIZE_ORDER
+      : [...SIZE_ORDER.slice(from + 1), ...SIZE_ORDER.slice(0, from).reverse()];
+  return order.find(has) ?? real.at(-1)?.type ?? null;
+};
+
+const isSmallImage = (doc) =>
+  /^image\/(jpeg|png|webp|gif)$/.test(doc?.mimeType ?? '') &&
+  Number(doc?.size ?? Infinity) <= MAX_BYTES;
+
+// A photo: of the message, or of its link preview.
+const photoOf = (media) => {
+  if (media?.className === 'MessageMediaPhoto') {
+    return media.photo;
+  }
+  return media?.className === 'MessageMediaWebPage'
+    ? media.webpage?.photo
+    : null;
+};
+
+const documentPicture = (doc, want) => {
+  if (isSmallImage(doc) && want !== 's') {
+    return { kind: 'document', file: doc, thumb: '', mimeType: doc.mimeType };
+  }
+  const thumb = pickSize(doc.thumbs ?? [], want);
+  return thumb
+    ? { kind: 'document', file: doc, thumb, mimeType: 'image/jpeg' }
+    : null;
+};
+
+/**
+ * What to download for a stored message: `{ kind, file, thumb, mimeType }`
+ * (`file` the photo or document as stored), or null when it has no picture.
+ */
+export const pictureOf = (raw, want = 'm') => {
+  const media = raw?.media;
+  const photo = photoOf(media);
+  if (photo?.id !== undefined && photo.sizes) {
+    const thumb = pickSize(photo.sizes, want);
+    return thumb
+      ? { kind: 'photo', file: photo, thumb, mimeType: 'image/jpeg' }
+      : null;
+  }
+  const doc =
+    media?.className === 'MessageMediaDocument' ? media.document : null;
+  return doc?.id ? documentPicture(doc, want) : null;
+};
+
+const locationOf = (Api, helpers, picture) => {
+  const big = (value) => helpers.returnBigInt(text(value));
+  const fields = {
+    id: big(picture.file.id),
+    accessHash: big(picture.file.accessHash),
+    fileReference: bytesOf(picture.file.fileReference),
+    thumbSize: picture.thumb,
+  };
+  return picture.kind === 'photo'
+    ? new Api.InputPhotoFileLocation(fields)
+    : new Api.InputDocumentFileLocation(fields);
+};
+
+const expired = (error) =>
+  /FILE_REFERENCE_(EXPIRED|INVALID)/.test(
+    String(error?.errorMessage ?? error?.message ?? '')
+  );
+
+const readCache = async (file) => {
+  try {
+    const buffer = await fs.readFile(file);
+    return buffer.length > 0 ? buffer : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * `read({ chat, id, size })` → `{ buffer, mimeType }`, or null when the
+ * message has no picture. `client()` is the connected GramJS client (or
+ * null), `peerOf(chat)` the stored input peer, `refresh(chat, ids)` reads
+ * messages again into the store.
+ */
+export const createMediaReader = ({
+  store,
+  dir,
+  queue,
+  client: clientOf,
+  refresh,
+  importer = () => import('telegram'),
+  log = () => {},
+}) => {
+  const download = async (client, picture) => {
+    const { Api, helpers } = await importer();
+    const buffer = await client.downloadFile(
+      locationOf(Api, helpers, picture),
+      { dcId: Number(picture.file.dcId), fileSize: MAX_BYTES }
+    );
+    return buffer?.length ? Buffer.from(buffer) : null;
+  };
+
+  const fetchPicture = async (chat, id, want) => {
+    const linkId = `msg:telegram:${chat}:${id}`;
+    const picture = pictureOf((await store.get(linkId))?.raw, want);
+    const client = picture ? await clientOf() : null;
+    if (!client) {
+      return null;
+    }
+    const key = `media:${chat}:${id}:${picture.thumb}`;
+    try {
+      return {
+        buffer: await queue.run(key, 'list', () => download(client, picture)),
+        mimeType: picture.mimeType,
+      };
+    } catch (error) {
+      if (!expired(error) || !refresh) {
+        throw error;
+      }
+      // The file reference is old: read the message again, then retry.
+      log({ event: 'telegram_media_reference_expired' });
+      await refresh({ chat, ids: [id], priority: 'list' });
+      const fresh = pictureOf((await store.get(linkId))?.raw, want);
+      return fresh
+        ? {
+            buffer: await queue.run(`${key}:again`, 'list', () =>
+              download(client, fresh)
+            ),
+            mimeType: fresh.mimeType,
+          }
+        : null;
+    }
+  };
+
+  const read = async ({ chat, id, size = 'm' } = {}) => {
+    const target = String(chat ?? '');
+    const msg = Number(id);
+    const want = SIZES.has(size) ? size : 'm';
+    // Both name a path in the app folder: digits only.
+    if (!CHAT.test(target) || !Number.isInteger(msg) || msg <= 0) {
+      return null;
+    }
+    const file = path.join(dir, target, `${msg}-${want}`);
+    const cached = await readCache(file);
+    if (cached) {
+      const meta = await readCache(`${file}.type`);
+      return { buffer: cached, mimeType: meta?.toString() || 'image/jpeg' };
+    }
+    const got = await fetchPicture(target, msg, want);
+    if (!got?.buffer) {
+      return null;
+    }
+    await fs.mkdir(path.dirname(file), { recursive: true });
+    await fs.writeFile(file, got.buffer);
+    await fs.writeFile(`${file}.type`, got.mimeType);
+    return got;
+  };
+
+  return { read };
+};

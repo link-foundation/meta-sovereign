@@ -19,7 +19,7 @@ import { detectSelfIds } from '../crm/reengage.js';
 import { buildReplyIndex } from './reply-graph.js';
 
 const isMessage = (l) =>
-  l?.id?.startsWith('msg:') && typeof l.body === 'string';
+  l?.id?.startsWith('msg:') && typeof l.body === 'string' && !l.service;
 const chatKey = (source, chat) => `${source}\u0000${chat}`;
 const later = (a, b) =>
   String(a.timestamp ?? '').localeCompare(String(b.timestamp ?? '')) >= 0;

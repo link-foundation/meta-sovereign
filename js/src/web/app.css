@@ -2490,3 +2490,373 @@ button.primary .recommended-tag {
 .greetings-failures {
   color: var(--danger, #c0392b);
 }
+
+/* ====================================================================
+   Telegram-style message display (chat-message.js / message-parts.js)
+   ==================================================================== */
+
+/* Bubble row: avatar + bubble side by side. */
+.bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+  position: relative;
+}
+.bubble-row[data-mine] {
+  flex-direction: row-reverse;
+}
+
+/* Sender avatar circle in groups (no photo — initials + hue). */
+.msg-avatar {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: hsl(var(--avatar-hue, 200), 55%, 42%);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  user-select: none;
+}
+.msg-avatar-gap {
+  flex: none;
+  width: 2rem;
+}
+
+/* Reply quote box inside the bubble. */
+.bubble-reply {
+  display: flex;
+  flex-direction: column;
+  border-left: 3px solid var(--chat-accent, var(--accent));
+  padding: 0.2rem 0.5rem;
+  margin-bottom: 0.3rem;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  font-size: 0.8rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+:root[data-theme='light'] .bubble-reply,
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .bubble-reply {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+.bubble-reply-name {
+  font-weight: 700;
+  color: var(--chat-accent, var(--accent));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bubble-reply-text {
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Forwarded-from header. */
+.bubble-fwd {
+  font-size: 0.78rem;
+  color: var(--chat-accent, var(--accent));
+  margin-bottom: 0.2rem;
+  font-style: italic;
+}
+
+/* Inline photo. */
+.bubble-photo {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-active);
+  cursor: pointer;
+}
+.bubble-photo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius);
+  transition: filter 0.3s;
+}
+.bubble-photo-img.blurred {
+  filter: blur(8px);
+  transform: scale(1.05);
+}
+.bubble-photo-placeholder {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-active);
+}
+
+/* Full-screen photo viewer. */
+.photo-viewer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  cursor: zoom-out;
+}
+.photo-viewer-img {
+  max-width: 95vw;
+  max-height: 92vh;
+  border-radius: var(--radius);
+  object-fit: contain;
+  cursor: default;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Document / file indicator. */
+.bubble-doc {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  max-width: 260px;
+  margin-bottom: 0.25rem;
+}
+.bubble-doc-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Web page preview. */
+.bubble-webpage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border-left: 3px solid var(--accent);
+  padding-left: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+}
+.bubble-wp-site {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+}
+.bubble-wp-title {
+  font-size: 0.9rem;
+  color: var(--link);
+}
+.bubble-wp-desc {
+  opacity: 0.8;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Reactions row. */
+.bubble-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.2rem;
+}
+.bubble-reaction {
+  background: var(--bg-active);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.82rem;
+  cursor: default;
+  user-select: none;
+}
+
+/* Service message: centred pill. */
+.service-line {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.15rem 0;
+}
+.service-line span {
+  background: var(--bg-active);
+  border-radius: 999px;
+  padding: 0.2rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+  text-align: center;
+}
+
+/* Pinned message bar below the chat header. */
+.chat-pinned-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 1rem;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.chat-pinned-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* More actions button on a bubble (shows on hover). */
+.bubble-more-btn {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.bubble:hover .bubble-more-btn,
+.bubble:focus-within .bubble-more-btn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Context menu. */
+.msg-context-menu {
+  position: fixed;
+  z-index: 1000;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 24px var(--shadow);
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+  min-width: 140px;
+}
+.msg-context-menu li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.msg-context-menu li:hover,
+.msg-context-menu li:focus {
+  background: var(--bg-active);
+  outline: none;
+}
+.msg-context-menu li.msg-context-delete {
+  color: var(--danger);
+}
+
+/* Delete confirmation dialog. */
+.delete-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.delete-dialog,
+.forward-picker {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  width: min(400px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.delete-dialog-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+.delete-dialog-btns button.danger {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+/* Forward chat picker. */
+.forward-picker-title {
+  font-weight: 700;
+  margin: 0;
+}
+.forward-picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.forward-picker-list li {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border);
+}
+.forward-picker-list li:last-child {
+  border-bottom: none;
+}
+.forward-picker-list li:hover,
+.forward-picker-list li:focus {
+  background: var(--bg-active);
+  outline: none;
+}
+
+/* Reply bar above the composer. */
+.composer-reply-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--bg-active);
+  border-top: 1px solid var(--border);
+}
+.composer-reply-clear {
+  flex: none;
+  align-self: center;
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  font-size: 0.9rem;
+  padding: 0.1rem 0.3rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.composer-reply-clear:hover {
+  color: var(--text);
+}
+
+/* Dark/light theme fixes for above. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .bubble-reply {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  :root:not([data-theme]) .bubble-doc {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+:root[data-theme='light'] .bubble-reply,
+:root[data-theme='light'] .bubble-doc {
+  background: rgba(0, 0, 0, 0.04);
+}

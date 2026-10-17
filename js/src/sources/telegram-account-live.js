@@ -159,6 +159,49 @@ const chatStateWriters = ({ store, now }) => {
   return { onRead, onReadInbox, onDraft, onTyping };
 };
 
+// A deletion: those messages are marked `deleted` (kept, for the record).
+const deleteWriter = async (store, { chat, ids }) => {
+  const wanted = new Set(ids.map(String));
+  if (chat) {
+    // A channel's ids are its own: each link is read by its id.
+    const links = await Promise.all(
+      [...wanted].map((id) => store.get(`msg:${SOURCE}:${chat}:${id}`))
+    );
+    const found = links.filter((l) => l && !l.deleted);
+    for (const link of found) {
+      await store.put({ ...link, deleted: true });
+    }
+    return found.length > 0;
+  }
+  // Without a chat, the ids are the account-wide ones of private chats
+  // and basic groups (never channels).
+  const matches = await store.query(
+    (l) =>
+      l.id?.startsWith(`msg:${SOURCE}:`) &&
+      !l.deleted &&
+      !String(l.chat).startsWith('-100') &&
+      wanted.has(l.id.split(':').pop())
+  );
+  for (const link of matches) {
+    await store.put({ ...link, deleted: true });
+  }
+  return matches.length > 0;
+};
+
+// Pinned or unpinned: the stored message carries Telegram's own
+// `pinned` flag in `raw`, which the chat's pinned bar reads.
+const pinWriter = async (store, { chat, ids, pinned }) => {
+  let changed = false;
+  for (const id of ids) {
+    const link = await store.get(`msg:${SOURCE}:${chat}:${id}`);
+    if (link && Boolean(link.raw?.pinned) !== pinned) {
+      await store.put({ ...link, raw: { ...(link.raw ?? {}), pinned } });
+      changed = true;
+    }
+  }
+  return changed;
+};
+
 /**
  * Apply live updates to the store.
  *   toLinks(dialog, messages)  the sync's message mapping
@@ -242,22 +285,8 @@ export const createTelegramLive = ({
     }
   };
 
-  const onDelete = async ({ chat, ids }) => {
-    const wanted = new Set(ids.map(String));
-    // Without a chat, the ids are the account-wide ones of private chats
-    // and basic groups (never channels).
-    const matches = await store.query(
-      (l) =>
-        l.id?.startsWith(`msg:${SOURCE}:`) &&
-        !l.deleted &&
-        (chat ? l.chat === chat : !String(l.chat).startsWith('-100')) &&
-        wanted.has(l.id.split(':').pop())
-    );
-    for (const link of matches) {
-      await store.put({ ...link, deleted: true });
-    }
-    return matches.length > 0;
-  };
+  const onDelete = (effect) => deleteWriter(store, effect);
+  const onPin = (effect) => pinWriter(store, effect);
 
   const { onRead, onReadInbox, onDraft, onTyping } = chatStateWriters({
     store,
@@ -274,6 +303,8 @@ export const createTelegramLive = ({
         return onMessage(client, effect);
       case 'delete':
         return onDelete(effect);
+      case 'pin':
+        return onPin(effect);
       case 'read':
         return onRead(effect);
       case 'read-inbox':

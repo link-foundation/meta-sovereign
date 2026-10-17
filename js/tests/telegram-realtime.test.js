@@ -7,6 +7,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { NO_PACE } from '../src/sources/telegram-history.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { updateEffect, peerChatId } from '../src/sources/telegram-updates.js';
 import {
@@ -51,11 +52,22 @@ test('raw updates become plain effects with marked chat ids', () => {
     }).kind,
     'edit'
   );
-  // A join/pin is not a chat message.
+  // A join or a pin is kept too: the chat shows it as a line of its own.
   assert.equal(
     updateEffect({
       className: 'UpdateNewMessage',
-      message: { ...message, className: 'MessageService', action: {} },
+      message: {
+        ...message,
+        className: 'MessageService',
+        action: { className: 'MessageActionPinMessage' },
+      },
+    }).kind,
+    'message'
+  );
+  assert.equal(
+    updateEffect({
+      className: 'UpdateNewMessage',
+      message: { className: 'MessageEmpty', id: 7 },
     }),
     null
   );
@@ -281,13 +293,14 @@ test('the account listens on every client it connects', async () => {
     },
   };
   const account = createTelegramAccount({
+    pace: NO_PACE,
     store,
     clientFactory: async () => client,
     pollMs: 0,
   });
   await account.sync({ full: true });
-  // The live handler and the catch-up's (the update counter).
-  assert.equal(handlers.length, 2);
+  // The live handler, the channels' numbers and the catch-up's counter.
+  assert.equal(handlers.length, 3);
   await handlers[0]({
     className: 'UpdateNewMessage',
     message: {

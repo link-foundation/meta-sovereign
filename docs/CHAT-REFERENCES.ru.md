@@ -137,6 +137,22 @@
   (`node_modules/telegram/client/updates.js`), поэтому приложение на GramJS должно
   делать это самостоятельно.
 
+### Своё наверстывание у каждого канала (удаления в группах)
+
+- Супергруппа или канал нумерует свои обновления сам (`pts`); пропущенный
+  номер или `updateChannelTooLong` значит, что обновления (и удаления)
+  не пришли, и приложения запрашивают разницу этого канала: TDLib
+  [`get_channel_difference`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/MessagesManager.cpp#L34711), Telegram Web K [`getChannelDifference`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L418) на
+  [`updateChannelTooLong`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L632), Telegram Web A [`GetChannelDifference`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/updates/updateManager.ts#L484).
+  У нас: `js/src/sources/telegram-channels.js` (R-Y35).
+
+### Картинки в сообщениях
+
+- Картинка скачивается по сохранённому адресу; устаревшая ссылка на файл
+  (`FILE_REFERENCE_*`) — сообщение перечитывается, затем повтор:
+  TDLib [`FILE_REFERENCE_`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/FileReferenceManager.cpp#L61), Telegram Web A [`downloadMedia`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/media.ts#L29).
+  У нас: `js/src/sources/telegram-media.js` (R-Y36).
+
 ### Отметка входящих сообщений как прочитанных
 
 - TDLib читает только пока чат открыт:

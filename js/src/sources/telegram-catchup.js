@@ -17,8 +17,11 @@
  * What the difference returns goes through the same handler as live
  * updates (`handle`), so it lands as the same links. Channels and
  * supergroups have their own numbers; a gap there (`updateChannelTooLong`)
- * and a difference too long to fetch fall back to re-reading the dialogs
- * (`resync`). Applying an update twice is harmless (links merge by id).
+ * goes to that channel's own catch-up (`channelTooLong`,
+ * ./telegram-channels.js), and a difference too long to fetch falls back
+ * to re-reading the dialogs (`resync`). Applying an update twice is
+ * harmless (links merge by id). Every request goes through `request`
+ * (the account's paced queue).
  *
  * See docs/CHAT-REFERENCES.md, "Live updates and catching up after a gap".
  */
@@ -56,7 +59,8 @@ export const markedId = (entity) => {
   return kind.startsWith('Chat') ? `-${id}` : id;
 };
 
-const entitiesOf = (result) =>
+/** The users and chats of an answer, by marked id (as `_entities`). */
+export const entitiesOf = (result) =>
   new Map(
     [...(result.users ?? []), ...(result.chats ?? [])].map((e) => [
       markedId(e),
@@ -192,7 +196,7 @@ const createBackoff = (timers) => {
 const RESULT_UPDATES = new Set(['Updates', 'UpdatesCombined']);
 
 /** The updates inside Telegram's answer to one of our requests. */
-const updatesOfResult = (result) => {
+export const updatesOfResult = (result) => {
   if (RESULT_UPDATES.has(result?.className)) {
     return result.updates ?? [];
   }
@@ -200,7 +204,7 @@ const updatesOfResult = (result) => {
 };
 
 // A difference's messages and updates, through the live handler.
-const replay = async ({ client, handle, resync }, result) => {
+const replay = async ({ client, handle, channelTooLong }, result) => {
   const entities = entitiesOf(result);
   const updates = [
     ...(result.newMessages ?? []).map((message) => ({
@@ -211,7 +215,7 @@ const replay = async ({ client, handle, resync }, result) => {
   ];
   for (const update of updates) {
     if (update?.className === 'UpdateChannelTooLong') {
-      await resync('channel-too-long');
+      await channelTooLong(update);
       continue;
     }
     update._entities = entities;
@@ -222,12 +226,19 @@ const replay = async ({ client, handle, resync }, result) => {
 
 // updates.getDifference until Telegram says we are up to date; returns
 // how many updates it replayed.
-const fetchDifference = async ({ client, Api, counter, feed, resync }) => {
+const fetchDifference = async ({
+  client,
+  Api,
+  counter,
+  feed,
+  resync,
+  request,
+}) => {
   let fed = 0;
   for (let slice = 0; slice < MAX_SLICES; slice += 1) {
     const { pts, qts, date } = counter.get();
-    const result = await client.invoke(
-      new Api.updates.GetDifference({ pts, qts, date })
+    const result = await request(`difference:${pts}:${qts}`, () =>
+      client.invoke(new Api.updates.GetDifference({ pts, qts, date }))
     );
     const kind = result?.className;
     if (kind === 'updates.DifferenceEmpty') {
@@ -253,7 +264,9 @@ const fetchDifference = async ({ client, Api, counter, feed, resync }) => {
 /**
  * One account's catch-up.
  *   handle(client, update)  the live handler (telegram-account-live.js)
- *   resync(reason)          re-read the dialogs (channels, a long gap)
+ *   resync(reason)          re-read the dialogs (a difference too long)
+ *   channelTooLong(update)  a channel's own gap (its own catch-up)
+ *   request(key, task)      runs one request (the account's queue)
  *   importer()              resolves { Api } (the `telegram` package)
  *   onConnection(state)     GramJS's connection: 1, 0 or -1
  */
@@ -261,6 +274,8 @@ export const createTelegramCatchUp = ({
   store,
   handle,
   resync = async () => {},
+  channelTooLong = () => resync('channel-too-long'),
+  request = (_key, task) => task(),
   importer,
   log = () => {},
   onConnection = () => {},
@@ -300,17 +315,28 @@ export const createTelegramCatchUp = ({
     },
   });
 
-  const feed = (result) => replay({ client, handle, resync }, result);
+  const feed = (result) => replay({ client, handle, channelTooLong }, result);
 
   const difference = async (reason) => {
     const { Api } = await importer();
     if (!counter.get()) {
       // A new account: start from now (the dialog sync reads the past).
-      counter.set(await client.invoke(new Api.updates.GetState()));
+      counter.set(
+        await request('difference:state', () =>
+          client.invoke(new Api.updates.GetState())
+        )
+      );
       await save();
       return;
     }
-    const fed = await fetchDifference({ client, Api, counter, feed, resync });
+    const fed = await fetchDifference({
+      client,
+      Api,
+      counter,
+      feed,
+      resync,
+      request,
+    });
     await save();
     log({ event: 'telegram_catch_up', reason, updates: fed });
   };
@@ -367,7 +393,7 @@ export const createTelegramCatchUp = ({
     if (kind === 'UpdatesTooLong') {
       run('too-long').catch(() => {});
     } else if (kind === 'UpdateChannelTooLong') {
-      Promise.resolve(resync('channel-too-long')).catch(() => {});
+      Promise.resolve(channelTooLong(update)).catch(() => {});
     } else {
       counter.step(update);
     }

@@ -232,21 +232,33 @@ export const sourcePullHandler = ({ pullLive }) => ({
   },
 });
 
+// A message older than this is history, not something to answer now.
+const AUTOMATION_FRESH_MS = 24 * 60 * 60_000;
+
 /**
  * Built-in handler: when a new inbound `msg:*` arrives, run every
  * persisted automation graph against it and persist the planned
  * replies as `plan:<msgId>` links so the operator UI can render
  * them deterministically.
  */
-export const automationHandler = ({ runGraph, hydrate }) => ({
+export const automationHandler = ({
+  runGraph,
+  hydrate,
+  now = () => Date.now(),
+}) => ({
   selector: {
     idPrefix: 'msg:',
     event: 'put',
-    predicate: (l) => l.sender !== 'me',
+    // Only someone's new words: not a service note (a join, a pin), not a
+    // deleted message, and not history read ahead from long ago.
+    predicate: (l) =>
+      l.sender !== 'me' &&
+      !l.service &&
+      !l.deleted &&
+      !(now() - Date.parse(l.timestamp ?? '') > AUTOMATION_FRESH_MS),
   },
   async run({ link, store }) {
-    const all = await store.query();
-    const graphs = all.filter((l) => l.id?.startsWith('graph:'));
+    const graphs = await store.query((l) => l.id?.startsWith('graph:'));
     const allPlans = [];
     for (const persisted of graphs) {
       const plans = runGraph(hydrate(persisted), link, { mode: 'semi' });

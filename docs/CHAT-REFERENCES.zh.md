@@ -121,6 +121,20 @@
 - GramJS 自身的 `catchUp()` 是个空的 TODO
   （`node_modules/telegram/client/updates.js`），因此 GramJS 应用需要自行实现这一功能。
 
+### 每个频道各自补齐（群组中的删除）
+
+- 超级群组或频道自行为其更新编号（`pts`）；编号跳跃或 `updateChannelTooLong`
+  表示有更新（包括删除）没有到达，各应用会请求该频道的 difference：TDLib
+  [`get_channel_difference`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/MessagesManager.cpp#L34711)，Telegram Web K [`getChannelDifference`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L418)（处理
+  [`updateChannelTooLong`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L632)），Telegram Web A [`GetChannelDifference`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/updates/updateManager.ts#L484)。
+  我们的实现：`js/src/sources/telegram-channels.js`（R-Y35）。
+
+### 消息中的图片
+
+- 图片按已保存的位置下载；文件引用过期（`FILE_REFERENCE_*`）时重新读取消息后重试：
+  TDLib [`FILE_REFERENCE_`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/FileReferenceManager.cpp#L61)，Telegram Web A [`downloadMedia`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/media.ts#L29)。
+  我们的实现：`js/src/sources/telegram-media.js`（R-Y36）。
+
 ### 将收到的消息标记为已读
 
 - TDLib 仅在聊天打开时标记已读：

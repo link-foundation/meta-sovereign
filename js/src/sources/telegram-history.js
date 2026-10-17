@@ -137,73 +137,244 @@ const rank = (priority) => {
   return at < 0 ? PRIORITIES.indexOf('prefetch') : at;
 };
 
-const floodSeconds = (error) => {
+/**
+ * How fast each priority may ask Telegram (R-Y34): the least time since
+ * the last request of any priority, and how many requests of the last
+ * minute it still lets through — so background work runs only while the
+ * minute is quiet and never in a burst. Far below what Telegram allows
+ * an account; its own apps ask about as often while the user scrolls.
+ */
+export const PACE = Object.freeze({
+  view: { gapMs: 250, perMinute: 60 },
+  list: { gapMs: 500, perMinute: 45 },
+  prefetch: { gapMs: 1500, perMinute: 30 },
+  background: { gapMs: 3000, perMinute: 20 },
+});
+/** No pacing (tests). */
+export const NO_PACE = Object.freeze(
+  Object.fromEntries(
+    PRIORITIES.map((p) => [p, { gapMs: 0, perMinute: Infinity }])
+  )
+);
+const MINUTE_MS = 60_000;
+// After Telegram asked to wait, everything goes this much slower for
+// SLOW_FOR_MS (background and prefetch; the user's own requests half).
+export const SLOW_FOR_MS = 60 * MINUTE_MS;
+const SLOW_FACTOR = 4;
+// A wait this short is waited out by what the user looks at.
+const VIEW_WAITS_MS = 3000;
+// Telegram's wait is for the method that was asked too often; the
+// others pause this long too, so a burst cools down.
+const ALL_WAIT_MS = 30_000;
+
+/** The method a queue key names: `messages:42:…` → `messages`. */
+export const methodOf = (key) => String(key ?? '').split(':')[0];
+
+export const floodSeconds = (error) => {
   const text = `${error?.errorMessage ?? ''} ${error?.message ?? ''}`;
-  const match = /FLOOD_(?:PREMIUM_)?WAIT_(\d+)/.exec(text);
+  const match =
+    /FLOOD_(?:PREMIUM_)?WAIT_(\d+)/.exec(text) ??
+    /A wait of (\d+) seconds is required/.exec(text);
   return match ? Number(match[1]) : Number(error?.seconds) || 0;
 };
 
+const floodError = (retryAfter) =>
+  Object.assign(new Error('Telegram asked to wait'), {
+    code: 'flood-wait',
+    retryAfter,
+  });
+
 /**
- * One Telegram request at a time, the most urgent first. The same `key`
- * asked again while waiting is merged (and takes the higher priority).
- * After Telegram's "wait N seconds", background and prefetch work stops
- * for that long; what the user looks at is still tried.
+ * One Telegram request at a time, the most urgent first, at the pace of
+ * `PACE`. The same `key` asked again while waiting is merged (and takes
+ * the higher priority); its first part names the method (`methodOf`).
+ * After Telegram's "wait N seconds" — from a request of the queue or
+ * from anywhere else (`note`) — that method is not asked for that long,
+ * nothing at all for up to ALL_WAIT_MS (what waits is turned down with
+ * `code: 'flood-wait'` and `retryAfter`), and then everything goes
+ * slower for an hour. `onHold(holds)` saves the holds, `hold(holds)`
+ * restores them after a restart.
  */
+// The queue's clock: when each request of the last minute began, and
+// Telegram's waits (`holdUntil`: nothing; `methods`: one method).
+const createPacing = ({ pace, now }) => {
+  const started = [];
+  let holdUntil = 0;
+  let slowUntil = 0;
+  const methods = new Map();
+
+  const paceOf = (priority) => {
+    const base = pace[priority] ?? pace.prefetch;
+    if (now() >= slowUntil) {
+      return base;
+    }
+    const factor = rank(priority) >= rank('prefetch') ? SLOW_FACTOR : 2;
+    return { gapMs: base.gapMs * factor, perMinute: base.perMinute / factor };
+  };
+
+  // When `job` may go: after its gap, within its share of the minute.
+  const readyAt = (job) => {
+    while (started.length > 0 && started[0] <= now() - MINUTE_MS) {
+      started.shift();
+    }
+    const { gapMs, perMinute } = paceOf(job.priority);
+    const last = started.at(-1) ?? -Infinity;
+    const over = started.length - Math.floor(perMinute) + 1;
+    const budget = over > 0 ? started[over - 1] + MINUTE_MS : -Infinity;
+    return Math.max(last + gapMs, budget, heldUntil(job.method));
+  };
+
+  function heldUntil(method) {
+    return Math.max(holdUntil, methods.get(method) ?? 0);
+  }
+
+  const holds = () => ({
+    holdUntil,
+    slowUntil,
+    methods: Object.fromEntries(
+      [...methods].filter(([, until]) => until > now())
+    ),
+  });
+
+  /** Restore (or add) holds: `{ holdUntil, slowUntil, methods }`. */
+  const hold = (saved = {}) => {
+    holdUntil = Math.max(holdUntil, Number(saved.holdUntil) || 0);
+    slowUntil = Math.max(slowUntil, Number(saved.slowUntil) || 0);
+    for (const [method, until] of Object.entries(saved.methods ?? {})) {
+      methods.set(method, Math.max(methods.get(method) ?? 0, Number(until)));
+    }
+  };
+
+  const state = () => ({
+    heldFor: Math.max(0, holdUntil - now()),
+    methods: Object.fromEntries(
+      [...methods]
+        .filter(([, until]) => until > now())
+        .map(([method, until]) => [method, Math.ceil((until - now()) / 1000)])
+    ),
+    slowFor: Math.max(0, slowUntil - now()),
+    lastMinute: started.filter((at) => at > now() - MINUTE_MS).length,
+  });
+
+  return {
+    readyAt,
+    heldUntil,
+    hold,
+    holds,
+    state,
+    began: () => started.push(now()),
+  };
+};
+
 export const createFetchQueue = ({
   now = () => Date.now(),
   log = () => {},
+  pace = PACE,
+  onHold = () => {},
+  setTimer = (fn, ms) => globalThis.setTimeout(fn, ms),
+  clearTimer = (timer) => globalThis.clearTimeout(timer),
 } = {}) => {
   const waiting = [];
   const byKey = new Map();
+  const pacing = createPacing({ pace, now });
+  const { readyAt, heldUntil, hold, holds } = pacing;
   let busy = false;
-  let holdUntil = 0;
-
-  const held = (job) =>
-    rank(job.priority) >= rank('prefetch') && now() < holdUntil;
+  let timer = null;
 
   const take = () => {
     waiting.sort(
       (a, b) => rank(a.priority) - rank(b.priority) || a.seq - b.seq
     );
-    return waiting.shift();
+    return waiting[0];
+  };
+
+  const drop = (job) => {
+    waiting.splice(waiting.indexOf(job), 1);
+    byKey.delete(job.key);
+  };
+
+  /** Telegram's answer to any request: a "wait" holds the queue. */
+  const note = (error, { method = null, priority = null } = {}) => {
+    const seconds = floodSeconds(error);
+    if (seconds > 0) {
+      const until = now() + seconds * 1000;
+      hold({
+        holdUntil: Math.min(until, now() + ALL_WAIT_MS),
+        slowUntil: until + SLOW_FOR_MS,
+        methods: method ? { [method]: until } : {},
+      });
+      onHold(holds());
+      // The client's own watch and the queue see the same error once.
+      if (!error.floodNoted) {
+        log({
+          level: 'warn',
+          event: 'telegram_flood_wait',
+          seconds,
+          method,
+          priority,
+        });
+      }
+      Object.assign(error, { floodNoted: true });
+      pump();
+    }
+    return seconds;
   };
 
   const runJob = async (job) => {
-    if (held(job)) {
-      const error = Object.assign(new Error('Telegram asked to wait'), {
-        code: 'flood-wait',
-        retryAfter: Math.ceil((holdUntil - now()) / 1000),
-      });
-      job.reject(error);
-      return;
-    }
+    pacing.began();
     try {
       job.resolve(await job.task());
     } catch (error) {
-      const seconds = floodSeconds(error);
-      if (seconds > 0) {
-        holdUntil = Math.max(holdUntil, now() + seconds * 1000);
-        log({ event: 'telegram_flood_wait', seconds, priority: job.priority });
-      }
+      note(error, job);
       job.reject(error);
     }
   };
 
-  const pump = async () => {
+  // Turn down what waits while Telegram asked to wait (a short wait is
+  // waited out by the user's own requests).
+  const turnDownHeld = () => {
+    for (const job of [...waiting]) {
+      const left = heldUntil(job.method) - now();
+      if (left > 0 && (job.priority !== 'view' || left > VIEW_WAITS_MS)) {
+        drop(job);
+        job.reject(floodError(Math.ceil(left / 1000)));
+      }
+    }
+  };
+
+  const wake = (ms) => {
+    clearTimer(timer);
+    timer = setTimer(() => {
+      timer = null;
+      pump();
+    }, ms);
+    timer?.unref?.();
+  };
+
+  async function pump() {
     if (busy) {
       return;
     }
     busy = true;
     try {
-      while (waiting.length > 0) {
+      for (;;) {
+        turnDownHeld();
         const job = take();
-        byKey.delete(job.key);
+        if (!job) {
+          return;
+        }
+        const wait = readyAt(job) - now();
+        if (wait > 0) {
+          wake(wait);
+          return;
+        }
+        drop(job);
         await runJob(job);
       }
     } finally {
       busy = false;
     }
-  };
+  }
 
   let seq = 0;
   const run = (key, priority, task) => {
@@ -211,10 +382,17 @@ export const createFetchQueue = ({
     if (queued) {
       if (rank(priority) < rank(queued.priority)) {
         queued.priority = priority;
+        pump();
       }
       return queued.promise;
     }
-    const job = { key, priority, task, seq: (seq += 1) };
+    const job = {
+      key,
+      method: methodOf(key),
+      priority,
+      task,
+      seq: (seq += 1),
+    };
     job.promise = new Promise((resolve, reject) => {
       job.resolve = resolve;
       job.reject = reject;
@@ -227,10 +405,16 @@ export const createFetchQueue = ({
 
   return {
     run,
+    note,
+    hold,
     /** How many requests wait at `priority` or more urgent. */
     pending: (priority = 'background') =>
       waiting.filter((job) => rank(job.priority) <= rank(priority)).length,
-    heldFor: () => Math.max(0, holdUntil - now()),
+    /** How long nothing (or nothing of `method`) is asked, in ms. */
+    heldFor: (method = null) => Math.max(0, heldUntil(method) - now()),
+    holds,
+    /** For the status: the waits, the slow hour, the last minute's count. */
+    state: () => ({ ...pacing.state(), waiting: waiting.length }),
   };
 };
 

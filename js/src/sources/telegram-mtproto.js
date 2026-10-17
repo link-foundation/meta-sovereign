@@ -56,7 +56,10 @@ export const gramjsClientFactory =
       new StringSession(session ?? ''),
       Number(apiId),
       String(apiHash),
-      { connectionRetries: 5 }
+      // Every "wait N seconds" reaches the account's queue, which holds
+      // all requests that long (GramJS would otherwise sleep through
+      // waits under a minute and retry at once, unseen).
+      { connectionRetries: 5, floodSleepThreshold: 0 }
     );
     return client;
   };

@@ -139,6 +139,22 @@ The research behind these links, with the full notes, is in
   (`node_modules/telegram/client/updates.js`), so a GramJS app has to
   do this itself.
 
+### Each channel's own catch-up (deletions in groups)
+
+- A supergroup or channel numbers its updates on its own (`pts`); a
+  skipped number or `updateChannelTooLong` means updates (deletions
+  too) never came, and the apps ask that channel's difference: TDLib
+  [`get_channel_difference`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/MessagesManager.cpp#L34711), Telegram Web K [`getChannelDifference`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L418) on
+  [`updateChannelTooLong`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L632), Telegram Web A [`GetChannelDifference`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/updates/updateManager.ts#L484).
+  Ours: `js/src/sources/telegram-channels.js` (R-Y35).
+
+### Pictures in messages
+
+- A picture is downloaded by its stored location; an expired file
+  reference (`FILE_REFERENCE_*`) re-reads the message, then retries:
+  TDLib [`FILE_REFERENCE_`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/FileReferenceManager.cpp#L61), Telegram Web A [`downloadMedia`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/media.ts#L29).
+  Ours: `js/src/sources/telegram-media.js` (R-Y36).
+
 ### Marking incoming messages as read
 
 - TDLib reads only while the chat is open:

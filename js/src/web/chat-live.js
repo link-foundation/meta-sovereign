@@ -166,6 +166,7 @@ const sendResult = async (api, item) => {
       chat: item.chat,
       text: item.text,
       clientId: item.clientId,
+      ...(item.replyTo ? { replyTo: item.replyTo } : {}),
     });
     return result ?? { status: 'failed', code: 'no-answer' };
   } catch (error) {
@@ -442,6 +443,8 @@ export const useComposer = ({
   const outbox = useOutbox({ api, addLinks, after, storage });
   const box = useDraftBox({ api, current, cloud, storage });
   const key = current?.key ?? null;
+  // replyTo: { msgId, senderName, text } set by Reply action; cleared on send.
+  const [replyTo, setReplyTo] = useState(null);
 
   const send = () => {
     if (!current) {
@@ -453,6 +456,8 @@ export const useComposer = ({
     }
     box.sent(key);
     typing.cancel();
+    const replyId = replyTo?.msgId ?? null;
+    setReplyTo(null);
     return outbox.add({
       clientId: newClientId(),
       key,
@@ -462,6 +467,7 @@ export const useComposer = ({
       at: new Date().toISOString(),
       status: 'queued',
       attempts: 0,
+      ...(replyId ? { replyTo: replyId } : {}),
     });
   };
 
@@ -510,5 +516,8 @@ export const useComposer = ({
     pending: outbox.items,
     failed: mine.filter((p) => p.status === 'failed').length,
     sending: mine.some((p) => p.status !== 'failed'),
+    replyTo,
+    setReplyTo: (msg) => setReplyTo(msg),
+    clearReplyTo: () => setReplyTo(null),
   };
 };

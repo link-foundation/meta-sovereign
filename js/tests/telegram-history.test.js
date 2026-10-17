@@ -10,8 +10,10 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import {
   coverSlice,
   createFetchQueue,
+  floodSeconds,
   historyLinkId,
   historyPlan,
+  NO_PACE,
   rawMessage,
 } from '../src/sources/telegram-history.js';
 import { dialogsCursor } from '../src/sources/telegram-pages.js';
@@ -90,7 +92,7 @@ test('the plan asks Telegram only for what the store lacks', () => {
 });
 
 test('the queue runs the most urgent request first, one at a time', async () => {
-  const queue = createFetchQueue();
+  const queue = createFetchQueue({ pace: NO_PACE });
   const order = [];
   let release;
   const gate = new Promise((resolve) => {
@@ -113,24 +115,115 @@ test('the queue runs the most urgent request first, one at a time', async () => 
   assert.deepEqual(order, ['a', 'd', 'b', 'c']);
 });
 
-test("Telegram's wait holds prefetch and background work, not the view", async () => {
+// A clock and timers the test moves by hand.
+const fakeTime = () => {
   let clock = 0;
-  const queue = createFetchQueue({ now: () => clock });
+  const timers = [];
+  return {
+    now: () => clock,
+    setTimer: (fn, ms) => {
+      const timer = { at: clock + ms, fn };
+      timers.push(timer);
+      return timer;
+    },
+    clearTimer: (timer) => {
+      const at = timers.indexOf(timer);
+      if (at >= 0) {
+        timers.splice(at, 1);
+      }
+    },
+    // Move the clock on, firing what falls due.
+    async advance(ms) {
+      clock += ms;
+      for (const timer of [...timers].filter((t) => t.at <= clock)) {
+        timers.splice(timers.indexOf(timer), 1);
+        timer.fn();
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    },
+  };
+};
+
+test('the queue paces requests and gives background work only a quiet minute (R-Y34)', async () => {
+  const time = fakeTime();
+  const queue = createFetchQueue({
+    now: time.now,
+    setTimer: time.setTimer,
+    clearTimer: time.clearTimer,
+    pace: {
+      view: { gapMs: 100, perMinute: 60 },
+      list: { gapMs: 100, perMinute: 60 },
+      prefetch: { gapMs: 1000, perMinute: 3 },
+      background: { gapMs: 3000, perMinute: 2 },
+    },
+  });
+  const done = [];
+  const ask = (key, priority) =>
+    queue.run(key, priority, async () => done.push(key));
+  ask('b1', 'background');
+  ask('b2', 'background');
+  ask('b3', 'background');
+  await time.advance(0);
+  assert.deepEqual(done, ['b1'], 'the first goes at once');
+  await time.advance(2999);
+  assert.deepEqual(done, ['b1'], 'the next waits for its gap');
+  await time.advance(1);
+  assert.deepEqual(done, ['b1', 'b2']);
+  // Two background requests this minute: the third waits for the minute.
+  await time.advance(3000);
+  assert.deepEqual(done, ['b1', 'b2']);
+  // What the user looks at goes first, after a short gap.
+  ask('v1', 'view');
+  await time.advance(0);
+  assert.deepEqual(done, ['b1', 'b2', 'v1']);
+  await time.advance(60_000);
+  assert.deepEqual(done, ['b1', 'b2', 'v1', 'b3']);
+  assert.equal(queue.state().waiting, 0);
+});
+
+test("Telegram's wait holds its method, briefly everything, then slows down (R-Y34)", async () => {
+  const time = fakeTime();
+  const holds = [];
+  const queue = createFetchQueue({
+    now: time.now,
+    setTimer: time.setTimer,
+    clearTimer: time.clearTimer,
+    pace: NO_PACE,
+    onHold: (saved) => holds.push(saved),
+  });
   await assert.rejects(
-    queue.run('x', 'view', async () => {
-      throw Object.assign(new Error('FLOOD_WAIT_30'), {
-        errorMessage: 'FLOOD_WAIT_30',
+    queue.run('messages:42', 'view', async () => {
+      throw Object.assign(new Error('FLOOD_WAIT_120'), {
+        errorMessage: 'FLOOD_WAIT_120',
       });
     })
   );
-  assert.equal(queue.heldFor(), 30_000);
+  assert.equal(queue.heldFor('messages'), 120_000);
+  assert.equal(queue.heldFor(), 30_000, 'everything pauses for 30 s');
+  // Waiting work is turned down at once, with how long to wait.
   await assert.rejects(
-    queue.run('y', 'prefetch', async () => 'no'),
-    (error) => error.code === 'flood-wait'
+    queue.run('dialogs:x', 'background', async () => 'no'),
+    (error) => error.code === 'flood-wait' && error.retryAfter === 30
   );
-  assert.equal(await queue.run('z', 'view', async () => 'yes'), 'yes');
-  clock = 31_000;
-  assert.equal(await queue.run('y', 'background', async () => 'ok'), 'ok');
+  await time.advance(31_000);
+  assert.equal(await queue.run('dialogs:x', 'list', async () => 'ok'), 'ok');
+  await assert.rejects(
+    queue.run('messages:42', 'view', async () => 'no'),
+    (error) => error.code === 'flood-wait' && error.retryAfter === 89
+  );
+  // Saved, so a restart keeps waiting; an hour of slower pace after.
+  const saved = holds.at(-1);
+  assert.equal(saved.methods.messages, 120_000);
+  assert.ok(saved.slowUntil >= 120_000 + 3_600_000);
+  const restarted = createFetchQueue({ now: time.now, pace: NO_PACE });
+  restarted.hold(saved);
+  assert.equal(restarted.heldFor('messages'), 89_000);
+  // A wait seen anywhere else (a send, GramJS's own lookups) counts too.
+  assert.equal(
+    restarted.note(new Error('A wait of 7 seconds is required (caused by X)')),
+    7
+  );
+  assert.equal(floodSeconds({ seconds: 3 }), 3);
 });
 
 test('a message keeps everything Telegram said about it, as plain JSON', () => {
@@ -230,6 +323,7 @@ const longChat = (count) => {
 
 const accountWith = (store, client) =>
   createTelegramAccount({
+    pace: NO_PACE,
     store,
     clientFactory: async () => client,
     botLive: {

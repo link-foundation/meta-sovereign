@@ -92,16 +92,31 @@ export const sendError = (error) => {
 // sees Telegram's raw answer: it carries the update counter (pts) that
 // the catch-up tracks, and GramJS does not pass RPC answers to the
 // update handlers.
-const sendPart = async ({ client, Api, peer, text, randomId, onResult }) => {
+const sendPart = async ({
+  client,
+  Api,
+  peer,
+  text,
+  randomId,
+  replyTo,
+  onResult,
+}) => {
   if (!Api?.messages?.SendMessage || typeof client.invoke !== 'function') {
     // A client without raw invoke (tests, other libraries).
-    return client.sendMessage(peer, { message: text, parseMode: false });
+    return client.sendMessage(peer, {
+      message: text,
+      parseMode: false,
+      ...(replyTo ? { replyTo } : {}),
+    });
   }
   const request = new Api.messages.SendMessage({
     peer: await client.getInputEntity(peer),
     message: text,
     randomId,
     clearDraft: true,
+    ...(replyTo
+      ? { replyTo: new Api.InputReplyToMessage({ replyToMsgId: replyTo }) }
+      : {}),
   });
   try {
     const result = await client.invoke(request);
@@ -132,6 +147,7 @@ export const sendText = async ({
   text,
   clientId,
   maxLength = MAX_MESSAGE_LENGTH,
+  replyTo = null,
   onResult,
 }) => {
   const parts = splitMessage(text, maxLength);
@@ -144,6 +160,8 @@ export const sendText = async ({
       peer,
       text: part,
       randomId,
+      // A long reply answers with its first part, as Telegram's apps do.
+      replyTo: index === 0 ? replyTo : null,
       onResult,
     });
     sent.push({

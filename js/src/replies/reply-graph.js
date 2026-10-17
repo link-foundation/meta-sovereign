@@ -56,8 +56,11 @@ const toMs = (value) => {
   return Number.isNaN(parsed) ? null : parsed;
 };
 
+// A service note (a join, a pin) is no one's words.
 const isMessage = (link) =>
-  Boolean(link?.id?.startsWith('msg:')) && typeof link.body === 'string';
+  Boolean(link?.id?.startsWith('msg:')) &&
+  typeof link.body === 'string' &&
+  !link.service;
 
 const defaultIsSelf = (sender) => sender === 'me';
 

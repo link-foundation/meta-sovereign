@@ -5,6 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { NO_PACE } from '../src/sources/telegram-history.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import {
   createTelegramAccount,
@@ -109,6 +110,7 @@ const fakeClient = () => {
 
 const accountWith = (store, client, extra = {}) =>
   createTelegramAccount({
+    pace: NO_PACE,
     store,
     clientFactory: async () => client,
     botLive: {
@@ -155,6 +157,20 @@ test('dialog messages become chat links (mine, replies, media)', () => {
   );
   assert.equal(media.body, '📎');
   assert.equal(media.chatType, 'group');
+  // A pin is kept as a service line, never as someone's words.
+  const [pin] = telegramDialogLinks(
+    { id: '-100', title: 'Team', isGroup: true },
+    [
+      {
+        id: 9,
+        date: 1_700_000_000,
+        className: 'MessageService',
+        action: { className: 'MessageActionPinMessage' },
+      },
+    ]
+  );
+  assert.equal(pin.service, 'MessageActionPinMessage');
+  assert.equal(pin.body, '');
 });
 
 test('sync fills chats and contacts, and says who is connected', async () => {
@@ -256,6 +272,7 @@ test('a bot token is not polled in the background', async () => {
   });
   let pulled = 0;
   const account = createTelegramAccount({
+    pace: NO_PACE,
     store,
     clientFactory: async () => assert.fail('no MTProto for a bot'),
     botLive: {

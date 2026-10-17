@@ -139,6 +139,22 @@ delivery status, live updates, read receipts, typing, drafts या message list
   (`node_modules/telegram/client/updates.js`), इसलिए एक GramJS app को यह
   खुद करना होगा।
 
+### हर channel का अपना catch-up (groups में deletions)
+
+- Supergroup या channel अपने updates खुद गिनता है (`pts`); छूटा number
+  या `updateChannelTooLong` का मतलब है updates (deletions भी) नहीं आए,
+  और apps उस channel का difference माँगते हैं: TDLib
+  [`get_channel_difference`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/MessagesManager.cpp#L34711), Telegram Web K [`getChannelDifference`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L418),
+  [`updateChannelTooLong`](https://github.com/morethanwords/tweb/blob/579e5590d5db93e6ef39a5bbe1900257cb594cc2/src/lib/appManagers/apiUpdatesManager.ts#L632) पर, Telegram Web A [`GetChannelDifference`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/updates/updateManager.ts#L484).
+  हमारा: `js/src/sources/telegram-channels.js` (R-Y35).
+
+### Messages में तस्वीरें
+
+- तस्वीर उसकी stored location से download होती है; expired file
+  reference (`FILE_REFERENCE_*`) पर message दोबारा पढ़ा जाता है, फिर retry:
+  TDLib [`FILE_REFERENCE_`](https://github.com/tdlib/td/blob/a94b83d67ab4c8397c6245e541b31a4131ea2f79/td/telegram/FileReferenceManager.cpp#L61), Telegram Web A [`downloadMedia`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/api/gramjs/methods/media.ts#L29).
+  हमारा: `js/src/sources/telegram-media.js` (R-Y36).
+
 ### आने वाले messages को पढ़ा हुआ mark करना
 
 - TDLib केवल तब पढ़ता है जब chat खुली हो:

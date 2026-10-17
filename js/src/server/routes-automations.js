@@ -103,6 +103,24 @@ const sentLinks = (draft, result) => {
 
 const SEND_MEMORY_MS = 10 * 60_000;
 
+// Build the outgoing draft from the POST body.
+const buildDraft = (body) => {
+  const clientId =
+    typeof body.clientId === 'string' && body.clientId.length <= 100
+      ? body.clientId
+      : null;
+  const replyTo =
+    typeof body.replyTo === 'number' && body.replyTo > 0 ? body.replyTo : null;
+  return {
+    source: body.source,
+    chat: String(body.chat),
+    contact: body.contact ?? null,
+    text: String(body.text),
+    ...(clientId ? { clientId } : {}),
+    ...(replyTo ? { replyTo } : {}),
+  };
+};
+
 // A draft (one `clientId`) is sent at most once per server: a second
 // request — a double click, a retry after a lost answer — shares the
 // first one's outcome instead of sending again. A failed send is
@@ -138,17 +156,7 @@ const handleSend = async (store, res, body, ctx) => {
   if (typeof ctx.send !== 'function') {
     return fail(res, 501, 'no-sender', 'no sender is configured');
   }
-  const clientId =
-    typeof body.clientId === 'string' && body.clientId.length <= 100
-      ? body.clientId
-      : null;
-  const draft = {
-    source: body.source,
-    chat: String(body.chat),
-    contact: body.contact ?? null,
-    text: String(body.text),
-    ...(clientId ? { clientId } : {}),
-  };
+  const draft = buildDraft(body);
   // The composer's Send press confirms exactly this text.
   const ok = await confirmed(ctx, res, {
     action: 'message.send',

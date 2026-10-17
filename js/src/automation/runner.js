@@ -302,7 +302,7 @@ export const createAutomationScheduler = ({
 
   const onMessage = async (message) => {
     const at = Date.parse(message.timestamp ?? '') || 0;
-    if (isSelf(message.sender) || at < startedAt) {
+    if (isSelf(message.sender) || at < startedAt || message.service) {
       return [];
     }
     const ran = [];

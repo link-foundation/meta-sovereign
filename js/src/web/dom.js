@@ -721,4 +721,35 @@ export const api = {
         body: '{}',
       }
     )) ?? { error: 'server required for auto-import' },
+
+  // Re-read specific messages (e.g. those stored before raw existed).
+  telegramRefresh: async (body = {}) =>
+    (await serverPostReport('/api/telegram/refresh', body).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for refresh' },
+
+  // Forward messages to another chat.
+  telegramForward: async (body = {}) =>
+    (await serverPostReport('/api/telegram/forward', body).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for forward' },
+
+  // Delete messages; revoke=true deletes for everyone.
+  telegramDelete: async (body = {}) =>
+    (await serverPostReport('/api/telegram/delete', body).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for delete' },
+
+  /**
+   * URL for a Telegram photo via the media proxy.
+   * Returns null when the server is offline or the endpoint is unknown.
+   */
+  telegramMediaUrl: async ({ chat, id, size = 'm' } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !chat || !id) {
+      return null;
+    }
+    const path = `/api/telegram/media?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}&size=${encodeURIComponent(size)}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
 };
