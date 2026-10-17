@@ -75,6 +75,61 @@ const sentMessage = ({ source, chat, text }, { at, via }) => ({
   ...(via ? { via } : {}),
 });
 
+// The links a send stores: the network's own (a connected Telegram
+// account knows the message ids, so the next sync does not show the
+// message twice), else one local "sent" link. Each carries the composer's
+// `clientId`, which is how the chat matches it to its pending bubble.
+const sentLinks = (draft, result) => {
+  const stamp = (link) => ({
+    ...link,
+    ...(result?.via ? { via: result.via } : {}),
+    ...(draft.clientId ? { clientId: draft.clientId } : {}),
+  });
+  const known = result?.links ?? (result?.link ? [result.link] : []);
+  if (known.length > 0) {
+    return known.map(stamp);
+  }
+  // Already sent by an earlier try (Telegram told us): the sync brings it.
+  if (result?.duplicate) {
+    return [];
+  }
+  return [
+    stamp(
+      sentMessage(draft, { at: new Date().toISOString(), via: result?.via })
+    ),
+  ];
+};
+
+const SEND_MEMORY_MS = 10 * 60_000;
+
+// A draft (one `clientId`) is sent at most once per server: a second
+// request — a double click, a retry after a lost answer — shares the
+// first one's outcome instead of sending again. A failed send is
+// forgotten, so the user can retry it.
+const sendOnce = (ctx, draft, send) => {
+  if (!draft.clientId) {
+    return send();
+  }
+  const sends = (ctx.sends ??= new Map());
+  const key = `${draft.source}:${draft.chat}:${draft.clientId}`;
+  const now = Date.now();
+  for (const [k, entry] of sends) {
+    if (now - entry.at > SEND_MEMORY_MS) {
+      sends.delete(k);
+    }
+  }
+  const known = sends.get(key);
+  if (known) {
+    return known.promise;
+  }
+  const promise = send().catch((error) => {
+    sends.delete(key);
+    throw error;
+  });
+  sends.set(key, { at: now, promise });
+  return promise;
+};
+
 const handleSend = async (store, res, body, ctx) => {
   if (!validChat(body) || !String(body.text ?? '').trim()) {
     return fail(res, 400, 'bad-message', 'source, chat and text are needed');
@@ -82,11 +137,16 @@ const handleSend = async (store, res, body, ctx) => {
   if (typeof ctx.send !== 'function') {
     return fail(res, 501, 'no-sender', 'no sender is configured');
   }
+  const clientId =
+    typeof body.clientId === 'string' && body.clientId.length <= 100
+      ? body.clientId
+      : null;
   const draft = {
     source: body.source,
     chat: String(body.chat),
     contact: body.contact ?? null,
     text: String(body.text),
+    ...(clientId ? { clientId } : {}),
   };
   // The composer's Send press confirms exactly this text.
   const ok = await confirmed(ctx, res, {
@@ -98,20 +158,26 @@ const handleSend = async (store, res, body, ctx) => {
     return true;
   }
   try {
-    const result = await ctx.send(draft);
-    // An adapter that knows the network's message id (a connected Telegram
-    // account) returns the canonical link, so the next sync does not show
-    // the message twice.
-    const link = result?.link
-      ? { ...result.link, ...(result.via ? { via: result.via } : {}) }
-      : sentMessage(draft, {
-          at: new Date().toISOString(),
-          via: result?.via,
-        });
-    await store.put(link);
-    return json(res, 200, { status: 'sent', via: result?.via, link });
+    const sent = await sendOnce(ctx, draft, async () => {
+      const result = await ctx.send(draft);
+      const links = sentLinks(draft, result);
+      for (const link of links) {
+        await store.put(link);
+      }
+      return {
+        status: 'sent',
+        via: result?.via,
+        link: links.at(-1) ?? null,
+        links,
+      };
+    });
+    return json(res, 200, sent);
   } catch (error) {
-    return fail(res, 502, error.code ?? 'send-failed', error.message);
+    return json(res, error.code === 'flood-wait' ? 429 : 502, {
+      error: error.message,
+      code: error.code ?? 'send-failed',
+      ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
+    });
   }
 };
 

@@ -29,6 +29,12 @@ import { accountOf, gramjsClientFactory } from './telegram-mtproto.js';
 import { createTelegramBotLive } from './telegram.js';
 import { stampSourceLink } from './index.js';
 import { putAll } from '../storage/universal.js';
+import {
+  createTelegramLive,
+  dialogInfo,
+  readLink,
+} from './telegram-account-live.js';
+import { sendError, sendText } from './telegram-send.js';
 
 const SOURCE = 'telegram';
 export const TELEGRAM_SYNC_ID = 'sync:telegram';
@@ -146,7 +152,14 @@ const dialogOfEntity = (chat, entity) => {
 // Re-put a link only when what it shows changed, so a re-sync does not
 // re-announce every old message to the store's subscribers. Links with
 // the same id merge in order (a chat partner, then the address book).
-const SHOWN_FIELDS = ['body', 'name', 'handle', 'chatName', 'senderName'];
+const SHOWN_FIELDS = [
+  'body',
+  'name',
+  'handle',
+  'chatName',
+  'senderName',
+  'outboxMaxId',
+];
 const writeChanged = async (store, links) => {
   const byId = new Map();
   for (const link of links) {
@@ -186,7 +199,8 @@ const publicStatus = (link = {}) =>
   Object.fromEntries(PUBLIC_FIELDS.map((f) => [f, link?.[f] ?? null]));
 
 // One connected GramJS client per stored session, reused across requests.
-const createUserConnection = ({ clientFactory, dialogLimit }) => {
+// `onOpen(client)` runs once per new client (live updates attach there).
+const createUserConnection = ({ clientFactory, dialogLimit, onOpen }) => {
   let connection = null; // { key, client, me }
   const disconnect = async () => {
     const current = connection;
@@ -218,6 +232,7 @@ const createUserConnection = ({ clientFactory, dialogLimit }) => {
     await client.connect();
     const me = accountOf(await client.getMe());
     connection = { key, client, me };
+    onOpen?.(client);
     return connection;
   };
   // GramJS resolves a bare chat id only for peers it has seen; after a
@@ -254,7 +269,10 @@ const readContacts = async (client, { importer, log }) => {
 
 // The recent dialogs; only those whose newest message changed since the
 // last sync (`tops`, updated in place) have their messages read again.
-const readDialogs = async (client, { dialogs, messages, tops }) => {
+const readDialogs = async (
+  client,
+  { dialogs, messages, tops, chats: known }
+) => {
   const links = [];
   const partners = [];
   let chats = 0;
@@ -264,6 +282,11 @@ const readDialogs = async (client, { dialogs, messages, tops }) => {
       continue;
     }
     chats += 1;
+    known?.set(chat, dialogInfo(chat, dialog.entity));
+    const outbox = dialog.dialog?.readOutboxMaxId;
+    if (outbox) {
+      links.push(readLink(chat, outbox));
+    }
     if (dialog.isUser && dialog.entity) {
       partners.push(dialog.entity);
     }
@@ -299,6 +322,7 @@ const syncUser = async (env, creds, state, { full, dialogs, messages }) => {
     dialogs,
     messages,
     tops,
+    chats: env.live?.chats,
   });
   let contacts = state.contacts ?? 0;
   let contactsAt = state.contactsAt ?? null;
@@ -414,6 +438,33 @@ const sentLink = (chat, messageId, text, at) =>
       ])[0]
     : null;
 
+// Send as the user: exactly once (random_id), plain text, long text in
+// parts; returns the network's links for what was sent.
+const postAsUser = async (env, creds, { chat, text, clientId }) => {
+  const { client } = await env.connection.open(creds);
+  const { Api, helpers } = await env.importer().catch(() => ({}));
+  let sent;
+  try {
+    sent = await env.connection.withPeer(client, chat, (peer) =>
+      sendText({ client, Api, helpers, peer, text, clientId })
+    );
+  } catch (error) {
+    throw sendError(error);
+  }
+  const at = new Date(env.now());
+  const links = sent
+    .map((part) => sentLink(chat, idText(part.id), part.text, part.date ?? at))
+    .filter(Boolean);
+  return {
+    ok: true,
+    messageId: idText(sent.at(-1)?.id),
+    chat,
+    parts: sent.length,
+    ...(sent.some((part) => part.duplicate) ? { duplicate: true } : {}),
+    ...(links.length > 0 ? { link: links.at(-1), links } : {}),
+  };
+};
+
 /** history / post / setTyping through the connected account. */
 const createMessaging = (env) => {
   const { store, connection, botLive, importer, now } = env;
@@ -453,14 +504,11 @@ const createMessaging = (env) => {
     if (!target) {
       throw new Error('telegram post requires a chat/chatId target');
     }
-    const { client } = await connection.open(creds);
-    const chat = String(target);
-    const sent = await connection.withPeer(client, chat, (peer) =>
-      client.sendMessage(peer, { message: text })
-    );
-    const messageId = idText(sent?.id);
-    const link = sentLink(chat, messageId, text, new Date(now()));
-    return { ok: true, messageId, chat, ...(link ? { link } : {}) };
+    return postAsUser(env, creds, {
+      chat: String(target),
+      text,
+      clientId: draft.clientId,
+    });
   };
 
   const setTyping = async ({ chat, chatId } = {}, options = {}) => {
@@ -496,8 +544,21 @@ export const createTelegramAccount = ({
   messageLimit = 30,
   pollMs = 30_000,
 } = {}) => {
-  const connection = createUserConnection({ clientFactory, dialogLimit });
-  const env = { store, connection, botLive, importer, log, now };
+  const live = createTelegramLive({
+    store,
+    toLinks: telegramDialogLinks,
+    log,
+    now,
+    // Pollers (no event stream) look at `changedAt` to know to refresh.
+    touch: () =>
+      recordSync(store, { changedAt: new Date(now()).toISOString() }),
+  });
+  const connection = createUserConnection({
+    clientFactory,
+    dialogLimit,
+    onOpen: live.attach,
+  });
+  const env = { store, connection, botLive, importer, log, now, live };
   const messaging = createMessaging(env);
   let running = null; // the sync in flight
   let timer = null;

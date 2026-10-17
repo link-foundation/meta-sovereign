@@ -187,8 +187,11 @@ const codedError = (message, code) =>
 /** Errors that must never trigger a browser retry. */
 export const NO_FALLBACK_CODES = Object.freeze(['safe-mode', 'bad-draft']);
 
+// An adapter marks an error `fallback: false` when the message may
+// already be out (a connected account): sending it again through the
+// browser could post it twice.
 const defaultShouldFallback = (error) =>
-  !NO_FALLBACK_CODES.includes(error?.code);
+  error?.fallback !== false && !NO_FALLBACK_CODES.includes(error?.code);
 
 /**
  * Page-side extractor for the visible message history. It runs inside

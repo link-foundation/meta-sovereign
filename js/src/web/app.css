@@ -517,6 +517,60 @@ main[data-view='chat'] > .web-mode-banner {
 :root[data-skin='signal'] .bubble.out .bubble-time {
   opacity: 1;
 }
+/* Delivery: the clock, ✓ and ✓✓ sit after the time, as in messengers. */
+.bubble-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.bubble-status {
+  display: inline-flex;
+}
+.bubble-status.read {
+  color: var(--chat-accent);
+}
+:root[data-skin] .bubble.out .bubble-status.read {
+  color: inherit;
+  opacity: 1;
+}
+.bubble-edited {
+  font-style: italic;
+}
+.bubble.pending {
+  opacity: 0.85;
+}
+.bubble.failed {
+  outline: 1px solid var(--danger);
+}
+.bubble-status.failed {
+  color: var(--danger);
+}
+.bubble-failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  white-space: normal;
+}
+.bubble-failed button {
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+}
+.chat-new-pill {
+  position: sticky;
+  bottom: 7.5rem;
+  display: block;
+  margin: 0.5rem auto 0;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+}
+.chat-composer .send[aria-busy='true'] {
+  cursor: progress;
+}
 .draft-card {
   display: flex;
   flex-direction: column;

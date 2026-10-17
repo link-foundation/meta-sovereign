@@ -65,7 +65,10 @@ export const listAutomations = (links) => {
 };
 
 /** The outgoing message as the chat stores it (`/api/send` does too). */
-export const outgoingMessage = ({ source, chat, text }, { at, via } = {}) => {
+export const outgoingMessage = (
+  { source, chat, text, clientId },
+  { at, via, status } = {}
+) => {
   const when = at ?? new Date().toISOString();
   return {
     id: `msg:${source}:${chat}:out-${Date.parse(when)}`,
@@ -76,6 +79,8 @@ export const outgoingMessage = ({ source, chat, text }, { at, via } = {}) => {
     body: text,
     timestamp: when,
     ...(via ? { via } : {}),
+    ...(clientId ? { clientId } : {}),
+    ...(status ? { status } : {}),
   };
 };
 
@@ -208,20 +213,27 @@ const chatCalls = ({ remote, store }) => ({
    * The composer: the server sends through the network's API, then its
    * official web UI. Without a server the message is stored locally so
    * it is not lost (`status: 'stored'`).
+   *
+   * `message.clientId` names this one draft: the server sends a draft at
+   * most once, so a retry (or a second request racing the first) never
+   * posts it twice. The sent links live on the server and come back to
+   * the chat with the answer and on its event stream.
    */
   sendMessage: async (message) => {
     // The composer's Send press confirms exactly this text.
     const answer = await remote.confirmed('/api/send', message, () => true);
-    if (answer?.link) {
-      await store.put(answer.link);
-      return answer;
+    if (answer?.status === 'sent') {
+      return {
+        ...answer,
+        links: answer.links ?? [answer.link].filter(Boolean),
+      };
     }
     if (answer) {
-      return { status: 'failed', ...answer };
+      return { ...answer, status: 'failed' };
     }
-    const link = outgoingMessage(message);
+    const link = outgoingMessage(message, { status: 'stored' });
     await store.put(link);
-    return { status: 'stored', link };
+    return { status: 'stored', link, links: [link] };
   },
   setTyping: async ({ source, chat }) => {
     const link = typingLink({ source, chat, user: 'me' });

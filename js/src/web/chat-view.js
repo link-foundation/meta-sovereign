@@ -254,16 +254,101 @@ const Header = ({ state, onBack }) => {
   ]);
 };
 
-const Message = ({ message, showName }) => {
+// A message's delivery, as messengers show it: a clock while it goes
+// out, ✓ once the network has it, ✓✓ once the other side read it, ! when
+// it failed. A message kept here while offline shows the clock too.
+const DELIVERY_ICON = {
+  sending: 'clock',
+  stored: 'clock',
+  sent: 'check',
+  read: 'check-double',
+  failed: 'alert',
+};
+
+const Delivery = ({ status }) => {
+  const t = useT();
+  const label = t(`chat.delivery.${status}`);
+  return el(
+    'span',
+    {
+      className: `bubble-status ${status}`,
+      'data-delivery': status,
+      title: label,
+      role: 'img',
+      'aria-label': label,
+    },
+    el(Icon, { name: DELIVERY_ICON[status] ?? 'check', size: 14 })
+  );
+};
+
+/** Why a message did not go out, in words. */
+export const failureText = (t, message) => {
+  switch (message.code) {
+    case 'flood-wait':
+      return t('chat.failure.floodWait', {
+        seconds: message.retryAfter ?? '?',
+      });
+    case 'write-forbidden':
+      return t('chat.failure.forbidden');
+    case 'unknown-chat':
+      return t('chat.failure.unknownChat');
+    case 'too-long':
+      return t('chat.failure.tooLong');
+    default:
+      return t('chat.failure.other', {
+        error: message.error ?? message.code ?? '',
+      });
+  }
+};
+
+const FailedActions = ({ message, composer }) => {
+  const t = useT();
+  return el('div', { className: 'bubble-failed', role: 'alert' }, [
+    el('span', { key: 'why' }, failureText(t, message)),
+    el(
+      'button',
+      {
+        key: 'retry',
+        type: 'button',
+        'data-action': 'retry',
+        onClick: () => composer.retry(message.clientId),
+      },
+      t('chat.failure.retry')
+    ),
+    el(
+      'button',
+      {
+        key: 'discard',
+        type: 'button',
+        'data-action': 'discard',
+        onClick: () => composer.discard(message.clientId),
+      },
+      t('chat.failure.discard')
+    ),
+  ]);
+};
+
+const Message = ({ message, showName, composer }) => {
+  const t = useT();
   const { time } = useDates();
+  const mine = message.sender === 'me';
+  const failed = message.delivery === 'failed';
   return el(
     'div',
     {
-      className: message.sender === 'me' ? 'bubble out' : 'bubble in',
+      className: [
+        'bubble',
+        mine ? 'out' : 'in',
+        message.pending ? 'pending' : null,
+        failed ? 'failed' : null,
+      ]
+        .filter(Boolean)
+        .join(' '),
       'data-message': message.id,
+      ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
     },
     [
-      showName && message.sender !== 'me'
+      showName && !mine
         ? el(
             'span',
             { key: 'who', className: 'bubble-name' },
@@ -271,11 +356,22 @@ const Message = ({ message, showName }) => {
           )
         : null,
       el('span', { key: 'body', className: 'bubble-body' }, message.body ?? ''),
-      el(
-        'span',
-        { key: 'time', className: 'bubble-time' },
-        `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`
-      ),
+      el('span', { key: 'time', className: 'bubble-time' }, [
+        message.edited
+          ? el(
+              'span',
+              { key: 'e', className: 'bubble-edited', title: message.edited },
+              t('chat.edited')
+            )
+          : null,
+        `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
+        message.delivery
+          ? el(Delivery, { key: 'd', status: message.delivery })
+          : null,
+      ]),
+      failed && composer
+        ? el(FailedActions, { key: 'f', message, composer })
+        : null,
     ]
   );
 };
@@ -367,30 +463,91 @@ const NOTICE = {
   failed: 'chat.notice.failed',
 };
 
+const NEAR_BOTTOM_PX = 80;
+
+// Follows the conversation like a messenger: to the end when the user is
+// already there or just sent something; otherwise new messages wait
+// below a "new messages" button instead of yanking the view away from
+// what the user is reading.
+const useFollow = (state) => {
+  const box = useRef(null);
+  const end = useRef(null);
+  const near = useRef(true);
+  const seen = useRef({ key: null, count: 0 });
+  const [unseen, setUnseen] = useState(0);
+  const count = state.messages.length;
+  const last = state.messages.at(-1);
+  const toEnd = () => {
+    end.current?.scrollIntoView?.({ block: 'end' });
+    near.current = true;
+    setUnseen(0);
+  };
+  useEffect(() => {
+    const before = seen.current;
+    seen.current = { key: state.current?.key, count };
+    const added =
+      count - (before.key === state.current?.key ? before.count : 0);
+    if (before.key !== state.current?.key || near.current) {
+      toEnd();
+    } else if (added > 0 && last?.sender === 'me' && last?.pending) {
+      toEnd();
+    } else if (added > 0) {
+      setUnseen((n) => n + added);
+    }
+  }, [count, state.current?.key]);
+  const onScroll = () => {
+    const node = box.current;
+    if (!node) {
+      return;
+    }
+    near.current =
+      node.scrollHeight - node.scrollTop - node.clientHeight < NEAR_BOTTOM_PX;
+    if (near.current) {
+      setUnseen(0);
+    }
+  };
+  return { box, end, unseen, onScroll, toEnd };
+};
+
 const Stream = ({ state }) => {
   const t = useT();
-  const end = useRef(null);
-  useEffect(() => {
-    end.current?.scrollIntoView?.({ block: 'end' });
-  }, [state.messages.length, state.current?.key]);
-  return el('div', { className: 'chat-scroll' }, [
-    el('div', { key: 'col', className: 'chat-column' }, [
-      ...state.messages.map((message) =>
-        el(Message, {
-          key: message.id,
-          message,
-          showName: !state.current.personal,
-        })
-      ),
-      ...state.drafts.drafts.map((draft) =>
-        el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
-      ),
-      state.messages.length === 0
-        ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
+  const follow = useFollow(state);
+  return el(
+    'div',
+    { className: 'chat-scroll', ref: follow.box, onScroll: follow.onScroll },
+    [
+      el('div', { key: 'col', className: 'chat-column' }, [
+        ...state.messages.map((message) =>
+          el(Message, {
+            key: message.id,
+            message,
+            showName: !state.current.personal,
+            composer: state.composer,
+          })
+        ),
+        ...state.drafts.drafts.map((draft) =>
+          el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
+        ),
+        state.messages.length === 0
+          ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
+          : null,
+        el('div', { key: 'end', ref: follow.end }),
+      ]),
+      follow.unseen > 0
+        ? el(
+            'button',
+            {
+              key: 'new',
+              type: 'button',
+              className: 'chat-new-pill',
+              'data-action': 'scroll-new',
+              onClick: follow.toEnd,
+            },
+            t('chat.newMessages', { count: follow.unseen })
+          )
         : null,
-      el('div', { key: 'end', ref: end }),
-    ]),
-  ]);
+    ]
+  );
 };
 
 const Suggestions = ({ state }) => {
@@ -427,6 +584,11 @@ const Composer = ({ state }) => {
   const { composer } = state;
   const onKeyDown = (event) => {
     const first = state.suggest.suggestions?.[0];
+    // Enter that confirms an input method's word (Chinese, Japanese…) is
+    // not a Send.
+    if (event.nativeEvent?.isComposing || event.keyCode === 229) {
+      return;
+    }
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       composer.send();
@@ -464,6 +626,7 @@ const Composer = ({ state }) => {
             type: 'submit',
             className: 'primary send',
             disabled: !composer.text.trim(),
+            'aria-busy': composer.sending ? 'true' : undefined,
             'aria-label': t('common.send'),
           },
           el(Icon, { name: 'send', size: 18 })

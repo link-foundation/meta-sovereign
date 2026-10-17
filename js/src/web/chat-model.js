@@ -11,8 +11,25 @@ export const chatKey = (source, chat) => `${source}:${chat}`;
 
 const fold = (text) => String(text ?? '').toLocaleLowerCase();
 
+// The network's own message number (`msg:telegram:<chat>:<id>`), when
+// there is one: it orders messages sent in the same second, and it is
+// what "read up to" receipts count in.
+export const networkMessageId = (message) => {
+  const tail = String(message?.id ?? '')
+    .split(':')
+    .pop();
+  return /^\d+$/.test(tail) ? Number(tail) : null;
+};
+
 const byTime = (a, b) =>
-  String(a.timestamp ?? '').localeCompare(String(b.timestamp ?? ''));
+  String(a.timestamp ?? '').localeCompare(String(b.timestamp ?? '')) ||
+  (networkMessageId(a) ?? 0) - (networkMessageId(b) ?? 0);
+
+// A message link the chat shows (a deleted one stays stored, unshown).
+const isShownMessage = (link) =>
+  Boolean(link?.id?.startsWith('msg:')) &&
+  link.chat !== undefined &&
+  !link.deleted;
 
 const isMine = (message, self) => self.includes(String(message.sender));
 
@@ -79,7 +96,7 @@ export const summarizeChats = (
 ) => {
   const groups = new Map();
   for (const link of links) {
-    if (!link?.id?.startsWith('msg:') || link.chat === undefined) {
+    if (!isShownMessage(link)) {
       continue;
     }
     const key = chatKey(link.source, link.chat);
@@ -95,13 +112,63 @@ export const summarizeChats = (
     .sort((a, b) => String(b.last.at).localeCompare(String(a.last.at)));
 };
 
-/** A chat's messages, oldest first. */
-export const chatMessages = (links = [], key) =>
-  links
-    .filter(
-      (l) => l?.id?.startsWith('msg:') && chatKey(l.source, l.chat) === key
-    )
+/** How far the other side has read our messages in a chat (0: unknown). */
+export const readUpTo = (links = [], key) =>
+  links.find(
+    (l) => l?.id?.startsWith('read:') && chatKey(l.source, l.chat) === key
+  )?.outboxMaxId ?? 0;
+
+/**
+ * Where one of our messages is, as Telegram shows it:
+ *   sending (clock) → sent (✓) → read (✓✓); failed (!) and stored (kept
+ * here while offline, not sent yet). Others' messages have none.
+ */
+export const deliveryStatus = (message, readMax = 0) => {
+  if (message?.sender !== 'me') {
+    return null;
+  }
+  if (['sending', 'failed', 'stored'].includes(message.status)) {
+    return message.status;
+  }
+  const id = networkMessageId(message);
+  return id !== null && readMax >= id ? 'read' : 'sent';
+};
+
+// A message still on its way (the composer's queue), shaped like a link.
+const pendingMessage = (item) => ({
+  id: `pending:${item.clientId}`,
+  clientId: item.clientId,
+  source: item.source,
+  chat: item.chat,
+  sender: 'me',
+  body: item.text,
+  timestamp: item.at,
+  status: item.status,
+  error: item.error ?? null,
+  code: item.code ?? null,
+  retryAfter: item.retryAfter ?? null,
+  pending: true,
+});
+
+/**
+ * A chat's messages, oldest first, each of ours with its `delivery`
+ * status. `pending` (the composer's queue) follows, in the order sent,
+ * until the network's own link for it arrives.
+ */
+export const chatMessages = (links = [], key, { pending = [] } = {}) => {
+  const readMax = readUpTo(links, key);
+  const shown = links
+    .filter((l) => isShownMessage(l) && chatKey(l.source, l.chat) === key)
     .sort(byTime);
+  const arrived = new Set(shown.map((m) => m.clientId).filter(Boolean));
+  const queued = pending
+    .filter((p) => p.key === key && !arrived.has(p.clientId))
+    .map(pendingMessage);
+  return [...shown, ...queued].map((m) => {
+    const delivery = deliveryStatus(m, readMax);
+    return delivery ? { ...m, delivery } : m;
+  });
+};
 
 /** t3-style sidebar sections: today, yesterday, this week, older. */
 export const dayGroup = (iso, now = Date.now()) => {

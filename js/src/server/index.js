@@ -79,6 +79,7 @@ import { createReplyService } from '../replies/reply-service.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
+import { handleEventRoutes } from './routes-events.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -357,6 +358,7 @@ const route = async (store, req, res, ctx) => {
     return;
   }
   for (const handle of [
+    () => handleEventRoutes(store, req, res, p, ctx),
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleDerivedRoutes(store, req, res, p, url),

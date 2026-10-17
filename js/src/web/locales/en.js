@@ -835,6 +835,22 @@ export const en = {
   'chat.automation.confirmAuto':
     '"{name}" will send {count, plural, one {# message} other {# messages}} now. Send?',
   'chat.empty': 'No messages in this chat yet.',
+  'chat.delivery.sending': 'Sending…',
+  'chat.delivery.stored':
+    'Saved in this browser only: no server was reachable, so it was not sent',
+  'chat.delivery.sent': 'Sent',
+  'chat.delivery.read': 'Read',
+  'chat.delivery.failed': 'Not sent',
+  'chat.failure.floodWait':
+    'Telegram asks to wait {seconds} s before sending more.',
+  'chat.failure.forbidden': 'You cannot write in this chat.',
+  'chat.failure.unknownChat': 'This chat is not available to your account.',
+  'chat.failure.tooLong': 'The message is too long.',
+  'chat.failure.other': 'Not sent: {error}',
+  'chat.failure.retry': 'Retry',
+  'chat.failure.discard': 'Delete',
+  'chat.edited': 'edited',
+  'chat.newMessages': 'New messages: {count} ↓',
   'chat.form.informal': 'informal ("ты")',
   'chat.form.formal': 'formal ("вы")',
   'chat.draft.title': 'Draft from {name} · {form}',

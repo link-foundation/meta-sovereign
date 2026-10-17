@@ -844,6 +844,22 @@ export const ru = {
   'chat.automation.confirmAuto':
     '«{name}» отправит {count, plural, one {# сообщение} few {# сообщения} other {# сообщений}} сейчас. Отправить?',
   'chat.empty': 'В этом чате пока нет сообщений.',
+  'chat.delivery.sending': 'Отправляется…',
+  'chat.delivery.stored':
+    'Сохранено только в этом браузере: сервер был недоступен, сообщение не отправлено',
+  'chat.delivery.sent': 'Отправлено',
+  'chat.delivery.read': 'Прочитано',
+  'chat.delivery.failed': 'Не отправлено',
+  'chat.failure.floodWait':
+    'Telegram просит подождать {seconds} с перед следующей отправкой.',
+  'chat.failure.forbidden': 'В этот чат нельзя писать.',
+  'chat.failure.unknownChat': 'Этот чат недоступен вашему аккаунту.',
+  'chat.failure.tooLong': 'Сообщение слишком длинное.',
+  'chat.failure.other': 'Не отправлено: {error}',
+  'chat.failure.retry': 'Повторить',
+  'chat.failure.discard': 'Удалить',
+  'chat.edited': 'изменено',
+  'chat.newMessages': 'Новых сообщений: {count} ↓',
   'chat.form.informal': 'на «ты»',
   'chat.form.formal': 'на «вы»',
   'chat.draft.title': 'Черновик от «{name}» · {form}',

@@ -148,6 +148,20 @@ const ICONS = {
     ['path', { d: 'm6 6 12 12' }],
   ],
   check: [['path', { d: 'M20 6 9 17l-5-5' }]],
+  // Lucide check-check, clock and circle-alert: a message's delivery.
+  'check-double': [
+    ['path', { d: 'M18 6 7 17l-5-5' }],
+    ['path', { d: 'm22 10-7.5 7.5L13 16' }],
+  ],
+  clock: [
+    ['circle', { cx: 12, cy: 12, r: 10 }],
+    ['polyline', { points: '12 6 12 12 16 14' }],
+  ],
+  alert: [
+    ['circle', { cx: 12, cy: 12, r: 10 }],
+    ['line', { x1: 12, x2: 12, y1: 8, y2: 12 }],
+    ['line', { x1: 12, x2: 12.01, y1: 16, y2: 16 }],
+  ],
 };
 
 export const iconNames = Object.keys(ICONS);

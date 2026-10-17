@@ -15,6 +15,8 @@ import {
 } from './chat-model.js';
 import { localizePreset } from './automations-model.js';
 import { readShareTyping } from './privacy-prefs.js';
+import { useComposer, useLiveLinks } from './chat-live.js';
+import { isTypingActive } from '../sources/live-links.js';
 
 const TYPING_EVERY_MS = 4000;
 
@@ -158,40 +160,6 @@ const useDrafts = ({ api, current, tick, after }) => {
   return { drafts: drafts ?? [], act, edit };
 };
 
-const useComposer = ({ api, current, after }) => {
-  const [text, setText] = useState('');
-  const typingOut = useTypingOut(api, current);
-  const send = async () => {
-    const body = text.trim();
-    if (!body || !current) {
-      return null;
-    }
-    const result = await api.sendMessage({
-      source: current.source,
-      chat: current.chat,
-      text: body,
-    });
-    if (result?.status === 'failed') {
-      after({ kind: 'failed', error: result.error ?? result.code });
-      return result;
-    }
-    setText('');
-    after(result?.status === 'stored' ? { kind: 'stored' } : null);
-    return result;
-  };
-  return {
-    text,
-    // `typed`: the user typed it (not a suggestion chip).
-    setText: (next, { typed = false } = {}) => {
-      setText(next);
-      if (next && typed) {
-        typingOut();
-      }
-    },
-    send,
-  };
-};
-
 const STATUS_EVERY_MS = 4000;
 
 /**
@@ -199,9 +167,17 @@ const STATUS_EVERY_MS = 4000;
  * an error) polled while the screen is open, a fresh link load whenever a
  * sync wrote something, and "Sync now".
  */
-const useTelegramAccount = (api, refresh, pollMs = STATUS_EVERY_MS) => {
+const useTelegramAccount = (
+  api,
+  refresh,
+  { pollMs = STATUS_EVERY_MS, live = false } = {}
+) => {
   const [status, setStatus] = useState(null);
   const seen = useRef(undefined);
+  // With the event stream open, changes arrive by themselves; a reload
+  // on `changedAt` is only for when it is not.
+  const streamed = useRef(live);
+  streamed.current = live;
   const supported = typeof api.telegramStatus === 'function';
   const load = useCallback(() => {
     if (!supported) {
@@ -211,7 +187,11 @@ const useTelegramAccount = (api, refresh, pollMs = STATUS_EVERY_MS) => {
       (next) => {
         setStatus(next);
         const changed = next?.changedAt ?? null;
-        if (seen.current !== undefined && changed !== seen.current) {
+        if (
+          seen.current !== undefined &&
+          changed !== seen.current &&
+          !streamed.current
+        ) {
           refresh();
         }
         seen.current = changed;
@@ -303,6 +283,35 @@ export const emptyChat = (links = [], { source, chat }) => {
   };
 };
 
+/**
+ * Who types in a chat: the polled list, overridden by what the event
+ * stream said since (their message arrived, so they stopped), plus
+ * typing only the stream has seen yet.
+ */
+export const mergeTyping = (polled, links, key, now = Date.now()) => {
+  if (!key) {
+    return [];
+  }
+  const streamed = new Map(
+    links
+      .filter(
+        (l) => l?.id?.startsWith('typing:') && chatKey(l.source, l.chat) === key
+      )
+      .map((l) => [l.id, l])
+  );
+  const fresher = (t) => {
+    const live = streamed.get(t.id);
+    return live && String(live.at) >= String(t.at) ? live : t;
+  };
+  const list = polled.map(fresher);
+  for (const link of streamed.values()) {
+    if (!list.some((t) => t.id === link.id)) {
+      list.push(link);
+    }
+  }
+  return list.filter((t) => isTypingActive(t, now));
+};
+
 /** Everything the chat screen shows and does. */
 export const useChatState = (
   api,
@@ -310,11 +319,11 @@ export const useChatState = (
 ) => {
   const [tick, setTick] = useState(0);
   const refresh = () => setTick((n) => n + 1);
-  const [links] = useLoaded(() => api.links(), [api, tick], null);
+  const { links, live, add } = useLiveLinks(api, tick, refresh);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState('');
   const [notice, setNotice] = useState(null);
-  const telegram = useTelegramAccount(api, refresh);
+  const telegram = useTelegramAccount(api, refresh, { live });
   const target = useHashChat();
   const all = useMemo(() => {
     const list = summarizeChats(links ?? []);
@@ -342,14 +351,24 @@ export const useChatState = (
   }, [all, active]);
   const current = all.find((c) => c.key === active) ?? null;
   useChatHistory(api, current, refresh);
-  const messages = useMemo(
-    () => (current ? chatMessages(links ?? [], current.key) : []),
-    [links, current?.key]
-  );
   const after = (next) => {
     setNotice(next);
     refresh();
   };
+  const composer = useComposer({
+    api,
+    current,
+    after: setNotice,
+    addLinks: add,
+    typingOut: useTypingOut(api, current),
+  });
+  const messages = useMemo(
+    () =>
+      current
+        ? chatMessages(links ?? [], current.key, { pending: composer.pending })
+        : [],
+    [links, current?.key, composer.pending]
+  );
 
   const [typing, setTyping] = useLoaded(
     () =>
@@ -368,10 +387,10 @@ export const useChatState = (
     pollMs,
     [api, current?.key, pollMs]
   );
-
-  const composer = useComposer({ api, current, after });
+  const typingNow = mergeTyping(typing ?? [], links ?? [], current?.key);
   return {
     loading: links === null,
+    live,
     telegram,
     chats,
     total: all.length,
@@ -383,7 +402,7 @@ export const useChatState = (
       setNotice(null);
     },
     messages,
-    typing: typingStatus(typing ?? [], { names: senderNames(messages) }),
+    typing: typingStatus(typingNow, { names: senderNames(messages) }),
     composer,
     suggest: useSuggestions(api, current, composer.text, tick),
     menu: useAutomationMenu({ api, current, confirm, t, after }),

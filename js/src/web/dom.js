@@ -629,6 +629,34 @@ export const api = {
     (await serverPostReport('/api/telegram/sync', body).catch((error) => ({
       error: error.message,
     }))) ?? { error: 'server required for Telegram sync' },
+  /**
+   * Live link changes from the server (GET /api/events, Server-Sent
+   * Events): `onEvent({ type: 'put', link } | { type: 'delete', id })`,
+   * `onState('open' | 'closed')`. EventSource reconnects by itself; the
+   * caller reloads everything on each 'open' to catch up on what it
+   * missed. Returns a stop function; without a server it does nothing.
+   */
+  events: async (onEvent, onState = () => {}) => {
+    const { client, origin } = await ensure();
+    const Source = globalThis.EventSource;
+    if (!client.isOnline() || typeof Source !== 'function') {
+      return () => {};
+    }
+    const url = origin
+      ? new URL('/api/events', origin).toString()
+      : '/api/events';
+    const source = new Source(url);
+    source.addEventListener('ready', () => onState('open'));
+    source.addEventListener('link', (event) => {
+      try {
+        onEvent(JSON.parse(event.data));
+      } catch {
+        // A malformed frame: skip it, the next reload fixes the view.
+      }
+    });
+    source.addEventListener('error', () => onState('closed'));
+    return () => source.close();
+  },
   telegramHistory: async (chat) =>
     (await serverPostReport('/api/telegram/history', { chat }).catch(
       (error) => ({ error: error.message })
