@@ -2,6 +2,17 @@
 'meta-sovereign': minor
 ---
 
+Chat now behaves like Telegram's own apps when the connection is
+unreliable, following the open-source clients pinned in
+`docs/CHAT-REFERENCES.md`: updates missed while offline are fetched with
+`updates.getDifference`, reading a chat marks it read on Telegram (can
+be turned off in Settings → Privacy) with unread counts and an "Unread
+messages" line, drafts are kept across reloads and synced with
+Telegram's cloud drafts, the outbox survives a reload and still sends
+each message once, temporary failures and flood waits are retried by
+themselves, a lasting failure stops the chat's queue with Resend all /
+Delete all, and a banner shows when Chat is not connected.
+
 "Find my Telegram sessions" is now fast and reliable. The scan groups discovered credentials from the files alone — no network — so results (your bot tokens and user sessions, grouped by account) appear at once instead of waiting on, or failing because of, slow per-account Telegram verification. The directory walk skips dot-directories and heavy build/dependency trees and dedupes case-variant roots, cutting a full home-folder scan from ~13s to ~4s. The server response helper now refuses to write twice, so a slow handler whose client has given up can no longer crash the whole server with `ERR_HTTP_HEADERS_SENT` (which previously lost the already-discovered results). Online account verification (`getMe` / GramJS) remains available as a separate step rather than blocking the listing.
 
 Connections → Telegram → Enter manually: **Find my Telegram sessions** discovers the Telegram sign-ins you already have scattered across your repositories — both **bot tokens** (`123456:ABC…`) and **user sessions** (GramJS `StringSession`, e.g. `konard/telegram-bot`'s `.telegram_session`) — and lists them grouped by the account each belongs to, so the same account found in several projects shows as one. The local server walks folders you choose (read-only; `.env`/`.lenv` and session files, skipping `node_modules` and `.env.example`/template placeholders), confirms bot tokens with Telegram's `getMe`, groups user sessions by phone (and verifies them when a GramJS client is injected), and stores the chosen one under `secret:telegram:*`. Values stay on the computer: the browser only ever receives the kind, the path and a masked hint, never the token or session.
