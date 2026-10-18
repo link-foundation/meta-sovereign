@@ -11,7 +11,8 @@ export {
   encodeNetwork,
   readNetwork,
 } from './doublets-archive.js';
-export { createDualStore } from './dual-store.js';
+export { createDualStore, openDualStore } from './dual-store.js';
+export { createDoubletsMirror, snapshotInWorker } from './doublets-mirror.js';
 export { parseLino, formatLino } from './lino.js';
 export {
   createBrowserStore,

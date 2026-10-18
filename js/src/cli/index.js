@@ -26,9 +26,7 @@ import {
   createGreetingCommands,
 } from './greetings-commands.js';
 import {
-  createDualStore,
-  createLinoTextStore,
-  createDoubletsStore,
+  openDualStore,
   bulkPurge,
   isTombstone,
   createVault,
@@ -108,12 +106,7 @@ ${GREETINGS_HELP}
   help
 `;
 
-const openStore = async (dir) => {
-  await fs.mkdir(dir, { recursive: true });
-  const text = await createLinoTextStore(path.join(dir, 'data.lino'));
-  const binary = await createDoubletsStore(path.join(dir, 'data.bin'));
-  return createDualStore({ binary, text });
-};
+const openStore = (dir) => openDualStore(dir);
 
 const importCmd = async (args, log) => {
   const file = args.file;

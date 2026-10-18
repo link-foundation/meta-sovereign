@@ -192,6 +192,7 @@ These apply to every change, by people and AI agents alike (`CLAUDE.md` at the r
 8. **Third-party code is a reference, not a dependency.** Open-source clients we learn from are listed in [CHAT-REFERENCES.md](CHAT-REFERENCES.md); downloaded copies are read only — never built, installed or run.
 9. **Quality gates stay on.** `npm run check` (ESLint with no warnings, Prettier, duplication) and `npm test` pass before a commit; a function over the complexity or length limit is split, not exempted. Rebuild `js/src/web/app.min.js` (`npm run build:web`) after changing the web app.
 10. **A local app for its user.** meta-sovereign is open source and runs on the user's own machine, on the user's own accounts, for the user's convenience: it acts only when and as the user asks, at the pace each network allows.
+11. **Browsers through browser-commander, with no automation bars.** A browser the app opens, and one used to look at the web app while checking a change, is started by [browser-commander](https://github.com/link-foundation/browser-commander) with its default launch (the installed Chrome as a person starts it): never with a switch that makes Chrome show the "controlled by automated test software" or "unsupported command-line flag" bar (`--enable-automation`, `--disable-blink-features=AutomationControlled`). Such a bar in browser-commander itself is reported to its repository.
 
 ## Questions?
 

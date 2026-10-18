@@ -14,6 +14,7 @@ import {
   createDualStore,
   createLinoTextStore,
   decodeArchive,
+  openDualStore,
 } from '../src/storage/index.js';
 import {
   applyLinoRecords,
@@ -206,4 +207,57 @@ test('the server reconciles on start and writes the snapshot on close', async ()
   ).map((l) => l.id);
   assert.ok(ids.includes('msg:telegram:1:1'), 'repaired from the text log');
   assert.ok(ids.includes('msg:telegram:1:2'), 'written on close');
+});
+
+test('the opened store holds each link once; data.bin mirrors the log', async () => {
+  const dir = await tmpdir();
+  const store = await openDualStore(dir);
+  await store.putMany([message(1), message(2)]);
+  await store.put(message(2, { body: 'edited' }));
+  await store.delete('msg:telegram:1:1');
+  assert.equal((await store.get('msg:telegram:1:2')).body, 'edited');
+  await store.flush();
+  const bin = path.join(dir, 'data.bin');
+  assert.deepEqual(decodeArchive(await fs.readFile(bin)), [
+    message(2, { body: 'edited' }),
+  ]);
+  // Up to date: opening again writes nothing.
+  const again = await openDualStore(dir);
+  assert.deepEqual(await again.reconcile(), {
+    put: 0,
+    deleted: 0,
+    stale: false,
+  });
+  // A write the snapshot missed (a crash before it) is noticed on open.
+  await again.put(message(3));
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  const third = await openDualStore(dir);
+  assert.equal((await third.reconcile()).stale, true);
+  await third.flush();
+  assert.deepEqual(
+    decodeArchive(await fs.readFile(bin)).map((l) => l.id),
+    ['msg:telegram:1:2', 'msg:telegram:1:3']
+  );
+});
+
+test('a large log loads a line at a time and keeps only the live links', async () => {
+  const file = path.join(await tmpdir(), 'data.lino');
+  const writer = await createLinoTextStore(file, { compactAfter: Infinity });
+  for (let n = 1; n <= 300; n += 1) {
+    await writer.put(message(n % 100, { body: `version ${n} — привет` }));
+  }
+  await writer.delete('msg:telegram:1:0');
+  // A torn last append (no newline) is skipped, not fatal.
+  await fs.appendFile(file, '(o: (id "msg:telegram:1:x") (tok');
+  const reader = await createLinoTextStore(file, { compactAfter: Infinity });
+  const links = await reader.query();
+  assert.equal(links.length, 99);
+  assert.equal(
+    (await reader.get('msg:telegram:1:7')).body,
+    'version 207 — привет'
+  );
+  await reader.put(message(500));
+  const text = await fs.readFile(file, 'utf8');
+  assert.ok(text.includes('(tok\n'), 'the torn line is closed first');
+  assert.equal((await (await createLinoTextStore(file)).query()).length, 100);
 });

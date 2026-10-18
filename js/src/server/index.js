@@ -49,12 +49,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import {
-  createDualStore,
-  createLinoTextStore,
-  createDoubletsStore,
-  wrapSecretStore,
-} from '../storage/index.js';
+import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import {
   getSource as getSourceDefault,
   listSources,
@@ -398,14 +393,19 @@ const initStore = async ({
   storeDir,
   archiveDir,
   secretPassphrase,
+  log,
 }) => {
   let store = providedStore;
   let resolvedArchiveDir = archiveDir;
   if (!store) {
-    await fs.mkdir(storeDir, { recursive: true });
-    const text = await createLinoTextStore(path.join(storeDir, 'data.lino'));
-    const binary = await createDoubletsStore(path.join(storeDir, 'data.bin'));
-    store = createDualStore({ binary, text });
+    store = await openDualStore(storeDir, {
+      onError: (error) =>
+        log?.({
+          level: 'warn',
+          event: 'store_snapshot_failed',
+          error: error.message,
+        }),
+    });
     // The binary snapshot may have missed the last writes (a crash).
     await store.reconcile();
     if (!resolvedArchiveDir) {
@@ -456,6 +456,7 @@ export const startServer = async ({
     storeDir,
     archiveDir,
     secretPassphrase,
+    log,
   });
   const chatIndex = createChatIndex(store);
   const telegramAccount = telegramAccountFor(store, log, {

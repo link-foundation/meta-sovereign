@@ -20,8 +20,9 @@
  * record format on the next write.
  */
 
-import { promises as fs } from 'node:fs';
+import { createReadStream, promises as fs } from 'node:fs';
 import path from 'node:path';
+import { createInterface } from 'node:readline';
 import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore } from './universal.js';
 import { parseLino } from './lino.js';
@@ -107,23 +108,128 @@ const readRecordLines = (text) => {
   return records;
 };
 
-const loadFile = async (filePath) => {
-  let text;
+// Short strings repeat across records (tokens, types, chat ids, dates):
+// while a file loads each is kept once, as the binary side's names are,
+// and every record is rebuilt as plain objects — half the memory of the
+// decoder's own (measured on a 200k-message store).
+const INTERN_MAX = 64;
+// A decoded string can be a slice of its whole line, which would keep
+// every line of the file in memory; this is a copy of its own.
+const ownCopy = (text) => (text.length < 13 ? text : ` ${text}`.slice(1));
+const createInterner = () => {
+  const seen = new Map();
+  const intern = (value) => {
+    if (typeof value === 'string') {
+      if (value.length > INTERN_MAX) {
+        return ownCopy(value);
+      }
+      const known = seen.get(value);
+      if (known !== undefined) {
+        return known;
+      }
+      const own = ownCopy(value);
+      seen.set(own, own);
+      return own;
+    }
+    if (Array.isArray(value)) {
+      return value.map(intern);
+    }
+    if (value && typeof value === 'object') {
+      const out = {};
+      for (const key of Object.keys(value)) {
+        out[key] = intern(value[key]);
+      }
+      return out;
+    }
+    return value;
+  };
+  return intern;
+};
+
+// The live links of a record log, read a line at a time: a large store
+// is never held as one string, and a superseded record is dropped as
+// soon as a later one replaces it.
+const streamRecords = async (filePath) => {
+  const byId = new Map();
+  const intern = createInterner();
+  let lines = 0;
+  let open = false;
+  const input = createReadStream(filePath, { encoding: 'utf8' });
+  const reader = createInterface({ input, crlfDelay: Infinity });
+  for await (const line of reader) {
+    if (!isRecordLine(line)) {
+      continue;
+    }
+    let record;
+    try {
+      record = decodeLine({ notation: line });
+    } catch {
+      continue; // a torn last line; the next compaction drops it
+    }
+    lines += 1;
+    if (typeof record?.id !== 'string') {
+      continue;
+    }
+    if (isTombstoneRecord(record)) {
+      byId.delete(record.id);
+    } else {
+      byId.set(record.id, intern(record));
+    }
+  }
+  const { size } = await fs.stat(filePath);
+  if (size > 0) {
+    // A file not ending in a newline (a torn append) gets one first.
+    const handle = await fs.open(filePath, 'r');
+    try {
+      const last = Buffer.alloc(1);
+      await handle.read(last, 0, 1, size - 1);
+      open = last[0] !== 0x0a;
+    } finally {
+      await handle.close();
+    }
+  }
+  return { live: [...byId.values()], lines, legacy: false, open };
+};
+
+// The first line that is not blank: the legacy format has no records.
+const firstLine = async (filePath) => {
+  const input = createReadStream(filePath, { encoding: 'utf8' });
+  const reader = createInterface({ input, crlfDelay: Infinity });
   try {
-    text = await fs.readFile(filePath, 'utf8');
+    for await (const line of reader) {
+      if (line.trim().length > 0) {
+        return line;
+      }
+    }
+    return null;
+  } finally {
+    reader.close();
+    input.destroy();
+  }
+};
+
+/** The live links of a `.lino` file, and how its lines stand. */
+export const readLinoFile = async (filePath) => {
+  let first;
+  try {
+    first = await firstLine(filePath);
   } catch (err) {
     if (err.code !== 'ENOENT') {
       throw err;
     }
-    return { records: [], lines: 0, legacy: false, open: false };
+    return { live: [], lines: 0, legacy: false, open: false };
   }
-  if (isLegacyText(text)) {
-    return { records: parseLinoRecords(text), lines: 0, legacy: true };
+  if (first !== null && !isRecordLine(first)) {
+    const text = await fs.readFile(filePath, 'utf8');
+    if (isLegacyText(text)) {
+      return { live: parseLinoRecords(text), lines: 0, legacy: true };
+    }
+    const records = readRecordLines(text);
+    const open = text.length > 0 && !text.endsWith('\n');
+    const live = applyLinoRecords(records);
+    return { live, lines: records.length, legacy: false, open };
   }
-  const records = readRecordLines(text);
-  // A file not ending in a newline (a torn append) gets one first.
-  const open = text.length > 0 && !text.endsWith('\n');
-  return { records, lines: records.length, legacy: false, open };
+  return streamRecords(filePath);
 };
 
 // Write every link to a temp file in chunks, then swap it in.
@@ -146,8 +252,8 @@ export const createLinoTextStore = async (
   { compactAfter = COMPACT_AFTER } = {}
 ) => {
   const mem = createMemoryStore();
-  const loaded = await loadFile(filePath);
-  const live = applyLinoRecords(loaded.records);
+  const loaded = await readLinoFile(filePath);
+  const { live } = loaded;
   await mem.putMany(live);
   const ids = new Set(live.map((link) => link.id));
   let lines = loaded.lines; // record lines in the file

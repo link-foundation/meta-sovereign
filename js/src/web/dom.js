@@ -337,6 +337,10 @@ export const api = {
     const { client } = await ensure();
     return client.get(id);
   },
+  linksWithPrefix: async (prefix) => {
+    const { client } = await ensure();
+    return client.linksWithPrefix(prefix);
+  },
   chatLinks: async () => {
     const { client } = await ensure();
     return client.chatLinks();

@@ -22,6 +22,19 @@
 import { createReplyService } from '../replies/reply-service.js';
 import { aggregateContacts } from '../server/aggregate.js';
 
+// A read the server has not answered in this long falls back to local.
+const READ_TIMEOUT_MS = 30_000;
+
+// The local links, plus the server's that the local store does not hold
+// (the local copy has the user's latest edits).
+const withRemote = (local, remote) => {
+  if (!Array.isArray(remote) || remote.length === 0) {
+    return local;
+  }
+  const ids = new Set(local.map((link) => link.id));
+  return [...local, ...remote.filter((link) => !ids.has(link.id))];
+};
+
 const computeAutocomplete = async (store, q, me = 'me') => {
   if (!q) {
     return [];
@@ -74,7 +87,12 @@ export const createOfflineClient = ({ store, server }) => {
       return fallback();
     }
     try {
-      const res = await server.fetchImpl(`${server.origin}${path}`);
+      // A server that does not answer (busy, stuck) counts as gone.
+      const signal = globalThis.AbortSignal?.timeout?.(READ_TIMEOUT_MS);
+      const res = await server.fetchImpl(
+        `${server.origin}${path}`,
+        signal ? { signal } : undefined
+      );
       if (!res.ok) {
         throw new Error(`status ${res.status}`);
       }
@@ -117,12 +135,16 @@ export const createOfflineClient = ({ store, server }) => {
      */
     async links() {
       const local = await store.query();
-      const remote = await fetchOrLocal('/links', () => []);
-      if (!Array.isArray(remote) || remote.length === 0) {
-        return local;
-      }
-      const ids = new Set(local.map((link) => link.id));
-      return [...local, ...remote.filter((link) => !ids.has(link.id))];
+      return withRemote(local, await fetchOrLocal('/links', () => []));
+    },
+
+    /** The links whose id starts with `prefix` (local first, as `links`). */
+    async linksWithPrefix(prefix) {
+      const local = await store.query((link) =>
+        String(link.id ?? '').startsWith(prefix)
+      );
+      const query = new URLSearchParams({ prefix });
+      return withRemote(local, await fetchOrLocal(`/links?${query}`, () => []));
     },
 
     /**

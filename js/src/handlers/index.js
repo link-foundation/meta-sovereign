@@ -235,6 +235,29 @@ export const sourcePullHandler = ({ pullLive }) => ({
 // A message older than this is history, not something to answer now.
 const AUTOMATION_FRESH_MS = 24 * 60 * 60_000;
 
+// The saved graphs, read once and again only after one changes: a burst
+// of messages (a sync, a history page) must not scan the store for each.
+const graphCache = () => {
+  let graphs = null;
+  let watched = null;
+  return async (store) => {
+    if (watched !== store && typeof store.subscribe === 'function') {
+      watched = store;
+      store.subscribe((event) => {
+        const id = event?.link?.id ?? event?.id ?? '';
+        if (String(id).startsWith('graph:')) {
+          graphs = null;
+        }
+      });
+    }
+    if (watched !== store) {
+      return store.query((l) => l.id?.startsWith('graph:'));
+    }
+    graphs ??= await store.query((l) => l.id?.startsWith('graph:'));
+    return graphs;
+  };
+};
+
 /**
  * Built-in handler: when a new inbound `msg:*` arrives, run every
  * persisted automation graph against it and persist the planned
@@ -245,35 +268,38 @@ export const automationHandler = ({
   runGraph,
   hydrate,
   now = () => Date.now(),
-}) => ({
-  selector: {
-    idPrefix: 'msg:',
-    event: 'put',
-    // Only someone's new words: not a service note (a join, a pin), not a
-    // deleted message, and not history read ahead from long ago.
-    predicate: (l) =>
-      l.sender !== 'me' &&
-      !l.service &&
-      !l.deleted &&
-      !(now() - Date.parse(l.timestamp ?? '') > AUTOMATION_FRESH_MS),
-  },
-  async run({ link, store }) {
-    const graphs = await store.query((l) => l.id?.startsWith('graph:'));
-    const allPlans = [];
-    for (const persisted of graphs) {
-      const plans = runGraph(hydrate(persisted), link, { mode: 'semi' });
-      for (const p of plans) {
-        allPlans.push({ graph: persisted.id, ...p });
+}) => {
+  const savedGraphs = graphCache();
+  return {
+    selector: {
+      idPrefix: 'msg:',
+      event: 'put',
+      // Only someone's new words: not a service note (a join, a pin), not a
+      // deleted message, and not history read ahead from long ago.
+      predicate: (l) =>
+        l.sender !== 'me' &&
+        !l.service &&
+        !l.deleted &&
+        !(now() - Date.parse(l.timestamp ?? '') > AUTOMATION_FRESH_MS),
+    },
+    async run({ link, store }) {
+      const graphs = await savedGraphs(store);
+      const allPlans = [];
+      for (const persisted of graphs) {
+        const plans = runGraph(hydrate(persisted), link, { mode: 'semi' });
+        for (const p of plans) {
+          allPlans.push({ graph: persisted.id, ...p });
+        }
       }
-    }
-    if (allPlans.length === 0) {
-      return;
-    }
-    await store.put({
-      id: `plan:${link.id}`,
-      tokens: ['plan', link.id],
-      message: link.id,
-      plans: allPlans,
-    });
-  },
-});
+      if (allPlans.length === 0) {
+        return;
+      }
+      await store.put({
+        id: `plan:${link.id}`,
+        tokens: ['plan', link.id],
+        message: link.id,
+        plans: allPlans,
+      });
+    },
+  };
+};

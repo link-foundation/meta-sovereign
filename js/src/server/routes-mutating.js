@@ -45,11 +45,19 @@ const includeTombstones = (url) => {
 };
 
 // `?except=msg:` leaves out links whose id starts with that prefix (the
-// chat screen reads messages by page, ./routes-chat.js).
+// chat screen reads messages by page, ./routes-chat.js); `?prefix=secret:`
+// keeps only those (a screen that needs a few kinds of link does not get
+// the whole store's messages).
 const listLinks = async (store, res, url) => {
   const except = url.searchParams.get('except');
+  const prefix = url.searchParams.get('prefix');
+  const idOf = (l) => String(l?.id ?? '');
   const all = await store.query(
-    except ? (l) => !String(l?.id ?? '').startsWith(except) : undefined
+    except || prefix
+      ? (l) =>
+          (!except || !idOf(l).startsWith(except)) &&
+          (!prefix || idOf(l).startsWith(prefix))
+      : undefined
   );
   const visible = includeTombstones(url)
     ? all

@@ -30,6 +30,8 @@ import {
 } from './chat-outbox.js';
 
 const BATCH_MS = 80;
+// A failed load of the chat list is tried again after this long.
+const RETRY_MS = 5000;
 
 /** Apply `{ type: 'put', link } | { type: 'delete', id }` events. */
 export const applyLinkEvents = (links, events = []) => {
@@ -52,10 +54,12 @@ export const applyLinkEvents = (links, events = []) => {
  * stream. Events that arrive while a load is in flight are applied again
  * on top of its answer, so none is lost to the reload. Each time the
  * stream (re)opens, `refresh()` reloads once to catch up on what was
- * missed while it was closed.
+ * missed while it was closed. A load that fails is tried again after
+ * RETRY_MS (the screen would otherwise wait on it for ever).
  */
 export const useLiveLinks = (api, tick, refresh) => {
   const [links, setLinks] = useState(null);
+  const [retry, setRetry] = useState(0);
   const [live, setLive] = useState(false);
   const during = useRef(null); // events seen while a load runs
   const buffer = useRef([]);
@@ -63,6 +67,7 @@ export const useLiveLinks = (api, tick, refresh) => {
 
   useEffect(() => {
     let current = true;
+    let again = null;
     const seen = [];
     during.current = seen;
     Promise.resolve()
@@ -75,7 +80,14 @@ export const useLiveLinks = (api, tick, refresh) => {
             setLinks(applyLinkEvents(next, seen));
           }
         },
-        () => {}
+        () => {
+          if (current) {
+            again = globalThis.setTimeout(
+              () => setRetry((n) => n + 1),
+              RETRY_MS
+            );
+          }
+        }
       )
       .finally(() => {
         if (during.current === seen) {
@@ -84,8 +96,9 @@ export const useLiveLinks = (api, tick, refresh) => {
       });
     return () => {
       current = false;
+      globalThis.clearTimeout(again);
     };
-  }, [api, tick]);
+  }, [api, tick, retry]);
 
   const flush = useCallback(() => {
     timer.current = null;

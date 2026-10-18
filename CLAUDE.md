@@ -7,7 +7,7 @@ Read these before changing anything; they apply to every change:
   requirement, docs in four languages, secrets never shown or logged,
   fakes only in tests, a running app looked at by counts not contents,
   each network asked once, third-party code read but never run, quality
-  gates on.
+  gates on, browsers through browser-commander with no automation bars.
 - [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) — the product
   requirements with their IDs and status. A new directive from the
   maintainer becomes a row there (in en, ru, hi and zh); name the IDs a

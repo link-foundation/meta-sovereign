@@ -14,9 +14,12 @@
  * all while the user waits for something (anything queued at `prefetch`
  * or above) or Telegram asked to wait. Progress lives in the store: each
  * chat's `history:` link (./telegram-history.js) says how far back it is
- * stored, so a restart goes on where it stopped.
+ * stored, so a restart goes on where it stopped. It also waits while the
+ * server's memory is nearly full (the store is held in memory): more
+ * history then waits for room instead of stopping the server.
  */
 
+import { getHeapStatistics } from 'node:v8';
 import { historyLinkId } from './telegram-history.js';
 
 export const BACKFILL_EVERY_MS = 5000;
@@ -24,6 +27,12 @@ export const BACKFILL_PAGE = 100;
 const DIALOGS_PAGE = 100;
 const CHATS_FRESH_MS = 60_000;
 const MAX_BACKOFF_MS = 5 * 60_000;
+// Past this share of the heap limit, nothing more is downloaded.
+export const BACKFILL_HEAP_SHARE = 0.7;
+
+/** Whether the heap is too full to take more history. */
+export const heapNearlyFull = (stats = getHeapStatistics()) =>
+  stats.used_heap_size > BACKFILL_HEAP_SHARE * stats.heap_size_limit;
 
 // What the background download covers, in order.
 export const BACKFILL_ORDER = Object.freeze(['private', 'group']);
@@ -95,12 +104,14 @@ export const createBackfill = ({
   log = () => {},
   now = () => Date.now(),
   everyMs = BACKFILL_EVERY_MS,
+  memoryFull = heapNearlyFull,
 }) => {
   let timer = null;
   let failures = 0;
   let listed = { at: -Infinity, chats: [] };
   const skip = new Set(); // chats Telegram gave nothing older for
   let progress = { phase: 'idle', chats: 0, complete: 0 };
+  let waitedForMemory = false;
 
   const chatList = async () => {
     if (now() - listed.at >= CHATS_FRESH_MS) {
@@ -144,6 +155,15 @@ export const createBackfill = ({
     if (queue.pending('prefetch') > 0 || queue.heldFor() > 0) {
       return 'yield';
     }
+    if (memoryFull()) {
+      if (!waitedForMemory) {
+        log({ level: 'warn', event: 'telegram_backfill_memory_full' });
+      }
+      waitedForMemory = true;
+      progress = { ...progress, phase: 'memory' };
+      return 'memory';
+    }
+    waitedForMemory = false;
     const state = (await store.get(syncId)) ?? {};
     if (!state.dialogsComplete) {
       await pages.moreDialogs({ limit: DIALOGS_PAGE, priority: 'background' });
@@ -172,7 +192,7 @@ export const createBackfill = ({
       const did = await step();
       failures = 0;
       // Nothing to read now; new chats may come with the list.
-      base = did === 'done' ? everyMs * 12 : everyMs;
+      base = did === 'done' || did === 'memory' ? everyMs * 12 : everyMs;
     } catch (error) {
       failures += 1;
       log({

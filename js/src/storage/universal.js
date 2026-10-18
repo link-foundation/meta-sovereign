@@ -62,9 +62,17 @@ export const createMemoryStore = () => {
       }
       return existed;
     },
+    // Only the matches are copied: a query for a few links of a large
+    // store (graphs, secrets) does not copy every message first. The
+    // filter reads the stored link; it must not change it.
     async query(filter) {
-      const all = [...data.values()].map((l) => ({ ...l }));
-      return filter ? all.filter(filter) : all;
+      const out = [];
+      for (const link of data.values()) {
+        if (!filter || filter(link)) {
+          out.push({ ...link });
+        }
+      }
+      return out;
     },
     subscribe(handler) {
       handlers.add(handler);

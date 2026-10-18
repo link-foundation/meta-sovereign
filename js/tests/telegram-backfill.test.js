@@ -11,6 +11,7 @@ import {
   backfillKind,
   backfillProgress,
   createBackfill,
+  heapNearlyFull,
   nextBackfill,
 } from '../src/sources/telegram-backfill.js';
 import { historyLinkId } from '../src/sources/telegram-history.js';
@@ -129,4 +130,40 @@ test('nothing is downloaded while the user waits or Telegram asked to wait', asy
     'yield'
   );
   assert.equal(calls.length, 0);
+});
+
+test('nothing more is downloaded while the server memory is nearly full', async () => {
+  const store = createMemoryStore();
+  await store.put({ id: SYNC_ID, tokens: [], dialogsComplete: true });
+  const calls = [];
+  const logged = [];
+  const backfill = createBackfill({
+    store,
+    queue: fakeQueue(),
+    syncId: SYNC_ID,
+    credentials: async () => ({ kind: 'user' }),
+    chats: async () => chats,
+    pages: {
+      async history(request) {
+        calls.push(request);
+        return { written: 1 };
+      },
+    },
+    log: (entry) => logged.push(entry.event),
+    memoryFull: () => true,
+    everyMs: 0,
+  });
+  assert.equal(await backfill.step(), 'memory');
+  assert.equal(await backfill.step(), 'memory');
+  assert.equal(calls.length, 0);
+  assert.equal(backfill.progress().phase, 'memory');
+  assert.deepEqual(logged, ['telegram_backfill_memory_full'], 'said once');
+  assert.equal(
+    heapNearlyFull({ used_heap_size: 71, heap_size_limit: 100 }),
+    true
+  );
+  assert.equal(
+    heapNearlyFull({ used_heap_size: 50, heap_size_limit: 100 }),
+    false
+  );
 });

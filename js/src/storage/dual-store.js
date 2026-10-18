@@ -12,7 +12,16 @@
  * written on an interval. `reconcile()` brings the binary side back in
  * line with the text (a snapshot that missed the last writes before a
  * crash) and is run when the server opens the store.
+ *
+ * `openDualStore(dir)` is how the server and the CLI open theirs: the
+ * binary side mirrors the text side (`doublets-mirror.js`), so each link
+ * is held in memory once.
  */
+
+import path from 'node:path';
+import { promises as fs } from 'node:fs';
+import { createLinoTextStore } from './lino-store.js';
+import { createDoubletsMirror } from './doublets-mirror.js';
 
 const putEach = async (store, links) => {
   for (const link of links) {
@@ -50,6 +59,9 @@ export const createDualStore = ({ binary, text }) => ({
     await text.flush?.();
   },
   async reconcile() {
+    if (binary.mirrors === text) {
+      return binary.refresh();
+    }
     const textLinks = await text.query();
     const binaryById = new Map((await binary.query()).map((l) => [l.id, l]));
     const stale = textLinks.filter((link) => {
@@ -89,3 +101,14 @@ export const createDualStore = ({ binary, text }) => ({
     return diffs;
   },
 });
+
+/** The store in `dir`: `data.lino` (the log) and `data.bin` (its mirror). */
+export const openDualStore = async (dir, { onError } = {}) => {
+  await fs.mkdir(dir, { recursive: true });
+  const text = await createLinoTextStore(path.join(dir, 'data.lino'));
+  const binary = await createDoubletsMirror(path.join(dir, 'data.bin'), {
+    text,
+    onError,
+  });
+  return createDualStore({ binary, text });
+};

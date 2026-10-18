@@ -112,6 +112,7 @@ git push
 8. **दूसरों का code reference है, dependency नहीं।** जिन open-source clients से हम सीखते हैं वे [CHAT-REFERENCES.hi.md](CHAT-REFERENCES.hi.md) में हैं; download की गई copies केवल पढ़ी जाती हैं — कभी build, install या run नहीं।
 9. **Quality gates चालू रहते हैं।** Commit से पहले `npm run check` (बिना warnings के ESLint, Prettier, duplication) और `npm test` पास हों; complexity या length limit से बड़ा function छूट नहीं पाता, बँटता है। Web app बदलने के बाद `js/src/web/app.min.js` फिर build करें (`npm run build:web`)।
 10. **अपने user के लिए local app।** meta-sovereign open source है और user की अपनी machine पर, उसके अपने accounts के साथ, उसकी सुविधा के लिए चलता है: यह तभी और वैसे ही काम करता है जैसे user कहे, हर network की अनुमति वाली गति से।
+11. **Browsers browser-commander से, automation bars के बिना।** App जो browser खोलता है, और बदलाव जाँचते समय web app देखने वाला browser, [browser-commander](https://github.com/link-foundation/browser-commander) के default launch से शुरू होता है (installed Chrome वैसे जैसे कोई व्यक्ति उसे खोलता है): कभी ऐसे switch के साथ नहीं जिससे Chrome "controlled by automated test software" या "unsupported command-line flag" bar दिखाए (`--enable-automation`, `--disable-blink-features=AutomationControlled`)। browser-commander में ही ऐसा bar दिखे तो उसके repository में report किया जाता है।
 
 ## Questions?
 

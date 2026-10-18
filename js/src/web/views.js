@@ -1153,7 +1153,12 @@ const ConnectionsView = () => {
   const [refresh, setRefresh] = useState(0);
   const [place, setPlace] = useState(connectionPlace);
   const activeProviderId = place.provider;
-  const linksState = useAsyncValue(() => api.links(), [refresh], []);
+  // Only the saved credentials: not every message in the store.
+  const linksState = useAsyncValue(
+    () => (api.linksWithPrefix ? api.linksWithPrefix('secret:') : api.links()),
+    [refresh],
+    []
+  );
   useListScroll(activeProviderId);
 
   useEffect(() => {

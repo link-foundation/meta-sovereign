@@ -266,3 +266,29 @@ test('automationHandler leaves service notes and old history alone', async () =>
   }
   assert.equal(runs, 1, 'only the fresh message is planned for');
 });
+
+test('the saved graphs are read once per change, not once per message', async () => {
+  const store = createMemoryStore();
+  const query = store.query.bind(store);
+  let reads = 0;
+  store.query = (filter) => {
+    reads += 1;
+    return query(filter);
+  };
+  const seen = [];
+  const { run } = automationHandler({
+    runGraph: (graph) => {
+      seen.push(graph.id);
+      return [];
+    },
+    hydrate: (g) => g,
+  });
+  const message = (n) => ({ id: `msg:tg:${n}`, tokens: [], sender: 'a' });
+  await run({ link: message(1), store });
+  await run({ link: message(2), store });
+  assert.equal(reads, 1, 'a burst of messages reads the graphs once');
+  await store.put({ id: 'graph:new', tokens: ['graph'], nodes: [], edges: [] });
+  await run({ link: message(3), store });
+  assert.equal(reads, 2, 'a saved graph is read again');
+  assert.deepEqual(seen, ['graph:new']);
+});
