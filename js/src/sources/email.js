@@ -246,15 +246,62 @@ const parseRfc822Part = (text) => {
   return { headers: parseHeaders(headerBlock), body };
 };
 
-export const parseRfc822Message = (text, fallbackId = null) => {
-  const { headers, body: rawBody } = parseRfc822Part(text);
-  const messageId =
-    cleanMessageId(firstHeader(headers, 'message-id')) ||
-    fallbackId ||
-    `raw-${stableHash(text)}`;
-  const from = parseAddressList(
+const rfc822Attachments = (headers, body) => {
+  const type = contentType(headers);
+  if (!type.startsWith('multipart/')) {
+    return null;
+  }
+  const boundary = boundaryFrom(type);
+  if (!boundary) {
+    return null;
+  }
+  const parts = String(body).split(`--${boundary}`);
+  const attachments = [];
+  for (const part of parts) {
+    if (!part.trim() || part.trim().startsWith('--')) {
+      continue;
+    }
+    const { headers: ph, body: pb } = parseRfc822Part(part);
+    const disposition = firstHeader(ph, 'content-disposition') ?? '';
+    const partType = contentType(ph);
+    const filenameDisp = disposition.match(/filename="?([^";]+)"?/i);
+    const filenameType = partType.match(/name="?([^";]+)"?/i);
+    const filenameMatch = filenameDisp ?? filenameType;
+    if ((/^attachment/i.test(disposition) || filenameMatch) && filenameMatch) {
+      attachments.push({
+        kind: 'file',
+        name: filenameMatch[1].trim(),
+        mime: partType.split(';')[0].trim() || null,
+        size: pb.length,
+      });
+    }
+  }
+  return attachments.length > 0 ? attachments : null;
+};
+
+const rfc822MessageId = (headers, fallbackId, text) =>
+  cleanMessageId(firstHeader(headers, 'message-id')) ||
+  fallbackId ||
+  `raw-${stableHash(text)}`;
+
+const rfc822From = (headers) =>
+  parseAddressList(
     firstHeader(headers, 'from') ?? firstHeader(headers, 'sender') ?? 'unknown'
   );
+
+const rfc822Chat = (headers, subject, msgId) =>
+  cleanMessageId(firstHeader(headers, 'references')) ||
+  cleanMessageId(firstHeader(headers, 'in-reply-to')) ||
+  subject ||
+  msgId;
+
+const rfc822ReplyTo = (headers) =>
+  cleanMessageId(firstHeader(headers, 'in-reply-to')) || null;
+
+export const parseRfc822Message = (text, fallbackId = null) => {
+  const { headers, body: rawBody } = parseRfc822Part(text);
+  const messageId = rfc822MessageId(headers, fallbackId, text);
+  const from = rfc822From(headers);
   const to = parseAddressList(firstHeader(headers, 'to') ?? '');
   const cc = parseAddressList(firstHeader(headers, 'cc') ?? '');
   const subject = firstHeader(headers, 'subject') ?? '';
@@ -262,11 +309,7 @@ export const parseRfc822Message = (text, fallbackId = null) => {
   return buildEmailMessageLink({
     externalId: messageId,
     sender: from[0]?.address ?? 'unknown',
-    chat:
-      cleanMessageId(firstHeader(headers, 'references')) ||
-      cleanMessageId(firstHeader(headers, 'in-reply-to')) ||
-      subject ||
-      messageId,
+    chat: rfc822Chat(headers, subject, messageId),
     body: extractTextBody(headers, rawBody),
     timestamp,
     subject,
@@ -276,6 +319,11 @@ export const parseRfc822Message = (text, fallbackId = null) => {
     rawHeaders: headerObject(headers),
     protocol: 'rfc822',
     provider: 'archive',
+    replyTo: rfc822ReplyTo(headers),
+    senderName: from[0]?.name ?? null,
+    chatName: subject || null,
+    attachments: rfc822Attachments(headers, rawBody),
+    raw: { messageId, subject, from: from[0]?.address, date: timestamp },
   });
 };
 
@@ -354,6 +402,26 @@ const gmailPartText = (part) => {
   return '';
 };
 
+const gmailTimestamp = (message, headers) =>
+  message.internalDate
+    ? new Date(Number(message.internalDate)).toISOString()
+    : (headerArrayValue(headers, 'date') ?? null);
+
+const gmailChat = (message, subject) =>
+  String(message.threadId ?? subject ?? message.id);
+
+const gmailRawAttachments = (message) => {
+  const parts = (message.payload?.parts ?? []).filter((p) => p.filename);
+  return parts.length > 0
+    ? parts.map((p) => ({
+        kind: 'file',
+        name: p.filename,
+        mime: p.mimeType ?? null,
+        size: p.body?.size ?? null,
+      }))
+    : null;
+};
+
 const normalizeGmailMessage = (message) => {
   if (message.raw) {
     const parsed = parseRfc822Message(base64UrlToUtf8(message.raw), message.id);
@@ -371,14 +439,14 @@ const normalizeGmailMessage = (message) => {
   const to = normalizeAddress(headerArrayValue(headers, 'to'));
   const cc = normalizeAddress(headerArrayValue(headers, 'cc'));
   const subject = headerArrayValue(headers, 'subject') ?? '';
+  const replyTo =
+    cleanMessageId(headerArrayValue(headers, 'in-reply-to')) || null;
   return buildEmailMessageLink({
     externalId: String(message.id),
     sender: from[0]?.address ?? 'unknown',
-    chat: String(message.threadId ?? subject ?? message.id),
+    chat: gmailChat(message, subject),
     body: gmailPartText(message.payload) || message.snippet || '',
-    timestamp: message.internalDate
-      ? new Date(Number(message.internalDate)).toISOString()
-      : (headerArrayValue(headers, 'date') ?? null),
+    timestamp: gmailTimestamp(message, headers),
     subject,
     from,
     to,
@@ -388,6 +456,15 @@ const normalizeGmailMessage = (message) => {
     ),
     provider: 'gmail',
     protocol: 'gmail',
+    replyTo,
+    senderName: from[0]?.name ?? null,
+    chatName: subject || null,
+    raw: {
+      id: message.id,
+      threadId: message.threadId,
+      labelIds: message.labelIds,
+    },
+    attachments: gmailRawAttachments(message),
   });
 };
 
@@ -422,6 +499,16 @@ const normalizeGraphMessage = (message) =>
     bcc: normalizeAddress(message.bccRecipients),
     provider: 'microsoft-graph',
     protocol: 'microsoft-graph',
+    replyTo: null,
+    senderName:
+      normalizeAddress(message.from ?? message.sender)[0]?.name ?? null,
+    chatName: message.subject || null,
+    raw: {
+      id: message.id,
+      conversationId: message.conversationId,
+      subject: message.subject,
+    },
+    attachments: null,
   });
 
 const jmapBody = (message) => {
@@ -439,25 +526,54 @@ const jmapBody = (message) => {
 const recordFallbackId = (prefix, message) =>
   `${prefix}-${stableHash(JSON.stringify(message))}`;
 
+const jmapAttachmentsFrom = (message) => {
+  const list = (message.attachments ?? [])
+    .map((a) => ({
+      kind: 'file',
+      name: a.name ?? null,
+      mime: a.type ?? null,
+      size: a.size ?? null,
+    }))
+    .filter((a) => a.name);
+  return list.length > 0 ? list : null;
+};
+
+const jmapAddrs = (message) => normalizeAddress(message.from ?? message.sender);
+
+const jmapSenderAddr = (message) => jmapAddrs(message)[0]?.address ?? 'unknown';
+
+const jmapSenderName = (message) => jmapAddrs(message)[0]?.name ?? null;
+
+const jmapExternalId = (message) =>
+  String(
+    message.id ||
+      cleanMessageId(message.messageId?.[0]) ||
+      recordFallbackId('jmap', message)
+  );
+
 const normalizeJmapMessage = (message) =>
   buildEmailMessageLink({
-    externalId: String(
-      message.id ||
-        cleanMessageId(message.messageId?.[0]) ||
-        recordFallbackId('jmap', message)
-    ),
-    sender:
-      normalizeAddress(message.from ?? message.sender)[0]?.address ?? 'unknown',
+    externalId: jmapExternalId(message),
+    sender: jmapSenderAddr(message),
     chat: String(message.threadId ?? message.id),
     body: jmapBody(message) || message.preview || '',
     timestamp: message.receivedAt ?? message.sentAt ?? null,
     subject: message.subject ?? '',
-    from: normalizeAddress(message.from ?? message.sender),
+    from: jmapAddrs(message),
     to: normalizeAddress(message.to),
     cc: normalizeAddress(message.cc),
     bcc: normalizeAddress(message.bcc),
     provider: 'jmap',
     protocol: 'jmap',
+    replyTo: null,
+    senderName: jmapSenderName(message),
+    chatName: message.subject || null,
+    raw: {
+      id: message.id,
+      threadId: message.threadId,
+      subject: message.subject,
+    },
+    attachments: jmapAttachmentsFrom(message),
   });
 
 const genericExternalId = (message) =>
@@ -503,6 +619,13 @@ const normalizeGenericMessage = (message) =>
     bcc: normalizeAddress(message.bcc),
     provider: message.provider ?? 'generic',
     protocol: message.protocol ?? 'json',
+    senderName:
+      normalizeAddress(message.from ?? message.sender)[0]?.name ?? null,
+    chatName: message.subject || null,
+    raw: {
+      id: message.id ?? genericExternalId(message),
+      subject: message.subject,
+    },
   });
 
 export const buildEmailMessageLink = ({
@@ -519,6 +642,11 @@ export const buildEmailMessageLink = ({
   provider = 'generic',
   protocol = 'json',
   rawHeaders = null,
+  replyTo = null,
+  senderName = null,
+  chatName = null,
+  attachments = null,
+  raw = null,
 }) => ({
   ...buildMessageLink({
     source: SOURCE,
@@ -527,6 +655,11 @@ export const buildEmailMessageLink = ({
     chat,
     body,
     timestamp,
+    replyTo,
+    senderName,
+    chatName,
+    attachments,
+    raw,
   }),
   subject,
   from,
@@ -971,6 +1104,95 @@ const postEmailViaTransport = async (ctx, content, options = {}) => {
   });
 };
 
+const markReadGmail = async (ctx, id, options = {}) => {
+  requireFetch(ctx.fetchImpl, 'gmail');
+  const root = rootUrl(ctx.baseUrl, 'https://gmail.googleapis.com');
+  const user = options.userId ?? ctx.userId;
+  return requestJson(
+    ctx.fetchImpl,
+    `${root}/gmail/v1/users/${user}/messages/${id}/modify`,
+    {
+      method: 'POST',
+      headers: authHeaders(tokenFor('gmail', options.token, ctx.token)),
+      body: { removeLabelIds: ['UNREAD'] },
+    }
+  );
+};
+
+const markReadGraph = async (ctx, id, options = {}) => {
+  requireFetch(ctx.fetchImpl, 'microsoft-graph');
+  const root = rootUrl(ctx.baseUrl, 'https://graph.microsoft.com/v1.0');
+  return requestJson(ctx.fetchImpl, `${root}/me/messages/${id}`, {
+    method: 'PATCH',
+    headers: authHeaders(tokenFor('microsoft-graph', options.token, ctx.token)),
+    body: { isRead: true },
+  });
+};
+
+const markReadJmap = async (ctx, id, options = {}) => {
+  const account = requireJmapAccount(ctx, options);
+  return jmapEmailCall(
+    ctx,
+    [
+      [
+        'Email/set',
+        { accountId: account, update: { [id]: { 'keywords/$seen': true } } },
+        'r',
+      ],
+    ],
+    options
+  );
+};
+
+const deleteGmail = async (ctx, ids, options = {}) => {
+  requireFetch(ctx.fetchImpl, 'gmail');
+  const root = rootUrl(ctx.baseUrl, 'https://gmail.googleapis.com');
+  const user = options.userId ?? ctx.userId;
+  const auth = authHeaders(tokenFor('gmail', options.token, ctx.token));
+  const results = [];
+  for (const id of ids ?? []) {
+    results.push(
+      await requestJson(
+        ctx.fetchImpl,
+        `${root}/gmail/v1/users/${user}/messages/${id}/trash`,
+        { method: 'POST', headers: auth }
+      )
+    );
+  }
+  return { ok: true, deleted: results.length };
+};
+
+const deleteGraph = async (ctx, ids, options = {}) => {
+  requireFetch(ctx.fetchImpl, 'microsoft-graph');
+  const root = rootUrl(ctx.baseUrl, 'https://graph.microsoft.com/v1.0');
+  const auth = authHeaders(
+    tokenFor('microsoft-graph', options.token, ctx.token)
+  );
+  const results = [];
+  for (const id of ids ?? []) {
+    results.push(
+      await requestJson(ctx.fetchImpl, `${root}/me/messages/${id}/move`, {
+        method: 'POST',
+        headers: auth,
+        body: { destinationId: 'deleteditems' },
+      })
+    );
+  }
+  return { ok: true, deleted: results.length };
+};
+
+const deleteJmap = async (ctx, ids, options = {}) => {
+  const account = requireJmapAccount(ctx, options);
+  const update = Object.fromEntries(
+    (ids ?? []).map((id) => [id, { mailboxIds: { Trash: true } }])
+  );
+  return jmapEmailCall(
+    ctx,
+    [['Email/set', { accountId: account, update }, 'd']],
+    options
+  );
+};
+
 const EMAIL_PULLERS = {
   gmail: pullGmailEmail,
   'microsoft-graph': pullGraphEmail,
@@ -994,6 +1216,30 @@ export const createEmailLive = (config = {}) => {
         content,
         options
       ),
+    markRead: ({ id } = {}, options = {}) => {
+      if (ctx.protocol === 'gmail') {
+        return markReadGmail(ctx, id, options);
+      }
+      if (ctx.protocol === 'microsoft-graph') {
+        return markReadGraph(ctx, id, options);
+      }
+      if (ctx.protocol === 'jmap') {
+        return markReadJmap(ctx, id, options);
+      }
+      throw localServerRequired(ctx.protocol, 'markRead');
+    },
+    deleteMessages: ({ ids } = {}, options = {}) => {
+      if (ctx.protocol === 'gmail') {
+        return deleteGmail(ctx, ids, options);
+      }
+      if (ctx.protocol === 'microsoft-graph') {
+        return deleteGraph(ctx, ids, options);
+      }
+      if (ctx.protocol === 'jmap') {
+        return deleteJmap(ctx, ids, options);
+      }
+      throw localServerRequired(ctx.protocol, 'deleteMessages');
+    },
   };
 };
 

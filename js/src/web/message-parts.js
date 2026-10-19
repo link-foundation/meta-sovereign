@@ -239,13 +239,24 @@ const replyMsgIdFrom = (raw, replyToField) => {
   return null;
 };
 
+// Telegram's message ids are per chat; the other networks' are global.
+const repliedLinkId = (link, replyMsgId) => {
+  if ((link.source ?? 'telegram') !== 'telegram') {
+    return `msg:${link.source}:${link.replyTo}`;
+  }
+  const chat = link.chat ?? String(link.id ?? '').split(':')[2] ?? '';
+  return `msg:telegram:${chat}:${replyMsgId}`;
+};
+
 const parseReply = (link, raw, msgById) => {
-  const replyMsgId = replyMsgIdFrom(raw, link.replyTo ?? null);
+  const replyMsgId =
+    (link.source ?? 'telegram') === 'telegram'
+      ? replyMsgIdFrom(raw, link.replyTo ?? null)
+      : (link.replyTo ?? null);
   if (!replyMsgId) {
     return null;
   }
-  const chat = link.chat ?? String(link.id ?? '').split(':')[2] ?? '';
-  const repliedId = `msg:telegram:${chat}:${replyMsgId}`;
+  const repliedId = repliedLinkId(link, replyMsgId);
   const replied = msgById.get(repliedId);
   const quoteText =
     typeof raw.replyTo?.quoteText === 'string' ? raw.replyTo.quoteText : null;
@@ -258,9 +269,11 @@ const parseReply = (link, raw, msgById) => {
   };
 };
 
-const parseFwd = (raw) => {
+const parseFwd = (raw, link) => {
   if (!raw.fwdFrom) {
-    return null;
+    return link?.forwardedFrom
+      ? { fromName: link.forwardedFrom.name ?? null, date: null }
+      : null;
   }
   return {
     fromName: raw.fwdFrom.fromName ?? raw.fwdFrom.fromId?.className ?? null,
@@ -268,10 +281,50 @@ const parseFwd = (raw) => {
   };
 };
 
-const parseReactions = (raw) =>
-  (raw.reactions?.results ?? [])
-    .filter((r) => r?.reaction?.className === 'ReactionEmoji')
-    .map((r) => ({ emoticon: r.reaction.emoticon, count: r.count ?? 1 }));
+const parseReactions = (raw, link) =>
+  raw.reactions?.results
+    ? raw.reactions.results
+        .filter((r) => r?.reaction?.className === 'ReactionEmoji')
+        .map((r) => ({ emoticon: r.reaction.emoticon, count: r.count ?? 1 }))
+    : (Array.isArray(link?.reactions) ? link.reactions : [])
+        .filter((r) => r?.emoji)
+        .map((r) => ({ emoticon: r.emoji, count: r.count ?? 1 }));
+
+// A label for an attachment that is not a file (a place, a contact…).
+const ATTACHMENT_LABELS = {
+  location: (a) => `📍 ${a.title ?? [a.lat, a.lon].filter(Boolean).join(', ')}`,
+  contact: (a) => `👤 ${a.title ?? a.name ?? ''}`,
+  poll: (a) => `📊 ${a.title ?? ''}`,
+};
+
+/**
+ * The first of the network-neutral `attachments` (every network but
+ * Telegram's own account) as the parts the bubble draws.
+ */
+export const attachmentMedia = (attachments) => {
+  const a = Array.isArray(attachments) ? attachments[0] : null;
+  if (!a?.kind) {
+    return null;
+  }
+  if (a.kind === 'link' && a.url) {
+    return parseWebpageMedia({
+      url: a.url,
+      title: a.title ?? null,
+      description: a.caption ?? null,
+    });
+  }
+  const label = ATTACHMENT_LABELS[a.kind]?.(a) ?? a.name ?? a.title;
+  return {
+    kind: 'document',
+    document: null,
+    filename: label || a.kind,
+    isVoice: a.kind === 'voice',
+    isVideo: a.kind === 'video' || a.kind === 'gif',
+    isSticker: a.kind === 'sticker',
+    mimeType: a.mime ?? null,
+    url: a.url ?? null,
+  };
+};
 
 /**
  * Parse a message link into all display parts.
@@ -285,10 +338,10 @@ export const parseMessageParts = (link, msgById = new Map()) => {
   return {
     text: typeof link?.body === 'string' ? link.body : '',
     entities: Array.isArray(raw.entities) ? raw.entities : [],
-    media: parseMedia(raw),
+    media: parseMedia(raw) ?? attachmentMedia(link?.attachments),
     replyRef: parseReply(link, raw, msgById),
-    fwdFrom: parseFwd(raw),
-    reactions: parseReactions(raw),
+    fwdFrom: parseFwd(raw, link),
+    reactions: parseReactions(raw, link),
     edited: Boolean(raw.editDate ?? link.edited),
     album: raw.groupedId ? String(raw.groupedId) : null,
     service: serviceInfo(link),

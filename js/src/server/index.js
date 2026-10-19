@@ -30,6 +30,7 @@
  *   POST /api/broadcast            -> queue post for outbound networks
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
  *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
+ *   /api/message/* (edit, delete, react, read, forward) -> routes-messages.js
  *   /api/people, /api/audiences, /api/lists -> routes-people.js
  *   GET  /api/greetings/*          -> greeting stickers/texts (routes-greetings.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
@@ -52,6 +53,7 @@ import { fileURLToPath } from 'node:url';
 import { openDualStore, wrapSecretStore } from '../storage/index.js';
 import {
   getSource as getSourceDefault,
+  liveOptionsFrom,
   listSources,
 } from '../sources/index.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
@@ -76,6 +78,7 @@ import { handleChatRoutes } from './routes-chat.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
+import { handleMessageRoutes } from './routes-messages.js';
 import { handleEventRoutes } from './routes-events.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
@@ -227,18 +230,28 @@ const automationContext = (
   getSource = getSourceDefault
 ) => {
   const say = (event) => log?.(event);
+  // The saved connection's token and ids, so the API is really tried
+  // before the web app.
+  const optionsFor = (source) =>
+    liveOptionsFrom(store, source).catch(() => ({}));
   const send =
     automations.send ??
     createDefaultSender({
       getSource,
       options: automations.options,
+      optionsFor,
       browser: automations.browser,
       log: say,
     });
   const setTyping =
     automations.setTyping ??
-    (({ source, chat, cancel }) =>
-      setTypingFor(getSource, { source, chat, cancel }).catch((error) => ({
+    (async ({ source, chat, cancel }) =>
+      setTypingFor(getSource, {
+        source,
+        chat,
+        cancel,
+        options: await optionsFor(source),
+      }).catch((error) => ({
         supported: false,
         source,
         error: error.message,
@@ -378,6 +391,7 @@ const route = async (store, req, res, ctx) => {
     () => handleEventRoutes(store, req, res, p, ctx),
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
+    () => handleMessageRoutes(store, req, res, p, url, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),
     () => handleDerivedRoutes(store, req, res, p, url),
   ]) {
@@ -522,7 +536,7 @@ export const startServer = async ({
   });
   let bus = null;
   if (enableHandlers) {
-    bus = registerDefaultHandlers(store);
+    bus = registerDefaultHandlers(store, { browser: () => ctx.send });
   }
   let wsHandle = null;
   let signaling = null;

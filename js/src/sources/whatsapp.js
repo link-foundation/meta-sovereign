@@ -50,6 +50,119 @@ const webhookSticker = (message) =>
     ? { id: String(message.sticker.id), pack: null }
     : null;
 
+/** Drop null/undefined keys so attachment objects only carry defined values. */
+const omitNull = (obj) =>
+  Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== null && v !== undefined)
+  );
+
+// Per-type attachment builders — each handles exactly one Cloud API message
+// type so that `webhookAttachments` stays well below the complexity limit.
+
+const waImageAtt = (img) =>
+  omitNull({
+    kind: 'photo',
+    url: img?.url,
+    mime: img?.mime_type,
+    caption: img?.caption,
+  });
+
+const waVideoAtt = (vid) =>
+  omitNull({
+    kind: 'video',
+    url: vid?.url,
+    mime: vid?.mime_type,
+    caption: vid?.caption,
+  });
+
+const waAudioAtt = (aud) =>
+  omitNull({
+    kind: aud?.voice === true ? 'voice' : 'audio',
+    url: aud?.url,
+    mime: aud?.mime_type,
+    duration: aud?.duration,
+  });
+
+const waDocAtt = (doc) =>
+  omitNull({
+    kind: 'file',
+    url: doc?.url,
+    mime: doc?.mime_type,
+    name: doc?.filename,
+  });
+
+const waStickerAtt = (st) =>
+  omitNull({ kind: 'sticker', url: st?.url, mime: 'image/webp' });
+
+const waLocationAtt = (loc) =>
+  omitNull({
+    kind: 'location',
+    lat: loc?.latitude,
+    lon: loc?.longitude,
+    title: loc?.name,
+  });
+
+const webhookAttachments = (message) => {
+  const t = message.type;
+  if (t === 'image') {
+    return [waImageAtt(message.image)];
+  }
+  if (t === 'video') {
+    return [waVideoAtt(message.video)];
+  }
+  if (t === 'audio') {
+    return [waAudioAtt(message.audio)];
+  }
+  if (t === 'document') {
+    return [waDocAtt(message.document)];
+  }
+  if (t === 'sticker') {
+    return [waStickerAtt(message.sticker)];
+  }
+  if (t === 'location') {
+    return [waLocationAtt(message.location)];
+  }
+  if (t === 'contacts') {
+    const items = (message.contacts ?? []).map((c) =>
+      omitNull({ kind: 'contact', name: c.name?.formatted_name })
+    );
+    return items.length > 0 ? items : null;
+  }
+  return null;
+};
+
+const findSenderName = (contacts, from) => {
+  const entry = (contacts ?? []).find((c) => c.wa_id === from);
+  return entry?.profile?.name ?? null;
+};
+
+/**
+ * Build a normalised link for a single inbound Cloud API message.
+ * Extracted from `whatsappWebhookToLinks` to keep that function's
+ * complexity below the project limit.
+ */
+const buildWebhookLink = (message, value, businessPhone) => {
+  const forwardedFrom =
+    message.context?.forwarded === true
+      ? { id: message.context?.from ?? null }
+      : null;
+  return buildMessageLink({
+    source: SOURCE,
+    externalId: String(message.id),
+    sender: String(message.from ?? 'unknown'),
+    chat: String(message.from ?? businessPhone),
+    body: messageBody(message),
+    timestamp: message.timestamp ?? null,
+    sticker: webhookSticker(message),
+    replyTo: message.context?.id ?? null,
+    forwardedFrom,
+    attachments: webhookAttachments(message),
+    senderName: findSenderName(value.contacts, message.from),
+    raw: message,
+    outgoing: false,
+  });
+};
+
 export const whatsappWebhookToLinks = (payload) => {
   const links = [];
   for (const entry of payload?.entry ?? []) {
@@ -57,21 +170,57 @@ export const whatsappWebhookToLinks = (payload) => {
       const value = change.value ?? {};
       const businessPhone = value.metadata?.phone_number_id ?? 'business';
       for (const message of value.messages ?? []) {
-        links.push(
-          buildMessageLink({
-            source: SOURCE,
-            externalId: String(message.id),
-            sender: String(message.from ?? 'unknown'),
-            chat: String(message.from ?? businessPhone),
-            body: messageBody(message),
-            timestamp: message.timestamp ?? null,
-            sticker: webhookSticker(message),
-          })
-        );
+        if (message.type === 'reaction') {
+          continue;
+        }
+        links.push(buildWebhookLink(message, value, businessPhone));
       }
     }
   }
   return links;
+};
+
+/**
+ * Extract reaction events from a Cloud API webhook payload.
+ * Reaction messages are skipped by `whatsappWebhookToLinks`; callers
+ * that need to apply emoji reactions to existing links use this helper.
+ */
+export const whatsappReactionsFromMessages = (payload) => {
+  const out = [];
+  for (const entry of payload?.entry ?? []) {
+    for (const change of entry.changes ?? []) {
+      for (const message of change.value?.messages ?? []) {
+        if (message.type === 'reaction' && message.reaction) {
+          out.push({
+            targetId: message.reaction.message_id,
+            emoji: message.reaction.emoji,
+          });
+        }
+      }
+    }
+  }
+  return out;
+};
+
+/**
+ * Normalize Cloud API `statuses` arrays into partial link updates.
+ * Each update carries `{ id, delivery, at }` — callers merge delivery
+ * state onto the matching stored link.
+ */
+export const whatsappStatusesToUpdates = (payload) => {
+  const out = [];
+  for (const entry of payload?.entry ?? []) {
+    for (const change of entry.changes ?? []) {
+      for (const status of change.value?.statuses ?? []) {
+        out.push({
+          id: `msg:whatsapp:${status.id}`,
+          delivery: status.status,
+          at: status.timestamp,
+        });
+      }
+    }
+  }
+  return out;
 };
 
 export const createWhatsAppCloudLive = ({
@@ -116,6 +265,30 @@ export const createWhatsAppCloudLive = ({
           status: 'read',
           message_id: messageId,
           typing_indicator: { type: 'text' },
+        },
+        options
+      );
+    },
+    async markRead({ id, link } = {}, options = {}) {
+      const messageId = id ?? link?.id?.split(':').pop();
+      if (!messageId) {
+        throw new Error('whatsapp markRead requires a message id');
+      }
+      return sendMessages({ status: 'read', message_id: messageId }, options);
+    },
+    async react({ chat, id, emoji, link } = {}, options = {}) {
+      const messageId = id ?? link?.id?.split(':').pop();
+      const to = chat ?? link?.chat;
+      if (!messageId || !to) {
+        throw new Error('whatsapp react requires a message id and its chat');
+      }
+      // A reaction is a message to the chat's person (Cloud API).
+      return sendMessages(
+        {
+          recipient_type: 'individual',
+          to: String(to),
+          type: 'reaction',
+          reaction: { message_id: messageId, emoji: emoji ?? '' },
         },
         options
       );

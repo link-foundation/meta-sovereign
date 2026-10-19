@@ -128,6 +128,17 @@ const messageToLink = (payload) =>
     chat: messageChat(payload),
     body: messageBody(payload),
     timestamp: messageTimestamp(payload),
+    raw: {
+      id: payload.id ?? null,
+      roomId: payload.roomId ?? null,
+      createdAt: payload.createdAt ?? null,
+    },
+    chatName: payload.room?.topic ?? payload.room?.name ?? null,
+    senderName: payload.author?.name ?? payload.author?.displayName ?? null,
+    edited:
+      payload.updatedAt && payload.updatedAt !== payload.createdAt
+        ? payload.updatedAt
+        : null,
   });
 
 const jobLink = (payload) => {

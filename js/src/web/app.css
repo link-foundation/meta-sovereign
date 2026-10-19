@@ -2762,6 +2762,34 @@ button.primary .recommended-tag {
 }
 
 /* Delete confirmation dialog. */
+.msg-context-menu li.msg-context-reactions {
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.25rem 0.4rem;
+  cursor: default;
+}
+.msg-context-menu li.msg-context-reactions:hover {
+  background: none;
+}
+.msg-context-reactions button {
+  border: 0;
+  background: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0.25rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.msg-context-reactions button:hover,
+.msg-context-reactions button:focus-visible {
+  background: var(--bg-hover, rgba(127, 127, 127, 0.15));
+}
+.edit-dialog textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font: inherit;
+}
 .delete-dialog-overlay {
   position: fixed;
   inset: 0;

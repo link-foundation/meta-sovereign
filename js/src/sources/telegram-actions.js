@@ -25,6 +25,58 @@ const MAX_IDS = 100;
 
 const isChannel = (chat) => String(chat).startsWith('-100');
 
+// Edit an existing message in-place. A channel uses the channels API;
+// plain chats and groups use messages.EditMessage (R-Y36).
+const makeEditMessage =
+  (env, userClient, apply) =>
+  async ({ chat, id, text, link } = {}) => {
+    const wanted = [Number(id ?? link?.id?.split(':').pop())].filter(
+      (n) => n > 0
+    );
+    const client =
+      wanted.length > 0 && (chat || link?.chat) ? await userClient() : null;
+    if (!client) {
+      return { ok: false, supported: false };
+    }
+    const { Api } = await env.importer();
+    const target = String(chat ?? link?.chat);
+    const msgId = wanted[0];
+    const result = await env.connection.withPeer(client, target, (peer) =>
+      client.invoke(
+        isChannel(target)
+          ? new Api.channels.EditMessage({
+              channel: peer,
+              id: msgId,
+              message: text,
+            })
+          : new Api.messages.EditMessage({ peer, id: msgId, message: text })
+      )
+    );
+    await apply(client, result);
+    return { ok: true, edited: msgId };
+  };
+
+// Add or remove a reaction emoji on a message. Pass no `emoji` to clear
+// the reaction (R-Y36).
+const makeReact =
+  (env, userClient, apply) =>
+  async ({ chat, id, emoji, link } = {}) => {
+    const msgId = Number(id ?? link?.id?.split(':').pop());
+    const client =
+      msgId > 0 && (chat || link?.chat) ? await userClient() : null;
+    if (!client) {
+      return { ok: false, supported: false };
+    }
+    const { Api } = await env.importer();
+    const target = String(chat ?? link?.chat);
+    const reaction = emoji ? [new Api.ReactionEmoji({ emoticon: emoji })] : [];
+    const result = await env.connection.withPeer(client, target, (peer) =>
+      client.invoke(new Api.messages.SendReaction({ peer, msgId, reaction }))
+    );
+    await apply(client, result);
+    return { ok: true, reacted: msgId };
+  };
+
 const cleanIds = (ids) =>
   [...new Set((ids ?? []).map(Number))]
     .filter((id) => Number.isInteger(id) && id > 0)
@@ -169,6 +221,9 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     return { ok: true, deleted: wanted.length };
   };
 
+  const editMessage = makeEditMessage(env, userClient, apply);
+  const react = makeReact(env, userClient, apply);
+
   const reader = mediaDir
     ? createMediaReader({
         store,
@@ -183,5 +238,12 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 
   const media = async (request) => (reader ? reader.read(request) : null);
 
-  return { refreshMessages, forwardMessages, deleteMessages, media };
+  return {
+    refreshMessages,
+    forwardMessages,
+    deleteMessages,
+    editMessage,
+    react,
+    media,
+  };
 };

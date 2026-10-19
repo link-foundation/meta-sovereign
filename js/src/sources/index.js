@@ -35,6 +35,7 @@ import { naukriSource } from './naukri.js';
 import { vietnamworksSource } from './vietnamworks.js';
 import { topcvSource } from './topcv.js';
 import { withCvPlatform } from './cv-bridge.js';
+import { WEB_UIS } from './web-uis.js';
 export { buildMessageLink } from './link.js';
 export {
   BrowserOnlySourceError,
@@ -124,15 +125,28 @@ export const importInto = async (store, source, archive) => {
   return putAll(store, messages);
 };
 
+// The names the connection screens save a network's token under.
+const TOKEN_KEYS = ['access-token', 'token', 'bot-token', 'bearer-token'];
+
+// Other saved settings an adapter takes as `live` options.
+const OPTION_KEYS = {
+  'phone-number-id': 'phoneNumberId',
+  'page-id': 'pageId',
+  'author-urn': 'author',
+  'organization-id': 'organizationId',
+  'user-id': 'userId',
+};
+
+const secretValue = (link) =>
+  link?.token ?? link?.value ?? link?.body ?? link?.text ?? null;
+
 const secretToken = async (store, source, explicitId) => {
   const ids = [
     explicitId,
-    `secret:${source}:bot-token`,
-    `secret:${source}:token`,
+    ...TOKEN_KEYS.map((key) => `secret:${source}:${key}`),
   ].filter(Boolean);
   for (const id of ids) {
-    const link = await store.get(id);
-    const token = link?.token ?? link?.value ?? link?.body ?? link?.text;
+    const token = secretValue(await store.get(id));
     if (token) {
       return token;
     }
@@ -140,15 +154,112 @@ const secretToken = async (store, source, explicitId) => {
   return null;
 };
 
+/**
+ * The `live` options a network's saved connection gives: its token and
+ * the ids its API needs (WhatsApp's phone number id, a Facebook page…),
+ * read from the `secret:<source>:*` links. Values never leave the
+ * server; nothing here is logged.
+ */
+export const liveOptionsFrom = async (store, source) => {
+  const options = {};
+  const token = await secretToken(store, source);
+  if (token) {
+    options.token = token;
+  }
+  for (const [key, name] of Object.entries(OPTION_KEYS)) {
+    const value = secretValue(await store.get(`secret:${source}:${key}`));
+    if (value) {
+      options[name] = value;
+    }
+  }
+  return options;
+};
+
+/**
+ * Read a network in its own web app when its API cannot (R-Y38): the
+ * chat list, then the newest messages of the first `chats` chats, kept
+ * as links. `browser` is the sender (./browser-sender.js) with
+ * `readChats` and `readRecent`; one chat is read at a time.
+ */
+export const pullBrowserInto = async (
+  store,
+  source,
+  browser,
+  { chats = 5, limit = 20 } = {}
+) => {
+  const rows = await browser.readChats({ source, limit: chats });
+  const links = [];
+  for (const row of rows.slice(0, chats)) {
+    // A row known only by its title cannot be opened by URL.
+    if (String(row.chat).startsWith('title:')) {
+      continue;
+    }
+    const messages = await browser.readRecent({
+      source,
+      chat: row.chat,
+      limit,
+    });
+    links.push(
+      ...messages.map((m) =>
+        row.title && !m.chatName ? { ...m, chatName: row.title } : m
+      )
+    );
+  }
+  await putAll(
+    store,
+    links.map((link) => stampSourceLink(link, source))
+  );
+  return {
+    source,
+    imported: links.length,
+    nextOffset: null,
+    rawCount: links.length,
+    via: 'browser',
+  };
+};
+
+// The web app can read this network for us.
+const canReadInBrowser = (browser, source) =>
+  Boolean(
+    WEB_UIS[source]?.chats &&
+    typeof browser?.readChats === 'function' &&
+    typeof browser?.readRecent === 'function'
+  );
+
+/**
+ * Pull a network's new messages into the store: its API first; with
+ * `options.browser`, its web app when the API has no pull or refuses.
+ */
 export const pullLiveInto = async (store, source, options = {}) => {
+  const { browser, ...rest } = options;
+  try {
+    return await pullApiInto(store, source, rest);
+  } catch (error) {
+    if (error.fallback === false || !canReadInBrowser(browser, source)) {
+      throw error;
+    }
+    return pullBrowserInto(store, source, browser, {
+      chats: options.chats,
+      limit: options.browserLimit,
+    });
+  }
+};
+
+const pullApiInto = async (store, source, options = {}) => {
   const adapter = options.adapter ?? getSource(source);
   const live = options.live ?? adapter.live;
   if (!live?.pullMessages) {
     throw new Error(`${source} live API does not support pullMessages`);
   }
+  const saved = await liveOptionsFrom(store, source);
   const token =
-    options.token ?? (await secretToken(store, source, options.secretId));
-  const result = await live.pullMessages({ ...options, token });
+    options.token ??
+    (options.secretId
+      ? await secretToken(store, source, options.secretId)
+      : null) ??
+    saved.token ??
+    null;
+  const result = await live.pullMessages({ ...saved, ...options, token });
   const links = result.links ?? [];
   await putAll(
     store,

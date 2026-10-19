@@ -216,9 +216,23 @@ const MediaDocument = ({ media }) => {
   }
   const icon = media.isVoice ? 'mic' : media.isVideo ? 'video' : 'file';
   const label = media.filename || media.mimeType || t('chat.document');
+  // Another network's attachment opens where that network keeps it.
+  const href = /^https:\/\//.test(media.url ?? '') ? media.url : null;
   return el('div', { className: 'bubble-doc' }, [
     el(Icon, { key: 'ic', name: icon, size: 20 }),
-    el('span', { key: 'n', className: 'bubble-doc-name' }, label),
+    href
+      ? el(
+          'a',
+          {
+            key: 'n',
+            className: 'bubble-doc-name',
+            href,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          },
+          label
+        )
+      : el('span', { key: 'n', className: 'bubble-doc-name' }, label),
   ]);
 };
 
@@ -300,6 +314,16 @@ export const ServiceLine = ({ link }) => {
 
 // ---- Context menu -------------------------------------------------------
 
+/** The reactions the menu offers in one tap, as Telegram's first row. */
+export const QUICK_REACTIONS = Object.freeze([
+  '👍',
+  '❤️',
+  '😂',
+  '😮',
+  '😢',
+  '🔥',
+]);
+
 export const MsgContextMenu = ({ x, y, message, onClose, onAction }) => {
   const t = useT();
   const ref = useRef(null);
@@ -316,12 +340,34 @@ export const MsgContextMenu = ({ x, y, message, onClose, onAction }) => {
       globalThis.removeEventListener?.('touchstart', handler);
     };
   }, [onClose]);
+  const mine = message.sender === 'me' || message.outgoing === true;
   const actions = [
     { key: 'reply', label: t('chat.reply') },
     ...(message.body ? [{ key: 'copy', label: t('chat.copy') }] : []),
+    ...(mine && message.body ? [{ key: 'edit', label: t('chat.edit') }] : []),
     { key: 'forward', label: t('chat.forward') },
     { key: 'delete', label: t('chat.delete') },
   ];
+  const reactions = el(
+    'li',
+    { key: 'react', role: 'none', className: 'msg-context-reactions' },
+    QUICK_REACTIONS.map((emoji) =>
+      el(
+        'button',
+        {
+          key: emoji,
+          type: 'button',
+          role: 'menuitem',
+          'aria-label': t('chat.react', { emoji }),
+          onClick: () => {
+            onClose();
+            onAction('react', message, emoji);
+          },
+        },
+        emoji
+      )
+    )
+  );
   return el(
     'ul',
     {
@@ -330,28 +376,83 @@ export const MsgContextMenu = ({ x, y, message, onClose, onAction }) => {
       role: 'menu',
       style: { top: y, left: x },
     },
-    actions.map((a) =>
-      el(
-        'li',
-        {
-          key: a.key,
-          role: 'menuitem',
-          tabIndex: 0,
-          onClick: () => {
-            onClose();
-            onAction(a.key, message);
-          },
-          onKeyDown: (e) => {
-            if (e.key === 'Enter') {
+    [
+      reactions,
+      ...actions.map((a) =>
+        el(
+          'li',
+          {
+            key: a.key,
+            role: 'menuitem',
+            tabIndex: 0,
+            onClick: () => {
               onClose();
               onAction(a.key, message);
-            }
+            },
+            onKeyDown: (e) => {
+              if (e.key === 'Enter') {
+                onClose();
+                onAction(a.key, message);
+              }
+            },
+            className: a.key === 'delete' ? 'msg-context-delete' : undefined,
           },
-          className: a.key === 'delete' ? 'msg-context-delete' : undefined,
+          a.label
+        )
+      ),
+    ]
+  );
+};
+
+// ---- Edit dialog --------------------------------------------------------
+
+export const EditDialog = ({ message, onClose, onSave }) => {
+  const t = useT();
+  const [text, setText] = useState(String(message.body ?? ''));
+  const save = () => {
+    if (text.trim() && text !== message.body) {
+      onSave(text);
+    }
+    onClose();
+  };
+  return el(
+    'div',
+    {
+      className: 'delete-dialog-overlay',
+      role: 'dialog',
+      'aria-modal': 'true',
+      'aria-label': t('chat.edit'),
+    },
+    el('div', { className: 'delete-dialog edit-dialog' }, [
+      el('textarea', {
+        key: 'text',
+        autoFocus: true,
+        rows: 4,
+        value: text,
+        'aria-label': t('chat.edit'),
+        onChange: (e) => setText(e.target.value),
+        onKeyDown: (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            save();
+          } else if (e.key === 'Escape') {
+            onClose();
+          }
         },
-        a.label
-      )
-    )
+      }),
+      el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
+        el(
+          'button',
+          { key: 'save', type: 'button', onClick: save },
+          t('common.save')
+        ),
+        el(
+          'button',
+          { key: 'cancel', type: 'button', onClick: onClose },
+          t('common.cancel')
+        ),
+      ]),
+    ])
   );
 };
 

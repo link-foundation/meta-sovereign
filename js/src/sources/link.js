@@ -9,7 +9,39 @@
  * text messages keep their historical shape: `{id, pack}` with the
  * network's own sticker id and optional pack/set name, plus `emoji`
  * where the network reports one (Telegram).
+ *
+ * The other optional fields (R-Y39) — `service`, `edited`, `deleted`,
+ * `raw`, `outgoing`, `attachments`, `forwardedFrom`, `reactions`,
+ * `delivery` — follow the same rule.
  */
+
+// Optional fields, each kept only when the network said something:
+// field → whether a value counts.
+const given = (value) => Boolean(value);
+const known = (value) => value !== null && value !== undefined;
+const nonEmpty = (value) => Array.isArray(value) && value.length > 0;
+const OPTIONAL = {
+  chatType: given,
+  chatName: given,
+  senderName: given,
+  sticker: given,
+  service: given,
+  edited: given,
+  deleted: given,
+  raw: known,
+  outgoing: known,
+  attachments: nonEmpty,
+  forwardedFrom: given,
+  reactions: nonEmpty,
+  delivery: given,
+};
+
+const optionalFields = (fields) =>
+  Object.fromEntries(
+    Object.entries(OPTIONAL)
+      .filter(([name, keep]) => keep(fields[name]))
+      .map(([name]) => [name, fields[name]])
+  );
 
 export const buildMessageLink = ({
   source,
@@ -19,10 +51,7 @@ export const buildMessageLink = ({
   body,
   timestamp,
   replyTo = null,
-  chatType = null,
-  chatName = null,
-  senderName = null,
-  sticker = null,
+  ...fields
 }) => ({
   id: `msg:${source}:${externalId}`,
   tokens: ['message', source, externalId],
@@ -39,8 +68,5 @@ export const buildMessageLink = ({
   sender,
   chat,
   replyTo,
-  ...(chatType ? { chatType } : {}),
-  ...(chatName ? { chatName } : {}),
-  ...(senderName ? { senderName } : {}),
-  ...(sticker ? { sticker } : {}),
+  ...optionalFields(fields),
 });

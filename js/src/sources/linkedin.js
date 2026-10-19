@@ -27,6 +27,17 @@ const postBody = (post) =>
   post.body ??
   '';
 
+const postRaw = (post) => ({
+  id: post.id ?? post.urn ?? null,
+  author: post.author ?? null,
+  lifecycleState: post.lifecycleState ?? null,
+});
+
+const postEdited = (post) =>
+  post.lastModifiedAt && post.lastModifiedAt !== post.createdAt
+    ? post.lastModifiedAt
+    : null;
+
 const linkedinPostToLink = (post, fallbackAuthor = 'unknown') =>
   buildMessageLink({
     source: SOURCE,
@@ -36,6 +47,9 @@ const linkedinPostToLink = (post, fallbackAuthor = 'unknown') =>
     body: postBody(post),
     timestamp:
       post.createdAt ?? post.publishedAt ?? post.lastModifiedAt ?? null,
+    raw: postRaw(post),
+    senderName: post.authorName ?? null,
+    edited: postEdited(post),
   });
 
 export const linkedinPostsToLinks = (payload, fallbackAuthor = 'unknown') => {
@@ -167,28 +181,31 @@ export const createLinkedInLive = ({
   return adapter;
 };
 
+const archiveRowToLink = (row) =>
+  buildMessageLink({
+    source: SOURCE,
+    externalId: row.CONVERSATION_ID
+      ? `${row.CONVERSATION_ID}-${row.DATE}`
+      : String(row.id),
+    sender: row.FROM ?? row.from,
+    chat: row.CONVERSATION_ID ?? row.conversation,
+    body: row.CONTENT ?? row.content ?? '',
+    timestamp: row.DATE ?? row.date,
+    senderName: row.FROM ?? row.from ?? null,
+    chatName: row.CONVERSATION_TITLE ?? row.conversation_title ?? null,
+    raw: {
+      id: row.CONVERSATION_ID ?? row.id ?? null,
+      date: row.DATE ?? row.date ?? null,
+    },
+  });
+
 const live = createLinkedInLive();
 
 export const linkedinSource = {
   name: SOURCE,
   async parseArchive(archive) {
     const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
-    const out = [];
-    for (const row of obj.messages ?? []) {
-      out.push(
-        buildMessageLink({
-          source: SOURCE,
-          externalId: row.CONVERSATION_ID
-            ? `${row.CONVERSATION_ID}-${row.DATE}`
-            : String(row.id),
-          sender: row.FROM ?? row.from,
-          chat: row.CONVERSATION_ID ?? row.conversation,
-          body: row.CONTENT ?? row.content ?? '',
-          timestamp: row.DATE ?? row.date,
-        })
-      );
-    }
-    return out;
+    return (obj.messages ?? []).map(archiveRowToLink);
   },
   live,
   syncResume: (resume, options) => live.syncResume(resume, options),

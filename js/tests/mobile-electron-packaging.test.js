@@ -117,7 +117,7 @@ describe('mobile and Electron packaging', () => {
       'npm run build:web && node js/scripts/build-mobile.mjs'
     );
     expect(pkg.scripts.electron).toContain(
-      'npm exec --yes --package electron@^44.7.0'
+      'npm exec --yes --package electron@^44.9.0'
     );
     expect(pkg.scripts['mobile:sync']).toBe(
       'npm run build:mobile && node js/scripts/mobile-platform.mjs sync'

@@ -64,21 +64,36 @@ export class BrowserUnavailableError extends Error {
   }
 }
 
-const launchWithPlaywright = async ({
-  playwright,
+/**
+ * The installed Chrome, started the way a person starts it
+ * (browser-commander's default `launch: 'real'`): no `--enable-automation`
+ * and no `--disable-blink-features=AutomationControlled`, so Chrome shows
+ * no automation bar and a site sees an ordinary browser (working rule
+ * 11). Playwright only connects to it. The persistent profile is what
+ * keeps the platform session cookie between runs, so a human signs in
+ * once per platform.
+ */
+export const launchWithCommander = async ({
+  bc,
   headless,
   profileDir,
   slowMo,
   locale,
+  verbose = false,
 }) => {
-  // A persistent context is what keeps the platform session cookie
-  // alive between runs, so a human signs in once per platform.
-  const context = await playwright.chromium.launchPersistentContext(
-    profileDir,
-    { headless, slowMo, locale }
-  );
-  const page = context.pages()[0] ?? (await context.newPage());
-  return { context, page, close: () => context.close() };
+  const session = await bc.launchBrowser({
+    engine: 'playwright',
+    headless,
+    slowMo,
+    verbose,
+    userDataDir: profileDir,
+    args: [`--lang=${locale}`],
+  });
+  return {
+    context: session.browser ?? null,
+    page: session.page,
+    close: () => (session.close ?? session.browser?.close)?.call(session),
+  };
 };
 
 /**
@@ -116,13 +131,18 @@ export const openBrowserSession = async ({
   const bc = await load('browser-commander');
   const session = launcher
     ? await launcher({ headless, profileDir, slowMo, locale })
-    : await launchWithPlaywright({
-        playwright: await load('playwright'),
-        headless,
-        profileDir: profileDir ?? defaultProfileDir(platform),
-        slowMo,
-        locale,
-      });
+    : await (async () => {
+        // The engine browser-commander drives the real Chrome with.
+        await load('playwright');
+        return launchWithCommander({
+          bc,
+          headless,
+          profileDir: profileDir ?? defaultProfileDir(platform),
+          slowMo,
+          locale,
+          verbose,
+        });
+      })();
   const commander = bc.makeBrowserCommander({
     page: session.page,
     verbose,

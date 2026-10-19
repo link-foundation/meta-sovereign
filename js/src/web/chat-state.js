@@ -214,10 +214,42 @@ const useUnreadLine = (current, inboxMaxId, loaded) => {
   return at.current.after;
 };
 
+/**
+ * Other networks (R-Y38): opening a chat that has unread messages marks
+ * it read there too — through the API, or the network's web app — once
+ * per chat until new messages arrive.
+ */
+const useOtherReadMarker = (api, current, enabled = readReadReceipts) => {
+  const marked = useRef(new Map()); // chat key → the unread count marked
+  const key = current?.key;
+  const unread = current?.unread ?? 0;
+  useEffect(() => {
+    if (
+      !current ||
+      current.source === 'telegram' ||
+      unread <= 0 ||
+      marked.current.get(key) === unread ||
+      typeof api.messageAction !== 'function' ||
+      !enabled() ||
+      !pageActive()
+    ) {
+      return;
+    }
+    marked.current.set(key, unread);
+    api
+      .messageAction('read', { source: current.source, chat: current.chat })
+      .then(
+        (answer) => answer?.error && marked.current.delete(key),
+        () => marked.current.delete(key)
+      );
+  }, [api, key, unread]);
+};
+
 // What reading the open chat needs: where it was read up to, the marker
 // and the unread line.
 const useReading = (api, current, links) => {
   const inboxMaxId = current ? readInboxUpTo(links ?? [], current.key) : 0;
+  useOtherReadMarker(api, current);
   return {
     seen: useReadMarker(api, current, inboxMaxId),
     unreadAfter: useUnreadLine(current, inboxMaxId, links !== null),
@@ -643,6 +675,7 @@ export const useChatState = (
     drafts: useDrafts({ api, current, tick, after }),
     notice,
     dismiss: () => setNotice(null),
+    notify: setNotice,
     refresh,
   };
 };

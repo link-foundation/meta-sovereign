@@ -861,6 +861,18 @@ const backfillOf = (env, { chats, everyMs }) =>
     everyMs,
   });
 
+// The minimal adapter object the sender and typing helper look up on the
+// account; actions that act on existing messages live here too (R-Y36).
+const buildLiveAdapter = (messaging, actions) => ({
+  post: messaging.post,
+  setTyping: messaging.setTyping,
+  editMessage: actions.editMessage,
+  react: actions.react,
+  deleteMessages: actions.deleteMessages,
+  forwardMessages: actions.forwardMessages,
+  markRead: messaging.markRead,
+});
+
 export const createTelegramAccount = ({
   store,
   clientFactory = gramjsClientFactory(),
@@ -1028,7 +1040,6 @@ export const createTelegramAccount = ({
     start,
     stop,
     catchUp: () => catchUp.run('manual'),
-    // The adapter shape the sender and the typing helper look up.
-    live: { post: messaging.post, setTyping: messaging.setTyping },
+    live: buildLiveAdapter(messaging, env.actions),
   };
 };

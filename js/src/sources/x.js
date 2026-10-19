@@ -24,6 +24,47 @@ const dmText = (event) =>
 const isDmEvent = (item) =>
   item.event_type === 'MessageCreate' || Boolean(item.dm_conversation_id);
 
+/** Map X media type string to our normalized attachment kind. */
+const kindOf = (type) => {
+  if (type === 'animated_gif') {
+    return 'gif';
+  }
+  if (type === 'video') {
+    return 'video';
+  }
+  return 'photo';
+};
+
+const xDmAttachments = (event) => {
+  const media = event.message_create?.message_data?.attachment?.media;
+  if (media) {
+    return [
+      {
+        kind: kindOf(media.type),
+        url: media.media_url_https ?? media.media_url ?? null,
+      },
+    ];
+  }
+  const keys = event.attachments?.media_keys ?? [];
+  return keys.length > 0
+    ? keys.map(() => ({ kind: 'photo', url: null }))
+    : null;
+};
+
+const xPostAttachments = (post) => {
+  const media = post.entities?.media ?? [];
+  if (media.length > 0) {
+    return media.map((m) => ({
+      kind: kindOf(m.type),
+      url: m.media_url_https ?? null,
+    }));
+  }
+  const keys = post.attachments?.media_keys ?? [];
+  return keys.length > 0
+    ? keys.map(() => ({ kind: 'photo', url: null }))
+    : null;
+};
+
 const xDmToLink = (event) =>
   buildMessageLink({
     source: SOURCE,
@@ -34,6 +75,14 @@ const xDmToLink = (event) =>
     chat: String(event.dm_conversation_id ?? event.conversation_id),
     body: dmText(event),
     timestamp: event.created_at ?? null,
+    replyTo:
+      String(
+        event.message_create?.message_data?.referenced_tweet_id ??
+          event.reply_to?.id ??
+          ''
+      ) || null,
+    attachments: xDmAttachments(event),
+    raw: event,
   });
 
 const xPostToLink = (post) =>
@@ -44,6 +93,15 @@ const xPostToLink = (post) =>
     chat: String(post.conversation_id ?? `post:${post.id}`),
     body: post.text ?? '',
     timestamp: post.created_at ?? null,
+    replyTo:
+      String(
+        post.in_reply_to_tweet_id ??
+          post.in_reply_to_status_id_str ??
+          post.in_reply_to_user_id ??
+          ''
+      ) || null,
+    attachments: xPostAttachments(post),
+    raw: post,
   });
 
 export const xUpdatesToLinks = (payload) => {
@@ -105,6 +163,20 @@ export const createXLive = ({
         nextOffset: raw?.meta?.next_token ?? null,
         raw,
       };
+    },
+    async deleteMessages({ ids, links } = {}, options = {}) {
+      const messageIds = (
+        ids ?? (links ?? []).map((l) => l.id?.split(':').pop())
+      ).filter(Boolean);
+      let count = 0;
+      for (const id of messageIds) {
+        await requestJson(fetchImpl, `${baseUrl}/2/dm_events/${id}`, {
+          method: 'DELETE',
+          headers: headers(options.token),
+        });
+        count += 1;
+      }
+      return { ok: true, deleted: count };
     },
     async post(content, options = {}) {
       const text = contentText(content);
@@ -169,6 +241,7 @@ export const xSource = {
           chat: 'wall:self',
           body: tw.full_text ?? tw.text ?? '',
           timestamp: tw.created_at,
+          raw: tw,
         })
       );
     }
@@ -181,6 +254,7 @@ export const xSource = {
           chat: String(dm.conversationId),
           body: dm.text ?? '',
           timestamp: dm.createdAt,
+          raw: dm,
         })
       );
     }

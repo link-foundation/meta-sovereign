@@ -99,7 +99,179 @@ const vkKeywordStickers = (response, match) => {
   return [...seen.values()];
 };
 
-const asMessageLink = (msg, conversation = null) =>
+/** Map emoji to VK reaction numeric id. */
+export const VK_REACTION_EMOJI_TO_ID = {
+  '❤️': 1,
+  '🔥': 2,
+  '😂': 3,
+  '👍': 4,
+  '💩': 5,
+  '❓': 6,
+  '😭': 7,
+  '👎': 8,
+  '👌': 9,
+  '😐': 10,
+  '😡': 11,
+  '🤔': 12,
+};
+
+const vkChatType = (peerId) => {
+  if (peerId === null || peerId === undefined) {
+    return null;
+  }
+  const id = Number(peerId);
+  if (id >= 2000000000) {
+    return 'group';
+  }
+  if (id < 0) {
+    return 'channel';
+  }
+  return 'private';
+};
+
+// One handler per VK attachment type — kept small so vkAttachments stays
+// under complexity 10.
+const vkAttachmentHandlers = {
+  photo(att) {
+    const sizes = att.photo?.sizes ?? [];
+    const fallback = sizes.at(-1) ?? null;
+    const largest = sizes.reduce(
+      (best, s) => (s.width >= (best?.width ?? 0) ? s : best),
+      fallback
+    );
+    return largest
+      ? {
+          kind: 'photo',
+          url: largest.url,
+          width: largest.width,
+          height: largest.height,
+        }
+      : null;
+  },
+  doc(att) {
+    const doc = att.doc ?? {};
+    return {
+      kind: doc.type === 5 ? 'voice' : 'file',
+      url: doc.url ?? null,
+      name: doc.title ?? null,
+      size: doc.size ?? null,
+    };
+  },
+  audio_message(att) {
+    const am = att.audio_message ?? {};
+    return {
+      kind: 'voice',
+      url: am.link_ogg ?? am.link_mp3 ?? null,
+      duration: am.duration ?? null,
+    };
+  },
+  video(att) {
+    const vid = att.video ?? {};
+    const thumb =
+      vid.image?.find((i) => i.width >= 320)?.url ??
+      vid.image?.[0]?.url ??
+      null;
+    return {
+      kind: 'video',
+      title: vid.title ?? null,
+      duration: vid.duration ?? null,
+      thumb,
+    };
+  },
+  sticker(att) {
+    const imgs = att.sticker?.images ?? [];
+    return {
+      kind: 'sticker',
+      url: imgs.find((i) => i.width >= 128)?.url ?? imgs[0]?.url ?? null,
+    };
+  },
+  link(att) {
+    return {
+      kind: 'link',
+      url: att.link?.url ?? null,
+      title: att.link?.title ?? null,
+    };
+  },
+  geo(att) {
+    return {
+      kind: 'location',
+      lat: att.geo?.coordinates?.latitude ?? null,
+      lon: att.geo?.coordinates?.longitude ?? null,
+      title: att.geo?.place?.title ?? null,
+    };
+  },
+};
+
+/** Map VK attachment array to canonical shape; returns null when empty. */
+const vkAttachments = (attachments) => {
+  if (!attachments?.length) {
+    return null;
+  }
+  const mapped = attachments
+    .map((att) => {
+      const handler = att?.type ? vkAttachmentHandlers[att.type] : null;
+      return handler ? handler(att) : null;
+    })
+    .filter(Boolean);
+  return mapped.length ? mapped : null;
+};
+
+const vkReactions = (reactions) => {
+  if (!reactions?.length) {
+    return null;
+  }
+  return reactions.map((r) => {
+    const item = { emoji: String(r.reaction_id), count: Number(r.count) };
+    if (r.user_react_id) {
+      item.mine = true;
+    }
+    return item;
+  });
+};
+
+/** Build a Map<string userId, {name}> from VK extended profile/group arrays. */
+const vkProfilesMap = (profiles, groups) => {
+  const map = new Map();
+  for (const p of profiles ?? []) {
+    const name =
+      [p.first_name, p.last_name].filter(Boolean).join(' ') || p.name || null;
+    map.set(String(p.id), { name });
+  }
+  for (const g of groups ?? []) {
+    map.set(String(-g.id), { name: g.name ?? null });
+  }
+  return map;
+};
+
+const vkPeerId = (msg, conversation) =>
+  msg.peer_id ??
+  conversation?.conversation?.peer?.id ??
+  conversation?.peer?.id ??
+  null;
+
+/** Derives chatType/outgoing/edited/forwardedFrom from a raw VK message. */
+const vkMessageMeta = (msg, conversation) => {
+  const edited = msg.update_time
+    ? new Date(Number(msg.update_time) * 1000).toISOString()
+    : null;
+  const forwardedFrom =
+    (msg.fwd_messages?.length ?? 0) > 0
+      ? { id: String(msg.fwd_messages[0].from_id ?? '') }
+      : null;
+  const outgoing = msg.out === 1 || msg.out === true ? true : null;
+  return {
+    chatType: vkChatType(vkPeerId(msg, conversation)),
+    edited,
+    forwardedFrom,
+    outgoing,
+  };
+};
+
+const asMessageLink = (
+  msg,
+  conversation = null,
+  { senderName = null, chatName = null } = {}
+) =>
   buildMessageLink({
     source: SOURCE,
     externalId: vkExternalId(msg),
@@ -109,6 +281,12 @@ const asMessageLink = (msg, conversation = null) =>
     timestamp: msg.date ?? msg.created_at ?? null,
     replyTo: vkReplyTo(msg),
     sticker: vkStickerOf(msg),
+    senderName,
+    chatName,
+    raw: msg,
+    attachments: vkAttachments(msg.attachments),
+    reactions: vkReactions(msg.reactions),
+    ...vkMessageMeta(msg, conversation),
   });
 
 const unwrapVk = (payload) => {
@@ -250,6 +428,92 @@ const vkLiveAudience = (call) => {
   };
 };
 
+const vkConversationMessageId = (link) =>
+  link?.raw?.conversation_message_id ?? link?.conversationMessageId ?? null;
+
+// Message action methods (edit, delete, markRead, react, forward) —
+// extracted so createVkLive stays under the line-count threshold.
+const vkLiveActions = (call) => ({
+  async editMessage({ chat, id, text, link } = {}, options = {}) {
+    const peerId = chat ?? link?.chat;
+    const msgId = id ?? link?.id?.split(':').pop();
+    return call(
+      'messages.edit',
+      { peer_id: peerId, message_id: msgId, message: text },
+      options.token
+    );
+  },
+  async deleteMessages({ chat, ids, revoke, links } = {}, options = {}) {
+    const peerId = chat ?? links?.[0]?.chat;
+    const msgIds = ids ?? links?.map((l) => l.id?.split(':').pop());
+    return call(
+      'messages.delete',
+      {
+        peer_id: peerId,
+        message_ids: (msgIds ?? []).join(','),
+        delete_for_all: revoke ? 1 : undefined,
+      },
+      options.token
+    );
+  },
+  async markRead({ chat, maxId, id, link } = {}, options = {}) {
+    const peerId = chat ?? link?.chat;
+    const startId = maxId ?? id ?? link?.id?.split(':').pop();
+    return call(
+      'messages.markAsRead',
+      { peer_id: peerId, start_message_id: startId },
+      options.token
+    );
+  },
+  async react({ chat, emoji, link } = {}, options = {}) {
+    const peerId = chat ?? link?.chat;
+    // Reactions name a message by its number in the chat (cmid), not by
+    // the global id our links keep; it is in the raw message.
+    const msgId = vkConversationMessageId(link);
+    if (!msgId) {
+      throw Object.assign(
+        new Error('VK: the message has no conversation_message_id'),
+        { code: 'unsupported-action' }
+      );
+    }
+    if (!emoji) {
+      return call(
+        'messages.deleteReaction',
+        { peer_id: peerId, cmid: msgId },
+        options.token
+      );
+    }
+    const reactionId = VK_REACTION_EMOJI_TO_ID[emoji];
+    if (!reactionId) {
+      const err = new Error(`VK: unsupported reaction emoji: ${emoji}`);
+      err.code = 'unsupported-reaction';
+      throw err;
+    }
+    return call(
+      'messages.sendReaction',
+      { peer_id: peerId, cmid: msgId, reaction_id: reactionId },
+      options.token
+    );
+  },
+  async forwardMessages({ fromChat, ids, toChat, links } = {}, options = {}) {
+    const fromPeer = fromChat ?? links?.[0]?.chat;
+    const msgIds = ids ?? links?.map((l) => l.id?.split(':').pop());
+    return call(
+      'messages.send',
+      {
+        peer_id: toChat,
+        forward: JSON.stringify({
+          peer_id: fromPeer,
+          message_ids: (msgIds ?? []).map(Number),
+          is_reply: false,
+        }),
+        random_id: options.randomId ?? Date.now(),
+      },
+      options.token
+    );
+  },
+});
+
 export const VK_API_BASE = 'https://api.vk.ru';
 export const VK_API_VERSION = '5.199';
 
@@ -285,6 +549,7 @@ export const createVkLive = ({
   return {
     call,
     ...vkLiveAudience(call),
+    ...vkLiveActions(call),
     async listChats(options = {}) {
       return call(
         'messages.getConversations',
@@ -304,6 +569,7 @@ export const createVkLive = ({
             count,
             offset: options.offset,
             start_message_id: options.startMessageId,
+            extended: 1,
           },
           options.token
         );
@@ -322,11 +588,17 @@ export const createVkLive = ({
             conversation: response.items[index],
           }));
       }
-      const links = raw.map((entry) =>
-        entry.msg
-          ? asMessageLink(entry.msg, entry.conversation)
-          : asMessageLink(entry)
-      );
+      const profilesLookup = vkProfilesMap(response.profiles, response.groups);
+      const links = raw.map((entry) => {
+        if (entry.msg) {
+          const senderName =
+            profilesLookup.get(String(entry.msg.from_id))?.name ?? null;
+          return asMessageLink(entry.msg, entry.conversation, { senderName });
+        }
+        const senderName =
+          profilesLookup.get(String(entry.from_id))?.name ?? null;
+        return asMessageLink(entry, null, { senderName });
+      });
       return {
         links,
         rawCount: raw.length,
@@ -407,21 +679,11 @@ export const vkSource = {
     const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
     const out = [];
     for (const conv of obj.conversations ?? []) {
+      const convPeerId = conv.peer?.id ?? conv.id;
+      const chatName = conv.chat_settings?.title ?? null;
+      const fakeConv = { peer: { id: convPeerId } };
       for (const msg of conv.messages ?? []) {
-        out.push(
-          buildMessageLink({
-            source: SOURCE,
-            externalId: String(msg.id),
-            sender: String(msg.from_id),
-            chat: String(conv.peer?.id ?? conv.id),
-            body: msg.text ?? '',
-            timestamp: msg.date,
-            replyTo: msg.reply_message?.id
-              ? String(msg.reply_message.id)
-              : null,
-            sticker: vkStickerOf(msg),
-          })
-        );
+        out.push(asMessageLink(msg, fakeConv, { chatName }));
       }
     }
     return out;

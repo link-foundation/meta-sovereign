@@ -29,9 +29,16 @@ const hydrate = (persisted) => {
   return { nodes, edges: persisted.edges ?? [] };
 };
 
-export const registerDefaultHandlers = (store) => {
+/**
+ * `browser()` gives the browser sender, so a network whose API cannot
+ * pull is read in its web app instead (R-Y38).
+ */
+export const registerDefaultHandlers = (store, { browser } = {}) => {
   const bus = createHandlerBus(store);
-  const sourcePullBuiltIn = sourcePullHandler({ pullLive: pullLiveInto });
+  const sourcePullBuiltIn = sourcePullHandler({
+    pullLive: (target, source, options) =>
+      pullLiveInto(target, source, { ...options, browser: browser?.() }),
+  });
   bus.register(
     'source-pull',
     sourcePullBuiltIn.selector,

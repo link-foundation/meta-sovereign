@@ -160,30 +160,210 @@ const sendRequest = (content, chat) => {
 const botChat = (message) =>
   String(message.chat?.id ?? message.business_connection_id ?? 'unknown');
 
+const compact = (obj) =>
+  Object.fromEntries(
+    Object.entries(obj).filter(
+      (entry) => entry[1] !== null && entry[1] !== undefined
+    )
+  );
+
+const botForwardedFrom = (message) => {
+  const origin = message.forward_origin;
+  if (origin) {
+    if (origin.type === 'user') {
+      return {
+        id: String(origin.sender_user?.id),
+        name:
+          [origin.sender_user?.first_name, origin.sender_user?.last_name]
+            .filter(Boolean)
+            .join(' ') || null,
+      };
+    }
+    if (origin.type === 'channel') {
+      return { id: String(origin.chat?.id), name: origin.chat?.title || null };
+    }
+    if (origin.type === 'hidden_user') {
+      return { name: origin.sender_user_name || null };
+    }
+  }
+  if (message.forward_from) {
+    return {
+      id: String(message.forward_from.id),
+      name:
+        [message.forward_from.first_name, message.forward_from.last_name]
+          .filter(Boolean)
+          .join(' ') || null,
+    };
+  }
+  return null;
+};
+
+const photoAtt = (message) => {
+  if (!message.photo) {
+    return null;
+  }
+  const largest = message.photo.reduce(
+    (best, p) => ((p.file_size ?? 0) > (best.file_size ?? 0) ? p : best),
+    message.photo[0]
+  );
+  return compact({
+    kind: 'photo',
+    width: largest?.width,
+    height: largest?.height,
+  });
+};
+
+const documentAtt = (doc) =>
+  compact({
+    kind: 'file',
+    name: doc.file_name ?? null,
+    mime: doc.mime_type ?? null,
+    size: doc.file_size ?? null,
+  });
+
+const voiceAtt = (v) =>
+  compact({
+    kind: 'voice',
+    duration: v.duration ?? null,
+    mime: v.mime_type ?? null,
+  });
+
+const videoAtt = (v) =>
+  compact({
+    kind: 'video',
+    duration: v.duration ?? null,
+    width: v.width ?? null,
+    height: v.height ?? null,
+  });
+
+const audioAtt = (a) =>
+  compact({
+    kind: 'audio',
+    duration: a.duration ?? null,
+    mime: a.mime_type ?? null,
+    name: a.file_name ?? null,
+    title: a.title ?? null,
+  });
+
+const mediaAtt = (message) => {
+  if (message.document) {
+    return documentAtt(message.document);
+  }
+  if (message.voice) {
+    return voiceAtt(message.voice);
+  }
+  if (message.video) {
+    return videoAtt(message.video);
+  }
+  if (message.audio) {
+    return audioAtt(message.audio);
+  }
+  return null;
+};
+
+const miscAtt = (message) => {
+  if (message.location) {
+    return {
+      kind: 'location',
+      lat: message.location.latitude,
+      lon: message.location.longitude,
+    };
+  }
+  if (message.contact) {
+    return compact({
+      kind: 'contact',
+      name:
+        [message.contact.first_name, message.contact.last_name]
+          .filter(Boolean)
+          .join(' ') || null,
+    });
+  }
+  if (message.poll) {
+    return compact({ kind: 'poll', title: message.poll.question ?? null });
+  }
+  return null;
+};
+
+/** Non-sticker attachments extracted from a Bot API message. */
+const botAttachment = (message) => {
+  const att = photoAtt(message) ?? mediaAtt(message) ?? miscAtt(message);
+  return att ? [att] : null;
+};
+
+const botSenderName = (message) =>
+  [message.from?.first_name, message.from?.last_name]
+    .filter(Boolean)
+    .join(' ') ||
+  message.sender_chat?.title ||
+  message.author_signature ||
+  null;
+
+const botChatName = (message) =>
+  message.chat?.title ||
+  (message.chat?.first_name
+    ? [message.chat.first_name, message.chat.last_name]
+        .filter(Boolean)
+        .join(' ')
+    : null) ||
+  null;
+
+const botLinkFields = (update, message) => {
+  const isEdited = !!(
+    update.edited_message ||
+    update.edited_channel_post ||
+    update.edited_business_message
+  );
+  return {
+    source: SOURCE,
+    externalId: String(message.message_id ?? update.update_id),
+    sender: botSender(message),
+    chat: botChat(message),
+    body: message.text ?? message.caption ?? '',
+    timestamp: message.date
+      ? new Date(Number(message.date) * 1000).toISOString()
+      : undefined,
+    replyTo: message.reply_to_message?.message_id
+      ? String(message.reply_to_message.message_id)
+      : null,
+    chatType: message.chat?.type ?? null,
+    sticker: botSticker(message),
+    senderName: botSenderName(message),
+    chatName: botChatName(message),
+    edited: isEdited
+      ? new Date(Number(message.edit_date) * 1000).toISOString()
+      : null,
+    forwardedFrom: botForwardedFrom(message),
+    attachments: botAttachment(message),
+    raw: message,
+  };
+};
+
+export const telegramReactionsFromUpdate = (update) => {
+  if (!update?.message_reaction) {
+    return null;
+  }
+  const mr = update.message_reaction;
+  return {
+    messageId: String(mr.message_id),
+    chat: String(mr.chat?.id),
+    reactions: (mr.new_reaction ?? []).map((r) => ({
+      emoji: r.emoji ?? r.custom_emoji_id ?? String(r.type),
+      count: 1,
+    })),
+  };
+};
+
 export const telegramUpdatesToLinks = (updates) => {
   const out = [];
   for (const update of updates ?? []) {
+    if (update.message_reaction) {
+      continue;
+    }
     const message = botMessage(update);
     if (!message) {
       continue;
     }
-    out.push(
-      buildMessageLink({
-        source: SOURCE,
-        externalId: String(message.message_id ?? update.update_id),
-        sender: botSender(message),
-        chat: botChat(message),
-        body: message.text ?? message.caption ?? '',
-        timestamp: message.date
-          ? new Date(Number(message.date) * 1000).toISOString()
-          : undefined,
-        replyTo: message.reply_to_message?.message_id
-          ? String(message.reply_to_message.message_id)
-          : null,
-        chatType: message.chat?.type ?? null,
-        sticker: botSticker(message),
-      })
-    );
+    out.push(buildMessageLink(botLinkFields(update, message)));
   }
   return out;
 };
@@ -225,6 +405,76 @@ const membershipMethods = (call) => ({
   },
 });
 
+/** Profile update methods. */
+const profileMethods = (call) => ({
+  async syncProfile(profile) {
+    const results = [];
+    if (profile.name) {
+      results.push({
+        method: 'setMyName',
+        result: await call('setMyName', { name: profile.name }),
+      });
+    }
+    if (profile.bio) {
+      results.push({
+        method: 'setMyDescription',
+        result: await call('setMyDescription', { description: profile.bio }),
+      });
+    }
+    return results;
+  },
+});
+
+/** Bot API mutation methods (edit, delete, react, forward). */
+const actionMethods = (call) => {
+  const setMessageReaction = async (
+    { chat, id, emoji, link } = {},
+    options = {}
+  ) => {
+    const chatId = chat ?? link?.chat;
+    const messageId = Number(id ?? link?.id?.split(':').pop());
+    const reaction = emoji ? [{ type: 'emoji', emoji }] : [];
+    return call(
+      'setMessageReaction',
+      { chat_id: chatId, message_id: messageId, reaction },
+      options.token
+    );
+  };
+  return {
+    async editMessage({ chat, id, text, link } = {}, options = {}) {
+      const chatId = chat ?? link?.chat;
+      const messageId = Number(id ?? link?.id?.split(':').pop());
+      return call(
+        'editMessageText',
+        { chat_id: chatId, message_id: messageId, text },
+        options.token
+      );
+    },
+    async deleteMessages({ chat, ids, links } = {}, options = {}) {
+      const chatId = chat ?? links?.[0]?.chat;
+      const rawIds = ids ?? links?.map((l) => Number(l.id?.split(':').pop()));
+      const messageIds = (rawIds ?? []).filter(Boolean);
+      return call(
+        'deleteMessages',
+        { chat_id: chatId, message_ids: messageIds },
+        options.token
+      );
+    },
+    setMessageReaction,
+    react: setMessageReaction,
+    async forwardMessages({ fromChat, ids, toChat, links } = {}, options = {}) {
+      const from = fromChat ?? links?.[0]?.chat;
+      const rawIds = ids ?? links?.map((l) => Number(l.id?.split(':').pop()));
+      const messageIds = (rawIds ?? []).filter(Boolean);
+      return call(
+        'forwardMessages',
+        { from_chat_id: from, chat_id: toChat, message_ids: messageIds },
+        options.token
+      );
+    },
+  };
+};
+
 export const createTelegramBotLive = ({
   token = null,
   fetchImpl = globalThis.fetch,
@@ -260,7 +510,12 @@ export const createTelegramBotLive = ({
       offset = undefined,
       limit = 100,
       timeout = 0,
-      allowedUpdates = ['message', 'edited_message', 'channel_post'],
+      allowedUpdates = [
+        'message',
+        'edited_message',
+        'channel_post',
+        'message_reaction',
+      ],
       token: tokenOverride = null,
     } = {}) {
       const result = await call(
@@ -365,26 +620,8 @@ export const createTelegramBotLive = ({
         path: file.file_path,
       };
     },
-    async syncProfile(profile) {
-      const results = [];
-      if (profile.name) {
-        results.push({
-          method: 'setMyName',
-          result: await call('setMyName', {
-            name: profile.name,
-          }),
-        });
-      }
-      if (profile.bio) {
-        results.push({
-          method: 'setMyDescription',
-          result: await call('setMyDescription', {
-            description: profile.bio,
-          }),
-        });
-      }
-      return results;
-    },
+    ...profileMethods(call),
+    ...actionMethods(call),
   };
 };
 

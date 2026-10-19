@@ -128,6 +128,27 @@ const messageTimestamp = (payload) =>
     payload.updatedAt
   );
 
+const msgRaw = (payload) => ({
+  id: payload.id ?? null,
+  workstreamId: payload.workstreamId ?? null,
+  proposalId: payload.proposalId ?? null,
+  createdAt: payload.createdAt ?? null,
+});
+
+const msgChatName = (payload) =>
+  payload.workstream?.topic ??
+  payload.workstream?.name ??
+  payload.room?.topic ??
+  null;
+
+const msgSenderName = (payload) =>
+  payload.author?.name ?? payload.author?.displayName ?? null;
+
+const msgEdited = (payload) =>
+  payload.updatedAt && payload.updatedAt !== payload.createdAt
+    ? payload.updatedAt
+    : null;
+
 const messageToLink = (payload) =>
   buildMessageLink({
     source: SOURCE,
@@ -136,6 +157,10 @@ const messageToLink = (payload) =>
     chat: messageChat(payload),
     body: messageBody(payload),
     timestamp: messageTimestamp(payload),
+    raw: msgRaw(payload),
+    chatName: msgChatName(payload),
+    senderName: msgSenderName(payload),
+    edited: msgEdited(payload),
   });
 
 const projectLink = (payload) => {

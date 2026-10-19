@@ -744,6 +744,21 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for delete' },
 
+  // Edit, delete, react to, forward a message or mark a chat read on any
+  // network: the server tries the API, then the network's web app.
+  messageAction: async (action, body = {}) =>
+    (await serverPostReport(
+      `/api/message/${encodeURIComponent(action)}`,
+      body
+    ).catch((error) => ({ error: error.message }))) ?? {
+      error: 'server required for message actions',
+    },
+  // Which message actions a network can do ({ edit: { api, browser } …}).
+  messageSupports: async (source) =>
+    (await serverFetch(
+      `/api/message/supports?source=${encodeURIComponent(source)}`
+    )) ?? null,
+
   /**
    * URL for a Telegram photo via the media proxy.
    * Returns null when the server is offline or the endpoint is unknown.

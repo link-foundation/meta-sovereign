@@ -75,6 +75,9 @@ const senderFrom = (payload) =>
     )
   );
 
+const senderNameFrom = (payload) =>
+  payload.user?.name ?? payload.author?.name ?? null;
+
 const issueChat = (payload) => {
   const repo = repoFromPayload(payload) ?? 'unknown';
   const number = payload.number ?? payload.issue?.number;
@@ -134,6 +137,15 @@ const issueToLink = (payload) =>
       ? `${payload.title}\n\n${payload.body ?? ''}`.trim()
       : (payload.body ?? ''),
     timestamp: payload.created_at ?? payload.updated_at ?? null,
+    senderName: senderNameFrom(payload),
+    raw: {
+      id: payload.id,
+      url: payload.url ?? payload.html_url ?? null,
+      node_id: payload.node_id ?? null,
+    },
+    edited:
+      payload.updated_at !== payload.created_at ? payload.updated_at : null,
+    chatName: payload.title ?? null,
   });
 
 const pullToLink = (payload) =>
@@ -146,6 +158,15 @@ const pullToLink = (payload) =>
       ? `${payload.title}\n\n${payload.body ?? ''}`.trim()
       : (payload.body ?? ''),
     timestamp: payload.created_at ?? payload.updated_at ?? null,
+    senderName: senderNameFrom(payload),
+    raw: {
+      id: payload.id,
+      url: payload.url ?? payload.html_url ?? null,
+      node_id: payload.node_id ?? null,
+    },
+    edited:
+      payload.updated_at !== payload.created_at ? payload.updated_at : null,
+    chatName: payload.title ?? null,
   });
 
 const issueCommentToLink = (payload) =>
@@ -156,6 +177,15 @@ const issueCommentToLink = (payload) =>
     chat: commentChat(payload),
     body: payload.body ?? '',
     timestamp: payload.created_at ?? payload.updated_at ?? null,
+    senderName: senderNameFrom(payload),
+    raw: {
+      id: payload.id,
+      url: payload.url ?? payload.html_url ?? null,
+      node_id: payload.node_id ?? null,
+    },
+    edited:
+      payload.updated_at !== payload.created_at ? payload.updated_at : null,
+    chatName: payload.issue?.title ?? null,
   });
 
 const reviewCommentToLink = (payload) =>
@@ -166,6 +196,16 @@ const reviewCommentToLink = (payload) =>
     chat: commentChat(payload),
     body: payload.body ?? '',
     timestamp: payload.created_at ?? payload.updated_at ?? null,
+    senderName: senderNameFrom(payload),
+    raw: {
+      id: payload.id,
+      url: payload.url ?? payload.html_url ?? null,
+      node_id: payload.node_id ?? null,
+    },
+    edited:
+      payload.updated_at !== payload.created_at ? payload.updated_at : null,
+    chatName: null,
+    replyTo: payload.in_reply_to_id ? String(payload.in_reply_to_id) : null,
   });
 
 const reviewToLink = (payload) =>
@@ -178,6 +218,15 @@ const reviewToLink = (payload) =>
       ? `[${payload.state ?? 'review'}] ${payload.body}`
       : `[${payload.state ?? 'review'}]`,
     timestamp: payload.submitted_at ?? payload.created_at ?? null,
+    senderName: senderNameFrom(payload),
+    raw: {
+      id: payload.id,
+      url: payload.url ?? payload.html_url ?? null,
+      node_id: payload.node_id ?? null,
+    },
+    edited:
+      payload.updated_at !== payload.created_at ? payload.updated_at : null,
+    chatName: null,
   });
 
 const discussionToLink = (payload) =>
@@ -190,6 +239,15 @@ const discussionToLink = (payload) =>
       ? `${payload.title}\n\n${payload.body ?? ''}`.trim()
       : (payload.body ?? ''),
     timestamp: payload.created_at ?? payload.updated_at ?? null,
+    senderName: senderNameFrom(payload),
+    raw: {
+      id: payload.id,
+      url: payload.url ?? payload.html_url ?? null,
+      node_id: payload.node_id ?? null,
+    },
+    edited:
+      payload.updated_at !== payload.created_at ? payload.updated_at : null,
+    chatName: payload.title ?? null,
   });
 
 const isDiscussion = (p) => p.kind === 'discussion' || p.discussion_id;
@@ -562,6 +620,73 @@ const postGithubComment = async (ctx, content, options) => {
   );
 };
 
+export const GITHUB_EMOJI_TO_REACTION = {
+  '👍': '+1',
+  '👎': '-1',
+  '😄': 'laugh',
+  '🎉': 'hooray',
+  '😕': 'confused',
+  '❤️': 'heart',
+  '🚀': 'rocket',
+  '👀': 'eyes',
+};
+
+const editGithubComment = async (
+  ctx,
+  { id, text, link } = {},
+  options = {}
+) => {
+  const commentId = id ?? link?.id?.match(/#(\d+)$/)?.[1];
+  const { owner: o, repo: r } = ctx.requireRepo(options);
+  return requestJson(
+    ctx.fetchImpl,
+    buildUrl(ctx.baseUrl, `/repos/${o}/${r}/issues/comments/${commentId}`),
+    {
+      method: 'PATCH',
+      headers: ctx.headers(options.token),
+      body: { body: text },
+    }
+  );
+};
+
+const deleteGithubComments = async (ctx, { ids, links } = {}, options = {}) => {
+  const { owner: o, repo: r } = ctx.requireRepo(options);
+  const commentIds =
+    ids ?? links?.map((l) => l.id?.match(/#(\d+)$/)?.[1]).filter(Boolean);
+  const results = [];
+  for (const cid of commentIds ?? []) {
+    results.push(
+      await requestJson(
+        ctx.fetchImpl,
+        buildUrl(ctx.baseUrl, `/repos/${o}/${r}/issues/comments/${cid}`),
+        { method: 'DELETE', headers: ctx.headers(options.token) }
+      )
+    );
+  }
+  return { ok: true, deleted: results.length };
+};
+
+const reactGithubComment = async (
+  ctx,
+  { id, emoji, link } = {},
+  options = {}
+) => {
+  const content = GITHUB_EMOJI_TO_REACTION[emoji];
+  if (!content) {
+    throw new Error(`github: unsupported reaction emoji: ${emoji}`);
+  }
+  const commentId = id ?? link?.id?.match(/#(\d+)$/)?.[1];
+  const { owner: o, repo: r } = ctx.requireRepo(options);
+  return requestJson(
+    ctx.fetchImpl,
+    buildUrl(
+      ctx.baseUrl,
+      `/repos/${o}/${r}/issues/comments/${commentId}/reactions`
+    ),
+    { method: 'POST', headers: ctx.headers(options.token), body: { content } }
+  );
+};
+
 export const createGithubLive = ({
   token = null,
   owner = null,
@@ -602,6 +727,11 @@ export const createGithubLive = ({
     },
     cloneRepo: (options = {}) => cloneGithubRepo(ctx, options),
     post: (content, options = {}) => postGithubComment(ctx, content, options),
+    editMessage: (params, options = {}) =>
+      editGithubComment(ctx, params, options),
+    deleteMessages: (params, options = {}) =>
+      deleteGithubComments(ctx, params, options),
+    react: (params, options = {}) => reactGithubComment(ctx, params, options),
   };
 };
 

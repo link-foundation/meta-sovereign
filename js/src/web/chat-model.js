@@ -198,6 +198,7 @@ export const cloudDraft = (links = [], key) => {
 // message, or waiting to be tried again) and the ones shown as they are.
 const ON_THE_WAY = new Set(['queued', 'sending', 'waiting']);
 const AS_IS = new Set(['failed', 'stored']);
+const NETWORK_DELIVERY = new Set(['sent', 'delivered', 'read', 'failed']);
 
 /**
  * Where one of our messages is, as Telegram shows it:
@@ -206,8 +207,12 @@ const AS_IS = new Set(['failed', 'stored']);
  * yet). Others' messages have none.
  */
 export const deliveryStatus = (message, readMax = 0) => {
-  if (message?.sender !== 'me') {
+  if (message?.sender !== 'me' && message?.outgoing !== true) {
     return null;
+  }
+  // A network that reports it (WhatsApp, Messenger) says it outright.
+  if (NETWORK_DELIVERY.has(message.delivery) && !message.status) {
+    return message.delivery === 'delivered' ? 'sent' : message.delivery;
   }
   if (message.status === 'waiting') {
     return 'waiting';

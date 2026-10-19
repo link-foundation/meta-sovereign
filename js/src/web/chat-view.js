@@ -31,6 +31,7 @@ import { Notice } from './notice.js';
 import {
   MessageBubble,
   DeleteDialog,
+  EditDialog,
   ForwardPicker,
   ReplyQuote,
 } from './chat-message.js';
@@ -490,6 +491,7 @@ const NOTICE = {
   'draft-skip': 'chat.notice.skipped',
   stored: 'chat.notice.stored',
   failed: 'chat.notice.failed',
+  'action-failed': 'chat.notice.actionFailed',
 };
 
 const NEAR_BOTTOM_PX = 80;
@@ -1005,6 +1007,7 @@ export const ChatScreen = ({ state, api }) => {
   const [pane, setPane] = useState('list');
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [forwardTarget, setForwardTarget] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
   if (state.loading) {
     return el('div', { className: 'meta' }, t('common.loading'));
   }
@@ -1021,7 +1024,22 @@ export const ChatScreen = ({ state, api }) => {
     setPane('chat');
   };
 
-  const onAction = (action, message) => {
+  // Other networks' messages go through /api/message/* (R-Y38): the
+  // network's API first, its web app second. A refusal is shown.
+  const generic = async (action, message, body) => {
+    if (typeof api?.messageAction !== 'function') {
+      return;
+    }
+    const answer = await api.messageAction(action, {
+      ids: [message.id],
+      ...body,
+    });
+    if (answer?.error) {
+      state.notify?.({ kind: 'action-failed', error: answer.error });
+    }
+  };
+
+  const onAction = (action, message, value) => {
     if (action === 'reply') {
       const netId = networkMessageId(message);
       state.composer.setReplyTo({
@@ -1036,12 +1054,26 @@ export const ChatScreen = ({ state, api }) => {
       setForwardTarget(message);
     } else if (action === 'delete') {
       setDeleteTarget(message);
+    } else if (action === 'edit') {
+      setEditTarget(message);
+    } else if (action === 'react' && !message.pending) {
+      generic('react', message, { emoji: value });
     }
   };
 
+  const viaTelegram = (message) =>
+    message.source === 'telegram' && networkMessageId(message) !== null;
+
   const doDelete = async (message, { revoke }) => {
+    if (message.pending || !state.current) {
+      return;
+    }
+    if (!viaTelegram(message)) {
+      await generic('delete', message, { revoke });
+      return;
+    }
     const netId = networkMessageId(message);
-    if (!netId || !state.current || typeof api?.telegramDelete !== 'function') {
+    if (typeof api?.telegramDelete !== 'function') {
       return;
     }
     await api.telegramDelete({
@@ -1052,12 +1084,19 @@ export const ChatScreen = ({ state, api }) => {
   };
 
   const doForward = async (message, toChat) => {
+    if (message.pending || !state.current) {
+      return;
+    }
+    if (!viaTelegram(message)) {
+      await generic('forward', message, {
+        toChat: toChat.chat,
+        toTitle: toChat.name,
+      });
+      setForwardTarget(null);
+      return;
+    }
     const netId = networkMessageId(message);
-    if (
-      !netId ||
-      !state.current ||
-      typeof api?.telegramForward !== 'function'
-    ) {
+    if (typeof api?.telegramForward !== 'function') {
       return;
     }
     await api.telegramForward({
@@ -1096,10 +1135,21 @@ export const ChatScreen = ({ state, api }) => {
                 },
               })
             : null,
+          editTarget
+            ? el(EditDialog, {
+                key: 'edit',
+                message: editTarget,
+                onClose: () => setEditTarget(null),
+                onSave: (text) => generic('edit', editTarget, { text }),
+              })
+            : null,
           forwardTarget
             ? el(ForwardPicker, {
                 key: 'fwd',
-                chats: state.chats,
+                // A message forwards within its own network.
+                chats: state.chats.filter(
+                  (c) => c.source === state.current.source
+                ),
                 onClose: () => setForwardTarget(null),
                 onForward: (toChat) => doForward(forwardTarget, toChat),
               })

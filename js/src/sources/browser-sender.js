@@ -11,10 +11,13 @@
  * this module does exactly that, through browser-commander, in the
  * persistent profile where the user signed in once.
  *
- * - `WEB_UIS` is the declarative per-network table: chat URL, composer,
- *   send control, message list and logged-in markers.
+ * - `WEB_UIS` (./web-uis.js) is the declarative per-network table: chat
+ *   URL, composer, send control, message list, chat list, message menu
+ *   and logged-in markers.
  * - `createBrowserSender()` drives those pages: `send`, `setTyping`,
- *   `readRecent` and `close`, with one lazily opened page per network.
+ *   `readRecent`, `readChats`, `editMessage`, `deleteMessages`, `react`,
+ *   `forwardMessages`, `markRead` (./browser-actions.js) and `close`,
+ *   with one lazily opened page per network.
  * - `createFallbackSender()` tries the API first and falls back to the
  *   browser when the API throws (or is not configured).
  * - `createDefaultSender()` wires the source adapters and the browser
@@ -33,129 +36,13 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { defaultProfileDir, openBrowserSession } from '../cv/browser.js';
 import { selectorCandidates } from '../cv/runner.js';
 import { createAdapterSender } from '../crm/reengage.js';
-
-/** VK peer ids of group chats start here (`messages.send` peer_id). */
-const VK_CHAT_PEER_OFFSET = 2000000000;
+import { WEB_UIS } from './web-uis.js';
+import { createBrowserActions } from './browser-actions.js';
+import { createMessageActions } from './message-actions.js';
 
 const isNumericId = (value) => /^-?\d+$/.test(String(value));
 
-/**
- * Official web UIs, one entry per network.
- *
- * The selectors are BEST-EFFORT: they were chosen from the current
- * public markup of each web client and cannot be verified here without
- * a signed-in account. Every web client ships new markup from time to
- * time, so the table is plain data — pass a patched copy as
- * `createBrowserSender({ platforms })` to override any entry without
- * touching this file. Each selector field may be a comma-separated
- * candidate list; the first candidate that matches wins.
- *
- * Entry fields:
- * - `chatUrl(target, { text })` URL of the conversation;
- * - `target({ chat, to })` which draft field addresses the chat;
- * - `loginUrl` where the user signs in once (persistent profile);
- * - `loggedIn` / `loggedOut` markers telling the two states apart;
- * - `composer` the message input (contenteditable in all three);
- * - `prefill` the chat URL already puts the text into the composer;
- * - `send` `{ selector, key }`: click the button, else press the key;
- * - `messages` how to read the visible history (see `extractMessages`).
- */
-export const WEB_UIS = Object.freeze({
-  vk: Object.freeze({
-    id: 'vk',
-    name: 'VK',
-    loginUrl: 'https://vk.com/',
-    chatUrl: (target) => {
-      const raw = String(target).replace(/^@/, '');
-      const sel =
-        isNumericId(raw) && Number(raw) >= VK_CHAT_PEER_OFFSET
-          ? `c${Number(raw) - VK_CHAT_PEER_OFFSET}`
-          : raw;
-      return `https://vk.com/im?sel=${encodeURIComponent(sel)}`;
-    },
-    target: ({ chat, to }) => chat ?? to,
-    loggedIn: '#l_msg, .im-page, .ConvoMain, [data-testid="im_page"]',
-    loggedOut: '#index_login, .VkIdForm, form[action*="login"]',
-    composer:
-      '.ComposerInput__input[contenteditable="true"], .im_editable[contenteditable="true"], div[contenteditable="true"][role="textbox"]',
-    prefill: false,
-    send: {
-      selector:
-        '.ConvoComposer__sendButton--submit, .im-send-btn_send, button[aria-label="Отправить"], button[aria-label="Send"]',
-      key: 'Enter',
-    },
-    messages: {
-      item: '.ConvoHistory__messageBlock, .im-mess[data-msgid]',
-      idAttribute: 'data-msgid',
-      sender: '.PeerTitle__title, .ConvoMessageAuthor, .im-mess-stack--lnk',
-      body: '.MessageText, .im-mess--text',
-      time: 'time, .ConvoMessageInfo__time, .im-mess--lnk',
-      timeAttribute: 'datetime',
-      outgoing: '.ConvoMessage--out, .im-mess_out',
-    },
-  }),
-  telegram: Object.freeze({
-    id: 'telegram',
-    name: 'Telegram',
-    loginUrl: 'https://web.telegram.org/k/',
-    // Web K routes `#@username` to a public username and `#<id>` to a
-    // numeric peer id (negative for groups and channels).
-    chatUrl: (target) => {
-      const raw = String(target).trim();
-      const peer = isNumericId(raw) ? raw : `@${raw.replace(/^@/, '')}`;
-      return `https://web.telegram.org/k/#${peer}`;
-    },
-    target: ({ chat, to }) => chat ?? to,
-    loggedIn: '#column-left .chatlist, .chatlist-container, .chat-input',
-    loggedOut: '.page-sign, .page-signQR, .auth-pages',
-    composer:
-      '.input-message-input[contenteditable="true"], div[contenteditable="true"].input-message-input',
-    prefill: false,
-    send: { selector: 'button.btn-send', key: 'Enter' },
-    messages: {
-      item: '.bubble[data-mid]',
-      idAttribute: 'data-mid',
-      sender: '.peer-title, .name',
-      body: '.translatable-message, .message',
-      time: '.time-inner, .time',
-      timeAttribute: 'title',
-      timestampAttribute: 'data-timestamp',
-      outgoing: '.is-out',
-    },
-  }),
-  whatsapp: Object.freeze({
-    id: 'whatsapp',
-    name: 'WhatsApp',
-    loginUrl: 'https://web.whatsapp.com/',
-    // The click-to-chat URL opens the chat and pre-fills the composer.
-    chatUrl: (target, { text = '' } = {}) => {
-      const phone = String(target).replace(/\D/g, '');
-      const query = text ? `&text=${encodeURIComponent(text)}` : '';
-      return `https://web.whatsapp.com/send?phone=${phone}${query}`;
-    },
-    target: ({ chat, to }) => to ?? chat,
-    loggedIn: '#pane-side, div[aria-label="Chat list"], #main footer',
-    loggedOut: 'canvas[aria-label="Scan me!"], div[data-ref], .landing-main',
-    composer:
-      'footer div[contenteditable="true"][role="textbox"], div[contenteditable="true"][data-tab="10"]',
-    prefill: true,
-    send: {
-      selector:
-        'button[aria-label="Send"], button[aria-label="Отправить"], span[data-icon="send"]',
-      key: 'Enter',
-    },
-    messages: {
-      item: '#main div[data-id]',
-      idAttribute: 'data-id',
-      sender: '[data-pre-plain-text]',
-      senderAttribute: 'data-pre-plain-text',
-      body: 'span.selectable-text, .copyable-text span',
-      time: '[data-pre-plain-text]',
-      timeAttribute: 'data-pre-plain-text',
-      outgoing: '.message-out, [data-id^="true_"]',
-    },
-  }),
-});
+export { WEB_UIS };
 
 /** The user has to sign in once in the persistent browser profile. */
 export class BrowserLoginRequiredError extends Error {
@@ -215,9 +102,15 @@ export const extractMessages = (spec) => {
       ? (found.getAttribute(attribute) ?? null)
       : (found.textContent ?? '');
   };
+  const pattern = spec.idPattern ? new RegExp(spec.idPattern) : null;
+  const idOf = (node) => {
+    const raw = spec.idAttribute ? node.getAttribute(spec.idAttribute) : null;
+    const match = raw && pattern ? pattern.exec(raw) : null;
+    return match ? match[1] : raw;
+  };
   const rows = Array.from(document.querySelectorAll(spec.item));
   return rows.slice(-spec.limit).map((node) => ({
-    id: spec.idAttribute ? node.getAttribute(spec.idAttribute) : null,
+    id: idOf(node),
     sender: squash(pick(node, spec.sender, spec.senderAttribute)),
     body: String(pick(node, spec.body) ?? '').trim(),
     time: squash(pick(node, spec.time, spec.timeAttribute)) || null,
@@ -381,6 +274,68 @@ const createSessionPool = ({ open, log }) => {
 };
 
 /**
+ * Pages of one network: `inChat(source, target, options, fn)` and
+ * `inList(source, fn)` run `fn(commander, page)` with the chat (or the
+ * chat list) open and the login checked, in the network's queue.
+ */
+const createChatPages = ({ pool, uiFor, waitFor, log, profileDirFor }) => {
+  /** Navigate to `url` (if not already there) and check the login. */
+  const openPage = async (source, url, { reload = false } = {}) => {
+    const ui = uiFor(source);
+    const state = await pool.get(source);
+    if (state.url !== url || reload) {
+      log(`[browser:${source}] open ${url}`);
+      await state.commander.goto({ url, waitUntil: 'domcontentloaded' });
+      state.url = url;
+    }
+    if (
+      !(await waitFor(state.commander, ui.loggedIn, { stop: ui.loggedOut }))
+    ) {
+      state.url = null;
+      throw new BrowserLoginRequiredError({
+        source,
+        loginUrl: ui.loginUrl,
+        profileDir: profileDirFor(source),
+      });
+    }
+    return state;
+  };
+
+  /** Open the chat; a pre-filled URL is reloaded every time. */
+  const openChat = (source, target, { text = '' } = {}) => {
+    const ui = uiFor(source);
+    if (target === null || target === undefined || target === '') {
+      throw codedError(
+        `${source}: a chat or recipient is required`,
+        'bad-draft'
+      );
+    }
+    // The reload is what puts the text back into the composer.
+    const prefill = ui.prefill && text ? text : '';
+    return openPage(source, ui.chatUrl(target, { text: prefill }), {
+      reload: Boolean(prefill),
+    });
+  };
+
+  /** Run `fn(commander, page)` with the chat open, in the network's queue. */
+  const inChat = (source, target, options, fn) =>
+    pool.queue(source, async () => {
+      const state = await openChat(source, target, options);
+      return fn(state.commander, state.session?.page ?? null);
+    });
+
+  /** Run `fn(commander, page)` with the chat list open. */
+  const inList = (source, fn) =>
+    pool.queue(source, async () => {
+      const ui = uiFor(source);
+      const state = await openPage(source, ui.listUrl ?? ui.loginUrl);
+      return fn(state.commander, state.session?.page ?? null);
+    });
+
+  return { inChat, inList };
+};
+
+/**
  * Drive the official web UIs through browser-commander.
  *
  * @param {object} [options]
@@ -441,41 +396,13 @@ export const createBrowserSender = ({
       ...extra,
     });
 
-  /** Navigate to the chat (if not already there) and check the login. */
-  const openChat = async (source, target, { text = '' } = {}) => {
-    const ui = uiFor(source);
-    if (target === null || target === undefined || target === '') {
-      throw codedError(
-        `${source}: a chat or recipient is required`,
-        'bad-draft'
-      );
-    }
-    const state = await pool.get(source);
-    const prefill = ui.prefill && text ? text : '';
-    const url = ui.chatUrl(target, { text: prefill });
-    // A pre-filled URL is reloaded every time: the reload is what puts
-    // the text back into the composer.
-    if (state.url !== url || prefill) {
-      log(`[browser:${source}] open ${url}`);
-      await state.commander.goto({ url, waitUntil: 'domcontentloaded' });
-      state.url = url;
-    }
-    if (
-      !(await waitFor(state.commander, ui.loggedIn, { stop: ui.loggedOut }))
-    ) {
-      state.url = null;
-      throw new BrowserLoginRequiredError({
-        source,
-        loginUrl: ui.loginUrl,
-        profileDir: profileDirFor(source),
-      });
-    }
-    return state.commander;
-  };
-
-  /** Run `fn(commander)` with the chat open, in the network's queue. */
-  const inChat = (source, target, options, fn) =>
-    pool.queue(source, async () => fn(await openChat(source, target, options)));
+  const { inChat, inList } = createChatPages({
+    pool,
+    uiFor,
+    waitFor,
+    log,
+    profileDirFor,
+  });
 
   const focusComposer = async (source, ui, commander) => {
     const composer = await waitFor(commander, ui.composer);
@@ -489,8 +416,21 @@ export const createBrowserSender = ({
     return composer;
   };
 
+  const actions = createBrowserActions({
+    inChat: (source, chat, fn) => inChat(source, chat, {}, fn),
+    inList,
+    uiFor,
+    waitFor,
+    firstMatch,
+    focusComposer,
+    typeLines: (commander, text) => typeLines(commander, text, typingDelayMs),
+    pressSend,
+    clock,
+  });
+
   return {
     platforms,
+    ...actions,
 
     /** Type and send one message in the network's web UI. */
     async send({ source, chat, to, text } = {}) {
@@ -572,6 +512,8 @@ const annotate = (result, via, extra = {}) =>
  * @param {(error: Error) => boolean} [options.shouldFallback] default:
  *   every error except `safe-mode` and `bad-draft`
  * @param {Function} [options.log]
+ * @param {string} [options.action] what is done (`send`, `edit`…), for
+ *   the log and the error
  * @returns {(draft: object) => Promise<object>} result with `via`
  */
 export const createFallbackSender =
@@ -580,6 +522,7 @@ export const createFallbackSender =
     browserSend = null,
     log = () => {},
     shouldFallback = defaultShouldFallback,
+    action = 'send',
   } = {}) =>
   async (draft) => {
     let apiError = null;
@@ -592,7 +535,7 @@ export const createFallbackSender =
         }
         apiError = error;
         log(
-          `[send:${draft?.source}] API failed (${error.message}); trying the web UI`
+          `[${action}:${draft?.source}] API failed (${error.message}); trying the web UI`
         );
       }
     }
@@ -615,27 +558,32 @@ export const createFallbackSender =
       }
       throw new SendFallbackError(
         [apiError, error],
-        `${draft?.source}: sending failed through the API (${apiError.message}) and the web UI (${error.message})`
+        `${draft?.source}: ${action === 'send' ? 'sending' : action} failed through the API (${apiError.message}) and the web UI (${error.message})`
       );
     }
   };
 
 /**
  * The sender automations and the chat composer use: the source adapter's
- * `live.post` first, the official web UI second.
+ * `live.post` first, the official web UI second. It also does every other
+ * action on a message the same way (`perform`, ./message-actions.js).
  *
  * @param {object} [options]
  * @param {(source: string) => object} [options.getSource] adapter lookup;
  *   without it every draft goes through the browser
  * @param {object} [options.options] per-source `live.post` options
+ * @param {(source: string) => Promise<object>} [options.optionsFor] the
+ *   saved connection's options (token, ids) for a network
  * @param {object} [options.browser] a `createBrowserSender()` instance,
  *   or options for one (created lazily on the first fallback)
  * @param {Function} [options.log]
- * @returns {Function & {close: Function}} `(draft) => result`
+ * @returns {Function & {close: Function, perform: Function, supports: Function}}
+ *   `(draft) => result`
  */
 export const createDefaultSender = ({
   getSource = null,
   options = {},
+  optionsFor = async () => ({}),
   browser = {},
   log = () => {},
 } = {}) => {
@@ -644,8 +592,19 @@ export const createDefaultSender = ({
     browserSender ??= createBrowserSender({ log, ...browser });
     return browserSender;
   };
+  const merged = async (source) => ({
+    ...(await optionsFor(source)),
+    ...(options[source] ?? {}),
+  });
+  const adapterSend = getSource
+    ? async (draft) =>
+        createAdapterSender({
+          getSource,
+          options: { [draft.source]: await merged(draft.source) },
+        })(draft)
+    : null;
   const send = createFallbackSender({
-    apiSend: getSource ? createAdapterSender({ getSource, options }) : null,
+    apiSend: adapterSend,
     browserSend: (draft) =>
       browserFor().send({
         source: draft.source,
@@ -655,7 +614,17 @@ export const createDefaultSender = ({
       }),
     log,
   });
+  const actions = createMessageActions({
+    getSource,
+    optionsFor: merged,
+    browser: browserFor,
+    log,
+  });
   return Object.assign(send, {
+    perform: actions.perform,
+    supports: actions.supports,
+    readChats: (params) => browserFor().readChats(params),
+    readRecent: (params) => browserFor().readRecent(params),
     close: async () => browserSender?.close(),
   });
 };
