@@ -51,14 +51,31 @@ test('suggests deduplicated replies to the chat’s last incoming message', asyn
   await service.close();
 });
 
-test('falls back to word-by-word completion from our own messages', async () => {
+test('while typing, our whole messages come first, then words', async () => {
   const service = createReplyService({ store: await seeded() });
   const out = await service.autocomplete({
     lastMessage: 'Что нового?',
     typed: 'Здр',
   });
-  assert.equal(out.stage, 'word');
-  assert.equal(out.suggestions[0].text, 'Здравствуйте');
+  assert.equal(out.stage, 'message');
+  assert.equal(out.suggestions[0].text, 'Здравствуйте!');
+  const words = await service.autocomplete({ typed: 'Прив' });
+  assert.ok(words.suggestions.some((s) => s.kind === 'word'));
+  await service.close();
+});
+
+test('nothing is suggested to answer once our message is the last', async () => {
+  const store = await seeded();
+  await store.put(msg('4', 'me', 'Уже ответил', 6));
+  const service = createReplyService({ store });
+  const out = await service.autocomplete({ source: 'vk', chat: '4' });
+  assert.deepEqual(
+    [out.stage, out.suggestions, out.lastMessage],
+    ['none', [], '']
+  );
+  await store.put(msg('4', 'u4', 'Привет', 7));
+  const again = await service.autocomplete({ source: 'vk', chat: '4' });
+  assert.equal(again.stage, 'reply');
   await service.close();
 });
 
@@ -170,7 +187,7 @@ test('GET /api/suggest answers for a chat over HTTP', async () => {
         `${base}/api/suggest?last=${encodeURIComponent('Ок')}&typed=Прив`
       )
     ).json();
-    assert.equal(words.stage, 'word');
+    assert.equal(words.stage, 'message');
     const stats = await (await fetch(`${base}/api/suggest/stats`)).json();
     assert.equal(stats.pairs, 3);
     assert.equal(stats.mirror, 'unavailable');

@@ -5,9 +5,10 @@
  * It learns the reply graph from the store's history the first time it
  * is asked, then keeps learning in real time from every message the
  * store receives (imports, live adapters, our own sends). Suggestions
- * come in two stages — every reply we used before for the last incoming
- * message (deduplicated, most used first), then word-by-word completion
- * from our own messages when no whole reply matches.
+ * come in three stages — every reply we used before for the message
+ * waiting for an answer (deduplicated, most used first), then whole
+ * messages we sent that start with what is typed, then word-by-word
+ * completion from the conversations' words.
  *
  * Keystrokes are answered by the in-memory index. When a link-cli
  * (`clink`) reply store is given it is loaded with the same graph and
@@ -19,7 +20,10 @@ import { detectSelfIds } from '../crm/reengage.js';
 import { buildReplyIndex } from './reply-graph.js';
 
 const isMessage = (l) =>
-  l?.id?.startsWith('msg:') && typeof l.body === 'string' && !l.service;
+  l?.id?.startsWith('msg:') &&
+  typeof l.body === 'string' &&
+  !l.service &&
+  !l.deleted;
 const chatKey = (source, chat) => `${source}\u0000${chat}`;
 const later = (a, b) =>
   String(a.timestamp ?? '').localeCompare(String(b.timestamp ?? '')) >= 0;
@@ -33,26 +37,39 @@ export const createReplyService = ({
   store,
   self = [],
   clink = null,
-  wordsFrom = 'self',
+  wordsFrom = 'all',
   log = () => {},
 } = {}) => {
   let index = null;
   let building = null;
   let isSelf = () => false;
-  // The last message that is not ours in each chat — the one to answer.
+  // The last message that is not ours in each chat — the one to answer
+  // — and the last message of any side: once we answered, there is
+  // nothing to answer.
   const lastIncoming = new Map();
+  const lastAny = new Map();
   let mirror = clink?.available ? 'off' : 'unavailable';
   let mirrorError = null;
 
-  const remember = (m) => {
-    if (isSelf(m.sender)) {
-      return;
-    }
-    const key = chatKey(m.source, m.chat);
-    const known = lastIncoming.get(key);
+  const keepLater = (map, key, m) => {
+    const known = map.get(key);
     if (!known || later(m, known)) {
-      lastIncoming.set(key, m);
+      map.set(key, m);
     }
+  };
+  const remember = (m) => {
+    const key = chatKey(m.source, m.chat);
+    keepLater(lastAny, key, m);
+    if (!isSelf(m.sender)) {
+      keepLater(lastIncoming, key, m);
+    }
+  };
+
+  // The message to answer in a chat: its last one, when it is not ours.
+  const toAnswer = (source, chat) => {
+    const key = chatKey(source, chat);
+    const last = lastAny.get(key);
+    return last && !isSelf(last.sender) ? last.body : '';
   };
 
   const openMirror = () => {
@@ -77,6 +94,7 @@ export const createReplyService = ({
     const selfIds = detectSelfIds(messages, self);
     isSelf = (sender) => selfIds.has(String(sender));
     lastIncoming.clear();
+    lastAny.clear();
     index = buildReplyIndex(messages, { isSelf, wordsFrom });
     messages.forEach(remember);
     openMirror();
@@ -119,16 +137,15 @@ export const createReplyService = ({
       return lastIncoming.get(chatKey(source, chat)) ?? null;
     },
     /**
-     * Two-stage suggestions. `lastMessage` defaults to the chat's last
-     * incoming message when `source` and `chat` are given.
+     * Suggestions (./reply-graph.js `autocomplete`). `lastMessage`
+     * defaults, when `source` and `chat` are given, to the chat's last
+     * message if it is the other side's — none once we answered it.
      */
     async autocomplete({ source, chat, lastMessage, typed = '', limit = 8 }) {
       const idx = await ready();
       const last =
         lastMessage ??
-        (source && chat !== undefined
-          ? (lastIncoming.get(chatKey(source, chat))?.body ?? '')
-          : '');
+        (source && chat !== undefined ? toAnswer(source, chat) : '');
       return {
         ...idx.autocomplete({ lastMessage: last, typed, limit }),
         lastMessage: last,

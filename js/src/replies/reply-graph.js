@@ -6,15 +6,21 @@
  * reply link, counted. It is learnable from an archive import, from a
  * live pull and in real time (`observe(message)` as messages arrive).
  *
- * Autocomplete then works in two stages, fastest-to-type first:
+ * Autocomplete then works in three stages, fastest-to-type first:
  *
  *   1. Whole-message replies. The last message in the chat is looked up
  *      in the graph; every reply we ever sent to the same message is
  *      offered once (deduplicated), sorted by how often we used it.
  *      What the user has typed so far narrows the list by prefix.
- *   2. Word by word. When no whole reply matches, the next word (or the
- *      rest of the current word) is predicted from our own messages
- *      only, by default — a trigram → bigram → unigram back-off.
+ *      Nothing is offered when there is nothing to answer, or no reply
+ *      we know for it.
+ *   2. Whole messages. While the user types, every message they sent
+ *      before that starts with what is typed, most used first.
+ *   3. Word by word. After those, the next word (or the rest of the
+ *      current word) is predicted from the words of the conversations —
+ *      ours counted three times, the people we talk with once (in chats
+ *      we wrote in; broadcast channels left out) — a trigram → bigram →
+ *      unigram back-off.
  *
  * The index is plain data (`toLinks`/`fromLinks` round-trip it through
  * the links store), and its lookups are hash-map reads, so suggesting is
@@ -60,7 +66,21 @@ const toMs = (value) => {
 const isMessage = (link) =>
   Boolean(link?.id?.startsWith('msg:')) &&
   typeof link.body === 'string' &&
-  !link.service;
+  !link.service &&
+  !link.deleted;
+
+// A broadcast channel's posts are not a conversation's words.
+const isBroadcast = (m) =>
+  m.chatType === 'channel' || String(m.chatType ?? '').endsWith('_channel');
+
+// Our own words weigh this much more than the other side's.
+const SELF_WORD_WEIGHT = 3;
+// Whole messages offered while typing, before the word strip.
+const MESSAGE_LIMIT = 5;
+// Whole-message completion starts at this many typed letters.
+const MESSAGE_MIN_TYPED = 2;
+// At most this many stored messages are looked at for one prefix.
+const MESSAGE_SCAN = 2000;
 
 const defaultIsSelf = (sender) => sender === 'me';
 
@@ -312,24 +332,112 @@ const createPairStore = () => {
   };
 };
 
+/**
+ * Our own sent messages, for completing a whole message from its start:
+ * normalized text → how often it was sent, its spelling and last use;
+ * prefix lookups binary-search the sorted keys.
+ */
+const createSentStore = () => {
+  const counts = new Map();
+  const originals = new Map();
+  const lastUsed = new Map();
+  let sorted = null;
+  const keys = () => (sorted ??= [...counts.keys()].sort());
+  const firstAtLeast = (list, prefix) => {
+    let lo = 0;
+    let hi = list.length;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (list[mid] < prefix) {
+        lo = mid + 1;
+      } else {
+        hi = mid;
+      }
+    }
+    return lo;
+  };
+  return {
+    learn(text, at = null) {
+      const key = normalizeMessage(text);
+      if (!key) {
+        return;
+      }
+      if (!counts.has(key)) {
+        sorted = null;
+      }
+      bump(counts, key);
+      nestedBump(originals, key, String(text).trim());
+      if (at && String(at) > String(lastUsed.get(key) ?? '')) {
+        lastUsed.set(key, String(at));
+      }
+    },
+    /** Messages that start with `typed` (at a word end after a space). */
+    complete(typed, limit) {
+      const prefix = normalizeMessage(typed);
+      if (prefix.length < MESSAGE_MIN_TYPED) {
+        return [];
+      }
+      // "Ну " has finished its word: "нужно" no longer matches.
+      const start = /\s$/u.test(String(typed)) ? `${prefix} ` : prefix;
+      const list = keys();
+      const found = [];
+      for (
+        let i = firstAtLeast(list, start);
+        i < list.length && found.length < MESSAGE_SCAN;
+        i += 1
+      ) {
+        if (!list[i].startsWith(start)) {
+          break;
+        }
+        if (list[i] !== prefix) {
+          found.push([list[i], counts.get(list[i])]);
+        }
+      }
+      return found
+        .sort(byUse(lastUsed))
+        .slice(0, limit)
+        .map(([key, count]) => ({
+          kind: 'message',
+          text: mostUsed(originals.get(key), key),
+          count,
+          lastUsed: lastUsed.get(key) ?? null,
+        }));
+    },
+    size: () => counts.size,
+  };
+};
+
 const isLater = (a, b) => (toMs(a.timestamp) ?? 0) >= (toMs(b.timestamp) ?? 0);
 
 /**
  * Create an empty reply index. `isSelf(sender)` says which messages are
- * the owner's; `wordsFrom` is `'self'` (the default — only our own
- * messages teach the word model) or `'all'`.
+ * the owner's; `wordsFrom` is `'all'` (the default — our words and the
+ * words of the people we talk with teach the word model, ours weighing
+ * more) or `'self'` (only ours).
  */
 export const createReplyIndex = ({
   isSelf = defaultIsSelf,
   windowMs = DEFAULT_REPLY_WINDOW_MS,
-  wordsFrom = 'self',
+  wordsFrom = 'all',
 } = {}) => {
   const pairs = createPairStore();
   const words = createWordModel();
+  const sent = createSentStore();
   // Real-time learning: the last message seen in each chat.
   const lastInChat = new Map();
+  // The chats we wrote in: the conversations whose other side's words
+  // count (a group we only read, or a channel, teaches none).
+  const ourChats = new Set();
   const learnWords = (m) => {
-    if (wordsFrom === 'all' || isSelf(m.sender)) {
+    if (isSelf(m.sender)) {
+      ourChats.add(chatKey(m));
+      words.learn(m.body, SELF_WORD_WEIGHT);
+      sent.learn(m.body, m.timestamp);
+    } else if (
+      wordsFrom === 'all' &&
+      !isBroadcast(m) &&
+      ourChats.has(chatKey(m))
+    ) {
       words.learn(m.body);
     }
   };
@@ -337,6 +445,11 @@ export const createReplyIndex = ({
     /** Learn every reply pair and every word in a history. */
     learnFromMessages(links = []) {
       const messages = links.filter(isMessage);
+      for (const m of messages) {
+        if (isSelf(m.sender)) {
+          ourChats.add(chatKey(m));
+        }
+      }
       for (const pair of extractReplyPairs(messages, { isSelf, windowMs })) {
         pairs.learn(pair);
       }
@@ -387,28 +500,48 @@ export const createReplyIndex = ({
      */
     suggestReplies: (prompt, { typed = '', limit = 8 } = {}) =>
       pairs.suggest(prompt, typed, limit),
-    /** Word-by-word completion of `typed` from our own messages. */
+    /** Word-by-word completion of `typed` from the conversations. */
     suggestWords: (typed = '', { limit = 5 } = {}) =>
       words.suggest(typed, limit),
+    /** Whole messages we sent before that start with `typed`. */
+    suggestMessages: (typed = '', { limit = MESSAGE_LIMIT } = {}) =>
+      sent.complete(typed, limit),
     /**
-     * The two stages together: whole replies to `lastMessage` first,
-     * word-by-word over `typed` when none match. Words stop at three,
-     * like a phone keyboard's strip: past the top few they are guesses.
+     * The stages together, in priority order: whole replies to
+     * `lastMessage` (narrowed by `typed`), then — while typing — whole
+     * messages we sent that start with `typed`, then the next words.
+     * Words stop at three, like a phone keyboard's strip. `stage` is the
+     * kind of the first suggestion.
      */
     autocomplete({ lastMessage = '', typed = '', limit = 8 } = {}) {
-      const whole = lastMessage ? pairs.suggest(lastMessage, typed, limit) : [];
-      if (whole.length > 0) {
-        return { stage: 'reply', suggestions: whole };
-      }
-      const byWord = typed
-        ? words.suggest(typed, Math.min(limit, WORD_LIMIT))
+      const replies = lastMessage
+        ? pairs.suggest(lastMessage, typed, limit)
         : [];
-      return {
-        stage: byWord.length > 0 ? 'word' : 'none',
-        suggestions: byWord,
-      };
+      const offered = new Set(replies.map((r) => normalizeMessage(r.text)));
+      const messages = typed
+        ? sent
+            .complete(typed, Math.min(limit, MESSAGE_LIMIT) + offered.size)
+            .filter((m) => !offered.has(normalizeMessage(m.text)))
+        : [];
+      const whole = [...replies, ...messages].slice(0, limit);
+      // A word that only finishes a whole suggestion repeats it.
+      const shown = new Set(whole.map((m) => normalizeMessage(m.text)));
+      const room = Math.min(limit - whole.length, WORD_LIMIT);
+      const byWord =
+        typed && room > 0
+          ? words
+              .suggest(typed, room + shown.size)
+              .filter((w) => !shown.has(normalizeMessage(w.text)))
+              .slice(0, room)
+          : [];
+      const suggestions = [...whole, ...byWord];
+      return { stage: suggestions[0]?.kind ?? 'none', suggestions };
     },
-    stats: () => ({ ...pairs.stats(), words: words.size() }),
+    stats: () => ({
+      ...pairs.stats(),
+      words: words.size(),
+      sent: sent.size(),
+    }),
     /**
      * The reply graph as links (`reply-link:<n>`), one per distinct
      * (prompt, reply) pair with its count — the format the links store,

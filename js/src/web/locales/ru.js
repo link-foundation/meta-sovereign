@@ -909,7 +909,9 @@ export const ru = {
   'chat.notice.failed':
     'Не отправлено: {error}. Повторите, измените, отправьте сами или пропустите.',
   'chat.suggest.reply': 'Ваши прежние ответы на такое сообщение',
-  'chat.suggest.word': 'Следующие слова из ваших сообщений',
+  'chat.suggest.word': 'Следующие слова из ваших переписок',
+  'chat.suggest.message': 'Ваши прежние сообщения, которые начинаются так же',
+  'chat.suggest.none': 'Подсказки',
   'chat.suggest.count': 'Использовано раз: {count}',
   'automations.mode.safe': 'безопасный: черновики на подтверждение',
   'automations.mode.auto': 'автоматический',

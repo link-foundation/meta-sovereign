@@ -28,6 +28,7 @@ import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
 import { Notice } from './notice.js';
+import { useLeaving } from './chat-leaving.js';
 import {
   MessageBubble,
   DeleteDialog,
@@ -500,14 +501,24 @@ const NEAR_BOTTOM_PX = 80;
 // share the `clientId`.
 const identity = (message) => message?.clientId ?? message?.id ?? null;
 
-/** How many messages follow the one that was last (all when unknown). */
-export const addedAfter = (messages, lastBefore) => {
+/**
+ * How many messages follow the one that was last (all when unknown).
+ * When that one left (deleted), what follows the last of the messages
+ * that were there before (`known`, their identities) is new.
+ */
+export const addedAfter = (messages, lastBefore, known = null) => {
   if (lastBefore === null || lastBefore === undefined) {
     return messages.length;
   }
   const at = messages.findIndex((m) => identity(m) === lastBefore);
   if (at >= 0) {
     return messages.length - 1 - at;
+  }
+  const kept = known
+    ? messages.findLastIndex((m) => known.has(identity(m)))
+    : -1;
+  if (kept >= 0) {
+    return messages.length - 1 - kept;
   }
   return identity(messages.at(-1)) === lastBefore ? 0 : 1;
 };
@@ -618,7 +629,7 @@ const useFollow = (state) => {
   const end = useRef(null);
   const line = useRef(null);
   const near = useRef(true);
-  const seen = useRef({ key: null, last: null });
+  const seen = useRef({ key: null, last: null, known: null });
   const waitLine = useRef(false);
   const [unseen, setUnseen] = useState(0);
   const count = state.messages.length;
@@ -647,10 +658,16 @@ const useFollow = (state) => {
   useEffect(() => {
     const key = state.current?.key;
     const before = seen.current;
-    seen.current = { key, last: lastId };
+    seen.current = {
+      key,
+      last: lastId,
+      known: new Set(state.messages.map(identity)),
+    };
     const opened = before.key !== key;
     // Older pages come in above: only what follows the last one is new.
-    const added = opened ? count : addedAfter(state.messages, before.last);
+    const added = opened
+      ? count
+      : addedAfter(state.messages, before.last, before.known);
     const justSent = last?.sender === 'me' && Boolean(last?.pending);
     // The unread line may come with the chat's first page, just after.
     const lineWanted = opened || waitLine.current;
@@ -761,9 +778,11 @@ const Stream = ({ state, api, onAction }) => {
     keep();
     older();
   };
+  // What leaves the chat goes like in Telegram (./chat-leaving.js).
+  const messages = useLeaving(state.messages, state.current?.key ?? null);
   // Map for reply lookups.
-  const msgById = new Map(state.messages.map((m) => [m.id, m]));
-  const firstInRun = runFlags(state.messages);
+  const msgById = new Map(messages.map((m) => [m.id, m]));
+  const firstInRun = runFlags(messages);
   // Scroll to a message by its link id.
   const onScrollTo = (id) => {
     const node = follow.box.current?.querySelector(
@@ -774,7 +793,7 @@ const Stream = ({ state, api, onAction }) => {
   return el('div', { className: 'chat-scroll', ref: follow.box, onScroll }, [
     el('div', { key: 'col', className: 'chat-column' }, [
       el(OlderRow, { key: 'older', history: state.history }),
-      ...state.messages.flatMap((message) => [
+      ...messages.flatMap((message) => [
         message.id === state.unreadLine
           ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
           : null,
@@ -795,7 +814,7 @@ const Stream = ({ state, api, onAction }) => {
       ...state.drafts.drafts.map((draft) =>
         el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
       ),
-      state.messages.length === 0
+      messages.length === 0
         ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
         : null,
       el('div', { key: 'end', ref: follow.end }),

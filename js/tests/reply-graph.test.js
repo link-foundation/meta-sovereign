@@ -94,19 +94,31 @@ test('autocomplete tries whole replies first, then words', () => {
   assert.equal(whole.stage, 'reply');
   assert.equal(whole.suggestions[0].text, 'Пожалуйста, обращайтесь');
 
-  const words = index.autocomplete({ lastMessage: 'Как жизнь?', typed: 'Пр' });
-  assert.equal(words.stage, 'word');
-  assert.equal(words.suggestions[0].text, 'Привет');
-  assert.equal(words.suggestions[0].insert, 'ивет');
+  // Typing: a whole message we sent that starts so comes first, then
+  // the words.
+  const typing = index.autocomplete({ lastMessage: 'Как жизнь?', typed: 'Пр' });
+  assert.equal(typing.stage, 'message');
+  assert.equal(typing.suggestions[0].text, 'Привет, как дела?');
+  const word = typing.suggestions.find((s) => s.kind === 'word');
+  assert.equal(word.text, 'Привет');
+  assert.equal(word.insert, 'ивет');
 
+  // A word that only finishes a whole suggestion is not offered twice.
   const next = index.autocomplete({ typed: 'Привет, как ' });
-  assert.equal(next.suggestions[0].word, 'дела');
+  assert.deepEqual(next.suggestions[0], {
+    kind: 'message',
+    text: 'Привет, как дела?',
+    count: 2,
+    lastUsed: next.suggestions[0].lastUsed,
+  });
+  assert.ok(!next.suggestions.some((s) => s.word === 'дела'));
+  assert.equal(index.suggestWords('Привет, как ')[0].word, 'дела');
   // Like a keyboard's strip: whole replies may be many, words three.
-  assert.ok(next.suggestions.length <= 3);
+  const strip = index.autocomplete({ typed: 'Привет, ' });
+  assert.ok(strip.suggestions.filter((s) => s.kind === 'word').length <= 3);
   assert.ok(index.suggestWords('Привет, ', { limit: 8 }).length > 3);
   // One word typed: the word that followed it beats more frequent ones.
-  const after = index.autocomplete({ typed: 'Пожалуйста, ' });
-  assert.equal(after.suggestions[0].word, 'обращайтесь');
+  assert.equal(index.suggestWords('Пожалуйста, ')[0].word, 'обращайтесь');
 
   assert.deepEqual(index.autocomplete({ lastMessage: 'zzz' }), {
     stage: 'none',
@@ -144,11 +156,56 @@ test('word-by-word stays inside a sentence and spells words as used in one', () 
   );
 });
 
-test('word-by-word learns from our own messages only by default', () => {
-  const links = [msg('5', 'u5', 'Абракадабра', 0)];
-  assert.equal(buildReplyIndex(links).suggestWords('Абр').length, 0);
-  const all = buildReplyIndex(links, { wordsFrom: 'all' });
-  assert.equal(all.suggestWords('Абр')[0].text, 'Абракадабра');
+test('words come from both sides of a conversation, ours weighing more', () => {
+  const links = [msg('5', 'u5', 'Абракадабра', 0), msg('5', 'me', 'Да', 1)];
+  assert.equal(
+    buildReplyIndex(links).suggestWords('Абр')[0].text,
+    'Абракадабра'
+  );
+  // A chat we never wrote in is not our conversation.
+  const unread = buildReplyIndex([msg('9', 'u9', 'Абракадабра', 0)]);
+  assert.equal(unread.suggestWords('Абр').length, 0);
+  const own = buildReplyIndex(links, { wordsFrom: 'self' });
+  assert.equal(own.suggestWords('Абр').length, 0);
+  const both = buildReplyIndex([
+    msg('5', 'u5', 'Абракадабра', 0),
+    msg('5', 'u5', 'Абракадабра', 1),
+    msg('5', 'me', 'Абрикос', 2),
+  ]);
+  assert.deepEqual(
+    both.suggestWords('Абр').map((s) => s.word),
+    ['Абрикос', 'Абракадабра']
+  );
+  // A broadcast channel's posts teach no words; deleted messages neither.
+  const channel = buildReplyIndex([
+    { ...msg('6', 'c6', 'Абсолютно', 0), chatType: 'channel' },
+    { ...msg('7', 'me', 'Абзац', 0), deleted: true },
+  ]);
+  assert.equal(channel.suggestWords('Аб').length, 0);
+});
+
+test('whole messages we sent complete what is typed, most used first', () => {
+  const index = buildReplyIndex([
+    msg('1', 'me', 'Ну если ты про тот бенчмарк', 0),
+    msg('2', 'me', 'Нужно проверить', 1),
+    msg('3', 'me', 'Нужно проверить', 2),
+    msg('4', 'u4', 'Ну и ну', 3),
+  ]);
+  assert.deepEqual(
+    index.suggestMessages('Ну').map((s) => [s.text, s.count]),
+    [
+      ['Нужно проверить', 2],
+      ['Ну если ты про тот бенчмарк', 1],
+    ]
+  );
+  // A finished word only matches messages with that word.
+  assert.deepEqual(
+    index.suggestMessages('Ну ').map((s) => s.text),
+    ['Ну если ты про тот бенчмарк']
+  );
+  // One letter is too little; a message typed in full is not offered.
+  assert.equal(index.suggestMessages('Н').length, 0);
+  assert.equal(index.suggestMessages('нужно проверить!').length, 0);
 });
 
 test('observe learns pairs in real time', () => {

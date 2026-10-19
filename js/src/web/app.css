@@ -2504,6 +2504,32 @@ button.primary .recommended-tag {
 }
 .bubble-row[data-mine] {
   flex-direction: row-reverse;
+  --leave-x: 50%;
+}
+
+/* A message that leaves (deleted, on any network) goes like in
+   Telegram's web app: it shrinks toward its side and fades, then its
+   place closes (chat-leaving.js animates the height). */
+.bubble-row.is-leaving {
+  overflow: hidden;
+  pointer-events: none;
+}
+.bubble-row.is-leaving > .bubble,
+.bubble-row.is-leaving > .msg-avatar {
+  transform-origin: bottom;
+  animation: bubble-leave 0.2s ease-in forwards;
+}
+@keyframes bubble-leave {
+  to {
+    transform: scale(0.3) translateX(var(--leave-x, -50%));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bubble-row.is-leaving > .bubble,
+  .bubble-row.is-leaving > .msg-avatar {
+    animation: none;
+  }
 }
 
 /* Sender avatar circle in groups (no photo — initials + hue). */

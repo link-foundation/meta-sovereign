@@ -901,7 +901,9 @@ export const en = {
   'chat.notice.failed':
     'Not sent: {error}. Retry, edit, send it yourself or skip.',
   'chat.suggest.reply': 'Replies you gave to this message before',
-  'chat.suggest.word': 'Next words from your own messages',
+  'chat.suggest.word': 'Next words from your conversations',
+  'chat.suggest.message': 'Messages you sent before that start like this',
+  'chat.suggest.none': 'Suggestions',
   'chat.suggest.count': 'Used {count, plural, one {once} other {# times}}',
   'automations.mode.safe': 'safe: drafts to confirm',
   'automations.mode.auto': 'automatic',

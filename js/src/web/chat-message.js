@@ -10,11 +10,12 @@
 //   - edited: "edited" before the time;
 //   - service messages: centred one-line pill.
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useT, useDates } from './i18n.js';
 import { avatarFor } from './chat-model.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { Icon } from './icons.js';
+import { closePlace } from './chat-leaving.js';
 
 const el = React.createElement;
 
@@ -695,7 +696,9 @@ export const MessageBubble = ({
   const t = useT();
   const { time } = useDates();
   const [menuPos, setMenuPos] = useState(null);
+  const row = useRef(null);
   const mine = message.sender === 'me';
+  const leaving = useLeavingRow(row, message);
 
   if (message.service) {
     return el(ServiceLine, { link: message });
@@ -704,7 +707,7 @@ export const MessageBubble = ({
   const parts = parseMessageParts(message, msgById ?? new Map());
   const chat = chatIdOf(message.id);
   const netId = netIdOf(message.id);
-  const seenId = !mine && !message.pending ? netId : null;
+  const seenId = mine || message.pending || leaving ? null : netId;
 
   const openMenu = (e) => {
     e.preventDefault();
@@ -720,50 +723,62 @@ export const MessageBubble = ({
     'data-message': message.id,
     ...(seenId ? { 'data-seen-id': seenId } : {}),
     ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
-    onContextMenu: onAction ? openMenu : undefined,
+    onContextMenu: onAction && !leaving ? openMenu : undefined,
   };
 
-  return el(
-    'div',
-    { className: 'bubble-row', 'data-mine': mine ? 'true' : undefined },
-    [
-      el(MsgAvatar, {
-        key: 'av',
-        name: message.senderName ?? message.sender,
-        show: !mine && !isPersonal && showAvatar,
-      }),
-      el(
-        'div',
-        bubbleProps,
-        el(BubbleContent, {
-          parts,
+  return el('div', { ref: row, ...rowProps(mine, leaving) }, [
+    el(MsgAvatar, {
+      key: 'av',
+      name: message.senderName ?? message.sender,
+      show: !mine && !isPersonal && showAvatar,
+    }),
+    el(
+      'div',
+      bubbleProps,
+      el(BubbleContent, {
+        parts,
+        message,
+        showName,
+        mine,
+        api,
+        chat,
+        netId,
+        composer,
+        onScrollTo,
+        openMenu,
+        onAction,
+        time,
+        t,
+      })
+    ),
+    menuPos && !leaving
+      ? el(MsgContextMenu, {
+          key: 'menu',
+          x: menuPos.x,
+          y: menuPos.y,
           message,
-          showName,
-          mine,
-          api,
-          chat,
-          netId,
-          composer,
-          onScrollTo,
-          openMenu,
+          onClose: () => setMenuPos(null),
           onAction,
-          time,
-          t,
         })
-      ),
-      menuPos
-        ? el(MsgContextMenu, {
-            key: 'menu',
-            x: menuPos.x,
-            y: menuPos.y,
-            message,
-            onClose: () => setMenuPos(null),
-            onAction,
-          })
-        : null,
-    ]
-  );
+      : null,
+  ]);
 };
+
+// A leaving message's row closes its place (./chat-leaving.js).
+const useLeavingRow = (row, message) => {
+  const leaving = Boolean(message.leaving);
+  useLayoutEffect(() => {
+    const animation = leaving ? closePlace(row.current) : null;
+    return () => animation?.cancel();
+  }, [row, leaving]);
+  return leaving;
+};
+
+const rowProps = (mine, leaving) => ({
+  className: leaving ? 'bubble-row is-leaving' : 'bubble-row',
+  'data-mine': mine ? 'true' : undefined,
+  ...(leaving ? { 'data-leaving': 'true', 'aria-hidden': 'true' } : {}),
+});
 
 // Delivery icon (clock, ✓, ✓✓, !).
 const DELIVERY_ICON = {

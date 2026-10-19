@@ -894,7 +894,9 @@ export const hi = {
   'chat.notice.failed':
     'नहीं भेजा गया: {error}। फिर कोशिश करें, बदलें, खुद भेजें या छोड़ें।',
   'chat.suggest.reply': 'इस संदेश पर आपके पिछले जवाब',
-  'chat.suggest.word': 'आपके अपने संदेशों से अगले शब्द',
+  'chat.suggest.word': 'आपकी बातचीत से अगले शब्द',
+  'chat.suggest.message': 'आपके पहले भेजे संदेश जो ऐसे ही शुरू होते हैं',
+  'chat.suggest.none': 'सुझाव',
   'chat.suggest.count': '{count} बार इस्तेमाल',
   'automations.mode.safe': 'सुरक्षित: पुष्टि के लिए मसौदे',
   'automations.mode.auto': 'स्वचालित',

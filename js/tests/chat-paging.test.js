@@ -190,6 +190,10 @@ test('older messages above are not counted as new ones below', () => {
   assert.equal(addedAfter(ids(['a']), null), 1);
   // A queued message that became its link keeps its `clientId`.
   assert.equal(addedAfter([{ id: 'msg:1', clientId: 'q1' }], 'q1'), 0);
+  // The last one was deleted: nothing new came below.
+  const known = new Set(['a', 'b', 'c']);
+  assert.equal(addedAfter(ids(['a', 'b']), 'c', known), 0);
+  assert.equal(addedAfter(ids(['a', 'b', 'd']), 'c', known), 1);
   assert.equal(
     followMove({ opened: true, line: false, near: false, added: 3 }),
     'end'
