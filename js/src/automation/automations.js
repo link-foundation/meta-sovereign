@@ -33,8 +33,8 @@
 import {
   addressRulesFromPatterns,
   defaultAddressRules,
-  detectAddressForm,
 } from '../crm/address-form.js';
+import { addressFormOf } from '../crm/person-learn.js';
 import {
   DAY_MS,
   defaultReengageTemplates,
@@ -407,7 +407,7 @@ export const draftFor = (automation, candidate, { isSelf, rules }) => {
   const { action } = automation;
   const addressForm =
     action.form === 'auto'
-      ? detectAddressForm(candidate.messages, {
+      ? addressFormOf(candidate.messages, {
           isSelf,
           rules,
           fallback: action.fallbackForm,

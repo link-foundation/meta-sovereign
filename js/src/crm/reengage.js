@@ -21,8 +21,8 @@ import {
   addressRulesFromPatterns,
   definedOnly,
   defaultAddressRules,
-  detectAddressForm,
 } from './address-form.js';
+import { addressFormOf } from './person-learn.js';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const DEFAULT_DORMANT_DAYS = 90;
@@ -366,7 +366,7 @@ const coolingReason = (record, nowMs, cooldownDays) => {
 };
 
 const draftFor = (contact, { isSelf, rules, opts }) => {
-  const addressForm = detectAddressForm(contact.messages, {
+  const addressForm = addressFormOf(contact.messages, {
     isSelf,
     rules,
     fallback: opts.fallbackForm,

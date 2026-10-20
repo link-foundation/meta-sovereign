@@ -33,6 +33,7 @@
  *   /api/message/* (edit, delete, react, read, forward) -> routes-messages.js
  *   POST /api/client-log           -> the page's errors, in the log (routes-client-log.js)
  *   /api/people, /api/audiences, /api/lists -> routes-people.js
+ *   GET  /api/people/learned?key=  -> what a conversation tells (routes-learned.js)
  *   GET  /api/greetings/*          -> greeting stickers/texts (routes-greetings.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
@@ -82,6 +83,8 @@ import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEventRoutes } from './routes-events.js';
 import { createClientLogRoute } from './routes-client-log.js';
+import { createLearnedRoute } from './routes-learned.js';
+import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -304,6 +307,10 @@ const telegramChats = async (chatIndex) =>
       at: link.timestamp ?? null,
     }));
 
+// Whether GitHub accounts link back (R-Y53): the given one, or GitHub's.
+const githubCheckOf = (store, log, given) =>
+  given ?? createGitHubCheck({ store, log });
+
 // Pictures shown in Chat are kept next to the store.
 const mediaDirOf = (storeDir) =>
   storeDir ? path.join(storeDir, 'media', 'telegram') : null;
@@ -396,6 +403,7 @@ const route = async (store, req, res, ctx) => {
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),
+    () => ctx.learned?.(store, req, res, p, url, ctx) ?? false,
     () => handleDerivedRoutes(store, req, res, p, url),
   ]) {
     if (await handle()) {
@@ -467,6 +475,8 @@ export const startServer = async ({
   telegramCreds,
   // A `createTelegramAccount()` (or `false` for none); see telegramAccountFor.
   telegramAccount: telegramAccountOption,
+  // Tests and demos pass a fake, so GitHub is never asked (R-Y53).
+  githubCheck,
 } = {}) => {
   const { store, resolvedArchiveDir, flush } = await initStore({
     providedStore,
@@ -502,6 +512,8 @@ export const startServer = async ({
     storeDir,
     log,
     clientLog: createClientLogRoute(),
+    learned: createLearnedRoute(),
+    githubCheck: githubCheckOf(store, log, githubCheck),
     autoImport: null,
     autoImportLauncher,
     autoImportSignIns,

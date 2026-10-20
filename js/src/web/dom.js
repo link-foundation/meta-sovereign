@@ -813,6 +813,13 @@ export const api = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(entry),
     }).catch(() => null),
+  // What a personal conversation tells about the person (R-Y50).
+  peopleLearned: async (key) =>
+    key
+      ? ((await serverFetch(
+          `/api/people/learned?key=${encodeURIComponent(key)}`
+        ).catch(() => null)) ?? null)
+      : null,
   telegramChatInfo: async (chat) =>
     chat
       ? ((await serverFetch(

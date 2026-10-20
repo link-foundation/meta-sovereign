@@ -849,6 +849,15 @@ const restoreHolds = ({ store, queue }) =>
     .then((state) => queue.hold(state?.holds ?? {}))
     .catch(() => {});
 
+// What the account reads on request: a chat's pages, more of the chat
+// list, and a chat's whole history before others' (someone is being
+// learned about, R-Y50).
+const readersOf = (env, backfill) => ({
+  history: env.pages.history,
+  moreDialogs: env.pages.moreDialogs,
+  readFirst: backfill.prefer,
+});
+
 // The slow download of whole histories, through the account's readers.
 const backfillOf = (env, { chats, everyMs }) =>
   createBackfill({
@@ -1047,8 +1056,7 @@ export const createTelegramAccount = ({
     status,
     ...messaging,
     ...env.actions,
-    history: env.pages.history,
-    moreDialogs: env.pages.moreDialogs,
+    ...readersOf(env, backfill),
     connected,
     start,
     stop,

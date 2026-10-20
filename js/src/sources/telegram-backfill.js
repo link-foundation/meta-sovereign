@@ -48,10 +48,29 @@ export const backfillKind = (chatType) => {
 /**
  * The next chat to read further back, or null when every private chat
  * and group is stored to its first message. `chats`: `{ chat, chatType,
- * at }` (`at`: its newest message); `records`: chat → `history:` link.
+ * at }` (`at`: its newest message); `records`: chat → `history:` link;
+ * `first`: chats to read before any other, whatever their kind.
  */
-export const nextBackfill = (chats = [], records = new Map(), skip = []) => {
+export const nextBackfill = (
+  chats = [],
+  records = new Map(),
+  skip = [],
+  first = []
+) => {
   const skipped = new Set(skip);
+  const due = (c) => !records.get(c.chat)?.complete && !skipped.has(c.chat);
+  // A chat asked for (someone is being learned about) comes first.
+  const wanted = first
+    .map((chat) => chats.find((c) => c.chat === String(chat)))
+    .find((c) => c && due(c));
+  if (wanted) {
+    return {
+      chat: wanted.chat,
+      kind: backfillKind(wanted.chatType),
+      before: records.get(wanted.chat)?.oldest ?? null,
+      wanted: true,
+    };
+  }
   for (const kind of BACKFILL_ORDER) {
     const todo = chats.filter(
       (c) =>
@@ -89,6 +108,15 @@ export const backfillProgress = (phase, chats = [], records = new Map()) => {
   };
 };
 
+// How long to wait after a step: long when nothing is left, short for
+// a chat someone waits for.
+const paceAfter = (did, everyMs) => {
+  if (did === 'done' || did === 'memory') {
+    return everyMs * 12;
+  }
+  return did === 'wanted' ? Math.ceil(everyMs / 2) : everyMs;
+};
+
 /**
  * `start()` / `stop()` the download; `step()` does one request (tests
  * call it directly). `chats()` lists the account's chats; `pages` is the
@@ -110,6 +138,7 @@ export const createBackfill = ({
   let failures = 0;
   let listed = { at: -Infinity, chats: [] };
   const skip = new Set(); // chats Telegram gave nothing older for
+  const wanted = new Set(); // chats asked for first, until whole
   let progress = { phase: 'idle', chats: 0, complete: 0 };
   let waitedForMemory = false;
 
@@ -130,7 +159,12 @@ export const createBackfill = ({
   const histories = async () => {
     const list = await chatList();
     const records = await recordsOf(list);
-    const next = nextBackfill(list, records, [...skip]);
+    for (const chat of wanted) {
+      if (records.get(chat)?.complete || skip.has(chat)) {
+        wanted.delete(chat);
+      }
+    }
+    const next = nextBackfill(list, records, [...skip], [...wanted]);
     progress = backfillProgress(next?.kind ?? 'done', list, records);
     if (!next) {
       return 'done';
@@ -144,7 +178,7 @@ export const createBackfill = ({
     if (answer?.cached) {
       skip.add(next.chat);
     }
-    return next.kind;
+    return next.wanted ? 'wanted' : next.kind;
   };
 
   /** One request, if one is due; what it did. */
@@ -192,7 +226,7 @@ export const createBackfill = ({
       const did = await step();
       failures = 0;
       // Nothing to read now; new chats may come with the list.
-      base = did === 'done' || did === 'memory' ? everyMs * 12 : everyMs;
+      base = paceAfter(did, everyMs);
     } catch (error) {
       failures += 1;
       log({
@@ -209,6 +243,11 @@ export const createBackfill = ({
 
   return {
     step,
+    /** Read this chat's history before any other's. */
+    prefer: (chat) => {
+      wanted.add(String(chat));
+    },
+    wanted: (chat) => wanted.has(String(chat)),
     start: () => {
       if (timer === null && everyMs > 0) {
         schedule(everyMs);

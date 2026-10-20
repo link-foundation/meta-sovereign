@@ -509,6 +509,101 @@ main[data-view='chat'] > .web-mode-banner {
 .chat-menu {
   position: relative;
 }
+.chat-about.active {
+  color: var(--chat-accent);
+}
+/* What the conversation tells about the person (R-Y50): beside the
+   messages, under the header, as Telegram's profile column. */
+.person-panel {
+  position: absolute;
+  top: 3.5rem;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: min(22rem, 100%);
+  border-left: 1px solid var(--border);
+  background: var(--chat-sidebar);
+  box-shadow: -4px 0 16px rgb(0 0 0 / 12%);
+}
+/* Wide enough: the messages make room for it instead of going under. */
+@media (min-width: 900px) {
+  .chat-main:has(> .person-panel) > :not(.chat-header, .person-panel) {
+    margin-right: min(22rem, 100%);
+  }
+  .chat-main:has(> .person-panel) > .chat-composer {
+    left: calc((100% - 22rem) / 2);
+    width: min(var(--chat-column), calc(100% - 24rem));
+  }
+}
+.person-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.person-panel-body {
+  overflow-y: auto;
+  padding: 0.6rem 1rem 1rem;
+  overflow-wrap: anywhere;
+}
+.person-section h3 {
+  margin: 1rem 0 0.4rem;
+  color: var(--chat-accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.person-list,
+.person-asked {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+.person-list {
+  padding-left: 0;
+  list-style: none;
+}
+.person-list li,
+.person-asked li {
+  margin: 0.3rem 0;
+}
+.person-question {
+  font-weight: 500;
+}
+.person-answer {
+  margin-top: 0.1rem;
+  white-space: pre-line;
+}
+.person-count {
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  border-radius: 0.6rem;
+  background: var(--bg-elev);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.person-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0 0.4rem;
+  border-radius: 0.6rem;
+  background: var(--bg-elev);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.person-badge svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.person-badge-confirmed {
+  color: var(--chat-accent);
+}
+.person-badge-missing {
+  text-decoration: line-through;
+}
 .chat-menu-toggle {
   gap: 0.4rem;
   border-radius: 8px;

@@ -31,6 +31,7 @@ import { Notice } from './notice.js';
 import { useLeaving } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { infoLine } from './chat-info.js';
+import { PersonPanel } from './person-panel.js';
 import {
   MessageBubble,
   DeleteDialog,
@@ -377,7 +378,25 @@ const subtitleOf = (t, state, chatTime) => {
   });
 };
 
-const Header = ({ state, api, onBack }) => {
+// Who this is: what the conversation tells about them (R-Y50).
+const AboutButton = ({ about, onAbout }) => {
+  const t = useT();
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: about ? 'chat-about icon-btn active' : 'chat-about icon-btn',
+      'data-action': 'chat-about',
+      'aria-label': t('chat.about.open'),
+      'aria-pressed': about,
+      title: t('chat.about.open'),
+      onClick: onAbout,
+    },
+    el(Icon, { name: 'user' })
+  );
+};
+
+const Header = ({ state, api, onBack, about, onAbout }) => {
   const t = useT();
   const { chatTime } = useDates();
   const chat = state.current;
@@ -412,6 +431,7 @@ const Header = ({ state, api, onBack }) => {
           : subtitleOf(t, state, chatTime)
       ),
     ]),
+    chat.personal ? el(AboutButton, { key: 'about', about, onAbout }) : null,
     el(AutomationMenu, { key: 'm', menu: state.menu }),
   ]);
 };
@@ -1150,6 +1170,32 @@ const PinnedBar = ({ pinned, onOpen }) => {
 };
 
 /** The screen itself, pure: everything comes from `state`. */
+// The header, and beside the messages what the conversation tells about
+// the person, open until closed (in every personal chat, as Telegram's
+// profile column).
+const ChatTop = ({ state, api, onBack }) => {
+  const [about, setAbout] = useState(false);
+  const chat = about && state.current?.personal ? state.current : null;
+  return [
+    el(Header, {
+      key: 'h',
+      state,
+      api,
+      onBack,
+      about: Boolean(chat),
+      onAbout: () => setAbout((open) => !open),
+    }),
+    chat
+      ? el(PersonPanel, {
+          key: `about:${chat.key}`,
+          api,
+          chat,
+          onClose: () => setAbout(false),
+        })
+      : null,
+  ];
+};
+
 export const ChatScreen = ({ state, api }) => {
   const t = useT();
   const [pane, setPane] = useState('list');
@@ -1259,7 +1305,7 @@ export const ChatScreen = ({ state, api }) => {
     el(Sidebar, { key: 'side', state: { ...state, select }, api }),
     state.current
       ? el('section', { key: 'main', className: 'chat-main' }, [
-          el(Header, { key: 'h', state, api, onBack: () => setPane('list') }),
+          el(ChatTop, { key: 'h', state, api, onBack: () => setPane('list') }),
           el(PinnedBar, {
             key: 'pin',
             pinned: state.pinned,

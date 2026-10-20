@@ -117,6 +117,13 @@ test('no English literal leaks into a non-en dictionary (issue #25)', () => {
     if (isProviderLabelKey(key)) {
       continue;
     }
+    // Networks' names (LinkedIn, GitHub, …) are brands.
+    if (
+      key.startsWith('chat.about.network.') &&
+      key !== 'chat.about.network.email'
+    ) {
+      continue;
+    }
     if (!HAS_LATIN_WORD.test(stripPlaceholders(enValue))) {
       continue;
     }

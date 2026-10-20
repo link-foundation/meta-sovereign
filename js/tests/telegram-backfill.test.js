@@ -167,3 +167,28 @@ test('nothing more is downloaded while the server memory is nearly full', async 
     false
   );
 });
+
+test('a chat asked for comes before every other, whatever its kind', () => {
+  assert.deepEqual(nextBackfill(chats, new Map(), [], ['g1']), {
+    chat: 'g1',
+    kind: 'group',
+    before: null,
+    wanted: true,
+  });
+  const records = new Map([['g1', { complete: true }]]);
+  assert.equal(nextBackfill(chats, records, [], ['g1']).chat, 'p2');
+  assert.equal(nextBackfill(chats, new Map(), [], ['unknown']).chat, 'p2');
+});
+
+test('prefer() reads that chat next, then the usual order', async () => {
+  const store = createMemoryStore();
+  const calls = [];
+  const backfill = backfillWith(store, { calls });
+  await backfill.step(); // the chat list
+  backfill.prefer('g1');
+  assert.equal(backfill.wanted('g1'), true);
+  assert.equal(await backfill.step(), 'wanted');
+  assert.equal(calls.at(-1).history.chat, 'g1');
+  assert.equal(await backfill.step(), 'private');
+  assert.equal(backfill.wanted('g1'), false);
+});
