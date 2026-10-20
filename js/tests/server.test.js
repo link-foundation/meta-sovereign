@@ -109,7 +109,12 @@ describe('http server lifecycle', () => {
 describe('http server', () => {
   it('round-trips a link via HTTP', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    // No Telegram account: it would add its own repair marker link.
+    const handle = await startServer({
+      port: 0,
+      storeDir: dir,
+      telegramAccount: false,
+    });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       await fetchJson(`${base}/links`, {

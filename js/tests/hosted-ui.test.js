@@ -205,3 +205,22 @@ test('only an https page in a plain browser looks for the picture', () => {
   );
   assert.equal(mayNeedPicture({ location: https, hasImage: false }), false);
 });
+
+test('status is worked out once until the store changes', async () => {
+  await withServer({}, async (base, h) => {
+    let reads = 0;
+    const query = h.store.query.bind(h.store);
+    h.store.query = (...args) => {
+      reads += 1;
+      return query(...args);
+    };
+    const status = async () => (await fetch(`${base}/api/status`)).json();
+    const [a, b] = await Promise.all([status(), status()]);
+    assert.deepEqual(a, b);
+    await status();
+    assert.equal(reads, 1);
+    await h.store.put({ id: 'msg:test:1', tokens: ['message'], body: 'hi' });
+    assert.equal((await status()).messages, a.messages + 1);
+    assert.equal(reads, 2);
+  });
+});

@@ -164,7 +164,8 @@ const pictureSize = (src, timeout) =>
 export const findServerByPicture = async ({
   ports = DEFAULT_PORTS,
   sizeOf = pictureSize,
-  timeout = 2000,
+  // A busy server can be slow to answer; the picture is tiny.
+  timeout = 10_000,
   now = Date.now,
 } = {}) => {
   const seen = await Promise.all(
