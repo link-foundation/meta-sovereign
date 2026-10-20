@@ -2,6 +2,61 @@
 'meta-sovereign': minor
 ---
 
+The chat list sorts by the latest message (the default) or the oldest,
+and remembers the choice (R-Y49). The maintainer's newer directives are
+tracked as requirements, the undelivered ones marked open (R-Y50 …
+R-Y56).
+
+Chat reads every network store first and by priority (R-Y24 .. R-Y33).
+Every message ever loaded stays in the app folder's store, along with
+everything Telegram said about it (`raw`), so it is never asked for
+again and can be analysed offline. Requests go one at a time: the chat
+on screen comes first, then the chat list, then a prefetch of the chats
+visible in the list, then a slow background download of whole histories
+(private chats, then groups; channels only on demand). Scrolling up
+loads older messages two screens ahead and keeps the reading position.
+The page holds only the chat list and pages of the open chat (the new
+`/api/chat/heads` and `/api/chat/messages` endpoints), and `data.lino`
+is now an append log, so whole histories stay fast. New tabs filter the
+list by All, Private, Groups and Channels. The tutorial no longer comes
+back once a service is connected. Working rules for people and AI agents
+are now in CONTRIBUTING (four languages) and `CLAUDE.md`.
+
+Chat shows Telegram messages as Telegram's own apps do and keeps them in
+step (R-Y34, R-Y35, R-Y36, R-Y28). Photos and link previews are shown
+inline, along with the quoted reply, the forward header, "edited",
+reactions, the pinned message and service lines (joins, pins, calls).
+Messages can be replied to, forwarded and deleted from Chat. Pictures
+are downloaded once from the stored message and kept in the app folder.
+
+A message deleted or edited in another app now changes here too, in
+groups and channels as well: each supergroup and channel is caught up
+through its own update number (`updates.getChannelDifference`) instead
+of a re-read of the chat list.
+
+Telegram is asked less and in step. Requests are paced per priority
+with a per-minute budget. A wait Telegram asks for holds that method
+(briefly everything), then slows the queue for an hour, and is kept
+across restarts. Chats are asked for by their stored address, and the
+address book is read at most every six hours.
+
+Automations no longer run on service messages or on history read ahead
+from long ago.
+
+The hosted app on GitHub Pages is the default UI: `serve` prints its address and the app finds the server on port 8787 by itself, and `serve --local-ui=false` (or `MS_LOCAL_UI=off`) stops serving the local copy, sending `/` to the hosted app; `--ui-url` names another hosted copy. A browser test compares the hosted copy with the local one and runs after every Pages deploy (R-O14, R-Y58, R-Y59). Questions are compared by a temporary word grammar until formal-ai can do it (R-Y57).
+
+A personal chat's header opens what the conversation tells about the
+person, learned from the stored history (R-Y50 … R-Y54): the questions
+asked and their answers, our questions of the same meaning counted
+once; how we address each other — "ты" or "вы", agreed ("на ты?" —
+"давай") or as used, which the automations now follow too; their
+work, position and workplace; and their accounts elsewhere, a GitHub
+account marked confirmed when its public profile links back to them
+(checked once a week). A chat whose history is not stored to its first
+message is read before any other. link-assistant/formal-ai cannot tell
+same-meaning questions apart yet (reported as
+link-assistant/formal-ai#1330); a local check groups them until it can.
+
 Chat now behaves like Telegram's own apps when the connection is
 unreliable, following the open-source clients pinned in
 `docs/CHAT-REFERENCES.md`: updates missed while offline are fetched with
@@ -235,3 +290,85 @@ Telegram" check mark gets a reliable tooltip.
 Connecting Telegram now makes Chat and Contacts work: the connected user account's chats, recent messages and address-book contacts are synced (on connect, on server start, and every 30 seconds), Chat shows the connected account and "Sync now" instead of asking to connect again, messages typed in Chat are sent through the connected account, Contacts gains search and a "Message" button that opens a chat with the person, and the tutorial shows Contacts and how to open a chat from there.
 
 Chat now behaves like a real messenger. A message is sent exactly once: Send clears the box at once, a repeated request for the same message never posts it twice (a per-message `clientId` on the server and Telegram's `random_id`), and messages of a chat go out in order. Each of your messages shows its delivery (a clock while sending, ✓ sent, ✓✓ read), and a failed one says why, with Retry and Delete. New messages, edits, deletions, read receipts and typing from the connected Telegram account appear live through a new `GET /api/events` stream, each chat keeps its own draft, and the view offers "New messages ↓" instead of jumping while you read.
+
+Every action on a message now works on every network the user is
+signed in to: the network's API first and, when it has no such call or
+refuses, the same action in the network's own web app (R-Y38). Edit,
+delete, react, forward and mark read join sending, through
+`POST /api/message/*`; Chat offers them for every network, with a row of
+quick reactions and an edit dialog. A network whose API cannot pull is
+read in its web app: the chat list, then the newest messages.
+
+The web apps (VK, Telegram, WhatsApp, X, Facebook, LinkedIn, Upwork) are
+described as data in `sources/web-uis.js`, and driven through
+browser-commander in the user's own profile with no automation bar; the
+CV browser now launches through browser-commander too. Saved tokens and
+ids now reach the adapters, so the API is really tried first.
+
+Messages from every network carry the same fields where the network has
+them — sender and chat names, chat type, reply, forward, attachments,
+reactions, delivery, edited, deleted and the raw message (R-Y39,
+R-Y28) — and Chat shows them the same way.
+
+Dependencies are updated: browser-commander 0.32.1, Playwright 1.64.1,
+Electron 44.9.0, React 19.3.1, ESLint 10.13.0, links-notation 0.27.1 and
+lino-objects-codec 0.9.2.
+
+Docs: R-O19, R-Q10, R-R18, R-S22 and R-T22 marked done — their pull requests were merged.
+
+Safari keeps the hosted app on GitHub Pages from reaching the local server, so the server now serves a small picture (`/api/beacon.svg`) that the hosted page finds on our ports; it then opens the server's own copy of the app by itself, or says that copy is off. The browser test runs the hosted copy in WebKit too (R-Y60).
+
+Two stores over one folder no longer rename each other's binary snapshot temp file away: each snapshot worker writes its own.
+
+`/api/status`, which every page asks while looking for the server, is worked out once until the store changes instead of reading and verifying the whole store each time, so many open pages no longer keep a big store's server busy; the hosted page also waits longer for a busy server's picture.
+
+The server no longer runs out of memory and stops as the store grows
+(R-Y37, R-A3). Before this, a store of about 200k messages no longer
+opened at all, and while running, every binary snapshot froze the server
+for about 18 s (Chat stayed on "Loading...").
+
+- Each link is held in memory once: the binary side (`data.bin`) is now a
+  mirror of the text log, not a second decoded copy.
+- The text log is read a line at a time, with repeated strings kept once
+  (487 MB instead of 1.37 GB for the same store).
+- `data.bin` is written by a worker thread from the log, at most once a
+  minute (or ten times what the last one took). A snapshot older than the
+  log is written again when the store opens.
+- The background history download waits while the heap is over 70% full.
+- A query copies only the links it matches (22 ms instead of 157 ms on
+  that store), and automations read the saved graphs once per change
+  instead of once per message: a sync that wrote 558 links had frozen the
+  server for about 50 s.
+- Connections reads only the saved credentials (`GET /links?prefix=secret:`),
+  not every message.
+- Chat tries a failed load again instead of waiting for ever, and a read
+  the server does not answer in 30 s falls back to local data.
+
+Suggestions answer only what waits for an answer we know (R-Y40): once
+our message is the chat's last, no reply is offered. While typing, whole
+messages we sent before that start like the text come first, most used
+first, then words from both sides of our conversations — ours weigh
+more; broadcast channels and deleted messages are left out.
+
+A message that leaves a chat goes as in Telegram, on every network
+(R-Y41): its bubble shrinks toward its side and fades, then its place
+closes, so no empty space is left where it was; at once with reduced
+motion. Deleting the last message no longer shows a "new messages"
+button.
+
+Messages are drawn as in Telegram (R-Y42 … R-Y47): each sender's name in
+their peer colour, runs of one sender's messages with the avatar by the
+last, raised bubbles for both sides (ours tinted), the time at the end
+of the text, formatted text with safe links, people's and chats' photos
+(group members found by their message), the header's members and who is
+online, the pinned message, replies naming their author and media, and
+every media kind — videos, GIFs, round videos, voice waveforms, music,
+stickers, files, places, contacts, polls and dice. A round button leads
+back to the end with the count of new messages; scrollbars follow the
+theme. Group messages are stored with their author, and older ones are
+repaired.
+
+The page's own errors land in the server's log, by shape only, and the
+tests never reach a running app (R-Y48).
+
+Chat: round @ and ♥ buttons above "down" lead to unread mentions and reactions, oldest first, as in Telegram, and mark them seen (R-Y55).
