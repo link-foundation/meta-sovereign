@@ -43,6 +43,10 @@ test('the hosted address, the switch and the link with the server in it', () => 
   );
   assert.equal(hostedUiUrl('javascript:alert(1)'), HOSTED_UI_URL);
   assert.equal(hostedUiUrl('not a url'), HOSTED_UI_URL);
+  assert.equal(
+    hostedLink(undefined, 'http://x y'),
+    `${HOSTED_UI_URL}?server=http%3A%2F%2Fx%20y`
+  );
   for (const off of ['false', 'off', '0', 'no', 'none', ' OFF ']) {
     assert.equal(localUiEnabled(off), false, off);
   }
@@ -51,7 +55,7 @@ test('the hosted address, the switch and the link with the server in it', () => 
   }
   assert.equal(
     hostedLink(undefined, 'http://127.0.0.1:9000'),
-    `${HOSTED_UI_URL}?server=http%3A%2F%2F127.0.0.1%3A9000`
+    `${HOSTED_UI_URL}?server=http://127.0.0.1:9000`
   );
 });
 

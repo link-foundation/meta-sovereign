@@ -40,13 +40,19 @@ export const localUiEnabled = (value = process.env.MS_LOCAL_UI) =>
     ? true
     : !OFF.has(String(value).trim().toLowerCase());
 
+// An origin needs no escaping in a query: `?server=http://127.0.0.1:8787`
+// reads better than its percent-encoded form, and means the same.
+const PLAIN_ORIGIN = /^https?:\/\/[\w.[\]:-]+$/u;
+
 /** The hosted app, told which local server to use. */
 export const hostedLink = (uiUrl, serverOrigin) => {
-  const url = new URL(hostedUiUrl(uiUrl));
-  if (serverOrigin) {
-    url.searchParams.set('server', serverOrigin);
+  const base = hostedUiUrl(uiUrl);
+  if (!serverOrigin) {
+    return base;
   }
-  return url.href;
+  return PLAIN_ORIGIN.test(serverOrigin)
+    ? `${base}?server=${serverOrigin}`
+    : `${base}?server=${encodeURIComponent(serverOrigin)}`;
 };
 
 /** The allow-list with the hosted app's origin on it. */

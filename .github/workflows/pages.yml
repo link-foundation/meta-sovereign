@@ -135,6 +135,12 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      # Ubuntu 24.04 keeps unprivileged user namespaces from AppArmor'd
+      # programs, which Chromium's sandbox needs; allow them rather than
+      # running the browser without its sandbox.
+      - name: Let Chromium sandbox itself
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Hosted app against a local server
         env:
           RUN_BROWSER_E2E: '1'
@@ -170,6 +176,12 @@ jobs:
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+
+      # Ubuntu 24.04 keeps unprivileged user namespaces from AppArmor'd
+      # programs, which Chromium's sandbox needs; allow them rather than
+      # running the browser without its sandbox.
+      - name: Let Chromium sandbox itself
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
       - name: Hosted app against a local server
         env:
