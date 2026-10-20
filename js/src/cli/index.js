@@ -61,6 +61,7 @@ import { evalAudience } from '../crm/audience.js';
 import { inferRegex, simplifyRegex, inferRegexLcs } from '../patterns/index.js';
 import { runGraph } from '../automation/index.js';
 import { planOutreach } from '../broadcast/index.js';
+import { hostedLink } from '../server/hosted-ui.js';
 
 const HELP = `meta-sovereign <command> [options]
 
@@ -69,7 +70,7 @@ Commands:
   export        --file=<path> --store=<dir>
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
   restore       --file=<path> --store=<dir>
-  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--quiet-logs]
+  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=false] [--quiet-logs]
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
   sources
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
@@ -165,8 +166,19 @@ const serveCmd = async (args, log) => {
     // Hosted web origins allowed to use this server (issue #37); falls
     // back to MS_ALLOW_ORIGINS and then the built-in defaults.
     ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
+    // The hosted app is the UI; the server's own copy is a fallback
+    // that `--local-ui=false` turns off (R-Y58, R-Y59).
+    ...(args['ui-url'] ? { uiUrl: args['ui-url'] } : {}),
+    ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
   });
-  log(`meta-sovereign listening on http://127.0.0.1:${handle.port}`);
+  const origin = `http://127.0.0.1:${handle.port}`;
+  log(`meta-sovereign listening on ${origin}`);
+  log(`open the app → ${hostedLink(handle.uiUrl, origin)}`);
+  log(
+    handle.localUi
+      ? `local copy (fallback, e.g. for Safari or offline) → ${origin}/`
+      : `local copy off: ${origin}/ opens the app above`
+  );
   if (serverLog) {
     log(`verbose logs → ${serverLog.file}`);
   }

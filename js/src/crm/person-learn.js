@@ -16,6 +16,7 @@
  */
 
 import { detectAddressForm } from './address-form.js';
+import { overlap, sameWords, stemsOf } from './words.js';
 
 const DAY_MS = 24 * 60 * 60_000;
 const MAX_VALUE = 120;
@@ -526,28 +527,12 @@ const STOP_WORDS = new Set(
   )
 );
 
-const stemsOf = (text) =>
-  new Set(
-    (
-      String(text ?? '')
-        .toLocaleLowerCase()
-        .match(/[\p{L}\p{N}]+/gu) ?? []
-    )
-      .filter((word) => !STOP_WORDS.has(word))
-      .map((word) => word.slice(0, 5))
-  );
-
-const overlap = (a, b) => {
-  const union = new Set([...a, ...b]);
-  const shared = [...a].filter((stem) => b.has(stem)).length;
-  return union.size === 0 ? 0 : shared / union.size;
-};
-
 /**
  * Whether two questions ask the same in other words (R-Y54). A local
  * stand-in until link-assistant/formal-ai can tell
  * (link-assistant/formal-ai#1330): the same intent — and for "на ты /
- * на вы", the same form asked for — or mostly the same word stems.
+ * на вы", the same form asked for — or the same words, or mostly the
+ * same word stems, read by the word grammar in ./words.js (R-Y57).
  */
 export const sameQuestion = (a, b) => {
   const [ia, ib] = [intentOf(a), intentOf(b)];
@@ -557,7 +542,10 @@ export const sameQuestion = (a, b) => {
   if (ia && ib) {
     return ia === ib;
   }
-  return overlap(stemsOf(a), stemsOf(b)) >= 0.6;
+  return (
+    sameWords(a, b) ||
+    overlap(stemsOf(a, STOP_WORDS), stemsOf(b, STOP_WORDS)) >= 0.6
+  );
 };
 
 /**

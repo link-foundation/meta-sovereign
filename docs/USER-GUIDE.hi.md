@@ -114,6 +114,15 @@ meta-sovereign serve --allow-origin=https://example.org
 # --allow-origin=none cross-origin access बंद करता है
 ```
 
+Default UI hosted app है। `serve` server के पते के साथ उसका पता छापता
+है, और <http://127.0.0.1:8787> पर server की अपनी copy fallback रहती है
+(Safari, internet नहीं)। उसे serve करना बंद करने के लिए:
+
+```bash
+meta-sovereign serve --local-ui=false   # या MS_LOCAL_UI=off
+# अब / hosted app खोलता है; --ui-url=<url> कोई दूसरी hosted copy बताता है
+```
+
 Browser notes:
 
 - **Chrome और Edge** (और नए Firefox) एक बार पूछते हैं कि क्या page local network के devices तक पहुँच सकता है। Allow करें।

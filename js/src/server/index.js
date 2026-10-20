@@ -91,6 +91,12 @@ import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
 import { classifyOrigin, handleCors, parseAllowedOrigins } from './cors.js';
+import {
+  hostedUiUrl,
+  localUiEnabled,
+  redirectToHosted,
+  withHostedOrigin,
+} from './hosted-ui.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.resolve(here, '..', 'web');
@@ -195,6 +201,23 @@ const handleStatic = async (req, res, p) => {
     return serveStatic(req, res, resolved);
   }
   return false;
+};
+
+// The hosted app may use the server; the local copy is optional.
+const uiContext = (allowOrigins, uiUrl, localUi) => {
+  const hosted = hostedUiUrl(uiUrl);
+  const allowed = parseAllowedOrigins(allowOrigins);
+  // A hosted copy named by hand may use the server too — unless
+  // cross-origin use is off (`--allow-origin=none`).
+  const custom = uiUrl ?? process.env.MS_UI_URL;
+  return {
+    allowOrigins:
+      custom && allowed.length > 0
+        ? withHostedOrigin(allowed, hosted)
+        : allowed,
+    uiUrl: hosted,
+    localUi: localUiEnabled(localUi),
+  };
 };
 
 /**
@@ -359,6 +382,13 @@ const applySecurityHeaders = (res) => {
   }
 };
 
+// The app's own files, or — with the local copy off — the way to the
+// hosted one (R-Y59).
+const handlePage = (req, res, p, ctx) =>
+  ctx.localUi
+    ? handleStatic(req, res, p)
+    : redirectToHosted(req, res, p, ctx.uiUrl);
+
 const route = async (store, req, res, ctx) => {
   applySecurityHeaders(res);
   if (handleCors(req, res, ctx.allowOrigins)) {
@@ -366,7 +396,7 @@ const route = async (store, req, res, ctx) => {
   }
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
-  if (await handleStatic(req, res, p)) {
+  if (await handlePage(req, res, p, ctx)) {
     return;
   }
   if (p === '/sources' && req.method === 'GET') {
@@ -477,6 +507,10 @@ export const startServer = async ({
   telegramAccount: telegramAccountOption,
   // Tests and demos pass a fake, so GitHub is never asked (R-Y53).
   githubCheck,
+  // The hosted app and whether this server also serves its own copy
+  // (./hosted-ui.js, R-Y58 and R-Y59).
+  uiUrl,
+  localUi,
 } = {}) => {
   const { store, resolvedArchiveDir, flush } = await initStore({
     providedStore,
@@ -499,7 +533,7 @@ export const startServer = async ({
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
-    allowOrigins: parseAllowedOrigins(allowOrigins),
+    ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
     ...automationContext(
@@ -576,6 +610,8 @@ export const startServer = async ({
     signaling,
     archiveDir: resolvedArchiveDir,
     allowOrigins: ctx.allowOrigins,
+    uiUrl: ctx.uiUrl,
+    localUi: ctx.localUi,
     close: () =>
       new Promise((resolve) => {
         bus?.close();

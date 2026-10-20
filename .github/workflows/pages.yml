@@ -81,6 +81,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy
         id: deployment
@@ -108,3 +110,69 @@ jobs:
           done
           echo "::error::Pages bundle did not respond as expected after 5 attempts"
           exit 1
+
+  # R-O14 / R-Y58: the deployed site, opened in headless Chromium, must
+  # find a local server (started here, with a made-up chat) and work
+  # like the copy the server serves itself (js/tests/e2e-pages.mjs).
+  e2e-deployed:
+    name: E2E against the deployed site
+    if: github.event_name != 'pull_request'
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Hosted app against a local server
+        env:
+          RUN_BROWSER_E2E: '1'
+          E2E_LAUNCH: engine
+          PAGES_URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          # Pages' cache can serve the previous files for a few minutes.
+          for attempt in 1 2 3 4 5; do
+            npm run test:e2e:pages && exit 0
+            echo "Attempt $attempt failed, retrying in 60s..."
+            sleep 60
+          done
+          exit 1
+
+  # The same check on a pull request, against the bundle built from it
+  # and served from its own origin, as Pages would.
+  e2e-bundle:
+    name: E2E against the built bundle
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Hosted app against a local server
+        env:
+          RUN_BROWSER_E2E: '1'
+          E2E_LAUNCH: engine
+        run: npm run test:e2e:pages

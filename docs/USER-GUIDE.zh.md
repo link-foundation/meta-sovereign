@@ -114,6 +114,14 @@ meta-sovereign serve --allow-origin=https://example.org
 # --allow-origin=none 关闭跨源访问
 ```
 
+默认界面是托管的应用。`serve` 会打印带有服务器地址的链接，服务器自己在
+<http://127.0.0.1:8787> 上的副本作为备用保留（Safari、无网络时）。若不再提供它：
+
+```bash
+meta-sovereign serve --local-ui=false   # 或 MS_LOCAL_UI=off
+# 此时 / 会打开托管的应用；--ui-url=<url> 指定另一个托管副本
+```
+
 浏览器说明：
 
 - **Chrome 和 Edge**（以及较新的 Firefox）会询问一次页面能否访问本地网络中的设备。请允许。

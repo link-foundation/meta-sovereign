@@ -36,11 +36,14 @@ npx -y meta-sovereign serve
 
 दोनों backend default रूप से <http://127.0.0.1:8787> पर listen करते हैं। JS server hosted app के origin (`https://link-foundation.github.io`) को CORS headers के साथ जवाब देता है; दूसरे origins `meta-sovereign serve --allow-origin=<origins>` या `MS_ALLOW_ORIGINS` से allow करें। Safari `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, इसलिए Safari में <http://127.0.0.1:8787> सीधे खोलें। Hosted SPA `discoverServer()` से local server खोजता है (saved override → `127.0.0.1` ports)। अगर browser auto-connect नहीं करता, app में **Settings → Server** खोलें और binary द्वारा print किया गया URL paste करें।
 
+Default UI hosted app है: `serve` server के पते के साथ उसका पता छापता है (`https://link-foundation.github.io/meta-sovereign/?server=http://127.0.0.1:8787`), इसलिए server को web site host नहीं करनी पड़ती। <http://127.0.0.1:8787> पर उसकी अपनी copy Safari और बिना internet काम के लिए fallback रहती है; `serve --local-ui=false` (या `MS_LOCAL_UI=off`) उसे बंद करता है, और तब `/` hosted app खोलता है। `--ui-url=<url>` (या `MS_UI_URL`) कोई दूसरी hosted copy बताता है, जैसे किसी fork का Pages, और उसके origin को अनुमति देता है।
+
 ## SPA को server से जोड़ें
 
 SPA server को इस क्रम में चुनता है ([`js/src/web/discover.js`](js/src/web/discover.js)):
 
 1. **Same origin** — जब SPA सीधे JS या Rust server से serve हो।
+   फिर server की छापी हुई **link में `?server=`** — सिर्फ़ इसी machine के पते, सहेजे नहीं जाते।
 2. **Saved override** — `localStorage.metaServer`, जिसे app का **Settings → Server** prompt set करता है।
 3. **Runtime shell candidates** — Electron और Capacitor embedded server URL inject करते हैं।
 4. **`127.0.0.1` ports** — default local-server port automatic probe होता है।
