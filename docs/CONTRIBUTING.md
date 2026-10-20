@@ -180,7 +180,7 @@ git push
 
 ## Working rules
 
-These apply to every change, by people and AI agents alike (`CLAUDE.md` at the repository root points here). Each one came from a maintainer directive; [REQUIREMENTS.md](REQUIREMENTS.md) holds the product requirements they protect.
+These apply to every change, by people and AI agents alike; this section is where every agent starts (no agent-specific file is kept in the repository). Each one came from a maintainer directive; [REQUIREMENTS.md](REQUIREMENTS.md) holds the product requirements they protect.
 
 1. **Commit and push every change.** Once the checks pass, commit and push to `main`; if `main` moved meanwhile, rebase onto it first. Name the requirement IDs a change serves in its changeset.
 2. **Track every requirement.** A new directive becomes a row in [REQUIREMENTS.md](REQUIREMENTS.md) with an ID and a status, in all four languages; what is still open is named in the status, never left out.

@@ -100,7 +100,7 @@ git push
 
 ## काम के नियम
 
-ये हर बदलाव पर लागू होते हैं — लोगों और AI agents दोनों पर (repository root का `CLAUDE.md` यहीं इशारा करता है)। हर नियम maintainer के निर्देश से आया है; जिन product requirements की ये रक्षा करते हैं वे [REQUIREMENTS.hi.md](REQUIREMENTS.hi.md) में हैं।
+ये हर बदलाव पर लागू होते हैं — लोगों और AI agents दोनों पर; हर agent यहीं से शुरू करता है (repository में agents के लिए अलग file नहीं रखी जाती)। हर नियम maintainer के निर्देश से आया है; जिन product requirements की ये रक्षा करते हैं वे [REQUIREMENTS.hi.md](REQUIREMENTS.hi.md) में हैं।
 
 1. **हर बदलाव commit और push।** Checks पास होते ही `main` पर commit और push; इस बीच `main` आगे बढ़ा हो तो पहले उस पर rebase। Changeset में बताएँ कि बदलाव किन requirement IDs के लिए है।
 2. **हर requirement track होती है।** नया निर्देश [REQUIREMENTS.hi.md](REQUIREMENTS.hi.md) में ID और status के साथ, चारों भाषाओं में, एक row बनता है; जो अभी खुला है उसका नाम status में होता है, छोड़ा नहीं जाता।

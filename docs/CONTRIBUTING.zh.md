@@ -97,7 +97,7 @@ git push
 
 ## 工作规则
 
-这些规则适用于每一次更改，无论由人还是 AI 代理完成（仓库根目录的 `CLAUDE.md` 指向这里）。每条规则都来自维护者的指示；它们所保护的产品需求见 [REQUIREMENTS.zh.md](REQUIREMENTS.zh.md)。
+这些规则适用于每一次更改，无论由人还是 AI 代理完成；每个代理都从这一节开始（仓库中不保留专门给代理的文件）。每条规则都来自维护者的指示；它们所保护的产品需求见 [REQUIREMENTS.zh.md](REQUIREMENTS.zh.md)。
 
 1. **每次更改都提交并推送。** 检查通过后提交并推送到 `main`；若 `main` 期间有更新，先 rebase。在 changeset 中写明更改对应的需求 ID。
 2. **每条需求都被跟踪。** 新指示以四种语言在 [REQUIREMENTS.zh.md](REQUIREMENTS.zh.md) 中成为带 ID 和状态的一行；尚未完成的部分在状态中写明，而不是省略。
