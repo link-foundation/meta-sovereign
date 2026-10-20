@@ -12,46 +12,123 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useT, useDates } from './i18n.js';
-import { avatarFor } from './chat-model.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { Icon } from './icons.js';
 import { closePlace } from './chat-leaving.js';
+import { PeerAvatar } from './peer-avatar.js';
+import { peerColorClass } from './peer-color.js';
+import { MessageText } from './message-text.js';
+import {
+  MediaAudio,
+  MediaCard,
+  MediaFile,
+  MediaRound,
+  MediaSticker,
+  MediaVideo,
+} from './chat-media.js';
 
 const el = React.createElement;
 
 // ---- Avatar -------------------------------------------------------------
 
-export const MsgAvatar = ({ name, show }) => {
+// A group member's photo (found by this message of theirs), else their
+// initials on their colour; Telegram draws it by their last message.
+export const MsgAvatar = ({ message, show, api }) => {
   if (!show) {
     return el('span', { className: 'msg-avatar-gap', 'aria-hidden': 'true' });
   }
-  const { initials, hue } = avatarFor(name);
-  return el(
-    'span',
-    {
-      className: 'msg-avatar',
-      style: { '--avatar-hue': hue },
-      'aria-hidden': 'true',
-      title: name,
-    },
-    initials
-  );
+  const name = message.senderName ?? message.sender;
+  return el(PeerAvatar, {
+    api,
+    source: message.source ?? 'telegram',
+    peer: String(message.sender ?? ''),
+    name,
+    className: 'msg-avatar',
+    chat: chatIdOf(message.id),
+    msg: netIdOf(message.id),
+    title: name,
+  });
 };
 
 // ---- Reply quote --------------------------------------------------------
 
+// What the quoted message holds, in words, when it has no text.
+const MEDIA_LABELS = {
+  photo: 'chat.media.photoLabel',
+  video: 'chat.media.videoLabel',
+  gif: 'chat.media.gifLabel',
+  round: 'chat.media.roundLabel',
+  voice: 'chat.media.voiceLabel',
+  audio: 'chat.media.audioLabel',
+  sticker: 'chat.media.stickerLabel',
+  file: 'chat.media.fileLabel',
+};
+
+const CARD_LABELS = {
+  place: 'chat.media.place',
+  contact: 'chat.media.contact',
+  poll: 'chat.media.poll',
+  story: 'chat.media.story',
+};
+
+/** What a message without text holds, in a word ("Photo", "Poll"). */
+export const mediaLabel = (t, media) => {
+  const key =
+    MEDIA_LABELS[media?.type ?? media?.kind] ?? CARD_LABELS[media?.kind];
+  if (media?.kind === 'poll' && media.question) {
+    return `📊 ${media.question}`;
+  }
+  if (media?.kind === 'dice') {
+    return media.emoticon;
+  }
+  return key ? t(key) : '';
+};
+
+const quotedText = (t, replyRef) => {
+  if (replyRef.deleted) {
+    return t('chat.replyDeleted');
+  }
+  const text = replyRef.quoteText ?? replyRef.text ?? '';
+  if (text && text !== '📎') {
+    return text;
+  }
+  const label = mediaLabel(t, replyRef.media);
+  if (label) {
+    return label;
+  }
+  return replyRef.loaded === false ? '…' : '';
+};
+
+const quotedName = (t, replyRef) => {
+  if (replyRef.sender === 'me' || replyRef.senderName === 'me') {
+    return t('chat.you');
+  }
+  return (
+    replyRef.senderName ?? (replyRef.loaded === false ? '…' : t('chat.reply'))
+  );
+};
+
+// The bar above a reply: who wrote the original, in their colour, and
+// one line of it (Telegram's `EmbeddedMessage`); a click goes to it.
 export const ReplyQuote = ({ replyRef, onScrollTo }) => {
   const t = useT();
   if (!replyRef) {
     return null;
   }
-  const senderName = replyRef.senderName ?? t('chat.reply');
-  const text = replyRef.quoteText ?? replyRef.text ?? '';
+  const loaded = replyRef.sender !== null || replyRef.deleted;
+  const ref = { ...replyRef, loaded };
+  const senderName = quotedName(t, ref);
+  const text = quotedText(t, ref);
   const label = `${t('chat.replyingTo', { name: senderName })}: ${text}`;
+  const color =
+    ref.sender && ref.sender !== 'me'
+      ? peerColorClass(ref.sender, { name: ref.senderName })
+      : '';
+  const state = ref.deleted ? 'deleted' : loaded ? '' : 'loading';
   return el(
     'div',
     {
-      className: 'bubble-reply',
+      className: ['bubble-reply', color, state].filter(Boolean).join(' '),
       role: 'button',
       tabIndex: 0,
       title: label,
@@ -61,13 +138,11 @@ export const ReplyQuote = ({ replyRef, onScrollTo }) => {
     },
     [
       el('span', { key: 'name', className: 'bubble-reply-name' }, senderName),
-      text
-        ? el(
-            'span',
-            { key: 'text', className: 'bubble-reply-text' },
-            text.length > 120 ? `${text.slice(0, 120)}…` : text
-          )
-        : null,
+      el(
+        'span',
+        { key: 'text', className: 'bubble-reply-text' },
+        text.length > 160 ? `${text.slice(0, 160)}…` : text || '\u00a0'
+      ),
     ]
   );
 };
@@ -206,35 +281,6 @@ const PhotoViewer = ({ src, onClose, onRequestFull }) => {
       onClick: (e) => e.stopPropagation(),
     })
   );
-};
-
-// ---- Document / audio / voice indicator ---------------------------------
-
-const MediaDocument = ({ media }) => {
-  const t = useT();
-  if (!media) {
-    return null;
-  }
-  const icon = media.isVoice ? 'mic' : media.isVideo ? 'video' : 'file';
-  const label = media.filename || media.mimeType || t('chat.document');
-  // Another network's attachment opens where that network keeps it.
-  const href = /^https:\/\//.test(media.url ?? '') ? media.url : null;
-  return el('div', { className: 'bubble-doc' }, [
-    el(Icon, { key: 'ic', name: icon, size: 20 }),
-    href
-      ? el(
-          'a',
-          {
-            key: 'n',
-            className: 'bubble-doc-name',
-            href,
-            target: '_blank',
-            rel: 'noopener noreferrer',
-          },
-          label
-        )
-      : el('span', { key: 'n', className: 'bubble-doc-name' }, label),
-  ]);
 };
 
 // ---- Web page preview ---------------------------------------------------
@@ -568,13 +614,24 @@ export const ForwardPicker = ({ chats, onClose, onForward }) => {
 
 // ---- Main message bubble ------------------------------------------------
 
+// The time sits in the text's last line when the text is the bubble's end.
+const inlineTime = (parts) =>
+  Boolean(parts.text) &&
+  parts.media?.kind !== 'webpage' &&
+  !(parts.reactions?.length > 0);
+
 // CSS class for the bubble div.
-const makeBubbleClass = (mine, pending, delivery) =>
+const makeBubbleClass = (mine, message, parts) =>
   [
     'bubble',
     mine ? 'out' : 'in',
-    pending ? 'pending' : null,
-    delivery === 'failed' ? 'failed' : null,
+    message.pending ? 'pending' : null,
+    message.delivery === 'failed' ? 'failed' : null,
+    inlineTime(parts) ? 'inline-time' : null,
+    bare(parts) ? 'bare' : null,
+    parts.media && !parts.text && parts.media.kind === 'photo'
+      ? 'media-only'
+      : null,
   ]
     .filter(Boolean)
     .join(' ');
@@ -593,28 +650,56 @@ const netIdOf = (msgId) => {
   return /^\d+$/.test(tail) ? Number(tail) : null;
 };
 
-// Which media element to show (photo / document / webpage).
+// A message's file, by what it is (./chat-media.js).
+const DOCUMENT_VIEWS = {
+  video: MediaVideo,
+  gif: MediaVideo,
+  round: MediaRound,
+  voice: MediaAudio,
+  audio: MediaAudio,
+  sticker: MediaSticker,
+};
+
 const BubbleMedia = ({ parts, api, chat, netId }) => {
-  if (parts.media?.kind === 'photo') {
-    return el(MediaPhoto, { media: parts.media, api, chat, msgId: netId });
+  const media = parts.media;
+  if (media?.kind === 'photo') {
+    return el(MediaPhoto, { media, api, chat, msgId: netId });
   }
-  if (parts.media?.kind === 'document') {
-    return el(MediaDocument, { media: parts.media });
+  if (media?.kind === 'document') {
+    const view = (netId && DOCUMENT_VIEWS[media.type]) || MediaFile;
+    return el(view, { media, api, chat, msgId: netId });
+  }
+  if (media && media.kind !== 'webpage') {
+    return el(MediaCard, { media });
   }
   return null;
 };
 
+// Media drawn with no bubble around it, as Telegram draws them.
+const bare = (parts) =>
+  !parts.text &&
+  !parts.replyRef &&
+  !parts.fwdFrom &&
+  ['sticker', 'round'].includes(parts.media?.type);
+
 // Time row: "edited · 12:34 ✓"
-const BubbleFooter = ({ parts, message, time, t }) =>
-  el('span', { className: 'bubble-time' }, [
-    parts.edited
-      ? el('span', { key: 'e', className: 'bubble-edited' }, t('chat.edited'))
-      : null,
-    `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
-    message.delivery
-      ? el(DeliveryIcon, { key: 'd', status: message.delivery })
-      : null,
-  ]);
+const BubbleFooter = ({ parts, message, time, t, spacer = false }) =>
+  el(
+    'span',
+    {
+      className: spacer ? 'bubble-time-spacer' : 'bubble-time',
+      ...(spacer ? { 'aria-hidden': 'true' } : {}),
+    },
+    [
+      parts.edited
+        ? el('span', { key: 'e', className: 'bubble-edited' }, t('chat.edited'))
+        : null,
+      `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
+      message.delivery
+        ? el(DeliveryIcon, { key: 'd', status: message.delivery })
+        : null,
+    ]
+  );
 
 // Inner contents of one bubble div.
 const BubbleContent = ({
@@ -635,7 +720,10 @@ const BubbleContent = ({
   showName && !mine
     ? el(
         'span',
-        { key: 'who', className: 'bubble-name' },
+        {
+          key: 'who',
+          className: `bubble-name ${peerColorClass(message.sender, { name: message.senderName })}`,
+        },
         message.senderName ?? message.sender
       )
     : null,
@@ -643,7 +731,23 @@ const BubbleContent = ({
   el(ReplyQuote, { key: 'rep', replyRef: parts.replyRef, onScrollTo }),
   el(BubbleMedia, { key: 'media', parts, api, chat, netId }),
   parts.text
-    ? el('span', { key: 'body', className: 'bubble-body' }, parts.text)
+    ? el('span', { key: 'body', className: 'bubble-body' }, [
+        el(MessageText, {
+          key: 'x',
+          text: parts.text,
+          entities: parts.entities,
+        }),
+        inlineTime(parts)
+          ? el(BubbleFooter, {
+              key: 'sp',
+              parts,
+              message,
+              time,
+              t,
+              spacer: true,
+            })
+          : null,
+      ])
     : null,
   parts.media?.kind === 'webpage'
     ? el(WebPreview, { key: 'wp', webPage: parts.media })
@@ -673,8 +777,9 @@ const BubbleContent = ({
  *
  * Props:
  *   message     — the link object
- *   showAvatar  — show sender avatar (false in personal chats or continuation)
- *   showName    — show sender name row (false on continuation)
+ *   showAvatar  — show sender avatar (on the last of a sender's run)
+ *   showName    — show sender name row (on the first of a run)
+ *   run         — { first, last }: where in its sender's run it is
  *   isPersonal  — personal (1-1) chat
  *   msgById     — Map<id, link> for reply lookups
  *   composer    — composer handle (for BubbleActions)
@@ -686,6 +791,7 @@ export const MessageBubble = ({
   message,
   showAvatar,
   showName,
+  run,
   isPersonal,
   msgById,
   composer,
@@ -715,7 +821,7 @@ export const MessageBubble = ({
     setMenuPos({ x: r.left, y: r.bottom });
   };
 
-  const bubbleClass = makeBubbleClass(mine, message.pending, message.delivery);
+  const bubbleClass = makeBubbleClass(mine, message, parts);
 
   const bubbleProps = {
     key: 'bub',
@@ -726,12 +832,10 @@ export const MessageBubble = ({
     onContextMenu: onAction && !leaving ? openMenu : undefined,
   };
 
-  return el('div', { ref: row, ...rowProps(mine, leaving) }, [
-    el(MsgAvatar, {
-      key: 'av',
-      name: message.senderName ?? message.sender,
-      show: !mine && !isPersonal && showAvatar,
-    }),
+  return el('div', { ref: row, ...rowProps(mine, leaving, run) }, [
+    isPersonal || mine
+      ? null
+      : el(MsgAvatar, { key: 'av', message, show: showAvatar, api }),
     el(
       'div',
       bubbleProps,
@@ -774,9 +878,13 @@ const useLeavingRow = (row, message) => {
   return leaving;
 };
 
-const rowProps = (mine, leaving) => ({
+// Where in a run of one sender's messages the row is: Telegram rounds
+// the bubbles' inner corners between them.
+const rowProps = (mine, leaving, run = {}) => ({
   className: leaving ? 'bubble-row is-leaving' : 'bubble-row',
   'data-mine': mine ? 'true' : undefined,
+  'data-run-first': run.first === false ? undefined : 'true',
+  'data-run-last': run.last === false ? undefined : 'true',
   ...(leaving ? { 'data-leaving': 'true', 'aria-hidden': 'true' } : {}),
 });
 

@@ -18,42 +18,38 @@ import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
-import {
-  CHAT_FILTERS,
-  avatarFor,
-  groupChats,
-  networkMessageId,
-} from './chat-model.js';
+import { CHAT_FILTERS, groupChats, networkMessageId } from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
 import { Notice } from './notice.js';
 import { useLeaving } from './chat-leaving.js';
+import { PeerAvatar } from './peer-avatar.js';
+import { infoLine } from './chat-info.js';
 import {
   MessageBubble,
   DeleteDialog,
   EditDialog,
   ForwardPicker,
   ReplyQuote,
+  mediaLabel,
 } from './chat-message.js';
+import { parseMessageParts } from './message-parts.js';
 export { reasonText } from './notice.js';
 
 const el = React.createElement;
 
-const Avatar = ({ name, small }) => {
-  const { initials, hue } = avatarFor(name);
-  return el(
-    'span',
-    {
-      className: small ? 'avatar small' : 'avatar',
-      style: { '--avatar-hue': hue },
-      'aria-hidden': 'true',
-    },
-    initials
-  );
-};
+// A chat's photo, else its initials on its Telegram colour.
+const ChatAvatar = ({ api, chat, size = 's' }) =>
+  el(PeerAvatar, {
+    api,
+    source: chat.source,
+    peer: String(chat.chat ?? ''),
+    name: chat.name,
+    size,
+  });
 
-const ChatItem = ({ chat, active, onSelect }) => {
+const ChatItem = ({ api, chat, active, onSelect }) => {
   const t = useT();
   const { chatTime } = useDates();
   return el(
@@ -66,7 +62,7 @@ const ChatItem = ({ chat, active, onSelect }) => {
       onClick: () => onSelect(chat.key),
     },
     [
-      el(Avatar, { key: 'a', name: chat.name }),
+      el(ChatAvatar, { key: 'a', api, chat }),
       el('span', { key: 'b', className: 'chat-item-body' }, [
         el('span', { key: 'top', className: 'chat-item-top' }, [
           el('span', { key: 'n', className: 'chat-item-name' }, chat.name),
@@ -169,7 +165,7 @@ const useListLoading = (list, state) => {
   }, [chats, prefetch, moreChats?.more, moreChats?.available, query]);
 };
 
-const Sidebar = ({ state }) => {
+const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
   useListLoading(list, state);
@@ -219,6 +215,7 @@ const Sidebar = ({ state }) => {
                 ...chats.map((chat) =>
                   el(ChatItem, {
                     key: chat.key,
+                    api,
                     chat,
                     active: chat.key === state.current?.key,
                     onSelect: state.select,
@@ -327,8 +324,28 @@ const AutomationMenu = ({ menu }) => {
   ]);
 };
 
-const Header = ({ state, onBack }) => {
+// Under the name: who is typing, else Telegram's members and online, a
+// person's last seen, else the network and how many wrote here.
+const subtitleOf = (t, state, chatTime) => {
+  const chat = state.current;
+  const line = infoLine(t, state.info, { kind: chat.kind, chatTime });
+  const source = networkName(t, chat.source);
+  if (line) {
+    return line;
+  }
+  // A group whose members are not known yet says only where it is.
+  if (!chat.personal && chat.people.length === 0) {
+    return source;
+  }
+  return t(chat.personal ? 'chat.subtitle.personal' : 'chat.subtitle.group', {
+    source,
+    count: chat.people.length,
+  });
+};
+
+const Header = ({ state, api, onBack }) => {
   const t = useT();
+  const { chatTime } = useDates();
   const chat = state.current;
   return el('header', { className: 'chat-header' }, [
     el(
@@ -344,21 +361,21 @@ const Header = ({ state, onBack }) => {
       },
       el(Icon, { name: 'back' })
     ),
-    el(Avatar, { key: 'a', name: chat.name }),
+    el(ChatAvatar, { key: 'a', api, chat }),
     el('div', { key: 't', className: 'chat-header-title' }, [
       el('strong', { key: 'n' }, chat.name),
       el(
         'span',
-        { key: 's', className: 'meta' },
+        {
+          key: 's',
+          className:
+            state.info?.online && state.info.kind === 'user'
+              ? 'meta online'
+              : 'meta',
+        },
         isTyping(state.typing)
           ? el(TypingLine, { typing: state.typing })
-          : t(
-              chat.personal ? 'chat.subtitle.personal' : 'chat.subtitle.group',
-              {
-                source: networkName(t, chat.source),
-                count: chat.people.length,
-              }
-            )
+          : subtitleOf(t, state, chatTime)
       ),
     ]),
     el(AutomationMenu, { key: 'm', menu: state.menu }),
@@ -632,6 +649,7 @@ const useFollow = (state) => {
   const seen = useRef({ key: null, last: null, known: null });
   const waitLine = useRef(false);
   const [unseen, setUnseen] = useState(0);
+  const [away, setAway] = useState(false);
   const count = state.messages.length;
   const last = state.messages.at(-1);
   const lastId = identity(last);
@@ -708,13 +726,15 @@ const useFollow = (state) => {
     if (!node) {
       return;
     }
-    near.current =
-      node.scrollHeight - node.scrollTop - node.clientHeight < NEAR_BOTTOM_PX;
+    const below = node.scrollHeight - node.scrollTop - node.clientHeight;
+    near.current = below < NEAR_BOTTOM_PX;
+    // Telegram offers the way down once a screen is above the end.
+    setAway(below > node.clientHeight / 2);
     if (near.current) {
       setUnseen(0);
     }
   };
-  return { box, end, line, unseen, onScroll, toEnd };
+  return { box, end, line, unseen, away, onScroll, toEnd };
 };
 
 // Tells `seen(id)` the newest incoming message that is on screen (at
@@ -754,17 +774,30 @@ const UnreadLine = ({ lineRef }) => {
   );
 };
 
-// Who spoke last — used to show avatar/name only on first in a run.
-const runFlags = (messages) => {
-  const flags = new Map();
-  for (let i = 0; i < messages.length; i++) {
-    const m = messages[i];
-    const prev = messages[i - 1];
-    const isFirst =
-      !prev || prev.sender !== m.sender || m.service || prev.service;
-    flags.set(m.id, isFirst);
+// Telegram groups one sender's messages into a run when they follow
+// each other within 10 minutes on the same day (telegram-tt
+// `groupMessages`): the name shows on the first, the avatar by the
+// last, and the bubbles' corners between them are rounded less.
+const RUN_GAP_MS = 10 * 60_000;
+
+const sameRun = (a, b) =>
+  Boolean(a && b) &&
+  !a.service &&
+  !b.service &&
+  String(a.sender) === String(b.sender) &&
+  Math.abs(Date.parse(b.timestamp) - Date.parse(a.timestamp)) <= RUN_GAP_MS &&
+  String(a.timestamp).slice(0, 10) === String(b.timestamp).slice(0, 10);
+
+/** id → { first, last } of each message in its sender's run. */
+export const messageRuns = (messages) => {
+  const runs = new Map();
+  for (let i = 0; i < messages.length; i += 1) {
+    runs.set(messages[i].id, {
+      first: !sameRun(messages[i - 1], messages[i]),
+      last: !sameRun(messages[i], messages[i + 1]),
+    });
   }
-  return flags;
+  return runs;
 };
 
 const Stream = ({ state, api, onAction }) => {
@@ -780,9 +813,14 @@ const Stream = ({ state, api, onAction }) => {
   };
   // What leaves the chat goes like in Telegram (./chat-leaving.js).
   const messages = useLeaving(state.messages, state.current?.key ?? null);
-  // Map for reply lookups.
-  const msgById = new Map(messages.map((m) => [m.id, m]));
-  const firstInRun = runFlags(messages);
+  // Reply lookups: what is shown, then the originals fetched for it.
+  const shownById = new Map(messages.map((m) => [m.id, m]));
+  const msgById = {
+    get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
+  };
+  const runs = messageRuns(messages);
+  const alone =
+    Boolean(state.current.personal) || state.current.kind === 'channel';
   // Scroll to a message by its link id.
   const onScrollTo = (id) => {
     const node = follow.box.current?.querySelector(
@@ -790,49 +828,83 @@ const Stream = ({ state, api, onAction }) => {
     );
     node?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
   };
-  return el('div', { className: 'chat-scroll', ref: follow.box, onScroll }, [
-    el('div', { key: 'col', className: 'chat-column' }, [
-      el(OlderRow, { key: 'older', history: state.history }),
-      ...messages.flatMap((message) => [
-        message.id === state.unreadLine
-          ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
+  const scroll = el(
+    'div',
+    { key: 'scroll', className: 'chat-scroll', ref: follow.box, onScroll },
+    [
+      el('div', { key: 'col', className: 'chat-column' }, [
+        el(OlderRow, { key: 'older', history: state.history }),
+        ...messages.flatMap((message) => [
+          message.id === state.unreadLine
+            ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
+            : null,
+          el(MessageBubble, {
+            key: message.id,
+            message,
+            run: runs.get(message.id),
+            showAvatar: runs.get(message.id)?.last !== false,
+            showName: !alone && runs.get(message.id)?.first !== false,
+            // A private chat and a channel name no one: there is one voice.
+            isPersonal: alone,
+            msgById,
+            composer: state.composer,
+            api,
+            onScrollTo,
+            onAction,
+          }),
+        ]),
+        ...state.drafts.drafts.map((draft) =>
+          el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
+        ),
+        messages.length === 0
+          ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
           : null,
-        el(MessageBubble, {
-          key: message.id,
-          message,
-          showAvatar: firstInRun.get(message.id) !== false,
-          showName:
-            !state.current.personal && firstInRun.get(message.id) !== false,
-          isPersonal: Boolean(state.current.personal),
-          msgById,
-          composer: state.composer,
-          api,
-          onScrollTo,
-          onAction,
-        }),
+        el('div', { key: 'end', ref: follow.end }),
       ]),
-      ...state.drafts.drafts.map((draft) =>
-        el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
-      ),
-      messages.length === 0
-        ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
+    ]
+  );
+  return [
+    scroll,
+    el(ScrollDown, {
+      key: 'down',
+      shown: follow.away || follow.unseen > 0,
+      count: follow.unseen || (state.current.unread ?? 0),
+      onClick: follow.toEnd,
+    }),
+  ];
+};
+
+// Telegram's round "down" button: shown once the end is out of sight,
+// with how many messages wait below.
+const ScrollDown = ({ shown, count, onClick }) => {
+  const t = useT();
+  if (!shown) {
+    return null;
+  }
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: 'chat-down',
+      'data-action': 'scroll-new',
+      'aria-label':
+        count > 0
+          ? `${t('chat.scrollDown')}: ${t('chat.newMessages', { count })}`
+          : t('chat.scrollDown'),
+      title: t('chat.scrollDown'),
+      onClick,
+    },
+    [
+      el(Icon, { key: 'i', name: 'arrow-down', size: 22 }),
+      count > 0
+        ? el(
+            'span',
+            { key: 'n', className: 'chat-down-count' },
+            count > 999 ? '999+' : String(count)
+          )
         : null,
-      el('div', { key: 'end', ref: follow.end }),
-    ]),
-    follow.unseen > 0
-      ? el(
-          'button',
-          {
-            key: 'new',
-            type: 'button',
-            className: 'chat-new-pill',
-            'data-action': 'scroll-new',
-            onClick: follow.toEnd,
-          },
-          t('chat.newMessages', { count: follow.unseen })
-        )
-      : null,
-  ]);
+    ]
+  );
 };
 
 const Suggestions = ({ state }) => {
@@ -996,28 +1068,51 @@ const Composer = ({ state }) => {
 };
 
 // Pinned message bar shown when the newest loaded pinned message is known.
-const PinnedBar = ({ messages }) => {
+// The chat's pinned message above the stream, as in Telegram: an
+// accent bar, "Pinned message" and one line of it; a click goes to it.
+// Bring a shown message to the middle of the stream.
+const scrollToMessage = (id) =>
+  globalThis.document
+    ?.querySelector(
+      `.chat-scroll [data-message="${globalThis.CSS?.escape(id) ?? id}"]`
+    )
+    ?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+
+const PinnedBar = ({ pinned, onOpen }) => {
   const t = useT();
-  if (!messages?.length) {
-    return null;
-  }
-  const pinned = messages.find((m) => m.raw?.pinned);
   if (!pinned) {
     return null;
   }
-  const text = pinned.body || t('chat.pinnedMessage');
-  return el('div', { className: 'chat-pinned-bar', role: 'status' }, [
-    el(
-      'span',
-      { key: 'icon', className: 'chat-pinned-icon', 'aria-hidden': 'true' },
-      '📌'
-    ),
-    el(
-      'span',
-      { key: 'txt', className: 'chat-pinned-text' },
-      text.length > 80 ? `${text.slice(0, 80)}…` : text
-    ),
-  ]);
+  const { text, media } = parseMessageParts(pinned);
+  const line = text || mediaLabel(t, media);
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: 'chat-pinned-bar',
+      onClick: () => onOpen(pinned.id),
+    },
+    [
+      el('span', {
+        key: 'bar',
+        className: 'chat-pinned-line',
+        'aria-hidden': 'true',
+      }),
+      el('span', { key: 'b', className: 'chat-pinned-body' }, [
+        el(
+          'span',
+          { key: 'h', className: 'chat-pinned-title' },
+          t('chat.pinnedMessage')
+        ),
+        el(
+          'span',
+          { key: 'x', className: 'chat-pinned-text' },
+          line.length > 120 ? `${line.slice(0, 120)}…` : line
+        ),
+      ]),
+      el(Icon, { key: 'i', name: 'pin', size: 18 }),
+    ]
+  );
 };
 
 /** The screen itself, pure: everything comes from `state`. */
@@ -1127,11 +1222,15 @@ export const ChatScreen = ({ state, api }) => {
   };
 
   return el('div', { className: 'chat-shell', 'data-pane': pane }, [
-    el(Sidebar, { key: 'side', state: { ...state, select } }),
+    el(Sidebar, { key: 'side', state: { ...state, select }, api }),
     state.current
       ? el('section', { key: 'main', className: 'chat-main' }, [
-          el(Header, { key: 'h', state, onBack: () => setPane('list') }),
-          el(PinnedBar, { key: 'pin', messages: state.messages }),
+          el(Header, { key: 'h', state, api, onBack: () => setPane('list') }),
+          el(PinnedBar, {
+            key: 'pin',
+            pinned: state.pinned,
+            onOpen: scrollToMessage,
+          }),
           el(ConnectionBanner, { key: 'b', banner: state.banner }),
           el(FailedBar, { key: 'failed', composer: state.composer }),
           el(Notice, {

@@ -61,6 +61,7 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
     if (!isStreamedId(id) || event.quiet) {
       return;
     }
+    sent += 1;
     res.write(
       frame(
         'link',
@@ -75,9 +76,23 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
     HEARTBEAT_MS
   );
   heartbeat.unref?.();
+  const opened = Date.now();
+  let sent = 0;
+  ctx.log?.({ level: 'debug', event: 'events_open' });
+  let closed = false;
   const close = () => {
+    if (closed) {
+      return;
+    }
+    closed = true;
     globalThis.clearInterval(heartbeat);
     unsubscribe?.();
+    ctx.log?.({
+      level: 'debug',
+      event: 'events_close',
+      sent,
+      duration_ms: Date.now() - opened,
+    });
   };
   req.on('close', close);
   res.on('error', close);

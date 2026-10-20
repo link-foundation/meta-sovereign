@@ -18,7 +18,9 @@
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
 import { randomIdOf } from './telegram-send.js';
-import { createMediaReader } from './telegram-media.js';
+import { createFileReader, createMediaReader } from './telegram-media.js';
+import { createAvatarReader } from './telegram-avatars.js';
+import { createChatInfoReader } from './telegram-chat-info.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -237,6 +239,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     : null;
 
   const media = async (request) => (reader ? reader.read(request) : null);
+  const readers = mediaReaders(env, { mediaDir, userClient, refreshMessages });
 
   return {
     refreshMessages,
@@ -245,5 +248,34 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     editMessage,
     react,
     media,
+    ...readers,
+  };
+};
+
+// A message's file (video, voice, GIF, sticker), a peer's photo and a
+// chat's members and who is online, each read through the queue.
+const mediaReaders = (env, { mediaDir, userClient, refreshMessages }) => {
+  const shared = {
+    queue: env.queue,
+    client: userClient,
+    importer: env.importer,
+    log: env.log,
+  };
+  const files = mediaDir
+    ? createFileReader({
+        ...shared,
+        store: env.store,
+        dir: mediaDir,
+        refresh: refreshMessages,
+      })
+    : null;
+  const avatars = mediaDir
+    ? createAvatarReader({ ...shared, dir: mediaDir, peers: env.peers })
+    : null;
+  const info = createChatInfoReader({ ...shared, peers: env.peers });
+  return {
+    file: async (request) => (files ? files.read(request) : null),
+    avatar: async (request) => (avatars ? avatars.read(request) : null),
+    chatInfo: (request) => info.read(request),
   };
 };

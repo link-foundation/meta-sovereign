@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 import { createRoot } from 'react-dom/client';
 import { api } from './dom.js';
+import { installClientLog } from './client-log.js';
 import { views } from './views.js';
 import {
   TutorialButton,
@@ -214,4 +215,5 @@ const App = () => {
 };
 
 const mount = document.getElementById('app');
+installClientLog({ send: api.clientLog });
 createRoot(mount).render(el(App));

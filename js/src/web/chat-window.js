@@ -91,7 +91,7 @@ const isTelegram = (api, chat) =>
  * `loadOlder()`. Without a server (offline, the static site), none — the
  * chat shows what the page holds.
  */
-export const useChatWindow = (api, current, links) => {
+export const useChatWindow = (api, current, links, tick = 0) => {
   const [windows, setWindows] = useState(() => new Map());
   const ref = useRef(windows);
   ref.current = windows;
@@ -143,6 +143,20 @@ export const useChatWindow = (api, current, links) => {
         );
     }
   }, [api, key]);
+
+  // The page reconnected or the store caught up (a restart, a sync):
+  // what the store got meanwhile came with no event, so the open chat's
+  // newest page is read again, joining what is held.
+  const seenTick = useRef(tick);
+  useEffect(() => {
+    if (seenTick.current === tick) {
+      return;
+    }
+    seenTick.current = tick;
+    if (key && supported) {
+      newest(key).catch(() => {});
+    }
+  }, [tick]);
 
   const complete =
     Boolean(current) && historyComplete(links ?? [], current.chat);

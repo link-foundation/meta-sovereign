@@ -237,8 +237,8 @@ test('screen: sidebar, header, menu, draft, composer chips', () => {
   assert.match(html, /1 draft is ready below/);
   assert.match(html, /data-stage="reply"/);
   assert.match(html, /title="Used 3 times"/);
-  assert.match(html, /class="bubble out"/);
-  assert.match(html, /class="bubble in"/);
+  assert.match(html, /class="bubble out[ "]/);
+  assert.match(html, /class="bubble in[ "]/);
 });
 
 test('screen: phones show one pane at a time, with a way back', () => {

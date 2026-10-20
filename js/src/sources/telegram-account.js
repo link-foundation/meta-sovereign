@@ -46,6 +46,8 @@ import { createFetchQueue, rawMessage } from './telegram-history.js';
 import { createPeers } from './telegram-peers.js';
 import { createActions } from './telegram-actions.js';
 import { createPageReader, dialogsCursor } from './telegram-pages.js';
+import { messageSenderId } from './telegram-updates.js';
+import { repairSenders } from './telegram-repair.js';
 import {
   MAX_MESSAGE_LENGTH,
   sendError,
@@ -138,7 +140,7 @@ export const telegramDialogLinks = (dialog, messages = []) => {
       const link = buildMessageLink({
         source: SOURCE,
         externalId: `${chat}:${m.id}`,
-        sender: mine ? 'me' : (idText(m.senderId) ?? chat),
+        sender: mine ? 'me' : (messageSenderId(m) ?? chat),
         chat,
         body: bodyOf(m),
         timestamp: isoOf(m.date),
@@ -873,6 +875,16 @@ const buildLiveAdapter = (messaging, actions) => ({
   markRead: messaging.markRead,
 });
 
+// Mend what older versions stored wrong, once each, in the background.
+const runRepairs = (store, log) =>
+  repairSenders(store, { log }).catch((error) =>
+    log({
+      level: 'warn',
+      event: 'telegram_repair_failed',
+      error: error.message,
+    })
+  );
+
 export const createTelegramAccount = ({
   store,
   clientFactory = gramjsClientFactory(),
@@ -997,6 +1009,7 @@ export const createTelegramAccount = ({
       return;
     }
     restoreHolds(env);
+    runRepairs(store, log);
     const tick = async () => {
       const creds = await readTelegramCredentials(store);
       if (creds?.kind === 'user') {

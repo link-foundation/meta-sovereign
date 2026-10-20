@@ -726,6 +726,12 @@ export const api = {
       }
     )) ?? { error: 'server required for auto-import' },
 
+  // One link as the server's store holds it (a reply's original that
+  // the page does not hold), or null.
+  storedLink: async (id) =>
+    (await serverFetch(`/links/${encodeURIComponent(id)}`).catch(() => null)) ??
+    null,
+
   // Re-read specific messages (e.g. those stored before raw existed).
   telegramRefresh: async (body = {}) =>
     (await serverPostReport('/api/telegram/refresh', body).catch((error) => ({
@@ -771,4 +777,46 @@ export const api = {
     const path = `/api/telegram/media?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}&size=${encodeURIComponent(size)}`;
     return origin ? new URL(path, origin).toString() : path;
   },
+
+  // A person's or chat's photo (`s` small, `b` big); the server answers
+  // 404 when they have none, and the initials stay.
+  // A group member is found by a message of theirs (`chat`, `msg`).
+  telegramAvatarUrl: async ({ peer, size = 's', chat, msg } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !peer || peer === 'me') {
+      return null;
+    }
+    const where =
+      chat && msg
+        ? `&chat=${encodeURIComponent(chat)}&msg=${encodeURIComponent(msg)}`
+        : '';
+    const path = `/api/telegram/avatar?peer=${encodeURIComponent(peer)}&size=${encodeURIComponent(size)}${where}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
+
+  // A message's video, voice, audio, GIF or sticker, streamed by range.
+  telegramFileUrl: async ({ chat, id } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !chat || !id) {
+      return null;
+    }
+    const path = `/api/telegram/file?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
+
+  // A chat's title, members and how many are online, or a person's
+  // last seen; null when the server cannot tell.
+  // The page's errors, in the server's log (./client-log.js).
+  clientLog: async (entry) =>
+    serverResponse('/api/client-log', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(entry),
+    }).catch(() => null),
+  telegramChatInfo: async (chat) =>
+    chat
+      ? ((await serverFetch(
+          `/api/telegram/chat-info?chat=${encodeURIComponent(chat)}`
+        ).catch(() => null)) ?? null)
+      : null,
 };

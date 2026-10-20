@@ -216,3 +216,189 @@ export const createMediaReader = ({
 
   return { read };
 };
+
+// Documents up to this size are downloaded and served.
+const MAX_FILE_BYTES = 64 * 1024 * 1024;
+
+// Document kind for the log (best-effort from mime and attributes).
+const docKind = (doc) => {
+  const mime = doc?.mimeType ?? '';
+  const attrs = doc?.attributes ?? [];
+  if (attrs.some((a) => a?.className === 'DocumentAttributeAnimated')) {
+    return 'gif';
+  }
+  if (
+    attrs.some(
+      (a) => a?.className === 'DocumentAttributeAudio' && a.voice === true
+    )
+  ) {
+    return 'voice';
+  }
+  if (mime.startsWith('video/')) {
+    return 'video';
+  }
+  if (mime.startsWith('audio/')) {
+    return 'audio';
+  }
+  if (
+    mime === 'application/x-tgsticker' ||
+    (mime === 'image/webp' &&
+      attrs.some((a) => a?.className === 'DocumentAttributeSticker'))
+  ) {
+    return 'sticker';
+  }
+  return 'file';
+};
+
+const fileLocation = (Api, helpers, doc) => {
+  const big = (value) => helpers.returnBigInt(text(value));
+  return new Api.InputDocumentFileLocation({
+    id: big(doc.id),
+    accessHash: big(doc.accessHash),
+    fileReference: bytesOf(doc.fileReference),
+    thumbSize: '',
+  });
+};
+
+/**
+ * `read({ chat, id })` → `{ buffer, mimeType }`, or null when the
+ * message has no document, or `{ error: 'too-large', size }` when the
+ * file exceeds 64 MB. Concurrent requests for the same file share one
+ * download. An expired file reference triggers one re-read and retry.
+ */
+export const createFileReader = ({
+  store,
+  dir,
+  queue,
+  client: clientOf,
+  refresh,
+  importer = () => import('telegram'),
+  log = () => {},
+}) => {
+  // Concurrent requests for the same chat:id share one download promise.
+  const inFlight = new Map();
+
+  const download = async (client, doc) => {
+    const { Api, helpers } = await importer();
+    const size = Number(doc.size ?? 0);
+    const priority = size <= MAX_BYTES ? 'view' : 'list';
+    const key = `file:${text(doc.id)}`;
+    const buffer = await queue.run(key, priority, () =>
+      client.downloadFile(fileLocation(Api, helpers, doc), {
+        dcId: Number(doc.dcId),
+        fileSize: size,
+      })
+    );
+    return buffer?.length ? Buffer.from(buffer) : null;
+  };
+
+  const getDoc = async (chat, id) => {
+    const link = await store.get(`msg:${SOURCE}:${chat}:${id}`);
+    const media = link?.raw?.media;
+    return media?.className === 'MessageMediaDocument' ? media.document : null;
+  };
+
+  const downloadWithRetry = async (client, chat, id) => {
+    const doc = await getDoc(chat, id);
+    if (!doc?.id) {
+      return null;
+    }
+    try {
+      return { buffer: await download(client, doc), mimeType: doc.mimeType };
+    } catch (error) {
+      if (!expired(error) || !refresh) {
+        throw error;
+      }
+      log({ event: 'telegram_file_reference_expired' });
+      await refresh({ chat, ids: [id], priority: 'list' });
+      const fresh = await getDoc(chat, id);
+      if (!fresh?.id) {
+        return null;
+      }
+      return {
+        buffer: await download(client, fresh),
+        mimeType: fresh.mimeType,
+      };
+    }
+  };
+
+  const read = async ({ chat, id } = {}) => {
+    const target = String(chat ?? '');
+    const msg = Number(id);
+    if (!CHAT.test(target) || !Number.isInteger(msg) || msg <= 0) {
+      return null;
+    }
+    const file = path.join(dir, target, `${msg}-file`);
+    const cachedBuf = await readCache(file);
+    if (cachedBuf) {
+      const typeBuf = await readCache(`${file}.type`);
+      const started = Date.now();
+      const doc = await getDoc(target, msg);
+      log({
+        event: 'telegram_file',
+        kind: docKind(doc),
+        bytes: cachedBuf.length,
+        cached: true,
+        duration_ms: Date.now() - started,
+      });
+      return {
+        buffer: cachedBuf,
+        mimeType: typeBuf?.toString() || 'application/octet-stream',
+      };
+    }
+
+    // Check size before downloading.
+    const doc = await getDoc(target, msg);
+    if (!doc?.id) {
+      return null;
+    }
+    const size = Number(doc.size ?? 0);
+    if (size > MAX_FILE_BYTES) {
+      return { error: 'too-large', size };
+    }
+
+    const flightKey = `${target}:${msg}`;
+    if (inFlight.has(flightKey)) {
+      return inFlight.get(flightKey);
+    }
+    const started = Date.now();
+    const client = await clientOf();
+    if (!client) {
+      return null;
+    }
+    const kind = docKind(doc);
+    const p = downloadWithRetry(client, target, msg)
+      .then(async (got) => {
+        if (!got?.buffer) {
+          return null;
+        }
+        await fs.mkdir(path.dirname(file), { recursive: true });
+        await fs.writeFile(file, got.buffer);
+        await fs.writeFile(`${file}.type`, got.mimeType ?? '');
+        log({
+          event: 'telegram_file',
+          kind,
+          bytes: got.buffer.length,
+          cached: false,
+          duration_ms: Date.now() - started,
+        });
+        return got;
+      })
+      .catch((error) => {
+        log({
+          level: 'warn',
+          event: 'telegram_file_failed',
+          error: error.errorMessage ?? error.message,
+        });
+        return null;
+      })
+      .finally(() => inFlight.delete(flightKey));
+    inFlight.set(flightKey, p);
+    return p;
+  };
+
+  return { read };
+};
+
+// SOURCE used in store key lookups inside this module.
+const SOURCE = 'telegram';

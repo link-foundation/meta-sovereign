@@ -31,6 +31,7 @@
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
  *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
  *   /api/message/* (edit, delete, react, read, forward) -> routes-messages.js
+ *   POST /api/client-log           -> the page's errors, in the log (routes-client-log.js)
  *   /api/people, /api/audiences, /api/lists -> routes-people.js
  *   GET  /api/greetings/*          -> greeting stickers/texts (routes-greetings.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
@@ -80,6 +81,7 @@ import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEventRoutes } from './routes-events.js';
+import { createClientLogRoute } from './routes-client-log.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -389,6 +391,7 @@ const route = async (store, req, res, ctx) => {
   }
   for (const handle of [
     () => handleEventRoutes(store, req, res, p, ctx),
+    () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),
@@ -498,6 +501,7 @@ export const startServer = async ({
     ...greetingContext(greetings),
     storeDir,
     log,
+    clientLog: createClientLogRoute(),
     autoImport: null,
     autoImportLauncher,
     autoImportSignIns,

@@ -304,7 +304,7 @@ export const groupChats = (chats, now = Date.now()) =>
 export const typingStatus = (typing = [], { names = {} } = {}) => {
   const people = typing
     .filter((t) => t.user !== 'me')
-    .map((t) => names[t.user] ?? t.user);
+    .map((t) => names[t.user] ?? t.name ?? t.user);
   const automation =
     typing.find((t) => t.user === 'me' && t.automation)?.automationName ?? null;
   return { people, automation };

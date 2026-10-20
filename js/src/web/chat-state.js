@@ -20,6 +20,8 @@ import {
 import { localizePreset } from './automations-model.js';
 import { readReadReceipts, readShareTyping } from './privacy-prefs.js';
 import { useComposer, useLiveLinks } from './chat-live.js';
+import { useReplyTargets } from './chat-replies.js';
+import { useChatInfo } from './chat-info.js';
 import { isTypingActive } from '../sources/live-links.js';
 import {
   useChatWindow,
@@ -29,6 +31,18 @@ import {
 } from './chat-window.js';
 
 const TYPING_EVERY_MS = 4000;
+
+// The chat's pinned message: the one Telegram names, else the newest
+// one held that is marked pinned.
+const pinnedOf = (messages, pinnedId, known) => {
+  const named = pinnedId
+    ? (messages.find((m) => m.id === pinnedId) ?? known.get(pinnedId))
+    : null;
+  if (named && !named.deleted) {
+    return named;
+  }
+  return messages.findLast?.((m) => m.raw?.pinned && !m.deleted) ?? null;
+};
 
 export const defaultConfirm = (message) =>
   typeof globalThis.confirm === 'function'
@@ -613,7 +627,7 @@ export const useChatState = (
     }
   }, [all, active]);
   const current = all.find((c) => c.key === active) ?? null;
-  const history = useChatWindow(api, current, links);
+  const history = useChatWindow(api, current, links, tick);
   const prefetch = usePrefetch(api, links);
   const moreChats = useMoreChats(api, telegram, live ? null : refresh);
   const after = (next) => {
@@ -637,6 +651,14 @@ export const useChatState = (
         : [],
     [links, current?.key, composer.pending, history.window]
   );
+  const info = useChatInfo(api, current);
+  const pinnedId =
+    info?.pinned && current
+      ? `msg:${current.source}:${current.chat}:${info.pinned}`
+      : null;
+  const replyTargets = useReplyTargets(api, messages, links, history.window, [
+    pinnedId,
+  ]);
   const { seen, unreadAfter } = useReading(api, current, links);
   const banner = useConnectionBanner(live, telegram);
 
@@ -661,14 +683,19 @@ export const useChatState = (
       loadOlder: history.loadOlder,
     },
     current,
+    info,
+    pinned: pinnedOf(messages, pinnedId, replyTargets),
     select: (key) => {
       setActive(key);
       setNotice(null);
     },
     messages,
+    replyTargets,
     unreadLine: firstUnreadId(messages, unreadAfter),
     seen,
-    typing: typingStatus(typingNow, { names: senderNames(messages) }),
+    typing: typingStatus(typingNow, {
+      names: senderNames([...replyTargets.values(), ...messages]),
+    }),
     composer,
     suggest: useSuggestions(api, current, composer.text, tick),
     menu: useAutomationMenu({ api, current, confirm, t, after }),

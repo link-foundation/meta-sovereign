@@ -100,7 +100,8 @@ const lookup = (locale, key) => {
 
 // ICU MessageFormat's plural subset, so English can say "1 draft" and
 // "2 drafts" in one string: {count, plural, one {# draft} other {# drafts}}.
-// `#` is the number; the category comes from Intl.PluralRules.
+// `#` is the number as the language writes it (1,364 · 1 364), as ICU
+// writes it; the category comes from Intl.PluralRules.
 const PLURAL = /\{(\w+), plural,((?:\s*(?:=\d+|\w+) \{[^{}]*\})+)\s*\}/g;
 const PLURAL_CASE = /(=\d+|\w+) \{([^{}]*)\}/g;
 
@@ -118,7 +119,7 @@ const pluralize = (template, vars, locale) =>
       cases[new Intl.PluralRules(locale).select(n)] ??
       cases.other ??
       match;
-    return text.replace(/#/g, String(vars[name]));
+    return text.replace(/#/g, new Intl.NumberFormat(locale).format(n));
   });
 
 const interpolate = (template, vars, locale) => {

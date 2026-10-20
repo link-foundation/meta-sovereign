@@ -12,7 +12,7 @@ import { views } from '../src/web/views.js';
 import { availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 import { listCvPlatforms } from '../src/cv/index.js';
-import { api } from '../src/web/dom.js';
+import { api, resetServerBinding } from '../src/web/dom.js';
 import { assertStackTable } from './helpers/stack-table.js';
 import { screenRenderer } from './util-render.js';
 
@@ -262,13 +262,23 @@ test('the offline client answers every CV call the screen makes', async () => {
     assert.equal(typeof api[method], 'function', `api.${method} is missing`);
   }
   // Without a server the calls resolve to an honest "server-required"
-  // answer rather than throwing at the user.
-  const read = await api.cvRead({ platforms: ['topcv'] });
-  assert.equal(read.failures[0].code, 'server-required');
-  const stored = await api.cvStored();
-  assert.deepEqual(stored.entries, []);
-  const telemetry = await api.cvTelemetry({});
-  assert.deepEqual(telemetry.runs, []);
+  // answer rather than throwing at the user. No server is reachable
+  // here, even when the developer's own app listens on a local port:
+  // the test must never make a running app read anything.
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = () => Promise.reject(new Error('offline in tests'));
+  resetServerBinding();
+  try {
+    const read = await api.cvRead({ platforms: ['topcv'] });
+    assert.equal(read.failures[0].code, 'server-required');
+    const stored = await api.cvStored();
+    assert.deepEqual(stored.entries, []);
+    const telemetry = await api.cvTelemetry({});
+    assert.deepEqual(telemetry.runs, []);
+  } finally {
+    globalThis.fetch = realFetch;
+    resetServerBinding();
+  }
 });
 
 test('the catalogue covers every platform the CV subsystem knows', () => {

@@ -26,7 +26,7 @@
 
 import { typingLink } from './live-links.js';
 import { stampSourceLink } from './index.js';
-import { updateEffect } from './telegram-updates.js';
+import { messageSenderId, updateEffect } from './telegram-updates.js';
 
 const SOURCE = 'telegram';
 
@@ -143,16 +143,20 @@ const chatStateWriters = ({ store, now }) => {
     return false;
   };
 
+  // The typing status names who types, when the address book knows
+  // them, so a group shows "Oleg is typing", not their id.
   const onTyping = async ({ chat, user, typing }) => {
-    await store.put(
-      typingLink({
+    const person = await store.get(`person:${SOURCE}:${user}`);
+    await store.put({
+      ...typingLink({
         source: SOURCE,
         chat,
         user,
         state: typing ? 'typing' : 'idle',
         at: new Date(now()).toISOString(),
-      })
-    );
+      }),
+      ...(person?.name ? { name: person.name } : {}),
+    });
     return false;
   };
 
@@ -252,10 +256,7 @@ export const createTelegramLive = ({
 
   const onMessage = async (client, { kind, chat, message, entities }) => {
     const dialog = await dialogFor(client, chat, entities);
-    const sender = entityOf(
-      entities,
-      message.senderId?.value ?? message.senderId
-    );
+    const sender = entityOf(entities, messageSenderId(message));
     const [link] = toLinks(dialog, [
       { ...message, sender: message.sender ?? sender },
     ]);

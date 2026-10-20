@@ -25,6 +25,14 @@
  *   GET  /api/telegram/media?chat=&id=&size=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
+ *   GET  /api/telegram/file?chat=&id=  -> a message's video, voice, audio,
+ *                                         GIF or sticker (up to 64 MB), by
+ *                                         byte range for players to seek
+ *   GET  /api/telegram/avatar?peer=&size=s|b&chat=&msg=
+ *                                      -> a person's or chat's photo; 404
+ *                                         when they have none
+ *   GET  /api/telegram/chat-info?chat= -> { kind, title, members, online,
+ *                                         username, about, photo, lastSeen? }
  * Responses carry the account's public name and counts, never a secret.
  */
 
@@ -176,6 +184,126 @@ const handleMedia = async (account, req, res) => {
   return true;
 };
 
+// `bytes=a-b` of a file of `size` bytes: [start, end], or null.
+export const byteRange = (header, size) => {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(String(header ?? '').trim());
+  if (!match || (match[1] === '' && match[2] === '')) {
+    return null;
+  }
+  let start;
+  let end;
+  if (match[1] === '') {
+    start = Math.max(0, size - Number(match[2]));
+    end = size - 1;
+  } else {
+    start = Number(match[1]);
+    end = match[2] === '' ? size - 1 : Math.min(Number(match[2]), size - 1);
+  }
+  return start <= end && start < size ? [start, end] : null;
+};
+
+// The bytes of a file, whole or the range the player asked for.
+const sendBytes = (req, res, { buffer, mimeType }) => {
+  const size = buffer.length;
+  const head = {
+    'content-type': mimeType || 'application/octet-stream',
+    'accept-ranges': 'bytes',
+    'cache-control': 'private, max-age=31536000, immutable',
+    'x-content-type-options': 'nosniff',
+  };
+  if (req.headers.range) {
+    const range = byteRange(req.headers.range, size);
+    if (!range) {
+      res.writeHead(416, { ...head, 'content-range': `bytes */${size}` });
+      res.end();
+      return true;
+    }
+    const [start, end] = range;
+    res.writeHead(206, {
+      ...head,
+      'content-range': `bytes ${start}-${end}/${size}`,
+      'content-length': end - start + 1,
+    });
+    res.end(buffer.subarray(start, end + 1));
+    return true;
+  }
+  res.writeHead(200, { ...head, 'content-length': size });
+  res.end(buffer);
+  return true;
+};
+
+// GET /api/telegram/file?chat=&id= -> the message's file, by range.
+const handleFile = async (account, req, res) => {
+  if (!sameSite(req)) {
+    return json(res, 403, { error: 'files load only in the app' }) ?? true;
+  }
+  if (typeof account.file !== 'function') {
+    return json(res, 501, { error: 'files not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  const result = await account.file({
+    chat: query.get('chat'),
+    id: Number(query.get('id')),
+  });
+  if (result?.error === 'too-large') {
+    return json(res, 413, { error: 'too-large', size: result.size }) ?? true;
+  }
+  if (!result?.buffer) {
+    return json(res, 404, { error: 'no file' }) ?? true;
+  }
+  return sendBytes(req, res, result);
+};
+
+// GET /api/telegram/avatar?peer=&size= -> the peer's photo.
+const handleAvatar = async (account, req, res) => {
+  if (!sameSite(req)) {
+    return json(res, 403, { error: 'pictures load only in the app' }) ?? true;
+  }
+  if (typeof account.avatar !== 'function') {
+    return json(res, 501, { error: 'avatars not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  const result = await account.avatar({
+    peer: query.get('peer'),
+    size: query.get('size') === 'b' ? 'b' : 's',
+    chat: query.get('chat'),
+    msg: query.get('msg'),
+  });
+  if (!result?.buffer) {
+    // No photo: the page shows initials, and asks again tomorrow.
+    res.setHeader('cache-control', 'private, max-age=3600');
+    return json(res, 404, { error: 'no photo' }) ?? true;
+  }
+  res.writeHead(200, {
+    'content-type': result.mimeType || 'image/jpeg',
+    'content-length': result.buffer.length,
+    // A new photo shows within a day (the server re-reads it daily).
+    'cache-control': 'private, max-age=86400',
+    'x-content-type-options': 'nosniff',
+  });
+  res.end(result.buffer);
+  return true;
+};
+
+// GET /api/telegram/chat-info?chat= -> members, online, last seen.
+const handleChatInfo = async (account, req, res) => {
+  if (typeof account.chatInfo !== 'function') {
+    return json(res, 501, { error: 'chat info not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  const info = await account.chatInfo({ chat: query.get('chat') });
+  return info
+    ? (json(res, 200, info) ?? true)
+    : (json(res, 404, { error: 'no chat info' }) ?? true);
+};
+
+const GETS = {
+  media: handleMedia,
+  file: handleFile,
+  avatar: handleAvatar,
+  'chat-info': handleChatInfo,
+};
+
 const dispatch = async (account, req, res, p) => {
   if (p === `${PREFIX}status` && req.method === 'GET') {
     const status = await account.status();
@@ -187,10 +315,10 @@ const dispatch = async (account, req, res, p) => {
     }
     return json(res, 200, status) ?? true;
   }
-  if (p === `${PREFIX}media` && req.method === 'GET') {
-    return handleMedia(account, req, res);
-  }
   const name = p.slice(PREFIX.length);
+  if (req.method === 'GET' && Object.hasOwn(GETS, name)) {
+    return GETS[name](account, req, res);
+  }
   if (req.method !== 'POST' || !Object.hasOwn(POSTS, name)) {
     return false;
   }

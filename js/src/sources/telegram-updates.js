@@ -45,6 +45,15 @@ export const peerChatId = (peer) => {
   return null;
 };
 
+/**
+ * Who wrote a message. GramJS fills `senderId` only for the messages it
+ * builds itself (`getMessages`); a raw one — from an update or a
+ * channel's difference — names its author in `fromId` only: a person,
+ * or a channel posting. Neither: the private chat's other side (null).
+ */
+export const messageSenderId = (message) =>
+  text(message?.senderId) ?? peerChatId(message?.fromId);
+
 const NEW_MESSAGE = new Set(['UpdateNewMessage', 'UpdateNewChannelMessage']);
 const EDIT_MESSAGE = new Set(['UpdateEditMessage', 'UpdateEditChannelMessage']);
 const TYPING = new Set([

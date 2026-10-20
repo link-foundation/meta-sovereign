@@ -181,26 +181,114 @@ const parsePhotoMedia = (photo) => {
   };
 };
 
+// What a file is, as Telegram's apps draw it: a GIF plays muted in a
+// loop, a round video in a circle, a voice note as a waveform, a sticker
+// with no bubble, anything else as a file row.
+const STICKER_FORMATS = {
+  'application/x-tgsticker': 'tgs',
+  'video/webm': 'webm',
+  'image/webp': 'webp',
+};
+
+const documentType = (attrs, mimeType) => {
+  const has = (name) => attrs.some((a) => a.className === name);
+  const video = attrs.find((a) => a.className === 'DocumentAttributeVideo');
+  const audio = attrs.find((a) => a.className === 'DocumentAttributeAudio');
+  if (has('DocumentAttributeSticker')) {
+    return 'sticker';
+  }
+  if (has('DocumentAttributeAnimated')) {
+    return 'gif';
+  }
+  if (video?.roundMessage) {
+    return 'round';
+  }
+  if (video) {
+    return 'video';
+  }
+  if (audio?.voice) {
+    return 'voice';
+  }
+  if (audio || /^audio\//.test(mimeType ?? '')) {
+    return 'audio';
+  }
+  return /^video\//.test(mimeType ?? '') ? 'video' : 'file';
+};
+
+// A voice note's waveform: 5-bit samples packed in bytes (Telegram's
+// format, as tdesktop's `documentWaveformDecode` reads it), 0..31.
+export const decodeWaveform = (b64) => {
+  if (!b64 || typeof b64 !== 'string') {
+    return [];
+  }
+  let bytes;
+  try {
+    bytes =
+      typeof Buffer === 'undefined'
+        ? Uint8Array.from(globalThis.atob(b64), (c) => c.charCodeAt(0))
+        : Buffer.from(b64, 'base64');
+  } catch {
+    return [];
+  }
+  const count = Math.floor((bytes.length * 8) / 5);
+  const out = [];
+  for (let i = 0; i < count; i += 1) {
+    const bit = i * 5;
+    const byte = bit >> 3;
+    const pair = bytes[byte] | ((bytes[byte + 1] ?? 0) << 8);
+    out.push((pair >> (bit & 7)) & 31);
+  }
+  return out;
+};
+
+// A document's width over height: from its video or image size, else
+// from its thumbnails.
+const documentRatio = (video, image, thumbs) => {
+  const w = Number(video?.w ?? image?.w ?? 0);
+  const h = Number(video?.h ?? image?.h ?? 0);
+  return w > 0 && h > 0 ? w / h : (aspectRatioOf(thumbs) ?? 1);
+};
+
+const audioFields = (audio) => ({
+  title: audio?.title ?? null,
+  performer: audio?.performer ?? null,
+  waveform: decodeWaveform(audio?.waveform?.bytes ?? null),
+});
+
+const typeFlags = (type, mimeType) => ({
+  isVoice: type === 'voice',
+  isVideo: ['video', 'gif', 'round'].includes(type),
+  isSticker: type === 'sticker',
+  stickerFormat:
+    type === 'sticker' ? (STICKER_FORMATS[mimeType] ?? 'webp') : null,
+});
+
 const parseDocumentMedia = (doc) => {
   const attrs = Array.isArray(doc.attributes) ? doc.attributes : [];
-  const filename =
-    attrs.find((a) => a.className === 'DocumentAttributeFilename')?.fileName ??
-    null;
-  const isVoice = attrs.some(
-    (a) => a.className === 'DocumentAttributeAudio' && a.voice
-  );
-  const isVideo = attrs.some((a) => a.className === 'DocumentAttributeVideo');
-  const isSticker = attrs.some(
-    (a) => a.className === 'DocumentAttributeSticker'
-  );
+  const find = (name) => attrs.find((a) => a.className === name);
+  const video = find('DocumentAttributeVideo');
+  const audio = find('DocumentAttributeAudio');
+  const mimeType = doc.mimeType ?? null;
+  const type = documentType(attrs, mimeType);
+  const thumbs = extractPhotoSizes({ sizes: doc.thumbs ?? [] }) ?? [];
   return {
     kind: 'document',
+    type,
     document: doc,
-    filename,
-    isVoice,
-    isVideo,
-    isSticker,
-    mimeType: doc.mimeType ?? null,
+    filename: find('DocumentAttributeFilename')?.fileName ?? null,
+    ...typeFlags(type, mimeType),
+    mimeType,
+    size: Number(doc.size ?? 0),
+    duration: Number(video?.duration ?? audio?.duration ?? 0) || null,
+    ...audioFields(audio),
+    aspectRatio: documentRatio(
+      video,
+      find('DocumentAttributeImageSize'),
+      thumbs
+    ),
+    strippedB64: strippedBytesOf(thumbs),
+    hasThumb: thumbs.some((t) => !t.stripped),
+    emoji: find('DocumentAttributeSticker')?.alt ?? null,
   };
 };
 
@@ -214,8 +302,69 @@ const parseWebpageMedia = (wp) => ({
   photo: wp.photo ?? null,
 });
 
-const parseMedia = (raw) => {
+const textOf = (value) =>
+  typeof value === 'string' ? value : (value?.text ?? '');
+
+// What has no file: a place, a contact, a poll, a die — each drawn as a
+// card the way Telegram's apps draw it.
+const CARD_MEDIA = {
+  MessageMediaGeo: (m) => ({
+    kind: 'place',
+    lat: m.geo?.lat ?? null,
+    lon: m.geo?.long ?? null,
+  }),
+  MessageMediaGeoLive: (m) => ({
+    kind: 'place',
+    live: true,
+    lat: m.geo?.lat ?? null,
+    lon: m.geo?.long ?? null,
+  }),
+  MessageMediaVenue: (m) => ({
+    kind: 'place',
+    lat: m.geo?.lat ?? null,
+    lon: m.geo?.long ?? null,
+    title: m.title ?? null,
+    address: m.address ?? null,
+  }),
+  MessageMediaContact: (m) => ({
+    kind: 'contact',
+    name: [m.firstName, m.lastName].filter(Boolean).join(' ') || null,
+    phone: m.phoneNumber ?? null,
+  }),
+  MessageMediaPoll: (m) => {
+    const results = m.results?.results ?? [];
+    // An option is bytes, stored as base64 (R-Y28).
+    const keyOf = (option) => option?.bytes ?? JSON.stringify(option ?? null);
+    const votes = (option) =>
+      results.find((r) => keyOf(r.option) === keyOf(option))?.voters ?? null;
+    return {
+      kind: 'poll',
+      question: textOf(m.poll?.question),
+      quiz: Boolean(m.poll?.quiz),
+      closed: Boolean(m.poll?.closed),
+      total: m.results?.totalVoters ?? null,
+      answers: (m.poll?.answers ?? []).map((a) => ({
+        text: textOf(a.text),
+        voters: votes(a.option),
+      })),
+    };
+  },
+  MessageMediaDice: (m) => ({
+    kind: 'dice',
+    emoticon: m.emoticon ?? '🎲',
+    value: m.value ?? null,
+  }),
+  MessageMediaStory: () => ({ kind: 'story' }),
+  MessageMediaGame: (m) => ({ kind: 'game', title: m.game?.title ?? null }),
+  MessageMediaInvoice: (m) => ({ kind: 'invoice', title: m.title ?? null }),
+  MessageMediaUnsupported: () => ({ kind: 'unsupported' }),
+};
+
+export const parseMedia = (raw) => {
   const mc = raw.media?.className;
+  if (CARD_MEDIA[mc]) {
+    return CARD_MEDIA[mc](raw.media);
+  }
   if (mc === 'MessageMediaPhoto' && raw.media?.photo) {
     return parsePhotoMedia(raw.media.photo);
   }
@@ -248,24 +397,51 @@ const repliedLinkId = (link, replyMsgId) => {
   return `msg:telegram:${chat}:${replyMsgId}`;
 };
 
+const replyMsgIdOf = (link, raw) =>
+  (link.source ?? 'telegram') === 'telegram'
+    ? replyMsgIdFrom(raw, link.replyTo ?? null)
+    : (link.replyTo ?? null);
+
+/** The id of the link a message replies to, or null. */
+export const replyLinkId = (link) => {
+  const replyMsgId = link ? replyMsgIdOf(link, link.raw ?? {}) : null;
+  return replyMsgId ? repliedLinkId(link, replyMsgId) : null;
+};
+
+// What the quote shows of the replied message: unknown until loaded,
+// "deleted" once gone.
+const repliedFields = (replied) => {
+  if (!replied) {
+    return {
+      text: null,
+      senderName: null,
+      sender: null,
+      deleted: false,
+      media: null,
+    };
+  }
+  const gone = Boolean(replied.deleted);
+  return {
+    text: gone ? null : (replied.body ?? null),
+    senderName: replied.senderName ?? (replied.sender === 'me' ? 'me' : null),
+    sender: replied.sender ?? null,
+    deleted: gone,
+    media: gone ? null : parseMedia(replied.raw ?? {}),
+  };
+};
+
 const parseReply = (link, raw, msgById) => {
-  const replyMsgId =
-    (link.source ?? 'telegram') === 'telegram'
-      ? replyMsgIdFrom(raw, link.replyTo ?? null)
-      : (link.replyTo ?? null);
+  const replyMsgId = replyMsgIdOf(link, raw);
   if (!replyMsgId) {
     return null;
   }
   const repliedId = repliedLinkId(link, replyMsgId);
-  const replied = msgById.get(repliedId);
-  const quoteText =
-    typeof raw.replyTo?.quoteText === 'string' ? raw.replyTo.quoteText : null;
   return {
     msgId: replyMsgId,
     linkId: repliedId,
-    text: replied?.body ?? null,
-    senderName: replied?.senderName ?? replied?.sender ?? null,
-    quoteText,
+    ...repliedFields(msgById.get(repliedId)),
+    quoteText:
+      typeof raw.replyTo?.quoteText === 'string' ? raw.replyTo.quoteText : null,
   };
 };
 
@@ -335,10 +511,14 @@ export const attachmentMedia = (attachments) => {
  */
 export const parseMessageParts = (link, msgById = new Map()) => {
   const raw = link?.raw ?? {};
+  const media = parseMedia(raw) ?? attachmentMedia(link?.attachments);
+  const body = typeof link?.body === 'string' ? link.body : '';
   return {
-    text: typeof link?.body === 'string' ? link.body : '',
+    // A file without a caption is stored with a 📎 body (for the chat
+    // list); the bubble shows the file itself instead.
+    text: media && body === '📎' ? '' : body,
     entities: Array.isArray(raw.entities) ? raw.entities : [],
-    media: parseMedia(raw) ?? attachmentMedia(link?.attachments),
+    media,
     replyRef: parseReply(link, raw, msgById),
     fwdFrom: parseFwd(raw, link),
     reactions: parseReactions(raw, link),

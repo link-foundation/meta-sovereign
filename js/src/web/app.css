@@ -19,6 +19,10 @@
   --topbar-h: 3.5rem;
   --bottom-nav-h: 4rem;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --scrollbar: rgba(255, 255, 255, 0.18);
+  --scrollbar-hover: rgba(255, 255, 255, 0.32);
+  /* Native parts — scrollbars, form controls — follow the theme. */
+  color-scheme: dark;
 }
 :root[data-theme='light'] {
   --bg: #ffffff;
@@ -34,6 +38,9 @@
   --accent: #1a7f37;
   --accent-bg: #ddf4ff;
   --shadow: rgba(0, 0, 0, 0.08);
+  --scrollbar: rgba(0, 0, 0, 0.2);
+  --scrollbar-hover: rgba(0, 0, 0, 0.36);
+  color-scheme: light;
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
@@ -50,10 +57,33 @@
     --accent: #1a7f37;
     --accent-bg: #ddf4ff;
     --shadow: rgba(0, 0, 0, 0.08);
+    --scrollbar: rgba(0, 0, 0, 0.2);
+    --scrollbar-hover: rgba(0, 0, 0, 0.36);
+    color-scheme: light;
   }
 }
 * {
   box-sizing: border-box;
+  scrollbar-color: var(--scrollbar) transparent;
+}
+/* Thin scrollbars in the theme's colours, as the messengers draw them
+   (WebKit and Safari read these; the others `scrollbar-color`). */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background: transparent;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: var(--scrollbar) padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-hover) padding-box;
 }
 a {
   color: var(--link);
@@ -227,16 +257,37 @@ main[data-view='chat'] > .web-mode-banner {
 :root {
   --chat-bg: var(--bg);
   --chat-sidebar: var(--bg-elev);
-  --bubble-in: transparent;
+  /* Every message is a bubble on a raised surface, as in every messenger
+     (Telegram, WhatsApp, Signal, Element): the other side's in a neutral
+     one, the user's own tinted with the accent. */
+  --bubble-in: #1c222b;
   --bubble-in-text: var(--text);
-  --bubble-in-pad: 0.2rem 0;
-  --bubble-out: var(--bg-active);
+  --bubble-in-pad: 0.45rem 0.75rem;
+  --bubble-in-edge: rgb(255 255 255 / 6%);
+  --bubble-out: #1c3a28;
   --bubble-out-text: var(--text);
+  --bubble-shadow: 0 1px 2px rgb(0 0 0 / 35%);
   --bubble-radius: 14px;
   --bubble-tail: 14px;
   --chat-accent: var(--accent);
   --chat-column: 46rem;
   --chat-font-size: 0.95rem;
+}
+:root[data-theme='light'] {
+  --chat-bg: #eef1f4;
+  --bubble-in: #ffffff;
+  --bubble-in-edge: rgb(31 35 40 / 6%);
+  --bubble-out: #d8f3d4;
+  --bubble-shadow: 0 1px 2px rgb(16 35 47 / 12%);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --chat-bg: #eef1f4;
+    --bubble-in: #ffffff;
+    --bubble-in-edge: rgb(31 35 40 / 6%);
+    --bubble-out: #d8f3d4;
+    --bubble-shadow: 0 1px 2px rgb(16 35 47 / 12%);
+  }
 }
 .chat-shell {
   display: grid;
@@ -512,10 +563,15 @@ main[data-view='chat'] > .web-mode-banner {
   font-size: var(--chat-font-size);
 }
 .bubble {
+  position: relative;
   display: flex;
   flex-direction: column;
   max-width: 85%;
+  min-width: 0;
   padding: var(--bubble-in-pad);
+  box-shadow:
+    0 0 0 1px var(--bubble-in-edge, transparent),
+    var(--bubble-shadow, 0 0 transparent);
   border-radius: var(--bubble-radius);
   background: var(--bubble-in);
   color: var(--bubble-in-text);
@@ -525,7 +581,8 @@ main[data-view='chat'] > .web-mode-banner {
 }
 .bubble.out {
   align-self: flex-end;
-  padding: 0.55rem 0.85rem;
+  padding: 0.45rem 0.75rem;
+  box-shadow: var(--bubble-shadow, none);
   background: var(--bubble-out);
   color: var(--bubble-out-text);
   border-bottom-right-radius: calc(
@@ -546,6 +603,27 @@ main[data-view='chat'] > .web-mode-banner {
   align-self: flex-end;
   font-size: 0.7rem;
   opacity: 0.8;
+  white-space: nowrap;
+}
+/* The time sits in the last line of the text when there is room, as in
+   Telegram: an invisible copy of it ends the text and takes its place,
+   and the time itself is drawn over that place. */
+.bubble-time-spacer {
+  display: inline-flex;
+  visibility: hidden;
+  margin-left: 0.6rem;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  vertical-align: baseline;
+  pointer-events: none;
+}
+.bubble.inline-time > .bubble-time {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.3rem;
+}
+:root[data-skin]:not([data-skin='t3']) .bubble:not(.out) {
+  box-shadow: 0 1px 2px var(--shadow);
 }
 :root[data-skin='signal'] .bubble.out .bubble-time {
   opacity: 1;
@@ -669,15 +747,54 @@ main[data-view='chat'] > .web-mode-banner {
   padding: 0.15rem 0.6rem;
   font-size: 0.78rem;
 }
-.chat-new-pill {
-  position: sticky;
-  bottom: 7.5rem;
-  display: block;
-  margin: 0.5rem auto 0;
-  padding: 0.35rem 0.9rem;
-  border-radius: 999px;
+/* Telegram's round "down" button, by the column's right edge, above the
+   composer; the count of what waits below sits on its top. */
+.chat-down {
+  position: absolute;
+  z-index: 3;
+  right: max(1rem, calc((100% - var(--chat-column)) / 2 + 0.25rem));
+  bottom: 7.25rem;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--surface-glass-border, var(--border));
+  border-radius: 50%;
   background: var(--bg-elev);
-  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+  color: var(--muted);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 25%);
+  animation: chat-down-in 160ms ease-out;
+}
+.chat-down:hover {
+  color: var(--text);
+}
+.chat-down-count {
+  position: absolute;
+  top: -0.45rem;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--chat-accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35rem;
+  text-align: center;
+}
+@keyframes chat-down-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-down {
+    animation: none;
+  }
 }
 .chat-composer .send[aria-busy='true'] {
   cursor: progress;
@@ -2532,7 +2649,105 @@ button.primary .recommended-tag {
   }
 }
 
-/* Sender avatar circle in groups (no photo — initials + hue). */
+/* Telegram's seven peer colours (peer-color.js): names, reply bars and
+   the avatars of who has no photo. Names are a lighter shade on dark,
+   as tweb and telegram-tt draw them; avatars are tweb's gradients. */
+.peer-color-0 {
+  --peer-color: #ff9380;
+  --avatar-top: #ff845e;
+  --avatar-bottom: #d45246;
+}
+.peer-color-1 {
+  --peer-color: #ecb04e;
+  --avatar-top: #febb5b;
+  --avatar-bottom: #f68136;
+}
+.peer-color-2 {
+  --peer-color: #c697ff;
+  --avatar-top: #b694f9;
+  --avatar-bottom: #6c61df;
+}
+.peer-color-3 {
+  --peer-color: #a7eb6e;
+  --avatar-top: #9ad164;
+  --avatar-bottom: #46ba43;
+}
+.peer-color-4 {
+  --peer-color: #40d8d0;
+  --avatar-top: #53edd6;
+  --avatar-bottom: #28c9b7;
+}
+.peer-color-5 {
+  --peer-color: #52bfff;
+  --avatar-top: #5caffa;
+  --avatar-bottom: #408acf;
+}
+.peer-color-6 {
+  --peer-color: #ff86a6;
+  --avatar-top: #ff8aac;
+  --avatar-bottom: #d95574;
+}
+:root[data-theme='light'] .peer-color-0 {
+  --peer-color: #cc5049;
+}
+:root[data-theme='light'] .peer-color-1 {
+  --peer-color: #d67722;
+}
+:root[data-theme='light'] .peer-color-2 {
+  --peer-color: #955cdb;
+}
+:root[data-theme='light'] .peer-color-3 {
+  --peer-color: #40a920;
+}
+:root[data-theme='light'] .peer-color-4 {
+  --peer-color: #309eba;
+}
+:root[data-theme='light'] .peer-color-5 {
+  --peer-color: #368ad1;
+}
+:root[data-theme='light'] .peer-color-6 {
+  --peer-color: #c7508b;
+}
+.bubble-name.peer-color-0,
+.bubble-name.peer-color-1,
+.bubble-name.peer-color-2,
+.bubble-name.peer-color-3,
+.bubble-name.peer-color-4,
+.bubble-name.peer-color-5,
+.bubble-name.peer-color-6 {
+  color: var(--peer-color);
+}
+
+/* A person's or chat's photo, or their initials on their colour. */
+.avatar.peer-avatar,
+.msg-avatar.peer-avatar {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    var(--avatar-top, #5caffa),
+    var(--avatar-bottom, #408acf)
+  );
+}
+.peer-avatar > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.peer-avatar > img.shown {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .peer-avatar > img {
+    transition: none;
+  }
+}
+
+/* Sender avatar circle in groups: their photo, else initials. */
 .msg-avatar {
   flex: none;
   width: 2rem;
@@ -2555,27 +2770,65 @@ button.primary .recommended-tag {
 
 /* Reply quote box inside the bubble. */
 .bubble-reply {
+  --reply-color: var(--peer-color, var(--chat-accent, var(--accent)));
+  position: relative;
   display: flex;
   flex-direction: column;
-  border-left: 3px solid var(--chat-accent, var(--accent));
-  padding: 0.2rem 0.5rem;
+  min-width: 0;
+  padding: 0.2rem 0.5rem 0.25rem 0.65rem;
   margin-bottom: 0.3rem;
-  border-radius: 2px;
-  background: rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--reply-color) 12%, transparent);
   cursor: pointer;
   font-size: 0.8rem;
+  line-height: 1.3;
   max-width: 100%;
   overflow: hidden;
 }
-:root[data-theme='light'] .bubble-reply,
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .bubble-reply {
-    background: rgba(0, 0, 0, 0.04);
-  }
+.bubble-reply::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--reply-color);
+}
+.bubble-reply:hover {
+  background: color-mix(in srgb, var(--reply-color) 20%, transparent);
+}
+.bubble.out .bubble-reply {
+  --reply-color: var(--chat-accent, var(--accent));
+}
+:root[data-skin='signal'] .bubble.out .bubble-reply,
+:root[data-skin='telegram'][data-theme='dark'] .bubble.out .bubble-reply {
+  --reply-color: currentColor;
+}
+.bubble-reply.loading .bubble-reply-text {
+  opacity: 0.5;
+}
+.bubble-reply.deleted .bubble-reply-text {
+  font-style: italic;
+}
+.bubble-reply-row {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  min-width: 0;
+}
+.bubble-reply-thumb {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  object-fit: cover;
+}
+.bubble-reply-lines {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 .bubble-reply-name {
   font-weight: 700;
-  color: var(--chat-accent, var(--accent));
+  color: var(--reply-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2648,13 +2901,46 @@ button.primary .recommended-tag {
 .bubble-doc {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.6rem;
+  gap: 0.6rem;
+  height: auto;
+  padding: 0.35rem 0.6rem 0.35rem 0.35rem;
   background: rgba(0, 0, 0, 0.06);
+  border: 0;
   border-radius: var(--radius);
+  color: inherit;
+  font: inherit;
   font-size: 0.85rem;
-  max-width: 260px;
+  text-align: left;
+  text-decoration: none;
+  max-width: 280px;
   margin-bottom: 0.25rem;
+  cursor: pointer;
+}
+.bubble-doc:disabled {
+  cursor: progress;
+  opacity: 0.8;
+}
+.file-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: var(--chat-accent, var(--accent));
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.file-lines {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.file-size {
+  font-size: 0.75rem;
+  opacity: 0.7;
 }
 .bubble-doc-name {
   overflow: hidden;
@@ -2724,19 +3010,55 @@ button.primary .recommended-tag {
 /* Pinned message bar below the chat header. */
 .chat-pinned-bar {
   display: flex;
+  flex: none;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.6rem;
+  line-height: 1.3;
+  width: 100%;
+  height: auto;
   padding: 0.35rem 1rem;
-  background: var(--bg-elev);
+  border: 0;
   border-bottom: 1px solid var(--border);
-  font-size: 0.82rem;
+  border-radius: 0;
+  background: var(--bg-elev);
   color: var(--text-muted);
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
   cursor: pointer;
+}
+.chat-pinned-bar:hover {
+  background: var(--bg-active);
+}
+.chat-pinned-line {
+  flex: none;
+  align-self: stretch;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--chat-accent, var(--accent));
+}
+.chat-pinned-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.chat-pinned-title {
+  color: var(--chat-accent, var(--accent));
+  font-weight: 600;
 }
 .chat-pinned-text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text);
+}
+.chat-pinned-bar > .icon {
+  flex: none;
+  opacity: 0.6;
+}
+.chat-header .meta.online {
+  color: var(--chat-accent, var(--accent));
 }
 
 /* More actions button on a bubble (shows on hover). */
@@ -2903,14 +3225,380 @@ button.primary .recommended-tag {
 
 /* Dark/light theme fixes for above. */
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .bubble-reply {
-    background: rgba(0, 0, 0, 0.04);
-  }
   :root:not([data-theme]) .bubble-doc {
     background: rgba(0, 0, 0, 0.04);
   }
 }
-:root[data-theme='light'] .bubble-reply,
 :root[data-theme='light'] .bubble-doc {
   background: rgba(0, 0, 0, 0.04);
+}
+
+/* One sender's run (chat-view.js messageRuns): bubbles sit close, and
+   the corners between them are rounded less, as in Telegram. */
+.bubble-row:not([data-run-first]) {
+  margin-top: -0.3rem;
+}
+.bubble-row:not([data-run-first]) > .bubble.in {
+  border-top-left-radius: 6px;
+}
+.bubble-row:not([data-run-last]) > .bubble.in {
+  border-bottom-left-radius: 6px;
+}
+.bubble-row:not([data-run-first]) > .bubble.out {
+  border-top-right-radius: 6px;
+}
+.bubble-row:not([data-run-last]) > .bubble.out {
+  border-bottom-right-radius: 6px;
+}
+.msg-avatar {
+  width: 2.125rem;
+  height: 2.125rem;
+  font-size: 0.8rem;
+  align-self: flex-end;
+}
+.msg-avatar-gap {
+  width: 2.125rem;
+}
+.chat-item .avatar {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1rem;
+}
+.chat-header .avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 0.9rem;
+}
+.peer-avatar-initials {
+  line-height: 1;
+}
+
+/* Formatted text (message-text.js). */
+.bubble-body {
+  min-width: 0;
+}
+.msg-link {
+  color: var(--link);
+  text-decoration: none;
+  word-break: break-word;
+}
+.msg-link:hover {
+  text-decoration: underline;
+}
+.bubble.out .msg-link {
+  color: inherit;
+  text-decoration: underline;
+}
+.msg-code,
+.msg-pre code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+}
+.msg-code {
+  padding: 0.05em 0.3em;
+  border-radius: 4px;
+  background: rgba(127, 127, 127, 0.18);
+}
+.msg-pre {
+  margin: 0.25rem 0;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(127, 127, 127, 0.15);
+  overflow-x: auto;
+  white-space: pre;
+}
+.msg-quote {
+  margin: 0.25rem 0;
+  padding: 0.15rem 0.6rem;
+  border-left: 3px solid var(--chat-accent, var(--accent));
+  border-radius: 4px;
+  background: color-mix(
+    in srgb,
+    var(--chat-accent, var(--accent)) 10%,
+    transparent
+  );
+}
+.msg-tag,
+.msg-mention-name {
+  color: var(--link);
+}
+.bubble.out .msg-tag,
+.bubble.out .msg-mention-name {
+  color: inherit;
+  font-weight: 600;
+}
+.msg-spoiler:not(.open) {
+  color: transparent;
+  border-radius: 4px;
+  background: rgba(127, 127, 127, 0.45);
+  cursor: pointer;
+  user-select: none;
+}
+.msg-spoiler:not(.open) * {
+  color: transparent;
+}
+
+/* A sticker or a round video: no bubble around it. */
+.bubble.bare {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.bubble.bare > .bubble-time {
+  align-self: flex-end;
+  margin-top: 0.2rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+}
+/* A photo without a caption fills its bubble; the time is over it. */
+.bubble.media-only {
+  padding: 0.2rem;
+}
+.bubble.media-only > .bubble-time {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.55rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+}
+
+/* Video and GIF (chat-media.js). */
+.bubble-video,
+.bubble-round {
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--bubble-radius) - 4px);
+  background: #000;
+  margin-bottom: 0.25rem;
+}
+.bubble-round {
+  width: 15rem;
+  height: 15rem;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.media-poster,
+.media-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.media-poster.blurred {
+  filter: blur(10px);
+  transform: scale(1.08);
+}
+.bubble-video .media-video {
+  object-fit: contain;
+  background: #000;
+}
+.media-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  padding: 0 0 0 0.2rem;
+  border: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  cursor: pointer;
+}
+.media-play:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+.media-badge {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 0.72rem;
+  pointer-events: none;
+}
+.bubble-round .media-badge {
+  top: auto;
+  bottom: 0.9rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.media-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2.6rem;
+  height: 2.6rem;
+  margin: -1.3rem 0 0 -1.3rem;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: media-spin 0.8s linear infinite;
+}
+.media-spinner.small {
+  position: static;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  border-width: 2px;
+}
+@keyframes media-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Voice notes and songs. */
+.bubble-audio {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 14rem;
+  margin-bottom: 0.2rem;
+}
+.audio-play {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chat-accent, var(--accent));
+  color: #fff;
+  cursor: pointer;
+}
+.audio-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1;
+}
+.audio-wave {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 1.4rem;
+}
+.audio-wave i {
+  flex: 1;
+  min-width: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.audio-wave i.played {
+  opacity: 1;
+  background: var(--chat-accent, var(--accent));
+}
+.bubble.out .audio-wave i.played {
+  background: currentColor;
+}
+.audio-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.audio-time {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+/* Stickers. */
+.bubble-sticker {
+  display: grid;
+  place-items: center;
+  width: 10rem;
+  height: 10rem;
+}
+.bubble-sticker img,
+.bubble-sticker video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.sticker-emoji {
+  font-size: 5rem;
+}
+
+/* Places, contacts, polls, dice. */
+.bubble-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.25rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius);
+  background: rgba(127, 127, 127, 0.12);
+  color: inherit;
+  text-decoration: none;
+}
+.card-lines {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.bubble-card.note {
+  font-style: italic;
+  opacity: 0.85;
+}
+.bubble-poll {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 15rem;
+  margin-bottom: 0.25rem;
+}
+.poll-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 0.3rem 0;
+  padding: 0;
+  list-style: none;
+}
+.poll-answers li {
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  padding-bottom: 0.35rem;
+}
+.poll-share {
+  flex: none;
+  width: 2.4rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-align: right;
+}
+.poll-bar {
+  position: absolute;
+  left: 2.9rem;
+  bottom: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--chat-accent, var(--accent));
+}
+.bubble-dice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 3rem;
+}
+.dice-value {
+  font-size: 1rem;
+  font-weight: 700;
 }
