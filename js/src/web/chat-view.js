@@ -18,7 +18,12 @@ import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
-import { CHAT_FILTERS, groupChats, networkMessageId } from './chat-model.js';
+import {
+  CHAT_FILTERS,
+  CHAT_SORTS,
+  groupChats,
+  networkMessageId,
+} from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
@@ -100,7 +105,29 @@ const ChatItem = ({ api, chat, active, onSelect }) => {
   );
 };
 
-// All / Private / Groups / Channels — newest chat first under each.
+// Newest first (the default) or oldest first, by each chat's latest
+// message; remembered in this browser.
+const SortChoice = ({ state }) => {
+  const t = useT();
+  if (typeof state.setSort !== 'function') {
+    return null;
+  }
+  return el(
+    'select',
+    {
+      className: 'chat-sort',
+      'aria-label': t('chat.sort.label'),
+      title: t('chat.sort.label'),
+      value: state.sort ?? 'latest',
+      onChange: (event) => state.setSort(event.target.value),
+    },
+    CHAT_SORTS.map((order) =>
+      el('option', { key: order, value: order }, t(`chat.sort.${order}`))
+    )
+  );
+};
+
+// All / Private / Groups / Channels — in the list's order under each.
 const FilterTabs = ({ state }) => {
   const t = useT();
   if (typeof state.setFilter !== 'function') {
@@ -169,6 +196,7 @@ const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
   useListLoading(list, state);
+  const oldest = state.sort === 'oldest';
   const moreRow =
     state.moreChats?.available && !state.query
       ? el(
@@ -179,11 +207,14 @@ const Sidebar = ({ state, api }) => {
       : null;
   return el('aside', { className: 'chat-sidebar' }, [
     el('div', { key: 'h', className: 'chat-sidebar-head' }, [
-      el(
-        'span',
-        { key: 't', className: 'chat-sidebar-title' },
-        t('chat.aside')
-      ),
+      el('div', { key: 'top', className: 'chat-sidebar-top' }, [
+        el(
+          'span',
+          { key: 't', className: 'chat-sidebar-title' },
+          t('chat.aside')
+        ),
+        el(SortChoice, { key: 's', state }),
+      ]),
       el('input', {
         key: 'q',
         type: 'search',
@@ -209,21 +240,24 @@ const Sidebar = ({ state, api }) => {
             moreRow,
           ]
         : [
-            ...groupChats(state.chats).map(({ group, chats }) =>
-              el('section', { key: group, className: 'chat-group' }, [
-                el('h3', { key: 'h' }, t(`chat.group.${group}`)),
-                ...chats.map((chat) =>
-                  el(ChatItem, {
-                    key: chat.key,
-                    api,
-                    chat,
-                    active: chat.key === state.current?.key,
-                    onSelect: state.select,
-                  })
-                ),
-              ])
+            // Oldest first needs every chat: the next page is read at once.
+            oldest ? moreRow : null,
+            ...groupChats(state.chats, Date.now(), state.sort).map(
+              ({ group, chats }) =>
+                el('section', { key: group, className: 'chat-group' }, [
+                  el('h3', { key: 'h' }, t(`chat.group.${group}`)),
+                  ...chats.map((chat) =>
+                    el(ChatItem, {
+                      key: chat.key,
+                      api,
+                      chat,
+                      active: chat.key === state.current?.key,
+                      onSelect: state.select,
+                    })
+                  ),
+                ])
             ),
-            moreRow,
+            oldest ? null : moreRow,
           ]
     ),
     el(ChatAccountLine, { key: 'acct', telegram: state.telegram }),

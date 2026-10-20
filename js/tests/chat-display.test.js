@@ -16,6 +16,7 @@ import { decodeWaveform, parseMedia } from '../src/web/message-parts.js';
 import { infoLine } from '../src/web/chat-info.js';
 import { mediaLabel } from '../src/web/chat-message.js';
 import { messageRuns } from '../src/web/chat-view.js';
+import { CHAT_SORTS, groupChats, sortChats } from '../src/web/chat-model.js';
 import { translate } from '../src/web/i18n.js';
 import { errorEntry, installClientLog } from '../src/web/client-log.js';
 import { byteRange } from '../src/server/routes-telegram.js';
@@ -448,4 +449,27 @@ test('a group’s members and online count, kept a minute', async () => {
   await reader.read({ chat: '-1001' });
   assert.equal(asked, before, 'kept a minute');
   assert.equal(await reader.read({ chat: 'nope' }), null);
+});
+
+test('the chat list sorts newest first by default, or oldest first', () => {
+  const chat = (key, at) => ({ key, last: { at } });
+  const list = [
+    chat('new', '2026-10-20T10:00:00Z'),
+    chat('mid', '2026-10-01T10:00:00Z'),
+    chat('old', '2025-01-01T10:00:00Z'),
+  ];
+  assert.deepEqual(
+    sortChats(list).map((c) => c.key),
+    ['new', 'mid', 'old']
+  );
+  assert.deepEqual(
+    sortChats(list, 'oldest').map((c) => c.key),
+    ['old', 'mid', 'new']
+  );
+  assert.deepEqual(CHAT_SORTS, ['latest', 'oldest']);
+  const now = Date.parse('2026-10-20T12:00:00Z');
+  assert.deepEqual(
+    groupChats(sortChats(list, 'oldest'), now, 'oldest').map((g) => g.group),
+    ['older', 'today']
+  );
 });

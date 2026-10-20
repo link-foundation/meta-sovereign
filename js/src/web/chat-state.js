@@ -7,6 +7,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   CHAT_FILTERS,
+  CHAT_SORTS,
+  sortChats,
   chatKey,
   chatMenuAutomations,
   cloudDraft,
@@ -462,29 +464,34 @@ const useTelegramAccount = (
 };
 
 const FILTER_KEY = 'meta-sovereign.chat.filter';
+const SORT_KEY = 'meta-sovereign.chat.sort';
 
-// All / Private / Groups / Channels, remembered in this browser.
-const useChatFilter = (storage = globalThis.localStorage) => {
+// One of `options`, remembered in this browser (the first is the default).
+const useRemembered = (key, options, storage = globalThis.localStorage) => {
   const read = () => {
     try {
-      const saved = storage?.getItem(FILTER_KEY);
-      return CHAT_FILTERS.includes(saved) ? saved : 'all';
+      const saved = storage?.getItem(key);
+      return options.includes(saved) ? saved : options[0];
     } catch {
-      return 'all';
+      return options[0];
     }
   };
-  const [filter, setFilter] = useState(read);
+  const [value, setValue] = useState(read);
   const choose = (next) => {
-    const value = CHAT_FILTERS.includes(next) ? next : 'all';
-    setFilter(value);
+    const chosen = options.includes(next) ? next : options[0];
+    setValue(chosen);
     try {
-      storage?.setItem(FILTER_KEY, value);
+      storage?.setItem(key, chosen);
     } catch {
       // Private mode: the choice lasts until the page closes.
     }
   };
-  return [filter, choose];
+  return [value, choose];
 };
+
+// All / Private / Groups / Channels, and newest or oldest first.
+const useChatFilter = () => useRemembered(FILTER_KEY, CHAT_FILTERS);
+const useChatSort = () => useRemembered(SORT_KEY, CHAT_SORTS);
 
 /** `#chat=<source>:<chat>` — a chat opened from Contacts. */
 export const chatFromHash = (hash = '') => {
@@ -594,12 +601,19 @@ const useChatList = (links, target, query) => {
     return [emptyChat(links ?? [], target), ...list];
   }, [links, target]);
   const [filter, setFilter] = useChatFilter();
+  const [sort, setSort] = useChatSort();
   const chats = useMemo(
     () =>
-      filterChats(query ? summarizeChats(links ?? [], { query }) : all, filter),
-    [links, query, all, filter]
+      sortChats(
+        filterChats(
+          query ? summarizeChats(links ?? [], { query }) : all,
+          filter
+        ),
+        sort
+      ),
+    [links, query, all, filter, sort]
   );
-  return { all, chats, filter, setFilter };
+  return { all, chats, filter, setFilter, sort, setSort };
 };
 
 /** Everything the chat screen shows and does. */
@@ -615,7 +629,11 @@ export const useChatState = (
   const [notice, setNotice] = useState(null);
   const telegram = useTelegramAccount(api, refresh, { live });
   const target = useHashChat();
-  const { all, chats, filter, setFilter } = useChatList(links, target, query);
+  const { all, chats, filter, setFilter, sort, setSort } = useChatList(
+    links,
+    target,
+    query
+  );
   useEffect(() => {
     if (target) {
       setActive(chatKey(target.source, target.chat));
@@ -674,6 +692,8 @@ export const useChatState = (
     setQuery,
     filter,
     setFilter,
+    sort,
+    setSort,
     prefetch,
     moreChats,
     history: {

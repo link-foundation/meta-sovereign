@@ -97,6 +97,16 @@ export const CHAT_FILTERS = Object.freeze([
 ]);
 
 /** The chats under one tab (`all`: every chat), newest first as given. */
+// Newest first (Telegram's order, the default) or oldest first: by each
+// chat's latest message, so the chats not written in longest come first.
+export const CHAT_SORTS = Object.freeze(['latest', 'oldest']);
+
+const lastAt = (chat) => Date.parse(chat?.last?.at ?? '') || 0;
+
+/** The chats in `order`; a pinned or unknown order keeps newest first. */
+export const sortChats = (chats = [], order = 'latest') =>
+  order === 'oldest' ? [...chats].sort((a, b) => lastAt(a) - lastAt(b)) : chats;
+
 export const filterChats = (chats = [], filter = 'all') =>
   filter === 'all' || !CHAT_FILTERS.includes(filter)
     ? chats
@@ -289,12 +299,14 @@ export const DAY_GROUPS = Object.freeze([
   'older',
 ]);
 
-/** Chats split into the non-empty date sections, in order. */
-export const groupChats = (chats, now = Date.now()) =>
-  DAY_GROUPS.map((group) => ({
-    group,
-    chats: chats.filter((c) => dayGroup(c.last.at, now) === group),
-  })).filter((g) => g.chats.length > 0);
+/** Chats split into the non-empty date sections, in the list's order. */
+export const groupChats = (chats, now = Date.now(), order = 'latest') =>
+  (order === 'oldest' ? [...DAY_GROUPS].reverse() : DAY_GROUPS)
+    .map((group) => ({
+      group,
+      chats: chats.filter((c) => dayGroup(c.last.at, now) === group),
+    }))
+    .filter((g) => g.chats.length > 0);
 
 /**
  * Who is typing: other people by name, and an automation typing on the
