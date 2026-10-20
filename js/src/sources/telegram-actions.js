@@ -21,6 +21,7 @@ import { randomIdOf } from './telegram-send.js';
 import { createFileReader, createMediaReader } from './telegram-media.js';
 import { createAvatarReader } from './telegram-avatars.js';
 import { createChatInfoReader } from './telegram-chat-info.js';
+import { createUnreadMarks } from './telegram-unread.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -89,6 +90,19 @@ const cleanIds = (ids) =>
  * catchUp, channels, importer); `tools` brings `credentials()`,
  * `toLinks(dialog, messages)` and `writeChanged(store, links)`.
  */
+// The @ and ♥ buttons' messages (R-Y55), stored as they come.
+const markReaders = (env, tools, userClient, dialogOf) => {
+  const unread = createUnreadMarks(env, {
+    userClient,
+    write: async (chat, messages) =>
+      tools.writeChanged(
+        env.store,
+        tools.toLinks(await dialogOf(chat), messages)
+      ),
+  });
+  return { unreadMarks: unread.marks, readMarks: unread.readMarks };
+};
+
 export const createActions = (env, tools, { mediaDir = null } = {}) => {
   const { store } = env;
 
@@ -248,6 +262,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     editMessage,
     react,
     media,
+    ...markReaders(env, tools, userClient, dialogOf),
     ...readers,
   };
 };

@@ -72,6 +72,8 @@ Playwright 驱动真实浏览器，而 Rust crate 只用 `std`，无法启动这
 | `/api/typing`                                   | GET, POST        | `js/src/server/routes-automations.js` | _missing_   | **JS only** |
 | `/api/client-log`                               | POST             | `js/src/server/routes-client-log.js`  | _missing_   | **JS only** |
 | `/api/people/learned`                           | GET              | `js/src/server/routes-learned.js`     | _missing_   | **JS only** |
+| `/api/telegram/unread-marks`                    | GET              | `js/src/server/routes-telegram.js`    | _missing_   | **JS only** |
+| `/api/telegram/read-marks`                      | POST             | `js/src/server/routes-telegram.js`    | _missing_   | **JS only** |
 | `/api/people`, `/api/people/xref`               | GET              | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
 | `/api/audiences`, `/api/lists`                  | GET, PUT, DELETE | `js/src/server/routes-people.js`      | _missing_   | **JS only** |
 | `/api/audiences/resolve`                        | POST             | `js/src/server/routes-people.js`      | _missing_   | **JS only** |

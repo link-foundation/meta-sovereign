@@ -821,6 +821,8 @@ export const ru = {
   'chat.sort.oldest': 'Сначала старые',
   'chat.about.open': 'Об этом человеке',
   'chat.about.title': 'О собеседнике: {name}',
+  'chat.marks.mentions': 'Непрочитанные упоминания',
+  'chat.marks.reactions': 'Непрочитанные реакции',
   'chat.about.close': 'Закрыть',
   'chat.about.loading': 'Изучаю переписку…',
   'chat.about.reading':

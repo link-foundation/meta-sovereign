@@ -807,6 +807,8 @@ export const hi = {
   'chat.sort.oldest': 'पुराने पहले',
   'chat.about.open': 'इस व्यक्ति के बारे में',
   'chat.about.title': '{name} के बारे में',
+  'chat.marks.mentions': 'अपठित उल्लेख',
+  'chat.marks.reactions': 'अपठित प्रतिक्रियाएँ',
   'chat.about.close': 'बंद करें',
   'chat.about.loading': 'बातचीत से सीखा जा रहा है…',
   'chat.about.reading':

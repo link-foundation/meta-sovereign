@@ -198,6 +198,8 @@ const SHOWN_FIELDS = [
   'inboxMaxId',
   'unreadCount',
   'unreadTopId',
+  'unreadMentions',
+  'unreadReactions',
   'draft',
 ];
 const writeChanged = async (store, links) => {
@@ -361,6 +363,8 @@ const dialogReadLink = (chat, dialog) => {
     inboxMaxId: state.readInboxMaxId,
     unreadCount: dialog.unreadCount ?? state.unreadCount,
     unreadTopId: dialog.message?.id ?? state.topMessage,
+    unreadMentions: state.unreadMentionsCount,
+    unreadReactions: state.unreadReactionsCount,
     draft: draft?.message ?? '',
     draftAt: draft?.date ? isoOf(draft.date) : null,
   });

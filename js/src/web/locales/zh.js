@@ -786,6 +786,8 @@ export const zh = {
   'chat.sort.oldest': '最早优先',
   'chat.about.open': '关于此人',
   'chat.about.title': '关于 {name}',
+  'chat.marks.mentions': '未读提及',
+  'chat.marks.reactions': '未读回应',
   'chat.about.close': '关闭',
   'chat.about.loading': '正在从对话中学习…',
   'chat.about.reading': '目前已从 {count} 条消息中学习；其余历史正在优先读取',

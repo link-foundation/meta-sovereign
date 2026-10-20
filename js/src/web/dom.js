@@ -820,6 +820,17 @@ export const api = {
           `/api/people/learned?key=${encodeURIComponent(key)}`
         ).catch(() => null)) ?? null)
       : null,
+  // Unread @ and ♥ of a chat: which messages, and that they were seen.
+  telegramUnreadMarks: async ({ chat, kind }) =>
+    (await serverFetch(
+      `/api/telegram/unread-marks?chat=${encodeURIComponent(chat)}&kind=${encodeURIComponent(kind)}`
+    ).catch(() => null)) ?? null,
+  telegramReadMarks: async (body) =>
+    (await serverFetch('/api/telegram/read-marks', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    }).catch(() => null)) ?? null,
   telegramChatInfo: async (chat) =>
     chat
       ? ((await serverFetch(

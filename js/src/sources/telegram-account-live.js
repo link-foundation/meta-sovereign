@@ -16,6 +16,8 @@
  *                              `unreadCount`  unread at `unreadTopId`
  *                                             (Telegram's count; newer
  *                                             ones are counted from links)
+ *                              `unreadMentions`, `unreadReactions`
+ *                                             (@ and ♥ not seen yet)
  *                              `draft`, `draftAt`  the cloud draft
  *   typing:telegram:<chat>:<user>
  *
@@ -32,7 +34,14 @@ const SOURCE = 'telegram';
 
 export const readLinkId = (chat) => `read:${SOURCE}:${chat}`;
 
-const READ_FIELDS = ['outboxMaxId', 'inboxMaxId', 'unreadCount', 'unreadTopId'];
+const READ_FIELDS = [
+  'outboxMaxId',
+  'inboxMaxId',
+  'unreadCount',
+  'unreadTopId',
+  'unreadMentions',
+  'unreadReactions',
+];
 
 /** One chat's read (and draft) state; only the given fields are set. */
 export const readLink = (chat, fields = {}) => ({

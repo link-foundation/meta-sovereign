@@ -32,6 +32,7 @@ import { useLeaving } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { infoLine } from './chat-info.js';
 import { PersonPanel } from './person-panel.js';
+import { UnreadMarks, useUnreadMarks } from './chat-marks.js';
 import {
   MessageBubble,
   DeleteDialog,
@@ -873,6 +874,10 @@ const Stream = ({ state, api, onAction }) => {
     get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
   };
   const runs = messageRuns(messages);
+  const marks = useUnreadMarks(api, state.current, {
+    reach: state.history?.reach,
+    scrollTo: (id) => onScrollTo(id),
+  });
   const alone =
     Boolean(state.current.personal) || state.current.kind === 'channel';
   // Scroll to a message by its link id.
@@ -917,11 +922,18 @@ const Stream = ({ state, api, onAction }) => {
       ]),
     ]
   );
+  const down = follow.away || follow.unseen > 0;
   return [
     scroll,
+    el(UnreadMarks, {
+      key: 'marks',
+      current: state.current,
+      marks,
+      raised: down,
+    }),
     el(ScrollDown, {
       key: 'down',
-      shown: follow.away || follow.unseen > 0,
+      shown: down,
       count: follow.unseen || (state.current.unread ?? 0),
       onClick: follow.toEnd,
     }),

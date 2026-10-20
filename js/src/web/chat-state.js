@@ -701,6 +701,7 @@ export const useChatState = (
       loading: history.loading,
       failed: history.failed,
       loadOlder: history.loadOlder,
+      reach: history.reach,
     },
     current,
     info,

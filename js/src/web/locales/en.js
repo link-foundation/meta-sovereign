@@ -811,6 +811,8 @@ export const en = {
   'chat.sort.oldest': 'Oldest first',
   'chat.about.open': 'About this person',
   'chat.about.title': 'About {name}',
+  'chat.marks.mentions': 'Unread mentions',
+  'chat.marks.reactions': 'Unread reactions',
   'chat.about.close': 'Close',
   'chat.about.loading': 'Learning from the conversation…',
   'chat.about.reading':

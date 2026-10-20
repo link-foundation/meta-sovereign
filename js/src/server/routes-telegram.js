@@ -60,6 +60,15 @@ const POSTS = {
     200,
     await account.sync({ full: Boolean(body.full), reason: 'manual' }),
   ],
+  'read-marks': async (account, body) => [
+    200,
+    (await account.readMarks?.({
+      chat: body.chat,
+      kind: body.kind,
+      ids: body.ids,
+      last: Boolean(body.last),
+    })) ?? { ok: false, supported: false },
+  ],
   read: async (account, body) => [
     200,
     await account.markRead({ chat: body.chat, maxId: body.maxId }),
@@ -297,11 +306,30 @@ const handleChatInfo = async (account, req, res) => {
     : (json(res, 404, { error: 'no chat info' }) ?? true);
 };
 
+// GET /api/telegram/unread-marks?chat=&kind=mentions|reactions -> ids.
+const handleUnreadMarks = async (account, req, res) => {
+  if (typeof account.unreadMarks !== 'function') {
+    return json(res, 501, { error: 'unread marks not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  return (
+    json(
+      res,
+      200,
+      await account.unreadMarks({
+        chat: query.get('chat'),
+        kind: query.get('kind'),
+      })
+    ) ?? true
+  );
+};
+
 const GETS = {
   media: handleMedia,
   file: handleFile,
   avatar: handleAvatar,
   'chat-info': handleChatInfo,
+  'unread-marks': handleUnreadMarks,
 };
 
 const dispatch = async (account, req, res, p) => {

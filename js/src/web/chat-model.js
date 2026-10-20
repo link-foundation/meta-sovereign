@@ -70,6 +70,31 @@ export const unreadCount = (messages, read, self = ['me']) => {
   return Number(read.unreadCount ?? 0) + newer;
 };
 
+/**
+ * Unread mentions (@) and reactions (♥), as Telegram counts them with
+ * the chat list; mentions of us that came after it (Telegram marks them
+ * `mentioned` and `mediaUnread`) are added (R-Y55).
+ */
+export const unreadMarks = (messages, read, self = ['me']) => {
+  const after = Math.max(
+    Number(read?.unreadTopId ?? 0),
+    Number(read?.inboxMaxId ?? 0)
+  );
+  const newer = read
+    ? messages.filter(
+        (m) =>
+          !isMine(m, self) &&
+          m.raw?.mentioned &&
+          m.raw?.mediaUnread &&
+          (networkMessageId(m) ?? 0) > after
+      ).length
+    : 0;
+  return {
+    mentions: Number(read?.unreadMentions ?? 0) + newer,
+    reactions: Number(read?.unreadReactions ?? 0),
+  };
+};
+
 const PRIVATE_TYPES = new Set(['bot_chat', 'saved_messages']);
 
 /**
@@ -133,6 +158,7 @@ const summarize = (key, messages, self, read = null) => {
     people: [...people],
     count: sorted.length,
     unread: unreadCount(sorted, read, self),
+    ...unreadMarks(sorted, read, self),
     last: {
       body: String(last.body ?? ''),
       mine: isMine(last, self),

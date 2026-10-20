@@ -18,6 +18,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { byTime, chatMessages, networkMessageId } from './chat-model.js';
 
 export const PAGE_SIZE = 50;
+// How far back a jump to a message may load (pages of PAGE_SIZE).
+const REACH_PAGES = 40;
 export const PREFETCH_SIZE = 30;
 const PREFETCH_QUEUE = 40;
 const HOLD_MS = 30_000;
@@ -208,12 +210,38 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     }
   }, [api, key, telegram, complete]);
 
+  // Load older pages until message `id` is held (a mention far back,
+  // R-Y55); whether it is.
+  const reach = useCallback(
+    async (id) => {
+      for (let page = 0; page < REACH_PAGES; page += 1) {
+        const held = key ? ref.current.get(key) : null;
+        if (!held || held.messages?.some((m) => m.id === id)) {
+          return Boolean(held);
+        }
+        if (held.loading || !hasOlder(held, { telegram, complete })) {
+          return false;
+        }
+        patch(key, () => ({ loading: true, failed: false }));
+        try {
+          await older(key, current.chat, held);
+        } catch {
+          patch(key, () => ({ loading: false, failed: true }));
+          return false;
+        }
+      }
+      return false;
+    },
+    [api, key, telegram, complete]
+  );
+
   return {
     window,
     older: hasOlder(window, { telegram, complete }),
     loading: window.loading,
     failed: window.failed,
     loadOlder,
+    reach,
   };
 };
 

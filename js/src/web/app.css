@@ -866,6 +866,39 @@ main[data-view='chat'] > .web-mode-banner {
 }
 /* Telegram's round "down" button, by the column's right edge, above the
    composer; the count of what waits below sits on its top. */
+/* @ and ♥ above "down" (R-Y55), Telegram's round buttons. */
+.chat-marks {
+  position: absolute;
+  z-index: 3;
+  right: max(1rem, calc((100% - var(--chat-column)) / 2 + 0.25rem));
+  bottom: 7.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.chat-marks.raised {
+  bottom: 10.6rem;
+}
+.chat-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--surface-glass-border, var(--border));
+  border-radius: 50%;
+  background: var(--bg-elev);
+  color: var(--text-muted);
+  box-shadow: var(--bubble-shadow, 0 1px 3px rgb(0 0 0 / 20%));
+  cursor: pointer;
+}
+.chat-mark:hover {
+  color: var(--chat-accent);
+}
+.chat-mark.busy {
+  opacity: 0.6;
+}
 .chat-down {
   position: absolute;
   z-index: 3;
