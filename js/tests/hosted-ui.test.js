@@ -15,7 +15,15 @@ import {
   hostedUiUrl,
   localUiEnabled,
 } from '../src/server/hosted-ui.js';
-import { DEFAULT_PORTS, discoverServer } from '../src/web/discover.js';
+import {
+  BEACON_PATH,
+  BEACON_WIDTH,
+  DEFAULT_PORTS,
+  discoverServer,
+  findServerByPicture,
+  mayNeedPicture,
+} from '../src/web/discover.js';
+import { openNearbyServer } from '../src/web/dom.js';
 
 const withServer = async (opts, use) => {
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-ui-'));
@@ -108,4 +116,92 @@ test('the hosted app finds a server on our port by itself', async () => {
     'https://link-foundation.github.io/api/status',
     'http://127.0.0.1:8787/api/status',
   ]);
+});
+
+// Safari: the hosted page cannot ask the server anything, but sees its
+// picture, and its size says whether the server's own copy is on.
+test('the server shows Safari its picture, sized by the local copy', async () => {
+  const size = async (base) => {
+    const answer = await fetch(`${base}${BEACON_PATH}`);
+    assert.equal(answer.headers.get('content-type'), 'image/svg+xml');
+    const svg = await answer.text();
+    return svg
+      .match(/width="(\d+)" height="(\d+)"/)
+      .slice(1)
+      .map(Number);
+  };
+  await withServer({}, async (base) =>
+    assert.deepEqual(await size(base), [BEACON_WIDTH, 1])
+  );
+  await withServer({ localUi: false }, async (base) =>
+    assert.deepEqual(await size(base), [BEACON_WIDTH, 2])
+  );
+  await withServer({ allowOrigins: 'none' }, async (base) =>
+    assert.equal((await fetch(`${base}${BEACON_PATH}`)).status, 404)
+  );
+});
+
+test('the hosted page finds a server by its picture and opens its copy', async () => {
+  const pictures = {
+    'http://127.0.0.1:8788': { width: BEACON_WIDTH, height: 1 },
+    'http://127.0.0.1:3000': { width: 640, height: 480 },
+  };
+  const asked = [];
+  const sizeOf = async (src) => {
+    asked.push(src);
+    return pictures[new URL(src).origin] ?? null;
+  };
+  const found = await findServerByPicture({ sizeOf, now: () => 1 });
+  assert.deepEqual(found, { origin: 'http://127.0.0.1:8788', localUi: true });
+  assert.equal(asked.length, DEFAULT_PORTS.length);
+  assert.ok(asked.includes(`http://127.0.0.1:8787${BEACON_PATH}?1`));
+  pictures['http://127.0.0.1:8788'].height = 2;
+  assert.deepEqual(await findServerByPicture({ sizeOf }), {
+    origin: 'http://127.0.0.1:8788',
+    localUi: false,
+  });
+
+  const opened = [];
+  const location = { hash: '#/chat', replace: (to) => opened.push(to) };
+  const find = async () => ({ origin: 'http://127.0.0.1:8787', localUi: true });
+  await openNearbyServer({ may: () => true, find, location });
+  assert.deepEqual(opened, ['http://127.0.0.1:8787/#/chat']);
+  // The copy off, or no picture needed: the page stays.
+  await openNearbyServer({
+    may: () => true,
+    find: async () => ({ origin: 'http://127.0.0.1:8787', localUi: false }),
+    location,
+  });
+  await openNearbyServer({ may: () => false, find, location });
+  assert.equal(opened.length, 1);
+});
+
+test('only an https page in a plain browser looks for the picture', () => {
+  const https = { protocol: 'https:' };
+  assert.equal(mayNeedPicture({ location: https, hasImage: true }), true);
+  assert.equal(
+    mayNeedPicture({ location: { protocol: 'http:' }, hasImage: true }),
+    false
+  );
+  assert.equal(
+    mayNeedPicture({
+      location: https,
+      hasImage: true,
+      shell: { platform: 'web' },
+    }),
+    true
+  );
+  assert.equal(
+    mayNeedPicture({
+      location: https,
+      hasImage: true,
+      shell: { platform: 'electron' },
+    }),
+    false
+  );
+  assert.equal(
+    mayNeedPicture({ location: https, hasImage: true, capacitor: {} }),
+    false
+  );
+  assert.equal(mayNeedPicture({ location: https, hasImage: false }), false);
 });

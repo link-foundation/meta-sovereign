@@ -7,7 +7,11 @@ import {
   createBrowserStore,
   pickBrowserDriver,
 } from '../storage/browser-store.js';
-import { discoverServer } from './discover.js';
+import {
+  discoverServer,
+  findServerByPicture,
+  mayNeedPicture,
+} from './discover.js';
 import { createOfflineClient } from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
@@ -45,6 +49,23 @@ export const h = (tag, attrs = {}, children = []) => {
 
 let bootPromise = null;
 
+/**
+ * A server Safari keeps this page from (R-Y58): found by its picture;
+ * when it serves its own copy of the app, that copy opens instead, at
+ * the same screen. Returns what was found, or null.
+ */
+export const openNearbyServer = async ({
+  may = mayNeedPicture,
+  find = findServerByPicture,
+  location = globalThis.location,
+} = {}) => {
+  const nearby = may() ? await find() : null;
+  if (nearby?.localUi) {
+    location.replace(`${nearby.origin}/${location.hash ?? ''}`);
+  }
+  return nearby;
+};
+
 const localBroadcast = async (networks, body) =>
   (networks ?? []).map((n) => ({ network: n, queued: true, body }));
 
@@ -57,6 +78,7 @@ const boot = async () => {
   bus.register('broadcast', built.selector, built.run);
 
   const discovered = await discoverServer({});
+  const nearby = discovered ? null : await openNearbyServer();
   const server = discovered
     ? {
         origin: discovered.origin,
@@ -71,7 +93,14 @@ const boot = async () => {
   const rtc = discovered
     ? attachWebRtcSync({ store, origin: discovered.origin })
     : null;
-  return { store, bus, client, rtc, origin: discovered?.origin ?? null };
+  return {
+    store,
+    bus,
+    client,
+    rtc,
+    nearby,
+    origin: discovered?.origin ?? null,
+  };
 };
 
 const ensure = () => {
@@ -374,15 +403,19 @@ export const api = {
   // reloads the page the same way a manual override does.
   rediscover: async ({
     discover = discoverServer,
+    nearby = openNearbyServer,
     reload = () => globalThis.location?.reload?.(),
   } = {}) => {
     const found = await discover({});
     if (found) {
       resetServerBinding();
       reload();
+      return true;
     }
-    return Boolean(found);
+    return Boolean((await nearby())?.localUi);
   },
+  // A server found by its picture only (Safari), or null.
+  nearby: async () => (await ensure()).nearby,
   // The endpoints below are derived queries that prefer the server
   // (richer source data) but transparently fall back to local store
   // when the server is unreachable.

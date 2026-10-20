@@ -3,7 +3,7 @@
 // to start a server (npm or GitHub npx), re-runs discovery on demand
 // and, in a plain browser, links the desktop download page.
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { DISMISS_STORAGE_KEY, webModeNotice } from './web-mode.js';
 
@@ -25,16 +25,36 @@ const saveDismissed = () => {
   }
 };
 
+// A server found only by its picture (Safari), once the app knows.
+const useNearby = (online, findNearby) => {
+  const [nearby, setNearby] = useState(null);
+  useEffect(() => {
+    if (online === false && findNearby) {
+      findNearby()
+        .then(setNearby)
+        .catch(() => {});
+    }
+  }, [online, findNearby]);
+  return nearby;
+};
+
 /**
  * @param {{ online: boolean|null, onRetry: () => Promise<boolean>,
+ *           findNearby?: () => Promise<object|null>,
  *           notice?: object }} props `notice` overrides the computed
  *           webModeNotice() (tests render it without browser globals).
  */
-export const WebModeBanner = ({ online, onRetry, notice: given }) => {
+export const WebModeBanner = ({
+  online,
+  onRetry,
+  findNearby,
+  notice: given,
+}) => {
   const t = useT();
   const [dismissed, setDismissed] = useState(readDismissed);
   const [retry, setRetry] = useState('idle');
-  const notice = given ?? webModeNotice({ online });
+  const nearby = useNearby(online, findNearby);
+  const notice = given ?? webModeNotice({ online, nearby });
   if (!notice || dismissed) {
     return null;
   }
@@ -71,6 +91,13 @@ export const WebModeBanner = ({ online, onRetry, notice: given }) => {
       notice.safariHint
         ? el('p', { key: 'safari', className: 'meta' }, t('webMode.safari'))
         : null,
+      notice.localOff
+        ? el(
+            'p',
+            { key: 'local-off', className: 'meta', role: 'status' },
+            t('webMode.localOff', { origin: notice.localOff })
+          )
+        : null,
       el('div', { key: 'actions', className: 'row' }, [
         el(
           'button',
@@ -84,6 +111,17 @@ export const WebModeBanner = ({ online, onRetry, notice: given }) => {
           },
           t('webMode.retry')
         ),
+        notice.localHref
+          ? el(
+              'a',
+              {
+                key: 'local',
+                className: 'web-mode-local',
+                href: notice.localHref,
+              },
+              t('webMode.openLocal')
+            )
+          : null,
         notice.downloadHref
           ? el(
               'a',

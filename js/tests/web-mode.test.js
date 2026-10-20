@@ -34,7 +34,11 @@ const UA = {
 const PAGES = { hostname: 'link-foundation.github.io' };
 
 const render = (props, locale = 'en') => {
-  const t = (key) => dictionaries[locale][key] ?? dictionaries.en[key] ?? key;
+  const t = (key, vars = {}) =>
+    (dictionaries[locale][key] ?? dictionaries.en[key] ?? key).replace(
+      /\{(\w+)\}/g,
+      (all, name) => vars[name] ?? all
+    );
   return renderToStaticMarkup(
     React.createElement(
       LocaleContext.Provider,
@@ -111,6 +115,22 @@ describe('webModeNotice', () => {
       webModeNotice({ online: false, runtime: 'web', userAgent }).safariHint;
     expect(hint(UA.safariMac)).toBe(true);
     expect(hint(UA.chrome)).toBe(false);
+  });
+
+  it('links the server copy in Safari and names a server with it off', () => {
+    const notice = (userAgent, nearby) =>
+      webModeNotice({ online: false, runtime: 'web', userAgent, nearby });
+    expect(notice(UA.safariMac).localHref).toBe('http://127.0.0.1:8787/');
+    expect(notice(UA.chrome).localHref).toBe(null);
+    const off = notice(UA.safariMac, {
+      origin: 'http://127.0.0.1:8788',
+      localUi: false,
+    });
+    expect(off.localOff).toBe('http://127.0.0.1:8788');
+    expect(off.localHref).toBe(null);
+    const html = render({ online: false, notice: off });
+    expect(html).toContain('http://127.0.0.1:8788');
+    expect(html).toContain('--local-ui=false');
   });
 });
 

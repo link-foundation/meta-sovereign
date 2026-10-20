@@ -15,12 +15,18 @@
  *
  * `serve --ui-url=` (or `MS_UI_URL`) names another hosted copy, a
  * fork's Pages for example; its origin is allowed to use the server.
+ *
+ * Safari refuses the hosted page's requests to http://127.0.0.1 but
+ * still shows it images from there, so the server answers one small
+ * picture (BEACON_PATH) whose size says "here I am" and whether its own
+ * copy is on; the hosted page then opens that copy (../web/discover.js).
+ * With cross-origin use off (`--allow-origin=none`) there is no picture.
  */
 
 export const HOSTED_UI_URL =
   'https://link-foundation.github.io/meta-sovereign/';
 
-import { DEFAULT_PORTS } from '../web/discover.js';
+import { BEACON_PATH, BEACON_WIDTH, DEFAULT_PORTS } from '../web/discover.js';
 
 const OFF = new Set(['0', 'false', 'off', 'no', 'none']);
 
@@ -67,5 +73,29 @@ export const redirectToHosted = (req, res, p, uiUrl) => {
     'content-length': '0',
   });
   res.end();
+  return true;
+};
+
+/**
+ * The picture that tells the hosted page this server is here: as wide
+ * as BEACON_WIDTH, one pixel high with the local copy on, two with it
+ * off. Returns true when the request was answered.
+ */
+export const serveBeacon = (req, res, p, ctx) => {
+  if (p !== BEACON_PATH || !['GET', 'HEAD'].includes(req.method)) {
+    return false;
+  }
+  if (ctx.allowOrigins.length === 0) {
+    res.writeHead(404, { 'content-length': '0' });
+    res.end();
+    return true;
+  }
+  const body = `<svg xmlns="http://www.w3.org/2000/svg" width="${BEACON_WIDTH}" height="${ctx.localUi ? 1 : 2}"/>`;
+  res.writeHead(200, {
+    'content-type': 'image/svg+xml',
+    'cache-control': 'no-store',
+    'content-length': Buffer.byteLength(body),
+  });
+  res.end(req.method === 'HEAD' ? undefined : body);
   return true;
 };

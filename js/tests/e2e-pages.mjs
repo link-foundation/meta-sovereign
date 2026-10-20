@@ -16,6 +16,12 @@
 // machine is refused, so a server already running here is never
 // touched: its port only looks empty to the page.
 //
+// Then the hosted copy once more in WebKit, Safari's engine: Safari
+// keeps an https page from asking http://127.0.0.1 anything, so there
+// the page must find the server by its picture and open the server's
+// own copy (browser-commander drives Chrome and the installed Safari
+// only, so this run uses Playwright's WebKit; E2E_SAFARI=0 skips it).
+//
 // E2E_SHOTS=<dir> keeps a screenshot of each copy.
 //
 // Both copies are compared: online, the same screens in the menu, the
@@ -133,9 +139,10 @@ const seed = async (store) => {
 const look = async (page, url, { serverOrigin, problems }) => {
   await page.goto(url);
   for (let i = 0; i < 60; i += 1) {
-    const online = await page.evaluate(() =>
-      Boolean(document.querySelector('.mode-badge.online'))
-    );
+    // The page may move to the server's own copy meanwhile (Safari).
+    const online = await page
+      .evaluate(() => Boolean(document.querySelector('.mode-badge.online')))
+      .catch(() => false);
     if (online) {
       break;
     }
@@ -193,6 +200,53 @@ const verdicts = (hosted, local) => {
   }
   if (hosted.bubbles !== local.bubbles || hosted.chats !== local.chats) {
     failures.push('the two copies show different chats or messages');
+  }
+  return failures;
+};
+
+// Only this test's own server on this machine, never another one;
+// `tried` collects the servers the page looked at.
+const fence = async (page, { serverOrigin, siteOrigin, tried }) =>
+  page.route?.(/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/, (r) => {
+    const url = r.request().url();
+    if (/\/api\/(status|beacon\.svg)/.test(url)) {
+      tried.add(new URL(url).origin);
+    }
+    return url.startsWith(serverOrigin) || url.startsWith(siteOrigin)
+      ? r.continue()
+      : r.abort();
+  });
+
+// The hosted copy in WebKit: it ends up on the server, online.
+const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
+  if (process.env.E2E_SAFARI === '0') {
+    return [];
+  }
+  const { webkit } = await import('playwright');
+  const browser = await webkit.launch({ headless: true });
+  const failures = [];
+  try {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 900 },
+    });
+    const tried = new Set();
+    await fence(page, { serverOrigin, siteOrigin, tried });
+    page.on('pageerror', (error) => failures.push(`webkit: ${error.message}`));
+    const seen = await look(page, site.url, { serverOrigin, problems: [] });
+    await shoot(page, 'safari.png');
+    const landed = page.url();
+    say(
+      `webkit tried ${[...tried].join(' → ')}; landed on ${landed}; online=${seen.online} bubbles=${seen.bubbles}`
+    );
+    if (!seen.online || seen.bubbles < 3) {
+      failures.push(`webkit: the hosted copy did not reach the server`);
+    }
+    // From an https page only the server's own copy can work.
+    if (siteOrigin.startsWith('https:') && !landed.startsWith(serverOrigin)) {
+      failures.push(`webkit: stayed on ${landed}`);
+    }
+  } finally {
+    await browser.close();
   }
   return failures;
 };
@@ -258,18 +312,8 @@ const main = async () => {
       ?.grantPermissions?.(['local-network-access'], { origin: siteOrigin })
       .catch(() => {});
     await page.setViewportSize?.({ width: 1280, height: 900 });
-    // Only this test's own server on this machine, never another one;
-    // which ones the page tried shows how it found the server.
     const tried = new Set();
-    await page.route?.(/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/, (r) => {
-      const url = r.request().url();
-      if (url.endsWith('/api/status')) {
-        tried.add(new URL(url).origin);
-      }
-      return url.startsWith(serverOrigin) || url.startsWith(siteOrigin)
-        ? r.continue()
-        : r.abort();
-    });
+    await fence(page, { serverOrigin, siteOrigin, tried });
     page.on?.('pageerror', (error) => problems.push(`error: ${error.message}`));
     page.on?.('response', (response) => {
       const url = response.url();
@@ -293,6 +337,7 @@ const main = async () => {
     });
     await shoot(page, 'local.png');
     failures.push(...verdicts(hosted, local));
+    failures.push(...(await safariRun({ site, siteOrigin, serverOrigin })));
   } finally {
     await session.close?.().catch(() => {});
     await handle.close();

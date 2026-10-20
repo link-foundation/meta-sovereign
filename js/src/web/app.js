@@ -197,6 +197,7 @@ const App = () => {
               key: 'web-mode',
               online,
               onRetry: () => api.rediscover(),
+              findNearby: api.nearby,
             }),
             el(View, { key: 'view' }),
           ]

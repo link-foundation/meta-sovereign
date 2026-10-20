@@ -95,6 +95,7 @@ import {
   hostedUiUrl,
   localUiEnabled,
   redirectToHosted,
+  serveBeacon,
   withHostedOrigin,
 } from './hosted-ui.js';
 
@@ -385,9 +386,10 @@ const applySecurityHeaders = (res) => {
 // The app's own files, or — with the local copy off — the way to the
 // hosted one (R-Y59).
 const handlePage = (req, res, p, ctx) =>
-  ctx.localUi
+  serveBeacon(req, res, p, ctx) ||
+  (ctx.localUi
     ? handleStatic(req, res, p)
-    : redirectToHosted(req, res, p, ctx.uiUrl);
+    : redirectToHosted(req, res, p, ctx.uiUrl));
 
 const route = async (store, req, res, ctx) => {
   applySecurityHeaders(res);

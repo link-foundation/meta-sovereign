@@ -30,6 +30,12 @@ const STORAGE_KEY = 'metaServer';
 // The ports a server is looked for on, ours (8787) first; `serve`
 // warns when it listens on another one (R-Y58).
 export const DEFAULT_PORTS = Object.freeze([8787, 8788, 7001, 7002, 3000]);
+// Safari keeps an https page from asking http://127.0.0.1 anything but
+// still shows it pictures from there: the server's picture is this
+// wide, one pixel high when it serves its own copy of the app, two when
+// that copy is off (../server/hosted-ui.js).
+export const BEACON_PATH = '/api/beacon.svg';
+export const BEACON_WIDTH = 23;
 
 const candidateArray = (value) => {
   if (!value) {
@@ -133,3 +139,57 @@ export const clearServerOverride = (storage = globalThis.localStorage) => {
     // ignore
   }
 };
+
+// The size of the picture at `src`, or null when none loads in time.
+const pictureSize = (src, timeout) =>
+  new Promise((resolve) => {
+    const img = new globalThis.Image();
+    const done = (size) => {
+      globalThis.clearTimeout(timer);
+      img.onload = img.onerror = null;
+      resolve(size);
+    };
+    const timer = globalThis.setTimeout(() => done(null), timeout);
+    img.onload = () =>
+      done({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => done(null);
+    img.src = src;
+  });
+
+/**
+ * A server on this machine that the page cannot ask anything (Safari on
+ * an https page), found by its picture on our ports: `{ origin, localUi }`
+ * for the first one, or null.
+ */
+export const findServerByPicture = async ({
+  ports = DEFAULT_PORTS,
+  sizeOf = pictureSize,
+  timeout = 2000,
+  now = Date.now,
+} = {}) => {
+  const seen = await Promise.all(
+    ports.map(async (port) => {
+      const origin = `http://127.0.0.1:${port}`;
+      const size = await sizeOf(`${origin}${BEACON_PATH}?${now()}`, timeout);
+      return size?.width === BEACON_WIDTH
+        ? { origin, localUi: size.height === 1 }
+        : null;
+    })
+  );
+  return seen.find(Boolean) ?? null;
+};
+
+/**
+ * Whether a page here may be blocked from a server it can see: an
+ * https page in a plain browser (not the desktop or mobile shell).
+ */
+export const mayNeedPicture = ({
+  location = globalThis.location,
+  shell = globalThis.metaSovereignShell,
+  capacitor = globalThis.Capacitor,
+  hasImage = typeof globalThis.Image === 'function',
+} = {}) =>
+  hasImage &&
+  location?.protocol === 'https:' &&
+  !capacitor &&
+  !['electron', 'capacitor'].includes(shell?.platform);

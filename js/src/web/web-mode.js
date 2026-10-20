@@ -5,6 +5,7 @@
 // ./web-mode-banner.js shows; it touches no DOM so Node can test it.
 
 import { localServerHelp } from './connection-guides.js';
+import { DEFAULT_PORTS } from './discover.js';
 
 export const DOWNLOAD_PAGE_URL =
   'https://link-foundation.github.io/meta-sovereign/download/';
@@ -47,6 +48,7 @@ const downloadHref = (location) =>
  */
 export const webModeNotice = ({
   online,
+  nearby = null,
   runtime = runtimeOf(),
   userAgent = globalThis.navigator?.userAgent,
   location = globalThis.location,
@@ -54,12 +56,18 @@ export const webModeNotice = ({
   if (online !== false) {
     return null;
   }
+  const safariHint = runtime === 'web' && isSafari(userAgent);
   return {
     runtime,
     // The desktop app already bundles the server; a phone cannot run
     // the desktop build, so only plain browsers get the download link.
     downloadHref: runtime === 'web' ? downloadHref(location) : null,
-    safariHint: runtime === 'web' && isSafari(userAgent),
+    safariHint,
+    // Safari may also block the server's picture: the server's own copy
+    // is a link away. A server found with that copy off is named.
+    localHref:
+      safariHint && !nearby ? `http://127.0.0.1:${DEFAULT_PORTS[0]}/` : null,
+    localOff: nearby && !nearby.localUi ? nearby.origin : null,
     commands: localServerHelp.options.filter((option) =>
       SERVER_OPTION_IDS.includes(option.id)
     ),
