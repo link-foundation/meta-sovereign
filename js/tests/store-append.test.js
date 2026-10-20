@@ -230,7 +230,14 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
   });
   // A write the snapshot missed (a crash before it) is noticed on open.
   await again.put(message(3));
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  // The log is appended in the background; wait until it is newer.
+  const mtime = async (name) => (await fs.stat(path.join(dir, name))).mtimeMs;
+  for (let i = 0; i < 100; i += 1) {
+    if ((await mtime('data.lino')) > (await mtime('data.bin'))) {
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
   const third = await openDualStore(dir);
   assert.equal((await third.reconcile()).stale, true);
   await third.flush();
