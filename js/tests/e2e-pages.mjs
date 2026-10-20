@@ -231,7 +231,13 @@ const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
     });
     const tried = new Set();
     await fence(page, { serverOrigin, siteOrigin, tried });
-    page.on('pageerror', (error) => failures.push(`webkit: ${error.message}`));
+    // WebKit reports the status checks Safari blocks as page errors;
+    // those are expected, the way it then finds the server is tested.
+    page.on('pageerror', (error) => {
+      if (!/\/api\/status\b/.test(error.message)) {
+        failures.push(`webkit: ${error.message}`);
+      }
+    });
     const seen = await look(page, site.url, { serverOrigin, problems: [] });
     await shoot(page, 'safari.png');
     const landed = page.url();
