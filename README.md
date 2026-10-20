@@ -36,14 +36,13 @@ npx -y meta-sovereign serve
 
 Either backend listens on <http://127.0.0.1:8787> by default. The JS server answers the hosted app's origin (`https://link-foundation.github.io`) with CORS headers; allow other origins with `meta-sovereign serve --allow-origin=<origins>` or `MS_ALLOW_ORIGINS`. Safari does not let `https` pages reach `http://127.0.0.1`, so in Safari open <http://127.0.0.1:8787> directly. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
 
-The hosted app is the default UI: `serve` prints its address with the server in it (`https://link-foundation.github.io/meta-sovereign/?server=http://127.0.0.1:8787`), so the server does not have to host a web site. Its own copy at <http://127.0.0.1:8787> stays as a fallback for Safari and for working offline; `serve --local-ui=false` (or `MS_LOCAL_UI=off`) turns it off, and `/` then opens the hosted app. `--ui-url=<url>` (or `MS_UI_URL`) names another hosted copy, such as a fork's Pages, and allows its origin.
+The hosted app is the default UI: `serve` prints its address, <https://link-foundation.github.io/meta-sovereign/>, and the app finds the server on our port 8787 by itself (it also looks at 8788, 7001, 7002 and 3000; on another port `serve` says to set it in **Settings → Server**), so the server does not have to host a web site. Its own copy at <http://127.0.0.1:8787> stays as a fallback for Safari and for working offline; `serve --local-ui=false` (or `MS_LOCAL_UI=off`) turns it off, and `/` then opens the hosted app. `--ui-url=<url>` (or `MS_UI_URL`) names another hosted copy, such as a fork's Pages, and allows its origin.
 
 ## Connect the SPA to your server
 
 The SPA picks a server in this order ([`js/src/web/discover.js`](js/src/web/discover.js)):
 
 1. **Same origin** — when you serve the SPA from the JS or Rust server directly.
-   Then the **`?server=` in the link** the server printed — addresses on this machine only, never saved.
 2. **Saved override** — `localStorage.metaServer`. Set via the in-app **Settings → Server** prompt.
 3. **Runtime shell candidates** — Electron and Capacitor inject the embedded server URL.
 4. **`127.0.0.1` ports** — the default local-server port is probed automatically.

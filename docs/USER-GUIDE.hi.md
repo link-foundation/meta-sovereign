@@ -114,8 +114,8 @@ meta-sovereign serve --allow-origin=https://example.org
 # --allow-origin=none cross-origin access बंद करता है
 ```
 
-Default UI hosted app है। `serve` server के पते के साथ उसका पता छापता
-है, और <http://127.0.0.1:8787> पर server की अपनी copy fallback रहती है
+Default UI hosted app है। `serve` उसका पता छापता
+है, app port 8787 पर server को खुद ढूँढ लेता है, और <http://127.0.0.1:8787> पर server की अपनी copy fallback रहती है
 (Safari, internet नहीं)। उसे serve करना बंद करने के लिए:
 
 ```bash

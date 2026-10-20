@@ -114,7 +114,7 @@ meta-sovereign serve --allow-origin=https://example.org
 # --allow-origin=none 关闭跨源访问
 ```
 
-默认界面是托管的应用。`serve` 会打印带有服务器地址的链接，服务器自己在
+默认界面是托管的应用。`serve` 会打印其地址，应用会自行在端口 8787 上找到服务器，服务器自己在
 <http://127.0.0.1:8787> 上的副本作为备用保留（Safari、无网络时）。若不再提供它：
 
 ```bash

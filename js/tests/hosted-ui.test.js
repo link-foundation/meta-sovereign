@@ -11,11 +11,11 @@ import path from 'node:path';
 import { startServer } from '../src/server/index.js';
 import {
   HOSTED_UI_URL,
-  hostedLink,
+  foundOnPort,
   hostedUiUrl,
   localUiEnabled,
 } from '../src/server/hosted-ui.js';
-import { discoverServer, serverHint } from '../src/web/discover.js';
+import { DEFAULT_PORTS, discoverServer } from '../src/web/discover.js';
 
 const withServer = async (opts, use) => {
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-ui-'));
@@ -35,7 +35,7 @@ const withServer = async (opts, use) => {
   }
 };
 
-test('the hosted address, the switch and the link with the server in it', () => {
+test('the hosted address, the switch, and the ports the app looks at', () => {
   assert.equal(hostedUiUrl(undefined), HOSTED_UI_URL);
   assert.equal(
     hostedUiUrl('https://me.github.io/fork?x=1#/chat'),
@@ -43,20 +43,16 @@ test('the hosted address, the switch and the link with the server in it', () => 
   );
   assert.equal(hostedUiUrl('javascript:alert(1)'), HOSTED_UI_URL);
   assert.equal(hostedUiUrl('not a url'), HOSTED_UI_URL);
-  assert.equal(
-    hostedLink(undefined, 'http://x y'),
-    `${HOSTED_UI_URL}?server=http%3A%2F%2Fx%20y`
-  );
   for (const off of ['false', 'off', '0', 'no', 'none', ' OFF ']) {
     assert.equal(localUiEnabled(off), false, off);
   }
   for (const on of [undefined, null, true, 'true', 'on', '1']) {
     assert.equal(localUiEnabled(on), true, String(on));
   }
-  assert.equal(
-    hostedLink(undefined, 'http://127.0.0.1:9000'),
-    `${HOSTED_UI_URL}?server=http://127.0.0.1:9000`
-  );
+  assert.equal(DEFAULT_PORTS[0], 8787, 'our port is looked at first');
+  assert.equal(foundOnPort(8787), true);
+  assert.equal(foundOnPort('8788'), true);
+  assert.equal(foundOnPort(9000), false);
 });
 
 test('with the local copy on, the server serves the app itself', async () => {
@@ -69,13 +65,11 @@ test('with the local copy on, the server serves the app itself', async () => {
   });
 });
 
-test('with the local copy off, / opens the hosted app pointed at this server', async () => {
+test('with the local copy off, / opens the hosted app, no address in its link', async () => {
   await withServer({ localUi: 'false' }, async (base) => {
     const page = await fetch(`${base}/`, { redirect: 'manual' });
     assert.equal(page.status, 302);
-    const to = new URL(page.headers.get('location'));
-    assert.equal(`${to.origin}${to.pathname}`, HOSTED_UI_URL);
-    assert.equal(to.searchParams.get('server'), base);
+    assert.equal(page.headers.get('location'), HOSTED_UI_URL);
     assert.equal((await fetch(`${base}/app.min.js`)).status, 404);
     // The API is still there for the hosted app.
     assert.equal((await fetch(`${base}/api/status`)).status, 200);
@@ -97,35 +91,21 @@ test('a hosted copy named by hand may use the server, unless none may', async ()
   );
 });
 
-test('the link may name a server on this machine only, and it is tried first', async () => {
-  assert.equal(
-    serverHint('?server=http%3A%2F%2F127.0.0.1%3A9000'),
-    'http://127.0.0.1:9000'
-  );
-  assert.equal(
-    serverHint('?server=http://localhost:8790/x'),
-    'http://localhost:8790'
-  );
-  assert.equal(serverHint('?server=https://evil.example'), null);
-  assert.equal(serverHint('?server=http://127.0.0.1.evil.example'), null);
-  assert.equal(serverHint('?server=file:///etc'), null);
-  assert.equal(serverHint(''), null);
-
+test('the hosted app finds a server on our port by itself', async () => {
   const asked = [];
   const found = await discoverServer({
     origin: 'https://link-foundation.github.io',
-    search: '?server=http://127.0.0.1:9000',
     storage: null,
     fetchImpl: async (url) => {
       asked.push(url);
-      return url.startsWith('http://127.0.0.1:9000')
+      return url.startsWith('http://127.0.0.1:8787/')
         ? { ok: true, json: async () => ({ links: 0 }) }
         : { ok: false };
     },
   });
-  assert.deepEqual(found, { origin: 'http://127.0.0.1:9000' });
+  assert.deepEqual(found, { origin: 'http://127.0.0.1:8787' });
   assert.deepEqual(asked, [
     'https://link-foundation.github.io/api/status',
-    'http://127.0.0.1:9000/api/status',
+    'http://127.0.0.1:8787/api/status',
   ]);
 });

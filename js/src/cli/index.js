@@ -61,7 +61,8 @@ import { evalAudience } from '../crm/audience.js';
 import { inferRegex, simplifyRegex, inferRegexLcs } from '../patterns/index.js';
 import { runGraph } from '../automation/index.js';
 import { planOutreach } from '../broadcast/index.js';
-import { hostedLink } from '../server/hosted-ui.js';
+import { foundOnPort } from '../server/hosted-ui.js';
+import { DEFAULT_PORTS } from '../web/discover.js';
 
 const HELP = `meta-sovereign <command> [options]
 
@@ -173,7 +174,12 @@ const serveCmd = async (args, log) => {
   });
   const origin = `http://127.0.0.1:${handle.port}`;
   log(`meta-sovereign listening on ${origin}`);
-  log(`open the app → ${hostedLink(handle.uiUrl, origin)}`);
+  log(`open the app → ${handle.uiUrl}`);
+  if (!foundOnPort(handle.port)) {
+    log(
+      `the app looks for the server on ports ${DEFAULT_PORTS.join(', ')}; on ${handle.port} set it in Settings → Server`
+    );
+  }
   log(
     handle.localUi
       ? `local copy (fallback, e.g. for Safari or offline) → ${origin}/`

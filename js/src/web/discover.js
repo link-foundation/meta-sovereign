@@ -11,10 +11,6 @@
  *      e.g. http://localhost:8787/. This is the GitHub Pages and
  *      "open the bundled index.html in a browser" case if a server
  *      happens to be reachable on the same origin).
- *   1a. The `?server=` the local server put in the link when it sent
- *      the browser to the hosted app (`serve --local-ui=false`,
- *      R-Y59) — this machine's addresses only, never saved: a link
- *      from anyone else must not point the app at their server.
  *   2. A previously-saved override stored under `metaServer` in the
  *      injected `storage` (localStorage in the browser).
  *   3. Runtime shell candidates injected by Electron/Capacitor WebViews.
@@ -31,7 +27,9 @@
 
 const HEALTH = '/api/status';
 const STORAGE_KEY = 'metaServer';
-const DEFAULT_PORTS = [8787, 8788, 7001, 7002, 3000];
+// The ports a server is looked for on, ours (8787) first; `serve`
+// warns when it listens on another one (R-Y58).
+export const DEFAULT_PORTS = Object.freeze([8787, 8788, 7001, 7002, 3000]);
 
 const candidateArray = (value) => {
   if (!value) {
@@ -75,29 +73,10 @@ const readSavedOverride = (storage) => {
   }
 };
 
-const LOOPBACK = new Set(['127.0.0.1', 'localhost', '[::1]']);
-
-/** The link's `?server=` when it names this machine, else null. */
-export const serverHint = (search = '') => {
-  try {
-    const value = new URLSearchParams(search).get('server');
-    const url = value ? new URL(value) : null;
-    return url && /^https?:$/.test(url.protocol) && LOOPBACK.has(url.hostname)
-      ? url.origin
-      : null;
-  } catch {
-    return null;
-  }
-};
-
-const buildCandidateList = (origin, storage, candidates, search) => {
+const buildCandidateList = (origin, storage, candidates) => {
   const list = [];
   if (origin && /^https?:/.test(origin)) {
     list.push(origin);
-  }
-  const hint = serverHint(search);
-  if (hint) {
-    list.push(hint);
   }
   const saved = readSavedOverride(storage);
   if (saved) {
@@ -119,12 +98,11 @@ export const discoverServer = async ({
   fetchImpl = globalThis.fetch,
   storage = globalThis.localStorage,
   origin = globalThis.location?.origin,
-  search = globalThis.location?.search,
   candidates = [],
   signal,
 } = {}) => {
   const seen = new Set();
-  const list = buildCandidateList(origin, storage, candidates, search);
+  const list = buildCandidateList(origin, storage, candidates);
   for (const candidate of list) {
     if (!candidate || seen.has(candidate)) {
       continue;

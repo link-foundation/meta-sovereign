@@ -145,6 +145,8 @@ jobs:
         env:
           RUN_BROWSER_E2E: '1'
           E2E_LAUNCH: engine
+          # Our port: the app must find the server there by itself.
+          E2E_PORT: '8787'
           PAGES_URL: ${{ needs.deploy.outputs.page_url }}
         run: |
           # Pages' cache can serve the previous files for a few minutes.
@@ -187,4 +189,6 @@ jobs:
         env:
           RUN_BROWSER_E2E: '1'
           E2E_LAUNCH: engine
+          # Our port: the app must find the server there by itself.
+          E2E_PORT: '8787'
         run: npm run test:e2e:pages

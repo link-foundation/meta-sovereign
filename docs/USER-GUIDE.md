@@ -167,8 +167,8 @@ meta-sovereign serve --allow-origin=https://example.org
 # --allow-origin=none turns cross-origin access off
 ```
 
-The hosted app is the default UI. `serve` prints its address with the
-server in it, and the server's own copy at <http://127.0.0.1:8787>
+The hosted app is the default UI. `serve` prints its address, the app
+finds the server on port 8787 by itself, and the server's own copy at <http://127.0.0.1:8787>
 stays as a fallback (Safari, no internet). To stop serving it:
 
 ```bash

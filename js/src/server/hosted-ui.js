@@ -7,8 +7,11 @@
  * the server serves itself stays as a fallback — for Safari, which does
  * not let an https page talk to http://127.0.0.1, and for a machine
  * without internet — and can be turned off (`serve --local-ui=false`
- * or `MS_LOCAL_UI=off`); `/` then sends the browser to the hosted app,
- * told where this server is.
+ * or `MS_LOCAL_UI=off`); `/` then sends the browser to the hosted app.
+ *
+ * The hosted app finds the server by itself, on our port (8787) and the
+ * few others it looks at (DEFAULT_PORTS in ../web/discover.js); no
+ * address is put in its link. On any other port `serve` says so.
  *
  * `serve --ui-url=` (or `MS_UI_URL`) names another hosted copy, a
  * fork's Pages for example; its origin is allowed to use the server.
@@ -16,6 +19,8 @@
 
 export const HOSTED_UI_URL =
   'https://link-foundation.github.io/meta-sovereign/';
+
+import { DEFAULT_PORTS } from '../web/discover.js';
 
 const OFF = new Set(['0', 'false', 'off', 'no', 'none']);
 
@@ -40,20 +45,8 @@ export const localUiEnabled = (value = process.env.MS_LOCAL_UI) =>
     ? true
     : !OFF.has(String(value).trim().toLowerCase());
 
-// An origin needs no escaping in a query: `?server=http://127.0.0.1:8787`
-// reads better than its percent-encoded form, and means the same.
-const PLAIN_ORIGIN = /^https?:\/\/[\w.[\]:-]+$/u;
-
-/** The hosted app, told which local server to use. */
-export const hostedLink = (uiUrl, serverOrigin) => {
-  const base = hostedUiUrl(uiUrl);
-  if (!serverOrigin) {
-    return base;
-  }
-  return PLAIN_ORIGIN.test(serverOrigin)
-    ? `${base}?server=${serverOrigin}`
-    : `${base}?server=${encodeURIComponent(serverOrigin)}`;
-};
+/** Whether the hosted app looks for a server on this port by itself. */
+export const foundOnPort = (port) => DEFAULT_PORTS.includes(Number(port));
 
 /** The allow-list with the hosted app's origin on it. */
 export const withHostedOrigin = (allowed, uiUrl) => {
@@ -69,9 +62,8 @@ export const redirectToHosted = (req, res, p, uiUrl) => {
   if (req.method !== 'GET' || (p !== '/' && p !== '/index.html')) {
     return false;
   }
-  const origin = `http://${req.headers.host ?? '127.0.0.1'}`;
   res.writeHead(302, {
-    location: hostedLink(uiUrl, origin),
+    location: hostedUiUrl(uiUrl),
     'content-length': '0',
   });
   res.end();

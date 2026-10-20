@@ -9,10 +9,14 @@
 //       uses the deployed site — the Pages workflow runs this after
 //       every deploy.
 //
-// The server is this script's own, on a free port, with a made-up
-// chat; the page is told where it is (`?server=`) and every other
-// address on this machine is refused, so a server already running here
-// (8787 and the other usual ports) is never touched.
+// The server is this script's own, with a made-up chat, on the first
+// free port of those the app looks at by itself (8787 first; CI sets
+// E2E_PORT=8787 to require it). The page is opened at its plain address
+// and must find the server on its own. Every other address on this
+// machine is refused, so a server already running here is never
+// touched: its port only looks empty to the page.
+//
+// E2E_SHOTS=<dir> keeps a screenshot of each copy.
 //
 // Both copies are compared: online, the same screens in the menu, the
 // same chats and messages from the server, no failed requests and no
@@ -26,7 +30,10 @@ import { spawnSync } from 'node:child_process';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
+import net from 'node:net';
+
 import { startServer } from '../src/server/index.js';
+import { DEFAULT_PORTS } from '../src/web/discover.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '../..');
@@ -190,12 +197,43 @@ const verdicts = (hosted, local) => {
   return failures;
 };
 
+// Whether nothing listens on this loopback port.
+const isFree = (port) =>
+  new Promise((resolve) => {
+    const probe = net.createServer();
+    probe.once('error', () => resolve(false));
+    probe.listen(port, '127.0.0.1', () => probe.close(() => resolve(true)));
+  });
+
+// The port the app finds by itself: E2E_PORT, or the first free one.
+const portToUse = async () => {
+  const wanted = process.env.E2E_PORT
+    ? [Number(process.env.E2E_PORT)]
+    : DEFAULT_PORTS;
+  for (const port of wanted) {
+    if (!DEFAULT_PORTS.includes(port)) {
+      throw new Error(`port ${port} is not one the app looks at`);
+    }
+    if (await isFree(port)) {
+      return port;
+    }
+  }
+  throw new Error(`none of ${wanted.join(', ')} is free`);
+};
+
+const shoot = async (page, name) => {
+  if (process.env.E2E_SHOTS) {
+    await fs.mkdir(process.env.E2E_SHOTS, { recursive: true });
+    await page.screenshot({ path: path.join(process.env.E2E_SHOTS, name) });
+  }
+};
+
 const main = async () => {
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-e2e-pages-'));
   const site = await pagesSite();
   const siteOrigin = new URL(site.url).origin;
   const handle = await startServer({
-    port: 0,
+    port: await portToUse(),
     storeDir,
     telegramAccount: false,
     enableSync: false,
@@ -220,13 +258,18 @@ const main = async () => {
       ?.grantPermissions?.(['local-network-access'], { origin: siteOrigin })
       .catch(() => {});
     await page.setViewportSize?.({ width: 1280, height: 900 });
-    // Only this test's own server on this machine, never another one.
-    await page.route?.(/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/, (r) =>
-      r.request().url().startsWith(serverOrigin) ||
-      r.request().url().startsWith(siteOrigin)
+    // Only this test's own server on this machine, never another one;
+    // which ones the page tried shows how it found the server.
+    const tried = new Set();
+    await page.route?.(/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/, (r) => {
+      const url = r.request().url();
+      if (url.endsWith('/api/status')) {
+        tried.add(new URL(url).origin);
+      }
+      return url.startsWith(serverOrigin) || url.startsWith(siteOrigin)
         ? r.continue()
-        : r.abort()
-    );
+        : r.abort();
+    });
     page.on?.('pageerror', (error) => problems.push(`error: ${error.message}`));
     page.on?.('response', (response) => {
       const url = response.url();
@@ -237,13 +280,18 @@ const main = async () => {
         problems.push(`${response.status()} ${url}`);
       }
     });
-    const hostedUrl = `${site.url}?server=${encodeURIComponent(serverOrigin)}`;
-    const hosted = await look(page, hostedUrl, { serverOrigin, problems });
+    const hosted = await look(page, site.url, { serverOrigin, problems });
+    await shoot(page, 'hosted.png');
+    say(`the hosted copy tried ${[...tried].join(' → ')}`);
+    if (!tried.has(serverOrigin)) {
+      failures.push(`the hosted copy never looked at ${serverOrigin}`);
+    }
     problems.length = 0;
     const local = await look(page, `${serverOrigin}/`, {
       serverOrigin,
       problems,
     });
+    await shoot(page, 'local.png');
     failures.push(...verdicts(hosted, local));
   } finally {
     await session.close?.().catch(() => {});
