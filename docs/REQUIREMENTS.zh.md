@@ -104,7 +104,7 @@ fallback、HTTP routes、CLI/API surface 和 reproducing tests。状态：已完
 R-O1..R-O19 覆盖 Telegram/Facebook/WhatsApp 等 provider credential forms、
 archive upload/paste import、settings surface、Connect first CTA、secret
 storage、probe classification、CORS help、unit/integration/e2e tests 和 issue
-#16 case study。状态：PR #17 仍记录为 in progress。
+#16 case study。状态：PR #17 已于 2026-05-04 合并。
 
 ## Q. UI 和文档国际化 (issue #18)
 
@@ -112,7 +112,7 @@ R-Q1..R-Q10 覆盖 SPA language switcher、browser language detection、local
 override persistence、`<html lang>`/`dir`、所有 authored UI strings 的
 translation keys、dictionary parity tests、Markdown language switchers、
 translated docs siblings、docs-language automation、issue #18 case study 和 PR
-#19 single-PR delivery。状态：PR #19 in progress。
+#19 single-PR delivery。状态：PR #19 已于 2026-05-04 合并。
 
 ## U. Mobile-first UI 改造 (issue #25)
 

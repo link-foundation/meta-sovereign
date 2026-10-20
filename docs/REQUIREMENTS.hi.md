@@ -111,7 +111,7 @@ cover करते हैं। State: done।
 R-O1..R-O19 provider credential forms, archive upload/paste import,
 settings surface, Connect first CTA, secret storage, probe
 classification, CORS help, tests और issue #16 case study cover करते हैं।
-State: PR #17 still in progress।
+स्थिति: PR #17 2026-05-04 को merge हुआ।
 
 ## Q. UI और documentation internationalisation (issue #18)
 
@@ -119,7 +119,7 @@ R-Q1..R-Q10 SPA language switcher, browser language detection, local
 override persistence, `<html lang>`/`dir`, authored UI strings के
 translation keys, dictionary parity tests, Markdown language switchers,
 translated docs siblings, docs-language automation, issue #18 case study
-और PR #19 single-PR delivery cover करते हैं। State: PR #19 in progress।
+और PR #19 single-PR delivery cover करते हैं। स्थिति: PR #19 2026-05-04 को merge हुआ।
 
 ## U. Mobile-first UI overhaul (issue #25)
 

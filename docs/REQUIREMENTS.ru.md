@@ -109,8 +109,7 @@ reproducing tests. State: done.
 
 R-O1..R-O19 покрывают provider credential forms, archive upload/paste
 import, settings surface, Connect first CTA, secret storage, probe
-classification, CORS help, tests и issue #16 case study. State: PR #17
-still in progress.
+classification, CORS help, tests и issue #16 case study. Состояние: PR #17 слит 2026-05-04.
 
 ## Q. UI and documentation internationalisation (issue #18)
 
@@ -118,7 +117,7 @@ R-Q1..R-Q10 покрывают SPA language switcher, browser language detection
 local override persistence, `<html lang>`/`dir`, translation keys для
 authored UI strings, dictionary parity tests, Markdown language
 switchers, translated docs siblings, docs-language automation, issue #18
-case study и single-PR delivery in PR #19. State: PR #19 in progress.
+case study и single-PR delivery in PR #19. Состояние: PR #19 слит 2026-05-04.
 
 ## U. Mobile-first UI overhaul (issue #25)
 
