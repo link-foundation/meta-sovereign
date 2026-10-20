@@ -7,7 +7,7 @@
  */
 
 import { promises as fs } from 'node:fs';
-import { parentPort, workerData } from 'node:worker_threads';
+import { parentPort, threadId, workerData } from 'node:worker_threads';
 import { readLinoFile } from './lino-store.js';
 import { encodeArchive } from './doublets-archive.js';
 
@@ -17,7 +17,9 @@ const { from, to } = workerData;
 const { mtime } = await fs.stat(from);
 const { live } = await readLinoFile(from);
 const bytes = encodeArchive(live);
-const tmp = `${to}.${process.pid}.snapshot.tmp`;
+// One temp file per worker: two stores over one folder may snapshot at
+// the same time, and must not rename each other's file away.
+const tmp = `${to}.${process.pid}.${threadId}.snapshot.tmp`;
 await fs.writeFile(tmp, bytes);
 await fs.utimes(tmp, mtime, mtime);
 await fs.rename(tmp, to);

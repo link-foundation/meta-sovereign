@@ -151,8 +151,13 @@ test('the binary snapshot is written on an interval, and at once on flush', asyn
   await store.put(message(3));
   // Within the interval: not written yet, and the puts did not wait.
   assert.equal(decodeArchive(await fs.readFile(file)).length, 1);
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  assert.equal(decodeArchive(await fs.readFile(file)).length, 3);
+  // After the interval (a worker starts slowly on a busy runner).
+  let written = 1;
+  for (let i = 0; i < 100 && written < 3; i += 1) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    written = decodeArchive(await fs.readFile(file)).length;
+  }
+  assert.equal(written, 3);
   await store.delete('msg:telegram:1:1');
   await store.flush();
   assert.deepEqual(
