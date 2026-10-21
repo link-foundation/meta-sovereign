@@ -4,9 +4,12 @@
  * message and drag to another, and every message between is selected
  * (taken away, when the drag began on a selected one). With nothing
  * selected, a press on the text selects text until the pointer leaves
- * the message; then it selects messages. While messages are selected a
- * drag starts once the pointer has moved a few pixels. Near the list's
- * top or bottom the list scrolls on. At most 100 are selected.
+ * the message; then it selects messages. A press beside a bubble selects
+ * its message once the pointer moves a few pixels, as one with some
+ * selected does (R-Y83). Rows meet edge to edge, as Desktop's do: a
+ * press in the gap between two bubbles, or beside the column on a wide
+ * window, is on the row at that height. Near the list's top or bottom
+ * the list scrolls on. At most 100 are selected.
  */
 
 import { useRef } from 'react';
@@ -21,10 +24,33 @@ const SCROLL_MAX_PX = 24;
 
 const PRESS_SKIP = 'a, button, input, textarea, video, audio';
 
-// The message row at (x, y), if any.
-const rowAt = (x, y) =>
+// Rows sit this far apart at most (the column's gap).
+const ROW_GAP_PX = 8;
+
+const rowUnder = (x, y) =>
   globalThis.document?.elementFromPoint?.(x, y)?.closest?.('[data-row]') ??
   null;
+
+/**
+ * The message row at (x, y): the one under the point, else the one at
+ * that height (beside the column, or in the gap between two rows).
+ * `column` is the element holding the rows.
+ */
+export const rowAt = (x, y, column = null) => {
+  const under = rowUnder(x, y);
+  const box = column?.getBoundingClientRect?.();
+  if (under || !box || y < box.top || y > box.bottom) {
+    return under;
+  }
+  const middle = box.left + box.width / 2;
+  for (const dy of [0, -ROW_GAP_PX / 2, ROW_GAP_PX / 2, -ROW_GAP_PX]) {
+    const row = rowUnder(middle, y + dy);
+    if (row) {
+      return row;
+    }
+  }
+  return null;
+};
 
 const dropTextSelection = () =>
   globalThis.getSelection?.()?.removeAllRanges?.();
@@ -49,11 +75,19 @@ export const edgeScroll = (y, top, bottom) => {
 
 /**
  * Whether a press that moved (dx, dy) from `from` and is now over row
- * `over` starts selecting messages: with some selected after a few
- * pixels, else once it is over another message.
+ * `over` starts selecting messages: with some selected, or when it began
+ * beside the bubble (`beside`), after a few pixels; else once it is over
+ * another message.
  */
-export const dragStarts = ({ selecting, dx, dy, from, over }) =>
-  selecting
+export const dragStarts = ({
+  selecting,
+  beside = false,
+  dx,
+  dy,
+  from,
+  over,
+}) =>
+  selecting || beside
     ? Math.abs(dx) + Math.abs(dy) >= DRAG_START_PX
     : Boolean(over) && over !== from;
 
@@ -71,17 +105,56 @@ const swallowNextClick = () => {
   );
 };
 
+// The row a press or click at the event's point is on.
+const rowOf = (event, column) =>
+  event.target?.closest?.('[data-row]') ??
+  rowAt(event.clientX, event.clientY, column);
+
+// Whether the press is on the row but not on its bubble (or avatar).
+const besideBubble = (event, row) =>
+  !event.target?.closest?.('.bubble, .msg-avatar') &&
+  !row.querySelector('.bubble')?.contains(event.target);
+
 /**
- * `{ onMouseDown }` for the message column. `box` is the scrolling list,
- * `selection` ./chat-selection.js `useSelection`, `order()` the ids
- * shown.
+ * `{ onMouseDown, onClick }` for the scrolling list. `box` is the list,
+ * `column` the element holding the rows, `selection`
+ * ./chat-selection.js `useSelection`, `order()` the ids shown. While
+ * messages are selected a click beside every row (in a gap, or beside
+ * the column) picks or drops the row at that height.
  */
-export const useDragSelect = ({ box, selection, order }) => {
+export const useDragSelect = ({ box, column, selection, order }) => {
   const latest = useRef({ selection, order });
   latest.current = { selection, order };
 
+  const onClick = (event) => {
+    const now = latest.current;
+    if (
+      !now.selection.active ||
+      event.target?.closest?.('[data-row], [role="menu"], a, button, input')
+    ) {
+      return;
+    }
+    const row = rowAt(event.clientX, event.clientY, column?.current);
+    if (row) {
+      event.preventDefault();
+      now.selection.toggle(row.dataset.row, {
+        shift: event.shiftKey,
+        order: now.order(),
+      });
+    }
+  };
+
+  // A press on the list's scrollbar scrolls; it selects nothing.
+  const onScrollbar = (event) => {
+    const node = box.current;
+    return (
+      event.target === node &&
+      event.clientX - node.getBoundingClientRect().left >= node.clientWidth
+    );
+  };
+
   const begin = (event) => {
-    const row = event.target?.closest?.('[data-row]');
+    const row = onScrollbar(event) ? null : rowOf(event, column?.current);
     const now = latest.current;
     if (
       event.button !== 0 ||
@@ -101,18 +174,21 @@ export const useDragSelect = ({ box, selection, order }) => {
       lastY: event.clientY,
       lastX: event.clientX,
       to: row.dataset.row,
+      beside: besideBubble(event, row),
       dragging: false,
       adding: true,
       frame: null,
     };
 
     const update = () => {
-      const over = rowAt(press.lastX, press.lastY)?.dataset.row ?? null;
+      const over =
+        rowAt(press.lastX, press.lastY, column?.current)?.dataset.row ?? null;
       const { selection: chosen } = latest.current;
       if (!press.dragging) {
         if (
           !dragStarts({
             selecting: chosen.active,
+            beside: press.beside,
             dx: press.lastX - press.x,
             dy: press.lastY - press.y,
             from: press.from,
@@ -177,5 +253,5 @@ export const useDragSelect = ({ box, selection, order }) => {
     globalThis.addEventListener?.('mouseup', up);
   };
 
-  return { onMouseDown: begin };
+  return { onMouseDown: begin, onClick };
 };

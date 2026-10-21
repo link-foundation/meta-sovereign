@@ -37,7 +37,9 @@ const targetOf = (node) => {
  * the left) replies, a double tap reacts with 👍; while messages are
  * selected a click anywhere on the row adds or takes the message
  * (Shift+click a range), a right-click anywhere opens the selection's
- * menu, and nothing inside the row opens.
+ * menu, and nothing inside the row opens. With none selected a click on
+ * a message's time selects it, as a click on the date does in Desktop
+ * and on the time in Telegram for macOS (R-Y83).
  */
 export const useRowHandlers = ({
   row,
@@ -93,6 +95,17 @@ export const useRowHandlers = ({
   }
   return {
     ...touch,
+    onClick: (e) => {
+      if (
+        e.button === 0 &&
+        !message.pending &&
+        e.target.closest?.('.bubble-time') &&
+        !selectedTextIn(bubble.current)
+      ) {
+        e.preventDefault();
+        onSelect?.(message.id, { shift: false });
+      }
+    },
     onMouseDown: (e) => {
       if (e.button === 2 || (e.button === 0 && e.ctrlKey)) {
         pressed.current = selectedTextIn(bubble.current);

@@ -297,6 +297,30 @@ test('a drag selects every message between; from a selected one, drops', () => {
     dragStarts({ selecting: false, dx: 0, dy: 90, from: 'a', over: 'b' }),
     true
   );
+  // A press beside the bubble selects its message after a few pixels,
+  // in its own row too (R-Y83).
+  assert.equal(
+    dragStarts({
+      selecting: false,
+      beside: true,
+      dx: 0,
+      dy: 2,
+      from: 'a',
+      over: 'a',
+    }),
+    false
+  );
+  assert.equal(
+    dragStarts({
+      selecting: false,
+      beside: true,
+      dx: 1,
+      dy: 5,
+      from: 'a',
+      over: 'a',
+    }),
+    true
+  );
   assert.equal(
     dragStarts({ selecting: true, dx: 2, dy: 1, from: 'a', over: 'a' }),
     false

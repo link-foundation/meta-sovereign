@@ -890,8 +890,10 @@ const Stream = ({ state, api, actions }) => {
   const runs = messageRuns(messages);
   const order = messages.filter((m) => !m.service).map((m) => m.id);
   const onSelect = (id, { shift }) => selection.toggle(id, { shift, order });
+  const column = useRef(null);
   const drag = useDragSelect({
     box: follow.box,
+    column,
     selection,
     order: () => order,
   });
@@ -910,16 +912,24 @@ const Stream = ({ state, api, actions }) => {
   };
   const scroll = el(
     'div',
-    { key: 'scroll', className: 'chat-scroll', ref: follow.box, onScroll },
+    {
+      key: 'scroll',
+      className: 'chat-scroll',
+      ref: follow.box,
+      onScroll,
+      // Beside the column and between rows too, as in Desktop.
+      onMouseDown: drag.onMouseDown,
+      onClick: drag.onClick,
+    },
     [
       el(
         'div',
         {
           key: 'col',
+          ref: column,
           className: selection.active
             ? 'chat-column is-selecting'
             : 'chat-column',
-          onMouseDown: drag.onMouseDown,
         },
         [
           el(OlderRow, { key: 'older', history: state.history }),
