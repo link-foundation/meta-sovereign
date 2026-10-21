@@ -42,6 +42,7 @@
     "test:e2e:greetings": "node js/tests/e2e-greetings-browser.mjs",
     "test:e2e:tutorial": "node js/tests/e2e-tutorial-browser.mjs",
     "test:e2e:selection": "node js/tests/e2e-chat-selection-browser.mjs",
+    "test:e2e:replies": "node js/tests/e2e-reply-cache-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
     "format": "prettier --write .",

@@ -38,6 +38,7 @@ import { ArchiveHead, ArchiveItem, ChatAvatar, ChatItem } from './chat-list.js';
 import { useChatActions } from './chat-actions.js';
 import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
+import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 export { reasonText } from './notice.js';
 
 const el = React.createElement;
@@ -98,7 +99,7 @@ const FilterTabs = ({ state }) => {
 
 // Chats that show in the list (or are one screen away) are prefetched;
 // the list's end, one screen before it shows, reads its next page.
-const useListLoading = (list, state) => {
+const useListLoading = (list, state, shown) => {
   const { chats, prefetch, moreChats, query } = state;
   useEffect(() => {
     const Observer = globalThis.IntersectionObserver;
@@ -126,16 +127,69 @@ const useListLoading = (list, state) => {
       observer.observe(node);
     }
     return () => observer.disconnect();
-  }, [chats, prefetch, moreChats?.more, moreChats?.available, query]);
+  }, [chats, prefetch, moreChats?.more, moreChats?.available, query, shown]);
 };
+
+// The list grows a page at a time as it is scrolled (R-Y71): thousands
+// of rows at once keep the browser busy for a long moment, and only a
+// screenful shows. The row past the last one shown asks for the next.
+const LIST_PAGE = 60;
+
+const useShownChats = (list, state) => {
+  const [shown, setShown] = useState(LIST_PAGE);
+  const { query, filter, folder, sort } = state;
+  useEffect(() => setShown(LIST_PAGE), [query, filter, folder, sort]);
+  const more = shown < state.chats.length;
+  useEffect(() => {
+    const Observer = globalThis.IntersectionObserver;
+    const row = list.current?.querySelector('[data-grow]');
+    if (typeof Observer !== 'function' || !row) {
+      return undefined;
+    }
+    const observer = new Observer(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setShown((n) => n + LIST_PAGE);
+        }
+      },
+      { root: list.current, rootMargin: '100% 0px' }
+    );
+    observer.observe(row);
+    return () => observer.disconnect();
+  }, [shown, more]);
+  return { chats: more ? state.chats.slice(0, shown) : state.chats, more };
+};
+
+// The row after the last: the next page of those held, else the next
+// page from the server (while it says it has more).
+const listEnd = (t, state, more) => {
+  if (more) {
+    return el('div', {
+      key: 'grow',
+      className: 'chat-list-grow',
+      'data-grow': '',
+    });
+  }
+  return state.moreChats?.available && !state.query
+    ? el(
+        'p',
+        { key: 'more', className: 'meta chat-list-more', 'data-more': '' },
+        t('chat.loadingChats')
+      )
+    : null;
+};
+
+// A row re-renders only when its chat, or whether it is open, changes.
+const ChatRow = React.memo(ChatItem);
 
 const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
-  useListLoading(list, state);
+  const page = useShownChats(list, state);
+  useListLoading(list, state, page.chats.length);
   const oldest = state.sort === 'oldest';
   const item = (chat) =>
-    el(ChatItem, {
+    el(ChatRow, {
       key: chat.key,
       api,
       chat,
@@ -151,14 +205,7 @@ const Sidebar = ({ state, api }) => {
           onOpen: () => state.setFolder('archive'),
         })
       : null;
-  const moreRow =
-    state.moreChats?.available && !state.query
-      ? el(
-          'p',
-          { key: 'more', className: 'meta chat-list-more', 'data-more': '' },
-          t('chat.loadingChats')
-        )
-      : null;
+  const moreRow = listEnd(t, state, page.more);
   return el('aside', { className: 'chat-sidebar' }, [
     el('div', { key: 'h', className: 'chat-sidebar-head' }, [
       el('div', { key: 'top', className: 'chat-sidebar-top' }, [
@@ -205,7 +252,7 @@ const Sidebar = ({ state, api }) => {
               // Oldest first needs every chat: the next page is read at once.
               oldest ? moreRow : null,
               ...(oldest
-                ? groupChats(state.chats, Date.now(), state.sort).map(
+                ? groupChats(page.chats, Date.now(), state.sort).map(
                     ({ group, chats }) =>
                       el('section', { key: group, className: 'chat-group' }, [
                         el('h3', { key: 'h' }, t(`chat.group.${group}`)),
@@ -213,7 +260,7 @@ const Sidebar = ({ state, api }) => {
                       ])
                   )
                 : // Telegram's own order: the pinned, then the newest.
-                  state.chats.map(item)),
+                  page.chats.map(item)),
               oldest ? null : moreRow,
             ]),
       ]
@@ -963,9 +1010,9 @@ const ScrollDown = ({ shown, count, onClick }) => {
   );
 };
 
-const Suggestions = ({ state }) => {
+const Suggestions = ({ suggest, composer }) => {
   const t = useT();
-  const { suggestions = [], stage } = state.suggest;
+  const { suggestions = [], stage } = suggest;
   if (suggestions.length === 0) {
     return null;
   }
@@ -984,7 +1031,7 @@ const Suggestions = ({ state }) => {
           type: 'button',
           className: 'chip',
           title: t('chat.suggest.count', { count: s.count ?? 0 }),
-          onClick: () => state.composer.setText(s.text),
+          onClick: () => composer.setText(s.text),
         },
         s.text
       )
@@ -1064,12 +1111,14 @@ const ReplyBar = ({ replyTo, onClear }) => {
 const Composer = ({ state, keys }) => {
   const t = useT();
   const { composer } = state;
+  const text = useComposerText(composer);
+  const suggest = useSuggestionsFor(state.suggester, text, state.suggest);
   const onKeyDown = (event) => {
     keys?.(event);
     if (event.defaultPrevented) {
       return;
     }
-    const first = state.suggest.suggestions?.[0];
+    const first = suggest.suggestions?.[0];
     // Enter that confirms an input method's word (Chinese, Japanese…) is
     // not a Send.
     if (event.nativeEvent?.isComposing || event.keyCode === 229) {
@@ -1093,7 +1142,7 @@ const Composer = ({ state, keys }) => {
       },
     },
     [
-      el(Suggestions, { key: 's', state }),
+      el(Suggestions, { key: 's', suggest, composer }),
       el(ReplyBar, {
         key: 'rb',
         replyTo: composer.replyTo ?? null,
@@ -1105,7 +1154,7 @@ const Composer = ({ state, keys }) => {
           rows: 1,
           placeholder: t('chat.placeholder'),
           'aria-label': t('chat.placeholder'),
-          value: composer.text,
+          value: text,
           onChange: (event) =>
             composer.setText(event.target.value, { typed: true }),
           onKeyDown,
@@ -1116,7 +1165,7 @@ const Composer = ({ state, keys }) => {
             key: 'send',
             type: 'submit',
             className: 'primary send',
-            disabled: !composer.text.trim(),
+            disabled: !text.trim(),
             'aria-busy': composer.sending ? 'true' : undefined,
             'aria-label': t('common.send'),
           },
@@ -1209,6 +1258,15 @@ export const ChatScreen = ({ state, api }) => {
   const selfName =
     [account?.firstName, account?.lastName].filter(Boolean).join(' ') || null;
   const actions = useChatActions({ state, api, t, locale, selfName });
+  // Phones show one pane at a time (list → conversation → back), as
+  // Telegram and WhatsApp do; wider screens show both and ignore it.
+  // One function for every render, so the list's rows stay as they are.
+  const latest = useRef(null);
+  latest.current = (key) => {
+    state.select(key);
+    setPane('chat');
+  };
+  const [select] = useState(() => (key) => latest.current(key));
   if (state.loading) {
     return el('div', { className: 'meta' }, t('common.loading'));
   }
@@ -1218,13 +1276,6 @@ export const ChatScreen = ({ state, api }) => {
       ? el(ChatAccountEmpty, { telegram: state.telegram })
       : el(ConnectionGuide, { section: 'chat' });
   }
-  // Phones show one pane at a time (list → conversation → back), as
-  // Telegram and WhatsApp do; wider screens show both and ignore it.
-  const select = (key) => {
-    state.select(key);
-    setPane('chat');
-  };
-
   const quote = { selfName, api };
 
   return el(

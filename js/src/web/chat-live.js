@@ -349,12 +349,19 @@ const CLOUD_DRAFT_MS = 2500;
  * Every chat's unsent text, kept in the browser; a Telegram chat's also
  * saved to Telegram (so the phone shows it) and taken from there when
  * the user wrote it on another device and has not typed here since.
+ *
+ * The text is not React state of the screen: a keystroke re-renders
+ * only what `subscribe`s to it (the box, its suggestions), not the chat
+ * list and the messages (R-Y71).
  */
 const useDraftBox = ({ api, current, cloud, storage }) => {
-  const [drafts, setDrafts] = useState(() =>
-    keptDrafts(readSaved(DRAFTS_KEY, {}, storage))
-  );
-  const ref = useRef(drafts);
+  const ref = useRef(null);
+  ref.current ??= keptDrafts(readSaved(DRAFTS_KEY, {}, storage));
+  const listeners = useRef(new Set());
+  const subscribe = useCallback((listener) => {
+    listeners.current.add(listener);
+    return () => listeners.current.delete(listener);
+  }, []);
   const saveTimer = useRef(null);
   const cloudTimer = useRef(null);
   const cloudSeen = useRef({}); // chat key → the cloud text last seen
@@ -384,7 +391,9 @@ const useDraftBox = ({ api, current, cloud, storage }) => {
 
   const write = (chatKey, next, { local = true } = {}) => {
     ref.current = { ...ref.current, [chatKey]: next };
-    setDrafts(ref.current);
+    for (const listener of listeners.current) {
+      listener();
+    }
     saveTimer.current ??= globalThis.setTimeout(save, DRAFT_SAVE_MS);
     if (local && current?.key === chatKey) {
       globalThis.clearTimeout(cloudTimer.current);
@@ -426,7 +435,8 @@ const useDraftBox = ({ api, current, cloud, storage }) => {
   }, [key]);
 
   return {
-    text: key ? (drafts[key] ?? '') : '',
+    text: () => (key ? (ref.current[key] ?? '') : ''),
+    subscribe,
     get: (chatKey) => String(ref.current[chatKey] ?? ''),
     write,
     // Sent: the box is empty here, and Telegram cleared its own copy
@@ -510,7 +520,12 @@ export const useComposer = ({
 
   const mine = outbox.items.filter((p) => p.key === key);
   return {
-    text: box.text,
+    // The current chat's text, read when asked (not a render's copy).
+    get text() {
+      return box.text();
+    },
+    // For a component that shows the text: called on every change.
+    subscribe: box.subscribe,
     // `typed`: the user typed it (not a suggestion chip).
     setText: (next, { typed = false } = {}) => {
       if (!key) {

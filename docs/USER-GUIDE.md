@@ -480,7 +480,9 @@ the whole replies you gave before to the chat's last message, most used
 first, then word by word from your own messages; **Tab** takes the
 first suggestion. With nothing typed it offers only a typical reply — one
 you gave that message at least twice — and nothing for a message long
-past answering. It shows when the other person — or an automation on
+past answering. Suggestions come from a copy of your reply history kept
+in the browser, so they show as you type, also after a reload or with
+the server away; the server adds rarer ones when you pause. It shows when the other person — or an automation on
 your behalf — is typing. Sending uses the network's API and falls back
 to its official web UI. **Settings → Appearance** picks the theme
 (system, light, dark, or auto by the time of day) and the skin (t3.codes,
@@ -530,7 +532,8 @@ meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 Over HTTP: `/api/automations` (list, `PUT` to save), `/api/automations/plan`,
 `/run`, `/drafts`, `/drafts/{send,form,mark,skip}` and `/history`;
 `/api/people`, `/api/audiences`, `/api/lists`, `/api/send`,
-`/api/typing` and `/api/suggest`. Background:
+`/api/typing`, `/api/suggest` and `/api/suggest/model` (the reply index
+as links, `?format=lino` for Links Notation, `?since=` for what changed). Background:
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md).
 
 **Nothing is sent without you.** Reading — importing, pulling new

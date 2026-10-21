@@ -4,7 +4,14 @@
 // flows through the injected `api` (./dom.js in the SPA), so the screen
 // renders in tests with a fake one.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import {
   CHAT_FILTERS,
   CHAT_SORTS,
@@ -88,20 +95,71 @@ export const useLoaded = (load, deps, initial) => {
   return [value, setValue];
 };
 
-const useSuggestions = (api, current, text, tick) => {
-  const [suggest] = useLoaded(
-    () =>
-      current
-        ? api.suggest({
-            source: current.source,
-            chat: current.chat,
-            typed: text,
-          })
-        : { stage: 'none', suggestions: [] },
-    [api, current?.key, text, tick],
-    { stage: 'none', suggestions: [] }
+const NO_SUBSCRIBE = () => () => {};
+
+// The newest message the screen shows in the open chat.
+const newestShown = (messages) =>
+  messages.findLast?.(
+    (m) => !m.service && !m.deleted && String(m.id).startsWith('msg:')
+  ) ?? null;
+
+/**
+ * Reply suggestions (R-Y70): `local(typed)` from the browser's copy of
+ * the reply index, at once (null until it is loaded); `remote(typed)`
+ * from the server, which keeps every rare reply. The copy loads once,
+ * and asks the server what it learned whenever links arrive.
+ */
+const useSuggester = (api, current, messages, links) => {
+  const [cache, setCache] = useState(null);
+  useEffect(() => {
+    let live = true;
+    Promise.resolve(api.replyCache?.()).then(
+      (found) => {
+        if (live && found) {
+          found.start();
+          setCache(found);
+        }
+      },
+      () => {}
+    );
+    return () => {
+      live = false;
+    };
+  }, [api]);
+  const revision = useSyncExternalStore(
+    cache?.subscribe ?? NO_SUBSCRIBE,
+    () => cache?.revision() ?? 0,
+    () => 0
   );
-  return suggest ?? { stage: 'none', suggestions: [] };
+  // Asked again when a message arrives (not a typing or read mark).
+  const heard = useMemo(
+    () => (links ?? []).filter((l) => String(l.id).startsWith('msg:')).length,
+    [links]
+  );
+  useEffect(() => {
+    cache?.nudge();
+  }, [cache, heard]);
+  const hint = newestShown(messages);
+  return useMemo(
+    () => ({
+      key: current?.key ?? null,
+      revision,
+      local: (typed) =>
+        current && cache?.ready()
+          ? cache.autocomplete({
+              source: current.source,
+              chat: current.chat,
+              hint,
+              typed,
+            })
+          : null,
+      remote: (typed) =>
+        current
+          ? api.suggest({ source: current.source, chat: current.chat, typed })
+          : Promise.resolve(null),
+    }),
+    [api, cache, revision, current?.key, hint]
+  );
 };
 
 // "typing…" reaches the other person, so it is sent only when the user
@@ -743,7 +801,7 @@ export const useChatState = (
       names: senderNames([...replyTargets.values(), ...messages]),
     }),
     composer,
-    suggest: useSuggestions(api, current, composer.text, tick),
+    suggester: useSuggester(api, current, messages, links),
     menu: useAutomationMenu({ api, current, confirm, t, after }),
     drafts: useDrafts({ api, current, tick, after }),
     notice,

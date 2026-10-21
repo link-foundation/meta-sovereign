@@ -6,6 +6,7 @@
 import {
   createBrowserStore,
   pickBrowserDriver,
+  pickSnapshotDriver,
 } from '../storage/browser-store.js';
 import {
   discoverServer,
@@ -114,7 +115,11 @@ const boot = async () => {
         fetchImpl: globalThis.fetch.bind(globalThis),
       }
     : null;
-  const client = createOfflineClient({ store, server });
+  const client = createOfflineClient({
+    store,
+    server,
+    replyDriver: pickSnapshotDriver('meta-sovereign:reply-model'),
+  });
   // When a server is reachable, also open a WebRTC peer sync over its
   // /rtc broker so writes propagate browser-to-browser without the
   // server relaying every byte (R-J7). Best-effort: a missing
@@ -456,6 +461,8 @@ export const api = {
     const { client } = await ensure();
     return client.suggest(query);
   },
+  // The browser's copy of the reply index (../replies/reply-cache.js).
+  replyCache: async () => (await ensure()).client.replyCache,
   contacts: async () => {
     const { client } = await ensure();
     return client.contacts();

@@ -19,6 +19,7 @@
  * server) so the UI can surface a visible badge.
  */
 
+import { createReplyCache } from '../replies/reply-cache.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { aggregateContacts } from '../server/aggregate.js';
 
@@ -120,7 +121,38 @@ const answers = (target) => {
 };
 
 // `timing` ({ recheckMs, setTimer, clearTimer }) is for tests.
-export const createOfflineClient = ({ store, server, ...timing }) => {
+// The browser's copy of the reply index (../replies/reply-cache.js), kept
+// by `driver` and brought up to date from the server.
+const replyCacheOf = (driver, fetchOrLocal) =>
+  createReplyCache({
+    driver,
+    fetchModel: ({ since }) =>
+      fetchOrLocal(
+        `/api/suggest/model?${new URLSearchParams({ since })}`,
+        () => null
+      ),
+  });
+
+const suggestParams = ({ source, chat, lastMessage, typed, limit }) => {
+  const params = new URLSearchParams({ typed, limit: String(limit) });
+  for (const [key, value] of Object.entries({
+    source,
+    chat,
+    last: lastMessage,
+  })) {
+    if (value !== undefined && value !== null) {
+      params.set(key, String(value));
+    }
+  }
+  return params;
+};
+
+export const createOfflineClient = ({
+  store,
+  server,
+  replyDriver = null,
+  ...timing
+}) => {
   const handlers = new Set();
   const emit = (event) => {
     for (const h of handlers) {
@@ -175,6 +207,8 @@ export const createOfflineClient = ({ store, server, ...timing }) => {
       return fallback();
     }
   };
+
+  const replyCache = replyCacheOf(replyDriver, fetchOrLocal);
 
   return {
     on: (handler) => {
@@ -260,17 +294,9 @@ export const createOfflineClient = ({ store, server, ...timing }) => {
      * Message-to-message autocomplete: whole replies we used for the
      * chat's last incoming message, then word by word over `typed`.
      */
+    replyCache,
     async suggest({ source, chat, lastMessage, typed = '', limit = 8 } = {}) {
-      const params = new URLSearchParams({ typed, limit: String(limit) });
-      for (const [key, value] of Object.entries({
-        source,
-        chat,
-        last: lastMessage,
-      })) {
-        if (value !== undefined && value !== null) {
-          params.set(key, String(value));
-        }
-      }
+      const params = suggestParams({ source, chat, lastMessage, typed, limit });
       return fetchOrLocal(`/api/suggest?${params}`, () =>
         replies().autocomplete({ source, chat, lastMessage, typed, limit })
       );

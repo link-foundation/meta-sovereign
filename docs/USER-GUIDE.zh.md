@@ -332,7 +332,8 @@ Telegram、WhatsApp 或 Messenger 账号。没有 server 时，页面仍会显�
 聊天本身（**聊天** 标签页）会在你输入时建议回复：先是你以前对该聊天最后
 一条消息给出的完整回复，用得最多的排在前面，然后是来自你自己消息的逐词
 续写；**Tab** 选取第一条建议。
-未输入任何内容时只提供典型回复（你对该消息至少给过两次），很久以前的消息不给建议。它会显示对方——或代表你的自动化——正在输入。
+未输入任何内容时只提供典型回复（你对该消息至少给过两次），很久以前的消息不给建议。
+建议来自浏览器中保存的你的回复历史副本，因此输入时立即出现，重新加载后或服务器不在时也一样；更少见的建议会在你停顿时由服务器补充。它会显示对方——或代表你的自动化——正在输入。
 发送使用该网络的 API，不行时回退到它的官方 web UI。**设置 → 外观** 选择
 主题（跟随系统、浅色、深色，或按时间自动切换）和皮肤（t3.codes、
 Telegram、WhatsApp 或 Signal）。
@@ -373,7 +374,8 @@ meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`、
 `/run`、`/drafts`、`/drafts/{send,form,mark,skip}` 和 `/history`；
 `/api/people`、`/api/audiences`、`/api/lists`、`/api/send`、
-`/api/typing` 和 `/api/suggest`。背景说明见
+`/api/typing` 和 `/api/suggest` 和 `/api/suggest/model`（以链接形式提供回复索引，
+`?format=lino` 为 Links Notation，`?since=` 只取变化）。背景说明见
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)。
 
 **没有你的确认，什么都不会发送。** 读取——导入、拉取新消息、预览——

@@ -150,6 +150,27 @@ const nestedBump = (map, outer, inner, by = 1) => {
   map.set(outer, bucket);
 };
 
+// Each tier's words, most used first, sorted once until it learns more:
+// a keystroke reads the top of a list instead of sorting every word.
+const rankings = new WeakMap();
+const ranked = (map) => {
+  let list = rankings.get(map);
+  if (!list) {
+    list = [...map.entries()].sort((a, b) => b[1] - a[1]);
+    rankings.set(map, list);
+  }
+  return list;
+};
+const bumpRanked = (map, key, by) => {
+  bump(map, key, by);
+  rankings.delete(map);
+};
+const nestedBumpRanked = (map, outer, inner, by) => {
+  const bucket = map.get(outer) ?? new Map();
+  bumpRanked(bucket, inner, by);
+  map.set(outer, bucket);
+};
+
 const mostUsed = (options, fallback) =>
   options ? [...options.entries()].sort((a, b) => b[1] - a[1])[0][0] : fallback;
 
@@ -206,13 +227,18 @@ const createWordModel = () => {
     const lower = [START, ...words.map((w) => w.toLowerCase())];
     words.forEach((word, n) => {
       const i = n + 1;
-      bump(unigrams, lower[i], by);
+      bumpRanked(unigrams, lower[i], by);
       if (n > 0) {
         nestedBump(spellings, lower[i], word, by);
       }
-      nestedBump(bigrams, lower[i - 1], lower[i], by);
+      nestedBumpRanked(bigrams, lower[i - 1], lower[i], by);
       if (i > 1) {
-        nestedBump(trigrams, `${lower[i - 2]} ${lower[i - 1]}`, lower[i], by);
+        nestedBumpRanked(
+          trigrams,
+          `${lower[i - 2]} ${lower[i - 1]}`,
+          lower[i],
+          by
+        );
       }
     });
   };
@@ -239,15 +265,17 @@ const createWordModel = () => {
       const seen = new Set([previous.at(-1)]);
       const out = [];
       for (const tier of candidates(previous)) {
-        const ranked = [...tier.entries()]
-          .filter(
-            ([w]) =>
-              !seen.has(w) &&
-              w.startsWith(lowerPartial) &&
-              w.length > lowerPartial.length
-          )
-          .sort((a, b) => b[1] - a[1]);
-        for (const [w, count] of ranked) {
+        for (const [w, count] of ranked(tier)) {
+          if (out.length >= limit) {
+            break;
+          }
+          if (
+            seen.has(w) ||
+            !w.startsWith(lowerPartial) ||
+            w.length <= lowerPartial.length
+          ) {
+            continue;
+          }
           seen.add(w);
           const spelled = mostUsed(spellings.get(w), w);
           out.push(
@@ -263,6 +291,68 @@ const createWordModel = () => {
       return out.slice(0, limit);
     },
     size: () => unigrams.size,
+    /**
+     * The model as links: one `word-link` per context — `n` 1 (the
+     * words), 2 (after the word `context`) or 3 (after the two words of
+     * `context`) — holding its `[word, count]` pairs, most used first,
+     * and one `spelling-link` holding `[word, spelling]` for the words
+     * not written in lower case. `keep(count, n)` and `perContext` prune.
+     */
+    toLinks(keep = () => true, perContext = Infinity) {
+      const out = [];
+      const add = (n, context, entries) => {
+        const kept = entries
+          .filter(([, count]) => keep(count, n))
+          .slice(0, n === 1 ? Infinity : perContext);
+        if (kept.length > 0) {
+          out.push({
+            id: `word-link:${n}:${context}`,
+            tokens: ['word-link', String(n), context],
+            n,
+            context,
+            words: kept,
+          });
+        }
+      };
+      add(1, '', ranked(unigrams));
+      for (const [n, tier] of [
+        [2, bigrams],
+        [3, trigrams],
+      ]) {
+        for (const [context, bucket] of tier) {
+          add(n, context, ranked(bucket));
+        }
+      }
+      const kept = new Set(out[0]?.words.map(([word]) => word));
+      const spelled = [...spellings]
+        .map(([word, options]) => [word, mostUsed(options, word)])
+        .filter(([word, spelling]) => spelling !== word && kept.has(word));
+      return [
+        ...out,
+        {
+          id: 'spelling-link',
+          tokens: ['spelling-link'],
+          spellings: spelled,
+        },
+      ];
+    },
+    fromLink(l) {
+      if (l.id === 'spelling-link') {
+        for (const [word, spelling] of l.spellings ?? []) {
+          nestedBump(spellings, word, spelling, 1);
+        }
+        return;
+      }
+      const count = (n) => Number(n ?? 1);
+      for (const [word, n] of l.words ?? []) {
+        if (l.n === 1) {
+          bumpRanked(unigrams, word, count(n));
+        } else if (l.n === 2 || l.n === 3) {
+          const tier = l.n === 2 ? bigrams : trigrams;
+          nestedBumpRanked(tier, l.context, word, count(n));
+        }
+      }
+    },
   };
 };
 
@@ -320,13 +410,18 @@ const createPairStore = () => {
           lastUsed: lastUsed.get(answer) ?? null,
         }));
     },
-    toLinks() {
+    toLinks(keep = () => true, { compact = false } = {}) {
       const out = [];
       for (const [prompt, bucket] of replies) {
+        const total = [...bucket.values()].reduce((sum, n) => sum + n, 0);
         for (const [answer, count] of bucket) {
+          if (!keep(count, total, lastUsed.get(answer))) {
+            continue;
+          }
           out.push({
             id: `reply-link:${out.length + 1}`,
-            tokens: ['reply-link', prompt, answer],
+            // The words are the fields; the clink mirror wants them here.
+            tokens: compact ? ['reply-link'] : ['reply-link', prompt, answer],
             prompt,
             reply: original(answer),
             count,
@@ -416,8 +511,48 @@ const createSentStore = () => {
         }));
     },
     size: () => counts.size,
+    /** The sent messages as `sent-link` rows; `keep(count, at)` prunes. */
+    toLinks(keep = () => true) {
+      const out = [];
+      for (const [key, count] of counts) {
+        const at = lastUsed.get(key);
+        if (keep(count, at)) {
+          out.push({
+            id: `sent-link:${out.length + 1}`,
+            tokens: ['sent-link'],
+            text: mostUsed(originals.get(key), key),
+            count,
+            ...(at ? { at } : {}),
+          });
+        }
+      }
+      return out;
+    },
+    fromLink(l) {
+      const key = normalizeMessage(l.text);
+      if (!key) {
+        return;
+      }
+      if (!counts.has(key)) {
+        sorted = null;
+      }
+      const count = Number(l.count ?? 1);
+      bump(counts, key, count);
+      nestedBump(originals, key, String(l.text).trim(), count);
+      if (l.at && String(l.at) > String(lastUsed.get(key) ?? '')) {
+        lastUsed.set(key, String(l.at));
+      }
+    },
   };
 };
+
+// What a chat's last message needs to be answered and to learn from.
+const lastMessageOf = (m) =>
+  Object.fromEntries(
+    ['id', 'source', 'chat', 'sender', 'body', 'timestamp', 'chatType']
+      .filter((key) => m[key] !== undefined)
+      .map((key) => [key, m[key]])
+  );
 
 const isLater = (a, b) => (toMs(a.timestamp) ?? 0) >= (toMs(b.timestamp) ?? 0);
 
@@ -483,8 +618,13 @@ export const createReplyIndex = ({
       if (!isMessage(message)) {
         return null;
       }
-      learnWords(message);
       const previous = lastInChat.get(chatKey(message));
+      // The last message again (edited, re-sent by the network): known.
+      if (previous?.id === message.id) {
+        lastInChat.set(chatKey(message), message);
+        return null;
+      }
+      learnWords(message);
       if (previous && !isLater(message, previous)) {
         return null;
       }
@@ -563,15 +703,50 @@ export const createReplyIndex = ({
      * links notation export and link-cli all take.
      */
     toLinks: () => pairs.toLinks(),
-    /** Load pairs exported by `toLinks()` (counts are kept). */
+    /**
+     * The whole model as links, for a client to answer keystrokes by
+     * itself: the reply links, `sent-link` (our messages), `word-link`
+     * and `spelling-link` (the word model), `chat-link` (the chats we
+     * wrote in, in one link) and `last-link` (each chat's last message). `keep`
+     * prunes: `{ reply(count, total, at), sent(count, at), word(count,
+     * n), perContext, last(message) }`, each keeping all when absent.
+     */
+    modelLinks(keep = {}) {
+      const all = () => true;
+      return [
+        ...pairs.toLinks(keep.reply ?? all, { compact: true }),
+        ...sent.toLinks(keep.sent ?? all),
+        ...words.toLinks(keep.word ?? all, keep.perContext ?? Infinity),
+        { id: 'chat-link', tokens: ['chat-link'], chats: [...ourChats] },
+        ...[...lastInChat]
+          .filter(([, m]) => (keep.last ?? all)(m))
+          .map(([key, m]) => ({
+            id: `last-link:${key}`,
+            tokens: ['last-link', key],
+            message: lastMessageOf(m),
+          })),
+      ];
+    },
+    /** Load links of `toLinks()` or `modelLinks()` (counts are kept). */
     fromLinks(links = []) {
       for (const l of links) {
-        if (l?.id?.startsWith('reply-link:')) {
+        const kind = String(l?.id ?? '').split(':')[0];
+        if (kind === 'reply-link') {
           pairs.learn({ ...l, count: Number(l.count ?? 1) });
+        } else if (kind === 'sent-link') {
+          sent.fromLink(l);
+        } else if (kind === 'word-link' || kind === 'spelling-link') {
+          words.fromLink(l);
+        } else if (kind === 'chat-link') {
+          (l.chats ?? []).forEach((key) => ourChats.add(key));
+        } else if (kind === 'last-link' && l.message) {
+          lastInChat.set(chatKey(l.message), l.message);
         }
       }
       return index;
     },
+    /** The last message seen in a chat, or `null`. */
+    lastIn: (source, chat) => lastInChat.get(chatKey({ source, chat })) ?? null,
   };
   return index;
 };

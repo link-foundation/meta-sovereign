@@ -368,6 +368,9 @@ Chat खुद (**चैट** tab) लिखते समय जवाब सु
 पहले, फिर आपके अपने संदेशों से शब्द-दर-शब्द; **Tab** पहला सुझाव लेता है।
 कुछ न लिखा हो तो केवल typical जवाब सुझाया जाता है — जो आपने उस संदेश पर
 कम से कम दो बार दिया हो — और बहुत पुराने संदेश पर कोई सुझाव नहीं।
+सुझाव browser में रखी आपके जवाबों के इतिहास की copy से आते हैं, इसलिए
+लिखते ही दिखते हैं, reload के बाद और server के बिना भी; दुर्लभ सुझाव
+server तब जोड़ता है जब आप रुकते हैं।
 यह दिखाता है कि सामने वाला — या आपकी ओर से कोई automation — कब लिख रहा
 है। भेजना network की API से होता है, और वह न चले तो उसके official web UI
 से। **सेटिंग्स → रूप-रंग** theme (system, light, dark, या दिन के समय के
@@ -418,7 +421,8 @@ HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`
 `/api/automations/plan`, `/run`, `/drafts`,
 `/drafts/{send,form,mark,skip}` और `/history`; `/api/people`,
 `/api/audiences`, `/api/lists`, `/api/send`, `/api/typing` और
-`/api/suggest`। पृष्ठभूमि:
+`/api/suggest` और `/api/suggest/model` (reply index links के रूप में,
+`?format=lino` Links Notation के लिए, `?since=` केवल बदलावों के लिए)। पृष्ठभूमि:
 [`docs/case-studies/issue-31/`](./case-studies/issue-31/README.md)।
 
 **आपके बिना कुछ नहीं भेजा जाता।** पढ़ना — आयात, नए संदेश लाना,

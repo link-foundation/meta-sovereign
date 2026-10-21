@@ -410,7 +410,14 @@ main[data-view='chat'] > .web-mode-banner {
   color: var(--text-subtle);
   margin: 0.8rem 0.375rem 0.3rem;
 }
+.chat-list-grow {
+  min-height: 1px;
+}
+
 .chat-item {
+  /* Rows out of sight are not laid out or painted (R-Y71). */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 3.5rem;
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;

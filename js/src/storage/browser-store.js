@@ -280,6 +280,27 @@ export const pickBrowserDriver = () => {
   return createInMemoryDriver();
 };
 
+/**
+ * The best keeping for a snapshot of links other than the store's own
+ * (the reply index's copy, ./replies/reply-cache.js): doublets-web when
+ * present, else IndexedDB, else localStorage, else memory — each under
+ * `key`, apart from the store.
+ */
+export const pickSnapshotDriver = (key) => {
+  const doubletsWeb = globalThis.DoubletsWeb ?? globalThis.doubletsWeb ?? null;
+  if (doubletsWeb) {
+    try {
+      return createDoubletsWebDriver({
+        doubletsWeb,
+        snapshotDriver: createBestSnapshotDriver(`${key}:doublets-web`),
+      });
+    } catch {
+      // fall through
+    }
+  }
+  return createBestSnapshotDriver(key);
+};
+
 export const createBrowserStore = async ({
   driver = createInMemoryDriver(),
 } = {}) => {
