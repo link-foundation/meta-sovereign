@@ -21,6 +21,7 @@ import React, {
 import { createPortal } from 'react-dom';
 import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
+import { mediaSrc } from './media-src.js';
 import { Icon } from './icons.js';
 import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
@@ -157,7 +158,7 @@ const QuoteThumb = ({ media, chat, msgId }) => {
   return src
     ? el('img', {
         className: `bubble-reply-thumb${media.isSticker ? ' is-sticker' : ''}`,
-        src,
+        ...mediaSrc(src),
         alt: '',
         onError: () => setSharp(null),
       })
@@ -231,10 +232,12 @@ const MediaPhoto = ({ media, api, chat, msgId }) => {
   const t = useT();
   const ref = useRef(null);
   const [src, setSrc] = useState(null);
+  const [failed, setFailed] = useState(false);
   const [open, setOpen] = useState(false);
-  const strippedUrl = media?.strippedB64
-    ? strippedJpegDataUrl(media.strippedB64)
-    : null;
+  const strippedUrl =
+    !failed && media?.strippedB64
+      ? strippedJpegDataUrl(media.strippedB64)
+      : null;
 
   useEffect(() => {
     const el2 = ref.current;
@@ -289,7 +292,10 @@ const MediaPhoto = ({ media, api, chat, msgId }) => {
       imgSrc
         ? el('img', {
             key: 'img',
-            src: imgSrc,
+            ...mediaSrc(imgSrc),
+            // Not loaded (refused, gone): the blurred preview, or nothing,
+            // never the browser's broken picture.
+            onError: () => (src ? setSrc(null) : setFailed(true)),
             className: blurred
               ? 'bubble-photo-img blurred'
               : 'bubble-photo-img',
@@ -340,7 +346,7 @@ const PhotoViewer = ({ src, onClose, onRequestFull }) => {
       onClick: onClose,
     },
     el('img', {
-      src,
+      ...mediaSrc(src),
       className: 'photo-viewer-img',
       alt: '',
       onClick: (e) => e.stopPropagation(),

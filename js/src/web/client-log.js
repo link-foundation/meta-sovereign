@@ -2,9 +2,19 @@
 // (POST /api/client-log), so one log holds what both sides did: a script
 // error, a promise nobody caught. Only the error and where in our code it
 // happened are sent, never what the user reads; the same error is sent
-// once, and at most twenty a minute.
+// once, and at most twenty a minute. Pictures and files from the server
+// that would not load are counted by route and sent together a little
+// later: how many and whether loaded from another origin, never which.
 
 const PER_MINUTE = 20;
+const MEDIA_ROUTE = /\/api\/telegram\/(avatar|media|file)\b/;
+const MEDIA_EVERY_MS = 10_000;
+
+/** `avatar`, `media` or `file` for a server picture's element, or null. */
+export const mediaRouteOf = (target) => {
+  const src = target?.currentSrc || target?.src;
+  return typeof src === 'string' ? (MEDIA_ROUTE.exec(src)?.[1] ?? null) : null;
+};
 
 /** The entry for an error event or a rejection's reason. */
 export const errorEntry = (event, cause, view) => ({
@@ -46,14 +56,42 @@ export const installClientLog = ({
       .then(() => send(entry))
       .catch(() => {});
   };
+  let failed = null;
+  const sendFailed = () => {
+    const entry = {
+      level: 'warn',
+      event: 'media_failed',
+      view: view(),
+      ...failed,
+    };
+    failed = null;
+    Promise.resolve()
+      .then(() => send(entry))
+      .catch(() => {});
+  };
+  // Resource errors do not bubble: seen on the way down (capture).
+  const onResourceError = (event) => {
+    const route = mediaRouteOf(event?.target);
+    if (!route) {
+      return;
+    }
+    if (!failed) {
+      failed = {};
+      globalThis.setTimeout(sendFailed, MEDIA_EVERY_MS);
+    }
+    failed[route] = (failed[route] ?? 0) + 1;
+    failed.cors = (failed.cors ?? 0) + (event.target.crossOrigin ? 1 : 0);
+  };
   const onError = (event) =>
     report(errorEntry('error', event?.error ?? event?.message, view()));
   const onRejection = (event) =>
     report(errorEntry('unhandled_rejection', event?.reason, view()));
   target.addEventListener('error', onError);
+  target.addEventListener('error', onResourceError, true);
   target.addEventListener('unhandledrejection', onRejection);
   return () => {
     target.removeEventListener('error', onError);
+    target.removeEventListener('error', onResourceError, true);
     target.removeEventListener('unhandledrejection', onRejection);
   };
 };

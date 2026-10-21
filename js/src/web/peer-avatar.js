@@ -9,6 +9,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { avatarFor } from './chat-model.js';
 import { peerColorClass } from './peer-color.js';
+import { mediaSrc } from './media-src.js';
 
 const el = React.createElement;
 
@@ -145,7 +146,7 @@ export const PeerAvatar = ({
       url
         ? el('img', {
             key: 'p',
-            src: url,
+            ...mediaSrc(url),
             alt: '',
             loading: 'lazy',
             decoding: 'async',

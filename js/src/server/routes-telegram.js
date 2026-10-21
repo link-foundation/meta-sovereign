@@ -38,6 +38,7 @@
  * Responses carry the account's public name and counts, never a secret.
  */
 
+import { classifyOrigin } from './cors.js';
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 
@@ -179,18 +180,47 @@ const POSTS = {
   },
 };
 
-// Pictures are the user's own: only the app's pages may load them
-// (browsers say where an <img> load comes from), so another site open in
-// the browser can neither see them nor make Telegram download them.
-const sameSite = (req) => {
+// Pictures are the user's own: only the app's pages may load them, so
+// another site open in the browser can neither see them nor make
+// Telegram download them. The server's own page: browsers say where an
+// <img> load comes from. The app on its other origins (the hosted app,
+// the mobile WebViews): it loads them as CORS requests
+// (../web/media-src.js), whose Origin no other site can fake.
+export const fromApp = (req, allowed = []) => {
   const site = req.headers['sec-fetch-site'];
-  return !site || site === 'same-origin' || site === 'none';
+  return (
+    !site ||
+    site === 'same-origin' ||
+    site === 'none' ||
+    classifyOrigin(req, allowed) === 'allowed'
+  );
+};
+
+// A refused load, in the log once per route, site and origin (a page
+// asks for hundreds of pictures): which page asked and how, never what.
+const refusals = new Set();
+const refuse = (req, res, ctx, route, error) => {
+  const origin = req.headers.origin ?? null;
+  const key = `${route}|${req.headers['sec-fetch-site']}|${origin}`;
+  if (!refusals.has(key) && refusals.size < 100) {
+    refusals.add(key);
+    ctx?.log?.({
+      level: 'warn',
+      event: 'telegram_media_refused',
+      route,
+      site: req.headers['sec-fetch-site'] ?? null,
+      mode: req.headers['sec-fetch-mode'] ?? null,
+      origin,
+      verdict: classifyOrigin(req, ctx?.allowOrigins ?? []),
+    });
+  }
+  return json(res, 403, { error }) ?? true;
 };
 
 // GET /api/telegram/media?chat=&id=&size= -> the picture's bytes.
-const handleMedia = async (account, req, res) => {
-  if (!sameSite(req)) {
-    return json(res, 403, { error: 'pictures load only in the app' }) ?? true;
+const handleMedia = async (account, req, res, ctx) => {
+  if (!fromApp(req, ctx?.allowOrigins)) {
+    return refuse(req, res, ctx, 'media', 'pictures load only in the app');
   }
   if (typeof account.media !== 'function') {
     return json(res, 501, { error: 'media not available' }) ?? true;
@@ -264,9 +294,9 @@ const sendBytes = (req, res, { buffer, mimeType }) => {
 };
 
 // GET /api/telegram/file?chat=&id= -> the message's file, by range.
-const handleFile = async (account, req, res) => {
-  if (!sameSite(req)) {
-    return json(res, 403, { error: 'files load only in the app' }) ?? true;
+const handleFile = async (account, req, res, ctx) => {
+  if (!fromApp(req, ctx?.allowOrigins)) {
+    return refuse(req, res, ctx, 'file', 'files load only in the app');
   }
   if (typeof account.file !== 'function') {
     return json(res, 501, { error: 'files not available' }) ?? true;
@@ -302,9 +332,9 @@ const answerSoon = (promise, ms) => {
 };
 
 // GET /api/telegram/avatar?peer=&size= -> the peer's photo.
-const handleAvatar = async (account, req, res) => {
-  if (!sameSite(req)) {
-    return json(res, 403, { error: 'pictures load only in the app' }) ?? true;
+const handleAvatar = async (account, req, res, ctx) => {
+  if (!fromApp(req, ctx?.allowOrigins)) {
+    return refuse(req, res, ctx, 'avatar', 'pictures load only in the app');
   }
   if (typeof account.avatar !== 'function') {
     return json(res, 501, { error: 'avatars not available' }) ?? true;
@@ -380,7 +410,7 @@ const GETS = {
   'unread-marks': handleUnreadMarks,
 };
 
-const dispatch = async (account, req, res, p) => {
+const dispatch = async (account, req, res, p, ctx) => {
   if (p === `${PREFIX}status` && req.method === 'GET') {
     const status = await account.status();
     // Connected but never synced (a key pasted by hand, a restart before
@@ -393,7 +423,7 @@ const dispatch = async (account, req, res, p) => {
   }
   const name = p.slice(PREFIX.length);
   if (req.method === 'GET' && Object.hasOwn(GETS, name)) {
-    return GETS[name](account, req, res);
+    return GETS[name](account, req, res, ctx);
   }
   if (req.method !== 'POST' || !Object.hasOwn(POSTS, name)) {
     return false;
@@ -419,7 +449,7 @@ export const handleTelegramRoutes = async (req, res, p, ctx) => {
     );
   }
   try {
-    return await dispatch(account, req, res, p);
+    return await dispatch(account, req, res, p, ctx);
   } catch (error) {
     ctx.log?.({
       level: 'error',

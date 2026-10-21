@@ -10,6 +10,7 @@ import { Icon } from './icons.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { mediaLabel } from './chat-message.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
+import { mediaSrc } from './media-src.js';
 
 const el = React.createElement;
 
@@ -178,7 +179,7 @@ export const ChatItem = ({ api, chat, active, onSelect }) => {
               ? el('img', {
                   key: 'i',
                   className: 'chat-item-thumb',
-                  src: preview.thumb,
+                  ...mediaSrc(preview.thumb),
                   alt: '',
                 })
               : null,

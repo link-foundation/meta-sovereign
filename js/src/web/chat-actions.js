@@ -20,6 +20,7 @@ import {
   quotedText,
 } from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
+import { saveUrl } from './media-src.js';
 import {
   bulkSelect,
   copyStamp,
@@ -195,16 +196,10 @@ const mediaUrl = (api, chat, message, photo) => {
 // Save As…: the browser saves the file where the user says.
 const saveMedia = async (api, chat, message, photo) => {
   const url = await mediaUrl(api, chat, message, photo);
-  const document = globalThis.document;
-  if (!url || !document) {
-    return;
-  }
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${photo ? 'photo' : 'sticker'}_${networkMessageId(message)}${photo ? '.jpg' : '.webp'}`;
-  document.body.append(link);
-  link.click();
-  link.remove();
+  await saveUrl(
+    url,
+    `${photo ? 'photo' : 'sticker'}_${networkMessageId(message)}${photo ? '.jpg' : '.webp'}`
+  );
 };
 
 // Copy Image: the picture itself on the clipboard.

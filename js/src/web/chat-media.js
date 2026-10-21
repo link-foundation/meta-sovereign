@@ -12,6 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { strippedJpegDataUrl } from './message-parts.js';
+import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
 
 const el = React.createElement;
 
@@ -90,7 +91,7 @@ const Poster = ({ media, thumb }) => {
   return src
     ? el('img', {
         className: thumb ? 'media-poster' : 'media-poster blurred',
-        src,
+        ...mediaSrc(src),
         alt: '',
         draggable: false,
       })
@@ -137,7 +138,7 @@ export const MediaVideo = ({ media, api, chat, msgId }) => {
         ? el('video', {
             key: 'video',
             className: 'media-video',
-            src: file,
+            ...mediaSrc(file),
             poster: thumb ?? undefined,
             autoPlay: true,
             muted: gif,
@@ -235,7 +236,7 @@ const RoundPlayer = ({ src, playing, onEnd }) => {
   return el('video', {
     ref,
     className: 'media-video',
-    src,
+    ...mediaSrc(src),
     autoPlay: true,
     muted: true,
     loop: true,
@@ -252,7 +253,9 @@ const useAudio = (src) => {
     if (!src) {
       return undefined;
     }
-    const player = new globalThis.Audio(src);
+    const player = new globalThis.Audio();
+    player.crossOrigin = crossOriginFor(src) ?? null;
+    player.src = src;
     audio.current = player;
     const update = () =>
       setState({
@@ -386,7 +389,7 @@ export const MediaSticker = ({ media, api, chat, msgId }) => {
       video && visible
         ? el('video', {
             key: 'v',
-            src: video,
+            ...mediaSrc(video),
             autoPlay: true,
             muted: true,
             loop: true,
@@ -397,7 +400,7 @@ export const MediaSticker = ({ media, api, chat, msgId }) => {
         ? (picture ?? preview)
           ? el('img', {
               key: 'i',
-              src: picture ?? preview,
+              ...mediaSrc(picture ?? preview),
               alt: media.emoji ?? '',
             })
           : el(
@@ -417,10 +420,7 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
   const src = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, wanted);
   useEffect(() => {
     if (src) {
-      const link = globalThis.document.createElement('a');
-      link.href = src;
-      link.download = media.filename || '';
-      link.click();
+      saveUrl(src, media.filename || '');
     }
   }, [src]);
   const label = media.filename || media.mimeType || t('chat.document');

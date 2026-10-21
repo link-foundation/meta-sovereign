@@ -305,10 +305,11 @@ test('the page’s errors reach the log as their shape only', () => {
   const listeners = {};
   const sent = [];
   const target = {
-    addEventListener: (name, fn) => {
-      listeners[name] = fn;
+    addEventListener: (name, fn, capture) => {
+      listeners[capture ? `${name}:capture` : name] = fn;
     },
-    removeEventListener: (name) => delete listeners[name],
+    removeEventListener: (name, fn, capture) =>
+      delete listeners[capture ? `${name}:capture` : name],
   };
   const stop = installClientLog({
     target,
