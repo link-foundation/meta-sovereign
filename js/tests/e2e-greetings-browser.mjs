@@ -20,6 +20,9 @@
  * Set `GREETINGS_SCREENSHOT=<file.png>` to save a full-page screenshot.
  */
 
+import { mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { deflateSync, crc32 } from 'node:zlib';
 
 import { buildMessageLink } from '../src/sources/link.js';
@@ -154,11 +157,15 @@ const run = async () => {
   const store = createMemoryStore();
   await seed(store);
   const calls = [];
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-greetings-'));
   const handle = await startServer({
     port: 0,
+    storeDir: dir,
     store,
     enableHandlers: false,
     enableSync: false,
+    telegramAccount: false,
+    log: null,
     greetings: { resolveSource: fakeSources(calls), sleep: async () => {} },
   });
   const base = `http://127.0.0.1:${handle.port}`;
@@ -169,12 +176,16 @@ const run = async () => {
     });
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
-    await page.addInitScript(() =>
+    // The send flow calls window.confirm() to show the plan; accept it.
+    page.on('dialog', (dialog) => dialog.accept());
+    await page.addInitScript(() => {
       window.localStorage.setItem(
         'metaSovereignTutorial',
         JSON.stringify({ off: true, at: 0 })
-      )
-    );
+      );
+      // Auto-accept the greetings send confirmation dialog.
+      window.confirm = () => true;
+    });
     await page.goto(base, { waitUntil: 'load' });
     await page.click('button[data-view="greetings"]');
 
@@ -223,13 +234,15 @@ const run = async () => {
     await page.fill('input[data-field="delay"]', '0');
     await page.click('button[data-action="greetings-send"]');
     await page.waitForFunction(
-      () =>
-        document
-          .querySelector('[data-chat="vk:100"]')
-          ?.textContent.includes('отправлено') ||
-        document
-          .querySelector('[data-chat="vk:100"]')
-          ?.textContent.includes('sent'),
+      () => {
+        const text =
+          document.querySelector('[data-chat="vk:100"]')?.textContent ?? '';
+        // 'greetings.sent' is 'Sent' in English and 'Отправлено' in Russian.
+        return (
+          text.toLowerCase().includes('отправлено') ||
+          text.toLowerCase().includes('sent')
+        );
+      },
       undefined,
       { timeout: 10000 }
     );
@@ -263,6 +276,7 @@ const run = async () => {
   } finally {
     await browser.close();
     await handle.close();
+    await rm(dir, { recursive: true, force: true });
   }
 };
 
