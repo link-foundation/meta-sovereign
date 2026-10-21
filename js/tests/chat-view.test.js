@@ -328,35 +328,38 @@ test('screen: a connected Telegram account never asks to connect again', () => {
   assert.match(syncing, /Loading your chats and contacts/);
   assert.match(syncing, /class="meta busy"/);
   assert.match(syncing, /data-state="syncing"/);
+  // A failed sync is retried by the server, never shown here (R-Y96).
   const failed = render(
     screenState({
       total: 0,
       chats: [],
-      telegram: telegram({ error: 'AUTH_KEY_UNREGISTERED' }),
+      telegram: telegram({ error: 'Telegram asked to wait' }),
     })
   );
-  assert.match(failed, /Telegram did not sync: AUTH_KEY_UNREGISTERED/);
-  assert.match(failed, /Open Telegram connection/);
-  // With chats, the list carries the account; no "Sync now" (R-Y75):
-  // it syncs by itself, says "Updating…" meanwhile, and why it failed.
-  const list = render(screenState({ telegram: telegram({}) }));
-  assert.match(list, /class="chat-account-line"/);
-  assert.match(list, /Connected as @owner/);
-  assert.doesNotMatch(list, /Sync now/);
-  assert.doesNotMatch(failed, /Sync now/);
-  assert.match(
-    render(screenState({ telegram: telegram({ syncing: true }) })),
-    /Updating…/
+  assert.doesNotMatch(failed, /asked to wait|did not sync/);
+  assert.match(failed, /Loading your chats and contacts/);
+  assert.doesNotMatch(failed, /Open Telegram connection/);
+  // Only a session Telegram ended asks the user to sign in again.
+  const ended = render(
+    screenState({
+      total: 0,
+      chats: [],
+      telegram: telegram({ needsLogin: true, error: 'AUTH_KEY_UNREGISTERED' }),
+    })
   );
-  assert.match(
-    render(screenState({ telegram: telegram({ connection: 'disconnected' }) })),
-    /Connecting…/
-  );
-  const broken = render(
-    screenState({ telegram: telegram({ error: 'AUTH_KEY_UNREGISTERED' }) })
-  );
-  assert.match(broken, /Telegram did not sync: AUTH_KEY_UNREGISTERED/);
-  assert.match(broken, /Open Telegram connection/);
+  assert.match(ended, /sign in again/);
+  assert.match(ended, /Open Telegram connection/);
+  // With chats, no line under the list at all, whatever the state.
+  for (const extra of [
+    {},
+    { syncing: true },
+    { connection: 'disconnected' },
+    { error: 'Telegram asked to wait' },
+  ]) {
+    const list = render(screenState({ telegram: telegram(extra) }));
+    assert.doesNotMatch(list, /chat-account-line|Sync now|asked to wait/);
+    assert.doesNotMatch(list, /Updating…|Connecting…/);
+  }
 });
 
 test('chats: a contact opened from Contacts gets a chat before any message', async () => {

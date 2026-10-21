@@ -16,7 +16,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
-import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
+import { ChatAccountEmpty } from './chat-account.js';
 import { networkName } from './connection-guides.js';
 import {
   CHAT_FILTERS,
@@ -289,7 +289,6 @@ const Sidebar = ({ state, api }) => {
             ]),
       ]
     ),
-    el(ChatAccountLine, { key: 'acct', telegram: state.telegram }),
   ]);
 };
 
@@ -634,31 +633,14 @@ const OlderRow = ({ history }) => {
     {
       className: 'chat-older',
       role: 'status',
-      'data-older': history.failed ? 'failed' : 'loading',
+      // A failed load is asked again by itself (R-Y96): the arc stays.
+      'data-older': history.failed ? 'retrying' : 'loading',
     },
-    history.failed
-      ? [
-          el('span', { key: 't' }, t('chat.earlierFailed')),
-          el(
-            'button',
-            {
-              key: 'r',
-              type: 'button',
-              'data-action': 'load-older',
-              onClick: () => history.loadOlder(),
-            },
-            t('chat.failure.retry')
-          ),
-        ]
-      : [
-          // Telegram shows the arc alone above the messages.
-          el(Spinner, { key: 's' }),
-          el(
-            'span',
-            { key: 't', className: 'sr-only' },
-            t('chat.loadingEarlier')
-          ),
-        ]
+    [
+      // Telegram shows the arc alone above the messages.
+      el(Spinner, { key: 's' }),
+      el('span', { key: 't', className: 'sr-only' }, t('chat.loadingEarlier')),
+    ]
   );
 };
 

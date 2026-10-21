@@ -42,7 +42,11 @@ import {
 import { BACKFILL_EVERY_MS, createBackfill } from './telegram-backfill.js';
 import { createTelegramCatchUp } from './telegram-catchup.js';
 import { createChannelSync } from './telegram-channels.js';
-import { createFetchQueue, rawMessage } from './telegram-history.js';
+import {
+  createFetchQueue,
+  floodSeconds,
+  rawMessage,
+} from './telegram-history.js';
 import { createPeers } from './telegram-peers.js';
 import { createActions } from './telegram-actions.js';
 import { createPageReader, dialogsCursor } from './telegram-pages.js';
@@ -292,7 +296,27 @@ const PUBLIC_FIELDS = [
   'code',
   'connection',
   'dialogsComplete',
+  'unreachableSince',
 ];
+
+// Telegram unreachable this long shows as Offline in the header (R-Y96);
+// meanwhile everything keeps being retried, as Telegram's apps do.
+export const OFFLINE_AFTER_MS = 60_000;
+// Telegram answered but asked to wait: not a lost connection.
+const askedToWait = (error) =>
+  error?.code === 'flood-wait' || floodSeconds(error) > 0;
+// What only signing in again fixes.
+const NEEDS_LOGIN =
+  /AUTH_KEY_UNREGISTERED|AUTH_KEY_INVALID|SESSION_REVOKED|SESSION_EXPIRED|USER_DEACTIVATED/;
+
+/** Whether Telegram has been out of reach for long, and whether only a new sign-in helps. */
+export const reachability = (link, at) => {
+  const since = Date.parse(link?.unreachableSince ?? '');
+  return {
+    offline: Number.isFinite(since) && at - since >= OFFLINE_AFTER_MS,
+    needsLogin: NEEDS_LOGIN.test(`${link?.code ?? ''} ${link?.error ?? ''}`),
+  };
+};
 
 const publicStatus = (link = {}) =>
   Object.fromEntries(PUBLIC_FIELDS.map((f) => [f, link?.[f] ?? null]));
@@ -672,6 +696,7 @@ const runSync = async (env, { full, reason, dialogs, messages }) => {
       changedAt: changedAt ?? null,
       error: null,
       code: null,
+      unreachableSince: null,
     });
     log({
       event: 'telegram_sync',
@@ -684,12 +709,24 @@ const runSync = async (env, { full, reason, dialogs, messages }) => {
     });
     return { ...publicStatus(link), connected: true };
   } catch (error) {
+    // Asked to wait: the next tick asks again; nothing to show or drop.
+    if (askedToWait(error)) {
+      log({
+        level: 'warn',
+        event: 'telegram_sync_waits',
+        kind: creds.kind,
+        reason,
+        seconds: floodSeconds(error) || error.retryAfter || null,
+      });
+      return { ...publicStatus(state), connected: true };
+    }
     await env.connection.disconnect();
     const link = await recordSync(store, {
       kind: creds.kind,
       at,
       error: error.message,
       code: error.code ?? error.errorMessage ?? 'sync-failed',
+      unreachableSince: state.unreachableSince ?? at,
     });
     log({
       level: 'error',
@@ -1090,7 +1127,19 @@ const connectionRecorder = (store) => {
     const next = CONNECTION[state] ?? null;
     if (next !== current) {
       current = next;
-      recordSync(store, { connection: next }).catch(() => {});
+      // Reached again, or out of reach since now (kept while it lasts).
+      const mark = async () => {
+        const before = (await store.get(TELEGRAM_SYNC_ID)) ?? {};
+        const since = before.unreachableSince ?? null;
+        const unreachableSince =
+          next === 'connected'
+            ? null
+            : next
+              ? (since ?? new Date().toISOString())
+              : since;
+        await recordSync(store, { connection: next, unreachableSince });
+      };
+      mark().catch(() => {});
     }
   };
 };
@@ -1187,6 +1236,7 @@ export const createTelegramAccount = ({
     const link = await store.get(TELEGRAM_SYNC_ID);
     return {
       ...publicStatus(link ?? {}),
+      ...reachability(creds ? link : null, now()),
       connected: Boolean(creds),
       kind: creds?.kind ?? null,
       syncing: Boolean(running),

@@ -1,12 +1,13 @@
 // The connected Telegram account on the chat screen: while the first sync
-// runs (or when it failed) the empty Chat says so instead of asking the
-// user to connect again, and the chat list carries a small sync line.
-// There is no "Sync now" (R-Y75): the server keeps the account in sync by
-// itself and retries a failed sync on its own (../sources/telegram-catchup.js),
-// as Telegram's own apps do; a sync that stays failed says why.
+// runs the empty Chat says so instead of asking the user to connect again.
+// There is no sync line and no "Sync now" (R-Y75, R-Y96): the server keeps
+// the account in sync by itself and retries whatever failed until it
+// works, as Telegram's own apps do; Telegram out of reach for long shows
+// as Offline in the header (./telegram-online.js). Only a session Telegram
+// ended asks the user for something: to sign in again.
 
 import React from 'react';
-import { useDates, useT } from './i18n.js';
+import { useT } from './i18n.js';
 import { Busy } from './spinner.js';
 
 const el = React.createElement;
@@ -41,45 +42,18 @@ const connectedLine = (t, telegram) => {
     : t('chat.account.connected');
 };
 
-// Like Telegram's title bar: "Connecting…" while the connection is down
-// (it comes back by itself), "Updating…" while a sync runs, else who is
-// connected and when it last synced; a failed sync says why.
-const lineText = (t, telegram, when) => {
-  if (telegram.error) {
-    return t('chat.account.failed', { error: telegram.error });
-  }
-  if (
-    telegram.connection === 'disconnected' ||
-    telegram.connection === 'broken'
-  ) {
-    return t('chat.account.connecting');
-  }
-  if (telegram.syncing) {
-    return t('chat.account.syncing');
-  }
-  return [connectedLine(t, telegram), when ? ` · ${when}` : ''].join('');
-};
-
-// Whether the line says Telegram is still at work: "Connecting…",
-// "Updating…" (Telegram turns its arc beside them).
-const working = (telegram) =>
-  !telegram.error &&
-  (telegram.connection === 'disconnected' ||
-    telegram.connection === 'broken' ||
-    Boolean(telegram.syncing));
-
 /** Chat with no conversations yet, but Telegram is connected. */
 export const ChatAccountEmpty = ({ telegram }) => {
   const t = useT();
-  const failed = Boolean(telegram.error);
+  const signIn = Boolean(telegram.needsLogin);
   let detail = t('chat.account.loading');
-  let loading = !failed;
-  if (failed) {
-    detail = t('chat.account.failed', { error: telegram.error });
+  let loading = !signIn;
+  if (signIn) {
+    detail = t('header.telegramSignIn');
   } else if (telegram.kind === 'bot') {
     detail = t('chat.account.botHint');
     loading = false;
-  } else if (telegram.at && !telegram.syncing) {
+  } else if (telegram.at && !telegram.syncing && !telegram.error) {
     detail = t('chat.account.noChats');
     loading = false;
   }
@@ -87,7 +61,7 @@ export const ChatAccountEmpty = ({ telegram }) => {
     'section',
     {
       className: 'card chat-account-empty',
-      'data-state': failed ? 'failed' : telegram.syncing ? 'syncing' : 'idle',
+      'data-state': signIn ? 'sign-in' : loading ? 'syncing' : 'idle',
       role: 'status',
       'aria-live': 'polite',
     },
@@ -96,7 +70,7 @@ export const ChatAccountEmpty = ({ telegram }) => {
       loading
         ? el(Busy, { key: 'p', role: undefined }, detail)
         : el('p', { key: 'p', className: 'meta' }, detail),
-      failed
+      signIn
         ? el('div', { key: 'a', className: 'row' }, [
             el(
               'button',
@@ -109,49 +83,6 @@ export const ChatAccountEmpty = ({ telegram }) => {
               t('chat.account.openConnection')
             ),
           ])
-        : null,
-    ]
-  );
-};
-
-/** The chat list's footer: the account and the last sync, or why not. */
-export const ChatAccountLine = ({ telegram }) => {
-  const t = useT();
-  const { chatTime } = useDates();
-  if (!telegram?.connected) {
-    return null;
-  }
-  const when = telegram.at ? chatTime(telegram.at) : null;
-  return el(
-    'div',
-    {
-      className: 'chat-account-line',
-      'data-state': telegram.error ? 'failed' : 'ok',
-      title: telegram.error ?? undefined,
-    },
-    [
-      working(telegram)
-        ? el(
-            Busy,
-            { key: 't', as: 'span', role: undefined },
-            lineText(t, telegram, when)
-          )
-        : el(
-            'span',
-            { key: 't', className: 'meta' },
-            lineText(t, telegram, when)
-          ),
-      telegram.error
-        ? el(
-            'button',
-            {
-              key: 'c',
-              type: 'button',
-              className: 'ghost',
-              onClick: openConnections,
-            },
-            t('chat.account.openConnection')
-          )
         : null,
     ]
   );

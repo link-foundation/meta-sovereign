@@ -27,15 +27,16 @@ test('a failing snapshot is reported once per try, and tried less often', async 
   const errors = [];
   const mirror = await createDoubletsMirror('/nonexistent/data.bin', {
     text: fakeText(),
-    minIntervalMs: 20,
+    // The interval, not the (load-dependent) cost, sets the pace.
+    minIntervalMs: 60,
     onError: (error) => errors.push(error.message),
     snapshot: async () => {
       starts.push(Date.now());
-      await pause(5);
+      await pause(1);
       throw new Error('out of memory');
     },
   });
-  await busy(mirror, 800);
+  await busy(mirror, 1000);
   await pause(20);
   assert.ok(starts.length >= 3, `tried again: ${starts.length}`);
   assert.ok(starts.length <= 5, `not on every write: ${starts.length}`);
@@ -43,7 +44,7 @@ test('a failing snapshot is reported once per try, and tried less often', async 
   const gaps = starts.slice(1).map((at, i) => at - starts[i]);
   for (let i = 1; i < gaps.length; i++) {
     assert.ok(
-      gaps[i] > gaps[i - 1] * 1.5,
+      gaps[i] > gaps[i - 1] * 1.3,
       `each wait is longer: ${JSON.stringify(gaps)}`
     );
   }

@@ -26,6 +26,11 @@ import { useAppearance, useApplyAppearance } from './appearance.js';
 import { WebModeBanner } from './web-mode-banner.js';
 import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
+import { ModeBadge } from './telegram-online.js';
+
+// Browser e2e tests reach the booted api here: in the bundled build the
+// source modules are not each served, so `import('/dom.js')` fails.
+globalThis.__msApi = api;
 
 const el = React.createElement;
 
@@ -138,14 +143,7 @@ const App = () => {
         { key: 'header', className: 'topbar glass', role: 'banner' },
         [
           el('h1', { key: 'brand' }, t('appName')),
-          el(
-            'span',
-            {
-              key: 'mode',
-              className: `mode-badge ${online ? 'online' : 'offline'}`,
-            },
-            online ? t('header.online') : t('header.offline')
-          ),
+          el(ModeBadge, { key: 'mode', online }),
           el(TutorialButton, { key: 'tutorial', onOpen: openTutorial }),
           el(LanguageSwitcher, { key: 'lang' }),
           el(

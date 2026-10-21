@@ -435,3 +435,60 @@ test('one Telegram client at a time, and a dropped one is destroyed', async () =
   assert.equal(made.length, 4);
   assert.deepEqual(opened, [made[0], made[3]]);
 });
+
+test('Telegram asking to wait is not an error; out of reach for long is Offline (R-Y96)', async () => {
+  const store = createMemoryStore();
+  await seed(store);
+  const client = fakeClient();
+  let clock = Date.parse('2026-10-22T00:00:00Z');
+  const events = [];
+  const account = accountWith(store, client, {
+    now: () => clock,
+    log: (e) => events.push(e),
+  });
+  const getDialogs = client.getDialogs.bind(client);
+  // As the queue turns a request down while Telegram asks to wait.
+  let failure = Object.assign(new Error('Telegram asked to wait'), {
+    code: 'flood-wait',
+    retryAfter: 21,
+  });
+  client.getDialogs = async () => {
+    throw failure;
+  };
+  await account.sync({ full: true });
+  let status = await account.status();
+  assert.equal(status.error, null, 'a wait is not shown');
+  assert.equal(status.offline, false);
+  assert.ok(events.some((e) => e.event === 'telegram_sync_waits'));
+  assert.equal(client.calls.disconnect ?? 0, 0, 'the connection is kept');
+
+  // The network is gone: still Online for a minute, then Offline.
+  failure = new Error('connect ECONNREFUSED 149.154.167.50:443');
+  await account.sync({ full: true });
+  status = await account.status();
+  assert.equal(status.offline, false, 'not yet');
+  clock += 30_000;
+  await account.sync({ full: true });
+  assert.equal((await account.status()).offline, false, 'still not');
+  clock += 31_000;
+  status = await account.status();
+  assert.equal(status.offline, true, 'a minute out of reach');
+  assert.equal(status.needsLogin, false);
+
+  // Back: Online again at once.
+  client.getDialogs = getDialogs;
+  await account.sync({ full: true });
+  status = await account.status();
+  assert.equal(status.offline, false);
+  assert.equal(status.unreachableSince, null);
+
+  // A session Telegram ended asks to sign in again.
+  failure = Object.assign(new Error('AUTH_KEY_UNREGISTERED'), {
+    errorMessage: 'AUTH_KEY_UNREGISTERED',
+  });
+  client.getDialogs = async () => {
+    throw failure;
+  };
+  await account.sync({ full: true });
+  assert.equal((await account.status()).needsLogin, true);
+});

@@ -17,6 +17,9 @@ export const zh = {
   'header.systemDefault': '跟随系统',
   'header.online': '在线',
   'header.offline': '离线',
+  'header.telegramOffline':
+    'Telegram 已有一段时间无法连接；仍在持续重试。打开 Telegram 连接',
+  'header.telegramSignIn': 'Telegram 已结束此会话；请重新登录',
   'webMode.title': '仅浏览器模式',
   'webMode.body':
     '未找到本地服务器,应用将使用此浏览器中保存的数据。启动本地服务器后,将启用邮件和即时通讯导入、定时自动化、设备间同步、简历同步和问候功能。使用 Node.js 20 或更高版本启动：',

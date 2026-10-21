@@ -45,6 +45,7 @@
     "test:e2e:albums": "node js/tests/e2e-albums-browser.mjs",
     "test:e2e:autopilot": "node js/tests/e2e-autopilot-browser.mjs",
     "test:e2e:draft": "node js/tests/e2e-draft-browser.mjs",
+    "test:e2e:offline": "node js/tests/e2e-offline-browser.mjs",
     "test:e2e:replies": "node js/tests/e2e-reply-cache-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
@@ -71,7 +72,8 @@
     "test:e2e:selection:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-selection-browser.mjs",
     "test:e2e:albums:webkit": "E2E_BROWSER=webkit node js/tests/e2e-albums-browser.mjs",
     "test:e2e:autopilot:webkit": "E2E_BROWSER=webkit node js/tests/e2e-autopilot-browser.mjs",
-    "test:e2e:draft:webkit": "E2E_BROWSER=webkit node js/tests/e2e-draft-browser.mjs"
+    "test:e2e:draft:webkit": "E2E_BROWSER=webkit node js/tests/e2e-draft-browser.mjs",
+    "test:e2e:offline:webkit": "E2E_BROWSER=webkit node js/tests/e2e-offline-browser.mjs"
   },
   "keywords": [
     "personal-crm",

@@ -134,6 +134,91 @@ export const createRefill = ({
   return { refill, stop };
 };
 
+// What failed is asked again by itself, as Telegram's apps do (R-Y96):
+// after the wait Telegram asked for, else 1 s doubling up to 30 s. The
+// spinner stays meanwhile; nothing says it failed.
+const RETRY_MAX_MS = 30_000;
+export const retryDelay = (tries, retryAfter) =>
+  Math.max(
+    (Number(retryAfter) || 0) * 1000,
+    Math.min(1000 * 2 ** tries, RETRY_MAX_MS)
+  );
+
+// `later(target, run, retryAfter)` runs `run` again while `target` is
+// open; `done(target)` starts the next failure's wait from 1 s.
+const useRetry = (key) => {
+  const open = useRef(key);
+  open.current = key;
+  const tries = useRef(new Map());
+  const timers = useRef(new Map());
+  useEffect(
+    () => () => {
+      for (const timer of timers.current.values()) {
+        globalThis.clearTimeout(timer);
+      }
+    },
+    []
+  );
+  const later = useCallback((target, run, retryAfter) => {
+    const count = tries.current.get(target) ?? 0;
+    tries.current.set(target, count + 1);
+    globalThis.clearTimeout(timers.current.get(target));
+    timers.current.set(
+      target,
+      globalThis.setTimeout(
+        () => {
+          timers.current.delete(target);
+          if (open.current === target) {
+            run();
+          }
+        },
+        retryDelay(count, retryAfter)
+      )
+    );
+  }, []);
+  const done = useCallback((target) => tries.current.delete(target), []);
+  return { later, done };
+};
+
+// The opened chat: its newest page from the store, and Telegram asked
+// for what the store lacks — again and again until it answers.
+const useOpenChat = (
+  api,
+  current,
+  { supported, refill, retry, patch, newest }
+) => {
+  const key = current?.key ?? null;
+  useEffect(() => {
+    if (!current || !supported) {
+      return;
+    }
+    const target = current.key;
+    const chat = current.chat;
+    refill(target);
+    if (!isTelegram(api, current)) {
+      return;
+    }
+    // Asks Telegram only when the store does not have it; again and
+    // again until it answers.
+    const ask = () =>
+      api
+        .telegramHistory({ chat, limit: PAGE_SIZE, priority: 'view' })
+        .catch(() => null)
+        .then((result) => {
+          if (!result || result.error) {
+            retry.later(target, ask, result?.retryAfter);
+            return null;
+          }
+          retry.done(target);
+          if (result.complete) {
+            patch(target, () => ({ complete: true }));
+          }
+          return result.written > 0 ? newest(target) : null;
+        });
+    ask();
+  }, [api, key]);
+};
+
 const useRefill = (newest, key) => {
   const open = useRef(key);
   open.current = key;
@@ -192,32 +277,9 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     [api, patch]
   );
   const refill = useRefill(newest, key);
+  const retry = useRetry(key);
 
-  useEffect(() => {
-    if (!current || !supported) {
-      return;
-    }
-    const target = current.key;
-    refill(target);
-    if (isTelegram(api, current)) {
-      // Asks Telegram only when the store does not have it.
-      api
-        .telegramHistory({
-          chat: current.chat,
-          limit: PAGE_SIZE,
-          priority: 'view',
-        })
-        .then(
-          (result) => {
-            if (result?.complete) {
-              patch(target, () => ({ complete: true }));
-            }
-            return result?.written > 0 ? newest(target) : null;
-          },
-          () => {}
-        );
-    }
-  }, [api, key]);
+  useOpenChat(api, current, { supported, refill, retry, patch, newest });
 
   // The page reconnected or the store caught up (a restart, a sync):
   // what the store got meanwhile came with no event, so the open chat's
@@ -248,7 +310,9 @@ export const useChatWindow = (api, current, links, tick = 0) => {
         priority: 'view',
       });
       if (!answer || answer.error) {
-        throw new Error(answer?.error ?? 'no answer');
+        throw Object.assign(new Error(answer?.error ?? 'no answer'), {
+          retryAfter: answer?.retryAfter,
+        });
       }
       patch(target, () => ({ complete: Boolean(answer.complete) }));
     }
@@ -284,10 +348,14 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     patch(target, () => ({ loading: true, failed: false }));
     try {
       await older(target, current.chat, held);
-    } catch {
+      retry.done(target);
+    } catch (error) {
       patch(target, () => ({ loading: false, failed: true }));
+      retry.later(target, () => latestLoadOlder.current(), error.retryAfter);
     }
   }, [api, key, telegram, complete]);
+  const latestLoadOlder = useRef(loadOlder);
+  latestLoadOlder.current = loadOlder;
 
   // Load older pages until message `id` is held (a mention far back,
   // R-Y55); whether it is.

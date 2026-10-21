@@ -589,17 +589,14 @@ const stepTwoBrowserWebRtcConvergence = async ({ browser, page, base }) => {
     await pageB.goto(base, { waitUntil: 'load' });
 
     // The dom.js boot is gated behind `ensure()` which runs lazily on
-    // the first api.* call. Trigger it on both pages by importing the
-    // module directly and calling `api.status()` — that resolves the
-    // boot promise, which constructs the local store, the offline
-    // client, *and* `attachWebRtcSync` on top of the discovered
-    // server. Stash `api` on window so the rest of the step can use
-    // it without re-importing.
+    // the first api.* call. Trigger it on both pages by calling
+    // `api.status()` — that resolves the boot promise, which constructs
+    // the local store, the offline client, *and* `attachWebRtcSync` on
+    // top of the discovered server. The bundle exposes the api as
+    // window.__msApi (app.js sets it synchronously on module evaluation).
     const seed = async (p) => {
       await p.evaluate(async () => {
-        const mod = await import('/dom.js');
-        window.__msApi = mod.api;
-        await mod.api.status();
+        await window.__msApi.status();
       });
     };
     await seed(page);
@@ -683,10 +680,10 @@ const stepConnectionsCredentialRoundtrip = async ({
 
   // Browser saves go through the offline-first SPA client, so verify
   // with the same client API instead of the server's /links endpoint.
-  const got = await page.evaluate(async () => {
-    const mod = await import('/dom.js');
-    return mod.api.get('secret:telegram:bot-token');
-  });
+  // The bundle exposes the api as window.__msApi (see app.js).
+  const got = await page.evaluate(async () =>
+    window.__msApi.get('secret:telegram:bot-token')
+  );
   assert(
     got.value === sampleToken,
     `connection credential not stored: ${JSON.stringify(got)}`
@@ -712,10 +709,13 @@ const stepConnectionsCredentialRoundtrip = async ({
     `connections: probe status meta should be idle before probing, got ${status}`
   );
 
-  // R-O7 deep-link: from chat view, the "Connect first" CTA should
-  // dispatch meta-sovereign:navigate, switch us back to connections, and
-  // scroll to #conn-telegram.
-  await page.click('button[data-view="chat"]');
+  // R-O7 deep-link: the "Connect first" CTA should dispatch
+  // meta-sovereign:navigate, switch us to connections, and scroll to
+  // #conn-telegram. The replies view shows this CTA reliably (no reply
+  // variation groups are seeded, so the empty ConnectionGuide renders),
+  // whereas the chat view only shows it when there are no chat heads and
+  // earlier steps seed messages to the server.
+  await page.click('button[data-view="replies"]');
   await page.waitForSelector(
     'button[data-action="open-connections"][data-target-anchor="#conn-telegram"]',
     { timeout: 5000 }

@@ -17,6 +17,9 @@ export const en = {
   'header.systemDefault': 'System default',
   'header.online': 'Online',
   'header.offline': 'Offline',
+  'header.telegramOffline':
+    'Telegram has not been reachable for a while; it keeps trying. Open the Telegram connection',
+  'header.telegramSignIn': 'Telegram ended this session; sign in again',
   'webMode.title': 'Browser-only mode',
   'webMode.body':
     'No local server was found, so the app works with the data stored in this browser. Imports from mail and messengers, scheduled automations, sync between devices, CV sync and greetings turn on once a local server is running. Start one with Node.js 20 or newer:',
