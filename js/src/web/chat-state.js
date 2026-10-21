@@ -14,6 +14,7 @@ import {
   cloudDraft,
   filterChats,
   firstUnreadId,
+  networkMessageId,
   readInboxUpTo,
   senderNames,
   summarizeChats,
@@ -34,16 +35,22 @@ import {
 
 const TYPING_EVERY_MS = 4000;
 
-// The chat's pinned message: the one Telegram names, else the newest
-// one held that is marked pinned.
+// The chat's pinned message: the one Telegram names, unless a newer one
+// held was pinned since or it was unpinned; else the newest held that is
+// marked pinned.
 const pinnedOf = (messages, pinnedId, known) => {
   const named = pinnedId
     ? (messages.find((m) => m.id === pinnedId) ?? known.get(pinnedId))
     : null;
-  if (named && !named.deleted) {
-    return named;
+  const newest =
+    messages.findLast?.((m) => m.raw?.pinned && !m.deleted) ?? null;
+  const usable = named && !named.deleted && named.raw?.pinned !== false;
+  if (!usable) {
+    return newest;
   }
-  return messages.findLast?.((m) => m.raw?.pinned && !m.deleted) ?? null;
+  return newest && networkMessageId(newest) > networkMessageId(named)
+    ? newest
+    : named;
 };
 
 export const defaultConfirm = (message) =>
@@ -700,6 +707,7 @@ export const useChatState = (
       older: history.older,
       loading: history.loading,
       failed: history.failed,
+      stalled: history.stalled,
       loadOlder: history.loadOlder,
       reach: history.reach,
     },

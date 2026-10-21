@@ -64,6 +64,27 @@ const getOnlines = async (client, Api, inputPeer) => {
   }
 };
 
+/**
+ * Whether the user may pin messages in a group or channel, from its
+ * entity, as Telegram's apps decide: its creator always; in a channel an
+ * admin who may edit messages; in a group an admin who may pin, or
+ * anyone when neither the group nor the user's own restrictions forbid it.
+ */
+export const canPinIn = (entity = {}) => {
+  if (entity.creator) {
+    return true;
+  }
+  if (entity.broadcast) {
+    return Boolean(entity.adminRights?.editMessages);
+  }
+  if (entity.adminRights?.pinMessages) {
+    return true;
+  }
+  return !(
+    entity.bannedRights?.pinMessages || entity.defaultBannedRights?.pinMessages
+  );
+};
+
 const fetchChannel = async (client, Api, inputPeer) => {
   const result = await client.invoke(
     new Api.channels.GetFullChannel({ channel: inputPeer })
@@ -80,6 +101,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     about: full.about ?? null,
     photo: hasPhoto(entity.photo),
     pinned: full.pinnedMsgId ?? null,
+    canPin: canPinIn(entity),
     broadcast: Boolean(entity.broadcast),
   };
 };
@@ -101,6 +123,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     about: full.about ?? null,
     photo: hasPhoto(entity.photo),
     pinned: full.pinnedMsgId ?? null,
+    canPin: canPinIn(entity),
   };
 };
 

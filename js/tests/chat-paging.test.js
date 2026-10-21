@@ -16,7 +16,9 @@ import {
   createRefill,
   hasOlder,
   historyComplete,
+  isStalled,
   mergePage,
+  STALL_MS,
   windowMessages,
 } from '../src/web/chat-window.js';
 import { addedAfter, followMove } from '../src/web/chat-view.js';
@@ -290,4 +292,14 @@ test('a newest page that did not come is asked again while the chat is open', as
   open = 'telegram:2';
   await timers.shift()[0]();
   assert.equal(asked.length, 4, 'a chat no longer open is not asked again');
+});
+
+test('a page that brought nothing older waits before the next ask', () => {
+  // Telegram not connected yet answers no messages and no "complete":
+  // the chat must not ask again at once, hundreds of times a second.
+  const now = 1_000_000;
+  assert.equal(isStalled({ stalledAt: 0 }, now), false);
+  assert.equal(isStalled({ stalledAt: now - 100 }, now), true);
+  assert.equal(isStalled({ stalledAt: now - STALL_MS }, now), false);
+  assert.ok(STALL_MS >= 1000);
 });

@@ -18,12 +18,7 @@ import { sentence, useDates, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
-import {
-  CHAT_FILTERS,
-  CHAT_SORTS,
-  groupChats,
-  networkMessageId,
-} from './chat-model.js';
+import { CHAT_FILTERS, CHAT_SORTS, groupChats } from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
@@ -33,15 +28,10 @@ import { PeerAvatar } from './peer-avatar.js';
 import { infoLine } from './chat-info.js';
 import { PersonPanel } from './person-panel.js';
 import { UnreadMarks, useUnreadMarks } from './chat-marks.js';
-import {
-  MessageBubble,
-  DeleteDialog,
-  EditDialog,
-  ForwardPicker,
-  ReplyQuote,
-  mediaLabel,
-} from './chat-message.js';
+import { MessageBubble, ReplyQuote, mediaLabel } from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
+import { useChatActions } from './chat-actions.js';
+import { SelectionBar } from './chat-selection.js';
 export { reasonText } from './notice.js';
 
 const el = React.createElement;
@@ -565,6 +555,8 @@ const NOTICE = {
   stored: 'chat.notice.stored',
   failed: 'chat.notice.failed',
   'action-failed': 'chat.notice.actionFailed',
+  copied: 'chat.notice.copied',
+  'link-copied': 'chat.notice.linkCopied',
 };
 
 const NEAR_BOTTOM_PX = 80;
@@ -614,7 +606,13 @@ const useOlder = (box, state) => {
   const history = state.history;
   const check = () => {
     const node = box.current;
-    if (!node || !history?.older || history.loading || history.failed) {
+    if (
+      !node ||
+      !history?.older ||
+      history.loading ||
+      history.failed ||
+      history.stalled
+    ) {
       return;
     }
     if (node.scrollTop < AHEAD_SCREENS * node.clientHeight) {
@@ -625,6 +623,7 @@ const useOlder = (box, state) => {
     state.messages.length,
     history?.older,
     history?.loading,
+    history?.stalled,
     state.current?.key,
   ]);
   return check;
@@ -855,7 +854,8 @@ export const messageRuns = (messages) => {
   return runs;
 };
 
-const Stream = ({ state, api, onAction }) => {
+const Stream = ({ state, api, actions }) => {
+  const { onAction, menuFor, selection } = actions;
   const t = useT();
   const follow = useFollow(state);
   const keep = useKeepPlace(follow.box, state);
@@ -874,6 +874,8 @@ const Stream = ({ state, api, onAction }) => {
     get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
   };
   const runs = messageRuns(messages);
+  const order = messages.map((m) => m.id);
+  const onSelect = (id, { shift }) => selection.toggle(id, { shift, order });
   const marks = useUnreadMarks(api, state.current, {
     reach: state.history?.reach,
     scrollTo: (id) => onScrollTo(id),
@@ -891,35 +893,48 @@ const Stream = ({ state, api, onAction }) => {
     'div',
     { key: 'scroll', className: 'chat-scroll', ref: follow.box, onScroll },
     [
-      el('div', { key: 'col', className: 'chat-column' }, [
-        el(OlderRow, { key: 'older', history: state.history }),
-        ...messages.flatMap((message) => [
-          message.id === state.unreadLine
-            ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
+      el(
+        'div',
+        {
+          key: 'col',
+          className: selection.active
+            ? 'chat-column is-selecting'
+            : 'chat-column',
+        },
+        [
+          el(OlderRow, { key: 'older', history: state.history }),
+          ...messages.flatMap((message) => [
+            message.id === state.unreadLine
+              ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
+              : null,
+            el(MessageBubble, {
+              key: message.id,
+              message,
+              run: runs.get(message.id),
+              showAvatar: runs.get(message.id)?.last !== false,
+              showName: !alone && runs.get(message.id)?.first !== false,
+              // A private chat and a channel name no one: there is one voice.
+              isPersonal: alone,
+              msgById,
+              composer: state.composer,
+              api,
+              onScrollTo,
+              onAction,
+              menuFor,
+              selecting: selection.active,
+              selected: selection.has(message.id),
+              onSelect,
+            }),
+          ]),
+          ...state.drafts.drafts.map((draft) =>
+            el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
+          ),
+          messages.length === 0
+            ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
             : null,
-          el(MessageBubble, {
-            key: message.id,
-            message,
-            run: runs.get(message.id),
-            showAvatar: runs.get(message.id)?.last !== false,
-            showName: !alone && runs.get(message.id)?.first !== false,
-            // A private chat and a channel name no one: there is one voice.
-            isPersonal: alone,
-            msgById,
-            composer: state.composer,
-            api,
-            onScrollTo,
-            onAction,
-          }),
-        ]),
-        ...state.drafts.drafts.map((draft) =>
-          el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
-        ),
-        messages.length === 0
-          ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
-          : null,
-        el('div', { key: 'end', ref: follow.end }),
-      ]),
+          el('div', { key: 'end', ref: follow.end }),
+        ]
+      ),
     ]
   );
   const down = follow.away || follow.unseen > 0;
@@ -1071,10 +1086,14 @@ const ReplyBar = ({ replyTo, onClear }) => {
   ]);
 };
 
-const Composer = ({ state }) => {
+const Composer = ({ state, keys }) => {
   const t = useT();
   const { composer } = state;
   const onKeyDown = (event) => {
+    keys?.(event);
+    if (event.defaultPrevented) {
+      return;
+    }
     const first = state.suggest.suggestions?.[0];
     // Enter that confirms an input method's word (Chinese, Japanese…) is
     // not a Send.
@@ -1211,9 +1230,7 @@ const ChatTop = ({ state, api, onBack }) => {
 export const ChatScreen = ({ state, api }) => {
   const t = useT();
   const [pane, setPane] = useState('list');
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [forwardTarget, setForwardTarget] = useState(null);
-  const [editTarget, setEditTarget] = useState(null);
+  const actions = useChatActions({ state, api, t });
   if (state.loading) {
     return el('div', { className: 'meta' }, t('common.loading'));
   }
@@ -1228,89 +1245,6 @@ export const ChatScreen = ({ state, api }) => {
   const select = (key) => {
     state.select(key);
     setPane('chat');
-  };
-
-  // Other networks' messages go through /api/message/* (R-Y38): the
-  // network's API first, its web app second. A refusal is shown.
-  const generic = async (action, message, body) => {
-    if (typeof api?.messageAction !== 'function') {
-      return;
-    }
-    const answer = await api.messageAction(action, {
-      ids: [message.id],
-      ...body,
-    });
-    if (answer?.error) {
-      state.notify?.({ kind: 'action-failed', error: answer.error });
-    }
-  };
-
-  const onAction = (action, message, value) => {
-    if (action === 'reply') {
-      const netId = networkMessageId(message);
-      state.composer.setReplyTo({
-        msgId: netId,
-        linkId: message.id,
-        senderName: message.senderName ?? message.sender,
-        text: message.body ?? '',
-      });
-    } else if (action === 'copy' && message.body) {
-      globalThis.navigator?.clipboard?.writeText(message.body).catch(() => {});
-    } else if (action === 'forward') {
-      setForwardTarget(message);
-    } else if (action === 'delete') {
-      setDeleteTarget(message);
-    } else if (action === 'edit') {
-      setEditTarget(message);
-    } else if (action === 'react' && !message.pending) {
-      generic('react', message, { emoji: value });
-    }
-  };
-
-  const viaTelegram = (message) =>
-    message.source === 'telegram' && networkMessageId(message) !== null;
-
-  const doDelete = async (message, { revoke }) => {
-    if (message.pending || !state.current) {
-      return;
-    }
-    if (!viaTelegram(message)) {
-      await generic('delete', message, { revoke });
-      return;
-    }
-    const netId = networkMessageId(message);
-    if (typeof api?.telegramDelete !== 'function') {
-      return;
-    }
-    await api.telegramDelete({
-      chat: state.current.chat,
-      ids: [netId],
-      revoke,
-    });
-  };
-
-  const doForward = async (message, toChat) => {
-    if (message.pending || !state.current) {
-      return;
-    }
-    if (!viaTelegram(message)) {
-      await generic('forward', message, {
-        toChat: toChat.chat,
-        toTitle: toChat.name,
-      });
-      setForwardTarget(null);
-      return;
-    }
-    const netId = networkMessageId(message);
-    if (typeof api?.telegramForward !== 'function') {
-      return;
-    }
-    await api.telegramForward({
-      fromChat: state.current.chat,
-      ids: [netId],
-      toChat: toChat.chat,
-    });
-    setForwardTarget(null);
   };
 
   return el('div', { className: 'chat-shell', 'data-pane': pane }, [
@@ -1331,39 +1265,13 @@ export const ChatScreen = ({ state, api }) => {
             labels: NOTICE,
             dismiss: state.dismiss,
           }),
-          el(Stream, { key: 's', state, api, onAction }),
-          el(Composer, { key: 'c', state }),
-          deleteTarget
-            ? el(DeleteDialog, {
-                key: 'del',
-                message: deleteTarget,
-                isGroup: !state.current.personal,
-                onClose: () => setDeleteTarget(null),
-                onDelete: (opts) => {
-                  doDelete(deleteTarget, opts);
-                  setDeleteTarget(null);
-                },
-              })
-            : null,
-          editTarget
-            ? el(EditDialog, {
-                key: 'edit',
-                message: editTarget,
-                onClose: () => setEditTarget(null),
-                onSave: (text) => generic('edit', editTarget, { text }),
-              })
-            : null,
-          forwardTarget
-            ? el(ForwardPicker, {
-                key: 'fwd',
-                // A message forwards within its own network.
-                chats: state.chats.filter(
-                  (c) => c.source === state.current.source
-                ),
-                onClose: () => setForwardTarget(null),
-                onForward: (toChat) => doForward(forwardTarget, toChat),
-              })
-            : null,
+          el(Stream, { key: 's', state, api, actions }),
+          // While messages are selected, Telegram's bar takes the
+          // composer's place.
+          actions.selection.active
+            ? el(SelectionBar, { key: 'c', ...actions.bar })
+            : el(Composer, { key: 'c', state, keys: actions.keys }),
+          ...actions.dialogs,
         ])
       : null,
   ]);

@@ -23,6 +23,10 @@ const REACH_PAGES = 40;
 export const PREFETCH_SIZE = 30;
 const PREFETCH_QUEUE = 40;
 const HOLD_MS = 30_000;
+// A page that brought nothing older (Telegram not connected yet, or still
+// reading) is asked for again only after this long, never at once: an
+// open chat must not ask its server hundreds of times a second.
+export const STALL_MS = 5000;
 
 const EMPTY = Object.freeze({
   messages: [],
@@ -31,7 +35,12 @@ const EMPTY = Object.freeze({
   loading: false,
   failed: false,
   complete: false,
+  stalledAt: 0,
 });
+
+/** Whether the window waits before asking for older messages again. */
+export const isStalled = (window, now = Date.now()) =>
+  Boolean(window?.stalledAt) && now - window.stalledAt < STALL_MS;
 
 /**
  * A window after one page of the store arrived: the page joins what is
@@ -136,6 +145,21 @@ const useRefill = (newest, key) => {
   return refiller.refill;
 };
 
+// A stalled window may ask again once STALL_MS has passed.
+const useStallEnd = (key, stalledAt, patch) => {
+  useEffect(() => {
+    if (!stalledAt || !key) {
+      return undefined;
+    }
+    const timer = globalThis.setTimeout(
+      () =>
+        patch(key, (w) => (w.stalledAt === stalledAt ? { stalledAt: 0 } : {})),
+      STALL_MS
+    );
+    return () => globalThis.clearTimeout(timer);
+  }, [key, stalledAt, patch]);
+};
+
 /**
  * The open chat's window: its newest page when it opens, older pages on
  * `loadOlder()`. Without a server (offline, the static site), none — the
@@ -233,11 +257,16 @@ export const useChatWindow = (api, current, links, tick = 0) => {
       before: oldest?.id ?? null,
       limit: PAGE_SIZE,
     });
-    patch(target, (w) => ({
-      ...(result ? mergePage(w, result) : {}),
-      loading: false,
-      failed: !result,
-    }));
+    patch(target, (w) => {
+      const next = result ? mergePage(w, result) : w;
+      const grew = next.messages[0]?.id !== w.messages[0]?.id;
+      return {
+        ...next,
+        loading: false,
+        failed: !result,
+        stalledAt: grew ? 0 : Date.now(),
+      };
+    });
   };
 
   const loadOlder = useCallback(async () => {
@@ -246,6 +275,7 @@ export const useChatWindow = (api, current, links, tick = 0) => {
       !current ||
       !held ||
       held.loading ||
+      isStalled(held) ||
       !hasOlder(held, { telegram, complete })
     ) {
       return;
@@ -268,7 +298,11 @@ export const useChatWindow = (api, current, links, tick = 0) => {
         if (!held || held.messages?.some((m) => m.id === id)) {
           return Boolean(held);
         }
-        if (held.loading || !hasOlder(held, { telegram, complete })) {
+        if (
+          held.loading ||
+          isStalled(held) ||
+          !hasOlder(held, { telegram, complete })
+        ) {
           return false;
         }
         patch(key, () => ({ loading: true, failed: false }));
@@ -284,9 +318,12 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     [api, key, telegram, complete]
   );
 
+  useStallEnd(key, window.stalledAt, patch);
+
   return {
     window,
     older: hasOlder(window, { telegram, complete }),
+    stalled: Boolean(window.stalledAt),
     loading: window.loading,
     failed: window.failed,
     loadOlder,

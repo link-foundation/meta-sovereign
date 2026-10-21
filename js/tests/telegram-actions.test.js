@@ -32,6 +32,7 @@ const fakeTelegram = () => ({
       SendMessage: tl('messages.SendMessage'),
       ForwardMessages: tl('messages.ForwardMessages'),
       DeleteMessages: tl('messages.DeleteMessages'),
+      UpdatePinnedMessage: tl('messages.UpdatePinnedMessage'),
     },
     channels: { DeleteMessages: tl('channels.DeleteMessages') },
   },
@@ -194,6 +195,47 @@ test('a pin and an unpin follow the message', async () => {
     pinned: false,
   });
   assert.equal((await store.get('msg:telegram:-1007:3')).raw.pinned, false);
+});
+
+test('pinning asks Telegram and follows its answer (R-Y67)', async () => {
+  const store = createMemoryStore();
+  await store.put(message('-1007', 3));
+  const requests = [];
+  const actions = envWith(store, {
+    async invoke(request) {
+      requests.push(request);
+      return {
+        className: 'Updates',
+        users: [],
+        chats: [],
+        updates: [
+          {
+            className: 'UpdatePinnedChannelMessages',
+            channelId: 7,
+            messages: [3],
+            pinned: !request.unpin,
+          },
+        ],
+      };
+    },
+  });
+  const pinned = await actions.pinMessage({
+    chat: '-1007',
+    id: 3,
+    oneSide: true,
+  });
+  assert.deepEqual(pinned, { ok: true, pinned: 3 });
+  assert.equal(requests[0].className, 'messages.UpdatePinnedMessage');
+  assert.equal(requests[0].peer, 'peer:-1007');
+  assert.equal(requests[0].pmOneside, true);
+  assert.equal(requests[0].unpin, false);
+  assert.equal((await store.get('msg:telegram:-1007:3')).raw.pinned, true);
+  await actions.pinMessage({ chat: '-1007', id: 3, unpin: true });
+  assert.equal((await store.get('msg:telegram:-1007:3')).raw.pinned, false);
+  assert.deepEqual(await actions.pinMessage({ chat: '-1007', id: 0 }), {
+    ok: false,
+    supported: false,
+  });
 });
 
 test('a reply answers with the first part only', async () => {

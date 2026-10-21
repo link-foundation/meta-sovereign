@@ -11,6 +11,7 @@
 //   - service messages: centred one-line pill.
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { Icon } from './icons.js';
@@ -18,6 +19,8 @@ import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
+import { menuItems, selectedTextIn } from './chat-selection.js';
+import { useTouchGestures } from './chat-gestures.js';
 import {
   MediaAudio,
   MediaCard,
@@ -371,31 +374,99 @@ export const QUICK_REACTIONS = Object.freeze([
   '🔥',
 ]);
 
-export const MsgContextMenu = ({ x, y, message, onClose, onAction }) => {
-  const t = useT();
-  const ref = useRef(null);
+// Each menu item's label key and icon.
+const MENU_ITEMS = {
+  reply: ['chat.reply', 'reply'],
+  edit: ['chat.edit', 'edit'],
+  copy: ['chat.copy', 'copy'],
+  copySelected: ['chat.copySelected', 'copy'],
+  copyLink: ['chat.copyLink', 'link'],
+  pin: ['chat.pin', 'pin'],
+  unpin: ['chat.unpin', 'pin'],
+  forward: ['chat.forward', 'forward'],
+  select: ['chat.select', 'select'],
+  unselect: ['chat.unselect', 'select'],
+  delete: ['chat.delete', 'trash'],
+};
+
+// Kept inside the window, with this margin (px).
+const MENU_MARGIN = 8;
+
+/** Where a menu of `size` opened at `point` fits in `view`. */
+export const menuPlace = (point, size, view) => {
+  const fitX =
+    point.x + size.width + MENU_MARGIN > view.width
+      ? point.x - size.width
+      : point.x;
+  const fitY =
+    point.y + size.height + MENU_MARGIN > view.height
+      ? point.y - size.height
+      : point.y;
+  return {
+    x: Math.max(
+      MENU_MARGIN,
+      Math.min(fitX, view.width - size.width - MENU_MARGIN)
+    ),
+    y: Math.max(
+      MENU_MARGIN,
+      Math.min(fitY, view.height - size.height - MENU_MARGIN)
+    ),
+  };
+};
+
+// The menu closes as Telegram's does: a press outside, Esc, a scroll,
+// the window resized or left. The listeners stay for the menu's life and
+// call the latest `onClose`: put back on each render, they would miss
+// the very key that made React render.
+const useMenuClose = (ref, onClose) => {
+  const latest = useRef(onClose);
+  latest.current = onClose;
   useEffect(() => {
-    const handler = (e) => {
+    const close = () => latest.current();
+    const outside = (e) => {
       if (!ref.current?.contains(e.target)) {
-        onClose();
+        close();
       }
     };
-    globalThis.addEventListener?.('mousedown', handler);
-    globalThis.addEventListener?.('touchstart', handler);
-    return () => {
-      globalThis.removeEventListener?.('mousedown', handler);
-      globalThis.removeEventListener?.('touchstart', handler);
+    const key = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      }
     };
-  }, [onClose]);
-  const mine = message.sender === 'me' || message.outgoing === true;
-  const actions = [
-    { key: 'reply', label: t('chat.reply') },
-    ...(message.body ? [{ key: 'copy', label: t('chat.copy') }] : []),
-    ...(mine && message.body ? [{ key: 'edit', label: t('chat.edit') }] : []),
-    { key: 'forward', label: t('chat.forward') },
-    { key: 'delete', label: t('chat.delete') },
-  ];
-  const reactions = el(
+    const listeners = [
+      ['mousedown', outside],
+      ['touchstart', outside],
+      ['keydown', key],
+      ['scroll', outside, true],
+      ['resize', close],
+      ['blur', close],
+    ];
+    for (const [name, listener, capture] of listeners) {
+      globalThis.addEventListener?.(name, listener, capture);
+    }
+    return () => {
+      for (const [name, listener, capture] of listeners) {
+        globalThis.removeEventListener?.(name, listener, capture);
+      }
+    };
+  }, [ref]);
+};
+
+// Up and Down move between the items, as in a native menu.
+const moveFocus = (e) => {
+  if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') {
+    return;
+  }
+  e.preventDefault();
+  const items = [...e.currentTarget.querySelectorAll('[role="menuitem"]')];
+  const at = items.indexOf(globalThis.document?.activeElement);
+  const step = e.key === 'ArrowDown' ? 1 : -1;
+  items[(at + step + items.length) % items.length]?.focus();
+};
+
+const ReactionsRow = ({ message, onClose, onAction, t }) =>
+  el(
     'li',
     { key: 'react', role: 'none', className: 'msg-context-reactions' },
     QUICK_REACTIONS.map((emoji) =>
@@ -415,40 +486,89 @@ export const MsgContextMenu = ({ x, y, message, onClose, onAction }) => {
       )
     )
   );
-  return el(
+
+/**
+ * A message's menu at `x`, `y` (the pointer): its reactions on top, then
+ * `items` (./chat-selection.js `menuItems`). Drawn on the page's body so
+ * no bubble clips it, and kept inside the window.
+ */
+export const MsgContextMenu = ({
+  x,
+  y,
+  message,
+  items,
+  selectedText = '',
+  onClose,
+  onAction,
+}) => {
+  const t = useT();
+  const ref = useRef(null);
+  const [place, setPlace] = useState({ x, y });
+  useMenuClose(ref, onClose);
+  useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node?.getBoundingClientRect) {
+      return;
+    }
+    const { width, height } = node.getBoundingClientRect();
+    setPlace(
+      menuPlace(
+        { x, y },
+        { width, height },
+        {
+          width: globalThis.innerWidth ?? 1024,
+          height: globalThis.innerHeight ?? 768,
+        }
+      )
+    );
+  }, [x, y]);
+  const choose = (key) => {
+    onClose();
+    onAction(key, message, key === 'copySelected' ? selectedText : undefined);
+  };
+  const reacts = !message.pending && message.source !== undefined;
+  const menu = el(
     'ul',
     {
       ref,
       className: 'msg-context-menu',
       role: 'menu',
-      style: { top: y, left: x },
+      style: { top: place.y, left: place.x },
+      onKeyDown: moveFocus,
+      onContextMenu: (e) => e.preventDefault(),
     },
     [
-      reactions,
-      ...actions.map((a) =>
-        el(
+      reacts
+        ? el(ReactionsRow, { key: 'rx', message, onClose, onAction, t })
+        : null,
+      ...(items ?? []).map((key) => {
+        const [label, icon] = MENU_ITEMS[key] ?? [key, 'more'];
+        return el(
           'li',
           {
-            key: a.key,
+            key,
             role: 'menuitem',
             tabIndex: 0,
-            onClick: () => {
-              onClose();
-              onAction(a.key, message);
-            },
+            'data-action': key,
+            className: key === 'delete' ? 'msg-context-delete' : undefined,
+            onClick: () => choose(key),
             onKeyDown: (e) => {
-              if (e.key === 'Enter') {
-                onClose();
-                onAction(a.key, message);
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                choose(key);
               }
             },
-            className: a.key === 'delete' ? 'msg-context-delete' : undefined,
           },
-          a.label
-        )
-      ),
+          [
+            el(Icon, { key: 'i', name: icon, size: 18 }),
+            el('span', { key: 'l' }, t(label)),
+          ]
+        );
+      }),
     ]
   );
+  const body = globalThis.document?.body;
+  return body ? createPortal(menu, body) : menu;
 };
 
 // ---- Edit dialog --------------------------------------------------------
@@ -505,8 +625,19 @@ export const EditDialog = ({ message, onClose, onSave }) => {
 
 // ---- Delete dialog (in-page, never window.confirm) ----------------------
 
-export const DeleteDialog = ({ message, isGroup, onClose, onDelete }) => {
+/**
+ * Asks before `messages` (or one `message`) go: for the user only, or,
+ * in a private chat when all are the user's own, for everyone too.
+ */
+export const DeleteDialog = ({
+  message,
+  messages = message ? [message] : [],
+  isGroup,
+  onClose,
+  onDelete,
+}) => {
   const t = useT();
+  const allMine = messages.every((m) => m.sender === 'me');
   return el(
     'div',
     {
@@ -515,7 +646,13 @@ export const DeleteDialog = ({ message, isGroup, onClose, onDelete }) => {
       'aria-modal': 'true',
     },
     el('div', { className: 'delete-dialog' }, [
-      el('p', { key: 'q' }, t('chat.deleteConfirm')),
+      el(
+        'p',
+        { key: 'q' },
+        messages.length > 1
+          ? t('chat.deleteConfirmMany', { count: messages.length })
+          : t('chat.deleteConfirm')
+      ),
       el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
         el(
           'button',
@@ -529,7 +666,7 @@ export const DeleteDialog = ({ message, isGroup, onClose, onDelete }) => {
           },
           t('chat.deleteForMe')
         ),
-        ...(isGroup || message.sender !== 'me'
+        ...(isGroup || !allMine
           ? []
           : [
               el(
@@ -546,6 +683,73 @@ export const DeleteDialog = ({ message, isGroup, onClose, onDelete }) => {
                 t('chat.deleteForEveryone')
               ),
             ]),
+        el(
+          'button',
+          { key: 'cancel', type: 'button', onClick: onClose },
+          t('common.cancel')
+        ),
+      ]),
+    ])
+  );
+};
+
+// ---- Pin dialog --------------------------------------------------------
+
+/**
+ * Asks before a pin, as Telegram does: "Pin for me and {name}" in a
+ * private chat, "Pin and notify all members" in a group (both on unless
+ * unticked); a channel's pin notifies its subscribers.
+ */
+export const PinDialog = ({ where, name = '', onClose, onPin }) => {
+  const t = useT();
+  const [forAll, setForAll] = useState(true);
+  const ask = {
+    personal: 'chat.pinAskChat',
+    group: 'chat.pinAskGroup',
+    channel: 'chat.pinAskChannel',
+  }[where];
+  const option =
+    where === 'personal'
+      ? t('chat.pinForBoth', { name })
+      : where === 'group'
+        ? t('chat.pinNotify')
+        : null;
+  return el(
+    'div',
+    {
+      className: 'delete-dialog-overlay',
+      role: 'dialog',
+      'aria-modal': 'true',
+    },
+    el('div', { className: 'delete-dialog pin-dialog' }, [
+      el('h3', { key: 'h' }, t('chat.pinTitle')),
+      el('p', { key: 'q' }, t(ask ?? 'chat.pinAskChat')),
+      option
+        ? el('label', { key: 'o', className: 'pin-dialog-option' }, [
+            el('input', {
+              key: 'c',
+              type: 'checkbox',
+              checked: forAll,
+              onChange: (e) => setForAll(e.target.checked),
+            }),
+            el('span', { key: 'l' }, option),
+          ])
+        : null,
+      el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
+        el(
+          'button',
+          {
+            key: 'pin',
+            type: 'button',
+            className: 'primary',
+            autoFocus: true,
+            onClick: () => {
+              onClose();
+              onPin({ oneSide: !forAll, silent: !forAll });
+            },
+          },
+          t('chat.pin')
+        ),
         el(
           'button',
           { key: 'cancel', type: 'button', onClick: onClose },
@@ -712,8 +916,6 @@ const BubbleContent = ({
   netId,
   composer,
   onScrollTo,
-  openMenu,
-  onAction,
   time,
   t,
 }) => [
@@ -757,20 +959,125 @@ const BubbleContent = ({
   composer
     ? el(BubbleActionsInner, { key: 'actions', message, composer })
     : null,
-  onAction
-    ? el(
-        'button',
-        {
-          key: 'more',
-          type: 'button',
-          className: 'bubble-more-btn',
-          'aria-label': 'More actions',
-          onClick: openMenu,
-        },
-        '⋯'
-      )
-    : null,
 ];
+
+// The menu opens where the pointer is; from the keyboard (the menu key,
+// Shift+F10) the event has no point, so at the bubble's corner.
+const menuPoint = (event, node) => {
+  if (event.clientX || event.clientY) {
+    return { x: event.clientX, y: event.clientY };
+  }
+  const r = node?.getBoundingClientRect?.();
+  return r ? { x: r.left, y: r.bottom } : { x: 0, y: 0 };
+};
+
+// Double-click replies (Telegram Desktop): the word it selected is let go.
+const dropTextSelection = () =>
+  globalThis.getSelection?.()?.removeAllRanges?.();
+
+// The bubble's marks: the id the reader has seen, how it was delivered.
+const seenProps = (message, { mine, leaving, netId }) => {
+  const seenId = mine || message.pending || leaving ? null : netId;
+  return {
+    ...(seenId ? { 'data-seen-id': seenId } : {}),
+    ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
+  };
+};
+
+// The menu's items: the chat's own (`menuFor`), else what any message has.
+const itemsOf = (menuFor, message, options) =>
+  menuFor ? menuFor(message, options) : menuItems({ message, ...options });
+
+// The message's menu, when one is open.
+const openMenu = ({ menu, shown, message, menuFor, selected, ...rest }) =>
+  menu && shown
+    ? el(MsgContextMenu, {
+        key: 'menu',
+        x: menu.x,
+        y: menu.y,
+        message,
+        items: itemsOf(menuFor, message, { selectedText: menu.text, selected }),
+        selectedText: menu.text,
+        ...rest,
+      })
+    : null;
+
+// The round check a message shows while messages are selected.
+const SelectCheck = ({ selected }) =>
+  el(
+    'span',
+    {
+      key: 'check',
+      className: selected ? 'bubble-check is-checked' : 'bubble-check',
+      'aria-hidden': 'true',
+    },
+    selected ? el(Icon, { name: 'check', size: 14 }) : null
+  );
+
+/**
+ * The row's ways in, as in Telegram: right-click (or a long press) opens
+ * the menu where it happened, a double-click (or a swipe to the left)
+ * replies, a double tap reacts with 👍; while messages are selected a
+ * click anywhere on the row adds or takes the message (Shift+click a
+ * range) and nothing inside it opens.
+ */
+const useRowHandlers = ({
+  row,
+  bubble,
+  message,
+  usable,
+  selecting,
+  onSelect,
+  onAction,
+  setMenu,
+}) => {
+  const open = (point) => {
+    setMenu({ ...point, text: selectedTextIn(bubble.current) });
+  };
+  const touch = useTouchGestures({
+    rowRef: row,
+    enabled: () => usable && !selecting,
+    onLongPress: (point) => {
+      dropTextSelection();
+      open(point);
+    },
+    onSwipe: () => onAction('reply', message),
+    onDoubleTap: () => onAction('react', message, QUICK_REACTIONS[0]),
+  });
+  if (!usable) {
+    return {};
+  }
+  if (selecting) {
+    return {
+      onClickCapture: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onSelect?.(message.id, { shift: e.shiftKey });
+      },
+      onContextMenu: (e) => e.preventDefault(),
+    };
+  }
+  return {
+    ...touch,
+    onContextMenu: (e) => {
+      if (!bubble.current?.contains(e.target)) {
+        return;
+      }
+      e.preventDefault();
+      open(menuPoint(e, bubble.current));
+    },
+    onDoubleClick: (e) => {
+      if (!bubble.current?.contains(e.target) || message.pending) {
+        return;
+      }
+      if (e.target.closest?.('a, button, video, audio, input')) {
+        return;
+      }
+      dropTextSelection();
+      onAction('reply', message);
+    },
+  };
+};
 
 /**
  * One message bubble: renders all Telegram display parts.
@@ -785,7 +1092,11 @@ const BubbleContent = ({
  *   composer    — composer handle (for BubbleActions)
  *   api         — dom.js api
  *   onScrollTo  — (id) => void
- *   onAction    — (action, message) => void
+ *   onAction    — (action, message, value) => void
+ *   menuFor     — (message, { selectedText, selected }) => menu items
+ *   selecting   — messages are being selected
+ *   selected    — this one is among them
+ *   onSelect    — (id, { shift }) => void
  */
 export const MessageBubble = ({
   message,
@@ -798,13 +1109,28 @@ export const MessageBubble = ({
   api,
   onScrollTo,
   onAction,
+  menuFor,
+  selecting = false,
+  selected = false,
+  onSelect,
 }) => {
   const t = useT();
   const { time } = useDates();
-  const [menuPos, setMenuPos] = useState(null);
+  const [menu, setMenu] = useState(null);
   const row = useRef(null);
+  const bubble = useRef(null);
   const mine = message.sender === 'me';
   const leaving = useLeavingRow(row, message);
+  const handlers = useRowHandlers({
+    row,
+    bubble,
+    message,
+    usable: Boolean(onAction) && !leaving && !message.service,
+    selecting,
+    onSelect,
+    onAction,
+    setMenu,
+  });
 
   if (message.service) {
     return el(ServiceLine, { link: message });
@@ -813,59 +1139,54 @@ export const MessageBubble = ({
   const parts = parseMessageParts(message, msgById ?? new Map());
   const chat = chatIdOf(message.id);
   const netId = netIdOf(message.id);
-  const seenId = mine || message.pending || leaving ? null : netId;
-
-  const openMenu = (e) => {
-    e.preventDefault();
-    const r = e.currentTarget.getBoundingClientRect();
-    setMenuPos({ x: r.left, y: r.bottom });
-  };
-
-  const bubbleClass = makeBubbleClass(mine, message, parts);
-
   const bubbleProps = {
     key: 'bub',
-    className: bubbleClass,
+    ref: bubble,
+    className: makeBubbleClass(mine, message, parts),
     'data-message': message.id,
-    ...(seenId ? { 'data-seen-id': seenId } : {}),
-    ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
-    onContextMenu: onAction && !leaving ? openMenu : undefined,
+    ...seenProps(message, { mine, leaving, netId }),
   };
 
-  return el('div', { ref: row, ...rowProps(mine, leaving, run) }, [
-    isPersonal || mine
-      ? null
-      : el(MsgAvatar, { key: 'av', message, show: showAvatar, api }),
-    el(
-      'div',
-      bubbleProps,
-      el(BubbleContent, {
-        parts,
-        message,
-        showName,
-        mine,
-        api,
-        chat,
-        netId,
-        composer,
-        onScrollTo,
-        openMenu,
-        onAction,
-        time,
-        t,
-      })
-    ),
-    menuPos && !leaving
-      ? el(MsgContextMenu, {
-          key: 'menu',
-          x: menuPos.x,
-          y: menuPos.y,
+  return el(
+    'div',
+    {
+      ref: row,
+      ...rowProps(mine, leaving, run, { selecting, selected }),
+      ...handlers,
+    },
+    [
+      selecting ? el(SelectCheck, { key: 'check', selected }) : null,
+      isPersonal || mine
+        ? null
+        : el(MsgAvatar, { key: 'av', message, show: showAvatar, api }),
+      el(
+        'div',
+        bubbleProps,
+        el(BubbleContent, {
+          parts,
           message,
-          onClose: () => setMenuPos(null),
-          onAction,
+          showName,
+          mine,
+          api,
+          chat,
+          netId,
+          composer,
+          onScrollTo,
+          time,
+          t,
         })
-      : null,
-  ]);
+      ),
+      openMenu({
+        menu,
+        shown: !leaving && !selecting,
+        message,
+        menuFor,
+        selected,
+        onClose: () => setMenu(null),
+        onAction,
+      }),
+    ]
+  );
 };
 
 // A leaving message's row closes its place (./chat-leaving.js).
@@ -880,8 +1201,16 @@ const useLeavingRow = (row, message) => {
 
 // Where in a run of one sender's messages the row is: Telegram rounds
 // the bubbles' inner corners between them.
-const rowProps = (mine, leaving, run = {}) => ({
-  className: leaving ? 'bubble-row is-leaving' : 'bubble-row',
+const rowProps = (mine, leaving, run = {}, { selecting, selected } = {}) => ({
+  className: [
+    'bubble-row',
+    leaving ? 'is-leaving' : null,
+    selecting ? 'is-selectable' : null,
+    selected ? 'is-selected' : null,
+  ]
+    .filter(Boolean)
+    .join(' '),
+  ...(selecting ? { 'aria-selected': selected ? 'true' : 'false' } : {}),
   'data-mine': mine ? 'true' : undefined,
   'data-run-first': run.first === false ? undefined : 'true',
   'data-run-last': run.last === false ? undefined : 'true',

@@ -484,6 +484,19 @@ to its official web UI. **Settings → Appearance** picks the theme
 (system, light, dark, or auto by the time of day) and the skin (t3.codes,
 Telegram, WhatsApp or Signal).
 
+Messages work as in Telegram's apps. Right-click a message (or press
+and hold it on a phone) for its menu, opened where you clicked: its
+reactions, then **Reply**, **Edit**, **Copy text** (or **Copy selected
+text** when part of it is selected), **Copy link** (channels and
+supergroups), **Pin**/**Unpin**, **Forward**, **Select** and **Delete**.
+Double-click a message — or swipe it to the left on a phone — to reply;
+double-tap reacts with 👍. **Select** starts selecting: click messages
+(Shift+click for a range, up to 100) and use the bar in the composer's
+place to copy them (each under its sender's name and time), forward or
+delete them all at once; **Esc** ends it, **Ctrl/Cmd+C** copies and
+**Delete** deletes. In an empty composer **↑** edits your last message,
+and **Ctrl/Cmd+↑/↓** choose the message to reply to.
+
 ```bash
 # saved automations and presets
 meta-sovereign automations

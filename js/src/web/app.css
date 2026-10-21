@@ -655,6 +655,35 @@ main[data-view='chat'] > .web-mode-banner {
 .chat-notice.failed {
   background: #f8514933;
 }
+/* "Copied" floats over the chat like Telegram's toast and goes by
+   itself; the messages do not move for it. */
+.chat-notice.copied,
+.chat-notice.link-copied {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: 5.5rem;
+  transform: translateX(-50%);
+  width: auto;
+  max-width: calc(100% - 2rem);
+  margin: 0;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff;
+  pointer-events: none;
+  animation: toast-in 0.15s ease-out;
+}
+.chat-notice.copied .icon-btn,
+.chat-notice.link-copied .icon-btn {
+  display: none;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 0.5rem);
+  }
+}
 .chat-notice .icon-btn {
   flex: none;
   width: 2rem;
@@ -3211,44 +3240,50 @@ button.primary .recommended-tag {
   color: var(--chat-accent, var(--accent));
 }
 
-/* More actions button on a bubble (shows on hover). */
-.bubble-more-btn {
-  position: absolute;
-  top: 0.2rem;
-  right: 0.2rem;
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.1rem 0.35rem;
-  font-size: 0.75rem;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s;
-}
-.bubble:hover .bubble-more-btn,
-.bubble:focus-within .bubble-more-btn {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Context menu. */
+/* A message's menu, as in Telegram's web app (R-Y67): at the pointer,
+   rounded, frosted, an icon before each item; it grows from the corner
+   it opened at. */
 .msg-context-menu {
   position: fixed;
   z-index: 1000;
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: 0 4px 24px var(--shadow);
+  background: var(--surface-glass-bg, var(--bg-elev));
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--surface-glass-border, var(--border));
+  border-radius: 12px;
+  box-shadow: 0 6px 28px var(--shadow);
   list-style: none;
   margin: 0;
-  padding: 0.25rem 0;
-  min-width: 140px;
+  padding: 0.3rem;
+  min-width: 190px;
+  transform-origin: top left;
+  animation: menu-open 0.15s ease-out;
+}
+@keyframes menu-open {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .msg-context-menu {
+    animation: none;
+  }
 }
 .msg-context-menu li {
-  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
+  font-weight: 500;
   white-space: nowrap;
+}
+.msg-context-menu li > .icon {
+  flex: none;
+  opacity: 0.75;
 }
 .msg-context-menu li:hover,
 .msg-context-menu li:focus {
@@ -3257,6 +3292,120 @@ button.primary .recommended-tag {
 }
 .msg-context-menu li.msg-context-delete {
   color: var(--danger);
+}
+.msg-context-menu li.msg-context-delete > .icon {
+  opacity: 1;
+}
+
+/* Selecting messages (R-Y67): a round check at each row's start, the
+   chosen rows tinted end to end, a click anywhere on a row picks it. */
+.chat-column.is-selecting .bubble-row {
+  padding-left: 2.4rem;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.chat-column.is-selecting .bubble-row::before {
+  content: '';
+  position: absolute;
+  inset: 1px -0.75rem;
+  border-radius: 10px;
+  pointer-events: none;
+}
+.chat-column.is-selecting .bubble-row.is-selected::before {
+  background: color-mix(
+    in srgb,
+    var(--chat-accent, var(--accent)) 16%,
+    transparent
+  );
+}
+.bubble-check {
+  position: absolute;
+  left: 0.3rem;
+  bottom: 0.35rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 2px solid var(--muted, rgba(127, 127, 127, 0.7));
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  color: #fff;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+.bubble-check.is-checked {
+  background: var(--chat-accent, var(--accent));
+  border-color: var(--chat-accent, var(--accent));
+}
+.chat-column.is-selecting .bubble-row a,
+.chat-column.is-selecting .bubble-row button {
+  pointer-events: none;
+}
+
+/* The bar in the composer's place while messages are selected. */
+.selection-bar {
+  position: absolute;
+  left: 50%;
+  bottom: 0.75rem;
+  transform: translateX(-50%);
+  width: min(var(--chat-column), calc(100% - 2rem));
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.45rem 0.6rem;
+  box-sizing: border-box;
+  border: 1px solid var(--surface-glass-border);
+  border-radius: 16px;
+  background: var(--surface-glass-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: var(--surface-glass-shadow);
+}
+.selection-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 10px;
+}
+.selection-bar-count {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.selection-bar-gap {
+  flex: 1;
+}
+.selection-bar-delete {
+  color: var(--danger);
+}
+@media (max-width: 560px) {
+  .selection-bar-label {
+    display: none;
+  }
+}
+
+/* A row follows the finger in a swipe to reply; it comes back after. */
+.bubble-row {
+  transition: transform 0.2s ease-out;
+  touch-action: pan-y pinch-zoom;
+}
+.bubble-row.is-swiping {
+  transition: none;
+}
+
+/* Pin question. */
+.pin-dialog h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+.pin-dialog-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.75rem;
 }
 
 /* Delete confirmation dialog. */

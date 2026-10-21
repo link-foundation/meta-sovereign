@@ -1,0 +1,5 @@
+---
+'meta-sovereign': minor
+---
+
+R-Y67: messages are selected and acted on as in Telegram's apps. A right-click (or a long press) opens the message's menu at the pointer with its reactions and Reply, Edit, Copy text or Copy selected text, Copy link, Pin/Unpin, Forward, Select and Delete, in Telegram's order; Esc, a scroll or a click outside closes it. A double-click or a swipe to the left replies, a double tap reacts with 👍. Select starts selection mode: a check on every message, click or Shift+click to choose up to 100, then copy (under each sender's name and time), forward or delete them at once from the bar in the composer's place; Esc, Ctrl/Cmd+C and Delete work as in Telegram Desktop. In an empty composer ↑ edits the last own message and Ctrl/Cmd+↑/↓ choose the reply. Pinning asks Telegram's question ("Pin for me and …", "Pin and notify all members") and goes through the new `POST /api/telegram/pin`. An open chat whose older messages Telegram cannot give yet (not connected, still loading) now asks again every 5 seconds instead of hundreds of times a second.

@@ -816,6 +816,12 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for delete' },
 
+  // Pin or unpin a message (unpin, oneSide, silent as Telegram has them).
+  telegramPin: async (body = {}) =>
+    (await serverPostReport('/api/telegram/pin', body).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for pin' },
+
   // Edit, delete, react to, forward a message or mark a chat read on any
   // network: the server tries the API, then the network's web app.
   messageAction: async (action, body = {}) =>

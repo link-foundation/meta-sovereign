@@ -22,6 +22,8 @@
  *                                      -> { ok, forwarded }
  *   POST /api/telegram/delete {chat, ids, revoke?}
  *                                      -> { ok, deleted }
+ *   POST /api/telegram/pin {chat, id, unpin?, oneSide?, silent?}
+ *                                      -> { ok, pinned }
  *   GET  /api/telegram/media?chat=&id=&size=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
@@ -134,6 +136,26 @@ const POSTS = {
         fromChat: body.fromChat,
         toChat: body.toChat,
         ids: body.ids,
+      }),
+    ];
+  },
+  // Pin or unpin one message (R-Y67).
+  pin: async (account, body) => {
+    if (
+      !body.chat ||
+      !validIds([body.id]) ||
+      typeof account.pinMessage !== 'function'
+    ) {
+      return [400, { error: 'chat and id required', code: 'bad-request' }];
+    }
+    return [
+      200,
+      await account.pinMessage({
+        chat: body.chat,
+        id: body.id,
+        unpin: Boolean(body.unpin),
+        oneSide: Boolean(body.oneSide),
+        silent: Boolean(body.silent),
       }),
     ];
   },

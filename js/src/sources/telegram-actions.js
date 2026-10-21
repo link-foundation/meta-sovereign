@@ -13,6 +13,8 @@
  *   Chat; Telegram's answer goes through the live handler at once (the
  *   forwarded messages appear, the deleted ones go) and moves the update
  *   counters, so the catch-up does not ask for them again.
+ * - `pinMessage({ chat, id, unpin, oneSide, silent })` pins or unpins
+ *   one message (R-Y67); Telegram's answer moves the pinned bar.
  * - `media({ chat, id, size })` is ./telegram-media.js.
  */
 
@@ -78,6 +80,34 @@ const makeReact =
     );
     await apply(client, result);
     return { ok: true, reacted: msgId };
+  };
+
+// Pin or unpin a message (R-Y67). As in Telegram's apps, a pin is for
+// both sides and notifies unless `oneSide` (a private chat: pin for me
+// only) or `silent` says otherwise.
+const makePin =
+  (env, userClient, apply) =>
+  async ({ chat, id, unpin = false, oneSide = false, silent = false } = {}) => {
+    const msgId = Number(id);
+    const client =
+      Number.isInteger(msgId) && msgId > 0 && chat ? await userClient() : null;
+    if (!client) {
+      return { ok: false, supported: false };
+    }
+    const { Api } = await env.importer();
+    const result = await env.connection.withPeer(client, String(chat), (peer) =>
+      client.invoke(
+        new Api.messages.UpdatePinnedMessage({
+          peer,
+          id: msgId,
+          unpin: Boolean(unpin),
+          pmOneside: Boolean(oneSide),
+          silent: Boolean(silent),
+        })
+      )
+    );
+    await apply(client, result);
+    return { ok: true, pinned: unpin ? null : msgId };
   };
 
 const cleanIds = (ids) =>
@@ -239,6 +269,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 
   const editMessage = makeEditMessage(env, userClient, apply);
   const react = makeReact(env, userClient, apply);
+  const pinMessage = makePin(env, userClient, apply);
 
   const reader = mediaDir
     ? createMediaReader({
@@ -261,6 +292,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     deleteMessages,
     editMessage,
     react,
+    pinMessage,
     media,
     ...markReaders(env, tools, userClient, dialogOf),
     ...readers,

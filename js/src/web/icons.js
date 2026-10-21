@@ -186,6 +186,40 @@ const ICONS = {
     ['path', { d: 'M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' }],
     ['circle', { cx: 12, cy: 7, r: 4 }],
   ],
+  // Lucide reply, pencil, copy, link, forward, circle-check, trash-2:
+  // the message menu and the selection bar (R-Y67).
+  reply: [
+    ['polyline', { points: '9 17 4 12 9 7' }],
+    ['path', { d: 'M20 18v-2a4 4 0 0 0-4-4H4' }],
+  ],
+  edit: [['path', { d: 'M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z' }]],
+  copy: [
+    ['rect', { x: 8, y: 8, width: 14, height: 14, rx: 2, ry: 2 }],
+    ['path', { d: 'M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2' }],
+  ],
+  link: [
+    [
+      'path',
+      { d: 'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' },
+    ],
+    [
+      'path',
+      { d: 'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' },
+    ],
+  ],
+  forward: [
+    ['polyline', { points: '15 17 20 12 15 7' }],
+    ['path', { d: 'M4 18v-2a4 4 0 0 1 4-4h12' }],
+  ],
+  select: [
+    ['circle', { cx: 12, cy: 12, r: 10 }],
+    ['path', { d: 'm9 12 2 2 4-4' }],
+  ],
+  trash: [
+    ['path', { d: 'M3 6h18' }],
+    ['path', { d: 'M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6' }],
+    ['path', { d: 'M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2' }],
+  ],
   'arrow-down': [
     ['path', { d: 'M12 5v14' }],
     ['path', { d: 'm19 12-7 7-7-7' }],
