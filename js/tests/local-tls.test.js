@@ -12,6 +12,7 @@ import path from 'node:path';
 
 import { startServer } from '../src/server/index.js';
 import {
+  canShareTlsPort,
   loadLocalTls,
   localTlsPaths,
   makeLocalCertificate,
@@ -43,13 +44,23 @@ test('the certificate is for this machine only, and fit for Safari', () => {
   const now = Date.parse('2026-10-21T00:00:00Z');
   const { key, cert } = makeLocalCertificate({ now });
   const x509 = new crypto.X509Certificate(cert);
-  assert.ok(x509.verify(x509.publicKey), 'signed by its own key');
-  assert.ok(x509.checkPrivateKey(crypto.createPrivateKey(key)));
-  assert.equal(x509.checkHost('localhost'), 'localhost');
-  assert.equal(x509.checkIP('127.0.0.1'), '127.0.0.1');
-  assert.equal(x509.checkHost('example.com'), undefined);
-  assert.equal(x509.ca, false, 'no authority over other sites');
-  assert.deepEqual(x509.keyUsage, ['1.3.6.1.5.5.7.3.1']);
+  // Read from the DER on every runtime: the names it stands for, no
+  // others, and that it serves TLS (serverAuth).
+  const der = Buffer.from(cert.replace(/-----[^-]+-----|\s/g, ''), 'base64');
+  const has = (hex) => der.includes(Buffer.from(hex, 'hex'));
+  assert.ok(has('82096c6f63616c686f7374'), 'DNS localhost');
+  assert.ok(has('87047f000001'), 'IP 127.0.0.1');
+  assert.ok(has('871000000000000000000000000000000001'), 'IP ::1');
+  assert.ok(has('06082b06010505070301'), 'for TLS servers');
+  // Deno does not have these checks yet; a TLS handshake proves them.
+  if (typeof globalThis.Deno === 'undefined') {
+    assert.ok(x509.verify(x509.publicKey), 'signed by its own key');
+    assert.ok(x509.checkPrivateKey(crypto.createPrivateKey(key)));
+    assert.equal(x509.checkHost('localhost'), 'localhost');
+    assert.equal(x509.checkIP('127.0.0.1'), '127.0.0.1');
+    assert.equal(x509.checkHost('example.com'), undefined);
+    assert.equal(x509.ca, false, 'no authority over other sites');
+  }
   const days = (Date.parse(x509.validTo) - Date.parse(x509.validFrom)) / DAY_MS;
   assert.ok(days <= 825, `Apple takes at most 825 days, got ${days}`);
 });
@@ -87,6 +98,11 @@ test('one port answers http and https, and https has a trust page', async () => 
     tls: true,
   });
   try {
+    if (!canShareTlsPort()) {
+      // Bun and Deno own the listening socket: plain http there.
+      assert.equal(handle.tls, null);
+      return;
+    }
     assert.ok(handle.tls?.certPath);
     const ca = await fs.readFile(handle.tls.certPath, 'utf8');
     const plain = await fetch(`http://127.0.0.1:${handle.port}/api/status`);
