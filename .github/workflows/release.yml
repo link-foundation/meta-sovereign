@@ -429,6 +429,35 @@ jobs:
             echo "All required documentation files present."
           fi
 
+  # The package as npm would ship it, without publishing: `npm pack`
+  # builds the tarball `npm publish` uploads, npx runs it, and the
+  # server it starts must serve the app (js/tests/pack-smoke.mjs).
+  package:
+    name: Package (packed and run with npx)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.any-code-changed == 'true' ||
+      needs.detect-changes.outputs.package-changed == 'true'
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: What npm publish would upload
+        run: npm publish --dry-run --ignore-scripts
+
+      - name: Run the packed package with npx
+        run: npm run test:pack
+
   # Release - only runs on main after tests pass (for push events)
   release:
     name: Release
@@ -436,7 +465,7 @@ jobs:
     # GitHub release, doc upload). Typical run is well under 10min;
     # 30min covers npm registry retries on a bad day.
     timeout-minutes: 30
-    needs: [lint, test, docs-build]
+    needs: [lint, test, docs-build, package]
     # Use !cancelled() instead of always() so cancellation propagates correctly (hive-mind issue #1278)
     # This is needed because lint/test jobs have a transitive dependency on changeset-check
     if: |
@@ -445,6 +474,7 @@ jobs:
       github.event_name == 'push' &&
       needs.lint.result == 'success' &&
       needs.test.result == 'success' &&
+      needs.package.result == 'success' &&
       (needs.docs-build.result == 'success' || needs.docs-build.result == 'skipped')
     runs-on: ubuntu-latest
     # Permissions required for npm OIDC trusted publishing

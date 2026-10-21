@@ -37,6 +37,7 @@
     "test": "node --test --test-timeout=30000 js/tests/*.test.js",
     "test:e2e:browser": "node js/tests/e2e-browser-spa.mjs",
     "test:e2e:pages": "node js/tests/e2e-pages.mjs",
+    "test:pack": "node js/tests/pack-smoke.mjs",
     "test:e2e:cv": "node js/tests/e2e-cv-browser.mjs",
     "test:e2e:greetings": "node js/tests/e2e-greetings-browser.mjs",
     "test:e2e:tutorial": "node js/tests/e2e-tutorial-browser.mjs",
