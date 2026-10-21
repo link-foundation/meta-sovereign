@@ -18,9 +18,11 @@ const skip = (msg) => {
 if (!process.env.RUN_BROWSER_E2E) {
   skip('RUN_BROWSER_E2E not set');
 }
-let chromium;
+// E2E_BROWSER=webkit runs it in Safari's engine.
+const engine = process.env.E2E_BROWSER || 'chromium';
+let browserType;
 try {
-  ({ chromium } = await import('playwright'));
+  browserType = (await import('playwright'))[engine];
 } catch {
   skip('playwright not installed');
 }
@@ -62,14 +64,29 @@ const handle = await startServer({
   log: null,
 });
 const base = `http://127.0.0.1:${handle.port}`;
-const browser = await chromium.launch({ headless: true });
+const browser = await browserType.launch({ headless: true });
 const context = await browser.newContext({
   viewport: { width: 1100, height: 800 },
 });
-await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
-  origin: base,
-});
+// WebKit knows no clipboard permissions (it allows writes on a click).
+if (engine === 'chromium') {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+    origin: base,
+  });
+}
 const page = await context.newPage();
+if (engine !== 'chromium') {
+  await page.addInitScript(() => {
+    const clipboard = globalThis.navigator.clipboard;
+    const write = clipboard?.writeText?.bind(clipboard);
+    if (clipboard) {
+      clipboard.writeText = (text) => {
+        globalThis.__copied = text;
+        return write ? write(text).catch(() => {}) : Promise.resolve();
+      };
+    }
+  });
+}
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
 
@@ -118,6 +135,27 @@ try {
         'select',
       ]),
     `single menu: ${await menu()}`
+  );
+  await page.keyboard.press('Escape');
+  await pause();
+  // Safari selects the word under a right-click; Telegram does not.
+  assert(
+    (await page.evaluate(() => String(globalThis.getSelection()))) === '',
+    'no word left selected by the right-click'
+  );
+
+  // Beside the bubble the row is the message's too.
+  const row2 = await page.locator(`[data-row="${idOf(2)}"]`).boundingBox();
+  const bubble2 = await bodyBox(2);
+  await page.mouse.click(
+    (bubble2.x + bubble2.width + row2.x + row2.width) / 2,
+    bubble2.y + bubble2.height / 2,
+    { button: 'right' }
+  );
+  await page.waitForSelector('[role=menu] [data-action]', { timeout: 3000 });
+  assert(
+    (await menu())[0] === 'reply',
+    `menu beside the bubble: ${await menu()}`
   );
   await page.keyboard.press('Escape');
   await pause();
@@ -174,8 +212,11 @@ try {
   await rightClick(7);
   await page.click('[role=menu] [data-action="copySelectedItems"]');
   await pause();
-  const copied = await page.evaluate(() =>
-    globalThis.navigator.clipboard.readText()
+  // WebKit lets no script read the clipboard: what was written is kept.
+  const copied = await page.evaluate(
+    (real) =>
+      real ? globalThis.navigator.clipboard.readText() : globalThis.__copied,
+    engine === 'chromium'
   );
   const lines = copied.split('\n');
   assert(lines.length === 6, `copied lines: ${lines.length}`);

@@ -64,7 +64,8 @@
     "changeset": "changeset",
     "changeset:version": "node js/scripts/changeset-version.mjs",
     "changeset:publish": "changeset publish",
-    "changeset:status": "changeset status --since=origin/main"
+    "changeset:status": "changeset status --since=origin/main",
+    "test:e2e:selection:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-selection-browser.mjs"
   },
   "keywords": [
     "personal-crm",

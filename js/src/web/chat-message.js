@@ -27,8 +27,8 @@ import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
-import { menuItems, selectedTextIn } from './chat-selection.js';
-import { useTouchGestures } from './chat-gestures.js';
+import { menuItems } from './chat-selection.js';
+import { useRowHandlers } from './chat-row.js';
 import {
   MediaAudio,
   MediaCard,
@@ -1081,20 +1081,6 @@ const BubbleContent = ({
     : null,
 ];
 
-// The menu opens where the pointer is; from the keyboard (the menu key,
-// Shift+F10) the event has no point, so at the bubble's corner.
-const menuPoint = (event, node) => {
-  if (event.clientX || event.clientY) {
-    return { x: event.clientX, y: event.clientY };
-  }
-  const r = node?.getBoundingClientRect?.();
-  return r ? { x: r.left, y: r.bottom } : { x: 0, y: 0 };
-};
-
-// Double-click replies (Telegram Desktop): the word it selected is let go.
-const dropTextSelection = () =>
-  globalThis.getSelection?.()?.removeAllRanges?.();
-
 // The bubble's marks: the id the reader has seen, how it was delivered.
 const seenProps = (message, { mine, leaving, netId }) => {
   const seenId = mine || message.pending || leaving ? null : netId;
@@ -1128,17 +1114,6 @@ const openMenu = ({ menu, shown, message, menuFor, selecting, ...rest }) =>
       })
     : null;
 
-// What the pointer is on: a link (its address), a photo, a sticker.
-const targetOf = (node) => {
-  const link = node?.closest?.('a[href]');
-  const href = link?.getAttribute?.('href') ?? '';
-  return {
-    url: /^(https?:|mailto:|tg:)/i.test(href) ? link.href : null,
-    photo: Boolean(node?.closest?.('.bubble-photo')),
-    sticker: Boolean(node?.closest?.('.bubble-sticker')),
-  };
-};
-
 // The round check a message shows while messages are selected, at the
 // row's right end (Telegram Desktop).
 const SelectCheck = ({ selected }) =>
@@ -1151,83 +1126,6 @@ const SelectCheck = ({ selected }) =>
     },
     selected ? el(Icon, { name: 'check', size: 14 }) : null
   );
-
-/**
- * The row's ways in, as in Telegram Desktop: right-click (or a long
- * press) opens the menu where it happened, a double-click (or a swipe to
- * the left) replies, a double tap reacts with 👍; while messages are
- * selected a click anywhere on the row adds or takes the message
- * (Shift+click a range), a right-click anywhere opens the selection's
- * menu, and nothing inside the row opens.
- */
-const useRowHandlers = ({
-  row,
-  bubble,
-  message,
-  usable,
-  selecting,
-  onSelect,
-  onAction,
-  setMenu,
-}) => {
-  const open = (point, node = null) => {
-    setMenu({
-      ...point,
-      text: selectedTextIn(bubble.current),
-      target: targetOf(node),
-    });
-  };
-  const touch = useTouchGestures({
-    rowRef: row,
-    enabled: () => usable && !selecting,
-    onLongPress: (point) => {
-      dropTextSelection();
-      open(point);
-    },
-    onSwipe: () => onAction('reply', message),
-    onDoubleTap: () => onAction('react', message, QUICK_REACTIONS[0]),
-  });
-  if (!usable) {
-    return {};
-  }
-  if (selecting) {
-    return {
-      onClickCapture: (e) => {
-        // The row's own menu takes its clicks.
-        if (e.target.closest?.('[role="menu"]')) {
-          return;
-        }
-        e.preventDefault();
-        e.stopPropagation();
-        onSelect?.(message.id, { shift: e.shiftKey });
-      },
-      onContextMenu: (e) => {
-        e.preventDefault();
-        open(menuPoint(e, row.current));
-      },
-    };
-  }
-  return {
-    ...touch,
-    onContextMenu: (e) => {
-      if (!bubble.current?.contains(e.target)) {
-        return;
-      }
-      e.preventDefault();
-      open(menuPoint(e, bubble.current), e.target);
-    },
-    onDoubleClick: (e) => {
-      if (!bubble.current?.contains(e.target) || message.pending) {
-        return;
-      }
-      if (e.target.closest?.('a, button, video, audio, input')) {
-        return;
-      }
-      dropTextSelection();
-      onAction('reply', message);
-    },
-  };
-};
 
 /**
  * One message bubble: renders all Telegram display parts.
@@ -1282,6 +1180,7 @@ export const MessageBubble = ({
     onSelect,
     onAction,
     setMenu,
+    quickReaction: QUICK_REACTIONS[0],
   });
 
   if (message.service) {
