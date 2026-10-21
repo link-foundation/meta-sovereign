@@ -19,11 +19,15 @@
  *   { kind: 'draft', chat, text, date }           the chat's cloud draft
  *                                                 changed (another device)
  *   { kind: 'typing', chat, user, typing }        someone types (or stops)
+ *   { kind: 'poll', chat, id, pollId, poll, results }
+ *                                                 a poll's results moved
  *
  * Chat ids are GramJS "marked" peer ids, the same ones dialogs use: a
  * user's id, `-<id>` for a basic group, `-100<id>` for a channel or
  * supergroup.
  */
+
+import { rawMessage } from './telegram-history.js';
 
 const text = (value) =>
   value === null || value === undefined ? null : String(value.value ?? value);
@@ -124,6 +128,17 @@ const stillUnreadOf = (u) =>
     : {};
 
 const SIMPLE_EFFECTS = {
+  // A poll's results moved (anyone's vote, ours too), R-Y74: which poll
+  // (by message when Telegram says, else by poll id), its new results
+  // and, when it changed (closed), the poll.
+  UpdateMessagePoll: (u) => ({
+    kind: 'poll',
+    chat: u.peer ? peerChatId(u.peer) : null,
+    id: Number(u.msgId) || null,
+    pollId: u.pollId === undefined ? null : String(u.pollId),
+    poll: u.poll ? rawMessage(u.poll) : null,
+    results: rawMessage(u.results ?? null),
+  }),
   UpdateDeleteMessages: (u) => ({ kind: 'delete', chat: null, ids: ids(u) }),
   UpdateDeleteChannelMessages: (u) => ({
     kind: 'delete',

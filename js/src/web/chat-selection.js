@@ -3,7 +3,8 @@
  *
  * The menu (HistoryInner::showContextMenu) lists, with nothing selected:
  * Reply (Quote & Reply when part of the text is selected), Edit,
- * Pin/Unpin, Save As… and Copy Image on a photo (Save As… on a sticker),
+ * Pin/Unpin, Retract Vote and Stop Poll on a poll (R-Y74), Save As… and
+ * Copy Image on a photo (Save As… on a sticker),
  * Copy Text (Copy Selected Text), Copy Link on a link else Copy Message
  * Link (Copy Post Link in a channel), Forward, Delete, Select. While
  * messages are selected it lists, on one of them: Reply, Copy Selected
@@ -24,6 +25,7 @@
  * `history_item_text.cpp`, `history_view_top_bar_widget.cpp`.
  */
 
+import { canRetract, canStop, pollOfMessage } from './poll-parts.js';
 import React, {
   useCallback,
   useEffect,
@@ -91,6 +93,14 @@ const pinItem = (message, where) => {
   return message.raw?.pinned ? 'unpin' : 'pin';
 };
 
+// A poll's own: Retract vote, Stop poll (its author), as Desktop has.
+const pollItems = (message) => {
+  const poll = pollOfMessage(message);
+  return poll
+    ? [canRetract(poll) && 'retractVote', canStop(poll, message) && 'stopPoll']
+    : [];
+};
+
 /**
  * The part of the message's text that `selectedText` quotes, when it is
  * a part of it (Telegram takes only exact quotes), else null.
@@ -134,6 +144,7 @@ const singleItems = ({ message, chat, info, selectedText, target, now }) => {
     selectedText ? 'copySelected' : null,
     canEdit(message, now) && 'edit',
     pinItem(message, where),
+    ...pollItems(message),
     ...mediaItems(target, sent),
     copy,
     linkItem({ message, chat, info, target }),

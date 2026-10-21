@@ -271,9 +271,36 @@ const publicStatus = (link = {}) =>
 // One connected GramJS client per stored session, reused across requests.
 // `onOpen(client, me)` runs once per new client (live updates attach
 // there). Chats are addressed by their stored input peer (`peers`).
+// GramJS drops an answer holding a type its schema does not know, and
+// says so only at "info": the request then waits until it is given up
+// as stuck. Which constructor, in the log (never the data).
+const UNDECODABLE =
+  /^(?:Type (-?\d+) not found|Received response without parent request)/;
+export const watchUndecodable = (client, log) => {
+  const logger = client?._log;
+  if (!logger?.info || !log) {
+    return;
+  }
+  const info = logger.info.bind(logger);
+  logger.info = (message) => {
+    const found = UNDECODABLE.exec(String(message));
+    if (found) {
+      log({
+        level: 'warn',
+        event: 'telegram_type_unknown',
+        constructor: found[1]
+          ? (Number(found[1]) >>> 0).toString(16).padStart(8, '0')
+          : null,
+      });
+    }
+    info(message);
+  };
+};
+
 export const createUserConnection = ({
   clientFactory,
   dialogLimit,
+  log,
   onOpen,
   peers,
   request,
@@ -308,6 +335,7 @@ export const createUserConnection = ({
       session: creds.session,
     });
     client.setLogLevel?.('error');
+    watchUndecodable(client, log);
     try {
       await client.connect();
       const me = accountOf(await client.getMe());
@@ -1007,6 +1035,19 @@ const runRepairs = (store, log, refresh) =>
       })
     );
 
+// The connection's state, shown in Chat ("Telegram: reconnecting…");
+// written on change only.
+const connectionRecorder = (store) => {
+  let current = null;
+  return (state) => {
+    const next = CONNECTION[state] ?? null;
+    if (next !== current) {
+      current = next;
+      recordSync(store, { connection: next }).catch(() => {});
+    }
+  };
+};
+
 export const createTelegramAccount = ({
   store,
   clientFactory = gramjsClientFactory(),
@@ -1036,7 +1077,6 @@ export const createTelegramAccount = ({
       recordSync(store, { changedAt: new Date(now()).toISOString() }),
   });
   let resync = async () => {}; // set once `sync` exists
-  let connectionState = null;
   const env = { store, botLive, importer, log, now, live };
   const catchUp = createTelegramCatchUp({
     store,
@@ -1047,18 +1087,12 @@ export const createTelegramAccount = ({
     request: (key, task) => env.queue.run(key, 'list', task),
     importer,
     log,
-    // Shown in Chat ("Telegram: reconnecting…"); written on change only.
-    onConnection: (state) => {
-      const next = CONNECTION[state] ?? null;
-      if (next !== connectionState) {
-        connectionState = next;
-        recordSync(store, { connection: next }).catch(() => {});
-      }
-    },
+    onConnection: connectionRecorder(store),
   });
   const connection = createUserConnection({
     clientFactory,
     dialogLimit,
+    log,
     peers: { input: (chat) => env.peers.input(chat) },
     request: (key, task) => env.queue.run(key, 'list', task),
     now,

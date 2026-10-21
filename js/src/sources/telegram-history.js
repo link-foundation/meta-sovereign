@@ -17,6 +17,8 @@
  * list, then chats visible in it, then the slow background download.
  */
 
+import { AsyncLocalStorage } from 'node:async_hooks';
+
 const SOURCE = 'telegram';
 
 export const historyLinkId = (chat) => `history:${SOURCE}:${chat}`;
@@ -209,7 +211,9 @@ const floodError = (retryAfter) =>
  * slower for an hour. `onHold(holds)` saves the holds, `hold(holds)`
  * restores them after a restart. A request with no answer within
  * `stuck` is turned down (`code: 'telegram-stuck'`) and `onStuck(job)`
- * told, so the connection can be opened anew.
+ * told, so the connection can be opened anew. A request asked by one in
+ * flight (the peer a refresh needs looked up) is part of it and runs at
+ * once: queued, it would wait for the request waiting for it.
  */
 // The queue's clock: when each request of the last minute began, and
 // Telegram's waits (`holdUntil`: nothing; `methods`: one method).
@@ -312,6 +316,16 @@ const answerWithin = (job, { stuck, log, onStuck, setTimer, clearTimer }) => {
   return Promise.race([job.task(), gaveUp]).finally(() => clearTimer(given));
 };
 
+// A request in the queue: what it asks and the promise it answers.
+const newJob = (key, priority, task, seq) => {
+  const job = { key, method: methodOf(key), priority, task, seq };
+  job.promise = new Promise((resolve, reject) => {
+    job.resolve = resolve;
+    job.reject = reject;
+  });
+  return job;
+};
+
 export const createFetchQueue = ({
   now = () => Date.now(),
   log = () => {},
@@ -324,6 +338,7 @@ export const createFetchQueue = ({
 } = {}) => {
   const waiting = [];
   const byKey = new Map();
+  const inJob = new AsyncLocalStorage();
   const pacing = createPacing({ pace, now });
   const { readyAt, heldUntil, hold, holds } = pacing;
   let busy = false;
@@ -372,14 +387,19 @@ export const createFetchQueue = ({
     pacing.began();
     try {
       job.resolve(
-        await answerWithin(job, { stuck, log, onStuck, setTimer, clearTimer })
+        await inJob.run(job, () =>
+          answerWithin(job, { stuck, log, onStuck, setTimer, clearTimer })
+        )
       );
+      job.done = true;
     } catch (error) {
+      job.done = true;
       note(error, job);
       const tries = job.reconnectTries ?? 0;
       if (isDisconnected(error) && tries < DISCONNECTED_RETRIES) {
         // Back in line once the connection had time to come back.
         job.reconnectTries = tries + 1;
+        job.done = false;
         job.notBefore = now() + 1000 * 2 ** tries;
         byKey.set(job.key, job);
         waiting.push(job);
@@ -437,6 +457,12 @@ export const createFetchQueue = ({
 
   let seq = 0;
   const run = (key, priority, task) => {
+    // Asked by a request in flight (a peer looked up for it): it is part
+    // of that request, and the queue it would wait in waits for it.
+    const asking = inJob.getStore();
+    if (asking && !asking.done) {
+      return Promise.resolve().then(task);
+    }
     const queued = byKey.get(key);
     if (queued) {
       if (rank(priority) < rank(queued.priority)) {
@@ -445,17 +471,7 @@ export const createFetchQueue = ({
       }
       return queued.promise;
     }
-    const job = {
-      key,
-      method: methodOf(key),
-      priority,
-      task,
-      seq: (seq += 1),
-    };
-    job.promise = new Promise((resolve, reject) => {
-      job.resolve = resolve;
-      job.reject = reject;
-    });
+    const job = newJob(key, priority, task, (seq += 1));
     byKey.set(key, job);
     waiting.push(job);
     pump();

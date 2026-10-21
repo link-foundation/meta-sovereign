@@ -79,6 +79,7 @@ const CARD_LABELS = {
   place: 'chat.media.place',
   contact: 'chat.media.contact',
   poll: 'chat.media.poll',
+  todo: 'chat.media.todoLabel',
   story: 'chat.media.story',
   unsupported: 'chat.media.unsupportedLabel',
   game: 'chat.media.gameLabel',
@@ -88,6 +89,7 @@ const CARD_LABELS = {
 // Media named by what it holds rather than its kind (null: by kind).
 const OWN_LABELS = {
   poll: (m) => (m.question ? `📊 ${m.question}` : null),
+  todo: (m) => (m.title ? `☑️ ${m.title}` : null),
   dice: (m) => m.emoticon,
   // A game or an invoice by its title, as Telegram's pinned bar.
   game: (m) => (m.title ? `🎮 ${m.title}` : null),
@@ -459,6 +461,8 @@ const MENU_ITEMS = {
   edit: ['chat.edit', 'edit'],
   pin: ['chat.pin', 'pin'],
   unpin: ['chat.unpin', 'pin'],
+  retractVote: ['chat.poll.retract', 'undo'],
+  stopPoll: ['chat.poll.stop', 'stop'],
   saveAs: ['chat.saveAs', 'download'],
   copyImage: ['chat.copyImage', 'image'],
   copy: ['chat.copy', 'copy'],
@@ -994,7 +998,7 @@ const DOCUMENT_VIEWS = {
   sticker: MediaSticker,
 };
 
-const BubbleMedia = ({ parts, api, chat, netId }) => {
+const BubbleMedia = ({ parts, api, chat, netId, mine }) => {
   const media = parts.media;
   if (media?.kind === 'photo') {
     return el(MediaPhoto, { media, api, chat, msgId: netId });
@@ -1004,7 +1008,7 @@ const BubbleMedia = ({ parts, api, chat, netId }) => {
     return el(view, { media, api, chat, msgId: netId });
   }
   if (media && media.kind !== 'webpage') {
-    return el(MediaCard, { media });
+    return el(MediaCard, { media, api, chat, msgId: netId, mine });
   }
   return null;
 };
@@ -1061,7 +1065,7 @@ const BubbleContent = ({
     : null,
   el(ForwardHeader, { key: 'fwd', fwdFrom: parts.fwdFrom }),
   el(ReplyQuote, { key: 'rep', replyRef: parts.replyRef, onScrollTo }),
-  el(BubbleMedia, { key: 'media', parts, api, chat, netId }),
+  el(BubbleMedia, { key: 'media', parts, api, chat, netId, mine }),
   parts.text
     ? el('span', { key: 'body', className: 'bubble-body' }, [
         el(MessageText, {

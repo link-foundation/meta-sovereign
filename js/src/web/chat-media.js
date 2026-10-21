@@ -11,6 +11,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { Checklist, Poll } from './chat-poll.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
 
@@ -468,7 +469,7 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
 const mapLink = (lat, lon) =>
   `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
 
-/** A place, a contact, a poll, a die, a story… as a card. */
+/** A place, a contact, a die, a story… as a card (polls: ./chat-poll.js). */
 const PlaceCard = ({ media }) => {
   const t = useT();
   const where = media.lat !== null && media.lon !== null;
@@ -533,51 +534,11 @@ const NoteCard = ({ media }) => {
 const CARDS = {
   place: PlaceCard,
   contact: ContactCard,
-  poll: (props) => el(Poll, props),
+  poll: Poll,
+  todo: Checklist,
   dice: Dice,
 };
 
-export const MediaCard = ({ media }) =>
-  el(CARDS[media.kind] ?? NoteCard, { media });
-
-const Poll = ({ media }) => {
-  const t = useT();
-  const total =
-    media.total ?? media.answers.reduce((n, a) => n + (a.voters ?? 0), 0);
-  return el('div', { className: 'bubble-poll' }, [
-    el('strong', { key: 'q', className: 'poll-question' }, media.question),
-    el(
-      'span',
-      { key: 'k', className: 'meta' },
-      t(media.quiz ? 'chat.media.quiz' : 'chat.media.poll')
-    ),
-    el(
-      'ul',
-      { key: 'a', className: 'poll-answers' },
-      media.answers.map((a, i) => {
-        const share =
-          total > 0 && a.voters !== null
-            ? Math.round((a.voters / total) * 100)
-            : null;
-        return el('li', { key: i }, [
-          el(
-            'span',
-            { key: 'p', className: 'poll-share' },
-            share === null ? '' : `${share}%`
-          ),
-          el('span', { key: 't', className: 'poll-text' }, a.text),
-          el('span', {
-            key: 'b',
-            className: 'poll-bar',
-            style: { width: `${share ?? 0}%` },
-          }),
-        ]);
-      })
-    ),
-    el(
-      'span',
-      { key: 'v', className: 'meta' },
-      t('chat.media.votes', { count: total })
-    ),
-  ]);
-};
+/** A card; a poll or checklist acts on its message (`chat`, `msgId`). */
+export const MediaCard = ({ media, api, chat, msgId, mine }) =>
+  el(CARDS[media.kind] ?? NoteCard, { media, api, chat, msgId, mine });

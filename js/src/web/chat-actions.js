@@ -4,7 +4,8 @@
  * of the text selected), edit, pin or unpin, save or copy a picture,
  * copy the text, a link or the message's link, forward, delete, select
  * (one, or up to this message), and for the selection copy as text,
- * forward, delete, unpin, clear. Telegram messages go through
+ * forward, delete, unpin, clear; take back a vote or stop a poll
+ * (R-Y74). Telegram messages go through
  * /api/telegram/*, other networks' through /api/message/* (R-Y38).
  */
 
@@ -20,6 +21,7 @@ import {
   quotedText,
 } from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
+import { StopPollDialog } from './chat-poll.js';
 import { saveUrl } from './media-src.js';
 import {
   bulkSelect,
@@ -146,7 +148,20 @@ const useSenders = (state, api) => {
       })
     );
   };
-  return { generic, remove, forward, pin };
+  // A poll's: `poll-vote` with no options takes the vote back.
+  const poll = async (action, message, body = {}) => {
+    if (!viaTelegram(message) || typeof api?.telegramPoll !== 'function') {
+      return;
+    }
+    report(
+      await api.telegramPoll(action, {
+        chat: state.current.chat,
+        id: networkMessageId(message),
+        ...body,
+      })
+    );
+  };
+  return { generic, remove, forward, pin, poll };
 };
 
 // The clipboard, then Telegram's short "Copied" toast.
@@ -281,9 +296,16 @@ const composerKeys = (state, messages, setEditing) => (event) => {
 
 // The open delete, edit, pin or forward dialog.
 const dialogsOf = ({ state, send, selection, open, close }) => {
-  const { deleting, editing, pinning, forwarding } = open;
+  const { deleting, editing, pinning, forwarding, stopping } = open;
   const { setDeleting, setEditing, setPinning, setForwarding } = close;
   return [
+    stopping
+      ? el(StopPollDialog, {
+          key: 'stop',
+          onClose: () => close.setStopping(null),
+          onStop: () => send.poll('poll-stop', stopping),
+        })
+      : null,
     deleting
       ? el(DeleteDialog, {
           key: 'del',
@@ -345,6 +367,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const [forwarding, setForwarding] = useState(null);
   const [editing, setEditing] = useState(null);
   const [pinning, setPinning] = useState(null);
+  const [stopping, setStopping] = useState(null);
   const send = useSenders(state, api);
   const copy = useCopy(state);
   const messages = state.messages ?? [];
@@ -380,6 +403,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       copyImage: () => copyImage(state, api, chat, message),
       pin: () => setPinning(message),
       unpin: () => send.pin(message, { unpin: true }),
+      retractVote: () => send.poll('poll-vote', message, { options: [] }),
+      stopPoll: () => setStopping(message),
       forward: () => setForwarding([message]),
       delete: () => setDeleting([message]),
       edit: () => setEditing(message),
@@ -443,8 +468,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     state,
     send,
     selection,
-    open: { deleting, editing, pinning, forwarding },
-    close: { setDeleting, setEditing, setPinning, setForwarding },
+    open: { deleting, editing, pinning, forwarding, stopping },
+    close: { setDeleting, setEditing, setPinning, setForwarding, setStopping },
   });
 
   return { selection, onAction, menuFor, top, keys, dialogs };

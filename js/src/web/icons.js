@@ -279,6 +279,38 @@ const ICONS = {
       },
     ],
   ],
+  // Lucide undo-2, octagon-x, lightbulb and chart-bar: a poll's
+  // Retract vote, Stop poll, a quiz's explanation, View results (R-Y74).
+  undo: [
+    ['path', { d: 'M9 14 4 9l5-5' }],
+    ['path', { d: 'M4 9h10.5a5.5 5.5 0 0 1 0 11H11' }],
+  ],
+  stop: [
+    [
+      'path',
+      {
+        d: 'M2.6 8.4 8.4 2.6a2 2 0 0 1 1.4-.6h4.4a2 2 0 0 1 1.4.6l5.8 5.8a2 2 0 0 1 .6 1.4v4.4a2 2 0 0 1-.6 1.4l-5.8 5.8a2 2 0 0 1-1.4.6H9.8a2 2 0 0 1-1.4-.6l-5.8-5.8a2 2 0 0 1-.6-1.4V9.8a2 2 0 0 1 .6-1.4z',
+      },
+    ],
+    ['path', { d: 'm15 9-6 6' }],
+    ['path', { d: 'm9 9 6 6' }],
+  ],
+  bulb: [
+    [
+      'path',
+      {
+        d: 'M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5',
+      },
+    ],
+    ['path', { d: 'M9 18h6' }],
+    ['path', { d: 'M10 22h4' }],
+  ],
+  chart: [
+    ['path', { d: 'M3 3v16a2 2 0 0 0 2 2h16' }],
+    ['path', { d: 'M7 16h8' }],
+    ['path', { d: 'M7 11h12' }],
+    ['path', { d: 'M7 6h3' }],
+  ],
 };
 
 export const iconNames = Object.keys(ICONS);

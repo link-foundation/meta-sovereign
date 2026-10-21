@@ -181,6 +181,36 @@ test('the queue paces requests and gives background work only a quiet minute (R-
   assert.equal(queue.state().waiting, 0);
 });
 
+test('a request asked by one in flight runs as part of it, not after it', async () => {
+  const time = fakeTime();
+  const stuckJobs = [];
+  const queue = createFetchQueue({
+    now: time.now,
+    setTimer: time.setTimer,
+    clearTimer: time.clearTimer,
+    pace: NO_PACE,
+    onStuck: (job) => stuckJobs.push(job.method),
+  });
+  const order = [];
+  // A refresh whose peer must be looked up first (the dialogs).
+  const refresh = queue.run('refresh:42:5', 'prefetch', async () => {
+    order.push('refresh');
+    const dialogs = await queue.run('dialogs:lookup', 'list', async () => {
+      order.push('lookup');
+      return ['42'];
+    });
+    return dialogs.length;
+  });
+  await time.advance(0);
+  assert.equal(await refresh, 1);
+  assert.deepEqual(order, ['refresh', 'lookup']);
+  assert.deepEqual(stuckJobs, []);
+  // Once it is answered, a request is queued as ever.
+  const later = queue.run('dialogs:lookup', 'list', async () => 'queued');
+  await time.advance(0);
+  assert.equal(await later, 'queued');
+});
+
 test('a request made while the connection is down waits for it (R-Y75)', async () => {
   const time = fakeTime();
   const queue = createFetchQueue({

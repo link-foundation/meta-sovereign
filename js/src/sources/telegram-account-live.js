@@ -29,6 +29,7 @@
 import { typingLink } from './live-links.js';
 import { stampSourceLink } from './index.js';
 import { messageSenderId, updateEffect } from './telegram-updates.js';
+import { pollWriter } from './telegram-polls.js';
 
 const SOURCE = 'telegram';
 
@@ -390,7 +391,7 @@ export const createTelegramLive = ({
   } = chatStateWriters({ store, now });
 
   // Effects that name no one chat.
-  const MANY_CHATS = new Set(['delete', 'pinned-order', 'folders']);
+  const MANY_CHATS = new Set(['delete', 'pinned-order', 'folders', 'poll']);
 
   // What each kind of effect writes; true when the chat needs a refresh.
   const writers = {
@@ -408,6 +409,7 @@ export const createTelegramLive = ({
     folders: (_client, effect) => onFolders(effect),
     draft: (_client, effect) => onDraft(effect),
     typing: (_client, effect) => onTyping(effect),
+    poll: (_client, effect) => pollWriter(store, effect),
   };
 
   const apply = async (client, effect) => {

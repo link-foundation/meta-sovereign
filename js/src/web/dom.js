@@ -829,6 +829,16 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for pin' },
 
+  // A poll or checklist (R-Y74): `poll-vote` (no options retracts),
+  // `poll-stop`, `poll-results`, `poll-votes`, `todo-toggle`.
+  telegramPoll: async (action, body = {}) =>
+    (await serverPostReport(
+      `/api/telegram/${encodeURIComponent(action)}`,
+      body
+    ).catch((error) => ({ error: error.message }))) ?? {
+      error: 'server required for polls',
+    },
+
   // Edit, delete, react to, forward a message or mark a chat read on any
   // network: the server tries the API, then the network's web app.
   messageAction: async (action, body = {}) =>

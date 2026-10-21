@@ -4003,41 +4003,223 @@ button.primary .recommended-tag {
   font-style: italic;
   opacity: 0.85;
 }
+/* A poll, a quiz, a checklist (R-Y74), drawn as Telegram Desktop draws
+   them: circles (boxes) to vote, then shares, bars and our tick. */
 .bubble-poll {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  min-width: 15rem;
+  gap: 0.2rem;
+  min-width: min(17rem, 70vw);
   margin-bottom: 0.25rem;
+}
+.poll-question {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.poll-kind {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+}
+.poll-voters {
+  display: inline-flex;
+}
+.poll-voters .poll-voter {
+  width: 1.1rem;
+  height: 1.1rem;
+  font-size: 0.5rem;
+  border: 1.5px solid var(--bubble-in, var(--bg));
+  border-radius: 50%;
+  overflow: hidden;
+}
+.poll-voters .poll-voter + .poll-voter {
+  margin-left: -0.35rem;
+}
+.poll-clock {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.poll-solution-toggle {
+  margin-left: auto;
+  padding: 0.1rem;
+  border: 0;
+  background: none;
+  color: var(--chat-accent, var(--link));
+  cursor: pointer;
+}
+.poll-solution {
+  margin: 0.2rem 0;
+  padding: 0.4rem 0.6rem;
+  border-left: 3px solid var(--chat-accent, var(--link));
+  border-radius: 4px;
+  background: var(--accent-bg);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
 }
 .poll-answers {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.35rem;
   margin: 0.3rem 0;
   padding: 0;
   list-style: none;
 }
-.poll-answers li {
+.poll-answer {
   position: relative;
-  display: flex;
-  gap: 0.5rem;
-  padding-bottom: 0.35rem;
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  column-gap: 0.4rem;
+  align-items: start;
 }
 .poll-share {
-  flex: none;
-  width: 2.4rem;
   font-weight: 700;
   font-size: 0.8rem;
   text-align: right;
+  line-height: 1.35rem;
+}
+.poll-text {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.35rem;
+}
+.poll-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.18rem;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--chat-accent, var(--link));
+}
+.poll-answer.correct .poll-mark {
+  background: #3fb950;
+}
+.poll-answer.wrong .poll-mark {
+  background: var(--danger);
+}
+.poll-bar-track {
+  grid-column: 2;
+  height: 4px;
 }
 .poll-bar {
-  position: absolute;
-  left: 2.9rem;
-  bottom: 0;
-  height: 3px;
+  display: block;
+  height: 100%;
   border-radius: 2px;
-  background: var(--chat-accent, var(--accent));
+  background: var(--chat-accent, var(--link));
+  transition: width 0.3s ease;
+}
+.poll-answer.correct .poll-bar {
+  background: #3fb950;
+}
+.poll-answer.wrong .poll-bar {
+  background: var(--danger);
+}
+.poll-answer:has(.poll-choice) {
+  display: block;
+}
+.poll-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.15rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.poll-choice:disabled {
+  cursor: default;
+}
+.poll-circle,
+.poll-box {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.12rem;
+  border: 2px solid var(--text-subtle);
+  border-radius: 50%;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.poll-box {
+  border-radius: 4px;
+}
+.poll-choice.picked .poll-circle,
+.poll-choice.picked .poll-box {
+  border-color: var(--chat-accent, var(--link));
+  background: var(--chat-accent, var(--link))
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+    center / 80% no-repeat;
+}
+.bubble-todo .poll-answer.chosen .poll-text {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+.poll-total {
+  align-self: center;
+  font-size: 0.8rem;
+}
+.poll-action {
+  align-self: stretch;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--chat-accent, var(--link));
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.poll-action:hover:not(:disabled) {
+  background: var(--accent-bg);
+}
+.poll-action:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.poll-voters-dialog {
+  max-height: min(80vh, 40rem);
+  display: flex;
+  flex-direction: column;
+}
+.poll-voters-list {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.poll-voters-group h4 {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.3rem;
+  font-size: 0.9rem;
+}
+.poll-voters-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.poll-voters-group li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+.poll-voters-group .avatar {
+  width: 1.8rem;
+  height: 1.8rem;
 }
 .bubble-dice {
   display: flex;

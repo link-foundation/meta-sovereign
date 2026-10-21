@@ -16,6 +16,8 @@
  * - `pinMessage({ chat, id, unpin, oneSide, silent })` pins or unpins
  *   one message (R-Y67); Telegram's answer moves the pinned bar.
  * - `media({ chat, id, size })` is ./telegram-media.js.
+ * - polls and checklists (vote, stop, results, voters, tick) are
+ *   ./telegram-polls.js (R-Y74).
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
@@ -24,6 +26,7 @@ import { createFileReader, createMediaReader } from './telegram-media.js';
 import { createAvatarReader } from './telegram-avatars.js';
 import { createChatInfoReader } from './telegram-chat-info.js';
 import { createUnreadMarks } from './telegram-unread.js';
+import { createPollActions } from './telegram-polls.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -292,6 +295,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     media,
     ...markReaders(env, tools, userClient, dialogOf),
     ...readers,
+    ...createPollActions(env, { userClient, apply }),
   };
 };
 

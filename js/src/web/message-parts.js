@@ -7,6 +7,8 @@
 // (src/helpers/bytes/getPreviewURLFromBytes.ts, MIT reference read, no
 // code copied — the algorithm is Telegram's own spec).
 
+import { parsePoll, parseTodo } from './poll-parts.js';
+
 // Standard JFIF + Huffman table header, verbatim from Telegram's spec.
 const JPEG_HEADER_HEX =
   'ffd8ffe000104a46494600010100000100010000' +
@@ -302,10 +304,7 @@ const parseWebpageMedia = (wp) => ({
   photo: wp.photo ?? null,
 });
 
-const textOf = (value) =>
-  typeof value === 'string' ? value : (value?.text ?? '');
-
-// What has no file: a place, a contact, a poll, a die — each drawn as a
+// What has no file: a place, a contact, a poll, a checklist, a die — each drawn as a
 // card the way Telegram's apps draw it.
 const CARD_MEDIA = {
   MessageMediaGeo: (m) => ({
@@ -331,24 +330,8 @@ const CARD_MEDIA = {
     name: [m.firstName, m.lastName].filter(Boolean).join(' ') || null,
     phone: m.phoneNumber ?? null,
   }),
-  MessageMediaPoll: (m) => {
-    const results = m.results?.results ?? [];
-    // An option is bytes, stored as base64 (R-Y28).
-    const keyOf = (option) => option?.bytes ?? JSON.stringify(option ?? null);
-    const votes = (option) =>
-      results.find((r) => keyOf(r.option) === keyOf(option))?.voters ?? null;
-    return {
-      kind: 'poll',
-      question: textOf(m.poll?.question),
-      quiz: Boolean(m.poll?.quiz),
-      closed: Boolean(m.poll?.closed),
-      total: m.results?.totalVoters ?? null,
-      answers: (m.poll?.answers ?? []).map((a) => ({
-        text: textOf(a.text),
-        voters: votes(a.option),
-      })),
-    };
-  },
+  MessageMediaPoll: parsePoll,
+  MessageMediaToDo: parseTodo,
   MessageMediaDice: (m) => ({
     kind: 'dice',
     emoticon: m.emoticon ?? '🎲',

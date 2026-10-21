@@ -180,6 +180,64 @@ const POSTS = {
   },
 };
 
+// Polls and checklists (R-Y74): each acts on one message.
+const B64 = /^[A-Za-z0-9+/]{1,64}={0,2}$/;
+const validOptions = (options, { empty = false } = {}) =>
+  Array.isArray(options) &&
+  (empty || options.length > 0) &&
+  options.length <= 20 &&
+  options.every((o) => typeof o === 'string' && B64.test(o));
+const smallIds = (ids) =>
+  Array.isArray(ids) &&
+  ids.length <= 100 &&
+  ids.every((id) => Number.isInteger(id) && id > 0);
+
+// [account method, whether the body's extra fields are valid, the fields]
+const POLL_POSTS = {
+  // No options retracts the vote.
+  'poll-vote': [
+    'votePoll',
+    (b) => validOptions(b.options, { empty: true }),
+    (b) => ({ options: b.options }),
+  ],
+  'poll-stop': ['stopPoll', () => true, () => ({})],
+  'poll-results': ['pollResults', () => true, () => ({})],
+  'poll-votes': [
+    'pollVotes',
+    (b) =>
+      (b.option === undefined || validOptions([b.option])) &&
+      (b.offset === undefined || typeof b.offset === 'string'),
+    (b) => ({ option: b.option, offset: b.offset, limit: b.limit }),
+  ],
+  'todo-toggle': [
+    'toggleTodo',
+    (b) =>
+      smallIds(b.completed ?? []) &&
+      smallIds(b.incompleted ?? []) &&
+      (b.completed?.length ?? 0) + (b.incompleted?.length ?? 0) > 0,
+    (b) => ({ completed: b.completed ?? [], incompleted: b.incompleted ?? [] }),
+  ],
+};
+for (const [name, [method, valid, fields]] of Object.entries(POLL_POSTS)) {
+  POSTS[name] = async (account, body) => {
+    if (
+      !body.chat ||
+      !validIds([body.id]) ||
+      !valid(body) ||
+      typeof account[method] !== 'function'
+    ) {
+      return [
+        400,
+        { error: 'chat, id and fields required', code: 'bad-request' },
+      ];
+    }
+    return [
+      200,
+      await account[method]({ chat: body.chat, id: body.id, ...fields(body) }),
+    ];
+  };
+}
+
 // Pictures are the user's own: only the app's pages may load them, so
 // another site open in the browser can neither see them nor make
 // Telegram download them. The server's own page: browsers say where an
