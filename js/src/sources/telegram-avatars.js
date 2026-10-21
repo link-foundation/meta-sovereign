@@ -4,7 +4,8 @@
  *
  * Each avatar is downloaded once and kept at
  * `<dir>/avatars/<peer>-<size>` with a `.type` file. A "no photo" result
- * is remembered for 24 h (a `.none` file); a cached avatar older than
+ * is remembered for 24 h (a `.none` file), a failed download is tried
+ * again after 5 minutes; a cached avatar older than
  * 24 h is re-downloaded in the background while the cached one is served.
  *
  * Downloads go through the account's queue at `list` priority with key
@@ -17,6 +18,8 @@ import path from 'node:path';
 
 const MS_PER_DAY = 24 * 60 * 60_000;
 const PEER = /^-?\d{1,20}$/;
+// A download that failed is tried again after this long.
+const RETRY_MS = 5 * 60_000;
 
 const peerKind = (peer) => {
   if (peer.startsWith('-100')) {
@@ -46,6 +49,52 @@ const fileAge = async (file) => {
   }
 };
 
+// A chat the account holds is asked for by its stored peer; someone
+// seen only as a group's member, by the message they wrote there
+// (Telegram's InputUserFromMessage: no access hash of theirs is
+// needed); else by id, which GramJS finds in what it has seen.
+const inputOf = async ({ peers, importer }, peer, { chat, msg } = {}) => {
+  const stored = await peers.input(peer);
+  if (stored) {
+    return { entity: stored };
+  }
+  const where =
+    chat && msg && !peer.startsWith('-') ? await peers.input(chat) : null;
+  if (!where) {
+    return { entity: peer };
+  }
+  const { Api, helpers } = await importer();
+  return {
+    byMessage: new Api.InputUserFromMessage({
+      peer: where,
+      msgId: Number(msg),
+      userId: helpers.returnBigInt(peer),
+    }),
+    Api,
+  };
+};
+
+// GramJS cannot look up a user by message itself (it casts the input
+// to an id and fails), so the user is asked for first; their photo is
+// then read from the answer, and their peer kept for next time.
+const entityOf = async (client, deps, peer, context) => {
+  const { entity, byMessage, Api } = await inputOf(deps, peer, context);
+  if (!byMessage) {
+    return entity;
+  }
+  const [user] = await client.invoke(
+    new Api.users.GetUsers({ id: [byMessage] })
+  );
+  if (!user || user.className === 'UserEmpty') {
+    return null;
+  }
+  const name = [user.firstName, user.lastName].filter(Boolean).join(' ');
+  await Promise.resolve(
+    deps.peers.remember?.(peer, user, { isUser: true, name: name || null })
+  ).catch(() => {});
+  return user;
+};
+
 /**
  * `read({ peer, size })` → `{ buffer, mimeType }` or null when the peer
  * has no photo. `size` is `'s'` (small, default) or `'b'` (big). `dir`
@@ -59,40 +108,20 @@ export const createAvatarReader = ({
   peers,
   importer = () => import('telegram'),
   log = () => {},
+  retryMs = RETRY_MS,
 }) => {
   const avatarDir = path.join(dir, 'avatars');
-
-  // A chat the account holds is asked for by its stored peer; someone
-  // seen only as a group's member, by the message they wrote there
-  // (Telegram's InputPeerUserFromMessage: no access hash of theirs is
-  // needed); else by id, which GramJS finds in what it has seen.
-  const inputOf = async (peer, { chat, msg } = {}) => {
-    const stored = await peers.input(peer);
-    if (stored) {
-      return stored;
-    }
-    const where =
-      chat && msg && !peer.startsWith('-') ? await peers.input(chat) : null;
-    if (!where) {
-      return peer;
-    }
-    const { Api, helpers } = await importer();
-    return new Api.InputPeerUserFromMessage({
-      peer: where,
-      msgId: Number(msg),
-      userId: helpers.returnBigInt(peer),
-    });
-  };
 
   const fetchAvatar = async (peer, isBig, context) => {
     const client = await clientOf();
     if (!client) {
+      return undefined;
+    }
+    const entity = await entityOf(client, { peers, importer }, peer, context);
+    if (!entity) {
       return null;
     }
-    const buf = await client.downloadProfilePhoto(
-      await inputOf(peer, context),
-      { isBig }
-    );
+    const buf = await client.downloadProfilePhoto(entity, { isBig });
     return buf?.length ? Buffer.from(buf) : null;
   };
 
@@ -102,6 +131,9 @@ export const createAvatarReader = ({
     queue
       .run(`avatar:${peer}:${sz}:refresh`, 'list', async () => {
         const buf = await fetchAvatar(peer, sz === 'b', context);
+        if (buf === undefined) {
+          return;
+        }
         await fs.mkdir(avatarDir, { recursive: true });
         if (buf?.length) {
           await fs.writeFile(base, buf);
@@ -156,9 +188,11 @@ export const createAvatarReader = ({
         fetchAvatar(peer, sz === 'b', context)
       );
     } catch (error) {
+      // A failure is not "no photo": it is asked again a while later.
       const code = String(error.errorMessage ?? error.message ?? '');
       done(0, { level: 'warn', failed: code.slice(0, 60) });
-      buffer = /FLOOD|WAIT/.test(code) ? undefined : null;
+      failedAt.set(base, Date.now());
+      return null;
     }
     if (buffer === undefined) {
       return null;
@@ -177,6 +211,8 @@ export const createAvatarReader = ({
 
   // One download per photo, however many rows ask for it at once.
   const inFlight = new Map();
+  // When a download last failed, to wait a little before the next.
+  const failedAt = new Map();
 
   const read = async ({ peer, size = 's', chat, msg } = {}) => {
     const p = String(peer ?? '');
@@ -193,6 +229,9 @@ export const createAvatarReader = ({
     const kept = await fromDisk(base, p, sz, context);
     if (kept) {
       return kept;
+    }
+    if (Date.now() - (failedAt.get(base) ?? -Infinity) < retryMs) {
+      return null;
     }
     if (!inFlight.has(base)) {
       inFlight.set(

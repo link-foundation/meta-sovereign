@@ -802,10 +802,19 @@ const createMessaging = (env) => {
   return { post, setTyping, markRead, saveDraft };
 };
 
+// The user's connection, opened again if it was dropped.
+const reopenerOf = (store, connection) => async () => {
+  const creds = await readTelegramCredentials(store);
+  if (creds?.kind === 'user') {
+    await connection.open(creds);
+  }
+};
+
 // The account's request queue, stored peers, channel catch-up, page
 // reader and message actions (on `env`).
 const addReaders = (env, { pace, mediaDir }) => {
   const { store, now, log } = env;
+  env.reopen = reopenerOf(store, env.connection);
   // Every Telegram request goes through one queue, the most urgent first,
   // paced; Telegram's "wait" is kept across restarts (R-Y34).
   env.queue = createFetchQueue({
@@ -813,9 +822,14 @@ const addReaders = (env, { pace, mediaDir }) => {
     log,
     ...(pace ? { pace } : {}),
     onHold: (holds) => recordSync(store, { holds }).catch(() => {}),
-    // No answer: the connection is likely gone; the next request opens
-    // a new one.
-    onStuck: () => env.connection?.disconnect().catch(() => {}),
+    // No answer: the connection is likely gone. A new one is opened at
+    // once, so the catch-up and the live updates follow it (not only
+    // the next request).
+    onStuck: () =>
+      env.connection
+        ?.disconnect()
+        .then(() => env.reopen?.())
+        .catch(() => {}),
   });
   env.peers = createPeers({ store, importer: env.importer });
   env.channels = createChannelSync({
@@ -1059,8 +1073,9 @@ export const createTelegramAccount = ({
     const tick = async () => {
       const creds = await readTelegramCredentials(store);
       if (creds?.kind === 'user') {
-        // Ask Telegram what we missed (cheap when nothing: Web A does it
-        // on every ping); the chat list itself only now and then.
+        // Reopen a dropped connection, ask what we missed (cheap: Web A
+        // asks on every ping); the chat list only now and then.
+        await env.reopen().catch(() => {});
         await catchUp.run('poll');
         const state = (await store.get(TELEGRAM_SYNC_ID)) ?? {};
         if (

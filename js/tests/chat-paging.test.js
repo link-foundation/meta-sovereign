@@ -13,6 +13,7 @@ import {
   summarizeChats,
 } from '../src/web/chat-model.js';
 import {
+  createRefill,
   hasOlder,
   historyComplete,
   mergePage,
@@ -249,4 +250,44 @@ test('the server serves chat heads, pages and links without messages', async () 
   } finally {
     await handle.close();
   }
+});
+
+test('a newest page that did not come is asked again while the chat is open', async () => {
+  const answers = [null, 'busy', { messages: [] }];
+  const asked = [];
+  const timers = [];
+  let open = 'telegram:1';
+  const { refill } = createRefill({
+    newest: async (target) => {
+      asked.push(target);
+      const answer = answers.shift();
+      if (answer === 'busy') {
+        throw new Error(answer);
+      }
+      return answer;
+    },
+    isOpen: (target) => open === target,
+    setTimer: (fn, ms) => timers.push([fn, ms]),
+    clearTimer: () => {},
+  });
+  await refill('telegram:1');
+  assert.deepEqual(
+    timers.map(([, ms]) => ms),
+    [2000]
+  );
+  await timers.shift()[0]();
+  assert.deepEqual(
+    timers.map(([, ms]) => ms),
+    [5000],
+    'a failure too'
+  );
+  await timers.shift()[0]();
+  assert.equal(asked.length, 3);
+  assert.equal(timers.length, 0, 'the page came: no more tries');
+
+  answers.push(null);
+  await refill('telegram:1');
+  open = 'telegram:2';
+  await timers.shift()[0]();
+  assert.equal(asked.length, 4, 'a chat no longer open is not asked again');
 });

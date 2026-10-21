@@ -263,6 +263,22 @@ const handleFile = async (account, req, res) => {
   return sendBytes(req, res, result);
 };
 
+// A photo not on disk yet is waited for this long, then asked again.
+const AVATAR_WAIT_MS = 1500;
+const LATER = Symbol('later');
+
+// `promise`'s value, or LATER when it takes longer than `ms` (it goes
+// on by itself).
+const answerSoon = (promise, ms) => {
+  let timer = null;
+  const later = new Promise((resolve) => {
+    timer = globalThis.setTimeout(() => resolve(LATER), ms);
+  });
+  return Promise.race([promise.catch(() => null), later]).finally(() =>
+    globalThis.clearTimeout(timer)
+  );
+};
+
 // GET /api/telegram/avatar?peer=&size= -> the peer's photo.
 const handleAvatar = async (account, req, res) => {
   if (!sameSite(req)) {
@@ -272,12 +288,22 @@ const handleAvatar = async (account, req, res) => {
     return json(res, 501, { error: 'avatars not available' }) ?? true;
   }
   const query = new URL(req.url, 'http://local').searchParams;
-  const result = await account.avatar({
-    peer: query.get('peer'),
-    size: query.get('size') === 'b' ? 'b' : 's',
-    chat: query.get('chat'),
-    msg: query.get('msg'),
-  });
+  const reading = Promise.resolve().then(() =>
+    account.avatar({
+      peer: query.get('peer'),
+      size: query.get('size') === 'b' ? 'b' : 's',
+      chat: query.get('chat'),
+      msg: query.get('msg'),
+    })
+  );
+  const result = await answerSoon(reading, AVATAR_WAIT_MS);
+  if (result === LATER) {
+    // Still downloading: the browser's few connections are not held
+    // for it (they would hold up the chat); the page asks again soon.
+    res.setHeader('retry-after', '3');
+    res.setHeader('cache-control', 'no-store');
+    return json(res, 503, { error: 'loading' }) ?? true;
+  }
   if (!result?.buffer) {
     // No photo: the page shows initials, and asks again tomorrow.
     res.setHeader('cache-control', 'private, max-age=3600');

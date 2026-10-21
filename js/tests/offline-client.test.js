@@ -9,7 +9,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { createBrowserStore } from '../src/storage/browser-store.js';
-import { createOfflineClient } from '../src/web/client.js';
+import {
+  createBuildWatch,
+  createOfflineClient,
+  createRediscovery,
+} from '../src/web/client.js';
 import { createMemoryStore } from '../src/storage/index.js';
 
 test('offline mode: writes/reads land in local store with no server', async () => {
@@ -134,6 +138,29 @@ test('a client gone offline after a failed read comes back with its server', asy
   assert.equal(timers.length, 0);
 });
 
+test('a slow or failed read does not take the app offline while the server answers', async () => {
+  const store = await createBrowserStore();
+  const asked = [];
+  const fetchImpl = async (url) => {
+    const path = new URL(url).pathname;
+    asked.push(path);
+    if (path === '/api/status') {
+      return { ok: true, json: async () => ({}) };
+    }
+    throw new Error('timed out in the browser queue');
+  };
+  const events = [];
+  const client = createOfflineClient({
+    store,
+    server: { origin: 'http://x', fetchImpl },
+  });
+  client.on((e) => events.push(e));
+  assert.equal(await client.chatPage({ key: 'telegram:1' }), null);
+  assert.equal(client.isOnline(), true);
+  assert.deepEqual(asked, ['/api/chat/messages', '/api/status']);
+  assert.deepEqual(events, []);
+});
+
 test('writing a broadcast link triggers the local handler bus when offline', async () => {
   // The handler bus runs in the SPA when offline so the user can still
   // queue broadcasts; this just checks the link is shaped correctly.
@@ -246,4 +273,60 @@ test('online mode: links() adds the server links to the local ones', async () =>
   });
   assert.equal((await down.links()).length, 2);
   assert.equal(down.isOnline(), false);
+});
+
+test('the local copy reloads itself when its server comes back with a new build', async () => {
+  let etag = '"a"';
+  const asked = [];
+  let reloads = 0;
+  const watch = createBuildWatch({
+    bundleUrl: 'http://127.0.0.1:8787/app.min.js',
+    fetchImpl: async (url, init) => {
+      asked.push([url, init.cache]);
+      return { ok: true, headers: { get: () => etag } };
+    },
+    reload: () => {
+      reloads += 1;
+    },
+  });
+  assert.equal(await watch.check(), false, 'the same build stays');
+  etag = '"b"';
+  assert.equal(await watch.check(), true);
+  assert.equal(await watch.check(), false, 'one reload only');
+  assert.equal(reloads, 1);
+  assert.deepEqual(asked[0], ['http://127.0.0.1:8787/app.min.js', 'no-cache']);
+});
+
+test('a copy opened while its server was down looks again until it answers', async () => {
+  const timers = [];
+  let up = false;
+  const found = [];
+  createRediscovery({
+    discover: async () => (up ? { origin: 'http://127.0.0.1:8787' } : null),
+    found: (server) => found.push(server.origin),
+    delays: [5, 10],
+    setTimer: (fn, ms) => timers.push([fn, ms]),
+    clearTimer: () => {},
+  });
+  await timers.shift()[0]();
+  await timers.shift()[0]();
+  assert.deepEqual(
+    timers.map(([, ms]) => ms),
+    [10],
+    'the last wait repeats'
+  );
+  up = true;
+  await timers.shift()[0]();
+  assert.deepEqual(found, ['http://127.0.0.1:8787']);
+  assert.equal(timers.length, 0);
+
+  const stopped = createRediscovery({
+    discover: async () => ({ origin: 'x' }),
+    found: () => found.push('late'),
+    setTimer: (fn, ms) => timers.push([fn, ms]),
+    clearTimer: () => {},
+  });
+  stopped.stop();
+  await timers.shift()[0]();
+  assert.equal(found.length, 1, 'a stopped search finds nothing');
 });

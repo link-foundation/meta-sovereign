@@ -27,6 +27,8 @@ const READ_TIMEOUT_MS = 30_000;
 // After a read failed, the server is asked this often whether it is
 // back (a busy moment must not leave the app offline until a reload).
 const RECHECK_MS = 10_000;
+// After one read failed, the server's status is waited for this long.
+const STATUS_TIMEOUT_MS = 10_000;
 const timeoutSignal = (ms) => globalThis.AbortSignal?.timeout?.(ms);
 
 // The local links, plus the server's that the local store does not hold
@@ -108,6 +110,15 @@ const createReturnWatch = ({
   return { start, stop };
 };
 
+// Whether the server answers its /api/status.
+const answers = (target) => {
+  const signal = timeoutSignal(STATUS_TIMEOUT_MS);
+  return target
+    .fetchImpl(`${target.origin}/api/status`, signal ? { signal } : {})
+    .then((res) => res.ok)
+    .catch(() => false);
+};
+
 // `timing` ({ recheckMs, setTimer, clearTimer }) is for tests.
 export const createOfflineClient = ({ store, server, ...timing }) => {
   const handlers = new Set();
@@ -154,10 +165,13 @@ export const createOfflineClient = ({ store, server, ...timing }) => {
       }
       return await res.json();
     } catch {
-      // Server flapped — degrade gracefully and let the caller
-      // see local data instead of a thrown error, until it is back.
-      setOnline(false);
-      watch.start();
+      // One read failed: the caller sees local data instead of a thrown
+      // error. The app goes offline only when the server does not answer
+      // its status either (a slow or failed read is not "gone").
+      if (path === '/api/status' || !(await answers(server))) {
+        setOnline(false);
+        watch.start();
+      }
       return fallback();
     }
   };
@@ -293,6 +307,83 @@ export const createOfflineClient = ({ store, server, ...timing }) => {
       };
       await store.put(link);
       return link;
+    },
+  };
+};
+
+/**
+ * The local copy (the page its server serves) follows that server: a
+ * server restarted with a new build would otherwise leave an open tab
+ * on the old bundle, talking to the new routes, until a manual reload.
+ * `check()` asks for the bundle again (a cheap revalidation) and reloads
+ * the page when its ETag changed since the page opened.
+ */
+export const createBuildWatch = ({ bundleUrl, fetchImpl, reload }) => {
+  const tagOf = () =>
+    fetchImpl(bundleUrl, { cache: 'no-cache' })
+      .then((res) => (res.ok ? res.headers.get('etag') : null))
+      .catch(() => null);
+  let first = tagOf();
+  let reloading = false;
+  return {
+    check: async () => {
+      const was = (await first) ?? null;
+      const now = await tagOf();
+      if (!was) {
+        first = Promise.resolve(now);
+        return false;
+      }
+      if (!now || now === was || reloading) {
+        return false;
+      }
+      reloading = true;
+      reload();
+      return true;
+    },
+  };
+};
+
+// A page that found no server when it opened looks again after these
+// waits (the last one repeats), and reloads once one answers.
+const LOOK_AGAIN_MS = [5000, 10_000, 20_000, 30_000];
+
+/** Look for a server until one is found; `stop()` ends it. */
+export const createRediscovery = ({
+  discover,
+  found,
+  delays = LOOK_AGAIN_MS,
+  setTimer = (fn, ms) => globalThis.setTimeout(fn, ms),
+  clearTimer = (timer) => globalThis.clearTimeout(timer),
+}) => {
+  let timer = null;
+  let stopped = false;
+  const plan = (attempt) => {
+    if (stopped) {
+      return;
+    }
+    const wait = delays[Math.min(attempt, delays.length - 1)];
+    timer = setTimer(async () => {
+      timer = null;
+      const server = await Promise.resolve()
+        .then(() => discover())
+        .catch(() => null);
+      if (stopped) {
+        return;
+      }
+      if (server) {
+        stopped = true;
+        found(server);
+      } else {
+        plan(attempt + 1);
+      }
+    }, wait);
+    timer?.unref?.();
+  };
+  plan(0);
+  return {
+    stop: () => {
+      stopped = true;
+      clearTimer(timer);
     },
   };
 };

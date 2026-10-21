@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
+import { mkdtemp, stat } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -19,7 +19,10 @@ import { messageRuns } from '../src/web/chat-view.js';
 import { CHAT_SORTS, groupChats, sortChats } from '../src/web/chat-model.js';
 import { translate } from '../src/web/i18n.js';
 import { errorEntry, installClientLog } from '../src/web/client-log.js';
-import { byteRange } from '../src/server/routes-telegram.js';
+import {
+  byteRange,
+  handleTelegramRoutes,
+} from '../src/server/routes-telegram.js';
 import { clientEntry } from '../src/server/routes-client-log.js';
 import { createAvatarReader } from '../src/sources/telegram-avatars.js';
 import { createChatInfoReader } from '../src/sources/telegram-chat-info.js';
@@ -379,9 +382,132 @@ test('an avatar Telegram asks to wait for is not remembered as missing', async (
       },
     }),
     peers: { input: async () => null },
+    retryMs: 0,
   });
   assert.equal(await reader.read({ peer: '9' }), null);
   assert.equal((await reader.read({ peer: '9' })).buffer.toString(), 'jpeg');
+});
+
+test('a group member\'s avatar is read by their message, and a failure is no "no photo"', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-avatar-'));
+  class InputUserFromMessage {
+    constructor(args) {
+      Object.assign(this, args);
+    }
+  }
+  class GetUsers {
+    constructor(args) {
+      Object.assign(this, args);
+    }
+  }
+  const asked = [];
+  const remembered = [];
+  let broken = true;
+  const user = { className: 'User', id: 11, accessHash: 5, photo: {} };
+  const reader = createAvatarReader({
+    dir,
+    queue,
+    client: async () => ({
+      invoke: async (request) => {
+        asked.push(request.id[0]);
+        if (broken) {
+          throw new Error('Cannot cast InputPeerUserFromMessage');
+        }
+        return [user];
+      },
+      downloadProfilePhoto: async (entity) =>
+        entity === user ? Buffer.from('jpeg') : null,
+    }),
+    peers: {
+      input: async (peer) => (peer === '-100' ? { chat: 'group' } : null),
+      remember: async (peer, entity, dialog) =>
+        remembered.push([peer, entity, dialog]),
+    },
+    importer: async () => ({
+      Api: { InputUserFromMessage, users: { GetUsers } },
+      helpers: { returnBigInt: (v) => BigInt(v) },
+    }),
+  });
+  const ask = () => reader.read({ peer: '11', chat: '-100', msg: '42' });
+  assert.equal(await ask(), null, 'the first try fails');
+  await assert.rejects(
+    stat(path.join(dir, 'avatars', '11-s.none')),
+    'a failure is not remembered as "no photo"'
+  );
+  broken = false;
+  assert.equal(await ask(), null, 'and is not retried at once');
+  assert.equal(asked.length, 1);
+
+  const fresh = createAvatarReader({
+    dir,
+    queue,
+    client: async () => ({
+      invoke: async (request) => {
+        asked.push(request.id[0]);
+        return [user];
+      },
+      downloadProfilePhoto: async (entity) =>
+        entity === user ? Buffer.from('jpeg') : null,
+    }),
+    peers: {
+      input: async (peer) => (peer === '-100' ? { chat: 'group' } : null),
+      remember: async (peer, entity, dialog) =>
+        remembered.push([peer, entity, dialog]),
+    },
+    importer: async () => ({
+      Api: { InputUserFromMessage, users: { GetUsers } },
+      helpers: { returnBigInt: (v) => BigInt(v) },
+    }),
+  });
+  const got = await fresh.read({ peer: '11', chat: '-100', msg: '42' });
+  assert.equal(got.buffer.toString(), 'jpeg');
+  const by = asked.at(-1);
+  assert.ok(by instanceof InputUserFromMessage);
+  assert.deepEqual(
+    [by.peer, by.msgId, by.userId],
+    [{ chat: 'group' }, 42, 11n]
+  );
+  assert.deepEqual(
+    remembered,
+    [['11', user, { isUser: true, name: null }]],
+    'their peer is kept'
+  );
+});
+
+test("an avatar still downloading does not hold the browser's connection", async () => {
+  let finish;
+  const account = {
+    avatar: () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  };
+  const res = {
+    headers: {},
+    setHeader(name, value) {
+      this.headers[name] = value;
+    },
+    writeHead(status, headers = {}) {
+      this.status = status;
+      Object.assign(this.headers, headers);
+    },
+    end(body) {
+      this.body = body;
+    },
+  };
+  const req = {
+    method: 'GET',
+    url: '/api/telegram/avatar?peer=7',
+    headers: {},
+  };
+  const started = Date.now();
+  await handleTelegramRoutes(req, res, '/api/telegram/avatar', {
+    telegramAccount: account,
+  });
+  assert.equal(res.status, 503);
+  assert.equal(res.headers['retry-after'], '3');
+  assert.ok(Date.now() - started < 5000);
+  finish({ buffer: Buffer.from('jpeg'), mimeType: 'image/jpeg' });
 });
 
 const fakeApi = () => {

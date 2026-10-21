@@ -12,7 +12,11 @@ import {
   findServerByPicture,
   mayNeedPicture,
 } from './discover.js';
-import { createOfflineClient } from './client.js';
+import {
+  createBuildWatch,
+  createOfflineClient,
+  createRediscovery,
+} from './client.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
@@ -63,6 +67,36 @@ export const findNearbyServer = async ({
 const localBroadcast = async (networks, body) =>
   (networks ?? []).map((n) => ({ network: n, queued: true, body }));
 
+const LOOPBACK = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/;
+
+// The local copy keeps up with its server (R-Y65): the server back with
+// a new build reloads it (`check()` on every return), and a copy opened
+// while its server was down looks for it again.
+const followServer = (client, origin) => {
+  const here = globalThis.location?.origin ?? '';
+  const reload = () => globalThis.location?.reload?.();
+  if (!origin) {
+    if (LOOPBACK.test(here)) {
+      createRediscovery({ discover: () => discoverServer({}), found: reload });
+    }
+    return null;
+  }
+  if (origin !== here || typeof globalThis.fetch !== 'function') {
+    return null;
+  }
+  const watch = createBuildWatch({
+    bundleUrl: new URL('./app.min.js', globalThis.location.href).toString(),
+    fetchImpl: globalThis.fetch.bind(globalThis),
+    reload,
+  });
+  client.on((event) => {
+    if (event.type === 'mode-change' && event.online) {
+      watch.check();
+    }
+  });
+  return watch;
+};
+
 const boot = async () => {
   const store = await createBrowserStore({ driver: pickBrowserDriver() });
   // Local handler bus so writes to broadcast:* trigger work even
@@ -95,6 +129,7 @@ const boot = async () => {
     rtc,
     nearby,
     origin: discovered?.origin ?? null,
+    follow: followServer(client, discovered?.origin ?? null),
   };
 };
 
@@ -699,7 +734,7 @@ export const api = {
    * missed. Returns a stop function; without a server it does nothing.
    */
   events: async (onEvent, onState = () => {}) => {
-    const { client, origin } = await ensure();
+    const { client, origin, follow } = await ensure();
     const Source = globalThis.EventSource;
     if (!client.isOnline() || typeof Source !== 'function') {
       return () => {};
@@ -708,7 +743,11 @@ export const api = {
       ? new URL('/api/events', origin).toString()
       : '/api/events';
     const source = new Source(url);
-    source.addEventListener('ready', () => onState('open'));
+    source.addEventListener('ready', () => {
+      onState('open');
+      // Opened again after the server restarted: maybe a new build.
+      follow?.check();
+    });
     source.addEventListener('link', (event) => {
       try {
         onEvent(JSON.parse(event.data));

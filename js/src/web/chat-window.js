@@ -88,6 +88,54 @@ export const hasOlder = (window, { telegram, complete }) =>
 const isTelegram = (api, chat) =>
   chat?.source === 'telegram' && typeof api.telegramHistory === 'function';
 
+// A newest page that did not come (the server busy, a moment offline)
+// is asked again after these waits, while the chat stays open.
+const REFILL_DELAYS_MS = [2000, 5000, 10_000, 20_000, 30_000];
+
+/**
+ * `refill(target)`: the chat's newest page (`newest(target)`, null when
+ * it did not come), asked again after REFILL_DELAYS_MS while
+ * `isOpen(target)`. `stop()` drops a planned try.
+ */
+export const createRefill = ({
+  newest,
+  isOpen,
+  setTimer = (fn, ms) => globalThis.setTimeout(fn, ms),
+  clearTimer = (timer) => globalThis.clearTimeout(timer),
+}) => {
+  let timer = null;
+  const stop = () => {
+    clearTimer(timer);
+    timer = null;
+  };
+  const refill = (target, attempt = 0) => {
+    stop();
+    return newest(target)
+      .catch(() => null)
+      .then((result) => {
+        if (result || attempt >= REFILL_DELAYS_MS.length) {
+          return;
+        }
+        timer = setTimer(() => {
+          timer = null;
+          return isOpen(target) ? refill(target, attempt + 1) : null;
+        }, REFILL_DELAYS_MS[attempt]);
+      });
+  };
+  return { refill, stop };
+};
+
+const useRefill = (newest, key) => {
+  const open = useRef(key);
+  open.current = key;
+  const refiller = useMemo(
+    () => createRefill({ newest, isOpen: (target) => open.current === target }),
+    [newest]
+  );
+  useEffect(() => () => refiller.stop(), [refiller]);
+  return refiller.refill;
+};
+
 /**
  * The open chat's window: its newest page when it opens, older pages on
  * `loadOlder()`. Without a server (offline, the static site), none — the
@@ -119,13 +167,14 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     },
     [api, patch]
   );
+  const refill = useRefill(newest, key);
 
   useEffect(() => {
     if (!current || !supported) {
       return;
     }
     const target = current.key;
-    newest(target).catch(() => {});
+    refill(target);
     if (isTelegram(api, current)) {
       // Asks Telegram only when the store does not have it.
       api
@@ -156,7 +205,7 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     }
     seenTick.current = tick;
     if (key && supported) {
-      newest(key).catch(() => {});
+      refill(key);
     }
   }, [tick]);
 
