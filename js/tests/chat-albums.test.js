@@ -162,9 +162,17 @@ test('forwards stored without their source are read again once, and named', asyn
   await store.put(
     item(5, { album: null, body: 'e', fwd: { fromName: 'Hidden' } })
   );
+  // Telegram asks to wait twice; the repair waits and asks again.
   const asked = [];
+  const waits = [];
   const refresh = async ({ chat, ids, priority }) => {
     asked.push([chat, ids, priority]);
+    if (asked.length <= 2) {
+      throw Object.assign(new Error('Telegram asked to wait'), {
+        code: 'flood-wait',
+        retryAfter: 21,
+      });
+    }
     for (const id of ids) {
       const link = await store.get(`msg:telegram:${chat}:${id}`);
       await store.put({ ...link, forwardedFrom: { name: 'AN-HOME' } });
@@ -172,11 +180,17 @@ test('forwards stored without their source are read again once, and named', asyn
   };
   const logged = [];
   assert.equal(
-    await nameForwards(store, { refresh, log: (e) => logged.push(e) }),
+    await nameForwards(store, {
+      refresh,
+      log: (e) => logged.push(e),
+      wait: async (ms) => waits.push(ms),
+    }),
     2
   );
-  assert.deepEqual(asked, [['-1001', [1, 2], 'prefetch']]);
+  assert.deepEqual(asked, Array(3).fill(['-1001', [1, 2], 'prefetch']));
+  assert.deepEqual(waits, [21_000, 21_000], 'waited as Telegram asked');
   assert.equal(logged[0].left, 0);
+  assert.equal(logged[0].failed, 0);
   assert.equal(
     (await store.get('msg:telegram:-1001:1')).forwardedFrom.name,
     'AN-HOME'

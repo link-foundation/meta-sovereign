@@ -91,13 +91,37 @@ export const repairSenders = async (store, { log = () => {} } = {}) => {
 
 // Each chat's messages, a hundred at a time: how many reads failed, and
 // how many chats Telegram cannot address.
-const readAgain = async (byChat, refresh, priority) => {
+// While Telegram asks to wait, the queue turns background requests down
+// (`code: 'flood-wait'`, `retryAfter` seconds); a repair waits that long
+// and asks again, as Telegram's apps do, instead of failing the chat.
+const FLOOD_RETRIES = 8;
+const pause = (ms) =>
+  new Promise((resolve) => globalThis.setTimeout(resolve, ms).unref?.());
+
+const askPatiently = async (refresh, request, wait) => {
+  for (let tries = 0; ; tries += 1) {
+    try {
+      return await refresh(request);
+    } catch (error) {
+      if (error?.code !== 'flood-wait' || tries >= FLOOD_RETRIES) {
+        throw error;
+      }
+      await wait(Math.max(1, Number(error.retryAfter) || 30) * 1000);
+    }
+  }
+};
+
+const readAgain = async (byChat, refresh, priority, wait = pause) => {
   let failed = 0;
   let unreachable = 0;
   for (const [chat, ids] of byChat) {
     for (let at = 0; at < ids.length; at += 100) {
       try {
-        await refresh({ chat, ids: ids.slice(at, at + 100), priority });
+        await askPatiently(
+          refresh,
+          { chat, ids: ids.slice(at, at + 100), priority },
+          wait
+        );
       } catch (error) {
         if (unreachableChat(error)) {
           unreachable += 1;
@@ -122,7 +146,7 @@ const readAgain = async (byChat, refresh, priority) => {
  */
 export const rereadUnsupported = async (
   store,
-  { refresh, layer, log = () => {}, priority = 'prefetch' } = {}
+  { refresh, layer, log = () => {}, priority = 'prefetch', wait } = {}
 ) => {
   const marker = `repair:telegram:unsupported-layer-${layer}`;
   if (!refresh || !layer || (await store.get(marker))) {
@@ -142,7 +166,12 @@ export const rereadUnsupported = async (
       byChat.set(String(l.chat), [...(byChat.get(String(l.chat)) ?? []), id]);
     }
   }
-  const { failed, unreachable } = await readAgain(byChat, refresh, priority);
+  const { failed, unreachable } = await readAgain(
+    byChat,
+    refresh,
+    priority,
+    wait
+  );
   const left = (
     await store.query(
       (l) =>
@@ -193,7 +222,7 @@ const unnamedForward = (l, chats) => {
  */
 export const nameForwards = async (
   store,
-  { refresh, log = () => {}, priority = 'prefetch' } = {}
+  { refresh, log = () => {}, priority = 'prefetch', wait } = {}
 ) => {
   const marker = 'repair:telegram:forward-names-v1';
   if (!refresh || (await store.get(marker))) {
@@ -213,7 +242,12 @@ export const nameForwards = async (
       byChat.set(String(l.chat), [...(byChat.get(String(l.chat)) ?? []), id]);
     }
   }
-  const { failed, unreachable } = await readAgain(byChat, refresh, priority);
+  const { failed, unreachable } = await readAgain(
+    byChat,
+    refresh,
+    priority,
+    wait
+  );
   const left = unnamed(
     await store.query((l) => l?.id?.startsWith(`msg:${SOURCE}:`))
   ).length;

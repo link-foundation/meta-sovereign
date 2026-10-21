@@ -101,6 +101,13 @@ const overlaps = (a, b) =>
   a.top < b.top + b.height - 0.5 &&
   b.top < a.top + a.height - 0.5;
 
+const stepOf = (page) =>
+  page
+    .locator('[data-tutorial-step]')
+    .first()
+    .getAttribute('data-tutorial-step')
+    .catch(() => null);
+
 const waitForStep = (page, id) =>
   page.waitForSelector(`[data-tutorial-step="${id}"]`, { timeout: 5000 });
 
@@ -345,8 +352,18 @@ const walk = async (engineName, viewport, base) => {
 
     await pickEmailManually(page, label);
 
-    for (const id of ['chat', 'contacts', 'automation', 'backup']) {
+    // Contacts, then Chat (version 5); "open a chat" only with contacts.
+    for (const id of ['contacts', 'chat', 'automation', 'backup']) {
       await page.click('[data-action="tutorial-next"]');
+      // "open a chat" passes by itself while there are no contacts.
+      if (id === 'chat') {
+        const shown = await page
+          .waitForSelector('[data-tutorial-step="chat"]', { timeout: 2000 })
+          .catch(() => null);
+        if (!shown && (await stepOf(page)) === 'contacts-open') {
+          await page.click('[data-action="tutorial-next"]');
+        }
+      }
       await waitForStep(page, id);
       await settle(page);
       await assertPlacement(page, label);
@@ -559,15 +576,20 @@ const edgeCases = async (engineName, viewport, base) => {
     await page.reload({ waitUntil: 'domcontentloaded' });
     await at('setup', 'connections', true, 'setup after reload');
 
-    // 7. Back to Chat later in the tour and Back again onto "setup":
-    //    the provider page opens again.
+    // 7. On to Contacts and past it later in the tour, then Back again
+    //    onto "setup": the provider page opens again.
     await page.click('[data-action="tutorial-next"]');
-    await waitForStep(page, 'chat');
-    await page.click('[data-tutorial-id="nav:chat"] >> visible=true');
     await waitForStep(page, 'contacts');
-    await page.click('[data-action="tutorial-back"]');
-    await page.click('[data-action="tutorial-back"]');
-    await at('setup', 'connections', true, 'setup via Back from Chat');
+    await page.click('[data-tutorial-id="nav:contacts"] >> visible=true');
+    await page.waitForSelector(
+      '[data-tutorial-step="contacts-open"], [data-tutorial-step="chat"]',
+      { timeout: 5000 }
+    );
+    for (let i = 0; i < 4 && (await stepOf(page)) !== 'setup'; i += 1) {
+      await page.click('[data-action="tutorial-back"]');
+      await page.waitForTimeout(300);
+    }
+    await at('setup', 'connections', true, 'setup via Back from Contacts');
   } catch (error) {
     const where = await placeOf(page).catch(() => ({}));
     const message = `${error.message.split('\n')[0]} (at ${JSON.stringify(where)})`;
