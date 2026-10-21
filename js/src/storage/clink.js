@@ -8,7 +8,7 @@
  * starts a process or opens a socket is injectable for tests.
  */
 
-import { execFile, spawn } from 'node:child_process';
+import { execFile, execFileSync, spawn } from 'node:child_process';
 import { existsSync, promises as fs } from 'node:fs';
 import net from 'node:net';
 import os from 'node:os';
@@ -46,6 +46,46 @@ export const findClink = ({
     ...dirs.flatMap((dir) => names.map((name) => path.join(dir, name))),
   ].filter(Boolean);
   return candidates.find((candidate) => exists(candidate)) ?? null;
+};
+
+// What this client needs of link-cli: its server, and binary archives.
+const NEEDED = ['--serve', '--import-binary', '--export-binary'];
+const capable = new Map();
+
+/**
+ * Whether `bin` is a link-cli build this client can use: an older one
+ * (no `--serve`, no binary archives) answers its help without them.
+ */
+export const clinkSupports = (bin, { help = null } = {}) => {
+  if (!bin) {
+    return false;
+  }
+  if (!help && capable.has(bin)) {
+    return capable.get(bin);
+  }
+  let text = help;
+  if (text === null) {
+    try {
+      text = execFileSync(bin, ['--help'], {
+        encoding: 'utf8',
+        timeout: 10_000,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    } catch (error) {
+      text = `${error.stdout ?? ''}`;
+    }
+  }
+  const ok = NEEDED.every((flag) => text.includes(flag));
+  if (!help) {
+    capable.set(bin, ok);
+  }
+  return ok;
+};
+
+/** The link-cli binary to use if it is one this client can use, else null. */
+export const findUsableClink = (options) => {
+  const bin = findClink(options);
+  return clinkSupports(bin) ? bin : null;
 };
 
 export class ClinkError extends Error {

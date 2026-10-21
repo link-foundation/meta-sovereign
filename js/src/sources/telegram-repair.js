@@ -171,3 +171,68 @@ export const rereadUnsupported = async (
   });
   return links.length;
 };
+
+// A forward whose source the store cannot name: no name from Telegram,
+// none stored, and its channel, group or person not among the chats.
+const unnamedForward = (l, chats) => {
+  const fwd = l.raw?.fwdFrom;
+  if (!fwd || fwd.fromName || l.forwardedFrom?.name || l.deleted) {
+    return false;
+  }
+  const from = peerChatId(fwd.fromId);
+  return Boolean(from) && !chats.has(from);
+};
+
+/**
+ * `forward-names-v1`: a forward stored before its source's name was kept
+ * (R-Y90) shows only "Forwarded message" when that channel, group or
+ * person is not one of the user's chats — Telegram Desktop names it, as
+ * Telegram sends the source with the message. Such forwards are read
+ * again in the background, which stores the name. Resolves to how many
+ * were asked for; a failed chat is asked again on the next start.
+ */
+export const nameForwards = async (
+  store,
+  { refresh, log = () => {}, priority = 'prefetch' } = {}
+) => {
+  const marker = 'repair:telegram:forward-names-v1';
+  if (!refresh || (await store.get(marker))) {
+    return 0;
+  }
+  const started = Date.now();
+  const messages = await store.query((l) =>
+    l?.id?.startsWith(`msg:${SOURCE}:`)
+  );
+  const chats = new Set(messages.map((l) => String(l.chat)));
+  const unnamed = (list) => list.filter((l) => unnamedForward(l, chats));
+  const links = unnamed(messages);
+  const byChat = new Map();
+  for (const l of links) {
+    const id = Number(l.id.split(':').pop());
+    if (Number.isInteger(id) && id > 0) {
+      byChat.set(String(l.chat), [...(byChat.get(String(l.chat)) ?? []), id]);
+    }
+  }
+  const { failed, unreachable } = await readAgain(byChat, refresh, priority);
+  const left = unnamed(
+    await store.query((l) => l?.id?.startsWith(`msg:${SOURCE}:`))
+  ).length;
+  if (failed === 0) {
+    await store.put({
+      id: marker,
+      asked: links.length,
+      left,
+      at: new Date().toISOString(),
+    });
+  }
+  log({
+    event: 'telegram_repair_forward_names',
+    chats: byChat.size,
+    asked: links.length,
+    left,
+    failed,
+    unreachable,
+    duration_ms: Date.now() - started,
+  });
+  return links.length;
+};

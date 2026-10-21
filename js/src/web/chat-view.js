@@ -377,6 +377,7 @@ const AutomationMenu = ({ menu, autopilot }) => {
                       type: 'button',
                       role: 'menuitem',
                       'data-action': 'chat-automation-run',
+                      'data-automation': a.id,
                       onClick: () => menu.run(a, { test: false }),
                     },
                     t('chat.automation.run')

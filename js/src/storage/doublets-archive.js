@@ -48,31 +48,101 @@ export const scalarName = (value) => {
   return needsEscape(text) ? `ms:s:${text}` : text;
 };
 
-/** Build the doublets network for a list of records. */
-export const encodeNetwork = (records) => {
-  const links = [];
-  const pairs = new Map();
+// The links as two growing typed arrays (`source`, `target`; address =
+// index + 1): a store of tens of millions of links is a few hundred MB
+// off the heap, not an array per link.
+const createLinkTable = () => {
+  let sources = new Uint32Array(1 << 16);
+  let targets = new Uint32Array(1 << 16);
+  let length = 0;
+  return {
+    get length() {
+      return length;
+    },
+    push(source, target) {
+      if (length === sources.length) {
+        const grow = (old) => {
+          const next = new Uint32Array(old.length * 2);
+          next.set(old);
+          return next;
+        };
+        sources = grow(sources);
+        targets = grow(targets);
+      }
+      sources[length] = source;
+      targets[length] = target;
+      length += 1;
+      return length;
+    },
+    source: (address) => sources[address - 1],
+    target: (address) => targets[address - 1],
+    /** `[source, target]` rows, as the packet writer reads them. */
+    *[Symbol.iterator]() {
+      for (let i = 0; i < length; i++) {
+        yield [sources[i], targets[i]];
+      }
+    },
+  };
+};
+
+// The address of each `(source target)` pair already made: an open
+// addressing table of addresses, keyed by the pair the address holds.
+const createPairIndex = (links) => {
+  let slots = new Uint32Array(1 << 16);
+  let count = 0;
+  const slotOf = (table, source, target) => {
+    const mask = table.length - 1;
+    let at =
+      (Math.imul(source, 0x9e3779b1) ^ Math.imul(target + 1, 0x85ebca77)) &
+      mask;
+    while (
+      table[at] !== 0 &&
+      (links.source(table[at]) !== source || links.target(table[at]) !== target)
+    ) {
+      at = (at + 1) & mask;
+    }
+    return at;
+  };
+  const grow = () => {
+    const next = new Uint32Array(slots.length * 2);
+    for (const address of slots) {
+      if (address !== 0) {
+        next[slotOf(next, links.source(address), links.target(address))] =
+          address;
+      }
+    }
+    slots = next;
+  };
+  return (source, target) => {
+    const at = slotOf(slots, source, target);
+    if (slots[at] !== 0) {
+      return slots[at];
+    }
+    const address = links.push(source, target);
+    slots[at] = address;
+    count += 1;
+    if (count * 2 > slots.length) {
+      grow();
+    }
+    return address;
+  };
+};
+
+/**
+ * The doublets network, built a record at a time: `add(record)` for
+ * each, then `finish()` for `{ links, names }` (`links` iterates
+ * `[source, target]` rows). A large store is encoded as it is read,
+ * never held as decoded records too.
+ */
+export const createNetworkEncoder = () => {
+  const links = createLinkTable();
+  const pair = createPairIndex(links);
   const names = new Map();
   const point = (name) => {
     let address = names.get(name);
     if (address === undefined) {
-      address = links.length + 1;
-      links.push([address, address]);
+      address = links.push(links.length + 1, links.length + 1);
       names.set(name, address);
-    }
-    return address;
-  };
-  const pair = (source, target) => {
-    let row = pairs.get(source);
-    if (!row) {
-      row = new Map();
-      pairs.set(source, row);
-    }
-    let address = row.get(target);
-    if (address === undefined) {
-      links.push([source, target]);
-      address = links.length;
-      row.set(target, address);
     }
     return address;
   };
@@ -98,10 +168,26 @@ export const encodeNetwork = (records) => {
     }
     return point(scalarName(value));
   };
+  let records = 0;
+  return {
+    add(record) {
+      pair(T['ms:records'], node(record));
+      records += 1;
+    },
+    get records() {
+      return records;
+    },
+    finish: () => ({ links, names }),
+  };
+};
+
+/** Build the doublets network for a list of records. */
+export const encodeNetwork = (records) => {
+  const encoder = createNetworkEncoder();
   for (const record of records) {
-    pair(T['ms:records'], node(record));
+    encoder.add(record);
   }
-  return { links, names };
+  return encoder.finish();
 };
 
 const linksPacket = (links) => ({
@@ -111,25 +197,47 @@ const linksPacket = (links) => ({
 // Names are `(address codepoint...)` rows of external references, grouped
 // into one section per reference width so short Latin/Cyrillic names do
 // not pay for the occasional emoji (link-cli `--packed-widths` layout).
-const namesPacket = (names) => {
-  const groups = new Map();
-  for (const [name, address] of names) {
-    const row = [externalRef(address)];
-    let max = address;
-    for (const ch of name) {
-      const code = ch.codePointAt(0);
-      row.push(externalRef(code));
-      max = Math.max(max, code);
-    }
-    const width = widthFor(max, true);
-    if (!groups.has(width)) {
-      groups.set(width, []);
-    }
-    groups.get(width).push(row);
+// A section's rows are made as the packet writer reads them, not held:
+// millions of names would be an array per name and per character.
+const nameWidth = (name, address) => {
+  let max = address;
+  for (const ch of name) {
+    max = Math.max(max, ch.codePointAt(0));
   }
-  const sections = [...groups]
-    .sort(([a], [b]) => a - b)
-    .map(([width, links]) => ({ width, links }));
+  return widthFor(max, true);
+};
+
+const nameRow = (name, address) => {
+  const row = [externalRef(address)];
+  for (const ch of name) {
+    row.push(externalRef(ch.codePointAt(0)));
+  }
+  return row;
+};
+
+const namesPacket = (names) => {
+  const widths = new Uint8Array(names.size);
+  const counts = new Map();
+  let i = 0;
+  for (const [name, address] of names) {
+    const width = nameWidth(name, address);
+    widths[i++] = width;
+    counts.set(width, (counts.get(width) ?? 0) + 1);
+  }
+  const rowsOf = (width) => ({
+    length: counts.get(width),
+    *[Symbol.iterator]() {
+      let at = 0;
+      for (const [name, address] of names) {
+        if (widths[at++] === width) {
+          yield nameRow(name, address);
+        }
+      }
+    },
+  });
+  const sections = [...counts.keys()]
+    .sort((a, b) => a - b)
+    .map((width) => ({ width, links: rowsOf(width) }));
   return { external: true, sections };
 };
 

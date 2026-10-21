@@ -218,6 +218,88 @@ const firstLine = async (filePath) => {
   }
 };
 
+// The lines of the first `size` bytes of an open file (what was there
+// when it was opened: a later append is not read, a compaction that
+// replaces the file does not change it).
+const linesOf = (handle, size) =>
+  size === 0
+    ? []
+    : createInterface({
+        input: handle.createReadStream({
+          start: 0,
+          end: size - 1,
+          encoding: 'utf8',
+          autoClose: false,
+        }),
+        crlfDelay: Infinity,
+      });
+
+const recordOf = (line) => {
+  if (!isRecordLine(line)) {
+    return null;
+  }
+  try {
+    const record = decodeLine({ notation: line });
+    return typeof record?.id === 'string' ? record : null;
+  } catch {
+    return null; // a torn last line; the next compaction drops it
+  }
+};
+
+/**
+ * Each live link of a record log, handed to `onRecord` one at a time in
+ * the order of its last write, never all held at once: a first pass
+ * finds the line each id was last written on, a second decodes only
+ * those. Resolves to `{ links, mtime }` (`mtime` of the log as read), or
+ * null for a log in the legacy format (read it with `readLinoFile`).
+ */
+export const forEachLiveRecord = async (filePath, onRecord) => {
+  let handle;
+  try {
+    handle = await fs.open(filePath, 'r');
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return { links: 0, mtime: null };
+    }
+    throw err;
+  }
+  try {
+    const { size, mtime } = await handle.stat();
+    const last = new Map();
+    let at = 0;
+    let first = true;
+    for await (const line of linesOf(handle, size)) {
+      at += 1;
+      if (first && line.trim().length > 0) {
+        first = false;
+        if (!isRecordLine(line)) {
+          return null;
+        }
+      }
+      const record = recordOf(line);
+      if (record && isTombstoneRecord(record)) {
+        last.delete(record.id);
+      } else if (record) {
+        last.set(record.id, at);
+      }
+    }
+    const wanted = new Set(last.values());
+    last.clear();
+    let links = 0;
+    at = 0;
+    for await (const line of linesOf(handle, size)) {
+      at += 1;
+      if (wanted.has(at)) {
+        onRecord(recordOf(line));
+        links += 1;
+      }
+    }
+    return { links, mtime };
+  } finally {
+    await handle.close();
+  }
+};
+
 /** The live links of a `.lino` file, and how its lines stand. */
 export const readLinoFile = async (filePath) => {
   let first;

@@ -18,6 +18,8 @@ import { photoBox } from '../src/web/chat-photo.js';
 import { forwardKey, parseMessageParts } from '../src/web/message-parts.js';
 import { MessageBubble, QuoteContext } from '../src/web/chat-message.js';
 import { telegramDialogLinks } from '../src/sources/telegram-account.js';
+import { nameForwards } from '../src/sources/telegram-repair.js';
+import { createMemoryStore } from '../src/storage/universal.js';
 
 const photo = (w, h) => ({
   className: 'MessageMediaPhoto',
@@ -138,4 +140,46 @@ test('a forward names the channel it came from, never "PeerChannel"', () => {
     ]
   );
   assert.deepEqual(link.forwardedFrom, { name: 'AN-HOME' });
+});
+
+test('forwards stored without their source are read again once, and named', async () => {
+  const store = createMemoryStore();
+  const peer = (channelId) => ({ className: 'PeerChannel', channelId });
+  await store.put(
+    item(1, { album: null, body: 'a', fwd: { fromId: peer('42') } })
+  );
+  await store.put(
+    item(2, { album: null, body: 'b', fwd: { fromId: peer('42') } })
+  );
+  // Named already, from a known chat, or hidden by name: left alone.
+  await store.put({
+    ...item(3, { album: null, body: 'c', fwd: { fromId: peer('43') } }),
+    forwardedFrom: { name: 'Known' },
+  });
+  await store.put(
+    item(4, { album: null, body: 'd', fwd: { fromId: peer('1') } })
+  );
+  await store.put(
+    item(5, { album: null, body: 'e', fwd: { fromName: 'Hidden' } })
+  );
+  const asked = [];
+  const refresh = async ({ chat, ids, priority }) => {
+    asked.push([chat, ids, priority]);
+    for (const id of ids) {
+      const link = await store.get(`msg:telegram:${chat}:${id}`);
+      await store.put({ ...link, forwardedFrom: { name: 'AN-HOME' } });
+    }
+  };
+  const logged = [];
+  assert.equal(
+    await nameForwards(store, { refresh, log: (e) => logged.push(e) }),
+    2
+  );
+  assert.deepEqual(asked, [['-1001', [1, 2], 'prefetch']]);
+  assert.equal(logged[0].left, 0);
+  assert.equal(
+    (await store.get('msg:telegram:-1001:1')).forwardedFrom.name,
+    'AN-HOME'
+  );
+  assert.equal(await nameForwards(store, { refresh }), 0, 'once');
 });

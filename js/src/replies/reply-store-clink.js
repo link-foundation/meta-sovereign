@@ -29,7 +29,7 @@ import {
   ClinkError,
   clinkName,
   clinkText,
-  findClink,
+  findUsableClink,
   importArchive,
   quoteName,
   startClinkServer,
@@ -139,7 +139,7 @@ const missingReference = (error) =>
  * `createReplyIndex().suggestReplies`.
  */
 export const createClinkReplyStore = ({
-  bin = findClink(),
+  bin = findUsableClink(),
   db,
   startServer = startClinkServer,
   importImpl = importArchive,

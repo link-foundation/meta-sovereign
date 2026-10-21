@@ -47,7 +47,11 @@ import { createPeers } from './telegram-peers.js';
 import { createActions } from './telegram-actions.js';
 import { createPageReader, dialogsCursor } from './telegram-pages.js';
 import { messageSenderId } from './telegram-updates.js';
-import { repairSenders, rereadUnsupported } from './telegram-repair.js';
+import {
+  nameForwards,
+  repairSenders,
+  rereadUnsupported,
+} from './telegram-repair.js';
 import {
   MAX_MESSAGE_LENGTH,
   sendError,
@@ -1069,6 +1073,7 @@ const runRepairs = (store, log, refresh) =>
         ? rereadUnsupported(store, { refresh, layer: LAYER, log })
         : 0
     )
+    .then(() => nameForwards(store, { refresh, log }))
     .catch((error) =>
       log({
         level: 'warn',

@@ -5,9 +5,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, promises as fs } from 'node:fs';
+import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { findUsableClink } from '../src/storage/clink.js';
 import {
   ArityRange,
   DecodeLimits,
@@ -171,16 +172,16 @@ test('reads the archive link-cli writes (links packet + names packet)', () => {
   );
 });
 
-const clinkBinary = () =>
-  [
-    process.env.CLINK_BIN,
-    path.join(os.homedir(), '.cargo', 'bin', 'clink'),
-    path.join(os.homedir(), '.dotnet', 'tools', 'clink'),
-  ].find((p) => p && existsSync(p));
+// An installed link-cli that can import and export binary archives.
+const clinkBinary = () => findUsableClink();
 
 test(
   'link-cli imports and re-exports the archive unchanged',
-  { skip: clinkBinary() ? false : 'clink (link-cli) is not installed' },
+  {
+    skip: clinkBinary()
+      ? false
+      : 'no link-cli with binary archives is installed',
+  },
   async () => {
     const dir = await tmpdir();
     const input = path.join(dir, 'data.bin');

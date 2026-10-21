@@ -14,8 +14,10 @@ import { Parser } from 'links-notation';
 
 import {
   clinkName,
+  clinkSupports,
   clinkText,
   findClink,
+  findUsableClink,
   parseClinkReply,
   quoteName,
   replyComplete,
@@ -107,6 +109,14 @@ test('findClink prefers $CLINK_BIN, then tool folders, then PATH', () => {
     findClink({ ...posix, env: { PATH: opt }, home: '/x', platform: 'win32' }),
     path.join(opt, 'clink.exe')
   );
+});
+
+test('an older link-cli (no --serve, no binary archives) is not used', () => {
+  const old = 'Options:\n  -d, --db <db>\n  -q, --query <query>\n  --version';
+  const current = `${old}\n  --serve <address>\n  --import-binary <file>\n  --export-binary <file>`;
+  assert.equal(clinkSupports('/x/clink', { help: old }), false);
+  assert.equal(clinkSupports('/x/clink', { help: current }), true);
+  assert.equal(clinkSupports(null), false);
 });
 
 // A stand-in for `clink --serve`: answers `ok`, hangs up after `bad`
@@ -217,11 +227,11 @@ const history = () => [
   ]),
 ];
 
-const clink = findClink();
+const clink = findUsableClink();
 
 test(
   'the clink reply store answers exactly like the in-memory index',
-  { skip: clink ? false : 'clink (link-cli) is not installed' },
+  { skip: clink ? false : 'no link-cli with --serve is installed' },
   async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-reply-clink-'));
     const index = buildReplyIndex(history());

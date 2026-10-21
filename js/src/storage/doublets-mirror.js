@@ -13,7 +13,7 @@
  * Writes go through the text store (the dual store writes both sides);
  * here they only schedule the next snapshot: at most one per
  * `minIntervalMs`, or ten times what the last one took when that is
- * longer. A snapshot older than the log (a crash, a CLI run) is written
+ * longer, doubled after each failure up to an hour. A snapshot older than the log (a crash, a CLI run) is written
  * again when the store opens.
  */
 
@@ -54,22 +54,42 @@ const mtimeOf = async (file) => {
   }
 };
 
-// One snapshot at a time; a request during one is served by the next.
+// Snapshots that keep failing are tried less often, up to once an hour.
+const MAX_BACKOFF_MS = 3_600_000;
+
+// One snapshot at a time; a request during one is served by the next. A
+// write during a snapshot only marks that another is wanted, so a failure
+// is reported once, not once for every write that arrived meanwhile.
 const createSnapshots = ({ run, minIntervalMs, onError }) => {
   let timer = null;
   let inFlight = null;
   let queued = null;
+  let wanted = false;
   let lastAt = 0;
   let lastCost = 0;
+  let failures = 0;
   const once = async () => {
     const started = Date.now();
     try {
-      return await run();
+      const result = await run();
+      failures = 0;
+      return result;
+    } catch (error) {
+      failures += 1;
+      throw error;
     } finally {
       lastAt = Date.now();
       lastCost = lastAt - started;
     }
   };
+  const interval = () => {
+    const base = Math.max(minIntervalMs, 10 * lastCost);
+    return Math.min(
+      base * 2 ** Math.min(failures, 20),
+      Math.max(base, MAX_BACKOFF_MS)
+    );
+  };
+  let later = null;
   const now = () => {
     globalThis.clearTimeout(timer);
     timer = null;
@@ -79,6 +99,10 @@ const createSnapshots = ({ run, minIntervalMs, onError }) => {
     if (!inFlight) {
       inFlight = once().finally(() => {
         inFlight = null;
+        if (wanted && !queued) {
+          wanted = false;
+          later();
+        }
       });
       return inFlight;
     }
@@ -90,15 +114,18 @@ const createSnapshots = ({ run, minIntervalMs, onError }) => {
       });
     return queued;
   };
-  const later = () => {
+  later = () => {
     if (timer) {
       return;
     }
-    const interval = Math.max(minIntervalMs, 10 * lastCost);
-    const wait = Math.max(0, lastAt + interval - Date.now());
+    if (inFlight || queued) {
+      wanted = true;
+      return;
+    }
+    const wait = Math.max(0, lastAt + interval() - Date.now());
     timer = globalThis.setTimeout(() => {
       timer = null;
-      // A failed snapshot is tried again after the next interval.
+      // A failed snapshot is tried again, after a longer wait each time.
       now().catch((error) => {
         onError(error);
         later();
