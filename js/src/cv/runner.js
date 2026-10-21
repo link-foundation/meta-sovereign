@@ -269,6 +269,10 @@ const handlers = {
     await ctx.commander.goto({
       url,
       waitUntil: 'domcontentloaded',
+      // As before browser-commander 0.32: its URL-stability polls add
+      // ~6 s to every page; the next steps wait for their own elements.
+      waitForStableUrlBefore: false,
+      waitForStableUrlAfter: false,
       ...(step.timeout ? { timeout: step.timeout } : {}),
     });
     ctx.vars.url = await ctx.commander.getUrl();
