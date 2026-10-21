@@ -13,6 +13,7 @@ import {
   createBackfill,
   heapNearlyFull,
   nextBackfill,
+  unreachableChat,
 } from '../src/sources/telegram-backfill.js';
 import { historyLinkId } from '../src/sources/telegram-history.js';
 
@@ -191,4 +192,47 @@ test('prefer() reads that chat next, then the usual order', async () => {
   assert.equal(calls.at(-1).history.chat, 'g1');
   assert.equal(await backfill.step(), 'private');
   assert.equal(backfill.wanted('g1'), false);
+});
+
+test('a chat Telegram cannot address is passed over, not retried forever', async () => {
+  const store = createMemoryStore();
+  await store.put({ id: SYNC_ID, tokens: [], dialogsComplete: true });
+  const asked = [];
+  const logged = [];
+  const backfill = createBackfill({
+    store,
+    queue: fakeQueue(),
+    syncId: SYNC_ID,
+    credentials: async () => ({ kind: 'user' }),
+    chats: async () => chats,
+    log: (e) => logged.push(e),
+    pages: {
+      async history(request) {
+        asked.push(request.chat);
+        if (request.chat === 'p2') {
+          throw new Error('Could not find the input entity for {"userId":"1"}');
+        }
+        await store.put({
+          id: historyLinkId(request.chat),
+          tokens: [],
+          chat: request.chat,
+          complete: true,
+        });
+        return { written: 1 };
+      },
+    },
+    everyMs: 0,
+  });
+  assert.equal(await backfill.step(), 'skipped');
+  assert.equal(await backfill.step(), 'private');
+  assert.equal(await backfill.step(), 'group');
+  assert.equal(await backfill.step(), 'done');
+  assert.deepEqual(asked, ['p2', 'p1', 'g1']);
+  assert.equal(logged[0].event, 'telegram_backfill_chat_skipped');
+  // The connection failing is not the chat's fault: that still throws.
+  assert.equal(
+    unreachableChat(new Error('Cannot send requests while disconnected')),
+    false
+  );
+  assert.equal(unreachableChat({ errorMessage: 'CHANNEL_PRIVATE' }), true);
 });

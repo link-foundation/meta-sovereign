@@ -16,7 +16,10 @@
  * chat's `history:` link (./telegram-history.js) says how far back it is
  * stored, so a restart goes on where it stopped. It also waits while the
  * server's memory is nearly full (the store is held in memory): more
- * history then waits for room instead of stopping the server.
+ * history then waits for room instead of stopping the server. A chat
+ * Telegram cannot address (no access hash for its user, a channel now
+ * private) is passed over for the rest of the run instead of holding
+ * every other chat back.
  */
 
 import { getHeapStatistics } from 'node:v8';
@@ -38,6 +41,14 @@ export const heapNearlyFull = (stats = getHeapStatistics()) =>
 export const BACKFILL_ORDER = Object.freeze(['private', 'group']);
 
 /** `private`, `group` or `channel`, from a message's `chatType`. */
+// Errors that are about the chat itself, not the connection.
+const UNREACHABLE =
+  /input entity|PEER_ID_INVALID|CHANNEL_PRIVATE|CHANNEL_INVALID|USER_ID_INVALID|CHAT_ID_INVALID/;
+
+/** Whether reading a chat failed because Telegram cannot reach it. */
+export const unreachableChat = (error) =>
+  UNREACHABLE.test(`${error?.errorMessage ?? ''} ${error?.message ?? ''}`);
+
 export const backfillKind = (chatType) => {
   if (chatType === 'personal_chat') {
     return 'private';
@@ -169,12 +180,27 @@ export const createBackfill = ({
     if (!next) {
       return 'done';
     }
-    const answer = await pages.history({
-      chat: next.chat,
-      before: next.before,
-      limit: BACKFILL_PAGE,
-      priority: 'background',
-    });
+    let answer;
+    try {
+      answer = await pages.history({
+        chat: next.chat,
+        before: next.before,
+        limit: BACKFILL_PAGE,
+        priority: 'background',
+      });
+    } catch (error) {
+      if (!unreachableChat(error)) {
+        throw error;
+      }
+      skip.add(next.chat);
+      log({
+        level: 'warn',
+        event: 'telegram_backfill_chat_skipped',
+        kind: next.kind,
+        error: error?.message,
+      });
+      return 'skipped';
+    }
     if (answer?.cached) {
       skip.add(next.chat);
     }
