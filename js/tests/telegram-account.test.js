@@ -9,6 +9,7 @@ import { NO_PACE } from '../src/sources/telegram-history.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import {
   createTelegramAccount,
+  createUserConnection,
   readTelegramCredentials,
   telegramDialogLinks,
   TELEGRAM_SYNC_ID,
@@ -355,4 +356,82 @@ test('without an account the status says not connected', async () => {
   } finally {
     await server.close();
   }
+});
+
+// A stuck request drops the connection and several readers then ask for
+// a new one at once: one client must serve them all, and a dropped one
+// must really end (GramJS's disconnect() leaves its update loop running,
+// which reconnects it). Leftover clients took the server's memory.
+test('one Telegram client at a time, and a dropped one is destroyed', async () => {
+  const made = [];
+  let failNext = false;
+  const clientFactory = async () => {
+    let release;
+    const ready = new Promise((resolve) => (release = resolve));
+    const client = {
+      destroyed: false,
+      release,
+      setLogLevel() {},
+      async connect() {
+        await ready;
+        if (failNext) {
+          failNext = false;
+          throw new Error('network down');
+        }
+      },
+      async getMe() {
+        return ME;
+      },
+      async destroy() {
+        client.destroyed = true;
+      },
+    };
+    made.push(client);
+    return client;
+  };
+  const opened = [];
+  const connection = createUserConnection({
+    clientFactory,
+    dialogLimit: 10,
+    now: () => 0,
+    onOpen: (client) => opened.push(client),
+  });
+  const creds = { apiId: '1', apiHash: 'h', session: 's' };
+  const settle = () =>
+    new Promise((resolve) => globalThis.setTimeout(resolve, 0));
+
+  const three = [1, 2, 3].map(() => connection.open(creds));
+  await settle();
+  assert.equal(made.length, 1, 'callers share the open');
+  made[0].release();
+  const [a, b, c] = await Promise.all(three);
+  assert.equal(a, b);
+  assert.equal(b, c);
+  assert.deepEqual(opened, [made[0]]);
+
+  await connection.disconnect();
+  assert.equal(made[0].destroyed, true, 'the dropped client is destroyed');
+
+  // Dropped while opening: that client ends too, the next open is fresh.
+  const late = connection.open(creds);
+  await settle();
+  await connection.disconnect();
+  made[1].release();
+  await assert.rejects(late, { code: 'telegram-reconnect' });
+  assert.equal(made[1].destroyed, true);
+
+  // A client that cannot connect is not left behind either.
+  failNext = true;
+  const failing = connection.open(creds);
+  await settle();
+  made[2].release();
+  await assert.rejects(failing, /network down/);
+  assert.equal(made[2].destroyed, true);
+
+  const again = connection.open(creds);
+  await settle();
+  made[3].release();
+  assert.equal((await again).client, made[3]);
+  assert.equal(made.length, 4);
+  assert.deepEqual(opened, [made[0], made[3]]);
 });

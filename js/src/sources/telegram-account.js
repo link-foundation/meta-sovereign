@@ -263,7 +263,7 @@ const publicStatus = (link = {}) =>
 // One connected GramJS client per stored session, reused across requests.
 // `onOpen(client, me)` runs once per new client (live updates attach
 // there). Chats are addressed by their stored input peer (`peers`).
-const createUserConnection = ({
+export const createUserConnection = ({
   clientFactory,
   dialogLimit,
   onOpen,
@@ -273,15 +273,48 @@ const createUserConnection = ({
 }) => {
   let lookedUpAt = -Infinity;
   let connection = null; // { key, client, me }
-  const disconnect = async () => {
-    const current = connection;
-    connection = null;
+  let opening = null; // { key, promise }: the open in flight, shared
+  let generation = 0; // a disconnect during an open makes it stale
+  // GramJS's disconnect() leaves the client's update loop running: its
+  // next ping fails and reconnects it, handlers and all. destroy() ends
+  // the loop, so a dropped client is really gone.
+  const end = async (client) => {
     try {
-      await current?.client?.disconnect?.();
+      await (client?.destroy ?? client?.disconnect)?.call(client);
     } catch {
       // Already gone.
     }
   };
+  const disconnect = async () => {
+    generation += 1;
+    const current = connection;
+    connection = null;
+    await end(current?.client);
+  };
+  const connect = async (creds, key) => {
+    await disconnect();
+    const mine = generation;
+    const client = await clientFactory({
+      apiId: creds.apiId,
+      apiHash: creds.apiHash,
+      session: creds.session,
+    });
+    client.setLogLevel?.('error');
+    try {
+      await client.connect();
+      const me = accountOf(await client.getMe());
+      if (mine !== generation) {
+        throw codeError('telegram-reconnect', 'the connection was dropped');
+      }
+      connection = { key, client, me };
+      onOpen?.(client, me);
+      return connection;
+    } catch (error) {
+      await end(client);
+      throw error;
+    }
+  };
+  // One client at a time: callers arriving while it opens share it.
   const open = async (creds) => {
     if (!creds.apiId || !creds.apiHash) {
       throw codeError(
@@ -293,18 +326,15 @@ const createUserConnection = ({
     if (connection?.key === key) {
       return connection;
     }
-    await disconnect();
-    const client = await clientFactory({
-      apiId: creds.apiId,
-      apiHash: creds.apiHash,
-      session: creds.session,
-    });
-    client.setLogLevel?.('error');
-    await client.connect();
-    const me = accountOf(await client.getMe());
-    connection = { key, client, me };
-    onOpen?.(client, me);
-    return connection;
+    if (opening?.key !== key) {
+      const promise = connect(creds, key).finally(() => {
+        if (opening?.promise === promise) {
+          opening = null;
+        }
+      });
+      opening = { key, promise };
+    }
+    return opening.promise;
   };
   // The stored input peer when there is one. Otherwise GramJS resolves
   // a bare chat id only for peers it has seen: after a restart the
