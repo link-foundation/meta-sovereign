@@ -95,7 +95,9 @@ export const makeLocalCertificate = ({ now = Date.now() } = {}) => {
   const spki = publicKey.export({ type: 'spki', format: 'der' });
   const name = seq(set(seq(oid('2.5.4.3'), tlv(0x0c, Buffer.from(NAME)))));
   const serial = crypto.randomBytes(16);
-  serial[0] &= 0x7f;
+  // Positive and with no leading zero byte: strict DER readers (Bun's
+  // BoringSSL, Apple's) refuse a padded INTEGER.
+  serial[0] = (serial[0] & 0x3f) | 0x40;
   const tbs = seq(
     explicit(0, integer(Buffer.from([2]))),
     integer(serial),

@@ -65,6 +65,18 @@ test('the certificate is for this machine only, and fit for Safari', () => {
   assert.ok(days <= 825, `Apple takes at most 825 days, got ${days}`);
 });
 
+test('every certificate made is strict DER (serial without padding)', () => {
+  for (let i = 0; i < 300; i += 1) {
+    const { cert } = makeLocalCertificate();
+    const der = Buffer.from(cert.replace(/-----[^-]+-----|\s/g, ''), 'base64');
+    // tbsCertificate: SEQUENCE, [0] version, then the serial INTEGER.
+    const at = der.indexOf(Buffer.from('a003020102', 'hex')) + 5;
+    assert.equal(der[at], 0x02);
+    const first = der[at + 2];
+    assert.ok(first >= 0x40 && first < 0x80, `serial starts ${first}`);
+  }
+});
+
 test('the store keeps its certificate and makes a new one near its end', async () => {
   const storeDir = await tempStore();
   try {
