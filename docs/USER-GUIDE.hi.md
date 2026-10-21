@@ -126,7 +126,7 @@ meta-sovereign serve --local-ui=false   # या MS_LOCAL_UI=off
 Browser notes:
 
 - **Chrome और Edge** (और नए Firefox) एक बार पूछते हैं कि क्या page local network के devices तक पहुँच सकता है। Allow करें।
-- **Safari** `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, इसलिए वहाँ page server की दी हुई एक छोटी तस्वीर से उसे ढूँढता है और server की अपनी app copy (<http://127.0.0.1:8787>) खुद खोल देता है। वह copy बंद हो (`--local-ui=false`) तो notice यह बताता है; तब Chrome, Firefox या desktop app इस्तेमाल करें।
+- **Safari** `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, इसलिए वहाँ page server की दी हुई एक छोटी तस्वीर से उसे ढूँढता है उसका नाम बताता है और server की अपनी app copy (<http://127.0.0.1:8787>) का link देता है: **सर्वर से ऐप खोलें** click करें। Page खुद कहीं नहीं जाता। वह copy बंद हो (`--local-ui=false`) तो notice यह बताता है; तब Chrome, Firefox या desktop app इस्तेमाल करें।
 
 ## 6. devices के बीच sync (WebRTC)
 
@@ -405,14 +405,14 @@ HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`
 
 ## 12. Troubleshooting
 
-| Symptom                                                       | Fix                                                                                                                                                                                                                                                            |
-| ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SPA loading spinner पर अटका है।                               | Dev tools → Application → IndexedDB में `meta-sovereign` database देखें; storage disabled हो सकता है।                                                                                                                                                          |
-| SPA local server तक नहीं पहुँचता।                             | App में **Settings → Server** खोलकर exact URL paste करें।                                                                                                                                                                                                      |
-| Server चल रहा है, फिर भी hosted app browser-only mode में है। | **Check again** click करें। Browser का local network prompt allow करें। Safari में page <http://127.0.0.1:8787> खुद खोलता है; न खोले तो **सर्वर से ऐप खोलें** click करें। SPA खुद host करते हैं तो server को `--allow-origin=<आपका origin>` के साथ start करें। |
-| Server `EADDRINUSE` report करता है।                           | `meta-sovereign serve --port=NNNN` या Rust `serve --port=NNNN` चलाएँ।                                                                                                                                                                                          |
-| WebRTC sync दो LANs के बीच रुकता है।                          | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                                                                                                                                                                                   |
-| `cargo build` linker error देता है।                           | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                                                                                                                                                                               |
+| Symptom                                                       | Fix                                                                                                                                                                                                                                 |
+| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPA loading spinner पर अटका है।                               | Dev tools → Application → IndexedDB में `meta-sovereign` database देखें; storage disabled हो सकता है।                                                                                                                               |
+| SPA local server तक नहीं पहुँचता।                             | App में **Settings → Server** खोलकर exact URL paste करें।                                                                                                                                                                           |
+| Server चल रहा है, फिर भी hosted app browser-only mode में है। | **Check again** click करें। Browser का local network prompt allow करें। Safari में **सर्वर से ऐप खोलें** (<http://127.0.0.1:8787>) click करें। SPA खुद host करते हैं तो server को `--allow-origin=<आपका origin>` के साथ start करें। |
+| Server `EADDRINUSE` report करता है।                           | `meta-sovereign serve --port=NNNN` या Rust `serve --port=NNNN` चलाएँ।                                                                                                                                                               |
+| WebRTC sync दो LANs के बीच रुकता है।                          | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                                                                                                                                                        |
+| `cargo build` linker error देता है।                           | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                                                                                                                                                    |
 
 ## 13. आगे कहाँ जाएँ
 

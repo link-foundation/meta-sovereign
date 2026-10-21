@@ -166,6 +166,10 @@ const VIEW_WAITS_MS = 3000;
 // Telegram's wait is for the method that was asked too often; the
 // others pause this long too, so a burst cools down.
 const ALL_WAIT_MS = 30_000;
+// A request with no answer by then is given up, so the queue moves on:
+// GramJS can lose its connection without a word and then never answer.
+// A file may take its time.
+export const STUCK_MS = Object.freeze({ file: 10 * MINUTE_MS, other: 60_000 });
 
 /** The method a queue key names: `messages:42:…` → `messages`. */
 export const methodOf = (key) => String(key ?? '').split(':')[0];
@@ -193,7 +197,9 @@ const floodError = (retryAfter) =>
  * nothing at all for up to ALL_WAIT_MS (what waits is turned down with
  * `code: 'flood-wait'` and `retryAfter`), and then everything goes
  * slower for an hour. `onHold(holds)` saves the holds, `hold(holds)`
- * restores them after a restart.
+ * restores them after a restart. A request with no answer within
+ * `stuck` is turned down (`code: 'telegram-stuck'`) and `onStuck(job)`
+ * told, so the connection can be opened anew.
  */
 // The queue's clock: when each request of the last minute began, and
 // Telegram's waits (`holdUntil`: nothing; `methods`: one method).
@@ -266,11 +272,38 @@ const createPacing = ({ pace, now }) => {
   };
 };
 
+// The job's answer, or its turn-down once it is stuck (`STUCK_MS`).
+const answerWithin = (job, { stuck, log, onStuck, setTimer, clearTimer }) => {
+  let given = null;
+  const ms = stuck[job.method] ?? stuck.other;
+  const gaveUp = new Promise((resolve, reject) => {
+    given = setTimer(() => {
+      log({
+        level: 'warn',
+        event: 'telegram_request_stuck',
+        method: job.method,
+        priority: job.priority,
+        seconds: Math.round(ms / 1000),
+      });
+      onStuck(job);
+      reject(
+        Object.assign(new Error('Telegram did not answer'), {
+          code: 'telegram-stuck',
+        })
+      );
+    }, ms);
+    given?.unref?.();
+  });
+  return Promise.race([job.task(), gaveUp]).finally(() => clearTimer(given));
+};
+
 export const createFetchQueue = ({
   now = () => Date.now(),
   log = () => {},
   pace = PACE,
   onHold = () => {},
+  stuck = STUCK_MS,
+  onStuck = () => {},
   setTimer = (fn, ms) => globalThis.setTimeout(fn, ms),
   clearTimer = (timer) => globalThis.clearTimeout(timer),
 } = {}) => {
@@ -323,7 +356,9 @@ export const createFetchQueue = ({
   const runJob = async (job) => {
     pacing.began();
     try {
-      job.resolve(await job.task());
+      job.resolve(
+        await answerWithin(job, { stuck, log, onStuck, setTimer, clearTimer })
+      );
     } catch (error) {
       note(error, job);
       job.reject(error);

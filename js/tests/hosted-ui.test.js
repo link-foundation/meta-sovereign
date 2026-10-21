@@ -23,7 +23,7 @@ import {
   findServerByPicture,
   mayNeedPicture,
 } from '../src/web/discover.js';
-import { openNearbyServer } from '../src/web/dom.js';
+import { findNearbyServer } from '../src/web/dom.js';
 
 const withServer = async (opts, use) => {
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-ui-'));
@@ -141,7 +141,7 @@ test('the server shows Safari its picture, sized by the local copy', async () =>
   );
 });
 
-test('the hosted page finds a server by its picture and opens its copy', async () => {
+test('the hosted page finds a server by its picture and stays where it is', async () => {
   const pictures = {
     'http://127.0.0.1:8788': { width: BEACON_WIDTH, height: 1 },
     'http://127.0.0.1:3000': { width: 640, height: 480 },
@@ -161,19 +161,17 @@ test('the hosted page finds a server by its picture and opens its copy', async (
     localUi: false,
   });
 
-  const opened = [];
-  const location = { hash: '#/chat', replace: (to) => opened.push(to) };
+  // Found or not, nothing is opened: the notice links the server.
   const find = async () => ({ origin: 'http://127.0.0.1:8787', localUi: true });
-  await openNearbyServer({ may: () => true, find, location });
-  assert.deepEqual(opened, ['http://127.0.0.1:8787/#/chat']);
-  // The copy off, or no picture needed: the page stays.
-  await openNearbyServer({
-    may: () => true,
-    find: async () => ({ origin: 'http://127.0.0.1:8787', localUi: false }),
-    location,
+  assert.deepEqual(await findNearbyServer({ may: () => true, find }), {
+    origin: 'http://127.0.0.1:8787',
+    localUi: true,
   });
-  await openNearbyServer({ may: () => false, find, location });
-  assert.equal(opened.length, 1);
+  assert.equal(await findNearbyServer({ may: () => false, find }), null);
+  const broken = async () => {
+    throw new Error('no Image');
+  };
+  assert.equal(await findNearbyServer({ may: () => true, find: broken }), null);
 });
 
 test('only an https page in a plain browser looks for the picture', () => {

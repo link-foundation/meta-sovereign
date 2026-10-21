@@ -50,21 +50,15 @@ export const h = (tag, attrs = {}, children = []) => {
 let bootPromise = null;
 
 /**
- * A server Safari keeps this page from (R-Y58): found by its picture;
- * when it serves its own copy of the app, that copy opens instead, at
- * the same screen. Returns what was found, or null.
+ * A server this page can see but not use (Safari keeps an https page
+ * from http://127.0.0.1, R-Y60): found by its picture, `{ origin,
+ * localUi }`, or null. The page stays where it is; the browser-only
+ * notice offers the server's own copy as a link.
  */
-export const openNearbyServer = async ({
+export const findNearbyServer = async ({
   may = mayNeedPicture,
   find = findServerByPicture,
-  location = globalThis.location,
-} = {}) => {
-  const nearby = may() ? await find() : null;
-  if (nearby?.localUi) {
-    location.replace(`${nearby.origin}/${location.hash ?? ''}`);
-  }
-  return nearby;
-};
+} = {}) => (may() ? find().catch(() => null) : null);
 
 const localBroadcast = async (networks, body) =>
   (networks ?? []).map((n) => ({ network: n, queued: true, body }));
@@ -78,7 +72,8 @@ const boot = async () => {
   bus.register('broadcast', built.selector, built.run);
 
   const discovered = await discoverServer({});
-  const nearby = discovered ? null : await openNearbyServer();
+  // Looked for meanwhile; the app does not wait for it.
+  const nearby = discovered ? Promise.resolve(null) : findNearbyServer();
   const server = discovered
     ? {
         origin: discovered.origin,
@@ -403,7 +398,6 @@ export const api = {
   // reloads the page the same way a manual override does.
   rediscover: async ({
     discover = discoverServer,
-    nearby = openNearbyServer,
     reload = () => globalThis.location?.reload?.(),
   } = {}) => {
     const found = await discover({});
@@ -412,7 +406,7 @@ export const api = {
       reload();
       return true;
     }
-    return Boolean((await nearby())?.localUi);
+    return false;
   },
   // A server found by its picture only (Safari), or null.
   nearby: async () => (await ensure()).nearby,

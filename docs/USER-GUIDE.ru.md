@@ -127,7 +127,7 @@ meta-sovereign serve --local-ui=false   # или MS_LOCAL_UI=off
 Заметки о браузерах:
 
 - **Chrome и Edge** (и новые версии Firefox) один раз спрашивают, может ли страница обращаться к устройствам в локальной сети. Разрешите.
-- **Safari** не пускает `https` страницы на `http://127.0.0.1`, поэтому там страница находит server по маленькой картинке, которую он отдаёт, и сама открывает копию приложения с server (<http://127.0.0.1:8787>). Если эта копия выключена (`--local-ui=false`), уведомление скажет об этом; тогда используйте Chrome, Firefox или desktop app.
+- **Safari** не пускает `https` страницы на `http://127.0.0.1`, поэтому там страница находит server по маленькой картинке, которую он отдаёт, называет его и даёт ссылку на копию приложения с server (<http://127.0.0.1:8787>): нажмите **Открыть приложение с сервера**. Сама страница никуда не уходит. Если эта копия выключена (`--local-ui=false`), уведомление скажет об этом; тогда используйте Chrome, Firefox или desktop app.
 
 ## 6. Sync между устройствами (WebRTC)
 
@@ -413,14 +413,14 @@ meta-sovereign automations run job-search --chat=vk:101 --confirm=true
 
 ## 12. Troubleshooting
 
-| Symptom                                                       | Fix                                                                                                                                                                                                                                                         |
-| ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SPA завис на loading spinner.                                 | Dev tools → Application → IndexedDB: проверьте database `meta-sovereign`; возможно, storage disabled.                                                                                                                                                       |
-| SPA не видит local server.                                    | В app откройте **Settings → Server** и вставьте точный URL.                                                                                                                                                                                                 |
-| Hosted app остается в browser-only mode, хотя server запущен. | Нажмите **Check again**. Разрешите запрос браузера о локальной сети. В Safari страница сама откроет <http://127.0.0.1:8787>; если нет, нажмите **Открыть приложение с сервера**. Если SPA размещен у вас, запустите server с `--allow-origin=<ваш origin>`. |
-| Server сообщает `EADDRINUSE`.                                 | Передайте `--port=NNNN` в `meta-sovereign serve` или Rust `serve --port=NNNN`.                                                                                                                                                                              |
-| WebRTC sync ломается между двумя LAN.                         | Настройте TURN server: [`docs/WEBRTC-TURN.ru.md`](./WEBRTC-TURN.ru.md).                                                                                                                                                                                     |
-| `cargo build` падает с linker error.                          | Установите C toolchain (`build-essential` на Debian/Ubuntu, Xcode CLI tools на macOS).                                                                                                                                                                      |
+| Symptom                                                       | Fix                                                                                                                                                                                                                          |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPA завис на loading spinner.                                 | Dev tools → Application → IndexedDB: проверьте database `meta-sovereign`; возможно, storage disabled.                                                                                                                        |
+| SPA не видит local server.                                    | В app откройте **Settings → Server** и вставьте точный URL.                                                                                                                                                                  |
+| Hosted app остается в browser-only mode, хотя server запущен. | Нажмите **Check again**. Разрешите запрос браузера о локальной сети. В Safari нажмите **Открыть приложение с сервера** (<http://127.0.0.1:8787>). Если SPA размещен у вас, запустите server с `--allow-origin=<ваш origin>`. |
+| Server сообщает `EADDRINUSE`.                                 | Передайте `--port=NNNN` в `meta-sovereign serve` или Rust `serve --port=NNNN`.                                                                                                                                               |
+| WebRTC sync ломается между двумя LAN.                         | Настройте TURN server: [`docs/WEBRTC-TURN.ru.md`](./WEBRTC-TURN.ru.md).                                                                                                                                                      |
+| `cargo build` падает с linker error.                          | Установите C toolchain (`build-essential` на Debian/Ubuntu, Xcode CLI tools на macOS).                                                                                                                                       |
 
 ## 13. Дальше
 

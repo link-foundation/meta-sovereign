@@ -42,6 +42,20 @@ const downloadHref = (location) =>
     ? './download/'
     : DOWNLOAD_PAGE_URL;
 
+// A server seen but not usable from here: its own copy is a link away
+// (never opened by itself). Safari may also block the picture: then the
+// link is to our port. A server with that copy off is named.
+const localLinks = (nearby, safariHint) => {
+  if (nearby) {
+    return nearby.localUi
+      ? { localHref: `${nearby.origin}/`, localFound: nearby.origin }
+      : { localHref: null, localOff: nearby.origin };
+  }
+  return {
+    localHref: safariHint ? `http://127.0.0.1:${DEFAULT_PORTS[0]}/` : null,
+  };
+};
+
 /**
  * What the browser-only notice should show, or null when it should
  * not show at all (still discovering, or a server is connected).
@@ -56,18 +70,16 @@ export const webModeNotice = ({
   if (online !== false) {
     return null;
   }
-  const safariHint = runtime === 'web' && isSafari(userAgent);
+  // Safari's limit is on https pages; the server's own copy is http.
+  const safariHint =
+    runtime === 'web' && location?.protocol === 'https:' && isSafari(userAgent);
   return {
     runtime,
     // The desktop app already bundles the server; a phone cannot run
     // the desktop build, so only plain browsers get the download link.
     downloadHref: runtime === 'web' ? downloadHref(location) : null,
     safariHint,
-    // Safari may also block the server's picture: the server's own copy
-    // is a link away. A server found with that copy off is named.
-    localHref:
-      safariHint && !nearby ? `http://127.0.0.1:${DEFAULT_PORTS[0]}/` : null,
-    localOff: nearby && !nearby.localUi ? nearby.origin : null,
+    ...localLinks(nearby, safariHint),
     commands: localServerHelp.options.filter((option) =>
       SERVER_OPTION_IDS.includes(option.id)
     ),

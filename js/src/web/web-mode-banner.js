@@ -91,6 +91,13 @@ export const WebModeBanner = ({
       notice.safariHint
         ? el('p', { key: 'safari', className: 'meta' }, t('webMode.safari'))
         : null,
+      notice.localFound
+        ? el(
+            'p',
+            { key: 'local-found', className: 'meta', role: 'status' },
+            t('webMode.localFound', { origin: notice.localFound })
+          )
+        : null,
       notice.localOff
         ? el(
             'p',

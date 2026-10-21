@@ -27,8 +27,10 @@ export const zh = {
   'webMode.download': '下载桌面应用（内置服务器）',
   'webMode.dismiss': '隐藏',
   'webMode.safari':
-    'Safari 不允许 https 页面访问 http://127.0.0.1,因此在 Safari 中,服务器一运行,此页面就会自动打开服务器自带的应用副本。启动服务器后请点击重新检测,或使用桌面应用。',
+    'Safari 不允许 https 页面访问 http://127.0.0.1。在 Safari 中,服务器运行后,请通过下方链接从服务器打开应用,或使用桌面应用。',
   'webMode.openLocal': '从服务器打开应用',
+  'webMode.localFound':
+    '服务器在 {origin} 运行,但此浏览器不允许此页面访问它。请通过下方链接从服务器打开应用。',
   'webMode.localOff':
     '服务器在 {origin} 运行,但 Safari 不允许此页面访问它,且服务器自带的应用副本已关闭。请不带 --local-ui=false 启动服务器,或在 Chrome 或 Firefox 中打开此页面。',
   'nav.chat': '聊天',

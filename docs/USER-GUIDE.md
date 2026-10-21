@@ -181,8 +181,9 @@ Browser notes:
 - **Chrome and Edge** (and newer Firefox) ask once whether the page may
   reach devices on your local network. Allow it.
 - **Safari** does not let `https` pages reach `http://127.0.0.1`, so
-  there the page finds the server by a small picture it serves and opens
-  the server's own copy of the app by itself (<http://127.0.0.1:8787>).
+  there the page finds the server by a small picture it serves, names it
+  and links the server's own copy of the app (<http://127.0.0.1:8787>):
+  click **Open the app from the server**. The page never leaves by itself.
   With that copy off (`--local-ui=false`) the notice says so; use Chrome,
   Firefox or the desktop app then.
 
@@ -510,14 +511,14 @@ plan and ask y/N; scripts pass `--yes`.
 
 ## 12. Troubleshooting
 
-| Symptom                                                          | Fix                                                                                                                                                                                                                                                                   |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The SPA is stuck on a loading spinner.                           | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled.                                                                                                                  |
-| The SPA cannot reach my local server.                            | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                                                                                                                                     |
-| The hosted app stays in browser-only mode while the server runs. | Click **Check again**. Allow the browser's local network prompt. On Safari the page opens <http://127.0.0.1:8787> itself; if it does not, click **Open the app from the server**. If you host the SPA yourself, start the server with `--allow-origin=<your origin>`. |
-| The server reports `EADDRINUSE`.                                 | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.                                                                                                                            |
-| WebRTC sync stops between two LANs.                              | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                                                                                                                                              |
-| `cargo build` fails with `linker` error.                         | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                                                                                                                                 |
+| Symptom                                                          | Fix                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The SPA is stuck on a loading spinner.                           | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled.                                                                             |
+| The SPA cannot reach my local server.                            | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                                                                                                |
+| The hosted app stays in browser-only mode while the server runs. | Click **Check again**. Allow the browser's local network prompt. On Safari click **Open the app from the server** (<http://127.0.0.1:8787>). If you host the SPA yourself, start the server with `--allow-origin=<your origin>`. |
+| The server reports `EADDRINUSE`.                                 | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.                                                                                       |
+| WebRTC sync stops between two LANs.                              | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                                                                                                         |
+| `cargo build` fails with `linker` error.                         | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                                                                                            |
 
 ## 13. Where to go next
 

@@ -31,7 +31,8 @@ const UA = {
     'Mozilla/5.0 (X11; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0',
 };
 
-const PAGES = { hostname: 'link-foundation.github.io' };
+const PAGES = { hostname: 'link-foundation.github.io', protocol: 'https:' };
+const LOCAL = { hostname: '127.0.0.1', protocol: 'http:' };
 
 const render = (props, locale = 'en') => {
   const t = (key, vars = {}) =>
@@ -111,17 +112,36 @@ describe('webModeNotice', () => {
   });
 
   it('adds the Safari loopback hint only for Safari', () => {
-    const hint = (userAgent) =>
-      webModeNotice({ online: false, runtime: 'web', userAgent }).safariHint;
+    const hint = (userAgent, location = PAGES) =>
+      webModeNotice({ online: false, runtime: 'web', userAgent, location })
+        .safariHint;
     expect(hint(UA.safariMac)).toBe(true);
     expect(hint(UA.chrome)).toBe(false);
+    // The server's own copy is http: Safari's limit is not in the way.
+    expect(hint(UA.safariMac, LOCAL)).toBe(false);
   });
 
   it('links the server copy in Safari and names a server with it off', () => {
     const notice = (userAgent, nearby) =>
-      webModeNotice({ online: false, runtime: 'web', userAgent, nearby });
+      webModeNotice({
+        online: false,
+        runtime: 'web',
+        userAgent,
+        nearby,
+        location: PAGES,
+      });
     expect(notice(UA.safariMac).localHref).toBe('http://127.0.0.1:8787/');
     expect(notice(UA.chrome).localHref).toBe(null);
+    // A server seen by its picture: named and linked, never opened.
+    const seen = notice(UA.safariMac, {
+      origin: 'http://127.0.0.1:8788',
+      localUi: true,
+    });
+    expect(seen.localHref).toBe('http://127.0.0.1:8788/');
+    expect(seen.localFound).toBe('http://127.0.0.1:8788');
+    const shown = render({ online: false, notice: seen });
+    expect(shown).toContain('A server runs at http://127.0.0.1:8788');
+    expect(shown).toContain('href="http://127.0.0.1:8788/"');
     const off = notice(UA.safariMac, {
       origin: 'http://127.0.0.1:8788',
       localUi: false,

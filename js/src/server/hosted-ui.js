@@ -19,7 +19,7 @@
  * Safari refuses the hosted page's requests to http://127.0.0.1 but
  * still shows it images from there, so the server answers one small
  * picture (BEACON_PATH) whose size says "here I am" and whether its own
- * copy is on; the hosted page then opens that copy (../web/discover.js).
+ * copy is on; the hosted page then links that copy (../web/discover.js).
  * With cross-origin use off (`--allow-origin=none`) there is no picture.
  */
 

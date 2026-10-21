@@ -24,6 +24,10 @@ import { aggregateContacts } from '../server/aggregate.js';
 
 // A read the server has not answered in this long falls back to local.
 const READ_TIMEOUT_MS = 30_000;
+// After a read failed, the server is asked this often whether it is
+// back (a busy moment must not leave the app offline until a reload).
+const RECHECK_MS = 10_000;
+const timeoutSignal = (ms) => globalThis.AbortSignal?.timeout?.(ms);
 
 // The local links, plus the server's that the local store does not hold
 // (the local copy has the user's latest edits).
@@ -60,7 +64,52 @@ const computeAutocomplete = async (store, q, me = 'me') => {
 const computeContacts = async (store) =>
   aggregateContacts(await store.query(), { people: true });
 
-export const createOfflineClient = ({ store, server }) => {
+// The server failed a read: ask its /api/status now and then, and use
+// it again once it answers.
+const createReturnWatch = ({
+  server,
+  online,
+  setOnline,
+  recheckMs = RECHECK_MS,
+  setTimer = (fn, ms) => globalThis.setTimeout(fn, ms),
+  clearTimer = (timer) => globalThis.clearTimeout(timer),
+}) => {
+  let recheck = null;
+  const start = () => {
+    const target = server();
+    if (recheck || !target?.fetchImpl) {
+      return;
+    }
+    recheck = setTimer(async () => {
+      recheck = null;
+      if (online() || server() !== target) {
+        return;
+      }
+      const signal = timeoutSignal(recheckMs);
+      const back = await target
+        .fetchImpl(`${target.origin}/api/status`, signal ? { signal } : {})
+        .then((res) => res.ok)
+        .catch(() => false);
+      if (server() !== target) {
+        return;
+      }
+      if (back) {
+        setOnline(true);
+      } else {
+        start();
+      }
+    }, recheckMs);
+    recheck?.unref?.();
+  };
+  const stop = () => {
+    clearTimer(recheck);
+    recheck = null;
+  };
+  return { start, stop };
+};
+
+// `timing` ({ recheckMs, setTimer, clearTimer }) is for tests.
+export const createOfflineClient = ({ store, server, ...timing }) => {
   const handlers = new Set();
   const emit = (event) => {
     for (const h of handlers) {
@@ -77,6 +126,13 @@ export const createOfflineClient = ({ store, server }) => {
     emit({ type: 'mode-change', online });
   };
 
+  const watch = createReturnWatch({
+    server: () => server,
+    online: () => online,
+    setOnline,
+    ...timing,
+  });
+
   // The same reply graph as the server's /api/suggest, learned from
   // the local store, for offline use.
   let localReplies = null;
@@ -88,7 +144,7 @@ export const createOfflineClient = ({ store, server }) => {
     }
     try {
       // A server that does not answer (busy, stuck) counts as gone.
-      const signal = globalThis.AbortSignal?.timeout?.(READ_TIMEOUT_MS);
+      const signal = timeoutSignal(READ_TIMEOUT_MS);
       const res = await server.fetchImpl(
         `${server.origin}${path}`,
         signal ? { signal } : undefined
@@ -99,8 +155,9 @@ export const createOfflineClient = ({ store, server }) => {
       return await res.json();
     } catch {
       // Server flapped — degrade gracefully and let the caller
-      // see local data instead of a thrown error.
+      // see local data instead of a thrown error, until it is back.
       setOnline(false);
+      watch.start();
       return fallback();
     }
   };
@@ -112,6 +169,7 @@ export const createOfflineClient = ({ store, server }) => {
     },
     isOnline: () => online,
     setServer: (next) => {
+      watch.stop();
       server = next;
       setOnline(Boolean(next));
     },

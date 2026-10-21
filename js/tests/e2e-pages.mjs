@@ -18,9 +18,10 @@
 //
 // Then the hosted copy once more in WebKit, Safari's engine: Safari
 // keeps an https page from asking http://127.0.0.1 anything, so there
-// the page must find the server by its picture and open the server's
-// own copy (browser-commander drives Chrome and the installed Safari
-// only, so this run uses Playwright's WebKit; E2E_SAFARI=0 skips it).
+// the page must find the server by its picture, stay where it is and
+// link the server's own copy, which must then work (browser-commander
+// drives Chrome and the installed Safari only, so this run uses
+// Playwright's WebKit; E2E_SAFARI=0 skips it).
 //
 // E2E_SHOTS=<dir> keeps a screenshot of each copy.
 //
@@ -139,7 +140,6 @@ const seed = async (store) => {
 const look = async (page, url, { serverOrigin, problems }) => {
   await page.goto(url);
   for (let i = 0; i < 60; i += 1) {
-    // The page may move to the server's own copy meanwhile (Safari).
     const online = await page
       .evaluate(() => Boolean(document.querySelector('.mode-badge.online')))
       .catch(() => false);
@@ -217,7 +217,9 @@ const fence = async (page, { serverOrigin, siteOrigin, tried }) =>
       : r.abort();
   });
 
-// The hosted copy in WebKit: it ends up on the server, online.
+// The hosted copy in WebKit. From an https page Safari reaches the
+// server only by its picture: the page must stay where it is, name the
+// server and link its own copy, which then works.
 const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
   if (process.env.E2E_SAFARI === '0') {
     return [];
@@ -239,17 +241,48 @@ const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
       }
     });
     const seen = await look(page, site.url, { serverOrigin, problems: [] });
-    await shoot(page, 'safari.png');
-    const landed = page.url();
-    say(
-      `webkit tried ${[...tried].join(' → ')}; landed on ${landed}; online=${seen.online} bubbles=${seen.bubbles}`
-    );
-    if (!seen.online || seen.bubbles < 3) {
-      failures.push(`webkit: the hosted copy did not reach the server`);
+    if (!siteOrigin.startsWith('https:')) {
+      say(`webkit: online=${seen.online} bubbles=${seen.bubbles}`);
+      if (!seen.online || seen.bubbles < 3) {
+        failures.push('webkit: the hosted copy did not reach the server');
+      }
+      return failures;
     }
-    // From an https page only the server's own copy can work.
-    if (siteOrigin.startsWith('https:') && !landed.startsWith(serverOrigin)) {
-      failures.push(`webkit: stayed on ${landed}`);
+    let link = null;
+    for (let i = 0; i < 60 && !link; i += 1) {
+      link = await page
+        .evaluate(
+          () => document.querySelector('a.web-mode-local')?.href ?? null
+        )
+        .catch(() => null);
+      if (!link) {
+        await sleep(250);
+      }
+    }
+    const named = await page.evaluate(
+      (origin) =>
+        document
+          .querySelector('.web-mode-banner')
+          ?.textContent.includes(`A server runs at ${origin}`) ?? false,
+      serverOrigin
+    );
+    await shoot(page, 'safari.png');
+    const stayed = page.url();
+    say(
+      `webkit tried ${[...tried].join(' → ')}; stayed on ${stayed}; link ${link}; named=${named}`
+    );
+    if (!stayed.startsWith(siteOrigin)) {
+      failures.push(`webkit: the hosted page went to ${stayed} by itself`);
+    }
+    if (link !== `${serverOrigin}/` || !named) {
+      failures.push('webkit: the notice does not name and link the server');
+      return failures;
+    }
+    const local = await look(page, link, { serverOrigin, problems: [] });
+    await shoot(page, 'safari-local.png');
+    say(`webkit via the link: online=${local.online} bubbles=${local.bubbles}`);
+    if (!local.online || local.bubbles < 3) {
+      failures.push("webkit: the server's own copy did not work");
     }
   } finally {
     await browser.close();

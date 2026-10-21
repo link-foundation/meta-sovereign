@@ -783,6 +783,9 @@ const addReaders = (env, { pace, mediaDir }) => {
     log,
     ...(pace ? { pace } : {}),
     onHold: (holds) => recordSync(store, { holds }).catch(() => {}),
+    // No answer: the connection is likely gone; the next request opens
+    // a new one.
+    onStuck: () => env.connection?.disconnect().catch(() => {}),
   });
   env.peers = createPeers({ store, importer: env.importer });
   env.channels = createChannelSync({

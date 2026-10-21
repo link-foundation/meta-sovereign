@@ -181,6 +181,41 @@ test('the queue paces requests and gives background work only a quiet minute (R-
   assert.equal(queue.state().waiting, 0);
 });
 
+test('a request Telegram never answers is given up and the queue moves on', async () => {
+  const time = fakeTime();
+  const stuck = [];
+  const logged = [];
+  const queue = createFetchQueue({
+    now: time.now,
+    setTimer: time.setTimer,
+    clearTimer: time.clearTimer,
+    pace: NO_PACE,
+    stuck: { file: 5000, other: 1000 },
+    onStuck: (job) => stuck.push(job.key),
+    log: (entry) => logged.push(entry.event),
+  });
+  const never = () => new Promise(() => {});
+  const lost = queue.run('chat-info:42', 'view', never);
+  const file = queue.run('file:7', 'list', never);
+  const next = queue.run('avatar:42:small', 'list', async () => 'picture');
+  const failed = [];
+  lost.catch((error) => failed.push(error.code));
+  file.catch((error) => failed.push(error.code));
+  await time.advance(999);
+  assert.deepEqual(stuck, []);
+  await time.advance(1);
+  assert.deepEqual(failed, ['telegram-stuck']);
+  assert.deepEqual(stuck, ['chat-info:42']);
+  assert.deepEqual(logged, ['telegram_request_stuck']);
+  // A file is given longer; then what waited behind it goes.
+  await time.advance(4999);
+  assert.equal(queue.state().waiting, 1);
+  await time.advance(1);
+  assert.equal(await next, 'picture');
+  assert.deepEqual(stuck, ['chat-info:42', 'file:7']);
+  assert.equal(queue.state().waiting, 0);
+});
+
 test("Telegram's wait holds its method, briefly everything, then slows down (R-Y34)", async () => {
   const time = fakeTime();
   const holds = [];

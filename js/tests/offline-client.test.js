@@ -98,6 +98,42 @@ test('server failure flips client to offline and keeps working', async () => {
   assert.ok(events.some((e) => e.type === 'mode-change' && e.online === false));
 });
 
+test('a client gone offline after a failed read comes back with its server', async () => {
+  const store = await createBrowserStore();
+  let up = false;
+  const asked = [];
+  const fetchImpl = async (url) => {
+    asked.push(new URL(url).pathname);
+    if (!up) {
+      throw new Error('busy');
+    }
+    return { ok: true, json: async () => [] };
+  };
+  const timers = [];
+  const client = createOfflineClient({
+    store,
+    server: { origin: 'http://x', fetchImpl },
+    setTimer: (fn) => timers.push(fn),
+    clearTimer: () => {},
+  });
+  const events = [];
+  client.on((e) => events.push(e.online));
+  await client.autocomplete('a');
+  assert.equal(client.isOnline(), false);
+  assert.equal(timers.length, 1, 'one check is planned, not one per read');
+  await client.autocomplete('b');
+  assert.equal(timers.length, 1);
+  // Still down: the next check is planned.
+  await timers.shift()();
+  assert.equal(client.isOnline(), false);
+  assert.equal(asked.at(-1), '/api/status');
+  up = true;
+  await timers.shift()();
+  assert.equal(client.isOnline(), true);
+  assert.deepEqual(events, [false, true]);
+  assert.equal(timers.length, 0);
+});
+
 test('writing a broadcast link triggers the local handler bus when offline', async () => {
   // The handler bus runs in the SPA when offline so the user can still
   // queue broadcasts; this just checks the link is shaped correctly.
