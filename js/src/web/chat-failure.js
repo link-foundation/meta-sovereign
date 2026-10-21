@@ -16,6 +16,8 @@ export const failureText = (t, message) => {
       return t('chat.failure.unknownChat');
     case 'too-long':
       return t('chat.failure.tooLong');
+    case 'too-large':
+      return t('chat.failure.tooLarge');
     case 'after-failure':
       return t('chat.failure.afterFailure');
     case 'network':

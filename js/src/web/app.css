@@ -4518,3 +4518,134 @@ button[aria-busy='true']::before {
     animation: none;
   }
 }
+
+/* Files and photos (R-Y99): the paperclip, the send box, the drop. */
+.chat-attach {
+  display: contents;
+}
+.chat-attach-btn {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--text-muted, inherit);
+}
+.attach-dialog {
+  width: min(460px, 92vw);
+  max-height: 86vh;
+}
+.attach-dialog h3 {
+  margin: 0;
+}
+.attach-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  max-height: 46vh;
+}
+.attach-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.attach-pic,
+.attach-doc {
+  flex: none;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.attach-doc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-fill, var(--chat-accent));
+  color: #fff;
+}
+.attach-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.attach-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.attach-size {
+  font-size: 0.8rem;
+  color: var(--text-muted, inherit);
+  opacity: 0.8;
+}
+.attach-caption {
+  resize: vertical;
+  font: inherit;
+}
+.attach-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+.attach-progress-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+.attach-progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent-fill, var(--chat-accent));
+  transition: width 0.2s;
+}
+.chat-drop {
+  position: absolute;
+  inset: 0.5rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--accent-fill, var(--chat-accent));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--bg-elev) 88%, transparent);
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+.attach-pic {
+  background: var(--bg-active);
+}
+.attach-dialog .pin-dialog-option {
+  margin: 0;
+}
+.attach-list.is-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.4rem;
+}
+.attach-list.is-photos .attach-item {
+  position: relative;
+}
+.attach-list.is-photos .attach-pic {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+.attach-list.is-photos .attach-name {
+  display: none;
+}
+.attach-list.is-photos .attach-remove {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}

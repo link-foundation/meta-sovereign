@@ -45,6 +45,14 @@ import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
+import {
+  AttachButton,
+  AttachDialog,
+  DropHint,
+  pasteFiles,
+  useAttach,
+  useDropFiles,
+} from './chat-attach.js';
 import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
@@ -1105,11 +1113,14 @@ const ReplyBar = ({ replyTo, onClear }) => {
   ]);
 };
 
-const Composer = ({ state, keys }) => {
+const Composer = ({ state, api, keys }) => {
   const t = useT();
   const { composer } = state;
   const text = useComposerText(composer);
   const suggest = useSuggestionsFor(state.suggester, text, state.suggest);
+  // Files and photos: the paperclip, a paste, a drop (R-Y99).
+  const attach = useAttach({ state, api });
+  const dragging = useDropFiles(attach);
   const onKeyDown = (event) => {
     keys?.(event);
     if (event.defaultPrevented) {
@@ -1129,9 +1140,10 @@ const Composer = ({ state, keys }) => {
       composer.setText(first.text);
     }
   };
-  return el(
+  const form = el(
     'form',
     {
+      key: 'form',
       className: 'chat-composer',
       onSubmit: (event) => {
         event.preventDefault();
@@ -1146,6 +1158,7 @@ const Composer = ({ state, keys }) => {
         onClear: composer.clearReplyTo,
       }),
       el('div', { key: 'row', className: 'chat-composer-row' }, [
+        el(AttachButton, { key: 'attach', attach }),
         el('textarea', {
           key: 'input',
           rows: 1,
@@ -1155,6 +1168,7 @@ const Composer = ({ state, keys }) => {
           onChange: (event) =>
             composer.setText(event.target.value, { typed: true }),
           onKeyDown,
+          onPaste: pasteFiles(attach),
         }),
         el(
           'button',
@@ -1171,6 +1185,11 @@ const Composer = ({ state, keys }) => {
       ]),
     ]
   );
+  return el(React.Fragment, null, [
+    el(DropHint, { key: 'drop', over: dragging }),
+    form,
+    el(AttachDialog, { key: 'files', attach }),
+  ]);
 };
 
 // Pinned message bar shown when the newest loaded pinned message is known.
@@ -1324,7 +1343,7 @@ export const ChatScreen = ({ state, api }) => {
               dismiss: state.dismiss,
             }),
             el(Stream, { key: 's', state, api, actions }),
-            el(Composer, { key: 'c', state, keys: actions.keys }),
+            el(Composer, { key: 'c', state, api, keys: actions.keys }),
             ...actions.dialogs,
           ])
         : null,

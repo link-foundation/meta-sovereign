@@ -77,8 +77,11 @@ export const sendError = (error) => {
   ) {
     return codeError('unknown-chat', text);
   }
-  if (/MESSAGE_TOO_LONG/.test(text)) {
+  if (/MESSAGE_TOO_LONG|MEDIA_CAPTION_TOO_LONG/.test(text)) {
     return codeError('too-long', text);
+  }
+  if (/FILE_PARTS_INVALID|FILE_PART_TOO_BIG|FILE_TOO_BIG/.test(text)) {
+    return codeError('too-large', text);
   }
   if (/MESSAGE_EMPTY/.test(text)) {
     return codeError('bad-draft', text);

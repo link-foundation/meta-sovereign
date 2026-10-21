@@ -48,6 +48,7 @@
     "test:e2e:offline": "node js/tests/e2e-offline-browser.mjs",
     "test:e2e:chat-menu": "node js/tests/e2e-chat-menu-browser.mjs",
     "test:e2e:chat-search": "node js/tests/e2e-chat-search-browser.mjs",
+    "test:e2e:attach": "node js/tests/e2e-attach-browser.mjs",
     "test:e2e:replies": "node js/tests/e2e-reply-cache-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
@@ -77,7 +78,8 @@
     "test:e2e:draft:webkit": "E2E_BROWSER=webkit node js/tests/e2e-draft-browser.mjs",
     "test:e2e:offline:webkit": "E2E_BROWSER=webkit node js/tests/e2e-offline-browser.mjs",
     "test:e2e:chat-menu:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-menu-browser.mjs",
-    "test:e2e:chat-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-search-browser.mjs"
+    "test:e2e:chat-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-search-browser.mjs",
+    "test:e2e:attach:webkit": "E2E_BROWSER=webkit node js/tests/e2e-attach-browser.mjs"
   },
   "keywords": [
     "personal-crm",

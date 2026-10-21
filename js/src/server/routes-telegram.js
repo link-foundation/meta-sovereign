@@ -33,6 +33,13 @@
  *                                      -> { ids, count, more } the chat's
  *                                         messages with `q`, newest first,
  *                                         stored (R-Y98)
+ *   POST /api/telegram/upload?name=   (application/octet-stream body)
+ *                                      -> { token, name, size } one file
+ *                                         kept for send-files (R-Y99)
+ *   POST /api/telegram/send-files {chat, tokens, caption?, asPhoto?,
+ *                                  group?, replyTo?}
+ *                                      -> { ok, ids } the files sent:
+ *                                         photos, albums, files (R-Y99)
  *   GET  /api/telegram/media?chat=&id=&size=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
@@ -52,6 +59,11 @@ import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
+import {
+  MAX_CAPTION,
+  MAX_FILES,
+  MAX_UPLOAD,
+} from '../sources/telegram-upload.js';
 
 const PREFIX = '/api/telegram/';
 
@@ -210,6 +222,37 @@ const POSTS = {
         chat: body.chat,
         q: body.q,
         offsetId: Number.isInteger(body.offsetId) ? body.offsetId : 0,
+      }),
+    ];
+  },
+  // Files and photos uploaded before (R-Y99).
+  'send-files': async (account, body) => {
+    const tokens = body.tokens;
+    const replyTo = Number(body.replyTo);
+    if (
+      !validChat(body.chat) ||
+      !Array.isArray(tokens) ||
+      tokens.length === 0 ||
+      tokens.length > MAX_FILES ||
+      !tokens.every((t) => typeof t === 'string' && /^[a-f0-9]{32}$/.test(t)) ||
+      (body.caption !== undefined && typeof body.caption !== 'string') ||
+      String(body.caption ?? '').length > MAX_CAPTION ||
+      typeof account.sendFiles !== 'function'
+    ) {
+      return [
+        400,
+        { error: 'chat and tokens[] required', code: 'bad-request' },
+      ];
+    }
+    return [
+      200,
+      await account.sendFiles({
+        chat: body.chat,
+        tokens,
+        caption: body.caption ?? '',
+        asPhoto: body.asPhoto !== false,
+        group: body.group !== false,
+        replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
       }),
     ];
   },
@@ -546,6 +589,42 @@ const dispatch = async (account, req, res, p, ctx) => {
   return json(res, status, answer) ?? true;
 };
 
+// POST /api/telegram/upload?name= with the file's bytes (R-Y99). Not
+// JSON, so not isTrustedMutation's check: its own — the bytes' type is
+// not one a form on another site can send without asking first (CORS),
+// and another site's page is refused.
+const handleUpload = async (account, req, res, ctx) => {
+  const type = String(req.headers['content-type'] ?? '').toLowerCase();
+  if (
+    !type.startsWith('application/octet-stream') ||
+    classifyOrigin(req, ctx.allowOrigins) === 'denied'
+  ) {
+    return (
+      json(res, 403, { error: 'files are sent from the app only' }) ?? true
+    );
+  }
+  if (typeof account.receiveUpload !== 'function') {
+    return json(res, 501, { error: 'sending files not available' }) ?? true;
+  }
+  if (Number(req.headers['content-length']) > MAX_UPLOAD) {
+    return (
+      json(res, 413, { error: 'file too large', code: 'too-large' }) ?? true
+    );
+  }
+  const name = new URL(req.url, 'http://local').searchParams.get('name');
+  try {
+    return json(res, 200, await account.receiveUpload(req, { name })) ?? true;
+  } catch (error) {
+    const large = error.code === 'too-large';
+    return (
+      json(res, large ? 413 : 400, {
+        error: large ? 'file too large' : 'upload failed',
+        code: large ? 'too-large' : 'upload-failed',
+      }) ?? true
+    );
+  }
+};
+
 export const handleTelegramRoutes = async (req, res, p, ctx) => {
   if (!p.startsWith(PREFIX)) {
     return false;
@@ -553,6 +632,9 @@ export const handleTelegramRoutes = async (req, res, p, ctx) => {
   const account = ctx.telegramAccount;
   if (!account) {
     return p === `${PREFIX}status` ? (json(res, 200, NONE) ?? true) : false;
+  }
+  if (req.method === 'POST' && p === `${PREFIX}upload`) {
+    return handleUpload(account, req, res, ctx);
   }
   if (req.method === 'POST' && !isTrustedMutation(req, ctx.allowOrigins)) {
     return (

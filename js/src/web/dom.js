@@ -224,6 +224,43 @@ const serverPostReport = async (path, body, options) => {
   return { ...data, httpStatus: response.status };
 };
 
+// One file's bytes to the server (R-Y99), with how far it got: fetch
+// cannot say that of an upload, XMLHttpRequest can. Resolves to the
+// server's answer, `{ error }` when it refused, null when there is no
+// server.
+const uploadFile = async (file, { onProgress, signal } = {}) => {
+  const { client, origin } = await ensure();
+  if (!client.isOnline() || typeof globalThis.XMLHttpRequest !== 'function') {
+    return null;
+  }
+  const name = encodeURIComponent(file?.name || 'file');
+  const path = `/api/telegram/upload?name=${name}`;
+  const url = origin ? new URL(path, origin).toString() : path;
+  return new Promise((resolve) => {
+    const xhr = new globalThis.XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('content-type', 'application/octet-stream');
+    xhr.upload.onprogress = (event) =>
+      event.lengthComputable && onProgress?.(event.loaded / event.total);
+    xhr.onload = () => {
+      const data = (() => {
+        try {
+          return JSON.parse(xhr.responseText);
+        } catch {
+          return null;
+        }
+      })();
+      resolve(
+        data ? { ...data, httpStatus: xhr.status } : { error: 'upload failed' }
+      );
+    };
+    xhr.onerror = () => resolve({ error: 'upload failed', code: 'network' });
+    xhr.onabort = () => resolve({ error: 'cancelled', code: 'cancelled' });
+    signal?.addEventListener('abort', () => xhr.abort(), { once: true });
+    xhr.send(file);
+  });
+};
+
 let patternWorker = null;
 let patternSeq = 0;
 const patternPending = new Map();
@@ -847,6 +884,18 @@ export const api = {
     (await serverPostReport('/api/telegram/search', body).catch((error) => ({
       error: error.message,
     }))) ?? { error: 'server required for search' },
+
+  // Files and photos (R-Y99): each file uploaded (`onProgress` 0…1),
+  // then sent together: { chat, tokens, caption, asPhoto, group,
+  // replyTo } → { ok, ids }.
+  telegramUpload: async (file, options = {}) =>
+    (await uploadFile(file, options).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for files' },
+  telegramSendFiles: async (body = {}) =>
+    (await serverPostReport('/api/telegram/send-files', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for files' },
 
   // A poll or checklist (R-Y74): `poll-vote` (no options retracts),
   // `poll-stop`, `poll-results`, `poll-votes`, `todo-toggle`.
