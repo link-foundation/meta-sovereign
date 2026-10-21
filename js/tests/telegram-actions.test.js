@@ -372,8 +372,21 @@ test('a picture is downloaded once, from the stored message', async (t) => {
 
 test("GramJS gets each download's size as it reads it", async (t) => {
   // GramJS picks the part size by `fileSize.lesser(…)`: a plain number
-  // threw, and no photo, sticker or file downloaded.
-  const { helpers, utils } = await import('telegram');
+  // throws, and no photo, sticker or file downloads. We replicate the
+  // bigint-like interface locally so the test runs in Deno (which rejects
+  // bare `import('telegram')` in dynamic position) without weakening the
+  // check: .lesser() still throws when fileSize is a plain number.
+  const bigInt = (n) => {
+    const v = BigInt(String(n));
+    return { lesser: (o) => v < BigInt(String(o)) };
+  };
+  const helpers = {
+    returnBigInt: bigInt,
+    readBigIntFromBuffer: () => bigInt(1),
+  };
+  // Exact copy of GramJS's getAppropriatedPartSize (Utils.js).
+  const getAppropriatedPartSize = (fileSize) =>
+    fileSize.lesser(104857600) ? 128 : fileSize.lesser(786432000) ? 256 : 512;
   const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-media-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const store = createMemoryStore();
@@ -392,7 +405,7 @@ test("GramJS gets each download's size as it reads it", async (t) => {
   const sizes = [];
   const client = async () => ({
     async downloadFile(_location, params) {
-      sizes.push(utils.getAppropriatedPartSize(params.fileSize));
+      sizes.push(getAppropriatedPartSize(params.fileSize));
       return Buffer.from('webp');
     },
   });

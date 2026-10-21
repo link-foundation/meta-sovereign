@@ -176,13 +176,23 @@ const streamRecords = async (filePath) => {
       byId.set(record.id, intern(record));
     }
   }
-  const { size } = await fs.stat(filePath);
-  if (size > 0) {
+  let statResult;
+  try {
+    statResult = await fs.stat(filePath);
+  } catch (err) {
+    // ENOENT: removed between the readline and here (e.g. a test tears down
+    // its temp dir while the snapshot worker is mid-stream). The data we
+    // already read is valid; treat the file as closed.
+    if (err.code !== 'ENOENT') {
+      throw err;
+    }
+  }
+  if (statResult && statResult.size > 0) {
     // A file not ending in a newline (a torn append) gets one first.
     const handle = await fs.open(filePath, 'r');
     try {
       const last = Buffer.alloc(1);
-      await handle.read(last, 0, 1, size - 1);
+      await handle.read(last, 0, 1, statResult.size - 1);
       open = last[0] !== 0x0a;
     } finally {
       await handle.close();

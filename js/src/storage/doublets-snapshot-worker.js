@@ -14,13 +14,27 @@ import { encodeArchive } from './doublets-archive.js';
 const { from, to } = workerData;
 // The snapshot is dated as the log it was read from, so a later append
 // leaves it older than the log (and it is written again).
-const { mtime } = await fs.stat(from);
-const { live } = await readLinoFile(from);
-const bytes = encodeArchive(live);
-// One temp file per worker: two stores over one folder may snapshot at
-// the same time, and must not rename each other's file away.
-const tmp = `${to}.${process.pid}.${threadId}.snapshot.tmp`;
-await fs.writeFile(tmp, bytes);
-await fs.utimes(tmp, mtime, mtime);
-await fs.rename(tmp, to);
-parentPort.postMessage({ links: live.length, bytes: bytes.length });
+// ENOENT means the log was never written (no links stored yet), or was
+// removed between the flush check and the worker starting; either way
+// there is nothing to snapshot.
+let stat;
+try {
+  stat = await fs.stat(from);
+} catch (err) {
+  if (err.code !== 'ENOENT') {
+    throw err;
+  }
+  parentPort.postMessage({ links: 0, bytes: 0 });
+}
+if (stat) {
+  const { mtime } = stat;
+  const { live } = await readLinoFile(from);
+  const bytes = encodeArchive(live);
+  // One temp file per worker: two stores over one folder may snapshot at
+  // the same time, and must not rename each other's file away.
+  const tmp = `${to}.${process.pid}.${threadId}.snapshot.tmp`;
+  await fs.writeFile(tmp, bytes);
+  await fs.utimes(tmp, mtime, mtime);
+  await fs.rename(tmp, to);
+  parentPort.postMessage({ links: live.length, bytes: bytes.length });
+}
