@@ -340,6 +340,8 @@ export const QUICK_REACTIONS = Object.freeze([
 
 // Each menu item's label key and icon, as Telegram Desktop names them.
 const MENU_ITEMS = {
+  sendSilent: ['chat.schedule.silent', 'mute'],
+  schedule: ['chat.schedule.menu', 'clock'],
   reply: ['chat.reply', 'reply'],
   quoteReply: ['chat.quoteReply', 'quote'],
   edit: ['chat.edit', 'edit'],

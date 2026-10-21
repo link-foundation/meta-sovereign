@@ -16,6 +16,9 @@
  *   Desktop does. What Telegram answers is stored at once; the files are
  *   removed after.
  *
+ * "Send without sound" and "Schedule message" go with every batch
+ * (R-Y102); scheduled ones are not stored — Telegram holds them.
+ *
  * Captions are formatted as messages are (R-Y101,
  * ./telegram-format.js): GramJS is handed the parsed text and entities
  * as its parse mode, so an album's caption keeps them too.
@@ -110,6 +113,35 @@ const captionMode = (caption, Api) => {
 const messagesOf = (sent) =>
   (Array.isArray(sent) ? sent : [sent]).filter((m) => m && m.id !== undefined);
 
+// One batch through GramJS's sendFile; a photo Telegram does not take
+// as one goes as a file.
+const sendBatch = async ({ client, Api, CustomFile, peer, batch, options }) => {
+  const files = batch.files.map((f) => new CustomFile(f.name, f.size, f.path));
+  const send = (photo) =>
+    client.sendFile(peer, {
+      file: files.length === 1 ? files[0] : files,
+      caption: options.caption,
+      forceDocument: !photo,
+      parseMode: captionMode(options.caption, Api),
+      clearDraft: true,
+      ...(options.replyTo ? { replyTo: options.replyTo } : {}),
+      ...(options.silent ? { silent: true } : {}),
+      ...(options.scheduleDate ? { scheduleDate: options.scheduleDate } : {}),
+      workers: 4,
+    });
+  try {
+    return await send(batch.photo);
+  } catch (error) {
+    if (
+      batch.photo &&
+      NOT_A_PHOTO.test(String(error?.errorMessage ?? error?.message))
+    ) {
+      return send(false);
+    }
+    throw error;
+  }
+};
+
 /**
  * `env` is the account's; `userClient()` the user client or null;
  * `dialogOf(chat)` the chat as listed; `tools` its `toLinks` and
@@ -166,43 +198,16 @@ export const createFileSender = (
     return { ok: true, token, name: safeName(name), size };
   };
 
-  const sendBatch = async ({
-    client,
-    Api,
-    CustomFile,
-    peer,
-    batch,
-    options,
-  }) => {
-    const files = batch.files.map(
-      (f) => new CustomFile(f.name, f.size, f.path)
-    );
-    const send = (photo) =>
-      client.sendFile(peer, {
-        file: files.length === 1 ? files[0] : files,
-        caption: options.caption,
-        forceDocument: !photo,
-        parseMode: captionMode(options.caption, Api),
-        clearDraft: true,
-        ...(options.replyTo ? { replyTo: options.replyTo } : {}),
-        workers: 4,
-      });
-    try {
-      return await send(batch.photo);
-    } catch (error) {
-      if (
-        batch.photo &&
-        NOT_A_PHOTO.test(String(error?.errorMessage ?? error?.message))
-      ) {
-        return send(false);
-      }
-      throw error;
-    }
-  };
-
   // Batch by batch, each stored as Telegram answers it; the caption and
   // the reply go with the first.
-  const sendAll = async ({ client, target, batches, caption, replyTo }) => {
+  const sendAll = async ({
+    client,
+    target,
+    batches,
+    caption,
+    replyTo,
+    when,
+  }) => {
     const telegram = await env.importer();
     const CustomFile =
       telegram.client?.uploads?.CustomFile ?? telegram.CustomFile;
@@ -219,18 +224,27 @@ export const createFileSender = (
           options: {
             caption: first ? caption : '',
             replyTo: first ? replyTo : null,
+            ...when,
           },
         })
       );
       const messages = messagesOf(sent);
-      await tools.writeChanged(
-        env.store,
-        tools.toLinks(await dialogOf(target), messages)
-      );
+      // Scheduled ones are Telegram's to hold, not the chat's (R-Y102).
+      if (!when.scheduleDate) {
+        await tools.writeChanged(
+          env.store,
+          tools.toLinks(await dialogOf(target), messages)
+        );
+      }
       ids.push(...messages.map((m) => Number(m.id)));
     }
     return ids;
   };
+
+  const clientFor = async (chat, files) =>
+    chat && files.length > 0 && files.every((f) => f.path)
+      ? userClient()
+      : null;
 
   const sendFiles = async ({
     chat,
@@ -239,17 +253,24 @@ export const createFileSender = (
     asPhoto = true,
     group = true,
     replyTo = null,
+    silent = false,
+    scheduleDate = null,
   } = {}) => {
     const files = tokens.map((token) => ({ token, ...uploads.get(token) }));
-    const client =
-      chat && files.length > 0 && files.every((f) => f.path)
-        ? await userClient()
-        : null;
+    const client = await clientFor(chat, files);
     if (!client) {
       await Promise.all(tokens.map(drop));
       return { ok: false, supported: Boolean(chat && files.length > 0) };
     }
     const target = String(chat);
+    // Scheduled ones: the chat's list is asked afresh (R-Y102).
+    const scheduledNote = (at) => {
+      if (!scheduleDate) {
+        return {};
+      }
+      env.actions?.scheduledChanged?.(at);
+      return { scheduled: true };
+    };
     try {
       const ids = await sendAll({
         client,
@@ -257,8 +278,9 @@ export const createFileSender = (
         batches: batchesOf(files, { asPhoto, group }),
         caption: String(caption ?? '').slice(0, MAX_CAPTION),
         replyTo,
+        when: { silent, scheduleDate },
       });
-      return { ok: true, chat: target, ids };
+      return { ok: true, chat: target, ids, ...scheduledNote(target) };
     } catch (error) {
       throw sendError(error);
     } finally {

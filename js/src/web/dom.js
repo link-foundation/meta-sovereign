@@ -387,6 +387,12 @@ const remote = {
   del: (path) => serverFetch(path, { method: 'DELETE' }),
 };
 
+// A Telegram action that needs the server.
+const telegramPost = async (name, body) =>
+  (await serverPostReport(`/api/telegram/${name}`, body).catch((error) => ({
+    error: error.message,
+  }))) ?? { error: 'server required' };
+
 let automationApi = null;
 const automationCall =
   (name) =>
@@ -891,6 +897,15 @@ export const api = {
     (await serverPostReport('/api/telegram/remove-chat', body).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for the chat list menu' },
+
+  // A chat's scheduled messages (R-Y102): { chat } → { ok, links };
+  // sent now, deleted ({ chat, ids }), moved ({ chat, id, date }).
+  telegramScheduled: (body = {}) => telegramPost('scheduled', body),
+  telegramScheduledSend: (body = {}) => telegramPost('scheduled-send', body),
+  telegramScheduledDelete: (body = {}) =>
+    telegramPost('scheduled-delete', body),
+  telegramScheduledReschedule: (body = {}) =>
+    telegramPost('scheduled-reschedule', body),
 
   // Files and photos (R-Y99): each file uploaded (`onProgress` 0…1),
   // then sent together: { chat, tokens, caption, asPhoto, group,

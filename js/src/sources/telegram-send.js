@@ -15,6 +15,8 @@
  *     an emoji, and sent in order.
  *   - Sending clears the chat's cloud draft (`clear_draft`), as Telegram
  *     Desktop always does.
+ *   - "Send without sound" (`silent`) and "Schedule message"
+ *     (`schedule_date`), as Desktop's Send button menu (R-Y102).
  *   - Telegram's errors become codes the composer can explain.
  */
 
@@ -135,13 +137,26 @@ const replyHeader = (Api, replyTo, replyQuote) =>
     : {};
 
 // A client without raw invoke (tests, other libraries).
-const sendThroughLibrary = (client, peer, { text, formatting, replyTo }) =>
+const sendThroughLibrary = (
+  client,
+  peer,
+  { text, formatting, replyTo, when = {} }
+) =>
   client.sendMessage(peer, {
     message: text,
     parseMode: false,
     ...(formatting.length > 0 ? { formattingEntities: formatting } : {}),
     ...(replyTo ? { replyTo } : {}),
+    ...(when.silent ? { silent: true } : {}),
+    ...(when.scheduleDate ? { schedule: when.scheduleDate } : {}),
   });
+
+// Without sound, and when (R-Y102): Telegram's `silent` and
+// `schedule_date`.
+const whenFields = ({ silent = false, scheduleDate = null } = {}) => ({
+  ...(silent ? { silent: true } : {}),
+  ...(scheduleDate ? { scheduleDate } : {}),
+});
 
 // One part through messages.SendMessage, with our random_id. `onResult`
 // sees Telegram's raw answer: it carries the update counter (pts) that
@@ -156,11 +171,17 @@ const sendPart = async ({
   randomId,
   replyTo,
   replyQuote = null,
+  when,
   onResult,
 }) => {
   const formatting = apiEntities(Api, entities);
   if (!Api?.messages?.SendMessage || typeof client.invoke !== 'function') {
-    return sendThroughLibrary(client, peer, { text, formatting, replyTo });
+    return sendThroughLibrary(client, peer, {
+      text,
+      formatting,
+      replyTo,
+      when,
+    });
   }
   const request = new Api.messages.SendMessage({
     peer: await client.getInputEntity(peer),
@@ -168,6 +189,7 @@ const sendPart = async ({
     ...(formatting.length > 0 ? { entities: formatting } : {}),
     randomId,
     clearDraft: true,
+    ...whenFields(when),
     ...replyHeader(Api, replyTo, replyQuote),
   });
   try {
@@ -201,6 +223,8 @@ export const sendText = async ({
   maxLength = MAX_MESSAGE_LENGTH,
   replyTo = null,
   replyQuote = null,
+  silent,
+  scheduleDate,
   onResult,
 }) => {
   const parts = formattedParts(text, maxLength);
@@ -217,6 +241,7 @@ export const sendText = async ({
       // A long reply answers with its first part, as Telegram's apps do.
       replyTo: index === 0 ? replyTo : null,
       replyQuote: index === 0 ? replyQuote : null,
+      when: { silent, scheduleDate },
       onResult,
     });
     sent.push({

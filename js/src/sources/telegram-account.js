@@ -796,7 +796,7 @@ const messageLengthMax = async (client, Api) => {
 const postAsUser = async (
   env,
   creds,
-  { chat, text, clientId, replyTo, replyQuote = null }
+  { chat, text, clientId, replyTo, replyQuote = null, silent, scheduleDate }
 ) => {
   const { client } = await env.connection.open(creds);
   const { Api, helpers } = await env.importer().catch(() => ({}));
@@ -819,6 +819,8 @@ const postAsUser = async (
         maxLength,
         replyTo,
         replyQuote,
+        silent,
+        scheduleDate,
         onResult: (result) => env.catchUp?.observeResult(result),
       })
     );
@@ -832,6 +834,11 @@ const postAsUser = async (
   await Promise.resolve(
     env.live.draft?.({ chat, text: '', date: Math.floor(env.now() / 1000) })
   ).catch(() => {});
+  if (scheduleDate) {
+    // Held by Telegram, not in the chat: its scheduled ones (R-Y102).
+    env.actions?.scheduledChanged?.(chat);
+    return { ok: true, scheduled: true, chat, parts: sent.length, links: [] };
+  }
   if (sent.some((part) => part.duplicate)) {
     // An earlier try got through but its answer was lost: the catch-up
     // brings that message in.
@@ -857,6 +864,19 @@ const postAsUser = async (
   };
 };
 
+// A draft's reply, quote, sound and time, as postAsUser takes them.
+const draftOptions = (draft) => {
+  const replyTo = Number(draft.replyTo);
+  return {
+    replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+    replyQuote: typeof draft.replyQuote === 'string' ? draft.replyQuote : null,
+    silent: draft.silent === true,
+    scheduleDate: Number.isInteger(draft.scheduleDate)
+      ? draft.scheduleDate
+      : null,
+  };
+};
+
 /** history / post / setTyping through the connected account. */
 const createMessaging = (env) => {
   const { store, connection, botLive, importer, now } = env;
@@ -874,14 +894,11 @@ const createMessaging = (env) => {
     if (!target) {
       throw new Error('telegram post requires a chat/chatId target');
     }
-    const replyTo = Number(draft.replyTo);
     return postAsUser(env, creds, {
       chat: String(target),
       text,
       clientId: draft.clientId,
-      replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
-      replyQuote:
-        typeof draft.replyQuote === 'string' ? draft.replyQuote : null,
+      ...draftOptions(draft),
     });
   };
 

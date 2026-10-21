@@ -186,6 +186,8 @@ const sendResult = async (api, item) => {
       clientId: item.clientId,
       ...(item.replyTo ? { replyTo: item.replyTo } : {}),
       ...(item.replyQuote ? { replyQuote: item.replyQuote } : {}),
+      ...(item.silent ? { silent: true } : {}),
+      ...(item.scheduleDate ? { scheduleDate: item.scheduleDate } : {}),
     });
     return result ?? { status: 'failed', code: 'no-answer' };
   } catch (error) {
@@ -475,7 +477,9 @@ export const useComposer = ({
   // replyTo: { msgId, senderName, text } set by Reply action; cleared on send.
   const [replyTo, setReplyTo] = useState(null);
 
-  const send = () => {
+  // `silent`: without sound; `scheduleDate` (unix seconds): Telegram
+  // sends it then (R-Y102).
+  const send = ({ silent = false, scheduleDate = null } = {}) => {
     if (!current) {
       return null;
     }
@@ -499,6 +503,8 @@ export const useComposer = ({
       attempts: 0,
       ...(replyId ? { replyTo: replyId } : {}),
       ...(quote ? { replyQuote: quote } : {}),
+      ...(silent ? { silent: true } : {}),
+      ...(scheduleDate ? { scheduleDate } : {}),
     });
   };
 

@@ -44,6 +44,7 @@ import {
 } from '../automation/automations.js';
 import { listAutomations } from '../automation/drafts.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
+import { validSchedule } from '../sources/telegram-scheduled.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
@@ -92,6 +93,10 @@ const sentLinks = (draft, result) => {
     ...(result?.via ? { via: result.via } : {}),
     ...(draft.clientId ? { clientId: draft.clientId } : {}),
   });
+  // Scheduled: held by Telegram, not yet in the chat.
+  if (result?.scheduled) {
+    return [];
+  }
   const known = result?.links ?? (result?.link ? [result.link] : []);
   if (known.length > 0) {
     return known.map(stamp);
@@ -130,6 +135,11 @@ const buildDraft = (body) => {
     ...(clientId ? { clientId } : {}),
     ...(replyTo ? { replyTo } : {}),
     ...(replyQuote ? { replyQuote } : {}),
+    // Without sound; at a time (R-Y102).
+    ...(body.silent === true ? { silent: true } : {}),
+    ...(body.scheduleDate !== undefined
+      ? { scheduleDate: body.scheduleDate }
+      : {}),
   };
 };
 
@@ -168,6 +178,9 @@ const handleSend = async (store, res, body, ctx) => {
   if (typeof ctx.send !== 'function') {
     return fail(res, 501, 'no-sender', 'no sender is configured');
   }
+  if (body.scheduleDate !== undefined && !validSchedule(body.scheduleDate)) {
+    return fail(res, 400, 'bad-schedule', 'a time from now to a year ahead');
+  }
   const draft = buildDraft(body);
   // The composer's Send press confirms exactly this text.
   const ok = await confirmed(ctx, res, {
@@ -190,6 +203,7 @@ const handleSend = async (store, res, body, ctx) => {
         via: result?.via,
         link: links.at(-1) ?? null,
         links,
+        ...(result?.scheduled ? { scheduled: true } : {}),
       };
     });
     return json(res, 200, sent);

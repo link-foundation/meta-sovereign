@@ -118,7 +118,18 @@ export const useAttach = ({ state, api }) => {
       return now.filter((_, i) => i !== index);
     });
 
-  const send = async () => {
+  const failed = (answer) => {
+    setProgress(null);
+    state.notify?.({
+      kind: 'failed',
+      code: answer?.code,
+      error: answer?.error ?? 'not sent',
+      retryAfter: answer?.retryAfter,
+    });
+  };
+
+  // `when`: { silent, scheduleDate } from the Send button's menu.
+  const send = async (when = {}) => {
     const chosen = held.current;
     if (chosen.length === 0 || progress !== null) {
       return;
@@ -133,6 +144,7 @@ export const useAttach = ({ state, api }) => {
           asPhoto,
           group,
           ...replyOf(composer),
+          ...when,
         })
       : up;
     if (answer?.ok) {
@@ -141,13 +153,7 @@ export const useAttach = ({ state, api }) => {
       close();
       return;
     }
-    setProgress(null);
-    state.notify?.({
-      kind: 'failed',
-      code: answer?.code,
-      error: answer?.error ?? 'not sent',
-      retryAfter: answer?.retryAfter,
-    });
+    failed(answer);
   };
 
   return {
@@ -319,7 +325,8 @@ const Progress = ({ progress, t }) =>
   ]);
 
 /** The send box: what goes, the caption, how, and Send. */
-export const AttachDialog = ({ attach }) => {
+// `sendProps`: the Send button's menu (./chat-schedule.js, R-Y102).
+export const AttachDialog = ({ attach, sendProps = {} }) => {
   const t = useT();
   const more = useRef(null);
   const busy = attach.progress !== null;
@@ -442,7 +449,8 @@ export const AttachDialog = ({ attach }) => {
             className: 'primary',
             'data-action': 'attach-send',
             disabled: busy,
-            onClick: attach.send,
+            onClick: () => attach.send(),
+            ...sendProps,
           },
           t('common.send')
         ),

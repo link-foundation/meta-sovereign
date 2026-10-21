@@ -68,6 +68,7 @@ import {
   MAX_FILES,
   MAX_UPLOAD,
 } from '../sources/telegram-upload.js';
+import { validSchedule } from '../sources/telegram-scheduled.js';
 
 const PREFIX = '/api/telegram/';
 
@@ -89,6 +90,36 @@ const validChat = (chat) =>
   typeof chat === 'string' && /^-?\d{1,20}$/.test(chat);
 
 // POST /api/telegram/<name>: [status, answer] for one request body.
+// Without sound; at a time (R-Y102).
+const whenOf = (body) => ({
+  ...(body.silent === true ? { silent: true } : {}),
+  ...(body.scheduleDate !== undefined
+    ? { scheduleDate: body.scheduleDate }
+    : {}),
+});
+
+const scheduledChange = async (change, body) => {
+  if (
+    !validChat(body.chat) ||
+    !validIds(body.ids) ||
+    typeof change !== 'function'
+  ) {
+    return [400, { error: 'chat and ids[] required', code: 'bad-request' }];
+  }
+  return [200, await change({ chat: body.chat, ids: body.ids.map(Number) })];
+};
+
+// Files and photos to send (R-Y99), with when (R-Y102).
+const validFiles = (body) =>
+  validChat(body.chat) &&
+  Array.isArray(body.tokens) &&
+  body.tokens.length > 0 &&
+  body.tokens.length <= MAX_FILES &&
+  body.tokens.every((t) => typeof t === 'string' && /^[a-f0-9]{32}$/.test(t)) &&
+  (body.caption === undefined || typeof body.caption === 'string') &&
+  String(body.caption ?? '').length <= MAX_CAPTION &&
+  (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
+
 const POSTS = {
   sync: async (account, body) => [
     200,
@@ -251,16 +282,7 @@ const POSTS = {
   'send-files': async (account, body) => {
     const tokens = body.tokens;
     const replyTo = Number(body.replyTo);
-    if (
-      !validChat(body.chat) ||
-      !Array.isArray(tokens) ||
-      tokens.length === 0 ||
-      tokens.length > MAX_FILES ||
-      !tokens.every((t) => typeof t === 'string' && /^[a-f0-9]{32}$/.test(t)) ||
-      (body.caption !== undefined && typeof body.caption !== 'string') ||
-      String(body.caption ?? '').length > MAX_CAPTION ||
-      typeof account.sendFiles !== 'function'
-    ) {
+    if (!validFiles(body) || typeof account.sendFiles !== 'function') {
       return [
         400,
         { error: 'chat and tokens[] required', code: 'bad-request' },
@@ -275,6 +297,39 @@ const POSTS = {
         asPhoto: body.asPhoto !== false,
         group: body.group !== false,
         replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+        ...whenOf(body),
+      }),
+    ];
+  },
+  // A chat's scheduled messages (R-Y102): listed, sent now, deleted,
+  // moved to another time.
+  scheduled: async (account, body) =>
+    validChat(body.chat) && typeof account.scheduledList === 'function'
+      ? [200, await account.scheduledList({ chat: body.chat })]
+      : [400, { error: 'chat required', code: 'bad-request' }],
+  'scheduled-send': async (account, body) =>
+    scheduledChange(account.scheduledSendNow, body),
+  'scheduled-delete': async (account, body) =>
+    scheduledChange(account.scheduledDelete, body),
+  'scheduled-reschedule': async (account, body) => {
+    const id = Number(body.id);
+    if (
+      !validChat(body.chat) ||
+      !(Number.isInteger(id) && id > 0) ||
+      !validSchedule(body.date) ||
+      typeof account.scheduledReschedule !== 'function'
+    ) {
+      return [
+        400,
+        { error: 'chat, id and date required', code: 'bad-request' },
+      ];
+    }
+    return [
+      200,
+      await account.scheduledReschedule({
+        chat: body.chat,
+        id,
+        date: body.date,
       }),
     ];
   },

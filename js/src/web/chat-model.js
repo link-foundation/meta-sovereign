@@ -352,8 +352,14 @@ export const chatMessages = (links = [], key, { pending = [] } = {}) => {
     .filter((l) => isShownMessage(l) && chatKey(l.source, l.chat) === key)
     .sort(byTime);
   const arrived = new Set(shown.map((m) => m.clientId).filter(Boolean));
+  // One being scheduled is not the chat's; only its failure shows here.
   const queued = pending
-    .filter((p) => p.key === key && !arrived.has(p.clientId))
+    .filter(
+      (p) =>
+        p.key === key &&
+        !arrived.has(p.clientId) &&
+        (!p.scheduleDate || p.status === 'failed')
+    )
     .map(pendingMessage);
   return [...shown, ...queued].map((m) => {
     const delivery = deliveryStatus(m, readMax);

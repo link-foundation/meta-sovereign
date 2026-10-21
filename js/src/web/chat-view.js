@@ -12,7 +12,13 @@
 //     drafts automations left here: send (one click is the
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
@@ -53,6 +59,14 @@ import {
   useAttach,
   useDropFiles,
 } from './chat-attach.js';
+import {
+  ScheduleDialog,
+  ScheduledButton,
+  ScheduledList,
+  SendMenu,
+  useScheduled,
+  useSendMenu,
+} from './chat-schedule.js';
 import { formatShortcut } from './text-shortcuts.js';
 import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
@@ -1114,6 +1128,43 @@ const ReplyBar = ({ replyTo, onClear }) => {
   ]);
 };
 
+// "Send without sound" and "Schedule message" for the message box and
+// the files' box, and the chat's scheduled messages (./chat-schedule.js).
+const useSendLater = ({ state, api, composer, attach }) => {
+  const scheduled = useScheduled({ state, api });
+  const textMenu = useSendMenu(scheduled.enabled);
+  const filesMenu = useSendMenu(scheduled.enabled);
+  const [picking, setPicking] = useState(null); // 'text' | 'files'
+  const [listing, setListing] = useState(false);
+  const sendWith = (what, when) =>
+    what === 'files' ? attach.send(when) : composer.send(when);
+  const pick = (what) => (key) =>
+    key === 'sendSilent' ? sendWith(what, { silent: true }) : setPicking(what);
+  const closeList = useCallback(() => setListing(false), []);
+  const parts = [
+    el(SendMenu, { key: 'text-menu', menu: textMenu, onPick: pick('text') }),
+    el(SendMenu, { key: 'files-menu', menu: filesMenu, onPick: pick('files') }),
+    picking
+      ? el(ScheduleDialog, {
+          key: 'when',
+          onClose: () => setPicking(null),
+          onPick: (at) =>
+            sendWith(picking, { scheduleDate: Math.floor(at / 1000) }),
+        })
+      : null,
+    listing
+      ? el(ScheduledList, { key: 'scheduled', scheduled, onClose: closeList })
+      : null,
+  ];
+  return {
+    scheduled,
+    textMenu,
+    filesMenu,
+    openList: () => setListing(true),
+    parts,
+  };
+};
+
 const Composer = ({ state, api, keys }) => {
   const t = useT();
   const { composer } = state;
@@ -1122,6 +1173,8 @@ const Composer = ({ state, api, keys }) => {
   // Files and photos: the paperclip, a paste, a drop (R-Y99).
   const attach = useAttach({ state, api });
   const dragging = useDropFiles(attach);
+  // The Send buttons' menu; scheduled messages (R-Y102).
+  const later = useSendLater({ state, api, composer, attach });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -1164,6 +1217,11 @@ const Composer = ({ state, api, keys }) => {
       }),
       el('div', { key: 'row', className: 'chat-composer-row' }, [
         el(AttachButton, { key: 'attach', attach }),
+        el(ScheduledButton, {
+          key: 'scheduled',
+          scheduled: later.scheduled,
+          onOpen: later.openList,
+        }),
         el('textarea', {
           key: 'input',
           rows: 1,
@@ -1184,6 +1242,7 @@ const Composer = ({ state, api, keys }) => {
             disabled: !text.trim(),
             'aria-busy': composer.sending ? 'true' : undefined,
             'aria-label': t('common.send'),
+            ...later.textMenu.props,
           },
           el(Icon, { name: 'send', size: 18 })
         ),
@@ -1193,7 +1252,12 @@ const Composer = ({ state, api, keys }) => {
   return el(React.Fragment, null, [
     el(DropHint, { key: 'drop', over: dragging }),
     form,
-    el(AttachDialog, { key: 'files', attach }),
+    el(AttachDialog, {
+      key: 'files',
+      attach,
+      sendProps: later.filesMenu.props,
+    }),
+    ...later.parts,
   ]);
 };
 

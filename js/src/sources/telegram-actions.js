@@ -37,6 +37,7 @@ import { createDialogActions } from './telegram-dialogs.js';
 import { createChatSearch } from './telegram-search.js';
 import { createFileSender } from './telegram-upload.js';
 import { createChatRemoval } from './telegram-chat-removal.js';
+import { createScheduled } from './telegram-scheduled.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -326,6 +327,7 @@ const chatActions = (env, context) => ({
   ...createChatSearch(env, context),
   ...createFileSender(env, context),
   ...createChatRemoval(env, context),
+  ...createScheduled(env, context),
 });
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a
