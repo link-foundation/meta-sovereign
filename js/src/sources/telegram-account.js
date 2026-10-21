@@ -132,6 +132,24 @@ const bodyOf = (message) => message.message || (message.media ? '📎' : '');
 const serviceOf = (message) => message.action?.className ?? null;
 
 /** One dialog's GramJS messages as `msg:telegram:<chat>:<id>` links. */
+// Who a forwarded message came from, by name, while GramJS knows the
+// chat or person (the app names the rest from its chat list).
+const forwardedFromOf = (message) => {
+  if (!message.fwdFrom) {
+    return undefined;
+  }
+  try {
+    const forward = message.forward;
+    const name =
+      message.fwdFrom.fromName ??
+      forward?.chat?.title ??
+      fullName(forward?.sender);
+    return name ? { name } : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export const telegramDialogLinks = (dialog, messages = []) => {
   const chat = idText(dialog.id);
   const chatType = chatTypeOf(dialog);
@@ -155,6 +173,7 @@ export const telegramDialogLinks = (dialog, messages = []) => {
         senderName: mine
           ? null
           : (fullName(m.sender) ?? (dialog.isUser ? chatName : null)),
+        forwardedFrom: forwardedFromOf(m),
       });
       // Everything Telegram said about it, for offline analysis (R-Y28).
       return { ...link, ...(service ? { service } : {}), raw: rawMessage(m) };
@@ -210,6 +229,11 @@ const SHOWN_FIELDS = [
   'folder',
   'draft',
 ];
+// A forward's source named now, where it was not before.
+const namesForward = (before, link) =>
+  Boolean(link.forwardedFrom?.name) &&
+  before.forwardedFrom?.name !== link.forwardedFrom.name;
+
 const writeChanged = async (store, links) => {
   const byId = new Map();
   for (const link of links) {
@@ -222,6 +246,7 @@ const writeChanged = async (store, links) => {
       !before ||
       SHOWN_FIELDS.some((f) => (before[f] ?? null) !== (link[f] ?? null)) ||
       (link.contact && !before.contact) ||
+      namesForward(before, link) ||
       (link.raw !== undefined &&
         JSON.stringify(before.raw ?? null) !== JSON.stringify(link.raw));
     if (changed) {

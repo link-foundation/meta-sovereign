@@ -41,6 +41,9 @@ import {
   usePrefetch,
   windowMessages,
 } from './chat-window.js';
+import { useAutopilotBase } from './autopilot-hook.js';
+
+export { shownAutopilot } from './autopilot-hook.js';
 
 const TYPING_EVERY_MS = 4000;
 
@@ -533,93 +536,21 @@ const useDrafts = ({ api, current, tick, after, show }) => {
   };
 };
 
-const AUTOPILOT_PREFIX = 'automation-autopilot:';
-const AUTOPILOT_POLL_MS = 3000;
-const newer = (a, b) =>
-  String(a?.updatedAt ?? '') >= String(b?.updatedAt ?? '') ? a : b;
-
-/** The autopilot to show: one that is on, else the latest to finish. */
-export const shownAutopilot = (states = [], dismissed = null) => {
-  const on = states.filter((s) => s?.on);
-  if (on.length > 0) {
-    return on.reduce(newer);
-  }
-  const last = states.length > 0 ? states.reduce(newer) : null;
-  return last && last.updatedAt !== dismissed && last.status !== 'stopped'
-    ? last
-    : null;
-};
-
 /**
- * The automations' autopilots (R-Y87): their state links come on the
- * event stream (`links`); they are read at start, and every few seconds
- * while one is on and the stream is down. With `monitor` on, the chat it
- * writes to is opened as it comes to it.
+ * The automations' autopilots (R-Y87): wraps the shared base hook with
+ * the chat-screen navigation — when `monitor` is on, opening the chat
+ * the autopilot is currently writing to.
  */
 const useAutopilot = ({ api, links, live, tick, confirm, t, active, show }) => {
-  const [fetched, setFetched] = useState([]);
-  const [dismissed, setDismissed] = useState(null);
-  const streamed = useMemo(
-    () => (links ?? []).filter((l) => l?.id?.startsWith(AUTOPILOT_PREFIX)),
-    [links]
-  );
-  const states = useMemo(() => {
-    const byId = new Map(fetched.map((s) => [s.id, s]));
-    for (const s of streamed) {
-      byId.set(s.id, newer(s, byId.get(s.id)));
-    }
-    return [...byId.values()];
-  }, [fetched, streamed]);
-  const shown = shownAutopilot(states, dismissed);
-  const read = () =>
-    Promise.resolve(api.autopilots?.())
-      .then((next) => Array.isArray(next) && setFetched(next))
-      .catch(() => {});
-  useEffect(() => {
-    read();
-  }, [api, tick]);
-  useEffect(() => {
-    if (live || !shown?.on) {
-      return undefined;
-    }
-    const timer = globalThis.setInterval(read, AUTOPILOT_POLL_MS);
-    return () => globalThis.clearInterval(timer);
-  }, [live, shown?.on]);
+  const base = useAutopilotBase({ api, links, live, tick, confirm, t });
+  const { shown } = base;
   const target = shown?.on && shown.monitor ? shown.current : null;
   useEffect(() => {
     if (target && chatKey(target.source, target.chat) !== active) {
       show(target);
     }
   }, [target?.source, target?.chat]);
-  const change = async (body) => {
-    const answer = await api.autopilot?.(body);
-    if (answer?.id) {
-      setFetched((all) => [...all.filter((s) => s.id !== answer.id), answer]);
-    }
-    return answer;
-  };
-  return {
-    shown,
-    start: (automation) =>
-      change({
-        automation,
-        on: true,
-        monitor: true,
-        ask: (answer) =>
-          confirm(
-            t('chat.autopilot.confirm', {
-              name: answer.preview?.name ?? '',
-              count: answer.preview?.total ?? 0,
-              min: Math.round((answer.preview?.pacing?.minDelayMs ?? 0) / 1000),
-              max: Math.round((answer.preview?.pacing?.maxDelayMs ?? 0) / 1000),
-              cap: answer.preview?.pacing?.dailyCap ?? 0,
-            })
-          ),
-      }),
-    stop: (automation) => change({ automation, on: false }),
-    monitor: (automation, on) => change({ automation, monitor: on }),
-    dismiss: () => setDismissed(shown?.updatedAt ?? null),
-  };
+  return base;
 };
 
 const STATUS_EVERY_MS = 4000;
@@ -868,6 +799,11 @@ export const useChatState = (
     }
   }, [all, active]);
   const current = all.find((c) => c.key === active) ?? null;
+  // A chat's name by its key (where a forward came from).
+  const chatName = useMemo(() => {
+    const names = new Map(all.map((c) => [c.key, c.name]));
+    return (key) => names.get(key) ?? null;
+  }, [all]);
   const history = useChatWindow(api, current, links, tick);
   const prefetch = usePrefetch(api, links);
   const moreChats = useMoreChats(api, telegram, live ? null : refresh);
@@ -917,6 +853,7 @@ export const useChatState = (
     telegram,
     chats,
     total: all.length,
+    chatName,
     query,
     setQuery,
     filter,

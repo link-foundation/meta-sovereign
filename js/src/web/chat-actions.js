@@ -23,6 +23,7 @@ import {
 import { parseMessageParts } from './message-parts.js';
 import { StopPollDialog } from './chat-poll.js';
 import { saveUrl } from './media-src.js';
+import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
   bulkSelect,
   copyStamp,
@@ -371,8 +372,10 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const send = useSenders(state, api);
   const copy = useCopy(state);
   const messages = state.messages ?? [];
-  const order = messages.map((m) => m.id);
-  const chosen = () => messages.filter((m) => selection.has(m.id));
+  // As the chat draws them: an album is one row, chosen with its items.
+  const rows = groupAlbums(messages);
+  const order = rows.map((m) => m.id);
+  const chosen = () => expandAlbums(rows.filter((m) => selection.has(m.id)));
   const chat = state.current?.chat;
 
   const copySelected = () =>
@@ -405,8 +408,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       unpin: () => send.pin(message, { unpin: true }),
       retractVote: () => send.poll('poll-vote', message, { options: [] }),
       stopPoll: () => setStopping(message),
-      forward: () => setForwarding([message]),
-      delete: () => setDeleting([message]),
+      forward: () => setForwarding(expandAlbums([message])),
+      delete: () => setDeleting(expandAlbums([message])),
       edit: () => setEditing(message),
       select: () => selection.add(message.id),
       selectBulk: () => {

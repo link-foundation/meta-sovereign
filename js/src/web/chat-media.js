@@ -106,8 +106,41 @@ const boxStyle = (media, max = 320) => {
   return { width: `${width}px`, aspectRatio: String(ratio) };
 };
 
-/** A video: plays in place on a click; a GIF plays muted while seen. */
-export const MediaVideo = ({ media, api, chat, msgId }) => {
+const videoStyle = (media, fill) =>
+  fill ? { width: '100%', height: '100%' } : boxStyle(media);
+
+// The play button, the spinner while it loads, the length (or "GIF").
+const videoControls = (t, { media, gif, playing, file, setPlaying }) => [
+  !gif && !playing
+    ? el(
+        'button',
+        {
+          key: 'play',
+          type: 'button',
+          className: 'media-play',
+          'aria-label': t('chat.media.play'),
+          onClick: () => setPlaying(true),
+        },
+        el(Icon, { name: 'play', size: 28 })
+      )
+    : null,
+  playing && !file
+    ? el('span', { key: 'wait', className: 'media-spinner' })
+    : null,
+  !playing
+    ? el(
+        'span',
+        { key: 'badge', className: 'media-badge' },
+        gif ? 'GIF' : clockOf(media.duration)
+      )
+    : null,
+];
+
+/**
+ * A video: plays in place on a click; a GIF plays muted while seen.
+ * `fill`: as large as the album tile it is in.
+ */
+export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
   const t = useT();
   const ref = useRef(null);
   const { near, visible } = useNearView(ref);
@@ -131,7 +164,8 @@ export const MediaVideo = ({ media, api, chat, msgId }) => {
     {
       ref,
       className: gif ? 'bubble-video gif' : 'bubble-video',
-      style: boxStyle(media),
+      // In an album it fills its tile (./chat-album.js).
+      style: videoStyle(media, fill),
     },
     [
       el(Poster, { key: 'poster', media, thumb }),
@@ -149,29 +183,7 @@ export const MediaVideo = ({ media, api, chat, msgId }) => {
             preload: 'auto',
           })
         : null,
-      !gif && !playing
-        ? el(
-            'button',
-            {
-              key: 'play',
-              type: 'button',
-              className: 'media-play',
-              'aria-label': t('chat.media.play'),
-              onClick: () => setPlaying(true),
-            },
-            el(Icon, { name: 'play', size: 28 })
-          )
-        : null,
-      playing && !file
-        ? el('span', { key: 'wait', className: 'media-spinner' })
-        : null,
-      !playing
-        ? el(
-            'span',
-            { key: 'badge', className: 'media-badge' },
-            gif ? 'GIF' : clockOf(media.duration)
-          )
-        : null,
+      ...videoControls(t, { media, gif, playing, file, setPlaying }),
     ]
   );
 };

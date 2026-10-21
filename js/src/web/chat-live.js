@@ -55,7 +55,9 @@ export const applyLinkEvents = (links, events = []) => {
  * on top of its answer, so none is lost to the reload. Each time the
  * stream (re)opens, `refresh()` reloads once to catch up on what was
  * missed while it was closed. A load that fails is tried again after
- * RETRY_MS (the screen would otherwise wait on it for ever).
+ * RETRY_MS (the screen would otherwise wait on it for ever), keeping the
+ * list it had: a server being restarted never leaves the screen with
+ * only the few chats this browser holds.
  */
 export const useLiveLinks = (api, tick, refresh) => {
   const [links, setLinks] = useState(null);
@@ -80,13 +82,16 @@ export const useLiveLinks = (api, tick, refresh) => {
             setLinks(applyLinkEvents(next, seen));
           }
         },
-        () => {
-          if (current) {
-            again = globalThis.setTimeout(
-              () => setRetry((n) => n + 1),
-              RETRY_MS
-            );
+        (error) => {
+          if (!current) {
+            return;
           }
+          // Nothing shown yet: what this browser holds, until the server
+          // answers; a list already shown stays as it is.
+          if (Array.isArray(error?.local)) {
+            setLinks((before) => before ?? applyLinkEvents(error.local, seen));
+          }
+          again = globalThis.setTimeout(() => setRetry((n) => n + 1), RETRY_MS);
         }
       )
       .finally(() => {

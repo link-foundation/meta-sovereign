@@ -3175,6 +3175,41 @@ button.primary .recommended-tag {
   background: var(--bg-active);
 }
 
+/* A photo or an album: the bubble is as wide as it, the caption under it
+   wraps to its width (Telegram). */
+.bubble.has-visual {
+  width: min-content;
+}
+
+/* An album: one bubble, its photos and videos in rows that fill it. */
+.bubble-album {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 400px;
+  max-width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.bubble-album-row {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+}
+.bubble-album-tile {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+.bubble-album-tile > .bubble-photo,
+.bubble-album-tile > .bubble-video {
+  max-width: none;
+  border-radius: 0;
+}
+.bubble-album-tile .bubble-photo-img {
+  border-radius: 0;
+}
+
 /* Full-screen photo viewer. */
 .photo-viewer {
   position: fixed;

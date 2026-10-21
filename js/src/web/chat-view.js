@@ -47,6 +47,7 @@ import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
+import { groupAlbums, rowIds } from './chat-album.js';
 
 export { failureText, waitingText } from './chat-failure.js';
 export { autopilotText } from './chat-automation.js';
@@ -316,7 +317,7 @@ const TypingLine = ({ typing }) => {
   return null;
 };
 
-const AutomationMenu = ({ menu }) => {
+const AutomationMenu = ({ menu, autopilot }) => {
   const t = useT();
   return el('div', { className: 'chat-menu' }, [
     el(
@@ -346,8 +347,9 @@ const AutomationMenu = ({ menu }) => {
                   t('chat.automation.none')
                 ),
               ]
-            : menu.automations.map((a) =>
-                el('div', { key: a.id, className: 'chat-menu-item' }, [
+            : menu.automations.map((a) => {
+                const apOn = autopilot?.stateFor?.(a.id)?.on;
+                return el('div', { key: a.id, className: 'chat-menu-item' }, [
                   el('span', { key: 'n', className: 'chat-menu-name' }, [
                     el('strong', { key: 'n' }, a.name),
                     el(
@@ -379,8 +381,33 @@ const AutomationMenu = ({ menu }) => {
                     },
                     t('chat.automation.run')
                   ),
-                ])
-              )
+                  apOn
+                    ? el(
+                        'button',
+                        {
+                          key: 'ap',
+                          type: 'button',
+                          role: 'menuitem',
+                          'data-action': 'autopilot-stop',
+                          'data-automation': a.id,
+                          onClick: () => autopilot.stop(a.id),
+                        },
+                        t('chat.autopilot.stop')
+                      )
+                    : el(
+                        'button',
+                        {
+                          key: 'ap',
+                          type: 'button',
+                          role: 'menuitem',
+                          'data-action': 'autopilot-start',
+                          'data-automation': a.id,
+                          onClick: () => autopilot?.start(a.id),
+                        },
+                        t('chat.draft.autopilot')
+                      ),
+                ]);
+              })
         )
       : null,
   ]);
@@ -459,7 +486,11 @@ const Header = ({ state, api, onBack, about, onAbout }) => {
       ),
     ]),
     chat.personal ? el(AboutButton, { key: 'about', about, onAbout }) : null,
-    el(AutomationMenu, { key: 'm', menu: state.menu }),
+    el(AutomationMenu, {
+      key: 'm',
+      menu: state.menu,
+      autopilot: state.autopilot,
+    }),
   ]);
 };
 
@@ -807,9 +838,11 @@ const Stream = ({ state, api, actions }) => {
     older();
   };
   // What leaves the chat goes like in Telegram (./chat-leaving.js).
-  const messages = useLeaving(state.messages, state.current?.key ?? null);
+  const shown = useLeaving(state.messages, state.current?.key ?? null);
   // Reply lookups: what is shown, then the originals fetched for it.
-  const shownById = new Map(messages.map((m) => [m.id, m]));
+  const shownById = new Map(shown.map((m) => [m.id, m]));
+  // An album is one row (./chat-album.js).
+  const messages = groupAlbums(shown);
   const msgById = {
     get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
   };
@@ -831,8 +864,10 @@ const Stream = ({ state, api, actions }) => {
     Boolean(state.current.personal) || state.current.kind === 'channel';
   // Scroll to a message by its link id.
   const onScrollTo = (id) => {
+    const safe = globalThis.CSS?.escape(id) ?? String(id);
+    // An album's item: its album.
     const node = follow.box.current?.querySelector(
-      `[data-message="${globalThis.CSS?.escape(id) ?? String(id)}"]`
+      `[data-message="${safe}"], [data-items~="${safe}"]`
     );
     node?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
   };
@@ -860,7 +895,7 @@ const Stream = ({ state, api, actions }) => {
         [
           el(OlderRow, { key: 'older', history: state.history }),
           ...messages.flatMap((message) => [
-            message.id === state.unreadLine
+            rowIds(message).includes(state.unreadLine)
               ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
               : null,
             el(MessageBubble, {
@@ -1244,7 +1279,7 @@ export const ChatScreen = ({ state, api }) => {
       ? el(ChatAccountEmpty, { telegram: state.telegram })
       : el(ConnectionGuide, { section: 'chat' });
   }
-  const quote = { selfName, api };
+  const quote = { selfName, api, chatName: state.chatName };
 
   return el(
     QuoteContext.Provider,

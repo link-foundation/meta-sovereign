@@ -176,7 +176,7 @@ export const NextChatBar = ({ drafts, autopilot }) => {
 const SECOND_MS = 1000;
 
 // Seconds until `at`, counting down while shown.
-const useSecondsTo = (at) => {
+export const useSecondsTo = (at) => {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!at) {

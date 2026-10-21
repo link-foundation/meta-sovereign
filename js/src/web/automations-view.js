@@ -15,8 +15,82 @@ import { networkName } from './connection-guides.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
 import { Busy } from './spinner.js';
+import { autopilotText, useSecondsTo } from './chat-automation.js';
 
 const el = React.createElement;
+
+// The monitor is the chat screen: it opens each chat as the autopilot
+// comes to it (./chat-state.js), so watching it goes there.
+const watchAutopilot = (state) => {
+  if (state?.on && state.monitor) {
+    globalThis.dispatchEvent?.(
+      new CustomEvent('meta-sovereign:navigate', { detail: { view: 'chat' } })
+    );
+  }
+};
+
+/**
+ * Autopilot controls for one automation row on the Automations page: an
+ * "Autopilot" start button when the pilot is off, or a compact status
+ * line with a Monitor checkbox and a Stop (or Dismiss) button when on.
+ */
+const AutopilotRowControl = ({ automationId, autopilot }) => {
+  const t = useT();
+  const state = autopilot.stateFor(automationId);
+  const seconds = useSecondsTo(
+    state?.status === 'waiting' ? state.nextAt : null
+  );
+  if (!state) {
+    return el(
+      'button',
+      {
+        type: 'button',
+        'data-action': 'autopilot-start',
+        onClick: async () =>
+          watchAutopilot(await autopilot.start(automationId)),
+      },
+      t('chat.draft.autopilot')
+    );
+  }
+  const text = autopilotText(t, state, seconds);
+  return el(
+    'div',
+    { className: state.on ? 'autopilot-bar on' : 'autopilot-bar' },
+    [
+      el('span', { key: 't', className: 'autopilot-text' }, text),
+      state.on
+        ? el('label', { key: 'm', className: 'autopilot-monitor' }, [
+            el('input', {
+              key: 'c',
+              type: 'checkbox',
+              checked: Boolean(state.monitor),
+              onChange: async (event) =>
+                watchAutopilot(
+                  await autopilot.monitor(
+                    state.automation,
+                    event.target.checked
+                  )
+                ),
+            }),
+            ` ${t('chat.autopilot.monitor')}`,
+          ])
+        : null,
+      el(
+        'button',
+        {
+          key: 'b',
+          type: 'button',
+          'data-action': state.on ? 'autopilot-stop' : 'autopilot-close',
+          onClick: () =>
+            state.on
+              ? autopilot.stop(state.automation)
+              : autopilot.dismissOne(state.id),
+        },
+        t(state.on ? 'chat.autopilot.stop' : 'chat.notice.dismiss')
+      ),
+    ]
+  );
+};
 
 const field = (props, control) =>
   el('label', { className: 'field', key: props.name }, [
@@ -93,7 +167,7 @@ const triggerSummary = (t, automation) =>
     .map((trigger) => t(`automations.trigger.${trigger.kind}`))
     .join(' · ');
 
-const AutomationList = ({ editor }) => {
+const AutomationList = ({ editor, autopilot }) => {
   const t = useT();
   return el('ul', { className: 'automation-list' }, [
     ...editor.list.map((automation) =>
@@ -103,33 +177,43 @@ const AutomationList = ({ editor }) => {
           key: automation.id,
           className: editor.current?.id === automation.id ? 'active' : '',
         },
-        el(
-          'button',
-          {
-            type: 'button',
-            'data-automation': automation.id,
-            disabled: Boolean(automation.invalid),
-            onClick: () => editor.open(automation),
-          },
-          [
-            el('strong', { key: 'n' }, automation.name),
-            el(
-              'span',
-              { key: 'm', className: 'meta' },
-              automation.invalid ??
-                sentence(
-                  [
-                    t(`automations.mode.${automation.mode}`),
-                    triggerSummary(t, automation),
-                    automation.saved ? null : t('automations.preset'),
-                    automation.enabled ? null : t('automations.off'),
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')
-                )
-            ),
-          ]
-        )
+        [
+          el(
+            'button',
+            {
+              key: 'open',
+              type: 'button',
+              'data-automation': automation.id,
+              disabled: Boolean(automation.invalid),
+              onClick: () => editor.open(automation),
+            },
+            [
+              el('strong', { key: 'n' }, automation.name),
+              el(
+                'span',
+                { key: 'm', className: 'meta' },
+                automation.invalid ??
+                  sentence(
+                    [
+                      t(`automations.mode.${automation.mode}`),
+                      triggerSummary(t, automation),
+                      automation.saved ? null : t('automations.preset'),
+                      automation.enabled ? null : t('automations.off'),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')
+                  )
+              ),
+            ]
+          ),
+          autopilot && !automation.invalid
+            ? el(AutopilotRowControl, {
+                key: 'ap',
+                automationId: automation.id,
+                autopilot,
+              })
+            : null,
+        ]
       )
     ),
   ]);
@@ -813,7 +897,7 @@ export const AutomationsScreen = ({ state }) => {
     el('div', { key: 'b', className: 'automations-body' }, [
       editor.loading
         ? el(Busy, { key: 'l' }, t('common.loading'))
-        : el(AutomationList, { key: 'l', editor }),
+        : el(AutomationList, { key: 'l', editor, autopilot: state.autopilot }),
       el('div', { key: 'e', className: 'col' }, [
         editor.form
           ? el(Editor, { key: 'ed', state })

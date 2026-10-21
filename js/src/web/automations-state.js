@@ -8,6 +8,7 @@
 
 import { useMemo, useState } from 'react';
 import { defaultConfirm, runNotice, useLoaded } from './chat-state.js';
+import { useAutopilotBase } from './autopilot-hook.js';
 import {
   blankAutomation,
   checkForm,
@@ -260,11 +261,13 @@ export const useAutomationsState = (
   const people = usePeople(ctx);
   const runs = useRuns({ ...ctx, editor, people });
   const audiences = useAudiences(ctx);
+  const autopilot = useAutopilotBase({ api, tick, confirm, t });
   return {
     editor,
     runs,
     people,
     audiences,
+    autopilot,
     notice,
     dismiss: () => setNotice(null),
     /** Put a spec (a saved audience, the selection) into the editor. */

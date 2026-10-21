@@ -256,23 +256,25 @@ export const createOfflineClient = ({
     /**
      * What the chat screen needs: every link but messages, plus each
      * chat's newest message — the server's store may hold whole
-     * histories, read by page through `chatPage`. Offline (or before a
-     * server answers), the local store's links.
+     * histories, read by page through `chatPage`. Without a server, the
+     * local store's links. With one that does not answer (busy, being
+     * restarted) it throws, the local links on the error (`local`): the
+     * local store holds only a few chats, so a list already shown is kept
+     * and the load is tried again rather than shrunk to those.
      */
     async chatLinks() {
       const local = await store.query();
-      const remote = await fetchOrLocal('/links?except=msg:', () => null);
-      if (!Array.isArray(remote)) {
+      if (!server) {
         return local;
       }
-      const heads = await fetchOrLocal('/api/chat/heads', () => []);
-      const ids = new Set(local.map((link) => link.id));
-      return [
-        ...local,
-        ...[...remote, ...(Array.isArray(heads) ? heads : [])].filter(
-          (link) => !ids.has(link.id)
-        ),
-      ];
+      const remote = await fetchOrLocal('/links?except=msg:', () => null);
+      const heads = Array.isArray(remote)
+        ? await fetchOrLocal('/api/chat/heads', () => null)
+        : null;
+      if (!Array.isArray(heads)) {
+        throw Object.assign(new Error('the server did not answer'), { local });
+      }
+      return withRemote(local, [...remote, ...heads]);
     },
     /** A page of one chat from the server's store; null without one. */
     async chatPage({ key, before = null, limit = 50 }) {

@@ -21,6 +21,9 @@ const dropTextSelection = () =>
   globalThis.getSelection?.()?.removeAllRanges?.();
 
 // What the pointer is on: a link (its address), a photo, a sticker.
+const albumItemOf = (node) =>
+  node?.closest?.('[data-album-item]')?.dataset?.albumItem ?? null;
+
 const targetOf = (node) => {
   const link = node?.closest?.('a[href]');
   const href = link?.getAttribute?.('href') ?? '';
@@ -28,6 +31,8 @@ const targetOf = (node) => {
     url: /^(https?:|mailto:|tg:)/i.test(href) ? link.href : null,
     photo: Boolean(node?.closest?.('.bubble-photo')),
     sticker: Boolean(node?.closest?.('.bubble-sticker')),
+    // Which of an album's items (./chat-album.js).
+    item: albumItemOf(node),
   };
 };
 

@@ -428,6 +428,19 @@ const parseReply = (link, raw, msgById) => {
   };
 };
 
+// The chat a forward came from, as the chat list keys it: a channel or
+// supergroup -100…, a basic group -…, a person by their id.
+const FORWARD_PEERS = {
+  PeerChannel: (peer) => `-100${peer.channelId}`,
+  PeerChat: (peer) => `-${peer.chatId}`,
+  PeerUser: (peer) => String(peer.userId),
+};
+
+export const forwardKey = (peer, source = 'telegram') => {
+  const chat = FORWARD_PEERS[peer?.className]?.(peer);
+  return chat && !chat.includes('undefined') ? `${source}:${chat}` : null;
+};
+
 const parseFwd = (raw, link) => {
   if (!raw.fwdFrom) {
     return link?.forwardedFrom
@@ -435,7 +448,11 @@ const parseFwd = (raw, link) => {
       : null;
   }
   return {
-    fromName: raw.fwdFrom.fromName ?? raw.fwdFrom.fromId?.className ?? null,
+    // A hidden sender's name, or the one stored with the message; else
+    // the chat it came from, by its address (`fromKey`), is named from
+    // the chat list.
+    fromName: raw.fwdFrom.fromName ?? link?.forwardedFrom?.name ?? null,
+    fromKey: forwardKey(raw.fwdFrom.fromId, link?.source ?? 'telegram'),
     date: raw.fwdFrom.date ?? null,
   };
 };

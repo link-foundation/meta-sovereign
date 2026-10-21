@@ -23,6 +23,8 @@ import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { Icon } from './icons.js';
+import { MediaPhoto } from './chat-photo.js';
+import { AlbumGrid } from './chat-album.js';
 import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { peerColorClass } from './peer-color.js';
@@ -126,7 +128,12 @@ export const quotedText = (t, replyRef) => {
  * The user's own name and the page's api, for a quote of their message
  * (Telegram names the user there, not "You") and its picture.
  */
-export const QuoteContext = createContext({ selfName: null, api: null });
+// `chatName(key)`: a chat's name from the list (a forward's source).
+export const QuoteContext = createContext({
+  selfName: null,
+  api: null,
+  chatName: null,
+});
 
 export const quotedName = (t, replyRef, selfName) => {
   if (replyRef.sender === 'me' || replyRef.senderName === 'me') {
@@ -229,140 +236,15 @@ export const ReplyQuote = ({ replyRef, onScrollTo }) => {
 
 const ForwardHeader = ({ fwdFrom }) => {
   const t = useT();
+  const { chatName } = useContext(QuoteContext);
   if (!fwdFrom) {
     return null;
   }
-  const name = fwdFrom.fromName ?? t('chat.fwdFromUnknown');
-  return el('div', { className: 'bubble-fwd' }, t('chat.fwdFrom', { name }));
-};
-
-// ---- Inline photo -------------------------------------------------------
-
-// A lazy-loading photo that shows the stripped thumbnail immediately
-// and fetches the real one when scrolled near view.
-const MediaPhoto = ({ media, api, chat, msgId }) => {
-  const t = useT();
-  const ref = useRef(null);
-  const [src, setSrc] = useState(null);
-  const [failed, setFailed] = useState(false);
-  const [open, setOpen] = useState(false);
-  const strippedUrl =
-    !failed && media?.strippedB64
-      ? strippedJpegDataUrl(media.strippedB64)
-      : null;
-
-  useEffect(() => {
-    const el2 = ref.current;
-    if (!el2 || !api?.telegramMediaUrl || !chat || !msgId) {
-      return undefined;
-    }
-    const Observer = globalThis.IntersectionObserver;
-    if (typeof Observer !== 'function') {
-      return undefined;
-    }
-    let active = true;
-    const obs = new Observer(
-      (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) {
-          return;
-        }
-        obs.disconnect();
-        api.telegramMediaUrl({ chat, id: msgId, size: 'm' }).then((url) => {
-          if (active && url) {
-            setSrc(url);
-          }
-        });
-      },
-      { rootMargin: '200px' }
-    );
-    obs.observe(el2);
-    return () => {
-      active = false;
-      obs.disconnect();
-    };
-  }, [api, chat, msgId]);
-
-  const ar = media?.aspectRatio ?? 4 / 3;
-  const paddingTop = `${(1 / ar) * 100}%`;
-
-  const imgSrc = src || strippedUrl;
-  const blurred = !src && Boolean(strippedUrl);
-
+  const name = fwdFrom.fromName ?? chatName?.(fwdFrom.fromKey) ?? null;
   return el(
     'div',
-    {
-      ref,
-      className: 'bubble-photo',
-      style: { paddingTop },
-      role: 'button',
-      tabIndex: 0,
-      'aria-label': t('chat.openMedia'),
-      onClick: () => imgSrc && setOpen(true),
-      onKeyDown: (e) => e.key === 'Enter' && imgSrc && setOpen(true),
-    },
-    [
-      imgSrc
-        ? el('img', {
-            key: 'img',
-            ...mediaSrc(imgSrc),
-            // Not loaded (refused, gone): the blurred preview, or nothing,
-            // never the browser's broken picture.
-            onError: () => (src ? setSrc(null) : setFailed(true)),
-            className: blurred
-              ? 'bubble-photo-img blurred'
-              : 'bubble-photo-img',
-            alt: '',
-            draggable: false,
-          })
-        : el('span', { key: 'ph', className: 'bubble-photo-placeholder' }),
-      open
-        ? el(PhotoViewer, {
-            key: 'viewer',
-            src: src || strippedUrl,
-            onClose: () => setOpen(false),
-            onRequestFull: async () => {
-              if (!api?.telegramMediaUrl) {
-                return;
-              }
-              const url = await api.telegramMediaUrl({
-                chat,
-                id: msgId,
-                size: 'x',
-              });
-              if (url) {
-                setSrc(url);
-              }
-            },
-          })
-        : null,
-    ]
-  );
-};
-
-// Fullscreen viewer: ESC or click overlay closes.
-const PhotoViewer = ({ src, onClose, onRequestFull }) => {
-  const t = useT();
-  useEffect(() => {
-    onRequestFull?.();
-    const onKey = (e) => e.key === 'Escape' && onClose();
-    globalThis.addEventListener?.('keydown', onKey);
-    return () => globalThis.removeEventListener?.('keydown', onKey);
-  }, []);
-  return el(
-    'div',
-    {
-      className: 'photo-viewer',
-      role: 'dialog',
-      'aria-modal': 'true',
-      'aria-label': t('chat.openMedia'),
-      onClick: onClose,
-    },
-    el('img', {
-      ...mediaSrc(src),
-      className: 'photo-viewer-img',
-      alt: '',
-      onClick: (e) => e.stopPropagation(),
-    })
+    { className: 'bubble-fwd' },
+    name ? t('chat.fwdFrom', { name }) : t('chat.fwdFromUnknown')
   );
 };
 
@@ -959,6 +841,11 @@ const inlineTime = (parts) =>
   !(parts.reactions?.length > 0);
 
 // CSS class for the bubble div.
+// A photo or an album: the bubble is as wide as it, the caption under it
+// wrapping to its width, as Telegram's.
+const visual = (message, parts) =>
+  Boolean(message.albumItems) || parts.media?.kind === 'photo';
+
 const makeBubbleClass = (mine, message, parts) =>
   [
     'bubble',
@@ -967,9 +854,8 @@ const makeBubbleClass = (mine, message, parts) =>
     message.delivery === 'failed' ? 'failed' : null,
     inlineTime(parts) ? 'inline-time' : null,
     bare(parts) ? 'bare' : null,
-    parts.media && !parts.text && parts.media.kind === 'photo'
-      ? 'media-only'
-      : null,
+    visual(message, parts) ? 'has-visual' : null,
+    visual(message, parts) && !parts.text ? 'media-only' : null,
   ]
     .filter(Boolean)
     .join(' ');
@@ -998,7 +884,10 @@ const DOCUMENT_VIEWS = {
   sticker: MediaSticker,
 };
 
-const BubbleMedia = ({ parts, api, chat, netId, mine }) => {
+const BubbleMedia = ({ parts, api, chat, netId, mine, album }) => {
+  if (album) {
+    return el(AlbumGrid, { items: album, api, chat });
+  }
   const media = parts.media;
   if (media?.kind === 'photo') {
     return el(MediaPhoto, { media, api, chat, msgId: netId });
@@ -1065,7 +954,15 @@ const BubbleContent = ({
     : null,
   el(ForwardHeader, { key: 'fwd', fwdFrom: parts.fwdFrom }),
   el(ReplyQuote, { key: 'rep', replyRef: parts.replyRef, onScrollTo }),
-  el(BubbleMedia, { key: 'media', parts, api, chat, netId, mine }),
+  el(BubbleMedia, {
+    key: 'media',
+    parts,
+    api,
+    chat,
+    netId,
+    mine,
+    album: message.albumItems,
+  }),
   parts.text
     ? el('span', { key: 'body', className: 'bubble-body' }, [
         el(MessageText, {
@@ -1097,8 +994,15 @@ const BubbleContent = ({
 
 // The bubble's marks: the id the reader has seen, how it was delivered.
 const seenProps = (message, { mine, leaving, netId }) => {
-  const seenId = mine || message.pending || leaving ? null : netId;
+  // An album is read up to its last item.
+  const last = message.albumItems
+    ? netIdOf(message.albumItems.at(-1).id)
+    : netId;
+  const seenId = mine || message.pending || leaving ? null : last;
   return {
+    ...(message.albumItems
+      ? { 'data-items': message.albumItems.map((m) => m.id).join(' ') }
+      : {}),
     ...(seenId ? { 'data-seen-id': seenId } : {}),
     ...(message.delivery ? { 'data-delivery': message.delivery } : {}),
   };
@@ -1109,8 +1013,23 @@ const itemsOf = (menuFor, message, options) =>
   menuFor ? menuFor(message, options) : menuItems({ message, ...options });
 
 // The message's menu, when one is open.
-const openMenu = ({ menu, shown, message, menuFor, selecting, ...rest }) =>
-  menu && shown
+// The menu of an album's item is that item's (its photo saved, a reply
+// to it); forward and delete still take the whole album.
+const menuMessage = (message, target) => {
+  const item = message.albumItems?.find((m) => m.id === target?.item);
+  return item ? { ...item, albumItems: message.albumItems } : message;
+};
+
+const openMenu = ({
+  menu,
+  shown,
+  message: row,
+  menuFor,
+  selecting,
+  ...rest
+}) => {
+  const message = menuMessage(row, menu?.target);
+  return menu && shown
     ? el(MsgContextMenu, {
         key: 'menu',
         x: menu.x,
@@ -1127,6 +1046,7 @@ const openMenu = ({ menu, shown, message, menuFor, selecting, ...rest }) =>
         ...rest,
       })
     : null;
+};
 
 // The round check a message shows while messages are selected, at the
 // row's right end (Telegram Desktop).
