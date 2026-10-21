@@ -26,6 +26,7 @@
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
+import { apiEntities, parseFormatted } from './telegram-format.js';
 import { randomIdOf } from './telegram-send.js';
 import { createFileReader, createMediaReader } from './telegram-media.js';
 import { createAvatarReader } from './telegram-avatars.js';
@@ -60,9 +61,17 @@ const makeEditMessage =
     const msgId = wanted[0];
     // One method for every chat, channels too (there is no
     // channels.editMessage in Telegram's API).
+    // Formatted as a new message is (R-Y101).
+    const formatted = parseFormatted(text);
+    const entities = apiEntities(Api, formatted.entities);
     const result = await env.connection.withPeer(client, target, (peer) =>
       client.invoke(
-        new Api.messages.EditMessage({ peer, id: msgId, message: text })
+        new Api.messages.EditMessage({
+          peer,
+          id: msgId,
+          message: formatted.text,
+          ...(entities.length > 0 ? { entities } : {}),
+        })
       )
     );
     await apply(client, result);

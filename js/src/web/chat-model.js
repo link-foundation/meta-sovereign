@@ -4,6 +4,7 @@
 // menu offers. Pure, so it is tested without React or a browser.
 
 import { isPersonalChatType } from '../crm/reengage.js';
+import { parseFormatted, rawEntities } from '../sources/telegram-format.js';
 
 const DAY_MS = 86_400_000;
 
@@ -311,14 +312,26 @@ export const deliveryStatus = (message, readMax = 0) => {
   return id !== null && readMax >= id ? 'read' : 'sent';
 };
 
-// A message still on its way (the composer's queue), shaped like a link.
+// What is typed, as it will be sent: Telegram's markdown as formatting.
+const pendingText = (item) => {
+  if (item.source !== 'telegram') {
+    return { body: item.text };
+  }
+  const { text, entities } = parseFormatted(item.text);
+  return entities.length > 0
+    ? { body: text, raw: { entities: rawEntities(entities) } }
+    : { body: item.text };
+};
+
+// A message still on its way (the composer's queue), shaped like a link;
+// formatted at once, as Telegram will show it (R-Y101).
 const pendingMessage = (item) => ({
   id: `pending:${item.clientId}`,
   clientId: item.clientId,
   source: item.source,
   chat: item.chat,
   sender: 'me',
-  body: item.text,
+  ...pendingText(item),
   timestamp: item.at,
   status: item.status,
   error: item.error ?? null,

@@ -29,6 +29,8 @@ import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
+import { formatShortcut } from './text-shortcuts.js';
+import { toMarkdown } from '../sources/telegram-format.js';
 import { menuItems } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
 import {
@@ -593,11 +595,16 @@ export const MsgContextMenu = ({
 
 // ---- Edit dialog --------------------------------------------------------
 
+// The message as one would type it: its formatting as markdown (R-Y101).
+const editableText = (message) =>
+  toMarkdown(String(message.body ?? ''), message.raw?.entities ?? []);
+
 export const EditDialog = ({ message, onClose, onSave }) => {
   const t = useT();
-  const [text, setText] = useState(String(message.body ?? ''));
+  const [before] = useState(() => editableText(message));
+  const [text, setText] = useState(before);
   const save = () => {
-    if (text.trim() && text !== message.body) {
+    if (text.trim() && text !== before) {
       onSave(text);
     }
     onClose();
@@ -619,6 +626,9 @@ export const EditDialog = ({ message, onClose, onSave }) => {
         'aria-label': t('chat.edit'),
         onChange: (e) => setText(e.target.value),
         onKeyDown: (e) => {
+          if (formatShortcut(e, setText)) {
+            return;
+          }
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             save();

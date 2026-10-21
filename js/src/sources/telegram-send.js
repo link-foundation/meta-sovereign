@@ -5,8 +5,10 @@
  *     second request with the same one (RANDOM_ID_DUPLICATE), so a retry
  *     after a lost answer never posts twice. It is derived from the
  *     composer's `clientId`, so a retry of the same draft reuses it.
- *   - Plain text: what was typed is what is sent (no markdown parsing
- *     eating `*` and `_`).
+ *   - Formatting as Telegram Desktop's: `**bold**`, `__italic__`,
+ *     `~~strike~~`, `||spoiler||`, `` `code` ``, ```` ```pre``` ```` and
+ *     `[text](link)` go as entities (./telegram-format.js); a lone `*` or
+ *     `_` stays as typed.
  *   - Long text is split at Telegram's limit (`message_length_max` from
  *     the server's config, 4096 by default; UTF-16 units, like JS
  *     strings), on a line or word break when there is one, never inside
@@ -18,30 +20,60 @@
 
 import { createHash } from 'node:crypto';
 
+import {
+  apiEntities,
+  parseFormatted,
+  sliceFormatted,
+} from './telegram-format.js';
+
 export const MAX_MESSAGE_LENGTH = 4096;
 
 const isHighSurrogate = (code) => code >= 0xd800 && code <= 0xdbff;
 
-/** Split text into Telegram-sized parts, preferring line/word breaks. */
-export const splitMessage = (text, max = MAX_MESSAGE_LENGTH) => {
-  const parts = [];
-  let rest = String(text ?? '');
-  while (rest.length > max) {
-    const window = rest.slice(0, max);
+/**
+ * Where to split text into Telegram-sized parts, preferring line/word
+ * breaks: `[[start, end], …]` of the text (the break between two parts
+ * is dropped).
+ */
+export const splitRanges = (text, max = MAX_MESSAGE_LENGTH) => {
+  const all = String(text ?? '');
+  const ranges = [];
+  let start = 0;
+  while (all.length - start > max) {
+    const window = all.slice(start, start + max);
     const cut = Math.max(window.lastIndexOf('\n'), window.lastIndexOf(' '));
     // A break in the first half would leave a tiny part; cut hard instead,
     // but not between the two halves of an emoji (a surrogate pair).
     let at = cut > max / 2 ? cut : max;
-    if (at === max && isHighSurrogate(rest.charCodeAt(max - 1))) {
+    if (at === max && isHighSurrogate(all.charCodeAt(start + max - 1))) {
       at -= 1;
     }
-    parts.push(rest.slice(0, at));
-    rest = rest.slice(at).replace(/^[\n ]/, '');
+    ranges.push([start, start + at]);
+    start += at;
+    if (all[start] === '\n' || all[start] === ' ') {
+      start += 1;
+    }
   }
-  if (rest.length > 0 || parts.length === 0) {
-    parts.push(rest);
+  if (start < all.length || ranges.length === 0) {
+    ranges.push([start, all.length]);
   }
-  return parts;
+  return ranges;
+};
+
+/** Split text into Telegram-sized parts, preferring line/word breaks. */
+export const splitMessage = (text, max = MAX_MESSAGE_LENGTH) =>
+  splitRanges(text, max).map(([start, end]) =>
+    String(text ?? '').slice(start, end)
+  );
+
+/**
+ * What is typed as Telegram's parts: the markdown made entities
+ * (./telegram-format.js), then split at the limit, each part with its
+ * own entities.
+ */
+export const formattedParts = (typed, max = MAX_MESSAGE_LENGTH) => {
+  const formatted = parseFormatted(typed);
+  return sliceFormatted(formatted, splitRanges(formatted.text, max));
 };
 
 /** A stable 64-bit random_id for part `index` of draft `clientId`. */
@@ -102,6 +134,15 @@ const replyHeader = (Api, replyTo, replyQuote) =>
       }
     : {};
 
+// A client without raw invoke (tests, other libraries).
+const sendThroughLibrary = (client, peer, { text, formatting, replyTo }) =>
+  client.sendMessage(peer, {
+    message: text,
+    parseMode: false,
+    ...(formatting.length > 0 ? { formattingEntities: formatting } : {}),
+    ...(replyTo ? { replyTo } : {}),
+  });
+
 // One part through messages.SendMessage, with our random_id. `onResult`
 // sees Telegram's raw answer: it carries the update counter (pts) that
 // the catch-up tracks, and GramJS does not pass RPC answers to the
@@ -111,22 +152,20 @@ const sendPart = async ({
   Api,
   peer,
   text,
+  entities = [],
   randomId,
   replyTo,
   replyQuote = null,
   onResult,
 }) => {
+  const formatting = apiEntities(Api, entities);
   if (!Api?.messages?.SendMessage || typeof client.invoke !== 'function') {
-    // A client without raw invoke (tests, other libraries).
-    return client.sendMessage(peer, {
-      message: text,
-      parseMode: false,
-      ...(replyTo ? { replyTo } : {}),
-    });
+    return sendThroughLibrary(client, peer, { text, formatting, replyTo });
   }
   const request = new Api.messages.SendMessage({
     peer: await client.getInputEntity(peer),
     message: text,
+    ...(formatting.length > 0 ? { entities: formatting } : {}),
     randomId,
     clearDraft: true,
     ...replyHeader(Api, replyTo, replyQuote),
@@ -150,7 +189,7 @@ const sendPart = async ({
 
 /**
  * Send `text` to `peer`, part by part.
- * Returns `[{ id, date, text, duplicate? }]`, one per part.
+ * Returns `[{ id, date, text, entities, duplicate? }]`, one per part.
  */
 export const sendText = async ({
   client,
@@ -164,7 +203,7 @@ export const sendText = async ({
   replyQuote = null,
   onResult,
 }) => {
-  const parts = splitMessage(text, maxLength);
+  const parts = formattedParts(text, maxLength);
   const sent = [];
   for (const [index, part] of parts.entries()) {
     const randomId = helpers ? randomIdOf(clientId, index, helpers) : undefined;
@@ -172,7 +211,8 @@ export const sendText = async ({
       client,
       Api,
       peer,
-      text: part,
+      text: part.text,
+      entities: part.entities,
       randomId,
       // A long reply answers with its first part, as Telegram's apps do.
       replyTo: index === 0 ? replyTo : null,
@@ -182,7 +222,8 @@ export const sendText = async ({
     sent.push({
       id: message?.id ?? null,
       date: message?.date ?? null,
-      text: part,
+      text: part.text,
+      entities: part.entities,
       ...(message?.duplicate ? { duplicate: true } : {}),
     });
   }

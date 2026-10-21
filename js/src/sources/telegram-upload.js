@@ -16,8 +16,9 @@
  *   Desktop does. What Telegram answers is stored at once; the files are
  *   removed after.
  *
- * Captions are sent as typed (no markdown), like messages
- * (./telegram-send.js).
+ * Captions are formatted as messages are (R-Y101,
+ * ./telegram-format.js): GramJS is handed the parsed text and entities
+ * as its parse mode, so an album's caption keeps them too.
  */
 
 import { randomBytes } from 'node:crypto';
@@ -28,6 +29,7 @@ import path from 'node:path';
 import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
+import { apiEntities, parseFormatted } from './telegram-format.js';
 import { sendError } from './telegram-send.js';
 
 // Telegram takes files up to 2 GB from an account (4 GB with Premium).
@@ -92,6 +94,19 @@ export const batchesOf = (files, { asPhoto, group }) => {
   return batches;
 };
 
+// GramJS's parse mode for a caption: ours (the markdown made entities),
+// or none when it has no formatting — sent as typed.
+const captionMode = (caption, Api) => {
+  const formatted = parseFormatted(caption);
+  if (!caption || formatted.entities.length === 0) {
+    return false;
+  }
+  return {
+    parse: () => [formatted.text, apiEntities(Api, formatted.entities)],
+    unparse: (text) => text,
+  };
+};
+
 const messagesOf = (sent) =>
   (Array.isArray(sent) ? sent : [sent]).filter((m) => m && m.id !== undefined);
 
@@ -151,7 +166,14 @@ export const createFileSender = (
     return { ok: true, token, name: safeName(name), size };
   };
 
-  const sendBatch = async ({ client, CustomFile, peer, batch, options }) => {
+  const sendBatch = async ({
+    client,
+    Api,
+    CustomFile,
+    peer,
+    batch,
+    options,
+  }) => {
     const files = batch.files.map(
       (f) => new CustomFile(f.name, f.size, f.path)
     );
@@ -160,7 +182,7 @@ export const createFileSender = (
         file: files.length === 1 ? files[0] : files,
         caption: options.caption,
         forceDocument: !photo,
-        parseMode: false,
+        parseMode: captionMode(options.caption, Api),
         clearDraft: true,
         ...(options.replyTo ? { replyTo: options.replyTo } : {}),
         workers: 4,
@@ -190,6 +212,7 @@ export const createFileSender = (
       const sent = await env.connection.withPeer(client, target, (peer) =>
         sendBatch({
           client,
+          Api: telegram.Api,
           CustomFile,
           peer,
           batch,

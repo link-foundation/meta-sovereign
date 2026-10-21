@@ -60,8 +60,9 @@ import {
   MAX_MESSAGE_LENGTH,
   sendError,
   sendText,
-  splitMessage,
+  formattedParts,
 } from './telegram-send.js';
+import { rawEntities } from './telegram-format.js';
 import {
   importTelegram,
   installTelegramLayer,
@@ -743,7 +744,13 @@ const runSync = async (env, { full, reason, dialogs, messages }) => {
 
 // The same link the next sync gives a message we just sent, so it is
 // never shown twice. Its full data comes with Telegram's echo of it.
-const sentLink = (chat, messageId, text, at, replyTo = null, quote = null) => {
+const sentLink = (
+  chat,
+  messageId,
+  text,
+  at,
+  { replyTo = null, quote = null, entities = [] } = {}
+) => {
   if (!messageId) {
     return null;
   }
@@ -759,8 +766,13 @@ const sentLink = (chat, messageId, text, at, replyTo = null, quote = null) => {
     [{ id: messageId, out: true, message: text, date: at, replyTo: reply }]
   );
   const { raw: _raw, ...known } = link;
-  // The quote shows at once; the rest of `raw` comes with the echo.
-  return reply ? { ...known, raw: { replyTo: reply } } : known;
+  // The quote and the formatting show at once; the rest of `raw` comes
+  // with the echo.
+  const raw = {
+    ...(reply ? { replyTo: reply } : {}),
+    ...(entities.length > 0 ? { entities: rawEntities(entities) } : {}),
+  };
+  return Object.keys(raw).length > 0 ? { ...known, raw } : known;
 };
 
 // Telegram's message length limit (help.getConfig), once per client.
@@ -779,7 +791,7 @@ const messageLengthMax = async (client, Api) => {
   return (await lengthLimits.get(client)) ?? MAX_MESSAGE_LENGTH;
 };
 
-// Send as the user: exactly once (random_id), plain text, long text in
+// Send as the user: exactly once (random_id), formatted, long text in
 // parts; returns the network's links for what was sent.
 const postAsUser = async (
   env,
@@ -792,7 +804,7 @@ const postAsUser = async (
   const release = env.live.expectOwn({
     chat,
     clientId,
-    texts: splitMessage(text, maxLength),
+    texts: formattedParts(text, maxLength).map((part) => part.text),
   });
   let sent;
   try {
@@ -828,14 +840,11 @@ const postAsUser = async (
   const at = new Date(env.now());
   const links = sent
     .map((part, index) =>
-      sentLink(
-        chat,
-        idText(part.id),
-        part.text,
-        part.date ?? at,
-        index === 0 ? replyTo : null,
-        index === 0 ? replyQuote : null
-      )
+      sentLink(chat, idText(part.id), part.text, part.date ?? at, {
+        replyTo: index === 0 ? replyTo : null,
+        quote: index === 0 ? replyQuote : null,
+        entities: part.entities ?? [],
+      })
     )
     .filter(Boolean);
   return {

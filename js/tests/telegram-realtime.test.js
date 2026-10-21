@@ -367,13 +367,15 @@ test('a repeated random_id counts as already sent', async () => {
         });
       }
       seen.add(request.randomId);
-      assert.equal(request.entities, undefined, 'plain text, no markdown');
+      assert.equal(request.entities, undefined, 'a lone * or _ is no markdown');
       return { className: 'UpdateShortSentMessage', id: seen.size, date: 1 };
     },
   };
   const args = { client, Api, helpers, peer: '42', clientId: 'c1' };
   const first = await sendText({ ...args, text: 'a *b* _c_' });
-  assert.deepEqual(first, [{ id: 1, date: 1, text: 'a *b* _c_' }]);
+  assert.deepEqual(first, [
+    { id: 1, date: 1, text: 'a *b* _c_', entities: [] },
+  ]);
   const again = await sendText({ ...args, text: 'a *b* _c_' });
   assert.equal(again[0].duplicate, true);
   assert.equal(seen.size, 1, 'Telegram got it once');

@@ -53,6 +53,7 @@ import {
   useAttach,
   useDropFiles,
 } from './chat-attach.js';
+import { formatShortcut } from './text-shortcuts.js';
 import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
@@ -1123,7 +1124,11 @@ const Composer = ({ state, api, keys }) => {
   const dragging = useDropFiles(attach);
   const onKeyDown = (event) => {
     keys?.(event);
-    if (event.defaultPrevented) {
+    // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
+    if (
+      event.defaultPrevented ||
+      formatShortcut(event, (next) => composer.setText(next, { typed: true }))
+    ) {
       return;
     }
     const first = suggest.suggestions?.[0];

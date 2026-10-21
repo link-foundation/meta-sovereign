@@ -131,6 +131,19 @@ test('a photo goes as a photo with its caption and reply; stored; file removed (
   assert.equal(sent.length, 1);
 });
 
+test('a formatted caption goes as text plus formatting (R-Y101)', async () => {
+  const { sent, actions, up } = setup();
+  await actions.sendFiles({
+    chat: '42',
+    tokens: [await up('a.jpg'), await up('b.jpg')],
+    caption: '**big** day',
+  });
+  const [album] = sent;
+  assert.equal(album.caption, '**big** day');
+  const [text] = album.parseMode.parse(album.caption);
+  assert.equal(text, 'big day', 'GramJS takes our parse');
+});
+
 test('photos together go as one album, other files apart; caption once (R-Y99)', async () => {
   const { sent, actions, up } = setup();
   const tokens = [
