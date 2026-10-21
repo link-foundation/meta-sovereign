@@ -25,6 +25,7 @@ import {
   GREETINGS_HELP,
   createGreetingCommands,
 } from './greetings-commands.js';
+import { TRUST_HELP, createTrustCommands } from './trust-commands.js';
 import {
   openDualStore,
   bulkPurge,
@@ -71,8 +72,10 @@ Commands:
   export        --file=<path> --store=<dir>
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
   restore       --file=<path> --store=<dir>
-  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=false] [--quiet-logs]
+  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=false] [--tls=false] [--quiet-logs]
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
+                https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
+${TRUST_HELP}
   sources
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
@@ -145,6 +148,41 @@ const restoreCmd = async (args, log) => {
   return 0;
 };
 
+// What `serve` passes to the server besides its port, store and log.
+const serveOptions = (args) => ({
+  // Hosted web origins allowed to use this server (issue #37); falls
+  // back to MS_ALLOW_ORIGINS and then the built-in defaults.
+  ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
+  // The hosted app is the UI; the server's own copy is a fallback
+  // that `--local-ui=false` turns off (R-Y58, R-Y59).
+  ...(args['ui-url'] ? { uiUrl: args['ui-url'] } : {}),
+  ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
+  // https beside http on the same port, for Safari (R-Y64).
+  tls: String(args.tls ?? 'true') !== 'false' && process.env.MS_TLS !== 'off',
+});
+
+// Where the server and the app are, as `serve` prints them.
+const logAddresses = (handle, log) => {
+  const origin = `http://127.0.0.1:${handle.port}`;
+  log(`meta-sovereign listening on ${origin}`);
+  log(`open the app → ${handle.uiUrl}`);
+  if (handle.tls) {
+    log(
+      `https too → https://127.0.0.1:${handle.port} (Safari: trust it once → meta-sovereign trust)`
+    );
+  }
+  if (!foundOnPort(handle.port)) {
+    log(
+      `the app looks for the server on ports ${DEFAULT_PORTS.join(', ')}; on ${handle.port} set it in Settings → Server`
+    );
+  }
+  log(
+    handle.localUi
+      ? `local copy (fallback, e.g. for Safari or offline) → ${origin}/`
+      : `local copy off: ${origin}/ opens the app above`
+  );
+};
+
 const serveCmd = async (args, log) => {
   const storeDir = args.store ?? '.meta-sovereign';
   // Verbose logging is on by default: every request, event and error is
@@ -164,27 +202,9 @@ const serveCmd = async (args, log) => {
     port: Number(args.port ?? 8787),
     storeDir,
     ...(serverLog ? { log: serverLog.log } : {}),
-    // Hosted web origins allowed to use this server (issue #37); falls
-    // back to MS_ALLOW_ORIGINS and then the built-in defaults.
-    ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
-    // The hosted app is the UI; the server's own copy is a fallback
-    // that `--local-ui=false` turns off (R-Y58, R-Y59).
-    ...(args['ui-url'] ? { uiUrl: args['ui-url'] } : {}),
-    ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
+    ...serveOptions(args),
   });
-  const origin = `http://127.0.0.1:${handle.port}`;
-  log(`meta-sovereign listening on ${origin}`);
-  log(`open the app → ${handle.uiUrl}`);
-  if (!foundOnPort(handle.port)) {
-    log(
-      `the app looks for the server on ports ${DEFAULT_PORTS.join(', ')}; on ${handle.port} set it in Settings → Server`
-    );
-  }
-  log(
-    handle.localUi
-      ? `local copy (fallback, e.g. for Safari or offline) → ${origin}/`
-      : `local copy off: ${origin}/ opens the app above`
-  );
+  logAddresses(handle, log);
   if (serverLog) {
     log(`verbose logs → ${serverLog.file}`);
   }
@@ -733,6 +753,8 @@ const COMMANDS = {
   ...createAutomationCommands({ openStore }),
   // Hi/hello and greeting-sticker openers (issue #35).
   ...createGreetingCommands({ openStore }),
+  // Let Safari trust the server's own certificate (R-Y64).
+  ...createTrustCommands(),
   help: async (_a, log) => {
     log(HELP);
     return 0;

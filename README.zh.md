@@ -34,7 +34,7 @@ npx -y meta-sovereign serve
 # 首次 npm 发布之前：npx -y github:link-foundation/meta-sovereign serve
 ```
 
-两个后端默认监听 <http://127.0.0.1:8787>。JS 服务器会对托管 app 的 origin（`https://link-foundation.github.io`）返回 CORS 头；其他 origin 可以用 `meta-sovereign serve --allow-origin=<origins>` 或 `MS_ALLOW_ORIGINS` 允许。Safari 不允许 `https` 页面访问 `http://127.0.0.1`；在 Safari 中，托管页面会通过服务器提供的一张小图片（`/api/beacon.svg`）找到服务器，停留在原页面并提供服务器自带应用副本的链接。托管的 SPA 会通过 `discoverServer()` 自动发现本地服务器（保存的覆盖值 → `127.0.0.1` 端口）。如果浏览器没有自动连接，请打开应用内 **Settings → Server**，粘贴服务器打印的 URL。
+两个后端默认监听 <http://127.0.0.1:8787>。JS 服务器会对托管 app 的 origin（`https://link-foundation.github.io`）返回 CORS 头；其他 origin 可以用 `meta-sovereign serve --allow-origin=<origins>` 或 `MS_ALLOW_ORIGINS` 允许。Safari 不允许 `https` 页面访问 `http://127.0.0.1`，但允许访问 `https://127.0.0.1`；服务器现在也在同一端口上提供 HTTPS 服务，并使用专为 localhost 颁发的自签名证书。运行一次 `npx -y meta-sovereign trust`（macOS：将证书添加到 login keychain；其他系统：打印证书路径），或在 Safari 中打开 `https://127.0.0.1:8787/trust` 并按提示操作，之后托管 app 在 Safari 中即可直接连接服务器。信任之前，提示会显示服务器地址，并提供其自带副本的链接（<http://127.0.0.1:8787>）以及 **信任服务器**（<https://127.0.0.1:8787/trust>）链接。`--tls=false` / `MS_TLS=off` 可关闭 HTTPS；服务器自带副本仍作为备用保留。托管的 SPA 会通过 `discoverServer()` 自动发现本地服务器（保存的覆盖值 → `127.0.0.1` 端口）。如果浏览器没有自动连接，请打开应用内 **Settings → Server**，粘贴服务器打印的 URL。
 
 默认界面是托管的应用：`serve` 会打印其地址 <https://link-foundation.github.io/meta-sovereign/>，应用会自行在我们的端口 8787 上找到服务器（也会查看 8788、7001、7002 和 3000；若使用其他端口，`serve` 会提示在 **Settings → Server** 中设置），因此服务器无需自己托管网站。它在 <http://127.0.0.1:8787> 上的副本作为备用保留，供 Safari 和离线使用；`serve --local-ui=false`（或 `MS_LOCAL_UI=off`）可将其关闭，此时 `/` 会打开托管的应用。`--ui-url=<url>`（或 `MS_UI_URL`）指定另一个托管副本（例如某个 fork 的 Pages），并允许其 origin。
 

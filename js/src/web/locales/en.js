@@ -27,10 +27,13 @@ export const en = {
   'webMode.download': 'Get the desktop app (server included)',
   'webMode.dismiss': 'Hide',
   'webMode.safari':
-    'Safari does not let https pages reach http://127.0.0.1. In Safari, open the app from the server with the link below once the server runs, or use the desktop app.',
+    "Safari does not let https pages reach http://127.0.0.1, but it reaches the server over https once it trusts the server's certificate: run npx -y meta-sovereign trust once. Until then, open the app from the server with the link below, or use the desktop app.",
   'webMode.openLocal': 'Open the app from the server',
   'webMode.localFound':
     'A server runs at {origin}, but this browser does not let this page reach it. Open the app from the server with the link below.',
+  'webMode.trust':
+    'To let Safari connect from here, trust the server once: run {command}, or click Trust the server, choose Show Details → visit this website and enter your password. Then click Check again.',
+  'webMode.trustLink': 'Trust the server',
   'webMode.localOff':
     "A server runs at {origin}, but Safari does not let this page reach it, and the server's own copy of the app is turned off. Start the server without --local-ui=false, or open this page in Chrome or Firefox.",
   'nav.chat': 'Chat',

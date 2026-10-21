@@ -9,6 +9,7 @@
 
 import { spawn, spawnSync } from 'node:child_process';
 import { promises as fs } from 'node:fs';
+import https from 'node:https';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
@@ -16,7 +17,8 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
 import { HOSTED_UI_URL } from '../src/server/hosted-ui.js';
-import { BEACON_PATH, BEACON_WIDTH } from '../src/web/discover.js';
+import { localTlsPaths } from '../src/server/local-tls.js';
+import { BEACON_PATH, BEACON_WIDTH, pictureSays } from '../src/web/discover.js';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -75,8 +77,19 @@ const waitFor = async (url, child) => {
   throw new Error(`no answer from ${url}`);
 };
 
+// The status over https, trusting only the server's own certificate.
+const secureStatus = (base, ca) =>
+  new Promise((resolve) => {
+    https
+      .get(`${base.replace(/^http:/, 'https:')}/api/status`, { ca }, (res) => {
+        res.resume();
+        resolve(res.statusCode);
+      })
+      .on('error', () => resolve(null));
+  });
+
 // What is wrong with the running server, if anything.
-const problemsOf = async (base) => {
+const problemsOf = async (base, storeDir) => {
   const problems = [];
   const status = await fetch(`${base}/api/status`, {
     headers: { origin: new URL(HOSTED_UI_URL).origin },
@@ -91,8 +104,20 @@ const problemsOf = async (base) => {
     problems.push('the hosted app may not use the server');
   }
   const picture = await (await fetch(`${base}${BEACON_PATH}`)).text();
-  if (!picture.includes(`width="${BEACON_WIDTH}" height="1"`)) {
+  const [width, height] = (picture.match(/width="(\d+)" height="(\d+)"/) ?? [])
+    .slice(1)
+    .map(Number);
+  if (width !== BEACON_WIDTH) {
     problems.push('Safari cannot find the server by its picture');
+  } else if (!pictureSays(height).tls) {
+    problems.push('the picture does not say https is on');
+  }
+  // Safari reaches the server over https once it trusts it (R-Y64).
+  const ca = await fs
+    .readFile(localTlsPaths(storeDir).cert, 'utf8')
+    .catch(() => null);
+  if (!ca || (await secureStatus(base, ca)) !== 200) {
+    problems.push('the server does not answer https with its certificate');
   }
   const page = await fetch(`${base}/`);
   if (!page.ok || !(await page.text()).includes('app.min.js')) {
@@ -136,7 +161,7 @@ const main = async () => {
     child.stderr.on('data', (chunk) => (log += chunk));
     await waitFor(`${base}/api/status`, child);
     say(`npx started the packed server on ${base}`);
-    const problems = await problemsOf(base);
+    const problems = await problemsOf(base, path.join(dir, 'store'));
     if (!log.includes(`open the app → ${HOSTED_UI_URL}`)) {
       problems.push('serve does not print the hosted app address');
     }

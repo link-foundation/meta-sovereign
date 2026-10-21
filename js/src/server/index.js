@@ -87,6 +87,7 @@ import { createLearnedRoute } from './routes-learned.js';
 import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
+import { listenLocal } from './local-tls.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
@@ -96,6 +97,7 @@ import {
   localUiEnabled,
   redirectToHosted,
   serveBeacon,
+  serveTrust,
   withHostedOrigin,
 } from './hosted-ui.js';
 
@@ -339,6 +341,19 @@ const githubCheckOf = (store, log, given) =>
 const mediaDirOf = (storeDir) =>
   storeDir ? path.join(storeDir, 'media', 'telegram') : null;
 
+// Listen (with HTTPS beside HTTP when asked, ./local-tls.js) and track
+// the front server's sockets as well, so close() ends them all.
+const listenTracked = async (server, sockets, options) => {
+  const { listener, tls } = await listenLocal(server, options);
+  if (listener === server) {
+    return { listener, tls, closeFront: () => {} };
+  }
+  listener.on('connection', (socket) => {
+    sockets.add(socket);
+    socket.on('close', () => sockets.delete(socket));
+  });
+  return { listener, tls, closeFront: () => listener.close() };
+};
 /**
  * The connected Telegram account (sync, history, sending). Tests that
  * inject a fake login (`telegramMtproto`/`telegramCreds`) get no real
@@ -387,6 +402,7 @@ const applySecurityHeaders = (res) => {
 // hosted one (R-Y59).
 const handlePage = (req, res, p, ctx) =>
   serveBeacon(req, res, p, ctx) ||
+  serveTrust(req, res, p, ctx) ||
   (ctx.localUi
     ? handleStatic(req, res, p)
     : redirectToHosted(req, res, p, ctx.uiUrl));
@@ -513,6 +529,9 @@ export const startServer = async ({
   // (./hosted-ui.js, R-Y58 and R-Y59).
   uiUrl,
   localUi,
+  // HTTPS on the same port for Safari (./local-tls.js, R-Y64); off
+  // unless asked for, `serve` turns it on.
+  tls,
 } = {}) => {
   const { store, resolvedArchiveDir, flush } = await initStore({
     providedStore,
@@ -603,9 +622,15 @@ export const startServer = async ({
     ctx.sync = wsHandle;
     ctx.signaling = signaling;
   }
-  await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
+  const {
+    listener,
+    tls: secure,
+    closeFront,
+  } = await listenTracked(server, sockets, { port, storeDir, tls, log });
+  ctx.tls = Boolean(secure);
   return {
-    port: server.address().port,
+    port: listener.address().port,
+    tls: secure,
     store,
     bus,
     sync: wsHandle,
@@ -624,6 +649,7 @@ export const startServer = async ({
         telegramAccount?.stop().catch(() => {});
         wsHandle?.close();
         signaling?.close();
+        closeFront();
         server.close(() => resolve());
         for (const socket of sockets) {
           socket.destroy();

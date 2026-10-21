@@ -118,6 +118,30 @@ test('the hosted app finds a server on our port by itself', async () => {
   ]);
 });
 
+// Safari blocks http from the https page; the server's https on the same
+// port is asked next, and answers once its certificate is trusted (R-Y64).
+test('the hosted app finds the server over https when http is blocked', async () => {
+  const asked = [];
+  const found = await discoverServer({
+    origin: 'https://link-foundation.github.io',
+    storage: null,
+    fetchImpl: async (url) => {
+      asked.push(url);
+      if (url.startsWith('http://')) {
+        throw new TypeError('blocked as mixed content');
+      }
+      return url.startsWith('https://127.0.0.1:8787/')
+        ? { ok: true, json: async () => ({ links: 0 }) }
+        : { ok: false };
+    },
+  });
+  assert.deepEqual(found, { origin: 'https://127.0.0.1:8787' });
+  assert.deepEqual(asked.slice(1), [
+    'http://127.0.0.1:8787/api/status',
+    'https://127.0.0.1:8787/api/status',
+  ]);
+});
+
 // Safari: the hosted page cannot ask the server anything, but sees its
 // picture, and its size says whether the server's own copy is on.
 test('the server shows Safari its picture, sized by the local copy', async () => {
@@ -152,13 +176,25 @@ test('the hosted page finds a server by its picture and stays where it is', asyn
     return pictures[new URL(src).origin] ?? null;
   };
   const found = await findServerByPicture({ sizeOf, now: () => 1 });
-  assert.deepEqual(found, { origin: 'http://127.0.0.1:8788', localUi: true });
+  assert.deepEqual(found, {
+    origin: 'http://127.0.0.1:8788',
+    localUi: true,
+    tls: false,
+  });
   assert.equal(asked.length, DEFAULT_PORTS.length);
   assert.ok(asked.includes(`http://127.0.0.1:8787${BEACON_PATH}?1`));
   pictures['http://127.0.0.1:8788'].height = 2;
   assert.deepEqual(await findServerByPicture({ sizeOf }), {
     origin: 'http://127.0.0.1:8788',
     localUi: false,
+    tls: false,
+  });
+  // Taller by two: the server answers https too (R-Y64).
+  pictures['http://127.0.0.1:8788'].height = 3;
+  assert.deepEqual(await findServerByPicture({ sizeOf }), {
+    origin: 'http://127.0.0.1:8788',
+    localUi: true,
+    tls: true,
   });
 
   // Found or not, nothing is opened: the notice links the server.

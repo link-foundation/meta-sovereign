@@ -204,22 +204,142 @@ const verdicts = (hosted, local) => {
   return failures;
 };
 
-// Only this test's own server on this machine, never another one;
-// `tried` collects the servers the page looked at.
-const fence = async (page, { serverOrigin, siteOrigin, tried }) =>
-  page.route?.(/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/, (r) => {
+// Only this test's own server on this machine (over http or https),
+// never another one; `tried` collects the servers the page looked at.
+const fence = async (page, { serverOrigin, siteOrigin, tried }) => {
+  const own = [serverOrigin, serverOrigin.replace(/^http:/, 'https:')];
+  return page.route?.(/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/, (r) => {
     const url = r.request().url();
     if (/\/api\/(status|beacon\.svg)/.test(url)) {
       tried.add(new URL(url).origin);
     }
-    return url.startsWith(serverOrigin) || url.startsWith(siteOrigin)
+    return own.some((o) => url.startsWith(o)) || url.startsWith(siteOrigin)
       ? r.continue()
       : r.abort();
   });
+};
 
-// The hosted copy in WebKit. From an https page Safari reaches the
-// server only by its picture: the page must stay where it is, name the
-// server and link its own copy, which then works.
+// A local build is served over http, where Safari's limits do not
+// apply; WebKit also opens it from this https address, as Pages serves
+// it, the files coming from the local build.
+const MIRROR_ORIGIN = 'https://pages.meta-sovereign.test';
+const mirror = (page, siteOrigin) =>
+  page.route(`${MIRROR_ORIGIN}/**`, async (r) => {
+    const { pathname, search } = new URL(r.request().url());
+    const answer = await fetch(`${siteOrigin}${pathname}${search}`);
+    await r.fulfill({
+      status: answer.status,
+      headers: { 'content-type': answer.headers.get('content-type') ?? '' },
+      body: Buffer.from(await answer.arrayBuffer()),
+    });
+  });
+
+const waitForLink = async (page, selector) => {
+  for (let i = 0; i < 60; i += 1) {
+    const href = await page
+      .evaluate((s) => document.querySelector(s)?.href ?? null, selector)
+      .catch(() => null);
+    if (href) {
+      return href;
+    }
+    await sleep(250);
+  }
+  return null;
+};
+
+// A WebKit page fenced to this test's servers. `trusted`: as if the
+// person had trusted the server's certificate (`meta-sovereign trust`).
+const webkitPage = async (browser, { trusted, siteOrigin, ...where }) => {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    ignoreHTTPSErrors: trusted,
+  });
+  const page = await context.newPage();
+  const tried = new Set();
+  await fence(page, { ...where, siteOrigin, tried });
+  if (siteOrigin === MIRROR_ORIGIN) {
+    await mirror(page, where.realOrigin);
+  }
+  const errors = [];
+  // WebKit reports the status checks Safari blocks as page errors;
+  // those are expected, the way it then finds the server is tested.
+  page.on('pageerror', (error) => {
+    if (!/\/api\/status\b/.test(error.message)) {
+      errors.push(`webkit: ${error.message}`);
+    }
+  });
+  return { page, tried, errors };
+};
+
+// Before the trust: the page stays where it is, names the server, links
+// its trust page and its own copy, which then works.
+const untrustedSafari = async (browser, { siteUrl, siteOrigin, ...where }) => {
+  const { page, tried, errors } = await webkitPage(browser, {
+    trusted: false,
+    siteOrigin,
+    ...where,
+  });
+  const failures = errors;
+  const { serverOrigin } = where;
+  await look(page, siteUrl, { serverOrigin, problems: [] });
+  const link = await waitForLink(page, 'a.web-mode-local');
+  const trust = await waitForLink(page, 'a.web-mode-trust');
+  const named = await page.evaluate(
+    (origin) =>
+      document
+        .querySelector('.web-mode-banner')
+        ?.textContent.includes(`A server runs at ${origin}`) ?? false,
+    serverOrigin
+  );
+  await shoot(page, 'safari.png');
+  const stayed = page.url();
+  say(
+    `webkit tried ${[...tried].join(' → ')}; stayed on ${stayed}; link ${link}; trust ${trust}; named=${named}`
+  );
+  if (!stayed.startsWith(siteOrigin)) {
+    failures.push(`webkit: the hosted page went to ${stayed} by itself`);
+  }
+  if (trust !== `${serverOrigin.replace(/^http:/, 'https:')}/trust`) {
+    failures.push('webkit: the notice does not link the trust page');
+  }
+  if (link !== `${serverOrigin}/` || !named) {
+    failures.push('webkit: the notice does not name and link the server');
+    return failures;
+  }
+  const local = await look(page, link, { serverOrigin, problems: [] });
+  await shoot(page, 'safari-local.png');
+  say(`webkit via the link: online=${local.online} bubbles=${local.bubbles}`);
+  if (!local.online || local.bubbles < 3) {
+    failures.push("webkit: the server's own copy did not work");
+  }
+  await page.context().close();
+  return failures;
+};
+
+// After the trust: the hosted page itself reaches the server over https.
+const trustedSafari = async (browser, { siteUrl, ...where }) => {
+  const { page, tried, errors } = await webkitPage(browser, {
+    trusted: true,
+    ...where,
+  });
+  const failures = errors;
+  const seen = await look(page, siteUrl, {
+    serverOrigin: where.serverOrigin,
+    problems: [],
+  });
+  await shoot(page, 'safari-trusted.png');
+  say(
+    `webkit trusting the server tried ${[...tried].join(' → ')}: online=${seen.online} bubbles=${seen.bubbles}`
+  );
+  if (!seen.online || seen.bubbles < 3) {
+    failures.push('webkit: trusting the server, the hosted page is not online');
+  }
+  await page.context().close();
+  return failures;
+};
+
+// The hosted copy in WebKit (R-Y60, R-Y64). An http site is also opened
+// from an https address, where Safari's limits apply.
 const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
   if (process.env.E2E_SAFARI === '0') {
     return [];
@@ -228,62 +348,29 @@ const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
   const browser = await webkit.launch({ headless: true });
   const failures = [];
   try {
-    const page = await browser.newPage({
-      viewport: { width: 1280, height: 900 },
-    });
-    const tried = new Set();
-    await fence(page, { serverOrigin, siteOrigin, tried });
-    // WebKit reports the status checks Safari blocks as page errors;
-    // those are expected, the way it then finds the server is tested.
-    page.on('pageerror', (error) => {
-      if (!/\/api\/status\b/.test(error.message)) {
-        failures.push(`webkit: ${error.message}`);
-      }
-    });
-    const seen = await look(page, site.url, { serverOrigin, problems: [] });
     if (!siteOrigin.startsWith('https:')) {
-      say(`webkit: online=${seen.online} bubbles=${seen.bubbles}`);
+      const { page, errors } = await webkitPage(browser, {
+        trusted: false,
+        siteOrigin,
+        serverOrigin,
+      });
+      const seen = await look(page, site.url, { serverOrigin, problems: [] });
+      say(`webkit over http: online=${seen.online} bubbles=${seen.bubbles}`);
+      failures.push(...errors);
       if (!seen.online || seen.bubbles < 3) {
         failures.push('webkit: the hosted copy did not reach the server');
       }
-      return failures;
+      await page.context().close();
     }
-    let link = null;
-    for (let i = 0; i < 60 && !link; i += 1) {
-      link = await page
-        .evaluate(
-          () => document.querySelector('a.web-mode-local')?.href ?? null
-        )
-        .catch(() => null);
-      if (!link) {
-        await sleep(250);
-      }
-    }
-    const named = await page.evaluate(
-      (origin) =>
-        document
-          .querySelector('.web-mode-banner')
-          ?.textContent.includes(`A server runs at ${origin}`) ?? false,
-      serverOrigin
-    );
-    await shoot(page, 'safari.png');
-    const stayed = page.url();
-    say(
-      `webkit tried ${[...tried].join(' → ')}; stayed on ${stayed}; link ${link}; named=${named}`
-    );
-    if (!stayed.startsWith(siteOrigin)) {
-      failures.push(`webkit: the hosted page went to ${stayed} by itself`);
-    }
-    if (link !== `${serverOrigin}/` || !named) {
-      failures.push('webkit: the notice does not name and link the server');
-      return failures;
-    }
-    const local = await look(page, link, { serverOrigin, problems: [] });
-    await shoot(page, 'safari-local.png');
-    say(`webkit via the link: online=${local.online} bubbles=${local.bubbles}`);
-    if (!local.online || local.bubbles < 3) {
-      failures.push("webkit: the server's own copy did not work");
-    }
+    const secure = siteOrigin.startsWith('https:')
+      ? { siteUrl: site.url, siteOrigin }
+      : {
+          siteUrl: `${MIRROR_ORIGIN}${new URL(site.url).pathname}`,
+          siteOrigin: MIRROR_ORIGIN,
+        };
+    const where = { ...secure, serverOrigin, realOrigin: siteOrigin };
+    failures.push(...(await untrustedSafari(browser, where)));
+    failures.push(...(await trustedSafari(browser, where)));
   } finally {
     await browser.close();
   }
@@ -330,7 +417,9 @@ const main = async () => {
     storeDir,
     telegramAccount: false,
     enableSync: false,
-    allowOrigins: [siteOrigin],
+    allowOrigins: [siteOrigin, MIRROR_ORIGIN],
+    // https beside http, as `serve` runs it, for Safari (R-Y64).
+    tls: true,
   });
   const serverOrigin = `http://127.0.0.1:${handle.port}`;
   await seed(handle.store);

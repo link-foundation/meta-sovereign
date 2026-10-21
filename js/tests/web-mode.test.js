@@ -151,6 +151,23 @@ describe('webModeNotice', () => {
     const html = render({ online: false, notice: off });
     expect(html).toContain('http://127.0.0.1:8788');
     expect(html).toContain('--local-ui=false');
+    expect(off.trustHref).toBe(null);
+  });
+
+  it('links the trust page of a server that answers https (R-Y64)', () => {
+    const secure = webModeNotice({
+      online: false,
+      runtime: 'web',
+      userAgent: UA.safariMac,
+      nearby: { origin: 'http://127.0.0.1:8788', localUi: true, tls: true },
+      location: PAGES,
+    });
+    expect(secure.trustHref).toBe('https://127.0.0.1:8788/trust');
+    expect(secure.localHref).toBe('http://127.0.0.1:8788/');
+    const html = render({ online: false, notice: secure });
+    expect(html).toContain('class="web-mode-trust"');
+    expect(html).toContain('href="https://127.0.0.1:8788/trust"');
+    expect(html).toContain('npx -y meta-sovereign trust');
   });
 });
 

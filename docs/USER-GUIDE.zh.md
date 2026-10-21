@@ -120,12 +120,13 @@ meta-sovereign serve --allow-origin=https://example.org
 ```bash
 meta-sovereign serve --local-ui=false   # 或 MS_LOCAL_UI=off
 # 此时 / 会打开托管的应用；--ui-url=<url> 指定另一个托管副本
+meta-sovereign serve --tls=false        # 或 MS_TLS=off — 关闭 HTTPS
 ```
 
 浏览器说明：
 
 - **Chrome 和 Edge**（以及较新的 Firefox）会询问一次页面能否访问本地网络中的设备。请允许。
-- **Safari** 不允许 `https` 页面访问 `http://127.0.0.1`，因此页面会通过 server 提供的一张小图片找到它，显示其地址并提供 server 自带 app 副本（<http://127.0.0.1:8787>）的链接：点击 **从服务器打开应用**。页面本身不会自行跳转。若该副本已关闭（`--local-ui=false`），提示会说明这一点；此时请使用 Chrome、Firefox 或桌面 app。
+- **Safari** 不允许 `https` 页面访问 `http://127.0.0.1`，但允许访问 `https://127.0.0.1`；server 现在也在同一端口上提供 HTTPS，并使用专为 localhost 颁发的自签名证书。若要让托管 app 在 Safari 中直接连接，请信任该证书一次：运行 `npx -y meta-sovereign trust`（macOS 将证书添加到 login keychain；其他系统会打印证书路径），或在 Safari 中打开 `https://127.0.0.1:8787/trust`，点击 **显示详情 → 访问此网站** 并输入密码，然后点击 **Check again**。此后托管 app 在 Safari 中可直接通过 HTTPS 连接，无需额外步骤。信任之前，提示会提供 **从服务器打开应用**（<http://127.0.0.1:8787>）和 **信任服务器**（<https://127.0.0.1:8787/trust>）的链接。`--tls=false` / `MS_TLS=off` 可关闭 HTTPS；服务器自带副本仍作为备用保留。
 
 ## 6. 在设备之间同步（WebRTC）
 
@@ -366,14 +367,14 @@ HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`�
 
 ## 12. 故障排除
 
-| 现象                                                 | 处理方式                                                                                                                                                                                   |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| SPA 卡在 loading spinner。                           | 打开 dev tools → Application → IndexedDB，确认存在 `meta-sovereign` 数据库；否则浏览器可能禁用了存储。                                                                                     |
-| SPA 无法访问本地 server。                            | 在 app 中打开 **Settings → Server**，粘贴准确 URL。                                                                                                                                        |
-| server 已运行，托管的 app 仍处于 browser-only mode。 | 点击 **Check again**。允许浏览器的本地网络提示。在 Safari 中点击 **从服务器打开应用**（<http://127.0.0.1:8787>）。如果 SPA 是你自己托管的，用 `--allow-origin=<你的 origin>` 启动 server。 |
-| Server 报告 `EADDRINUSE`。                           | 传入 `--port=NNNN` 给 `meta-sovereign serve` 或 Rust `serve --port=NNNN`。                                                                                                                 |
-| WebRTC 跨网络停止同步。                              | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                                                                                                     |
-| `cargo build` 出现 linker 错。                       | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                                                                                                         |
+| 现象                                                 | 处理方式                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPA 卡在 loading spinner。                           | 打开 dev tools → Application → IndexedDB，确认存在 `meta-sovereign` 数据库；否则浏览器可能禁用了存储。                                                                                                                                                                                                                                                        |
+| SPA 无法访问本地 server。                            | 在 app 中打开 **Settings → Server**，粘贴准确 URL。                                                                                                                                                                                                                                                                                                           |
+| server 已运行，托管的 app 仍处于 browser-only mode。 | 点击 **Check again**。允许浏览器的本地网络提示。在 Safari 中：运行一次 `npx -y meta-sovereign trust`（macOS）或打开 **信任服务器**（<https://127.0.0.1:8787/trust>），点击「显示详情 → 访问此网站」，然后 **Check again**。也可点击 **从服务器打开应用**（<http://127.0.0.1:8787>）。如果 SPA 是你自己托管的，用 `--allow-origin=<你的 origin>` 启动 server。 |
+| Server 报告 `EADDRINUSE`。                           | 传入 `--port=NNNN` 给 `meta-sovereign serve` 或 Rust `serve --port=NNNN`。                                                                                                                                                                                                                                                                                    |
+| WebRTC 跨网络停止同步。                              | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                                                                                                                                                                                                                                                                        |
+| `cargo build` 出现 linker 错。                       | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                                                                                                                                                                                                                                                                            |
 
 ## 13. 下一步
 

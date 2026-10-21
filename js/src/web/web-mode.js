@@ -47,9 +47,13 @@ const downloadHref = (location) =>
 // link is to our port. A server with that copy off is named.
 const localLinks = (nearby, safariHint) => {
   if (nearby) {
+    // With https on, trusting its certificate once lets this page in.
+    const trustHref = nearby.tls
+      ? `${nearby.origin.replace(/^http:/, 'https:')}/trust`
+      : null;
     return nearby.localUi
-      ? { localHref: `${nearby.origin}/`, localFound: nearby.origin }
-      : { localHref: null, localOff: nearby.origin };
+      ? { localHref: `${nearby.origin}/`, localFound: nearby.origin, trustHref }
+      : { localHref: null, localOff: nearby.origin, trustHref };
   }
   return {
     localHref: safariHint ? `http://127.0.0.1:${DEFAULT_PORTS[0]}/` : null,

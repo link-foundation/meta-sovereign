@@ -88,7 +88,8 @@ export const WebModeBanner = ({
           el('pre', { key: 'cmd' }, option.command),
         ])
       ),
-      notice.safariHint
+      // A server seen by its picture gets its own, more exact, words.
+      notice.safariHint && !notice.localFound && !notice.localOff
         ? el('p', { key: 'safari', className: 'meta' }, t('webMode.safari'))
         : null,
       notice.localFound
@@ -96,6 +97,13 @@ export const WebModeBanner = ({
             'p',
             { key: 'local-found', className: 'meta', role: 'status' },
             t('webMode.localFound', { origin: notice.localFound })
+          )
+        : null,
+      notice.trustHref
+        ? el(
+            'p',
+            { key: 'trust', className: 'meta' },
+            t('webMode.trust', { command: 'npx -y meta-sovereign trust' })
           )
         : null,
       notice.localOff
@@ -127,6 +135,17 @@ export const WebModeBanner = ({
                 href: notice.localHref,
               },
               t('webMode.openLocal')
+            )
+          : null,
+        notice.trustHref
+          ? el(
+              'a',
+              {
+                key: 'trust',
+                className: 'web-mode-trust',
+                href: notice.trustHref,
+              },
+              t('webMode.trustLink')
             )
           : null,
         notice.downloadHref

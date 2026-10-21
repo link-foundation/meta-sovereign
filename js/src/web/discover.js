@@ -14,7 +14,9 @@
  *   2. A previously-saved override stored under `metaServer` in the
  *      injected `storage` (localStorage in the browser).
  *   3. Runtime shell candidates injected by Electron/Capacitor WebViews.
- *   4. A short list of common local ports on 127.0.0.1.
+ *   4. A short list of common local ports on 127.0.0.1 — over https
+ *      too from an https page: Safari blocks http://127.0.0.1 there but
+ *      reaches a server whose certificate it trusts (R-Y64).
  *   5. A list of LAN candidates if the page knows them (passed in).
  *
  * Returns `{ origin: string }` for the first reachable server, or
@@ -33,7 +35,8 @@ export const DEFAULT_PORTS = Object.freeze([8787, 8788, 7001, 7002, 3000]);
 // Safari keeps an https page from asking http://127.0.0.1 anything but
 // still shows it pictures from there: the server's picture is this
 // wide, one pixel high when it serves its own copy of the app, two when
-// that copy is off (../server/hosted-ui.js).
+// that copy is off, two more when it answers https as well
+// (../server/hosted-ui.js).
 export const BEACON_PATH = '/api/beacon.svg';
 export const BEACON_WIDTH = 23;
 
@@ -91,8 +94,12 @@ const buildCandidateList = (origin, storage, candidates) => {
   for (const c of runtimeCandidates()) {
     list.push(c);
   }
+  const secure = String(origin ?? '').startsWith('https:');
   for (const port of DEFAULT_PORTS) {
     list.push(`http://127.0.0.1:${port}`);
+    if (secure) {
+      list.push(`https://127.0.0.1:${port}`);
+    }
   }
   for (const c of candidates) {
     list.push(c);
@@ -156,10 +163,16 @@ const pictureSize = (src, timeout) =>
     img.src = src;
   });
 
+/** What the picture's height says: its own copy on, https on. */
+export const pictureSays = (height) => ({
+  localUi: height % 2 === 1,
+  tls: height > 2,
+});
+
 /**
  * A server on this machine that the page cannot ask anything (Safari on
- * an https page), found by its picture on our ports: `{ origin, localUi }`
- * for the first one, or null.
+ * an https page), found by its picture on our ports: `{ origin, localUi,
+ * tls }` for the first one, or null.
  */
 export const findServerByPicture = async ({
   ports = DEFAULT_PORTS,
@@ -173,7 +186,7 @@ export const findServerByPicture = async ({
       const origin = `http://127.0.0.1:${port}`;
       const size = await sizeOf(`${origin}${BEACON_PATH}?${now()}`, timeout);
       return size?.width === BEACON_WIDTH
-        ? { origin, localUi: size.height === 1 }
+        ? { origin, ...pictureSays(size.height) }
         : null;
     })
   );

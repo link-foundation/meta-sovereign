@@ -21,6 +21,10 @@
  * picture (BEACON_PATH) whose size says "here I am" and whether its own
  * copy is on; the hosted page then links that copy (../web/discover.js).
  * With cross-origin use off (`--allow-origin=none`) there is no picture.
+ *
+ * With HTTPS on (./local-tls.js, R-Y64) Safari can use the server at
+ * https://127.0.0.1 once it trusts the server's certificate; the picture
+ * says HTTPS is on, and `/trust` is the page Safari is shown to trust it.
  */
 
 export const HOSTED_UI_URL =
@@ -79,7 +83,8 @@ export const redirectToHosted = (req, res, p, uiUrl) => {
 /**
  * The picture that tells the hosted page this server is here: as wide
  * as BEACON_WIDTH, one pixel high with the local copy on, two with it
- * off. Returns true when the request was answered.
+ * off, two more with HTTPS on (`pictureSays` in ../web/discover.js).
+ * Returns true when the request was answered.
  */
 export const serveBeacon = (req, res, p, ctx) => {
   if (p !== BEACON_PATH || !['GET', 'HEAD'].includes(req.method)) {
@@ -90,9 +95,45 @@ export const serveBeacon = (req, res, p, ctx) => {
     res.end();
     return true;
   }
-  const body = `<svg xmlns="http://www.w3.org/2000/svg" width="${BEACON_WIDTH}" height="${ctx.localUi ? 1 : 2}"/>`;
+  const body = `<svg xmlns="http://www.w3.org/2000/svg" width="${BEACON_WIDTH}" height="${(ctx.localUi ? 1 : 2) + (ctx.tls ? 2 : 0)}"/>`;
   res.writeHead(200, {
     'content-type': 'image/svg+xml',
+    'cache-control': 'no-store',
+    'content-length': Buffer.byteLength(body),
+  });
+  res.end(req.method === 'HEAD' ? undefined : body);
+  return true;
+};
+
+const TRUST_PAGE = (secure, port, uiUrl) => `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>meta-sovereign server</title></head><body>
+${
+  secure
+    ? `<h1>This browser trusts the meta-sovereign server</h1>
+<p>The app can now reach it at https://127.0.0.1:${port} by itself.</p>
+<p><a href="${uiUrl}">Back to the app</a></p>`
+    : `<h1>meta-sovereign server</h1>
+<p>To let Safari reach this server from the app, open
+<a href="https://127.0.0.1:${port}/trust">https://127.0.0.1:${port}/trust</a>,
+choose Show Details, then visit this website, and enter your password.
+Or run <code>npx -y meta-sovereign trust</code>.</p>`
+}
+</body></html>
+`;
+
+/**
+ * `/trust`: where Safari is sent to trust the server's certificate; over
+ * HTTPS it says the browser now trusts it. Returns true when answered.
+ */
+export const serveTrust = (req, res, p, ctx) => {
+  if (p !== '/trust' || !ctx.tls || !['GET', 'HEAD'].includes(req.method)) {
+    return false;
+  }
+  const port = req.socket?.localPort ?? 8787;
+  const body = TRUST_PAGE(Boolean(req.socket?.encrypted), port, ctx.uiUrl);
+  res.writeHead(200, {
+    'content-type': 'text/html; charset=utf-8',
     'cache-control': 'no-store',
     'content-length': Buffer.byteLength(body),
   });
