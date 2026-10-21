@@ -258,11 +258,20 @@ export const findDormantContacts = (
  * adapter knows one; when it does not, the placeholder and the comma
  * before it disappear ("Привет, {name}!" → "Привет!").
  */
+/** The first word of a display name ("Мария Б" → "Мария"). */
+export const firstName = (name) =>
+  String(name ?? '')
+    .trim()
+    .split(/\s+/u)[0] ?? '';
+
 export const renderReengageText = (template, contact = {}) =>
   String(template ?? '')
-    .replace(/\{(name|days|network)\}/g, (_m, key) => {
+    .replace(/\{(name|first|days|network)\}/g, (_m, key) => {
       if (key === 'name') {
         return contact.name ?? '';
+      }
+      if (key === 'first') {
+        return firstName(contact.name);
       }
       if (key === 'days') {
         return String(contact.daysSilent ?? '');

@@ -440,33 +440,186 @@ const useAutomationMenu = ({ api, current, confirm, t, after }) => {
   };
 };
 
-const useDrafts = ({ api, current, tick, after }) => {
+/** `#chat=<source>:<chat>`: opens that chat (Contacts, the autopilot). */
+export const openChat = ({ source, chat }) => {
+  if (globalThis.location) {
+    globalThis.location.hash = `chat=${source}:${encodeURIComponent(chat)}`;
+  }
+};
+
+/**
+ * After a draft is settled, the next chat its automation fits (R-Y86):
+ * `next` names it; `open()` writes its draft — the user's edited text
+ * carried over — and opens the chat.
+ */
+const useNextChat = (api, current, show) => {
+  const [next, setNext] = useState(null);
+  useEffect(() => setNext(null), [current?.key]);
+  const look = async (draft) => {
+    if (typeof api.nextDraft !== 'function' || !draft?.automation) {
+      return;
+    }
+    const exclude = [{ source: draft.source, chat: String(draft.chat) }];
+    const found = await api
+      .nextDraft({ automation: draft.automation, exclude })
+      .catch(() => null);
+    setNext(
+      found?.draft
+        ? { automation: draft.automation, name: found.name, ...found, exclude }
+        : null
+    );
+  };
+  const open = async () => {
+    if (!next) {
+      return;
+    }
+    const queued = await api
+      .nextDraft({
+        automation: next.automation,
+        exclude: next.exclude,
+        queue: true,
+      })
+      .catch(() => null);
+    const target = queued?.draft ?? next.draft;
+    setNext(null);
+    show(target);
+  };
+  return { next, look, open, dismiss: () => setNext(null) };
+};
+
+const failedNotice = (result) => ({
+  kind: 'failed',
+  code: result.code ?? null,
+  error: result.error ?? result.code,
+});
+
+const useDrafts = ({ api, current, tick, after, show }) => {
   const [drafts, setDrafts] = useLoaded(
     () =>
       current ? api.drafts({ source: current.source, chat: current.chat }) : [],
     [api, current?.key, tick],
     []
   );
+  const following = useNextChat(api, current, show);
   const act = async (action, draft) => {
     const result = await api.draftAction(action, draft);
     if (action === 'form' && result?.id) {
       setDrafts((all) => all.map((d) => (d.id === result.id ? result : d)));
       return result;
     }
-    after(
-      result?.status === 'failed'
-        ? {
-            kind: 'failed',
-            code: result.code ?? null,
-            error: result.error ?? result.code,
-          }
-        : { kind: `draft-${action}` }
-    );
+    if (result?.status === 'failed') {
+      after(failedNotice(result));
+      return result;
+    }
+    after({ kind: `draft-${action}` });
+    await following.look(draft);
     return result;
+  };
+  /** The automation's own text again in this draft. */
+  const reset = async (draft) => {
+    await api.resetEdit?.(draft.automation);
+    return act('form', draft);
   };
   const edit = (id, text) =>
     setDrafts((all) => all.map((d) => (d.id === id ? { ...d, text } : d)));
-  return { drafts: drafts ?? [], act, edit };
+  return {
+    drafts: drafts ?? [],
+    act,
+    edit,
+    reset,
+    next: following.next,
+    openNext: following.open,
+    dismissNext: following.dismiss,
+  };
+};
+
+const AUTOPILOT_PREFIX = 'automation-autopilot:';
+const AUTOPILOT_POLL_MS = 3000;
+const newer = (a, b) =>
+  String(a?.updatedAt ?? '') >= String(b?.updatedAt ?? '') ? a : b;
+
+/** The autopilot to show: one that is on, else the latest to finish. */
+export const shownAutopilot = (states = [], dismissed = null) => {
+  const on = states.filter((s) => s?.on);
+  if (on.length > 0) {
+    return on.reduce(newer);
+  }
+  const last = states.length > 0 ? states.reduce(newer) : null;
+  return last && last.updatedAt !== dismissed && last.status !== 'stopped'
+    ? last
+    : null;
+};
+
+/**
+ * The automations' autopilots (R-Y87): their state links come on the
+ * event stream (`links`); they are read at start, and every few seconds
+ * while one is on and the stream is down. With `monitor` on, the chat it
+ * writes to is opened as it comes to it.
+ */
+const useAutopilot = ({ api, links, live, tick, confirm, t, active, show }) => {
+  const [fetched, setFetched] = useState([]);
+  const [dismissed, setDismissed] = useState(null);
+  const streamed = useMemo(
+    () => (links ?? []).filter((l) => l?.id?.startsWith(AUTOPILOT_PREFIX)),
+    [links]
+  );
+  const states = useMemo(() => {
+    const byId = new Map(fetched.map((s) => [s.id, s]));
+    for (const s of streamed) {
+      byId.set(s.id, newer(s, byId.get(s.id)));
+    }
+    return [...byId.values()];
+  }, [fetched, streamed]);
+  const shown = shownAutopilot(states, dismissed);
+  const read = () =>
+    Promise.resolve(api.autopilots?.())
+      .then((next) => Array.isArray(next) && setFetched(next))
+      .catch(() => {});
+  useEffect(() => {
+    read();
+  }, [api, tick]);
+  useEffect(() => {
+    if (live || !shown?.on) {
+      return undefined;
+    }
+    const timer = globalThis.setInterval(read, AUTOPILOT_POLL_MS);
+    return () => globalThis.clearInterval(timer);
+  }, [live, shown?.on]);
+  const target = shown?.on && shown.monitor ? shown.current : null;
+  useEffect(() => {
+    if (target && chatKey(target.source, target.chat) !== active) {
+      show(target);
+    }
+  }, [target?.source, target?.chat]);
+  const change = async (body) => {
+    const answer = await api.autopilot?.(body);
+    if (answer?.id) {
+      setFetched((all) => [...all.filter((s) => s.id !== answer.id), answer]);
+    }
+    return answer;
+  };
+  return {
+    shown,
+    start: (automation) =>
+      change({
+        automation,
+        on: true,
+        monitor: true,
+        ask: (answer) =>
+          confirm(
+            t('chat.autopilot.confirm', {
+              name: answer.preview?.name ?? '',
+              count: answer.preview?.total ?? 0,
+              min: Math.round((answer.preview?.pacing?.minDelayMs ?? 0) / 1000),
+              max: Math.round((answer.preview?.pacing?.maxDelayMs ?? 0) / 1000),
+              cap: answer.preview?.pacing?.dailyCap ?? 0,
+            })
+          ),
+      }),
+    stop: (automation) => change({ automation, on: false }),
+    monitor: (automation, on) => change({ automation, monitor: on }),
+    dismiss: () => setDismissed(shown?.updatedAt ?? null),
+  };
 };
 
 const STATUS_EVERY_MS = 4000;
@@ -722,6 +875,12 @@ export const useChatState = (
     setNotice(next);
     refresh();
   };
+  // Open a chat by its address: in the list even with no message here
+  // yet (the hash), and the open one at once.
+  const show = (target) => {
+    openChat(target);
+    setActive(chatKey(target.source, String(target.chat)));
+  };
   const composer = useComposer({
     api,
     current,
@@ -794,7 +953,17 @@ export const useChatState = (
     composer,
     suggester: useSuggester(api, current, messages, links),
     menu: useAutomationMenu({ api, current, confirm, t, after }),
-    drafts: useDrafts({ api, current, tick, after }),
+    drafts: useDrafts({ api, current, tick, after, show }),
+    autopilot: useAutopilot({
+      api,
+      links,
+      live,
+      tick,
+      confirm,
+      t,
+      active,
+      show,
+    }),
     notice,
     dismiss: () => setNotice(null),
     notify: setNotice,

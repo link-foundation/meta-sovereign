@@ -39,6 +39,7 @@ import {
   DAY_MS,
   defaultReengageTemplates,
   findDormantContacts,
+  firstName,
   prefillLinkFor,
   renderReengageText,
   templateFor,
@@ -48,6 +49,8 @@ export const AUTOMATION_PREFIX = 'automation:';
 export const DRAFT_PREFIX = 'automation-draft:';
 export const RUN_PREFIX = 'automation-run:';
 export const STATE_PREFIX = 'automation-state:';
+export const EDIT_PREFIX = 'automation-edit:';
+export const AUTOPILOT_PREFIX = 'automation-autopilot:';
 export const TRIGGER_KINDS = Object.freeze([
   'manual',
   'chat-menu',
@@ -426,6 +429,8 @@ export const draftFor = (automation, candidate, { isSelf, rules }) => {
     form: addressForm.form,
     addressForm,
     text,
+    // Written from the user's edited text (R-Y86).
+    edited: Boolean(automation.edited?.includes(addressForm.form)),
     prefill: prefillLinkFor({ ...candidate, text }),
   };
 };
@@ -436,7 +441,13 @@ export const redraftWithForm = (automation, draft, form) => {
     templateFor(automation.action.templates, form),
     draft
   );
-  return { ...draft, form, text, prefill: prefillLinkFor({ ...draft, text }) };
+  return {
+    ...draft,
+    form,
+    text,
+    edited: Boolean(automation.edited?.includes(form)),
+    prefill: prefillLinkFor({ ...draft, text }),
+  };
 };
 
 /**
@@ -446,8 +457,14 @@ export const redraftWithForm = (automation, draft, form) => {
  * resolved with `resolveAudience(links, spec)` (people.js). `test: true`
  * with targets ignores the conditions, so a chat menu can try any chat.
  */
+// Normalized, with the forms the user's edit stands for (R-Y86).
+const plannedAutomation = (input) => ({
+  ...normalizeAutomation(input),
+  ...(input?.edited ? { edited: input.edited } : {}),
+});
+
 export const planAutomation = (links = [], input, options = {}) => {
-  const automation = normalizeAutomation(input);
+  const automation = plannedAutomation(input);
   const now = toMs(options.now) ?? Number(options.now ?? Date.now());
   const { contacts, selfIds, isSelf } = findDormantContacts(links, {
     now,
@@ -492,5 +509,74 @@ export const planAutomation = (links = [], input, options = {}) => {
     total: drafts.length,
     drafts: limit > 0 ? drafts.slice(0, limit) : drafts,
     excluded,
+  };
+};
+
+// ---- the user's edit, carried to the next chats (R-Y86) -------------
+
+/** `automation-edit:<automation>`: the text the user last sent, as templates. */
+export const editId = (automation) =>
+  `${EDIT_PREFIX}${automationKey(automation)}`;
+
+const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// A name stands as a word, not inside one ("Ян" in "Январь").
+const wordPattern = (word) =>
+  new RegExp(
+    `(?<![\\p{L}\\p{N}])${escapeRegExp(word)}(?![\\p{L}\\p{N}])`,
+    'gu'
+  );
+
+/**
+ * The text the user sent to one person as a template for the next: their
+ * name becomes `{name}`, their first name `{first}`, so the same edit
+ * greets the next person by theirs.
+ */
+export const templateFromText = (text, draft = {}) => {
+  let template = String(text ?? '');
+  const name = String(draft.name ?? '').trim();
+  const first = firstName(name);
+  if (name.length >= 2 && name !== first) {
+    template = template.replace(wordPattern(name), '{name}');
+  }
+  if (first.length >= 2) {
+    template = template.replace(wordPattern(first), '{first}');
+  }
+  return template;
+};
+
+/** The automation with the user's edited templates in place of its own. */
+export const withEdit = (automation, edit) =>
+  edit?.templates && Object.keys(edit.templates).length > 0
+    ? {
+        ...automation,
+        edited: Object.keys(edit.templates),
+        action: {
+          ...automation.action,
+          templates: { ...automation.action.templates, ...edit.templates },
+        },
+      }
+    : automation;
+
+/** The edit link after the user sent `text` (null: nothing to keep). */
+export const editAfterSend = (automation, before, draft, text, at) => {
+  const original = automation.action.templates;
+  const rendered = renderReengageText(templateFor(original, draft.form), draft);
+  const templates = { ...(before?.templates ?? {}) };
+  if (String(text).trim() === rendered.trim()) {
+    // Sent as the automation wrote it: its own text stands again.
+    delete templates[draft.form];
+  } else {
+    templates[draft.form] = templateFromText(text, draft);
+  }
+  if (Object.keys(templates).length === 0) {
+    return null;
+  }
+  return {
+    id: editId(automation),
+    tokens: ['automation-edit', automationKey(automation)],
+    automation: automation.id,
+    templates,
+    at,
   };
 };

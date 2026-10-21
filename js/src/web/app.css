@@ -672,6 +672,36 @@ main[data-view='chat'] > .web-mode-banner {
 .chat-notice.failed {
   background: #f8514933;
 }
+/* The next chat an automation fits, and its autopilot (R-Y86, R-Y87). */
+.chat-notice.next-chat,
+.chat-notice.autopilot-bar {
+  flex-wrap: wrap;
+}
+.chat-notice .row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.chat-notice .row button {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.85rem;
+}
+.autopilot-text {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35em;
+}
+.autopilot-bar.on {
+  border: 1px solid var(--link);
+}
+.autopilot-monitor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  cursor: pointer;
+}
 /* "Copied" floats over the chat like Telegram's toast and goes by
    itself; the messages do not move for it. */
 .chat-notice.copied,

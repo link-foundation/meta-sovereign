@@ -19,6 +19,12 @@
  *   POST   /api/automations/drafts/mark { id }  (sent by hand)
  *   POST   /api/automations/drafts/skip { id }
  *   GET    /api/automations/history?automation=
+ *   POST   /api/automations/next { automation, exclude?, queue? }
+ *          → the next chat it fits, its draft written with `queue` (R-Y86)
+ *   POST   /api/automations/edit/reset { automation } → its own text again
+ *   GET    /api/automations/autopilot → { autopilots } (R-Y87)
+ *   POST   /api/automations/autopilot { automation, on?, monitor? }
+ *          `on: true` is confirmed (how many chats, how paced) first
  *   POST   /api/send   { source, chat, text, contact? } → the chat composer;
  *                      API first, the official web UI when it fails
  *   POST   /api/typing { source, chat, cancel? } → show our typing status
@@ -251,6 +257,46 @@ const draftAction = (method) => async (store, res, body, ctx) => {
   return json(res, outcome.status === 'failed' ? 502 : 200, outcome);
 };
 
+// Autopilot: turning it on sends to every chat the automation fits, so
+// the user first sees how many and how paced, and confirms.
+const handleAutopilot = async (store, res, body, ctx) => {
+  const { runner, autopilot } = ctx.automations;
+  if (!autopilot) {
+    return fail(res, 501, 'no-autopilot', 'autopilot needs the server');
+  }
+  const automation = automationOf(body);
+  if (body.on === false) {
+    return json(res, 200, await autopilot.stop(automation));
+  }
+  if (body.on !== true) {
+    return json(res, 200, await autopilot.monitor(automation, body.monitor));
+  }
+  const ok = await confirmed(ctx, res, {
+    action: 'automation.autopilot',
+    body,
+    prepare: async () => {
+      const loaded = await runner.load(automation);
+      const planned = await runner.plan(loaded, { limit: 1 });
+      return {
+        preview: {
+          name: loaded.name,
+          total: planned.total,
+          pacing: loaded.pacing,
+          edited: loaded.edited ?? [],
+        },
+      };
+    },
+  });
+  if (!ok) {
+    return true;
+  }
+  return json(
+    res,
+    200,
+    await autopilot.start(automation, { monitor: body.monitor !== false })
+  );
+};
+
 // Safe mode only queues drafts. Auto mode sends, so the user first sees
 // the planned messages and confirms them; exactly those are sent.
 const handleRun = async (store, res, body, ctx) => {
@@ -302,15 +348,28 @@ const POST = {
   '/api/automations/drafts/form': draftAction('form'),
   '/api/automations/drafts/mark': draftAction('mark'),
   '/api/automations/drafts/skip': draftAction('skip'),
+  '/api/automations/next': async (store, res, body, ctx) =>
+    json(
+      res,
+      200,
+      await ctx.automations.runner.next(automationOf(body), {
+        exclude: targetsOf({ targets: body.exclude }) ?? [],
+        queue: body.queue === true,
+      })
+    ),
+  '/api/automations/edit/reset': async (store, res, body, ctx) =>
+    json(res, 200, await ctx.automations.runner.resetEdit(automationOf(body))),
+  '/api/automations/autopilot': handleAutopilot,
   '/api/send': handleSend,
   '/api/typing': handleTyping,
 };
 
+// Only typing links are read (asked every few seconds: copying the
+// whole store each time cost memory and time).
 const typingNow = async (store, q) => {
   const now = Date.now();
-  return (await store.query()).filter(
+  return (await store.query((l) => l?.id?.startsWith('typing:'))).filter(
     (l) =>
-      l?.id?.startsWith('typing:') &&
       (!q.get('source') || l.source === q.get('source')) &&
       (!q.has('chat') || String(l.chat) === q.get('chat')) &&
       isTypingActive(l, now)
@@ -335,6 +394,9 @@ const GET = {
     }),
   }),
   '/api/typing': async (store, q) => ({ typing: await typingNow(store, q) }),
+  '/api/automations/autopilot': async (store, q, ctx) => ({
+    autopilots: (await ctx.automations.autopilot?.states()) ?? [],
+  }),
 };
 
 const handleWrite = async (store, req, res, p) => {

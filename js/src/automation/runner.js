@@ -22,11 +22,14 @@ import { clearInterval, setInterval } from 'node:timers';
 import { DAY_MS } from '../crm/reengage.js';
 import { typingLink } from '../sources/live-links.js';
 import { resolveAudience as resolvePeople } from '../crm/people.js';
+import { nextChatOperations } from './next-chat.js';
 import {
   AUTOMATION_PREFIX,
   RUN_PREFIX,
   STATE_PREFIX,
   automationKey,
+  editId,
+  withEdit,
   hasTrigger,
   incomingTrigger,
   normalizeAutomation,
@@ -95,7 +98,12 @@ export const createAutomationRunner = ({
 } = {}) => {
   const nowIso = () => clock().toISOString();
 
-  const load = (automationOrId) => loadAutomation(store, automationOrId);
+  // The automation as the user last sent it: their edit of the text is
+  // carried to the next chats (R-Y86).
+  const load = async (automationOrId) => {
+    const automation = await loadAutomation(store, automationOrId);
+    return withEdit(automation, await store.get(editId(automation)));
+  };
 
   const plan = async (automation, options = {}) =>
     planAutomation(await store.query(), automation, {
@@ -156,12 +164,22 @@ export const createAutomationRunner = ({
         record,
         error: error.message,
         ...(error.code ? { code: error.code } : {}),
+        ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
       };
     }
   };
 
   const queue = (automation, drafts) =>
     queueDrafts(store, automation, drafts, nowIso());
+
+  const { afterSend, methods } = nextChatOperations({
+    store,
+    load,
+    plan,
+    deliver,
+    queue,
+    nowIso,
+  });
 
   const sendPaced = async (automation, drafts) => {
     const { pacing } = automation;
@@ -224,7 +242,8 @@ export const createAutomationRunner = ({
       });
       return { ...planned, trigger, ...outcome };
     },
-    ...draftOperations({ store, load, deliver, nowIso }),
+    ...draftOperations({ store, load, deliver, nowIso, afterSend }),
+    ...methods,
     /** Every ledger record, newest first. */
     async history({ automation } = {}) {
       const prefix = automation

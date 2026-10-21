@@ -93,7 +93,13 @@ export const queueDrafts = async (store, automation, drafts, at) => {
 };
 
 /** What the user can do with a pending safe-mode draft. */
-export const draftOperations = ({ store, load, deliver, nowIso }) => {
+export const draftOperations = ({
+  store,
+  load,
+  deliver,
+  nowIso,
+  afterSend = async () => {},
+}) => {
   const pendingDraft = async (id) => {
     const draft = await store.get(id);
     if (!draft?.id?.startsWith(DRAFT_PREFIX)) {
@@ -143,6 +149,7 @@ export const draftOperations = ({ store, load, deliver, nowIso }) => {
       const outcome = await deliver(automation, draft);
       if (outcome.status === 'sent') {
         await store.delete(id);
+        await afterSend(automation, draft);
       }
       return outcome;
     },

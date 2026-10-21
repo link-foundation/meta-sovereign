@@ -196,6 +196,34 @@ const automationCalls = ({ remote, store, local }) => ({
         skip: () => local.skip(body.id),
       }[action]();
     }),
+  /**
+   * The next chat the automation fits after `exclude` (R-Y86); `queue`
+   * writes its draft for the chat to show. Needs the server.
+   */
+  nextDraft: async ({ automation, exclude = [], queue = false }) =>
+    (await remote.post('/api/automations/next', {
+      automation,
+      exclude,
+      queue,
+    })) ?? { draft: null, code: 'server-required' },
+  /** Back to the automation's own text, the user's edit forgotten. */
+  resetEdit: async (automation) =>
+    remote.post('/api/automations/edit/reset', { automation }),
+  /** Every automation's autopilot state (R-Y87); [] without a server. */
+  autopilots: async () =>
+    (await remote.get('/api/automations/autopilot'))?.autopilots ?? [],
+  /**
+   * Turn an autopilot on (`ask(answer)` sees `answer.preview`: how many
+   * chats, how paced, and confirms), off, or its monitor on or off.
+   */
+  autopilot: async ({ automation, on, monitor, ask }) => {
+    const body = { automation, on, monitor };
+    const answer =
+      on === true
+        ? await remote.confirmed('/api/automations/autopilot', body, ask)
+        : await remote.post('/api/automations/autopilot', body);
+    return answer ?? SERVER_REQUIRED;
+  },
   automationHistory: async ({ automation } = {}) =>
     (
       await remote.get(

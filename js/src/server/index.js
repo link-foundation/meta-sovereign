@@ -73,6 +73,7 @@ import {
   createAutomationScheduler,
 } from '../automation/runner.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
+import { createAutopilot } from '../automation/autopilot.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { createChatIndex } from './chat-index.js';
@@ -303,14 +304,24 @@ const automationContext = (
     tickMs: automations.tickMs,
     log: say,
   });
+  const autopilot = createAutopilot({ store, runner, log: say });
   if (automations.scheduler !== false) {
     scheduler.start();
+    // An autopilot left on goes on after a restart.
+    autopilot.resume().catch((error) =>
+      say({
+        level: 'warn',
+        event: 'autopilot_resume_failed',
+        error: error.message,
+      })
+    );
   }
   return {
     send,
     setTyping,
-    automations: { runner, scheduler },
+    automations: { runner, scheduler, autopilot },
     closeAutomations: async () => {
+      autopilot.stopAll();
       scheduler.stop();
       await send.close?.();
     },

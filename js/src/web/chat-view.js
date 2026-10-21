@@ -45,6 +45,11 @@ import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
+import { failureText } from './chat-failure.js';
+import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
+
+export { failureText, waitingText } from './chat-failure.js';
+export { autopilotText } from './chat-automation.js';
 export { reasonText } from './notice.js';
 
 const el = React.createElement;
@@ -460,134 +465,6 @@ const Header = ({ state, api, onBack, about, onAbout }) => {
 
 // A message's delivery, as messengers show it: a clock while it goes
 // out (only after a second, so a quick send never flashes it — Telegram
-/** Why a message did not go out, in words. */
-export const failureText = (t, message) => {
-  switch (message.code) {
-    case 'flood-wait':
-      return t('chat.failure.floodWait', {
-        seconds: message.retryAfter ?? '?',
-      });
-    case 'write-forbidden':
-      return t('chat.failure.forbidden');
-    case 'unknown-chat':
-      return t('chat.failure.unknownChat');
-    case 'too-long':
-      return t('chat.failure.tooLong');
-    case 'after-failure':
-      return t('chat.failure.afterFailure');
-    case 'network':
-    case 'no-answer':
-      return t('chat.failure.network');
-    default:
-      return t('chat.failure.other', {
-        error: message.error ?? message.code ?? '',
-      });
-  }
-};
-
-/** A message that will be tried again by itself: why, and when. */
-export const waitingText = (t, message, now = Date.now()) => {
-  const seconds = Math.max(
-    0,
-    Math.ceil((Number(message.retryAt ?? 0) - now) / 1000)
-  );
-  if (message.code === 'flood-wait') {
-    return t('chat.waiting.flood', { seconds });
-  }
-  if (globalThis.navigator?.onLine === false) {
-    return t('chat.waiting.offline');
-  }
-  return t('chat.waiting.retry', { seconds });
-};
-
-const FORM_KEYS = {
-  informal: 'chat.form.informal',
-  formal: 'chat.form.formal',
-};
-
-const DraftCard = ({ draft, drafts }) => {
-  const t = useT();
-  const other = draft.form === 'formal' ? 'informal' : 'formal';
-  // One action at a time; the pressed button turns while it works.
-  const [working, setWorking] = useState(null);
-  const press = async (action, extra) => {
-    setWorking(action);
-    try {
-      await drafts.act(action, { ...draft, ...extra });
-    } finally {
-      setWorking(null);
-    }
-  };
-  const button = (action, label, extra = {}) =>
-    el(
-      'button',
-      {
-        key: action,
-        type: 'button',
-        'data-action': `draft-${action}`,
-        disabled: working !== null,
-        'aria-busy': working === action ? 'true' : undefined,
-        onClick: () => press(action, extra),
-        className: action === 'send' ? 'primary' : undefined,
-      },
-      label
-    );
-  return el(
-    'div',
-    {
-      className: 'draft-card',
-      'data-draft': draft.id,
-      'data-form': draft.form,
-    },
-    [
-      el(
-        'p',
-        { key: 'h', className: 'meta' },
-        t('chat.draft.title', {
-          name: presetName(t, draft.automationName ?? draft.automation),
-          form: t(FORM_KEYS[draft.form] ?? FORM_KEYS.informal),
-        })
-      ),
-      el('textarea', {
-        key: 'text',
-        rows: 4,
-        value: draft.text,
-        'aria-label': t('chat.draft.text'),
-        onChange: (event) => drafts.edit(draft.id, event.target.value),
-      }),
-      el('div', { key: 'actions', className: 'row' }, [
-        button('send', t('chat.draft.send')),
-        button(
-          'form',
-          t('chat.draft.switchTo', { form: t(FORM_KEYS[other]) }),
-          {
-            form: other,
-          }
-        ),
-        draft.prefill
-          ? el(
-              'a',
-              {
-                key: 'open',
-                className: 'button',
-                href: draft.prefill.url,
-                target: '_blank',
-                rel: 'noopener noreferrer',
-              },
-              t(
-                draft.prefill.prefillsText
-                  ? 'chat.draft.openFilled'
-                  : 'chat.draft.open'
-              )
-            )
-          : null,
-        button('mark', t('chat.draft.markSent')),
-        button('skip', t('chat.draft.skip')),
-      ]),
-    ]
-  );
-};
-
 /** A failed send's notice with the reason in words, as the composer's. */
 export const noticeInWords = (t, notice) => {
   if (notice?.kind !== 'failed') {
@@ -1008,7 +885,12 @@ const Stream = ({ state, api, actions }) => {
             }),
           ]),
           ...state.drafts.drafts.map((draft) =>
-            el(DraftCard, { key: draft.id, draft, drafts: state.drafts })
+            el(DraftCard, {
+              key: draft.id,
+              draft,
+              drafts: state.drafts,
+              autopilot: state.autopilot,
+            })
           ),
           messages.length === 0
             ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
@@ -1388,6 +1270,12 @@ export const ChatScreen = ({ state, api }) => {
             }),
             el(ConnectionBanner, { key: 'b', banner: state.banner }),
             el(FailedBar, { key: 'failed', composer: state.composer }),
+            el(AutopilotBar, { key: 'ap', autopilot: state.autopilot }),
+            el(NextChatBar, {
+              key: 'next',
+              drafts: state.drafts,
+              autopilot: state.autopilot,
+            }),
             el(Notice, {
               key: 'n',
               notice: noticeInWords(t, state.notice),

@@ -29,6 +29,8 @@ export const EVENT_PREFIXES = Object.freeze([
   'person:',
   'history:',
   'sync:telegram',
+  // Where an automation's autopilot is (R-Y87): the monitor follows it.
+  'automation-autopilot:',
 ]);
 
 export const isStreamedId = (id) =>
