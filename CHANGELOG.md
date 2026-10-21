@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.46.1
+
+### Patch Changes
+
+- 1332d65: The package is tested as npm would ship it, without publishing: `npm run test:pack` packs it, runs it with `npx` and checks the server it starts; CI runs it with `npm publish --dry-run` before every release (R-Y61).
+
 ## 0.46.0
 
 ### Minor Changes
