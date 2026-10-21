@@ -14,7 +14,7 @@
  *                                                 whose ids are account-wide)
  *   { kind: 'read', chat, maxId }                 the other side read our
  *                                                 messages up to maxId
- *   { kind: 'read-inbox', chat, maxId }           we read theirs up to
+ *   { kind: 'read-inbox', chat, maxId, stillUnread } we read theirs up to
  *                                                 maxId (on any device)
  *   { kind: 'draft', chat, text, date }           the chat's cloud draft
  *                                                 changed (another device)
@@ -117,6 +117,12 @@ const ids = (update) => (update.messages ?? []).map(Number);
 const channelOf = (update) => `-100${text(update.channelId)}`;
 
 // Deletions and read receipts: one line each.
+// How many Telegram says are still unread after a read, when it says.
+const stillUnreadOf = (u) =>
+  Number.isFinite(u.stillUnreadCount)
+    ? { stillUnread: u.stillUnreadCount }
+    : {};
+
 const SIMPLE_EFFECTS = {
   UpdateDeleteMessages: (u) => ({ kind: 'delete', chat: null, ids: ids(u) }),
   UpdateDeleteChannelMessages: (u) => ({
@@ -138,11 +144,13 @@ const SIMPLE_EFFECTS = {
     kind: 'read-inbox',
     chat: peerChatId(u.peer),
     maxId: Number(u.maxId),
+    ...stillUnreadOf(u),
   }),
   UpdateReadChannelInbox: (u) => ({
     kind: 'read-inbox',
     chat: channelOf(u),
     maxId: Number(u.maxId),
+    ...stillUnreadOf(u),
   }),
   // Pinned or unpinned: the chat's pinned bar follows.
   UpdatePinnedMessages: (u) => ({
@@ -156,6 +164,44 @@ const SIMPLE_EFFECTS = {
     chat: channelOf(u),
     ids: ids(u),
     pinned: Boolean(u.pinned),
+  }),
+  // How the chat is listed: muted, pinned, archived (R-Y68).
+  UpdateNotifySettings: (u) =>
+    u.peer?.className === 'NotifyPeer'
+      ? {
+          kind: 'listing',
+          chat: peerChatId(u.peer.peer),
+          muteUntil: Number(u.notifySettings?.muteUntil ?? 0) || 0,
+        }
+      : null,
+  UpdateDialogPinned: (u) =>
+    u.peer?.className === 'DialogPeer'
+      ? {
+          kind: 'listing',
+          chat: peerChatId(u.peer.peer),
+          pinned: Boolean(u.pinned),
+          folder: Number(u.folderId ?? 0) === 1 ? 1 : 0,
+        }
+      : null,
+  UpdatePinnedDialogs: (u) =>
+    Array.isArray(u.order)
+      ? {
+          kind: 'pinned-order',
+          folder: Number(u.folderId ?? 0) === 1 ? 1 : 0,
+          chats: u.order
+            .filter((p) => p?.className === 'DialogPeer')
+            .map((p) => peerChatId(p.peer))
+            .filter(Boolean),
+        }
+      : null,
+  UpdateFolderPeers: (u) => ({
+    kind: 'folders',
+    peers: (u.folderPeers ?? [])
+      .map((f) => ({
+        chat: peerChatId(f.peer),
+        folder: Number(f.folderId) === 1 ? 1 : 0,
+      }))
+      .filter((f) => f.chat),
   }),
   // A forum topic's draft (topMsgId) is not the chat's own.
   UpdateDraftMessage: (u) =>

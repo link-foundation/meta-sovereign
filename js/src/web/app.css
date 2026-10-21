@@ -850,6 +850,73 @@ main[data-view='chat'] > .web-mode-banner {
   line-height: 1.25rem;
   text-align: center;
 }
+/* A muted chat's count is grey, as in Telegram (R-Y68). */
+.chat-item-unread.is-muted {
+  background: color-mix(in srgb, var(--text-subtle) 55%, transparent);
+}
+.chat-item-badges {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.25rem;
+}
+.chat-item-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: var(--chat-accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.chat-item-mark.is-reaction {
+  background: #e5484d;
+}
+.chat-item-pinned {
+  display: inline-flex;
+  color: var(--text-subtle);
+  transform: rotate(45deg);
+}
+.chat-item-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.chat-item-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chat-item-muted {
+  display: inline-flex;
+  flex: none;
+  color: var(--text-subtle);
+}
+.chat-item-sender {
+  color: var(--text);
+}
+.chat-item-thumb {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.3rem;
+  border-radius: 3px;
+  object-fit: cover;
+  vertical-align: -0.2rem;
+}
+.archive-avatar {
+  background: color-mix(in srgb, var(--text-subtle) 45%, transparent);
+  color: #fff;
+}
+.chat-archive-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.25rem 0.2rem 0.4rem;
+  font-weight: 600;
+}
 .chat-unread-line {
   display: flex;
   align-items: center;
@@ -3297,93 +3364,146 @@ button.primary .recommended-tag {
   opacity: 1;
 }
 
-/* Selecting messages (R-Y67): a round check at each row's start, the
-   chosen rows tinted end to end, a click anywhere on a row picks it. */
+/* Selecting messages (R-Y67, R-Y68), drawn as Telegram Desktop draws
+   it: each row gets a round check at its right end, outgoing bubbles
+   move left to make room, a selected row is tinted across the whole
+   chat, and a click anywhere on a row picks it. */
+:root {
+  --msg-select-overlay: rgba(53, 140, 212, 0.3);
+  --msg-select-check: #4ab44a;
+}
+.chat-column .bubble-row {
+  transition:
+    transform 0.2s ease-out,
+    padding-right 0.15s ease-out;
+}
 .chat-column.is-selecting .bubble-row {
-  padding-left: 2.4rem;
-  cursor: pointer;
+  padding-right: 2.25rem;
+  cursor: default;
   -webkit-user-select: none;
   user-select: none;
 }
-.chat-column.is-selecting .bubble-row::before {
-  content: '';
-  position: absolute;
-  inset: 1px -0.75rem;
-  border-radius: 10px;
-  pointer-events: none;
-}
-.chat-column.is-selecting .bubble-row.is-selected::before {
-  background: color-mix(
-    in srgb,
-    var(--chat-accent, var(--accent)) 16%,
-    transparent
-  );
+.chat-column.is-selecting .bubble-row.is-selected {
+  /* The tint runs from edge to edge and meets the next selected row's. */
+  box-shadow: 0 0 0 100vmax var(--msg-select-overlay);
+  clip-path: inset(-0.25rem -100vmax);
 }
 .bubble-check {
   position: absolute;
-  left: 0.3rem;
-  bottom: 0.35rem;
-  width: 1.35rem;
-  height: 1.35rem;
+  right: 0.3rem;
+  bottom: 5px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  border: 2px solid var(--muted, rgba(127, 127, 127, 0.7));
-  background: var(--bg);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   color: #fff;
+  animation: bubble-check-in 0.15s ease-out;
   transition:
     background 0.12s,
     border-color 0.12s;
 }
 .bubble-check.is-checked {
-  background: var(--chat-accent, var(--accent));
-  border-color: var(--chat-accent, var(--accent));
+  background: var(--msg-select-check);
+  border-color: #fff;
+}
+@keyframes bubble-check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
 }
 .chat-column.is-selecting .bubble-row a,
 .chat-column.is-selecting .bubble-row button {
   pointer-events: none;
 }
 
-/* The bar in the composer's place while messages are selected. */
-.selection-bar {
-  position: absolute;
-  left: 50%;
-  bottom: 0.75rem;
-  transform: translateX(-50%);
-  width: min(var(--chat-column), calc(100% - 2rem));
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.45rem 0.6rem;
-  box-sizing: border-box;
-  border: 1px solid var(--surface-glass-border);
-  border-radius: 16px;
-  background: var(--surface-glass-bg);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  backdrop-filter: blur(24px) saturate(160%);
-  box-shadow: var(--surface-glass-shadow);
+/* Desktop's top bar while messages are selected: FORWARD n and DELETE n
+   on the left, CANCEL on the right; it slides in over the chat's. */
+.selection-top {
+  gap: 0.5rem;
+  animation: selection-top-in 0.15s ease-out;
 }
-.selection-bar button {
+@keyframes selection-top-in {
+  from {
+    opacity: 0;
+    transform: translateY(-30%);
+  }
+}
+.selection-top-button,
+.selection-top-cancel {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  border-radius: 10px;
-}
-.selection-bar-count {
+  padding: 0.45rem 0.9rem;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.85rem;
   font-weight: 600;
-  white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
-.selection-bar-gap {
+.selection-top-button {
+  background: var(--chat-accent, var(--accent));
+  color: #fff;
+}
+.selection-top-button:hover {
+  filter: brightness(1.08);
+}
+.selection-top-count {
+  font-variant-numeric: tabular-nums;
+}
+.selection-top-cancel {
+  background: transparent;
+  color: var(--chat-accent, var(--accent));
+}
+.selection-top-cancel:hover {
+  background: var(--bg-active);
+}
+.selection-top-gap {
   flex: 1;
 }
-.selection-bar-delete {
-  color: var(--danger);
+
+/* Desktop's corner "Reply" on a group's incoming message: it shows while
+   the pointer is on the message, at the bubble's top right. */
+.bubble-fast-reply {
+  position: absolute;
+  /* Desktop: centred 2px above the bubble, 3px past its right edge. */
+  top: -2px;
+  right: -3px;
+  transform: translateY(-50%) scale(0.85);
+  height: 20px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--bubble-in);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  color: var(--chat-accent, var(--accent));
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.12s 0.3s,
+    transform 0.12s 0.3s;
+  z-index: 1;
 }
-@media (max-width: 560px) {
-  .selection-bar-label {
-    display: none;
+@media (hover: hover) {
+  .bubble-row:hover .bubble-fast-reply {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(-50%);
+    transition-delay: 0s;
   }
 }
 
@@ -3642,6 +3762,22 @@ button.primary .recommended-tag {
   padding: 0;
   background: transparent;
   box-shadow: none;
+}
+/* A sticker's reply: a small bubble of its own (R-Y68). */
+.bubble.bare > .bubble-reply {
+  align-self: flex-start;
+  max-width: 16rem;
+  padding: 0.3rem 0.55rem 0.35rem 0.75rem;
+  background: var(--bubble-in);
+  color: var(--bubble-in-text);
+}
+.bubble.bare.out > .bubble-reply {
+  align-self: flex-end;
+  background: var(--bubble-out);
+  color: var(--bubble-out-text);
+}
+.bubble-reply-thumb.is-sticker {
+  object-fit: contain;
 }
 .bubble.bare > .bubble-time {
   align-self: flex-end;

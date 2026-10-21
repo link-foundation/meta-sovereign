@@ -88,6 +88,17 @@ export const sendError = (error) => {
   return codeError(error?.code ?? 'send-failed', text || 'send failed');
 };
 
+// Whom the message answers, and the part of it quoted.
+const replyHeader = (Api, replyTo, replyQuote) =>
+  replyTo
+    ? {
+        replyTo: new Api.InputReplyToMessage({
+          replyToMsgId: replyTo,
+          ...(replyQuote ? { quoteText: replyQuote } : {}),
+        }),
+      }
+    : {};
+
 // One part through messages.SendMessage, with our random_id. `onResult`
 // sees Telegram's raw answer: it carries the update counter (pts) that
 // the catch-up tracks, and GramJS does not pass RPC answers to the
@@ -99,6 +110,7 @@ const sendPart = async ({
   text,
   randomId,
   replyTo,
+  replyQuote = null,
   onResult,
 }) => {
   if (!Api?.messages?.SendMessage || typeof client.invoke !== 'function') {
@@ -114,9 +126,7 @@ const sendPart = async ({
     message: text,
     randomId,
     clearDraft: true,
-    ...(replyTo
-      ? { replyTo: new Api.InputReplyToMessage({ replyToMsgId: replyTo }) }
-      : {}),
+    ...replyHeader(Api, replyTo, replyQuote),
   });
   try {
     const result = await client.invoke(request);
@@ -148,6 +158,7 @@ export const sendText = async ({
   clientId,
   maxLength = MAX_MESSAGE_LENGTH,
   replyTo = null,
+  replyQuote = null,
   onResult,
 }) => {
   const parts = splitMessage(text, maxLength);
@@ -162,6 +173,7 @@ export const sendText = async ({
       randomId,
       // A long reply answers with its first part, as Telegram's apps do.
       replyTo: index === 0 ? replyTo : null,
+      replyQuote: index === 0 ? replyQuote : null,
       onResult,
     });
     sent.push({

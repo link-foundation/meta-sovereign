@@ -484,18 +484,33 @@ to its official web UI. **Settings → Appearance** picks the theme
 (system, light, dark, or auto by the time of day) and the skin (t3.codes,
 Telegram, WhatsApp or Signal).
 
-Messages work as in Telegram's apps. Right-click a message (or press
+Messages work as in Telegram Desktop. Right-click a message (or press
 and hold it on a phone) for its menu, opened where you clicked: its
-reactions, then **Reply**, **Edit**, **Copy text** (or **Copy selected
-text** when part of it is selected), **Copy link** (channels and
-supergroups), **Pin**/**Unpin**, **Forward**, **Select** and **Delete**.
-Double-click a message — or swipe it to the left on a phone — to reply;
-double-tap reacts with 👍. **Select** starts selecting: click messages
-(Shift+click for a range, up to 100) and use the bar in the composer's
-place to copy them (each under its sender's name and time), forward or
-delete them all at once; **Esc** ends it, **Ctrl/Cmd+C** copies and
-**Delete** deletes. In an empty composer **↑** edits your last message,
-and **Ctrl/Cmd+↑/↓** choose the message to reply to.
+reactions, then **Reply** (**Quote & Reply** when part of its text is
+selected: the reply quotes that part), **Copy Selected Text**, **Edit**,
+**Pin**/**Unpin**, **Save As…** and **Copy Image** on a photo, **Copy
+Text**, **Copy Link** on a link or else **Copy Message Link** (**Copy
+Post Link** in a channel), **Forward**, **Delete** and **Select**. In a
+group an incoming message shows **Reply** at its corner under the
+pointer. Double-click a message (or swipe it to the left on a phone) to
+reply; double-tap reacts with 👍. To select messages, drag from one
+message to another (a drag that starts on a selected one takes them
+away) or choose **Select**; then a click adds or takes one and
+Shift+click a range, up to 100. The chat's top bar then shows **Forward
+n**, **Delete n** and **Cancel**. Right-click a selected message for
+**Copy Selected as Text**, **Forward Selected**, **Delete Selected**,
+**Unpin Selected** and **Clear Selection**, or another one for **Select
+up to this message**. Several messages are copied as Telegram Desktop
+copies them, each as "[date time] Name: text". **Esc** ends selecting,
+**Ctrl/Cmd+C** copies and **Delete** deletes. In an empty composer **↑**
+edits your last message, and **Ctrl/Cmd+↑/↓** choose the message to
+reply to.
+
+The chat list is Telegram's: pinned chats first, in their order, with a
+pin; a muted chat's count in grey; archived chats behind one **Archived
+Chats** row; and each row says who wrote last and what ("🙂 Sticker",
+"Photo", with the picture). A chat read on another device keeps the
+count Telegram says is still unread.
 
 ```bash
 # saved automations and presets

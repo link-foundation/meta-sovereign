@@ -1,8 +1,9 @@
-// A message's menu and selecting messages, as Telegram's apps have them
-// (R-Y67): the menu's items and their order, where it opens, the
-// selection's clicks and Shift+clicks, what Copy puts on the clipboard,
-// t.me links, swipe to reply, the keyboard's reply and edit, and who may
-// pin. Fakes only — nothing here touches the network.
+// A message's menu and selecting messages, as Telegram Desktop has them
+// (R-Y67, R-Y68): the menu's items and their order (one message, a
+// photo, a link, a selection), where it opens, clicks, drags and "Select
+// up to this message", what Copy puts on the clipboard, the top bar,
+// t.me links, Quote & Reply, swipe to reply, the keyboard's reply and
+// edit, and who may pin. Fakes only — nothing here touches the network.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,12 +14,17 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { LocaleContext, translate } from '../src/web/i18n.js';
 import {
   MAX_SELECTED,
+  applyDrag,
+  bulkSelect,
   menuItems,
   messageLink,
+  quoteOf,
+  rangeOf,
   selectionText,
-  SelectionBar,
+  SelectionTop,
   toggleSelected,
 } from '../src/web/chat-selection.js';
+import { dragStarts, edgeScroll } from '../src/web/chat-drag.js';
 import { swipeOffset, SWIPE_REPLY_PX } from '../src/web/chat-gestures.js';
 import {
   DeleteDialog,
@@ -58,13 +64,14 @@ const render = (element, locale = 'en') =>
     )
   );
 
-test('the menu lists what Telegram does, in its order', () => {
-  const chat = { chat: '-1001234', personal: false };
+test('the menu lists what Telegram Desktop does, in its order', () => {
+  const chat = { chat: '-1001234', personal: false, kind: 'group' };
   assert.deepEqual(
     menuItems({ message: msg(1), chat, info: { canPin: true }, now: NOW }),
-    ['reply', 'copy', 'copyLink', 'pin', 'forward', 'select', 'delete']
+    ['reply', 'pin', 'copy', 'copyLink', 'forward', 'delete', 'select']
   );
-  // Own and recent: Edit; part of the text selected: Copy Selected Text.
+  // Own and recent: Edit; part of the text selected: Quote & Reply and
+  // Copy Selected Text first.
   assert.deepEqual(
     menuItems({
       message: msg(2, { sender: 'me' }),
@@ -72,9 +79,17 @@ test('the menu lists what Telegram does, in its order', () => {
       selectedText: 'ext',
       now: NOW,
     }),
-    ['reply', 'edit', 'copySelected', 'copyLink', 'forward', 'select', 'delete']
+    [
+      'quoteReply',
+      'copySelected',
+      'edit',
+      'copyLink',
+      'forward',
+      'delete',
+      'select',
+    ]
   );
-  // Too old to edit; pinned already; in the selection.
+  // Too old to edit; pinned already; a private chat has no link.
   assert.deepEqual(
     menuItems({
       message: msg(3, {
@@ -83,16 +98,80 @@ test('the menu lists what Telegram does, in its order', () => {
         raw: { pinned: true },
       }),
       chat: { chat: '42', personal: true },
-      selected: true,
       now: NOW,
     }),
-    ['reply', 'copy', 'unpin', 'forward', 'unselect', 'delete']
+    ['reply', 'unpin', 'copy', 'forward', 'delete', 'select']
   );
-  // Not sent yet: only Copy and Delete.
+  // Not sent yet: only Copy Text and Delete.
   assert.deepEqual(
     menuItems({ message: msg(4, { pending: true }), chat, now: NOW }),
     ['copy', 'delete']
   );
+  // A channel's post link; a link under the pointer is copied instead.
+  assert.ok(
+    menuItems({ message: msg(5), chat: { ...chat, kind: 'channel' } }).includes(
+      'copyPostLink'
+    )
+  );
+  const onLink = menuItems({
+    message: msg(5),
+    chat,
+    target: { url: 'https://example.org/' },
+  });
+  assert.ok(onLink.includes('copyUrl') && !onLink.includes('copyLink'));
+});
+
+test('a photo offers Save As and Copy Image; a sticker Save As', () => {
+  const chat = { chat: '-1001234', kind: 'group' };
+  assert.deepEqual(
+    menuItems({ message: msg(1), chat, target: { photo: true } }),
+    ['reply', 'saveAs', 'copyImage', 'copyLink', 'forward', 'delete', 'select']
+  );
+  assert.deepEqual(
+    menuItems({
+      message: msg(2, { body: '' }),
+      chat,
+      target: { sticker: true },
+    }),
+    ['reply', 'saveAs', 'copyLink', 'forward', 'delete', 'select']
+  );
+});
+
+test('with messages selected the menu is the selection’s', () => {
+  const order = [1, 2, 3, 4].map((id) => msg(id).id);
+  const selection = {
+    ids: [order[0]],
+    has: (id) => id === order[0],
+    canForward: true,
+    anyPinned: false,
+  };
+  const on = msg(1);
+  assert.deepEqual(menuItems({ message: on, selection, order }), [
+    'reply',
+    'copySelectedItems',
+    'forwardSelected',
+    'deleteSelected',
+    'clearSelection',
+  ]);
+  const other = msg(3);
+  assert.deepEqual(menuItems({ message: other, selection, order }), [
+    'reply',
+    'select',
+    'selectBulk',
+  ]);
+  assert.ok(
+    menuItems({
+      message: on,
+      selection: { ...selection, anyPinned: true, canForward: false },
+      order,
+    }).includes('unpinSelected')
+  );
+});
+
+test('a quote is only an exact part of the text', () => {
+  assert.equal(quoteOf(msg(1), ' text '), 'text');
+  assert.equal(quoteOf(msg(1), 'Alice text 1'), null);
+  assert.equal(quoteOf(msg(1), ''), null);
 });
 
 test('a channel message has a t.me link; other chats none', () => {
@@ -130,22 +209,52 @@ test('the menu opens at the pointer and stays inside the window', () => {
   );
 });
 
-test('the menu shows each item with its label', () => {
+test('the menu shows each item with Desktop’s label', () => {
   const html = render(
     React.createElement(MsgContextMenu, {
       x: 10,
       y: 10,
       message: msg(1),
-      items: ['reply', 'copyLink', 'pin', 'select', 'delete'],
+      items: [
+        'quoteReply',
+        'saveAs',
+        'copy',
+        'copyLink',
+        'pin',
+        'select',
+        'delete',
+      ],
       onClose: () => {},
       onAction: () => {},
     })
   );
-  for (const label of ['Reply', 'Copy link', 'Pin', 'Select', 'Delete']) {
+  for (const label of [
+    'Quote &amp; Reply',
+    'Save As…',
+    'Copy Text',
+    'Copy Message Link',
+    'Pin',
+    'Select',
+    'Delete',
+  ]) {
     assert.ok(html.includes(`>${label}</span>`), label);
   }
   assert.ok(html.includes('data-action="delete"'));
   assert.ok(html.includes('msg-context-reactions'));
+  const selected = render(
+    React.createElement(MsgContextMenu, {
+      x: 10,
+      y: 10,
+      message: msg(1),
+      items: ['copySelectedItems', 'clearSelection'],
+      reactions: false,
+      onClose: () => {},
+      onAction: () => {},
+    })
+  );
+  assert.ok(selected.includes('>Copy Selected as Text</span>'));
+  assert.ok(selected.includes('>Clear Selection</span>'));
+  assert.ok(!selected.includes('msg-context-reactions'));
 });
 
 test('a click adds or takes a message; Shift+click adds a range', () => {
@@ -170,18 +279,78 @@ test('at most a hundred messages are selected', () => {
   assert.equal(toggleSelected(state, 'm50', { order }).ids.length, 99);
 });
 
-test('Copy gives one message as it is, several under their names', () => {
-  assert.equal(selectionText([msg(1)]), 'text 1');
-  const text = selectionText(
-    [msg(3, { sender: 'me' }), msg(1), { ...msg(2), body: '' }],
-    { me: 'You' }
+test('a drag selects every message between; from a selected one, drops', () => {
+  const order = ['a', 'b', 'c', 'd', 'e'];
+  assert.deepEqual(rangeOf(order, 'd', 'b'), ['b', 'c', 'd']);
+  assert.deepEqual(rangeOf(order, 'a', 'z'), []);
+  assert.deepEqual(applyDrag(['a'], ['b', 'c'], true), ['a', 'b', 'c']);
+  assert.deepEqual(applyDrag(['a', 'b', 'c'], ['b', 'c'], false), ['a']);
+  const many = Array.from({ length: 120 }, (_, i) => `m${i}`);
+  assert.equal(applyDrag([], many, true).length, MAX_SELECTED);
+  // With nothing selected a drag starts once it leaves the message; with
+  // some selected, after a few pixels.
+  assert.equal(
+    dragStarts({ selecting: false, dx: 0, dy: 90, from: 'a', over: 'a' }),
+    false
   );
-  const lines = text.split('\n');
-  assert.match(lines[0], /^Alice, \[\d\d\.\d\d\.2026 \d\d:\d\d\]$/);
-  assert.equal(lines[1], 'text 1');
-  assert.equal(lines[2], '');
-  assert.match(lines[3], /^You, \[/);
-  assert.equal(lines[4], 'text 3');
+  assert.equal(
+    dragStarts({ selecting: false, dx: 0, dy: 90, from: 'a', over: 'b' }),
+    true
+  );
+  assert.equal(
+    dragStarts({ selecting: true, dx: 2, dy: 1, from: 'a', over: 'a' }),
+    false
+  );
+  assert.equal(
+    dragStarts({ selecting: true, dx: 3, dy: 2, from: 'a', over: 'a' }),
+    true
+  );
+  // Near the list's edges the list scrolls.
+  assert.ok(edgeScroll(105, 100, 700) < 0);
+  assert.ok(edgeScroll(695, 100, 700) > 0);
+  assert.equal(edgeScroll(400, 100, 700), 0);
+});
+
+test('Select up to this message adds from the nearest selected', () => {
+  const order = ['a', 'b', 'c', 'd', 'e', 'f'];
+  assert.deepEqual(bulkSelect(['b', 'f'], 'd', order), ['b', 'f', 'c', 'd']);
+  assert.deepEqual(bulkSelect(['b', 'f'], 'e', order), ['b', 'f', 'e']);
+  assert.equal(bulkSelect(['b'], 'b', order), null);
+  assert.equal(bulkSelect([], 'b', order), null);
+  const many = Array.from({ length: 150 }, (_, i) => `m${i}`);
+  assert.equal(bulkSelect(['m0'], 'm140', many), null, 'past 100: no');
+});
+
+test('Copy gives one message as it is, several as Desktop does', () => {
+  assert.equal(selectionText([msg(1)]), 'text 1');
+  const describe = (m) => ({
+    author: m.sender === 'me' ? 'Konstantin' : m.senderName,
+    text: m.body,
+    media: m.photo ? 'Photo' : null,
+    reply: m.replyName
+      ? { name: m.replyName, label: `in reply to ${m.replyName}`, text: 'hi' }
+      : null,
+  });
+  const text = selectionText(
+    [
+      msg(3, { sender: 'me', replyName: 'Alice' }),
+      msg(1),
+      msg(2, { body: 'nice', photo: true }),
+    ],
+    { describe, stamp: (m) => `T${m.id.split(':').pop()}` }
+  );
+  assert.equal(
+    text,
+    [
+      '[T1] Alice: text 1',
+      '[T2] Alice: [ Photo ]',
+      '',
+      'nice',
+      '[T3] Konstantin in reply to Alice:',
+      '> hi',
+      'text 3',
+    ].join('\n')
+  );
 });
 
 test('a swipe to the left replies; a scroll is no swipe', () => {
@@ -234,7 +403,7 @@ test('who may pin, as Telegram decides', () => {
   assert.equal(canPinIn({ bannedRights: { pinMessages: true } }), false);
 });
 
-test('selected messages show a check and the bar counts them', () => {
+test('selected messages show a check; the top bar counts them', () => {
   const html = render(
     React.createElement(MessageBubble, {
       message: msg(1),
@@ -247,18 +416,44 @@ test('selected messages show a check and the bar counts them', () => {
   assert.ok(html.includes('is-selected'));
   assert.ok(html.includes('bubble-check is-checked'));
   assert.ok(html.includes('aria-selected="true"'));
-  const bar = render(
-    React.createElement(SelectionBar, {
+  assert.ok(html.includes(`data-row="${msg(1).id}"`));
+  const top = render(
+    React.createElement(SelectionTop, {
       count: 3,
       onClear: () => {},
-      onCopy: () => {},
       onForward: () => {},
       onDelete: () => {},
     })
   );
-  assert.ok(bar.includes('3 messages'));
-  const ru = render(React.createElement(SelectionBar, { count: 5 }), 'ru');
-  assert.ok(ru.includes('5 сообщений'));
+  assert.match(
+    top,
+    /data-action="forward"[^>]*><span>Forward<\/span><span class="selection-top-count">3</
+  );
+  assert.match(
+    top,
+    /data-action="delete"[^>]*><span>Delete<\/span><span class="selection-top-count">3</
+  );
+  assert.match(top, /data-action="clear"[^>]*><span>Cancel</);
+  const unsent = render(
+    React.createElement(SelectionTop, { count: 2, canForward: false })
+  );
+  assert.ok(!unsent.includes('data-action="forward"'));
+  const ru = render(React.createElement(SelectionTop, { count: 5 }), 'ru');
+  assert.ok(ru.includes('Удалить'));
+});
+
+test('a group’s incoming message has Desktop’s corner Reply', () => {
+  const row = (extra) =>
+    render(
+      React.createElement(MessageBubble, {
+        message: msg(1, extra),
+        isPersonal: false,
+        onAction: () => {},
+        fastReply: true,
+      })
+    );
+  assert.ok(row({}).includes('class="bubble-fast-reply"'));
+  assert.ok(!row({ sender: 'me' }).includes('bubble-fast-reply'));
 });
 
 test('deleting several asks once; a pin asks as Telegram does', () => {

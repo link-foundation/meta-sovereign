@@ -221,13 +221,14 @@ export const createPageReader = (env, tools) => {
   // Each listed chat's read state and newest message (its row in Chat).
   const listedLinks = (listed) => {
     const links = [];
+    const ranks = tools.pinnedRanks?.(listed) ?? new Map();
     for (const dialog of listed) {
       const chat = idOf(dialog?.id);
       if (!chat) {
         continue;
       }
       env.live?.chats?.set(chat, tools.dialogInfo(chat, dialog.entity));
-      links.push(tools.dialogReadLink(chat, dialog));
+      links.push(tools.dialogReadLink(chat, dialog, ranks.get(dialog)));
       if (dialog.message) {
         links.push(...tools.toLinks(dialog, [dialog.message]));
       }

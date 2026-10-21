@@ -1,0 +1,239 @@
+// Real browser e2e for Telegram Desktop's selection and menu (R-Y68).
+// Fake messages in a memory store, a server on a free port, headless
+// Chromium; nothing reaches Telegram or a running app. Not part of
+// `npm test`; run it with:
+//
+//   RUN_BROWSER_E2E=1 npm run test:e2e:selection
+
+import { mkdtemp, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { startServer } from '../src/server/index.js';
+import { createMemoryStore } from '../src/storage/universal.js';
+
+const skip = (msg) => {
+  console.log(`[e2e-chat-selection] SKIP: ${msg}`);
+  process.exit(0);
+};
+if (!process.env.RUN_BROWSER_E2E) {
+  skip('RUN_BROWSER_E2E not set');
+}
+let chromium;
+try {
+  ({ chromium } = await import('playwright'));
+} catch {
+  skip('playwright not installed');
+}
+
+const assert = (cond, msg) => {
+  if (!cond) {
+    throw new Error(`assertion failed: ${msg}`);
+  }
+};
+const CHAT = '-1001234';
+const idOf = (n) => `msg:telegram:${CHAT}:${n}`;
+
+const store = createMemoryStore();
+const now = Date.now();
+const names = ['Alice', 'Bob', 'Carol'];
+for (let i = 1; i <= 14; i++) {
+  const mine = i % 4 === 0;
+  await store.put({
+    id: idOf(i),
+    source: 'telegram',
+    chat: CHAT,
+    chatName: 'Fake Group',
+    chatType: 'supergroup',
+    sender: mine ? 'me' : `u${i % 3}`,
+    senderName: mine ? 'me' : names[i % 3],
+    body: `fake message number ${i}`,
+    timestamp: new Date(now - (20 - i) * 60_000).toISOString(),
+    raw: { id: i },
+  });
+}
+const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-selection-'));
+const handle = await startServer({
+  port: 0,
+  storeDir: dir,
+  store,
+  enableSync: false,
+  enableHandlers: false,
+  telegramAccount: false,
+  log: null,
+});
+const base = `http://127.0.0.1:${handle.port}`;
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext({
+  viewport: { width: 1100, height: 800 },
+});
+await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
+  origin: base,
+});
+const page = await context.newPage();
+const errors = [];
+page.on('pageerror', (e) => errors.push(String(e)));
+
+// The message's text, scrolled into view.
+const bodyBox = async (n) => {
+  const body = page.locator(`[data-row="${idOf(n)}"] .bubble-body`);
+  await body.scrollIntoViewIfNeeded();
+  return body.boundingBox();
+};
+const at = async (n, dx = 0) => {
+  const b = await bodyBox(n);
+  return [b.x + 10 + dx, b.y + b.height / 2];
+};
+const top = () =>
+  page
+    .locator('.selection-top')
+    .innerText()
+    .then((s) => s.replace(/\s+/g, ' ').trim())
+    .catch(() => null);
+const menu = () =>
+  page.$$eval('[role=menu] [data-action]', (n) =>
+    n.map((e) => e.dataset.action)
+  );
+const rightClick = async (n) => {
+  await page.mouse.click(...(await at(n, 40)), { button: 'right' });
+  await page.waitForSelector('[role=menu] [data-action]', { timeout: 3000 });
+};
+const pause = () => page.waitForTimeout(200);
+
+let failed = false;
+try {
+  await page.goto(`${base}/#chat=telegram:${CHAT}`);
+  await page.waitForSelector('[data-row]', { timeout: 15000 });
+  await page.waitForTimeout(500);
+
+  // One message's menu, in Desktop's order.
+  await rightClick(2);
+  assert(
+    JSON.stringify(await menu()) ===
+      JSON.stringify([
+        'reply',
+        'copy',
+        'copyLink',
+        'forward',
+        'delete',
+        'select',
+      ]),
+    `single menu: ${await menu()}`
+  );
+  await page.keyboard.press('Escape');
+  await pause();
+
+  // A drag from message to message selects them all.
+  const [x3, y3] = await at(3, 60);
+  const [, y6] = await at(6);
+  await page.mouse.move(x3, y3);
+  await page.mouse.down();
+  for (let k = 1; k <= 10; k++) {
+    await page.mouse.move(x3, y3 + ((y6 - y3) * k) / 10);
+  }
+  await page.mouse.up();
+  await pause();
+  assert((await top()) === 'FORWARD 4 DELETE 4 CANCEL', `drag: ${await top()}`);
+
+  // A selected message's menu; Esc closes only the menu.
+  await rightClick(4);
+  assert(
+    JSON.stringify(await menu()) ===
+      JSON.stringify([
+        'reply',
+        'copySelectedItems',
+        'forwardSelected',
+        'deleteSelected',
+        'clearSelection',
+      ]),
+    `selected menu: ${await menu()}`
+  );
+  await page.keyboard.press('Escape');
+  await pause();
+  assert((await top()) === 'FORWARD 4 DELETE 4 CANCEL', 'Esc kept selection');
+
+  // Another message's menu: Select up to this message.
+  await rightClick(9);
+  assert(
+    JSON.stringify(await menu()) ===
+      JSON.stringify(['reply', 'select', 'selectBulk']),
+    `other menu: ${await menu()}`
+  );
+  await page.click('[role=menu] [data-action="selectBulk"]');
+  await pause();
+  assert((await top()) === 'FORWARD 7 DELETE 7 CANCEL', `bulk: ${await top()}`);
+
+  // A click takes one away.
+  await page.mouse.click(...(await at(5, 40)));
+  await pause();
+  assert(
+    (await top()) === 'FORWARD 6 DELETE 6 CANCEL',
+    `click: ${await top()}`
+  );
+
+  // Copy Selected as Text, as Desktop copies.
+  await rightClick(7);
+  await page.click('[role=menu] [data-action="copySelectedItems"]');
+  await pause();
+  const copied = await page.evaluate(() =>
+    globalThis.navigator.clipboard.readText()
+  );
+  const lines = copied.split('\n');
+  assert(lines.length === 6, `copied lines: ${lines.length}`);
+  assert(
+    /^\[.+\] Alice: fake message number 3$/.test(lines[0]),
+    `copied: ${lines[0]}`
+  );
+  assert(/\] You: fake message number 4$/.test(lines[1]), `own: ${lines[1]}`);
+
+  // Delete n asks; Esc closes the question and keeps the selection.
+  await page.click('.selection-top [data-action="delete"]');
+  await pause();
+  assert(
+    /Delete 6 messages\?/.test(await page.locator('[role=dialog]').innerText()),
+    'delete question'
+  );
+  await page.keyboard.press('Escape');
+  await pause();
+  assert((await page.locator('[role=dialog]').count()) === 0, 'dialog closed');
+  assert((await top()) === 'FORWARD 6 DELETE 6 CANCEL', 'kept after dialog');
+
+  // Esc ends selecting.
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  assert((await page.locator('.selection-top').count()) === 0, 'Esc clears');
+
+  // Text selection within a message; past it, messages.
+  const [tx, ty] = await at(6, -5);
+  await page.mouse.move(tx, ty);
+  await page.mouse.down();
+  await page.mouse.move(tx + 80, ty, { steps: 5 });
+  assert(
+    (await page.evaluate(() => globalThis.getSelection().toString().length)) >
+      0,
+    'text selects inside one message'
+  );
+  assert((await page.locator('.selection-top').count()) === 0, 'no rows yet');
+  const [, ty7] = await at(7);
+  await page.mouse.move(tx + 60, ty7, { steps: 8 });
+  await page.mouse.up();
+  await pause();
+  assert(
+    (await top()) === 'FORWARD 2 DELETE 2 CANCEL',
+    `text→rows: ${await top()}`
+  );
+  assert(
+    (await page.evaluate(() => globalThis.getSelection().toString().length)) ===
+      0,
+    'text selection dropped'
+  );
+  assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
+  console.log('[e2e-chat-selection] OK');
+} catch (error) {
+  failed = true;
+  console.error('[e2e-chat-selection] FAIL:', error.message.split('\n')[0]);
+} finally {
+  await browser.close();
+  await handle.close();
+  await rm(dir, { recursive: true, force: true });
+}
+process.exit(failed ? 1 : 0);

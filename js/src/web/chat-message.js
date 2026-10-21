@@ -10,7 +10,14 @@
 //   - edited: "edited" before the time;
 //   - service messages: centred one-line pill.
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { createPortal } from 'react-dom';
 import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
@@ -87,7 +94,7 @@ export const mediaLabel = (t, media) => {
   return key ? t(key) : '';
 };
 
-const quotedText = (t, replyRef) => {
+export const quotedText = (t, replyRef) => {
   if (replyRef.deleted) {
     return t('chat.replyDeleted');
   }
@@ -102,9 +109,15 @@ const quotedText = (t, replyRef) => {
   return replyRef.loaded === false ? '…' : '';
 };
 
-const quotedName = (t, replyRef) => {
+/**
+ * The user's own name and the page's api, for a quote of their message
+ * (Telegram names the user there, not "You") and its picture.
+ */
+export const QuoteContext = createContext({ selfName: null, api: null });
+
+export const quotedName = (t, replyRef, selfName) => {
   if (replyRef.sender === 'me' || replyRef.senderName === 'me') {
-    return t('chat.you');
+    return selfName || t('chat.you');
   }
   return (
     replyRef.senderName ?? (replyRef.loaded === false ? '…' : t('chat.reply'))
@@ -113,14 +126,53 @@ const quotedName = (t, replyRef) => {
 
 // The bar above a reply: who wrote the original, in their colour, and
 // one line of it (Telegram's `EmbeddedMessage`); a click goes to it.
+// A quoted photo, video or sticker: its small picture, sharp once the
+// server has it, blurred until then (Telegram's `EmbeddedMessage`).
+const QuoteThumb = ({ media, chat, msgId }) => {
+  const { api } = useContext(QuoteContext);
+  const [sharp, setSharp] = useState(null);
+  const pictured =
+    media?.kind === 'photo' ||
+    (media?.kind === 'document' &&
+      (media.isVideo || media.isSticker) &&
+      (media.hasThumb || media.isSticker));
+  useEffect(() => {
+    if (!pictured || !chat || !msgId || !api?.telegramMediaUrl) {
+      return undefined;
+    }
+    let active = true;
+    api
+      .telegramMediaUrl({ chat, id: msgId, size: 's' })
+      .then((url) => active && setSharp(url ?? null))
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [api, chat, msgId, pictured]);
+  if (!pictured) {
+    return null;
+  }
+  const blurred = strippedJpegDataUrl(media.strippedB64);
+  const src = sharp ?? blurred;
+  return src
+    ? el('img', {
+        className: `bubble-reply-thumb${media.isSticker ? ' is-sticker' : ''}`,
+        src,
+        alt: '',
+        onError: () => setSharp(null),
+      })
+    : null;
+};
+
 export const ReplyQuote = ({ replyRef, onScrollTo }) => {
   const t = useT();
+  const { selfName } = useContext(QuoteContext);
   if (!replyRef) {
     return null;
   }
   const loaded = replyRef.sender !== null || replyRef.deleted;
   const ref = { ...replyRef, loaded };
-  const senderName = quotedName(t, ref);
+  const senderName = quotedName(t, ref, selfName);
   const text = quotedText(t, ref);
   const label = `${t('chat.replyingTo', { name: senderName })}: ${text}`;
   const color =
@@ -139,14 +191,24 @@ export const ReplyQuote = ({ replyRef, onScrollTo }) => {
       onClick: () => onScrollTo?.(replyRef.linkId),
       onKeyDown: (e) => e.key === 'Enter' && onScrollTo?.(replyRef.linkId),
     },
-    [
-      el('span', { key: 'name', className: 'bubble-reply-name' }, senderName),
-      el(
-        'span',
-        { key: 'text', className: 'bubble-reply-text' },
-        text.length > 160 ? `${text.slice(0, 160)}…` : text || '\u00a0'
-      ),
-    ]
+    el('span', { className: 'bubble-reply-row' }, [
+      ref.deleted
+        ? null
+        : el(QuoteThumb, {
+            key: 'thumb',
+            media: ref.media,
+            chat: chatIdOf(ref.linkId),
+            msgId: ref.msgId,
+          }),
+      el('span', { key: 'lines', className: 'bubble-reply-lines' }, [
+        el('span', { key: 'name', className: 'bubble-reply-name' }, senderName),
+        el(
+          'span',
+          { key: 'text', className: 'bubble-reply-text' },
+          text.length > 160 ? `${text.slice(0, 160)}…` : text || '\u00a0'
+        ),
+      ]),
+    ])
   );
 };
 
@@ -374,19 +436,47 @@ export const QUICK_REACTIONS = Object.freeze([
   '🔥',
 ]);
 
-// Each menu item's label key and icon.
+// Each menu item's label key and icon, as Telegram Desktop names them.
 const MENU_ITEMS = {
   reply: ['chat.reply', 'reply'],
+  quoteReply: ['chat.quoteReply', 'quote'],
   edit: ['chat.edit', 'edit'],
-  copy: ['chat.copy', 'copy'],
-  copySelected: ['chat.copySelected', 'copy'],
-  copyLink: ['chat.copyLink', 'link'],
   pin: ['chat.pin', 'pin'],
   unpin: ['chat.unpin', 'pin'],
+  saveAs: ['chat.saveAs', 'download'],
+  copyImage: ['chat.copyImage', 'image'],
+  copy: ['chat.copy', 'copy'],
+  copySelected: ['chat.copySelected', 'copy'],
+  copyUrl: ['chat.copyUrl', 'link'],
+  copyLink: ['chat.copyLink', 'link'],
+  copyPostLink: ['chat.copyPostLink', 'link'],
   forward: ['chat.forward', 'forward'],
-  select: ['chat.select', 'select'],
-  unselect: ['chat.unselect', 'select'],
   delete: ['chat.delete', 'trash'],
+  select: ['chat.select', 'select'],
+  selectBulk: ['chat.selectBulk', 'select'],
+  copySelectedItems: ['chat.copySelectedItems', 'copy'],
+  forwardSelected: ['chat.forwardSelected', 'forward'],
+  deleteSelected: ['chat.deleteSelected', 'trash'],
+  unpinSelected: ['chat.unpinSelected', 'pin'],
+  clearSelection: ['chat.clearSelection', 'select'],
+};
+
+// Delete is drawn in red, as Desktop draws it.
+const DANGER = new Set(['delete', 'deleteSelected']);
+
+// What an item acts on besides the message: the text selected, the
+// link, whether a photo or sticker is saved.
+const itemValue = (key, { selectedText, target }) => {
+  if (key === 'copySelected' || key === 'quoteReply') {
+    return selectedText;
+  }
+  if (key === 'copyUrl') {
+    return target?.url;
+  }
+  if (key === 'saveAs') {
+    return target?.photo ? 'photo' : 'sticker';
+  }
+  return undefined;
 };
 
 // Kept inside the window, with this margin (px).
@@ -414,10 +504,10 @@ export const menuPlace = (point, size, view) => {
   };
 };
 
-// The menu closes as Telegram's does: a press outside, Esc, a scroll,
-// the window resized or left. The listeners stay for the menu's life and
-// call the latest `onClose`: put back on each render, they would miss
-// the very key that made React render.
+// The menu closes as Telegram's does: a press outside, Esc, the user
+// scrolling, the window resized or left. The listeners stay for the
+// menu's life and call the latest `onClose`: put back on each render,
+// they would miss the very key that made React render.
 const useMenuClose = (ref, onClose) => {
   const latest = useRef(onClose);
   latest.current = onClose;
@@ -438,7 +528,10 @@ const useMenuClose = (ref, onClose) => {
       ['mousedown', outside],
       ['touchstart', outside],
       ['keydown', key],
-      ['scroll', outside, true],
+      // The user scrolling closes it; the list moving by itself (older
+      // messages loading, keeping its place) does not.
+      ['wheel', outside, { capture: true, passive: true }],
+      ['touchmove', outside, { capture: true, passive: true }],
       ['resize', close],
       ['blur', close],
     ];
@@ -498,6 +591,8 @@ export const MsgContextMenu = ({
   message,
   items,
   selectedText = '',
+  target = {},
+  reactions = true,
   onClose,
   onAction,
 }) => {
@@ -524,9 +619,9 @@ export const MsgContextMenu = ({
   }, [x, y]);
   const choose = (key) => {
     onClose();
-    onAction(key, message, key === 'copySelected' ? selectedText : undefined);
+    onAction(key, message, itemValue(key, { selectedText, target }));
   };
-  const reacts = !message.pending && message.source !== undefined;
+  const reacts = reactions && !message.pending && message.source !== undefined;
   const menu = el(
     'ul',
     {
@@ -550,7 +645,7 @@ export const MsgContextMenu = ({
             role: 'menuitem',
             tabIndex: 0,
             'data-action': key,
-            className: key === 'delete' ? 'msg-context-delete' : undefined,
+            className: DANGER.has(key) ? 'msg-context-delete' : undefined,
             onClick: () => choose(key),
             onKeyDown: (e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -623,6 +718,22 @@ export const EditDialog = ({ message, onClose, onSave }) => {
   );
 };
 
+// Esc closes a dialog, as it closes Telegram Desktop's boxes.
+const useEscClose = (onClose) => {
+  const latest = useRef(onClose);
+  latest.current = onClose;
+  useEffect(() => {
+    const key = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        latest.current?.();
+      }
+    };
+    globalThis.addEventListener?.('keydown', key);
+    return () => globalThis.removeEventListener?.('keydown', key);
+  }, []);
+};
+
 // ---- Delete dialog (in-page, never window.confirm) ----------------------
 
 /**
@@ -637,6 +748,7 @@ export const DeleteDialog = ({
   onDelete,
 }) => {
   const t = useT();
+  useEscClose(onClose);
   const allMine = messages.every((m) => m.sender === 'me');
   return el(
     'div',
@@ -702,6 +814,7 @@ export const DeleteDialog = ({
  */
 export const PinDialog = ({ where, name = '', onClose, onPin }) => {
   const t = useT();
+  useEscClose(onClose);
   const [forAll, setForAll] = useState(true);
   const ask = {
     personal: 'chat.pinAskChat',
@@ -764,6 +877,7 @@ export const PinDialog = ({ where, name = '', onClose, onPin }) => {
 
 export const ForwardPicker = ({ chats, onClose, onForward }) => {
   const t = useT();
+  useEscClose(onClose);
   const [q, setQ] = useState('');
   const filtered = chats.filter((c) =>
     c.name.toLowerCase().includes(q.toLowerCase())
@@ -879,10 +993,10 @@ const BubbleMedia = ({ parts, api, chat, netId }) => {
   return null;
 };
 
-// Media drawn with no bubble around it, as Telegram draws them.
+// Media drawn with no bubble around it, as Telegram draws them; a reply
+// above it gets a small bubble of its own.
 const bare = (parts) =>
   !parts.text &&
-  !parts.replyRef &&
   !parts.fwdFrom &&
   ['sticker', 'round'].includes(parts.media?.type);
 
@@ -989,20 +1103,38 @@ const itemsOf = (menuFor, message, options) =>
   menuFor ? menuFor(message, options) : menuItems({ message, ...options });
 
 // The message's menu, when one is open.
-const openMenu = ({ menu, shown, message, menuFor, selected, ...rest }) =>
+const openMenu = ({ menu, shown, message, menuFor, selecting, ...rest }) =>
   menu && shown
     ? el(MsgContextMenu, {
         key: 'menu',
         x: menu.x,
         y: menu.y,
         message,
-        items: itemsOf(menuFor, message, { selectedText: menu.text, selected }),
+        items: itemsOf(menuFor, message, {
+          selectedText: menu.text,
+          target: menu.target,
+        }),
         selectedText: menu.text,
+        target: menu.target,
+        // Desktop's reactions strip tops the menu of one message.
+        reactions: !selecting,
         ...rest,
       })
     : null;
 
-// The round check a message shows while messages are selected.
+// What the pointer is on: a link (its address), a photo, a sticker.
+const targetOf = (node) => {
+  const link = node?.closest?.('a[href]');
+  const href = link?.getAttribute?.('href') ?? '';
+  return {
+    url: /^(https?:|mailto:|tg:)/i.test(href) ? link.href : null,
+    photo: Boolean(node?.closest?.('.bubble-photo')),
+    sticker: Boolean(node?.closest?.('.bubble-sticker')),
+  };
+};
+
+// The round check a message shows while messages are selected, at the
+// row's right end (Telegram Desktop).
 const SelectCheck = ({ selected }) =>
   el(
     'span',
@@ -1015,11 +1147,12 @@ const SelectCheck = ({ selected }) =>
   );
 
 /**
- * The row's ways in, as in Telegram: right-click (or a long press) opens
- * the menu where it happened, a double-click (or a swipe to the left)
- * replies, a double tap reacts with 👍; while messages are selected a
- * click anywhere on the row adds or takes the message (Shift+click a
- * range) and nothing inside it opens.
+ * The row's ways in, as in Telegram Desktop: right-click (or a long
+ * press) opens the menu where it happened, a double-click (or a swipe to
+ * the left) replies, a double tap reacts with 👍; while messages are
+ * selected a click anywhere on the row adds or takes the message
+ * (Shift+click a range), a right-click anywhere opens the selection's
+ * menu, and nothing inside the row opens.
  */
 const useRowHandlers = ({
   row,
@@ -1031,8 +1164,12 @@ const useRowHandlers = ({
   onAction,
   setMenu,
 }) => {
-  const open = (point) => {
-    setMenu({ ...point, text: selectedTextIn(bubble.current) });
+  const open = (point, node = null) => {
+    setMenu({
+      ...point,
+      text: selectedTextIn(bubble.current),
+      target: targetOf(node),
+    });
   };
   const touch = useTouchGestures({
     rowRef: row,
@@ -1050,11 +1187,18 @@ const useRowHandlers = ({
   if (selecting) {
     return {
       onClickCapture: (e) => {
+        // The row's own menu takes its clicks.
+        if (e.target.closest?.('[role="menu"]')) {
+          return;
+        }
         e.preventDefault();
         e.stopPropagation();
         onSelect?.(message.id, { shift: e.shiftKey });
       },
-      onContextMenu: (e) => e.preventDefault(),
+      onContextMenu: (e) => {
+        e.preventDefault();
+        open(menuPoint(e, row.current));
+      },
     };
   }
   return {
@@ -1064,7 +1208,7 @@ const useRowHandlers = ({
         return;
       }
       e.preventDefault();
-      open(menuPoint(e, bubble.current));
+      open(menuPoint(e, bubble.current), e.target);
     },
     onDoubleClick: (e) => {
       if (!bubble.current?.contains(e.target) || message.pending) {
@@ -1095,8 +1239,9 @@ const useRowHandlers = ({
  *   onAction    — (action, message, value) => void
  *   menuFor     — (message, { selectedText, selected }) => menu items
  *   selecting   — messages are being selected
- *   selected    — this one is among them
+ *   selected    — this one is among them (or a drag is taking it)
  *   onSelect    — (id, { shift }) => void
+ *   fastReply   — show Desktop's corner "Reply" on hover (groups)
  */
 export const MessageBubble = ({
   message,
@@ -1113,6 +1258,7 @@ export const MessageBubble = ({
   selecting = false,
   selected = false,
   onSelect,
+  fastReply = false,
 }) => {
   const t = useT();
   const { time } = useDates();
@@ -1151,18 +1297,16 @@ export const MessageBubble = ({
     'div',
     {
       ref: row,
-      ...rowProps(mine, leaving, run, { selecting, selected }),
+      ...rowProps(mine, leaving, run, { selecting, selected, id: message.id }),
       ...handlers,
     },
     [
-      selecting ? el(SelectCheck, { key: 'check', selected }) : null,
       isPersonal || mine
         ? null
         : el(MsgAvatar, { key: 'av', message, show: showAvatar, api }),
-      el(
-        'div',
-        bubbleProps,
+      el('div', bubbleProps, [
         el(BubbleContent, {
+          key: 'content',
           parts,
           message,
           showName,
@@ -1174,20 +1318,48 @@ export const MessageBubble = ({
           onScrollTo,
           time,
           t,
-        })
-      ),
+        }),
+        fastReply && !selecting && canFastReply(message, mine, onAction)
+          ? el(FastReply, {
+              key: 'fast',
+              onReply: () => onAction('reply', message),
+              t,
+            })
+          : null,
+      ]),
+      selecting ? el(SelectCheck, { key: 'check', selected }) : null,
       openMenu({
         menu,
-        shown: !leaving && !selecting,
+        shown: !leaving,
         message,
         menuFor,
-        selected,
+        selecting,
         onClose: () => setMenu(null),
         onAction,
       }),
     ]
   );
 };
+
+const canFastReply = (message, mine, onAction) =>
+  !mine && !message.pending && typeof onAction === 'function';
+
+// Desktop's corner "Reply": in a group, at an incoming bubble's top
+// right while the pointer is on it.
+const FastReply = ({ onReply, t }) =>
+  el(
+    'button',
+    {
+      type: 'button',
+      className: 'bubble-fast-reply',
+      onClick: (e) => {
+        e.stopPropagation();
+        onReply();
+      },
+      onDoubleClick: (e) => e.stopPropagation(),
+    },
+    t('chat.reply')
+  );
 
 // A leaving message's row closes its place (./chat-leaving.js).
 const useLeavingRow = (row, message) => {
@@ -1201,7 +1373,12 @@ const useLeavingRow = (row, message) => {
 
 // Where in a run of one sender's messages the row is: Telegram rounds
 // the bubbles' inner corners between them.
-const rowProps = (mine, leaving, run = {}, { selecting, selected } = {}) => ({
+const rowProps = (
+  mine,
+  leaving,
+  run = {},
+  { selecting, selected, id } = {}
+) => ({
   className: [
     'bubble-row',
     leaving ? 'is-leaving' : null,
@@ -1211,6 +1388,7 @@ const rowProps = (mine, leaving, run = {}, { selecting, selected } = {}) => ({
     .filter(Boolean)
     .join(' '),
   ...(selecting ? { 'aria-selected': selected ? 'true' : 'false' } : {}),
+  ...(leaving ? {} : { 'data-row': id }),
   'data-mine': mine ? 'true' : undefined,
   'data-run-first': run.first === false ? undefined : 'true',
   'data-run-last': run.last === false ? undefined : 'true',

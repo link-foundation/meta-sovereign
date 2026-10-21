@@ -128,16 +128,55 @@ export const CHAT_SORTS = Object.freeze(['latest', 'oldest']);
 
 const lastAt = (chat) => Date.parse(chat?.last?.at ?? '') || 0;
 
-/** The chats in `order`; a pinned or unknown order keeps newest first. */
-export const sortChats = (chats = [], order = 'latest') =>
-  order === 'oldest' ? [...chats].sort((a, b) => lastAt(a) - lastAt(b)) : chats;
+/**
+ * The chats in `order`. Newest first (Telegram's order) puts the pinned
+ * chats on top, in their pinned order; oldest first is by time only.
+ */
+export const sortChats = (chats = [], order = 'latest') => {
+  if (order === 'oldest') {
+    return [...chats].sort((a, b) => lastAt(a) - lastAt(b));
+  }
+  const pinned = chats
+    .filter((c) => c.pinned > 0)
+    .sort((a, b) => a.pinned - b.pinned);
+  return pinned.length === 0
+    ? chats
+    : [...pinned, ...chats.filter((c) => !(c.pinned > 0))];
+};
+
+/**
+ * The chats of one of Telegram's two lists (R-Y68): `main`, or
+ * `archive` — the chats the user archived.
+ */
+export const folderChats = (chats = [], folder = 'main') =>
+  chats.filter((c) => Boolean(c.archived) === (folder === 'archive'));
+
+/**
+ * The "Archived Chats" row: how many, their unread total, and the names
+ * of the newest, those with unread messages first (as Telegram lists
+ * them under the row).
+ */
+export const archiveSummary = (chats = []) => {
+  const archived = folderChats(chats, 'archive');
+  const unread = archived.filter((c) => c.unread > 0);
+  return {
+    count: archived.length,
+    unread: unread.reduce((sum, c) => sum + c.unread, 0),
+    names: [...unread, ...archived.filter((c) => !(c.unread > 0))]
+      .slice(0, 8)
+      .map((c) => c.name),
+  };
+};
+
+// Muted until a time to come (Unix seconds), as Telegram says.
+const mutedNow = (read, now) => Number(read?.muteUntil ?? 0) * 1000 > now;
 
 export const filterChats = (chats = [], filter = 'all') =>
   filter === 'all' || !CHAT_FILTERS.includes(filter)
     ? chats
     : chats.filter((c) => (c.kind ?? 'private') === filter);
 
-const summarize = (key, messages, self, read = null) => {
+const summarize = (key, messages, self, read = null, now = Date.now()) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
   const people = new Set(
@@ -159,10 +198,17 @@ const summarize = (key, messages, self, read = null) => {
     count: sorted.length,
     unread: unreadCount(sorted, read, self),
     ...unreadMarks(sorted, read, self),
+    // How Telegram lists it (R-Y68).
+    muted: mutedNow(read, now),
+    pinned: Number(read?.pinnedRank ?? 0) || 0,
+    archived: Number(read?.folder ?? 0) === 1,
     last: {
       body: String(last.body ?? ''),
       mine: isMine(last, self),
       at: last.timestamp ?? null,
+      senderName: last.senderName ?? null,
+      // The message itself: what it holds when it has no text.
+      message: last,
     },
     search: fold(
       [title, last.chat, last.source, ...sorted.map((m) => m.body)].join('\n')

@@ -111,6 +111,11 @@ const buildDraft = (body) => {
       : null;
   const replyTo =
     typeof body.replyTo === 'number' && body.replyTo > 0 ? body.replyTo : null;
+  // The part of it quoted (Quote & Reply); Telegram takes up to 1024.
+  const replyQuote =
+    replyTo && typeof body.replyQuote === 'string' && body.replyQuote.trim()
+      ? body.replyQuote.slice(0, 1024)
+      : null;
   return {
     source: body.source,
     chat: String(body.chat),
@@ -118,6 +123,7 @@ const buildDraft = (body) => {
     text: String(body.text),
     ...(clientId ? { clientId } : {}),
     ...(replyTo ? { replyTo } : {}),
+    ...(replyQuote ? { replyQuote } : {}),
   };
 };
 

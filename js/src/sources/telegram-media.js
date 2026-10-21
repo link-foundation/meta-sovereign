@@ -30,6 +30,12 @@ const CHAT = /^-?\d{1,20}$/;
 const text = (value) =>
   value === null || value === undefined ? null : String(value.value ?? value);
 
+// GramJS sizes its download parts by `fileSize.lesser(…)`: a plain
+// number throws ("fileSize.lesser is not a function"), so every photo,
+// sticker and file would fail.
+const bigSize = (helpers, size) =>
+  helpers.returnBigInt(String(Math.max(0, Math.floor(Number(size) || 0))));
+
 const bytesOf = (value) => {
   if (value instanceof Uint8Array) {
     return Buffer.from(value);
@@ -153,7 +159,10 @@ export const createMediaReader = ({
     const { Api, helpers } = await importer();
     const buffer = await client.downloadFile(
       locationOf(Api, helpers, picture),
-      { dcId: Number(picture.file.dcId), fileSize: MAX_BYTES }
+      {
+        dcId: Number(picture.file.dcId),
+        fileSize: bigSize(helpers, MAX_BYTES),
+      }
     );
     return buffer?.length ? Buffer.from(buffer) : null;
   };
@@ -286,7 +295,7 @@ export const createFileReader = ({
     const buffer = await queue.run(key, priority, () =>
       client.downloadFile(fileLocation(Api, helpers, doc), {
         dcId: Number(doc.dcId),
-        fileSize: size,
+        fileSize: bigSize(helpers, size),
       })
     );
     return buffer?.length ? Buffer.from(buffer) : null;

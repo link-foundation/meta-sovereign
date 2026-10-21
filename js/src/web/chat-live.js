@@ -180,6 +180,7 @@ const sendResult = async (api, item) => {
       text: item.text,
       clientId: item.clientId,
       ...(item.replyTo ? { replyTo: item.replyTo } : {}),
+      ...(item.replyQuote ? { replyQuote: item.replyQuote } : {}),
     });
     return result ?? { status: 'failed', code: 'no-answer' };
   } catch (error) {
@@ -470,6 +471,7 @@ export const useComposer = ({
     box.sent(key);
     typing.cancel();
     const replyId = replyTo?.msgId ?? null;
+    const quote = replyId ? (replyTo?.quoteText ?? null) : null;
     setReplyTo(null);
     return outbox.add({
       clientId: newClientId(),
@@ -481,6 +483,7 @@ export const useComposer = ({
       status: 'queued',
       attempts: 0,
       ...(replyId ? { replyTo: replyId } : {}),
+      ...(quote ? { replyQuote: quote } : {}),
     });
   };
 

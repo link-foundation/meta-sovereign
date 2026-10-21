@@ -1,0 +1,266 @@
+// One row of the chat list, as Telegram draws it (R-Y68): the chat's
+// photo, its name (with a mute mark), the time, who wrote last and what
+// ("🙂 Sticker", "Photo"), and the unread count — grey when muted — or
+// a pin; the "Archived Chats" row on top, and the archive's own head.
+
+import React from 'react';
+import { useDates, useT } from './i18n.js';
+import { networkName } from './connection-guides.js';
+import { Icon } from './icons.js';
+import { PeerAvatar } from './peer-avatar.js';
+import { mediaLabel } from './chat-message.js';
+import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
+
+const el = React.createElement;
+
+// A chat's photo, else its initials on its Telegram colour.
+export const ChatAvatar = ({ api, chat, size = 's' }) =>
+  el(PeerAvatar, {
+    api,
+    source: chat.source,
+    peer: String(chat.chat ?? ''),
+    name: chat.name,
+    size,
+  });
+
+// What the list says of the newest message, as Telegram does (R-Y68):
+// who wrote it in a group ("You" for the user's own), then its text, or
+// what it holds when it has none ("🙂 Sticker", "Photo"), with a small
+// blurred picture of a photo or video.
+// What the message holds when it has no text: "🙂 Sticker", "Photo".
+const mediaWords = (t, media) => {
+  const label = mediaLabel(t, media);
+  return media.type === 'sticker' && media.emoji
+    ? `${media.emoji} ${label}`
+    : label;
+};
+
+// Who wrote it, where Telegram says: "You", or the member in a group.
+const writer = (t, chat) => {
+  if (chat.last.mine) {
+    return t('chat.you');
+  }
+  return chat.kind === 'group' ? (chat.last.senderName ?? null) : null;
+};
+
+const thumbOf = (media) =>
+  media?.kind === 'photo' || (media?.isVideo && media.type !== 'round')
+    ? strippedJpegDataUrl(media.strippedB64)
+    : null;
+
+export const chatPreview = (t, chat) => {
+  const { last } = chat;
+  const parts = last.message ? parseMessageParts(last.message) : null;
+  const plain = !parts || parts.service;
+  const media = plain ? null : parts.media;
+  let what = plain ? last.body : parts.text;
+  if (!what && media) {
+    what = mediaWords(t, media);
+  }
+  return {
+    who: writer(t, chat),
+    what: what === '📎' ? '' : (what ?? ''),
+    thumb: thumbOf(media),
+  };
+};
+
+// The unread count, @ for a mention, a heart for a reaction; grey when
+// the chat is muted; a pin when nothing is unread in a pinned chat.
+const ChatBadges = ({ chat, t }) => {
+  const muted = chat.muted ? ' is-muted' : '';
+  const marks = [
+    chat.mentions > 0
+      ? el(
+          'span',
+          {
+            key: 'm',
+            className: 'chat-item-mark',
+            'aria-label': t('chat.mentions', { count: chat.mentions }),
+          },
+          '@'
+        )
+      : null,
+    chat.reactions > 0
+      ? el(
+          'span',
+          { key: 'r', className: 'chat-item-mark is-reaction' },
+          el(Icon, { name: 'heart', size: 11 })
+        )
+      : null,
+  ];
+  if (chat.unread > 0) {
+    return [
+      ...marks,
+      el(
+        'span',
+        {
+          key: 'u',
+          className: `chat-item-unread${muted}`,
+          'data-unread': chat.unread,
+          'aria-label': t('chat.unread', { count: chat.unread }),
+        },
+        String(chat.unread)
+      ),
+    ];
+  }
+  if (chat.pinned > 0) {
+    return [
+      ...marks,
+      el(
+        'span',
+        {
+          key: 'p',
+          className: 'chat-item-pinned',
+          'aria-label': t('chat.pinnedChat'),
+        },
+        el(Icon, { name: 'pin', size: 14 })
+      ),
+    ];
+  }
+  return [
+    ...marks,
+    el(
+      'span',
+      { key: 's', className: 'chat-item-source' },
+      networkName(t, chat.source)
+    ),
+  ];
+};
+
+export const ChatItem = ({ api, chat, active, onSelect }) => {
+  const t = useT();
+  const { chatTime } = useDates();
+  const preview = chatPreview(t, chat);
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: active ? 'chat-item active' : 'chat-item',
+      'data-chat': chat.key,
+      'aria-current': active ? 'true' : undefined,
+      onClick: () => onSelect(chat.key),
+    },
+    [
+      el(ChatAvatar, { key: 'a', api, chat }),
+      el('span', { key: 'b', className: 'chat-item-body' }, [
+        el('span', { key: 'top', className: 'chat-item-top' }, [
+          el('span', { key: 'n', className: 'chat-item-name' }, [
+            el('span', { key: 'x', className: 'chat-item-title' }, chat.name),
+            chat.muted
+              ? el(
+                  'span',
+                  {
+                    key: 'm',
+                    className: 'chat-item-muted',
+                    'aria-label': t('chat.muted'),
+                    title: t('chat.muted'),
+                  },
+                  el(Icon, { name: 'mute', size: 13 })
+                )
+              : null,
+          ]),
+          el(
+            'span',
+            { key: 't', className: 'chat-item-time' },
+            chatTime(chat.last.at)
+          ),
+        ]),
+        el('span', { key: 'bottom', className: 'chat-item-bottom' }, [
+          el('span', { key: 'p', className: 'chat-item-preview' }, [
+            preview.who
+              ? el(
+                  'span',
+                  { key: 'w', className: 'chat-item-sender' },
+                  `${preview.who}: `
+                )
+              : null,
+            preview.thumb
+              ? el('img', {
+                  key: 'i',
+                  className: 'chat-item-thumb',
+                  src: preview.thumb,
+                  alt: '',
+                })
+              : null,
+            preview.what,
+          ]),
+          el(
+            'span',
+            { key: 'badges', className: 'chat-item-badges' },
+            el(ChatBadges, { chat, t })
+          ),
+        ]),
+      ]),
+    ]
+  );
+};
+
+// The row that opens the archive, as on top of Telegram's chat list:
+// the archived chats' names, those with unread messages first, and
+// their unread total in grey.
+export const ArchiveItem = ({ archive, onOpen }) => {
+  const t = useT();
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: 'chat-item chat-item-archive',
+      'data-archive': '',
+      onClick: onOpen,
+    },
+    [
+      el(
+        'span',
+        { key: 'a', className: 'avatar peer-avatar archive-avatar' },
+        el(Icon, { name: 'archive', size: 20 })
+      ),
+      el('span', { key: 'b', className: 'chat-item-body' }, [
+        el('span', { key: 'top', className: 'chat-item-top' }, [
+          el(
+            'span',
+            { key: 'n', className: 'chat-item-name' },
+            t('chat.archive.title')
+          ),
+        ]),
+        el('span', { key: 'bottom', className: 'chat-item-bottom' }, [
+          el(
+            'span',
+            { key: 'p', className: 'chat-item-preview' },
+            archive.names.join(', ')
+          ),
+          archive.unread > 0
+            ? el(
+                'span',
+                {
+                  key: 'u',
+                  className: 'chat-item-unread is-muted',
+                  'aria-label': t('chat.unread', { count: archive.unread }),
+                },
+                String(archive.unread)
+              )
+            : null,
+        ]),
+      ]),
+    ]
+  );
+};
+
+// Inside the archive: back to the main list, and its title.
+export const ArchiveHead = ({ onBack }) => {
+  const t = useT();
+  return el('div', { className: 'chat-archive-head' }, [
+    el(
+      'button',
+      {
+        key: 'b',
+        type: 'button',
+        className: 'ghost icon-btn',
+        'aria-label': t('chat.archive.back'),
+        title: t('chat.archive.back'),
+        onClick: onBack,
+      },
+      el(Icon, { name: 'back', size: 18 })
+    ),
+    el('span', { key: 't' }, t('chat.archive.title')),
+  ]);
+};

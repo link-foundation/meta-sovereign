@@ -54,7 +54,18 @@ test('chats: one row per conversation, newest first, searchable', () => {
       ['303', 'dave', true],
     ]
   );
-  assert.deepEqual(chats[0].last, { body: 'Hello', mine: true, at: at(0.5) });
+  const { message: lastMessage, ...last } = chats[0].last;
+  assert.deepEqual(last, {
+    body: 'Hello',
+    mine: true,
+    at: at(0.5),
+    senderName: null,
+  });
+  assert.equal(lastMessage.body, 'Hello', 'the message itself, for media');
+  assert.deepEqual(
+    [chats[0].muted, chats[0].pinned, chats[0].archived],
+    [false, 0, false]
+  );
   assert.deepEqual(chats[0].people.sort(), ['bob', 'carol']);
   // Any message, the name or the network matches; every word must.
   assert.deepEqual(
@@ -221,8 +232,8 @@ const screenState = (overrides = {}) => {
 test('screen: sidebar, header, menu, draft, composer chips', () => {
   const html = render(screenState());
   assert.match(html, /class="chat-shell"/);
-  // The sections follow the real clock; 40 days back is always older.
-  assert.match(html, /<h3>Older<\/h3>/);
+  // Telegram's order has no date sections (oldest first keeps them).
+  assert.doesNotMatch(html, /<h3>/);
   assert.match(html, /data-chat="vk:101" aria-current="true"/);
   // Networks by their names, not their ids.
   assert.match(html, /VK · personal chat/);

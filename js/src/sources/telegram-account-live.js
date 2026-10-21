@@ -41,6 +41,12 @@ const READ_FIELDS = [
   'unreadTopId',
   'unreadMentions',
   'unreadReactions',
+  // How Telegram lists the chat: muted until (Unix seconds, 0 not), its
+  // place among the pinned (1 first, 0 not pinned), its folder (1 the
+  // archive, 0 the main list).
+  'muteUntil',
+  'pinnedRank',
+  'folder',
 ];
 
 /** One chat's read (and draft) state; only the given fields are set. */
@@ -125,21 +131,86 @@ const chatStateWriters = ({ store, now }) => {
     return false; // a marker, not a message: no refresh needed for it
   };
 
-  // We read the chat up to maxId (here or on another device): what is
-  // still unread is newer than maxId, so it is counted from the links.
-  const onReadInbox = async ({ chat, maxId }) => {
+  // Each chat's newest message seen live: what Telegram counts as unread
+  // after a read reaches up to it.
+  const tops = new Map();
+  const noteTop = (chat, id) => {
+    if (chat && Number(id) > (tops.get(chat) ?? 0)) {
+      tops.set(chat, Number(id));
+    }
+  };
+
+  // We read the chat up to maxId (here or on another device). Telegram
+  // says how many are still unread then (`stillUnread`, up to the chat's
+  // newest message); without it what is still unread is newer than
+  // maxId, so it is counted from the links.
+  const onReadInbox = async ({ chat, maxId, stillUnread }) => {
     const before = await store.get(readLinkId(chat));
-    if ((before?.inboxMaxId ?? 0) >= maxId) {
+    const was = before?.inboxMaxId ?? 0;
+    const counted = Number.isFinite(stillUnread);
+    if (was > maxId || (was === maxId && !counted)) {
       return false;
     }
+    const top = counted
+      ? Math.max(maxId, before?.unreadTopId ?? 0, tops.get(chat) ?? 0)
+      : maxId;
     await store.put({
       ...(before ?? {}),
       ...readLink(chat, {
         inboxMaxId: maxId,
-        unreadCount: 0,
-        unreadTopId: maxId,
+        unreadCount: counted ? Math.max(0, stillUnread) : 0,
+        unreadTopId: top,
       }),
     });
+    return false;
+  };
+
+  // How Telegram lists the chat (R-Y68): a chat pinned goes first, the
+  // others pinned in its folder one down; an order given is kept as is;
+  // a chat archived or brought back is no longer pinned.
+  const putListing = async (chat, fields) => {
+    const before = await store.get(readLinkId(chat));
+    await store.put({ ...(before ?? {}), ...readLink(chat, fields) });
+  };
+  const pinnedIn = (folder) =>
+    store.query(
+      (l) =>
+        l?.kind === 'read' &&
+        l.source === SOURCE &&
+        Number(l.pinnedRank ?? 0) > 0 &&
+        Number(l.folder ?? 0) === folder
+    );
+  const onListing = async ({ chat, muteUntil, pinned, folder = 0 }) => {
+    if (muteUntil !== undefined) {
+      await putListing(chat, { muteUntil });
+    }
+    if (pinned === true) {
+      for (const other of await pinnedIn(folder)) {
+        if (other.chat !== chat) {
+          await putListing(other.chat, { pinnedRank: other.pinnedRank + 1 });
+        }
+      }
+    }
+    if (pinned !== undefined) {
+      await putListing(chat, { pinnedRank: pinned ? 1 : 0, folder });
+    }
+    return false;
+  };
+  const onPinnedOrder = async ({ folder, chats: order }) => {
+    for (const other of await pinnedIn(folder)) {
+      if (!order.includes(other.chat)) {
+        await putListing(other.chat, { pinnedRank: 0 });
+      }
+    }
+    for (const [at, chat] of order.entries()) {
+      await putListing(chat, { pinnedRank: at + 1, folder });
+    }
+    return false;
+  };
+  const onFolders = async ({ peers }) => {
+    for (const { chat, folder } of peers) {
+      await putListing(chat, { folder, pinnedRank: 0 });
+    }
     return false;
   };
 
@@ -169,7 +240,16 @@ const chatStateWriters = ({ store, now }) => {
     return false;
   };
 
-  return { onRead, onReadInbox, onDraft, onTyping };
+  return {
+    onRead,
+    onReadInbox,
+    noteTop,
+    onListing,
+    onPinnedOrder,
+    onFolders,
+    onDraft,
+    onTyping,
+  };
 };
 
 // A deletion: those messages are marked `deleted` (kept, for the record).
@@ -298,34 +378,44 @@ export const createTelegramLive = ({
   const onDelete = (effect) => deleteWriter(store, effect);
   const onPin = (effect) => pinWriter(store, effect);
 
-  const { onRead, onReadInbox, onDraft, onTyping } = chatStateWriters({
-    store,
-    now,
-  });
+  const {
+    onRead,
+    onReadInbox,
+    noteTop,
+    onListing,
+    onPinnedOrder,
+    onFolders,
+    onDraft,
+    onTyping,
+  } = chatStateWriters({ store, now });
+
+  // Effects that name no one chat.
+  const MANY_CHATS = new Set(['delete', 'pinned-order', 'folders']);
+
+  // What each kind of effect writes; true when the chat needs a refresh.
+  const writers = {
+    message: (client, effect) => {
+      noteTop(effect.chat, effect.message?.id);
+      return onMessage(client, effect);
+    },
+    edit: onMessage,
+    delete: (_client, effect) => onDelete(effect),
+    pin: (_client, effect) => onPin(effect),
+    read: (_client, effect) => onRead(effect),
+    'read-inbox': (_client, effect) => onReadInbox(effect),
+    listing: (_client, effect) => onListing(effect),
+    'pinned-order': (_client, effect) => onPinnedOrder(effect),
+    folders: (_client, effect) => onFolders(effect),
+    draft: (_client, effect) => onDraft(effect),
+    typing: (_client, effect) => onTyping(effect),
+  };
 
   const apply = async (client, effect) => {
-    if (!effect?.chat && effect?.kind !== 'delete') {
+    if (!effect?.chat && !MANY_CHATS.has(effect?.kind)) {
       return false;
     }
-    switch (effect.kind) {
-      case 'message':
-      case 'edit':
-        return onMessage(client, effect);
-      case 'delete':
-        return onDelete(effect);
-      case 'pin':
-        return onPin(effect);
-      case 'read':
-        return onRead(effect);
-      case 'read-inbox':
-        return onReadInbox(effect);
-      case 'draft':
-        return onDraft(effect);
-      case 'typing':
-        return onTyping(effect);
-      default:
-        return false;
-    }
+    const write = writers[effect.kind];
+    return write ? write(client, effect) : false;
   };
 
   /** One raw GramJS update. */

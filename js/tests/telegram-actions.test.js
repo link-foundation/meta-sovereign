@@ -12,7 +12,11 @@ import path from 'node:path';
 
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createActions } from '../src/sources/telegram-actions.js';
-import { createMediaReader, pictureOf } from '../src/sources/telegram-media.js';
+import {
+  createFileReader,
+  createMediaReader,
+  pictureOf,
+} from '../src/sources/telegram-media.js';
 import { telegramDialogLinks } from '../src/sources/telegram-account.js';
 import { createTelegramLive } from '../src/sources/telegram-account-live.js';
 import { sendText } from '../src/sources/telegram-send.js';
@@ -259,6 +263,27 @@ test('a reply answers with the first part only', async () => {
   assert.equal(requests[1].replyTo, undefined);
 });
 
+test('Quote & Reply sends the part quoted with the first part', async () => {
+  const requests = [];
+  await sendText({
+    client: {
+      getInputEntity: async (peer) => peer,
+      async invoke(request) {
+        requests.push(request);
+        return { className: 'UpdateShortSentMessage', id: requests.length };
+      },
+    },
+    ...fakeTelegram(),
+    peer: '42',
+    text: 'a\n\nb',
+    maxLength: 2,
+    replyTo: 9,
+    replyQuote: 'the part',
+  });
+  assert.equal(requests[0].replyTo.quoteText, 'the part');
+  assert.equal(requests[1].replyTo, undefined);
+});
+
 // ---- pictures --------------------------------------------------------------
 
 const PHOTO = {
@@ -343,6 +368,54 @@ test('a picture is downloaded once, from the stored message', async (t) => {
   assert.equal(await reader.read({ chat: '../../x', id: 4 }), null);
   assert.equal(await reader.read({ chat: '-1007', id: -1 }), null);
   assert.deepEqual(await readdir(dir), ['-1007']);
+});
+
+test("GramJS gets each download's size as it reads it", async (t) => {
+  // GramJS picks the part size by `fileSize.lesser(…)`: a plain number
+  // threw, and no photo, sticker or file downloaded.
+  const { helpers, utils } = await import('telegram');
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-media-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const store = createMemoryStore();
+  const sticker = {
+    className: 'MessageMediaDocument',
+    document: {
+      id: '7',
+      accessHash: '8',
+      dcId: 2,
+      mimeType: 'image/webp',
+      size: 30_000,
+      attributes: [{ className: 'DocumentAttributeSticker', alt: '🙂' }],
+    },
+  };
+  await store.put(message('-1007', 5, { raw: { id: 5, media: sticker } }));
+  const sizes = [];
+  const client = async () => ({
+    async downloadFile(_location, params) {
+      sizes.push(utils.getAppropriatedPartSize(params.fileSize));
+      return Buffer.from('webp');
+    },
+  });
+  const fake = await importer();
+  const options = {
+    store,
+    dir,
+    queue: { run: (_key, _priority, task) => task() },
+    client,
+    importer: async () => ({ ...fake, helpers }),
+  };
+  const picture = await createMediaReader(options).read({
+    chat: '-1007',
+    id: 5,
+  });
+  assert.equal(picture.buffer.toString(), 'webp');
+  assert.equal(picture.mimeType, 'image/webp');
+  const file = await createFileReader({
+    ...options,
+    dir: path.join(dir, 'files'),
+  }).read({ chat: '-1007', id: 5 });
+  assert.equal(file.buffer.toString(), 'webp');
+  assert.deepEqual(sizes, [128, 128]);
 });
 
 test('an expired file reference reads the message again, once', async (t) => {

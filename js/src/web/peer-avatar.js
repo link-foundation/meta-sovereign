@@ -16,8 +16,10 @@ const el = React.createElement;
 const photos = new Map();
 // A photo that did not load (still downloading on the server, which
 // answers at once rather than hold one of the browser's few
-// connections) is asked again after these waits, then given up.
-const RETRY_DELAYS_MS = [3000, 10_000, 30_000];
+// connections) is asked again after these waits, then given up. A
+// first sync queues a hundred photos and more, so the waits run to
+// minutes (R-Y68).
+const RETRY_DELAYS_MS = [3000, 10_000, 30_000, 60_000, 120_000, 300_000];
 
 const photoKey = (source, peer, size) => `${source}:${peer}:${size}`;
 

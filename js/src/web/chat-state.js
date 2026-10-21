@@ -9,6 +9,8 @@ import {
   CHAT_FILTERS,
   CHAT_SORTS,
   sortChats,
+  folderChats,
+  archiveSummary,
   chatKey,
   chatMenuAutomations,
   cloudDraft,
@@ -609,18 +611,33 @@ const useChatList = (links, target, query) => {
   }, [links, target]);
   const [filter, setFilter] = useChatFilter();
   const [sort, setSort] = useChatSort();
+  // Telegram's main list or the archive; a search looks through both.
+  const [folder, setFolder] = useState('main');
   const chats = useMemo(
     () =>
       sortChats(
         filterChats(
-          query ? summarizeChats(links ?? [], { query }) : all,
+          query
+            ? summarizeChats(links ?? [], { query })
+            : folderChats(all, folder),
           filter
         ),
         sort
       ),
-    [links, query, all, filter, sort]
+    [links, query, all, filter, sort, folder]
   );
-  return { all, chats, filter, setFilter, sort, setSort };
+  const archive = useMemo(() => archiveSummary(all), [all]);
+  return {
+    all,
+    chats,
+    filter,
+    setFilter,
+    sort,
+    setSort,
+    folder: archive.count > 0 ? folder : 'main',
+    setFolder,
+    archive,
+  };
 };
 
 /** Everything the chat screen shows and does. */
@@ -636,11 +653,8 @@ export const useChatState = (
   const [notice, setNotice] = useState(null);
   const telegram = useTelegramAccount(api, refresh, { live });
   const target = useHashChat();
-  const { all, chats, filter, setFilter, sort, setSort } = useChatList(
-    links,
-    target,
-    query
-  );
+  const list = useChatList(links, target, query);
+  const { all, chats, filter, setFilter, sort, setSort } = list;
   useEffect(() => {
     if (target) {
       setActive(chatKey(target.source, target.chat));
@@ -701,6 +715,9 @@ export const useChatState = (
     setFilter,
     sort,
     setSort,
+    folder: list.folder,
+    setFolder: list.setFolder,
+    archive: list.archive,
     prefetch,
     moreChats,
     history: {

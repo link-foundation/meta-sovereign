@@ -14,7 +14,7 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { api as defaultApi } from './dom.js';
-import { sentence, useDates, useT } from './i18n.js';
+import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
@@ -24,78 +24,23 @@ import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
 import { Notice } from './notice.js';
 import { useLeaving } from './chat-leaving.js';
-import { PeerAvatar } from './peer-avatar.js';
 import { infoLine } from './chat-info.js';
 import { PersonPanel } from './person-panel.js';
 import { UnreadMarks, useUnreadMarks } from './chat-marks.js';
-import { MessageBubble, ReplyQuote, mediaLabel } from './chat-message.js';
+import {
+  MessageBubble,
+  QuoteContext,
+  ReplyQuote,
+  mediaLabel,
+} from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
+import { ArchiveHead, ArchiveItem, ChatAvatar, ChatItem } from './chat-list.js';
 import { useChatActions } from './chat-actions.js';
-import { SelectionBar } from './chat-selection.js';
+import { SelectionTop } from './chat-selection.js';
+import { useDragSelect } from './chat-drag.js';
 export { reasonText } from './notice.js';
 
 const el = React.createElement;
-
-// A chat's photo, else its initials on its Telegram colour.
-const ChatAvatar = ({ api, chat, size = 's' }) =>
-  el(PeerAvatar, {
-    api,
-    source: chat.source,
-    peer: String(chat.chat ?? ''),
-    name: chat.name,
-    size,
-  });
-
-const ChatItem = ({ api, chat, active, onSelect }) => {
-  const t = useT();
-  const { chatTime } = useDates();
-  return el(
-    'button',
-    {
-      type: 'button',
-      className: active ? 'chat-item active' : 'chat-item',
-      'data-chat': chat.key,
-      'aria-current': active ? 'true' : undefined,
-      onClick: () => onSelect(chat.key),
-    },
-    [
-      el(ChatAvatar, { key: 'a', api, chat }),
-      el('span', { key: 'b', className: 'chat-item-body' }, [
-        el('span', { key: 'top', className: 'chat-item-top' }, [
-          el('span', { key: 'n', className: 'chat-item-name' }, chat.name),
-          el(
-            'span',
-            { key: 't', className: 'chat-item-time' },
-            chatTime(chat.last.at)
-          ),
-        ]),
-        el('span', { key: 'bottom', className: 'chat-item-bottom' }, [
-          el(
-            'span',
-            { key: 'p', className: 'chat-item-preview' },
-            `${chat.last.mine ? `${t('chat.you')}: ` : ''}${chat.last.body}`
-          ),
-          chat.unread > 0
-            ? el(
-                'span',
-                {
-                  key: 'u',
-                  className: 'chat-item-unread',
-                  'data-unread': chat.unread,
-                  'aria-label': t('chat.unread', { count: chat.unread }),
-                },
-                chat.unread > 999 ? '999+' : String(chat.unread)
-              )
-            : el(
-                'span',
-                { key: 's', className: 'chat-item-source' },
-                networkName(t, chat.source)
-              ),
-        ]),
-      ]),
-    ]
-  );
-};
 
 // Newest first (the default) or oldest first, by each chat's latest
 // message; remembered in this browser.
@@ -189,6 +134,23 @@ const Sidebar = ({ state, api }) => {
   const list = useRef(null);
   useListLoading(list, state);
   const oldest = state.sort === 'oldest';
+  const item = (chat) =>
+    el(ChatItem, {
+      key: chat.key,
+      api,
+      chat,
+      active: chat.key === state.current?.key,
+      onSelect: state.select,
+    });
+  const archived = state.folder === 'archive' && !state.query;
+  const archiveRow =
+    !archived && !state.query && state.archive?.count > 0
+      ? el(ArchiveItem, {
+          key: 'archive',
+          archive: state.archive,
+          onOpen: () => state.setFolder('archive'),
+        })
+      : null;
   const moreRow =
     state.moreChats?.available && !state.query
       ? el(
@@ -226,31 +188,35 @@ const Sidebar = ({ state, api }) => {
         className: 'chat-list',
         'aria-label': t('chat.aside'),
       },
-      state.chats.length === 0
-        ? [
-            el('p', { key: 'none', className: 'meta' }, t('chat.noMatches')),
-            moreRow,
-          ]
-        : [
-            // Oldest first needs every chat: the next page is read at once.
-            oldest ? moreRow : null,
-            ...groupChats(state.chats, Date.now(), state.sort).map(
-              ({ group, chats }) =>
-                el('section', { key: group, className: 'chat-group' }, [
-                  el('h3', { key: 'h' }, t(`chat.group.${group}`)),
-                  ...chats.map((chat) =>
-                    el(ChatItem, {
-                      key: chat.key,
-                      api,
-                      chat,
-                      active: chat.key === state.current?.key,
-                      onSelect: state.select,
-                    })
-                  ),
-                ])
-            ),
-            oldest ? null : moreRow,
-          ]
+      [
+        archived
+          ? el(ArchiveHead, {
+              key: 'arch',
+              onBack: () => state.setFolder('main'),
+            })
+          : null,
+        archiveRow,
+        ...(state.chats.length === 0
+          ? [
+              el('p', { key: 'none', className: 'meta' }, t('chat.noMatches')),
+              moreRow,
+            ]
+          : [
+              // Oldest first needs every chat: the next page is read at once.
+              oldest ? moreRow : null,
+              ...(oldest
+                ? groupChats(state.chats, Date.now(), state.sort).map(
+                    ({ group, chats }) =>
+                      el('section', { key: group, className: 'chat-group' }, [
+                        el('h3', { key: 'h' }, t(`chat.group.${group}`)),
+                        ...chats.map(item),
+                      ])
+                  )
+                : // Telegram's own order: the pinned, then the newest.
+                  state.chats.map(item)),
+              oldest ? null : moreRow,
+            ]),
+      ]
     ),
     el(ChatAccountLine, { key: 'acct', telegram: state.telegram }),
   ]);
@@ -557,6 +523,7 @@ const NOTICE = {
   'action-failed': 'chat.notice.actionFailed',
   copied: 'chat.notice.copied',
   'link-copied': 'chat.notice.linkCopied',
+  'image-copied': 'chat.notice.imageCopied',
 };
 
 const NEAR_BOTTOM_PX = 80;
@@ -874,8 +841,13 @@ const Stream = ({ state, api, actions }) => {
     get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
   };
   const runs = messageRuns(messages);
-  const order = messages.map((m) => m.id);
+  const order = messages.filter((m) => !m.service).map((m) => m.id);
   const onSelect = (id, { shift }) => selection.toggle(id, { shift, order });
+  const drag = useDragSelect({
+    box: follow.box,
+    selection,
+    order: () => order,
+  });
   const marks = useUnreadMarks(api, state.current, {
     reach: state.history?.reach,
     scrollTo: (id) => onScrollTo(id),
@@ -900,6 +872,7 @@ const Stream = ({ state, api, actions }) => {
           className: selection.active
             ? 'chat-column is-selecting'
             : 'chat-column',
+          onMouseDown: drag.onMouseDown,
         },
         [
           el(OlderRow, { key: 'older', history: state.history }),
@@ -922,8 +895,10 @@ const Stream = ({ state, api, actions }) => {
               onAction,
               menuFor,
               selecting: selection.active,
-              selected: selection.has(message.id),
+              selected: selection.shows(message.id),
               onSelect,
+              // Desktop's corner Reply shows in groups only.
+              fastReply: !alone,
             }),
           ]),
           ...state.drafts.drafts.map((draft) =>
@@ -1228,9 +1203,12 @@ const ChatTop = ({ state, api, onBack }) => {
 };
 
 export const ChatScreen = ({ state, api }) => {
-  const t = useT();
+  const { t, locale } = useLocaleContext();
   const [pane, setPane] = useState('list');
-  const actions = useChatActions({ state, api, t });
+  const account = state.telegram?.account;
+  const selfName =
+    [account?.firstName, account?.lastName].filter(Boolean).join(' ') || null;
+  const actions = useChatActions({ state, api, t, locale, selfName });
   if (state.loading) {
     return el('div', { className: 'meta' }, t('common.loading'));
   }
@@ -1247,34 +1225,45 @@ export const ChatScreen = ({ state, api }) => {
     setPane('chat');
   };
 
-  return el('div', { className: 'chat-shell', 'data-pane': pane }, [
-    el(Sidebar, { key: 'side', state: { ...state, select }, api }),
-    state.current
-      ? el('section', { key: 'main', className: 'chat-main' }, [
-          el(ChatTop, { key: 'h', state, api, onBack: () => setPane('list') }),
-          el(PinnedBar, {
-            key: 'pin',
-            pinned: state.pinned,
-            onOpen: scrollToMessage,
-          }),
-          el(ConnectionBanner, { key: 'b', banner: state.banner }),
-          el(FailedBar, { key: 'failed', composer: state.composer }),
-          el(Notice, {
-            key: 'n',
-            notice: state.notice,
-            labels: NOTICE,
-            dismiss: state.dismiss,
-          }),
-          el(Stream, { key: 's', state, api, actions }),
-          // While messages are selected, Telegram's bar takes the
-          // composer's place.
-          actions.selection.active
-            ? el(SelectionBar, { key: 'c', ...actions.bar })
-            : el(Composer, { key: 'c', state, keys: actions.keys }),
-          ...actions.dialogs,
-        ])
-      : null,
-  ]);
+  const quote = { selfName, api };
+
+  return el(
+    QuoteContext.Provider,
+    { value: quote },
+    el('div', { className: 'chat-shell', 'data-pane': pane }, [
+      el(Sidebar, { key: 'side', state: { ...state, select }, api }),
+      state.current
+        ? el('section', { key: 'main', className: 'chat-main' }, [
+            // While messages are selected Desktop's top bar shows what
+            // can be done with them; the composer stays.
+            actions.selection.ids.length > 0
+              ? el(SelectionTop, { key: 'h', ...actions.top })
+              : el(ChatTop, {
+                  key: 'h',
+                  state,
+                  api,
+                  onBack: () => setPane('list'),
+                }),
+            el(PinnedBar, {
+              key: 'pin',
+              pinned: state.pinned,
+              onOpen: scrollToMessage,
+            }),
+            el(ConnectionBanner, { key: 'b', banner: state.banner }),
+            el(FailedBar, { key: 'failed', composer: state.composer }),
+            el(Notice, {
+              key: 'n',
+              notice: state.notice,
+              labels: NOTICE,
+              dismiss: state.dismiss,
+            }),
+            el(Stream, { key: 's', state, api, actions }),
+            el(Composer, { key: 'c', state, keys: actions.keys }),
+            ...actions.dialogs,
+          ])
+        : null,
+    ])
+  );
 };
 
 export const ChatView = ({ api = defaultApi, ...options }) => {

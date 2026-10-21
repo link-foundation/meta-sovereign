@@ -200,6 +200,9 @@ const SHOWN_FIELDS = [
   'unreadTopId',
   'unreadMentions',
   'unreadReactions',
+  'muteUntil',
+  'pinnedRank',
+  'folder',
   'draft',
 ];
 const writeChanged = async (store, links) => {
@@ -384,11 +387,43 @@ const readContacts = async (client, { importer, log, queue }) => {
   }
 };
 
+// How Telegram lists a chat: muted, pinned (its place, from `rank`),
+// archived.
+const listing = (dialog, rank) => {
+  const state = dialog.dialog ?? {};
+  const pinned = Boolean(dialog.pinned ?? state.pinned);
+  return {
+    muteUntil: Number(state.notifySettings?.muteUntil ?? 0) || 0,
+    ...(rank === undefined ? {} : { pinnedRank: pinned ? rank : 0 }),
+    folder: Number(dialog.folderId ?? state.folderId ?? 0) === 1 ? 1 : 0,
+  };
+};
+
+/**
+ * Each listed dialog's place among the pinned of its folder, 1 first
+ * (Telegram lists the pinned first, in their order).
+ */
+export const pinnedRanks = (listed) => {
+  const ranks = new Map();
+  const next = new Map();
+  for (const dialog of listed) {
+    const pinned = Boolean(dialog?.pinned ?? dialog?.dialog?.pinned);
+    const folder = Number(dialog?.folderId ?? dialog?.dialog?.folderId ?? 0);
+    const rank = pinned ? (next.get(folder) ?? 0) + 1 : 0;
+    if (pinned) {
+      next.set(folder, rank);
+    }
+    ranks.set(dialog, rank);
+  }
+  return ranks;
+};
+
 // What Telegram knows about a chat's reading and draft, as listed.
-const dialogReadLink = (chat, dialog) => {
+const dialogReadLink = (chat, dialog, rank) => {
   const state = dialog.dialog ?? {};
   const draft = state.draft;
   return readLink(chat, {
+    ...listing(dialog, rank),
     outboxMaxId: state.readOutboxMaxId,
     inboxMaxId: state.readInboxMaxId,
     unreadCount: dialog.unreadCount ?? state.unreadCount,
@@ -418,6 +453,7 @@ const readDialogs = async (
     )) ?? []),
   ];
   await env.pages.remember(listed);
+  const ranks = pinnedRanks(listed);
   for (const dialog of listed) {
     const chat = idText(dialog.id);
     if (!chat) {
@@ -425,7 +461,7 @@ const readDialogs = async (
     }
     chats += 1;
     known?.set(chat, dialogInfo(chat, dialog.entity));
-    links.push(dialogReadLink(chat, dialog));
+    links.push(dialogReadLink(chat, dialog, ranks.get(dialog)));
     if (dialog.isUser && dialog.entity) {
       partners.push(dialog.entity);
     }
@@ -589,11 +625,16 @@ const runSync = async (env, { full, reason, dialogs, messages }) => {
 
 // The same link the next sync gives a message we just sent, so it is
 // never shown twice. Its full data comes with Telegram's echo of it.
-const sentLink = (chat, messageId, text, at, replyTo = null) => {
+const sentLink = (chat, messageId, text, at, replyTo = null, quote = null) => {
   if (!messageId) {
     return null;
   }
-  const reply = replyTo ? { replyToMsgId: replyTo } : undefined;
+  const reply = replyTo
+    ? {
+        replyToMsgId: replyTo,
+        ...(quote ? { quote: true, quoteText: quote } : {}),
+      }
+    : undefined;
   // GramJS gives users positive ids, groups and channels negative ones.
   const [link] = telegramDialogLinks(
     { id: chat, isUser: !chat.startsWith('-') },
@@ -622,7 +663,11 @@ const messageLengthMax = async (client, Api) => {
 
 // Send as the user: exactly once (random_id), plain text, long text in
 // parts; returns the network's links for what was sent.
-const postAsUser = async (env, creds, { chat, text, clientId, replyTo }) => {
+const postAsUser = async (
+  env,
+  creds,
+  { chat, text, clientId, replyTo, replyQuote = null }
+) => {
   const { client } = await env.connection.open(creds);
   const { Api, helpers } = await env.importer().catch(() => ({}));
   const maxLength = await messageLengthMax(client, Api);
@@ -643,6 +688,7 @@ const postAsUser = async (env, creds, { chat, text, clientId, replyTo }) => {
         clientId,
         maxLength,
         replyTo,
+        replyQuote,
         onResult: (result) => env.catchUp?.observeResult(result),
       })
     );
@@ -669,7 +715,8 @@ const postAsUser = async (env, creds, { chat, text, clientId, replyTo }) => {
         idText(part.id),
         part.text,
         part.date ?? at,
-        index === 0 ? replyTo : null
+        index === 0 ? replyTo : null,
+        index === 0 ? replyQuote : null
       )
     )
     .filter(Boolean);
@@ -706,6 +753,8 @@ const createMessaging = (env) => {
       text,
       clientId: draft.clientId,
       replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+      replyQuote:
+        typeof draft.replyQuote === 'string' ? draft.replyQuote : null,
     });
   };
 
@@ -853,6 +902,7 @@ const addReaders = (env, { pace, mediaDir }) => {
     dialogOfEntity,
     dialogInfo,
     dialogReadLink,
+    pinnedRanks,
     partnersOf: (listed) =>
       telegramPersonLinks(
         listed.filter((d) => d?.isUser && d.entity).map((d) => d.entity),
