@@ -454,6 +454,34 @@ test('incoming triggers draft a reply in the chat that matched', async () => {
   }
 });
 
+test('a message read in does not read the whole store, nor the automations again', async () => {
+  const store = await seeded();
+  const { clock } = clockAt(NOW);
+  const runner = createAutomationRunner({ store, clock });
+  await store.put({ ...preset('greet-back'), enabled: true });
+  const reads = { all: 0, filtered: 0 };
+  const query = store.query.bind(store);
+  store.query = (filter) => {
+    reads[filter ? 'filtered' : 'all'] += 1;
+    return query(filter);
+  };
+  const scheduler = createAutomationScheduler({ store, runner, clock });
+  scheduler.start();
+  try {
+    await scheduler.onMessage(m('103', 'carol', 'ок', 0));
+    await scheduler.onMessage(m('104', 'dave', 'ок', 0));
+    assert.equal(reads.all, 0);
+    assert.equal(reads.filtered, 1);
+    // Turned off: the next message sees it.
+    await store.put({ ...preset('greet-back'), enabled: false });
+    const ran = await scheduler.onMessage(m('103', 'carol', 'Привет', 0));
+    assert.deepEqual(ran, []);
+    assert.equal(reads.filtered, 2);
+  } finally {
+    scheduler.stop();
+  }
+});
+
 test('an automation runs on an audience: friends minus a list', async () => {
   const store = await seeded([
     ...fixture(),

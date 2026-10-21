@@ -238,9 +238,9 @@ export const stillConfirmed = (planned, confirmed) => {
   return planned.filter((draft) => ok.has(draftKey(draft)));
 };
 
+// Only the automations are read (and copied), not the whole store.
 const enabledAutomations = async (store) =>
-  (await store.query())
-    .filter((l) => l?.id?.startsWith(AUTOMATION_PREFIX))
+  (await store.query((l) => l?.id?.startsWith(AUTOMATION_PREFIX)))
     .map((l) => {
       try {
         return normalizeAutomation(l);
@@ -267,6 +267,19 @@ export const createAutomationScheduler = ({
   let timer = null;
   let unsubscribe = null;
   let startedAt = 0;
+  // While started, the enabled automations are kept until one changes:
+  // a message arriving does not read them again.
+  let known = null;
+  const automations = () => {
+    if (!unsubscribe) {
+      return enabledAutomations(store);
+    }
+    known ??= enabledAutomations(store).catch((error) => {
+      known = null;
+      throw error;
+    });
+    return known;
+  };
   const safely = (task) =>
     task.catch((error) => {
       log({ event: 'automation_failed', error: error.message });
@@ -285,7 +298,7 @@ export const createAutomationScheduler = ({
   const tick = async () => {
     const now = clock().getTime();
     const ran = [];
-    for (const automation of await enabledAutomations(store)) {
+    for (const automation of await automations()) {
       if (hasTrigger(automation, 'schedule') && (await due(automation, now))) {
         await store.put({
           id: `${STATE_PREFIX}${automationKey(automation)}`,
@@ -306,7 +319,7 @@ export const createAutomationScheduler = ({
       return [];
     }
     const ran = [];
-    for (const automation of await enabledAutomations(store)) {
+    for (const automation of await automations()) {
       if (incomingTrigger(automation, message.body)) {
         ran.push(
           await safely(
@@ -329,6 +342,10 @@ export const createAutomationScheduler = ({
       timer = setInterval(() => safely(tick()), tickMs);
       timer.unref?.();
       unsubscribe = store.subscribe?.((event) => {
+        const id = event?.link?.id ?? event?.id;
+        if (typeof id === 'string' && id.startsWith(AUTOMATION_PREFIX)) {
+          known = null;
+        }
         if (event?.type === 'put' && event.link?.id?.startsWith('msg:')) {
           safely(onMessage(event.link));
         }
@@ -337,6 +354,8 @@ export const createAutomationScheduler = ({
     stop() {
       clearInterval(timer);
       unsubscribe?.();
+      unsubscribe = null;
+      known = null;
       timer = null;
     },
   };
