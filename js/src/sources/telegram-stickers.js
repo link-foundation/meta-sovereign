@@ -329,27 +329,38 @@ const createPictures = (env, { userClient, mediaDir }, lists) => {
       return buffer ? { buffer, mimeType: sniff(buffer) } : null;
     });
 
-  // A set's own picture, when it is a still one; else its first
-  // sticker's, once the set was asked.
-  const fetchSet = async (c, id) => {
-    const known = lists.setOf(id);
-    const set = known?.set;
-    const still = (set?.thumbs ?? []).some((t) => t?.className === 'PhotoSize');
-    if (still && set.thumbDcId !== undefined) {
-      const location = new c.Api.InputStickerSetThumb({
-        stickerset: inputSet(c, set),
-        thumbVersion: Number(set.thumbVersion ?? 0),
-      });
-      const buffer = await download(
-        c,
-        `set-${id}`,
-        location,
-        set.thumbDcId,
-        MAX_PICTURE
-      );
-      return buffer ? { buffer, mimeType: sniff(buffer) } : null;
+  // A set's own picture, when it is a still one (an animated or video
+  // set's is Lottie or a video, not for an <img>).
+  const setThumb = async (c, id, set) => {
+    const has = (set?.thumbs ?? []).some((t) => t?.className === 'PhotoSize');
+    if (!has || set.thumbDcId === undefined) {
+      return null;
     }
-    const first = known?.items?.[0]?.id;
+    const location = new c.Api.InputStickerSetThumb({
+      stickerset: inputSet(c, set),
+      thumbVersion: Number(set.thumbVersion ?? 0),
+    });
+    const buffer = await download(
+      c,
+      `set-${id}`,
+      location,
+      set.thumbDcId,
+      MAX_PICTURE
+    );
+    const mimeType = buffer ? sniff(buffer) : '';
+    return mimeType.startsWith('image/') ? { buffer, mimeType } : null;
+  };
+
+  // Else its first sticker's picture, the set asked for it if need be.
+  const fetchSet = async (c, id) => {
+    const thumb = await setThumb(c, id, lists.setOf(id)?.set);
+    if (thumb) {
+      return thumb;
+    }
+    if (lists.setOf(id)?.set && !lists.setOf(id).items) {
+      await lists.stickerSet({ id });
+    }
+    const first = lists.setOf(id)?.items?.[0]?.id;
     return first ? fetchDoc(c, first, false) : null;
   };
 
@@ -369,9 +380,9 @@ const createPictures = (env, { userClient, mediaDir }, lists) => {
     const name = set ? `set-${key}` : `${key}${full ? '-full' : ''}`;
     const file = path.join(mediaDir, 'stickers', name);
     const cached = await readCache(file);
-    if (cached) {
-      const type = await readCache(`${file}.type`);
-      return { buffer: cached, mimeType: type?.toString() || sniff(cached) };
+    const type = cached ? String(await readCache(`${file}.type`)) : '';
+    if (cached && /^(image|video)\//.test(type)) {
+      return { buffer: cached, mimeType: type };
     }
     const got = await fetchFresh({ key, set, full });
     if (!got?.buffer) {

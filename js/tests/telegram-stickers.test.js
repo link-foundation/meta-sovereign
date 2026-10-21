@@ -349,3 +349,42 @@ test('the sticker routes (R-Y105)', async () => {
   });
   assert.equal(res.status, 404);
 });
+
+test("an animated set's picture: its first sticker's instead (R-Y105)", async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-stickers-'));
+  try {
+    const log = [];
+    const client = fakeClient(log);
+    const plain = client.invoke;
+    client.invoke = async (request) => {
+      const answer = await plain(request);
+      if (request.className === 'GetAllStickers') {
+        answer.sets[0] = {
+          ...answer.sets[0],
+          thumbs: [{ className: 'PhotoSize', type: 'a' }],
+          thumbDcId: 2,
+          thumbVersion: 1,
+        };
+      }
+      return answer;
+    };
+    client.downloadFile = async (location) => {
+      log.push(['download', location.className]);
+      // A Lottie set picture is gzip.
+      return location.className === 'InputStickerSetThumb'
+        ? Buffer.from([0x1f, 0x8b, 8, 0])
+        : WEBP;
+    };
+    const stickers = make(client, { mediaDir: dir });
+    await stickers.stickerPanel();
+    const picture = await stickers.stickerPicture({ set: '7' });
+    assert.equal(picture.mimeType, 'image/webp');
+    assert.ok(log.includes('GetStickerSet'), 'the set asked for it');
+    assert.deepEqual(
+      log.filter((e) => e[0] === 'download').map((e) => e[1]),
+      ['InputStickerSetThumb', 'InputDocumentFileLocation']
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
