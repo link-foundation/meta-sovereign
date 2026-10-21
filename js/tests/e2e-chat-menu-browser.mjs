@@ -1,7 +1,8 @@
 // Real browser e2e for the chat list's menu (R-Y97): a right-click on a
 // chat offers Pin, Mute, Mark as read/unread and Archive as Telegram's
 // apps do; Mute opens the times; each asks /api/telegram/dialog; a chat
-// marked unread shows the empty badge and loses the mark when opened.
+// marked unread shows the empty badge and loses the mark when opened;
+// Delete chat asks first, then the chat leaves the list (R-Y100).
 // Fake chats in a memory store, Telegram's answers faked in the page, a
 // server on a free port, a headless browser; nothing reaches a network or
 // a running app. Not part of `npm test`; run it with:
@@ -103,6 +104,22 @@ await page.route('**/api/telegram/dialog', (route) => {
     body: JSON.stringify({ ok: true }),
   });
 });
+// Clear, delete, leave (R-Y100): the server marks the chat's messages
+// deleted, as the real one does.
+const removed = [];
+await page.route('**/api/telegram/remove-chat', async (route) => {
+  const body = JSON.parse(route.request().postData() ?? '{}');
+  removed.push(body);
+  const link = await store.get(`msg:telegram:${body.chat}:1`);
+  if (link) {
+    await store.put({ ...link, deleted: true });
+  }
+  route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ ok: true, chat: body.chat, deleted: 1 }),
+  });
+});
 const until = async (check, what, ms = 10_000) => {
   const end = Date.now() + ms;
   while (Date.now() < end) {
@@ -136,7 +153,14 @@ try {
   const items = await menuItems();
   assert(
     JSON.stringify(items) ===
-      JSON.stringify(['pinChat', 'mute', 'markUnread', 'archive']),
+      JSON.stringify([
+        'pinChat',
+        'mute',
+        'markUnread',
+        'archive',
+        'clearHistory',
+        'deleteChat',
+      ]),
     `menu items: ${items}`
   );
   await page.click('.msg-context-menu [data-action="pinChat"]');
@@ -197,6 +221,36 @@ try {
     'opening a marked chat takes the mark off'
   );
   console.log('[e2e-chat-menu] opening a marked chat unmarks it');
+
+  // Delete chat: asked first, in red; "Also delete for" the person.
+  await page.click('[data-chat="telegram:111"]', { button: 'right' });
+  await page.click('.msg-context-menu [data-action="deleteChat"]');
+  await page.waitForSelector('.remove-chat-dialog');
+  const question = await page.textContent('.remove-chat-dialog');
+  assert(
+    question.includes('Fake Alice'),
+    `the question names the chat: ${question}`
+  );
+  await page.keyboard.press('Escape');
+  await page.waitForSelector('.remove-chat-dialog', { state: 'detached' });
+  assert(removed.length === 0, 'Esc deletes nothing');
+  await page.click('[data-chat="telegram:111"]', { button: 'right' });
+  await page.click('.msg-context-menu [data-action="deleteChat"]');
+  await page.check('.remove-chat-dialog [data-option="revoke"]');
+  await page.click('[data-action="confirm-remove"]');
+  await until(() => removed.length === 1, 'delete asked');
+  assert(
+    removed[0].chat === '111' &&
+      removed[0].action === 'delete' &&
+      removed[0].revoke === true,
+    `delete: ${JSON.stringify(removed[0])}`
+  );
+  await page.waitForSelector('[data-chat="telegram:111"]', {
+    state: 'detached',
+  });
+  console.log(
+    '[e2e-chat-menu] Delete chat: asked, for both, gone from the list'
+  );
 
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log(`[e2e-chat-menu] OK (${engine})`);

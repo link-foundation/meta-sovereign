@@ -885,6 +885,13 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for search' },
 
+  // Clear, delete or leave a chat (R-Y100): { chat, action: 'clear' |
+  // 'delete' | 'leave', revoke? } → { ok, deleted }.
+  telegramRemoveChat: async (body = {}) =>
+    (await serverPostReport('/api/telegram/remove-chat', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for the chat list menu' },
+
   // Files and photos (R-Y99): each file uploaded (`onProgress` 0…1),
   // then sent together: { chat, tokens, caption, asPhoto, group,
   // replyTo } → { ok, ids }.

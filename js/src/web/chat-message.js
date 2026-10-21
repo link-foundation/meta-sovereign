@@ -374,10 +374,20 @@ const MENU_ITEMS = {
   markUnread: ['chat.list.markUnread', 'chat'],
   archive: ['chat.list.archive', 'archive'],
   unarchive: ['chat.list.unarchive', 'unarchive'],
+  clearHistory: ['chat.list.clearHistory', 'eraser'],
+  deleteChat: ['chat.list.deleteChat', 'trash'],
+  leaveGroup: ['chat.list.leaveGroup', 'log-out'],
+  leaveChannel: ['chat.list.leaveChannel', 'log-out'],
 };
 
-// Delete is drawn in red, as Desktop draws it.
-const DANGER = new Set(['delete', 'deleteSelected']);
+// Delete and leave are drawn in red, as Desktop draws them.
+const DANGER = new Set([
+  'delete',
+  'deleteSelected',
+  'deleteChat',
+  'leaveGroup',
+  'leaveChannel',
+]);
 
 // What an item acts on besides the message: the text selected, the
 // link, whether a photo or sticker is saved.

@@ -4649,3 +4649,18 @@ button[aria-busy='true']::before {
   background: rgba(0, 0, 0, 0.55);
   color: #fff;
 }
+
+/* Clear, delete or leave a chat (R-Y100). */
+.remove-chat-dialog h3 {
+  margin: 0;
+}
+.remove-chat-dialog p {
+  margin: 0;
+}
+.remove-chat-note {
+  color: var(--text-muted, inherit);
+  font-size: 0.9rem;
+}
+.remove-chat-dialog .pin-dialog-option {
+  margin: 0;
+}

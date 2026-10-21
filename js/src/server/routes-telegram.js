@@ -40,6 +40,9 @@
  *                                  group?, replyTo?}
  *                                      -> { ok, ids } the files sent:
  *                                         photos, albums, files (R-Y99)
+ *   POST /api/telegram/remove-chat {chat, action, revoke?}
+ *                                      -> { ok, deleted } clear, delete
+ *                                         or leave the chat (R-Y100)
  *   GET  /api/telegram/media?chat=&id=&size=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
@@ -59,6 +62,7 @@ import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
+import { removalAllowed } from '../sources/telegram-chat-removal.js';
 import {
   MAX_CAPTION,
   MAX_FILES,
@@ -222,6 +226,24 @@ const POSTS = {
         chat: body.chat,
         q: body.q,
         offsetId: Number.isInteger(body.offsetId) ? body.offsetId : 0,
+      }),
+    ];
+  },
+  // Clear, delete or leave a chat (R-Y100).
+  'remove-chat': async (account, body) => {
+    if (
+      !validChat(body.chat) ||
+      !removalAllowed(body.chat, body.action) ||
+      typeof account.removeChat !== 'function'
+    ) {
+      return [400, { error: 'chat and action required', code: 'bad-request' }];
+    }
+    return [
+      200,
+      await account.removeChat({
+        chat: body.chat,
+        action: body.action,
+        revoke: body.revoke === true,
       }),
     ];
   },

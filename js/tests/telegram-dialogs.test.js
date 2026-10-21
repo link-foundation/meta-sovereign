@@ -255,6 +255,8 @@ test('the menu offers what Telegram does, by the chat state (R-Y97)', () => {
     'mute',
     'markUnread',
     'archive',
+    'clearHistory',
+    'deleteChat',
   ]);
   assert.deepEqual(
     chatMenuItems({
@@ -264,7 +266,14 @@ test('the menu offers what Telegram does, by the chat state (R-Y97)', () => {
       unread: 3,
       archived: true,
     }),
-    ['unpinChat', 'unmute', 'markRead', 'unarchive']
+    [
+      'unpinChat',
+      'unmute',
+      'markRead',
+      'unarchive',
+      'clearHistory',
+      'deleteChat',
+    ]
   );
   assert.deepEqual(chatMenuItems({ ...chat, marked: true })[2], 'markRead');
   assert.deepEqual(chatMenuItems({ source: 'email', chat: 'x' }), []);

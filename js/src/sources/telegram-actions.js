@@ -21,7 +21,8 @@
  * - the chat list's menu (pin, mute, archive, mark read or unread) is
  *   ./telegram-dialogs.js (R-Y97); search in a chat is
  *   ./telegram-search.js (R-Y98); files and photos are sent by
- *   ./telegram-upload.js (R-Y99).
+ *   ./telegram-upload.js (R-Y99); clearing, deleting and leaving a chat
+ *   is ./telegram-chat-removal.js (R-Y100).
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
@@ -34,6 +35,7 @@ import { createPollActions } from './telegram-polls.js';
 import { createDialogActions } from './telegram-dialogs.js';
 import { createChatSearch } from './telegram-search.js';
 import { createFileSender } from './telegram-upload.js';
+import { createChatRemoval } from './telegram-chat-removal.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -307,12 +309,14 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 };
 
 // Polls and checklists (R-Y74); the chat list's menu (R-Y97); search
-// in a chat (R-Y98); files and photos (R-Y99).
+// in a chat (R-Y98); files and photos (R-Y99); clear, delete, leave
+// (R-Y100).
 const chatActions = (env, context) => ({
   ...createPollActions(env, context),
   ...createDialogActions(env, context),
   ...createChatSearch(env, context),
   ...createFileSender(env, context),
+  ...createChatRemoval(env, context),
 });
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a
