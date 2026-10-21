@@ -30,7 +30,11 @@ import {
   summarizeChats,
 } from '../src/web/chat-model.js';
 import { applyLinkEvents } from '../src/web/chat-live.js';
-import { isStreamedId } from '../src/server/routes-events.js';
+import {
+  MAX_BUFFERED,
+  handleEventRoutes,
+  isStreamedId,
+} from '../src/server/routes-events.js';
 
 // ---- updates → effects -----------------------------------------------------
 
@@ -534,6 +538,39 @@ test('/api/events streams chat links and never secrets', async () => {
     controller.abort();
     await server.close();
   }
+});
+
+test('a page that stops reading the stream is cut off, not buffered for', async () => {
+  const store = createMemoryStore();
+  const logged = [];
+  const req = { method: 'GET', headers: {}, on: () => {} };
+  const res = {
+    writableLength: 0,
+    written: 0,
+    destroyed: false,
+    writeHead: () => {},
+    on: () => {},
+    write(text) {
+      this.written += 1;
+      this.writableLength += text.length;
+      return false;
+    },
+    destroy() {
+      this.destroyed = true;
+    },
+  };
+  handleEventRoutes(store, req, res, '/api/events', {
+    log: (e) => logged.push(e),
+  });
+  await store.put({ id: 'msg:telegram:42:1', body: 'x', chat: '42' });
+  assert.equal(res.destroyed, false);
+  res.writableLength = MAX_BUFFERED + 1;
+  await store.put({ id: 'msg:telegram:42:2', body: 'y', chat: '42' });
+  assert.equal(res.destroyed, true);
+  const before = res.written;
+  await store.put({ id: 'msg:telegram:42:3', body: 'z', chat: '42' });
+  assert.equal(res.written, before, 'nothing more is queued for it');
+  assert.equal(logged.find((e) => e.event === 'events_slow_client')?.sent, 1);
 });
 
 // ---- the chat: delivery, pending, order ------------------------------------

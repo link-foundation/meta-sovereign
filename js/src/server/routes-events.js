@@ -7,6 +7,11 @@
  *   event: ready   once, when the stream is open
  *   : ping         a comment every 25 s keeps proxies from closing it
  *
+ * A page that stops reading (a sleeping tab, a dead connection) is cut
+ * off once `MAX_BUFFERED` bytes wait for it, instead of the server
+ * holding every change for it until it runs out of memory: the page
+ * reconnects and catches up (./web/chat-live.js `refresh`).
+ *
  * Only what the chat shows is streamed — messages, read markers, typing,
  * people, chat history marks and the Telegram sync status — never
  * `secret:` links, and no history read ahead of the user. Other
@@ -30,6 +35,7 @@ export const isStreamedId = (id) =>
   typeof id === 'string' && EVENT_PREFIXES.some((p) => id.startsWith(p));
 
 const HEARTBEAT_MS = 25_000;
+export const MAX_BUFFERED = 4 * 1024 * 1024;
 
 const frame = (event, data) =>
   `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
@@ -58,7 +64,18 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
   const feed = ctx.chatIndex ?? store;
   const unsubscribe = feed.subscribe((event) => {
     const id = event?.link?.id;
-    if (!isStreamedId(id) || event.quiet) {
+    if (closed || !isStreamedId(id) || event.quiet) {
+      return;
+    }
+    if (res.writableLength > MAX_BUFFERED) {
+      ctx.log?.({
+        level: 'warn',
+        event: 'events_slow_client',
+        buffered: res.writableLength,
+        sent,
+      });
+      close();
+      res.destroy();
       return;
     }
     sent += 1;

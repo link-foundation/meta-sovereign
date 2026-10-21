@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
-import { schemaToTl, tlLine } from '../scripts/telegram-schema.mjs';
+import { schemaToTl, tdlibToTl, tlLine } from '../scripts/telegram-schema.mjs';
 import { LAYER } from '../src/sources/telegram-layer.js';
 import { rereadUnsupported } from '../src/sources/telegram-repair.js';
 import { createMemoryStore } from '../src/storage/universal.js';
@@ -64,6 +64,35 @@ test('the published schema becomes the TL lines GramJS reads', () => {
   assert.match(tl, /^\/\/ Telegram API layer 7/);
   assert.match(tl, /vector#1cb5c415 \{t:Type\} # \[ t \] = Vector t;/);
   assert.match(tl, /---functions---/);
+});
+
+test("TDLib's schema becomes the same TL, without TDLib's own calls", () => {
+  const tl = tdlibToTl(
+    [
+      'int ? = Int;',
+      'test.useError = Error;',
+      '---functions---',
+      'test.useConfigSimple = help.ConfigSimple;',
+      '---types---',
+      '// a comment',
+      'boolFalse#bc799737 = Bool;',
+      '  messages.chatInviteJoinResultOk#445663a7 updates:Updates = messages.ChatInviteJoinResult;',
+      '---functions---',
+      'help.getConfig#c4f9186b = Config;',
+      '',
+    ].join('\n'),
+    232
+  );
+  assert.deepEqual(tl.split('\n'), [
+    "// Telegram API layer 232, from TDLib's telegram_api.tl",
+    'boolFalse#bc799737 = Bool;',
+    'messages.chatInviteJoinResultOk#445663a7 updates:Updates = messages.ChatInviteJoinResult;',
+    '',
+    '---functions---',
+    '',
+    'help.getConfig#c4f9186b = Config;',
+    '',
+  ]);
 });
 
 test('the shipped layer parses in GramJS, new polls and checklists too', () => {
