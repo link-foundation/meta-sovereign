@@ -99,6 +99,29 @@ h1 {
 .status {
   color: var(--muted);
 }
+/* Still checking the release: the app's turning arc (R-Y84). */
+.status.loading::before {
+  content: '';
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.5em;
+  vertical-align: -0.1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: status-turn 0.75s linear infinite;
+}
+@keyframes status-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .status.loading::before {
+    animation-duration: 3s;
+  }
+}
 
 .primary-download,
 .button {

@@ -22,6 +22,7 @@ import { SettingsView } from './settings-view.js';
 import { useDates, useT } from './i18n.js';
 import { ConnectionsList, ConnectionDetail } from './connections/index.js';
 import { connectionHash, parseConnectionHash } from './connections/hash.js';
+import { PageLoading } from './spinner.js';
 
 const el = React.createElement;
 
@@ -66,10 +67,7 @@ const useAsyncValue = (loader, deps, initialValue) => {
   return state;
 };
 
-const Loading = () => {
-  const t = useT();
-  return el('div', { className: 'meta' }, t('common.loading'));
-};
+const Loading = () => el(PageLoading);
 
 const ErrorMessage = ({ error }) =>
   error ? el('pre', { role: 'alert' }, String(error.message ?? error)) : null;

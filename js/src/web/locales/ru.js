@@ -59,7 +59,7 @@ export const ru = {
   'shell.primaryNavAria': 'Основная навигация',
   'shell.more': 'Ещё',
   'shell.moreAria': 'Другие разделы',
-  'common.loading': 'Загрузка...',
+  'common.loading': 'Загрузка…',
   'common.save': 'Сохранить',
   'common.send': 'Отправить',
   'common.cancel': 'Отменить',

@@ -38,6 +38,7 @@ import { ArchiveHead, ArchiveItem, ChatAvatar, ChatItem } from './chat-list.js';
 import { useChatActions } from './chat-actions.js';
 import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
+import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 export { reasonText } from './notice.js';
 
@@ -173,8 +174,20 @@ const listEnd = (t, state, more) => {
   return state.moreChats?.available && !state.query
     ? el(
         'p',
-        { key: 'more', className: 'meta chat-list-more', 'data-more': '' },
-        t('chat.loadingChats')
+        {
+          key: 'more',
+          className: 'meta chat-list-more',
+          'data-more': '',
+          role: 'status',
+        },
+        [
+          el(Spinner, { key: 's' }),
+          el(
+            'span',
+            { key: 't', className: 'sr-only' },
+            t('chat.loadingChats')
+          ),
+        ]
       )
     : null;
 };
@@ -700,7 +713,15 @@ const OlderRow = ({ history }) => {
             t('chat.failure.retry')
           ),
         ]
-      : t('chat.loadingEarlier')
+      : [
+          // Telegram shows the arc alone above the messages.
+          el(Spinner, { key: 's' }),
+          el(
+            'span',
+            { key: 't', className: 'sr-only' },
+            t('chat.loadingEarlier')
+          ),
+        ]
   );
 };
 
@@ -1080,6 +1101,26 @@ const FailedBar = ({ composer }) => {
   ]);
 };
 
+// The chat screen before its chats come: the list's rows as shimmering
+// shapes, as Telegram Web A draws them, and the conversation's side
+// empty (R-Y84).
+const ChatLoading = ({ t }) =>
+  el('div', { className: 'chat-shell is-loading' }, [
+    el('aside', { key: 'side', className: 'chat-sidebar' }, [
+      el(
+        'div',
+        { key: 'h', className: 'chat-sidebar-head' },
+        el(
+          Busy,
+          { as: 'span', className: 'chat-sidebar-title' },
+          t('common.loading')
+        )
+      ),
+      el(ChatListSkeleton, { key: 'rows' }),
+    ]),
+    el('section', { key: 'main', className: 'chat-main' }),
+  ]);
+
 /** No network, the local server restarting, Telegram reconnecting. */
 const ConnectionBanner = ({ banner }) => {
   const t = useT();
@@ -1091,7 +1132,10 @@ const ConnectionBanner = ({ banner }) => {
           role: 'status',
           'data-banner': banner,
         },
-        t(`chat.banner.${banner}`)
+        [
+          el(Spinner, { key: 's' }),
+          el('span', { key: 't' }, t(`chat.banner.${banner}`)),
+        ]
       )
     : null;
 };
@@ -1278,7 +1322,7 @@ export const ChatScreen = ({ state, api }) => {
   };
   const [select] = useState(() => (key) => latest.current(key));
   if (state.loading) {
-    return el('div', { className: 'meta' }, t('common.loading'));
+    return el(ChatLoading, { t });
   }
   if (state.total === 0) {
     // Connected but nothing synced yet: say so, never "connect" again.

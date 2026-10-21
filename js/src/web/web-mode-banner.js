@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { DISMISS_STORAGE_KEY, webModeNotice } from './web-mode.js';
+import { Busy } from './spinner.js';
 
 const el = React.createElement;
 
@@ -44,6 +45,16 @@ const useNearby = (online, findNearby) => {
  *           notice?: object }} props `notice` overrides the computed
  *           webModeNotice() (tests render it without browser globals).
  */
+// What the retry found, or the arc while it is still looking (R-Y84).
+const RetryStatus = ({ retry, text }) => {
+  if (!text) {
+    return null;
+  }
+  return retry === 'checking'
+    ? el(Busy, null, text)
+    : el('p', { className: 'meta', role: 'status' }, text);
+};
+
 export const WebModeBanner = ({
   online,
   onRetry,
@@ -122,6 +133,7 @@ export const WebModeBanner = ({
             className: 'primary',
             'data-action': 'web-mode-retry',
             disabled: retry === 'checking',
+            'aria-busy': retry === 'checking' ? 'true' : undefined,
             onClick: check,
           },
           t('webMode.retry')
@@ -170,9 +182,7 @@ export const WebModeBanner = ({
           t('webMode.dismiss')
         ),
       ]),
-      status
-        ? el('p', { key: 'status', className: 'meta', role: 'status' }, status)
-        : null,
+      el(RetryStatus, { key: 'status', retry, text: status }),
     ]
   );
 };

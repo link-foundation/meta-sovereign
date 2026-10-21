@@ -287,7 +287,11 @@ test('screen: typing status, translated, and the empty states', () => {
     screenState({ typing: { people: ['Alice Smith'], automation: null } })
   );
   assert.match(people, /data-typing="people">Alice Smith typing…/);
-  assert.match(render(screenState({ loading: true })), /Loading/);
+  // Loading: the list's rows as shapes and Telegram's arc (R-Y84).
+  const loading = render(screenState({ loading: true }));
+  assert.match(loading, /Loading…/);
+  assert.match(loading, /class="spinner spinner-small"/);
+  assert.equal(loading.match(/chat-skeleton-row/g).length, 9);
   // No chats at all: the connection guide explains how to import some.
   assert.doesNotMatch(
     render(screenState({ total: 0, chats: [] })),
@@ -322,6 +326,7 @@ test('screen: a connected Telegram account never asks to connect again', () => {
   );
   assert.match(syncing, /Connected as @owner/);
   assert.match(syncing, /Loading your chats and contacts/);
+  assert.match(syncing, /class="meta busy"/);
   assert.match(syncing, /data-state="syncing"/);
   const failed = render(
     screenState({

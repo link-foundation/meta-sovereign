@@ -13,6 +13,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useDates, useT } from './i18n.js';
+import { Busy } from './spinner.js';
 
 const el = React.createElement;
 
@@ -451,9 +452,7 @@ export const CvScreen = ({ state, login = '', setLogin = () => {} }) => {
         )
       : el(CvPlatforms, { key: 'platforms', state }),
     el(CvControls, { key: 'controls', state, login, setLogin }),
-    state.busy
-      ? el('p', { key: 'busy', className: 'meta' }, t('cv.busy'))
-      : null,
+    state.busy ? el(Busy, { key: 'busy' }, t('cv.busy')) : null,
     el(Failures, { key: 'failures', failures: state.failures }),
     el('h3', { key: 'cmp-h' }, t('cv.differences')),
     el(ComparisonTable, {

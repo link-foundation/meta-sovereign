@@ -13,6 +13,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { api as defaultApi } from './dom.js';
 import { useT } from './i18n.js';
+import { Busy } from './spinner.js';
 
 const el = React.createElement;
 
@@ -617,9 +618,7 @@ export const GreetingsScreen = ({ state }) => {
     el('h2', { key: 'h' }, t('greetings.title')),
     el('p', { key: 'intro', className: 'meta' }, t('greetings.intro')),
     el(Failures, { key: 'failures', failures: state.failures }),
-    state.busy
-      ? el('p', { key: 'busy', className: 'meta' }, t('greetings.busy'))
-      : null,
+    state.busy ? el(Busy, { key: 'busy' }, t('greetings.busy')) : null,
     el('h3', { key: 'stickers-h' }, t('greetings.stickers')),
     el(SelectionControls, { key: 'selection', state }),
     state.saved

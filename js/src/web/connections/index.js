@@ -35,6 +35,7 @@ import {
 } from './telegram-sessions.js';
 import { byPopularity, formatUsers, serviceUsers } from './popularity.js';
 import { BrowserSignIns, listOf } from './browser-sign-ins.js';
+import { Busy } from '../spinner.js';
 
 const el = React.createElement;
 
@@ -47,6 +48,15 @@ const tx = (t, value, key) => {
   }
   return value;
 };
+
+// A status that is still at work ("Saving…") shows Telegram's arc
+// (R-Y84); one that is done is plain text.
+const working = (text) => ({ busy: true, text });
+
+const StatusText = ({ status }) =>
+  status?.busy
+    ? el(Busy, { as: 'span' }, status.text)
+    : el('span', { className: 'meta' }, status);
 
 const errorHintFor = (t, provider, status) => {
   const keys = provider?.apiCredentials?.errorHintKeys;
@@ -171,7 +181,7 @@ const ProviderCredentialsForm = ({
   const fields = provider.apiCredentials?.fields ?? [];
 
   const save = async () => {
-    setStatus(t('settings.saving'));
+    setStatus(working(t('settings.saving')));
     let saved = 0;
     for (const field of fields) {
       const value = values[field.id] ?? '';
@@ -195,7 +205,7 @@ const ProviderCredentialsForm = ({
 
   const forget = async (field) => {
     const label = tx(t, field.label, field.labelKey);
-    setStatus(t('settings.forgetting', { label }));
+    setStatus(working(t('settings.forgetting', { label })));
     try {
       await api.del(field.secretId);
     } catch {
@@ -272,7 +282,7 @@ const ProviderCredentialsForm = ({
         },
         t('settings.saveCredentials')
       ),
-      el('span', { key: 'status', className: 'meta' }, status),
+      el(StatusText, { key: 'status', status }),
     ]),
   ]);
 };
@@ -287,7 +297,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
       setStatus(t('settings.nothingToImport'));
       return;
     }
-    setStatus(t('settings.importing', { label }));
+    setStatus(working(t('settings.importing', { label })));
     try {
       const mod = await import('../../sources/index.js');
       const adapter = mod.getSource(providerId);
@@ -373,7 +383,7 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
         },
         t('settings.importPasted')
       ),
-      el('span', { key: 'status', className: 'meta' }, status),
+      el(StatusText, { key: 'status', status }),
     ]),
   ]);
 };
@@ -406,6 +416,7 @@ const ConnectionProbeRow = ({ provider, credentials }) => {
           className: 'primary',
           onClick: probe,
           disabled: !ready || state.status === 'pending',
+          'aria-busy': state.status === 'pending' ? 'true' : undefined,
           'data-action': 'probe',
         },
         state.status === 'pending'
@@ -539,13 +550,12 @@ const AutoImportActions = ({ providerId, status, job, active, apply }) => {
 
 const AutoImportState = ({ job }) => {
   const t = useT();
-  return el(
-    'span',
-    { className: 'meta', role: 'status' },
-    `${autoImportStateText(t, job)} ${t('autoImport.imported', {
-      count: job.imported,
-    })}`
-  );
+  const text = `${autoImportStateText(t, job)} ${t('autoImport.imported', {
+    count: job.imported,
+  })}`;
+  return AUTO_IMPORT_ACTIVE.has(job.state)
+    ? el(Busy, { as: 'span' }, text)
+    : el('span', { className: 'meta', role: 'status' }, text);
 };
 
 const AutoImportFiles = ({ files }) =>

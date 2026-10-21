@@ -60,7 +60,7 @@ export const hi = {
   'shell.primaryNavAria': 'मुख्य नेविगेशन',
   'shell.more': 'और',
   'shell.moreAria': 'अन्य अनुभाग',
-  'common.loading': 'लोड हो रहा है...',
+  'common.loading': 'लोड हो रहा है…',
   'common.save': 'सहेजें',
   'common.send': 'भेजें',
   'common.cancel': 'रद्द करें',

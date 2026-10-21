@@ -14,6 +14,7 @@ import { Notice, reasonText } from './notice.js';
 import { networkName } from './connection-guides.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
+import { Busy } from './spinner.js';
 
 const el = React.createElement;
 
@@ -811,7 +812,7 @@ export const AutomationsScreen = ({ state }) => {
     }),
     el('div', { key: 'b', className: 'automations-body' }, [
       editor.loading
-        ? el('div', { key: 'l', className: 'meta' }, t('common.loading'))
+        ? el(Busy, { key: 'l' }, t('common.loading'))
         : el(AutomationList, { key: 'l', editor }),
       el('div', { key: 'e', className: 'col' }, [
         editor.form

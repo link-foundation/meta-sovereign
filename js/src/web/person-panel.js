@@ -9,6 +9,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { Busy } from './spinner.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
@@ -166,16 +167,20 @@ const Asked = ({ asked, t }) =>
 
 const Body = ({ learned, t, dateTime }) => {
   if (!learned) {
-    return el('p', { className: 'meta' }, t('chat.about.loading'));
+    return el(Busy, null, t('chat.about.loading'));
   }
   return [
-    el(
-      'p',
-      { key: 'm', className: 'meta' },
-      learned.complete === false
-        ? t('chat.about.reading', { count: learned.messages })
-        : t('chat.about.messages', { count: learned.messages })
-    ),
+    learned.complete === false
+      ? el(
+          Busy,
+          { key: 'm' },
+          t('chat.about.reading', { count: learned.messages })
+        )
+      : el(
+          'p',
+          { key: 'm', className: 'meta' },
+          t('chat.about.messages', { count: learned.messages })
+        ),
     el(Section, { key: 'ad', title: t('chat.about.address') }, [
       el(Address, { key: 'x', address: learned.address, t, dateTime }),
     ]),

@@ -60,7 +60,7 @@ export const en = {
   'shell.primaryNavAria': 'Primary navigation',
   'shell.more': 'More',
   'shell.moreAria': 'More sections',
-  'common.loading': 'Loading...',
+  'common.loading': 'Loading…',
   'common.save': 'Save',
   'common.send': 'Send',
   'common.cancel': 'Cancel',

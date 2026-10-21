@@ -158,6 +158,7 @@ const EntryLogin = ({ login, onField, onSubmit, busy }) => {
         className: 'primary',
         'data-action': 'telegram-session-login',
         disabled: Boolean(busy),
+        'aria-busy': busy ? 'true' : undefined,
         onClick: onSubmit,
       },
       t(busy ? 'telegramLogin.working' : 'telegramLogin.signIn')
@@ -520,6 +521,7 @@ export const TelegramLoginForm = ({ onConnected }) => {
           className: 'primary',
           'data-action': 'telegram-login',
           disabled: l.busy,
+          'aria-busy': l.busy ? 'true' : undefined,
           onClick: action.on,
         },
         t(l.busy ? 'telegramLogin.working' : action.key)
@@ -569,6 +571,7 @@ export const TelegramSessionsPanel = ({ onConnected }) => {
           className: groups ? '' : 'primary',
           'data-action': 'telegram-session-scan',
           disabled: busy === 'scan',
+          'aria-busy': busy === 'scan' ? 'true' : undefined,
           onClick: find,
         },
         t(

@@ -60,7 +60,7 @@ export const zh = {
   'shell.primaryNavAria': '主导航',
   'shell.more': '更多',
   'shell.moreAria': '更多栏目',
-  'common.loading': '加载中...',
+  'common.loading': '加载中…',
   'common.save': '保存',
   'common.send': '发送',
   'common.cancel': '取消',

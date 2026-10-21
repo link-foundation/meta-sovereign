@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { useDates, useT } from './i18n.js';
+import { Busy } from './spinner.js';
 
 const el = React.createElement;
 
@@ -59,17 +60,28 @@ const lineText = (t, telegram, when) => {
   return [connectedLine(t, telegram), when ? ` · ${when}` : ''].join('');
 };
 
+// Whether the line says Telegram is still at work: "Connecting…",
+// "Updating…" (Telegram turns its arc beside them).
+const working = (telegram) =>
+  !telegram.error &&
+  (telegram.connection === 'disconnected' ||
+    telegram.connection === 'broken' ||
+    Boolean(telegram.syncing));
+
 /** Chat with no conversations yet, but Telegram is connected. */
 export const ChatAccountEmpty = ({ telegram }) => {
   const t = useT();
   const failed = Boolean(telegram.error);
   let detail = t('chat.account.loading');
+  let loading = !failed;
   if (failed) {
     detail = t('chat.account.failed', { error: telegram.error });
   } else if (telegram.kind === 'bot') {
     detail = t('chat.account.botHint');
+    loading = false;
   } else if (telegram.at && !telegram.syncing) {
     detail = t('chat.account.noChats');
+    loading = false;
   }
   return el(
     'section',
@@ -81,7 +93,9 @@ export const ChatAccountEmpty = ({ telegram }) => {
     },
     [
       el('h2', { key: 'h' }, connectedLine(t, telegram)),
-      el('p', { key: 'p', className: 'meta' }, detail),
+      loading
+        ? el(Busy, { key: 'p', role: undefined }, detail)
+        : el('p', { key: 'p', className: 'meta' }, detail),
       failed
         ? el('div', { key: 'a', className: 'row' }, [
             el(
@@ -116,7 +130,17 @@ export const ChatAccountLine = ({ telegram }) => {
       title: telegram.error ?? undefined,
     },
     [
-      el('span', { key: 't', className: 'meta' }, lineText(t, telegram, when)),
+      working(telegram)
+        ? el(
+            Busy,
+            { key: 't', as: 'span', role: undefined },
+            lineText(t, telegram, when)
+          )
+        : el(
+            'span',
+            { key: 't', className: 'meta' },
+            lineText(t, telegram, when)
+          ),
       telegram.error
         ? el(
             'button',

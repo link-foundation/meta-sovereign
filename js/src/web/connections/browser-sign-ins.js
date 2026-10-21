@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import { api } from '../dom.js';
 import { useLocaleContext, useT } from '../i18n.js';
 import { providerCatalogue } from '../connection-guides.js';
+import { Busy } from '../spinner.js';
 
 const el = React.createElement;
 
@@ -209,8 +210,8 @@ const SignInsActions = ({ scanned, busy, canUse, onFind, onUse }) => {
     ),
     working
       ? el(
-          'span',
-          { key: 'busy', className: 'meta', role: 'status' },
+          Busy,
+          { key: 'busy', as: 'span' },
           t(busy === 'scan' ? 'signIns.scanning' : 'signIns.importing')
         )
       : null,
