@@ -3155,14 +3155,18 @@ button.primary .recommended-tag {
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
 }
 
-/* Document / file indicator. */
+/* A file, as Telegram draws it: its round icon, then its name and
+   size, from the bubble's left edge (not centred like a button), with
+   no box behind. */
 .bubble-doc {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.6rem;
   height: auto;
-  padding: 0.35rem 0.6rem 0.35rem 0.35rem;
-  background: rgba(0, 0, 0, 0.06);
+  min-height: 0;
+  padding: 0.2rem 0;
+  background: transparent;
   border: 0;
   border-radius: var(--radius);
   color: inherit;
@@ -3201,6 +3205,7 @@ button.primary .recommended-tag {
   opacity: 0.7;
 }
 .bubble-doc-name {
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3652,16 +3657,6 @@ button.primary .recommended-tag {
 }
 .composer-reply-clear:hover {
   color: var(--text);
-}
-
-/* Dark/light theme fixes for above. */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .bubble-doc {
-    background: rgba(0, 0, 0, 0.04);
-  }
-}
-:root[data-theme='light'] .bubble-doc {
-  background: rgba(0, 0, 0, 0.04);
 }
 
 /* One sender's run (chat-view.js messageRuns): bubbles sit close, and
