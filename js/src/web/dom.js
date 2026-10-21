@@ -841,6 +841,13 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for the chat list menu' },
 
+  // Search in one chat (R-Y98): { chat, q, offsetId? } → { ids, count,
+  // more }, newest first; the messages found are stored.
+  telegramSearch: async (body = {}) =>
+    (await serverPostReport('/api/telegram/search', body).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for search' },
+
   // A poll or checklist (R-Y74): `poll-vote` (no options retracts),
   // `poll-stop`, `poll-results`, `poll-votes`, `todo-toggle`.
   telegramPoll: async (action, body = {}) =>

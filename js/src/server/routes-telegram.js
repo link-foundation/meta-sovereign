@@ -29,6 +29,10 @@
  *                                         pin, unpin, mute (for seconds),
  *                                         unmute, archive, unarchive,
  *                                         read, unread (R-Y97)
+ *   POST /api/telegram/search {chat, q, offsetId?}
+ *                                      -> { ids, count, more } the chat's
+ *                                         messages with `q`, newest first,
+ *                                         stored (R-Y98)
  *   GET  /api/telegram/media?chat=&id=&size=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
@@ -47,6 +51,7 @@ import { classifyOrigin } from './cors.js';
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
+import { MAX_QUERY } from '../sources/telegram-search.js';
 
 const PREFIX = '/api/telegram/';
 
@@ -62,6 +67,10 @@ const validIds = (ids) =>
   ids.length > 0 &&
   ids.length <= 100 &&
   ids.every((id) => Number.isInteger(id) && id > 0);
+
+// A marked Telegram chat id, as a string.
+const validChat = (chat) =>
+  typeof chat === 'string' && /^-?\d{1,20}$/.test(chat);
 
 // POST /api/telegram/<name>: [status, answer] for one request body.
 const POSTS = {
@@ -169,8 +178,7 @@ const POSTS = {
   // The chat list's menu: pin, mute, archive, mark read (R-Y97).
   dialog: async (account, body) => {
     if (
-      typeof body.chat !== 'string' ||
-      !/^-?\d{1,20}$/.test(body.chat) ||
+      !validChat(body.chat) ||
       !DIALOG_ACTIONS.includes(body.action) ||
       typeof account.dialogAction !== 'function'
     ) {
@@ -182,6 +190,26 @@ const POSTS = {
         chat: body.chat,
         action: body.action,
         for: Number(body.for) || 0,
+      }),
+    ];
+  },
+  // Search in one chat (R-Y98).
+  search: async (account, body) => {
+    if (
+      !validChat(body.chat) ||
+      typeof body.q !== 'string' ||
+      !body.q.trim() ||
+      body.q.length > MAX_QUERY ||
+      typeof account.searchChat !== 'function'
+    ) {
+      return [400, { error: 'chat and q required', code: 'bad-request' }];
+    }
+    return [
+      200,
+      await account.searchChat({
+        chat: body.chat,
+        q: body.q,
+        offsetId: Number.isInteger(body.offsetId) ? body.offsetId : 0,
       }),
     ];
   },

@@ -147,6 +147,12 @@ const ICONS = {
     ['path', { d: 'M18 6 6 18' }],
     ['path', { d: 'm6 6 12 12' }],
   ],
+  search: [
+    ['circle', { cx: 11, cy: 11, r: 8 }],
+    ['path', { d: 'm21 21-4.3-4.3' }],
+  ],
+  'chevron-up': [['path', { d: 'm18 15-6-6-6 6' }]],
+  'chevron-down': [['path', { d: 'm6 9 6 6 6-6' }]],
   check: [['path', { d: 'M20 6 9 17l-5-5' }]],
   // Lucide check-check, clock and circle-alert: a message's delivery.
   'check-double': [

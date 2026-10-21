@@ -49,6 +49,7 @@ import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
 import { useChatListMenu } from './chat-list-menu.js';
+import { SearchBar, SearchButton, useChatSearch } from './chat-search.js';
 
 export { failureText, waitingText } from './chat-failure.js';
 export { autopilotText } from './chat-automation.js';
@@ -463,7 +464,7 @@ const AboutButton = ({ about, onAbout }) => {
   );
 };
 
-const Header = ({ state, api, onBack, about, onAbout }) => {
+const Header = ({ state, api, onBack, about, onAbout, find }) => {
   const t = useT();
   const { chatTime } = useDates();
   const chat = state.current;
@@ -498,6 +499,7 @@ const Header = ({ state, api, onBack, about, onAbout }) => {
           : subtitleOf(t, state, chatTime)
       ),
     ]),
+    el(SearchButton, { key: 'find', find }),
     chat.personal ? el(AboutButton, { key: 'about', about, onAbout }) : null,
     el(AutomationMenu, {
       key: 'm',
@@ -1226,6 +1228,12 @@ const PinnedBar = ({ pinned, onOpen }) => {
 const ChatTop = ({ state, api, onBack }) => {
   const [about, setAbout] = useState(false);
   const chat = about && state.current?.personal ? state.current : null;
+  const find = useChatSearch({
+    api,
+    current: state.current,
+    messages: state.messages,
+    reach: state.history?.reach,
+  });
   return [
     el(Header, {
       key: 'h',
@@ -1234,7 +1242,9 @@ const ChatTop = ({ state, api, onBack }) => {
       onBack,
       about: Boolean(chat),
       onAbout: () => setAbout((open) => !open),
+      find,
     }),
+    el(SearchBar, { key: 'find', find }),
     chat
       ? el(PersonPanel, {
           key: `about:${chat.key}`,

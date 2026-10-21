@@ -494,8 +494,61 @@ main[data-view='chat'] > .web-mode-banner {
 .chat-menu {
   position: relative;
 }
-.chat-about.active {
+.chat-about.active,
+.chat-find-open.active {
   color: var(--chat-accent);
+}
+/* Search in the chat (R-Y98): a bar under the header, as Telegram's. */
+.chat-find {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--text-muted);
+}
+.chat-find-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.chat-find-count {
+  flex: none;
+  min-width: 4.5rem;
+  font-size: 0.8rem;
+  text-align: right;
+  white-space: nowrap;
+}
+.chat-find .icon-btn:disabled {
+  opacity: 0.35;
+}
+/* The message found, lit up a moment as Telegram does. */
+.is-found .bubble,
+.is-found.bubble {
+  animation: chat-found 1.6s ease-out;
+}
+@keyframes chat-found {
+  0%,
+  40% {
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--chat-accent) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .is-found .bubble {
+    animation: none;
+    outline: 2px solid var(--chat-accent);
+  }
 }
 /* What the conversation tells about the person (R-Y50): beside the
    messages, under the header, as Telegram's profile column. */
