@@ -816,6 +816,7 @@ export const hi = {
   'chat.about.title': '{name} के बारे में',
   'chat.marks.mentions': 'अपठित उल्लेख',
   'chat.marks.reactions': 'अपठित प्रतिक्रियाएँ',
+  'chat.about.openTelegram': 'Telegram में खोलें',
   'chat.about.close': 'बंद करें',
   'chat.about.loading': 'बातचीत से सीखा जा रहा है…',
   'chat.about.reading':

@@ -820,6 +820,7 @@ export const en = {
   'chat.about.title': 'About {name}',
   'chat.marks.mentions': 'Unread mentions',
   'chat.marks.reactions': 'Unread reactions',
+  'chat.about.openTelegram': 'Open in Telegram',
   'chat.about.close': 'Close',
   'chat.about.loading': 'Learning from the conversation…',
   'chat.about.reading':

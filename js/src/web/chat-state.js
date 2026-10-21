@@ -455,7 +455,11 @@ const useDrafts = ({ api, current, tick, after }) => {
     }
     after(
       result?.status === 'failed'
-        ? { kind: 'failed', error: result.error ?? result.code }
+        ? {
+            kind: 'failed',
+            code: result.code ?? null,
+            error: result.error ?? result.code,
+          }
         : { kind: `draft-${action}` }
     );
     return result;

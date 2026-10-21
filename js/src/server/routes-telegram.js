@@ -373,8 +373,10 @@ const handleFile = async (account, req, res, ctx) => {
   return sendBytes(req, res, result);
 };
 
-// A photo not on disk yet is waited for this long, then asked again.
-const AVATAR_WAIT_MS = 1500;
+// A photo not on disk yet is waited for this long, then asked again: a
+// photo on disk answers in a few ms, and a longer wait held one of the
+// browser's six connections for each photo still downloading (R-Y85).
+const AVATAR_WAIT_MS = 250;
 const LATER = Symbol('later');
 
 // `promise`'s value, or LATER when it takes longer than `ms` (it goes

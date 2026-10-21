@@ -795,6 +795,7 @@ export const zh = {
   'chat.about.title': '关于 {name}',
   'chat.marks.mentions': '未读提及',
   'chat.marks.reactions': '未读回应',
+  'chat.about.openTelegram': '在 Telegram 中打开',
   'chat.about.close': '关闭',
   'chat.about.loading': '正在从对话中学习…',
   'chat.about.reading': '目前已从 {count} 条消息中学习；其余历史正在优先读取',

@@ -830,6 +830,7 @@ export const ru = {
   'chat.about.title': 'О собеседнике: {name}',
   'chat.marks.mentions': 'Непрочитанные упоминания',
   'chat.marks.reactions': 'Непрочитанные реакции',
+  'chat.about.openTelegram': 'Открыть в Telegram',
   'chat.about.close': 'Закрыть',
   'chat.about.loading': 'Изучаю переписку…',
   'chat.about.reading':

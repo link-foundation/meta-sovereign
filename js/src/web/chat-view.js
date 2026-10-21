@@ -18,7 +18,12 @@ import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { ChatAccountEmpty, ChatAccountLine } from './chat-account.js';
 import { networkName } from './connection-guides.js';
-import { CHAT_FILTERS, CHAT_SORTS, groupChats } from './chat-model.js';
+import {
+  CHAT_FILTERS,
+  CHAT_SORTS,
+  groupChats,
+  networkMessageId,
+} from './chat-model.js';
 import { presetName } from './automations-model.js';
 import { useChatState } from './chat-state.js';
 import { Icon } from './icons.js';
@@ -503,6 +508,16 @@ const FORM_KEYS = {
 const DraftCard = ({ draft, drafts }) => {
   const t = useT();
   const other = draft.form === 'formal' ? 'informal' : 'formal';
+  // One action at a time; the pressed button turns while it works.
+  const [working, setWorking] = useState(null);
+  const press = async (action, extra) => {
+    setWorking(action);
+    try {
+      await drafts.act(action, { ...draft, ...extra });
+    } finally {
+      setWorking(null);
+    }
+  };
   const button = (action, label, extra = {}) =>
     el(
       'button',
@@ -510,7 +525,9 @@ const DraftCard = ({ draft, drafts }) => {
         key: action,
         type: 'button',
         'data-action': `draft-${action}`,
-        onClick: () => drafts.act(action, { ...draft, ...extra }),
+        disabled: working !== null,
+        'aria-busy': working === action ? 'true' : undefined,
+        onClick: () => press(action, extra),
         className: action === 'send' ? 'primary' : undefined,
       },
       label
@@ -569,6 +586,17 @@ const DraftCard = ({ draft, drafts }) => {
       ]),
     ]
   );
+};
+
+/** A failed send's notice with the reason in words, as the composer's. */
+export const noticeInWords = (t, notice) => {
+  if (notice?.kind !== 'failed') {
+    return notice;
+  }
+  const words = notice.code
+    ? failureText(t, notice)
+    : String(notice.error ?? '').trim();
+  return { ...notice, error: words.replace(/[.!?。।]*$/u, '') };
 };
 
 const NOTICE = {
@@ -1299,6 +1327,10 @@ const ChatTop = ({ state, api, onBack }) => {
           key: `about:${chat.key}`,
           api,
           chat,
+          username: state.info?.username ?? null,
+          lastId: networkMessageId(
+            state.messages.findLast((m) => !m.pending) ?? null
+          ),
           onClose: () => setAbout(false),
         })
       : null,
@@ -1358,7 +1390,7 @@ export const ChatScreen = ({ state, api }) => {
             el(FailedBar, { key: 'failed', composer: state.composer }),
             el(Notice, {
               key: 'n',
-              notice: state.notice,
+              notice: noticeInWords(t, state.notice),
               labels: NOTICE,
               dismiss: state.dismiss,
             }),

@@ -147,9 +147,16 @@ export const createAutomationRunner = ({
         status: 'failed',
         at: nowIso(),
         error: error.message,
+        code: error.code,
       });
       await store.put(record);
-      return { status: 'failed', draft, record, error: error.message };
+      return {
+        status: 'failed',
+        draft,
+        record,
+        error: error.message,
+        ...(error.code ? { code: error.code } : {}),
+      };
     }
   };
 

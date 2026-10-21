@@ -196,8 +196,56 @@ const Body = ({ learned, t, dateTime }) => {
   ];
 };
 
+/**
+ * Where Telegram's own app opens this chat: a public username's t.me
+ * page, else the person (`tg://user?id=`), a supergroup or channel at its
+ * newest message (`t.me/c/`), a basic group by its id. Null elsewhere.
+ */
+export const telegramChatUrl = ({ source, chat, username, lastId } = {}) => {
+  if (source !== 'telegram' || !chat) {
+    return null;
+  }
+  if (username) {
+    return `https://t.me/${encodeURIComponent(username)}`;
+  }
+  const id = String(chat);
+  if (/^\d+$/.test(id)) {
+    return `tg://user?id=${id}`;
+  }
+  if (/^-100\d+$/.test(id)) {
+    const post = /^\d+$/.test(String(lastId ?? '')) ? `/${lastId}` : '';
+    return `https://t.me/c/${id.slice(4)}${post}`;
+  }
+  return /^-\d+$/.test(id) ? `tg://openmessage?chat_id=${id.slice(1)}` : null;
+};
+
+const OpenInTelegram = ({ chat, username, lastId, t }) => {
+  const href = telegramChatUrl({
+    source: chat?.source,
+    chat: chat?.chat,
+    username,
+    lastId,
+  });
+  return href
+    ? el(
+        'footer',
+        { className: 'person-panel-foot' },
+        el(
+          'a',
+          {
+            className: 'button person-open-telegram',
+            href,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          },
+          t('chat.about.openTelegram')
+        )
+      )
+    : null;
+};
+
 /** The panel; `onClose` hides it. */
-export const PersonPanel = ({ api, chat, onClose }) => {
+export const PersonPanel = ({ api, chat, username, lastId, onClose }) => {
   const t = useT();
   const { dateTime } = useDates();
   const learned = usePersonLearned(api, chat?.key, true);
@@ -232,6 +280,7 @@ export const PersonPanel = ({ api, chat, onClose }) => {
         { key: 'b', className: 'person-panel-body' },
         el(Body, { learned, t, dateTime })
       ),
+      el(OpenInTelegram, { key: 'f', chat, username, lastId, t }),
     ]
   );
 };

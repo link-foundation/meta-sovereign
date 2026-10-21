@@ -24,6 +24,73 @@ const RETRY_DELAYS_MS = [3000, 10_000, 30_000, 60_000, 120_000, 300_000];
 
 const photoKey = (source, peer, size) => `${source}:${peer}:${size}`;
 
+// The browser has six connections to the server: a hundred photos asked
+// at once took them all, and the About panel, a send or a page of
+// history waited behind them. At most this many photos are asked at a
+// time, those on screen; one already loaded (cached) is not held back.
+export const AVATAR_SLOTS = 2;
+const slots = { busy: 0, waiting: [] };
+
+/** Run `start` once a slot is free; returns a function that gives it up. */
+export const takeSlot = (start) => {
+  let state = 'waiting';
+  const begin = () => {
+    state = 'held';
+    slots.busy += 1;
+    start();
+  };
+  if (slots.busy < AVATAR_SLOTS) {
+    begin();
+  } else {
+    slots.waiting.push(begin);
+  }
+  return () => {
+    if (state === 'waiting') {
+      slots.waiting = slots.waiting.filter((next) => next !== begin);
+    } else if (state === 'held') {
+      slots.busy -= 1;
+      slots.waiting.shift()?.();
+    }
+    state = 'done';
+  };
+};
+
+// Whether `url` may be loaded: at once when cached, else once the
+// avatar is on screen and a slot is free. `done()` frees the slot.
+const useSlot = (box, url, cached) => {
+  const [granted, setGranted] = useState(cached);
+  const free = useRef(() => {});
+  useEffect(() => {
+    setGranted(Boolean(url) && cached);
+    if (!url || cached) {
+      return undefined;
+    }
+    let release = () => {};
+    const ask = () => {
+      release = takeSlot(() => setGranted(true));
+    };
+    const Observer = globalThis.IntersectionObserver;
+    let observer = null;
+    if (typeof Observer === 'function' && box.current) {
+      observer = new Observer((entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          observer.disconnect();
+          ask();
+        }
+      });
+      observer.observe(box.current);
+    } else {
+      ask();
+    }
+    free.current = () => release();
+    return () => {
+      observer?.disconnect();
+      release();
+    };
+  }, [url, cached]);
+  return [granted, () => free.current()];
+};
+
 const canAsk = (api, source, peer) =>
   source === 'telegram' &&
   peer &&
@@ -132,18 +199,23 @@ export const PeerAvatar = ({
 }) => {
   const { initials } = avatarFor(name ?? peer);
   const [url, remember] = usePhoto(api, { source, peer, size, chat, msg });
+  const box = useRef(null);
+  const cached =
+    Boolean(url) && photos.get(photoKey(source, peer, size)) === url;
+  const [granted, done] = useSlot(box, url, cached);
   const [shown, setShown] = useState(false);
   useEffect(() => setShown(false), [url]);
   return el(
     'span',
     {
+      ref: box,
       className: `${className} peer-avatar ${peerColorClass(peer, { name })}`,
       'aria-hidden': 'true',
       ...(title ? { title } : {}),
     },
     [
       el('span', { key: 'i', className: 'peer-avatar-initials' }, initials),
-      url
+      url && granted
         ? el('img', {
             key: 'p',
             ...mediaSrc(url),
@@ -153,10 +225,12 @@ export const PeerAvatar = ({
             draggable: false,
             className: shown ? 'shown' : undefined,
             onLoad: () => {
+              done();
               remember(true);
               setShown(true);
             },
             onError: () => {
+              done();
               remember(false);
               setShown(false);
             },

@@ -553,9 +553,19 @@ main[data-view='chat'] > .web-mode-banner {
   border-bottom: 1px solid var(--border);
 }
 .person-panel-body {
+  flex: 1;
   overflow-y: auto;
   padding: 0.6rem 1rem 1rem;
   overflow-wrap: anywhere;
+}
+/* At the panel's foot, as Telegram's profile ends with its actions. */
+.person-panel-foot {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+}
+.person-open-telegram {
+  display: block;
+  text-align: center;
 }
 .person-section h3 {
   margin: 1rem 0 0.4rem;

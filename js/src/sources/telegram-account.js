@@ -297,6 +297,21 @@ export const watchUndecodable = (client, log) => {
   };
 };
 
+// Every dialog, the archived ones too, each one's peer stored: a chat
+// beyond the recent ones (an old conversation an automation writes to)
+// is then found by its stored peer (R-Y85).
+const lookupAllDialogs = (env, client) =>
+  env.queue.run('dialogs:lookup', 'list', async () => {
+    let listed = 0;
+    for (const params of [{}, { folder: 1 }]) {
+      const dialogs = [...((await client.getDialogs(params)) ?? [])];
+      await env.pages?.remember(dialogs);
+      listed += dialogs.length;
+    }
+    env.log?.({ level: 'info', event: 'telegram_dialogs_lookup', listed });
+    return listed;
+  });
+
 export const createUserConnection = ({
   clientFactory,
   dialogLimit,
@@ -305,6 +320,8 @@ export const createUserConnection = ({
   peers,
   request,
   now,
+  lookup = (client) =>
+    request('dialogs:lookup', () => client.getDialogs({ limit: dialogLimit })),
 }) => {
   let lookedUpAt = -Infinity;
   let connection = null; // { key, client, me }
@@ -373,9 +390,10 @@ export const createUserConnection = ({
     return opening.promise;
   };
   // The stored input peer when there is one. Otherwise GramJS resolves
-  // a bare chat id only for peers it has seen: after a restart the
-  // dialogs are listed so it knows them — at most every ten minutes, so
-  // an unknown chat never costs a request each time.
+  // a bare chat id only for peers it has seen: the dialogs are listed
+  // (`lookup`: all of them, each one's peer stored, so an old chat is
+  // found and never looked up again) — at most every ten minutes, so an
+  // unknown chat never costs a request each time.
   const withPeer = async (client, chat, use) => {
     const stored = await peers?.input(chat).catch(() => null);
     try {
@@ -386,10 +404,9 @@ export const createUserConnection = ({
         throw error;
       }
       lookedUpAt = now();
-      await request('dialogs:lookup', () =>
-        client.getDialogs({ limit: dialogLimit })
-      );
-      return use(chat);
+      await lookup(client);
+      const found = await peers?.input(chat).catch(() => null);
+      return use(found ?? chat);
     }
   };
   return { open, disconnect, withPeer };
@@ -1095,6 +1112,7 @@ export const createTelegramAccount = ({
     log,
     peers: { input: (chat) => env.peers.input(chat) },
     request: (key, task) => env.queue.run(key, 'list', task),
+    lookup: (client) => lookupAllDialogs(env, client),
     now,
     onOpen: (client, me) => {
       watchFloods(client, env.queue);
