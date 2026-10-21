@@ -10,13 +10,15 @@ import { createMemoryStore } from '../src/storage/index.js';
 import { createReplyService } from '../src/replies/reply-service.js';
 
 let seq = 0;
+// An hour ago: recent enough to be answered.
+const BASE = Date.now() - 60 * 60_000;
 const msg = (chat, sender, body, minute) => ({
   id: `msg:vk:${++seq}`,
   source: 'vk',
   chat,
   sender,
   body,
-  timestamp: new Date(Date.UTC(2026, 0, 1, 0, minute)).toISOString(),
+  timestamp: new Date(BASE + minute * 60_000).toISOString(),
 });
 
 const seeded = async () => {
@@ -41,13 +43,29 @@ test('suggests deduplicated replies to the chat’s last incoming message', asyn
   assert.equal(out.stage, 'reply');
   assert.equal(out.lastMessage, 'Привет');
   assert.equal(out.backend, 'memory');
+  // Nothing typed: only the typical reply; a one-off shows once typed.
   assert.deepEqual(
     out.suggestions.map((s) => [s.text, s.count]),
-    [
-      ['Привет, как дела?', 2],
-      ['Здравствуйте!', 1],
-    ]
+    [['Привет, как дела?', 2]]
   );
+  const typed = await service.autocomplete({
+    source: 'vk',
+    chat: '4',
+    typed: 'Зд',
+  });
+  assert.deepEqual(
+    typed.suggestions.map((s) => [s.text, s.count]),
+    [['Здравствуйте!', 1]]
+  );
+  await service.close();
+});
+
+test('a message long past answering gets no replies', async () => {
+  const store = await seeded();
+  const later = Date.now() + 8 * 86_400_000;
+  const service = createReplyService({ store, now: () => later });
+  const out = await service.autocomplete({ source: 'vk', chat: '4' });
+  assert.deepEqual([out.stage, out.lastMessage], ['none', '']);
   await service.close();
 });
 
@@ -104,13 +122,15 @@ test('a deleted message makes the next request relearn from the store', async ()
   await service.ready();
   const [first] = (await store.query()).filter((l) => l.sender === 'me');
   await store.delete(first.id);
-  const out = await service.autocomplete({ lastMessage: 'Привет' });
+  const out = await service.autocomplete({
+    lastMessage: 'Привет',
+    typed: 'Привет, как',
+  });
   assert.deepEqual(
-    out.suggestions.map((s) => [s.text, s.count]),
-    [
-      ['Здравствуйте!', 1],
-      ['Привет, как дела?', 1],
-    ]
+    out.suggestions
+      .filter((s) => s.kind === 'reply')
+      .map((s) => [s.text, s.count]),
+    [['Привет, как дела?', 1]]
   );
   await service.close();
 });
@@ -139,7 +159,7 @@ test('mirrors the graph into a clink store without blocking suggestions', async 
     {
       prompt: 'Привет',
       reply: 'Здравствуйте!',
-      at: '2026-01-01T00:06:00.000Z',
+      at: new Date(BASE + 6 * 60_000).toISOString(),
     },
   ]);
   await service.close();

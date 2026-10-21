@@ -1134,6 +1134,11 @@ a.button {
   flex-wrap: wrap;
   gap: 0.3rem;
 }
+/* A long suggestion ends in "…" (Safari does not cut a flex chip's text). */
+.suggestions .chip {
+  display: inline-block;
+  line-height: 2rem;
+}
 .chip {
   display: inline-flex;
   align-items: center;

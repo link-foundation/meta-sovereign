@@ -179,8 +179,8 @@ test('writing a broadcast link triggers the local handler bus when offline', asy
 test('offline mode: suggest answers from the local reply graph', async () => {
   const store = createMemoryStore();
   const client = createOfflineClient({ store, server: null });
-  const at = (minute) =>
-    new Date(Date.UTC(2026, 0, 1, 0, minute)).toISOString();
+  const base = Date.now() - 60 * 60_000;
+  const at = (minute) => new Date(base + minute * 60_000).toISOString();
   await client.put({
     id: 'msg:vk:1',
     source: 'vk',
@@ -205,10 +205,11 @@ test('offline mode: suggest answers from the local reply graph', async () => {
     body: 'привет!',
     timestamp: at(2),
   });
-  const out = await client.suggest({ source: 'vk', chat: '2' });
+  // A reply given once shows when its start is typed.
+  const out = await client.suggest({ source: 'vk', chat: '2', typed: 'При' });
   assert.equal(out.stage, 'reply');
   assert.deepEqual(
-    out.suggestions.map((s) => s.text),
+    out.suggestions.filter((s) => s.kind === 'reply').map((s) => s.text),
     ['Привет, как дела?']
   );
   await client.put({
@@ -227,8 +228,12 @@ test('offline mode: suggest answers from the local reply graph', async () => {
     body: 'Привет',
     timestamp: at(4),
   });
-  const live = await client.suggest({ source: 'vk', chat: '3' });
-  assert.equal(live.suggestions.length, 2);
+  const live = await client.suggest({
+    source: 'vk',
+    chat: '3',
+    typed: 'Прив',
+  });
+  assert.equal(live.suggestions.filter((s) => s.kind === 'reply').length, 2);
 });
 
 test('online mode: links() adds the server links to the local ones', async () => {

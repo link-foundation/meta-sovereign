@@ -90,9 +90,20 @@ test('suggestReplies is deduplicated and sorted by use', () => {
 
 test('autocomplete tries whole replies first, then words', () => {
   const index = buildReplyIndex(history());
-  const whole = index.autocomplete({ lastMessage: 'Спасибо!' });
+  const whole = index.autocomplete({ lastMessage: 'Привет' });
   assert.equal(whole.stage, 'reply');
-  assert.equal(whole.suggestions[0].text, 'Пожалуйста, обращайтесь');
+  assert.deepEqual(
+    whole.suggestions.map((s) => s.text),
+    ['Привет, как дела?']
+  );
+  // Before typing only typical replies: a reply given once is not one,
+  // and shows once its start is typed.
+  assert.equal(index.autocomplete({ lastMessage: 'Спасибо!' }).stage, 'none');
+  assert.equal(
+    index.autocomplete({ lastMessage: 'Спасибо!', typed: 'По' }).suggestions[0]
+      .text,
+    'Пожалуйста, обращайтесь'
+  );
 
   // Typing: a whole message we sent that starts so comes first, then
   // the words.

@@ -12,8 +12,11 @@
  *      in the graph; every reply we ever sent to the same message is
  *      offered once (deduplicated), sorted by how often we used it.
  *      What the user has typed so far narrows the list by prefix.
- *      Nothing is offered when there is nothing to answer, or no reply
- *      we know for it.
+ *      Before anything is typed only the typical replies show — used
+ *      more than once and a good share of all our answers to it — so a
+ *      message like "ok", answered a hundred different ways, offers
+ *      none. Nothing is offered when there is nothing to answer, or no
+ *      reply we know for it.
  *   2. Whole messages. While the user types, every message they sent
  *      before that starts with what is typed, most used first.
  *   3. Word by word. After those, the next word (or the rest of the
@@ -263,6 +266,11 @@ const createWordModel = () => {
   };
 };
 
+// A typical reply (offered before anything is typed): used at least
+// this often, and at least this share of all our answers to the message.
+const TYPICAL_MIN_USES = 2;
+const TYPICAL_SHARE = 0.2;
+
 /** Sort `[text, count]` entries by count, ties broken by recency. */
 const byUse = (lastUsed) => (a, b) =>
   b[1] - a[1] ||
@@ -294,11 +302,15 @@ const createPairStore = () => {
       pairCount += count;
       return true;
     },
-    suggest(prompt, typed, limit) {
-      const bucket = replies.get(normalizeMessage(prompt));
+    suggest(prompt, typed, limit, { typical = false } = {}) {
+      const bucket = [...(replies.get(normalizeMessage(prompt)) ?? [])];
       const prefix = normalizeMessage(typed);
-      return [...(bucket ?? [])]
+      const total = bucket.reduce((sum, [, count]) => sum + count, 0);
+      const isTypical = (count) =>
+        count >= TYPICAL_MIN_USES && count >= total * TYPICAL_SHARE;
+      return bucket
         .filter(([answer]) => !prefix || answer.startsWith(prefix))
+        .filter(([, count]) => !typical || isTypical(count))
         .sort(byUse(lastUsed))
         .slice(0, limit)
         .map(([answer, count]) => ({
@@ -514,8 +526,11 @@ export const createReplyIndex = ({
      * kind of the first suggestion.
      */
     autocomplete({ lastMessage = '', typed = '', limit = 8 } = {}) {
+      // Nothing typed yet: only the replies we typically give.
       const replies = lastMessage
-        ? pairs.suggest(lastMessage, typed, limit)
+        ? pairs.suggest(lastMessage, typed, limit, {
+            typical: !normalizeMessage(typed),
+          })
         : [];
       const offered = new Set(replies.map((r) => normalizeMessage(r.text)));
       const messages = typed

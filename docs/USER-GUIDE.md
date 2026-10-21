@@ -478,7 +478,9 @@ person, open their chat and use **⚡ Automations → Test in this chat**.
 The chat itself (**Chat** tab) suggests replies while you type: first
 the whole replies you gave before to the chat's last message, most used
 first, then word by word from your own messages; **Tab** takes the
-first suggestion. It shows when the other person — or an automation on
+first suggestion. With nothing typed it offers only a typical reply — one
+you gave that message at least twice — and nothing for a message long
+past answering. It shows when the other person — or an automation on
 your behalf — is typing. Sending uses the network's API and falls back
 to its official web UI. **Settings → Appearance** picks the theme
 (system, light, dark, or auto by the time of day) and the skin (t3.codes,

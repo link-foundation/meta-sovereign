@@ -17,7 +17,7 @@
  */
 
 import { detectSelfIds } from '../crm/reengage.js';
-import { buildReplyIndex } from './reply-graph.js';
+import { buildReplyIndex, DEFAULT_REPLY_WINDOW_MS } from './reply-graph.js';
 
 const isMessage = (l) =>
   l?.id?.startsWith('msg:') &&
@@ -31,13 +31,16 @@ const later = (a, b) =>
 /**
  * Create a reply service over `store`. `self` lists the owner's sender
  * ids (detected from the history when empty); `clink` is an optional
- * `createClinkReplyStore()` mirror.
+ * `createClinkReplyStore()` mirror. A message older than `windowMs`
+ * (the reply graph's own answer window) waits for no answer.
  */
 export const createReplyService = ({
   store,
   self = [],
   clink = null,
   wordsFrom = 'all',
+  windowMs = DEFAULT_REPLY_WINDOW_MS,
+  now = () => Date.now(),
   log = () => {},
 } = {}) => {
   let index = null;
@@ -65,11 +68,14 @@ export const createReplyService = ({
     }
   };
 
-  // The message to answer in a chat: its last one, when it is not ours.
+  // The message to answer in a chat: its last one, when it is not ours
+  // and not long past answering.
   const toAnswer = (source, chat) => {
     const key = chatKey(source, chat);
     const last = lastAny.get(key);
-    return last && !isSelf(last.sender) ? last.body : '';
+    const at = Date.parse(last?.timestamp ?? '');
+    const stale = Number.isFinite(at) && now() - at > windowMs;
+    return last && !isSelf(last.sender) && !stale ? last.body : '';
   };
 
   const openMirror = () => {
