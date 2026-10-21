@@ -361,6 +361,19 @@ const MENU_ITEMS = {
   deleteSelected: ['chat.deleteSelected', 'trash'],
   unpinSelected: ['chat.unpinSelected', 'pin'],
   clearSelection: ['chat.clearSelection', 'select'],
+  // The chat list's menu (R-Y97; ./chat-list-menu.js).
+  pinChat: ['chat.list.pin', 'pin'],
+  unpinChat: ['chat.list.unpin', 'pin'],
+  mute: ['chat.list.mute', 'mute'],
+  unmute: ['chat.list.unmute', 'volume'],
+  mute1h: ['chat.list.mute1h', 'clock'],
+  mute8h: ['chat.list.mute8h', 'clock'],
+  mute2d: ['chat.list.mute2d', 'clock'],
+  muteForever: ['chat.list.muteForever', 'mute'],
+  markRead: ['chat.list.markRead', 'check-double'],
+  markUnread: ['chat.list.markUnread', 'chat'],
+  archive: ['chat.list.archive', 'archive'],
+  unarchive: ['chat.list.unarchive', 'unarchive'],
 };
 
 // Delete is drawn in red, as Desktop draws it.

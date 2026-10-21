@@ -18,6 +18,8 @@
  * - `media({ chat, id, size })` is ./telegram-media.js.
  * - polls and checklists (vote, stop, results, voters, tick) are
  *   ./telegram-polls.js (R-Y74).
+ * - the chat list's menu (pin, mute, archive, mark read or unread) is
+ *   ./telegram-dialogs.js (R-Y97).
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
@@ -27,6 +29,7 @@ import { createAvatarReader } from './telegram-avatars.js';
 import { createChatInfoReader } from './telegram-chat-info.js';
 import { createUnreadMarks } from './telegram-unread.js';
 import { createPollActions } from './telegram-polls.js';
+import { createDialogActions } from './telegram-dialogs.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -295,9 +298,15 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     media,
     ...markReaders(env, tools, userClient, dialogOf),
     ...readers,
-    ...createPollActions(env, { userClient, apply }),
+    ...chatActions(env, { userClient, apply }),
   };
 };
+
+// Polls and checklists (R-Y74); the chat list's menu (R-Y97).
+const chatActions = (env, context) => ({
+  ...createPollActions(env, context),
+  ...createDialogActions(env, context),
+});
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a
 // chat's members and who is online, each read through the queue.

@@ -235,6 +235,7 @@ const SHOWN_FIELDS = [
   'muteUntil',
   'pinnedRank',
   'folder',
+  'unreadMark',
   'draft',
 ];
 // A forward's source named now, where it was not before.
@@ -499,6 +500,7 @@ const listing = (dialog, rank) => {
     muteUntil: Number(state.notifySettings?.muteUntil ?? 0) || 0,
     ...(rank === undefined ? {} : { pinnedRank: pinned ? rank : 0 }),
     folder: Number(dialog.folderId ?? state.folderId ?? 0) === 1 ? 1 : 0,
+    unreadMark: Boolean(dialog.unreadMark ?? state.unreadMark),
   };
 };
 

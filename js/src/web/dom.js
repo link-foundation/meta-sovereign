@@ -833,6 +833,14 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for pin' },
 
+  // The chat list's menu (R-Y97): { chat, action, for? } — pin, unpin,
+  // mute (for seconds, 0 for good), unmute, archive, unarchive, read,
+  // unread, unmark.
+  telegramDialog: async (body = {}) =>
+    (await serverPostReport('/api/telegram/dialog', body).catch((error) => ({
+      error: error.message,
+    }))) ?? { error: 'server required for the chat list menu' },
+
   // A poll or checklist (R-Y74): `poll-vote` (no options retracts),
   // `poll-stop`, `poll-results`, `poll-votes`, `todo-toggle`.
   telegramPoll: async (action, body = {}) =>

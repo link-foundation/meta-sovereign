@@ -238,6 +238,13 @@ const ICONS = {
     ['path', { d: 'M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8' }],
     ['path', { d: 'M10 12h4' }],
   ],
+  unarchive: [
+    ['rect', { x: 2, y: 3, width: 20, height: 5, rx: 1 }],
+    ['path', { d: 'M4 8v11a2 2 0 0 0 2 2h2' }],
+    ['path', { d: 'M20 8v11a2 2 0 0 1-2 2h-2' }],
+    ['path', { d: 'm9 15 3-3 3 3' }],
+    ['path', { d: 'M12 12v9' }],
+  ],
   download: [
     ['path', { d: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' }],
     ['path', { d: 'm7 10 5 5 5-5' }],
@@ -266,6 +273,11 @@ const ICONS = {
     ['path', { d: 'M11 5 6 9H2v6h4l5 4V5z' }],
     ['path', { d: 'm22 9-6 6' }],
     ['path', { d: 'm16 9 6 6' }],
+  ],
+  volume: [
+    ['path', { d: 'M11 5 6 9H2v6h4l5 4V5z' }],
+    ['path', { d: 'M15.54 8.46a5 5 0 0 1 0 7.07' }],
+    ['path', { d: 'M19.07 4.93a10 10 0 0 1 0 14.14' }],
   ],
   at: [
     ['circle', { cx: 12, cy: 12, r: 4 }],

@@ -218,6 +218,15 @@ const SIMPLE_EFFECTS = {
       }))
       .filter((f) => f.chat),
   }),
+  // Marked unread, or the mark taken off, on any device (R-Y97).
+  UpdateDialogUnreadMark: (u) =>
+    u.peer?.className === 'DialogPeer'
+      ? {
+          kind: 'listing',
+          chat: peerChatId(u.peer.peer),
+          unreadMark: Boolean(u.unread),
+        }
+      : null,
   // A forum topic's draft (topMsgId) is not the chat's own.
   UpdateDraftMessage: (u) =>
     u.topMsgId

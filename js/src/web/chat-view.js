@@ -48,6 +48,7 @@ import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
+import { useChatListMenu } from './chat-list-menu.js';
 
 export { failureText, waitingText } from './chat-failure.js';
 export { autopilotText } from './chat-automation.js';
@@ -209,6 +210,7 @@ const ChatRow = React.memo(ChatItem);
 const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
+  const listMenu = useChatListMenu({ state, api });
   const page = useShownChats(list, state);
   useListLoading(list, state, page.chats.length);
   const oldest = state.sort === 'oldest';
@@ -219,6 +221,7 @@ const Sidebar = ({ state, api }) => {
       chat,
       active: chat.key === state.current?.key,
       onSelect: state.select,
+      onMenu: listMenu.onMenu,
     });
   const archived = state.folder === 'archive' && !state.query;
   const archiveRow =
@@ -289,6 +292,16 @@ const Sidebar = ({ state, api }) => {
             ]),
       ]
     ),
+    listMenu.menu,
+    // With no chat open, what the list's menu could not do shows here.
+    state.current
+      ? null
+      : el(Notice, {
+          key: 'n',
+          notice: noticeInWords(t, state.notice),
+          labels: NOTICE,
+          dismiss: state.dismiss,
+        }),
   ]);
 };
 

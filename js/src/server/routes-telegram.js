@@ -24,6 +24,11 @@
  *                                      -> { ok, deleted }
  *   POST /api/telegram/pin {chat, id, unpin?, oneSide?, silent?}
  *                                      -> { ok, pinned }
+ *   POST /api/telegram/dialog {chat, action, for?}
+ *                                      -> { ok } the chat list's menu:
+ *                                         pin, unpin, mute (for seconds),
+ *                                         unmute, archive, unarchive,
+ *                                         read, unread (R-Y97)
  *   GET  /api/telegram/media?chat=&id=&size=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
@@ -41,6 +46,7 @@
 import { classifyOrigin } from './cors.js';
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
+import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 
 const PREFIX = '/api/telegram/';
 
@@ -157,6 +163,25 @@ const POSTS = {
         unpin: Boolean(body.unpin),
         oneSide: Boolean(body.oneSide),
         silent: Boolean(body.silent),
+      }),
+    ];
+  },
+  // The chat list's menu: pin, mute, archive, mark read (R-Y97).
+  dialog: async (account, body) => {
+    if (
+      typeof body.chat !== 'string' ||
+      !/^-?\d{1,20}$/.test(body.chat) ||
+      !DIALOG_ACTIONS.includes(body.action) ||
+      typeof account.dialogAction !== 'function'
+    ) {
+      return [400, { error: 'chat and action required', code: 'bad-request' }];
+    }
+    return [
+      200,
+      await account.dialogAction({
+        chat: body.chat,
+        action: body.action,
+        for: Number(body.for) || 0,
       }),
     ];
   },

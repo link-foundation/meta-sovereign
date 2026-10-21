@@ -202,6 +202,8 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
     muted: mutedNow(read, now),
     pinned: Number(read?.pinnedRank ?? 0) || 0,
     archived: Number(read?.folder ?? 0) === 1,
+    // Marked unread by the user (R-Y97).
+    marked: Number(read?.unreadMark ?? 0) > 0,
     last: {
       body: String(last.body ?? ''),
       mine: isMine(last, self),

@@ -104,6 +104,18 @@ const ChatBadges = ({ chat, t }) => {
       ),
     ];
   }
+  // Marked unread: Telegram's empty unread badge (R-Y97).
+  if (chat.marked) {
+    return [
+      ...marks,
+      el('span', {
+        key: 'u',
+        className: `chat-item-unread is-marked${muted}`,
+        'data-unread': 'marked',
+        'aria-label': t('chat.markedUnread'),
+      }),
+    ];
+  }
   if (chat.pinned > 0) {
     return [
       ...marks,
@@ -128,7 +140,7 @@ const ChatBadges = ({ chat, t }) => {
   ];
 };
 
-export const ChatItem = ({ api, chat, active, onSelect }) => {
+export const ChatItem = ({ api, chat, active, onSelect, onMenu }) => {
   const t = useT();
   const { chatTime } = useDates();
   const preview = chatPreview(t, chat);
@@ -140,6 +152,19 @@ export const ChatItem = ({ api, chat, active, onSelect }) => {
       'data-chat': chat.key,
       'aria-current': active ? 'true' : undefined,
       onClick: () => onSelect(chat.key),
+      // Its menu, as in Telegram's list (R-Y97): pin, mute, archive…
+      onContextMenu: onMenu
+        ? (e) => {
+            e.preventDefault();
+            const r = e.currentTarget.getBoundingClientRect?.();
+            onMenu(
+              chat,
+              e.clientX || e.clientY
+                ? { x: e.clientX, y: e.clientY }
+                : { x: r?.left ?? 0, y: r?.bottom ?? 0 }
+            );
+          }
+        : undefined,
     },
     [
       el(ChatAvatar, { key: 'a', api, chat }),

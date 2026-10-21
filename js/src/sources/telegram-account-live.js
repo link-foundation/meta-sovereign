@@ -48,6 +48,8 @@ const READ_FIELDS = [
   'muteUntil',
   'pinnedRank',
   'folder',
+  // Marked unread by the user (R-Y97).
+  'unreadMark',
 ];
 
 /** One chat's read (and draft) state; only the given fields are set. */
@@ -181,9 +183,18 @@ const chatStateWriters = ({ store, now }) => {
         Number(l.pinnedRank ?? 0) > 0 &&
         Number(l.folder ?? 0) === folder
     );
-  const onListing = async ({ chat, muteUntil, pinned, folder = 0 }) => {
+  const onListing = async ({
+    chat,
+    muteUntil,
+    pinned,
+    folder = 0,
+    unreadMark,
+  }) => {
     if (muteUntil !== undefined) {
       await putListing(chat, { muteUntil });
+    }
+    if (unreadMark !== undefined) {
+      await putListing(chat, { unreadMark });
     }
     if (pinned === true) {
       for (const other of await pinnedIn(folder)) {
