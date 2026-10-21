@@ -68,6 +68,7 @@ import {
   useSendMenu,
 } from './chat-schedule.js';
 import { formatShortcut } from './text-shortcuts.js';
+import { useEmojiPanel } from './chat-emoji.js';
 import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
@@ -1194,13 +1195,14 @@ const Composer = ({ state, api, keys }) => {
   const dragging = useDropFiles(attach);
   // The Send buttons' menu; scheduled messages (R-Y102).
   const later = useSendLater({ state, api, composer, attach });
+  // The emoji panel (R-Y104).
+  const box = useRef(null);
+  const typeText = (next) => composer.setText(next, { typed: true });
+  const emoji = useEmojiPanel({ box, setText: typeText });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
-    if (
-      event.defaultPrevented ||
-      formatShortcut(event, (next) => composer.setText(next, { typed: true }))
-    ) {
+    if (event.defaultPrevented || formatShortcut(event, typeText)) {
       return;
     }
     const first = suggest.suggestions?.[0];
@@ -1229,6 +1231,7 @@ const Composer = ({ state, api, keys }) => {
     },
     [
       el(Suggestions, { key: 's', suggest, composer }),
+      emoji.panel,
       el(ReplyBar, {
         key: 'rb',
         replyTo: composer.replyTo ?? null,
@@ -1243,6 +1246,7 @@ const Composer = ({ state, api, keys }) => {
         }),
         el('textarea', {
           key: 'input',
+          ref: box,
           rows: 1,
           placeholder: t('chat.placeholder'),
           'aria-label': t('chat.placeholder'),
@@ -1252,6 +1256,7 @@ const Composer = ({ state, api, keys }) => {
           onKeyDown,
           onPaste: pasteFiles(attach),
         }),
+        emoji.button,
         el(
           'button',
           {

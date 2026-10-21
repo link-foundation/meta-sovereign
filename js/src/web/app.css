@@ -4761,3 +4761,98 @@ button[aria-busy='true']::before {
   height: 2rem;
   padding: 0;
 }
+
+/* The emoji panel by the message box (R-Y104), as Telegram Desktop's. */
+.composer-emoji {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--text-muted, inherit);
+}
+.composer-emoji.active {
+  color: var(--accent, inherit);
+}
+.emoji-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.4rem);
+  z-index: 30;
+  width: min(22rem, 100%);
+  height: min(24rem, 60vh);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-glass-bg, var(--bg-elev));
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--surface-glass-border, var(--border));
+  border-radius: 12px;
+  box-shadow: 0 6px 28px var(--shadow);
+  overflow: hidden;
+}
+.emoji-search {
+  box-sizing: border-box;
+  width: calc(100% - 1rem);
+  min-width: 0;
+  margin: 0.5rem 0.5rem 0.25rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+}
+.emoji-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0 0.4rem 0.4rem;
+}
+.emoji-section-title {
+  margin: 0.5rem 0.2rem 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.2rem, 1fr));
+}
+.emoji-cell {
+  height: 2.2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.emoji-cell:hover,
+.emoji-cell:focus-visible {
+  background: var(--accent-bg, var(--bg));
+}
+.emoji-none {
+  margin: 1.5rem 0;
+  text-align: center;
+  color: var(--text-subtle);
+  font-size: 0.85rem;
+}
+.emoji-cats {
+  display: flex;
+  justify-content: space-around;
+  padding: 0.2rem;
+  border-top: 1px solid var(--border);
+}
+.emoji-cat {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-subtle);
+}
+.emoji-cat.active {
+  color: var(--accent, inherit);
+  background: var(--accent-bg, transparent);
+}
