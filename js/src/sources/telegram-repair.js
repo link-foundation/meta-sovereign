@@ -10,6 +10,7 @@
  * what again.
  */
 
+import { unreachableChat } from './telegram-backfill.js';
 import { peerChatId } from './telegram-updates.js';
 
 const SOURCE = 'telegram';
@@ -88,13 +89,36 @@ export const repairSenders = async (store, { log = () => {} } = {}) => {
   return wrong.length;
 };
 
+// Each chat's messages, a hundred at a time: how many reads failed, and
+// how many chats Telegram cannot address.
+const readAgain = async (byChat, refresh, priority) => {
+  let failed = 0;
+  let unreachable = 0;
+  for (const [chat, ids] of byChat) {
+    for (let at = 0; at < ids.length; at += 100) {
+      try {
+        await refresh({ chat, ids: ids.slice(at, at + 100), priority });
+      } catch (error) {
+        if (unreachableChat(error)) {
+          unreachable += 1;
+          break;
+        }
+        failed += 1;
+      }
+    }
+  }
+  return { failed, unreachable };
+};
+
 /**
  * `unsupported-layer-N`: what Telegram sent as `messageMediaUnsupported`
  * while GramJS spoke an older layer (./telegram-layer.js, R-Y76) is read
  * again at the current one, a chat at a time in the background, so a
  * checklist, a new poll or newer media shows as it is. Resolves to how
  * many messages were asked for; a failed chat is asked again on the next
- * start (the marker is set only when every chat was read).
+ * start (the marker is set only when every chat was read). A chat
+ * Telegram cannot address (R-Y80) is passed over, not failed: asking
+ * again would not reach it either (R-Y82).
  */
 export const rereadUnsupported = async (
   store,
@@ -118,16 +142,7 @@ export const rereadUnsupported = async (
       byChat.set(String(l.chat), [...(byChat.get(String(l.chat)) ?? []), id]);
     }
   }
-  let failed = 0;
-  for (const [chat, ids] of byChat) {
-    for (let at = 0; at < ids.length; at += 100) {
-      try {
-        await refresh({ chat, ids: ids.slice(at, at + 100), priority });
-      } catch {
-        failed += 1;
-      }
-    }
-  }
+  const { failed, unreachable } = await readAgain(byChat, refresh, priority);
   const left = (
     await store.query(
       (l) =>
@@ -151,6 +166,7 @@ export const rereadUnsupported = async (
     asked: links.length,
     left,
     failed,
+    unreachable,
     duration_ms: Date.now() - started,
   });
   return links.length;

@@ -40,7 +40,6 @@ export const heapNearlyFull = (stats = getHeapStatistics()) =>
 // What the background download covers, in order.
 export const BACKFILL_ORDER = Object.freeze(['private', 'group']);
 
-/** `private`, `group` or `channel`, from a message's `chatType`. */
 // Errors that are about the chat itself, not the connection.
 const UNREACHABLE =
   /input entity|PEER_ID_INVALID|CHANNEL_PRIVATE|CHANNEL_INVALID|USER_ID_INVALID|CHAT_ID_INVALID/;
@@ -49,6 +48,7 @@ const UNREACHABLE =
 export const unreachableChat = (error) =>
   UNREACHABLE.test(`${error?.errorMessage ?? ''} ${error?.message ?? ''}`);
 
+/** `private`, `group` or `channel`, from a message's `chatType`. */
 export const backfillKind = (chatType) => {
   if (chatType === 'personal_chat') {
     return 'private';

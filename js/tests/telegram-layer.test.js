@@ -223,3 +223,23 @@ test('what was stored as unsupported is read again once, a chat at a time', asyn
   assert.equal(await rereadUnsupported(store, { refresh, layer: 225 }), 0);
   assert.equal(asked.length, 2);
 });
+
+test('a chat Telegram cannot address does not keep the repair coming back', async () => {
+  const store = createMemoryStore();
+  await store.put(unsupported('-1001', 5));
+  await store.put(unsupported('77', 2));
+  const logged = [];
+  const refresh = async ({ chat }) => {
+    if (chat === '77') {
+      throw new Error('Could not find the input entity for {"userId":"77"}');
+    }
+  };
+  await rereadUnsupported(store, {
+    refresh,
+    layer: 225,
+    log: (e) => logged.push(e),
+  });
+  assert.equal(logged[0].failed, 0);
+  assert.equal(logged[0].unreachable, 1);
+  assert.ok(await store.get('repair:telegram:unsupported-layer-225'));
+});
