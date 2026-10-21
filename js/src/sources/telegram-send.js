@@ -126,7 +126,7 @@ export const sendError = (error) => {
 };
 
 // Whom the message answers, and the part of it quoted.
-const replyHeader = (Api, replyTo, replyQuote) =>
+export const replyHeader = (Api, replyTo, replyQuote) =>
   replyTo
     ? {
         replyTo: new Api.InputReplyToMessage({

@@ -120,6 +120,13 @@ const validFiles = (body) =>
   String(body.caption ?? '').length <= MAX_CAPTION &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
 
+// A sticker or GIF to send (R-Y105).
+const STICKER_ID = /^\d{1,20}$/;
+const validDocument = (body) =>
+  validChat(body.chat) &&
+  STICKER_ID.test(String(body.id ?? '')) &&
+  (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
+
 const POSTS = {
   sync: async (account, body) => [
     200,
@@ -297,6 +304,37 @@ const POSTS = {
         asPhoto: body.asPhoto !== false,
         group: body.group !== false,
         replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+        ...whenOf(body),
+      }),
+    ];
+  },
+  // Stickers and saved GIFs (R-Y105): the panel's lists, a set's
+  // stickers, one sent as it is.
+  stickers: async (account, body) =>
+    typeof account.stickerPanel === 'function'
+      ? [200, await account.stickerPanel({ fresh: body.fresh === true })]
+      : [200, { ok: false, supported: false }],
+  'sticker-set': async (account, body) =>
+    STICKER_ID.test(String(body.id ?? '')) &&
+    typeof account.stickerSet === 'function'
+      ? [200, await account.stickerSet({ id: String(body.id) })]
+      : [400, { error: 'id required', code: 'bad-request' }],
+  gifs: async (account, body) =>
+    typeof account.savedGifs === 'function'
+      ? [200, await account.savedGifs({ fresh: body.fresh === true })]
+      : [200, { ok: false, supported: false }],
+  'send-document': async (account, body) => {
+    const replyTo = Number(body.replyTo);
+    if (!validDocument(body) || typeof account.sendDocument !== 'function') {
+      return [400, { error: 'chat and id required', code: 'bad-request' }];
+    }
+    return [
+      200,
+      await account.sendDocument({
+        chat: body.chat,
+        id: String(body.id),
+        replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+        clientId: typeof body.clientId === 'string' ? body.clientId : null,
         ...whenOf(body),
       }),
     ];
@@ -481,6 +519,37 @@ const handleMedia = async (account, req, res, ctx) => {
   return true;
 };
 
+// GET /api/telegram/sticker?id=|set=&full=1 -> a sticker's or GIF's
+// picture, a set's, or (full) a video sticker's or GIF's video (R-Y105).
+const handleSticker = async (account, req, res, ctx) => {
+  if (!fromApp(req, ctx?.allowOrigins)) {
+    return refuse(req, res, ctx, 'sticker', 'stickers load only in the app');
+  }
+  if (typeof account.stickerPicture !== 'function') {
+    return json(res, 501, { error: 'stickers not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  const result = await account.stickerPicture({
+    id: query.get('id'),
+    set: query.get('set'),
+    full: query.get('full') === '1',
+  });
+  if (!result?.buffer) {
+    return json(res, 404, { error: 'no picture' }) ?? true;
+  }
+  res.writeHead(200, {
+    'content-type': result.mimeType || 'application/octet-stream',
+    'content-length': result.buffer.length,
+    // A sticker never changes; a set's picture may, so an hour.
+    'cache-control': query.get('set')
+      ? 'private, max-age=3600'
+      : 'private, max-age=31536000, immutable',
+    'x-content-type-options': 'nosniff',
+  });
+  res.end(result.buffer);
+  return true;
+};
+
 // `bytes=a-b` of a file of `size` bytes: [start, end], or null.
 export const byteRange = (header, size) => {
   const match = /^bytes=(\d*)-(\d*)$/.exec(String(header ?? '').trim());
@@ -642,6 +711,7 @@ const handleUnreadMarks = async (account, req, res) => {
 
 const GETS = {
   media: handleMedia,
+  sticker: handleSticker,
   file: handleFile,
   avatar: handleAvatar,
   'chat-info': handleChatInfo,

@@ -90,6 +90,7 @@ test('no English literal leaks into a non-en dictionary (issue #25)', () => {
     'telegramLogin.apiHash',
     // A format's name: Telegram's apps say "GIF" in every language.
     'chat.media.gifLabel',
+    'chat.stickers.gif',
   ]);
   // Some keys hold only filename glob patterns or other technical
   // identifiers (e.g. "*.eml, *.mbox", "result.json", "messages.csv").

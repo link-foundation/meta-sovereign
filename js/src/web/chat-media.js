@@ -37,7 +37,7 @@ export const sizeOf = (bytes) => {
 
 // True once `ref` comes within a screen of the view (and stays true);
 // `visible` follows whether it is on screen now.
-const useNearView = (ref) => {
+export const useNearView = (ref) => {
   const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(false);
   useEffect(() => {

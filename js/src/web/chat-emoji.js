@@ -8,7 +8,8 @@
  * click elsewhere closes it.
  *
  * The emoji are Unicode's (./emoji-data.js, generated); the recent ones
- * stay in this browser.
+ * stay in this browser. Other tabs (stickers and GIFs, ./chat-stickers.js)
+ * come from the composer; the chosen tab is remembered.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -19,6 +20,7 @@ import { EMOJI_CATEGORIES } from './emoji-data.js';
 const el = React.createElement;
 
 const RECENT_KEY = 'meta-sovereign.emoji.recent';
+const TAB_KEY = 'meta-sovereign.emoji.tab';
 const RECENT_MAX = 32;
 // Before anything is picked: the ones people use most, as Telegram's
 // panel starts.
@@ -48,6 +50,8 @@ const FIRST_RECENT = [
   '😏',
   '😞',
 ];
+
+const NONE = [];
 
 const CATEGORY_ICONS = {
   recent: 'clock',
@@ -208,8 +212,8 @@ const named = (list) => {
 };
 
 // The section in view, for the bar below.
-const useInView = (scroller, deps) => {
-  const [inView, setInView] = useState('recent');
+export const useInView = (scroller, deps, first = 'recent') => {
+  const [inView, setInView] = useState(first);
   useEffect(() => {
     const box = scroller.current;
     if (!box) {
@@ -234,7 +238,16 @@ const useInView = (scroller, deps) => {
   return inView;
 };
 
-const Panel = ({ recent, onPick, panelRef }) => {
+/** Scroll `scroller` to its section `key` (letters, digits, colons). */
+export const jumpTo = (scroller, key) => {
+  const box = scroller.current;
+  const section = box?.querySelector(`[data-category="${key}"]`);
+  if (box && section) {
+    box.scrollTop = section.offsetTop - box.offsetTop;
+  }
+};
+
+const EmojiTab = ({ recent, onPick }) => {
   const t = useT();
   const [query, setQuery] = useState('');
   const scroller = useRef(null);
@@ -244,14 +257,117 @@ const Panel = ({ recent, onPick, panelRef }) => {
     [recent]
   );
   const inView = useInView(scroller, [query]);
-  const jump = (key) => {
-    const box = scroller.current;
-    const section = box?.querySelector(`[data-category="${key}"]`);
-    if (box && section) {
-      box.scrollTop = section.offsetTop - box.offsetTop;
-    }
-  };
+  const jump = (key) => jumpTo(scroller, key);
   const searching = query.trim().length > 0;
+  return el(React.Fragment, null, [
+    el('input', {
+      key: 'q',
+      type: 'search',
+      className: 'emoji-search',
+      placeholder: t('chat.emoji.search'),
+      'aria-label': t('chat.emoji.search'),
+      'data-field': 'emoji-search',
+      value: query,
+      onChange: (event) => setQuery(event.target.value),
+    }),
+    el(
+      'div',
+      { key: 's', className: 'emoji-scroll', ref: scroller },
+      searching
+        ? found.length > 0
+          ? el(Section, {
+              id: 'found',
+              title: t('chat.emoji.found'),
+              list: found,
+              onPick,
+            })
+          : el('p', { className: 'emoji-none' }, t('chat.emoji.none'))
+        : sections
+            .filter((s) => s.list.length > 0)
+            .map((s) =>
+              el(Section, {
+                key: s.key,
+                id: s.key,
+                title: t(`chat.emoji.cat.${s.key}`),
+                list: s.list,
+                onPick,
+              })
+            )
+    ),
+    searching
+      ? null
+      : el(
+          'div',
+          { key: 'c', className: 'emoji-cats', role: 'toolbar' },
+          sections.map((s) =>
+            el(
+              'button',
+              {
+                key: s.key,
+                type: 'button',
+                className: inView === s.key ? 'emoji-cat active' : 'emoji-cat',
+                title: t(`chat.emoji.cat.${s.key}`),
+                'aria-label': t(`chat.emoji.cat.${s.key}`),
+                'data-jump': s.key,
+                onClick: () => jump(s.key),
+              },
+              el(Icon, { name: CATEGORY_ICONS[s.key], size: 18 })
+            )
+          )
+        ),
+  ]);
+};
+
+const readTab = () => {
+  try {
+    return globalThis.localStorage?.getItem(TAB_KEY) || 'emoji';
+  } catch {
+    return 'emoji';
+  }
+};
+
+const saveTab = (key) => {
+  try {
+    globalThis.localStorage?.setItem(TAB_KEY, key);
+  } catch {
+    // Private mode: the emoji tab next time.
+  }
+};
+
+// Emoji, Stickers, GIFs: the tabs on top, when there is more than emoji.
+const Tabs = ({ tabs, shown, choose }) => {
+  const t = useT();
+  return el(
+    'div',
+    { className: 'emoji-tabs', role: 'tablist' },
+    tabs.map((tab) =>
+      el(
+        'button',
+        {
+          key: tab.key,
+          type: 'button',
+          role: 'tab',
+          className: tab.key === shown ? 'emoji-tab active' : 'emoji-tab',
+          'aria-selected': tab.key === shown ? 'true' : 'false',
+          'data-tab': tab.key,
+          onClick: () => choose(tab.key),
+        },
+        tab.label ?? t('chat.emoji.tab')
+      )
+    )
+  );
+};
+
+const Panel = ({ recent, onPick, panelRef, extra, close }) => {
+  const t = useT();
+  const [chosen, setChosen] = useState(readTab);
+  const tabs = [{ key: 'emoji' }, ...extra];
+  const shown = tabs.some((tab) => tab.key === chosen) ? chosen : 'emoji';
+  const choose = (key) => {
+    setChosen(key);
+    saveTab(key);
+  };
+  const other = extra.find((tab) => tab.key === shown);
   return el(
     'div',
     {
@@ -259,73 +375,23 @@ const Panel = ({ recent, onPick, panelRef }) => {
       className: 'emoji-panel',
       role: 'dialog',
       'aria-label': t('chat.emoji.title'),
+      'data-tab': shown,
     },
     [
-      el('input', {
-        key: 'q',
-        type: 'search',
-        className: 'emoji-search',
-        placeholder: t('chat.emoji.search'),
-        'aria-label': t('chat.emoji.search'),
-        'data-field': 'emoji-search',
-        value: query,
-        onChange: (event) => setQuery(event.target.value),
-      }),
-      el(
-        'div',
-        { key: 's', className: 'emoji-scroll', ref: scroller },
-        searching
-          ? found.length > 0
-            ? el(Section, {
-                id: 'found',
-                title: t('chat.emoji.found'),
-                list: found,
-                onPick,
-              })
-            : el('p', { className: 'emoji-none' }, t('chat.emoji.none'))
-          : sections
-              .filter((s) => s.list.length > 0)
-              .map((s) =>
-                el(Section, {
-                  key: s.key,
-                  id: s.key,
-                  title: t(`chat.emoji.cat.${s.key}`),
-                  list: s.list,
-                  onPick,
-                })
-              )
-      ),
-      searching
-        ? null
-        : el(
-            'div',
-            { key: 'c', className: 'emoji-cats', role: 'toolbar' },
-            sections.map((s) =>
-              el(
-                'button',
-                {
-                  key: s.key,
-                  type: 'button',
-                  className:
-                    inView === s.key ? 'emoji-cat active' : 'emoji-cat',
-                  title: t(`chat.emoji.cat.${s.key}`),
-                  'aria-label': t(`chat.emoji.cat.${s.key}`),
-                  'data-jump': s.key,
-                  onClick: () => jump(s.key),
-                },
-                el(Icon, { name: CATEGORY_ICONS[s.key], size: 18 })
-              )
-            )
-          ),
+      extra.length > 0 ? el(Tabs, { key: 'tabs', tabs, shown, choose }) : null,
+      other
+        ? el(React.Fragment, { key: shown }, other.render(close))
+        : el(EmojiTab, { key: 'emoji', recent, onPick }),
     ]
   );
 };
 
 /**
  * The panel for a message box: `box` is its textarea's ref, `setText`
- * sets its text. Answers `{ button, panel }` to put in the composer.
+ * sets its text; `extra` more tabs (`{ key, label, render(close) }`).
+ * Answers `{ button, panel }` to put in the composer.
  */
-export const useEmojiPanel = ({ box, setText }) => {
+export const useEmojiPanel = ({ box, setText, extra = NONE }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState(readRecent);
@@ -360,7 +426,14 @@ export const useEmojiPanel = ({ box, setText }) => {
       el(Icon, { name: 'smile', size: 20 })
     ),
     panel: open
-      ? el(Panel, { key: 'emoji-panel', recent, onPick: pick, panelRef })
+      ? el(Panel, {
+          key: 'emoji-panel',
+          recent,
+          onPick: pick,
+          panelRef,
+          extra,
+          close,
+        })
       : null,
   };
 };

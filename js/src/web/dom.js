@@ -901,6 +901,13 @@ export const api = {
   // A chat's scheduled messages (R-Y102): { chat } → { ok, links };
   // sent now, deleted ({ chat, ids }), moved ({ chat, id, date }).
   telegramFolders: (body = {}) => telegramPost('folders', body),
+  // Stickers and saved GIFs (R-Y105): the panel's lists ({ fresh }),
+  // a set's stickers ({ id }), one sent ({ chat, id, replyTo, silent,
+  // scheduleDate, clientId }).
+  telegramStickers: (body = {}) => telegramPost('stickers', body),
+  telegramStickerSet: (body = {}) => telegramPost('sticker-set', body),
+  telegramGifs: (body = {}) => telegramPost('gifs', body),
+  telegramSendDocument: (body = {}) => telegramPost('send-document', body),
   telegramScheduled: (body = {}) => telegramPost('scheduled', body),
   telegramScheduledSend: (body = {}) => telegramPost('scheduled-send', body),
   telegramScheduledDelete: (body = {}) =>
@@ -971,6 +978,20 @@ export const api = {
         ? `&chat=${encodeURIComponent(chat)}&msg=${encodeURIComponent(msg)}`
         : '';
     const path = `/api/telegram/avatar?peer=${encodeURIComponent(peer)}&size=${encodeURIComponent(size)}${where}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
+
+  // A sticker's or GIF's picture (`id`), a set's (`set`), or the video
+  // of a video sticker or GIF (`full`) (R-Y105).
+  telegramStickerUrl: async ({ id, set, full = false } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !(id || set)) {
+      return null;
+    }
+    const which = set
+      ? `set=${encodeURIComponent(set)}`
+      : `id=${encodeURIComponent(id)}${full ? '&full=1' : ''}`;
+    const path = `/api/telegram/sticker?${which}`;
     return origin ? new URL(path, origin).toString() : path;
   },
 

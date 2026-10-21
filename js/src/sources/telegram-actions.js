@@ -41,6 +41,7 @@ import { createFileSender } from './telegram-upload.js';
 import { createChatRemoval } from './telegram-chat-removal.js';
 import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
+import { createStickers } from './telegram-stickers.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -317,13 +318,14 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     media,
     ...markReaders(env, tools, userClient, dialogOf),
     ...readers,
-    ...chatActions(env, { userClient, apply, dialogOf, tools }),
+    ...chatActions(env, { userClient, apply, dialogOf, tools, mediaDir }),
   };
 };
 
 // Polls and checklists (R-Y74); the chat list's menu (R-Y97); search
 // in a chat (R-Y98); files and photos (R-Y99); clear, delete, leave
-// (R-Y100); scheduled messages (R-Y102); folders (R-Y103).
+// (R-Y100); scheduled messages (R-Y102); folders (R-Y103); stickers and
+// saved GIFs (R-Y105).
 const chatActions = (env, context) => ({
   ...createPollActions(env, context),
   ...createDialogActions(env, context),
@@ -332,6 +334,7 @@ const chatActions = (env, context) => ({
   ...createChatRemoval(env, context),
   ...createScheduled(env, context),
   ...createFolders(env, context),
+  ...createStickers(env, context),
 });
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a

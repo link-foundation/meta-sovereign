@@ -69,6 +69,7 @@ import {
 } from './chat-schedule.js';
 import { formatShortcut } from './text-shortcuts.js';
 import { useEmojiPanel } from './chat-emoji.js';
+import { useStickerTabs } from './chat-stickers.js';
 import { failureText } from './chat-failure.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
@@ -1195,10 +1196,11 @@ const Composer = ({ state, api, keys }) => {
   const dragging = useDropFiles(attach);
   // The Send buttons' menu; scheduled messages (R-Y102).
   const later = useSendLater({ state, api, composer, attach });
-  // The emoji panel (R-Y104).
+  // The emoji panel (R-Y104), with stickers and GIFs (R-Y105).
   const box = useRef(null);
   const typeText = (next) => composer.setText(next, { typed: true });
-  const emoji = useEmojiPanel({ box, setText: typeText });
+  const extra = useStickerTabs({ state, api, composer });
+  const emoji = useEmojiPanel({ box, setText: typeText, extra });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
