@@ -61,7 +61,6 @@ export const zh = {
   'shell.more': '更多',
   'shell.moreAria': '更多栏目',
   'common.loading': '加载中...',
-  'common.refresh': '刷新',
   'common.save': '保存',
   'common.send': '发送',
   'common.cancel': '取消',
@@ -736,7 +735,7 @@ export const zh = {
     '你的个人 CRM，所有消息汇于一个收件箱。除非你连接自己的服务器，数据始终留在你的设备上。',
   'tutorial.chat.title': '聊天',
   'tutorial.chat.body':
-    '所有已连接服务的对话，集中在一个收件箱。在下方输入并按发送即可回复；列表下方一行显示已连接的账号和"立即同步"。',
+    '所有已连接服务的对话，集中在一个收件箱。在下方输入并按发送即可回复；列表下方一行显示已连接的账号和上次同步时间；同步自动进行。',
   'tutorial.contacts.title': '联系人',
   'tutorial.contacts.body':
     '所有与你交流的人以及你的 Telegram 联系人，每人只出现一次，即使跨多个服务。打开联系人。',
@@ -847,11 +846,10 @@ export const zh = {
   'chat.account.noChats':
     '暂未找到聊天。在 Telegram 中给某人发消息，或打开联系人并点击"发消息"。',
   'chat.account.botHint':
-    '机器人只能看到发给它的消息。请人给你的机器人发消息，然后点击"立即同步"。',
+    '机器人只能看到发给它的消息。请人给你的机器人发消息，消息会自动出现在这里。',
   'chat.account.failed': 'Telegram 同步失败：{error}',
-  'chat.account.failedShort': 'Telegram 同步失败',
-  'chat.account.syncNow': '立即同步',
-  'chat.account.syncing': '同步中…',
+  'chat.account.syncing': '正在更新…',
+  'chat.account.connecting': '正在连接…',
   'chat.account.openConnection': '打开 Telegram 连接',
   'chat.group.today': '今天',
   'chat.group.yesterday': '昨天',

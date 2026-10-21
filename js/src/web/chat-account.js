@@ -1,6 +1,9 @@
 // The connected Telegram account on the chat screen: while the first sync
 // runs (or when it failed) the empty Chat says so instead of asking the
 // user to connect again, and the chat list carries a small sync line.
+// There is no "Sync now" (R-Y75): the server keeps the account in sync by
+// itself and retries a failed sync on its own (../sources/telegram-catchup.js),
+// as Telegram's own apps do; a sync that stays failed says why.
 
 import React from 'react';
 import { useDates, useT } from './i18n.js';
@@ -26,20 +29,6 @@ const openConnections = () =>
     })
   );
 
-const SyncButton = ({ telegram, primary = false }) => {
-  const t = useT();
-  return el(
-    'button',
-    {
-      type: 'button',
-      className: primary ? 'primary' : 'ghost',
-      disabled: telegram.syncing,
-      onClick: () => telegram.syncNow().catch(() => {}),
-    },
-    telegram.syncing ? t('chat.account.syncing') : t('chat.account.syncNow')
-  );
-};
-
 /** Who is connected, as one line. */
 const connectedLine = (t, telegram) => {
   const name = accountName(telegram.account);
@@ -49,6 +38,25 @@ const connectedLine = (t, telegram) => {
   return name
     ? t('chat.account.connectedAs', { name })
     : t('chat.account.connected');
+};
+
+// Like Telegram's title bar: "Connecting…" while the connection is down
+// (it comes back by itself), "Updating…" while a sync runs, else who is
+// connected and when it last synced; a failed sync says why.
+const lineText = (t, telegram, when) => {
+  if (telegram.error) {
+    return t('chat.account.failed', { error: telegram.error });
+  }
+  if (
+    telegram.connection === 'disconnected' ||
+    telegram.connection === 'broken'
+  ) {
+    return t('chat.account.connecting');
+  }
+  if (telegram.syncing) {
+    return t('chat.account.syncing');
+  }
+  return [connectedLine(t, telegram), when ? ` · ${when}` : ''].join('');
 };
 
 /** Chat with no conversations yet, but Telegram is connected. */
@@ -74,10 +82,9 @@ export const ChatAccountEmpty = ({ telegram }) => {
     [
       el('h2', { key: 'h' }, connectedLine(t, telegram)),
       el('p', { key: 'p', className: 'meta' }, detail),
-      el('div', { key: 'a', className: 'row' }, [
-        el(SyncButton, { key: 's', telegram, primary: true }),
-        failed
-          ? el(
+      failed
+        ? el('div', { key: 'a', className: 'row' }, [
+            el(
               'button',
               {
                 key: 'c',
@@ -86,14 +93,14 @@ export const ChatAccountEmpty = ({ telegram }) => {
                 onClick: openConnections,
               },
               t('chat.account.openConnection')
-            )
-          : null,
-      ]),
+            ),
+          ])
+        : null,
     ]
   );
 };
 
-/** The chat list's footer: the account, the last sync, Sync now. */
+/** The chat list's footer: the account and the last sync, or why not. */
 export const ChatAccountLine = ({ telegram }) => {
   const t = useT();
   const { chatTime } = useDates();
@@ -109,14 +116,19 @@ export const ChatAccountLine = ({ telegram }) => {
       title: telegram.error ?? undefined,
     },
     [
-      el(
-        'span',
-        { key: 't', className: 'meta' },
-        telegram.error
-          ? t('chat.account.failedShort')
-          : [connectedLine(t, telegram), when ? ` · ${when}` : ''].join('')
-      ),
-      el(SyncButton, { key: 's', telegram }),
+      el('span', { key: 't', className: 'meta' }, lineText(t, telegram, when)),
+      telegram.error
+        ? el(
+            'button',
+            {
+              key: 'c',
+              type: 'button',
+              className: 'ghost',
+              onClick: openConnections,
+            },
+            t('chat.account.openConnection')
+          )
+        : null,
     ]
   );
 };

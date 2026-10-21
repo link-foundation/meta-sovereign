@@ -61,7 +61,6 @@ export const hi = {
   'shell.more': 'और',
   'shell.moreAria': 'अन्य अनुभाग',
   'common.loading': 'लोड हो रहा है...',
-  'common.refresh': 'ताज़ा करें',
   'common.save': 'सहेजें',
   'common.send': 'भेजें',
   'common.cancel': 'रद्द करें',
@@ -755,7 +754,7 @@ export const hi = {
     'आपका निजी CRM और सभी संदेशों के लिए एक इनबॉक्स। जब तक आप अपना सर्वर न जोड़ें, डेटा आपके डिवाइस पर ही रहता है।',
   'tutorial.chat.title': 'चैट',
   'tutorial.chat.body':
-    'सभी जुड़ी सेवाओं की बातचीत, एक ही इनबॉक्स में। नीचे लिखें और जवाब देने के लिए भेजें दबाएँ; सूची के नीचे की पंक्ति जुड़ा खाता और "अभी सिंक करें" दिखाती है।',
+    'सभी जुड़ी सेवाओं की बातचीत, एक ही इनबॉक्स में। नीचे लिखें और जवाब देने के लिए भेजें दबाएँ; सूची के नीचे की पंक्ति जुड़ा खाता और पिछला सिंक दिखाती है; सिंक अपने आप होता है।',
   'tutorial.contacts.title': 'संपर्क',
   'tutorial.contacts.body':
     'जिनसे भी आप बात करते हैं और आपके Telegram संपर्क — हर व्यक्ति एक बार, कई सेवाओं में भी। संपर्क खोलें।',
@@ -870,11 +869,10 @@ export const hi = {
   'chat.account.noChats':
     'अभी कोई चैट नहीं मिली। Telegram में किसी को लिखें, या संपर्क खोलकर "संदेश" दबाएँ।',
   'chat.account.botHint':
-    'बॉट केवल उसे भेजे गए संदेश देखता है। किसी से अपने बॉट को लिखने को कहें, फिर "अभी सिंक करें" दबाएँ।',
+    'बॉट केवल उसे भेजे गए संदेश देखता है। किसी से अपने बॉट को लिखने को कहें; संदेश यहाँ अपने आप दिखेंगे।',
   'chat.account.failed': 'Telegram सिंक नहीं हुआ: {error}',
-  'chat.account.failedShort': 'Telegram सिंक नहीं हुआ',
-  'chat.account.syncNow': 'अभी सिंक करें',
-  'chat.account.syncing': 'सिंक हो रहा है…',
+  'chat.account.syncing': 'अपडेट हो रहा है…',
+  'chat.account.connecting': 'कनेक्ट हो रहा है…',
   'chat.account.openConnection': 'Telegram कनेक्शन खोलें',
   'chat.group.today': 'आज',
   'chat.group.yesterday': 'कल',

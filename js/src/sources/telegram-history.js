@@ -182,6 +182,16 @@ export const floodSeconds = (error) => {
   return match ? Number(match[1]) : Number(error?.seconds) || 0;
 };
 
+// GramJS while its connection is down ("Cannot send requests while
+// disconnected"): it reconnects by itself within seconds, so a request
+// waits for it — 1 s, 2 s, 4 s, 8 s — instead of failing (R-Y75), as
+// Telegram's apps queue requests until they are connected again.
+const DISCONNECTED_RETRIES = 4;
+export const isDisconnected = (error) =>
+  /while disconnected|not connected|connection (?:was )?closed/i.test(
+    String(error?.message ?? error ?? '')
+  );
+
 const floodError = (retryAfter) =>
   Object.assign(new Error('Telegram asked to wait'), {
     code: 'flood-wait',
@@ -227,7 +237,12 @@ const createPacing = ({ pace, now }) => {
     const last = started.at(-1) ?? -Infinity;
     const over = started.length - Math.floor(perMinute) + 1;
     const budget = over > 0 ? started[over - 1] + MINUTE_MS : -Infinity;
-    return Math.max(last + gapMs, budget, heldUntil(job.method));
+    return Math.max(
+      last + gapMs,
+      budget,
+      heldUntil(job.method),
+      job.notBefore ?? 0
+    );
   };
 
   function heldUntil(method) {
@@ -361,6 +376,15 @@ export const createFetchQueue = ({
       );
     } catch (error) {
       note(error, job);
+      const tries = job.reconnectTries ?? 0;
+      if (isDisconnected(error) && tries < DISCONNECTED_RETRIES) {
+        // Back in line once the connection had time to come back.
+        job.reconnectTries = tries + 1;
+        job.notBefore = now() + 1000 * 2 ** tries;
+        byKey.set(job.key, job);
+        waiting.push(job);
+        return;
+      }
       job.reject(error);
     }
   };

@@ -181,6 +181,43 @@ test('the queue paces requests and gives background work only a quiet minute (R-
   assert.equal(queue.state().waiting, 0);
 });
 
+test('a request made while the connection is down waits for it (R-Y75)', async () => {
+  const time = fakeTime();
+  const queue = createFetchQueue({
+    now: time.now,
+    setTimer: time.setTimer,
+    clearTimer: time.clearTimer,
+    pace: NO_PACE,
+  });
+  let tries = 0;
+  const history = queue.run('history:42', 'view', async () => {
+    tries += 1;
+    if (tries < 3) {
+      throw new Error(
+        'Cannot send requests while disconnected. Please reconnect.'
+      );
+    }
+    return 'messages';
+  });
+  await time.advance(0);
+  assert.equal(tries, 1);
+  await time.advance(1000);
+  assert.equal(tries, 2);
+  await time.advance(2000);
+  assert.equal(await history, 'messages');
+  // Down for good: said after the last wait, not forever.
+  const gone = queue.run('history:43', 'view', async () => {
+    throw new Error(
+      'Cannot send requests while disconnected. Please reconnect.'
+    );
+  });
+  gone.catch(() => {});
+  for (const ms of [0, 1000, 2000, 4000, 8000]) {
+    await time.advance(ms);
+  }
+  await assert.rejects(gone, /while disconnected/);
+});
+
 test('a request Telegram never answers is given up and the queue moves on', async () => {
   const time = fakeTime();
   const stuck = [];

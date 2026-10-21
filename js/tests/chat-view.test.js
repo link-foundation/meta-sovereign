@@ -315,7 +315,6 @@ test('screen: a connected Telegram account never asks to connect again', () => {
     connected: true,
     kind: 'user',
     account: { username: 'owner' },
-    syncNow: noop,
     ...extra,
   });
   const syncing = render(
@@ -333,10 +332,26 @@ test('screen: a connected Telegram account never asks to connect again', () => {
   );
   assert.match(failed, /Telegram did not sync: AUTH_KEY_UNREGISTERED/);
   assert.match(failed, /Open Telegram connection/);
-  // With chats, the list carries the account and "Sync now".
+  // With chats, the list carries the account; no "Sync now" (R-Y75):
+  // it syncs by itself, says "Updating…" meanwhile, and why it failed.
   const list = render(screenState({ telegram: telegram({}) }));
   assert.match(list, /class="chat-account-line"/);
-  assert.match(list, /Sync now/);
+  assert.match(list, /Connected as @owner/);
+  assert.doesNotMatch(list, /Sync now/);
+  assert.doesNotMatch(failed, /Sync now/);
+  assert.match(
+    render(screenState({ telegram: telegram({ syncing: true }) })),
+    /Updating…/
+  );
+  assert.match(
+    render(screenState({ telegram: telegram({ connection: 'disconnected' }) })),
+    /Connecting…/
+  );
+  const broken = render(
+    screenState({ telegram: telegram({ error: 'AUTH_KEY_UNREGISTERED' }) })
+  );
+  assert.match(broken, /Telegram did not sync: AUTH_KEY_UNREGISTERED/);
+  assert.match(broken, /Open Telegram connection/);
 });
 
 test('chats: a contact opened from Contacts gets a chat before any message', async () => {

@@ -61,7 +61,6 @@ export const en = {
   'shell.more': 'More',
   'shell.moreAria': 'More sections',
   'common.loading': 'Loading...',
-  'common.refresh': 'Refresh',
   'common.save': 'Save',
   'common.send': 'Send',
   'common.cancel': 'Cancel',
@@ -759,7 +758,7 @@ export const en = {
     'Your personal CRM and one inbox for all your messages. Your data stays on your device unless you connect your own server.',
   'tutorial.chat.title': 'Chat',
   'tutorial.chat.body':
-    'Conversations from all your connected services, in one inbox. Type below and press Send to reply; the line under the list shows the connected account and "Sync now".',
+    'Conversations from all your connected services, in one inbox. Type below and press Send to reply; the line under the list shows the connected account and when it last synced; it syncs by itself.',
   'tutorial.contacts.title': 'Contacts',
   'tutorial.contacts.body':
     'Everyone you talk to, and your Telegram contacts, each person once even across services. Open Contacts.',
@@ -874,11 +873,10 @@ export const en = {
   'chat.account.noChats':
     'No chats were found yet. Write to someone in Telegram, or open Contacts and press "Message".',
   'chat.account.botHint':
-    'A bot only sees messages people send to it. Ask someone to write to your bot, then press "Sync now".',
+    'A bot only sees messages people send to it. Ask someone to write to your bot; their messages appear here by themselves.',
   'chat.account.failed': 'Telegram did not sync: {error}',
-  'chat.account.failedShort': 'Telegram did not sync',
-  'chat.account.syncNow': 'Sync now',
-  'chat.account.syncing': 'Syncing…',
+  'chat.account.syncing': 'Updating…',
+  'chat.account.connecting': 'Connecting…',
   'chat.account.openConnection': 'Open Telegram connection',
   'chat.group.today': 'Today',
   'chat.group.yesterday': 'Yesterday',

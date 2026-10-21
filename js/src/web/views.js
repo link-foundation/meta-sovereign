@@ -33,14 +33,19 @@ const useAsyncValue = (loader, deps, initialValue) => {
     error: null,
     value: initialValue,
   });
+  const loaded = useRef(false);
   useEffect(() => {
     let cancelled = false;
-    setState((current) => ({ ...current, loading: true, error: null }));
+    // A reload keeps what is shown until the new answer: no flash.
+    if (!loaded.current) {
+      setState((current) => ({ ...current, loading: true, error: null }));
+    }
     Promise.resolve()
       .then(loader)
       .then(
         (value) => {
           if (!cancelled) {
+            loaded.current = true;
             setState({ loading: false, error: null, value });
           }
         },
@@ -80,6 +85,7 @@ const AsyncFrame = ({ state, children }) => {
 };
 
 const refreshReducer = (value) => value + 1;
+const BACKUPS_EVERY_MS = 15_000;
 
 export const OperatorView = () => {
   const t = useT();
@@ -831,6 +837,17 @@ export const BackupView = () => {
   const { dateTime: fmtTs } = useDates();
   const [refresh, setRefresh] = useState(0);
   const state = useAsyncValue(() => api.listBackups(), [refresh], []);
+  // The list keeps itself current (R-Y75): scheduled backups appear by
+  // themselves, no Refresh button.
+  useEffect(() => {
+    const again = () => setRefresh(refreshReducer);
+    const timer = globalThis.setInterval(again, BACKUPS_EVERY_MS);
+    globalThis.addEventListener?.('focus', again);
+    return () => {
+      globalThis.clearInterval(timer);
+      globalThis.removeEventListener?.('focus', again);
+    };
+  }, []);
   const [passphrase, setPassphrase] = useState('');
   const [keep, setKeep] = useState('');
   const [status, setStatus] = useState('');
@@ -886,15 +903,6 @@ export const BackupView = () => {
             onClick: create,
           },
           t('backup.create')
-        ),
-        el(
-          'button',
-          {
-            key: 'refresh',
-            type: 'button',
-            onClick: () => setRefresh(refreshReducer),
-          },
-          t('common.refresh')
         ),
       ]),
       el(

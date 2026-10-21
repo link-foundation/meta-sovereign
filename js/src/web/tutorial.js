@@ -171,7 +171,7 @@ export const defaultSteps = [
     titleKey: 'tutorial.chat.title',
     bodyKey: 'tutorial.chat.body',
     title: 'Chat',
-    body: 'Conversations from all your connected services, in one inbox. Type below and press Send to reply; the line under the list shows the connected account and "Sync now".',
+    body: 'Conversations from all your connected services, in one inbox. Type below and press Send to reply; the line under the list shows the connected account and when it last synced; it syncs by itself.',
   },
   {
     id: 'automation',

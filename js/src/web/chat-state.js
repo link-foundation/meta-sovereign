@@ -470,7 +470,7 @@ const STATUS_EVERY_MS = 4000;
 /**
  * The connected Telegram account behind Chat: its status (who, last sync,
  * an error) polled while the screen is open, a fresh link load whenever a
- * sync wrote something, and "Sync now".
+ * sync wrote something. It syncs by itself (no "Sync now", R-Y75).
  */
 const useTelegramAccount = (
   api,
@@ -511,22 +511,9 @@ const useTelegramAccount = (
   // Faster while a sync runs, so its result shows as soon as it lands.
   const every = status?.syncing ? Math.min(pollMs, 1000) : pollMs;
   useInterval(load, supported ? every : 0, [load, every]);
-  const [syncing, setSyncing] = useState(false);
-  const syncNow = async () => {
-    setSyncing(true);
-    try {
-      const result = await api.telegramSync({ full: true });
-      setStatus((before) => ({ ...(before ?? {}), ...result }));
-      refresh();
-      return result;
-    } finally {
-      setSyncing(false);
-    }
-  };
   return {
     ...(status ?? { connected: false }),
-    syncing: syncing || Boolean(status?.syncing),
-    syncNow,
+    syncing: Boolean(status?.syncing),
   };
 };
 
