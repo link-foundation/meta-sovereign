@@ -18,6 +18,7 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { importTelegram } from './telegram-layer.js';
 
 // Pictures larger than this are not downloaded (a thumbnail is).
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -152,7 +153,7 @@ export const createMediaReader = ({
   queue,
   client: clientOf,
   refresh,
-  importer = () => import('telegram'),
+  importer = importTelegram,
   log = () => {},
 }) => {
   const download = async (client, picture) => {
@@ -281,7 +282,7 @@ export const createFileReader = ({
   queue,
   client: clientOf,
   refresh,
-  importer = () => import('telegram'),
+  importer = importTelegram,
   log = () => {},
 }) => {
   // Concurrent requests for the same chat:id share one download promise.

@@ -15,6 +15,7 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { importTelegram } from './telegram-layer.js';
 
 const MS_PER_DAY = 24 * 60 * 60_000;
 const PEER = /^-?\d{1,20}$/;
@@ -106,7 +107,7 @@ export const createAvatarReader = ({
   queue,
   client: clientOf,
   peers,
-  importer = () => import('telegram'),
+  importer = importTelegram,
   log = () => {},
   retryMs = RETRY_MS,
 }) => {

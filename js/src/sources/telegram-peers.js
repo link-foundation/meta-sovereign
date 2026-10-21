@@ -10,6 +10,8 @@
  * the chat list is asked for only to read the chat list.
  */
 
+import { importTelegram } from './telegram-layer.js';
+
 const SOURCE = 'telegram';
 
 export const peerLinkId = (chat) => `peer:${SOURCE}:${chat}`;
@@ -64,7 +66,7 @@ const sameRecord = (a, b) =>
  * changed); `input(chat)` rebuilds the GramJS input peer, or null when
  * the chat was never listed; `dialog(chat)` the chat's kind and name.
  */
-export const createPeers = ({ store, importer = () => import('telegram') }) => {
+export const createPeers = ({ store, importer = importTelegram }) => {
   const known = new Map(); // chat -> stored record (or null)
 
   const read = async (chat) => {

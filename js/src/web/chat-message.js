@@ -80,18 +80,28 @@ const CARD_LABELS = {
   contact: 'chat.media.contact',
   poll: 'chat.media.poll',
   story: 'chat.media.story',
+  unsupported: 'chat.media.unsupportedLabel',
+  game: 'chat.media.gameLabel',
+  invoice: 'chat.media.invoiceLabel',
+};
+
+// Media named by what it holds rather than its kind (null: by kind).
+const OWN_LABELS = {
+  poll: (m) => (m.question ? `📊 ${m.question}` : null),
+  dice: (m) => m.emoticon,
+  // A game or an invoice by its title, as Telegram's pinned bar.
+  game: (m) => (m.title ? `🎮 ${m.title}` : null),
+  invoice: (m) => m.title || null,
 };
 
 /** What a message without text holds, in a word ("Photo", "Poll"). */
 export const mediaLabel = (t, media) => {
+  const own = OWN_LABELS[media?.kind]?.(media);
+  if (own) {
+    return own;
+  }
   const key =
     MEDIA_LABELS[media?.type ?? media?.kind] ?? CARD_LABELS[media?.kind];
-  if (media?.kind === 'poll' && media.question) {
-    return `📊 ${media.question}`;
-  }
-  if (media?.kind === 'dice') {
-    return media.emoticon;
-  }
   return key ? t(key) : '';
 };
 

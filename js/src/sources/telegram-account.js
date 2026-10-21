@@ -47,13 +47,18 @@ import { createPeers } from './telegram-peers.js';
 import { createActions } from './telegram-actions.js';
 import { createPageReader, dialogsCursor } from './telegram-pages.js';
 import { messageSenderId } from './telegram-updates.js';
-import { repairSenders } from './telegram-repair.js';
+import { repairSenders, rereadUnsupported } from './telegram-repair.js';
 import {
   MAX_MESSAGE_LENGTH,
   sendError,
   sendText,
   splitMessage,
 } from './telegram-send.js';
+import {
+  importTelegram,
+  installTelegramLayer,
+  LAYER,
+} from './telegram-layer.js';
 
 const SOURCE = 'telegram';
 export const TELEGRAM_SYNC_ID = 'sync:telegram';
@@ -986,19 +991,26 @@ const buildLiveAdapter = (messaging, actions) => ({
 });
 
 // Mend what older versions stored wrong, once each, in the background.
-const runRepairs = (store, log) =>
-  repairSenders(store, { log }).catch((error) =>
-    log({
-      level: 'warn',
-      event: 'telegram_repair_failed',
-      error: error.message,
-    })
-  );
+const runRepairs = (store, log, refresh) =>
+  repairSenders(store, { log })
+    // Only worth it when GramJS really speaks the current layer.
+    .then(() =>
+      installTelegramLayer().layer === LAYER
+        ? rereadUnsupported(store, { refresh, layer: LAYER, log })
+        : 0
+    )
+    .catch((error) =>
+      log({
+        level: 'warn',
+        event: 'telegram_repair_failed',
+        error: error.message,
+      })
+    );
 
 export const createTelegramAccount = ({
   store,
   clientFactory = gramjsClientFactory(),
-  importer = () => import('telegram'),
+  importer = importTelegram,
   botLive = createTelegramBotLive(),
   log = () => {},
   now = () => Date.now(),
@@ -1119,7 +1131,7 @@ export const createTelegramAccount = ({
       return;
     }
     restoreHolds(env);
-    runRepairs(store, log);
+    runRepairs(store, log, env.actions?.refreshMessages);
     const tick = async () => {
       const creds = await readTelegramCredentials(store);
       if (creds?.kind === 'user') {

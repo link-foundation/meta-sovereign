@@ -15,6 +15,8 @@
  * Secrets are never logged; only the error code on failure.
  */
 
+import { importTelegram } from './telegram-layer.js';
+
 const CHAT = /^-?\d{1,20}$/;
 const CACHE_TTL_MS = 60_000;
 
@@ -174,7 +176,7 @@ export const createChatInfoReader = ({
   queue,
   client: clientOf,
   peers,
-  importer = () => import('telegram'),
+  importer = importTelegram,
   log = () => {},
 }) => {
   const cache = new Map(); // chat → { data, at }

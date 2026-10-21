@@ -18,6 +18,8 @@
  *                                      password → a saved session string.
  */
 
+import { importTelegram } from './telegram-layer.js';
+
 const deferred = () => {
   let resolve;
   let reject;
@@ -47,7 +49,7 @@ export const accountOf = (me = {}) => ({
 // Build the real GramJS client. Imported lazily; absent in environments
 // that never do user-account auth.
 export const gramjsClientFactory =
-  (importer = () => import('telegram')) =>
+  (importer = importTelegram) =>
   async ({ apiId, apiHash, session }) => {
     const telegram = await importer();
     const { TelegramClient } = telegram;

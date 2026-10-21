@@ -25,7 +25,6 @@ const fakeTelegram = () => ({
       ForwardMessages: tl('messages.ForwardMessages'),
     },
     channels: {
-      EditMessage: tl('channels.EditMessage'),
       DeleteMessages: tl('channels.DeleteMessages'),
     },
     ReactionEmoji: tl('ReactionEmoji'),
@@ -159,7 +158,9 @@ test('editMessage invokes messages.EditMessage for a plain chat', async () => {
   assert.strictEqual(invocations[0].message, 'updated');
 });
 
-test('editMessage invokes channels.EditMessage for a channel chat', async () => {
+// Telegram has no channels.editMessage: a channel's message is edited
+// with messages.editMessage too.
+test('editMessage invokes messages.EditMessage for a channel chat too', async () => {
   const invocations = [];
   const client = {
     invoke: async (req) => {
@@ -177,7 +178,7 @@ test('editMessage invokes channels.EditMessage for a channel chat', async () => 
   });
   assert.deepStrictEqual(result, { ok: true, edited: 5 });
   assert.strictEqual(invocations.length, 1);
-  assert.strictEqual(invocations[0].className, 'channels.EditMessage');
+  assert.strictEqual(invocations[0].className, 'messages.EditMessage');
 });
 
 test('react invokes messages.SendReaction with emoji', async () => {

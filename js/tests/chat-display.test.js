@@ -206,6 +206,10 @@ test('a reply to media names the media, as Telegram does', () => {
   assert.equal(mediaLabel(t, { kind: 'photo' }), 'Photo');
   assert.equal(mediaLabel(t, { kind: 'poll', question: 'Q?' }), '📊 Q?');
   assert.equal(mediaLabel(t, { kind: 'dice', emoticon: '🎯' }), '🎯');
+  // The pinned bar is never empty (R-Y76).
+  assert.equal(mediaLabel(t, { kind: 'unsupported' }), 'Unsupported message');
+  assert.equal(mediaLabel(t, { kind: 'game', title: 'Chess' }), '🎮 Chess');
+  assert.equal(mediaLabel(t, { kind: 'invoice', title: null }), 'Invoice');
   assert.equal(mediaLabel(t, null), '');
 });
 

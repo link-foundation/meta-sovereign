@@ -46,15 +46,11 @@ const makeEditMessage =
     const { Api } = await env.importer();
     const target = String(chat ?? link?.chat);
     const msgId = wanted[0];
+    // One method for every chat, channels too (there is no
+    // channels.editMessage in Telegram's API).
     const result = await env.connection.withPeer(client, target, (peer) =>
       client.invoke(
-        isChannel(target)
-          ? new Api.channels.EditMessage({
-              channel: peer,
-              id: msgId,
-              message: text,
-            })
-          : new Api.messages.EditMessage({ peer, id: msgId, message: text })
+        new Api.messages.EditMessage({ peer, id: msgId, message: text })
       )
     );
     await apply(client, result);

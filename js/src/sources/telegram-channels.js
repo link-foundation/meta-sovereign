@@ -22,6 +22,7 @@
 import { coverSlice, historyLink, historyLinkId } from './telegram-history.js';
 import { peerChatId } from './telegram-updates.js';
 import { entitiesOf } from './telegram-catchup.js';
+import { importTelegram } from './telegram-layer.js';
 
 const SOURCE = 'telegram';
 export const channelStateId = (chat) => `pts:${SOURCE}:${chat}`;
@@ -127,7 +128,7 @@ export const createChannelSync = ({
   request,
   handle,
   client: clientOf,
-  importer = () => import('telegram'),
+  importer = importTelegram,
   log = () => {},
   now = () => Date.now(),
   timers = globalThis,
