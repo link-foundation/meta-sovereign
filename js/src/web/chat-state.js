@@ -42,6 +42,14 @@ import {
   windowMessages,
 } from './chat-window.js';
 import { useAutopilotBase } from './autopilot-hook.js';
+import {
+  chatsInFolder,
+  folderKey,
+  folderTabs,
+  isFolderFilter,
+  peopleOf,
+  useTelegramFolders,
+} from './chat-folders.js';
 
 export { shownAutopilot } from './autopilot-hook.js';
 
@@ -609,18 +617,25 @@ const FILTER_KEY = 'meta-sovereign.chat.filter';
 const SORT_KEY = 'meta-sovereign.chat.sort';
 
 // One of `options`, remembered in this browser (the first is the default).
-const useRemembered = (key, options, storage = globalThis.localStorage) => {
+const useRemembered = (
+  key,
+  options,
+  {
+    storage = globalThis.localStorage,
+    accept = (v) => options.includes(v),
+  } = {}
+) => {
   const read = () => {
     try {
       const saved = storage?.getItem(key);
-      return options.includes(saved) ? saved : options[0];
+      return accept(saved) ? saved : options[0];
     } catch {
       return options[0];
     }
   };
   const [value, setValue] = useState(read);
   const choose = (next) => {
-    const chosen = options.includes(next) ? next : options[0];
+    const chosen = accept(next) ? next : options[0];
     setValue(chosen);
     try {
       storage?.setItem(key, chosen);
@@ -632,7 +647,11 @@ const useRemembered = (key, options, storage = globalThis.localStorage) => {
 };
 
 // All / Private / Groups / Channels, and newest or oldest first.
-const useChatFilter = () => useRemembered(FILTER_KEY, CHAT_FILTERS);
+// The list's own tabs, or one of Telegram's folders (R-Y103).
+const useChatFilter = () =>
+  useRemembered(FILTER_KEY, CHAT_FILTERS, {
+    accept: (v) => CHAT_FILTERS.includes(v) || isFolderFilter(v),
+  });
 const useChatSort = () => useRemembered(SORT_KEY, CHAT_SORTS);
 
 /** `#chat=<source>:<chat>` — a chat opened from Contacts. */
@@ -731,7 +750,27 @@ const useTypingIn = (api, current, { tick, pollMs, links }) => {
  * Contacts that has no messages yet), and the ones the search and the
  * tab show.
  */
-const useChatList = (links, target, query) => {
+const NO_ARCHIVE = Object.freeze({ count: 0, unread: 0, names: [] });
+const OWN_TABS = CHAT_FILTERS.map((key) => ({
+  key,
+  label: `chat.filter.${key}`,
+  unread: 0,
+}));
+
+// Telegram's folders replace the list's own tabs (R-Y103); a remembered
+// tab that is not there now shows every chat.
+const shownFilter = (filter, folders) => {
+  const named = folders.filter((f) => !f.all);
+  const folder = isFolderFilter(filter)
+    ? (named.find((f) => folderKey(f) === filter) ?? null)
+    : null;
+  if (named.length > 0) {
+    return { filter: folder ? filter : 'all', folder };
+  }
+  return { filter: isFolderFilter(filter) ? 'all' : filter, folder: null };
+};
+
+const useChatList = (links, target, query, folders = []) => {
   const all = useMemo(() => {
     const list = summarizeChats(links ?? []);
     if (
@@ -742,34 +781,46 @@ const useChatList = (links, target, query) => {
     }
     return [emptyChat(links ?? [], target), ...list];
   }, [links, target]);
-  const [filter, setFilter] = useChatFilter();
+  const [remembered, setFilter] = useChatFilter();
   const [sort, setSort] = useChatSort();
-  // Telegram's main list or the archive; a search looks through both.
+  // Telegram's main list or the archive; a search looks through both,
+  // and through every folder.
   const [folder, setFolder] = useState('main');
-  const chats = useMemo(
-    () =>
-      sortChats(
-        filterChats(
-          query
-            ? summarizeChats(links ?? [], { query })
-            : folderChats(all, folder),
-          filter
-        ),
-        sort
+  const people = useMemo(() => peopleOf(links ?? []), [links]);
+  const shown = shownFilter(remembered, folders);
+  const tabFolder = query ? null : shown.folder;
+  const filter = shown.filter;
+  const chats = useMemo(() => {
+    if (tabFolder) {
+      return sortChats(chatsInFolder(all, tabFolder, people), sort);
+    }
+    return sortChats(
+      filterChats(
+        query
+          ? summarizeChats(links ?? [], { query })
+          : folderChats(all, folder),
+        isFolderFilter(filter) ? 'all' : filter
       ),
-    [links, query, all, filter, sort, folder]
-  );
+      sort
+    );
+  }, [links, query, all, filter, sort, folder, tabFolder, people]);
   const archive = useMemo(() => archiveSummary(all), [all]);
+  const tabs = useMemo(
+    () => folderTabs(folders, { all, people, fallback: OWN_TABS }),
+    [folders, all, people]
+  );
   return {
     all,
     chats,
     filter,
     setFilter,
+    tabs,
     sort,
     setSort,
-    folder: archive.count > 0 ? folder : 'main',
+    // A folder lists its archived chats among the rest, as Telegram's.
+    folder: archive.count > 0 && !shown.folder ? folder : 'main',
     setFolder,
-    archive,
+    archive: shown.folder ? NO_ARCHIVE : archive,
   };
 };
 
@@ -786,7 +837,8 @@ export const useChatState = (
   const [notice, setNotice] = useState(null);
   const telegram = useTelegramAccount(api, refresh, { live });
   const target = useHashChat();
-  const list = useChatList(links, target, query);
+  const folders = useTelegramFolders(api, telegram);
+  const list = useChatList(links, target, query, folders);
   const { all, chats, filter, setFilter, sort, setSort } = list;
   useEffect(() => {
     if (target) {
@@ -858,6 +910,7 @@ export const useChatState = (
     setQuery,
     filter,
     setFilter,
+    tabs: list.tabs,
     sort,
     setSort,
     folder: list.folder,

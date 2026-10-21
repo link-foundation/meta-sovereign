@@ -870,6 +870,7 @@ export const ru = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
+  'chat.folder.all': 'Все чаты',
   'chat.filter.label': 'Какие чаты показать',
   'chat.filter.all': 'Все',
   'chat.filter.private': 'Личные',

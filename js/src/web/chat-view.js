@@ -102,7 +102,13 @@ const SortChoice = ({ state }) => {
   );
 };
 
-// All / Private / Groups / Channels — in the list's order under each.
+// All / Private / Groups / Channels — in the list's order under each —
+// or Telegram's folders (R-Y103).
+const OWN_TABS = CHAT_FILTERS.map((key) => ({
+  key,
+  label: `chat.filter.${key}`,
+}));
+
 const FilterTabs = ({ state }) => {
   const t = useT();
   if (typeof state.setFilter !== 'function') {
@@ -115,20 +121,33 @@ const FilterTabs = ({ state }) => {
       role: 'tablist',
       'aria-label': t('chat.filter.label'),
     },
-    CHAT_FILTERS.map((filter) =>
+    (state.tabs ?? OWN_TABS).map((tab) =>
       el(
         'button',
         {
-          key: filter,
+          key: tab.key,
           type: 'button',
           role: 'tab',
           className:
-            state.filter === filter ? 'chat-filter active' : 'chat-filter',
-          'aria-selected': state.filter === filter ? 'true' : 'false',
-          'data-filter': filter,
-          onClick: () => state.setFilter(filter),
+            state.filter === tab.key ? 'chat-filter active' : 'chat-filter',
+          'aria-selected': state.filter === tab.key ? 'true' : 'false',
+          'data-filter': tab.key,
+          onClick: () => state.setFilter(tab.key),
         },
-        t(`chat.filter.${filter}`)
+        [
+          el('span', { key: 't' }, tab.title ?? t(tab.label)),
+          tab.unread > 0
+            ? el(
+                'span',
+                {
+                  key: 'n',
+                  className: 'chat-filter-unread',
+                  'aria-label': t('chat.unread', { count: tab.unread }),
+                },
+                String(tab.unread)
+              )
+            : null,
+        ]
       )
     )
   );

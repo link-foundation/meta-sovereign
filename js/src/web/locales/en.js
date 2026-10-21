@@ -860,6 +860,7 @@ export const en = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
+  'chat.folder.all': 'All chats',
   'chat.filter.label': 'Show chats',
   'chat.filter.all': 'All',
   'chat.filter.private': 'Private',

@@ -22,7 +22,9 @@
  *   ./telegram-dialogs.js (R-Y97); search in a chat is
  *   ./telegram-search.js (R-Y98); files and photos are sent by
  *   ./telegram-upload.js (R-Y99); clearing, deleting and leaving a chat
- *   is ./telegram-chat-removal.js (R-Y100).
+ *   is ./telegram-chat-removal.js (R-Y100); scheduled messages are
+ *   ./telegram-scheduled.js (R-Y102), chat folders ./telegram-folders.js
+ *   (R-Y103).
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
@@ -38,6 +40,7 @@ import { createChatSearch } from './telegram-search.js';
 import { createFileSender } from './telegram-upload.js';
 import { createChatRemoval } from './telegram-chat-removal.js';
 import { createScheduled } from './telegram-scheduled.js';
+import { createFolders } from './telegram-folders.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -320,7 +323,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 
 // Polls and checklists (R-Y74); the chat list's menu (R-Y97); search
 // in a chat (R-Y98); files and photos (R-Y99); clear, delete, leave
-// (R-Y100).
+// (R-Y100); scheduled messages (R-Y102); folders (R-Y103).
 const chatActions = (env, context) => ({
   ...createPollActions(env, context),
   ...createDialogActions(env, context),
@@ -328,6 +331,7 @@ const chatActions = (env, context) => ({
   ...createFileSender(env, context),
   ...createChatRemoval(env, context),
   ...createScheduled(env, context),
+  ...createFolders(env, context),
 });
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a

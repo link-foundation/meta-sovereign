@@ -301,6 +301,11 @@ const POSTS = {
       }),
     ];
   },
+  // Telegram's chat folders (R-Y103).
+  folders: async (account, body) =>
+    typeof account.folderList === 'function'
+      ? [200, await account.folderList({ fresh: body.fresh === true })]
+      : [200, { ok: false, supported: false }],
   // A chat's scheduled messages (R-Y102): listed, sent now, deleted,
   // moved to another time.
   scheduled: async (account, body) =>

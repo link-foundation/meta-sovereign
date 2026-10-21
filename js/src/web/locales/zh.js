@@ -834,6 +834,7 @@ export const zh = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
+  'chat.folder.all': '所有聊天',
   'chat.filter.label': '显示哪些聊天',
   'chat.filter.all': '全部',
   'chat.filter.private': '私聊',

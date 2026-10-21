@@ -51,6 +51,7 @@
     "test:e2e:attach": "node js/tests/e2e-attach-browser.mjs",
     "test:e2e:format": "node js/tests/e2e-format-browser.mjs",
     "test:e2e:schedule": "node js/tests/e2e-schedule-browser.mjs",
+    "test:e2e:folders": "node js/tests/e2e-folders-browser.mjs",
     "test:e2e:replies": "node js/tests/e2e-reply-cache-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
@@ -83,7 +84,8 @@
     "test:e2e:chat-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-search-browser.mjs",
     "test:e2e:attach:webkit": "E2E_BROWSER=webkit node js/tests/e2e-attach-browser.mjs",
     "test:e2e:format:webkit": "E2E_BROWSER=webkit node js/tests/e2e-format-browser.mjs",
-    "test:e2e:schedule:webkit": "E2E_BROWSER=webkit node js/tests/e2e-schedule-browser.mjs"
+    "test:e2e:schedule:webkit": "E2E_BROWSER=webkit node js/tests/e2e-schedule-browser.mjs",
+    "test:e2e:folders:webkit": "E2E_BROWSER=webkit node js/tests/e2e-folders-browser.mjs"
   },
   "keywords": [
     "personal-crm",

@@ -857,6 +857,7 @@ export const hi = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
+  'chat.folder.all': 'सभी चैट',
   'chat.filter.label': 'कौन-सी चैट दिखाएँ',
   'chat.filter.all': 'सभी',
   'chat.filter.private': 'निजी',

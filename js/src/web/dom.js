@@ -900,6 +900,7 @@ export const api = {
 
   // A chat's scheduled messages (R-Y102): { chat } → { ok, links };
   // sent now, deleted ({ chat, ids }), moved ({ chat, id, date }).
+  telegramFolders: (body = {}) => telegramPost('folders', body),
   telegramScheduled: (body = {}) => telegramPost('scheduled', body),
   telegramScheduledSend: (body = {}) => telegramPost('scheduled-send', body),
   telegramScheduledDelete: (body = {}) =>
