@@ -1,5 +1,331 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.0
+
+### Minor Changes
+
+- Change phone number, away period, delete account link and Export Telegram data through a takeout session (R-Y212).
+
+  Switch the whole app to another Telegram account: each extra account runs on its own store, with a per-account browser copy, an active-account chip, other accounts' unread and notifications (R-Y202).
+
+  Delete all from user with ban and spam report, Not spam in Recent actions, convert to broadcast group, transfer ownership, channels you left; Escape closes only the top dialog (R-Y200).
+
+  A group's permissions and slow mode can be changed by admins who may ban users, and supergroups and channels show their recent actions (R-Y133).
+
+  Add members, administrators and their rights, chat history for new members, and upgrading a basic group to a supergroup (R-Y204).
+
+  Animated stickers play (R-Y113), as Telegram's apps: a `.tgs` sticker in a chat or in the sticker panel shows its picture, then its Lottie animation drawn as SVG by lottie-web's light player (bundled; no eval, no workers, so the content policy stands), looping while on screen and still when off it or when less motion is asked for. The panel's `sticker?full=1` now also serves an animated sticker's animation.
+
+  Mini apps in search, similar bots, prepared messages, collectible usernames (R-Y194).
+
+  Archive and read-mark settings, logged-in websites with Disconnect, pinned Saved Messages chats, hiding stories from the strip (R-Y174).
+
+  A chat's auto-delete timer, and Saved Messages viewed as chats (R-Y143).
+
+  Autopilot: a confirmed automation writes to every chat it fits by itself at its pacing and daily cap; with the monitor on, each chat opens as it is reached, and the monitor can be turned off while it keeps going; a line above the chat shows progress and Stop (R-Y87).
+
+  An incoming message reads only the automations, kept until one changes, instead of copying the whole store each time — which ran a large store's server out of memory during a sync (R-Y81).
+
+  After an automation's draft is sent, the chat offers the next chat it fits, with the user's edited text carried over (names become `{name}`/`{first}`); the draft can go back to the automation's own text (R-Y86).
+
+  Every automated send goes out at most once, paced, outside quiet hours, and never to opted-out or dead chats (R-Z3).
+
+  The autopilot starts and stops from the Automations page and the chat header's Automations menu; started with the monitor on, it opens each chat as it writes to it (R-Y91).
+
+  The history download passes over a chat Telegram cannot address instead of retrying it forever while every other chat waits (R-Y80).
+
+  Block and unblock, add and delete contacts, report spam and report through Telegram's own reasons, from a chat's info column (R-Y128).
+
+  Channel boosts: level, progress, link, Boost with slot reassignment asked first, boosters list; Saved Messages tags refresh after a reaction (R-Y173).
+
+  A bot's buttons (R-Y110), as Telegram Desktop: rows of buttons under a bot's message — a press asks the bot (new `bot-callback` route, messages.getBotCallbackAnswer) and shows its answer as a toast, a box or a link to open; link buttons ask before opening (web links only); copy, profile and switch-inline buttons work; ones only Telegram's apps can do say so. The keyboard a bot puts under the message box shows there with its placeholder; its buttons send their words; a button beside the box hides and shows it; a bot asking for an answer makes the box reply to it.
+
+  Typing "/" in a chat with bots lists their commands, and a bot chat has a Menu button (R-Y135).
+
+  HTML5 bot games: game cards, Play, high scores (R-Y190).
+
+  Bot login buttons and links with the login dialog, attachment-menu bots (R-Y201).
+
+  Telegram Business hours, location, intro, chat links, chatbots, and folder tags (R-Y180).
+
+  A recent calls list with All and Missed tabs, and call messages in chats that read as in Telegram Desktop (R-Y163).
+
+  A channel post's comments and a group message's thread: "N comments" / "Leave a comment" at the post's foot opens a panel with the post, the comments with older ones on demand, and a composer that comments or answers a comment (R-Y126).
+
+  Channel direct messages and suggested posts (R-Y191).
+
+  Albums are one bubble with a grid and one caption, and a photo with no caption keeps its size instead of showing only its time (R-Y89); a forward names the channel it came from instead of "PeerChannel" (R-Y90).
+
+  Days in a chat and a jump to a date (R-Y106), as Telegram's apps: each day's messages under its date, the top one floating while scrolling; a click opens a calendar, and a picked day opens the chat at its first message — far back too, reading only the page around it, then the pages after it as the user scrolls down; the "down" button goes back to the newest. Older pages now ask Telegram whenever the store holds a hole below, so a search or a jump never shows a gap.
+
+  The chat list stays whole while the server is busy or restarting, so "Oldest first" starts with the oldest chats (R-Y88).
+
+  Admins choose which reactions a group or channel allows, and the reaction picker follows it (R-Y160).
+
+  Group and channel settings for admins (signatures, discussion group, join to send, approve members, hide members, anti-spam, restrict saving), and the app honours restricted saving (R-Y165).
+
+  Statistics of channels and big supergroups: overview, graphs with zoom and tooltips, recent posts or top members (R-Y167).
+
+  Chat themes in private chats and managing several usernames for the user and owned channels (R-Y170).
+
+  Chat backgrounds: Telegram's wallpapers, a picture from a file, or none, drawn behind the messages; a wallpaper for one chat (R-Y155).
+
+  Checklists, reaction reports, post statistics and Stars revenue (R-Y195).
+
+  CI is green on Node, Bun and Deno across platforms, with non-gating Rust and browser e2e jobs (R-Z6).
+
+  A chat whose history was cleared stays in the chat list, empty, as Telegram Desktop keeps it (R-Y118); only Delete chat and Leave remove it. The jump-to-date calendar stops at the chat's first message once it is loaded (R-Y119).
+
+  An installed link-cli without --serve or binary archives is not used (R-Y94).
+
+  Cloud themes with previews, apply and addtheme links, and the per-chat Do not translate switch (R-Y209).
+
+  Groups in common in a person's info, listed and opened in the app (R-Y158).
+
+  Community chats that GramJS cannot place are dropped from Telegram's answers, and the repair logs why reads failed (R-Y222).
+
+  The Contacts window and read times in private chats (R-Y189).
+
+  Custom emoji in Telegram messages are drawn as their pictures: still, animated (Lottie) or video, big when alone, copied as the fallback emoji (R-Y120).
+
+  The CV runner's page loads no longer wait browser-commander 0.32's extra URL-stability polls (about 6 s per page), so the CV e2e runs in its time again.
+
+  Tests: the Deno run no longer fails on a store that was never written (the snapshot worker finds no log and has nothing to save) or on GramJS's part-size check, which is now tested without importing GramJS.
+
+  Dice as in Telegram's apps: a lone 🎲 🎯 🏀 ⚽ 🎳 🎰 is sent as a die, and dice are drawn as Telegram's own animations rolling to their value (R-Y130).
+
+  Cloud drafts sync and Clear all drafts, day counts in the jump-to-date calendar, and frequent contacts in search (R-Y207).
+
+  A real-browser test for an automation's draft and the next chat (R-Y95).
+
+  Editing a message happens in the composer, as in Telegram Desktop, with the earlier draft kept; also an order-independent custom emoji test (R-Y146).
+
+  Email is sent safely, parsed and threaded correctly, uses verified TLS or STARTTLS, pulls incrementally and has a Fetch mail now button (R-Z5).
+
+  Emoji found by words in the page's language (R-Y117), as Telegram's apps: the emoji panel's search uses Telegram's own emoji keywords (messages.getEmojiKeywords, kept a day per language) before English names. New route `POST /api/telegram/emoji-keywords {lang}`. Lint, format and duplication checks now skip `.claude/` (Claude Code's worktrees).
+
+  Emoji skin tones (R-Y114), as Telegram Desktop: an emoji that takes a tone carries a corner mark; a right click or a held press opens its six variants, and the tone picked is remembered for it (in this browser), in the panel and in search.
+
+  Emoji statuses show next to people's names, and Premium users set or remove their own with a duration (R-Y162).
+
+  Bots' ephemeral messages are shown inline in chats, with buttons that answer on click (R-Y223).
+
+  The live event stream cuts off a page that stops reading it once 4 MB wait for it, instead of holding every change until the server runs out of memory; the schema script also reads TDLib's TL text (layer 232 tried and kept off: it adds communities GramJS cannot place) (R-Y78).
+
+  Export chat history to HTML and JSON (R-Y186).
+
+  Per-network feature matrices in four languages, translated requirements sections R, S and T, and honest README, guide and roadmap text (R-Z13).
+
+  A feature support matrix (docs/FEATURES.md, four languages): what is supported, partial, parked or not supported, and whether it is reachable through the API or the web app.
+
+  A file in a message sits at the bubble's left edge with no tile behind it, as in Telegram, instead of centred like a button (R-Y79).
+
+  Chat folders can be created, edited, deleted and reordered, and Telegram's recommended folders added (R-Y164).
+
+  Long form dialogs (My profile) scroll inside the card with Save always in reach on a small window (R-Y129).
+
+  A formatting bar and a way back from a reply (R-Y109), as Telegram Desktop: text selected in the message box shows bold, italic, underline, strikethrough, monospace, spoiler, link and plain-text buttons; Ctrl/⌘+U underlines, and underline is sent to Telegram as its own formatting. After a reply's quote is followed, "down" goes back to the reply, then to the newest; the open chat clicked again goes to its newest. A message jumped to while older pages load above it now ends in view.
+
+  Forum groups show their topics as Telegram's tabs layout: All and each topic with its mark, unread count and lock; a topic shows its own messages, is read on its own, and sends go to it; topic service lines are named (R-Y122).
+
+  Forwards from channels not among the chats are read again once and named; when Telegram asks to wait, the repair waits and asks again instead of giving up (R-Y92).
+
+  Forwards from channels not among the chats are read again once and named (R-Y92).
+
+  Forwarding options (hide sender's name or captions, choose another chat), Copy link on messages, and opening t.me message links in the app (R-Y154).
+
+  A full disk no longer crashes the server or loses track of messages; low-disk banner and guards (R-Z14).
+
+  Managing received gifts, unique gifts and gift codes (R-Y193).
+
+  Giveaways, paid messages and channel auto-translation (R-Y184).
+
+  Search across Telegram and a jump to any message (R-Y107), as Telegram's apps: the chat list's box shows "Global search" (people and chats found by name or username, not in the list) and "Messages" found in every chat, a page at a time, the words found marked; a click opens the chat at that message. Every jump to a message — a reply's quote, the pinned message, an unread mention, a match in a chat — now opens the chat around it at once, far back too, reading only the page around it. The chat list moved to its own module (`chat-sidebar.js`).
+
+  Group sticker set and emoji pack, pinned topic reorder, new chats in shared folders and the new-contacts notification (R-Y211).
+
+  A group's members in its info column, searchable, with Remove for admins who may ban, asked in the page first (R-Y125).
+
+  Hashtag search, live view counters and picture-in-picture (R-Y182).
+
+  Inline bots in the composer: "@gif cats" shows the bot's answers to pick and send (R-Y138).
+
+  Instant View: an in-app reader for link previews Telegram has as Instant View pages (R-Y205).
+
+  Invite links (create, edit, revoke, who joined) and member requests (approve, dismiss, the bar in the chat) (R-Y152).
+
+  Effects on file sends, a live join-requests bar, and topic links that open the topic (R-Y161).
+
+  The composer previews a link while typing; the preview can be removed, moved above the text, or made larger or smaller (R-Y145).
+
+  Loading looks like Telegram's everywhere: a turning arc on pages still loading, shimmering rows in the chat list, and the arc beside every "working" line and inside working buttons (R-Y84).
+
+  Places in chats show Telegram's own map picture with a pin, the venue's title and address, and open on OpenStreetMap (R-Y131).
+
+  R-Y72: photos, avatars, videos, voice messages and files show in the hosted app (GitHub Pages) again. The page asks for them as CORS requests, so the browser says which page asks, and the server lets the app's own origins have them while other sites still get none (before, every such load said only "cross-site" and was refused). A picture that does not load shows its blurred preview instead of a broken-image icon, Save As fetches the file before saving it, and failed or refused loads are counted in the log by route.
+
+  Message effects in private chats: a badge and a burst on received ones, and Send with effect in the Send button's menu (R-Y149).
+
+  Multiple Telegram accounts, first part: Accounts window, add account, read-only chat list and unread count of extra accounts, log out (R-Y198).
+
+  New groups and channels from the chat list's "+", and a chat's name, description and photo edited from its info column (R-Y129).
+
+  R-Y75: no manual sync in the UI, as in Telegram's own apps. "Sync now" is gone from the chat list's footer and the empty Chat, and "Refresh" from Backups. The account syncs and retries by itself; the footer says "Connecting…" while the connection is down, "Updating…" during a sync, and why a sync failed. Requests made while Telegram reconnects wait for it instead of failing, and the Backups list reloads itself.
+
+  Notifications of new messages in chats that are not muted, a click opening the chat, and the unread count in the page title, with choices in Settings (R-Y134).
+
+  Notifications of new messages and the title's unread count now work in every section of the app, not only in Chat (R-Y144).
+
+  Telegram's notification settings: by kind of chat with exceptions in Settings, and each chat's own (mute, preview, reset); the app's notifications follow them (R-Y157).
+
+  A bar over a chat with a stranger offers Add to contacts, Share my phone number, Block user and Report spam as Telegram offers them, and hides for good (R-Y137).
+
+  A photo editor in the send box: crop, rotate, flip and draw (R-Y187).
+
+  The pinned messages list with Unpin all, similar channels in a channel's info, and fact checks under messages (R-Y166).
+
+  Pinned chats can be reordered by dragging or with Move up / Move down in their menu (R-Y159).
+
+  A poll or quiz is created and sent from the chat's paperclip menu, as in Telegram's apps (R-Y121).
+
+  Privacy and security of the Telegram account: who can see what, active sessions with Terminate, and blocked users (R-Y139).
+
+  Private one-to-one calls: Call button, incoming call notification, key exchange with Telegram's key emoji, rating; no audio yet (R-Y196).
+
+  Birthdays, name and profile colours, and a personal channel on profiles (R-Y178).
+
+  Stories, music and Send a gift on profiles (R-Y185).
+
+  Edit your own Telegram profile: photo, name, bio, username with an availability check (R-Y136).
+
+  Sign in to Telegram by QR code, with the app's own QR encoder (R-Y203).
+
+  Telegram Business quick replies, greeting and away messages (R-Y179).
+
+  Who read a message ("Seen by…") and who reacted to it, from the message menu, in panels as Telegram Desktop's (R-Y127).
+
+  The repair of unsupported messages passes over a chat Telegram cannot address, so it no longer runs again on every start (R-Y82).
+
+  R-Y70: reply suggestions while typing come from the browser's own copy of the reply index, kept on the associative stack. The server gives the index as links (`reply-link`, `sent-link`, `word-link`, `spelling-link`, `chat-link`, `last-link`) at `/api/suggest/model` — compressed JSON or Links Notation (`?format=lino`), pruned to what a browser needs — and, to a copy holding a version, only the messages it learned since (`?since=`). The browser keeps the copy in its links storage (IndexedDB, or doublets-web when present), suggests from it at once (also after a reload and offline), catches up when the live stream says something arrived, and adds the server's rarer suggestions once typing pauses.
+
+  R-Y71: typing, scrolling and opening chats stay smooth with thousands of chats. A keystroke re-renders only the message box and its suggestions (no long tasks while typing, down from ~260 ms per key), the chat list renders a page of rows and grows as it is scrolled, rows re-render only when their chat changes, and rows out of sight are not laid out (list scroll frames ≤ 18 ms with 3000 chats, down from 119 ms).
+
+  Bot request-peer buttons with a filtered picker, and recent places in the Location dialog (R-Y208).
+
+  Files, video and audio in rich messages and Instant View pages can be downloaded and played (R-Y224).
+
+  Rich messages and Telegram's current schema, layer 232 (R-Y220).
+
+  Rich messages and Instant View pages draw mentions, hashtags, auto links, custom emoji, text buttons and KaTeX math (R-Y225).
+
+  Round video messages: received ones play as circles, and the composer records and sends them from the camera (R-Y150).
+
+  R-Y73: the message menu opens on a right-click anywhere on the message's row, beside the bubble too, as in Telegram Desktop. In Safari, which selects the word under a right-click before the page sees it, that word is let go and the message's own menu opens (Reply, Copy, Copy Link, Forward, Delete, Select) instead of the text-selection one. The selection end-to-end test runs in WebKit (`E2E_BROWSER=webkit`) as well as Chromium.
+
+  Save and remove GIFs from a message's menu; view a forum as messages or as topics (R-Y171).
+
+  The default auto-delete timer in Privacy and security, and Saved Messages reaction tags to filter by and rename (R-Y151).
+
+  Interface scale, message text size and the connection proxy (R-Y192).
+
+  Two-step verification, account self-destruct, sensitive content and per-session settings (R-Y177).
+
+  Messages are picked with the mouse as in Telegram: a click on a message's time selects it, a short drag beside a bubble selects its message, and while selecting, clicks between rows or beside the column count (R-Y83).
+
+  "Send as" in supergroups: pick the identity messages are sent with (R-Y141).
+
+  Send as on inline and shared-place sends, live locations that keep moving, the bot start parameter, and the paperclip menu back over the paperclip (R-Y147).
+
+  An automation's draft reaches an old chat (every dialog is listed once and each chat's address stored); Send shows it is working and a failure says why in words; photos no longer hold up the About panel or a send; the About panel opens the chat in Telegram (R-Y85).
+
+  Send when online, Saved Messages reminders, reordering pinned saved chats, live location viewer (R-Y197).
+
+  Sends and syncs across networks no longer claim success they did not have, and LinkedIn chat messages never become public posts (R-Z4).
+
+  Harden the local server: foreign Host refused, body limits and strict JSON, secrets masked, uniform errors, fast port failure, outbound timeouts, safe patterns (R-Z1).
+
+  Show every service message kind, bank card, date and diff entities, live stream cards and link preview kinds (R-Y221).
+
+  Share a place (or a live location) and a contact from the attach menu (R-Y142).
+
+  Folders follow other devices live, can be dragged to reorder, and can be shared, joined and left by invite link (R-Y172).
+
+  A chat's profile column and its shared media (R-Y111), as Telegram Desktop: the header's button opens a column for any Telegram chat with its photo, name, status, @username and about text, then how many photos, videos, files, music, links, voice messages and GIFs it has (new `shared-counts` route, messages.getSearchCounters); each opens its list a page at a time (new `shared-media` route, messages.search with the kind's filter) — pictures as a grid, the rest as rows — and a click goes to the message in the chat.
+
+  The data.bin snapshot of a large store fits in memory; a failing one is reported once per try and retried with a doubling wait (R-Y93).
+
+  Notification sounds and auto-download settings (R-Y181); a local passcode lock and keyboard shortcuts (R-Y183).
+
+  Telegram Stars: balance and history, gifts on profiles, paid reactions and paid media with confirmation (R-Y176).
+
+  A sticker in a chat opens its set's box with Add or Remove, a sticker there sent to the chat; installed sets can be removed from the emoji panel (R-Y124).
+
+  Trending stickers and emoji, clear recent stickers, the quick reaction, stickers in a photo, emoji suggestions by keyword and custom emoji search (R-Y206).
+
+  Searching stickers and GIFs (R-Y112), as Telegram Desktop: a search box over the Stickers tab finds stickers for an emoji (messages.getStickers) or by words (messages.searchStickers) and sticker sets by name (messages.searchStickerSets); one over the GIFs tab finds GIFs through Telegram's @gif bot (messages.getInlineBotResults), more as the list scrolls. New `sticker-search` and `gif-search` routes; what is found is sent as any sticker or GIF.
+
+  A sticker's and a GIF's menu in the panel (R-Y115), as Telegram Desktop: send without sound, schedule, add to or remove from favourites, remove from recent, save or delete a GIF. New route `POST /api/telegram/sticker-save {id, action}`; the panel stays open under its menus and dialogs.
+
+  A sticker set found by a search can be added (R-Y116), as Telegram Desktop: an Add button by its title installs it (messages.installStickerSet). New route `POST /api/telegram/sticker-set-install {id, install}`.
+
+  A sticker set's picture in the panel's bar for animated and video sets (whose own picture is Lottie or a video): its first sticker's picture instead (R-Y105).
+
+  Sticker and emoji set settings, close friends, adding a contact by phone (R-Y169); a unit test no longer depends on today's date.
+
+  Durable writes, one writer per store, quarantined corruption, private files, secret-free plain backups and redacted rotating logs (R-Z2).
+
+  The store no longer runs out of memory on a large log: ids and names read from `data.lino` are copied out of their lines (a slice kept each whole line alive, 6.5 GB for a 2.7 GB log), the snapshot worker gets the parent's heap limit, and the log is compacted when superseded text outweighs the live text, not only when superseded lines outnumber the live links — one sync record written 150,000 times had grown it by a gigabyte.
+
+  Stories: a strip above the chat list and a full-screen viewer that marks them read (R-Y140).
+
+  Story rings in the chat list open the viewer; replies, reactions, own-story viewers, delete and hiding stories (R-Y148).
+
+  Story stealth mode, viewers' reactions tab and search, story reports, view count refresh (R-Y199).
+
+  Manage one's own stories from the viewer: edit caption (formatting kept) and privacy, copy link, save to or remove from profile, delete (R-Y210).
+
+  Posting a story: photo or video, caption, who can see it, screenshots, keep on profile and period (R-Y156).
+
+  Telegram's chat folders as tabs above the chat list, as Telegram Desktop and Telegram for macOS show them: "All chats" and the folders in Telegram's order, each with its unread chats; a folder lists the chats its rules take, its own pinned ones first (R-Y103).
+
+  The chat list has Telegram's menu: pin, mute for a time or for good, mark as read or unread, archive (R-Y97).
+
+  Search in a chat, as in Telegram's apps: Ctrl/Cmd+F or the magnifier, Telegram asked, Enter and Shift+Enter between matches (R-Y98).
+
+  R-Y68: messages, their menu and the chat list behave as in Telegram Desktop. The menu has Desktop's items in its order: Reply (Quote & Reply when part of the text is selected, sent as Telegram's quote), Copy Selected Text, Edit, Pin/Unpin, Save As… and Copy Image on a photo, Copy Text, Copy Link on a link or Copy Message Link / Copy Post Link, Forward, Delete, Select. A selected message's menu copies, forwards, deletes or unpins the selection or clears it, and another message's offers "Select up to this message". Dragging from message to message selects (or unselects) the range and scrolls at the list's edges; selected rows are tinted across the width with Desktop's green check; the top bar shows Forward n, Delete n and Cancel; several messages copy as `[date time] Name: text`. Incoming messages in groups have the corner Reply. The chat list puts pinned chats first in their order, shows muted counts in grey, keeps archived chats behind one row and says who wrote last and what. A read on another device keeps the count Telegram says is still unread, and photos and stickers in messages download at their right size.
+
+  The emoji panel by the message box, as Telegram Desktop's: frequently used first, the categories with a bar to jump between them, a search by name; a pick goes in at the caret and the panel stays open (R-Y104).
+
+  R-Y76: GramJS now speaks Telegram's current API layer (225) instead of the 198 it ships, so polls (new constructor), checklists and newer media arrive as they are instead of "unsupported". The schema Telegram publishes is converted by `js/scripts/telegram-schema.mjs` and given to GramJS before it loads. Messages stored as unsupported are read again once in the background. Editing a message in a channel works (it used a method Telegram does not have). The pinned bar names unsupported messages, games and invoices instead of staying empty.
+
+  No sync line under the chat list and no sync errors in Chat: failures retry by themselves until they work; Telegram out of reach for a minute turns the header badge to Offline (R-Y96).
+
+  Polls, quizzes and checklists as in Telegram's apps: vote, shares and bars, quiz answers with the explanation, recent voters, countdown, View results, Retract vote, Stop poll, results refreshed while on screen, checklists ticked through Telegram (R-Y74). A Telegram request made while another is in flight runs as part of it instead of deadlocking the queue; undecodable answers are logged by constructor id (R-Y77).
+
+  Clear history, delete a chat, leave a group or channel from the chat list's menu, after Telegram's question, as in its apps (R-Y100).
+
+  Send files and photos, as in Telegram's apps: the paperclip, a paste or a drop opens a send box with previews, a caption, "Compress images" and "Group items" (albums); uploads show their progress (R-Y99).
+
+  The Send button's menu as in Telegram Desktop: "Send without sound" and "Schedule message" for messages and files; a chat's scheduled messages by the message box, each sent now, rescheduled or deleted (R-Y102).
+
+  Stickers and GIFs in the emoji panel, as in Telegram Desktop: Emoji, Stickers and GIFs tabs; the favourite and recent stickers and every sticker set (each loaded as the list reaches it, with a bar to jump between sets); the saved GIFs; a click sends at once, as a reply when one is being written (R-Y105).
+
+  Text formatting as in Telegram Desktop: bold, italic, strike, spoiler, code, code blocks and links typed with its markdown go as Telegram's formatting, in messages, edits and captions; Ctrl/Cmd+B, I, Shift+X, Shift+M, Shift+P, K and Shift+N format the selection (R-Y101).
+
+  Forum topics can be created, edited, closed, pinned, hidden and deleted, and topics turned on or off (R-Y153).
+
+  Transcribing voice and round video messages; reporting single messages and selections (R-Y175).
+
+  Translate a message from its menu: the original and Telegram's translation in a box, with a choice of language and Copy translation (R-Y132).
+
+  R-Y69: reply suggestions stay away until they help. With nothing typed only a typical reply to the chat's last message is offered (given at least twice and at least a fifth of your answers to it), a message older than the reply window gets none, and long suggestions end in an ellipsis in Safari too.
+
+  Voice chats and live streams in groups and channels (R-Y188).
+
+  Voice messages (R-Y108), as Telegram Desktop: with nothing typed, a microphone takes Send's place; held, it records (red dot, time, "Release outside this field to cancel"), let go over the box sends, outside drops; dragged up it locks (Send sends, Cancel or Esc drops); too short a press says to hold it. The recording is remuxed from WebM to Ogg Opus in the page and sent as Telegram's voice note with its length and waveform (new `send-voice` route).
+
+  Bot mini apps: menu, keyboard and link buttons open the bot's web app in a sandboxed window with Telegram's bridge (R-Y168).
+
 ## 0.48.0
 
 ### Minor Changes

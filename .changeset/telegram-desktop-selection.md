@@ -1,5 +1,0 @@
----
-'meta-sovereign': minor
----
-
-R-Y68: messages, their menu and the chat list behave as in Telegram Desktop. The menu has Desktop's items in its order: Reply (Quote & Reply when part of the text is selected, sent as Telegram's quote), Copy Selected Text, Edit, Pin/Unpin, Save As… and Copy Image on a photo, Copy Text, Copy Link on a link or Copy Message Link / Copy Post Link, Forward, Delete, Select. A selected message's menu copies, forwards, deletes or unpins the selection or clears it, and another message's offers "Select up to this message". Dragging from message to message selects (or unselects) the range and scrolls at the list's edges; selected rows are tinted across the width with Desktop's green check; the top bar shows Forward n, Delete n and Cancel; several messages copy as `[date time] Name: text`. Incoming messages in groups have the corner Reply. The chat list puts pinned chats first in their order, shows muted counts in grey, keeps archived chats behind one row and says who wrote last and what. A read on another device keeps the count Telegram says is still unread, and photos and stickers in messages download at their right size.
