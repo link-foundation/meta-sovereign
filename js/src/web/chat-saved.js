@@ -6,12 +6,14 @@
 // chat, drawn with the chat's own message bubbles, read only; "Back" goes
 // to the list, and the trash deletes all of it, after an in-page
 // confirmation. Each chat can be pinned (Pin / Unpin; pinned ones come
-// first with a pin icon, R-Y174). Telegram's refusals are told as text.
+// first with a pin icon, R-Y174) and the pinned ones can be put in
+// another order, by drag or with Move up / Move down, Telegram told only
+// on the drop or the click (R-Y197). Telegram's refusals are told as text.
 //
 // The sub-chat is a plain list of rendered messages, not the whole chat
 // screen: it has no composer, selection or context menu.
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { PeerAvatar } from './peer-avatar.js';
@@ -107,7 +109,11 @@ const useDialogs = (api) => {
   useEffect(() => {
     load();
   }, [load]);
-  return [state, load];
+  const setItems = useCallback(
+    (items) => setState((old) => ({ ...old, items })),
+    []
+  );
+  return [state, load, setItems];
 };
 
 // Pinned chats first, in the order Telegram gave them (R-Y174).
@@ -115,6 +121,50 @@ export const pinnedFirst = (items) => [
   ...items.filter((d) => d.pinned),
   ...items.filter((d) => !d.pinned),
 ];
+
+/** `items` with the pinned `peer` moved to where the pinned `target` is. */
+export const reorderPinned = (items, peer, target) => {
+  const pinned = pinnedFirst(items).filter((d) => d.pinned);
+  const from = pinned.findIndex((d) => d.peer === peer);
+  const to = pinned.findIndex((d) => d.peer === target);
+  if (from < 0 || to < 0 || from === to) {
+    return items;
+  }
+  const next = [...pinned];
+  next.splice(to, 0, next.splice(from, 1)[0]);
+  return [...next, ...items.filter((d) => !d.pinned)];
+};
+
+/** `items` with the pinned `peer` one place up (-1) or down (1). */
+export const shiftPinned = (items, peer, delta) => {
+  const pinned = pinnedFirst(items).filter((d) => d.pinned);
+  const at = pinned.findIndex((d) => d.peer === peer);
+  const other = pinned[at + delta];
+  return at < 0 || !other ? items : reorderPinned(items, peer, other.peer);
+};
+
+// Move up and Move down, for the pinned chats (the keyboard's way).
+const MoveButtons = ({ dialog, first, last, onMove, t }) =>
+  [
+    ['up', -1, first, 'chevron-up'],
+    ['down', 1, last, 'chevron-down'],
+  ].map(([name, delta, off, icon]) =>
+    el(
+      'button',
+      {
+        key: name,
+        type: 'button',
+        className: 'icon-btn saved-move',
+        disabled: off,
+        'data-action': `saved-move-${name}`,
+        'data-saved-pin': dialog.peer,
+        'aria-label': t(`chat.saved.move.${name}`),
+        title: t(`chat.saved.move.${name}`),
+        onClick: () => onMove(dialog, delta),
+      },
+      el(Icon, { name: icon, size: 14 })
+    )
+  );
 
 const PinButton = ({ dialog, onPin, t }) => {
   const label = t(dialog.pinned ? 'chat.saved.unpin' : 'chat.saved.pin');
@@ -133,13 +183,14 @@ const PinButton = ({ dialog, onPin, t }) => {
   );
 };
 
-const DialogRow = ({ api, dialog, onOpen, onPin, t, dates }) => {
+const DialogRow = ({ api, dialog, onOpen, onPin, order, t, dates }) => {
   const name = dialog.name || t('chat.saved.unknown');
   return el(
     'li',
     {
       className: `saved-dialog-item${dialog.pinned ? ' is-pinned' : ''}`,
       'data-saved-pinned': dialog.pinned ? 'true' : 'false',
+      ...(order?.drag(dialog) ?? {}),
     },
     el(
       'button',
@@ -182,15 +233,91 @@ const DialogRow = ({ api, dialog, onOpen, onPin, t, dates }) => {
           : null,
       ]
     ),
+    order
+      ? el(MoveButtons, {
+          dialog,
+          first: order.first === dialog.peer,
+          last: order.last === dialog.peer,
+          onMove: order.move,
+          t,
+        })
+      : null,
     el(PinButton, { dialog, onPin, t })
   );
+};
+
+// Drag and the buttons for the pinned chats: the new order is shown at
+// once and told to Telegram on the drop (or the click); a refusal puts
+// the old order back (R-Y197).
+const usePinOrder = ({ api, items, setItems, setCode }) => {
+  const dragging = useRef(null);
+  const pinned = items.filter((d) => d.pinned);
+  const apply = async (next) => {
+    if (next === items) {
+      return;
+    }
+    setItems(next);
+    setCode(null);
+    const peers = pinnedFirst(next)
+      .filter((d) => d.pinned)
+      .map((d) => d.peer);
+    const answer = await api.telegramSavedReorder({ peers }).catch(() => null);
+    if (!answer?.ok) {
+      setItems(items);
+      setCode(answer?.code ?? 'failed');
+    }
+  };
+  if (pinned.length < 2 || typeof api?.telegramSavedReorder !== 'function') {
+    return null;
+  }
+  return {
+    first: pinned[0].peer,
+    last: pinned[pinned.length - 1].peer,
+    move: (dialog, delta) => apply(shiftPinned(items, dialog.peer, delta)),
+    drag: (dialog) =>
+      dialog.pinned
+        ? {
+            draggable: true,
+            'data-saved-drag': dialog.peer,
+            onDragStart: (event) => {
+              dragging.current = dialog.peer;
+              if (event.dataTransfer) {
+                event.dataTransfer.effectAllowed = 'move';
+                event.dataTransfer.setData('text/plain', dialog.peer);
+              }
+            },
+            onDragOver: (event) => {
+              if (dragging.current) {
+                event.preventDefault();
+              }
+            },
+            onDrop: (event) => {
+              event.preventDefault();
+              const from = dragging.current;
+              dragging.current = null;
+              if (from) {
+                apply(reorderPinned(items, from, dialog.peer));
+              }
+            },
+            onDragEnd: () => {
+              dragging.current = null;
+            },
+          }
+        : {},
+  };
 };
 
 const DialogList = ({ api, onOpen }) => {
   const t = useT();
   const dates = useDates();
-  const [state, load] = useDialogs(api);
+  const [state, load, setItems] = useDialogs(api);
   const [pinCode, setPinCode] = useState(null);
+  const order = usePinOrder({
+    api,
+    items: state.items,
+    setItems,
+    setCode: setPinCode,
+  });
   // Pin or Unpin: Telegram first, then the list is read again so the
   // pinned ones show first (R-Y174).
   const pin = async (dialog) => {
@@ -217,6 +344,7 @@ const DialogList = ({ api, onOpen }) => {
               dialog,
               onOpen,
               onPin: pin,
+              order,
               t,
               dates,
             })

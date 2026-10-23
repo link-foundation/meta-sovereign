@@ -368,6 +368,10 @@ const MENU_ITEMS = {
   // The Send button's "Send with effect" (R-Y149).
   sendEffect: ['chat.effects.menu', 'star'],
   schedule: ['chat.schedule.menu', 'clock'],
+  // In Saved Messages (R-Y197): a reminder; and a message held until the
+  // person is online.
+  scheduleReminder: ['chat.schedule.reminderMenu', 'clock'],
+  sendWhenOnline: ['chat.schedule.onlineMenu', 'user'],
   // A sticker's or GIF's, in the emoji panel (R-Y115).
   faveSticker: ['chat.stickers.fave', 'star'],
   unfaveSticker: ['chat.stickers.unfave', 'star'],

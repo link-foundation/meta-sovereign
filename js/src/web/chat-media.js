@@ -19,7 +19,8 @@ import { GiveawayCard, GiveawayResultsCard } from './chat-giveaway.js';
 import { GiftCodeCard } from './chat-gift-code-button.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
-import { liveLines } from './live-place.js';
+import { headingDegrees, leftLine, liveLines } from './live-place.js';
+import { useNowSeconds } from './live-clock.js';
 import { useAutoLoad } from './auto-download.js';
 import { LottieSticker } from './lottie-sticker.js';
 import {
@@ -624,9 +625,13 @@ const PIN_PATH =
 // middle; a venue's title and address, or "Live location", under it.
 const PlaceMap = ({ media, url, onError }) => {
   const t = useT();
+  // A live place's "N min left" and "updated X ago" follow the clock (R-Y197).
+  const now = useNowSeconds(Boolean(media.live));
+  const heading = media.live ? headingDegrees(media) : null;
   const lines = [
     media.live ? t('chat.media.livePlace') : null,
-    ...(media.live ? liveLines(t, media, Date.now() / 1000) : []),
+    ...(media.live ? liveLines(t, media, now) : []),
+    media.live ? leftLine(t, media, now) : null,
     media.title,
     media.address,
   ].filter(Boolean);
@@ -653,6 +658,19 @@ const PlaceMap = ({ media, url, onError }) => {
           el('path', { key: 'a', d: PIN_PATH }),
           el('circle', { key: 'c', cx: 12, cy: 11.5, r: 4 }),
         ]),
+        heading === null
+          ? null
+          : el(
+              'svg',
+              {
+                key: 'h',
+                className: 'place-heading',
+                viewBox: '0 0 24 24',
+                'data-heading': heading,
+                style: { transform: `rotate(${heading}deg)` },
+              },
+              el('path', { d: 'M12 2l6 18-6-4-6 4z' })
+            ),
       ]),
       lines.length
         ? el(

@@ -14,7 +14,10 @@
  *   account.resetWebAuthorization; `webSessionsResetAll()` —
  *   account.resetWebAuthorizations;
  * - `savedPin({ peer, pinned })` — messages.toggleSavedDialogPin, a
- *   chat of Saved Messages pinned or unpinned.
+ *   chat of Saved Messages pinned or unpinned;
+ * - `savedReorder({ peers })` — messages.reorderPinnedSavedDialogs, the
+ *   pinned chats of Saved Messages in a new order, the first on top
+ *   (R-Y197; chats not named keep their pin: no `force`).
  * Telegram's errors become codes the page shows as text
  * (PREMIUM_ACCOUNT_REQUIRED → `premium-required`).
  */
@@ -44,6 +47,14 @@ const CODES = {
 const failure = failureOf(CODES);
 const bad = { ok: false, error: 'bad request', code: 'bad-request' };
 const CHAT = /^-?\d{1,20}$/;
+export const MAX_PINNED = 100;
+// Chat ids, each once: the pinned chats in their new order.
+const validPeers = (peers) =>
+  Array.isArray(peers) &&
+  peers.length > 0 &&
+  peers.length <= MAX_PINNED &&
+  peers.every((p) => typeof p === 'string' && CHAT.test(p)) &&
+  new Set(peers).size === peers.length;
 const HASH = /^-?\d{1,20}$/;
 const text = (value) => String(value?.value ?? value ?? '');
 
@@ -169,6 +180,22 @@ export const createAccountExtras = (env, { userClient }) => {
           })
         );
 
+  const savedReorder = async ({ peers } = {}) =>
+    !validPeers(peers)
+      ? bad
+      : doing('saved-pin', async (c) => {
+          const order = [];
+          for (const peer of peers) {
+            await env.connection.withPeer(c.client, peer, (input) => {
+              order.push(new c.Api.InputDialogPeer({ peer: input }));
+            });
+          }
+          await c.client.invoke(
+            new c.Api.messages.ReorderPinnedSavedDialogs({ order })
+          );
+          return { ok: true };
+        });
+
   return {
     archiveSettings,
     setArchiveSettings,
@@ -176,5 +203,6 @@ export const createAccountExtras = (env, { userClient }) => {
     webSessionReset,
     webSessionsResetAll,
     savedPin,
+    savedReorder,
   };
 };

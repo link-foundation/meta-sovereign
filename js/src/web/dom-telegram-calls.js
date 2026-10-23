@@ -144,6 +144,7 @@ export const TELEGRAM_CALLS = {
   telegramSavedDelete: body('saved-delete'),
   // Pinned Saved Messages chats, archive settings, websites (R-Y174).
   telegramSavedPin: body('saved-pin'),
+  telegramSavedReorder: body('saved-reorder'),
   telegramArchiveSettings: none('archive-settings'),
   telegramArchiveSettingsSet: body('archive-settings-set'),
   telegramWebSessions: none('web-sessions'),

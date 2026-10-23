@@ -16,7 +16,9 @@
  *   validated phone → `{ ok, chat }`.
  * - `updateLiveLocation({ chat, id, lat, lon, accuracy?, heading? })` — the
  *   moving point of our own live location (messages.editMessage with
- *   InputMediaGeoLive, the new InputGeoPoint and `heading` 1..360; R-Y147)
+ *   InputMediaGeoLive, the new InputGeoPoint and `heading` 1..360; R-Y147),
+ *   with `proximity` (metres, 1..100000) also the radius of "Notify when
+ *   nearby" (proximity_notification_radius; R-Y197)
  *   → `{ ok }`. A place and a contact take `sendAs` (a peer id): sent as
  *   that identity in a supergroup (R-Y147).
  * Telegram's answer goes through the live handler. Errors become codes.
@@ -27,6 +29,8 @@ import { randomIdOf, replyHeader, sendError } from './telegram-send.js';
 import { withSendAs } from './telegram-send-as-client.js';
 
 export const LIVE_PERIODS = [900, 3600, 28800];
+// "Notify when nearby" (R-Y197): the farthest radius, in metres.
+export const MAX_PROXIMITY = 100_000;
 export const MAX_ACCURACY = 1500;
 const NAME_MAX = 64;
 const PHONE = /^\+?[0-9][0-9 ()-]{3,22}[0-9]$/;
@@ -257,10 +261,14 @@ const headingOf = (value) => {
 // The live place moved: the new point, and the heading when known.
 const createMover = (env, context) => {
   const edit = createLiveEditor(env, context, 'share-move');
-  return ({ chat, id, lat, lon, accuracy, heading } = {}) => {
+  return ({ chat, id, lat, lon, accuracy, heading, proximity } = {}) => {
     const point = validPoint(lat, lon);
     const radius = accuracy === undefined ? 0 : Number(accuracy);
+    const near = proximity === undefined ? 0 : Number(proximity);
     if (
+      !Number.isInteger(near) ||
+      near < 0 ||
+      near > MAX_PROXIMITY ||
       !point ||
       !Number.isInteger(radius) ||
       radius < 0 ||
@@ -275,6 +283,7 @@ const createMover = (env, context) => {
         new c.Api.InputMediaGeoLive({
           geoPoint: geoPoint(c.Api, { ...point, accuracy: radius }),
           ...(degrees ? { heading: degrees } : {}),
+          ...(near ? { proximityNotificationRadius: near } : {}),
         })
     );
   };

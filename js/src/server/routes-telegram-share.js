@@ -14,13 +14,16 @@
 //                       -> { ok } one of our contacts by id (its phone read
 //                       server-side) or a typed name and phone
 //   POST /api/telegram/update-live-location {chat, id, lat, lon, accuracy?,
-//                       heading?} -> { ok } our live location moved (R-Y147)
+//                       heading?, proximity?} -> { ok } our live location moved
+//                       (R-Y147); `proximity` (metres, 1..100000) asks to be
+//                       told when the other person comes this near (R-Y197)
 
 import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 import {
   LIVE_PERIODS,
   MAX_ACCURACY,
+  MAX_PROXIMITY,
   cleanPhone,
   validPoint,
 } from '../sources/telegram-share-media.js';
@@ -83,6 +86,10 @@ const validMove = (b) =>
   validPlace({ ...b, live: undefined }) &&
   Number.isInteger(b.id) &&
   b.id > 0 &&
+  (b.proximity === undefined ||
+    (Number.isInteger(b.proximity) &&
+      b.proximity > 0 &&
+      b.proximity <= MAX_PROXIMITY)) &&
   (b.heading === undefined ||
     (typeof b.heading === 'number' && Number.isFinite(b.heading)));
 
@@ -128,6 +135,7 @@ export const SHARE_POSTS = {
             lon: body.lon,
             ...(body.accuracy ? { accuracy: body.accuracy } : {}),
             ...(body.heading === undefined ? {} : { heading: body.heading }),
+            ...(body.proximity ? { proximity: body.proximity } : {}),
           }),
         ]
       : refuse('chat, id and a valid place required'),

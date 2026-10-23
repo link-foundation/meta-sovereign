@@ -35,7 +35,11 @@ import { mediaSrc } from './media-src.js';
 import { jumpTo, useInView } from './chat-emoji.js';
 import { LottieSticker } from './lottie-sticker.js';
 import { MsgContextMenu } from './chat-message.js';
-import { canSchedule, ScheduleDialog } from './chat-schedule.js';
+import {
+  canSchedule,
+  isReminderChat,
+  ScheduleDialog,
+} from './chat-schedule.js';
 import { composerReplyId } from './forum-topics.js';
 import { RemoveSetDialog } from './chat-sticker-box.js';
 import { sendAsField } from './chat-send-as.js';
@@ -657,9 +661,17 @@ const SAVE_ACTIONS = {
 const keptHas = (key, list, id) =>
   (kept.get(key)?.[list] ?? []).some((item) => item.id === id);
 
-/** What a sticker's or GIF's menu offers, `where` it was clicked. */
-export const stickerMenuItems = (item, where, { schedule = false } = {}) => {
-  const items = ['sendSilent', ...(schedule ? ['schedule'] : [])];
+/**
+ * What a sticker's or GIF's menu offers, `where` it was clicked; in Saved
+ * Messages scheduling is "Set a reminder" (R-Y197).
+ */
+export const stickerMenuItems = (
+  item,
+  where,
+  { schedule = false, reminder = false } = {}
+) => {
+  const later = reminder ? 'scheduleReminder' : 'schedule';
+  const items = ['sendSilent', ...(schedule ? [later] : [])];
   if (item.kind === 'gif') {
     return [
       ...items,
@@ -733,7 +745,7 @@ const useStickerMenu = ({ state, api, send }) => {
     const { item, close } = menu;
     if (key === 'sendSilent') {
       send(item, close, { silent: true });
-    } else if (key === 'schedule') {
+    } else if (key === 'schedule' || key === 'scheduleReminder') {
       setLater({ item, close });
     } else if (SAVE_ACTIONS[key]) {
       save(item, SAVE_ACTIONS[key]);
@@ -776,12 +788,13 @@ const useStickerMenu = ({ state, api, send }) => {
     });
   };
   const schedule = canSchedule(state, api);
+  const reminder = isReminderChat(state);
   const open = (close) => (item, point, where) =>
     setMenu({
       item,
       close,
       ...point,
-      items: stickerMenuItems(item, where, { schedule }),
+      items: stickerMenuItems(item, where, { schedule, reminder }),
     });
   const parts = [
     menu
@@ -799,6 +812,7 @@ const useStickerMenu = ({ state, api, send }) => {
     later
       ? el(ScheduleDialog, {
           key: 'sticker-when',
+          reminder,
           onClose: () => setLater(null),
           onPick: (at) =>
             send(later.item, later.close, {

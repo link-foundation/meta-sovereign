@@ -16,6 +16,10 @@
  * - `scheduledDelete({ chat, ids })` — messages.deleteScheduledMessages.
  * - `scheduledReschedule({ chat, id, date })` — messages.editMessage with
  *   a new schedule_date.
+ *
+ * "Send when online" (R-Y197): `schedule_date` 0x7FFFFFFE, which
+ * Telegram's clients use for a message held until the other person is
+ * next online; the list shows it as "When online", not as a date.
  */
 
 const SOURCE = 'telegram';
@@ -25,11 +29,15 @@ export const MAX_SCHEDULED_IDS = 100;
 export const MIN_AHEAD_S = 10;
 export const MAX_AHEAD_S = 366 * 86_400;
 
+/** The `schedule_date` of a message held until the person is online. */
+export const WHEN_ONLINE = 0x7f_ff_ff_fe;
+
 /** Whether `date` (unix seconds) is a time Telegram schedules for. */
 export const validSchedule = (date, nowS = Math.floor(Date.now() / 1000)) =>
-  Number.isInteger(date) &&
-  date >= nowS + MIN_AHEAD_S &&
-  date <= nowS + MAX_AHEAD_S;
+  date === WHEN_ONLINE ||
+  (Number.isInteger(date) &&
+    date >= nowS + MIN_AHEAD_S &&
+    date <= nowS + MAX_AHEAD_S);
 
 export const scheduledId = (chat, id) => `sched:${SOURCE}:${chat}:${id}`;
 

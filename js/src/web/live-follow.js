@@ -66,6 +66,9 @@ export const markLiveStopped = (message) => {
   listeners.forEach((fn) => fn());
 };
 
+/** Whether `message` was stopped here (R-Y197). */
+export const isLiveStopped = (message) => stoppedKeys.has(message.id);
+
 /** Calls `fn` when a live place is stopped; returns the way to stop that. */
 export const onLiveStopped = (fn) => {
   listeners.add(fn);

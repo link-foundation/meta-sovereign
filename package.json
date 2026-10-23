@@ -52,6 +52,8 @@
     "test:e2e:photo-editor": "node js/tests/e2e-photo-editor-browser.mjs",
     "test:e2e:format": "node js/tests/e2e-format-browser.mjs",
     "test:e2e:schedule": "node js/tests/e2e-schedule-browser.mjs",
+    "test:e2e:send-extras": "node js/tests/e2e-send-extras-browser.mjs",
+    "test:e2e:send-extras:webkit": "E2E_BROWSER=webkit node js/tests/e2e-send-extras-browser.mjs",
     "test:e2e:folders": "node js/tests/e2e-folders-browser.mjs",
     "test:e2e:passcode": "node js/tests/e2e-passcode-browser.mjs",
     "test:e2e:passcode:webkit": "E2E_BROWSER=webkit node js/tests/e2e-passcode-browser.mjs",

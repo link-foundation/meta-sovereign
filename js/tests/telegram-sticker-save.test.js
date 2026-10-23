@@ -223,6 +223,11 @@ test('the menu offers what fits where it opened', () => {
     'schedule',
     'faveSticker',
   ]);
+  // In Saved Messages it is a reminder (R-Y197).
+  assert.deepEqual(
+    stickerMenuItems(gif, 'foundGif', { schedule: true, reminder: true }),
+    ['sendSilent', 'scheduleReminder', 'saveGif']
+  );
   assert.deepEqual(stickerMenuItems(sticker, 'faved'), [
     'sendSilent',
     'unfaveSticker',

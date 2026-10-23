@@ -20,6 +20,7 @@ import {
   usePrivateCall,
 } from './chat-private-call.js';
 import { PinnedBar } from './chat-pinned.js';
+import { LiveLocationsBar } from './chat-live-locations.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
 import { ExportMenu } from './chat-export.js';
@@ -90,6 +91,8 @@ import {
   ScheduledButton,
   ScheduledList,
   SendMenu,
+  WHEN_ONLINE,
+  sendMenuItems,
   useScheduled,
   useSendMenu,
 } from './chat-schedule.js';
@@ -759,14 +762,14 @@ const useSendLater = ({ state, api, composer, attach }) => {
       setEffecting(what);
     } else if (key === 'sendSilent') {
       sendWith(what, { silent: true });
+    } else if (key === 'sendWhenOnline') {
+      // Held until the person is online (R-Y197).
+      sendWith(what, { scheduleDate: WHEN_ONLINE });
     } else {
       setPicking(what);
     }
   };
-  const menuItems = [
-    ...(scheduled.enabled ? ['sendSilent', 'schedule'] : []),
-    ...(effects ? ['sendEffect'] : []),
-  ];
+  const menuItems = sendMenuItems({ state, api, effects });
   const closeList = useCallback(() => setListing(false), []);
   const parts = [
     el(SendMenu, {
@@ -796,6 +799,7 @@ const useSendLater = ({ state, api, composer, attach }) => {
     picking
       ? el(ScheduleDialog, {
           key: 'when',
+          reminder: scheduled.reminder,
           onClose: () => setPicking(null),
           onPick: (at) =>
             sendWith(picking, { scheduleDate: Math.floor(at / 1000) }),
@@ -1238,6 +1242,13 @@ export const ChatScreen = ({ state, api }) => {
                 state,
                 api,
                 onOpen: (id) => goToMessage(id, state.history?.reach),
+              }),
+              // The live locations shared in the chat (R-Y197).
+              el(LiveLocationsBar, {
+                key: `live:${state.current.key}`,
+                state,
+                api,
+                onGo: (id) => goToMessage(id, state.history?.reach),
               }),
               // The chat's voice chat or live stream (R-Y188).
               el(VoiceChatBar, {

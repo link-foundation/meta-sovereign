@@ -1128,4 +1128,37 @@ export const enChatMore = {
   'chat.accounts.noChats': 'No chats.',
   'chat.accounts.preview':
     'This account’s chats, read-only. Opening and answering them is not available yet.',
+  'chat.schedule.onlineMenu': 'Send when online',
+  'chat.schedule.whenOnline': 'When online',
+  'chat.schedule.reminderMenu': 'Set a reminder',
+  'chat.schedule.reminderTitle': 'Set a reminder',
+  'chat.schedule.reminderConfirm': 'Remind',
+  'chat.schedule.reminderList':
+    '{count, plural, one {# reminder} other {# reminders}}',
+  'chat.schedule.reminders': 'Reminders',
+  'chat.schedule.reminderDayHead': 'Reminders for {day}',
+  'chat.media.liveLeftMin': '{count} min left',
+  'chat.media.liveLeftH': '{count} h left',
+  'chat.saved.move.up': 'Move up',
+  'chat.saved.move.down': 'Move down',
+  'chat.live.title': 'Live locations',
+  'chat.live.countOthers':
+    '{count, plural, one {# live location} other {# live locations}}',
+  'chat.live.open': 'Show live locations',
+  'chat.live.sharingYou': 'You are sharing your location',
+  'chat.live.sharingOthers': 'Sharing their location',
+  'chat.live.stop': 'Stop sharing',
+  'chat.live.stopTitle': 'Stop sharing your location?',
+  'chat.live.stopAsk':
+    'Your live location will no longer be updated for the people in this chat.',
+  'chat.live.you': 'You',
+  'chat.live.nearby': 'Notify when nearby',
+  'chat.live.nearbyOn': 'Notify within {count} m',
+  'chat.live.nearbyRadius': 'Distance in metres',
+  'chat.live.nearbySet': 'Set',
+  'chat.service.proximity': '{user} is now within {distance} m from you',
+  'chat.service.proximityKm': '{user} is now within {distance} km from you',
+  'chat.service.proximitySelf': 'You are now within {distance} m from {user}',
+  'chat.service.proximitySelfKm':
+    'You are now within {distance} km from {user}',
 };

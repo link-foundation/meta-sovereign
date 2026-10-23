@@ -11,6 +11,7 @@ import { parsePoll, parseTodo } from './poll-parts.js';
 import { inTopicOnly } from './forum-topics.js';
 import { callLine } from './call-model.js';
 import { paidOf, paidReactionOf } from './stars-model.js';
+import { distanceParts } from './live-place.js';
 import {
   giveawayOf,
   giveawayResultsOf,
@@ -205,20 +206,49 @@ const gameScoreInfo = (link, msgById) => {
   };
 };
 
+// "Ann is now within 150 m from you" (R-Y197): the person who came near is
+// the message's sender; when it is us, the other person of the chat is
+// named instead.
+const proximityInfo = (link) => {
+  const { unit, value } = distanceParts(link.raw?.action?.distance);
+  const mine = link.sender === 'me';
+  const near = unit === 'km' ? 'Km' : '';
+  return {
+    key: `chat.service.proximity${mine ? 'Self' : ''}${near}`,
+    params: {
+      user: mine ? (link.chatName ?? '') : (link.senderName ?? ''),
+      distance: value,
+    },
+    title: null,
+    titleKey: '',
+    user: null,
+  };
+};
+
+// Service lines with words of their own: a game's score, a person near.
+const SPECIAL_SERVICE = {
+  // Incoming, outgoing, missed or cancelled, video or not (R-Y163).
+  MessageActionPhoneCall: (link) => ({
+    ...callLine(link),
+    title: null,
+    titleKey: '',
+    user: null,
+  }),
+  MessageActionGameScore: gameScoreInfo,
+  MessageActionGeoProximityReached: proximityInfo,
+};
+
 /** Service text i18n key + data for a service link, or null. */
 export const serviceInfo = (link, msgById = new Map()) => {
   if (!link?.service) {
     return null;
   }
-  if (link.service === 'MessageActionGameScore') {
-    return gameScoreInfo(link, msgById);
+  const special = SPECIAL_SERVICE[link.service]?.(link, msgById);
+  if (special) {
+    return special;
   }
   const action = link.raw?.action ?? {};
   const title = typeof action.title === 'string' ? action.title : null;
-  if (link.service === 'MessageActionPhoneCall') {
-    // Incoming, outgoing, missed or cancelled, video or not (R-Y163).
-    return { ...callLine(link), title: null, titleKey: '', user: null };
-  }
   // Giveaways and paid messages (R-Y184): a line with its numbers.
   const words = serviceWords(link.service, action);
   if (words) {

@@ -17,8 +17,14 @@
 //   POST /api/telegram/web-sessions-reset-all -> { ok } all disconnected
 //   POST /api/telegram/saved-pin {peer, pinned} -> { ok, pinned } a chat of
 //                       Saved Messages pinned or unpinned
+//   POST /api/telegram/saved-reorder {peers: [id, …]} -> { ok } the pinned
+//                       chats of Saved Messages in this order, the first on
+//                       top (R-Y197); each id once, up to 100
 
-import { ARCHIVE_FIELDS } from '../sources/telegram-account-extras.js';
+import {
+  ARCHIVE_FIELDS,
+  MAX_PINNED,
+} from '../sources/telegram-account-extras.js';
 
 const bad = (error) => [400, { error, code: 'bad-request' }];
 const NOT_SUPPORTED = [400, { error: 'not supported', code: 'bad-request' }];
@@ -57,4 +63,12 @@ export const ACCOUNT_EXTRAS_POSTS = {
           pinned: body.pinned,
         })
       : bad('peer and pinned required'),
+  'saved-reorder': async (account, body) =>
+    Array.isArray(body.peers) &&
+    body.peers.length > 0 &&
+    body.peers.length <= MAX_PINNED &&
+    body.peers.every((p) => typeof p === 'string' && /^-?\d{1,20}$/.test(p)) &&
+    new Set(body.peers).size === body.peers.length
+      ? run(account, 'savedReorder', { peers: body.peers })
+      : bad('a list of peers required'),
 };
