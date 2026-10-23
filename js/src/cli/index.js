@@ -118,7 +118,8 @@ ${AUTOMATION_HELP}
 ${CV_HELP}
 ${GREETINGS_HELP}
 ${MIGRATE_HELP}
-  help
+  help          (also --help, -h)
+  version       (also --version, -v)
 `;
 
 // A writer migrates the store first (R-Z17) and says so on stderr.
@@ -807,11 +808,25 @@ const COMMANDS = {
     log(HELP);
     return 0;
   },
+  // The published package's version, read from its package.json.
+  version: async (_a, log) => {
+    const pkg = new URL('../../../package.json', import.meta.url);
+    log(JSON.parse(await fs.readFile(pkg, 'utf8')).version);
+    return 0;
+  },
+};
+
+// Conventional flags that package managers and users try first.
+const ALIASES = {
+  '--help': 'help',
+  '-h': 'help',
+  '--version': 'version',
+  '-v': 'version',
 };
 
 export const runCli = async (argv, { log = console.log } = {}) => {
   const [cmd, ...rest] = argv;
-  const handler = COMMANDS[cmd ?? 'help'];
+  const handler = COMMANDS[ALIASES[cmd] ?? cmd ?? 'help'];
   if (!handler) {
     log(HELP);
     return 1;

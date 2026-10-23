@@ -65,3 +65,26 @@ describe('cli end-to-end', () => {
     expect(out[0].includes('telegram')).toBe(true);
   });
 });
+
+describe('cli version and help flags', () => {
+  it('prints the package version for --version, -v and version', async () => {
+    const pkg = JSON.parse(
+      await fs.readFile(new URL('../../package.json', import.meta.url), 'utf8')
+    );
+    for (const flag of ['--version', '-v', 'version']) {
+      const out = [];
+      const code = await runCli([flag], { log: (m) => out.push(m) });
+      expect(code).toBe(0);
+      expect(out).toEqual([pkg.version]);
+    }
+  });
+
+  it('prints help and succeeds for --help and -h', async () => {
+    for (const flag of ['--help', '-h']) {
+      const out = [];
+      const code = await runCli([flag], { log: (m) => out.push(m) });
+      expect(code).toBe(0);
+      expect(out[0]).toContain('meta-sovereign <command>');
+    }
+  });
+});
