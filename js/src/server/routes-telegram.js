@@ -231,6 +231,10 @@ import { REQUEST_PEER_POSTS } from './routes-telegram-request-peer.js';
 import { QUICK_REPLY_POSTS } from './routes-telegram-quick-replies.js';
 import { HASHTAG_POSTS } from './routes-telegram-hashtags.js';
 import { RINGTONE_GETS, RINGTONE_POSTS } from './routes-telegram-ringtones.js';
+import {
+  EPHEMERAL_GETS,
+  EPHEMERAL_POSTS,
+} from './routes-telegram-ephemeral.js';
 import { SAVED_GIFS_POSTS } from './routes-telegram-saved-gifs.js';
 import { FORUM_VIEW_POSTS } from './routes-telegram-forum-view.js';
 import { TRANSCRIBE_POSTS } from './routes-telegram-transcribe.js';
@@ -1015,6 +1019,7 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  ...EPHEMERAL_POSTS,
   ...GROUP_EXTRAS_POSTS,
   ...INSTANT_VIEW_POSTS,
   ...STICKER_EXTRAS_POSTS,
@@ -1376,6 +1381,7 @@ const ALL_GETS = {
   ...GETS,
   ...WALLPAPER_GETS,
   ...RINGTONE_GETS,
+  ...EPHEMERAL_GETS,
   ...INSTANT_VIEW_GETS,
   ...PROFILE_STORIES_GETS,
   ...ACCOUNTS_GETS,

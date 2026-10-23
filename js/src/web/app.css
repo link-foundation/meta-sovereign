@@ -12255,3 +12255,13 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
   color: var(--accent);
   text-decoration: underline;
 }
+
+/* Ephemeral messages (R-Y223): the small mark under a message only this
+   user can see. */
+.bubble-ephemeral {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--text-subtle);
+}

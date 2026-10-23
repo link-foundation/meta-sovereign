@@ -52,6 +52,7 @@ import { useRowReactions } from './chat-quick-reaction.js';
 import { PaidMedia, PaidReactionChip } from './chat-paid.js';
 import { ReadTimeLine } from './chat-read-time.js';
 import { ServiceLine } from './chat-service-line.js';
+import { EphemeralMark } from './chat-ephemeral.js';
 import { ModerationBoxes } from './chat-moderation.js';
 
 const el = React.createElement;
@@ -72,7 +73,7 @@ export const MsgAvatar = ({ message, show, api }) => {
     name,
     className: 'msg-avatar',
     chat: chatIdOf(message.id),
-    msg: netIdOf(message.id),
+    msg: message.ephemeral ? null : netIdOf(message.id),
     title: name,
   });
 };
@@ -198,6 +199,19 @@ const QuoteThumb = ({ media, chat, msgId }) => {
     : null;
 };
 
+// What the bar says: for an ephemeral original we never saw (or that is
+// gone) a neutral line, not a broken one (R-Y223).
+const quoteWords = (t, ref, selfName) => {
+  const unknown = ref.ephemeral && (!ref.loaded || ref.deleted);
+  return {
+    unknown,
+    senderName: unknown
+      ? t('chat.ephemeralMessage')
+      : quotedName(t, ref, selfName),
+    text: unknown ? '' : quotedText(t, ref),
+  };
+};
+
 export const ReplyQuote = ({ replyRef, onScrollTo }) => {
   const t = useT();
   const { selfName } = useContext(QuoteContext);
@@ -206,18 +220,20 @@ export const ReplyQuote = ({ replyRef, onScrollTo }) => {
   }
   const loaded = replyRef.sender !== null || replyRef.deleted;
   const ref = { ...replyRef, loaded };
-  const senderName = quotedName(t, ref, selfName);
-  const text = quotedText(t, ref);
+  const { unknown, senderName, text } = quoteWords(t, ref, selfName);
   const label = `${t('chat.replyingTo', { name: senderName })}: ${text}`;
   const color =
     ref.sender && ref.sender !== 'me'
       ? peerColorClass(ref.sender, { name: ref.senderName })
       : '';
-  const state = ref.deleted ? 'deleted' : loaded ? '' : 'loading';
+  const state = ref.deleted && !unknown ? 'deleted' : '';
+  const loading = !loaded && !unknown;
   return el(
     'div',
     {
-      className: ['bubble-reply', color, state].filter(Boolean).join(' '),
+      className: ['bubble-reply', color, state, loading ? 'loading' : '']
+        .filter(Boolean)
+        .join(' '),
       role: 'button',
       tabIndex: 0,
       title: label,
@@ -226,7 +242,7 @@ export const ReplyQuote = ({ replyRef, onScrollTo }) => {
       onKeyDown: (e) => e.key === 'Enter' && onScrollTo?.(replyRef.linkId),
     },
     el('span', { className: 'bubble-reply-row' }, [
-      ref.deleted
+      ref.deleted || ref.ephemeral
         ? null
         : el(QuoteThumb, {
             key: 'thumb',
@@ -882,6 +898,14 @@ const netIdOf = (msgId) => {
   return /^\d+$/.test(tail) ? Number(tail) : null;
 };
 
+// An ephemeral message is not in the history (R-Y223): no file or read
+// mark by its id, no menu, and a mark that only the user sees it.
+const rowless = (message) => Boolean(message.service || message.ephemeral);
+const messageNetId = (message) =>
+  message.ephemeral ? null : netIdOf(message.id);
+const ephemeralMark = (message) =>
+  message.ephemeral ? el(EphemeralMark, { key: 'eph' }) : null;
+
 // A message's file, by what it is (./chat-media.js).
 const DOCUMENT_VIEWS = {
   video: MediaVideo,
@@ -1099,7 +1123,8 @@ const seenProps = (message, { mine, leaving, netId }) => {
   const last = message.albumItems
     ? netIdOf(message.albumItems.at(-1).id)
     : netId;
-  const seenId = mine || message.pending || leaving ? null : last;
+  const seenId =
+    mine || message.pending || message.ephemeral || leaving ? null : last;
   return {
     ...(message.albumItems
       ? { 'data-items': message.albumItems.map((m) => m.id).join(' ') }
@@ -1212,7 +1237,7 @@ export const MessageBubble = ({
     row,
     bubble,
     message,
-    usable: Boolean(onAction) && !leaving && !message.service,
+    usable: Boolean(onAction) && !leaving && !rowless(message),
     selecting,
     onSelect,
     onAction,
@@ -1226,7 +1251,7 @@ export const MessageBubble = ({
 
   const parts = parseMessageParts(message, msgById ?? new Map());
   const chat = chatIdOf(message.id);
-  const netId = netIdOf(message.id);
+  const netId = messageNetId(message);
   const bubbleProps = {
     key: 'bub',
     ref: bubble,
@@ -1263,6 +1288,7 @@ export const MessageBubble = ({
             time,
             t,
           }),
+          ephemeralMark(message),
           el(CommentsBar, { key: 'comments', message, onAction }),
           fastReply && !selecting && canFastReply(message, mine, onAction)
             ? el(FastReply, {

@@ -24,6 +24,8 @@ import { json } from './util.js';
 
 export const EVENT_PREFIXES = Object.freeze([
   'msg:',
+  // A bot's message shown to this user only (R-Y223).
+  'eph:',
   'read:',
   'typing:',
   // Who waits to join a chat (R-Y161): its bar follows.

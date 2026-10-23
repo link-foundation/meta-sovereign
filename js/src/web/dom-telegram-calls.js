@@ -7,6 +7,9 @@ const body = (route) => ({ route, body: true });
 const none = (route) => ({ route, body: false });
 
 export const TELEGRAM_CALLS = {
+  // A press on an ephemeral message's callback button ({ chat, id, data })
+  // -> the bot's answer (R-Y223).
+  telegramEphemeralCallback: body('ephemeral-callback'),
   // Change phone number (the code goes to the new number) and Export
   // Telegram data through a takeout session (R-Y212).
   telegramPhoneChangeSend: body('phone-change-send'),

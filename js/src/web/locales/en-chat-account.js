@@ -343,4 +343,6 @@ export const enChatAccount = {
   'chat.service.walletConnectDeclined': 'Wallet connection declined',
   'chat.service.noPaidToken': 'A free-message token was used instead of paying',
   'chat.iv.download': 'Download',
+  'chat.ephemeralMark': 'Only you can see this message',
+  'chat.ephemeralMessage': 'Ephemeral message',
 };

@@ -79,6 +79,7 @@ import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
 import { createTranscribe } from './telegram-transcribe.js';
+import { createEphemeral } from './telegram-ephemeral.js';
 import { createEffects } from './telegram-effects.js';
 import { createEmojiStatus } from './telegram-emoji-status.js';
 import { createMessageLinks } from './telegram-message-links.js';
@@ -493,7 +494,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // editing and linking one's stories (R-Y210); cloud themes and the
 // per-chat translation switch (R-Y209); changing the phone number and
 // exporting the account's data (R-Y212); a group's sticker set and emoji
-// pack, pinned topics reordered, new chats in a shared folder and the new-contacts notification (R-Y211).
+// pack, pinned topics reordered, new chats in a shared folder and the
+// new-contacts notification (R-Y211); ephemeral messages (R-Y223).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -555,6 +557,7 @@ const chatActions = (env, context) => {
     ...createMapActions(env, context),
     ...createTranslate(env, context),
     ...createTranscribe(env, context),
+    ...createEphemeral(env, context),
     ...createStories(env, context),
     ...createStoryActions(env, context),
     ...createStoryExtras(env, context),

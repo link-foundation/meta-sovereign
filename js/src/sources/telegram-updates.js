@@ -30,6 +30,12 @@
  *                                                 chat, how many and the
  *                                                 latest ids (R-Y161)
  *
+ *   { kind: 'ephemeral', chat, message, entities }
+ *                                                 a bot's message for this
+ *                                                 user only, new or edited
+ *                                                 (layer 232, R-Y223)
+ *   { kind: 'ephemeral-delete', chat, ids }       such messages deleted
+ *
  *   { kind: 'group-call', chat, id, call }        a voice chat / live stream
  *                                                 started, changed or ended
  *                                                 (call null; chat may be
@@ -145,7 +151,24 @@ const stillUnreadOf = (u) =>
     ? { stillUnread: u.stillUnreadCount }
     : {};
 
+// An ephemeral message's chat: its peer, else (a bot's private chat) the
+// bot that wrote it.
+const ephemeralEffect = (u) => ({
+  kind: 'ephemeral',
+  chat: peerChatId(u.message?.peerId) ?? peerChatId(u.message?.fromId),
+  message: u.message,
+  entities: u._entities,
+});
+
 const SIMPLE_EFFECTS = {
+  // Ephemeral messages (R-Y223): shown to one user, never in the history.
+  UpdateNewEphemeralMessage: ephemeralEffect,
+  UpdateEditEphemeralMessage: ephemeralEffect,
+  UpdateDeleteEphemeralMessages: (u) => ({
+    kind: 'ephemeral-delete',
+    chat: peerChatId(u.peer),
+    ids: ids({ messages: u.ids }),
+  }),
   // A poll's results moved (anyone's vote, ours too), R-Y74: which poll
   // (by message when Telegram says, else by poll id), its new results
   // and, when it changed (closed), the poll.

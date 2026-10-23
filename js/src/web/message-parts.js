@@ -591,7 +591,9 @@ const repliedLinkId = (link, replyMsgId) => {
     return `msg:${link.source}:${link.replyTo}`;
   }
   const chat = link.chat ?? String(link.id ?? '').split(':')[2] ?? '';
-  return `msg:telegram:${chat}:${replyMsgId}`;
+  // A reply to an ephemeral message names one of the `eph:` links (R-Y223).
+  const kind = link.raw?.replyTo?.replyToEphemeral ? 'eph' : 'msg';
+  return `${kind}:telegram:${chat}:${replyMsgId}`;
 };
 
 const replyMsgIdOf = (link, raw) =>
@@ -636,6 +638,7 @@ const parseReply = (link, raw, msgById) => {
   return {
     msgId: replyMsgId,
     linkId: repliedId,
+    ephemeral: Boolean(raw.replyTo?.replyToEphemeral),
     ...repliedFields(msgById.get(repliedId)),
     quoteText:
       typeof raw.replyTo?.quoteText === 'string'

@@ -34,6 +34,7 @@ import { readReadReceipts, readShareTyping } from './privacy-prefs.js';
 import { useComposer, useLiveLinks } from './chat-live.js';
 import { useNotifications } from './chat-notify.js';
 import { useReplyTargets } from './chat-replies.js';
+import { useEphemeral } from './chat-ephemeral.js';
 import { useChatInfo } from './chat-info.js';
 import { useChatlistUpdates } from './chat-folder-updates.js';
 import { requestsLinkOf } from './chat-join-requests.js';
@@ -920,9 +921,16 @@ const useTopicView = (api, current, tick) => {
   return { forum, viewed, readMax: forum.open?.readInboxMaxId ?? null };
 };
 
-// The open chat's messages in its window (the topic's alone in one).
-const useShownMessages = (links, current, window, pending, topic) =>
-  useMemo(
+// The link id of the chat's pinned message, when it has one.
+const pinnedLinkId = (info, current) =>
+  info?.pinned && current
+    ? `msg:${current.source}:${current.chat}:${info.pinned}`
+    : null;
+
+// A bot's messages for this user only are among them by date (R-Y223);
+// `links` come back with those added, for the replies to them.
+const useShownMessages = (api, links, current, window, pending, topic) => {
+  const shown = useMemo(
     () =>
       current
         ? topicMessages(
@@ -932,6 +940,8 @@ const useShownMessages = (links, current, window, pending, topic) =>
         : [],
     [links, current?.key, pending, window, topic]
   );
+  return useEphemeral(api, current, links, shown, topic);
+};
 
 export const useChatState = (
   api,
@@ -993,7 +1003,8 @@ export const useChatState = (
     cloud: cloudDraft(links ?? [], current?.key),
     topic: forum.topic,
   });
-  const messages = useShownMessages(
+  const { messages, links: known } = useShownMessages(
+    api,
     links,
     current,
     history.window,
@@ -1001,11 +1012,8 @@ export const useChatState = (
     forum.topic
   );
   const info = useChatInfo(api, current);
-  const pinnedId =
-    info?.pinned && current
-      ? `msg:${current.source}:${current.chat}:${info.pinned}`
-      : null;
-  const replyTargets = useReplyTargets(api, messages, links, history.window, [
+  const pinnedId = pinnedLinkId(info, current);
+  const replyTargets = useReplyTargets(api, messages, known, history.window, [
     pinnedId,
   ]);
   const { seen, unreadAfter } = useReading(api, viewed, links, readMax);

@@ -1116,7 +1116,7 @@ const ChatTop = ({ state, api, onBack, saved, forumView, call }) => {
             return goToMessage(id, state.history?.reach);
           },
           lastId: networkMessageId(
-            state.messages.findLast((m) => !m.pending) ?? null
+            state.messages.findLast((m) => !m.pending && !m.ephemeral) ?? null
           ),
           onClose: () => setAbout(false),
         })

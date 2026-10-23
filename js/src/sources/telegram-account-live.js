@@ -24,6 +24,8 @@
  *                              channel: `pending` and `recent` ({ id,
  *                              name }); the page's join requests bar
  *                              follows it (R-Y161)
+ *   eph:telegram:<chat>:<id>   an ephemeral message, shown to this user only
+ *                              (never part of the history, R-Y223)
  *   groupcall:telegram:<chat>  the chat's voice chat or live stream: `call`
  *                              (null once over) and `rev`, which grows
  *                              when its participants change (R-Y188)
@@ -39,6 +41,7 @@ import { messageSenderId, updateEffect } from './telegram-updates.js';
 import { pollWriter } from './telegram-polls.js';
 import { transcriptWriter } from './telegram-transcribe.js';
 import { groupCallWriter } from './telegram-voice-chat-live.js';
+import { ephemeralLive } from './telegram-ephemeral.js';
 
 const SOURCE = 'telegram';
 
@@ -482,6 +485,8 @@ export const createTelegramLive = ({
       return onMessage(client, effect);
     },
     edit: onMessage,
+    // Ephemeral messages, shown to this user only (R-Y223).
+    ...ephemeralLive({ store, merge, toLinks, dialogFor, entityOf }),
     delete: (_client, effect) => onDelete(effect),
     pin: (_client, effect) => onPin(effect),
     read: (_client, effect) => onRead(effect),

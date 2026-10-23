@@ -313,4 +313,6 @@ export const zhChatAccount = {
   'chat.service.walletConnectDeclined': '钱包连接已拒绝',
   'chat.service.noPaidToken': '使用了免费消息令牌，无需付费',
   'chat.iv.download': '下载',
+  'chat.ephemeralMark': '只有你能看到这条消息',
+  'chat.ephemeralMessage': '临时消息',
 };

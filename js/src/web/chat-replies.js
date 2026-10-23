@@ -21,13 +21,14 @@ export const missingReplies = (messages, known) => [
     messages
       .map(replyLinkId)
       .filter((id) => id && !known.has(id) && !id.startsWith('msg:pending'))
+    // An ephemeral message is never read from Telegram by id (R-Y223).
   ),
 ];
 
 // Telegram's ids of one chat, by chat, for `telegramRefresh`.
 const telegramAsks = (ids) => {
   const byChat = new Map();
-  for (const id of ids) {
+  for (const id of ids.filter((i) => !i.startsWith('eph:'))) {
     const { source, chat, msg } = idParts(id);
     const n = Number(msg);
     if (source === 'telegram' && chat && Number.isInteger(n) && n > 0) {
@@ -86,7 +87,7 @@ export const useReplyTargets = (api, messages, links, window, extra = []) => {
   const known = useMemo(() => {
     const map = new Map();
     for (const l of [...(links ?? []), ...(window?.messages ?? [])]) {
-      if (l?.id?.startsWith('msg:')) {
+      if (l?.id?.startsWith('msg:') || l?.id?.startsWith('eph:')) {
         map.set(l.id, l);
       }
     }

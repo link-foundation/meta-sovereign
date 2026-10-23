@@ -122,6 +122,8 @@
     "test:e2e:games:webkit": "E2E_BROWSER=webkit node js/tests/e2e-games-browser.mjs",
     "test:e2e:service-messages": "node js/tests/e2e-service-messages-browser.mjs",
     "test:e2e:service-messages:webkit": "E2E_BROWSER=webkit node js/tests/e2e-service-messages-browser.mjs",
+    "test:e2e:ephemeral": "node js/tests/e2e-ephemeral-browser.mjs",
+    "test:e2e:ephemeral:webkit": "E2E_BROWSER=webkit node js/tests/e2e-ephemeral-browser.mjs",
     "test:e2e:request-peer": "node js/tests/e2e-request-peer-browser.mjs",
     "test:e2e:request-peer:webkit": "E2E_BROWSER=webkit node js/tests/e2e-request-peer-browser.mjs",
     "test:e2e:bots": "node js/tests/e2e-bots-browser.mjs",

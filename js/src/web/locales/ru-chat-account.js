@@ -368,4 +368,6 @@ export const ruChatAccount = {
   'chat.service.noPaidToken':
     'Вместо оплаты использован жетон бесплатного сообщения',
   'chat.iv.download': 'Скачать',
+  'chat.ephemeralMark': 'Это сообщение видите только вы',
+  'chat.ephemeralMessage': 'Временное сообщение',
 };

@@ -1118,6 +1118,12 @@ const rawApi = {
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for bots' },
 
+  // The chat's ephemeral messages, shown to this user only (R-Y223):
+  // `{ chat }` -> `{ ok, messages }`. A press on one's button is
+  // `telegramEphemeralCallback` (dom-telegram-calls.js).
+  telegramEphemeral: async ({ chat } = {}) =>
+    serverFetch(`/api/telegram/ephemeral?chat=${encodeURIComponent(chat)}`),
+
   // A poll or checklist (R-Y74): `poll-vote` (no options retracts),
   // `poll-stop`, `poll-results`, `poll-votes`, `todo-toggle`.
   telegramPoll: async (action, body = {}) =>

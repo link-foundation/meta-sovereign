@@ -525,6 +525,9 @@ export const firstUnreadId = (messages = [], after = 0) =>
   after > 0
     ? (messages.find(
         (m) =>
-          m.sender !== 'me' && !m.pending && (networkMessageId(m) ?? 0) > after
+          m.sender !== 'me' &&
+          !m.pending &&
+          !m.ephemeral &&
+          (networkMessageId(m) ?? 0) > after
       )?.id ?? null)
     : null;

@@ -197,6 +197,10 @@ const answered = (answer, { setAsk, state, game = false }) => {
   }
 };
 
+// The buttons an ephemeral message's bot can use: no game, login, mini
+// app or chat picker works on a message that is not in the history.
+const EPHEMERAL_KINDS = new Set(['callback', 'url', 'copy', 'profile']);
+
 /**
  * What a press on a bot's button under its message does:
  * `{ press(message, button), dialog }`; `copy(text)` copies with the
@@ -210,10 +214,15 @@ export const useBotPress = ({ state, api, copy }) => {
   // A button asking for a chat or a person (R-Y208).
   const peer = useRequestPeer({ state, api });
   const callback = async (message, button, extra = {}) => {
-    if (button.password || typeof api.telegramBotCallback !== 'function') {
+    // An ephemeral message's button asks through its own method, only
+    // when pressed (R-Y223).
+    const request = message.ephemeral
+      ? api.telegramEphemeralCallback
+      : api.telegramBotCallback;
+    if (button.password || typeof request !== 'function') {
       return unsupported();
     }
-    const answer = await api.telegramBotCallback({
+    const answer = await request({
       chat: state.current?.chat,
       id: networkMessageId(message),
       ...(button.data ? { data: button.data } : {}),
@@ -258,7 +267,9 @@ export const useBotPress = ({ state, api, copy }) => {
   };
   return {
     press: (message, button) =>
-      (KIND[button?.kind] ?? unsupported)(message, button),
+      (message?.ephemeral && !EPHEMERAL_KINDS.has(button?.kind)
+        ? unsupported
+        : (KIND[button?.kind] ?? unsupported))(message, button),
     dialog: el(React.Fragment, { key: 'bot-dialogs' }, [
       ask
         ? el(BotDialog, { key: 'bot', ask, onClose: () => setAsk(null) })
