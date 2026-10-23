@@ -1,5 +1,15 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.2
+
+### Patch Changes
+
+- The CLI answers `--version` (`-v`, `version`) with the package version, and `--help` (`-h`) prints the help and succeeds.
+
+  The npm package ships only the CLI, library and web app (`js/bin`, `js/src`): 3 MB instead of 17.8 MB, without tests, experiments, docs or the Rust, desktop and mobile sources.
+
+  Personal WhatsApp: visible Web sign-in, stable chat ids with a data migration, Android and iOS export import, confirmed-only browser sends and a terms notice (R-Z9).
+
 ## 0.49.1
 
 ### Patch Changes
