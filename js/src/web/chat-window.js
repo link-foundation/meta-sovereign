@@ -66,11 +66,16 @@ export const mergePage = (window = EMPTY, result) => {
 
 const historyId = (chat) => `history:telegram:${chat}`;
 
-// Telegram asked for the page before `oldest`: whether the chat's start
-// is stored now.
-const askOlder = async (api, chat, oldest) => {
+// A forum topic's window asks Telegram for the topic's messages alone
+// (R-Y122); a chat's for the chat's.
+const topicAsk = (current) => (current?.topic ? { topic: current.topic } : {});
+
+// Telegram asked for the page before `oldest`: whether the chat's (or
+// the topic's) start is stored now.
+const askOlder = async (api, current, oldest) => {
   const answer = await api.telegramHistory({
-    chat,
+    chat: current.chat,
+    ...topicAsk(current),
     before: networkMessageId(oldest),
     limit: PAGE_SIZE,
     priority: 'view',
@@ -241,7 +246,12 @@ const useOpenChat = (
     // again until it answers.
     const ask = () =>
       api
-        .telegramHistory({ chat, limit: PAGE_SIZE, priority: 'view' })
+        .telegramHistory({
+          chat,
+          ...topicAsk(current),
+          limit: PAGE_SIZE,
+          priority: 'view',
+        })
         .catch(() => null)
         .then((result) => {
           if (!result || result.error) {
@@ -345,7 +355,7 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     // Telegram is asked unless the store holds the page below without a
     // hole (a jump or a search stores messages far back).
     if (telegram && (!held.more || !storedBelow(links, chat, oldest))) {
-      const complete = await askOlder(api, chat, oldest);
+      const complete = await askOlder(api, current, oldest);
       patch(target, () => ({ complete }));
     }
     const result = await api.chatPage({

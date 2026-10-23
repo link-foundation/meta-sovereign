@@ -186,6 +186,7 @@ const sendResult = async (api, item) => {
       clientId: item.clientId,
       ...(item.replyTo ? { replyTo: item.replyTo } : {}),
       ...(item.replyQuote ? { replyQuote: item.replyQuote } : {}),
+      ...(item.topic ? { topic: item.topic } : {}),
       ...(item.silent ? { silent: true } : {}),
       ...(item.scheduleDate ? { scheduleDate: item.scheduleDate } : {}),
     });
@@ -457,14 +458,20 @@ const useDraftBox = ({ api, current, cloud, storage }) => {
   };
 };
 
+// The optional fields of a message going out, those set alone.
+const outFields = (fields) =>
+  Object.fromEntries(Object.entries(fields).filter(([, value]) => value));
+
 /**
  * The composer: per-chat drafts and an ordered, exactly-once send queue.
  *   typing   { start(), cancel() } — our "typing…" to the other side
  *   cloud    the current chat's draft on Telegram (its read link)
+ *   topic    the forum topic open (R-Y122): what is sent goes there
  */
 export const useComposer = ({
   api,
   current,
+  topic,
   after,
   addLinks,
   typing = { start: () => {}, cancel: () => {} },
@@ -501,10 +508,8 @@ export const useComposer = ({
       at: new Date().toISOString(),
       status: 'queued',
       attempts: 0,
-      ...(replyId ? { replyTo: replyId } : {}),
-      ...(quote ? { replyQuote: quote } : {}),
-      ...(silent ? { silent: true } : {}),
-      ...(scheduleDate ? { scheduleDate } : {}),
+      ...outFields({ replyTo: replyId, replyQuote: quote, topic }),
+      ...outFields({ silent, scheduleDate }),
     });
   };
 
@@ -525,6 +530,7 @@ export const useComposer = ({
       status: 'queued',
       attempts: 0,
       ...(answer ? { replyTo: answer } : {}),
+      ...(topic ? { topic } : {}),
     });
   };
 
@@ -580,6 +586,7 @@ export const useComposer = ({
     failed: mine.filter((p) => p.status === 'failed').length,
     sending: mine.some((p) => p.status !== 'failed'),
     replyTo,
+    topic,
     setReplyTo: (msg) => setReplyTo(msg),
     clearReplyTo: () => setReplyTo(null),
   };

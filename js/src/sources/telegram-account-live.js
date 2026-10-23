@@ -50,6 +50,8 @@ const READ_FIELDS = [
   'folder',
   // Marked unread by the user (R-Y97).
   'unreadMark',
+  // A forum group: its messages are in topics (R-Y122).
+  'forum',
 ];
 
 /** One chat's read (and draft) state; only the given fields are set. */

@@ -41,6 +41,8 @@ import {
   usePrefetch,
   windowMessages,
 } from './chat-window.js';
+import { splitTopicKey } from './forum-topics.js';
+import { topicMessages, useForumTopics, viewedChat } from './chat-topics.js';
 import { useAutopilotBase } from './autopilot-hook.js';
 import {
   chatsInFolder,
@@ -260,10 +262,17 @@ const useReadMarker = (
       return;
     }
     marked.current.set(chat.key, upTo);
-    api.telegramRead({ chat: chat.chat, maxId: upTo }).then(
-      (answer) => answer?.error && marked.current.delete(chat.key),
-      () => marked.current.delete(chat.key)
-    );
+    api
+      .telegramRead({
+        chat: chat.chat,
+        maxId: upTo,
+        // A forum topic is read on its own (R-Y122).
+        ...(chat.topic ? { topic: chat.topic } : {}),
+      })
+      .then(
+        (answer) => answer?.error && marked.current.delete(chat.key),
+        () => marked.current.delete(chat.key)
+      );
   }, [api]);
   const schedule = useCallback(() => {
     globalThis.clearTimeout(timer.current);
@@ -341,8 +350,13 @@ const useOtherReadMarker = (api, current, enabled = readReadReceipts) => {
 
 // What reading the open chat needs: where it was read up to, the marker
 // and the unread line.
-const useReading = (api, current, links) => {
-  const inboxMaxId = current ? readInboxUpTo(links ?? [], current.key) : 0;
+// `topicRead`: where an open forum topic is read up to (R-Y122); the
+// chat's own marker otherwise.
+const useReading = (api, current, links, topicRead = null) => {
+  const chatRead = current
+    ? readInboxUpTo(links ?? [], splitTopicKey(current.key).key)
+    : 0;
+  const inboxMaxId = current?.topic ? (topicRead ?? chatRead) : chatRead;
   useOtherReadMarker(api, current);
   return {
     seen: useReadMarker(api, current, inboxMaxId),
@@ -871,6 +885,30 @@ const useOpening = ({ show, current, setActive, setNotice }) => {
   };
 };
 
+// A forum's topics, and the chat as its window sees it: the topic open
+// has its own window and its own read mark (R-Y122).
+const useTopicView = (api, current, tick) => {
+  const forum = useForumTopics(api, current, tick);
+  const viewed = useMemo(
+    () => viewedChat(current, forum.topic),
+    [current, forum.topic]
+  );
+  return { forum, viewed, readMax: forum.open?.readInboxMaxId ?? null };
+};
+
+// The open chat's messages in its window (the topic's alone in one).
+const useShownMessages = (links, current, window, pending, topic) =>
+  useMemo(
+    () =>
+      current
+        ? topicMessages(
+            windowMessages(links ?? [], current.key, window, { pending }),
+            topic
+          )
+        : [],
+    [links, current?.key, pending, window, topic]
+  );
+
 export const useChatState = (
   api,
   { t, confirm = defaultConfirm, pollMs = 2500 } = {}
@@ -902,7 +940,8 @@ export const useChatState = (
     const names = new Map(all.map((c) => [c.key, c.name]));
     return (key) => names.get(key) ?? null;
   }, [all]);
-  const history = useChatWindow(api, current, links, tick);
+  const { forum, viewed, readMax } = useTopicView(api, current, tick);
+  const history = useChatWindow(api, viewed, links, tick);
   const prefetch = usePrefetch(api, links);
   const moreChats = useMoreChats(api, telegram, live ? null : refresh);
   const after = (next) => {
@@ -923,15 +962,14 @@ export const useChatState = (
     addLinks: add,
     typing: useTypingOut(api, current),
     cloud: cloudDraft(links ?? [], current?.key),
+    topic: forum.topic,
   });
-  const messages = useMemo(
-    () =>
-      current
-        ? windowMessages(links ?? [], current.key, history.window, {
-            pending: composer.pending,
-          })
-        : [],
-    [links, current?.key, composer.pending, history.window]
+  const messages = useShownMessages(
+    links,
+    current,
+    history.window,
+    composer.pending,
+    forum.topic
   );
   const info = useChatInfo(api, current);
   const pinnedId =
@@ -941,7 +979,7 @@ export const useChatState = (
   const replyTargets = useReplyTargets(api, messages, links, history.window, [
     pinnedId,
   ]);
-  const { seen, unreadAfter } = useReading(api, current, links);
+  const { seen, unreadAfter } = useReading(api, viewed, links, readMax);
   const banner = useConnectionBanner(live, telegram);
 
   const typingNow = useTypingIn(api, current, { tick, pollMs, links });
@@ -981,6 +1019,7 @@ export const useChatState = (
       toNewest: history.toNewest,
     },
     current,
+    forum,
     info,
     pinned: pinnedOf(messages, pinnedId, replyTargets),
     ...opening,

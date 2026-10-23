@@ -177,6 +177,9 @@ export const filterChats = (chats = [], filter = 'all') =>
     ? chats
     : chats.filter((c) => (c.kind ?? 'private') === filter);
 
+// A forum group (R-Y122), by its read link.
+const isForum = (read) => Number(read?.forum ?? 0) > 0;
+
 const summarize = (key, messages, self, read = null, now = Date.now()) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
@@ -205,6 +208,8 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
     archived: Number(read?.folder ?? 0) === 1,
     // Marked unread by the user (R-Y97).
     marked: Number(read?.unreadMark ?? 0) > 0,
+    // A forum group: its messages are in topics (R-Y122).
+    forum: isForum(read),
     last: {
       body: String(last.body ?? ''),
       mine: isMine(last, self),
@@ -372,6 +377,8 @@ const pendingMessage = (item) => ({
   code: item.code ?? null,
   retryAfter: item.retryAfter ?? null,
   retryAt: item.retryAt ?? null,
+  // The forum topic it goes to (R-Y122).
+  ...(item.topic ? { topic: item.topic } : {}),
   pending: true,
 });
 

@@ -48,6 +48,13 @@
  *                                      -> { ids, count, more } the chat's
  *                                         messages with `q`, newest first,
  *                                         stored (R-Y98)
+ *   POST /api/telegram/history {chat, topic, before?, limit?}
+ *                                      -> { written, complete } a forum
+ *                                         topic's newest messages, or the
+ *                                         page before `before` (R-Y122)
+ *   POST /api/telegram/forum-topics {chat}
+ *                                      -> { ok, forum, topics } a forum
+ *                                         group's topics (R-Y122)
  *   POST /api/telegram/shared-counts {chat}
  *                                      -> { ok, counts } how many photos,
  *                                         videos, files… (R-Y111)
@@ -204,6 +211,21 @@ const globalQuery = (body, run) =>
   body.q.length <= MAX_GLOBAL_QUERY &&
   typeof run === 'function';
 
+// A forum topic's newest page, or the page before message `before`.
+const topicPage = async (account, body) =>
+  validChat(body.chat) && typeof account.topicHistory === 'function'
+    ? [
+        200,
+        await account.topicHistory({
+          chat: body.chat,
+          topic: body.topic,
+          limit: Math.min(Number(body.limit) || 50, 100),
+          before: positive(body.before) ? body.before : null,
+          priority: priorityOf(body.priority),
+        }),
+      ]
+    : [400, { error: 'chat and topic required', code: 'bad-request' }];
+
 // A chat's newest page, or the page before message `before`.
 const historyPage = async (account, body) => [
   200,
@@ -240,7 +262,12 @@ const POSTS = {
   ],
   read: async (account, body) => [
     200,
-    await account.markRead({ chat: body.chat, maxId: body.maxId }),
+    await account.markRead({
+      chat: body.chat,
+      maxId: body.maxId,
+      // A forum topic is read on its own (R-Y122).
+      ...(positive(body.topic) ? { topic: body.topic } : {}),
+    }),
   ],
   draft: async (account, body) => {
     const text = typeof body.text === 'string' ? body.text : '';
@@ -250,6 +277,11 @@ const POSTS = {
     return [200, await account.saveDraft({ chat: body.chat, text })];
   },
   history: async (account, body) => {
+    if (body.topic !== undefined) {
+      return positive(body.topic)
+        ? topicPage(account, body)
+        : [400, { error: 'bad topic', code: 'bad-request' }];
+    }
     if (Number.isInteger(body.after) && body.after > 0) {
       if (typeof account.newer !== 'function') {
         return [400, { error: 'unsupported', code: 'bad-request' }];
@@ -392,6 +424,11 @@ const POSTS = {
       }),
     ];
   },
+  // A forum group's topics (R-Y122).
+  'forum-topics': async (account, body) =>
+    validChat(body.chat) && typeof account.forumTopics === 'function'
+      ? [200, await account.forumTopics({ chat: body.chat })]
+      : [400, { error: 'chat required', code: 'bad-request' }],
   // A chat's shared media (R-Y111): how many of each kind, and a kind's.
   'shared-counts': async (account, body) =>
     validChat(body.chat) && typeof account.sharedCounts === 'function'

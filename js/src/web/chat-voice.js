@@ -15,6 +15,7 @@ import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { canAttach } from './chat-attach.js';
 import { voiceDuration, webmToOgg } from './voice-ogg.js';
+import { composerReplyId } from './forum-topics.js';
 
 const el = React.createElement;
 
@@ -182,7 +183,7 @@ const deliver = async ({ api, state, now, blob }) => {
   const answer = await sendRecording({
     api,
     chat: String(now.chat),
-    replyTo: composer?.replyTo?.msgId ?? null,
+    replyTo: composerReplyId(composer),
     blob,
     type: now.mic.type,
     levels: now.levels,

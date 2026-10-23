@@ -55,6 +55,7 @@ import {
   useDropFiles,
 } from './chat-attach.js';
 import { PollDialog, usePollCreate } from './chat-poll-create.js';
+import { TopicTabs } from './chat-topics.js';
 import {
   ScheduleDialog,
   ScheduledButton,
@@ -1207,6 +1208,8 @@ export const ChatScreen = ({ state, api }) => {
                   api,
                   onBack: () => setPane('list'),
                 }),
+            // A forum's topics, as Telegram's tabs layout (R-Y122).
+            el(TopicTabs, { key: 'topics', forum: state.forum }),
             el(PinnedBar, {
               key: 'pin',
               pinned: state.pinned,

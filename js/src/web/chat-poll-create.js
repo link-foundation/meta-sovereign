@@ -11,6 +11,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { composerReplyId } from './forum-topics.js';
 
 const el = React.createElement;
 
@@ -84,7 +85,7 @@ export const usePollCreate = ({ state, api, composer }) => {
       return;
     }
     setSending(true);
-    const reply = composer?.replyTo?.msgId;
+    const reply = composerReplyId(composer);
     const answer = await api
       .telegramSendPoll({
         chat: String(state.current.chat),

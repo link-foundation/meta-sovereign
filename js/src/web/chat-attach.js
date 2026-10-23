@@ -9,6 +9,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { composerReplyId } from './forum-topics.js';
 
 const el = React.createElement;
 
@@ -73,9 +74,10 @@ const upload = async (api, items, onProgress) => {
   return { tokens };
 };
 
-// The message the files answer, when one is chosen.
+// The message the files answer, when one is chosen (or the forum topic's
+// first, R-Y122).
 const replyOf = (composer) =>
-  composer?.replyTo?.msgId ? { replyTo: composer.replyTo.msgId } : {};
+  composerReplyId(composer) ? { replyTo: composerReplyId(composer) } : {};
 
 /**
  * The send box's state: `{ items, caption, asPhoto, group, progress,

@@ -32,6 +32,7 @@ import { jumpTo, useInView } from './chat-emoji.js';
 import { LottieSticker } from './lottie-sticker.js';
 import { MsgContextMenu } from './chat-message.js';
 import { canSchedule, ScheduleDialog } from './chat-schedule.js';
+import { composerReplyId } from './forum-topics.js';
 
 const el = React.createElement;
 
@@ -633,7 +634,7 @@ const useSend =
   async (item, close, when) => {
     close();
     sent += 1;
-    const replyTo = composer?.replyTo?.msgId;
+    const replyTo = composerReplyId(composer);
     const answer = await api.telegramSendDocument({
       chat: String(state.current.chat),
       id: item.id,

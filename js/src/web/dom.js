@@ -814,10 +814,16 @@ export const api = {
   },
   // Mark a chat read up to a message on Telegram, and save its draft
   // there, so the phone and other apps show the same.
-  telegramRead: async ({ chat, maxId }) =>
-    (await serverPostReport('/api/telegram/read', { chat, maxId }).catch(
-      (error) => ({ error: error.message })
-    )) ?? { error: 'server required' },
+  telegramRead: async ({ chat, maxId, topic }) =>
+    (await serverPostReport('/api/telegram/read', {
+      chat,
+      maxId,
+      ...(topic ? { topic } : {}),
+    }).catch((error) => ({ error: error.message }))) ?? {
+      error: 'server required',
+    },
+  // A forum group's topics (R-Y122): { chat } → { ok, forum, topics }.
+  telegramForumTopics: ({ chat }) => telegramPost('forum-topics', { chat }),
   telegramDraft: async ({ chat, text }) =>
     (await serverPostReport('/api/telegram/draft', { chat, text }).catch(
       (error) => ({ error: error.message })

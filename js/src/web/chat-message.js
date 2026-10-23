@@ -312,7 +312,7 @@ export const ServiceLine = ({ link }) => {
   }
   let text = t(service.key);
   if (service.title) {
-    text = t('chat.service.titleChangedFmt', { title: service.title });
+    text = t(service.titleKey, { title: service.title });
   }
   if (service.user && service.key !== 'chat.service.pin') {
     text = `${service.user}: ${text}`;

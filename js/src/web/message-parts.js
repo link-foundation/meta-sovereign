@@ -8,6 +8,7 @@
 // code copied — the algorithm is Telegram's own spec).
 
 import { parsePoll, parseTodo } from './poll-parts.js';
+import { inTopicOnly } from './forum-topics.js';
 
 // Standard JFIF + Huffman table header, verbatim from Telegram's spec.
 const JPEG_HEADER_HEX =
@@ -153,6 +154,26 @@ const SERVICE_KEYS = {
   MessageActionChatCreate: 'service.chatCreate',
   MessageActionChatMigrateTo: 'service.migratedTo',
   MessageActionChannelMigrateFrom: 'service.migratedFrom',
+  // A forum's topics (R-Y122).
+  MessageActionTopicCreate: 'service.topicCreate',
+  MessageActionTopicEdit: 'service.topicEdit',
+};
+
+// The text a title goes into, by the action that names one.
+const TITLE_KEYS = {
+  MessageActionTopicCreate: 'chat.service.topicCreateFmt',
+  MessageActionTopicEdit: 'chat.service.topicRenamedFmt',
+};
+
+// A topic closed, opened again, hidden or shown (no new title).
+const topicEditKey = (action) => {
+  if (typeof action.closed === 'boolean') {
+    return action.closed ? 'service.topicClosed' : 'service.topicReopened';
+  }
+  if (typeof action.hidden === 'boolean') {
+    return action.hidden ? 'service.topicHidden' : 'service.topicShown';
+  }
+  return 'service.topicEdit';
 };
 
 /** Service text i18n key + data for a service link, or null. */
@@ -160,11 +181,16 @@ export const serviceInfo = (link) => {
   if (!link?.service) {
     return null;
   }
-  const key = SERVICE_KEYS[link.service] ?? 'service.unknown';
   const action = link.raw?.action ?? {};
+  const title = typeof action.title === 'string' ? action.title : null;
+  const key =
+    link.service === 'MessageActionTopicEdit' && !title
+      ? topicEditKey(action)
+      : (SERVICE_KEYS[link.service] ?? 'service.unknown');
   return {
     key: `chat.${key}`,
-    title: typeof action.title === 'string' ? action.title : null,
+    title,
+    titleKey: TITLE_KEYS[link.service] ?? 'chat.service.titleChangedFmt',
     user: link.senderName ?? null,
   };
 };
@@ -362,6 +388,11 @@ export const parseMedia = (raw) => {
 
 // Resolve reply message id from the raw TL reply header or the stored replyTo.
 const replyMsgIdFrom = (raw, replyToField) => {
+  // In a forum topic, a message that names only the topic's first
+  // message is in the topic, not an answer to it (R-Y122).
+  if (inTopicOnly(raw.replyTo)) {
+    return null;
+  }
   if (typeof raw.replyTo?.replyToMsgId === 'number') {
     return raw.replyTo.replyToMsgId;
   }

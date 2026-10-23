@@ -9,6 +9,8 @@
  *                      or newer than message `after`, or around a time
  *                      `at` (a jump to a date, R-Y106), or around
  *                      message `around` (a jump to a message, R-Y107).
+ *                      A key `<chat key>#topic:<id>` pages one forum
+ *                      topic's messages alone (R-Y122).
  *
  * The index holds a few numbers per message (id, time, network id), kept
  * current through the store's change feed. Its own feed marks a message
@@ -18,6 +20,7 @@
  */
 
 import { chatKey, networkMessageId } from '../web/chat-model.js';
+import { splitTopicKey, topicOfMessage } from '../web/forum-topics.js';
 
 const isMessage = (link) =>
   typeof link?.id === 'string' &&
@@ -29,6 +32,8 @@ const entryOf = (link) => ({
   id: link.id,
   ts: String(link.timestamp ?? ''),
   num: networkMessageId(link) ?? 0,
+  // Its forum topic (R-Y122): a topic is read by page as a chat is.
+  topic: topicOfMessage(link),
 });
 
 // The chat's order: by time, then by the network's number (one second).
@@ -181,6 +186,22 @@ export const createChatIndex = (store) => {
     return chat.sorted;
   };
 
+  // One topic's messages in order, kept until the chat changes.
+  const topicSortedOf = (chat, topic) => {
+    const sorted = sortedOf(chat);
+    if (chat.topicsOf !== sorted) {
+      chat.topicsOf = sorted;
+      chat.topics = new Map();
+    }
+    if (!chat.topics.has(topic)) {
+      chat.topics.set(
+        topic,
+        sorted.filter((e) => e.topic === topic)
+      );
+    }
+    return chat.topics.get(topic);
+  };
+
   return {
     ready: () => ready,
     /** The store's change feed, with `quiet` on history read ahead. */
@@ -204,13 +225,14 @@ export const createChatIndex = (store) => {
      * with `around` (a message's id), the ones around that message,
      * `target` it (or the first after it when the store lacks it).
      */
-    async page(key, range = {}) {
+    async page(asked, range = {}) {
       await ready;
+      const { key, topic } = splitTopicKey(asked);
       const chat = chats.get(key);
       if (!chat) {
         return { messages: [], more: false, newer: false, target: null };
       }
-      const sorted = sortedOf(chat);
+      const sorted = topic ? topicSortedOf(chat, topic) : sortedOf(chat);
       const limit = range.limit ?? 50;
       const [start, end, target] = await boundsOf(store, sorted, range, limit);
       return {

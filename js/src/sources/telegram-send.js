@@ -125,28 +125,36 @@ export const sendError = (error) => {
   return codeError(error?.code ?? 'send-failed', text || 'send failed');
 };
 
-// Whom the message answers, and the part of it quoted.
-export const replyHeader = (Api, replyTo, replyQuote) =>
-  replyTo
+// Whom the message answers, and the part of it quoted; in a forum
+// topic (R-Y122), the topic: its first message answered when nothing
+// else is, else named as the top one (General needs neither).
+export const replyHeader = (Api, replyTo, replyQuote, topic = null) => {
+  const inTopic = Number.isInteger(topic) && topic > 1;
+  const answers = replyTo || (inTopic ? topic : null);
+  return answers
     ? {
         replyTo: new Api.InputReplyToMessage({
-          replyToMsgId: replyTo,
-          ...(replyQuote ? { quoteText: replyQuote } : {}),
+          replyToMsgId: answers,
+          ...(inTopic && replyTo && replyTo !== topic
+            ? { topMsgId: topic }
+            : {}),
+          ...(replyTo && replyQuote ? { quoteText: replyQuote } : {}),
         }),
       }
     : {};
+};
 
 // A client without raw invoke (tests, other libraries).
 const sendThroughLibrary = (
   client,
   peer,
-  { text, formatting, replyTo, when = {} }
+  { text, formatting, replyTo, topic, when = {} }
 ) =>
   client.sendMessage(peer, {
     message: text,
     parseMode: false,
     ...(formatting.length > 0 ? { formattingEntities: formatting } : {}),
-    ...(replyTo ? { replyTo } : {}),
+    ...(replyTo || topic > 1 ? { replyTo: replyTo ?? topic } : {}),
     ...(when.silent ? { silent: true } : {}),
     ...(when.scheduleDate ? { schedule: when.scheduleDate } : {}),
   });
@@ -171,6 +179,7 @@ const sendPart = async ({
   randomId,
   replyTo,
   replyQuote = null,
+  topic,
   when,
   onResult,
 }) => {
@@ -180,6 +189,7 @@ const sendPart = async ({
       text,
       formatting,
       replyTo,
+      topic,
       when,
     });
   }
@@ -190,7 +200,7 @@ const sendPart = async ({
     randomId,
     clearDraft: true,
     ...whenFields(when),
-    ...replyHeader(Api, replyTo, replyQuote),
+    ...replyHeader(Api, replyTo, replyQuote, topic),
   });
   try {
     const result = await client.invoke(request);
@@ -223,6 +233,7 @@ export const sendText = async ({
   maxLength = MAX_MESSAGE_LENGTH,
   replyTo = null,
   replyQuote = null,
+  topic = null,
   silent,
   scheduleDate,
   onResult,
@@ -241,6 +252,8 @@ export const sendText = async ({
       // A long reply answers with its first part, as Telegram's apps do.
       replyTo: index === 0 ? replyTo : null,
       replyQuote: index === 0 ? replyQuote : null,
+      // Every part goes to the topic (R-Y122).
+      topic,
       when: { silent, scheduleDate },
       onResult,
     });

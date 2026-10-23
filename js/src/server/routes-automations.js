@@ -115,6 +115,10 @@ const sentLinks = (draft, result) => {
 const SEND_MEMORY_MS = 10 * 60_000;
 
 // Build the outgoing draft from the POST body.
+// A forum topic it goes to (R-Y122).
+const topicField = (body) =>
+  Number.isInteger(body.topic) && body.topic > 0 ? { topic: body.topic } : {};
+
 const buildDraft = (body) => {
   const clientId =
     typeof body.clientId === 'string' && body.clientId.length <= 100
@@ -135,6 +139,7 @@ const buildDraft = (body) => {
     ...(clientId ? { clientId } : {}),
     ...(replyTo ? { replyTo } : {}),
     ...(replyQuote ? { replyQuote } : {}),
+    ...topicField(body),
     // Without sound; at a time (R-Y102).
     ...(body.silent === true ? { silent: true } : {}),
     ...(body.scheduleDate !== undefined

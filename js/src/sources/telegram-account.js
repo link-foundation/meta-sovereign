@@ -63,6 +63,7 @@ import {
   formattedParts,
 } from './telegram-send.js';
 import { rawEntities } from './telegram-format.js';
+import { GENERAL_TOPIC, inTopicOnly } from '../web/forum-topics.js';
 import {
   importTelegram,
   installTelegramLayer,
@@ -168,7 +169,9 @@ export const telegramDialogLinks = (dialog, messages = []) => {
     .map((m) => {
       const service = serviceOf(m);
       const mine = Boolean(m.out);
-      const replyId = m.replyTo?.replyToMsgId;
+      // In a forum topic, naming only the topic's first message is being
+      // in the topic, not answering it (R-Y122).
+      const replyId = inTopicOnly(m.replyTo) ? null : m.replyTo?.replyToMsgId;
       const link = buildMessageLink({
         source: SOURCE,
         externalId: `${chat}:${m.id}`,
@@ -502,6 +505,8 @@ const listing = (dialog, rank) => {
     ...(rank === undefined ? {} : { pinnedRank: pinned ? rank : 0 }),
     folder: Number(dialog.folderId ?? state.folderId ?? 0) === 1 ? 1 : 0,
     unreadMark: Boolean(dialog.unreadMark ?? state.unreadMark),
+    // A forum group (R-Y122).
+    forum: Boolean(dialog.entity?.forum),
   };
 };
 
@@ -742,6 +747,19 @@ const runSync = async (env, { full, reason, dialogs, messages }) => {
   }
 };
 
+// The reply header of a message we just sent; in a forum topic it says
+// so, as Telegram's echo will (R-Y122).
+const sentReply = (replyTo, quote, topic) => {
+  const inTopic = topic && topic !== GENERAL_TOPIC;
+  return replyTo || inTopic
+    ? {
+        replyToMsgId: replyTo ?? topic,
+        ...(inTopic ? { forumTopic: true, replyToTopId: topic } : {}),
+        ...(quote ? { quote: true, quoteText: quote } : {}),
+      }
+    : undefined;
+};
+
 // The same link the next sync gives a message we just sent, so it is
 // never shown twice. Its full data comes with Telegram's echo of it.
 const sentLink = (
@@ -749,17 +767,12 @@ const sentLink = (
   messageId,
   text,
   at,
-  { replyTo = null, quote = null, entities = [] } = {}
+  { replyTo = null, quote = null, topic = null, entities = [] } = {}
 ) => {
   if (!messageId) {
     return null;
   }
-  const reply = replyTo
-    ? {
-        replyToMsgId: replyTo,
-        ...(quote ? { quote: true, quoteText: quote } : {}),
-      }
-    : undefined;
+  const reply = sentReply(replyTo, quote, topic);
   // GramJS gives users positive ids, groups and channels negative ones.
   const [link] = telegramDialogLinks(
     { id: chat, isUser: !chat.startsWith('-') },
@@ -796,7 +809,16 @@ const messageLengthMax = async (client, Api) => {
 const postAsUser = async (
   env,
   creds,
-  { chat, text, clientId, replyTo, replyQuote = null, silent, scheduleDate }
+  {
+    chat,
+    text,
+    clientId,
+    replyTo,
+    replyQuote = null,
+    topic = null,
+    silent,
+    scheduleDate,
+  }
 ) => {
   const { client } = await env.connection.open(creds);
   const { Api, helpers } = await env.importer().catch(() => ({}));
@@ -819,6 +841,7 @@ const postAsUser = async (
         maxLength,
         replyTo,
         replyQuote,
+        topic,
         silent,
         scheduleDate,
         onResult: (result) => env.catchUp?.observeResult(result),
@@ -850,6 +873,7 @@ const postAsUser = async (
       sentLink(chat, idText(part.id), part.text, part.date ?? at, {
         replyTo: index === 0 ? replyTo : null,
         quote: index === 0 ? replyQuote : null,
+        topic,
         entities: part.entities ?? [],
       })
     )
@@ -867,8 +891,11 @@ const postAsUser = async (
 // A draft's reply, quote, sound and time, as postAsUser takes them.
 const draftOptions = (draft) => {
   const replyTo = Number(draft.replyTo);
+  const topic = Number(draft.topic);
   return {
     replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+    // A forum topic it goes to (R-Y122).
+    topic: Number.isInteger(topic) && topic > 0 ? topic : null,
     replyQuote: typeof draft.replyQuote === 'string' ? draft.replyQuote : null,
     silent: draft.silent === true,
     scheduleDate: Number.isInteger(draft.scheduleDate)
@@ -946,12 +973,27 @@ const createMessaging = (env) => {
    * messages here). Only forward: an older id than already read is a
    * no-op, as in TDLib and Element.
    */
-  const markRead = async ({ chat, maxId } = {}) => {
+  const markRead = async ({ chat, maxId, topic = null } = {}) => {
     const max = Number(maxId);
     const target =
       Number.isInteger(max) && max > 0 ? await userChat(chat) : null;
     if (!target) {
       return { ok: false, supported: false };
+    }
+    if (topic) {
+      // A forum topic is read on its own, as Telegram's apps read it
+      // (messages.readDiscussion, R-Y122); the chat's marker stays.
+      const { client, Api } = target;
+      await connection.withPeer(client, target.chat, (peer) =>
+        client.invoke(
+          new Api.messages.ReadDiscussion({
+            peer,
+            msgId: Number(topic),
+            readMaxId: max,
+          })
+        )
+      );
+      return { ok: true };
     }
     const before = await store.get(`read:${SOURCE}:${target.chat}`);
     if ((before?.inboxMaxId ?? 0) >= max) {
