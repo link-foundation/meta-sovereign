@@ -21,6 +21,7 @@ import {
   historyLinkId,
   historyPlan,
 } from './telegram-history.js';
+import { createHistoryJump } from './telegram-jump.js';
 
 const iso = (ms) => new Date(ms).toISOString();
 
@@ -98,7 +99,7 @@ const channelCatchUp = async (env, chat, plan, priority) => {
   return { written: fed ?? 0, cached: false };
 };
 
-export const createPageReader = (env, tools) => {
+const createPages = (env, tools) => {
   const { store, connection, queue, now } = env;
   // Input peers of listed dialogs, so the next page can say where to go on.
   const listedPeers = new Map();
@@ -271,3 +272,9 @@ export const createPageReader = (env, tools) => {
 
   return { readNew, history, moreDialogs, remember };
 };
+
+/** The page reader, with jumps far back (./telegram-jump.js, R-Y106). */
+export const createPageReader = (env, tools) => ({
+  ...createPages(env, tools),
+  ...createHistoryJump(env, tools, { whereIs }),
+});

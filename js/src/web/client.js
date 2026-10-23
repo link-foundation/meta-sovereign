@@ -34,6 +34,17 @@ const timeoutSignal = (ms) => globalThis.AbortSignal?.timeout?.(ms);
 
 // The local links, plus the server's that the local store does not hold
 // (the local copy has the user's latest edits).
+// A chat page's query: its size, and where it is (R-Y106).
+const pageQuery = ({ key, before, after, at, limit = 50 }) => {
+  const params = new URLSearchParams({ key, limit: String(limit) });
+  for (const [name, value] of Object.entries({ before, after, at })) {
+    if (value) {
+      params.set(name, value);
+    }
+  }
+  return params;
+};
+
 const withRemote = (local, remote) => {
   if (!Array.isArray(remote) || remote.length === 0) {
     return local;
@@ -277,12 +288,11 @@ export const createOfflineClient = ({
       return withRemote(local, [...remote, ...heads]);
     },
     /** A page of one chat from the server's store; null without one. */
-    async chatPage({ key, before = null, limit = 50 }) {
-      const params = new URLSearchParams({ key, limit: String(limit) });
-      if (before) {
-        params.set('before', before);
-      }
-      return fetchOrLocal(`/api/chat/messages?${params}`, () => null);
+    async chatPage(request) {
+      return fetchOrLocal(
+        `/api/chat/messages?${pageQuery(request)}`,
+        () => null
+      );
     },
 
     // ---- derived queries (server when online, local fallback) ---------

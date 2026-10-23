@@ -48,6 +48,8 @@ const numbers = (ids) => ids.map(Number).filter(Number.isFinite);
  *     may leave a hole behind it, so the stretch starts again there.
  *   - `mode: 'older'` — the page before `oldest` (`offsetId`); fewer than
  *     `limit` means the first message was reached.
+ *   - `mode: 'newer'` — messages read far back, then toward the newest
+ *     (a jump to a date): they join the stretch only once they reach it.
  */
 const known = (value) => value !== null && value !== undefined;
 
@@ -69,10 +71,31 @@ const coverNothing = (before, mode, at) =>
         at,
       };
 
+// A stretch read far back (a jump to a date, R-Y106): it moves `oldest`
+// back once it reaches the stored stretch; otherwise nothing changes.
+const coverNewer = (record, got) => {
+  if (
+    !record ||
+    !known(record.oldest) ||
+    got.length === 0 ||
+    Math.max(...got) < Number(record.oldest)
+  ) {
+    return record;
+  }
+  return {
+    ...record,
+    oldest: Math.min(Number(record.oldest), ...got),
+    newest: Math.max(Number(record.newest), ...got),
+  };
+};
+
 export const coverSlice = (record, { ids, limit, mode, at }) => {
   const got = numbers(ids);
   const full = got.length >= limit;
   const before = record ?? {};
+  if (mode === 'newer') {
+    return coverNewer(record, got);
+  }
   if (mode === 'older') {
     return coverOlder(before, got, full);
   }

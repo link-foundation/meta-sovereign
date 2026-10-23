@@ -75,6 +75,13 @@ import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
 import { useChatListMenu } from './chat-list-menu.js';
 import { SearchBar, SearchButton, useChatSearch } from './chat-search.js';
+import {
+  DayPill,
+  FloatingDay,
+  dayBreaks,
+  useDayJump,
+  useNewer,
+} from './chat-days.js';
 
 export { failureText, waitingText } from './chat-failure.js';
 export { autopilotText } from './chat-automation.js';
@@ -579,6 +586,7 @@ const NOTICE = {
   copied: 'chat.notice.copied',
   'link-copied': 'chat.notice.linkCopied',
   'image-copied': 'chat.notice.imageCopied',
+  'date-failed': 'chat.days.failed',
 };
 
 const NEAR_BOTTOM_PX = 80;
@@ -610,9 +618,20 @@ export const addedAfter = (messages, lastBefore, known = null) => {
 };
 
 /** What a change in the open chat does to the view. */
-export const followMove = ({ opened, line, near, added, justSent }) => {
+export const followMove = ({
+  opened,
+  line,
+  near,
+  added,
+  justSent,
+  detached = false,
+}) => {
   if (line) {
     return 'line';
+  }
+  // A chat opened far back (R-Y106) is read where it is: no following.
+  if (detached && !opened && !justSent) {
+    return null;
   }
   if (opened || near || (added > 0 && justSent)) {
     return 'end';
@@ -763,6 +782,7 @@ const useFollow = (state) => {
       near: near.current,
       added,
       justSent,
+      detached: state.history?.detached,
     });
     if (move === 'line') {
       toLine();
@@ -873,14 +893,24 @@ const Stream = ({ state, api, actions }) => {
   const follow = useFollow(state);
   const keep = useKeepPlace(follow.box, state);
   const older = useOlder(follow.box, state);
+  const newer = useNewer(follow.box, state.history);
   useSeen(follow.box, state.seen, state.messages);
   const onScroll = () => {
     follow.onScroll();
     keep();
     older();
+    newer();
   };
+  const days = useDayJump({
+    history: state.history,
+    box: follow.box,
+    toEnd: follow.toEnd,
+    notify: () => state.notify?.({ kind: 'date-failed' }),
+  });
   // What leaves the chat goes like in Telegram (./chat-leaving.js).
-  const shown = useLeaving(state.messages, state.current?.key ?? null);
+  // A window opened anew (a jump to a date) is not messages leaving.
+  const view = `${state.current?.key ?? ''}:${state.history?.view ?? 0}`;
+  const shown = useLeaving(state.messages, view);
   // Reply lookups: what is shown, then the originals fetched for it.
   const shownById = new Map(shown.map((m) => [m.id, m]));
   // An album is one row (./chat-album.js).
@@ -889,6 +919,7 @@ const Stream = ({ state, api, actions }) => {
     get: (id) => shownById.get(id) ?? state.replyTargets?.get(id),
   };
   const runs = messageRuns(messages);
+  const breaks = dayBreaks(messages);
   const order = messages.filter((m) => !m.service).map((m) => m.id);
   const onSelect = (id, { shift }) => selection.toggle(id, { shift, order });
   const column = useRef(null);
@@ -925,6 +956,8 @@ const Stream = ({ state, api, actions }) => {
       onClick: drag.onClick,
     },
     [
+      // The date of what is at the top, over it while scrolling.
+      el(FloatingDay, { key: 'day', box: follow.box, onOpen: days.open }),
       el(
         'div',
         {
@@ -937,6 +970,13 @@ const Stream = ({ state, api, actions }) => {
         [
           el(OlderRow, { key: 'older', history: state.history }),
           ...messages.flatMap((message) => [
+            breaks.has(message.id)
+              ? el(DayPill, {
+                  key: `day-${breaks.get(message.id)}`,
+                  day: breaks.get(message.id),
+                  onOpen: days.open,
+                })
+              : null,
             rowIds(message).includes(state.unreadLine)
               ? el(UnreadLine, { key: 'unread-line', lineRef: follow.line })
               : null,
@@ -977,9 +1017,11 @@ const Stream = ({ state, api, actions }) => {
       ),
     ]
   );
-  const down = follow.away || follow.unseen > 0;
+  const detached = Boolean(state.history?.detached);
+  const down = follow.away || follow.unseen > 0 || detached;
   return [
     scroll,
+    days.calendar,
     el(UnreadMarks, {
       key: 'marks',
       current: state.current,
@@ -990,7 +1032,13 @@ const Stream = ({ state, api, actions }) => {
       key: 'down',
       shown: down,
       count: follow.unseen || (state.current.unread ?? 0),
-      onClick: follow.toEnd,
+      // Opened far back: to the newest, read again (R-Y106).
+      onClick: detached
+        ? () => {
+            state.history.toNewest();
+            follow.toEnd();
+          }
+        : follow.toEnd,
     }),
   ];
 };

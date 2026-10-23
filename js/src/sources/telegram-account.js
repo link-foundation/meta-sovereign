@@ -1099,6 +1099,8 @@ const restoreHolds = ({ store, queue }) =>
 // learned about, R-Y50).
 const readersOf = (env, backfill) => ({
   history: env.pages.history,
+  historyAt: env.pages.historyAt,
+  newer: env.pages.newer,
   moreDialogs: env.pages.moreDialogs,
   readFirst: backfill.prefer,
 });

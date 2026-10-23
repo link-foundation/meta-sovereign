@@ -5,7 +5,9 @@
  *
  *   heads()            the newest message of each chat (the chat list);
  *   page(key, before)  a page of one chat, older than message `before`
- *                      (the chat the user reads, as they scroll back).
+ *                      (the chat the user reads, as they scroll back);
+ *                      or newer than message `after`, or around a time
+ *                      `at` (a jump to a date, R-Y106).
  *
  * The index holds a few numbers per message (id, time, network id), kept
  * current through the store's change feed. Its own feed marks a message
@@ -155,20 +157,43 @@ export const createChatIndex = (store) => {
     /**
      * Up to `limit` messages of a chat, oldest first, older than message
      * `before` (the newest ones without it); `more` when the store holds
-     * older ones still.
+     * older ones still, `newer` when it holds newer ones. With `after`,
+     * the ones newer than that message; with `at` (an ISO time), the
+     * ones around it, `target` the first at or after it (null: none).
      */
-    async page(key, { before = null, limit = 50 } = {}) {
+    async page(
+      key,
+      { before = null, after = null, at = null, limit = 50 } = {}
+    ) {
       await ready;
       const chat = chats.get(key);
       if (!chat) {
-        return { messages: [], more: false };
+        return { messages: [], more: false, newer: false, target: null };
       }
       const sorted = sortedOf(chat);
-      const end = await endBefore(sorted, before);
-      const start = Math.max(0, end - limit);
+      let start;
+      let end;
+      let target;
+      if (at) {
+        const mark = { ts: String(at), num: 0 };
+        const found = sorted.findIndex((e) => order(e, mark) >= 0);
+        const from = found < 0 ? sorted.length : found;
+        target = found < 0 ? null : sorted[found].id;
+        start = Math.max(0, from - Math.floor(limit / 2));
+        end = Math.min(sorted.length, start + limit);
+      } else if (after) {
+        start = await endBefore(sorted, after);
+        start += sorted[start]?.id === after ? 1 : 0;
+        end = Math.min(sorted.length, start + limit);
+      } else {
+        end = await endBefore(sorted, before);
+        start = Math.max(0, end - limit);
+      }
       return {
         messages: await linksOf(sorted.slice(start, end)),
         more: start > 0,
+        newer: end < sorted.length,
+        ...(at ? { target } : {}),
       };
     },
     /** How many messages of a chat the store holds. */

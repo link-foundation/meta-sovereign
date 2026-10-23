@@ -7,6 +7,12 @@
  *                                         chat's newest messages, or the page
  *                                         before message `before`; the store
  *                                         answers what it already holds
+ *                            {chat, after} -> { written, cached, newest } the
+ *                                         page after message `after` (R-Y106)
+ *   POST /api/telegram/history-at {chat, date}
+ *                                      -> { ok, id, newest } the first message
+ *                                         at or after `date` (unix seconds)
+ *                                         and a page around it (R-Y106)
  *   POST /api/telegram/dialogs {priority?}
  *                                      -> { written, complete } the next page
  *                                         of the chat list
@@ -127,6 +133,18 @@ const validDocument = (body) =>
   STICKER_ID.test(String(body.id ?? '')) &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
 
+// A chat's newest page, or the page before message `before`.
+const historyPage = async (account, body) => [
+  200,
+  await account.history({
+    chat: body.chat,
+    limit: Math.min(Number(body.limit) || 50, 100),
+    before:
+      Number.isInteger(body.before) && body.before > 0 ? body.before : null,
+    priority: priorityOf(body.priority),
+  }),
+];
+
 const POSTS = {
   sync: async (account, body) => [
     200,
@@ -152,16 +170,42 @@ const POSTS = {
     }
     return [200, await account.saveDraft({ chat: body.chat, text })];
   },
-  history: async (account, body) => [
-    200,
-    await account.history({
-      chat: body.chat,
-      limit: Math.min(Number(body.limit) || 50, 100),
-      before:
-        Number.isInteger(body.before) && body.before > 0 ? body.before : null,
-      priority: priorityOf(body.priority),
-    }),
-  ],
+  history: async (account, body) => {
+    if (Number.isInteger(body.after) && body.after > 0) {
+      if (typeof account.newer !== 'function') {
+        return [400, { error: 'unsupported', code: 'bad-request' }];
+      }
+      return [
+        200,
+        await account.newer({
+          chat: body.chat,
+          after: body.after,
+          limit: Math.min(Number(body.limit) || 50, 100),
+          priority: priorityOf(body.priority),
+        }),
+      ];
+    }
+    return historyPage(account, body);
+  },
+  // The first message on a date, and a page around it (R-Y106).
+  'history-at': async (account, body) => {
+    if (
+      !validChat(body.chat) ||
+      !Number.isInteger(body.date) ||
+      body.date <= 0 ||
+      typeof account.historyAt !== 'function'
+    ) {
+      return [400, { error: 'chat and date required', code: 'bad-request' }];
+    }
+    return [
+      200,
+      await account.historyAt({
+        chat: body.chat,
+        date: body.date,
+        priority: priorityOf(body.priority),
+      }),
+    ];
+  },
   dialogs: async (account, body) => [
     200,
     (await account.moreDialogs?.({ priority: priorityOf(body.priority) })) ?? {

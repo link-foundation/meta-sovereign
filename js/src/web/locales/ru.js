@@ -1029,6 +1029,13 @@ export const ru = {
   'chat.archive.title': 'Архив',
   'chat.archive.back': 'Назад к чатам',
   'chat.unread': 'Непрочитанных: {count}',
+  'chat.days.jump': 'Перейти к дате',
+  'chat.days.calendar': 'Выберите дату',
+  'chat.days.previous': 'Предыдущий месяц',
+  'chat.days.next': 'Следующий месяц',
+  'chat.days.close': 'Закрыть',
+  'chat.days.failed':
+    'Не удалось открыть эту дату. Попробуйте ещё раз чуть позже.',
   'chat.unreadLine': 'Непрочитанные сообщения',
   'chat.failedCount': 'Не отправлено сообщений: {count}',
   'chat.resendAll': 'Отправить все снова',

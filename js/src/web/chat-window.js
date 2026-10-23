@@ -16,6 +16,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { byTime, chatMessages, networkMessageId } from './chat-model.js';
+import { underCeiling, useWindowJump } from './chat-jump.js';
 
 export const PAGE_SIZE = 50;
 // How far back a jump to a message may load (pages of PAGE_SIZE), and
@@ -41,6 +42,7 @@ const EMPTY = Object.freeze({
   failed: false,
   complete: false,
   stalledAt: 0,
+  ceiling: null, // the newest message held, when opened far back (R-Y106)
 });
 
 /** Whether the window waits before asking for older messages again. */
@@ -71,6 +73,35 @@ export const mergePage = (window = EMPTY, result) => {
 
 const historyId = (chat) => `history:telegram:${chat}`;
 
+// Telegram asked for the page before `oldest`: whether the chat's start
+// is stored now.
+const askOlder = async (api, chat, oldest) => {
+  const answer = await api.telegramHistory({
+    chat,
+    before: networkMessageId(oldest),
+    limit: PAGE_SIZE,
+    priority: 'view',
+  });
+  if (!answer || answer.error) {
+    throw Object.assign(new Error(answer?.error ?? 'no answer'), {
+      retryAfter: answer?.retryAfter,
+    });
+  }
+  return Boolean(answer.complete);
+};
+
+// Whether the chat's stored stretch reaches below `message`.
+const storedBelow = (links = [], chat, message) => {
+  const stretch = links.find((l) => l?.id === historyId(chat));
+  const id = networkMessageId(message);
+  return (
+    id !== null &&
+    stretch?.oldest !== null &&
+    stretch?.oldest !== undefined &&
+    Number(stretch.oldest) < Number(id)
+  );
+};
+
 /** Whether the store holds a Telegram chat back to its first message. */
 export const historyComplete = (links = [], chat) =>
   Boolean(links.find((l) => l?.id === historyId(chat))?.complete);
@@ -91,7 +122,10 @@ export const windowMessages = (links = [], key, window, options = {}) => {
     options
   );
   const floor = window.messages[0];
-  return floor ? all.filter((m) => m.pending || byTime(m, floor) >= 0) : all;
+  const above = floor
+    ? all.filter((m) => m.pending || byTime(m, floor) >= 0)
+    : all;
+  return underCeiling(above, window);
 };
 
 /** Whether older messages can be loaded: from the store or Telegram. */
@@ -307,19 +341,11 @@ export const useChatWindow = (api, current, links, tick = 0) => {
 
   const older = async (target, chat, held) => {
     const oldest = held.messages[0];
-    if (!held.more && telegram) {
-      const answer = await api.telegramHistory({
-        chat,
-        before: networkMessageId(oldest),
-        limit: PAGE_SIZE,
-        priority: 'view',
-      });
-      if (!answer || answer.error) {
-        throw Object.assign(new Error(answer?.error ?? 'no answer'), {
-          retryAfter: answer?.retryAfter,
-        });
-      }
-      patch(target, () => ({ complete: Boolean(answer.complete) }));
+    // Telegram is asked unless the store holds the page below without a
+    // hole (a jump or a search stores messages far back).
+    if (telegram && (!held.more || !storedBelow(links, chat, oldest))) {
+      const complete = await askOlder(api, chat, oldest);
+      patch(target, () => ({ complete }));
     }
     const result = await api.chatPage({
       key: target,
@@ -399,9 +425,21 @@ export const useChatWindow = (api, current, links, tick = 0) => {
   );
 
   useStallEnd(key, window.stalledAt, patch);
+  const jumps = useWindowJump(api, current, {
+    telegram,
+    patch,
+    ref,
+    refill,
+    retry,
+    pageSize: PAGE_SIZE,
+  });
 
   return {
     window,
+    ...jumps,
+    detached: Boolean(window.ceiling),
+    ceilingId: window.ceiling?.id ?? null,
+    view: window.view ?? 0,
     older: hasOlder(window, { telegram, complete }),
     stalled: Boolean(window.stalledAt),
     loading: window.loading,

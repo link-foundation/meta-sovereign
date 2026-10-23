@@ -2,16 +2,26 @@
  * The chat screen's reads, from the store (see ./chat-index.js):
  *   GET /api/chat/heads                         -> the newest message of
  *                                                  every chat
- *   GET /api/chat/messages?key=&before=&limit=  -> { messages, more } a
- *                                                  page of one chat, oldest
+ *   GET /api/chat/messages?key=&before=&limit=  -> { messages, more, newer }
+ *                                                  a page of one chat, oldest
  *                                                  first, older than message
- *                                                  `before`
+ *                                                  `before` (or newer than
+ *                                                  `after`, or around the
+ *                                                  ISO time `at`: R-Y106)
  * Other links reach the page through `GET /links?except=msg:`.
  */
 
 import { json } from './util.js';
 
 const MAX_PAGE = 200;
+
+// The page asked for: its size, and where it is.
+const rangeOf = (params) => ({
+  limit: Math.min(Number(params.get('limit')) || 50, MAX_PAGE),
+  before: params.get('before') || null,
+  after: params.get('after') || null,
+  at: params.get('at') || null,
+});
 
 export const handleChatRoutes = async (req, res, p, url, ctx) => {
   const index = ctx.chatIndex;
@@ -26,12 +36,11 @@ export const handleChatRoutes = async (req, res, p, url, ctx) => {
     if (!key) {
       return json(res, 400, { error: 'key is required' }) ?? true;
     }
-    const limit = Math.min(
-      Number(url.searchParams.get('limit')) || 50,
-      MAX_PAGE
-    );
-    const before = url.searchParams.get('before') || null;
-    return json(res, 200, await index.page(key, { before, limit })) ?? true;
+    const range = rangeOf(url.searchParams);
+    if (range.at && Number.isNaN(Date.parse(range.at))) {
+      return json(res, 400, { error: 'at must be a time' }) ?? true;
+    }
+    return json(res, 200, await index.page(key, range)) ?? true;
   }
   return false;
 };
