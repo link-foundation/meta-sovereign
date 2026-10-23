@@ -24,6 +24,9 @@
  *                              channel: `pending` and `recent` ({ id,
  *                              name }); the page's join requests bar
  *                              follows it (R-Y161)
+ *   groupcall:telegram:<chat>  the chat's voice chat or live stream: `call`
+ *                              (null once over) and `rev`, which grows
+ *                              when its participants change (R-Y188)
  *
  * Updates missed while the connection was down come through the same
  * handler from the catch-up (./telegram-catchup.js); the background poll
@@ -35,6 +38,7 @@ import { stampSourceLink } from './index.js';
 import { messageSenderId, updateEffect } from './telegram-updates.js';
 import { pollWriter } from './telegram-polls.js';
 import { transcriptWriter } from './telegram-transcribe.js';
+import { groupCallWriter } from './telegram-voice-chat-live.js';
 
 const SOURCE = 'telegram';
 
@@ -464,6 +468,8 @@ export const createTelegramLive = ({
     'folders',
     'folders-live',
     'poll',
+    'group-call',
+    'group-call-people',
   ]);
 
   // What each kind of effect writes; true when the chat needs a refresh.
@@ -486,6 +492,8 @@ export const createTelegramLive = ({
     'folders-live': (_client, effect) => foldersLiveWriter(store, now, effect),
     poll: (_client, effect) => pollWriter(store, effect),
     transcript: (_client, effect) => transcriptWriter(store, effect, now),
+    'group-call': (_c, effect) => groupCallWriter(store, now, effect),
+    'group-call-people': (_c, effect) => groupCallWriter(store, now, effect),
   };
 
   const apply = async (client, effect) => {

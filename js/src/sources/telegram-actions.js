@@ -56,6 +56,7 @@ import { createUsernames } from './telegram-usernames.js';
 import { createInvites } from './telegram-invite.js';
 import { createMembers } from './telegram-members.js';
 import { createPeerActions } from './telegram-peer-actions.js';
+import { createVoiceChat } from './telegram-voice-chat.js';
 import { createCustomEmoji } from './telegram-custom-emoji.js';
 import { createEmojiKeywords } from './telegram-emoji-keywords.js';
 import { createBotActions } from './telegram-bots.js';
@@ -449,7 +450,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // opening hours, location, intro, chat links, chatbots and folder tags
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
 // sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
-// messages and channel autotranslation (R-Y184).
+// messages and channel autotranslation (R-Y184); voice chats and group calls
+// (R-Y188).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -486,6 +488,7 @@ const chatActions = (env, context) => {
     ...createInvites(env, context),
     ...createMembers(env, context),
     ...createPeerActions(env, context),
+    ...createVoiceChat(env, context),
     ...createComments(env, context),
     ...createReadersActions(env, context),
     ...createBotCommands(env, context),

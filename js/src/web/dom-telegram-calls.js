@@ -7,6 +7,17 @@ const body = (route) => ({ route, body: true });
 const none = (route) => ({ route, body: false });
 
 export const TELEGRAM_CALLS = {
+  // Voice chats, video chats and live streams (R-Y188): the chat's call,
+  // its panel and participants, Notify me, who to join as, joining (muted,
+  // with the join params JSON), leaving, our own mute and raised hand.
+  telegramCallInfo: body('call-info'),
+  telegramCallOpen: body('call-open'),
+  telegramCallParticipants: body('call-participants'),
+  telegramCallNotify: body('call-notify'),
+  telegramCallJoinAs: body('call-join-as'),
+  telegramCallJoin: body('call-join'),
+  telegramCallLeave: body('call-leave'),
+  telegramCallSelf: body('call-self'),
   // Managing the topics (R-Y153).
   telegramTopicIcons: none('topic-icons'),
   telegramTopicCreate: body('topic-create'),

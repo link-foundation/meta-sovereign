@@ -13,6 +13,7 @@
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
 import { PeerBar } from './chat-peer-actions.js';
+import { VoiceChatBar } from './chat-voice-chat.js';
 import { PinnedBar } from './chat-pinned.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
@@ -1213,6 +1214,13 @@ export const ChatScreen = ({ state, api }) => {
                 state,
                 api,
                 onOpen: (id) => goToMessage(id, state.history?.reach),
+              }),
+              // The chat's voice chat or live stream (R-Y188).
+              el(VoiceChatBar, {
+                key: `voice:${state.current.key}`,
+                api,
+                chat: state.current,
+                live: state.groupCall,
               }),
               // Add contact, Block, Report spam over a stranger's chat (R-Y137).
               el(PeerBar, {

@@ -36,6 +36,7 @@ import { useNotifications } from './chat-notify.js';
 import { useReplyTargets } from './chat-replies.js';
 import { useChatInfo } from './chat-info.js';
 import { requestsLinkOf } from './chat-join-requests.js';
+import { callLinkOf } from './voice-chat-model.js';
 import { isTypingActive } from '../sources/live-links.js';
 import {
   useChatWindow,
@@ -1057,6 +1058,8 @@ export const useChatState = (
     info,
     // Who waits to join, as Telegram last said (R-Y161).
     joinRequests: requestsLinkOf(links, current),
+    // The chat's voice chat, live (R-Y188).
+    groupCall: callLinkOf(links, current),
     pinned: pinnedOf(messages, pinnedId, replyTargets),
     ...opening,
     messages,

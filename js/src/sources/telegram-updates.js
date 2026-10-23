@@ -30,12 +30,19 @@
  *                                                 chat, how many and the
  *                                                 latest ids (R-Y161)
  *
+ *   { kind: 'group-call', chat, id, call }        a voice chat / live stream
+ *                                                 started, changed or ended
+ *                                                 (call null; chat may be
+ *                                                 null: found by id, R-Y188)
+ *   { kind: 'group-call-people', id }             its participants changed
+ *
  * Chat ids are GramJS "marked" peer ids, the same ones dialogs use: a
  * user's id, `-<id>` for a basic group, `-100<id>` for a channel or
  * supergroup.
  */
 
 import { rawMessage } from './telegram-history.js';
+import { shapeCall } from './telegram-voice-chat.js';
 
 const text = (value) =>
   value === null || value === undefined ? null : String(value.value ?? value);
@@ -196,6 +203,17 @@ const SIMPLE_EFFECTS = {
     chat: channelOf(u),
     ids: ids(u),
     pinned: Boolean(u.pinned),
+  }),
+  // A voice chat or live stream began, changed or ended (R-Y188).
+  UpdateGroupCall: (u) => ({
+    kind: 'group-call',
+    chat: peerChatId(u.peer),
+    id: text(u.call?.id),
+    call: shapeCall(u.call),
+  }),
+  UpdateGroupCallParticipants: (u) => ({
+    kind: 'group-call-people',
+    id: text(u.call?.id),
   }),
   // The join requests waiting changed (R-Y161): their count and the
   // latest requesters (the "N requested to join" bar follows).
