@@ -1388,4 +1388,14 @@ export const hiChat = {
   'chat.similar.err.not-found': 'यह चैनल नहीं मिला।',
   'chat.factCheck.title': 'तथ्य-जाँच',
   'chat.factCheck.source': '{country} के लिए तथ्य-जाँच',
+  // Bot mini apps (R-Y168).
+  'chat.webApp.title': 'मिनी ऐप',
+  'chat.webApp.more': 'और',
+  'chat.webApp.reload': 'रीलोड करें',
+  'chat.webApp.close': 'बंद करें',
+  'chat.webApp.back': 'वापस',
+  'chat.webApp.loading': 'ऐप लोड हो रहा है…',
+  'chat.webApp.ok': 'ठीक है',
+  'chat.webApp.cancel': 'रद्द करें',
+  'chat.webApp.confirmClose': 'आपके किए बदलाव सहेजे नहीं जा सकते। ऐप बंद करें?',
 };

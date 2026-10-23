@@ -24,6 +24,7 @@ import { parseMessageParts } from './message-parts.js';
 import { StopPollDialog } from './chat-poll.js';
 import { useForwardStage } from './chat-forward.js';
 import { useBotPress } from './chat-bots.js';
+import { useWebAppHost } from './chat-web-apps.js';
 import { useComments } from './chat-comments.js';
 import { useReaders } from './chat-readers.js';
 import { useTranslate } from './chat-translate.js';
@@ -452,6 +453,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const copy = useCopy(state);
   // A bot's buttons under its message (R-Y110).
   const bots = useBotPress({ state, api, copy });
+  // A bot's mini app, over the chat (R-Y168).
+  const webApp = useWebAppHost({ api, state });
   // A post's comments, a message's thread (R-Y126).
   const comments = useComments({ api });
   // Who read a message, who reacted to it (R-Y127).
@@ -581,6 +584,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     dialogs: [
       ...dialogs,
       bots.dialog,
+      webApp.dialog,
       comments.dialog,
       readers.dialog,
       translate.dialog,

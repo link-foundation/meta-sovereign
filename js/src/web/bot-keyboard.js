@@ -57,6 +57,10 @@ export const buttonOf = (raw) => {
         }
       : {}),
     ...(kind === 'url' || kind === 'app' ? { url: text(raw.url) } : {}),
+    // A reply keyboard's simple web app may send data back (R-Y168).
+    ...(kind === 'app'
+      ? { simple: raw.className === 'KeyboardButtonSimpleWebView' }
+      : {}),
     ...(kind === 'switch'
       ? { query: String(raw.query ?? ''), samePeer: Boolean(raw.samePeer) }
       : {}),

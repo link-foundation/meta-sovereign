@@ -4,11 +4,14 @@
 // chat (contacts.resolveUsername). The chat opens and the message is
 // scrolled to and highlighted, as a reply's jump does; anything else
 // opens in the browser as before. In a forum the topic a link names opens
-// first and a link to a topic itself opens that topic (R-Y161).
+// first and a link to a topic itself opens that topic (R-Y161). A link to
+// a bot's mini app (t.me/bot/app, t.me/bot?startapp) opens the app
+// (R-Y168).
 
 import { useEffect, useRef } from 'react';
 import { chatKey } from './chat-model.js';
 import { channelChat, onMessageLink } from './message-links.js';
+import { openWebApp } from './chat-web-apps.js';
 
 // Chats a username resolved to this session (a username keeps its chat).
 const resolved = new Map();
@@ -50,7 +53,12 @@ const chatOf = async ({ state, api }, link) => {
   return resolved.get(name) ?? null;
 };
 
-const open = async (latest, { href, link }) => {
+const open = async (latest, { href, link, app }) => {
+  if (app) {
+    // A bot's mini app (R-Y168): the bot's own, from this link.
+    openWebApp({ ...app, name: app.username, href });
+    return;
+  }
   const { state } = latest.current;
   const target = await chatOf(latest.current, link);
   if (!target) {

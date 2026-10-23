@@ -1401,4 +1401,15 @@ export const ruChat = {
   'chat.similar.err.not-found': 'Этот канал не найден.',
   'chat.factCheck.title': 'Проверка фактов',
   'chat.factCheck.source': 'Проверка фактов для: {country}',
+  // Bot mini apps (R-Y168).
+  'chat.webApp.title': 'Мини-приложение',
+  'chat.webApp.more': 'Ещё',
+  'chat.webApp.reload': 'Обновить',
+  'chat.webApp.close': 'Закрыть',
+  'chat.webApp.back': 'Назад',
+  'chat.webApp.loading': 'Загрузка приложения…',
+  'chat.webApp.ok': 'ОК',
+  'chat.webApp.cancel': 'Отмена',
+  'chat.webApp.confirmClose':
+    'Внесённые изменения могут не сохраниться. Закрыть приложение?',
 };

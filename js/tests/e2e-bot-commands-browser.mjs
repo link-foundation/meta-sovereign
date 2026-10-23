@@ -4,7 +4,7 @@
 // and Down move, Tab puts the command in the box, Enter sends it, Escape
 // closes; in a group each command names its bot and is completed as
 // /command@botusername; a bot chat has a Menu button opening the same
-// list, or, for a web-app menu, a link to its URL in a new tab. Telegram's
+// list, or, for a web-app menu, a button opening its mini app. Telegram's
 // answers faked in the page, fake chats in a memory store, a fake sender
 // that records, a server on a free port, a headless browser; nothing
 // reaches a network or a running app. Not part of `npm test`; run it with:
@@ -180,16 +180,15 @@ const menuSteps = async () => {
   assert(textOf(sent[2]) === '/status', `sent: ${JSON.stringify(sent[2])}`);
   await until(async () => (await list.count()) === 0, 'menu closed');
 
-  // A web-app menu: the button's text, a link in a new tab.
+  // A web-app menu: the button's text; a click opens the mini app
+  // (R-Y168, see the web-apps e2e), not a link.
   await open(WEBAPP);
-  const link = page.locator('a[data-action="bot-menu"]');
+  const link = page.locator('button[data-web-app-menu]');
   await link.waitFor({ timeout: 5000 });
   assert((await link.textContent()).includes('Open app'), 'web app label');
   assert(
-    (await link.getAttribute('href')) === 'https://app.test/x' &&
-      (await link.getAttribute('target')) === '_blank' &&
-      (await link.getAttribute('rel')) === 'noopener',
-    'web app link'
+    (await page.locator('a[data-action="bot-menu"]').count()) === 0,
+    'no link'
   );
 };
 

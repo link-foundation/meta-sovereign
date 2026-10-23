@@ -1311,4 +1311,14 @@ export const zhChat = {
   'chat.similar.err.not-found': '未找到此频道。',
   'chat.factCheck.title': '事实核查',
   'chat.factCheck.source': '针对 {country} 的事实核查',
+  // Bot mini apps (R-Y168).
+  'chat.webApp.title': '小程序',
+  'chat.webApp.more': '更多',
+  'chat.webApp.reload': '重新加载',
+  'chat.webApp.close': '关闭',
+  'chat.webApp.back': '返回',
+  'chat.webApp.loading': '正在加载小程序…',
+  'chat.webApp.ok': '确定',
+  'chat.webApp.cancel': '取消',
+  'chat.webApp.confirmClose': '所做的更改可能不会保存。要关闭小程序吗？',
 };

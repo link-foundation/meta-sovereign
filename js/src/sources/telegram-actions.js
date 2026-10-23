@@ -77,6 +77,7 @@ import { createPinnedOrder } from './telegram-pinned-order.js';
 import { createCalls } from './telegram-calls.js';
 import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
+import { createWebApps } from './telegram-web-apps.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
 import { createInviteLinks } from './telegram-invite-links.js';
@@ -404,7 +405,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // calls list (R-Y163); emoji statuses (R-Y162); a group's and channel's
 // settings, the discussion group included (R-Y165); creating and editing chat
 // folders (R-Y164); statistics of channels and supergroups (R-Y167); the pinned
-// messages list, similar channels and fact checks (R-Y166).
+// messages list, similar channels and fact checks (R-Y166); bot mini apps
+// (R-Y168).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -438,6 +440,7 @@ const chatActions = (env, context) => {
     ...createComments(env, context),
     ...createReadersActions(env, context),
     ...createBotCommands(env, context),
+    ...createWebApps(env, context),
     ...createMapActions(env, context),
     ...createTranslate(env, context),
     ...createStories(env, context),

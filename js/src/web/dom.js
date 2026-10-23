@@ -977,6 +977,10 @@ export const api = {
   telegramReaders: (body = {}) => telegramPost('readers', body),
   telegramTranslate: (body = {}) => telegramPost('translate', body),
   telegramBotCommands: (body = {}) => telegramPost('bot-commands', body),
+  // Bot mini apps (R-Y168).
+  telegramWebAppOpen: (body = {}) => telegramPost('web-app-open', body),
+  telegramWebAppProlong: (body = {}) => telegramPost('web-app-prolong', body),
+  telegramWebAppData: (body = {}) => telegramPost('web-app-data', body),
   // Inline bots in the message box (R-Y138).
   // Links to messages: copy one, open one (R-Y154).
   telegramMessageLink: (body = {}) => telegramPost('message-link', body),

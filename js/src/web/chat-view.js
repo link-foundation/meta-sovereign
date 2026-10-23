@@ -49,7 +49,11 @@ import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
-import { useBotCommands, useCommandBox } from './chat-bot-commands.js';
+import {
+  appTarget,
+  useBotCommands,
+  useCommandBox,
+} from './chat-bot-commands.js';
 import { useInlineBox } from './chat-inline-bots.js';
 import { useLinkPreview } from './chat-link-preview.js';
 import { EditBar, hasMedia, useCaretAtEnd } from './chat-edit-mode.js';
@@ -879,6 +883,7 @@ const Composer = ({ state, api, keys }) => {
     ...useBotCommands(api, state.current, state.info),
     text,
     composer,
+    ...appTarget(state),
   });
   // "@gif cats": an inline bot's answers over the box (R-Y138).
   const inline = useInlineBox({ api, state, composer, text });

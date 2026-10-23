@@ -202,6 +202,7 @@ import { SHARED_KINDS } from '../sources/telegram-shared.js';
 import { STICKER_SAVES } from '../sources/telegram-stickers.js';
 import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
+import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { FOLDER_EDIT_POSTS } from './routes-telegram-folder-edit.js';
 import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
@@ -961,6 +962,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...FOLDER_EDIT_POSTS,
+  ...WEB_APPS_POSTS,
   ...COMMON_CHATS_POSTS,
   ...STATS_POSTS,
   ...PINNED_LIST_POSTS,

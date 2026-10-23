@@ -12,6 +12,8 @@ import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { networkMessageId } from './chat-model.js';
 import { botAskOf, inlineKeyboardOf, replyKeyboardOf } from './bot-keyboard.js';
+import { appUrl } from './web-apps-model.js';
+import { openWebApp } from './chat-web-apps.js';
 
 const el = React.createElement;
 
@@ -214,6 +216,8 @@ export const useBotPress = ({ state, api, copy }) => {
       return url ? setAsk({ kind: 'url', url }) : unsupported();
     },
     copy: (_m, button) => copy(button.copy),
+    app: (message, button) =>
+      openButtonApp(state, message, button) || unsupported(),
     profile: (_m, button) =>
       button.user
         ? state.openAt?.({
@@ -235,6 +239,34 @@ export const useBotPress = ({ state, api, copy }) => {
       ? el(BotDialog, { key: 'bot', ask, onClose: () => setAsk(null) })
       : null,
   };
+};
+
+// The bot a button's message speaks for: the chat's, or who sent it (a
+// message sent through an inline bot, that bot).
+const botOfMessage = (state, message) => {
+  const via = message?.raw?.viaBotId;
+  const id = via?.value ?? via ?? message?.sender;
+  return state.current?.personal ? state.current.chat : String(id ?? '');
+};
+
+/**
+ * A web-app button's mini app (R-Y168): opened from the open chat for the
+ * message's bot; false when it cannot be (no https address, no bot).
+ */
+export const openButtonApp = (state, message, button) => {
+  const url = appUrl(button.url);
+  const bot = botOfMessage(state, message);
+  if (!url || !/^\d{1,20}$/.test(bot) || !state.current?.chat) {
+    return false;
+  }
+  return openWebApp({
+    kind: button.simple ? 'simple' : 'inline',
+    chat: state.current.chat,
+    bot,
+    url,
+    buttonText: button.text,
+    name: state.info?.title ?? state.current.name ?? '',
+  });
 };
 
 // A keyboard button's words, sent; in a group, as an answer to the bot.
@@ -295,6 +327,12 @@ export const useReplyKeyboard = ({ state, replyRefOf }) => {
     toggle: () => hide(shown),
     placeholder: ask.placeholder,
     press: (button) => {
+      if (button.kind === 'app') {
+        if (!openButtonApp(state, keyboard.message, button)) {
+          toastOf(state, { kind: 'bot-unsupported' });
+        }
+        return;
+      }
       if (button.kind !== 'text') {
         toastOf(state, { kind: 'bot-unsupported' });
         return;

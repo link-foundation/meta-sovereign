@@ -4,6 +4,8 @@
 // tg:// forms of them. `parseMessageLink` is pure; a click on such a link
 // in a message asks the chat screen (`openMessageLink`) to open it.
 
+import { parseAppLink } from './web-apps-model.js';
+
 const HOSTS = /^(?:www\.)?(?:t\.me|telegram\.me|telegram\.dog)$/i;
 const NAME = /^[A-Za-z][A-Za-z0-9_]{3,31}$/;
 const NUMBER = /^[1-9]\d{0,14}$/;
@@ -135,11 +137,13 @@ const EVENT = 'ms-message-link';
  * false when the browser should follow the link.
  */
 export const openMessageLink = (href) => {
+  // A message, or (R-Y168) a bot's mini app the link names.
   const parsed = parseMessageLink(href);
-  if (!parsed || !globalThis.dispatchEvent) {
+  const app = parsed ? null : parseAppLink(href);
+  if ((!parsed && !app) || !globalThis.dispatchEvent) {
     return false;
   }
-  const detail = { href, link: parsed, handled: false };
+  const detail = { href, link: parsed, app, handled: false };
   globalThis.dispatchEvent(new CustomEvent(EVENT, { detail }));
   return detail.handled;
 };

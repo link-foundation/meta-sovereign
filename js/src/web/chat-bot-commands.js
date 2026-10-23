@@ -4,12 +4,13 @@
 // types; Up and Down move, Tab or Enter picks — in a group completed as
 // `/command@botusername`; Enter sends it, Tab puts it in the box. A bot
 // chat shows a "Menu" button at the left of the box that opens the same
-// list (or, for a bot with a web-app menu, its link in a new tab).
+// list (or, for a bot with a web-app menu, its mini app, R-Y168).
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
-import { openableUrl } from './chat-bots.js';
+import { appUrl } from './web-apps-model.js';
+import { openWebApp } from './chat-web-apps.js';
 
 const el = React.createElement;
 
@@ -129,22 +130,23 @@ export const CommandList = ({ items, index, group, onPick, onHover }) => {
   );
 };
 
-// The Menu button: a web app's link in a new tab, else the list's toggle.
-const MenuButton = ({ menu, open, onToggle }) => {
+// The Menu button: a web app's mini app (R-Y168), else the list's toggle.
+const MenuButton = ({ menu, open, onToggle, onApp }) => {
   const t = useT();
-  const url = menu.kind === 'webapp' ? openableUrl(menu.url) : null;
+  const url = menu.kind === 'webapp' ? appUrl(menu.url) : null;
   const label =
     menu.kind === 'webapp' && menu.text ? menu.text : t('chat.bot.menu');
   const icon = el(Icon, { key: 'i', name: 'menu', size: 18 });
   return url
     ? el(
-        'a',
+        'button',
         {
-          className: 'bot-menu-button',
+          type: 'button',
+          className: 'bot-menu-button is-app',
           'data-action': 'bot-menu',
-          href: url,
-          target: '_blank',
-          rel: 'noopener',
+          'data-web-app-menu': true,
+          title: label,
+          onClick: () => onApp(url),
         },
         [icon, el('span', { key: 't' }, label)]
       )
@@ -161,13 +163,27 @@ const MenuButton = ({ menu, open, onToggle }) => {
       );
 };
 
+/** The chat and name a mini app opens for (R-Y168). */
+export const appTarget = (state) => ({
+  chat: state.current?.chat,
+  name: state.info?.title ?? state.current?.name,
+});
+
 const STEPS = { ArrowDown: 1, ArrowUp: -1 };
 
 /**
  * The composer's part: `{ list, menuButton, onKey }`. `onKey(event)` is
  * true when it took the key (the list open and the key one it uses).
  */
-export const useCommandBox = ({ commands, menu, kind, text, composer }) => {
+export const useCommandBox = ({
+  commands,
+  menu,
+  kind,
+  text,
+  composer,
+  chat,
+  name,
+}) => {
   const group = kind === 'group';
   const [menuOpen, setMenuOpen] = useState(false);
   const [closedAt, setClosedAt] = useState(null);
@@ -213,7 +229,7 @@ export const useCommandBox = ({ commands, menu, kind, text, composer }) => {
     return true;
   };
   const bot = kind === 'bot';
-  const webapp = menu.kind === 'webapp' && openableUrl(menu.url);
+  const webapp = menu.kind === 'webapp' && appUrl(menu.url);
   return {
     onKey,
     list: shown
@@ -232,6 +248,15 @@ export const useCommandBox = ({ commands, menu, kind, text, composer }) => {
             key: 'bot-menu',
             menu,
             open: menuOpen,
+            onApp: (url) =>
+              openWebApp({
+                kind: 'menu',
+                chat,
+                bot: chat,
+                url,
+                buttonText: menu.text || undefined,
+                name,
+              }),
             onToggle: () => {
               setClosedAt(null);
               setMenuOpen(!menuOpen);

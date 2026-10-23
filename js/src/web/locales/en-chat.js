@@ -1383,4 +1383,15 @@ export const enChat = {
   'chat.similar.err.not-found': 'This channel was not found.',
   'chat.factCheck.title': 'Fact check',
   'chat.factCheck.source': 'Fact check for {country}',
+  // Bot mini apps (R-Y168).
+  'chat.webApp.title': 'Mini app',
+  'chat.webApp.more': 'More',
+  'chat.webApp.reload': 'Reload',
+  'chat.webApp.close': 'Close',
+  'chat.webApp.back': 'Back',
+  'chat.webApp.loading': 'Loading the app…',
+  'chat.webApp.ok': 'OK',
+  'chat.webApp.cancel': 'Cancel',
+  'chat.webApp.confirmClose':
+    'Changes you made may not be saved. Close the app?',
 };

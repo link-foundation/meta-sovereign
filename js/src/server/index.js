@@ -122,11 +122,14 @@ const MIME = {
 // origin (/ws + /rtc); discovery may also attempt 127.0.0.1 / localhost
 // on alternate ports. Browser-first provider API calls (JMAP, Gmail,
 // Graph, etc.) use HTTPS directly when CORS allows them.
+// `frame-src https:` is for a bot's mini app (R-Y168), shown in a sandboxed
+// iframe of the bot's own https origin; nothing else may be framed.
 export const CSP =
   "default-src 'self'; " +
   "script-src 'self' 'wasm-unsafe-eval'; " +
   "style-src 'self'; " +
   "img-src 'self' data: blob: https://vk.com; " +
+  'frame-src https:; ' +
   "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; " +
   "worker-src 'self'; " +
   "font-src 'self' data:; " +
