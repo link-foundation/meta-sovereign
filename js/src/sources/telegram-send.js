@@ -207,7 +207,7 @@ export const diceOf = (text) => {
 // Telegram Desktop does for larger or smaller media).
 const absoluteUrl = (url) =>
   /^https?:\/\//i.test(url) ? url : `http://${url}`;
-const previewMedia = (Api, preview) =>
+export const previewMedia = (Api, preview) =>
   preview?.previewUrl && preview.previewSize && !preview.noWebpage
     ? new Api.InputMediaWebPage({
         url: absoluteUrl(preview.previewUrl),

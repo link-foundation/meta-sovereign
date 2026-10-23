@@ -249,3 +249,35 @@ test('react resolves id from link.id', async () => {
   const result = await react({ emoji: '🔥', link });
   assert.deepStrictEqual(result, { ok: true, reacted: 99 });
 });
+
+// A sized link preview edits the message with the page as its media (R-Y146).
+test('editMessage carries the link preview choice', async () => {
+  const invocations = [];
+  const client = {
+    invoke: async (req) => {
+      invocations.push(req);
+      return {};
+    },
+  };
+  const env = envWith(createMemoryStore(), client);
+  env.importer = async () => ({
+    ...fakeTelegram(),
+    Api: { ...fakeTelegram().Api, InputMediaWebPage: tl('InputMediaWebPage') },
+  });
+  const { editMessage } = createActions(env, userTools());
+  await editMessage({
+    chat: '999',
+    id: '7',
+    text: 'see x.test',
+    invertMedia: true,
+    previewUrl: 'x.test',
+    previewSize: 'large',
+  });
+  assert.strictEqual(invocations[0].invertMedia, true);
+  assert.strictEqual(invocations[0].media.className, 'InputMediaWebPage');
+  assert.strictEqual(invocations[0].media.url, 'http://x.test');
+  assert.strictEqual(invocations[0].media.forceLargeMedia, true);
+  await editMessage({ chat: '999', id: '7', text: 'x.test', noWebpage: true });
+  assert.strictEqual(invocations[1].noWebpage, true);
+  assert.strictEqual(invocations[1].media, undefined);
+});

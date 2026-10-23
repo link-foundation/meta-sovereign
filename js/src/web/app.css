@@ -7095,3 +7095,13 @@ span.bubble-effect {
     display: none;
   }
 }
+
+/* Editing a message in the box (R-Y146): the reply bar's look, a pencil
+   and two lines (the title, then the text), the accent on the pencil. */
+.composer-edit-bar {
+  align-items: center;
+}
+.composer-edit-bar > svg {
+  flex: none;
+  color: var(--accent);
+}

@@ -29,6 +29,7 @@ import {
   writeSaved,
 } from './chat-outbox.js';
 import { sendAsField } from './chat-send-as.js';
+import { useEditMode } from './chat-edit-mode.js';
 
 const BATCH_MS = 80;
 // A failed load of the chat list is tried again after this long.
@@ -386,16 +387,24 @@ const useDraftBox = ({ api, current, cloud, storage }) => {
   const cloudTimer = useRef(null);
   const cloudSeen = useRef({}); // chat key → the cloud text last seen
   const key = current?.key ?? null;
+  // While a message is edited, its text is no draft: not for Telegram,
+  // and what is kept on this device is the draft put away, `{ key, stash }`.
+  const quiet = useRef(false);
 
   const save = () => {
     globalThis.clearTimeout(saveTimer.current);
     saveTimer.current = null;
-    writeSaved(DRAFTS_KEY, keptDrafts(ref.current), storage);
+    const held = quiet.current;
+    const drafts = held?.key
+      ? { ...ref.current, [held.key]: held.stash }
+      : ref.current;
+    writeSaved(DRAFTS_KEY, keptDrafts(drafts), storage);
   };
   const toCloud = (chat) => {
     globalThis.clearTimeout(cloudTimer.current);
     cloudTimer.current = null;
     if (
+      quiet.current ||
       chat?.source !== 'telegram' ||
       typeof api.telegramDraft !== 'function'
     ) {
@@ -415,7 +424,7 @@ const useDraftBox = ({ api, current, cloud, storage }) => {
       listener();
     }
     saveTimer.current ??= globalThis.setTimeout(save, DRAFT_SAVE_MS);
-    if (local && current?.key === chatKey) {
+    if (local && !quiet.current && current?.key === chatKey) {
       globalThis.clearTimeout(cloudTimer.current);
       cloudTimer.current = globalThis.setTimeout(
         () => toCloud(current),
@@ -458,6 +467,7 @@ const useDraftBox = ({ api, current, cloud, storage }) => {
     text: () => (key ? (ref.current[key] ?? '') : ''),
     subscribe,
     get: (chatKey) => String(ref.current[chatKey] ?? ''),
+    quiet,
     write,
     // Sent: the box is empty here, and Telegram cleared its own copy
     // (the send carries `clear_draft`).
@@ -497,6 +507,15 @@ export const useComposer = ({
   const [replyTo, setReplyTo] = useState(null);
   // The link preview bar's choice for the next send (R-Y145).
   const previewChoice = useRef(null);
+  // Editing a message in the box (R-Y146).
+  const edit = useEditMode({
+    api,
+    box,
+    key,
+    preview: previewChoice,
+    report: (answer) =>
+      answer?.error && after?.({ kind: 'action-failed', error: answer.error }),
+  });
 
   // `silent`: without sound; `scheduleDate` (unix seconds): Telegram
   // sends it then (R-Y102).
@@ -507,6 +526,10 @@ export const useComposer = ({
     effect = null,
   } = {}) => {
     if (!current) {
+      return null;
+    }
+    // Enter while editing saves the edit.
+    if (edit.save()) {
       return null;
     }
     const body = box.get(key).trim();
@@ -593,7 +616,7 @@ export const useComposer = ({
         return;
       }
       box.write(key, next);
-      if (typed && next) {
+      if (typed && next && !edit.editing) {
         typing.start();
       } else if (typed) {
         typing.cancel();
@@ -613,6 +636,9 @@ export const useComposer = ({
     topic,
     setReplyTo: (msg) => setReplyTo(msg),
     clearReplyTo: () => setReplyTo(null),
+    editing: edit.editing,
+    startEdit: edit.start,
+    cancelEdit: edit.cancel,
     setPreviewChoice: (choice) => {
       previewChoice.current = choice;
     },

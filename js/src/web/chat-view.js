@@ -52,6 +52,7 @@ import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 import { useBotCommands, useCommandBox } from './chat-bot-commands.js';
 import { useInlineBox } from './chat-inline-bots.js';
 import { useLinkPreview } from './chat-link-preview.js';
+import { EditBar, hasMedia, useCaretAtEnd } from './chat-edit-mode.js';
 import {
   AttachButton,
   AttachDialog,
@@ -993,6 +994,45 @@ const unless = (hide, part) => (hide ? null : part);
 const composing = (event) =>
   Boolean(event.nativeEvent?.isComposing) || event.keyCode === 229;
 
+// Recording or editing: the buttons that make no sense are gone.
+const isBare = (voice, editing) => Boolean(voice.recording || editing);
+
+const micOrSend = (voice, editing, text) =>
+  voice.enabled && !editing && (voice.phase !== 'idle' || !text.trim());
+
+// The bar over the box: the message being edited, else the reply.
+const barOver = (composer, editing) =>
+  editing
+    ? el(EditBar, {
+        key: 'eb',
+        message: editing.message,
+        onCancel: composer.cancelEdit,
+      })
+    : el(ReplyBar, {
+        key: 'rb',
+        replyTo: composer.replyTo ?? null,
+        onClear: composer.clearReplyTo,
+      });
+
+// The Send button (a check mark while a message is edited, R-Y146).
+const SendButton = ({ composer, editing, text, menu }) => {
+  const t = useT();
+  const empty = !text.trim() && !(editing && hasMedia(editing.message));
+  return el(
+    'button',
+    {
+      type: 'submit',
+      className: 'primary send',
+      disabled: empty,
+      'aria-busy': composer.sending ? 'true' : undefined,
+      'aria-label': editing ? t('common.save') : t('common.send'),
+      'data-mode': editing ? 'edit' : undefined,
+      ...(editing ? {} : menu.props),
+    },
+    el(Icon, { name: editing ? 'check' : 'send', size: 18 })
+  );
+};
+
 const Composer = ({ state, api, keys }) => {
   const t = useT();
   const { composer } = state;
@@ -1035,6 +1075,12 @@ const Composer = ({ state, api, keys }) => {
   const inline = useInlineBox({ api, state, composer, text });
   // The link in the text, previewed above the box (R-Y145).
   const linkPreview = useLinkPreview({ api, state, text, composer });
+  // Editing a message: the caret at the end, no files, no voice (R-Y146).
+  const editing = composer.editing ?? null;
+  const bare = isBare(voice, editing);
+  // With nothing typed (never while editing) the microphone replaces Send.
+  const micInstead = micOrSend(voice, editing, text);
+  useCaretAtEnd(box, editing?.message.id ?? null);
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -1071,17 +1117,13 @@ const Composer = ({ state, api, keys }) => {
       el(Suggestions, { key: 's', suggest, composer }),
       format.bar,
       emoji.panel,
-      el(ReplyBar, {
-        key: 'rb',
-        replyTo: composer.replyTo ?? null,
-        onClear: composer.clearReplyTo,
-      }),
+      barOver(composer, editing),
       linkPreview.bar,
       el('div', { key: 'row', className: 'chat-composer-row' }, [
-        unless(voice.recording, sendAs.button),
+        unless(bare, sendAs.button),
         voice.bar,
-        unless(voice.recording, commands.menuButton),
-        voice.recording
+        unless(bare, commands.menuButton),
+        bare
           ? null
           : el(AttachButton, {
               key: 'attach',
@@ -1089,7 +1131,7 @@ const Composer = ({ state, api, keys }) => {
               onPoll: poll.enabled ? poll.show : null,
               ...share.menu,
             }),
-        voice.recording
+        bare
           ? null
           : el(ScheduledButton, {
               key: 'scheduled',
@@ -1108,25 +1150,19 @@ const Composer = ({ state, api, keys }) => {
               onChange: (event) =>
                 composer.setText(event.target.value, { typed: true }),
               onKeyDown,
-              onPaste: pasteFiles(attach),
+              onPaste: editing ? undefined : pasteFiles(attach),
             }),
-        voice.recording ? null : el(KeyboardToggle, { key: 'kb', reply }),
+        bare ? null : el(KeyboardToggle, { key: 'kb', reply }),
         voice.recording ? null : emoji.button,
-        voice.enabled && (voice.phase !== 'idle' || !text.trim())
+        micInstead
           ? voice.button
-          : el(
-              'button',
-              {
-                key: 'send',
-                type: 'submit',
-                className: 'primary send',
-                disabled: !text.trim(),
-                'aria-busy': composer.sending ? 'true' : undefined,
-                'aria-label': t('common.send'),
-                ...later.textMenu.props,
-              },
-              el(Icon, { name: 'send', size: 18 })
-            ),
+          : el(SendButton, {
+              key: 'send',
+              composer,
+              editing,
+              text,
+              menu: later.textMenu,
+            }),
       ]),
       el(ReplyKeyboard, { key: 'reply-kb', reply }),
     ]

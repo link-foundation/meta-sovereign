@@ -164,11 +164,10 @@ try {
 
   // Editing it gives the markdown back.
   await box.press('ArrowUp');
-  const edit = page.locator('.edit-dialog textarea');
-  await edit.waitFor({ timeout: 5000 });
-  const again = await edit.inputValue();
+  await page.locator('[data-edit-bar]').waitFor({ timeout: 5000 });
+  const again = await box.inputValue();
   assert(again === typed, `edit box: ${again}`);
-  await edit.press('Escape');
+  await box.press('Escape');
 
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log(`[e2e-format] OK (${engine})`);

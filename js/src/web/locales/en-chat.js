@@ -480,6 +480,8 @@ export const enChat = {
   'chat.deleteConfirm': 'Delete this message?',
   'chat.copy': 'Copy Text',
   'chat.edit': 'Edit',
+  'chat.editing': 'Edit message',
+  'chat.editCancel': 'Cancel editing',
   'chat.react': 'React with {emoji}',
   'chat.copySelected': 'Copy Selected Text',
   'chat.copyLink': 'Copy Message Link',

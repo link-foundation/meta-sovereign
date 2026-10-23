@@ -4,7 +4,8 @@
  *
  *   GET  /api/message/supports?source=  -> { source, actions: { edit:
  *                                          { api, browser }, … } }
- *   POST /api/message/edit    { ids: [id], text }
+ *   POST /api/message/edit    { ids: [id], text, caption?, noWebpage?,
+ *                              invertMedia?, previewUrl?, previewSize? }
  *   POST /api/message/delete  { ids, revoke? }    (revoke: for everyone)
  *   POST /api/message/react   { ids: [id], emoji }   ('' takes ours back)
  *   POST /api/message/read    { source, chat, ids? } the chat read up to
@@ -21,6 +22,7 @@
 
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
+import { previewFields } from '../sources/telegram-link-preview.js';
 
 const PREFIX = '/api/message/';
 const MAX_IDS = 100;
@@ -73,17 +75,23 @@ const withReaction = (reactions = [], emoji) => {
 // action -> { check(body, links) -> error|null, params, after(store) }
 const ACTIONS = {
   edit: {
+    // `caption: true`: a message with media, its caption may be emptied;
+    // the link preview fields as a send has them (R-Y145, R-Y146).
     check: (body, links) =>
-      links.length === 1 && typeof body.text === 'string' && body.text.trim()
+      links.length === 1 &&
+      typeof body.text === 'string' &&
+      (body.text.trim() || body.caption === true) &&
+      previewFields(body)
         ? null
         : 'one message id and the new text are needed',
     params: (body, [link]) => ({
       id: externalIdOf(link),
       text: body.text,
       link,
+      ...previewFields(body),
     }),
     after: (store, body, [link]) =>
-      store.put({ ...link, body: body.text, edited: now() }),
+      store.put({ ...link, body: body.text || '📎', edited: now() }),
   },
   delete: {
     check: (body, links) => (links.length ? null : 'message ids are needed'),

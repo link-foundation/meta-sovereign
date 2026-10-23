@@ -13,7 +13,6 @@ import React, { useState } from 'react';
 import { networkMessageId } from './chat-model.js';
 import {
   DeleteDialog,
-  EditDialog,
   ForwardPicker,
   PinDialog,
   mediaLabel,
@@ -30,6 +29,7 @@ import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
   bulkSelect,
+  canEdit,
   copyStamp,
   isMine,
   menuItems,
@@ -69,8 +69,8 @@ export const replyStep = (messages, current, step) => {
 };
 
 /** The newest message of the user's own that can be edited, or null. */
-export const lastEditable = (messages) =>
-  replyable(messages).findLast((m) => isMine(m) && m.body) ?? null;
+export const lastEditable = (messages, now = Date.now()) =>
+  replyable(messages).findLast((m) => canEdit(m, now)) ?? null;
 
 // Which pin question the chat gets (./chat-message.js PinDialog).
 const whereOf = (chat) => {
@@ -285,36 +285,46 @@ const lookup = (state) => {
 
 // The composer's keys: Up edits the last own message, Ctrl/Cmd+Up and
 // Down move the reply.
-const composerKeys = (state, messages, setEditing) => (event) => {
-  const { composer } = state;
-  const mod = event.ctrlKey || event.metaKey;
-  if (event.key === 'ArrowUp' && !mod && !composer.text && !composer.replyTo) {
-    const last = lastEditable(messages);
-    if (last) {
-      event.preventDefault();
-      setEditing(last);
-    }
-    return;
-  }
-  if (mod && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-    event.preventDefault();
-    const next = replyStep(
-      messages,
-      composer.replyTo?.linkId ?? null,
-      event.key === 'ArrowUp' ? -1 : 1
-    );
-    if (next) {
-      composer.setReplyTo(replyRefOf(next));
-    } else {
-      composer.clearReplyTo?.();
-    }
+const moveReply = (composer, messages, event) => {
+  event.preventDefault();
+  const next = replyStep(
+    messages,
+    composer.replyTo?.linkId ?? null,
+    event.key === 'ArrowUp' ? -1 : 1
+  );
+  if (next) {
+    composer.setReplyTo(replyRefOf(next));
+  } else {
+    composer.clearReplyTo?.();
   }
 };
 
-// The open delete, edit, pin or forward dialog.
+const composerKeys = (state, messages) => (event) => {
+  const { composer } = state;
+  // Esc leaves the edit; the draft comes back (R-Y146).
+  if (event.key === 'Escape' && composer.editing) {
+    event.preventDefault();
+    composer.cancelEdit();
+    return;
+  }
+  const mod = event.ctrlKey || event.metaKey;
+  const free = !composer.editing && !composer.text && !composer.replyTo;
+  const last = event.key === 'ArrowUp' && !mod && free;
+  if (last) {
+    const editable = lastEditable(messages);
+    if (editable) {
+      event.preventDefault();
+      composer.startEdit(editable);
+    }
+  } else if (mod && ['ArrowUp', 'ArrowDown'].includes(event.key)) {
+    moveReply(composer, messages, event);
+  }
+};
+
+// The open delete, pin or forward dialog.
 const dialogsOf = ({ state, send, selection, open, close }) => {
-  const { deleting, editing, pinning, forwarding, stopping } = open;
-  const { setDeleting, setEditing, setPinning, setForwarding } = close;
+  const { deleting, pinning, forwarding, stopping } = open;
+  const { setDeleting, setPinning, setForwarding } = close;
   return [
     stopping
       ? el(StopPollDialog, {
@@ -334,14 +344,6 @@ const dialogsOf = ({ state, send, selection, open, close }) => {
             setDeleting(null);
             selection.clear();
           },
-        })
-      : null,
-    editing
-      ? el(EditDialog, {
-          key: 'edit',
-          message: editing,
-          onClose: () => setEditing(null),
-          onSave: (text) => send.generic('edit', [editing], { text }),
         })
       : null,
     pinning
@@ -376,13 +378,12 @@ const dialogsOf = ({ state, send, selection, open, close }) => {
  * message, value), menuFor(message, { selectedText, target }), top,
  * keys, dialogs }`. `top` holds the selection's top bar, `keys` the
  * composer's (Up edits the last own message, Ctrl/Cmd+Up and Down move
- * the reply), `dialogs` the open delete, edit or forward dialog.
+ * the reply), `dialogs` the open delete or forward dialog.
  */
 export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const selection = useSelection(state.current?.key ?? null);
   const [deleting, setDeleting] = useState(null);
   const [forwarding, setForwarding] = useState(null);
-  const [editing, setEditing] = useState(null);
   const [pinning, setPinning] = useState(null);
   const [stopping, setStopping] = useState(null);
   const send = useSenders(state, api);
@@ -435,7 +436,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       stopLive: () => send.stopLive(message),
       forward: () => setForwarding(expandAlbums([message])),
       delete: () => setDeleting(expandAlbums([message])),
-      edit: () => setEditing(message),
+      edit: () => state.composer.startEdit(message),
       select: () => selection.add(message.id),
       selectBulk: () => {
         const ids = bulkSelect(selection.ids, message.id, order);
@@ -479,7 +480,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     onDelete: top.onDelete,
   });
 
-  const keys = composerKeys(state, messages, setEditing);
+  const keys = composerKeys(state, messages);
 
   const menuFor = (message, { selectedText, target } = {}) =>
     menuItems({
@@ -501,8 +502,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     state,
     send,
     selection,
-    open: { deleting, editing, pinning, forwarding, stopping },
-    close: { setDeleting, setEditing, setPinning, setForwarding, setStopping },
+    open: { deleting, pinning, forwarding, stopping },
+    close: { setDeleting, setPinning, setForwarding, setStopping },
   });
 
   return {

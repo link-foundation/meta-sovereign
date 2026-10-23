@@ -53,7 +53,7 @@ export const isMine = (message) =>
 
 const timeOf = (message) => Date.parse(message?.timestamp ?? '') || null;
 
-const canEdit = (message, now) => {
+export const canEdit = (message, now) => {
   if (!isMine(message) || !message.body || message.pending) {
     return false;
   }

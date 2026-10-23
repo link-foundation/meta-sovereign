@@ -478,6 +478,8 @@ export const hiChat = {
   'chat.deleteConfirm': 'यह संदेश हटाएँ?',
   'chat.copy': 'टेक्स्ट कॉपी करें',
   'chat.edit': 'संपादित करें',
+  'chat.editing': 'संदेश संपादित करें',
+  'chat.editCancel': 'संपादन रद्द करें',
   'chat.react': '{emoji} से प्रतिक्रिया दें',
   'chat.copySelected': 'चयनित टेक्स्ट कॉपी करें',
   'chat.copyLink': 'संदेश का लिंक कॉपी करें',

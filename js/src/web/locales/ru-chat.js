@@ -484,6 +484,8 @@ export const ruChat = {
   'chat.deleteConfirm': 'Удалить это сообщение?',
   'chat.copy': 'Копировать текст',
   'chat.edit': 'Изменить',
+  'chat.editing': 'Редактирование сообщения',
+  'chat.editCancel': 'Отменить редактирование',
   'chat.react': 'Реакция {emoji}',
   'chat.copySelected': 'Копировать выделенный текст',
   'chat.copyLink': 'Копировать ссылку на сообщение',

@@ -455,6 +455,8 @@ export const zhChat = {
   'chat.deleteConfirm': '删除此消息？',
   'chat.copy': '复制文本',
   'chat.edit': '编辑',
+  'chat.editing': '编辑消息',
+  'chat.editCancel': '取消编辑',
   'chat.react': '用 {emoji} 回应',
   'chat.copySelected': '复制所选文本',
   'chat.copyLink': '复制消息链接',

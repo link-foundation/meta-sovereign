@@ -85,8 +85,11 @@ test('ids asked close together are one request, each document kept (R-Y120)', as
       emoji.customEmojiPicture({ id: '2', full: true }),
       emoji.customEmojiPicture({ id: '3' }),
     ]);
+    // One request with all three, in whatever order the disk checks ended.
     assert.deepEqual(
-      log.filter((e) => e[0] === 'ask'),
+      log
+        .filter((e) => e[0] === 'ask')
+        .map(([kind, ids]) => [kind, [...ids].sort()]),
       [['ask', ['1', '2', '3']]],
       'one request'
     );
@@ -94,7 +97,10 @@ test('ids asked close together are one request, each document kept (R-Y120)', as
     assert.equal(b.mimeType, 'application/x-tgsticker');
     assert.equal(c.mimeType, 'image/webp', 'a video emoji: its thumbnail');
     assert.deepEqual(
-      log.filter((e) => e[0] === 'download').map((e) => [e[1], e[2]]),
+      log
+        .filter((e) => e[0] === 'download')
+        .map((e) => [e[1], e[2]])
+        .sort((x, y) => Number(x[0] - y[0])),
       [
         [1n, ''],
         [2n, ''],

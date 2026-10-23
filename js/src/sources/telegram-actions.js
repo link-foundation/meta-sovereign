@@ -30,7 +30,7 @@
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
 import { apiEntities, parseFormatted } from './telegram-format.js';
-import { randomIdOf } from './telegram-send.js';
+import { previewMedia, randomIdOf } from './telegram-send.js';
 import { createFileReader, createMediaReader } from './telegram-media.js';
 import { createAvatarReader } from './telegram-avatars.js';
 import { createChatInfoReader } from './telegram-chat-info.js';
@@ -77,7 +77,7 @@ const isChannel = (chat) => String(chat).startsWith('-100');
 // plain chats and groups use messages.EditMessage (R-Y36).
 const makeEditMessage =
   (env, userClient, apply) =>
-  async ({ chat, id, text, link, noWebpage, invertMedia } = {}) => {
+  async ({ chat, id, text, link, ...preview } = {}) => {
     const wanted = [Number(id ?? link?.id?.split(':').pop())].filter(
       (n) => n > 0
     );
@@ -94,6 +94,7 @@ const makeEditMessage =
     // Formatted as a new message is (R-Y101).
     const formatted = parseFormatted(text);
     const entities = apiEntities(Api, formatted.entities);
+    const page = Api.InputMediaWebPage ? previewMedia(Api, preview) : null;
     const result = await env.connection.withPeer(client, target, (peer) =>
       client.invoke(
         new Api.messages.EditMessage({
@@ -102,8 +103,10 @@ const makeEditMessage =
           message: formatted.text,
           ...(entities.length > 0 ? { entities } : {}),
           // The link preview dropped or put above the text (R-Y145).
-          ...(noWebpage === true ? { noWebpage: true } : {}),
-          ...(invertMedia === true ? { invertMedia: true } : {}),
+          ...(preview.noWebpage === true ? { noWebpage: true } : {}),
+          ...(preview.invertMedia === true ? { invertMedia: true } : {}),
+          // A sized preview: the page as the message's media (R-Y146).
+          ...(page ? { media: page } : {}),
         })
       )
     );

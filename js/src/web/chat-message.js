@@ -30,8 +30,6 @@ import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
-import { formatShortcut } from './text-shortcuts.js';
-import { toMarkdown } from '../sources/telegram-format.js';
 import { menuItems } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
 import {
@@ -611,66 +609,6 @@ export const MsgContextMenu = ({
   );
   const body = globalThis.document?.body;
   return body ? createPortal(menu, body) : menu;
-};
-
-// ---- Edit dialog --------------------------------------------------------
-
-// The message as one would type it: its formatting as markdown (R-Y101).
-const editableText = (message) =>
-  toMarkdown(String(message.body ?? ''), message.raw?.entities ?? []);
-
-export const EditDialog = ({ message, onClose, onSave }) => {
-  const t = useT();
-  const [before] = useState(() => editableText(message));
-  const [text, setText] = useState(before);
-  const save = () => {
-    if (text.trim() && text !== before) {
-      onSave(text);
-    }
-    onClose();
-  };
-  return el(
-    'div',
-    {
-      className: 'delete-dialog-overlay',
-      role: 'dialog',
-      'aria-modal': 'true',
-      'aria-label': t('chat.edit'),
-    },
-    el('div', { className: 'delete-dialog edit-dialog' }, [
-      el('textarea', {
-        key: 'text',
-        autoFocus: true,
-        rows: 4,
-        value: text,
-        'aria-label': t('chat.edit'),
-        onChange: (e) => setText(e.target.value),
-        onKeyDown: (e) => {
-          if (formatShortcut(e, setText)) {
-            return;
-          }
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            save();
-          } else if (e.key === 'Escape') {
-            onClose();
-          }
-        },
-      }),
-      el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
-        el(
-          'button',
-          { key: 'save', type: 'button', onClick: save },
-          t('common.save')
-        ),
-        el(
-          'button',
-          { key: 'cancel', type: 'button', onClick: onClose },
-          t('common.cancel')
-        ),
-      ]),
-    ])
-  );
 };
 
 // Esc closes a dialog, as it closes Telegram Desktop's boxes.

@@ -807,3 +807,35 @@ test('an API that answers "not supported here" hands over to the web app', async
   });
   assert.equal(result.via, 'browser');
 });
+
+test('POST /api/message/edit takes the link preview fields and an emptied caption', async () => {
+  const store = memoryStore([message('A')]);
+  const { ctx, performed } = routeCtx();
+  const out = await call(store, ctx, 'POST', '/api/message/edit', {
+    ids: ['msg:whatsapp:A'],
+    text: 'see x.test',
+    noWebpage: true,
+    invertMedia: true,
+  });
+  assert.equal(out.status, 200);
+  assert.equal(performed[0][1].noWebpage, true);
+  assert.equal(performed[0][1].invertMedia, true);
+  const caption = await call(store, ctx, 'POST', '/api/message/edit', {
+    ids: ['msg:whatsapp:A'],
+    text: '',
+    caption: true,
+  });
+  assert.equal(caption.status, 200);
+  assert.equal(store.map.get('msg:whatsapp:A').body, '\u{1F4CE}');
+  const empty = await call(store, ctx, 'POST', '/api/message/edit', {
+    ids: ['msg:whatsapp:A'],
+    text: '',
+  });
+  assert.equal(empty.status, 400);
+  const bad = await call(store, ctx, 'POST', '/api/message/edit', {
+    ids: ['msg:whatsapp:A'],
+    text: 'x',
+    noWebpage: 'yes',
+  });
+  assert.equal(bad.status, 400);
+});
