@@ -41,6 +41,8 @@ export const NOTICE = {
   'link-copied': 'chat.notice.linkCopied',
   'image-copied': 'chat.notice.imageCopied',
   'date-failed': 'chat.days.failed',
+  bot: 'chat.bot.toast',
+  'bot-unsupported': 'chat.bot.unsupported',
 };
 
 // Newest first (the default) or oldest first, by each chat's latest

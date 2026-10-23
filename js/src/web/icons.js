@@ -251,6 +251,17 @@ const ICONS = {
     ['path', { d: 'M19 10v2a7 7 0 0 1-14 0v-2' }],
     ['rect', { x: 9, y: 2, width: 6, height: 13, rx: 3 }],
   ],
+  keyboard: [
+    ['path', { d: 'M10 8h.01' }],
+    ['path', { d: 'M12 12h.01' }],
+    ['path', { d: 'M14 8h.01' }],
+    ['path', { d: 'M16 12h.01' }],
+    ['path', { d: 'M18 8h.01' }],
+    ['path', { d: 'M6 8h.01' }],
+    ['path', { d: 'M7 16h10' }],
+    ['path', { d: 'M8 12h.01' }],
+    ['rect', { width: 20, height: 16, x: 2, y: 4, rx: 2 }],
+  ],
   lock: [
     ['rect', { width: 18, height: 11, x: 3, y: 11, rx: 2, ry: 2 }],
     ['path', { d: 'M7 11V7a5 5 0 0 1 10 0v4' }],

@@ -59,6 +59,9 @@
  *                                  replyTo?}
  *                                      -> { ok, ids } a recorded voice
  *                                         as a voice message (R-Y108)
+ *   POST /api/telegram/bot-callback {chat, id, data?, game?}
+ *                                      -> { ok, message, alert, url } a
+ *                                         bot's button pressed (R-Y110)
  *   POST /api/telegram/remove-chat {chat, action, revoke?}
  *                                      -> { ok, deleted } clear, delete
  *                                         or leave the chat (R-Y100)
@@ -185,6 +188,9 @@ const historyPage = async (account, body) => [
     priority: priorityOf(body.priority),
   }),
 ];
+
+// A bot button's data: at most 64 bytes, in base64.
+const BOT_DATA = /^[A-Za-z0-9+/]{1,88}={0,2}$/;
 
 const POSTS = {
   sync: async (account, body) => [
@@ -429,6 +435,32 @@ const POSTS = {
         waveform: body.waveform ?? [],
         replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
         ...whenOf(body),
+      }),
+    ];
+  },
+  // A bot's button under its message pressed (R-Y110): its data, base64
+  // (Telegram allows 64 bytes), or a game's.
+  'bot-callback': async (account, body) => {
+    const data = body.data ?? null;
+    if (
+      !body.chat ||
+      !validIds([body.id]) ||
+      (data !== null && !BOT_DATA.test(String(data))) ||
+      (data === null && body.game !== true) ||
+      typeof account.botCallback !== 'function'
+    ) {
+      return [
+        400,
+        { error: 'chat, id and data required', code: 'bad-request' },
+      ];
+    }
+    return [
+      200,
+      await account.botCallback({
+        chat: body.chat,
+        id: body.id,
+        data,
+        game: body.game === true,
       }),
     ];
   },

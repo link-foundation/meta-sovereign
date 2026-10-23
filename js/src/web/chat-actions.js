@@ -22,6 +22,7 @@ import {
 } from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
 import { StopPollDialog } from './chat-poll.js';
+import { useBotPress } from './chat-bots.js';
 import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
@@ -76,7 +77,7 @@ const whereOf = (chat) => {
   return chat?.kind === 'channel' ? 'channel' : 'group';
 };
 
-const replyRefOf = (message) => ({
+export const replyRefOf = (message) => ({
   msgId: networkMessageId(message),
   linkId: message.id,
   senderName: message.senderName ?? message.sender,
@@ -371,6 +372,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const [stopping, setStopping] = useState(null);
   const send = useSenders(state, api);
   const copy = useCopy(state);
+  // A bot's buttons under its message (R-Y110).
+  const bots = useBotPress({ state, api, copy });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -433,7 +436,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
           : send.generic('react', [message], { emoji: value }),
     };
     act.copyPostLink = act.copyLink;
-    act[action]?.();
+    act.bot = () => bots.press(message, value);
+    return act[action]?.();
   };
 
   const canForward = chosen().every((m) => !m.pending);
@@ -475,5 +479,12 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     close: { setDeleting, setEditing, setPinning, setForwarding, setStopping },
   });
 
-  return { selection, onAction, menuFor, top, keys, dialogs };
+  return {
+    selection,
+    onAction,
+    menuFor,
+    top,
+    keys,
+    dialogs: [...dialogs, bots.dialog],
+  };
 };

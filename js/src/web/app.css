@@ -5222,3 +5222,100 @@ button[aria-busy='true']::before {
   background: var(--accent);
   color: #fff;
 }
+
+/* A bot's buttons (R-Y110): rows under its bubble, as wide as it, and
+   the keyboard it puts under the message box. */
+.bubble-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-width: 85%;
+  min-width: min(16rem, 85%);
+  align-self: flex-start;
+}
+.bubble-stack.out {
+  align-self: flex-end;
+}
+.bubble-stack > .bubble {
+  max-width: 100%;
+  align-self: stretch;
+}
+.bot-keyboard,
+.reply-keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.bot-row {
+  display: flex;
+  gap: 0.2rem;
+}
+.bot-button {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 2.1rem;
+  padding: 0.35rem 1rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: var(--bg-active);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.bot-button:hover {
+  filter: brightness(1.08);
+}
+.bot-button[aria-busy='true'] {
+  opacity: 0.6;
+  cursor: progress;
+}
+.bot-button.is-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.bot-button.is-success {
+  background: #2e9e4f;
+  color: #fff;
+}
+.bot-button.is-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.bot-button-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bot-button-mark {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.3rem;
+  display: flex;
+  opacity: 0.7;
+}
+.reply-keyboard {
+  max-height: 40vh;
+  overflow-y: auto;
+  padding: 0.4rem 0.6rem 0.2rem;
+}
+.reply-keyboard .bot-button {
+  min-height: 2.6rem;
+}
+.reply-keyboard.is-fit .bot-button {
+  min-height: 2.1rem;
+}
+.bot-kb-toggle.is-on {
+  color: var(--accent);
+}
+.bot-dialog-url {
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+}
+.bot-dialog-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

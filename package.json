@@ -97,7 +97,9 @@
     "test:e2e:jump-date:webkit": "E2E_BROWSER=webkit node js/tests/e2e-jump-date-browser.mjs",
     "test:e2e:global-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-global-search-browser.mjs",
     "test:e2e:voice:webkit": "E2E_BROWSER=webkit node js/tests/e2e-voice-browser.mjs",
-    "test:e2e:reply-return:webkit": "E2E_BROWSER=webkit node js/tests/e2e-reply-return-browser.mjs"
+    "test:e2e:reply-return:webkit": "E2E_BROWSER=webkit node js/tests/e2e-reply-return-browser.mjs",
+    "test:e2e:bots": "node js/tests/e2e-bots-browser.mjs",
+    "test:e2e:bots:webkit": "E2E_BROWSER=webkit node js/tests/e2e-bots-browser.mjs"
   },
   "keywords": [
     "personal-crm",

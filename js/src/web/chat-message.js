@@ -41,6 +41,8 @@ import {
   MediaSticker,
   MediaVideo,
 } from './chat-media.js';
+import { InlineKeyboard } from './chat-bots.js';
+import { inlineKeyboardOf } from './bot-keyboard.js';
 
 const el = React.createElement;
 
@@ -1185,29 +1187,33 @@ export const MessageBubble = ({
       isPersonal || mine
         ? null
         : el(MsgAvatar, { key: 'av', message, show: showAvatar, api }),
-      el('div', bubbleProps, [
-        el(BubbleContent, {
-          key: 'content',
-          parts,
-          message,
-          showName,
-          mine,
-          api,
-          chat,
-          netId,
-          composer,
-          onScrollTo,
-          time,
-          t,
-        }),
-        fastReply && !selecting && canFastReply(message, mine, onAction)
-          ? el(FastReply, {
-              key: 'fast',
-              onReply: () => onAction('reply', message),
-              t,
-            })
-          : null,
-      ]),
+      withKeyboard(
+        el('div', bubbleProps, [
+          el(BubbleContent, {
+            key: 'content',
+            parts,
+            message,
+            showName,
+            mine,
+            api,
+            chat,
+            netId,
+            composer,
+            onScrollTo,
+            time,
+            t,
+          }),
+          fastReply && !selecting && canFastReply(message, mine, onAction)
+            ? el(FastReply, {
+                key: 'fast',
+                onReply: () => onAction('reply', message),
+                t,
+              })
+            : null,
+        ]),
+        message,
+        selecting ? null : onAction
+      ),
       selecting ? el(SelectCheck, { key: 'check', selected }) : null,
       openMenu({
         menu,
@@ -1221,6 +1227,20 @@ export const MessageBubble = ({
     ]
   );
 };
+
+// A bot's buttons under its bubble (R-Y110): the two in a column.
+const withKeyboard = (bubble, message, onAction) =>
+  inlineKeyboardOf(message)
+    ? el(
+        'div',
+        {
+          key: 'bub',
+          className:
+            message.sender === 'me' ? 'bubble-stack out' : 'bubble-stack in',
+        },
+        [bubble, el(InlineKeyboard, { key: 'kb', message, onAction })]
+      )
+    : bubble;
 
 const canFastReply = (message, mine, onAction) =>
   !mine && !message.pending && typeof onAction === 'function';

@@ -508,6 +508,26 @@ export const useComposer = ({
     });
   };
 
+  // Words sent as they are, the box's text left (a bot's keyboard
+  // button, R-Y110); `replyTo` a network message id.
+  const say = (words, { replyTo: answer = null } = {}) => {
+    const body = String(words ?? '').trim();
+    if (!current || !body) {
+      return null;
+    }
+    return outbox.add({
+      clientId: newClientId(),
+      key,
+      source: current.source,
+      chat: current.chat,
+      text: body,
+      at: new Date().toISOString(),
+      status: 'queued',
+      attempts: 0,
+      ...(answer ? { replyTo: answer } : {}),
+    });
+  };
+
   /** Forget a message not sent (its text goes back to an empty box). */
   const discard = (clientId) => {
     const item = outbox.remove(clientId);
@@ -550,6 +570,7 @@ export const useComposer = ({
       }
     },
     send,
+    say,
     retry: outbox.retry,
     retryNow: outbox.retryNow,
     discard,

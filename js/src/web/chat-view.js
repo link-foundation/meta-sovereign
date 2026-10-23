@@ -41,7 +41,7 @@ import {
 } from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
 import { ChatAvatar } from './chat-list.js';
-import { useChatActions } from './chat-actions.js';
+import { replyRefOf, useChatActions } from './chat-actions.js';
 import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
@@ -67,6 +67,11 @@ import { useEmojiPanel } from './chat-emoji.js';
 import { useStickerTabs } from './chat-stickers.js';
 import { useVoice } from './chat-voice.js';
 import { useFormatBar } from './chat-format-bar.js';
+import {
+  KeyboardToggle,
+  ReplyKeyboard,
+  useReplyKeyboard,
+} from './chat-bots.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
 import { SearchBar, SearchButton, useChatSearch } from './chat-search.js';
@@ -941,6 +946,8 @@ const Composer = ({ state, api, keys }) => {
   const voice = useVoice({ state, api });
   // Text selected in the box: the formatting bar (R-Y109).
   const format = useFormatBar({ box, setText: typeText });
+  // A bot's keyboard under the box, and what it asks of it (R-Y110).
+  const reply = useReplyKeyboard({ state, replyRefOf });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -996,7 +1003,7 @@ const Composer = ({ state, api, keys }) => {
               key: 'input',
               ref: box,
               rows: 1,
-              placeholder: t('chat.placeholder'),
+              placeholder: reply.placeholder || t('chat.placeholder'),
               'aria-label': t('chat.placeholder'),
               value: text,
               onChange: (event) =>
@@ -1004,6 +1011,7 @@ const Composer = ({ state, api, keys }) => {
               onKeyDown,
               onPaste: pasteFiles(attach),
             }),
+        voice.recording ? null : el(KeyboardToggle, { key: 'kb', reply }),
         voice.recording ? null : emoji.button,
         voice.enabled && (voice.phase !== 'idle' || !text.trim())
           ? voice.button
@@ -1021,6 +1029,7 @@ const Composer = ({ state, api, keys }) => {
               el(Icon, { name: 'send', size: 18 })
             ),
       ]),
+      el(ReplyKeyboard, { key: 'reply-kb', reply }),
     ]
   );
   return el(React.Fragment, null, [

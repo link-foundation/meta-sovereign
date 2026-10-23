@@ -951,6 +951,13 @@ export const api = {
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for files' },
 
+  // A bot's button pressed (R-Y110): `{ chat, id, data }` → the bot's
+  // answer `{ ok, message, alert, url }`.
+  telegramBotCallback: async (body = {}) =>
+    (await serverPostReport('/api/telegram/bot-callback', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for bots' },
+
   // A poll or checklist (R-Y74): `poll-vote` (no options retracts),
   // `poll-stop`, `poll-results`, `poll-votes`, `todo-toggle`.
   telegramPoll: async (action, body = {}) =>
