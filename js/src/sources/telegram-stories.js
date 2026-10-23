@@ -7,7 +7,8 @@
  *   a call with the `state` an answer gave asks for the next page
  *   (`next`). → `{ ok, peers: [{ peer, name, self, count, lastId,
  *   maxReadId, unread }], state, more }` (`notModified` when Telegram
- *   says nothing changed);
+ *   says nothing changed); each answer also has `stealth: { activeUntil,
+ *   cooldownUntil }` (stories stealth mode, R-Y199);
  * - `storiesPeer({ chat })` — one peer's stories to show
  *   (stories.getPeerStories; the skipped and `min` ones read again with
  *   stories.getStoriesByID) → `{ ok, peer, stories: [{ id, date, expire,
@@ -45,7 +46,7 @@ const MAX_VIDEO = 64 * 1024 * 1024;
 
 const textOf = (value) => String(value?.value ?? value);
 
-const peerId = (peer) => {
+export const peerId = (peer) => {
   if (peer?.userId !== undefined) {
     return textOf(peer.userId);
   }
@@ -55,14 +56,14 @@ const peerId = (peer) => {
   return peer?.chatId === undefined ? '' : `-${textOf(peer.chatId)}`;
 };
 
-const nameOf = (entity) =>
+export const nameOf = (entity) =>
   entity?.title ||
   [entity?.firstName, entity?.lastName].filter(Boolean).join(' ') ||
   entity?.username ||
   '';
 
 // The user or chat a peer is, among an answer's `users` and `chats`.
-const entityOf = (answer, peer) => {
+export const entityOf = (answer, peer) => {
   const list = peer?.userId === undefined ? answer.chats : answer.users;
   const want =
     peer?.userId === undefined
@@ -158,6 +159,15 @@ const peerHead = (answer, stories) => {
 
 const badRequest = { ok: false, error: 'bad request', code: 'failed' };
 
+/**
+ * Stealth mode as the page keeps it (R-Y199): `{ activeUntil, cooldownUntil }`
+ * in unix seconds, 0 when not set (StoriesStealthMode).
+ */
+export const shapeStealth = (mode) => ({
+  activeUntil: Number(mode?.activeUntilDate ?? 0),
+  cooldownUntil: Number(mode?.cooldownUntilDate ?? 0),
+});
+
 const allStories = (env, userClient) => async (request) => {
   const state = request?.state;
   if (
@@ -177,7 +187,13 @@ const allStories = (env, userClient) => async (request) => {
       )
     );
     if (answer?.className === 'stories.AllStoriesNotModified') {
-      return { ok: true, notModified: true, peers: [], state: answer.state };
+      return {
+        ok: true,
+        notModified: true,
+        peers: [],
+        state: answer.state,
+        stealth: shapeStealth(answer.stealthMode),
+      };
     }
     return {
       ok: true,
@@ -186,6 +202,7 @@ const allStories = (env, userClient) => async (request) => {
         .filter((p) => p.peer && p.count > 0),
       state: String(answer?.state ?? ''),
       more: Boolean(answer?.hasMore),
+      stealth: shapeStealth(answer?.stealthMode),
     };
   });
 };

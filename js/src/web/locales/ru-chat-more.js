@@ -1176,4 +1176,29 @@ export const ruChatMore = {
   'chat.service.proximityKm': '{user} теперь в {distance} км от вас',
   'chat.service.proximitySelf': 'Вы теперь в {distance} м от {user}',
   'chat.service.proximitySelfKm': 'Вы теперь в {distance} км от {user}',
+  // Stealth mode, viewers' reactions and reposts, reporting (R-Y199).
+  'chat.stories.stealth.title': 'Режим невидимки',
+  'chat.stories.stealth.about':
+    'Смотрите истории так, чтобы авторы не узнали об этом. Нужен Telegram Premium.',
+  'chat.stories.stealth.past': 'Скрыть недавние просмотры (последние 5 минут)',
+  'chat.stories.stealth.future': 'Скрыть мои следующие просмотры (25 минут)',
+  'chat.stories.stealth.enable': 'Включить режим невидимки',
+  'chat.stories.stealth.on': 'Режим невидимки включён, осталось:',
+  'chat.stories.stealth.cooldown': 'Снова включить режим невидимки можно через',
+  'chat.stories.stealth.err.premium':
+    'Режим невидимки доступен только с Telegram Premium.',
+  'chat.stories.stealth.err.cooldown':
+    'Режим невидимки ещё на паузе. Повторите позже.',
+  'chat.stories.stealth.err.flood':
+    'Слишком много попыток. Подождите и повторите.',
+  'chat.stories.stealth.err.failed': 'Не удалось включить режим невидимки.',
+  'chat.stories.report': 'Пожаловаться на историю',
+  'chat.stories.search': 'Поиск среди зрителей',
+  'chat.stories.contactsOnly': 'Только контакты',
+  'chat.stories.reactionsFirst': 'Сначала реакции',
+  'chat.stories.tab.viewers': 'Зрители',
+  'chat.stories.tab.reactions': 'Реакции',
+  'chat.stories.kind.forward': 'Переслано',
+  'chat.stories.kind.repost': 'Репост',
+  'chat.stories.noReactions': 'Реакций и репостов пока нет.',
 };

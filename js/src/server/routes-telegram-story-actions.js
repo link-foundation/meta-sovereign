@@ -9,11 +9,16 @@
 //   POST /api/telegram/story-views {chat, id, offset?} -> { ok, count,
 //                       viewsCount, reactionsCount, views, next } the
 //                       viewers of one's own story, 50 a page
+//                       Also q?, justContacts?, reactionsFirst?,
+//                       forwardsFirst? (search and order, R-Y199); each
+//                       entry has a kind: view, forward or repost
 //   POST /api/telegram/story-delete {chat, id} -> { ok } one's own story
 //   POST /api/telegram/stories-hide {chat, hidden} -> { ok, hidden } a
 //                       peer's stories to or from the hidden list
 
 const CHAT = /^-?\d{1,20}$/;
+// The viewers list's switches (R-Y199).
+const VIEW_FLAGS = ['justContacts', 'reactionsFirst', 'forwardsFirst'];
 const OFFSET = /^[A-Za-z0-9+/=_.-]{0,256}$/;
 
 const bad = (error) => [400, { error, code: 'bad-request' }];
@@ -55,9 +60,23 @@ export const STORY_ACTION_POSTS = {
         : null
   ),
   'story-views': storyRoute('storyViews', 'chat and id required', (body) =>
-    body.offset === undefined ||
-    (typeof body.offset === 'string' && OFFSET.test(body.offset))
-      ? { offset: body.offset ?? '' }
+    (body.offset === undefined ||
+      (typeof body.offset === 'string' && OFFSET.test(body.offset))) &&
+    (body.q === undefined ||
+      (typeof body.q === 'string' && body.q.length <= 128)) &&
+    VIEW_FLAGS.every(
+      (flag) => body[flag] === undefined || typeof body[flag] === 'boolean'
+    )
+      ? {
+          offset: body.offset ?? '',
+          ...(body.q ? { q: body.q } : {}),
+          ...Object.fromEntries(
+            VIEW_FLAGS.filter((flag) => body[flag] === true).map((flag) => [
+              flag,
+              true,
+            ])
+          ),
+        }
       : null
   ),
   'story-delete': storyRoute('storyDelete', 'chat and id required'),

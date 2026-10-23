@@ -16,6 +16,7 @@ import { AddBadge, StoryPostHost, useStoryPost } from './story-post.js';
 import {
   hiddenPeers,
   markSeen,
+  NO_STEALTH,
   mergePeers,
   ringOf,
   setHidden,
@@ -30,7 +31,7 @@ const MAX_PAGES = 5;
 
 // Every page of one list (the strip's, or the hidden ones), one after
 // another; `add(peers)` sees each.
-const loadPages = async (api, hidden, isLive, add) => {
+const loadPages = async (api, hidden, isLive, add, onStealth) => {
   let state;
   for (let page = 0; page < MAX_PAGES && isLive(); page += 1) {
     const answer = await api.telegramStories({
@@ -39,6 +40,9 @@ const loadPages = async (api, hidden, isLive, add) => {
     });
     if (!isLive() || !answer?.ok) {
       return;
+    }
+    if (answer.stealth) {
+      onStealth(answer.stealth);
     }
     if (!answer.notModified) {
       add(
@@ -61,6 +65,8 @@ const loadPages = async (api, hidden, isLive, add) => {
 export const useStories = (api, enabled) => {
   const [peers, setPeers] = useState([]);
   const [viewing, setViewing] = useState(null);
+  // Stealth mode as the strip's answers tell it (R-Y199).
+  const [stealth, setStealth] = useState(NO_STEALTH);
   // Bumped when a story was posted: the strip is read again (R-Y156).
   const [reloads, setReloads] = useState(0);
   const post = useStoryPost(api, enabled, () => setReloads((n) => n + 1));
@@ -73,8 +79,8 @@ export const useStories = (api, enabled) => {
     let live = true;
     const add = (page) => setPeers((now) => mergePeers(now, page));
     (async () => {
-      await loadPages(api, false, () => live, add);
-      await loadPages(api, true, () => live, add);
+      await loadPages(api, false, () => live, add, setStealth);
+      await loadPages(api, true, () => live, add, setStealth);
     })().catch(() => {});
     return () => {
       live = false;
@@ -128,6 +134,8 @@ export const useStories = (api, enabled) => {
     open,
     close,
     viewing,
+    stealth,
+    setStealth,
     unread,
     // The ring of a chat row of the list: 'unread', 'seen' or ''.
     rings: (chat) =>
@@ -231,6 +239,8 @@ export const StoryViewerHost = ({ api, stories }) =>
             onRead: stories.read,
             onHide: stories.hide,
             onClose: stories.close,
+            stealth: stories.stealth,
+            onStealth: stories.setStealth,
             // "Add story" in the menu of one's own stories (R-Y156).
             onAdd: () => {
               stories.close();

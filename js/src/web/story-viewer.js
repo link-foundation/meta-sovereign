@@ -4,7 +4,8 @@
 // its formatting. The right half goes on, the left half back, past the
 // last story the next peer's, past the last peer it closes; Escape or ×
 // closes, Space pauses. Replies, reactions, views, deleting and hiding
-// (R-Y148) are in ./story-actions.js. Media areas are not here.
+// (R-Y148) are in ./story-actions.js; stealth mode, reporting and fresh
+// view counts (R-Y199) in ./story-extras.js. Media areas are not here.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
@@ -27,7 +28,14 @@ import {
   previousPosition,
   showMs,
   startIndex,
+  withFreshCounts,
 } from './stories-model.js';
+import {
+  StealthBadge,
+  StealthDialog,
+  StoryReport,
+  useViewsRefresh,
+} from './story-extras.js';
 
 const el = React.createElement;
 
@@ -345,7 +353,22 @@ const useShown = (api, peers, pos, setPos) => {
         stories: held[peerId].stories.filter((x) => x.id !== id),
       },
     }));
-  return { peer, entry, story, go, drop };
+  // Fresh counters of a story (R-Y199).
+  const patch = (peerId, id, fresh) =>
+    setLists((held) =>
+      held[peerId]?.stories
+        ? {
+            ...held,
+            [peerId]: {
+              ...held[peerId],
+              stories: held[peerId].stories.map((s) =>
+                s.id === id ? withFreshCounts(s, fresh) : s
+              ),
+            },
+          }
+        : held
+    );
+  return { peer, entry, story, go, drop, patch };
 };
 
 // Escape closes; the arrows and the halves of the picture go on and back;
@@ -445,13 +468,41 @@ const Foot = ({ api, peer, story, x }) => {
 };
 
 // The panels over the story: the menu, the viewers, the delete question.
-const Overlays = ({ api, peer, story, x, deleteStory, toggleHide, onAdd }) => {
+const Overlays = ({
+  api,
+  peer,
+  story,
+  x,
+  deleteStory,
+  toggleHide,
+  onAdd,
+  stealth,
+}) => {
   if (x.overlay === 'menu') {
     return el(StoryMenu, {
       hidden: x.hiddenNow[peer.peer] ?? Boolean(peer.hidden),
       onToggle: toggleHide,
       own: Boolean(peer.self),
       onAdd,
+      // Stealth mode where the strip knows it; Report on a story (R-Y199).
+      onStealth: stealth.state ? () => x.setOverlay('stealth') : null,
+      onReport: story && !story.mine ? () => x.setOverlay('report') : null,
+    });
+  }
+  if (x.overlay === 'stealth' && stealth.state) {
+    return el(StealthDialog, {
+      api,
+      stealth: stealth.state,
+      onStealth: stealth.set,
+      onClose: () => x.setOverlay(null),
+    });
+  }
+  if (story && x.overlay === 'report') {
+    return el(StoryReport, {
+      api,
+      peer,
+      story,
+      onClose: () => x.setOverlay(null),
     });
   }
   if (story && x.overlay === 'viewers') {
@@ -604,13 +655,21 @@ export const StoryViewer = ({
   onHide,
   onAdd,
   startStory,
+  stealth,
+  onStealth,
 }) => {
   const t = useT();
   const [pos, setPos] = useState(() => startPosition(start, startStory));
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
   const x = useExtras();
-  const { peer, entry, story, go, drop } = useShown(api, peers, pos, setPos);
+  const { peer, entry, story, go, drop, patch } = useShown(
+    api,
+    peers,
+    pos,
+    setPos
+  );
+  useViewsRefresh({ api, peer, story, patch });
   const url = useStoryUrl(api, peer.peer, story);
   const key = story ? `${peer.peer}:${story.id}` : '';
   const step = (direction) => {
@@ -680,7 +739,17 @@ export const StoryViewer = ({
       el(Zones, { key: 'z', t, step }),
       el(Caption, { key: 'c', api, story }),
       story ? el(Foot, { key: 'f', api, peer, story, x }) : null,
-      el(Overlays, { key: 'o', api, peer, story, x, onAdd, ...edits }),
+      el(StealthBadge, { key: 'sb', stealth }),
+      el(Overlays, {
+        key: 'o',
+        api,
+        peer,
+        story,
+        x,
+        onAdd,
+        stealth: { state: stealth, set: onStealth },
+        ...edits,
+      }),
     ])
   );
 };

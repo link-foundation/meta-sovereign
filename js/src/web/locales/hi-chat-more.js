@@ -1165,4 +1165,30 @@ export const hiChatMore = {
   'chat.service.proximityKm': '{user} अब आपसे {distance} किमी के भीतर है',
   'chat.service.proximitySelf': 'आप अब {user} से {distance} मी के भीतर हैं',
   'chat.service.proximitySelfKm': 'आप अब {user} से {distance} किमी के भीतर हैं',
+  // Stealth mode, viewers' reactions and reposts, reporting (R-Y199).
+  'chat.stories.stealth.title': 'स्टेल्थ मोड',
+  'chat.stories.stealth.about':
+    'स्टोरी इस तरह देखें कि लेखकों को पता न चले। इसके लिए Telegram Premium चाहिए।',
+  'chat.stories.stealth.past': 'हाल के व्यू छिपाएँ (पिछले 5 मिनट)',
+  'chat.stories.stealth.future': 'मेरे अगले व्यू छिपाएँ (25 मिनट)',
+  'chat.stories.stealth.enable': 'स्टेल्थ मोड चालू करें',
+  'chat.stories.stealth.on': 'स्टेल्थ मोड चालू है, शेष समय:',
+  'chat.stories.stealth.cooldown':
+    'स्टेल्थ मोड दोबारा इतने समय बाद उपयोग कर सकेंगे:',
+  'chat.stories.stealth.err.premium':
+    'स्टेल्थ मोड केवल Telegram Premium के साथ उपलब्ध है।',
+  'chat.stories.stealth.err.cooldown':
+    'स्टेल्थ मोड अभी विश्राम में है। बाद में कोशिश करें।',
+  'chat.stories.stealth.err.flood':
+    'बहुत अधिक प्रयास। थोड़ी देर रुककर फिर कोशिश करें।',
+  'chat.stories.stealth.err.failed': 'स्टेल्थ मोड चालू नहीं हो सका।',
+  'chat.stories.report': 'स्टोरी की शिकायत करें',
+  'chat.stories.search': 'देखने वालों में खोजें',
+  'chat.stories.contactsOnly': 'केवल संपर्क',
+  'chat.stories.reactionsFirst': 'पहले प्रतिक्रियाएँ',
+  'chat.stories.tab.viewers': 'देखने वाले',
+  'chat.stories.tab.reactions': 'प्रतिक्रियाएँ',
+  'chat.stories.kind.forward': 'फ़ॉरवर्ड किया',
+  'chat.stories.kind.repost': 'रीपोस्ट किया',
+  'chat.stories.noReactions': 'अभी कोई प्रतिक्रिया या रीपोस्ट नहीं।',
 };

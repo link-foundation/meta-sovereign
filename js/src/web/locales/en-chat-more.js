@@ -1161,4 +1161,29 @@ export const enChatMore = {
   'chat.service.proximitySelf': 'You are now within {distance} m from {user}',
   'chat.service.proximitySelfKm':
     'You are now within {distance} km from {user}',
+  // Stealth mode, viewers' reactions and reposts, reporting (R-Y199).
+  'chat.stories.stealth.title': 'Stealth mode',
+  'chat.stories.stealth.about':
+    'Watch stories without the authors seeing that you did. This needs Telegram Premium.',
+  'chat.stories.stealth.past': 'Hide recent views (past 5 minutes)',
+  'chat.stories.stealth.future': 'Hide my next views (25 minutes)',
+  'chat.stories.stealth.enable': 'Enable stealth mode',
+  'chat.stories.stealth.on': 'Stealth mode is on, time left:',
+  'chat.stories.stealth.cooldown': 'You can use stealth mode again in',
+  'chat.stories.stealth.err.premium':
+    'Stealth mode is only available with Telegram Premium.',
+  'chat.stories.stealth.err.cooldown':
+    'Stealth mode is cooling down. Try again later.',
+  'chat.stories.stealth.err.flood':
+    'Too many tries. Wait a while and try again.',
+  'chat.stories.stealth.err.failed': 'Stealth mode could not be turned on.',
+  'chat.stories.report': 'Report story',
+  'chat.stories.search': 'Search viewers',
+  'chat.stories.contactsOnly': 'Contacts only',
+  'chat.stories.reactionsFirst': 'Reactions first',
+  'chat.stories.tab.viewers': 'Viewers',
+  'chat.stories.tab.reactions': 'Reactions',
+  'chat.stories.kind.forward': 'Forwarded',
+  'chat.stories.kind.repost': 'Reposted',
+  'chat.stories.noReactions': 'No reactions or reposts yet.',
 };

@@ -121,6 +121,7 @@ import { createBusinessBots } from './telegram-business-bots.js';
 import { createSendAs } from './telegram-send-as.js';
 import { createStories } from './telegram-stories.js';
 import { createStoryActions } from './telegram-story-actions.js';
+import { createStoryExtras } from './telegram-story-extras.js';
 import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
 import { createHistoryExport } from './telegram-export.js';
@@ -464,7 +465,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // and suggested posts (R-Y191); popular mini apps, similar bots, prepared
 // messages and collectible usernames (R-Y194); managing received and unique
 // gifts and gift codes (R-Y193); private one-to-one calls (R-Y196); more than
-// one account (R-Y198).
+// one account (R-Y198); story stealth mode, reactions and reports (R-Y199).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -518,6 +519,7 @@ const chatActions = (env, context) => {
     ...createTranscribe(env, context),
     ...createStories(env, context),
     ...createStoryActions(env, context),
+    ...createStoryExtras(env, context),
     ...createLinkPreview(env, context),
     ...createAdminActions(env, context),
     ...createCommonChats(env, context),

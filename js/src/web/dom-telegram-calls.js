@@ -229,6 +229,11 @@ export const TELEGRAM_CALLS = {
   telegramStoryReact: body('story-react'),
   telegramStoryViews: body('story-views'),
   telegramStoryDelete: body('story-delete'),
+  // Stealth mode, reactions list, report and fresh counts (R-Y199).
+  telegramStoryStealth: body('story-stealth'),
+  telegramStoryReactions: body('story-reactions'),
+  telegramStoryReport: body('story-report'),
+  telegramStoriesViews: body('stories-views'),
   telegramStoriesHide: body('stories-hide'),
   // Posting a story (R-Y156): whether the user may, then the upload's
   // token with the story's options → { ok } or { ok: false, code }.

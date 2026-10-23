@@ -177,6 +177,7 @@ test('"not modified" is told so', async () => {
     notModified: true,
     peers: [],
     state: 'S9',
+    stealth: { activeUntil: 0, cooldownUntil: 0 },
   });
 });
 

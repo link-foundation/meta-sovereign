@@ -153,15 +153,16 @@ const AddDialog = ({ person, busy, error, onYes, onClose, t }) => {
 
 // Telegram's list of reasons, asked until it ends in a report: each
 // choice is sent back with its option; "comment" asks for words. With
-// `ids` (R-Y175) it reports those messages of the chat, not the chat.
-export const ReportDialog = ({ api, chat, ids, onClose, t }) => {
+// `ids` (R-Y175) it reports those messages of the chat, not the chat; a
+// `call` (R-Y199) asks for another thing (a story) in the same walk.
+export const ReportDialog = ({ api, chat, ids, onClose, t, call }) => {
   const [step, setStep] = useState({ phase: 'loading' });
   const [words, setWords] = useState('');
   const send = useAsync();
   const ask = (body) =>
     send
       .run(() =>
-        api.telegramPeerReport({
+        (call ?? ((req) => api.telegramPeerReport(req)))({
           chat: String(chat.chat),
           ...(ids ? { ids } : {}),
           ...body,

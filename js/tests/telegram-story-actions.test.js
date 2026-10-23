@@ -143,8 +143,8 @@ test('the viewers come 50 at a time, with their reactions', async () => {
   assert.equal(got.next, 'OFF1');
   assert.equal(got.viewsCount, 120);
   assert.deepEqual(got.views, [
-    { user: '5', name: 'Ann Lee', date: 100, reaction: '🔥' },
-    { user: '6', name: 'bob', date: 90, reaction: '' },
+    { kind: 'view', user: '5', name: 'Ann Lee', date: 100, reaction: '🔥' },
+    { kind: 'view', user: '6', name: 'bob', date: 90, reaction: '' },
   ]);
   await actions.storyViews({ chat: '7', id: 3, offset: 'OFF1' });
   assert.equal(log[1].offset, 'OFF1');

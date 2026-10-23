@@ -133,6 +133,80 @@ export const ringOf = (peers, peerId) => {
 
 /** Own stories' viewers shown after a page: the new ones joined, once each. */
 export const joinViews = (held, page) => {
-  const seen = new Set(held.map((v) => v.user));
-  return [...held, ...page.filter((v) => !seen.has(v.user))];
+  // A forward or repost can come from a person who also viewed (R-Y199).
+  const keyOf = (v) => `${v.kind ?? 'view'}:${v.user}`;
+  const seen = new Set(held.map(keyOf));
+  return [...held, ...page.filter((v) => !seen.has(keyOf(v)))];
 };
+
+// ---- Stealth mode, viewers' filters, fresh counts (R-Y199) ----
+
+/** Stealth mode lasts 25 minutes and can be used again an hour later. */
+export const STEALTH_ACTIVE_S = 25 * 60;
+export const STEALTH_COOLDOWN_S = 60 * 60;
+
+/** The state before Telegram has told anything. */
+export const NO_STEALTH = { activeUntil: 0, cooldownUntil: 0 };
+
+/**
+ * Where stealth mode stands at `nowSec`: `{ phase: 'active' | 'cooldown' |
+ * 'idle', left, wait }` — seconds of stealth left, seconds until it can be
+ * used again (0 when it can).
+ */
+export const stealthStatus = (stealth, nowSec) => {
+  const left = Math.max(0, Number(stealth?.activeUntil ?? 0) - nowSec);
+  const wait = Math.max(0, Number(stealth?.cooldownUntil ?? 0) - nowSec);
+  if (left > 0) {
+    return { phase: 'active', left, wait };
+  }
+  return { phase: wait > 0 ? 'cooldown' : 'idle', left, wait };
+};
+
+/**
+ * The state after enabling: what Telegram answered, or — when its answer
+ * carried none — what the rules give (25 minutes, then an hour's wait).
+ */
+export const stealthAfter = (answer, nowSec) =>
+  answer?.stealth ?? {
+    activeUntil: nowSec + STEALTH_ACTIVE_S,
+    cooldownUntil: nowSec + STEALTH_COOLDOWN_S,
+  };
+
+/** Seconds as `m:ss` (`h:mm:ss` from an hour). */
+export const clockText = (seconds) => {
+  const s = Math.max(0, Math.ceil(seconds));
+  const pad = (n) => String(n).padStart(2, '0');
+  const rest = `${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
+  return s >= 3600
+    ? `${Math.floor(s / 3600)}:${rest}`
+    : `${Math.floor(s / 60)}:${pad(s % 60)}`;
+};
+
+/**
+ * The body of a viewers request: the "Viewers" tab asks
+ * stories.getStoryViewsList with the search and the two switches (only
+ * what is set is sent); the "Reactions" tab takes none of them.
+ */
+export const viewersBody = (want, offset) => {
+  const { chat, id, tab, q, contacts, reactionsFirst } = want;
+  const views = tab === 'viewers';
+  return {
+    chat,
+    id,
+    ...(offset ? { offset } : {}),
+    ...(views && q ? { q } : {}),
+    ...(views && contacts ? { justContacts: true } : {}),
+    ...(views && reactionsFirst ? { reactionsFirst: true } : {}),
+  };
+};
+
+/** A story with fresh counters (stories.getStoriesViews) applied. */
+export const withFreshCounts = (story, fresh) =>
+  fresh
+    ? {
+        ...story,
+        views: fresh.views,
+        reactions: fresh.reactions,
+        forwards: fresh.forwards,
+      }
+    : story;

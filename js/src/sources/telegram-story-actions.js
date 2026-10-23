@@ -9,8 +9,11 @@
  *   (ReactionEmpty);
  * - `storyViews({ chat, id, offset })` — the viewers of one's own story,
  *   50 at a time (stories.getStoryViewsList) → `{ ok, count, viewsCount,
- *   reactionsCount, views: [{ user, name, date, reaction }], next }`;
- *   `next` is the offset of the following page, '' at the end;
+ *   reactionsCount, views: [{ kind, user, name, date, reaction }], next }`;
+ *   `next` is the offset of the following page, '' at the end; `q`,
+ *   `justContacts`, `reactionsFirst`, `forwardsFirst` filter and order the
+ *   list, and a forward or repost of the story is an entry of its own
+ *   (`kind` 'forward' | 'repost', R-Y199);
  * - `storyDelete({ chat, id })` — one's own story deleted
  *   (stories.deleteStories);
  * - `storiesHide({ chat, hidden })` — a peer's stories moved to or from
@@ -20,6 +23,7 @@
 
 import { connected, failureOf, runIn } from './telegram-stickers.js';
 import { randomIdOf } from './telegram-send.js';
+import { entityOf, nameOf as entityName, peerId } from './telegram-stories.js';
 
 const CODES = {
   PEER_ID_INVALID: 'no-access',
@@ -43,17 +47,17 @@ const REACTION = /^\S{1,24}$/u;
 export const VIEWS_LIMIT = 50;
 const MAX_TEXT = 4096;
 
-const badRequest = { ok: false, error: 'bad request', code: 'failed' };
+export const badRequest = { ok: false, error: 'bad request', code: 'failed' };
 
 const textOf = (value) => String(value?.value ?? value);
 
-const storyOk = (request) =>
+export const storyOk = (request) =>
   CHAT.test(String(request?.chat ?? '')) &&
   Number.isInteger(request?.id) &&
   request.id > 0;
 
 // A reaction as the page keeps it: an emoji, or '' for none.
-const reactionOf = (reaction) =>
+export const reactionOf = (reaction) =>
   reaction?.className === 'ReactionEmoji' ? String(reaction.emoticon) : '';
 
 const nameOf = (user) =>
@@ -61,11 +65,33 @@ const nameOf = (user) =>
   user?.username ||
   '';
 
+// The viewer's peer and date: a person, or — for a public forward or
+// repost of the story (R-Y199) — the chat that shared it.
+const sharedBy = (view) =>
+  view.className === 'StoryViewPublicForward'
+    ? { peer: view.message?.peerId, date: view.message?.date, kind: 'forward' }
+    : {
+        peer: view.peerId,
+        date: view.story?.date,
+        kind: 'repost',
+      };
+
 /** One viewer of a story, as the page shows it. */
-export const shapeView = (view, users) => {
+export const shapeView = (view, users, chats = []) => {
+  if (view.userId === undefined) {
+    const { peer, date, kind } = sharedBy(view);
+    return {
+      kind,
+      user: peerId(peer),
+      name: entityName(entityOf({ users, chats }, peer)),
+      date: Number(date ?? 0),
+      reaction: '',
+    };
+  }
   const id = textOf(view.userId);
   const user = (users ?? []).find((u) => textOf(u.id) === id);
   return {
+    kind: 'view',
     user: id,
     name: nameOf(user),
     date: Number(view.date ?? 0),
@@ -124,9 +150,35 @@ const react = (env, userClient) => async (request) => {
   });
 };
 
+const FLAGS = ['justContacts', 'reactionsFirst', 'forwardsFirst'];
+
+// The optional filters of the viewers list (R-Y199), or null when wrong.
+const filtersOf = (request) => {
+  const q = request?.q;
+  const flags = FLAGS.filter((f) => request?.[f] !== undefined);
+  if (
+    (q !== undefined && !(typeof q === 'string' && q.length <= 128)) ||
+    flags.some((f) => typeof request[f] !== 'boolean')
+  ) {
+    return null;
+  }
+  return {
+    ...(q ? { q } : {}),
+    ...Object.fromEntries(
+      flags.filter((f) => request[f]).map((f) => [f, true])
+    ),
+  };
+};
+
 const views = (env, userClient) => async (request) => {
   const offset = request?.offset ?? '';
-  if (!storyOk(request) || typeof offset !== 'string' || !OFFSET.test(offset)) {
+  const filters = filtersOf(request);
+  if (
+    !storyOk(request) ||
+    typeof offset !== 'string' ||
+    !OFFSET.test(offset) ||
+    !filters
+  ) {
     return badRequest;
   }
   return withStory(env, userClient, request, 'story-views', async (c, peer) => {
@@ -136,6 +188,7 @@ const views = (env, userClient) => async (request) => {
         id: request.id,
         offset,
         limit: VIEWS_LIMIT,
+        ...filters,
       })
     );
     return {
@@ -143,9 +196,10 @@ const views = (env, userClient) => async (request) => {
       count: Number(answer?.count ?? 0),
       viewsCount: Number(answer?.viewsCount ?? 0),
       reactionsCount: Number(answer?.reactionsCount ?? 0),
+      forwardsCount: Number(answer?.forwardsCount ?? 0),
       views: (answer?.views ?? [])
-        .filter((v) => v?.userId !== undefined)
-        .map((v) => shapeView(v, answer.users)),
+        .map((v) => shapeView(v, answer.users, answer.chats))
+        .filter((v) => v.user),
       next: String(answer?.nextOffset ?? ''),
     };
   });

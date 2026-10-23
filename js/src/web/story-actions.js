@@ -4,7 +4,7 @@
 // and "Delete" (asked first), for one's own; "Hide stories" / "Unhide"
 // in the viewer's menu. The viewer pauses while any of these is in use.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { PeerAvatar } from './peer-avatar.js';
@@ -13,7 +13,9 @@ import {
   STORY_REACTIONS,
   joinViews,
   reactionAfter,
+  viewersBody,
 } from './stories-model.js';
+import { ViewersFilters, ViewersTabs } from './story-extras.js';
 
 const el = React.createElement;
 
@@ -182,21 +184,28 @@ export const ReactionButtons = ({
   ]);
 };
 
-// Viewers, a page after another.
-const useViewers = (api, peer, story) => {
+// Viewers, a page after another. The tab ("viewers" or "reactions",
+// R-Y199), the search and the switches decide what is asked; a change
+// starts the list again, and an answer to an older question is dropped.
+const useViewers = (api, peer, story, filter) => {
   const [state, setState] = useState({
     status: 'loading',
     views: [],
     next: '',
   });
+  const latest = useRef(0);
   const load = async (offset) => {
-    const answer = await Promise.resolve(
-      api?.telegramStoryViews?.({
-        chat: peer.peer,
-        id: story.id,
-        ...(offset ? { offset } : {}),
-      })
-    ).catch(() => null);
+    const turn = (latest.current += 1);
+    const want = { chat: peer.peer, id: story.id, ...filter };
+    const body = viewersBody(want, offset);
+    const ask =
+      filter.tab === 'reactions'
+        ? api?.telegramStoryReactions
+        : api?.telegramStoryViews;
+    const answer = await Promise.resolve(ask?.(body)).catch(() => null);
+    if (turn !== latest.current) {
+      return;
+    }
     setState((held) =>
       answer?.ok
         ? {
@@ -209,18 +218,114 @@ const useViewers = (api, peer, story) => {
     );
   };
   useEffect(() => {
+    setState((held) => ({ ...held, status: 'loading' }));
     load('');
-  }, [peer.peer, story.id]);
+  }, [
+    peer.peer,
+    story.id,
+    filter.tab,
+    filter.q,
+    filter.contacts,
+    filter.reactionsFirst,
+  ]);
   return { ...state, more: () => load(state.next) };
 };
 
 const when = (date) =>
   date ? new Date(date * 1000).toLocaleString([], { hour12: false }) : '';
 
-/** The viewers of one's own story with their reactions; "load more". */
+// One row: the person (or chat), when, a reaction, or that it was a
+// forward or a repost of the story (R-Y199).
+const ViewerRow = ({ api, t, view }) =>
+  el(
+    'li',
+    {
+      'data-viewer': view.user,
+      'data-viewer-kind': view.kind ?? 'view',
+    },
+    [
+      el(PeerAvatar, {
+        key: 'a',
+        api,
+        source: 'telegram',
+        peer: view.user,
+        name: view.name,
+        className: 'avatar story-viewer-avatar',
+      }),
+      el('span', { key: 'n', className: 'story-viewer-name' }, view.name),
+      view.kind === 'forward' || view.kind === 'repost'
+        ? el(
+            'span',
+            { key: 'k', className: 'story-viewer-kind' },
+            t(`chat.stories.kind.${view.kind}`)
+          )
+        : null,
+      el('span', { key: 'd', className: 'story-viewer-date' }, when(view.date)),
+      view.reaction
+        ? el(
+            'span',
+            { key: 'r', className: 'story-viewer-reaction' },
+            view.reaction
+          )
+        : null,
+    ]
+  );
+
+const ViewersHead = ({ t, onClose }) =>
+  el('div', { className: 'story-viewers-head' }, [
+    el('strong', { key: 't' }, t('chat.stories.viewers')),
+    el(
+      'button',
+      {
+        key: 'x',
+        type: 'button',
+        className: 'ghost icon-btn story-btn',
+        'data-action': 'story-viewers-close',
+        'aria-label': t('chat.stories.close'),
+        onClick: onClose,
+      },
+      el(Icon, { name: 'close', size: 18 })
+    ),
+  ]);
+
+// The note under the list: loading, none, or failed.
+const ViewersNote = ({ t, status, empty, reactions }) => {
+  const text =
+    status === 'loading'
+      ? 'chat.stories.loading'
+      : status === 'error'
+        ? 'chat.stories.err.failed'
+        : empty
+          ? reactions
+            ? 'chat.stories.noReactions'
+            : 'chat.stories.noViewers'
+          : '';
+  return text ? el('p', { className: 'story-note' }, t(text)) : null;
+};
+
+const INITIAL_FILTER = {
+  tab: 'viewers',
+  q: '',
+  contacts: false,
+  reactionsFirst: false,
+};
+
+/**
+ * The viewers of one's own story with their reactions; "load more", the
+ * "Reactions" tab (with forwards and reposts as entries), a search box and
+ * "Contacts only" / "Reactions first" (R-Y199).
+ */
 export const ViewersPanel = ({ api, peer, story, onClose }) => {
   const t = useT();
-  const { status, views, next, more } = useViewers(api, peer, story);
+  const [filter, setFilter] = useState(INITIAL_FILTER);
+  const change = (patch) =>
+    setFilter((held) =>
+      Object.entries(patch).every(([k, v]) => held[k] === v)
+        ? held
+        : { ...held, ...patch }
+    );
+  const { status, views, next, more } = useViewers(api, peer, story, filter);
+  const reactions = filter.tab === 'reactions';
   return el(
     'div',
     {
@@ -230,71 +335,29 @@ export const ViewersPanel = ({ api, peer, story, onClose }) => {
       'data-story-viewers': status,
     },
     [
-      el('div', { key: 'h', className: 'story-viewers-head' }, [
-        el('strong', { key: 't' }, t('chat.stories.viewers')),
-        el(
-          'button',
-          {
-            key: 'x',
-            type: 'button',
-            className: 'ghost icon-btn story-btn',
-            'data-action': 'story-viewers-close',
-            'aria-label': t('chat.stories.close'),
-            onClick: onClose,
-          },
-          el(Icon, { name: 'close', size: 18 })
-        ),
-      ]),
+      el(ViewersHead, { key: 'h', t, onClose }),
+      el(ViewersTabs, {
+        key: 'tabs',
+        tab: filter.tab,
+        onTab: (tab) => change({ tab }),
+      }),
+      reactions
+        ? null
+        : el(ViewersFilters, { key: 'f', filter, onChange: change }),
       el(
         'ul',
         { key: 'l', className: 'story-viewers-list' },
-        views.map((view) =>
-          el('li', { key: view.user, 'data-viewer': view.user }, [
-            el(PeerAvatar, {
-              key: 'a',
-              api,
-              source: 'telegram',
-              peer: view.user,
-              name: view.name,
-              className: 'avatar story-viewer-avatar',
-            }),
-            el('span', { key: 'n', className: 'story-viewer-name' }, view.name),
-            el(
-              'span',
-              { key: 'd', className: 'story-viewer-date' },
-              when(view.date)
-            ),
-            view.reaction
-              ? el(
-                  'span',
-                  { key: 'r', className: 'story-viewer-reaction' },
-                  view.reaction
-                )
-              : null,
-          ])
+        views.map((view, i) =>
+          el(ViewerRow, { key: `${view.kind}:${view.user}:${i}`, api, t, view })
         )
       ),
-      status === 'loading'
-        ? el(
-            'p',
-            { key: 'o', className: 'story-note' },
-            t('chat.stories.loading')
-          )
-        : null,
-      status === 'ok' && views.length === 0
-        ? el(
-            'p',
-            { key: 'e', className: 'story-note' },
-            t('chat.stories.noViewers')
-          )
-        : null,
-      status === 'error'
-        ? el(
-            'p',
-            { key: 'f', className: 'story-note' },
-            t('chat.stories.err.failed')
-          )
-        : null,
+      el(ViewersNote, {
+        key: 'o',
+        t,
+        status,
+        reactions,
+        empty: status === 'ok' && views.length === 0,
+      }),
       next
         ? el(
             'button',
@@ -393,34 +456,44 @@ export const OwnFoot = ({ story, onViewers, onDelete }) => {
 };
 
 /** The viewer's menu: hide this person's stories, or show them again. */
-export const StoryMenu = ({ hidden, onToggle, own = false, onAdd }) => {
+export const StoryMenu = ({
+  hidden,
+  onToggle,
+  own = false,
+  onAdd,
+  onStealth,
+  onReport,
+}) => {
   const t = useT();
-  // One's own stories: "Add story" (R-Y156); others': hide or unhide.
-  return el(
-    'div',
-    { className: 'story-menu', role: 'menu' },
-    own
-      ? el(
-          'button',
-          {
-            type: 'button',
-            role: 'menuitem',
-            className: 'ghost',
-            'data-action': 'story-add',
-            onClick: onAdd,
-          },
-          t('chat.storyPost.addMenu')
-        )
-      : el(
-          'button',
-          {
-            type: 'button',
-            role: 'menuitem',
-            className: 'ghost',
-            'data-action': 'story-hide',
-            onClick: onToggle,
-          },
-          t(hidden ? 'chat.stories.unhide' : 'chat.stories.hide')
-        )
-  );
+  // One's own stories: "Add story" (R-Y156); others': "Stealth mode" and
+  // "Report" (R-Y199), hide or unhide.
+  const item = (action, label, onClick) =>
+    el(
+      'button',
+      {
+        key: action,
+        type: 'button',
+        role: 'menuitem',
+        className: 'ghost',
+        'data-action': action,
+        onClick,
+      },
+      label
+    );
+  const items = own
+    ? [item('story-add', t('chat.storyPost.addMenu'), onAdd)]
+    : [
+        onStealth
+          ? item('story-stealth', t('chat.stories.stealth.title'), onStealth)
+          : null,
+        onReport
+          ? item('story-report', t('chat.stories.report'), onReport)
+          : null,
+        item(
+          'story-hide',
+          t(hidden ? 'chat.stories.unhide' : 'chat.stories.hide'),
+          onToggle
+        ),
+      ];
+  return el('div', { className: 'story-menu', role: 'menu' }, items);
 };

@@ -46,7 +46,7 @@ const USER = /^\d{1,20}$/;
 const CHAT = /^-?\d{1,20}$/;
 const BASE64 = /^[A-Za-z0-9+/]*={0,2}$/;
 
-const bytesOf = (value) => Buffer.from(String(value ?? ''), 'base64');
+export const bytesOf = (value) => Buffer.from(String(value ?? ''), 'base64');
 const base64Of = (bytes) => Buffer.from(bytes ?? []).toString('base64');
 
 // A person as an input user, from the peer the chat resolves to.
@@ -62,7 +62,7 @@ export const inputUserOf = async (c, peer) => {
 };
 
 // Telegram's ReportResult as the page reads it.
-const shapeReport = (result) => {
+export const shapeReport = (result) => {
   switch (result?.className) {
     case 'ReportResultChooseOption':
       return {
