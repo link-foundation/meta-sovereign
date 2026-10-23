@@ -21,8 +21,9 @@ const KINDS = {
   KeyboardButtonRequestPhone: 'request',
   KeyboardButtonRequestGeoLocation: 'request',
   KeyboardButtonRequestPoll: 'request',
-  KeyboardButtonRequestPeer: 'request',
-  InputKeyboardButtonRequestPeer: 'request',
+  // A button asking for a chat or a person (R-Y208).
+  KeyboardButtonRequestPeer: 'peer',
+  InputKeyboardButtonRequestPeer: 'peer',
   InputKeyboardButtonUrlAuth: 'url',
   InputKeyboardButtonUserProfile: 'profile',
 };
@@ -61,6 +62,65 @@ const EXTRAS = {
   }),
   copy: (raw) => ({ copy: String(raw.copyText ?? '') }),
   profile: (raw) => ({ user: text(raw.userId) }),
+  // How many may be picked (at least one), and what the bot wants to know.
+  peer: (raw) => ({
+    buttonId: Number(raw.buttonId),
+    peerType: peerTypeOf(raw.peerType),
+    max: Math.max(1, Number(raw.maxQuantity) || 1),
+    details: {
+      name: raw.nameRequested === true,
+      username: raw.usernameRequested === true,
+      photo: raw.photoRequested === true,
+    },
+  }),
+};
+
+const PEER_KINDS = {
+  RequestPeerTypeUser: 'user',
+  RequestPeerTypeChat: 'chat',
+  RequestPeerTypeBroadcast: 'broadcast',
+};
+
+// The rights a bot asks for: the names of those set.
+const rightsOf = (rights) =>
+  rights
+    ? Object.keys(rights).filter(
+        (key) => rights[key] === true && key !== 'flags'
+      )
+    : undefined;
+
+// A boolean the bot set (true or false); undefined when it did not.
+const flagOf = (value) => (typeof value === 'boolean' ? value : undefined);
+
+/**
+ * What a request-peer button asks for (R-Y208): `{ kind: 'user' | 'chat'
+ * | 'broadcast', bot?, premium?, creator?, hasUsername?, forum?,
+ * userAdminRights?, botAdminRights? }`, only the constraints it gave; null
+ * when the type is not one the app knows.
+ */
+export const peerTypeOf = (type) => {
+  const kind = PEER_KINDS[type?.className];
+  if (!kind) {
+    return null;
+  }
+  const out = { kind };
+  for (const key of ['bot', 'premium', 'hasUsername', 'forum']) {
+    if (flagOf(type[key]) !== undefined) {
+      out[key] = type[key];
+    }
+  }
+  for (const key of ['creator', 'botParticipant']) {
+    if (type[key] === true) {
+      out[key] = true;
+    }
+  }
+  for (const key of ['userAdminRights', 'botAdminRights']) {
+    const rights = rightsOf(type[key]);
+    if (rights) {
+      out[key] = rights;
+    }
+  }
+  return out;
 };
 
 /** One stored button as `{ kind, text, ... }`; null when unknown. */

@@ -16,6 +16,7 @@ import { appUrl } from './web-apps-model.js';
 import { openWebApp } from './chat-web-apps.js';
 import { gameUrl } from './chat-games.js';
 import { openExternal, useBotLogin } from './chat-bot-login.js';
+import { useRequestPeer } from './chat-request-peer.js';
 
 const el = React.createElement;
 
@@ -206,6 +207,8 @@ export const useBotPress = ({ state, api, copy }) => {
   // A login button and login-domain links (R-Y201).
   const login = useBotLogin({ api, state });
   const unsupported = () => toastOf(state, { kind: 'bot-unsupported' });
+  // A button asking for a chat or a person (R-Y208).
+  const peer = useRequestPeer({ state, api });
   const callback = async (message, button, extra = {}) => {
     if (button.password || typeof api.telegramBotCallback !== 'function') {
       return unsupported();
@@ -235,6 +238,7 @@ export const useBotPress = ({ state, api, copy }) => {
             original: openableUrl(button.url) ?? undefined,
           })
         : unsupported(),
+    peer: (message, button) => peer.open(message, button) || unsupported(),
     copy: (_m, button) => copy(button.copy),
     app: (message, button) =>
       openButtonApp(state, message, button) || unsupported(),
@@ -260,6 +264,7 @@ export const useBotPress = ({ state, api, copy }) => {
         ? el(BotDialog, { key: 'bot', ask, onClose: () => setAsk(null) })
         : null,
       login.dialog,
+      peer.dialog,
     ]),
   };
 };
@@ -300,10 +305,13 @@ const say = (state, message, words) =>
 
 /**
  * The keyboard a bot put under the open chat's message box:
- * `{ keyboard, shown, toggle, press(button), placeholder }`; a bot asking
+ * `{ keyboard, shown, toggle, press(button), placeholder }`; `peerDialog` is a
+ * request-peer button's picker (R-Y208); a bot asking
  * for an answer sets the box's reply with `replyRefOf(message)`.
  */
-export const useReplyKeyboard = ({ state, replyRefOf }) => {
+export const useReplyKeyboard = ({ state, replyRefOf, api }) => {
+  // A request-peer button's picker (R-Y208).
+  const peer = useRequestPeer({ state, api });
   const { messages, current, composer } = state;
   const options = useMemo(
     () => ({
@@ -349,9 +357,16 @@ export const useReplyKeyboard = ({ state, replyRefOf }) => {
     shown,
     toggle: () => hide(shown),
     placeholder: ask.placeholder,
+    peerDialog: peer.dialog,
     press: (button) => {
       if (button.kind === 'app') {
         if (!openButtonApp(state, keyboard.message, button)) {
+          toastOf(state, { kind: 'bot-unsupported' });
+        }
+        return;
+      }
+      if (button.kind === 'peer') {
+        if (!peer.open(keyboard.message, button)) {
           toastOf(state, { kind: 'bot-unsupported' });
         }
         return;

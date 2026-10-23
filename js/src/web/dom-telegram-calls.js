@@ -93,6 +93,11 @@ export const TELEGRAM_CALLS = {
   telegramBotCommands: body('bot-commands'),
   // A game message's high scores ({ chat, id }, R-Y190).
   telegramGameScores: body('game-scores'),
+  // A bot's request-peer button: who may answer it, the answer; a chat's
+  // recent places (R-Y208).
+  telegramRequestPeerCandidates: body('request-peer-candidates'),
+  telegramRequestPeerSend: body('request-peer-send'),
+  telegramRecentLocations: body('recent-locations'),
   // Bot mini apps (R-Y168).
   telegramWebAppOpen: body('web-app-open'),
   telegramWebAppProlong: body('web-app-prolong'),

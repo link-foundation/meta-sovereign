@@ -11343,6 +11343,35 @@ button.profile-username.is-collectible {
 .admin-right input:disabled + span {
   color: var(--text-muted);
 }
+
+/* Recent locations in the Location dialog (R-Y208) */
+.share-recent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.share-recent-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elev);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.share-recent-pick span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.share-recent-pick:hover {
+  border-color: var(--accent);
+}
 .admin-history {
   display: flex;
   flex-direction: column;

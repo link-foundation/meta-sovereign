@@ -1334,4 +1334,25 @@ export const hiChatMore = {
   'chat.accounts.switch': 'स्विच करें',
   'chat.accounts.using': '{name} उपयोग में है',
   'chat.accounts.othersUnread': 'आपके अन्य खातों में अपठित: {count}',
+  // Bot request-peer buttons and recent locations (R-Y208).
+  'chat.requestPeer.title': 'साझा करने के लिए चुनें',
+  'chat.requestPeer.share': 'साझा करें',
+  'chat.requestPeer.search': 'खोजें',
+  'chat.requestPeer.none':
+    'आपके पास ऐसा कुछ नहीं है जो बॉट की माँग से मेल खाता हो।',
+  'chat.requestPeer.hintOne': 'बॉट के साथ साझा करने के लिए एक चुनें।',
+  'chat.requestPeer.hintMany':
+    'बॉट के साथ साझा करने के लिए अधिकतम {max} चुनें।',
+  'chat.requestPeer.err.none-picked': 'कम से कम एक चुनें।',
+  'chat.requestPeer.err.no-access': 'आप वह चैट साझा नहीं कर सकते।',
+  'chat.requestPeer.err.not-found': 'बॉट का संदेश या बटन अब नहीं है।',
+  'chat.requestPeer.err.bad-peer': 'यह चुनाव बॉट की माँग से मेल नहीं खाता।',
+  'chat.requestPeer.err.flood': 'बहुत अधिक प्रयास। थोड़ा रुककर फिर कोशिश करें।',
+  'chat.requestPeer.err.failed': 'कुछ गड़बड़ हुई। फिर कोशिश करें।',
+  'chat.service.requestedPeer': 'आपने बॉट के साथ {names} साझा किया',
+  'chat.service.requestedPeerBare': 'आपने बॉट के साथ अपना चुनाव साझा किया',
+  'chat.service.requestedPeerSentMe': '{user} ने आपके साथ {names} साझा किया',
+  'chat.service.requestedPeerSentMeBare':
+    '{user} ने आपके साथ अपना चुनाव साझा किया',
+  'chat.share.recent': 'हाल के स्थान',
 };

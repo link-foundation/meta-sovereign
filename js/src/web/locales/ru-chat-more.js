@@ -1345,4 +1345,24 @@ export const ruChatMore = {
   'chat.accounts.switch': 'Переключиться',
   'chat.accounts.using': 'Используется {name}',
   'chat.accounts.othersUnread': 'Непрочитанных в других аккаунтах: {count}',
+  // Bot request-peer buttons and recent locations (R-Y208).
+  'chat.requestPeer.title': 'Выберите, чем поделиться',
+  'chat.requestPeer.share': 'Поделиться',
+  'chat.requestPeer.search': 'Поиск',
+  'chat.requestPeer.none': 'Нет ничего, что подходит под запрос бота.',
+  'chat.requestPeer.hintOne': 'Выберите одного, чтобы поделиться с ботом.',
+  'chat.requestPeer.hintMany': 'Выберите до {max}, чтобы поделиться с ботом.',
+  'chat.requestPeer.err.none-picked': 'Выберите хотя бы одного.',
+  'chat.requestPeer.err.no-access': 'Этим чатом нельзя поделиться.',
+  'chat.requestPeer.err.not-found':
+    'Сообщение бота или кнопка больше недоступны.',
+  'chat.requestPeer.err.bad-peer': 'Этот выбор не подходит под запрос бота.',
+  'chat.requestPeer.err.flood': 'Слишком много попыток. Подождите и повторите.',
+  'chat.requestPeer.err.failed': 'Что-то пошло не так. Повторите.',
+  'chat.service.requestedPeer': 'Вы поделились с ботом: {names}',
+  'chat.service.requestedPeerBare': 'Вы поделились с ботом своим выбором',
+  'chat.service.requestedPeerSentMe': '{user} поделился(ась) с вами: {names}',
+  'chat.service.requestedPeerSentMeBare':
+    '{user} поделился(ась) с вами своим выбором',
+  'chat.share.recent': 'Недавние места',
 };

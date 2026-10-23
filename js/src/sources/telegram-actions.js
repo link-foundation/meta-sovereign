@@ -101,6 +101,7 @@ import { createBusinessMessages } from './telegram-business-messages.js';
 import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createGames } from './telegram-games.js';
+import { createRequestPeer } from './telegram-request-peer.js';
 import { createWebApps } from './telegram-web-apps.js';
 import { createBotLogin } from './telegram-bot-login.js';
 import { createApps } from './telegram-apps.js';
@@ -473,7 +474,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // one account (R-Y198); story stealth mode, reactions and reports (R-Y199); bot
 // login links and attachment-menu bots (R-Y201); moderation, ownership
 // transfer, broadcast groups and left channels (R-Y200); adding members,
-// administrators and upgrading groups (R-Y204).
+// administrators and upgrading groups (R-Y204); request-peer buttons
+// and recent locations (R-Y208).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -524,6 +526,7 @@ const chatActions = (env, context) => {
     ...createReadersActions(env, context),
     ...createBotCommands(env, context),
     ...createGames(env, context),
+    ...createRequestPeer(env, context),
     ...createWebApps(env, context),
     ...createBotLogin(env, context),
     ...createApps(env, { ...context, offer: inlineOffer }),

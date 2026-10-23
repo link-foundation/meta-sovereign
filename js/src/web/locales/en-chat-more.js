@@ -1326,4 +1326,23 @@ export const enChatMore = {
   'chat.accounts.switch': 'Switch',
   'chat.accounts.using': 'Using {name}',
   'chat.accounts.othersUnread': 'Unread in your other accounts: {count}',
+  // Bot request-peer buttons and recent locations (R-Y208).
+  'chat.requestPeer.title': 'Choose who to share',
+  'chat.requestPeer.share': 'Share',
+  'chat.requestPeer.search': 'Search',
+  'chat.requestPeer.none': 'Nothing you have fits what the bot asked for.',
+  'chat.requestPeer.hintOne': 'Choose one to share with the bot.',
+  'chat.requestPeer.hintMany': 'Choose up to {max} to share with the bot.',
+  'chat.requestPeer.err.none-picked': 'Choose at least one.',
+  'chat.requestPeer.err.no-access': 'You cannot share that chat.',
+  'chat.requestPeer.err.not-found': "The bot's message or button is gone.",
+  'chat.requestPeer.err.bad-peer':
+    'That choice does not fit what the bot asked for.',
+  'chat.requestPeer.err.flood': 'Too many tries. Wait a little and try again.',
+  'chat.requestPeer.err.failed': 'Something went wrong. Try again.',
+  'chat.service.requestedPeer': 'You shared {names} with the bot',
+  'chat.service.requestedPeerBare': 'You shared your choice with the bot',
+  'chat.service.requestedPeerSentMe': '{user} shared {names} with you',
+  'chat.service.requestedPeerSentMeBare': '{user} shared their choice with you',
+  'chat.share.recent': 'Recent locations',
 };

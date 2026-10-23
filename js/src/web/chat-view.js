@@ -948,7 +948,7 @@ const Composer = ({ state, api, keys }) => {
   // Text selected in the box: the formatting bar (R-Y109).
   const format = useFormatBar({ box, setText: typeText });
   // A bot's keyboard under the box, and what it asks of it (R-Y110).
-  const reply = useReplyKeyboard({ state, replyRefOf });
+  const reply = useReplyKeyboard({ state, replyRefOf, api });
   // "/" lists a bot's commands; a bot chat's Menu button (R-Y135).
   const commands = useCommandBox({
     ...useBotCommands(api, state.current, state.info),
@@ -1062,6 +1062,7 @@ const Composer = ({ state, api, keys }) => {
   return el(React.Fragment, null, [
     el(DropHint, { key: 'drop', over: dragging }),
     form,
+    reply.peerDialog,
     el(AttachDialog, {
       key: 'files',
       attach,

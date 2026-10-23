@@ -143,6 +143,7 @@ export const useShare = ({ state, api, composer }) => {
   };
   return {
     enabled,
+    chat: state.current?.chat ? String(state.current.chat) : null,
     shown: enabled ? shown : null,
     sending,
     failure,
@@ -278,6 +279,78 @@ const Preview = ({ url, accuracy, t }) =>
       : null,
   ]);
 
+/** The words on a recent place's quick pick: its name, else its point. */
+export const placeLabel = (place) =>
+  place.title || `${place.lat.toFixed(5)}, ${place.lon.toFixed(5)}`;
+
+// The places lately shared in the chat (R-Y208), asked once; none when
+// they cannot be read (the quick picks are only a help).
+const useRecentPlaces = (api, chat) => {
+  const [places, setPlaces] = useState([]);
+  useEffect(() => {
+    if (!chat || typeof api?.telegramRecentLocations !== 'function') {
+      return undefined;
+    }
+    let active = true;
+    api
+      .telegramRecentLocations({ chat })
+      .catch(() => null)
+      .then((answer) => {
+        if (active && answer?.ok) {
+          setPlaces((answer.places ?? []).slice(0, 8));
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [api, chat]);
+  return places;
+};
+
+const RecentPlaces = ({ places, onPick, t }) =>
+  places.length === 0
+    ? null
+    : el('div', { className: 'share-recent', 'data-share': 'recent' }, [
+        el('span', { key: 'h', className: 'meta' }, t('chat.share.recent')),
+        ...places.map((place) =>
+          el(
+            'button',
+            {
+              key: place.id,
+              type: 'button',
+              className: 'share-recent-pick',
+              'data-action': 'location-recent',
+              'data-lat': place.lat,
+              'data-lon': place.lon,
+              title: place.address ?? undefined,
+              onClick: () => onPick(place),
+            },
+            [
+              el(Icon, { key: 'i', name: 'map-pin', size: 14 }),
+              el('span', { key: 't' }, placeLabel(place)),
+            ]
+          )
+        ),
+      ]);
+
+// "Share for": a place once or live for a time.
+const LiveField = ({ value, set, t }) =>
+  el('label', { className: 'share-field' }, [
+    el('span', { key: 'l' }, t('chat.share.liveLabel')),
+    el(
+      'select',
+      {
+        key: 's',
+        'data-field': 'live',
+        value,
+        onChange: (e) => set({ live: Number(e.target.value) }),
+      },
+      LIVE_CHOICES.map((seconds) =>
+        el('option', { key: seconds, value: seconds }, liveLabel(t, seconds))
+      )
+    ),
+  ]);
+
 /** "Location": the position asked or typed, a preview, Send. */
 export const LocationDialog = ({ share, api }) => {
   const t = useT();
@@ -286,6 +359,7 @@ export const LocationDialog = ({ share, api }) => {
   const [asking, setAsking] = useState(false);
   const [problem, setProblem] = useState(null);
   useEsc(share.close);
+  const recent = useRecentPlaces(api, share.chat);
   const body = placeBody({ ...form, accuracy });
   const url = usePreview(api, body);
   const set = (change) => {
@@ -329,6 +403,13 @@ export const LocationDialog = ({ share, api }) => {
           el('span', { key: 't' }, t('chat.share.use')),
         ]
       ),
+      el(RecentPlaces, {
+        key: 'recent',
+        places: recent,
+        t,
+        onPick: (place) =>
+          set({ lat: String(place.lat), lon: String(place.lon), live: 0 }),
+      }),
       problem
         ? el(
             'p',
@@ -372,25 +453,7 @@ export const LocationDialog = ({ share, api }) => {
           )
         : null,
       body ? el(Preview, { key: 'pv', url, accuracy: body.accuracy, t }) : null,
-      el('label', { key: 'live', className: 'share-field' }, [
-        el('span', { key: 'l' }, t('chat.share.liveLabel')),
-        el(
-          'select',
-          {
-            key: 's',
-            'data-field': 'live',
-            value: form.live,
-            onChange: (e) => set({ live: Number(e.target.value) }),
-          },
-          LIVE_CHOICES.map((seconds) =>
-            el(
-              'option',
-              { key: seconds, value: seconds },
-              liveLabel(t, seconds)
-            )
-          )
-        ),
-      ]),
+      el(LiveField, { key: 'live', value: form.live, set, t }),
       share.failure
         ? el(
             'p',

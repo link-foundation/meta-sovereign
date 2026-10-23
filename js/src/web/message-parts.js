@@ -206,6 +206,39 @@ const gameScoreInfo = (link, msgById) => {
   };
 };
 
+// The name of a person or chat a bot's request was answered with, where
+// Telegram sent one (a bare Peer has none).
+const sharedName = (peer) =>
+  peer?.title ||
+  [peer?.firstName, peer?.lastName].filter(Boolean).join(' ') ||
+  peer?.username ||
+  '';
+
+// "You shared Ann with the bot" / "Ann shared Team with you" (R-Y208): a
+// bot's request-peer button answered. The names are told when Telegram
+// sent them (to the bot's side); our own copy carries only ids.
+const requestedPeerInfo = (link) => {
+  const action = link.raw?.action ?? {};
+  const names = (action.peers ?? []).map(sharedName).filter(Boolean);
+  const toBot = link.service === 'MessageActionRequestedPeerSentMe';
+  let key = 'chat.service.requestedPeerBare';
+  if (toBot) {
+    key =
+      names.length > 0
+        ? 'chat.service.requestedPeerSentMe'
+        : 'chat.service.requestedPeerSentMeBare';
+  } else if (names.length > 0) {
+    key = 'chat.service.requestedPeer';
+  }
+  return {
+    key,
+    params: { user: link.senderName ?? '', names: names.join(', ') },
+    title: null,
+    titleKey: '',
+    user: null,
+  };
+};
+
 // "Ann is now within 150 m from you" (R-Y197): the person who came near is
 // the message's sender; when it is us, the other person of the chat is
 // named instead.
@@ -235,6 +268,8 @@ const SPECIAL_SERVICE = {
     user: null,
   }),
   MessageActionGameScore: gameScoreInfo,
+  MessageActionRequestedPeer: requestedPeerInfo,
+  MessageActionRequestedPeerSentMe: requestedPeerInfo,
   MessageActionGeoProximityReached: proximityInfo,
 };
 
