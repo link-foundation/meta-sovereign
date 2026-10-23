@@ -370,6 +370,7 @@ const MENU_ITEMS = {
   delete: ['chat.delete', 'trash'],
   select: ['chat.select', 'select'],
   // Who read it, who reacted (R-Y127).
+  translate: ['chat.translate.item', 'globe'],
   readers: ['chat.readers.item', 'check-double'],
   reactors: ['chat.reactors.item', 'heart'],
   selectBulk: ['chat.selectBulk', 'select'],

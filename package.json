@@ -141,7 +141,9 @@
     "test:e2e:notify": "node js/tests/e2e-notify-browser.mjs",
     "test:e2e:notify:webkit": "E2E_BROWSER=webkit node js/tests/e2e-notify-browser.mjs",
     "test:e2e:peer-bar": "node js/tests/e2e-peer-bar-browser.mjs",
-    "test:e2e:peer-bar:webkit": "E2E_BROWSER=webkit node js/tests/e2e-peer-bar-browser.mjs"
+    "test:e2e:peer-bar:webkit": "E2E_BROWSER=webkit node js/tests/e2e-peer-bar-browser.mjs",
+    "test:e2e:translate": "node js/tests/e2e-translate-browser.mjs",
+    "test:e2e:translate:webkit": "E2E_BROWSER=webkit node js/tests/e2e-translate-browser.mjs"
   },
   "keywords": [
     "personal-crm",

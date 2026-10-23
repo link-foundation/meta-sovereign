@@ -66,6 +66,10 @@
  *                                      -> { ok, readers: [{ id, name, date }] }
  *                                         who read the user's own message
  *                                         in a small group (R-Y127)
+ *   POST /api/telegram/translate {chat, ids, to}
+ *                                      -> { ok, items: [{ id, text,
+ *                                         entities }] } 1..20 messages
+ *                                         translated to `to` (R-Y132)
  *   POST /api/telegram/reactors {chat, id, emoji?, offset?}
  *                                      -> { ok, count, items, next } who
  *                                         reacted to a message, by page
@@ -570,6 +574,15 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'chat, post and max required', code: 'bad-request' }],
+  translate: async (account, body) =>
+    validChat(body.chat) &&
+    validIds(body.ids) &&
+    body.ids.length <= 20 &&
+    typeof body.to === 'string' &&
+    /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/.test(body.to) &&
+    typeof account.translateMessages === 'function'
+      ? [200, await account.translateMessages(body)]
+      : [400, { error: 'chat, ids and to required', code: 'bad-request' }],
   // Who read a message, who reacted to it (R-Y127).
   readers: async (account, body) =>
     validChat(body.chat) &&

@@ -6219,3 +6219,38 @@ button[aria-busy='true']::before {
   line-height: 1;
   cursor: pointer;
 }
+
+/* Translating a message: the original, the language, the translation
+   (R-Y132). */
+.translate-block {
+  margin: 0 0 0.6rem;
+}
+.translate-label {
+  margin: 0 0 0.2rem;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--muted);
+}
+.translate-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.translate-failed {
+  color: var(--danger);
+  margin: 0;
+}
+.translate-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.6rem;
+}
+.translate-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

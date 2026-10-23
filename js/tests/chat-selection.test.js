@@ -68,7 +68,16 @@ test('the menu lists what Telegram Desktop does, in its order', () => {
   const chat = { chat: '-1001234', personal: false, kind: 'group' };
   assert.deepEqual(
     menuItems({ message: msg(1), chat, info: { canPin: true }, now: NOW }),
-    ['reply', 'pin', 'copy', 'copyLink', 'forward', 'delete', 'select']
+    [
+      'reply',
+      'pin',
+      'copy',
+      'copyLink',
+      'translate',
+      'forward',
+      'delete',
+      'select',
+    ]
   );
   // Own and recent: Edit; part of the text selected: Quote & Reply and
   // Copy Selected Text first.
@@ -84,6 +93,7 @@ test('the menu lists what Telegram Desktop does, in its order', () => {
       'copySelected',
       'edit',
       'copyLink',
+      'translate',
       'forward',
       'delete',
       'readers',
@@ -101,7 +111,7 @@ test('the menu lists what Telegram Desktop does, in its order', () => {
       chat: { chat: '42', personal: true },
       now: NOW,
     }),
-    ['reply', 'unpin', 'copy', 'forward', 'delete', 'select']
+    ['reply', 'unpin', 'copy', 'translate', 'forward', 'delete', 'select']
   );
   // Not sent yet: only Copy Text and Delete.
   assert.deepEqual(
@@ -126,7 +136,16 @@ test('a photo offers Save As and Copy Image; a sticker Save As', () => {
   const chat = { chat: '-1001234', kind: 'group' };
   assert.deepEqual(
     menuItems({ message: msg(1), chat, target: { photo: true } }),
-    ['reply', 'saveAs', 'copyImage', 'copyLink', 'forward', 'delete', 'select']
+    [
+      'reply',
+      'saveAs',
+      'copyImage',
+      'copyLink',
+      'translate',
+      'forward',
+      'delete',
+      'select',
+    ]
   );
   assert.deepEqual(
     menuItems({

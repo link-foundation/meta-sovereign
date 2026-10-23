@@ -25,6 +25,7 @@ import { StopPollDialog } from './chat-poll.js';
 import { useBotPress } from './chat-bots.js';
 import { useComments } from './chat-comments.js';
 import { useReaders } from './chat-readers.js';
+import { useTranslate } from './chat-translate.js';
 import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
@@ -380,6 +381,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const comments = useComments({ api });
   // Who read a message, who reacted to it (R-Y127).
   const readers = useReaders({ api });
+  // A message translated in a box (R-Y132).
+  const translate = useTranslate({ api });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -445,6 +448,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     act.bot = () => bots.press(message, value);
     act.comments = () => comments.open(message);
     act.readers = () => readers.open('readers', message);
+    act.translate = () => translate.open(message);
     act.reactors = () => readers.open('reactors', message);
     return act[action]?.();
   };
@@ -494,6 +498,12 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     menuFor,
     top,
     keys,
-    dialogs: [...dialogs, bots.dialog, comments.dialog, readers.dialog],
+    dialogs: [
+      ...dialogs,
+      bots.dialog,
+      comments.dialog,
+      readers.dialog,
+      translate.dialog,
+    ],
   };
 };

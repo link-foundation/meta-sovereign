@@ -164,7 +164,8 @@ const Tabs = ({ message, emoji, setEmoji, total }) => {
   );
 };
 
-const Frame = ({ title, close, children }) => {
+/** The panel's frame: a title, Close, Escape and a click outside. */
+export const Frame = ({ title, close, name = 'readers', children }) => {
   const t = useT();
   useEsc(close);
   return el(
@@ -184,7 +185,7 @@ const Frame = ({ title, close, children }) => {
         role: 'dialog',
         'aria-modal': 'true',
         'aria-label': title,
-        'data-dialog': 'readers',
+        'data-dialog': name,
       },
       [
         el('header', { key: 'h', className: 'comments-head' }, [

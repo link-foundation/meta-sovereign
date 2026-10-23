@@ -35,6 +35,7 @@ import React, {
 } from 'react';
 import { networkMessageId } from './chat-model.js';
 import { hasReaders, hasReactors } from './chat-readers.js';
+import { hasTranslation } from './chat-translate.js';
 import { useT } from './i18n.js';
 
 const el = React.createElement;
@@ -149,6 +150,7 @@ const singleItems = ({ message, chat, info, selectedText, target, now }) => {
     ...mediaItems(target, sent),
     copy,
     linkItem({ message, chat, info, target }),
+    hasTranslation(message) && 'translate',
     'forward',
     'delete',
     hasReaders(message, chat) && 'readers',

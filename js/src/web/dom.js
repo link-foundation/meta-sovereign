@@ -953,6 +953,7 @@ export const api = {
   // Who read a message ({ chat, id }), who reacted ({ chat, id, emoji?,
   // offset? }) (R-Y127).
   telegramReaders: (body = {}) => telegramPost('readers', body),
+  telegramTranslate: (body = {}) => telegramPost('translate', body),
   telegramReactors: (body = {}) => telegramPost('reactors', body),
   // New groups and channels, a chat's info edited (R-Y129).
   telegramChatContacts: () => telegramPost('chat-contacts', {}),
