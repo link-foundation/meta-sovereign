@@ -265,6 +265,22 @@
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
+ *   POST /api/telegram/invite-links {chat, revoked?, offsetLink?,
+ *                  offsetDate?} -> { ok, primary, links, count, next }
+ *                                         the user's invite links (R-Y152)
+ *   POST /api/telegram/invite-create {chat, title?, expireDate?, usageLimit?,
+ *                  requestNeeded?} -> { ok, invite } (expireDate: unix s)
+ *   POST /api/telegram/invite-edit {chat, link, revoked?, title?, expireDate?,
+ *                  usageLimit?, requestNeeded?} -> { ok, invite }
+ *   POST /api/telegram/invite-delete {chat, link} -> { ok } a revoked link
+ *   POST /api/telegram/invite-delete-revoked {chat} -> { ok } all of them
+ *   POST /api/telegram/invite-importers {chat, link? | requested: true,
+ *                  offset?} -> { ok, importers, count, next } who joined
+ *                                         through a link, or who asks to join
+ *   POST /api/telegram/join-request-hide {chat, user, accessHash?, approved}
+ *                                      -> { ok } one request decided
+ *   POST /api/telegram/join-requests-hide-all {chat, approved, link?}
+ *                                      -> { ok } every request decided
  *   POST /api/telegram/peer-block {chat, block} -> { ok, blocked }
  *   POST /api/telegram/peer-contact {chat, add, firstName?, lastName?,
  *                                    share?} -> { ok, contact }
@@ -334,6 +350,7 @@ import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
+import { INVITE_LINKS_POSTS } from './routes-telegram-invite-links.js';
 import { EFFECTS_POSTS } from './routes-telegram-effects.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
@@ -1062,6 +1079,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...TOPIC_ADMIN_POSTS,
+  ...INVITE_LINKS_POSTS,
   ...EFFECTS_POSTS,
   ...ROUND_POSTS,
   ...PRIVACY_POSTS,

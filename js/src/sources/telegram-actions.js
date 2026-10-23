@@ -64,6 +64,7 @@ import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
+import { createInviteLinks } from './telegram-invite-links.js';
 import { createTtl } from './telegram-ttl.js';
 import { createSavedTags } from './telegram-saved-tags.js';
 import { createSendAs } from './telegram-send-as.js';
@@ -371,7 +372,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // auto-delete timers and Saved Messages by chat (R-Y143); "send as"
 // (R-Y141); viewing stories (R-Y140); the message box's link preview
 // (R-Y145); story replies, reactions, viewers, deleting and hiding
-// (R-Y148); reaction tags of Saved Messages and the default timer (R-Y151).
+// (R-Y148); reaction tags of Saved Messages and the default timer (R-Y151);
+// invite links and join requests (R-Y152).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -419,6 +421,7 @@ const chatActions = (env, context) => {
     ...createSavedTags(env, context),
     ...createSendAs(env, context),
     ...createEffects(env, context),
+    ...createInviteLinks(env, context),
   };
 };
 

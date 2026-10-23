@@ -17,6 +17,7 @@ import { PeerActions } from './chat-peer-actions.js';
 import { TtlActions } from './chat-ttl.js';
 import { EditChat } from './chat-edit.js';
 import { AdminActions } from './chat-admin.js';
+import { InviteLinksActions } from './chat-invite-links.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
@@ -304,6 +305,7 @@ export const PersonPanel = ({
           : null,
         el(Members, { key: 'mb', api, chat, info }),
         el(AdminActions, { key: 'ad', api, chat, info }),
+        el(InviteLinksActions, { key: 'il', api, chat, info }),
         el(TtlActions, { key: 'ttl', api, chat, info }),
         el(PeerActions, { key: 'pa', api, chat, info }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),

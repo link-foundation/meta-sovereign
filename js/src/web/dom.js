@@ -991,6 +991,19 @@ export const api = {
     telegramPost('chat-permissions-set', body),
   telegramSlowMode: (body = {}) => telegramPost('slow-mode', body),
   telegramAdminLog: (body = {}) => telegramPost('admin-log', body),
+  // Invite links and join requests (R-Y152).
+  telegramInviteLinks: (body = {}) => telegramPost('invite-links', body),
+  telegramInviteCreate: (body = {}) => telegramPost('invite-create', body),
+  telegramInviteEdit: (body = {}) => telegramPost('invite-edit', body),
+  telegramInviteDelete: (body = {}) => telegramPost('invite-delete', body),
+  telegramInviteDeleteRevoked: (body = {}) =>
+    telegramPost('invite-delete-revoked', body),
+  telegramInviteImporters: (body = {}) =>
+    telegramPost('invite-importers', body),
+  telegramJoinRequestHide: (body = {}) =>
+    telegramPost('join-request-hide', body),
+  telegramJoinRequestsHideAll: (body = {}) =>
+    telegramPost('join-requests-hide-all', body),
   // A chat's auto-delete timer, Saved Messages by chat (R-Y143).
   telegramHistoryTtl: (body = {}) => telegramPost('history-ttl', body),
   telegramSavedDialogs: (body = {}) => telegramPost('saved-dialogs', body),

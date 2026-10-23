@@ -143,6 +143,21 @@ export const topicRightsIn = (entity = {}) => {
   };
 };
 
+// People waiting to be let in, for those who may invite (R-Y152): how
+// many, and the latest few as { id, name }.
+const requestsOf = (entity, full, users = []) => {
+  const pending = Number(full?.requestsPending ?? 0);
+  if (!canInviteIn(entity) || pending <= 0) {
+    return {};
+  }
+  const byId = new Map(users.map((u) => [String(u.id?.value ?? u.id), u]));
+  const recentRequesters = (full.recentRequesters ?? []).map((raw) => {
+    const id = String(raw?.value ?? raw);
+    return { id, name: nameOf(byId.get(id) ?? {}) || id };
+  });
+  return { requestsPending: pending, recentRequesters };
+};
+
 const fetchChannel = async (client, Api, inputPeer) => {
   const result = await client.invoke(
     new Api.channels.GetFullChannel({ channel: inputPeer })
@@ -169,6 +184,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
     ...inviteOf(entity, full),
+    ...requestsOf(entity, full, result.users),
   };
 };
 
@@ -195,6 +211,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
     ...inviteOf(entity, full),
+    ...requestsOf(entity, full, result.users),
   };
 };
 

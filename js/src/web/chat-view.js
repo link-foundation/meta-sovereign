@@ -13,6 +13,7 @@
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
 import { PeerBar } from './chat-peer-actions.js';
+import { RequestsBar } from './chat-join-requests.js';
 import { TtlBadge } from './chat-ttl.js';
 import { SavedChats, SavedToggle, useSavedView } from './chat-saved.js';
 import {
@@ -1393,6 +1394,13 @@ export const ChatScreen = ({ state, api }) => {
               key: `peer:${state.current.key}`,
               api,
               chat: state.current,
+            }),
+            // "N requested to join" for those who may invite (R-Y152).
+            el(RequestsBar, {
+              key: `requests:${state.current.key}`,
+              api,
+              chat: state.current,
+              info: state.info,
             }),
             el(ConnectionBanner, { key: 'b', banner: state.banner }),
             el(FailedBar, { key: 'failed', composer: state.composer }),

@@ -7484,3 +7484,104 @@ span.bubble-effect {
 .forum-toggle {
   margin-top: 0.5rem;
 }
+
+/* Invite links and join requests (R-Y152): the slim bar under the
+   header, the requests list and the links screen. */
+.requests-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--text);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  flex: none;
+}
+.requests-bar-wrap {
+  flex: none;
+}
+.requests-faces {
+  display: inline-flex;
+}
+.requests-face {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-left: -0.4rem;
+  font-size: 0.6rem;
+  border: 2px solid var(--bg-elev);
+}
+.requests-face:first-child {
+  margin-left: 0;
+}
+.requests-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+}
+.requests-avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: none;
+}
+.requests-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+.requests-about {
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+}
+.requests-buttons,
+.requests-all,
+.links-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.requests-all {
+  margin-bottom: 0.4rem;
+}
+.links-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.links-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.links-open {
+  display: flex;
+  flex: 1 1 10rem;
+  flex-direction: column;
+  align-items: flex-start;
+  border: none;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.links-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.links-revoked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
