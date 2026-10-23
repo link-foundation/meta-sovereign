@@ -947,8 +947,8 @@ const Composer = ({ state, api, keys }) => {
   // The emoji panel (R-Y104), with stickers and GIFs (R-Y105).
   const box = useRef(null);
   const typeText = (next) => composer.setText(next, { typed: true });
-  const extra = useStickerTabs({ state, api, composer });
-  const emoji = useEmojiPanel({ box, setText: typeText, extra });
+  const stickers = useStickerTabs({ state, api, composer });
+  const emoji = useEmojiPanel({ box, setText: typeText, extra: stickers.tabs });
   // With nothing typed, the microphone (R-Y108).
   const voice = useVoice({ state, api });
   // Text selected in the box: the formatting bar (R-Y109).
@@ -1048,6 +1048,7 @@ const Composer = ({ state, api, keys }) => {
       sendProps: later.filesMenu.props,
     }),
     ...later.parts,
+    ...(stickers.parts ?? []),
   ]);
 };
 

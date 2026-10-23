@@ -344,6 +344,12 @@ export const QUICK_REACTIONS = Object.freeze([
 const MENU_ITEMS = {
   sendSilent: ['chat.schedule.silent', 'mute'],
   schedule: ['chat.schedule.menu', 'clock'],
+  // A sticker's or GIF's, in the emoji panel (R-Y115).
+  faveSticker: ['chat.stickers.fave', 'star'],
+  unfaveSticker: ['chat.stickers.unfave', 'star'],
+  removeRecent: ['chat.stickers.unrecent', 'trash'],
+  saveGif: ['chat.stickers.saveGif', 'download'],
+  deleteGif: ['chat.stickers.unsaveGif', 'trash'],
   reply: ['chat.reply', 'reply'],
   quoteReply: ['chat.quoteReply', 'quote'],
   edit: ['chat.edit', 'edit'],

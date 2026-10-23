@@ -53,6 +53,7 @@
     "test:e2e:schedule": "node js/tests/e2e-schedule-browser.mjs",
     "test:e2e:folders": "node js/tests/e2e-folders-browser.mjs",
     "test:e2e:emoji": "node js/tests/e2e-emoji-browser.mjs",
+    "test:e2e:emoji-tones": "node js/tests/e2e-emoji-tones-browser.mjs",
     "test:e2e:stickers": "node js/tests/e2e-stickers-browser.mjs",
     "test:e2e:jump-date": "node js/tests/e2e-jump-date-browser.mjs",
     "test:e2e:global-search": "node js/tests/e2e-global-search-browser.mjs",
@@ -93,6 +94,7 @@
     "test:e2e:schedule:webkit": "E2E_BROWSER=webkit node js/tests/e2e-schedule-browser.mjs",
     "test:e2e:folders:webkit": "E2E_BROWSER=webkit node js/tests/e2e-folders-browser.mjs",
     "test:e2e:emoji:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-browser.mjs",
+    "test:e2e:emoji-tones:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-tones-browser.mjs",
     "test:e2e:stickers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stickers-browser.mjs",
     "test:e2e:jump-date:webkit": "E2E_BROWSER=webkit node js/tests/e2e-jump-date-browser.mjs",
     "test:e2e:global-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-global-search-browser.mjs",
@@ -105,7 +107,9 @@
     "test:e2e:sticker-search": "node js/tests/e2e-sticker-search-browser.mjs",
     "test:e2e:sticker-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-search-browser.mjs",
     "test:e2e:lottie": "node js/tests/e2e-lottie-browser.mjs",
-    "test:e2e:lottie:webkit": "E2E_BROWSER=webkit node js/tests/e2e-lottie-browser.mjs"
+    "test:e2e:lottie:webkit": "E2E_BROWSER=webkit node js/tests/e2e-lottie-browser.mjs",
+    "test:e2e:sticker-menu": "node js/tests/e2e-sticker-menu-browser.mjs",
+    "test:e2e:sticker-menu:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-menu-browser.mjs"
   },
   "keywords": [
     "personal-crm",

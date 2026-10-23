@@ -13,6 +13,9 @@
  *   own picture; `full` a video sticker's or GIF's video, or an
  *   animated sticker's animation (R-Y113), to play while on screen.
  *   Each downloaded once into the app folder;
+ * - `stickerSave({ id, action })` — the panel's menu (R-Y115): a sticker
+ *   made a favourite or not (messages.faveSticker), taken from the recent
+ *   ones (saveRecentSticker), a GIF saved or not (saveGif);
  * - `sendDocument({ chat, id, replyTo, silent, scheduleDate, clientId })`
  *   — a sticker or GIF sent as it is (messages.sendMedia); Telegram's
  *   answer goes through the live handler, so it shows in the chat.
@@ -291,6 +294,11 @@ const createLists = (env, userClient, now) => {
     sent: () => {
       kept.panel = null;
     },
+    // A favourite, a recent sticker or a saved GIF changed.
+    changed: () => {
+      kept.panel = null;
+      kept.gifs = null;
+    },
   };
 };
 
@@ -417,16 +425,17 @@ const createPictures = (env, { userClient, mediaDir }, lists) => {
   return stickerPicture;
 };
 
+const inputDocument = (c, doc) =>
+  new c.Api.InputDocument({
+    id: c.helpers.returnBigInt(text(doc.id)),
+    accessHash: c.helpers.returnBigInt(text(doc.accessHash)),
+    fileReference: bytesOf(doc.fileReference),
+  });
+
 const sendRequest = (c, doc, peer, draft) =>
   new c.Api.messages.SendMedia({
     peer,
-    media: new c.Api.InputMediaDocument({
-      id: new c.Api.InputDocument({
-        id: c.helpers.returnBigInt(text(doc.id)),
-        accessHash: c.helpers.returnBigInt(text(doc.accessHash)),
-        fileReference: bytesOf(doc.fileReference),
-      }),
-    }),
+    media: new c.Api.InputMediaDocument({ id: inputDocument(c, doc) }),
     message: '',
     randomId: randomIdOf(draft.clientId, 0, c.helpers),
     clearDraft: false,
@@ -469,6 +478,39 @@ const createSender = (env, { userClient, apply }, lists) => {
   return sendDocument;
 };
 
+// What the panel's menu changes (R-Y115), as Telegram asks it.
+const SAVES = {
+  fave: (c, id) => new c.Api.messages.FaveSticker({ id, unfave: false }),
+  unfave: (c, id) => new c.Api.messages.FaveSticker({ id, unfave: true }),
+  unrecent: (c, id) =>
+    new c.Api.messages.SaveRecentSticker({ id, attached: false, unsave: true }),
+  saveGif: (c, id) => new c.Api.messages.SaveGif({ id, unsave: false }),
+  unsaveGif: (c, id) => new c.Api.messages.SaveGif({ id, unsave: true }),
+};
+export const STICKER_SAVES = Object.freeze(Object.keys(SAVES));
+
+// A sticker made a favourite or not, taken from the recent ones, a GIF
+// saved or not; the lists asked again after.
+const createSaver =
+  (env, { userClient }, lists) =>
+  async ({ id, action } = {}) => {
+    const key = String(id ?? '');
+    if (!lists.known(key) || !Object.hasOwn(SAVES, String(action))) {
+      return { ok: false, error: 'unknown sticker', code: 'unknown-sticker' };
+    }
+    const c = await connect(env, userClient);
+    if (!c) {
+      return { ok: false, supported: false };
+    }
+    await lists.withDoc(key, (doc) =>
+      runIn(env, `stickers:save:${action}:${key}`, () =>
+        c.client.invoke(SAVES[action](c, inputDocument(c, doc)))
+      )
+    );
+    lists.changed();
+    return { ok: true };
+  };
+
 /** `env`: the account's; `apply(client, result)` the live handler. */
 export const createStickers = (
   env,
@@ -483,5 +525,6 @@ export const createStickers = (
     ...createStickerSearch(env, { userClient, lists, now }),
     stickerPicture: createPictures(env, { userClient, mediaDir }, lists),
     sendDocument: createSender(env, { userClient, apply }, lists),
+    stickerSave: createSaver(env, { userClient }, lists),
   };
 };

@@ -11,6 +11,11 @@
  * and sticker sets, the user's or not; words find GIFs as Telegram's
  * apps do (its @gif bot), more as the list is scrolled to its end.
  *
+ * A right click on a sticker or GIF (R-Y115), as Telegram Desktop's: send
+ * it without sound, schedule it, add a sticker to the favourites or take
+ * it off them, take it off the recent ones, save a GIF or delete it from
+ * the saved ones.
+ *
  * Only for a Telegram chat of a user account; the pictures come through
  * the server (/api/telegram/sticker), never from Telegram to the page.
  */
@@ -22,6 +27,8 @@ import { useNearView } from './chat-media.js';
 import { mediaSrc } from './media-src.js';
 import { jumpTo, useInView } from './chat-emoji.js';
 import { LottieSticker } from './lottie-sticker.js';
+import { MsgContextMenu } from './chat-message.js';
+import { canSchedule, ScheduleDialog } from './chat-schedule.js';
 
 const el = React.createElement;
 
@@ -43,7 +50,12 @@ const kept = new Map();
 export const forgetStickers = () => kept.clear();
 
 // `api[method](body)`'s answer, kept by `key`; asked again when `fresh`.
-const useAnswer = (api, method, body, { key, when = true, fresh = false }) => {
+const useAnswer = (
+  api,
+  method,
+  body,
+  { key, when = true, fresh = false, version = 0 }
+) => {
   const [answer, setAnswer] = useState(() => kept.get(key) ?? null);
   useEffect(() => {
     if (!when || (kept.has(key) && !fresh)) {
@@ -64,7 +76,7 @@ const useAnswer = (api, method, body, { key, when = true, fresh = false }) => {
     return () => {
       active = false;
     };
-  }, [api, method, key, when]);
+  }, [api, method, key, when, version]);
   return answer;
 };
 
@@ -137,7 +149,7 @@ const Picture = ({ api, item }) => {
   return el('span', { ref, className: 'sticker-picture' }, shown);
 };
 
-const Cell = ({ api, item, onSend }) => {
+const Cell = ({ api, item, onSend, onMenu }) => {
   const t = useT();
   const label =
     item.kind === 'gif' ? t('chat.stickers.gif') : (item.emoji ?? '');
@@ -150,16 +162,32 @@ const Cell = ({ api, item, onSend }) => {
       'aria-label': label || t('chat.stickers.sticker'),
       'data-sticker': item.id,
       onClick: () => onSend(item),
+      onContextMenu: (event) => {
+        if (onMenu) {
+          event.preventDefault();
+          onMenu(item, { x: event.clientX, y: event.clientY });
+        }
+      },
     },
     el(Picture, { api, item })
   );
 };
 
-const Grid = ({ api, list, onSend, gifs = false }) =>
+// `where` (faved, recent, set, found, saved, foundGif) tells the menu
+// what it may offer.
+const Grid = ({ api, list, onSend, onMenu, where, gifs = false }) =>
   el(
     'div',
     { className: gifs ? 'gif-grid' : 'sticker-grid' },
-    list.map((item) => el(Cell, { key: item.id, api, item, onSend }))
+    list.map((item) =>
+      el(Cell, {
+        key: item.id,
+        api,
+        item,
+        onSend,
+        onMenu: onMenu && ((it, point) => onMenu(it, point, where)),
+      })
+    )
   );
 
 const Section = ({ id, title, children }) =>
@@ -170,7 +198,7 @@ const Section = ({ id, title, children }) =>
 
 // A set's stickers, asked once the list comes near it; until then a
 // space as tall as they will be, so the bar's jumps land.
-const SetSection = ({ api, set, onSend }) => {
+const SetSection = ({ api, set, onSend, onMenu }) => {
   const ref = useRef(null);
   const { near } = useNearView(ref);
   const answer = useAnswer(
@@ -188,7 +216,7 @@ const SetSection = ({ api, set, onSend }) => {
       Section,
       { id: `set:${set.id}`, title: set.title },
       list
-        ? el(Grid, { api, list, onSend })
+        ? el(Grid, { api, list, onSend, onMenu, where: 'set' })
         : el('div', {
             className: 'sticker-pending',
             style: { height: `${rows * 4.25}rem` },
@@ -268,7 +296,7 @@ const SearchBox = ({ field, value, onChange }) => {
 const canSearch = (api, method) => typeof api?.[method] === 'function';
 
 // Stickers found for an emoji or words, then the sets found.
-const FoundStickers = ({ api, q, onSend }) => {
+const FoundStickers = ({ api, q, onSend, onMenu }) => {
   const t = useT();
   const lang = String(useLocaleContext().locale ?? 'en').slice(0, 2);
   const answer = useAnswer(
@@ -291,17 +319,23 @@ const FoundStickers = ({ api, q, onSend }) => {
       ? el(
           Section,
           { key: 'found', id: 'found', title: t('chat.stickers.found') },
-          el(Grid, { api, list: answer.stickers, onSend })
+          el(Grid, {
+            api,
+            list: answer.stickers,
+            onSend,
+            onMenu,
+            where: 'found',
+          })
         )
       : null,
     ...answer.sets.map((set) =>
-      el(SetSection, { key: `set:${set.id}`, api, set, onSend })
+      el(SetSection, { key: `set:${set.id}`, api, set, onSend, onMenu })
     ),
   ];
 };
 
 /** The Stickers tab. */
-export const StickersTab = ({ api, onSend }) => {
+export const StickersTab = ({ api, onSend, onMenu, version }) => {
   const [query, setQuery] = useState('');
   const q = useDebounced(query.trim());
   const search = canSearch(api, 'telegramStickerSearch');
@@ -318,21 +352,21 @@ export const StickersTab = ({ api, onSend }) => {
       ? el(
           'div',
           { key: 'found', className: 'emoji-scroll', 'data-found': q },
-          el(FoundStickers, { api, q, onSend })
+          el(FoundStickers, { api, q, onSend, onMenu })
         )
-      : el(MyStickers, { key: 'mine', api, onSend }),
+      : el(MyStickers, { key: 'mine', api, onSend, onMenu, version }),
   ]);
 };
 
 // The user's own: favourites, recent, their sets with the bar.
-const MyStickers = ({ api, onSend }) => {
+const MyStickers = ({ api, onSend, onMenu, version }) => {
   const t = useT();
   const scroller = useRef(null);
   const answer = useAnswer(
     api,
     'telegramStickers',
     {},
-    { key: 'panel', fresh: true }
+    { key: 'panel', fresh: true, version }
   );
   const sections = answer?.ok
     ? [
@@ -352,11 +386,11 @@ const MyStickers = ({ api, onSend }) => {
   } else if (answer?.ok) {
     body = sections.map((s) =>
       s.set
-        ? el(SetSection, { key: s.key, api, set: s.set, onSend })
+        ? el(SetSection, { key: s.key, api, set: s.set, onSend, onMenu })
         : el(
             Section,
             { key: s.key, id: s.key, title: t(`chat.stickers.${s.key}`) },
-            el(Grid, { api, list: s.list, onSend })
+            el(Grid, { api, list: s.list, onSend, onMenu, where: s.key })
           )
     );
   }
@@ -423,7 +457,7 @@ const More = ({ onNear }) => {
   return el('div', { ref, className: 'gif-more' });
 };
 
-const FoundGifs = ({ api, q, onSend }) => {
+const FoundGifs = ({ api, q, onSend, onMenu }) => {
   const t = useT();
   const found = useGifPages(api, q);
   if (found.error) {
@@ -436,7 +470,15 @@ const FoundGifs = ({ api, q, onSend }) => {
     return el(Note, { text: t('chat.stickers.notFound') });
   }
   return [
-    el(Grid, { key: 'g', api, list: found.gifs, onSend, gifs: true }),
+    el(Grid, {
+      key: 'g',
+      api,
+      list: found.gifs,
+      onSend,
+      onMenu,
+      where: 'foundGif',
+      gifs: true,
+    }),
     found.next
       ? el(More, { key: `more:${found.gifs.length}`, onNear: found.more })
       : null,
@@ -444,7 +486,7 @@ const FoundGifs = ({ api, q, onSend }) => {
 };
 
 /** The GIFs tab. */
-export const GifsTab = ({ api, onSend }) => {
+export const GifsTab = ({ api, onSend, onMenu, version }) => {
   const [query, setQuery] = useState('');
   const q = useDebounced(query.trim());
   const search = canSearch(api, 'telegramGifSearch');
@@ -465,19 +507,19 @@ export const GifsTab = ({ api, onSend }) => {
             className: 'emoji-scroll gif-scroll',
             'data-found': q,
           },
-          el(FoundGifs, { api, q, onSend })
+          el(FoundGifs, { api, q, onSend, onMenu })
         )
-      : el(SavedGifs, { key: 'saved', api, onSend }),
+      : el(SavedGifs, { key: 'saved', api, onSend, onMenu, version }),
   ]);
 };
 
-const SavedGifs = ({ api, onSend }) => {
+const SavedGifs = ({ api, onSend, onMenu, version }) => {
   const t = useT();
   const answer = useAnswer(
     api,
     'telegramGifs',
     {},
-    { key: 'gifs', fresh: true }
+    { key: 'gifs', fresh: true, version }
   );
   let body = el(Note, { text: t('chat.stickers.loading') });
   if (answer && !answer.ok) {
@@ -485,23 +527,56 @@ const SavedGifs = ({ api, onSend }) => {
   } else if (answer?.ok && answer.gifs.length === 0) {
     body = el(Note, { text: t('chat.stickers.noGifs') });
   } else if (answer?.ok) {
-    body = el(Grid, { api, list: answer.gifs, onSend, gifs: true });
+    body = el(Grid, {
+      api,
+      list: answer.gifs,
+      onSend,
+      onMenu,
+      where: 'saved',
+      gifs: true,
+    });
   }
   return el('div', { className: 'emoji-scroll gif-scroll' }, body);
 };
 
 let sent = 0;
 
-/**
- * The Stickers and GIFs tabs for the composer's emoji panel: none
- * unless the chat can take them. A pick is sent at once.
- */
-export const useStickerTabs = ({ state, api, composer }) => {
-  const t = useT();
-  if (!canStickers(state, api)) {
-    return [];
+// A menu item's action on the server (./sources/telegram-stickers.js).
+const SAVE_ACTIONS = {
+  faveSticker: 'fave',
+  unfaveSticker: 'unfave',
+  removeRecent: 'unrecent',
+  saveGif: 'saveGif',
+  deleteGif: 'unsaveGif',
+};
+
+const keptHas = (key, list, id) =>
+  (kept.get(key)?.[list] ?? []).some((item) => item.id === id);
+
+/** What a sticker's or GIF's menu offers, `where` it was clicked. */
+export const stickerMenuItems = (item, where, { schedule = false } = {}) => {
+  const items = ['sendSilent', ...(schedule ? ['schedule'] : [])];
+  if (item.kind === 'gif') {
+    return [
+      ...items,
+      where === 'saved' || keptHas('gifs', 'gifs', item.id)
+        ? 'deleteGif'
+        : 'saveGif',
+    ];
   }
-  const send = async (item, close) => {
+  return [
+    ...items,
+    where === 'faved' || keptHas('panel', 'faved', item.id)
+      ? 'unfaveSticker'
+      : 'faveSticker',
+    ...(where === 'recent' ? ['removeRecent'] : []),
+  ];
+};
+
+// Sends a sticker or GIF: `when` { silent, scheduleDate }.
+const useSend =
+  ({ state, api, composer }) =>
+  async (item, close, when) => {
     close();
     sent += 1;
     const replyTo = composer?.replyTo?.msgId;
@@ -509,6 +584,7 @@ export const useStickerTabs = ({ state, api, composer }) => {
       chat: String(state.current.chat),
       id: item.id,
       ...(replyTo ? { replyTo } : {}),
+      ...when,
       clientId: `doc-${Date.now()}-${sent}`,
     });
     if (answer?.ok) {
@@ -522,18 +598,105 @@ export const useStickerTabs = ({ state, api, composer }) => {
       retryAfter: answer?.retryAfter,
     });
   };
-  return [
-    {
-      key: 'stickers',
-      label: t('chat.stickers.title'),
-      render: (close) =>
-        el(StickersTab, { api, onSend: (item) => send(item, close) }),
-    },
-    {
-      key: 'gifs',
-      label: t('chat.stickers.gifs'),
-      render: (close) =>
-        el(GifsTab, { api, onSend: (item) => send(item, close) }),
-    },
+
+// The menu, the schedule dialog, and the saves: what changes is asked
+// again (`version`).
+const useStickerMenu = ({ state, api, send }) => {
+  const [menu, setMenu] = useState(null);
+  const [later, setLater] = useState(null);
+  const [version, setVersion] = useState(0);
+  const save = async (item, action) => {
+    const answer = await Promise.resolve(
+      api.telegramStickerSave?.({ id: item.id, action })
+    ).catch((error) => ({ error: error.message }));
+    if (answer?.ok) {
+      setVersion((v) => v + 1);
+      return;
+    }
+    state.notify?.({
+      kind: 'failed',
+      code: answer?.code,
+      error: answer?.error ?? 'not saved',
+      retryAfter: answer?.retryAfter,
+    });
+  };
+  const act = (key) => {
+    const { item, close } = menu;
+    if (key === 'sendSilent') {
+      send(item, close, { silent: true });
+    } else if (key === 'schedule') {
+      setLater({ item, close });
+    } else if (SAVE_ACTIONS[key]) {
+      save(item, SAVE_ACTIONS[key]);
+    }
+  };
+  const schedule = canSchedule(state, api);
+  const open = (close) => (item, point, where) =>
+    setMenu({
+      item,
+      close,
+      ...point,
+      items: stickerMenuItems(item, where, { schedule }),
+    });
+  const parts = [
+    menu
+      ? el(MsgContextMenu, {
+          key: 'sticker-menu',
+          x: menu.x,
+          y: menu.y,
+          message: { pending: true },
+          items: menu.items,
+          reactions: false,
+          onClose: () => setMenu(null),
+          onAction: act,
+        })
+      : null,
+    later
+      ? el(ScheduleDialog, {
+          key: 'sticker-when',
+          onClose: () => setLater(null),
+          onPick: (at) =>
+            send(later.item, later.close, {
+              scheduleDate: Math.floor(at / 1000),
+            }),
+        })
+      : null,
   ];
+  return { open, parts, version };
+};
+
+/**
+ * The Stickers and GIFs tabs for the composer's emoji panel: none
+ * unless the chat can take them. A pick is sent at once; a right click
+ * opens its menu. `{ tabs, parts }`: `parts` (the menu, the schedule
+ * dialog) are drawn by the composer, so they outlive the panel.
+ */
+export const useStickerTabs = ({ state, api, composer }) => {
+  const t = useT();
+  const send = useSend({ state, api, composer });
+  const menu = useStickerMenu({ state, api, send });
+  if (!canStickers(state, api)) {
+    return { tabs: [], parts: null };
+  }
+  const props = (close) => ({
+    api,
+    onSend: (item) => send(item, close),
+    onMenu: menu.open(close),
+    version: menu.version,
+  });
+  return {
+    tabs: [
+      {
+        key: 'stickers',
+        label: t('chat.stickers.title'),
+        render: (close) => el(StickersTab, props(close)),
+      },
+      {
+        key: 'gifs',
+        label: t('chat.stickers.gifs'),
+        render: (close) => el(GifsTab, props(close)),
+      },
+    ],
+    parts: menu.parts,
+  };
 };

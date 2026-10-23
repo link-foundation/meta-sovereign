@@ -10,18 +10,34 @@
  * The emoji are Unicode's (./emoji-data.js, generated); the recent ones
  * stay in this browser. Other tabs (stickers and GIFs, ./chat-stickers.js)
  * come from the composer; the chosen tab is remembered.
+ *
+ * Emoji that take a skin tone (R-Y114) carry a corner mark; a right click
+ * or a press held ~0.4 s opens the six variants above it, and the tone
+ * picked is remembered for that emoji, in the panel and in search.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
-import { EMOJI_CATEGORIES } from './emoji-data.js';
+import { EMOJI_CATEGORIES, EMOJI_TONES } from './emoji-data.js';
 
 const el = React.createElement;
 
 const RECENT_KEY = 'meta-sovereign.emoji.recent';
 const TAB_KEY = 'meta-sovereign.emoji.tab';
+const TONES_KEY = 'meta-sovereign.emoji.tones';
 const RECENT_MAX = 32;
+const HOLD_MS = 400;
+const POPOVER_W = 228;
+const POPOVER_H = 48;
+const TONE_NAMES = [
+  'default',
+  'light',
+  'mediumLight',
+  'medium',
+  'mediumDark',
+  'dark',
+];
 // Before anything is picked: the ones people use most, as Telegram's
 // panel starts.
 const FIRST_RECENT = [
@@ -52,6 +68,7 @@ const FIRST_RECENT = [
 ];
 
 const NONE = [];
+const TONE_MARK = /[\u{1F3FB}-\u{1F3FF}]/u;
 
 const CATEGORY_ICONS = {
   recent: 'clock',
@@ -104,6 +121,58 @@ export const findEmoji = (query, limit = 120) => {
   return found;
 };
 
+/** The emoji (without a tone) that take a skin tone. */
+export const toneBases = new Set(EMOJI_TONES.split('|'));
+
+/**
+ * `emoji` in tone 1-5 (light to dark; 0 or none is the default): the tone
+ * goes after the first code point, which drops its FE0F.
+ */
+export const tonedForm = (emoji, tone) => {
+  if (!tone || !toneBases.has(emoji)) {
+    return emoji;
+  }
+  const [first, ...rest] = [...emoji];
+  const left = rest[0] === '\uFE0F' ? rest.slice(1) : rest;
+  return [first, String.fromCodePoint(0x1f3fa + tone), ...left].join('');
+};
+
+/** The remembered tones, `{ base: 1-5 }`. */
+export const readTones = (storage = globalThis.localStorage) => {
+  try {
+    const saved = JSON.parse(storage?.getItem(TONES_KEY) ?? 'null');
+    const tones = {};
+    for (const [base, tone] of Object.entries(saved ?? {})) {
+      if (toneBases.has(base) && tone >= 1 && tone <= 5) {
+        tones[base] = tone;
+      }
+    }
+    return tones;
+  } catch {
+    return {};
+  }
+};
+
+/** `tones` with `base` in `tone` (0 forgets it), saved. */
+export const rememberTone = (
+  tones,
+  base,
+  tone,
+  storage = globalThis.localStorage
+) => {
+  const next = { ...tones };
+  delete next[base];
+  if (tone > 0) {
+    next[base] = tone;
+  }
+  try {
+    storage?.setItem(TONES_KEY, JSON.stringify(next));
+  } catch {
+    // Private mode: remembered until the page closes.
+  }
+  return next;
+};
+
 /** `recent` with `emoji` put first, at most RECENT_MAX. */
 export const withRecent = (recent, emoji) =>
   [emoji, ...recent.filter((e) => e !== emoji)].slice(0, RECENT_MAX);
@@ -153,18 +222,29 @@ export const insertAtCaret = (area, text, setText) => {
 };
 
 // Escape, or a press outside the panel and its button, closes it.
+// A menu or dialog opened from the panel (a sticker's, R-Y115) is drawn
+// on the page's body: pressing in it, or the Escape that closes it, is
+// not leaving the panel.
+const OVER_PANEL = '.msg-context-menu, .delete-dialog-overlay';
+
+const overPanel = () =>
+  Boolean(globalThis.document?.querySelector?.(OVER_PANEL));
+
 const useClosing = (open, close, inside) => {
   useEffect(() => {
     if (!open) {
       return undefined;
     }
     const key = (event) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !overPanel()) {
         close();
       }
     };
     const press = (event) => {
-      if (!inside.some((ref) => ref.current?.contains?.(event.target))) {
+      const inPanel = inside.some((ref) =>
+        ref.current?.contains?.(event.target)
+      );
+      if (!inPanel && !event.target?.closest?.(OVER_PANEL)) {
         close();
       }
     };
@@ -177,29 +257,153 @@ const useClosing = (open, close, inside) => {
   }, [open, close, inside]);
 };
 
-const Cell = ({ item, onPick }) =>
-  el(
+// A press held HOLD_MS, or a right click, asks for the tones.
+const useHold = (ask) => {
+  const hold = useRef({ timer: null, fired: false });
+  const stop = () => {
+    globalThis.clearTimeout(hold.current.timer);
+  };
+  return {
+    stop,
+    start: (event) => {
+      if (event.button !== 0) {
+        return;
+      }
+      const target = event.currentTarget;
+      hold.current.fired = false;
+      stop();
+      hold.current.timer = globalThis.setTimeout(() => {
+        hold.current.fired = true;
+        ask(target);
+      }, HOLD_MS);
+    },
+    // True once, right after a hold: that release is no pick.
+    held: () => {
+      const { fired } = hold.current;
+      hold.current.fired = false;
+      return fired;
+    },
+  };
+};
+
+const Cell = ({ item, onPick, toning }) => {
+  const base = item.emoji;
+  const tonable = Boolean(toning) && toneBases.has(base);
+  const hold = useHold((target) => toning.open(base, target));
+  const shown = tonable ? tonedForm(base, toning.tones[base]) : base;
+  const extra = tonable
+    ? {
+        'data-tonable': base,
+        onPointerDown: hold.start,
+        onPointerUp: hold.stop,
+        onPointerLeave: hold.stop,
+        onPointerCancel: hold.stop,
+        onContextMenu: (event) => {
+          event.preventDefault();
+          hold.stop();
+          toning.open(base, event.currentTarget);
+        },
+      }
+    : {};
+  return el(
     'button',
     {
       type: 'button',
       className: 'emoji-cell',
       title: item.name,
       'aria-label': item.name,
-      'data-emoji': item.emoji,
-      onClick: () => onPick(item.emoji),
+      'data-emoji': shown,
+      ...extra,
+      onClick: () => {
+        if (!hold.held()) {
+          onPick(shown);
+        }
+      },
     },
-    item.emoji
+    shown
   );
+};
 
-const Section = ({ id, title, list, onPick }) =>
+const Section = ({ id, title, list, onPick, toning }) =>
   el('section', { className: 'emoji-section', 'data-category': id }, [
     el('h4', { key: 'h', className: 'emoji-section-title' }, title),
     el(
       'div',
       { key: 'g', className: 'emoji-grid' },
-      list.map((item) => el(Cell, { key: item.emoji, item, onPick }))
+      list.map((item) => el(Cell, { key: item.emoji, item, onPick, toning }))
     ),
   ]);
+
+// The six variants of a base emoji over (or under) its cell; Escape or a
+// press elsewhere closes just this.
+const TonePopover = ({ at, tones, pick, close }) => {
+  const t = useT();
+  const ref = useRef(null);
+  useEffect(() => {
+    const key = (event) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        close();
+      }
+    };
+    const press = (event) => {
+      if (!ref.current?.contains(event.target)) {
+        close();
+      }
+    };
+    globalThis.addEventListener('keydown', key, true);
+    globalThis.addEventListener('pointerdown', press, true);
+    return () => {
+      globalThis.removeEventListener('keydown', key, true);
+      globalThis.removeEventListener('pointerdown', press, true);
+    };
+  }, [close]);
+  return el(
+    'div',
+    {
+      ref,
+      className: 'emoji-tones',
+      role: 'group',
+      'aria-label': t('chat.emoji.tones'),
+      'data-emoji-tones': at.base,
+      style: { left: at.left, top: at.top },
+    },
+    TONE_NAMES.map((name, tone) => {
+      const variant = tonedForm(at.base, tone);
+      return el(
+        'button',
+        {
+          key: name,
+          type: 'button',
+          className:
+            (tones[at.base] ?? 0) === tone ? 'emoji-tone active' : 'emoji-tone',
+          title: t(`chat.emoji.tone.${name}`),
+          'aria-label': t(`chat.emoji.tone.${name}`),
+          'data-tone': tone,
+          'data-emoji': variant,
+          onClick: () => pick(variant, tone),
+        },
+        variant
+      );
+    })
+  );
+};
+
+// Where the popover goes: over the cell, or under it near the panel's top.
+const popoverAt = (base, target) => {
+  const panel = target.closest('.emoji-panel')?.getBoundingClientRect();
+  const cell = target.getBoundingClientRect();
+  if (!panel) {
+    return null;
+  }
+  const left = cell.left - panel.left + cell.width / 2 - POPOVER_W / 2;
+  const above = cell.top - panel.top - POPOVER_H - 4;
+  return {
+    base,
+    left: Math.max(4, Math.min(left, panel.width - POPOVER_W - 4)),
+    top: above >= 0 ? above : cell.bottom - panel.top + 4,
+  };
+};
 
 const named = (list) => {
   const names = new Map();
@@ -208,7 +412,10 @@ const named = (list) => {
       names.set(item.emoji, item.name);
     }
   }
-  return list.map((emoji) => ({ emoji, name: names.get(emoji) ?? emoji }));
+  return list.map((emoji) => ({
+    emoji,
+    name: names.get(emoji) ?? names.get(emoji.replace(TONE_MARK, '')) ?? emoji,
+  }));
 };
 
 // The section in view, for the bar below.
@@ -247,7 +454,7 @@ export const jumpTo = (scroller, key) => {
   }
 };
 
-const EmojiTab = ({ recent, onPick }) => {
+const EmojiTab = ({ recent, onPick, tones, onTone }) => {
   const t = useT();
   const [query, setQuery] = useState('');
   const scroller = useRef(null);
@@ -257,6 +464,17 @@ const EmojiTab = ({ recent, onPick }) => {
     [recent]
   );
   const inView = useInView(scroller, [query]);
+  const [at, setAt] = useState(null);
+  const closeTones = useMemo(() => () => setAt(null), []);
+  const toning = {
+    tones,
+    open: (base, target) => setAt(popoverAt(base, target)),
+  };
+  const pickTone = (variant, tone) => {
+    onPick(variant);
+    onTone(at.base, tone);
+    setAt(null);
+  };
   const jump = (key) => jumpTo(scroller, key);
   const searching = query.trim().length > 0;
   return el(React.Fragment, null, [
@@ -280,6 +498,7 @@ const EmojiTab = ({ recent, onPick }) => {
               title: t('chat.emoji.found'),
               list: found,
               onPick,
+              toning,
             })
           : el('p', { className: 'emoji-none' }, t('chat.emoji.none'))
         : sections
@@ -291,9 +510,19 @@ const EmojiTab = ({ recent, onPick }) => {
                 title: t(`chat.emoji.cat.${s.key}`),
                 list: s.list,
                 onPick,
+                toning: s.key === 'recent' ? null : toning,
               })
             )
     ),
+    at
+      ? el(TonePopover, {
+          key: 'tones',
+          at,
+          tones,
+          pick: pickTone,
+          close: closeTones,
+        })
+      : null,
     searching
       ? null
       : el(
@@ -358,7 +587,7 @@ const Tabs = ({ tabs, shown, choose }) => {
   );
 };
 
-const Panel = ({ recent, onPick, panelRef, extra, close }) => {
+const Panel = ({ recent, onPick, tones, onTone, panelRef, extra, close }) => {
   const t = useT();
   const [chosen, setChosen] = useState(readTab);
   const tabs = [{ key: 'emoji' }, ...extra];
@@ -381,7 +610,7 @@ const Panel = ({ recent, onPick, panelRef, extra, close }) => {
       extra.length > 0 ? el(Tabs, { key: 'tabs', tabs, shown, choose }) : null,
       other
         ? el(React.Fragment, { key: shown }, other.render(close))
-        : el(EmojiTab, { key: 'emoji', recent, onPick }),
+        : el(EmojiTab, { key: 'emoji', recent, onPick, tones, onTone }),
     ]
   );
 };
@@ -395,6 +624,9 @@ export const useEmojiPanel = ({ box, setText, extra = NONE }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState(readRecent);
+  const [tones, setTones] = useState(readTones);
+  const onTone = (base, tone) =>
+    setTones((now) => rememberTone(now, base, tone));
   const button = useRef(null);
   const panelRef = useRef(null);
   const [inside] = useState(() => [button, panelRef]);
@@ -430,6 +662,8 @@ export const useEmojiPanel = ({ box, setText, extra = NONE }) => {
           key: 'emoji-panel',
           recent,
           onPick: pick,
+          tones,
+          onTone,
           panelRef,
           extra,
           close,

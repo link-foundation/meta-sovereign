@@ -71,6 +71,9 @@
  *   POST /api/telegram/sticker-search {q, lang?}
  *                                      -> { ok, stickers, sets } stickers
  *                                         for an emoji or words (R-Y112)
+ *   POST /api/telegram/sticker-save {id, action}
+ *                                      -> { ok } fave, unfave, unrecent,
+ *                                         saveGif or unsaveGif (R-Y115)
  *   POST /api/telegram/gif-search {q, offset?}
  *                                      -> { ok, gifs, next } GIFs found
  *                                         by Telegram's @gif bot
@@ -97,6 +100,7 @@ import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
 import { SHARED_KINDS } from '../sources/telegram-shared.js';
+import { STICKER_SAVES } from '../sources/telegram-stickers.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
 import {
@@ -530,6 +534,19 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'words required', code: 'bad-request' }],
+  // The panel's menu (R-Y115): favourites, recent stickers, saved GIFs.
+  'sticker-save': async (account, body) =>
+    STICKER_ID.test(String(body.id ?? '')) &&
+    STICKER_SAVES.includes(body.action) &&
+    typeof account.stickerSave === 'function'
+      ? [
+          200,
+          await account.stickerSave({
+            id: String(body.id),
+            action: body.action,
+          }),
+        ]
+      : [400, { error: 'id and action required', code: 'bad-request' }],
   'gif-search': async (account, body) =>
     searchWords(body.q) &&
     (body.offset === undefined ||

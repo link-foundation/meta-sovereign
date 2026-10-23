@@ -8,6 +8,10 @@ import {
   emojiCategories,
   findEmoji,
   insertAtCaret,
+  readTones,
+  rememberTone,
+  toneBases,
+  tonedForm,
   withRecent,
 } from '../src/web/chat-emoji.js';
 
@@ -72,4 +76,42 @@ test('a pick goes in at the caret, over the selection (R-Y104)', () => {
   });
   assert.equal(set, 'hello 🌍');
   insertAtCaret(null, '🌍', () => assert.fail('no box'));
+});
+
+test('the emoji that take a skin tone, and their toned forms (R-Y114)', () => {
+  assert.ok(toneBases.has('👍') && toneBases.has('👋'));
+  assert.ok(!toneBases.has('😀'));
+  assert.equal(tonedForm('👍', 3), '👍🏽');
+  assert.equal(tonedForm('👍', 0), '👍');
+  assert.equal(tonedForm('😀', 2), '😀', 'no tone for a face');
+  // A trailing FE0F goes; a ZWJ sequence takes it after the person.
+  assert.equal(tonedForm('☝️', 1), '☝🏻');
+  assert.equal(tonedForm('🏃‍♂️', 5), '🏃🏿‍♂️');
+  assert.equal(tonedForm('🏋️‍♀️', 2), '🏋🏼‍♀️');
+});
+
+test('a chosen tone is remembered per emoji, kept safely (R-Y114)', () => {
+  const data = new Map();
+  const storage = {
+    getItem: (k) => data.get(k) ?? null,
+    setItem: (k, v) => data.set(k, v),
+  };
+  assert.deepEqual(readTones(storage), {});
+  let tones = rememberTone({}, '👍', 4, storage);
+  tones = rememberTone(tones, '👋', 2, storage);
+  assert.deepEqual(readTones(storage), { '👍': 4, '👋': 2 });
+  assert.deepEqual(rememberTone(tones, '👍', 0, storage), { '👋': 2 });
+  assert.deepEqual(readTones(storage), { '👋': 2 });
+  data.set([...data.keys()][0], '{"😀":3,"👍":9}');
+  assert.deepEqual(readTones(storage), {}, 'only real emoji and tones');
+  const broken = {
+    getItem: () => {
+      throw new Error('blocked');
+    },
+    setItem: () => {
+      throw new Error('blocked');
+    },
+  };
+  assert.deepEqual(readTones(broken), {});
+  assert.deepEqual(rememberTone({}, '👍', 1, broken), { '👍': 1 });
 });

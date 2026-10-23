@@ -5475,3 +5475,55 @@ button[aria-busy='true']::before {
   height: 100%;
   object-fit: contain;
 }
+
+/* Skin tones in the emoji panel (R-Y114): a corner mark on the emoji that
+   take one, and the six variants in a popover over it. */
+.emoji-cell {
+  position: relative;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.emoji-cell[data-tonable]::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 6px 6px;
+  border-color: transparent transparent var(--text-subtle) transparent;
+  opacity: 0.7;
+  pointer-events: none;
+}
+.emoji-tones {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(6, 32px);
+  gap: 4px;
+  width: 228px;
+  box-sizing: border-box;
+  padding: 8px;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px var(--shadow);
+}
+.emoji-tone {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.emoji-tone:hover,
+.emoji-tone:focus-visible,
+.emoji-tone.active {
+  background: var(--accent-bg, var(--bg));
+}
