@@ -19,6 +19,8 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { DAY_MS } from '../crm/reengage.js';
 import { AUTOPILOT_PREFIX, RUN_PREFIX, automationKey } from './automations.js';
+import { MAX_CONSECUTIVE_FAILURES, recentSends } from './outbox.js';
+import { loadSettings, quietMsLeft } from './safety.js';
 
 export const autopilotId = (automation) =>
   `${AUTOPILOT_PREFIX}${automationKey(automation)}`;
@@ -29,6 +31,9 @@ const CHAT_FAILURES = new Set([
   'write-forbidden',
   'too-long',
   'bad-draft',
+  'opted-out',
+  'already-sent',
+  'send-in-doubt',
 ]);
 
 /** What to do after a failed send: next chat, wait, or pause. */
@@ -39,22 +44,34 @@ export const afterFailure = (outcome) => {
   return CHAT_FAILURES.has(outcome.code) ? { next: true } : { pause: true };
 };
 
-// When the oldest send of the last day leaves the window.
+// When the oldest send of the last day leaves the window (the ledger and
+// the outbox, `sending` and `unknown` sends included: R-Z3).
 const capEndsAt = (links, automation, now) => {
-  const times = links
-    .filter(
-      (l) =>
-        l?.id?.startsWith(`${RUN_PREFIX}${automationKey(automation)}:`) &&
-        l.status === 'sent' &&
-        now - Date.parse(l.at) < DAY_MS
-    )
-    .map((l) => Date.parse(l.at));
+  const times = recentSends(
+    links,
+    automation.id,
+    now,
+    `${RUN_PREFIX}${automationKey(automation)}:`
+  ).map((s) => s.ms);
   return { count: times.length, endsAt: Math.min(...times) + DAY_MS };
 };
 
 const pauseMs = (pacing, random) => {
   const span = Math.max(pacing.maxDelayMs - pacing.minDelayMs, 0);
   return pacing.minDelayMs + Math.round(random() * span);
+};
+
+// What a failed send means: the error a pause reports, and what next.
+const failureStep = (outcome, streak) => {
+  if (streak >= MAX_CONSECUTIVE_FAILURES) {
+    return { pause: 'too-many-failures' };
+  }
+  const then = afterFailure(outcome);
+  if (!then.pause) {
+    return then;
+  }
+  const doubt = outcome.status === 'unknown' ? 'unknown-send' : null;
+  return { pause: outcome.code ?? doubt ?? outcome.error ?? 'send-failed' };
 };
 
 // The autopilot's work, step by step: its state link, the cap, one chat.
@@ -87,8 +104,10 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
 
   const capped = async (automation, signal) => {
     const cap = Number(automation.pacing.dailyCap ?? Infinity);
-    const links = await store.query((l) =>
-      l?.id?.startsWith(`${RUN_PREFIX}${automationKey(automation)}:`)
+    const links = await store.query(
+      (l) =>
+        l?.id?.startsWith(`${RUN_PREFIX}${automationKey(automation)}:`) ||
+        l?.id?.startsWith('outbox:')
     );
     const { count, endsAt } = capEndsAt(links, automation, clock().getTime());
     if (count < cap) {
@@ -100,6 +119,22 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
       nextAt: new Date(endsAt).toISOString(),
     });
     await rest(endsAt - clock().getTime(), signal);
+    return true;
+  };
+
+  // Night hours (the user's timezone): the autopilot rests until they end.
+  const quiet = async (automation, signal) => {
+    const settings = await loadSettings(store);
+    const left = quietMsLeft(clock().getTime(), settings);
+    if (left <= 0) {
+      return false;
+    }
+    await save(automation, {
+      status: 'quiet',
+      current: null,
+      nextAt: new Date(clock().getTime() + left).toISOString(),
+    });
+    await rest(left, signal);
     return true;
   };
 
@@ -123,10 +158,17 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
 
   const loop = async (automation, signal) => {
     const passed = [];
-    let { sent = 0, failed = 0 } =
-      (await store.get(autopilotId(automation))) ?? {};
+    const counts = {
+      sent: 0,
+      failed: 0,
+      ...((await store.get(autopilotId(automation))) ?? {}),
+    };
+    let streak = 0;
     while (!signal.aborted) {
-      if (await capped(automation, signal)) {
+      if (
+        (await quiet(automation, signal)) ||
+        (await capped(automation, signal))
+      ) {
         continue;
       }
       const result = await step(automation, passed, signal);
@@ -139,24 +181,24 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
       }
       const { draft, outcome } = result;
       let wait = pauseMs(automation.pacing, random);
-      if (outcome.status === 'sent') {
-        sent += 1;
-      } else {
-        failed += 1;
-        const then = afterFailure(outcome);
+      const ok = outcome.status === 'sent';
+      streak = ok ? 0 : streak + 1;
+      counts[ok ? 'sent' : 'failed'] += 1;
+      if (!ok) {
         log({
           level: 'warn',
           event: 'autopilot_send_failed',
           automation: automation.id,
           code: outcome.code ?? null,
         });
+        const then = failureStep(outcome, streak);
         if (then.pause) {
           await save(automation, {
             on: false,
             status: 'paused',
-            sent,
-            failed,
-            error: outcome.code ?? outcome.error ?? 'send-failed',
+            sent: counts.sent,
+            failed: counts.failed,
+            error: then.pause,
           });
           return;
         }
@@ -168,8 +210,8 @@ const pilotSteps = ({ store, runner, clock, sleep, random, log }) => {
       }
       await save(automation, {
         status: 'waiting',
-        sent,
-        failed,
+        sent: counts.sent,
+        failed: counts.failed,
         last: {
           source: draft.source,
           chat: draft.chat,
@@ -231,12 +273,16 @@ export const createAutopilot = ({
 
   return {
     /** Turn it on (confirmed by the user) and go. */
-    async start(automationOrId, { monitor = true } = {}) {
+    async start(
+      automationOrId,
+      { monitor = true, resumeOnStart = false } = {}
+    ) {
       const automation = await runner.load(automationOrId);
       running.get(automation.id)?.abort();
       const state = await save(automation, {
         on: true,
         monitor,
+        resumeOnStart: resumeOnStart === true,
         status: 'starting',
         startedAt: clock().toISOString(),
         sent: 0,
@@ -267,11 +313,27 @@ export const createAutopilot = ({
     async states() {
       return store.query((l) => l?.id?.startsWith(AUTOPILOT_PREFIX));
     },
-    /** After a restart: those left on go on. */
+    /**
+     * After a restart (R-Z3): an autopilot stays paused until the user
+     * resumes it, unless it was explicitly set to resume on start. The
+     * user's confirmation was for a past session.
+     */
     async resume() {
       for (const state of await this.states()) {
-        if (state.on && !running.has(state.automation)) {
-          run(await runner.load(state.automation));
+        if (!state.on || running.has(state.automation)) {
+          continue;
+        }
+        const automation = await runner.load(state.automation);
+        if (state.resumeOnStart === true) {
+          run(automation);
+        } else {
+          await save(automation, {
+            on: false,
+            status: 'paused',
+            error: 'paused-after-restart',
+            current: null,
+            nextAt: null,
+          });
         }
       }
     },

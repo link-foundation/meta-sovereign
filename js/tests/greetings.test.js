@@ -523,6 +523,7 @@ describe('greeting planner', () => {
     const plan = planGreetings({
       links: sampleLinks(),
       networks: ['vk', 'whatsapp'],
+      rules: { business: ['whatsapp'] },
       now: NOW,
       random: firstChoice,
     });
@@ -576,6 +577,7 @@ describe('greeting planner', () => {
       links: sampleLinks(),
       mode: 'reply',
       selection: normalizeGreetingSelection({ prefer: 'text' }),
+      rules: { business: ['whatsapp'] },
       now: NOW,
       random: firstChoice,
     });
@@ -631,6 +633,7 @@ describe('greeting runner', () => {
       credentials: { vk: { token: 'vk-token' } },
       delayMs: 30000,
       sleep: async (ms) => sleeps.push(ms),
+      random: () => 0.5,
       now: () => '2026-10-11T12:00:00.000Z',
     });
     expect(results.map((r) => r.ok)).toEqual([true, false, false, true]);

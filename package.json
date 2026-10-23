@@ -96,6 +96,7 @@
     "test:e2e:selection:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-selection-browser.mjs",
     "test:e2e:albums:webkit": "E2E_BROWSER=webkit node js/tests/e2e-albums-browser.mjs",
     "test:e2e:autopilot:webkit": "E2E_BROWSER=webkit node js/tests/e2e-autopilot-browser.mjs",
+    "test:e2e:greetings:webkit": "E2E_BROWSER=webkit node js/tests/e2e-greetings-browser.mjs",
     "test:e2e:draft:webkit": "E2E_BROWSER=webkit node js/tests/e2e-draft-browser.mjs",
     "test:e2e:offline:webkit": "E2E_BROWSER=webkit node js/tests/e2e-offline-browser.mjs",
     "test:e2e:chat-menu:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-menu-browser.mjs",

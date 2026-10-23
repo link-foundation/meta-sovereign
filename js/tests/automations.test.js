@@ -304,7 +304,7 @@ test('auto mode sends only confirmed drafts, paced and capped', async () => {
     send: async (draft) => {
       sent.push(draft.chat);
       if (draft.chat === '300') {
-        throw new Error('flood control');
+        throw new Error('send refused');
       }
       return { via: 'browser' };
     },
@@ -339,7 +339,7 @@ test('auto mode sends only confirmed drafts, paced and capped', async () => {
   const failed = out.results.filter((r) => r.status === 'failed');
   assert.deepEqual(
     failed.map((r) => r.error),
-    ['flood control']
+    ['send refused']
   );
   // Typing pauses for each message plus two 2s gaps between them.
   const gaps = slept.filter((ms) => ms === 2000);

@@ -9,11 +9,16 @@
  */
 
 import { getSource } from '../sources/index.js';
+import {
+  batchStopReason,
+  guardedSend,
+  transientStore,
+} from '../automation/outbox.js';
 
 // An unknown network is a not-done result, not a crash of the whole run.
-const sourceOf = (name) => {
+const sourceOf = (name, resolve = getSource) => {
   try {
-    return getSource(name);
+    return resolve(name);
   } catch {
     return null;
   }
@@ -54,13 +59,68 @@ const attempt = async (network, what, run) => {
   }
 };
 
-export const broadcast = async (networks, content) => {
-  const results = [];
-  for (const name of networks) {
-    const live = sourceOf(name)?.live;
-    results.push(
-      await attempt(name, 'post', live?.post && (() => live.post(content)))
+// The guarded send needs a throw for "not done": an adapter's `{ ok: false }`
+// or `unsupported` answer becomes an error carrying its code, and an unknown
+// outcome stays ambiguous so it is never retried (R-Z3, R-Z4).
+const asSend = async (network, what, run) => {
+  const result = await run();
+  if (result?.ok === false || result?.unsupported === true) {
+    throw Object.assign(
+      new Error(result.error ?? `${network} did not do the ${what}`),
+      {
+        code: result.code ?? 'unsupported',
+        ...(result.outcome === 'unknown' || result.ambiguous
+          ? { ambiguous: true }
+          : {}),
+      }
     );
+  }
+  return result;
+};
+
+// One network: through the guarded send, reported like `attempt` does.
+const postOn = async (name, content, outbox, resolveSource) => {
+  const live = sourceOf(name, resolveSource)?.live;
+  if (typeof live?.post !== 'function') {
+    return attempt(name, 'post', null);
+  }
+  const outcome = await guardedSend({
+    store: outbox,
+    kind: 'broadcast',
+    owner: 'broadcast',
+    draft: {
+      source: name,
+      chat: content?.chat ?? null,
+      text: typeof content === 'string' ? content : (content?.text ?? ''),
+    },
+    send: () => asSend(name, 'post', () => live.post(content)),
+  });
+  return outcome.status === 'sent'
+    ? { network: name, ok: true, result: outcome.result }
+    : {
+        network: name,
+        ok: false,
+        error: outcome.error,
+        status: outcome.status,
+        ...(outcome.status === 'unknown' ? { outcome: 'unknown' } : {}),
+        ...(outcome.code ? { code: outcome.code } : {}),
+      };
+};
+
+/**
+ * Posts `content` on each network through the guarded send (R-Z3): once
+ * per network, chat and day (the outbox in `store`), never to a chat on
+ * the opt-out list, and a post in doubt is reported, not retried.
+ */
+export const broadcast = async (
+  networks,
+  content,
+  { store = null, resolveSource = getSource } = {}
+) => {
+  const results = [];
+  const outbox = store ?? transientStore();
+  for (const name of networks) {
+    results.push(await postOn(name, content, outbox, resolveSource));
   }
   return results;
 };
@@ -158,11 +218,23 @@ export const planOutreach = ({
   return { mode, envelopes };
 };
 
-export const runOutreach = async (plan) => {
+export const runOutreach = async (
+  plan,
+  { store = null, resolveSource = getSource } = {}
+) => {
   const results = [];
+  let failures = 0;
   for (const env of plan.envelopes ?? []) {
-    const r = await broadcast([env.network], env);
-    results.push({ ...env, result: r[0] });
+    const [r] = await broadcast([env.network], env, {
+      store,
+      resolveSource,
+    });
+    results.push({ ...env, result: r });
+    failures = r.ok ? 0 : failures + 1;
+    // A rate limit, a post in doubt or three failures in a row stop it.
+    if (batchStopReason({ ...r, status: r.status ?? 'sent' }, failures)) {
+      break;
+    }
   }
   return results;
 };

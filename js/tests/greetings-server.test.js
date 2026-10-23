@@ -203,6 +203,7 @@ describe('greetings api plans', () => {
         greetings: {
           resolveSource: fakeSources([]),
           sleep: async (ms) => sleeps.push(ms),
+          random: () => 0.5,
         },
       },
       async (base, store) => {

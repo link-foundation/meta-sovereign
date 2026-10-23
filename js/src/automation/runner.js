@@ -19,11 +19,12 @@
 
 import { setTimeout as delay } from 'node:timers/promises';
 import { clearInterval, setInterval } from 'node:timers';
-import { DAY_MS } from '../crm/reengage.js';
-import { safeMessage } from '../server/redact.js';
 import { typingLink } from '../sources/live-links.js';
 import { resolveAudience as resolvePeople } from '../crm/people.js';
 import { nextChatOperations } from './next-chat.js';
+import { recordOutcome } from './record-outcome.js';
+import { createPacedSender } from './paced-send.js';
+import { guardedSend, outboxKey } from './outbox.js';
 import {
   AUTOMATION_PREFIX,
   RUN_PREFIX,
@@ -42,7 +43,6 @@ import {
   draftOperations,
   loadAutomation,
   queueDrafts,
-  runRecord,
 } from './drafts.js';
 
 export { ConfirmationRequiredError };
@@ -59,26 +59,6 @@ export const typingDurationMs = (text, pacing) =>
         60_000
     )
   );
-
-const sentMessage = (draft, { at, via, automation }) => ({
-  id: `msg:${draft.source}:${draft.chat}:out-${Date.parse(at)}`,
-  tokens: ['message', draft.source, String(draft.chat)],
-  source: draft.source,
-  chat: String(draft.chat),
-  sender: 'me',
-  body: draft.text,
-  timestamp: at,
-  automation: automation.id,
-  ...(via ? { via } : {}),
-});
-
-const sentToday = (links, automation, now) =>
-  links.filter(
-    (l) =>
-      l?.id?.startsWith(`${RUN_PREFIX}${automationKey(automation)}:`) &&
-      l.status === 'sent' &&
-      now - Date.parse(l.at) < DAY_MS
-  ).length;
 
 /**
  * `send(draft)` delivers one message (normally `createDefaultSender`);
@@ -137,37 +117,48 @@ export const createAutomationRunner = ({
     await sleep(ms);
   };
 
-  /** Send one draft now: typing, send, ledger, chat history. */
+  /** Send one draft now: typing, the guarded send, ledger, chat history. */
   const deliver = async (automation, draft) => {
     if (typeof send !== 'function') {
       throw new Error('no sender configured; send it yourself and mark it');
     }
     await showTyping(automation, draft);
-    try {
-      const result = await send(draft);
-      const at = nowIso();
-      const via = result?.via;
-      await store.put(sentMessage(draft, { at, via, automation }));
-      const record = runRecord(automation, draft, { status: 'sent', at, via });
-      await store.put(record);
-      return { status: 'sent', draft, record };
-    } catch (error) {
-      const record = runRecord(automation, draft, {
-        status: 'failed',
-        at: nowIso(),
-        error: safeMessage(error), // no token in the ledger (R-Z2)
-        code: error.code,
-      });
-      await store.put(record);
-      return {
-        status: 'failed',
-        draft,
-        record,
-        error: record.error,
-        ...(error.code ? { code: error.code } : {}),
-        ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
-      };
-    }
+    const outcome = await guardedSend({
+      store,
+      kind: 'automation',
+      owner: automation.id,
+      key: outboxKey({
+        owner: automation.id,
+        source: draft.source,
+        chat: draft.chat,
+        now: clock().getTime(),
+      }),
+      draft,
+      send,
+      clock,
+      log,
+    });
+    const record = await recordOutcome({
+      store,
+      automation,
+      draft,
+      outcome,
+      nowIso,
+      log,
+    });
+    return {
+      status: outcome.status,
+      draft,
+      record,
+      outbox: outcome.outbox,
+      ...(outcome.status === 'sent'
+        ? {}
+        : {
+            error: outcome.error,
+            ...(outcome.code ? { code: outcome.code } : {}),
+            ...(outcome.retryAfter ? { retryAfter: outcome.retryAfter } : {}),
+          }),
+    };
   };
 
   const queue = (automation, drafts) =>
@@ -182,25 +173,13 @@ export const createAutomationRunner = ({
     nowIso,
   });
 
-  const sendPaced = async (automation, drafts) => {
-    const { pacing } = automation;
-    const already = sentToday(
-      await store.query(),
-      automation,
-      clock().getTime()
-    );
-    const room = Math.max(Number(pacing.dailyCap ?? Infinity) - already, 0);
-    const results = [];
-    for (const [i, draft] of drafts.slice(0, room).entries()) {
-      if (i > 0) {
-        const span = Math.max(pacing.maxDelayMs - pacing.minDelayMs, 0);
-        await sleep(pacing.minDelayMs + Math.round(random() * span));
-      }
-      results.push(await deliver(automation, draft));
-    }
-    const capped = drafts.length - results.length;
-    return { results, ...(capped > 0 ? { capped } : {}) };
-  };
+  const sendPaced = createPacedSender({
+    store,
+    clock,
+    sleep,
+    random,
+    deliver,
+  });
 
   return {
     load,

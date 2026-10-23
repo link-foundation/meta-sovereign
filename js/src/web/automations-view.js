@@ -15,6 +15,7 @@ import { networkName } from './connection-guides.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
 import { Busy } from './spinner.js';
+import { SafetyPanel } from './automations-safety.js';
 import { autopilotText, useSecondsTo } from './chat-automation.js';
 
 const el = React.createElement;
@@ -74,6 +75,20 @@ const AutopilotRowControl = ({ automationId, autopilot }) => {
             }),
             ` ${t('chat.autopilot.monitor')}`,
           ])
+        : null,
+      // Paused by a restart: it goes on only when the user says so (R-Z3).
+      state.error === 'paused-after-restart'
+        ? el(
+            'button',
+            {
+              key: 'r',
+              type: 'button',
+              'data-action': 'autopilot-resume',
+              onClick: async () =>
+                watchAutopilot(await autopilot.start(automationId)),
+            },
+            t('chat.autopilot.resume')
+          )
         : null,
       el(
         'button',
@@ -914,6 +929,7 @@ export const AutomationsScreen = ({ state }) => {
       el(PeoplePanel, { key: 'people', state }),
       el(AudiencesPanel, { key: 'aud', state }),
     ]),
+    el(SafetyPanel, { key: 'safety', api: state.api }),
   ]);
 };
 

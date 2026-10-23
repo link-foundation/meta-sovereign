@@ -20,6 +20,7 @@ import {
   loadGreetingCredentials,
   loadGreetingSelection,
   planFromStore,
+  previewGreetings,
   runGreetings,
   saveGreetingSelection,
   vkStickerPreview,
@@ -29,10 +30,13 @@ import { confirmCli } from './confirm.js';
 export const GREETINGS_HELP = `  greetings-stickers [--live] [--networks=vk,telegram] [--json] [--store=<dir>]
   greetings-select   [--stickers=vk:21,facebook:<id>] [--sets=<a,b>] [--language=en|ru|zh|hi|vi] [--prefer=sticker|text] [--json] [--store=<dir>]
   greetings-plan     [--mode=initiate|reply] [--networks=<a,b>] [--me=<id,id>] [--limit=<n>] [--stale-days=<n>] [--json] [--store=<dir>]
-  greetings-send     (greetings-plan flags) [--delay-ms=<ms>] [--json] [--store=<dir>]`;
+  greetings-send     (greetings-plan flags) [--delay-ms=<ms>] [--daily-cap=<n>] [--max-per-run=<n>] [--dry-run] [--json] [--store=<dir>]`;
 
 /** vk-bot waits 30 s between greetings. */
 export const DEFAULT_SEND_DELAY_MS = 30_000;
+
+const optionalNumber = (value) =>
+  value === undefined ? undefined : Number(value);
 
 const asJson = (value) => JSON.stringify(value, null, 2);
 
@@ -165,8 +169,19 @@ const planCmd = async (args, log, deps) => {
 const sendCmd = async (args, log, deps) => {
   const store = await storeOf(args, deps.openStore);
   const plan = await planFromStore(store, planOptions(args));
+  const pace = {
+    delayMs: Number(args['delay-ms'] ?? DEFAULT_SEND_DELAY_MS),
+    dailyCap: optionalNumber(args['daily-cap']),
+    maxPerRun: optionalNumber(args['max-per-run']),
+  };
   // Show who gets what, then send exactly this plan once confirmed.
   plan.envelopes.forEach((envelope) => log(`  ${envelopeLine(envelope)}`));
+  if (args['dry-run']) {
+    // Exactly who would get what; nothing is sent or recorded (R-Z3).
+    const preview = await previewGreetings(plan, { store, ...pace });
+    log(asJson(preview));
+    return 0;
+  }
   const ok = await confirmCli(`Send ${plan.envelopes.length} greeting(s)?`, {
     args,
     log,
@@ -179,8 +194,9 @@ const sendCmd = async (args, log, deps) => {
     store,
     resolveSource: deps.resolveSource,
     credentials: await loadGreetingCredentials(store),
-    delayMs: Number(args['delay-ms'] ?? DEFAULT_SEND_DELAY_MS),
+    ...pace,
     ...(deps.sleep ? { sleep: deps.sleep } : {}),
+    ...(deps.random ? { random: deps.random } : {}),
   });
   if (args.json) {
     log(asJson({ plan, results }));
@@ -208,13 +224,15 @@ const guarded = (fn, deps) => async (args, log) => {
  * @param {Function} deps.openStore directory → store
  * @param {Function} [deps.resolveSource] source name → adapter, for tests
  * @param {Function} [deps.sleep] pause between sends, for tests
+ * @param {Function} [deps.random] jitter source, for tests
  */
 export const createGreetingCommands = ({
   openStore,
   resolveSource = getSource,
   sleep = null,
+  random = null,
 }) => {
-  const deps = { openStore, resolveSource, sleep };
+  const deps = { openStore, resolveSource, sleep, random };
   return {
     'greetings-stickers': guarded(stickersCmd, deps),
     'greetings-select': guarded(selectCmd, deps),

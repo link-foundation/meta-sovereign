@@ -25,6 +25,18 @@ const ROWS = [
 ];
 
 const seed = async (store, rows = ROWS) => {
+  // A saved Cloud API token and number: WhatsApp is a business number with
+  // its 24-hour window (a personal WhatsApp has none: R-Z3).
+  await store.put({
+    id: 'secret:whatsapp:access-token',
+    tokens: [],
+    token: 't',
+  });
+  await store.put({
+    id: 'secret:whatsapp:phone-number-id',
+    tokens: [],
+    value: '1',
+  });
   for (const [source, externalId, chat, sender, body, timestamp] of rows) {
     await store.put(
       buildMessageLink({ source, externalId, chat, sender, body, timestamp })
@@ -63,6 +75,7 @@ const greetingsCli = (store = createMemoryStore()) => {
     openStore: async () => store,
     resolveSource,
     sleep: async (ms) => sleeps.push(ms),
+    random: () => 0.5,
   });
   const run = async (name, args = {}) => {
     const out = [];

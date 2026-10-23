@@ -83,6 +83,12 @@ const save = async (automation) => {
   });
   assert(res.ok, `saved ${automation.id}: ${res.status}`);
 };
+// Quiet hours (R-Z3) are on by default: the test runs at any hour.
+await fetch(`${base}/api/automations/settings`, {
+  method: 'PUT',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ quietHours: { enabled: false } }),
+});
 const { id: _id, preset: _preset, ...rest } = preset;
 await save({ ...rest, id: QUICK, name: 'Quick hello', pacing: pacing(1500) });
 await save({ ...rest, id: SLOW, name: 'Slow hello', pacing: pacing(60_000) });
@@ -202,6 +208,57 @@ try {
   await close.waitFor({ timeout: 10000 });
   await close.click();
   await row.locator('[data-action="autopilot-start"]').waitFor();
+
+  // Send safety (R-Z3): the send log lists what went out, an unknown
+  // send waits for the user's word, and the opt-out list is editable.
+  await store.put({
+    id: 'outbox:e2e:vk:999:abc:2026-10-01',
+    tokens: ['outbox', 'automation', 'vk'],
+    kind: 'automation',
+    key: 'e2e:vk:999:abc:2026-10-01',
+    owner: 'automation:e2e',
+    source: 'vk',
+    chat: '999',
+    text: 'maybe sent',
+    status: 'unknown',
+    at: new Date().toISOString(),
+  });
+  await page.reload();
+  await page.locator('button[data-view="automation"]').click();
+  const panel = page.locator('[data-panel="safety"]');
+  await panel
+    .locator('[data-outbox="sent"]')
+    .first()
+    .waitFor({ timeout: 10000 });
+  const sentRows = await panel.locator('[data-outbox="sent"]').count();
+  assert(sentRows >= 3, `the send log lists the sends: ${sentRows}`);
+  const unknownRow = panel.locator('[data-outbox="unknown"]');
+  await unknownRow.waitFor({ timeout: 10000 });
+  await unknownRow.locator('[data-action="outbox-failed"]').click();
+  await panel
+    .locator('[data-outbox="unknown"]')
+    .waitFor({ state: 'detached', timeout: 10000 });
+  assert(
+    (await store.get('outbox:e2e:vk:999:abc:2026-10-01')).status === 'failed',
+    'the user settled it as not arrived'
+  );
+  await panel.locator('[data-field="optout-source"]').fill('vk');
+  await panel.locator('[data-field="optout-chat"]').fill('777');
+  await panel.locator('[data-action="optout-add"]').click();
+  await panel.locator('[data-optout="vk:777"]').waitFor({ timeout: 10000 });
+  const saved = await (await fetch(`${base}/api/automations/settings`)).json();
+  assert(
+    saved.optOut.some((e) => e.chat === '777') &&
+      saved.quietHours.enabled === false,
+    `the opt-out list is saved: ${JSON.stringify(saved)}`
+  );
+  await panel
+    .locator('[data-optout="vk:777"] [data-action="optout-remove"]')
+    .click();
+  await panel
+    .locator('[data-optout="vk:777"]')
+    .waitFor({ state: 'detached', timeout: 10000 });
+  console.log('[e2e-autopilot] send safety: log, unknown, opt-out');
 
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log(`[e2e-autopilot] OK (${engine})`);

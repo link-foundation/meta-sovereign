@@ -50,6 +50,17 @@ import {
   templateFor,
 } from '../crm/reengage.js';
 
+import { OUTBOX_PREFIX } from './outbox.js';
+import {
+  SETTINGS_ID,
+  normalizeSettings,
+  optOutEntry,
+  unreachableReason,
+} from './safety.js';
+
+/** No automation messages the same chat again within this many days. */
+export const DEFAULT_COOLDOWN_DAYS = 7;
+
 export const AUTOMATION_PREFIX = 'automation:';
 export const DRAFT_PREFIX = 'automation-draft:';
 export const RUN_PREFIX = 'automation-run:';
@@ -389,27 +400,77 @@ const conditionReason = (candidate, c) => {
   return null;
 };
 
+// The cooldown in days (R-Z3): the automation's own, else its silence
+// condition, else a week: an automation with default conditions never
+// writes to the same chat on every run.
+const cooldownDaysOf = (automation, settings) => {
+  const c = automation.conditions;
+  if (c.cooldownDays !== null && c.cooldownDays !== undefined) {
+    return Number(c.cooldownDays);
+  }
+  return Math.max(
+    Number(c.silentDays ?? 0),
+    settings.cooldownDays ?? DEFAULT_COOLDOWN_DAYS
+  );
+};
+
+// The outbox knows what really went out, even when the run record was
+// not written: a send in doubt blocks until the user decides.
+const outboxReason = (candidate, automation, ctx) => {
+  const mine = ctx.outbox.get(`${candidate.source}:${candidate.chat}`) ?? [];
+  if (mine.some((r) => ['sending', 'unknown'].includes(r.status))) {
+    return 'send-unconfirmed';
+  }
+  const cooldownMs = cooldownDaysOf(automation, ctx.settings) * DAY_MS;
+  return mine.some(
+    (r) => r.status === 'sent' && ctx.now - (toMs(r.at) ?? 0) < cooldownMs
+  )
+    ? 'already-sent'
+    : null;
+};
+
 /** A draft waiting, or a send/skip still inside the cooldown. */
 const ledgerReason = (candidate, automation, ctx) => {
   if (ctx.drafts.has(draftId(automation, candidate))) {
     return 'draft-pending';
   }
-  const c = automation.conditions;
   const record = ctx.records.get(runRecordId(automation, candidate));
-  const cooldownMs = Number(c.cooldownDays ?? c.silentDays ?? 0) * DAY_MS;
+  const cooldownMs = cooldownDaysOf(automation, ctx.settings) * DAY_MS;
   const recordMs = toMs(record?.at);
   const cooling =
     recordMs !== null &&
     ['sent', 'skipped'].includes(record.status) &&
     ctx.now - recordMs < cooldownMs;
-  return cooling ? `already-${record.status}` : null;
+  return cooling
+    ? `already-${record.status}`
+    : outboxReason(candidate, automation, ctx);
 };
+
+// Never to be written to: the opt-out list, blocked, left, a deleted
+// account, a bot, a channel (R-Z3).
+const unreachable = (candidate, ctx) =>
+  optOutEntry(ctx.settings, candidate)
+    ? 'opted-out'
+    : unreachableReason(candidate.messages ?? []);
 
 // A test from a chat's menu skips the conditions (it is *this* chat
 // the user wants to try), never the ledger: a waiting draft stays one.
 const exclusionReason = (candidate, automation, ctx) =>
+  unreachable(candidate, ctx) ??
   (ctx.test ? null : conditionReason(candidate, automation.conditions)) ??
   ledgerReason(candidate, automation, ctx);
+
+// The automation's outbox records, by `source:chat`.
+const outboxByChat = (links, automation) => {
+  const byChat = new Map();
+  for (const l of links) {
+    if (l?.id?.startsWith(OUTBOX_PREFIX) && l.owner === automation.id) {
+      const key = `${l.source}:${l.chat}`;
+      byChat.set(key, [...(byChat.get(key) ?? []), l]);
+    }
+  }
+  return byChat;
+};
 
 /** Render the action's text for one candidate, "ты"/"вы" detected. */
 export const draftFor = (automation, candidate, { isSelf, rules }) => {
@@ -469,6 +530,14 @@ const plannedAutomation = (input) => ({
   ...(input?.edited ? { edited: input.edited } : {}),
 });
 
+// What was drafted, run and sent before, and the safety settings.
+const ledgerContext = (links, automation) => ({
+  drafts: byId(links, DRAFT_PREFIX),
+  records: byId(links, RUN_PREFIX),
+  outbox: outboxByChat(links, automation),
+  settings: normalizeSettings(links.find((l) => l?.id === SETTINGS_ID) ?? {}),
+});
+
 export const planAutomation = (links = [], input, options = {}) => {
   const automation = plannedAutomation(input);
   const now = toMs(options.now) ?? Number(options.now ?? Date.now());
@@ -486,8 +555,7 @@ export const planAutomation = (links = [], input, options = {}) => {
     targets: options.targets ?? null,
     test: Boolean(options.test && options.targets),
     resolveAudience: options.resolveAudience ?? null,
-    drafts: byId(links, DRAFT_PREFIX),
-    records: byId(links, RUN_PREFIX),
+    ...ledgerContext(links, automation),
   };
   const rules = [...defaultAddressRules, ...addressRulesFromPatterns(links)];
   const drafts = [];

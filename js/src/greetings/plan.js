@@ -18,6 +18,12 @@ import {
   vkIncomingGreetingStickerIds,
 } from './catalog.js';
 import { detectGreetingLanguage, isGreetingMessage } from './detect.js';
+import {
+  SETTINGS_ID,
+  normalizeSettings,
+  optOutEntry,
+  unreachableReason,
+} from '../automation/safety.js';
 
 export * from './catalog.js';
 export * from './detect.js';
@@ -26,6 +32,7 @@ export const GREETING_SELECTION_ID = 'greetings:selection';
 export const greetingLinkId = (network, chat) => `greeting:${network}:${chat}`;
 
 const HOUR_MS = 60 * 60 * 1000;
+const DEFAULT_RULES = { business: [], settings: normalizeSettings() };
 
 /** Every sticker id the detector should treat as a greeting. */
 export const knownGreetingStickerIds = () =>
@@ -154,6 +161,7 @@ const emptyChat = (link) => ({
   incoming: 0,
   last: null,
   lastOutgoing: false,
+  unreachable: null,
 });
 
 /**
@@ -168,6 +176,7 @@ export const summarizeChats = (links, { me = null } = {}) => {
   for (const link of (links ?? []).filter(isChatMessage)) {
     const key = `${link.source}:${link.chat}`;
     const chat = chats.get(key) ?? emptyChat(link);
+    chat.unreachable ??= unreachableReason([link]);
     const outgoing = mine.has(String(link.sender));
     chat[outgoing ? 'outgoing' : 'incoming'] += 1;
     if (!outgoing && !chat.contact) {
@@ -215,14 +224,35 @@ const chooseGreeting = ({ selection, network, language, random }) => {
 };
 
 /**
+ * Whether the network's messaging window applies to this send. WhatsApp's
+ * 24-hour window is the Cloud API's (a business number); a personal
+ * WhatsApp driven through the web app has no such limit (R-Z3), so it
+ * applies only when `business` lists the network.
+ */
+const windowApplies = (chat, business) =>
+  chat.network !== 'whatsapp' || business.includes('whatsapp');
+
+/**
  * Why a chat cannot be greeted right now, or null when it can.
  */
-const blockedReason = (chat, now) => {
+const blockedReason = (chat, now, { business = [], settings }) => {
   const network = greetingNetworks[chat.network];
   if (!network) {
     return 'network-unsupported';
   }
-  if (network.initiate === 'window') {
+  if (
+    optOutEntry(settings, {
+      source: chat.network,
+      chat: chat.chat,
+      contact: chat.contact,
+    })
+  ) {
+    return 'opted-out';
+  }
+  if (chat.unreachable) {
+    return chat.unreachable;
+  }
+  if (network.initiate === 'window' && windowApplies(chat, business)) {
     const lastIncoming = chat.last && !chat.lastOutgoing ? chat.last : null;
     const since = lastIncoming ? now - timeOf(lastIncoming) : Infinity;
     if (since > network.windowHours * HOUR_MS) {
@@ -263,9 +293,9 @@ const replyLanguage = (chat, mode, selection) =>
     : selection.language;
 
 /** One chat's envelope: what to send, or why it is skipped. */
-const planEnvelope = ({ chat, mode, selection, now, random }) => {
+const planEnvelope = ({ chat, mode, selection, now, random, rules }) => {
   const language = replyLanguage(chat, mode, selection);
-  const reason = blockedReason(chat, now);
+  const reason = blockedReason(chat, now, rules);
   const choice = reason
     ? null
     : chooseGreeting({
@@ -301,6 +331,10 @@ const planEnvelope = ({ chat, mode, selection, now, random }) => {
  * @param {string|string[]} [opts.me] sender ids that are the user
  * @param {number} [opts.limit] at most this many envelopes (vk-bot: 10)
  * @param {number} [opts.staleDays] re-greet chats silent this long
+ * @param {{business?: string[], settings?: object}} [opts.rules]
+ *   `business`: networks sent through an official business API (the
+ *   WhatsApp Cloud API): only these have the 24-hour window; `settings`:
+ *   the automation settings (opt-out list)
  * @param {number} [opts.now] clock, for tests
  * @param {() => number} [opts.random] RNG, for deterministic previews
  */
@@ -313,6 +347,7 @@ export const planGreetings = ({
   me = null,
   limit = 10,
   staleDays = 30,
+  rules = DEFAULT_RULES,
   now = Date.now(),
   random = Math.random,
 } = {}) => {
@@ -329,10 +364,24 @@ export const planGreetings = ({
     if (envelopes.filter((e) => !e.skipped).length >= limit) {
       break;
     }
-    envelopes.push(planEnvelope({ chat, mode, selection, now, random }));
+    envelopes.push(planEnvelope({ chat, mode, selection, now, random, rules }));
   }
   return { mode, envelopes };
 };
+
+// WhatsApp is a business number (the Cloud API, with its 24-hour window)
+// only when its token and phone-number id are saved; otherwise it is the
+// personal app (R-Z3).
+const secretSaved = async (store, id) => {
+  const link = await store.get(id);
+  return Boolean(link?.token ?? link?.value);
+};
+
+const businessNetworks = async (store) =>
+  (await secretSaved(store, 'secret:whatsapp:access-token')) &&
+  (await secretSaved(store, 'secret:whatsapp:phone-number-id'))
+    ? ['whatsapp']
+    : [];
 
 /**
  * `planGreetings` over everything the store holds: its message links,
@@ -341,6 +390,10 @@ export const planGreetings = ({
  */
 export const planFromStore = async (store, options = {}) =>
   planGreetings({
+    rules: {
+      business: await businessNetworks(store),
+      settings: normalizeSettings((await store.get(SETTINGS_ID)) ?? {}),
+    },
     ...options,
     links: await store.query((l) => l.id?.startsWith('msg:')),
     selection: await loadGreetingSelection(store),

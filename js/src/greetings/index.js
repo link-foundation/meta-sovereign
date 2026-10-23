@@ -20,9 +20,17 @@
  */
 
 import { getSource } from '../sources/index.js';
+import {
+  OUTBOX_PREFIX,
+  batchStopReason,
+  guardedSend,
+  outboxKey,
+  transientStore,
+} from '../automation/outbox.js';
 import { defaultGreetingSelection, greetingLinkId } from './plan.js';
 
 export * from './plan.js';
+export { isRateLimit } from '../automation/outbox.js';
 
 /**
  * Secret links holding each network's credentials, named as in the
@@ -77,29 +85,95 @@ const outgoingContent = (envelope) => ({
     : { text: envelope.text }),
 });
 
-/** Posts one envelope and records the greeting link. */
+// What a mass send is allowed to do (R-Z3): pace, day, run and failures.
+export const DEFAULT_DELAY_MS = 30_000;
+export const MIN_DELAY_MS = 5_000;
+export const GREETING_LIMITS = Object.freeze({
+  dailyCap: 50,
+  maxPerRun: 20,
+  maxFailures: 3,
+  jitter: 0.25,
+});
+
+const DAY = 24 * 60 * 60 * 1000;
+
+// Chats greeted in the last day: the outbox (sending and unknown sends
+// count) and the greeting links of earlier versions.
+const greetedToday = async (store, now) => {
+  if (!store) {
+    return new Set();
+  }
+  const day = (value) => now - Date.parse(value) < DAY;
+  const links = await store.query(
+    (l) => l?.id?.startsWith(OUTBOX_PREFIX) || l?.id?.startsWith('greeting:')
+  );
+  return new Set(
+    links
+      .filter((l) =>
+        l.id.startsWith('greeting:')
+          ? day(l.sentAt)
+          : l.kind === 'greeting' &&
+            ['sending', 'sent', 'unknown'].includes(l.status) &&
+            day(l.at)
+      )
+      .map((l) => `${l.network ?? l.source}:${l.chat}`)
+  );
+};
+
+// A pause with jitter, never below the floor (R-Z3).
+const pause = (delayMs, jitter, random) => {
+  const base = Math.max(Number(delayMs) || 0, MIN_DELAY_MS);
+  return Math.round(base * (1 + (random() - 0.5) * 2 * jitter));
+};
+
+/** Posts one envelope through the guarded send, then records the link. */
 const sendEnvelope = async (
   envelope,
-  { store, resolveSource, credentials, now }
+  { store, resolveSource, credentials, now, clock }
 ) => {
   const live = resolveSource(envelope.network)?.live;
   if (!live?.post) {
     throw new Error(`${envelope.network} cannot send messages`);
   }
-  const result = await live.post(
-    outgoingContent(envelope),
-    credentials[envelope.network] ?? {}
-  );
-  await store?.put({
-    id: greetingLinkId(envelope.network, envelope.chat),
-    tokens: ['greeting', envelope.network, envelope.chat],
-    children: [`chat:${envelope.network}:${envelope.chat}`],
-    kind: envelope.kind,
-    sticker: envelope.sticker,
-    text: envelope.text,
-    sentAt: now(),
+  const outcome = await guardedSend({
+    store: store ?? transientStore(),
+    kind: 'greeting',
+    owner: 'greeting',
+    key: outboxKey({
+      owner: 'greeting',
+      source: envelope.network,
+      chat: envelope.chat,
+      now: clock().getTime(),
+    }),
+    draft: {
+      source: envelope.network,
+      chat: envelope.chat,
+      contact: envelope.contact,
+      text: envelope.text ?? `sticker:${envelope.sticker?.id ?? ''}`,
+    },
+    send: () =>
+      live.post(outgoingContent(envelope), credentials[envelope.network] ?? {}),
+    clock,
   });
-  return result;
+  if (outcome.status !== 'sent') {
+    return outcome;
+  }
+  // The greeting is out: a store that fails now never turns it into a
+  // failure (the outbox already says "sent").
+  try {
+    await store?.put({
+      id: greetingLinkId(envelope.network, envelope.chat),
+      tokens: ['greeting', envelope.network, envelope.chat],
+      children: [`chat:${envelope.network}:${envelope.chat}`],
+      kind: envelope.kind,
+      sticker: envelope.sticker,
+      text: envelope.text,
+      sentAt: now(),
+    });
+  } catch {
+    // the outbox record is the truth
+  }
+  return outcome;
 };
 
 const defaultSleep = (ms) =>
@@ -107,10 +181,112 @@ const defaultSleep = (ms) =>
     globalThis.setTimeout(resolve, ms);
   });
 
+// Why an envelope will not go out in this run, or null (R-Z3). Shared by
+// the dry-run preview and the real run, so the preview is exact.
+const holdReason = (envelope, { used, room, perRun, seen }) => {
+  if (envelope.skipped) {
+    return envelope.skipped;
+  }
+  if (
+    used.has(`${envelope.network}:${envelope.chat}`) ||
+    seen.has(`${envelope.network}:${envelope.chat}`)
+  ) {
+    return 'greeted-today';
+  }
+  if (seen.size >= Math.min(room, perRun)) {
+    return room <= perRun ? 'daily-cap' : 'run-limit';
+  }
+  return null;
+};
+
+const limitsOf = (options) => ({
+  ...GREETING_LIMITS,
+  ...Object.fromEntries(
+    Object.entries(options).filter(([, v]) => Number.isFinite(v) && v >= 0)
+  ),
+});
+
 /**
- * Sends a plan's envelopes one by one through `live.post`. Successful
- * sends are recorded as `greeting:<network>:<chat>` links so the next
- * `initiate` plan skips them.
+ * The exact list a run would send, and what it would hold back and why,
+ * without sending or recording anything (R-Z3).
+ */
+export const previewGreetings = async (
+  plan,
+  {
+    store = null,
+    delayMs = DEFAULT_DELAY_MS,
+    clock = () => new Date(),
+    ...rest
+  } = {}
+) => {
+  const limits = limitsOf({
+    dailyCap: rest.dailyCap,
+    maxPerRun: rest.maxPerRun,
+    maxFailures: rest.maxFailures,
+  });
+  const used = await greetedToday(store, clock().getTime());
+  const room = Math.max(limits.dailyCap - used.size, 0);
+  const seen = new Set();
+  const willSend = [];
+  const held = [];
+  for (const envelope of plan.envelopes ?? []) {
+    const reason = holdReason(envelope, {
+      used,
+      room,
+      perRun: limits.maxPerRun,
+      seen,
+    });
+    if (reason) {
+      held.push({ ...envelope, held: reason });
+    } else {
+      seen.add(`${envelope.network}:${envelope.chat}`);
+      willSend.push(envelope);
+    }
+  }
+  return {
+    dryRun: true,
+    mode: plan.mode,
+    willSend,
+    held,
+    limits: {
+      dailyCap: limits.dailyCap,
+      maxPerRun: limits.maxPerRun,
+      maxFailures: limits.maxFailures,
+      remainingToday: room,
+      delayMs: Math.max(Number(delayMs) || 0, MIN_DELAY_MS),
+    },
+  };
+};
+
+// One send; an exception becomes a failed outcome, never a crash.
+const attempt = (envelope, options) =>
+  sendEnvelope(envelope, {
+    store: options.store ?? null,
+    resolveSource: options.resolveSource ?? getSource,
+    credentials: options.credentials ?? {},
+    now: options.now ?? (() => new Date().toISOString()),
+    clock: options.clock ?? (() => new Date()),
+  }).catch((err) => ({
+    status: 'failed',
+    error: err.message,
+    code: err.code,
+  }));
+
+const failureOf = (envelope, outcome) => ({
+  ...envelope,
+  ok: false,
+  status: outcome.status,
+  error: outcome.error,
+  ...(outcome.code ? { code: outcome.code } : {}),
+});
+
+/**
+ * Sends a plan's envelopes one by one through the guarded send. Each
+ * goes out once (outbox), at a paced and jittered pace, up to the daily
+ * cap and the per-run maximum; the whole batch stops on a rate-limit
+ * answer or after `maxFailures` failures in a row (R-Z3). Successful
+ * sends are also recorded as `greeting:<network>:<chat>` links so the
+ * next `initiate` plan skips them.
  *
  * @param {{envelopes: Array<object>}} plan
  * @param {object} [opts]
@@ -118,40 +294,51 @@ const defaultSleep = (ms) =>
  * @param {(name: string) => object} [opts.resolveSource] for tests
  * @param {object} [opts.credentials] per-network `live.post` options
  * @param {number} [opts.delayMs] pause between sends (vk-bot: 30 s)
+ * @param {number} [opts.dailyCap] most greetings per day
+ * @param {number} [opts.maxPerRun] most greetings per request
+ * @param {number} [opts.maxFailures] failures in a row that stop the batch
  */
-export const runGreetings = async (
-  plan,
-  {
+export const runGreetings = async (plan, options = {}) => {
+  const {
     store = null,
-    resolveSource = getSource,
-    credentials = {},
-    delayMs = 0,
+    delayMs = DEFAULT_DELAY_MS,
     sleep = defaultSleep,
-    now = () => new Date().toISOString(),
-  } = {}
-) => {
+    random = Math.random,
+    clock = () => new Date(),
+  } = options;
+  const limits = limitsOf({
+    dailyCap: options.dailyCap,
+    maxPerRun: options.maxPerRun,
+    maxFailures: options.maxFailures,
+  });
+  const used = await greetedToday(store, clock().getTime());
+  const room = Math.max(limits.dailyCap - used.size, 0);
   const results = [];
-  let attempted = 0;
+  const seen = new Set();
+  let failures = 0;
+  let stopped = null;
   for (const envelope of plan.envelopes ?? []) {
-    if (envelope.skipped) {
-      results.push({ ...envelope, ok: false, error: envelope.skipped });
+    const held =
+      stopped ??
+      holdReason(envelope, { used, room, perRun: limits.maxPerRun, seen });
+    if (held) {
+      results.push({ ...envelope, ok: false, error: held, skipped: held });
       continue;
     }
-    if (attempted > 0 && delayMs > 0) {
-      await sleep(delayMs);
+    if (seen.size > 0) {
+      await sleep(pause(delayMs, limits.jitter, random));
     }
-    attempted += 1;
-    try {
-      const result = await sendEnvelope(envelope, {
-        store,
-        resolveSource,
-        credentials,
-        now,
-      });
-      results.push({ ...envelope, ok: true, result });
-    } catch (err) {
-      results.push({ ...envelope, ok: false, error: err.message });
+    seen.add(`${envelope.network}:${envelope.chat}`);
+    const outcome = await attempt(envelope, options);
+    if (outcome.status === 'sent') {
+      failures = 0;
+      results.push({ ...envelope, ok: true, result: outcome.result });
+      continue;
     }
+    failures += 1;
+    results.push(failureOf(envelope, outcome));
+    const why = batchStopReason(outcome, failures, limits.maxFailures);
+    stopped = why ? `batch-stopped:${why}` : null;
   }
   return results;
 };

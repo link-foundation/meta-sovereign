@@ -22,7 +22,7 @@ Telegram क्लाइंट की कौन-सी सुविधाएँ 
 
 - R-Z1: local server को मज़बूत करना।
 - R-Z2 (पूरा): store, backups, सहेजे secrets और logs को ज़्यादा सुरक्षित बनाना।
-- R-Z3: automated भेजने को ज़्यादा सुरक्षित बनाना।
+- R-Z3 (पूरा): automated भेजने को ज़्यादा सुरक्षित बनाना।
 - R-Z4 (पूरा): भेजने और sync के नतीजे सच्चे बनाना (LinkedIn पर ग़लती से public post नहीं, CV sync की झूठी सफलता नहीं, X direct messages, साफ़ fallback)।
 - R-Z5: email ठीक करना।
 - R-Z6: CI हरा करना (Deno, Bun, Windows, `cargo test`, CI में browser e2e)।

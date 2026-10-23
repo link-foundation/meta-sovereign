@@ -12324,3 +12324,38 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
 main[data-view='chat'] > .disk-banner {
   margin: 0.75rem;
 }
+
+/* Send safety: the send log, quiet hours, the opt-out list (R-Z3). */
+.automation-safety {
+  margin-top: 1.5rem;
+}
+.outbox-list,
+.optout-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.outbox-row,
+.optout-list li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.outbox-status {
+  font-weight: 600;
+}
+.outbox-unknown .outbox-status {
+  color: var(--accent);
+}
+.outbox-failed .outbox-status {
+  color: var(--text-muted);
+}
+.optout-form {
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.quiet-hours {
+  margin-top: 1rem;
+  gap: 0.5rem;
+}

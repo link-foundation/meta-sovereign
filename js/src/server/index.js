@@ -78,6 +78,7 @@ import {
 } from '../automation/runner.js';
 import { createDefaultSender } from '../sources/browser-sender.js';
 import { createAutopilot } from '../automation/autopilot.js';
+import { recoverOutbox } from '../automation/outbox.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { createChatIndex } from './chat-index.js';
@@ -320,19 +321,31 @@ const automationContext = (
     log: say,
   });
   const autopilot = createAutopilot({ store, runner, log: say });
+  // A send the last run never finished may have gone out: it becomes
+  // `unknown` and is never retried by itself (R-Z3).
+  const recovered = recoverOutbox(store).catch((error) =>
+    say({
+      level: 'warn',
+      event: 'outbox_recover_failed',
+      error: error.message,
+    })
+  );
   if (automations.scheduler !== false) {
     // Started once the port is really ours (R-Z1): a second `serve` on a
     // busy port must not run automation on the same store.
     later.push(() => {
       scheduler.start();
-      // An autopilot left on goes on after a restart.
-      autopilot.resume().catch((error) =>
-        say({
-          level: 'warn',
-          event: 'autopilot_resume_failed',
-          error: error.message,
-        })
-      );
+      // An autopilot left on stays paused after a restart until the user
+      // resumes it (or it was set to resume on start) (R-Z3).
+      recovered
+        .then(() => autopilot.resume())
+        .catch((error) =>
+          say({
+            level: 'warn',
+            event: 'autopilot_resume_failed',
+            error: error.message,
+          })
+        );
     });
   }
   return {
@@ -438,6 +451,7 @@ const accountSources = (account) => (name) => {
 const greetingContext = (greetings = {}) => ({
   greetingSources: greetings.resolveSource ?? null,
   greetingSleep: greetings.sleep ?? null,
+  greetingRandom: greetings.random ?? null,
 });
 
 const applySecurityHeaders = (res) => {

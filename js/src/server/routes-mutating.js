@@ -418,7 +418,7 @@ const handleBroadcast = async (store, req, res, p, ctx) => {
   if (!ok) {
     return true;
   }
-  const results = await broadcast(targets, text);
+  const results = await broadcast(targets, text, { store });
   const post = {
     id: `broadcast:${Date.now()}`,
     tokens: ['broadcast', ...targets],
@@ -461,7 +461,7 @@ const handleOutreach = async (store, req, res, p, ctx) => {
   if (!ok) {
     return true;
   }
-  const results = await runOutreach(ok.data);
+  const results = await runOutreach(ok.data, { store });
   return json(res, 200, { plan: ok.data, results }) ?? true;
 };
 

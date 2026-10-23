@@ -263,6 +263,7 @@ export const useAutomationsState = (
   const audiences = useAudiences(ctx);
   const autopilot = useAutopilotBase({ api, tick, confirm, t });
   return {
+    api,
     editor,
     runs,
     people,

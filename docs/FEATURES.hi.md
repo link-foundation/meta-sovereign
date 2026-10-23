@@ -7,7 +7,7 @@ Telegram संदर्भ नेटवर्क है और उसकी म
 | नेटवर्क              | मैट्रिक्स                                                      | समर्थित | आंशिक | असमर्थित | पहुँच से बाहर |
 | -------------------- | -------------------------------------------------------------- | ------- | ----- | -------- | ------------- |
 | Telegram (यही पृष्ठ) | नीचे                                                           | —       | —     | —        | —             |
-| VK                   | [features/vk.hi.md](./features/vk.hi.md)                       | 27      | 25    | 36       | 5             |
+| VK                   | [features/vk.hi.md](./features/vk.hi.md)                       | 30      | 22    | 36       | 5             |
 | WhatsApp             | [features/whatsapp.hi.md](./features/whatsapp.hi.md)           | 2       | 26    | 32       | 8             |
 | Facebook + Instagram | [features/facebook.hi.md](./features/facebook.hi.md)           | 5       | 35    | 29       | 1             |
 | X                    | [features/x.hi.md](./features/x.hi.md)                         | 7       | 22    | 24       | 5             |

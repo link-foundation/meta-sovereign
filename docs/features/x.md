@@ -145,11 +145,11 @@ There is no X-specific server route or page screen. X goes through the generic c
 
 ## Automation and greetings
 
-| Feature                       | Status        | Access    | Requirements | Notes / what is missing                                                                                                                                                           |
-| ----------------------------- | ------------- | --------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Greetings by DM               | Partial       | API + Web | R-Y38        | Greetings call the API post directly (no web fallback) and have the same conversation / participant mapping problem. Automation send safety is being worked on separately (R-Z3). |
-| Automation rules sending on X | Partial       | API + Web | R-Y38        | Go through the default sender; no X test.                                                                                                                                         |
-| CV sync                       | Not supported | —         | —            | No CV plan for X. Bio sync exists only through the profile update call (see Profiles).                                                                                            |
+| Feature                       | Status        | Access    | Requirements | Notes / what is missing                                                                                                                                                                                    |
+| ----------------------------- | ------------- | --------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Greetings by DM               | Partial       | API + Web | R-Y38        | Greetings call the API post directly (no web fallback) and have the same conversation / participant mapping problem. Automation send safety (once per chat and day, pacing, opt-out list) is fixed (R-Z3). |
+| Automation rules sending on X | Partial       | API + Web | R-Y38        | Go through the default sender; no X test.                                                                                                                                                                  |
+| CV sync                       | Not supported | —         | —            | No CV plan for X. Bio sync exists only through the profile update call (see Profiles).                                                                                                                     |
 
 ## Import and export
 

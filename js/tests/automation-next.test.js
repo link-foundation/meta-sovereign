@@ -14,6 +14,7 @@ import {
   editAfterSend,
   templateFromText,
 } from '../src/automation/automations.js';
+import { saveSettings } from '../src/automation/safety.js';
 import { createAutomationRunner } from '../src/automation/runner.js';
 import {
   afterFailure,
@@ -55,6 +56,8 @@ const seeded = async () => {
   for (const link of fixture()) {
     await store.put(link);
   }
+  // The fixed clock sits in somebody's night: quiet hours are tested apart.
+  await saveSettings(store, { quietHours: { enabled: false } });
   return store;
 };
 

@@ -150,7 +150,9 @@ export const broadcastHandler = ({ broadcast }) => ({
     if (link.dispatched) {
       return false;
     }
-    const results = await broadcast(link.networks ?? [], link.body ?? '');
+    const results = await broadcast(link.networks ?? [], link.body ?? '', {
+      store,
+    });
     await store.put({ ...link, dispatched: true, results });
   },
 });
@@ -195,7 +197,7 @@ export const outreachHandler = ({ runOutreach }) => ({
     if (link.dispatched || link.mode !== 'queue') {
       return false;
     }
-    const results = await runOutreach(link);
+    const results = await runOutreach(link, { store });
     await store.put({ ...link, dispatched: true, results });
   },
 });

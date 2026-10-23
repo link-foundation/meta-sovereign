@@ -25,6 +25,12 @@
  *   GET    /api/automations/autopilot → { autopilots } (R-Y87)
  *   POST   /api/automations/autopilot { automation, on?, monitor? }
  *          `on: true` is confirmed (how many chats, how paced) first
+ *   GET    /api/automations/outbox?status= → { outbox } every automated send
+ *          (sending, sent, failed, unknown), newest first (R-Z3)
+ *   POST   /api/automations/outbox/resolve { id, decision: 'sent'|'failed' }
+ *          the user's decision about an `unknown` send; never retried by itself
+ *   GET    /api/automations/settings → quiet hours, timezone, opt-out list
+ *   PUT    /api/automations/settings { quietHours?, timezone?, optOut? }
  *   POST   /api/send   { source, chat, text, contact? } → the chat composer;
  *                      API first, the official web UI when it fails
  *   POST   /api/typing { source, chat, cancel? } → show our typing status
@@ -44,6 +50,8 @@ import {
   normalizeAutomation,
 } from '../automation/automations.js';
 import { listAutomations } from '../automation/drafts.js';
+import { listOutbox, resolveOutbox } from '../automation/outbox.js';
+import { loadSettings, saveSettings } from '../automation/safety.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
@@ -336,7 +344,10 @@ const handleAutopilot = async (store, res, body, ctx) => {
   return json(
     res,
     200,
-    await autopilot.start(automation, { monitor: body.monitor !== false })
+    await autopilot.start(automation, {
+      monitor: body.monitor !== false,
+      resumeOnStart: body.resumeOnStart === true,
+    })
   );
 };
 
@@ -403,6 +414,14 @@ const POST = {
   '/api/automations/edit/reset': async (store, res, body, ctx) =>
     json(res, 200, await ctx.automations.runner.resetEdit(automationOf(body))),
   '/api/automations/autopilot': handleAutopilot,
+  '/api/automations/outbox/resolve': async (store, res, body) => {
+    if (typeof body.id !== 'string' || !body.id.startsWith('outbox:')) {
+      return fail(res, 400, 'bad-outbox', 'id of an outbox record is needed');
+    }
+    return json(res, 200, {
+      outbox: await resolveOutbox(store, body.id, body.decision),
+    });
+  },
   '/api/send': handleSend,
   '/api/typing': handleTyping,
 };
@@ -431,6 +450,10 @@ const GET = {
       automation: q.get('automation') || undefined,
     }),
   }),
+  '/api/automations/outbox': async (store, q) => ({
+    outbox: await listOutbox(store, { status: q.get('status') || null }),
+  }),
+  '/api/automations/settings': async (store) => loadSettings(store),
   '/api/automations/history': async (store, q, ctx) => ({
     records: await ctx.automations.runner.history({
       automation: q.get('automation') || undefined,
@@ -443,6 +466,10 @@ const GET = {
 };
 
 const handleWrite = async (store, req, res, p) => {
+  if (req.method === 'PUT' && p === '/api/automations/settings') {
+    const body = await readBody(req);
+    return json(res, 200, await saveSettings(store, body)) ?? true;
+  }
   if (req.method === 'PUT' && p === '/api/automations') {
     const body = await readBody(req);
     const automation = normalizeAutomation(body.automation ?? body);

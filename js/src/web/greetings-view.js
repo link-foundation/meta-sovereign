@@ -569,7 +569,10 @@ const useGreetingsState = (api) => {
           ask: (reply) =>
             globalThis.confirm(
               t('greetings.confirmSend', {
-                count: reply.preview?.envelopes?.length ?? 0,
+                count:
+                  reply.preview?.dryRun?.willSend?.length ??
+                  reply.preview?.envelopes?.length ??
+                  0,
               })
             ),
         });

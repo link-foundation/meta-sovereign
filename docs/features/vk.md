@@ -102,14 +102,14 @@ Display uses the network-neutral path (stored link, then the chat API, then the 
 
 ## Profiles and contacts
 
-| Feature                                                                  | Status                           | Access       | Requirements   | Notes / what is missing                                                                                                                                                   |
-| ------------------------------------------------------------------------ | -------------------------------- | ------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Friends list into the people directory                                   | Supported                        | API          | R-X13, #31     | Via `friends.get`, paged 5000; audiences `friends:vk`. Tested with fakes, not against VK.                                                                                 |
-| User profile view (name, photo, city, status, last seen, mutual friends) | Not supported                    | API          | —              | `users.get` is used only for the token check; there is no profile card for VK people.                                                                                     |
-| Add / remove friend, block / unblock, report                             | Not supported                    | API          | —              | `friends.add/delete`, `account.ban/unban`, `messages.markAsSpam` are not wired.                                                                                           |
-| Own profile sync (status, name)                                          | Supported                        | API          | R-E1           | Via `status.set` and `account.saveProfileInfo`, route `POST /api/profile/sync`. The VK path is covered by a fake handler test only; the end-to-end test is Telegram-only. |
-| Dormant-contact detection (90 days or more)                              | Supported                        | API, Archive | R-X1..R-X6     | Personal chats are told apart by VK peer range.                                                                                                                           |
-| Greeting back / outreach on VK                                           | Partial — fix in progress (R-Z3) | API + Web    | R-X7, #31, #35 | `/api/broadcast`, `/api/outreach` and automations work; automation send safety (cooldowns, pacing, idempotency) is still being hardened.                                  |
+| Feature                                                                  | Status        | Access       | Requirements   | Notes / what is missing                                                                                                                                                                         |
+| ------------------------------------------------------------------------ | ------------- | ------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Friends list into the people directory                                   | Supported     | API          | R-X13, #31     | Via `friends.get`, paged 5000; audiences `friends:vk`. Tested with fakes, not against VK.                                                                                                       |
+| User profile view (name, photo, city, status, last seen, mutual friends) | Not supported | API          | —              | `users.get` is used only for the token check; there is no profile card for VK people.                                                                                                           |
+| Add / remove friend, block / unblock, report                             | Not supported | API          | —              | `friends.add/delete`, `account.ban/unban`, `messages.markAsSpam` are not wired.                                                                                                                 |
+| Own profile sync (status, name)                                          | Supported     | API          | R-E1           | Via `status.set` and `account.saveProfileInfo`, route `POST /api/profile/sync`. The VK path is covered by a fake handler test only; the end-to-end test is Telegram-only.                       |
+| Dormant-contact detection (90 days or more)                              | Supported     | API, Archive | R-X1..R-X6     | Personal chats are told apart by VK peer range.                                                                                                                                                 |
+| Greeting back / outreach on VK                                           | Supported     | API + Web    | R-X7, #31, #35 | `/api/broadcast`, `/api/outreach` and automations work. Fixed (R-Z3): each send goes out at most once per chat and day, never to opted-out or dead chats, and a send in doubt is never retried. |
 
 ## Search
 
@@ -174,13 +174,13 @@ Display uses the network-neutral path (stored link, then the chat API, then the 
 
 ## Automation, greetings, CV sync
 
-| Feature                                                                     | Status                           | Access            | Requirements     | Notes / what is missing                                                                                                                             |
-| --------------------------------------------------------------------------- | -------------------------------- | ----------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Greetings with stickers / text                                              | Partial — fix in progress (R-Z3) | API               | #35              | The default networks are VK and Telegram. A mass greeting send is unpaced by default and has no daily cap yet.                                      |
-| Re-engage dormant contacts                                                  | Partial — fix in progress (R-Z3) | API, Archive, Web | #31, R-X1..R-X20 | CLI and automation preset; read, typing, then reply pacing. Default conditions have no cooldown yet, so the same chat can be messaged on every run. |
-| Automation triggers on incoming VK messages                                 | Partial                          | API               | R-X7             | Triggers work on whatever reaches the store; with no auto-pull or long poll, new VK messages arrive only on a manual pull. Planned (R-Z8).          |
-| Profile status sync to VK                                                   | Supported                        | API               | R-E1             | Uses the profile sync; the CV-to-status mapping is generic.                                                                                         |
-| Rate limiting (about 3 requests/s for users, 20 messages/s for communities) | Partial                          | API               | —                | There is no central throttle; only the greeting pacing and hints for errors 6 and 9.                                                                |
+| Feature                                                                     | Status    | Access            | Requirements     | Notes / what is missing                                                                                                                                                                                                                                               |
+| --------------------------------------------------------------------------- | --------- | ----------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Greetings with stickers / text                                              | Supported | API               | #35              | The default networks are VK and Telegram. Fixed (R-Z3): greetings are paced (30 s with jitter), capped at 20 per request and 50 per day, stop after 3 failures in a row or any rate limit, and a dry run lists who gets what. They are still sent within one request. |
+| Re-engage dormant contacts                                                  | Supported | API, Archive, Web | #31, R-X1..R-X20 | CLI and automation preset; read, typing, then reply pacing. Fixed (R-Z3): the default conditions now keep a 7-day cooldown per chat, and a send goes out at most once per chat and day.                                                                               |
+| Automation triggers on incoming VK messages                                 | Partial   | API               | R-X7             | Triggers work on whatever reaches the store; with no auto-pull or long poll, new VK messages arrive only on a manual pull. Planned (R-Z8).                                                                                                                            |
+| Profile status sync to VK                                                   | Supported | API               | R-E1             | Uses the profile sync; the CV-to-status mapping is generic.                                                                                                                                                                                                           |
+| Rate limiting (about 3 requests/s for users, 20 messages/s for communities) | Partial   | API               | —                | There is no central throttle; only the greeting pacing and hints for errors 6 and 9.                                                                                                                                                                                  |
 
 ## Import / export
 
@@ -212,7 +212,7 @@ Display uses the network-neutral path (stored link, then the chat API, then the 
 | Sending and composing          | 8         | 4       | 5             | 1              |
 | Chat list                      | 1         | 2       | 2             | 1              |
 | Chats, groups and communities  | 2         | 0       | 4             | 0              |
-| Profiles and contacts          | 3         | 1       | 2             | 0              |
+| Profiles and contacts          | 4         | 0       | 2             | 0              |
 | Search                         | 1         | 0       | 3             | 0              |
 | Media                          | 0         | 0       | 2             | 0              |
 | Stickers and emoji             | 1         | 1       | 3             | 0              |
@@ -220,6 +220,6 @@ Display uses the network-neutral path (stored link, then the chat API, then the 
 | Bots and mini apps             | 0         | 0       | 1             | 1              |
 | Settings and notifications     | 2         | 0       | 3             | 0              |
 | Accounts                       | 2         | 0       | 2             | 0              |
-| Automation, greetings, CV sync | 1         | 4       | 0             | 0              |
+| Automation, greetings, CV sync | 3         | 2       | 0             | 0              |
 | Import / export                | 2         | 1       | 2             | 0              |
-| **Total**                      | **27**    | **25**  | **36**        | **5**          |
+| **Total**                      | **30**    | **22**  | **36**        | **5**          |

@@ -19,6 +19,7 @@ import {
   normalizeAutomation,
   planAutomation,
 } from '../automation/automations.js';
+import { SETTINGS_ID, normalizeSettings } from '../automation/safety.js';
 import {
   draftOperations,
   loadAutomation,
@@ -223,6 +224,35 @@ const automationCalls = ({ remote, store, local }) => ({
         ? await remote.confirmed('/api/automations/autopilot', body, ask)
         : await remote.post('/api/automations/autopilot', body);
     return answer ?? SERVER_REQUIRED;
+  },
+  /** The send log: every automated send and how it ended (R-Z3). */
+  outbox: async ({ status } = {}) =>
+    (
+      await remote.get(
+        `/api/automations/outbox${status ? `?status=${encodeURIComponent(status)}` : ''}`
+      )
+    )?.outbox ?? [],
+  /** The user's decision about an unknown send: it arrived or not. */
+  resolveOutbox: async ({ id, decision }) =>
+    asOutcome(
+      async () =>
+        (await remote.post('/api/automations/outbox/resolve', {
+          id,
+          decision,
+        })) ?? SERVER_REQUIRED
+    ),
+  /** Quiet hours, time zone and the opt-out list. */
+  safetySettings: async () =>
+    (await remote.get('/api/automations/settings')) ??
+    normalizeSettings((await store.get(SETTINGS_ID)) ?? {}),
+  saveSafetySettings: async (settings) => {
+    const saved = normalizeSettings(settings);
+    await store.put({
+      id: SETTINGS_ID,
+      tokens: ['automation-settings', 'global'],
+      ...saved,
+    });
+    return (await remote.put('/api/automations/settings', saved)) ?? saved;
   },
   automationHistory: async ({ automation } = {}) =>
     (

@@ -20,7 +20,7 @@ issue #1 的路线图目前为空。原始 issue 和 PR #2 maintainer follow-up 
 
 - R-Z1：加固本地 server。
 - R-Z2（已完成）：让存储、备份、已保存的 secrets 和日志更安全。
-- R-Z3：让自动发送更安全。
+- R-Z3（已完成）：让自动发送更安全。
 - R-Z4（已完成）：让发送和同步的结果真实可信（不会误发 LinkedIn 公开帖子，不会假报 CV 同步成功，X 私信，明确的回退方式）。
 - R-Z5：修复 email。
 - R-Z6：让 CI 变绿（Deno、Bun、Windows、`cargo test`、CI 中的浏览器 e2e）。

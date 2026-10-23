@@ -14,39 +14,42 @@ const PAID_FAILURES = {
 export const isPaidFailure = (code) =>
   typeof code === 'string' && Object.hasOwn(PAID_FAILURES, code);
 
+// Failure codes with a fixed wording; the rest need the message's fields.
+const FAILURE_KEYS = {
+  'write-forbidden': 'chat.failure.forbidden',
+  'unknown-chat': 'chat.failure.unknownChat',
+  // "Send as" refused (R-Y141).
+  'send-as-invalid': 'chat.sendAs.err.send-as-invalid',
+  'premium-required': 'chat.sendAs.err.premium',
+  'too-long': 'chat.failure.tooLong',
+  'too-large': 'chat.failure.tooLarge',
+  'after-failure': 'chat.failure.afterFailure',
+  network: 'chat.failure.network',
+  'no-answer': 'chat.failure.network',
+  // Automated sends (R-Z3).
+  'paused-after-restart': 'chat.failure.pausedAfterRestart',
+  'unknown-send': 'chat.failure.unknownSend',
+  'too-many-failures': 'chat.failure.tooManyFailures',
+  'opted-out': 'chat.failure.optedOut',
+  'already-sent': 'chat.failure.alreadySent',
+  'send-in-doubt': 'chat.failure.sendInDoubt',
+  'outbox-unavailable': 'chat.failure.outboxUnavailable',
+};
+
 /** Why a message did not go out, in words. */
 export const failureText = (t, message) => {
   if (isPaidFailure(message.code)) {
     return t(PAID_FAILURES[message.code]);
   }
-  switch (message.code) {
-    case 'flood-wait':
-      return t('chat.failure.floodWait', {
-        seconds: message.retryAfter ?? '?',
-      });
-    case 'write-forbidden':
-      return t('chat.failure.forbidden');
-    case 'unknown-chat':
-      return t('chat.failure.unknownChat');
-    // "Send as" refused (R-Y141).
-    case 'send-as-invalid':
-      return t('chat.sendAs.err.send-as-invalid');
-    case 'premium-required':
-      return t('chat.sendAs.err.premium');
-    case 'too-long':
-      return t('chat.failure.tooLong');
-    case 'too-large':
-      return t('chat.failure.tooLarge');
-    case 'after-failure':
-      return t('chat.failure.afterFailure');
-    case 'network':
-    case 'no-answer':
-      return t('chat.failure.network');
-    default:
-      return t('chat.failure.other', {
-        error: message.error ?? message.code ?? '',
-      });
+  if (message.code === 'flood-wait') {
+    return t('chat.failure.floodWait', { seconds: message.retryAfter ?? '?' });
   }
+  if (Object.hasOwn(FAILURE_KEYS, message.code)) {
+    return t(FAILURE_KEYS[message.code]);
+  }
+  return t('chat.failure.other', {
+    error: message.error ?? message.code ?? '',
+  });
 };
 
 /** A message that will be tried again by itself: why, and when. */

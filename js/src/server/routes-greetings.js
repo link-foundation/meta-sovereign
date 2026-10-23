@@ -12,8 +12,11 @@
  *   GET  /api/greetings/selection     stickers/texts the user picked
  *   PUT  /api/greetings/selection     save the pick
  *   POST /api/greetings/stickers      list greeting stickers live
- *   POST /api/greetings/plan          { mode, networks, limit, run }
- *                                     -> plan (+ results when queued)
+ *   POST /api/greetings/plan          { mode, networks, limit, run,
+ *                                       delayMs?, dailyCap?, maxPerRun? }
+ *                                     -> plan (+ results when queued);
+ *                                     `run: 'dry'` lists exactly who would
+ *                                     get what, sending nothing (R-Z3)
  *   GET  /api/greetings/file?id=…     Telegram thumbnail proxy (the
  *                                     download URL embeds the bot token)
  */
@@ -27,13 +30,18 @@ import {
   loadGreetingCredentials,
   loadGreetingSelection,
   planFromStore,
+  previewGreetings,
   runGreetings,
   saveGreetingSelection,
+  DEFAULT_DELAY_MS,
 } from '../greetings/index.js';
 
 /** vk-bot pauses 30 s between greetings; never wait longer per send. */
 const MAX_DELAY_MS = 60_000;
 const MAX_LIMIT = 100;
+// One request sends at most this many, whatever the body says (R-Z3).
+const MAX_PER_RUN = 50;
+const MAX_DAILY_CAP = 200;
 
 const FILE_TYPES = {
   webp: 'image/webp',
@@ -44,7 +52,9 @@ const FILE_TYPES = {
 
 const clamp = (value, fallback, max) => {
   const n = Number(value);
-  return Number.isFinite(n) && n >= 0 ? Math.min(n, max) : fallback;
+  return value !== null && value !== '' && Number.isFinite(n) && n >= 0
+    ? Math.min(n, max)
+    : fallback;
 };
 
 const listOrNull = (value) =>
@@ -93,6 +103,20 @@ const handlePlan = async (store, req, res, p, ctx) => {
       limit: clamp(body.limit, 10, MAX_LIMIT),
       staleDays: clamp(body.staleDays, 30, 3650),
     });
+  const pace = {
+    delayMs: clamp(body.delayMs, DEFAULT_DELAY_MS, MAX_DELAY_MS),
+    dailyCap: clamp(body.dailyCap, undefined, MAX_DAILY_CAP),
+    maxPerRun: clamp(body.maxPerRun, undefined, MAX_PER_RUN),
+  };
+  if (body.run === 'dry') {
+    const plan = await makePlan();
+    return (
+      json(res, 200, {
+        plan,
+        ...(await previewGreetings(plan, { store, ...pace })),
+      }) ?? true
+    );
+  }
   if (body.run !== 'queue') {
     return json(res, 200, await makePlan()) ?? true;
   }
@@ -102,7 +126,8 @@ const handlePlan = async (store, req, res, p, ctx) => {
     body,
     prepare: async () => {
       const plan = await makePlan();
-      return { preview: plan, data: plan };
+      const dryRun = await previewGreetings(plan, { store, ...pace });
+      return { preview: { ...plan, dryRun }, data: plan };
     },
   });
   if (!ok) {
@@ -112,10 +137,18 @@ const handlePlan = async (store, req, res, p, ctx) => {
     store,
     resolveSource: resolverOf(ctx),
     credentials: await loadGreetingCredentials(store),
-    delayMs: clamp(body.delayMs, 0, MAX_DELAY_MS),
+    ...pace,
     ...(ctx?.greetingSleep ? { sleep: ctx.greetingSleep } : {}),
+    ...(ctx?.greetingRandom ? { random: ctx.greetingRandom } : {}),
   });
-  return json(res, 200, { plan: ok.data, results }) ?? true;
+  const stopped = results.find((r) => r.skipped?.startsWith('batch-stopped'));
+  return (
+    json(res, 200, {
+      plan: ok.data,
+      results,
+      ...(stopped ? { stopped: stopped.skipped } : {}),
+    }) ?? true
+  );
 };
 
 const handleFile = async (store, req, res, p, url, ctx) => {

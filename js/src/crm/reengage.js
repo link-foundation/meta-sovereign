@@ -23,6 +23,11 @@ import {
   defaultAddressRules,
 } from './address-form.js';
 import { addressFormOf } from './person-learn.js';
+import {
+  batchStopReason,
+  guardedSend,
+  transientStore,
+} from '../automation/outbox.js';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const DEFAULT_DORMANT_DAYS = 90;
@@ -476,13 +481,17 @@ const emptyCounts = () => ({ sent: 0, skipped: 0, failed: 0 });
  * which sends the current draft and nothing else; `sendAll()` refuses.
  * A failed send leaves the draft current so it can be retried, edited,
  * marked as sent by hand or skipped. `record(link)` persists every
- * decision (normally `store.put`).
+ * decision (normally `store.put`). Every send goes through the guarded
+ * send (R-Z3): once per chat and day, written to the `outbox` store
+ * (default: this session only) before it leaves; a send in doubt is never
+ * retried by itself.
  */
 export const createReengageSession = ({
   drafts = [],
   mode = 'safe',
   send,
   record = async () => {},
+  outbox = null,
   templates = defaultReengageTemplates,
   clock = () => new Date(),
 } = {}) => {
@@ -490,6 +499,7 @@ export const createReengageSession = ({
   const items = drafts.map((d) => ({ ...d }));
   const history = [];
   const counts = emptyCounts();
+  const guardStore = outbox ?? transientStore();
   let index = 0;
 
   const current = () => items[index] ?? null;
@@ -520,15 +530,37 @@ export const createReengageSession = ({
     if (typeof send !== 'function') {
       throw new Error('re-engage session has no sender; use markSent()');
     }
-    try {
-      const result = await send(draft);
-      const link = await settle(draft, 'sent', { result: result ?? null });
+    const outcome = await guardedSend({
+      store: guardStore,
+      kind: 'reengage',
+      owner: 'reengage',
+      draft,
+      send,
+      clock,
+    });
+    if (outcome.status === 'sent') {
+      const link = await settle(draft, 'sent', {
+        result: outcome.result ?? null,
+      });
       advance();
       return { status: 'sent', draft, record: link };
-    } catch (error) {
-      const link = await settle(draft, 'failed', { error: error.message });
-      return { status: 'failed', draft, record: link, error: error.message };
     }
+    const link = await settle(draft, 'failed', {
+      error: outcome.error,
+      ...(outcome.status === 'unknown' ? { unknown: true } : {}),
+    });
+    // A send in doubt is not offered again: the user decides.
+    if (outcome.status === 'unknown') {
+      advance();
+    }
+    return {
+      status: 'failed',
+      outcome: outcome.status,
+      draft,
+      record: link,
+      error: outcome.error,
+      ...(outcome.code ? { code: outcome.code } : {}),
+    };
   };
 
   return {
@@ -569,11 +601,22 @@ export const createReengageSession = ({
         );
       }
       const results = [];
+      let failures = 0;
       while (current()) {
         const outcome = await sendCurrent();
         results.push(outcome);
-        if (outcome.status === 'failed') {
+        failures = outcome.status === 'failed' ? failures + 1 : 0;
+        if (outcome.status === 'failed' && outcome.outcome !== 'unknown') {
           advance();
+        }
+        // A rate limit, a send in doubt or too many failures stop it.
+        if (
+          batchStopReason(
+            { ...outcome, status: outcome.outcome ?? outcome.status },
+            failures
+          )
+        ) {
+          break;
         }
       }
       return results;

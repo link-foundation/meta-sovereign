@@ -198,6 +198,8 @@ export const autopilotText = (t, state, seconds, time = (v) => v) => {
       return t('chat.autopilot.waiting', { seconds: seconds ?? 0 });
     case 'capped':
       return t('chat.autopilot.capped', { time: time(state.nextAt) });
+    case 'quiet':
+      return t('chat.autopilot.quiet', { time: time(state.nextAt) });
     case 'done':
       return t('chat.autopilot.done');
     case 'paused':
