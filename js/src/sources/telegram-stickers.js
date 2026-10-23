@@ -25,6 +25,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pickSize } from './telegram-media.js';
 import { randomIdOf, replyHeader, sendError } from './telegram-send.js';
+import { createStickerSearch } from './telegram-sticker-search.js';
 
 const LISTS_MS = 10 * 60_000;
 const SET_MS = 60 * 60_000;
@@ -127,10 +128,10 @@ const readCache = async (file) => {
 
 // Through the account's queue, at the pace of what the user is looking
 // at; one request per key (the same key asked again is merged).
-const runIn = (env, key, use) =>
+export const runIn = (env, key, use) =>
   env.queue ? env.queue.run(key, 'view', use) : use();
 
-const connect = async (env, userClient) => {
+export const connect = async (env, userClient) => {
   const client = await userClient();
   if (!client) {
     return null;
@@ -139,7 +140,7 @@ const connect = async (env, userClient) => {
   return { client, Api, helpers, zero: helpers.returnBigInt(0) };
 };
 
-const inputSet = (c, set) =>
+export const inputSet = (c, set) =>
   new c.Api.InputStickerSetID({
     id: c.helpers.returnBigInt(text(set.id)),
     accessHash: c.helpers.returnBigInt(text(set.accessHash)),
@@ -150,6 +151,7 @@ const inputSet = (c, set) =>
 const createLists = (env, userClient, now) => {
   const docs = new Map(); // id -> { doc, from }
   const sets = new Map(); // id -> { set, at, items }
+  const refetch = new Map(); // a list's prefix -> ask it again
   const kept = { panel: null, gifs: null }; // { at, answer }
   const run = (key, use) => runIn(env, key, use);
   const fresher = (entry, ms) => entry && now() - entry.at < ms;
@@ -234,7 +236,10 @@ const createLists = (env, userClient, now) => {
   // The document's list asked again (its file reference expired).
   const again = async (id) => {
     const from = docs.get(id)?.from ?? '';
-    if (from.startsWith('set:')) {
+    const other = [...refetch].find(([prefix]) => from.startsWith(prefix));
+    if (other) {
+      await other[1](from.slice(other[0].length));
+    } else if (from.startsWith('set:')) {
       await stickerSet({ id: from.slice(4), fresh: true });
     } else if (from === 'gifs') {
       await savedGifs({ fresh: true });
@@ -268,6 +273,17 @@ const createLists = (env, userClient, now) => {
     withDoc,
     known: (id) => docs.has(id),
     setOf: (id) => sets.get(id) ?? null,
+    remember,
+    // Sets found by a search, so their stickers can be asked.
+    learnSet: (set) => {
+      if (set?.id !== undefined && !sets.get(text(set.id))?.set) {
+        sets.set(text(set.id), { set });
+      }
+    },
+    installed: (id) =>
+      Boolean(kept.panel?.answer?.sets?.some((s) => s.id === id)),
+    // `ask(rest)` asks the list from `prefix + rest` again.
+    onAgain: (prefix, ask) => refetch.set(prefix, ask),
     // Telegram puts a sent sticker first among the recent ones.
     sent: () => {
       kept.panel = null;
@@ -460,6 +476,7 @@ export const createStickers = (
     stickerPanel: lists.stickerPanel,
     stickerSet: lists.stickerSet,
     savedGifs: lists.savedGifs,
+    ...createStickerSearch(env, { userClient, lists, now }),
     stickerPicture: createPictures(env, { userClient, mediaDir }, lists),
     sendDocument: createSender(env, { userClient, apply }, lists),
   };

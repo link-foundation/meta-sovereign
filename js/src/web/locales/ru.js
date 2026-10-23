@@ -883,6 +883,10 @@ export const ru = {
   'chat.stickers.none': 'Стикеров пока нет. Добавьте наборы в Telegram.',
   'chat.stickers.noGifs':
     'Сохранённых GIF пока нет. Сохраните GIF в Telegram, и он появится здесь.',
+  'chat.stickers.stickerSearch': 'Поиск стикеров',
+  'chat.stickers.gifSearch': 'Поиск GIF',
+  'chat.stickers.found': 'Найдено',
+  'chat.stickers.notFound': 'Ничего не найдено.',
   'chat.stickers.failed': 'Не удалось загрузить. Попробуйте позже.',
   'chat.stickers.unavailable':
     'Доступно при входе в Telegram как пользователь.',

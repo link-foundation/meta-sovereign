@@ -935,6 +935,9 @@ export const api = {
   telegramStickers: (body = {}) => telegramPost('stickers', body),
   telegramStickerSet: (body = {}) => telegramPost('sticker-set', body),
   telegramGifs: (body = {}) => telegramPost('gifs', body),
+  // Stickers ({ q, lang }) and GIFs ({ q, offset }) searched (R-Y112).
+  telegramStickerSearch: (body = {}) => telegramPost('sticker-search', body),
+  telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
   telegramSendDocument: (body = {}) => telegramPost('send-document', body),
   telegramScheduled: (body = {}) => telegramPost('scheduled', body),
   telegramScheduledSend: (body = {}) => telegramPost('scheduled-send', body),

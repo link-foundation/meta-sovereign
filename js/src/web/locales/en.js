@@ -873,6 +873,10 @@ export const en = {
   'chat.stickers.none': 'No stickers yet. Add sticker sets in Telegram.',
   'chat.stickers.noGifs':
     'No saved GIFs yet. Save a GIF in Telegram to see it here.',
+  'chat.stickers.stickerSearch': 'Search stickers',
+  'chat.stickers.gifSearch': 'Search GIFs',
+  'chat.stickers.found': 'Found',
+  'chat.stickers.notFound': 'Nothing found.',
   'chat.stickers.failed': 'Could not load. Try again later.',
   'chat.stickers.unavailable':
     'Available when signed in to Telegram as a user.',

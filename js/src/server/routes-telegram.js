@@ -68,6 +68,12 @@
  *   POST /api/telegram/bot-callback {chat, id, data?, game?}
  *                                      -> { ok, message, alert, url } a
  *                                         bot's button pressed (R-Y110)
+ *   POST /api/telegram/sticker-search {q, lang?}
+ *                                      -> { ok, stickers, sets } stickers
+ *                                         for an emoji or words (R-Y112)
+ *   POST /api/telegram/gif-search {q, offset?}
+ *                                      -> { ok, gifs, next } GIFs found
+ *                                         by Telegram's @gif bot
  *   POST /api/telegram/remove-chat {chat, action, revoke?}
  *                                      -> { ok, deleted } clear, delete
  *                                         or leave the chat (R-Y100)
@@ -198,6 +204,11 @@ const historyPage = async (account, body) => [
 
 // A bot button's data: at most 64 bytes, in base64.
 const BOT_DATA = /^[A-Za-z0-9+/]{1,88}={0,2}$/;
+
+// Words to search stickers or GIFs by; a language as two letters.
+const searchWords = (q) =>
+  typeof q === 'string' && q.trim().length > 0 && q.length <= 64;
+const LANG = /^[a-z]{2}$/;
 
 const POSTS = {
   sync: async (account, body) => [
@@ -506,6 +517,32 @@ const POSTS = {
     typeof account.stickerSet === 'function'
       ? [200, await account.stickerSet({ id: String(body.id) })]
       : [400, { error: 'id required', code: 'bad-request' }],
+  // Stickers and GIFs searched (R-Y112).
+  'sticker-search': async (account, body) =>
+    searchWords(body.q) &&
+    (body.lang === undefined || LANG.test(String(body.lang))) &&
+    typeof account.stickerSearch === 'function'
+      ? [
+          200,
+          await account.stickerSearch({
+            q: body.q.trim(),
+            lang: body.lang ?? 'en',
+          }),
+        ]
+      : [400, { error: 'words required', code: 'bad-request' }],
+  'gif-search': async (account, body) =>
+    searchWords(body.q) &&
+    (body.offset === undefined ||
+      (typeof body.offset === 'string' && body.offset.length <= 64)) &&
+    typeof account.gifSearch === 'function'
+      ? [
+          200,
+          await account.gifSearch({
+            q: body.q.trim(),
+            offset: body.offset ?? '',
+          }),
+        ]
+      : [400, { error: 'words required', code: 'bad-request' }],
   gifs: async (account, body) =>
     typeof account.savedGifs === 'function'
       ? [200, await account.savedGifs({ fresh: body.fresh === true })]

@@ -7,12 +7,16 @@
  * click sends the sticker or GIF to the chat at once (as a reply, when
  * one is being written) and closes the panel.
  *
+ * A search box over each tab (R-Y112): an emoji or words find stickers
+ * and sticker sets, the user's or not; words find GIFs as Telegram's
+ * apps do (its @gif bot), more as the list is scrolled to its end.
+ *
  * Only for a Telegram chat of a user account; the pictures come through
  * the server (/api/telegram/sticker), never from Telegram to the page.
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useT } from './i18n.js';
+import { useLocaleContext, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { useNearView } from './chat-media.js';
 import { mediaSrc } from './media-src.js';
@@ -220,8 +224,90 @@ const failure = (answer, t) =>
     ? t('chat.stickers.unavailable')
     : t('chat.stickers.failed');
 
+// What is typed in a search box, once typing pauses.
+const useDebounced = (value, ms = 350) => {
+  const [settled, setSettled] = useState(value);
+  useEffect(() => {
+    const timer = globalThis.setTimeout(() => setSettled(value), ms);
+    return () => globalThis.clearTimeout(timer);
+  }, [value, ms]);
+  return settled;
+};
+
+const SearchBox = ({ field, value, onChange }) => {
+  const t = useT();
+  return el('input', {
+    type: 'search',
+    className: 'emoji-search',
+    placeholder: t(`chat.stickers.${field}`),
+    'aria-label': t(`chat.stickers.${field}`),
+    'data-field': field,
+    value,
+    onChange: (event) => onChange(event.target.value),
+  });
+};
+
+const canSearch = (api, method) => typeof api?.[method] === 'function';
+
+// Stickers found for an emoji or words, then the sets found.
+const FoundStickers = ({ api, q, onSend }) => {
+  const t = useT();
+  const lang = String(useLocaleContext().locale ?? 'en').slice(0, 2);
+  const answer = useAnswer(
+    api,
+    'telegramStickerSearch',
+    { q, lang },
+    { key: `search:${lang}:${q}` }
+  );
+  if (!answer) {
+    return el(Note, { text: t('chat.stickers.loading') });
+  }
+  if (!answer.ok) {
+    return el(Note, { text: failure(answer, t) });
+  }
+  if (answer.stickers.length === 0 && answer.sets.length === 0) {
+    return el(Note, { text: t('chat.stickers.notFound') });
+  }
+  return [
+    answer.stickers.length
+      ? el(
+          Section,
+          { key: 'found', id: 'found', title: t('chat.stickers.found') },
+          el(Grid, { api, list: answer.stickers, onSend })
+        )
+      : null,
+    ...answer.sets.map((set) =>
+      el(SetSection, { key: `set:${set.id}`, api, set, onSend })
+    ),
+  ];
+};
+
 /** The Stickers tab. */
 export const StickersTab = ({ api, onSend }) => {
+  const [query, setQuery] = useState('');
+  const q = useDebounced(query.trim());
+  const search = canSearch(api, 'telegramStickerSearch');
+  return el(React.Fragment, null, [
+    search
+      ? el(SearchBox, {
+          key: 'q',
+          field: 'stickerSearch',
+          value: query,
+          onChange: setQuery,
+        })
+      : null,
+    search && q
+      ? el(
+          'div',
+          { key: 'found', className: 'emoji-scroll', 'data-found': q },
+          el(FoundStickers, { api, q, onSend })
+        )
+      : el(MyStickers, { key: 'mine', api, onSend }),
+  ]);
+};
+
+// The user's own: favourites, recent, their sets with the bar.
+const MyStickers = ({ api, onSend }) => {
   const t = useT();
   const scroller = useRef(null);
   const answer = useAnswer(
@@ -270,8 +356,104 @@ export const StickersTab = ({ api, onSend }) => {
   ]);
 };
 
+// GIFs found by words, a page at a time.
+const useGifPages = (api, q) => {
+  const [pages, setPages] = useState({ q: null, gifs: [], next: null });
+  const [error, setError] = useState(null);
+  const busy = useRef(false);
+  const ask = async (offset) => {
+    if (busy.current) {
+      return;
+    }
+    busy.current = true;
+    const answer = await Promise.resolve(
+      api.telegramGifSearch({ q, ...(offset ? { offset } : {}) })
+    ).catch((e) => ({ error: e.message }));
+    busy.current = false;
+    if (!answer?.ok) {
+      setError(answer ?? { error: 'no answer' });
+      return;
+    }
+    setPages((now) => ({
+      q,
+      gifs: offset && now.q === q ? [...now.gifs, ...answer.gifs] : answer.gifs,
+      next: answer.next ?? null,
+    }));
+  };
+  useEffect(() => {
+    setError(null);
+    setPages({ q: null, gifs: [], next: null });
+    ask('');
+  }, [api, q]);
+  return {
+    ...pages,
+    done: pages.q === q,
+    error,
+    more: () => pages.next && ask(pages.next),
+  };
+};
+
+// The list's end: near the view, the next page.
+const More = ({ onNear }) => {
+  const ref = useRef(null);
+  const { near } = useNearView(ref);
+  useEffect(() => {
+    if (near) {
+      onNear();
+    }
+  }, [near]);
+  return el('div', { ref, className: 'gif-more' });
+};
+
+const FoundGifs = ({ api, q, onSend }) => {
+  const t = useT();
+  const found = useGifPages(api, q);
+  if (found.error) {
+    return el(Note, { text: failure(found.error, t) });
+  }
+  if (!found.done) {
+    return el(Note, { text: t('chat.stickers.loading') });
+  }
+  if (found.gifs.length === 0) {
+    return el(Note, { text: t('chat.stickers.notFound') });
+  }
+  return [
+    el(Grid, { key: 'g', api, list: found.gifs, onSend, gifs: true }),
+    found.next
+      ? el(More, { key: `more:${found.gifs.length}`, onNear: found.more })
+      : null,
+  ];
+};
+
 /** The GIFs tab. */
 export const GifsTab = ({ api, onSend }) => {
+  const [query, setQuery] = useState('');
+  const q = useDebounced(query.trim());
+  const search = canSearch(api, 'telegramGifSearch');
+  return el(React.Fragment, null, [
+    search
+      ? el(SearchBox, {
+          key: 'q',
+          field: 'gifSearch',
+          value: query,
+          onChange: setQuery,
+        })
+      : null,
+    search && q
+      ? el(
+          'div',
+          {
+            key: 'found',
+            className: 'emoji-scroll gif-scroll',
+            'data-found': q,
+          },
+          el(FoundGifs, { api, q, onSend })
+        )
+      : el(SavedGifs, { key: 'saved', api, onSend }),
+  ]);
+};
+
+const SavedGifs = ({ api, onSend }) => {
   const t = useT();
   const answer = useAnswer(
     api,

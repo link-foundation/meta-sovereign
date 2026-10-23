@@ -5449,3 +5449,9 @@ button[aria-busy='true']::before {
 .shared-end {
   height: 1px;
 }
+
+/* The end of found GIFs: near the view, the next page (R-Y112). */
+.gif-more {
+  grid-column: 1 / -1;
+  height: 1px;
+}

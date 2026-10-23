@@ -847,6 +847,10 @@ export const zh = {
   'chat.stickers.none': '还没有贴纸。请在 Telegram 中添加贴纸包。',
   'chat.stickers.noGifs':
     '还没有保存的 GIF。在 Telegram 中保存 GIF 后会显示在这里。',
+  'chat.stickers.stickerSearch': '搜索贴纸',
+  'chat.stickers.gifSearch': '搜索 GIF',
+  'chat.stickers.found': '搜索结果',
+  'chat.stickers.notFound': '未找到结果。',
   'chat.stickers.failed': '无法加载，请稍后再试。',
   'chat.stickers.unavailable': '以用户身份登录 Telegram 后可用。',
   'chat.emoji.search': '搜索表情',

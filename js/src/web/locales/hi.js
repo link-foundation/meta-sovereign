@@ -870,6 +870,10 @@ export const hi = {
   'chat.stickers.none': 'अभी कोई स्टिकर नहीं। Telegram में स्टिकर सेट जोड़ें।',
   'chat.stickers.noGifs':
     'अभी कोई सहेजा GIF नहीं। Telegram में GIF सहेजें, वह यहाँ दिखेगा।',
+  'chat.stickers.stickerSearch': 'स्टिकर खोजें',
+  'chat.stickers.gifSearch': 'GIF खोजें',
+  'chat.stickers.found': 'मिले',
+  'chat.stickers.notFound': 'कुछ नहीं मिला।',
   'chat.stickers.failed': 'लोड नहीं हो सका। बाद में फिर कोशिश करें।',
   'chat.stickers.unavailable':
     'Telegram में उपयोगकर्ता के रूप में साइन इन होने पर उपलब्ध।',

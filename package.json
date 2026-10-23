@@ -101,7 +101,9 @@
     "test:e2e:bots": "node js/tests/e2e-bots-browser.mjs",
     "test:e2e:bots:webkit": "E2E_BROWSER=webkit node js/tests/e2e-bots-browser.mjs",
     "test:e2e:shared": "node js/tests/e2e-shared-browser.mjs",
-    "test:e2e:shared:webkit": "E2E_BROWSER=webkit node js/tests/e2e-shared-browser.mjs"
+    "test:e2e:shared:webkit": "E2E_BROWSER=webkit node js/tests/e2e-shared-browser.mjs",
+    "test:e2e:sticker-search": "node js/tests/e2e-sticker-search-browser.mjs",
+    "test:e2e:sticker-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-search-browser.mjs"
   },
   "keywords": [
     "personal-crm",
