@@ -628,4 +628,8 @@ export const enChat = {
   'chat.edit.photoWillGo': 'The photo will be removed',
   'chat.notify.hidden': 'New message',
   'chat.notify.message': 'Message',
+  'chat.peerBar.stranger': 'Not a contact',
+  'chat.peerBar.registered': 'Registered {month}',
+  'chat.peerBar.country': 'Phone number from {country}',
+  'chat.peerBar.hide': 'Hide',
 };

@@ -23,8 +23,14 @@ const Api = {
     Unblock: named('Unblock'),
     AddContact: named('AddContact'),
     DeleteContacts: named('DeleteContacts'),
+    AcceptContact: named('AcceptContact'),
   },
-  messages: { Report: named('Report'), ReportSpam: named('ReportSpam') },
+  messages: {
+    Report: named('Report'),
+    ReportSpam: named('ReportSpam'),
+    GetPeerSettings: named('GetPeerSettings'),
+    HidePeerSettingsBar: named('HidePeerSettingsBar'),
+  },
   InputUser: named('InputUser'),
 };
 
@@ -237,8 +243,57 @@ test('routes validate strictly', async () => {
       { chat: '5', option: 'AQI=' },
     ],
     ['peer-report-spam', {}, { chat: '5' }],
+    ['peer-settings', { chat: 'me' }, { chat: '-1005' }],
+    ['peer-hide-bar', {}, { chat: '5' }],
+    ['peer-share-contact', { chat: '-5' }, { chat: '5' }],
   ]) {
     assert.equal((await post(route, bad, actions)).status, 400, route);
     assert.equal((await post(route, good, actions)).status, 200, route);
   }
+});
+
+test("the stranger's bar: Telegram's offers, hiding it, sharing the phone (R-Y137)", async () => {
+  const { actions, log } = make((request) =>
+    request.className === 'GetPeerSettings'
+      ? {
+          settings: {
+            reportSpam: true,
+            addContact: true,
+            blockContact: true,
+            registrationMonth: '03.2024',
+            phoneCountry: 'DE',
+          },
+          chats: [],
+          users: [],
+        }
+      : true
+  );
+  assert.deepEqual(await actions.peerSettings({ chat: '42' }), {
+    ok: true,
+    bar: {
+      reportSpam: true,
+      addContact: true,
+      blockContact: true,
+      shareContact: false,
+      autoarchived: false,
+      registered: '03.2024',
+      country: 'DE',
+    },
+  });
+  assert.deepEqual(await actions.peerHideBar({ chat: '42' }), { ok: true });
+  assert.deepEqual(await actions.peerShareContact({ chat: '42' }), {
+    ok: true,
+  });
+  assert.deepEqual(
+    log.map((r) => r.className),
+    ['GetPeerSettings', 'HidePeerSettingsBar', 'AcceptContact']
+  );
+  assert.equal(log[0].peer.chat, '42');
+  assert.equal(log[2].id.userId, 42n);
+  // Only a person shares a phone number.
+  assert.equal(
+    (await actions.peerShareContact({ chat: '-42' })).error,
+    'bad request'
+  );
+  assert.equal(log.length, 3);
 });

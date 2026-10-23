@@ -130,6 +130,12 @@
  *                  result: choose{title, options} | comment{optional,
  *                  option} | reported } (R-Y128)
  *   POST /api/telegram/peer-report-spam {chat} -> { ok }
+ *   POST /api/telegram/peer-settings {chat} -> { ok, bar: { reportSpam,
+ *                                      addContact, blockContact,
+ *                                      shareContact, autoarchived,
+ *                                      registered, country } } (R-Y137)
+ *   POST /api/telegram/peer-hide-bar {chat} -> { ok }
+ *   POST /api/telegram/peer-share-contact {chat} -> { ok }
  *   POST /api/telegram/members {chat, q?, offset?, limit?}
  *                                      -> { ok, total, members, canBan,
  *                                         canInvite } a group's members,
@@ -889,6 +895,10 @@ const POSTS = {
   'peer-report': (account, body) => peerAction(account, 'peerReport', body),
   'peer-report-spam': (account, body) =>
     peerAction(account, 'peerReportSpam', body),
+  'peer-settings': (account, body) => peerAction(account, 'peerSettings', body),
+  'peer-hide-bar': (account, body) => peerAction(account, 'peerHideBar', body),
+  'peer-share-contact': (account, body) =>
+    peerAction(account, 'peerShareContact', body),
   // The set of a sticker in a chat, for its box (R-Y124).
   'sticker-set-box': async (account, body) =>
     validSetBox(body) && typeof account.stickerSetBox === 'function'

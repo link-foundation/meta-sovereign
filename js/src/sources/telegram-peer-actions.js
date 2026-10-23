@@ -15,6 +15,13 @@
  *   back in `message`;
  * - `peerReportSpam({ chat })` — "Report spam" on a stranger's chat
  *   (messages.reportSpam).
+ * The bar over a chat with a stranger (R-Y137):
+ * - `peerSettings({ chat })` — what Telegram offers there
+ *   (messages.getPeerSettings) → `{ ok, bar: { reportSpam, addContact,
+ *   blockContact, shareContact, autoarchived, registered, country } }`;
+ * - `peerHideBar({ chat })` — the bar's × (messages.hidePeerSettingsBar);
+ * - `peerShareContact({ chat })` — "Share my phone number"
+ *   (contacts.acceptContact).
  * Telegram's errors become codes the page shows as text.
  */
 
@@ -137,6 +144,35 @@ const reportSpam = async (c, peer) => {
   return { ok: true };
 };
 
+// Telegram's PeerSettings as the page reads it.
+const barOf = (settings = {}) => ({
+  reportSpam: Boolean(settings.reportSpam),
+  addContact: Boolean(settings.addContact),
+  blockContact: Boolean(settings.blockContact),
+  shareContact: Boolean(settings.shareContact),
+  autoarchived: Boolean(settings.autoarchived),
+  registered: settings.registrationMonth ?? null,
+  country: settings.phoneCountry ?? null,
+});
+
+const peerSettings = async (c, peer) => {
+  const answer = await c.client.invoke(
+    new c.Api.messages.GetPeerSettings({ peer })
+  );
+  return { ok: true, bar: barOf(answer?.settings) };
+};
+
+const hideBar = async (c, peer) => {
+  await c.client.invoke(new c.Api.messages.HidePeerSettingsBar({ peer }));
+  return { ok: true };
+};
+
+const shareContact = async (c, peer) => {
+  const id = await inputUserOf(c, peer);
+  await c.client.invoke(new c.Api.contacts.AcceptContact({ id }));
+  return { ok: true };
+};
+
 const text = (value, max) => typeof value === 'string' && value.length <= max;
 
 const validContact = (chat, r) =>
@@ -151,6 +187,8 @@ const validReport = (chat, r) =>
   (r.option === undefined || (text(r.option, 2048) && BASE64.test(r.option))) &&
   (r.message === undefined || text(r.message, 512));
 
+const anyChat = (chat) => CHAT.test(chat);
+
 export const createPeerActions = (env, { userClient }) => ({
   peerBlock: doing(
     env,
@@ -164,8 +202,17 @@ export const createPeerActions = (env, { userClient }) => ({
   peerReportSpam: doing(
     env,
     userClient,
-    (chat) => CHAT.test(chat),
+    anyChat,
     'peer-report-spam',
     reportSpam
+  ),
+  peerSettings: doing(env, userClient, anyChat, 'peer-settings', peerSettings),
+  peerHideBar: doing(env, userClient, anyChat, 'peer-hide-bar', hideBar),
+  peerShareContact: doing(
+    env,
+    userClient,
+    (chat) => USER.test(chat),
+    'peer-share-contact',
+    shareContact
   ),
 });

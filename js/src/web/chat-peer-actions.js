@@ -7,8 +7,8 @@
 // or a request for words or the end). Every question is asked in the
 // page, never by the browser; Telegram's errors show as text.
 
-import React, { useState } from 'react';
-import { useT } from './i18n.js';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocaleContext, useT } from './i18n.js';
 import { useEsc } from './chat-invite.js';
 
 const el = React.createElement;
@@ -371,6 +371,120 @@ export const PeerActions = ({ api, chat, info }) => {
       label: t('chat.peer.report'),
       onClick: () => change.open('report'),
     }),
+    el(Dialogs, { key: 'd', api, chat, change, t }),
+  ]);
+};
+
+// The bar's offers, in Telegram Desktop's order: [setting, action,
+// label, the dialog it opens or null].
+const BAR = [
+  ['addContact', 'bar-add', 'addContact', 'add'],
+  ['shareContact', 'bar-share', 'share', null],
+  ['blockContact', 'bar-block', 'blockUser', 'block'],
+  ['reportSpam', 'bar-spam', 'spam', 'spam'],
+];
+
+// What Telegram offers over this chat, asked once when it opens; gone
+// once acted on or hidden.
+const usePeerBar = (api, chat) => {
+  const [bar, setBar] = useState(null);
+  const telegram =
+    chat?.source === 'telegram' &&
+    /^-?\d+$/.test(String(chat.chat)) &&
+    typeof api?.telegramPeerSettings === 'function';
+  useEffect(() => {
+    if (!telegram) {
+      return undefined;
+    }
+    let current = true;
+    api
+      .telegramPeerSettings({ chat: String(chat.chat) })
+      .then((answer) => current && answer?.ok && setBar(answer.bar))
+      .catch(() => {});
+    return () => {
+      current = false;
+    };
+  }, [telegram, chat?.chat]);
+  return [bar, setBar];
+};
+
+const regionName = (code, locale) => {
+  try {
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(code);
+  } catch {
+    return code;
+  }
+};
+
+const BarInfo = ({ bar, t, locale }) => {
+  const facts = [
+    bar.registered && t('chat.peerBar.registered', { month: bar.registered }),
+    bar.country &&
+      t('chat.peerBar.country', { country: regionName(bar.country, locale) }),
+  ].filter(Boolean);
+  return el('span', { className: 'peer-bar-info' }, [
+    t('chat.peerBar.stranger'),
+    ...facts.map((fact) => ` · ${fact}`),
+  ]);
+};
+
+/**
+ * The bar over a chat with someone who is not a contact, as Telegram
+ * Desktop shows it (R-Y137): Add contact, Share my phone number, Block
+ * user, Report spam — each as Telegram offers it (messages.
+ * getPeerSettings), the questions asked in the page — and × to hide it
+ * for good (messages.hidePeerSettingsBar).
+ */
+export const PeerBar = ({ api, chat }) => {
+  const { t, locale } = useLocaleContext();
+  const [bar, setBar] = usePeerBar(api, chat);
+  const change = useChanges(api, chat ?? {}, null);
+  const first = useRef(change.state);
+  useEffect(() => {
+    if (change.state !== first.current) {
+      setBar(null);
+    }
+  }, [change.state]);
+  const offers = bar ? BAR.filter(([setting]) => bar[setting]) : [];
+  if (offers.length === 0) {
+    return change.dialog ? el(Dialogs, { api, chat, change, t }) : null;
+  }
+  const key = String(chat.chat);
+  const share = () =>
+    change.call
+      .run(() => api.telegramPeerShareContact({ chat: key }))
+      .then((answer) => answer?.ok && setBar(null));
+  const hide = () => {
+    setBar(null);
+    api.telegramPeerHideBar?.({ chat: key }).catch(() => {});
+  };
+  return el('div', { className: 'peer-bar', 'data-peer-bar': key }, [
+    el(BarInfo, { key: 'i', bar, t, locale }),
+    el(
+      'div',
+      { key: 'b', className: 'peer-bar-actions' },
+      offers.map(([, action, label, dialog]) =>
+        el(Button, {
+          key: action,
+          action,
+          label: t(`chat.peer.${label}`),
+          onClick: () => (dialog ? change.open(dialog) : share()),
+        })
+      )
+    ),
+    el(
+      'button',
+      {
+        key: 'x',
+        type: 'button',
+        className: 'peer-bar-hide',
+        'data-action': 'bar-hide',
+        'aria-label': t('chat.peerBar.hide'),
+        title: t('chat.peerBar.hide'),
+        onClick: hide,
+      },
+      '×'
+    ),
     el(Dialogs, { key: 'd', api, chat, change, t }),
   ]);
 };

@@ -6186,3 +6186,36 @@ button[aria-busy='true']::before {
 .chat-edit-bar {
   padding: 0.5rem 0;
 }
+
+/* The bar over a chat with a stranger (R-Y137). */
+.peer-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  padding: 0.45rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+  flex: none;
+  font-size: 0.9rem;
+}
+.peer-bar-info {
+  color: var(--text-muted);
+  flex: 1 1 12rem;
+}
+.peer-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.peer-bar .peer-action {
+  width: auto;
+}
+.peer-bar-hide {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}

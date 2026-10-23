@@ -638,4 +638,8 @@ export const ruChat = {
   'chat.edit.photoWillGo': 'Фото будет удалено',
   'chat.notify.hidden': 'Новое сообщение',
   'chat.notify.message': 'Сообщение',
+  'chat.peerBar.stranger': 'Не в контактах',
+  'chat.peerBar.registered': 'Зарегистрирован {month}',
+  'chat.peerBar.country': 'Номер телефона: {country}',
+  'chat.peerBar.hide': 'Скрыть',
 };

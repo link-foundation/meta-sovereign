@@ -12,6 +12,7 @@
 //     drafts automations left here: send (one click is the
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
+import { PeerBar } from './chat-peer-actions.js';
 import React, {
   useCallback,
   useEffect,
@@ -1214,6 +1215,12 @@ export const ChatScreen = ({ state, api }) => {
               key: 'pin',
               pinned: state.pinned,
               onOpen: (id) => goToMessage(id, state.history?.reach),
+            }),
+            // Add contact, Block, Report spam over a stranger's chat (R-Y137).
+            el(PeerBar, {
+              key: `peer:${state.current.key}`,
+              api,
+              chat: state.current,
             }),
             el(ConnectionBanner, { key: 'b', banner: state.banner }),
             el(FailedBar, { key: 'failed', composer: state.composer }),

@@ -968,6 +968,11 @@ export const api = {
   telegramPeerContact: (body = {}) => telegramPost('peer-contact', body),
   telegramPeerReport: (body = {}) => telegramPost('peer-report', body),
   telegramPeerReportSpam: (body = {}) => telegramPost('peer-report-spam', body),
+  // The bar over a chat with a stranger (R-Y137).
+  telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
+  telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),
+  telegramPeerShareContact: (body = {}) =>
+    telegramPost('peer-share-contact', body),
   telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
   // The panel's menu ({ id, action }; R-Y115).
   telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),

@@ -601,4 +601,8 @@ export const zhChat = {
   'chat.edit.photoWillGo': '照片将被移除',
   'chat.notify.hidden': '新消息',
   'chat.notify.message': '消息',
+  'chat.peerBar.stranger': '非联系人',
+  'chat.peerBar.registered': '注册于 {month}',
+  'chat.peerBar.country': '手机号来自 {country}',
+  'chat.peerBar.hide': '隐藏',
 };

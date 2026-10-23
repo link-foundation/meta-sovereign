@@ -628,4 +628,8 @@ export const hiChat = {
   'chat.edit.photoWillGo': 'फ़ोटो हटा दी जाएगी',
   'chat.notify.hidden': 'नया संदेश',
   'chat.notify.message': 'संदेश',
+  'chat.peerBar.stranger': 'संपर्क नहीं',
+  'chat.peerBar.registered': 'पंजीकृत {month}',
+  'chat.peerBar.country': 'फ़ोन नंबर: {country}',
+  'chat.peerBar.hide': 'छिपाएँ',
 };
