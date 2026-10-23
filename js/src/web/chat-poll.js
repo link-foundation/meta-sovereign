@@ -19,10 +19,17 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useT } from './i18n.js';
+import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { PeerAvatar } from './peer-avatar.js';
-import { nicePercents, showsResults } from './poll-parts.js';
+import {
+  TODO_LIMITS,
+  canAppendTasks,
+  nicePercents,
+  showsResults,
+  taskProblem,
+  tasksOf,
+} from './poll-parts.js';
 
 const el = React.createElement;
 
@@ -508,6 +515,137 @@ export const StopPollDialog = ({ onClose, onStop }) => {
   );
 };
 
+// Who ticked a task and when (R-Y195): their picture and the time.
+const DoneBy = ({ item, api, chat }) => {
+  const t = useT();
+  const dates = useDates();
+  if (!item.by && !item.at) {
+    return null;
+  }
+  return el(
+    'span',
+    { className: 'todo-done-by meta', 'data-todo-by': item.id },
+    [
+      item.by
+        ? el(PeerAvatar, {
+            key: 'a',
+            api,
+            source: 'telegram',
+            peer: item.by,
+            chat,
+            className: 'poll-voter',
+          })
+        : null,
+      item.at
+        ? el(
+            'span',
+            { key: 'w' },
+            t('chat.todo.doneAt', { date: dates.dateTime(item.at) })
+          )
+        : null,
+    ]
+  );
+};
+
+const todoErrorKey = (code) =>
+  ['not-allowed', 'too-many', 'not-a-todo'].includes(code)
+    ? `chat.todo.err.${code}`
+    : 'chat.todo.err.failed';
+
+// "Add tasks": a small form, one task per line (messages.appendTodoList
+// on Add only).
+const AddTasks = ({ media, api, chat, msgId }) => {
+  const t = useT();
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState('');
+  const [state, setState] = useState({ busy: false, code: null });
+  const items = tasksOf(text);
+  const problem = taskProblem(items, media.items.length);
+  const add = async () => {
+    if (problem || state.busy) {
+      return;
+    }
+    setState({ busy: true, code: null });
+    const answer = await api
+      .telegramAppendTodo({ chat, id: msgId, items })
+      .catch(() => null);
+    if (answer?.ok) {
+      setState({ busy: false, code: null });
+      setText('');
+      setOpen(false);
+    } else {
+      setState({ busy: false, code: answer?.code ?? 'failed' });
+    }
+  };
+  if (!open) {
+    return el(
+      'button',
+      {
+        type: 'button',
+        className: 'button todo-add-open',
+        'data-action': 'todo-add-open',
+        onClick: () => setOpen(true),
+      },
+      t('chat.todo.add')
+    );
+  }
+  return el('div', { className: 'todo-add', 'data-todo-add': true }, [
+    el('textarea', {
+      key: 't',
+      rows: 3,
+      autoFocus: true,
+      value: text,
+      placeholder: t('chat.todo.addPlaceholder'),
+      'aria-label': t('chat.todo.add'),
+      'data-field': 'todo-tasks',
+      onChange: (e) => setText(e.target.value),
+    }),
+    problem === 'long' || problem === 'many'
+      ? el(
+          'small',
+          { key: 'p', className: 'comments-failed', role: 'status' },
+          t(`chat.todo.problem.${problem}`, {
+            item: TODO_LIMITS.item,
+            count: TODO_LIMITS.items,
+          })
+        )
+      : null,
+    state.code
+      ? el(
+          'small',
+          { key: 'e', className: 'comments-failed', role: 'alert' },
+          t(todoErrorKey(state.code))
+        )
+      : null,
+    el('div', { key: 'b', className: 'todo-add-btns' }, [
+      el(
+        'button',
+        {
+          key: 'ok',
+          type: 'button',
+          className: 'primary',
+          disabled: Boolean(problem) || state.busy,
+          'data-action': 'todo-add',
+          onClick: add,
+        },
+        t('chat.todo.addConfirm')
+      ),
+      el(
+        'button',
+        {
+          key: 'x',
+          type: 'button',
+          onClick: () => {
+            setOpen(false);
+            setText('');
+          },
+        },
+        t('common.cancel')
+      ),
+    ]),
+  ]);
+};
+
 /** A checklist: a box per task, ticked by whoever did it. */
 export const Checklist = ({ media, api, chat, msgId, mine = false }) => {
   const t = useT();
@@ -529,6 +667,10 @@ export const Checklist = ({ media, api, chat, msgId, mine = false }) => {
       setPending((now) => ({ ...now, [item.id]: undefined }));
     }
   };
+  const canAppend =
+    typeof api?.telegramAppendTodo === 'function' &&
+    msgId > 0 &&
+    canAppendTasks(media, mine);
   const doneCount = media.items.filter((i) => pending[i.id] ?? i.done).length;
   return el('div', { className: 'bubble-poll bubble-todo' }, [
     el('strong', { key: 'q', className: 'poll-question' }, media.title),
@@ -559,7 +701,8 @@ export const Checklist = ({ media, api, chat, msgId, mine = false }) => {
               }),
               el('span', { key: 't', className: 'poll-text' }, item.text),
             ]
-          )
+          ),
+          done ? el(DoneBy, { key: 'by', item, api, chat }) : null
         );
       })
     ),
@@ -568,5 +711,6 @@ export const Checklist = ({ media, api, chat, msgId, mine = false }) => {
       { key: 'f', className: 'poll-total meta' },
       t('chat.todo.done', { done: doneCount, count: media.items.length })
     ),
+    canAppend ? el(AddTasks, { key: 'add', media, api, chat, msgId }) : null,
   ]);
 };

@@ -24,10 +24,14 @@ export const LIMITS = {
   max: 10,
 };
 
-export const canPoll = (state, api) =>
+/** Whether the open chat takes a new poll or checklist (`call` sends it). */
+export const canSendMedia = (state, api, call) =>
   state.current?.source === 'telegram' &&
   state.telegram?.kind === 'user' &&
-  typeof api?.telegramSendPoll === 'function';
+  typeof api?.[call] === 'function';
+
+export const canPoll = (state, api) =>
+  canSendMedia(state, api, 'telegramSendPoll');
 
 let counter = 0;
 const blank = () => {
@@ -73,9 +77,13 @@ const newClientId = () =>
   globalThis.crypto?.randomUUID?.() ??
   `poll-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-/** The dialog's state and what it does with the page's answer. */
-export const usePollCreate = ({ state, api, composer }) => {
-  const enabled = canPoll(state, api);
+/**
+ * The dialog's state and what it does with the page's answer; `call` is
+ * the page API call that sends the new poll or checklist (R-Y195 shares
+ * this for checklists: the reply, Send as and paid confirmation apply).
+ */
+export const useMediaCreate = ({ state, api, composer, call }) => {
+  const enabled = canSendMedia(state, api, call);
   const [shown, setShown] = useState(false);
   const [sending, setSending] = useState(false);
   const key = state.current?.key;
@@ -87,15 +95,13 @@ export const usePollCreate = ({ state, api, composer }) => {
     }
     setSending(true);
     const reply = composerReplyId(composer);
-    const answer = await api
-      .telegramSendPoll({
-        chat: String(state.current.chat),
-        ...body,
-        ...(reply ? { replyTo: reply } : {}),
-        ...sendAsField(state.current.chat),
-        clientId: newClientId(),
-      })
-      .catch((error) => ({ error: error.message }));
+    const answer = await api[call]({
+      chat: String(state.current.chat),
+      ...body,
+      ...(reply ? { replyTo: reply } : {}),
+      ...sendAsField(state.current.chat),
+      clientId: newClientId(),
+    }).catch((error) => ({ error: error.message }));
     setSending(false);
     if (answer?.ok) {
       composer?.clearReplyTo?.();
@@ -119,6 +125,10 @@ export const usePollCreate = ({ state, api, composer }) => {
   };
 };
 
+/** A new poll, from the paperclip's menu. */
+export const usePollCreate = (args) =>
+  useMediaCreate({ ...args, call: 'telegramSendPoll' });
+
 const useEsc = (onClose) => {
   const latest = useRef(onClose);
   latest.current = onClose;
@@ -134,7 +144,7 @@ const useEsc = (onClose) => {
   }, []);
 };
 
-const Check = ({ name, checked, disabled, onChange, label }) =>
+export const Check = ({ name, checked, disabled, onChange, label }) =>
   el('label', { className: 'pin-dialog-option', 'data-option': name }, [
     el('input', {
       key: 'c',

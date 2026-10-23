@@ -223,6 +223,7 @@ import { STICKER_SETTINGS_POSTS } from './routes-telegram-sticker-settings.js';
 import { CHAT_THEME_POSTS } from './routes-telegram-chat-themes.js';
 import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
 import { STATS_POSTS } from './routes-telegram-stats.js';
+import { CHECKLIST_STATS_POSTS } from './routes-telegram-checklist-stats.js';
 import { PINNED_LIST_POSTS } from './routes-telegram-pinned-list.js';
 import { PINNED_ORDER_POSTS } from './routes-telegram-pinned-order.js';
 import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
@@ -994,6 +995,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...APPS_POSTS,
+  ...CHECKLIST_STATS_POSTS,
   ...PROXY_POSTS,
   ...CHANNEL_DM_POSTS,
   ...EXPORT_POSTS,

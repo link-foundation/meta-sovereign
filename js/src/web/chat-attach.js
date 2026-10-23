@@ -256,7 +256,15 @@ export const pasteFiles = (attach) => (event) => {
 // The paperclip's choices (R-Y99): files, and a poll, a place and a
 // contact when the page can make them (R-Y142). Fixed over the button,
 // closed by a click elsewhere or Escape.
-const AttachMenu = ({ at, onFile, onPoll, onLocation, onContact, onClose }) => {
+const AttachMenu = ({
+  at,
+  onFile,
+  onPoll,
+  onTodo,
+  onLocation,
+  onContact,
+  onClose,
+}) => {
   const t = useT();
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -299,6 +307,7 @@ const AttachMenu = ({ at, onFile, onPoll, onLocation, onContact, onClose }) => {
     [
       item('file', 'file', 'chat.attach.file', onFile),
       onPoll && item('poll', 'chart', 'chat.attach.poll', onPoll),
+      onTodo && item('todo', 'check', 'chat.attach.todo', onTodo),
       onLocation &&
         item('location', 'map-pin', 'chat.attach.location', onLocation),
       onContact && item('contact', 'user', 'chat.attach.contact', onContact),
@@ -317,6 +326,7 @@ const AttachMenu = ({ at, onFile, onPoll, onLocation, onContact, onClose }) => {
 export const AttachButton = ({
   attach,
   onPoll = null,
+  onTodo = null,
   onLocation = null,
   onContact = null,
 }) => {
@@ -329,7 +339,7 @@ export const AttachButton = ({
   }
   const pick = () => input.current?.click();
   const open = (event) => {
-    if (!onPoll && !onLocation && !onContact) {
+    if (!onPoll && !onTodo && !onLocation && !onContact) {
       pick();
       return;
     }
@@ -356,6 +366,7 @@ export const AttachButton = ({
           at,
           onFile: pick,
           onPoll,
+          onTodo,
           onLocation,
           onContact,
           onClose: close,

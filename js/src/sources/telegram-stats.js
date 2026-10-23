@@ -20,10 +20,13 @@
  * (a borrowed sender, authorised by exporting the account's key); the DC
  * is learned from channels.getFullChannel, kept by chat, and when Telegram
  * still answers STATS_MIGRATE_X the request is asked again on DC X.
+ * R-Y195 adds a post's statistics, public shares and Stars revenue
+ * (./telegram-stats-more.js), and `statsGraph` also takes a bot's id.
  * Read-only. Telegram's errors become codes the page shows as text.
  */
 
 import { connected, failureOf, runIn } from './telegram-stickers.js';
+import { createStatsMore } from './telegram-stats-more.js';
 
 const CODES = {
   CHAT_ADMIN_REQUIRED: 'no-access',
@@ -40,6 +43,7 @@ const bad = { ok: false, error: 'bad request', code: 'failed' };
 const noAccess = { ok: false, error: 'no access', code: 'no-access' };
 const CHANNEL = /^-100\d{1,15}$/;
 const DIGITS = /^\d{1,20}$/;
+const BOT = /^\d{1,15}$/;
 export const MAX_TOKEN = 1024;
 export const POSTS_SHOWN = 20;
 const SNIPPET = 90;
@@ -286,7 +290,7 @@ export const createStats = (env, context) => {
     const token = body.token;
     const x = body.x === undefined ? undefined : String(body.x);
     if (
-      !CHANNEL.test(chat) ||
+      !(CHANNEL.test(chat) || BOT.test(chat)) ||
       typeof token !== 'string' ||
       token.length === 0 ||
       token.length > MAX_TOKEN ||
@@ -297,7 +301,10 @@ export const createStats = (env, context) => {
     return connected(env, context.userClient, failure, (c) =>
       runIn(env, `stats-graph:${chat}`, () =>
         env.connection.withPeer(c.client, chat, async (peer) => {
-          if (!dcs.has(chat) && !(await access(c, chat, peer))) {
+          // A bot's statistics (its Stars revenue) are on our own DC.
+          if (!CHANNEL.test(chat)) {
+            dcs.set(chat, 0);
+          } else if (!dcs.has(chat) && !(await access(c, chat, peer))) {
             return noAccess;
           }
           const result = await invokeOn(
@@ -316,5 +323,10 @@ export const createStats = (env, context) => {
     );
   };
 
-  return { chatStats, statsGraph };
+  return {
+    chatStats,
+    statsGraph,
+    // A post's statistics, its public shares, Stars revenue (R-Y195).
+    ...createStatsMore(env, context, { access, invokeOn, dcs, graphOf }),
+  };
 };

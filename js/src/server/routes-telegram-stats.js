@@ -21,7 +21,8 @@ export const STATS_POSTS = {
       ? [200, await account.chatStats({ chat: body.chat })]
       : [400, { error: 'chat required', code: 'bad-request' }],
   'stats-graph': async (account, body) =>
-    CHANNEL.test(String(body.chat ?? '')) &&
+    (CHANNEL.test(String(body.chat ?? '')) ||
+      /^\d{1,15}$/.test(String(body.chat ?? ''))) &&
     typeof body.token === 'string' &&
     body.token.length > 0 &&
     body.token.length <= MAX_TOKEN &&

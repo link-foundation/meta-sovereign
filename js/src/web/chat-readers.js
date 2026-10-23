@@ -38,6 +38,17 @@ export const hasReaders = (message, chat = {}) =>
   chat.kind === 'group' &&
   networkMessageId(message) !== null;
 
+/**
+ * Whether an admin may report this reaction (R-Y195): in a group or
+ * supergroup (not a channel) where the user may ban people, someone
+ * else's, from a user.
+ */
+export const canReportReaction = (info, item) =>
+  Boolean(info?.canBan) &&
+  (info.kind === 'group' || (info.kind === 'channel' && !info.broadcast)) &&
+  !item?.my &&
+  /^\d{1,20}$/.test(String(item?.peer ?? ''));
+
 const errorText = (t, code) => {
   const key = `chat.readers.err.${code}`;
   const text = t(key);
@@ -45,7 +56,7 @@ const errorText = (t, code) => {
 };
 
 // One answer, asked on mount (and again with `more`), kept as pages.
-const useAnswer = (ask, key) => {
+export const useAnswer = (ask, key) => {
   const [state, setState] = useState({ phase: 'loading', items: [] });
   const asking = useRef(ask);
   asking.current = ask;
@@ -92,7 +103,7 @@ const WhenText = ({ ms }) => {
   );
 };
 
-const Row = ({ name, ms, emoji = null, kind }) =>
+const Row = ({ name, ms, emoji = null, kind, extra = null }) =>
   el('li', { className: 'reader-row', 'data-reader': kind }, [
     el(Initial, { key: 'a', name }),
     el('span', { key: 'n', className: 'member-name' }, name),
@@ -102,6 +113,7 @@ const Row = ({ name, ms, emoji = null, kind }) =>
           el(WhenText, { ms }),
         ])
       : null,
+    extra,
   ]);
 
 const Body = ({ state, t, rowOf, more }) => {
@@ -242,8 +254,64 @@ const ReadersPanel = ({ message, api, close }) => {
   );
 };
 
-const ReactorsPanel = ({ message, api, close }) => {
+// "Report this reaction?": a confirmation, then messages.reportReaction.
+const ReportConfirm = ({ item, message, api, done }) => {
   const t = useT();
+  const [state, setState] = useState({ busy: false, code: null });
+  const report = async () => {
+    setState({ busy: true, code: null });
+    const answer = await api
+      .telegramReportReaction({
+        chat: String(message.chat),
+        id: networkMessageId(message),
+        peer: item.peer,
+      })
+      .catch(() => null);
+    if (answer?.ok) {
+      done(true);
+    } else {
+      setState({ busy: false, code: answer?.code ?? 'failed' });
+    }
+  };
+  return el(
+    'div',
+    { className: 'reader-report', 'data-report-confirm': true },
+    [
+      el('p', { key: 'q' }, t('chat.reactors.reportAsk', { name: item.name })),
+      state.code
+        ? el(
+            'p',
+            { key: 'e', className: 'comments-failed', role: 'alert' },
+            errorText(t, state.code)
+          )
+        : null,
+      el('div', { key: 'b', className: 'delete-dialog-btns' }, [
+        el(
+          'button',
+          {
+            key: 'ok',
+            type: 'button',
+            className: 'danger',
+            disabled: state.busy,
+            'data-action': 'reaction-report-confirm',
+            onClick: report,
+          },
+          t('chat.reactors.reportConfirm')
+        ),
+        el(
+          'button',
+          { key: 'x', type: 'button', onClick: () => done(false) },
+          t('common.cancel')
+        ),
+      ]),
+    ]
+  );
+};
+
+const ReactorsPanel = ({ message, api, close, info }) => {
+  const t = useT();
+  const [asking, setAsking] = useState(null); // the reaction to report
+  const [reported, setReported] = useState(false);
   const [emoji, setEmoji] = useState('');
   const total = reactionsOf(message).reduce((sum, r) => sum + r.count, 0);
   const [state, load] = useAnswer(
@@ -261,6 +329,25 @@ const ReactorsPanel = ({ message, api, close }) => {
     { title: t('chat.reactors.title', { count: total }), close },
     [
       el(Tabs, { key: 'tabs', message, emoji, setEmoji, total }),
+      reported
+        ? el(
+            'p',
+            { key: 'rep', className: 'meta', role: 'status' },
+            t('chat.reactors.reported')
+          )
+        : null,
+      asking
+        ? el(ReportConfirm, {
+            key: 'ask',
+            item: asking,
+            message,
+            api,
+            done: (ok) => {
+              setAsking(null);
+              setReported(ok);
+            },
+          })
+        : null,
       el(Body, {
         key: 'body',
         state,
@@ -273,6 +360,22 @@ const ReactorsPanel = ({ message, api, close }) => {
             ms: one.date,
             emoji: one.emoji ?? '✨',
             kind: 'reacted',
+            extra: canReportReaction(info, one)
+              ? el(
+                  'button',
+                  {
+                    key: 'r',
+                    type: 'button',
+                    className: 'button reader-report-btn',
+                    'data-action': 'reaction-report',
+                    onClick: () => {
+                      setReported(false);
+                      setAsking(one);
+                    },
+                  },
+                  t('chat.reactors.report')
+                )
+              : null,
           }),
       }),
     ]
@@ -283,14 +386,14 @@ const ReactorsPanel = ({ message, api, close }) => {
  * The panel of the open chat: `{ open(kind, message), dialog }`, `kind`
  * `readers` or `reactors`; `dialog` is null while it is closed.
  */
-export const useReaders = ({ api }) => {
+export const useReaders = ({ api, info = null }) => {
   const [shown, setShown] = useState(null);
   const close = useCallback(() => setShown(null), []);
   const Panel = shown?.kind === 'reactors' ? ReactorsPanel : ReadersPanel;
   return {
     open: (kind, message) => setShown({ kind, message }),
     dialog: shown
-      ? el(Panel, { key: 'readers', message: shown.message, api, close })
+      ? el(Panel, { key: 'readers', message: shown.message, api, close, info })
       : null,
   };
 };

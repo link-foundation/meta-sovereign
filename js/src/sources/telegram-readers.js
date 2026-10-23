@@ -10,6 +10,9 @@
  *   which emoji (messages.getMessageReactionsList), a page at a time →
  *   `{ ok, count, items: [{ peer, name, emoji, customEmojiId, date, my }],
  *   next }`, `next` the offset of the following page or null.
+ * - `reportReaction({ chat, id, peer })` — an admin reports the reaction
+ *   a member (`peer`, a user id) left on a group message
+ *   (messages.reportReaction; R-Y195) → `{ ok }`.
  * Telegram's errors (MSG_TOO_OLD, CHAT_TOO_BIG…) become codes the page
  * shows as text.
  */
@@ -21,6 +24,7 @@ const CODES = {
   CHAT_TOO_BIG: 'too-big',
   MESSAGE_ID_INVALID: 'not-found',
   CHAT_ADMIN_REQUIRED: 'not-allowed',
+  USER_ID_INVALID: 'not-found',
   PEER_ID_INVALID: 'no-access',
   CHANNEL_PRIVATE: 'no-access',
 };
@@ -28,6 +32,7 @@ const CODES = {
 const failure = failureOf(CODES);
 
 const CHAT = /^-?\d{1,20}$/;
+const DIGITS = /^\d{1,20}$/;
 const textOf = (value) => String(value?.value ?? value);
 const MAX_READERS = 100;
 
@@ -164,7 +169,39 @@ const createReactors =
     }
   };
 
+// The one reaction of `peer` on message `id`, reported (an admin's act).
+const createReportReaction =
+  (env, userClient) =>
+  async (body = {}) => {
+    const c =
+      valid(body) && DIGITS.test(String(body.peer ?? ''))
+        ? await connect(env, userClient)
+        : null;
+    if (!c) {
+      return { ok: false, supported: false };
+    }
+    try {
+      await runIn(env, `report-reaction:${body.chat}:${body.id}`, () =>
+        env.connection.withPeer(c.client, body.chat, (peer) =>
+          env.connection.withPeer(c.client, String(body.peer), (reactionPeer) =>
+            c.client.invoke(
+              new c.Api.messages.ReportReaction({
+                peer,
+                id: Number(body.id),
+                reactionPeer,
+              })
+            )
+          )
+        )
+      );
+      return { ok: true };
+    } catch (error) {
+      return failure(error);
+    }
+  };
+
 export const createReadersActions = (env, context) => ({
+  reportReaction: createReportReaction(env, context.userClient),
   messageReaders: createReaders(env, context.userClient),
   messageReactors: createReactors(env, context.userClient),
 });

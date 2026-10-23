@@ -10803,3 +10803,56 @@ button.profile-username.is-collectible {
   padding: 0 0.5rem;
   font-size: 0.8rem;
 }
+
+/* Checklist extras, reaction reports, post statistics, Stars revenue
+   (R-Y195). */
+.todo-done-by {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px 30px;
+  font-size: 12px;
+}
+.todo-add {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.todo-add textarea {
+  width: 100%;
+  resize: vertical;
+}
+.todo-add-btns {
+  display: flex;
+  gap: 8px;
+}
+.todo-add-open {
+  margin-top: 8px;
+  align-self: flex-start;
+}
+.reader-report {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+.reader-report-btn {
+  margin-left: 8px;
+}
+.stats-share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  list-style: none;
+}
+.stats-stars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}

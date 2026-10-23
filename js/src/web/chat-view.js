@@ -75,6 +75,7 @@ import {
   useDropFiles,
 } from './chat-attach.js';
 import { PollDialog, usePollCreate } from './chat-poll-create.js';
+import { TodoDialog, useTodoCreate } from './chat-todo-create.js';
 import { ShareDialog, useShare } from './chat-share.js';
 import { TopicTabs } from './chat-topics.js';
 import { ForumViewMenu, stripForum, useForumView } from './chat-forum-view.js';
@@ -888,6 +889,9 @@ const SendButton = ({ composer, editing, text, menu, forwarding }) => {
   );
 };
 
+// The paperclip menu's entry for a poll or checklist hook, when it is on.
+const showOf = (hook) => (hook.enabled ? hook.show : null);
+
 const Composer = ({ state, api, keys }) => {
   const t = useT();
   const { composer } = state;
@@ -898,6 +902,8 @@ const Composer = ({ state, api, keys }) => {
   const dragging = useDropFiles(attach);
   // A new poll, from the paperclip's menu (R-Y121).
   const poll = usePollCreate({ state, api, composer });
+  // A new checklist, from the same menu (R-Y195).
+  const todo = useTodoCreate({ state, api, composer });
   // A place or a contact, from the same menu (R-Y142).
   const share = useShare({ state, api, composer });
   // The Send buttons' menu; scheduled messages (R-Y102).
@@ -995,7 +1001,8 @@ const Composer = ({ state, api, keys }) => {
           : el(AttachButton, {
               key: 'attach',
               attach,
-              onPoll: poll.enabled ? poll.show : null,
+              onPoll: showOf(poll),
+              onTodo: showOf(todo),
               ...share.menu,
             }),
         bare
@@ -1045,6 +1052,7 @@ const Composer = ({ state, api, keys }) => {
       sendProps: later.filesMenu.props,
     }),
     poll.shown ? el(PollDialog, { key: 'poll', poll }) : null,
+    todo.shown ? el(TodoDialog, { key: 'todo', todo }) : null,
     el(ShareDialog, { key: 'share', share, api }),
     sendAs.dialog,
     paid.dialog,

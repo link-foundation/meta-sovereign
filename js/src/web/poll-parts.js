@@ -151,6 +151,40 @@ export const parseTodo = (m) => {
       text: textOf(item.title),
       done: done.has(Number(item.id)),
       by: done.get(Number(item.id))?.by ?? null,
+      // When it was ticked, in ms (R-Y195).
+      at: done.has(Number(item.id))
+        ? (done.get(Number(item.id)).date ?? 0) * 1000 || null
+        : null,
     })),
   };
 };
+
+/** A checklist's limits (Telegram's defaults; the server holds the same). */
+export const TODO_LIMITS = { items: 30, title: 32, item: 64 };
+
+/** The tasks typed one per line: trimmed, the empty lines dropped. */
+export const tasksOf = (text) =>
+  String(text ?? '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+/**
+ * Why `items` cannot be added to a checklist already holding `have`
+ * tasks: 'empty', 'long' (a task over 64 characters) or 'many' (more than
+ * 30 in all); null when they fit.
+ */
+export const taskProblem = (items, have = 0) => {
+  if (items.length === 0) {
+    return 'empty';
+  }
+  if (items.some((item) => item.length > TODO_LIMITS.item)) {
+    return 'long';
+  }
+  return have + items.length > TODO_LIMITS.items ? 'many' : null;
+};
+
+/** Whether "Add tasks" is offered: our own checklist, or others may add. */
+export const canAppendTasks = (media, mine) =>
+  (Boolean(mine) || Boolean(media?.othersCanAppend)) &&
+  (media?.items?.length ?? 0) < TODO_LIMITS.items;

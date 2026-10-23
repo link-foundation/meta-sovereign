@@ -17,6 +17,9 @@
  *   answers as InputPollAnswer, a quiz's right one by its place;
  *   Telegram's answer goes to the live handler).
  *
+ * - `sendTodo` (a new checklist, R-Y195: the same send path with
+ *   InputMediaTodo) and `appendTodo` (messages.appendTodoList).
+ *
  * An option is bytes; the app and the store name it in base64 (R-Y28).
  */
 
@@ -189,10 +192,12 @@ const voteOf = (names) => (v) => {
   };
 };
 
-// A new poll (messages.sendMedia); Telegram's answer goes through the
-// live handler, so it shows in the chat as other sends do.
-const createPollSender =
-  (env, { userClient, apply }) =>
+// A new poll or checklist (messages.sendMedia); Telegram's answer goes
+// through the live handler, so it shows in the chat as other sends do.
+// `media(Api, helpers, draft)` makes the InputMedia (R-Y195 shares this
+// path for checklists, so Send as and paid confirmations apply to both).
+const createMediaSender =
+  (env, { userClient, apply }, { key, media }) =>
   async (draft = {}) => {
     const target = String(draft.chat ?? '');
     const own = target ? await userClient() : null;
@@ -208,11 +213,11 @@ const createPollSender =
         draft.allowPaidStars
       );
       const result = await env.connection.withPeer(client, target, (peer) =>
-        env.queue.run(`poll:send:${target}`, 'view', () =>
+        env.queue.run(`${key}:send:${target}`, 'view', () =>
           client.invoke(
             new Api.messages.SendMedia({
               peer,
-              media: newPoll(Api, helpers, draft),
+              media: media(Api, helpers, draft),
               message: '',
               randomId: randomIdOf(draft.clientId, 0, helpers),
               clearDraft: false,
@@ -237,6 +242,55 @@ const createPollSender =
     }
     return { ok: true, chat: target };
   };
+
+/** Checklist limits (Telegram's app-config defaults; R-Y195). */
+export const TODO_LIMITS = { items: 30, title: 32, item: 64 };
+
+// A new checklist as `InputMediaTodo`; tasks numbered from 1.
+const newTodo = (Api, _helpers, draft) =>
+  new Api.InputMediaTodo({
+    todo: new Api.TodoList({
+      othersCanAppend: draft.othersCanAppend === true,
+      othersCanComplete: draft.othersCanComplete === true,
+      title: withText(Api, draft.title),
+      list: draft.items.map(
+        (title, i) =>
+          new Api.TodoItem({ id: i + 1, title: withText(Api, title) })
+      ),
+    }),
+  });
+
+// "Add tasks" (messages.appendTodoList): numbered on from the stored
+// checklist's highest id, within the limit; only its author, or anyone
+// when it lets others append (R-Y195).
+const appendTodoOf = (withMessage, apply) => (request) =>
+  withMessage(request, async (client, peer, Api, _h, link) => {
+    const todo = link.raw?.media?.todo;
+    const items = (request.items ?? []).map((i) => String(i).trim());
+    const have = todo?.list ?? [];
+    if (!todo) {
+      return { ok: false, code: 'not-a-todo' };
+    }
+    if (!link.raw?.out && !todo.othersCanAppend) {
+      return { ok: false, code: 'not-allowed' };
+    }
+    if (have.length + items.length > TODO_LIMITS.items) {
+      return { ok: false, code: 'too-many' };
+    }
+    const first = Math.max(0, ...have.map((i) => Number(i.id))) + 1;
+    const result = await client.invoke(
+      new Api.messages.AppendTodoList({
+        peer,
+        msgId: msgIdOf(link),
+        list: items.map(
+          (title, i) =>
+            new Api.TodoItem({ id: first + i, title: withText(Api, title) })
+        ),
+      })
+    );
+    await apply(client, result);
+    return { ok: true, added: items.length };
+  });
 
 /**
  * The poll and checklist actions over the user's client. `apply(client,
@@ -357,7 +411,17 @@ export const createPollActions = (env, { userClient, apply }) => {
     });
 
   return {
-    sendPoll: createPollSender(env, { userClient, apply }),
+    sendPoll: createMediaSender(
+      env,
+      { userClient, apply },
+      { key: 'poll', media: newPoll }
+    ),
+    sendTodo: createMediaSender(
+      env,
+      { userClient, apply },
+      { key: 'todo', media: newTodo }
+    ),
+    appendTodo: appendTodoOf(withMessage, apply),
     votePoll: vote,
     stopPoll: stop,
     pollResults: results,

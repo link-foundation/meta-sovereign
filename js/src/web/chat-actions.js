@@ -26,7 +26,7 @@ import { useForwardStage } from './chat-forward.js';
 import { useBotPress } from './chat-bots.js';
 import { useWebAppHost } from './chat-web-apps.js';
 import { useComments } from './chat-comments.js';
-import { useReaders } from './chat-readers.js';
+import { useReadersWithStats } from './chat-message-stats.js';
 import { useGameScores } from './chat-games.js';
 import { useTranslate } from './chat-translate.js';
 import { useSavedGifs } from './chat-saved-gifs.js';
@@ -480,8 +480,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const webApp = useWebAppHost({ api, state });
   // A post's comments, a message's thread (R-Y126).
   const comments = useComments({ api });
-  // Who read a message, who reacted to it (R-Y127).
-  const readers = useReaders({ api });
+  // Who read, who reacted (R-Y127); a post's statistics (R-Y195).
+  const readers = useReadersWithStats({ api, info: state.info });
   const games = useGameScores({ api });
   // A message translated in a box (R-Y132).
   const translate = useTranslate({ api });
@@ -552,10 +552,9 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     act.copyPostLink = act.copyLink;
     act.bot = () => bots.press(message, value);
     act.comments = () => comments.open(message);
-    act.readers = () => readers.open('readers', message);
+    Object.assign(act, readers.actions(message));
     act.gameScores = () => games.open(message);
     act.translate = () => translate.open(message);
-    act.reactors = () => readers.open('reactors', message);
     return act[action]?.();
   };
 

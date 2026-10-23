@@ -7,6 +7,14 @@ const body = (route) => ({ route, body: true });
 const none = (route) => ({ route, body: false });
 
 export const TELEGRAM_CALLS = {
+  // Checklists (new, "Add tasks"), a reaction reported, a post's
+  // statistics and public shares, Stars revenue (R-Y195).
+  telegramSendTodo: body('send-todo'),
+  telegramAppendTodo: body('todo-append'),
+  telegramReportReaction: body('reaction-report'),
+  telegramMessageStats: body('message-stats'),
+  telegramPublicForwards: body('public-forwards'),
+  telegramStarsRevenue: body('stars-revenue'),
   // Voice chats, video chats and live streams (R-Y188): the chat's call,
   // its panel and participants, Notify me, who to join as, joining (muted,
   // with the join params JSON), leaving, our own mute and raised hand.

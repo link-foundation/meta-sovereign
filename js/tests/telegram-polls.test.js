@@ -613,8 +613,8 @@ test('a checklist shows its tasks, ticked by who did them', () => {
     othersCanAppend: false,
     othersCanComplete: true,
     items: [
-      { id: 1, text: 'Tickets', done: true, by: '11' },
-      { id: 2, text: 'Hotel', done: false, by: null },
+      { id: 1, text: 'Tickets', done: true, by: '11', at: 1700000000000 },
+      { id: 2, text: 'Hotel', done: false, by: null, at: null },
     ],
   });
   assert.deepEqual(parseTodo(null).items, []);

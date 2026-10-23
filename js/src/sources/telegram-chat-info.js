@@ -238,6 +238,8 @@ const fetchChannel = async (client, Api, inputPeer, peers) => {
     canToggleForum: Boolean(entity.creator) && !entity.broadcast,
     // Statistics for admins of channels and big supergroups (R-Y167).
     canViewStats: Boolean(full.canViewStats),
+    // The Stars revenue section of the statistics (R-Y195).
+    canViewStarsRevenue: Boolean(full.canViewStarsRevenue),
     canEdit: canEditIn(entity),
     canBan: canBanIn(entity),
     ttlPeriod: ttlOf(full),
@@ -310,6 +312,10 @@ const extrasOf = (user, full) => ({
   ...(full.personalChannelId ? { personalChannel: true } : {}),
 });
 
+// A bot the user owns: its Stars revenue (R-Y195).
+const botRevenueOf = (user, full) =>
+  user.bot && full.canViewRevenue ? { canViewStarsRevenue: true } : {};
+
 const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
   const storedPeer = inputPeer ?? (await peers.input(chat));
   const id = inputUserOf(Api, helpers, storedPeer, chat);
@@ -343,6 +349,7 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     ...(themeOf(full) ? { theme: themeOf(full) } : {}),
     ...(user.self ? { self: true } : {}),
     ...(user.bot ? { bot: true } : {}),
+    ...botRevenueOf(user, full),
     ...(lastSeen !== undefined ? { lastSeen } : {}),
   };
 };

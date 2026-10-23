@@ -7,7 +7,8 @@
 // token loads when it scrolls into view; one with a zoom token zooms into a
 // day on a click. Graphs are drawn here as SVG (stats-graph.js has the
 // maths): hover or tap for a tooltip with the date and values, the legend
-// toggles a series. Nothing leaves the page but the two stats requests.
+// toggles a series. Nothing leaves the page but the stats requests.
+// R-Y195 adds the Stars revenue section (and a bot's own entry for it).
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocaleContext, useT } from './i18n.js';
@@ -36,6 +37,25 @@ export const hasStats = (chat, info, api) =>
   /^-100\d+$/.test(String(chat.chat)) &&
   Boolean(info?.canViewStats) &&
   typeof api?.telegramChatStats === 'function';
+
+/** Whether the info column offers a bot's "Stars revenue" (R-Y195). */
+export const hasBotRevenue = (chat, info, api) =>
+  chat?.source === 'telegram' &&
+  /^\d{1,15}$/.test(String(chat.chat)) &&
+  Boolean(info?.bot && info?.canViewStarsRevenue) &&
+  typeof api?.telegramStarsRevenue === 'function';
+
+/** Stars as a number: whole, or two decimals when there is a fraction. */
+export const formatStars = (value, locale) =>
+  new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(
+    Number(value) || 0
+  );
+
+/** The USD a number of Stars is worth at Telegram's rate: "$1.30". */
+export const formatUsd = (stars, rate, locale) =>
+  new Intl.NumberFormat(locale, { style: 'currency', currency: 'USD' }).format(
+    (Number(stars) || 0) * (Number(rate) || 0)
+  );
 
 const errorText = (t, code) => {
   const key = `chat.stats.err.${code}`;
@@ -518,6 +538,101 @@ const Tops = ({ data, locale, t }) => {
   ];
 };
 
+const BALANCES = ['current', 'available', 'overall'];
+
+// The Stars revenue (payments.getStarsRevenueStats): the three balances
+// with their USD worth, the rate and the revenue graph (R-Y195). Taking
+// the Stars out is Telegram's (Fragment's) own page, not offered here.
+const StarsRevenue = ({ api, chat }) => {
+  const t = useT();
+  const { locale } = useLocaleContext();
+  const [state, setState] = useState({ busy: true, data: null, code: null });
+  useEffect(() => {
+    let live = true;
+    api
+      .telegramStarsRevenue({ chat })
+      .catch(() => null)
+      .then((answer) => {
+        if (live) {
+          setState(
+            answer?.ok
+              ? { busy: false, data: answer, code: null }
+              : { busy: false, data: null, code: answer?.code ?? 'failed' }
+          );
+        }
+      });
+    return () => {
+      live = false;
+    };
+  }, [api, chat]);
+  const { busy, data, code } = state;
+  return el('section', { className: 'stats-stars', 'data-stats-stars': true }, [
+    el('strong', { key: 'h' }, t('chat.stars.title')),
+    busy
+      ? el('p', { key: 'l', className: 'meta' }, t('chat.stats.loading'))
+      : null,
+    code
+      ? el(
+          'p',
+          { key: 'e', className: 'comments-failed', role: 'alert' },
+          errorText(t, code)
+        )
+      : null,
+    data
+      ? el('div', { key: 'd' }, [
+          el(
+            'div',
+            { key: 'f', className: 'stats-overview' },
+            BALANCES.map((name) =>
+              el(
+                'div',
+                {
+                  key: name,
+                  className: 'stats-figure',
+                  'data-stars-balance': name,
+                },
+                [
+                  el(
+                    'span',
+                    { key: 'l', className: 'meta' },
+                    t(`chat.stars.${name}`)
+                  ),
+                  el(
+                    'strong',
+                    { key: 'v' },
+                    `⭐ ${formatStars(data.status[name], locale)}`
+                  ),
+                  el(
+                    'span',
+                    { key: 'u', className: 'stats-change' },
+                    `≈ ${formatUsd(data.status[name], data.usdRate, locale)}`
+                  ),
+                ]
+              )
+            )
+          ),
+          data.usdRate > 0
+            ? el(
+                'p',
+                { key: 'r', className: 'meta', 'data-stars-rate': true },
+                t('chat.stars.rate', {
+                  rate: formatUsd(1, data.usdRate, locale),
+                })
+              )
+            : null,
+          data.graph
+            ? el(GraphCard, {
+                key: 'g',
+                api,
+                chat,
+                entry: { key: 'revenue', graph: data.graph },
+              })
+            : null,
+        ])
+      : null,
+  ]);
+};
+
 const useStats = (api, chat) => {
   const [state, setState] = useState({ busy: true, data: null, code: null });
   useEffect(() => {
@@ -542,7 +657,7 @@ const useStats = (api, chat) => {
   return state;
 };
 
-const StatsDialog = ({ api, chat, onClose }) => {
+const StatsDialog = ({ api, chat, info, onClose }) => {
   const t = useT();
   const { locale } = useLocaleContext();
   const { busy, data, code } = useStats(api, chat);
@@ -581,6 +696,10 @@ const StatsDialog = ({ api, chat, onClose }) => {
               ),
               el(Posts, { key: 'po', posts: data.posts, locale, t }),
               ...Tops({ data, locale, t }),
+              info?.canViewStarsRevenue &&
+              typeof api.telegramStarsRevenue === 'function'
+                ? el(StarsRevenue, { key: 'stars', api, chat })
+                : null,
             ]
           )
         : null,
@@ -588,13 +707,30 @@ const StatsDialog = ({ api, chat, onClose }) => {
   );
 };
 
-/** The info column's row; it opens the Statistics dialog. */
+// A bot's own dialog: just its Stars revenue.
+const BotRevenueDialog = ({ api, chat, onClose }) => {
+  const t = useT();
+  return el(
+    Frame,
+    { title: t('chat.stars.title'), close: onClose, name: 'stars-revenue' },
+    el('div', { className: 'stats-body', 'data-stats-kind': 'bot' }, [
+      el(StarsRevenue, { key: 's', api, chat }),
+    ])
+  );
+};
+
+/**
+ * The info column's row; it opens the Statistics dialog (a channel or
+ * supergroup), or a bot's Stars revenue (R-Y195).
+ */
 export const StatsRow = ({ api, chat, info }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
-  if (!hasStats(chat, info, api)) {
+  const bot = hasBotRevenue(chat, info, api);
+  if (!bot && !hasStats(chat, info, api)) {
     return null;
   }
+  const Dialog = bot ? BotRevenueDialog : StatsDialog;
   return el('section', { className: 'person-section peer-actions' }, [
     el(
       'button',
@@ -602,16 +738,17 @@ export const StatsRow = ({ api, chat, info }) => {
         key: 'b',
         type: 'button',
         className: 'peer-action',
-        'data-action': 'stats-open',
+        'data-action': bot ? 'stars-revenue-open' : 'stats-open',
         onClick: () => setOpen(true),
       },
-      t('chat.stats.row')
+      t(bot ? 'chat.stars.row' : 'chat.stats.row')
     ),
     open
-      ? el(StatsDialog, {
+      ? el(Dialog, {
           key: 'd',
           api,
           chat: String(chat.chat),
+          info,
           onClose: () => setOpen(false),
         })
       : null,

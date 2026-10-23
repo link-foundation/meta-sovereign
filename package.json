@@ -258,6 +258,8 @@
     "test:e2e:security:webkit": "E2E_BROWSER=webkit node js/tests/e2e-security-browser.mjs",
     "test:e2e:stats": "node js/tests/e2e-stats-browser.mjs",
     "test:e2e:stats:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stats-browser.mjs",
+    "test:e2e:checklist-stats": "node js/tests/e2e-checklist-stats-browser.mjs",
+    "test:e2e:checklist-stats:webkit": "E2E_BROWSER=webkit node js/tests/e2e-checklist-stats-browser.mjs",
     "test:e2e:channel-dm": "node js/tests/e2e-channel-dm-browser.mjs",
     "test:e2e:channel-dm:webkit": "E2E_BROWSER=webkit node js/tests/e2e-channel-dm-browser.mjs",
     "test:e2e:common-chats": "node js/tests/e2e-common-chats-browser.mjs",

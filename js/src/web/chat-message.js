@@ -406,6 +406,8 @@ const MENU_ITEMS = {
   translate: ['chat.translate.item', 'globe'],
   readers: ['chat.readers.item', 'check-double'],
   reactors: ['chat.reactors.item', 'heart'],
+  // A channel post's statistics (R-Y195).
+  messageStats: ['chat.mstats.item', 'chart'],
   selectBulk: ['chat.selectBulk', 'select'],
   copySelectedItems: ['chat.copySelectedItems', 'copy'],
   forwardSelected: ['chat.forwardSelected', 'forward'],

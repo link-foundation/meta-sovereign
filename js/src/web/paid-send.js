@@ -36,6 +36,7 @@ const SENDS = {
   telegramSendRound: one,
   telegramSendDocument: one,
   telegramSendPoll: one,
+  telegramSendTodo: one,
   telegramSendContact: one,
   telegramSendLocation: one,
   telegramInlineSend: one,
