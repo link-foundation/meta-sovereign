@@ -8,6 +8,10 @@
   "bin": {
     "meta-sovereign": "js/bin/meta-sovereign.js"
   },
+  "files": [
+    "js/bin/",
+    "js/src/"
+  ],
   "exports": {
     ".": {
       "types": "./js/src/index.d.ts",
