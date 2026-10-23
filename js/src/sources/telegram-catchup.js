@@ -109,6 +109,8 @@ export const createPtsCounter = ({
   let state = null; // { pts, qts, date, seq }
   let pending = []; // steps past a gap: [{ pts, count }]
   let gapTimer = null;
+  // The numbers live updates started from while their store write runs.
+  const writing = new Set();
 
   const closeGap = () => {
     timers.clearTimeout(gapTimer);
@@ -171,6 +173,26 @@ export const createPtsCounter = ({
       state = { ...state, ...fields };
       drain();
     },
+    /**
+     * A live update's store write began; `done` settles when it ended,
+     * stored or failed. The saved number (`floor`) waits for it (R-Z14,
+     * R-Z7): a write that fails after a save is fetched again after a crash.
+     */
+    track: (update, done) => {
+      const step = ptsStep(update);
+      if (step) {
+        const from = step.pts - step.count;
+        writing.add(from);
+        Promise.resolve(done)
+          .catch(() => {})
+          .finally(() => {
+            writing.delete(from);
+            onMove();
+          });
+      }
+      return done;
+    },
+    floor: () => Math.min(state?.pts ?? Infinity, ...writing),
     pending: () => pending.length,
     reset: () => {
       pending = [];
@@ -277,6 +299,23 @@ const fetchDifference = async ({
   return fed;
 };
 
+// The counter written to the store; its number never passes a live write
+// still running (`counter.floor`, R-Z7).
+const saveCounter = async (store, account, counter) => {
+  const state = counter.get();
+  if (state && account) {
+    await store.put({
+      id: TELEGRAM_STATE_ID,
+      tokens: ['state', 'telegram'],
+      kind: 'state',
+      source: 'telegram',
+      account,
+      ...state,
+      pts: counter.floor(),
+    });
+  }
+};
+
 /**
  * One account's catch-up.
  *   handle(client, update)  the live handler (telegram-account-live.js)
@@ -306,20 +345,10 @@ export const createTelegramCatchUp = ({
   let again = false;
   let connection = null;
 
-  const save = async () => {
+  const save = () => {
     timers.clearTimeout(saveTimer);
     saveTimer = null;
-    const state = counter.get();
-    if (state && account) {
-      await store.put({
-        id: TELEGRAM_STATE_ID,
-        tokens: ['state', 'telegram'],
-        kind: 'state',
-        source: 'telegram',
-        account,
-        ...state,
-      });
-    }
+    return saveCounter(store, account, counter);
   };
 
   const counter = createPtsCounter({
@@ -454,5 +483,13 @@ export const createTelegramCatchUp = ({
     await flush;
   };
 
-  return { attach, observe, observeResult, run, stop, state: counter.get };
+  return {
+    attach,
+    observe,
+    observeResult,
+    track: counter.track,
+    run,
+    stop,
+    state: counter.get,
+  };
 };

@@ -776,6 +776,51 @@ const PeoplePanel = ({ state }) => {
   ]);
 };
 
+// Refresh the friends and members the audiences name (R-X13, R-Z7).
+const MembersSync = ({ audiences }) => {
+  const t = useT();
+  const { sync } = audiences;
+  let line = null;
+  if (sync?.busy) {
+    line = t('automations.audiences.syncing');
+  } else if (sync?.error) {
+    line = t('automations.audiences.syncFailed');
+  } else if (sync) {
+    line = [
+      t('automations.audiences.synced', {
+        members: sync.members,
+        networks: sync.networks,
+      }),
+      ...sync.failed.map((s) => `${networkName(t, s.source)}: ${s.error}`),
+    ].join(' ');
+  }
+  return el('div', { className: 'row' }, [
+    el(
+      'button',
+      {
+        key: 'b',
+        type: 'button',
+        'data-action': 'audience-sync',
+        disabled: Boolean(sync?.busy),
+        onClick: audiences.syncMembers,
+      },
+      t('automations.audiences.sync')
+    ),
+    line
+      ? el(
+          'span',
+          {
+            key: 'l',
+            className: 'meta',
+            role: 'status',
+            'data-sync-result': '',
+          },
+          line
+        )
+      : null,
+  ]);
+};
+
 const AudiencesPanel = ({ state }) => {
   const t = useT();
   const { audiences } = state;
@@ -863,6 +908,7 @@ const AudiencesPanel = ({ state }) => {
         ),
       ]
     ),
+    audiences.canSync ? el(MembersSync, { key: 'sync', audiences }) : null,
     count
       ? el(
           'p',

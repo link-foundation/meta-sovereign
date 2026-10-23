@@ -14,8 +14,8 @@ Telegram 是参照网络，其矩阵在下方。其他每个网络都有自己�
 | LinkedIn             | [features/linkedin.zh.md](./features/linkedin.zh.md)           | 6      | 17       | 27     | 3        |
 | Email                | [features/email.zh.md](./features/email.zh.md)                 | 29     | 23       | 25     | 3        |
 | GitHub               | [features/github.zh.md](./features/github.zh.md)               | 22     | 16       | 26     | 2        |
-| Upwork               | [features/upwork.zh.md](./features/upwork.zh.md)               | 4      | 21       | 19     | 1        |
-| PeoplePerHour        | [features/peopleperhour.zh.md](./features/peopleperhour.zh.md) | 2      | 15       | 12     | 1        |
+| Upwork               | [features/upwork.zh.md](./features/upwork.zh.md)               | 5      | 21       | 18     | 1        |
+| PeoplePerHour        | [features/peopleperhour.zh.md](./features/peopleperhour.zh.md) | 3      | 15       | 11     | 1        |
 | Job boards           | [features/job-boards.zh.md](./features/job-boards.zh.md)       | 3      | 29       | 22     | 1        |
 
 ## 当前范围

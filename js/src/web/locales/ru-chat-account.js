@@ -448,4 +448,27 @@ export const ruChatAccount = {
   'chat.remote.other': 'Вложение: {title}',
   'chat.remote.open': 'Открыть {name}',
   'chat.remote.reactions': 'Реакции',
+  'chat.deleted.bar':
+    '{count, plural, one {Сохранено # удалённое сообщение} few {Сохранено # удалённых сообщения} many {Сохранено # удалённых сообщений} other {Сохранено # удалённых сообщений}}',
+  'chat.deleted.view': 'Открыть',
+  'chat.deleted.title': 'Удалённые сообщения',
+  'chat.deleted.local':
+    'Возврат и стирание здесь меняют только этот компьютер. В сеть ничего не отправляется.',
+  'chat.deleted.empty': 'В этом чате нет удалённых сообщений.',
+  'chat.deleted.when': 'удалено {when}',
+  'chat.deleted.recover': 'Вернуть',
+  'chat.deleted.purge': 'Стереть',
+  'chat.deleted.purgeAll': 'Стереть все',
+  'chat.deleted.purgeTitle': 'Стереть навсегда?',
+  'chat.deleted.purgeBody':
+    'Сообщение будет стёрто с этого компьютера, вернуть его нельзя. В сети ничего не изменится.',
+  'chat.deleted.purgeYes': 'Стереть навсегда',
+  'chat.deleted.cancel': 'Отмена',
+  'chat.deleted.err': 'Не получилось. Попробуйте ещё раз.',
+  'automations.audiences.sync': 'Обновить участников',
+  'automations.audiences.syncing': 'Читаем участников из сетей...',
+  'automations.audiences.synced':
+    'Прочитано участников: {members}, сетей: {networks}.',
+  'automations.audiences.syncFailed':
+    'Не удалось прочитать участников. Попробуйте ещё раз.',
 };

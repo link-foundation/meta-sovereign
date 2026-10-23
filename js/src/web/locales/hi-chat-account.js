@@ -429,4 +429,25 @@ export const hiChatAccount = {
   'chat.remote.other': 'अटैचमेंट: {title}',
   'chat.remote.open': '{name} खोलें',
   'chat.remote.reactions': 'प्रतिक्रियाएँ',
+  'chat.deleted.bar': '{count} हटाए गए संदेश सहेजे गए हैं',
+  'chat.deleted.view': 'देखें',
+  'chat.deleted.title': 'हटाए गए संदेश',
+  'chat.deleted.local':
+    'यहाँ वापस लाने या मिटाने से सिर्फ़ यह कंप्यूटर बदलता है। नेटवर्क पर कुछ नहीं भेजा जाता।',
+  'chat.deleted.empty': 'इस चैट में कोई हटाया गया संदेश नहीं है।',
+  'chat.deleted.when': 'हटाया गया {when}',
+  'chat.deleted.recover': 'वापस लाएँ',
+  'chat.deleted.purge': 'मिटाएँ',
+  'chat.deleted.purgeAll': 'सब मिटाएँ',
+  'chat.deleted.purgeTitle': 'हमेशा के लिए मिटाएँ?',
+  'chat.deleted.purgeBody':
+    'संदेश इस कंप्यूटर से मिट जाएगा और वापस नहीं आएगा। नेटवर्क पर कुछ नहीं बदलेगा।',
+  'chat.deleted.purgeYes': 'हमेशा के लिए मिटाएँ',
+  'chat.deleted.cancel': 'रद्द करें',
+  'chat.deleted.err': 'यह नहीं हो सका। फिर कोशिश करें।',
+  'automations.audiences.sync': 'सदस्य ताज़ा करें',
+  'automations.audiences.syncing': 'नेटवर्क से सदस्य पढ़े जा रहे हैं...',
+  'automations.audiences.synced':
+    '{networks} नेटवर्क से {members} सदस्य पढ़े गए।',
+  'automations.audiences.syncFailed': 'सदस्य नहीं पढ़े जा सके। फिर कोशिश करें।',
 };

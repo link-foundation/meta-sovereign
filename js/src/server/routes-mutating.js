@@ -35,6 +35,7 @@ import {
   softDeleteLink,
   purgeLink,
   isTombstone,
+  deletedAtOf,
 } from '../storage/soft-delete.js';
 import { exportEncrypted } from '../storage/export-encrypted.js';
 import { SCHEMA_ID } from '../storage/migrations/index.js';
@@ -194,7 +195,7 @@ const handlePurgeTombstones = async (store, req, res) => {
     if (idPrefix && !l.id?.startsWith(idPrefix)) {
       return false;
     }
-    if (olderThan && (l.deleted?.at ?? '') > olderThan) {
+    if (olderThan && (deletedAtOf(l) ?? '') > olderThan) {
       return false;
     }
     return true;

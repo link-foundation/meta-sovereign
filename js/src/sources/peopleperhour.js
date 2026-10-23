@@ -47,6 +47,7 @@
  * forking the adapter.
  */
 
+import { softCacheRetentionFor } from './soft-cache.js';
 import { buildMessageLink } from './link.js';
 import {
   authHeaders,
@@ -831,27 +832,10 @@ export const createPeoplePerHourLive = ({
   };
 };
 
-export const softCacheRetention = async (
-  store,
-  { ttlMs = DEFAULT_CACHE_TTL_MS, now = Date.now() } = {}
-) => {
-  const links = await store.query();
-  let purged = 0;
-  for (const link of links) {
-    if (link.source !== SOURCE) {
-      continue;
-    }
-    if (!link.softCache || link.cachedAt === undefined) {
-      continue;
-    }
-    const age = now - Number(link.cachedAt);
-    if (age >= ttlMs) {
-      await store.delete(link.id);
-      purged += 1;
-    }
-  }
-  return { purged };
-};
+export const softCacheRetention = softCacheRetentionFor(
+  SOURCE,
+  DEFAULT_CACHE_TTL_MS
+);
 
 export const peoplePerHourSource = {
   name: SOURCE,

@@ -4,6 +4,7 @@
 // where it is — sending, sent, read, or failed. Fakes stand in for
 // Telegram; nothing here touches the network.
 
+import { isTombstone } from '../src/storage/soft-delete.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -212,7 +213,7 @@ test('a live message, its edit, a read receipt and a deletion', async () => {
     className: 'UpdateDeleteMessages',
     messages: [10],
   });
-  assert.equal((await store.get(id)).deleted, true);
+  assert.equal(isTombstone(await store.get(id)), true);
   assert.equal((await store.get('msg:telegram:42:11')).deleted, undefined);
 
   const links = await store.query();

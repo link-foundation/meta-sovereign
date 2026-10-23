@@ -20,6 +20,7 @@ import {
   usePrivateCall,
 } from './chat-private-call.js';
 import { PinnedBar } from './chat-pinned.js';
+import { DeletedBar } from './chat-deleted.js';
 import { LiveLocationsBar } from './chat-live-locations.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
@@ -1243,6 +1244,12 @@ export const ChatScreen = ({ state, api }) => {
                 state,
                 api,
                 onOpen: (id) => goToMessage(id, state.history?.reach),
+              }),
+              // The messages kept after a delete: view, recover, purge (R-Z7).
+              el(DeletedBar, {
+                key: `deleted:${state.current.key}`,
+                state,
+                api,
               }),
               // The live locations shared in the chat (R-Y197).
               el(LiveLocationsBar, {

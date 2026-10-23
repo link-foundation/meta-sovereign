@@ -14,8 +14,8 @@ Telegram संदर्भ नेटवर्क है और उसकी म
 | LinkedIn             | [features/linkedin.hi.md](./features/linkedin.hi.md)           | 6       | 17    | 27       | 3             |
 | Email                | [features/email.hi.md](./features/email.hi.md)                 | 29      | 23    | 25       | 3             |
 | GitHub               | [features/github.hi.md](./features/github.hi.md)               | 22      | 16    | 26       | 2             |
-| Upwork               | [features/upwork.hi.md](./features/upwork.hi.md)               | 4       | 21    | 19       | 1             |
-| PeoplePerHour        | [features/peopleperhour.hi.md](./features/peopleperhour.hi.md) | 2       | 15    | 12       | 1             |
+| Upwork               | [features/upwork.hi.md](./features/upwork.hi.md)               | 5       | 21    | 18       | 1             |
+| PeoplePerHour        | [features/peopleperhour.hi.md](./features/peopleperhour.hi.md) | 3       | 15    | 11       | 1             |
 | Job boards           | [features/job-boards.hi.md](./features/job-boards.hi.md)       | 3       | 29    | 22       | 1             |
 
 ## अभी का दायरा

@@ -20,6 +20,7 @@
  */
 
 import { chatKey, networkMessageId } from '../web/chat-model.js';
+import { isTombstone } from '../storage/soft-delete.js';
 import { splitTopicKey, topicOfMessage } from '../web/forum-topics.js';
 
 const isMessage = (link) =>
@@ -115,13 +116,14 @@ export const createChatIndex = (store) => {
   const chatOf = (key) => {
     let chat = chats.get(key);
     if (!chat) {
-      chat = { entries: new Map(), sorted: null, head: null };
+      chat = { entries: new Map(), sorted: null, head: null, gone: new Set() };
       chats.set(key, chat);
     }
     return chat;
   };
 
   const remove = (chat, id) => {
+    chat.gone.delete(id);
     if (!chat.entries.delete(id)) {
       return;
     }
@@ -135,10 +137,13 @@ export const createChatIndex = (store) => {
   const add = (link) => {
     const chat = chatOf(chatKey(link.source, link.chat));
     const known = chat.entries.has(link.id);
-    if (link.deleted) {
+    if (isTombstone(link)) {
       remove(chat, link.id);
+      // Kept apart for the "deleted messages" view (R-Z7).
+      chat.gone.add(link.id);
       return 'update';
     }
+    chat.gone.delete(link.id);
     const entry = entryOf(link);
     chat.entries.set(link.id, entry);
     chat.sorted = null;
@@ -178,7 +183,7 @@ export const createChatIndex = (store) => {
 
   const linksOf = async (entries) =>
     (await Promise.all(entries.map((e) => store.get(e.id)))).filter(
-      (link) => link && !link.deleted
+      (link) => link && !isTombstone(link)
     );
 
   const sortedOf = (chat) => {
@@ -241,6 +246,11 @@ export const createChatIndex = (store) => {
         newer: end < sorted.length,
         ...(range.at || range.around ? { target } : {}),
       };
+    },
+    /** The ids of a chat's deleted (tombstoned) messages (R-Z7). */
+    async deleted(key) {
+      await ready;
+      return [...(chats.get(key)?.gone ?? [])];
     },
     /** How many messages of a chat the store holds. */
     count: (key) => chats.get(key)?.entries.size ?? 0,

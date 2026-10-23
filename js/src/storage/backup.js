@@ -226,21 +226,40 @@ export const createBackupScheduler = ({
   passphrase = null,
   onBackup = () => {},
   onError = () => {},
+  // A nearly full disk skips the run and says so (R-Z14, wired by R-Z7).
+  onEvent = () => {},
+  measureFree,
 }) => {
   if (!archiveDir || !intervalMs) {
     throw new Error(
       'createBackupScheduler: archiveDir and intervalMs required'
     );
   }
+  // One run at a time: a slow backup is not started over (R-Z7).
+  let running = false;
   const tick = async () => {
+    if (running) {
+      return;
+    }
+    running = true;
     try {
-      const file = await createBackup(store, { archiveDir, passphrase });
+      const made = await makeBackup(store, {
+        archiveDir,
+        passphrase,
+        onEvent,
+        measureFree,
+      });
+      if (made.skipped) {
+        return;
+      }
       if (keep > 0) {
         await pruneBackups({ archiveDir, keep, passphrase });
       }
-      onBackup(file);
+      onBackup(made.file);
     } catch (err) {
       onError(err);
+    } finally {
+      running = false;
     }
   };
   const handle = setInterval(tick, intervalMs);

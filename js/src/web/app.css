@@ -12476,3 +12476,58 @@ a.remote-chip:hover {
 .fetch-status.fetch-error {
   color: var(--danger, #d1242f);
 }
+
+/* Deleted messages kept on this computer: the bar and the list (R-Z7). */
+.chat-deleted-bar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.35rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.deleted-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.deleted-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 0.15rem;
+}
+.deleted-body {
+  overflow-wrap: anywhere;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.deleted-actions {
+  display: flex;
+  flex: none;
+  gap: 0.4rem;
+}
+
+/* The tutorial's "Skip step" sits beside the step count (R-M10, R-N3). */
+.tutorial-overlay .tutorial-step .tutorial-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.tutorial-overlay .tutorial-step .tutorial-skip {
+  padding: 0.1rem 0;
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+  font-size: 0.75rem;
+  text-transform: none;
+  text-decoration: underline;
+}

@@ -144,6 +144,7 @@ import { createPhoneChange } from './telegram-phone-change.js';
 import { createDrafts } from './telegram-drafts.js';
 import { createCalendar } from './telegram-calendar.js';
 import { createTopPeers } from './telegram-top-peers.js';
+import { markDeleted as tombstone } from '../storage/soft-delete.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -309,7 +310,9 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     for (const id of ids) {
       const link = await store.get(`msg:${SOURCE}:${chat}:${id}`);
       if (link && !link.deleted) {
-        await store.put({ ...link, deleted: true });
+        await store.put(
+          tombstone(link, { by: 'telegram', reason: 'deleted-on-network' })
+        );
         marked += 1;
       }
     }
@@ -495,7 +498,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // per-chat translation switch (R-Y209); changing the phone number and
 // exporting the account's data (R-Y212); a group's sticker set and emoji
 // pack, pinned topics reordered, new chats in a shared folder and the
-// new-contacts notification (R-Y211); ephemeral messages (R-Y223).
+// new-contacts notification (R-Y211); ephemeral messages (R-Y223); deleted
+// messages marked with the one tombstone shape (R-Z7).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;

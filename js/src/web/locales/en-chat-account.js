@@ -423,4 +423,27 @@ export const enChatAccount = {
   'chat.remote.other': 'Attachment: {title}',
   'chat.remote.open': 'Open {name}',
   'chat.remote.reactions': 'Reactions',
+  'chat.deleted.bar':
+    '{count, plural, one {# deleted message is kept} other {# deleted messages are kept}}',
+  'chat.deleted.view': 'View',
+  'chat.deleted.title': 'Deleted messages',
+  'chat.deleted.local':
+    'Recovering or erasing here only changes this computer. Nothing is sent to the network.',
+  'chat.deleted.empty': 'No deleted messages in this chat.',
+  'chat.deleted.when': 'deleted {when}',
+  'chat.deleted.recover': 'Recover',
+  'chat.deleted.purge': 'Erase',
+  'chat.deleted.purgeAll': 'Erase all',
+  'chat.deleted.purgeTitle': 'Erase for good?',
+  'chat.deleted.purgeBody':
+    'The message is erased from this computer and cannot be recovered. Nothing changes on the network.',
+  'chat.deleted.purgeYes': 'Erase for good',
+  'chat.deleted.cancel': 'Cancel',
+  'chat.deleted.err': 'That did not work. Try again.',
+  'automations.audiences.sync': 'Refresh members',
+  'automations.audiences.syncing': 'Reading members from the networks...',
+  'automations.audiences.synced':
+    '{members} members read from {networks} networks.',
+  'automations.audiences.syncFailed':
+    'The members could not be read. Try again.',
 };

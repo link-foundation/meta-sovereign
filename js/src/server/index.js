@@ -81,6 +81,9 @@ import {
 import { createDefaultSender } from '../sources/browser-sender.js';
 import { createAutopilot } from '../automation/autopilot.js';
 import { recoverOutbox } from '../automation/outbox.js';
+import { backgroundJobs } from './background-jobs.js';
+import { handleDeletedRoutes } from './routes-deleted.js';
+import { handleAudienceSyncRoute } from './audience-sync.js';
 import { setTypingFor } from '../sources/live-links.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { createChatIndex } from './chat-index.js';
@@ -583,6 +586,8 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),
     () => handleEmailGets(store, req, res, p, url, ctx),
+    () => handleDeletedRoutes(store, req, res, p, url, ctx),
+    () => handleAudienceSyncRoute(store, req, res, p, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),
     () => ctx.learned?.(store, req, res, p, url, ctx) ?? false,
     () => handleDerivedRoutes(store, req, res, p, url, ctx),
@@ -771,16 +776,16 @@ export const startServer = async ({
   emailLiveFactory = null,
   emailPoll,
   cv = {},
-  // `{ self?, clink? }` for the reply-graph autocomplete (/api/suggest).
+  // replies: `{ self?, clink? }` for /api/suggest; automations: `{ send?,
+  // setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   replies,
-  // `{ send?, setTyping?, resolveAudience?, self?, scheduler?, tickMs? }`.
   automations,
   greetings,
   allowOrigins,
   autoImportLauncher,
-  // Tests inject a fake `createSignIns()` (no real browsers are read).
+  // Tests inject a fake `createSignIns()` and a fake MTProto (no real browsers
+  // or network are used).
   autoImportSignIns,
-  // Tests inject a fake MTProto (no real GramJS / network for Telegram login).
   telegramMtproto,
   telegramCreds,
   // A `createTelegramAccount()` (or `false` for none); see telegramAccountFor.
@@ -796,9 +801,11 @@ export const startServer = async ({
   localUi,
   // HTTPS on the same port for Safari (./local-tls.js, R-Y64); `serve` sets it.
   tls,
-  // Tests: a fake `(dir) => bytes|null` for the free disk space (R-Z14).
+  // diskFree: a test fake `(dir) => bytes|null` (R-Z14); backups:
+  // `{ intervalHours?, keep? }` for the automatic backup (R-Z7).
   diskFree,
   pulls,
+  backups,
 } = {}) => {
   const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
     providedStore,
@@ -858,6 +865,7 @@ export const startServer = async ({
     chatIndex,
     ...pullContext(store, log, pulls, later),
   };
+  Object.assign(ctx, backgroundJobs({ ctx, store, log, later, backups }));
   const server = createHttpServer(store, ctx, log);
   const sockets = trackSockets(server);
   const bus = enableHandlers
@@ -904,9 +912,7 @@ export const startServer = async ({
         ctx.emailPoller.stop();
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
-        ctx.autoImport?.close();
-        ctx.whatsappSignIn?.stop().catch(() => {});
-        ctx.stopPulls?.();
+        ctx.stopJobs();
         ctx.chatIndex.close();
         stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
         wsHandle?.close();

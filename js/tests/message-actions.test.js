@@ -3,6 +3,7 @@
 // second. Everything here runs against fakes: a recording commander, a
 // fake adapter and an in-memory store. No browser, no network.
 
+import { isTombstone } from '../src/storage/soft-delete.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
@@ -577,7 +578,7 @@ test('POST /api/message/delete marks the messages deleted', async () => {
   assert.equal(out.status, 200);
   assert.deepEqual(performed[0][1].ids, ['A', 'B']);
   assert.equal(performed[0][1].revoke, true);
-  assert.equal(store.map.get('msg:whatsapp:B').deleted, true);
+  assert.equal(isTombstone(store.map.get('msg:whatsapp:B')), true);
 });
 
 test('POST /api/message/react keeps one reaction of ours', async () => {

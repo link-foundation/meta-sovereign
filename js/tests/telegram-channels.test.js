@@ -4,6 +4,7 @@
 // address book is not asked for again on every sync. Fakes only —
 // nothing here touches the network.
 
+import { isTombstone } from '../src/storage/soft-delete.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -287,7 +288,7 @@ test('a deletion Telegram did not push arrives with the group’s catch-up (R-Y3
     await handler({ className: 'UpdateChannelTooLong', channelId: 5 });
   }
   await new Promise((resolve) => setTimeout(resolve, 0));
-  assert.equal((await store.get('msg:telegram:-1005:20')).deleted, true);
+  assert.equal(isTombstone(await store.get('msg:telegram:-1005:20')), true);
   // No re-read of the chat list for it.
   assert.equal(calls.filter((c) => c === 'getDialogs').length, 1);
   await account.stop();

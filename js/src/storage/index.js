@@ -27,6 +27,8 @@ export { wrapSecretStore, isSecretLinkId } from './secret-store.js';
 export {
   markDeleted,
   isTombstone,
+  unmarkDeleted,
+  deletedAtOf,
   softDeleteLink,
   purgeLink,
   bulkPurge,

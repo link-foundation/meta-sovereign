@@ -252,6 +252,18 @@ const stepTutorialProgressPersists = async ({ page, base }) => {
   await page.waitForSelector('[data-tutorial-step="pick"]', {
     timeout: 5000,
   });
+  // "Skip step" passes the step over and the progress moves on (R-M10, R-N3).
+  await page.click('button[data-action="tutorial-skip"]');
+  await page.waitForFunction(
+    () => {
+      const saved = JSON.parse(
+        window.localStorage.getItem('metaSovereignTutorial') ?? 'null'
+      );
+      return saved?.stepId && saved.stepId !== 'pick';
+    },
+    null,
+    { timeout: 5000 }
+  );
   await page.click('button[data-action="tutorial-off"]');
   await page.waitForSelector('[data-tutorial-overlay]', {
     state: 'detached',

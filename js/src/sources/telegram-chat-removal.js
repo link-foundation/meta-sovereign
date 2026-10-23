@@ -22,6 +22,8 @@
  * messages. The update counters move with Telegram's answers.
  */
 
+import { markDeleted as tombstone } from '../storage/soft-delete.js';
+
 const SOURCE = 'telegram';
 export const REMOVAL_ACTIONS = Object.freeze(['clear', 'delete', 'leave']);
 const MAX_ROUNDS = 100;
@@ -124,7 +126,9 @@ export const createChatRemoval = (env, { userClient, apply }) => {
       (link) => link.id.startsWith(prefix) && !link.deleted
     );
     for (const link of stored) {
-      await env.store.put({ ...link, deleted: true });
+      await env.store.put(
+        tombstone(link, { by: 'user', reason: 'chat-removed' })
+      );
     }
     return stored;
   };

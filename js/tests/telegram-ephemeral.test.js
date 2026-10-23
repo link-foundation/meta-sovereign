@@ -4,6 +4,7 @@
 // routes, and the page's pure helpers. Fake clients; nothing reaches a
 // network, and no test meets today's date.
 
+import { isTombstone } from '../src/storage/soft-delete.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
@@ -142,7 +143,7 @@ test('an edit replaces the message and a delete marks it deleted', async () => {
     peer: { channelId: 77 },
     ids: [5, 404],
   });
-  assert.equal((await store.get(id)).deleted, true);
+  assert.equal(isTombstone(await store.get(id)), true);
   // Deleting again, or an unknown id, changes nothing.
   await live.handle(null, {
     className: 'UpdateDeleteEphemeralMessages',

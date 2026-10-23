@@ -24,6 +24,8 @@ import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
 
+import { markDeleted as tombstone } from '../storage/soft-delete.js';
+
 const PREFIX = '/api/message/';
 const MAX_IDS = 100;
 
@@ -102,7 +104,9 @@ const ACTIONS = {
     }),
     after: async (store, body, links) => {
       for (const link of links) {
-        await store.put({ ...link, deleted: true, deletedAt: now() });
+        await store.put(
+          tombstone(link, { by: 'user', reason: 'deleted-in-app', at: now() })
+        );
       }
     },
   },

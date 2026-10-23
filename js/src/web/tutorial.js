@@ -861,6 +861,7 @@ const Step = ({
   index,
   total,
   onNext,
+  onAdvance,
   onBack,
   onDismiss,
   offPage = false,
@@ -897,11 +898,29 @@ const Step = ({
             style: arrowStyle,
           })
         : null,
-      el(
-        'div',
-        { key: 'meta', className: 'meta tutorial-progress' },
-        t('tutorial.progress', { current: index + 1, total })
-      ),
+      el('div', { key: 'meta', className: 'meta tutorial-progress' }, [
+        el(
+          'span',
+          { key: 'n' },
+          t('tutorial.progress', { current: index + 1, total })
+        ),
+        // Each step can be passed over on its own (R-M10, R-N3); the same
+        // forward move as Next, so the progress is kept the same way. It
+        // sits beside the step count so the buttons keep one row.
+        index + 1 < total
+          ? el(
+              'button',
+              {
+                key: 'skip',
+                type: 'button',
+                className: 'tutorial-skip',
+                'data-action': 'tutorial-skip',
+                onClick: onAdvance,
+              },
+              t('tutorial.skip')
+            )
+          : null,
+      ]),
       el('h2', { key: 'h', id: titleId }, step.title),
       el(
         'p',
@@ -1183,6 +1202,7 @@ const TutorialLayer = ({
         index,
         total,
         onNext: next,
+        onAdvance,
         offPage,
         onBack,
         onDismiss,

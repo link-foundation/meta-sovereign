@@ -44,9 +44,10 @@ export const markDeleted = (
     return link;
   }
   const existing = link[TOMBSTONE_FIELD];
+  const { deletedAt, ...rest } = link;
   if (existing && typeof existing === 'object') {
     return {
-      ...link,
+      ...rest,
       [TOMBSTONE_FIELD]: {
         at: existing.at ?? at,
         by: existing.by ?? by,
@@ -54,12 +55,37 @@ export const markDeleted = (
       },
     };
   }
-  return { ...link, [TOMBSTONE_FIELD]: { at, by, reason } };
+  // An older boolean tombstone keeps the time it was first set (R-Z7).
+  return {
+    ...rest,
+    [TOMBSTONE_FIELD]: { at: deletedAt ?? at, by, reason },
+  };
 };
 
-/** Pure: true if a link carries a tombstone. */
-export const isTombstone = (link) =>
-  Boolean(link && link[TOMBSTONE_FIELD] && link[TOMBSTONE_FIELD].at);
+/**
+ * Pure: true if a link carries a tombstone, in any of the shapes the app
+ * has written: `deleted: { at, by, reason }` (the one new code writes),
+ * `deleted: true` (Telegram live updates, chat removal, Facebook archives)
+ * and `{ deleted: true, deletedAt }` (the message delete route) (R-Z7).
+ */
+export const isTombstone = (link) => {
+  const mark = link?.[TOMBSTONE_FIELD];
+  return Boolean(mark) || Boolean(link?.deletedAt);
+};
+
+/** Pure: a copy of `link` without any tombstone marker (a local recover). */
+export const unmarkDeleted = (link) => {
+  const { [TOMBSTONE_FIELD]: _mark, deletedAt: _at, ...rest } = link;
+  return rest;
+};
+
+/** When a tombstone was set (ISO text), whatever its shape; or null. */
+export const deletedAtOf = (link) => {
+  const mark = link?.[TOMBSTONE_FIELD];
+  return (
+    (typeof mark === 'object' ? mark?.at : null) ?? link?.deletedAt ?? null
+  );
+};
 
 /**
  * Soft-delete a link by id. Reads the current link, attaches the

@@ -36,6 +36,7 @@ import {
   openDualStore,
   bulkPurge,
   isTombstone,
+  deletedAtOf,
   createVault,
 } from '../storage/index.js';
 import {
@@ -702,7 +703,7 @@ const purgeTombstonesCmd = async (args, log) => {
       if (idPrefix && !link.id?.startsWith(idPrefix)) {
         return false;
       }
-      if (olderThan && (link.deleted?.at ?? '') > olderThan) {
+      if (olderThan && (deletedAtOf(link) ?? '') > olderThan) {
         return false;
       }
       return true;

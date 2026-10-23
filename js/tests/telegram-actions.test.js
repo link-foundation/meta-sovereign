@@ -6,6 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { isTombstone } from '../src/storage/soft-delete.js';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -102,7 +103,7 @@ test('reading messages again stores edits and marks the gone ones deleted', asyn
   assert.deepEqual(asked, [{ peer: 'peer:-5', ids: [1, 2] }]);
   assert.equal(result.deleted, 1);
   assert.equal((await store.get('msg:telegram:-5:1')).body, 'm1 edited');
-  assert.equal((await store.get('msg:telegram:-5:2')).deleted, true);
+  assert.equal(isTombstone(await store.get('msg:telegram:-5:2')), true);
 });
 
 test('deleting in a channel marks the messages and follows its number', async () => {
@@ -118,7 +119,7 @@ test('deleting in a channel marks the messages and follows its number', async ()
   await actions.deleteMessages({ chat: '-1007', ids: [3], revoke: true });
   assert.equal(sent[0].className, 'channels.DeleteMessages');
   assert.deepEqual(sent[0].id, [3]);
-  assert.equal((await store.get('msg:telegram:-1007:3')).deleted, true);
+  assert.equal(isTombstone(await store.get('msg:telegram:-1007:3')), true);
 });
 
 test('deleting in a private chat says whether for everyone', async () => {
@@ -139,7 +140,7 @@ test('deleting in a private chat says whether for everyone', async () => {
   await actions.deleteMessages({ chat: '42', ids: [8], revoke: true });
   assert.equal(sent[0].className, 'messages.DeleteMessages');
   assert.equal(sent[0].revoke, true);
-  assert.equal((await store.get('msg:telegram:42:8')).deleted, true);
+  assert.equal(isTombstone(await store.get('msg:telegram:42:8')), true);
   // The account's update counter moves past our own deletion.
   assert.equal(observed[0].pts, 7);
 });

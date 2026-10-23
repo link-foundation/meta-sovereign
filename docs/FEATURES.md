@@ -14,8 +14,8 @@ Telegram is the reference network and its matrix is below. Every other network h
 | LinkedIn             | [features/linkedin.md](./features/linkedin.md)           | 6         | 17      | 27            | 3              |
 | Email                | [features/email.md](./features/email.md)                 | 29        | 23      | 25            | 3              |
 | GitHub               | [features/github.md](./features/github.md)               | 22        | 16      | 26            | 2              |
-| Upwork               | [features/upwork.md](./features/upwork.md)               | 4         | 22      | 18            | 1              |
-| PeoplePerHour        | [features/peopleperhour.md](./features/peopleperhour.md) | 2         | 16      | 11            | 1              |
+| Upwork               | [features/upwork.md](./features/upwork.md)               | 5         | 21      | 18            | 1              |
+| PeoplePerHour        | [features/peopleperhour.md](./features/peopleperhour.md) | 3         | 15      | 11            | 1              |
 | Job boards           | [features/job-boards.md](./features/job-boards.md)       | 3         | 29      | 22            | 1              |
 
 ## Scope now

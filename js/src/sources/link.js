@@ -36,6 +36,11 @@ const OPTIONAL = {
   delivery: given,
   participants: nonEmpty,
   folder: given,
+  // Why the autopilot never writes to this chat: set only when true (R-Z7).
+  bot: given,
+  blocked: given,
+  left: given,
+  deletedAccount: given,
 };
 
 const optionalFields = (fields) =>

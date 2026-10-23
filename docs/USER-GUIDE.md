@@ -203,6 +203,16 @@ Encrypted backups and exports use AES-256-GCM. The message store is **not** encr
 
 **Files and backups.** Keep the store folder private (the app creates its files 0600 and folders 0700, and tightens older ones on start). A plain backup leaves secrets out (manifest `secrets: excluded`) and says so; an encrypted backup (type a passphrase on the Backup page, or set the variable) includes them. Logs hide tokens and passwords. One process writes a store at a time: a second writer (for example `import` while `serve` runs) stops with a clear message, while read-only commands such as `export` still work.
 
+**Automatic backup and audience sync (environment variables).** The server can run two jobs by itself, started only once it really owns the port, stopped when it closes, and never started twice after a restart. Both log only counts, never message text or secrets.
+
+| Variable                   | Default         | Meaning                                                                                                                                          |
+| -------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `MS_BACKUP_INTERVAL_HOURS` | unset = **off** | Hours between automatic backups into the `archives` folder (the first one a full interval after start). `0` or unset: no automatic backup.       |
+| `MS_BACKUP_KEEP`           | `7`             | How many automatic backups to keep; the oldest are removed. `0` keeps all of them.                                                               |
+| `MS_AUDIENCE_SYNC_HOURS`   | `24`            | Hours between refreshes of the saved audiences (friends and chat members) from the networks. `0`: off (the Sync button on the page still works). |
+
+A value that is not a number of 0 or more is ignored: the default applies and one line is logged (`backup_setting_ignored` or `audience_sync_setting_ignored`); the server still starts.
+
 Export an encrypted snapshot from the CLI:
 
 ```bash

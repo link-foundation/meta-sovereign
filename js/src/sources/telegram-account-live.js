@@ -42,6 +42,7 @@ import { pollWriter } from './telegram-polls.js';
 import { transcriptWriter } from './telegram-transcribe.js';
 import { groupCallWriter } from './telegram-voice-chat-live.js';
 import { ephemeralLive } from './telegram-ephemeral.js';
+import { markDeleted as tombstone } from '../storage/soft-delete.js';
 
 const SOURCE = 'telegram';
 
@@ -327,7 +328,11 @@ const foldersLiveWriter = async (store, now, effect) => {
   return false;
 };
 
-// A deletion: those messages are marked `deleted` (kept, for the record).
+// A deletion: those messages are marked `deleted` (kept, for the record);
+// the one tombstone shape `{ at, by, reason }` (R-Z7).
+const deletedLink = (link) =>
+  tombstone(link, { by: 'telegram', reason: 'deleted-on-network' });
+
 const deleteWriter = async (store, { chat, ids }) => {
   const wanted = new Set(ids.map(String));
   if (chat) {
@@ -337,7 +342,7 @@ const deleteWriter = async (store, { chat, ids }) => {
     );
     const found = links.filter((l) => l && !l.deleted);
     for (const link of found) {
-      await store.put({ ...link, deleted: true });
+      await store.put(deletedLink(link));
     }
     return found.length > 0;
   }
@@ -351,7 +356,7 @@ const deleteWriter = async (store, { chat, ids }) => {
       wanted.has(l.id.split(':').pop())
   );
   for (const link of matches) {
-    await store.put({ ...link, deleted: true });
+    await store.put(deletedLink(link));
   }
   return matches.length > 0;
 };
@@ -410,6 +415,7 @@ export const createTelegramLive = ({
   // A live update whose store write failed: the update counters step
   // back so the next catch-up fetches it again (R-Z14).
   onFailed = () => {},
+  track = (_update, done) => done,
 }) => {
   const entityOf = (entities, id) =>
     id === null || id === undefined
@@ -561,7 +567,8 @@ export const createTelegramLive = ({
     if (typeof client?.addEventHandler !== 'function') {
       return;
     }
-    client.addEventHandler((update) => handle(client, update));
+    // The saved update number waits for the write (`track`, R-Z7).
+    client.addEventHandler((update) => track(update, handle(client, update)));
   };
 
   return {

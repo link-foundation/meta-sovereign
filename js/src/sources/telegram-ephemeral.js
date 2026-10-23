@@ -25,6 +25,8 @@ import { answerOf } from './telegram-bots.js';
 import { messageSenderId } from './telegram-updates.js';
 import { connected, failureOf, runIn } from './telegram-stickers.js';
 
+import { markDeleted as tombstone } from '../storage/soft-delete.js';
+
 const SOURCE = 'telegram';
 const CHAT = /^-?\d{1,20}$/;
 const BASE64 = /^[A-Za-z0-9+/]{1,88}={0,2}$/;
@@ -82,7 +84,9 @@ export const ephemeralLive = ({
     for (const id of ids) {
       const link = await store.get(ephemeralLinkId(chat, id));
       if (link && !link.deleted) {
-        await store.put({ ...link, deleted: true });
+        await store.put(
+          tombstone(link, { by: 'telegram', reason: 'deleted-on-network' })
+        );
         changed = true;
       }
     }

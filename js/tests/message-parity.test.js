@@ -5,6 +5,7 @@
  * and new API methods (markRead, react, deleteMessages) all work correctly.
  */
 
+import { isTombstone } from '../src/storage/soft-delete.js';
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -342,7 +343,7 @@ describe('facebookWebhookToLinks', () => {
     };
     const links = facebookWebhookToLinks(payload);
     assert.equal(links.length, 1);
-    assert.equal(links[0].deleted, true);
+    assert.equal(isTombstone(links[0]), true);
   });
 
   it('raw is the message object', () => {

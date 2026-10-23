@@ -99,7 +99,15 @@ const graphMessageToLink = (message, conversationId = null) =>
       ? { id: String(message.sticker_id), pack: null }
       : null,
     attachments: fbAttachments(message),
-    deleted: message.is_deleted === true ? true : null,
+    // The one tombstone shape (R-Z7); the time is the message's own.
+    deleted:
+      message.is_deleted === true
+        ? {
+            at: message.created_time ?? message.timestamp ?? null,
+            by: 'facebook',
+            reason: 'deleted-on-network',
+          }
+        : null,
   });
 
 export const facebookWebhookToLinks = (payload) => {

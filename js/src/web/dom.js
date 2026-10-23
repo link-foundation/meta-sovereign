@@ -814,6 +814,24 @@ const rawApi = {
     const path = `/api/greetings/file?id=${encodeURIComponent(fileId)}`;
     return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
+  // Read the friends and members the audiences name (R-X13, R-Z7).
+  syncAudiences: async (source) =>
+    (await serverPostReport('/api/audience/sync', source ? { source } : {})) ??
+    null,
+  // A chat's deleted messages: list, recover, purge (local only, R-Z7).
+  deletedMessages: async (key) =>
+    (await serverFetch(`/api/chat/deleted?key=${encodeURIComponent(key)}`)) ??
+    null,
+  recoverDeleted: async (ids) =>
+    (await serverPostReport('/api/chat/deleted/recover', { ids })) ?? {
+      ok: false,
+      error: 'server required',
+    },
+  purgeDeleted: async (ids) =>
+    (await serverPostReport('/api/chat/deleted/purge', {
+      ids,
+      confirm: true,
+    })) ?? { ok: false, error: 'server required' },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
   createBackup: async ({ passphrase = null, keep } = {}) =>
     (await serverFetch('/api/backups', {

@@ -186,9 +186,22 @@ const forwardedFromOf = (message) => {
   }
 };
 
+/**
+ * What the dialog's entity says about writing to it (R-Z7): a bot, a deleted
+ * account, a chat we left. Only true flags are returned; the autopilot's
+ * planner skips such chats (../automation/safety.js). Telegram does not say
+ * in a dialog whether the other side blocked us: that is not stored.
+ */
+export const reachabilityOf = (entity) => ({
+  ...(entity?.bot ? { bot: true } : {}),
+  ...(entity?.deleted ? { deletedAccount: true } : {}),
+  ...(entity?.left ? { left: true } : {}),
+});
+
 export const telegramDialogLinks = (dialog, messages = []) => {
   const chat = idText(dialog.id);
   const chatType = chatTypeOf(dialog);
+  const reach = reachabilityOf(dialog.entity);
   const chatName = dialog.title ?? dialog.name ?? fullName(dialog.entity);
   return messages
     .filter((m) => m && m.id !== undefined && (bodyOf(m) || serviceOf(m)))
@@ -208,6 +221,7 @@ export const telegramDialogLinks = (dialog, messages = []) => {
         replyTo: replyId ? `${chat}:${replyId}` : null,
         chatType,
         chatName,
+        ...reach,
         senderName: mine
           ? null
           : (fullName(m.sender) ?? (dialog.isUser ? chatName : null)),
@@ -278,6 +292,9 @@ const SHOWN_FIELDS = [
   'folder',
   'unreadMark',
   'draft',
+  'bot',
+  'left',
+  'deletedAccount',
 ];
 // A forward's source named now, where it was not before.
 const namesForward = (before, link) =>
@@ -963,6 +980,10 @@ const draftOptions = (draft) => {
   };
 };
 
+// Pollers (no event stream) look at `changedAt` to know to refresh.
+const touchChanged = (store, now) =>
+  recordSync(store, { changedAt: new Date(now()).toISOString() });
+
 // A live update whose store write failed: the counters step back and the
 // difference is fetched again, so it is not lost (R-Z14).
 const failedLive = (env, update) => {
@@ -1321,9 +1342,8 @@ export const createTelegramAccount = ({
     onPhoneCall: (client, effect) => env.phoneCalls?.handle(client, effect),
     // A live update that could not be stored is fetched again (R-Z14).
     onFailed: (update) => failedLive(env, update),
-    // Pollers (no event stream) look at `changedAt` to know to refresh.
-    touch: () =>
-      recordSync(store, { changedAt: new Date(now()).toISOString() }),
+    track: (update, done) => env.catchUp?.track(update, done) ?? done,
+    touch: () => touchChanged(store, now),
   });
   let resync = async () => {}; // set once `sync` exists
   const env = { store, botLive, importer, log, now, live };

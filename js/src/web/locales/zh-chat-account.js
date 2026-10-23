@@ -389,4 +389,25 @@ export const zhChatAccount = {
   'chat.remote.other': '附件：{title}',
   'chat.remote.open': '打开 {name}',
   'chat.remote.reactions': '回应',
+  'chat.deleted.bar': '已保留 {count} 条已删除的消息',
+  'chat.deleted.view': '查看',
+  'chat.deleted.title': '已删除的消息',
+  'chat.deleted.local':
+    '在此恢复或清除只会改变这台电脑，不会向网络发送任何内容。',
+  'chat.deleted.empty': '此聊天中没有已删除的消息。',
+  'chat.deleted.when': '删除于 {when}',
+  'chat.deleted.recover': '恢复',
+  'chat.deleted.purge': '清除',
+  'chat.deleted.purgeAll': '全部清除',
+  'chat.deleted.purgeTitle': '永久清除？',
+  'chat.deleted.purgeBody':
+    '这条消息将从这台电脑上清除，无法恢复。网络上不会有任何变化。',
+  'chat.deleted.purgeYes': '永久清除',
+  'chat.deleted.cancel': '取消',
+  'chat.deleted.err': '操作失败，请重试。',
+  'automations.audiences.sync': '刷新成员',
+  'automations.audiences.syncing': '正在从各网络读取成员...',
+  'automations.audiences.synced':
+    '已从 {networks} 个网络读取 {members} 名成员。',
+  'automations.audiences.syncFailed': '无法读取成员，请重试。',
 };

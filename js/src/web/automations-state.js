@@ -204,6 +204,24 @@ const useAudiences = ({ api, tick, refresh, after }) => {
   const [name, setName] = useState('');
   const [spec, setSpec] = useState('');
   const [count, setCount] = useState(null);
+  const [sync, setSync] = useState(null);
+  // Reads the friends and members the audiences name from the networks
+  // and stores them, so the audiences find people (R-X13, R-Z7).
+  const syncMembers = async () => {
+    setSync({ busy: true });
+    const answer = await api.syncAudiences().catch(() => null);
+    setSync(
+      answer?.sources
+        ? {
+            members: answer.sources.reduce((n, s) => n + s.members, 0),
+            networks: answer.sources.length,
+            failed: answer.sources.filter((s) => !s.ok),
+          }
+        : { error: true }
+    );
+    refresh();
+    return answer;
+  };
   const resolve = async (text = spec) => {
     const answer = await api.resolveAudience({ spec: text, limit: 20 });
     setCount(
@@ -236,6 +254,9 @@ const useAudiences = ({ api, tick, refresh, after }) => {
       setCount(null);
     },
     count,
+    sync,
+    canSync: typeof api.syncAudiences === 'function',
+    syncMembers,
     resolve,
     save,
     remove: async (id) => {

@@ -291,7 +291,7 @@ const vkProfilesMap = (profiles, groups) => {
   for (const p of profiles ?? []) {
     const name =
       [p.first_name, p.last_name].filter(Boolean).join(' ') || p.name || null;
-    map.set(String(p.id), { name });
+    map.set(String(p.id), { name, deactivated: Boolean(p.deactivated) });
   }
   for (const g of groups ?? []) {
     map.set(String(-g.id), { name: g.name ?? null });
@@ -305,8 +305,33 @@ const vkPeerId = (msg, conversation) =>
   conversation?.peer?.id ??
   null;
 
+// VK's `can_write.reason` codes that mean the other side cannot be written
+// to: 900 we are in their blacklist, 901 they turned the community's messages
+// off, 18 the user is blocked or deleted (R-Z7).
+const VK_UNREACHABLE = new Set([18, 900, 901]);
+
+/**
+ * What a conversation says about writing to it (R-Z7): `blocked`, `left` (a
+ * chat we left or were removed from) and `deletedAccount`, only when true;
+ * the autopilot's planner skips such chats (../automation/safety.js).
+ */
+export const vkReachability = (item, peerProfile = null) => {
+  const conversation = item?.conversation ?? {};
+  const flags = {};
+  if (['left', 'kicked'].includes(conversation.chat_settings?.state)) {
+    flags.left = true;
+  }
+  const write = conversation.can_write;
+  const reason = Number(write?.reason);
+  if (write?.allowed === false && VK_UNREACHABLE.has(reason)) {
+    const deleted = reason === 18 && peerProfile?.deactivated;
+    flags[deleted ? 'deletedAccount' : 'blocked'] = true;
+  }
+  return flags;
+};
+
 /** Derives chatType/outgoing/edited/forwardedFrom from a raw VK message. */
-const vkMessageMeta = (msg, conversation) => {
+const vkMessageMeta = (msg, conversation, peerProfile = null) => {
   const edited = msg.update_time
     ? new Date(Number(msg.update_time) * 1000).toISOString()
     : null;
@@ -317,6 +342,7 @@ const vkMessageMeta = (msg, conversation) => {
   const outgoing = msg.out === 1 || msg.out === true ? true : null;
   return {
     chatType: vkChatType(vkPeerId(msg, conversation)),
+    ...vkReachability(conversation, peerProfile),
     edited,
     forwardedFrom,
     outgoing,
@@ -326,7 +352,7 @@ const vkMessageMeta = (msg, conversation) => {
 const asMessageLink = (
   msg,
   conversation = null,
-  { senderName = null, chatName = null } = {}
+  { senderName = null, chatName = null, peerProfile = null } = {}
 ) =>
   buildMessageLink({
     source: SOURCE,
@@ -345,7 +371,7 @@ const asMessageLink = (
       msg.reactions,
       msg.reaction_id === undefined ? null : Number(msg.reaction_id)
     ),
-    ...vkMessageMeta(msg, conversation),
+    ...vkMessageMeta(msg, conversation, peerProfile),
   });
 
 const unwrapVk = (payload) => {
@@ -607,6 +633,7 @@ export const vkLinksOf = (response, peerId = null) => {
         asMessageLink(msg, item, {
           senderName: nameOf(msg),
           chatName: vkChatNameOf(item, profiles),
+          peerProfile: profiles.get(String(conversationPeer(item))) ?? null,
         })
       )
   );
