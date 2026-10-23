@@ -207,6 +207,7 @@ import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
 import { PINNED_ORDER_POSTS } from './routes-telegram-pinned-order.js';
 import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
 import { CHAT_REACTIONS_POSTS } from './routes-telegram-chat-reactions.js';
+import { CHAT_SETTINGS_POSTS } from './routes-telegram-chat-settings.js';
 import { INVITE_LINKS_POSTS } from './routes-telegram-invite-links.js';
 import { STORY_POST_POSTS } from './routes-telegram-story-post.js';
 import {
@@ -960,6 +961,7 @@ const POSTS = {
   ...PINNED_ORDER_POSTS,
   ...TOPIC_ADMIN_POSTS,
   ...CHAT_REACTIONS_POSTS,
+  ...CHAT_SETTINGS_POSTS,
   ...INVITE_LINKS_POSTS,
   ...STORY_POST_POSTS,
   ...WALLPAPER_POSTS,

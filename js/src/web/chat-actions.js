@@ -34,6 +34,7 @@ import {
   canEdit,
   copyStamp,
   isMine,
+  isProtected,
   menuItems,
   messageLink,
   quoteOf,
@@ -465,6 +466,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const chat = state.current?.chat;
 
   const copySelected = () =>
+    !chosen().some((m) => isProtected(m, state.current, state.info)) &&
     copy(
       selectionText(chosen(), {
         describe: describer({ t, selfName, msgById: lookup(state) }),
@@ -524,7 +526,10 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     return act[action]?.();
   };
 
-  const canForward = chosen().every((m) => !m.pending);
+  const lockedAny = chosen().some((m) =>
+    isProtected(m, state.current, state.info)
+  );
+  const canForward = chosen().every((m) => !m.pending) && !lockedAny;
   const top = {
     count: selection.ids.length,
     canForward,
@@ -550,6 +555,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
         ids: selection.ids,
         has: selection.has,
         canForward,
+        canCopy: !lockedAny,
         anyPinned: chosen().some((m) => m.raw?.pinned),
       },
       order,

@@ -1236,4 +1236,49 @@ export const ruChat = {
   'chat.emojiStatus.err.invalid': 'Этот статус нельзя использовать.',
   'chat.emojiStatus.err.flood': 'Слишком много попыток. Подождите и повторите.',
   'chat.emojiStatus.err.failed': 'Что-то пошло не так. Повторите попытку.',
+  // A group's and channel's settings (R-Y165).
+  'chat.settings.openChannel': 'Настройки канала…',
+  'chat.settings.openGroup': 'Настройки группы…',
+  'chat.settings.titleChannel': 'Настройки канала',
+  'chat.settings.titleGroup': 'Настройки группы',
+  'chat.settings.signatures': 'Подписывать сообщения',
+  'chat.settings.signatures.hint':
+    'К каждому сообщению добавляется имя администратора, который его отправил.',
+  'chat.settings.signatureProfiles': 'Показывать профили авторов',
+  'chat.settings.signatureProfiles.hint':
+    'Читатели смогут открыть профиль автора подписанного поста.',
+  'chat.settings.discussion': 'Обсуждение',
+  'chat.settings.discussion.hint':
+    'Участники связанной группы могут комментировать посты канала.',
+  'chat.settings.noDiscussion': 'нет',
+  'chat.settings.discussionChoose': 'Выбрать группу…',
+  'chat.settings.discussionUnlink': 'Отвязать группу',
+  'chat.settings.noGroups': 'У вас нет группы, которую можно привязать.',
+  'chat.settings.loading': 'Загрузка…',
+  'chat.settings.joinToSend': 'Вступление для отправки сообщений',
+  'chat.settings.joinToSend.hint': 'Писать в группе могут только её участники.',
+  'chat.settings.joinRequest': 'Подтверждать новых участников',
+  'chat.settings.joinRequest.hint':
+    'Новые участники вступают только после одобрения администратора.',
+  'chat.settings.hideMembers': 'Скрыть участников',
+  'chat.settings.hideMembers.hint':
+    'Список участников видят только администраторы. Нужно не менее 100 участников.',
+  'chat.settings.antiSpam': 'Агрессивный антиспам',
+  'chat.settings.antiSpam.hint':
+    'Telegram удаляет спам и блокирует отправителей.',
+  'chat.settings.noForwards': 'Запретить сохранение контента',
+  'chat.settings.noForwards.hint':
+    'Участники не смогут пересылать, копировать и сохранять сообщения этого чата.',
+  'chat.settings.err.not-admin': 'Нужно право менять информацию этого чата.',
+  'chat.settings.err.too-few':
+    'Telegram позволяет скрывать участников только в группе, где их не менее 100.',
+  'chat.settings.err.antispam-unavailable':
+    'Telegram пока не предлагает антиспам для этой группы: нужно больше участников.',
+  'chat.settings.err.wrong-kind': 'Этой настройки нет для такого чата.',
+  'chat.settings.err.prehistory-hidden':
+    'Группа скрывает прежние сообщения от новых участников. Сначала покажите их, затем привяжите группу.',
+  'chat.settings.err.no-access': 'Этот чат вам недоступен.',
+  'chat.settings.err.flood': 'Слишком много попыток. Подождите и повторите.',
+  'chat.settings.err.bad-request': 'Это изменение недопустимо.',
+  'chat.settings.err.failed': 'Telegram не принял изменение.',
 };

@@ -38,6 +38,7 @@ import { networkMessageId } from './chat-model.js';
 import { hasReaders, hasReactors } from './chat-readers.js';
 import { hasTranslation } from './chat-translate.js';
 import { useT } from './i18n.js';
+import { noForwardsIn } from './chat-settings.js';
 
 const el = React.createElement;
 
@@ -81,6 +82,24 @@ export const messageLink = (message, { chat, username = null } = {}) => {
     ? `https://t.me/${username}/${id}`
     : `https://t.me/c/${where.slice(4)}/${id}`;
 };
+
+/**
+ * Whether the message may not be forwarded, copied or saved (R-Y165): it
+ * carries Telegram's `noforwards`, or it is another's in a chat whose
+ * creator restricted saving content.
+ */
+export const isProtected = (message, chat, info) =>
+  Boolean(message?.raw?.noforwards) ||
+  (!isMine(message) && noForwardsIn(chat, info));
+
+// The items that put a protected message's content elsewhere.
+const LEAVES = new Set([
+  'forward',
+  'copy',
+  'copySelected',
+  'saveAs',
+  'copyImage',
+]);
 
 // Anyone pins in a private chat; a group or channel says if they may.
 const canPin = (message, { personal, info }) =>
@@ -168,7 +187,7 @@ const selectedItems = (message, selection, order) => {
   if (selection.has(message.id)) {
     return [
       sent && 'reply',
-      'copySelectedItems',
+      selection.canCopy !== false && 'copySelectedItems',
       selection.canForward && 'forwardSelected',
       'deleteSelected',
       selection.anyPinned && 'unpinSelected',
@@ -203,6 +222,7 @@ export const menuItems = ({
   if ((selection?.ids?.length ?? 0) > 0) {
     return selectedItems(message, selection, order);
   }
+  const locked = isProtected(message, chat, info);
   return singleItems({
     message,
     chat,
@@ -210,7 +230,7 @@ export const menuItems = ({
     selectedText,
     target,
     now,
-  }).filter(Boolean);
+  }).filter((key) => key && !(locked && LEAVES.has(key)));
 };
 
 /**

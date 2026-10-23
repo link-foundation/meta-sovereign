@@ -66,6 +66,7 @@ import { createAdminActions } from './telegram-admin.js';
 import { createCommonChats } from './telegram-common-chats.js';
 import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createChatReactions } from './telegram-chat-reactions.js';
+import { createChatSettings } from './telegram-chat-settings.js';
 import { createNotifySettings } from './telegram-notify-settings.js';
 import { createPinnedOrder } from './telegram-pinned-order.js';
 import { createCalls } from './telegram-calls.js';
@@ -395,7 +396,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // to messages (R-Y154); chat backgrounds (R-Y155); notification settings,
 // global and by chat (R-Y157); groups in common (R-Y158); which reactions a
 // chat allows (R-Y160); reordering the pinned chats (R-Y159); the recent
-// calls list (R-Y163); emoji statuses (R-Y162).
+// calls list (R-Y163); emoji statuses (R-Y162); a group's and channel's
+// settings, the discussion group included (R-Y165).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -437,6 +439,7 @@ const chatActions = (env, context) => {
     ...createCommonChats(env, context),
     ...createTopicAdmin(env, context),
     ...createChatReactions(env, context),
+    ...createChatSettings(env, context),
     ...createWallpapers(env, context),
     ...createNotifySettings(env, context),
     ...createPinnedOrder(env, context),

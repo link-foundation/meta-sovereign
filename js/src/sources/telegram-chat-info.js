@@ -18,6 +18,7 @@
 import { importTelegram } from './telegram-layer.js';
 import { wallpaperPage } from './telegram-wallpapers.js';
 import { canReactIn, reactionsOf } from './telegram-chat-reactions.js';
+import { settingsInfo } from './telegram-chat-settings.js';
 
 const CHAT = /^-?\d{1,20}$/;
 const CACHE_TTL_MS = 60_000;
@@ -199,6 +200,8 @@ const fetchChannel = async (client, Api, inputPeer) => {
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
     ...reactionsInfo(entity, full),
+    // Sign messages, Discussion, Join to send… (R-Y165).
+    settings: settingsInfo(entity, full, result.chats ?? []),
     ...wallpaperOf(full),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
@@ -228,6 +231,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
     ...reactionsInfo(entity, full),
+    settings: settingsInfo(entity, full, result.chats ?? []),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
   };

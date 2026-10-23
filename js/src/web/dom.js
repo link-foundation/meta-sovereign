@@ -1002,6 +1002,11 @@ export const api = {
   telegramAdminLog: (body = {}) => telegramPost('admin-log', body),
   // Which reactions a group or channel allows (R-Y160).
   telegramAvailableReactions: () => telegramPost('available-reactions', {}),
+  // A group's and channel's settings (R-Y165).
+  telegramChatSettingSet: (body = {}) => telegramPost('chat-setting', body),
+  telegramDiscussionGroups: (body = {}) =>
+    telegramPost('discussion-groups', body),
+  telegramDiscussionSet: (body = {}) => telegramPost('discussion-set', body),
   telegramChatReactionsSet: (body = {}) =>
     telegramPost('chat-reactions-set', body),
   // Invite links and join requests (R-Y152).

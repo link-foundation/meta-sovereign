@@ -1222,4 +1222,50 @@ export const hiChat = {
   'chat.emojiStatus.err.flood':
     'बहुत ज़्यादा कोशिशें। कुछ देर रुककर फिर कोशिश करें।',
   'chat.emojiStatus.err.failed': 'कुछ गड़बड़ हुई। फिर कोशिश करें।',
+  // A group's and channel's settings (R-Y165).
+  'chat.settings.openChannel': 'चैनल सेटिंग…',
+  'chat.settings.openGroup': 'समूह सेटिंग…',
+  'chat.settings.titleChannel': 'चैनल सेटिंग',
+  'chat.settings.titleGroup': 'समूह सेटिंग',
+  'chat.settings.signatures': 'संदेशों पर हस्ताक्षर',
+  'chat.settings.signatures.hint':
+    'हर संदेश में पोस्ट करने वाले एडमिन का नाम जुड़ता है।',
+  'chat.settings.signatureProfiles': 'लेखकों की प्रोफ़ाइल दिखाएँ',
+  'chat.settings.signatureProfiles.hint':
+    'पाठक हस्ताक्षर करने वाले लेखक की प्रोफ़ाइल खोल सकेंगे।',
+  'chat.settings.discussion': 'चर्चा',
+  'chat.settings.discussion.hint':
+    'जुड़े समूह के सदस्य चैनल की पोस्ट पर टिप्पणी कर सकते हैं।',
+  'chat.settings.noDiscussion': 'कोई नहीं',
+  'chat.settings.discussionChoose': 'समूह चुनें…',
+  'chat.settings.discussionUnlink': 'समूह हटाएँ',
+  'chat.settings.noGroups': 'आपके पास जोड़ने योग्य कोई समूह नहीं है।',
+  'chat.settings.loading': 'लोड हो रहा है…',
+  'chat.settings.joinToSend': 'संदेश भेजने के लिए जुड़ना',
+  'chat.settings.joinToSend.hint': 'केवल समूह के सदस्य उसमें लिख सकते हैं।',
+  'chat.settings.joinRequest': 'नए सदस्यों को मंज़ूरी',
+  'chat.settings.joinRequest.hint':
+    'नए सदस्य तभी जुड़ते हैं जब कोई एडमिन मंज़ूर करे।',
+  'chat.settings.hideMembers': 'सदस्य छिपाएँ',
+  'chat.settings.hideMembers.hint':
+    'सदस्यों की सूची केवल एडमिन देखते हैं। कम से कम 100 सदस्य चाहिए।',
+  'chat.settings.antiSpam': 'सख़्त एंटी-स्पैम',
+  'chat.settings.antiSpam.hint':
+    'Telegram स्पैम संदेश हटाता है और भेजने वालों को प्रतिबंधित करता है।',
+  'chat.settings.noForwards': 'सामग्री सहेजने पर रोक',
+  'chat.settings.noForwards.hint':
+    'सदस्य इस चैट के संदेश फ़ॉरवर्ड, कॉपी या सहेज नहीं सकेंगे।',
+  'chat.settings.err.not-admin': 'इस चैट की जानकारी बदलने का अधिकार चाहिए।',
+  'chat.settings.err.too-few':
+    'Telegram सदस्यों को केवल कम से कम 100 सदस्यों वाले समूह में छिपाने देता है।',
+  'chat.settings.err.antispam-unavailable':
+    'Telegram अभी इस समूह के लिए एंटी-स्पैम नहीं देता; इसके लिए ज़्यादा सदस्य चाहिए।',
+  'chat.settings.err.wrong-kind': 'यह सेटिंग इस तरह की चैट के लिए नहीं है।',
+  'chat.settings.err.prehistory-hidden':
+    'समूह नए सदस्यों से पुराने संदेश छिपाता है। पहले उन्हें दिखाएँ, फिर समूह जोड़ें।',
+  'chat.settings.err.no-access': 'यह चैट आपके लिए उपलब्ध नहीं है।',
+  'chat.settings.err.flood':
+    'बहुत ज़्यादा कोशिशें। कुछ देर रुककर फिर प्रयास करें।',
+  'chat.settings.err.bad-request': 'यह बदलाव मान्य नहीं है।',
+  'chat.settings.err.failed': 'Telegram ने बदलाव स्वीकार नहीं किया।',
 };

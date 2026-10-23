@@ -1216,4 +1216,51 @@ export const enChat = {
   'chat.emojiStatus.err.invalid': 'This status cannot be used.',
   'chat.emojiStatus.err.flood': 'Too many tries. Wait a while and try again.',
   'chat.emojiStatus.err.failed': 'Something went wrong. Try again.',
+  // A group's and channel's settings (R-Y165).
+  'chat.settings.openChannel': 'Channel settings…',
+  'chat.settings.openGroup': 'Group settings…',
+  'chat.settings.titleChannel': 'Channel settings',
+  'chat.settings.titleGroup': 'Group settings',
+  'chat.settings.signatures': 'Sign messages',
+  'chat.settings.signatures.hint':
+    'Add the name of the admin who posted to each message.',
+  'chat.settings.signatureProfiles': "Show authors' profiles",
+  'chat.settings.signatureProfiles.hint':
+    'Let readers open the profile of the author who signed a post.',
+  'chat.settings.discussion': 'Discussion',
+  'chat.settings.discussion.hint':
+    'Members of the linked group can comment on the channel posts.',
+  'chat.settings.noDiscussion': 'none',
+  'chat.settings.discussionChoose': 'Choose a group…',
+  'chat.settings.discussionUnlink': 'Unlink the group',
+  'chat.settings.noGroups': 'You have no group that can be linked.',
+  'chat.settings.loading': 'Loading…',
+  'chat.settings.joinToSend': 'Join to send messages',
+  'chat.settings.joinToSend.hint': 'Only members of the group can write in it.',
+  'chat.settings.joinRequest': 'Approve new members',
+  'chat.settings.joinRequest.hint':
+    'New members join only when an admin approves them.',
+  'chat.settings.hideMembers': 'Hide members',
+  'chat.settings.hideMembers.hint':
+    'Only admins see the list of members. Needs at least 100 members.',
+  'chat.settings.antiSpam': 'Aggressive anti-spam',
+  'chat.settings.antiSpam.hint':
+    'Telegram removes spam messages and bans the senders.',
+  'chat.settings.noForwards': 'Restrict saving content',
+  'chat.settings.noForwards.hint':
+    'Members cannot forward, copy or save messages from this chat.',
+  'chat.settings.err.not-admin':
+    'You need the right to change the info of this chat.',
+  'chat.settings.err.too-few':
+    'Telegram only lets you hide members in a group with at least 100 members.',
+  'chat.settings.err.antispam-unavailable':
+    'Telegram does not offer anti-spam for this group yet; it needs more members.',
+  'chat.settings.err.wrong-kind':
+    'This setting does not exist for this kind of chat.',
+  'chat.settings.err.prehistory-hidden':
+    'The group hides its earlier messages from new members. Show them first, then link it.',
+  'chat.settings.err.no-access': 'This chat is not available to you.',
+  'chat.settings.err.flood': 'Too many tries. Wait a while and try again.',
+  'chat.settings.err.bad-request': 'This change is not valid.',
+  'chat.settings.err.failed': 'Telegram did not accept the change.',
 };
