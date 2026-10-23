@@ -14,6 +14,7 @@ import { Icon } from './icons.js';
 import { Checklist, Poll } from './chat-poll.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
+import { liveLines } from './live-place.js';
 import { LottieSticker } from './lottie-sticker.js';
 
 const el = React.createElement;
@@ -571,6 +572,7 @@ const PlaceMap = ({ media, url, onError }) => {
   const t = useT();
   const lines = [
     media.live ? t('chat.media.livePlace') : null,
+    ...(media.live ? liveLines(t, media, Date.now() / 1000) : []),
     media.title,
     media.address,
   ].filter(Boolean);
@@ -655,8 +657,49 @@ const PlaceFallback = ({ media }) => {
   );
 };
 
-const ContactCard = ({ media }) => {
+// "Add to contacts" under a card from someone else: the name on the card,
+// split into first and last (R-Y142).
+const AddContact = ({ media, api }) => {
   const t = useT();
+  const [state, setState] = useState('idle');
+  const [first, ...rest] = String(media.name ?? '').split(' ');
+  const add = async () => {
+    setState('busy');
+    const answer = await api
+      .telegramPeerContact({
+        chat: media.userId,
+        add: true,
+        firstName: first || media.phone || '?',
+        lastName: rest.join(' '),
+      })
+      .catch(() => null);
+    setState(answer?.ok ? 'done' : 'failed');
+  };
+  return state === 'done'
+    ? el(
+        'span',
+        { className: 'meta', 'data-contact-added': '' },
+        t('chat.media.contactAdded')
+      )
+    : el(
+        'button',
+        {
+          type: 'button',
+          className: 'card-action',
+          'data-action': 'contact-add',
+          disabled: state === 'busy',
+          onClick: add,
+        },
+        state === 'failed'
+          ? t('chat.media.contactFailed')
+          : t('chat.media.contactAdd')
+      );
+};
+
+const ContactCard = ({ media, api, mine }) => {
+  const t = useT();
+  const canAdd =
+    media.userId && !mine && typeof api?.telegramPeerContact === 'function';
   return el('div', { className: 'bubble-card contact' }, [
     el(Icon, { key: 'i', name: 'user', size: 20 }),
     el('span', { key: 't', className: 'card-lines' }, [
@@ -664,6 +707,7 @@ const ContactCard = ({ media }) => {
       media.phone
         ? el('a', { key: 'p', href: `tel:${media.phone}` }, media.phone)
         : null,
+      canAdd ? el(AddContact, { key: 'a', media, api }) : null,
     ]),
   ]);
 };

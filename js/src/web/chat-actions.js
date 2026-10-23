@@ -166,7 +166,19 @@ const useSenders = (state, api) => {
       })
     );
   };
-  return { generic, remove, forward, pin, poll };
+  // Stop sharing our live location (R-Y142).
+  const stopLive = async (message) => {
+    if (!viaTelegram(message) || typeof api?.telegramStopLive !== 'function') {
+      return;
+    }
+    report(
+      await api.telegramStopLive({
+        chat: String(state.current.chat),
+        id: networkMessageId(message),
+      })
+    );
+  };
+  return { generic, remove, forward, pin, poll, stopLive };
 };
 
 // The clipboard, then Telegram's short "Copied" toast.
@@ -420,6 +432,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       unpin: () => send.pin(message, { unpin: true }),
       retractVote: () => send.poll('poll-vote', message, { options: [] }),
       stopPoll: () => setStopping(message),
+      stopLive: () => send.stopLive(message),
       forward: () => setForwarding(expandAlbums([message])),
       delete: () => setDeleting(expandAlbums([message])),
       edit: () => setEditing(message),

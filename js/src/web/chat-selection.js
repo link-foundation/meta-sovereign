@@ -26,6 +26,7 @@
  */
 
 import { canRetract, canStop, pollOfMessage } from './poll-parts.js';
+import { canStopLive } from './live-place.js';
 import React, {
   useCallback,
   useEffect,
@@ -147,6 +148,7 @@ const singleItems = ({ message, chat, info, selectedText, target, now }) => {
     canEdit(message, now) && 'edit',
     pinItem(message, where),
     ...pollItems(message),
+    canStopLive(message) && 'stopLive',
     ...mediaItems(target, sent),
     copy,
     linkItem({ message, chat, info, target }),

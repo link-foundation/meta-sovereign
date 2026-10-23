@@ -1054,6 +1054,13 @@ export const api = {
   // quiz, correct?, solution?, replyTo?, silent?, scheduleDate? }.
   telegramSendPoll: (body = {}) => telegramPost('send-poll', body),
 
+  // A place or a contact from the composer (R-Y142): { chat, lat, lon,
+  // accuracy?, live? }, { chat, id } to stop a live location, { chat,
+  // contact | firstName, lastName, phone }.
+  telegramSendLocation: (body = {}) => telegramPost('send-location', body),
+  telegramStopLive: (body = {}) => telegramPost('stop-live-location', body),
+  telegramSendContact: (body = {}) => telegramPost('send-contact', body),
+
   // Edit, delete, react to, forward a message or mark a chat read on any
   // network: the server tries the API, then the network's web app.
   messageAction: async (action, body = {}) =>

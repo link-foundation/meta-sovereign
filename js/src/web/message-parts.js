@@ -344,9 +344,26 @@ const placeOf = (m) => {
   };
 };
 
+// Seconds since 1970 of the live place's start and end, and its last move.
+const liveOf = (m, raw) => {
+  const sent = Number(raw?.date) || null;
+  const period = Number(m.period) || null;
+  const edited = Number(raw?.editDate) || null;
+  return {
+    ...(sent && period ? { until: sent + period } : {}),
+    ...(edited || sent ? { updated: edited ?? sent } : {}),
+    ...(m.heading ? { heading: Number(m.heading) } : {}),
+  };
+};
+
 const CARD_MEDIA = {
   MessageMediaGeo: placeOf,
-  MessageMediaGeoLive: (m) => ({ ...placeOf(m), live: true }),
+  // A live location: until when it is shared, and when it last moved (R-Y142).
+  MessageMediaGeoLive: (m, raw) => ({
+    ...placeOf(m),
+    live: true,
+    ...liveOf(m, raw),
+  }),
   MessageMediaVenue: (m) => ({
     ...placeOf(m),
     title: m.title ?? null,
@@ -356,6 +373,10 @@ const CARD_MEDIA = {
     kind: 'contact',
     name: [m.firstName, m.lastName].filter(Boolean).join(' ') || null,
     phone: m.phoneNumber ?? null,
+    // Who it is, when Telegram knows (for "Add to contacts", R-Y142).
+    ...(Number(m.userId?.value ?? m.userId) > 0
+      ? { userId: String(m.userId?.value ?? m.userId) }
+      : {}),
   }),
   MessageMediaPoll: parsePoll,
   MessageMediaToDo: parseTodo,

@@ -226,9 +226,9 @@ export const pasteFiles = (attach) => (event) => {
   }
 };
 
-// The paperclip's choices (R-Y99): files, and a poll when the page can
-// make one. Fixed over the button, closed by a click elsewhere or Escape.
-const AttachMenu = ({ at, onFile, onPoll, onClose }) => {
+// The paperclip's choices (R-Y99): files, and a poll, a place and a
+// contact when the page can make them (R-Y142). Fixed over the button, closed by a click elsewhere or Escape.
+const AttachMenu = ({ at, onFile, onPoll, onLocation, onContact, onClose }) => {
   const t = useT();
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -270,16 +270,24 @@ const AttachMenu = ({ at, onFile, onPoll, onClose }) => {
     },
     [
       item('file', 'file', 'chat.attach.file', onFile),
-      item('poll', 'chart', 'chat.attach.poll', onPoll),
-    ]
+      onPoll && item('poll', 'chart', 'chat.attach.poll', onPoll),
+      onLocation &&
+        item('location', 'map-pin', 'chat.attach.location', onLocation),
+      onContact && item('contact', 'user', 'chat.attach.contact', onContact),
+    ].filter(Boolean)
   );
 };
 
 /**
  * The paperclip by the message box. With `onPoll` it opens a small menu
- * (File, Poll); without, it goes straight to the files.
+ * (File, Poll, Location, Contact); without, it goes straight to the files.
  */
-export const AttachButton = ({ attach, onPoll = null }) => {
+export const AttachButton = ({
+  attach,
+  onPoll = null,
+  onLocation = null,
+  onContact = null,
+}) => {
   const t = useT();
   const input = useRef(null);
   const [at, setAt] = useState(null);
@@ -289,7 +297,7 @@ export const AttachButton = ({ attach, onPoll = null }) => {
   }
   const pick = () => input.current?.click();
   const open = (event) => {
-    if (!onPoll) {
+    if (!onPoll && !onLocation && !onContact) {
       pick();
       return;
     }
@@ -311,7 +319,15 @@ export const AttachButton = ({ attach, onPoll = null }) => {
       el(Icon, { name: 'paperclip', size: 20 })
     ),
     at
-      ? el(AttachMenu, { key: 'm', at, onFile: pick, onPoll, onClose: close })
+      ? el(AttachMenu, {
+          key: 'm',
+          at,
+          onFile: pick,
+          onPoll,
+          onLocation,
+          onContact,
+          onClose: close,
+        })
       : null,
     el('input', {
       key: 'i',

@@ -57,6 +57,7 @@ import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
 import { createAdminActions } from './telegram-admin.js';
+import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
@@ -350,7 +351,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // map pictures of places (R-Y131); translation (R-Y132); a group's
 // permissions, slow mode and recent actions (R-Y133); a bot's commands
 // (R-Y135); the user's own profile (R-Y136); privacy and security
-// (R-Y139).
+// (R-Y139); sharing a place and a contact (R-Y142).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -386,6 +387,7 @@ const chatActions = (env, context) => {
     ...createMapActions(env, context),
     ...createTranslate(env, context),
     ...createAdminActions(env, context),
+    ...createShareMedia(env, context),
     ...createChatEdit(env, withUploads),
     ...createProfile(env, withUploads),
     ...createPrivacy(env, context),

@@ -359,6 +359,7 @@ const MENU_ITEMS = {
   unpin: ['chat.unpin', 'pin'],
   retractVote: ['chat.poll.retract', 'undo'],
   stopPoll: ['chat.poll.stop', 'stop'],
+  stopLive: ['chat.media.liveStop', 'stop'],
   saveAs: ['chat.saveAs', 'download'],
   copyImage: ['chat.copyImage', 'image'],
   copy: ['chat.copy', 'copy'],

@@ -137,6 +137,17 @@
  *   POST /api/telegram/slow-mode {chat, seconds} -> { ok } seconds 0, 10,
  *                       30, 60, 300, 900 or 3600
  *   POST /api/telegram/admin-log {chat, maxId?} -> { ok, events, next }
+ *   POST /api/telegram/send-location {chat, lat, lon, accuracy?, live?,
+ *                       replyTo?, silent?, scheduleDate?, clientId?} -> { ok }
+ *                       a place (latitude -90..90, longitude -180..180,
+ *                       accuracy 0..1500 m) or, with live 900, 3600 or
+ *                       28800 seconds, a live location (R-Y142)
+ *   POST /api/telegram/stop-live-location {chat, id} -> { ok } our live
+ *                       location message stops
+ *   POST /api/telegram/send-contact {chat, contact | firstName, lastName?,
+ *                       phone, replyTo?, silent?, scheduleDate?, clientId?}
+ *                       -> { ok } one of our contacts by id (its phone read
+ *                       server-side) or a typed name and phone
  *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
  *                                         about, username, phone, hasPhoto,
  *                                         aboutMax } the user's own profile
@@ -237,6 +248,7 @@ import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
+import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -942,6 +954,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...PRIVACY_POSTS,
+  ...SHARE_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(
     'myProfile',
