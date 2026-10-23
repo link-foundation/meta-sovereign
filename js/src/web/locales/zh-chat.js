@@ -1141,4 +1141,23 @@ export const zhChat = {
   'chat.calls.loading': '正在加载通话...',
   'chat.calls.more': '显示更多',
   'chat.calls.err': 'Telegram 没有返回通话记录，请重试。',
+  // Emoji status (R-Y162).
+  'chat.emojiStatus.title': '表情状态',
+  'chat.emojiStatus.none': '无',
+  'chat.emojiStatus.for': '显示时长',
+  'chat.emojiStatus.for.hour1': '1 小时',
+  'chat.emojiStatus.for.hour2': '2 小时',
+  'chat.emojiStatus.for.hour8': '8 小时',
+  'chat.emojiStatus.for.day2': '2 天',
+  'chat.emojiStatus.for.forever': '直到我更改',
+  'chat.emojiStatus.recent': '最近使用',
+  'chat.emojiStatus.defaults': '默认状态',
+  'chat.emojiStatus.remove': '移除状态',
+  'chat.emojiStatus.done': '完成',
+  'chat.emojiStatus.locked':
+    '表情状态是 Telegram Premium 的功能。请在 Telegram 中订阅 Premium 后再设置。',
+  'chat.emojiStatus.err.premium': '设置状态需要 Telegram Premium。',
+  'chat.emojiStatus.err.invalid': '无法使用此状态。',
+  'chat.emojiStatus.err.flood': '尝试次数过多，请稍后再试。',
+  'chat.emojiStatus.err.failed': '出了点问题，请重试。',
 };

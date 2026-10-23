@@ -8,6 +8,7 @@ import { useDates, useT } from './i18n.js';
 import { networkName } from './connection-guides.js';
 import { Icon } from './icons.js';
 import { PeerAvatar } from './peer-avatar.js';
+import { EmojiStatus } from './emoji-status.js';
 import { mediaLabel } from './chat-message.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
@@ -205,6 +206,9 @@ export const ChatItem = ({
         el('span', { key: 'top', className: 'chat-item-top' }, [
           el('span', { key: 'n', className: 'chat-item-name' }, [
             el('span', { key: 'x', className: 'chat-item-title' }, chat.name),
+            chat.emojiStatus
+              ? el(EmojiStatus, { key: 'es', status: chat.emojiStatus, api })
+              : null,
             chat.muted
               ? el(
                   'span',

@@ -12,6 +12,7 @@ import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { Spinner } from './spinner.js';
 import { ChatAvatar } from './chat-list.js';
+import { EmojiStatus } from './emoji-status.js';
 import { infoLine } from './chat-info.js';
 import { parseMessageParts } from './message-parts.js';
 import { mediaLabel } from './chat-message.js';
@@ -107,11 +108,16 @@ export const ProfileHead = ({ api, chat, info }) => {
   const status = info ? infoLine(t, info, { kind: chat.kind, chatTime }) : '';
   return el('div', { className: 'profile-head' }, [
     el(ChatAvatar, { key: 'a', api, chat, size: 'b' }),
-    el(
-      'strong',
-      { key: 'n', className: 'profile-name' },
-      was.title ?? chat.name
-    ),
+    el('div', { key: 'n', className: 'profile-name-row' }, [
+      el(
+        'strong',
+        { key: 'n', className: 'profile-name' },
+        was.title ?? chat.name
+      ),
+      chat.emojiStatus
+        ? el(EmojiStatus, { key: 'es', status: chat.emojiStatus, api })
+        : null,
+    ]),
     status
       ? el('span', { key: 's', className: 'meta profile-status' }, status)
       : null,

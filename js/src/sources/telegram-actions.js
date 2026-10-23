@@ -25,7 +25,8 @@
  *   is ./telegram-chat-removal.js (R-Y100); scheduled messages are
  *   ./telegram-scheduled.js (R-Y102), chat folders ./telegram-folders.js
  *   (R-Y103); translating messages is ./telegram-translate.js (R-Y132);
- *   message effects are ./telegram-effects.js (R-Y149).
+ *   message effects are ./telegram-effects.js (R-Y149); emoji statuses
+ *   ./telegram-emoji-status.js (R-Y162).
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
@@ -59,6 +60,7 @@ import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
 import { createEffects } from './telegram-effects.js';
+import { createEmojiStatus } from './telegram-emoji-status.js';
 import { createMessageLinks } from './telegram-message-links.js';
 import { createAdminActions } from './telegram-admin.js';
 import { createCommonChats } from './telegram-common-chats.js';
@@ -393,7 +395,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // to messages (R-Y154); chat backgrounds (R-Y155); notification settings,
 // global and by chat (R-Y157); groups in common (R-Y158); which reactions a
 // chat allows (R-Y160); reordering the pinned chats (R-Y159); the recent
-// calls list (R-Y163).
+// calls list (R-Y163); emoji statuses (R-Y162).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -448,6 +450,7 @@ const chatActions = (env, context) => {
     ...createSavedTags(env, context),
     ...createSendAs(env, context),
     ...createEffects(env, context),
+    ...createEmojiStatus(env, context),
     ...createInviteLinks(env, context),
     ...createMessageLinks(env, context),
   };

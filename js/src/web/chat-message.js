@@ -28,6 +28,8 @@ import { AlbumGrid } from './chat-album.js';
 import { EffectBadge } from './chat-effects.js';
 import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
+import { EmojiStatus } from './emoji-status.js';
+import { statusOfLink } from './emoji-status-model.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
 import { menuItems } from './chat-selection.js';
@@ -980,7 +982,16 @@ const BubbleContent = ({
           key: 'who',
           className: `bubble-name ${peerColorClass(message.sender, { name: message.senderName })}`,
         },
-        message.senderName ?? message.sender
+        [
+          message.senderName ?? message.sender,
+          message.senderEmojiStatus && api
+            ? el(EmojiStatus, {
+                key: 'es',
+                status: statusOfLink(message, 'senderEmoji'),
+                api,
+              })
+            : null,
+        ]
       )
     : null,
   el(ForwardHeader, { key: 'fwd', fwdFrom: parts.fwdFrom }),

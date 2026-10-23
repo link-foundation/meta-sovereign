@@ -8044,3 +8044,67 @@ span.bubble-effect {
 .call-arrow.is-out {
   color: var(--accent);
 }
+
+/* Emoji status (R-Y162): a small custom emoji after a name, the profile
+   card's row and the picker. */
+.emoji-status {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  margin-inline-start: 0.25rem;
+  font-size: 1em;
+}
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.4rem;
+}
+.profile-name-row .profile-name {
+  margin-top: 0;
+}
+.emoji-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+.emoji-status-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.emoji-status-locked {
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+}
+.emoji-status-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.emoji-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.4rem, 1fr));
+  gap: 0.25rem;
+  max-height: 10rem;
+  overflow-y: auto;
+}
+.emoji-status-pick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 0.2rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.emoji-status-pick:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

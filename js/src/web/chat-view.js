@@ -53,6 +53,7 @@ import {
 } from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
 import { ChatAvatar } from './chat-list.js';
+import { EmojiStatus } from './emoji-status.js';
 import { replyRefOf, useChatActions } from './chat-actions.js';
 import { useMessageLinks } from './chat-link-open.js';
 import { SelectionTop } from './chat-selection.js';
@@ -302,6 +303,9 @@ const Header = ({ state, api, onBack, about, onAbout, find, saved }) => {
     el('div', { key: 't', className: 'chat-header-title' }, [
       el('div', { key: 'n', className: 'chat-title-row' }, [
         el('strong', { key: 'n' }, chat.name),
+        chat.emojiStatus
+          ? el(EmojiStatus, { key: 'es', status: chat.emojiStatus, api })
+          : null,
         el(TtlBadge, { key: 'ttl', chat, info: state.info }),
       ]),
       el(

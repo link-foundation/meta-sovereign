@@ -1202,4 +1202,24 @@ export const hiChat = {
   'chat.calls.loading': 'कॉल लोड हो रही हैं...',
   'chat.calls.more': 'और दिखाएँ',
   'chat.calls.err': 'Telegram ने कॉल नहीं दीं। फिर कोशिश करें।',
+  // Emoji status (R-Y162).
+  'chat.emojiStatus.title': 'इमोजी स्टेटस',
+  'chat.emojiStatus.none': 'कोई नहीं',
+  'chat.emojiStatus.for': 'दिखाएँ',
+  'chat.emojiStatus.for.hour1': '1 घंटे के लिए',
+  'chat.emojiStatus.for.hour2': '2 घंटे के लिए',
+  'chat.emojiStatus.for.hour8': '8 घंटे के लिए',
+  'chat.emojiStatus.for.day2': '2 दिन के लिए',
+  'chat.emojiStatus.for.forever': 'मेरे बदलने तक',
+  'chat.emojiStatus.recent': 'हाल के',
+  'chat.emojiStatus.defaults': 'डिफ़ॉल्ट स्टेटस',
+  'chat.emojiStatus.remove': 'स्टेटस हटाएँ',
+  'chat.emojiStatus.done': 'हो गया',
+  'chat.emojiStatus.locked':
+    'इमोजी स्टेटस Telegram Premium की सुविधा है। स्टेटस लगाने के लिए Telegram में Premium लें।',
+  'chat.emojiStatus.err.premium': 'स्टेटस लगाने के लिए Telegram Premium चाहिए।',
+  'chat.emojiStatus.err.invalid': 'यह स्टेटस इस्तेमाल नहीं हो सकता।',
+  'chat.emojiStatus.err.flood':
+    'बहुत ज़्यादा कोशिशें। कुछ देर रुककर फिर कोशिश करें।',
+  'chat.emojiStatus.err.failed': 'कुछ गड़बड़ हुई। फिर कोशिश करें।',
 };

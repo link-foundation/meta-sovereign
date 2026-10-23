@@ -1197,4 +1197,23 @@ export const enChat = {
   'chat.calls.loading': 'Loading calls...',
   'chat.calls.more': 'Show more',
   'chat.calls.err': 'Telegram did not give the calls. Try again.',
+  // Emoji status (R-Y162).
+  'chat.emojiStatus.title': 'Emoji status',
+  'chat.emojiStatus.none': 'None',
+  'chat.emojiStatus.for': 'Show it',
+  'chat.emojiStatus.for.hour1': 'for 1 hour',
+  'chat.emojiStatus.for.hour2': 'for 2 hours',
+  'chat.emojiStatus.for.hour8': 'for 8 hours',
+  'chat.emojiStatus.for.day2': 'for 2 days',
+  'chat.emojiStatus.for.forever': 'until I change it',
+  'chat.emojiStatus.recent': 'Recent',
+  'chat.emojiStatus.defaults': 'Default statuses',
+  'chat.emojiStatus.remove': 'Remove status',
+  'chat.emojiStatus.done': 'Done',
+  'chat.emojiStatus.locked':
+    'Emoji statuses are a Telegram Premium feature. Subscribe to Premium in Telegram to set one.',
+  'chat.emojiStatus.err.premium': 'Setting a status needs Telegram Premium.',
+  'chat.emojiStatus.err.invalid': 'This status cannot be used.',
+  'chat.emojiStatus.err.flood': 'Too many tries. Wait a while and try again.',
+  'chat.emojiStatus.err.failed': 'Something went wrong. Try again.',
 };

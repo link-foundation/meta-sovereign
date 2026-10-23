@@ -5,6 +5,7 @@
 
 import { isPersonalChatType } from '../crm/reengage.js';
 import { parseFormatted, rawEntities } from '../sources/telegram-format.js';
+import { statusOfLink } from './emoji-status-model.js';
 
 const DAY_MS = 86_400_000;
 
@@ -268,6 +269,21 @@ const named = (chat, links) => {
     : chat;
 };
 
+// A one-to-one chat shows the other person's emoji status (R-Y162): the
+// person's own link, else what their newest message carried.
+const withStatus = (chat, links, messages, self) => {
+  if (!chat.personal) {
+    return chat;
+  }
+  const person = links.find(
+    (l) => l?.id === `person:${chat.source}:${chat.chat}`
+  );
+  const other = [...messages].sort(byTime).findLast((m) => !isMine(m, self));
+  const emojiStatus =
+    statusOfLink(person, 'emoji') ?? statusOfLink(other, 'senderEmoji');
+  return emojiStatus ? { ...chat, emojiStatus } : chat;
+};
+
 /**
  * One row per conversation, newest first. `query` matches the name, the
  * chat id, the network and any message in it.
@@ -297,7 +313,12 @@ export const summarizeChats = (
     .map(([key, read]) => clearedChat(key, read, links, self, Date.now()));
   return [...groups.entries()]
     .map(([key, messages]) =>
-      named(summarize(key, messages, self, reads.get(key)), links)
+      withStatus(
+        named(summarize(key, messages, self, reads.get(key)), links),
+        links,
+        messages,
+        self
+      )
     )
     .concat(cleared)
     .filter((c) => words.every((w) => c.search.includes(w)))

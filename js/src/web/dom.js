@@ -1097,6 +1097,9 @@ export const api = {
   // The bar over a chat with a stranger (R-Y137).
   // The message effects Telegram offers (R-Y149).
   telegramEffects: (body = {}) => telegramPost('effects', body),
+  // Emoji statuses (R-Y162).
+  telegramEmojiStatuses: (body = {}) => telegramPost('emoji-statuses', body),
+  telegramEmojiStatusSet: (body = {}) => telegramPost('emoji-status-set', body),
   telegramSendAs: (body = {}) => telegramPost('send-as', body),
   telegramSendAsSave: (body = {}) => telegramPost('send-as-save', body),
   // The recent calls list (R-Y163).

@@ -51,6 +51,7 @@ import { createPeers } from './telegram-peers.js';
 import { createActions } from './telegram-actions.js';
 import { createPageReader, dialogsCursor } from './telegram-pages.js';
 import { messageSenderId } from './telegram-updates.js';
+import { statusFields } from './telegram-emoji-status.js';
 import {
   nameForwards,
   repairSenders,
@@ -190,8 +191,14 @@ export const telegramDialogLinks = (dialog, messages = []) => {
           : (fullName(m.sender) ?? (dialog.isUser ? chatName : null)),
         forwardedFrom: forwardedFromOf(m),
       });
-      // Everything Telegram said about it, for offline analysis (R-Y28).
-      return { ...link, ...(service ? { service } : {}), raw: rawMessage(m) };
+      // Everything Telegram said about it, for offline analysis (R-Y28);
+      // the author's emoji status, shown by their name (R-Y162).
+      return {
+        ...link,
+        ...(service ? { service } : {}),
+        ...(mine ? {} : statusFields(m.sender, 'senderEmoji')),
+        raw: rawMessage(m),
+      };
     });
 };
 
@@ -208,6 +215,7 @@ export const telegramPersonLinks = (users = [], { contact = true } = {}) =>
       }),
       ...(contact ? { contact: true } : {}),
       ...(u.bot ? { bot: true } : {}),
+      ...statusFields(u, 'emoji'),
     }));
 
 // A GramJS entity as the dialog shape `telegramDialogLinks` reads.
@@ -233,6 +241,10 @@ const SHOWN_FIELDS = [
   'handle',
   'chatName',
   'senderName',
+  'senderEmojiStatus',
+  'senderEmojiUntil',
+  'emojiStatus',
+  'emojiUntil',
   'outboxMaxId',
   'inboxMaxId',
   'unreadCount',

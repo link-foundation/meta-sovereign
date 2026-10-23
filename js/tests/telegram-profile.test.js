@@ -97,6 +97,8 @@ test('myProfile reads the user with users.getFullUser', async () => {
     phone: '+15551234567',
     hasPhoto: true,
     aboutMax: 70,
+    premium: false,
+    emojiStatus: null,
   });
 });
 
@@ -106,6 +108,7 @@ test('Premium has a bio of 140; no photo means hasPhoto false', async () => {
   );
   const mine = await actions.myProfile();
   assert.equal(mine.aboutMax, 140);
+  assert.equal(mine.premium, true);
   assert.equal(mine.hasPhoto, false);
 });
 

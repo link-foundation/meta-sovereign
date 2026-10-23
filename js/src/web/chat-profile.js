@@ -12,6 +12,7 @@ import { Field, FormDialog } from './chat-create.js';
 import { PhotoButtons, uploadPhoto } from './chat-edit.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { PrivacyDialog } from './chat-privacy.js';
+import { EmojiStatusDialog, EmojiStatusRow } from './chat-emoji-status.js';
 
 const el = React.createElement;
 
@@ -249,7 +250,17 @@ const saveChanges = async (api, profile, form) => {
   return answers.length > 0 && failed ? (failed.code ?? 'failed') : null;
 };
 
-const Card = ({ api, t, profile, close, setError, error, openPrivacy }) => {
+const Card = ({
+  api,
+  t,
+  profile,
+  close,
+  setError,
+  error,
+  openPrivacy,
+  emojiStatus,
+  openStatus,
+}) => {
   const [form, setForm] = useState({
     firstName: profile.firstName,
     lastName: profile.lastName,
@@ -320,6 +331,13 @@ const Card = ({ api, t, profile, close, setError, error, openPrivacy }) => {
         set: set('username'),
       }),
       el(PhoneRow, { key: 'ph', t, phone: profile.phone }),
+      // The emoji status (R-Y162) opens its picker over the card.
+      el(EmojiStatusRow, {
+        key: 'es',
+        api,
+        status: emojiStatus,
+        onOpen: openStatus,
+      }),
       // Privacy and security (R-Y139) opens over the card.
       el(
         'button',
@@ -340,25 +358,38 @@ const ProfileDialog = ({ api, close }) => {
   const state = useProfile(api);
   const [error, setError] = useState(null);
   const [privacy, setPrivacy] = useState(false);
+  // The emoji status (R-Y162): undefined is the one Telegram has.
+  const [picker, setPicker] = useState(false);
+  const [chosen, setChosen] = useState(undefined);
   if (state.phase === 'ready') {
-    // While Privacy and security is over the card, Escape and a click
-    // outside close only that dialog.
+    // While Privacy and security or the status picker is over the card,
+    // Escape and a click outside close only that dialog.
     return el(React.Fragment, null, [
       el(Card, {
         key: 'c',
         api,
         t,
         profile: state.profile,
-        close: privacy ? () => {} : close,
+        close: privacy || picker ? () => {} : close,
         error,
         setError,
         openPrivacy: () => setPrivacy(true),
+        emojiStatus: chosen === undefined ? state.profile.emojiStatus : chosen,
+        openStatus: () => setPicker(true),
       }),
       privacy
         ? el(PrivacyDialog, {
             key: 'p',
             api,
             close: () => setPrivacy(false),
+          })
+        : null,
+      picker
+        ? el(EmojiStatusDialog, {
+            key: 'es',
+            api,
+            close: () => setPicker(false),
+            onChange: setChosen,
           })
         : null,
     ]);

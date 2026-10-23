@@ -18,6 +18,7 @@
 
 import { connected, failureOf, runIn } from './telegram-stickers.js';
 import { uploadedFile } from './telegram-chat-edit.js';
+import { statusOf } from './telegram-emoji-status.js';
 
 export const ABOUT_MAX = 70;
 export const ABOUT_MAX_PREMIUM = 140;
@@ -105,6 +106,9 @@ const readMine = (env, userClient) => async () =>
       phone: user.phone ? `+${String(user.phone).replace(/^\+/, '')}` : '',
       hasPhoto: hasPhoto(full),
       aboutMax: user.premium ? ABOUT_MAX_PREMIUM : ABOUT_MAX,
+      // The emoji status row (R-Y162).
+      premium: Boolean(user.premium),
+      emojiStatus: statusOf(user.emojiStatus),
     };
   });
 

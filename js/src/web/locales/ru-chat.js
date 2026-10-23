@@ -1216,4 +1216,24 @@ export const ruChat = {
   'chat.calls.loading': 'Загружаю звонки...',
   'chat.calls.more': 'Показать ещё',
   'chat.calls.err': 'Telegram не отдал звонки. Попробуйте ещё раз.',
+  // Emoji status (R-Y162).
+  'chat.emojiStatus.title': 'Эмодзи-статус',
+  'chat.emojiStatus.none': 'Нет',
+  'chat.emojiStatus.for': 'Показывать',
+  'chat.emojiStatus.for.hour1': '1 час',
+  'chat.emojiStatus.for.hour2': '2 часа',
+  'chat.emojiStatus.for.hour8': '8 часов',
+  'chat.emojiStatus.for.day2': '2 дня',
+  'chat.emojiStatus.for.forever': 'пока я не изменю',
+  'chat.emojiStatus.recent': 'Недавние',
+  'chat.emojiStatus.defaults': 'Стандартные статусы',
+  'chat.emojiStatus.remove': 'Убрать статус',
+  'chat.emojiStatus.done': 'Готово',
+  'chat.emojiStatus.locked':
+    'Эмодзи-статусы доступны с Telegram Premium. Оформите Premium в Telegram, чтобы установить статус.',
+  'chat.emojiStatus.err.premium':
+    'Для установки статуса нужен Telegram Premium.',
+  'chat.emojiStatus.err.invalid': 'Этот статус нельзя использовать.',
+  'chat.emojiStatus.err.flood': 'Слишком много попыток. Подождите и повторите.',
+  'chat.emojiStatus.err.failed': 'Что-то пошло не так. Повторите попытку.',
 };
