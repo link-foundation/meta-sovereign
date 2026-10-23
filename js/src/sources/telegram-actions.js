@@ -53,6 +53,7 @@ import { createSharedMedia } from './telegram-shared.js';
 import { createForum } from './telegram-forum.js';
 import { createComments } from './telegram-comments.js';
 import { createReadersActions } from './telegram-readers.js';
+import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 
 const SOURCE = 'telegram';
@@ -340,7 +341,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // saved GIFs (R-Y105); bots' buttons (R-Y110); shared media (R-Y111);
 // forum topics (R-Y122); invite links (R-Y123); members (R-Y125);
 // comments (R-Y126); who read and who reacted (R-Y127); block, contacts
-// and report (R-Y128); new groups and channels, a chat's info edited (R-Y129).
+// and report (R-Y128); new groups and channels, a chat's info edited (R-Y129);
+// map pictures of places (R-Y131).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -364,6 +366,7 @@ const chatActions = (env, context) => {
     ...createPeerActions(env, context),
     ...createComments(env, context),
     ...createReadersActions(env, context),
+    ...createMapActions(env, context),
     ...createChatEdit(env, {
       ...context,
       uploads: {

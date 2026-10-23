@@ -472,6 +472,7 @@ export const hiChat = {
   'chat.media.save': '{name} सहेजें',
   'chat.media.place': 'स्थान',
   'chat.media.livePlace': 'लाइव स्थान',
+  'chat.media.mapOpen': 'मानचित्र में खोलें',
   'chat.media.contact': 'संपर्क',
   'chat.media.poll': 'मतदान',
   'chat.media.quiz': 'क्विज़',

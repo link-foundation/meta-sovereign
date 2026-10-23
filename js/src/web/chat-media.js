@@ -532,17 +532,108 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
 const mapLink = (lat, lon) =>
   `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
 
-/** A place, a contact, a die, a story… as a card (polls: ./chat-poll.js). */
-const PlaceCard = ({ media }) => {
+// What opens a place: the map site, in a new tab.
+const placeLink = (media) => ({
+  href: mapLink(media.lat, media.lon),
+  target: '_blank',
+  rel: 'noopener noreferrer',
+});
+
+// The map picture's size and zoom; sharper on hi-dpi screens (R-Y131).
+const MAP_SHOT = { w: 300, h: 150, zoom: 15 };
+const mapScale = () =>
+  Math.min(3, Math.max(1, Math.round(globalThis.devicePixelRatio || 1)));
+
+// The place's map picture from the server, or null (none yet, or it failed).
+const useMapUrl = (api, media, off) => {
+  const [url, setUrl] = useState(null);
+  useEffect(() => {
+    if (off || typeof api?.telegramMapUrl !== 'function') {
+      return undefined;
+    }
+    const { lat, lon, hash } = media;
+    const stop = new AbortController();
+    api
+      .telegramMapUrl({ lat, lon, hash, ...MAP_SHOT, scale: mapScale() })
+      .then((next) => stop.signal.aborted || setUrl(next ?? null))
+      .catch(() => {});
+    return () => stop.abort();
+  }, [api, media.lat, media.lon, media.hash, off]);
+  return url;
+};
+
+const PIN_PATH =
+  'M12 1C6 1 1.5 5.6 1.5 11.4 1.5 19 12 31 12 31s10.5-12 10.5-19.6C22.5 5.6 18 1 12 1z';
+
+// A place as Telegram Desktop draws it: the map with a pin in its
+// middle; a venue's title and address, or "Live location", under it.
+const PlaceMap = ({ media, url, onError }) => {
+  const t = useT();
+  const lines = [
+    media.live ? t('chat.media.livePlace') : null,
+    media.title,
+    media.address,
+  ].filter(Boolean);
+  return el(
+    'a',
+    {
+      className: 'bubble-place',
+      'data-place-map': '',
+      title: t('chat.media.mapOpen'),
+      ...placeLink(media),
+    },
+    [
+      el('span', { key: 'm', className: 'place-map' }, [
+        el('img', {
+          key: 'i',
+          ...mediaSrc(url),
+          alt: '',
+          width: MAP_SHOT.w,
+          height: MAP_SHOT.h,
+          draggable: false,
+          onError,
+        }),
+        el('svg', { key: 'p', className: 'place-pin', viewBox: '0 0 24 32' }, [
+          el('path', { key: 'a', d: PIN_PATH }),
+          el('circle', { key: 'c', cx: 12, cy: 11.5, r: 4 }),
+        ]),
+      ]),
+      lines.length
+        ? el(
+            'span',
+            { key: 'l', className: 'place-lines' },
+            lines.map((line, i) =>
+              el(
+                'span',
+                { key: i, className: i === 0 ? 'place-title' : 'meta' },
+                line
+              )
+            )
+          )
+        : null,
+    ]
+  );
+};
+
+/** A place: the map picture, else the plain card (R-Y131). */
+const PlaceCard = ({ media, api }) => {
+  const [failed, setFailed] = useState(false);
+  const where = media.lat !== null && media.lon !== null;
+  const url = useMapUrl(api, media, failed || !where);
+  return url && !failed
+    ? el(PlaceMap, { media, url, onError: () => setFailed(true) })
+    : el(PlaceFallback, { media });
+};
+
+/** A place's plain card; a contact, a die, a story… follow (polls: ./chat-poll.js). */
+const PlaceFallback = ({ media }) => {
   const t = useT();
   const where = media.lat !== null && media.lon !== null;
   return el(
     'a',
     {
       className: 'bubble-card place',
-      href: where ? mapLink(media.lat, media.lon) : undefined,
-      target: '_blank',
-      rel: 'noopener noreferrer',
+      ...(where ? placeLink(media) : { target: '_blank', rel: 'noopener' }),
     },
     [
       el(Icon, { key: 'i', name: 'map-pin', size: 20 }),

@@ -478,6 +478,7 @@ export const ruChat = {
   'chat.media.save': 'Сохранить {name}',
   'chat.media.place': 'Геопозиция',
   'chat.media.livePlace': 'Геопозиция в реальном времени',
+  'chat.media.mapOpen': 'Открыть на карте',
   'chat.media.contact': 'Контакт',
   'chat.media.poll': 'Опрос',
   'chat.media.quiz': 'Викторина',

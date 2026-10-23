@@ -332,22 +332,23 @@ const parseWebpageMedia = (wp) => ({
 
 // What has no file: a place, a contact, a poll, a checklist, a die — each drawn as a
 // card the way Telegram's apps draw it.
+// A place's point and its access hash (digits; for the map picture, R-Y131).
+const placeOf = (m) => {
+  const raw = m.geo?.accessHash;
+  const hash = String(raw?.value ?? raw ?? '');
+  return {
+    kind: 'place',
+    lat: m.geo?.lat ?? null,
+    lon: m.geo?.long ?? null,
+    ...(/^-?\d{1,20}$/.test(hash) ? { hash } : {}),
+  };
+};
+
 const CARD_MEDIA = {
-  MessageMediaGeo: (m) => ({
-    kind: 'place',
-    lat: m.geo?.lat ?? null,
-    lon: m.geo?.long ?? null,
-  }),
-  MessageMediaGeoLive: (m) => ({
-    kind: 'place',
-    live: true,
-    lat: m.geo?.lat ?? null,
-    lon: m.geo?.long ?? null,
-  }),
+  MessageMediaGeo: placeOf,
+  MessageMediaGeoLive: (m) => ({ ...placeOf(m), live: true }),
   MessageMediaVenue: (m) => ({
-    kind: 'place',
-    lat: m.geo?.lat ?? null,
-    lon: m.geo?.long ?? null,
+    ...placeOf(m),
     title: m.title ?? null,
     address: m.address ?? null,
   }),

@@ -475,6 +475,7 @@ export const enChat = {
   'chat.media.save': 'Save {name}',
   'chat.media.place': 'Location',
   'chat.media.livePlace': 'Live location',
+  'chat.media.mapOpen': 'Open in the map',
   'chat.media.contact': 'Contact',
   'chat.media.poll': 'Poll',
   'chat.media.quiz': 'Quiz',

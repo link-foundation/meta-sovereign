@@ -1082,6 +1082,20 @@ export const api = {
     return origin ? new URL(path, origin).toString() : path;
   },
 
+  // A place's map picture from the server (R-Y131).
+  telegramMapUrl: async ({ lat, lon, hash, w, h, zoom, scale } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !Number.isFinite(lat + lon)) {
+      return null;
+    }
+    const query = new URLSearchParams({ lat, lon, w, h, zoom, scale });
+    if (hash) {
+      query.set('hash', hash);
+    }
+    const path = `/api/telegram/map?${query}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
+
   // A custom emoji's picture (`full`: its animation or video) (R-Y120).
   telegramCustomEmojiUrl: async ({ id, full = false } = {}) => {
     const { client, origin } = await ensure();

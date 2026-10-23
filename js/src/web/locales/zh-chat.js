@@ -451,6 +451,7 @@ export const zhChat = {
   'chat.media.save': '保存 {name}',
   'chat.media.place': '位置',
   'chat.media.livePlace': '实时位置',
+  'chat.media.mapOpen': '在地图中打开',
   'chat.media.contact': '联系人',
   'chat.media.poll': '投票',
   'chat.media.quiz': '测验',
