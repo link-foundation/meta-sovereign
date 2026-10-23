@@ -27,6 +27,7 @@ export const FormDialog = ({
   submit,
   busy,
   error,
+  outside = false,
   children,
 }) => {
   const t = useT();
@@ -39,6 +40,10 @@ export const FormDialog = ({
       'aria-modal': 'true',
       'aria-label': title,
       'data-dialog': name,
+      // A click on the dim area outside the card closes it.
+      onClick: outside
+        ? (event) => event.target === event.currentTarget && onClose()
+        : undefined,
     },
     el(
       'form',

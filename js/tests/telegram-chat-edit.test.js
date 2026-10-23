@@ -5,19 +5,17 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Readable } from 'node:stream';
 
 import { createChatEdit } from '../src/sources/telegram-chat-edit.js';
 import { canEditIn } from '../src/sources/telegram-chat-info.js';
-import { handleTelegramRoutes } from '../src/server/routes-telegram.js';
-
-const named = (className) =>
-  class {
-    constructor(fields = {}) {
-      Object.assign(this, fields);
-      this.className = className;
-    }
-  };
+import {
+  named,
+  CustomFile,
+  helpers,
+  telegramError,
+  fakeClient,
+  post,
+} from './helpers/telegram-fakes.mjs';
 
 const Api = {
   InputUser: named('InputUser'),
@@ -37,37 +35,18 @@ const Api = {
   },
 };
 
-class CustomFile {
-  constructor(name, size, path) {
-    Object.assign(this, { name, size, path });
-  }
-}
-
-const telegramError = (errorMessage) =>
-  Object.assign(new Error(errorMessage), { errorMessage });
-
 const make = (answer) => {
   const log = [];
   const applied = [];
   const remembered = [];
   const dropped = [];
-  const client = {
-    invoke: async (request) => {
-      log.push(request);
-      const next = answer(request);
-      if (next instanceof Error) {
-        throw next;
-      }
-      return next;
-    },
-    uploadFile: async ({ file }) => ({ className: 'InputFile', file }),
-  };
+  const client = fakeClient(answer, log);
   const actions = createChatEdit(
     {
       importer: async () => ({
         Api,
         CustomFile,
-        helpers: { returnBigInt: (v) => BigInt(v) },
+        helpers,
       }),
       connection: { withPeer: async (_c, chat, use) => use({ chat }) },
       peers: { remember: async (...args) => remembered.push(args) },
@@ -259,29 +238,6 @@ test('who may edit: the creator, or an admin with changeInfo', () => {
   );
   assert.equal(canEditIn({ defaultBannedRights: { changeInfo: true } }), false);
 });
-
-const post = async (route, body, account) => {
-  const path = `/api/telegram/${route}`;
-  const req = Object.assign(
-    Readable.from([Buffer.from(JSON.stringify(body))]),
-    {
-      method: 'POST',
-      url: path,
-      headers: { 'content-type': 'application/json', host: '127.0.0.1:8787' },
-    }
-  );
-  const answered = {};
-  const res = {
-    setHeader() {},
-    writeHead(code) {
-      answered.status = code;
-    },
-    end() {},
-  };
-  const ctx = { telegramAccount: account, allowOrigins: [] };
-  await handleTelegramRoutes(req, res, path, ctx);
-  return answered;
-};
 
 test('the routes validate and pass on', async () => {
   const seen = [];

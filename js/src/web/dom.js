@@ -968,6 +968,12 @@ export const api = {
     telegramPost('chat-permissions-set', body),
   telegramSlowMode: (body = {}) => telegramPost('slow-mode', body),
   telegramAdminLog: (body = {}) => telegramPost('admin-log', body),
+  // The user's own profile (R-Y136).
+  telegramProfile: () => telegramPost('profile', {}),
+  telegramProfileSave: (body = {}) => telegramPost('profile-save', body),
+  telegramUsernameCheck: (body = {}) => telegramPost('username-check', body),
+  telegramUsernameSave: (body = {}) => telegramPost('username-save', body),
+  telegramProfilePhoto: (body = {}) => telegramPost('profile-photo', body),
   // A group's members ({ chat, q, offset, limit }) and one removed
   // ({ chat, user }) (R-Y125).
   telegramMembers: (body = {}) => telegramPost('members', body),

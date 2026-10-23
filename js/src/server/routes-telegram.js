@@ -137,6 +137,21 @@
  *   POST /api/telegram/slow-mode {chat, seconds} -> { ok } seconds 0, 10,
  *                       30, 60, 300, 900 or 3600
  *   POST /api/telegram/admin-log {chat, maxId?} -> { ok, events, next }
+ *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
+ *                                         about, username, phone, hasPhoto,
+ *                                         aboutMax } the user's own profile
+ *                                         (R-Y136)
+ *   POST /api/telegram/profile-save {firstName?, lastName?, about?}
+ *                                      -> { ok } names (1..64, 0..64) and
+ *                                         bio (0..140) changed
+ *   POST /api/telegram/username-check {username}
+ *                                      -> { ok, status: available | taken |
+ *                                         invalid }
+ *   POST /api/telegram/username-save {username}
+ *                                      -> { ok } ("" removes it)
+ *   POST /api/telegram/profile-photo {token} | {remove: true}
+ *                                      -> { ok } an upload set as the photo,
+ *                                         or the photo removed
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
@@ -281,6 +296,28 @@ const scheduledChange = async (change, body) => {
   }
   return [200, await change({ chat: body.chat, ids: body.ids.map(Number) })];
 };
+
+// The user's own profile (R-Y136): names and bio, a username, a photo.
+const text = (value, min, max) =>
+  typeof value === 'string' &&
+  Array.from(value.trim()).length >= min &&
+  Array.from(value).length <= max;
+const validProfile = (body) =>
+  ['firstName', 'lastName', 'about'].some((k) => body[k] !== undefined) &&
+  (body.firstName === undefined || text(body.firstName, 1, 64)) &&
+  (body.lastName === undefined || text(body.lastName, 0, 64)) &&
+  (body.about === undefined || text(body.about, 0, 140));
+const USERNAME = /^$|^[A-Za-z][A-Za-z0-9_]{3,31}$/;
+const validUsername = (body) =>
+  typeof body.username === 'string' && USERNAME.test(body.username);
+const validPhoto = (body) =>
+  body.remove === true
+    ? body.token === undefined
+    : typeof body.token === 'string' && /^[a-f0-9]{32}$/.test(body.token);
+const profileRoute = (method, valid, ask, message) => async (account, body) =>
+  valid(body) && typeof account[method] === 'function'
+    ? [200, await account[method](ask(body))]
+    : [400, { error: message, code: 'bad-request' }];
 
 // Files and photos to send (R-Y99), with when (R-Y102).
 const validFiles = (body) =>
@@ -890,6 +927,40 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  // The user's own profile (R-Y136).
+  profile: profileRoute(
+    'myProfile',
+    () => true,
+    () => ({}),
+    'no profile'
+  ),
+  'profile-save': profileRoute(
+    'saveProfile',
+    validProfile,
+    (b) => ({ firstName: b.firstName, lastName: b.lastName, about: b.about }),
+    'a valid name or bio required'
+  ),
+  'username-check': profileRoute(
+    'checkUsername',
+    validUsername,
+    (b) => ({ username: b.username }),
+    'username required'
+  ),
+  'username-save': profileRoute(
+    'saveUsername',
+    validUsername,
+    (b) => ({ username: b.username }),
+    'username required'
+  ),
+  'profile-photo': async (account, body) => {
+    if (!validPhoto(body)) {
+      return [400, { error: 'token or remove required', code: 'bad-request' }];
+    }
+    const method = body.remove ? 'removeProfilePhoto' : 'setProfilePhoto';
+    return typeof account[method] === 'function'
+      ? [200, await account[method]({ token: body.token })]
+      : [400, { error: 'not supported', code: 'bad-request' }];
+  },
   // A group's members and removing one (R-Y125).
   members: async (account, body) =>
     GROUP_CHAT.test(String(body.chat ?? '')) &&

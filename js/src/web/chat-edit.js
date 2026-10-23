@@ -37,16 +37,17 @@ export const canEditInfo = (chat, info) =>
   Boolean(info?.canEdit);
 
 // Uploads the picked image, returning its token, or the error code.
-const uploadPhoto = async (api, file) => {
+export const uploadPhoto = async (api, file) => {
   const sent = await api.telegramUpload(file).catch(() => null);
   return sent?.token
     ? { token: sent.token }
     : { code: sent?.code === 'too-large' ? 'photo-invalid' : 'failed' };
 };
 
-const PhotoRow = ({ t, file, removed, onPick, onRemove }) => {
+/** The photo's file box with Set photo and Remove photo (R-Y136 too). */
+export const PhotoButtons = ({ t, onPick, onRemove, canRemove = true }) => {
   const input = useRef(null);
-  return el('div', { className: 'chat-form-photo' }, [
+  return [
     el('input', {
       key: 'f',
       ref: input,
@@ -66,16 +67,24 @@ const PhotoRow = ({ t, file, removed, onPick, onRemove }) => {
       },
       t('chat.edit.setPhoto')
     ),
-    el(
-      'button',
-      {
-        key: 'r',
-        type: 'button',
-        'data-action': 'remove-photo',
-        onClick: onRemove,
-      },
-      t('chat.edit.removePhoto')
-    ),
+    canRemove
+      ? el(
+          'button',
+          {
+            key: 'r',
+            type: 'button',
+            'data-action': 'remove-photo',
+            onClick: onRemove,
+          },
+          t('chat.edit.removePhoto')
+        )
+      : null,
+  ];
+};
+
+const PhotoRow = ({ t, file, removed, onPick, onRemove }) =>
+  el('div', { className: 'chat-form-photo' }, [
+    el(PhotoButtons, { key: 'b', t, onPick, onRemove }),
     file || removed
       ? el(
           'span',
@@ -84,7 +93,6 @@ const PhotoRow = ({ t, file, removed, onPick, onRemove }) => {
         )
       : null,
   ]);
-};
 
 const EditDialog = ({ api, chat, info, close }) => {
   const t = useT();

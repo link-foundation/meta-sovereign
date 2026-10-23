@@ -58,6 +58,7 @@ import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
 import { createAdminActions } from './telegram-admin.js';
 import { createBotCommands } from './telegram-bot-commands.js';
+import { createProfile } from './telegram-profile.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -347,10 +348,18 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // and report (R-Y128); new groups and channels, a chat's info edited (R-Y129);
 // map pictures of places (R-Y131); translation (R-Y132); a group's
 // permissions, slow mode and recent actions (R-Y133); a bot's commands
-// (R-Y135).
+// (R-Y135); the user's own profile (R-Y136).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
+  // The page's uploads, for actions that send one themselves.
+  const withUploads = {
+    ...context,
+    uploads: {
+      uploadOf: (token) => uploads.get(token) ?? null,
+      dropUpload: drop,
+    },
+  };
   return {
     ...createPollActions(env, context),
     ...createDialogActions(env, context),
@@ -375,13 +384,8 @@ const chatActions = (env, context) => {
     ...createMapActions(env, context),
     ...createTranslate(env, context),
     ...createAdminActions(env, context),
-    ...createChatEdit(env, {
-      ...context,
-      uploads: {
-        uploadOf: (token) => uploads.get(token) ?? null,
-        dropUpload: drop,
-      },
-    }),
+    ...createChatEdit(env, withUploads),
+    ...createProfile(env, withUploads),
   };
 };
 

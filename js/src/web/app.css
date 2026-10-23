@@ -6348,3 +6348,29 @@ button[aria-busy='true']::before {
   text-decoration: none;
   cursor: pointer;
 }
+
+/* R-Y136: the user's own Telegram profile (My Account). */
+.profile-photo-row .profile-photo {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.profile-bio,
+.profile-username {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.profile-username-available {
+  color: var(--ok, #2a9d4a);
+}
+.profile-username-taken,
+.profile-username-invalid {
+  color: var(--danger, #d33);
+}
+.profile-phone {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

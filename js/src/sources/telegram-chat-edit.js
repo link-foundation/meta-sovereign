@@ -188,23 +188,29 @@ const step = async (use) => {
   }
 };
 
-// The photo to set: the page's upload sent to Telegram, or none.
-const photoOf = async (c, uploads, wanted) => {
-  if (wanted === 'remove') {
-    return new c.Api.InputChatPhotoEmpty();
-  }
-  const entry = uploads?.uploadOf?.(wanted);
+// The page's upload sent to Telegram: its InputFile, or null (R-Y136
+// sends a profile photo the same way).
+export const uploadedFile = async (c, uploads, token) => {
+  const entry = uploads?.uploadOf?.(token);
   if (!entry?.path) {
     return null;
   }
   const telegram = await c.env.importer();
   const CustomFile =
     telegram.client?.uploads?.CustomFile ?? telegram.CustomFile;
-  const file = await c.client.uploadFile({
+  return c.client.uploadFile({
     file: new CustomFile(entry.name, entry.size, entry.path),
     workers: 1,
   });
-  return new c.Api.InputChatUploadedPhoto({ file });
+};
+
+// The photo to set: the page's upload sent to Telegram, or none.
+const photoOf = async (c, uploads, wanted) => {
+  if (wanted === 'remove') {
+    return new c.Api.InputChatPhotoEmpty();
+  }
+  const file = await uploadedFile(c, uploads, wanted);
+  return file ? new c.Api.InputChatUploadedPhoto({ file }) : null;
 };
 
 const editRequests = (c, { chat, peer, title, about, photo }) => {
