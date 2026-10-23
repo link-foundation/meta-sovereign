@@ -960,6 +960,13 @@ export const api = {
   telegramGroupCreate: (body = {}) => telegramPost('group-create', body),
   telegramChannelCreate: (body = {}) => telegramPost('channel-create', body),
   telegramChatEdit: (body = {}) => telegramPost('chat-edit', body),
+  // A group's permissions, slow mode and recent actions (R-Y133).
+  telegramChatPermissions: (body = {}) =>
+    telegramPost('chat-permissions', body),
+  telegramChatPermissionsSet: (body = {}) =>
+    telegramPost('chat-permissions-set', body),
+  telegramSlowMode: (body = {}) => telegramPost('slow-mode', body),
+  telegramAdminLog: (body = {}) => telegramPost('admin-log', body),
   // A group's members ({ chat, q, offset, limit }) and one removed
   // ({ chat, user }) (R-Y125).
   telegramMembers: (body = {}) => telegramPost('members', body),

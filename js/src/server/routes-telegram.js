@@ -124,6 +124,13 @@
  *                                      -> { ok } a chat's name, description
  *                                         and photo (an upload's token, or
  *                                         "remove") changed
+ *   POST /api/telegram/chat-permissions {chat} -> { ok, rights, slowMode,
+ *                       canEdit } what members may do (true: allowed)
+ *   POST /api/telegram/chat-permissions-set {chat, rights} -> { ok } only
+ *                       the known boolean rights, changed (R-Y133)
+ *   POST /api/telegram/slow-mode {chat, seconds} -> { ok } seconds 0, 10,
+ *                       30, 60, 300, 900 or 3600
+ *   POST /api/telegram/admin-log {chat, maxId?} -> { ok, events, next }
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
@@ -194,6 +201,7 @@ import { SHARED_KINDS } from '../sources/telegram-shared.js';
 import { STICKER_SAVES } from '../sources/telegram-stickers.js';
 import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
+import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -870,6 +878,7 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
+  ...ADMIN_POSTS,
   // A group's members and removing one (R-Y125).
   members: async (account, body) =>
     GROUP_CHAT.test(String(body.chat ?? '')) &&

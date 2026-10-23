@@ -104,6 +104,11 @@ export const canEditIn = (entity = {}) =>
     !entity.defaultBannedRights.changeInfo &&
     !entity.bannedRights?.changeInfo);
 
+// Whether the user may ban people and so set the group's permissions: its
+// creator, or an admin with the right to ban users (R-Y133).
+export const canBanIn = (entity = {}) =>
+  Boolean(entity.creator || entity.adminRights?.banUsers);
+
 // The primary invite link the full chat carries, for those who may see it.
 const inviteOf = (entity, full) =>
   canInviteIn(entity) && typeof full.exportedInvite?.link === 'string'
@@ -129,6 +134,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     canPin: canPinIn(entity),
     broadcast: Boolean(entity.broadcast),
     canEdit: canEditIn(entity),
+    canBan: canBanIn(entity),
     ...inviteOf(entity, full),
   };
 };
@@ -152,6 +158,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     pinned: full.pinnedMsgId ?? null,
     canPin: canPinIn(entity),
     canEdit: canEditIn(entity),
+    canBan: canBanIn(entity),
     ...inviteOf(entity, full),
   };
 };

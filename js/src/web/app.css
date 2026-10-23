@@ -6254,3 +6254,43 @@ button[aria-busy='true']::before {
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+/* A group's permissions, slow mode and recent actions (R-Y133). */
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.6rem 0;
+}
+.admin-open {
+  text-align: left;
+}
+.admin-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.admin-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+.admin-slow {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+}
+.admin-event {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.3rem 0;
+}
+.admin-event-text {
+  overflow-wrap: anywhere;
+}
+.admin-event-when {
+  margin-left: auto;
+}
