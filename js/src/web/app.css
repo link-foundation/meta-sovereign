@@ -6374,3 +6374,40 @@ button[aria-busy='true']::before {
   align-items: center;
   gap: 0.5rem;
 }
+
+/* R-Y139: Privacy and security (rules, sessions, blocked users). */
+.privacy-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.privacy-section h4 {
+  margin: 0.5rem 0 0;
+}
+.privacy-row,
+.privacy-session,
+.privacy-blocked-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.privacy-label,
+.privacy-blocked-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.privacy-label {
+  display: flex;
+}
+.privacy-confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

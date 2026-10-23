@@ -130,6 +130,8 @@
     "test:e2e:chat-create:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-create-browser.mjs",
     "test:e2e:profile": "node js/tests/e2e-profile-browser.mjs",
     "test:e2e:profile:webkit": "E2E_BROWSER=webkit node js/tests/e2e-profile-browser.mjs",
+    "test:e2e:privacy": "node js/tests/e2e-privacy-browser.mjs",
+    "test:e2e:privacy:webkit": "E2E_BROWSER=webkit node js/tests/e2e-privacy-browser.mjs",
     "test:e2e:members": "node js/tests/e2e-members-browser.mjs",
     "test:e2e:members:webkit": "E2E_BROWSER=webkit node js/tests/e2e-members-browser.mjs",
     "test:e2e:peer-actions": "node js/tests/e2e-peer-actions-browser.mjs",

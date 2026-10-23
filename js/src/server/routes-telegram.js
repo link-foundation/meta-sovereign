@@ -152,6 +152,19 @@
  *   POST /api/telegram/profile-photo {token} | {remove: true}
  *                                      -> { ok } an upload set as the photo,
  *                                         or the photo removed
+ *   POST /api/telegram/privacy         -> { ok, keys: [{ key, choice,
+ *                                         label, allow, disallow,
+ *                                         options }] } who can see what
+ *                                         (R-Y139)
+ *   POST /api/telegram/privacy-set {key, choice}
+ *                                      -> { ok, ...key } choice everybody,
+ *                                         contacts or nobody; exceptions kept
+ *   POST /api/telegram/sessions        -> { ok, ttlDays, sessions } devices
+ *   POST /api/telegram/session-terminate {hash} -> { ok } not the current one
+ *   POST /api/telegram/sessions-terminate-others -> { ok }
+ *   POST /api/telegram/blocked {offset?, limit?}
+ *                                      -> { ok, count, items, next }
+ *   POST /api/telegram/unblock {id, accessHash} -> { ok }
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
@@ -223,6 +236,7 @@ import { STICKER_SAVES } from '../sources/telegram-stickers.js';
 import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
+import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -927,6 +941,7 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  ...PRIVACY_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(
     'myProfile',

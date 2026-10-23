@@ -974,6 +974,16 @@ export const api = {
   telegramUsernameCheck: (body = {}) => telegramPost('username-check', body),
   telegramUsernameSave: (body = {}) => telegramPost('username-save', body),
   telegramProfilePhoto: (body = {}) => telegramPost('profile-photo', body),
+  // Privacy and security (R-Y139).
+  telegramPrivacy: () => telegramPost('privacy', {}),
+  telegramPrivacySet: (body = {}) => telegramPost('privacy-set', body),
+  telegramAuthorizations: () => telegramPost('sessions', {}),
+  telegramSessionTerminate: (body = {}) =>
+    telegramPost('session-terminate', body),
+  telegramSessionsTerminateOthers: () =>
+    telegramPost('sessions-terminate-others', {}),
+  telegramBlocked: (body = {}) => telegramPost('blocked', body),
+  telegramUnblock: (body = {}) => telegramPost('unblock', body),
   // A group's members ({ chat, q, offset, limit }) and one removed
   // ({ chat, user }) (R-Y125).
   telegramMembers: (body = {}) => telegramPost('members', body),

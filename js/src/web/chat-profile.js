@@ -11,6 +11,7 @@ import { useT } from './i18n.js';
 import { Field, FormDialog } from './chat-create.js';
 import { PhotoButtons, uploadPhoto } from './chat-edit.js';
 import { PeerAvatar } from './peer-avatar.js';
+import { PrivacyDialog } from './chat-privacy.js';
 
 const el = React.createElement;
 
@@ -248,7 +249,7 @@ const saveChanges = async (api, profile, form) => {
   return answers.length > 0 && failed ? (failed.code ?? 'failed') : null;
 };
 
-const Card = ({ api, t, profile, close, setError, error }) => {
+const Card = ({ api, t, profile, close, setError, error, openPrivacy }) => {
   const [form, setForm] = useState({
     firstName: profile.firstName,
     lastName: profile.lastName,
@@ -319,6 +320,17 @@ const Card = ({ api, t, profile, close, setError, error }) => {
         set: set('username'),
       }),
       el(PhoneRow, { key: 'ph', t, phone: profile.phone }),
+      // Privacy and security (R-Y139) opens over the card.
+      el(
+        'button',
+        {
+          key: 'pv',
+          type: 'button',
+          'data-action': 'open-privacy',
+          onClick: openPrivacy,
+        },
+        t('chat.profile.privacy')
+      ),
     ]
   );
 };
@@ -327,15 +339,29 @@ const ProfileDialog = ({ api, close }) => {
   const t = useT();
   const state = useProfile(api);
   const [error, setError] = useState(null);
+  const [privacy, setPrivacy] = useState(false);
   if (state.phase === 'ready') {
-    return el(Card, {
-      api,
-      t,
-      profile: state.profile,
-      close,
-      error,
-      setError,
-    });
+    // While Privacy and security is over the card, Escape and a click
+    // outside close only that dialog.
+    return el(React.Fragment, null, [
+      el(Card, {
+        key: 'c',
+        api,
+        t,
+        profile: state.profile,
+        close: privacy ? () => {} : close,
+        error,
+        setError,
+        openPrivacy: () => setPrivacy(true),
+      }),
+      privacy
+        ? el(PrivacyDialog, {
+            key: 'p',
+            api,
+            close: () => setPrivacy(false),
+          })
+        : null,
+    ]);
   }
   return el(
     FormDialog,
