@@ -213,6 +213,28 @@ const handleFile = async (account, req, res, ctx) => {
   return sendBytes(req, res, result);
 };
 
+// GET /api/telegram/story?peer=&id= -> a story's picture or video, by
+// range (R-Y140). The peer and the id are digits only.
+const handleStory = async (account, req, res, ctx) => {
+  if (!fromApp(req, ctx?.allowOrigins)) {
+    return refuse(req, res, ctx, 'story', 'stories load only in the app');
+  }
+  if (typeof account.storyMedia !== 'function') {
+    return json(res, 501, { error: 'stories not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  const peer = query.get('peer') ?? '';
+  const id = query.get('id') ?? '';
+  if (!/^-?\d{1,20}$/.test(peer) || !/^[1-9]\d{0,9}$/.test(id)) {
+    return json(res, 400, { error: 'bad story' }) ?? true;
+  }
+  const result = await account.storyMedia({ chat: peer, id: Number(id) });
+  if (!result?.buffer) {
+    return json(res, 404, { error: 'no story' }) ?? true;
+  }
+  return sendBytes(req, res, result);
+};
+
 // A photo not on disk yet is waited for this long, then asked again: a
 // photo on disk answers in a few ms, and a longer wait held one of the
 // browser's six connections for each photo still downloading (R-Y85).
@@ -308,6 +330,7 @@ export const GETS = {
   map: handleMap,
   'custom-emoji': handleCustomEmoji,
   file: handleFile,
+  story: handleStory,
   avatar: handleAvatar,
   'chat-info': handleChatInfo,
   'unread-marks': handleUnreadMarks,

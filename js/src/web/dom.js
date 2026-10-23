@@ -977,6 +977,19 @@ export const api = {
   telegramSavedDialogs: (body = {}) => telegramPost('saved-dialogs', body),
   telegramSavedHistory: (body = {}) => telegramPost('saved-history', body),
   telegramSavedDelete: (body = {}) => telegramPost('saved-delete', body),
+  // Viewing stories (R-Y140): the strip, one peer's, seen up to an id,
+  // and a story's picture or video.
+  telegramStories: (body = {}) => telegramPost('stories', body),
+  telegramStoriesPeer: (body = {}) => telegramPost('stories-peer', body),
+  telegramStoriesRead: (body = {}) => telegramPost('stories-read', body),
+  telegramStoryUrl: async ({ peer, id } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !peer || !id) {
+      return null;
+    }
+    const path = `/api/telegram/story?peer=${encodeURIComponent(peer)}&id=${encodeURIComponent(id)}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
   // The user's own profile (R-Y136).
   telegramProfile: () => telegramPost('profile', {}),
   telegramProfileSave: (body = {}) => telegramPost('profile-save', body),

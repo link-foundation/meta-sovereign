@@ -140,7 +140,15 @@ const ChatBadges = ({ chat, t }) => {
   ];
 };
 
-export const ChatItem = ({ api, chat, active, onSelect, onMenu }) => {
+// `storyUnread`: the peer has stories not yet seen (a ring, R-Y140).
+export const ChatItem = ({
+  api,
+  chat,
+  active,
+  onSelect,
+  onMenu,
+  storyUnread = false,
+}) => {
   const t = useT();
   const { chatTime } = useDates();
   const preview = chatPreview(t, chat);
@@ -148,7 +156,7 @@ export const ChatItem = ({ api, chat, active, onSelect, onMenu }) => {
     'button',
     {
       type: 'button',
-      className: active ? 'chat-item active' : 'chat-item',
+      className: `chat-item${active ? ' active' : ''}${storyUnread ? ' has-story' : ''}`,
       'data-chat': chat.key,
       'aria-current': active ? 'true' : undefined,
       onClick: () => onSelect(chat.key),

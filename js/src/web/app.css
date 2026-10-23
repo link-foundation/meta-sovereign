@@ -6738,3 +6738,194 @@ button[aria-busy='true']::before {
 .send-as-text small {
   color: var(--text-muted);
 }
+
+/* Viewing stories (R-Y140): the strip above the chat list, a ring round
+   the photo while some are unread, the full-screen viewer. */
+.stories-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.stories-toggle {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-subtle);
+}
+.stories-toggle svg {
+  transform: rotate(90deg);
+  transition: transform 0.15s ease;
+}
+.stories-strip.is-compact .stories-toggle svg {
+  transform: rotate(-90deg);
+}
+.stories-list {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  padding: 0.15rem 0.1rem 0.25rem;
+  scrollbar-width: thin;
+}
+.stories-strip.is-compact .stories-list {
+  gap: 0;
+}
+.story-peer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  flex: none;
+  width: 3.9rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+.stories-strip.is-compact .story-peer {
+  width: auto;
+  margin-inline-end: -0.45rem;
+}
+.story-ring {
+  display: inline-grid;
+  padding: 2px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.story-peer.has-unread .story-ring {
+  background: linear-gradient(135deg, #34c759, var(--link));
+}
+.story-ring .story-avatar {
+  width: 3.1rem;
+  height: 3.1rem;
+  border: 2px solid var(--bg);
+  box-sizing: content-box;
+}
+.stories-strip.is-compact .story-ring .story-avatar {
+  width: 1.7rem;
+  height: 1.7rem;
+  font-size: 0.65rem;
+}
+.story-peer-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-item.has-story > .avatar {
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px #34c759;
+}
+.story-viewer {
+  position: fixed;
+  inset: 0;
+  /* Above the sticky header (2001) and the tutorial overlay (2000). */
+  z-index: 2500;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.92);
+}
+.story-frame {
+  position: relative;
+  height: min(100dvh, 960px);
+  aspect-ratio: 9 / 16;
+  max-width: 100vw;
+  max-height: 100dvh;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #111;
+  color: #fff;
+}
+.story-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.story-bars {
+  position: absolute;
+  inset: 0.5rem 0.5rem auto;
+  z-index: 3;
+  display: flex;
+  gap: 3px;
+}
+.story-bar {
+  flex: 1;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+}
+.story-bar > i {
+  display: block;
+  height: 100%;
+  background: #fff;
+}
+.story-head {
+  position: absolute;
+  inset: 1.1rem 0.5rem auto;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.story-head .story-head-avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+.story-head-name {
+  font-weight: 600;
+}
+.story-head-date {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.story-head-space {
+  flex: 1;
+}
+.story-btn {
+  color: #fff;
+}
+.story-zone {
+  position: absolute;
+  top: 3.6rem;
+  bottom: 0;
+  z-index: 1;
+  width: 50%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.story-zone.is-left {
+  left: 0;
+}
+.story-zone.is-right {
+  right: 0;
+}
+.story-caption {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  max-height: 40%;
+  overflow-y: auto;
+  padding: 2rem 1rem 1rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.story-text {
+  position: absolute;
+  inset: 40% 1rem auto;
+  z-index: 2;
+  text-align: center;
+  opacity: 0.85;
+}

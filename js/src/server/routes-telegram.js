@@ -175,6 +175,13 @@
  *                       -> { ok, messages, complete } what was saved from
  *                       one chat, oldest first
  *   POST /api/telegram/saved-delete {peer} -> { ok } all saved from it
+ *   POST /api/telegram/stories {state?} -> { ok, peers, state, more } the
+ *                       strip: who has stories, a page at a time (R-Y140)
+ *   POST /api/telegram/stories-peer {chat} -> { ok, peer, stories } one
+ *                       peer's stories to show
+ *   POST /api/telegram/stories-read {chat, maxId} -> { ok } seen up to maxId
+ *   GET  /api/telegram/story?peer=&id= -> a story's picture or video (by
+ *                       range), downloaded once
  *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
  *                                         about, username, phone, hasPhoto,
  *                                         aboutMax } the user's own profile
@@ -280,6 +287,7 @@ import { INLINE_POSTS } from './routes-telegram-inline.js';
 import { TTL_POSTS } from './routes-telegram-ttl.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
 import { validSendAs } from '../sources/telegram-send-as-client.js';
+import { STORIES_POSTS } from './routes-telegram-stories.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -994,6 +1002,7 @@ const POSTS = {
   ...INLINE_POSTS,
   ...TTL_POSTS,
   ...SEND_AS_POSTS,
+  ...STORIES_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(
     'myProfile',

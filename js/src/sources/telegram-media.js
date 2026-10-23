@@ -34,7 +34,7 @@ const text = (value) =>
 // GramJS sizes its download parts by `fileSize.lesser(…)`: a plain
 // number throws ("fileSize.lesser is not a function"), so every photo,
 // sticker and file would fail.
-const bigSize = (helpers, size) =>
+export const bigSize = (helpers, size) =>
   helpers.returnBigInt(String(Math.max(0, Math.floor(Number(size) || 0))));
 
 const bytesOf = (value) => {
@@ -114,7 +114,7 @@ export const pictureOf = (raw, want = 'm') => {
   return doc?.id ? documentPicture(doc, want) : null;
 };
 
-const locationOf = (Api, helpers, picture) => {
+export const locationOf = (Api, helpers, picture) => {
   const big = (value) => helpers.returnBigInt(text(value));
   const fields = {
     id: big(picture.file.id),
@@ -132,7 +132,7 @@ const expired = (error) =>
     String(error?.errorMessage ?? error?.message ?? '')
   );
 
-const readCache = async (file) => {
+export const readCache = async (file) => {
   try {
     const buffer = await fs.readFile(file);
     return buffer.length > 0 ? buffer : null;

@@ -1,5 +1,5 @@
 // The chat list beside the chat (R-Y31, R-Y49, R-Y68, R-Y71, R-Y97,
-// R-Y103): the search box, the sort, the tabs (All / Private / Groups /
+// R-Y103, R-Y140): the stories strip, the search box, the sort, the tabs (All / Private / Groups /
 // Channels, or Telegram's folders), the archive's row, the chats a page
 // at a time; while something is typed, what Telegram finds across all
 // chats under them (R-Y107).
@@ -15,6 +15,7 @@ import { MyProfile } from './chat-profile.js';
 import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
 import { GlobalResults, useGlobalSearch } from './chat-global.js';
+import { StoriesStrip, useStories } from './stories.js';
 
 const el = React.createElement;
 
@@ -244,6 +245,10 @@ const globalProps = (api, state, global) => ({
     ),
 });
 
+// Stories give way to a search and to the archive.
+const storiesHidden = (state) =>
+  Boolean(state.query) || state.folder === 'archive';
+
 export const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
@@ -251,12 +256,14 @@ export const Sidebar = ({ state, api }) => {
   const page = useShownChats(list, state);
   useListLoading(list, state, page.chats.length);
   const global = useGlobalSearch(api, state.query, globalOn(state));
+  const stories = useStories(api, globalOn(state));
   const oldest = state.sort === 'oldest';
   const item = (chat) =>
     el(ChatRow, {
       key: chat.key,
       api,
       chat,
+      storyUnread: stories.rings(chat),
       active: chat.key === state.current?.key,
       onSelect: state.select,
       onMenu: listMenu.onMenu,
@@ -293,6 +300,12 @@ export const Sidebar = ({ state, api }) => {
         onChange: (event) => state.setQuery(event.target.value),
       }),
       el(FilterTabs, { key: 'f', state }),
+      el(StoriesStrip, {
+        key: 'stories',
+        api,
+        stories,
+        hidden: storiesHidden(state),
+      }),
     ]),
     el(
       'nav',
