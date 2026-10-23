@@ -30,6 +30,8 @@ export const EVENT_PREFIXES = Object.freeze([
   'requests:',
   // Folders changed on another device (R-Y172): the tabs follow.
   'folders-live:',
+  // A voice's transcription as it arrives (R-Y175).
+  'transcript:',
   'person:',
   'history:',
   'sync:telegram',

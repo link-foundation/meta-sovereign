@@ -65,6 +65,7 @@ import { createReadersActions } from './telegram-readers.js';
 import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
+import { createTranscribe } from './telegram-transcribe.js';
 import { createEffects } from './telegram-effects.js';
 import { createEmojiStatus } from './telegram-emoji-status.js';
 import { createMessageLinks } from './telegram-message-links.js';
@@ -419,7 +420,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y169); channel boosts (R-Y173); chat themes and several usernames
 // (R-Y170); saving a chat's GIF and viewing a forum as messages (R-Y171);
 // archive settings, logged-in websites and pinned Saved Messages chats
-// (R-Y174); live folders, drag to reorder and shared folders (R-Y172).
+// (R-Y174); live folders, drag to reorder and shared folders (R-Y172); voice
+// and video note transcription (R-Y175).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -462,6 +464,7 @@ const chatActions = (env, context) => {
     ...createWebApps(env, context),
     ...createMapActions(env, context),
     ...createTranslate(env, context),
+    ...createTranscribe(env, context),
     ...createStories(env, context),
     ...createStoryActions(env, context),
     ...createLinkPreview(env, context),

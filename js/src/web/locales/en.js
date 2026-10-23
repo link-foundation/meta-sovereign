@@ -9,12 +9,14 @@ import { enChat } from './en-chat.js';
 import { enChatMore } from './en-chat-more.js';
 import { enChatAccount } from './en-chat-account.js';
 import { enFolders } from './en-folders.js';
+import { enTranscribe } from './en-transcribe.js';
 
 export const en = {
   ...enChat,
   ...enChatMore,
   ...enChatAccount,
   ...enFolders,
+  ...enTranscribe,
   appName: 'meta-sovereign',
   skipLink: 'Skip to main content',
   'header.theme': 'Theme',

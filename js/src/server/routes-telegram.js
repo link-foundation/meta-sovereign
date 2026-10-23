@@ -154,7 +154,7 @@
  *   POST /api/telegram/peer-block {chat, block} -> { ok, blocked }
  *   POST /api/telegram/peer-contact {chat, add, firstName?, lastName?,
  *                                    share?} -> { ok, contact }
- *   POST /api/telegram/peer-report {chat, option?, message?} -> { ok,
+ *   POST /api/telegram/peer-report {chat, option?, message?, ids?} -> { ok,
  *                  result: choose{title, options} | comment{optional,
  *                  option} | reported } (R-Y128)
  *   POST /api/telegram/peer-report-spam {chat} -> { ok }
@@ -206,6 +206,7 @@ import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { SAVED_GIFS_POSTS } from './routes-telegram-saved-gifs.js';
 import { FORUM_VIEW_POSTS } from './routes-telegram-forum-view.js';
+import { TRANSCRIBE_POSTS } from './routes-telegram-transcribe.js';
 import { FOLDER_EDIT_POSTS } from './routes-telegram-folder-edit.js';
 import { CHATLIST_POSTS } from './routes-telegram-chatlists.js';
 import { STICKER_SETTINGS_POSTS } from './routes-telegram-sticker-settings.js';
@@ -970,6 +971,7 @@ const POSTS = {
   ...ADMIN_POSTS,
   ...SAVED_GIFS_POSTS,
   ...FORUM_VIEW_POSTS,
+  ...TRANSCRIBE_POSTS,
   ...FOLDER_EDIT_POSTS,
   ...CHATLIST_POSTS,
   ...WEB_APPS_POSTS,

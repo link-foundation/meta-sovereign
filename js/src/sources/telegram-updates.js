@@ -21,6 +21,10 @@
  *   { kind: 'typing', chat, user, typing }        someone types (or stops)
  *   { kind: 'poll', chat, id, pollId, poll, results }
  *                                                 a poll's results moved
+ *   { kind: 'transcript', chat, id, transcriptionId, text, pending }
+ *                                                 a voice or video note's
+ *                                                 transcription moved
+ *                                                 (R-Y175)
  *   { kind: 'requests', chat, pending, recent, entities }
  *                                                 people waiting to join the
  *                                                 chat, how many and the
@@ -142,6 +146,15 @@ const SIMPLE_EFFECTS = {
     pollId: u.pollId === undefined ? null : String(u.pollId),
     poll: u.poll ? rawMessage(u.poll) : null,
     results: rawMessage(u.results ?? null),
+  }),
+  // A voice or video note's transcription, partial or final (R-Y175).
+  UpdateTranscribedAudio: (u) => ({
+    kind: 'transcript',
+    chat: peerChatId(u.peer),
+    id: Number(u.msgId) || null,
+    transcriptionId: String(u.transcriptionId),
+    text: String(u.text ?? ''),
+    pending: Boolean(u.pending),
   }),
   UpdateDeleteMessages: (u) => ({ kind: 'delete', chat: null, ids: ids(u) }),
   UpdateDeleteChannelMessages: (u) => ({

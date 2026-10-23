@@ -16,6 +16,11 @@ import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
 import { liveLines } from './live-place.js';
 import { LottieSticker } from './lottie-sticker.js';
+import {
+  Transcribable,
+  TranscribeButton,
+  useTranscribe,
+} from './chat-transcribe.js';
 
 const el = React.createElement;
 
@@ -260,9 +265,11 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
   const done = length > 0 ? player.at / length : 0;
   const voice = media.type === 'voice';
   const press = () => (src ? player.toggle() : setWanted(true));
-  return el(
+  // "→A" beside a voice note's waveform, its text under it (R-Y175).
+  const words = useTranscribe({ api, chat, msgId, enabled: voice });
+  const row = el(
     'div',
-    { className: voice ? 'bubble-audio voice' : 'bubble-audio' },
+    { key: 'row', className: voice ? 'bubble-audio voice' : 'bubble-audio' },
     [
       el(
         'button',
@@ -305,8 +312,10 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
           player.at > 0 ? clockOf(player.at) : clockOf(length)
         ),
       ]),
+      el(TranscribeButton, { key: 'words', state: words }),
     ]
   );
+  return el(Transcribable, { state: words }, row);
 };
 
 // What shows of a sticker while nothing plays: its picture, its blurred

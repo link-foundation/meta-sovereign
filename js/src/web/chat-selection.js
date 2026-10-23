@@ -103,6 +103,18 @@ const LEAVES = new Set([
   'saveMessageGif',
 ]);
 
+/**
+ * Whether the menu offers "Report" on `message` (R-Y175): another's sent
+ * message in a group or channel.
+ */
+export const canReport = (message, chat = {}) =>
+  message?.source === 'telegram' &&
+  chat.personal !== true &&
+  !isMine(message) &&
+  !message.pending &&
+  !message.service &&
+  networkMessageId(message) !== null;
+
 // Anyone pins in a private chat; a group or channel says if they may.
 const canPin = (message, { personal, info }) =>
   message?.source === 'telegram' &&
@@ -195,6 +207,7 @@ const singleItems = ({
     hasTranslation(message) && 'translate',
     'forward',
     'delete',
+    canReport(message, chat) && 'report',
     hasReaders(message, chat) && 'readers',
     hasReactors(message) && 'reactors',
     'select',
@@ -211,6 +224,7 @@ const selectedItems = (message, selection, order) => {
       selection.canCopy !== false && 'copySelectedItems',
       selection.canForward && 'forwardSelected',
       'deleteSelected',
+      selection.canReport && 'reportSelected',
       selection.anyPinned && 'unpinSelected',
       'clearSelection',
     ].filter(Boolean);
@@ -582,15 +596,18 @@ const TopButton = ({ action, label, count, onClick, filled = true }) =>
 
 /**
  * The chat's top bar while messages are selected, as Desktop's: FORWARD
- * n (when all of them can be forwarded) and DELETE n on the left, CANCEL
+ * n (when all of them can be forwarded), DELETE n and — when all are
+ * others' in a group or channel — REPORT n (R-Y175) on the left, CANCEL
  * on the right.
  */
 export const SelectionTop = ({
   count,
   canForward = true,
+  canReport = false,
   onClear,
   onForward,
   onDelete,
+  onReport,
 }) => {
   const t = useT();
   return el(
@@ -613,6 +630,15 @@ export const SelectionTop = ({
         count,
         onClick: onDelete,
       }),
+      canReport
+        ? el(TopButton, {
+            key: 'r',
+            action: 'report',
+            label: t('chat.selection.report'),
+            count,
+            onClick: onReport,
+          })
+        : null,
       el('span', { key: 'gap', className: 'selection-top-gap' }),
       el(TopButton, {
         key: 'c',

@@ -992,6 +992,9 @@ export const api = {
   // offset? }) (R-Y127).
   telegramReaders: (body = {}) => telegramPost('readers', body),
   telegramTranslate: (body = {}) => telegramPost('translate', body),
+  // Voice and video note transcription (R-Y175).
+  telegramTranscribe: (body = {}) => telegramPost('transcribe', body),
+  telegramTranscribeRate: (body = {}) => telegramPost('transcribe-rate', body),
   telegramBotCommands: (body = {}) => telegramPost('bot-commands', body),
   // Bot mini apps (R-Y168).
   telegramWebAppOpen: (body = {}) => telegramPost('web-app-open', body),

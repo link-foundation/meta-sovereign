@@ -44,6 +44,7 @@ import {
   windowMessages,
 } from './chat-window.js';
 import { splitTopicKey } from './forum-topics.js';
+import { useTranscriptFeed } from './chat-transcribe.js';
 import { topicMessages, useForumTopics, viewedChat } from './chat-topics.js';
 import { useAutopilotBase } from './autopilot-hook.js';
 import {
@@ -998,6 +999,8 @@ export const useChatState = (
   const banner = useConnectionBanner(live, telegram);
 
   const typingNow = useTypingIn(api, current, { tick, pollMs, links });
+  // Voice transcriptions the server learned (R-Y175).
+  useTranscriptFeed(links);
   return {
     loading: links === null,
     live,

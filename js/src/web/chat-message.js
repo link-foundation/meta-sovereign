@@ -370,6 +370,9 @@ const MENU_ITEMS = {
   copyPostLink: ['chat.copyPostLink', 'link'],
   forward: ['chat.forward', 'forward'],
   delete: ['chat.delete', 'trash'],
+  // Reporting messages (R-Y175).
+  report: ['chat.peer.report', 'flag'],
+  reportSelected: ['chat.peer.report', 'flag'],
   select: ['chat.select', 'select'],
   // Who read it, who reacted (R-Y127).
   translate: ['chat.translate.item', 'globe'],

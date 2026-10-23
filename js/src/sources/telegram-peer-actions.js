@@ -6,8 +6,9 @@
  * - `peerContact({ chat, add, firstName, lastName, share })` — "Add to
  *   contacts" with the name typed (contacts.addContact; `share` lets them
  *   see our phone number) / "Delete contact" (contacts.deleteContacts);
- * - `peerReport({ chat, option, message })` — "Report" as layer 225 has
- *   it (messages.report on the whole chat, no message ids): the first
+ * - `peerReport({ chat, option, message, ids })` — "Report" as layer 225
+ *   has it (messages.report on the whole chat, or — with `ids`, up to a
+ *   hundred message ids of the chat, R-Y175 — on those messages): the first
  *   call, with no option, answers `{ result: 'choose', title, options:
  *   [{ text, option }] }`; a call with a chosen `option` (base64 of its
  *   bytes) answers `choose` again (a narrower list), `comment` (Telegram
@@ -132,7 +133,7 @@ const report = async (c, peer, request) =>
     await c.client.invoke(
       new c.Api.messages.Report({
         peer,
-        id: [],
+        id: request.ids ?? [],
         option: bytesOf(request.option),
         message: request.message ?? '',
       })
@@ -182,8 +183,16 @@ const validContact = (chat, r) =>
       r.firstName.trim() !== '' &&
       (r.lastName === undefined || text(r.lastName, 64))));
 
+const validIds = (ids) =>
+  ids === undefined ||
+  (Array.isArray(ids) &&
+    ids.length > 0 &&
+    ids.length <= 100 &&
+    ids.every((id) => Number.isInteger(id) && id > 0));
+
 const validReport = (chat, r) =>
   CHAT.test(chat) &&
+  validIds(r.ids) &&
   (r.option === undefined || (text(r.option, 2048) && BASE64.test(r.option))) &&
   (r.message === undefined || text(r.message, 512));
 

@@ -29,6 +29,7 @@ import { useComments } from './chat-comments.js';
 import { useReaders } from './chat-readers.js';
 import { useTranslate } from './chat-translate.js';
 import { useSavedGifs } from './chat-saved-gifs.js';
+import { useReport } from './chat-report.js';
 import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
@@ -434,6 +435,21 @@ const dialogsOf = ({ state, send, selection, open, close, stage }) => {
   ];
 };
 
+// Shift-click: everything from the last picked message to this one.
+const selectBulk = (selection, message, order) => {
+  const ids = bulkSelect(selection.ids, message.id, order);
+  if (ids) {
+    selection.set(ids);
+  }
+};
+
+// "Unpin" on a selection: each pinned message in it.
+const unpinAll = (send, list) => {
+  for (const one of list.filter((m) => m.raw?.pinned)) {
+    send.pin(one, { unpin: true });
+  }
+};
+
 /**
  * The open chat's message actions: `{ selection, onAction(action,
  * message, value), menuFor(message, { selectedText, target }), top,
@@ -468,6 +484,12 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const translate = useTranslate({ api });
   // Save GIF / Remove from GIFs on a GIF message (R-Y171).
   const gifs = useSavedGifs({ api, state });
+  // Other people's messages reported (R-Y175).
+  const report = useReport({
+    api,
+    chat: state.current,
+    onDone: selection.clear,
+  });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -509,20 +531,12 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       delete: () => setDeleting(expandAlbums([message])),
       edit: () => state.composer.startEdit(message),
       select: () => selection.add(message.id),
-      selectBulk: () => {
-        const ids = bulkSelect(selection.ids, message.id, order);
-        if (ids) {
-          selection.set(ids);
-        }
-      },
+      selectBulk: () => selectBulk(selection, message, order),
       copySelectedItems: copySelected,
       forwardSelected: () => setForwarding(chosen()),
       deleteSelected: () => setDeleting(chosen()),
-      unpinSelected: () => {
-        for (const one of chosen().filter((m) => m.raw?.pinned)) {
-          send.pin(one, { unpin: true });
-        }
-      },
+      ...report.actions(message, chosen),
+      unpinSelected: () => unpinAll(send, chosen()),
       clearSelection: selection.clear,
       react: () =>
         message.pending
@@ -545,6 +559,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const top = {
     count: selection.ids.length,
     canForward,
+    ...report.top(chosen()),
     onClear: selection.clear,
     onForward: () => setForwarding(chosen()),
     onDelete: () => setDeleting(chosen()),
@@ -569,6 +584,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
         has: selection.has,
         canForward,
         canCopy: !lockedAny,
+        canReport: top.canReport,
         anyPinned: chosen().some((m) => m.raw?.pinned),
       },
       order,
@@ -598,6 +614,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       comments.dialog,
       readers.dialog,
       translate.dialog,
+      report.dialog,
     ],
   };
 };

@@ -115,6 +115,7 @@ try {
         'translate',
         'forward',
         'delete',
+        'report',
         'select',
       ]),
     `single menu: ${await menu()}`
@@ -242,7 +243,7 @@ try {
   await page.mouse.up();
   await pause();
   assert(
-    (await top()) === 'FORWARD 2 DELETE 2 CANCEL',
+    (await top()) === 'FORWARD 2 DELETE 2 REPORT 2 CANCEL',
     `text→rows: ${await top()}`
   );
   assert(

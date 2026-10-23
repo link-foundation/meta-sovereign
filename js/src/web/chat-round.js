@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { mediaSrc } from './media-src.js';
 import { Poster, clockOf, useNearView, useUrl } from './chat-media.js';
+import { Transcribable, useTranscribe } from './chat-transcribe.js';
 
 const el = React.createElement;
 
@@ -96,9 +97,12 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
     setMode('idle');
     setProgress(0);
   };
-  return el(
+  // "→A" beside the circle, the text under it (R-Y175).
+  const words = useTranscribe({ api, chat, msgId });
+  const circle = el(
     'div',
     {
+      key: 'circle',
       ref: box,
       className: `bubble-round${mode === 'playing' ? ' playing' : ''}`,
       'data-round': mode,
@@ -153,4 +157,5 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
           ),
     ]
   );
+  return el(Transcribable, { state: words, round: true }, circle);
 };

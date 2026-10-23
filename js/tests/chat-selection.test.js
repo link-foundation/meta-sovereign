@@ -76,6 +76,7 @@ test('the menu lists what Telegram Desktop does, in its order', () => {
       'translate',
       'forward',
       'delete',
+      'report',
       'select',
     ]
   );
@@ -144,6 +145,7 @@ test('a photo offers Save As and Copy Image; a sticker Save As', () => {
       'translate',
       'forward',
       'delete',
+      'report',
       'select',
     ]
   );
@@ -153,7 +155,7 @@ test('a photo offers Save As and Copy Image; a sticker Save As', () => {
       chat,
       target: { sticker: true },
     }),
-    ['reply', 'saveAs', 'copyLink', 'forward', 'delete', 'select']
+    ['reply', 'saveAs', 'copyLink', 'forward', 'delete', 'report', 'select']
   );
 });
 

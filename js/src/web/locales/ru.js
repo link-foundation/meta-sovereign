@@ -8,12 +8,14 @@ import { ruChat } from './ru-chat.js';
 import { ruChatMore } from './ru-chat-more.js';
 import { ruChatAccount } from './ru-chat-account.js';
 import { ruFolders } from './ru-folders.js';
+import { ruTranscribe } from './ru-transcribe.js';
 
 export const ru = {
   ...ruChat,
   ...ruChatMore,
   ...ruChatAccount,
   ...ruFolders,
+  ...ruTranscribe,
   appName: 'meta-sovereign',
   skipLink: 'Перейти к основному содержимому',
   'header.theme': 'Тема',

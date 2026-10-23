@@ -34,6 +34,7 @@ import { typingLink } from './live-links.js';
 import { stampSourceLink } from './index.js';
 import { messageSenderId, updateEffect } from './telegram-updates.js';
 import { pollWriter } from './telegram-polls.js';
+import { transcriptWriter } from './telegram-transcribe.js';
 
 const SOURCE = 'telegram';
 
@@ -484,6 +485,7 @@ export const createTelegramLive = ({
     requests: (_client, effect) => requestsWriter(store, now, effect),
     'folders-live': (_client, effect) => foldersLiveWriter(store, now, effect),
     poll: (_client, effect) => pollWriter(store, effect),
+    transcript: (_client, effect) => transcriptWriter(store, effect, now),
   };
 
   const apply = async (client, effect) => {

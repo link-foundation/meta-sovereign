@@ -9038,3 +9038,74 @@ span.bubble-effect {
 .folder-share-btn {
   align-self: flex-start;
 }
+
+/* Transcribing voice and video notes (R-Y175): "→A" beside the waveform
+   or the circle, the text under the message. */
+.transcribable {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.round-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.audio-transcribe {
+  flex: none;
+  min-width: 2rem;
+  height: 1.6rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.audio-transcribe.on {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+.audio-transcribe:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-width: 18rem;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.transcript[data-transcript='pending'] .transcript-text {
+  opacity: 0.8;
+}
+.transcript-pending {
+  animation: transcript-blink 1s ease-in-out infinite;
+}
+@keyframes transcript-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+.transcript-error {
+  color: var(--danger, #f85149);
+}
+.transcript-trial {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.transcript-rate button {
+  padding: 0 0.25rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.6;
+}
+.transcript-rate button.on {
+  opacity: 1;
+}
