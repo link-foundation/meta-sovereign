@@ -29,6 +29,7 @@ import { useComments } from './chat-comments.js';
 import { useReaders } from './chat-readers.js';
 import { useTranslate } from './chat-translate.js';
 import { useSavedGifs } from './chat-saved-gifs.js';
+import { useMusicSave } from './chat-music-save.js';
 import { useReport } from './chat-report.js';
 import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
@@ -484,6 +485,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const translate = useTranslate({ api });
   // Save GIF / Remove from GIFs on a GIF message (R-Y171).
   const gifs = useSavedGifs({ api, state });
+  // "Add to profile music" on a song message (R-Y185).
+  const saveMusic = useMusicSave({ api, state });
   // Other people's messages reported (R-Y175).
   const report = useReport({
     api,
@@ -519,6 +522,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       copyUrl: () => copy(value, 'link-copied'),
       saveMessageGif: () => gifs.toggle(message),
       unsaveMessageGif: () => gifs.toggle(message),
+      saveMessageMusic: () => saveMusic(message),
       copyLink: () => copy(linkOf(state, api, message), 'link-copied'),
       saveAs: () => saveMedia(api, chat, message, value === 'photo'),
       copyImage: () => copyImage(state, api, chat, message),

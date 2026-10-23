@@ -186,7 +186,7 @@ export const byteRange = (header, size) => {
 };
 
 // The bytes of a file, whole or the range the player asked for.
-const sendBytes = (req, res, { buffer, mimeType }) => {
+export const sendBytes = (req, res, { buffer, mimeType }) => {
   const size = buffer.length;
   const head = {
     'content-type': mimeType || 'application/octet-stream',

@@ -1022,6 +1022,15 @@ export const api = {
     const path = `/api/telegram/ringtone?id=${encodeURIComponent(id)}`;
     return origin ? new URL(path, origin).toString() : path;
   },
+  // A saved song's audio on a profile (R-Y185).
+  telegramMusicUrl: async ({ id } = {}) => {
+    const { origin } = await ensure();
+    if (!id) {
+      return null;
+    }
+    const path = `/api/telegram/music?id=${encodeURIComponent(id)}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
   passcode: passcodeCall,
   telegramScheduledReschedule: (body = {}) =>
     telegramPost('scheduled-reschedule', body),

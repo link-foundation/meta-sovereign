@@ -20,6 +20,9 @@ import { CommonChatsRow } from './chat-common-chats.js';
 import { StatsRow } from './chat-stats.js';
 import { BoostsRow } from './chat-boosts.js';
 import { GiftsRow } from './chat-stars.js';
+import { ProfileStoriesRow } from './profile-stories.js';
+import { MusicRow } from './profile-music.js';
+import { SendGiftRow } from './chat-send-gift.js';
 import { TtlActions } from './chat-ttl.js';
 import { ReactionsAction } from './chat-reactions.js';
 import { SettingsAction } from './chat-settings.js';
@@ -325,6 +328,10 @@ export const PersonPanel = ({
         el(AdminActions, { key: 'ad', api, chat, info }),
         el(InviteLinksActions, { key: 'il', api, chat, info }),
         el(BoostsRow, { key: 'bo', api, chat, info }),
+        // Pinned stories, saved music and a gift to send (R-Y185).
+        el(ProfileStoriesRow, { key: 'ps', api, chat }),
+        el(MusicRow, { key: 'mu', api, chat }),
+        el(SendGiftRow, { key: 'sg', api, chat }),
         el(GiftsRow, { key: 'gf', api, chat }),
         el(StatsRow, { key: 'st', api, chat, info }),
         el(TtlActions, { key: 'ttl', api, chat, info }),

@@ -36,8 +36,16 @@ const photoTime = () => Number(globalThis.__STORY_PHOTO_MS__) || PHOTO_MS;
 
 // The stories of the peers, each loaded when it is reached (and the next
 // one read ahead): peer id -> { status, stories, code }.
+// A peer that comes with its `stories` (a profile's pinned ones, R-Y185)
+// is not asked for.
 const useStoryLists = (api, peers, at) => {
-  const [lists, setLists] = useState({});
+  const [lists, setLists] = useState(() =>
+    Object.fromEntries(
+      peers
+        .filter((p) => Array.isArray(p.stories))
+        .map((p) => [p.peer, { status: 'ok', stories: p.stories }])
+    )
+  );
   const alive = useRef(true);
   useEffect(() => () => (alive.current = false), []);
   useEffect(() => {
@@ -581,6 +589,12 @@ const Zones = ({ t, step }) =>
     }),
   ]);
 
+// Where the viewer begins: a peer's first unseen story, or the one asked for.
+const startPosition = (peerIndex, story) => ({
+  peerIndex,
+  storyIndex: Number.isInteger(story) ? story : null,
+});
+
 export const StoryViewer = ({
   api,
   peers,
@@ -589,9 +603,10 @@ export const StoryViewer = ({
   onRead,
   onHide,
   onAdd,
+  startStory,
 }) => {
   const t = useT();
-  const [pos, setPos] = useState({ peerIndex: start, storyIndex: null });
+  const [pos, setPos] = useState(() => startPosition(start, startStory));
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
   const x = useExtras();

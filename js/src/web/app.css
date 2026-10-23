@@ -10043,3 +10043,101 @@ span.bubble-effect {
 .photo-editor-ratio {
   font: inherit;
 }
+
+/* Stories and music on a profile, sending a gift (R-Y185). */
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  gap: 0.35rem;
+}
+.story-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.story-cell-open {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.story-cell-open img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.story-cell.is-top .story-cell-open {
+  border-color: var(--accent);
+}
+.story-cell-video {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+}
+.story-cell-mark {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  font-size: 0.8rem;
+}
+.story-cell-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.story-cell-actions button {
+  padding: 0.1rem 0.25rem;
+  font-size: 0.7rem;
+}
+.story-albums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.2rem 0 0.5rem;
+}
+.story-albums button {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+.story-albums button.active {
+  background: var(--bg-active);
+  border-color: var(--accent);
+}
+.music-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.music-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+.music-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gift-cell.picked {
+  outline: 2px solid var(--accent);
+}
+.gift-marks {
+  font-size: 0.7rem;
+}
+[data-dialog='gift-pick'] .gift-grid {
+  max-height: 45vh;
+  overflow-y: auto;
+}

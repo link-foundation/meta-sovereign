@@ -36,6 +36,7 @@ import React, {
 } from 'react';
 import { networkMessageId } from './chat-model.js';
 import { gifIdOf } from './gif-id.js';
+import { isSongMessage } from './chat-music-save.js';
 import { hasReaders, hasReactors } from './chat-readers.js';
 import { hasTranslation } from './chat-translate.js';
 import { useT } from './i18n.js';
@@ -101,6 +102,7 @@ const LEAVES = new Set([
   'saveAs',
   'copyImage',
   'saveMessageGif',
+  'saveMessageMusic',
 ]);
 
 /**
@@ -202,6 +204,7 @@ const singleItems = ({
     canStopLive(message) && 'stopLive',
     ...mediaItems(target, sent),
     gifItem(message, gifs),
+    isSongMessage(message) && 'saveMessageMusic',
     copy,
     linkItem({ message, chat, info, target }),
     hasTranslation(message) && 'translate',

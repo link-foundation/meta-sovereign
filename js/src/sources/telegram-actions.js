@@ -99,6 +99,9 @@ import { createAccountExtras } from './telegram-account-extras.js';
 import { createSavedTags } from './telegram-saved-tags.js';
 import { createBoosts } from './telegram-boosts.js';
 import { createStars } from './telegram-stars.js';
+import { createGiftSend } from './telegram-gift-send.js';
+import { createProfileMusic } from './telegram-profile-music.js';
+import { createProfileStories } from './telegram-profile-stories.js';
 import { createProfileExtras } from './telegram-profile-extras.js';
 import { createBusiness } from './telegram-business.js';
 import { createBusinessLinks } from './telegram-business-links.js';
@@ -438,7 +441,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // Business quick replies, greeting and away messages (R-Y179); live view
 // counters of channel posts and hashtag search (R-Y182); Telegram Business
 // opening hours, location, intro, chat links, chatbots and folder tags
-// (R-Y180); notification sounds (R-Y181).
+// (R-Y180); notification sounds (R-Y181); stories and music on profiles and
+// sending a gift (R-Y185).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -515,6 +519,9 @@ const chatActions = (env, context) => {
     ...createSavedTags(env, context),
     ...createBoosts(env, context),
     ...createStars(env, { ...context, stickers: stickerLists }),
+    ...createGiftSend(env, { ...context, stickers: stickerLists }),
+    ...createProfileStories(env, context),
+    ...createProfileMusic(env, context),
     ...createProfileExtras(env, context),
     ...createBusiness(env, { ...context, stickers: stickerLists }),
     ...createBusinessLinks(env, context),

@@ -366,6 +366,8 @@ const MENU_ITEMS = {
   // A GIF message's (R-Y171).
   saveMessageGif: ['chat.stickers.saveGif', 'download'],
   unsaveMessageGif: ['chat.stickers.unsaveGif', 'trash'],
+  // A song message's (R-Y185).
+  saveMessageMusic: ['chat.music.add', 'download'],
   deleteGif: ['chat.stickers.unsaveGif', 'trash'],
   reply: ['chat.reply', 'reply'],
   quoteReply: ['chat.quoteReply', 'quote'],

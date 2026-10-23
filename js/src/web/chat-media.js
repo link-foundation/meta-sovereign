@@ -250,7 +250,7 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
 };
 
 // Play/pause of one <audio>, its position and length.
-const useAudio = (src, autoplay = true) => {
+export const useAudio = (src, autoplay = true) => {
   const audio = useRef(null);
   const [state, setState] = useState({ playing: false, at: 0, length: 0 });
   useEffect(() => {

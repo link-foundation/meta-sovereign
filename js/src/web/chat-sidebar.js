@@ -54,6 +54,7 @@ export const NOTICE = {
   copied: 'chat.notice.copied',
   'link-copied': 'chat.notice.linkCopied',
   'image-copied': 'chat.notice.imageCopied',
+  'music-saved': 'chat.music.saved',
   'date-failed': 'chat.days.failed',
   bot: 'chat.bot.toast',
   'bot-unsupported': 'chat.bot.unsupported',

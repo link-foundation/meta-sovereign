@@ -242,6 +242,11 @@ import { ACCOUNT_EXTRAS_POSTS } from './routes-telegram-account-extras.js';
 import { SAVED_TAGS_POSTS } from './routes-telegram-saved-tags.js';
 import { BOOSTS_POSTS } from './routes-telegram-boosts.js';
 import { STARS_POSTS } from './routes-telegram-stars.js';
+import { GIFT_SEND_POSTS } from './routes-telegram-gift-send.js';
+import {
+  PROFILE_STORIES_GETS,
+  PROFILE_STORIES_POSTS,
+} from './routes-telegram-profile-stories.js';
 import { PROFILE_EXTRAS_POSTS } from './routes-telegram-profile-extras.js';
 import { BUSINESS_POSTS } from './routes-telegram-business.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
@@ -1011,6 +1016,8 @@ const POSTS = {
   ...SAVED_TAGS_POSTS,
   ...BOOSTS_POSTS,
   ...STARS_POSTS,
+  ...GIFT_SEND_POSTS,
+  ...PROFILE_STORIES_POSTS,
   ...PROFILE_EXTRAS_POSTS,
   ...BUSINESS_POSTS,
   ...SEND_AS_POSTS,
@@ -1307,7 +1314,12 @@ POSTS['send-poll'] = async (account, body) => {
   ];
 };
 
-const ALL_GETS = { ...GETS, ...WALLPAPER_GETS, ...RINGTONE_GETS };
+const ALL_GETS = {
+  ...GETS,
+  ...WALLPAPER_GETS,
+  ...RINGTONE_GETS,
+  ...PROFILE_STORIES_GETS,
+};
 
 const dispatch = async (account, req, res, p, ctx) => {
   if (p === `${PREFIX}status` && req.method === 'GET') {
