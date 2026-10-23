@@ -29,6 +29,7 @@ import { UsernamesAction } from './chat-usernames.js';
 import { EditChat } from './chat-edit.js';
 import { AdminActions } from './chat-admin.js';
 import { InviteLinksActions } from './chat-invite-links.js';
+import { PersonalChannelCard } from './chat-person-extras.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
@@ -312,6 +313,7 @@ export const PersonPanel = ({
         chat?.source === 'telegram'
           ? el(ProfileHead, { key: 'p', api, chat, info })
           : null,
+        el(PersonalChannelCard, { key: 'pc', api, chat, info, onOpenChat }),
         el(EditChat, { key: 'e', api, chat, info }),
         chat?.source === 'telegram'
           ? el(InviteLink, { key: 'i', api, chat, info })

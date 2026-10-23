@@ -16,6 +16,7 @@ import { StickerSettingsDialog } from './chat-sticker-settings.js';
 import { EmojiStatusDialog, EmojiStatusRow } from './chat-emoji-status.js';
 import { ProfileUsernames } from './chat-usernames.js';
 import { StarsDialog } from './chat-stars.js';
+import { ProfileExtrasDialog } from './chat-profile-extras.js';
 
 const el = React.createElement;
 
@@ -263,6 +264,7 @@ const Card = ({
   openPrivacy,
   openStickers,
   openStars,
+  openExtras,
   emojiStatus,
   openStatus,
 }) => {
@@ -349,6 +351,19 @@ const Card = ({
         status: emojiStatus,
         onOpen: openStatus,
       }),
+      // Birthday, colours and personal channel (R-Y178) open over the card.
+      typeof api?.telegramProfileExtras === 'function'
+        ? el(
+            'button',
+            {
+              key: 'ex',
+              type: 'button',
+              'data-action': 'open-profile-extras',
+              onClick: openExtras,
+            },
+            t('chat.extras.open')
+          )
+        : null,
       // Privacy and security (R-Y139) opens over the card.
       el(
         'button',
@@ -390,61 +405,49 @@ const Card = ({
   );
 };
 
+// The dialogs that open over the card, by the card's button.
+const OVER = {
+  privacy: PrivacyDialog,
+  stickers: StickerSettingsDialog,
+  stars: StarsDialog,
+  extras: ProfileExtrasDialog,
+  status: EmojiStatusDialog,
+};
+
 const ProfileDialog = ({ api, close }) => {
   const t = useT();
   const state = useProfile(api);
   const [error, setError] = useState(null);
-  const [privacy, setPrivacy] = useState(false);
-  const [stickers, setStickers] = useState(false);
-  const [stars, setStars] = useState(false);
+  // Which dialog is over the card, if any.
+  const [over, setOver] = useState(null);
   // The emoji status (R-Y162): undefined is the one Telegram has.
-  const [picker, setPicker] = useState(false);
   const [chosen, setChosen] = useState(undefined);
   if (state.phase === 'ready') {
-    // While Privacy and security or the status picker is over the card,
-    // Escape and a click outside close only that dialog.
+    const Over = over ? OVER[over] : null;
+    // While another dialog is over the card, Escape and a click outside
+    // close only that dialog.
     return el(React.Fragment, null, [
       el(Card, {
         key: 'c',
         api,
         t,
         profile: state.profile,
-        close: privacy || picker || stickers || stars ? () => {} : close,
+        close: over ? () => {} : close,
         error,
         setError,
-        openPrivacy: () => setPrivacy(true),
-        openStickers: () => setStickers(true),
-        openStars: () => setStars(true),
+        openPrivacy: () => setOver('privacy'),
+        openStickers: () => setOver('stickers'),
+        openStars: () => setOver('stars'),
+        openExtras: () => setOver('extras'),
         emojiStatus: chosen === undefined ? state.profile.emojiStatus : chosen,
-        openStatus: () => setPicker(true),
+        openStatus: () => setOver('status'),
       }),
-      privacy
-        ? el(PrivacyDialog, {
-            key: 'p',
+      Over
+        ? el(Over, {
+            key: over,
             api,
-            close: () => setPrivacy(false),
-          })
-        : null,
-      stickers
-        ? el(StickerSettingsDialog, {
-            key: 'ss',
-            api,
-            close: () => setStickers(false),
-          })
-        : null,
-      stars
-        ? el(StarsDialog, {
-            key: 'st',
-            api,
-            close: () => setStars(false),
-          })
-        : null,
-      picker
-        ? el(EmojiStatusDialog, {
-            key: 'es',
-            api,
-            close: () => setPicker(false),
-            onChange: setChosen,
+            close: () => setOver(null),
+            ...(over === 'status' ? { onChange: setChosen } : {}),
           })
         : null,
     ]);

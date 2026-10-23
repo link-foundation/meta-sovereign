@@ -1076,6 +1076,17 @@ export const api = {
   telegramMyBoosts: (body = {}) => telegramPost('my-boosts', body),
   telegramBoostApply: (body = {}) => telegramPost('boost-apply', body),
   telegramBoosters: (body = {}) => telegramPost('boosters', body),
+  // Birthday, name and profile colours, personal channel (R-Y178).
+  telegramProfileExtras: () => telegramPost('profile-extras', {}),
+  telegramBirthdaySave: (body = {}) => telegramPost('birthday-save', body),
+  telegramProfileColors: () => telegramPost('profile-colors', {}),
+  telegramColorSave: (body = {}) => telegramPost('color-save', body),
+  telegramPersonalChannels: () => telegramPost('personal-channels', {}),
+  telegramPersonalChannelSave: (body = {}) =>
+    telegramPost('personal-channel-save', body),
+  telegramPersonalChannel: (body = {}) =>
+    telegramPost('personal-channel', body),
+  telegramContactBirthdays: () => telegramPost('contact-birthdays', {}),
   // Telegram Stars (R-Y176).
   telegramStarsStatus: () => telegramPost('stars-status', {}),
   telegramStarsHistory: (body = {}) => telegramPost('stars-history', body),

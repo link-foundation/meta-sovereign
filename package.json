@@ -152,6 +152,8 @@
     "test:e2e:contacts-edit:webkit": "E2E_BROWSER=webkit node js/tests/e2e-contacts-edit-browser.mjs",
     "test:e2e:profile": "node js/tests/e2e-profile-browser.mjs",
     "test:e2e:profile:webkit": "E2E_BROWSER=webkit node js/tests/e2e-profile-browser.mjs",
+    "test:e2e:profile-extras": "node js/tests/e2e-profile-extras-browser.mjs",
+    "test:e2e:profile-extras:webkit": "E2E_BROWSER=webkit node js/tests/e2e-profile-extras-browser.mjs",
     "test:e2e:privacy": "node js/tests/e2e-privacy-browser.mjs",
     "test:e2e:privacy:webkit": "E2E_BROWSER=webkit node js/tests/e2e-privacy-browser.mjs",
     "test:e2e:boosts": "node js/tests/e2e-boosts-browser.mjs",

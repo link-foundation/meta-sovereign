@@ -95,6 +95,7 @@ import { createAccountExtras } from './telegram-account-extras.js';
 import { createSavedTags } from './telegram-saved-tags.js';
 import { createBoosts } from './telegram-boosts.js';
 import { createStars } from './telegram-stars.js';
+import { createProfileExtras } from './telegram-profile-extras.js';
 import { createSendAs } from './telegram-send-as.js';
 import { createStories } from './telegram-stories.js';
 import { createStoryActions } from './telegram-story-actions.js';
@@ -425,7 +426,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y174); live folders, drag to reorder and shared folders (R-Y172); voice
 // and video note transcription (R-Y175); Telegram Stars: balance, history,
 // gifts, paid reactions and paid media (R-Y176); two-step verification, account
-// self-destruct, sensitive content and per-session settings (R-Y177).
+// self-destruct, sensitive content and per-session settings (R-Y177); a
+// birthday, colours and a personal channel on profiles (R-Y178).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -498,6 +500,7 @@ const chatActions = (env, context) => {
     ...createSavedTags(env, context),
     ...createBoosts(env, context),
     ...createStars(env, { ...context, stickers: stickerLists }),
+    ...createProfileExtras(env, context),
     ...createSendAs(env, context),
     ...createEffects(env, context),
     ...createEmojiStatus(env, context),

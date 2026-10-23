@@ -18,6 +18,7 @@ import { parseMessageParts } from './message-parts.js';
 import { mediaLabel } from './chat-message.js';
 import { networkMessageId } from './chat-model.js';
 import { useEdited } from './chat-edit.js';
+import { ProfileFrame } from './chat-person-extras.js';
 
 const el = React.createElement;
 
@@ -106,7 +107,7 @@ export const ProfileHead = ({ api, chat, info }) => {
   const was = useEdited(chat.key);
   const { chatTime } = useDates();
   const status = info ? infoLine(t, info, { kind: chat.kind, chatTime }) : '';
-  return el('div', { className: 'profile-head' }, [
+  return el(ProfileFrame, { api, info }, [
     el(ChatAvatar, { key: 'a', api, chat, size: 'b' }),
     el('div', { key: 'n', className: 'profile-name-row' }, [
       el(

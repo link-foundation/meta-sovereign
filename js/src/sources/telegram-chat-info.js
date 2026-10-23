@@ -21,6 +21,7 @@ import { themeOf } from './telegram-chat-themes.js';
 import { usernamesOf } from './telegram-usernames.js';
 import { canReactIn, reactionsOf } from './telegram-chat-reactions.js';
 import { settingsInfo } from './telegram-chat-settings.js';
+import { birthdayOf, colorOf } from './telegram-profile-extras.js';
 
 const CHAT = /^-?\d{1,20}$/;
 const CACHE_TTL_MS = 60_000;
@@ -269,6 +270,16 @@ const nameOf = (user) =>
   user.username ||
   null;
 
+// A person's birthday, profile colour and whether they show a personal
+// channel (R-Y178); the channel's card is read when the profile opens.
+const extrasOf = (user, full) => ({
+  ...(birthdayOf(full.birthday) ? { birthday: birthdayOf(full.birthday) } : {}),
+  ...(colorOf(user.profileColor)
+    ? { profileColor: colorOf(user.profileColor) }
+    : {}),
+  ...(full.personalChannelId ? { personalChannel: true } : {}),
+});
+
 const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
   const storedPeer = inputPeer ?? (await peers.input(chat));
   const id = inputUserOf(Api, helpers, storedPeer, chat);
@@ -295,6 +306,7 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     // Groups both belong to (R-Y158); the list is a separate call.
     commonChats: user.self ? 0 : Number(full.commonChatsCount) || 0,
     ...wallpaperOf(full),
+    ...extrasOf(user, full),
     // The theme of this chat, by its emoticon (R-Y170).
     ...(themeOf(full) ? { theme: themeOf(full) } : {}),
     ...(user.self ? { self: true } : {}),

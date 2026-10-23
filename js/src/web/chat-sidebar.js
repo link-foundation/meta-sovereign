@@ -19,6 +19,7 @@ import { CallsButton } from './chat-calls.js';
 import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
 import { GlobalResults, useGlobalSearch } from './chat-global.js';
+import { BirthdaysBlock } from './chat-person-extras.js';
 import { StoriesStrip, StoryViewerHost, useStories } from './stories.js';
 
 const el = React.createElement;
@@ -283,6 +284,14 @@ const globalProps = (api, state, global) => ({
 const storiesHidden = (state) =>
   Boolean(state.query) || state.folder === 'archive';
 
+// Contacts with a birthday today or soon (R-Y178), over the list.
+const BirthdaysHost = ({ api, state }) =>
+  el(BirthdaysBlock, {
+    api,
+    enabled: globalOn(state) && !storiesHidden(state),
+    onOpenChat: (target) => state.openAt?.(target),
+  });
+
 export const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
@@ -347,6 +356,7 @@ export const Sidebar = ({ state, api }) => {
         hidden: storiesHidden(state),
       }),
       el(StoryViewerHost, { key: 'viewer', api, stories }),
+      el(BirthdaysHost, { key: 'birthdays', api, state }),
     ]),
     el(
       'nav',

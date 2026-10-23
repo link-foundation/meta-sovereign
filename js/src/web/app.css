@@ -9322,3 +9322,120 @@ span.bubble-effect {
   flex-wrap: wrap;
   align-items: center;
 }
+
+/* Profile extras (R-Y178): birthday, colours, personal channel. */
+.birthday-mark {
+  margin-inline-start: 0.25em;
+}
+.profile-birthday {
+  margin: 0.25rem 0 0;
+  font-size: 0.9em;
+}
+.profile-head.profile-tinted {
+  color: #fff;
+  border-radius: 12px;
+  padding: 0.75rem;
+}
+.profile-head.profile-tinted .meta,
+.profile-head.profile-tinted a {
+  color: rgba(255, 255, 255, 0.85);
+}
+.personal-channel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.75rem;
+  text-align: start;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: inherit;
+  cursor: pointer;
+}
+.personal-channel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.personal-channel-text {
+  display: flex;
+  flex-direction: column;
+}
+.personal-channel-post {
+  color: var(--text-muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.birthdays-block {
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.birthdays-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.birthday-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0.25rem;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.birthday-item .meta {
+  margin-inline-start: auto;
+}
+.extras-birthday,
+.extras-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+.extras-swatches,
+.extras-emojis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  width: 100%;
+}
+.extras-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.extras-swatch.chosen,
+.extras-emojis .chosen,
+.extras-swatches .chosen {
+  outline: 2px solid var(--accent);
+}
+.extras-preview {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: var(--bg-elev);
+}
+.extras-preview-quote {
+  border-inline-start: 3px solid var(--peer-color, var(--accent));
+  display: flex;
+  flex-direction: column;
+}
+.extras-quote-name {
+  color: var(--peer-color, var(--accent));
+}
+.extras-preview-profile {
+  color: #fff;
+  min-height: 3rem;
+}

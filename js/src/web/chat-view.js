@@ -39,6 +39,7 @@ import { Icon } from './icons.js';
 import { Notice } from './notice.js';
 import { useLeaving } from './chat-leaving.js';
 import { infoLine } from './chat-info.js';
+import { isBirthdayToday } from './profile-extras-model.js';
 import { PersonPanel } from './person-panel.js';
 import { UnreadMarks, useUnreadMarks } from './chat-marks.js';
 import { MessageBubble, QuoteContext, ReplyQuote } from './chat-message.js';
@@ -319,6 +320,18 @@ const Header = ({
     el('div', { key: 't', className: 'chat-header-title' }, [
       el('div', { key: 'n', className: 'chat-title-row' }, [
         el('strong', { key: 'n' }, chat.name),
+        isBirthdayToday(state.info?.birthday)
+          ? el(
+              'span',
+              {
+                key: 'bd',
+                className: 'birthday-mark',
+                'data-birthday-today': 'true',
+                title: t('chat.birthday.today'),
+              },
+              '\u{1F382}'
+            )
+          : null,
         chat.emojiStatus
           ? el(EmojiStatus, { key: 'es', status: chat.emojiStatus, api })
           : null,
