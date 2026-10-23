@@ -17,6 +17,7 @@ import { Members } from './chat-members.js';
 import { PeerActions } from './chat-peer-actions.js';
 import { NotifyRow } from './chat-notify-settings.js';
 import { CommonChatsRow } from './chat-common-chats.js';
+import { ChannelDmRow } from './chat-channel-dm.js';
 import { StatsRow } from './chat-stats.js';
 import { BoostsRow } from './chat-boosts.js';
 import { GiftsRow } from './chat-stars.js';
@@ -346,6 +347,8 @@ export const PersonPanel = ({
         el(NotifyRow, { key: 'nr', api, chat }),
         el(PeerActions, { key: 'pa', api, chat, info }),
         el(CommonChatsRow, { key: 'cc', api, chat, info, onOpenChat }),
+        // The channel's direct messages (R-Y191).
+        el(ChannelDmRow, { key: 'dm', api, chat, info }),
         el(SimilarChannels, {
           key: 'sc',
           api,

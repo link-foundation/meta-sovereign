@@ -74,6 +74,7 @@ import { createEffects } from './telegram-effects.js';
 import { createEmojiStatus } from './telegram-emoji-status.js';
 import { createMessageLinks } from './telegram-message-links.js';
 import { createAdminActions } from './telegram-admin.js';
+import { createChannelDm } from './telegram-channel-dm.js';
 import { createCommonChats } from './telegram-common-chats.js';
 import { createStats } from './telegram-stats.js';
 import { createGifSave } from './telegram-gif-save.js';
@@ -455,7 +456,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
 // messages and channel autotranslation (R-Y184); voice chats and group calls
 // (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190);
-// interface scale and the connection proxy (R-Y192).
+// interface scale and the connection proxy (R-Y192); channel direct messages
+// and suggested posts (R-Y191).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -551,6 +553,7 @@ const chatActions = (env, context) => {
     ...createMessageLinks(env, context),
     ...createHistoryExport(env, context),
     ...createProxy(env),
+    ...createChannelDm(env, context),
   };
 };
 

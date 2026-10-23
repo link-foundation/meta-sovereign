@@ -349,4 +349,12 @@ export const TELEGRAM_CALLS = {
   telegramProxyGet: none('proxy-get'),
   telegramProxySave: body('proxy-save'),
   telegramProxyCheck: body('proxy-check'),
+  // Channel direct messages and suggested posts (R-Y191): a monoforum's
+  // threads ({ chat }), a thread ({ chat, peer?, before? }), a message
+  // ({ chat, text, peer?, stars?, suggestedPost? }), a decision ({ chat,
+  // id, approve, scheduleDate?, comment? }).
+  telegramChannelDmThreads: body('channel-dm-threads'),
+  telegramChannelDmHistory: body('channel-dm-history'),
+  telegramChannelDmSend: body('channel-dm-send'),
+  telegramChannelDmDecide: body('channel-dm-decide'),
 };

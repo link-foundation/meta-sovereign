@@ -10502,3 +10502,147 @@ span.bubble-effect {
   flex: 1;
   min-width: 8rem;
 }
+
+/* Channel direct messages and suggested posts (R-Y191) */
+.dm-threads {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.dm-thread-row {
+  width: 100%;
+  text-align: left;
+  gap: 0.6rem;
+}
+.dm-thread-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.dm-thread-last {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dm-thread-date {
+  flex: none;
+}
+.dm-back {
+  margin-bottom: 0.5rem;
+}
+.dm-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.dm-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.dm-message {
+  align-self: flex-start;
+  max-width: 90%;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+}
+.dm-message.is-out {
+  align-self: flex-end;
+  background: var(--accent-bg);
+}
+.dm-name {
+  display: block;
+  font-size: 0.85rem;
+}
+.dm-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.dm-time {
+  display: block;
+  text-align: right;
+  font-size: 0.75rem;
+}
+.dm-service {
+  align-self: center;
+  color: var(--text-subtle);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.dm-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+.dm-card[data-dm-card='rejected'] {
+  border-left-color: var(--danger);
+}
+.dm-card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.dm-card-status {
+  font-size: 0.8rem;
+  color: var(--text-subtle);
+}
+.dm-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+.dm-ask,
+.dm-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.dm-suggest label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.dm-composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.dm-composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4rem;
+}
+.dm-input {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+}
+.dm-attach-menu {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.dm-attach-item {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: none;
+  border: 0;
+  color: var(--text);
+  cursor: pointer;
+}
+.dm-note {
+  margin: 0;
+}

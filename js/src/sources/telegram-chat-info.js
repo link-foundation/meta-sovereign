@@ -22,6 +22,7 @@ import { usernamesOf } from './telegram-usernames.js';
 import { canReactIn, reactionsOf } from './telegram-chat-reactions.js';
 import { settingsInfo } from './telegram-chat-settings.js';
 import { birthdayOf, colorOf } from './telegram-profile-extras.js';
+import { monoforumInfo } from './telegram-channel-dm-shape.js';
 
 const CHAT = /^-?\d{1,20}$/;
 const CACHE_TTL_MS = 60_000;
@@ -185,12 +186,39 @@ const requestsOf = (entity, full, users = []) => {
   return { requestsPending: pending, recentRequesters };
 };
 
-const fetchChannel = async (client, Api, inputPeer) => {
+// The channel's direct messages (R-Y191): its linked monoforum, whose peer
+// is kept so the chat can be opened and written to.
+const monoforumOf = async (entity, chats, peers) => {
+  const monoforum = monoforumInfo(entity, chats);
+  if (!monoforum) {
+    return {};
+  }
+  const chat = chats.find(
+    (c) => String(c?.id?.value ?? c?.id) === monoforum.id.slice(4)
+  );
+  await Promise.resolve(
+    chat
+      ? peers?.remember?.(monoforum.id, chat, {
+          title: monoforum.title,
+          isChannel: true,
+        })
+      : null
+  ).catch(() => {});
+  return { monoforum };
+};
+
+const fetchChannel = async (client, Api, inputPeer, peers) => {
   const result = await client.invoke(
     new Api.channels.GetFullChannel({ channel: inputPeer })
   );
   const full = result.fullChat;
-  const entity = (result.chats ?? []).find(Boolean) ?? {};
+  // The channel itself: with a monoforum the answer lists two chats.
+  const entity =
+    (result.chats ?? []).find(
+      (c) => c && full?.id !== undefined && String(c.id) === String(full.id)
+    ) ??
+    (result.chats ?? []).find(Boolean) ??
+    {};
   const online = await getOnlines(client, Api, inputPeer);
   return {
     kind: 'channel',
@@ -221,6 +249,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     ...usernamesInfo(entity),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
+    ...(await monoforumOf(entity, result.chats ?? [], peers)),
   };
 };
 
@@ -331,7 +360,7 @@ export const createChatInfoReader = ({
 
   const fetch = async (chat, client, Api, helpers, inputPeer) => {
     if (isChannel(chat)) {
-      return fetchChannel(client, Api, inputPeer);
+      return fetchChannel(client, Api, inputPeer, peers);
     }
     if (isGroup(chat)) {
       return fetchGroup(client, Api, helpers, inputPeer, chat);
