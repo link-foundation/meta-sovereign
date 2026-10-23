@@ -138,6 +138,12 @@ await page.route('**/api/telegram/inline-send', (route) => {
   return fulfil(route, { ok: true, chat: CHAT });
 });
 
+const starts = [];
+await page.route('**/api/telegram/inline-start-bot', (route) => {
+  starts.push(route.request().postDataJSON());
+  return fulfil(route, { ok: true, chat: '72' });
+});
+
 const box = page.locator('.chat-composer textarea');
 const panel = page.locator('.inline-panel');
 const results = page.locator('.inline-result');
@@ -226,6 +232,12 @@ await finish(async () => {
   );
   assert((await results.first().textContent()).includes('Capital'), 'text');
   await page.locator('[data-action="inline-switch-pm"]').click();
+  // "Switch to PM": the bot is started with its parameter (R-Y147).
+  await until(() => starts.length === 1, 'the bot started');
+  assert(
+    starts[0].username === 'wiki' && starts[0].startParam === 'x',
+    `start: ${JSON.stringify(starts[0])}`
+  );
   await until(
     () => page.url().includes('chat=telegram:72'),
     `opens the bot's chat: ${page.url()}`

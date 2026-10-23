@@ -959,6 +959,7 @@ export const api = {
   telegramInlineBot: (body = {}) => telegramPost('inline-bot', body),
   telegramInlineResults: (body = {}) => telegramPost('inline-results', body),
   telegramInlineSend: (body = {}) => telegramPost('inline-send', body),
+  telegramInlineStartBot: (body = {}) => telegramPost('inline-start-bot', body),
   // The message box's link preview, and its picture (R-Y145).
   telegramLinkPreview: (body = {}) => telegramPost('link-preview', body),
   telegramLinkPreviewPhotoUrl: async ({ id } = {}) => {
@@ -1095,6 +1096,7 @@ export const api = {
   // contact | firstName, lastName, phone }.
   telegramSendLocation: (body = {}) => telegramPost('send-location', body),
   telegramStopLive: (body = {}) => telegramPost('stop-live-location', body),
+  telegramUpdateLive: (body = {}) => telegramPost('update-live-location', body),
   telegramSendContact: (body = {}) => telegramPost('send-contact', body),
 
   // Edit, delete, react to, forward a message or mark a chat read on any

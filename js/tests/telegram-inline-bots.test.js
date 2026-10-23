@@ -6,6 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { rememberInputs } from '../src/sources/telegram-send-as-client.js';
 import { createInlineBots } from '../src/sources/telegram-inline-bots.js';
 import {
   layoutOf,
@@ -25,8 +26,10 @@ const Api = {
   messages: {
     GetInlineBotResults: named('GetInlineBotResults'),
     SendInlineBotResult: named('SendInlineBotResult'),
+    StartBot: named('StartBot'),
   },
   InputUser: named('InputUser'),
+  InputPeerUser: named('InputPeerUser'),
   InputReplyToMessage: named('InputReplyToMessage'),
 };
 
@@ -95,7 +98,7 @@ const make = (answer, clock = { t: 0 }) => {
       now: () => clock.t,
     }
   );
-  return { actions, log, applied, remembered, clock };
+  return { actions, log, applied, remembered, clock, client };
 };
 
 const standard = (request) => {
@@ -286,6 +289,7 @@ test('the routes validate strictly', async () => {
     inlineBot: async (b) => (calls.push(['bot', b]), { ok: true }),
     inlineResults: async (b) => (calls.push(['results', b]), { ok: true }),
     inlineSend: async (b) => (calls.push(['send', b]), { ok: true }),
+    inlineStartBot: async (b) => (calls.push(['start', b]), { ok: true }),
   };
   const good = [
     ['inline-bot', { username: 'gif' }],
@@ -353,4 +357,83 @@ test('the page reads "@bot words" and lays results out', () => {
     ['a', 'b']
   );
   assert.equal(merged.next, null);
+});
+
+test('an inline send goes as the picked identity (R-Y147)', async () => {
+  const { actions, log, client } = make(standard);
+  rememberInputs(client, new Map([['-1009', 'AS-INPUT']]));
+  await actions.inlineResults({ chat: '-100', username: 'gif', query: 'c' });
+  const sent = await actions.inlineSend({
+    chat: '-100',
+    queryId: '777',
+    id: 'a',
+    sendAs: '-1009',
+  });
+  assert.equal(sent.ok, true);
+  assert.equal(
+    log.find((r) => r.className === 'SendInlineBotResult').sendAs,
+    'AS-INPUT'
+  );
+  const plain = await actions.inlineSend({
+    chat: '-100',
+    queryId: '777',
+    id: 'b',
+  });
+  assert.equal(plain.ok, true);
+  const last = log.filter((r) => r.className === 'SendInlineBotResult').at(-1);
+  assert.equal(last.sendAs, undefined);
+});
+
+test('the inline routes refuse a bad sendAs or start parameter (R-Y147)', async () => {
+  const seen = [];
+  const account = {
+    inlineSend: async (b) => (seen.push(b), { ok: true }),
+    inlineStartBot: async () => ({ ok: true }),
+  };
+  const body = { chat: '5', queryId: '77', id: 'a' };
+  const status = async (route, b) => (await post(route, b, account)).status;
+  assert.equal(await status('inline-send', { ...body, sendAs: 'x' }), 400);
+  assert.equal(await status('inline-send', { ...body, sendAs: 5 }), 400);
+  assert.equal(await status('inline-send', { ...body, sendAs: '-1009' }), 200);
+  assert.equal(seen[0].sendAs, '-1009');
+  for (const startParam of ['', 'p_1-x']) {
+    assert.equal(
+      await status('inline-start-bot', { username: 'gif', startParam }),
+      200
+    );
+  }
+  for (const startParam of ['a b', 'x'.repeat(65), 5, undefined]) {
+    assert.equal(
+      await status('inline-start-bot', { username: 'gif', startParam }),
+      400,
+      String(startParam)
+    );
+  }
+});
+
+test('switch to PM starts the bot with the parameter its answer offered (R-Y147)', async () => {
+  const { actions, log, applied } = make(standard);
+  const none = await actions.inlineStartBot({
+    username: 'gif',
+    startParam: 'p',
+  });
+  assert.equal(none.code, 'expired', 'not offered yet');
+  await actions.inlineResults({ chat: '42', username: 'gif', query: 'cats' });
+  const other = await actions.inlineStartBot({
+    username: 'gif',
+    startParam: 'other',
+  });
+  assert.equal(other.code, 'expired', 'another parameter');
+  const done = await actions.inlineStartBot({
+    username: 'GIF',
+    startParam: 'p',
+  });
+  assert.deepEqual(done, { ok: true, chat: '9' });
+  const request = log.find((r) => r.className === 'StartBot');
+  assert.equal(request.startParam, 'p');
+  assert.equal(request.bot.userId, 9n);
+  assert.equal(request.peer.className, 'InputPeerUser');
+  assert.equal(request.peer.userId, 9n);
+  assert.equal(typeof request.randomId, 'bigint');
+  assert.equal(applied.length, 1);
 });

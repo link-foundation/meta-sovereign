@@ -134,6 +134,18 @@ try {
     (await page.locator('[data-action="attach-file"]').count()) === 1,
     'the menu has File'
   );
+  // Over the paperclip and on the screen, whatever the composer's styling.
+  const [menuBox, clipBox] = await Promise.all([
+    page.locator('.attach-menu').boundingBox(),
+    page.locator('[data-action="attach"]').boundingBox(),
+  ]);
+  const width = page.viewportSize().width;
+  assert(
+    Math.abs(menuBox.x - clipBox.x) < 2 &&
+      menuBox.x + menuBox.width <= width &&
+      menuBox.y + menuBox.height <= clipBox.y,
+    `menu at ${JSON.stringify(menuBox)}, paperclip at ${JSON.stringify(clipBox)}`
+  );
   await page.keyboard.press('Escape');
   await until(
     async () => (await page.locator('.attach-menu').count()) === 0,

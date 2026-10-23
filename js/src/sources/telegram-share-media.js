@@ -14,11 +14,17 @@
  *   one of the account's contacts (contacts.getContacts) and its phone is
  *   read here, never taken from the page; a typed card carries its own
  *   validated phone → `{ ok, chat }`.
+ * - `updateLiveLocation({ chat, id, lat, lon, accuracy?, heading? })` — the
+ *   moving point of our own live location (messages.editMessage with
+ *   InputMediaGeoLive, the new InputGeoPoint and `heading` 1..360; R-Y147)
+ *   → `{ ok }`. A place and a contact take `sendAs` (a peer id): sent as
+ *   that identity in a supergroup (R-Y147).
  * Telegram's answer goes through the live handler. Errors become codes.
  */
 
 import { runIn, connect, connected, failureOf } from './telegram-stickers.js';
 import { randomIdOf, replyHeader, sendError } from './telegram-send.js';
+import { withSendAs } from './telegram-send-as-client.js';
 
 export const LIVE_PERIODS = [900, 3600, 28800];
 export const MAX_ACCURACY = 1500;
@@ -33,6 +39,9 @@ const CODES = {
   CONTACT_ID_INVALID: 'no-user',
   PEER_ID_INVALID: 'no-access',
   FLOOD_WAIT: 'flood',
+  MESSAGE_NOT_MODIFIED: 'unchanged',
+  MESSAGE_EDIT_TIME_EXPIRED: 'not-found',
+  SEND_AS_PEER_INVALID: 'send-as-invalid',
 };
 const failure = failureOf(CODES);
 
@@ -99,9 +108,10 @@ const sendMedia = async (env, { userClient, apply }, r, makeMedia) => {
   }
   try {
     const media = await makeMedia(c);
+    const client = await withSendAs(env, c.client, r.sendAs);
     const result = await runIn(env, `share:${r.chat}`, () =>
-      env.connection.withPeer(c.client, r.chat, (peer) =>
-        c.client.invoke(
+      env.connection.withPeer(client, r.chat, (peer) =>
+        client.invoke(
           new c.Api.messages.SendMedia({
             peer,
             media,
@@ -186,9 +196,11 @@ const createContactSender = (env, context) => async (request) => {
     : bad('name and phone required');
 };
 
-const createStopper =
-  (env, { userClient, apply }) =>
-  async ({ chat, id } = {}) => {
+// Edit our stored live location message with `liveMedia(c, point)`; the
+// point defaults to the stored one. Used to stop it and to move it.
+const createLiveEditor =
+  (env, { userClient, apply }, key) =>
+  async ({ chat, id, ...rest } = {}, liveMedia) => {
     const msgId = Number(id);
     if (!CHAT.test(String(chat ?? '')) || !(msgId > 0)) {
       return bad();
@@ -203,16 +215,13 @@ const createStopper =
       if (media?.className !== 'MessageMediaGeoLive' || !point) {
         return { ok: false, error: 'not a live location', code: 'not-found' };
       }
-      const result = await runIn(env, `share-stop:${chat}`, () =>
+      const result = await runIn(env, `${key}:${chat}`, () =>
         env.connection.withPeer(c.client, String(chat), (peer) =>
           c.client.invoke(
             new c.Api.messages.EditMessage({
               peer,
               id: msgId,
-              media: new c.Api.InputMediaGeoLive({
-                stopped: true,
-                geoPoint: geoPoint(c.Api, point),
-              }),
+              media: liveMedia(c, point, rest),
             })
           )
         )
@@ -224,6 +233,53 @@ const createStopper =
     });
   };
 
+const createStopper = (env, context) => {
+  const edit = createLiveEditor(env, context, 'share-stop');
+  return ({ chat, id } = {}) =>
+    edit(
+      { chat, id },
+      (c, point) =>
+        new c.Api.InputMediaGeoLive({
+          stopped: true,
+          geoPoint: geoPoint(c.Api, point),
+        })
+    );
+};
+
+// A heading in degrees as Telegram takes it (1..360), or undefined.
+const headingOf = (value) => {
+  const degrees = Math.round(Number(value));
+  return Number.isFinite(degrees) && value !== null && value !== undefined
+    ? ((degrees % 360) + 360) % 360 || 360
+    : undefined;
+};
+
+// The live place moved: the new point, and the heading when known.
+const createMover = (env, context) => {
+  const edit = createLiveEditor(env, context, 'share-move');
+  return ({ chat, id, lat, lon, accuracy, heading } = {}) => {
+    const point = validPoint(lat, lon);
+    const radius = accuracy === undefined ? 0 : Number(accuracy);
+    if (
+      !point ||
+      !Number.isInteger(radius) ||
+      radius < 0 ||
+      radius > MAX_ACCURACY
+    ) {
+      return bad('a valid place required');
+    }
+    const degrees = headingOf(heading);
+    return edit(
+      { chat, id },
+      (c) =>
+        new c.Api.InputMediaGeoLive({
+          geoPoint: geoPoint(c.Api, { ...point, accuracy: radius }),
+          ...(degrees ? { heading: degrees } : {}),
+        })
+    );
+  };
+};
+
 export const createShareMedia = (env, context) => ({
   sendLocation: async (request) => {
     const r = placeRequest({ ...request, chat: String(request?.chat ?? '') });
@@ -232,5 +288,6 @@ export const createShareMedia = (env, context) => ({
       : bad('a valid place required');
   },
   stopLiveLocation: createStopper(env, context),
+  updateLiveLocation: createMover(env, context),
   sendContact: createContactSender(env, context),
 });

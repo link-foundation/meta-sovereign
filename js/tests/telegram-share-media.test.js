@@ -11,6 +11,7 @@ import {
   cleanPhone,
   validPoint,
 } from '../src/sources/telegram-share-media.js';
+import { rememberInputs } from '../src/sources/telegram-send-as-client.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { named, postRoute } from './helpers/telegram-route.js';
 import {
@@ -67,7 +68,7 @@ const setup = ({ fail = null, users = [] } = {}) => {
     userClient: async () => client,
     apply: async (_client, result) => applied.push(result),
   });
-  return { actions, asked, applied, changed, store };
+  return { actions, asked, applied, changed, store, client };
 };
 
 test('a place is sent as an InputGeoPoint with its accuracy', async () => {
@@ -378,4 +379,99 @@ test('a live place: its lines and who may stop it', () => {
     canStopLive({ ...own, raw: { ...own.raw, out: false } }, now),
     false
   );
+});
+
+test('a place and a contact go as the picked identity (R-Y147)', async () => {
+  const { actions, asked, client } = setup();
+  rememberInputs(client, new Map([['-1009', 'AS-INPUT']]));
+  await actions.sendLocation({ chat: '-100', lat: 1, lon: 2, sendAs: '-1009' });
+  await actions.sendContact({
+    chat: '-100',
+    firstName: 'Zed',
+    phone: '+15550109999',
+    sendAs: '-1009',
+  });
+  await actions.sendLocation({ chat: '-100', lat: 1, lon: 2 });
+  assert.deepEqual(
+    asked.map((r) => r.sendAs),
+    ['AS-INPUT', 'AS-INPUT', undefined]
+  );
+});
+
+test('the share routes validate sendAs and the live update', async () => {
+  const seen = [];
+  const account = {
+    sendLocation: async (r) => (seen.push(r), { ok: true }),
+    sendContact: async (r) => (seen.push(r), { ok: true }),
+    updateLiveLocation: async (r) => (seen.push(r), { ok: true }),
+  };
+  const place = { chat: '-100', lat: 1, lon: 2 };
+  const send = (route, body) => postRoute(route, body, account);
+  assert.equal(await send('send-location', { ...place, sendAs: 'no' }), 400);
+  assert.equal(await send('send-location', { ...place, sendAs: '-1009' }), 200);
+  assert.equal(seen[0].sendAs, '-1009');
+  const card = { chat: '1', contact: '5', sendAs: '7' };
+  assert.equal(await send('send-contact', card), 200);
+  assert.equal(seen[1].sendAs, '7');
+  const move = {
+    chat: '42',
+    id: 7,
+    lat: 1.5,
+    lon: 2.5,
+    accuracy: 10,
+    heading: 90,
+  };
+  assert.equal(await send('update-live-location', move), 200);
+  assert.deepEqual(seen[2], move);
+  for (const bad of [
+    { ...move, id: 0 },
+    { ...move, lat: 91 },
+    { ...move, lon: '2' },
+    { ...move, accuracy: 5000 },
+    { ...move, heading: 'n' },
+    { ...move, chat: 'x' },
+  ]) {
+    assert.equal(await send('update-live-location', bad), 400);
+  }
+});
+
+test('a live location moves: the new point and heading edit our message', async () => {
+  const { actions, asked, store } = setup();
+  await store.put({
+    id: 'msg:telegram:42:7',
+    source: 'telegram',
+    raw: {
+      id: 7,
+      media: {
+        className: 'MessageMediaGeoLive',
+        geo: { lat: 10.5, long: 20.25 },
+      },
+    },
+  });
+  const done = await actions.updateLiveLocation({
+    chat: '42',
+    id: 7,
+    lat: 11.5,
+    lon: 21.5,
+    accuracy: 12,
+    heading: 0,
+  });
+  assert.deepEqual(done, { ok: true });
+  const [request] = asked;
+  assert.equal(request.className, 'messages.EditMessage');
+  assert.equal(request.id, 7);
+  assert.equal(request.media.className, 'InputMediaGeoLive');
+  assert.equal(request.media.stopped, undefined);
+  assert.equal(request.media.geoPoint.lat, 11.5);
+  assert.equal(request.media.geoPoint.long, 21.5);
+  assert.equal(request.media.geoPoint.accuracyRadius, 12);
+  assert.equal(request.media.heading, 360, 'north is 360');
+  await actions.updateLiveLocation({ chat: '42', id: 7, lat: 1, lon: 1 });
+  assert.equal(asked[1].media.heading, undefined);
+  // Not a live place, or a point out of range: nothing is asked.
+  const notLive = { chat: '42', id: 8, lat: 1, lon: 1 };
+  assert.equal((await actions.updateLiveLocation(notLive)).ok, false);
+  const off = { chat: '42', id: 7, lat: 99, lon: 1 };
+  assert.equal((await actions.updateLiveLocation(off)).ok, false);
+  assert.equal(asked.length, 2);
 });

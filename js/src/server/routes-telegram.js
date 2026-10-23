@@ -169,8 +169,15 @@
  *   POST /api/telegram/inline-results {chat, username, query, offset?}
  *                       -> { ok, bot, queryId, gallery, results, next,
  *                       switchPm, switchWebview } a bot's answers, a page
- *   POST /api/telegram/inline-send {chat, queryId, id, replyTo?, clientId?}
- *                       -> { ok } one of those answers sent
+ *   POST /api/telegram/inline-send {chat, queryId, id, replyTo?, clientId?,
+ *                       sendAs?} -> { ok } one of those answers sent (as
+ *                       the picked identity; location and contact sends
+ *                       take `sendAs` too) (R-Y147)
+ *   POST /api/telegram/inline-start-bot {username, startParam}
+ *                       -> { ok, chat } "switch to PM": /start with the
+ *                       parameter that bot's answer offered (R-Y147)
+ *   POST /api/telegram/update-live-location {chat, id, lat, lon, accuracy?,
+ *                       heading?} -> { ok } our live location moved (R-Y147)
  *   POST /api/telegram/history-ttl {chat, period} -> { ok, period } a
  *                       chat's auto-delete timer (seconds: 0, 1 day, 1
  *                       week, 1 month, 3 months, 6 months, 1 year) (R-Y143)

@@ -96,6 +96,7 @@ import {
 import { goToMessage, useArrival, useStreamJumps } from './chat-jump.js';
 import { NOTICE, Sidebar, noticeInWords } from './chat-sidebar.js';
 import { useSendAs } from './chat-send-as.js';
+import { useLiveWatch } from './live-watch.js';
 
 export { failureText, waitingText } from './chat-failure.js';
 export { autopilotText } from './chat-automation.js';
@@ -1049,6 +1050,8 @@ const Composer = ({ state, api, keys }) => {
   const later = useSendLater({ state, api, composer, attach });
   // Who sends in a supergroup: the avatar button (R-Y141).
   const sendAs = useSendAs(api, state.current);
+  // Our live location follows us while it is shared (R-Y147).
+  useLiveWatch({ api, state });
   // The emoji panel (R-Y104), with stickers and GIFs (R-Y105).
   const box = useRef(null);
   const typeText = (next) => composer.setText(next, { typed: true });

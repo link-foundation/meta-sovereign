@@ -7,6 +7,7 @@
 // uploads them, showing how far, and Telegram gets them together.
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { composerReplyId } from './forum-topics.js';
@@ -229,7 +230,8 @@ export const pasteFiles = (attach) => (event) => {
 };
 
 // The paperclip's choices (R-Y99): files, and a poll, a place and a
-// contact when the page can make them (R-Y142). Fixed over the button, closed by a click elsewhere or Escape.
+// contact when the page can make them (R-Y142). Fixed over the button,
+// closed by a click elsewhere or Escape.
 const AttachMenu = ({ at, onFile, onPoll, onLocation, onContact, onClose }) => {
   const t = useT();
   useEffect(() => {
@@ -263,7 +265,7 @@ const AttachMenu = ({ at, onFile, onPoll, onLocation, onContact, onClose }) => {
         ]
       )
     );
-  return el(
+  const menu = el(
     'ul',
     {
       className: 'msg-context-menu attach-menu',
@@ -278,6 +280,10 @@ const AttachMenu = ({ at, onFile, onPoll, onLocation, onContact, onClose }) => {
       onContact && item('contact', 'user', 'chat.attach.contact', onContact),
     ].filter(Boolean)
   );
+  // In the page's body: a blurred or moved composer would make `fixed`
+  // count from itself, and the menu would land off the screen.
+  const body = globalThis.document?.body;
+  return body ? createPortal(menu, body) : menu;
 };
 
 /**

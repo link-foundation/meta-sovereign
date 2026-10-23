@@ -76,6 +76,45 @@ await page.route('**/api/telegram/send-as-save', (route) => {
     : fulfil(route, { ok: true, current: body.sendAs });
 });
 
+// An inline bot and a location share, to see `sendAs` on them too (R-Y147).
+const inlineSends = [];
+const locations = [];
+await page.route('**/api/telegram/inline-bot', (route) =>
+  fulfil(route, {
+    ok: true,
+    bot: { id: '72', username: 'wiki', name: 'Wiki', placeholder: 'Search' },
+  })
+);
+await page.route('**/api/telegram/inline-results', (route) =>
+  fulfil(route, {
+    ok: true,
+    bot: { id: '72', username: 'wiki', name: 'Wiki', placeholder: 'Search' },
+    queryId: '555',
+    gallery: false,
+    next: null,
+    switchPm: null,
+    switchWebview: null,
+    results: [
+      {
+        id: 'w1',
+        queryId: '555',
+        type: 'article',
+        title: 'Moscow',
+        description: 'A city',
+        doc: null,
+      },
+    ],
+  })
+);
+await page.route('**/api/telegram/inline-send', (route) => {
+  inlineSends.push(route.request().postDataJSON());
+  return fulfil(route, { ok: true, chat: SUPER });
+});
+await page.route('**/api/telegram/send-location', (route) => {
+  locations.push(route.request().postDataJSON());
+  return fulfil(route, { ok: true, chat: SUPER });
+});
+
 const box = page.locator('.chat-composer textarea');
 const button = page.locator('[data-action="send-as"]');
 const open = async (chat) => {
@@ -142,6 +181,28 @@ await finish(async () => {
   await until(() => sent.length === 1, 'sent');
   assert(textOf(sent[0]) === 'as the channel', 'the text');
   assert(sent[0].sendAs === CHANNEL, `sendAs: ${sent[0].sendAs}`);
+
+  // An inline bot's result and a shared place carry it too (R-Y147).
+  await box.fill('');
+  await box.pressSequentially('@wiki moscow');
+  await page.locator('.inline-result').first().waitFor({ timeout: 10000 });
+  await box.press('Enter');
+  await until(() => inlineSends.length === 1, 'inline result sent');
+  assert(
+    inlineSends[0].id === 'w1' && inlineSends[0].sendAs === CHANNEL,
+    `inline sendAs: ${JSON.stringify(inlineSends[0])}`
+  );
+  await page.locator('[data-action="attach"]').click();
+  await page.locator('[data-action="attach-location"]').click();
+  const place = page.locator('.share-dialog');
+  await place.locator('[data-field="lat"]').fill('52.52');
+  await place.locator('[data-field="lon"]').fill('13.405');
+  await page.locator('[data-action="location-send"]').click();
+  await until(() => locations.length === 1, 'location sent');
+  assert(
+    locations[0].chat === SUPER && locations[0].sendAs === CHANNEL,
+    `location sendAs: ${JSON.stringify(locations[0])}`
+  );
 
   // Back to the basic group: a send has no sendAs.
   await open(BASIC);

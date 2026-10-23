@@ -15,6 +15,7 @@ import { Icon } from './icons.js';
 import { openableUrl } from './chat-bots.js';
 import { openChat } from './chat-state.js';
 import { composerReplyId } from './forum-topics.js';
+import { sendAsField } from './chat-send-as.js';
 import { Picture } from './chat-stickers.js';
 
 const el = React.createElement;
@@ -57,7 +58,9 @@ const SHOWN = new Set([
   'flood-wait',
 ]);
 const errorKey = (code) =>
-  `chat.inline.err.${SHOWN.has(code) ? code : 'failed'}`;
+  code === 'send-as-invalid'
+    ? 'chat.sendAs.invalid'
+    : `chat.inline.err.${SHOWN.has(code) ? code : 'failed'}`;
 
 /** The answers merged: a next page's results after the ones shown. */
 export const mergeResults = (shown, more) => ({
@@ -321,6 +324,7 @@ const usePick = ({ api, chat, composer }) => {
       chat,
       queryId: result.queryId,
       id: result.id,
+      ...sendAsField(chat),
       ...(replyTo ? { replyTo } : {}),
       clientId: `inline-${Date.now()}-${result.id}`,
     });
@@ -331,7 +335,12 @@ const usePick = ({ api, chat, composer }) => {
       setSendError(answer?.code ?? 'failed');
     }
   };
-  return { pick, sendError, clearError: () => setSendError(null) };
+  return {
+    pick,
+    sendError,
+    fail: setSendError,
+    clearError: () => setSendError(null),
+  };
 };
 
 // Up and Down move, Enter picks, Escape closes; true when a key was taken.
@@ -386,7 +395,7 @@ export const useInlineBox = ({ api, state, composer, text }) => {
   const [index, setIndex] = useState(0);
   const items = answers.found?.results ?? [];
   const shown = Boolean(bot) && closedAt !== text;
-  const { pick, sendError, clearError } = usePick({
+  const { pick, sendError, fail, clearError } = usePick({
     api,
     chat,
     composer,
@@ -431,7 +440,19 @@ export const useInlineBox = ({ api, state, composer, text }) => {
         pick,
         more: answers.more,
         onScroll,
-        openBot: () => {
+        openBot: async () => {
+          // "Switch to PM": /start with the bot's parameter (R-Y147).
+          const sw = answers.found?.switchPm;
+          if (sw && typeof api.telegramInlineStartBot === 'function') {
+            const started = await api.telegramInlineStartBot({
+              username: bot.username,
+              startParam: sw.startParam,
+            });
+            if (!started?.ok) {
+              fail(started?.code ?? 'failed');
+              return;
+            }
+          }
           setClosedAt(text);
           openChat({ source: 'telegram', chat: bot.id });
         },

@@ -15,6 +15,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { composerReplyId } from './forum-topics.js';
+import { sendAsField } from './chat-send-as.js';
 
 const el = React.createElement;
 
@@ -92,10 +93,14 @@ export const positionErrorKey = (error) => {
 };
 
 /** Why a share failed, in words. */
-export const shareErrorText = (t, answer) =>
-  answer?.code === 'no-phone'
-    ? t('chat.share.noPhone')
+export const shareErrorText = (t, answer) => {
+  if (answer?.code === 'no-phone') {
+    return t('chat.share.noPhone');
+  }
+  return answer?.code === 'send-as-invalid'
+    ? t('chat.sendAs.invalid')
     : t('chat.share.failed', { error: answer?.error ?? answer?.code ?? '' });
+};
 
 const newClientId = () =>
   globalThis.crypto?.randomUUID?.() ??
@@ -124,6 +129,7 @@ export const useShare = ({ state, api, composer }) => {
     const answer = await call({
       chat: String(state.current.chat),
       ...body,
+      ...sendAsField(state.current.chat),
       ...(reply ? { replyTo: reply } : {}),
       clientId: newClientId(),
     }).catch((error) => ({ error: error.message }));

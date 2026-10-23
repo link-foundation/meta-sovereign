@@ -11,6 +11,9 @@
 // reaches a network or a running app. Not part of `npm test`; run it with:
 //
 //   RUN_BROWSER_E2E=1 npm run test:e2e:share-location
+//
+// Also (R-Y147): a live place of ours follows the browser's faked position
+// (Playwright's setGeolocation), throttled, and lets go on "Stop sharing".
 
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
@@ -82,10 +85,21 @@ const {
 
 // A faked browser position: the test says what the next ask answers.
 await page.addInitScript(() => {
-  window.__geo = { mode: 'denied', asked: 0 };
+  window.__geo = { mode: 'denied', asked: 0, watching: 0 };
+  const real = window.navigator.geolocation;
   Object.defineProperty(window.navigator, 'geolocation', {
     configurable: true,
     value: {
+      // Watching is the browser's own (the context's faked position); the
+      // test only counts the watches that are open (R-Y147).
+      watchPosition(...args) {
+        window.__geo.watching += 1;
+        return real.watchPosition(...args);
+      },
+      clearWatch(id) {
+        window.__geo.watching -= 1;
+        real.clearWatch(id);
+      },
       getCurrentPosition(ok, fail) {
         window.__geo.asked += 1;
         if (window.__geo.mode === 'denied') {
@@ -116,6 +130,7 @@ await page.route('**/api/telegram/scheduled', (route) =>
 const locations = [];
 const contacts = [];
 const stops = [];
+const moves = [];
 const adds = [];
 await page.route('**/api/telegram/send-location', (route) => {
   locations.push(route.request().postDataJSON());
@@ -127,6 +142,10 @@ await page.route('**/api/telegram/send-contact', (route) => {
 });
 await page.route('**/api/telegram/stop-live-location', (route) => {
   stops.push(route.request().postDataJSON());
+  return fulfil(route, { ok: true });
+});
+await page.route('**/api/telegram/update-live-location', (route) => {
+  moves.push(route.request().postDataJSON());
   return fulfil(route, { ok: true });
 });
 await page.route('**/api/telegram/peer-contact', (route) => {
@@ -147,10 +166,13 @@ const menu = async (action) => {
   await page.locator('[data-action="attach"]').click();
   await page.locator(`[data-action="attach-${action}"]`).click();
 };
+const geo = page.context();
 const dialog = page.locator('.share-dialog');
 const field = (name) => dialog.locator(`[data-field="${name}"]`);
 
 const typedPlace = async () => {
+  // The browser may share its position (watched by a live place, R-Y147).
+  await geo.grantPermissions(['geolocation']);
   await page.goto(`${origin}/`);
   await page.locator(`[data-chat="telegram:${CHAT}"]`).click();
   await page.locator('.chat-composer textarea').waitFor({ timeout: 15000 });
@@ -278,6 +300,25 @@ const messageSteps = async () => {
   await live.waitFor({ timeout: 10000 });
   assert(/live/i.test(await live.innerText()), 'live place card shown');
   assert(/until/i.test(await live.innerText()), 'its end is shown');
+
+  // It follows us while it is shared (R-Y147): the browser's position is
+  // watched, a new point is sent, then none within 30 s, none unmoved.
+  await until(
+    async () => (await page.evaluate(() => window.__geo.watching)) === 1,
+    'one watch while the live place is shared'
+  );
+  await geo.setGeolocation({ latitude: 48.8584, longitude: 2.2945 });
+  await until(() => moves.length === 1, 'the moved point sent');
+  assert(
+    moves[0].chat === CHAT &&
+      moves[0].id === 2 &&
+      moves[0].lat === 48.8584 &&
+      moves[0].lon === 2.2945,
+    `move: ${JSON.stringify(moves[0])}`
+  );
+  await geo.setGeolocation({ latitude: 48.86, longitude: 2.3 });
+  await page.waitForTimeout(1500);
+  assert(moves.length === 1, `throttled: ${moves.length}`);
   await live.click({ button: 'right' });
   await page.locator('[data-action="stopLive"]').first().click();
   await until(() => stops.length === 1, 'stop sent');
@@ -285,6 +326,14 @@ const messageSteps = async () => {
     stops[0].chat === CHAT && stops[0].id === 2,
     `stop: ${JSON.stringify(stops[0])}`
   );
+  // Stopped: the watch is let go, nothing more is sent.
+  await until(
+    async () => (await page.evaluate(() => window.__geo.watching)) === 0,
+    'the watch ended after Stop sharing'
+  );
+  await geo.setGeolocation({ latitude: 40, longitude: 3 });
+  await page.waitForTimeout(1000);
+  assert(moves.length === 1, 'nothing sent after stopping');
 
   // A contact card from someone else: "Add to contacts".
   const card = page.locator(`[data-message="msg:telegram:${CHAT}:3"]`);

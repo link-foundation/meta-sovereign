@@ -754,6 +754,8 @@ export const hiChat = {
   'chat.sendAs.group': 'समूह',
   'chat.sendAs.count': '{count, plural, one {# सदस्य} other {# सदस्य}}',
   'chat.sendAs.premium': 'इस रूप में भेजने के लिए प्रीमियम चाहिए',
+  'chat.sendAs.invalid':
+    'यहाँ चुनी गई पहचान से नहीं भेजा जा सकता। बॉक्स के पास वाले बटन से दूसरी चुनें।',
   'chat.sendAs.err.failed': 'टेलीग्राम ने इसकी अनुमति नहीं दी।',
   'chat.sendAs.err.send-as-invalid': 'टेलीग्राम इस पहचान को स्वीकार नहीं करता।',
   'chat.sendAs.err.premium': 'इसके लिए टेलीग्राम प्रीमियम चाहिए।',

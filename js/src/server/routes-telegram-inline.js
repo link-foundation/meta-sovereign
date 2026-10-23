@@ -8,7 +8,9 @@ import {
   MAX_RESULT_ID,
   NAME,
 } from '../sources/telegram-inline-bots.js';
+import { validSendAs } from '../sources/telegram-send-as-client.js';
 
+const START_PARAM = /^[A-Za-z0-9_-]{0,64}$/;
 const NUMBER = /^-?\d{1,20}$/;
 const bad = (error) => [400, { error, code: 'bad-request' }];
 
@@ -23,6 +25,7 @@ const plain = (value, max) =>
 
 const validSend = (body, replyTo) =>
   validChat(body.chat) &&
+  validSendAs(body.sendAs) &&
   typeof body.queryId === 'string' &&
   NUMBER.test(body.queryId) &&
   typeof body.id === 'string' &&
@@ -64,7 +67,22 @@ export const INLINE_POSTS = {
         id: body.id,
         replyTo,
         clientId: typeof body.clientId === 'string' ? body.clientId : null,
+        ...(body.sendAs ? { sendAs: body.sendAs } : {}),
       }),
     ];
   },
+  // "Switch to PM": /start with the bot's own start parameter (R-Y147).
+  'inline-start-bot': async (account, body) =>
+    validName(body.username) &&
+    typeof body.startParam === 'string' &&
+    START_PARAM.test(body.startParam) &&
+    typeof account.inlineStartBot === 'function'
+      ? [
+          200,
+          await account.inlineStartBot({
+            username: body.username,
+            startParam: body.startParam,
+          }),
+        ]
+      : bad('username and startParam required'),
 };

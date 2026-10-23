@@ -721,6 +721,8 @@ export const zhChat = {
   'chat.sendAs.group': '群组',
   'chat.sendAs.count': '{count, plural, other {# 位订阅者}}',
   'chat.sendAs.premium': '需要 Premium 才能以此身份发送',
+  'chat.sendAs.invalid':
+    '无法在此以所选身份发送。请用输入框旁的按钮选择其他身份。',
   'chat.sendAs.err.failed': 'Telegram 不允许这样做。',
   'chat.sendAs.err.send-as-invalid': 'Telegram 不接受该身份。',
   'chat.sendAs.err.premium': '需要 Telegram Premium。',

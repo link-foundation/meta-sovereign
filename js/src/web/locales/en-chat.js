@@ -754,6 +754,8 @@ export const enChat = {
   'chat.sendAs.count':
     '{count, plural, one {# subscriber} other {# subscribers}}',
   'chat.sendAs.premium': 'Premium is needed to send as this',
+  'chat.sendAs.invalid':
+    "You can't send as the identity picked here. Pick another one with the button by the box.",
   'chat.sendAs.err.failed': 'Telegram did not allow that.',
   'chat.sendAs.err.send-as-invalid': 'Telegram does not accept that identity.',
   'chat.sendAs.err.premium': 'Telegram Premium is needed for that.',

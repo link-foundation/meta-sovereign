@@ -11,6 +11,7 @@
 
 import React, { useState } from 'react';
 import { networkMessageId } from './chat-model.js';
+import { markLiveStopped } from './live-follow.js';
 import {
   DeleteDialog,
   ForwardPicker,
@@ -171,6 +172,8 @@ const useSenders = (state, api) => {
     if (!viaTelegram(message) || typeof api?.telegramStopLive !== 'function') {
       return;
     }
+    // Let go of the position at once (R-Y147).
+    markLiveStopped(message);
     report(
       await api.telegramStopLive({
         chat: String(state.current.chat),

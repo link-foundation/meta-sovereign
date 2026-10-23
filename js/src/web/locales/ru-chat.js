@@ -766,6 +766,8 @@ export const ruChat = {
   'chat.sendAs.count':
     '{count, plural, one {# подписчик} few {# подписчика} many {# подписчиков} other {# подписчика}}',
   'chat.sendAs.premium': 'Чтобы писать от этого имени, нужен Premium',
+  'chat.sendAs.invalid':
+    'Отправить от выбранного имени здесь нельзя. Выберите другое кнопкой у поля ввода.',
   'chat.sendAs.err.failed': 'Telegram этого не разрешил.',
   'chat.sendAs.err.send-as-invalid': 'Telegram не принимает этот профиль.',
   'chat.sendAs.err.premium': 'Для этого нужен Telegram Premium.',
