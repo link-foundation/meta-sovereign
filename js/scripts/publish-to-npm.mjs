@@ -62,6 +62,11 @@ const { name: packageName, version: currentPackageVersion } = readPackageInfo({
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 10000; // 10 seconds
+// npm can take minutes before a new version is visible; it holds the upload
+// as a staged version meanwhile, which a re-publish of it collides with.
+const VISIBLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+const VISIBLE_POLL_INTERVAL = 15000; // 15 seconds
+const STAGED_PATTERN = /cannot publish over previously staged version/i;
 
 // Store the original working directory to restore after cd commands
 // IMPORTANT: command-stream's cd is a virtual command that calls process.chdir()
@@ -116,6 +121,28 @@ async function verifyPublished(packageName, version) {
     capture: true,
   });
   return result.code === 0 && result.stdout.trim().includes(version);
+}
+
+/**
+ * Wait until a package version is visible on npm
+ * @param {string} packageName
+ * @param {string} version
+ * @returns {Promise<boolean>}
+ */
+async function waitForPublished(packageName, version) {
+  const deadline = Date.now() + VISIBLE_TIMEOUT;
+  for (;;) {
+    if (await verifyPublished(packageName, version)) {
+      return true;
+    }
+    if (Date.now() > deadline) {
+      return false;
+    }
+    console.log(
+      `${packageName}@${version} is not visible on npm yet, checking again in ${VISIBLE_POLL_INTERVAL / 1000}s...`
+    );
+    await sleep(VISIBLE_POLL_INTERVAL);
+  }
 }
 
 /**
@@ -201,16 +228,23 @@ function analyzePublishResult(publishResult, commandError) {
  */
 async function attemptPublish(currentVersion) {
   const { result, error } = await runChangesetPublish();
-  const analysisError = analyzePublishResult(result, error);
+  const output = `${result?.stdout || ''}\n${result?.stderr || ''}`;
 
-  if (analysisError) {
-    return { success: false, error: analysisError };
+  if (STAGED_PATTERN.test(output)) {
+    // An earlier attempt uploaded this version and npm is still processing it
+    console.log(
+      'npm already holds this version from an earlier attempt; waiting for it to go live...'
+    );
+  } else {
+    const analysisError = analyzePublishResult(result, error);
+    if (analysisError) {
+      return { success: false, error: analysisError };
+    }
   }
 
   // Verify the package is actually on npm (ultimate verification)
   console.log('Verifying package was published to npm...');
-  await sleep(2000); // Wait for npm registry to propagate
-  const isPublished = await verifyPublished(packageName, currentVersion);
+  const isPublished = await waitForPublished(packageName, currentVersion);
 
   if (isPublished) {
     return { success: true, error: null };
