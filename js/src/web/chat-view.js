@@ -14,6 +14,7 @@
 
 import { PeerBar } from './chat-peer-actions.js';
 import { RequestsBar } from './chat-join-requests.js';
+import { NotifyButton } from './chat-notify-settings.js';
 import { TtlBadge } from './chat-ttl.js';
 import { ChatWall } from './chat-wallpaper.js';
 import { SavedChats, SavedToggle, useSavedView } from './chat-saved.js';
@@ -318,6 +319,7 @@ const Header = ({ state, api, onBack, about, onAbout, find, saved }) => {
     ]),
     el(SearchButton, { key: 'find', find }),
     el(SavedToggle, { key: 'saved', saved }),
+    el(NotifyButton, { key: 'notify', api, chat }),
     hasAbout(chat)
       ? el(AboutButton, { key: 'about', about, onAbout, chat })
       : null,

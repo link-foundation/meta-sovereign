@@ -325,6 +325,23 @@ export const ru = {
     'Уведомления для этой страницы запрещены в настройках браузера.',
   'settings.notify.unsupported':
     'Этот браузер не умеет показывать уведомления.',
+  // Telegram notification settings (R-Y157).
+  'settings.notifyTg.title': 'Уведомления Telegram',
+  'settings.notifyTg.intro':
+    'Хранятся в аккаунте Telegram, поэтому другие ваши устройства следуют им.',
+  'settings.notifyTg.users': 'Личные чаты',
+  'settings.notifyTg.chats': 'Группы',
+  'settings.notifyTg.broadcasts': 'Каналы',
+  'settings.notifyTg.on': 'Уведомления',
+  'settings.notifyTg.preview': 'Предпросмотр сообщений',
+  'settings.notifyTg.stories': 'Уведомления об историях',
+  'settings.notifyTg.exceptions': 'Исключения: {count}',
+  'settings.notifyTg.noExceptions': 'Нет исключений',
+  'settings.notifyTg.muted': 'Без уведомлений',
+  'settings.notifyTg.mutedUntil': 'Без уведомлений до {time}',
+  'settings.notifyTg.unmuted': 'Включено',
+  'settings.notifyTg.custom': 'Особая настройка',
+  'settings.notifyTg.failed': 'Telegram не принял изменение.',
   'connections.enterManually': 'Ввести вручную',
   'connections.howToConnect': 'Как подключить',
   'connections.recommended': 'Рекомендуем',

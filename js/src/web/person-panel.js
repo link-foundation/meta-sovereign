@@ -14,6 +14,7 @@ import { ProfileHead, SharedMedia } from './chat-shared.js';
 import { InviteLink } from './chat-invite.js';
 import { Members } from './chat-members.js';
 import { PeerActions } from './chat-peer-actions.js';
+import { NotifyRow } from './chat-notify-settings.js';
 import { TtlActions } from './chat-ttl.js';
 import { ChatWallpaperAction } from './chat-wallpaper.js';
 import { EditChat } from './chat-edit.js';
@@ -309,6 +310,7 @@ export const PersonPanel = ({
         el(InviteLinksActions, { key: 'il', api, chat, info }),
         el(TtlActions, { key: 'ttl', api, chat, info }),
         el(ChatWallpaperAction, { key: 'wall', api, chat }),
+        el(NotifyRow, { key: 'nr', api, chat }),
         el(PeerActions, { key: 'pa', api, chat, info }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,

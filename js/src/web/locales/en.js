@@ -324,6 +324,23 @@ export const en = {
   'settings.notify.denied':
     'Notifications are blocked for this page in the browser’s settings.',
   'settings.notify.unsupported': 'This browser cannot show notifications.',
+  // Telegram notification settings (R-Y157).
+  'settings.notifyTg.title': 'Telegram notifications',
+  'settings.notifyTg.intro':
+    'Kept in your Telegram account, so your other devices follow it.',
+  'settings.notifyTg.users': 'Private chats',
+  'settings.notifyTg.chats': 'Groups',
+  'settings.notifyTg.broadcasts': 'Channels',
+  'settings.notifyTg.on': 'Notifications',
+  'settings.notifyTg.preview': 'Message preview',
+  'settings.notifyTg.stories': 'Stories notifications',
+  'settings.notifyTg.exceptions': 'Exceptions: {count}',
+  'settings.notifyTg.noExceptions': 'No exceptions',
+  'settings.notifyTg.muted': 'Muted',
+  'settings.notifyTg.mutedUntil': 'Muted until {time}',
+  'settings.notifyTg.unmuted': 'Unmuted',
+  'settings.notifyTg.custom': 'Custom',
+  'settings.notifyTg.failed': 'Telegram did not accept the change.',
   'connections.enterManually': 'Enter manually',
   'connections.howToConnect': 'How to connect',
   'connections.recommended': 'Recommended',

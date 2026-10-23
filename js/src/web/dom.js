@@ -1089,6 +1089,11 @@ export const api = {
   telegramEffects: (body = {}) => telegramPost('effects', body),
   telegramSendAs: (body = {}) => telegramPost('send-as', body),
   telegramSendAsSave: (body = {}) => telegramPost('send-as-save', body),
+  telegramNotifySettings: () => telegramPost('notify-settings', {}),
+  telegramNotifySettingsSet: (body = {}) =>
+    telegramPost('notify-settings-set', body),
+  telegramNotifyChat: (body = {}) => telegramPost('notify-chat', body),
+  telegramNotifyChatSet: (body = {}) => telegramPost('notify-chat-set', body),
   telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
   telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),
   telegramPeerShareContact: (body = {}) =>

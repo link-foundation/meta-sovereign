@@ -323,6 +323,23 @@ export const hi = {
   'settings.notify.denied':
     'ब्राउज़र की सेटिंग में इस पेज की सूचनाएँ अवरुद्ध हैं।',
   'settings.notify.unsupported': 'यह ब्राउज़र सूचनाएँ नहीं दिखा सकता।',
+  // Telegram notification settings (R-Y157).
+  'settings.notifyTg.title': 'Telegram सूचनाएँ',
+  'settings.notifyTg.intro':
+    'आपके Telegram खाते में रखी जाती हैं, इसलिए आपके अन्य डिवाइस भी इनका पालन करते हैं।',
+  'settings.notifyTg.users': 'निजी चैट',
+  'settings.notifyTg.chats': 'समूह',
+  'settings.notifyTg.broadcasts': 'चैनल',
+  'settings.notifyTg.on': 'सूचनाएँ',
+  'settings.notifyTg.preview': 'संदेश पूर्वावलोकन',
+  'settings.notifyTg.stories': 'स्टोरी सूचनाएँ',
+  'settings.notifyTg.exceptions': 'अपवाद: {count}',
+  'settings.notifyTg.noExceptions': 'कोई अपवाद नहीं',
+  'settings.notifyTg.muted': 'म्यूट',
+  'settings.notifyTg.mutedUntil': '{time} तक म्यूट',
+  'settings.notifyTg.unmuted': 'अनम्यूट',
+  'settings.notifyTg.custom': 'कस्टम',
+  'settings.notifyTg.failed': 'Telegram ने बदलाव स्वीकार नहीं किया।',
   'connections.enterManually': 'हाथ से दर्ज करें',
   'connections.howToConnect': 'कैसे कनेक्ट करें',
   'connections.recommended': 'अनुशंसित',

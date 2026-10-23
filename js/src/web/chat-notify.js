@@ -9,6 +9,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { chatPreview } from './chat-list.js';
+import {
+  getNotifyRules,
+  loadNotifyRules,
+  shouldNotify,
+  showPreview,
+} from './notify-rules.js';
 
 // A message older than this when it first shows is history being read,
 // not news.
@@ -54,7 +60,11 @@ const lastId = (chat) => chat.last?.message?.id ?? null;
  * message's id), and `seen` brought up to date. Nothing is news on the
  * first look (`seen` null): that is the list as it was.
  */
-export const freshChats = (seen, chats, { now = Date.now(), open } = {}) => {
+export const freshChats = (
+  seen,
+  chats,
+  { now = Date.now(), open, allow = (chat) => !chat.muted } = {}
+) => {
   const next = new Map();
   const fresh = [];
   for (const chat of chats) {
@@ -66,7 +76,7 @@ export const freshChats = (seen, chats, { now = Date.now(), open } = {}) => {
       id &&
       seen.get(chat.key) !== id &&
       !chat.last.mine &&
-      !chat.muted &&
+      allow(chat) &&
       chat.unread > 0 &&
       now - at < FRESH_MS &&
       chat.key !== open
@@ -127,28 +137,51 @@ const useTitleCount = (chats, on) => {
   );
 };
 
+// Telegram's notification settings (R-Y157), asked when the page opens
+// and again every few minutes, for changes made on another device.
+const RULES_MS = 5 * 60_000;
+const useNotifyRules = (api) => {
+  useEffect(() => {
+    loadNotifyRules(api);
+    const timer = globalThis.setInterval?.(
+      () => loadNotifyRules(api),
+      RULES_MS
+    );
+    return () => globalThis.clearInterval?.(timer);
+  }, [api]);
+};
+
 /**
  * Shows a notification for each chat with news. `show({ source, chat })`
  * opens a chat; `current` is the open one.
  */
-export const useNotifications = ({ chats, current, show, t }) => {
+export const useNotifications = ({ chats, current, show, t, api }) => {
   const seen = useRef(null);
   const latest = useRef(show);
   latest.current = show;
   useTitleCount(chats, readPref(TITLE_COUNT_KEY, true));
+  useNotifyRules(api);
   useEffect(() => {
     if (chats.length === 0) {
       return;
     }
     const open = looking() ? current?.key : null;
-    const found = freshChats(seen.current, chats, { open });
+    const rules = getNotifyRules();
+    const found = freshChats(seen.current, chats, {
+      open,
+      allow: (chat) => shouldNotify(chat, rules),
+    });
     seen.current = found.seen;
     if (!readPref(NOTIFY_KEY, true) || !notifyAllowed()) {
       return;
     }
     const preview = readPref(NOTIFY_PREVIEW_KEY, true);
     for (const chat of found.fresh) {
-      const { title, body } = notificationOf(t, chat, preview);
+      const { title, body } = notificationOf(
+        t,
+        chat,
+        preview && showPreview(chat, rules)
+      );
       try {
         const note = new globalThis.Notification(title, {
           body,

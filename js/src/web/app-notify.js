@@ -24,6 +24,7 @@ export const AppNotifications = ({ api, t, onOpen }) => {
   useNotifications({
     chats,
     current: null,
+    api,
     show: (target) => {
       openChat(target);
       onOpen();
