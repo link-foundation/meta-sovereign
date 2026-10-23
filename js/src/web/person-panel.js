@@ -18,6 +18,7 @@ import { PeerActions } from './chat-peer-actions.js';
 import { NotifyRow } from './chat-notify-settings.js';
 import { CommonChatsRow } from './chat-common-chats.js';
 import { StatsRow } from './chat-stats.js';
+import { BoostsRow } from './chat-boosts.js';
 import { TtlActions } from './chat-ttl.js';
 import { ReactionsAction } from './chat-reactions.js';
 import { SettingsAction } from './chat-settings.js';
@@ -315,6 +316,7 @@ export const PersonPanel = ({
         el(Members, { key: 'mb', api, chat, info }),
         el(AdminActions, { key: 'ad', api, chat, info }),
         el(InviteLinksActions, { key: 'il', api, chat, info }),
+        el(BoostsRow, { key: 'bo', api, chat, info }),
         el(StatsRow, { key: 'st', api, chat, info }),
         el(TtlActions, { key: 'ttl', api, chat, info }),
         el(ReactionsAction, { key: 'rx', api, chat, info }),

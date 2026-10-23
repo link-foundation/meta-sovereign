@@ -8772,3 +8772,47 @@ span.bubble-effect {
   gap: 0.5rem;
   align-items: flex-start;
 }
+
+/* Channel boosts in the info column (R-Y173). */
+.boosts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.boosts-level {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.boosts-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+.boosts-bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent-fill, var(--chat-accent));
+}
+.boosts-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: flex-start;
+}
+.boosts-ask {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.boosters-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.boosters-item {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}

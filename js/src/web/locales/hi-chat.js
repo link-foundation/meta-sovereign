@@ -1447,4 +1447,34 @@ export const hiChat = {
   'chat.contactsEdit.err.flood':
     'बहुत ज़्यादा कोशिशें। थोड़ी देर रुककर फिर कोशिश करें।',
   'chat.contactsEdit.err.failed': 'कुछ गड़बड़ हो गई। फिर कोशिश करें।',
+  // Channel boosts (R-Y173).
+  'chat.boosts.title': 'बूस्ट',
+  'chat.boosts.level': 'स्तर {level}',
+  'chat.boosts.progress': 'अगले स्तर तक {need} में से {have} बूस्ट',
+  'chat.boosts.count': '{count, plural, one {# बूस्ट} other {# बूस्ट}}',
+  'chat.boosts.boost': 'बूस्ट करें',
+  'chat.boosts.boosters': 'बूस्ट करने वाले',
+  'chat.boosts.boostersCount':
+    '{count, plural, one {# बूस्टर} other {# बूस्टर}}',
+  'chat.boosts.loading': 'लोड हो रहा है…',
+  'chat.boosts.more': 'और दिखाएँ',
+  'chat.boosts.mine': 'आप इस चैट को बूस्ट कर रहे हैं।',
+  'chat.boosts.done': 'बूस्ट हो गया। धन्यवाद!',
+  'chat.boosts.confirm': 'फिर भी बूस्ट करें',
+  'chat.boosts.cancel': 'रद्द करें',
+  'chat.boosts.askMove':
+    'आपका बूस्ट अभी "{from}" के लिए है। इसे इस चैट में ले जाएँ?',
+  'chat.boosts.askCooldown':
+    'आपका बूस्ट "{from}" के लिए {when} तक रुका है। फिर भी इसे इस चैट में ले जाने की कोशिश करें?',
+  'chat.boosts.giveaway': 'गिवअवे विजेता',
+  'chat.boosts.gift': 'उपहार',
+  'chat.boosts.unknown': 'अज्ञात',
+  'chat.boosts.until': '{when} तक बूस्ट',
+  'chat.boosts.err.premium': 'बूस्ट करने के लिए Telegram Premium चाहिए।',
+  'chat.boosts.err.already': 'आपके बूस्ट पहले से इस चैट की मदद कर रहे हैं।',
+  'chat.boosts.err.admin': 'बूस्ट करने वालों को केवल एडमिन देख सकते हैं।',
+  'chat.boosts.err.no-chat': 'इस चैट को बूस्ट नहीं किया जा सकता।',
+  'chat.boosts.err.flood':
+    'बहुत ज़्यादा कोशिशें। कुछ देर रुककर फिर प्रयास करें।',
+  'chat.boosts.err.failed': 'कुछ गड़बड़ हो गई। फिर प्रयास करें।',
 };

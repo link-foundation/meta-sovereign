@@ -1465,4 +1465,34 @@ export const ruChat = {
   'chat.contactsEdit.err.flood':
     'Слишком много попыток. Подождите и повторите.',
   'chat.contactsEdit.err.failed': 'Что-то пошло не так. Попробуйте ещё раз.',
+  // Channel boosts (R-Y173).
+  'chat.boosts.title': 'Бусты',
+  'chat.boosts.level': 'Уровень {level}',
+  'chat.boosts.progress': '{have} из {need} бустов до следующего уровня',
+  'chat.boosts.count':
+    '{count, plural, one {# буст} few {# буста} many {# бустов} other {# буста}}',
+  'chat.boosts.boost': 'Забустить',
+  'chat.boosts.boosters': 'Бустеры',
+  'chat.boosts.boostersCount':
+    '{count, plural, one {# бустер} few {# бустера} many {# бустеров} other {# бустера}}',
+  'chat.boosts.loading': 'Загрузка…',
+  'chat.boosts.more': 'Показать ещё',
+  'chat.boosts.mine': 'Вы бустите этот чат.',
+  'chat.boosts.done': 'Забустили. Спасибо!',
+  'chat.boosts.confirm': 'Всё равно забустить',
+  'chat.boosts.cancel': 'Отмена',
+  'chat.boosts.askMove':
+    'Ваш буст сейчас у «{from}». Перенести его в этот чат?',
+  'chat.boosts.askCooldown':
+    'Ваш буст для «{from}» восстанавливается до {when}. Всё равно попробовать перенести его в этот чат?',
+  'chat.boosts.giveaway': 'Победитель розыгрыша',
+  'chat.boosts.gift': 'Подарок',
+  'chat.boosts.unknown': 'Неизвестный',
+  'chat.boosts.until': 'Буст до {when}',
+  'chat.boosts.err.premium': 'Для буста нужен Telegram Premium.',
+  'chat.boosts.err.already': 'Ваши бусты уже помогают этому чату.',
+  'chat.boosts.err.admin': 'Бустеров видят только администраторы.',
+  'chat.boosts.err.no-chat': 'Этот чат нельзя забустить.',
+  'chat.boosts.err.flood': 'Слишком много попыток. Подождите и повторите.',
+  'chat.boosts.err.failed': 'Что-то пошло не так. Повторите.',
 };

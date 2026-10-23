@@ -49,6 +49,11 @@ const useTagList = (api, chatId) => {
   useEffect(() => {
     reload();
   }, [reload]);
+  // A reaction just added may be a new tag: the bar asks again (R-Y173).
+  useEffect(() => {
+    globalThis.addEventListener?.('meta-reacted', reload);
+    return () => globalThis.removeEventListener?.('meta-reacted', reload);
+  }, [reload]);
   return [data.id === chatId ? data : { tags: [], premium: false }, reload];
 };
 

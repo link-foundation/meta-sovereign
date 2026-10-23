@@ -85,6 +85,7 @@ import { createPrivacy } from './telegram-privacy.js';
 import { createInviteLinks } from './telegram-invite-links.js';
 import { createTtl } from './telegram-ttl.js';
 import { createSavedTags } from './telegram-saved-tags.js';
+import { createBoosts } from './telegram-boosts.js';
 import { createSendAs } from './telegram-send-as.js';
 import { createStories } from './telegram-stories.js';
 import { createStoryActions } from './telegram-story-actions.js';
@@ -409,7 +410,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // folders (R-Y164); statistics of channels and supergroups (R-Y167); the pinned
 // messages list, similar channels and fact checks (R-Y166); bot mini apps
 // (R-Y168); sticker and emoji sets, close friends and adding a contact by phone
-// (R-Y169).
+// (R-Y169); channel boosts (R-Y173).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -472,6 +473,7 @@ const chatActions = (env, context) => {
     ...createPrivacy(env, context),
     ...createTtl(env, context),
     ...createSavedTags(env, context),
+    ...createBoosts(env, context),
     ...createSendAs(env, context),
     ...createEffects(env, context),
     ...createEmojiStatus(env, context),

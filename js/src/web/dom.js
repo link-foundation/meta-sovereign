@@ -1043,6 +1043,11 @@ export const api = {
   telegramSavedTags: () => telegramPost('saved-tags', {}),
   telegramSavedTagSearch: (body = {}) => telegramPost('saved-tag-search', body),
   telegramSavedTagRename: (body = {}) => telegramPost('saved-tag-rename', body),
+  // Channel boosts (R-Y173).
+  telegramBoostsStatus: (body = {}) => telegramPost('boosts-status', body),
+  telegramMyBoosts: (body = {}) => telegramPost('my-boosts', body),
+  telegramBoostApply: (body = {}) => telegramPost('boost-apply', body),
+  telegramBoosters: (body = {}) => telegramPost('boosters', body),
   telegramDefaultTtl: () => telegramPost('privacy-ttl', {}),
   telegramDefaultTtlSet: (body = {}) => telegramPost('privacy-ttl-set', body),
   // Viewing stories (R-Y140): the strip, one peer's, seen up to an id,

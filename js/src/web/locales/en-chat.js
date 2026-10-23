@@ -1444,4 +1444,33 @@ export const enChat = {
   'chat.contactsEdit.err.too-many': 'You have too many contacts.',
   'chat.contactsEdit.err.flood': 'Too many tries. Wait a while and try again.',
   'chat.contactsEdit.err.failed': 'Something went wrong. Try again.',
+  // Channel boosts (R-Y173).
+  'chat.boosts.title': 'Boosts',
+  'chat.boosts.level': 'Level {level}',
+  'chat.boosts.progress': '{have} of {need} boosts to the next level',
+  'chat.boosts.count': '{count, plural, one {# boost} other {# boosts}}',
+  'chat.boosts.boost': 'Boost',
+  'chat.boosts.boosters': 'Boosters',
+  'chat.boosts.boostersCount':
+    '{count, plural, one {# booster} other {# boosters}}',
+  'chat.boosts.loading': 'Loading…',
+  'chat.boosts.more': 'Show more',
+  'chat.boosts.mine': 'You are boosting this chat.',
+  'chat.boosts.done': 'Boosted. Thank you!',
+  'chat.boosts.confirm': 'Boost anyway',
+  'chat.boosts.cancel': 'Cancel',
+  'chat.boosts.askMove':
+    'Your boost is in use for "{from}". Move it to this chat?',
+  'chat.boosts.askCooldown':
+    'Your boost for "{from}" is cooling down until {when}. Try to move it to this chat anyway?',
+  'chat.boosts.giveaway': 'Giveaway winner',
+  'chat.boosts.gift': 'Gift',
+  'chat.boosts.unknown': 'Unknown',
+  'chat.boosts.until': 'Boosts until {when}',
+  'chat.boosts.err.premium': 'Boosting needs Telegram Premium.',
+  'chat.boosts.err.already': 'Your boosts already help this chat.',
+  'chat.boosts.err.admin': 'Only admins can see the boosters.',
+  'chat.boosts.err.no-chat': 'This chat cannot be boosted.',
+  'chat.boosts.err.flood': 'Too many tries. Wait a while and try again.',
+  'chat.boosts.err.failed': 'Something went wrong. Try again.',
 };

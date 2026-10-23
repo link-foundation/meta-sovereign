@@ -115,6 +115,10 @@ const useSenders = (state, api) => {
         ...body,
       })
     );
+    if (action === 'react') {
+      // A reaction in Saved Messages may be a new tag (R-Y173).
+      globalThis.dispatchEvent?.(new globalThis.Event('meta-reacted'));
+    }
   };
   const remove = async (messages, { revoke }) => {
     const { telegram, other } = split(sentOnly(messages));

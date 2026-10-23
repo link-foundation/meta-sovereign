@@ -190,8 +190,20 @@ const renameSteps = async () => {
   );
 };
 
+const refreshSteps = async () => {
+  // A reaction added to a saved message may be a new tag (R-Y173): the bar
+  // asks again once the reaction was sent.
+  tags = [...tags, { reaction: { emoji: '❤' }, title: '', count: 1 }];
+  assert((await chip('❤').count()) === 0, 'the new tag is not there yet');
+  await page.evaluate(() =>
+    globalThis.dispatchEvent(new globalThis.Event('meta-reacted'))
+  );
+  await chip('❤').waitFor({ timeout: 5000 });
+};
+
 await finish(async () => {
   await filterSteps();
   await lockedSteps();
   await renameSteps();
+  await refreshSteps();
 });
