@@ -48,7 +48,13 @@
  */
 
 import { buildMessageLink } from './link.js';
-import { authHeaders, requestJson, resolveOption } from './http.js';
+import {
+  authHeaders,
+  codedError,
+  idFromChat,
+  requestJson,
+  resolveOption,
+} from './http.js';
 
 const SOURCE = 'peopleperhour';
 const DEFAULT_BASE_URL = 'https://www.peopleperhour.com/api/v1';
@@ -765,11 +771,17 @@ const livePost = async (ctx, content, options = {}) => {
   if (!text) {
     throw new Error('peopleperhour post text is required');
   }
-  const workstreamId = extractPostId(options, content, 'workstreamId');
-  const proposalId = extractPostId(options, content, 'proposalId');
+  const chat = typeof content === 'object' ? content?.chat : null;
+  const workstreamId =
+    extractPostId(options, content, 'workstreamId') ??
+    idFromChat(chat, ['workstream']);
+  const proposalId =
+    extractPostId(options, content, 'proposalId') ??
+    idFromChat(chat, ['proposal']);
   if (!workstreamId && !proposalId) {
-    throw new Error(
-      'peopleperhour post requires options.workstreamId or options.proposalId'
+    throw codedError(
+      `peopleperhour can only message a workstream or a proposal; chat "${chat ?? ''}" is neither`,
+      'unsupported-chat'
     );
   }
   const endpoint = workstreamId

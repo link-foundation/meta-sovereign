@@ -41,7 +41,13 @@
  */
 
 import { buildMessageLink } from './link.js';
-import { authHeaders, requestJson, resolveOption } from './http.js';
+import {
+  authHeaders,
+  codedError,
+  idFromChat,
+  requestJson,
+  resolveOption,
+} from './http.js';
 
 const SOURCE = 'upwork';
 const DEFAULT_BASE_URL = 'https://api.upwork.com/graphql';
@@ -762,6 +768,12 @@ const livePullMessages = async (ctx, options = {}) => {
   };
 };
 
+// The room id out of the explicit option or a `room:<id>` chat key (R-Z4).
+const upworkRoomId = (content, options) => {
+  const object = typeof content === 'object' && content ? content : {};
+  return options.roomId ?? object.roomId ?? idFromChat(object.chat, ['room']);
+};
+
 const livePost = async (ctx, content, options = {}) => {
   const text =
     typeof content === 'string'
@@ -770,10 +782,12 @@ const livePost = async (ctx, content, options = {}) => {
   if (!text) {
     throw new Error('upwork post text is required');
   }
-  const roomId =
-    options.roomId ?? (typeof content === 'object' ? content?.roomId : null);
+  const roomId = upworkRoomId(content, options);
   if (!roomId) {
-    throw new Error('upwork post requires options.roomId');
+    throw codedError(
+      `upwork can only message a room; chat "${content?.chat ?? ''}" has no room id (open the room in Upwork once, or pull it first)`,
+      'unsupported-chat'
+    );
   }
   const operation = ctx.operation('createMessage');
   const data = await graphql(

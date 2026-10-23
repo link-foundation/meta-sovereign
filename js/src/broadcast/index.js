@@ -10,16 +10,57 @@
 
 import { getSource } from '../sources/index.js';
 
+// An unknown network is a not-done result, not a crash of the whole run.
+const sourceOf = (name) => {
+  try {
+    return getSource(name);
+  } catch {
+    return null;
+  }
+};
+
+// One network's outcome. A network that has no such operation, or whose
+// adapter answers `{ ok: false }`, is reported as not done: never ok:true
+// for something that did not happen (R-Z4).
+const attempt = async (network, what, run) => {
+  if (typeof run !== 'function') {
+    return {
+      network,
+      ok: false,
+      code: 'unsupported',
+      error: `${network} has no ${what}; nothing was changed there`,
+    };
+  }
+  try {
+    const result = await run();
+    if (result?.ok === false || result?.unsupported === true) {
+      return {
+        network,
+        ok: false,
+        code: result.code ?? 'unsupported',
+        error: result.error ?? `${network} did not do the ${what}`,
+        result,
+      };
+    }
+    return { network, ok: true, result };
+  } catch (err) {
+    return {
+      network,
+      ok: false,
+      error: err.message,
+      ...(err.code ? { code: err.code } : {}),
+      ...(err.ambiguous ? { outcome: 'unknown' } : {}),
+    };
+  }
+};
+
 export const broadcast = async (networks, content) => {
   const results = [];
   for (const name of networks) {
-    const src = getSource(name);
-    try {
-      const r = await src.live?.post?.(content);
-      results.push({ network: name, ok: true, result: r });
-    } catch (err) {
-      results.push({ network: name, ok: false, error: err.message });
-    }
+    const live = sourceOf(name)?.live;
+    results.push(
+      await attempt(name, 'post', live?.post && (() => live.post(content)))
+    );
   }
   return results;
 };
@@ -27,13 +68,14 @@ export const broadcast = async (networks, content) => {
 export const syncProfile = async (networks, profile) => {
   const results = [];
   for (const name of networks) {
-    const src = getSource(name);
-    try {
-      const r = await src.live?.syncProfile?.(profile);
-      results.push({ network: name, ok: true, result: r });
-    } catch (err) {
-      results.push({ network: name, ok: false, error: err.message });
-    }
+    const live = sourceOf(name)?.live;
+    results.push(
+      await attempt(
+        name,
+        'profile update',
+        live?.syncProfile && (() => live.syncProfile(profile))
+      )
+    );
   }
   return results;
 };
@@ -41,13 +83,14 @@ export const syncProfile = async (networks, profile) => {
 export const syncResume = async (networks, resume) => {
   const results = [];
   for (const name of networks) {
-    const src = getSource(name);
-    try {
-      const r = await src.syncResume?.(resume);
-      results.push({ network: name, ok: true, result: r });
-    } catch (err) {
-      results.push({ network: name, ok: false, error: err.message });
-    }
+    const src = sourceOf(name);
+    results.push(
+      await attempt(
+        name,
+        'resume update',
+        src?.syncResume && (() => src.syncResume(resume))
+      )
+    );
   }
   return results;
 };

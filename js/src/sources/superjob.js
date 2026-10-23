@@ -10,7 +10,8 @@
 import { buildMessageLink } from './link.js';
 import {
   authHeaders,
-  contentTarget,
+  threadTarget,
+  unsupportedError,
   contentText,
   requestJson,
   resolveOption,
@@ -69,7 +70,9 @@ export const createSuperjobLive = ({
     },
     async post(content, options = {}) {
       const responseId =
-        options.responseId ?? contentTarget(content) ?? content?.responseId;
+        options.responseId ??
+        threadTarget(content, 'response') ??
+        content?.responseId;
       const text = contentText(content);
       if (!responseId) {
         throw new Error('superjob response id is required');
@@ -87,15 +90,13 @@ export const createSuperjobLive = ({
         }
       );
     },
-    async syncResume(resume, options = {}) {
-      const resumeId = options.resumeId ?? resume.id ?? resume.resumeId;
-      const method = resumeId ? 'PUT' : 'POST';
-      const path = resumeId ? `/user_cvs/${resumeId}/` : '/user_cvs/';
-      return requestJson(fetchImpl, `${baseUrl}${path}`, {
-        method,
-        headers: headers(options),
-        body: resume,
-      });
+    // No endpoint writes an applicant's resume (the CV plan researched
+    // this, R-V6): report it instead of calling a URL that does not
+    // exist. The CV sync screen drives the web site (R-Z4).
+    async syncResume() {
+      throw unsupportedError(
+        'SuperJob has no API to change a resume; use the CV sync screen, which drives the web site'
+      );
     },
   };
 };

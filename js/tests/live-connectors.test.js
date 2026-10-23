@@ -40,6 +40,16 @@ const bodyObject = (body) => {
   return body;
 };
 
+const expectUnsupported = async (run) => {
+  let error = null;
+  try {
+    await run();
+  } catch (caught) {
+    error = caught;
+  }
+  expect(error?.code).toBe('unsupported');
+};
+
 const mockFetch = (...handlers) => {
   const calls = [];
   const fetchImpl = async (url, init = {}) => {
@@ -254,54 +264,37 @@ describe('LinkedIn live adapter', () => {
     });
     const pulled = await live.pullMessages({ token: 'li-token' });
     expect(pulled.links[0].id).toBe('msg:linkedin:urn:li:share:1');
+    // A resume is only ever posted when the user chose "share as post"
+    // (R-Z4); without it nothing is published.
     await live.syncResume(
       { title: 'Engineer', skills: ['javascript'] },
-      { token: 'li-token' }
+      { token: 'li-token', shareAsPost: true }
     );
   });
 });
 
 describe('job-board live adapters', () => {
   it('syncs hh, Habr Career, and SuperJob messages/resumes', async () => {
-    const hhFetch = mockFetch(
-      () => ({
-        items: [
-          {
-            id: 'neg1',
-            vacancy: { id: 'v1' },
-            messages: [{ id: 'm1', author: { id: 'hr' }, text: 'hh hello' }],
-          },
-        ],
-        page: 0,
-        pages: 1,
-      }),
-      (call) => {
-        expect(call.url.pathname).toBe('/resumes/resume1');
-        expect(call.init.method).toBe('PUT');
-        return { id: 'resume1' };
-      }
-    );
+    const hhFetch = mockFetch(() => ({
+      items: [
+        {
+          id: 'neg1',
+          vacancy: { id: 'v1' },
+          messages: [{ id: 'm1', author: { id: 'hr' }, text: 'hh hello' }],
+        },
+      ],
+      page: 0,
+      pages: 1,
+    }));
     const hh = createHhLive({ fetchImpl: hhFetch, baseUrl: 'https://hh.test' });
     expect((await hh.pullMessages({ token: 'hh-token' })).links[0].body).toBe(
       'hh hello'
     );
-    await hh.syncResume(
-      { id: 'resume1', title: 'Engineer' },
-      { token: 'hh-token' }
-    );
+    await expectUnsupported(() => hh.syncResume({ id: 'resume1' }));
 
-    const habrFetch = mockFetch(
-      () => ({
-        items: [
-          { id: 'app1', vacancyId: 'v2', from: 'hr', message: 'habr hi' },
-        ],
-      }),
-      (call) => {
-        expect(call.url.pathname).toBe('/api/resume');
-        expect(call.init.method).toBe('POST');
-        return { id: 'resume2' };
-      }
-    );
+    const habrFetch = mockFetch(() => ({
+      items: [{ id: 'app1', vacancyId: 'v2', from: 'hr', message: 'habr hi' }],
+    }));
     const habr = createHabrCareerLive({
       fetchImpl: habrFetch,
       baseUrl: 'https://habr.test',
@@ -309,18 +302,11 @@ describe('job-board live adapters', () => {
     expect(
       (await habr.pullMessages({ token: 'habr-token' })).links[0].body
     ).toBe('habr hi');
-    await habr.syncResume({ title: 'Engineer' }, { token: 'habr-token' });
+    await expectUnsupported(() => habr.syncResume({ title: 'Engineer' }));
 
-    const superjobFetch = mockFetch(
-      () => ({
-        objects: [{ id: 'r1', vacancy_id: 'v3', from: 'hr', message: 'sj hi' }],
-      }),
-      (call) => {
-        expect(call.url.pathname).toBe('/2.0/user_cvs/44/');
-        expect(call.init.method).toBe('PUT');
-        return { id: 44 };
-      }
-    );
+    const superjobFetch = mockFetch(() => ({
+      objects: [{ id: 'r1', vacancy_id: 'v3', from: 'hr', message: 'sj hi' }],
+    }));
     const superjob = createSuperjobLive({
       fetchImpl: superjobFetch,
       baseUrl: 'https://superjob.test/2.0',
@@ -330,10 +316,7 @@ describe('job-board live adapters', () => {
       (await superjob.pullMessages({ token: 'sj-token', appId: 'app' }))
         .links[0].body
     ).toBe('sj hi');
-    await superjob.syncResume(
-      { id: 44, title: 'Engineer' },
-      { token: 'sj-token', appId: 'app' }
-    );
+    await expectUnsupported(() => superjob.syncResume({ id: 44 }));
   });
 });
 

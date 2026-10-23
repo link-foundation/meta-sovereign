@@ -77,8 +77,13 @@ export const NO_FALLBACK_CODES = Object.freeze(['safe-mode', 'bad-draft']);
 // An adapter marks an error `fallback: false` when the message may
 // already be out (a connected account): sending it again through the
 // browser could post it twice.
+// An `ambiguous` error (timeout, reset, 5xx after the request left, see
+// `markSendOutcome` in ./http.js) may have been delivered too (R-Z4);
+// only a clear "not sent" (auth/4xx, unsupported) falls back.
 const defaultShouldFallback = (error) =>
-  error?.fallback !== false && !NO_FALLBACK_CODES.includes(error?.code);
+  error?.fallback !== false &&
+  error?.ambiguous !== true &&
+  !NO_FALLBACK_CODES.includes(error?.code);
 
 /**
  * Page-side extractor for the visible message history. It runs inside
@@ -503,6 +508,16 @@ const annotate = (result, via, extra = {}) =>
     ? { ...result, ...extra, via }
     : { result: result ?? null, ...extra, via };
 
+// Maybe delivered: the caller records it as `unknown` and does not retry
+// on its own (R-Z4).
+const markUnknown = (error) => {
+  if (error?.ambiguous === true) {
+    error.outcome = 'unknown';
+    error.code ??= 'send-unknown';
+  }
+  return error;
+};
+
 /**
  * API first, browser second.
  *
@@ -531,7 +546,7 @@ export const createFallbackSender =
         return annotate(await apiSend(draft), 'api');
       } catch (error) {
         if (!shouldFallback(error) || typeof browserSend !== 'function') {
-          throw error;
+          throw markUnknown(error);
         }
         apiError = error;
         log(

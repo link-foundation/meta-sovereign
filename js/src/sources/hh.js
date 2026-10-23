@@ -10,7 +10,8 @@
 import { buildMessageLink } from './link.js';
 import {
   authHeaders,
-  contentTarget,
+  threadTarget,
+  unsupportedError,
   contentText,
   requestJson,
   resolveOption,
@@ -92,7 +93,7 @@ export const createHhLive = ({
     async post(content, options = {}) {
       const negotiationId =
         options.negotiationId ??
-        contentTarget(content) ??
+        threadTarget(content, 'negotiation') ??
         content?.negotiationId;
       const text = contentText(content);
       if (!negotiationId) {
@@ -111,15 +112,13 @@ export const createHhLive = ({
         }
       );
     },
-    async syncResume(resume, options = {}) {
-      const resumeId = options.resumeId ?? resume.id ?? resume.resumeId;
-      const method = resumeId ? 'PUT' : 'POST';
-      const path = resumeId ? `/resumes/${resumeId}` : '/resumes';
-      return requestJson(fetchImpl, `${baseUrl}${path}`, {
-        method,
-        headers: headers(options.token),
-        body: resume,
-      });
+    // No endpoint writes an applicant's resume (the CV plan researched
+    // this, R-V6): report it instead of calling a URL that does not
+    // exist. The CV sync screen drives the web site (R-Z4).
+    async syncResume() {
+      throw unsupportedError(
+        'hh.ru has no API to change a resume; use the CV sync screen, which drives the web site'
+      );
     },
   };
 };

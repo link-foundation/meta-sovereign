@@ -453,12 +453,15 @@ export const createAdapterSender =
   ({ getSource, options = {} }) =>
   async (draft) => {
     const live = getSource(draft.source)?.live;
-    if (!live?.post) {
+    // `sendMessage` is the chat-only route; `post` may publish (R-Z4).
+    const send = live?.sendMessage ?? live?.post;
+    if (!send) {
       throw new Error(
         `${draft.source} cannot send from here; copy the text, send it yourself and mark it as sent`
       );
     }
-    return live.post(
+    return send.call(
+      live,
       { chat: draft.chat, to: draft.contact, text: draft.text },
       options[draft.source] ?? {}
     );

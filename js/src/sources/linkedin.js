@@ -13,8 +13,10 @@ import { buildMessageLink } from './link.js';
 import {
   authHeaders,
   contentText,
+  contentTarget,
   requestJson,
   resolveOption,
+  unsupportedError,
 } from './http.js';
 
 const SOURCE = 'linkedin';
@@ -64,6 +66,14 @@ export const linkedinPostsToLinks = (payload, fallbackAuthor = 'unknown') => {
     records = payload.data;
   }
   return records.map((post) => linkedinPostToLink(post, fallbackAuthor));
+};
+
+const requireShareAsPost = (options, what) => {
+  if (options.shareAsPost !== true) {
+    throw unsupportedError(
+      `LinkedIn has no API to edit the ${what}; pass shareAsPost to publish it as a public post instead`
+    );
+  }
 };
 
 export const createLinkedInLive = ({
@@ -134,7 +144,28 @@ export const createLinkedInLive = ({
         raw,
       };
     },
+    /**
+     * A message to a person or chat. LinkedIn's messaging API is
+     * partner-only, so this never sends: the sender falls back to the web
+     * app. It must never turn a message into a public post (R-Z4).
+     */
+    async sendMessage() {
+      throw unsupportedError(
+        'LinkedIn messaging has no API for personal apps; send it from the LinkedIn web app'
+      );
+    },
+    /**
+     * Publish a PUBLIC feed post (broadcast). Anything addressed to a
+     * chat or person is refused instead of being published (R-Z4).
+     */
     async post(content, options = {}) {
+      if (contentTarget(content) || content?.contact || options.to) {
+        return adapter.sendMessage();
+      }
+      return adapter.publishPost(content, options);
+    },
+    /** The explicit, named action that publishes on the feed (R-Z4). */
+    async publishPost(content, options = {}) {
       const owner = resolvedAuthor(options.author);
       const text = contentText(content);
       if (!text) {
@@ -157,7 +188,10 @@ export const createLinkedInLive = ({
         },
       });
     },
+    // Profile and resume edits have no API; sharing the text as a public
+    // post happens only when the user chose "share as post" (R-Z4).
     async syncProfile(profile, options = {}) {
+      requireShareAsPost(options, 'profile');
       const text = [
         profile.name,
         profile.headline,
@@ -165,9 +199,10 @@ export const createLinkedInLive = ({
       ]
         .filter(Boolean)
         .join('\n\n');
-      return adapter.post({ text }, options);
+      return adapter.publishPost({ text }, options);
     },
     async syncResume(resume, options = {}) {
+      requireShareAsPost(options, 'resume');
       const text = [
         resume.title ?? resume.headline ?? 'Resume',
         resume.summary ?? resume.about ?? resume.description,
@@ -175,7 +210,7 @@ export const createLinkedInLive = ({
       ]
         .filter(Boolean)
         .join('\n\n');
-      return adapter.post({ text }, options);
+      return adapter.publishPost({ text }, options);
     },
   };
   return adapter;

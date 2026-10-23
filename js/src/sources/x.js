@@ -9,11 +9,12 @@
 import { buildMessageLink } from './link.js';
 import {
   authHeaders,
-  compact,
   contentTarget,
   contentText,
   requestJson,
   resolveOption,
+  codedError,
+  unsupportedError,
 } from './http.js';
 
 const SOURCE = 'x';
@@ -111,31 +112,90 @@ export const xUpdatesToLinks = (payload) => {
   );
 };
 
-const xPullTarget = (options, configuredUserId) => {
-  const search = {
-    max_results: options.limit ?? options.maxResults ?? 50,
-    pagination_token: options.paginationToken ?? options.offset,
-  };
+// Without these X returns only id and event_type for a DM event (R-Z4).
+const DM_FIELDS = {
+  'dm_event.fields':
+    'id,event_type,text,created_at,sender_id,dm_conversation_id,attachments,referenced_tweets,participant_ids',
+  expansions:
+    'sender_id,participant_ids,referenced_tweets.id,attachments.media_keys',
+  'user.fields': 'username,name',
+  'media.fields': 'type,url,preview_image_url',
+};
+
+const xDmRequest = (options, search) => {
+  const dm = { ...search, ...DM_FIELDS };
   if (options.conversationId) {
     return {
       path: `/2/dm_conversations/${options.conversationId}/dm_events`,
-      search,
+      search: dm,
     };
   }
   if (options.participantId) {
     return {
       path: `/2/dm_conversations/with/${options.participantId}/dm_events`,
-      search,
+      search: dm,
     };
   }
-  if (options.mode === 'mentions' || options.userId || configuredUserId) {
-    search['tweet.fields'] = 'created_at,author_id,conversation_id';
+  return { path: '/2/dm_events', search: dm };
+};
+
+/**
+ * What to pull: the DMs, and separately the mentions of the saved user.
+ * A saved user id never turns the DM pull into a mentions pull; a page
+ * token belongs to one stream, so it pulls only that stream (R-Z4).
+ */
+const xPullRequests = (options, configuredUserId) => {
+  const search = {
+    max_results: options.limit ?? options.maxResults ?? 50,
+    pagination_token: options.paginationToken ?? options.offset,
+  };
+  const userId = options.userId ?? configuredUserId;
+  const mentions = () => {
+    if (!userId) {
+      throw codedError('X mentions need the user id', 'no-target');
+    }
     return {
-      path: `/2/users/${options.userId ?? configuredUserId}/mentions`,
-      search,
+      kind: 'mentions',
+      path: `/2/users/${userId}/mentions`,
+      search: {
+        ...search,
+        'tweet.fields': 'created_at,author_id,conversation_id',
+      },
     };
+  };
+  if (options.mode === 'mentions') {
+    return [mentions()];
   }
-  return { path: '/2/dm_events', search };
+  const dms = { kind: 'dms', ...xDmRequest(options, search) };
+  const scoped =
+    options.mode === 'dms' ||
+    options.conversationId ||
+    options.participantId ||
+    search.pagination_token;
+  return scoped || !userId ? [dms] : [dms, mentions()];
+};
+
+// A DM conversation id (`123` or `123-456`), as opposed to a post thread
+// key such as `post:9` or `wall:self` (R-Z4).
+const isDmConversationId = (value) => /^\d+(-\d+)?$/.test(String(value ?? ''));
+
+// The endpoint a DM goes to: a conversation id, or a user to start one
+// with. A post thread key is neither (R-Z4).
+const xDmPath = (content, options) => {
+  const object = typeof content === 'object' && content ? content : {};
+  const chat = options.conversationId ?? object.conversationId ?? object.chat;
+  const participant =
+    options.participantId ?? object.participantId ?? object.to;
+  if (isDmConversationId(chat)) {
+    return `/2/dm_conversations/${chat}/messages`;
+  }
+  if (isDmConversationId(participant)) {
+    return `/2/dm_conversations/with/${participant}/messages`;
+  }
+  throw codedError(
+    `x chat "${chat ?? participant ?? ''}" is not a DM conversation; X has no API to reply to a post thread here`,
+    'unsupported-chat'
+  );
 };
 
 export const createXLive = ({
@@ -143,25 +203,43 @@ export const createXLive = ({
   userId = null,
   fetchImpl = globalThis.fetch,
   baseUrl = 'https://api.x.com',
-  profileBaseUrl = 'https://api.x.com/1.1',
 } = {}) => {
   const resolvedToken = (override) =>
     resolveOption(override ?? token, 'X_ACCESS_TOKEN', 'X access token');
   const headers = (override) => authHeaders(resolvedToken(override));
 
-  return {
+  const adapter = {
     async pullMessages(options = {}) {
-      const { path, search } = xPullTarget(options, userId);
-      const raw = await requestJson(fetchImpl, `${baseUrl}${path}`, {
-        headers: headers(options.token),
-        search,
-      });
-      const links = xUpdatesToLinks(raw);
+      const links = [];
+      const raws = [];
+      const failures = [];
+      let nextOffset = null;
+      const requests = xPullRequests(options, userId);
+      for (const { kind, path, search } of requests) {
+        try {
+          const raw = await requestJson(fetchImpl, `${baseUrl}${path}`, {
+            headers: headers(options.token),
+            search,
+          });
+          links.push(...xUpdatesToLinks(raw));
+          raws.push(raw);
+          nextOffset ??= raw?.meta?.next_token ?? null;
+        } catch (error) {
+          if (requests.length === 1) {
+            throw error;
+          }
+          failures.push({ stream: kind, error: error.message });
+        }
+      }
       return {
         links,
-        rawCount: Array.isArray(raw?.data) ? raw.data.length : links.length,
-        nextOffset: raw?.meta?.next_token ?? null,
-        raw,
+        rawCount: raws.reduce(
+          (n, raw) => n + (Array.isArray(raw?.data) ? raw.data.length : 0),
+          0
+        ),
+        nextOffset,
+        raw: raws.length === 1 ? raws[0] : raws,
+        ...(failures.length ? { failures } : {}),
       };
     },
     async deleteMessages({ ids, links } = {}, options = {}) {
@@ -178,22 +256,28 @@ export const createXLive = ({
       }
       return { ok: true, deleted: count };
     },
-    async post(content, options = {}) {
+    /**
+     * Send a Direct Message. A chat key names a DM conversation (POST
+     * /2/dm_conversations/:id/messages) or, with a user id, starts one
+     * (/with/:participant_id/messages). It never publishes a post (R-Z4).
+     */
+    async sendMessage(content, options = {}) {
       const text = contentText(content);
       if (!text) {
-        throw new Error('x post text is required');
+        throw codedError('x message text is required', 'bad-draft');
       }
-      const target = options.conversationId ?? content?.conversationId;
-      const participant = options.participantId ?? contentTarget(content);
-      if (target || participant) {
-        const path = target
-          ? `/2/dm_conversations/${target}/messages`
-          : `/2/dm_conversations/with/${participant}/messages`;
-        return requestJson(fetchImpl, `${baseUrl}${path}`, {
-          method: 'POST',
-          headers: headers(options.token),
-          body: { text },
-        });
+      const path = xDmPath(content, options);
+      return requestJson(fetchImpl, `${baseUrl}${path}`, {
+        method: 'POST',
+        headers: headers(options.token),
+        body: { text },
+      });
+    },
+    /** The explicit, named action that publishes a public post (R-Z4). */
+    async publishPost(content, options = {}) {
+      const text = contentText(content);
+      if (!text) {
+        throw codedError('x post text is required', 'bad-draft');
       }
       return requestJson(fetchImpl, `${baseUrl}/2/tweets`, {
         method: 'POST',
@@ -201,29 +285,27 @@ export const createXLive = ({
         body: { text },
       });
     },
-    async syncProfile(profile, options = {}) {
-      const body = new URLSearchParams(
-        compact({
-          name: profile.name,
-          url: profile.url ?? profile.website,
-          location: profile.location,
-          description: profile.description ?? profile.bio ?? profile.about,
-        })
-      );
-      return requestJson(
-        fetchImpl,
-        `${profileBaseUrl}/account/update_profile.json`,
-        {
-          method: 'POST',
-          headers: {
-            ...headers(options.token),
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body,
-        }
+    /** Broadcast: a public post. Anything addressed to a chat is a DM. */
+    async post(content, options = {}) {
+      const addressed =
+        options.conversationId ||
+        options.participantId ||
+        contentTarget(content) ||
+        content?.conversationId ||
+        content?.contact;
+      return addressed
+        ? adapter.sendMessage(content, options)
+        : adapter.publishPost(content, options);
+    },
+    // The profile endpoint is v1.1 and needs an OAuth 1.0a user context;
+    // a bearer token cannot call it, so it is reported, not attempted.
+    async syncProfile() {
+      throw unsupportedError(
+        'X profile updates need OAuth 1.0a user-context credentials, which are not configured; edit the profile on x.com'
       );
     },
   };
+  return adapter;
 };
 
 export const xSource = {

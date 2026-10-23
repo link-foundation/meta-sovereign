@@ -12,7 +12,8 @@
 import { buildMessageLink } from './link.js';
 import {
   authHeaders,
-  contentTarget,
+  threadTarget,
+  unsupportedError,
   contentText,
   requestJson,
   resolveOption,
@@ -39,7 +40,6 @@ export const createHabrCareerLive = ({
   fetchImpl = globalThis.fetch,
   baseUrl = 'https://career.habr.com',
   applicationsPath = '/api/applications',
-  resumePath = '/api/resume',
 } = {}) => {
   const resolvedToken = (override) =>
     resolveOption(
@@ -73,7 +73,7 @@ export const createHabrCareerLive = ({
     async post(content, options = {}) {
       const applicationId =
         options.applicationId ??
-        contentTarget(content) ??
+        threadTarget(content, 'application') ??
         content?.applicationId;
       const text = contentText(content);
       if (!applicationId) {
@@ -92,14 +92,13 @@ export const createHabrCareerLive = ({
         }
       );
     },
-    async syncResume(resume, options = {}) {
-      const resumeId = options.resumeId ?? resume.id ?? resume.resumeId;
-      const path = resumeId ? `${resumePath}/${resumeId}` : resumePath;
-      return requestJson(fetchImpl, `${baseUrl}${path}`, {
-        method: resumeId ? 'PUT' : 'POST',
-        headers: headers(options.token),
-        body: resume,
-      });
+    // No endpoint writes an applicant's resume (the CV plan researched
+    // this, R-V6): report it instead of calling a URL that does not
+    // exist. The CV sync screen drives the web site (R-Z4).
+    async syncResume() {
+      throw unsupportedError(
+        'Habr Career has no API to change a resume; use the CV sync screen, which drives the web site'
+      );
     },
   };
 };
