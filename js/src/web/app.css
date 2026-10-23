@@ -8108,3 +8108,8 @@ span.bubble-effect {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* The effect panel over the files' box (R-Y161). */
+.effect-panel.is-over-dialog {
+  z-index: 2100;
+}

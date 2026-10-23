@@ -3,7 +3,8 @@
 // t.me/username/… link whose username is the open chat's or resolves to a
 // chat (contacts.resolveUsername). The chat opens and the message is
 // scrolled to and highlighted, as a reply's jump does; anything else
-// opens in the browser as before.
+// opens in the browser as before. In a forum the topic a link names opens
+// first and a link to a topic itself opens that topic (R-Y161).
 
 import { useEffect, useRef } from 'react';
 import { chatKey } from './chat-model.js';
@@ -63,7 +64,10 @@ const open = async (latest, { href, link }) => {
       name: target.name,
       kind: target.kind === 'channel' ? 'channel' : 'group',
     },
-    `msg:telegram:${target.chat}:${link.id}`
+    `msg:telegram:${target.chat}:${link.id}`,
+    // In a forum the topic opens: the one the link names, or — a link
+    // to a topic itself, t.me/c/1/10 — the id when it is a topic (R-Y161).
+    link.thread ? { topic: link.thread } : { maybeTopic: link.id }
   );
 };
 

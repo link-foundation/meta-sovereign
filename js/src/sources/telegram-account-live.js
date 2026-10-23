@@ -20,6 +20,10 @@
  *                                             (@ and ♥ not seen yet)
  *                              `draft`, `draftAt`  the cloud draft
  *   typing:telegram:<chat>:<user>
+ *   requests:telegram:<chat>   the people waiting to join a group or
+ *                              channel: `pending` and `recent` ({ id,
+ *                              name }); the page's join requests bar
+ *                              follows it (R-Y161)
  *
  * Updates missed while the connection was down come through the same
  * handler from the catch-up (./telegram-catchup.js); the background poll
@@ -266,6 +270,36 @@ const chatStateWriters = ({ store, now }) => {
   };
 };
 
+// The people waiting to join (R-Y161; learned, never copied): one link
+// per chat, with the latest requesters named from the update's own
+// entities or the address book.
+export const requestsLinkId = (chat) => `requests:${SOURCE}:${chat}`;
+
+const entityName = (entity) =>
+  [entity?.firstName, entity?.lastName].filter(Boolean).join(' ') ||
+  entity?.username ||
+  null;
+
+const requestsWriter = async (store, now, effect) => {
+  const recent = [];
+  for (const id of effect.recent.slice(0, 3)) {
+    const person = await store.get(`person:${SOURCE}:${id}`);
+    const entity = effect.entities?.get?.(String(id));
+    recent.push({ id, name: person?.name || entityName(entity) || id });
+  }
+  await store.put({
+    id: requestsLinkId(effect.chat),
+    tokens: ['requests', SOURCE, String(effect.chat)],
+    kind: 'requests',
+    source: SOURCE,
+    chat: String(effect.chat),
+    pending: effect.pending,
+    recent,
+    at: new Date(now()).toISOString(),
+  });
+  return false;
+};
+
 // A deletion: those messages are marked `deleted` (kept, for the record).
 const deleteWriter = async (store, { chat, ids }) => {
   const wanted = new Set(ids.map(String));
@@ -422,6 +456,7 @@ export const createTelegramLive = ({
     folders: (_client, effect) => onFolders(effect),
     draft: (_client, effect) => onDraft(effect),
     typing: (_client, effect) => onTyping(effect),
+    requests: (_client, effect) => requestsWriter(store, now, effect),
     poll: (_client, effect) => pollWriter(store, effect),
   };
 

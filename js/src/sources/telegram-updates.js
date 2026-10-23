@@ -21,6 +21,10 @@
  *   { kind: 'typing', chat, user, typing }        someone types (or stops)
  *   { kind: 'poll', chat, id, pollId, poll, results }
  *                                                 a poll's results moved
+ *   { kind: 'requests', chat, pending, recent, entities }
+ *                                                 people waiting to join the
+ *                                                 chat, how many and the
+ *                                                 latest ids (R-Y161)
  *
  * Chat ids are GramJS "marked" peer ids, the same ones dialogs use: a
  * user's id, `-<id>` for a basic group, `-100<id>` for a channel or
@@ -179,6 +183,15 @@ const SIMPLE_EFFECTS = {
     chat: channelOf(u),
     ids: ids(u),
     pinned: Boolean(u.pinned),
+  }),
+  // The join requests waiting changed (R-Y161): their count and the
+  // latest requesters (the "N requested to join" bar follows).
+  UpdatePendingJoinRequests: (u) => ({
+    kind: 'requests',
+    chat: peerChatId(u.peer),
+    pending: Math.max(0, Number(u.requestsPending) || 0),
+    recent: (u.recentRequesters ?? []).map((id) => text(id)),
+    entities: u._entities,
   }),
   // How the chat is listed: muted, pinned, archived (R-Y68).
   UpdateNotifySettings: (u) =>

@@ -17,7 +17,9 @@
  *   removed after.
  *
  * "Send without sound" and "Schedule message" go with every batch
- * (R-Y102); scheduled ones are not stored — Telegram holds them.
+ * (R-Y102); scheduled ones are not stored — Telegram holds them. A
+ * message `effect` (R-Y161, a decimal string) goes with the first batch
+ * only (messages.sendMedia / sendMultiMedia carry it).
  *
  * Captions are formatted as messages are (R-Y101,
  * ./telegram-format.js): GramJS is handed the parsed text and entities
@@ -42,7 +44,7 @@ import { Transform } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
 import { apiEntities, parseFormatted } from './telegram-format.js';
-import { sendError } from './telegram-send.js';
+import { longOf, sendError, withEffect } from './telegram-send.js';
 import { withSendAs } from './telegram-send-as-client.js';
 import { roundFileOf, roundOptions } from './telegram-round.js';
 
@@ -344,11 +346,12 @@ export const createFileSender = (
     const CustomFile =
       telegram.client?.uploads?.CustomFile ?? telegram.CustomFile;
     const ids = [];
+    const effect = longOf(telegram.helpers, when.effect);
     for (const [index, batch] of batches.entries()) {
       const first = index === 0;
       const sent = await env.connection.withPeer(client, target, (peer) =>
         sendBatch({
-          client,
+          client: first ? withEffect(client, effect) : client,
           Api: telegram.Api,
           CustomFile,
           peer,
@@ -356,7 +359,8 @@ export const createFileSender = (
           options: {
             caption: first ? caption : '',
             replyTo: first ? replyTo : null,
-            ...when,
+            silent: when.silent,
+            scheduleDate: when.scheduleDate,
           },
         })
       );
@@ -388,6 +392,7 @@ export const createFileSender = (
     silent = false,
     scheduleDate = null,
     sendAs = null,
+    effect = null,
   } = {}) => {
     const files = tokens.map((token) => ({ token, ...uploads.get(token) }));
     const client = await clientFor(chat, files);
@@ -403,7 +408,7 @@ export const createFileSender = (
         batches: batchesOf(files, { asPhoto, group }),
         caption: String(caption ?? '').slice(0, MAX_CAPTION),
         replyTo,
-        when: { silent, scheduleDate },
+        when: { silent, scheduleDate, effect },
       });
       return {
         ok: true,

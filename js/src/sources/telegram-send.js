@@ -187,8 +187,33 @@ const whenFields = ({
 });
 
 // An effect id (decimal string) as the library's long (R-Y149).
-const longOf = (helpers, id) =>
+export const longOf = (helpers, id) =>
   id && helpers?.returnBigInt ? helpers.returnBigInt(id) : id;
+
+/**
+ * `client` with a message effect on the media sends it makes (R-Y161;
+ * learned, never copied): GramJS's sendFile has no `effect` option, so
+ * messages.sendMedia / sendMultiMedia carry it from here.
+ */
+export const withEffect = (client, effect) =>
+  !effect
+    ? client
+    : new Proxy(client, {
+        get: (target, key, receiver) =>
+          key === 'invoke'
+            ? (request, ...rest) => {
+                if (
+                  /^(messages\.)?(SendMedia|SendMultiMedia)$/.test(
+                    String(request?.className)
+                  ) &&
+                  !request.effect
+                ) {
+                  request.effect = effect;
+                }
+                return target.invoke(request, ...rest);
+              }
+            : Reflect.get(target, key, receiver),
+      });
 
 // The emoji Telegram's apps send as a die when sent alone (R-Y130).
 export const DICE = Object.freeze(['🎲', '🎯', '🏀', '⚽', '🎳', '🎰']);

@@ -960,22 +960,23 @@ const useSendLater = ({ state, api, composer, attach }) => {
   // "Send with effect" in a private chat's text box (R-Y149).
   const effects = canEffect(state, api);
   const textMenu = useSendMenu(scheduled.enabled || effects);
-  const filesMenu = useSendMenu(scheduled.enabled);
-  const [effecting, setEffecting] = useState(false);
+  // The files' box offers it too (R-Y161).
+  const filesMenu = useSendMenu(scheduled.enabled || effects);
+  const [effecting, setEffecting] = useState(null); // 'text' | 'files'
   const [picking, setPicking] = useState(null); // 'text' | 'files'
   const [listing, setListing] = useState(false);
   const sendWith = (what, when) =>
     what === 'files' ? attach.send(when) : composer.send(when);
   const pick = (what) => (key) => {
     if (key === 'sendEffect') {
-      setEffecting(true);
+      setEffecting(what);
     } else if (key === 'sendSilent') {
       sendWith(what, { silent: true });
     } else {
       setPicking(what);
     }
   };
-  const textItems = [
+  const menuItems = [
     ...(scheduled.enabled ? ['sendSilent', 'schedule'] : []),
     ...(effects ? ['sendEffect'] : []),
   ];
@@ -985,20 +986,26 @@ const useSendLater = ({ state, api, composer, attach }) => {
       key: 'text-menu',
       menu: textMenu,
       onPick: pick('text'),
-      items: textItems,
+      items: menuItems,
     }),
     effecting
       ? el(EffectPanel, {
           key: 'effects',
           api,
-          onClose: () => setEffecting(false),
+          over: effecting === 'files',
+          onClose: () => setEffecting(null),
           onPick: (effect) => {
-            setEffecting(false);
-            composer.send({ effect });
+            setEffecting(null);
+            sendWith(effecting, { effect });
           },
         })
       : null,
-    el(SendMenu, { key: 'files-menu', menu: filesMenu, onPick: pick('files') }),
+    el(SendMenu, {
+      key: 'files-menu',
+      menu: filesMenu,
+      onPick: pick('files'),
+      items: menuItems,
+    }),
     picking
       ? el(ScheduleDialog, {
           key: 'when',
@@ -1432,6 +1439,7 @@ export const ChatScreen = ({ state, api }) => {
               api,
               chat: state.current,
               info: state.info,
+              live: state.joinRequests,
             }),
             el(ConnectionBanner, { key: 'b', banner: state.banner }),
             el(FailedBar, { key: 'failed', composer: state.composer }),

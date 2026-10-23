@@ -35,6 +35,7 @@ import { useComposer, useLiveLinks } from './chat-live.js';
 import { useNotifications } from './chat-notify.js';
 import { useReplyTargets } from './chat-replies.js';
 import { useChatInfo } from './chat-info.js';
+import { requestsLinkOf } from './chat-join-requests.js';
 import { isTypingActive } from '../sources/live-links.js';
 import {
   useChatWindow,
@@ -873,12 +874,21 @@ const useOpening = ({ show, current, setActive, setNotice }) => {
       setNotice(null);
     },
     toEnd,
-    openAt: (target, id = null) => {
+    // `topic`: a forum topic to open first (a link names it, R-Y161);
+    // `maybeTopic`: an id that is a topic if the forum has one by it.
+    openAt: (target, id = null, { topic = null, maybeTopic = null } = {}) => {
       hintChat(target);
       show(target);
       setNotice(null);
       setArrival(
-        id ? { key: chatKey(target.source, String(target.chat)), id } : null
+        id
+          ? {
+              key: chatKey(target.source, String(target.chat)),
+              id,
+              ...(topic ? { topic } : {}),
+              ...(maybeTopic ? { maybeTopic } : {}),
+            }
+          : null
       );
     },
     arrival,
@@ -1026,6 +1036,8 @@ export const useChatState = (
     current,
     forum,
     info,
+    // Who waits to join, as Telegram last said (R-Y161).
+    joinRequests: requestsLinkOf(links, current),
     pinned: pinnedOf(messages, pinnedId, replyTargets),
     ...opening,
     messages,

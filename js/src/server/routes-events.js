@@ -26,6 +26,8 @@ export const EVENT_PREFIXES = Object.freeze([
   'msg:',
   'read:',
   'typing:',
+  // Who waits to join a chat (R-Y161): its bar follows.
+  'requests:',
   'person:',
   'history:',
   'sync:telegram',

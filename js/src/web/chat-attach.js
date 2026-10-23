@@ -430,7 +430,7 @@ export const AttachDialog = ({ attach, sendProps = {} }) => {
     const onKey = (e) =>
       e.key === 'Escape' &&
       !busy &&
-      !globalThis.document?.querySelector('.schedule-dialog') &&
+      !globalThis.document?.querySelector('.schedule-dialog, .effect-panel') &&
       attach.close();
     globalThis.addEventListener?.('keydown', onKey);
     return () => globalThis.removeEventListener?.('keydown', onKey);

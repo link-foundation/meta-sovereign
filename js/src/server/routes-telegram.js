@@ -215,7 +215,7 @@ import {
 } from './routes-telegram-wallpapers.js';
 import { NOTIFY_SETTINGS_POSTS } from './routes-telegram-notify-settings.js';
 import { CALLS_POSTS } from './routes-telegram-calls.js';
-import { EFFECTS_POSTS } from './routes-telegram-effects.js';
+import { EFFECTS_POSTS, validEffect } from './routes-telegram-effects.js';
 import { EMOJI_STATUS_POSTS } from './routes-telegram-emoji-status.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
@@ -341,6 +341,7 @@ const validFiles = (body) =>
   body.tokens.length <= MAX_FILES &&
   body.tokens.every((t) => typeof t === 'string' && /^[a-f0-9]{32}$/.test(t)) &&
   validSendAs(body.sendAs) &&
+  validEffect(body.effect) &&
   (body.caption === undefined || typeof body.caption === 'string') &&
   String(body.caption ?? '').length <= MAX_CAPTION &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
@@ -785,6 +786,8 @@ const POSTS = {
         asPhoto: body.asPhoto !== false,
         group: body.group !== false,
         replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+        // A message effect, for a private chat (R-Y161).
+        ...(body.effect === undefined ? {} : { effect: body.effect }),
         ...whenOf(body),
       }),
     ];

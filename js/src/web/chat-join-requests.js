@@ -7,7 +7,8 @@
 //   the text they wrote, Approve and Dismiss on each, and Approve all /
 //   Dismiss all (asked once in the page, never by the browser);
 // - the list of those who joined through one link (no buttons).
-// Telegram's refusals are told in words.
+// Telegram's refusals are told in words. The bar follows Telegram's
+// updatePendingJoinRequests live (R-Y161).
 
 import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
@@ -340,22 +341,47 @@ export const JoinedList = ({ api, chat, link }) => {
 };
 
 /**
+ * The live join-requests link of the open chat (`requests:telegram:<chat>`,
+ * kept by the server from Telegram's updatePendingJoinRequests; R-Y161),
+ * or null.
+ */
+export const requestsLinkOf = (links, chat) =>
+  chat?.source === 'telegram' && Array.isArray(links)
+    ? (links.find((l) => l?.id === `requests:telegram:${chat.chat}`) ?? null)
+    : null;
+
+/**
+ * What the bar shows: the live link when Telegram has just said, else
+ * what the chat's info read when it opened.
+ */
+export const requestsShown = (info, live) =>
+  live
+    ? {
+        pending: Math.max(0, Number(live.pending) || 0),
+        recent: Array.isArray(live.recent) ? live.recent : [],
+      }
+    : {
+        pending: Number(info?.requestsPending ?? 0),
+        recent: info?.recentRequesters ?? [],
+      };
+
+/**
  * The slim bar under the header, "N requested to join" with the latest
  * requesters' faces, for those who may invite; it opens the requests.
  */
-export const RequestsBar = ({ api, chat, info }) => {
+export const RequestsBar = ({ api, chat, info, live = null }) => {
   const t = useT();
+  const shown = requestsShown(info, live);
   const [pending, setPending] = useState(0);
   const [open, setOpen] = useState(false);
+  // Follows Telegram's updatePendingJoinRequests live (R-Y161).
   useEffect(() => {
-    setPending(
-      hasInviteRights(chat, info) ? Number(info.requestsPending ?? 0) : 0
-    );
-  }, [chat?.chat, info]);
+    setPending(hasInviteRights(chat, info) ? shown.pending : 0);
+  }, [chat?.chat, info, live?.at, live?.pending]);
   if (!hasInviteRights(chat, info) || (pending <= 0 && !open)) {
     return null;
   }
-  const faces = (info.recentRequesters ?? []).slice(0, 3);
+  const faces = shown.recent.slice(0, 3);
   return el('div', { className: 'requests-bar-wrap' }, [
     pending > 0
       ? el(

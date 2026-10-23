@@ -9,7 +9,9 @@
  * - Send, right-clicked or long pressed, offers "Send with effect": a
  *   small panel of the effects Telegram has (./dom.js `telegramEffects`);
  *   a Premium-only one is locked unless the account has Premium. Picking
- *   one sends the box's text with it.
+ *   one sends the box's text with it. The files' box (the dialog that
+ *   sends attached files with a caption) offers the same on its Send
+ *   button, and the effect goes with the first file or album (R-Y161).
  */
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -176,7 +178,8 @@ export const EffectBadge = ({ id, message, api, mine }) => {
 // ---- Send with effect -----------------------------------------------------
 
 /** The panel of effects: `onPick(id)`; Premium-only ones locked. */
-export const EffectPanel = ({ api, onPick, onClose }) => {
+// `over`: shown above the files' box (R-Y161).
+export const EffectPanel = ({ api, onPick, onClose, over = false }) => {
   const t = useT();
   const list = useEffectList(api, true);
   useEffect(() => {
@@ -191,7 +194,7 @@ export const EffectPanel = ({ api, onPick, onClose }) => {
   return el(
     'div',
     {
-      className: 'effect-panel',
+      className: over ? 'effect-panel is-over-dialog' : 'effect-panel',
       role: 'dialog',
       'aria-label': t('chat.effects.title'),
       'data-effect-panel': 'true',

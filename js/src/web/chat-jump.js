@@ -171,17 +171,58 @@ export const goToMessage = async (id, reach) => {
 const ARRIVE_MS = 120;
 
 /**
+ * What an arrival does next in a forum (R-Y161; learned, never copied):
+ * `{ wait }` for the topics, `{ choose: id }` to open the topic a link
+ * names, `{ goto: id | null }` to go to the message (null: a link to the
+ * topic itself, the open topic is all there is to show). A topic the
+ * forum does not have is no reason to refuse the message.
+ */
+export const arrivalStep = (arrival, forum) => {
+  const asked = arrival.topic ?? arrival.maybeTopic ?? null;
+  if (!asked || !forum?.forum) {
+    return { goto: arrival.id };
+  }
+  if (!forum.loaded) {
+    return { wait: true };
+  }
+  if (!forum.topics.some((topic) => topic.id === asked)) {
+    return { goto: arrival.id };
+  }
+  if (forum.topic !== asked) {
+    return { choose: asked };
+  }
+  return { goto: arrival.topic ? arrival.id : null };
+};
+
+/**
  * A chat opened from a search across Telegram goes to the message found
  * (R-Y107) once its first page shows: `state.arrival` is `{ key, id }`,
- * `state.arrived()` says it is done.
+ * `state.arrived()` says it is done. A link into a forum opens its topic
+ * first (`topic`, or `maybeTopic` when the id may be the topic's own).
  */
 export const useArrival = (state) => {
   const arrival = state.arrival;
   const key = state.current?.key ?? null;
   const reach = state.history?.reach;
   const shown = (state.messages?.length ?? 0) > 0;
+  const forum = state.forum;
   useEffect(() => {
-    if (!arrival || arrival.key !== key || !reach || !shown) {
+    if (!arrival || arrival.key !== key || !reach) {
+      return undefined;
+    }
+    const step = arrivalStep(arrival, forum);
+    if (step.wait) {
+      return undefined;
+    }
+    if (step.choose) {
+      forum.choose(step.choose);
+      return undefined;
+    }
+    if (step.goto === null) {
+      state.arrived?.();
+      return undefined;
+    }
+    if (!shown) {
       return undefined;
     }
     let gone = false;
@@ -195,7 +236,7 @@ export const useArrival = (state) => {
       gone = true;
       globalThis.clearTimeout(timer);
     };
-  }, [arrival, key, reach, shown]);
+  }, [arrival, key, reach, shown, forum?.loaded, forum?.topic]);
 };
 
 // Telegram asked for message `id` (a link id) and a page around it, to

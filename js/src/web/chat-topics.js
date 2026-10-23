@@ -90,6 +90,8 @@ export const useForumTopics = (api, current, tick = 0) => {
     forum,
     // Hidden ones too: the strip shows them to those who manage topics.
     topics: listed ?? [],
+    // Whether the list has come (an empty one is not the same as none yet).
+    loaded: listed !== null,
     refresh: () => setChanges((n) => n + 1),
     topic,
     open,
