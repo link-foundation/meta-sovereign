@@ -2,7 +2,8 @@
 // learned, never copied): a round photo for each peer with stories, a ring
 // round it while some are unread, the name under it, the user's own
 // first; folded into a compact row of small photos, and gone when there
-// are none. A click opens the viewer (./story-viewer.js).
+// are none. A click opens the viewer (./story-viewer.js); a right click
+// offers Hide stories / Unhide stories (R-Y174).
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -160,7 +161,15 @@ const postingProps = (peer, progress) =>
       }
     : {};
 
-const StoryPeer = ({ api, t, peer, small, onOpen, progress = null }) => {
+const StoryPeer = ({
+  api,
+  t,
+  peer,
+  small,
+  onOpen,
+  onMenu,
+  progress = null,
+}) => {
   const label = peerLabel(t, peer);
   const posting = peer.self && progress !== null;
   return el(
@@ -177,6 +186,12 @@ const StoryPeer = ({ api, t, peer, small, onOpen, progress = null }) => {
       'aria-label': label,
       title: label,
       onClick: () => onOpen(peer.peer),
+      onContextMenu: (event) => {
+        if (!peer.self && !peer.add) {
+          event.preventDefault();
+          onMenu({ peer, x: event.clientX, y: event.clientY });
+        }
+      },
     },
     [
       el('span', { key: 'r', className: 'story-ring' }, [
@@ -236,11 +251,59 @@ const entriesOf = (peers, showAway, post) => {
   return showAway || own ? listed : [addEntry(post.info?.me), ...listed];
 };
 
+// A right click on a person's or channel's entry offers Hide stories or
+// Unhide stories (R-Y174); the strip follows the change at once.
+const StripMenu = ({ t, menu, onHide, onClose }) => {
+  useEffect(() => {
+    const away = (event) => {
+      if (event.type === 'keydown' && event.key !== 'Escape') {
+        return;
+      }
+      onClose();
+    };
+    globalThis.addEventListener('keydown', away);
+    globalThis.addEventListener('pointerdown', away);
+    globalThis.addEventListener('blur', away);
+    return () => {
+      globalThis.removeEventListener('keydown', away);
+      globalThis.removeEventListener('pointerdown', away);
+      globalThis.removeEventListener('blur', away);
+    };
+  }, [onClose]);
+  const hidden = Boolean(menu.peer.hidden);
+  return createPortal(
+    el(
+      'ul',
+      {
+        className: 'msg-context-menu stories-menu',
+        role: 'menu',
+        style: { left: menu.x, top: menu.y },
+        onPointerDown: (event) => event.stopPropagation(),
+      },
+      el(
+        'li',
+        {
+          role: 'menuitem',
+          tabIndex: 0,
+          'data-action': 'strip-story-hide',
+          onClick: () => {
+            onClose();
+            onHide(menu.peer.peer, !hidden);
+          },
+        },
+        t(hidden ? 'chat.stories.unhide' : 'chat.stories.hide')
+      )
+    ),
+    globalThis.document.body
+  );
+};
+
 /** The strip. Nothing when no one has stories and posting is not possible. */
 export const StoriesStrip = ({ api, stories, hidden = false }) => {
   const t = useT();
   const [open, setOpen] = usePref('metaSovereignStoriesOpen', true);
   const [showHidden, setShowHidden] = useState(false);
+  const [menu, setMenu] = useState(null);
   const { peers, post } = stories;
   if (hidden || (peers.length === 0 && !post.available)) {
     return null;
@@ -300,9 +363,19 @@ export const StoriesStrip = ({ api, stories, hidden = false }) => {
             small: !open,
             progress: post.progress,
             onOpen: peer.add ? post.start : stories.open,
+            onMenu: setMenu,
           })
         )
       ),
+      menu
+        ? el(StripMenu, {
+            key: 'm',
+            t,
+            menu,
+            onHide: stories.hide,
+            onClose: () => setMenu(null),
+          })
+        : null,
     ]
   );
 };

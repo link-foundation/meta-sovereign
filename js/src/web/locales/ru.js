@@ -6,10 +6,12 @@
 
 import { ruChat } from './ru-chat.js';
 import { ruChatMore } from './ru-chat-more.js';
+import { ruChatAccount } from './ru-chat-account.js';
 
 export const ru = {
   ...ruChat,
   ...ruChatMore,
+  ...ruChatAccount,
   appName: 'meta-sovereign',
   skipLink: 'Перейти к основному содержимому',
   'header.theme': 'Тема',

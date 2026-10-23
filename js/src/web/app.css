@@ -8933,3 +8933,40 @@ span.bubble-effect {
 .forum-view-item:hover {
   background: var(--border);
 }
+/* Archive settings, websites, pinned Saved Messages chats and the stories
+   strip's menu (R-Y174). */
+.privacy-switch {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.6rem;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.privacy-switch .meta {
+  grid-column: 2;
+}
+.saved-dialog-item {
+  display: flex;
+  align-items: center;
+}
+.saved-dialog-item .saved-dialog {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.saved-pin {
+  flex: none;
+  opacity: 0.55;
+}
+.saved-dialog-item:hover .saved-pin,
+.saved-dialog-item.is-pinned .saved-pin,
+.saved-pin:focus-visible {
+  opacity: 1;
+}
+.saved-pinned-mark {
+  display: inline-flex;
+  color: var(--text-muted);
+}
+.stories-menu li {
+  cursor: pointer;
+}

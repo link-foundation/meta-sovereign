@@ -5,7 +5,8 @@
 // saved one and its date), paged. A click opens what was saved from that
 // chat, drawn with the chat's own message bubbles, read only; "Back" goes
 // to the list, and the trash deletes all of it, after an in-page
-// confirmation. Telegram's refusals are told as text.
+// confirmation. Each chat can be pinned (Pin / Unpin; pinned ones come
+// first with a pin icon, R-Y174). Telegram's refusals are told as text.
 //
 // The sub-chat is a plain list of rendered messages, not the whole chat
 // screen: it has no composer, selection or context menu.
@@ -109,11 +110,37 @@ const useDialogs = (api) => {
   return [state, load];
 };
 
-const DialogRow = ({ api, dialog, onOpen, t, dates }) => {
+// Pinned chats first, in the order Telegram gave them (R-Y174).
+export const pinnedFirst = (items) => [
+  ...items.filter((d) => d.pinned),
+  ...items.filter((d) => !d.pinned),
+];
+
+const PinButton = ({ dialog, onPin, t }) => {
+  const label = t(dialog.pinned ? 'chat.saved.unpin' : 'chat.saved.pin');
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: 'icon-btn saved-pin',
+      'data-action': dialog.pinned ? 'saved-unpin' : 'saved-pin',
+      'data-saved-pin': dialog.peer,
+      'aria-label': label,
+      title: label,
+      onClick: () => onPin(dialog),
+    },
+    el(Icon, { name: 'pin', size: 14 })
+  );
+};
+
+const DialogRow = ({ api, dialog, onOpen, onPin, t, dates }) => {
   const name = dialog.name || t('chat.saved.unknown');
   return el(
     'li',
-    { className: 'saved-dialog-item' },
+    {
+      className: `saved-dialog-item${dialog.pinned ? ' is-pinned' : ''}`,
+      'data-saved-pinned': dialog.pinned ? 'true' : 'false',
+    },
     el(
       'button',
       {
@@ -146,8 +173,16 @@ const DialogRow = ({ api, dialog, onOpen, t, dates }) => {
               dates.chatTime(new Date(dialog.date).toISOString())
             )
           : null,
+        dialog.pinned
+          ? el(
+              'span',
+              { key: 'p', className: 'saved-pinned-mark' },
+              el(Icon, { name: 'pin', size: 12 })
+            )
+          : null,
       ]
-    )
+    ),
+    el(PinButton, { dialog, onPin, t })
   );
 };
 
@@ -155,14 +190,36 @@ const DialogList = ({ api, onOpen }) => {
   const t = useT();
   const dates = useDates();
   const [state, load] = useDialogs(api);
+  const [pinCode, setPinCode] = useState(null);
+  // Pin or Unpin: Telegram first, then the list is read again so the
+  // pinned ones show first (R-Y174).
+  const pin = async (dialog) => {
+    setPinCode(null);
+    const answer = await api
+      .telegramSavedPin({ peer: dialog.peer, pinned: !dialog.pinned })
+      .catch(() => null);
+    if (answer?.ok) {
+      await load();
+    } else {
+      setPinCode(answer?.code ?? 'failed');
+    }
+  };
   const empty = state.phase === 'ready' && state.items.length === 0;
   return el('div', { className: 'saved-list', 'data-saved': 'chats' }, [
     state.items.length > 0
       ? el(
           'ul',
           { key: 'l', className: 'saved-dialogs' },
-          state.items.map((dialog) =>
-            el(DialogRow, { key: dialog.peer, api, dialog, onOpen, t, dates })
+          pinnedFirst(state.items).map((dialog) =>
+            el(DialogRow, {
+              key: dialog.peer,
+              api,
+              dialog,
+              onOpen,
+              onPin: pin,
+              t,
+              dates,
+            })
           )
         )
       : null,
@@ -172,7 +229,11 @@ const DialogList = ({ api, onOpen }) => {
     empty
       ? el('p', { key: 'e', className: 'meta' }, t('chat.saved.empty'))
       : null,
-    el(Failed, { key: 'f', t, code: state.phase === 'error' && state.code }),
+    el(Failed, {
+      key: 'f',
+      t,
+      code: (state.phase === 'error' && state.code) || pinCode,
+    }),
     state.next && state.phase !== 'loading'
       ? el(
           'button',

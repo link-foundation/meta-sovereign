@@ -7,10 +7,12 @@
 
 import { zhChat } from './zh-chat.js';
 import { zhChatMore } from './zh-chat-more.js';
+import { zhChatAccount } from './zh-chat-account.js';
 
 export const zh = {
   ...zhChat,
   ...zhChatMore,
+  ...zhChatAccount,
   appName: 'meta-sovereign',
   skipLink: '跳到主要内容',
   'header.theme': '主题',

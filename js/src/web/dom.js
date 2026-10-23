@@ -1041,6 +1041,15 @@ export const api = {
   telegramSavedDialogs: (body = {}) => telegramPost('saved-dialogs', body),
   telegramSavedHistory: (body = {}) => telegramPost('saved-history', body),
   telegramSavedDelete: (body = {}) => telegramPost('saved-delete', body),
+  // Pinned Saved Messages chats, archive settings, websites (R-Y174).
+  telegramSavedPin: (body = {}) => telegramPost('saved-pin', body),
+  telegramArchiveSettings: () => telegramPost('archive-settings', {}),
+  telegramArchiveSettingsSet: (body = {}) =>
+    telegramPost('archive-settings-set', body),
+  telegramWebSessions: () => telegramPost('web-sessions', {}),
+  telegramWebSessionReset: (body = {}) =>
+    telegramPost('web-session-reset', body),
+  telegramWebSessionsResetAll: () => telegramPost('web-sessions-reset-all', {}),
   // Reaction tags of Saved Messages and the default timer (R-Y151).
   telegramSavedTags: () => telegramPost('saved-tags', {}),
   telegramSavedTagSearch: (body = {}) => telegramPost('saved-tag-search', body),

@@ -113,6 +113,22 @@ await page.route('**/api/telegram/session-terminate', (route) => {
     ? fulfil(route, { ok: false, error: 'x', code: 'hash-invalid' })
     : fulfil(route, { ok: true });
 });
+// The archive switches and the websites (R-Y174), quiet here.
+await page.route('**/api/telegram/archive-settings', (route) =>
+  fulfil(route, {
+    ok: true,
+    settings: {
+      archiveAndMute: false,
+      keepUnmuted: false,
+      keepFolders: false,
+      hideReadMarks: false,
+      requirePremium: false,
+    },
+  })
+);
+await page.route('**/api/telegram/web-sessions', (route) =>
+  fulfil(route, { ok: true, sessions: [] })
+);
 const unblocked = [];
 const blockedAsked = [];
 await page.route('**/api/telegram/blocked', (route) => {

@@ -5,7 +5,8 @@
 // Nobody; the exceptions are counted, not edited), the active sessions with
 // Terminate (each behind a confirmation in the page, never for this
 // device), and the blocked users with Unblock. Telegram's refusals show as
-// text.
+// text. R-Y174 adds the archive and read-mark switches and the logged-in
+// websites (each Disconnect asked in the page first).
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useT, useLocaleContext } from './i18n.js';
@@ -168,7 +169,7 @@ const where = (s) =>
     .filter(Boolean)
     .join(' · ');
 
-const Confirm = ({ t, text, onYes, onNo, name }) =>
+const Confirm = ({ t, text, onYes, onNo, name, yes }) =>
   el('div', { className: 'privacy-confirm', 'data-confirm': name }, [
     el('span', { key: 't' }, text),
     el(
@@ -180,7 +181,7 @@ const Confirm = ({ t, text, onYes, onNo, name }) =>
         'data-action': 'confirm-terminate',
         onClick: onYes,
       },
-      t('chat.privacy.confirmYes')
+      yes ?? t('chat.privacy.confirmYes')
     ),
     el(
       'button',
@@ -316,6 +317,180 @@ const Sessions = ({ api, t, setError }) => {
           { key: 'ttl', className: 'meta', 'data-ttl-days': ttlDays },
           t('chat.privacy.ttl', { days: ttlDays })
         )
+      : null,
+  ]);
+};
+
+// Archive and mute new chats, and two switches that belong to privacy
+// (R-Y174): the five switches of Telegram's global privacy settings.
+// One click on a switch sends all five (the server keeps the fields this
+// page does not show); a refusal, PREMIUM_ACCOUNT_REQUIRED included, is
+// shown as text and the switch stays as it was.
+const ARCHIVE_SWITCHES = ['archiveAndMute', 'keepUnmuted', 'keepFolders'];
+const PRIVACY_SWITCHES = ['hideReadMarks', 'requirePremium'];
+
+const useArchiveSettings = (api, t, setError) => {
+  const ask = useCallback(() => api.telegramArchiveSettings(), [api]);
+  const [state, setState] = useAsked(ask);
+  const [busy, setBusy] = useState(false);
+  const toggle = async (key) => {
+    const next = { ...state.data.settings, [key]: !state.data.settings[key] };
+    setBusy(true);
+    const answer = await api.telegramArchiveSettingsSet(next).catch(() => null);
+    setBusy(false);
+    if (answer?.ok) {
+      setError(null);
+      setState({ phase: 'ready', data: { ...state.data, ...answer } });
+    } else {
+      setError(errorText(t, answer?.code));
+    }
+  };
+  return { state, busy, toggle };
+};
+
+const SwitchGroup = ({ t, archive, names }) => {
+  const { state, busy, toggle } = archive;
+  if (state.phase !== 'ready') {
+    return el(Message, { t, state });
+  }
+  return el(
+    'div',
+    { className: 'privacy-switches' },
+    names.map((key) =>
+      el('label', { key, className: 'privacy-switch' }, [
+        el('input', {
+          key: 'i',
+          type: 'checkbox',
+          role: 'switch',
+          'data-field': `archive-${key}`,
+          checked: state.data.settings[key],
+          disabled: busy,
+          onChange: () => toggle(key),
+        }),
+        el('span', { key: 's' }, t(`chat.archive.${key}`)),
+        el(
+          'span',
+          { key: 'h', className: 'meta' },
+          t(`chat.archive.${key}Hint`)
+        ),
+      ])
+    )
+  );
+};
+
+// Logged-in websites (R-Y174): each with its domain, bot, browser,
+// platform, IP, region and last-active time; Disconnect and Disconnect
+// all websites each ask in the page before anything is sent.
+const siteSummary = (s) =>
+  [s.bot, s.browser, s.platform].filter(Boolean).join(' · ');
+
+const siteWhere = (s) => [s.ip, s.region].filter(Boolean).join(' · ');
+
+const WebRow = ({ t, locale, s, asking, ask, stop, end }) =>
+  el('div', { className: 'privacy-session', 'data-web-session': s.hash }, [
+    el('strong', { key: 'd' }, s.domain),
+    el('span', { key: 'a', className: 'meta' }, siteSummary(s)),
+    el('span', { key: 'w', className: 'meta' }, siteWhere(s)),
+    el(
+      'span',
+      { key: 't', className: 'meta' },
+      t('chat.privacy.lastActive', { date: when(s.active, locale) })
+    ),
+    asking
+      ? el(Confirm, {
+          key: 'c',
+          t,
+          name: 'web-one',
+          text: t('chat.web.confirmOne', { domain: s.domain }),
+          yes: t('chat.web.disconnect'),
+          onYes: () => end(s.hash),
+          onNo: stop,
+        })
+      : el(
+          'button',
+          {
+            key: 'b',
+            type: 'button',
+            'data-action': 'web-disconnect',
+            onClick: () => ask(s.hash),
+          },
+          t('chat.web.disconnect')
+        ),
+  ]);
+
+const WebAll = ({ t, asking, ask, stop, end }) =>
+  asking
+    ? el(Confirm, {
+        t,
+        name: 'web-all',
+        text: t('chat.web.confirmAll'),
+        yes: t('chat.web.disconnectAll'),
+        onYes: end,
+        onNo: stop,
+      })
+    : el(
+        'button',
+        { type: 'button', 'data-action': 'web-disconnect-all', onClick: ask },
+        t('chat.web.disconnectAll')
+      );
+
+const WebSessions = ({ api, t, setError }) => {
+  const { locale } = useLocaleContext();
+  const ask = useCallback(() => api.telegramWebSessions(), [api]);
+  const [state, setState] = useAsked(ask);
+  // The hash being confirmed, 'all', or null.
+  const [asking, setAsking] = useState(null);
+  if (state.phase !== 'ready') {
+    return el(Message, { t, state });
+  }
+  const { sessions } = state.data;
+  const done = (answer, keep) => {
+    setAsking(null);
+    if (answer?.ok) {
+      setError(null);
+      setState({
+        phase: 'ready',
+        data: { ...state.data, sessions: sessions.filter(keep) },
+      });
+    } else {
+      setError(errorText(t, answer?.code));
+    }
+  };
+  const endOne = async (hash) =>
+    done(
+      await api.telegramWebSessionReset({ hash }).catch(() => null),
+      (s) => s.hash !== hash
+    );
+  const endAll = async () =>
+    done(
+      await api.telegramWebSessionsResetAll().catch(() => null),
+      () => false
+    );
+  return el('div', { className: 'privacy-web-sessions' }, [
+    sessions.length === 0
+      ? el('p', { key: 'n', className: 'meta' }, t('chat.web.none'))
+      : null,
+    ...sessions.map((s) =>
+      el(WebRow, {
+        key: s.hash,
+        t,
+        locale,
+        s,
+        asking: asking === s.hash,
+        ask: setAsking,
+        stop: () => setAsking(null),
+        end: endOne,
+      })
+    ),
+    sessions.length > 0
+      ? el(WebAll, {
+          key: 'all',
+          t,
+          asking: asking === 'all',
+          ask: () => setAsking('all'),
+          stop: () => setAsking(null),
+          end: endAll,
+        })
       : null,
   ]);
 };
@@ -481,6 +656,7 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
   const t = useT();
   const [error, setError] = useState(null);
   const props = { api, t, setError };
+  const archive = useArchiveSettings(api, t, setError);
   return el(
     FormDialog,
     {
@@ -501,6 +677,20 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
       ),
       el(
         Section,
+        {
+          key: 'hr',
+          name: 'read-marks',
+          title: t('chat.archive.privacyTitle'),
+        },
+        el(SwitchGroup, { t, archive, names: PRIVACY_SWITCHES })
+      ),
+      el(
+        Section,
+        { key: 'ar', name: 'archive', title: t('chat.archive.settingsTitle') },
+        el(SwitchGroup, { t, archive, names: ARCHIVE_SWITCHES })
+      ),
+      el(
+        Section,
         { key: 'a', name: 'auto-delete', title: t('chat.privacy.autoDelete') },
         el(AutoDelete, props)
       ),
@@ -517,6 +707,11 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
         Section,
         { key: 's', name: 'sessions', title: t('chat.privacy.sessions') },
         el(Sessions, props)
+      ),
+      el(
+        Section,
+        { key: 'w', name: 'web-sessions', title: t('chat.web.title') },
+        el(WebSessions, props)
       ),
       el(
         Section,

@@ -88,6 +88,7 @@ import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
 import { createInviteLinks } from './telegram-invite-links.js';
 import { createTtl } from './telegram-ttl.js';
+import { createAccountExtras } from './telegram-account-extras.js';
 import { createSavedTags } from './telegram-saved-tags.js';
 import { createBoosts } from './telegram-boosts.js';
 import { createSendAs } from './telegram-send-as.js';
@@ -415,7 +416,9 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // messages list, similar channels and fact checks (R-Y166); bot mini apps
 // (R-Y168); sticker and emoji sets, close friends and adding a contact by phone
 // (R-Y169); channel boosts (R-Y173); chat themes and several usernames
-// (R-Y170); saving a chat's GIF and viewing a forum as messages (R-Y171).
+// (R-Y170); saving a chat's GIF and viewing a forum as messages (R-Y171);
+// archive settings, logged-in websites and pinned Saved Messages chats
+// (R-Y174).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -481,6 +484,7 @@ const chatActions = (env, context) => {
     ...createStoryPost(env, withUploads),
     ...createPrivacy(env, context),
     ...createTtl(env, context),
+    ...createAccountExtras(env, context),
     ...createSavedTags(env, context),
     ...createBoosts(env, context),
     ...createSendAs(env, context),

@@ -232,6 +232,7 @@ import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
 import { MESSAGE_LINK_POSTS } from './routes-telegram-message-links.js';
 import { TTL_POSTS } from './routes-telegram-ttl.js';
+import { ACCOUNT_EXTRAS_POSTS } from './routes-telegram-account-extras.js';
 import { SAVED_TAGS_POSTS } from './routes-telegram-saved-tags.js';
 import { BOOSTS_POSTS } from './routes-telegram-boosts.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
@@ -991,6 +992,7 @@ const POSTS = {
   ...SHARE_POSTS,
   ...INLINE_POSTS,
   ...TTL_POSTS,
+  ...ACCOUNT_EXTRAS_POSTS,
   ...SAVED_TAGS_POSTS,
   ...BOOSTS_POSTS,
   ...SEND_AS_POSTS,
