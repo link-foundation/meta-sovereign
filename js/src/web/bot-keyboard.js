@@ -9,7 +9,8 @@ const KINDS = {
   KeyboardButton: 'text',
   KeyboardButtonCallback: 'callback',
   KeyboardButtonUrl: 'url',
-  KeyboardButtonUrlAuth: 'url',
+  // A login button (R-Y201): pressing it asks Telegram first.
+  KeyboardButtonUrlAuth: 'login',
   KeyboardButtonSwitchInline: 'switch',
   KeyboardButtonCopy: 'copy',
   KeyboardButtonUserProfile: 'profile',
@@ -40,7 +41,29 @@ const toneOf = (style) => {
 const text = (value) =>
   value === null || value === undefined ? null : String(value);
 
-/** One stored button as `{ kind, text, … }`; null when unknown. */
+// What a kind of button carries besides its words.
+const EXTRAS = {
+  callback: (raw) => ({
+    data: raw.data?.bytes ?? null,
+    password: Boolean(raw.requiresPassword),
+  }),
+  url: (raw) => ({ url: text(raw.url) }),
+  // A login button also names itself to Telegram by its id (R-Y201).
+  login: (raw) => ({ url: text(raw.url), buttonId: Number(raw.buttonId) }),
+  // A reply keyboard's simple web app may send data back (R-Y168).
+  app: (raw) => ({
+    url: text(raw.url),
+    simple: raw.className === 'KeyboardButtonSimpleWebView',
+  }),
+  switch: (raw) => ({
+    query: String(raw.query ?? ''),
+    samePeer: Boolean(raw.samePeer),
+  }),
+  copy: (raw) => ({ copy: String(raw.copyText ?? '') }),
+  profile: (raw) => ({ user: text(raw.userId) }),
+};
+
+/** One stored button as `{ kind, text, ... }`; null when unknown. */
 export const buttonOf = (raw) => {
   const kind = KINDS[raw?.className];
   if (!kind) {
@@ -50,22 +73,7 @@ export const buttonOf = (raw) => {
     kind,
     text: String(raw.text ?? ''),
     tone: toneOf(raw.style),
-    ...(kind === 'callback'
-      ? {
-          data: raw.data?.bytes ?? null,
-          password: Boolean(raw.requiresPassword),
-        }
-      : {}),
-    ...(kind === 'url' || kind === 'app' ? { url: text(raw.url) } : {}),
-    // A reply keyboard's simple web app may send data back (R-Y168).
-    ...(kind === 'app'
-      ? { simple: raw.className === 'KeyboardButtonSimpleWebView' }
-      : {}),
-    ...(kind === 'switch'
-      ? { query: String(raw.query ?? ''), samePeer: Boolean(raw.samePeer) }
-      : {}),
-    ...(kind === 'copy' ? { copy: String(raw.copyText ?? '') } : {}),
-    ...(kind === 'profile' ? { user: text(raw.userId) } : {}),
+    ...EXTRAS[kind]?.(raw),
   };
 };
 

@@ -1115,4 +1115,14 @@ export const zhChatMore = {
   'chat.stories.kind.forward': '已转发',
   'chat.stories.kind.repost': '已转发到快拍',
   'chat.stories.noReactions': '暂无反应或转发。',
+  // Bot login links and attachment-menu bots (R-Y201).
+  'chat.login.as': '以 {name} 身份登录 {domain}',
+  'chat.login.you': '你',
+  'chat.login.write': '允许 {bot} 给我发送消息',
+  'chat.attachBot.title': '添加到附件菜单',
+  'chat.attachBot.ask':
+    '将 {bot} 添加到附件菜单？你可以在聊天的回形针菜单中打开它的小程序。',
+  'chat.attachBot.terms': '我同意小程序的使用条款',
+  'chat.attachBot.add': '添加',
+  'chat.attachBot.remove': '从菜单中移除',
 };

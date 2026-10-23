@@ -399,4 +399,11 @@ export const TELEGRAM_CALLS = {
   telegramChannelDmHistory: body('channel-dm-history'),
   telegramChannelDmSend: body('channel-dm-send'),
   telegramChannelDmDecide: body('channel-dm-decide'),
+  // Bot login links and attachment-menu bots (R-Y201).
+  telegramBotUrlAuth: body('bot-url-auth'),
+  telegramBotUrlAccept: body('bot-url-accept'),
+  telegramUrlAuthDomains: none('url-auth-domains'),
+  telegramAttachMenuBots: none('attach-menu-bots'),
+  telegramAttachMenuBot: body('attach-menu-bot'),
+  telegramAttachMenuToggle: body('attach-menu-toggle'),
 };

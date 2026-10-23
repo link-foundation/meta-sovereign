@@ -10,6 +10,8 @@ import React, { useState } from 'react';
 import { CustomEmoji } from './custom-emoji.js';
 import { inviteHashOf, openInvite } from './chat-invite.js';
 import { openMessageLink } from './message-links.js';
+import { openLoginLink } from './chat-bot-login.js';
+import { openAttachLink } from './chat-attach-bots.js';
 import { openBusinessLink } from './chat-business-link-open.js';
 import { openProxyLink } from './proxy-model.js';
 import { openGiftLink } from './gift-manage-model.js';
@@ -225,12 +227,16 @@ const drawNode = (node, key, ctx) => {
             openMessageLink(href) ||
             openBusinessLink(href) ||
             openProxyLink(href) ||
-            openGiftLink(href)
+            openGiftLink(href) ||
+            openLoginLink(href) ||
+            openAttachLink(href)
           ) {
             // A link to a message opens in the app (R-Y154); a business
             // chat link opens its chat with the text in the box (R-Y180);
             // a proxy link opens the proxy dialog, prefilled (R-Y192); a unique
-            // gift or gift code link opens its viewer (R-Y193).
+            // gift or gift code link opens its viewer (R-Y193); a link of a
+            // login domain asks Telegram first (R-Y201), and a bot's
+            // startattach link offers the attachment menu (R-Y201).
             event.preventDefault();
           }
         },

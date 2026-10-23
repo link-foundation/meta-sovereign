@@ -14,6 +14,7 @@ import { composerReplyId } from './forum-topics.js';
 import { sendAsField } from './chat-send-as.js';
 import { PhotoEditor } from './chat-photo-editor.js';
 import { isEdited, isEditable } from './photo-editor-model.js';
+import { RemoveMenu } from './chat-attach-bots.js';
 
 const el = React.createElement;
 
@@ -263,12 +264,16 @@ const AttachMenu = ({
   onTodo,
   onLocation,
   onContact,
+  bots = null,
   onClose,
 }) => {
   const t = useT();
+  // A right click on an attachment-menu bot: Remove from menu (R-Y201).
+  const [removing, setRemoving] = useState(null);
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
-    const onDown = (e) => e.target.closest?.('.attach-menu') || onClose();
+    const onDown = (e) =>
+      e.target.closest?.('.attach-menu, .attach-bot-menu') || onClose();
     globalThis.addEventListener?.('keydown', onKey);
     globalThis.addEventListener?.('pointerdown', onDown);
     return () => {
@@ -297,6 +302,32 @@ const AttachMenu = ({
         ]
       )
     );
+  // An attachment-menu bot (R-Y201): opens its app; right click removes.
+  const botItem = (bot) =>
+    el(
+      'li',
+      { key: `bot-${bot.id}` },
+      el(
+        'button',
+        {
+          type: 'button',
+          className: 'attach-menu-item',
+          'data-action': `attach-bot-${bot.id}`,
+          onClick: () => {
+            onClose();
+            bots.onBot(bot);
+          },
+          onContextMenu: (e) => {
+            e.preventDefault();
+            setRemoving({ bot, at: { x: e.clientX, y: e.clientY } });
+          },
+        },
+        [
+          el(Icon, { key: 'i', name: 'link', size: 18 }),
+          el('span', { key: 't' }, bot.name || bot.shortName),
+        ]
+      )
+    );
   const menu = el(
     'ul',
     {
@@ -311,12 +342,26 @@ const AttachMenu = ({
       onLocation &&
         item('location', 'map-pin', 'chat.attach.location', onLocation),
       onContact && item('contact', 'user', 'chat.attach.contact', onContact),
+      ...(bots?.bots ?? []).map(botItem),
     ].filter(Boolean)
   );
+  const remove = removing
+    ? el(RemoveMenu, {
+        key: 'remove',
+        at: removing.at,
+        onClose: () => setRemoving(null),
+        onRemove: () => {
+          onClose();
+          bots.onRemove(removing.bot);
+        },
+      })
+    : null;
   // In the page's body: a blurred or moved composer would make `fixed`
   // count from itself, and the menu would land off the screen.
   const body = globalThis.document?.body;
-  return body ? createPortal(menu, body) : menu;
+  return body
+    ? el(React.Fragment, null, createPortal(menu, body), remove)
+    : menu;
 };
 
 /**
@@ -329,6 +374,7 @@ export const AttachButton = ({
   onTodo = null,
   onLocation = null,
   onContact = null,
+  bots = null,
 }) => {
   const t = useT();
   const input = useRef(null);
@@ -339,10 +385,12 @@ export const AttachButton = ({
   }
   const pick = () => input.current?.click();
   const open = (event) => {
-    if (!onPoll && !onTodo && !onLocation && !onContact) {
+    if (!onPoll && !onTodo && !onLocation && !onContact && !bots) {
       pick();
       return;
     }
+    // The bots of the attachment menu are read when it opens (R-Y201).
+    bots?.load?.();
     const box = event.currentTarget.getBoundingClientRect();
     setAt({ x: box.left, y: (globalThis.innerHeight ?? 768) - box.top + 6 });
   };
@@ -369,6 +417,7 @@ export const AttachButton = ({
           onTodo,
           onLocation,
           onContact,
+          bots,
           onClose: close,
         })
       : null,

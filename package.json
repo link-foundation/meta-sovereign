@@ -214,6 +214,8 @@
     "test:e2e:apps:webkit": "E2E_BROWSER=webkit node js/tests/e2e-apps-browser.mjs",
     "test:e2e:web-apps": "node js/tests/e2e-web-apps-browser.mjs",
     "test:e2e:web-apps:webkit": "E2E_BROWSER=webkit node js/tests/e2e-web-apps-browser.mjs",
+    "test:e2e:bot-login": "node js/tests/e2e-bot-login-browser.mjs",
+    "test:e2e:bot-login:webkit": "E2E_BROWSER=webkit node js/tests/e2e-bot-login-browser.mjs",
     "test:e2e:edit": "node js/tests/e2e-edit-browser.mjs",
     "test:e2e:edit:webkit": "E2E_BROWSER=webkit node js/tests/e2e-edit-browser.mjs",
     "test:e2e:link-preview": "node js/tests/e2e-link-preview-browser.mjs",

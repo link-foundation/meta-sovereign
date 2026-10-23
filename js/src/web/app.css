@@ -11225,3 +11225,27 @@ button.profile-username.is-collectible {
   font-size: 0.75rem;
   color: var(--text-subtle);
 }
+
+/* Bot login links and attachment-menu bots (R-Y201). */
+.bot-login-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+  cursor: pointer;
+}
+.bot-login-check input:disabled + span {
+  opacity: 0.5;
+}
+.attach-bot-menu {
+  position: fixed;
+}
+.attach-bot-add {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--bg-elev);
+  color: var(--accent);
+  cursor: pointer;
+}

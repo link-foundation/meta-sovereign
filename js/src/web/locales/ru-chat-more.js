@@ -1201,4 +1201,14 @@ export const ruChatMore = {
   'chat.stories.kind.forward': 'Переслано',
   'chat.stories.kind.repost': 'Репост',
   'chat.stories.noReactions': 'Реакций и репостов пока нет.',
+  // Bot login links and attachment-menu bots (R-Y201).
+  'chat.login.as': 'Войти на {domain} как {name}',
+  'chat.login.you': 'вы',
+  'chat.login.write': 'Разрешить {bot} отправлять мне сообщения',
+  'chat.attachBot.title': 'Добавить в меню вложений',
+  'chat.attachBot.ask':
+    'Добавить {bot} в меню вложений? Вы сможете открывать его мини-приложение из меню скрепки в чатах.',
+  'chat.attachBot.terms': 'Я принимаю условия использования мини-приложений',
+  'chat.attachBot.add': 'Добавить',
+  'chat.attachBot.remove': 'Убрать из меню',
 };

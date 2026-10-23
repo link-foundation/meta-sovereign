@@ -1191,4 +1191,14 @@ export const hiChatMore = {
   'chat.stories.kind.forward': 'फ़ॉरवर्ड किया',
   'chat.stories.kind.repost': 'रीपोस्ट किया',
   'chat.stories.noReactions': 'अभी कोई प्रतिक्रिया या रीपोस्ट नहीं।',
+  // Bot login links and attachment-menu bots (R-Y201).
+  'chat.login.as': '{domain} पर {name} के रूप में लॉग इन करें',
+  'chat.login.you': 'आप',
+  'chat.login.write': '{bot} को मुझे संदेश भेजने दें',
+  'chat.attachBot.title': 'अटैचमेंट मेनू में जोड़ें',
+  'chat.attachBot.ask':
+    '{bot} को अपने अटैचमेंट मेनू में जोड़ें? आप चैट में पेपरक्लिप मेनू से इसका मिनी ऐप खोल सकेंगे।',
+  'chat.attachBot.terms': 'मैं मिनी ऐप्स के उपयोग की शर्तों से सहमत हूँ',
+  'chat.attachBot.add': 'जोड़ें',
+  'chat.attachBot.remove': 'मेनू से हटाएं',
 };

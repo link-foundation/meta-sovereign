@@ -203,6 +203,7 @@ import { STICKER_SAVES } from '../sources/telegram-stickers.js';
 import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
+import { BOT_LOGIN_POSTS } from './routes-telegram-bot-login.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { ACCOUNTS_POSTS, resolveAccount } from './routes-telegram-accounts.js';
 import { APPS_POSTS } from './routes-telegram-apps.js';
@@ -1016,6 +1017,7 @@ const POSTS = {
   ...FOLDER_EDIT_POSTS,
   ...CHATLIST_POSTS,
   ...WEB_APPS_POSTS,
+  ...BOT_LOGIN_POSTS,
   ...STICKER_SETTINGS_POSTS,
   ...CHAT_THEME_POSTS,
   ...COMMON_CHATS_POSTS,

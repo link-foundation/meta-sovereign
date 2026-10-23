@@ -1186,4 +1186,14 @@ export const enChatMore = {
   'chat.stories.kind.forward': 'Forwarded',
   'chat.stories.kind.repost': 'Reposted',
   'chat.stories.noReactions': 'No reactions or reposts yet.',
+  // Bot login links and attachment-menu bots (R-Y201).
+  'chat.login.as': 'Log in to {domain} as {name}',
+  'chat.login.you': 'you',
+  'chat.login.write': 'Allow {bot} to send me messages',
+  'chat.attachBot.title': 'Add to attachment menu',
+  'chat.attachBot.ask':
+    'Add {bot} to your attachment menu? You will be able to open its mini app from the paperclip menu in chats.',
+  'chat.attachBot.terms': 'I agree to the terms of use of mini apps',
+  'chat.attachBot.add': 'Add',
+  'chat.attachBot.remove': 'Remove from menu',
 };

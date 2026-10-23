@@ -22,7 +22,8 @@
  * - `webAppSendData({ bot, text, data })` is a reply-keyboard app's
  *   `web_app_data_send` (messages.sendWebViewData).
  * The address Telegram answers must be https without credentials, else
- * nothing is opened. Attach-menu bots are not offered (not done).
+ * nothing is opened. 'attach' (R-Y201): an attachment-menu bot's app, from
+ * the chat, with no address (messages.requestWebView, not from the bot menu).
  */
 
 import { runIn, connected, failureOf } from './telegram-stickers.js';
@@ -47,7 +48,8 @@ const CODES = {
 const failure = failureOf(CODES);
 
 export const PLATFORM = 'weba';
-export const KINDS = ['menu', 'inline', 'simple', 'app', 'main'];
+// 'attach': an attachment-menu bot's app (R-Y201), no address asked.
+export const KINDS = ['menu', 'inline', 'simple', 'app', 'main', 'attach'];
 export const MAX_URL = 2048;
 export const MAX_DATA = 4096;
 export const MAX_TEXT = 64;
@@ -138,6 +140,7 @@ const userIn = (c, env, id) =>
 const peerIn = (c, env, chat) =>
   env.connection.withPeer(c.client, String(chat), (peer) => peer);
 
+const MENUS = ['menu', 'attach'];
 const NO_BOT = { ok: false, error: 'not a bot', code: 'no-bot' };
 
 const openMenu = async (c, env, o) => {
@@ -237,6 +240,7 @@ const openMain = async (c, env, o) => {
 const OPENERS = {
   menu: openMenu,
   inline: openMenu,
+  attach: openMenu,
   simple: openSimple,
   app: openApp,
   main: openMain,
@@ -254,7 +258,7 @@ const linkReady = (o) =>
 const buttonReady = (o) =>
   ID.test(String(o.bot ?? '')) &&
   (o.kind === 'simple' || CHAT.test(String(o.chat ?? ''))) &&
-  (o.url ? true : o.kind === 'menu' && o.url === undefined);
+  (o.url ? true : MENUS.includes(o.kind) && o.url === undefined);
 
 // What each kind must carry, checked before the account is asked.
 const complete = (o) =>

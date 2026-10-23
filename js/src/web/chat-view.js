@@ -83,6 +83,7 @@ import {
 import { PollDialog, usePollCreate } from './chat-poll-create.js';
 import { TodoDialog, useTodoCreate } from './chat-todo-create.js';
 import { ShareDialog, useShare } from './chat-share.js';
+import { useAttachBots } from './chat-attach-bots.js';
 import { TopicTabs } from './chat-topics.js';
 import { ForumViewMenu, stripForum, useForumView } from './chat-forum-view.js';
 import { TopicClosedBar, topicClosedFor } from './chat-topic-admin.js';
@@ -918,6 +919,8 @@ const Composer = ({ state, api, keys }) => {
   const todo = useTodoCreate({ state, api, composer });
   // A place or a contact, from the same menu (R-Y142).
   const share = useShare({ state, api, composer });
+  // Attachment-menu bots in the same menu, and adding one (R-Y201).
+  const attachBots = useAttachBots({ state, api });
   // The Send buttons' menu; scheduled messages (R-Y102).
   const later = useSendLater({ state, api, composer, attach });
   // Who sends in a supergroup: the avatar button (R-Y141).
@@ -1016,6 +1019,7 @@ const Composer = ({ state, api, keys }) => {
               onPoll: showOf(poll),
               onTodo: showOf(todo),
               ...share.menu,
+              bots: attachBots.menu,
             }),
         bare
           ? null
@@ -1066,6 +1070,7 @@ const Composer = ({ state, api, keys }) => {
     poll.shown ? el(PollDialog, { key: 'poll', poll }) : null,
     todo.shown ? el(TodoDialog, { key: 'todo', todo }) : null,
     el(ShareDialog, { key: 'share', share, api }),
+    attachBots.dialog,
     sendAs.dialog,
     paid.dialog,
     ...later.parts,

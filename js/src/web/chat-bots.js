@@ -15,6 +15,7 @@ import { botAskOf, inlineKeyboardOf, replyKeyboardOf } from './bot-keyboard.js';
 import { appUrl } from './web-apps-model.js';
 import { openWebApp } from './chat-web-apps.js';
 import { gameUrl } from './chat-games.js';
+import { openExternal, useBotLogin } from './chat-bot-login.js';
 
 const el = React.createElement;
 
@@ -47,7 +48,13 @@ const toastOf = (state, notice) => {
 
 // The corner mark a button carries, as Telegram's apps draw: a link
 // leaves the app, a switch goes to another chat, a copy copies.
-const MARKS = { url: 'link', switch: 'forward', copy: 'copy', app: 'link' };
+const MARKS = {
+  url: 'link',
+  login: 'link',
+  switch: 'forward',
+  copy: 'copy',
+  app: 'link',
+};
 
 /** The rows of buttons under a bot's message. */
 export const InlineKeyboard = ({ message, onAction }) => {
@@ -125,7 +132,7 @@ const BotDialog = ({ ask, onClose }) => {
   const link = ask.kind === 'url';
   const open = () => {
     onClose();
-    globalThis.open?.(ask.url, '_blank', 'noopener,noreferrer');
+    openExternal(ask.url);
   };
   return el(
     'div',
@@ -196,6 +203,8 @@ const answered = (answer, { setAsk, state, game = false }) => {
  */
 export const useBotPress = ({ state, api, copy }) => {
   const [ask, setAsk] = useState(null);
+  // A login button and login-domain links (R-Y201).
+  const login = useBotLogin({ api, state });
   const unsupported = () => toastOf(state, { kind: 'bot-unsupported' });
   const callback = async (message, button, extra = {}) => {
     if (button.password || typeof api.telegramBotCallback !== 'function') {
@@ -217,6 +226,15 @@ export const useBotPress = ({ state, api, copy }) => {
       const url = openableUrl(button.url);
       return url ? setAsk({ kind: 'url', url }) : unsupported();
     },
+    login: (message, button) =>
+      Number.isInteger(button.buttonId) && state.current?.chat
+        ? login.start({
+            chat: state.current.chat,
+            id: networkMessageId(message),
+            buttonId: button.buttonId,
+            original: openableUrl(button.url) ?? undefined,
+          })
+        : unsupported(),
     copy: (_m, button) => copy(button.copy),
     app: (message, button) =>
       openButtonApp(state, message, button) || unsupported(),
@@ -237,9 +255,12 @@ export const useBotPress = ({ state, api, copy }) => {
   return {
     press: (message, button) =>
       (KIND[button?.kind] ?? unsupported)(message, button),
-    dialog: ask
-      ? el(BotDialog, { key: 'bot', ask, onClose: () => setAsk(null) })
-      : null,
+    dialog: el(React.Fragment, { key: 'bot-dialogs' }, [
+      ask
+        ? el(BotDialog, { key: 'bot', ask, onClose: () => setAsk(null) })
+        : null,
+      login.dialog,
+    ]),
   };
 };
 

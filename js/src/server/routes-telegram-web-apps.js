@@ -44,7 +44,7 @@ const linkOk = (body) =>
 const buttonOk = (body) =>
   ID.test(String(body.bot ?? '')) &&
   (body.kind === 'simple' || body.chat !== undefined) &&
-  (body.kind === 'menu' || body.url !== undefined);
+  (['menu', 'attach'].includes(body.kind) || body.url !== undefined);
 
 const openOk = (body) =>
   generalOk(body) &&

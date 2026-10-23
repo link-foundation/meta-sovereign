@@ -98,6 +98,7 @@ import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createGames } from './telegram-games.js';
 import { createWebApps } from './telegram-web-apps.js';
+import { createBotLogin } from './telegram-bot-login.js';
 import { createApps } from './telegram-apps.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
@@ -465,7 +466,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // and suggested posts (R-Y191); popular mini apps, similar bots, prepared
 // messages and collectible usernames (R-Y194); managing received and unique
 // gifts and gift codes (R-Y193); private one-to-one calls (R-Y196); more than
-// one account (R-Y198); story stealth mode, reactions and reports (R-Y199).
+// one account (R-Y198); story stealth mode, reactions and reports (R-Y199); bot
+// login links and attachment-menu bots (R-Y201).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -513,6 +515,7 @@ const chatActions = (env, context) => {
     ...createBotCommands(env, context),
     ...createGames(env, context),
     ...createWebApps(env, context),
+    ...createBotLogin(env, context),
     ...createApps(env, { ...context, offer: inlineOffer }),
     ...createMapActions(env, context),
     ...createTranslate(env, context),
