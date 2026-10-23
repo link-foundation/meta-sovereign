@@ -74,6 +74,18 @@ export const peerDialogs = (dialogs) =>
 const DIALOG_LISTS = ['Dialogs', 'DialogsSlice', 'PeerDialogs'];
 const patched = new WeakSet();
 
+// Run `fix(answer)` on every answer of `Class` GramJS reads.
+const afterRead = (Class, fix) => {
+  const read = Class?.fromReader;
+  if (typeof read === 'function') {
+    Class.fromReader = function fromReader(reader) {
+      const answer = read.call(this, reader);
+      fix(answer);
+      return answer;
+    };
+  }
+};
+
 /** Make GramJS skip dialogs without a peer when it reads a dialog list. */
 export const skipPeerlessDialogs = (Api) => {
   if (!Api?.messages || patched.has(Api)) {
@@ -81,15 +93,49 @@ export const skipPeerlessDialogs = (Api) => {
   }
   patched.add(Api);
   for (const name of DIALOG_LISTS) {
-    const Class = Api.messages[name];
-    const read = Class?.fromReader;
-    if (typeof read === 'function') {
-      Class.fromReader = function fromReader(reader) {
-        const list = read.call(this, reader);
-        list.dialogs = peerDialogs(list.dialogs);
-        return list;
-      };
-    }
+    afterRead(Api.messages[name], (list) => {
+      list.dialogs = peerDialogs(list.dialogs);
+    });
+  }
+};
+
+// Communities (layer 232, R-Y222): Telegram lists a `community` or
+// `communityForbidden` among the `chats` of its answers, and GramJS's
+// `getPeerId` / `getInputPeer` throw "Cannot cast Community to any kind
+// of int" on them, failing the dialog sync and message reads. They are
+// not shown, so they are dropped where an answer is read.
+const COMMUNITIES = new Set(['Community', 'CommunityForbidden']);
+
+export const withoutCommunities = (chats) =>
+  Array.isArray(chats)
+    ? chats.filter((c) => !COMMUNITIES.has(c?.className))
+    : chats;
+
+// The classes whose constructor has a `chats:Vector<Chat>` field, from
+// the schema text: `messages.dialogsSlice` is `Api.messages.DialogsSlice`.
+export const chatListClasses = (tl) =>
+  tl
+    .split('---functions---')[0]
+    .split('\n')
+    .filter((line) => line.includes(' chats:Vector<Chat>'))
+    .map((line) => line.split('#')[0].split('.'));
+
+const communitiesDropped = new WeakSet();
+
+/** Make GramJS never see a community in an answer's `chats` (R-Y222). */
+export const skipCommunities = (Api, tl) => {
+  if (!Api || communitiesDropped.has(Api)) {
+    return;
+  }
+  communitiesDropped.add(Api);
+  for (const path of chatListClasses(tl)) {
+    const name = path.pop();
+    const Class = path.reduce((ns, part) => ns?.[part], Api)?.[
+      name[0].toUpperCase() + name.slice(1)
+    ];
+    afterRead(Class, (answer) => {
+      answer.chats = withoutCommunities(answer.chats);
+    });
   }
 };
 
@@ -131,6 +177,7 @@ export const importTelegram = async () => {
   const telegram = await import('telegram');
   try {
     skipPeerlessDialogs(telegram.Api);
+    skipCommunities(telegram.Api, readFileSync(SCHEMA, 'utf8'));
     quietOldButtons(telegram.Api);
   } catch {
     // GramJS stays as it was.

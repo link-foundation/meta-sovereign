@@ -111,7 +111,18 @@ const askPatiently = async (refresh, request, wait) => {
   }
 };
 
+// Why a read failed, as a short code: never a chat id, name or text (R-Y222).
+const reasonOf = (error) =>
+  String(
+    error?.code ??
+      error?.errorMessage ??
+      String(error?.message ?? error)
+        .replace(/\d+/g, '')
+        .slice(0, 40)
+  );
+
 const readAgain = async (byChat, refresh, priority, wait = pause) => {
+  const reasons = {};
   let failed = 0;
   let unreachable = 0;
   for (const [chat, ids] of byChat) {
@@ -128,10 +139,12 @@ const readAgain = async (byChat, refresh, priority, wait = pause) => {
           break;
         }
         failed += 1;
+        const reason = reasonOf(error);
+        reasons[reason] = (reasons[reason] ?? 0) + 1;
       }
     }
   }
-  return { failed, unreachable };
+  return { failed, unreachable, reasons };
 };
 
 /**
@@ -168,7 +181,7 @@ export const rereadUnsupported = async (
       byChat.set(String(l.chat), [...(byChat.get(String(l.chat)) ?? []), id]);
     }
   }
-  const { failed, unreachable } = await readAgain(
+  const { failed, unreachable, reasons } = await readAgain(
     byChat,
     refresh,
     priority,
@@ -197,6 +210,7 @@ export const rereadUnsupported = async (
     asked: links.length,
     left,
     failed,
+    reasons,
     unreachable,
     duration_ms: Date.now() - started,
   });
@@ -244,7 +258,7 @@ export const nameForwards = async (
       byChat.set(String(l.chat), [...(byChat.get(String(l.chat)) ?? []), id]);
     }
   }
-  const { failed, unreachable } = await readAgain(
+  const { failed, unreachable, reasons } = await readAgain(
     byChat,
     refresh,
     priority,
@@ -267,6 +281,7 @@ export const nameForwards = async (
     asked: links.length,
     left,
     failed,
+    reasons,
     unreachable,
     duration_ms: Date.now() - started,
   });
