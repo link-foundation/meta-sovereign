@@ -71,7 +71,20 @@ const MAX_BACKOFF_MS = 3_600_000;
 // One snapshot at a time; a request during one is served by the next. A
 // write during a snapshot only marks that another is wanted, so a failure
 // is reported once, not once for every write that arrived meanwhile.
-const createSnapshots = ({ run, minIntervalMs, onError }) => {
+// `clock` is the real one unless a test hands in a virtual one, so the
+// schedule can be checked without sleeping (R-Z6).
+const REAL_CLOCK = {
+  now: () => Date.now(),
+  setTimeout: (fn, ms) => globalThis.setTimeout(fn, ms),
+  clearTimeout: (timer) => globalThis.clearTimeout(timer),
+};
+
+const createSnapshots = ({
+  run,
+  minIntervalMs,
+  onError,
+  clock = REAL_CLOCK,
+}) => {
   let timer = null;
   let inFlight = null;
   let queued = null;
@@ -80,7 +93,7 @@ const createSnapshots = ({ run, minIntervalMs, onError }) => {
   let lastCost = 0;
   let failures = 0;
   const once = async () => {
-    const started = Date.now();
+    const started = clock.now();
     try {
       const result = await run();
       failures = 0;
@@ -89,7 +102,7 @@ const createSnapshots = ({ run, minIntervalMs, onError }) => {
       failures += 1;
       throw error;
     } finally {
-      lastAt = Date.now();
+      lastAt = clock.now();
       lastCost = lastAt - started;
     }
   };
@@ -102,7 +115,7 @@ const createSnapshots = ({ run, minIntervalMs, onError }) => {
   };
   let later = null;
   const now = () => {
-    globalThis.clearTimeout(timer);
+    clock.clearTimeout(timer);
     timer = null;
     if (queued) {
       return queued;
@@ -133,8 +146,8 @@ const createSnapshots = ({ run, minIntervalMs, onError }) => {
       wanted = true;
       return;
     }
-    const wait = Math.max(0, lastAt + interval() - Date.now());
-    timer = globalThis.setTimeout(() => {
+    const wait = Math.max(0, lastAt + interval() - clock.now());
+    timer = clock.setTimeout(() => {
       timer = null;
       // A failed snapshot is tried again, after a longer wait each time.
       now().catch((error) => {
@@ -160,6 +173,7 @@ export const createDoubletsMirror = async (
     onError = () => {},
     onEvent = () => {},
     measureFree,
+    clock,
   }
 ) => {
   // The new file is as large as the old one (or, the first time, about as
@@ -182,6 +196,7 @@ export const createDoubletsMirror = async (
     },
     minIntervalMs,
     onError,
+    clock,
   });
   const stale = async () => {
     const bin = await mtimeOf(filePath);

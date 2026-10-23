@@ -3,10 +3,11 @@
 // (never retried, no fallback); a clear refusal is not. Attachment files and
 // folders are private; the attachment route needs the local Host.
 
+import { assertMode } from './helpers/mode.js';
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
-import { mkdtemp, stat } from 'node:fs/promises';
+import { mkdtemp } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -111,8 +112,8 @@ describe('attachment files are private', () => {
     const base = await mkdtemp(path.join(os.tmpdir(), 'ms-email-mode-'));
     const dir = path.join(base, 'media', 'email');
     const hash = createAttachmentStore(dir).save(Buffer.from('bytes'));
-    assert.equal((await stat(path.join(dir, hash))).mode & 0o777, 0o600);
-    assert.equal((await stat(dir)).mode & 0o777, 0o700);
+    await assertMode(path.join(dir, hash), 0o600);
+    await assertMode(dir, 0o700);
   });
 });
 

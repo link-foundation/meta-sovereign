@@ -246,12 +246,7 @@ mod tests {
         let body = r#"{"protocol":"gmail","messages":[
             {"externalId":"abc","sender":"a@x.com","chat":"t","body":"hi"}
         ]}"#;
-        let r = dispatch(
-            &s,
-            &root,
-            &body_req("POST", "/api/email/pull", body),
-            ctx(),
-        );
+        let r = dispatch(&s, &root, &body_req("POST", "/api/email/pull", body), ctx());
         assert_eq!(r.status, 200);
         let txt = r.body_string();
         assert!(txt.contains("\"imported\":1"));
@@ -271,12 +266,7 @@ mod tests {
         let s = ServerState::new();
         let root = StaticRoot::new(None);
         let body = r#"{"protocol":"jmap","message":{"to":"b@x","subject":"hi","text":"x"}}"#;
-        let r = dispatch(
-            &s,
-            &root,
-            &body_req("POST", "/api/email/send", body),
-            ctx(),
-        );
+        let r = dispatch(&s, &root, &body_req("POST", "/api/email/send", body), ctx());
         assert_eq!(r.status, 200);
         let txt = r.body_string();
         assert!(txt.contains("\"status\":\"queued\""));
@@ -288,14 +278,11 @@ mod tests {
         let s = ServerState::new();
         let root = StaticRoot::new(None);
         let body = r#"{"protocol":"smtp","message":{"to":"b@x","subject":"hi"}}"#;
-        let r = dispatch(
-            &s,
-            &root,
-            &body_req("POST", "/api/email/send", body),
-            ctx(),
-        );
+        let r = dispatch(&s, &root, &body_req("POST", "/api/email/send", body), ctx());
         assert_eq!(r.status, 200);
-        assert!(r.body_string().contains("\"status\":\"needs-local-server\""));
+        assert!(r
+            .body_string()
+            .contains("\"status\":\"needs-local-server\""));
     }
 
     #[test]

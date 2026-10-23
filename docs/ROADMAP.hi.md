@@ -25,7 +25,7 @@ Telegram क्लाइंट की कौन-सी सुविधाएँ 
 - R-Z3 (पूरा): automated भेजने को ज़्यादा सुरक्षित बनाना।
 - R-Z4 (पूरा): भेजने और sync के नतीजे सच्चे बनाना (LinkedIn पर ग़लती से public post नहीं, CV sync की झूठी सफलता नहीं, X direct messages, साफ़ fallback)।
 - R-Z5 (पूरा): email ठीक करना (सुरक्षित भेजना, सही पार्सिंग और थ्रेडिंग, सत्यापित TLS, क्रमिक पुल, लाने का बटन)।
-- R-Z6: CI हरा करना (Deno, Bun, Windows, `cargo test`, CI में browser e2e)।
+- R-Z6 (पूरा): CI हरा करना (Deno, Bun, Windows, `cargo test`, CI में browser e2e)।
 
 ### Wave 2 — planned, अभी नहीं
 

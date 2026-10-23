@@ -36,6 +36,7 @@
   "scripts": {
     "test": "node --test --test-timeout=30000 js/tests/*.test.js",
     "test:e2e:browser": "node js/tests/e2e-browser-spa.mjs",
+    "test:e2e:browser:webkit": "E2E_BROWSER=webkit node js/tests/e2e-browser-spa.mjs",
     "test:e2e:pages": "node js/tests/e2e-pages.mjs",
     "test:pack": "node js/tests/pack-smoke.mjs",
     "test:e2e:email": "node js/tests/e2e-email-browser.mjs",

@@ -87,9 +87,13 @@ const pemOf = (label, der) =>
 
 /**
  * A new key and self-signed certificate for localhost, 127.0.0.1 and
- * ::1: `{ key, cert }` in PEM.
+ * ::1: `{ key, cert }` in PEM. `authority` (tests only) marks it as a CA,
+ * which Bun needs before it trusts a self-signed certificate given as `ca`.
  */
-export const makeLocalCertificate = ({ now = Date.now() } = {}) => {
+export const makeLocalCertificate = ({
+  now = Date.now(),
+  authority = false,
+} = {}) => {
   const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', {
     namedCurve: 'prime256v1',
   });
@@ -113,8 +117,15 @@ export const makeLocalCertificate = ({ now = Date.now() } = {}) => {
     explicit(
       3,
       seq(
-        extension('2.5.29.19', seq(), true), // not an authority
-        extension('2.5.29.15', bits(Buffer.from([0x80]), 7), true), // signs
+        // not an authority, unless a test needs one
+        extension('2.5.29.19', authority ? seq(yes) : seq(), true),
+        extension(
+          '2.5.29.15',
+          authority
+            ? bits(Buffer.from([0x84]), 1) // signs and signs certificates
+            : bits(Buffer.from([0x80]), 7),
+          true
+        ),
         extension('2.5.29.37', seq(oid('1.3.6.1.5.5.7.3.1'))), // serves TLS
         extension(
           '2.5.29.17', // these names only

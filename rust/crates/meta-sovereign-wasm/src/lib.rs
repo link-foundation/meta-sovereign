@@ -19,6 +19,12 @@ pub extern "C" fn ms_alloc(len: usize) -> *mut u8 {
     unsafe { alloc(layout) }
 }
 
+/// Frees a buffer made by `ms_alloc` (R-Z6).
+///
+/// # Safety
+///
+/// `ptr` must come from `ms_alloc(len)` with the same `len`, and must not be
+/// used or freed again afterwards.
 #[no_mangle]
 pub unsafe extern "C" fn ms_dealloc(ptr: *mut u8, len: usize) {
     if ptr.is_null() || len == 0 {
@@ -41,6 +47,11 @@ fn matches_utf8(pattern: &[u8], input: &[u8]) -> u32 {
     u32::from(meta_sovereign_core::pattern_matches(pattern, input))
 }
 
+/// Whether `input` matches `pattern`, both UTF-8 in linear memory (R-Z6).
+///
+/// # Safety
+///
+/// Each pointer must be null or valid for reads of its length in bytes.
 #[no_mangle]
 pub unsafe extern "C" fn pattern_matches(
     pattern_ptr: *const u8,

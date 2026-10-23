@@ -836,7 +836,11 @@ const runSuite = async (backend) => {
     `\n[e2e-browser-spa] === backend=${backend.name} base=${base} ===`
   );
 
-  const browser = await playwright.chromium.launch({ headless: true });
+  const browser = await playwright[
+    process.env.E2E_BROWSER || 'chromium'
+  ].launch({
+    headless: true,
+  });
   const context = await browser.newContext();
   const page = await context.newPage();
   const commander = bc.makeBrowserCommander({

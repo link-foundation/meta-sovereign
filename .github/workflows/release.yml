@@ -309,6 +309,106 @@ jobs:
         if: matrix.runtime == 'deno'
         run: deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests
 
+  # === RUST CRATES (R-Z6) ===
+  # fmt, clippy (warnings are errors) and the crates' own tests, so the
+  # Rust port can not rot unseen. Not a release gate.
+  rust:
+    name: Rust (fmt, clippy, test)
+    runs-on: ubuntu-latest
+    # Cold build ~4min, cached ~1min.
+    timeout-minutes: 20
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.any-code-changed == 'true'
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            rust/target
+          key: cargo-${{ runner.os }}-${{ hashFiles('rust/Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: cargo fmt --check
+        run: cargo fmt --manifest-path rust/Cargo.toml --all -- --check
+
+      - name: cargo clippy
+        run: cargo clippy --manifest-path rust/Cargo.toml --workspace --all-targets -- -D warnings
+
+      - name: cargo test
+        run: cargo test --manifest-path rust/Cargo.toml --workspace
+
+  # === BROWSER E2E (R-Z6) ===
+  # A representative set of the `test:e2e:*` scripts in chromium: the SPA
+  # smoke test, the chat basics, rich and service messages, ephemeral
+  # messages, accounts and data export, offline, the passcode, rich text,
+  # Instant View, email, greetings, autopilot, the peer bar and the tutorial.
+  # Each script prints OK or fails; all run, then the job reports every
+  # failure at once. Not a release gate.
+  e2e-browser:
+    name: Browser e2e (chromium)
+    runs-on: ubuntu-latest
+    # ~21 scripts at 10-40s each plus the browser download.
+    timeout-minutes: 30
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.any-code-changed == 'true'
+    env:
+      RUN_BROWSER_E2E: '1'
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24.x'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: playwright-${{ runner.os }}-
+
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build the web app
+        run: npm run build:web
+
+      - name: Run browser e2e scripts
+        run: |
+          failed=()
+          for name in browser pages chat-menu chat-search selection attach \
+            send-extras folders passcode service-messages ephemeral \
+            rich-messages rich-text instant-view account-data accounts offline \
+            email greetings autopilot peer-bar tutorial; do
+            echo "::group::test:e2e:${name}"
+            if ! npm run --silent "test:e2e:${name}"; then
+              failed+=("${name}")
+              echo "::error::test:e2e:${name} failed"
+            fi
+            echo "::endgroup::"
+          done
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "Failed e2e scripts: ${failed[*]}"
+            exit 1
+          fi
+
   # === API DOCUMENTATION BUILD ===
   # Build JS API docs (`npm run docs:api`) and Rust crate docs
   # (`cargo doc --manifest-path rust/Cargo.toml --no-deps`) on every push and PR. This catches doc-comment

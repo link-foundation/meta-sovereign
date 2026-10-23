@@ -8,7 +8,9 @@ import tls from 'node:tls';
 
 import { makeLocalCertificate } from '../../src/server/local-tls.js';
 
-export const { key, cert } = makeLocalCertificate();
+// An authority, so that Bun also trusts it as `ca` (the product's own
+// certificate is not one).
+export const { key, cert } = makeLocalCertificate({ authority: true });
 
 export const MAIL = [
   'Message-ID: <m1@example.com>',

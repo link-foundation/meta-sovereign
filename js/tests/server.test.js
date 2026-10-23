@@ -4,6 +4,7 @@ import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../src/server/index.js';
+import { waitFor } from './helpers/wait-for.js';
 
 const fetchJson = async (url, init) => {
   const r = await fetch(url, init);
@@ -386,7 +387,7 @@ describe('http server observability', () => {
     try {
       await fetch(`${base}/sources`).then((r) => r.text());
       // wait for `finish` event to flush
-      await new Promise((r) => setTimeout(r, 25));
+      await waitFor(() => lines.length > 0, { what: 'the http log line' });
       const httpLines = lines
         .map((l) => JSON.parse(l))
         .filter((e) => e.event === 'http');

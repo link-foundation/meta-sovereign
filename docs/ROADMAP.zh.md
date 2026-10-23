@@ -23,7 +23,7 @@ issue #1 的路线图目前为空。原始 issue 和 PR #2 maintainer follow-up 
 - R-Z3（已完成）：让自动发送更安全。
 - R-Z4（已完成）：让发送和同步的结果真实可信（不会误发 LinkedIn 公开帖子，不会假报 CV 同步成功，X 私信，明确的回退方式）。
 - R-Z5（已完成）：修复 email（安全发送、正确解析和会话串联、经验证的 TLS、增量拉取、收取按钮）。
-- R-Z6：让 CI 变绿（Deno、Bun、Windows、`cargo test`、CI 中的浏览器 e2e）。
+- R-Z6（已完成）：让 CI 变绿（Deno、Bun、Windows、`cargo test`、CI 中的浏览器 e2e）。
 
 ### 第 2 阶段 — 已计划，暂不进行
 

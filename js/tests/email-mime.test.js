@@ -3,7 +3,7 @@
 // windows-1251 bodies, Q- and B-encoded headers, nested multiparts,
 // attachments and inline pictures. Nothing touches a network.
 
-import { describe, it, afterEach } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
@@ -423,8 +423,6 @@ describe('HTML is data, never markup', () => {
 });
 
 describe('attachment sink', () => {
-  afterEach(() => setAttachmentSink(null));
-
   it('hands the decoded bytes to the sink and records its id', () => {
     const seen = [];
     setAttachmentSink((bytes, meta) => {
@@ -448,7 +446,12 @@ describe('attachment sink', () => {
       '--B--',
       '',
     ]);
-    const link = parseRfc822Message(Buffer.from(raw));
+    let link;
+    try {
+      link = parseRfc822Message(Buffer.from(raw));
+    } finally {
+      setAttachmentSink(null); // (Deno has no `afterEach`)
+    }
     assert.deepEqual(seen, [['ZIPDATA', 'a.zip']]);
     assert.equal(link.attachments[0].file, 'abc123');
     assert.equal(link.body, 'body');

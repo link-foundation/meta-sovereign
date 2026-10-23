@@ -8,6 +8,7 @@ import { promises as fs } from 'node:fs';
 import { spawn } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { createLinoTextStore } from '../src/storage/lino-store.js';
 import { openDualStore } from '../src/storage/dual-store.js';
@@ -19,9 +20,9 @@ import {
   verifyBackup,
 } from '../src/storage/backup.js';
 import { writeFileDurable } from '../src/storage/durable.js';
+import { assertMode } from './helpers/mode.js';
 
 const tmp = (name) => fs.mkdtemp(path.join(os.tmpdir(), `ms-z2-${name}-`));
-const mode = async (file) => (await fs.stat(file)).mode & 0o777;
 const link = (i) => ({
   id: `msg:z:${i}`,
   tokens: ['msg', 'z', `${i}`],
@@ -74,7 +75,7 @@ test('a compaction flushes its temp file before the rename', async () => {
     spy.restore();
   }
   assert.equal((await fs.readFile(file, 'utf8')).trim().split('\n').length, 1);
-  assert.equal(await mode(file), 0o600);
+  await assertMode(file, 0o600);
   assert.deepEqual(
     (await fs.readdir(dir)).filter((n) => n.endsWith('.tmp')),
     []
@@ -86,8 +87,8 @@ test('writeFileDurable leaves a private whole file and no temp', async () => {
   const file = path.join(dir, 'sub', 'x.bin');
   await writeFileDurable(file, 'hello');
   assert.equal(await fs.readFile(file, 'utf8'), 'hello');
-  assert.equal(await mode(file), 0o600);
-  assert.equal(await mode(path.dirname(file)), 0o700);
+  await assertMode(file, 0o600);
+  await assertMode(path.dirname(file), 0o700);
   assert.deepEqual(await fs.readdir(path.dirname(file)), ['x.bin']);
 });
 
@@ -118,7 +119,7 @@ test('a corrupt line in the middle is kept in quarantine, never compacted away',
   assert.equal(kept.length, 1);
   const quarantine = path.join(dir, kept[0]);
   assert.ok((await fs.readFile(quarantine, 'utf8')).includes(garbled));
-  assert.equal(await mode(quarantine), 0o600);
+  await assertMode(quarantine, 0o600);
   assert.equal(heard.at(-1).quarantined, true);
 
   // The next open is clean and the quarantine file is not written again.
@@ -165,35 +166,48 @@ test('opening a store tightens older loose files and folders', async () => {
   }
   await fs.chmod(path.join(dir, 'media', 'telegram', 'a', 'p.jpg'), 0o644);
   await openDualStore(dir);
-  assert.equal(await mode(path.join(dir, 'media')), 0o700);
-  assert.equal(await mode(path.join(dir, 'media/telegram/a')), 0o700);
-  assert.equal(await mode(path.join(dir, 'media/telegram/a/p.jpg')), 0o600);
+  await assertMode(path.join(dir, 'media'), 0o700);
+  await assertMode(path.join(dir, 'media', 'telegram', 'a'), 0o700);
+  await assertMode(path.join(dir, 'media', 'telegram', 'a', 'p.jpg'), 0o600);
   for (const name of [
     'data.lino',
     'data.bin',
     'logs/a.log',
     'archives/b.json',
   ]) {
-    assert.equal(await mode(path.join(dir, name)), 0o600, name);
+    await assertMode(path.join(dir, name), 0o600, name);
   }
-  assert.equal(await mode(path.join(dir, 'logs')), 0o700);
-  assert.equal(await mode(dir), 0o700);
-  assert.equal(await mode(path.join(dir, 'data.lock')), 0o600);
+  await assertMode(path.join(dir, 'logs'), 0o700);
+  await assertMode(dir, 0o700);
+  await assertMode(path.join(dir, 'data.lock'), 0o600);
 });
 
-const holder = (dir) =>
-  new Promise((resolve, reject) => {
-    const src = `
-      import { openDualStore } from ${JSON.stringify(new URL('../src/storage/dual-store.js', import.meta.url).href)};
-      await openDualStore(${JSON.stringify(dir)});
-      console.log('ready');
-      setInterval(() => {}, 1000);`;
-    const child = spawn(process.execPath, ['--input-type=module', '-e', src], {
+// A child process that opens the store and stays alive. `node -e` does not
+// exist on Deno, so the script is a file, run by the runtime of the tests
+// (a dynamic import: Deno does not prepare static ones from node_modules).
+const SCRIPTS = fileURLToPath(
+  new URL('../../node_modules/.cache/ms-scripts/', import.meta.url)
+);
+const holder = async (dir) => {
+  await fs.mkdir(SCRIPTS, { recursive: true });
+  const file = path.join(SCRIPTS, `holder-${process.pid}-${Date.now()}.mjs`);
+  await fs.writeFile(
+    file,
+    `const { openDualStore } = await import(${JSON.stringify(new URL('../src/storage/dual-store.js', import.meta.url).href)});
+await openDualStore(${JSON.stringify(dir)});
+console.log('ready');
+setInterval(() => {}, 1000);`
+  );
+  return new Promise((resolve, reject) => {
+    const args = globalThis.Deno ? ['run', '-A', file] : [file];
+    const child = spawn(process.execPath, args, {
       stdio: ['ignore', 'pipe', 'inherit'],
     });
+    child.once('exit', () => fs.rm(file, { force: true }));
     child.stdout.once('data', () => resolve(child));
     child.once('error', reject);
   });
+};
 
 test('a second process fails fast; read-only still works; a stale lock is taken over', async () => {
   const dir = await tmp('lock');
@@ -254,7 +268,7 @@ test('plain backups leave secrets out and say so; encrypted ones keep them', asy
   const text = await fs.readFile(plain.file, 'utf8');
   assert.ok(!text.includes('S3CR3T'));
   assert.equal(JSON.parse(text).secrets, 'excluded');
-  assert.equal(await mode(plain.file), 0o600);
+  await assertMode(plain.file, 0o600);
 
   const enc = await makeBackup(store, {
     archiveDir: dir,

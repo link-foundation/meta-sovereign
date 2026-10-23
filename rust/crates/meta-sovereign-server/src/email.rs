@@ -124,14 +124,17 @@ fn normalize_record(record: &Value, index: usize) -> Value {
     let sender = first_str(record, &["sender", "from", "fromAddress"])
         .unwrap_or("unknown")
         .to_string();
-    let chat = first_str(record, &["chat", "thread", "threadId", "mailbox", "subject"])
-        .unwrap_or("inbox")
-        .to_string();
+    let chat = first_str(
+        record,
+        &["chat", "thread", "threadId", "mailbox", "subject"],
+    )
+    .unwrap_or("inbox")
+    .to_string();
     let body = first_str(record, &["body", "text", "plainText", "snippet", "content"])
         .unwrap_or("")
         .to_string();
-    let timestamp = first_str(record, &["timestamp", "date", "receivedAt", "internalDate"])
-        .map(String::from);
+    let timestamp =
+        first_str(record, &["timestamp", "date", "receivedAt", "internalDate"]).map(String::from);
     let reply_to = first_str(record, &["replyTo", "inReplyTo"]).map(String::from);
 
     let id = format!("msg:{SOURCE}:{external}");
@@ -282,9 +285,7 @@ pub fn send(state: &ServerState, body: &Value) -> Value {
     if needs_local_server {
         result.insert(
             "note".into(),
-            Value::String(
-                "raw IMAP/POP3/SMTP delivery requires the JS server transport".into(),
-            ),
+            Value::String("raw IMAP/POP3/SMTP delivery requires the JS server transport".into()),
         );
     }
 
@@ -357,14 +358,8 @@ mod tests {
         assert_eq!(out.get("protocol"), Some(&Value::String("gmail".into())));
         assert_eq!(out.get("provider"), Some(&Value::String("google".into())));
         let stored = s.get("msg:email:abc").expect("stored msg link");
-        assert_eq!(
-            stored.get("body").and_then(|v| v.as_str()),
-            Some("hi")
-        );
-        assert_eq!(
-            stored.get("source").and_then(|v| v.as_str()),
-            Some("email")
-        );
+        assert_eq!(stored.get("body").and_then(|v| v.as_str()), Some("hi"));
+        assert_eq!(stored.get("source").and_then(|v| v.as_str()), Some("email"));
         let tokens = stored.get("tokens").and_then(|v| v.as_array()).unwrap();
         assert!(tokens.contains(&Value::String("message".into())));
         assert!(tokens.contains(&Value::String("email".into())));
@@ -418,10 +413,7 @@ mod tests {
         let id = result.get("id").and_then(|v| v.as_str()).unwrap();
         assert!(id.starts_with("email-send:"));
         let stored = s.get(id).expect("queued send is persisted");
-        assert_eq!(
-            stored.get("subject").and_then(|v| v.as_str()),
-            Some("Hi")
-        );
+        assert_eq!(stored.get("subject").and_then(|v| v.as_str()), Some("Hi"));
     }
 
     #[test]

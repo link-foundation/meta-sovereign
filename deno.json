@@ -1,5 +1,8 @@
 {
   "nodeModulesDir": "auto",
+  "imports": {
+    "telegram": "npm:telegram@^2.26.22"
+  },
   "test": {
     "include": ["js/tests/"],
     "exclude": ["js/examples/", "node_modules/"]

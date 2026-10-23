@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { runModuleScript } from './helpers/run-module-script.js';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
@@ -109,20 +109,12 @@ test('the shipped layer parses in GramJS, new polls and checklists too', () => {
   assert.ok(named('SendVote', 'messages').isFunction);
 });
 
-// Spawns Node with a fresh module cache (Deno and Bun run the rest).
-const onNode = !globalThis.Deno && !globalThis.Bun;
-
-test(
-  'GramJS loads at the current layer, before anything else loads it',
-  { skip: onNode ? false : 'needs Node to spawn' },
-  () => {
-    const layerModule = new URL('telegram-layer.js', SOURCES).href;
-    const out = execFileSync(
-      process.execPath,
-      [
-        '--input-type=module',
-        '-e',
-        `const m = await import(${JSON.stringify(layerModule)});
+// A fresh process of the same runtime, with a module cache nothing has
+// loaded GramJS into.
+test('GramJS loads at the current layer, before anything else loads it', () => {
+  const layerModule = new URL('telegram-layer.js', SOURCES).href;
+  const out = runModuleScript(
+    `const m = await import(${JSON.stringify(layerModule)});
        const { Api } = await m.importTelegram();
        const { createRequire } = await import('node:module');
        const all = createRequire(${JSON.stringify(layerModule)})('telegram/tl/AllTLObjects.js');
@@ -131,18 +123,15 @@ test(
          layer: all.LAYER,
          poll: Api.MessageMediaPoll.CONSTRUCTOR_ID.toString(16),
          todo: typeof Api.MessageMediaToDo,
-       }));`,
-      ],
-      { encoding: 'utf8' }
-    );
-    const got = JSON.parse(out.trim().split('\n').pop());
-    assert.equal(got.layer, LAYER);
-    assert.equal(got.installed.layer, LAYER);
-    assert.ok(got.installed.from < LAYER);
-    assert.equal(got.poll, '773f4e66');
-    assert.equal(got.todo, 'function');
-  }
-);
+       }));`
+  );
+  const got = JSON.parse(out.trim().split('\n').pop());
+  assert.equal(got.layer, LAYER);
+  assert.equal(got.installed.layer, LAYER);
+  assert.ok(got.installed.from < LAYER);
+  assert.equal(got.poll, '773f4e66');
+  assert.equal(got.todo, 'function');
+});
 
 test('every Api method and class our Telegram code names exists', () => {
   const { parseTl } = require('telegram/tl/generationHelpers.js');

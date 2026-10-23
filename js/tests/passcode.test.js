@@ -64,7 +64,11 @@ test('set, lock, unlock, change and remove', async () => {
   assert.equal(lock.locked(), false);
   const file = await readFile(path.join(dir, PASSCODE_FILE), 'utf8');
   assert.ok(!file.includes('one"'));
-  assert.equal((await stat(path.join(dir, PASSCODE_FILE))).mode & 0o077, 0);
+  // Windows has no POSIX owner-only bits (stat reports 0o666): the file's
+  // privacy there rests on the user profile's ACLs (R-Z6).
+  if (process.platform !== 'win32') {
+    assert.equal((await stat(path.join(dir, PASSCODE_FILE))).mode & 0o077, 0);
+  }
   let closed = 0;
   lock.onLock(() => (closed += 1));
   assert.equal(lock.lock(), true);

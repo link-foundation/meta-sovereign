@@ -22,6 +22,7 @@ import { updateEffect } from '../src/sources/telegram-updates.js';
 import { PRIVATE_CALL_POSTS } from '../src/server/routes-telegram-private-call.js';
 import { named, helpers, telegramError } from './helpers/telegram-fakes.mjs';
 import { postRoute } from './helpers/post-route.js';
+import { waitFor } from './helpers/wait-for.js';
 
 const NOW = Date.parse('2026-03-01T12:00:00Z');
 const group = crypto.getDiffieHellman('modp14');
@@ -294,7 +295,9 @@ test('a call left over from before a restart is ended at startup', async () => {
     { store, now: () => NOW, importer: async () => ({ Api, helpers }) },
     { userClient: async () => null }
   );
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  await waitFor(async () => (await store.get(LINK_ID)).phase === 'ended', {
+    what: 'the left-over call to end',
+  });
   const link = await store.get(LINK_ID);
   assert.equal(link.phase, 'ended');
   assert.equal(link.code, 'restart');

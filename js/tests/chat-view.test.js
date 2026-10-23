@@ -380,7 +380,12 @@ test('chats: a contact opened from Contacts gets a chat before any message', asy
   assert.equal(chat.key, 'telegram:42');
   assert.equal(chat.name, 'Alice Liddell');
   assert.equal(chat.personal, true);
-  assert.equal(emptyChat([], { source: 'telegram', chat: '7' }).name, '7');
+  // A chat id nobody hinted (chat hints are module state shared by files
+  // that run in one process, as under bun; R-Z6).
+  assert.equal(
+    emptyChat([], { source: 'telegram', chat: 'no-hint-7' }).name,
+    'no-hint-7'
+  );
 });
 
 test('chats: a chat started from Contacts is named after the person', () => {

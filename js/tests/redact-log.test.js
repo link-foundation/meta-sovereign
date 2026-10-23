@@ -1,6 +1,7 @@
 // R-Z2: no credential reaches a log line or a stored error; the log file
 // is private and rotated by size.
 
+import { assertMode } from './helpers/mode.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
@@ -66,8 +67,8 @@ test('the log file is private and rotated by size, keeping a few', async () => {
     maxBytes: 2000,
     keep: 2,
   });
-  assert.equal((await fs.stat(file)).mode & 0o777, 0o600);
-  assert.equal((await fs.stat(logs)).mode & 0o777, 0o700);
+  await assertMode(file, 0o600);
+  await assertMode(logs, 0o700);
   for (let i = 0; i < 60; i += 1) {
     log({ event: 'tick', i, url: `/bot${BOT}/x`, pad: 'x'.repeat(100) });
   }

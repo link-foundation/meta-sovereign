@@ -85,13 +85,16 @@ const request = (patch = {}) => ({
   ...patch,
 });
 
+// Waits on the clock, not on a count of event-loop turns: the export does file
+// I/O, and how many turns that takes differs per runtime (bun, deno; R-Z6).
 const finished = async (actions) => {
-  for (let i = 0; i < 4000; i += 1) {
+  const deadline = Date.now() + 20_000;
+  while (Date.now() < deadline) {
     const { job } = await actions.dataExportStatus();
     if (job && !['running', 'cancelling'].includes(job.state)) {
       return job;
     }
-    await new Promise((resolve) => globalThis.setImmediate(resolve));
+    await new Promise((resolve) => globalThis.setTimeout(resolve, 2));
   }
   throw new Error('the export did not end');
 };

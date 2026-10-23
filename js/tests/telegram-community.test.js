@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { runModuleScript } from './helpers/run-module-script.js';
 
 import {
   chatListClasses,
@@ -54,11 +54,7 @@ const classesRead = () => {
       out[name] = read.chats.map((c) => c.className);
     }
     console.log(JSON.stringify(out));`;
-  const out = execFileSync(
-    process.execPath,
-    ['--input-type=module', '-e', script],
-    { encoding: 'utf8' }
-  );
+  const out = runModuleScript(script);
   return JSON.parse(out.trim().split('\n').pop());
 };
 

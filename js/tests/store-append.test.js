@@ -21,6 +21,7 @@ import {
   tombstoneRecord,
 } from '../src/storage/lino-store.js';
 import { startServer } from '../src/server/index.js';
+import { waitFor } from './helpers/wait-for.js';
 
 const tmpdir = () => fs.mkdtemp(path.join(os.tmpdir(), 'ms-append-'));
 
@@ -172,7 +173,10 @@ test('the binary snapshot is written on an interval, and at once on flush', asyn
   const file = path.join(await tmpdir(), 'data.bin');
   const store = await createDoubletsStore(file, { minIntervalMs: 200 });
   await store.put(message(1)); // the first change after a quiet spell
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await waitFor(
+    async () => decodeArchive(await fs.readFile(file).catch(() => '')).length,
+    { what: 'the first snapshot' }
+  );
   assert.equal(decodeArchive(await fs.readFile(file)).length, 1);
   await store.put(message(2));
   await store.put(message(3));
