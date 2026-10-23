@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.4
+
+### Patch Changes
+
+- badd23b: GitHub is a full inbox: review comments, notifications, Discussions, incremental pulls, a repository picker, and correct edit, delete and react, with its schedule on the shared pull runner (R-Z11).
+
 ## 0.49.3
 
 ### Patch Changes
