@@ -420,8 +420,8 @@ test('Ctrl+Up and Down move the reply; Up edits the last own message', () => {
   assert.equal(replyStep(list, list[1].id, 1).id, list[3].id);
   assert.equal(replyStep(list, list[3].id, 1), null);
   assert.equal(replyStep(list, null, 1), null);
-  assert.equal(lastEditable(list).id, list[1].id);
-  assert.equal(lastEditable([msg(1)]), null);
+  assert.equal(lastEditable(list, NOW).id, list[1].id);
+  assert.equal(lastEditable([msg(1)], NOW), null);
 });
 
 test('who may pin, as Telegram decides', () => {

@@ -47,6 +47,8 @@ import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
 import { createFolderEdit } from './telegram-folder-edit.js';
 import { createStickers } from './telegram-stickers.js';
+import { createStickerSets } from './telegram-sticker-sets.js';
+import { createContactsEdit } from './telegram-contacts-edit.js';
 import { createInvites } from './telegram-invite.js';
 import { createMembers } from './telegram-members.js';
 import { createPeerActions } from './telegram-peer-actions.js';
@@ -406,7 +408,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // settings, the discussion group included (R-Y165); creating and editing chat
 // folders (R-Y164); statistics of channels and supergroups (R-Y167); the pinned
 // messages list, similar channels and fact checks (R-Y166); bot mini apps
-// (R-Y168).
+// (R-Y168); sticker and emoji sets, close friends and adding a contact by phone
+// (R-Y169).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -418,6 +421,7 @@ const chatActions = (env, context) => {
       dropUpload: drop,
     },
   };
+  const { stickerLists, ...stickers } = createStickers(env, context);
   return {
     ...createPollActions(env, context),
     ...createDialogActions(env, context),
@@ -428,7 +432,9 @@ const chatActions = (env, context) => {
     ...createScheduled(env, context),
     ...createFolders(env, context),
     ...createFolderEdit(env, context),
-    ...createStickers(env, context),
+    ...stickers,
+    ...createStickerSets(env, { ...context, stickers: stickerLists }),
+    ...createContactsEdit(env, context),
     ...createCustomEmoji(env, context),
     ...createEmojiKeywords(env, context),
     ...createBotActions(env, context),

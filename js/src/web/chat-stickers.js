@@ -296,7 +296,7 @@ const SetSection = ({ api, set, onSend, onMenu, onAdd, onRemove }) => {
   );
 };
 
-const SetThumb = ({ api, set }) => {
+export const SetThumb = ({ api, set }) => {
   const url = useStickerUrl(api, { set: set.id }, true);
   const [broken, setBroken] = useState(false);
   return url && !broken

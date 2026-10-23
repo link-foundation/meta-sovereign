@@ -1117,6 +1117,21 @@ export const api = {
   // Emoji statuses (R-Y162).
   telegramEmojiStatuses: (body = {}) => telegramPost('emoji-statuses', body),
   telegramEmojiStatusSet: (body = {}) => telegramPost('emoji-status-set', body),
+  // Settings → Stickers and emoji, close friends, a contact by phone (R-Y169).
+  telegramStickerSets: (body = {}) => telegramPost('sticker-sets', body),
+  telegramStickerSetsReorder: (body = {}) =>
+    telegramPost('sticker-sets-reorder', body),
+  telegramStickerSetArchive: (body = {}) =>
+    telegramPost('sticker-set-archive', body),
+  telegramStickerSetRemove: (body = {}) =>
+    telegramPost('sticker-set-remove', body),
+  telegramStickerSetAdd: (body = {}) => telegramPost('sticker-set-add', body),
+  telegramStickerSetsArchived: (body = {}) =>
+    telegramPost('sticker-sets-archived', body),
+  telegramCloseFriends: (body = {}) => telegramPost('close-friends', body),
+  telegramCloseFriendsSet: (body = {}) =>
+    telegramPost('close-friends-set', body),
+  telegramContactImport: (body = {}) => telegramPost('contact-import', body),
   telegramSendAs: (body = {}) => telegramPost('send-as', body),
   telegramSendAsSave: (body = {}) => telegramPost('send-as-save', body),
   // The recent calls list (R-Y163).

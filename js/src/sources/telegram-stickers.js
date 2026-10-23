@@ -685,5 +685,11 @@ export const createStickers = (
     stickerSetInstall: createInstaller(env, { userClient }, lists),
     stickerSetBox: createBox(env, { userClient }, lists),
     stickerDice: createDice(env, { userClient }, lists, now),
+    // What the settings' sets list (R-Y169) shares with the panel.
+    stickerLists: {
+      learn: lists.learnSet,
+      known: (id) => lists.setOf(id)?.set ?? null,
+      changed: lists.changed,
+    },
   };
 };

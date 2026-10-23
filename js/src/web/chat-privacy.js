@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useT, useLocaleContext } from './i18n.js';
 import { FormDialog } from './chat-create.js';
 import { TtlChoices, periodWords } from './chat-ttl.js';
+import { CloseFriendsDialog } from './chat-contacts-edit.js';
 
 const el = React.createElement;
 
@@ -449,6 +450,26 @@ const Blocked = ({ api, t, setError }) => {
   ]);
 };
 
+// Close friends (R-Y169): a button that opens the editor over the dialog.
+const CloseFriends = ({ api, t, setOpen }) => {
+  if (typeof api?.telegramCloseFriends !== 'function') {
+    return null;
+  }
+  return el('div', { className: 'privacy-close-friends' }, [
+    el('p', { key: 'h', className: 'meta' }, t('chat.contactsEdit.closeHint')),
+    el(
+      'button',
+      {
+        key: 'b',
+        type: 'button',
+        'data-action': 'open-close-friends',
+        onClick: () => setOpen(true),
+      },
+      t('chat.contactsEdit.edit')
+    ),
+  ]);
+};
+
 const Section = ({ title, name, children }) =>
   el('section', { className: 'privacy-section', 'data-section': name }, [
     el('h4', { key: 'h' }, title),
@@ -456,7 +477,7 @@ const Section = ({ title, name, children }) =>
   ]);
 
 /** The dialog: privacy rules, active sessions, blocked users. */
-export const PrivacyDialog = ({ api, close }) => {
+const PrivacyForm = ({ api, close, friends, setFriends }) => {
   const t = useT();
   const [error, setError] = useState(null);
   const props = { api, t, setError };
@@ -465,7 +486,7 @@ export const PrivacyDialog = ({ api, close }) => {
     {
       name: 'privacy',
       title: t('chat.privacy.title'),
-      onClose: close,
+      onClose: friends ? () => {} : close,
       onSubmit: close,
       submit: t('chat.privacy.done'),
       busy: false,
@@ -485,6 +506,15 @@ export const PrivacyDialog = ({ api, close }) => {
       ),
       el(
         Section,
+        {
+          key: 'cf',
+          name: 'close-friends',
+          title: t('chat.contactsEdit.closeFriends'),
+        },
+        el(CloseFriends, { ...props, setOpen: setFriends })
+      ),
+      el(
+        Section,
         { key: 's', name: 'sessions', title: t('chat.privacy.sessions') },
         el(Sessions, props)
       ),
@@ -495,4 +525,20 @@ export const PrivacyDialog = ({ api, close }) => {
       ),
     ]
   );
+};
+
+// The editor is a sibling of the form, never inside it (a form in a form
+// would submit the outer one); while it is open Escape closes only it.
+export const PrivacyDialog = ({ api, close }) => {
+  const [friends, setFriends] = useState(false);
+  return el(React.Fragment, null, [
+    el(PrivacyForm, { key: 'p', api, close, friends, setFriends }),
+    friends
+      ? el(CloseFriendsDialog, {
+          key: 'cf',
+          api,
+          close: () => setFriends(false),
+        })
+      : null,
+  ]);
 };

@@ -315,14 +315,19 @@ const ChannelDialog = ({ api, close }) => {
   );
 };
 
-/** The list's "+": New Group and New Channel, each in a dialog. */
-export const NewChat = ({ api }) => {
+/**
+ * The list's "+": New Group and New Channel, each in a dialog; and, when
+ * `AddContact` is given (R-Y169), Add contact by phone number.
+ */
+export const NewChat = ({ api, AddContact = null }) => {
   const t = useT();
   const [menu, setMenu] = useState(false);
   const [dialog, setDialog] = useState(null);
   if (typeof api?.telegramGroupCreate !== 'function') {
     return null;
   }
+  const canAdd =
+    AddContact !== null && typeof api?.telegramContactImport === 'function';
   const choose = (kind) => {
     setMenu(false);
     setDialog(kind);
@@ -366,6 +371,19 @@ export const NewChat = ({ api }) => {
             },
             t('chat.create.newChannel')
           ),
+          canAdd
+            ? el(
+                'button',
+                {
+                  key: 'ac',
+                  type: 'button',
+                  role: 'menuitem',
+                  'data-action': 'new-contact',
+                  onClick: () => choose('contact'),
+                },
+                t('chat.contactsEdit.addContact')
+              )
+            : null,
         ])
       : null,
     dialog === 'group'
@@ -373,6 +391,9 @@ export const NewChat = ({ api }) => {
       : null,
     dialog === 'channel'
       ? el(ChannelDialog, { key: 'dc', api, close: () => setDialog(null) })
+      : null,
+    dialog === 'contact' && canAdd
+      ? el(AddContact, { key: 'dk', api, close: () => setDialog(null) })
       : null,
   ]);
 };

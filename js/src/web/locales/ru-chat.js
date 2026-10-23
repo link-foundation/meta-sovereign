@@ -1412,4 +1412,57 @@ export const ruChat = {
   'chat.webApp.cancel': 'Отмена',
   'chat.webApp.confirmClose':
     'Внесённые изменения могут не сохраниться. Закрыть приложение?',
+  // Настройки стикеров и эмодзи, близкие друзья, добавление контакта (R-Y169).
+  'chat.profile.stickers': 'Стикеры и эмодзи',
+  'chat.stickerSettings.title': 'Стикеры и эмодзи',
+  'chat.stickerSettings.done': 'Готово',
+  'chat.stickerSettings.stickers': 'Стикеры',
+  'chat.stickerSettings.emoji': 'Эмодзи',
+  'chat.stickerSettings.showArchived': 'Архивные стикеры',
+  'chat.stickerSettings.showInstalled': 'К установленным наборам',
+  'chat.stickerSettings.loading': 'Загружаем наборы...',
+  'chat.stickerSettings.none': 'Нет установленных наборов.',
+  'chat.stickerSettings.noArchived': 'В архиве нет наборов.',
+  'chat.stickerSettings.more': 'Показать ещё',
+  'chat.stickerSettings.up': 'Выше',
+  'chat.stickerSettings.down': 'Ниже',
+  'chat.stickerSettings.archive': 'В архив',
+  'chat.stickerSettings.remove': 'Удалить',
+  'chat.stickerSettings.add': 'Добавить',
+  'chat.stickerSettings.count': 'Стикеров: {count}',
+  'chat.stickerSettings.emojiCount': 'Эмодзи: {count}',
+  'chat.stickerSettings.confirmRemove':
+    'Удалить набор «{title}» из ваших наборов?',
+  'chat.stickerSettings.confirmYes': 'Удалить',
+  'chat.stickerSettings.confirmNo': 'Оставить',
+  'chat.stickerSettings.err.unknown-set':
+    'Этого набора больше нет в вашем списке.',
+  'chat.stickerSettings.err.too-many':
+    'Слишком много наборов. Сначала удалите несколько.',
+  'chat.stickerSettings.err.failed': 'Что-то пошло не так. Попробуйте ещё раз.',
+  'chat.contactsEdit.closeFriends': 'Близкие друзья',
+  'chat.contactsEdit.closeHint':
+    'Выберите, кто видит ваши истории для близких друзей. Этот список видите только вы.',
+  'chat.contactsEdit.edit': 'Изменить близких друзей',
+  'chat.contactsEdit.loading': 'Загружаем контакты...',
+  'chat.contactsEdit.save': 'Сохранить',
+  'chat.contactsEdit.saved': 'Сохранено: близких друзей — {count}.',
+  'chat.contactsEdit.addContact': 'Добавить контакт',
+  'chat.contactsEdit.firstName': 'Имя',
+  'chat.contactsEdit.lastName': 'Фамилия',
+  'chat.contactsEdit.phone': 'Номер телефона',
+  'chat.contactsEdit.add': 'Добавить',
+  'chat.contactsEdit.done': 'Готово',
+  'chat.contactsEdit.notOnTelegram': 'Этого номера нет в Telegram.',
+  'chat.contactsEdit.added': '{name} добавлен(а) в ваши контакты.',
+  'chat.contactsEdit.openChat': 'Открыть чат',
+  'chat.contactsEdit.err.phone-invalid':
+    'Введите номер с плюсом и кодом страны.',
+  'chat.contactsEdit.err.name-empty': 'Введите имя.',
+  'chat.contactsEdit.err.name-too-long':
+    'Имя может содержать не более 64 букв.',
+  'chat.contactsEdit.err.too-many': 'У вас слишком много контактов.',
+  'chat.contactsEdit.err.flood':
+    'Слишком много попыток. Подождите и повторите.',
+  'chat.contactsEdit.err.failed': 'Что-то пошло не так. Попробуйте ещё раз.',
 };

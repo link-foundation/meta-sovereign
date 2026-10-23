@@ -12,6 +12,7 @@ import { Field, FormDialog } from './chat-create.js';
 import { PhotoButtons, uploadPhoto } from './chat-edit.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { PrivacyDialog } from './chat-privacy.js';
+import { StickerSettingsDialog } from './chat-sticker-settings.js';
 import { EmojiStatusDialog, EmojiStatusRow } from './chat-emoji-status.js';
 
 const el = React.createElement;
@@ -258,6 +259,7 @@ const Card = ({
   setError,
   error,
   openPrivacy,
+  openStickers,
   emojiStatus,
   openStatus,
 }) => {
@@ -349,6 +351,19 @@ const Card = ({
         },
         t('chat.profile.privacy')
       ),
+      // Stickers and emoji (R-Y169) opens over the card.
+      typeof api?.telegramStickerSets === 'function'
+        ? el(
+            'button',
+            {
+              key: 'ss',
+              type: 'button',
+              'data-action': 'open-sticker-settings',
+              onClick: openStickers,
+            },
+            t('chat.profile.stickers')
+          )
+        : null,
     ]
   );
 };
@@ -358,6 +373,7 @@ const ProfileDialog = ({ api, close }) => {
   const state = useProfile(api);
   const [error, setError] = useState(null);
   const [privacy, setPrivacy] = useState(false);
+  const [stickers, setStickers] = useState(false);
   // The emoji status (R-Y162): undefined is the one Telegram has.
   const [picker, setPicker] = useState(false);
   const [chosen, setChosen] = useState(undefined);
@@ -370,10 +386,11 @@ const ProfileDialog = ({ api, close }) => {
         api,
         t,
         profile: state.profile,
-        close: privacy || picker ? () => {} : close,
+        close: privacy || picker || stickers ? () => {} : close,
         error,
         setError,
         openPrivacy: () => setPrivacy(true),
+        openStickers: () => setStickers(true),
         emojiStatus: chosen === undefined ? state.profile.emojiStatus : chosen,
         openStatus: () => setPicker(true),
       }),
@@ -382,6 +399,13 @@ const ProfileDialog = ({ api, close }) => {
             key: 'p',
             api,
             close: () => setPrivacy(false),
+          })
+        : null,
+      stickers
+        ? el(StickerSettingsDialog, {
+            key: 'ss',
+            api,
+            close: () => setStickers(false),
           })
         : null,
       picker

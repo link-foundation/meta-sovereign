@@ -13,6 +13,7 @@ import { useChatListMenu } from './chat-list-menu.js';
 import { usePinnedOrder } from './chat-pin-order.js';
 import { NewChat } from './chat-create.js';
 import { FolderTabMenu } from './chat-folder-edit.js';
+import { AddContactDialog } from './chat-contacts-edit.js';
 import { MyProfile } from './chat-profile.js';
 import { CallsButton } from './chat-calls.js';
 import { Spinner } from './spinner.js';
@@ -316,7 +317,9 @@ export const Sidebar = ({ state, api }) => {
           t('chat.aside')
         ),
         el(SortChoice, { key: 's', state }),
-        globalOn(state) ? el(NewChat, { key: 'n', api }) : null,
+        globalOn(state)
+          ? el(NewChat, { key: 'n', api, AddContact: AddContactDialog })
+          : null,
         globalOn(state) ? el(MyProfile, { key: 'me', api }) : null,
         el(CallsButton, { key: 'calls', api, state }),
       ]),
