@@ -9439,3 +9439,80 @@ span.bubble-effect {
   color: #fff;
   min-height: 3rem;
 }
+
+/* Telegram Business: quick replies, greeting and away messages (R-Y179). */
+.quick-shortcuts,
+.quick-messages,
+.business-sections {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+}
+.quick-row,
+.quick-message {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.quick-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  text-align: left;
+}
+.quick-preview,
+.quick-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.quick-form,
+.quick-shortcut,
+.quick-rename,
+.quick-add,
+.quick-delete,
+.business-recipients,
+.business-schedule,
+.business-shortcut {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.quick-rename,
+.quick-delete {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.business-recipients,
+.business-schedule {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.7rem;
+}
+.business-section {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 0.4rem;
+}
+.business-people {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+.bot-commands [data-quick-error] {
+  margin: 0;
+  padding: 0.4rem 0.8rem;
+}
+[data-dialog^='business-'] .chat-form-dialog {
+  max-height: 90vh;
+  overflow-y: auto;
+}

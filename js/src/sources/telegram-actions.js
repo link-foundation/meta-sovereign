@@ -83,6 +83,8 @@ import { createChatSettings } from './telegram-chat-settings.js';
 import { createNotifySettings } from './telegram-notify-settings.js';
 import { createPinnedOrder } from './telegram-pinned-order.js';
 import { createCalls } from './telegram-calls.js';
+import { createQuickReplies } from './telegram-quick-replies.js';
+import { createBusinessMessages } from './telegram-business-messages.js';
 import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createWebApps } from './telegram-web-apps.js';
@@ -427,7 +429,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // and video note transcription (R-Y175); Telegram Stars: balance, history,
 // gifts, paid reactions and paid media (R-Y176); two-step verification, account
 // self-destruct, sensitive content and per-session settings (R-Y177); a
-// birthday, colours and a personal channel on profiles (R-Y178).
+// birthday, colours and a personal channel on profiles (R-Y178); Telegram
+// Business quick replies, greeting and away messages (R-Y179).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -489,6 +492,8 @@ const chatActions = (env, context) => {
     ...createNotifySettings(env, context),
     ...createPinnedOrder(env, context),
     ...createCalls(env, context),
+    ...createQuickReplies(env, context),
+    ...createBusinessMessages(env, context),
     ...createShareMedia(env, context),
     ...createChatEdit(env, withUploads),
     ...createProfile(env, withUploads),

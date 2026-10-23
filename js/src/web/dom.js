@@ -1138,6 +1138,28 @@ export const api = {
     const path = `/api/telegram/wallpaper?${query}`;
     return origin ? new URL(path, origin).toString() : path;
   },
+  // Telegram Business: quick replies, greeting and away messages (R-Y179).
+  telegramQuickReplies: () => telegramPost('quick-replies', {}),
+  telegramQuickReplyMessages: (body = {}) =>
+    telegramPost('quick-reply-messages', body),
+  telegramQuickReplyCreate: (body = {}) =>
+    telegramPost('quick-reply-create', body),
+  telegramQuickReplyAdd: (body = {}) => telegramPost('quick-reply-add', body),
+  telegramQuickReplyEdit: (body = {}) => telegramPost('quick-reply-edit', body),
+  telegramQuickReplyDeleteMessages: (body = {}) =>
+    telegramPost('quick-reply-delete-messages', body),
+  telegramQuickReplyRename: (body = {}) =>
+    telegramPost('quick-reply-rename', body),
+  telegramQuickReplyDelete: (body = {}) =>
+    telegramPost('quick-reply-delete', body),
+  telegramQuickReplyReorder: (body = {}) =>
+    telegramPost('quick-reply-reorder', body),
+  telegramQuickReplySend: (body = {}) => telegramPost('quick-reply-send', body),
+  telegramBusinessMessages: () => telegramPost('business-messages', {}),
+  telegramBusinessGreetingSave: (body = {}) =>
+    telegramPost('business-greeting-save', body),
+  telegramBusinessAwaySave: (body = {}) =>
+    telegramPost('business-away-save', body),
   // The user's own profile (R-Y136).
   telegramProfile: () => telegramPost('profile', {}),
   telegramProfileSave: (body = {}) => telegramPost('profile-save', body),

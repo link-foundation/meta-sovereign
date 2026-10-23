@@ -907,6 +907,7 @@ const Composer = ({ state, api, keys }) => {
   // "/" lists a bot's commands; a bot chat's Menu button (R-Y135).
   const commands = useCommandBox({
     ...useBotCommands(api, state.current, state.info),
+    api,
     text,
     composer,
     ...appTarget(state),

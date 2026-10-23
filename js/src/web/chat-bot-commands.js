@@ -11,6 +11,7 @@ import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { appUrl } from './web-apps-model.js';
 import { openWebApp } from './chat-web-apps.js';
+import { errorText, useQuickReplies } from './quick-replies-model.js';
 
 const el = React.createElement;
 
@@ -83,11 +84,20 @@ export const useBotCommands = (api, chat, info) => {
       () => known.current.delete(id)
     );
   }, [kind, id, can]);
-  return { ...(known.current.get(id) ?? NONE), kind };
+  // A person's chat lists the user's quick replies after "/" (R-Y179).
+  const quick = useQuickReplies(api, chat, info);
+  return { ...(known.current.get(id) ?? NONE), kind, quick };
 };
 
 /** The list over the box. */
-export const CommandList = ({ items, index, group, onPick, onHover }) => {
+export const CommandList = ({
+  items,
+  index,
+  group,
+  onPick,
+  onHover,
+  error = null,
+}) => {
   const t = useT();
   return el(
     'div',
@@ -96,37 +106,52 @@ export const CommandList = ({ items, index, group, onPick, onHover }) => {
       role: 'listbox',
       'aria-label': t('chat.bot.commands'),
     },
-    items.map((one, i) =>
-      el(
-        'button',
-        {
-          key: `${one.bot}:${one.command}`,
-          type: 'button',
-          role: 'option',
-          className: 'bot-command',
-          'data-command': one.command,
-          'aria-selected': i === index ? 'true' : 'false',
-          onMouseDown: (event) => event.preventDefault(),
-          onMouseEnter: () => onHover(i),
-          onClick: () => onPick(one, true),
-        },
-        [
-          el('b', { key: 'c' }, `/${one.command}`),
-          el(
-            'span',
-            { key: 'd', className: 'bot-command-text' },
-            one.description
-          ),
-          group && (one.botName || one.username)
-            ? el(
-                'span',
-                { key: 'b', className: 'bot-command-bot' },
-                one.botName || `@${one.username}`
-              )
-            : null,
-        ]
-      )
-    )
+    [
+      ...items.map((one, i) =>
+        el(
+          'button',
+          {
+            key: `${one.bot}:${one.command}`,
+            type: 'button',
+            role: 'option',
+            className: 'bot-command',
+            'data-command': one.command,
+            'data-quick': one.quick ? 'true' : undefined,
+            'aria-selected': i === index ? 'true' : 'false',
+            onMouseDown: (event) => event.preventDefault(),
+            onMouseEnter: () => onHover(i),
+            onClick: () => onPick(one, true),
+          },
+          [
+            el('b', { key: 'c' }, `/${one.command}`),
+            el(
+              'span',
+              { key: 'd', className: 'bot-command-text' },
+              one.description
+            ),
+            group && (one.botName || one.username)
+              ? el(
+                  'span',
+                  { key: 'b', className: 'bot-command-bot' },
+                  one.botName || `@${one.username}`
+                )
+              : null,
+          ]
+        )
+      ),
+      error
+        ? el(
+            'p',
+            {
+              key: 'error',
+              className: 'comments-failed',
+              role: 'alert',
+              'data-quick-error': error,
+            },
+            errorText(t, error)
+          )
+        : null,
+    ]
   );
 };
 
@@ -177,6 +202,8 @@ const STEPS = { ArrowDown: 1, ArrowUp: -1 };
  */
 export const useCommandBox = ({
   commands,
+  quick = [],
+  api,
   menu,
   kind,
   text,
@@ -188,12 +215,16 @@ export const useCommandBox = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [closedAt, setClosedAt] = useState(null);
   const [index, setIndex] = useState(0);
-  const typed = matchCommands(commands, text, { group });
+  const [sendError, setSendError] = useState(null);
+  // The user's quick replies come with a person's chat (R-Y179).
+  const all = quick.length > 0 ? [...commands, ...quick] : commands;
+  const typed = matchCommands(all, text, { group });
   const items =
     menuOpen && !text ? matchCommands(commands, '/', { group }) : typed;
   const shown = items.length > 0 && closedAt !== text;
   useEffect(() => {
     setIndex(0);
+    setSendError(null);
     if (text) {
       setMenuOpen(false);
     }
@@ -202,9 +233,25 @@ export const useCommandBox = ({
     setMenuOpen(false);
     setClosedAt(text);
   };
+  // A quick reply is sent only on this pick, as Desktop does (R-Y179).
+  const sendQuick = async (one) => {
+    const answer = await api
+      .telegramQuickReplySend({
+        chat: String(chat),
+        shortcutId: one.shortcutId,
+      })
+      .catch(() => null);
+    if (answer?.ok) {
+      composer.setText('');
+    } else {
+      setSendError(answer?.code ?? 'failed');
+    }
+  };
   const pick = (one, send) => {
     setMenuOpen(false);
-    if (send) {
+    if (send && one.quick) {
+      sendQuick(one);
+    } else if (send) {
       composer.setText('');
       composer.say(one.insert);
     } else {
@@ -234,6 +281,7 @@ export const useCommandBox = ({
     onKey,
     list: shown
       ? el(CommandList, {
+          error: sendError,
           key: 'bot-commands',
           items,
           index: Math.min(index, items.length - 1),

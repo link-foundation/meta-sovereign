@@ -184,6 +184,8 @@
     "test:e2e:inline-bots": "node js/tests/e2e-inline-bots-browser.mjs",
     "test:e2e:inline-bots:webkit": "E2E_BROWSER=webkit node js/tests/e2e-inline-bots-browser.mjs",
     "test:e2e:bot-commands:webkit": "E2E_BROWSER=webkit node js/tests/e2e-bot-commands-browser.mjs",
+    "test:e2e:quick-replies": "node js/tests/e2e-quick-replies-browser.mjs",
+    "test:e2e:quick-replies:webkit": "E2E_BROWSER=webkit node js/tests/e2e-quick-replies-browser.mjs",
     "test:e2e:web-apps": "node js/tests/e2e-web-apps-browser.mjs",
     "test:e2e:web-apps:webkit": "E2E_BROWSER=webkit node js/tests/e2e-web-apps-browser.mjs",
     "test:e2e:edit": "node js/tests/e2e-edit-browser.mjs",
