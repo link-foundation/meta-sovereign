@@ -43,6 +43,7 @@ import { createChatRemoval } from './telegram-chat-removal.js';
 import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
 import { createStickers } from './telegram-stickers.js';
+import { createInvites } from './telegram-invite.js';
 import { createCustomEmoji } from './telegram-custom-emoji.js';
 import { createEmojiKeywords } from './telegram-emoji-keywords.js';
 import { createBotActions } from './telegram-bots.js';
@@ -332,7 +333,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // in a chat (R-Y98) and across Telegram (R-Y107); files and photos (R-Y99); clear, delete, leave
 // (R-Y100); scheduled messages (R-Y102); folders (R-Y103); stickers and
 // saved GIFs (R-Y105); bots' buttons (R-Y110); shared media (R-Y111);
-// forum topics (R-Y122).
+// forum topics (R-Y122); invite links (R-Y123).
 const chatActions = (env, context) => ({
   ...createPollActions(env, context),
   ...createDialogActions(env, context),
@@ -348,6 +349,7 @@ const chatActions = (env, context) => ({
   ...createBotActions(env, context),
   ...createSharedMedia(env, context),
   ...createForum(env, context),
+  ...createInvites(env, context),
 });
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a

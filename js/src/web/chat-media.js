@@ -386,7 +386,7 @@ const StillSticker = ({ picture, preview, emoji }) =>
     : el('span', { className: 'sticker-emoji' }, emoji ?? '🖼');
 
 // An animated sticker (R-Y113): its picture until the animation draws.
-const AnimatedSticker = ({ media, api, chat, msgId }) => {
+const AnimatedSticker = ({ media, api, chat, msgId, onOpen }) => {
   const ref = useRef(null);
   const { near, visible } = useNearView(ref);
   const [drawn, setDrawn] = useState(false);
@@ -399,7 +399,12 @@ const AnimatedSticker = ({ media, api, chat, msgId }) => {
   const file = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, near);
   return el(
     'div',
-    { ref, className: 'bubble-sticker', title: media.emoji ?? undefined },
+    {
+      ref,
+      className: onOpen ? 'bubble-sticker has-set' : 'bubble-sticker',
+      title: media.emoji ?? undefined,
+      onClick: onOpen ?? undefined,
+    },
     [
       file
         ? el(LottieSticker, {
@@ -422,7 +427,7 @@ const AnimatedSticker = ({ media, api, chat, msgId }) => {
 };
 
 // A still sticker, or a video one looping while on screen.
-const PlainSticker = ({ media, api, chat, msgId }) => {
+const PlainSticker = ({ media, api, chat, msgId, onOpen }) => {
   const ref = useRef(null);
   const { near, visible } = useNearView(ref);
   const webm = media.stickerFormat === 'webm';
@@ -440,7 +445,12 @@ const PlainSticker = ({ media, api, chat, msgId }) => {
   );
   return el(
     'div',
-    { ref, className: 'bubble-sticker', title: media.emoji ?? undefined },
+    {
+      ref,
+      className: onOpen ? 'bubble-sticker has-set' : 'bubble-sticker',
+      title: media.emoji ?? undefined,
+      onClick: onOpen ?? undefined,
+    },
     video && visible
       ? el('video', {
           ...mediaSrc(video),
@@ -459,7 +469,7 @@ const PlainSticker = ({ media, api, chat, msgId }) => {
 
 /**
  * A sticker: a picture, a looping video or an animation (R-Y113), with
- * no bubble.
+ * no bubble; `onOpen` is a click on it (R-Y124).
  */
 export const MediaSticker = (props) =>
   el(

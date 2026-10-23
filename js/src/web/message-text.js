@@ -8,6 +8,7 @@
 
 import React, { useState } from 'react';
 import { CustomEmoji } from './custom-emoji.js';
+import { inviteHashOf, openInvite } from './chat-invite.js';
 
 const el = React.createElement;
 
@@ -106,7 +107,7 @@ export const textTree = (text, entities) => {
   return build(value, 0, value.length, sorted);
 };
 
-const SAFE = /^(https?:|mailto:|tel:)/i;
+const SAFE = /^(https?:|mailto:|tel:|tg:\/\/join\?)/i;
 
 /** Where a link goes, or null when it is not a web, mail or phone link. */
 export const hrefOf = (node) => {
@@ -201,7 +202,15 @@ const drawNode = (node, key, ctx) => {
         className: 'msg-link',
         target: '_blank',
         rel: 'noopener noreferrer',
-        onClick: (event) => event.stopPropagation(),
+        onClick: (event) => {
+          event.stopPropagation();
+          // An invite link asks first, in a dialog (R-Y123).
+          const hash = inviteHashOf(href);
+          if (hash) {
+            event.preventDefault();
+            openInvite(hash);
+          }
+        },
       },
       children
     );

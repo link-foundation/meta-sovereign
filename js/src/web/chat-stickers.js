@@ -19,6 +19,10 @@
  * A set found that is not the user's has an Add button by its title
  * (R-Y116), as Desktop's: it joins the user's sets.
  *
+ * An installed set's title has a Remove button (R-Y124): after an
+ * in-page question the set leaves the user's sets. A click on a sticker
+ * in a chat opens the set's box instead (./chat-sticker-box.js).
+ *
  * Only for a Telegram chat of a user account; the pictures come through
  * the server (/api/telegram/sticker), never from Telegram to the page.
  */
@@ -33,6 +37,7 @@ import { LottieSticker } from './lottie-sticker.js';
 import { MsgContextMenu } from './chat-message.js';
 import { canSchedule, ScheduleDialog } from './chat-schedule.js';
 import { composerReplyId } from './forum-topics.js';
+import { RemoveSetDialog } from './chat-sticker-box.js';
 
 const el = React.createElement;
 
@@ -179,7 +184,7 @@ const Cell = ({ api, item, onSend, onMenu }) => {
 
 // `where` (faved, recent, set, found, saved, foundGif) tells the menu
 // what it may offer.
-const Grid = ({ api, list, onSend, onMenu, where, gifs = false }) =>
+export const Grid = ({ api, list, onSend, onMenu, where, gifs = false }) =>
   el(
     'div',
     { className: gifs ? 'gif-grid' : 'sticker-grid' },
@@ -237,9 +242,24 @@ const AddSet = ({ set, onAdd }) => {
   );
 };
 
+// An installed set's Remove button; `onRemove(set)` asks first.
+const RemoveSet = ({ set, onRemove }) => {
+  const t = useT();
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: 'sticker-set-add sticker-set-remove',
+      'data-remove-set': set.id,
+      onClick: () => onRemove(set),
+    },
+    t('chat.stickers.removeSet')
+  );
+};
+
 // A set's stickers, asked once the list comes near it; until then a
 // space as tall as they will be, so the bar's jumps land.
-const SetSection = ({ api, set, onSend, onMenu, onAdd }) => {
+const SetSection = ({ api, set, onSend, onMenu, onAdd, onRemove }) => {
   const ref = useRef(null);
   const { near } = useNearView(ref);
   const answer = useAnswer(
@@ -261,7 +281,9 @@ const SetSection = ({ api, set, onSend, onMenu, onAdd }) => {
         action:
           onAdd && set.installed === false
             ? el(AddSet, { key: 'add', set, onAdd })
-            : null,
+            : onRemove && set.installed !== false
+              ? el(RemoveSet, { key: 'remove', set, onRemove })
+              : null,
       },
       list
         ? el(Grid, { api, list, onSend, onMenu, where: 'set' })
@@ -390,7 +412,14 @@ const FoundStickers = ({ api, q, onSend, onMenu, onAdd }) => {
 };
 
 /** The Stickers tab. */
-export const StickersTab = ({ api, onSend, onMenu, onAdd, version }) => {
+export const StickersTab = ({
+  api,
+  onSend,
+  onMenu,
+  onAdd,
+  onRemove,
+  version,
+}) => {
   const [query, setQuery] = useState('');
   const q = useDebounced(query.trim());
   const search = canSearch(api, 'telegramStickerSearch');
@@ -409,12 +438,12 @@ export const StickersTab = ({ api, onSend, onMenu, onAdd, version }) => {
           { key: 'found', className: 'emoji-scroll', 'data-found': q },
           el(FoundStickers, { api, q, onSend, onMenu, onAdd })
         )
-      : el(MyStickers, { key: 'mine', api, onSend, onMenu, version }),
+      : el(MyStickers, { key: 'mine', api, onSend, onMenu, onRemove, version }),
   ]);
 };
 
 // The user's own: favourites, recent, their sets with the bar.
-const MyStickers = ({ api, onSend, onMenu, version }) => {
+const MyStickers = ({ api, onSend, onMenu, onRemove, version }) => {
   const t = useT();
   const scroller = useRef(null);
   const answer = useAnswer(
@@ -441,7 +470,14 @@ const MyStickers = ({ api, onSend, onMenu, version }) => {
   } else if (answer?.ok) {
     body = sections.map((s) =>
       s.set
-        ? el(SetSection, { key: s.key, api, set: s.set, onSend, onMenu })
+        ? el(SetSection, {
+            key: s.key,
+            api,
+            set: s.set,
+            onSend,
+            onMenu,
+            onRemove,
+          })
         : el(
             Section,
             { key: s.key, id: s.key, title: t(`chat.stickers.${s.key}`) },
@@ -660,6 +696,7 @@ const useStickerMenu = ({ state, api, send }) => {
   const [menu, setMenu] = useState(null);
   const [later, setLater] = useState(null);
   const [version, setVersion] = useState(0);
+  const [removing, setRemoving] = useState(null);
   const save = async (item, action) => {
     const answer = await Promise.resolve(
       api.telegramStickerSave?.({ id: item.id, action })
@@ -702,6 +739,25 @@ const useStickerMenu = ({ state, api, send }) => {
     });
     return false;
   };
+  // An installed set taken from the user's, once confirmed (R-Y124).
+  const remove = async () => {
+    const { set } = removing;
+    setRemoving(null);
+    const answer = await Promise.resolve(
+      api.telegramStickerSetInstall?.({ id: set.id, install: false })
+    ).catch((error) => ({ error: error.message }));
+    if (answer?.ok) {
+      kept.delete(`set:${set.id}`);
+      setVersion((v) => v + 1);
+      return;
+    }
+    state.notify?.({
+      kind: 'failed',
+      code: answer?.code,
+      error: answer?.error ?? 'not removed',
+      retryAfter: answer?.retryAfter,
+    });
+  };
   const schedule = canSchedule(state, api);
   const open = (close) => (item, point, where) =>
     setMenu({
@@ -733,8 +789,22 @@ const useStickerMenu = ({ state, api, send }) => {
             }),
         })
       : null,
+    removing
+      ? el(RemoveSetDialog, {
+          key: 'sticker-remove',
+          set: removing.set,
+          onClose: () => setRemoving(null),
+          onConfirm: remove,
+        })
+      : null,
   ];
-  return { open, add, parts, version };
+  return {
+    open,
+    add,
+    parts,
+    version,
+    remove: (set) => setRemoving({ set }),
+  };
 };
 
 /**
@@ -755,6 +825,7 @@ export const useStickerTabs = ({ state, api, composer }) => {
     onSend: (item) => send(item, close),
     onMenu: menu.open(close),
     onAdd: menu.add,
+    onRemove: menu.remove,
     version: menu.version,
   });
   return {

@@ -11,6 +11,7 @@ import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { Busy } from './spinner.js';
 import { ProfileHead, SharedMedia } from './chat-shared.js';
+import { InviteLink } from './chat-invite.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
@@ -291,6 +292,9 @@ export const PersonPanel = ({
       el('div', { key: 'b', className: 'person-panel-body' }, [
         chat?.source === 'telegram'
           ? el(ProfileHead, { key: 'p', api, chat, info })
+          : null,
+        chat?.source === 'telegram'
+          ? el(InviteLink, { key: 'i', api, chat, info })
           : null,
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,

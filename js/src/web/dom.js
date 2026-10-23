@@ -944,9 +944,13 @@ export const api = {
   // Stickers ({ q, lang }) and GIFs ({ q, offset }) searched (R-Y112).
   telegramStickerSearch: (body = {}) => telegramPost('sticker-search', body),
   telegramEmojiKeywords: (body = {}) => telegramPost('emoji-keywords', body),
+  telegramInviteCheck: (body = {}) => telegramPost('invite-check', body),
+  telegramInviteJoin: (body = {}) => telegramPost('invite-join', body),
+  telegramInviteRevoke: (body = {}) => telegramPost('invite-revoke', body),
   telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
   // The panel's menu ({ id, action }; R-Y115).
   telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),
+  telegramStickerSetBox: (body = {}) => telegramPost('sticker-set-box', body),
   telegramStickerSetInstall: (body = {}) =>
     telegramPost('sticker-set-install', body),
   telegramSendDocument: (body = {}) => telegramPost('send-document', body),

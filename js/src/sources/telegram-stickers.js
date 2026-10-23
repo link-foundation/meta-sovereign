@@ -19,6 +19,11 @@
  * - `stickerSetInstall({ id, install })` — a set found by a search added
  *   to the user's (messages.installStickerSet, R-Y116), or one of theirs
  *   removed (uninstallStickerSet);
+ * - `stickerSetBox({ id, accessHash } | { shortName })` — the set a
+ *   sticker in a chat belongs to (messages.getStickerSet, R-Y124), for
+ *   the box a click on it opens: the set, its stickers and whether it is
+ *   the user's. The set and its documents join the lists, so the install
+ *   above and the send below accept them;
  * - `sendDocument({ chat, id, replyTo, silent, scheduleDate, clientId })`
  *   — a sticker or GIF sent as it is (messages.sendMedia); Telegram's
  *   answer goes through the live handler, so it shows in the chat.
@@ -40,6 +45,9 @@ const SET_MS = 60 * 60_000;
 const MAX_PICTURE = 512 * 1024;
 const MAX_VIDEO = 4 * 1024 * 1024;
 const ID = /^\d{1,20}$/;
+// A set's id and access hash are signed 64-bit numbers; a short name.
+const SET_ID = /^-?\d{1,20}$/;
+const SHORT_NAME = /^[A-Za-z0-9_]{1,64}$/;
 // What the panel is given: a picture, a video or an animated sticker.
 const FULL_TYPE = /^(image\/|video\/|application\/x-tgsticker$)/;
 
@@ -283,6 +291,13 @@ const createLists = (env, userClient, now) => {
     known: (id) => docs.has(id),
     setOf: (id) => sets.get(id) ?? null,
     remember,
+    // A set opened from a chat's sticker: it and its stickers kept.
+    keepSet: (set, answer) => {
+      const key = text(set.id);
+      const items = remember(answer?.documents, `set:${key}`, 'sticker');
+      sets.set(key, { set, at: now(), items });
+      return items;
+    },
     // Sets found by a search, so their stickers can be asked.
     learnSet: (set) => {
       if (set?.id !== undefined && !sets.get(text(set.id))?.set) {
@@ -543,6 +558,51 @@ const createInstaller =
     return { ok: true, id: key, installed: Boolean(install) };
   };
 
+// The set a chat's sticker belongs to, by id and access hash or by
+// short name; Telegram's answer kept in the lists (R-Y124). The box
+// says "Remove" for a set the user has (`installedDate`).
+// What Telegram is asked for: the id and access hash, else the name.
+const boxRequest = (c, { id, accessHash, shortName }) => {
+  if (SET_ID.test(String(id ?? '')) && SET_ID.test(String(accessHash ?? ''))) {
+    return inputSet(c, { id, accessHash });
+  }
+  return SHORT_NAME.test(String(shortName ?? ''))
+    ? new c.Api.InputStickerSetShortName({ shortName: String(shortName) })
+    : null;
+};
+
+const createBox =
+  (env, { userClient }, lists) =>
+  async (named = {}) => {
+    const c = await connect(env, userClient);
+    if (!c) {
+      return { ok: false, supported: false };
+    }
+    const stickerset = boxRequest(c, named);
+    const answer = stickerset
+      ? await runIn(env, `stickers:box:${named.id ?? named.shortName}`, () =>
+          c.client.invoke(
+            new c.Api.messages.GetStickerSet({ stickerset, hash: 0 })
+          )
+        )
+      : null;
+    const set = answer?.set;
+    if (!set || set.id === undefined) {
+      return { ok: false, error: 'unknown set', code: 'unknown-set' };
+    }
+    const items = lists.keepSet(set, answer);
+    return {
+      ok: true,
+      set: {
+        ...panelSet(set),
+        shortName: String(set.shortName ?? ''),
+        count: items.length || Number(set.count ?? 0),
+        installed: Boolean(set.installedDate),
+      },
+      items,
+    };
+  };
+
 /** `env`: the account's; `apply(client, result)` the live handler. */
 export const createStickers = (
   env,
@@ -559,5 +619,6 @@ export const createStickers = (
     sendDocument: createSender(env, { userClient, apply }, lists),
     stickerSave: createSaver(env, { userClient }, lists),
     stickerSetInstall: createInstaller(env, { userClient }, lists),
+    stickerSetBox: createBox(env, { userClient }, lists),
   };
 };

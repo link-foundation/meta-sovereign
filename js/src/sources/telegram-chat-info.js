@@ -87,6 +87,17 @@ export const canPinIn = (entity = {}) => {
   );
 };
 
+// Whether the user may see and replace the chat's invite link: its
+// creator, or an admin with the right to invite (R-Y123).
+export const canInviteIn = (entity = {}) =>
+  Boolean(entity.creator || entity.adminRights?.inviteUsers);
+
+// The primary invite link the full chat carries, for those who may see it.
+const inviteOf = (entity, full) =>
+  canInviteIn(entity) && typeof full.exportedInvite?.link === 'string'
+    ? { canInvite: true, inviteLink: full.exportedInvite.link }
+    : { canInvite: canInviteIn(entity) };
+
 const fetchChannel = async (client, Api, inputPeer) => {
   const result = await client.invoke(
     new Api.channels.GetFullChannel({ channel: inputPeer })
@@ -105,6 +116,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     pinned: full.pinnedMsgId ?? null,
     canPin: canPinIn(entity),
     broadcast: Boolean(entity.broadcast),
+    ...inviteOf(entity, full),
   };
 };
 
@@ -126,6 +138,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     photo: hasPhoto(entity.photo),
     pinned: full.pinnedMsgId ?? null,
     canPin: canPinIn(entity),
+    ...inviteOf(entity, full),
   };
 };
 

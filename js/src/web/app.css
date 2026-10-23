@@ -5724,3 +5724,93 @@ button[aria-busy='true']::before {
   line-height: 1.2rem;
   text-align: center;
 }
+
+/* Chat invite links (R-Y123): the dialog and the info column's link. */
+.invite-dialog {
+  align-items: center;
+  text-align: center;
+}
+.invite-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.invite-initial {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.invite-title {
+  font-size: 1.1rem;
+  overflow-wrap: anywhere;
+}
+.invite-about {
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.invite-error {
+  margin: 0;
+  color: var(--danger);
+}
+.invite-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.6rem 0;
+}
+.invite-link-text {
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.invite-link-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* A sticker in a chat opens its set's box; the box (R-Y124). */
+.bubble-sticker.has-set {
+  cursor: pointer;
+}
+.delete-dialog.sticker-box {
+  width: min(380px, 94vw);
+  max-height: 80vh;
+}
+.sticker-box-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.sticker-box-scroll {
+  overflow-y: auto;
+  min-height: 6rem;
+}
+.sticker-box-button {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.sticker-box-failed {
+  margin: 0;
+  color: var(--danger);
+}
+.sticker-set-remove {
+  margin-inline-start: auto;
+}
+.sticker-ask-text {
+  margin: 0;
+}
+/* Over the sticky top bar, so a click beside the box closes it. */
+.delete-dialog-overlay.sticker-overlay {
+  z-index: 2200;
+}

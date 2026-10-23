@@ -27,6 +27,7 @@ import { WebModeBanner } from './web-mode-banner.js';
 import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
 import { ModeBadge } from './telegram-online.js';
+import { InviteHost } from './chat-invite.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
 // source modules are not each served, so `import('/dom.js')` fails.
@@ -201,6 +202,7 @@ const App = () => {
           ]
         )
       ),
+      el(InviteHost, { key: 'invite-host', api }),
       el(TutorialOverlay, {
         key: 'tutorial-overlay',
         open: tutorialOpen,

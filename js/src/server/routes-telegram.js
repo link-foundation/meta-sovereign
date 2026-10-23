@@ -84,6 +84,20 @@
  *   POST /api/telegram/sticker-set-install {id, install}
  *                                      -> { ok, installed } a found set
  *                                         added, or one removed (R-Y116)
+ *   POST /api/telegram/invite-check {hash}
+ *                                      -> { ok, already, chat | invite }
+ *                                         what an invite link leads to
+ *                                         (R-Y123)
+ *   POST /api/telegram/invite-join {hash}
+ *                                      -> { ok, chat? } the user joined
+ *                                         (or asked to), on their press
+ *   POST /api/telegram/invite-revoke {chat}
+ *                                      -> { ok, link } a chat's primary
+ *                                         invite link replaced
+ *   POST /api/telegram/sticker-set-box {id, accessHash} | {shortName}
+ *                                      -> { ok, set, items } the set a
+ *                                         chat's sticker belongs to, for
+ *                                         its box (R-Y124)
  *   POST /api/telegram/emoji-keywords {lang}
  *                                      -> { ok, lang, keywords } the words
  *                                         emoji are found by (R-Y117)
@@ -118,6 +132,7 @@ import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
 import { SHARED_KINDS } from '../sources/telegram-shared.js';
 import { STICKER_SAVES } from '../sources/telegram-stickers.js';
+import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
 import {
@@ -200,6 +215,14 @@ const validDocument = (body) =>
   validChat(body.chat) &&
   STICKER_ID.test(String(body.id ?? '')) &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
+
+// A sticker set's id and access hash (signed), or its short name.
+const SET_ID = /^-?\d{1,20}$/;
+const SHORT_NAME = /^[A-Za-z0-9_]{1,64}$/;
+const numeric = (v) => typeof v === 'string' && SET_ID.test(v);
+const validSetBox = (body) =>
+  (numeric(body.id) && numeric(body.accessHash)) ||
+  (typeof body.shortName === 'string' && SHORT_NAME.test(body.shortName));
 
 const positive = (n) => Number.isInteger(n) && n > 0;
 
@@ -564,7 +587,7 @@ const POSTS = {
       ? [200, await account.stickerPanel({ fresh: body.fresh === true })]
       : [200, { ok: false, supported: false }],
   'sticker-set': async (account, body) =>
-    STICKER_ID.test(String(body.id ?? '')) &&
+    SET_ID.test(String(body.id ?? '')) &&
     typeof account.stickerSet === 'function'
       ? [200, await account.stickerSet({ id: String(body.id) })]
       : [400, { error: 'id required', code: 'bad-request' }],
@@ -602,7 +625,7 @@ const POSTS = {
       : [400, { error: 'id and action required', code: 'bad-request' }],
   // A found sticker set added to the user's, or removed (R-Y116).
   'sticker-set-install': async (account, body) =>
-    STICKER_ID.test(String(body.id ?? '')) &&
+    SET_ID.test(String(body.id ?? '')) &&
     typeof body.install === 'boolean' &&
     typeof account.stickerSetInstall === 'function'
       ? [
@@ -613,6 +636,34 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'id and install required', code: 'bad-request' }],
+  // Invite links (R-Y123).
+  'invite-check': async (account, body) =>
+    INVITE_HASH.test(String(body.hash ?? '')) &&
+    typeof account.checkChatInvite === 'function'
+      ? [200, await account.checkChatInvite({ hash: body.hash })]
+      : [400, { error: 'hash required', code: 'bad-request' }],
+  'invite-join': async (account, body) =>
+    INVITE_HASH.test(String(body.hash ?? '')) &&
+    typeof account.joinChatInvite === 'function'
+      ? [200, await account.joinChatInvite({ hash: body.hash })]
+      : [400, { error: 'hash required', code: 'bad-request' }],
+  'invite-revoke': async (account, body) =>
+    /^-\d{1,20}$/.test(String(body.chat ?? '')) &&
+    typeof account.revokeChatInvite === 'function'
+      ? [200, await account.revokeChatInvite({ chat: String(body.chat) })]
+      : [400, { error: 'chat required', code: 'bad-request' }],
+  // The set of a sticker in a chat, for its box (R-Y124).
+  'sticker-set-box': async (account, body) =>
+    validSetBox(body) && typeof account.stickerSetBox === 'function'
+      ? [
+          200,
+          await account.stickerSetBox(
+            numeric(body.id)
+              ? { id: body.id, accessHash: body.accessHash }
+              : { shortName: String(body.shortName) }
+          ),
+        ]
+      : [400, { error: 'id and accessHash required', code: 'bad-request' }],
   'gif-search': async (account, body) =>
     searchWords(body.q) &&
     (body.offset === undefined ||

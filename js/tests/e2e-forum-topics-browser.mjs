@@ -11,32 +11,8 @@
 //
 //   RUN_BROWSER_E2E=1 npm run test:e2e:forum-topics
 
-import { mkdtemp, rm } from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/universal.js';
-
-const skip = (msg) => {
-  console.log(`[e2e-forum-topics] SKIP: ${msg}`);
-  process.exit(0);
-};
-if (!process.env.RUN_BROWSER_E2E) {
-  skip('RUN_BROWSER_E2E not set');
-}
-const engine = process.env.E2E_BROWSER || 'chromium';
-let browserType;
-try {
-  browserType = (await import('playwright'))[engine];
-} catch {
-  skip('playwright not installed');
-}
-
-const assert = (cond, msg) => {
-  if (!cond) {
-    throw new Error(`assertion failed: ${msg}`);
-  }
-};
+import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 
 const FORUM = '-1009';
 const PLAIN = '555';
@@ -88,46 +64,15 @@ await store.put({
 });
 await put(PLAIN, 1, 'not a forum');
 
-const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-forum-topics-'));
 const sent = [];
-const handle = await startServer({
-  port: 0,
-  storeDir: dir,
+const { base, page, until, finish } = await openChatApp('forum-topics', {
   store,
-  enableSync: false,
-  enableHandlers: false,
-  telegramAccount: false,
-  log: null,
-  automations: {
-    scheduler: false,
-    setTyping: async () => ({ supported: false }),
-    send: async (draft) => {
-      sent.push(draft);
-      return { via: 'fake' };
-    },
+  send: async (draft) => {
+    sent.push(draft);
+    return { via: 'fake' };
   },
 });
-const base = `http://127.0.0.1:${handle.port}`;
-const browser = await browserType.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
-const errors = [];
-page.on('pageerror', (e) => errors.push(String(e)));
 
-const fulfil = (route, body, status = 200) =>
-  route.fulfill({
-    status,
-    contentType: 'application/json',
-    body: JSON.stringify(body),
-  });
-await page.route('**/api/telegram/status', (route) =>
-  fulfil(route, {
-    connected: true,
-    kind: 'user',
-    account: { username: 'owner' },
-    offline: false,
-    needsLogin: false,
-  })
-);
 const histories = [];
 await page.route('**/api/telegram/history', (route) => {
   histories.push(route.request().postDataJSON());
@@ -177,17 +122,6 @@ await page.route('**/api/telegram/forum-topics', (route) => {
   );
 });
 
-const until = async (check, what, ms = 10_000) => {
-  const end = Date.now() + ms;
-  while (Date.now() < end) {
-    if (await check()) {
-      return;
-    }
-    await page.waitForTimeout(50);
-  }
-  throw new Error(`timed out: ${what}`);
-};
-
 const strip = page.locator('nav.chat-topics');
 const tab = (id) => strip.locator(`[data-topic="${id}"]`);
 const shown = () =>
@@ -198,8 +132,7 @@ const shown = () =>
     .catch(() => '');
 const shows = async (text) => (await shown()).includes(text);
 
-let failed = false;
-try {
+await finish(async () => {
   await page.goto(`${base}/`);
   // A chat that is no forum: no strip.
   await page.locator(`[data-chat="telegram:${PLAIN}"]`).click();
@@ -273,18 +206,4 @@ try {
   await tab('all').click();
   await until(() => shows('release plan'), 'All again');
   assert(await shows('first design note'), 'and every topic');
-
-  assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
-  console.log(`[e2e-forum-topics] OK (${engine})`);
-} catch (error) {
-  failed = true;
-  console.error(`[e2e-forum-topics] FAIL (${engine}): ${error.message}`);
-  await page.screenshot({
-    path: path.join(os.tmpdir(), `ms-e2e-forum-topics-${engine}.png`),
-  });
-} finally {
-  await browser.close();
-  await handle.close();
-  await rm(dir, { recursive: true, force: true });
-}
-process.exit(failed ? 1 : 0);
+});

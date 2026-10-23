@@ -38,9 +38,10 @@ import {
   MediaCard,
   MediaFile,
   MediaRound,
-  MediaSticker,
   MediaVideo,
 } from './chat-media.js';
+import { MediaStickerBox } from './chat-sticker-box.js';
+import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
 
@@ -924,10 +925,11 @@ const DOCUMENT_VIEWS = {
   round: MediaRound,
   voice: MediaAudio,
   audio: MediaAudio,
-  sticker: MediaSticker,
+  // Looked up when drawn: the box and the panel import this file.
+  sticker: (props) => el(MediaStickerBox, props),
 };
 
-const BubbleMedia = ({ parts, api, chat, netId, mine, album }) => {
+const BubbleMedia = ({ parts, api, chat, netId, mine, album, topic }) => {
   if (album) {
     return el(AlbumGrid, { items: album, api, chat });
   }
@@ -937,7 +939,8 @@ const BubbleMedia = ({ parts, api, chat, netId, mine, album }) => {
   }
   if (media?.kind === 'document') {
     const view = (netId && DOCUMENT_VIEWS[media.type]) || MediaFile;
-    return el(view, { media, api, chat, msgId: netId });
+    // `topic`: a sticker's box sends to the message's topic (R-Y122).
+    return el(view, { media, api, chat, msgId: netId, topic });
   }
   if (media && media.kind !== 'webpage') {
     return el(MediaCard, { media, api, chat, msgId: netId, mine });
@@ -1011,6 +1014,7 @@ const BubbleContent = ({
     netId,
     mine,
     album: message.albumItems,
+    topic: topicOfMessage(message),
   }),
   parts.text
     ? el('span', { key: 'body', className: 'bubble-body' }, [
