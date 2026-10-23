@@ -156,6 +156,16 @@
  *                       switchPm, switchWebview } a bot's answers, a page
  *   POST /api/telegram/inline-send {chat, queryId, id, replyTo?, clientId?}
  *                       -> { ok } one of those answers sent
+ *   POST /api/telegram/history-ttl {chat, period} -> { ok, period } a
+ *                       chat's auto-delete timer (seconds: 0, 1 day, 1
+ *                       week, 1 month, 3 months, 6 months, 1 year) (R-Y143)
+ *   POST /api/telegram/saved-dialogs {offsetDate?, offsetId?, offsetPeer?,
+ *                       limit?} -> { ok, dialogs, next, complete } Saved
+ *                       Messages by the chat they came from, paged
+ *   POST /api/telegram/saved-history {chat, peer, before?, limit?}
+ *                       -> { ok, messages, complete } what was saved from
+ *                       one chat, oldest first
+ *   POST /api/telegram/saved-delete {peer} -> { ok } all saved from it
  *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
  *                                         about, username, phone, hasPhoto,
  *                                         aboutMax } the user's own profile
@@ -258,6 +268,7 @@ import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
+import { TTL_POSTS } from './routes-telegram-ttl.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -965,6 +976,7 @@ const POSTS = {
   ...PRIVACY_POSTS,
   ...SHARE_POSTS,
   ...INLINE_POSTS,
+  ...TTL_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(
     'myProfile',

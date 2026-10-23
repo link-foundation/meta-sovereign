@@ -974,6 +974,18 @@ const BubbleFooter = ({ parts, message, time, t, spacer = false }) =>
       parts.edited
         ? el('span', { key: 'e', className: 'bubble-edited' }, t('chat.edited'))
         : null,
+      parts.ttl > 0
+        ? el(
+            'span',
+            {
+              key: 'ttl',
+              className: 'bubble-ttl',
+              'data-message-ttl': parts.ttl,
+              title: t('chat.ttl.message'),
+            },
+            el(Icon, { name: 'timer', size: 11 })
+          )
+        : null,
       `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
       message.delivery
         ? el(DeliveryIcon, { key: 'd', status: message.delivery })

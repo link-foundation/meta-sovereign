@@ -14,6 +14,7 @@ import { ProfileHead, SharedMedia } from './chat-shared.js';
 import { InviteLink } from './chat-invite.js';
 import { Members } from './chat-members.js';
 import { PeerActions } from './chat-peer-actions.js';
+import { TtlActions } from './chat-ttl.js';
 import { EditChat } from './chat-edit.js';
 import { AdminActions } from './chat-admin.js';
 
@@ -303,6 +304,7 @@ export const PersonPanel = ({
           : null,
         el(Members, { key: 'mb', api, chat, info }),
         el(AdminActions, { key: 'ad', api, chat, info }),
+        el(TtlActions, { key: 'ttl', api, chat, info }),
         el(PeerActions, { key: 'pa', api, chat, info }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,

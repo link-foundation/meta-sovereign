@@ -13,6 +13,8 @@
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
 import { PeerBar } from './chat-peer-actions.js';
+import { TtlBadge } from './chat-ttl.js';
+import { SavedChats, SavedToggle, useSavedView } from './chat-saved.js';
 import React, {
   useCallback,
   useEffect,
@@ -261,7 +263,7 @@ const AboutButton = ({ about, onAbout, chat }) => {
   );
 };
 
-const Header = ({ state, api, onBack, about, onAbout, find }) => {
+const Header = ({ state, api, onBack, about, onAbout, find, saved }) => {
   const t = useT();
   const { chatTime } = useDates();
   const chat = state.current;
@@ -281,7 +283,10 @@ const Header = ({ state, api, onBack, about, onAbout, find }) => {
     ),
     el(ChatAvatar, { key: 'a', api, chat }),
     el('div', { key: 't', className: 'chat-header-title' }, [
-      el('strong', { key: 'n' }, chat.name),
+      el('div', { key: 'n', className: 'chat-title-row' }, [
+        el('strong', { key: 'n' }, chat.name),
+        el(TtlBadge, { key: 'ttl', chat, info: state.info }),
+      ]),
       el(
         'span',
         {
@@ -297,6 +302,7 @@ const Header = ({ state, api, onBack, about, onAbout, find }) => {
       ),
     ]),
     el(SearchButton, { key: 'find', find }),
+    el(SavedToggle, { key: 'saved', saved }),
     hasAbout(chat)
       ? el(AboutButton, { key: 'about', about, onAbout, chat })
       : null,
@@ -1145,7 +1151,7 @@ const PinnedBar = ({ pinned, onOpen }) => {
 // The header, and beside the messages what the conversation tells about
 // the person, open until closed (in every personal chat, as Telegram's
 // profile column).
-const ChatTop = ({ state, api, onBack }) => {
+const ChatTop = ({ state, api, onBack, saved }) => {
   const [about, setAbout] = useState(false);
   const chat = about && hasAbout(state.current) ? state.current : null;
   const find = useChatSearch({
@@ -1163,6 +1169,7 @@ const ChatTop = ({ state, api, onBack }) => {
       about: Boolean(chat),
       onAbout: () => setAbout((open) => !open),
       find,
+      saved,
     }),
     el(SearchBar, { key: 'find', find }),
     chat
@@ -1195,6 +1202,8 @@ export const ChatScreen = ({ state, api }) => {
   const selfName =
     [account?.firstName, account?.lastName].filter(Boolean).join(' ') || null;
   const actions = useChatActions({ state, api, t, locale, selfName });
+  // Saved Messages as chats, or as messages (R-Y143).
+  const saved = useSavedView(state.current, state.info);
   // Phones show one pane at a time (list → conversation → back), as
   // Telegram and WhatsApp do; wider screens show both and ignore it.
   // One function for every render, so the list's rows stay as they are.
@@ -1231,6 +1240,7 @@ export const ChatScreen = ({ state, api }) => {
                   state,
                   api,
                   onBack: () => setPane('list'),
+                  saved,
                 }),
             // A forum's topics, as Telegram's tabs layout (R-Y122).
             el(TopicTabs, { key: 'topics', forum: state.forum }),
@@ -1259,8 +1269,12 @@ export const ChatScreen = ({ state, api }) => {
               labels: NOTICE,
               dismiss: state.dismiss,
             }),
-            el(Stream, { key: 's', state, api, actions }),
-            el(Composer, { key: 'c', state, api, keys: actions.keys }),
+            saved.on
+              ? el(SavedChats, { key: 'saved', api, chat: state.current })
+              : el(Stream, { key: 's', state, api, actions }),
+            saved.on
+              ? null
+              : el(Composer, { key: 'c', state, api, keys: actions.keys }),
             ...actions.dialogs,
           ])
         : null,

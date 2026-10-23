@@ -972,6 +972,11 @@ export const api = {
     telegramPost('chat-permissions-set', body),
   telegramSlowMode: (body = {}) => telegramPost('slow-mode', body),
   telegramAdminLog: (body = {}) => telegramPost('admin-log', body),
+  // A chat's auto-delete timer, Saved Messages by chat (R-Y143).
+  telegramHistoryTtl: (body = {}) => telegramPost('history-ttl', body),
+  telegramSavedDialogs: (body = {}) => telegramPost('saved-dialogs', body),
+  telegramSavedHistory: (body = {}) => telegramPost('saved-history', body),
+  telegramSavedDelete: (body = {}) => telegramPost('saved-delete', body),
   // The user's own profile (R-Y136).
   telegramProfile: () => telegramPost('profile', {}),
   telegramProfileSave: (body = {}) => telegramPost('profile-save', body),

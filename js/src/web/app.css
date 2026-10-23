@@ -6600,6 +6600,76 @@ button[aria-busy='true']::before {
 }
 .inline-text b,
 .inline-text .meta {
+}
+
+/* R-Y143: a chat's auto-delete timer, Saved Messages by chat. */
+.chat-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.chat-ttl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0 0.4rem;
+  border-radius: 1rem;
+  background: var(--bg-elev);
+  color: var(--accent);
+  font-size: 0.75em;
+  white-space: nowrap;
+}
+.bubble-ttl {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+.ttl-now {
+  margin-left: 0.4rem;
+}
+.saved-view,
+.saved-sub {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+.saved-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.5rem 0.8rem;
+}
+.saved-dialogs {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.saved-dialog {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.5rem 0.4rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.saved-dialog:hover {
+  background: var(--bg-elev);
+}
+.saved-dialog-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+.saved-dialog-name,
+.saved-dialog-preview {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -6614,4 +6684,16 @@ button[aria-busy='true']::before {
   color: var(--link);
   font: inherit;
   cursor: pointer;
+}
+
+.saved-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.saved-head-name {
+  flex: 1 1 auto;
+  min-width: 0;
 }

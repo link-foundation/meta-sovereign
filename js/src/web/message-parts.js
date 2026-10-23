@@ -578,6 +578,8 @@ export const parseMessageParts = (link, msgById = new Map()) => {
     fwdFrom: parseFwd(raw, link),
     reactions: parseReactions(raw, link),
     edited: Boolean(raw.editDate ?? link.edited),
+    // The seconds after which it deletes itself, 0 when it does not (R-Y143).
+    ttl: Number(raw.ttlPeriod) || 0,
     album: raw.groupedId ? String(raw.groupedId) : null,
     service: serviceInfo(link),
   };

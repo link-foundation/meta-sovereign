@@ -155,7 +155,9 @@
     "test:e2e:translate": "node js/tests/e2e-translate-browser.mjs",
     "test:e2e:translate:webkit": "E2E_BROWSER=webkit node js/tests/e2e-translate-browser.mjs",
     "test:e2e:admin": "node js/tests/e2e-admin-browser.mjs",
-    "test:e2e:admin:webkit": "E2E_BROWSER=webkit node js/tests/e2e-admin-browser.mjs"
+    "test:e2e:admin:webkit": "E2E_BROWSER=webkit node js/tests/e2e-admin-browser.mjs",
+    "test:e2e:auto-delete": "node js/tests/e2e-auto-delete-browser.mjs",
+    "test:e2e:auto-delete:webkit": "E2E_BROWSER=webkit node js/tests/e2e-auto-delete-browser.mjs"
   },
   "keywords": [
     "personal-crm",

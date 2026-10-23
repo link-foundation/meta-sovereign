@@ -288,6 +288,12 @@ const ICONS = {
     ['path', { d: 'M18 6 7 17l-5-5' }],
     ['path', { d: 'm22 10-7.5 7.5L13 16' }],
   ],
+  // Lucide timer: a chat's auto-delete timer and its messages (R-Y143).
+  timer: [
+    ['line', { x1: 10, x2: 14, y1: 2, y2: 2 }],
+    ['line', { x1: 12, x2: 15, y1: 14, y2: 11 }],
+    ['circle', { cx: 12, cy: 14, r: 8 }],
+  ],
   clock: [
     ['circle', { cx: 12, cy: 12, r: 10 }],
     ['polyline', { points: '12 6 12 12 16 14' }],

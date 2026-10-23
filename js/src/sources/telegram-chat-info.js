@@ -109,6 +109,14 @@ export const canEditIn = (entity = {}) =>
 export const canBanIn = (entity = {}) =>
   Boolean(entity.creator || entity.adminRights?.banUsers);
 
+// Whether the user may set the chat's auto-delete timer (R-Y143): its
+// creator, or an admin with the right to delete messages.
+export const canSetTtlIn = (entity = {}) =>
+  Boolean(entity.creator || entity.adminRights?.deleteMessages);
+
+// The auto-delete period a full chat carries, in seconds, or 0 (off).
+const ttlOf = (full) => Number(full?.ttlPeriod) || 0;
+
 // The primary invite link the full chat carries, for those who may see it.
 const inviteOf = (entity, full) =>
   canInviteIn(entity) && typeof full.exportedInvite?.link === 'string'
@@ -135,6 +143,8 @@ const fetchChannel = async (client, Api, inputPeer) => {
     broadcast: Boolean(entity.broadcast),
     canEdit: canEditIn(entity),
     canBan: canBanIn(entity),
+    ttlPeriod: ttlOf(full),
+    canSetTtl: canSetTtlIn(entity),
     ...inviteOf(entity, full),
   };
 };
@@ -159,6 +169,8 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     canPin: canPinIn(entity),
     canEdit: canEditIn(entity),
     canBan: canBanIn(entity),
+    ttlPeriod: ttlOf(full),
+    canSetTtl: canSetTtlIn(entity),
     ...inviteOf(entity, full),
   };
 };
@@ -199,6 +211,11 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     // Blocked by us, and in our contacts (R-Y128).
     blocked: Boolean(full.blocked),
     contact: Boolean(user.contact),
+    // The auto-delete timer; anyone may set it in a chat with a person
+    // (not in Saved Messages, the chat with oneself) (R-Y143).
+    ttlPeriod: ttlOf(full),
+    canSetTtl: !user.self,
+    ...(user.self ? { self: true } : {}),
     ...(user.bot ? { bot: true } : {}),
     ...(lastSeen !== undefined ? { lastSeen } : {}),
   };
