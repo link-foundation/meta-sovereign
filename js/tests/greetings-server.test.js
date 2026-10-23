@@ -110,11 +110,13 @@ describe('greetings api catalogue and selection', () => {
     });
   });
 
-  it('sends a CSP that admits vk.com sticker previews only', async () => {
+  it('sends a CSP that admits vk.com stickers and VK picture CDNs only', async () => {
     await withServer({}, async (base) => {
       const { headers } = await fetchJson(`${base}/api/greetings/catalogue`);
       const csp = headers.get('content-security-policy');
-      expect(csp).toContain("img-src 'self' data: blob: https://vk.com;");
+      expect(csp).toContain(
+        "img-src 'self' data: blob: https://vk.com https://*.userapi.com https://*.vk-cdn.net https://*.vkuserphoto.ru;"
+      );
       expect(csp).toContain("default-src 'self'");
     });
   });

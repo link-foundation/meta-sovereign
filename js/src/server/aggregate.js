@@ -27,13 +27,27 @@ const blank = (id) => ({
   open: null,
 });
 
+// A message time as an ISO string. VK and WhatsApp keep unix seconds (a
+// number), which used to break the contact sort and `/api/status` (R-Z8).
+const seenAt = (value) => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  const n = Number(value);
+  if (Number.isFinite(n) && !/[-:T]/.test(String(value))) {
+    return new Date(n < 1e12 ? n * 1000 : n).toISOString();
+  }
+  return String(value);
+};
+
 const addMessage = (entry, m) => {
   entry.networks.add(m.source);
   entry.chats.add(m.chat);
   entry.messageCount += 1;
-  const latest = !entry.lastSeen || (m.timestamp ?? '') > entry.lastSeen;
+  const at = seenAt(m.timestamp);
+  const latest = !entry.lastSeen || (at ?? '') > entry.lastSeen;
   if (latest) {
-    entry.lastSeen = m.timestamp ?? null;
+    entry.lastSeen = at;
     entry.name = m.senderName ?? entry.name;
   } else {
     entry.name ??= m.senderName ?? null;

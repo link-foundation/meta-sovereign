@@ -104,6 +104,7 @@ import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
 import { listenLocal } from './local-tls.js';
+import { handlePullRoutes, pullContext } from './routes-pull.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
@@ -148,7 +149,9 @@ export const CSP =
   "default-src 'self'; " +
   "script-src 'self' 'wasm-unsafe-eval'; " +
   "style-src 'self'; " +
-  "img-src 'self' data: blob: https://vk.com; " +
+  "img-src 'self' data: blob: https://vk.com " +
+  // VK's picture CDNs, for photos and stickers in VK chats (R-Z8).
+  'https://*.userapi.com https://*.vk-cdn.net https://*.vkuserphoto.ru; ' +
   'frame-src https:; ' +
   "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; " +
   "worker-src 'self'; " +
@@ -576,6 +579,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),
+    () => handlePullRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),
     () => handleEmailGets(store, req, res, p, url, ctx),
@@ -787,15 +791,14 @@ export const startServer = async ({
   telegramExtraBuild,
   // Tests and demos pass a fake, so GitHub is never asked (R-Y53).
   githubCheck,
-  // The hosted app and whether this server also serves its own copy
-  // (./hosted-ui.js, R-Y58 and R-Y59).
+  // The hosted app, and whether this serves its own copy (./hosted-ui.js).
   uiUrl,
   localUi,
-  // HTTPS on the same port for Safari (./local-tls.js, R-Y64); off
-  // unless asked for, `serve` turns it on.
+  // HTTPS on the same port for Safari (./local-tls.js, R-Y64); `serve` sets it.
   tls,
   // Tests: a fake `(dir) => bytes|null` for the free disk space (R-Z14).
   diskFree,
+  pulls,
 } = {}) => {
   const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
     providedStore,
@@ -853,13 +856,13 @@ export const startServer = async ({
       later
     ),
     chatIndex,
+    ...pullContext(store, log, pulls, later),
   };
   const server = createHttpServer(store, ctx, log);
   const sockets = trackSockets(server);
-  let bus = null;
-  if (enableHandlers) {
-    bus = registerDefaultHandlers(store, { browser: () => ctx.send });
-  }
+  const bus = enableHandlers
+    ? registerDefaultHandlers(store, { browser: () => ctx.send })
+    : null;
   const { wsHandle, signaling } = attachSockets(server, ctx, store, {
     enableSync,
     node,
@@ -903,6 +906,7 @@ export const startServer = async ({
         ctx.closeAutomations().catch(() => {});
         ctx.autoImport?.close();
         ctx.whatsappSignIn?.stop().catch(() => {});
+        ctx.stopPulls?.();
         ctx.chatIndex.close();
         stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
         wsHandle?.close();

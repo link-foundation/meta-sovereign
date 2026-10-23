@@ -24,6 +24,7 @@ import { headingDegrees, leftLine, liveLines } from './live-place.js';
 import { useNowSeconds } from './live-clock.js';
 import { useAutoLoad } from './auto-download.js';
 import { LottieSticker } from './lottie-sticker.js';
+import { RemoteAttachments } from './chat-remote-media.js';
 import {
   Transcribable,
   TranscribeButton,
@@ -910,6 +911,8 @@ const LiveStreamCard = ({ media }) => {
 };
 
 const CARDS = {
+  // All the attachments of a message at another network (R-Z8).
+  remote: RemoteAttachments,
   'live-stream': LiveStreamCard,
   place: PlaceCard,
   contact: ContactCard,

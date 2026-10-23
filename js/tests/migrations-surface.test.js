@@ -102,7 +102,10 @@ test('CLI: migrate --status, --dry-run (writes nothing) and migrate', async () =
     await runCli(['migrate', `--store=${dir}`, '--status'], { log }),
     0
   );
-  assert.match(out.at(-1), /schema version 0 .*2 migration\(s\) pending/);
+  assert.match(
+    out.at(-1),
+    new RegExp(`schema version 0 .*${CURRENT_SCHEMA} migration\\(s\\) pending`)
+  );
 
   out.length = 0;
   assert.equal(
@@ -131,7 +134,10 @@ test('CLI: migrate --status, --dry-run (writes nothing) and migrate', async () =
 
   out.length = 0;
   await runCli(['migrate', `--store=${dir}`, '--status'], { log });
-  assert.match(out[0], /schema version 2 .*up to date/);
+  assert.match(
+    out[0],
+    new RegExp(`schema version ${CURRENT_SCHEMA} .*up to date`)
+  );
   assert.match(out.join('\n'), /applied 0001-email-threads/);
   out.length = 0;
   await runCli(['migrate', `--store=${dir}`], { log });

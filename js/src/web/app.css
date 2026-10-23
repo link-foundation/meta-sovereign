@@ -12433,3 +12433,46 @@ main[data-view='chat'] > .disk-banner[data-banner='schema-too-new'] {
 .email-pull-status.is-failed {
   color: var(--danger, #cf222e);
 }
+
+/* R-Z8: attachments at another network (VK photos, stickers, files) and the
+   Fetch now row of a Connections card. */
+.remote-media {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 320px;
+}
+.remote-img {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.remote-img.remote-sticker {
+  width: 144px;
+  height: 144px;
+  object-fit: contain;
+}
+.remote-chip {
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+a.remote-chip:hover {
+  text-decoration: underline;
+}
+.fetch-now {
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+.fetch-status.fetch-error {
+  color: var(--danger, #d1242f);
+}

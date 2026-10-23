@@ -7,15 +7,15 @@ Telegram is the reference network and its matrix is below. Every other network h
 | Network              | Matrix                                                   | Supported | Partial | Not supported | Not accessible |
 | -------------------- | -------------------------------------------------------- | --------- | ------- | ------------- | -------------- |
 | Telegram (this page) | below                                                    | —         | —       | —             | —              |
-| VK                   | [features/vk.md](./features/vk.md)                       | 30        | 22      | 36            | 5              |
+| VK                   | [features/vk.md](./features/vk.md)                       | 34        | 22      | 32            | 5              |
 | WhatsApp             | [features/whatsapp.md](./features/whatsapp.md)           | 6         | 26      | 28            | 8              |
 | Facebook + Instagram | [features/facebook.md](./features/facebook.md)           | 5         | 35      | 29            | 1              |
 | X                    | [features/x.md](./features/x.md)                         | 7         | 22      | 24            | 5              |
 | LinkedIn             | [features/linkedin.md](./features/linkedin.md)           | 4         | 19      | 27            | 3              |
 | Email                | [features/email.md](./features/email.md)                 | 29        | 23      | 25            | 3              |
 | GitHub               | [features/github.md](./features/github.md)               | 14        | 15      | 35            | 2              |
-| Upwork               | [features/upwork.md](./features/upwork.md)               | 4         | 21      | 19            | 1              |
-| PeoplePerHour        | [features/peopleperhour.md](./features/peopleperhour.md) | 2         | 15      | 12            | 1              |
+| Upwork               | [features/upwork.md](./features/upwork.md)               | 4         | 22      | 18            | 1              |
+| PeoplePerHour        | [features/peopleperhour.md](./features/peopleperhour.md) | 2         | 16      | 11            | 1              |
 | Job boards           | [features/job-boards.md](./features/job-boards.md)       | 3         | 29      | 22            | 1              |
 
 ## Scope now

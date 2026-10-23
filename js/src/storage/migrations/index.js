@@ -14,11 +14,12 @@
 
 import * as m0001 from './0001-email-threads.js';
 import * as m0002 from './0002-whatsapp-chat-ids.js';
+import * as m0003 from './0003-vk-reactions-docs.js';
 
-export const MIGRATIONS = Object.freeze([m0001, m0002]);
+export const MIGRATIONS = Object.freeze([m0001, m0002, m0003]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 2;
+export const CURRENT_SCHEMA = 3;
 
 export {
   SCHEMA_ID,

@@ -13,7 +13,7 @@ Issue #12 asks the same as issue #4 (Upwork) for PeoplePerHour, in both JavaScri
 - **Archive import**: a JSON envelope and an Earnings CSV. The real shape of PeoplePerHour's data export is not verified.
 - **Not accessible**: the mobile app, PeoplePerHour-hosted video or call features, and escrow release flows.
 
-Planned: inbox pull page button and schedule (R-Z8); the 24-hour cache purge and token refresh are not wired yet (R-Z7).
+Inbox pull is done: a Fetch now button and a 5 minute schedule (R-Z8); the 24-hour cache purge and token refresh are not wired yet (R-Z7).
 
 ## Legend
 
@@ -69,12 +69,12 @@ Planned: inbox pull page button and schedule (R-Z8); the 24-hour cache purge and
 
 ## Notifications, accounts, not accessible
 
-| Feature                                           | Status         | Access         | Requirements | Notes / what is missing                                                                                                                                               |
-| ------------------------------------------------- | -------------- | -------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Notifications                                     | Not supported  | API            | —            | Not built. Inbox pull button and schedule planned (R-Z8).                                                                                                             |
-| Token flow                                        | Partial        | API            | R-T15, R-T16 | The access token is pasted by hand; a refresh token is stored but never used (planned, R-Z7); there are no OAuth endpoints and the probe `GET /api/v1/me` is a guess. |
-| 24 h cache retention                              | Partial        | local          | R-T12        | The purge function exists and is tested, but nothing calls it. Planned (R-Z7).                                                                                        |
-| Mobile app, video / call features, escrow release | Not accessible | Not accessible | —            | Only the official apps and site offer these.                                                                                                                          |
+| Feature                                           | Status         | Access         | Requirements | Notes / what is missing                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------- | -------------- | -------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Notifications                                     | Partial        | API            | —            | Connections has a "Fetch now" button on the PeoplePerHour card (`POST /api/pull`, at most one fetch per 15 s) and the server fetches workstreams and proposals every 5 minutes, with backoff after failures; the schedule starts only after the server listens. Each fetch re-reads them and stores them again under the same ids. There are no alerts. Tested with a fake PeoplePerHour and in the browser (R-Z8). |
+| Token flow                                        | Partial        | API            | R-T15, R-T16 | The access token is pasted by hand; a refresh token is stored but never used (planned, R-Z7); there are no OAuth endpoints and the probe `GET /api/v1/me` is a guess.                                                                                                                                                                                                                                               |
+| 24 h cache retention                              | Partial        | local          | R-T12        | The purge function exists and is tested, but nothing calls it. Planned (R-Z7).                                                                                                                                                                                                                                                                                                                                      |
+| Mobile app, video / call features, escrow release | Not accessible | Not accessible | —            | Only the official apps and site offer these.                                                                                                                                                                                                                                                                                                                                                                        |
 
 ## Import, export and automation
 
@@ -96,9 +96,9 @@ Planned: inbox pull page button and schedule (R-Z8); the 24-hour cache purge and
 | Chat list                               | 0         | 1       | 1             | 0              |
 | Projects, proposals, workstreams        | 0         | 4       | 3             | 0              |
 | Profile and CV                          | 0         | 0       | 2             | 0              |
-| Notifications, accounts, not accessible | 0         | 2       | 1             | 1              |
+| Notifications, accounts, not accessible | 0         | 3       | 0             | 1              |
 | Import, export and automation           | 1         | 4       | 1             | 0              |
-| **Total**                               | **2**     | **15**  | **12**        | **1**          |
+| **Total**                               | **2**     | **16**  | **11**        | **1**          |
 
 ## Known gaps
 
@@ -106,5 +106,5 @@ Planned: inbox pull page button and schedule (R-Z8); the 24-hour cache purge and
 2. Sending from Chat throws because the workstream or proposal id is not derived from the chat; reading by `roomId` silently returns nothing.
 3. Resume sync for PeoplePerHour now reports `unsupported` instead of success (fixed, R-Z4). There is no PeoplePerHour CV plan.
 4. No proposal submission and no page screen for project search or messages.
-5. Server routes have no tests; the 24-hour cache purge never runs and the refresh token is unused (R-Z7); inbox pull is planned (R-Z8); the Rust half of issue #12 is not done.
+5. Server routes have no tests; the 24-hour cache purge never runs and the refresh token is unused (R-Z7); inbox pull is done and tested with fakes (R-Z8); the Rust half of issue #12 is not done.
 6. Nothing has been verified against a live PeoplePerHour account; all tests use fakes.

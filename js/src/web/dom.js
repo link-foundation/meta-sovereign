@@ -839,6 +839,13 @@ const rawApi = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ provider }),
     })) ?? { error: 'server required for auto-import' },
+  // Read a network's inbox now (R-Z8): { ok, imported } or { ok: false, code }.
+  pullInbox: async (source) =>
+    (await serverPostReport('/api/pull', { source })) ?? {
+      ok: false,
+      code: 'server-required',
+      error: 'the local server fetches the inbox',
+    },
   autoImportJob: async (id) =>
     (await serverFetch(`/api/auto-import/jobs/${encodeURIComponent(id)}`)) ??
     null,

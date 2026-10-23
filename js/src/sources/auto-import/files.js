@@ -25,7 +25,11 @@ const toArchive = (recipe, name, text, context = {}) => {
 };
 
 const parseEntry = async (provider, recipe, name, data, context) => {
-  const archive = toArchive(recipe, name, data.toString('utf8'), context);
+  // A recipe may decode its own bytes (VK's Windows-1251 pages, R-Z8).
+  const text = recipe.decode
+    ? recipe.decode(name, data)
+    : data.toString('utf8');
+  const archive = toArchive(recipe, name, text, context);
   return (await getSource(provider).parseArchive(archive)) ?? [];
 };
 

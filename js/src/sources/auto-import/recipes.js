@@ -23,6 +23,11 @@
 
 import { parseCsv } from './archive.js';
 import { chatNameFromFile } from '../whatsapp-ids.js';
+import {
+  decodeVkHtml,
+  parseVkHtmlPage,
+  peerFromArchivePath,
+} from '../vk-html-archive.js';
 
 // X archives ship data as `window.YTD.<name>.part0 = [ ... ]`.
 const ytdPayload = (text) => JSON.parse(text.replace(/^[^=[]*=\s*/, ''));
@@ -64,6 +69,14 @@ const linkedinToArchive = (_name, text) => ({
   ),
 });
 
+const vkDecode = (name, bytes) =>
+  /\.html$/i.test(name) ? decodeVkHtml(bytes) : bytes.toString('utf8');
+
+const vkToArchive = (name, text) =>
+  /\.html$/i.test(name)
+    ? parseVkHtmlPage(text, { peer: peerFromArchivePath(name) })
+    : JSON.parse(text);
+
 export const autoImportRecipes = {
   email: {
     url: 'https://takeout.google.com/settings/takeout/custom/gmail',
@@ -87,7 +100,11 @@ export const autoImportRecipes = {
   vk: {
     url: 'https://vk.com/data_protection?section=rules',
     domains: ['vk.com', 'vk.ru'],
-    files: /messages.*\.json$/i,
+    // The JSON of konard/vk-export, or the pages of VK's own archive:
+    // messages/<peer>/messages<N>.html in Windows-1251 (R-Z8).
+    files: /(messages.*\.json|messages\/[^/]+\/messages\d*\.html)$/i,
+    decode: vkDecode,
+    toArchive: vkToArchive,
   },
   x: {
     url: 'https://x.com/settings/download_your_data',

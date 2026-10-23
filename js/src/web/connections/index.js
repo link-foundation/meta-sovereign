@@ -39,6 +39,7 @@ import { BrowserSignIns, listOf } from './browser-sign-ins.js';
 import { WhatsAppWebPanel } from './whatsapp-web.js';
 import { Busy } from '../spinner.js';
 import { EmailPullRow } from './email-pull.js';
+import { FETCHABLE, FetchNow } from './fetch-now.js';
 
 const el = React.createElement;
 
@@ -868,6 +869,9 @@ const ProviderCardActions = ({
     ),
     error
       ? el('p', { key: 'error', className: 'meta', role: 'alert' }, error)
+      : null,
+    FETCHABLE.has(providerId)
+      ? el(FetchNow, { key: 'fetch', providerId })
       : null,
   ]);
 };

@@ -692,15 +692,22 @@ const ATTACHMENT_LABELS = {
   poll: (a) => `📊 ${a.title ?? ''}`,
 };
 
-/**
- * The first of the network-neutral `attachments` (every network but
- * Telegram's own account) as the parts the bubble draws.
- */
-export const attachmentMedia = (attachments) => {
-  const a = Array.isArray(attachments) ? attachments[0] : null;
-  if (!a?.kind) {
-    return null;
-  }
+// Kinds drawn from their address, with every attachment of the message
+// (R-Z8); a lone file, link or place keeps its one-attachment form.
+const REMOTE_KINDS = new Set(['photo', 'sticker', 'gif', 'audio', 'other']);
+
+const remoteMedia = (list) => ({
+  kind: 'remote',
+  // `type` names what the first one is, for the "Photo" word in lists.
+  type: list[0].kind,
+  items: list.map((a) => ({
+    ...a,
+    label: ATTACHMENT_LABELS[a.kind]?.(a) ?? a.name ?? a.title ?? null,
+  })),
+});
+
+// One attachment as a link or a file.
+const singleAttachmentMedia = (a) => {
   if (a.kind === 'link' && a.url) {
     return parseWebpageMedia({
       url: a.url,
@@ -719,6 +726,24 @@ export const attachmentMedia = (attachments) => {
     mimeType: a.mime ?? null,
     url: a.url ?? null,
   };
+};
+
+/**
+ * The network-neutral `attachments` (every network but the connected
+ * Telegram account) as the parts the bubble draws: pictures and several
+ * attachments together as `remote` (all of them), else the first one as a
+ * link or a file.
+ */
+export const attachmentMedia = (attachments) => {
+  const list = (Array.isArray(attachments) ? attachments : []).filter(
+    (a) => a?.kind
+  );
+  if (list.length === 0) {
+    return null;
+  }
+  return list.length > 1 || REMOTE_KINDS.has(list[0].kind)
+    ? remoteMedia(list)
+    : singleAttachmentMedia(list[0]);
 };
 
 // The text of a message: none for a rich one, which draws its blocks.

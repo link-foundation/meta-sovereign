@@ -32,6 +32,18 @@ import {
 import { contentSticker } from './sticker.js';
 import { isGreetingText } from '../greetings/detect.js';
 import { vkStickerPreview } from '../greetings/catalog.js';
+import {
+  decodeVkHtml,
+  looksLikeVkHtml,
+  parseVkHtmlPage,
+} from './vk-html-archive.js';
+import {
+  VK_USER_RPS,
+  createRateLimiter,
+  vkApiError,
+  vkRandomId,
+  withTooManyBackoff,
+} from './vk-limits.js';
 
 const SOURCE = 'vk';
 
@@ -150,12 +162,36 @@ const vkAttachmentHandlers = {
   },
   doc(att) {
     const doc = att.doc ?? {};
+    // Doc types: 3 gif, 4 image, 5 audio, 6 video (VK docs, R-Z8).
+    const kind = { 3: 'gif', 4: 'photo', 5: 'voice' }[doc.type] ?? 'file';
     return {
-      kind: doc.type === 5 ? 'voice' : 'file',
+      kind,
       url: doc.url ?? null,
       name: doc.title ?? null,
       size: doc.size ?? null,
+      ext: doc.ext ?? null,
     };
+  },
+  graffiti(att) {
+    return { kind: 'photo', url: att.graffiti?.url ?? null };
+  },
+  audio(att) {
+    const { artist, title } = att.audio ?? {};
+    return {
+      kind: 'audio',
+      title: [artist, title].filter(Boolean).join(' - ') || null,
+      duration: att.audio?.duration ?? null,
+    };
+  },
+  wall(att) {
+    return {
+      kind: 'link',
+      url: `https://vk.com/wall${att.wall?.owner_id ?? att.wall?.from_id}_${att.wall?.id}`,
+      title: String(att.wall?.text ?? '').slice(0, 120) || null,
+    };
+  },
+  poll(att) {
+    return { kind: 'poll', title: att.poll?.question ?? null };
   },
   audio_message(att) {
     const am = att.audio_message ?? {};
@@ -202,6 +238,11 @@ const vkAttachmentHandlers = {
   },
 };
 
+// A type this adapter cannot draw still names itself, so a message with
+// only a gift or a market item is not an empty bubble (R-Z8).
+const vkOtherAttachment = (att) =>
+  att?.type ? { kind: 'other', title: String(att.type) } : null;
+
 /** Map VK attachment array to canonical shape; returns null when empty. */
 const vkAttachments = (attachments) => {
   if (!attachments?.length) {
@@ -210,19 +251,34 @@ const vkAttachments = (attachments) => {
   const mapped = attachments
     .map((att) => {
       const handler = att?.type ? vkAttachmentHandlers[att.type] : null;
-      return handler ? handler(att) : null;
+      return handler ? handler(att) : vkOtherAttachment(att);
     })
     .filter(Boolean);
   return mapped.length ? mapped : null;
 };
 
-const vkReactions = (reactions) => {
+// Reverse of VK_REACTION_EMOJI_TO_ID: the page draws an emoji, not a number.
+// An id this table does not know stays a number (a new reaction VK added).
+const VK_REACTION_ID_TO_EMOJI = Object.fromEntries(
+  Object.entries(VK_REACTION_EMOJI_TO_ID).map(([emoji, id]) => [id, emoji])
+);
+
+/**
+ * VK message `reactions: [{reaction_id, count, user_ids}]`; the message's
+ * own `reaction_id` is the one the account itself set. Read-only here (R-Z8).
+ */
+const vkReactions = (reactions, ownReactionId = null) => {
   if (!reactions?.length) {
     return null;
   }
   return reactions.map((r) => {
-    const item = { emoji: String(r.reaction_id), count: Number(r.count) };
-    if (r.user_react_id) {
+    const id = Number(r.reaction_id);
+    const item = {
+      emoji: VK_REACTION_ID_TO_EMOJI[id] ?? String(r.reaction_id),
+      reactionId: id,
+      count: Number(r.count ?? r.user_ids?.length ?? 1),
+    };
+    if (r.user_react_id || (ownReactionId !== null && ownReactionId === id)) {
       item.mine = true;
     }
     return item;
@@ -285,17 +341,16 @@ const asMessageLink = (
     chatName,
     raw: msg,
     attachments: vkAttachments(msg.attachments),
-    reactions: vkReactions(msg.reactions),
+    reactions: vkReactions(
+      msg.reactions,
+      msg.reaction_id === undefined ? null : Number(msg.reaction_id)
+    ),
     ...vkMessageMeta(msg, conversation),
   });
 
 const unwrapVk = (payload) => {
   if (payload?.error) {
-    const code = payload.error.error_code ?? 'unknown';
-    const message = payload.error.error_msg ?? 'VK API error';
-    const error = new Error(`vk API ${code}: ${message}`);
-    error.vkCode = code;
-    throw error;
+    throw vkApiError(payload);
   }
   return payload?.response ?? payload;
 };
@@ -507,12 +562,132 @@ const vkLiveActions = (call) => ({
           message_ids: (msgIds ?? []).map(Number),
           is_reply: false,
         }),
-        random_id: options.randomId ?? Date.now(),
+        random_id: options.randomId ?? vkRandomId(options.clientId),
       },
       options.token
     );
   },
 });
+
+const conversationPeer = (c) =>
+  c?.conversation?.peer?.id ?? c?.peer?.id ?? c?.peer_id;
+
+// The conversation's own name: a chat's title, a person's or community's name.
+const vkChatNameOf = (conversation, profiles) => {
+  const title =
+    conversation?.conversation?.chat_settings?.title ??
+    conversation?.chat_settings?.title;
+  const peer = conversationPeer(conversation);
+  return (
+    title ??
+    (peer === undefined ? null : profiles.get(String(peer))?.name) ??
+    null
+  );
+};
+
+// Links from a getConversations or getHistory answer, with names (R-Z8).
+export const vkLinksOf = (response, peerId = null) => {
+  const profiles = vkProfilesMap(response.profiles, response.groups);
+  const nameOf = (msg) => profiles.get(String(msg.from_id))?.name ?? null;
+  if (peerId) {
+    const chatName = profiles.get(String(peerId))?.name ?? null;
+    return (response.items ?? []).map((msg) =>
+      asMessageLink(msg, null, { senderName: nameOf(msg), chatName })
+    );
+  }
+  return (
+    (response.items ?? [])
+      // A conversation names its last message; a bare message is itself one.
+      .map((item) => ({
+        item,
+        msg: item.last_message ?? item.message ?? (item.peer_id ? item : null),
+      }))
+      .filter(({ msg }) => msg)
+      .map(({ item, msg }) =>
+        asMessageLink(msg, item, {
+          senderName: nameOf(msg),
+          chatName: vkChatNameOf(item, profiles),
+        })
+      )
+  );
+};
+
+/** One VK message object as a link, with the sender's name when known. */
+export const vkMessageLink = (msg, senderName = null) =>
+  asMessageLink(msg, null, { senderName });
+
+// Reading messages: the conversations, one chat's history, paged (R-Z8).
+const vkLivePulls = (call) => {
+  const pullMessages = async (options = {}) => {
+    const count = options.limit ?? options.count ?? 20;
+    const response = options.peerId
+      ? await call(
+          'messages.getHistory',
+          {
+            peer_id: options.peerId,
+            count,
+            offset: options.offset,
+            start_message_id: options.startMessageId,
+            extended: 1,
+          },
+          options.token
+        )
+      : await call(
+          'messages.getConversations',
+          {
+            count,
+            offset: options.offset,
+            filter: options.filter ?? 'all',
+            // Names of the people and communities (R-Z8).
+            extended: 1,
+            fields: PEOPLE_FIELDS,
+          },
+          options.token
+        );
+    const links = vkLinksOf(response, options.peerId);
+    return {
+      links,
+      rawCount: response.items?.length ?? 0,
+      nextOffset: response.items?.length
+        ? Number(options.offset ?? 0) + response.items.length
+        : null,
+      raw: response,
+    };
+  };
+  /**
+   * Page through one chat with `messages.getHistory` offsets (VK serves at
+   * most 200 a page), newest first. Stops at the end or at `maxPages`;
+   * `nextOffset` is where to go on, null at the end (R-Z8).
+   */
+  const pullHistory = async ({
+    peerId,
+    offset = 0,
+    maxPages = 5,
+    ...rest
+  } = {}) => {
+    if (!peerId) {
+      throw new Error('vk pullHistory peer_id is required');
+    }
+    const links = [];
+    let next = Number(offset);
+    for (let page = 0; page < maxPages; page += 1) {
+      const got = await pullMessages({
+        ...rest,
+        peerId,
+        offset: next,
+        count: 200,
+      });
+      links.push(...got.links);
+      next += got.rawCount;
+      const total = Number(got.raw?.count ?? 0);
+      if (got.rawCount === 0 || (total && next >= total)) {
+        return { links, rawCount: links.length, nextOffset: null };
+      }
+    }
+    return { links, rawCount: links.length, nextOffset: next };
+  };
+  return { pullMessages, pullHistory };
+};
 
 export const VK_API_BASE = 'https://api.vk.ru';
 export const VK_API_VERSION = '5.199';
@@ -522,13 +697,13 @@ export const createVkLive = ({
   fetchImpl = globalThis.fetch,
   baseUrl = VK_API_BASE,
   apiVersion = VK_API_VERSION,
+  // 3 requests a second for a user token, 20 for a community token (R-Z8).
+  requestsPerSecond = VK_USER_RPS,
+  limiter = createRateLimiter({ perSecond: requestsPerSecond }),
+  sleep,
 } = {}) => {
-  const call = async (method, params = {}, overrideToken = null) => {
-    const accessToken = resolveOption(
-      overrideToken ?? token,
-      'VK_ACCESS_TOKEN',
-      'VK access token'
-    );
+  const once = async (method, params, accessToken) => {
+    await limiter.wait();
     const body = new URLSearchParams({
       ...compact(params),
       access_token: accessToken,
@@ -545,6 +720,17 @@ export const createVkLive = ({
     );
     return unwrapVk(payload);
   };
+  const call = async (method, params = {}, overrideToken = null) => {
+    const accessToken = resolveOption(
+      overrideToken ?? token,
+      'VK_ACCESS_TOKEN',
+      'VK access token'
+    );
+    // Error 6: wait and repeat; error 14 (captcha) is thrown as it is.
+    return withTooManyBackoff(() => once(method, params, accessToken), {
+      sleep,
+    });
+  };
 
   return {
     call,
@@ -557,56 +743,7 @@ export const createVkLive = ({
         options.token
       );
     },
-    async pullMessages(options = {}) {
-      const count = options.limit ?? options.count ?? 20;
-      let response;
-      let raw;
-      if (options.peerId) {
-        response = await call(
-          'messages.getHistory',
-          {
-            peer_id: options.peerId,
-            count,
-            offset: options.offset,
-            start_message_id: options.startMessageId,
-            extended: 1,
-          },
-          options.token
-        );
-        raw = response.items ?? [];
-      } else {
-        response = await call(
-          'messages.getConversations',
-          { count, offset: options.offset, filter: options.filter ?? 'all' },
-          options.token
-        );
-        raw = (response.items ?? [])
-          .map((item) => item.last_message ?? item.message)
-          .filter(Boolean)
-          .map((msg, index) => ({
-            msg,
-            conversation: response.items[index],
-          }));
-      }
-      const profilesLookup = vkProfilesMap(response.profiles, response.groups);
-      const links = raw.map((entry) => {
-        if (entry.msg) {
-          const senderName =
-            profilesLookup.get(String(entry.msg.from_id))?.name ?? null;
-          return asMessageLink(entry.msg, entry.conversation, { senderName });
-        }
-        const senderName =
-          profilesLookup.get(String(entry.from_id))?.name ?? null;
-        return asMessageLink(entry, null, { senderName });
-      });
-      return {
-        links,
-        rawCount: raw.length,
-        nextOffset:
-          raw.length > 0 ? Number(options.offset ?? 0) + raw.length : null,
-        raw: response,
-      };
-    },
+    ...vkLivePulls(call),
     async post(content, options = {}) {
       const peerId =
         options.peerId ?? contentTarget(content) ?? options.to ?? options.chat;
@@ -627,7 +764,10 @@ export const createVkLive = ({
           random_id:
             options.randomId ??
             (typeof content === 'object' ? content.randomId : undefined) ??
-            Date.now(),
+            vkRandomId(
+              options.clientId ??
+                (typeof content === 'object' ? content.clientId : undefined)
+            ),
         },
         options.token
       );
@@ -673,17 +813,30 @@ export const createVkLive = ({
   };
 };
 
+// A JSON export, or a page of VK's own HTML archive (R-Z8).
+const vkArchiveObject = (archive) => {
+  if (looksLikeVkHtml(archive)) {
+    return parseVkHtmlPage(decodeVkHtml(archive));
+  }
+  return typeof archive === 'string' ? JSON.parse(archive) : archive;
+};
+
 export const vkSource = {
   name: SOURCE,
   async parseArchive(archive) {
-    const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
+    const obj = vkArchiveObject(archive);
     const out = [];
     for (const conv of obj.conversations ?? []) {
       const convPeerId = conv.peer?.id ?? conv.id;
       const chatName = conv.chat_settings?.title ?? null;
       const fakeConv = { peer: { id: convPeerId } };
       for (const msg of conv.messages ?? []) {
-        out.push(asMessageLink(msg, fakeConv, { chatName }));
+        out.push(
+          asMessageLink(msg, fakeConv, {
+            chatName,
+            senderName: msg.from_name ?? null,
+          })
+        );
       }
     }
     return out;
