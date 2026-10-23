@@ -31,6 +31,7 @@
  *   POST /api/outreach             -> { query, text, networks, mode } -> plan
  *   /api/automations/*, POST /api/send, /api/typing -> routes-automations.js
  *   /api/message/* (edit, delete, react, read, forward) -> routes-messages.js
+ *   /api/passcode/* -> the local passcode and its lock gate (routes-passcode.js)
  *   POST /api/client-log           -> the page's errors, in the log (routes-client-log.js)
  *   /api/people, /api/audiences, /api/lists -> routes-people.js
  *   GET  /api/people/learned?key=  -> what a conversation tells (routes-learned.js)
@@ -83,6 +84,8 @@ import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEventRoutes } from './routes-events.js';
+import { createPasscodeLock } from './passcode.js';
+import { gateLocked, handlePasscodeRoutes } from './routes-passcode.js';
 import { createClientLogRoute } from './routes-client-log.js';
 import { createLearnedRoute } from './routes-learned.js';
 import { createGitHubCheck } from '../sources/github-check.js';
@@ -421,6 +424,19 @@ const handlePage = (req, res, p, ctx) =>
     ? handleStatic(req, res, p)
     : redirectToHosted(req, res, p, ctx.uiUrl));
 
+// Same rule as HTTP: no sockets for pages on other websites, none while
+// locked (R-Y183).
+const socketAllowed = (ctx) => (req) =>
+  classifyOrigin(req, ctx.allowOrigins) !== 'denied' && !ctx.passcode.locked();
+
+// The local passcode (R-Y183): its own routes, then the gate that refuses
+// everything else while the server is locked.
+const passcodeHandled = async (req, res, p, ctx) =>
+  (await handlePasscodeRoutes(req, res, p, ctx)) || gateLocked(res, p, ctx);
+
+const handlePageOrLock = async (req, res, p, ctx) =>
+  (await handlePage(req, res, p, ctx)) || passcodeHandled(req, res, p, ctx);
+
 const route = async (store, req, res, ctx) => {
   applySecurityHeaders(res);
   if (handleCors(req, res, ctx.allowOrigins)) {
@@ -428,7 +444,7 @@ const route = async (store, req, res, ctx) => {
   }
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
-  if (await handlePage(req, res, p, ctx)) {
+  if (await handlePageOrLock(req, res, p, ctx)) {
     return;
   }
   if (p === '/sources' && req.method === 'GET') {
@@ -579,6 +595,7 @@ export const startServer = async ({
     ),
     ...greetingContext(greetings),
     storeDir,
+    passcode: createPasscodeLock({ dir: storeDir }),
     log,
     clientLog: createClientLogRoute(),
     learned: createLearnedRoute(),
@@ -626,9 +643,7 @@ export const startServer = async ({
   let wsHandle = null;
   let signaling = null;
   if (enableSync) {
-    // Same rule as HTTP: no sockets for pages on other websites.
-    const verifyOrigin = (req) =>
-      classifyOrigin(req, ctx.allowOrigins) !== 'denied';
+    const verifyOrigin = socketAllowed(ctx);
     wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
     const peer = createPeer(store, { node });
     peer.connect(wsHandle.transport);

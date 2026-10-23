@@ -4,7 +4,7 @@
 // Show preview (default, on or off) and "Reset to default", which sends
 // empty settings so the chat follows the general setting again. The
 // dialog says whether the chat follows the default or is an exception.
-// Layer 225 has no per-chat flag for pinned messages or mentions, so
+// Its sound (R-Y181) is ./chat-notify-sound.js. Layer 225 has no per-chat flag for pinned messages or mentions, so
 // those are not offered. Every question is asked of Telegram through the
 // server; the shared rules (./notify-rules.js) follow the answer.
 
@@ -13,6 +13,7 @@ import { useDates, useT } from './i18n.js';
 import { useEsc } from './chat-invite.js';
 import { Icon } from './icons.js';
 import { MUTE_FOR } from './chat-list-menu.js';
+import { SoundPicker } from './chat-notify-sound.js';
 import {
   getNotifyRules,
   scopeOf,
@@ -181,6 +182,7 @@ export const ChatNotifyDialog = ({ api, chat, onClose }) => {
                 })
               ),
             ]),
+            el(SoundPicker, { key: 'snd', api, row, busy, change, t }),
           ])
         : el('p', { key: 'w', className: 'meta' }, error ? '' : '…'),
       error

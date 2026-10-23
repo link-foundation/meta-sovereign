@@ -9,10 +9,13 @@
 //   POST /api/telegram/notify-settings-set {scope, on?, previews?, stories?}
 //                       -> { ok, scope, on, previews, stories }
 //   POST /api/telegram/notify-chat {chat} -> { ok, exception, muteUntil,
-//                       forever, previews, stories } a chat's own settings
-//   POST /api/telegram/notify-chat-set {chat, mute?, previews?, reset?}
-//                       mute 'off' | 'forever' | seconds; previews
-//                       'default' | 'on' | 'off'; reset: follow the global
+//                       forever, previews, stories, sound } a chat's own
+//                       settings; sound 'default' | 'none' | a ringtone id
+//   POST /api/telegram/notify-chat-set {chat, mute?, previews?, sound?,
+//                       reset?} mute 'off' | 'forever' | seconds; previews
+//                       'default' | 'on' | 'off'; sound 'default' | 'none'
+//                       | a saved ringtone's id (R-Y181); reset: follow the
+//                       global
 
 import {
   validChatChange,
@@ -52,6 +55,7 @@ export const NOTIFY_SETTINGS_POSTS = {
             chat: String(body.chat),
             mute: body.mute,
             previews: body.previews,
+            sound: body.sound === undefined ? undefined : String(body.sound),
             reset: body.reset,
           }),
         ]

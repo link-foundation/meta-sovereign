@@ -13,6 +13,7 @@ import { useT, useLocaleContext } from './i18n.js';
 import { FormDialog } from './chat-create.js';
 import { TtlChoices, periodWords } from './chat-ttl.js';
 import { CloseFriendsDialog } from './chat-contacts-edit.js';
+import { LocalPasscode } from './chat-passcode.js';
 import {
   AccountTtl,
   SensitiveContent,
@@ -715,6 +716,11 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
         Section,
         { key: 'ts', name: 'two-step', title: t('chat.security.twoStep') },
         el(TwoStep, secProps)
+      ),
+      el(
+        Section,
+        { key: 'lp', name: 'local-passcode', title: t('passcode.title') },
+        el(LocalPasscode, { api, setError })
       ),
       el(
         Section,

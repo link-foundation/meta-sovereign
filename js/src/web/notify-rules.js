@@ -89,6 +89,7 @@ export const withScope = (rules, scope, row) => ({
 export const withChat = (rules, row, { name, scope }) => {
   const exceptions = new Map(rules.exceptions);
   if (row.exception) {
+    // R-Y181: a chat's sound is part of its exception.
     exceptions.set(String(row.chat), {
       chat: String(row.chat),
       name,
@@ -97,6 +98,7 @@ export const withChat = (rules, row, { name, scope }) => {
       muteUntil: row.muteUntil,
       forever: Boolean(row.forever),
       previews: row.previews ?? null,
+      sound: row.sound ?? 'default',
     });
   } else {
     exceptions.delete(String(row.chat));

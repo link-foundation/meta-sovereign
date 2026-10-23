@@ -50,6 +50,7 @@ import { createGithubLive } from '../sources/github.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
 import { startServer } from '../server/index.js';
+import { clearPasscode } from '../server/passcode.js';
 import { createServerLog, installCrashLogging } from '../server/log.js';
 import {
   startSyncListener,
@@ -72,6 +73,7 @@ Commands:
   export        --file=<path> --store=<dir>
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
   restore       --file=<path> --store=<dir>
+  passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
   serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=false] [--tls=false] [--quiet-logs]
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
                 https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
@@ -138,6 +140,18 @@ const backupCmd = async (args, log) => {
     await pruneBackups({ archiveDir: args.archive, keep: Number(args.keep) });
   }
   log(`backup written to ${file}`);
+  return 0;
+};
+
+// Removes the local passcode's stored hash — the way out of a forgotten
+// passcode (R-Y183).
+const passcodeCmd = async (args, log) => {
+  if (!args.clear) {
+    log('usage: meta-sovereign passcode --clear [--store=<dir>]');
+    return 1;
+  }
+  const cleared = clearPasscode(args.store ?? '.meta-sovereign');
+  log(cleared ? 'local passcode cleared' : 'no local passcode was set');
   return 0;
 };
 
@@ -718,6 +732,7 @@ const COMMANDS = {
   'export-encrypted': exportEncryptedCmd,
   backup: backupCmd,
   restore: restoreCmd,
+  passcode: passcodeCmd,
   serve: serveCmd,
   sources: sourcesCmd,
   'source-pull': sourcePullCmd,

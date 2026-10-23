@@ -72,7 +72,7 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
   const feed = ctx.chatIndex ?? store;
   const unsubscribe = feed.subscribe((event) => {
     const id = event?.link?.id;
-    if (closed || !isStreamedId(id) || event.quiet) {
+    if (closed || !isStreamedId(id) || event.quiet || ctx.passcode?.locked()) {
       return;
     }
     if (res.writableLength > MAX_BUFFERED) {
@@ -119,7 +119,15 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
       duration_ms: Date.now() - opened,
     });
   };
-  req.on('close', close);
+  // Locking ends the stream; the page opens a new one once unlocked (R-Y183).
+  const unwatch = ctx.passcode?.onLock(() => {
+    close();
+    res.end();
+  });
+  req.on('close', () => {
+    unwatch?.();
+    close();
+  });
   res.on('error', close);
   return true;
 };

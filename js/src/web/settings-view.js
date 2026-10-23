@@ -8,6 +8,8 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { TelegramNotifySettings } from './settings-notify.js';
+import { SoundSettings } from './settings-sounds.js';
+import { MediaSettings } from './settings-media.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
 import { api } from './dom.js';
 import { ChatBackgroundSettings } from './chat-wallpaper.js';
@@ -219,5 +221,7 @@ export const SettingsView = () => {
     el(PrivacySettings, { key: 'privacy' }),
     el(NotificationSettings, { key: 'notify' }),
     el(TelegramNotifySettings, { key: 'notify-telegram', api }),
+    el(SoundSettings, { key: 'sounds', api }),
+    el(MediaSettings, { key: 'media' }),
   ]);
 };

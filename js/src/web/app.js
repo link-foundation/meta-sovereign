@@ -30,6 +30,7 @@ import { ModeBadge } from './telegram-online.js';
 import { InviteHost } from './chat-invite.js';
 import { AddlistHost } from './chat-folder-share.js';
 import { AppNotifications } from './app-notify.js';
+import { LockScreen, useLocalLock } from './passcode.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
 // source modules are not each served, so `import('/dom.js')` fails.
@@ -227,6 +228,16 @@ const App = () => {
   ]);
 };
 
+// The local passcode (R-Y183): while the server is locked the app is not
+// shown at all, only the unlock screen.
+const Root = () => {
+  const localeApi = useLocale();
+  const lock = useLocalLock(api);
+  return lock.phase === 'locked'
+    ? el(LocaleContext.Provider, { value: localeApi }, el(LockScreen, { api }))
+    : el(App);
+};
+
 const mount = document.getElementById('app');
 installClientLog({ send: api.clientLog });
-createRoot(mount).render(el(App));
+createRoot(mount).render(el(Root));

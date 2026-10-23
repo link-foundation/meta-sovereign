@@ -3,6 +3,7 @@
 // (see ./client.js): it tries the discovered server first, and falls
 // back to the local browser store when offline.
 
+import { LOCKED_EVENT } from './passcode.js';
 import {
   createBrowserStore,
   pickBrowserDriver,
@@ -27,6 +28,7 @@ import {
   planFromStore,
   saveGreetingSelection,
 } from '../greetings/plan.js';
+import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = document.createElement(tag);
@@ -183,7 +185,39 @@ const serverResponse = async (path, init, { network = false } = {}) => {
   // of the server. `new URL` keeps same-origin deployments unchanged
   // and points cross-origin ones at the backend the client is using.
   const url = origin ? new URL(path, origin).toString() : path;
-  return fetch(url, init).catch(() => (network ? NO_ANSWER : null));
+  return fetch(url, init)
+    .then(announceLocked)
+    .catch(() => (network ? NO_ANSWER : null));
+};
+
+// The server is locked by a passcode (R-Y183): the page shows its lock screen.
+const announceLocked = (response) => {
+  if (response.status === 423) {
+    globalThis.dispatchEvent?.(new globalThis.Event(LOCKED_EVENT));
+  }
+  return response;
+};
+
+// The local passcode (R-Y183): `op` is status, unlock, lock, set, remove or
+// auto-lock; the answer is the server's JSON with `httpStatus`, null offline.
+const passcodeCall = async (op, body) => {
+  // Not through `client.isOnline()`: a locked server answers its health
+  // check with 423, which must not make the unlock screen think it is gone.
+  const { origin } = await ensure();
+  const path = `/api/passcode/${op}`;
+  const init =
+    body === undefined
+      ? undefined
+      : {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        };
+  const response = await fetch(origin ? new URL(path, origin) : path, init)
+    .then(announceLocked)
+    .catch(() => null);
+  const data = response ? await response.json().catch(() => ({})) : null;
+  return data && { ...data, httpStatus: response.status };
 };
 
 const serverFetch = async (path, init) => {
@@ -394,6 +428,17 @@ const telegramPost = async (name, body) =>
   }))) ?? { error: 'server required' };
 
 let automationApi = null;
+// Each plain Telegram call of the page (R-Y75 onwards) as a function: a
+// call that takes a body sends it, one that takes none always sends {}.
+const telegramCalls = Object.fromEntries(
+  Object.entries(TELEGRAM_CALLS).map(([name, call]) => [
+    name,
+    call.body
+      ? (body = {}) => telegramPost(call.route, body)
+      : () => telegramPost(call.route, {}),
+  ])
+);
+
 const automationCall =
   (name) =>
   async (...args) => {
@@ -439,6 +484,8 @@ const greetingsOffline = (networks) => ({
 });
 
 export const api = {
+  // Plain POSTs to /api/telegram/<route> (./dom-telegram-calls.js).
+  ...telegramCalls,
   ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),
   links: async () => {
     const { client } = await ensure();
@@ -825,13 +872,6 @@ export const api = {
   // A forum group's topics (R-Y122): { chat } → { ok, forum, topics }.
   telegramForumTopics: ({ chat, fresh }) =>
     telegramPost('forum-topics', { chat, ...(fresh ? { fresh: true } : {}) }),
-  // Managing the topics (R-Y153).
-  telegramTopicIcons: () => telegramPost('topic-icons', {}),
-  telegramTopicCreate: (body = {}) => telegramPost('topic-create', body),
-  telegramTopicEdit: (body = {}) => telegramPost('topic-edit', body),
-  telegramTopicPin: (body = {}) => telegramPost('topic-pin', body),
-  telegramTopicDelete: (body = {}) => telegramPost('topic-delete', body),
-  telegramForumToggle: (body = {}) => telegramPost('forum-toggle', body),
   telegramDraft: async ({ chat, text }) =>
     (await serverPostReport('/api/telegram/draft', { chat, text }).catch(
       (error) => ({ error: error.message })
@@ -946,70 +986,6 @@ export const api = {
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for the chat list menu' },
 
-  // A chat's scheduled messages (R-Y102): { chat } → { ok, links };
-  // sent now, deleted ({ chat, ids }), moved ({ chat, id, date }).
-  telegramFolders: (body = {}) => telegramPost('folders', body),
-  // Folders made, changed, deleted, ordered (R-Y164): { id?, folder },
-  // { id }, { order } (every folder id, 0 for "All chats"), and the
-  // recommended ones.
-  telegramFolderSave: (body = {}) => telegramPost('folder-save', body),
-  telegramFolderDelete: (body = {}) => telegramPost('folder-delete', body),
-  telegramFoldersReorder: (body = {}) => telegramPost('folders-reorder', body),
-  telegramFoldersSuggested: (body = {}) =>
-    telegramPost('folders-suggested', body),
-  // Shared folders, chat lists (R-Y172): the folder's links, made, edited,
-  // deleted; what an addlist link leads to and joining it; leaving.
-  telegramChatlistInvites: (body = {}) =>
-    telegramPost('chatlist-invites', body),
-  telegramChatlistExport: (body = {}) => telegramPost('chatlist-export', body),
-  telegramChatlistInviteEdit: (body = {}) =>
-    telegramPost('chatlist-invite-edit', body),
-  telegramChatlistInviteDelete: (body = {}) =>
-    telegramPost('chatlist-invite-delete', body),
-  telegramChatlistCheck: (body = {}) => telegramPost('chatlist-check', body),
-  telegramChatlistJoin: (body = {}) => telegramPost('chatlist-join', body),
-  telegramChatlistLeaveSuggestions: (body = {}) =>
-    telegramPost('chatlist-leave-suggestions', body),
-  telegramChatlistLeave: (body = {}) => telegramPost('chatlist-leave', body),
-  // Stickers and saved GIFs (R-Y105): the panel's lists ({ fresh }),
-  // a set's stickers ({ id }), one sent ({ chat, id, replyTo, silent,
-  // scheduleDate, clientId }).
-  telegramStickers: (body = {}) => telegramPost('stickers', body),
-  telegramStickerSet: (body = {}) => telegramPost('sticker-set', body),
-  telegramGifs: (body = {}) => telegramPost('gifs', body),
-  telegramGifSave: (body = {}) => telegramPost('gif-save', body),
-  telegramForumView: (body = {}) => telegramPost('forum-view', body),
-  // Stickers ({ q, lang }) and GIFs ({ q, offset }) searched (R-Y112).
-  telegramStickerSearch: (body = {}) => telegramPost('sticker-search', body),
-  telegramEmojiKeywords: (body = {}) => telegramPost('emoji-keywords', body),
-  telegramInviteCheck: (body = {}) => telegramPost('invite-check', body),
-  telegramInviteJoin: (body = {}) => telegramPost('invite-join', body),
-  telegramInviteRevoke: (body = {}) => telegramPost('invite-revoke', body),
-  telegramComments: (body = {}) => telegramPost('comments', body),
-  telegramCommentSend: (body = {}) => telegramPost('comment-send', body),
-  telegramCommentsRead: (body = {}) => telegramPost('comments-read', body),
-  // Who read a message ({ chat, id }), who reacted ({ chat, id, emoji?,
-  // offset? }) (R-Y127).
-  telegramReaders: (body = {}) => telegramPost('readers', body),
-  telegramTranslate: (body = {}) => telegramPost('translate', body),
-  // Voice and video note transcription (R-Y175).
-  telegramTranscribe: (body = {}) => telegramPost('transcribe', body),
-  telegramTranscribeRate: (body = {}) => telegramPost('transcribe-rate', body),
-  telegramBotCommands: (body = {}) => telegramPost('bot-commands', body),
-  // Bot mini apps (R-Y168).
-  telegramWebAppOpen: (body = {}) => telegramPost('web-app-open', body),
-  telegramWebAppProlong: (body = {}) => telegramPost('web-app-prolong', body),
-  telegramWebAppData: (body = {}) => telegramPost('web-app-data', body),
-  // Inline bots in the message box (R-Y138).
-  // Links to messages: copy one, open one (R-Y154).
-  telegramMessageLink: (body = {}) => telegramPost('message-link', body),
-  telegramResolveLink: (body = {}) => telegramPost('resolve-link', body),
-  telegramInlineBot: (body = {}) => telegramPost('inline-bot', body),
-  telegramInlineResults: (body = {}) => telegramPost('inline-results', body),
-  telegramInlineSend: (body = {}) => telegramPost('inline-send', body),
-  telegramInlineStartBot: (body = {}) => telegramPost('inline-start-bot', body),
-  // The message box's link preview, and its picture (R-Y145).
-  telegramLinkPreview: (body = {}) => telegramPost('link-preview', body),
   telegramLinkPreviewPhotoUrl: async ({ id } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !/^\d{1,20}$/.test(String(id ?? ''))) {
@@ -1018,135 +994,6 @@ export const api = {
     const path = `/api/telegram/link-preview-photo?id=${id}`;
     return origin ? new URL(path, origin).toString() : path;
   },
-  telegramReactors: (body = {}) => telegramPost('reactors', body),
-  // New groups and channels, a chat's info edited (R-Y129).
-  telegramChatContacts: () => telegramPost('chat-contacts', {}),
-  telegramGroupCreate: (body = {}) => telegramPost('group-create', body),
-  telegramChannelCreate: (body = {}) => telegramPost('channel-create', body),
-  telegramChatEdit: (body = {}) => telegramPost('chat-edit', body),
-  // A group's permissions, slow mode and recent actions (R-Y133).
-  telegramChatPermissions: (body = {}) =>
-    telegramPost('chat-permissions', body),
-  telegramChatPermissionsSet: (body = {}) =>
-    telegramPost('chat-permissions-set', body),
-  telegramSlowMode: (body = {}) => telegramPost('slow-mode', body),
-  telegramAdminLog: (body = {}) => telegramPost('admin-log', body),
-  // Which reactions a group or channel allows (R-Y160).
-  telegramAvailableReactions: () => telegramPost('available-reactions', {}),
-  // A group's and channel's settings (R-Y165).
-  telegramChatSettingSet: (body = {}) => telegramPost('chat-setting', body),
-  telegramDiscussionGroups: (body = {}) =>
-    telegramPost('discussion-groups', body),
-  telegramDiscussionSet: (body = {}) => telegramPost('discussion-set', body),
-  telegramChatReactionsSet: (body = {}) =>
-    telegramPost('chat-reactions-set', body),
-  // Invite links and join requests (R-Y152).
-  telegramInviteLinks: (body = {}) => telegramPost('invite-links', body),
-  telegramInviteCreate: (body = {}) => telegramPost('invite-create', body),
-  telegramInviteEdit: (body = {}) => telegramPost('invite-edit', body),
-  telegramInviteDelete: (body = {}) => telegramPost('invite-delete', body),
-  telegramInviteDeleteRevoked: (body = {}) =>
-    telegramPost('invite-delete-revoked', body),
-  telegramInviteImporters: (body = {}) =>
-    telegramPost('invite-importers', body),
-  telegramJoinRequestHide: (body = {}) =>
-    telegramPost('join-request-hide', body),
-  telegramJoinRequestsHideAll: (body = {}) =>
-    telegramPost('join-requests-hide-all', body),
-  // A chat's auto-delete timer, Saved Messages by chat (R-Y143).
-  telegramHistoryTtl: (body = {}) => telegramPost('history-ttl', body),
-  telegramSavedDialogs: (body = {}) => telegramPost('saved-dialogs', body),
-  telegramSavedHistory: (body = {}) => telegramPost('saved-history', body),
-  telegramSavedDelete: (body = {}) => telegramPost('saved-delete', body),
-  // Pinned Saved Messages chats, archive settings, websites (R-Y174).
-  telegramSavedPin: (body = {}) => telegramPost('saved-pin', body),
-  telegramArchiveSettings: () => telegramPost('archive-settings', {}),
-  telegramArchiveSettingsSet: (body = {}) =>
-    telegramPost('archive-settings-set', body),
-  telegramWebSessions: () => telegramPost('web-sessions', {}),
-  telegramWebSessionReset: (body = {}) =>
-    telegramPost('web-session-reset', body),
-  telegramWebSessionsResetAll: () => telegramPost('web-sessions-reset-all', {}),
-  // Reaction tags of Saved Messages and the default timer (R-Y151).
-  telegramSavedTags: () => telegramPost('saved-tags', {}),
-  telegramSavedTagSearch: (body = {}) => telegramPost('saved-tag-search', body),
-  telegramSavedTagRename: (body = {}) => telegramPost('saved-tag-rename', body),
-  // Channel boosts (R-Y173).
-  telegramBoostsStatus: (body = {}) => telegramPost('boosts-status', body),
-  telegramMyBoosts: (body = {}) => telegramPost('my-boosts', body),
-  telegramBoostApply: (body = {}) => telegramPost('boost-apply', body),
-  telegramBoosters: (body = {}) => telegramPost('boosters', body),
-  // Birthday, name and profile colours, personal channel (R-Y178).
-  telegramProfileExtras: () => telegramPost('profile-extras', {}),
-  telegramBirthdaySave: (body = {}) => telegramPost('birthday-save', body),
-  telegramProfileColors: () => telegramPost('profile-colors', {}),
-  telegramColorSave: (body = {}) => telegramPost('color-save', body),
-  telegramPersonalChannels: () => telegramPost('personal-channels', {}),
-  telegramPersonalChannelSave: (body = {}) =>
-    telegramPost('personal-channel-save', body),
-  telegramPersonalChannel: (body = {}) =>
-    telegramPost('personal-channel', body),
-  telegramContactBirthdays: () => telegramPost('contact-birthdays', {}),
-  // Telegram Business (R-Y180): opening hours, location, intro, chat
-  // links, the chatbot and folder tags. Writes only on Save or confirm.
-  telegramBusinessHours: () => telegramPost('business-hours', {}),
-  telegramBusinessHoursSet: (body = {}) =>
-    telegramPost('business-hours-set', body),
-  telegramBusinessLocation: () => telegramPost('business-location', {}),
-  telegramBusinessLocationSet: (body = {}) =>
-    telegramPost('business-location-set', body),
-  telegramBusinessIntro: () => telegramPost('business-intro', {}),
-  telegramBusinessIntroStickers: () =>
-    telegramPost('business-intro-stickers', {}),
-  telegramBusinessIntroSet: (body = {}) =>
-    telegramPost('business-intro-set', body),
-  telegramBusinessProfile: (body = {}) =>
-    telegramPost('business-profile', body),
-  telegramBusinessLinks: () => telegramPost('business-links', {}),
-  telegramBusinessLinkCreate: (body = {}) =>
-    telegramPost('business-link-create', body),
-  telegramBusinessLinkEdit: (body = {}) =>
-    telegramPost('business-link-edit', body),
-  telegramBusinessLinkDelete: (body = {}) =>
-    telegramPost('business-link-delete', body),
-  telegramBusinessLinkResolve: (body = {}) =>
-    telegramPost('business-link-resolve', body),
-  telegramBusinessBot: () => telegramPost('business-bot', {}),
-  telegramBusinessBotSet: (body = {}) => telegramPost('business-bot-set', body),
-  telegramBusinessBotRemove: () => telegramPost('business-bot-remove', {}),
-  telegramBusinessBotChat: (body = {}) =>
-    telegramPost('business-bot-chat', body),
-  telegramBusinessBotPause: (body = {}) =>
-    telegramPost('business-bot-pause', body),
-  telegramBusinessBotDisable: (body = {}) =>
-    telegramPost('business-bot-disable', body),
-  telegramFoldersTagsSet: (body = {}) => telegramPost('folders-tags-set', body),
-  // Telegram Stars (R-Y176).
-  telegramStarsStatus: () => telegramPost('stars-status', {}),
-  telegramStarsHistory: (body = {}) => telegramPost('stars-history', body),
-  telegramStarGifts: (body = {}) => telegramPost('star-gifts', body),
-  telegramStarGiftSave: (body = {}) => telegramPost('star-gift-save', body),
-  telegramPaidReaction: (body = {}) => telegramPost('paid-reaction', body),
-  telegramPaidMediaUnlock: (body = {}) =>
-    telegramPost('paid-media-unlock', body),
-  telegramDefaultTtl: () => telegramPost('privacy-ttl', {}),
-  telegramDefaultTtlSet: (body = {}) => telegramPost('privacy-ttl-set', body),
-  // Viewing stories (R-Y140): the strip, one peer's, seen up to an id,
-  // and a story's picture or video.
-  telegramStories: (body = {}) => telegramPost('stories', body),
-  telegramStoriesPeer: (body = {}) => telegramPost('stories-peer', body),
-  telegramStoriesRead: (body = {}) => telegramPost('stories-read', body),
-  // Story interactions (R-Y148): a private reply, a reaction, the viewers
-  // of one's own story, deleting it, and hiding a peer's stories.
-  telegramStoryReply: (body = {}) => telegramPost('story-reply', body),
-  telegramStoryReact: (body = {}) => telegramPost('story-react', body),
-  telegramStoryViews: (body = {}) => telegramPost('story-views', body),
-  telegramStoryDelete: (body = {}) => telegramPost('story-delete', body),
-  telegramStoriesHide: (body = {}) => telegramPost('stories-hide', body),
-  // Posting a story (R-Y156): whether the user may, then the upload's
-  // token with the story's options → { ok } or { ok: false, code }.
-  telegramStoryCanPost: () => telegramPost('story-can-post', {}),
-  telegramStoryPost: (body = {}) => telegramPost('story-post', body),
   telegramStoryUrl: async ({ peer, id } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !peer || !id) {
@@ -1155,11 +1002,6 @@ export const api = {
     const path = `/api/telegram/story?peer=${encodeURIComponent(peer)}&id=${encodeURIComponent(id)}`;
     return origin ? new URL(path, origin).toString() : path;
   },
-  // Chat backgrounds (R-Y155): the list Telegram offers, a picture's
-  // address, and one set for a chat (for the user only).
-  telegramWallpapers: (body = {}) => telegramPost('wallpapers', body),
-  telegramChatWallpaperSet: (body = {}) =>
-    telegramPost('chat-wallpaper-set', body),
   telegramWallpaperUrl: async ({ id, slug = '', size = 'full' } = {}) => {
     const { origin } = await ensure();
     if (!id) {
@@ -1172,134 +1014,15 @@ export const api = {
     const path = `/api/telegram/wallpaper?${query}`;
     return origin ? new URL(path, origin).toString() : path;
   },
-  // Telegram Business: quick replies, greeting and away messages (R-Y179).
-  telegramQuickReplies: () => telegramPost('quick-replies', {}),
-  telegramQuickReplyMessages: (body = {}) =>
-    telegramPost('quick-reply-messages', body),
-  telegramQuickReplyCreate: (body = {}) =>
-    telegramPost('quick-reply-create', body),
-  telegramQuickReplyAdd: (body = {}) => telegramPost('quick-reply-add', body),
-  telegramQuickReplyEdit: (body = {}) => telegramPost('quick-reply-edit', body),
-  telegramQuickReplyDeleteMessages: (body = {}) =>
-    telegramPost('quick-reply-delete-messages', body),
-  telegramQuickReplyRename: (body = {}) =>
-    telegramPost('quick-reply-rename', body),
-  telegramQuickReplyDelete: (body = {}) =>
-    telegramPost('quick-reply-delete', body),
-  telegramQuickReplyReorder: (body = {}) =>
-    telegramPost('quick-reply-reorder', body),
-  telegramQuickReplySend: (body = {}) => telegramPost('quick-reply-send', body),
-  telegramBusinessMessages: () => telegramPost('business-messages', {}),
-  telegramBusinessGreetingSave: (body = {}) =>
-    telegramPost('business-greeting-save', body),
-  telegramBusinessAwaySave: (body = {}) =>
-    telegramPost('business-away-save', body),
-  // The user's own profile (R-Y136).
-  telegramProfile: () => telegramPost('profile', {}),
-  telegramProfileSave: (body = {}) => telegramPost('profile-save', body),
-  telegramUsernameCheck: (body = {}) => telegramPost('username-check', body),
-  telegramUsernameSave: (body = {}) => telegramPost('username-save', body),
-  telegramProfilePhoto: (body = {}) => telegramPost('profile-photo', body),
-  // Privacy and security (R-Y139).
-  telegramPrivacy: () => telegramPost('privacy', {}),
-  telegramPrivacySet: (body = {}) => telegramPost('privacy-set', body),
-  telegramAuthorizations: () => telegramPost('sessions', {}),
-  telegramSessionTerminate: (body = {}) =>
-    telegramPost('session-terminate', body),
-  telegramSessionsTerminateOthers: () =>
-    telegramPost('sessions-terminate-others', {}),
-  // Two-step verification, self-destruct, sensitive content and per-session
-  // settings (R-Y177).
-  telegramSecurity: () => telegramPost('security', {}),
-  telegramPasswordSet: (body = {}) => telegramPost('password-set', body),
-  telegramPasswordRemove: (body = {}) => telegramPost('password-remove', body),
-  telegramPasswordEmailConfirm: (body = {}) =>
-    telegramPost('password-email-confirm', body),
-  telegramPasswordEmailResend: () => telegramPost('password-email-resend', {}),
-  telegramPasswordEmailCancel: () => telegramPost('password-email-cancel', {}),
-  telegramAccountTtlSet: (body = {}) => telegramPost('account-ttl-set', body),
-  telegramSensitiveSet: (body = {}) => telegramPost('sensitive-set', body),
-  telegramSessionSettings: (body = {}) =>
-    telegramPost('session-settings', body),
-  telegramSessionTtlSet: (body = {}) => telegramPost('session-ttl-set', body),
-  telegramBlocked: (body = {}) => telegramPost('blocked', body),
-  telegramUnblock: (body = {}) => telegramPost('unblock', body),
-  // A group's members ({ chat, q, offset, limit }) and one removed
-  // ({ chat, user }) (R-Y125).
-  telegramMembers: (body = {}) => telegramPost('members', body),
-  telegramMemberRemove: (body = {}) => telegramPost('member-remove', body),
-  // Block, contacts and report (R-Y128).
-  telegramPeerBlock: (body = {}) => telegramPost('peer-block', body),
-  telegramPeerContact: (body = {}) => telegramPost('peer-contact', body),
-  telegramPeerReport: (body = {}) => telegramPost('peer-report', body),
-  telegramPeerReportSpam: (body = {}) => telegramPost('peer-report-spam', body),
-  // The bar over a chat with a stranger (R-Y137).
-  // The message effects Telegram offers (R-Y149).
-  telegramEffects: (body = {}) => telegramPost('effects', body),
-  // Emoji statuses (R-Y162).
-  telegramEmojiStatuses: (body = {}) => telegramPost('emoji-statuses', body),
-  telegramEmojiStatusSet: (body = {}) => telegramPost('emoji-status-set', body),
-  // Settings → Stickers and emoji, close friends, a contact by phone (R-Y169).
-  telegramStickerSets: (body = {}) => telegramPost('sticker-sets', body),
-  telegramStickerSetsReorder: (body = {}) =>
-    telegramPost('sticker-sets-reorder', body),
-  telegramStickerSetArchive: (body = {}) =>
-    telegramPost('sticker-set-archive', body),
-  telegramStickerSetRemove: (body = {}) =>
-    telegramPost('sticker-set-remove', body),
-  telegramStickerSetAdd: (body = {}) => telegramPost('sticker-set-add', body),
-  telegramStickerSetsArchived: (body = {}) =>
-    telegramPost('sticker-sets-archived', body),
-  telegramCloseFriends: (body = {}) => telegramPost('close-friends', body),
-  telegramCloseFriendsSet: (body = {}) =>
-    telegramPost('close-friends-set', body),
-  telegramContactImport: (body = {}) => telegramPost('contact-import', body),
-  // Chat themes and several usernames (R-Y170).
-  telegramChatThemes: (body = {}) => telegramPost('chat-themes', body),
-  telegramChatThemeSet: (body = {}) => telegramPost('chat-theme-set', body),
-  telegramUsernameToggle: (body = {}) => telegramPost('username-toggle', body),
-  telegramUsernamesReorder: (body = {}) =>
-    telegramPost('usernames-reorder', body),
-  telegramSendAs: (body = {}) => telegramPost('send-as', body),
-  telegramSendAsSave: (body = {}) => telegramPost('send-as-save', body),
-  // The recent calls list (R-Y163).
-  telegramCalls: (body = {}) => telegramPost('calls', body),
-  telegramNotifySettings: () => telegramPost('notify-settings', {}),
-  telegramNotifySettingsSet: (body = {}) =>
-    telegramPost('notify-settings-set', body),
-  telegramNotifyChat: (body = {}) => telegramPost('notify-chat', body),
-  telegramCommonChats: (body = {}) => telegramPost('common-chats', body),
-  // Statistics of a channel or supergroup (R-Y167).
-  telegramChatStats: (body = {}) => telegramPost('chat-stats', body),
-  telegramStatsGraph: (body = {}) => telegramPost('stats-graph', body),
-  // The pinned messages list, similar channels, fact checks (R-Y166).
-  telegramPinnedList: (body = {}) => telegramPost('pinned-list', body),
-  telegramUnpinAll: (body = {}) => telegramPost('unpin-all', body),
-  telegramSimilarChannels: (body = {}) =>
-    telegramPost('similar-channels', body),
-  telegramSimilarJoin: (body = {}) => telegramPost('similar-join', body),
-  telegramFactChecks: (body = {}) => telegramPost('fact-checks', body),
-  // A hashtag's messages and the live counters of posts (R-Y182).
-  telegramSearchTag: (body = {}) => telegramPost('search-tag', body),
-  telegramMessageViews: (body = {}) => telegramPost('message-views', body),
-  telegramNotifyChatSet: (body = {}) => telegramPost('notify-chat-set', body),
-  telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
-  telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),
-  telegramPeerShareContact: (body = {}) =>
-    telegramPost('peer-share-contact', body),
-  telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
-  // The panel's menu ({ id, action }; R-Y115).
-  telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),
-  telegramStickerSetBox: (body = {}) => telegramPost('sticker-set-box', body),
-  // A die's animations ({ emoticon }; R-Y130).
-  telegramDice: (body = {}) => telegramPost('dice', body),
-  telegramStickerSetInstall: (body = {}) =>
-    telegramPost('sticker-set-install', body),
-  telegramSendDocument: (body = {}) => telegramPost('send-document', body),
-  telegramScheduled: (body = {}) => telegramPost('scheduled', body),
-  telegramScheduledSend: (body = {}) => telegramPost('scheduled-send', body),
-  telegramScheduledDelete: (body = {}) =>
-    telegramPost('scheduled-delete', body),
+  telegramRingtoneUrl: async ({ id } = {}) => {
+    const { origin } = await ensure();
+    if (!id) {
+      return null;
+    }
+    const path = `/api/telegram/ringtone?id=${encodeURIComponent(id)}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
+  passcode: passcodeCall,
   telegramScheduledReschedule: (body = {}) =>
     telegramPost('scheduled-reschedule', body),
 
@@ -1350,12 +1073,6 @@ export const api = {
   // quiz, correct?, solution?, replyTo?, silent?, scheduleDate? }.
   telegramSendPoll: (body = {}) => telegramPost('send-poll', body),
 
-  // A place or a contact from the composer (R-Y142): { chat, lat, lon,
-  // accuracy?, live? }, { chat, id } to stop a live location, { chat,
-  // contact | firstName, lastName, phone }.
-  telegramSendLocation: (body = {}) => telegramPost('send-location', body),
-  telegramStopLive: (body = {}) => telegramPost('stop-live-location', body),
-  telegramUpdateLive: (body = {}) => telegramPost('update-live-location', body),
   telegramSendContact: (body = {}) => telegramPost('send-contact', body),
 
   // Edit, delete, react to, forward a message or mark a chat read on any

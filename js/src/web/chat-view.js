@@ -43,6 +43,7 @@ import { isBirthdayToday } from './profile-extras-model.js';
 import { PersonPanel } from './person-panel.js';
 import { UnreadMarks, useUnreadMarks } from './chat-marks.js';
 import { MessageBubble, QuoteContext, ReplyQuote } from './chat-message.js';
+import { ChatKindContext } from './auto-download.js';
 import { ChatAvatar } from './chat-list.js';
 import { EmojiStatus } from './emoji-status.js';
 import { replyRefOf, useChatActions } from './chat-actions.js';
@@ -127,6 +128,12 @@ export { failureText, waitingText } from './chat-failure.js';
 export { autopilotText } from './chat-automation.js';
 export { reasonText } from './notice.js';
 export { noticeInWords } from './chat-sidebar.js';
+
+import {
+  ShortcutsHost,
+  focusListSearch,
+  useChatShortcuts,
+} from './shortcuts.js';
 
 const el = React.createElement;
 
@@ -1093,6 +1100,22 @@ const ComposerOrClosed = ({ state, api, keys }) =>
     ? el(TopicClosedBar)
     : el(Composer, { state, api, keys });
 
+// The shortcuts of ./shortcuts.js on this screen's state.
+const useScreenShortcuts = ({ state, select, setPane, setHelp }) =>
+  useChatShortcuts({
+    chats: state.chats,
+    current: state.current,
+    select,
+    tabs: state.tabs,
+    setFilter: state.setFilter,
+    selfId: state.telegram?.account?.id,
+    focusSearch: () => {
+      setPane('list');
+      globalThis.setTimeout(focusListSearch, 0);
+    },
+    openHelp: () => setHelp(true),
+  });
+
 export const ChatScreen = ({ state, api }) => {
   const { t, locale } = useLocaleContext();
   const [pane, setPane] = useState('list');
@@ -1121,6 +1144,9 @@ export const ChatScreen = ({ state, api }) => {
     setPane('chat');
   };
   const [select] = useState(() => (key) => latest.current(key));
+  // Desktop's keyboard shortcuts and their list (R-Y183).
+  const [help, setHelp] = useState(false);
+  useScreenShortcuts({ state, select, setPane, setHelp });
   if (state.loading) {
     return el(ChatLoading, { t });
   }
@@ -1135,94 +1161,110 @@ export const ChatScreen = ({ state, api }) => {
   return el(
     QuoteContext.Provider,
     { value: quote },
-    el('div', { className: 'chat-shell', 'data-pane': pane }, [
-      el(Sidebar, { key: 'side', state: { ...state, select }, api }),
-      // A clicked #hashtag or $cashtag searches (R-Y182).
-      el(TagSearchHost, { key: 'tag-search', api, state }),
-      state.current
-        ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
-            // While messages are selected Desktop's top bar shows what
-            // can be done with them; the composer stays.
-            actions.selection.ids.length > 0
-              ? el(SelectionTop, { key: 'h', ...actions.top })
-              : el(ChatTop, {
-                  key: 'h',
-                  state,
-                  api,
-                  onBack: () => setPane('list'),
-                  saved,
-                  forumView,
-                }),
-            // A forum's topics, as Telegram's tabs layout (R-Y122).
-            el(TopicTabs, {
-              key: 'topics',
-              forum: stripForum(forumView, state.forum),
-              api,
-              chat: state.current,
-              info: state.info,
-            }),
-            el(PinnedBar, {
-              key: 'pin',
-              state,
-              api,
-              onOpen: (id) => goToMessage(id, state.history?.reach),
-            }),
-            // Add contact, Block, Report spam over a stranger's chat (R-Y137).
-            el(PeerBar, {
-              key: `peer:${state.current.key}`,
-              api,
-              chat: state.current,
-            }),
-            // The bot a business connected to this chat (R-Y180).
-            el(BotBar, {
-              key: `bot:${state.current.key}`,
-              api,
-              chat: state.current,
-            }),
-            // "N requested to join" for those who may invite (R-Y152).
-            el(RequestsBar, {
-              key: `requests:${state.current.key}`,
-              api,
-              chat: state.current,
-              info: state.info,
-              live: state.joinRequests,
-            }),
-            el(ConnectionBanner, { key: 'b', banner: state.banner }),
-            el(FailedBar, { key: 'failed', composer: state.composer }),
-            el(AutopilotBar, { key: 'ap', autopilot: state.autopilot }),
-            el(NextChatBar, {
-              key: 'next',
-              drafts: state.drafts,
-              autopilot: state.autopilot,
-            }),
-            el(Notice, {
-              key: 'n',
-              notice: noticeInWords(t, state.notice),
-              labels: NOTICE,
-              dismiss: state.dismiss,
-            }),
-            saved.on ? null : el(SavedTagBar, { key: 'tags', api, tags }),
-            saved.on
-              ? el(SavedChats, { key: 'saved', api, chat: state.current })
-              : tags.active
-                ? el(SavedTagResults, { key: 'tagged', api, tags })
-                : el(Stream, { key: 's', state, api, actions }),
-            // A closed topic has no composer for those who cannot manage
-            // topics (R-Y153).
-            saved.on
-              ? null
-              : el(ComposerOrClosed, {
-                  key: 'c',
-                  state: actions.withForward(state),
-                  api,
-                  keys: actions.keys,
-                }),
-            ...actions.dialogs,
-          ])
-        : null,
-    ])
+    el(
+      ChatKindContext.Provider,
+      { value: kindOf(state.current) },
+      el('div', { className: 'chat-shell', 'data-pane': pane }, [
+        el(Sidebar, {
+          key: 'side',
+          state: { ...state, select, openShortcuts: () => setHelp(true) },
+          api,
+        }),
+        el(ShortcutsHost, {
+          key: 'shortcuts',
+          open: help,
+          close: () => setHelp(false),
+        }),
+        // A clicked #hashtag or $cashtag searches (R-Y182).
+        el(TagSearchHost, { key: 'tag-search', api, state }),
+        state.current
+          ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
+              // While messages are selected Desktop's top bar shows what
+              // can be done with them; the composer stays.
+              actions.selection.ids.length > 0
+                ? el(SelectionTop, { key: 'h', ...actions.top })
+                : el(ChatTop, {
+                    key: 'h',
+                    state,
+                    api,
+                    onBack: () => setPane('list'),
+                    saved,
+                    forumView,
+                  }),
+              // A forum's topics, as Telegram's tabs layout (R-Y122).
+              el(TopicTabs, {
+                key: 'topics',
+                forum: stripForum(forumView, state.forum),
+                api,
+                chat: state.current,
+                info: state.info,
+              }),
+              el(PinnedBar, {
+                key: 'pin',
+                state,
+                api,
+                onOpen: (id) => goToMessage(id, state.history?.reach),
+              }),
+              // Add contact, Block, Report spam over a stranger's chat (R-Y137).
+              el(PeerBar, {
+                key: `peer:${state.current.key}`,
+                api,
+                chat: state.current,
+              }),
+              // The bot a business connected to this chat (R-Y180).
+              el(BotBar, {
+                key: `bot:${state.current.key}`,
+                api,
+                chat: state.current,
+              }),
+              // "N requested to join" for those who may invite (R-Y152).
+              el(RequestsBar, {
+                key: `requests:${state.current.key}`,
+                api,
+                chat: state.current,
+                info: state.info,
+                live: state.joinRequests,
+              }),
+              el(ConnectionBanner, { key: 'b', banner: state.banner }),
+              el(FailedBar, { key: 'failed', composer: state.composer }),
+              el(AutopilotBar, { key: 'ap', autopilot: state.autopilot }),
+              el(NextChatBar, {
+                key: 'next',
+                drafts: state.drafts,
+                autopilot: state.autopilot,
+              }),
+              el(Notice, {
+                key: 'n',
+                notice: noticeInWords(t, state.notice),
+                labels: NOTICE,
+                dismiss: state.dismiss,
+              }),
+              saved.on ? null : el(SavedTagBar, { key: 'tags', api, tags }),
+              saved.on
+                ? el(SavedChats, { key: 'saved', api, chat: state.current })
+                : tags.active
+                  ? el(SavedTagResults, { key: 'tagged', api, tags })
+                  : el(Stream, { key: 's', state, api, actions }),
+              // A closed topic has no composer for those who cannot manage
+              // topics (R-Y153).
+              saved.on
+                ? null
+                : el(ComposerOrClosed, {
+                    key: 'c',
+                    state: actions.withForward(state),
+                    api,
+                    keys: actions.keys,
+                  }),
+              ...actions.dialogs,
+            ])
+          : null,
+      ])
+    )
   );
 };
+
+// The kind of the open chat, for the media download settings (R-Y181).
+const kindOf = (current) => current?.kind ?? 'private';
 
 export const ChatView = ({ api = defaultApi, ...options }) => {
   const t = useT();

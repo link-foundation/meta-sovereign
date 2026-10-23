@@ -62,10 +62,15 @@ const runtimeCandidates = () => {
 const probe = async (origin, fetchImpl, signal) => {
   try {
     const res = await fetchImpl(`${origin}${HEALTH}`, { signal });
+    const json = await res.json().catch(() => null);
+    // A server locked by its passcode (R-Y183) is still the server: the
+    // page shows its unlock screen.
+    if (res.status === 423 && json?.code === 'locked') {
+      return true;
+    }
     if (!res.ok) {
       return false;
     }
-    const json = await res.json();
     // Loose duck-type check: we accept anything that looks like the
     // status payload (an object with a numeric counter).
     return json && typeof json === 'object';

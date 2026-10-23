@@ -6,7 +6,9 @@
 // round video in a circle; a voice note as a waveform; a sticker with no
 // bubble. Files come from the server, which reads each once and keeps it
 // (`/api/telegram/file`, `/api/telegram/media` for previews); nothing is
-// fetched before it is near the screen.
+// fetched before it is near the screen, nor when the automatic download
+// settings (./auto-download.js, R-Y181) do not allow it: such media shows
+// a download button with its size.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
@@ -16,6 +18,7 @@ import { Checklist, Poll } from './chat-poll.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
 import { liveLines } from './live-place.js';
+import { useAutoLoad } from './auto-download.js';
 import { LottieSticker } from './lottie-sticker.js';
 import {
   Transcribable,
@@ -117,19 +120,33 @@ const boxStyle = (media, max = 320) => {
 const videoStyle = (media, fill) =>
   fill ? { width: '100%', height: '100%' } : boxStyle(media);
 
-// The play button, the spinner while it loads, the length (or "GIF").
-const videoControls = (t, { media, gif, playing, file, setPlaying }) => [
-  !gif && !playing
+// The play button (a download button with the size when the file is not
+// loaded by itself), the spinner while it loads, the length (or "GIF").
+const videoControls = (
+  t,
+  { media, gif, playing, file, still, manual, play }
+) => [
+  still && !playing
     ? el(
         'button',
         {
           key: 'play',
           type: 'button',
-          className: 'media-play',
+          className: manual ? 'media-play media-download' : 'media-play',
           'aria-label': t('chat.media.play'),
-          onClick: () => setPlaying(true),
+          'data-download': manual ? 'manual' : undefined,
+          onClick: play,
         },
-        el(Icon, { name: 'play', size: 28 })
+        manual && media.size
+          ? [
+              el(Icon, { key: 'i', name: 'download', size: 22 }),
+              el(
+                'span',
+                { key: 's', className: 'media-size' },
+                sizeOf(media.size)
+              ),
+            ]
+          : el(Icon, { name: 'play', size: 28 })
       )
     : null,
   playing && !file
@@ -144,6 +161,36 @@ const videoControls = (t, { media, gif, playing, file, setPlaying }) => [
     : null,
 ];
 
+// How a video behaves under the download settings (R-Y181): a GIF plays by
+// itself with "Autoplay GIFs", a video with "Autoplay videos" once it is
+// allowed; both are muted loops (`quiet`). `fetchNear`: its file is
+// fetched when it nears the screen.
+export const videoMode = (gif, playing, load) => {
+  const gifAuto = gif && load.autoplayGif;
+  const videoAuto = !gif && load.autoplayVideo && load.allowed;
+  return {
+    gifAuto,
+    quiet: !playing && (gifAuto || videoAuto),
+    fetchNear: gifAuto || (!gif && load.allowed),
+  };
+};
+
+// The <video> itself: a muted loop when `silent`, else with controls.
+const videoElement = ({ file, thumb, silent, videoRef }) =>
+  el('video', {
+    key: `video-${silent}`,
+    ref: videoRef,
+    className: 'media-video',
+    ...mediaSrc(file),
+    poster: thumb ?? undefined,
+    autoPlay: true,
+    muted: silent,
+    loop: silent,
+    playsInline: true,
+    controls: !silent,
+    preload: 'auto',
+  });
+
 /**
  * A video: plays in place on a click; a GIF plays muted while seen.
  * `fill`: as large as the album tile it is in.
@@ -154,6 +201,9 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
   const { near, visible } = useNearView(ref);
   const gif = media.type === 'gif';
   const [playing, setPlaying] = useState(false);
+  // R-Y181: whether the file comes by itself, and whether it plays so.
+  const load = useAutoLoad(gif ? 'file' : 'video', media.size);
+  const { gifAuto, quiet, fetchNear } = videoMode(gif, playing, load);
   const thumb = useUrl(
     api,
     'telegramMediaUrl',
@@ -164,9 +214,10 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
     api,
     'telegramFileUrl',
     { chat, id: msgId },
-    gif ? near : playing
+    playing || (near && fetchNear)
   );
-  const video = file && (gif ? visible || playing : playing);
+  const video = file && (playing || (quiet && visible));
+  const silent = gif || quiet;
   // Picture-in-picture where the browser has it (R-Y182).
   const videoRef = useRef(null);
   const pip = usePip(videoRef, Boolean(video));
@@ -180,29 +231,26 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
     },
     [
       el(Poster, { key: 'poster', media, thumb }),
-      video
-        ? el('video', {
-            key: 'video',
-            ref: videoRef,
-            className: 'media-video',
-            ...mediaSrc(file),
-            poster: thumb ?? undefined,
-            autoPlay: true,
-            muted: gif,
-            loop: gif,
-            playsInline: true,
-            controls: !gif,
-            preload: 'auto',
-          })
-        : null,
-      ...videoControls(t, { media, gif, playing, file, setPlaying }),
+      video ? videoElement({ file, thumb, silent, videoRef }) : null,
+      ...videoControls(t, {
+        media,
+        gif,
+        playing,
+        file,
+        still: !gifAuto && !quiet,
+        manual: !load.auto,
+        play: () => {
+          load.ask();
+          setPlaying(true);
+        },
+      }),
       !gif && video ? el(PipButton, { key: 'pip', pip }) : null,
     ]
   );
 };
 
 // Play/pause of one <audio>, its position and length.
-const useAudio = (src) => {
+const useAudio = (src, autoplay = true) => {
   const audio = useRef(null);
   const [state, setState] = useState({ playing: false, at: 0, length: 0 });
   useEffect(() => {
@@ -223,7 +271,9 @@ const useAudio = (src) => {
     for (const name of events) {
       player.addEventListener(name, update);
     }
-    player.play().catch(() => {});
+    if (autoplay) {
+      player.play().catch(() => {});
+    }
     return () => {
       player.pause();
       for (const name of events) {
@@ -261,21 +311,74 @@ const barsOf = (waveform) => {
   });
 };
 
+// R-Y181: a voice note or a song is fetched when near the screen if the
+// download settings allow it, else when the user asks.
+const useAudioFile = ({ media, api, chat, msgId }, box) => {
+  const [wanted, setWanted] = useState(false);
+  const { near } = useNearView(box);
+  const load = useAutoLoad(
+    media.type === 'voice' ? 'voice' : 'file',
+    media.size
+  );
+  const src = useUrl(
+    api,
+    'telegramFileUrl',
+    { chat, id: msgId },
+    wanted || (near && load.allowed)
+  );
+  return { load, src, wanted, setWanted };
+};
+
+// A voice note's waveform (played bars marked), or a song's title.
+const AudioLabel = ({ media, voice, done, t }) =>
+  voice
+    ? el(
+        'span',
+        { className: 'audio-wave', 'aria-hidden': 'true' },
+        barsOf(media.waveform).map((v, i) =>
+          el('i', {
+            key: i,
+            className: i / BARS < done ? 'played' : undefined,
+            style: { height: `${Math.max(2, (v / 31) * 100)}%` },
+          })
+        )
+      )
+    : el(
+        'span',
+        { className: 'audio-title' },
+        [media.title, media.performer].filter(Boolean).join(' — ') ||
+          media.filename ||
+          t('chat.media.audio')
+      );
+
 /** A voice note or a song: a play button, its waveform or title. */
 export const MediaAudio = ({ media, api, chat, msgId }) => {
   const t = useT();
-  const [wanted, setWanted] = useState(false);
-  const src = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, wanted);
-  const player = useAudio(src);
+  const voice = media.type === 'voice';
+  const box = useRef(null);
+  const { load, src, wanted, setWanted } = useAudioFile(
+    { media, api, chat, msgId },
+    box
+  );
+  const player = useAudio(src, wanted);
   const length = player.length || media.duration || 0;
   const done = length > 0 ? player.at / length : 0;
-  const voice = media.type === 'voice';
-  const press = () => (src ? player.toggle() : setWanted(true));
+  // Not loaded by itself: it says how big it is.
+  const waiting = !load.auto && !src && Boolean(media.size);
+  const press = () => {
+    load.ask();
+    return src ? player.toggle() : setWanted(true);
+  };
   // "→A" beside a voice note's waveform, its text under it (R-Y175).
   const words = useTranscribe({ api, chat, msgId, enabled: voice });
   const row = el(
     'div',
-    { key: 'row', className: voice ? 'bubble-audio voice' : 'bubble-audio' },
+    {
+      key: 'row',
+      ref: box,
+      className: voice ? 'bubble-audio voice' : 'bubble-audio',
+      'data-download': waiting ? 'manual' : undefined,
+    },
     [
       el(
         'button',
@@ -293,29 +396,12 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
           : el(Icon, { name: player.playing ? 'pause' : 'play', size: 20 })
       ),
       el('div', { key: 'body', className: 'audio-body' }, [
-        voice
-          ? el(
-              'span',
-              { key: 'wave', className: 'audio-wave', 'aria-hidden': 'true' },
-              barsOf(media.waveform).map((v, i) =>
-                el('i', {
-                  key: i,
-                  className: i / BARS < done ? 'played' : undefined,
-                  style: { height: `${Math.max(2, (v / 31) * 100)}%` },
-                })
-              )
-            )
-          : el(
-              'span',
-              { key: 'title', className: 'audio-title' },
-              [media.title, media.performer].filter(Boolean).join(' — ') ||
-                media.filename ||
-                t('chat.media.audio')
-            ),
+        el(AudioLabel, { key: 'label', media, voice, done, t }),
         el(
           'span',
           { key: 'time', className: 'audio-time' },
-          player.at > 0 ? clockOf(player.at) : clockOf(length)
+          player.at > 0 ? clockOf(player.at) : clockOf(length),
+          waiting ? ` · ${sizeOf(media.size)}` : ''
         ),
       ]),
       el(TranscribeButton, { key: 'words', state: words }),
@@ -423,16 +509,28 @@ export const MediaSticker = (props) =>
     props
   );
 
-/** A file: its icon, name and size; a click saves it. */
+/**
+ * A file: its icon, name and size; a click saves it. A file the automatic
+ * download settings allow is fetched when near the screen (R-Y181), so the
+ * click saves at once; any other is fetched on the click.
+ */
 export const MediaFile = ({ media, api, chat, msgId }) => {
   const t = useT();
   const [wanted, setWanted] = useState(false);
-  const src = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, wanted);
+  const box = useRef(null);
+  const { near } = useNearView(box);
+  const load = useAutoLoad('file', media.size);
+  const src = useUrl(
+    api,
+    'telegramFileUrl',
+    { chat, id: msgId },
+    wanted || (near && load.allowed)
+  );
   useEffect(() => {
-    if (src) {
+    if (src && wanted) {
       saveUrl(src, media.filename || '');
     }
-  }, [src]);
+  }, [src, wanted]);
   const label = media.filename || media.mimeType || t('chat.document');
   // Another network's attachment opens where that network keeps it.
   const href = /^https:\/\//.test(media.url ?? '') ? media.url : null;
@@ -446,7 +544,15 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
     el('span', { key: 'n', className: 'file-lines' }, [
       el('span', { key: 'n', className: 'bubble-doc-name' }, label),
       media.size
-        ? el('span', { key: 's', className: 'file-size' }, sizeOf(media.size))
+        ? el(
+            'span',
+            {
+              key: 's',
+              className: 'file-size',
+              'data-download': load.auto || src ? undefined : 'manual',
+            },
+            sizeOf(media.size)
+          )
         : null,
     ]),
   ];
@@ -465,6 +571,7 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
   return el(
     'button',
     {
+      ref: box,
       type: 'button',
       className: 'bubble-doc',
       disabled: !msgId || wanted,

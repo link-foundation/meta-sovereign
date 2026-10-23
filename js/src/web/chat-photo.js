@@ -10,6 +10,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
+import { useAutoLoad } from './auto-download.js';
+import { Icon } from './icons.js';
 
 const el = React.createElement;
 
@@ -25,6 +27,15 @@ export const photoBox = (media, max = PHOTO_MAX_PX) => {
   return { width: `${width}px`, maxWidth: '100%', aspectRatio: String(ratio) };
 };
 
+/** A photo's biggest size in bytes (0 when not known). */
+export const photoBytes = (media) =>
+  Math.max(0, ...(media?.sizes ?? []).map((s) => Number(s.size) || 0));
+
+const bytesText = (bytes) =>
+  bytes >= 1024 * 1024
+    ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+    : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
 // A lazy-loading photo that shows the stripped thumbnail immediately
 // and fetches the real one when scrolled near view.
 export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
@@ -33,6 +44,9 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
   const [src, setSrc] = useState(null);
   const [failed, setFailed] = useState(false);
   const [open, setOpen] = useState(false);
+  // R-Y181: a photo the settings do not allow waits for a click.
+  const load = useAutoLoad('photo');
+  const bytes = photoBytes(media);
   const strippedUrl =
     !failed && media?.strippedB64
       ? strippedJpegDataUrl(media.strippedB64)
@@ -40,7 +54,7 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
 
   useEffect(() => {
     const el2 = ref.current;
-    if (!el2 || !api?.telegramMediaUrl || !chat || !msgId) {
+    if (!el2 || !api?.telegramMediaUrl || !chat || !msgId || !load.allowed) {
       return undefined;
     }
     const Observer = globalThis.IntersectionObserver;
@@ -67,7 +81,7 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
       active = false;
       obs.disconnect();
     };
-  }, [api, chat, msgId]);
+  }, [api, chat, msgId, load.allowed]);
 
   const imgSrc = src || strippedUrl;
   const blurred = !src && Boolean(strippedUrl);
@@ -83,10 +97,25 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
       role: 'button',
       tabIndex: 0,
       'aria-label': t('chat.openMedia'),
-      onClick: () => imgSrc && setOpen(true),
-      onKeyDown: (e) => e.key === 'Enter' && imgSrc && setOpen(true),
+      'data-download': load.allowed ? undefined : 'manual',
+      onClick: () => (load.allowed ? imgSrc && setOpen(true) : load.ask()),
+      onKeyDown: (e) =>
+        e.key === 'Enter' &&
+        (load.allowed ? imgSrc && setOpen(true) : load.ask()),
     },
     [
+      load.allowed
+        ? null
+        : el('span', { key: 'get', className: 'media-play media-download' }, [
+            el(Icon, { key: 'i', name: 'download', size: 22 }),
+            bytes
+              ? el(
+                  'span',
+                  { key: 's', className: 'media-size' },
+                  bytesText(bytes)
+                )
+              : null,
+          ]),
       imgSrc
         ? el('img', {
             key: 'img',

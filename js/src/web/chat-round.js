@@ -8,7 +8,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { mediaSrc } from './media-src.js';
-import { Poster, clockOf, useNearView, useUrl } from './chat-media.js';
+import { Poster, clockOf, sizeOf, useNearView, useUrl } from './chat-media.js';
+import { Icon } from './icons.js';
+import { useAutoLoad } from './auto-download.js';
 import { Transcribable, useTranscribe } from './chat-transcribe.js';
 import { PipButton, inPip, usePip } from './chat-pip.js';
 
@@ -86,7 +88,15 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
     { chat, id: msgId, size: 'm' },
     near && media.hasThumb
   );
-  const file = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, near);
+  // R-Y181: the video comes by itself when the settings allow it, else on
+  // the first click, the circle showing a download button with its size.
+  const load = useAutoLoad('voice', media.size);
+  const file = useUrl(
+    api,
+    'telegramFileUrl',
+    { chat, id: msgId },
+    near && load.allowed
+  );
   const { ref, onTime } = useRoundVideo({
     mode,
     visible,
@@ -95,7 +105,10 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
     length: media.duration,
   });
   const pip = usePip(ref, Boolean(file));
-  const toggle = () => setMode(nextMode);
+  const toggle = () => {
+    load.ask();
+    setMode(nextMode);
+  };
   const onEnd = () => {
     setMode('idle');
     setProgress(0);
@@ -109,6 +122,7 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
       ref: box,
       className: `bubble-round${mode === 'playing' ? ' playing' : ''}`,
       'data-round': mode,
+      'data-download': load.allowed ? undefined : 'manual',
       role: 'button',
       tabIndex: 0,
       'aria-label': t(
@@ -133,6 +147,18 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
             onEnded: onEnd,
           })
         : null,
+      load.allowed
+        ? null
+        : el('span', { key: 'get', className: 'media-play media-download' }, [
+            el(Icon, { key: 'i', name: 'download', size: 22 }),
+            media.size
+              ? el(
+                  'span',
+                  { key: 's', className: 'media-size' },
+                  sizeOf(media.size)
+                )
+              : null,
+          ]),
       mode === 'idle'
         ? null
         : el(

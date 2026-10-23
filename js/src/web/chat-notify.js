@@ -9,6 +9,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { chatPreview } from './chat-list.js';
+import { SOUND_KEY, playNotifySound, soundOf } from './notify-sound.js';
 import {
   getNotifyRules,
   loadNotifyRules,
@@ -176,7 +177,11 @@ export const useNotifications = ({ chats, current, show, t, api }) => {
       return;
     }
     const preview = readPref(NOTIFY_PREVIEW_KEY, true);
+    const sounds = readPref(SOUND_KEY, true);
     for (const chat of found.fresh) {
+      if (sounds) {
+        playNotifySound(api, soundOf(chat, rules));
+      }
       const { title, body } = notificationOf(
         t,
         chat,

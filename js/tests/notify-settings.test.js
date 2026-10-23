@@ -110,7 +110,7 @@ test('global settings are read for each peer type', async () => {
     ['InputNotifyUsers', 'InputNotifyChats', 'InputNotifyBroadcasts']
   );
   const asked = log.find((r) => r.className === 'GetNotifyExceptions');
-  assert.equal(asked.compareSound, false);
+  assert.equal(asked.compareSound, true);
 });
 
 test('turning a peer type off writes muteUntil max, keeping the rest', async () => {
@@ -206,6 +206,7 @@ test('exceptions are mapped with names, scope and state', async () => {
     muteUntil: 0,
     forever: false,
     previews: null,
+    sound: 'default',
   });
   assert.equal(list[1].chat, '-1005');
   assert.equal(list[1].scope, 'broadcasts');

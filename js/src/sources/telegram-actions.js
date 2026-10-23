@@ -82,6 +82,7 @@ import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createChatReactions } from './telegram-chat-reactions.js';
 import { createChatSettings } from './telegram-chat-settings.js';
 import { createNotifySettings } from './telegram-notify-settings.js';
+import { createRingtones } from './telegram-ringtones.js';
 import { createPinnedOrder } from './telegram-pinned-order.js';
 import { createCalls } from './telegram-calls.js';
 import { createQuickReplies } from './telegram-quick-replies.js';
@@ -437,7 +438,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // Business quick replies, greeting and away messages (R-Y179); live view
 // counters of channel posts and hashtag search (R-Y182); Telegram Business
 // opening hours, location, intro, chat links, chatbots and folder tags
-// (R-Y180).
+// (R-Y180); notification sounds (R-Y181).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -498,6 +499,7 @@ const chatActions = (env, context) => {
     ...createChatSettings(env, context),
     ...createWallpapers(env, context),
     ...createNotifySettings(env, context),
+    ...createRingtones(env, withUploads),
     ...createPinnedOrder(env, context),
     ...createCalls(env, context),
     ...createQuickReplies(env, context),

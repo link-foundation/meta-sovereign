@@ -18,6 +18,10 @@
  * - `notifyChatSet({ chat, mute, previews, reset })` — a chat's own: `mute`
  *   'off', 'forever' or seconds; `previews` 'default', 'on' or 'off';
  *   `reset` sends empty settings so the chat follows the global ones.
+ * A chat's sound (R-Y181): `notifyChat` answers `sound` — 'default', 'none'
+ * or a saved ringtone's id — and `notifyChatSet({ sound })` sets it
+ * (NotificationSoundDefault is no sound field, NotificationSoundNone,
+ * NotificationSoundRingtone); exceptions carry it too.
  * Layer 225 has no per-chat flag for pinned messages or for mentions, so
  * neither is offered; stories are muted by `storiesMuted`.
  * Telegram's errors become codes the page shows as text.
@@ -77,6 +81,18 @@ const keptFields = (settings = {}) => {
   return fields;
 };
 
+/** A NotificationSound as 'default', 'none' or a ringtone's id. */
+export const soundText = (sound) => {
+  if (sound?.className === 'NotificationSoundNone') {
+    return 'none';
+  }
+  return sound?.className === 'NotificationSoundRingtone'
+    ? text(sound.id)
+    : 'default';
+};
+
+const SOUND = /^(default|none|\d{1,20})$/;
+
 const without = (fields, key) =>
   Object.fromEntries(Object.entries(fields).filter(([k]) => k !== key));
 
@@ -134,6 +150,7 @@ export const exceptionOf = (result, update, nowMs = Date.now()) => {
     muteUntil: state === 'muted' ? until : 0,
     forever: state === 'muted' && until * 1000 - nowMs > FOREVER_MS,
     previews: bool(settings.showPreviews) ?? null,
+    sound: soundText(settings.otherSound),
   };
 };
 
@@ -145,8 +162,14 @@ const muteOf = (mute, nowMs) => {
 };
 
 /** A chat's change over what it has: the fields to write. */
-export const chatFields = (current, { mute, previews }, nowMs) => {
+export const chatFields = (current, body, nowMs, makeSound) => {
+  const { mute, previews, sound } = body;
   let fields = keptFields(current);
+  if (sound === 'default') {
+    fields = without(fields, 'sound');
+  } else if (sound !== undefined && makeSound) {
+    fields = { ...fields, sound: makeSound(sound) };
+  }
   if (mute !== undefined) {
     fields = { ...fields, muteUntil: muteOf(mute, nowMs) };
   }
@@ -166,12 +189,18 @@ const validMute = (v) =>
 const validPreviews = (v) =>
   v === undefined || v === 'default' || v === 'on' || v === 'off';
 
+const validSound = (v) => v === undefined || SOUND.test(String(v));
+
 export const validChatChange = (b = {}) =>
   CHAT.test(String(b.chat ?? '')) &&
   (b.reset === undefined || typeof b.reset === 'boolean') &&
   validMute(b.mute) &&
   validPreviews(b.previews) &&
-  (b.reset === true || b.mute !== undefined || b.previews !== undefined);
+  validSound(b.sound) &&
+  (b.reset === true ||
+    b.mute !== undefined ||
+    b.previews !== undefined ||
+    b.sound !== undefined);
 
 export const validScopeChange = (b = {}) =>
   SCOPES.includes(b.scope) &&
@@ -218,7 +247,7 @@ export const createNotifySettings = (env, { userClient }) => {
           );
         }
         const result = await c.client.invoke(
-          new c.Api.account.GetNotifyExceptions({ compareSound: false })
+          new c.Api.account.GetNotifyExceptions({ compareSound: true })
         );
         const exceptions = (result?.updates ?? [])
           .filter((u) => u.className === 'UpdateNotifySettings')
@@ -250,13 +279,22 @@ export const createNotifySettings = (env, { userClient }) => {
       exception:
         settings.showPreviews !== undefined ||
         settings.muteUntil !== undefined ||
-        settings.silent !== undefined,
+        settings.silent !== undefined ||
+        soundText(settings.otherSound ?? settings.sound) !== 'default',
       muteUntil: until * 1000 > nowMs ? until : 0,
       forever: until * 1000 - nowMs > FOREVER_MS,
       previews: bool(settings.showPreviews) ?? null,
       stories: settings.storiesMuted !== true,
+      sound: soundText(settings.otherSound ?? settings.sound),
     };
   };
+
+  const makeSound = (c) => (sound) =>
+    sound === 'none'
+      ? new c.Api.NotificationSoundNone()
+      : new c.Api.NotificationSoundRingtone({
+          id: c.helpers.returnBigInt(sound),
+        });
 
   const withNotifyPeer = (c, chat, use) =>
     env.connection.withPeer(c.client, chat, (peer) =>
@@ -286,7 +324,7 @@ export const createNotifySettings = (env, { userClient }) => {
         const fields = await withNotifyPeer(c, id, async (peer) => {
           const next = body.reset
             ? {}
-            : chatFields(await read(c, peer), body, nowMs);
+            : chatFields(await read(c, peer), body, nowMs, makeSound(c));
           await write(c, peer, next);
           return next;
         });

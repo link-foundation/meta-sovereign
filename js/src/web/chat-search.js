@@ -181,7 +181,12 @@ const useFindKey = (enabled, open) => {
       return undefined;
     }
     const onKey = (e) => {
-      if ((e.ctrlKey || e.metaKey) && !e.altKey && fold(e.key) === 'f') {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        !e.altKey &&
+        !e.shiftKey &&
+        fold(e.key) === 'f'
+      ) {
         e.preventDefault();
         latest.current();
       }

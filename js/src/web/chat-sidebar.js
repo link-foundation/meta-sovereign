@@ -9,6 +9,7 @@ import { useT } from './i18n.js';
 import { CHAT_FILTERS, CHAT_SORTS, groupChats } from './chat-model.js';
 import { Notice } from './notice.js';
 import { ArchiveHead, ArchiveItem, ChatItem } from './chat-list.js';
+import { ShortcutsButton } from './shortcuts.js';
 import { useChatListMenu } from './chat-list-menu.js';
 import { usePinnedOrder } from './chat-pin-order.js';
 import { NewChat } from './chat-create.js';
@@ -334,6 +335,7 @@ export const Sidebar = ({ state, api }) => {
           : null,
         globalOn(state) ? el(MyProfile, { key: 'me', api }) : null,
         el(CallsButton, { key: 'calls', api, state }),
+        el(ShortcutsButton, { key: 'keys', onOpen: state.openShortcuts }),
       ]),
       el('input', {
         key: 'q',
@@ -343,6 +345,16 @@ export const Sidebar = ({ state, api }) => {
         'aria-label': t('chat.search'),
         value: state.query,
         onChange: (event) => state.setQuery(event.target.value),
+        // Esc empties the search, then leaves it (R-Y183).
+        onKeyDown: (event) => {
+          if (event.key === 'Escape') {
+            if (state.query) {
+              state.setQuery('');
+            } else {
+              event.target.blur();
+            }
+          }
+        },
       }),
       el(FilterTabs, { key: 'f', state }),
       el(StoriesStrip, {

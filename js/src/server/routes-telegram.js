@@ -206,6 +206,7 @@ import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { QUICK_REPLY_POSTS } from './routes-telegram-quick-replies.js';
 import { HASHTAG_POSTS } from './routes-telegram-hashtags.js';
+import { RINGTONE_GETS, RINGTONE_POSTS } from './routes-telegram-ringtones.js';
 import { SAVED_GIFS_POSTS } from './routes-telegram-saved-gifs.js';
 import { FORUM_VIEW_POSTS } from './routes-telegram-forum-view.js';
 import { TRANSCRIBE_POSTS } from './routes-telegram-transcribe.js';
@@ -977,6 +978,7 @@ const POSTS = {
   ...ADMIN_POSTS,
   ...QUICK_REPLY_POSTS,
   ...HASHTAG_POSTS,
+  ...RINGTONE_POSTS,
   ...SAVED_GIFS_POSTS,
   ...FORUM_VIEW_POSTS,
   ...TRANSCRIBE_POSTS,
@@ -1305,7 +1307,7 @@ POSTS['send-poll'] = async (account, body) => {
   ];
 };
 
-const ALL_GETS = { ...GETS, ...WALLPAPER_GETS };
+const ALL_GETS = { ...GETS, ...WALLPAPER_GETS, ...RINGTONE_GETS };
 
 const dispatch = async (account, req, res, p, ctx) => {
   if (p === `${PREFIX}status` && req.method === 'GET') {
