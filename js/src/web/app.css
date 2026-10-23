@@ -10856,3 +10856,129 @@ button.profile-username.is-collectible {
   gap: 8px;
   margin-top: 12px;
 }
+
+/* Private one-to-one voice calls (R-Y196): the call button in a private
+   chat's header, and the call window / incoming notification that floats
+   over the page (a portal to the body). */
+.chat-call {
+  flex: none;
+}
+.private-call-window {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: min(20rem, calc(100vw - 2rem));
+  padding: 1rem;
+  color: var(--text);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 1.5);
+  box-shadow: 0 8px 32px var(--shadow);
+  text-align: center;
+}
+.private-call-avatar {
+  width: 4rem;
+  height: 4rem;
+}
+.private-call-name {
+  font-size: 1.1rem;
+}
+.private-call-status,
+.private-call-clock {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.private-call-key {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.private-call-emoji {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+.private-call-key small,
+.private-call-media,
+.private-call-window small {
+  color: var(--text-subtle);
+}
+.private-call-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.private-call-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: var(--control-h);
+  padding: 0 0.875rem;
+  color: var(--text);
+  background: var(--bg-active);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.private-call-btn[aria-pressed='true'] {
+  background: var(--accent-bg);
+}
+.private-call-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.private-call-btn.accept {
+  color: #fff;
+  background: var(--accent);
+  border-color: transparent;
+}
+.private-call-btn.end {
+  color: #fff;
+  background: var(--danger);
+  border-color: transparent;
+}
+.private-call-btn.end svg {
+  transform: rotate(135deg);
+}
+.private-call-rate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+.private-call-rate textarea {
+  width: 100%;
+  min-height: 3.5rem;
+  color: var(--text);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.private-call-stars {
+  display: flex;
+  gap: 0.25rem;
+}
+.private-call-star {
+  padding: 0 0.125rem;
+  font-size: 1.75rem;
+  color: var(--text-subtle);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.private-call-star.on {
+  color: #e3b341;
+}
+.private-call-window.phase-error {
+  flex-direction: row;
+  justify-content: space-between;
+}

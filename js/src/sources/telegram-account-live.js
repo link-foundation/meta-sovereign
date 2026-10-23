@@ -367,6 +367,18 @@ const pinWriter = async (store, { chat, ids, pinned }) => {
   return changed;
 };
 
+// Effects that name no one chat.
+const MANY_CHATS = new Set([
+  'delete',
+  'pinned-order',
+  'folders',
+  'folders-live',
+  'poll',
+  'group-call',
+  'group-call-people',
+  'phone-call',
+]);
+
 /**
  * Apply live updates to the store.
  *   toLinks(dialog, messages)  the sync's message mapping
@@ -380,6 +392,8 @@ export const createTelegramLive = ({
   touch = async () => {},
   log = () => {},
   now = () => Date.now(),
+  // A private call's update goes to the call machine (R-Y196).
+  onPhoneCall = async () => {},
 }) => {
   const entityOf = (entities, id) =>
     id === null || id === undefined
@@ -461,17 +475,6 @@ export const createTelegramLive = ({
     onTyping,
   } = chatStateWriters({ store, now });
 
-  // Effects that name no one chat.
-  const MANY_CHATS = new Set([
-    'delete',
-    'pinned-order',
-    'folders',
-    'folders-live',
-    'poll',
-    'group-call',
-    'group-call-people',
-  ]);
-
   // What each kind of effect writes; true when the chat needs a refresh.
   const writers = {
     message: (client, effect) => {
@@ -494,6 +497,10 @@ export const createTelegramLive = ({
     transcript: (_client, effect) => transcriptWriter(store, effect, now),
     'group-call': (_c, effect) => groupCallWriter(store, now, effect),
     'group-call-people': (_c, effect) => groupCallWriter(store, now, effect),
+    'phone-call': async (client, effect) => {
+      await onPhoneCall(client, effect);
+      return false;
+    },
   };
 
   const apply = async (client, effect) => {

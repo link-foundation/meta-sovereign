@@ -37,6 +37,7 @@ import { useReplyTargets } from './chat-replies.js';
 import { useChatInfo } from './chat-info.js';
 import { requestsLinkOf } from './chat-join-requests.js';
 import { callLinkOf } from './voice-chat-model.js';
+import { callLinkOf as privateCallLinkOf } from './private-call-model.js';
 import { isTypingActive } from '../sources/live-links.js';
 import {
   useChatWindow,
@@ -1060,6 +1061,8 @@ export const useChatState = (
     joinRequests: requestsLinkOf(links, current),
     // The chat's voice chat, live (R-Y188).
     groupCall: callLinkOf(links, current),
+    // A private call, live (R-Y196).
+    privateCall: privateCallLinkOf(links),
     pinned: pinnedOf(messages, pinnedId, replyTargets),
     ...opening,
     messages,

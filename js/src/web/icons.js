@@ -267,6 +267,15 @@ const ICONS = {
     ['path', { d: 'M19 10v2a7 7 0 0 1-14 0v-2' }],
     ['rect', { x: 9, y: 2, width: 6, height: 13, rx: 3 }],
   ],
+  // Lucide phone: placing, taking and ending a private call (R-Y196).
+  phone: [
+    [
+      'path',
+      {
+        d: 'M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384',
+      },
+    ],
+  ],
   // Lucide video: recording a round video (R-Y150).
   camera: [
     [

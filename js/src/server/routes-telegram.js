@@ -238,6 +238,7 @@ import {
 import { PROXY_POSTS } from './routes-telegram-proxy.js';
 import { NOTIFY_SETTINGS_POSTS } from './routes-telegram-notify-settings.js';
 import { CALLS_POSTS } from './routes-telegram-calls.js';
+import { PRIVATE_CALL_POSTS } from './routes-telegram-private-call.js';
 import { EFFECTS_POSTS, validEffect } from './routes-telegram-effects.js';
 import { EMOJI_STATUS_POSTS } from './routes-telegram-emoji-status.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
@@ -1026,6 +1027,7 @@ const POSTS = {
   ...WALLPAPER_POSTS,
   ...NOTIFY_SETTINGS_POSTS,
   ...CALLS_POSTS,
+  ...PRIVATE_CALL_POSTS,
   ...EFFECTS_POSTS,
   ...EMOJI_STATUS_POSTS,
   ...ROUND_POSTS,

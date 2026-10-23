@@ -281,7 +281,9 @@
     "test:e2e:wallpapers": "node js/tests/e2e-wallpapers-browser.mjs",
     "test:e2e:wallpapers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-wallpapers-browser.mjs",
     "test:e2e:calls": "node js/tests/e2e-calls-browser.mjs",
-    "test:e2e:calls:webkit": "E2E_BROWSER=webkit node js/tests/e2e-calls-browser.mjs"
+    "test:e2e:calls:webkit": "E2E_BROWSER=webkit node js/tests/e2e-calls-browser.mjs",
+    "test:e2e:private-call": "node js/tests/e2e-private-call-browser.mjs",
+    "test:e2e:private-call:webkit": "E2E_BROWSER=webkit node js/tests/e2e-private-call-browser.mjs"
   },
   "keywords": [
     "personal-crm",

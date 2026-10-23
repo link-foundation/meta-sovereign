@@ -26,6 +26,13 @@ export const TELEGRAM_CALLS = {
   telegramCallJoin: body('call-join'),
   telegramCallLeave: body('call-leave'),
   telegramCallSelf: body('call-self'),
+  // Private one-to-one voice calls (R-Y196): placed, accepted, ended and
+  // rated only on a click; the call itself arrives as a live link.
+  telegramPrivateCallStart: body('private-call-start'),
+  telegramPrivateCallAccept: body('private-call-accept'),
+  telegramPrivateCallDiscard: body('private-call-discard'),
+  telegramPrivateCallRate: body('private-call-rate'),
+  telegramPrivateCallState: none('private-call-state'),
   // Managing the topics (R-Y153).
   telegramTopicIcons: none('topic-icons'),
   telegramTopicCreate: body('topic-create'),

@@ -35,6 +35,9 @@
  *                                                 (call null; chat may be
  *                                                 null: found by id, R-Y188)
  *   { kind: 'group-call-people', id }             its participants changed
+ *   { kind: 'phone-call', phoneCall, entities }   a private call moved: the
+ *                                                 raw PhoneCall for the call
+ *                                                 machine (R-Y196)
  *
  * Chat ids are GramJS "marked" peer ids, the same ones dialogs use: a
  * user's id, `-<id>` for a basic group, `-100<id>` for a channel or
@@ -211,6 +214,12 @@ const SIMPLE_EFFECTS = {
     id: text(u.call?.id),
     call: shapeCall(u.call),
   }),
+  // A private call's state moved (R-Y196); the machine reads the raw
+  // PhoneCall. Its signalling data is not used (no media in a browser).
+  UpdatePhoneCall: (u) =>
+    u.phoneCall
+      ? { kind: 'phone-call', phoneCall: u.phoneCall, entities: u._entities }
+      : null,
   UpdateGroupCallParticipants: (u) => ({
     kind: 'group-call-people',
     id: text(u.call?.id),

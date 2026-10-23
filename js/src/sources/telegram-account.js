@@ -1287,6 +1287,7 @@ export const createTelegramAccount = ({
     toLinks: telegramDialogLinks,
     log,
     now,
+    onPhoneCall: (client, effect) => env.phoneCalls?.handle(client, effect),
     // Pollers (no event stream) look at `changedAt` to know to refresh.
     touch: () =>
       recordSync(store, { changedAt: new Date(now()).toISOString() }),

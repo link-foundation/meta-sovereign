@@ -39,6 +39,10 @@ export const EVENT_PREFIXES = Object.freeze([
   'automation-autopilot:',
   // How far a chat's history export is (R-Y186): the dialog follows it.
   'export:',
+  // A private call's state (R-Y196): the call window follows it.
+  'phonecall:',
+  // A chat's voice chat or live stream (R-Y188): its bar and window follow it.
+  'groupcall:',
 ]);
 
 export const isStreamedId = (id) =>

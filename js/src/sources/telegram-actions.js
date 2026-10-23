@@ -90,6 +90,7 @@ import { createNotifySettings } from './telegram-notify-settings.js';
 import { createRingtones } from './telegram-ringtones.js';
 import { createPinnedOrder } from './telegram-pinned-order.js';
 import { createCalls } from './telegram-calls.js';
+import { createPrivateCall } from './telegram-private-call.js';
 import { createQuickReplies } from './telegram-quick-replies.js';
 import { createBusinessMessages } from './telegram-business-messages.js';
 import { createShareMedia } from './telegram-share-media.js';
@@ -461,7 +462,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // interface scale and the connection proxy (R-Y192); channel direct messages
 // and suggested posts (R-Y191); popular mini apps, similar bots, prepared
 // messages and collectible usernames (R-Y194); managing received and unique
-// gifts and gift codes (R-Y193).
+// gifts and gift codes (R-Y193); private one-to-one calls (R-Y196).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -532,6 +533,7 @@ const chatActions = (env, context) => {
     ...createRingtones(env, withUploads),
     ...createPinnedOrder(env, context),
     ...createCalls(env, context),
+    ...createPrivateCall(env, context),
     ...createQuickReplies(env, context),
     ...createBusinessMessages(env, context),
     ...createShareMedia(env, context),

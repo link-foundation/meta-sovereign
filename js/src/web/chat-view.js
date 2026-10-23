@@ -14,6 +14,11 @@
 
 import { PeerBar } from './chat-peer-actions.js';
 import { VoiceChatBar } from './chat-voice-chat.js';
+import {
+  CallButton,
+  PrivateCallHost,
+  usePrivateCall,
+} from './chat-private-call.js';
 import { PinnedBar } from './chat-pinned.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
@@ -313,6 +318,7 @@ const Header = ({
   find,
   saved,
   forumView,
+  call,
 }) => {
   const t = useT();
   const { chatTime } = useDates();
@@ -366,6 +372,8 @@ const Header = ({
           : subtitleOf(t, state, chatTime)
       ),
     ]),
+    // "Call" in a private chat (R-Y196).
+    el(CallButton, { key: 'call', state, call }),
     el(SearchButton, { key: 'find', find }),
     el(SavedToggle, { key: 'saved', saved }),
     // View as messages / View as topics in a forum (R-Y171).
@@ -1065,7 +1073,7 @@ const Composer = ({ state, api, keys }) => {
 // The header, and beside the messages what the conversation tells about
 // the person, open until closed (in every personal chat, as Telegram's
 // profile column).
-const ChatTop = ({ state, api, onBack, saved, forumView }) => {
+const ChatTop = ({ state, api, onBack, saved, forumView, call }) => {
   const [about, setAbout] = useState(false);
   const chat = about && hasAbout(state.current) ? state.current : null;
   const find = useChatSearch({
@@ -1085,6 +1093,7 @@ const ChatTop = ({ state, api, onBack, saved, forumView }) => {
       find,
       saved,
       forumView,
+      call,
     }),
     el(SearchBar, { key: 'find', find }),
     chat
@@ -1162,6 +1171,10 @@ export const ChatScreen = ({ state, api }) => {
     setPane('chat');
   };
   const [select] = useState(() => (key) => latest.current(key));
+  // A private call, placed from the header or rung in (R-Y196).
+  const privateCall = usePrivateCall(api, state.privateCall, (user) =>
+    state.chatName?.(`telegram:${user}`)
+  );
   // Desktop's keyboard shortcuts and their list (R-Y183).
   const [help, setHelp] = useState(false);
   useScreenShortcuts({ state, select, setPane, setHelp });
@@ -1193,6 +1206,8 @@ export const ChatScreen = ({ state, api }) => {
           open: help,
           close: () => setHelp(false),
         }),
+        // The call window and an incoming call's notification (R-Y196).
+        el(PrivateCallHost, { key: 'private-call', api, state: privateCall }),
         // A clicked #hashtag or $cashtag searches (R-Y182).
         el(TagSearchHost, { key: 'tag-search', api, state }),
         state.current
@@ -1208,6 +1223,7 @@ export const ChatScreen = ({ state, api }) => {
                     onBack: () => setPane('list'),
                     saved,
                     forumView,
+                    call: privateCall,
                   }),
               // A forum's topics, as Telegram's tabs layout (R-Y122).
               el(TopicTabs, {
