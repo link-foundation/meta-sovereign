@@ -122,21 +122,33 @@ test('0002 dry run counts and writes nothing', async () => {
 });
 
 const SOURCES = new URL('../src/sources/index.js', import.meta.url).href;
+// The child reports its own zone offset: Deno on Windows ignores TZ, so the
+// fixed instants are asserted only where the zone took effect (R-Z6).
 const parseIn = (zone) =>
   JSON.parse(
     runModuleScript(
       `const { getSource } = await import(${JSON.stringify(SOURCES)});
        const links = await getSource('whatsapp').parseArchive('12/10/2026, 14:32 - Anna: hi\\n1/3/2026, 23:30 - Anna: late');
-       console.log(JSON.stringify(links.map((l) => l.timestamp)));`,
+       console.log(JSON.stringify({
+         stamps: links.map((l) => l.timestamp),
+         local: new Date(2026, 9, 12, 14, 32, 0).toISOString(),
+         offset: new Date(2026, 9, 12).getTimezoneOffset(),
+       }));`,
       { env: { TZ: zone } }
     )
   );
 
 test('export times are read in the machine time zone, not UTC', () => {
-  const [bangkok] = parseIn('Asia/Bangkok');
-  assert.equal(bangkok, '2026-10-12T07:32:00.000Z');
-  const [utc] = parseIn('UTC');
-  assert.equal(utc, '2026-10-12T14:32:00.000Z');
-  const [la] = parseIn('America/Los_Angeles');
-  assert.equal(la, '2026-10-12T21:32:00.000Z');
+  const zones = [
+    ['Asia/Bangkok', -420, '2026-10-12T07:32:00.000Z'],
+    ['UTC', 0, '2026-10-12T14:32:00.000Z'],
+    ['America/Los_Angeles', 420, '2026-10-12T21:32:00.000Z'],
+  ];
+  for (const [zone, offset, instant] of zones) {
+    const out = parseIn(zone);
+    assert.equal(out.stamps[0], out.local, zone);
+    if (out.offset === offset) {
+      assert.equal(out.stamps[0], instant, zone);
+    }
+  }
 });
