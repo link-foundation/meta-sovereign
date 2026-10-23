@@ -827,4 +827,19 @@ export const ruChat = {
   'chat.privacy.err.user-invalid': 'Этого пользователя нельзя разблокировать.',
   'chat.privacy.err.flood': 'Слишком много попыток. Подождите и повторите.',
   'chat.privacy.err.failed': 'Что-то пошло не так. Повторите попытку.',
+  'chat.inline.label': 'Ответы встроенного бота',
+  'chat.inline.more': 'Показать ещё',
+  'chat.inline.loading': 'Спрашиваем бота…',
+  'chat.inline.empty': 'Ничего не найдено',
+  'chat.inline.err.bot-inline-disabled':
+    'Этот бот не работает во встроенном режиме.',
+  'chat.inline.err.bot-timeout': 'Бот не ответил вовремя.',
+  'chat.inline.err.inline-forbidden': 'Нельзя отправлять такое в этом чате.',
+  'chat.inline.err.write-forbidden': 'В этом чате нельзя писать.',
+  'chat.inline.err.expired':
+    'Ответы устарели. Измените слова и попробуйте снова.',
+  'chat.inline.err.no-access': 'Этот чат вам недоступен.',
+  'chat.inline.err.flood-wait':
+    'Слишком много попыток. Подождите и попробуйте снова.',
+  'chat.inline.err.failed': 'Не удалось спросить бота. Попробуйте ещё раз.',
 };

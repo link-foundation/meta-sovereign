@@ -814,4 +814,17 @@ export const enChat = {
   'chat.privacy.err.user-invalid': 'This user cannot be unblocked.',
   'chat.privacy.err.flood': 'Too many tries. Wait a while and try again.',
   'chat.privacy.err.failed': 'Something went wrong. Try again.',
+  'chat.inline.label': 'Inline bot results',
+  'chat.inline.more': 'Load more',
+  'chat.inline.loading': 'Asking the bot…',
+  'chat.inline.empty': 'Nothing found',
+  'chat.inline.err.bot-inline-disabled': 'This bot does not work inline.',
+  'chat.inline.err.bot-timeout': 'The bot did not answer in time.',
+  'chat.inline.err.inline-forbidden': 'You cannot send these in this chat.',
+  'chat.inline.err.write-forbidden': 'You cannot write in this chat.',
+  'chat.inline.err.expired':
+    'These results have expired. Change the words and try again.',
+  'chat.inline.err.no-access': 'This chat is not available to you.',
+  'chat.inline.err.flood-wait': 'Too many tries. Wait a while and try again.',
+  'chat.inline.err.failed': 'The bot could not be asked. Try again.',
 };

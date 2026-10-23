@@ -819,4 +819,18 @@ export const hiChat = {
     'इस उपयोगकर्ता को अनब्लॉक नहीं किया जा सकता।',
   'chat.privacy.err.flood': 'बहुत अधिक प्रयास। थोड़ी देर रुककर फिर कोशिश करें।',
   'chat.privacy.err.failed': 'कुछ गड़बड़ हो गई। फिर कोशिश करें।',
+  'chat.inline.label': 'इनलाइन बॉट के नतीजे',
+  'chat.inline.more': 'और दिखाएँ',
+  'chat.inline.loading': 'बॉट से पूछा जा रहा है…',
+  'chat.inline.empty': 'कुछ नहीं मिला',
+  'chat.inline.err.bot-inline-disabled': 'यह बॉट इनलाइन मोड में काम नहीं करता।',
+  'chat.inline.err.bot-timeout': 'बॉट ने समय पर जवाब नहीं दिया।',
+  'chat.inline.err.inline-forbidden': 'इस चैट में यह भेजना मना है।',
+  'chat.inline.err.write-forbidden': 'आप इस चैट में नहीं लिख सकते।',
+  'chat.inline.err.expired':
+    'ये नतीजे पुराने हो गए हैं। शब्द बदलकर फिर कोशिश करें।',
+  'chat.inline.err.no-access': 'यह चैट आपके लिए उपलब्ध नहीं है।',
+  'chat.inline.err.flood-wait':
+    'बहुत ज़्यादा कोशिशें। कुछ देर रुककर फिर कोशिश करें।',
+  'chat.inline.err.failed': 'बॉट से पूछा नहीं जा सका। फिर कोशिश करें।',
 };

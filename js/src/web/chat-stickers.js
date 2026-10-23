@@ -110,7 +110,7 @@ const useStickerUrl = (api, args, when) => {
 
 // A sticker's or GIF's picture once near the view; a video one plays
 // while on screen, as Telegram's panel.
-const Picture = ({ api, item }) => {
+export const Picture = ({ api, item }) => {
   const ref = useRef(null);
   const { near, visible } = useNearView(ref);
   const picture = useStickerUrl(api, { id: item.id }, near);

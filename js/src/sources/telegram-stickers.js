@@ -38,6 +38,7 @@ import path from 'node:path';
 import { pickSize } from './telegram-media.js';
 import { DICE, randomIdOf, replyHeader, sendError } from './telegram-send.js';
 import { createStickerSearch } from './telegram-sticker-search.js';
+import { createInlineBots } from './telegram-inline-bots.js';
 
 const LISTS_MS = 10 * 60_000;
 const SET_MS = 60 * 60_000;
@@ -675,6 +676,7 @@ export const createStickers = (
     stickerSet: lists.stickerSet,
     savedGifs: lists.savedGifs,
     ...createStickerSearch(env, { userClient, lists, now }),
+    ...createInlineBots(env, { userClient, apply, lists, now }),
     stickerPicture: createPictures(env, { userClient, mediaDir }, lists),
     sendDocument: createSender(env, { userClient, apply }, lists),
     stickerSave: createSaver(env, { userClient }, lists),

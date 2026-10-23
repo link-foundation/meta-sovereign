@@ -17,6 +17,7 @@
  */
 
 import { connect, panelSet, runIn } from './telegram-stickers.js';
+import { inputBot, resolveBotUser } from './telegram-inline-bots.js';
 
 const SEARCH_MS = 10 * 60_000;
 const KEEP = 40;
@@ -93,22 +94,13 @@ const findStickers = async (c, q, lang) => {
   };
 };
 
-// Telegram's @gif bot, found once.
+// Telegram's @gif bot, found once (the lookup inline bots share).
 const createGifBot = (c) => {
   let bot = null;
   return async () => {
     if (!bot) {
-      const answer = await c.client.invoke(
-        new c.Api.contacts.ResolveUsername({ username: 'gif' })
-      );
-      const user = (answer?.users ?? [])[0];
-      if (!user?.bot) {
-        return null;
-      }
-      bot = new c.Api.InputUser({
-        userId: user.id,
-        accessHash: user.accessHash,
-      });
+      const user = await resolveBotUser(c, 'gif');
+      bot = user ? inputBot(c, user) : null;
     }
     return bot;
   };

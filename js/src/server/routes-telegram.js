@@ -148,6 +148,14 @@
  *                       phone, replyTo?, silent?, scheduleDate?, clientId?}
  *                       -> { ok } one of our contacts by id (its phone read
  *                       server-side) or a typed name and phone
+ *   POST /api/telegram/inline-bot {username} -> { ok, bot: { id, username,
+ *                       name, placeholder } } a bot with inline mode, or
+ *                       code not-inline / no-bot (R-Y138)
+ *   POST /api/telegram/inline-results {chat, username, query, offset?}
+ *                       -> { ok, bot, queryId, gallery, results, next,
+ *                       switchPm, switchWebview } a bot's answers, a page
+ *   POST /api/telegram/inline-send {chat, queryId, id, replyTo?, clientId?}
+ *                       -> { ok } one of those answers sent
  *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
  *                                         about, username, phone, hasPhoto,
  *                                         aboutMax } the user's own profile
@@ -249,6 +257,7 @@ import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
+import { INLINE_POSTS } from './routes-telegram-inline.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -955,6 +964,7 @@ const POSTS = {
   ...ADMIN_POSTS,
   ...PRIVACY_POSTS,
   ...SHARE_POSTS,
+  ...INLINE_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(
     'myProfile',

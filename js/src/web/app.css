@@ -6504,5 +6504,114 @@ button[aria-busy='true']::before {
   margin-top: 0.25rem;
   font: inherit;
   font-size: 0.85rem;
+}
+
+/* R-Y138: an inline bot's answers over the box (`@gif cats`), pictures in
+   a grid, articles in a list. */
+.inline-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.4rem;
+  border-radius: 10px;
+}
+.inline-hint,
+.inline-status {
+  padding: 0 0.3rem;
+  font-size: 0.85em;
+  color: var(--text-subtle);
+}
+.inline-results {
+  display: flex;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+.inline-results.is-grid {
+  flex-flow: row wrap;
+  gap: 0.3rem;
+}
+.inline-results.is-list {
+  flex-direction: column;
+}
+.inline-result {
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.inline-result[aria-selected='true'] {
+  background: var(--bg-active);
+}
+.inline-result.inline-grid {
+  width: 6rem;
+  height: 6rem;
+  padding: 0.15rem;
+}
+.inline-result.inline-grid .sticker-picture,
+.inline-result.inline-grid .inline-plain {
+  width: 100%;
+  height: 100%;
+}
+.inline-result.inline-grid .sticker-picture img,
+.inline-result.inline-grid .sticker-picture video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.inline-result.inline-list {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+}
+.inline-thumb {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.inline-thumb .sticker-picture,
+.inline-thumb .inline-plain {
+  width: 100%;
+  height: 100%;
+}
+.inline-thumb .sticker-picture img,
+.inline-thumb .sticker-picture video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.inline-plain {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--bg-active);
+  color: var(--text-subtle);
+}
+.inline-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.inline-text b,
+.inline-text .meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.inline-more,
+.inline-switch {
+  align-self: center;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--link);
+  font: inherit;
   cursor: pointer;
 }

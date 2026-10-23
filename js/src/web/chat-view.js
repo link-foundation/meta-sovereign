@@ -48,6 +48,7 @@ import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 import { useBotCommands, useCommandBox } from './chat-bot-commands.js';
+import { useInlineBox } from './chat-inline-bots.js';
 import {
   AttachButton,
   AttachDialog,
@@ -989,6 +990,8 @@ const Composer = ({ state, api, keys }) => {
     text,
     composer,
   });
+  // "@gif cats": an inline bot's answers over the box (R-Y138).
+  const inline = useInlineBox({ api, state, composer, text });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -998,7 +1001,7 @@ const Composer = ({ state, api, keys }) => {
     const first = suggest.suggestions?.[0];
     // Enter that confirms an input method's word (Chinese, Japanese…) is
     // not a Send.
-    if (composing(event) || commands.onKey(event)) {
+    if (composing(event) || inline.onKey(event) || commands.onKey(event)) {
       return;
     }
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -1020,6 +1023,7 @@ const Composer = ({ state, api, keys }) => {
       },
     },
     [
+      inline.panel,
       commands.list,
       el(Suggestions, { key: 's', suggest, composer }),
       format.bar,

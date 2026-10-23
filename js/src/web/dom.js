@@ -955,6 +955,10 @@ export const api = {
   telegramReaders: (body = {}) => telegramPost('readers', body),
   telegramTranslate: (body = {}) => telegramPost('translate', body),
   telegramBotCommands: (body = {}) => telegramPost('bot-commands', body),
+  // Inline bots in the message box (R-Y138).
+  telegramInlineBot: (body = {}) => telegramPost('inline-bot', body),
+  telegramInlineResults: (body = {}) => telegramPost('inline-results', body),
+  telegramInlineSend: (body = {}) => telegramPost('inline-send', body),
   telegramReactors: (body = {}) => telegramPost('reactors', body),
   // New groups and channels, a chat's info edited (R-Y129).
   telegramChatContacts: () => telegramPost('chat-contacts', {}),
