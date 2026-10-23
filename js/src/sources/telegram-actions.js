@@ -34,6 +34,7 @@ import { previewMedia, randomIdOf } from './telegram-send.js';
 import { createFileReader, createMediaReader } from './telegram-media.js';
 import { createAvatarReader } from './telegram-avatars.js';
 import { createChatInfoReader } from './telegram-chat-info.js';
+import { createWallpapers } from './telegram-wallpapers.js';
 import { createUnreadMarks } from './telegram-unread.js';
 import { createPollActions } from './telegram-polls.js';
 import { createDialogActions } from './telegram-dialogs.js';
@@ -384,7 +385,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y145); story replies, reactions, viewers, deleting and hiding
 // (R-Y148); reaction tags of Saved Messages and the default timer (R-Y151);
 // invite links and join requests (R-Y152); posting stories (R-Y156); links
-// to messages (R-Y154).
+// to messages (R-Y154); chat backgrounds (R-Y155).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -424,6 +425,7 @@ const chatActions = (env, context) => {
     ...createLinkPreview(env, context),
     ...createAdminActions(env, context),
     ...createTopicAdmin(env, context),
+    ...createWallpapers(env, context),
     ...createShareMedia(env, context),
     ...createChatEdit(env, withUploads),
     ...createProfile(env, withUploads),

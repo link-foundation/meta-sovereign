@@ -8,6 +8,8 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
+import { api } from './dom.js';
+import { ChatBackgroundSettings } from './chat-wallpaper.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import {
   NOTIFY_KEY,
@@ -210,6 +212,7 @@ export const SettingsView = () => {
       t('settings.openConnections')
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
+    el(ChatBackgroundSettings, { key: 'background', api }),
     el(PrivacySettings, { key: 'privacy' }),
     el(NotificationSettings, { key: 'notify' }),
   ]);

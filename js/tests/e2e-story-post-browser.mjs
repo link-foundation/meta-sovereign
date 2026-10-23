@@ -137,12 +137,13 @@ const badge = async () => {
     (await add.getAttribute('aria-label')) === 'Add story',
     'its label says Add story'
   );
-  // Own avatar first, before Ann.
-  const first = await page
-    .locator('.stories-list > button')
-    .first()
-    .getAttribute('data-story-peer');
-  assert(first === ME, `own avatar first, got ${first}`);
+  // Own avatar first, before Ann (its id once the account is known).
+  const firstPeer = () =>
+    page
+      .locator('.stories-list > button')
+      .first()
+      .getAttribute('data-story-peer');
+  await until(async () => (await firstPeer()) === ME, 'own avatar first');
 };
 
 const limit = async () => {

@@ -1121,4 +1121,22 @@ export const hiChat = {
   'chat.links.err.usage-invalid': 'कोई दूसरी उपयोग सीमा चुनें।',
   'chat.links.err.request-gone': 'इस अनुरोध का उत्तर पहले ही दिया जा चुका है।',
   'chat.links.err.too-many': 'पहले से बहुत सारे लिंक हैं; पहले कुछ हटाएँ।',
+  'chat.wallpaper.title': 'चैट की पृष्ठभूमि',
+  'chat.wallpaper.intro':
+    'संदेशों के पीछे एक चित्र या रंग। केवल इसी डिवाइस पर रखा जाता है।',
+  'chat.wallpaper.none': 'कोई पृष्ठभूमि नहीं',
+  'chat.wallpaper.upload': 'फ़ाइल से अपलोड करें',
+  'chat.wallpaper.loading': 'पृष्ठभूमियाँ लोड हो रही हैं…',
+  'chat.wallpaper.unavailable':
+    'उसकी पृष्ठभूमियाँ देखने के लिए Telegram जोड़ें।',
+  'chat.wallpaper.item': 'पृष्ठभूमि {name}',
+  'chat.wallpaper.badFile': 'यह फ़ाइल चित्र नहीं है।',
+  'chat.wallpaper.open': 'इस चैट के लिए वॉलपेपर सेट करें…',
+  'chat.wallpaper.chatTitle': 'इस चैट का वॉलपेपर',
+  'chat.wallpaper.chatHint': 'इस चैट में इसे केवल आप देखेंगे।',
+  'chat.wallpaper.err.failed': 'Telegram ने वॉलपेपर सेट नहीं किया।',
+  'chat.wallpaper.err.no-access': 'आप इस चैट में वॉलपेपर सेट नहीं कर सकते।',
+  'chat.wallpaper.err.unknown': 'वह वॉलपेपर अब सूची में नहीं है।',
+  'chat.wallpaper.err.invalid': 'Telegram यह वॉलपेपर स्वीकार नहीं करता।',
+  'chat.wallpaper.err.flood': 'बहुत अधिक प्रयास। थोड़ा रुककर फिर कोशिश करें।',
 };

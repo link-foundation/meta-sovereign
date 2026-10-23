@@ -181,7 +181,9 @@
     "test:e2e:invite-links": "node js/tests/e2e-invite-links-browser.mjs",
     "test:e2e:invite-links:webkit": "E2E_BROWSER=webkit node js/tests/e2e-invite-links-browser.mjs",
     "test:e2e:auto-delete": "node js/tests/e2e-auto-delete-browser.mjs",
-    "test:e2e:auto-delete:webkit": "E2E_BROWSER=webkit node js/tests/e2e-auto-delete-browser.mjs"
+    "test:e2e:auto-delete:webkit": "E2E_BROWSER=webkit node js/tests/e2e-auto-delete-browser.mjs",
+    "test:e2e:wallpapers": "node js/tests/e2e-wallpapers-browser.mjs",
+    "test:e2e:wallpapers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-wallpapers-browser.mjs"
   },
   "keywords": [
     "personal-crm",

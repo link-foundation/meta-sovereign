@@ -206,6 +206,10 @@ import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
 import { INVITE_LINKS_POSTS } from './routes-telegram-invite-links.js';
 import { STORY_POST_POSTS } from './routes-telegram-story-post.js';
+import {
+  WALLPAPER_GETS,
+  WALLPAPER_POSTS,
+} from './routes-telegram-wallpapers.js';
 import { EFFECTS_POSTS } from './routes-telegram-effects.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
@@ -946,6 +950,7 @@ const POSTS = {
   ...TOPIC_ADMIN_POSTS,
   ...INVITE_LINKS_POSTS,
   ...STORY_POST_POSTS,
+  ...WALLPAPER_POSTS,
   ...EFFECTS_POSTS,
   ...ROUND_POSTS,
   ...PRIVACY_POSTS,
@@ -1247,6 +1252,8 @@ POSTS['send-poll'] = async (account, body) => {
   ];
 };
 
+const ALL_GETS = { ...GETS, ...WALLPAPER_GETS };
+
 const dispatch = async (account, req, res, p, ctx) => {
   if (p === `${PREFIX}status` && req.method === 'GET') {
     const status = await account.status();
@@ -1259,8 +1266,8 @@ const dispatch = async (account, req, res, p, ctx) => {
     return json(res, 200, status) ?? true;
   }
   const name = p.slice(PREFIX.length);
-  if (req.method === 'GET' && Object.hasOwn(GETS, name)) {
-    return GETS[name](account, req, res, ctx);
+  if (req.method === 'GET' && Object.hasOwn(ALL_GETS, name)) {
+    return ALL_GETS[name](account, req, res, ctx);
   }
   if (req.method !== 'POST' || !Object.hasOwn(POSTS, name)) {
     return false;

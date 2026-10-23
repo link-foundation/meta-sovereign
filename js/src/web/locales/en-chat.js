@@ -1115,4 +1115,22 @@ export const enChat = {
   'chat.links.err.request-gone': 'Somebody has already answered this request.',
   'chat.links.err.too-many':
     'There are too many links already; delete some first.',
+  'chat.wallpaper.title': 'Chat background',
+  'chat.wallpaper.intro':
+    'A picture or colours behind the messages. Kept on this device only.',
+  'chat.wallpaper.none': 'No background',
+  'chat.wallpaper.upload': 'Upload from file',
+  'chat.wallpaper.loading': 'Loading backgrounds…',
+  'chat.wallpaper.unavailable':
+    'Connect Telegram to see the backgrounds it offers.',
+  'chat.wallpaper.item': 'Background {name}',
+  'chat.wallpaper.badFile': 'That file is not a picture.',
+  'chat.wallpaper.open': 'Set wallpaper for this chat…',
+  'chat.wallpaper.chatTitle': 'Wallpaper for this chat',
+  'chat.wallpaper.chatHint': 'Only you will see it in this chat.',
+  'chat.wallpaper.err.failed': 'Telegram would not set the wallpaper.',
+  'chat.wallpaper.err.no-access': 'You cannot set a wallpaper in this chat.',
+  'chat.wallpaper.err.unknown': 'That wallpaper is no longer on the list.',
+  'chat.wallpaper.err.invalid': 'Telegram does not accept that wallpaper.',
+  'chat.wallpaper.err.flood': 'Too many tries. Wait a little, then retry.',
 };

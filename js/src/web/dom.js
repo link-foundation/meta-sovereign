@@ -1042,6 +1042,23 @@ export const api = {
     const path = `/api/telegram/story?peer=${encodeURIComponent(peer)}&id=${encodeURIComponent(id)}`;
     return origin ? new URL(path, origin).toString() : path;
   },
+  // Chat backgrounds (R-Y155): the list Telegram offers, a picture's
+  // address, and one set for a chat (for the user only).
+  telegramWallpapers: (body = {}) => telegramPost('wallpapers', body),
+  telegramChatWallpaperSet: (body = {}) =>
+    telegramPost('chat-wallpaper-set', body),
+  telegramWallpaperUrl: async ({ id, slug = '', size = 'full' } = {}) => {
+    const { origin } = await ensure();
+    if (!id) {
+      return null;
+    }
+    const query = new URLSearchParams({ id: String(id), size });
+    if (slug) {
+      query.set('slug', slug);
+    }
+    const path = `/api/telegram/wallpaper?${query}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
   // The user's own profile (R-Y136).
   telegramProfile: () => telegramPost('profile', {}),
   telegramProfileSave: (body = {}) => telegramPost('profile-save', body),

@@ -15,6 +15,7 @@
 import { PeerBar } from './chat-peer-actions.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { TtlBadge } from './chat-ttl.js';
+import { ChatWall } from './chat-wallpaper.js';
 import { SavedChats, SavedToggle, useSavedView } from './chat-saved.js';
 import {
   SavedTagBar,
@@ -753,7 +754,16 @@ const Stream = ({ state, api, actions }) => {
     ]
   );
   return [
-    scroll,
+    // The background behind the messages is its own layer (R-Y155).
+    el('div', { key: 'wall', className: 'chat-wall' }, [
+      el(ChatWall, {
+        key: 'layer',
+        api,
+        chat: state.current.chat,
+        info: state.info,
+      }),
+      scroll,
+    ]),
     days.calendar,
     el(UnreadMarks, {
       key: 'marks',

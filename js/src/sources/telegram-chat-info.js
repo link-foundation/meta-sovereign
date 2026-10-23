@@ -16,6 +16,7 @@
  */
 
 import { importTelegram } from './telegram-layer.js';
+import { wallpaperPage } from './telegram-wallpapers.js';
 
 const CHAT = /^-?\d{1,20}$/;
 const CACHE_TTL_MS = 60_000;
@@ -117,6 +118,12 @@ export const canSetTtlIn = (entity = {}) =>
 // The auto-delete period a full chat carries, in seconds, or 0 (off).
 const ttlOf = (full) => Number(full?.ttlPeriod) || 0;
 
+// The chat's own wallpaper, when it has one (R-Y155).
+const wallpaperOf = (full) => {
+  const wallpaper = wallpaperPage(full?.wallpaper);
+  return wallpaper ? { wallpaper } : {};
+};
+
 // The primary invite link the full chat carries, for those who may see it.
 const inviteOf = (entity, full) =>
   canInviteIn(entity) && typeof full.exportedInvite?.link === 'string'
@@ -183,6 +190,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     canBan: canBanIn(entity),
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
+    ...wallpaperOf(full),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
   };
@@ -255,6 +263,7 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     // (not in Saved Messages, the chat with oneself) (R-Y143).
     ttlPeriod: ttlOf(full),
     canSetTtl: !user.self,
+    ...wallpaperOf(full),
     ...(user.self ? { self: true } : {}),
     ...(user.bot ? { bot: true } : {}),
     ...(lastSeen !== undefined ? { lastSeen } : {}),

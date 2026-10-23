@@ -1134,4 +1134,21 @@ export const ruChat = {
   'chat.links.err.request-gone': 'На эту заявку уже ответили.',
   'chat.links.err.too-many':
     'Ссылок уже слишком много; сначала удалите некоторые.',
+  'chat.wallpaper.title': 'Фон чата',
+  'chat.wallpaper.intro':
+    'Картинка или цвета за сообщениями. Хранится только на этом устройстве.',
+  'chat.wallpaper.none': 'Без фона',
+  'chat.wallpaper.upload': 'Загрузить из файла',
+  'chat.wallpaper.loading': 'Загружаем фоны…',
+  'chat.wallpaper.unavailable': 'Подключите Telegram, чтобы увидеть его фоны.',
+  'chat.wallpaper.item': 'Фон {name}',
+  'chat.wallpaper.badFile': 'Этот файл не картинка.',
+  'chat.wallpaper.open': 'Установить фон для этого чата…',
+  'chat.wallpaper.chatTitle': 'Фон для этого чата',
+  'chat.wallpaper.chatHint': 'Только вы увидите его в этом чате.',
+  'chat.wallpaper.err.failed': 'Telegram не установил фон.',
+  'chat.wallpaper.err.no-access': 'В этом чате нельзя установить фон.',
+  'chat.wallpaper.err.unknown': 'Этого фона больше нет в списке.',
+  'chat.wallpaper.err.invalid': 'Telegram не принимает этот фон.',
+  'chat.wallpaper.err.flood': 'Слишком много попыток. Подождите и повторите.',
 };
