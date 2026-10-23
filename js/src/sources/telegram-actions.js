@@ -92,6 +92,7 @@ import { createQuickReplies } from './telegram-quick-replies.js';
 import { createBusinessMessages } from './telegram-business-messages.js';
 import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
+import { createGames } from './telegram-games.js';
 import { createWebApps } from './telegram-web-apps.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
@@ -452,7 +453,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
 // sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
 // messages and channel autotranslation (R-Y184); voice chats and group calls
-// (R-Y188); the Contacts window and read times (R-Y189).
+// (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -494,6 +495,7 @@ const chatActions = (env, context) => {
     ...createComments(env, context),
     ...createReadersActions(env, context),
     ...createBotCommands(env, context),
+    ...createGames(env, context),
     ...createWebApps(env, context),
     ...createMapActions(env, context),
     ...createTranslate(env, context),

@@ -183,10 +183,32 @@ const topicEditKey = (action) => {
   return 'service.topicEdit';
 };
 
+// "Ann scored 120 in Lumberjack" (R-Y190): the game is named by the game
+// message the score answers, when it is among `msgById`.
+const gameScoreInfo = (link, msgById) => {
+  const raw = link.raw?.action ?? {};
+  const replied = msgById.get(replyLinkId(link) ?? '');
+  const game = replied?.raw?.media?.game?.title ?? null;
+  return {
+    key: game ? 'chat.service.gameScore' : 'chat.service.gameScoreBare',
+    params: {
+      user: link.senderName ?? '',
+      score: Number(raw.score) || 0,
+      game,
+    },
+    title: null,
+    titleKey: '',
+    user: null,
+  };
+};
+
 /** Service text i18n key + data for a service link, or null. */
-export const serviceInfo = (link) => {
+export const serviceInfo = (link, msgById = new Map()) => {
   if (!link?.service) {
     return null;
+  }
+  if (link.service === 'MessageActionGameScore') {
+    return gameScoreInfo(link, msgById);
   }
   const action = link.raw?.action ?? {};
   const title = typeof action.title === 'string' ? action.title : null;
@@ -372,6 +394,16 @@ const liveOf = (m, raw) => {
   };
 };
 
+// A game's card (R-Y190): its title, description and picture (the
+// message's own photo, drawn like any photo).
+export const gameOf = (game) => ({
+  kind: 'game',
+  title: game?.title ?? null,
+  description: game?.description ?? null,
+  shortName: game?.shortName ?? null,
+  photo: game?.photo?.sizes ? parsePhotoMedia(game.photo) : null,
+});
+
 const CARD_MEDIA = {
   MessageMediaGeo: placeOf,
   // A live location: until when it is shared, and when it last moved (R-Y142).
@@ -404,7 +436,7 @@ const CARD_MEDIA = {
     sent: Number(raw?.date) || null,
   }),
   MessageMediaStory: () => ({ kind: 'story' }),
-  MessageMediaGame: (m) => ({ kind: 'game', title: m.game?.title ?? null }),
+  MessageMediaGame: (m) => gameOf(m.game),
   MessageMediaInvoice: (m) => ({ kind: 'invoice', title: m.title ?? null }),
   MessageMediaUnsupported: () => ({ kind: 'unsupported' }),
   MessageMediaPaidMedia: (m) => parsePaid(m),
@@ -619,6 +651,6 @@ export const parseMessageParts = (link, msgById = new Map()) => {
     // A message effect's id, a decimal string (R-Y149).
     effect: raw.effect ? String(raw.effect) : null,
     album: raw.groupedId ? String(raw.groupedId) : null,
-    service: serviceInfo(link),
+    service: serviceInfo(link, msgById),
   };
 };

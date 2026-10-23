@@ -30,6 +30,17 @@ export const answerOf = (answer) => ({
   url: answer?.url ? String(answer.url) : null,
 });
 
+/**
+ * A game's answer (R-Y190): the page opens only a web link, so any other
+ * kind of address (tg://, javascript:, file:) is dropped here already.
+ */
+export const gameAnswerOf = (answer) => {
+  const shown = answerOf(answer);
+  return /^https?:\/\//i.test(shown.url ?? '')
+    ? shown
+    : { ...shown, url: null };
+};
+
 /** The bot actions over the user's client. */
 export const createBotActions = (env, { userClient }) => {
   const botCallback = async ({ chat, id, data = null, game = false }) => {
@@ -55,7 +66,7 @@ export const createBotActions = (env, { userClient }) => {
             )
           )
       );
-      return answerOf(answer);
+      return game ? gameAnswerOf(answer) : answerOf(answer);
     } catch (error) {
       const reason = reasonOf(error);
       if (QUIET.has(reason)) {

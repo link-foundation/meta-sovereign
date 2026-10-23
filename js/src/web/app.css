@@ -10453,3 +10453,32 @@ span.bubble-effect {
   color: var(--text-muted);
   cursor: default;
 }
+/* R-Y190: a game's card (picture, title, description, Play) and its high
+   scores list. */
+.bubble-card.game {
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 320px;
+}
+.game-photo {
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+.game-title {
+  font-weight: 600;
+}
+.game-description {
+  white-space: pre-wrap;
+}
+.game-pos {
+  flex: none;
+  min-width: 1.5rem;
+  color: var(--text-subtle);
+  text-align: right;
+}
+.game-score.is-me .member-name {
+  font-weight: 600;
+}
+.game-points {
+  flex: none;
+}

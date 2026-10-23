@@ -27,6 +27,7 @@ import { useBotPress } from './chat-bots.js';
 import { useWebAppHost } from './chat-web-apps.js';
 import { useComments } from './chat-comments.js';
 import { useReaders } from './chat-readers.js';
+import { useGameScores } from './chat-games.js';
 import { useTranslate } from './chat-translate.js';
 import { useSavedGifs } from './chat-saved-gifs.js';
 import { useMusicSave } from './chat-music-save.js';
@@ -481,6 +482,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const comments = useComments({ api });
   // Who read a message, who reacted to it (R-Y127).
   const readers = useReaders({ api });
+  const games = useGameScores({ api });
   // A message translated in a box (R-Y132).
   const translate = useTranslate({ api });
   // Save GIF / Remove from GIFs on a GIF message (R-Y171).
@@ -551,6 +553,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     act.bot = () => bots.press(message, value);
     act.comments = () => comments.open(message);
     act.readers = () => readers.open('readers', message);
+    act.gameScores = () => games.open(message);
     act.translate = () => translate.open(message);
     act.reactors = () => readers.open('reactors', message);
     return act[action]?.();
@@ -617,6 +620,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       webApp.dialog,
       comments.dialog,
       readers.dialog,
+      games.dialog,
       translate.dialog,
       report.dialog,
     ],

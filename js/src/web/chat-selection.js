@@ -39,6 +39,7 @@ import { gifIdOf } from './gif-id.js';
 import { isSongMessage } from './chat-music-save.js';
 import { hasReaders, hasReactors } from './chat-readers.js';
 import { hasReadTime } from './chat-read-time.js';
+import { hasGameScores } from './chat-games.js';
 import { hasTranslation } from './chat-translate.js';
 import { useT } from './i18n.js';
 import { noForwardsIn } from './chat-settings.js';
@@ -179,6 +180,9 @@ const gifItem = (message, gifs) => {
   return gifs?.has(id) ? 'unsaveMessageGif' : 'saveMessageGif';
 };
 
+// A game's high scores (R-Y190).
+const gameItems = (message) => (hasGameScores(message) ? ['gameScores'] : []);
+
 // The menu with nothing selected.
 const singleItems = ({
   message,
@@ -202,6 +206,7 @@ const singleItems = ({
     canEdit(message, now) && 'edit',
     pinItem(message, where),
     ...pollItems(message),
+    ...gameItems(message),
     canStopLive(message) && 'stopLive',
     ...mediaItems(target, sent),
     gifItem(message, gifs),

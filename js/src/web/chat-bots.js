@@ -14,6 +14,7 @@ import { networkMessageId } from './chat-model.js';
 import { botAskOf, inlineKeyboardOf, replyKeyboardOf } from './bot-keyboard.js';
 import { appUrl } from './web-apps-model.js';
 import { openWebApp } from './chat-web-apps.js';
+import { gameUrl } from './chat-games.js';
 
 const el = React.createElement;
 
@@ -172,12 +173,13 @@ const BotDialog = ({ ask, onClose }) => {
 
 // What the bot answered a press: a link to open, words in a box or a
 // toast, or nothing.
-const answered = (answer, { setAsk, state }) => {
+const answered = (answer, { setAsk, state, game = false }) => {
   if (!answer || answer.error || answer.ok === false) {
     toastOf(state, { kind: 'action-failed' });
     return;
   }
-  const url = answer.url ? openableUrl(answer.url) : null;
+  // A game's address is a web link and nothing else (R-Y190).
+  const url = answer.url ? (game ? gameUrl : openableUrl)(answer.url) : null;
   if (url) {
     setAsk({ kind: 'url', url });
   } else if (answer.message && answer.alert) {
@@ -205,7 +207,7 @@ export const useBotPress = ({ state, api, copy }) => {
       ...(button.data ? { data: button.data } : {}),
       ...extra,
     });
-    return answered(answer, { setAsk, state });
+    return answered(answer, { setAsk, state, game: extra.game === true });
   };
   const username = state.current?.personal ? state.info?.username : null;
   const KIND = {

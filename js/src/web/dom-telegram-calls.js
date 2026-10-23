@@ -69,6 +69,8 @@ export const TELEGRAM_CALLS = {
   telegramTranscribe: body('transcribe'),
   telegramTranscribeRate: body('transcribe-rate'),
   telegramBotCommands: body('bot-commands'),
+  // A game message's high scores ({ chat, id }, R-Y190).
+  telegramGameScores: body('game-scores'),
   // Bot mini apps (R-Y168).
   telegramWebAppOpen: body('web-app-open'),
   telegramWebAppProlong: body('web-app-prolong'),

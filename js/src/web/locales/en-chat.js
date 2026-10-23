@@ -1438,4 +1438,15 @@ export const enChat = {
   'chat.service.paidPriceOff': 'Messages here are free again',
   'chat.service.paidRefunded':
     '{count, plural, one {# paid message} other {# paid messages}} refunded, {stars} ⭐ returned',
+  // HTML5 bot games (R-Y190).
+  'chat.game.play': 'Play',
+  'chat.game.scores': 'High scores',
+  'chat.game.scoresOf': 'High scores: {game}',
+  'chat.game.loading': 'Loading the scores…',
+  'chat.game.empty': 'No scores yet.',
+  'chat.game.err.failed': 'Could not load the scores.',
+  'chat.game.err.no-access': 'This game is not available.',
+  'chat.game.err.not-found': 'The message was not found.',
+  'chat.service.gameScore': '{user} scored {score} in {game}',
+  'chat.service.gameScoreBare': '{user} scored {score}',
 };

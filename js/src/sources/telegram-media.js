@@ -84,6 +84,9 @@ const photoOf = (media) => {
   if (media?.className === 'MessageMediaPhoto') {
     return media.photo;
   }
+  if (media?.className === 'MessageMediaGame') {
+    return media.game?.photo;
+  }
   return media?.className === 'MessageMediaWebPage'
     ? media.webpage?.photo
     : null;

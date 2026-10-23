@@ -1445,4 +1445,15 @@ export const hiChat = {
   'chat.service.paidPriceOff': 'यहाँ संदेश फिर मुफ़्त हैं',
   'chat.service.paidRefunded':
     '{count, plural, one {# सशुल्क संदेश} other {# सशुल्क संदेश}} वापस किए गए, {stars} ⭐ लौटाए गए',
+  // HTML5 bot games (R-Y190).
+  'chat.game.play': 'खेलें',
+  'chat.game.scores': 'उच्च स्कोर',
+  'chat.game.scoresOf': 'उच्च स्कोर: {game}',
+  'chat.game.loading': 'स्कोर लोड हो रहे हैं…',
+  'chat.game.empty': 'अभी कोई स्कोर नहीं।',
+  'chat.game.err.failed': 'स्कोर लोड नहीं हो सके।',
+  'chat.game.err.no-access': 'यह गेम उपलब्ध नहीं है।',
+  'chat.game.err.not-found': 'संदेश नहीं मिला।',
+  'chat.service.gameScore': '{user} ने {game} में {score} स्कोर किया',
+  'chat.service.gameScoreBare': '{user} ने {score} स्कोर किया',
 };

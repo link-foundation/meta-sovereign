@@ -35,6 +35,7 @@ import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
 import { menuItems } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
+import { GameCard } from './chat-games.js';
 import { MediaAudio, MediaCard, MediaFile, MediaVideo } from './chat-media.js';
 import { MediaRound } from './chat-round.js';
 import { MediaStickerBox } from './chat-sticker-box.js';
@@ -321,9 +322,9 @@ const Reactions = ({ reactions, paid, api, chat, msgId }) => {
 
 // ---- Service line -------------------------------------------------------
 
-export const ServiceLine = ({ link }) => {
+export const ServiceLine = ({ link, msgById }) => {
   const t = useT();
-  const { service } = parseMessageParts(link);
+  const { service } = parseMessageParts(link, msgById ?? new Map());
   if (!service) {
     return null;
   }
@@ -368,6 +369,8 @@ const MENU_ITEMS = {
   // A GIF message's (R-Y171).
   saveMessageGif: ['chat.stickers.saveGif', 'download'],
   unsaveMessageGif: ['chat.stickers.unsaveGif', 'trash'],
+  // A game message's high scores (R-Y190).
+  gameScores: ['chat.game.scores', 'star'],
   // A song message's (R-Y185).
   saveMessageMusic: ['chat.music.add', 'download'],
   deleteGif: ['chat.stickers.unsaveGif', 'trash'],
@@ -928,7 +931,17 @@ const DOCUMENT_VIEWS = {
   sticker: (props) => el(MediaStickerBox, props),
 };
 
-const BubbleMedia = ({ parts, api, chat, netId, mine, album, topic }) => {
+const MediaOf = ({
+  parts,
+  api,
+  chat,
+  netId,
+  mine,
+  album,
+  topic,
+  message,
+  onAction,
+}) => {
   if (album) {
     return el(AlbumGrid, { items: album, api, chat });
   }
@@ -944,11 +957,18 @@ const BubbleMedia = ({ parts, api, chat, netId, mine, album, topic }) => {
     // `topic`: a sticker's box sends to the message's topic (R-Y122).
     return el(view, { media, api, chat, msgId: netId, topic });
   }
+  if (media?.kind === 'game') {
+    return el(GameCard, { media, api, chat, msgId: netId, message, onAction });
+  }
   if (media && media.kind !== 'webpage') {
     return el(MediaCard, { media, api, chat, msgId: netId, mine });
   }
   return null;
 };
+
+// A game's card sits under the message's text (R-Y190), the rest above.
+const BubbleMedia = ({ late = false, ...props }) =>
+  (props.parts.media?.kind === 'game') === late ? el(MediaOf, props) : null;
 
 // Media drawn with no bubble around it, as Telegram draws them; a reply
 // above it gets a small bubble of its own.
@@ -1006,6 +1026,7 @@ const BubbleContent = ({
   netId,
   composer,
   onScrollTo,
+  onAction,
   time,
   t,
 }) => [
@@ -1045,6 +1066,8 @@ const BubbleContent = ({
     mine,
     album: message.albumItems,
     topic: topicOfMessage(message),
+    message,
+    onAction,
   }),
   parts.text
     ? el('span', { key: 'body', className: 'bubble-body' }, [
@@ -1068,6 +1091,17 @@ const BubbleContent = ({
           : null,
       ])
     : null,
+  el(BubbleMedia, {
+    key: 'game',
+    parts,
+    api,
+    chat,
+    netId,
+    mine,
+    message,
+    onAction,
+    late: true,
+  }),
   parts.media?.kind === 'webpage'
     ? el(WebPreview, { key: 'wp', webPage: parts.media })
     : null,
@@ -1214,7 +1248,7 @@ export const MessageBubble = ({
   });
 
   if (message.service) {
-    return el(ServiceLine, { link: message });
+    return el(ServiceLine, { link: message, msgById });
   }
 
   const parts = parseMessageParts(message, msgById ?? new Map());
@@ -1252,6 +1286,7 @@ export const MessageBubble = ({
             netId,
             composer,
             onScrollTo,
+            onAction,
             time,
             t,
           }),
