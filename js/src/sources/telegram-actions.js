@@ -96,6 +96,7 @@ import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createGames } from './telegram-games.js';
 import { createWebApps } from './telegram-web-apps.js';
+import { createApps } from './telegram-apps.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
 import { createSecurity } from './telegram-security.js';
@@ -457,7 +458,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // messages and channel autotranslation (R-Y184); voice chats and group calls
 // (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190);
 // interface scale and the connection proxy (R-Y192); channel direct messages
-// and suggested posts (R-Y191).
+// and suggested posts (R-Y191); popular mini apps, similar bots, prepared
+// messages and collectible usernames (R-Y194).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -469,7 +471,10 @@ const chatActions = (env, context) => {
       dropUpload: drop,
     },
   };
-  const { stickerLists, ...stickers } = createStickers(env, context);
+  const { stickerLists, inlineOffer, ...stickers } = createStickers(
+    env,
+    context
+  );
   return {
     ...createPollActions(env, context),
     ...createDialogActions(env, context),
@@ -501,6 +506,7 @@ const chatActions = (env, context) => {
     ...createBotCommands(env, context),
     ...createGames(env, context),
     ...createWebApps(env, context),
+    ...createApps(env, { ...context, offer: inlineOffer }),
     ...createMapActions(env, context),
     ...createTranslate(env, context),
     ...createTranscribe(env, context),

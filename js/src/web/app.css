@@ -10646,3 +10646,106 @@ span.bubble-effect {
 .dm-note {
   margin: 0;
 }
+
+/* Apps in the search, similar bots, the prepared-message chooser and
+   collectible cards (R-Y194). */
+.apps-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin: 0.4rem 0;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.apps-title {
+  margin: 0;
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.apps-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.apps-open-chat {
+  flex: 1;
+  min-width: 0;
+}
+.apps-open-chat .chat-item-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+.apps-launch,
+.apps-more {
+  flex: none;
+  height: auto;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-active);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.apps-more {
+  align-self: center;
+}
+button.profile-username.is-collectible {
+  display: block;
+  height: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--link);
+  font: inherit;
+  cursor: pointer;
+}
+.collectible-rows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.collectible-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.5rem;
+}
+.collectible-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.collectible-learn {
+  align-self: flex-start;
+}
+.prepared-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-left: 2px solid var(--accent);
+  border-radius: 0.3rem;
+  background: var(--bg-elev);
+}
+.prepared-filter {
+  width: 100%;
+  margin-bottom: 0.4rem;
+}
+.prepared-chats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.prepared-chat {
+  text-align: left;
+}

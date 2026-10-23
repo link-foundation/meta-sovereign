@@ -40,6 +40,23 @@ export const usernamesOf = (list) =>
       active: Boolean(u.active),
     }));
 
+/**
+ * The usernames and phone number of a user or channel that Fragment sells
+ * (R-Y194): the active usernames that are not the editable one, and a
+ * phone number from the anonymous "+888" range. `{ collectible }` for the
+ * chat info, or nothing when the profile has none.
+ */
+export const collectibleOf = (entity) => {
+  const usernames = usernamesOf(entity?.usernames)
+    .filter((u) => u.active && !u.editable)
+    .map((u) => u.username);
+  const digits = String(entity?.phone ?? '').replace(/\D/g, '');
+  const phone = /^888\d{4,}$/.test(digits) ? `+${digits}` : null;
+  return usernames.length > 0 || phone
+    ? { collectible: { usernames, ...(phone ? { phone } : {}) } }
+    : {};
+};
+
 const bad = (code) => ({ ok: false, error: code, code });
 
 // Telegram saying nothing changed is no failure.

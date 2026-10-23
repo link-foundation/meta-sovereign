@@ -13,6 +13,7 @@ import { Busy } from './spinner.js';
 import { ProfileHead, SharedMedia } from './chat-shared.js';
 import { InviteLink } from './chat-invite.js';
 import { SimilarChannels } from './chat-similar.js';
+import { SimilarBots } from './chat-similar-bots.js';
 import { Members } from './chat-members.js';
 import { PeerActions } from './chat-peer-actions.js';
 import { NotifyRow } from './chat-notify-settings.js';
@@ -357,6 +358,8 @@ export const PersonPanel = ({
           hasChat,
           onOpenChat,
         }),
+        // The bots Telegram recommends beside a bot (R-Y194).
+        el(SimilarBots, { key: 'sb', api, chat, info, onOpenChat }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,
       ]),

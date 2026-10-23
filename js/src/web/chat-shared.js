@@ -19,6 +19,7 @@ import { mediaLabel } from './chat-message.js';
 import { networkMessageId } from './chat-model.js';
 import { useEdited } from './chat-edit.js';
 import { ProfileFrame } from './chat-person-extras.js';
+import { CollectibleRows } from './chat-collectible.js';
 
 const el = React.createElement;
 
@@ -122,7 +123,9 @@ export const ProfileHead = ({ api, chat, info }) => {
     status
       ? el('span', { key: 's', className: 'meta profile-status' }, status)
       : null,
-    info?.username
+    // A collectible username is a button to Fragment's card (R-Y194).
+    el(CollectibleRows, { key: 'cr', api, info }),
+    info?.username && !info.collectible?.usernames?.includes(info.username)
       ? el(
           'a',
           {

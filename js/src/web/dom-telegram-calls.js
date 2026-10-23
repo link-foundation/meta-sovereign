@@ -297,6 +297,11 @@ export const TELEGRAM_CALLS = {
   telegramUnpinAll: body('unpin-all'),
   telegramSimilarChannels: body('similar-channels'),
   telegramSimilarJoin: body('similar-join'),
+  // Popular mini apps, similar bots, prepared messages, collectibles (R-Y194).
+  telegramAppsPopular: body('apps-popular'),
+  telegramBotSimilar: body('bot-similar'),
+  telegramPreparedMessage: body('prepared-message'),
+  telegramCollectibleInfo: body('collectible-info'),
   telegramFactChecks: body('fact-checks'),
   // A hashtag's messages and the live counters of posts (R-Y182).
   telegramSearchTag: body('search-tag'),

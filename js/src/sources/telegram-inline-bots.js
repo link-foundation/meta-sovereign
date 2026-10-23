@@ -185,6 +185,17 @@ const shapeAnswer = ({
   };
 };
 
+// A mini app's prepared message may go to any chat the user picks
+// (R-Y194): offered by its query and result id.
+const createOffer =
+  (sendable, now) =>
+  ({ queryId, id }) =>
+    sendable.set(String(queryId), {
+      at: now(),
+      chat: null,
+      ids: new Set([String(id)]),
+    });
+
 // "Switch to PM" (R-Y147): messages.startBot with a parameter the bot's
 // own answer offered, in the bot's private chat.
 const createStartBot =
@@ -332,7 +343,7 @@ export const createInlineBots = (env, { userClient, apply, lists, now }) => {
     const kept = QUERY_ID.test(queryId) ? sendable.get(queryId) : null;
     if (
       !kept ||
-      kept.chat !== chat ||
+      (kept.chat !== null && kept.chat !== chat) ||
       !kept.ids.has(id) ||
       now() - kept.at > SENDABLE_MS
     ) {
@@ -373,5 +384,11 @@ export const createInlineBots = (env, { userClient, apply, lists, now }) => {
     apply,
   });
 
-  return { inlineBot, inlineResults, inlineSend, inlineStartBot };
+  return {
+    inlineBot,
+    inlineResults,
+    inlineSend,
+    inlineStartBot,
+    inlineOffer: createOffer(sendable, now),
+  };
 };

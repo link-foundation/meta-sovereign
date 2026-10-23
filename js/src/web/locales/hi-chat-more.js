@@ -915,4 +915,32 @@ export const hiChatMore = {
   'chat.dm.err.bad-suggestion':
     'पाठ और कीमत (0 या अधिक) लिखें, तारीख़ आगे की चुनें या न चुनें।',
   'chat.dm.err.failed': 'यह नहीं हो सका।',
+  'chat.apps.title': 'ऐप्स',
+  'chat.apps.more': 'और दिखाएँ',
+  'chat.apps.users':
+    '{count, plural, one {# मासिक उपयोगकर्ता} other {# मासिक उपयोगकर्ता}}',
+  'chat.apps.launch': 'खोलें',
+  'chat.apps.openApp': '{name} का ऐप खोलें',
+  'chat.apps.similar': 'मिलते-जुलते बॉट',
+  'chat.apps.share.title': 'संदेश साझा करें',
+  'chat.apps.share.search': 'चैट खोजें',
+  'chat.apps.share.types': 'यहाँ भेजा जा सकता है: {types}',
+  'chat.apps.share.type.same-bot': 'इसी बॉट को',
+  'chat.apps.share.type.users': 'लोगों को',
+  'chat.apps.share.type.bots': 'बॉट को',
+  'chat.apps.share.type.groups': 'समूहों को',
+  'chat.apps.share.type.channels': 'चैनलों को',
+  'chat.apps.share.err.expired': 'इस संदेश की समय-सीमा खत्म हो गई।',
+  'chat.apps.share.err.no-bot': 'बॉट नहीं मिला।',
+  'chat.apps.share.err.flood':
+    'Telegram ने रुकने को कहा है। थोड़ी देर बाद फिर कोशिश करें।',
+  'chat.apps.share.err.failed': 'संदेश नहीं भेजा गया।',
+  'chat.collectible.date': 'खरीदा गया',
+  'chat.collectible.price': 'कीमत',
+  'chat.collectible.crypto': 'क्रिप्टो में',
+  'chat.collectible.learn': 'और जानें',
+  'chat.collectible.err.not-collectible': 'यह कलेक्टिबल नहीं है।',
+  'chat.collectible.err.flood':
+    'Telegram ने रुकने को कहा है। थोड़ी देर बाद फिर कोशिश करें।',
+  'chat.collectible.err.failed': 'जानकारी नहीं पढ़ी जा सकी।',
 };

@@ -915,4 +915,32 @@ export const enChatMore = {
   'chat.dm.err.bad-suggestion':
     'Write the text and a price (0 or more), and pick a date in the future or none.',
   'chat.dm.err.failed': 'That did not work.',
+  'chat.apps.title': 'Apps',
+  'chat.apps.more': 'Show more',
+  'chat.apps.users':
+    '{count, plural, one {# monthly user} other {# monthly users}}',
+  'chat.apps.launch': 'Open',
+  'chat.apps.openApp': 'Open the app of {name}',
+  'chat.apps.similar': 'Similar bots',
+  'chat.apps.share.title': 'Share message',
+  'chat.apps.share.search': 'Search chats',
+  'chat.apps.share.types': 'Can be sent to: {types}',
+  'chat.apps.share.type.same-bot': 'this bot',
+  'chat.apps.share.type.users': 'people',
+  'chat.apps.share.type.bots': 'bots',
+  'chat.apps.share.type.groups': 'groups',
+  'chat.apps.share.type.channels': 'channels',
+  'chat.apps.share.err.expired': 'This message has expired.',
+  'chat.apps.share.err.no-bot': 'The bot was not found.',
+  'chat.apps.share.err.flood':
+    'Telegram asked to wait. Try again a little later.',
+  'chat.apps.share.err.failed': 'The message was not sent.',
+  'chat.collectible.date': 'Purchased',
+  'chat.collectible.price': 'Price',
+  'chat.collectible.crypto': 'In crypto',
+  'chat.collectible.learn': 'Learn more',
+  'chat.collectible.err.not-collectible': 'This is not a collectible.',
+  'chat.collectible.err.flood':
+    'Telegram asked to wait. Try again a little later.',
+  'chat.collectible.err.failed': 'Could not read the details.',
 };

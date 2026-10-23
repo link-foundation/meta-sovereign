@@ -18,7 +18,7 @@
 import { importTelegram } from './telegram-layer.js';
 import { wallpaperPage } from './telegram-wallpapers.js';
 import { themeOf } from './telegram-chat-themes.js';
-import { usernamesOf } from './telegram-usernames.js';
+import { collectibleOf, usernamesOf } from './telegram-usernames.js';
 import { canReactIn, reactionsOf } from './telegram-chat-reactions.js';
 import { settingsInfo } from './telegram-chat-settings.js';
 import { birthdayOf, colorOf } from './telegram-profile-extras.js';
@@ -247,6 +247,7 @@ const fetchChannel = async (client, Api, inputPeer, peers) => {
     settings: settingsInfo(entity, full, result.chats ?? []),
     ...wallpaperOf(full),
     ...usernamesInfo(entity),
+    ...collectibleOf(entity),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
     ...(await monoforumOf(entity, result.chats ?? [], peers)),
@@ -336,6 +337,8 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     commonChats: user.self ? 0 : Number(full.commonChatsCount) || 0,
     ...wallpaperOf(full),
     ...extrasOf(user, full),
+    // Collectible usernames and number, opened in Fragment's card (R-Y194).
+    ...collectibleOf(user),
     // The theme of this chat, by its emoticon (R-Y170).
     ...(themeOf(full) ? { theme: themeOf(full) } : {}),
     ...(user.self ? { self: true } : {}),

@@ -304,6 +304,11 @@ const READERS = {
     new TextEncoder().encode(d.data).length <= MAX_DATA
       ? { data: d.data }
       : null,
+  // A message the app's bot prepared (R-Y194): its id only.
+  web_app_send_prepared_message: (d) =>
+    typeof d.id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(d.id)
+      ? { id: d.id }
+      : null,
   web_app_set_header_color: headerOf,
   web_app_set_background_color: (d) =>
     color(d.color) ? { color: color(d.color) } : null,

@@ -30,6 +30,7 @@ import {
   viewportOf,
 } from './web-apps-model.js';
 import { openMessageLink } from './message-links.js';
+import { usePreparedShare } from './chat-prepared-share.js';
 
 const el = React.createElement;
 
@@ -127,6 +128,7 @@ export const useWebAppHost = ({ api, state }) => {
           key: `web-app-${session.id}`,
           session,
           api,
+          chats: state?.chats,
           onClose: close,
           onReload: () => latest.current(session.request),
         })
@@ -159,6 +161,7 @@ const EFFECTS = {
   web_app_open_tg_link: (_c, d) => openMessageLink(d.url) || browser(d.url),
   web_app_open_popup: (c, d) => c.popup(d),
   web_app_data_send: (c, d) => c.sendData(d.data),
+  web_app_send_prepared_message: (c, d) => c.prepared(d.id),
 };
 
 const COMPACT = /\s+/g;
@@ -440,7 +443,7 @@ const Header = ({ panel, title, onBack, onReload, onClose }) => {
 };
 
 // The window itself, over the page.
-const WebAppPanel = ({ session, api, onClose, onReload }) => {
+const WebAppPanel = ({ session, api, chats, onClose, onReload }) => {
   const t = useT();
   const frame = useRef(null);
   const body = useRef(null);
@@ -468,9 +471,17 @@ const WebAppPanel = ({ session, api, onClose, onReload }) => {
           local: true,
         })
       : onClose();
+  // The app's prepared message, chosen a chat for (R-Y194).
+  const share = usePreparedShare({
+    api,
+    bot: session.request.bot ?? session.bot?.id,
+    chats,
+    post,
+  });
   const context = {
     post,
     size,
+    prepared: share.ask,
     close: onClose,
     popup: (data) => setPopup((now) => now ?? data),
     sendData: dataSender({ session, api, close: onClose }),
@@ -493,7 +504,8 @@ const WebAppPanel = ({ session, api, onClose, onReload }) => {
   };
   useEffect(() => {
     const onKey = (event) => {
-      if (event.key === 'Escape') {
+      // The share chooser, when open, takes Escape itself.
+      if (event.key === 'Escape' && !share.open) {
         event.preventDefault();
         return popup ? dismiss() : requestClose();
       }
@@ -571,5 +583,8 @@ const WebAppPanel = ({ session, api, onClose, onReload }) => {
     )
   );
   const root = globalThis.document?.body;
-  return root ? createPortal(node, root) : node;
+  return el(React.Fragment, null, [
+    root ? createPortal(node, root) : node,
+    share.dialog,
+  ]);
 };

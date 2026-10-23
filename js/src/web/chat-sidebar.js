@@ -26,6 +26,7 @@ import {
 } from './chat-global.js';
 import { BirthdaysBlock } from './chat-person-extras.js';
 import { StoriesStrip, StoryViewerHost, useStories } from './stories.js';
+import { AppsSection, useSearchFocus } from './chat-apps-search.js';
 
 const el = React.createElement;
 
@@ -277,6 +278,10 @@ const globalProps = (api, state, global) => ({
   onOpenMessage: (link) => openFoundMessage(state, link),
 });
 
+// The popular apps show while the search box is in use (R-Y194).
+const appsShown = (state, focus) =>
+  globalOn(state) && (focus.focused || Boolean(state.query));
+
 // Stories give way to a search and to the archive.
 const storiesHidden = (state) =>
   Boolean(state.query) || state.folder === 'archive';
@@ -297,6 +302,7 @@ export const Sidebar = ({ state, api }) => {
   const page = useShownChats(list, { ...state, chats: pins.chats });
   useListLoading(list, state, page.chats.length);
   const global = useGlobalSearch(api, state.query, globalOn(state));
+  const focus = useSearchFocus();
   const stories = useStories(api, globalOn(state));
   const oldest = state.sort === 'oldest';
   const item = (chat) =>
@@ -344,6 +350,7 @@ export const Sidebar = ({ state, api }) => {
         className: 'chat-search',
         placeholder: t('chat.search'),
         'aria-label': t('chat.search'),
+        ...focus.props,
         value: state.query,
         onChange: (event) => state.setQuery(event.target.value),
         // Esc empties the search, then leaves it (R-Y183).
@@ -356,6 +363,15 @@ export const Sidebar = ({ state, api }) => {
             }
           }
         },
+      }),
+      // The popular mini apps, while the search is in use (R-Y194).
+      el(AppsSection, {
+        key: 'apps',
+        api,
+        show: appsShown(state, focus),
+        query: state.query,
+        open: (target) => state.openAt?.(target),
+        release: focus.release,
       }),
       el(FilterTabs, { key: 'f', state }),
       el(StoriesStrip, {

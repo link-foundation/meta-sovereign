@@ -924,4 +924,32 @@ export const ruChatMore = {
   'chat.dm.err.bad-suggestion':
     'Напишите текст и цену (0 или больше), дату выберите в будущем или не выбирайте.',
   'chat.dm.err.failed': 'Не получилось.',
+  'chat.apps.title': 'Приложения',
+  'chat.apps.more': 'Показать ещё',
+  'chat.apps.users':
+    '{count, plural, one {# пользователь в месяц} few {# пользователя в месяц} other {# пользователей в месяц}}',
+  'chat.apps.launch': 'Открыть',
+  'chat.apps.openApp': 'Открыть приложение {name}',
+  'chat.apps.similar': 'Похожие боты',
+  'chat.apps.share.title': 'Поделиться сообщением',
+  'chat.apps.share.search': 'Поиск чатов',
+  'chat.apps.share.types': 'Можно отправить: {types}',
+  'chat.apps.share.type.same-bot': 'этому боту',
+  'chat.apps.share.type.users': 'людям',
+  'chat.apps.share.type.bots': 'ботам',
+  'chat.apps.share.type.groups': 'группам',
+  'chat.apps.share.type.channels': 'каналам',
+  'chat.apps.share.err.expired': 'Срок этого сообщения истёк.',
+  'chat.apps.share.err.no-bot': 'Бот не найден.',
+  'chat.apps.share.err.flood':
+    'Telegram просит подождать. Попробуйте чуть позже.',
+  'chat.apps.share.err.failed': 'Сообщение не отправлено.',
+  'chat.collectible.date': 'Куплено',
+  'chat.collectible.price': 'Цена',
+  'chat.collectible.crypto': 'В криптовалюте',
+  'chat.collectible.learn': 'Подробнее',
+  'chat.collectible.err.not-collectible': 'Это не коллекционный предмет.',
+  'chat.collectible.err.flood':
+    'Telegram просит подождать. Попробуйте чуть позже.',
+  'chat.collectible.err.failed': 'Не удалось прочитать сведения.',
 };
