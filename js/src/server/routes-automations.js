@@ -46,7 +46,7 @@ import {
 import { listAutomations } from '../automation/drafts.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
-import { validSendAs } from '../sources/telegram-send-as-client.js';
+import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validEffect } from './routes-telegram-effects.js';
 
 const fail = (res, status, code, error) =>
@@ -149,6 +149,8 @@ const buildDraft = (body) => {
     ...topicField(body),
     // The identity it is sent as in a group (R-Y141).
     ...(body.sendAs === undefined ? {} : { sendAs: body.sendAs }),
+    // The Stars the user confirmed for a paid chat (R-Y184).
+    ...paidField(body),
     // A message effect's id, a decimal string (R-Y149).
     ...effectField(body),
     // The link preview's choice (R-Y145), already validated.

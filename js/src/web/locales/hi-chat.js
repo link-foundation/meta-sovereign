@@ -1339,4 +1339,110 @@ export const hiChat = {
     'Telegram ने रुकने को कहा है। थोड़ी देर बाद फिर कोशिश करें।',
   'chat.export.err.no-export': 'दिखाने लायक कोई पूरा निर्यात नहीं है।',
   'chat.export.err.failed': 'निर्यात नहीं हो सका।',
+  // Giveaways, paid messages, channel auto-translation (R-Y184).
+  'chat.paidSend.perMessage': 'प्रति संदेश {count} ⭐',
+  'chat.paidSend.title': 'सशुल्क संदेश',
+  'chat.paidSend.body':
+    'इस चैट में हर संदेश का शुल्क {price} ⭐ है। {count, plural, one {# संदेश} other {# संदेश}} भेजने पर कुल {total} ⭐ लगेंगे।',
+  'chat.paidSend.confirm': '{count} ⭐ में भेजें',
+  'chat.paidSend.remember': 'इस चैट के लिए दोबारा न पूछें',
+  'chat.paidSend.declined': 'भेजा नहीं गया: कीमत की पुष्टि नहीं हुई।',
+  'chat.paidSend.changed':
+    'भेजा नहीं गया: यहाँ संदेशों की कीमत बदल गई है। नई कीमत देखने के लिए फिर भेजें।',
+  'chat.paidMsg.title': 'संदेश',
+  'chat.paidMsg.loading': 'लोड हो रहा है…',
+  'chat.paidMsg.unavailable': 'यह सेटिंग पढ़ी नहीं जा सकी।',
+  'chat.paidMsg.charge': 'संदेशों के लिए शुल्क लें',
+  'chat.paidMsg.chargeHint':
+    'आपके संपर्कों में न रहने वाले लोग आपको लिखने के लिए Stars देते हैं।',
+  'chat.paidMsg.price': 'प्रति संदेश Stars',
+  'chat.paidMsg.priceHint': 'आपको भेजे गए हर संदेश की कीमत {count} ⭐ होगी।',
+  'chat.paidMsg.priceBad': '1 से {max} तक Stars की पूर्ण संख्या।',
+  'chat.paidMsg.save': 'सहेजें',
+  'chat.paidMsg.earned': 'इस व्यक्ति से कमाई: {count} ⭐',
+  'chat.paidMsg.free': 'मुफ़्त संदेशों की अनुमति दें',
+  'chat.paidMsg.pay': 'फिर से शुल्क लें',
+  'chat.paidMsg.freeAsk': 'क्या इस व्यक्ति को अब से आपको मुफ़्त में लिखने दें?',
+  'chat.paidMsg.payAsk':
+    'क्या इस व्यक्ति से आपको भेजे संदेशों के लिए फिर शुल्क लें?',
+  'chat.paidMsg.refund': 'उनके चुकाए Stars भी लौटाएँ',
+  'chat.paidMsg.confirm': 'पुष्टि करें',
+  'chat.paidMsg.nowFree': 'यह व्यक्ति अब आपको मुफ़्त में लिख सकता है।',
+  'chat.paidMsg.nowPay':
+    'यह व्यक्ति आपको भेजे संदेशों के लिए फिर से भुगतान करेगा।',
+  'chat.paidMsg.err.failed': 'Telegram ने बदलाव स्वीकार नहीं किया।',
+  'chat.paidMsg.err.bad-price': 'Telegram यह कीमत स्वीकार नहीं करता।',
+  'chat.paidMsg.err.not-admin': 'इसे केवल एडमिन बदल सकता है।',
+  'chat.paidMsg.err.no-user': 'यह व्यक्ति उपलब्ध नहीं है।',
+  'chat.paidMsg.err.no-chat': 'यह चैट उपलब्ध नहीं है।',
+  'chat.paidMsg.err.flood': 'बहुत अधिक प्रयास। थोड़ी देर रुककर फिर कोशिश करें।',
+  'chat.paidMsg.err.bad-request': 'यह बदलाव मान्य नहीं है।',
+  'chat.settings.autotranslation': 'पोस्ट का स्वतः अनुवाद',
+  'chat.settings.autotranslation.hint':
+    'पाठकों को चैनल की पोस्ट उनकी अपनी भाषा में अनुवादित दिखती हैं।',
+  'chat.settings.paidMessages': 'प्रति संदेश Stars',
+  'chat.settings.paidMessages.hint':
+    'एडमिन न होने वाले सदस्य हर संदेश के लिए यह राशि देते हैं। 0 से बंद हो जाता है।',
+  'chat.settings.err.bad-price': 'Telegram यह कीमत स्वीकार नहीं करता।',
+  'chat.giveaway.title': 'गिवअवे',
+  'chat.giveaway.endedTitle': 'गिवअवे समाप्त',
+  'chat.giveaway.prizes': 'पुरस्कार',
+  'chat.giveaway.prizeMonths':
+    '{count, plural, one {# Telegram Premium सदस्यता} other {# Telegram Premium सदस्यताएँ}}, {months, plural, one {# महीने} other {# महीनों}} के लिए',
+  'chat.giveaway.prizeStars': 'हर विजेता को {count} ⭐ Stars',
+  'chat.giveaway.extra': 'साथ में: {text}',
+  'chat.giveaway.participants': 'प्रतिभागी',
+  'chat.giveaway.audienceAllOne': 'इस चैनल के सभी सब्सक्राइबर',
+  'chat.giveaway.audienceNewOne':
+    'केवल वे जो शुरू होने के बाद इस चैनल को सब्सक्राइब करें',
+  'chat.giveaway.audienceAllMany': 'इन {count} चैनलों के सभी सब्सक्राइबर',
+  'chat.giveaway.audienceNewMany':
+    'केवल वे जो शुरू होने के बाद इन {count} चैनलों को सब्सक्राइब करें',
+  'chat.giveaway.countries': 'देश: {list}',
+  'chat.giveaway.selection': 'विजेता चुने जाएँगे',
+  'chat.giveaway.more': 'और जानें',
+  'chat.giveaway.loading': 'Telegram से पूछ रहे हैं…',
+  'chat.giveaway.err.failed': 'Telegram इस गिवअवे के बारे में नहीं बता सका।',
+  'chat.giveaway.err.no-message': 'वह संदेश उपलब्ध नहीं है।',
+  'chat.giveaway.err.no-chat': 'वह चैनल उपलब्ध नहीं है।',
+  'chat.giveaway.err.no-giveaway': 'यह गिवअवे नहीं मिला।',
+  'chat.giveaway.err.flood': 'बहुत अधिक अनुरोध; थोड़ी देर बाद फिर कोशिश करें।',
+  'chat.giveaway.err.bad-request': 'यह अनुरोध मान्य नहीं है।',
+  'chat.giveaway.yourStatus': 'आप',
+  'chat.giveaway.you.in': 'आप इस गिवअवे में भाग ले रहे हैं।',
+  'chat.giveaway.you.preparing': 'अभी विजेता चुने जा रहे हैं।',
+  'chat.giveaway.you.early':
+    'आप भाग नहीं ले सकते: आप गिवअवे शुरू होने से पहले, {date} को चैनल से जुड़े थे।',
+  'chat.giveaway.you.admin':
+    'आप भाग नहीं ले सकते: आप इसके किसी चैनल के एडमिन हैं।',
+  'chat.giveaway.you.country':
+    'आप भाग नहीं ले सकते: {country} सूची के देशों में नहीं है।',
+  'chat.giveaway.you.join':
+    'आप अभी भाग नहीं ले रहे हैं। इन्हें सब्सक्राइब करें: {channels}।',
+  'chat.giveaway.you.won': 'बधाई हो, आप जीत गए!',
+  'chat.giveaway.you.lost': 'आप इस गिवअवे में नहीं जीते।',
+  'chat.giveaway.you.refunded': 'यह गिवअवे रद्द हुआ और इसके Stars लौटा दिए गए।',
+  'chat.giveaway.giftLink': 'आपके पुरस्कार का लिंक',
+  'chat.giveaway.winnersTitle': 'विजेता',
+  'chat.giveaway.winnersCount':
+    '{count, plural, one {# विजेता} other {# विजेता}}',
+  'chat.giveaway.claimed': '{total} में से {count} पुरस्कार लिए गए',
+  'chat.giveaway.channels': 'चैनल',
+  'chat.giveaway.channelsMany': '{count, plural, one {# चैनल} other {# चैनल}}',
+  'chat.giveaway.started': 'शुरू',
+  'chat.giveaway.finished': 'समाप्त',
+  'chat.giveaway.winnersSelected':
+    '{count, plural, one {# विजेता चुना गया} other {# विजेता चुने गए}}',
+  'chat.giveaway.refundedLine': 'गिवअवे रद्द हो गया।',
+  'chat.giveaway.unclaimed':
+    '{count, plural, one {# पुरस्कार नहीं लिया गया} other {# पुरस्कार नहीं लिए गए}}',
+  'chat.service.giveawayLaunch': 'एक गिवअवे शुरू हुआ',
+  'chat.service.giveawayResults':
+    'गिवअवे समाप्त: {count, plural, one {# विजेता} other {# विजेता}}',
+  'chat.service.giveawayResultsUnclaimed':
+    'गिवअवे समाप्त: {count, plural, one {# विजेता} other {# विजेता}}, {unclaimed} नहीं लिए गए',
+  'chat.service.paidPrice': 'यहाँ अब हर संदेश की कीमत {count} ⭐ है',
+  'chat.service.paidPriceOff': 'यहाँ संदेश फिर मुफ़्त हैं',
+  'chat.service.paidRefunded':
+    '{count, plural, one {# सशुल्क संदेश} other {# सशुल्क संदेश}} वापस किए गए, {stars} ⭐ लौटाए गए',
 };

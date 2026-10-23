@@ -10171,6 +10171,47 @@ span.bubble-effect {
 }
 .export-form,
 .export-progress {
+}
+
+/* Giveaways, paid messages, channel auto-translation (R-Y184). */
+.paid-send-label {
+  align-self: flex-start;
+  margin: 0 0.5rem 0.25rem;
+  padding: 0.1rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-elev);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.paid-remember {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.giveaway-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 14rem;
+}
+.giveaway-row small {
+  display: block;
+}
+.giveaway-extra {
+  color: var(--text-muted);
+}
+.giveaway-more {
+  align-self: flex-start;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  color: var(--link);
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+}
+.giveaway-details {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -10221,4 +10262,15 @@ span.bubble-effect {
   height: 100%;
   background: var(--accent);
   transition: width 0.3s ease;
+}
+
+.paid-earnings,
+.privacy-paid,
+.settings-paid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.settings-paid {
+  align-items: flex-start;
 }

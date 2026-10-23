@@ -15,6 +15,7 @@ import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { PipButton, usePip } from './chat-pip.js';
 import { Checklist, Poll } from './chat-poll.js';
+import { GiveawayCard, GiveawayResultsCard } from './chat-giveaway.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
 import { liveLines } from './live-place.js';
@@ -875,6 +876,9 @@ const CARDS = {
   poll: Poll,
   todo: Checklist,
   dice: Dice,
+  // Giveaways (R-Y184).
+  giveaway: GiveawayCard,
+  'giveaway-results': GiveawayResultsCard,
 };
 
 /** A card; a poll or checklist acts on its message (`chat`, `msgId`). */

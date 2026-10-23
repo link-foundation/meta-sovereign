@@ -23,7 +23,7 @@ import {
   MAX_RESULT_ID,
   NAME,
 } from '../sources/telegram-inline-bots.js';
-import { validSendAs } from '../sources/telegram-send-as-client.js';
+import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 
 const START_PARAM = /^[A-Za-z0-9_-]{0,64}$/;
 const NUMBER = /^-?\d{1,20}$/;
@@ -83,6 +83,7 @@ export const INLINE_POSTS = {
         replyTo,
         clientId: typeof body.clientId === 'string' ? body.clientId : null,
         ...(body.sendAs ? { sendAs: body.sendAs } : {}),
+        ...paidField(body),
       }),
     ];
   },

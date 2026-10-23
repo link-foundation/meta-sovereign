@@ -11,7 +11,7 @@ import {
   MAX_ROUND_SECONDS,
   MAX_ROUND_SIDE,
 } from '../sources/telegram-round.js';
-import { validSendAs } from '../sources/telegram-send-as-client.js';
+import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 
 const inRange = (v, min, max) => Number.isFinite(v) && v >= min && v <= max;
@@ -46,6 +46,7 @@ export const ROUND_POSTS = {
         size: body.size,
         replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
         ...(body.sendAs === undefined ? {} : { sendAs: body.sendAs }),
+        ...paidField(body),
         ...(body.silent === true ? { silent: true } : {}),
         ...(body.scheduleDate !== undefined
           ? { scheduleDate: body.scheduleDate }

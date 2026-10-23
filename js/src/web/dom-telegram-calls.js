@@ -316,4 +316,16 @@ export const TELEGRAM_CALLS = {
   telegramExportStatus: none('export-status'),
   telegramExportCancel: none('export-cancel'),
   telegramExportReveal: none('export-reveal'),
+  // Paid messages (R-Y184): what a message costs in a chat ({ chat } →
+  // { stars }), the price charged to non-contacts and its save ({ stars }),
+  // what one person paid ({ user }), letting them write free or pay again
+  // ({ user, allow, refund? }), a group's price ({ chat, stars }).
+  telegramPaidPrice: body('paid-price'),
+  telegramPaidSettings: none('paid-settings'),
+  telegramPaidSettingsSave: body('paid-settings-save'),
+  telegramPaidRevenue: body('paid-revenue'),
+  telegramPaidException: body('paid-exception'),
+  telegramPaidPriceSave: body('paid-price-save'),
+  // A giveaway's details ({ chat, id, channels?, winners? }; R-Y184).
+  telegramGiveawayInfo: body('giveaway-info'),
 };

@@ -205,6 +205,7 @@ import { GETS } from './routes-telegram-files.js';
 import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { EXPORT_POSTS } from './routes-telegram-export.js';
+import { PAID_POSTS } from './routes-telegram-paid.js';
 import { QUICK_REPLY_POSTS } from './routes-telegram-quick-replies.js';
 import { HASHTAG_POSTS } from './routes-telegram-hashtags.js';
 import { RINGTONE_GETS, RINGTONE_POSTS } from './routes-telegram-ringtones.js';
@@ -251,7 +252,7 @@ import {
 import { PROFILE_EXTRAS_POSTS } from './routes-telegram-profile-extras.js';
 import { BUSINESS_POSTS } from './routes-telegram-business.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
-import { validSendAs } from '../sources/telegram-send-as-client.js';
+import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { STORIES_POSTS } from './routes-telegram-stories.js';
 import { STORY_ACTION_POSTS } from './routes-telegram-story-actions.js';
 import { LINK_PREVIEW_POSTS } from './routes-telegram-link-preview.js';
@@ -320,6 +321,8 @@ const peerAction = async (account, name, body) => {
 const whenOf = (body) => ({
   // Sent as another identity in a group (R-Y141).
   ...(body.sendAs === undefined ? {} : { sendAs: body.sendAs }),
+  // The Stars the user confirmed for a paid chat (R-Y184).
+  ...paidField(body),
   ...(body.silent === true ? { silent: true } : {}),
   ...(body.scheduleDate !== undefined
     ? { scheduleDate: body.scheduleDate }
@@ -581,6 +584,7 @@ const POSTS = {
         ids: body.ids,
         dropAuthor: body.dropAuthor === true,
         dropMediaCaptions: body.dropMediaCaptions === true,
+        ...paidField(body),
       }),
     ];
   },
@@ -983,6 +987,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...EXPORT_POSTS,
+  ...PAID_POSTS,
   ...QUICK_REPLY_POSTS,
   ...HASHTAG_POSTS,
   ...RINGTONE_POSTS,

@@ -1332,4 +1332,110 @@ export const enChat = {
   'chat.export.err.flood': 'Telegram asked to wait. Try again a little later.',
   'chat.export.err.no-export': 'There is no finished export to show.',
   'chat.export.err.failed': 'The export did not work.',
+  // Giveaways, paid messages, channel auto-translation (R-Y184).
+  'chat.paidSend.perMessage': '{count} ⭐ per message',
+  'chat.paidSend.title': 'Paid messages',
+  'chat.paidSend.body':
+    'This chat charges {price} ⭐ for each message. Sending {count, plural, one {# message} other {# messages}} costs {total} ⭐ in total.',
+  'chat.paidSend.confirm': 'Send for {count} ⭐',
+  'chat.paidSend.remember': "Don't ask again for this chat",
+  'chat.paidSend.declined': 'Not sent: the price was not confirmed.',
+  'chat.paidSend.changed':
+    'Not sent: the price of messages here has changed. Send again to see the new price.',
+  'chat.paidMsg.title': 'Messages',
+  'chat.paidMsg.loading': 'Loading…',
+  'chat.paidMsg.unavailable': 'This setting could not be read.',
+  'chat.paidMsg.charge': 'Charge for messages',
+  'chat.paidMsg.chargeHint':
+    'People who are not in your contacts pay Stars to write to you.',
+  'chat.paidMsg.price': 'Stars per message',
+  'chat.paidMsg.priceHint': 'Each message to you will cost {count} ⭐.',
+  'chat.paidMsg.priceBad': 'A whole number of Stars from 1 to {max}.',
+  'chat.paidMsg.save': 'Save',
+  'chat.paidMsg.earned': 'Earned from this person: {count} ⭐',
+  'chat.paidMsg.free': 'Allow free messages',
+  'chat.paidMsg.pay': 'Charge again',
+  'chat.paidMsg.freeAsk': 'Let this person write to you for free from now on?',
+  'chat.paidMsg.payAsk': 'Make this person pay again for messages to you?',
+  'chat.paidMsg.refund': 'Also give back the Stars they paid',
+  'chat.paidMsg.confirm': 'Confirm',
+  'chat.paidMsg.nowFree': 'This person can write to you for free.',
+  'chat.paidMsg.nowPay': 'This person pays for messages to you again.',
+  'chat.paidMsg.err.failed': 'Telegram did not accept the change.',
+  'chat.paidMsg.err.bad-price': 'Telegram does not accept this price.',
+  'chat.paidMsg.err.not-admin': 'Only an admin can change this.',
+  'chat.paidMsg.err.no-user': 'That person is not available.',
+  'chat.paidMsg.err.no-chat': 'That chat is not available.',
+  'chat.paidMsg.err.flood': 'Too many tries. Wait a while and try again.',
+  'chat.paidMsg.err.bad-request': 'This change is not valid.',
+  'chat.settings.autotranslation': 'Auto-translate posts',
+  'chat.settings.autotranslation.hint':
+    "Readers see this channel's posts translated into their own language.",
+  'chat.settings.paidMessages': 'Stars per message',
+  'chat.settings.paidMessages.hint':
+    'Members who are not admins pay this for each message. 0 turns it off.',
+  'chat.settings.err.bad-price': 'Telegram does not accept this price.',
+  'chat.giveaway.title': 'Giveaway',
+  'chat.giveaway.endedTitle': 'Giveaway ended',
+  'chat.giveaway.prizes': 'Prizes',
+  'chat.giveaway.prizeMonths':
+    '{count, plural, one {# Telegram Premium subscription} other {# Telegram Premium subscriptions}} for {months, plural, one {# month} other {# months}}',
+  'chat.giveaway.prizeStars': '{count} ⭐ Stars for each winner',
+  'chat.giveaway.extra': 'with {text}',
+  'chat.giveaway.participants': 'Participants',
+  'chat.giveaway.audienceAllOne': 'All subscribers of this channel',
+  'chat.giveaway.audienceNewOne':
+    'Only those who subscribe to this channel after the start',
+  'chat.giveaway.audienceAllMany': 'All subscribers of these {count} channels',
+  'chat.giveaway.audienceNewMany':
+    'Only those who subscribe to these {count} channels after the start',
+  'chat.giveaway.countries': 'From: {list}',
+  'chat.giveaway.selection': 'Winners are chosen on',
+  'chat.giveaway.more': 'Learn more',
+  'chat.giveaway.loading': 'Asking Telegram…',
+  'chat.giveaway.err.failed': 'Telegram could not tell about this giveaway.',
+  'chat.giveaway.err.no-message': 'That message is not available.',
+  'chat.giveaway.err.no-chat': 'That channel is not available.',
+  'chat.giveaway.err.no-giveaway': 'This giveaway was not found.',
+  'chat.giveaway.err.flood': 'Too many requests; try again in a while.',
+  'chat.giveaway.err.bad-request': 'This request is not valid.',
+  'chat.giveaway.yourStatus': 'You',
+  'chat.giveaway.you.in': 'You are participating in this giveaway.',
+  'chat.giveaway.you.preparing': 'The winners are being chosen now.',
+  'chat.giveaway.you.early':
+    'You cannot take part: you joined the channel on {date}, before the giveaway began.',
+  'chat.giveaway.you.admin':
+    'You cannot take part: you are an admin of one of its channels.',
+  'chat.giveaway.you.country':
+    'You cannot take part: {country} is not among the countries.',
+  'chat.giveaway.you.join':
+    'You are not participating yet. Subscribe to: {channels}.',
+  'chat.giveaway.you.won': 'Congratulations, you won!',
+  'chat.giveaway.you.lost': 'You did not win this giveaway.',
+  'chat.giveaway.you.refunded':
+    'This giveaway was cancelled and its Stars were returned.',
+  'chat.giveaway.giftLink': 'Your prize link',
+  'chat.giveaway.winnersTitle': 'Winners',
+  'chat.giveaway.winnersCount':
+    '{count, plural, one {# winner} other {# winners}}',
+  'chat.giveaway.claimed': '{count} of {total} prizes claimed',
+  'chat.giveaway.channels': 'Channels',
+  'chat.giveaway.channelsMany':
+    '{count, plural, one {# channel} other {# channels}}',
+  'chat.giveaway.started': 'Started',
+  'chat.giveaway.finished': 'Finished',
+  'chat.giveaway.winnersSelected':
+    '{count, plural, one {# winner was chosen} other {# winners were chosen}}',
+  'chat.giveaway.refundedLine': 'The giveaway was cancelled.',
+  'chat.giveaway.unclaimed':
+    '{count, plural, one {# prize was not claimed} other {# prizes were not claimed}}',
+  'chat.service.giveawayLaunch': 'A giveaway started',
+  'chat.service.giveawayResults':
+    'Giveaway ended: {count, plural, one {# winner} other {# winners}}',
+  'chat.service.giveawayResultsUnclaimed':
+    'Giveaway ended: {count, plural, one {# winner} other {# winners}}, {unclaimed} not claimed',
+  'chat.service.paidPrice': 'Each message here now costs {count} ⭐',
+  'chat.service.paidPriceOff': 'Messages here are free again',
+  'chat.service.paidRefunded':
+    '{count, plural, one {# paid message} other {# paid messages}} refunded, {stars} ⭐ returned',
 };

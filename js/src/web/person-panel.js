@@ -33,6 +33,7 @@ import { EditChat } from './chat-edit.js';
 import { AdminActions } from './chat-admin.js';
 import { InviteLinksActions } from './chat-invite-links.js';
 import { PersonalChannelCard } from './chat-person-extras.js';
+import { PaidEarnings } from './chat-paid-earnings.js';
 import { BusinessProfile } from './chat-business-profile.js';
 
 const el = React.createElement;
@@ -318,6 +319,8 @@ export const PersonPanel = ({
           ? el(ProfileHead, { key: 'p', api, chat, info })
           : null,
         el(PersonalChannelCard, { key: 'pc', api, chat, info, onOpenChat }),
+        // What this person paid to write to you (R-Y184).
+        el(PaidEarnings, { key: 'pe', api, chat }),
         // A business's hours and address (R-Y180).
         el(BusinessProfile, { key: 'biz', api, chat }),
         el(EditChat, { key: 'e', api, chat, info }),

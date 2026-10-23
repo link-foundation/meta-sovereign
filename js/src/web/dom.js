@@ -29,6 +29,7 @@ import {
   saveGreetingSelection,
 } from '../greetings/plan.js';
 import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
+import { bindPaid, guardApi, paidGate } from './paid-send.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = document.createElement(tag);
@@ -483,7 +484,7 @@ const greetingsOffline = (networks) => ({
   error: 'server-required',
 });
 
-export const api = {
+const rawApi = {
   // Plain POSTs to /api/telegram/<route> (./dom-telegram-calls.js).
   ...telegramCalls,
   ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),
@@ -1210,3 +1211,14 @@ export const api = {
         ).catch(() => null)) ?? null)
       : null,
 };
+
+// Every send into a chat that charges Stars per message asks first and
+// goes out with exactly the Stars confirmed (R-Y184, ./paid-send.js).
+bindPaid({
+  price: async (chat) => {
+    const answer = await rawApi.telegramPaidPrice({ chat });
+    return answer?.ok ? Number(answer.stars) || 0 : 0;
+  },
+});
+
+export const api = guardApi(rawApi, paidGate);

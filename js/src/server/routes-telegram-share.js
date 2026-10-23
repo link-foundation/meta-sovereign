@@ -16,7 +16,7 @@
 //   POST /api/telegram/update-live-location {chat, id, lat, lon, accuracy?,
 //                       heading?} -> { ok } our live location moved (R-Y147)
 
-import { validSendAs } from '../sources/telegram-send-as-client.js';
+import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 import {
   LIVE_PERIODS,
@@ -46,6 +46,7 @@ const extrasOf = (body) => ({
   ...(body.replyTo ? { replyTo: body.replyTo } : {}),
   ...(body.clientId ? { clientId: body.clientId } : {}),
   ...(body.sendAs ? { sendAs: body.sendAs } : {}),
+  ...paidField(body),
 });
 
 const validPlace = (b) =>

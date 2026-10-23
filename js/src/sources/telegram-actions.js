@@ -32,6 +32,7 @@
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
 import { apiEntities, parseFormatted } from './telegram-format.js';
 import { previewMedia, randomIdOf } from './telegram-send.js';
+import { withSendAs } from './telegram-send-as-client.js';
 import { createFileReader, createMediaReader } from './telegram-media.js';
 import { createAvatarReader } from './telegram-avatars.js';
 import { createChatInfoReader } from './telegram-chat-info.js';
@@ -102,6 +103,8 @@ import { createStars } from './telegram-stars.js';
 import { createGiftSend } from './telegram-gift-send.js';
 import { createProfileMusic } from './telegram-profile-music.js';
 import { createProfileStories } from './telegram-profile-stories.js';
+import { createPaidMessages } from './telegram-paid-messages.js';
+import { createGiveaways } from './telegram-giveaways.js';
 import { createProfileExtras } from './telegram-profile-extras.js';
 import { createBusiness } from './telegram-business.js';
 import { createBusinessLinks } from './telegram-business-links.js';
@@ -324,11 +327,13 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     }
     const imports = await env.importer();
     const fromPeer = (await env.peers.input(String(fromChat))) ?? fromChat;
+    // The Stars the user confirmed to forward into a paid chat (R-Y184).
+    const sender = await withSendAs(env, client, null, flags.allowPaidStars);
     const result = await env.connection.withPeer(
-      client,
+      sender,
       String(toChat),
       async (toPeer) =>
-        client.invoke(
+        sender.invoke(
           forwardRequest(imports, { fromPeer, toPeer, ids: wanted }, flags)
         )
     );
@@ -443,7 +448,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // counters of channel posts and hashtag search (R-Y182); Telegram Business
 // opening hours, location, intro, chat links, chatbots and folder tags
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
-// sending a gift (R-Y185); exporting chat history (R-Y186).
+// sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
+// messages and channel autotranslation (R-Y184).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -523,6 +529,8 @@ const chatActions = (env, context) => {
     ...createGiftSend(env, { ...context, stickers: stickerLists }),
     ...createProfileStories(env, context),
     ...createProfileMusic(env, context),
+    ...createPaidMessages(env, context),
+    ...createGiveaways(env, context),
     ...createProfileExtras(env, context),
     ...createBusiness(env, { ...context, stickers: stickerLists }),
     ...createBusinessLinks(env, context),

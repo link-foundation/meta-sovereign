@@ -101,6 +101,15 @@ const refusedSendAs = (text) => {
     : null;
 };
 
+// A paid chat (R-Y184): nothing was paid; the price is not the one the user
+// confirmed, or the Stars are not there.
+const refusedPaid = (text) => {
+  if (/ALLOW_PAYMENT_REQUIRED/.test(text)) {
+    return codeError('paid-required', text);
+  }
+  return /BALANCE_TOO_LOW/.test(text) ? codeError('paid-balance', text) : null;
+};
+
 const otherSendError = (error) => {
   const text = errorText(error);
   const flood = /FLOOD_WAIT_?(\d+)?/.exec(text);
@@ -136,7 +145,9 @@ const otherSendError = (error) => {
 
 /** Telegram's error as a composer-friendly `{ code, retryAfter? }` error. */
 export const sendError = (error) =>
-  refusedSendAs(errorText(error)) ?? otherSendError(error);
+  refusedSendAs(errorText(error)) ??
+  refusedPaid(errorText(error)) ??
+  otherSendError(error);
 
 // Whom the message answers, and the part of it quoted; in a forum
 // topic (R-Y122), the topic: its first message answered when nothing

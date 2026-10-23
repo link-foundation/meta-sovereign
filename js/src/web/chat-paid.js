@@ -11,9 +11,9 @@
 //   videos show through the usual media code (one item) or as a grid.
 
 import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { useT } from './i18n.js';
 import { FormDialog } from './chat-create.js';
+import { overPage } from './paid-portal.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { PAID_MAX, canAfford, clampPaid, starsText } from './stars-model.js';
@@ -24,26 +24,6 @@ const errorText = (t, code) => {
   const key = `chat.paid.err.${code}`;
   const text = t(key);
   return text === key ? t('chat.paid.err.failed') : text;
-};
-
-// Over everything: a message sits in the wall's own stacking context.
-// What happens in the dialog stays out of the message under it (a click
-// there would select it).
-const stop = (event) => event.stopPropagation();
-const overPage = (dialog) => {
-  const body = globalThis.document?.body;
-  const wrapped = el(
-    'div',
-    {
-      className: 'paid-portal',
-      onClick: stop,
-      onMouseDown: stop,
-      onContextMenu: stop,
-      onDoubleClick: stop,
-    },
-    dialog
-  );
-  return body ? createPortal(wrapped, body) : wrapped;
 };
 
 /** The user's Stars, asked once: a number, or null while unknown. */
@@ -62,7 +42,7 @@ export const useBalance = (api) => {
   return balance;
 };
 
-const Balance = ({ t, balance }) =>
+export const Balance = ({ t, balance }) =>
   el(
     'p',
     { className: 'meta', 'data-stars-balance': balance ?? '' },

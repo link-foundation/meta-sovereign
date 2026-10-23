@@ -101,7 +101,7 @@ test('restrict saving works on a group and a channel', async () => {
 });
 
 test('the allow-list is strict', async () => {
-  assert.equal(SETTING_KEYS.length, 7);
+  assert.equal(SETTING_KEYS.length, 8);
   assert.equal(
     validSetting({ chat: CHANNEL, setting: 'signatures', value: true }),
     true
@@ -223,7 +223,12 @@ test('settingsInfo: who sees which switch, and the values', () => {
     creator: true,
     noforwards: true,
   });
-  assert.deepEqual(owner.shown, ['signatures', 'discussion', 'noForwards']);
+  assert.deepEqual(owner.shown, [
+    'signatures',
+    'discussion',
+    'noForwards',
+    'autotranslation',
+  ]);
   assert.equal(owner.values.noForwards, true);
   const privateGroup = settingsInfo({
     megagroup: true,

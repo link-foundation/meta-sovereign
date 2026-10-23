@@ -11,6 +11,11 @@ import { parsePoll, parseTodo } from './poll-parts.js';
 import { inTopicOnly } from './forum-topics.js';
 import { callLine } from './call-model.js';
 import { paidOf, paidReactionOf } from './stars-model.js';
+import {
+  giveawayOf,
+  giveawayResultsOf,
+  serviceWords,
+} from './giveaway-model.js';
 
 // Standard JFIF + Huffman table header, verbatim from Telegram's spec.
 const JPEG_HEADER_HEX =
@@ -188,6 +193,11 @@ export const serviceInfo = (link) => {
   if (link.service === 'MessageActionPhoneCall') {
     // Incoming, outgoing, missed or cancelled, video or not (R-Y163).
     return { ...callLine(link), title: null, titleKey: '', user: null };
+  }
+  // Giveaways and paid messages (R-Y184): a line with its numbers.
+  const words = serviceWords(link.service, action);
+  if (words) {
+    return { ...words, title: null, titleKey: '', user: null };
   }
   const key =
     link.service === 'MessageActionTopicEdit' && !title
@@ -398,6 +408,9 @@ const CARD_MEDIA = {
   MessageMediaInvoice: (m) => ({ kind: 'invoice', title: m.title ?? null }),
   MessageMediaUnsupported: () => ({ kind: 'unsupported' }),
   MessageMediaPaidMedia: (m) => parsePaid(m),
+  // Giveaways (R-Y184): the running one and its results.
+  MessageMediaGiveaway: giveawayOf,
+  MessageMediaGiveawayResults: giveawayResultsOf,
 };
 
 // Paid media (R-Y176): blurred previews until paid; once unlocked one

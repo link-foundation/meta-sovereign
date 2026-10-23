@@ -111,6 +111,7 @@ import {
 import { goToMessage, useArrival, useStreamJumps } from './chat-jump.js';
 import { NOTICE, Sidebar, noticeInWords } from './chat-sidebar.js';
 import { useSendAs } from './chat-send-as.js';
+import { usePaidSend } from './chat-paid-send.js';
 import { useLiveWatch } from './live-watch.js';
 import {
   OlderRow,
@@ -902,6 +903,9 @@ const Composer = ({ state, api, keys }) => {
   const later = useSendLater({ state, api, composer, attach });
   // Who sends in a supergroup: the avatar button (R-Y141).
   const sendAs = useSendAs(api, state.current);
+  // A chat that charges Stars per message: the price, and the question
+  // before every send (R-Y184).
+  const paid = usePaidSend(api, state.current);
   // Our live location follows us while it is shared (R-Y147).
   useLiveWatch({ api, state });
   // The emoji panel (R-Y104), with stickers and GIFs (R-Y105).
@@ -979,6 +983,7 @@ const Composer = ({ state, api, keys }) => {
       state.forwardBar ?? null,
       barOver(composer, editing),
       linkPreview.bar,
+      paid.label,
       el('div', { key: 'row', className: 'chat-composer-row' }, [
         unless(bare, sendAs.button),
         voice.bar,
@@ -1041,6 +1046,7 @@ const Composer = ({ state, api, keys }) => {
     poll.shown ? el(PollDialog, { key: 'poll', poll }) : null,
     el(ShareDialog, { key: 'share', share, api }),
     sendAs.dialog,
+    paid.dialog,
     ...later.parts,
     ...(stickers.parts ?? []),
   ]);

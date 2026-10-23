@@ -23,6 +23,7 @@ import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { Icon } from './icons.js';
+import { failureText, isPaidFailure } from './chat-failure.js';
 import { MediaPhoto } from './chat-photo.js';
 import { AlbumGrid } from './chat-album.js';
 import { EffectBadge } from './chat-effects.js';
@@ -325,7 +326,7 @@ export const ServiceLine = ({ link }) => {
   if (!service) {
     return null;
   }
-  let text = t(service.key);
+  let text = t(service.key, service.params);
   if (service.title) {
     text = t(service.titleKey, { title: service.title });
   }
@@ -1377,7 +1378,9 @@ const BubbleActionsInner = ({ message, composer }) => {
       el(
         'span',
         { key: 'why' },
-        message.error ?? t('chat.failure.other', { error: '' })
+        isPaidFailure(message.code)
+          ? failureText(t, message)
+          : (message.error ?? t('chat.failure.other', { error: '' }))
       ),
       el(
         'button',

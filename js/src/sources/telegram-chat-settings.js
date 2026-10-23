@@ -6,7 +6,9 @@
  *   (channels.toggleSignatures), `joinToSend` (channels.toggleJoinToSend),
  *   `joinRequest` (channels.toggleJoinRequest), `hideMembers`
  *   (channels.toggleParticipantsHidden), `antiSpam` (channels.toggleAntiSpam)
- *   and `noForwards` (messages.toggleNoForwards; a group or a channel);
+ *   `autotranslation` (channels.toggleAutotranslation, the channel's owner,
+ *   R-Y184) and `noForwards` (messages.toggleNoForwards; a group or a
+ *   channel);
  * - `discussionGroups({ chat })` — the supergroups a channel may be linked
  *   to (channels.getGroupsForDiscussion) → `{ ok, groups: [{ id, title }] }`;
  * - `discussionSet({ chat, group })` — links the channel to a group, or
@@ -87,6 +89,12 @@ const SETTINGS = {
     ask: (c, peer, enabled) =>
       new c.Api.channels.ToggleAntiSpam({ channel: peer, enabled }),
   },
+  // Translate the channel's posts for its readers (R-Y184).
+  autotranslation: {
+    channel: true,
+    ask: (c, peer, enabled) =>
+      new c.Api.channels.ToggleAutotranslation({ channel: peer, enabled }),
+  },
   noForwards: {
     channel: false,
     ask: (c, peer, enabled) =>
@@ -119,7 +127,7 @@ const linkedOf = (full, chats) => {
 };
 
 // The switches this user may use in this chat.
-const shownIn = (entity, linked) => {
+const shownIn = (entity, linked, full = {}) => {
   const owner = Boolean(entity.creator);
   const admin = owner || Boolean(entity.adminRights?.changeInfo);
   const shown = [];
@@ -131,9 +139,16 @@ const shownIn = (entity, linked) => {
       shown.push('joinToSend', 'joinRequest');
     }
     shown.push('hideMembers', 'antiSpam');
+    // What a message costs: only where Telegram offers it (R-Y184).
+    if (full.paidMessagesAvailable) {
+      shown.push('paidMessages');
+    }
   }
   if (owner) {
     shown.push('noForwards');
+    if (entity.broadcast) {
+      shown.push('autotranslation');
+    }
   }
   return shown;
 };
@@ -148,7 +163,7 @@ const shownIn = (entity, linked) => {
 export const settingsInfo = (entity = {}, full = {}, chats = []) => {
   const linked = linkedOf(full, chats);
   return {
-    shown: shownIn(entity, linked),
+    shown: shownIn(entity, linked, full),
     values: {
       signatures: Boolean(entity.signatures),
       signatureProfiles: Boolean(entity.signatureProfiles),
@@ -157,7 +172,13 @@ export const settingsInfo = (entity = {}, full = {}, chats = []) => {
       hideMembers: Boolean(full.participantsHidden),
       antiSpam: Boolean(full.antispam),
       noForwards: Boolean(entity.noforwards),
+      autotranslation: Boolean(entity.autotranslation),
     },
+    // Stars one message to the group costs its members (R-Y184).
+    paidStars:
+      Number(
+        full.sendPaidMessagesStars?.value ?? full.sendPaidMessagesStars ?? 0
+      ) || 0,
     linked,
   };
 };

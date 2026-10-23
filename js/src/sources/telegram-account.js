@@ -64,7 +64,11 @@ import {
   formattedParts,
 } from './telegram-send.js';
 import { rawEntities } from './telegram-format.js';
-import { validSendAs, withSendAs } from './telegram-send-as-client.js';
+import {
+  paidField,
+  validSendAs,
+  withSendAs,
+} from './telegram-send-as-client.js';
 import { previewFields } from './telegram-link-preview.js';
 import { EFFECT_ID } from './telegram-effects.js';
 import { GENERAL_TOPIC, inTopicOnly } from '../web/forum-topics.js';
@@ -834,15 +838,18 @@ const postAsUser = async (
     silent,
     scheduleDate,
     sendAs,
+    allowPaidStars,
     preview = null,
     effect,
   }
 ) => {
   const { client: own } = await env.connection.open(creds);
   // Sent as another identity (R-Y141).
-  const client = await withSendAs(env, own, sendAs).catch((error) => {
-    throw sendError(error);
-  });
+  const client = await withSendAs(env, own, sendAs, allowPaidStars).catch(
+    (error) => {
+      throw sendError(error);
+    }
+  );
   const { Api, helpers } = await env.importer().catch(() => ({}));
   const maxLength = await messageLengthMax(client, Api);
   const release = env.live.expectOwn({
@@ -927,6 +934,8 @@ const draftOptions = (draft) => {
       : null,
     // The identity it is sent as (R-Y141).
     sendAs: validSendAs(draft.sendAs) ? draft.sendAs : undefined,
+    // The Stars the user confirmed for a paid chat (R-Y184).
+    ...paidField(draft),
     // The link preview's choice (R-Y145), validated when it came in.
     preview: previewFields(draft),
     // A message effect (R-Y149), a decimal string.

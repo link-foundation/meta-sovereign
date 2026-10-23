@@ -3,8 +3,22 @@
  * in words (the composer, the notices, the autopilot's line).
  */
 
+// A paid chat (R-Y184): not confirmed, the price changed, no Stars.
+const PAID_FAILURES = {
+  'paid-declined': 'chat.paidSend.declined',
+  'paid-required': 'chat.paidSend.changed',
+  'paid-balance': 'chat.paid.err.balance',
+};
+
+/** Whether the failure is about a paid chat (R-Y184), told in words. */
+export const isPaidFailure = (code) =>
+  typeof code === 'string' && Object.hasOwn(PAID_FAILURES, code);
+
 /** Why a message did not go out, in words. */
 export const failureText = (t, message) => {
+  if (isPaidFailure(message.code)) {
+    return t(PAID_FAILURES[message.code]);
+  }
   switch (message.code) {
     case 'flood-wait':
       return t('chat.failure.floodWait', {

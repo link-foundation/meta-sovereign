@@ -519,7 +519,12 @@ const createSender = (env, { userClient, apply }, lists) => {
       return { ok: false, supported: false };
     }
     try {
-      const client = await withSendAs(env, c.client, draft.sendAs);
+      const client = await withSendAs(
+        env,
+        c.client,
+        draft.sendAs,
+        draft.allowPaidStars
+      );
       const result = await lists.withDoc(key, (doc) =>
         env.connection.withPeer(client, target, (peer) =>
           client.invoke(sendRequest(c, doc, peer, draft))

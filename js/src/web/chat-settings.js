@@ -15,6 +15,7 @@
 import React, { useState } from 'react';
 import { useT } from './i18n.js';
 import { Frame } from './chat-readers.js';
+import { PRICE_MAX, priceOf } from './chat-privacy-paid.js';
 
 const el = React.createElement;
 
@@ -53,6 +54,14 @@ export const linkedGroup = (chat, info, now = Date.now()) => {
     : (info?.settings?.linked ?? null);
 };
 
+/** Stars one message to the group costs its members (R-Y184); 0: free. */
+export const paidStarsOf = (chat, info, now = Date.now()) => {
+  const saved = mine(chat, now);
+  return saved && 'paidStars' in saved
+    ? saved.paidStars
+    : Number(info?.settings?.paidStars) || 0;
+};
+
 /** Whether a Telegram chat forbids forwarding, copying and saving. */
 export const noForwardsIn = (chat, info) =>
   chat?.source === 'telegram' && settingValue(chat.chat, info, 'noForwards');
@@ -88,6 +97,47 @@ const Switch = ({ t, name, on, busy, onChange }) =>
       ),
     ]),
   ]);
+
+// What a message to this group costs (R-Y184): a price in Stars, saved only
+// by its button; 0 or empty turns it off.
+const PaidPrice = ({ t, stars, busy, onSave }) => {
+  const [typed, setTyped] = useState(null);
+  const text = typed ?? (stars > 0 ? String(stars) : '');
+  const n = text.trim() === '' ? 0 : priceOf(text);
+  return el('div', { className: 'settings-row settings-paid' }, [
+    el('label', { key: 'l', className: 'chat-form-field' }, [
+      el('span', { key: 't' }, t('chat.settings.paidMessages')),
+      el('input', {
+        key: 'i',
+        type: 'number',
+        min: 0,
+        max: PRICE_MAX,
+        'data-setting': 'paidMessages',
+        value: text,
+        disabled: busy,
+        onChange: (e) => setTyped(e.target.value),
+      }),
+      el(
+        'small',
+        { key: 'h', className: 'meta' },
+        n === null
+          ? t('chat.paidMsg.priceBad', { max: PRICE_MAX })
+          : t('chat.settings.paidMessages.hint')
+      ),
+    ]),
+    el(
+      'button',
+      {
+        key: 'b',
+        type: 'button',
+        'data-action': 'paid-price-save',
+        disabled: busy || n === null || n === stars,
+        onClick: () => onSave(n),
+      },
+      t('chat.paidMsg.save')
+    ),
+  ]);
+};
 
 const GroupChoice = ({ t, groups, busy, onPick }) =>
   groups.phase === 'loading'
@@ -206,6 +256,11 @@ const SettingsBody = ({ api, chat, info }) => {
         setGroups(null);
       }
     );
+  const savePrice = (stars) =>
+    run(
+      () => api.telegramPaidPriceSave({ chat: id, stars }),
+      () => remember(id, { values: {}, paidStars: stars })
+    );
   const choose = async () => {
     setGroups({ phase: 'loading', list: [] });
     const answer = await run(
@@ -229,6 +284,18 @@ const SettingsBody = ({ api, chat, info }) => {
           onChoose: choose,
           onPick: link,
           onUnlink: () => link(null),
+        })
+      );
+      continue;
+    }
+    if (name === 'paidMessages') {
+      rows.push(
+        el(PaidPrice, {
+          key: name,
+          t,
+          stars: paidStarsOf(id, info),
+          busy,
+          onSave: savePrice,
         })
       );
       continue;

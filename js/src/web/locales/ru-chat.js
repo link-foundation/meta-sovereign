@@ -1352,4 +1352,109 @@ export const ruChat = {
   'chat.export.err.no-export':
     'Нет завершённого экспорта, который можно показать.',
   'chat.export.err.failed': 'Экспорт не получился.',
+  // Giveaways, paid messages, channel auto-translation (R-Y184).
+  'chat.paidSend.perMessage': '{count} ⭐ за сообщение',
+  'chat.paidSend.title': 'Платные сообщения',
+  'chat.paidSend.body':
+    'В этом чате каждое сообщение стоит {price} ⭐. Отправка {count, plural, one {# сообщения} few {# сообщений} other {# сообщений}} обойдётся в {total} ⭐.',
+  'chat.paidSend.confirm': 'Отправить за {count} ⭐',
+  'chat.paidSend.remember': 'Больше не спрашивать в этом чате',
+  'chat.paidSend.declined': 'Не отправлено: цена не подтверждена.',
+  'chat.paidSend.changed':
+    'Не отправлено: цена сообщений здесь изменилась. Отправьте ещё раз, чтобы увидеть новую цену.',
+  'chat.paidMsg.title': 'Сообщения',
+  'chat.paidMsg.loading': 'Загрузка…',
+  'chat.paidMsg.unavailable': 'Не удалось прочитать эту настройку.',
+  'chat.paidMsg.charge': 'Плата за сообщения',
+  'chat.paidMsg.chargeHint':
+    'Люди не из ваших контактов платят звёздами, чтобы вам написать.',
+  'chat.paidMsg.price': 'Звёзд за сообщение',
+  'chat.paidMsg.priceHint': 'Каждое сообщение вам будет стоить {count} ⭐.',
+  'chat.paidMsg.priceBad': 'Целое число звёзд от 1 до {max}.',
+  'chat.paidMsg.save': 'Сохранить',
+  'chat.paidMsg.earned': 'Заработано на этом человеке: {count} ⭐',
+  'chat.paidMsg.free': 'Разрешить бесплатные сообщения',
+  'chat.paidMsg.pay': 'Снова брать плату',
+  'chat.paidMsg.freeAsk': 'Разрешить этому человеку писать вам бесплатно?',
+  'chat.paidMsg.payAsk': 'Снова брать с этого человека плату за сообщения вам?',
+  'chat.paidMsg.refund': 'Вернуть также звёзды, которые он заплатил',
+  'chat.paidMsg.confirm': 'Подтвердить',
+  'chat.paidMsg.nowFree': 'Этот человек может писать вам бесплатно.',
+  'chat.paidMsg.nowPay': 'Этот человек снова платит за сообщения вам.',
+  'chat.paidMsg.err.failed': 'Telegram не принял изменение.',
+  'chat.paidMsg.err.bad-price': 'Telegram не принимает такую цену.',
+  'chat.paidMsg.err.not-admin': 'Изменить это может только администратор.',
+  'chat.paidMsg.err.no-user': 'Этот человек недоступен.',
+  'chat.paidMsg.err.no-chat': 'Этот чат недоступен.',
+  'chat.paidMsg.err.flood': 'Слишком много попыток. Подождите и повторите.',
+  'chat.paidMsg.err.bad-request': 'Это изменение недопустимо.',
+  'chat.settings.autotranslation': 'Автоперевод постов',
+  'chat.settings.autotranslation.hint':
+    'Читатели видят посты канала переведёнными на свой язык.',
+  'chat.settings.paidMessages': 'Звёзд за сообщение',
+  'chat.settings.paidMessages.hint':
+    'Участники, не являющиеся администраторами, платят эту сумму за каждое сообщение. 0 выключает плату.',
+  'chat.settings.err.bad-price': 'Telegram не принимает такую цену.',
+  'chat.giveaway.title': 'Розыгрыш',
+  'chat.giveaway.endedTitle': 'Розыгрыш завершён',
+  'chat.giveaway.prizes': 'Призы',
+  'chat.giveaway.prizeMonths':
+    '{count, plural, one {# подписка Telegram Premium} few {# подписки Telegram Premium} other {# подписок Telegram Premium}} на {months, plural, one {# месяц} few {# месяца} other {# месяцев}}',
+  'chat.giveaway.prizeStars': '{count} ⭐ каждому победителю',
+  'chat.giveaway.extra': 'а также: {text}',
+  'chat.giveaway.participants': 'Участники',
+  'chat.giveaway.audienceAllOne': 'Все подписчики этого канала',
+  'chat.giveaway.audienceNewOne':
+    'Только подписавшиеся на этот канал после начала',
+  'chat.giveaway.audienceAllMany': 'Все подписчики этих каналов ({count})',
+  'chat.giveaway.audienceNewMany':
+    'Только подписавшиеся на эти каналы ({count}) после начала',
+  'chat.giveaway.countries': 'Из стран: {list}',
+  'chat.giveaway.selection': 'Победители будут выбраны',
+  'chat.giveaway.more': 'Подробнее',
+  'chat.giveaway.loading': 'Спрашиваем Telegram…',
+  'chat.giveaway.err.failed': 'Telegram не смог рассказать об этом розыгрыше.',
+  'chat.giveaway.err.no-message': 'Это сообщение недоступно.',
+  'chat.giveaway.err.no-chat': 'Этот канал недоступен.',
+  'chat.giveaway.err.no-giveaway': 'Розыгрыш не найден.',
+  'chat.giveaway.err.flood': 'Слишком много запросов; повторите чуть позже.',
+  'chat.giveaway.err.bad-request': 'Этот запрос недопустим.',
+  'chat.giveaway.yourStatus': 'Вы',
+  'chat.giveaway.you.in': 'Вы участвуете в этом розыгрыше.',
+  'chat.giveaway.you.preparing': 'Сейчас выбираются победители.',
+  'chat.giveaway.you.early':
+    'Вы не можете участвовать: вы вступили в канал {date}, до начала розыгрыша.',
+  'chat.giveaway.you.admin':
+    'Вы не можете участвовать: вы администратор одного из его каналов.',
+  'chat.giveaway.you.country':
+    'Вы не можете участвовать: страны {country} нет в списке.',
+  'chat.giveaway.you.join':
+    'Вы пока не участвуете. Подпишитесь на: {channels}.',
+  'chat.giveaway.you.won': 'Поздравляем, вы выиграли!',
+  'chat.giveaway.you.lost': 'Вы не выиграли в этом розыгрыше.',
+  'chat.giveaway.you.refunded': 'Розыгрыш отменён, звёзды возвращены.',
+  'chat.giveaway.giftLink': 'Ссылка на ваш приз',
+  'chat.giveaway.winnersTitle': 'Победители',
+  'chat.giveaway.winnersCount':
+    '{count, plural, one {# победитель} few {# победителя} other {# победителей}}',
+  'chat.giveaway.claimed': 'Получено призов: {count} из {total}',
+  'chat.giveaway.channels': 'Каналы',
+  'chat.giveaway.channelsMany':
+    '{count, plural, one {# канал} few {# канала} other {# каналов}}',
+  'chat.giveaway.started': 'Начало',
+  'chat.giveaway.finished': 'Завершение',
+  'chat.giveaway.winnersSelected':
+    '{count, plural, one {Выбран # победитель} few {Выбрано # победителя} other {Выбрано # победителей}}',
+  'chat.giveaway.refundedLine': 'Розыгрыш отменён.',
+  'chat.giveaway.unclaimed':
+    '{count, plural, one {# приз не получен} few {# приза не получено} other {# призов не получено}}',
+  'chat.service.giveawayLaunch': 'Начался розыгрыш',
+  'chat.service.giveawayResults':
+    'Розыгрыш завершён: {count, plural, one {# победитель} few {# победителя} other {# победителей}}',
+  'chat.service.giveawayResultsUnclaimed':
+    'Розыгрыш завершён: {count, plural, one {# победитель} few {# победителя} other {# победителей}}, не получено призов: {unclaimed}',
+  'chat.service.paidPrice': 'Теперь каждое сообщение здесь стоит {count} ⭐',
+  'chat.service.paidPriceOff': 'Сообщения здесь снова бесплатны',
+  'chat.service.paidRefunded':
+    'Возвращено {count, plural, one {# платное сообщение} few {# платных сообщения} other {# платных сообщений}}: {stars} ⭐',
 };

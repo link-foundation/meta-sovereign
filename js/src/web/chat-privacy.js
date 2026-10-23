@@ -14,6 +14,7 @@ import { FormDialog } from './chat-create.js';
 import { TtlChoices, periodWords } from './chat-ttl.js';
 import { CloseFriendsDialog } from './chat-contacts-edit.js';
 import { LocalPasscode } from './chat-passcode.js';
+import { PaidMessagesSetting } from './chat-privacy-paid.js';
 import {
   AccountTtl,
   SensitiveContent,
@@ -711,6 +712,12 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
           title: t('chat.archive.privacyTitle'),
         },
         el(SwitchGroup, { t, archive, names: PRIVACY_SWITCHES })
+      ),
+      // Messages → Charge for messages from non-contacts (R-Y184).
+      el(
+        Section,
+        { key: 'pm', name: 'paid-messages', title: t('chat.paidMsg.title') },
+        el(PaidMessagesSetting, { api, setError })
       ),
       el(
         Section,

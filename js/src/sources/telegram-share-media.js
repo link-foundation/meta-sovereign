@@ -108,7 +108,7 @@ const sendMedia = async (env, { userClient, apply }, r, makeMedia) => {
   }
   try {
     const media = await makeMedia(c);
-    const client = await withSendAs(env, c.client, r.sendAs);
+    const client = await withSendAs(env, c.client, r.sendAs, r.allowPaidStars);
     const result = await runIn(env, `share:${r.chat}`, () =>
       env.connection.withPeer(client, r.chat, (peer) =>
         client.invoke(

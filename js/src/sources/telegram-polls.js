@@ -201,7 +201,12 @@ const createPollSender =
     }
     const { Api, helpers } = await env.importer();
     try {
-      const client = await withSendAs(env, own, draft.sendAs);
+      const client = await withSendAs(
+        env,
+        own,
+        draft.sendAs,
+        draft.allowPaidStars
+      );
       const result = await env.connection.withPeer(client, target, (peer) =>
         env.queue.run(`poll:send:${target}`, 'view', () =>
           client.invoke(

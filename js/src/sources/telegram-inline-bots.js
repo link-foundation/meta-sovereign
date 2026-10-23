@@ -339,7 +339,12 @@ export const createInlineBots = (env, { userClient, apply, lists, now }) => {
       return { ok: false, error: 'unknown answer', code: 'expired' };
     }
     return guarded(async (c) => {
-      const client = await withSendAs(env, c.client, draft.sendAs);
+      const client = await withSendAs(
+        env,
+        c.client,
+        draft.sendAs,
+        draft.allowPaidStars
+      );
       const result = await env.connection.withPeer(client, chat, (peer) =>
         client.invoke(
           new c.Api.messages.SendInlineBotResult({

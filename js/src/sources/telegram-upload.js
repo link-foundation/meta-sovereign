@@ -246,7 +246,7 @@ const sendBatch = async ({ client, Api, CustomFile, peer, batch, options }) => {
 const singleSender =
   ({ env, userClient, dialogOf, tools, uploads, drop }, fileOf, optionsOf) =>
   async (args = {}) => {
-    const { chat, token, sendAs = null, ...rest } = args;
+    const { chat, token, sendAs = null, allowPaidStars, ...rest } = args;
     const upload = uploads.get(token);
     const client = chat && upload?.path ? await userClient() : null;
     if (!client) {
@@ -254,7 +254,7 @@ const singleSender =
       return { ok: false, supported: Boolean(chat && upload) };
     }
     try {
-      const sender = await withSendAs(env, client, sendAs);
+      const sender = await withSendAs(env, client, sendAs, allowPaidStars);
       return await voiceSent(
         { env, client: sender, dialogOf, tools },
         String(chat),
@@ -392,6 +392,7 @@ export const createFileSender = (
     silent = false,
     scheduleDate = null,
     sendAs = null,
+    allowPaidStars,
     effect = null,
   } = {}) => {
     const files = tokens.map((token) => ({ token, ...uploads.get(token) }));
@@ -403,7 +404,7 @@ export const createFileSender = (
     const target = String(chat);
     try {
       const ids = await sendAll({
-        client: await withSendAs(env, client, sendAs),
+        client: await withSendAs(env, client, sendAs, allowPaidStars),
         target,
         batches: batchesOf(files, { asPhoto, group }),
         caption: String(caption ?? '').slice(0, MAX_CAPTION),
