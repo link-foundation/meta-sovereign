@@ -307,7 +307,7 @@ jobs:
 
       - name: Run tests (Deno)
         if: matrix.runtime == 'deno'
-        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-sys js/tests
+        run: deno test --allow-read --allow-write --allow-env --allow-net --allow-sys --allow-run js/tests
 
   # === RUST CRATES (R-Z6) ===
   # fmt, clippy (warnings are errors) and the crates' own tests, so the

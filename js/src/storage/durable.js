@@ -17,7 +17,13 @@ export const DIR_MODE = 0o700;
 
 /** fsync a file that is already written (any descriptor flushes it). */
 export const fsyncFile = async (file) => {
-  const handle = await fs.open(file, 'r');
+  // Windows flushes only a handle that can write.
+  const handle = await fs.open(file, 'r+').catch((error) => {
+    if (error.code !== 'EACCES' && error.code !== 'EPERM') {
+      throw error;
+    }
+    return fs.open(file, 'r');
+  });
   try {
     await handle.sync();
   } finally {
