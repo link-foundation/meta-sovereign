@@ -14,6 +14,36 @@ matching requirement ID before marking the related requirement Done.
 What Telegram client features are supported, partial, parked or not
 supported is tracked in [`docs/FEATURES.md`](./FEATURES.md).
 
+## Audit follow-ups (R-Z)
+
+An audit of the finished work found gaps. They are grouped in two waves. Wave 1 is **in progress**, not done. Wave 2 is **planned, not started**. Nothing here is a promise or a date.
+
+### Wave 1 — in progress
+
+- R-Z1: harden the local server.
+- R-Z2 (done): make the store, backups, saved secrets and logs safer.
+- R-Z3: make automated sending safer.
+- R-Z4 (done): make send and sync results truthful (no public LinkedIn post by mistake, no false CV-sync success, X direct messages, clear fallbacks).
+- R-Z5: fix email.
+- R-Z6: get CI green (Deno, Bun, Windows, `cargo test`, browser e2e in CI).
+
+### Wave 2 — planned, not now
+
+- R-Z7: wire up code that exists but never runs: the automatic backup schedule, deleted-message tombstones (view, recover, purge), audience membership sync, the 24-hour Upwork and PeoplePerHour cache purge, the tutorial Skip button, and refresh tokens that are stored but unused.
+- R-Z8: pull inbox messages for GitHub, Upwork and PeoplePerHour (email is in R-Z5), and bring VK live updates, history paging, media and reactions up to par.
+- R-Z9: WhatsApp personal: a visible sign-in window (QR) for WhatsApp Web, stable chat ids, a better archive parser, a terms-of-service notice.
+- R-Z10: archive imports for Facebook, Instagram, X and LinkedIn: fix colliding ids, garbled text, missing attachments, reactions and participants.
+- R-Z11: GitHub: edit, delete and react to messages, review comments, notifications, incremental pull, discussions, listing repositories.
+- R-Z12: page consistency: Escape and focus handling in 16 dialogs, show errors that are swallowed today, fix the credentials browser test.
+- R-Z13 (done): docs: per-system feature matrices in four languages, the missing R, S and T sections in the ru, hi and zh requirements, duplicate R-N ids, the README npm claim, this roadmap, `MS_SECRET_PASSPHRASE`, and honest Rust server limits.
+
+### Not doing now
+
+- Publishing the package to npm (needs the owner).
+- Checking the web selectors against real accounts (needs real accounts).
+- WebAuthn and TOTP unlock.
+- Rust server parity with the JS server: only documented, see [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md).
+
 ## Closed Scope
 
 The closed implementation history is preserved in

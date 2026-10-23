@@ -16,7 +16,7 @@
 
 अगर आप एक ही device इस्तेमाल करते हैं, इतना काफी है।
 
-## 2. local Rust server जोड़ें (preferred)
+## 2. local Rust server जोड़ें (हल्का, सीमित)
 
 Rust server single binary है, runtime नहीं चाहिए, और cold start सबसे तेज है। यह JS server जैसा ही wire protocol expose करता है (देखें [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md))।
 
@@ -26,32 +26,28 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
+> **चुनने से पहले सीमाएँ जान लें।** Rust server links को **सिर्फ़ memory में** रखता है: disk पर कुछ नहीं लिखा जाता, बंद होते ही सारा data चला जाता है। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server (section 3) या desktop app (section 4) चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](./SERVER-PARITY.hi.md) में है।
+
 Server default रूप से <http://127.0.0.1:8787> पर listen करता है। GitHub Pages वाला SPA saved override (`localStorage` में `metaServer`) और `127.0.0.1` ports probe करके इसे खोजता है।
 
 यदि browser auto-connect नहीं करता, app में **Settings → Server** खोलें और Rust binary का printed URL paste करें।
 
-## 3. local JS server जोड़ें (fallback)
+## 3. local JS server जोड़ें (पूरा feature set)
 
 Rust toolchain न हो, या `/api/backups`, `/api/export-encrypted`, `/api/links/purge-tombstones`, `/api/outreach` जैसे extra routes चाहिए हों, तो JS server इस्तेमाल करें।
 
-```bash
-npm install -g meta-sovereign
-meta-sovereign serve
-```
-
-या Bun से:
+Package अभी **npm पर publish नहीं है** (registry 404 देती है), इसलिए server को source checkout से चलाएँ (Node.js और npm चाहिए):
 
 ```bash
-bunx meta-sovereign serve
+git clone https://github.com/link-foundation/meta-sovereign
+cd meta-sovereign
+npm install
+node js/bin/meta-sovereign.js serve
 ```
 
-JS server वही port और wire protocol बोलता है; SPA के लिए backend type मायने नहीं रखता।
+JS server उसी port पर listen करता है और वही wire protocol बोलता है; SPA को फ़र्क़ नहीं पड़ता कि दूसरी तरफ़ कौन-सा backend है।
 
-अगर npm `404` देता है (package अभी npm पर नहीं है), तो वही server सीधे GitHub से चलाएँ:
-
-```bash
-npx -y github:link-foundation/meta-sovereign serve
-```
+Package npm पर publish होने के बाद `npx -y meta-sovereign serve` (या `npm install -g meta-sovereign && meta-sovereign serve`) काम करेगा; तब तक दोनों में से कोई नहीं करता।
 
 ## 4. desktop या mobile app install करें
 
@@ -127,7 +123,7 @@ meta-sovereign serve --tls=false        # या MS_TLS=off — HTTPS बंद 
 Browser notes:
 
 - **Chrome और Edge** (और नए Firefox) एक बार पूछते हैं कि क्या page local network के devices तक पहुँच सकता है। Allow करें।
-- **Safari** `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, लेकिन `https://127.0.0.1` तक पहुँचने देता है; server उसी port पर HTTPS का भी जवाब देता है और localhost के लिए self-signed certificate बनाता है। Hosted app को Safari में सीधे connect कराने के लिए certificate एक बार trust करें: `npx -y meta-sovereign trust` चलाएँ (macOS login keychain में add करता है; दूसरे systems पर certificate का path print होता है), या Safari में `https://127.0.0.1:8787/trust` खोलें, **Show Details → visit this website** click करें और password डालें, फिर **Check again** click करें। उसके बाद hosted app Safari में बिना extra steps के HTTPS से connect हो जाता है। Trust से पहले notice **सर्वर से ऐप खोलें** (<http://127.0.0.1:8787>) और **सर्वर पर भरोसा करें** (<https://127.0.0.1:8787/trust>) दोनों का link देता है। `--tls=false` / `MS_TLS=off` HTTPS बंद करता है; server की अपनी copy fallback रहती है।
+- **Safari** `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, लेकिन `https://127.0.0.1` तक पहुँचने देता है; server उसी port पर HTTPS का भी जवाब देता है और localhost के लिए self-signed certificate बनाता है। Hosted app को Safari में सीधे connect कराने के लिए certificate एक बार trust करें: `node js/bin/meta-sovereign.js trust` चलाएँ (macOS login keychain में add करता है; दूसरे systems पर certificate का path print होता है), या Safari में `https://127.0.0.1:8787/trust` खोलें, **Show Details → visit this website** click करें और password डालें, फिर **Check again** click करें। उसके बाद hosted app Safari में बिना extra steps के HTTPS से connect हो जाता है। Trust से पहले notice **सर्वर से ऐप खोलें** (<http://127.0.0.1:8787>) और **सर्वर पर भरोसा करें** (<https://127.0.0.1:8787/trust>) दोनों का link देता है। `--tls=false` / `MS_TLS=off` HTTPS बंद करता है; server की अपनी copy fallback रहती है।
 
 ## 6. devices के बीच sync (WebRTC)
 
@@ -135,9 +131,9 @@ Browser notes:
 
 ## 7. encrypted backup और export
 
-एन्क्रिप्टेड बैकअप और export AES-256-GCM इस्तेमाल करते हैं, और master-key vault ([`vault.js`](../js/src/storage/vault.js)) passphrase/PIN/passkey/TOTP unlock समर्थित करता है। पूरा स्टोर अपने-आप एन्क्रिप्ट नहीं होता; नीचे “डिस्क पर secrets” देखें।
+एन्क्रिप्टेड बैकअप और export AES-256-GCM इस्तेमाल करते हैं। Message store disk पर **encrypted नहीं** है; सिर्फ़ saved credentials (`secret:*` लिंक) encrypt हो सकते हैं, और तभी जब सर्वर `MS_SECRET_PASSPHRASE` के साथ शुरू हो (नीचे [सहेजे गए secrets की सुरक्षा](#सहेजे-गए-secrets-की-सुरक्षा) देखें)। `vault-*` CLI commands ([`vault.js`](../js/src/storage/vault.js)) एक अलग unlock file सँभालते हैं; server उसे इस्तेमाल नहीं करता।
 
-**डिस्क पर secrets।** टोकन और सेशन (`secret:*` लिंक) स्टोर में तभी एन्क्रिप्ट होते हैं जब सर्वर `MS_SECRET_PASSPHRASE` के साथ शुरू हो (जैसे `MS_SECRET_PASSPHRASE='…' meta-sovereign serve`); इसके बिना वे `data.lino` में सादे पाठ में रहते हैं, इसलिए स्टोर फ़ोल्डर निजी रखें (ऐप फ़ाइलें 0600 और फ़ोल्डर 0700 से बनाता है, और शुरू होने पर पुरानों को सख़्त करता है)। बैकअप में secrets केवल एन्क्रिप्टेड होने पर शामिल होते हैं (Backup पेज पर पासफ़्रेज़ लिखें या वेरिएबल सेट करें); सामान्य बैकअप उन्हें छोड़ देता है और यह बताता है। लॉग में टोकन और पासवर्ड छिपे रहते हैं। एक समय में एक ही प्रक्रिया स्टोर में लिखती है: दूसरा लेखक (जैसे `serve` चलते समय `import`) स्पष्ट संदेश के साथ रुकता है, जबकि `export` जैसे केवल-पढ़ने वाले कमांड चलते हैं।
+**फ़ाइलें और बैकअप।** स्टोर फ़ोल्डर निजी रखें (ऐप फ़ाइलें 0600 और फ़ोल्डर 0700 से बनाता है, और शुरू होने पर पुरानों को सख़्त करता है)। सामान्य बैकअप secrets छोड़ देता है (manifest `secrets: excluded`) और यह बताता है; एन्क्रिप्टेड बैकअप (Backup पेज पर पासफ़्रेज़ लिखें या वेरिएबल सेट करें) उन्हें शामिल करता है। लॉग में टोकन और पासवर्ड छिपे रहते हैं। एक समय में एक ही प्रक्रिया स्टोर में लिखती है: दूसरा लेखक (जैसे `serve` चलते समय `import`) स्पष्ट संदेश के साथ रुकता है, जबकि `export` जैसे केवल-पढ़ने वाले कमांड चलते हैं।
 
 CLI से encrypted snapshot export करें:
 
@@ -146,6 +142,24 @@ meta-sovereign export-encrypted --file=backup.lino.gcm --passphrase='…'
 ```
 
 JS-server-backed SPA से `POST /api/export-encrypted` भी उपलब्ध है। Rust server यह route अभी expose नहीं करता; उस स्थिति में CLI इस्तेमाल करें।
+
+### सहेजे गए secrets की सुरक्षा
+
+App में आपके सहेजे credentials (Telegram API id और hash, bot tokens, Telegram user session, email tokens, और GitHub, Upwork तथा PeoplePerHour tokens) ऐसे links के रूप में रखे जाते हैं जिनका id `secret:` से शुरू होता है। Default रूप से वे store में **plain text** में रहते हैं। उन्हें encrypt करने के लिए JS server को `MS_SECRET_PASSPHRASE` environment variable में passphrase के साथ start करें:
+
+```bash
+MS_SECRET_PASSPHRASE='सिर्फ़ आपको पता लंबा passphrase' node js/bin/meta-sovereign.js serve
+```
+
+यह क्या करता है:
+
+- हर `secret:*` link लिखने से पहले AES-256-GCM से seal होता है (key passphrase से scrypt द्वारा बनती है, हर write पर नया salt और IV)। Link id पढ़ने योग्य रहता है, इसलिए store दिखाता है कि _कौन-से_ secrets हैं, उनकी सामग्री नहीं।
+- हर start पर वही passphrase इस्तेमाल करें। ग़लत passphrase से sealed secrets नहीं खुलते और recovery नहीं है: passphrase खो देने पर वे secrets खो जाते हैं और आपको दोबारा sign in करना या tokens paste करना होगा।
+- Passphrase सेट करने से पहले सहेजे गए secrets दोबारा save होने तक plain text में रहते हैं।
+- Variable सेट न हो तो कुछ encrypt नहीं होता और server पहले जैसा चलता है।
+- अगर request passphrase नहीं देता, तो `POST /api/export-encrypted` में यही passphrase default है।
+
+यह क्या encrypt **नहीं** करता: store का बाकी हिस्सा (`data.lino` और `data.bin`: contacts, messages, patterns आदि), download किया media और archives, logs, और backups (backup तभी encrypted होता है जब बनाते समय आप passphrase दें)। इन्हें disk encryption और file permissions से सुरक्षित करें। Rust server में ऐसा option नहीं है: वह सब कुछ memory में रखता है।
 
 ## 8. data import
 
@@ -442,16 +456,16 @@ HTTP पर: `/api/automations` (list, सहेजने के लिए `PUT`
 
 ## 12. Troubleshooting
 
-| Symptom                                                                    | Fix                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SPA loading spinner पर अटका है।                                            | Dev tools → Application → IndexedDB में `meta-sovereign` database देखें; storage disabled हो सकता है।                                                                                                                                                                                                                                                                                                                                 |
-| SPA local server तक नहीं पहुँचता।                                          | App में **Settings → Server** खोलकर exact URL paste करें।                                                                                                                                                                                                                                                                                                                                                                             |
-| Server चल रहा है, फिर भी hosted app browser-only mode में है।              | **Check again** click करें। Browser का local network prompt allow करें। Safari में: `npx -y meta-sovereign trust` एक बार चलाएँ (macOS) या **सर्वर पर भरोसा करें** (<https://127.0.0.1:8787/trust>) खोलें, Show Details → visit this website click करें, फिर **Check again** करें। या **सर्वर से ऐप खोलें** (<http://127.0.0.1:8787>) click करें। SPA खुद host करते हैं तो server को `--allow-origin=<आपका origin>` के साथ start करें। |
-| Hosted app में photos और avatars की जगह initials या खाली frames दिखते हैं। | Server update करें: page pictures को CORS requests से माँगता है, जिन्हें server केवल app के अपने origins के लिए आने देता है। SPA खुद host करते हैं तो उसका origin `--allow-origin` से जोड़ें। ठुकराए गए loads log में `telegram_media_refused` (किस page ने और कैसे माँगा) के रूप में, page में असफल loads `client_media_failed` (route के हिसाब से गिनती) के रूप में दिखते हैं।                                                      |
-| Reload के ठीक बाद कुछ messages या avatars नहीं दिखते।                      | कुछ सेकंड रुकें: chat अपने messages तब तक फिर माँगता है जब तक वे न आएँ, और Telegram से अभी download हो रही photo save होते ही दिखती है (पहली बार Telegram हर photo धीरे भेजता है)। बाद में saved photos तुरंत load होती हैं।                                                                                                                                                                                                          |
-| Server `EADDRINUSE` report करता है।                                        | `meta-sovereign serve --port=NNNN` या Rust `serve --port=NNNN` चलाएँ।                                                                                                                                                                                                                                                                                                                                                                 |
-| WebRTC sync दो LANs के बीच रुकता है।                                       | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                                                                                                                                                                                                                                                                                                                                                          |
-| `cargo build` linker error देता है।                                        | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                                                                                                                                                                                                                                                                                                                                                      |
+| Symptom                                                                    | Fix                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPA loading spinner पर अटका है।                                            | Dev tools → Application → IndexedDB में `meta-sovereign` database देखें; storage disabled हो सकता है।                                                                                                                                                                                                                                                                                                                                         |
+| SPA local server तक नहीं पहुँचता।                                          | App में **Settings → Server** खोलकर exact URL paste करें।                                                                                                                                                                                                                                                                                                                                                                                     |
+| Server चल रहा है, फिर भी hosted app browser-only mode में है।              | **Check again** click करें। Browser का local network prompt allow करें। Safari में: `node js/bin/meta-sovereign.js trust` एक बार चलाएँ (macOS) या **सर्वर पर भरोसा करें** (<https://127.0.0.1:8787/trust>) खोलें, Show Details → visit this website click करें, फिर **Check again** करें। या **सर्वर से ऐप खोलें** (<http://127.0.0.1:8787>) click करें। SPA खुद host करते हैं तो server को `--allow-origin=<आपका origin>` के साथ start करें। |
+| Hosted app में photos और avatars की जगह initials या खाली frames दिखते हैं। | Server update करें: page pictures को CORS requests से माँगता है, जिन्हें server केवल app के अपने origins के लिए आने देता है। SPA खुद host करते हैं तो उसका origin `--allow-origin` से जोड़ें। ठुकराए गए loads log में `telegram_media_refused` (किस page ने और कैसे माँगा) के रूप में, page में असफल loads `client_media_failed` (route के हिसाब से गिनती) के रूप में दिखते हैं।                                                              |
+| Reload के ठीक बाद कुछ messages या avatars नहीं दिखते।                      | कुछ सेकंड रुकें: chat अपने messages तब तक फिर माँगता है जब तक वे न आएँ, और Telegram से अभी download हो रही photo save होते ही दिखती है (पहली बार Telegram हर photo धीरे भेजता है)। बाद में saved photos तुरंत load होती हैं।                                                                                                                                                                                                                  |
+| Server `EADDRINUSE` report करता है।                                        | `meta-sovereign serve --port=NNNN` या Rust `serve --port=NNNN` चलाएँ।                                                                                                                                                                                                                                                                                                                                                                         |
+| WebRTC sync दो LANs के बीच रुकता है।                                       | TURN server configure करें: [`docs/WEBRTC-TURN.hi.md`](./WEBRTC-TURN.hi.md)।                                                                                                                                                                                                                                                                                                                                                                  |
+| `cargo build` linker error देता है।                                        | C toolchain install करें (`build-essential` या Xcode CLI tools)।                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## 13. आगे कहाँ जाएँ
 

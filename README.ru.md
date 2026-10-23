@@ -16,9 +16,9 @@
 
 ## Локальный сервер (рекомендуется для синхронизации)
 
-Чтобы синхронизировать устройства, включить шифрование на диске и получить полный набор функций, запустите локальный сервер рядом со SPA. Доступны два backend; оба реализуют один wire protocol (см. [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md)).
+Чтобы синхронизировать устройства и получить полный набор функций, запустите локальный сервер рядом со SPA. Доступны два backend; оба реализуют один wire protocol (см. [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md)).
 
-### Rust server — предпочтительный вариант (один бинарник, без runtime)
+### Rust server — один бинарник, без runtime, но с ограничениями
 
 ```bash
 git clone https://github.com/link-foundation/meta-sovereign
@@ -26,15 +26,22 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-### JavaScript server — запасной вариант (Node/Bun/Deno)
+> **Ограничения Rust server.** Он хранит links **только в памяти**: на диск ничего не пишется, поэтому после остановки server все данные пропадают. У него **нет source adapters**: нет live-загрузки из Telegram, VK, GitHub, Upwork и т. п., нет исходящего HTTP/TLS client (email только принимает архивы), нет automations, CV sync, browser auto-import, backups и `/api/export-encrypted`. Для реальной работы выбирайте JS server или desktop app. Список routes по одному — в [`docs/SERVER-PARITY.ru.md`](docs/SERVER-PARITY.ru.md).
+
+### JavaScript server — полный набор функций (Node/Bun/Deno), из исходников
+
+Пакета **пока нет в npm** (registry отвечает 404), поэтому `npx -y meta-sovereign serve` сегодня не работает. Запустите server из клона репозитория (нужны Node.js и npm):
 
 ```bash
-npx -y meta-sovereign serve
-# или установить: npm install -g meta-sovereign && meta-sovereign serve
-# до первого npm release: npx -y github:link-foundation/meta-sovereign serve
+git clone https://github.com/link-foundation/meta-sovereign
+cd meta-sovereign
+npm install
+node js/bin/meta-sovereign.js serve
 ```
 
-Оба backend по умолчанию слушают <http://127.0.0.1:8787>. JS server отвечает origin hosted app (`https://link-foundation.github.io`) с CORS headers; другие origins разрешаются через `meta-sovereign serve --allow-origin=<origins>` или `MS_ALLOW_ORIGINS`. Safari не пускает `https` страницы на `http://127.0.0.1`, но пускает на `https://127.0.0.1`; сервер теперь отвечает по HTTPS на том же порту с собственным сертификатом для localhost. Выполните `npx -y meta-sovereign trust` один раз (macOS добавляет сертификат в login keychain; на других системах печатается путь к сертификату) или откройте `https://127.0.0.1:8787/trust` в Safari и следуйте подсказкам — после этого hosted app в Safari подключается к серверу напрямую. До того уведомление называет сервер, даёт ссылку на его копию (<http://127.0.0.1:8787>) и **Доверять серверу** (<https://127.0.0.1:8787/trust>). `--tls=false` / `MS_TLS=off` отключает HTTPS; копия приложения с сервера остаётся запасным вариантом. Hosted SPA автоматически находит локальный сервер через `discoverServer()` (сохраненный override → порты `127.0.0.1`). Если браузер не подключился сам, откройте **Settings → Server** в приложении и вставьте URL, который напечатал сервер.
+Когда пакет будет опубликован в npm, заработают `npx -y meta-sovereign serve` (или `npm install -g meta-sovereign && meta-sovereign serve`). До тех пор запустить server без toolchain можно через desktop app (выше).
+
+Оба backend по умолчанию слушают <http://127.0.0.1:8787>. JS server отвечает origin hosted app (`https://link-foundation.github.io`) с CORS headers; другие origins разрешаются через `meta-sovereign serve --allow-origin=<origins>` или `MS_ALLOW_ORIGINS`. Safari не пускает `https` страницы на `http://127.0.0.1`, но пускает на `https://127.0.0.1`; сервер теперь отвечает по HTTPS на том же порту с собственным сертификатом для localhost. Выполните `node js/bin/meta-sovereign.js trust` один раз (macOS добавляет сертификат в login keychain; на других системах печатается путь к сертификату) или откройте `https://127.0.0.1:8787/trust` в Safari и следуйте подсказкам — после этого hosted app в Safari подключается к серверу напрямую. До того уведомление называет сервер, даёт ссылку на его копию (<http://127.0.0.1:8787>) и **Доверять серверу** (<https://127.0.0.1:8787/trust>). `--tls=false` / `MS_TLS=off` отключает HTTPS; копия приложения с сервера остаётся запасным вариантом. Hosted SPA автоматически находит локальный сервер через `discoverServer()` (сохраненный override → порты `127.0.0.1`). Если браузер не подключился сам, откройте **Settings → Server** в приложении и вставьте URL, который напечатал сервер.
 
 По умолчанию интерфейс — размещённое приложение: `serve` печатает его адрес, <https://link-foundation.github.io/meta-sovereign/>, а приложение само находит сервер на нашем порту 8787 (а также смотрит 8788, 7001, 7002 и 3000; на другом порту `serve` подскажет указать его в **Settings → Server**), так что серверу не нужно держать сайт. Своя копия на <http://127.0.0.1:8787> остаётся запасной — для Safari и работы без интернета; `serve --local-ui=false` (или `MS_LOCAL_UI=off`) её выключает, и тогда `/` открывает размещённое приложение. `--ui-url=<url>` (или `MS_UI_URL`) задаёт другую размещённую копию, например Pages форка, и разрешает её origin.
 
@@ -72,7 +79,7 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 
 Прототип для issue #1 реализован и отслежен в PR #2:
 
-- **Data layer (R-A\*)**: `DualStore` держит Doublets binary и Links Notation text в lock-step, поддерживает AES-256-GCM backups и encryption для `secret:*` links.
+- **Data layer (R-A\*)**: `DualStore` держит Doublets binary и Links Notation text в lock-step, поддерживает AES-256-GCM backups и encryption для `secret:*` links (только при заданной `MS_SECRET_PASSPHRASE`; остальное хранилище не шифруется).
 - **Service connectors (R-E\*)**: archive parsers и live API connectors для VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email.
 - **Pattern matching and automation (R-C\*)**: `inferRegex`, `simplifyRegex`, `compilePeg`, fuzzy reply-variation extraction и `createGraph` / `runGraph`.
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile и resume sync envelopes.

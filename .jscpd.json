@@ -16,6 +16,7 @@
     "**/pnpm-lock.yaml",
     "**/yarn.lock",
     "**/docs/case-studies/**",
+    "**/docs/features/**",
     "**/reports/**",
     "**/ci-logs/**",
     "**/target/**",

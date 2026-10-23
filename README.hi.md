@@ -18,7 +18,7 @@ Server के बिना hosted app **browser-only mode** में चलत�
 
 Devices के बीच sync, encrypted backups और पूरा feature set इस्तेमाल करने के लिए SPA के पास local server start करें। दो backend उपलब्ध हैं; दोनों समान wire protocol लागू करते हैं (देखें [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md))।
 
-### Rust server — preferred (single binary, runtime नहीं)
+### Rust server — single binary, runtime नहीं, पर सीमित
 
 ```bash
 git clone https://github.com/link-foundation/meta-sovereign
@@ -26,15 +26,22 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-### JavaScript server — fallback (Node/Bun/Deno)
+> **Rust server की सीमाएँ।** यह links को **सिर्फ़ memory में** रखता है: disk पर कुछ नहीं लिखा जाता, इसलिए server बंद होते ही सारा data चला जाता है। इसमें **कोई source adapters नहीं हैं**: Telegram, VK, GitHub, Upwork आदि से live fetch नहीं, outbound HTTP/TLS client नहीं (email सिर्फ़ archives ingest करता है), और automations, CV sync, browser auto-import, backups तथा `/api/export-encrypted` नहीं हैं। असली इस्तेमाल के लिए JS server या desktop app चुनें। Route-by-route सूची [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md) में है।
+
+### JavaScript server — पूरा feature set (Node/Bun/Deno), source से
+
+Package अभी **npm पर publish नहीं है** (registry 404 देती है), इसलिए `npx -y meta-sovereign serve` आज काम नहीं करता। Server को source checkout से चलाएँ (Node.js और npm चाहिए):
 
 ```bash
-npx -y meta-sovereign serve
-# या install करें: npm install -g meta-sovereign && meta-sovereign serve
-# पहली npm release से पहले: npx -y github:link-foundation/meta-sovereign serve
+git clone https://github.com/link-foundation/meta-sovereign
+cd meta-sovereign
+npm install
+node js/bin/meta-sovereign.js serve
 ```
 
-दोनों backend default रूप से <http://127.0.0.1:8787> पर listen करते हैं। JS server hosted app के origin (`https://link-foundation.github.io`) को CORS headers के साथ जवाब देता है; दूसरे origins `meta-sovereign serve --allow-origin=<origins>` या `MS_ALLOW_ORIGINS` से allow करें। Safari `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, लेकिन `https://127.0.0.1` तक पहुँचने देता है; server अब उसी port पर HTTPS का भी जवाब देता है और इसके लिए localhost का अपना certificate बनाता है। एक बार `npx -y meta-sovereign trust` चलाएँ (macOS login keychain में जोड़ता है; दूसरे systems पर certificate का path print होता है) या Safari में `https://127.0.0.1:8787/trust` खोलें और prompts follow करें — उसके बाद hosted app Safari में सीधे server से connect हो जाता है। Trust से पहले notice server का नाम दिखाता है, उसकी copy (<http://127.0.0.1:8787>) और **सर्वर पर भरोसा करें** (<https://127.0.0.1:8787/trust>) का link देता है। `--tls=false` / `MS_TLS=off` HTTPS बंद करता है; server की अपनी copy fallback रहती है। Hosted SPA `discoverServer()` से local server खोजता है (saved override → `127.0.0.1` ports)। अगर browser auto-connect नहीं करता, app में **Settings → Server** खोलें और binary द्वारा print किया गया URL paste करें।
+Package npm पर publish होने के बाद `npx -y meta-sovereign serve` (या `npm install -g meta-sovereign && meta-sovereign serve`) काम करेगा। तब तक toolchain के बिना server चलाने का तरीका desktop app (ऊपर) है।
+
+दोनों backend default रूप से <http://127.0.0.1:8787> पर listen करते हैं। JS server hosted app के origin (`https://link-foundation.github.io`) को CORS headers के साथ जवाब देता है; दूसरे origins `meta-sovereign serve --allow-origin=<origins>` या `MS_ALLOW_ORIGINS` से allow करें। Safari `https` pages को `http://127.0.0.1` तक नहीं पहुँचने देता, लेकिन `https://127.0.0.1` तक पहुँचने देता है; server अब उसी port पर HTTPS का भी जवाब देता है और इसके लिए localhost का अपना certificate बनाता है। एक बार `node js/bin/meta-sovereign.js trust` चलाएँ (macOS login keychain में जोड़ता है; दूसरे systems पर certificate का path print होता है) या Safari में `https://127.0.0.1:8787/trust` खोलें और prompts follow करें — उसके बाद hosted app Safari में सीधे server से connect हो जाता है। Trust से पहले notice server का नाम दिखाता है, उसकी copy (<http://127.0.0.1:8787>) और **सर्वर पर भरोसा करें** (<https://127.0.0.1:8787/trust>) का link देता है। `--tls=false` / `MS_TLS=off` HTTPS बंद करता है; server की अपनी copy fallback रहती है। Hosted SPA `discoverServer()` से local server खोजता है (saved override → `127.0.0.1` ports)। अगर browser auto-connect नहीं करता, app में **Settings → Server** खोलें और binary द्वारा print किया गया URL paste करें।
 
 Default UI hosted app है: `serve` उसका पता छापता है, <https://link-foundation.github.io/meta-sovereign/>, और app हमारे port 8787 पर server को खुद ढूँढ लेता है (वह 8788, 7001, 7002 और 3000 भी देखता है; किसी दूसरे port पर `serve` बताता है कि उसे **Settings → Server** में set करें), इसलिए server को web site host नहीं करनी पड़ती। <http://127.0.0.1:8787> पर उसकी अपनी copy Safari और बिना internet काम के लिए fallback रहती है; `serve --local-ui=false` (या `MS_LOCAL_UI=off`) उसे बंद करता है, और तब `/` hosted app खोलता है। `--ui-url=<url>` (या `MS_UI_URL`) कोई दूसरी hosted copy बताता है, जैसे किसी fork का Pages, और उसके origin को अनुमति देता है।
 
@@ -72,7 +79,7 @@ Telegram क्लाइंट की हर सुविधा — समर्
 
 issue #1 का prototype implement हो चुका है और PR #2 में track है:
 
-- **Data layer (R-A\*)**: `DualStore` Doublets binary और Links Notation text को lock-step में रखता है; AES-256-GCM backups और `secret:*` link encryption उपलब्ध हैं।
+- **Data layer (R-A\*)**: `DualStore` Doublets binary और Links Notation text को lock-step में रखता है; AES-256-GCM backups और `secret:*` link encryption (केवल `MS_SECRET_PASSPHRASE` सेट होने पर; बाक़ी store encrypted नहीं) उपलब्ध हैं।
 - **Service connectors (R-E\*)**: VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru और email के archive parsers तथा live connectors।
 - **Pattern matching और automation (R-C\*)**: `inferRegex`, `simplifyRegex`, `compilePeg`, fuzzy reply variation extraction और `createGraph` / `runGraph`।
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile और resume sync envelopes।

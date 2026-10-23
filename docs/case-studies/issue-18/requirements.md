@@ -1,5 +1,7 @@
 # Requirements extracted from issue #18 (languages: en • [zh](requirements.zh.md) • [hi](requirements.hi.md) • [ru](requirements.ru.md))
 
+> Note: the IDs in this case study are historical and are cited as `issue-18 R-I<k>`; a bare `R-I<k>` refers to section I of `docs/REQUIREMENTS.md`.
+
 Each row carries a stable `R-I*` identifier (the `I` is for
 internationalisation) so changesets, PRs, and code comments can
 reference the requirement without re-reading the issue.

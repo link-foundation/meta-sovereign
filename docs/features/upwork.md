@@ -1,0 +1,126 @@
+# Upwork feature matrix (languages: en • [zh](upwork.zh.md) • [hi](upwork.hi.md) • [ru](upwork.ru.md))
+
+Back to the [Telegram feature support matrix](../FEATURES.md).
+
+## Scope and access
+
+Issue #4 asks for: task search, communication before and after approval from both the client and the freelancer side, caching in the links store, and import of account-level exports. The requirement rows R-S1..R-S22 all say "Done"; this matrix shows what is actually proven. Nothing here was verified against a live Upwork account, and the live API shape is guessed (see below). Code: `js/src/sources/upwork.js`; the Rust server has only a name in a list.
+
+Routes for a personal account:
+
+- **Official API (GraphQL, `https://api.upwork.com/graphql`)**. Needs an API key that Upwork reviews by hand. A freelancer may request one for personal or internal use; the published criteria vary between versions of the article (verified identity, payment method, profile photo, and in one version USD 25,000 lifetime earnings plus a Job Success Score of at least 90%). Keys are not for commercial use and are limited to 40K requests per day ([Request an API key](https://support.upwork.com/hc/en-us/articles/115015857647-How-to-request-an-API-key-from-Upwork), [GraphQL docs](https://www.upwork.com/developer/documentation/graphql/api/docs/index.html)). Approval is not guaranteed; community reports describe keys stuck for weeks. The code sends a bearer token plus an optional `X-Upwork-API-TenantId` header. Fetching the GraphQL docs failed during the audit (HTTP 403), so which scopes the messaging operations need is unconfirmed, and the repo's own research marks the room, message and contract field names as unverified. Treat every operation name below as a guess.
+- **Web app in a browser** (`https://www.upwork.com/ab/messages/`) through the browser sender and the `upwork` entry in `WEB_UIS`. All selectors are untested guesses (`data-test` attributes), and no test exercises that entry.
+- **Archive import** of the transaction-history CSV and a hand-built JSON envelope. Upwork's real data-request (DSAR) format is not known to the code; it only guesses field names.
+- **Not accessible**: the mobile app and the Upwork Messages desktop app, video calls, Connects purchase, contract milestone and escrow flows, and anything needing the official apps or Upwork's internal APIs. Whether the public API lets a freelancer post proposals is not confirmed (unverified).
+
+Planned: inbox pull page button and schedule (R-Z8); the 24-hour cache purge and token refresh are not wired yet (R-Z7).
+
+## Legend
+
+- **Status**: Supported = works end to end in the app a user runs; Partial = works with the limit named in the notes (a fix being worked on now is marked "fix in progress (R-Z<n>)"; it still counts as Partial); Not supported = not built; Not accessible = needs a capability only the official apps have.
+- **Access**: API = the official GraphQL API (operation named; names are guesses); Web = the Upwork web app in a browser; Archive = file import; Not accessible = needs the official apps.
+- **Requirements**: R-IDs in [`REQUIREMENTS.md`](../REQUIREMENTS.md) that deliver the feature. "—" means no requirement row covers it. A requirement row saying "Done" does not mean the feature is verified.
+- **Verification**: everything is tested only with fakes (injected `fetch` / fake browser). Nothing here was checked against a live account. "planned (R-Z<n>)" marks work queued for a later wave; it does not change the status.
+
+## Messages display
+
+| Feature                                       | Status        | Access                                                   | Requirements | Notes / what is missing                                                                                                 |
+| --------------------------------------------- | ------------- | -------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Read room messages (contract rooms)           | Partial       | API `contracts` → `roomsListRooms` → `roomsRoomMessages` | R-S6, R-S7   | Operation names are unverified; tested with fakes only.                                                                 |
+| Read pre-approval (proposal) room messages    | Partial       | API `roomsListRooms(filter:{jobId})`                     | R-S5         | Works only if a `jobId` is supplied, so a freelancer cannot say "all my proposals"; there is no live proposals listing. |
+| Read via web app                              | Partial       | Web                                                      | R-Y38        | Selectors present but untested; the generic browser pull is the fallback and reads 5 chats by default.                  |
+| Message fields: sender id, text, time, edited | Partial       | API                                                      | R-Y39        | The default query fetches only `author { id }`, so sender names are lost.                                               |
+| Attachments / files in messages               | Not supported | API                                                      | —            | The query selects no attachment fields and the web selectors have none.                                                 |
+| Reactions, replies, deleted state             | Not supported | API                                                      | R-Y39        | Not in the query or the mapper.                                                                                         |
+| Message edit history                          | Partial       | API                                                      | —            | `edited` is set from `updatedAt`, but the default query does not request `updatedAt`.                                   |
+| Raw form of a message                         | Supported     | API                                                      | R-Y28        | A minimal `raw` field (id, room id, time) is kept.                                                                      |
+
+## Sending and composing
+
+| Feature                                  | Status        | Access                         | Requirements | Notes / what is missing                                                                                                                                                                                                                                                                                                        |
+| ---------------------------------------- | ------------- | ------------------------------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Send text to a room                      | Partial       | API `roomsCreateMessage` + Web | R-S8, R-Y38  | `livePost` needs `roomId`. Fixed (R-Z4): the generic sender takes the room id from a `room:<id>` chat key (from the key only, not from stored links); a chat without one answers `unsupported-chat`. The browser leg is an unverified composer. The dedicated route `POST /api/upwork/post-message` takes `roomId` explicitly. |
+| Send confirmation / safe mode            | Supported     | Server                         | —            | The shared confirmation step is used by the route.                                                                                                                                                                                                                                                                             |
+| Send attachment                          | Not supported | API                            | —            | Not built.                                                                                                                                                                                                                                                                                                                     |
+| Edit / delete own message                | Partial       | Web                            | R-Y38        | Web selectors only, untested; no GraphQL mutation.                                                                                                                                                                                                                                                                             |
+| Typing / read receipts                   | Not supported | API                            | —            | Not built.                                                                                                                                                                                                                                                                                                                     |
+| Offer / contract-terms cards in messages | Not supported | API                            | —            | Shown as empty text.                                                                                                                                                                                                                                                                                                           |
+
+## Chat list
+
+| Feature                      | Status        | Access                     | Requirements | Notes / what is missing                                                                                           |
+| ---------------------------- | ------------- | -------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- |
+| List rooms                   | Partial       | API `roomsListRooms` + Web | R-S6         | Only rooms reachable through contracts or an explicit `jobId` are walked; no general room list outside contracts. |
+| Unread count                 | Partial       | Web                        | —            | Only a web selector; the API has none.                                                                            |
+| Archive / mute / star a room | Not supported | API                        | —            | Not built.                                                                                                        |
+| Room title                   | Partial       | API                        | —            | The room `topic` is stored.                                                                                       |
+
+## Proposals, jobs, contracts
+
+| Feature                                          | Status        | Access                               | Requirements | Notes / what is missing                                                                                                                                   |
+| ------------------------------------------------ | ------------- | ------------------------------------ | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Search marketplace jobs                          | Partial       | API `marketplaceJobPostingsSearch`   | R-S4         | One page by default and no filter beyond the search expression; route `POST /api/upwork/search` and CLI `upwork-search`. Fakes only. No page UI calls it. |
+| Job detail, budget, skills, client history       | Partial       | API                                  | R-S10        | The query selects id, title, description, date and client id/name only; budget, skills and client spend/rating are missing.                               |
+| List my proposals (freelancer)                   | Not supported | API                                  | R-S5         | A proposal link type exists for archives, but no live query lists proposals.                                                                              |
+| Submit a proposal / cover letter, Connects       | Not supported | API (no public write verified) + Web | —            | The freelancer's main workflow is absent.                                                                                                                 |
+| Withdraw a proposal, decline an invitation       | Not supported | Web                                  | —            | Not built.                                                                                                                                                |
+| Client side: post a job, review applicants, hire | Not supported | API + Web                            | R-S7         | R-S7 only covers the contract/room pull; there are no job-posting or hiring calls.                                                                        |
+| List contracts                                   | Partial       | API `contracts(perspective)`         | R-S6, R-S11  | Fakes only; the `perspective` enum values are guesses.                                                                                                    |
+| Contract detail, milestones, hours, time logs    | Partial       | Archive                              | R-S11        | Time-log and transaction links come only from an archive; no live pull.                                                                                   |
+| Invitations to interview / offers                | Not supported | API                                  | —            | Not built.                                                                                                                                                |
+
+## Profile and CV
+
+| Feature                                                     | Status        | Access | Requirements | Notes / what is missing                                                                                                                                                              |
+| ----------------------------------------------------------- | ------------- | ------ | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Read own profile (title, overview, skills, rate, portfolio) | Not supported | Web    | —            | There is no CV plan for Upwork (the CV platform list has LinkedIn, hh, Habr Career, Naukri, VietnamWorks, TopCV, SuperJob).                                                          |
+| Update profile / overview / skills / rate                   | Not supported | Web    | —            | Profile editing has no public API; web only and not built.                                                                                                                           |
+| Resume sync (no support)                                    | Not supported | API    | R-D6         | Upwork is accepted as a resume-sync target but has no `syncResume`. Fixed (R-Z4): the sync now reports `ok: false` (`unsupported`) instead of success; there is still no real write. |
+| Portfolio, certifications, employment history               | Not supported | Web    | —            | Not built.                                                                                                                                                                           |
+
+## Search, notifications, accounts, money
+
+| Feature                                        | Status         | Access         | Requirements | Notes / what is missing                                                                                                      |
+| ---------------------------------------------- | -------------- | -------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Job alerts / saved searches                    | Not supported  | API + Web      | —            | Not built.                                                                                                                   |
+| Notifications (new message, invitation, offer) | Not supported  | API            | —            | No Upwork-specific poll; only the generic background pull applies. Inbox pull button and schedule planned (R-Z8).            |
+| Transaction history, earnings                  | Partial        | Archive        | R-S2, R-S9   | CSV only (header must be `Date,Type,Description,Amount`; the splitter does not handle quoted newlines). Tested. No live API. |
+| Weekly Summary CSV, GDPR data bundle           | Partial        | Archive        | R-S9         | Only the invented envelope shape is parsed; Upwork's real data-request layout was never checked.                             |
+| Multiple accounts / agencies (tenant)          | Partial        | API            | R-S3         | An organization id is sent as a tenant header; the only UI is the connection guide field.                                    |
+| Token refresh                                  | Not supported  | API            | R-S15        | A refresh token is stored but never used; an expired access token (about 24 h life) just gives HTTP 401. Planned (R-Z7).     |
+| 24 h cache retention                           | Partial        | local          | R-S12        | The purge function exists and is tested, but nothing calls it, so cached links never expire. Planned (R-Z7).                 |
+| Connection guide                               | Supported      | UI             | R-S15, R-S16 | The probe posts to the GraphQL URL.                                                                                          |
+| Video calls, stories, bots, stickers           | Not accessible | Not accessible | —            | Not applicable to Upwork; video calls exist only in the official apps.                                                       |
+
+## Import, export and automation
+
+| Feature                                           | Status        | Access    | Requirements | Notes / what is missing                                                                             |
+| ------------------------------------------------- | ------------- | --------- | ------------ | --------------------------------------------------------------------------------------------------- |
+| Archive import                                    | Partial       | Archive   | R-S2, R-S9   | The auto-import recipe opens the transaction-history page and takes `.csv`/`.json` files only.      |
+| CLI                                               | Supported     | Server    | R-S13        | `source-pull`, `upwork-search`, `upwork-message`; only `source-pull` is generic.                    |
+| Server routes                                     | Partial       | Server    | R-S14        | `/api/upwork/pull`, `/search`, `/post-message`. No test calls them; coverage is adapter-level only. |
+| Greetings / auto-reply / CRM re-engage to clients | Partial       | API + Web | —            | Generic features with the same send-path caveat as above.                                           |
+| Rust server                                       | Not supported | API       | —            | Only a name in a source list; no adapter. Rust parity is documented, not built.                     |
+
+## Counts
+
+| Section                                | Supported | Partial | Not supported | Not accessible |
+| -------------------------------------- | --------- | ------- | ------------- | -------------- |
+| Messages display                       | 1         | 5       | 2             | 0              |
+| Sending and composing                  | 1         | 2       | 3             | 0              |
+| Chat list                              | 0         | 3       | 1             | 0              |
+| Proposals, jobs, contracts             | 0         | 4       | 5             | 0              |
+| Profile and CV                         | 0         | 0       | 4             | 0              |
+| Search, notifications, accounts, money | 1         | 4       | 3             | 1              |
+| Import, export and automation          | 1         | 3       | 1             | 0              |
+| **Total**                              | **4**     | **21**  | **19**        | **1**          |
+
+## Known gaps
+
+1. The live API shape is unverified and key approval is uncertain: every GraphQL operation and field name is a guess. Without an approved key only the browser route remains, and its selectors are untested.
+2. Sending from Chat takes the room id from a `room:` chat key (fixed, R-Z4; from the key only, not from stored links), and the browser leg is untested.
+3. Resume sync for Upwork now reports `unsupported` instead of success (fixed, R-Z4). There is no Upwork CV plan.
+4. No proposals workflow and no page UI: no live proposal list, no submit, no search screen.
+5. Server routes have no tests; the 24-hour cache purge never runs and the refresh token is unused (R-Z7); inbox pull is planned (R-Z8).
+6. Message detail is thin: sender names, attachments and edit time are not requested.
+7. Nothing has been verified against a live Upwork account; all tests use fakes.

@@ -9,6 +9,22 @@ changesets, PRs और code comments से cross-reference किया जा 
 है। [`docs/ROADMAP.md`](./ROADMAP.md) reviewer-facing roadmap ledger के
 रूप में मौजूद रहता है।
 
+## Known ID clashes
+
+Historical numbering को renumber नहीं किया गया क्योंकि code comments इन IDs
+को cite करते हैं। दो clashes हैं; इन्हें section qualifier के साथ cite करें:
+
+- `R-N1`..`R-N9` तीन बार define हैं: section N (tutorial), section O (email)
+  और section U (mobile UI)। उन्हें `R-N1 (tutorial)`, `R-N1 (email)`,
+  `R-N1 (mobile UI)` की तरह cite करें। `R-N10` sections O (email) और U
+  (mobile UI) में define है; `R-N11` और `R-N12` केवल U में।
+- Issue #18 case study
+  ([`docs/case-studies/issue-18/requirements.hi.md`](./case-studies/issue-18/requirements.hi.md))
+  historical `R-I*` IDs इस्तेमाल करता है जो इस file के section I से टकराते
+  हैं। उन्हें `issue-18 R-I<k>` लिखें; अकेला `R-I<k>` यहाँ section I है।
+
+बाकी सभी IDs unique हैं (requirement tables पर script से जाँचा गया)।
+
 ## A. Data layer
 
 R-A1..R-A5 unified database import/export, `.lino` files, binary
@@ -95,11 +111,15 @@ overlay, settings guidance, e2e coverage और issue #10 case study cover
 
 ## N. Tutorial progress persistence (issue #13)
 
+> इस section के IDs `R-N<k> (tutorial)` की तरह cite होते हैं। देखें [Known ID clashes](#known-id-clashes)।
+
 R-N1..R-N9 tutorial refresh persistence, Next/Skip/Complete persistence,
 reopen reset, case study, external research और root-cause note cover करते
 हैं। State: done।
 
 ## O. Email support (issue #3)
+
+> इस section के IDs `R-N<k> (email)` की तरह cite होते हैं। देखें [Known ID clashes](#known-id-clashes)।
 
 R-N1..R-N10 (historical numbering retained) email research, archive
 import, Gmail/Microsoft Graph/JMAP live receive/send, IMAP/POP3/SMTP
@@ -121,7 +141,56 @@ translation keys, dictionary parity tests, Markdown language switchers,
 translated docs siblings, docs-language automation, issue #18 case study
 और PR #19 single-PR delivery cover करते हैं। स्थिति: PR #19 2026-05-04 को merge हुआ।
 
+## R. GitHub support (issue #5)
+
+R-R1..R-R18 GitHub को first-class `MessageSource` (issues, issue
+comments, pull requests, PR review comments, discussions) के रूप में,
+REST API / `gh api` dumps से archive import, GitHub REST API से live pull,
+browser-direct calls (local server fallback के साथ), comments वापस post
+करना, user की सभी repositories download करके working tree को links
+(`repo:<owner>/<name>`) के रूप में index करना, `listRepos()`, CLI
+subcommands (`source-pull --source=github`, `github-clone`,
+`github-comment`), same-origin routes `/api/github/*`, Settings
+catalogue में connection guide (PAT, `/user` probe), secret-store
+contract (`secret:*`, AES-256-GCM), `docs/case-studies/issue-5/` में
+research और evidence, reproducing tests (`js/tests/github-source.test.js`),
+top-level docs update और single-PR delivery cover करते हैं। स्थिति: PR #22
+2026-05-06 को merge हुआ।
+
+## S. Upwork support (issue #4)
+
+R-S1..R-S22 Upwork को first-class `MessageSource` (messages, proposals,
+contracts, jobs, rooms) के रूप में, archive import (GraphQL JSON और CSV
+exports), Upwork GraphQL API (OAuth 2.0 Bearer) से live pull, job search,
+worker approval से पहले और बाद की communication, एक ही adapter से client
+और freelancer perspectives, rooms में posting, account-level data exports
+(GDPR / DSAR, Transaction History, Weekly Summary), अलग link kinds `job:*`
+और `contract:*`, API ToS (user की सहमति के बिना Upwork-derived content को 24
+घंटे से अधिक cache न करना; `softCacheRetention`), CLI subcommands,
+same-origin server routes, Settings में connection guide (OAuth token,
+GraphQL probe), secret-store contract, `docs/case-studies/issue-4/` में
+research और evidence, reproducing tests, top-level docs update और
+single-PR delivery cover करते हैं। स्थिति: PR #23 2026-05-06 को merge हुआ।
+
+## T. PeoplePerHour support (issue #12)
+
+R-T1..R-T22 section S को PeoplePerHour के लिए दोहराते हैं: first-class
+`MessageSource` (messages, proposals, workstreams, projects, rooms),
+archive import (JSON dumps और Earnings CSV), `https://www.peopleperhour.com/api/v1`
+(OAuth 2.0 Bearer) से live pull, project search, worker approval से पहले
+और बाद की communication, buyer और freelancer perspectives, rooms में
+posting, account-level exports (GDPR / DSAR, Earnings CSV), projects और
+workstreams के link kinds, API ToS (user की सहमति के बिना 24 घंटे), CLI
+subcommands, same-origin server routes, connection guide, secret-store
+contract, `docs/case-studies/issue-12/` में research और evidence,
+reproducing tests (`searchProjects` / `pullMessages` / `post`, injected
+`fetchImpl` के साथ), top-level docs update और single-PR delivery। Issue
+body में "exports from upwork" का ज़िक्र issue #4 से copy/paste artefact
+माना गया है; title authoritative है। स्थिति: PR #24 2026-05-06 को merge हुआ।
+
 ## U. Mobile-first UI overhaul (issue #25)
+
+> इस section के IDs `R-N<k> (mobile UI)` की तरह cite होते हैं। देखें [Known ID clashes](#known-id-clashes)।
 
 R-N1..R-N12 mobile-first AppShell (bottom-nav / side-rail / permanent
 drawer), Apple Liquid Glass tokens जिनके साथ
@@ -424,6 +493,7 @@ surface पर **uniformly** लागू होती है।
 | R-Y225 | Rich संदेश और Instant View पेज अब सामान्य संदेश जैसे ही rich-text प्रकार दिखाते हैं: उल्लेख (mention) और id से उल्लेख, हैशटैग और कैशटैग (क्लिक पर खोज; बॉट कमांड केवल दिखती है, भेजी नहीं जाती), स्वचालित लिंक, ई-मेल और फ़ोन नंबर (अन्य लिंक जैसी ही सुरक्षित-पता जाँच से), कार्ड नंबर (केवल Copy बटन के क्लिक पर कॉपी), दर्शक के लिए शब्दों में तारीखें, कस्टम इमोजी चित्र के रूप में (Telegram क्लाइंट और मौजूदा कस्टम इमोजी मार्ग से) और टेक्स्ट बटन (लिंक-शैली बटन दिखते हैं; Instant View रीडर में वे निष्क्रिय दिखते हैं)। सूत्र KaTeX से MathML के रूप में बनते हैं (trust बंद, कच्चा स्रोत HTML के रूप में नहीं डाला जाता); जो सूत्र न बन सके वह LaTeX ही रहता है। क्लिक के बिना Telegram में कुछ नहीं लिखा जाता। app.min.js लगभग 277 KB बढ़ा क्योंकि बिल्ड में code splitting नहीं है, इसलिए KaTeX बंडल में है और वास्तव में lazy नहीं है। Rich संदेश अब भी भेजे या संपादित नहीं किए जा सकते। e2e में कॉपी-बटन की जाँच नरम है (headless क्लिपबोर्ड)। असली Telegram पर नहीं जाँचा गया।                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `js/src/web/rich-text-nodes.js`, `js/src/web/rich-math.js`, `js/src/sources/telegram-instant-view-shape.js`, `js/src/web/chat-instant-view-render.js`, `js/src/web/chat-rich-message.js`, `js/src/web/bot-keyboard.js`, `js/tests/rich-text.test.js`, `js/tests/e2e-rich-text-browser.mjs`                                                                                                                                                                                                                                                                                                                                       |
 | R-Z4   | नेटवर्कों के बीच भेजना या सिंक करना अब वही करता है जो वह कहता है, या बताता है कि वह नहीं कर सका। LinkedIn चैट संदेश अब कभी सार्वजनिक पोस्ट नहीं बनता: `sendMessage` `unsupported` लौटाता है (फिर वेब-ऐप भेजने वाला काम संभालता है) और चैट या व्यक्ति के साथ `post` मना कर देता है; फ़ीड पोस्ट अलग `publishPost` है, और LinkedIn प्रोफ़ाइल या रिज़्यूमे सिंक `shareAsPost` दिए बिना `unsupported` है। X के सीधे संदेश सही बातचीत-पथ से जाते हैं, चैट कुंजी वाला `post` DM है और केवल बिना पते वाला पोस्ट सार्वजनिक है, तथा X प्रोफ़ाइल सिंक `unsupported` बताता है (OAuth 1.0a चाहिए)। hh.ru रिज़्यूमे सिंक ऐसे पते को बुलाने के बजाय `unsupported` बताता है जो मौजूद नहीं; hh.ru, Habr Career और SuperJob `vacancy:` चैट कुंजी को `unsupported-chat` से मना करते हैं। Upwork और PeoplePerHour कमरे या थ्रेड की id `room:` जैसी चैट कुंजी से लेते हैं, अन्यथा `unsupported-chat` देते हैं। ब्रॉडकास्ट, प्रोफ़ाइल सिंक और रिज़्यूमे सिंक उस नेटवर्क के लिए कोड के साथ `ok: false` देते हैं जिसमें यह क्रिया नहीं है या जिसने नहीं किया, और जो नहीं हुआ उसके लिए कभी ok नहीं कहते; re-engage केवल चैट वाला `sendMessage` इस्तेमाल करता है। भेजे जाने के बाद विफल अनुरोध (टाइमआउट, रीसेट, 5xx या 408) `ambiguous` चिह्नित होता है, परिणाम `unknown` दर्ज होता है और ब्राउज़र विकल्प से दोबारा नहीं भेजा जाता; स्पष्ट इनकार (4xx) अब भी ब्राउज़र पर जा सकता है। सीमाएँ: Upwork और PeoplePerHour की चैट कुंजियाँ केवल कुंजी से मैप होती हैं, सहेजे लिंकों से नहीं; LinkedIn का "पोस्ट के रूप में साझा" केवल API स्तर पर है; Naukri, TopCV और VietnamWorks रिज़्यूमे सिंक अपरिवर्तित और असत्यापित हैं। असली नेटवर्कों पर जाँचा नहीं गया।                                                                                                                                                       | `js/src/sources/http.js`, `js/src/sources/linkedin.js`, `js/src/sources/x.js`, `js/src/sources/hh.js`, `js/src/sources/habr-career.js`, `js/src/sources/superjob.js`, `js/src/sources/upwork.js`, `js/src/sources/peopleperhour.js`, `js/src/sources/browser-sender.js`, `js/src/broadcast/index.js`, `js/src/crm/reengage.js`, `js/tests/send-sync-honesty.test.js`                                                                                                                                                                                                                                                             |
 | R-Z2   | स्टोर क्रैश और साझा उपयोग में सुरक्षित रहता है। लिखाई समूहबद्ध होकर 200 ms की group-commit विंडो में डिस्क पर जाती है: बिजली कटने पर आख़िरी 200 ms तक की लिखाई खो सकती है, पर स्टोर कभी ख़राब नहीं होता; macOS पर fsync ड्राइव के cache को बाध्य नहीं करता, इसलिए गारंटी OS स्तर की है। एक समय में एक ही प्रक्रिया स्टोर में लिखती है (`data.lock`): दूसरा लेखक, जैसे `serve` चलते समय `import`, तुरंत STORE_LOCKED और स्पष्ट संदेश के साथ रुकता है, जबकि केवल-पढ़ने वाले कमांड (`export`, `cv-read`) लॉक नहीं लेते और कुछ नहीं लिखते। न पढ़ी जा सकने वाली पंक्तियाँ अलग क्वारंटीन फ़ाइल में रखी जाती हैं, छोड़ी नहीं जातीं और स्टार्टअप नहीं तोड़तीं; data.lino/data.bin का फ़ॉर्मैट वही है। फ़ाइलें 0600 और फ़ोल्डर 0700 से बनते हैं, पुराने शुरू होने पर सख़्त किए जाते हैं। सादे (अनएन्क्रिप्टेड) बैकअप में `secret:*` लिंक शामिल नहीं होते और यह बताया जाता है; एन्क्रिप्टेड में होते हैं; पुराने बैकअप तभी हटते हैं जब सबसे नया सत्यापित हो। लॉग टोकन, Authorization/Cookie हेडर, सेशन और पासवर्ड छिपाते हैं और आकार से घूमते हैं (10 MB, 3 फ़ाइलें, 0600)। सीमाएँ: `MS_SECRET_PASSPHRASE` के बिना secrets `data.lino` में सादे पाठ में रहते हैं; मृत प्रक्रिया का लॉक ले लिया जाता है, पर नेटवर्क फ़ाइल सिस्टम पर लॉक की गारंटी नहीं। असली Telegram के विरुद्ध जाँचा नहीं गया।                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `js/src/storage/durable.js`, `js/src/storage/store-lock.js`, `js/src/storage/lino-store.js`, `js/src/storage/dual-store.js`, `js/src/storage/backup.js`, `js/src/server/redact.js`, `js/src/server/log.js`, `js/tests/store-durability.test.js`, `js/tests/redact-log.test.js`                                                                                                                                                                                                                                                                                                                                                   |
+| R-Z13  | हर नेटवर्क की अब अपनी feature matrix है (समर्थित, आंशिक, असमर्थित, अनुपलब्ध) जिसमें पहुँच का रास्ता, requirement id, नोट्स और ज्ञात कमियाँ हैं; अंग्रेज़ी, रूसी, हिंदी और चीनी में, `docs/FEATURES.md` से लिंक। गिनती (समर्थित / आंशिक / असमर्थित / अनुपलब्ध): VK 27/25/36/5, WhatsApp 2/26/32/8, Facebook + Instagram 5/35/29/1, X 7/22/24/5, LinkedIn 4/19/27/3, email 12/25/40/3, GitHub 14/15/35/2, Upwork 4/21/19/1, PeoplePerHour 2/15/12/1, job boards 3/29/22/1। R-Z2 और R-Z4 का इंतज़ार करती पंक्तियाँ अब बताती हैं कि उन सुधारों ने क्या किया (LinkedIn चैट कभी public post नहीं बनता, X DM बातचीत endpoint से जाते हैं, अस्पष्ट भेजना `unknown` दर्ज होता है और दोहराया नहीं जाता, रिज़्यूमे सिंक `unsupported` देता है, secrets केवल `MS_SECRET_PASSPHRASE` के साथ एन्क्रिप्ट होते हैं)। ru, hi और zh requirements में R, S और T sections जुड़े, README, user guide और roadmap असली सीमाएँ बताते हैं, और docs-language test नए पन्नों को कवर करता है। सीमा: हर पंक्ति केवल code और fakes से जाँची गई है, असली खातों पर नहीं। असली Telegram पर जाँचा नहीं गया।                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `docs/FEATURES.md`, `docs/features/vk.md`, `docs/features/whatsapp.md`, `docs/features/facebook.md`, `docs/features/x.md`, `docs/features/linkedin.md`, `docs/features/email.md`, `docs/features/github.md`, `docs/features/upwork.md`, `docs/features/peopleperhour.md`, `docs/features/job-boards.md`, `docs/REQUIREMENTS.ru.md`, `docs/USER-GUIDE.md`, `docs/ROADMAP.md`, `js/tests/docs-language.test.js`                                                                                                                                                                                                                    |
 | R-Y173 | चैनल बूस्ट, जैसे Telegram Desktop में, और «सहेजे गए संदेश» के टैग जो नई प्रतिक्रियाओं के साथ चलते हैं। चैनल या सुपरग्रुप के जानकारी कॉलम में बूस्ट स्तर, अगले स्तर तक की प्रगति और «कॉपी करें» के साथ बूस्ट लिंक दिखता है (premium.getBoostsStatus)। «बूस्ट करें» पहले Premium जाँचता है और ज़रूरत होने पर बताता है, कुछ भी भेजे बिना। खाली स्लॉट तुरंत लगाया जाता है (premium.getMyBoosts, premium.applyBoost)। जो स्लॉट किसी और चैट को बूस्ट कर रहा है या कूलडाउन में है, वह पेज में पूछने के बाद ही लगाया जाता है, और जिस चैट को सभी स्लॉट पहले से बूस्ट कर रहे हैं उसके बारे में यही बताया जाता है। एडमिन को नाम, «तक बूस्ट» तिथियों और गुणकों के साथ पेज-दर-पेज «बूस्टर» डायलॉग मिलता है, और उपहार व गिवअवे बूस्ट पर लेबल होता है (premium.getBoostsList)। «सहेजे गए संदेश» का टैग बार (R-Y151) अब हर भेजी गई प्रतिक्रिया पर फिर से लोड होता है, इसलिए नया टैग तुरंत दिखता है।                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `js/src/sources/telegram-boosts.js`, `js/src/server/routes-telegram-boosts.js`, `js/src/web/chat-boosts.js`, `js/src/web/chat-saved-tags.js`, `js/src/web/chat-actions.js`, `js/tests/telegram-boosts.test.js`, `js/tests/e2e-boosts-browser.mjs`, `js/tests/e2e-saved-tags-browser.mjs`                                                                                                                                                                                                                                                                                                                                         |
 
 ## Traceability

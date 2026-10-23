@@ -1,5 +1,7 @@
 # 从 issue #18 提取的需求 (languages: [en](requirements.md) • zh • [hi](requirements.hi.md) • [ru](requirements.ru.md))
 
+> 注意：本 case study 的 ID 为历史编号，引用为 `issue-18 R-I<k>`；单独的 `R-I<k>` 指 `docs/REQUIREMENTS.md` 的 section I。
+
 每一项都带有稳定的 `R-I*` ID，便于 changesets、PR 和代码注释引用。
 
 ## R-I1 — 允许用户切换 UI 语言

@@ -1,5 +1,7 @@
 # Issue #18 से निकली requirements (languages: [en](requirements.md) • [zh](requirements.zh.md) • hi • [ru](requirements.ru.md))
 
+> नोट: इस case study के IDs historical हैं और `issue-18 R-I<k>` की तरह cite होते हैं; अकेला `R-I<k>` `docs/REQUIREMENTS.md` के section I को दर्शाता है।
+
 हर item stable `R-I*` ID रखता है ताकि changesets, PRs और code comments उसे
 reference कर सकें।
 

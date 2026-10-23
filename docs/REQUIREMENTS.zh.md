@@ -7,6 +7,22 @@
 每个 issue 的完整拆解保存在 [`docs/case-studies/`](./case-studies/)。
 [`docs/ROADMAP.md`](./ROADMAP.md) 仍然是 reviewer-facing roadmap ledger。
 
+## Known ID clashes
+
+历史编号没有重新编号，因为 code comments 引用了这些 ID。存在两处冲突，
+引用时请加上 section 限定：
+
+- `R-N1`..`R-N9` 被定义了三次：section N (tutorial)、section O (email)
+  和 section U (mobile UI)。请写作 `R-N1 (tutorial)`、`R-N1 (email)`、
+  `R-N1 (mobile UI)`。`R-N10` 定义于 section O (email) 和 U (mobile UI)；
+  `R-N11` 与 `R-N12` 仅在 U。
+- issue #18 case study
+  ([`docs/case-studies/issue-18/requirements.zh.md`](./case-studies/issue-18/requirements.zh.md))
+  使用的历史 `R-I*` ID 与本文件 section I 冲突。请写作
+  `issue-18 R-I<k>`；单独的 `R-I<k>` 指本文件的 section I。
+
+其余 ID 均唯一（已用脚本检查 requirement 表）。
+
 ## A. 数据层
 
 R-A1..R-A5 覆盖统一数据库的外部服务导入/导出、`.lino` 文件、binary
@@ -89,11 +105,15 @@ overlay、settings guidance、e2e coverage 和 issue #10 case study。状态：�
 
 ## N. Tutorial progress persistence (issue #13)
 
+> 本 section 的 ID 引用为 `R-N<k> (tutorial)`。见 [Known ID clashes](#known-id-clashes)。
+
 R-N1..R-N9 要求 tutorial refresh 后保持当前步骤、Next/Skip/Complete 的持久
 化、重新打开时重置、case study、external research 和 root-cause note。状态：
 已完成。
 
 ## O. Email support (issue #3)
+
+> 本 section 的 ID 引用为 `R-N<k> (email)`。见 [Known ID clashes](#known-id-clashes)。
 
 R-N1..R-N10（该历史区段沿用原编号）覆盖 email research、archive import、
 Gmail/Microsoft Graph/JMAP live receive/send、IMAP/POP3/SMTP local-server
@@ -114,7 +134,52 @@ translation keys、dictionary parity tests、Markdown language switchers、
 translated docs siblings、docs-language automation、issue #18 case study 和 PR
 #19 single-PR delivery。状态：PR #19 已于 2026-05-04 合并。
 
+## R. GitHub support (issue #5)
+
+R-R1..R-R18 覆盖：将 GitHub 作为 first-class `MessageSource`（issues、issue
+comments、pull requests、PR review comments、discussions）、来自 REST API /
+`gh api` dumps 的 archive import、通过 GitHub REST API 的 live pull、
+browser-direct calls（以 local server 为 fallback）、回写 comments、下载用户
+所有 repositories 并将 working tree 索引为 links（`repo:<owner>/<name>`）、
+`listRepos()`、CLI subcommands（`source-pull --source=github`、
+`github-clone`、`github-comment`）、same-origin routes `/api/github/*`、
+Settings catalogue 中的 connection guide（PAT，probe `/user`）、secret-store
+contract（`secret:*`、AES-256-GCM）、`docs/case-studies/issue-5/` 中的
+research 和 evidence、reproducing tests（`js/tests/github-source.test.js`）、
+top-level docs 更新以及 single-PR delivery。状态：PR #22 已于 2026-05-06 合并。
+
+## S. Upwork support (issue #4)
+
+R-S1..R-S22 覆盖：将 Upwork 作为 first-class `MessageSource`（messages、
+proposals、contracts、jobs、rooms）、archive import（GraphQL JSON 和 CSV
+exports）、通过 Upwork GraphQL API（OAuth 2.0 Bearer）的 live pull、job
+search、worker approval 之前和之后的沟通、同一 adapter 下的 client 和
+freelancer perspectives、向 rooms 发帖、account-level data exports（GDPR /
+DSAR、Transaction History、Weekly Summary）、独立的 link kinds `job:*` 和
+`contract:*`、API ToS（未经用户同意不得缓存 Upwork 衍生内容超过 24 小时；
+`softCacheRetention`）、CLI subcommands、same-origin server routes、Settings
+中的 connection guide（OAuth token，GraphQL probe）、secret-store contract、
+`docs/case-studies/issue-4/` 中的 research 和 evidence、reproducing tests、
+top-level docs 更新以及 single-PR delivery。状态：PR #23 已于 2026-05-06 合并。
+
+## T. PeoplePerHour support (issue #12)
+
+R-T1..R-T22 对 PeoplePerHour 镜像 section S：first-class `MessageSource`
+（messages、proposals、workstreams、projects、rooms）、archive import（JSON
+dumps 和 Earnings CSV）、通过 `https://www.peopleperhour.com/api/v1`
+（OAuth 2.0 Bearer）的 live pull、project search、worker approval 之前和之后的
+沟通、buyer 和 freelancer perspectives、向 rooms 发帖、account-level exports
+（GDPR / DSAR、Earnings CSV）、projects 和 workstreams 的 link kinds、API ToS
+（未经用户同意 24 小时）、CLI subcommands、same-origin server routes、
+connection guide、secret-store contract、`docs/case-studies/issue-12/` 中的
+research 和 evidence、reproducing tests（`searchProjects` / `pullMessages` /
+`post`，注入 `fetchImpl`）、top-level docs 更新以及 single-PR delivery。issue
+正文中的 "exports from upwork" 被视为来自 issue #4 的 copy/paste artefact；
+以标题为准。状态：PR #24 已于 2026-05-06 合并。
+
 ## U. Mobile-first UI 改造 (issue #25)
+
+> 本 section 的 ID 引用为 `R-N<k> (mobile UI)`。见 [Known ID clashes](#known-id-clashes)。
 
 R-N1..R-N12 覆盖 mobile-first AppShell（bottom-nav / side-rail /
 permanent drawer）、Apple Liquid Glass tokens 与
@@ -408,6 +473,7 @@ VK 提示；以及连接器迁移到 `api.vk.ru` 域名。状态：PR #33。详�
 | R-Y225 | 富消息和 Instant View 页面现在会绘制普通消息所具有的富文本类型：提及和按 id 的提及、话题标签和 cashtag（点击即搜索；机器人命令只显示，不会发送）、自动链接、电子邮件和电话（与其他链接使用同一套安全地址检查）、银行卡号（仅在点击 Copy 按钮时复制）、按查看者习惯措辞的日期、以图片显示的自定义表情（通过 Telegram 客户端和现有自定义表情路径获取）以及文本按钮（链接样式按钮会绘制；在 Instant View 阅读器中显示为不可点击）。公式由 KaTeX 绘制为 MathML（关闭 trust，不把原始源码作为 HTML 插入）；无法绘制的公式仍显示为 LaTeX。没有点击就不会向 Telegram 写入任何内容。app.min.js 增大约 277 KB，因为构建没有代码拆分，KaTeX 被打包在内，并非真正的懒加载。富消息仍不能发送或编辑。e2e 中复制按钮的检查是宽松的（无头剪贴板）。未在真实 Telegram 上检查。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | `js/src/web/rich-text-nodes.js`, `js/src/web/rich-math.js`, `js/src/sources/telegram-instant-view-shape.js`, `js/src/web/chat-instant-view-render.js`, `js/src/web/chat-rich-message.js`, `js/src/web/bot-keyboard.js`, `js/tests/rich-text.test.js`, `js/tests/e2e-rich-text-browser.mjs`                                                                                                                                                                                                                                                                                                                                       |
 | R-Z4   | 跨网络的发送或同步现在会如实执行，或明确说明未能完成。LinkedIn 聊天消息不再变成公开帖子：`sendMessage` 返回 `unsupported`（由网页应用发送器接手），带聊天或联系人的 `post` 会被拒绝；动态帖子是单独的 `publishPost`，LinkedIn 资料或简历同步除非传入 `shareAsPost`，否则返回 `unsupported`。X 私信走正确的会话路径，带聊天键的 `post` 是私信，只有无收件人的帖子才公开，X 资料同步返回 `unsupported`（需要 OAuth 1.0a）。hh.ru 简历同步返回 `unsupported`，不再调用不存在的地址；hh.ru、Habr Career 和 SuperJob 对 `vacancy:` 聊天键返回 `unsupported-chat`。Upwork 和 PeoplePerHour 从 `room:` 之类的聊天键取房间或会话 id，否则返回 `unsupported-chat`。群发、资料同步和简历同步对不支持该操作或未完成的网络返回带代码的 `ok: false`，绝不对未发生的事报告成功；重新联系只使用仅限聊天的 `sendMessage`。请求发出后失败（超时、重置、5xx 或 408）会标记为 `ambiguous`，记为结果 `unknown`，且不会通过浏览器后备重发；明确拒绝（4xx）仍可回退到浏览器。已知限制：Upwork 和 PeoplePerHour 的聊天键仅由键本身映射，不使用已保存的链接；LinkedIn 的“作为帖子分享”只存在于 API 层；Naukri、TopCV 和 VietnamWorks 的简历同步未改动且未验证。未在真实网络上检查。                                                                                                                                                                                                                              | `js/src/sources/http.js`, `js/src/sources/linkedin.js`, `js/src/sources/x.js`, `js/src/sources/hh.js`, `js/src/sources/habr-career.js`, `js/src/sources/superjob.js`, `js/src/sources/upwork.js`, `js/src/sources/peopleperhour.js`, `js/src/sources/browser-sender.js`, `js/src/broadcast/index.js`, `js/src/crm/reengage.js`, `js/tests/send-sync-honesty.test.js`                                                                                                                                                                                                                                                             |
 | R-Z2   | 存储能经受崩溃和共享使用。写入被合并，并在 200 毫秒的 group-commit 窗口内落盘：断电最多可能丢失最后 200 毫秒的写入，但绝不会损坏存储；macOS 上 fsync 不会强制刷新磁盘缓存，所以保证停留在操作系统层面。同一时间只有一个进程写入存储（`data.lock`）：第二个写入者（例如 `serve` 运行时执行 `import`）会立即以 STORE_LOCKED 和明确提示失败，而只读命令（`export`、`cv-read`）不取锁也不写入。无法读取的行会被隔离到单独文件，而不是丢弃或使启动失败；data.lino/data.bin 格式不变。文件创建为 0600、目录为 0700，旧文件在启动时收紧。普通（未加密）备份不含 `secret:*` 链接并会注明；加密备份包含；只有最新备份验证通过才会清理旧备份。日志会隐藏令牌、Authorization/Cookie 头、会话和密码，并按大小轮转（10 MB、3 个文件、0600）。限制：未设置 `MS_SECRET_PASSPHRASE` 时密钥以明文保存在 `data.lino`；已终止进程遗留的锁会被接管，但网络文件系统上的锁无法保证。未在真实 Telegram 上检查。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `js/src/storage/durable.js`, `js/src/storage/store-lock.js`, `js/src/storage/lino-store.js`, `js/src/storage/dual-store.js`, `js/src/storage/backup.js`, `js/src/server/redact.js`, `js/src/server/log.js`, `js/tests/store-durability.test.js`, `js/tests/redact-log.test.js`                                                                                                                                                                                                                                                                                                                                                   |
+| R-Z13  | 每个网络现在都有自己的功能矩阵（已支持、部分、不支持、无法访问），含访问方式、需求编号、备注和已知缺口，提供英语、俄语、印地语和中文版本，并从 `docs/FEATURES.md` 链接。数量（已支持 / 部分 / 不支持 / 无法访问）：VK 27/25/36/5，WhatsApp 2/26/32/8，Facebook + Instagram 5/35/29/1，X 7/22/24/5，LinkedIn 4/19/27/3，email 12/25/40/3，GitHub 14/15/35/2，Upwork 4/21/19/1，PeoplePerHour 2/15/12/1，job boards 3/29/22/1。等待 R-Z2 和 R-Z4 的行现在说明这些修复做了什么（LinkedIn 聊天不会变成公开帖子，X 私信走会话端点，不明确的发送记为 `unknown` 且不重试，简历同步返回 `unsupported`，密钥仅在设置 `MS_SECRET_PASSPHRASE` 时加密）。ru、hi、zh 需求文档补上 R、S、T 部分，README、用户指南和路线图如实说明限制，docs-language 测试覆盖新页面。限制：每一行只按代码和模拟环境核对，未在真实账号上验证。未在真实 Telegram 上检查。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | `docs/FEATURES.md`, `docs/features/vk.md`, `docs/features/whatsapp.md`, `docs/features/facebook.md`, `docs/features/x.md`, `docs/features/linkedin.md`, `docs/features/email.md`, `docs/features/github.md`, `docs/features/upwork.md`, `docs/features/peopleperhour.md`, `docs/features/job-boards.md`, `docs/REQUIREMENTS.ru.md`, `docs/USER-GUIDE.md`, `docs/ROADMAP.md`, `js/tests/docs-language.test.js`                                                                                                                                                                                                                    |
 | R-Y173 | 频道助力，与 Telegram Desktop 一致；以及会随新回应更新的「收藏夹」标签。频道或超级群组的信息栏显示助力等级、距下一等级的进度以及带「复制」的助力链接（premium.getBoostsStatus）。「助力」会先检查 Premium，需要时直接提示，不发送任何请求。空闲的助力位会立即使用（premium.getMyBoosts、premium.applyBoost）。正在助力其他聊天或处于冷却中的助力位，需在页面内确认后才会使用；若所有助力位都已助力该聊天，也会如实提示。管理员可打开分页的「助力者」对话框，显示名称、「助力至」日期和倍数，礼物和抽奖助力会加注标签（premium.getBoostsList）。「收藏夹」标签栏（R-Y151）现在会在每次发送回应时重新加载，新标签会立即出现。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `js/src/sources/telegram-boosts.js`, `js/src/server/routes-telegram-boosts.js`, `js/src/web/chat-boosts.js`, `js/src/web/chat-saved-tags.js`, `js/src/web/chat-actions.js`, `js/tests/telegram-boosts.test.js`, `js/tests/e2e-boosts-browser.mjs`, `js/tests/e2e-saved-tags-browser.mjs`                                                                                                                                                                                                                                                                                                                                         |
 
 ## Traceability

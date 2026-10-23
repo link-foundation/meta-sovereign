@@ -1,5 +1,23 @@
 # Feature support matrix (languages: en • [zh](FEATURES.zh.md) • [hi](FEATURES.hi.md) • [ru](FEATURES.ru.md))
 
+## Networks
+
+Telegram is the reference network and its matrix is below. Every other network has its own matrix with the same columns. Counts are rows by status; nothing outside Telegram is verified against a live account (tests use fakes).
+
+| Network              | Matrix                                                   | Supported | Partial | Not supported | Not accessible |
+| -------------------- | -------------------------------------------------------- | --------- | ------- | ------------- | -------------- |
+| Telegram (this page) | below                                                    | —         | —       | —             | —              |
+| VK                   | [features/vk.md](./features/vk.md)                       | 27        | 25      | 36            | 5              |
+| WhatsApp             | [features/whatsapp.md](./features/whatsapp.md)           | 2         | 26      | 32            | 8              |
+| Facebook + Instagram | [features/facebook.md](./features/facebook.md)           | 5         | 35      | 29            | 1              |
+| X                    | [features/x.md](./features/x.md)                         | 7         | 22      | 24            | 5              |
+| LinkedIn             | [features/linkedin.md](./features/linkedin.md)           | 4         | 19      | 27            | 3              |
+| Email                | [features/email.md](./features/email.md)                 | 12        | 25      | 40            | 3              |
+| GitHub               | [features/github.md](./features/github.md)               | 14        | 15      | 35            | 2              |
+| Upwork               | [features/upwork.md](./features/upwork.md)               | 4         | 21      | 19            | 1              |
+| PeoplePerHour        | [features/peopleperhour.md](./features/peopleperhour.md) | 2         | 15      | 12            | 1              |
+| Job boards           | [features/job-boards.md](./features/job-boards.md)       | 3         | 29      | 22            | 1              |
+
 ## Scope now
 
 The priority now is complete display of every message in private chats, groups and channels. Exotic features stay parked and are listed here to come back to later. Only features reachable through the API (MTProto, layer 232, via the `telegram` package) or through the network's web app in a browser are implemented; what only the official apps can do is marked "Not accessible".

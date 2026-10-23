@@ -16,9 +16,9 @@
 
 ## 运行本地服务器（推荐用于同步）
 
-如果要在设备之间同步、启用静态加密并使用完整功能，请在 SPA 旁边启动本地服务器。当前有两个后端，它们实现同一套 wire protocol（见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)）。
+如果要在设备之间同步并使用完整功能，请在 SPA 旁边启动本地服务器。当前有两个后端，它们实现同一套 wire protocol（见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)）。
 
-### Rust 服务器 — 首选（单二进制，无运行时）
+### Rust 服务器 — 单二进制，无运行时，但功能有限
 
 ```bash
 git clone https://github.com/link-foundation/meta-sovereign
@@ -26,15 +26,22 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-### JavaScript 服务器 — 备用（Node/Bun/Deno）
+> **Rust 服务器的限制。** 它只把 links 保存在**内存**中：不会写入磁盘，服务器停止后所有数据都会丢失。它**没有 source adapters**：不能从 Telegram、VK、GitHub、Upwork 等实时拉取，没有出站 HTTP/TLS 客户端（email 只能导入归档），也没有自动化、CV 同步、浏览器 auto-import、备份和 `/api/export-encrypted`。实际使用请选择 JS 服务器或桌面 app。逐条路由列表见 [`docs/SERVER-PARITY.zh.md`](docs/SERVER-PARITY.zh.md)。
+
+### JavaScript 服务器 — 功能完整（Node/Bun/Deno），从源码运行
+
+该包**尚未发布到 npm**（registry 返回 404），所以 `npx -y meta-sovereign serve` 目前无法使用。请从源码仓库运行服务器（需要 Node.js 和 npm）：
 
 ```bash
-npx -y meta-sovereign serve
-# 或安装：npm install -g meta-sovereign && meta-sovereign serve
-# 首次 npm 发布之前：npx -y github:link-foundation/meta-sovereign serve
+git clone https://github.com/link-foundation/meta-sovereign
+cd meta-sovereign
+npm install
+node js/bin/meta-sovereign.js serve
 ```
 
-两个后端默认监听 <http://127.0.0.1:8787>。JS 服务器会对托管 app 的 origin（`https://link-foundation.github.io`）返回 CORS 头；其他 origin 可以用 `meta-sovereign serve --allow-origin=<origins>` 或 `MS_ALLOW_ORIGINS` 允许。Safari 不允许 `https` 页面访问 `http://127.0.0.1`，但允许访问 `https://127.0.0.1`；服务器现在也在同一端口上提供 HTTPS 服务，并使用专为 localhost 颁发的自签名证书。运行一次 `npx -y meta-sovereign trust`（macOS：将证书添加到 login keychain；其他系统：打印证书路径），或在 Safari 中打开 `https://127.0.0.1:8787/trust` 并按提示操作，之后托管 app 在 Safari 中即可直接连接服务器。信任之前，提示会显示服务器地址，并提供其自带副本的链接（<http://127.0.0.1:8787>）以及 **信任服务器**（<https://127.0.0.1:8787/trust>）链接。`--tls=false` / `MS_TLS=off` 可关闭 HTTPS；服务器自带副本仍作为备用保留。托管的 SPA 会通过 `discoverServer()` 自动发现本地服务器（保存的覆盖值 → `127.0.0.1` 端口）。如果浏览器没有自动连接，请打开应用内 **Settings → Server**，粘贴服务器打印的 URL。
+包发布到 npm 之后，`npx -y meta-sovereign serve`（或 `npm install -g meta-sovereign && meta-sovereign serve`）才会可用。在此之前，不想装工具链的话可以使用桌面 app（见上文）。
+
+两个后端默认监听 <http://127.0.0.1:8787>。JS 服务器会对托管 app 的 origin（`https://link-foundation.github.io`）返回 CORS 头；其他 origin 可以用 `meta-sovereign serve --allow-origin=<origins>` 或 `MS_ALLOW_ORIGINS` 允许。Safari 不允许 `https` 页面访问 `http://127.0.0.1`，但允许访问 `https://127.0.0.1`；服务器现在也在同一端口上提供 HTTPS 服务，并使用专为 localhost 颁发的自签名证书。运行一次 `node js/bin/meta-sovereign.js trust`（macOS：将证书添加到 login keychain；其他系统：打印证书路径），或在 Safari 中打开 `https://127.0.0.1:8787/trust` 并按提示操作，之后托管 app 在 Safari 中即可直接连接服务器。信任之前，提示会显示服务器地址，并提供其自带副本的链接（<http://127.0.0.1:8787>）以及 **信任服务器**（<https://127.0.0.1:8787/trust>）链接。`--tls=false` / `MS_TLS=off` 可关闭 HTTPS；服务器自带副本仍作为备用保留。托管的 SPA 会通过 `discoverServer()` 自动发现本地服务器（保存的覆盖值 → `127.0.0.1` 端口）。如果浏览器没有自动连接，请打开应用内 **Settings → Server**，粘贴服务器打印的 URL。
 
 默认界面是托管的应用：`serve` 会打印其地址 <https://link-foundation.github.io/meta-sovereign/>，应用会自行在我们的端口 8787 上找到服务器（也会查看 8788、7001、7002 和 3000；若使用其他端口，`serve` 会提示在 **Settings → Server** 中设置），因此服务器无需自己托管网站。它在 <http://127.0.0.1:8787> 上的副本作为备用保留，供 Safari 和离线使用；`serve --local-ui=false`（或 `MS_LOCAL_UI=off`）可将其关闭，此时 `/` 会打开托管的应用。`--ui-url=<url>`（或 `MS_UI_URL`）指定另一个托管副本（例如某个 fork 的 Pages），并允许其 origin。
 
@@ -72,7 +79,7 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 
 issue #1 目标原型已实现并在 PR #2 中跟踪：
 
-- **数据层（R-A\*）**：`DualStore` 让 Doublets 二进制和 Links Notation 文本保持同步，支持 AES-256-GCM 静态加密备份和 `secret:*` 链接加密。
+- **数据层（R-A\*）**：`DualStore` 让 Doublets 二进制和 Links Notation 文本保持同步，支持 AES-256-GCM 静态加密备份和 `secret:*` 链接加密（仅在设置了 `MS_SECRET_PASSPHRASE` 时；存储的其余部分不加密）。
 - **服务连接器（R-E\*）**：VK、Telegram、X、WhatsApp、Facebook、LinkedIn、career.habr.com、hh.ru、superjob.ru 和 email 的归档解析器与可用 live API 连接器。
 - **模式匹配和自动化（R-C\*）**：`inferRegex`、`simplifyRegex`、`compilePeg`、模糊回复变体抽取和 `createGraph` / `runGraph`。
 - **CRM（R-D\*）**：联系人聚合、audience DSL、批量个性化触达、资料和简历同步 envelope。

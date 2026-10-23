@@ -18,7 +18,7 @@ Download the installer for your system from <https://link-foundation.github.io/m
 
 To sync between devices, keep encrypted backups, and unlock the full feature set, start a local server next to the SPA. Two backends are available; both implement the same wire protocol (see [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md)).
 
-### Rust server — preferred (single binary, no runtime)
+### Rust server — single binary, no runtime, but limited
 
 ```bash
 git clone https://github.com/link-foundation/meta-sovereign
@@ -26,15 +26,22 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
-### JavaScript server — fallback (Node/Bun/Deno)
+> **Rust server limits.** It keeps links **in memory only**: nothing is written to disk, so everything is gone when the server stops. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork or similar, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. Pick the JS server or the desktop app for real use. The route-by-route list is in [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md).
+
+### JavaScript server — full feature set (Node/Bun/Deno), from source
+
+The package is **not published on npm yet** (the registry answers 404), so `npx -y meta-sovereign serve` does not work today. Run the server from a source checkout (needs Node.js and npm):
 
 ```bash
-npx -y meta-sovereign serve
-# or install it: npm install -g meta-sovereign && meta-sovereign serve
-# before the first npm release: npx -y github:link-foundation/meta-sovereign serve
+git clone https://github.com/link-foundation/meta-sovereign
+cd meta-sovereign
+npm install
+node js/bin/meta-sovereign.js serve
 ```
 
-Either backend listens on <http://127.0.0.1:8787> by default. The JS server answers the hosted app's origin (`https://link-foundation.github.io`) with CORS headers; allow other origins with `meta-sovereign serve --allow-origin=<origins>` or `MS_ALLOW_ORIGINS`. Safari does not let `https` pages reach `http://127.0.0.1`, but it allows `https://127.0.0.1`; the server also answers HTTPS on the same port with its own certificate for localhost — run `npx -y meta-sovereign trust` once (macOS adds it to the login keychain; other systems print the certificate path), or open `https://127.0.0.1:8787/trust` in Safari and follow the prompts, and the hosted app connects directly. Before trusting, the notice names the server, links its own copy (<http://127.0.0.1:8787>) and a **Trust the server** link (<https://127.0.0.1:8787/trust>). `--tls=false` / `MS_TLS=off` turns HTTPS off; the server's own copy remains the fallback. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
+Once the package is published to npm, `npx -y meta-sovereign serve` (or `npm install -g meta-sovereign && meta-sovereign serve`) will work. Until then, the desktop app (above) is the way to run the server without a toolchain.
+
+Either backend listens on <http://127.0.0.1:8787> by default. The JS server answers the hosted app's origin (`https://link-foundation.github.io`) with CORS headers; allow other origins with `meta-sovereign serve --allow-origin=<origins>` or `MS_ALLOW_ORIGINS`. Safari does not let `https` pages reach `http://127.0.0.1`, but it allows `https://127.0.0.1`; the server also answers HTTPS on the same port with its own certificate for localhost — run `node js/bin/meta-sovereign.js trust` once (macOS adds it to the login keychain; other systems print the certificate path), or open `https://127.0.0.1:8787/trust` in Safari and follow the prompts, and the hosted app connects directly. Before trusting, the notice names the server, links its own copy (<http://127.0.0.1:8787>) and a **Trust the server** link (<https://127.0.0.1:8787/trust>). `--tls=false` / `MS_TLS=off` turns HTTPS off; the server's own copy remains the fallback. The hosted SPA discovers the local server automatically through `discoverServer()` (saved override → `127.0.0.1` ports). If your browser does not auto-connect, open the in-app **Settings → Server** prompt and paste the URL the binary printed.
 
 The hosted app is the default UI: `serve` prints its address, <https://link-foundation.github.io/meta-sovereign/>, and the app finds the server on our port 8787 by itself (it also looks at 8788, 7001, 7002 and 3000; on another port `serve` says to set it in **Settings → Server**), so the server does not have to host a web site. Its own copy at <http://127.0.0.1:8787> stays as a fallback for Safari and for working offline; `serve --local-ui=false` (or `MS_LOCAL_UI=off`) turns it off, and `/` then opens the hosted app. `--ui-url=<url>` (or `MS_UI_URL`) names another hosted copy, such as a fork's Pages, and allows its origin.
 
@@ -73,7 +80,7 @@ Every Telegram client feature, with what is supported, partial, parked or not su
 
 The prototype targeted by issue #1 is implemented and tracked in PR #2:
 
-- **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM encrypted backups (`createBackupScheduler`) and `secret:*` link encryption.
+- **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM encrypted backups (`createBackupScheduler`) and `secret:*` link encryption (only when `MS_SECRET_PASSPHRASE` is set; the rest of the store is not encrypted).
 - **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
 - **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.

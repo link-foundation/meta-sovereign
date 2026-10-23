@@ -1,5 +1,23 @@
 # 功能支持矩阵 (languages: [en](FEATURES.md) • zh • [hi](FEATURES.hi.md) • [ru](FEATURES.ru.md))
 
+## 网络
+
+Telegram 是参照网络，其矩阵在下方。其他每个网络都有自己的矩阵，列相同。数字为按状态统计的行数；除 Telegram 外，没有任何内容在真实账号上验证过（测试使用模拟对象）。
+
+| 网络                 | 矩阵                                                           | 已支持 | 部分支持 | 不支持 | 无法访问 |
+| -------------------- | -------------------------------------------------------------- | ------ | -------- | ------ | -------- |
+| Telegram（本页）     | 下方                                                           | —      | —        | —      | —        |
+| VK                   | [features/vk.zh.md](./features/vk.zh.md)                       | 27     | 25       | 36     | 5        |
+| WhatsApp             | [features/whatsapp.zh.md](./features/whatsapp.zh.md)           | 2      | 26       | 32     | 8        |
+| Facebook + Instagram | [features/facebook.zh.md](./features/facebook.zh.md)           | 5      | 35       | 29     | 1        |
+| X                    | [features/x.zh.md](./features/x.zh.md)                         | 7      | 22       | 24     | 5        |
+| LinkedIn             | [features/linkedin.zh.md](./features/linkedin.zh.md)           | 4      | 19       | 27     | 3        |
+| Email                | [features/email.zh.md](./features/email.zh.md)                 | 12     | 25       | 40     | 3        |
+| GitHub               | [features/github.zh.md](./features/github.zh.md)               | 14     | 15       | 35     | 2        |
+| Upwork               | [features/upwork.zh.md](./features/upwork.zh.md)               | 4      | 21       | 19     | 1        |
+| PeoplePerHour        | [features/peopleperhour.zh.md](./features/peopleperhour.zh.md) | 2      | 15       | 12     | 1        |
+| Job boards           | [features/job-boards.zh.md](./features/job-boards.zh.md)       | 3      | 29       | 22     | 1        |
+
 ## 当前范围
 
 当前的优先事项是完整显示私聊、群组和频道中的每一条消息。特殊功能暂缓，列在此处以便日后回来处理。只实现通过 API（MTProto，第 232 层，`telegram` 包）或浏览器中网络的网页应用可达的功能；只有官方应用能做到的标为“不可访问”。

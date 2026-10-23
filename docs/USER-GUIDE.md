@@ -24,7 +24,7 @@ everything", so you can stop reading the moment you have what you need.
 
 If you only ever use one device, this is enough.
 
-## 2. Add a local Rust server (preferred)
+## 2. Add a local Rust server (lightweight, limited)
 
 The Rust server is one binary, no runtime, fastest cold start. It
 exposes the same wire protocol as the JS server (see
@@ -36,6 +36,8 @@ cd meta-sovereign
 cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve
 ```
 
+> **Know the limits before you choose it.** The Rust server keeps links **in memory only**: nothing is written to disk, so all data is gone when it stops. It has **no source adapters**: no live fetches from Telegram, VK, GitHub, Upwork and the like, no outbound HTTP or TLS client (email only ingests archives), and no automations, CV sync, browser auto-import, backups or `/api/export-encrypted`. For real use pick the JS server (section 3) or the desktop app (section 4). The route-by-route list is in [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md).
+
 The server listens on <http://127.0.0.1:8787> by default. The
 GitHub-Pages-hosted SPA discovers it automatically: it probes the
 saved override (`metaServer` in `localStorage`) and a short list of
@@ -45,7 +47,7 @@ saved override (`metaServer` in `localStorage`) and a short list of
 If your browser does not auto-connect, open the in-app **Settings →
 Server** prompt and paste the URL the Rust binary printed.
 
-## 3. Add a local JS server (fallback)
+## 3. Add a local JS server (full feature set)
 
 Use this if you do not have a Rust toolchain handy, or if you want
 the extra routes (`/api/backups`, `/api/export-encrypted`,
@@ -53,26 +55,18 @@ the extra routes (`/api/backups`, `/api/export-encrypted`,
 has not yet caught up on (see
 [`docs/SERVER-PARITY.md`](./SERVER-PARITY.md)).
 
-```bash
-npm install -g meta-sovereign
-meta-sovereign serve
-```
-
-…or with Bun:
+The package is **not published on npm yet** (the registry answers 404), so run the server from a source checkout (needs Node.js and npm):
 
 ```bash
-bunx meta-sovereign serve
+git clone https://github.com/link-foundation/meta-sovereign
+cd meta-sovereign
+npm install
+node js/bin/meta-sovereign.js serve
 ```
 
-The JS server listens on the same port and speaks the same wire
-protocol; the SPA does not care which one is on the other end.
+The JS server listens on the same port and speaks the same wire protocol; the SPA does not care which one is on the other end.
 
-If npm answers `404` (the package is not on npm yet), run the same
-server straight from GitHub:
-
-```bash
-npx -y github:link-foundation/meta-sovereign serve
-```
+Once the package is published to npm, `npx -y meta-sovereign serve` (or `npm install -g meta-sovereign && meta-sovereign serve`) will work; until then neither does.
 
 ## 4. Install the desktop or mobile app
 
@@ -184,7 +178,7 @@ Browser notes:
 - **Safari** does not let `https` pages reach `http://127.0.0.1`, but the
   server also answers HTTPS on the same port with a self-signed certificate
   for localhost. Trust it once to let the hosted app connect directly: run
-  `npx -y meta-sovereign trust` (macOS adds the certificate to the login
+  `node js/bin/meta-sovereign.js trust` (macOS adds the certificate to the login
   keychain; on other systems it prints the certificate path), or open
   `https://127.0.0.1:8787/trust` in Safari, click **Show Details → visit
   this website** and enter your password, then click **Check again**. After
@@ -205,12 +199,9 @@ peers are behind symmetric NAT.
 
 ## 7. Encrypted backup and export
 
-Encrypted backups and exports use AES-256-GCM, and the master-key vault
-([`vault.js`](../js/src/storage/vault.js)) supports per-method unlocks:
-passphrase, PIN, passkey, TOTP recovery code. The store itself is not
-encrypted as a whole; see "Secrets at rest" below.
+Encrypted backups and exports use AES-256-GCM. The message store is **not** encrypted at rest; only saved credentials (`secret:*` links) can be, and only when the server starts with `MS_SECRET_PASSPHRASE` set (see [Protecting stored secrets](#protecting-stored-secrets) below). The `vault-*` CLI commands ([`vault.js`](../js/src/storage/vault.js)) manage a separate unlock file; the server does not use it.
 
-**Secrets at rest.** Tokens and sessions (`secret:*` links) are encrypted in the store only when the server starts with `MS_SECRET_PASSPHRASE` set (for example `MS_SECRET_PASSPHRASE='…' meta-sovereign serve`); without it they are plain text in `data.lino`, so keep the store folder private (the app creates its files 0600 and the folders 0700, and tightens older ones on start). Backups include secrets only when they are encrypted (type a passphrase on the Backup page, or set the variable); a plain backup leaves them out and says so. Logs hide tokens and passwords. One process writes a store at a time: a second writer (for example `import` while `serve` runs) stops with a clear message, while read-only commands such as `export` still work.
+**Files and backups.** Keep the store folder private (the app creates its files 0600 and folders 0700, and tightens older ones on start). A plain backup leaves secrets out (manifest `secrets: excluded`) and says so; an encrypted backup (type a passphrase on the Backup page, or set the variable) includes them. Logs hide tokens and passwords. One process writes a store at a time: a second writer (for example `import` while `serve` runs) stops with a clear message, while read-only commands such as `export` still work.
 
 Export an encrypted snapshot from the CLI:
 
@@ -223,6 +214,24 @@ Or from a JS-server-backed SPA (`POST /api/export-encrypted`).
 The Rust server does not yet expose `/api/export-encrypted`; use the
 CLI in that case (it works against any backend because the encryption
 runs locally).
+
+### Protecting stored secrets
+
+Credentials you save in the app (the Telegram API id and hash, bot tokens, the Telegram user session, email tokens, and the GitHub, Upwork and PeoplePerHour tokens) are stored as links whose id starts with `secret:`. By default they sit in the store **in plain text**. To encrypt them, start the JS server with a passphrase in the `MS_SECRET_PASSPHRASE` environment variable:
+
+```bash
+MS_SECRET_PASSPHRASE='a long passphrase only you know' node js/bin/meta-sovereign.js serve
+```
+
+What it does:
+
+- Every `secret:*` link is sealed with AES-256-GCM (key derived from the passphrase with scrypt, fresh salt and IV on every write) before it is written. The link id stays readable, so the store shows _which_ secrets exist, not their contents.
+- Use the same passphrase on every start. A wrong passphrase cannot open the sealed secrets, and there is no recovery: if you lose the passphrase you lose those secrets and must sign in or paste the tokens again.
+- Secrets saved before you set the passphrase stay in plain text until they are saved again.
+- With the variable unset, nothing is encrypted and the server behaves as before.
+- The same passphrase is the default for `POST /api/export-encrypted` when the request brings none.
+
+What it does **not** encrypt: the rest of the store (`data.lino` and `data.bin`: contacts, messages, patterns and so on), downloaded media and archives, logs, and backups (a backup is encrypted only when you give a passphrase while creating it). Protect those with disk encryption and file permissions. The Rust server has no such option: it keeps everything in memory.
 
 ## 8. Importing data
 
@@ -554,16 +563,16 @@ plan and ask y/N; scripts pass `--yes`.
 
 ## 12. Troubleshooting
 
-| Symptom                                                                | Fix                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The SPA is stuck on a loading spinner.                                 | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled.                                                                                                                                                                                                                                                              |
-| The SPA cannot reach my local server.                                  | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                                                                                                                                                                                                                                                                                 |
-| The hosted app stays in browser-only mode while the server runs.       | Click **Check again**. Allow the browser's local network prompt. On Safari: run `npx -y meta-sovereign trust` once (macOS) or open **Trust the server** (<https://127.0.0.1:8787/trust>), click Show Details → visit this website, then **Check again**. Or click **Open the app from the server** (<http://127.0.0.1:8787>). If you host the SPA yourself, start the server with `--allow-origin=<your origin>`. |
-| Photos and avatars show as initials or empty frames in the hosted app. | Update the server: the page asks for pictures as CORS requests, which the server lets through for the app's own origins only. If you host the SPA yourself, add its origin with `--allow-origin`. Refused loads appear in the log as `telegram_media_refused` (which page asked and how), loads that failed in the page as `client_media_failed` (counts by route).                                               |
-| Some messages or avatars are missing right after a reload.             | Wait a few seconds: the chat asks for its messages again until they come, and a photo still downloading from Telegram shows once it is saved (the first time, Telegram sends each one slowly). Saved photos load at once afterwards.                                                                                                                                                                              |
-| The server reports `EADDRINUSE`.                                       | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.                                                                                                                                                                                                                                                                        |
-| WebRTC sync stops between two LANs.                                    | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                                                                                                                                                                                                                                                                                          |
-| `cargo build` fails with `linker` error.                               | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                                                                                                                                                                                                                                                                             |
+| Symptom                                                                | Fix                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The SPA is stuck on a loading spinner.                                 | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled.                                                                                                                                                                                                                                                                      |
+| The SPA cannot reach my local server.                                  | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                                                                                                                                                                                                                                                                                         |
+| The hosted app stays in browser-only mode while the server runs.       | Click **Check again**. Allow the browser's local network prompt. On Safari: run `node js/bin/meta-sovereign.js trust` once (macOS) or open **Trust the server** (<https://127.0.0.1:8787/trust>), click Show Details → visit this website, then **Check again**. Or click **Open the app from the server** (<http://127.0.0.1:8787>). If you host the SPA yourself, start the server with `--allow-origin=<your origin>`. |
+| Photos and avatars show as initials or empty frames in the hosted app. | Update the server: the page asks for pictures as CORS requests, which the server lets through for the app's own origins only. If you host the SPA yourself, add its origin with `--allow-origin`. Refused loads appear in the log as `telegram_media_refused` (which page asked and how), loads that failed in the page as `client_media_failed` (counts by route).                                                       |
+| Some messages or avatars are missing right after a reload.             | Wait a few seconds: the chat asks for its messages again until they come, and a photo still downloading from Telegram shows once it is saved (the first time, Telegram sends each one slowly). Saved photos load at once afterwards.                                                                                                                                                                                      |
+| The server reports `EADDRINUSE`.                                       | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.                                                                                                                                                                                                                                                                                |
+| WebRTC sync stops between two LANs.                                    | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                                                                                                                                                                                                                                                                                                  |
+| `cargo build` fails with `linker` error.                               | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                                                                                                                                                                                                                                                                                     |
 
 ## 13. Where to go next
 

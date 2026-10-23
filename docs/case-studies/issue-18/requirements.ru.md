@@ -1,5 +1,7 @@
 # Requirements extracted from issue #18 (languages: [en](requirements.md) • [zh](requirements.zh.md) • [hi](requirements.hi.md) • ru)
 
+> Примечание: IDs этого case study исторические и цитируются как `issue-18 R-I<k>`; голый `R-I<k>` относится к разделу I в `docs/REQUIREMENTS.md`.
+
 Каждый item имеет stable `R-I*` ID, чтобы changesets, PRs и code comments
 могли ссылаться на requirement.
 

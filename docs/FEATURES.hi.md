@@ -1,5 +1,23 @@
 # फ़ीचर समर्थन मैट्रिक्स (languages: [en](FEATURES.md) • [zh](FEATURES.zh.md) • hi • [ru](FEATURES.ru.md))
 
+## नेटवर्क
+
+Telegram संदर्भ नेटवर्क है और उसकी मैट्रिक्स नीचे है। हर दूसरे नेटवर्क की अपनी मैट्रिक्स उन्हीं कॉलम के साथ है। गिनती स्थिति के अनुसार पंक्तियों की है; Telegram के अलावा कुछ भी असली खाते पर जाँचा नहीं गया है (टेस्ट नकली क्लाइंट से चलते हैं)।
+
+| नेटवर्क              | मैट्रिक्स                                                      | समर्थित | आंशिक | असमर्थित | पहुँच से बाहर |
+| -------------------- | -------------------------------------------------------------- | ------- | ----- | -------- | ------------- |
+| Telegram (यही पृष्ठ) | नीचे                                                           | —       | —     | —        | —             |
+| VK                   | [features/vk.hi.md](./features/vk.hi.md)                       | 27      | 25    | 36       | 5             |
+| WhatsApp             | [features/whatsapp.hi.md](./features/whatsapp.hi.md)           | 2       | 26    | 32       | 8             |
+| Facebook + Instagram | [features/facebook.hi.md](./features/facebook.hi.md)           | 5       | 35    | 29       | 1             |
+| X                    | [features/x.hi.md](./features/x.hi.md)                         | 7       | 22    | 24       | 5             |
+| LinkedIn             | [features/linkedin.hi.md](./features/linkedin.hi.md)           | 4       | 19    | 27       | 3             |
+| Email                | [features/email.hi.md](./features/email.hi.md)                 | 12      | 25    | 40       | 3             |
+| GitHub               | [features/github.hi.md](./features/github.hi.md)               | 14      | 15    | 35       | 2             |
+| Upwork               | [features/upwork.hi.md](./features/upwork.hi.md)               | 4       | 21    | 19       | 1             |
+| PeoplePerHour        | [features/peopleperhour.hi.md](./features/peopleperhour.hi.md) | 2       | 15    | 12       | 1             |
+| Job boards           | [features/job-boards.hi.md](./features/job-boards.hi.md)       | 3       | 29    | 22       | 1             |
+
 ## अभी का दायरा
 
 अभी प्राथमिकता निजी चैट, समूहों और चैनलों के हर संदेश का पूरा प्रदर्शन है। विशेष फ़ीचर रोके हुए हैं और बाद में लौटने के लिए यहाँ सूचीबद्ध हैं। केवल वही लागू किया जाता है जो API (MTProto, लेयर 232, `telegram` पैकेज) या ब्राउज़र में नेटवर्क के वेब ऐप से पहुँच में है; जो केवल आधिकारिक ऐप कर सकते हैं उसे «पहुँच से बाहर» चिह्नित किया गया है।

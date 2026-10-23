@@ -1,5 +1,23 @@
 # Матрица поддержки функций (languages: [en](FEATURES.md) • [zh](FEATURES.zh.md) • [hi](FEATURES.hi.md) • ru)
 
+## Сети
+
+Telegram — эталонная сеть, её матрица ниже. У каждой другой сети своя матрица с теми же столбцами. Числа — строки по статусам; ничего, кроме Telegram, не проверено на живом аккаунте (тесты на заглушках).
+
+| Сеть                    | Матрица                                                        | Поддерживается | Частично | Не поддерживается | Недоступно |
+| ----------------------- | -------------------------------------------------------------- | -------------- | -------- | ----------------- | ---------- |
+| Telegram (эта страница) | ниже                                                           | —              | —        | —                 | —          |
+| VK                      | [features/vk.ru.md](./features/vk.ru.md)                       | 27             | 25       | 36                | 5          |
+| WhatsApp                | [features/whatsapp.ru.md](./features/whatsapp.ru.md)           | 2              | 26       | 32                | 8          |
+| Facebook + Instagram    | [features/facebook.ru.md](./features/facebook.ru.md)           | 5              | 35       | 29                | 1          |
+| X                       | [features/x.ru.md](./features/x.ru.md)                         | 7              | 22       | 24                | 5          |
+| LinkedIn                | [features/linkedin.ru.md](./features/linkedin.ru.md)           | 4              | 19       | 27                | 3          |
+| Email                   | [features/email.ru.md](./features/email.ru.md)                 | 12             | 25       | 40                | 3          |
+| GitHub                  | [features/github.ru.md](./features/github.ru.md)               | 14             | 15       | 35                | 2          |
+| Upwork                  | [features/upwork.ru.md](./features/upwork.ru.md)               | 4              | 21       | 19                | 1          |
+| PeoplePerHour           | [features/peopleperhour.ru.md](./features/peopleperhour.ru.md) | 2              | 15       | 12                | 1          |
+| Job boards              | [features/job-boards.ru.md](./features/job-boards.ru.md)       | 3              | 29       | 22                | 1          |
+
 ## Объём сейчас
 
 Сейчас приоритет — полный показ каждого сообщения в личных чатах, группах и каналах. Экзотические функции в парковке, они перечислены здесь, чтобы вернуться к ним позже. Реализуется только то, что доступно через API (MTProto, слой 232, пакет `telegram`) или через веб-приложение сети в браузере; то, что умеют только официальные приложения, помечено «Недоступно».

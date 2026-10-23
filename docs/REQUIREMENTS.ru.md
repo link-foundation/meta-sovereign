@@ -9,6 +9,23 @@ Detailed breakdown по каждому issue находится в
 [`docs/case-studies/`](./case-studies/). [`docs/ROADMAP.md`](./ROADMAP.md)
 остается reviewer-facing roadmap ledger.
 
+## Known ID clashes
+
+Историческая нумерация не менялась, потому что code comments ссылаются на
+IDs. Есть два clash; ссылайтесь на них с указанием раздела:
+
+- `R-N1`..`R-N9` определены трижды: раздел N (tutorial), раздел O (email)
+  и раздел U (mobile UI). Ссылки: `R-N1 (tutorial)`, `R-N1 (email)`,
+  `R-N1 (mobile UI)`. `R-N10` определён в разделах O (email) и U (mobile
+  UI); `R-N11` и `R-N12` только в U.
+- Case study issue #18
+  ([`docs/case-studies/issue-18/requirements.ru.md`](./case-studies/issue-18/requirements.ru.md))
+  использует исторические IDs `R-I*`, которые пересекаются с разделом I
+  этого файла. Ссылайтесь как `issue-18 R-I<k>`; голый `R-I<k>` означает
+  раздел I здесь.
+
+Остальные IDs уникальны (проверено скриптом по таблицам requirements).
+
 ## A. Data layer
 
 R-A1..R-A5 покрывают unified database import/export, `.lino` files,
@@ -94,11 +111,15 @@ tutorial overlay, settings guidance, e2e coverage и case study для issue
 
 ## N. Tutorial progress persistence (issue #13)
 
+> IDs этого раздела цитируются как `R-N<k> (tutorial)`. См. [Known ID clashes](#known-id-clashes).
+
 R-N1..R-N9 покрывают tutorial refresh persistence, Next/Skip/Complete
 persistence, reopen reset, case study, external research и root-cause
 note. State: done.
 
 ## O. Email support (issue #3)
+
+> IDs этого раздела цитируются как `R-N<k> (email)`. См. [Known ID clashes](#known-id-clashes).
 
 R-N1..R-N10 (historical numbering retained) покрывают email research,
 archive import, Gmail/Microsoft Graph/JMAP live receive/send,
@@ -119,7 +140,56 @@ authored UI strings, dictionary parity tests, Markdown language
 switchers, translated docs siblings, docs-language automation, issue #18
 case study и single-PR delivery in PR #19. Состояние: PR #19 слит 2026-05-04.
 
+## R. GitHub support (issue #5)
+
+R-R1..R-R18 покрывают GitHub как first-class `MessageSource` (issues,
+issue comments, pull requests, PR review comments, discussions), archive
+import из REST API / `gh api` dumps, live pull через GitHub REST API,
+browser-direct calls с fallback на local server, posting comments обратно,
+скачивание всех repositories пользователя и индексацию working tree как
+links (`repo:<owner>/<name>`), `listRepos()`, CLI subcommands
+(`source-pull --source=github`, `github-clone`, `github-comment`),
+same-origin routes `/api/github/*`, connection guide в Settings catalogue
+(PAT, probe `/user`), secret-store contract (`secret:*`, AES-256-GCM),
+research и evidence в `docs/case-studies/issue-5/`, reproducing tests
+(`js/tests/github-source.test.js`), обновление top-level docs и single-PR
+delivery. Состояние: PR #22 слит 2026-05-06.
+
+## S. Upwork support (issue #4)
+
+R-S1..R-S22 покрывают Upwork как first-class `MessageSource` (messages,
+proposals, contracts, jobs, rooms), archive import (GraphQL JSON и CSV
+exports), live pull через Upwork GraphQL API (OAuth 2.0 Bearer), job
+search, communication до и после worker approval, perspectives client и
+freelancer через один adapter, posting в rooms, account-level data exports
+(GDPR / DSAR, Transaction History, Weekly Summary), отдельные link kinds
+`job:*` и `contract:*`, API ToS (не кэшировать Upwork-derived content
+дольше 24 часов без согласия пользователя; `softCacheRetention`), CLI
+subcommands, same-origin server routes, connection guide в Settings
+(OAuth token, probe GraphQL), secret-store contract, research и evidence
+в `docs/case-studies/issue-4/`, reproducing tests, обновление
+top-level docs и single-PR delivery. Состояние: PR #23 слит 2026-05-06.
+
+## T. PeoplePerHour support (issue #12)
+
+R-T1..R-T22 зеркалят раздел S для PeoplePerHour: first-class
+`MessageSource` (messages, proposals, workstreams, projects, rooms),
+archive import (JSON dumps и Earnings CSV), live pull через
+`https://www.peopleperhour.com/api/v1` (OAuth 2.0 Bearer), project search,
+communication до и после worker approval, perspectives buyer и
+freelancer, posting в rooms, account-level exports (GDPR / DSAR,
+Earnings CSV), link kinds для projects и workstreams, API ToS (24 часа
+без согласия пользователя), CLI subcommands, same-origin server routes,
+connection guide, secret-store contract, research и evidence в
+`docs/case-studies/issue-12/`, reproducing tests (`searchProjects` /
+`pullMessages` / `post` с injected `fetchImpl`), обновление top-level
+docs и single-PR delivery. Упоминание "exports from upwork" в issue body
+считается copy/paste artefact из issue #4; заголовок авторитетен.
+Состояние: PR #24 слит 2026-05-06.
+
 ## U. Mobile-first UI overhaul (issue #25)
+
+> IDs этого раздела цитируются как `R-N<k> (mobile UI)`. См. [Known ID clashes](#known-id-clashes).
 
 R-N1..R-N12 покрывают mobile-first AppShell (bottom-nav / side-rail /
 permanent drawer), Apple-glass tokens с `prefers-reduced-transparency`
@@ -422,6 +492,7 @@ long" — и из
 | R-Y225 | Rich-сообщения и страницы Instant View теперь рисуют те же виды форматированного текста, что и обычное сообщение: упоминания и упоминания по id, хештеги и кештеги (клик ищет; команда бота только показывается и не отправляется), автоссылки, e-mail и телефоны (через ту же проверку безопасного адреса, что и другие ссылки), номера карт (копируются только по клику на кнопку Copy), даты в формулировке для зрителя, кастомные эмодзи картинками (через клиент Telegram и существующий путь кастомных эмодзи) и текстовые кнопки (кнопки-ссылки рисуются; в читалке Instant View они показываются неактивными). Формулы рисуются KaTeX как MathML (trust выключен, исходный текст как HTML не вставляется); формула, которую нельзя нарисовать, остаётся LaTeX. Запись в Telegram без клика не происходит. app.min.js вырос примерно на 277 КБ, потому что сборка не делит код, поэтому KaTeX внутри бандла и не загружается лениво. Rich-сообщения по-прежнему нельзя отправлять и редактировать. Проверка кнопки копирования в e2e мягкая (буфер обмена в headless). Не проверено на настоящем Telegram.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | `js/src/web/rich-text-nodes.js`, `js/src/web/rich-math.js`, `js/src/sources/telegram-instant-view-shape.js`, `js/src/web/chat-instant-view-render.js`, `js/src/web/chat-rich-message.js`, `js/src/web/bot-keyboard.js`, `js/tests/rich-text.test.js`, `js/tests/e2e-rich-text-browser.mjs`                                                                                                                                                                                                                                                                                                                                       |
 | R-Z4   | Отправка или синхронизация между сетями теперь делает то, что обещает, либо сообщает, что не смогла. Сообщение в чат LinkedIn больше никогда не превращается в публичный пост: `sendMessage` отвечает `unsupported` (дальше работает отправка через веб-приложение), а `post` с чатом или адресатом отказывает; пост в ленту вынесен в отдельный `publishPost`, а синхронизация профиля и резюме LinkedIn возвращает `unsupported`, если не передан `shareAsPost`. Личные сообщения X идут по верному пути беседы, `post` с ключом чата отправляется как личное сообщение, публичным бывает только пост без адресата, а синхронизация профиля X отвечает `unsupported` (нужен OAuth 1.0a). Синхронизация резюме hh.ru возвращает `unsupported` вместо вызова несуществующего адреса; hh.ru, Habr Career и SuperJob отказывают на ключ чата `vacancy:` кодом `unsupported-chat`. Upwork и PeoplePerHour берут id комнаты или переписки из ключа чата вида `room:`, иначе отвечают `unsupported-chat`. Рассылка, синхронизация профиля и резюме возвращают `ok: false` с кодом для сети без такой операции или ответившей отказом и никогда не рапортуют успех о несделанном; повторное вовлечение использует только чатовый `sendMessage`. Запрос, упавший после отправки (таймаут, сброс, 5xx или 408), помечается `ambiguous`, записывается как исход `unknown` и не повторяется через резервный браузер; явный отказ (4xx) по-прежнему может перейти на браузер. Ограничения: ключи чатов Upwork и PeoplePerHour определяются только по ключу, не по сохранённым ссылкам; «поделиться постом» в LinkedIn есть только на уровне API; синхронизация резюме Naukri, TopCV и VietnamWorks не менялась и не проверена. Не проверено на реальных сетях.                                                                                                                               | `js/src/sources/http.js`, `js/src/sources/linkedin.js`, `js/src/sources/x.js`, `js/src/sources/hh.js`, `js/src/sources/habr-career.js`, `js/src/sources/superjob.js`, `js/src/sources/upwork.js`, `js/src/sources/peopleperhour.js`, `js/src/sources/browser-sender.js`, `js/src/broadcast/index.js`, `js/src/crm/reengage.js`, `js/tests/send-sync-honesty.test.js`                                                                                                                                                                                                                                                             |
 | R-Z2   | Хранилище переживает сбои и совместное использование. Записи группируются и сбрасываются на диск в окне group-commit 200 мс: при отключении питания можно потерять до последних 200 мс записей, но хранилище не повреждается; в macOS fsync не сбрасывает кэш самого диска, поэтому гарантия на уровне ОС. Хранилище пишет один процесс (`data.lock`): второй писатель, например `import` при работающем `serve`, сразу останавливается с ошибкой STORE_LOCKED и понятным сообщением, а команды только для чтения (`export`, `cv-read`) не берут блокировку и ничего не пишут. Нечитаемые строки помещаются в карантинный файл, а не теряются и не ломают запуск; формат data.lino/data.bin не изменился. Файлы создаются с правами 0600, папки 0700, старые ужесточаются при запуске. Обычные (незашифрованные) резервные копии не содержат ссылок `secret:*` и сообщают об этом; зашифрованные содержат; старые копии удаляются только если новейшая проверена. Логи скрывают токены, заголовки Authorization/Cookie, сессии и пароли и ротируются по размеру (10 МБ, 3 файла, 0600). Ограничения: без `MS_SECRET_PASSPHRASE` секреты лежат в `data.lino` открытым текстом; блокировка мёртвого процесса перехватывается, но на сетевых файловых системах блокировка не гарантирована. Не проверено на настоящем Telegram.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `js/src/storage/durable.js`, `js/src/storage/store-lock.js`, `js/src/storage/lino-store.js`, `js/src/storage/dual-store.js`, `js/src/storage/backup.js`, `js/src/server/redact.js`, `js/src/server/log.js`, `js/tests/store-durability.test.js`, `js/tests/redact-log.test.js`                                                                                                                                                                                                                                                                                                                                                   |
+| R-Z13  | У каждой сети теперь своя матрица возможностей (Поддерживается, Частично, Не поддерживается, Недоступно) с путём доступа, id требований, заметками и известными пробелами на английском, русском, хинди и китайском, со ссылками из `docs/FEATURES.md`. Счётчики (поддерживается / частично / не поддерживается / недоступно): VK 27/25/36/5, WhatsApp 2/26/32/8, Facebook + Instagram 5/35/29/1, X 7/22/24/5, LinkedIn 4/19/27/3, email 12/25/40/3, GitHub 14/15/35/2, Upwork 4/21/19/1, PeoplePerHour 2/15/12/1, job boards 3/29/22/1. Строки, ждавшие R-Z2 и R-Z4, теперь описывают, что эти исправления сделали (чат LinkedIn никогда не превращается в публичный пост, DM в X идут через endpoint диалога, неоднозначные отправки записываются как `unknown` и не повторяются, синхронизация резюме отвечает `unsupported`, секреты шифруются только при `MS_SECRET_PASSPHRASE`). В requirements ru, hi и zh добавлены разделы R, S и T, README, руководство и roadmap говорят о реальных ограничениях, а тест языков docs покрывает новые страницы. Ограничение: каждая строка проверена только по коду и подделкам, не на живых аккаунтах. Не проверено на реальном Telegram.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `docs/FEATURES.md`, `docs/features/vk.md`, `docs/features/whatsapp.md`, `docs/features/facebook.md`, `docs/features/x.md`, `docs/features/linkedin.md`, `docs/features/email.md`, `docs/features/github.md`, `docs/features/upwork.md`, `docs/features/peopleperhour.md`, `docs/features/job-boards.md`, `docs/REQUIREMENTS.ru.md`, `docs/USER-GUIDE.md`, `docs/ROADMAP.md`, `js/tests/docs-language.test.js`                                                                                                                                                                                                                    |
 | R-Y173 | Бусты каналов, как в Telegram Desktop, и теги «Избранного», которые следуют за новыми реакциями. В колонке сведений канала или супергруппы показываются уровень бустов, прогресс до следующего уровня и ссылка для буста с «Копировать» (premium.getBoostsStatus). «Забустить» сначала проверяет Premium и сообщает, если он нужен, ничего не отправляя. Свободный слот применяется сразу (premium.getMyBoosts, premium.applyBoost). Слот, который бустит другой чат или ещё на перезарядке, применяется только после вопроса в самой странице, а о чате, который уже бустят все слоты, так и сообщается. Администраторы видят постраничное окно «Бустеры» с именами, датами «бустит до» и множителями, а бусты из подарков и розыгрышей подписаны (premium.getBoostsList). Панель тегов «Избранного» (R-Y151) теперь обновляется при каждой отправленной реакции, так что новый тег появляется сразу.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `js/src/sources/telegram-boosts.js`, `js/src/server/routes-telegram-boosts.js`, `js/src/web/chat-boosts.js`, `js/src/web/chat-saved-tags.js`, `js/src/web/chat-actions.js`, `js/tests/telegram-boosts.test.js`, `js/tests/e2e-boosts-browser.mjs`, `js/tests/e2e-saved-tags-browser.mjs`                                                                                                                                                                                                                                                                                                                                         |
 
 ## Traceability
