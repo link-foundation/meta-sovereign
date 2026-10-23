@@ -70,6 +70,7 @@ import { createSavedTags } from './telegram-saved-tags.js';
 import { createSendAs } from './telegram-send-as.js';
 import { createStories } from './telegram-stories.js';
 import { createStoryActions } from './telegram-story-actions.js';
+import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
 
 const SOURCE = 'telegram';
@@ -373,7 +374,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y141); viewing stories (R-Y140); the message box's link preview
 // (R-Y145); story replies, reactions, viewers, deleting and hiding
 // (R-Y148); reaction tags of Saved Messages and the default timer (R-Y151);
-// invite links and join requests (R-Y152).
+// invite links and join requests (R-Y152); posting stories (R-Y156).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -416,6 +417,7 @@ const chatActions = (env, context) => {
     ...createShareMedia(env, context),
     ...createChatEdit(env, withUploads),
     ...createProfile(env, withUploads),
+    ...createStoryPost(env, withUploads),
     ...createPrivacy(env, context),
     ...createTtl(env, context),
     ...createSavedTags(env, context),

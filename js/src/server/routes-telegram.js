@@ -230,6 +230,14 @@
  *   POST /api/telegram/story-delete {chat, id} -> { ok } one's own story
  *   POST /api/telegram/stories-hide {chat, hidden} -> { ok, hidden } a
  *                       peer's stories to or from the hidden list
+ *   POST /api/telegram/story-can-post  -> { ok, remains, premium,
+ *                       captionMax } or { ok: false, code: too-many |
+ *                       premium } (stories.canSendStory; R-Y156)
+ *   POST /api/telegram/story-post {token, kind: photo|video, caption,
+ *                       privacy: everyone|contacts|close-friends|selected,
+ *                       users?, screenshots?, pinned?, period?, duration?,
+ *                       width?, height?} -> { ok } an upload posted as
+ *                       the user's story (stories.sendStory; R-Y156)
  *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
  *                                         about, username, phone, hasPhoto,
  *                                         aboutMax } the user's own profile
@@ -351,6 +359,7 @@ import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
 import { INVITE_LINKS_POSTS } from './routes-telegram-invite-links.js';
+import { STORY_POST_POSTS } from './routes-telegram-story-post.js';
 import { EFFECTS_POSTS } from './routes-telegram-effects.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
@@ -1080,6 +1089,7 @@ const POSTS = {
   ...ADMIN_POSTS,
   ...TOPIC_ADMIN_POSTS,
   ...INVITE_LINKS_POSTS,
+  ...STORY_POST_POSTS,
   ...EFFECTS_POSTS,
   ...ROUND_POSTS,
   ...PRIVACY_POSTS,

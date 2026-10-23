@@ -176,7 +176,7 @@ const Head = ({ api, t, peer, story, ctl }) =>
           el(Icon, { name: ctl.muted ? 'mute' : 'volume', size: 18 })
         )
       : null,
-    peer.self
+    peer.self && !ctl.canAdd
       ? null
       : el(
           'button',
@@ -437,11 +437,13 @@ const Foot = ({ api, peer, story, x }) => {
 };
 
 // The panels over the story: the menu, the viewers, the delete question.
-const Overlays = ({ api, peer, story, x, deleteStory, toggleHide }) => {
+const Overlays = ({ api, peer, story, x, deleteStory, toggleHide, onAdd }) => {
   if (x.overlay === 'menu') {
     return el(StoryMenu, {
       hidden: x.hiddenNow[peer.peer] ?? Boolean(peer.hidden),
       onToggle: toggleHide,
+      own: Boolean(peer.self),
+      onAdd,
     });
   }
   if (story && x.overlay === 'viewers') {
@@ -579,7 +581,15 @@ const Zones = ({ t, step }) =>
     }),
   ]);
 
-export const StoryViewer = ({ api, peers, start, onClose, onRead, onHide }) => {
+export const StoryViewer = ({
+  api,
+  peers,
+  start,
+  onClose,
+  onRead,
+  onHide,
+  onAdd,
+}) => {
   const t = useT();
   const [pos, setPos] = useState({ peerIndex: start, storyIndex: null });
   const [paused, setPaused] = useState(false);
@@ -633,7 +643,14 @@ export const StoryViewer = ({ api, peers, start, onClose, onRead, onHide }) => {
         index: typeof pos.storyIndex === 'number' ? pos.storyIndex : 0,
         progress,
       }),
-      el(Head, { key: 'h', api, t, peer, story, ctl }),
+      el(Head, {
+        key: 'h',
+        api,
+        t,
+        peer,
+        story,
+        ctl: { ...ctl, canAdd: Boolean(onAdd) },
+      }),
       el(Stage, {
         key: 's',
         t,
@@ -648,7 +665,7 @@ export const StoryViewer = ({ api, peers, start, onClose, onRead, onHide }) => {
       el(Zones, { key: 'z', t, step }),
       el(Caption, { key: 'c', api, story }),
       story ? el(Foot, { key: 'f', api, peer, story, x }) : null,
-      el(Overlays, { key: 'o', api, peer, story, x, ...edits }),
+      el(Overlays, { key: 'o', api, peer, story, x, onAdd, ...edits }),
     ])
   );
 };

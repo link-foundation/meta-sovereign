@@ -179,11 +179,11 @@ const ring = (chat) =>
 await finish(async () => {
   await page.goto(`${base}/`);
 
-  // The strip: two people, a ring on each, their names.
-  const peers = page.locator('[data-story-peer]');
+  // The strip: the user's own "+" (R-Y156), two people, a ring on each, their names.
+  const peers = page.locator('[data-story-peer]:not([data-story-add])');
   await until(async () => (await peers.count()) === 2, 'two peers');
   const names = await page.locator('.story-peer-name').allTextContents();
-  assert(names.join() === 'Ann Lee,Bob Ray', `names: ${names}`);
+  assert(names.join() === 'My story,Ann Lee,Bob Ray', `names: ${names}`);
   assert((await ring(ANN)) === 'true' && (await ring(BOB)) === 'true', 'rings');
 
   // It folds into a compact row, and opens again.

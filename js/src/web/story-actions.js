@@ -393,21 +393,34 @@ export const OwnFoot = ({ story, onViewers, onDelete }) => {
 };
 
 /** The viewer's menu: hide this person's stories, or show them again. */
-export const StoryMenu = ({ hidden, onToggle }) => {
+export const StoryMenu = ({ hidden, onToggle, own = false, onAdd }) => {
   const t = useT();
+  // One's own stories: "Add story" (R-Y156); others': hide or unhide.
   return el(
     'div',
     { className: 'story-menu', role: 'menu' },
-    el(
-      'button',
-      {
-        type: 'button',
-        role: 'menuitem',
-        className: 'ghost',
-        'data-action': 'story-hide',
-        onClick: onToggle,
-      },
-      t(hidden ? 'chat.stories.unhide' : 'chat.stories.hide')
-    )
+    own
+      ? el(
+          'button',
+          {
+            type: 'button',
+            role: 'menuitem',
+            className: 'ghost',
+            'data-action': 'story-add',
+            onClick: onAdd,
+          },
+          t('chat.storyPost.addMenu')
+        )
+      : el(
+          'button',
+          {
+            type: 'button',
+            role: 'menuitem',
+            className: 'ghost',
+            'data-action': 'story-hide',
+            onClick: onToggle,
+          },
+          t(hidden ? 'chat.stories.unhide' : 'chat.stories.hide')
+        )
   );
 };

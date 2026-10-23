@@ -11,6 +11,7 @@ import { Icon } from './icons.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { usePref } from './chat-notify.js';
 import { StoryViewer } from './story-viewer.js';
+import { AddBadge, StoryPostHost, useStoryPost } from './story-post.js';
 import {
   hiddenPeers,
   markSeen,
@@ -59,6 +60,9 @@ const loadPages = async (api, hidden, isLive, add) => {
 export const useStories = (api, enabled) => {
   const [peers, setPeers] = useState([]);
   const [viewing, setViewing] = useState(null);
+  // Bumped when a story was posted: the strip is read again (R-Y156).
+  const [reloads, setReloads] = useState(0);
+  const post = useStoryPost(api, enabled, () => setReloads((n) => n + 1));
   const held = useRef(peers);
   held.current = peers;
   useEffect(() => {
@@ -74,7 +78,7 @@ export const useStories = (api, enabled) => {
     return () => {
       live = false;
     };
-  }, [api, enabled]);
+  }, [api, enabled, reloads]);
   const read = useCallback(
     (peerId, id) => {
       const peer = held.current.find((p) => p.peer === peerId);
@@ -117,6 +121,7 @@ export const useStories = (api, enabled) => {
   const unread = unreadPeers(visiblePeers(peers));
   return {
     peers,
+    post,
     read,
     hide,
     open,
@@ -129,30 +134,64 @@ export const useStories = (api, enabled) => {
   };
 };
 
-const StoryPeer = ({ api, t, peer, small, onOpen }) =>
-  el(
+// The user's own entry when they have no story yet (R-Y156): their
+// avatar with a "+"; a click picks a file.
+const addEntry = (me) => ({
+  peer: me?.id ?? 'self',
+  name: me?.name ?? '',
+  self: true,
+  add: true,
+  unread: false,
+});
+
+const peerLabel = (t, peer) => {
+  if (peer.add) {
+    return t('chat.storyPost.add');
+  }
+  return peer.self ? t('chat.stories.mine') : peer.name;
+};
+
+// The ring fills while the story uploads (R-Y156).
+const postingProps = (peer, progress) =>
+  peer.self && progress !== null
+    ? {
+        'data-posting': 'true',
+        style: { '--story-progress': `${Math.round(progress * 100)}%` },
+      }
+    : {};
+
+const StoryPeer = ({ api, t, peer, small, onOpen, progress = null }) => {
+  const label = peerLabel(t, peer);
+  const posting = peer.self && progress !== null;
+  return el(
     'button',
     {
       type: 'button',
-      className: `story-peer${peer.unread ? ' has-unread' : ''}`,
+      className: `story-peer${peer.unread ? ' has-unread' : ''}${
+        posting ? ' is-posting' : ''
+      }`,
       'data-story-peer': peer.peer,
       'data-unread': peer.unread ? 'true' : 'false',
-      'aria-label': peer.self ? t('chat.stories.mine') : peer.name,
-      title: peer.self ? t('chat.stories.mine') : peer.name,
+      ...(peer.add ? { 'data-story-add': 'true' } : {}),
+      ...postingProps(peer, progress),
+      'aria-label': label,
+      title: label,
       onClick: () => onOpen(peer.peer),
     },
     [
-      el(
-        'span',
-        { key: 'r', className: 'story-ring' },
-        el(PeerAvatar, {
-          api,
-          source: 'telegram',
-          peer: peer.peer,
-          name: peer.name,
-          className: 'avatar story-avatar',
-        })
-      ),
+      el('span', { key: 'r', className: 'story-ring' }, [
+        peer.add && !peer.name
+          ? el('span', { key: 'a', className: 'avatar story-avatar' })
+          : el(PeerAvatar, {
+              key: 'a',
+              api,
+              source: 'telegram',
+              peer: peer.peer,
+              name: peer.name,
+              className: 'avatar story-avatar',
+            }),
+        peer.add ? el(AddBadge, { key: 'b' }) : null,
+      ]),
       small
         ? null
         : el(
@@ -162,34 +201,52 @@ const StoryPeer = ({ api, t, peer, small, onOpen }) =>
           ),
     ]
   );
+};
 
 /** The viewer a click on a ring or a story opens (also from the chat list). */
 export const StoryViewerHost = ({ api, stories }) =>
-  stories.viewing
-    ? createPortal(
-        el(StoryViewer, {
-          api,
-          peers: stories.viewing.peers,
-          start: stories.viewing.start,
-          onRead: stories.read,
-          onHide: stories.hide,
-          onClose: stories.close,
-        }),
-        globalThis.document.body
-      )
-    : null;
+  el(React.Fragment, null, [
+    stories.viewing
+      ? createPortal(
+          el(StoryViewer, {
+            key: 'v',
+            api,
+            peers: stories.viewing.peers,
+            start: stories.viewing.start,
+            onRead: stories.read,
+            onHide: stories.hide,
+            onClose: stories.close,
+            // "Add story" in the menu of one's own stories (R-Y156).
+            onAdd: () => {
+              stories.close();
+              stories.post.start();
+            },
+          }),
+          globalThis.document.body
+        )
+      : null,
+    el(StoryPostHost, { key: 'p', api, post: stories.post }),
+  ]);
 
-/** The strip. Nothing when no one has stories. */
+// The strip's entries: the hidden ones, or the visible ones with the
+// user's own "+" first when they have no story.
+const entriesOf = (peers, showAway, post) => {
+  const listed = showAway ? hiddenPeers(peers) : visiblePeers(peers);
+  const own = listed.some((p) => p.self);
+  return showAway || own ? listed : [addEntry(post.info?.me), ...listed];
+};
+
+/** The strip. Nothing when no one has stories and posting is not possible. */
 export const StoriesStrip = ({ api, stories, hidden = false }) => {
   const t = useT();
   const [open, setOpen] = usePref('metaSovereignStoriesOpen', true);
   const [showHidden, setShowHidden] = useState(false);
-  const { peers } = stories;
-  if (hidden || peers.length === 0) {
+  const { peers, post } = stories;
+  if (hidden || (peers.length === 0 && !post.available)) {
     return null;
   }
   const away = hiddenPeers(peers);
-  const listed = showHidden && away.length > 0 ? away : visiblePeers(peers);
+  const entries = entriesOf(peers, showHidden && away.length > 0, post);
   const label = t(open ? 'chat.stories.collapse' : 'chat.stories.expand');
   return el(
     'div',
@@ -234,14 +291,15 @@ export const StoriesStrip = ({ api, stories, hidden = false }) => {
       el(
         'div',
         { key: 'l', className: 'stories-list' },
-        listed.map((peer) =>
+        entries.map((peer) =>
           el(StoryPeer, {
-            key: peer.peer,
+            key: peer.add ? 'add' : peer.peer,
             api,
             t,
             peer,
             small: !open,
-            onOpen: stories.open,
+            progress: post.progress,
+            onOpen: peer.add ? post.start : stories.open,
           })
         )
       ),

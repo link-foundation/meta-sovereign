@@ -127,7 +127,7 @@ export const About = ({ label, value, set }) =>
   });
 
 // The user's contacts, asked once.
-const useContacts = (api) => {
+export const useContacts = (api) => {
   const [state, setState] = useState({ phase: 'loading', contacts: [] });
   useEffect(() => {
     let active = true;
@@ -155,7 +155,7 @@ const matches = (contact, q) =>
   contact.name.toLowerCase().includes(q) ||
   (contact.username ?? '').toLowerCase().includes(q);
 
-const Picker = ({ contacts, picked, toggle, t }) => {
+export const Picker = ({ contacts, picked, toggle, t }) => {
   const [q, setQ] = useState('');
   const words = q.trim().toLowerCase();
   return el('div', { className: 'chat-pick' }, [

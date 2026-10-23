@@ -1027,6 +1027,10 @@ export const api = {
   telegramStoryViews: (body = {}) => telegramPost('story-views', body),
   telegramStoryDelete: (body = {}) => telegramPost('story-delete', body),
   telegramStoriesHide: (body = {}) => telegramPost('stories-hide', body),
+  // Posting a story (R-Y156): whether the user may, then the upload's
+  // token with the story's options → { ok } or { ok: false, code }.
+  telegramStoryCanPost: () => telegramPost('story-can-post', {}),
+  telegramStoryPost: (body = {}) => telegramPost('story-post', body),
   telegramStoryUrl: async ({ peer, id } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !peer || !id) {
