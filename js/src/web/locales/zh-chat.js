@@ -666,4 +666,6 @@ export const zhChat = {
   'chat.admin.err.seconds-invalid': 'Telegram 不接受此慢速模式。',
   'chat.admin.err.no-access': '你无法访问此聊天。',
   'chat.admin.err.bad-request': '请求无效。',
+  'chat.bot.menu': '菜单',
+  'chat.bot.commands': '机器人命令',
 };

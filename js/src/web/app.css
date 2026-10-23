@@ -6294,3 +6294,57 @@ button[aria-busy='true']::before {
 .admin-event-when {
   margin-left: auto;
 }
+
+/* R-Y135: a bot's commands over the box, and its Menu button, as
+   Telegram Desktop shows them. */
+.bot-commands {
+  display: flex;
+  flex-direction: column;
+  max-height: 14rem;
+  overflow-y: auto;
+  border-radius: 10px;
+}
+.bot-command {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bot-command[aria-selected='true'] {
+  background: var(--bg-active);
+}
+.bot-command-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted, inherit);
+}
+.bot-command-bot {
+  flex: none;
+  font-size: 0.8em;
+  color: var(--chat-accent, var(--accent));
+}
+.bot-menu-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.5rem;
+  padding: 0 0.7rem;
+  border: 0;
+  border-radius: 1.25rem;
+  background: var(--accent-fill, var(--chat-accent));
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}

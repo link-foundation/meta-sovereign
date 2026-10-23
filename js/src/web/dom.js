@@ -954,6 +954,7 @@ export const api = {
   // offset? }) (R-Y127).
   telegramReaders: (body = {}) => telegramPost('readers', body),
   telegramTranslate: (body = {}) => telegramPost('translate', body),
+  telegramBotCommands: (body = {}) => telegramPost('bot-commands', body),
   telegramReactors: (body = {}) => telegramPost('reactors', body),
   // New groups and channels, a chat's info edited (R-Y129).
   telegramChatContacts: () => telegramPost('chat-contacts', {}),

@@ -696,4 +696,6 @@ export const hiChat = {
   'chat.admin.err.seconds-invalid': 'Telegram यह स्लो मोड स्वीकार नहीं करता।',
   'chat.admin.err.no-access': 'यह चैट आपके लिए उपलब्ध नहीं है।',
   'chat.admin.err.bad-request': 'यह अनुरोध मान्य नहीं है।',
+  'chat.bot.menu': 'मेन्यू',
+  'chat.bot.commands': 'बॉट के कमांड',
 };

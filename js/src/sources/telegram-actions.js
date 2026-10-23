@@ -57,6 +57,7 @@ import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
 import { createAdminActions } from './telegram-admin.js';
+import { createBotCommands } from './telegram-bot-commands.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -345,7 +346,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // comments (R-Y126); who read and who reacted (R-Y127); block, contacts
 // and report (R-Y128); new groups and channels, a chat's info edited (R-Y129);
 // map pictures of places (R-Y131); translation (R-Y132); a group's
-// permissions, slow mode and recent actions (R-Y133).
+// permissions, slow mode and recent actions (R-Y133); a bot's commands
+// (R-Y135).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -369,6 +371,7 @@ const chatActions = (env, context) => {
     ...createPeerActions(env, context),
     ...createComments(env, context),
     ...createReadersActions(env, context),
+    ...createBotCommands(env, context),
     ...createMapActions(env, context),
     ...createTranslate(env, context),
     ...createAdminActions(env, context),

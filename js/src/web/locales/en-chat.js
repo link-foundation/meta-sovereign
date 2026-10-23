@@ -696,4 +696,6 @@ export const enChat = {
   'chat.admin.err.seconds-invalid': 'Telegram does not accept that slow mode.',
   'chat.admin.err.no-access': 'This chat is not available to you.',
   'chat.admin.err.bad-request': 'That request is not valid.',
+  'chat.bot.menu': 'Menu',
+  'chat.bot.commands': 'Bot commands',
 };

@@ -5,20 +5,11 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { Readable } from 'node:stream';
 
 import { createReadersActions } from '../src/sources/telegram-readers.js';
-import { handleTelegramRoutes } from '../src/server/routes-telegram.js';
+import { named, postRoute } from './helpers/telegram-route.js';
 import { menuItems } from '../src/web/chat-selection.js';
 import { reactionsOf } from '../src/web/chat-readers.js';
-
-const named = (className) =>
-  class {
-    constructor(fields = {}) {
-      Object.assign(this, fields);
-      this.className = className;
-    }
-  };
 
 const Api = {
   messages: {
@@ -168,29 +159,6 @@ test('the menu offers Seen by on own messages in groups, and reactions', () => {
   assert.ok(!channel.includes('readers'));
 });
 
-const post = async (route, body, account) => {
-  const path = `/api/telegram/${route}`;
-  const req = Readable.from([Buffer.from(JSON.stringify(body))]);
-  req.method = 'POST';
-  req.url = path;
-  req.headers = {
-    'content-type': 'application/json',
-    host: '127.0.0.1:8787',
-  };
-  const res = {
-    setHeader() {},
-    writeHead(status) {
-      this.status = status;
-    },
-    end() {},
-  };
-  await handleTelegramRoutes(req, res, path, {
-    telegramAccount: account,
-    allowOrigins: [],
-  });
-  return res.status;
-};
-
 test('routes validate strictly', async () => {
   const account = {
     messageReaders: async () => ({ ok: true }),
@@ -210,7 +178,7 @@ test('routes validate strictly', async () => {
       { chat: '-5', id: 3, offset: 'a' },
     ],
   ]) {
-    assert.equal(await post(route, bad, account), 400, route);
-    assert.equal(await post(route, good, account), 200, route);
+    assert.equal(await postRoute(route, bad, account), 400, route);
+    assert.equal(await postRoute(route, good, account), 200, route);
   }
 });

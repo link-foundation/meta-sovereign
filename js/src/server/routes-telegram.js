@@ -70,6 +70,12 @@
  *                                      -> { ok, items: [{ id, text,
  *                                         entities }] } 1..20 messages
  *                                         translated to `to` (R-Y132)
+ *   POST /api/telegram/bot-commands {chat}
+ *                                      -> { ok, commands: [{ command,
+ *                                         description, bot, botName,
+ *                                         username }], menu: { kind, text?,
+ *                                         url? } } a bot's or a group's
+ *                                         bots' commands (R-Y135)
  *   POST /api/telegram/reactors {chat, id, emoji?, offset?}
  *                                      -> { ok, count, items, next } who
  *                                         reacted to a message, by page
@@ -591,6 +597,11 @@ const POSTS = {
     typeof account.translateMessages === 'function'
       ? [200, await account.translateMessages(body)]
       : [400, { error: 'chat, ids and to required', code: 'bad-request' }],
+  // A bot's commands, for the "/" list and the Menu button (R-Y135).
+  'bot-commands': async (account, body) =>
+    validChat(body.chat) && typeof account.botCommands === 'function'
+      ? [200, await account.botCommands({ chat: body.chat })]
+      : [400, { error: 'chat required', code: 'bad-request' }],
   // Who read a message, who reacted to it (R-Y127).
   readers: async (account, body) =>
     validChat(body.chat) &&

@@ -185,6 +185,12 @@ const ICONS = {
     ['rect', { x: 14, y: 14, width: 7, height: 7, rx: 1 }],
     ['rect', { x: 3, y: 14, width: 7, height: 7, rx: 1 }],
   ],
+  // A bot's Menu button (R-Y135).
+  menu: [
+    ['line', { x1: 4, y1: 6, x2: 20, y2: 6 }],
+    ['line', { x1: 4, y1: 12, x2: 20, y2: 12 }],
+    ['line', { x1: 4, y1: 18, x2: 20, y2: 18 }],
+  ],
   sun: [
     ['circle', { cx: 12, cy: 12, r: 4 }],
     [

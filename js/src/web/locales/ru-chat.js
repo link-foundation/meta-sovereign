@@ -707,4 +707,6 @@ export const ruChat = {
     'Telegram не принимает такой медленный режим.',
   'chat.admin.err.no-access': 'Этот чат вам недоступен.',
   'chat.admin.err.bad-request': 'Запрос недопустим.',
+  'chat.bot.menu': 'Меню',
+  'chat.bot.commands': 'Команды бота',
 };

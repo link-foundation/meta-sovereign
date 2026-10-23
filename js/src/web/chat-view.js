@@ -47,6 +47,7 @@ import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
+import { useBotCommands, useCommandBox } from './chat-bot-commands.js';
 import {
   AttachButton,
   AttachDialog,
@@ -946,6 +947,11 @@ const useSendLater = ({ state, api, composer, attach }) => {
   };
 };
 
+const unless = (hide, part) => (hide ? null : part);
+
+const composing = (event) =>
+  Boolean(event.nativeEvent?.isComposing) || event.keyCode === 229;
+
 const Composer = ({ state, api, keys }) => {
   const t = useT();
   const { composer } = state;
@@ -974,6 +980,12 @@ const Composer = ({ state, api, keys }) => {
   const format = useFormatBar({ box, setText: typeText });
   // A bot's keyboard under the box, and what it asks of it (R-Y110).
   const reply = useReplyKeyboard({ state, replyRefOf });
+  // "/" lists a bot's commands; a bot chat's Menu button (R-Y135).
+  const commands = useCommandBox({
+    ...useBotCommands(api, state.current, state.info),
+    text,
+    composer,
+  });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -983,7 +995,7 @@ const Composer = ({ state, api, keys }) => {
     const first = suggest.suggestions?.[0];
     // Enter that confirms an input method's word (Chinese, Japanese…) is
     // not a Send.
-    if (event.nativeEvent?.isComposing || event.keyCode === 229) {
+    if (composing(event) || commands.onKey(event)) {
       return;
     }
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -1005,6 +1017,7 @@ const Composer = ({ state, api, keys }) => {
       },
     },
     [
+      commands.list,
       el(Suggestions, { key: 's', suggest, composer }),
       format.bar,
       emoji.panel,
@@ -1015,6 +1028,7 @@ const Composer = ({ state, api, keys }) => {
       }),
       el('div', { key: 'row', className: 'chat-composer-row' }, [
         voice.bar,
+        unless(voice.recording, commands.menuButton),
         voice.recording
           ? null
           : el(AttachButton, {
