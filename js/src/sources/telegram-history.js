@@ -318,9 +318,13 @@ const createPacing = ({ pace, now }) => {
 // The job's answer, or its turn-down once it is stuck (`STUCK_MS`).
 const answerWithin = (job, { stuck, log, onStuck, setTimer, clearTimer }) => {
   let given = null;
+  let over = false;
   const ms = stuck[job.method] ?? stuck.other;
   const gaveUp = new Promise((resolve, reject) => {
     given = setTimer(() => {
+      if (over) {
+        return; // answered meanwhile: nothing to turn down
+      }
       log({
         level: 'warn',
         event: 'telegram_request_stuck',
@@ -337,7 +341,11 @@ const answerWithin = (job, { stuck, log, onStuck, setTimer, clearTimer }) => {
     }, ms);
     given?.unref?.();
   });
-  return Promise.race([job.task(), gaveUp]).finally(() => clearTimer(given));
+  gaveUp.catch(() => {}); // only the race below reports it
+  return Promise.race([job.task(), gaveUp]).finally(() => {
+    over = true;
+    clearTimer(given);
+  });
 };
 
 // A request in the queue: what it asks and the promise it answers.
