@@ -137,7 +137,8 @@ export const zh = {
   'profile.bodyPlaceholder': '工作经历',
   'profile.saveResume': '保存简历',
   'backup.title': '备份',
-  'backup.hint': '加密压缩包保存在服务器存储目录下。',
+  'backup.hint':
+    '压缩包保存在服务器存储目录下。令牌和会话（密钥链接）仅在备份加密时包含：请输入口令，或用 MS_SECRET_PASSPHRASE 启动服务器。普通备份不包含它们。',
   'backup.passphrasePlaceholder': '可选口令',
   'backup.keepPlaceholder': '保留 N 份（可选）',
   'backup.create': '创建备份',

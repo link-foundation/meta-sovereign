@@ -139,7 +139,8 @@ export const en = {
   'profile.bodyPlaceholder': 'Experience',
   'profile.saveResume': 'Save resume',
   'backup.title': 'Backup',
-  'backup.hint': 'Encrypted archives live under the server store directory.',
+  'backup.hint':
+    'Archives live under the server store directory. Tokens and sessions (secret links) are included only when the backup is encrypted: type a passphrase, or start the server with MS_SECRET_PASSPHRASE. A plain backup leaves them out.',
   'backup.passphrasePlaceholder': 'Optional passphrase',
   'backup.keepPlaceholder': 'Keep N (optional)',
   'backup.create': 'Create backup',

@@ -16,7 +16,7 @@ Download the installer for your system from <https://link-foundation.github.io/m
 
 ## Run a local server (recommended for sync)
 
-To sync between devices, encrypt at rest, and unlock the full feature set, start a local server next to the SPA. Two backends are available; both implement the same wire protocol (see [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md)).
+To sync between devices, keep encrypted backups, and unlock the full feature set, start a local server next to the SPA. Two backends are available; both implement the same wire protocol (see [`docs/SERVER-PARITY.md`](docs/SERVER-PARITY.md)).
 
 ### Rust server — preferred (single binary, no runtime)
 
@@ -73,7 +73,7 @@ Every Telegram client feature, with what is supported, partial, parked or not su
 
 The prototype targeted by issue #1 is implemented and tracked in PR #2:
 
-- **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM at-rest backups (`createBackupScheduler`) and `secret:*` link encryption.
+- **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM encrypted backups (`createBackupScheduler`) and `secret:*` link encryption.
 - **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
 - **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
 - **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.

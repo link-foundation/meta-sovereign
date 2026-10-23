@@ -7,8 +7,7 @@
  * instead of rewriting the file once each.
  */
 
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { writeFileDurable } from './durable.js';
 
 export const createFileWriter = (filePath, render) => {
   let inFlight = null;
@@ -16,10 +15,7 @@ export const createFileWriter = (filePath, render) => {
 
   const writeOnce = async () => {
     const data = await render();
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
-    const tmp = `${filePath}.${process.pid}.tmp`;
-    await fs.writeFile(tmp, data);
-    await fs.rename(tmp, filePath);
+    await writeFileDurable(filePath, data); // fsync + rename + dir fsync (R-Z2)
   };
 
   const request = () => {

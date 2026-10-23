@@ -17,11 +17,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { json, readBody } from './util.js';
-import {
-  createBackup,
-  restoreBackup,
-  pruneBackups,
-} from '../storage/backup.js';
+import { safeMessage } from './redact.js';
+import { makeBackup, restoreBackup, pruneBackups } from '../storage/backup.js';
 
 const listFiles = async (archiveDir) => {
   const entries = await fs.readdir(archiveDir).catch(() => []);
@@ -60,20 +57,34 @@ const handleList = async (res, archiveDir) => {
   return true;
 };
 
-const handleCreate = async (store, req, res, archiveDir) => {
+// The passphrase typed on the page, else the server's own
+// MS_SECRET_PASSPHRASE: with one the archive is encrypted and holds the
+// secrets; without, it leaves them out and says so (R-Z2).
+const handleCreate = async (store, req, res, archiveDir, fallback) => {
   const body = await readBody(req).catch(() => ({}));
-  const file = await createBackup(store, {
-    archiveDir,
-    passphrase: body.passphrase ?? null,
-  });
-  if (typeof body.keep === 'number' && body.keep > 0) {
-    await pruneBackups({ archiveDir, keep: body.keep });
+  const passphrase = body.passphrase || fallback || null;
+  try {
+    const made = await makeBackup(store, { archiveDir, passphrase });
+    if (typeof body.keep === 'number' && body.keep > 0) {
+      await pruneBackups({ archiveDir, keep: body.keep, passphrase });
+    }
+    json(res, 200, {
+      file: path.basename(made.file),
+      links: made.links,
+      secrets: made.secrets,
+      secretsExcluded: made.secretsExcluded,
+    });
+  } catch (error) {
+    json(res, 500, {
+      ok: false,
+      error: safeMessage(error),
+      code: error.code ?? 'BACKUP_FAILED',
+    });
   }
-  json(res, 200, { file: path.basename(file) });
   return true;
 };
 
-const handleRestore = async (store, req, res, archiveDir) => {
+const handleRestore = async (store, req, res, archiveDir, fallback) => {
   const body = await readBody(req).catch(() => ({}));
   const target = body.file ? safeUnder(archiveDir, body.file) : null;
   if (!target) {
@@ -86,14 +97,29 @@ const handleRestore = async (store, req, res, archiveDir) => {
     json(res, 404, { error: 'backup file not found' });
     return true;
   }
-  const restored = await restoreBackup(store, target, {
-    passphrase: body.passphrase ?? null,
-  });
-  json(res, 200, { restored, file: body.file });
+  try {
+    const restored = await restoreBackup(store, target, {
+      passphrase: body.passphrase || fallback || null,
+    });
+    json(res, 200, { restored, file: body.file });
+  } catch (error) {
+    json(res, 400, {
+      ok: false,
+      error: safeMessage(error),
+      code: error.code ?? 'RESTORE_FAILED',
+    });
+  }
   return true;
 };
 
-export const handleBackupRoutes = async (store, req, res, p, archiveDir) => {
+export const handleBackupRoutes = async (
+  store,
+  req,
+  res,
+  p,
+  archiveDir,
+  fallbackPassphrase = null
+) => {
   if (!archiveDir) {
     return false;
   }
@@ -101,10 +127,10 @@ export const handleBackupRoutes = async (store, req, res, p, archiveDir) => {
     return handleList(res, archiveDir);
   }
   if (p === '/api/backups' && req.method === 'POST') {
-    return handleCreate(store, req, res, archiveDir);
+    return handleCreate(store, req, res, archiveDir, fallbackPassphrase);
   }
   if (p === '/api/backups/restore' && req.method === 'POST') {
-    return handleRestore(store, req, res, archiveDir);
+    return handleRestore(store, req, res, archiveDir, fallbackPassphrase);
   }
   return false;
 };

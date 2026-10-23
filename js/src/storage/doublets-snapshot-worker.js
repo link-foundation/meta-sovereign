@@ -8,6 +8,7 @@
 
 import { promises as fs } from 'node:fs';
 import { parentPort, threadId, workerData } from 'node:worker_threads';
+import { writeFileDurable } from './durable.js';
 import { forEachLiveRecord, readLinoFile } from './lino-store.js';
 import {
   createNetworkEncoder,
@@ -42,9 +43,10 @@ if (mtime === null) {
   const bytes = encodeLinksArchive(network);
   // One temp file per worker: two stores over one folder may snapshot at
   // the same time, and must not rename each other's file away.
-  const tmp = `${to}.${process.pid}.${threadId}.snapshot.tmp`;
-  await fs.writeFile(tmp, bytes);
-  await fs.utimes(tmp, mtime, mtime);
-  await fs.rename(tmp, to);
+  // Flushed before the rename, and the folder after it (R-Z2).
+  await writeFileDurable(to, bytes, {
+    utime: [mtime, mtime],
+    tag: `.${threadId}.snapshot`,
+  });
   parentPort.postMessage({ links, bytes: bytes.length });
 }

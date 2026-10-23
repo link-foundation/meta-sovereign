@@ -21,6 +21,7 @@ import { promises as fs } from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import tls from 'node:tls';
+import { DIR_MODE, tighten } from '../storage/durable.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Apple accepts a trusted server certificate for at most 825 days.
@@ -167,6 +168,9 @@ export const loadLocalTls = async (storeDir, { now = Date.now() } = {}) => {
     fs.readFile(paths.key, 'utf8').catch(() => null),
     fs.readFile(paths.cert, 'utf8').catch(() => null),
   ]);
+  // The key is private whatever mode an older version created it with (R-Z2).
+  await tighten(paths.key);
+  await tighten(paths.dir, DIR_MODE);
   if (key && cert && usable(cert, now)) {
     return { key, cert, certPath: paths.cert, made: false };
   }
@@ -174,6 +178,7 @@ export const loadLocalTls = async (storeDir, { now = Date.now() } = {}) => {
   await fs.mkdir(paths.dir, { recursive: true, mode: 0o700 });
   await fs.writeFile(paths.key, fresh.key, { mode: 0o600 });
   await fs.writeFile(paths.cert, fresh.cert);
+  await tighten(paths.key); // an old key file keeps its old mode on rewrite
   return { ...fresh, certPath: paths.cert, made: true };
 };
 

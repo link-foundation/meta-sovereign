@@ -20,6 +20,7 @@
 import { setTimeout as delay } from 'node:timers/promises';
 import { clearInterval, setInterval } from 'node:timers';
 import { DAY_MS } from '../crm/reengage.js';
+import { safeMessage } from '../server/redact.js';
 import { typingLink } from '../sources/live-links.js';
 import { resolveAudience as resolvePeople } from '../crm/people.js';
 import { nextChatOperations } from './next-chat.js';
@@ -154,7 +155,7 @@ export const createAutomationRunner = ({
       const record = runRecord(automation, draft, {
         status: 'failed',
         at: nowIso(),
-        error: error.message,
+        error: safeMessage(error), // no token in the ledger (R-Z2)
         code: error.code,
       });
       await store.put(record);
@@ -162,7 +163,7 @@ export const createAutomationRunner = ({
         status: 'failed',
         draft,
         record,
-        error: error.message,
+        error: record.error,
         ...(error.code ? { code: error.code } : {}),
         ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
       };

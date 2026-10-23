@@ -140,7 +140,8 @@ export const hi = {
   'profile.bodyPlaceholder': 'अनुभव',
   'profile.saveResume': 'रिज़्यूमे सहेजें',
   'backup.title': 'बैकअप',
-  'backup.hint': 'एन्क्रिप्टेड संग्रह सर्वर स्टोर निर्देशिका में रहते हैं।',
+  'backup.hint':
+    'संग्रह सर्वर स्टोर निर्देशिका में रहते हैं। टोकन और सेशन (गुप्त लिंक) केवल एन्क्रिप्टेड बैकअप में शामिल होते हैं: पासफ़्रेज़ लिखें या सर्वर को MS_SECRET_PASSPHRASE के साथ चलाएँ। सामान्य बैकअप में वे नहीं होते।',
   'backup.passphrasePlaceholder': 'वैकल्पिक पासफ़्रेज़',
   'backup.keepPlaceholder': 'N रखें (वैकल्पिक)',
   'backup.create': 'बैकअप बनाएँ',

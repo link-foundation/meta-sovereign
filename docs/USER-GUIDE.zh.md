@@ -134,7 +134,9 @@ meta-sovereign serve --tls=false        # 或 MS_TLS=off — 关闭 HTTPS
 
 ## 7. 加密备份和导出
 
-数据默认静态加密（[`vault.js`](../js/src/storage/vault.js)，AES-256-GCM，master key + passphrase、PIN、passkey、TOTP recovery code）。
+加密备份和导出使用 AES-256-GCM，主密钥保险库（[`vault.js`](../js/src/storage/vault.js)）支持 passphrase、PIN、passkey、TOTP 解锁。整个存储本身并不默认加密；见下文“磁盘上的密钥”。
+
+**磁盘上的密钥。** 令牌和会话（`secret:*` 链接）只有在服务器以 `MS_SECRET_PASSPHRASE` 启动时才会加密存储（例如 `MS_SECRET_PASSPHRASE='…' meta-sovereign serve`）；否则它们以明文保存在 `data.lino` 中，请保持存储目录私密（应用创建的文件为 0600、目录为 0700，启动时会收紧旧文件）。备份仅在加密时包含密钥（在备份页面输入口令，或设置该变量）；普通备份不含密钥并会注明。日志会隐藏令牌和密码。同一时间只有一个进程写入存储：第二个写入者（例如 `serve` 运行时执行 `import`）会带着明确提示停止，而 `export` 等只读命令仍可使用。
 
 从 CLI 导出加密 snapshot：
 

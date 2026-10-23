@@ -114,6 +114,9 @@ ${GREETINGS_HELP}
 `;
 
 const openStore = (dir) => openDualStore(dir);
+// Read-only commands take no lock and never write, so they work while
+// `serve` owns the store (R-Z2).
+const openReadOnly = (dir) => openDualStore(dir, { readOnly: true });
 
 const importCmd = async (args, log) => {
   const file = args.file;
@@ -126,7 +129,7 @@ const importCmd = async (args, log) => {
 };
 
 const exportCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? '.meta-sovereign');
   const links = await store.query();
   await fs.writeFile(args.file, JSON.stringify(links, null, 2));
   log(`exported ${links.length} links to ${args.file}`);
@@ -134,7 +137,7 @@ const exportCmd = async (args, log) => {
 };
 
 const backupCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? '.meta-sovereign');
   const file = await createBackup(store, { archiveDir: args.archive });
   if (args.keep) {
     await pruneBackups({ archiveDir: args.archive, keep: Number(args.keep) });
@@ -440,7 +443,7 @@ const peoplePerHourMessageCmd = boardMessageCmd(
 );
 
 const audienceCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? '.meta-sovereign');
   const all = await store.query();
   const matched = evalAudience(all, args.query ?? '');
   log(JSON.stringify(matched, null, 2));
@@ -448,7 +451,7 @@ const audienceCmd = async (args, log) => {
 };
 
 const factsCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? '.meta-sovereign');
   const all = await store.query();
   const messages = all.filter((l) => l.id?.startsWith('msg:'));
   const patterns = all
@@ -465,7 +468,7 @@ const factsCmd = async (args, log) => {
 };
 
 const searchCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? '.meta-sovereign');
   const results = await localSearch(store, {
     query: args.query ?? '',
     min: Number(args.min ?? 0.2),
@@ -493,7 +496,7 @@ const broadcastCmd = async (args, log) => {
 };
 
 const listByPrefixCmd = (prefix) => async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? '.meta-sovereign');
   const all = await store.query();
   log(
     JSON.stringify(
@@ -643,7 +646,7 @@ const exportEncryptedCmd = async (args, log) => {
     log('export-encrypted: --passphrase is required (R-K13)');
     return 1;
   }
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? '.meta-sovereign');
   const file = await writeEncryptedExport(store, args.file, {
     passphrase: args.passphrase,
   });
@@ -783,5 +786,13 @@ export const runCli = async (argv, { log = console.log } = {}) => {
     log(HELP);
     return 1;
   }
-  return handler(parseArgs(rest), log);
+  try {
+    return await handler(parseArgs(rest), log);
+  } catch (error) {
+    if (error?.code === 'STORE_LOCKED') {
+      log(error.message); // another process owns the store (R-Z2)
+      return 1;
+    }
+    throw error;
+  }
 };

@@ -205,9 +205,12 @@ peers are behind symmetric NAT.
 
 ## 7. Encrypted backup and export
 
-Your data is encrypted at rest by default
-([`vault.js`](../js/src/storage/vault.js), AES-256-GCM, master key + per-method
-unlocks: passphrase, PIN, passkey, TOTP recovery code).
+Encrypted backups and exports use AES-256-GCM, and the master-key vault
+([`vault.js`](../js/src/storage/vault.js)) supports per-method unlocks:
+passphrase, PIN, passkey, TOTP recovery code. The store itself is not
+encrypted as a whole; see "Secrets at rest" below.
+
+**Secrets at rest.** Tokens and sessions (`secret:*` links) are encrypted in the store only when the server starts with `MS_SECRET_PASSPHRASE` set (for example `MS_SECRET_PASSPHRASE='…' meta-sovereign serve`); without it they are plain text in `data.lino`, so keep the store folder private (the app creates its files 0600 and the folders 0700, and tightens older ones on start). Backups include secrets only when they are encrypted (type a passphrase on the Backup page, or set the variable); a plain backup leaves them out and says so. Logs hide tokens and passwords. One process writes a store at a time: a second writer (for example `import` while `serve` runs) stops with a clear message, while read-only commands such as `export` still work.
 
 Export an encrypted snapshot from the CLI:
 

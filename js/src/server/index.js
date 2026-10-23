@@ -504,7 +504,16 @@ const routeOn = async (store, req, res, ctx, url, p) => {
   if (await handleMutatingRoutes(store, req, res, p, url, ctx)) {
     return;
   }
-  if (await handleBackupRoutes(store, req, res, p, ctx.archiveDir)) {
+  if (
+    await handleBackupRoutes(
+      store,
+      req,
+      res,
+      p,
+      ctx.archiveDir,
+      ctx.secretPassphrase
+    )
+  ) {
     return;
   }
   for (const handle of [
@@ -535,6 +544,14 @@ const initStore = async ({
   let resolvedArchiveDir = archiveDir;
   if (!store) {
     store = await openDualStore(storeDir, {
+      // How many lines could not be read, never what they said (R-Z2).
+      onCorrupt: ({ count, file, quarantined }) =>
+        log?.({
+          level: 'warn',
+          event: quarantined ? 'store_corrupt_quarantined' : 'store_corrupt',
+          count,
+          file,
+        }),
       onError: (error) =>
         log?.({
           level: 'warn',

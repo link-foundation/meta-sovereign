@@ -28,6 +28,7 @@ import { createInterface } from 'node:readline';
 import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore } from './universal.js';
 import { parseLino } from './lino.js';
+import { FILE_MODE, fsyncDir, fsyncFile, tighten } from './durable.js';
 
 const legacyNodeToLink = (node) => {
   const [id, ...tokens] = node.tokens;
@@ -96,18 +97,37 @@ const isLegacyText = (text) => {
   return lines.length > 0 && !lines.some(isRecordLine);
 };
 
-// Record lines that decode; a line cut short by a crash mid-append is
-// skipped instead of making the whole store unreadable.
-const readRecordLines = (text) => {
+// Lines that could not be read (R-Z2): counted, and kept (up to a cap) so
+// a compaction can put them in a quarantine file instead of destroying
+// them. Past the cap the count still grows and compaction stays off.
+const BAD_KEEP = 10_000;
+const createBadLines = () => ({ count: 0, lines: [], overflow: false });
+const noteBad = (bad, line) => {
+  if (line.trim().length === 0) {
+    return;
+  }
+  bad.count += 1;
+  if (bad.lines.length < BAD_KEEP) {
+    bad.lines.push(line);
+  } else {
+    bad.overflow = true;
+  }
+};
+
+// Record lines that decode; a line cut short by a crash mid-append (or a
+// garbled one) is set aside in `bad` instead of making the whole store
+// unreadable.
+const readRecordLines = (text, bad = createBadLines()) => {
   const records = [];
   for (const line of text.split(/\r?\n/)) {
     if (!isRecordLine(line)) {
+      noteBad(bad, line);
       continue;
     }
     try {
       records.push(decodeLine({ notation: line }));
     } catch {
-      // A torn last line; the next compaction drops it.
+      noteBad(bad, line);
     }
   }
   return records;
@@ -161,18 +181,21 @@ const streamRecords = async (filePath) => {
   let lines = 0;
   let chars = 0; // of the whole file, superseded lines too
   let open = false;
+  const bad = createBadLines();
   const input = createReadStream(filePath, { encoding: 'utf8' });
   const reader = createInterface({ input, crlfDelay: Infinity });
   for await (const line of reader) {
     chars += line.length + 1;
     if (!isRecordLine(line)) {
+      noteBad(bad, line);
       continue;
     }
     let record;
     try {
       record = decodeLine({ notation: line });
     } catch {
-      continue; // a torn last line; the next compaction drops it
+      noteBad(bad, line); // a torn last line, or damage: quarantined later
+      continue;
     }
     lines += 1;
     if (typeof record?.id !== 'string') {
@@ -211,7 +234,7 @@ const streamRecords = async (filePath) => {
     }
   }
   const live = [...byId.values()];
-  return { live, lines, legacy: false, open, sizes, chars };
+  return { live, lines, legacy: false, open, sizes, chars, bad };
 };
 
 // The first line that is not blank: the legacy format has no records.
@@ -324,35 +347,62 @@ export const readLinoFile = async (filePath) => {
     if (err.code !== 'ENOENT') {
       throw err;
     }
-    return { live: [], lines: 0, legacy: false, open: false };
+    return {
+      live: [],
+      lines: 0,
+      legacy: false,
+      open: false,
+      bad: createBadLines(),
+    };
   }
   if (first !== null && !isRecordLine(first)) {
     const text = await fs.readFile(filePath, 'utf8');
     if (isLegacyText(text)) {
-      return { live: parseLinoRecords(text), lines: 0, legacy: true };
+      return {
+        live: parseLinoRecords(text),
+        lines: 0,
+        legacy: true,
+        bad: createBadLines(),
+      };
     }
-    const records = readRecordLines(text);
+    const bad = createBadLines();
+    const records = readRecordLines(text, bad);
     const open = text.length > 0 && !text.endsWith('\n');
     const live = applyLinoRecords(records);
     const chars = text.length;
-    return { live, lines: records.length, legacy: false, open, chars };
+    return { live, lines: records.length, legacy: false, open, chars, bad };
   }
   return streamRecords(filePath);
 };
 
-// Write every link to a temp file in chunks, then swap it in.
+// Write every link to a temp file in chunks, flush it to disk, swap it
+// in, and flush the directory: after a power cut the file is the old log
+// or the whole new one, never an empty or half-written one (R-Z2).
 const rewriteFile = async (filePath, links) => {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.mkdir(path.dirname(filePath), { recursive: true, mode: 0o700 });
   const tmp = `${filePath}.${process.pid}.tmp`;
-  const handle = await fs.open(tmp, 'w');
+  const handle = await fs.open(tmp, 'w', FILE_MODE);
   try {
     for (let at = 0; at < links.length; at += CHUNK) {
       await handle.write(formatLinoRecords(links.slice(at, at + CHUNK)));
     }
+    await handle.sync();
   } finally {
     await handle.close();
   }
   await fs.rename(tmp, filePath);
+  await fsyncDir(path.dirname(filePath));
+};
+
+// Lines the store could not read go to `<log>.corrupt-<time>` (appended,
+// flushed) before anything rewrites the log, so they are never destroyed
+// (R-Z2). The count is reported, the lines themselves never are.
+const quarantine = async (filePath, lines) => {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const file = `${filePath}.corrupt-${stamp}`;
+  await fs.appendFile(file, `${lines.join('\n')}\n`, { mode: FILE_MODE });
+  await fsyncFile(file);
+  return file;
 };
 
 // Each live link's line length, as read (or as it would be written).
@@ -395,18 +445,42 @@ const createTally = (loaded, { compactAfter, compactBytes }) => {
   };
 };
 
+// Appends are flushed to disk together, at most this long after the first
+// one (group commit, R-Z2): the cost of durability does not grow with the
+// number of links written.
+const SYNC_MS = 200;
+
+const readOnlyError = () =>
+  Object.assign(new Error('the store was opened read-only'), {
+    code: 'STORE_READ_ONLY',
+  });
+
 export const createLinoTextStore = async (
   filePath,
-  { compactAfter = COMPACT_AFTER, compactBytes = COMPACT_BYTES } = {}
+  {
+    compactAfter = COMPACT_AFTER,
+    compactBytes = COMPACT_BYTES,
+    syncMs = SYNC_MS,
+    readOnly = false,
+    onCorrupt = () => {},
+  } = {}
 ) => {
   const mem = createMemoryStore();
   const loaded = await readLinoFile(filePath);
   await mem.putMany(loaded.live);
   const tally = createTally(loaded, { compactAfter, compactBytes });
+  const bad = loaded.bad;
   loaded.live = null;
   loaded.sizes = null;
-  let rewrite = loaded.legacy; // the next write rewrites the whole file
+  if (bad.count > 0) {
+    // The count only: the lines may hold message text.
+    onCorrupt({ count: bad.count, file: filePath });
+  }
+  let rewrite = loaded.legacy && !readOnly; // the next write rewrites it all
   let open = loaded.open;
+  if (!readOnly) {
+    await tighten(filePath);
+  }
 
   // One write at a time, in call order.
   let tail = Promise.resolve();
@@ -415,27 +489,78 @@ export const createLinoTextStore = async (
     tail = run.catch(() => {});
     return run;
   };
+  let dirty = false; // appended but not yet flushed to disk
+  let syncTimer = null;
+  const syncNow = async () => {
+    if (dirty) {
+      dirty = false;
+      await fsyncFile(filePath);
+    }
+  };
+  const syncSoon = () => {
+    if (syncTimer) {
+      return;
+    }
+    syncTimer = globalThis.setTimeout(() => {
+      syncTimer = null;
+      enqueue(syncNow).catch(() => {});
+    }, syncMs);
+    syncTimer.unref?.();
+  };
   const compact = async () => {
+    if (bad.overflow) {
+      return; // more unreadable lines than can be kept: never destroy them
+    }
+    if (bad.lines.length > 0) {
+      const file = await quarantine(filePath, bad.lines);
+      onCorrupt({ count: bad.lines.length, file, quarantined: true });
+      bad.lines = [];
+      bad.count = 0;
+    }
     const links = await mem.query();
     await rewriteFile(filePath, links);
+    dirty = false;
     tally.compacted();
     rewrite = false;
     open = false;
   };
-  // `texts` are encoded at call time, so later changes to the objects
-  // cannot leak into the file.
-  const append = (texts) =>
-    enqueue(async () => {
+  // Writes wait here and go to disk as one append (group commit); each
+  // caller resolves when its batch is written. `texts` are encoded at call
+  // time, so later changes to the objects cannot leak into the file.
+  let batch = [];
+  const drain = async () => {
+    const jobs = batch;
+    batch = [];
+    try {
       if (rewrite) {
-        await compact(); // the memory store already holds this write
-        return;
+        await compact(); // the memory store already holds these writes
+      } else {
+        const text = jobs.map((job) => job.texts.join('')).join('');
+        await fs.mkdir(path.dirname(filePath), {
+          recursive: true,
+          mode: 0o700,
+        });
+        await fs.appendFile(filePath, open ? `\n${text}` : text, {
+          mode: FILE_MODE,
+        });
+        open = false;
+        dirty = true;
+        syncSoon();
+        if (tally.superseded()) {
+          await compact();
+        }
       }
-      const text = texts.join('');
-      await fs.mkdir(path.dirname(filePath), { recursive: true });
-      await fs.appendFile(filePath, open ? `\n${text}` : text);
-      open = false;
-      if (tally.superseded()) {
-        await compact();
+    } catch (error) {
+      jobs.forEach((job) => job.reject(error));
+      return;
+    }
+    jobs.forEach((job) => job.resolve());
+  };
+  const append = (texts) =>
+    new Promise((resolve, reject) => {
+      batch.push({ texts, resolve, reject });
+      if (batch.length === 1) {
+        enqueue(drain);
       }
     });
   // Each link's line, counted as written.
@@ -444,23 +569,31 @@ export const createLinoTextStore = async (
     tally.wrote(link.id, text.length);
     return text;
   };
-  if (tally.superseded()) {
+  if (!readOnly && tally.superseded()) {
     await enqueue(compact);
   }
+  const guard = () => {
+    if (readOnly) {
+      throw readOnlyError();
+    }
+  };
 
   return {
     ...mem,
     async put(link) {
+      guard();
       const out = await mem.put(link);
       await append([lineOf(link)]);
       return out;
     },
     async putMany(links) {
+      guard();
       const out = await mem.putMany(links);
       await append(links.map(lineOf));
       return out;
     },
     async delete(id) {
+      guard();
       const ok = await mem.delete(id);
       if (ok) {
         const text = formatLinoRecords([tombstoneRecord(id)]);
@@ -469,10 +602,15 @@ export const createLinoTextStore = async (
       }
       return ok;
     },
-    /** Resolves once every write so far is on disk. */
-    flush: () => enqueue(async () => {}),
+    /** Resolves once every write so far is on disk (flushed, not just written). */
+    flush: () => enqueue(syncNow),
     /** Rewrite the file with one line per live link. */
-    compact: () => enqueue(compact),
+    compact: () => {
+      guard();
+      return enqueue(compact);
+    },
+    /** Lines that could not be read when the log was opened. */
+    corruptLines: () => bad.count,
     filePath,
   };
 };

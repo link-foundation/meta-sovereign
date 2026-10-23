@@ -16,7 +16,7 @@ Server के बिना hosted app **browser-only mode** में चलत�
 
 ## local server चलाएँ (sync के लिए recommended)
 
-Devices के बीच sync, at-rest encryption और पूरा feature set इस्तेमाल करने के लिए SPA के पास local server start करें। दो backend उपलब्ध हैं; दोनों समान wire protocol लागू करते हैं (देखें [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md))।
+Devices के बीच sync, encrypted backups और पूरा feature set इस्तेमाल करने के लिए SPA के पास local server start करें। दो backend उपलब्ध हैं; दोनों समान wire protocol लागू करते हैं (देखें [`docs/SERVER-PARITY.hi.md`](docs/SERVER-PARITY.hi.md))।
 
 ### Rust server — preferred (single binary, runtime नहीं)
 

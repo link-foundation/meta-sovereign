@@ -19,6 +19,7 @@ import {
   createDecipheriv,
 } from 'node:crypto';
 import { putAll } from './universal.js';
+import { ensurePrivateDir, sweepTemp, writeFileDurable } from './durable.js';
 
 const ENC_VERSION = 1;
 const KDF_N = 1 << 14;
@@ -71,38 +72,102 @@ export const decryptBackup = (envelopeJson, passphrase) => {
 const stamp = (d = new Date()) =>
   d.toISOString().replace(/[:.]/g, '-').replace('T', '_').replace(/Z$/, '');
 
-export const createBackup = async (
+const isSecretId = (link) =>
+  typeof link?.id === 'string' && link.id.startsWith('secret:');
+
+const BACKUP_FILE = /^meta-sovereign-.*\.json(\.enc)?$/;
+
+/**
+ * Whether the archive `file` is complete (R-Z2): a plain one parses and
+ * holds a links array; an encrypted one has a whole envelope and, when the
+ * passphrase is at hand, decrypts to such a manifest. Never throws.
+ */
+export const verifyBackup = async (file, { passphrase = null } = {}) => {
+  try {
+    const raw = await fs.readFile(file, 'utf8');
+    if (!file.endsWith('.enc')) {
+      return Array.isArray(JSON.parse(raw)?.links);
+    }
+    const env = JSON.parse(raw);
+    const whole = ['salt', 'iv', 'tag', 'ct'].every(
+      (k) => typeof env[k] === 'string' && env[k].length > 0
+    );
+    if (!whole || env.cipher !== 'aes-256-gcm') {
+      return false;
+    }
+    return passphrase
+      ? Array.isArray(JSON.parse(decryptBackup(raw, passphrase))?.links)
+      : true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Write a backup and say what it holds: `{ file, links, secrets,
+ * secretsExcluded }`. The archive is written atomically (temp file, fsync,
+ * rename, fsync of the folder), 0600, then read back; one that does not
+ * verify is removed and the call fails. Secrets (`secret:*` links) go in
+ * only when the archive is encrypted; otherwise they are left out and the
+ * manifest says so (R-Z2).
+ */
+export const makeBackup = async (
   store,
   { archiveDir, now = new Date(), passphrase = null }
 ) => {
-  await fs.mkdir(archiveDir, { recursive: true });
-  const links = await store.query();
+  await ensurePrivateDir(archiveDir);
+  const all = await store.query();
+  const links = passphrase ? all : all.filter((l) => !isSecretId(l));
+  const secretsExcluded = all.length - links.length;
   const manifest = {
     createdAt: now.toISOString(),
     version: 1,
+    secrets: passphrase ? 'included-encrypted' : 'excluded',
+    secretsExcluded,
     links,
   };
   const plaintext = JSON.stringify(manifest, null, 2);
-  if (passphrase) {
-    const file = path.join(archiveDir, `meta-sovereign-${stamp(now)}.json.enc`);
-    await fs.writeFile(file, encryptBackup(plaintext, passphrase), 'utf8');
-    return file;
+  const name = `meta-sovereign-${stamp(now)}.json${passphrase ? '.enc' : ''}`;
+  const file = path.join(archiveDir, name);
+  await writeFileDurable(
+    file,
+    passphrase ? encryptBackup(plaintext, passphrase) : plaintext
+  );
+  if (!(await verifyBackup(file, { passphrase }))) {
+    await fs.unlink(file).catch(() => {});
+    throw Object.assign(new Error('the backup could not be read back'), {
+      code: 'BACKUP_VERIFY_FAILED',
+    });
   }
-  const file = path.join(archiveDir, `meta-sovereign-${stamp(now)}.json`);
-  await fs.writeFile(file, plaintext, 'utf8');
-  return file;
+  return {
+    file,
+    links: links.length,
+    secrets: manifest.secrets,
+    secretsExcluded,
+  };
 };
 
-export const pruneBackups = async ({ archiveDir, keep }) => {
+export const createBackup = async (store, options) =>
+  (await makeBackup(store, options)).file;
+
+/**
+ * Keep the newest `keep` archives. Nothing is deleted unless the newest
+ * archive verifies as complete (a crash or a full disk may have left a
+ * truncated one that must not cost the older good ones), and leftover
+ * temp files of a crashed write are swept (R-Z2).
+ */
+export const pruneBackups = async ({ archiveDir, keep, passphrase = null }) => {
+  await sweepTemp(archiveDir);
   const entries = await fs.readdir(archiveDir).catch(() => []);
-  const ours = entries
-    .filter(
-      (f) =>
-        f.startsWith('meta-sovereign-') &&
-        (f.endsWith('.json') || f.endsWith('.json.enc'))
-    )
-    .sort();
+  const ours = entries.filter((f) => BACKUP_FILE.test(f)).sort();
   const toDelete = ours.slice(0, Math.max(0, ours.length - keep));
+  if (keep < 1 || toDelete.length === 0) {
+    return [];
+  }
+  const newest = path.join(archiveDir, ours[ours.length - 1]);
+  if (!(await verifyBackup(newest, { passphrase }))) {
+    return [];
+  }
   for (const f of toDelete) {
     await fs.unlink(path.join(archiveDir, f));
   }
@@ -137,7 +202,7 @@ export const createBackupScheduler = ({
     try {
       const file = await createBackup(store, { archiveDir, passphrase });
       if (keep > 0) {
-        await pruneBackups({ archiveDir, keep });
+        await pruneBackups({ archiveDir, keep, passphrase });
       }
       onBackup(file);
     } catch (err) {
@@ -167,5 +232,14 @@ export const restoreBackup = async (
     raw = decryptBackup(raw, passphrase);
   }
   const manifest = JSON.parse(raw);
+  // Checked whole before anything is written: no half restore (R-Z2).
+  const valid =
+    Array.isArray(manifest?.links) &&
+    manifest.links.every((l) => l && typeof l === 'object' && l.id);
+  if (!valid) {
+    throw Object.assign(new Error('not a valid backup: links are malformed'), {
+      code: 'BACKUP_INVALID',
+    });
+  }
   return putAll(store, manifest.links);
 };

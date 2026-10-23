@@ -135,7 +135,9 @@ Browser notes:
 
 ## 7. encrypted backup और export
 
-Data default रूप से encrypted-at-rest है ([`vault.js`](../js/src/storage/vault.js), AES-256-GCM, master key और passphrase/PIN/passkey/TOTP unlocks)।
+एन्क्रिप्टेड बैकअप और export AES-256-GCM इस्तेमाल करते हैं, और master-key vault ([`vault.js`](../js/src/storage/vault.js)) passphrase/PIN/passkey/TOTP unlock समर्थित करता है। पूरा स्टोर अपने-आप एन्क्रिप्ट नहीं होता; नीचे “डिस्क पर secrets” देखें।
+
+**डिस्क पर secrets।** टोकन और सेशन (`secret:*` लिंक) स्टोर में तभी एन्क्रिप्ट होते हैं जब सर्वर `MS_SECRET_PASSPHRASE` के साथ शुरू हो (जैसे `MS_SECRET_PASSPHRASE='…' meta-sovereign serve`); इसके बिना वे `data.lino` में सादे पाठ में रहते हैं, इसलिए स्टोर फ़ोल्डर निजी रखें (ऐप फ़ाइलें 0600 और फ़ोल्डर 0700 से बनाता है, और शुरू होने पर पुरानों को सख़्त करता है)। बैकअप में secrets केवल एन्क्रिप्टेड होने पर शामिल होते हैं (Backup पेज पर पासफ़्रेज़ लिखें या वेरिएबल सेट करें); सामान्य बैकअप उन्हें छोड़ देता है और यह बताता है। लॉग में टोकन और पासवर्ड छिपे रहते हैं। एक समय में एक ही प्रक्रिया स्टोर में लिखती है: दूसरा लेखक (जैसे `serve` चलते समय `import`) स्पष्ट संदेश के साथ रुकता है, जबकि `export` जैसे केवल-पढ़ने वाले कमांड चलते हैं।
 
 CLI से encrypted snapshot export करें:
 

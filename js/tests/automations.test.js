@@ -520,3 +520,25 @@ test('an automation runs on an audience: friends minus a list', async () => {
   assert.equal(fresh.chat, '777');
   assert.equal(fresh.form, 'formal');
 });
+
+test('a failed send keeps no credential in the ledger (R-Z2)', async () => {
+  const store = await seeded();
+  const bot = '123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw';
+  const runner = createAutomationRunner({
+    store,
+    clock: clockAt(NOW).clock,
+    sleep: async () => {},
+    send: async () => {
+      throw new Error(
+        `POST https://api.telegram.org/bot${bot}/sendMessage 502`
+      );
+    },
+  });
+  const run = await runner.run(preset('reengage-dormant'), {
+    targets: [{ source: 'vk', chat: '102' }],
+  });
+  const out = await runner.sendDraft(run.queued[0].id, { confirm: true });
+  assert.equal(out.status, 'failed');
+  assert.ok(!out.error.includes(bot));
+  assert.ok(!JSON.stringify(await store.query()).includes(bot));
+});

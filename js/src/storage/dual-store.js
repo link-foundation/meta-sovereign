@@ -22,6 +22,8 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createLinoTextStore } from './lino-store.js';
 import { createDoubletsMirror } from './doublets-mirror.js';
+import { acquireStoreLock } from './store-lock.js';
+import { DIR_MODE, ensurePrivateDir, sweepTemp, tighten } from './durable.js';
 
 const putEach = async (store, links) => {
   for (const link of links) {
@@ -102,13 +104,74 @@ export const createDualStore = ({ binary, text }) => ({
   },
 });
 
-/** The store in `dir`: `data.lino` (the log) and `data.bin` (its mirror). */
-export const openDualStore = async (dir, { onError } = {}) => {
-  await fs.mkdir(dir, { recursive: true });
-  const text = await createLinoTextStore(path.join(dir, 'data.lino'));
-  const binary = await createDoubletsMirror(path.join(dir, 'data.bin'), {
-    text,
-    onError,
-  });
-  return createDualStore({ binary, text });
+const readOnlyStore = (text) => ({
+  get: (id) => text.get(id),
+  query: (filter) => text.query(filter),
+  subscribe: (handler) => text.subscribe(handler),
+  put: text.put,
+  putMany: text.putMany,
+  delete: text.delete,
+  flush: async () => {},
+  reconcile: async () => ({ put: 0, deleted: 0 }),
+  corruptLines: text.corruptLines,
+  readOnly: true,
+});
+
+// Everything in the store folder is private to the user (R-Z2): the files
+// are tightened when the store opens (cheap, idempotent); new ones are
+// created 0600 by their writers.
+const tightenFolder = async (dir) => {
+  await tighten(dir, DIR_MODE);
+  for (const name of ['data.lino', 'data.bin', 'data.lock']) {
+    await tighten(path.join(dir, name));
+  }
+  for (const sub of ['logs', 'archives']) {
+    const folder = path.join(dir, sub);
+    await tighten(folder, DIR_MODE);
+    for (const name of await fs.readdir(folder).catch(() => [])) {
+      await tighten(path.join(folder, name));
+    }
+  }
+  await sweepTemp(dir);
+};
+
+/**
+ * The store in `dir`: `data.lino` (the log) and `data.bin` (its mirror).
+ * A writer takes the folder's lock (`store-lock.js`) and fails with code
+ * `STORE_LOCKED` when another process holds it; `readOnly: true` takes no
+ * lock, never writes or compacts, and works while `serve` runs.
+ * `onCorrupt({ count, file })` hears of unreadable lines (never their text).
+ */
+export const openDualStore = async (
+  dir,
+  { onError, onCorrupt, readOnly = false } = {}
+) => {
+  await ensurePrivateDir(dir);
+  if (readOnly) {
+    return readOnlyStore(
+      await createLinoTextStore(path.join(dir, 'data.lino'), {
+        readOnly: true,
+        onCorrupt,
+      })
+    );
+  }
+  const lock = await acquireStoreLock(dir);
+  try {
+    await tightenFolder(dir);
+    const text = await createLinoTextStore(path.join(dir, 'data.lino'), {
+      onCorrupt,
+    });
+    const binary = await createDoubletsMirror(path.join(dir, 'data.bin'), {
+      text,
+      onError,
+    });
+    return {
+      ...createDualStore({ binary, text }),
+      corruptLines: text.corruptLines,
+      close: lock.release,
+    };
+  } catch (error) {
+    lock.release();
+    throw error;
+  }
 };
