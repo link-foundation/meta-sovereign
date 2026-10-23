@@ -339,6 +339,12 @@ export const TELEGRAM_CALLS = {
   telegramCloseFriends: body('close-friends'),
   telegramCloseFriendsSet: body('close-friends-set'),
   telegramContactImport: body('contact-import'),
+  // Cloud themes, a theme's link, recording the theme, and "Do not
+  // translate this chat" (R-Y209).
+  telegramCloudThemes: body('cloud-themes'),
+  telegramCloudTheme: body('cloud-theme'),
+  telegramCloudThemeInstall: body('cloud-theme-install'),
+  telegramTranslationsToggle: body('translations-toggle'),
   // Chat themes and several usernames (R-Y170).
   telegramChatThemes: body('chat-themes'),
   telegramChatThemeSet: body('chat-theme-set'),

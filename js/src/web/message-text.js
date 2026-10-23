@@ -16,6 +16,7 @@ import { openBusinessLink } from './chat-business-link-open.js';
 import { openInstantViewLink } from './chat-instant-view-open.js';
 import { openProxyLink } from './proxy-model.js';
 import { openGiftLink } from './gift-manage-model.js';
+import { openThemeLink } from './cloud-themes.js';
 import { addlistSlugOf } from './chat-folder-model.js';
 import { openAddlist } from './chat-folder-share.js';
 import { openTagSearch, parseTag } from './chat-tags.js';
@@ -230,6 +231,7 @@ const drawNode = (node, key, ctx) => {
             openInstantViewLink(href) ||
             openProxyLink(href) ||
             openGiftLink(href) ||
+            openThemeLink(href) ||
             openLoginLink(href) ||
             openAttachLink(href)
           ) {

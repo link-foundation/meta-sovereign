@@ -15,6 +15,7 @@ import { ProxySettings } from './settings-proxy.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
 import { api } from './dom.js';
 import { ChatBackgroundSettings } from './chat-wallpaper.js';
+import { CloudThemeSettings } from './cloud-themes.js';
 import { FoldersSettings } from './chat-folder-edit.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import {
@@ -219,6 +220,7 @@ export const SettingsView = () => {
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
     el(ChatBackgroundSettings, { key: 'background', api }),
+    el(CloudThemeSettings, { key: 'cloud-themes', api }),
     el(FoldersSettings, { key: 'folders', api }),
     el(PrivacySettings, { key: 'privacy' }),
     el(NotificationSettings, { key: 'notify' }),

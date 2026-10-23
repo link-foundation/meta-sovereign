@@ -32,6 +32,7 @@ import { ProxyHost } from './settings-proxy.js';
 import { GiftHost } from './chat-gift-unique.js';
 import { useApplyUiScale } from './ui-scale.js';
 import { AddlistHost } from './chat-folder-share.js';
+import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
 import { AppNotifications } from './app-notify.js';
 import { LockScreen, useLocalLock } from './passcode.js';
 
@@ -84,6 +85,8 @@ const App = () => {
   const [active, setActive] = useState('chat');
   const online = useOnlineMode();
   useApplyAppearance();
+  // A cloud theme's accent and bubbles on the page (R-Y209).
+  useApplyCloudTheme();
   // The interface scale and message text size (R-Y192).
   useApplyUiScale();
   const { theme, toggle } = useAppearance();
@@ -215,6 +218,8 @@ const App = () => {
       // Unique gifts and gift codes, from links and buttons (R-Y193).
       el(GiftHost, { key: 'gift-host', api }),
       el(AddlistHost, { key: 'addlist-host', api }),
+      // A t.me/addtheme link's preview (R-Y209).
+      el(AddthemeHost, { key: 'addtheme-host', api }),
       // The Chat section notifies by itself; the others through this.
       active === 'chat'
         ? null

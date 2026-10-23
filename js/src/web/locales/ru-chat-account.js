@@ -47,4 +47,21 @@ export const ruChatAccount = {
   'chat.storyManage.err.caption-too-long': 'Подпись слишком длинная.',
   'chat.storyManage.err.users-invalid': 'Выберите хотя бы один контакт.',
   'chat.storyManage.err.unchanged': 'Ничего не изменилось.',
+  'settings.cloudThemes.title': 'Облачные темы',
+  'settings.cloudThemes.intro':
+    'Темы из вашего аккаунта Telegram и от самого Telegram. Применение задаёт акцент, исходящие пузыри и светлый или тёмный режим.',
+  'settings.cloudThemes.loading': 'Загрузка тем...',
+  'settings.cloudThemes.none': 'Облачных тем пока нет.',
+  'settings.cloudThemes.apply': 'Применить',
+  'settings.cloudThemes.noPreview': 'Нет превью',
+  'settings.cloudThemes.default': 'Вернуть по умолчанию',
+  'settings.cloudThemes.linkTitle': 'Тема',
+  'settings.cloudThemes.close': 'Закрыть',
+  'settings.cloudThemes.err.failed': 'Не удалось загрузить темы.',
+  'settings.cloudThemes.err.not-found': 'Эта тема не найдена.',
+  'settings.cloudThemes.err.flood':
+    'Telegram просит подождать. Попробуйте позже.',
+  'chat.translate.turnOff': 'Не переводить этот чат',
+  'chat.translate.turnOn': 'Предлагать перевод этого чата',
+  'chat.translate.toggleFailed': 'Telegram не изменил настройку перевода.',
 };

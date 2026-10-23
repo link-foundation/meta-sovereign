@@ -46,4 +46,22 @@ export const enChatAccount = {
   'chat.storyManage.err.caption-too-long': 'The caption is too long.',
   'chat.storyManage.err.users-invalid': 'Choose at least one contact.',
   'chat.storyManage.err.unchanged': 'Nothing was changed.',
+  'settings.cloudThemes.title': 'Cloud themes',
+  'settings.cloudThemes.intro':
+    "Themes from your Telegram account and Telegram's own. Applying one sets the accent, the outgoing bubbles and the light or dark mode here.",
+  'settings.cloudThemes.loading': 'Loading themes...',
+  'settings.cloudThemes.none': 'No cloud themes yet.',
+  'settings.cloudThemes.apply': 'Apply',
+  'settings.cloudThemes.noPreview': 'No preview',
+  'settings.cloudThemes.default': 'Back to default',
+  'settings.cloudThemes.linkTitle': 'Theme',
+  'settings.cloudThemes.close': 'Close',
+  'settings.cloudThemes.err.failed': 'Themes could not be loaded.',
+  'settings.cloudThemes.err.not-found': 'This theme was not found.',
+  'settings.cloudThemes.err.flood':
+    'Telegram asks to wait a little. Try again later.',
+  'chat.translate.turnOff': 'Do not translate this chat',
+  'chat.translate.turnOn': 'Offer to translate this chat',
+  'chat.translate.toggleFailed':
+    'Telegram did not change the translation setting.',
 };

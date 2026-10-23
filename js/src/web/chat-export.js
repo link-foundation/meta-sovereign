@@ -13,6 +13,7 @@ import { createPortal } from 'react-dom';
 import { useT } from './i18n.js';
 import { useEsc } from './chat-invite.js';
 import { Icon } from './icons.js';
+import { TranslationSwitch } from './chat-translation-switch.js';
 
 const el = React.createElement;
 
@@ -461,7 +462,7 @@ export const canExport = (chat, api) =>
   typeof api?.telegramExportStart === 'function';
 
 /** The header's "⋯" button and its menu with "Export chat history". */
-export const ExportMenu = ({ api, chat }) => {
+export const ExportMenu = ({ api, chat, info }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [dialog, setDialog] = useState(false);
@@ -493,12 +494,11 @@ export const ExportMenu = ({ api, chat }) => {
       el(Icon, { name: 'dots' })
     ),
     open
-      ? el(
-          'div',
-          { key: 'l', className: 'chat-menu-list', role: 'menu' },
+      ? el('div', { key: 'l', className: 'chat-menu-list', role: 'menu' }, [
           el(
             'button',
             {
+              key: 'x',
               type: 'button',
               role: 'menuitem',
               className: 'chat-more-item',
@@ -509,8 +509,16 @@ export const ExportMenu = ({ api, chat }) => {
               },
             },
             t('chat.export.open')
-          )
-        )
+          ),
+          // "Do not translate this chat" (R-Y209).
+          el(TranslationSwitch, {
+            key: 'tr',
+            api,
+            chat,
+            info,
+            done: () => setOpen(false),
+          }),
+        ])
       : null,
     dialog
       ? el(ExportDialog, {

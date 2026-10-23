@@ -236,6 +236,7 @@ import { FOLDER_EDIT_POSTS } from './routes-telegram-folder-edit.js';
 import { CHATLIST_POSTS } from './routes-telegram-chatlists.js';
 import { STICKER_SETTINGS_POSTS } from './routes-telegram-sticker-settings.js';
 import { CHAT_THEME_POSTS } from './routes-telegram-chat-themes.js';
+import { CLOUD_THEME_POSTS } from './routes-telegram-cloud-themes.js';
 import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
 import { STATS_POSTS } from './routes-telegram-stats.js';
 import { CHECKLIST_STATS_POSTS } from './routes-telegram-checklist-stats.js';
@@ -1040,6 +1041,7 @@ const POSTS = {
   ...BOT_LOGIN_POSTS,
   ...STICKER_SETTINGS_POSTS,
   ...CHAT_THEME_POSTS,
+  ...CLOUD_THEME_POSTS,
   ...COMMON_CHATS_POSTS,
   ...STATS_POSTS,
   ...PINNED_LIST_POSTS,

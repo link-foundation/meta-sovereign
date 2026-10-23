@@ -384,7 +384,7 @@ const Header = ({
     el(ForumViewMenu, { key: 'forum-view', view: forumView }),
     el(NotifyButton, { key: 'notify', api, chat }),
     // "Export chat history" in the header's ⋯ menu (R-Y186).
-    el(ExportMenu, { key: 'more', api, chat }),
+    el(ExportMenu, { key: 'more', api, chat, info: state.info }),
     hasAbout(chat)
       ? el(AboutButton, { key: 'about', about, onAbout, chat })
       : null,

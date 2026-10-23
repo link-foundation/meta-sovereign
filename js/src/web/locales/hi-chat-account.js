@@ -48,4 +48,21 @@ export const hiChatAccount = {
   'chat.storyManage.err.caption-too-long': 'कैप्शन बहुत लंबा है।',
   'chat.storyManage.err.users-invalid': 'कम से कम एक संपर्क चुनें।',
   'chat.storyManage.err.unchanged': 'कुछ नहीं बदला।',
+  'settings.cloudThemes.title': 'क्लाउड थीम',
+  'settings.cloudThemes.intro':
+    'आपके Telegram खाते और Telegram की अपनी थीम। लागू करने पर यहाँ एक्सेंट, भेजे गए बबल और लाइट या डार्क मोड बदल जाता है।',
+  'settings.cloudThemes.loading': 'थीम लोड हो रही हैं...',
+  'settings.cloudThemes.none': 'अभी कोई क्लाउड थीम नहीं है।',
+  'settings.cloudThemes.apply': 'लागू करें',
+  'settings.cloudThemes.noPreview': 'कोई पूर्वावलोकन नहीं',
+  'settings.cloudThemes.default': 'डिफ़ॉल्ट पर लौटें',
+  'settings.cloudThemes.linkTitle': 'थीम',
+  'settings.cloudThemes.close': 'बंद करें',
+  'settings.cloudThemes.err.failed': 'थीम लोड नहीं हो सकीं।',
+  'settings.cloudThemes.err.not-found': 'यह थीम नहीं मिली।',
+  'settings.cloudThemes.err.flood':
+    'Telegram थोड़ा रुकने को कह रहा है। बाद में फिर कोशिश करें।',
+  'chat.translate.turnOff': 'इस चैट का अनुवाद न करें',
+  'chat.translate.turnOn': 'इस चैट के अनुवाद का सुझाव दें',
+  'chat.translate.toggleFailed': 'Telegram ने अनुवाद सेटिंग नहीं बदली।',
 };

@@ -72,6 +72,9 @@ const update = (patch) => {
   listeners.forEach((listener) => listener());
 };
 
+/** The chosen mode (system, light, dark, auto), outside a component. */
+export const currentMode = () => current().mode;
+
 export const setThemeMode = (mode) =>
   THEME_MODES.includes(mode) && update({ mode });
 export const setSkin = (skin) => SKINS.includes(skin) && update({ skin });

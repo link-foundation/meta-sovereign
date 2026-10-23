@@ -55,6 +55,7 @@ import { createContactsEdit } from './telegram-contacts-edit.js';
 import { createContactsActions } from './telegram-contacts.js';
 import { createAccountsActions } from './telegram-accounts.js';
 import { createChatThemes } from './telegram-chat-themes.js';
+import { createCloudThemes } from './telegram-cloud-themes.js';
 import { createUsernames } from './telegram-usernames.js';
 import { createInvites } from './telegram-invite.js';
 import { createMembers } from './telegram-members.js';
@@ -486,7 +487,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // and recent locations (R-Y208); Instant View (R-Y205); trending
 // stickers, the quick reaction and custom emoji search (R-Y206); cloud
 // drafts, the calendar's day counts and frequent contacts (R-Y207);
-// editing and linking one's stories (R-Y210).
+// editing and linking one's stories (R-Y210); cloud themes and the
+// per-chat translation switch (R-Y209).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -519,6 +521,7 @@ const chatActions = (env, context) => {
     ...createContactsActions(env, context),
     ...createAccountsActions(env, context),
     ...createChatThemes(env, context),
+    ...createCloudThemes(env, context),
     ...createUsernames(env, context),
     ...createCustomEmoji(env, context),
     ...createEmojiKeywords(env, context),

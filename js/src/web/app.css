@@ -11913,3 +11913,65 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
 [data-dialog='story-edit-privacy'] {
   z-index: 2700;
 }
+
+/* Cloud themes and the per-chat translation switch (R-Y209). */
+.cloud-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.6rem;
+  margin: 0.5rem 0;
+}
+.cloud-theme {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elev);
+}
+.cloud-theme.is-selected {
+  border-color: var(--accent);
+}
+.cloud-theme-preview {
+  position: relative;
+  display: block;
+  height: 3.4rem;
+  border-radius: 6px;
+  background: var(--ct-ground, var(--bg-active));
+  overflow: hidden;
+}
+.cloud-theme-in,
+.cloud-theme-out {
+  position: absolute;
+  height: 0.8rem;
+  border-radius: 6px;
+}
+.cloud-theme-in {
+  top: 0.4rem;
+  left: 0.4rem;
+  width: 45%;
+  background: rgb(127 127 127 / 45%);
+}
+.cloud-theme-out {
+  top: 1.5rem;
+  right: 0.4rem;
+  width: 55%;
+  background: var(--ct-bubble, transparent);
+}
+.cloud-theme-accent {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 0.4rem;
+  background: var(--ct-accent, var(--accent));
+}
+.cloud-theme-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-more-group .meta {
+  margin: 0.2rem 0.7rem;
+}

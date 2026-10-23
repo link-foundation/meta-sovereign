@@ -62,6 +62,10 @@ const hasPhoto = (photo) =>
     photo.className !== 'UserProfilePhotoEmpty'
   );
 
+// "Do not translate this chat" is on (R-Y209).
+const translationsOf = (full) =>
+  full?.translationsDisabled ? { translationsDisabled: true } : {};
+
 // Online count for a peer — 0 on any failure (not critical).
 const getOnlines = async (client, Api, inputPeer) => {
   try {
@@ -263,6 +267,7 @@ const fetchChannel = async (client, Api, inputPeer, peers) => {
     canPin: canPinIn(entity),
     broadcast: Boolean(entity.broadcast),
     forum: Boolean(entity.forum),
+    ...translationsOf(full),
     // "View as messages" is on for this forum (R-Y171).
     forumAsMessages: Boolean(full.viewForumAsMessages),
     topics: topicRightsIn(entity),
@@ -316,6 +321,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     settings: settingsInfo(entity, full, result.chats ?? []),
     ...inviteOf(entity, full),
     ...adminInfo(entity, full, 'group'),
+    ...translationsOf(full),
     ...requestsOf(entity, full, result.users),
   };
 };
@@ -382,6 +388,7 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     ...collectibleOf(user),
     // The theme of this chat, by its emoticon (R-Y170).
     ...(themeOf(full) ? { theme: themeOf(full) } : {}),
+    ...translationsOf(full),
     ...(user.self ? { self: true } : {}),
     ...(user.bot ? { bot: true } : {}),
     ...botRevenueOf(user, full),
