@@ -475,7 +475,7 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
   );
 };
 
-const mapLink = (lat, lon) =>
+export const mapLink = (lat, lon) =>
   `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=16/${lat}/${lon}`;
 
 // What opens a place: the map site, in a new tab.
@@ -486,12 +486,12 @@ const placeLink = (media) => ({
 });
 
 // The map picture's size and zoom; sharper on hi-dpi screens (R-Y131).
-const MAP_SHOT = { w: 300, h: 150, zoom: 15 };
+export const MAP_SHOT = { w: 300, h: 150, zoom: 15 };
 const mapScale = () =>
   Math.min(3, Math.max(1, Math.round(globalThis.devicePixelRatio || 1)));
 
 // The place's map picture from the server, or null (none yet, or it failed).
-const useMapUrl = (api, media, off) => {
+export const useMapUrl = (api, media, off) => {
   const [url, setUrl] = useState(null);
   useEffect(() => {
     if (off || typeof api?.telegramMapUrl !== 'function') {

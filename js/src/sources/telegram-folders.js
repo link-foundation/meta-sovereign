@@ -62,6 +62,8 @@ export const folderOf = (filter, selfId = null) => {
     id: Number(filter.id),
     title: titleOf(filter.title),
     emoticon: filter.emoticon ?? null,
+    // The tag's colour, 0 to 6, when the folder has one (R-Y180).
+    color: Number.isInteger(filter.color) ? filter.color : null,
     include: chatsOf(filter.includePeers, selfId),
     pinned: chatsOf(filter.pinnedPeers, selfId),
   };
@@ -101,11 +103,11 @@ export const createFolders = (
   { userClient },
   { now = () => Date.now() } = {}
 ) => {
-  let kept = null; // { at, folders }
+  let kept = null; // { at, folders, tags }
 
   const folderList = async ({ fresh = false } = {}) => {
     if (!fresh && kept && now() - kept.at < KEEP_MS) {
-      return { ok: true, folders: kept.folders };
+      return { ok: true, folders: kept.folders, tags: kept.tags };
     }
     const client = await userClient();
     if (!client) {
@@ -119,8 +121,10 @@ export const createFolders = (
     const folders = filters
       .map((filter) => folderOf(filter, self?.id ?? null))
       .filter(Boolean);
-    kept = { at: now(), folders };
-    return { ok: true, folders };
+    // Whether folder tags show on the chat list (R-Y180).
+    const tags = Boolean(answer?.tagsEnabled);
+    kept = { at: now(), folders, tags };
+    return { ok: true, folders, tags };
   };
 
   return { folderList };

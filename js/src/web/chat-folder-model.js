@@ -43,6 +43,8 @@ export const draftOf = (folder = null) => {
     id: Number.isInteger(f.id) ? f.id : null,
     title: f.title ?? '',
     emoticon: f.emoticon ?? null,
+    // The tag's colour (R-Y180), 0 to 6, or none.
+    color: Number.isInteger(f.color) ? f.color : null,
     ...Object.fromEntries(
       [...KINDS_IN, ...KINDS_OUT].map((k) => [k, Boolean(f[k])])
     ),
@@ -78,6 +80,7 @@ export const requestOf = (draft) => ({
   folder: {
     title: draft.title.trim(),
     ...(draft.emoticon ? { emoticon: draft.emoticon } : {}),
+    ...(Number.isInteger(draft.color) ? { color: draft.color } : {}),
     ...Object.fromEntries(
       [...KINDS_IN, ...KINDS_OUT].map((k) => [
         k,
@@ -199,6 +202,17 @@ export const errorKey = (t, code) => {
   const key = `chat.folderEdit.err.${code}`;
   return t(key) === key ? t('chat.folderEdit.err.failed') : t(key);
 };
+
+/** How many colours Telegram has for a folder's tag (R-Y180). */
+export const TAG_COLORS = 7;
+
+/** Whether `folder` is a tag now: tags are on and it has a colour. */
+export const isTag = (folder, enabled) =>
+  Boolean(enabled) &&
+  !folder?.all &&
+  Number.isInteger(folder?.color) &&
+  folder.color >= 0 &&
+  folder.color < TAG_COLORS;
 
 /** The window event that says the folders changed (R-Y164). */
 export const FOLDERS_CHANGED = 'meta-sovereign:folders-changed';

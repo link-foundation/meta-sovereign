@@ -303,6 +303,7 @@ export const Sidebar = ({ state, api }) => {
       api,
       chat,
       story: stories.rings(chat),
+      tags: state.tags?.get(chat.key),
       onStory: stories.open,
       active: chat.key === state.current?.key,
       onSelect: state.select,

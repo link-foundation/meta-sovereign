@@ -1087,6 +1087,40 @@ export const api = {
   telegramPersonalChannel: (body = {}) =>
     telegramPost('personal-channel', body),
   telegramContactBirthdays: () => telegramPost('contact-birthdays', {}),
+  // Telegram Business (R-Y180): opening hours, location, intro, chat
+  // links, the chatbot and folder tags. Writes only on Save or confirm.
+  telegramBusinessHours: () => telegramPost('business-hours', {}),
+  telegramBusinessHoursSet: (body = {}) =>
+    telegramPost('business-hours-set', body),
+  telegramBusinessLocation: () => telegramPost('business-location', {}),
+  telegramBusinessLocationSet: (body = {}) =>
+    telegramPost('business-location-set', body),
+  telegramBusinessIntro: () => telegramPost('business-intro', {}),
+  telegramBusinessIntroStickers: () =>
+    telegramPost('business-intro-stickers', {}),
+  telegramBusinessIntroSet: (body = {}) =>
+    telegramPost('business-intro-set', body),
+  telegramBusinessProfile: (body = {}) =>
+    telegramPost('business-profile', body),
+  telegramBusinessLinks: () => telegramPost('business-links', {}),
+  telegramBusinessLinkCreate: (body = {}) =>
+    telegramPost('business-link-create', body),
+  telegramBusinessLinkEdit: (body = {}) =>
+    telegramPost('business-link-edit', body),
+  telegramBusinessLinkDelete: (body = {}) =>
+    telegramPost('business-link-delete', body),
+  telegramBusinessLinkResolve: (body = {}) =>
+    telegramPost('business-link-resolve', body),
+  telegramBusinessBot: () => telegramPost('business-bot', {}),
+  telegramBusinessBotSet: (body = {}) => telegramPost('business-bot-set', body),
+  telegramBusinessBotRemove: () => telegramPost('business-bot-remove', {}),
+  telegramBusinessBotChat: (body = {}) =>
+    telegramPost('business-bot-chat', body),
+  telegramBusinessBotPause: (body = {}) =>
+    telegramPost('business-bot-pause', body),
+  telegramBusinessBotDisable: (body = {}) =>
+    telegramPost('business-bot-disable', body),
+  telegramFoldersTagsSet: (body = {}) => telegramPost('folders-tags-set', body),
   // Telegram Stars (R-Y176).
   telegramStarsStatus: () => telegramPost('stars-status', {}),
   telegramStarsHistory: (body = {}) => telegramPost('stars-history', body),

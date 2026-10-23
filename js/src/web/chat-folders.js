@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { FOLDERS_CHANGED } from './chat-folder-model.js';
+import { FOLDERS_CHANGED, isTag } from './chat-folder-model.js';
 import { watchFolders } from './chat-folder-live.js';
 
 const REFRESH_MS = 5 * 60_000;
@@ -139,7 +139,11 @@ export const useTelegramFolders = (api, telegram) => {
         .then(
           (answer) => {
             if (!gone && answer?.ok) {
-              setFolders(Array.isArray(answer.folders) ? answer.folders : []);
+              setFolders(
+                (Array.isArray(answer.folders) ? answer.folders : []).map(
+                  (f) => ({ ...f, tag: isTag(f, answer.tags) })
+                )
+              );
             }
           },
           () => {}

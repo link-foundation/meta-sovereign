@@ -15,6 +15,7 @@ import { FormDialog, Field, Picker } from './chat-create.js';
 import { Frame } from './chat-readers.js';
 import { useEsc } from './chat-invite.js';
 import { watchFolders } from './chat-folder-live.js';
+import { ColorRow, FolderTagsToggle } from './chat-folder-tags.js';
 import { LeaveFolder, ShareFolder } from './chat-folder-share.js';
 import { beginPinGesture } from './chat-pin-drag.js';
 import {
@@ -80,7 +81,11 @@ export const useFolders = (api) => {
         live &&
         setState(
           a?.ok
-            ? { phase: 'ready', folders: a.folders ?? [] }
+            ? {
+                phase: 'ready',
+                folders: a.folders ?? [],
+                tags: Boolean(a.tags),
+              }
             : { phase: 'off', folders: [] }
         ),
       () => live && setState({ phase: 'off', folders: [] })
@@ -226,6 +231,8 @@ export const FolderEditor = ({ api, chats, folder = null, close }) => {
             setDraft((d) => ({ ...d, title: event.target.value })),
         }),
         el(IconRow, { key: 'i', t, draft, setDraft }),
+        // The colour of the folder's tag (R-Y180).
+        el(ColorRow, { key: 'col', draft, setDraft }),
         el(Section, { key: 'in', t, side: 'include', draft, setDraft, chats }),
         draft.chatlist
           ? null
@@ -541,6 +548,9 @@ export const FoldersSettings = ({ api }) => {
         t('chat.folderEdit.title')
       ),
       el('p', { key: 'p', className: 'meta' }, t('chat.folderEdit.intro')),
+      data.phase === 'ready'
+        ? el(FolderTagsToggle, { key: 'tg', api, enabled: data.tags })
+        : null,
       data.phase === 'ready'
         ? el(FolderManager, { key: 'm', api, data })
         : el(

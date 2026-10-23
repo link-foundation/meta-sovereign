@@ -12,6 +12,7 @@ import { EmojiStatus } from './emoji-status.js';
 import { mediaLabel } from './chat-message.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
+import { FolderTags } from './chat-folder-tags.js';
 
 const el = React.createElement;
 
@@ -153,6 +154,7 @@ export const ChatItem = ({
   story = '',
   onStory,
   onPinDown,
+  tags,
 }) => {
   const t = useT();
   const { chatTime } = useDates();
@@ -209,6 +211,8 @@ export const ChatItem = ({
             chat.emojiStatus
               ? el(EmojiStatus, { key: 'es', status: chat.emojiStatus, api })
               : null,
+            // The folders' tags, when shown (R-Y180).
+            el(FolderTags, { key: 'ft', tags }),
             chat.muted
               ? el(
                   'span',

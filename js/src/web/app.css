@@ -9574,3 +9574,230 @@ span.bubble-effect {
   overflow: hidden;
   pointer-events: none;
 }
+
+/* R-Y180: Telegram Business (opening hours, location, intro, chat links,
+   chatbots) and folder tags. */
+.business-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.business-menu-item {
+  width: 100%;
+  text-align: left;
+}
+.business-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.business-day {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--border);
+}
+.business-day-name {
+  min-width: 7.5rem;
+  font-weight: 500;
+}
+.business-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.business-add {
+  font-size: 0.8rem;
+}
+.business-stickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  margin-top: 0.4rem;
+}
+.business-stickers .sticker-cell,
+.business-sticker-now {
+  width: 4.5rem;
+  height: 4.5rem;
+  display: inline-flex;
+}
+.business-sticker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.business-place-preview {
+  max-width: 300px;
+}
+.business-links {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.business-link {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.business-link-name {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.business-link-url {
+  overflow-wrap: anywhere;
+}
+.business-link-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+.business-disconnect {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.business-bot-bar {
+  flex-wrap: wrap;
+}
+.business-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+.business-hours-line {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+.business-open {
+  color: #3fb950;
+}
+.business-closed {
+  color: var(--danger);
+}
+.business-week {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.business-week li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.business-week li.is-today {
+  font-weight: 600;
+}
+.business-place {
+  margin: 0;
+}
+.business-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: auto;
+  padding: 1rem 1.25rem;
+  max-width: 20rem;
+  text-align: center;
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+}
+.business-intro-sticker {
+  display: inline-flex;
+  width: 7rem;
+  height: 7rem;
+}
+.business-intro p {
+  margin: 0;
+}
+.folder-tags {
+  display: inline-flex;
+  gap: 0.2rem;
+  flex: none;
+}
+.folder-tag,
+.folder-color {
+  --tag: #4493f8;
+}
+.folder-tag-0 {
+  --tag: #e5534b;
+}
+.folder-tag-1 {
+  --tag: #e0823d;
+}
+.folder-tag-2 {
+  --tag: #986ee2;
+}
+.folder-tag-3 {
+  --tag: #57ab5a;
+}
+.folder-tag-4 {
+  --tag: #39c5cf;
+}
+.folder-tag-5 {
+  --tag: #4493f8;
+}
+.folder-tag-6 {
+  --tag: #e275ad;
+}
+.folder-tag {
+  max-width: 6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.3rem;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1.15rem;
+  text-transform: uppercase;
+  color: var(--tag);
+  background: color-mix(in srgb, var(--tag) 18%, transparent);
+}
+.folder-colors {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.4rem 0;
+}
+.folder-color {
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--tag);
+  color: var(--text);
+}
+.folder-color.folder-tag-none {
+  background: transparent;
+  border-color: var(--border);
+}
+.folder-color.is-selected {
+  border-color: var(--text);
+}
+.folder-tags-toggle {
+  margin: 0.4rem 0 0.8rem;
+}

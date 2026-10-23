@@ -48,6 +48,9 @@ import { EmojiStatus } from './emoji-status.js';
 import { replyRefOf, useChatActions } from './chat-actions.js';
 import { useMessageLinks } from './chat-link-open.js';
 import { TagSearchHost } from './chat-tags.js';
+import { BusinessIntro } from './chat-business-profile.js';
+import { BotBar } from './chat-business-bots.js';
+import { useBusinessLinks } from './chat-business-link-open.js';
 import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
@@ -511,7 +514,12 @@ const Stream = ({ state, api, actions }) => {
             })
           ),
           messages.length === 0
-            ? el('p', { key: 'empty', className: 'meta' }, t('chat.empty'))
+            ? el(BusinessIntro, {
+                key: 'empty',
+                api,
+                chat: state.current,
+                fallback: el('p', { className: 'meta' }, t('chat.empty')),
+              })
             : null,
           el('div', { key: 'end', ref: follow.end }),
         ]
@@ -1094,6 +1102,8 @@ export const ChatScreen = ({ state, api }) => {
   const actions = useChatActions({ state, api, t, locale, selfName });
   // A link to a message opens in the app (R-Y154).
   useMessageLinks({ state, api });
+  // A business chat link opens its chat with the text in the box (R-Y180).
+  useBusinessLinks({ state, api });
   // Saved Messages as chats, or as messages (R-Y143).
   const saved = useSavedView(state.current, state.info);
   // A forum as its messages or as its topics (R-Y171).
@@ -1160,6 +1170,12 @@ export const ChatScreen = ({ state, api }) => {
             // Add contact, Block, Report spam over a stranger's chat (R-Y137).
             el(PeerBar, {
               key: `peer:${state.current.key}`,
+              api,
+              chat: state.current,
+            }),
+            // The bot a business connected to this chat (R-Y180).
+            el(BotBar, {
+              key: `bot:${state.current.key}`,
               api,
               chat: state.current,
             }),

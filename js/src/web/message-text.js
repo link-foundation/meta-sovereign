@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { CustomEmoji } from './custom-emoji.js';
 import { inviteHashOf, openInvite } from './chat-invite.js';
 import { openMessageLink } from './message-links.js';
+import { openBusinessLink } from './chat-business-link-open.js';
 import { addlistSlugOf } from './chat-folder-model.js';
 import { openAddlist } from './chat-folder-share.js';
 import { openTagSearch, parseTag } from './chat-tags.js';
@@ -218,8 +219,9 @@ const drawNode = (node, key, ctx) => {
             // A shared folder's link asks first, in a preview (R-Y172).
             event.preventDefault();
             openAddlist(list);
-          } else if (openMessageLink(href)) {
-            // A link to a message opens in the app (R-Y154).
+          } else if (openMessageLink(href) || openBusinessLink(href)) {
+            // A link to a message opens in the app (R-Y154); a business
+            // chat link opens its chat with the text in the box (R-Y180).
             event.preventDefault();
           }
         },

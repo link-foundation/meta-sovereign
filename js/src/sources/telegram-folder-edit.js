@@ -42,6 +42,13 @@ const CODES = {
 const failure = failureOf(CODES);
 const BAD = { ok: false, error: 'bad request', code: 'failed' };
 
+/** The tag colours a folder may take (R-Y180): 0 to 6. */
+export const COLORS = 7;
+const colorOk = (color) =>
+  color === undefined ||
+  color === null ||
+  (Number.isInteger(color) && color >= 0 && color < COLORS);
+
 /** Telegram's folder title limit, in letters. */
 export const TITLE_MAX = 12;
 export const CHATS_MAX = 200;
@@ -85,6 +92,7 @@ export const validFolder = (folder) => {
     (folder.emoticon === undefined ||
       folder.emoticon === null ||
       (typeof folder.emoticon === 'string' && folder.emoticon.length <= 16)) &&
+    colorOk(folder.color) &&
     FLAGS.every((flag) => flagOk(folder, flag)) &&
     chatlistOk(folder) &&
     ['include', 'exclude', 'pinned'].every(
@@ -112,7 +120,11 @@ export const inputsOf = async (env, c, chats = []) => {
 
 // The DialogFilter for `folder` with the id given.
 const filterOf = async (env, c, id, folder) => {
-  const emoticon = folder.emoticon ? { emoticon: folder.emoticon } : {};
+  const emoticon = {
+    ...(folder.emoticon ? { emoticon: folder.emoticon } : {}),
+    // The tag's colour (R-Y180).
+    ...(Number.isInteger(folder.color) ? { color: folder.color } : {}),
+  };
   const include = folder.include ?? [];
   const exclude = folder.exclude ?? [];
   const pinned = (folder.pinned ?? []).filter((x) => !exclude.includes(x));

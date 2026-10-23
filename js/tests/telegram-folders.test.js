@@ -52,6 +52,8 @@ test('a folder, "All chats" and a shared folder, as the page takes them (R-Y103)
     id: 3,
     title: 'Work',
     emoticon: '💼',
+    // No tag colour (R-Y180).
+    color: null,
     include: ['42'],
     pinned: ['43'],
     contacts: false,

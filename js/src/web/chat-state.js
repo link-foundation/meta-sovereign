@@ -56,6 +56,7 @@ import {
   useFolderTools,
   useTelegramFolders,
 } from './chat-folders.js';
+import { tagMap } from './chat-folder-tags.js';
 
 export { shownAutopilot } from './autopilot-hook.js';
 
@@ -825,6 +826,11 @@ const useChatList = (links, target, query, folders = []) => {
   const shown = shownFilter(remembered, folders);
   const tabFolder = query ? null : shown.folder;
   const filter = shown.filter;
+  // The folder tags on the rows, but the open folder's (R-Y180).
+  const tags = useMemo(
+    () => tagMap(all, folders, people, tabFolder?.id ?? null),
+    [all, folders, people, tabFolder]
+  );
   const chats = useMemo(() => {
     if (tabFolder) {
       return sortChats(chatsInFolder(all, tabFolder, people), sort);
@@ -856,6 +862,7 @@ const useChatList = (links, target, query, folders = []) => {
     folder: archive.count > 0 && !shown.folder ? folder : 'main',
     setFolder,
     archive: shown.folder ? NO_ARCHIVE : archive,
+    tags,
   };
 };
 
@@ -1016,6 +1023,8 @@ export const useChatState = (
     filter,
     setFilter,
     tabs: list.tabs,
+    // Folder tags by chat key (R-Y180).
+    tags: list.tags,
     // The tabs' menu: edit, delete, reorder (R-Y164).
     folderTools,
     sort,

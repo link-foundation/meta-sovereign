@@ -1,6 +1,7 @@
 // "Telegram Business" in the user's own profile card, as Telegram
-// Desktop's Settings → Telegram Business lists its sections (R-Y179;
-// learned, never copied). Each part of Telegram Business adds one entry to
+// Desktop's Settings → Telegram Business lists its sections (R-Y179,
+// R-Y180; learned, never copied): location, opening hours, quick replies,
+// greeting and away messages, the intro, chat links and the chatbot. Each part of Telegram Business adds one entry to
 // SECTIONS: `{ id, label (a locale key), needs (the api method it uses),
 // Component ({ api, close }) }`; the menu shows those the page can use and
 // opens one in place of the list (Escape or its close goes back here).
@@ -10,6 +11,10 @@ import { useT } from './i18n.js';
 import { Frame } from './chat-readers.js';
 import { QuickRepliesDialog } from './quick-replies.js';
 import { BusinessMessageDialog } from './business-messages.js';
+import { HoursDialog } from './chat-business-hours.js';
+import { IntroDialog, LocationDialog } from './chat-business-place.js';
+import { LinksDialog } from './chat-business-links.js';
+import { BotDialog } from './chat-business-bots.js';
 
 const el = React.createElement;
 
@@ -18,6 +23,18 @@ const message = (kind) => (props) =>
 
 /** The sections of Telegram Business, in Desktop's order. */
 export const SECTIONS = [
+  {
+    id: 'location',
+    label: 'chat.business.location',
+    needs: 'telegramBusinessLocation',
+    Component: LocationDialog,
+  },
+  {
+    id: 'hours',
+    label: 'chat.business.hours',
+    needs: 'telegramBusinessHours',
+    Component: HoursDialog,
+  },
   {
     id: 'quick-replies',
     label: 'business.section.quickReplies',
@@ -35,6 +52,24 @@ export const SECTIONS = [
     label: 'business.section.away',
     needs: 'telegramBusinessMessages',
     Component: message('away'),
+  },
+  {
+    id: 'intro',
+    label: 'chat.business.intro',
+    needs: 'telegramBusinessIntro',
+    Component: IntroDialog,
+  },
+  {
+    id: 'links',
+    label: 'chat.business.links',
+    needs: 'telegramBusinessLinks',
+    Component: LinksDialog,
+  },
+  {
+    id: 'bots',
+    label: 'chat.business.bots',
+    needs: 'telegramBusinessBot',
+    Component: BotDialog,
   },
 ];
 

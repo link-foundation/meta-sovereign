@@ -242,6 +242,7 @@ import { SAVED_TAGS_POSTS } from './routes-telegram-saved-tags.js';
 import { BOOSTS_POSTS } from './routes-telegram-boosts.js';
 import { STARS_POSTS } from './routes-telegram-stars.js';
 import { PROFILE_EXTRAS_POSTS } from './routes-telegram-profile-extras.js';
+import { BUSINESS_POSTS } from './routes-telegram-business.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
 import { validSendAs } from '../sources/telegram-send-as-client.js';
 import { STORIES_POSTS } from './routes-telegram-stories.js';
@@ -1009,6 +1010,7 @@ const POSTS = {
   ...BOOSTS_POSTS,
   ...STARS_POSTS,
   ...PROFILE_EXTRAS_POSTS,
+  ...BUSINESS_POSTS,
   ...SEND_AS_POSTS,
   ...MESSAGE_LINK_POSTS,
   ...STORIES_POSTS,

@@ -99,6 +99,9 @@ import { createSavedTags } from './telegram-saved-tags.js';
 import { createBoosts } from './telegram-boosts.js';
 import { createStars } from './telegram-stars.js';
 import { createProfileExtras } from './telegram-profile-extras.js';
+import { createBusiness } from './telegram-business.js';
+import { createBusinessLinks } from './telegram-business-links.js';
+import { createBusinessBots } from './telegram-business-bots.js';
 import { createSendAs } from './telegram-send-as.js';
 import { createStories } from './telegram-stories.js';
 import { createStoryActions } from './telegram-story-actions.js';
@@ -432,7 +435,9 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // self-destruct, sensitive content and per-session settings (R-Y177); a
 // birthday, colours and a personal channel on profiles (R-Y178); Telegram
 // Business quick replies, greeting and away messages (R-Y179); live view
-// counters of channel posts and hashtag search (R-Y182).
+// counters of channel posts and hashtag search (R-Y182); Telegram Business
+// opening hours, location, intro, chat links, chatbots and folder tags
+// (R-Y180).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -509,6 +514,9 @@ const chatActions = (env, context) => {
     ...createBoosts(env, context),
     ...createStars(env, { ...context, stickers: stickerLists }),
     ...createProfileExtras(env, context),
+    ...createBusiness(env, { ...context, stickers: stickerLists }),
+    ...createBusinessLinks(env, context),
+    ...createBusinessBots(env, context),
     ...createSendAs(env, context),
     ...createEffects(env, context),
     ...createEmojiStatus(env, context),
