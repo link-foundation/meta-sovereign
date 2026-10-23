@@ -555,8 +555,10 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      # npm pack lists the same files without asking the registry, which
+      # refuses a dry-run publish of a version that is already released.
       - name: What npm publish would upload
-        run: npm publish --dry-run --ignore-scripts
+        run: npm pack --dry-run --ignore-scripts
 
       - name: Run the packed package with npx
         run: npm run test:pack
