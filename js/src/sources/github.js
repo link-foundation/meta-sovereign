@@ -30,6 +30,22 @@
 
 import { buildMessageLink } from './link.js';
 import { authHeaders, requestJson, resolveOption } from './http.js';
+import { attachRef } from './github-ref.js';
+import { createGithubHttp } from './github-http.js';
+import {
+  GITHUB_EMOJI_TO_REACTION,
+  deleteGithubComments,
+  editGithubComment,
+  postGithubComment,
+  reactGithubComment,
+} from './github-actions.js';
+import { syncGithubRepo } from './github-sync.js';
+import {
+  fetchDiscussions,
+  fetchNotifications,
+  markAllRead,
+  markThreadRead,
+} from './github-inbox.js';
 
 const SOURCE = 'github';
 const DEFAULT_BASE_URL = 'https://api.github.com';
@@ -127,7 +143,7 @@ const reviewExternalId = (payload) => {
   return `review:${repo}#${pull ?? payload.pull_request_number ?? 'x'}:${payload.id}`;
 };
 
-const issueToLink = (payload) =>
+const issueBase = (payload) =>
   buildMessageLink({
     source: SOURCE,
     externalId: issueExternalId(payload),
@@ -148,7 +164,7 @@ const issueToLink = (payload) =>
     chatName: payload.title ?? null,
   });
 
-const pullToLink = (payload) =>
+const pullBase = (payload) =>
   buildMessageLink({
     source: SOURCE,
     externalId: pullExternalId(payload),
@@ -169,7 +185,7 @@ const pullToLink = (payload) =>
     chatName: payload.title ?? null,
   });
 
-const issueCommentToLink = (payload) =>
+const issueCommentBase = (payload) =>
   buildMessageLink({
     source: SOURCE,
     externalId: commentExternalId(payload, 'issue'),
@@ -188,7 +204,7 @@ const issueCommentToLink = (payload) =>
     chatName: payload.issue?.title ?? null,
   });
 
-const reviewCommentToLink = (payload) =>
+const reviewCommentBase = (payload) =>
   buildMessageLink({
     source: SOURCE,
     externalId: commentExternalId(payload, 'review'),
@@ -208,7 +224,7 @@ const reviewCommentToLink = (payload) =>
     replyTo: payload.in_reply_to_id ? String(payload.in_reply_to_id) : null,
   });
 
-const reviewToLink = (payload) =>
+const reviewBase = (payload) =>
   buildMessageLink({
     source: SOURCE,
     externalId: reviewExternalId(payload),
@@ -229,7 +245,7 @@ const reviewToLink = (payload) =>
     chatName: null,
   });
 
-const discussionToLink = (payload) =>
+const discussionBase = (payload) =>
   buildMessageLink({
     source: SOURCE,
     externalId: `discussion:${repoFromPayload(payload) ?? 'unknown'}#${payload.number ?? payload.id}`,
@@ -249,6 +265,32 @@ const discussionToLink = (payload) =>
       payload.updated_at !== payload.created_at ? payload.updated_at : null,
     chatName: payload.title ?? null,
   });
+
+// Every link keeps the GitHub identity it came from (R-Z11), so edit,
+// delete, react and reply reach the right object.
+const withRef = (kind, build) => (payload) =>
+  attachRef(build(payload), kind, payload, repoFromPayload(payload));
+
+const issueToLink = withRef('issue', issueBase);
+const pullToLink = withRef('pr', pullBase);
+const issueCommentToLink = withRef('issue-comment', issueCommentBase);
+const reviewToLink = withRef('review', reviewBase);
+const discussionToLink = withRef('discussion', discussionBase);
+const reviewCommentToLink = (payload) => ({
+  ...withRef('review-comment', reviewCommentBase)(payload),
+  // Where on the diff the comment sits, so it reads without the page.
+  ...(payload.path
+    ? {
+        diff: {
+          path: payload.path,
+          line: payload.line ?? payload.original_line ?? null,
+          side: payload.side ?? null,
+          commitId: payload.commit_id ?? null,
+          hunk: payload.diff_hunk ?? null,
+        },
+      }
+    : {}),
+});
 
 const isDiscussion = (p) => p.kind === 'discussion' || p.discussion_id;
 const isReviewComment = (p) => p.pull_request_review_id || p.diff_hunk;
@@ -315,56 +357,15 @@ export const githubPayloadsToLinks = (input) => {
   return out;
 };
 
-const parseLinkHeader = (header) => {
-  const out = {};
-  if (!header) {
-    return out;
-  }
-  for (const part of String(header).split(',')) {
-    const match = part.match(/<([^>]+)>;\s*rel="?([^"]+)"?/);
-    if (match) {
-      out[match[2]] = match[1];
-    }
-  }
-  return out;
-};
-
-const headerValue = (headers, name) => {
-  if (!headers) {
-    return null;
-  }
-  if (typeof headers.get === 'function') {
-    return headers.get(name) ?? headers.get(name.toLowerCase()) ?? null;
-  }
-  return headers[name] ?? headers[name.toLowerCase()] ?? null;
-};
-
+/**
+ * Every page of a list, following `Link: rel="next"` (R-Z11): no page
+ * counting. `maxPages` is only a safety cap for a server that loops.
+ */
 export const paginate = async (
   fetchImpl,
   url,
-  { headers, maxPages = 50 } = {}
-) => {
-  let target = url;
-  let pages = 0;
-  const out = [];
-  while (target && pages < maxPages) {
-    const res = await fetchImpl(target, { method: 'GET', headers });
-    const text = await res.text();
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status} ${res.statusText}: ${text}`);
-    }
-    const body = text ? JSON.parse(text) : null;
-    if (Array.isArray(body)) {
-      out.push(...body);
-    } else if (body) {
-      out.push(body);
-    }
-    const next = parseLinkHeader(headerValue(res.headers, 'Link')).next;
-    target = next ?? null;
-    pages += 1;
-  }
-  return out;
-};
+  { headers, maxPages, http = createGithubHttp({ fetchImpl }) } = {}
+) => (await http.pages(url, { headers, maxPages })).items;
 
 const buildUrl = (baseUrl, path, search = {}) => {
   const url = new URL(`${baseUrl}${path}`);
@@ -482,52 +483,12 @@ const repoIndexLink = ({ owner, repo, ref, files, metadata }) => ({
   children: files.map((f) => `repo:${owner}/${repo}:file:${f.path}`),
 });
 
-const pullGithubMessages = async (ctx, options) => {
-  const { fetchImpl, baseUrl, headers, requireRepo } = ctx;
-  const { owner: o, repo: r } = requireRepo(options);
-  const auth = headers(options.token);
-  const perPage = options.perPage ?? 100;
-  const collect = async (path, search = {}) =>
-    paginate(
-      fetchImpl,
-      buildUrl(baseUrl, path, { per_page: perPage, ...search }),
-      { headers: auth, maxPages: options.maxPages ?? 50 }
-    );
-
-  const state = options.state ?? 'all';
-  const issues = await collect(`/repos/${o}/${r}/issues`, { state });
-  const issueComments = await collect(`/repos/${o}/${r}/issues/comments`);
-  const pulls = await collect(`/repos/${o}/${r}/pulls`, { state });
-  const reviewComments = await collect(`/repos/${o}/${r}/pulls/comments`);
-  const reviews = [];
-  for (const pr of pulls) {
-    const prReviews = await collect(
-      `/repos/${o}/${r}/pulls/${pr.number}/reviews`
-    );
-    for (const review of prReviews) {
-      review.pull_request_url = pr.url;
-      reviews.push(review);
-    }
-  }
-
-  const links = [
-    ...issues.filter((i) => !i.pull_request).map(issueToLink),
-    ...issueComments.map(issueCommentToLink),
-    ...pulls.map(pullToLink),
-    ...reviewComments.map(reviewCommentToLink),
-    ...reviews.map(reviewToLink),
-  ];
-
-  return {
-    links,
-    rawCount:
-      issues.length +
-      issueComments.length +
-      pulls.length +
-      reviewComments.length +
-      reviews.length,
-    nextOffset: null,
-  };
+const BUILDERS = {
+  issue: issueToLink,
+  pull: pullToLink,
+  issueComment: issueCommentToLink,
+  reviewComment: reviewCommentToLink,
+  review: reviewToLink,
 };
 
 const fetchRepoMetadata = async (ctx, o, r, auth, options) => {
@@ -595,97 +556,7 @@ const cloneGithubRepo = async (ctx, options) => {
   return { indexLink, fileLinks, links };
 };
 
-const postGithubComment = async (ctx, content, options) => {
-  const { fetchImpl, baseUrl, headers, requireRepo } = ctx;
-  const { owner: o, repo: r } = requireRepo(options);
-  const text =
-    typeof content === 'string'
-      ? content
-      : (content?.text ?? content?.body ?? '');
-  if (!text) {
-    throw new Error('github post text is required');
-  }
-  const issueNumber = options.issueNumber ?? content?.issueNumber;
-  if (!issueNumber) {
-    throw new Error('github post requires options.issueNumber');
-  }
-  return requestJson(
-    fetchImpl,
-    buildUrl(baseUrl, `/repos/${o}/${r}/issues/${issueNumber}/comments`),
-    {
-      method: 'POST',
-      headers: headers(options.token),
-      body: { body: text },
-    }
-  );
-};
-
-export const GITHUB_EMOJI_TO_REACTION = {
-  '👍': '+1',
-  '👎': '-1',
-  '😄': 'laugh',
-  '🎉': 'hooray',
-  '😕': 'confused',
-  '❤️': 'heart',
-  '🚀': 'rocket',
-  '👀': 'eyes',
-};
-
-const editGithubComment = async (
-  ctx,
-  { id, text, link } = {},
-  options = {}
-) => {
-  const commentId = id ?? link?.id?.match(/#(\d+)$/)?.[1];
-  const { owner: o, repo: r } = ctx.requireRepo(options);
-  return requestJson(
-    ctx.fetchImpl,
-    buildUrl(ctx.baseUrl, `/repos/${o}/${r}/issues/comments/${commentId}`),
-    {
-      method: 'PATCH',
-      headers: ctx.headers(options.token),
-      body: { body: text },
-    }
-  );
-};
-
-const deleteGithubComments = async (ctx, { ids, links } = {}, options = {}) => {
-  const { owner: o, repo: r } = ctx.requireRepo(options);
-  const commentIds =
-    ids ?? links?.map((l) => l.id?.match(/#(\d+)$/)?.[1]).filter(Boolean);
-  const results = [];
-  for (const cid of commentIds ?? []) {
-    results.push(
-      await requestJson(
-        ctx.fetchImpl,
-        buildUrl(ctx.baseUrl, `/repos/${o}/${r}/issues/comments/${cid}`),
-        { method: 'DELETE', headers: ctx.headers(options.token) }
-      )
-    );
-  }
-  return { ok: true, deleted: results.length };
-};
-
-const reactGithubComment = async (
-  ctx,
-  { id, emoji, link } = {},
-  options = {}
-) => {
-  const content = GITHUB_EMOJI_TO_REACTION[emoji];
-  if (!content) {
-    throw new Error(`github: unsupported reaction emoji: ${emoji}`);
-  }
-  const commentId = id ?? link?.id?.match(/#(\d+)$/)?.[1];
-  const { owner: o, repo: r } = ctx.requireRepo(options);
-  return requestJson(
-    ctx.fetchImpl,
-    buildUrl(
-      ctx.baseUrl,
-      `/repos/${o}/${r}/issues/comments/${commentId}/reactions`
-    ),
-    { method: 'POST', headers: ctx.headers(options.token), body: { content } }
-  );
-};
+export { GITHUB_EMOJI_TO_REACTION };
 
 export const createGithubLive = ({
   token = null,
@@ -693,6 +564,10 @@ export const createGithubLive = ({
   repo = null,
   fetchImpl = globalThis.fetch,
   baseUrl = DEFAULT_BASE_URL,
+  // Tests: a fake clock and sleep, so a rate-limit wait costs no time.
+  now = () => Date.now(),
+  sleep,
+  maxWaitMs,
 } = {}) => {
   const resolvedToken = (override) =>
     resolveOption(override ?? token, 'GITHUB_TOKEN', 'GitHub access token');
@@ -709,10 +584,20 @@ export const createGithubLive = ({
     }
     return { owner: o, repo: r };
   };
-  const ctx = { fetchImpl, baseUrl, headers, requireRepo };
+  const http = createGithubHttp({ fetchImpl, now, sleep, maxWaitMs });
+  const ctx = { fetchImpl, baseUrl, headers, requireRepo, http, now };
 
   return {
-    pullMessages: (options = {}) => pullGithubMessages(ctx, options),
+    pullMessages: (options = {}) => syncGithubRepo(ctx, options, BUILDERS),
+    fetchNotifications: (options = {}) => fetchNotifications(ctx, options),
+    markThreadRead: (id, options = {}) => markThreadRead(ctx, id, options),
+    markAllRead: (options = {}) => markAllRead(ctx, options),
+    fetchDiscussions: (options = {}) =>
+      fetchDiscussions(
+        ctx,
+        { ...ctx.requireRepo(options), ...options },
+        discussionToLink
+      ),
     listRepos: async (options = {}) => {
       const target = buildUrl(baseUrl, '/user/repos', {
         per_page: options.perPage ?? 100,
@@ -722,7 +607,8 @@ export const createGithubLive = ({
       });
       return paginate(fetchImpl, target, {
         headers: headers(options.token),
-        maxPages: options.maxPages ?? 20,
+        maxPages: options.maxPages,
+        http,
       });
     },
     cloneRepo: (options = {}) => cloneGithubRepo(ctx, options),

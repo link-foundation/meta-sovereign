@@ -10,6 +10,7 @@ import { enChatMore } from './en-chat-more.js';
 import { enChatAccount } from './en-chat-account.js';
 import { enFolders } from './en-folders.js';
 import { enTranscribe } from './en-transcribe.js';
+import { enGithub } from './en-github.js';
 
 export const en = {
   ...enChat,
@@ -17,6 +18,7 @@ export const en = {
   ...enChatAccount,
   ...enFolders,
   ...enTranscribe,
+  ...enGithub,
   appName: 'meta-sovereign',
   skipLink: 'Skip to main content',
   'header.theme': 'Theme',

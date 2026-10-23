@@ -17,6 +17,10 @@
  * only once it listens. Errors come back as `{ ok: false, error, code }`
  * with secrets masked; nothing here throws at a caller.
  *
+ * A job may also have `due()` (checked by the schedule only, so a network
+ * whose user turned the schedule off can still be fetched by hand) and its
+ * `intervalMs` is then just how often `due()` is asked.
+ *
  * `pull-state:<source>` keeps `lastOkAt` and a job's own cursor.
  */
 
@@ -61,6 +65,7 @@ const failure = (error, extra = {}) => ({
   ok: false,
   error: safeMessage(error),
   code: error?.code && typeof error.code === 'string' ? error.code : 'failed',
+  ...(error?.retryAfter > 0 ? { retryAfterMs: error.retryAfter * 1000 } : {}),
   ...extra,
 });
 
@@ -125,7 +130,11 @@ export const createPullRunner = ({
   // One scheduled run; the number of failures in a row after it.
   const tick = async (source, fails) => {
     try {
-      if (!(await jobs[source].ready()) || running.has(source)) {
+      const job = jobs[source];
+      if (!(await job.ready()) || running.has(source)) {
+        return fails;
+      }
+      if (job.due && !(await job.due())) {
         return fails;
       }
       return (await execute(source)).ok ? 0 : fails + 1;

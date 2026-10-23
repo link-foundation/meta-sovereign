@@ -40,6 +40,7 @@ import { WhatsAppWebPanel } from './whatsapp-web.js';
 import { Busy } from '../spinner.js';
 import { EmailPullRow } from './email-pull.js';
 import { FETCHABLE, FetchNow } from './fetch-now.js';
+import { GithubInbox } from './github-inbox.js';
 
 const el = React.createElement;
 
@@ -738,6 +739,7 @@ export const ProviderConnectionControls = ({
       }),
       providerId === 'email' ? el(EmailPullRow, { key: 'email-pull' }) : null,
       el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
+      providerId === 'github' ? el(GithubInbox, { key: 'inbox' }) : null,
       el(ConnectionProbeRow, {
         key: 'probe',
         provider,

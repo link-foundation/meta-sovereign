@@ -37,11 +37,13 @@ export const pullMessage = (t, answer) => {
   };
 };
 
-export const FetchNow = ({ providerId }) => {
+export const FetchNow = ({ providerId, before = null, disabled = false }) => {
   const t = useT();
   const [state, setState] = useState({ busy: false, result: null });
   const fetchNow = async () => {
     setState({ busy: true, result: null });
+    // `before` saves what the fetch depends on (GitHub's chosen repositories).
+    await before?.();
     const answer = await api.pullInbox(providerId);
     setState({ busy: false, result: pullMessage(t, answer) });
   };
@@ -56,7 +58,7 @@ export const FetchNow = ({ providerId }) => {
           type: 'button',
           'data-action': 'fetch-now',
           'data-target-provider': providerId,
-          disabled: state.busy,
+          disabled: state.busy || disabled,
           'aria-busy': state.busy ? 'true' : undefined,
           onClick: fetchNow,
         },

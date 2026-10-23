@@ -10,6 +10,7 @@ import { hiChatMore } from './hi-chat-more.js';
 import { hiChatAccount } from './hi-chat-account.js';
 import { hiFolders } from './hi-folders.js';
 import { hiTranscribe } from './hi-transcribe.js';
+import { hiGithub } from './hi-github.js';
 
 export const hi = {
   ...hiChat,
@@ -17,6 +18,7 @@ export const hi = {
   ...hiChatAccount,
   ...hiFolders,
   ...hiTranscribe,
+  ...hiGithub,
   appName: 'meta-sovereign',
   skipLink: 'मुख्य सामग्री पर जाएँ',
   'header.theme': 'थीम',

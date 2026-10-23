@@ -827,6 +827,16 @@ const rawApi = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ file, passphrase }),
     })) ?? { error: 'server required for restore' },
+  // The GitHub inbox (R-Z11): GET when `body` is undefined, else POST. The
+  // server's own answer, with its error code, is kept.
+  githubInbox: async (route, body) => {
+    const path = `/api/github/${route}`;
+    const answer =
+      body === undefined
+        ? await serverResponse(path).then((r) => r?.json().catch(() => null))
+        : await serverPostReport(path, body);
+    return answer ?? { ok: false, code: 'no-server', error: 'server required' };
+  },
   // Browser auto-import (local JS server only).
   autoImportStatus: async () =>
     (await serverFetch('/api/auto-import').catch(() => null)) ?? {

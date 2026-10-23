@@ -17,7 +17,8 @@ import {
   stampSourceLink,
 } from '../sources/index.js';
 import { emailFailure, handleEmailPull, sendEmail } from './routes-email.js';
-import { createGithubLive } from '../sources/github.js';
+import { githubLive } from './github-service.js';
+import { handleGithubRoutes } from './routes-github.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
 import {
@@ -523,33 +524,6 @@ const handleEmail = async (store, req, res, p, ctx) => {
   return false;
 };
 
-const readGithubToken = async (store, { secretId } = {}) => {
-  const ids = [
-    secretId,
-    'secret:github:access-token',
-    'secret:github:token',
-  ].filter(Boolean);
-  for (const id of ids) {
-    const link = await store.get(id);
-    const token = link?.token ?? link?.value ?? link?.body ?? link?.text;
-    if (token) {
-      return token;
-    }
-  }
-  return null;
-};
-
-const githubLive = async (store, body, ctx) => {
-  const token = body.token ?? (await readGithubToken(store, body));
-  const factory = ctx?.githubLiveFactory ?? createGithubLive;
-  const live = factory({
-    token,
-    owner: body.owner ?? null,
-    repo: body.repo ?? null,
-  });
-  return { token, live };
-};
-
 const pullGithub = async (store, body, ctx) => {
   const { token, live } = await githubLive(store, body, ctx);
   const result = await live.pullMessages({ ...body, token });
@@ -584,10 +558,18 @@ const cloneGithub = async (store, body, ctx) => {
 
 const postGithubComment = async (store, body, ctx) => {
   const { token, live } = await githubLive(store, body, ctx);
-  const result = await live.post(body.content ?? body.message ?? body, {
-    ...body,
-    token,
-  });
+  let content = body.content ?? body.message ?? body;
+  // A reply names the message it answers; its saved GitHub id picks the
+  // endpoint (a review comment has its own reply route) (R-Z11).
+  if (typeof body.replyTo === 'string' && body.replyTo.startsWith('msg:')) {
+    const replyToLink = await store.get(body.replyTo);
+    content = {
+      ...(typeof content === 'string' ? { text: content } : content),
+      chat: body.chat ?? replyToLink?.chat,
+      replyToLink,
+    };
+  }
+  const result = await live.post(content, { ...body, token });
   return { source: 'github', result };
 };
 
@@ -805,6 +787,7 @@ export const handleMutatingRoutes = async (store, req, res, p, url, ctx) =>
   (await handleOutreach(store, req, res, p, ctx)) ||
   (await handleEmail(store, req, res, p, ctx)) ||
   (await handleGithub(store, req, res, p, ctx)) ||
+  (await handleGithubRoutes(req, res, p, ctx)) ||
   (await handleUpwork(store, req, res, p, ctx)) ||
   (await handlePeoplePerHour(store, req, res, p, ctx)) ||
   (await handleHardening(store, req, res, p, ctx));

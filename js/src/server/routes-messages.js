@@ -170,6 +170,13 @@ const ACTIONS = {
   },
 };
 
+// An item pulled before its network id was kept is refused (R-Z11).
+const FAILURE_STATUS = {
+  'flood-wait': 429,
+  'unsupported-action': 501,
+  'no-external-id': 409,
+};
+
 const handleAction = async (store, req, res, ctx, name) => {
   const action = ACTIONS[name];
   const body = await readBody(req);
@@ -197,12 +204,7 @@ const handleAction = async (store, req, res, ctx, name) => {
       source: target.source,
       code: error.code ?? null,
     });
-    const status =
-      error.code === 'flood-wait'
-        ? 429
-        : error.code === 'unsupported-action'
-          ? 501
-          : 502;
+    const status = FAILURE_STATUS[error.code] ?? 502;
     return (
       json(res, status, {
         error: error.message,

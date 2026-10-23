@@ -10,6 +10,7 @@ import { zhChatMore } from './zh-chat-more.js';
 import { zhChatAccount } from './zh-chat-account.js';
 import { zhFolders } from './zh-folders.js';
 import { zhTranscribe } from './zh-transcribe.js';
+import { zhGithub } from './zh-github.js';
 
 export const zh = {
   ...zhChat,
@@ -17,6 +18,7 @@ export const zh = {
   ...zhChatAccount,
   ...zhFolders,
   ...zhTranscribe,
+  ...zhGithub,
   appName: 'meta-sovereign',
   skipLink: '跳到主要内容',
   'header.theme': '主题',

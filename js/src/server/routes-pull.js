@@ -22,6 +22,7 @@ import { createVkInbox } from '../sources/vk-sync.js';
 import { liveOptionsFrom, pullLiveInto } from '../sources/index.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
+import { createGithubService } from './github-service.js';
 import { fail, json, readBody } from './util.js';
 
 const MINUTE = 60_000;
@@ -34,7 +35,8 @@ const connected = (store, source) => async () =>
 const liveOf = (make, given) => (given ? make(given) : undefined);
 
 /** The jobs: network -> { ready, run, intervalMs }. */
-export const pullJobs = (store, { vkInbox, options = {} }) => ({
+export const pullJobs = (store, { vkInbox, github, options = {} }) => ({
+  ...(github ? { github: github.pullJob() } : {}),
   vk: {
     ready: vkInbox.ready,
     run: vkInbox.fetch,
@@ -66,9 +68,9 @@ export const pullJobs = (store, { vkInbox, options = {} }) => ({
  * `options` (tests): `{ vk: {baseUrl, fetchImpl, wait}, upwork: {baseUrl},
  * peopleperhour: {baseUrl}, minGapMs, intervals }`; `false` turns it all off.
  */
-export const createPullServices = (store, log, options = {}) => {
+export const createPullServices = (store, log, options = {}, github = null) => {
   const vkInbox = createVkInbox({ store, log, ...options.vk });
-  const jobs = pullJobs(store, { vkInbox, options });
+  const jobs = pullJobs(store, { vkInbox, github, options });
   for (const [source, intervalMs] of Object.entries(options.intervals ?? {})) {
     jobs[source].intervalMs = intervalMs;
     jobs[source].firstDelayMs = intervalMs;
@@ -138,10 +140,24 @@ export const handlePullRoutes = async (store, req, res, p, ctx) => {
 
 /** What a server keeps for the pulls; they start with the other `later` services. */
 export const pullContext = (store, log, options, later) => {
+  // GitHub's picker routes work even when the pulls are off; its schedule is
+  // one more job of the shared runner (R-Z11).
+  // Tests give `pulls.githubLiveFactory`, a fake createGithubLive.
+  const githubLiveFactory = options?.githubLiveFactory ?? null;
+  const github = createGithubService({
+    store,
+    ctx: { githubLiveFactory },
+    log,
+  });
+  const given = { githubLiveFactory, github };
   if (options === false) {
-    return { pullRunner: null };
+    return { ...given, pullRunner: null };
   }
-  const services = createPullServices(store, log, options ?? {});
+  const services = createPullServices(store, log, options ?? {}, github);
   later.push(services.start);
-  return { pullRunner: services.pullRunner, stopPulls: services.stop };
+  return {
+    ...given,
+    pullRunner: services.pullRunner,
+    stopPulls: services.stop,
+  };
 };

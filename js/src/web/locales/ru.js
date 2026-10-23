@@ -9,6 +9,7 @@ import { ruChatMore } from './ru-chat-more.js';
 import { ruChatAccount } from './ru-chat-account.js';
 import { ruFolders } from './ru-folders.js';
 import { ruTranscribe } from './ru-transcribe.js';
+import { ruGithub } from './ru-github.js';
 
 export const ru = {
   ...ruChat,
@@ -16,6 +17,7 @@ export const ru = {
   ...ruChatAccount,
   ...ruFolders,
   ...ruTranscribe,
+  ...ruGithub,
   appName: 'meta-sovereign',
   skipLink: 'Перейти к основному содержимому',
   'header.theme': 'Тема',
