@@ -49,6 +49,7 @@ import { FactCheck } from './chat-fact-check.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 import { PaidMedia, PaidReactionChip } from './chat-paid.js';
 import { ReadTimeLine } from './chat-read-time.js';
+import { GiftCodeLine } from './chat-gift-code-button.js';
 
 const el = React.createElement;
 
@@ -346,7 +347,13 @@ export const ServiceLine = ({ link, msgById }) => {
       role: 'note',
       'data-message': link.id,
     },
-    el('span', null, text)
+    [
+      el('span', { key: 't' }, text),
+      // A gift code's line opens what it holds (R-Y193).
+      link.service === 'MessageActionGiftCode'
+        ? el(GiftCodeLine, { key: 'g', raw: link.raw })
+        : null,
+    ]
   );
 };
 

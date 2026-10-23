@@ -251,6 +251,7 @@ import { SAVED_TAGS_POSTS } from './routes-telegram-saved-tags.js';
 import { BOOSTS_POSTS } from './routes-telegram-boosts.js';
 import { STARS_POSTS } from './routes-telegram-stars.js';
 import { GIFT_SEND_POSTS } from './routes-telegram-gift-send.js';
+import { GIFTS_MANAGE_POSTS } from './routes-telegram-gifts-manage.js';
 import {
   PROFILE_STORIES_GETS,
   PROFILE_STORIES_POSTS,
@@ -1036,6 +1037,7 @@ const POSTS = {
   ...BOOSTS_POSTS,
   ...STARS_POSTS,
   ...GIFT_SEND_POSTS,
+  ...GIFTS_MANAGE_POSTS,
   ...PROFILE_STORIES_POSTS,
   ...PROFILE_EXTRAS_POSTS,
   ...BUSINESS_POSTS,

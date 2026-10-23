@@ -12,8 +12,11 @@ export const PNG = Buffer.from(
   'base64'
 );
 
-/** The app with both chats; `{ base, page, until, finish }`. */
-export const openProfileApp = async (name) => {
+/**
+ * The app with both chats; `{ base, page, until, finish }`. `more` are
+ * further messages (`{ n, body?, service?, raw? }`) of the person's chat.
+ */
+export const openProfileApp = async (name, { more = [] } = {}) => {
   const store = createMemoryStore();
   const now = Date.now();
   for (const [chat, title] of [
@@ -31,6 +34,21 @@ export const openProfileApp = async (name) => {
       body: 'hello',
       timestamp: new Date(now - 60_000).toISOString(),
       raw: { id: 1 },
+    });
+  }
+  for (const { n, body = '', service, raw = {} } of more) {
+    await store.put({
+      id: `msg:telegram:${PERSON}:${n}`,
+      source: 'telegram',
+      chat: PERSON,
+      chatName: 'Some Friend',
+      chatType: 'private',
+      sender: PERSON,
+      senderName: 'Some Friend',
+      body,
+      ...(service ? { service } : {}),
+      timestamp: new Date(now - 50_000 + n).toISOString(),
+      raw: { id: n, ...raw },
     });
   }
   const app = await openChatApp(name, { store });

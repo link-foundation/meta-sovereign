@@ -10657,6 +10657,18 @@ span.bubble-effect {
   overflow-y: auto;
   margin: 0.4rem 0;
   padding: 0.25rem;
+}
+
+/* Managing received gifts, unique gifts and gift codes (R-Y193). */
+.gift-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.gift-confirm {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg-elev);
@@ -10748,4 +10760,46 @@ button.profile-username.is-collectible {
 }
 .prepared-chat {
   text-align: left;
+}
+
+.gift-upgrade .gift-attrs {
+  margin: 0.4rem 0;
+}
+.gift-attr-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+.gift-pick .contacts-list {
+  max-height: 14rem;
+  overflow-y: auto;
+}
+.unique-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  text-align: center;
+  color: var(--text);
+}
+.unique-hero strong,
+.unique-hero div {
+  color: inherit;
+}
+.gift-code-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start;
+}
+.service-line .gift-code-open {
+  margin-left: 0.5rem;
+  padding: 0 0.5rem;
+  font-size: 0.8rem;
 }

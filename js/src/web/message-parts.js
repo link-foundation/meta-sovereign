@@ -16,6 +16,7 @@ import {
   giveawayResultsOf,
   serviceWords,
 } from './giveaway-model.js';
+import { giftCodeCardOf } from './gift-manage-model.js';
 
 // Standard JFIF + Huffman table header, verbatim from Telegram's spec.
 const JPEG_HEADER_HEX =
@@ -157,6 +158,8 @@ const SERVICE_KEYS = {
   MessageActionPhoneCall: 'service.call',
   MessageActionGroupCall: 'service.groupCall',
   MessageActionContactSignUp: 'service.signUp',
+  // A gift code in a chat (R-Y193).
+  MessageActionGiftCode: 'service.giftCode',
   MessageActionChannelCreate: 'service.channelCreate',
   MessageActionChatCreate: 'service.chatCreate',
   MessageActionChatMigrateTo: 'service.migratedTo',
@@ -443,6 +446,8 @@ const CARD_MEDIA = {
   // Giveaways (R-Y184): the running one and its results.
   MessageMediaGiveaway: giveawayOf,
   MessageMediaGiveawayResults: giveawayResultsOf,
+  // A gift code sent as media (R-Y193).
+  MessageMediaGiftCode: giftCodeCardOf,
 };
 
 // Paid media (R-Y176): blurred previews until paid; once unlocked one

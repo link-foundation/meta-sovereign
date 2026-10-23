@@ -107,6 +107,7 @@ import { createSavedTags } from './telegram-saved-tags.js';
 import { createBoosts } from './telegram-boosts.js';
 import { createStars } from './telegram-stars.js';
 import { createGiftSend } from './telegram-gift-send.js';
+import { createGiftsManage } from './telegram-gifts-manage.js';
 import { createProfileMusic } from './telegram-profile-music.js';
 import { createProfileStories } from './telegram-profile-stories.js';
 import { createPaidMessages } from './telegram-paid-messages.js';
@@ -459,7 +460,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190);
 // interface scale and the connection proxy (R-Y192); channel direct messages
 // and suggested posts (R-Y191); popular mini apps, similar bots, prepared
-// messages and collectible usernames (R-Y194).
+// messages and collectible usernames (R-Y194); managing received and unique
+// gifts and gift codes (R-Y193).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -544,6 +546,7 @@ const chatActions = (env, context) => {
     ...createBoosts(env, context),
     ...createStars(env, { ...context, stickers: stickerLists }),
     ...createGiftSend(env, { ...context, stickers: stickerLists }),
+    ...createGiftsManage(env, { ...context, stickers: stickerLists }),
     ...createProfileStories(env, context),
     ...createProfileMusic(env, context),
     ...createPaidMessages(env, context),

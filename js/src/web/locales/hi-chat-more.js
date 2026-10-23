@@ -943,4 +943,91 @@ export const hiChatMore = {
   'chat.collectible.err.flood':
     'Telegram ने रुकने को कहा है। थोड़ी देर बाद फिर कोशिश करें।',
   'chat.collectible.err.failed': 'जानकारी नहीं पढ़ी जा सकी।',
+  // Managing received gifts, unique gifts and gift codes (R-Y193).
+  'chat.giftManage.err.already':
+    'यह उपहार पहले ही बदला या अपग्रेड किया जा चुका है।',
+  'chat.giftManage.err.too-old':
+    'यह उपहार स्टार में बदलने के लिए बहुत पुराना है।',
+  'chat.giftManage.err.cannot-upgrade':
+    'इस उपहार को अपग्रेड नहीं किया जा सकता।',
+  'chat.giftManage.err.too-early':
+    'इस उपहार को अभी ट्रांसफ़र नहीं किया जा सकता। बाद में फिर कोशिश करें।',
+  'chat.giftManage.err.cannot-transfer':
+    'केवल आपका अपना यूनिक उपहार ही ट्रांसफ़र हो सकता है।',
+  'chat.giftManage.err.no-gift': 'वह उपहार नहीं मिला।',
+  'chat.giftManage.err.pin-limit':
+    'आप प्रोफ़ाइल के ऊपर अधिकतम {count, plural, one {# उपहार} other {# उपहार}} पिन कर सकते हैं।',
+  'chat.giftManage.err.price':
+    'कीमत बदल गई। कुछ भुगतान नहीं हुआ। उपहार खोलकर फिर कोशिश करें।',
+  'chat.giftManage.err.balance': 'आपके बैलेंस में पर्याप्त स्टार नहीं हैं।',
+  'chat.giftManage.err.privacy': 'यह व्यक्ति उपहार स्वीकार नहीं करता।',
+  'chat.giftManage.err.expired':
+    'भुगतान फ़ॉर्म की अवधि समाप्त हो गई। फिर कोशिश करें।',
+  'chat.giftManage.err.no-chat': 'वह व्यक्ति नहीं मिला।',
+  'chat.giftManage.err.code-expired':
+    'इस गिफ़्ट कोड की अवधि समाप्त हो चुकी है।',
+  'chat.giftManage.err.no-code': 'यह गिफ़्ट कोड मान्य नहीं है।',
+  'chat.giftManage.err.not-allowed':
+    'यह खाता इस गिफ़्ट कोड का उपयोग नहीं कर सकता।',
+  'chat.giftManage.err.premium-active':
+    'इस खाते पर Telegram Premium पहले से सक्रिय है।',
+  'chat.giftManage.err.flood':
+    'Telegram ने रुकने को कहा है। थोड़ी देर बाद फिर कोशिश करें।',
+  'chat.giftManage.err.verify':
+    'Telegram इस भुगतान का सत्यापन चाहता है, जो यह ऐप नहीं कर सकता।',
+  'chat.giftManage.err.failed': 'यह नहीं हो सका।',
+  'chat.giftManage.cancel': 'रद्द करें',
+  'chat.giftManage.loading': 'लोड हो रहा है…',
+  'chat.giftManage.models': 'मिल सकने वाले मॉडल',
+  'chat.giftManage.backdrops': 'मिल सकने वाली पृष्ठभूमियाँ',
+  'chat.giftManage.patterns': 'मिल सकने वाले प्रतीक',
+  'chat.giftManage.priceStars': '{count} ⭐',
+  'chat.giftManage.priceFree': 'मुफ़्त',
+  'chat.giftManage.confirmUpgrade':
+    'इस उपहार को {price} में यूनिक बनाएँ? इसका मॉडल, पृष्ठभूमि और प्रतीक यादृच्छिक चुने जाते हैं।',
+  'chat.giftManage.upgradeFor': '{price} में अपग्रेड करें',
+  'chat.giftManage.pinnedNote': 'आपकी प्रोफ़ाइल के ऊपर पिन किया गया।',
+  'chat.giftManage.show': 'मेरी प्रोफ़ाइल पर दिखाएँ',
+  'chat.giftManage.hide': 'मेरी प्रोफ़ाइल से छिपाएँ',
+  'chat.giftManage.convert': '{count} ⭐ में बदलें',
+  'chat.giftManage.upgrade': 'अपग्रेड',
+  'chat.giftManage.transfer': 'ट्रांसफ़र',
+  'chat.giftManage.pin': 'ऊपर पिन करें',
+  'chat.giftManage.unpin': 'ऊपर से हटाएँ',
+  'chat.giftManage.view': 'देखें',
+  'chat.giftManage.confirmShow': 'यह उपहार आपकी प्रोफ़ाइल पर दिखाएँ?',
+  'chat.giftManage.confirmHide': 'यह उपहार आपकी प्रोफ़ाइल से छिपाएँ?',
+  'chat.giftManage.confirmConvert':
+    'इस उपहार को {count, plural, one {# स्टार} other {# स्टार}} में बदलें? इसे वापस नहीं किया जा सकता।',
+  'chat.giftManage.confirmTransfer':
+    'यह उपहार {name} को {price} में ट्रांसफ़र करें?',
+  'chat.giftManage.confirmPin': 'यह उपहार अपनी प्रोफ़ाइल के ऊपर पिन करें?',
+  'chat.giftManage.confirmUnpin': 'यह उपहार अपनी प्रोफ़ाइल के ऊपर से हटाएँ?',
+  'chat.giftManage.convertYes': 'बदलें',
+  'chat.giftManage.transferYes': 'ट्रांसफ़र करें',
+  'chat.giftManage.rarity.uncommon': 'असामान्य',
+  'chat.giftManage.rarity.rare': 'दुर्लभ',
+  'chat.giftManage.rarity.epic': 'महाकाव्य',
+  'chat.giftManage.rarity.legendary': 'पौराणिक',
+  'chat.giftManage.model': 'मॉडल',
+  'chat.giftManage.backdrop': 'पृष्ठभूमि',
+  'chat.giftManage.pattern': 'प्रतीक',
+  'chat.giftManage.owner': 'मालिक',
+  'chat.giftManage.issued': 'जारी',
+  'chat.giftManage.issuedOf': '{total} में से {issued}',
+  'chat.giftManage.uniqueTitle': 'यूनिक उपहार',
+  'chat.giftManage.codeTitle': 'गिफ़्ट कोड',
+  'chat.giftManage.codeMonths':
+    'Telegram Premium के {count, plural, one {# महीने} other {# महीने}}',
+  'chat.giftManage.codeFrom': '{name} की ओर से',
+  'chat.giftManage.codeFromGiveaway': '{name} के गिवअवे से',
+  'chat.giftManage.codeUsed': '{date} को पहले ही उपयोग हो चुका',
+  'chat.giftManage.codeApplied':
+    'Telegram Premium {count, plural, one {# महीने} other {# महीने}} के लिए सक्रिय है।',
+  'chat.giftManage.codeApply': 'लागू करें',
+  'chat.giftManage.confirmCode':
+    'Telegram Premium को {count, plural, one {# महीने} other {# महीने}} के लिए सक्रिय करें?',
+  'chat.giftManage.codeActivate': 'सक्रिय करें',
+  'chat.giftManage.codeOpen': 'गिफ़्ट कोड देखें',
+  'chat.service.giftCode': 'Telegram Premium गिफ़्ट कोड',
 };

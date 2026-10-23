@@ -952,4 +952,90 @@ export const ruChatMore = {
   'chat.collectible.err.flood':
     'Telegram просит подождать. Попробуйте чуть позже.',
   'chat.collectible.err.failed': 'Не удалось прочитать сведения.',
+  // Managing received gifts, unique gifts and gift codes (R-Y193).
+  'chat.giftManage.err.already': 'Этот подарок уже конвертирован или улучшен.',
+  'chat.giftManage.err.too-old':
+    'Этот подарок слишком старый, чтобы конвертировать его в звёзды.',
+  'chat.giftManage.err.cannot-upgrade': 'Этот подарок нельзя улучшить.',
+  'chat.giftManage.err.too-early':
+    'Этот подарок пока нельзя передать. Попробуйте позже.',
+  'chat.giftManage.err.cannot-transfer':
+    'Передать можно только уникальный подарок, который вам принадлежит.',
+  'chat.giftManage.err.no-gift': 'Подарок не найден.',
+  'chat.giftManage.err.pin-limit':
+    'В начале профиля можно закрепить не больше {count, plural, one {# подарка} few {# подарков} other {# подарков}}.',
+  'chat.giftManage.err.price':
+    'Цена изменилась. Ничего не оплачено. Откройте подарок и попробуйте ещё раз.',
+  'chat.giftManage.err.balance': 'На балансе не хватает звёзд.',
+  'chat.giftManage.err.privacy': 'Этот человек не принимает подарки.',
+  'chat.giftManage.err.expired': 'Форма оплаты устарела. Попробуйте ещё раз.',
+  'chat.giftManage.err.no-chat': 'Этот человек не найден.',
+  'chat.giftManage.err.code-expired':
+    'Срок действия этого подарочного кода истёк.',
+  'chat.giftManage.err.no-code': 'Этот подарочный код недействителен.',
+  'chat.giftManage.err.not-allowed':
+    'Этот аккаунт не может использовать этот подарочный код.',
+  'chat.giftManage.err.premium-active':
+    'На этом аккаунте Telegram Premium уже действует.',
+  'chat.giftManage.err.flood':
+    'Telegram просит подождать. Попробуйте чуть позже.',
+  'chat.giftManage.err.verify':
+    'Telegram требует подтвердить этот платёж, а приложение этого не умеет.',
+  'chat.giftManage.err.failed': 'Не получилось.',
+  'chat.giftManage.cancel': 'Отмена',
+  'chat.giftManage.loading': 'Загрузка…',
+  'chat.giftManage.models': 'Возможные модели',
+  'chat.giftManage.backdrops': 'Возможные фоны',
+  'chat.giftManage.patterns': 'Возможные символы',
+  'chat.giftManage.priceStars': '{count} ⭐',
+  'chat.giftManage.priceFree': 'бесплатно',
+  'chat.giftManage.confirmUpgrade':
+    'Улучшить подарок до уникального за {price}? Модель, фон и символ выбираются случайно.',
+  'chat.giftManage.upgradeFor': 'Улучшить за {price}',
+  'chat.giftManage.pinnedNote': 'Закреплён в начале вашего профиля.',
+  'chat.giftManage.show': 'Показать в моём профиле',
+  'chat.giftManage.hide': 'Скрыть из моего профиля',
+  'chat.giftManage.convert': 'Конвертировать в {count} ⭐',
+  'chat.giftManage.upgrade': 'Улучшить',
+  'chat.giftManage.transfer': 'Передать',
+  'chat.giftManage.pin': 'Закрепить сверху',
+  'chat.giftManage.unpin': 'Открепить',
+  'chat.giftManage.view': 'Открыть',
+  'chat.giftManage.confirmShow': 'Показать этот подарок в вашем профиле?',
+  'chat.giftManage.confirmHide': 'Скрыть этот подарок из вашего профиля?',
+  'chat.giftManage.confirmConvert':
+    'Конвертировать этот подарок в {count, plural, one {# звезду} few {# звезды} other {# звёзд}}? Это нельзя отменить.',
+  'chat.giftManage.confirmTransfer':
+    'Передать этот подарок пользователю {name} за {price}?',
+  'chat.giftManage.confirmPin':
+    'Закрепить этот подарок в начале вашего профиля?',
+  'chat.giftManage.confirmUnpin':
+    'Открепить этот подарок от начала вашего профиля?',
+  'chat.giftManage.convertYes': 'Конвертировать',
+  'chat.giftManage.transferYes': 'Передать',
+  'chat.giftManage.rarity.uncommon': 'необычный',
+  'chat.giftManage.rarity.rare': 'редкий',
+  'chat.giftManage.rarity.epic': 'эпический',
+  'chat.giftManage.rarity.legendary': 'легендарный',
+  'chat.giftManage.model': 'Модель',
+  'chat.giftManage.backdrop': 'Фон',
+  'chat.giftManage.pattern': 'Символ',
+  'chat.giftManage.owner': 'Владелец',
+  'chat.giftManage.issued': 'Выпущено',
+  'chat.giftManage.issuedOf': '{issued} из {total}',
+  'chat.giftManage.uniqueTitle': 'Уникальный подарок',
+  'chat.giftManage.codeTitle': 'Подарочный код',
+  'chat.giftManage.codeMonths':
+    '{count, plural, one {# месяц} few {# месяца} other {# месяцев}} Telegram Premium',
+  'chat.giftManage.codeFrom': 'От {name}',
+  'chat.giftManage.codeFromGiveaway': 'Из розыгрыша {name}',
+  'chat.giftManage.codeUsed': 'Уже использован {date}',
+  'chat.giftManage.codeApplied':
+    'Telegram Premium действует: {count, plural, one {# месяц} few {# месяца} other {# месяцев}}.',
+  'chat.giftManage.codeApply': 'Применить',
+  'chat.giftManage.confirmCode':
+    'Активировать Telegram Premium на {count, plural, one {# месяц} few {# месяца} other {# месяцев}}?',
+  'chat.giftManage.codeActivate': 'Активировать',
+  'chat.giftManage.codeOpen': 'Открыть подарочный код',
+  'chat.service.giftCode': 'Подарочный код Telegram Premium',
 };

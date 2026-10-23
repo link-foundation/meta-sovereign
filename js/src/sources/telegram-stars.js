@@ -59,12 +59,12 @@ const FILTERS = { all: {}, in: { inbound: true }, out: { outbound: true } };
 export const amountOf = (amount) =>
   Number(amount?.amount ?? 0) + whole(amount?.nanos) / 1e9;
 
-const nameOf = (entity) =>
+export const nameOf = (entity) =>
   entity?.title ||
   [entity?.firstName, entity?.lastName].filter(Boolean).join(' ') ||
   (entity?.username ? `@${entity.username}` : '');
 
-const entitiesOf = (answer) =>
+export const entitiesOf = (answer) =>
   new Map(
     [...(answer?.users ?? []), ...(answer?.chats ?? [])].map((e) => [
       text(e.id),
@@ -72,7 +72,7 @@ const entitiesOf = (answer) =>
     ])
   );
 
-const peerEntity = (peer, entities) =>
+export const peerEntity = (peer, entities) =>
   entities.get(text(peer?.userId ?? peer?.channelId ?? peer?.chatId));
 
 const KINDS = {
@@ -133,10 +133,37 @@ const stickerDoc = (gift) =>
     (a) => a?.className === 'StarGiftAttributeModel'
   )?.document;
 
+// What can be done to a received gift (R-Y193): its numbers, as Telegram
+// gave them (a price of 0 is "free").
+const manageOf = (saved) => {
+  const gift = saved.gift ?? {};
+  const unique = gift.className === 'StarGiftUnique';
+  return {
+    giftId: text(unique ? gift.giftId : gift.id),
+    unique: unique
+      ? {
+          slug: String(gift.slug ?? ''),
+          num: whole(gift.num),
+          title: String(gift.title ?? ''),
+        }
+      : null,
+    canUpgrade: Boolean(saved.canUpgrade) && !unique,
+    prepaid: Boolean(saved.prepaidUpgradeHash),
+    upgradeStars: whole(
+      saved.upgradeStars ?? (saved.prepaidUpgradeHash ? 0 : gift.upgradeStars)
+    ),
+    convertStars: whole(saved.convertStars),
+    transferStars: whole(saved.transferStars),
+    canTransferAt: whole(saved.canTransferAt),
+    pinned: Boolean(saved.pinnedToTop),
+  };
+};
+
 const giftOf = (saved, entities, remember) => {
   const doc = stickerDoc(saved.gift);
   const anonymous = Boolean(saved.nameHidden) || !saved.fromId;
   return {
+    ...manageOf(saved),
     msgId: whole(saved.msgId),
     savedId: text(saved.savedId),
     from: anonymous ? null : text(saved.fromId.userId),

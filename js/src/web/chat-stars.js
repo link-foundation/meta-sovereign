@@ -15,6 +15,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Frame } from './chat-readers.js';
 import { Picture } from './chat-stickers.js';
+import { GiftDialog } from './chat-gift-manage.js';
 import { rowLabel, signedStars, sourceKey, starsText } from './stars-model.js';
 
 const el = React.createElement;
@@ -287,7 +288,12 @@ const Cell = ({ gift, api, t, dateTime, onOpen }) =>
     },
     [
       el(Sticker, { key: 's', api, gift }),
-      el('span', { key: 'v', className: 'gift-stars' }, `${gift.stars} ⭐`),
+      el('span', { key: 'v', className: 'gift-stars' }, [
+        `${gift.stars} ⭐`,
+        // A pinned gift and a unique gift's number (R-Y193).
+        gift.pinned ? ' 📌' : '',
+        gift.unique ? ` #${gift.unique.num}` : '',
+      ]),
       el(
         'span',
         { key: 'f', className: 'meta gift-from' },
@@ -296,84 +302,6 @@ const Cell = ({ gift, api, t, dateTime, onOpen }) =>
       el('span', { key: 'd', className: 'meta' }, dateTime(gift.date * 1000)),
     ]
   );
-
-const GiftDetail = ({ gift, mine, api, chat, onClose, onChanged }) => {
-  const t = useT();
-  const { dateTime } = useDates();
-  const [busy, setBusy] = useState(false);
-  const [code, setCode] = useState(null);
-  const toggle = async () => {
-    setBusy(true);
-    setCode(null);
-    const answer = await api
-      .telegramStarGiftSave({
-        chat,
-        msgId: gift.msgId,
-        unsave: !gift.hidden,
-      })
-      .catch(() => null);
-    setBusy(false);
-    if (answer?.ok) {
-      onChanged(answer.hidden);
-    } else {
-      setCode(answer?.code ?? 'failed');
-    }
-  };
-  return el(
-    Frame,
-    { title: gift.title || t('chat.stars.gift'), close: onClose, name: 'gift' },
-    el('div', { className: 'admin-body gift-detail' }, [
-      el(
-        'div',
-        { key: 's', className: 'gift-big' },
-        el(Sticker, { api, gift })
-      ),
-      el(
-        'p',
-        { key: 'v', 'data-gift-stars': gift.stars },
-        t('chat.stars.giftValue', { count: gift.stars })
-      ),
-      el(
-        'p',
-        { key: 'f', className: 'meta' },
-        gift.anonymous
-          ? t('chat.stars.fromAnonymous')
-          : t('chat.stars.from', { name: gift.fromName })
-      ),
-      el('p', { key: 'd', className: 'meta' }, dateTime(gift.date * 1000)),
-      gift.text
-        ? el('p', { key: 't', className: 'gift-text' }, gift.text)
-        : null,
-      gift.hidden
-        ? el(
-            'p',
-            { key: 'h', className: 'meta', 'data-gift-hidden': '' },
-            t('chat.stars.hiddenNote')
-          )
-        : null,
-      code
-        ? el(
-            'p',
-            { key: 'e', className: 'comments-failed', role: 'alert' },
-            errorText(t, code)
-          )
-        : null,
-      mine && gift.msgId
-        ? el(
-            'button',
-            {
-              key: 'b',
-              type: 'button',
-              'data-action': 'gift-toggle',
-              disabled: busy,
-              onClick: toggle,
-            },
-            gift.hidden ? t('chat.stars.show') : t('chat.stars.hide')
-          )
-        : null,
-    ])
-  );
-};
 
 const GiftsSection = ({ api, chat }) => {
   const t = useT();
@@ -421,20 +349,29 @@ const GiftsSection = ({ api, chat }) => {
           )
         : null,
       gift
-        ? el(GiftDetail, {
+        ? el(GiftDialog, {
             key: 'd',
             gift,
+            gifts: state.gifts,
             mine: state.mine,
             api,
             chat,
             onClose: () => setOpen(null),
-            onChanged: (hidden) =>
+            onPatch: (fields) =>
               setState((s) => ({
                 ...s,
                 gifts: s.gifts.map((g, i) =>
-                  i === open ? { ...g, hidden } : g
+                  i === open ? { ...g, ...fields } : g
                 ),
               })),
+            onRemove: () => {
+              setOpen(null);
+              load(null);
+            },
+            onReload: () => {
+              setOpen(null);
+              load(null);
+            },
           })
         : null,
     ]),

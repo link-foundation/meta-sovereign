@@ -348,7 +348,11 @@ const giftSteps = async () => {
     'the gift text'
   );
   assert(saves.length === 0, 'opening a gift writes nothing');
+  // Hiding asks first (R-Y193): nothing is written until the confirmation.
   await detail.locator('[data-action="gift-toggle"]').click();
+  await detail.locator('[data-gift-ask="toggle"]').waitFor();
+  assert(saves.length === 0, 'asking to hide writes nothing');
+  await detail.locator('[data-action="gift-confirm"]').click();
   await detail.locator('[data-gift-hidden]').waitFor({ timeout: 5000 });
   assert(
     JSON.stringify(saves) ===
@@ -356,6 +360,7 @@ const giftSteps = async () => {
     `hidden: ${JSON.stringify(saves)}`
   );
   await detail.locator('[data-action="gift-toggle"]').click();
+  await detail.locator('[data-action="gift-confirm"]').click();
   await until(async () => saves.length === 2, 'show asks again');
   assert(saves[1].unsave === false, 'shown again');
   await page.keyboard.press('Escape');

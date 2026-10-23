@@ -16,6 +16,7 @@ import { Icon } from './icons.js';
 import { PipButton, usePip } from './chat-pip.js';
 import { Checklist, Poll } from './chat-poll.js';
 import { GiveawayCard, GiveawayResultsCard } from './chat-giveaway.js';
+import { GiftCodeCard } from './chat-gift-code-button.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
 import { liveLines } from './live-place.js';
@@ -879,6 +880,8 @@ const CARDS = {
   // Giveaways (R-Y184).
   giveaway: GiveawayCard,
   'giveaway-results': GiveawayResultsCard,
+  // A gift code (R-Y193).
+  'gift-code': GiftCodeCard,
 };
 
 /** A card; a poll or checklist acts on its message (`chat`, `msgId`). */

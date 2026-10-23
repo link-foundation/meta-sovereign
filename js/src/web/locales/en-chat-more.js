@@ -943,4 +943,86 @@ export const enChatMore = {
   'chat.collectible.err.flood':
     'Telegram asked to wait. Try again a little later.',
   'chat.collectible.err.failed': 'Could not read the details.',
+  // Managing received gifts, unique gifts and gift codes (R-Y193).
+  'chat.giftManage.err.already': 'This gift was already converted or upgraded.',
+  'chat.giftManage.err.too-old': 'This gift is too old to convert to Stars.',
+  'chat.giftManage.err.cannot-upgrade': 'This gift cannot be upgraded.',
+  'chat.giftManage.err.too-early':
+    'This gift cannot be transferred yet. Try again later.',
+  'chat.giftManage.err.cannot-transfer':
+    'Only a unique gift you own can be transferred.',
+  'chat.giftManage.err.no-gift': 'That gift was not found.',
+  'chat.giftManage.err.pin-limit':
+    'You can pin up to {count, plural, one {# gift} other {# gifts}} to the top of your profile.',
+  'chat.giftManage.err.price':
+    'The price changed. Nothing was paid. Open the gift and try again.',
+  'chat.giftManage.err.balance': 'There are not enough Stars on your balance.',
+  'chat.giftManage.err.privacy': 'This person does not accept gifts.',
+  'chat.giftManage.err.expired': 'The payment form expired. Try again.',
+  'chat.giftManage.err.no-chat': 'That person was not found.',
+  'chat.giftManage.err.code-expired': 'This gift code has expired.',
+  'chat.giftManage.err.no-code': 'This gift code is not valid.',
+  'chat.giftManage.err.not-allowed': 'This account cannot use this gift code.',
+  'chat.giftManage.err.premium-active':
+    'Telegram Premium is already active on this account.',
+  'chat.giftManage.err.flood':
+    'Telegram asked to wait. Try again a little later.',
+  'chat.giftManage.err.verify':
+    'Telegram wants a verification for this payment, which this app cannot do.',
+  'chat.giftManage.err.failed': 'That did not work.',
+  'chat.giftManage.cancel': 'Cancel',
+  'chat.giftManage.loading': 'Loading…',
+  'chat.giftManage.models': 'Models it may get',
+  'chat.giftManage.backdrops': 'Backdrops it may get',
+  'chat.giftManage.patterns': 'Symbols it may get',
+  'chat.giftManage.priceStars': '{count} ⭐',
+  'chat.giftManage.priceFree': 'free',
+  'chat.giftManage.confirmUpgrade':
+    'Upgrade this gift to a unique one for {price}? Its model, backdrop and symbol are chosen at random.',
+  'chat.giftManage.upgradeFor': 'Upgrade for {price}',
+  'chat.giftManage.pinnedNote': 'Pinned to the top of your profile.',
+  'chat.giftManage.show': 'Show on my profile',
+  'chat.giftManage.hide': 'Hide from my profile',
+  'chat.giftManage.convert': 'Convert to {count} ⭐',
+  'chat.giftManage.upgrade': 'Upgrade',
+  'chat.giftManage.transfer': 'Transfer',
+  'chat.giftManage.pin': 'Pin to top',
+  'chat.giftManage.unpin': 'Unpin from top',
+  'chat.giftManage.view': 'View',
+  'chat.giftManage.confirmShow': 'Show this gift on your profile?',
+  'chat.giftManage.confirmHide': 'Hide this gift from your profile?',
+  'chat.giftManage.confirmConvert':
+    "Convert this gift to {count, plural, one {# Star} other {# Stars}}? This can't be undone.",
+  'chat.giftManage.confirmTransfer':
+    'Transfer this gift to {name} for {price}?',
+  'chat.giftManage.confirmPin': 'Pin this gift to the top of your profile?',
+  'chat.giftManage.confirmUnpin':
+    'Unpin this gift from the top of your profile?',
+  'chat.giftManage.convertYes': 'Convert',
+  'chat.giftManage.transferYes': 'Transfer',
+  'chat.giftManage.rarity.uncommon': 'uncommon',
+  'chat.giftManage.rarity.rare': 'rare',
+  'chat.giftManage.rarity.epic': 'epic',
+  'chat.giftManage.rarity.legendary': 'legendary',
+  'chat.giftManage.model': 'Model',
+  'chat.giftManage.backdrop': 'Backdrop',
+  'chat.giftManage.pattern': 'Symbol',
+  'chat.giftManage.owner': 'Owner',
+  'chat.giftManage.issued': 'Issued',
+  'chat.giftManage.issuedOf': '{issued} of {total}',
+  'chat.giftManage.uniqueTitle': 'Unique gift',
+  'chat.giftManage.codeTitle': 'Gift code',
+  'chat.giftManage.codeMonths':
+    '{count, plural, one {# month} other {# months}} of Telegram Premium',
+  'chat.giftManage.codeFrom': 'From {name}',
+  'chat.giftManage.codeFromGiveaway': 'From the giveaway of {name}',
+  'chat.giftManage.codeUsed': 'Already used on {date}',
+  'chat.giftManage.codeApplied':
+    'Telegram Premium is active for {count, plural, one {# month} other {# months}}.',
+  'chat.giftManage.codeApply': 'Apply',
+  'chat.giftManage.confirmCode':
+    'Activate Telegram Premium for {count, plural, one {# month} other {# months}}?',
+  'chat.giftManage.codeActivate': 'Activate',
+  'chat.giftManage.codeOpen': 'View gift code',
+  'chat.service.giftCode': 'A Telegram Premium gift code',
 };

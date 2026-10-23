@@ -29,6 +29,7 @@ import { Icon } from './icons.js';
 import { ModeBadge } from './telegram-online.js';
 import { InviteHost } from './chat-invite.js';
 import { ProxyHost } from './settings-proxy.js';
+import { GiftHost } from './chat-gift-unique.js';
 import { useApplyUiScale } from './ui-scale.js';
 import { AddlistHost } from './chat-folder-share.js';
 import { AppNotifications } from './app-notify.js';
@@ -211,6 +212,8 @@ const App = () => {
       ),
       el(InviteHost, { key: 'invite-host', api }),
       el(ProxyHost, { key: 'proxy-host', api }),
+      // Unique gifts and gift codes, from links and buttons (R-Y193).
+      el(GiftHost, { key: 'gift-host', api }),
       el(AddlistHost, { key: 'addlist-host', api }),
       // The Chat section notifies by itself; the others through this.
       active === 'chat'
