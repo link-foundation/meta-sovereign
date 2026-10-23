@@ -15,6 +15,17 @@ export const TELEGRAM_CALLS = {
   telegramDataExportStatus: none('data-export-status'),
   telegramDataExportCancel: none('data-export-cancel'),
   telegramDataExportReveal: none('data-export-reveal'),
+  // A group's sticker set and emoji pack ({ chat, shortName|null, emojis? }),
+  // the pinned topics' order ({ chat, order }), a shared folder's new chats
+  // looked at, joined and hidden ({ id, chats? }), and the new-contacts
+  // notification read and set ({ on }) (R-Y211).
+  telegramGroupStickerSet: body('group-sticker-set'),
+  telegramTopicReorder: body('topic-reorder'),
+  telegramChatlistUpdates: body('chatlist-updates'),
+  telegramChatlistUpdatesJoin: body('chatlist-updates-join'),
+  telegramChatlistUpdatesHide: body('chatlist-updates-hide'),
+  telegramContactSignUp: none('contact-signup'),
+  telegramContactSignUpSet: body('contact-signup-set'),
   // Cloud drafts synced and cleared, the calendar's day counts, frequent
   // contacts listed, removed and turned off (R-Y207).
   telegramDraftsSync: none('drafts-sync'),

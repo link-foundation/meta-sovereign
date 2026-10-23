@@ -14,6 +14,7 @@ import { useChatListMenu } from './chat-list-menu.js';
 import { usePinnedOrder } from './chat-pin-order.js';
 import { NewChat } from './chat-create.js';
 import { FolderTabMenu, tabDragStart } from './chat-folder-edit.js';
+import { FolderUpdatesBar, folderIdOfKey } from './chat-folder-updates.js';
 import { AddContactDialog } from './chat-contacts-edit.js';
 import { MyProfile } from './chat-profile.js';
 import { CallsButton } from './chat-calls.js';
@@ -101,6 +102,26 @@ const folderMenuAt = (tools, tab, event, open) => {
   }
 };
 
+// "+N" on a shared folder's tab that has new chats to join (R-Y211).
+const newChatsBadge = (state, tab, t) => {
+  const count = state.folderUpdates?.byFolder.get(
+    folderIdOfKey(tab.key)
+  )?.length;
+  return count
+    ? el(
+        'span',
+        {
+          key: 'new',
+          className: 'chat-filter-new',
+          'data-new-chats': String(count),
+          title: t('chat.folderUpdates.count', { count }),
+          'aria-label': t('chat.folderUpdates.count', { count }),
+        },
+        `+${count}`
+      )
+    : null;
+};
+
 const FilterTabs = ({ state }) => {
   const t = useT();
   const [menu, setMenu] = useState(null);
@@ -158,6 +179,7 @@ const FilterTabs = ({ state }) => {
                   String(tab.unread)
                 )
               : null,
+            newChatsBadge(state, tab, t),
           ]
         )
       ),
@@ -389,6 +411,7 @@ export const Sidebar = ({ state, api }) => {
       }),
       el(PeopleHost, { key: 'top', api, state, focus }),
       el(FilterTabs, { key: 'f', state }),
+      el(FolderUpdatesBar, { key: 'fu', state }),
       el(StoriesStrip, {
         key: 'stories',
         api,

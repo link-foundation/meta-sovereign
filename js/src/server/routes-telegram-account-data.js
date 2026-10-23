@@ -30,12 +30,7 @@
 import { CODE, PHONE } from '../sources/telegram-phone-change.js';
 import { parseDataExport } from '../sources/telegram-account-data.js';
 
-const bad = (error) => [400, { error, code: 'bad-request' }];
-
-const plain = (method) => async (account) =>
-  typeof account[method] === 'function'
-    ? [200, await account[method]()]
-    : bad('not supported');
+import { bad, plain } from './routes-telegram-export.js';
 
 export const ACCOUNT_DATA_POSTS = {
   'phone-change-send': async (account, body) =>

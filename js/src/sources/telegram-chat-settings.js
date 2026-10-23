@@ -36,12 +36,15 @@ const CODES = {
   FLOOD_WAIT: 'flood',
 };
 
-const asFailure = failureOf(CODES);
-// Nothing to change is no failure.
-const failure = (error) => {
-  const out = asFailure(error);
-  return out.code === 'not-modified' ? { ok: true } : out;
+// Telegram's errors as codes, where nothing to change is no failure.
+export const quietFailureOf = (codes) => {
+  const asFailure = failureOf(codes);
+  return (error) => {
+    const out = asFailure(error);
+    return out.code === 'not-modified' ? { ok: true } : out;
+  };
 };
+const failure = quietFailureOf(CODES);
 const bad = { ok: false, error: 'bad-request', code: 'bad-request' };
 
 const CHANNEL = /^-100\d{1,20}$/;

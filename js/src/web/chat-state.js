@@ -35,6 +35,7 @@ import { useComposer, useLiveLinks } from './chat-live.js';
 import { useNotifications } from './chat-notify.js';
 import { useReplyTargets } from './chat-replies.js';
 import { useChatInfo } from './chat-info.js';
+import { useChatlistUpdates } from './chat-folder-updates.js';
 import { requestsLinkOf } from './chat-join-requests.js';
 import { callLinkOf } from './voice-chat-model.js';
 import { callLinkOf as privateCallLinkOf } from './private-call-model.js';
@@ -947,6 +948,8 @@ export const useChatState = (
   const folders = useTelegramFolders(api, telegram);
   const list = useChatList(links, target, query, folders);
   const folderTools = useFolderTools(api, folders, list.all);
+  // New chats in shared folders the user joined (R-Y211).
+  const folderUpdates = useChatlistUpdates(api, folders);
   const { all, chats, filter, setFilter, sort, setSort } = list;
   useEffect(() => {
     if (target) {
@@ -1032,6 +1035,8 @@ export const useChatState = (
     tags: list.tags,
     // The tabs' menu: edit, delete, reorder (R-Y164).
     folderTools,
+    folders,
+    folderUpdates,
     sort,
     setSort,
     folder: list.folder,

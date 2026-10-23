@@ -26,13 +26,16 @@ const USER = /^\d{1,20}$/;
 const MSG = /^\d{1,12}$/;
 const OFFSET = /^\d{1,6}$/;
 
-const invalid = (what) => [400, { error: what, code: 'bad-request' }];
+export const invalid = (what) => [400, { error: what, code: 'bad-request' }];
 
-// Calls `method` of the account with the body when `ok` says it is valid.
-const route = (method, what, ok) => async (account, body) =>
-  ok(body) && typeof account[method] === 'function'
-    ? [200, await account[method](body)]
-    : invalid(what);
+// Calls `method` of the account with `pick(body)` (the body itself unless
+// told) when `ok` says it is valid.
+export const route =
+  (method, what, ok, pick = (body) => body) =>
+  async (account, body) =>
+    ok(body) && typeof account[method] === 'function'
+      ? [200, await account[method](pick(body))]
+      : invalid(what);
 
 export const ADMIN_EXTRAS_POSTS = {
   'moderate-user': route(

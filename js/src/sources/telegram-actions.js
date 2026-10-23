@@ -95,6 +95,7 @@ import { createViews } from './telegram-views.js';
 import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createChatReactions } from './telegram-chat-reactions.js';
 import { createChatSettings } from './telegram-chat-settings.js';
+import { createGroupExtras } from './telegram-group-extras.js';
 import { createNotifySettings } from './telegram-notify-settings.js';
 import { createRingtones } from './telegram-ringtones.js';
 import { createPinnedOrder } from './telegram-pinned-order.js';
@@ -475,7 +476,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // counters of channel posts and hashtag search (R-Y182); Telegram Business
 // opening hours, location, intro, chat links, chatbots and folder tags
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
-// sending a gift (R-Y185); exporting chat history (R-Y186), changing the phone number and exporting Telegram data (R-Y212); giveaways, paid
+// sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
 // messages and channel autotranslation (R-Y184); voice chats and group calls
 // (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190);
 // interface scale and the connection proxy (R-Y192); channel direct messages
@@ -491,7 +492,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // drafts, the calendar's day counts and frequent contacts (R-Y207);
 // editing and linking one's stories (R-Y210); cloud themes and the
 // per-chat translation switch (R-Y209); changing the phone number and
-// exporting the account's data (R-Y212).
+// exporting the account's data (R-Y212); a group's sticker set and emoji
+// pack, pinned topics reordered, new chats in a shared folder and the new-contacts notification (R-Y211).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -613,6 +615,7 @@ const chatActions = (env, context) => {
     ...createDrafts(env, context),
     ...createCalendar(env, context),
     ...createTopPeers(env, context),
+    ...createGroupExtras(env, context),
   };
 };
 

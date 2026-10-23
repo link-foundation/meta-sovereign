@@ -115,7 +115,7 @@ const TopicIcon = ({ topic }) => {
   );
 };
 
-const Tab = ({ selected, onClick, onMenu, id, children }) =>
+const Tab = ({ selected, onClick, onMenu, onDrag, id, children }) =>
   el(
     'button',
     {
@@ -124,18 +124,21 @@ const Tab = ({ selected, onClick, onMenu, id, children }) =>
       className: selected ? 'chat-topic is-selected' : 'chat-topic',
       'aria-selected': selected ? 'true' : 'false',
       'data-topic': id,
+      // A pinned topic's tab can be dragged sideways (R-Y211).
+      ...(onDrag ? { 'data-pinned-topic': '', onPointerDown: onDrag } : {}),
       onClick,
       onContextMenu: onMenu,
     },
     children
   );
 
-const TopicTab = ({ topic, selected, onChoose, onMenu, t }) =>
+const TopicTab = ({ topic, selected, onChoose, onMenu, onDrag, t }) =>
   el(
     Tab,
     {
       selected,
       id: String(topic.id),
+      onDrag: topic.pinned && topic.id !== GENERAL_TOPIC ? onDrag : null,
       onClick: () => onChoose(topic.id),
       onMenu: (event) => {
         event.preventDefault();
@@ -218,6 +221,7 @@ export const TopicTabs = ({ forum, api, chat, info }) => {
             selected: forum.topic === topic.id,
             onChoose: forum.choose,
             onMenu: admin.onMenu,
+            onDrag: admin.dragStart,
             t,
           })
         ),

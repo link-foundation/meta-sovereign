@@ -12,6 +12,7 @@ import { useT } from './i18n.js';
 import { FormDialog, Title } from './chat-create.js';
 import { MsgContextMenu } from './chat-message.js';
 import { GENERAL_TOPIC, TOPIC_COLORS } from './forum-topics.js';
+import { beginPinGesture } from './chat-pin-drag.js';
 
 const el = React.createElement;
 
@@ -77,6 +78,60 @@ export const editBody = (chat, topic, { title, icon }) => {
   }
   return Object.keys(body).length > 2 ? body : null;
 };
+
+/** The ids of the pinned topics (never General), in the strip's order. */
+export const pinnedTopicIds = (topics = []) =>
+  topics.filter((t) => t.pinned && t.id !== GENERAL_TOPIC).map((t) => t.id);
+
+/**
+ * The pinned topics' ids after the one at place `from` is dragged to place
+ * `to` (R-Y211); null when it did not move.
+ */
+export const reorderedPins = (topics, from, to) => {
+  const ids = pinnedTopicIds(topics);
+  if (from === to || !ids[from] || to < 0 || to >= ids.length) {
+    return null;
+  }
+  const [lifted] = ids.splice(from, 1);
+  ids.splice(to, 0, lifted);
+  return ids;
+};
+
+const TOPIC_DRAG = {
+  list: '.chat-topics',
+  rows: '.chat-topic[data-pinned-topic]',
+  axis: 'x',
+};
+
+/**
+ * A press on a pinned topic tab may become a drag sideways, for those who
+ * manage topics (R-Y211): dropped, the pinned topics are put in the new
+ * order (`api.telegramTopicReorder`) and the topics read again.
+ */
+export const topicDragStart =
+  ({ api, chat, topics, manage, refresh }) =>
+  (event) => {
+    if (
+      !manage ||
+      typeof api?.telegramTopicReorder !== 'function' ||
+      (event.pointerType === 'mouse' && event.button !== 0)
+    ) {
+      return;
+    }
+    beginPinGesture(
+      event,
+      event.currentTarget,
+      (from, to) => {
+        const order = reorderedPins(topics, from, to);
+        if (order) {
+          Promise.resolve(
+            api.telegramTopicReorder({ chat: String(chat), order })
+          ).then(refresh, refresh);
+        }
+      },
+      TOPIC_DRAG
+    );
+  };
 
 const errorText = (t, code) => {
   const key = `chat.topics.err.${code}`;
@@ -279,6 +334,14 @@ export const useTopicAdmin = ({ api, chat, forum, info }) => {
   }
   return {
     canCreate: topicRights(info).create && Boolean(api?.telegramTopicCreate),
+    // Pinned tabs may be dragged to reorder them (R-Y211).
+    dragStart: topicDragStart({
+      api,
+      chat: id,
+      topics: forum?.topics ?? [],
+      manage: topicRights(info).manage,
+      refresh: () => forum?.refresh?.(),
+    }),
     create: () => setDialog({ kind: 'create' }),
     failed,
     onMenu: (topic, point) => {

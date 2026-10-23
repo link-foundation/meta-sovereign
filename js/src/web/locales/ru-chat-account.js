@@ -139,4 +139,33 @@ export const ruChatAccount = {
   'dataExport.err.no-export':
     'Нет завершённого экспорта, который можно показать.',
   'dataExport.err.failed': 'Экспорт не удался.',
+  'chat.groupSet.stickersTitle': 'Стикеры группы',
+  'chat.groupSet.emojisTitle': 'Эмодзи группы',
+  'chat.groupSet.name': 'Короткое имя набора или ссылка',
+  'chat.groupSet.looking': 'Ищем набор…',
+  'chat.groupSet.found':
+    '{title}, {count, plural, one {# стикер} few {# стикера} many {# стикеров} other {# стикера}}',
+  'chat.groupSet.notFound': 'Такого набора нет.',
+  'chat.groupSet.stickersHint':
+    'Участники смогут отправлять эти стикеры из панели стикеров.',
+  'chat.groupSet.emojisHint':
+    'Участники смогут использовать эти эмодзи в группе.',
+  'chat.groupSet.remove': 'Убрать набор',
+  'chat.groupSet.none': 'Нет',
+  'chat.groupSet.panel': 'Стикеры группы: {title}',
+  'chat.groupSet.err.failed': 'Telegram не принял набор.',
+  'chat.groupSet.err.not-admin':
+    'Это может только админ с правом менять информацию о группе.',
+  'chat.groupSet.err.unknown-set': 'Такого набора нет.',
+  'chat.groupSet.err.too-few':
+    'В группе слишком мало участников для своего набора.',
+  'chat.groupSet.err.no-access': 'Группа недоступна.',
+  'chat.groupSet.err.boosts': 'Для этого группе нужно больше бустов.',
+  'chat.groupSet.err.flood': 'Слишком много попыток. Подождите немного.',
+  'chat.folderUpdates.title': 'Новые чаты в «{name}»',
+  'chat.folderUpdates.count':
+    '{count, plural, one {# новый чат} few {# новых чата} many {# новых чатов} other {# нового чата}}',
+  'chat.folderUpdates.join': 'Вступить в чаты',
+  'chat.folderUpdates.hide': 'Скрыть',
+  'settings.notifyTg.signUp': 'Новые контакты в Telegram',
 };

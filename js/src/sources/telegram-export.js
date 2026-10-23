@@ -140,7 +140,7 @@ const linkOf = (job, at) => ({
 const COMMANDS = { darwin: 'open', win32: 'explorer' };
 
 // Opens a folder in the file manager.
-const opener = (folder) =>
+export const opener = (folder) =>
   new Promise((resolve) => {
     execFile(COMMANDS[process.platform] ?? 'xdg-open', [folder], () =>
       resolve()
@@ -164,7 +164,26 @@ const newJob = (value, folder, at) => ({
   startedAt: new Date(at).toISOString(),
 });
 
-const active = (job) => ['running', 'cancelling'].includes(job?.state);
+export const active = (job) => ['running', 'cancelling'].includes(job?.state);
+
+// The app's store directory (media lives in `<store>/media/telegram`) and
+// how to wait between Telegram's pages.
+export const exportRuntime = (env, mediaDir) => ({
+  storeDir: mediaDir ? path.resolve(mediaDir, '..', '..') : null,
+  sleep:
+    env.sleep ??
+    ((ms) => new Promise((resolve) => globalThis.setTimeout(resolve, ms))),
+});
+
+// "Show in folder" for the export `current()` answers, once it is over.
+export const revealOf = (current, reveal) => async () => {
+  const job = current();
+  if (!job || active(job)) {
+    return bad('no-export');
+  }
+  await reveal(job.folder);
+  return { ok: true };
+};
 
 export const createHistoryExport = (
   env,
@@ -176,11 +195,7 @@ export const createHistoryExport = (
     reveal = opener,
   }
 ) => {
-  // The app's store directory: media lives in `<store>/media/telegram`.
-  const storeDir = mediaDir ? path.resolve(mediaDir, '..', '..') : null;
-  const sleep =
-    env.sleep ??
-    ((ms) => new Promise((resolve) => globalThis.setTimeout(resolve, ms)));
+  const { storeDir, sleep } = exportRuntime(env, mediaDir);
   let job = null;
   let starting = false;
 
@@ -246,12 +261,6 @@ export const createHistoryExport = (
       }
       return { ok: true, job: snapshot(job) };
     },
-    exportReveal: async () => {
-      if (!job || active(job)) {
-        return bad('no-export');
-      }
-      await reveal(job.folder);
-      return { ok: true };
-    },
+    exportReveal: revealOf(() => job, reveal),
   };
 };

@@ -150,6 +150,8 @@
     "test:e2e:saved-gifs:webkit": "E2E_BROWSER=webkit node js/tests/e2e-saved-gifs-browser.mjs",
     "test:e2e:topic-admin": "node js/tests/e2e-topic-admin-browser.mjs",
     "test:e2e:topic-admin:webkit": "E2E_BROWSER=webkit node js/tests/e2e-topic-admin-browser.mjs",
+    "test:e2e:group-stickers": "node js/tests/e2e-group-stickers-browser.mjs",
+    "test:e2e:group-stickers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-group-stickers-browser.mjs",
     "test:e2e:attach-schedule": "node js/tests/e2e-attach-schedule-browser.mjs",
     "test:e2e:attach-schedule:webkit": "E2E_BROWSER=webkit node js/tests/e2e-attach-schedule-browser.mjs",
     "test:e2e:invite-link": "node js/tests/e2e-invite-link-browser.mjs",

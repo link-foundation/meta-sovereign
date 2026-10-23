@@ -134,4 +134,31 @@ export const enChatAccount = {
   'dataExport.err.flood': 'Telegram asked to wait. Try again a little later.',
   'dataExport.err.no-export': 'There is no finished export to show.',
   'dataExport.err.failed': 'The export did not work.',
+  'chat.groupSet.stickersTitle': 'Group sticker set',
+  'chat.groupSet.emojisTitle': 'Group emoji pack',
+  'chat.groupSet.name': 'Set short name or link',
+  'chat.groupSet.looking': 'Looking for the set…',
+  'chat.groupSet.found':
+    '{title}, {count, plural, one {# sticker} other {# stickers}}',
+  'chat.groupSet.notFound': 'No such set.',
+  'chat.groupSet.stickersHint':
+    'Members can send these stickers from the sticker panel.',
+  'chat.groupSet.emojisHint': 'Members can use these emoji in the group.',
+  'chat.groupSet.remove': 'Remove the set',
+  'chat.groupSet.none': 'None',
+  'chat.groupSet.panel': 'Group stickers: {title}',
+  'chat.groupSet.err.failed': 'Telegram did not accept the set.',
+  'chat.groupSet.err.not-admin':
+    'Only an admin who may change the group info can do this.',
+  'chat.groupSet.err.unknown-set': 'No such set.',
+  'chat.groupSet.err.too-few': 'The group has too few members for its own set.',
+  'chat.groupSet.err.no-access': 'The group is not available.',
+  'chat.groupSet.err.boosts': 'The group needs more boosts for this.',
+  'chat.groupSet.err.flood': 'Too many tries. Wait a little.',
+  'chat.folderUpdates.title': 'New chats in {name}',
+  'chat.folderUpdates.count':
+    '{count, plural, one {# new chat} other {# new chats}}',
+  'chat.folderUpdates.join': 'Join chats',
+  'chat.folderUpdates.hide': 'Hide',
+  'settings.notifyTg.signUp': 'New contacts joined Telegram',
 };

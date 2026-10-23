@@ -17,7 +17,6 @@
  * Only reads go to Telegram; no message text is ever logged.
  */
 
-import { execFile } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { connected } from './telegram-stickers.js';
@@ -28,6 +27,10 @@ import {
   DEFAULT_LIMIT_MB,
   FORMATS,
   MEDIA_KEYS,
+  active,
+  exportRuntime,
+  opener,
+  revealOf,
 } from './telegram-export.js';
 import { dayOf } from './telegram-export-paths.js';
 import { failure } from './telegram-export-run.js';
@@ -124,15 +127,6 @@ const snapshot = (job) =>
     finishedAt: job.finishedAt ?? null,
   };
 
-const COMMANDS = { darwin: 'open', win32: 'explorer' };
-
-const opener = (folder) =>
-  new Promise((resolve) => {
-    execFile(COMMANDS[process.platform] ?? 'xdg-open', [folder], () =>
-      resolve()
-    );
-  });
-
 const newJob = (value, folder, at) => ({
   state: 'running',
   phase: 'starting',
@@ -150,8 +144,6 @@ const newJob = (value, folder, at) => ({
   current: null,
   startedAt: new Date(at).toISOString(),
 });
-
-const active = (job) => ['running', 'cancelling'].includes(job?.state);
 
 // Opens the session: `{ ok: true, id }`, or the failure to answer with
 // (TAKEOUT_INIT_DELAY_X is `takeout-delay` with its seconds).
@@ -190,10 +182,7 @@ export const createAccountData = (
     reveal = opener,
   }
 ) => {
-  const storeDir = mediaDir ? path.resolve(mediaDir, '..', '..') : null;
-  const sleep =
-    env.sleep ??
-    ((ms) => new Promise((resolve) => globalThis.setTimeout(resolve, ms)));
+  const { storeDir, sleep } = exportRuntime(env, mediaDir);
   let job = null;
   let starting = false;
 
@@ -285,12 +274,6 @@ export const createAccountData = (
       }
       return { ok: true, job: snapshot(job) };
     },
-    dataExportReveal: async () => {
-      if (!job || active(job)) {
-        return bad('no-export');
-      }
-      await reveal(job.folder);
-      return { ok: true };
-    },
+    dataExportReveal: revealOf(() => job, reveal),
   };
 };

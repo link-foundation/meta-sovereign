@@ -11,6 +11,8 @@
  * - `pinTopic({ chat, topic, pinned })` — messages.updatePinnedForumTopic;
  * - `deleteTopic({ chat, topic })` — the topic and its messages
  *   (messages.deleteTopicHistory, until Telegram has nothing left);
+ * - `reorderTopics({ chat, order })` — the pinned topics in a new order
+ *   (messages.reorderPinnedForumTopics with force, R-Y211);
  * - `toggleForum({ chat, enabled })` — a supergroup's Topics on or off
  *   (channels.toggleForum).
  * Telegram's errors become codes the page shows as text.
@@ -180,6 +182,40 @@ const createPin =
     });
   };
 
+/** The pinned topics' new order: distinct topic ids, 1 to 100, else null. */
+export const pinOrderOf = (order) =>
+  Array.isArray(order) &&
+  order.length > 0 &&
+  order.length <= 100 &&
+  order.every((id) => topicId(id) && id !== GENERAL) &&
+  new Set(order).size === order.length
+    ? order
+    : null;
+
+const createReorder =
+  (env, userClient) =>
+  async (body = {}) => {
+    const chat = String(body.chat ?? '');
+    const order = pinOrderOf(body.order);
+    if (!CHANNEL.test(chat) || !order) {
+      return bad();
+    }
+    return connected(env, userClient, failure, async (c) => {
+      await runIn(env, `topic:reorder:${chat}`, () =>
+        env.connection.withPeer(c.client, chat, (peer) =>
+          c.client.invoke(
+            new c.Api.messages.ReorderPinnedForumTopics({
+              peer,
+              order,
+              force: true,
+            })
+          )
+        )
+      );
+      return { ok: true };
+    });
+  };
+
 const createDelete =
   (env, userClient) =>
   async (body = {}) => {
@@ -235,6 +271,7 @@ export const createTopicAdmin = (env, { userClient }) => ({
   createTopic: createCreate(env, userClient),
   editTopic: createEdit(env, userClient),
   pinTopic: createPin(env, userClient),
+  reorderTopics: createReorder(env, userClient),
   deleteTopic: createDelete(env, userClient),
   toggleForum: createToggle(env, userClient),
 });

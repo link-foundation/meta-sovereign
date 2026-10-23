@@ -25,9 +25,10 @@
 
 import { parseExport } from '../sources/telegram-export.js';
 
-const bad = (error) => [400, { error, code: 'bad-request' }];
+export const bad = (error) => [400, { error, code: 'bad-request' }];
 
-const plain = (method) => async (account) =>
+// Calls `method` of the account with nothing.
+export const plain = (method) => async (account) =>
   typeof account[method] === 'function'
     ? [200, await account[method]()]
     : bad('not supported');

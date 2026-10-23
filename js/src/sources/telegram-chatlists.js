@@ -22,6 +22,13 @@
  * - `chatlistLeaveSuggestions({ id })` — chatlists.getLeaveChatlistSuggestions:
  *   the chats it would be good to leave as well;
  *   `chatlistLeave({ id, chats })` — chatlists.leaveChatlist.
+ * New chats in a shared folder the user joined (R-Y211):
+ * - `chatlistUpdates({ id })` — chatlists.getChatlistUpdates: `{ ok, chats:
+ *   [{ chat, name, kind }] }`, the chats the folder's owner has added;
+ * - `chatlistUpdatesJoin({ id, chats })` — only on the user's press:
+ *   chatlists.joinChatlistUpdates with chats the last look named;
+ * - `chatlistUpdatesHide({ id })` — chatlists.hideChatlistUpdates, the
+ *   notice put away.
  * Telegram's errors become codes the page shows as words.
  */
 
@@ -278,6 +285,82 @@ const createLinkActions = (env, inFolder) => ({
         }),
 });
 
+// New chats in a folder the user joined (R-Y211): looked at, joined on the
+// user's press, or the notice hidden.
+const createUpdateActions = (env, inFolder, apply) => {
+  const heard = new Map(); // folder id -> Map(chat -> input peer)
+  return {
+    /** `{ id }` → `{ ok, chats }` the new chats of a joined folder. */
+    chatlistUpdates: async ({ id } = {}) =>
+      !validFolderId(id)
+        ? BAD
+        : inFolder(async (c) => {
+            const answer = await c.client.invoke(
+              new c.Api.chatlists.GetChatlistUpdates({
+                chatlist: folderRef(c, id),
+              })
+            );
+            const entities = entitiesOf(answer);
+            const chats = peerIds(answer?.missingPeers).map((chat) => ({
+              chat,
+              name: entities.get(chat)?.name || chat,
+              kind: entities.get(chat)?.kind ?? 'group',
+            }));
+            heard.set(
+              id,
+              new Map(
+                chats.map((row) => [
+                  row.chat,
+                  inputFromEntity(c, entities.get(row.chat)?.entity ?? {}),
+                ])
+              )
+            );
+            return { ok: true, chats };
+          }),
+
+    /** `{ id, chats }` → `{ ok }`; only on the user's press. */
+    chatlistUpdatesJoin: async ({ id, chats } = {}) =>
+      !validFolderId(id) || !validChats(chats, { min: 1 })
+        ? BAD
+        : inFolder(async (c) => {
+            const known = heard.get(id);
+            const peers = chats.map((chat) => known?.get(chat));
+            if (!known || peers.some((peer) => !peer)) {
+              return {
+                ok: false,
+                error: 'not in the folder',
+                code: 'bad-chats',
+              };
+            }
+            const result = await c.client.invoke(
+              new c.Api.chatlists.JoinChatlistUpdates({
+                chatlist: folderRef(c, id),
+                peers,
+              })
+            );
+            heard.delete(id);
+            if (result && typeof result === 'object') {
+              await apply?.(c.client, result);
+            }
+            return { ok: true };
+          }),
+
+    /** `{ id }` → `{ ok }`: the notice put away. */
+    chatlistUpdatesHide: async ({ id } = {}) =>
+      !validFolderId(id)
+        ? BAD
+        : inFolder(async (c) => {
+            await c.client.invoke(
+              new c.Api.chatlists.HideChatlistUpdates({
+                chatlist: folderRef(c, id),
+              })
+            );
+            heard.delete(id);
+            return { ok: true };
+          }),
+  };
+};
+
 export const createChatlists = (env, { userClient, apply }) => {
   const asUser = (use) => connected(env, userClient, failure, use);
   const seen = new Map(); // slug -> { already, folderId, inputs: Map }
@@ -301,6 +384,7 @@ export const createChatlists = (env, { userClient, apply }) => {
 
   return {
     ...createLinkActions(env, inFolder),
+    ...createUpdateActions(env, inFolder, apply),
     /** `{ slug }` → what the link leads to; nothing is joined. */
     chatlistCheck: async ({ slug } = {}) =>
       !SLUG.test(String(slug))

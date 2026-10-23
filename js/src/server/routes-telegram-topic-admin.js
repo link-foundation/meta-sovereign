@@ -17,6 +17,7 @@
 //                       supergroup's Topics on or off (R-Y153)
 
 import { TITLE_MAX, TOPIC_COLORS } from '../sources/telegram-topic-admin.js';
+import { invalid, route } from './routes-telegram-admin-extras.js';
 
 const CHANNEL = /^-100\d{1,20}$/;
 const ID = /^\d{1,20}$/;
@@ -28,14 +29,6 @@ const titleOk = (v) =>
 const emojiOk = (v) => v === undefined || ID.test(String(v));
 const flagOk = (v) => v === undefined || typeof v === 'boolean';
 const inChannel = (body) => CHANNEL.test(String(body.chat ?? ''));
-
-const invalid = (what) => [400, { error: what, code: 'bad-request' }];
-
-// Calls `method` of the account with the body when `ok` says it is valid.
-const route = (method, what, ok) => async (account, body) =>
-  ok(body) && typeof account[method] === 'function'
-    ? [200, await account[method](body)]
-    : invalid(what);
 
 export const TOPIC_ADMIN_POSTS = {
   'topic-icons': async (account) =>

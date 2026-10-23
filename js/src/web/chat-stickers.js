@@ -44,6 +44,7 @@ import { composerReplyId } from './forum-topics.js';
 import { RemoveSetDialog } from './chat-sticker-box.js';
 import { sendAsField } from './chat-send-as.js';
 import { FeaturedSets } from './chat-sticker-trending.js';
+import { GroupSetSection, useGroupSets } from './chat-group-stickers.js';
 
 const el = React.createElement;
 
@@ -217,7 +218,7 @@ export const Grid = ({ api, list, onSend, onMenu, where, gifs = false }) =>
     )
   );
 
-const Section = ({ id, title, action = null, children }) =>
+export const Section = ({ id, title, action = null, children }) =>
   el('section', { className: 'emoji-section', 'data-category': id }, [
     action
       ? el('div', { key: 'h', className: 'sticker-set-head' }, [
@@ -341,6 +342,15 @@ export const SetThumb = ({ api, set }) => {
     : el('span', { className: 'sticker-set-letter' }, set.title.slice(0, 1));
 };
 
+const barLabel = (s, t) =>
+  s.key === 'group' ? s.group.title : t(`chat.stickers.${s.key}`);
+const barIcon = (key) => {
+  if (key === 'group') {
+    return 'contacts';
+  }
+  return key === 'faved' ? 'star' : 'clock';
+};
+
 const Bar = ({ api, sections, inView, jump }) => {
   const t = useT();
   return el(
@@ -353,14 +363,17 @@ const Bar = ({ api, sections, inView, jump }) => {
           key: s.key,
           type: 'button',
           className: inView === s.key ? 'emoji-cat active' : 'emoji-cat',
-          title: s.set ? s.set.title : t(`chat.stickers.${s.key}`),
-          'aria-label': s.set ? s.set.title : t(`chat.stickers.${s.key}`),
+          title: s.set ? s.set.title : barLabel(s, t),
+          'aria-label': s.set ? s.set.title : barLabel(s, t),
           'data-jump': s.key,
           onClick: () => jump(s.key),
         },
         s.set
           ? el(SetThumb, { api, set: s.set })
-          : el(Icon, { name: s.key === 'faved' ? 'star' : 'clock', size: 18 })
+          : el(Icon, {
+              name: barIcon(s.key),
+              size: 18,
+            })
       )
     )
   );
@@ -452,6 +465,7 @@ export const StickersTab = ({
   onAdd,
   onRemove,
   version,
+  groupSet = null,
 }) => {
   const t = useT();
   const [query, setQuery] = useState('');
@@ -496,12 +510,36 @@ export const StickersTab = ({
           { key: 'found', className: 'emoji-scroll', 'data-found': q },
           el(FoundStickers, { api, q, onSend, onMenu, onAdd })
         )
-      : el(MyStickers, { key: 'mine', api, onSend, onMenu, onRemove, version }),
+      : el(MyStickers, {
+          key: 'mine',
+          api,
+          onSend,
+          onMenu,
+          onRemove,
+          version,
+          groupSet,
+        }),
   ]);
 };
 
+// The panel's sections: the group's own set first (R-Y211), favourites,
+// recent, then the user's sets.
+const panelSections = (answer, groupSet) => [
+  ...(groupSet ? [{ key: 'group', group: groupSet }] : []),
+  ...(answer.faved.length ? [{ key: 'faved', list: answer.faved }] : []),
+  ...(answer.recent.length ? [{ key: 'recent', list: answer.recent }] : []),
+  ...answer.sets.map((set) => ({ key: `set:${set.id}`, set })),
+];
+
 // The user's own: favourites, recent, their sets with the bar.
-const MyStickers = ({ api, onSend, onMenu, onRemove, version }) => {
+const MyStickers = ({
+  api,
+  onSend,
+  onMenu,
+  onRemove,
+  version,
+  groupSet = null,
+}) => {
   const t = useT();
   const scroller = useRef(null);
   const answer = useAnswer(
@@ -510,15 +548,7 @@ const MyStickers = ({ api, onSend, onMenu, onRemove, version }) => {
     {},
     { key: 'panel', fresh: true, version }
   );
-  const sections = answer?.ok
-    ? [
-        ...(answer.faved.length ? [{ key: 'faved', list: answer.faved }] : []),
-        ...(answer.recent.length
-          ? [{ key: 'recent', list: answer.recent }]
-          : []),
-        ...answer.sets.map((set) => ({ key: `set:${set.id}`, set })),
-      ]
-    : [];
+  const sections = answer?.ok ? panelSections(answer, groupSet) : [];
   const inView = useInView(scroller, [sections.length], sections[0]?.key);
   let body = el(Note, { text: t('chat.stickers.loading') });
   if (answer && !answer.ok) {
@@ -527,20 +557,28 @@ const MyStickers = ({ api, onSend, onMenu, onRemove, version }) => {
     body = el(Note, { text: t('chat.stickers.none') });
   } else if (answer?.ok) {
     body = sections.map((s) =>
-      s.set
-        ? el(SetSection, {
+      s.group
+        ? el(GroupSetSection, {
             key: s.key,
             api,
-            set: s.set,
+            set: s.group,
             onSend,
             onMenu,
-            onRemove,
           })
-        : el(
-            Section,
-            { key: s.key, id: s.key, title: t(`chat.stickers.${s.key}`) },
-            el(Grid, { api, list: s.list, onSend, onMenu, where: s.key })
-          )
+        : s.set
+          ? el(SetSection, {
+              key: s.key,
+              api,
+              set: s.set,
+              onSend,
+              onMenu,
+              onRemove,
+            })
+          : el(
+              Section,
+              { key: s.key, id: s.key, title: t(`chat.stickers.${s.key}`) },
+              el(Grid, { api, list: s.list, onSend, onMenu, where: s.key })
+            )
     );
   }
   return el(React.Fragment, null, [
@@ -889,6 +927,7 @@ export const useStickerTabs = ({ state, api, composer }) => {
   const t = useT();
   const send = useSend({ state, api, composer });
   const menu = useStickerMenu({ state, api, send });
+  const groupSets = useGroupSets(state.current?.key, state.info);
   if (!canStickers(state, api)) {
     return { tabs: [], parts: null, featuredEmoji: null };
   }
@@ -899,6 +938,7 @@ export const useStickerTabs = ({ state, api, composer }) => {
     onAdd: menu.add,
     onRemove: menu.remove,
     version: menu.version,
+    groupSet: groupSets.stickers?.shortName ? groupSets.stickers : null,
   });
   return {
     tabs: [

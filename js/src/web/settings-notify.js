@@ -3,7 +3,8 @@
 // chats", "Groups" and "Channels", each with Notifications on or off,
 // Message preview, Stories notifications and its Exceptions — the chats
 // that differ, with their state ("Muted", "Muted until …", "Unmuted"); a
-// click opens that chat's own notification settings. Everything is
+// click opens that chat's own notification settings; "New contacts joined
+// Telegram" is a switch of its own (R-Y211). Everything is
 // Telegram's own, so other devices follow. Nothing shows when no Telegram
 // account is connected.
 
@@ -120,6 +121,56 @@ const Scope = ({ scope, row, list, onChange, onOpen }) => {
   ]);
 };
 
+// "New contacts joined Telegram" (R-Y211): Telegram's own switch, read when
+// the section shows and set on a press; undone if Telegram refuses.
+const SignUpToggle = ({ api }) => {
+  const t = useT();
+  const [on, setOn] = useState(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    if (typeof api?.telegramContactSignUp !== 'function') {
+      return undefined;
+    }
+    let live = true;
+    Promise.resolve(api.telegramContactSignUp())
+      .then((answer) => live && answer?.ok && setOn(Boolean(answer.on)))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [api]);
+  if (on === null || typeof api?.telegramContactSignUpSet !== 'function') {
+    return null;
+  }
+  const change = (next) => {
+    setOn(next);
+    setFailed(false);
+    Promise.resolve(api.telegramContactSignUpSet({ on: next }))
+      .then((answer) => {
+        if (!answer?.ok) {
+          setOn(!next);
+          setFailed(true);
+        }
+      })
+      .catch(() => {
+        setOn(!next);
+        setFailed(true);
+      });
+  };
+  return el('div', { className: 'notify-scope', 'data-scope': 'signup' }, [
+    el(Toggle, {
+      key: 'on',
+      action: 'notify-signup',
+      checked: on,
+      onChange: change,
+      label: t('settings.notifyTg.signUp'),
+    }),
+    failed
+      ? el('p', { key: 'f', role: 'alert' }, t('settings.notifyTg.failed'))
+      : null,
+  ]);
+};
+
 // The rules shared with the notifications, kept up to date here.
 const useRules = (api) => {
   const [rules, setRules] = useState(getNotifyRules);
@@ -215,6 +266,7 @@ export const TelegramNotifySettings = ({ api }) => {
             }),
         })
       ),
+      el(SignUpToggle, { key: 'signup', api }),
       failed
         ? el('p', { key: 'f', role: 'alert' }, t('settings.notifyTg.failed'))
         : null,

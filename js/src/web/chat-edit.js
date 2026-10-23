@@ -5,7 +5,7 @@
 // picks an image, "Remove photo" clears it. Only what changed is sent.
 // Once saved, the column shows the new name and description.
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { About, FormDialog, Title, errorText } from './chat-create.js';
 import {
@@ -16,6 +16,7 @@ import {
 } from './chat-moderation.js';
 import { AdminsSection, hasAdminSection } from './chat-admins.js';
 import { Frame } from './chat-readers.js';
+import { GroupSetRows, useRedrawOn } from './chat-group-stickers.js';
 
 const el = React.createElement;
 
@@ -24,12 +25,7 @@ const edited = new Map();
 
 /** What was saved for a chat this session: `{ title?, about? }`. */
 export const useEdited = (key) => {
-  const [, again] = useState(0);
-  useEffect(() => {
-    const on = () => again((n) => n + 1);
-    globalThis.addEventListener?.(EVENT, on);
-    return () => globalThis.removeEventListener?.(EVENT, on);
-  }, []);
+  useRedrawOn(EVENT);
   return edited.get(key) ?? {};
 };
 
@@ -199,6 +195,8 @@ const EditDialog = ({ api, chat, info, close }) => {
       canTransfer(chat, info, api)
         ? el(TransferOwnership, { key: 't2', api, chat })
         : null,
+      // The group's sticker set and emoji pack (R-Y211).
+      el(GroupSetRows, { key: 'gs', api, chat, info }),
       // Administrators and the history for new members (R-Y204).
       el(AdminsSection, { key: 'adm', api, chat, info, leave: close }),
     ]
