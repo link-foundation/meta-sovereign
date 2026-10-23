@@ -205,6 +205,10 @@ import { GETS } from './routes-telegram-files.js';
 import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { BOT_LOGIN_POSTS } from './routes-telegram-bot-login.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
+import {
+  INSTANT_VIEW_GETS,
+  INSTANT_VIEW_POSTS,
+} from './routes-telegram-instant-view.js';
 import { CHAT_ADMINS_POSTS } from './routes-telegram-chat-admins.js';
 import {
   ACCOUNTS_GETS,
@@ -1005,6 +1009,7 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  ...INSTANT_VIEW_POSTS,
   ...CHAT_ADMINS_POSTS,
   ...ACCOUNTS_POSTS,
   ...ADMIN_EXTRAS_POSTS,
@@ -1359,6 +1364,7 @@ const ALL_GETS = {
   ...GETS,
   ...WALLPAPER_GETS,
   ...RINGTONE_GETS,
+  ...INSTANT_VIEW_GETS,
   ...PROFILE_STORIES_GETS,
   ...ACCOUNTS_GETS,
 };

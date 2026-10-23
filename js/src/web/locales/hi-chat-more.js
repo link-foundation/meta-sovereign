@@ -1355,4 +1355,23 @@ export const hiChatMore = {
   'chat.service.requestedPeerSentMeBare':
     '{user} ने आपके साथ अपना चुनाव साझा किया',
   'chat.share.recent': 'हाल के स्थान',
+  // Instant View (R-Y205).
+  'chat.iv.button': 'इंस्टैंट व्यू',
+  'chat.iv.title': 'इंस्टैंट व्यू',
+  'chat.iv.back': 'वापस',
+  'chat.iv.openBrowser': 'ब्राउज़र में खोलें',
+  'chat.iv.loading': 'पेज लोड हो रहा है…',
+  'chat.iv.unavailable': 'इंस्टैंट व्यू उपलब्ध नहीं है',
+  'chat.iv.openMap': 'नक्शा खोलें',
+  'chat.iv.openEmbed': 'एम्बेड की गई सामग्री खोलें',
+  'chat.iv.openChannel': 'चैनल खोलें',
+  'chat.iv.audio': 'ऑडियो',
+  'chat.iv.video': 'वीडियो',
+  'chat.iv.picture': 'चित्र',
+  'chat.iv.err.not-found': 'यह पेज नहीं मिला।',
+  'chat.iv.err.unreachable': 'Telegram यह पेज लोड नहीं कर सका।',
+  'chat.iv.err.bad-url': 'यह लिंक मान्य नहीं है।',
+  'chat.iv.err.flood': 'बहुत अधिक अनुरोध। बाद में प्रयास करें।',
+  'chat.iv.err.bad-request': 'यह अनुरोध मान्य नहीं था।',
+  'chat.iv.err.failed': 'कुछ गलत हो गया। फिर प्रयास करें।',
 };

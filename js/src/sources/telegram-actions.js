@@ -130,6 +130,7 @@ import { createStoryActions } from './telegram-story-actions.js';
 import { createStoryExtras } from './telegram-story-extras.js';
 import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
+import { createInstantView } from './telegram-instant-view.js';
 import { createHistoryExport } from './telegram-export.js';
 
 const SOURCE = 'telegram';
@@ -475,7 +476,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // login links and attachment-menu bots (R-Y201); moderation, ownership
 // transfer, broadcast groups and left channels (R-Y200); adding members,
 // administrators and upgrading groups (R-Y204); request-peer buttons
-// and recent locations (R-Y208).
+// and recent locations (R-Y208); Instant View (R-Y205).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -537,6 +538,7 @@ const chatActions = (env, context) => {
     ...createStoryActions(env, context),
     ...createStoryExtras(env, context),
     ...createLinkPreview(env, context),
+    ...createInstantView(env, context),
     ...createAdminActions(env, context),
     ...createCommonChats(env, context),
     ...createStats(env, context),

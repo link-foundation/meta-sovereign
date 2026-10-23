@@ -112,6 +112,8 @@ export const TELEGRAM_CALLS = {
   telegramInlineStartBot: body('inline-start-bot'),
   // The message box's link preview, and its picture (R-Y145).
   telegramLinkPreview: body('link-preview'),
+  // Instant View (R-Y205): a link's cached page as a safe tree.
+  telegramInstantView: body('instant-view'),
   telegramReactors: body('reactors'),
   // New groups and channels, a chat's info edited (R-Y129).
   telegramChatContacts: none('chat-contacts'),

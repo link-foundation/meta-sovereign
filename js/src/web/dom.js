@@ -1027,6 +1027,15 @@ const rawApi = {
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for the chat list menu' },
 
+  // Where Instant View's pictures are served (R-Y205).
+  telegramInstantViewMediaBase: async () => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline()) {
+      return null;
+    }
+    const path = '/api/telegram/instant-view-media';
+    return origin ? new URL(path, origin).toString() : path;
+  },
   telegramLinkPreviewPhotoUrl: async ({ id } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !/^\d{1,20}$/.test(String(id ?? ''))) {

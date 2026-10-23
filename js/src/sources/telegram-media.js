@@ -92,7 +92,7 @@ const photoOf = (media) => {
     : null;
 };
 
-const documentPicture = (doc, want) => {
+export const documentPicture = (doc, want) => {
   if (isSmallImage(doc) && want !== 's') {
     return { kind: 'document', file: doc, thumb: '', mimeType: doc.mimeType };
   }

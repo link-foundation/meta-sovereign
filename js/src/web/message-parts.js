@@ -434,6 +434,8 @@ const parseWebpageMedia = (wp) => ({
   title: wp.title ?? null,
   description: wp.description ?? null,
   photo: wp.photo ?? null,
+  // A page Telegram cached opens in the reader (R-Y205).
+  instantView: Boolean(wp.cachedPage),
 });
 
 // What has no file: a place, a contact, a poll, a checklist, a die — each drawn as a

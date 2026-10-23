@@ -13,6 +13,7 @@ import { openMessageLink } from './message-links.js';
 import { openLoginLink } from './chat-bot-login.js';
 import { openAttachLink } from './chat-attach-bots.js';
 import { openBusinessLink } from './chat-business-link-open.js';
+import { openInstantViewLink } from './chat-instant-view-open.js';
 import { openProxyLink } from './proxy-model.js';
 import { openGiftLink } from './gift-manage-model.js';
 import { addlistSlugOf } from './chat-folder-model.js';
@@ -226,6 +227,7 @@ const drawNode = (node, key, ctx) => {
           } else if (
             openMessageLink(href) ||
             openBusinessLink(href) ||
+            openInstantViewLink(href) ||
             openProxyLink(href) ||
             openGiftLink(href) ||
             openLoginLink(href) ||
@@ -235,7 +237,8 @@ const drawNode = (node, key, ctx) => {
             // chat link opens its chat with the text in the box (R-Y180);
             // a proxy link opens the proxy dialog, prefilled (R-Y192); a unique
             // gift or gift code link opens its viewer (R-Y193); a link of a
-            // login domain asks Telegram first (R-Y201), and a bot's
+            // login domain asks Telegram first (R-Y201), a t.me/iv link or a link
+            // with a cached page opens the reader (R-Y205), and a bot's
             // startattach link offers the attachment menu (R-Y201).
             event.preventDefault();
           }

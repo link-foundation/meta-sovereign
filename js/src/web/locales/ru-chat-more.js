@@ -1365,4 +1365,23 @@ export const ruChatMore = {
   'chat.service.requestedPeerSentMeBare':
     '{user} поделился(ась) с вами своим выбором',
   'chat.share.recent': 'Недавние места',
+  // Instant View (R-Y205).
+  'chat.iv.button': 'МГНОВЕННЫЙ ПРОСМОТР',
+  'chat.iv.title': 'Мгновенный просмотр',
+  'chat.iv.back': 'Назад',
+  'chat.iv.openBrowser': 'Открыть в браузере',
+  'chat.iv.loading': 'Загружаем страницу…',
+  'chat.iv.unavailable': 'Мгновенный просмотр недоступен',
+  'chat.iv.openMap': 'Открыть карту',
+  'chat.iv.openEmbed': 'Открыть встроенное содержимое',
+  'chat.iv.openChannel': 'Открыть канал',
+  'chat.iv.audio': 'Аудио',
+  'chat.iv.video': 'Видео',
+  'chat.iv.picture': 'Изображение',
+  'chat.iv.err.not-found': 'Страница не найдена.',
+  'chat.iv.err.unreachable': 'Telegram не смог загрузить эту страницу.',
+  'chat.iv.err.bad-url': 'Эта ссылка недействительна.',
+  'chat.iv.err.flood': 'Слишком много запросов. Попробуйте позже.',
+  'chat.iv.err.bad-request': 'Некорректный запрос.',
+  'chat.iv.err.failed': 'Что-то пошло не так. Попробуйте ещё раз.',
 };

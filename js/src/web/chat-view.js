@@ -57,6 +57,7 @@ import { EmojiStatus } from './emoji-status.js';
 import { replyRefOf, useChatActions } from './chat-actions.js';
 import { useMessageLinks } from './chat-link-open.js';
 import { TagSearchHost } from './chat-tags.js';
+import { InstantViewHost } from './chat-instant-view.js';
 import { BusinessIntro } from './chat-business-profile.js';
 import { BotBar } from './chat-business-bots.js';
 import { useBusinessLinks } from './chat-business-link-open.js';
@@ -1220,6 +1221,8 @@ export const ChatScreen = ({ state, api }) => {
         el(PrivateCallHost, { key: 'private-call', api, state: privateCall }),
         // A clicked #hashtag or $cashtag searches (R-Y182).
         el(TagSearchHost, { key: 'tag-search', api, state }),
+        // The Instant View reader (R-Y205).
+        el(InstantViewHost, { key: 'instant-view', api }),
         state.current
           ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
               // While messages are selected Desktop's top bar shows what

@@ -211,6 +211,8 @@
     "test:e2e:contacts:webkit": "E2E_BROWSER=webkit node js/tests/e2e-contacts-browser.mjs",
     "test:e2e:readers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-readers-browser.mjs",
     "test:e2e:bot-commands": "node js/tests/e2e-bot-commands-browser.mjs",
+    "test:e2e:instant-view": "node js/tests/e2e-instant-view-browser.mjs",
+    "test:e2e:instant-view:webkit": "E2E_BROWSER=webkit node js/tests/e2e-instant-view-browser.mjs",
     "test:e2e:inline-bots": "node js/tests/e2e-inline-bots-browser.mjs",
     "test:e2e:inline-bots:webkit": "E2E_BROWSER=webkit node js/tests/e2e-inline-bots-browser.mjs",
     "test:e2e:bot-commands:webkit": "E2E_BROWSER=webkit node js/tests/e2e-bot-commands-browser.mjs",

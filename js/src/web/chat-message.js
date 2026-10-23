@@ -27,6 +27,7 @@ import { failureText, isPaidFailure } from './chat-failure.js';
 import { MediaPhoto } from './chat-photo.js';
 import { AlbumGrid } from './chat-album.js';
 import { EffectBadge } from './chat-effects.js';
+import { WebPreview } from './chat-webpage.js';
 import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { EmojiStatus } from './emoji-status.js';
@@ -258,37 +259,6 @@ const ForwardHeader = ({ fwdFrom }) => {
     { className: 'bubble-fwd' },
     name ? t('chat.fwdFrom', { name }) : t('chat.fwdFromUnknown')
   );
-};
-
-// ---- Web page preview ---------------------------------------------------
-
-const WebPreview = ({ webPage }) => {
-  if (!webPage) {
-    return null;
-  }
-  return el('div', { className: 'bubble-webpage' }, [
-    webPage.siteName
-      ? el(
-          'span',
-          { key: 'site', className: 'bubble-wp-site' },
-          webPage.siteName
-        )
-      : null,
-    webPage.title
-      ? el(
-          'strong',
-          { key: 'title', className: 'bubble-wp-title' },
-          webPage.title
-        )
-      : null,
-    webPage.description
-      ? el(
-          'span',
-          { key: 'desc', className: 'bubble-wp-desc' },
-          webPage.description
-        )
-      : null,
-  ]);
 };
 
 // ---- Reactions ----------------------------------------------------------
