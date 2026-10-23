@@ -878,4 +878,11 @@ export const zhChat = {
   'chat.stories.err.no-access': '您无法查看这些快拍。',
   'chat.stories.err.flood': '尝试次数过多，请稍后再试。',
   'chat.stories.err.failed': '无法加载快拍。',
+  'chat.linkPreview.loading': '正在加载预览…',
+  'chat.linkPreview.close': '不显示预览',
+  'chat.linkPreview.options': '预览选项',
+  'chat.linkPreview.above': '显示在文字上方',
+  'chat.linkPreview.below': '显示在文字下方',
+  'chat.linkPreview.larger': '更大的媒体',
+  'chat.linkPreview.smaller': '更小的媒体',
 };

@@ -922,4 +922,11 @@ export const hiChat = {
   'chat.stories.err.no-access': 'आप ये स्टोरी नहीं देख सकते।',
   'chat.stories.err.flood': 'बहुत अधिक प्रयास। थोड़ी देर रुककर फिर कोशिश करें।',
   'chat.stories.err.failed': 'स्टोरी लोड नहीं हो सकीं।',
+  'chat.linkPreview.loading': 'पूर्वावलोकन लोड हो रहा है…',
+  'chat.linkPreview.close': 'पूर्वावलोकन न दिखाएँ',
+  'chat.linkPreview.options': 'पूर्वावलोकन विकल्प',
+  'chat.linkPreview.above': 'टेक्स्ट के ऊपर दिखाएँ',
+  'chat.linkPreview.below': 'टेक्स्ट के नीचे दिखाएँ',
+  'chat.linkPreview.larger': 'बड़ा मीडिया',
+  'chat.linkPreview.smaller': 'छोटा मीडिया',
 };

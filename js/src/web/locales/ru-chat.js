@@ -934,4 +934,11 @@ export const ruChat = {
   'chat.stories.err.no-access': 'Эти истории вам недоступны.',
   'chat.stories.err.flood': 'Слишком много попыток. Подождите и повторите.',
   'chat.stories.err.failed': 'Не удалось загрузить истории.',
+  'chat.linkPreview.loading': 'Загрузка превью…',
+  'chat.linkPreview.close': 'Не показывать превью',
+  'chat.linkPreview.options': 'Параметры превью',
+  'chat.linkPreview.above': 'Показывать над текстом',
+  'chat.linkPreview.below': 'Показывать под текстом',
+  'chat.linkPreview.larger': 'Крупнее медиа',
+  'chat.linkPreview.smaller': 'Мельче медиа',
 };

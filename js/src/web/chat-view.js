@@ -51,6 +51,7 @@ import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
 import { useBotCommands, useCommandBox } from './chat-bot-commands.js';
 import { useInlineBox } from './chat-inline-bots.js';
+import { useLinkPreview } from './chat-link-preview.js';
 import {
   AttachButton,
   AttachDialog,
@@ -1001,6 +1002,8 @@ const Composer = ({ state, api, keys }) => {
   });
   // "@gif cats": an inline bot's answers over the box (R-Y138).
   const inline = useInlineBox({ api, state, composer, text });
+  // The link in the text, previewed above the box (R-Y145).
+  const linkPreview = useLinkPreview({ api, state, text, composer });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -1042,6 +1045,7 @@ const Composer = ({ state, api, keys }) => {
         replyTo: composer.replyTo ?? null,
         onClear: composer.clearReplyTo,
       }),
+      linkPreview.bar,
       el('div', { key: 'row', className: 'chat-composer-row' }, [
         unless(voice.recording, sendAs.button),
         voice.bar,

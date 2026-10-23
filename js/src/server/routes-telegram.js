@@ -66,6 +66,9 @@
  *                                      -> { ok, readers: [{ id, name, date }] }
  *                                         who read the user's own message
  *                                         in a small group (R-Y127)
+ *   POST /api/telegram/link-preview {text, url} -> { ok, state:
+ *        'ready'|'pending'|'empty', preview? } the message box's link
+ *        preview (R-Y145); its picture: GET …/link-preview-photo?id=
  *   POST /api/telegram/translate {chat, ids, to}
  *                                      -> { ok, items: [{ id, text,
  *                                         entities }] } 1..20 messages
@@ -288,6 +291,7 @@ import { TTL_POSTS } from './routes-telegram-ttl.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
 import { validSendAs } from '../sources/telegram-send-as-client.js';
 import { STORIES_POSTS } from './routes-telegram-stories.js';
+import { LINK_PREVIEW_POSTS } from './routes-telegram-link-preview.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -1003,6 +1007,7 @@ const POSTS = {
   ...TTL_POSTS,
   ...SEND_AS_POSTS,
   ...STORIES_POSTS,
+  ...LINK_PREVIEW_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(
     'myProfile',

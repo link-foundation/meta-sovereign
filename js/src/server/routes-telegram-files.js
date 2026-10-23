@@ -324,7 +324,35 @@ const handleUnreadMarks = async (account, req, res) => {
   );
 };
 
+// GET /api/telegram/link-preview-photo?id= -> the picture of a page in the
+// message box's link preview, downloaded through Telegram (R-Y145).
+const handleLinkPreviewPhoto = async (account, req, res, ctx) => {
+  if (!fromApp(req, ctx?.allowOrigins)) {
+    return refuse(req, res, ctx, 'link-preview-photo', 'load only in the app');
+  }
+  if (typeof account.linkPreviewPhoto !== 'function') {
+    return json(res, 501, { error: 'link previews not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  if (!/^\d{1,20}$/.test(query.get('id') ?? '')) {
+    return json(res, 400, { error: 'bad id' }) ?? true;
+  }
+  const result = await account.linkPreviewPhoto({ id: query.get('id') });
+  if (!result?.buffer) {
+    return json(res, 404, { error: 'no picture' }) ?? true;
+  }
+  res.writeHead(200, {
+    'content-type': result.mimeType || 'image/jpeg',
+    'content-length': result.buffer.length,
+    'cache-control': 'private, max-age=3600',
+    'x-content-type-options': 'nosniff',
+  });
+  res.end(result.buffer);
+  return true;
+};
+
 export const GETS = {
+  'link-preview-photo': handleLinkPreviewPhoto,
   media: handleMedia,
   sticker: handleSticker,
   map: handleMap,

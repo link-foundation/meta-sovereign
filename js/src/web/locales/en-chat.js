@@ -917,4 +917,11 @@ export const enChat = {
   'chat.stories.err.no-access': 'You cannot see these stories.',
   'chat.stories.err.flood': 'Too many tries. Wait a while and try again.',
   'chat.stories.err.failed': 'The stories could not be loaded.',
+  'chat.linkPreview.loading': 'Loading preview…',
+  'chat.linkPreview.close': 'Do not show a preview',
+  'chat.linkPreview.options': 'Preview options',
+  'chat.linkPreview.above': 'Show above the text',
+  'chat.linkPreview.below': 'Show below the text',
+  'chat.linkPreview.larger': 'Larger media',
+  'chat.linkPreview.smaller': 'Smaller media',
 };

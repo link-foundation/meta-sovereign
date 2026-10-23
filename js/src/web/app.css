@@ -6406,6 +6406,11 @@ button[aria-busy='true']::before {
   display: flex;
 }
 .privacy-confirm {
+}
+
+/* The link preview over the message box (R-Y145; chat-link-preview.js). */
+.composer-link-preview {
+  position: relative;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -6928,4 +6933,59 @@ button[aria-busy='true']::before {
   z-index: 2;
   text-align: center;
   opacity: 0.85;
+  padding: 0.3rem 0.75rem;
+  background: var(--bg-active);
+  border-top: 1px solid var(--border);
+}
+.link-preview-line {
+  flex: none;
+  align-self: stretch;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+}
+.link-preview-photo {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.link-preview-body {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+}
+.link-preview-body > span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.link-preview-site {
+  color: var(--accent);
+  font-weight: 600;
+}
+.link-preview-text {
+  color: var(--text-muted);
+}
+.link-preview-more,
+.link-preview-option {
+  flex: none;
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: 0.1rem 0.4rem;
+}
+.link-preview-more:hover,
+.link-preview-option:hover {
+  color: var(--text);
+}
+.link-preview-options {
+  flex-basis: 100%;
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
 }

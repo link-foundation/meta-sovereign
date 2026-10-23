@@ -161,7 +161,7 @@ export const replyHeader = (Api, replyTo, replyQuote, topic = null) => {
 const sendThroughLibrary = (
   client,
   peer,
-  { text, formatting, replyTo, topic, when = {} }
+  { text, formatting, replyTo, topic, when = {}, preview = null }
 ) =>
   client.sendMessage(peer, {
     message: text,
@@ -170,6 +170,7 @@ const sendThroughLibrary = (
     ...(replyTo || topic > 1 ? { replyTo: replyTo ?? topic } : {}),
     ...(when.silent ? { silent: true } : {}),
     ...(when.scheduleDate ? { schedule: when.scheduleDate } : {}),
+    ...(preview?.noWebpage ? { linkPreview: false } : {}),
   });
 
 // Without sound, and when (R-Y102): Telegram's `silent` and
@@ -190,10 +191,39 @@ export const diceOf = (text) => {
   return DICE.includes(bare) ? bare : null;
 };
 
+// The link preview's choice for a part (R-Y145): `noWebpage` sends
+// without it, `invertMedia` puts it above the text; a size makes the
+// message a messages.sendMedia with the page as InputMediaWebPage (as
+// Telegram Desktop does for larger or smaller media).
+const absoluteUrl = (url) =>
+  /^https?:\/\//i.test(url) ? url : `http://${url}`;
+const previewMedia = (Api, preview) =>
+  preview?.previewUrl && preview.previewSize && !preview.noWebpage
+    ? new Api.InputMediaWebPage({
+        url: absoluteUrl(preview.previewUrl),
+        optional: true,
+        ...(preview.previewSize === 'large'
+          ? { forceLargeMedia: true }
+          : { forceSmallMedia: true }),
+      })
+    : null;
+
 // What a part is sent as: a die (messages.sendMedia) for a lone die's
-// emoji, else the text (messages.sendMessage).
-const partRequest = (Api, { text, formatting, ...fields }) => {
+// emoji, a message with a sized link preview (messages.sendMedia), else
+// the text (messages.sendMessage).
+const partRequest = (Api, { text, formatting, preview, ...fields }) => {
   const dice = formatting.length === 0 && Api.InputMediaDice && diceOf(text);
+  const page = !dice && Api.InputMediaWebPage && previewMedia(Api, preview);
+  const flags = preview?.invertMedia ? { invertMedia: true } : {};
+  if (page) {
+    return new Api.messages.SendMedia({
+      ...fields,
+      ...flags,
+      media: page,
+      message: text,
+      ...(formatting.length > 0 ? { entities: formatting } : {}),
+    });
+  }
   return dice
     ? new Api.messages.SendMedia({
         ...fields,
@@ -202,6 +232,8 @@ const partRequest = (Api, { text, formatting, ...fields }) => {
       })
     : new Api.messages.SendMessage({
         ...fields,
+        ...flags,
+        ...(preview?.noWebpage ? { noWebpage: true } : {}),
         message: text,
         ...(formatting.length > 0 ? { entities: formatting } : {}),
       });
@@ -222,6 +254,7 @@ const sendPart = async ({
   replyQuote = null,
   topic,
   when,
+  preview = null,
   onResult,
 }) => {
   const formatting = apiEntities(Api, entities);
@@ -232,11 +265,13 @@ const sendPart = async ({
       replyTo,
       topic,
       when,
+      preview,
     });
   }
   const request = partRequest(Api, {
     text,
     formatting,
+    preview,
     peer: await client.getInputEntity(peer),
     randomId,
     clearDraft: true,
@@ -260,6 +295,15 @@ const sendPart = async ({
   }
 };
 
+// The preview's size is for the first part, which holds the link.
+const previewOfPart = (preview, index) =>
+  index === 0 || !preview ? preview : { ...preview, previewUrl: undefined };
+
+const firstPartOnly = (index, { replyTo, replyQuote }) => ({
+  replyTo: index === 0 ? replyTo : null,
+  replyQuote: index === 0 ? replyQuote : null,
+});
+
 /**
  * Send `text` to `peer`, part by part.
  * Returns `[{ id, date, text, entities, duplicate? }]`, one per part.
@@ -277,6 +321,7 @@ export const sendText = async ({
   topic = null,
   silent,
   scheduleDate,
+  preview = null,
   onResult,
 }) => {
   const parts = formattedParts(text, maxLength);
@@ -291,11 +336,11 @@ export const sendText = async ({
       entities: part.entities,
       randomId,
       // A long reply answers with its first part, as Telegram's apps do.
-      replyTo: index === 0 ? replyTo : null,
-      replyQuote: index === 0 ? replyQuote : null,
+      ...firstPartOnly(index, { replyTo, replyQuote }),
       // Every part goes to the topic (R-Y122).
       topic,
       when: { silent, scheduleDate },
+      preview: previewOfPart(preview, index),
       onResult,
     });
     sent.push({

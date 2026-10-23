@@ -37,6 +37,7 @@
 
 import { json, readBody } from './util.js';
 import { confirmed } from './confirmations.js';
+import { previewFields } from '../sources/telegram-link-preview.js';
 import {
   AUTOMATION_PREFIX,
   automationPresets,
@@ -143,6 +144,8 @@ const buildDraft = (body) => {
     ...topicField(body),
     // The identity it is sent as in a group (R-Y141).
     ...(body.sendAs === undefined ? {} : { sendAs: body.sendAs }),
+    // The link preview's choice (R-Y145), already validated.
+    ...previewFields(body),
     // Without sound; at a time (R-Y102).
     ...(body.silent === true ? { silent: true } : {}),
     ...(body.scheduleDate !== undefined
@@ -191,6 +194,9 @@ const handleSend = async (store, res, body, ctx) => {
   }
   if (!validSendAs(body.sendAs)) {
     return fail(res, 400, 'bad-send-as', 'a peer id to send as');
+  }
+  if (!previewFields(body)) {
+    return fail(res, 400, 'bad-preview', 'a valid link preview choice');
   }
   const draft = buildDraft(body);
   // The composer's Send press confirms exactly this text.

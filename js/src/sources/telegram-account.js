@@ -64,6 +64,7 @@ import {
 } from './telegram-send.js';
 import { rawEntities } from './telegram-format.js';
 import { validSendAs, withSendAs } from './telegram-send-as-client.js';
+import { previewFields } from './telegram-link-preview.js';
 import { GENERAL_TOPIC, inTopicOnly } from '../web/forum-topics.js';
 import {
   importTelegram,
@@ -820,6 +821,7 @@ const postAsUser = async (
     silent,
     scheduleDate,
     sendAs,
+    preview = null,
   }
 ) => {
   const { client: own } = await env.connection.open(creds);
@@ -850,6 +852,7 @@ const postAsUser = async (
         topic,
         silent,
         scheduleDate,
+        preview,
         onResult: (result) => env.catchUp?.observeResult(result),
       })
     );
@@ -909,6 +912,8 @@ const draftOptions = (draft) => {
       : null,
     // The identity it is sent as (R-Y141).
     sendAs: validSendAs(draft.sendAs) ? draft.sendAs : undefined,
+    // The link preview's choice (R-Y145), validated when it came in.
+    preview: previewFields(draft),
   };
 };
 

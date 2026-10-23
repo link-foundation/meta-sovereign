@@ -959,6 +959,16 @@ export const api = {
   telegramInlineBot: (body = {}) => telegramPost('inline-bot', body),
   telegramInlineResults: (body = {}) => telegramPost('inline-results', body),
   telegramInlineSend: (body = {}) => telegramPost('inline-send', body),
+  // The message box's link preview, and its picture (R-Y145).
+  telegramLinkPreview: (body = {}) => telegramPost('link-preview', body),
+  telegramLinkPreviewPhotoUrl: async ({ id } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !/^\d{1,20}$/.test(String(id ?? ''))) {
+      return null;
+    }
+    const path = `/api/telegram/link-preview-photo?id=${id}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
   telegramReactors: (body = {}) => telegramPost('reactors', body),
   // New groups and channels, a chat's info edited (R-Y129).
   telegramChatContacts: () => telegramPost('chat-contacts', {}),

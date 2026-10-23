@@ -177,6 +177,14 @@ const newClientId = () =>
   globalThis.crypto?.randomUUID?.() ??
   `c${Date.now().toString(36)}${(counter += 1)}${Math.random().toString(36).slice(2)}`;
 
+// What the link preview's bar chose, as a send carries it (R-Y145).
+const previewOf = (item) =>
+  Object.fromEntries(
+    ['noWebpage', 'invertMedia', 'previewUrl', 'previewSize']
+      .filter((key) => item[key])
+      .map((key) => [key, item[key]])
+  );
+
 // One send's answer; a thrown error is a failure like any other.
 const sendResult = async (api, item) => {
   try {
@@ -191,6 +199,7 @@ const sendResult = async (api, item) => {
       ...(item.silent ? { silent: true } : {}),
       ...(item.scheduleDate ? { scheduleDate: item.scheduleDate } : {}),
       ...(item.sendAs ? { sendAs: item.sendAs } : {}),
+      ...previewOf(item),
     });
     return result ?? { status: 'failed', code: 'no-answer' };
   } catch (error) {
@@ -485,6 +494,8 @@ export const useComposer = ({
   const key = current?.key ?? null;
   // replyTo: { msgId, senderName, text } set by Reply action; cleared on send.
   const [replyTo, setReplyTo] = useState(null);
+  // The link preview bar's choice for the next send (R-Y145).
+  const previewChoice = useRef(null);
 
   // `silent`: without sound; `scheduleDate` (unix seconds): Telegram
   // sends it then (R-Y102).
@@ -498,6 +509,8 @@ export const useComposer = ({
     }
     box.sent(key);
     typing.cancel();
+    const preview = previewChoice.current ?? {};
+    previewChoice.current = null;
     const replyId = replyTo?.msgId ?? null;
     const quote = replyId ? (replyTo?.quoteText ?? null) : null;
     setReplyTo(null);
@@ -513,6 +526,7 @@ export const useComposer = ({
       ...outFields({ replyTo: replyId, replyQuote: quote, topic }),
       ...outFields({ silent, scheduleDate }),
       ...sendAsField(current.chat),
+      ...preview,
     });
   };
 
@@ -593,5 +607,8 @@ export const useComposer = ({
     topic,
     setReplyTo: (msg) => setReplyTo(msg),
     clearReplyTo: () => setReplyTo(null),
+    setPreviewChoice: (choice) => {
+      previewChoice.current = choice;
+    },
   };
 };
