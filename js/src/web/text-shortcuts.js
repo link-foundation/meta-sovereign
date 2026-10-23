@@ -4,6 +4,7 @@
  * server sends as Telegram's formatting (../sources/telegram-format.js).
  *
  *   Ctrl/Cmd+B bold          Ctrl/Cmd+I italic
+ *   Ctrl/Cmd+U underline
  *   Ctrl/Cmd+Shift+X strike  Ctrl/Cmd+Shift+M monospace
  *   Ctrl/Cmd+Shift+P spoiler Ctrl/Cmd+K link
  *   Ctrl/Cmd+Shift+N plain text (the selection's formatting removed)
@@ -17,6 +18,7 @@ import { parseFormatted, wrapSelection } from '../sources/telegram-format.js';
 const PLAIN = {
   KeyB: 'bold',
   KeyI: 'italic',
+  KeyU: 'underline',
   KeyK: 'link',
 };
 const SHIFTED = {
@@ -64,16 +66,10 @@ const put = (area, { from, to, insert }, value, setText) => {
 };
 
 /**
- * Handle a formatting shortcut in `event` (a textarea's keydown).
- * Answers whether it was one.
+ * Apply `kind` to the selection of `area` (a textarea), as its shortcut
+ * does: the caret or selection kept where Desktop leaves it.
  */
-export const formatShortcut = (event, setText) => {
-  const kind = formatOfKey(event);
-  const area = event.target;
-  if (!kind || typeof area?.setSelectionRange !== 'function') {
-    return false;
-  }
-  event.preventDefault();
+export const applyFormat = (area, kind, setText) => {
   const value = String(area.value ?? '');
   const edit = formatEdit(
     value,
@@ -93,5 +89,19 @@ export const formatShortcut = (event, setText) => {
       }
     });
   }
+};
+
+/**
+ * Handle a formatting shortcut in `event` (a textarea's keydown).
+ * Answers whether it was one.
+ */
+export const formatShortcut = (event, setText) => {
+  const kind = formatOfKey(event);
+  const area = event.target;
+  if (!kind || typeof area?.setSelectionRange !== 'function') {
+    return false;
+  }
+  event.preventDefault();
+  applyFormat(area, kind, setText);
   return true;
 };

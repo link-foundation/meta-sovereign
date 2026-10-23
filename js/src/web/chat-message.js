@@ -988,7 +988,13 @@ const BubbleContent = ({
       )
     : null,
   el(ForwardHeader, { key: 'fwd', fwdFrom: parts.fwdFrom }),
-  el(ReplyQuote, { key: 'rep', replyRef: parts.replyRef, onScrollTo }),
+  // The reply's quote: to the message it answers, this one kept to
+  // come back to.
+  el(ReplyQuote, {
+    key: 'rep',
+    replyRef: parts.replyRef,
+    onScrollTo: (id) => onScrollTo?.(id, message.id),
+  }),
   el(BubbleMedia, {
     key: 'media',
     parts,
@@ -1108,7 +1114,8 @@ const SelectCheck = ({ selected }) =>
  *   msgById     — Map<id, link> for reply lookups
  *   composer    — composer handle (for BubbleActions)
  *   api         — dom.js api
- *   onScrollTo  — (id) => void
+ *   onScrollTo  — (id, from?) => void; `from` the message whose reply
+ *                 quote was clicked
  *   onAction    — (action, message, value) => void
  *   menuFor     — (message, { selectedText, selected }) => menu items
  *   selecting   — messages are being selected

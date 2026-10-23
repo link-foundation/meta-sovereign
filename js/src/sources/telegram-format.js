@@ -5,13 +5,14 @@
  * What is typed is sent as Telegram's entities, the markers removed:
  *
  *   **bold**   __italic__   ~~strike~~   ||spoiler||   `code`
- *   ```lang
+ *   <u>underline</u>   ```lang
  *   pre (a code block)```   [text](https://link)
  *
  * As in Desktop, a marker counts only at a word's edge ("2**3**4" and
  * "snake__case__name" stay as typed), the formatted text cannot start or
  * end with a space, a lone `*` or `_` stays, and nothing is parsed inside
- * code. Offsets and lengths are UTF-16 units — what Telegram counts and
+ * code; underline, which Telegram's markdown has no marker for (Desktop
+ * makes it with Ctrl+U), is <u>…</u>. Offsets and lengths are UTF-16 units — what Telegram counts and
  * what JS strings index.
  *
  * Pure: shared by the server (sending, editing) and the page (pending
@@ -30,6 +31,7 @@ export const CLASS_OF = Object.freeze({
   italic: 'MessageEntityItalic',
   strike: 'MessageEntityStrike',
   spoiler: 'MessageEntitySpoiler',
+  underline: 'MessageEntityUnderline',
   code: 'MessageEntityCode',
   pre: 'MessageEntityPre',
   link: 'MessageEntityTextUrl',
@@ -129,7 +131,19 @@ const pairAt = (src, i) => {
   return null;
 };
 
-const MATCHERS = [preAt, codeAt, linkAt, pairAt];
+// <u>underline</u>: anywhere, not starting or ending with a space.
+const underlineAt = (src, i) => {
+  if (!src.startsWith('<u>', i)) {
+    return null;
+  }
+  const close = src.indexOf('</u>', i + 3);
+  const inner = close > i + 3 ? src.slice(i + 3, close) : '';
+  return inner && inner.trim() === inner
+    ? { type: 'underline', inner, end: close + 4 }
+    : null;
+};
+
+const MATCHERS = [preAt, codeAt, linkAt, underlineAt, pairAt];
 
 const parseInto = (src, out) => {
   let i = 0;
@@ -209,6 +223,7 @@ const OPEN = {
   italic: () => '__',
   strike: () => '~~',
   spoiler: () => '||',
+  underline: () => '<u>',
   code: () => '`',
   pre: (e) => `\`\`\`${e.language ?? ''}\n`,
   link: () => '[',
@@ -216,13 +231,14 @@ const OPEN = {
 const CLOSE = {
   ...OPEN,
   pre: () => '\n```',
+  underline: () => '</u>',
   link: (e) => `](${e.url})`,
 };
 
 /**
  * A message's text and entities back as what one would type: editing a
  * formatted message keeps its formatting, as Desktop's edit box does.
- * Entities markdown cannot say (underline, quotes, custom emoji) are
+ * Entities markdown cannot say (quotes, custom emoji) are
  * left out.
  */
 export const toMarkdown = (text, entities = []) => {
@@ -266,6 +282,7 @@ export const MARKERS = Object.freeze({
   italic: ['__', '__'],
   strike: ['~~', '~~'],
   spoiler: ['||', '||'],
+  underline: ['<u>', '</u>'],
   code: ['`', '`'],
   link: ['[', ']()'],
 });

@@ -67,6 +67,22 @@ test('Desktop markdown becomes formatting; markers go (R-Y101)', () => {
   ]);
 });
 
+test('<u>underline</u>, as Ctrl+U makes it in Desktop', () => {
+  assert.deepEqual(parseFormatted('a <u>line</u>here'), {
+    text: 'a linehere',
+    entities: [{ type: 'underline', offset: 2, length: 4 }],
+  });
+  assert.deepEqual(
+    parseFormatted('<u>**x**</u>')
+      .entities.map((e) => e.type)
+      .sort(),
+    ['bold', 'underline']
+  );
+  for (const typed of ['<u> x</u>', '<u></u>', '<u>open', 'a <b>b</b>']) {
+    assert.equal(parseFormatted(typed).text, typed, typed);
+  }
+});
+
 test('what is not markdown stays as typed (R-Y101)', () => {
   for (const typed of [
     'a *lone* _one_',
@@ -222,18 +238,20 @@ test('editing a formatted message gives its markdown back (R-Y101)', () => {
     '**a __b__ c**',
     'see [docs](https://example.com) ||now||',
     '```py\nprint(1)\n```',
+    '<u>under</u> and **<u>both</u> too**',
   ]) {
     const { text, entities } = parseFormatted(typed);
     assert.equal(toMarkdown(text, entities), typed);
   }
   // As Telegram stores them (by class name); what markdown cannot say
-  // (underline) is left out.
+  // (a quote) is left out.
   assert.equal(
-    toMarkdown('ab cd', [
+    toMarkdown('ab cd ef', [
       { className: 'MessageEntityItalic', offset: 0, length: 2 },
       { className: 'MessageEntityUnderline', offset: 3, length: 2 },
+      { className: 'MessageEntityBlockquote', offset: 6, length: 2 },
     ]),
-    '__ab__ cd'
+    '__ab__ <u>cd</u> ef'
   );
 });
 
@@ -273,6 +291,14 @@ test('shortcuts wrap the selection, again unwrap it, in any layout (R-Y101)', ()
   assert.equal(key('KeyM', { shiftKey: true }), 'code');
   assert.equal(key('KeyP', { shiftKey: true }), 'spoiler');
   assert.equal(key('KeyK'), 'link');
+  assert.equal(key('KeyU'), 'underline');
+  assert.deepEqual(wrapSelection('a b', 2, 3, 'underline'), {
+    from: 2,
+    to: 3,
+    insert: '<u>b</u>',
+    select: [5, 6],
+  });
+  assert.equal(wrapSelection('a <u>b</u>', 5, 6, 'underline').insert, 'b');
   assert.equal(key('KeyX'), null, 'Ctrl+X still cuts');
   assert.equal(formatOfKey({ code: 'KeyB' }), null);
 });

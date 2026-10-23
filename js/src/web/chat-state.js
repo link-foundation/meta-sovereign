@@ -842,6 +842,35 @@ const useChatList = (links, target, query, folders = []) => {
 };
 
 /** Everything the chat screen shows and does. */
+// Opening a chat: from the list (`select`; the open one clicked again
+// asks it to go to its newest, `toEnd` counting the asks, as in Desktop,
+// R-Y109), or from a search across Telegram (`openAt`, R-Y107) at a
+// message when one was found — `arrival` until the chat has gone to it.
+const useOpening = ({ show, current, setActive, setNotice }) => {
+  const [arrival, setArrival] = useState(null);
+  const [toEnd, setToEnd] = useState(0);
+  return {
+    select: (key) => {
+      if (key === current?.key) {
+        setToEnd((n) => n + 1);
+      }
+      setActive(key);
+      setNotice(null);
+    },
+    toEnd,
+    openAt: (target, id = null) => {
+      hintChat(target);
+      show(target);
+      setNotice(null);
+      setArrival(
+        id ? { key: chatKey(target.source, String(target.chat)), id } : null
+      );
+    },
+    arrival,
+    arrived: () => setArrival(null),
+  };
+};
+
 export const useChatState = (
   api,
   { t, confirm = defaultConfirm, pollMs = 2500 } = {}
@@ -886,17 +915,7 @@ export const useChatState = (
     openChat(target);
     setActive(chatKey(target.source, String(target.chat)));
   };
-  // A chat opened from a search across Telegram (R-Y107), at a message
-  // when one was found: `arrival` until the chat has gone to it.
-  const [arrival, setArrival] = useState(null);
-  const openAt = (target, id = null) => {
-    hintChat(target);
-    show(target);
-    setNotice(null);
-    setArrival(
-      id ? { key: chatKey(target.source, String(target.chat)), id } : null
-    );
-  };
+  const opening = useOpening({ show, current, setActive, setNotice });
   const composer = useComposer({
     api,
     current,
@@ -963,13 +982,7 @@ export const useChatState = (
     current,
     info,
     pinned: pinnedOf(messages, pinnedId, replyTargets),
-    select: (key) => {
-      setActive(key);
-      setNotice(null);
-    },
-    openAt,
-    arrival,
-    arrived: () => setArrival(null),
+    ...opening,
     messages,
     replyTargets,
     unreadLine: firstUnreadId(messages, unreadAfter),

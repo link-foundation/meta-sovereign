@@ -1244,6 +1244,51 @@ a.button {
   opacity: 0.4;
   cursor: default;
 }
+/* The formatting bar over the box while text in it is selected
+   (R-Y109). */
+.format-bar {
+  position: absolute;
+  bottom: calc(100% + 0.4rem);
+  left: 0.6rem;
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.25rem;
+  border: 1px solid var(--surface-glass-border);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  box-shadow: var(--surface-glass-shadow);
+  z-index: 5;
+}
+.format-button {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.format-button:hover,
+.format-button:focus-visible {
+  background: var(--accent-bg);
+}
+.format-bold {
+  font-weight: 700;
+}
+.format-italic {
+  font-style: italic;
+}
+.format-underline {
+  text-decoration: underline;
+}
+.format-strike {
+  text-decoration: line-through;
+}
+.format-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+}
 /* Voice messages (R-Y108): the microphone in Send's place; held, it
    grows with the loudness, the lock above it; the box gives way to a
    red dot, the time and how to cancel. */

@@ -7,7 +7,7 @@
 // newest is reached and the ceiling goes; the round "down" button goes
 // back to the newest at once (`toNewest`).
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { byTime, networkMessageId } from './chat-model.js';
 
 /** A window after a page newer than its ceiling arrived. */
@@ -74,6 +74,7 @@ const FLASH_MS = 1600;
 const SHOW_TRIES = 20;
 
 const SETTLE_MS = 160;
+const SETTLE_TRIES = 15;
 
 const rowOf = (id) => {
   const safe = globalThis.CSS?.escape(id) ?? String(id);
@@ -110,20 +111,37 @@ const pause = (ms) =>
   new Promise((resolve) => globalThis.setTimeout(resolve, ms));
 
 // A chat opened around a message: shown once drawn, and again while the
-// chat's own moves (its first scroll to the end) took it out of view.
+// chat's own moves (its first scroll to the end, older pages drawn above
+// it) took it out of view.
 const showOpened = async (id) => {
   let shown = false;
   for (let i = 0; i < SHOW_TRIES && !shown; i += 1) {
     await frame();
     shown = showMessage(id, { instant: true });
   }
-  for (let i = 0; shown && i < 3; i += 1) {
-    await pause(SETTLE_MS);
-    if (!seen(rowOf(id))) {
-      showMessage(id, { instant: true });
-    }
+  if (shown) {
+    await settle(id);
   }
   return shown;
+};
+
+// Pages read above a message while it was gone to (its smooth scroll
+// cut short where they were drawn) leave it out of view: once the
+// scroll stops it is shown again, at once, until it stays.
+const settle = async (id) => {
+  let last = null;
+  for (let i = 0, still = 0; i < SETTLE_TRIES && still < 3; i += 1) {
+    await pause(SETTLE_MS);
+    const node = rowOf(id);
+    const top = node?.closest?.('.chat-scroll')?.scrollTop ?? null;
+    if (seen(node)) {
+      still += 1;
+    } else if (top === last) {
+      still = 0;
+      showMessage(id, { instant: true });
+    }
+    last = top;
+  }
 };
 
 const frame = () =>
@@ -139,6 +157,7 @@ const frame = () =>
  */
 export const goToMessage = async (id, reach) => {
   if (showMessage(id)) {
+    await settle(id);
     return true;
   }
   if (!id || !(await reach?.(id))) {
@@ -323,4 +342,71 @@ export const useWindowJump = (
   }, [key]);
 
   return { jump, jumpTo, loadNewer, toNewest };
+};
+
+/**
+ * Where a reply's quote was clicked, to come back to, as Telegram
+ * Desktop's "down" button does: after following replies, it goes back
+ * to each message they were followed from, the last first, then to the
+ * newest. Forgotten in another chat and once the end is reached.
+ * `{ count, push(id), pop() }`.
+ */
+export const useReplyReturns = (key, atEnd) => {
+  const [list, setList] = useState([]);
+  useEffect(() => setList([]), [key]);
+  useEffect(() => {
+    if (atEnd) {
+      setList([]);
+    }
+  }, [atEnd]);
+  return {
+    count: list.length,
+    push: (id) => setList((now) => [...now.filter((x) => x !== id), id]),
+    pop: () => {
+      const id = list.at(-1) ?? null;
+      setList((now) => now.slice(0, -1));
+      return id;
+    },
+  };
+};
+
+/**
+ * The open chat's jumps (R-Y107, R-Y109): `onScrollTo(id, from?)` goes
+ * to a message — from a reply's quote, the reply kept to come back to;
+ * `down` whether the "down" button shows; `onDown` goes back where
+ * replies were followed from, else to the newest (a chat opened far
+ * back: read again, R-Y106). The open chat clicked again in the list
+ * (`state.toEnd`) goes to its newest.
+ */
+export const useStreamJumps = (state, follow) => {
+  const detached = Boolean(state.history?.detached);
+  const returns = useReplyReturns(
+    state.current?.key,
+    !follow.away && !detached
+  );
+  const onScrollTo = (id, from) => {
+    if (from) {
+      returns.push(from);
+    }
+    return goToMessage(id, state.history?.reach);
+  };
+  const toEnd = () => {
+    if (detached) {
+      state.history.toNewest();
+    }
+    follow.toEnd();
+  };
+  useEffect(() => {
+    if (state.toEnd > 0) {
+      toEnd();
+    }
+  }, [state.toEnd]);
+  return {
+    onScrollTo,
+    down: follow.away || follow.unseen > 0 || detached || returns.count > 0,
+    onDown: () => {
+      const back = returns.pop();
+      return back ? onScrollTo(back) : toEnd();
+    },
+  };
 };

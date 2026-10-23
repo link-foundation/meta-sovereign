@@ -66,6 +66,7 @@ import { formatShortcut } from './text-shortcuts.js';
 import { useEmojiPanel } from './chat-emoji.js';
 import { useStickerTabs } from './chat-stickers.js';
 import { useVoice } from './chat-voice.js';
+import { useFormatBar } from './chat-format-bar.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
 import { SearchBar, SearchButton, useChatSearch } from './chat-search.js';
@@ -76,7 +77,7 @@ import {
   useDayJump,
   useNewer,
 } from './chat-days.js';
-import { goToMessage, useArrival } from './chat-jump.js';
+import { goToMessage, useArrival, useStreamJumps } from './chat-jump.js';
 import { NOTICE, Sidebar, noticeInWords } from './chat-sidebar.js';
 
 export { failureText, waitingText } from './chat-failure.js';
@@ -637,9 +638,8 @@ const Stream = ({ state, api, actions }) => {
   });
   const alone =
     Boolean(state.current.personal) || state.current.kind === 'channel';
-  // Go to a message by its link id (an album's item: its album), the
-  // chat opened around it when it is not drawn (R-Y107).
-  const onScrollTo = (id) => goToMessage(id, state.history?.reach);
+  // Go to a message, back from replies, to the newest (R-Y107, R-Y109).
+  const { onScrollTo, down, onDown } = useStreamJumps(state, follow);
   const scroll = el(
     'div',
     {
@@ -713,8 +713,6 @@ const Stream = ({ state, api, actions }) => {
       ),
     ]
   );
-  const detached = Boolean(state.history?.detached);
-  const down = follow.away || follow.unseen > 0 || detached;
   return [
     scroll,
     days.calendar,
@@ -728,13 +726,7 @@ const Stream = ({ state, api, actions }) => {
       key: 'down',
       shown: down,
       count: follow.unseen || (state.current.unread ?? 0),
-      // Opened far back: to the newest, read again (R-Y106).
-      onClick: detached
-        ? () => {
-            state.history.toNewest();
-            follow.toEnd();
-          }
-        : follow.toEnd,
+      onClick: onDown,
     }),
   ];
 };
@@ -947,6 +939,8 @@ const Composer = ({ state, api, keys }) => {
   const emoji = useEmojiPanel({ box, setText: typeText, extra });
   // With nothing typed, the microphone (R-Y108).
   const voice = useVoice({ state, api });
+  // Text selected in the box: the formatting bar (R-Y109).
+  const format = useFormatBar({ box, setText: typeText });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -979,6 +973,7 @@ const Composer = ({ state, api, keys }) => {
     },
     [
       el(Suggestions, { key: 's', suggest, composer }),
+      format.bar,
       emoji.panel,
       el(ReplyBar, {
         key: 'rb',
