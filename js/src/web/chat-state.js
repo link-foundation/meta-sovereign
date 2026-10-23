@@ -994,6 +994,8 @@ export const useChatState = (
     chats,
     total: all.length,
     chatName,
+    // Whether a chat is in the list (a link to its message opens here).
+    hasChat: (key) => all.some((c) => c.key === key),
     query,
     setQuery,
     filter,

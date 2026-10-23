@@ -58,6 +58,7 @@ import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
 import { createEffects } from './telegram-effects.js';
+import { createMessageLinks } from './telegram-message-links.js';
 import { createAdminActions } from './telegram-admin.js';
 import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createShareMedia } from './telegram-share-media.js';
@@ -191,6 +192,19 @@ const markReaders = (env, tools, userClient, dialogOf) => {
   return { unreadMarks: unread.marks, readMarks: unread.readMarks };
 };
 
+// The forward request. The options Telegram takes are set only when exactly
+// true (R-Y154): `dropAuthor` hides the sender's name, `dropMediaCaptions`
+// the captions.
+const forwardRequest = ({ Api, helpers }, { fromPeer, toPeer, ids }, flags) =>
+  new Api.messages.ForwardMessages({
+    fromPeer,
+    toPeer,
+    id: ids,
+    randomId: ids.map((_, i) => randomIdOf(null, i, helpers)),
+    ...(flags.dropAuthor === true ? { dropAuthor: true } : {}),
+    ...(flags.dropMediaCaptions === true ? { dropMediaCaptions: true } : {}),
+  });
+
 export const createActions = (env, tools, { mediaDir = null } = {}) => {
   const { store } = env;
 
@@ -262,26 +276,21 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
     return { written, deleted };
   };
 
-  const forwardMessages = async ({ fromChat, ids, toChat } = {}) => {
+  const forwardMessages = async ({ fromChat, ids, toChat, ...flags } = {}) => {
     const wanted = cleanIds(ids);
     const client =
       wanted.length > 0 && fromChat && toChat ? await userClient() : null;
     if (!client) {
       return { ok: false, supported: false };
     }
-    const { Api, helpers } = await env.importer();
+    const imports = await env.importer();
     const fromPeer = (await env.peers.input(String(fromChat))) ?? fromChat;
     const result = await env.connection.withPeer(
       client,
       String(toChat),
       async (toPeer) =>
         client.invoke(
-          new Api.messages.ForwardMessages({
-            fromPeer,
-            toPeer,
-            id: wanted,
-            randomId: wanted.map((_, i) => randomIdOf(null, i, helpers)),
-          })
+          forwardRequest(imports, { fromPeer, toPeer, ids: wanted }, flags)
         )
     );
     await apply(client, result);
@@ -374,7 +383,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y141); viewing stories (R-Y140); the message box's link preview
 // (R-Y145); story replies, reactions, viewers, deleting and hiding
 // (R-Y148); reaction tags of Saved Messages and the default timer (R-Y151);
-// invite links and join requests (R-Y152); posting stories (R-Y156).
+// invite links and join requests (R-Y152); posting stories (R-Y156); links
+// to messages (R-Y154).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -424,6 +434,7 @@ const chatActions = (env, context) => {
     ...createSendAs(env, context),
     ...createEffects(env, context),
     ...createInviteLinks(env, context),
+    ...createMessageLinks(env, context),
   };
 };
 

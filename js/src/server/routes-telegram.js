@@ -27,8 +27,11 @@
  *   POST /api/telegram/refresh {chat, ids, priority?}
  *                                      -> { written, deleted } those messages
  *                                         read again; gone ones marked deleted
- *   POST /api/telegram/forward {fromChat, ids, toChat}
- *                                      -> { ok, forwarded }
+ *   POST /api/telegram/forward {fromChat, ids, toChat, dropAuthor?,
+ *                       dropMediaCaptions?}
+ *                                      -> { ok, forwarded } (the two flags
+ *                                         hide the sender's name and the
+ *                                         captions, R-Y154)
  *   POST /api/telegram/delete {chat, ids, revoke?}
  *                                      -> { ok, deleted }
  *   POST /api/telegram/pin {chat, id, unpin?, oneSide?, silent?}
@@ -208,6 +211,7 @@ import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
+import { MESSAGE_LINK_POSTS } from './routes-telegram-message-links.js';
 import { TTL_POSTS } from './routes-telegram-ttl.js';
 import { SAVED_TAGS_POSTS } from './routes-telegram-saved-tags.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
@@ -236,6 +240,12 @@ const NONE = { connected: false, kind: null, account: null };
 // Only the page asks for what the user looks at; anything else waits.
 const PRIORITIES = new Set(['view', 'list', 'prefetch']);
 const priorityOf = (value) => (PRIORITIES.has(value) ? value : 'prefetch');
+
+// The forward options, when given, are booleans (R-Y154).
+const validForwardFlags = (body) =>
+  ['dropAuthor', 'dropMediaCaptions'].every(
+    (key) => body[key] === undefined || typeof body[key] === 'boolean'
+  );
 
 // Validate an array of positive integers (message ids).
 const validIds = (ids) =>
@@ -518,6 +528,7 @@ const POSTS = {
       !body.fromChat ||
       !body.toChat ||
       !validIds(body.ids) ||
+      !validForwardFlags(body) ||
       typeof account.forwardMessages !== 'function'
     ) {
       return [
@@ -531,6 +542,8 @@ const POSTS = {
         fromChat: body.fromChat,
         toChat: body.toChat,
         ids: body.ids,
+        dropAuthor: body.dropAuthor === true,
+        dropMediaCaptions: body.dropMediaCaptions === true,
       }),
     ];
   },
@@ -941,6 +954,7 @@ const POSTS = {
   ...TTL_POSTS,
   ...SAVED_TAGS_POSTS,
   ...SEND_AS_POSTS,
+  ...MESSAGE_LINK_POSTS,
   ...STORIES_POSTS,
   ...STORY_ACTION_POSTS,
   ...LINK_PREVIEW_POSTS,

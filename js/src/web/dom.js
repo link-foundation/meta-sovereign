@@ -964,6 +964,9 @@ export const api = {
   telegramTranslate: (body = {}) => telegramPost('translate', body),
   telegramBotCommands: (body = {}) => telegramPost('bot-commands', body),
   // Inline bots in the message box (R-Y138).
+  // Links to messages: copy one, open one (R-Y154).
+  telegramMessageLink: (body = {}) => telegramPost('message-link', body),
+  telegramResolveLink: (body = {}) => telegramPost('resolve-link', body),
   telegramInlineBot: (body = {}) => telegramPost('inline-bot', body),
   telegramInlineResults: (body = {}) => telegramPost('inline-results', body),
   telegramInlineSend: (body = {}) => telegramPost('inline-send', body),

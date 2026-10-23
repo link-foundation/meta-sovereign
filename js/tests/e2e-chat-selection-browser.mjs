@@ -130,6 +130,7 @@ try {
         'reply',
         'copy',
         'copyLink',
+        'translate',
         'forward',
         'delete',
         'select',

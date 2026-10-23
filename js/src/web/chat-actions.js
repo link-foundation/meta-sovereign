@@ -22,6 +22,7 @@ import {
 } from './chat-message.js';
 import { parseMessageParts } from './message-parts.js';
 import { StopPollDialog } from './chat-poll.js';
+import { useForwardStage } from './chat-forward.js';
 import { useBotPress } from './chat-bots.js';
 import { useComments } from './chat-comments.js';
 import { useReaders } from './chat-readers.js';
@@ -126,7 +127,10 @@ const useSenders = (state, api) => {
       );
     }
   };
-  const forward = async (messages, toChat) => {
+  // `fromChat`: where the messages are (not the open chat once the target
+  // chat is open); the two flags hide the sender's name and the captions
+  // (R-Y154).
+  const forward = async (messages, toChat, options = {}) => {
     const { telegram, other } = split(sentOnly(messages));
     await generic('forward', other, {
       toChat: toChat.chat,
@@ -135,9 +139,11 @@ const useSenders = (state, api) => {
     if (telegram.length > 0 && typeof api?.telegramForward === 'function') {
       report(
         await api.telegramForward({
-          fromChat: state.current.chat,
+          fromChat: options.fromChat ?? state.current.chat,
           ids: telegram.map(networkMessageId),
           toChat: toChat.chat,
+          ...(options.dropAuthor ? { dropAuthor: true } : {}),
+          ...(options.dropMediaCaptions ? { dropMediaCaptions: true } : {}),
         })
       );
     }
@@ -194,18 +200,63 @@ const toast = (state, kind) => {
   );
 };
 
+// Text for the clipboard, or a promise of it (R-Y154): a browser that
+// takes a clipboard item of a promise keeps the click's permission while
+// the text is being asked for.
+const writeClipboard = (text) => {
+  const clipboard = globalThis.navigator?.clipboard;
+  const Item = globalThis.ClipboardItem;
+  if (typeof text?.then !== 'function') {
+    return Promise.resolve(clipboard?.writeText?.(text));
+  }
+  const blob = text.then((value) => {
+    if (!value) {
+      throw new Error('nothing to copy');
+    }
+    return new globalThis.Blob([value], { type: 'text/plain' });
+  });
+  if (Item && clipboard?.write) {
+    return Promise.resolve(clipboard.write([new Item({ 'text/plain': blob })]));
+  }
+  return text.then((value) => clipboard?.writeText?.(value));
+};
+
 const useCopy =
   (state) =>
   (text, kind = 'copied') => {
     if (!text) {
       return;
     }
-    const writing = globalThis.navigator?.clipboard?.writeText?.(text);
-    Promise.resolve(writing).then(
+    writeClipboard(text).then(
       () => toast(state, kind),
       () => {}
     );
   };
+
+// The message's link: a public chat's built here; otherwise Telegram's
+// (channels.exportMessageLink, with `thread` in a topic), else built here
+// when it cannot answer (R-Y154).
+const linkOf = (state, api, message) => {
+  const where = { chat: state.current?.chat, username: state.info?.username };
+  const local = messageLink(message, where);
+  const topic = Boolean(state.forum?.topic);
+  if (!local || (where.username && !topic)) {
+    return local;
+  }
+  if (typeof api?.telegramMessageLink !== 'function') {
+    return local;
+  }
+  return api
+    .telegramMessageLink({
+      chat: String(where.chat),
+      id: networkMessageId(message),
+      thread: topic,
+    })
+    .then(
+      (answer) => (answer?.ok && answer.link ? answer.link : local),
+      () => local
+    );
+};
 
 // A picture as PNG, the one kind every browser's clipboard takes.
 const asPng = async (blob) => {
@@ -325,7 +376,7 @@ const composerKeys = (state, messages) => (event) => {
 };
 
 // The open delete, pin or forward dialog.
-const dialogsOf = ({ state, send, selection, open, close }) => {
+const dialogsOf = ({ state, send, selection, open, close, stage }) => {
   const { deleting, pinning, forwarding, stopping } = open;
   const { setDeleting, setPinning, setForwarding } = close;
   return [
@@ -366,10 +417,10 @@ const dialogsOf = ({ state, send, selection, open, close }) => {
             (c) => c.source === state.current?.source
           ),
           onClose: () => setForwarding(null),
+          // The chat opens with the forward waiting over its box (R-Y154).
           onForward: async (toChat) => {
-            await send.forward(forwarding, toChat);
             setForwarding(null);
-            selection.clear();
+            await stage.pick(forwarding, toChat);
           },
         })
       : null,
@@ -390,6 +441,13 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const [pinning, setPinning] = useState(null);
   const [stopping, setStopping] = useState(null);
   const send = useSenders(state, api);
+  const stage = useForwardStage({
+    state,
+    send,
+    selection,
+    you: selfName ?? t('chat.forwardBar.you'),
+    choose: setForwarding,
+  });
   const copy = useCopy(state);
   // A bot's buttons under its message (R-Y110).
   const bots = useBotPress({ state, api, copy });
@@ -425,11 +483,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       copy: () => copy(message.body ?? ''),
       copySelected: () => copy(value),
       copyUrl: () => copy(value, 'link-copied'),
-      copyLink: () =>
-        copy(
-          messageLink(message, { chat, username: state.info?.username }),
-          'link-copied'
-        ),
+      copyLink: () => copy(linkOf(state, api, message), 'link-copied'),
       saveAs: () => saveMedia(api, chat, message, value === 'photo'),
       copyImage: () => copyImage(state, api, chat, message),
       pin: () => setPinning(message),
@@ -507,6 +561,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     selection,
     open: { deleting, pinning, forwarding, stopping },
     close: { setDeleting, setPinning, setForwarding, setStopping },
+    stage,
   });
 
   return {
@@ -515,6 +570,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     menuFor,
     top,
     keys,
+    // The state whose Send also forwards what waits (R-Y154).
+    withForward: stage.wrap,
     dialogs: [
       ...dialogs,
       bots.dialog,

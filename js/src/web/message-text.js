@@ -9,6 +9,7 @@
 import React, { useState } from 'react';
 import { CustomEmoji } from './custom-emoji.js';
 import { inviteHashOf, openInvite } from './chat-invite.js';
+import { openMessageLink } from './message-links.js';
 
 const el = React.createElement;
 
@@ -209,6 +210,9 @@ const drawNode = (node, key, ctx) => {
           if (hash) {
             event.preventDefault();
             openInvite(hash);
+          } else if (openMessageLink(href)) {
+            // A link to a message opens in the app (R-Y154).
+            event.preventDefault();
           }
         },
       },

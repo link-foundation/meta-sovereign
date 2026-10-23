@@ -51,6 +51,7 @@ import {
 import { parseMessageParts } from './message-parts.js';
 import { ChatAvatar } from './chat-list.js';
 import { replyRefOf, useChatActions } from './chat-actions.js';
+import { useMessageLinks } from './chat-link-open.js';
 import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
@@ -1043,7 +1044,8 @@ const barOver = (composer, editing) =>
 // and the microphone or camera in Send's place (never while editing).
 const endButtons = (parts) => {
   const { bare, recording, editing, voice, round, text, reply, emoji } = parts;
-  const empty = !text.trim();
+  // A forward waiting is sent without words, too (R-Y154).
+  const empty = !text.trim() && !parts.forwarding;
   return [
     bare ? null : el(KeyboardToggle, { key: 'kb', reply }),
     recording ? null : emoji.button,
@@ -1054,15 +1056,17 @@ const endButtons = (parts) => {
         composer: parts.composer,
         editing,
         text,
+        forwarding: parts.forwarding,
         menu: parts.menu,
       }),
   ];
 };
 
 // The Send button (a check mark while a message is edited, R-Y146).
-const SendButton = ({ composer, editing, text, menu }) => {
+const SendButton = ({ composer, editing, text, menu, forwarding }) => {
   const t = useT();
-  const empty = !text.trim() && !(editing && hasMedia(editing.message));
+  const empty =
+    !text.trim() && !(editing && hasMedia(editing.message)) && !forwarding;
   return el(
     'button',
     {
@@ -1165,6 +1169,8 @@ const Composer = ({ state, api, keys }) => {
       el(Suggestions, { key: 's', suggest, composer }),
       format.bar,
       emoji.panel,
+      // The forward waiting for a comment (R-Y154).
+      state.forwardBar ?? null,
       barOver(composer, editing),
       linkPreview.bar,
       el('div', { key: 'row', className: 'chat-composer-row' }, [
@@ -1211,6 +1217,7 @@ const Composer = ({ state, api, keys }) => {
           reply,
           emoji,
           composer,
+          forwarding: Boolean(state.forwarding),
           menu: later.textMenu,
         }),
       ]),
@@ -1334,6 +1341,8 @@ export const ChatScreen = ({ state, api }) => {
   const selfName =
     [account?.firstName, account?.lastName].filter(Boolean).join(' ') || null;
   const actions = useChatActions({ state, api, t, locale, selfName });
+  // A link to a message opens in the app (R-Y154).
+  useMessageLinks({ state, api });
   // Saved Messages as chats, or as messages (R-Y143).
   const saved = useSavedView(state.current, state.info);
   // Its reaction tags and the filter they make (R-Y151).
@@ -1428,7 +1437,7 @@ export const ChatScreen = ({ state, api }) => {
               ? null
               : el(ComposerOrClosed, {
                   key: 'c',
-                  state,
+                  state: actions.withForward(state),
                   api,
                   keys: actions.keys,
                 }),

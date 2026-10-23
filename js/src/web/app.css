@@ -7731,3 +7731,72 @@ span.bubble-effect {
     border-radius: var(--radius) var(--radius) 0 0;
   }
 }
+
+/* R-Y154: the forward waiting over the message box, and its menu. */
+.forward-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--bg-active);
+  border-top: 1px solid var(--border);
+  color: var(--accent);
+}
+.forward-bar-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.forward-bar-title {
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.forward-bar-names {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.forward-bar-button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  color: var(--text-subtle);
+  padding: 0.2rem 0.35rem;
+  cursor: pointer;
+}
+.forward-bar-button:hover {
+  color: var(--text);
+}
+.forward-bar-menu {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 100%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+  padding: 0.25rem 0;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.forward-bar-item {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 0.45rem 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+.forward-bar-item:hover,
+.forward-bar-item:focus {
+  background: var(--bg-active);
+  outline: none;
+}
