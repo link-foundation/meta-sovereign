@@ -937,6 +937,7 @@ export const api = {
   telegramGifs: (body = {}) => telegramPost('gifs', body),
   // Stickers ({ q, lang }) and GIFs ({ q, offset }) searched (R-Y112).
   telegramStickerSearch: (body = {}) => telegramPost('sticker-search', body),
+  telegramEmojiKeywords: (body = {}) => telegramPost('emoji-keywords', body),
   telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
   // The panel's menu ({ id, action }; R-Y115).
   telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),

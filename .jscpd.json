@@ -5,6 +5,7 @@
   "mode": "weak",
   "ignore": [
     "**/node_modules/**",
+    "**/.claude/**",
     "**/build/**",
     "**/dist/**",
     "**/*.min.js",

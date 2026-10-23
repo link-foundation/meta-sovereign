@@ -12,3 +12,5 @@ docs/api/
 docs/case-studies/*/data/
 # Playwright MCP traces and snapshots
 .playwright-mcp/
+# Claude Code's working copies (git worktrees) of this repository.
+.claude/

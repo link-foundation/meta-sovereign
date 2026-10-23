@@ -77,6 +77,9 @@
  *   POST /api/telegram/sticker-set-install {id, install}
  *                                      -> { ok, installed } a found set
  *                                         added, or one removed (R-Y116)
+ *   POST /api/telegram/emoji-keywords {lang}
+ *                                      -> { ok, lang, keywords } the words
+ *                                         emoji are found by (R-Y117)
  *   POST /api/telegram/gif-search {q, offset?}
  *                                      -> { ok, gifs, next } GIFs found
  *                                         by Telegram's @gif bot
@@ -524,6 +527,12 @@ const POSTS = {
     typeof account.stickerSet === 'function'
       ? [200, await account.stickerSet({ id: String(body.id) })]
       : [400, { error: 'id required', code: 'bad-request' }],
+  // The words emoji are found by, in a language (R-Y117).
+  'emoji-keywords': async (account, body) =>
+    LANG.test(String(body.lang ?? '')) &&
+    typeof account.emojiKeywords === 'function'
+      ? [200, await account.emojiKeywords({ lang: body.lang })]
+      : [400, { error: 'lang required', code: 'bad-request' }],
   // Stickers and GIFs searched (R-Y112).
   'sticker-search': async (account, body) =>
     searchWords(body.q) &&

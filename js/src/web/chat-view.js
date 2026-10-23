@@ -897,6 +897,14 @@ const ReplyBar = ({ replyTo, onClear }) => {
   ]);
 };
 
+// Telegram's words for emoji (R-Y117), when a Telegram user account is
+// there: for the emoji panel's search in any chat.
+const emojiKeywordsOf = (state, api) =>
+  state.telegram?.kind === 'user' &&
+  typeof api?.telegramEmojiKeywords === 'function'
+    ? (lang) => api.telegramEmojiKeywords({ lang })
+    : null;
+
 // "Send without sound" and "Schedule message" for the message box and
 // the files' box, and the chat's scheduled messages (./chat-schedule.js).
 const useSendLater = ({ state, api, composer, attach }) => {
@@ -948,7 +956,12 @@ const Composer = ({ state, api, keys }) => {
   const box = useRef(null);
   const typeText = (next) => composer.setText(next, { typed: true });
   const stickers = useStickerTabs({ state, api, composer });
-  const emoji = useEmojiPanel({ box, setText: typeText, extra: stickers.tabs });
+  const emoji = useEmojiPanel({
+    box,
+    setText: typeText,
+    extra: stickers.tabs,
+    keywords: emojiKeywordsOf(state, api),
+  });
   // With nothing typed, the microphone (R-Y108).
   const voice = useVoice({ state, api });
   // Text selected in the box: the formatting bar (R-Y109).

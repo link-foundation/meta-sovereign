@@ -14,10 +14,14 @@
  * Emoji that take a skin tone (R-Y114) carry a corner mark; a right click
  * or a press held ~0.4 s opens the six variants above it, and the tone
  * picked is remembered for that emoji, in the panel and in search.
+ *
+ * Search finds emoji by Telegram's words for them in the page's
+ * language (R-Y117; messages.getEmojiKeywords, through the server) when
+ * a Telegram user account is there, then by their English names.
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useT } from './i18n.js';
+import { useLocaleContext, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { EMOJI_CATEGORIES, EMOJI_TONES } from './emoji-data.js';
 
@@ -97,8 +101,60 @@ export const emojiCategories = (() => {
   };
 })();
 
-/** The emoji whose name has every word of `query`, in panel order. */
-export const findEmoji = (query, limit = 120) => {
+// An emoji without FE0F and a tone: as Telegram's word lists may name it.
+const bare = (emoji) =>
+  emoji
+    .replace(/\uFE0F/g, '')
+    .replace(/\u{1F3FB}|\u{1F3FC}|\u{1F3FD}|\u{1F3FE}|\u{1F3FF}/gu, '');
+
+let barely = null;
+const byBare = () => {
+  if (!barely) {
+    barely = new Map();
+    for (const { list } of emojiCategories()) {
+      for (const item of list) {
+        barely.set(bare(item.emoji), item);
+      }
+    }
+  }
+  return barely;
+};
+
+/**
+ * The emoji Telegram's `keywords` (`{ word: [emoji…] }`) give for
+ * `query`: the words it begins, the shortest (the word itself) first.
+ */
+export const findByKeywords = (query, keywords, limit = 120) => {
+  const q = String(query ?? '')
+    .trim()
+    .toLowerCase();
+  if (!q || !keywords) {
+    return [];
+  }
+  const words = Object.keys(keywords)
+    .filter((word) => word.startsWith(q))
+    .sort((a, b) => a.length - b.length || a.localeCompare(b));
+  const index = byBare();
+  const found = new Map();
+  for (const word of words) {
+    for (const emoji of keywords[word]) {
+      const item = index.get(bare(emoji));
+      if (item && !found.has(item.emoji)) {
+        found.set(item.emoji, item);
+        if (found.size >= limit) {
+          return [...found.values()];
+        }
+      }
+    }
+  }
+  return [...found.values()];
+};
+
+/**
+ * The emoji for `query`: by Telegram's `keywords` when given, then those
+ * whose English name has every word of it, in panel order.
+ */
+export const findEmoji = (query, limit = 120, keywords = null) => {
   const words = String(query ?? '')
     .toLowerCase()
     .split(/\s+/)
@@ -106,19 +162,65 @@ export const findEmoji = (query, limit = 120) => {
   if (words.length === 0) {
     return [];
   }
-  const found = [];
+  const found = new Map(
+    findByKeywords(query, keywords, limit).map((item) => [item.emoji, item])
+  );
   for (const { list } of emojiCategories()) {
     for (const item of list) {
+      if (found.size >= limit) {
+        return [...found.values()];
+      }
       const name = item.name.toLowerCase();
-      if (words.every((w) => name.includes(w))) {
-        found.push(item);
-        if (found.length >= limit) {
-          return found;
-        }
+      if (!found.has(item.emoji) && words.every((w) => name.includes(w))) {
+        found.set(item.emoji, item);
       }
     }
   }
-  return found;
+  return [...found.values()];
+};
+
+// Telegram's words per language, asked once a page (`source(lang)`).
+const keywordLists = new Map();
+
+/** Forget the words asked (tests). */
+export const forgetKeywords = () => keywordLists.clear();
+
+const keywordsOf = (source, lang) => {
+  if (!keywordLists.has(lang)) {
+    const forget = () => {
+      keywordLists.delete(lang);
+      return null;
+    };
+    keywordLists.set(
+      lang,
+      Promise.resolve(source(lang))
+        .then((answer) => (answer?.ok ? answer.keywords : forget()))
+        .catch(forget)
+    );
+  }
+  return keywordLists.get(lang);
+};
+
+// The words for the page's language, once something is searched.
+const useKeywords = (source, searching) => {
+  const lang = String(useLocaleContext()?.locale ?? 'en').slice(0, 2);
+  const [words, setWords] = useState(null);
+  const latest = useRef(source);
+  latest.current = source;
+  const able = typeof source === 'function';
+  useEffect(() => {
+    if (!able || !searching) {
+      return undefined;
+    }
+    let live = true;
+    keywordsOf((l) => latest.current(l), lang).then(
+      (got) => live && setWords(got)
+    );
+    return () => {
+      live = false;
+    };
+  }, [able, searching, lang]);
+  return able ? words : null;
 };
 
 /** The emoji (without a tone) that take a skin tone. */
@@ -454,11 +556,12 @@ export const jumpTo = (scroller, key) => {
   }
 };
 
-const EmojiTab = ({ recent, onPick, tones, onTone }) => {
+const EmojiTab = ({ recent, onPick, tones, onTone, keywords }) => {
   const t = useT();
   const [query, setQuery] = useState('');
   const scroller = useRef(null);
-  const found = useMemo(() => findEmoji(query), [query]);
+  const words = useKeywords(keywords, query.trim().length > 0);
+  const found = useMemo(() => findEmoji(query, 120, words), [query, words]);
   const sections = useMemo(
     () => [{ key: 'recent', list: named(recent) }, ...emojiCategories()],
     [recent]
@@ -587,7 +690,16 @@ const Tabs = ({ tabs, shown, choose }) => {
   );
 };
 
-const Panel = ({ recent, onPick, tones, onTone, panelRef, extra, close }) => {
+const Panel = ({
+  recent,
+  onPick,
+  tones,
+  onTone,
+  panelRef,
+  extra,
+  close,
+  keywords,
+}) => {
   const t = useT();
   const [chosen, setChosen] = useState(readTab);
   const tabs = [{ key: 'emoji' }, ...extra];
@@ -610,17 +722,30 @@ const Panel = ({ recent, onPick, tones, onTone, panelRef, extra, close }) => {
       extra.length > 0 ? el(Tabs, { key: 'tabs', tabs, shown, choose }) : null,
       other
         ? el(React.Fragment, { key: shown }, other.render(close))
-        : el(EmojiTab, { key: 'emoji', recent, onPick, tones, onTone }),
+        : el(EmojiTab, {
+            key: 'emoji',
+            recent,
+            onPick,
+            tones,
+            onTone,
+            keywords,
+          }),
     ]
   );
 };
 
 /**
  * The panel for a message box: `box` is its textarea's ref, `setText`
- * sets its text; `extra` more tabs (`{ key, label, render(close) }`).
+ * sets its text; `extra` more tabs (`{ key, label, render(close) }`);
+ * `keywords(lang)` Telegram's words for emoji, when there are any.
  * Answers `{ button, panel }` to put in the composer.
  */
-export const useEmojiPanel = ({ box, setText, extra = NONE }) => {
+export const useEmojiPanel = ({
+  box,
+  setText,
+  extra = NONE,
+  keywords = null,
+}) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [recent, setRecent] = useState(readRecent);
@@ -667,6 +792,7 @@ export const useEmojiPanel = ({ box, setText, extra = NONE }) => {
           panelRef,
           extra,
           close,
+          keywords,
         })
       : null,
   };
