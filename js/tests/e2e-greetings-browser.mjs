@@ -191,7 +191,16 @@ const run = async () => {
 
     const firstVk = `[data-sticker="vk:${vkGreetingStickers[0].id}"] img`;
     await page.waitForSelector(firstVk, { timeout: 10000 });
-    await page.waitForLoadState('networkidle');
+    // Not 'networkidle': the page keeps its /api/events stream open for
+    // live Telegram updates, so the network is never idle. Give the first
+    // picture a moment to settle instead; offline it simply stays unloaded.
+    await page
+      .waitForFunction(
+        (sel) => document.querySelector(sel)?.complete === true,
+        firstVk,
+        { timeout: 5000 }
+      )
+      .catch(() => {});
     console.log(
       `[e2e-greetings-browser] vk.com preview loaded: ${await imageLoaded(page, firstVk)}`
     );

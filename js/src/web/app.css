@@ -6153,6 +6153,19 @@ button[aria-busy='true']::before {
   flex-direction: column;
   gap: 0.6rem;
   min-width: min(22rem, 90vw);
+  /* R-Y129: a long form (My profile) scrolls inside the card on a small
+     window instead of running off the screen, and Save stays in reach. */
+  max-height: 92vh;
+  max-height: 92dvh;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.chat-form-dialog > .delete-dialog-btns {
+  position: sticky;
+  bottom: -1.5rem;
+  margin-bottom: -1.5rem;
+  padding: 0.6rem 0 1.5rem;
+  background: var(--bg-elev);
 }
 .chat-form-field {
   display: flex;
