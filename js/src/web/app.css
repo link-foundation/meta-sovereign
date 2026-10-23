@@ -12116,3 +12116,128 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
   letter-spacing: 0.04em;
   color: var(--text-subtle);
 }
+/* Rich messages in a bubble (R-Y220): the Instant View blocks, sized as
+   message text, not as an article. */
+.rich-message {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.rich-message > :first-child {
+  margin-top: 0;
+}
+.rich-message > :last-child {
+  margin-bottom: 0;
+}
+.rich-message .iv-p,
+.rich-message .iv-h {
+  margin: 0.35rem 0;
+}
+.rich-message .iv-h1 {
+  font-size: 1.35rem;
+}
+.rich-message .iv-h2 {
+  font-size: 1.2rem;
+}
+.rich-message .iv-h3 {
+  font-size: 1.1rem;
+}
+.rich-message .iv-h4,
+.rich-message .iv-h5,
+.rich-message .iv-h6 {
+  font-size: 1rem;
+}
+.rich-message .iv-h5,
+.rich-message .iv-h6 {
+  color: var(--text-muted);
+}
+.rich-message .iv-list {
+  margin: 0.3rem 0;
+}
+.rich-message .iv-task {
+  list-style: none;
+  margin-left: -1.2rem;
+}
+.rich-message .iv-task-box {
+  margin: 0 0.4rem 0 0;
+}
+.rich-message .iv-quote {
+  margin: 0.4rem 0;
+}
+.rich-message .iv-collapsed {
+  max-height: 3.2em;
+  overflow: hidden;
+}
+.rich-message .iv-img {
+  max-height: 22rem;
+}
+.iv-math,
+.iv-math-inline {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-style: italic;
+}
+.iv-math {
+  margin: 0.4rem 0;
+  padding: 0.5rem 0.7rem;
+  overflow-x: auto;
+  text-align: center;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.iv-thinking {
+  margin: 0.4rem 0;
+  padding: 0.25rem 0.6rem;
+  color: var(--text-subtle);
+  border-left: 3px solid var(--border);
+  font-size: 0.9rem;
+}
+.iv-thinking > summary {
+  cursor: pointer;
+  font-style: italic;
+}
+.iv-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.45rem 0;
+}
+.iv-buttons.is-center {
+  justify-content: center;
+}
+.iv-buttons.is-right {
+  justify-content: flex-end;
+}
+.iv-file {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0.4rem 0;
+  flex-wrap: wrap;
+}
+.iv-file-size {
+  color: var(--text-subtle);
+}
+.iv-spoiler:not(.is-open) {
+  background: var(--text-subtle);
+  color: transparent;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+.rich-part {
+  display: inline-block;
+  color: var(--text-subtle);
+  animation: rich-part-blink 1.2s ease-in-out infinite;
+}
+@keyframes rich-part-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rich-part {
+    animation: none;
+  }
+}

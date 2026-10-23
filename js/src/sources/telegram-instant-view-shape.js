@@ -41,7 +41,11 @@ export const safeHref = (url) => {
   }
 };
 
+// Layer 232 (R-Y220): rich messages use the same blocks and add some;
+// they are shaped here too (see `shapeRich`).
 const INLINE = {
+  TextSpoiler: 'spoiler',
+  TextTonAddress: 'code',
   TextBold: 'b',
   TextItalic: 'i',
   TextUnderline: 'u',
@@ -60,10 +64,11 @@ const decodeSafely = (value) => {
   }
 };
 
-const newContext = (url = '') => ({
+const newContext = (url = '', page = null) => ({
   url,
   photos: new Set(),
   documents: new Set(),
+  files: new Map((page?.documents ?? []).map((d) => [plain(d.id), d])),
   count: 0,
 });
 
@@ -117,6 +122,15 @@ const imageOf = (rich, ctx) => {
   return [{ t: 'img', id, w: Number(rich.w) || 0, h: Number(rich.h) || 0 }];
 };
 
+// Text with no text inside (R-Y220): a formula, a custom emoji's picture
+// word.
+const LEAVES = {
+  TextMath: (rich) =>
+    plain(rich.source) ? [{ t: 'math', s: plain(rich.source) }] : [],
+  TextCustomEmoji: (rich) =>
+    plain(rich.alt) ? [{ t: 'text', s: plain(rich.alt) }] : [],
+};
+
 const richNodes = (rich, ctx, depth) => {
   if (!rich || depth > MAX_DEPTH) {
     return [];
@@ -131,6 +145,9 @@ const richNodes = (rich, ctx, depth) => {
   }
   if (name === 'TextImage') {
     return imageOf(rich, ctx);
+  }
+  if (LEAVES[name]) {
+    return LEAVES[name](rich);
   }
   const children = richNodes(rich.text, ctx, depth + 1);
   if (INLINE[name]) {
@@ -161,6 +178,13 @@ const caption = (cap, ctx) => ({
 });
 
 const TEXT_BLOCKS = {
+  PageBlockHeading1: 'h1',
+  PageBlockHeading2: 'h2',
+  PageBlockHeading3: 'h3',
+  PageBlockHeading4: 'h4',
+  PageBlockHeading5: 'h5',
+  PageBlockHeading6: 'h6',
+  PageBlockThinking: 'thinking',
   PageBlockTitle: 'title',
   PageBlockSubtitle: 'subtitle',
   PageBlockHeader: 'header',
@@ -214,10 +238,14 @@ const embedBlock = (block, ctx) => {
 
 const listItems = (items, ctx, depth, ordered) =>
   (items ?? []).map((item) => {
-    const num = ordered ? { num: plain(item.num).slice(0, 16) } : {};
+    const num = ordered
+      ? { num: plain(item.num).slice(0, 16) || String(item.value ?? '') }
+      : {};
+    // A task-list item (R-Y220): `check` is its box, ticked or not.
+    const check = item.checkbox ? { check: Boolean(item.checked) } : {};
     return item.blocks
-      ? { ...num, blocks: shapeBlocks(item.blocks, ctx, depth + 1) }
-      : { ...num, c: shapeText(item.text, ctx) };
+      ? { ...num, ...check, blocks: shapeBlocks(item.blocks, ctx, depth + 1) }
+      : { ...num, ...check, c: shapeText(item.text, ctx) };
   });
 
 const span = (value) =>
@@ -327,11 +355,82 @@ const nested = {
   PageBlockOrderedList: (b, ctx, d) => ({
     k: 'list',
     ordered: true,
+    ...(Number.isInteger(Number(b.start)) && b.start !== undefined
+      ? { start: Number(b.start) }
+      : {}),
+    ...(b.reversed ? { reversed: true } : {}),
     items: listItems(b.items, ctx, d, true),
+  }),
+  PageBlockBlockquoteBlocks: (b, ctx, d) => ({
+    k: 'quoteblocks',
+    blocks: shapeBlocks(b.blocks, ctx, d + 1),
+    credit: shapeText(b.caption, ctx),
   }),
 };
 
+// A button of a rich message's row (R-Y220): its words, what pressing
+// it does (the raw `type`, read by the page like an inline keyboard's)
+// and its colour.
+const BUTTON_TYPE_KEYS = [
+  'className',
+  'url',
+  'data',
+  'requiresPassword',
+  'query',
+  'samePeer',
+  'userId',
+  'copyText',
+  'buttonId',
+];
+const pageButton = (one, ctx) => {
+  const type = {};
+  for (const key of BUTTON_TYPE_KEYS) {
+    if (one.type?.[key] !== undefined && one.type[key] !== null) {
+      type[key] = one.type[key];
+    }
+  }
+  const style = one.style ?? {};
+  return {
+    c: shapeText(one.text, ctx),
+    type,
+    style: {
+      bgPrimary: Boolean(style.bgPrimary),
+      bgDanger: Boolean(style.bgDanger),
+      bgSuccess: Boolean(style.bgSuccess),
+    },
+  };
+};
+
+const buttonRow = (b, ctx) => ({
+  k: 'buttons',
+  align: b.alignRight ? 'right' : b.alignCenter ? 'center' : 'left',
+  buttons: (b.buttons ?? []).slice(0, 20).map((one) => pageButton(one, ctx)),
+});
+
+// A file of a rich message: its name and size from the message's documents.
+const fileBlock = (b, ctx) => {
+  const id = idOf(b.documentId);
+  if (!id) {
+    return null;
+  }
+  ctx.documents.add(id);
+  const doc = ctx.files.get(id);
+  const named = (doc?.attributes ?? []).find((a) => a?.fileName);
+  return {
+    k: 'file',
+    id,
+    name: plain(named?.fileName).slice(0, 255),
+    mime: plain(doc?.mimeType).slice(0, 100),
+    size: Number(plain(doc?.size)) || 0,
+    caption: caption(b.caption, ctx),
+  };
+};
+
 const flat = {
+  PageBlockMath: (b) =>
+    plain(b.source) ? { k: 'math', source: plain(b.source) } : null,
+  PageBlockButtonRow: buttonRow,
+  PageBlockDocument: fileBlock,
   PageBlockPreformatted: (b, ctx) => ({
     k: 'pre',
     c: shapeText(b.text, ctx),
@@ -347,6 +446,7 @@ const flat = {
     NAME.test(plain(b.name)) ? { k: 'anchor', name: plain(b.name) } : null,
   PageBlockBlockquote: (b, ctx) => ({
     k: 'quote',
+    ...(b.collapsed ? { collapsed: true } : {}),
     c: shapeText(b.text, ctx),
     credit: shapeText(b.caption, ctx),
   }),
@@ -398,7 +498,7 @@ function shapeBlocks(blocks, ctx, depth) {
  * `documents` list the ids (strings) the page uses.
  */
 export const shapePage = (page) => {
-  const ctx = newContext(plain(page?.url));
+  const ctx = newContext(plain(page?.url), page);
   const blocks = shapeBlocks(page?.blocks, ctx, 0);
   return {
     url: ctx.url,
@@ -407,4 +507,62 @@ export const shapePage = (page) => {
     photos: [...ctx.photos],
     documents: [...ctx.documents],
   };
+};
+
+/**
+ * A message's `rich_message` (R-Y220) as `{ rtl, part, blocks, photos,
+ * documents }`: the blocks of an Instant View page, with the same safety
+ * (see `shapePage`); `part` marks an answer still being written.
+ */
+export const shapeRich = (rich) => {
+  const ctx = newContext('', rich);
+  const blocks = shapeBlocks(rich?.blocks, ctx, 0);
+  return {
+    rtl: Boolean(rich?.rtl),
+    part: Boolean(rich?.part),
+    blocks,
+    photos: [...ctx.photos],
+    documents: [...ctx.documents],
+  };
+};
+
+// The words of shaped blocks, one line per block (a list item, a button).
+const wordsOf = (node, out) => {
+  if (Array.isArray(node)) {
+    node.forEach((one) => wordsOf(one, out));
+  } else if (node && typeof node === 'object') {
+    if (typeof node.s === 'string') {
+      out.push(node.s);
+    }
+    for (const key of [
+      'c',
+      'items',
+      'blocks',
+      'buttons',
+      'title',
+      'credit',
+      'caption',
+    ]) {
+      if (node[key] !== undefined) {
+        wordsOf(node[key], out);
+      }
+    }
+    if (typeof node.source === 'string') {
+      out.push(node.source);
+    }
+    if (!node.t) {
+      out.push('\n');
+    }
+  }
+};
+
+/** A rich message as plain text, for the chat list, search and notices. */
+export const richPlainText = (rich, limit = 4000) => {
+  const out = [];
+  wordsOf(shapeRich(rich).blocks, out);
+  return out
+    .join('')
+    .replace(/\n{2,}/g, '\n')
+    .trim()
+    .slice(0, limit);
 };

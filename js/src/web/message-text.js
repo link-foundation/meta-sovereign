@@ -50,6 +50,8 @@ const KINDS = {
   MessageEntityCustomEmoji: 'emoji',
   // Bank card, formatted date and diff marks (R-Y221).
   ...EXTRA_KINDS,
+  // A TON wallet address (layer 232, R-Y220): shown as code.
+  MessageEntityTonAddress: 'code',
 };
 
 const URL_IN_TEXT = /\bhttps?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]}]/g;

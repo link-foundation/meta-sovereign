@@ -569,7 +569,7 @@ test('page helpers: top stories first, the ids on top', () => {
 
 test('the Api names used all exist in layer 225', async () => {
   const tl = await readFile(
-    new URL('../src/sources/telegram-api/layer-225.tl', import.meta.url),
+    new URL('../src/sources/telegram-api/layer-232.tl', import.meta.url),
     'utf8'
   );
   for (const name of [

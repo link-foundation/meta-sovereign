@@ -42,6 +42,7 @@ import { MediaRound } from './chat-round.js';
 import { MediaStickerBox } from './chat-sticker-box.js';
 import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';
+import { RichMessage } from './chat-rich-message.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
 import { CommentsBar } from './chat-comments-bar.js';
 import { ViewCount } from './chat-views.js';
@@ -1030,6 +1031,17 @@ const BubbleContent = ({
     message,
     onAction,
   }),
+  parts.rich
+    ? el(RichMessage, {
+        key: 'rich',
+        rich: parts.rich,
+        api,
+        chat,
+        msgId: netId,
+        message,
+        onAction,
+      })
+    : null,
   parts.text
     ? el('span', { key: 'body', className: 'bubble-body' }, [
         el(MessageText, {

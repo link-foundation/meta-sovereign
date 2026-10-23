@@ -3,7 +3,7 @@
 // holds plain data, never HTML. A link is drawn only for http, https, tg,
 // mailto and tel; external links open in a new tab with rel=noopener.
 
-import React from 'react';
+import React, { useState } from 'react';
 
 const el = React.createElement;
 
@@ -42,6 +42,12 @@ function inlineOne(node, ctx, key) {
   if (node.t === 'anchor') {
     return el('span', { key, 'data-anchor': node.name }, kids);
   }
+  if (node.t === 'math') {
+    return el('code', { key, className: 'iv-math-inline' }, node.s);
+  }
+  if (node.t === 'spoiler') {
+    return el(Spoiler, { key }, kids);
+  }
   if (node.t === 'img') {
     const src = ctx.media('document', node.id);
     return src
@@ -60,6 +66,19 @@ function inlineOne(node, ctx, key) {
   }
   return null;
 }
+
+// Hidden words (R-Y220) until clicked.
+const Spoiler = ({ children }) => {
+  const [open, setOpen] = useState(false);
+  return el(
+    'span',
+    {
+      className: open ? 'iv-spoiler is-open' : 'iv-spoiler',
+      onClick: () => setOpen(true),
+    },
+    children
+  );
+};
 
 function linkNode(node, ctx, key, kids) {
   if (node.anchor) {
@@ -194,14 +213,34 @@ const embedBlock = (b, ctx) =>
 const listBlock = (b, ctx) =>
   el(
     b.ordered ? 'ol' : 'ul',
-    { className: 'iv-list' },
+    {
+      className: 'iv-list',
+      start: b.start,
+      reversed: b.reversed || undefined,
+    },
     b.items.map((item, index) =>
       el(
         'li',
-        { key: index, value: orderedValue(item.num) },
-        item.blocks
-          ? el(Blocks, { blocks: item.blocks, ctx })
-          : el(Inline, { nodes: item.c, ctx })
+        {
+          key: index,
+          value: orderedValue(item.num),
+          className: item.check === undefined ? undefined : 'iv-task',
+        },
+        [
+          item.check === undefined
+            ? null
+            : el('input', {
+                key: 'box',
+                type: 'checkbox',
+                checked: item.check,
+                disabled: true,
+                readOnly: true,
+                className: 'iv-task-box',
+              }),
+          item.blocks
+            ? el(Blocks, { key: 'b', blocks: item.blocks, ctx })
+            : el(Inline, { key: 'i', nodes: item.c, ctx }),
+        ]
       )
     )
   );
@@ -210,12 +249,16 @@ const orderedValue = (num) =>
   /^\d{1,6}$/.test(num ?? '') ? Number(num) : undefined;
 
 const quoteBlock = (tag, className) => (b, ctx) =>
-  el(tag, { className }, [
-    el('p', { key: 'c' }, el(Inline, { nodes: b.c, ctx })),
-    hasText(b.credit)
-      ? el('cite', { key: 'cr' }, el(Inline, { nodes: b.credit, ctx }))
-      : null,
-  ]);
+  el(
+    tag,
+    { className: b.collapsed ? `${className} iv-collapsed` : className },
+    [
+      el('p', { key: 'c' }, el(Inline, { nodes: b.c, ctx })),
+      hasText(b.credit)
+        ? el('cite', { key: 'cr' }, el(Inline, { nodes: b.credit, ctx }))
+        : null,
+    ]
+  );
 
 const gridBlock = (className) => (b, ctx) =>
   el('figure', { className: `iv-figure ${className}` }, [
@@ -353,7 +396,88 @@ const embedPostBlock = (b, ctx) =>
     el(Caption, { key: 'c', caption: b.caption, ctx }),
   ]);
 
+// ---- Rich messages (R-Y220) -------------------------------------------
+
+// What a model is "thinking", folded away until opened.
+const thinkingBlock = (b, ctx) =>
+  el('details', { className: 'iv-thinking', 'data-block': 'thinking' }, [
+    el('summary', { key: 's' }, ctx.t('chat.rich.thinking')),
+    el('div', { key: 'b' }, el(Inline, { nodes: b.c, ctx })),
+  ]);
+
+// A formula: its LaTeX source, as written, in a block of its own.
+const mathBlock = (b) =>
+  el(
+    'pre',
+    { className: 'iv-math', 'data-block': 'math', 'data-format': 'latex' },
+    el('code', null, b.source)
+  );
+
+const quoteBlocksBlock = (b, ctx) =>
+  el('blockquote', { className: 'iv-quote' }, [
+    el('div', { key: 'b' }, el(Blocks, { blocks: b.blocks, ctx })),
+    hasText(b.credit)
+      ? el('cite', { key: 'cr' }, el(Inline, { nodes: b.credit, ctx }))
+      : null,
+  ]);
+
+const buttonsBlock = (b, ctx) =>
+  el(
+    'div',
+    {
+      className: `iv-buttons is-${b.align}`,
+      'data-block': 'buttons',
+    },
+    b.buttons.map((button, index) =>
+      el(
+        React.Fragment,
+        { key: index },
+        ctx.button ? ctx.button(button, index) : null
+      )
+    )
+  );
+
+const sizeText = (bytes) => {
+  if (!bytes) {
+    return '';
+  }
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let value = bytes;
+  let at = 0;
+  while (value >= 1024 && at < units.length - 1) {
+    value /= 1024;
+    at += 1;
+  }
+  return `${at === 0 ? value : value.toFixed(1)} ${units[at]}`;
+};
+
+// A file: its name and size (and a picture, when it is one).
+const fileRowBlock = (b, ctx) =>
+  el('figure', { className: 'iv-figure iv-file', 'data-block': 'file' }, [
+    /^image\//.test(b.mime ?? '')
+      ? el(Picture, { key: 'i', id: b.id, kind: 'document', ctx })
+      : null,
+    el('span', { key: 'n', className: 'iv-file-name' }, b.name || b.mime),
+    b.size
+      ? el('small', { key: 's', className: 'iv-file-size' }, sizeText(b.size))
+      : null,
+    el(Caption, { key: 'c', caption: b.caption, ctx }),
+  ]);
+
+const headingBlock = (level) => textBlock(`h${level}`, `iv-h iv-h${level}`);
+
 const BLOCKS = {
+  h1: headingBlock(1),
+  h2: headingBlock(2),
+  h3: headingBlock(3),
+  h4: headingBlock(4),
+  h5: headingBlock(5),
+  h6: headingBlock(6),
+  thinking: thinkingBlock,
+  math: mathBlock,
+  quoteblocks: quoteBlocksBlock,
+  buttons: buttonsBlock,
+  file: fileRowBlock,
   title: textBlock('h1', 'iv-title'),
   subtitle: textBlock('p', 'iv-subtitle'),
   header: textBlock('h2', 'iv-header'),

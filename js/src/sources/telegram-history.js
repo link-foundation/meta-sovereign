@@ -566,6 +566,31 @@ const plainOf = (value, depth, seen) => {
   return out;
 };
 
+// A rich message (layer 232, R-Y220) is a tree of page blocks (lists in
+// lists, text in text), deeper than the other fields: it gets its own
+// depth. The pictures' inline previews (stripped or cached sizes, document
+// thumbnails, waveforms) are bytes the page never reads; they are left
+// out so a long answer does not weigh the store down.
+const RICH_DEPTH = -24;
+const slimFile = (file) => {
+  for (const list of [file?.sizes, file?.thumbs, file?.videoThumbs]) {
+    for (const size of Array.isArray(list) ? list : []) {
+      delete size?.bytes;
+    }
+  }
+  for (const one of Array.isArray(file?.attributes) ? file.attributes : []) {
+    delete one?.waveform;
+  }
+  return file;
+};
+
+const slimRich = (rich) => {
+  for (const file of [...(rich.photos ?? []), ...(rich.documents ?? [])]) {
+    slimFile(file);
+  }
+  return rich;
+};
+
 function objectOf(value, depth, seen) {
   const out = {};
   for (const [key, item] of Object.entries(value)) {
@@ -576,7 +601,11 @@ function objectOf(value, depth, seen) {
     ) {
       continue;
     }
-    const plain = plainOf(item, depth + 1, seen);
+    const rich = key === 'richMessage';
+    let plain = plainOf(item, rich ? RICH_DEPTH : depth + 1, seen);
+    if (rich && plain) {
+      plain = slimRich(plain);
+    }
     if (plain !== null) {
       out[key] = plain;
     }

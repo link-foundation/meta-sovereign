@@ -16,7 +16,16 @@
 import { readFileSync } from 'node:fs';
 import Module, { createRequire } from 'node:module';
 
-export const LAYER = 225;
+export const LAYER = 232;
+
+/**
+ * The revision of the schema file at that layer (R-Y220). The repair that
+ * reads unsupported messages again keeps its marker per layer *and*
+ * revision, so a newly generated file (rich messages arrived at layer 232
+ * after a first trial of it) makes the re-read run once more. Bump it
+ * whenever layer-N.tl is regenerated.
+ */
+export const SCHEMA_REV = 2;
 
 const SCHEMA = new URL(`./telegram-api/layer-${LAYER}.tl`, import.meta.url);
 
@@ -55,8 +64,76 @@ export const installTelegramLayer = ({ schema = SCHEMA } = {}) => {
   return installed;
 };
 
+// Dialogs that name no chat or person: a community (layer 232, R-Y220)
+// is a `dialogCommunity` with a community id and no peer. GramJS builds
+// every dialog from `dialog.peer`, so one such entry would fail the whole
+// list; these are left out where the list is read.
+export const peerDialogs = (dialogs) =>
+  Array.isArray(dialogs) ? dialogs.filter((d) => d && d.peer) : dialogs;
+
+const DIALOG_LISTS = ['Dialogs', 'DialogsSlice', 'PeerDialogs'];
+const patched = new WeakSet();
+
+/** Make GramJS skip dialogs without a peer when it reads a dialog list. */
+export const skipPeerlessDialogs = (Api) => {
+  if (!Api?.messages || patched.has(Api)) {
+    return;
+  }
+  patched.add(Api);
+  for (const name of DIALOG_LISTS) {
+    const Class = Api.messages[name];
+    const read = Class?.fromReader;
+    if (typeof read === 'function') {
+      Class.fromReader = function fromReader(reader) {
+        const list = read.call(this, reader);
+        list.dialogs = peerDialogs(list.dialogs);
+        return list;
+      };
+    }
+  }
+};
+
+// Layer 232 folded the button classes (`keyboardButtonUrl`, …) into a
+// button's `type`. GramJS's message helpers still test a button against
+// those classes when `message.buttons` is read, and testing against a class
+// that does not exist throws. Empty stand-ins, which no
+// button is ever an instance of, keep that harmless.
+const OLD_BUTTONS = [
+  'Url',
+  'Callback',
+  'RequestPhone',
+  'RequestGeoLocation',
+  'SwitchInline',
+  'Game',
+  'Buy',
+  'UrlAuth',
+  'RequestPoll',
+  'UserProfile',
+  'WebView',
+  'SimpleWebView',
+  'RequestPeer',
+  'Copy',
+];
+
+export const quietOldButtons = (Api) => {
+  for (const name of OLD_BUTTONS) {
+    for (const prefix of ['KeyboardButton', 'InputKeyboardButton']) {
+      if (Api && Api[`${prefix}${name}`] === undefined) {
+        Api[`${prefix}${name}`] = class {};
+      }
+    }
+  }
+};
+
 /** `import('telegram')` at the current layer. */
 export const importTelegram = async () => {
   installTelegramLayer();
-  return import('telegram');
+  const telegram = await import('telegram');
+  try {
+    skipPeerlessDialogs(telegram.Api);
+    quietOldButtons(telegram.Api);
+  } catch {
+    // GramJS stays as it was.
+  }
+  return telegram;
 };

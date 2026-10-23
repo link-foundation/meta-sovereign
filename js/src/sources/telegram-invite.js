@@ -92,9 +92,12 @@ const createJoiner =
       return BAD_HASH;
     }
     return connected(env, userClient, failure, async (c) => {
-      const result = await runIn(env, `invite:join:${hash}`, () =>
+      const answer = await runIn(env, `invite:join:${hash}`, () =>
         c.client.invoke(new c.Api.messages.ImportChatInvite({ hash }))
       );
+      // Layer 232 wraps the updates (R-Y220): chatInviteJoinResultOk; a
+      // web-view result (a bot asks first) has none.
+      const result = answer?.updates ?? (answer?.queryId ? null : answer);
       if (result && typeof result === 'object') {
         await apply(c.client, result);
       }

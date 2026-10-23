@@ -355,4 +355,16 @@ export const ruChatAccount = {
   'chat.preview.emojiSet': 'Набор эмодзи',
   'chat.preview.theme': 'Тема чата',
   'chat.preview.uniqueGift': 'Уникальный подарок',
+  'chat.rich.thinking': 'Размышляет…',
+  'chat.rich.writing': 'Ещё пишется',
+  'chat.service.communityIn': 'Чат добавлен в сообщество',
+  'chat.service.communityOut': 'Чат убран из сообщества',
+  'chat.service.communityJoined': 'Вступил(а) через сообщество',
+  'chat.service.gramTransfer': 'Перевод Gram: {amount}',
+  'chat.service.gramTransferNote': 'Перевод Gram: {amount} — {note}',
+  'chat.service.walletConnect': 'Запрошено подключение кошелька',
+  'chat.service.walletConnectAccepted': 'Подключение кошелька принято',
+  'chat.service.walletConnectDeclined': 'Подключение кошелька отклонено',
+  'chat.service.noPaidToken':
+    'Вместо оплаты использован жетон бесплатного сообщения',
 };

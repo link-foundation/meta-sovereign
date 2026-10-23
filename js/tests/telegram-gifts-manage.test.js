@@ -555,7 +555,7 @@ test('the routes validate strictly before the account is asked', async () => {
 test('the Api names used all exist in layer 225', async () => {
   const { readFile } = await import('node:fs/promises');
   const tl = await readFile(
-    new URL('../src/sources/telegram-api/layer-225.tl', import.meta.url),
+    new URL('../src/sources/telegram-api/layer-232.tl', import.meta.url),
     'utf8'
   );
   for (const name of [

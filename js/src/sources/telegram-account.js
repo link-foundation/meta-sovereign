@@ -77,7 +77,10 @@ import {
   importTelegram,
   installTelegramLayer,
   LAYER,
+  SCHEMA_REV,
 } from './telegram-layer.js';
+
+import { richPlainText } from './telegram-instant-view-shape.js';
 
 const SOURCE = 'telegram';
 export const TELEGRAM_SYNC_ID = 'sync:telegram';
@@ -144,7 +147,21 @@ const isoOf = (date) => {
 };
 
 // A media message without a caption still shows up in the chat.
-const bodyOf = (message) => message.message || (message.media ? '📎' : '');
+// A rich message (layer 232, R-Y220) has no text of its own: its blocks'
+// words stand in for it (the chat list, search), and it is never dropped.
+const richWords = (message) => {
+  if (!message.richMessage) {
+    return '';
+  }
+  try {
+    return richPlainText(message.richMessage) || '…';
+  } catch {
+    return '…';
+  }
+};
+
+const bodyOf = (message) =>
+  message.message || richWords(message) || (message.media ? '📎' : '');
 
 // A service message (a join, a pin, a call) has no text: what happened
 // is its action's name, and the chat shows it as a line of its own.
@@ -1223,7 +1240,12 @@ const runRepairs = (store, log, refresh) =>
     // Only worth it when GramJS really speaks the current layer.
     .then(() =>
       installTelegramLayer().layer === LAYER
-        ? rereadUnsupported(store, { refresh, layer: LAYER, log })
+        ? rereadUnsupported(store, {
+            refresh,
+            layer: LAYER,
+            rev: SCHEMA_REV,
+            log,
+          })
         : 0
     )
     .then(() => nameForwards(store, { refresh, log }))

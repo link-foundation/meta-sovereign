@@ -146,9 +146,11 @@ const readAgain = async (byChat, refresh, priority, wait = pause) => {
  */
 export const rereadUnsupported = async (
   store,
-  { refresh, layer, log = () => {}, priority = 'prefetch', wait } = {}
+  { refresh, layer, rev, log = () => {}, priority = 'prefetch', wait } = {}
 ) => {
-  const marker = `repair:telegram:unsupported-layer-${layer}`;
+  // `rev`: the schema file's revision (R-Y220), so a regenerated file at
+  // the same layer asks once more.
+  const marker = `repair:telegram:unsupported-layer-${layer}${rev ? `-r${rev}` : ''}`;
   if (!refresh || !layer || (await store.get(marker))) {
     return 0;
   }

@@ -67,7 +67,7 @@ const rules = (list, users = []) => ({
 
 test('every Api name the module uses is in layer 225', () => {
   const tl = readFileSync(
-    new URL('../src/sources/telegram-api/layer-225.tl', import.meta.url),
+    new URL('../src/sources/telegram-api/layer-232.tl', import.meta.url),
     'utf8'
   );
   const lower = (s) => s[0].toLowerCase() + s.slice(1);

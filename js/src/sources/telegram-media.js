@@ -121,11 +121,34 @@ export const mediaOf = (raw, part = 0) => {
   return item?.className === 'MessageExtendedMedia' ? item.media : null;
 };
 
+// `photo:<id>` or `document:<id>`: a file of a rich message (R-Y220).
+const RICH_FILE = /^(photo|document):(\d{1,20})$/;
+
+const richPicture = (raw, rich, want) => {
+  const [, kind, id] = RICH_FILE.exec(rich) ?? [];
+  const list = kind === 'photo' ? raw?.richMessage?.photos : null;
+  const file = (list ?? raw?.richMessage?.documents ?? []).find(
+    (one) => text(one?.id) === id
+  );
+  if (!kind || !file) {
+    return null;
+  }
+  if (kind === 'photo') {
+    const thumb = pickSize(file.sizes ?? [], want);
+    return thumb ? { kind, file, thumb, mimeType: 'image/jpeg' } : null;
+  }
+  return documentPicture(file, want);
+};
+
 /**
  * What to download for a stored message: `{ kind, file, thumb, mimeType }`
  * (`file` the photo or document as stored), or null when it has no picture.
+ * `rich`: `photo:<id>` / `document:<id>`, a picture of its rich message.
  */
-export const pictureOf = (raw, want = 'm', part = 0) => {
+export const pictureOf = (raw, want = 'm', part = 0, rich = '') => {
+  if (rich) {
+    return richPicture(raw, rich, want);
+  }
   const media = mediaOf(raw, part);
   const photo = photoOf(media);
   if (photo?.id !== undefined && photo.sizes) {
@@ -166,6 +189,12 @@ export const readCache = async (file) => {
   }
 };
 
+const validRequest = (chat, msg, part, rich) =>
+  CHAT.test(chat) &&
+  whole(msg, 1) &&
+  whole(part, 0, 9) &&
+  (!rich || RICH_FILE.test(rich));
+
 /**
  * `read({ chat, id, size })` → `{ buffer, mimeType }`, or null when the
  * message has no picture. `client()` is the connected GramJS client (or
@@ -193,14 +222,14 @@ export const createMediaReader = ({
     return buffer?.length ? Buffer.from(buffer) : null;
   };
 
-  const fetchPicture = async (chat, id, want, part) => {
+  const fetchPicture = async (chat, id, want, part, rich) => {
     const linkId = `msg:telegram:${chat}:${id}`;
-    const picture = pictureOf((await store.get(linkId))?.raw, want, part);
+    const picture = pictureOf((await store.get(linkId))?.raw, want, part, rich);
     const client = picture ? await clientOf() : null;
     if (!client) {
       return null;
     }
-    const key = `media:${chat}:${id}:${picture.thumb}${part ? `:p${part}` : ''}`;
+    const key = `media:${chat}:${id}:${picture.thumb}${part ? `:p${part}` : ''}${rich ? `:${rich}` : ''}`;
     try {
       return {
         buffer: await queue.run(key, 'list', () => download(client, picture)),
@@ -213,7 +242,7 @@ export const createMediaReader = ({
       // The file reference is old: read the message again, then retry.
       log({ event: 'telegram_media_reference_expired' });
       await refresh({ chat, ids: [id], priority: 'list' });
-      const fresh = pictureOf((await store.get(linkId))?.raw, want, part);
+      const fresh = pictureOf((await store.get(linkId))?.raw, want, part, rich);
       return fresh
         ? {
             buffer: await queue.run(`${key}:again`, 'list', () =>
@@ -225,26 +254,28 @@ export const createMediaReader = ({
     }
   };
 
-  const read = async ({ chat, id, size = 'm', part = 0 } = {}) => {
+  const read = async ({ chat, id, size = 'm', part = 0, rich = '' } = {}) => {
     const target = String(chat ?? '');
     const msg = Number(id);
     const want = SIZES.has(size) ? size : 'm';
     // All name a path in the app folder: digits only. `part` is the item
-    // of a paid-media message (R-Y176).
-    if (!CHAT.test(target) || !whole(msg, 1) || !whole(part, 0, 9)) {
+    // of a paid-media message (R-Y176), `rich` a file of a rich message
+    // (R-Y220).
+    if (!validRequest(target, msg, part, rich)) {
       return null;
     }
+    const tag = rich ? `-${rich.replace(':', '')}` : '';
     const file = path.join(
       dir,
       target,
-      `${msg}-${want}${part ? `-p${part}` : ''}`
+      `${msg}-${want}${part ? `-p${part}` : ''}${tag}`
     );
     const cached = await readCache(file);
     if (cached) {
       const meta = await readCache(`${file}.type`);
       return { buffer: cached, mimeType: meta?.toString() || 'image/jpeg' };
     }
-    const got = await fetchPicture(target, msg, want, part);
+    const got = await fetchPicture(target, msg, want, part, rich);
     if (!got?.buffer) {
       return null;
     }

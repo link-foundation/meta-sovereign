@@ -8,6 +8,8 @@
 // code copied — the algorithm is Telegram's own spec).
 
 import { parsePoll, parseTodo } from './poll-parts.js';
+import { quoteRichText, richOf } from './rich-message-model.js';
+import { richServiceWords } from './rich-service-model.js';
 import { inTopicOnly } from './forum-topics.js';
 import { callLine } from './call-model.js';
 import { paidOf, paidReactionOf } from './stars-model.js';
@@ -300,10 +302,12 @@ export const serviceInfo = (link, msgById = new Map()) => {
     return special;
   }
   const action = link.raw?.action ?? {};
-  // Giveaways and paid messages (R-Y184): a line with its numbers; every
-  // other action: the actor, the people named, the numbers (R-Y221).
+  // Giveaways and paid messages (R-Y184), the five actions of layer 232
+  // (R-Y220); every other action: the actor, the people named, the numbers
+  // (R-Y221).
   const words =
     serviceWords(link.service, action) ??
+    richServiceWords(link.service, action) ??
     serviceTextInfo(link, () => msgById.get(replyLinkId(link) ?? ''));
   if (words) {
     return { title: null, titleKey: '', user: null, ...words };
@@ -634,7 +638,9 @@ const parseReply = (link, raw, msgById) => {
     linkId: repliedId,
     ...repliedFields(msgById.get(repliedId)),
     quoteText:
-      typeof raw.replyTo?.quoteText === 'string' ? raw.replyTo.quoteText : null,
+      typeof raw.replyTo?.quoteText === 'string'
+        ? raw.replyTo.quoteText
+        : quoteRichText(raw.replyTo) || null,
   };
 };
 
@@ -712,6 +718,10 @@ export const attachmentMedia = (attachments) => {
   };
 };
 
+// The text of a message: none for a rich one, which draws its blocks.
+const bodyOf = (link, rich) =>
+  typeof link?.body === 'string' && !rich ? link.body : '';
+
 /**
  * Parse a message link into all display parts.
  *
@@ -722,11 +732,14 @@ export const attachmentMedia = (attachments) => {
 export const parseMessageParts = (link, msgById = new Map()) => {
   const raw = link?.raw ?? {};
   const media = parseMedia(raw) ?? attachmentMedia(link?.attachments);
-  const body = typeof link?.body === 'string' ? link.body : '';
+  const rich = richOf(raw);
+  const body = bodyOf(link, rich);
   return {
     // A file without a caption is stored with a 📎 body (for the chat
     // list); the bubble shows the file itself instead.
     text: media && body === '📎' ? '' : body,
+    // The blocks of a rich message (R-Y220), drawn instead of the text.
+    rich,
     entities: Array.isArray(raw.entities) ? raw.entities : [],
     media,
     replyRef: parseReply(link, raw, msgById),

@@ -1153,12 +1153,12 @@ const rawApi = {
    * URL for a Telegram photo via the media proxy.
    * Returns null when the server is offline or the endpoint is unknown.
    */
-  telegramMediaUrl: async ({ chat, id, size = 'm', part = 0 } = {}) => {
+  telegramMediaUrl: async ({ chat, id, size = 'm', part = 0, rich } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !chat || !id) {
       return null;
     }
-    const path = `/api/telegram/media?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}&size=${encodeURIComponent(size)}${part ? `&part=${part}` : ''}`;
+    const path = `/api/telegram/media?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}&size=${encodeURIComponent(size)}${part ? `&part=${part}` : ''}${rich ? `&rich=${encodeURIComponent(rich)}` : ''}`;
     return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 

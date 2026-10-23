@@ -123,8 +123,51 @@ export const peerTypeOf = (type) => {
   return out;
 };
 
+// Layer 232 (R-Y220) names what a button does in a `type` of its own
+// (`keyboardInlineButton`, and `keyboardButton` with a `buttonType…`).
+// The type's class → the button class older messages stored.
+const TYPES = {
+  InlineButtonTypeUrl: 'KeyboardButtonUrl',
+  InlineButtonTypeUrlAuth: 'KeyboardButtonUrlAuth',
+  InputInlineButtonTypeUrlAuth: 'InputKeyboardButtonUrlAuth',
+  InlineButtonTypeWebView: 'KeyboardButtonWebView',
+  InlineButtonTypeCallback: 'KeyboardButtonCallback',
+  InlineButtonTypeGame: 'KeyboardButtonGame',
+  InlineButtonTypeBuy: 'KeyboardButtonBuy',
+  InlineButtonTypeSwitchInline: 'KeyboardButtonSwitchInline',
+  InlineButtonTypeUserProfile: 'KeyboardButtonUserProfile',
+  InputInlineButtonTypeUserProfile: 'InputKeyboardButtonUserProfile',
+  InlineButtonTypeCopy: 'KeyboardButtonCopy',
+  ButtonTypeDefault: 'KeyboardButton',
+  ButtonTypeRequestPhone: 'KeyboardButtonRequestPhone',
+  ButtonTypeRequestGeoLocation: 'KeyboardButtonRequestGeoLocation',
+  ButtonTypeRequestPoll: 'KeyboardButtonRequestPoll',
+  ButtonTypeRequestPeer: 'KeyboardButtonRequestPeer',
+  InputButtonTypeRequestPeer: 'InputKeyboardButtonRequestPeer',
+  ButtonTypeSimpleWebView: 'KeyboardButtonSimpleWebView',
+};
+
+/**
+ * A button as the older classes described it: a layer-232 button
+ * (`{ text, style, type }`) takes its class and fields from its type;
+ * an older one is returned as it is. A type the app does not know gives
+ * `{ className: 'KeyboardButtonUnknown' }`, which `buttonOf` drops.
+ */
+export const legacyButton = (raw) => {
+  if (!raw?.type?.className) {
+    return raw;
+  }
+  const { type, ...rest } = raw;
+  return {
+    ...type,
+    ...rest,
+    className: TYPES[type.className] ?? 'KeyboardButtonUnknown',
+  };
+};
+
 /** One stored button as `{ kind, text, ... }`; null when unknown. */
-export const buttonOf = (raw) => {
+export const buttonOf = (stored) => {
+  const raw = legacyButton(stored);
   const kind = KINDS[raw?.className];
   if (!kind) {
     return null;

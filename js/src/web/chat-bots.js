@@ -91,7 +91,7 @@ export const InlineKeyboard = ({ message, onAction }) => {
   );
 };
 
-const BotButton = ({ button, busy, onPress }) => {
+export const BotButton = ({ button, busy, onPress }) => {
   const mark = MARKS[button.kind];
   return el(
     'button',

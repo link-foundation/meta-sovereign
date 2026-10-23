@@ -188,3 +188,30 @@ test('routes validate strictly', async () => {
     assert.equal((await post(route, good, account)).status, 200, route);
   }
 });
+
+test('layer 232 wraps the join result; the updates inside are applied (R-Y220)', async () => {
+  const updates = {
+    className: 'Updates',
+    chats: [{ className: 'Chat', id: 9n }],
+  };
+  const wrapped = make(() => ({
+    className: 'messages.ChatInviteJoinResultOk',
+    updates,
+  }));
+  assert.deepEqual(
+    await wrapped.invites.joinChatInvite({ hash: 'FreshHash123' }),
+    { ok: true, chat: '-9' }
+  );
+  assert.deepEqual(wrapped.applied, [updates]);
+  // A bot asks first: nothing joined, nothing applied.
+  const web = make(() => ({
+    className: 'messages.ChatInviteJoinResultWebView',
+    botId: 1n,
+    queryId: 5n,
+    users: [],
+  }));
+  assert.deepEqual(await web.invites.joinChatInvite({ hash: 'FreshHash123' }), {
+    ok: true,
+  });
+  assert.deepEqual(web.applied, []);
+});

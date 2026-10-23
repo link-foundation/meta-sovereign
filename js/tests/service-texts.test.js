@@ -19,10 +19,11 @@ import { dictionaries } from '../src/web/locales/index.js';
 import { formattedDateText } from '../src/web/entity-extras.js';
 import { textTree, MessageText } from '../src/web/message-text.js';
 import { webpageKindOf } from '../src/web/webpage-kind.js';
+import { LAYER } from '../src/sources/telegram-layer.js';
 import { actionNamesOf } from '../src/sources/telegram-service-names.js';
 
 const TL = readFileSync(
-  new URL('../src/sources/telegram-api/layer-225.tl', import.meta.url),
+  new URL(`../src/sources/telegram-api/layer-${LAYER}.tl`, import.meta.url),
   'utf8'
 );
 const ACTIONS = [...TL.matchAll(/^messageAction(\w+)#/gm)].map(

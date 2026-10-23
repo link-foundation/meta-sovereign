@@ -29,6 +29,7 @@ const ENTITY_TYPES = Object.freeze({
   MessageEntityBlockquote: 'blockquote',
   MessageEntityCustomEmoji: 'custom_emoji',
   MessageEntityBankCard: 'bank_card',
+  MessageEntityTonAddress: 'ton_address',
 });
 
 // What an entity says besides its kind.

@@ -87,7 +87,7 @@ const everything = (value) =>
 
 test('every Api name the module uses is in layer 225', () => {
   const tl = readFileSync(
-    new URL('../src/sources/telegram-api/layer-225.tl', import.meta.url),
+    new URL('../src/sources/telegram-api/layer-232.tl', import.meta.url),
     'utf8'
   );
   for (const method of [

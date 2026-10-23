@@ -57,7 +57,7 @@ const refusal = (name) =>
 
 test('Api constructors used exist in layer 225', () => {
   const tl = readFileSync(
-    new URL('../src/sources/telegram-api/layer-225.tl', import.meta.url),
+    new URL('../src/sources/telegram-api/layer-232.tl', import.meta.url),
     'utf8'
   );
   assert.match(tl, /^contacts\.getStatuses#/m);

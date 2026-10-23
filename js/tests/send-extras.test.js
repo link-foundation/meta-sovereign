@@ -191,7 +191,7 @@ test('the saved-reorder route validates, then asks', async () => {
 
 test('the layer has what the extras use', () => {
   const tl = readFileSync(
-    new URL('../src/sources/telegram-api/layer-225.tl', import.meta.url),
+    new URL('../src/sources/telegram-api/layer-232.tl', import.meta.url),
     'utf8'
   );
   assert.ok(tl.includes('\nmessages.reorderPinnedSavedDialogs#'));

@@ -83,6 +83,8 @@ const handleMedia = async (account, req, res, ctx) => {
     size: query.get('size') || 'm',
     // The item of a paid-media message (R-Y176).
     part: Number(query.get('part') || 0),
+    // A picture of a rich message (R-Y220): photo:<id> or document:<id>.
+    rich: query.get('rich') || '',
   });
   if (!result?.buffer) {
     return json(res, 404, { error: 'no picture' }) ?? true;
