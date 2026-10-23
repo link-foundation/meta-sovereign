@@ -451,6 +451,45 @@ const ICONS = {
       },
     ],
   ],
+  // Lucide crop, rotate-ccw, flip-horizontal, pen, highlighter,
+  // arrow-up-right and redo-2: the photo editor's tools (R-Y187).
+  crop: [
+    ['path', { d: 'M6 2v14a2 2 0 0 0 2 2h14' }],
+    ['path', { d: 'M18 22V8a2 2 0 0 0-2-2H2' }],
+  ],
+  'rotate-left': [
+    ['path', { d: 'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8' }],
+    ['path', { d: 'M3 3v5h5' }],
+  ],
+  flip: [
+    ['path', { d: 'M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3' }],
+    ['path', { d: 'M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3' }],
+    ['path', { d: 'M12 20v2M12 14v2M12 8v2M12 2v2' }],
+  ],
+  pen: [
+    [
+      'path',
+      {
+        d: 'M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z',
+      },
+    ],
+    ['path', { d: 'm15 5 4 4' }],
+  ],
+  marker: [
+    ['path', { d: 'm9 11-6 6v3h9l3-3' }],
+    [
+      'path',
+      { d: 'm22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4' },
+    ],
+  ],
+  'arrow-up-right': [
+    ['path', { d: 'M7 7h10v10' }],
+    ['path', { d: 'M7 17 17 7' }],
+  ],
+  redo: [
+    ['path', { d: 'm15 14 5-5-5-5' }],
+    ['path', { d: 'M20 9H9.5a5.5 5.5 0 0 0 0 11H13' }],
+  ],
   // Lucide undo-2, octagon-x, lightbulb and chart-bar: a poll's
   // Retract vote, Stop poll, a quiz's explanation, View results (R-Y74).
   undo: [

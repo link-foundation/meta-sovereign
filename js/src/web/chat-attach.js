@@ -12,6 +12,8 @@ import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { composerReplyId } from './forum-topics.js';
 import { sendAsField } from './chat-send-as.js';
+import { PhotoEditor } from './chat-photo-editor.js';
+import { isEdited, isEditable } from './photo-editor-model.js';
 
 const el = React.createElement;
 
@@ -92,6 +94,7 @@ export const useAttach = ({ state, api }) => {
   const [asPhoto, setAsPhoto] = useState(true);
   const [group, setGroup] = useState(true);
   const [progress, setProgress] = useState(null);
+  const [editing, setEditing] = useState(null);
   const held = useRef(items);
   held.current = items;
   const enabled = canAttach(state, api);
@@ -100,6 +103,7 @@ export const useAttach = ({ state, api }) => {
     forget(held.current);
     setItems([]);
     setProgress(null);
+    setEditing(null);
   };
   useEffect(() => close, [current?.key]);
 
@@ -121,6 +125,23 @@ export const useAttach = ({ state, api }) => {
       forget(now.slice(index, index + 1));
       return now.filter((_, i) => i !== index);
     });
+
+  // The photo editor's Done (R-Y187): the edited picture replaces the
+  // file; the original and the edits stay for the next time.
+  const applyEdit = (index, file, history) => {
+    setItems((now) =>
+      now.map((item, i) => {
+        if (i !== index) {
+          return item;
+        }
+        forget([item]);
+        const original = item.original ?? item.file;
+        const edited = isEdited(history.present) ? file : original;
+        return { ...previewOf(edited), original, edit: history };
+      })
+    );
+    setEditing(null);
+  };
 
   const failed = (answer) => {
     setProgress(null);
@@ -168,6 +189,9 @@ export const useAttach = ({ state, api }) => {
     asPhoto,
     group,
     progress,
+    editing,
+    setEditing,
+    applyEdit,
     add,
     remove,
     setCaption,
@@ -360,7 +384,7 @@ const titleOf = (t, items, asPhoto) => {
   return t('chat.attach.titleFiles', { count });
 };
 
-const Item = ({ item, index, onRemove, t }) =>
+const Item = ({ item, index, onRemove, onEdit, t }) =>
   el('li', { className: 'attach-item', 'data-file': item.file.name }, [
     item.url
       ? el('img', { key: 'p', src: item.url, alt: '', className: 'attach-pic' })
@@ -377,6 +401,21 @@ const Item = ({ item, index, onRemove, t }) =>
         sizeText(item.file.size)
       ),
     ]),
+    item.url && isEditable(item.file.type)
+      ? el(
+          'button',
+          {
+            key: 'e',
+            type: 'button',
+            className: 'icon-btn attach-edit',
+            'data-action': 'attach-edit',
+            'aria-label': t('photoEditor.edit'),
+            title: t('photoEditor.edit'),
+            onClick: () => onEdit(index),
+          },
+          el(Icon, { name: 'edit', size: 16 })
+        )
+      : null,
     el(
       'button',
       {
@@ -430,7 +469,9 @@ export const AttachDialog = ({ attach, sendProps = {} }) => {
     const onKey = (e) =>
       e.key === 'Escape' &&
       !busy &&
-      !globalThis.document?.querySelector('.schedule-dialog, .effect-panel') &&
+      !globalThis.document?.querySelector(
+        '.schedule-dialog, .effect-panel, .photo-editor'
+      ) &&
       attach.close();
     globalThis.addEventListener?.('keydown', onKey);
     return () => globalThis.removeEventListener?.('keydown', onKey);
@@ -465,6 +506,7 @@ export const AttachDialog = ({ attach, sendProps = {} }) => {
             item,
             index,
             onRemove: attach.remove,
+            onEdit: attach.setEditing,
             t,
           })
         )
@@ -505,6 +547,15 @@ export const AttachDialog = ({ attach, sendProps = {} }) => {
         },
       }),
       busy ? el(Progress, { key: 'p', progress: attach.progress, t }) : null,
+      attach.editing !== null && attach.items[attach.editing]
+        ? el(PhotoEditor, {
+            key: `edit:${attach.editing}`,
+            item: attach.items[attach.editing],
+            onDone: (file, history) =>
+              attach.applyEdit(attach.editing, file, history),
+            onCancel: () => attach.setEditing(null),
+          })
+        : null,
       el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
         el('input', {
           key: 'more-input',
