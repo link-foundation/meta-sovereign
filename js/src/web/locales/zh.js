@@ -405,6 +405,16 @@ export const zh = {
   'telegramLogin.you': '你的账号',
   'telegramLogin.codeSent': 'Telegram 已向你的应用发送验证码,请在下方输入。',
   'telegramLogin.twoFactor': '你的账号设置了两步验证密码,请输入以完成登录。',
+  // Sign in by QR code (R-Y203)
+  'telegramLogin.byQr': '使用二维码登录',
+  'telegramLogin.byPhone': '使用手机号登录',
+  'telegramLogin.qrStart': '显示二维码',
+  'telegramLogin.qrAlt': '登录 Telegram 的二维码',
+  'telegramLogin.qrTitle': '使用二维码登录 Telegram',
+  'telegramLogin.qrStep1': '在手机上打开 Telegram',
+  'telegramLogin.qrStep2': '前往 设置 > 设备 > 关联桌面设备',
+  'telegramLogin.qrStep3': '将手机对准此屏幕以确认登录',
+  'telegramLogin.qrWaiting': '正在等待你扫描二维码…',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': '准备 Email 凭据',
   'connections.email.setup.step1.body':

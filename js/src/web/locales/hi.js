@@ -418,6 +418,18 @@ export const hi = {
     'Telegram ने आपके ऐप में एक कोड भेजा है। उसे नीचे दर्ज करें।',
   'telegramLogin.twoFactor':
     'आपके खाते में 2FA पासवर्ड है। पूरा करने के लिए उसे दर्ज करें।',
+  // Sign in by QR code (R-Y203)
+  'telegramLogin.byQr': 'QR कोड से लॉग इन करें',
+  'telegramLogin.byPhone': 'फ़ोन नंबर से लॉग इन करें',
+  'telegramLogin.qrStart': 'QR कोड दिखाएँ',
+  'telegramLogin.qrAlt': 'Telegram में लॉग इन करने का QR कोड',
+  'telegramLogin.qrTitle': 'QR कोड से Telegram में लॉग इन करें',
+  'telegramLogin.qrStep1': 'अपने फ़ोन पर Telegram खोलें',
+  'telegramLogin.qrStep2':
+    'सेटिंग > डिवाइस > डेस्कटॉप डिवाइस लिंक करें पर जाएँ',
+  'telegramLogin.qrStep3':
+    'लॉगिन की पुष्टि के लिए अपने फ़ोन को इस स्क्रीन की ओर करें',
+  'telegramLogin.qrWaiting': 'आपके कोड स्कैन करने की प्रतीक्षा है…',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Email क्रेडेंशियल तैयार करें',
   'connections.email.setup.step1.body':

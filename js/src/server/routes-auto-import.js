@@ -204,7 +204,7 @@ const telegramRoute = async (store, req, res, ctx, action) => {
 // secret:telegram:*. The live GramJS client is held between requests in
 // ctx.telegramLogins, keyed by an opaque id.
 const TELEGRAM_LOGIN_ROUTE =
-  /^\/api\/auto-import\/telegram\/login\/(start|code|password|cancel)$/;
+  /^\/api\/auto-import\/telegram\/login\/(start|code|password|cancel|qr-start|qr-status|qr-cancel)$/;
 
 const loginsFor = (ctx) => (ctx.telegramLogins ??= new Map());
 
@@ -250,6 +250,9 @@ const loginReply = async (store, logins, id, login, meta) => {
       ? { done: true, account: login.account, extra: meta.slot }
       : { done: true, account: login.account };
   }
+  if (login.state === 'qr') {
+    return { id, url: login.url, expires: login.expires };
+  }
   if (login.state === 'password') {
     return { needs: 'password' };
   }
@@ -292,6 +295,49 @@ const startLogin = async (store, body, ctx) => {
   return loginReply(store, logins, id, login, { apiId, apiHash, slot });
 };
 
+// Sign in by QR code (R-Y203): qr-start shows a code, qr-status (polled)
+// renews it and answers { url, expires } | { needs: 'password' } | { done },
+// qr-cancel ends it. The password step is the phone flow's own route.
+const API_ID = /^[1-9]\d{0,9}$/;
+const API_HASH = /^[0-9a-fA-F]{32}$/;
+const LOGIN_ID = /^tg-login-[0-9]+-[a-z0-9]+$/;
+
+const startQrLoginRoute = async (store, body, ctx) => {
+  const apiId = String(body.apiId ?? '');
+  const apiHash = String(body.apiHash ?? '');
+  if (!API_ID.test(apiId) || !API_HASH.test(apiHash)) {
+    throw badLogin(
+      'api_id (numbers) and api_hash (32 hex characters) are required'
+    );
+  }
+  const slot = await loginSlot(body, ctx);
+  const login = await mtprotoFor(ctx).createQrLogin({ apiId, apiHash });
+  const id = `tg-login-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const logins = loginsFor(ctx);
+  logins.set(id, { login, apiId, apiHash, slot, qr: true });
+  return loginReply(store, logins, id, login, { apiId, apiHash, slot });
+};
+
+const qrStatusRoute = async (store, body, ctx) => {
+  const logins = loginsFor(ctx);
+  const id = String(body.id ?? '');
+  const entry = LOGIN_ID.test(id) ? logins.get(id) : null;
+  if (!entry?.qr) {
+    throw Object.assign(new Error('no such QR login (it may have expired)'), {
+      status: 404,
+    });
+  }
+  const { login, apiId, apiHash, slot } = entry;
+  try {
+    await login.status();
+  } catch (error) {
+    logins.delete(id);
+    await login.cancel().catch(() => {});
+    throw badLogin(String(error?.errorMessage ?? error?.message ?? error));
+  }
+  return loginReply(store, logins, id, login, { apiId, apiHash, slot });
+};
+
 const continueLogin = async (store, action, body, ctx) => {
   const logins = loginsFor(ctx);
   const entry = logins.get(String(body.id ?? ''));
@@ -307,20 +353,47 @@ const continueLogin = async (store, action, body, ctx) => {
     return { cancelled: true };
   }
   if (action === 'code') {
+    if (!login.submitCode) {
+      throw badLogin('a QR login has no code step');
+    }
     await login.submitCode(body.code);
+  } else if (entry.qr) {
+    // A wrong 2-Step password is the user's to fix, not a server error.
+    await login.submitPassword(body.password).catch((error) => {
+      throw badLogin(String(error?.errorMessage ?? error?.message ?? error));
+    });
   } else {
     await login.submitPassword(body.password);
   }
   return loginReply(store, logins, body.id, login, { apiId, apiHash, slot });
 };
 
+const loginStep = (store, action, body, ctx) => {
+  if (action === 'start') {
+    return startLogin(store, body, ctx);
+  }
+  if (action === 'qr-start') {
+    return startQrLoginRoute(store, body, ctx);
+  }
+  if (action === 'qr-status') {
+    return qrStatusRoute(store, body, ctx);
+  }
+  return continueLogin(
+    store,
+    action === 'qr-cancel' ? 'cancel' : action,
+    body,
+    ctx
+  );
+};
+
 const telegramLoginRoute = async (store, req, res, ctx, action) => {
   const body = await readBody(req).catch(() => ({}));
-  const result =
-    action === 'start'
-      ? await startLogin(store, body, ctx)
-      : await continueLogin(store, action, body, ctx);
-  ctx.log?.({ event: 'telegram_login', action, state: result.needs ?? 'done' });
+  const result = await loginStep(store, action, body, ctx);
+  ctx.log?.({
+    event: 'telegram_login',
+    action,
+    state: result.needs ?? (result.url ? 'qr' : 'done'),
+  });
   // Account 1's service is only told about account 1's sign-in.
   if (result.done && !result.extra) {
     accountConnected(ctx);

@@ -11277,3 +11277,43 @@ button.profile-username.is-collectible {
 .delete-dialog-overlay[data-dialog='similar-preview'] {
   z-index: 2300;
 }
+/* Sign in to Telegram by QR code (R-Y203), as Telegram Desktop shows it:
+   the code on white (a scanner needs the contrast in either theme) with the
+   three steps beside it. */
+.tg-qr {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+.tg-qr-box {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 0.25rem;
+  line-height: 0;
+}
+.tg-qr-code {
+  width: 13rem;
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+.tg-qr-steps {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+.tg-qr-steps h4 {
+  margin: 0 0 0.4rem;
+}
+.tg-qr-steps ol {
+  margin: 0 0 0.4rem;
+  padding-left: 1.25rem;
+}
+.tg-login-mode {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0.25rem 0;
+  color: var(--link);
+  cursor: pointer;
+}

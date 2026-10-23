@@ -421,6 +421,18 @@ export const ru = {
     'Telegram отправил код в приложение. Введите его ниже.',
   'telegramLogin.twoFactor':
     'На аккаунте включён пароль двухфакторной защиты. Введите его, чтобы завершить.',
+  // Sign in by QR code (R-Y203)
+  'telegramLogin.byQr': 'Войти по QR-коду',
+  'telegramLogin.byPhone': 'Войти по номеру телефона',
+  'telegramLogin.qrStart': 'Показать QR-код',
+  'telegramLogin.qrAlt': 'QR-код для входа в Telegram',
+  'telegramLogin.qrTitle': 'Вход в Telegram по QR-коду',
+  'telegramLogin.qrStep1': 'Откройте Telegram на телефоне',
+  'telegramLogin.qrStep2':
+    'Перейдите в Настройки > Устройства > Подключить устройство',
+  'telegramLogin.qrStep3':
+    'Наведите камеру телефона на этот экран, чтобы подтвердить вход',
+  'telegramLogin.qrWaiting': 'Ждём, пока вы отсканируете код…',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Подготовьте учётные данные Email',
   'connections.email.setup.step1.body':

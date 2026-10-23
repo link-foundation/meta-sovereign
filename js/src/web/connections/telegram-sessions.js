@@ -12,6 +12,7 @@ import { api } from '../dom.js';
 import { useT } from '../i18n.js';
 import { Icon } from '../icons.js';
 import { RecommendedHeader } from './recommended.js';
+import { QrPanel, useQrPolling } from './telegram-qr-login.js';
 
 const el = React.createElement;
 
@@ -381,7 +382,8 @@ const useFinder = (onConnected) => {
 
 // Sign in to a Telegram USER account over MTProto, like konard/telegram-bot:
 // api_id + api_hash + phone -> a login code -> an optional 2FA password ->
-// a reusable session stored under secret:telegram:*.
+// a reusable session stored under secret:telegram:*. As in Telegram Desktop
+// there is a second way in, by QR code (R-Y203; ./telegram-qr-login.js).
 const LoginField = ({ id, type, value, onChange, placeholder }) =>
   el(CredentialField, { id, type, value, placeholder, onChange });
 
@@ -393,7 +395,11 @@ const useTelegramLogin = (onConnected, slot = 1) => {
     code: '',
     password: '',
   });
-  const [needs, setNeeds] = useState('start'); // start | code | password | done
+  // start | code | password | qr | done. `mode` is the way in the user
+  // chose, like Telegram Desktop's two (R-Y203): phone number or QR code.
+  const [needs, setNeeds] = useState('start');
+  const [mode, setMode] = useState('phone');
+  const [qr, setQr] = useState(null); // { url, expires } while showing a QR
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [account, setAccount] = useState(null);
@@ -415,6 +421,11 @@ const useTelegramLogin = (onConnected, slot = 1) => {
       onConnected?.();
       return;
     }
+    if (result.url) {
+      setQr({ url: result.url, expires: result.expires });
+      setNeeds('qr');
+      return;
+    }
     setNeeds(result.needs ?? 'code');
   };
 
@@ -426,13 +437,37 @@ const useTelegramLogin = (onConnected, slot = 1) => {
     apply(result);
   };
 
+  // The QR code is renewed by the server; a failure ends the wait.
+  useQrPolling(needs === 'qr' ? idRef.current : null, (result) => {
+    if (result?.error) {
+      setError(result.error);
+      setNeeds('start');
+      setQr(null);
+      return;
+    }
+    apply(result);
+  });
+
+  const chooseMode = (next) => {
+    if (needs === 'qr' && idRef.current) {
+      api.telegramLogin('qr-cancel', { id: idRef.current });
+    }
+    setMode(next);
+    setNeeds('start');
+    setQr(null);
+    setError('');
+  };
+
   return {
     form,
     set,
     needs,
+    mode,
+    qr,
     busy,
     error,
     account,
+    chooseMode,
     start: () =>
       run('start', {
         apiId: form.apiId,
@@ -441,10 +476,61 @@ const useTelegramLogin = (onConnected, slot = 1) => {
         // An extra account signs in to its own slot (R-Y198).
         ...(slot > 1 ? { account: slot } : {}),
       }),
+    startQr: () =>
+      run('qr-start', {
+        apiId: form.apiId,
+        apiHash: form.apiHash,
+        ...(slot > 1 ? { account: slot } : {}),
+      }),
     submitCode: () => run('code', { id: idRef.current, code: form.code }),
     submitPassword: () =>
       run('password', { id: idRef.current, password: form.password }),
   };
+};
+
+// The fields of the current step: api id/hash always; the phone number and
+// code for the phone way in; the 2FA password when asked (either way).
+const loginFields = (l) => {
+  const field = (id, extra = {}) =>
+    el(LoginField, {
+      key: id,
+      id,
+      value: l.form[id],
+      onChange: l.set(id),
+      ...extra,
+    });
+  const phone = l.mode === 'phone';
+  const waiting = l.needs === 'qr';
+  return [
+    waiting ? null : field('apiId', { placeholder: '2040' }),
+    waiting
+      ? null
+      : field('apiHash', {
+          type: 'password',
+          placeholder: '0123456789abcdef…',
+        }),
+    phone ? field('phone', { placeholder: '+1 555 123 4567' }) : null,
+    phone && (l.needs === 'code' || l.needs === 'password')
+      ? field('code', { placeholder: '12345' })
+      : null,
+    l.needs === 'password'
+      ? field('password', { type: 'password', placeholder: '••••••••' })
+      : null,
+  ];
+};
+
+const loginAction = (l) => {
+  if (l.needs === 'password') {
+    return { key: 'telegramLogin.signIn', on: l.submitPassword };
+  }
+  if (l.mode === 'qr') {
+    return l.needs === 'qr'
+      ? null
+      : { key: 'telegramLogin.qrStart', on: l.startQr };
+  }
+  return l.needs === 'code'
+    ? { key: 'telegramLogin.signIn', on: l.submitCode }
+    : { key: 'telegramLogin.sendCode', on: l.start };
 };
 
 export const TelegramLoginForm = ({ onConnected, account = 1 }) => {
@@ -460,17 +546,13 @@ export const TelegramLoginForm = ({ onConnected, account = 1 }) => {
       ),
     ]);
   }
-  const action =
-    l.needs === 'password'
-      ? { key: 'telegramLogin.signIn', on: l.submitPassword }
-      : l.needs === 'code'
-        ? { key: 'telegramLogin.signIn', on: l.submitCode }
-        : { key: 'telegramLogin.sendCode', on: l.start };
+  const action = loginAction(l);
   return el(
     'section',
     {
       className: 'card tg-login',
       'data-tutorial-id': 'telegram-login',
+      'data-login-mode': l.mode,
       ...(account > 1 ? { 'data-login-account': account } : {}),
     },
     [
@@ -478,63 +560,41 @@ export const TelegramLoginForm = ({ onConnected, account = 1 }) => {
         el('h3', { key: 't' }, t('telegramLogin.title')),
         el('p', { key: 'i', className: 'meta' }, t('telegramLogin.intro')),
       ]),
-      el(LoginField, {
-        key: 'apiId',
-        id: 'apiId',
-        value: l.form.apiId,
-        onChange: l.set('apiId'),
-        placeholder: '2040',
-      }),
-      el(LoginField, {
-        key: 'apiHash',
-        id: 'apiHash',
-        type: 'password',
-        value: l.form.apiHash,
-        onChange: l.set('apiHash'),
-        placeholder: '0123456789abcdef…',
-      }),
-      el(LoginField, {
-        key: 'phone',
-        id: 'phone',
-        value: l.form.phone,
-        onChange: l.set('phone'),
-        placeholder: '+1 555 123 4567',
-      }),
-      l.needs === 'code' || l.needs === 'password'
-        ? el(LoginField, {
-            key: 'code',
-            id: 'code',
-            value: l.form.code,
-            onChange: l.set('code'),
-            placeholder: '12345',
-          })
+      ...loginFields(l),
+      l.needs === 'qr' && l.qr
+        ? el(QrPanel, { key: 'qr', url: l.qr.url })
         : null,
-      l.needs === 'password'
-        ? el(LoginField, {
-            key: 'password',
-            id: 'password',
-            type: 'password',
-            value: l.form.password,
-            onChange: l.set('password'),
-            placeholder: '••••••••',
-          })
+      action
+        ? el(
+            'button',
+            {
+              key: 'go',
+              type: 'button',
+              className: 'primary',
+              'data-action': 'telegram-login',
+              disabled: l.busy,
+              'aria-busy': l.busy ? 'true' : undefined,
+              onClick: action.on,
+            },
+            t(l.busy ? 'telegramLogin.working' : action.key)
+          )
         : null,
-      el(
-        'button',
-        {
-          key: 'go',
-          type: 'button',
-          className: 'primary',
-          'data-action': 'telegram-login',
-          disabled: l.busy,
-          'aria-busy': l.busy ? 'true' : undefined,
-          onClick: action.on,
-        },
-        t(l.busy ? 'telegramLogin.working' : action.key)
-      ),
       l.error
         ? el('p', { key: 'e', className: 'meta', role: 'alert' }, l.error)
         : null,
+      l.needs === 'password'
+        ? null
+        : el(
+            'button',
+            {
+              key: 'mode',
+              type: 'button',
+              className: 'tg-login-mode',
+              'data-action': 'telegram-login-mode',
+              onClick: () => l.chooseMode(l.mode === 'qr' ? 'phone' : 'qr'),
+            },
+            t(l.mode === 'qr' ? 'telegramLogin.byPhone' : 'telegramLogin.byQr')
+          ),
     ]
   );
 };

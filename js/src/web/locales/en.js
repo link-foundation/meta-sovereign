@@ -419,6 +419,16 @@ export const en = {
   'telegramLogin.codeSent': 'Telegram sent a code to your app. Enter it below.',
   'telegramLogin.twoFactor':
     'Your account has a 2FA password. Enter it to finish.',
+  // Sign in by QR code (R-Y203)
+  'telegramLogin.byQr': 'Log in by QR code',
+  'telegramLogin.byPhone': 'Log in by phone number',
+  'telegramLogin.qrStart': 'Show QR code',
+  'telegramLogin.qrAlt': 'QR code to log in to Telegram',
+  'telegramLogin.qrTitle': 'Log in to Telegram by QR code',
+  'telegramLogin.qrStep1': 'Open Telegram on your phone',
+  'telegramLogin.qrStep2': 'Go to Settings > Devices > Link Desktop Device',
+  'telegramLogin.qrStep3': 'Point your phone at this screen to confirm login',
+  'telegramLogin.qrWaiting': 'Waiting for you to scan the code…',
   // BEGIN setup-steps (issue #25 R-N8) — auto-generated
   'connections.email.setup.step1.title': 'Prepare your Email credential',
   'connections.email.setup.step1.body':

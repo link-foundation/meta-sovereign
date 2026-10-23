@@ -16,10 +16,13 @@
  *   createLogin({apiId,apiHash,phone}) drive the interactive sign-in across
  *                                      HTTP requests: start → code → (2FA)
  *                                      password → a saved session string.
+ *   createQrLogin({apiId,apiHash})     the same by QR code (R-Y203), see
+ *                                      ./telegram-qr-login.js.
  */
 
 import { importTelegram } from './telegram-layer.js';
 import { proxyOptions } from './telegram-proxy.js';
+import { startQrLogin } from './telegram-qr-login.js';
 
 const deferred = () => {
   let resolve;
@@ -84,6 +87,8 @@ export const createTelegramMtproto = ({
   // session: { save() } }). Defaults to the real GramJS client.
   clientFactory = gramjsClientFactory(),
   now = () => Date.now(),
+  // The GramJS `Api` namespace (the QR sign-in builds requests with it).
+  loadApi = async () => (await importTelegram()).Api,
 } = {}) => {
   // Connect with an existing session string and read the account. Used by
   // the credential finder to resolve a discovered `.telegram_session` to
@@ -120,7 +125,18 @@ export const createTelegramMtproto = ({
     });
   };
 
-  return { identify, createLogin };
+  // The sign-in by QR code (R-Y203): same controller shape as createLogin's.
+  const createQrLogin = async ({ apiId, apiHash }) =>
+    startQrLogin({
+      client: await clientFactory({ apiId, apiHash, session: '' }),
+      apiId,
+      apiHash,
+      Api: await loadApi(),
+      accountOf,
+      now,
+    });
+
+  return { identify, createLogin, createQrLogin };
 };
 
 // Wait until the login flow leaves `want` (asks for the next thing,
