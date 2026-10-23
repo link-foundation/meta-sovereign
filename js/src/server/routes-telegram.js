@@ -55,6 +55,10 @@
  *                                  group?, replyTo?}
  *                                      -> { ok, ids } the files sent:
  *                                         photos, albums, files (R-Y99)
+ *   POST /api/telegram/send-voice {chat, token, duration, waveform?,
+ *                                  replyTo?}
+ *                                      -> { ok, ids } a recorded voice
+ *                                         as a voice message (R-Y108)
  *   POST /api/telegram/remove-chat {chat, action, revoke?}
  *                                      -> { ok, deleted } clear, delete
  *                                         or leave the chat (R-Y100)
@@ -83,6 +87,8 @@ import {
   MAX_CAPTION,
   MAX_FILES,
   MAX_UPLOAD,
+  MAX_VOICE_SECONDS,
+  WAVEFORM_SIZE,
 } from '../sources/telegram-upload.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 
@@ -134,6 +140,21 @@ const validFiles = (body) =>
   body.tokens.every((t) => typeof t === 'string' && /^[a-f0-9]{32}$/.test(t)) &&
   (body.caption === undefined || typeof body.caption === 'string') &&
   String(body.caption ?? '').length <= MAX_CAPTION &&
+  (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
+
+// A recorded voice to send (R-Y108): one upload, its length, its
+// waveform's values 0..31.
+const validVoice = (body) =>
+  validChat(body.chat) &&
+  typeof body.token === 'string' &&
+  /^[a-f0-9]{32}$/.test(body.token) &&
+  Number.isFinite(body.duration) &&
+  body.duration >= 0 &&
+  body.duration <= MAX_VOICE_SECONDS &&
+  (body.waveform === undefined ||
+    (Array.isArray(body.waveform) &&
+      body.waveform.length <= WAVEFORM_SIZE &&
+      body.waveform.every((v) => Number.isInteger(v) && v >= 0 && v <= 31))) &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
 
 // A sticker or GIF to send (R-Y105).
@@ -385,6 +406,27 @@ const POSTS = {
         caption: body.caption ?? '',
         asPhoto: body.asPhoto !== false,
         group: body.group !== false,
+        replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+        ...whenOf(body),
+      }),
+    ];
+  },
+  // A voice message recorded in the page (R-Y108).
+  'send-voice': async (account, body) => {
+    const replyTo = Number(body.replyTo);
+    if (!validVoice(body) || typeof account.sendVoice !== 'function') {
+      return [
+        400,
+        { error: 'chat, token and duration required', code: 'bad-request' },
+      ];
+    }
+    return [
+      200,
+      await account.sendVoice({
+        chat: body.chat,
+        token: body.token,
+        duration: body.duration,
+        waveform: body.waveform ?? [],
         replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
         ...whenOf(body),
       }),

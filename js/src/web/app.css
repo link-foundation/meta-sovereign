@@ -1244,6 +1244,95 @@ a.button {
   opacity: 0.4;
   cursor: default;
 }
+/* Voice messages (R-Y108): the microphone in Send's place; held, it
+   grows with the loudness, the lock above it; the box gives way to a
+   red dot, the time and how to cancel. */
+.voice-holder {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+}
+.chat-composer .voice-button {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.chat-composer .voice-button.recording {
+  transform: scale(calc(1.15 + var(--voice-level, 0) * 0.5));
+  transition: transform 80ms linear;
+}
+.voice-lock {
+  position: absolute;
+  bottom: calc(100% + 0.6rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.35rem 0.3rem;
+  border: 1px solid var(--surface-glass-border);
+  border-radius: 999px;
+  background: var(--surface-glass-bg);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.voice-hint {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  right: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  background: var(--surface-glass-bg);
+  border: 1px solid var(--surface-glass-border);
+  box-shadow: var(--surface-glass-shadow);
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+.voice-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.5rem;
+  padding: 0 0.4rem;
+}
+.voice-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: voice-blink 1s ease-in-out infinite;
+}
+@keyframes voice-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voice-dot {
+    animation: none;
+  }
+  .chat-composer .voice-button.recording {
+    transition: none;
+  }
+}
+.voice-time {
+  font-variant-numeric: tabular-nums;
+}
+.voice-how {
+  flex: 1;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.voice-cancel {
+  margin: 0 auto;
+  border: 0;
+  background: transparent;
+  color: var(--chat-accent, var(--accent));
+  font-weight: 600;
+}
 .suggestions {
   display: flex;
   flex-wrap: wrap;

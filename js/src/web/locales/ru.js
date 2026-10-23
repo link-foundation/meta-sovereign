@@ -1036,6 +1036,11 @@ export const ru = {
   'chat.days.close': 'Закрыть',
   'chat.days.failed':
     'Не удалось открыть эту дату. Попробуйте ещё раз чуть позже.',
+  'chat.voice.record': 'Удерживайте, чтобы записать голосовое сообщение',
+  'chat.voice.send': 'Отправить голосовое сообщение',
+  'chat.voice.release': 'Отпустите вне этого поля для отмены',
+  'chat.voice.hold': 'Удерживайте для записи аудио',
+  'chat.voice.denied': 'Нет доступа к микрофону',
   'chat.global.peers': 'Глобальный поиск',
   'chat.global.messages': 'Сообщения',
   'chat.global.found':

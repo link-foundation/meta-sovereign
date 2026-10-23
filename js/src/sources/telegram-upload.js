@@ -22,6 +22,11 @@
  * Captions are formatted as messages are (R-Y101,
  * ./telegram-format.js): GramJS is handed the parsed text and entities
  * as its parse mode, so an album's caption keeps them too.
+ *
+ * A voice message (R-Y108): `sendVoice({ chat, token, duration, waveform,
+ * replyTo })` sends one upload — Ogg Opus, as the page recorded it — as
+ * Telegram's voice note: its length in seconds and its waveform (100
+ * values 0..31, packed five bits each, as Telegram keeps it).
  */
 
 import { randomBytes } from 'node:crypto';
@@ -40,6 +45,9 @@ export const MAX_UPLOAD = 2000 * 1024 * 1024;
 export const MAX_FILES = 100;
 export const ALBUM_SIZE = 10;
 export const MAX_CAPTION = 4096;
+// A voice message: an hour at most, a waveform of up to 100 values 0..31.
+export const MAX_VOICE_SECONDS = 3600;
+export const WAVEFORM_SIZE = 100;
 const KEEP_MS = 60 * 60 * 1000;
 
 const IMAGE = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i;
@@ -110,8 +118,91 @@ const captionMode = (caption, Api) => {
   };
 };
 
+/**
+ * A waveform as Telegram keeps it: each value 0..31 in five bits, the
+ * first in the lowest bits of the first byte (as the apps read it back:
+ * ../web/message-parts.js `decodeWaveform`).
+ */
+export const packWaveform = (values) => {
+  const list = (Array.isArray(values) ? values : []).slice(0, WAVEFORM_SIZE);
+  const bytes = new Uint8Array(Math.ceil((list.length * 5) / 8));
+  list.forEach((value, i) => {
+    const v = Math.max(0, Math.min(31, Math.round(Number(value) || 0)));
+    const bit = i * 5;
+    const at = bit >> 3;
+    const pair = v << (bit & 7);
+    bytes[at] |= pair & 0xff;
+    if (pair > 0xff) {
+      bytes[at + 1] |= pair >> 8;
+    }
+  });
+  return Buffer.from(bytes);
+};
+
+// A voice's length (whole seconds, one at least), waveform and when.
+const voiceOptions = ({
+  duration = 0,
+  waveform = [],
+  replyTo = null,
+  silent = false,
+  scheduleDate = null,
+}) => ({
+  seconds: Math.max(
+    1,
+    Math.min(MAX_VOICE_SECONDS, Math.round(Number(duration) || 0))
+  ),
+  waveform: packWaveform(waveform),
+  extra: {
+    ...(replyTo ? { replyTo } : {}),
+    ...(silent ? { silent: true } : {}),
+    ...(scheduleDate ? { scheduleDate } : {}),
+  },
+});
+
+// GramJS's sendFile options for a voice note: Ogg Opus, its length and
+// waveform as Telegram's audio attribute says them.
+const voiceFileOf = (upload, options) => (telegram) => {
+  const CustomFile =
+    telegram.client?.uploads?.CustomFile ?? telegram.CustomFile;
+  return {
+    file: new CustomFile('voice.ogg', upload.size, upload.path),
+    voiceNote: true,
+    forceDocument: false,
+    mimeType: 'audio/ogg',
+    attributes: [
+      new telegram.Api.DocumentAttributeAudio({
+        voice: true,
+        duration: options.seconds,
+        waveform: options.waveform,
+      }),
+    ],
+    clearDraft: true,
+    ...options.extra,
+  };
+};
+
 const messagesOf = (sent) =>
   (Array.isArray(sent) ? sent : [sent]).filter((m) => m && m.id !== undefined);
+
+// The voice sent; what Telegram answers stored (a scheduled one is
+// Telegram's to hold, R-Y102).
+const voiceSent = async ({ env, client, dialogOf, tools }, target, fileOf) => {
+  const telegram = await env.importer();
+  const options = fileOf(telegram);
+  const sent = await env.connection.withPeer(client, target, (peer) =>
+    client.sendFile(peer, options)
+  );
+  const messages = messagesOf(sent);
+  if (options.scheduleDate) {
+    env.actions?.scheduledChanged?.(target);
+    return { ok: true, chat: target, ids: [], scheduled: true };
+  }
+  await tools.writeChanged(
+    env.store,
+    tools.toLinks(await dialogOf(target), messages)
+  );
+  return { ok: true, chat: target, ids: messages.map((m) => Number(m.id)) };
+};
 
 // One batch through GramJS's sendFile; a photo Telegram does not take
 // as one goes as a file.
@@ -288,5 +379,26 @@ export const createFileSender = (
     }
   };
 
-  return { receiveUpload, sendFiles };
+  // One recorded voice, as Telegram's voice note (R-Y108).
+  const sendVoice = async ({ chat, token, ...rest } = {}) => {
+    const upload = uploads.get(token);
+    const client = chat && upload?.path ? await userClient() : null;
+    if (!client) {
+      await drop(token);
+      return { ok: false, supported: Boolean(chat && upload) };
+    }
+    try {
+      return await voiceSent(
+        { env, client, dialogOf, tools },
+        String(chat),
+        voiceFileOf(upload, voiceOptions(rest))
+      );
+    } catch (error) {
+      throw sendError(error);
+    } finally {
+      await drop(token);
+    }
+  };
+
+  return { receiveUpload, sendFiles, sendVoice };
 };

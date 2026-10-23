@@ -56,6 +56,7 @@
     "test:e2e:stickers": "node js/tests/e2e-stickers-browser.mjs",
     "test:e2e:jump-date": "node js/tests/e2e-jump-date-browser.mjs",
     "test:e2e:global-search": "node js/tests/e2e-global-search-browser.mjs",
+    "test:e2e:voice": "node js/tests/e2e-voice-browser.mjs",
     "test:e2e:replies": "node js/tests/e2e-reply-cache-browser.mjs",
     "lint": "eslint --config js/eslint.config.js .",
     "lint:fix": "eslint --config js/eslint.config.js . --fix",
@@ -93,7 +94,8 @@
     "test:e2e:emoji:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-browser.mjs",
     "test:e2e:stickers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stickers-browser.mjs",
     "test:e2e:jump-date:webkit": "E2E_BROWSER=webkit node js/tests/e2e-jump-date-browser.mjs",
-    "test:e2e:global-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-global-search-browser.mjs"
+    "test:e2e:global-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-global-search-browser.mjs",
+    "test:e2e:voice:webkit": "E2E_BROWSER=webkit node js/tests/e2e-voice-browser.mjs"
   },
   "keywords": [
     "personal-crm",

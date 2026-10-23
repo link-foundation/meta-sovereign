@@ -944,6 +944,13 @@ export const api = {
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for files' },
 
+  // A voice message (R-Y108): its upload's token, length in seconds and
+  // waveform → { ok, ids }.
+  telegramSendVoice: async (body = {}) =>
+    (await serverPostReport('/api/telegram/send-voice', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for files' },
+
   // A poll or checklist (R-Y74): `poll-vote` (no options retracts),
   // `poll-stop`, `poll-results`, `poll-votes`, `todo-toggle`.
   telegramPoll: async (action, body = {}) =>

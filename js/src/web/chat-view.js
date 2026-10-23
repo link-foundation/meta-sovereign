@@ -65,6 +65,7 @@ import {
 import { formatShortcut } from './text-shortcuts.js';
 import { useEmojiPanel } from './chat-emoji.js';
 import { useStickerTabs } from './chat-stickers.js';
+import { useVoice } from './chat-voice.js';
 import { AutopilotBar, DraftCard, NextChatBar } from './chat-automation.js';
 import { groupAlbums, rowIds } from './chat-album.js';
 import { SearchBar, SearchButton, useChatSearch } from './chat-search.js';
@@ -944,6 +945,8 @@ const Composer = ({ state, api, keys }) => {
   const typeText = (next) => composer.setText(next, { typed: true });
   const extra = useStickerTabs({ state, api, composer });
   const emoji = useEmojiPanel({ box, setText: typeText, extra });
+  // With nothing typed, the microphone (R-Y108).
+  const voice = useVoice({ state, api });
   const onKeyDown = (event) => {
     keys?.(event);
     // Ctrl/Cmd+B, I, K… format the selection (R-Y101).
@@ -983,38 +986,45 @@ const Composer = ({ state, api, keys }) => {
         onClear: composer.clearReplyTo,
       }),
       el('div', { key: 'row', className: 'chat-composer-row' }, [
-        el(AttachButton, { key: 'attach', attach }),
-        el(ScheduledButton, {
-          key: 'scheduled',
-          scheduled: later.scheduled,
-          onOpen: later.openList,
-        }),
-        el('textarea', {
-          key: 'input',
-          ref: box,
-          rows: 1,
-          placeholder: t('chat.placeholder'),
-          'aria-label': t('chat.placeholder'),
-          value: text,
-          onChange: (event) =>
-            composer.setText(event.target.value, { typed: true }),
-          onKeyDown,
-          onPaste: pasteFiles(attach),
-        }),
-        emoji.button,
-        el(
-          'button',
-          {
-            key: 'send',
-            type: 'submit',
-            className: 'primary send',
-            disabled: !text.trim(),
-            'aria-busy': composer.sending ? 'true' : undefined,
-            'aria-label': t('common.send'),
-            ...later.textMenu.props,
-          },
-          el(Icon, { name: 'send', size: 18 })
-        ),
+        voice.bar,
+        voice.recording ? null : el(AttachButton, { key: 'attach', attach }),
+        voice.recording
+          ? null
+          : el(ScheduledButton, {
+              key: 'scheduled',
+              scheduled: later.scheduled,
+              onOpen: later.openList,
+            }),
+        voice.recording
+          ? null
+          : el('textarea', {
+              key: 'input',
+              ref: box,
+              rows: 1,
+              placeholder: t('chat.placeholder'),
+              'aria-label': t('chat.placeholder'),
+              value: text,
+              onChange: (event) =>
+                composer.setText(event.target.value, { typed: true }),
+              onKeyDown,
+              onPaste: pasteFiles(attach),
+            }),
+        voice.recording ? null : emoji.button,
+        voice.enabled && (voice.phase !== 'idle' || !text.trim())
+          ? voice.button
+          : el(
+              'button',
+              {
+                key: 'send',
+                type: 'submit',
+                className: 'primary send',
+                disabled: !text.trim(),
+                'aria-busy': composer.sending ? 'true' : undefined,
+                'aria-label': t('common.send'),
+                ...later.textMenu.props,
+              },
+              el(Icon, { name: 'send', size: 18 })
+            ),
       ]),
     ]
   );
