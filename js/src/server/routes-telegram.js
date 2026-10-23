@@ -280,6 +280,7 @@ import { paidField, validSendAs } from '../sources/telegram-send-as-client.js';
 import { STORIES_POSTS } from './routes-telegram-stories.js';
 import { STORY_ACTION_POSTS } from './routes-telegram-story-actions.js';
 import { STORY_EXTRAS_POSTS } from './routes-telegram-story-extras.js';
+import { STORY_MANAGE_POSTS } from './routes-telegram-story-manage.js';
 import { LINK_PREVIEW_POSTS } from './routes-telegram-link-preview.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
@@ -1074,6 +1075,7 @@ const POSTS = {
   ...STORIES_POSTS,
   ...STORY_ACTION_POSTS,
   ...STORY_EXTRAS_POSTS,
+  ...STORY_MANAGE_POSTS,
   ...LINK_PREVIEW_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(

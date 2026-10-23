@@ -131,6 +131,7 @@ import { createSendAs } from './telegram-send-as.js';
 import { createStories } from './telegram-stories.js';
 import { createStoryActions } from './telegram-story-actions.js';
 import { createStoryExtras } from './telegram-story-extras.js';
+import { createStoryManage } from './telegram-story-manage.js';
 import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
 import { createInstantView } from './telegram-instant-view.js';
@@ -484,7 +485,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // administrators and upgrading groups (R-Y204); request-peer buttons
 // and recent locations (R-Y208); Instant View (R-Y205); trending
 // stickers, the quick reaction and custom emoji search (R-Y206); cloud
-// drafts, the calendar's day counts and frequent contacts (R-Y207).
+// drafts, the calendar's day counts and frequent contacts (R-Y207);
+// editing and linking one's stories (R-Y210).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -548,6 +550,7 @@ const chatActions = (env, context) => {
     ...createStories(env, context),
     ...createStoryActions(env, context),
     ...createStoryExtras(env, context),
+    ...createStoryManage(env, context),
     ...createLinkPreview(env, context),
     ...createInstantView(env, context),
     ...createAdminActions(env, context),

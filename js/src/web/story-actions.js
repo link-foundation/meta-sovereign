@@ -463,6 +463,7 @@ export const StoryMenu = ({
   onAdd,
   onStealth,
   onReport,
+  entries = [],
 }) => {
   const t = useT();
   // One's own stories: "Add story" (R-Y156); others': "Stealth mode" and
@@ -480,9 +481,14 @@ export const StoryMenu = ({
       },
       label
     );
+  const manage = entries.map((e) => item(e.action, e.label, e.onClick));
   const items = own
-    ? [item('story-add', t('chat.storyPost.addMenu'), onAdd)]
+    ? [
+        onAdd ? item('story-add', t('chat.storyPost.addMenu'), onAdd) : null,
+        ...manage,
+      ]
     : [
+        ...manage,
         onStealth
           ? item('story-stealth', t('chat.stories.stealth.title'), onStealth)
           : null,

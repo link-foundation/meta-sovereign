@@ -150,7 +150,7 @@ const problemOf = (request) => {
 
 // The chosen contacts as InputUsers (their access hashes come from the
 // contacts list); null when one is not a contact.
-const inputUsersOf = async (env, c, ids) => {
+export const inputUsersOf = async (env, c, ids) => {
   const answer = await runIn(env, 'contacts:list', () =>
     c.client.invoke(new c.Api.contacts.GetContacts({ hash: c.zero }))
   );

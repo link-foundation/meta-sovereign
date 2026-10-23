@@ -110,6 +110,17 @@ const shapeEntity = (e) => ({
   ...(e?.documentId === undefined ? {} : { documentId: textOf(e.documentId) }),
 });
 
+// Whom a story is for, as the posting dialog names it (R-Y210).
+const privacyOf = (item) => {
+  if (item.selectedContacts) {
+    return 'selected';
+  }
+  if (item.closeFriends) {
+    return 'close-friends';
+  }
+  return item.contacts ? 'contacts' : 'everyone';
+};
+
 /**
  * A story the page can show, null when it is deleted, `{ id, partial }`
  * when Telegram skipped it or sent only part (read again by its id).
@@ -129,6 +140,9 @@ export const shapeStory = (item) => {
     entities: (item.entities ?? []).map(shapeEntity),
     media: mediaOf(item.media),
     mine: Boolean(item.out),
+    pinned: Boolean(item.pinned),
+    public: Boolean(item.public),
+    privacy: privacyOf(item),
     views: Number(item.views?.viewsCount ?? 0),
     reactions: Number(item.views?.reactionsCount ?? 0),
     reaction:

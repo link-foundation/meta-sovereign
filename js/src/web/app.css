@@ -11902,3 +11902,14 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
   align-items: flex-start;
   gap: 0.5rem;
 }
+
+/* Managing one's own stories (R-Y210) */
+.story-manage-note {
+  inset: auto 0.5rem 4.5rem;
+  z-index: 8;
+  border-radius: var(--radius);
+}
+[data-dialog='story-edit-caption'],
+[data-dialog='story-edit-privacy'] {
+  z-index: 2700;
+}

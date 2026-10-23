@@ -250,6 +250,10 @@ export const TELEGRAM_CALLS = {
   telegramStoryReport: body('story-report'),
   telegramStoriesViews: body('stories-views'),
   telegramStoriesHide: body('stories-hide'),
+  // Managing one's own stories (R-Y210): edit the caption or the audience,
+  // and a story's t.me link.
+  telegramStoryEdit: body('story-edit'),
+  telegramStoryLink: body('story-link'),
   // Posting a story (R-Y156): whether the user may, then the upload's
   // token with the story's options → { ok } or { ok: false, code }.
   telegramStoryCanPost: none('story-can-post'),

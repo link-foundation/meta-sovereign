@@ -36,6 +36,7 @@ import {
   StoryReport,
   useViewsRefresh,
 } from './story-extras.js';
+import { ManageLayer, manageEntries, useStoryManage } from './story-manage.js';
 
 const el = React.createElement;
 
@@ -156,6 +157,9 @@ const ago = (t, date) => {
   return t(`chat.stories.ago.${unit}`, { count });
 };
 
+// Your own stories with nothing to add or manage have no menu.
+const noMenu = (peer, ctl, story) => peer.self && !ctl.canAdd && !story?.mine;
+
 const Head = ({ api, t, peer, story, ctl }) =>
   el('div', { className: 'story-head' }, [
     el(PeerAvatar, {
@@ -192,7 +196,7 @@ const Head = ({ api, t, peer, story, ctl }) =>
           el(Icon, { name: ctl.muted ? 'mute' : 'volume', size: 18 })
         )
       : null,
-    peer.self && !ctl.canAdd
+    noMenu(peer, ctl, story)
       ? null
       : el(
           'button',
@@ -368,7 +372,22 @@ const useShown = (api, peers, pos, setPos) => {
           }
         : held
     );
-  return { peer, entry, story, go, drop, patch };
+  // Fields of a story changed by its owner (R-Y210).
+  const update = (peerId, id, fields) =>
+    setLists((held) =>
+      held[peerId]?.stories
+        ? {
+            ...held,
+            [peerId]: {
+              ...held[peerId],
+              stories: held[peerId].stories.map((s) =>
+                s.id === id ? { ...s, ...fields } : s
+              ),
+            },
+          }
+        : held
+    );
+  return { peer, entry, story, go, drop, patch, update };
 };
 
 // Escape closes; the arrows and the halves of the picture go on and back;
@@ -467,6 +486,37 @@ const Foot = ({ api, peer, story, x }) => {
   ]);
 };
 
+// What the ⋯ menu shows: one's own stories' management (R-Y210), hide or
+// unhide, stealth mode and Report (R-Y199) where they apply.
+const menuProps = ({
+  t,
+  peer,
+  story,
+  x,
+  manage,
+  toggleHide,
+  onAdd,
+  stealth,
+}) => {
+  const own = Boolean(peer.self || story?.mine);
+  return {
+    entries: manageEntries({
+      t,
+      story,
+      mine: own,
+      manage,
+      x,
+      onDelete: () => x.setOverlay('confirm'),
+    }),
+    hidden: x.hiddenNow[peer.peer] ?? Boolean(peer.hidden),
+    onToggle: toggleHide,
+    own,
+    onAdd,
+    onStealth: stealth.state ? () => x.setOverlay('stealth') : null,
+    onReport: story && !story.mine ? () => x.setOverlay('report') : null,
+  };
+};
+
 // The panels over the story: the menu, the viewers, the delete question.
 const Overlays = ({
   api,
@@ -477,17 +527,14 @@ const Overlays = ({
   toggleHide,
   onAdd,
   stealth,
+  manage,
 }) => {
+  const t = useT();
   if (x.overlay === 'menu') {
-    return el(StoryMenu, {
-      hidden: x.hiddenNow[peer.peer] ?? Boolean(peer.hidden),
-      onToggle: toggleHide,
-      own: Boolean(peer.self),
-      onAdd,
-      // Stealth mode where the strip knows it; Report on a story (R-Y199).
-      onStealth: stealth.state ? () => x.setOverlay('stealth') : null,
-      onReport: story && !story.mine ? () => x.setOverlay('report') : null,
-    });
+    return el(
+      StoryMenu,
+      menuProps({ t, peer, story, x, manage, toggleHide, onAdd, stealth })
+    );
   }
   if (x.overlay === 'stealth' && stealth.state) {
     return el(StealthDialog, {
@@ -518,7 +565,7 @@ const Overlays = ({
         onYes: deleteStory,
         onNo: () => x.setOverlay(null),
       })
-    : null;
+    : el(ManageLayer, { api, peer, story, x, manage });
 };
 
 // Deleting one's story, and hiding a peer's: Telegram first, then the view.
@@ -663,12 +710,13 @@ export const StoryViewer = ({
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
   const x = useExtras();
-  const { peer, entry, story, go, drop, patch } = useShown(
+  const { peer, entry, story, go, drop, patch, update } = useShown(
     api,
     peers,
     pos,
     setPos
   );
+  const manage = useStoryManage({ api, peer, story, update });
   useViewsRefresh({ api, peer, story, patch });
   const url = useStoryUrl(api, peer.peer, story);
   const key = story ? `${peer.peer}:${story.id}` : '';
@@ -748,6 +796,7 @@ export const StoryViewer = ({
         x,
         onAdd,
         stealth: { state: stealth, set: onStealth },
+        manage,
         ...edits,
       }),
     ])

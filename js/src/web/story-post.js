@@ -151,7 +151,7 @@ const Notice = ({ code, onClose }) => {
   );
 };
 
-const SelectedContacts = ({ api, users, setUsers }) => {
+export const SelectedContacts = ({ api, users, setUsers }) => {
   const state = useContacts(api);
   const toggle = (id) =>
     setUsers((now) => {
@@ -200,7 +200,7 @@ const Check = ({ name, checked, onChange, label }) =>
     el('span', { key: 's' }, label),
   ]);
 
-const Choices = ({ t, name, label, items, value, onPick }) =>
+export const Choices = ({ t, name, label, items, value, onPick }) =>
   el('fieldset', { className: 'story-compose-group', 'data-group': name }, [
     el('legend', { key: 'l' }, label),
     ...items.map((item) =>
