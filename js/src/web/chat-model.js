@@ -209,6 +209,8 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
     archived: Number(read?.folder ?? 0) === 1,
     // Marked unread by the user (R-Y97).
     marked: Number(read?.unreadMark ?? 0) > 0,
+    // The unsent text kept on Telegram, "Draft:" in the list (R-Y207).
+    ...draftField(read),
     // A forum group: its messages are in topics (R-Y122).
     forum: isForum(read),
     last: {
@@ -248,6 +250,7 @@ const clearedChat = (key, read, links, self, now) => {
     pinned: Number(read.pinnedRank ?? 0) || 0,
     archived: Number(read.folder ?? 0) === 1,
     marked: Number(read.unreadMark ?? 0) > 0,
+    ...draftField(read),
     last: { body: '', mine: false, at: read.clearedAt },
     search: fold(`${name}\n${read.chat}\n${read.source}`),
     empty: true,
@@ -332,6 +335,12 @@ export const readUpTo = (links = [], key) =>
 /** How far the user has read a chat (0: unknown). */
 export const readInboxUpTo = (links = [], key) =>
   Number(readLinkOf(links, key)?.inboxMaxId ?? 0);
+
+// `{ draft }` for a read link holding a draft with text, else nothing.
+const draftField = (read) =>
+  typeof read?.draft === 'string' && read.draft.trim()
+    ? { draft: read.draft }
+    : {};
 
 /** A chat's draft saved on the network (Telegram), or undefined. */
 export const cloudDraft = (links = [], key) => {

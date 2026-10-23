@@ -27,6 +27,8 @@ import {
 import { BirthdaysBlock } from './chat-person-extras.js';
 import { StoriesStrip, StoryViewerHost, useStories } from './stories.js';
 import { AppsSection, useSearchFocus } from './chat-apps-search.js';
+import { TopPeersSection } from './chat-top-peers.js';
+import { useDraftsSync } from './chat-drafts-clear.js';
 
 const el = React.createElement;
 
@@ -294,6 +296,18 @@ const BirthdaysHost = ({ api, state }) =>
     onOpenChat: (target) => state.openAt?.(target),
   });
 
+// Frequent contacts, with the box in use and nothing typed (R-Y207); the
+// drafts from other devices are read while the account is connected.
+const PeopleHost = ({ api, state, focus }) => {
+  useDraftsSync(api, globalOn(state));
+  return el(TopPeersSection, {
+    api,
+    show: globalOn(state) && focus.focused && !state.query,
+    open: (person) => state.openAt?.({ source: 'telegram', ...person }),
+    release: focus.release,
+  });
+};
+
 export const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
@@ -373,6 +387,7 @@ export const Sidebar = ({ state, api }) => {
         open: (target) => state.openAt?.(target),
         release: focus.release,
       }),
+      el(PeopleHost, { key: 'top', api, state, focus }),
       el(FilterTabs, { key: 'f', state }),
       el(StoriesStrip, {
         key: 'stories',

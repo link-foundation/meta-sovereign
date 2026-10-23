@@ -9,6 +9,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocaleContext, useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { useDayCounts } from './chat-calendar.js';
 
 const el = React.createElement;
 
@@ -247,10 +248,18 @@ const Weekdays = ({ locale, first }) =>
     })
   );
 
-const DayCell = ({ year, month, day, chosen, now, first, onPick }) => {
+// Telegram's count of messages on a day (R-Y207): `known` once the month
+// was read; a day with none is then closed.
+const DayCell = ({ year, month, day, chosen, now, first, onPick, counts }) => {
+  const t = useT();
   const key = `${year}-${pad(month + 1)}-${pad(day)}`;
   const today = dayKeyOf(now);
+  const known = counts?.known(year, month) ?? false;
+  const count = known ? (counts.counts.get(key) ?? 0) : null;
   const classes = ['calendar-day'];
+  if (count) {
+    classes.push('has-messages');
+  }
   if (key === today) {
     classes.push('is-today');
   }
@@ -263,7 +272,9 @@ const DayCell = ({ year, month, day, chosen, now, first, onPick }) => {
       type: 'button',
       className: classes.join(' '),
       'data-date': key,
-      disabled: dayClosed(key, { now, first }),
+      'data-count': count || undefined,
+      title: count ? t('chat.days.count', { count }) : undefined,
+      disabled: dayClosed(key, { now, first }) || (known && !count),
       onClick: () => onPick(dayStart(key)),
     },
     String(day)
@@ -277,7 +288,8 @@ const DayCell = ({ year, month, day, chosen, now, first, onPick }) => {
  */
 export const Calendar = ({
   day,
-  first = null,
+  first: firstKnown = null,
+  counts = null,
   onPick,
   onClose,
   now = Date.now(),
@@ -294,6 +306,11 @@ export const Calendar = ({
   }, []);
   const year = shown.getFullYear();
   const month = shown.getMonth();
+  const first = firstKnown ?? counts?.first ?? null;
+  // The shown month's counts are asked once (offset paging back from it).
+  useEffect(() => {
+    counts?.ask(year, month);
+  }, [year, month]);
   const weekStart = firstWeekday(locale);
   return el(
     'div',
@@ -330,6 +347,7 @@ export const Calendar = ({
                 now,
                 first,
                 onPick,
+                counts,
               })
         )
       ),
@@ -362,8 +380,17 @@ const WAIT_ROW_MS = 3000;
  * chat at its first message, its date at the top; a day after the last
  * message goes to the end (`toEnd`).
  */
-export const useDayJump = ({ history, box, toEnd, notify, first = null }) => {
+export const useDayJump = ({
+  history,
+  box,
+  toEnd,
+  notify,
+  api = null,
+  chat = null,
+}) => {
   const [day, setDay] = useState(null);
+  const first = history?.first ?? null;
+  const counts = useDayCounts({ api, chat });
   const pick = async (ms) => {
     setDay(null);
     const where = await history?.jump?.(ms);
@@ -399,6 +426,7 @@ export const useDayJump = ({ history, box, toEnd, notify, first = null }) => {
           key: 'calendar',
           day,
           first,
+          counts,
           onPick: pick,
           onClose: () => setDay(null),
         })

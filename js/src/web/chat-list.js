@@ -142,6 +142,40 @@ const ChatBadges = ({ chat, t }) => {
   ];
 };
 
+// The line under a chat's name: its draft in red, or its last message.
+const PreviewLine = ({ t, preview, draft }) =>
+  el(
+    'span',
+    { className: 'chat-item-preview' },
+    draft
+      ? [
+          el(
+            'span',
+            { key: 'd', className: 'chat-item-draft' },
+            `${t('chat.draftPrefix')} `
+          ),
+          draft.replace(/\s+/g, ' '),
+        ]
+      : [
+          preview.who
+            ? el(
+                'span',
+                { key: 'w', className: 'chat-item-sender' },
+                `${preview.who}: `
+              )
+            : null,
+          preview.thumb
+            ? el('img', {
+                key: 'i',
+                className: 'chat-item-thumb',
+                ...mediaSrc(preview.thumb),
+                alt: '',
+              })
+            : null,
+          preview.what,
+        ]
+  );
+
 // `story`: 'unread' or 'seen' when the peer has stories (a ring, R-Y140);
 // a click on the avatar then opens them (`onStory(peer)`, R-Y148).
 // `onPinDown(event, chat)` starts the drag of a pinned row (R-Y159).
@@ -159,6 +193,9 @@ export const ChatItem = ({
   const t = useT();
   const { chatTime } = useDates();
   const preview = chatPreview(t, chat);
+  // The unsent text shows in place of the last message, except in the
+  // chat that is open (its box holds it), as in Telegram Desktop (R-Y207).
+  const draft = active ? '' : (chat.draft ?? '');
   return el(
     'button',
     {
@@ -233,24 +270,7 @@ export const ChatItem = ({
           ),
         ]),
         el('span', { key: 'bottom', className: 'chat-item-bottom' }, [
-          el('span', { key: 'p', className: 'chat-item-preview' }, [
-            preview.who
-              ? el(
-                  'span',
-                  { key: 'w', className: 'chat-item-sender' },
-                  `${preview.who}: `
-                )
-              : null,
-            preview.thumb
-              ? el('img', {
-                  key: 'i',
-                  className: 'chat-item-thumb',
-                  ...mediaSrc(preview.thumb),
-                  alt: '',
-                })
-              : null,
-            preview.what,
-          ]),
+          el(PreviewLine, { key: 'p', t, preview, draft }),
           el(
             'span',
             { key: 'badges', className: 'chat-item-badges' },

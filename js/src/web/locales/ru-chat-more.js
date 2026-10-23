@@ -1411,4 +1411,20 @@ export const ruChatMore = {
   'chat.extras.err.premium-required':
     'Пользовательские эмодзи требуют Telegram Premium.',
   'chat.extras.err.bad-request': 'Некорректный запрос.',
+  // Облачные черновики, счётчики календаря, частые контакты (R-Y207).
+  'chat.draftPrefix': 'Черновик:',
+  'chat.days.count': 'Сообщений: {count}',
+  'chat.drafts.title': 'Черновики',
+  'chat.drafts.clear': 'Удалить все черновики',
+  'chat.drafts.hint':
+    'Удаляет неотправленные сообщения, сохранённые в облаке, на всех устройствах.',
+  'chat.drafts.confirm': 'Удалить все облачные черновики на всех устройствах?',
+  'chat.drafts.confirmYes': 'Удалить',
+  'chat.drafts.cancel': 'Отмена',
+  'chat.drafts.done': 'Черновики удалены.',
+  'chat.drafts.failed': 'Не удалось удалить черновики. Попробуйте ещё раз.',
+  'chat.top.title': 'Люди',
+  'chat.top.remove': 'Убрать из списка',
+  'chat.top.off': 'Скрыть частые контакты',
+  'chat.top.on': 'Показать частые контакты',
 };

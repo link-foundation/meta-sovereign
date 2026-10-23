@@ -1391,4 +1391,20 @@ export const enChatMore = {
   'chat.extras.err.reaction-invalid': 'That reaction cannot be used.',
   'chat.extras.err.premium-required': 'Custom emoji need Telegram Premium.',
   'chat.extras.err.bad-request': 'That request was not valid.',
+  // Cloud drafts, the calendar's counts, frequent contacts (R-Y207).
+  'chat.draftPrefix': 'Draft:',
+  'chat.days.count': 'Messages: {count}',
+  'chat.drafts.title': 'Drafts',
+  'chat.drafts.clear': 'Clear all drafts',
+  'chat.drafts.hint':
+    'Deletes the unsent messages saved in the cloud, on every device.',
+  'chat.drafts.confirm': 'Delete all cloud drafts on every device?',
+  'chat.drafts.confirmYes': 'Clear',
+  'chat.drafts.cancel': 'Cancel',
+  'chat.drafts.done': 'Drafts cleared.',
+  'chat.drafts.failed': 'Could not clear the drafts. Try again.',
+  'chat.top.title': 'People',
+  'chat.top.remove': 'Remove from list',
+  'chat.top.off': 'Hide frequent contacts',
+  'chat.top.on': 'Show frequent contacts',
 };

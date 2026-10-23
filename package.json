@@ -109,6 +109,8 @@
     "test:e2e:emoji-tones:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-tones-browser.mjs",
     "test:e2e:stickers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stickers-browser.mjs",
     "test:e2e:jump-date:webkit": "E2E_BROWSER=webkit node js/tests/e2e-jump-date-browser.mjs",
+    "test:e2e:drafts-calendar": "node js/tests/e2e-drafts-calendar-browser.mjs",
+    "test:e2e:drafts-calendar:webkit": "E2E_BROWSER=webkit node js/tests/e2e-drafts-calendar-browser.mjs",
     "test:e2e:global-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-global-search-browser.mjs",
     "test:e2e:voice:webkit": "E2E_BROWSER=webkit node js/tests/e2e-voice-browser.mjs",
     "test:e2e:transcribe:webkit": "E2E_BROWSER=webkit node js/tests/e2e-transcribe-browser.mjs",

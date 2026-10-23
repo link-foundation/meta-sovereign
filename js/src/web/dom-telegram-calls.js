@@ -7,6 +7,14 @@ const body = (route) => ({ route, body: true });
 const none = (route) => ({ route, body: false });
 
 export const TELEGRAM_CALLS = {
+  // Cloud drafts synced and cleared, the calendar's day counts, frequent
+  // contacts listed, removed and turned off (R-Y207).
+  telegramDraftsSync: none('drafts-sync'),
+  telegramDraftsClear: none('drafts-clear'),
+  telegramCalendar: body('calendar'),
+  telegramTopPeers: none('top-peers'),
+  telegramTopPeerRemove: body('top-peers-remove'),
+  telegramTopPeersToggle: body('top-peers-toggle'),
   // Checklists (new, "Add tasks"), a reaction reported, a post's
   // statistics and public shares, Stars revenue (R-Y195).
   telegramSendTodo: body('send-todo'),

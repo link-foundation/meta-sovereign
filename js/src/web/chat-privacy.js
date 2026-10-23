@@ -15,6 +15,7 @@ import { TtlChoices, periodWords } from './chat-ttl.js';
 import { CloseFriendsDialog } from './chat-contacts-edit.js';
 import { LocalPasscode } from './chat-passcode.js';
 import { PaidMessagesSetting } from './chat-privacy-paid.js';
+import { ClearDrafts } from './chat-drafts-clear.js';
 import {
   AccountTtl,
   SensitiveContent,
@@ -749,6 +750,12 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
             el(SensitiveContent, secProps)
           )
         : null,
+      // Cloud drafts: Clear all drafts, after a confirmation (R-Y207).
+      el(
+        Section,
+        { key: 'dr', name: 'drafts', title: t('chat.drafts.title') },
+        el(ClearDrafts, { api })
+      ),
       el(
         Section,
         { key: 'ar', name: 'archive', title: t('chat.archive.settingsTitle') },

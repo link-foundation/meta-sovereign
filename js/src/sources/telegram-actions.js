@@ -135,6 +135,9 @@ import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
 import { createInstantView } from './telegram-instant-view.js';
 import { createHistoryExport } from './telegram-export.js';
+import { createDrafts } from './telegram-drafts.js';
+import { createCalendar } from './telegram-calendar.js';
+import { createTopPeers } from './telegram-top-peers.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -480,7 +483,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // transfer, broadcast groups and left channels (R-Y200); adding members,
 // administrators and upgrading groups (R-Y204); request-peer buttons
 // and recent locations (R-Y208); Instant View (R-Y205); trending
-// stickers, the quick reaction and custom emoji search (R-Y206).
+// stickers, the quick reaction and custom emoji search (R-Y206); cloud
+// drafts, the calendar's day counts and frequent contacts (R-Y207).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -595,6 +599,9 @@ const chatActions = (env, context) => {
     ...createHistoryExport(env, context),
     ...createProxy(env),
     ...createChannelDm(env, context),
+    ...createDrafts(env, context),
+    ...createCalendar(env, context),
+    ...createTopPeers(env, context),
   };
 };
 

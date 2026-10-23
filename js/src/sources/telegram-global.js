@@ -26,12 +26,12 @@ const queryOf = (q) =>
     .trim()
     .slice(0, MAX_GLOBAL_QUERY);
 
-const usernameOf = (entity) =>
+export const usernameOf = (entity) =>
   entity?.username ??
   entity?.usernames?.find((u) => u?.active)?.username ??
   null;
 
-const kindOf = (entity) => {
+export const kindOf = (entity) => {
   if (entity?.className === 'User') {
     return entity.bot ? 'bot' : 'user';
   }
@@ -40,14 +40,14 @@ const kindOf = (entity) => {
     : 'group';
 };
 
-const nameOf = (entity) =>
+export const nameOf = (entity) =>
   [entity?.firstName, entity?.lastName].filter(Boolean).join(' ') ||
   entity?.title ||
   usernameOf(entity) ||
   null;
 
 // The users and chats of an answer, by their (marked) chat id.
-const entitiesOf = (answer, utils) => {
+export const entitiesOf = (answer, utils) => {
   const entities = new Map();
   for (const entity of [...(answer?.users ?? []), ...(answer?.chats ?? [])]) {
     try {
@@ -59,7 +59,7 @@ const entitiesOf = (answer, utils) => {
   return entities;
 };
 
-const peerIdOf = (utils, peer) => {
+export const peerIdOf = (utils, peer) => {
   try {
     return String(utils.getPeerId(peer));
   } catch {

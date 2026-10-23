@@ -1403,4 +1403,20 @@ export const hiChatMore = {
   'chat.extras.err.premium-required':
     'कस्टम इमोजी के लिए Telegram Premium चाहिए।',
   'chat.extras.err.bad-request': 'वह अनुरोध मान्य नहीं था।',
+  // क्लाउड ड्राफ़्ट, कैलेंडर की गिनती, बार-बार संपर्क (R-Y207).
+  'chat.draftPrefix': 'ड्राफ़्ट:',
+  'chat.days.count': 'संदेश: {count}',
+  'chat.drafts.title': 'ड्राफ़्ट',
+  'chat.drafts.clear': 'सभी ड्राफ़्ट हटाएँ',
+  'chat.drafts.hint':
+    'क्लाउड में सहेजे गए अनभेजे संदेश सभी डिवाइस से हटाता है।',
+  'chat.drafts.confirm': 'सभी डिवाइस पर सभी क्लाउड ड्राफ़्ट हटाएँ?',
+  'chat.drafts.confirmYes': 'हटाएँ',
+  'chat.drafts.cancel': 'रद्द करें',
+  'chat.drafts.done': 'ड्राफ़्ट हटा दिए गए।',
+  'chat.drafts.failed': 'ड्राफ़्ट नहीं हटाए जा सके। फिर प्रयास करें।',
+  'chat.top.title': 'लोग',
+  'chat.top.remove': 'सूची से हटाएँ',
+  'chat.top.off': 'बार-बार संपर्क छिपाएँ',
+  'chat.top.on': 'बार-बार संपर्क दिखाएँ',
 };
