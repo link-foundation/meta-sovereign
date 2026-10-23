@@ -580,6 +580,8 @@ export const parseMessageParts = (link, msgById = new Map()) => {
     edited: Boolean(raw.editDate ?? link.edited),
     // The seconds after which it deletes itself, 0 when it does not (R-Y143).
     ttl: Number(raw.ttlPeriod) || 0,
+    // A message effect's id, a decimal string (R-Y149).
+    effect: raw.effect ? String(raw.effect) : null,
     album: raw.groupedId ? String(raw.groupedId) : null,
     service: serviceInfo(link),
   };

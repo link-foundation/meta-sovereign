@@ -65,6 +65,7 @@ import {
 import { rawEntities } from './telegram-format.js';
 import { validSendAs, withSendAs } from './telegram-send-as-client.js';
 import { previewFields } from './telegram-link-preview.js';
+import { EFFECT_ID } from './telegram-effects.js';
 import { GENERAL_TOPIC, inTopicOnly } from '../web/forum-topics.js';
 import {
   importTelegram,
@@ -822,6 +823,7 @@ const postAsUser = async (
     scheduleDate,
     sendAs,
     preview = null,
+    effect,
   }
 ) => {
   const { client: own } = await env.connection.open(creds);
@@ -852,6 +854,7 @@ const postAsUser = async (
         topic,
         silent,
         scheduleDate,
+        effect,
         preview,
         onResult: (result) => env.catchUp?.observeResult(result),
       })
@@ -914,6 +917,10 @@ const draftOptions = (draft) => {
     sendAs: validSendAs(draft.sendAs) ? draft.sendAs : undefined,
     // The link preview's choice (R-Y145), validated when it came in.
     preview: previewFields(draft),
+    // A message effect (R-Y149), a decimal string.
+    effect: EFFECT_ID.test(String(draft.effect ?? ''))
+      ? draft.effect
+      : undefined,
   };
 };
 

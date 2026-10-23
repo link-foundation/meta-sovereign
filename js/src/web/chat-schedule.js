@@ -95,15 +95,23 @@ export const useSendMenu = (enabled) => {
   return { at, props, close: () => setAt(null) };
 };
 
-/** The menu itself: `onPick('sendSilent' | 'schedule')`. */
-export const SendMenu = ({ menu, onPick }) =>
+/**
+ * The menu itself: `onPick('sendSilent' | 'schedule' | 'sendEffect')`;
+ * `items` says which it offers ("Send with effect", R-Y149, is for a
+ * private chat's text box).
+ */
+export const SendMenu = ({
+  menu,
+  onPick,
+  items = ['sendSilent', 'schedule'],
+}) =>
   menu.at
     ? el(MsgContextMenu, {
         x: menu.at.x,
         y: menu.at.y,
         message: { pending: true },
         reactions: false,
-        items: ['sendSilent', 'schedule'],
+        items,
         onClose: menu.close,
         onAction: (key) => onPick(key),
       })

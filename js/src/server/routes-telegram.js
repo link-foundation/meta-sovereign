@@ -69,6 +69,9 @@
  *   POST /api/telegram/link-preview {text, url} -> { ok, state:
  *        'ready'|'pending'|'empty', preview? } the message box's link
  *        preview (R-Y145); its picture: GET …/link-preview-photo?id=
+ *   POST /api/telegram/effects {}      -> { ok, effects: [{ id, emoticon,
+ *                                         premiumRequired? }], premium }
+ *                                         the message effects (R-Y149)
  *   POST /api/telegram/translate {chat, ids, to}
  *                                      -> { ok, items: [{ id, text,
  *                                         entities }] } 1..20 messages
@@ -284,6 +287,7 @@ import { STICKER_SAVES } from '../sources/telegram-stickers.js';
 import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
+import { EFFECTS_POSTS } from './routes-telegram-effects.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
@@ -1001,6 +1005,7 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  ...EFFECTS_POSTS,
   ...PRIVACY_POSTS,
   ...SHARE_POSTS,
   ...INLINE_POSTS,

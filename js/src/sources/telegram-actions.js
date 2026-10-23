@@ -24,7 +24,8 @@
  *   ./telegram-upload.js (R-Y99); clearing, deleting and leaving a chat
  *   is ./telegram-chat-removal.js (R-Y100); scheduled messages are
  *   ./telegram-scheduled.js (R-Y102), chat folders ./telegram-folders.js
- *   (R-Y103); translating messages is ./telegram-translate.js (R-Y132).
+ *   (R-Y103); translating messages is ./telegram-translate.js (R-Y132);
+ *   message effects are ./telegram-effects.js (R-Y149).
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
@@ -56,6 +57,7 @@ import { createReadersActions } from './telegram-readers.js';
 import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
+import { createEffects } from './telegram-effects.js';
 import { createAdminActions } from './telegram-admin.js';
 import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
@@ -406,6 +408,7 @@ const chatActions = (env, context) => {
     ...createPrivacy(env, context),
     ...createTtl(env, context),
     ...createSendAs(env, context),
+    ...createEffects(env, context),
   };
 };
 

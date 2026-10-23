@@ -175,10 +175,20 @@ const sendThroughLibrary = (
 
 // Without sound, and when (R-Y102): Telegram's `silent` and
 // `schedule_date`.
-const whenFields = ({ silent = false, scheduleDate = null } = {}) => ({
+const whenFields = ({
+  silent = false,
+  scheduleDate = null,
+  effect = null,
+} = {}) => ({
   ...(silent ? { silent: true } : {}),
   ...(scheduleDate ? { scheduleDate } : {}),
+  // A message effect (R-Y149): a long, made in sendText.
+  ...(effect ? { effect } : {}),
 });
+
+// An effect id (decimal string) as the library's long (R-Y149).
+const longOf = (helpers, id) =>
+  id && helpers?.returnBigInt ? helpers.returnBigInt(id) : id;
 
 // The emoji Telegram's apps send as a die when sent alone (R-Y130).
 export const DICE = Object.freeze(['🎲', '🎯', '🏀', '⚽', '🎳', '🎰']);
@@ -321,6 +331,7 @@ export const sendText = async ({
   topic = null,
   silent,
   scheduleDate,
+  effect,
   preview = null,
   onResult,
 }) => {
@@ -339,7 +350,12 @@ export const sendText = async ({
       ...firstPartOnly(index, { replyTo, replyQuote }),
       // Every part goes to the topic (R-Y122).
       topic,
-      when: { silent, scheduleDate },
+      // The effect is the first part's (R-Y149).
+      when: {
+        silent,
+        scheduleDate,
+        ...(index === 0 ? { effect: longOf(helpers, effect) } : {}),
+      },
       preview: previewOfPart(preview, index),
       onResult,
     });

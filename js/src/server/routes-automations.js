@@ -47,6 +47,7 @@ import { listAutomations } from '../automation/drafts.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
 import { validSendAs } from '../sources/telegram-send-as-client.js';
+import { validEffect } from './routes-telegram-effects.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
@@ -121,6 +122,10 @@ const SEND_MEMORY_MS = 10 * 60_000;
 const topicField = (body) =>
   Number.isInteger(body.topic) && body.topic > 0 ? { topic: body.topic } : {};
 
+// A message effect's id, a decimal string (R-Y149), already validated.
+const effectField = (body) =>
+  body.effect === undefined ? {} : { effect: body.effect };
+
 const buildDraft = (body) => {
   const clientId =
     typeof body.clientId === 'string' && body.clientId.length <= 100
@@ -144,6 +149,8 @@ const buildDraft = (body) => {
     ...topicField(body),
     // The identity it is sent as in a group (R-Y141).
     ...(body.sendAs === undefined ? {} : { sendAs: body.sendAs }),
+    // A message effect's id, a decimal string (R-Y149).
+    ...effectField(body),
     // The link preview's choice (R-Y145), already validated.
     ...previewFields(body),
     // Without sound; at a time (R-Y102).
@@ -194,6 +201,9 @@ const handleSend = async (store, res, body, ctx) => {
   }
   if (!validSendAs(body.sendAs)) {
     return fail(res, 400, 'bad-send-as', 'a peer id to send as');
+  }
+  if (!validEffect(body.effect)) {
+    return fail(res, 400, 'bad-effect', 'an effect id as a decimal string');
   }
   if (!previewFields(body)) {
     return fail(res, 400, 'bad-preview', 'a valid link preview choice');

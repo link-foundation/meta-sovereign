@@ -71,6 +71,7 @@ import {
   useScheduled,
   useSendMenu,
 } from './chat-schedule.js';
+import { canEffect, EffectPanel } from './chat-effects.js';
 import { formatShortcut } from './text-shortcuts.js';
 import { useEmojiPanel } from './chat-emoji.js';
 import { useStickerTabs } from './chat-stickers.js';
@@ -924,17 +925,47 @@ const emojiKeywordsOf = (state, api) =>
 // the files' box, and the chat's scheduled messages (./chat-schedule.js).
 const useSendLater = ({ state, api, composer, attach }) => {
   const scheduled = useScheduled({ state, api });
-  const textMenu = useSendMenu(scheduled.enabled);
+  // "Send with effect" in a private chat's text box (R-Y149).
+  const effects = canEffect(state, api);
+  const textMenu = useSendMenu(scheduled.enabled || effects);
   const filesMenu = useSendMenu(scheduled.enabled);
+  const [effecting, setEffecting] = useState(false);
   const [picking, setPicking] = useState(null); // 'text' | 'files'
   const [listing, setListing] = useState(false);
   const sendWith = (what, when) =>
     what === 'files' ? attach.send(when) : composer.send(when);
-  const pick = (what) => (key) =>
-    key === 'sendSilent' ? sendWith(what, { silent: true }) : setPicking(what);
+  const pick = (what) => (key) => {
+    if (key === 'sendEffect') {
+      setEffecting(true);
+    } else if (key === 'sendSilent') {
+      sendWith(what, { silent: true });
+    } else {
+      setPicking(what);
+    }
+  };
+  const textItems = [
+    ...(scheduled.enabled ? ['sendSilent', 'schedule'] : []),
+    ...(effects ? ['sendEffect'] : []),
+  ];
   const closeList = useCallback(() => setListing(false), []);
   const parts = [
-    el(SendMenu, { key: 'text-menu', menu: textMenu, onPick: pick('text') }),
+    el(SendMenu, {
+      key: 'text-menu',
+      menu: textMenu,
+      onPick: pick('text'),
+      items: textItems,
+    }),
+    effecting
+      ? el(EffectPanel, {
+          key: 'effects',
+          api,
+          onClose: () => setEffecting(false),
+          onPick: (effect) => {
+            setEffecting(false);
+            composer.send({ effect });
+          },
+        })
+      : null,
     el(SendMenu, { key: 'files-menu', menu: filesMenu, onPick: pick('files') }),
     picking
       ? el(ScheduleDialog, {

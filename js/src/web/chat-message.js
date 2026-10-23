@@ -25,6 +25,7 @@ import { mediaSrc } from './media-src.js';
 import { Icon } from './icons.js';
 import { MediaPhoto } from './chat-photo.js';
 import { AlbumGrid } from './chat-album.js';
+import { EffectBadge } from './chat-effects.js';
 import { closePlace } from './chat-leaving.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { peerColorClass } from './peer-color.js';
@@ -345,6 +346,8 @@ export const QUICK_REACTIONS = Object.freeze([
 // Each menu item's label key and icon, as Telegram Desktop names them.
 const MENU_ITEMS = {
   sendSilent: ['chat.schedule.silent', 'mute'],
+  // The Send button's "Send with effect" (R-Y149).
+  sendEffect: ['chat.effects.menu', 'star'],
   schedule: ['chat.schedule.menu', 'clock'],
   // A sticker's or GIF's, in the emoji panel (R-Y115).
   faveSticker: ['chat.stickers.fave', 'star'],
@@ -963,7 +966,7 @@ const bare = (parts) =>
     parts.media?.kind === 'dice');
 
 // Time row: "edited · 12:34 ✓"
-const BubbleFooter = ({ parts, message, time, t, spacer = false }) =>
+const BubbleFooter = ({ parts, message, time, t, spacer = false, api, mine }) =>
   el(
     'span',
     {
@@ -985,6 +988,11 @@ const BubbleFooter = ({ parts, message, time, t, spacer = false }) =>
             },
             el(Icon, { name: 'timer', size: 11 })
           )
+        : null,
+      parts.effect
+        ? spacer
+          ? el('span', { key: 'fx', className: 'bubble-effect' }, '✨')
+          : el(EffectBadge, { key: 'fx', id: parts.effect, message, api, mine })
         : null,
       `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
       message.delivery
@@ -1061,7 +1069,7 @@ const BubbleContent = ({
     ? el(WebPreview, { key: 'wp', webPage: parts.media })
     : null,
   el(Reactions, { key: 'rx', reactions: parts.reactions }),
-  el(BubbleFooter, { key: 'time', parts, message, time, t }),
+  el(BubbleFooter, { key: 'time', parts, message, time, t, api, mine }),
   composer
     ? el(BubbleActionsInner, { key: 'actions', message, composer })
     : null,

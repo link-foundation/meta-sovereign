@@ -199,6 +199,7 @@ const sendResult = async (api, item) => {
       ...(item.silent ? { silent: true } : {}),
       ...(item.scheduleDate ? { scheduleDate: item.scheduleDate } : {}),
       ...(item.sendAs ? { sendAs: item.sendAs } : {}),
+      ...(item.effect ? { effect: item.effect } : {}),
       ...previewOf(item),
     });
     return result ?? { status: 'failed', code: 'no-answer' };
@@ -499,7 +500,12 @@ export const useComposer = ({
 
   // `silent`: without sound; `scheduleDate` (unix seconds): Telegram
   // sends it then (R-Y102).
-  const send = ({ silent = false, scheduleDate = null } = {}) => {
+  // `effect` (R-Y149): a message effect's id, a decimal string.
+  const send = ({
+    silent = false,
+    scheduleDate = null,
+    effect = null,
+  } = {}) => {
     if (!current) {
       return null;
     }
@@ -524,7 +530,7 @@ export const useComposer = ({
       status: 'queued',
       attempts: 0,
       ...outFields({ replyTo: replyId, replyQuote: quote, topic }),
-      ...outFields({ silent, scheduleDate }),
+      ...outFields({ silent, scheduleDate, effect }),
       ...sendAsField(current.chat),
       ...preview,
     });
