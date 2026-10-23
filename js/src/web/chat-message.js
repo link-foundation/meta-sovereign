@@ -393,6 +393,15 @@ const MENU_ITEMS = {
   deleteChat: ['chat.list.deleteChat', 'trash'],
   leaveGroup: ['chat.list.leaveGroup', 'log-out'],
   leaveChannel: ['chat.list.leaveChannel', 'log-out'],
+  // A forum topic's menu (R-Y153; ./chat-topic-admin.js).
+  editTopic: ['chat.topics.menu.edit', 'edit'],
+  closeTopic: ['chat.topics.menu.close', 'lock'],
+  reopenTopic: ['chat.topics.menu.reopen', 'play'],
+  pinTopic: ['chat.topics.menu.pin', 'pin'],
+  unpinTopic: ['chat.topics.menu.unpin', 'pin'],
+  hideTopic: ['chat.topics.menu.hide', 'mute'],
+  showTopic: ['chat.topics.menu.show', 'volume'],
+  deleteTopic: ['chat.topics.menu.delete', 'trash'],
 };
 
 // Delete and leave are drawn in red, as Desktop draws them.
@@ -400,6 +409,7 @@ const DANGER = new Set([
   'delete',
   'deleteSelected',
   'deleteChat',
+  'deleteTopic',
   'leaveGroup',
   'leaveChannel',
 ]);

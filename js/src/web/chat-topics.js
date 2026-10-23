@@ -6,9 +6,10 @@
 // (read by page from the store and Telegram by the topic's key), read on
 // its own, and what is sent goes to it.
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { topicRights, useTopicAdmin } from './chat-topic-admin.js';
 import { GENERAL_TOPIC, topicKey, topicOfMessage } from './forum-topics.js';
 
 const el = React.createElement;
@@ -41,7 +42,7 @@ const isForum = (api, current) =>
 
 // Each forum's topics, by chat key, asked when it opens and again
 // every TOPICS_REFRESH_MS (and on `tick`) while it stays open.
-const useTopicLists = (api, current, forum, tick) => {
+const useTopicLists = (api, current, forum, tick, fresh) => {
   const [lists, setLists] = useState(() => new Map());
   const key = current?.key ?? null;
   useEffect(() => {
@@ -52,7 +53,7 @@ const useTopicLists = (api, current, forum, tick) => {
     const chat = String(current.chat);
     const load = () =>
       api
-        .telegramForumTopics({ chat })
+        .telegramForumTopics({ chat, ...(fresh ? { fresh: true } : {}) })
         .then((answer) => {
           if (live && answer?.ok) {
             const topics = answer.forum ? (answer.topics ?? []) : [];
@@ -66,7 +67,7 @@ const useTopicLists = (api, current, forum, tick) => {
       live = false;
       globalThis.clearInterval(timer);
     };
-  }, [api, key, forum, tick]);
+  }, [api, key, forum, tick, fresh]);
   return forum ? (lists.get(key) ?? null) : null;
 };
 
@@ -77,19 +78,19 @@ const useTopicLists = (api, current, forum, tick) => {
 export const useForumTopics = (api, current, tick = 0) => {
   const forum = isForum(api, current);
   const key = current?.key ?? null;
-  const listed = useTopicLists(api, current, forum, tick);
+  // A change reads the topics again, past what the server kept.
+  const [changes, setChanges] = useState(0);
+  const listed = useTopicLists(api, current, forum, tick, changes);
   const [chosen, setChosen] = useState(() => new Map());
   const picked = forum ? (chosen.get(key) ?? null) : null;
   // A topic that is gone (deleted, the list not yet come) shows all.
   const open = picked ? (listed?.find((t) => t.id === picked) ?? null) : null;
   const topic = open || (picked && !listed) ? picked : null;
-  const topics = useMemo(
-    () => (listed ?? []).filter((t) => !t.hidden || t.id === topic),
-    [listed, topic]
-  );
   return {
     forum,
-    topics,
+    // Hidden ones too: the strip shows them to those who manage topics.
+    topics: listed ?? [],
+    refresh: () => setChanges((n) => n + 1),
     topic,
     open,
     choose: (id) =>
@@ -112,7 +113,7 @@ const TopicIcon = ({ topic }) => {
   );
 };
 
-const Tab = ({ selected, onClick, id, children }) =>
+const Tab = ({ selected, onClick, onMenu, id, children }) =>
   el(
     'button',
     {
@@ -122,14 +123,23 @@ const Tab = ({ selected, onClick, id, children }) =>
       'aria-selected': selected ? 'true' : 'false',
       'data-topic': id,
       onClick,
+      onContextMenu: onMenu,
     },
     children
   );
 
-const TopicTab = ({ topic, selected, onChoose, t }) =>
+const TopicTab = ({ topic, selected, onChoose, onMenu, t }) =>
   el(
     Tab,
-    { selected, id: String(topic.id), onClick: () => onChoose(topic.id) },
+    {
+      selected,
+      id: String(topic.id),
+      onClick: () => onChoose(topic.id),
+      onMenu: (event) => {
+        event.preventDefault();
+        onMenu(topic, { x: event.clientX, y: event.clientY });
+      },
+    },
     [
       el(TopicIcon, { key: 'i', topic }),
       el('span', { key: 't', className: 'chat-topic-title' }, topic.title),
@@ -160,39 +170,79 @@ const TopicTab = ({ topic, selected, onChoose, t }) =>
     ]
   );
 
-/** The strip of topics over a forum's messages; nothing elsewhere. */
-export const TopicTabs = ({ forum }) => {
+/**
+ * The topics the strip shows: a hidden one (General) only to those who
+ * manage topics, or while it is the one open.
+ */
+export const shownTopics = (topics, open, info) =>
+  topics.filter((t) => !t.hidden || t.id === open || topicRights(info).manage);
+
+/**
+ * The strip of topics over a forum's messages; nothing elsewhere. With
+ * `api`, `chat` and `info` it also manages them (R-Y153): a "+" for a
+ * new topic and a menu on a right-click.
+ */
+export const TopicTabs = ({ forum, api, chat, info }) => {
   const t = useT();
-  if (!forum?.forum || forum.topics.length === 0) {
+  const admin = useTopicAdmin({ api, chat, forum, info });
+  const topics = shownTopics(forum?.topics ?? [], forum?.topic, info);
+  if (!forum?.forum || (topics.length === 0 && !admin.canCreate)) {
     return null;
   }
-  return el(
-    'nav',
-    {
-      className: 'chat-topics',
-      role: 'tablist',
-      'aria-label': t('chat.topics.label'),
-    },
-    [
-      el(
-        Tab,
-        {
-          key: 'all',
-          id: 'all',
-          selected: !forum.topic,
-          onClick: () => forum.choose(null),
-        },
-        el('span', { className: 'chat-topic-title' }, t('chat.topics.all'))
-      ),
-      ...forum.topics.map((topic) =>
-        el(TopicTab, {
-          key: topic.id,
-          topic,
-          selected: forum.topic === topic.id,
-          onChoose: forum.choose,
-          t,
-        })
-      ),
-    ]
-  );
+  return el(React.Fragment, null, [
+    el(
+      'nav',
+      {
+        key: 'nav',
+        className: 'chat-topics',
+        role: 'tablist',
+        'aria-label': t('chat.topics.label'),
+      },
+      [
+        el(
+          Tab,
+          {
+            key: 'all',
+            id: 'all',
+            selected: !forum.topic,
+            onClick: () => forum.choose(null),
+          },
+          el('span', { className: 'chat-topic-title' }, t('chat.topics.all'))
+        ),
+        ...topics.map((topic) =>
+          el(TopicTab, {
+            key: topic.id,
+            topic,
+            selected: forum.topic === topic.id,
+            onChoose: forum.choose,
+            onMenu: admin.onMenu,
+            t,
+          })
+        ),
+        admin.canCreate
+          ? el(
+              'button',
+              {
+                key: 'new',
+                type: 'button',
+                className: 'chat-topic chat-topic-new',
+                'data-action': 'topic-new',
+                'aria-label': t('chat.topics.new'),
+                title: t('chat.topics.new'),
+                onClick: admin.create,
+              },
+              '+'
+            )
+          : null,
+      ]
+    ),
+    admin.failed
+      ? el(
+          'p',
+          { key: 'err', className: 'topic-admin-error', role: 'alert' },
+          admin.failed
+        )
+      : null,
+    ...admin.nodes,
+  ]);
 };

@@ -59,6 +59,7 @@ import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
 import { createEffects } from './telegram-effects.js';
 import { createAdminActions } from './telegram-admin.js';
+import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createProfile } from './telegram-profile.js';
@@ -359,7 +360,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // in a chat (R-Y98) and across Telegram (R-Y107); files and photos (R-Y99); clear, delete, leave
 // (R-Y100); scheduled messages (R-Y102); folders (R-Y103); stickers and
 // saved GIFs (R-Y105); bots' buttons (R-Y110); shared media (R-Y111);
-// forum topics (R-Y122); invite links (R-Y123); members (R-Y125);
+// forum topics (R-Y122), created, edited, pinned, closed and deleted (R-Y153); invite links (R-Y123); members (R-Y125);
 // comments (R-Y126); who read and who reacted (R-Y127); block, contacts
 // and report (R-Y128); new groups and channels, a chat's info edited (R-Y129);
 // map pictures of places (R-Y131); translation (R-Y132); a group's
@@ -409,6 +410,7 @@ const chatActions = (env, context) => {
     ...createStoryActions(env, context),
     ...createLinkPreview(env, context),
     ...createAdminActions(env, context),
+    ...createTopicAdmin(env, context),
     ...createShareMedia(env, context),
     ...createChatEdit(env, withUploads),
     ...createProfile(env, withUploads),

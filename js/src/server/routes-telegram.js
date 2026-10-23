@@ -52,7 +52,7 @@
  *                                      -> { written, complete } a forum
  *                                         topic's newest messages, or the
  *                                         page before `before` (R-Y122)
- *   POST /api/telegram/forum-topics {chat}
+ *   POST /api/telegram/forum-topics {chat, fresh?}
  *                                      -> { ok, forum, topics } a forum
  *                                         group's topics (R-Y122)
  *   POST /api/telegram/comments {chat, post, before?, limit?}
@@ -156,6 +156,18 @@
  *   POST /api/telegram/slow-mode {chat, seconds} -> { ok } seconds 0, 10,
  *                       30, 60, 300, 900 or 3600
  *   POST /api/telegram/admin-log {chat, maxId?} -> { ok, events, next }
+ *   POST /api/telegram/topic-icons {} -> { ok, icons: [{ id, emoji }] } the
+ *                       emoji a topic may carry (R-Y153)
+ *   POST /api/telegram/topic-create {chat, title, iconColor, iconEmojiId?}
+ *                       -> { ok } title up to 128, one of Telegram's six
+ *                       colours (R-Y153)
+ *   POST /api/telegram/topic-edit {chat, topic, title?, iconEmojiId?,
+ *                       closed?, hidden?} -> { ok } (R-Y153)
+ *   POST /api/telegram/topic-pin {chat, topic, pinned} -> { ok } (R-Y153)
+ *   POST /api/telegram/topic-delete {chat, topic} -> { ok } the topic and
+ *                       its messages, never General (R-Y153)
+ *   POST /api/telegram/forum-toggle {chat, enabled} -> { ok } a
+ *                       supergroup's Topics on or off (R-Y153)
  *   POST /api/telegram/send-location {chat, lat, lon, accuracy?, live?,
  *                       replyTo?, silent?, scheduleDate?, clientId?} -> { ok }
  *                       a place (latitude -90..90, longitude -180..180,
@@ -321,6 +333,7 @@ import { STICKER_SAVES } from '../sources/telegram-stickers.js';
 import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
+import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
 import { EFFECTS_POSTS } from './routes-telegram-effects.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
@@ -795,7 +808,13 @@ const POSTS = {
   // A forum group's topics (R-Y122).
   'forum-topics': async (account, body) =>
     validChat(body.chat) && typeof account.forumTopics === 'function'
-      ? [200, await account.forumTopics({ chat: body.chat })]
+      ? [
+          200,
+          await account.forumTopics({
+            chat: body.chat,
+            ...(body.fresh === true ? { fresh: true } : {}),
+          }),
+        ]
       : [400, { error: 'chat required', code: 'bad-request' }],
   // A chat's shared media (R-Y111): how many of each kind, and a kind's.
   'shared-counts': async (account, body) =>
@@ -1042,6 +1061,7 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  ...TOPIC_ADMIN_POSTS,
   ...EFFECTS_POSTS,
   ...ROUND_POSTS,
   ...PRIVACY_POSTS,

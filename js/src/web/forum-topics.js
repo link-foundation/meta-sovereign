@@ -9,6 +9,11 @@
 
 export const GENERAL_TOPIC = 1;
 
+// Telegram's six topic colours (R-Y153).
+export const TOPIC_COLORS = Object.freeze([
+  0x6fb9f0, 0xffd67e, 0xcb86db, 0x8eee98, 0xff93b2, 0xfb6f5f,
+]);
+
 const positive = (value) => {
   const n = Number(value);
   return Number.isInteger(n) && n > 0 ? n : null;

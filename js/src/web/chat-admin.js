@@ -9,6 +9,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Frame } from './chat-readers.js';
+import { ForumToggle } from './chat-topic-admin.js';
 
 const el = React.createElement;
 
@@ -38,6 +39,12 @@ export const hasAdminLog = (chat, info) =>
   chat?.source === 'telegram' &&
   /^-100\d+$/.test(String(chat.chat)) &&
   Boolean(info?.canBan || info?.canInvite);
+
+/** Whether it offers the Topics switch: a supergroup's creator (R-Y153). */
+export const hasForumToggle = (chat, info) =>
+  chat?.source === 'telegram' &&
+  /^-100\d+$/.test(String(chat.chat)) &&
+  Boolean(info?.canToggleForum);
 
 const errorText = (t, code) => {
   const key = `chat.admin.err.${code}`;
@@ -319,7 +326,9 @@ export const AdminActions = ({ api, chat, info }) => {
   const [open, setOpen] = useState(null);
   const perms = hasPermissions(chat, info);
   const log = hasAdminLog(chat, info);
-  if (!perms && !log) {
+  // A supergroup's creator switches Topics on and off (R-Y153).
+  const forum = hasForumToggle(chat, info);
+  if (!perms && !log && !forum) {
     return null;
   }
   const close = () => setOpen(null);
@@ -338,6 +347,7 @@ export const AdminActions = ({ api, chat, info }) => {
   return el('div', { className: 'admin-actions' }, [
     perms ? button('perms', t('chat.admin.permissions'), 'permissions') : null,
     log ? button('log', t('chat.admin.log'), 'admin-log') : null,
+    forum ? el(ForumToggle, { key: 'forum', api, chat, info }) : null,
     open === 'perms'
       ? el(PermissionsDialog, { key: 'pd', api, chat, info, close })
       : null,

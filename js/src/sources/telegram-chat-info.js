@@ -123,6 +123,26 @@ const inviteOf = (entity, full) =>
     ? { canInvite: true, inviteLink: full.exportedInvite.link }
     : { canInvite: canInviteIn(entity) };
 
+/**
+ * What the user may do with a forum's topics (R-Y153), as Desktop
+ * decides: manage them (creator, or an admin who may manage topics),
+ * create one (that, or anyone neither the group's nor their own
+ * restrictions forbid), delete them (creator, or an admin who may delete
+ * messages).
+ */
+export const topicRightsIn = (entity = {}) => {
+  const manage = Boolean(entity.creator || entity.adminRights?.manageTopics);
+  return {
+    manage,
+    create:
+      manage ||
+      (!entity.left &&
+        !entity.bannedRights?.manageTopics &&
+        !entity.defaultBannedRights?.manageTopics),
+    delete: Boolean(entity.creator || entity.adminRights?.deleteMessages),
+  };
+};
+
 const fetchChannel = async (client, Api, inputPeer) => {
   const result = await client.invoke(
     new Api.channels.GetFullChannel({ channel: inputPeer })
@@ -141,6 +161,9 @@ const fetchChannel = async (client, Api, inputPeer) => {
     pinned: full.pinnedMsgId ?? null,
     canPin: canPinIn(entity),
     broadcast: Boolean(entity.broadcast),
+    forum: Boolean(entity.forum),
+    topics: topicRightsIn(entity),
+    canToggleForum: Boolean(entity.creator) && !entity.broadcast,
     canEdit: canEditIn(entity),
     canBan: canBanIn(entity),
     ttlPeriod: ttlOf(full),

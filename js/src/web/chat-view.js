@@ -69,6 +69,7 @@ import {
 import { PollDialog, usePollCreate } from './chat-poll-create.js';
 import { ShareDialog, useShare } from './chat-share.js';
 import { TopicTabs } from './chat-topics.js';
+import { TopicClosedBar, topicClosedFor } from './chat-topic-admin.js';
 import {
   ScheduleDialog,
   ScheduledButton,
@@ -1319,6 +1320,12 @@ const ChatTop = ({ state, api, onBack, saved }) => {
   ];
 };
 
+// A closed topic has no composer for those who cannot manage topics (R-Y153).
+const ComposerOrClosed = ({ state, api, keys }) =>
+  topicClosedFor(state.forum?.open, state.info)
+    ? el(TopicClosedBar)
+    : el(Composer, { state, api, keys });
+
 export const ChatScreen = ({ state, api }) => {
   const { t, locale } = useLocaleContext();
   const [pane, setPane] = useState('list');
@@ -1369,7 +1376,13 @@ export const ChatScreen = ({ state, api }) => {
                   saved,
                 }),
             // A forum's topics, as Telegram's tabs layout (R-Y122).
-            el(TopicTabs, { key: 'topics', forum: state.forum }),
+            el(TopicTabs, {
+              key: 'topics',
+              forum: state.forum,
+              api,
+              chat: state.current,
+              info: state.info,
+            }),
             el(PinnedBar, {
               key: 'pin',
               pinned: state.pinned,
@@ -1401,9 +1414,16 @@ export const ChatScreen = ({ state, api }) => {
               : tags.active
                 ? el(SavedTagResults, { key: 'tagged', api, tags })
                 : el(Stream, { key: 's', state, api, actions }),
+            // A closed topic has no composer for those who cannot manage
+            // topics (R-Y153).
             saved.on
               ? null
-              : el(Composer, { key: 'c', state, api, keys: actions.keys }),
+              : el(ComposerOrClosed, {
+                  key: 'c',
+                  state,
+                  api,
+                  keys: actions.keys,
+                }),
             ...actions.dialogs,
           ])
         : null,

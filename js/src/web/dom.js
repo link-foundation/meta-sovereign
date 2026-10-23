@@ -823,7 +823,15 @@ export const api = {
       error: 'server required',
     },
   // A forum group's topics (R-Y122): { chat } → { ok, forum, topics }.
-  telegramForumTopics: ({ chat }) => telegramPost('forum-topics', { chat }),
+  telegramForumTopics: ({ chat, fresh }) =>
+    telegramPost('forum-topics', { chat, ...(fresh ? { fresh: true } : {}) }),
+  // Managing the topics (R-Y153).
+  telegramTopicIcons: () => telegramPost('topic-icons', {}),
+  telegramTopicCreate: (body = {}) => telegramPost('topic-create', body),
+  telegramTopicEdit: (body = {}) => telegramPost('topic-edit', body),
+  telegramTopicPin: (body = {}) => telegramPost('topic-pin', body),
+  telegramTopicDelete: (body = {}) => telegramPost('topic-delete', body),
+  telegramForumToggle: (body = {}) => telegramPost('forum-toggle', body),
   telegramDraft: async ({ chat, text }) =>
     (await serverPostReport('/api/telegram/draft', { chat, text }).catch(
       (error) => ({ error: error.message })

@@ -48,6 +48,7 @@ export const topicOf = (topic, last = null) => {
     mentions: Number(topic.unreadMentionsCount) || 0,
     pinned: Boolean(topic.pinned),
     closed: Boolean(topic.closed),
+    mine: Boolean(topic.my),
     hidden: Boolean(topic.hidden),
     at: iso(topic.date),
     last,
