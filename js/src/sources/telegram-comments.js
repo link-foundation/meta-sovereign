@@ -9,6 +9,8 @@
  *   (messages.getReplies), the page before message `before` when given.
  *   The comments are given to the page, not stored: the discussion group
  *   is no chat of the user's list unless they joined it.
+ * - `readComments({ chat, post, max })` — the comments up to `max` read
+ *   (messages.readDiscussion on the post's copy in the group).
  * - `sendComment({ chat, post, text, replyTo, clientId })` — a comment
  *   sent to the discussion group, answering the post's copy (or the
  *   comment `replyTo`, with the copy as its thread's top).
@@ -170,5 +172,34 @@ export const createComments = (
     return { ok: true, chat: thread.group.chat };
   };
 
-  return { comments, sendComment };
+  // The comments seen up to `max` are read, as Telegram's apps mark
+  // them once shown: the thread's mark in the discussion group.
+  const readComments = async ({ chat, post, max } = {}) => {
+    const client = await userClient();
+    if (!client) {
+      return { ok: false, supported: false };
+    }
+    const thread = await discussion(client, String(chat), Number(post));
+    if (!thread) {
+      return { ok: false, error: 'no comments', code: 'no-comments' };
+    }
+    const { Api } = await env.importer();
+    await env.queue.run(
+      `comments-read:${thread.group.chat}:${thread.root}`,
+      'view',
+      () =>
+        env.connection.withPeer(client, thread.group.chat, (peer) =>
+          client.invoke(
+            new Api.messages.ReadDiscussion({
+              peer,
+              msgId: thread.root,
+              readMaxId: Number(max),
+            })
+          )
+        )
+    );
+    return { ok: true };
+  };
+
+  return { comments, sendComment, readComments };
 };

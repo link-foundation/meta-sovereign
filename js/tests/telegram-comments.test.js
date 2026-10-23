@@ -24,6 +24,7 @@ const Api = {
   messages: {
     GetDiscussionMessage: named('GetDiscussionMessage'),
     SendMessage: named('SendMessage'),
+    ReadDiscussion: named('ReadDiscussion'),
   },
   InputReplyToMessage: named('InputReplyToMessage'),
 };
@@ -205,6 +206,19 @@ test('sendComment: answers the post copy, or a comment in its thread', async () 
   assert.equal(second.replyTo.topMsgId, 40);
 });
 
+test('readComments: the thread read in the discussion group', async () => {
+  const { comments, log } = make();
+  assert.deepEqual(
+    await comments.readComments({ chat: '-1005', post: 7, max: 45 }),
+    { ok: true }
+  );
+  const read = log.find((r) => r.className === 'ReadDiscussion');
+  assert.deepEqual(
+    [read.peer, read.msgId, read.readMaxId],
+    [{ chat: '-10077' }, 40, 45]
+  );
+});
+
 test('sendComment: Telegram errors thrown as send errors', async () => {
   // A refused send: the client throws on SendMessage.
   const error = Object.assign(new Error('CHAT_WRITE_FORBIDDEN'), {
@@ -279,6 +293,7 @@ test('routes validate strictly', async () => {
   const account = {
     comments: async (body) => asked.push(body) && { ok: true },
     sendComment: async (body) => asked.push(body) && { ok: true },
+    readComments: async (body) => asked.push(body) && { ok: true },
   };
   for (const [route, bad, good] of [
     ['comments', { chat: '-1005' }, { chat: '-1005', post: 7 }],
@@ -296,6 +311,11 @@ test('routes validate strictly', async () => {
       'comment-send',
       { chat: '-1005', post: 7, text: 'hi', replyTo: 'x' },
       { chat: '-1005', post: 7, text: 'hi', replyTo: 9 },
+    ],
+    [
+      'comments-read',
+      { chat: '-1005', post: 7, max: 0 },
+      { chat: '-1005', post: 7, max: 9 },
     ],
   ]) {
     assert.equal((await post(route, bad, account)).status, 400, route);

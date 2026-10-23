@@ -56,6 +56,21 @@ const useThread = (api, chat, post) => {
   return [state, load];
 };
 
+// The comments shown are read, once for each newest one seen.
+const useReadMark = (api, chat, post, messages) => {
+  const sent = useRef(0);
+  const max = messages.reduce(
+    (top, m) => Math.max(top, networkMessageId(m) ?? 0),
+    0
+  );
+  useEffect(() => {
+    if (max > sent.current && typeof api.telegramCommentsRead === 'function') {
+      sent.current = max;
+      api.telegramCommentsRead({ chat, post, max }).catch(() => {});
+    }
+  }, [api, chat, post, max]);
+};
+
 const nameOf = (message) => message.senderName || message.chatName || '';
 
 const ReplyBar = ({ replyTo, onCancel, t }) =>
@@ -231,6 +246,7 @@ const CommentsPanel = ({ post, api, close }) => {
   const id = networkMessageId(post);
   const comments = threadOf(post)?.comments ?? true;
   const [state, load] = useThread(api, chat, id);
+  useReadMark(api, chat, id, state.messages);
   const end = useRef(null);
   const input = useRef(null);
   const toEnd = () => end.current?.scrollIntoView?.({ block: 'end' });

@@ -60,6 +60,8 @@
  *                                         complete } a channel post's
  *                                         comments or a message's thread,
  *                                         oldest first (R-Y126)
+ *   POST /api/telegram/comments-read {chat, post, max}
+ *                                      -> { ok } the comments up to max read
  *   POST /api/telegram/comment-send {chat, post, text, replyTo?, clientId?}
  *                                      -> { ok, chat } a comment sent to
  *                                         the discussion group
@@ -500,6 +502,20 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'chat and post required', code: 'bad-request' }],
+  'comments-read': async (account, body) =>
+    validChat(body.chat) &&
+    positive(body.post) &&
+    positive(body.max) &&
+    typeof account.readComments === 'function'
+      ? [
+          200,
+          await account.readComments({
+            chat: body.chat,
+            post: body.post,
+            max: body.max,
+          }),
+        ]
+      : [400, { error: 'chat, post and max required', code: 'bad-request' }],
   'comment-send': async (account, body) =>
     validComment(body) && typeof account.sendComment === 'function'
       ? [

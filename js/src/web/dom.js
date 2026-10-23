@@ -949,6 +949,7 @@ export const api = {
   telegramInviteRevoke: (body = {}) => telegramPost('invite-revoke', body),
   telegramComments: (body = {}) => telegramPost('comments', body),
   telegramCommentSend: (body = {}) => telegramPost('comment-send', body),
+  telegramCommentsRead: (body = {}) => telegramPost('comments-read', body),
   // A group's members ({ chat, q, offset, limit }) and one removed
   // ({ chat, user }) (R-Y125).
   telegramMembers: (body = {}) => telegramPost('members', body),

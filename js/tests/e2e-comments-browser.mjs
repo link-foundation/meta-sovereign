@@ -92,6 +92,11 @@ await page.route('**/api/telegram/comments', (route) => {
     complete: older,
   });
 });
+const reads = [];
+await page.route('**/api/telegram/comments-read', (route) => {
+  reads.push(route.request().postDataJSON());
+  return fulfil(route, { ok: true });
+});
 await page.route('**/api/telegram/comment-send', (route) => {
   sent.push(route.request().postDataJSON());
   return fulfil(route, { ok: true, chat: GROUP });
@@ -129,6 +134,13 @@ await finish(async () => {
     `asked: ${JSON.stringify(asked[0])}`
   );
 
+  // The comments shown are read up to the newest.
+  await until(() => reads.length === 1, 'read');
+  assert(
+    JSON.stringify(reads[0]) === `{"chat":"${CHANNEL}","post":1,"max":43}`,
+    `read: ${JSON.stringify(reads[0])}`
+  );
+
   // Older comments on demand, above the rest.
   await panel.locator('[data-action="comments-older"]').click();
   await panel.locator('[data-message$=":41"]').waitFor({ timeout: 5000 });
@@ -159,6 +171,7 @@ await finish(async () => {
   );
   await panel.locator('[data-message$=":60"]').waitFor({ timeout: 5000 });
   assert((await box.inputValue()) === '', 'the composer is cleared');
+  await until(() => reads.at(-1)?.max === 60, 'the new comment is read');
 
   // Reply on a comment answers it.
   const ann = panel.locator('[data-message$=":42"]');
