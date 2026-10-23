@@ -29,8 +29,11 @@ const Api = {
     FaveSticker: named('FaveSticker'),
     SaveRecentSticker: named('SaveRecentSticker'),
     SaveGif: named('SaveGif'),
+    InstallStickerSet: named('InstallStickerSet'),
+    UninstallStickerSet: named('UninstallStickerSet'),
   },
   InputDocument: named('InputDocument'),
+  InputStickerSetID: named('InputStickerSetID'),
 };
 const helpers = {
   returnBigInt: (v) => BigInt(v),
@@ -54,7 +57,7 @@ const make = (log) => {
       log.push(request);
       switch (request.className) {
         case 'GetAllStickers':
-          return { sets: [] };
+          return { sets: [{ id: 7n, accessHash: 70n, title: 'Cats' }] };
         case 'GetRecentStickers':
           return { stickers: [doc(2)] };
         case 'GetFavedStickers':
@@ -126,8 +129,33 @@ test('only what the panel showed, only so', async () => {
   assert.equal(count(log, 'FaveSticker'), 0);
 });
 
-const post = async (account, body) => {
-  const path = '/api/telegram/sticker-save';
+test('a set the panel showed added or removed, the panel asked again', async () => {
+  const log = [];
+  const stickers = make(log);
+  assert.equal(
+    (await stickers.stickerSetInstall({ id: '7' })).code,
+    'unknown-set',
+    'not yet shown'
+  );
+  await stickers.stickerPanel();
+  assert.deepEqual(await stickers.stickerSetInstall({ id: '7' }), {
+    ok: true,
+    id: '7',
+    installed: true,
+  });
+  const asked = log.at(-1);
+  assert.equal(asked.className, 'InstallStickerSet');
+  assert.equal(asked.archived, false);
+  assert.equal(asked.stickerset.id, 7n);
+  assert.equal(asked.stickerset.accessHash, 70n);
+  await stickers.stickerSetInstall({ id: '7', install: false });
+  assert.equal(log.at(-1).className, 'UninstallStickerSet');
+  await stickers.stickerPanel();
+  assert.equal(count(log, 'GetAllStickers'), 2, 'the panel asked again');
+});
+
+const post = async (account, body, route = 'sticker-save') => {
+  const path = `/api/telegram/${route}`;
   const req = Readable.from([Buffer.from(JSON.stringify(body))]);
   req.method = 'POST';
   req.url = path;
@@ -170,6 +198,21 @@ test('the route takes an id and a known action', async () => {
     assert.equal(await post(account, bad), 400, JSON.stringify(bad));
   }
   assert.deepEqual(calls, [{ id: '12', action: 'fave' }]);
+  account.stickerSetInstall = async (args) => {
+    calls.push(args);
+    return { ok: true };
+  };
+  const route = 'sticker-set-install';
+  assert.equal(await post(account, { id: '7', install: true }, route), 200);
+  for (const bad of [
+    { id: '7' },
+    { id: 'x', install: true },
+    { id: '7', install: 'yes' },
+  ]) {
+    assert.equal(await post(account, bad, route), 400, JSON.stringify(bad));
+  }
+  assert.deepEqual(calls.at(-1), { id: '7', install: true });
+  assert.equal(calls.length, 2);
 });
 
 test('the menu offers what fits where it opened', () => {

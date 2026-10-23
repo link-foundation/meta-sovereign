@@ -881,6 +881,7 @@ export const en = {
   'chat.stickers.unrecent': 'Remove from Recent',
   'chat.stickers.saveGif': 'Save GIF',
   'chat.stickers.unsaveGif': 'Delete GIF',
+  'chat.stickers.addSet': 'Add',
   'chat.stickers.notFound': 'Nothing found.',
   'chat.stickers.failed': 'Could not load. Try again later.',
   'chat.stickers.unavailable':

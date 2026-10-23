@@ -878,6 +878,7 @@ export const hi = {
   'chat.stickers.unrecent': 'हाल के से हटाएँ',
   'chat.stickers.saveGif': 'GIF सहेजें',
   'chat.stickers.unsaveGif': 'GIF हटाएँ',
+  'chat.stickers.addSet': 'जोड़ें',
   'chat.stickers.notFound': 'कुछ नहीं मिला।',
   'chat.stickers.failed': 'लोड नहीं हो सका। बाद में फिर कोशिश करें।',
   'chat.stickers.unavailable':

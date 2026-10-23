@@ -891,6 +891,7 @@ export const ru = {
   'chat.stickers.unrecent': 'Удалить из недавних',
   'chat.stickers.saveGif': 'Сохранить GIF',
   'chat.stickers.unsaveGif': 'Удалить GIF',
+  'chat.stickers.addSet': 'Добавить',
   'chat.stickers.notFound': 'Ничего не найдено.',
   'chat.stickers.failed': 'Не удалось загрузить. Попробуйте позже.',
   'chat.stickers.unavailable':

@@ -16,6 +16,9 @@
  * - `stickerSave({ id, action })` — the panel's menu (R-Y115): a sticker
  *   made a favourite or not (messages.faveSticker), taken from the recent
  *   ones (saveRecentSticker), a GIF saved or not (saveGif);
+ * - `stickerSetInstall({ id, install })` — a set found by a search added
+ *   to the user's (messages.installStickerSet, R-Y116), or one of theirs
+ *   removed (uninstallStickerSet);
  * - `sendDocument({ chat, id, replyTo, silent, scheduleDate, clientId })`
  *   — a sticker or GIF sent as it is (messages.sendMedia); Telegram's
  *   answer goes through the live handler, so it shows in the chat.
@@ -511,6 +514,35 @@ const createSaver =
     return { ok: true };
   };
 
+// A set the panel showed added to the user's sets, or removed; the
+// panel's lists asked again after.
+const createInstaller =
+  (env, { userClient }, lists) =>
+  async ({ id, install = true } = {}) => {
+    const key = String(id ?? '');
+    const set = lists.setOf(key)?.set;
+    if (!set) {
+      return { ok: false, error: 'unknown set', code: 'unknown-set' };
+    }
+    const c = await connect(env, userClient);
+    if (!c) {
+      return { ok: false, supported: false };
+    }
+    const stickerset = inputSet(c, set);
+    await runIn(env, `stickers:install:${key}`, () =>
+      c.client.invoke(
+        install
+          ? new c.Api.messages.InstallStickerSet({
+              stickerset,
+              archived: false,
+            })
+          : new c.Api.messages.UninstallStickerSet({ stickerset })
+      )
+    );
+    lists.changed();
+    return { ok: true, id: key, installed: Boolean(install) };
+  };
+
 /** `env`: the account's; `apply(client, result)` the live handler. */
 export const createStickers = (
   env,
@@ -526,5 +558,6 @@ export const createStickers = (
     stickerPicture: createPictures(env, { userClient, mediaDir }, lists),
     sendDocument: createSender(env, { userClient, apply }, lists),
     stickerSave: createSaver(env, { userClient }, lists),
+    stickerSetInstall: createInstaller(env, { userClient }, lists),
   };
 };

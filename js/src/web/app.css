@@ -5527,3 +5527,26 @@ button[aria-busy='true']::before {
 .emoji-tone.active {
   background: var(--accent-bg, var(--bg));
 }
+
+/* A found sticker set's Add button by its title (R-Y116). */
+.sticker-set-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.sticker-set-add {
+  margin: 0.4rem 0.2rem 0.1rem;
+  padding: 0.2rem 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--chat-accent, var(--accent));
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sticker-set-add:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

@@ -16,6 +16,9 @@
  * it off them, take it off the recent ones, save a GIF or delete it from
  * the saved ones.
  *
+ * A set found that is not the user's has an Add button by its title
+ * (R-Y116), as Desktop's: it joins the user's sets.
+ *
  * Only for a Telegram chat of a user account; the pictures come through
  * the server (/api/telegram/sticker), never from Telegram to the page.
  */
@@ -190,15 +193,52 @@ const Grid = ({ api, list, onSend, onMenu, where, gifs = false }) =>
     )
   );
 
-const Section = ({ id, title, children }) =>
+const Section = ({ id, title, action = null, children }) =>
   el('section', { className: 'emoji-section', 'data-category': id }, [
-    el('h4', { key: 'h', className: 'emoji-section-title' }, title),
+    action
+      ? el('div', { key: 'h', className: 'sticker-set-head' }, [
+          el('h4', { key: 't', className: 'emoji-section-title' }, title),
+          action,
+        ])
+      : el('h4', { key: 'h', className: 'emoji-section-title' }, title),
     el(React.Fragment, { key: 'g' }, children),
   ]);
 
+// The sets added while the page is open (a search's answer is kept).
+const added = new Set();
+
+// A found set's Add button; `onAdd(set)` resolves true once it is added.
+const AddSet = ({ set, onAdd }) => {
+  const t = useT();
+  const [state, setState] = useState(
+    set.installed || added.has(set.id) ? 'added' : 'add'
+  );
+  if (state === 'added') {
+    return null;
+  }
+  return el(
+    'button',
+    {
+      type: 'button',
+      className: 'sticker-set-add',
+      'data-add-set': set.id,
+      disabled: state === 'busy',
+      onClick: async () => {
+        setState('busy');
+        const ok = await onAdd(set);
+        if (ok) {
+          added.add(set.id);
+        }
+        setState(ok ? 'added' : 'add');
+      },
+    },
+    t('chat.stickers.addSet')
+  );
+};
+
 // A set's stickers, asked once the list comes near it; until then a
 // space as tall as they will be, so the bar's jumps land.
-const SetSection = ({ api, set, onSend, onMenu }) => {
+const SetSection = ({ api, set, onSend, onMenu, onAdd }) => {
   const ref = useRef(null);
   const { near } = useNearView(ref);
   const answer = useAnswer(
@@ -214,7 +254,14 @@ const SetSection = ({ api, set, onSend, onMenu }) => {
     { ref },
     el(
       Section,
-      { id: `set:${set.id}`, title: set.title },
+      {
+        id: `set:${set.id}`,
+        title: set.title,
+        action:
+          onAdd && set.installed === false
+            ? el(AddSet, { key: 'add', set, onAdd })
+            : null,
+      },
       list
         ? el(Grid, { api, list, onSend, onMenu, where: 'set' })
         : el('div', {
@@ -296,7 +343,7 @@ const SearchBox = ({ field, value, onChange }) => {
 const canSearch = (api, method) => typeof api?.[method] === 'function';
 
 // Stickers found for an emoji or words, then the sets found.
-const FoundStickers = ({ api, q, onSend, onMenu }) => {
+const FoundStickers = ({ api, q, onSend, onMenu, onAdd }) => {
   const t = useT();
   const lang = String(useLocaleContext().locale ?? 'en').slice(0, 2);
   const answer = useAnswer(
@@ -329,13 +376,20 @@ const FoundStickers = ({ api, q, onSend, onMenu }) => {
         )
       : null,
     ...answer.sets.map((set) =>
-      el(SetSection, { key: `set:${set.id}`, api, set, onSend, onMenu })
+      el(SetSection, {
+        key: `set:${set.id}`,
+        api,
+        set,
+        onSend,
+        onMenu,
+        onAdd,
+      })
     ),
   ];
 };
 
 /** The Stickers tab. */
-export const StickersTab = ({ api, onSend, onMenu, version }) => {
+export const StickersTab = ({ api, onSend, onMenu, onAdd, version }) => {
   const [query, setQuery] = useState('');
   const q = useDebounced(query.trim());
   const search = canSearch(api, 'telegramStickerSearch');
@@ -352,7 +406,7 @@ export const StickersTab = ({ api, onSend, onMenu, version }) => {
       ? el(
           'div',
           { key: 'found', className: 'emoji-scroll', 'data-found': q },
-          el(FoundStickers, { api, q, onSend, onMenu })
+          el(FoundStickers, { api, q, onSend, onMenu, onAdd })
         )
       : el(MyStickers, { key: 'mine', api, onSend, onMenu, version }),
   ]);
@@ -630,6 +684,23 @@ const useStickerMenu = ({ state, api, send }) => {
       save(item, SAVE_ACTIONS[key]);
     }
   };
+  // A found set added to the user's (R-Y116).
+  const add = async (set) => {
+    const answer = await Promise.resolve(
+      api.telegramStickerSetInstall?.({ id: set.id, install: true })
+    ).catch((error) => ({ error: error.message }));
+    if (answer?.ok) {
+      setVersion((v) => v + 1);
+      return true;
+    }
+    state.notify?.({
+      kind: 'failed',
+      code: answer?.code,
+      error: answer?.error ?? 'not added',
+      retryAfter: answer?.retryAfter,
+    });
+    return false;
+  };
   const schedule = canSchedule(state, api);
   const open = (close) => (item, point, where) =>
     setMenu({
@@ -662,7 +733,7 @@ const useStickerMenu = ({ state, api, send }) => {
         })
       : null,
   ];
-  return { open, parts, version };
+  return { open, add, parts, version };
 };
 
 /**
@@ -682,6 +753,7 @@ export const useStickerTabs = ({ state, api, composer }) => {
     api,
     onSend: (item) => send(item, close),
     onMenu: menu.open(close),
+    onAdd: menu.add,
     version: menu.version,
   });
   return {

@@ -940,6 +940,8 @@ export const api = {
   telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
   // The panel's menu ({ id, action }; R-Y115).
   telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),
+  telegramStickerSetInstall: (body = {}) =>
+    telegramPost('sticker-set-install', body),
   telegramSendDocument: (body = {}) => telegramPost('send-document', body),
   telegramScheduled: (body = {}) => telegramPost('scheduled', body),
   telegramScheduledSend: (body = {}) => telegramPost('scheduled-send', body),

@@ -855,6 +855,7 @@ export const zh = {
   'chat.stickers.unrecent': '从最近使用中移除',
   'chat.stickers.saveGif': '保存 GIF',
   'chat.stickers.unsaveGif': '删除 GIF',
+  'chat.stickers.addSet': '添加',
   'chat.stickers.notFound': '未找到结果。',
   'chat.stickers.failed': '无法加载，请稍后再试。',
   'chat.stickers.unavailable': '以用户身份登录 Telegram 后可用。',

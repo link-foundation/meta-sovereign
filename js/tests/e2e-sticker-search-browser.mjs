@@ -3,6 +3,7 @@
 // stickers for it; words find stickers and sets (a set's stickers asked
 // as any set's), nothing found says so, an empty box shows the user's
 // own again; the box asks once typing pauses, in the page's language; a
+// found set not the user's is added by its Add button (R-Y116); a
 // found sticker is sent as any; the GIFs tab's box finds GIFs, more as
 // the list is scrolled to its end. Telegram's answers faked in the page,
 // a fake chat in a memory store, a server on a free port, a headless
@@ -197,6 +198,11 @@ await page.route('**/api/telegram/gif-search', (route) => {
   );
 });
 SETS[9] = range(950, 4).map((id) => sticker(id, '🐈'));
+const installs = [];
+await page.route('**/api/telegram/sticker-set-install', (route) => {
+  installs.push(route.request().postDataJSON());
+  return fulfil(route, { ok: true, installed: true });
+});
 const sends = [];
 await page.route('**/api/telegram/send-document', (route) => {
   sends.push(route.request().postDataJSON());
@@ -283,8 +289,20 @@ try {
   await box.fill('');
   await panel.locator('[data-category="faved"]').waitFor({ timeout: 5000 });
 
-  // A found sticker is sent as any.
+  // A found set not the user's: Add makes it theirs.
   await box.fill('cat');
+  await panel.locator('[data-add-set="9"]').click();
+  await until(() => installs.length === 1, 'added');
+  assert(
+    installs[0].id === '9' && installs[0].install === true,
+    `install: ${JSON.stringify(installs[0])}`
+  );
+  await until(
+    async () => (await panel.locator('[data-add-set]').count()) === 0,
+    'the Add button gone'
+  );
+
+  // A found sticker is sent as any.
   await panel.locator('[data-sticker="952"]').click();
   await until(() => sends.length === 1, 'sent');
   assert(sends[0].id === '952', `sent: ${JSON.stringify(sends[0])}`);

@@ -74,6 +74,9 @@
  *   POST /api/telegram/sticker-save {id, action}
  *                                      -> { ok } fave, unfave, unrecent,
  *                                         saveGif or unsaveGif (R-Y115)
+ *   POST /api/telegram/sticker-set-install {id, install}
+ *                                      -> { ok, installed } a found set
+ *                                         added, or one removed (R-Y116)
  *   POST /api/telegram/gif-search {q, offset?}
  *                                      -> { ok, gifs, next } GIFs found
  *                                         by Telegram's @gif bot
@@ -547,6 +550,19 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'id and action required', code: 'bad-request' }],
+  // A found sticker set added to the user's, or removed (R-Y116).
+  'sticker-set-install': async (account, body) =>
+    STICKER_ID.test(String(body.id ?? '')) &&
+    typeof body.install === 'boolean' &&
+    typeof account.stickerSetInstall === 'function'
+      ? [
+          200,
+          await account.stickerSetInstall({
+            id: String(body.id),
+            install: body.install,
+          }),
+        ]
+      : [400, { error: 'id and install required', code: 'bad-request' }],
   'gif-search': async (account, body) =>
     searchWords(body.q) &&
     (body.offset === undefined ||
