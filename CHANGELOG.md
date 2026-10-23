@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.5
+
+### Patch Changes
+
+- 1fc295c: Archive imports for Facebook, Instagram, X and LinkedIn: collision-free ids with a migration, repaired text, attachments, reactions, X group DMs, streaming ZIP (R-Z10).
+
 ## 0.49.4
 
 ### Patch Changes
