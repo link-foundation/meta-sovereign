@@ -11,19 +11,54 @@ import { Icon } from './icons.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { usePref } from './chat-notify.js';
 import { StoryViewer } from './story-viewer.js';
-import { markSeen, mergePeers, unreadPeers } from './stories-model.js';
+import {
+  hiddenPeers,
+  markSeen,
+  mergePeers,
+  ringOf,
+  setHidden,
+  unreadPeers,
+  visiblePeers,
+} from './stories-model.js';
 
 const el = React.createElement;
 
 // Telegram pages the strip; a few pages are plenty for a strip.
 const MAX_PAGES = 5;
 
+// Every page of one list (the strip's, or the hidden ones), one after
+// another; `add(peers)` sees each.
+const loadPages = async (api, hidden, isLive, add) => {
+  let state;
+  for (let page = 0; page < MAX_PAGES && isLive(); page += 1) {
+    const answer = await api.telegramStories({
+      ...(state ? { state } : {}),
+      ...(hidden ? { hidden: true } : {}),
+    });
+    if (!isLive() || !answer?.ok) {
+      return;
+    }
+    if (!answer.notModified) {
+      add(
+        (answer.peers ?? []).map((p) => (hidden ? { ...p, hidden: true } : p))
+      );
+    }
+    if (!answer.more || !answer.state) {
+      return;
+    }
+    state = answer.state;
+  }
+};
+
 /**
- * The strip's peers (pages read one after another), and `read(peer, id)`
- * for a story shown: the ring goes at once, Telegram is told.
+ * The strip's peers (pages read one after another, then the hidden
+ * ones), `read(peer, id)` for a story shown: the ring goes at once,
+ * Telegram is told; the viewer's state (`viewing`, `open(peer)`,
+ * `close()`) and `hide(peer, hidden)` (R-Y148).
  */
 export const useStories = (api, enabled) => {
   const [peers, setPeers] = useState([]);
+  const [viewing, setViewing] = useState(null);
   const held = useRef(peers);
   held.current = peers;
   useEffect(() => {
@@ -31,21 +66,10 @@ export const useStories = (api, enabled) => {
       return undefined;
     }
     let live = true;
+    const add = (page) => setPeers((now) => mergePeers(now, page));
     (async () => {
-      let state;
-      for (let page = 0; page < MAX_PAGES && live; page += 1) {
-        const answer = await api.telegramStories(state ? { state } : {});
-        if (!live || !answer?.ok) {
-          return;
-        }
-        if (!answer.notModified) {
-          setPeers((now) => mergePeers(now, answer.peers ?? []));
-        }
-        if (!answer.more || !answer.state) {
-          return;
-        }
-        state = answer.state;
-      }
+      await loadPages(api, false, () => live, add);
+      await loadPages(api, true, () => live, add);
     })().catch(() => {});
     return () => {
       live = false;
@@ -64,13 +88,44 @@ export const useStories = (api, enabled) => {
     },
     [api]
   );
-  const unread = unreadPeers(peers);
+  // Hidden or not: Telegram first, then the strip follows.
+  const hide = useCallback(
+    async (peerId, hidden) => {
+      const answer = await Promise.resolve(
+        api?.telegramStoriesHide?.({ chat: peerId, hidden })
+      ).catch(() => null);
+      if (answer?.ok) {
+        setPeers((now) => setHidden(now, peerId, hidden));
+      }
+      return Boolean(answer?.ok);
+    },
+    [api]
+  );
+  const open = useCallback((peerId) => {
+    const now = held.current;
+    const from = now.find((p) => p.peer === peerId);
+    if (!from) {
+      return;
+    }
+    const list = from.hidden ? hiddenPeers(now) : visiblePeers(now);
+    setViewing({
+      peers: list.map((p) => ({ ...p })),
+      start: list.findIndex((p) => p.peer === peerId),
+    });
+  }, []);
+  const close = useCallback(() => setViewing(null), []);
+  const unread = unreadPeers(visiblePeers(peers));
   return {
     peers,
     read,
+    hide,
+    open,
+    close,
+    viewing,
     unread,
-    // Whether a chat row of the list gets the ring.
-    rings: (chat) => chat.source === 'telegram' && unread.has(chat.chat),
+    // The ring of a chat row of the list: 'unread', 'seen' or ''.
+    rings: (chat) =>
+      chat.source === 'telegram' ? ringOf(peers, chat.chat) : '',
   };
 };
 
@@ -108,15 +163,33 @@ const StoryPeer = ({ api, t, peer, small, onOpen }) =>
     ]
   );
 
-/** The strip, and the viewer a click opens. Nothing when no one has stories. */
+/** The viewer a click on a ring or a story opens (also from the chat list). */
+export const StoryViewerHost = ({ api, stories }) =>
+  stories.viewing
+    ? createPortal(
+        el(StoryViewer, {
+          api,
+          peers: stories.viewing.peers,
+          start: stories.viewing.start,
+          onRead: stories.read,
+          onHide: stories.hide,
+          onClose: stories.close,
+        }),
+        globalThis.document.body
+      )
+    : null;
+
+/** The strip. Nothing when no one has stories. */
 export const StoriesStrip = ({ api, stories, hidden = false }) => {
   const t = useT();
   const [open, setOpen] = usePref('metaSovereignStoriesOpen', true);
-  const [viewing, setViewing] = useState(null);
-  const { peers, read } = stories;
+  const [showHidden, setShowHidden] = useState(false);
+  const { peers } = stories;
   if (hidden || peers.length === 0) {
     return null;
   }
+  const away = hiddenPeers(peers);
+  const listed = showHidden && away.length > 0 ? away : visiblePeers(peers);
   const label = t(open ? 'chat.stories.collapse' : 'chat.stories.expand');
   return el(
     'div',
@@ -142,37 +215,36 @@ export const StoriesStrip = ({ api, stories, hidden = false }) => {
           el(Icon, { key: 'i', name: 'back', size: 14 }),
         ]
       ),
+      away.length > 0 || showHidden
+        ? el(
+            'button',
+            {
+              key: 'h',
+              type: 'button',
+              className: 'ghost stories-toggle stories-hidden-toggle',
+              'data-action': 'stories-hidden',
+              'aria-pressed': showHidden ? 'true' : 'false',
+              onClick: () => setShowHidden(!showHidden),
+            },
+            showHidden
+              ? t('chat.stories.backToStrip')
+              : t('chat.stories.hiddenList', { count: away.length })
+          )
+        : null,
       el(
         'div',
         { key: 'l', className: 'stories-list' },
-        peers.map((peer) =>
+        listed.map((peer) =>
           el(StoryPeer, {
             key: peer.peer,
             api,
             t,
             peer,
             small: !open,
-            onOpen: (id) =>
-              setViewing({
-                peers: peers.map((p) => ({ ...p })),
-                start: peers.findIndex((p) => p.peer === id),
-              }),
+            onOpen: stories.open,
           })
         )
       ),
-      viewing
-        ? createPortal(
-            el(StoryViewer, {
-              key: 'v',
-              api,
-              peers: viewing.peers,
-              start: viewing.start,
-              onRead: read,
-              onClose: () => setViewing(null),
-            }),
-            globalThis.document.body
-          )
-        : null,
     ]
   );
 };

@@ -136,7 +136,13 @@ await page.route('**/api/telegram/history', (route) =>
 );
 const reads = [];
 await page.route('**/api/telegram/stories', (route) =>
-  fulfil(route, { ok: true, peers: PEERS, state: 'S', more: false })
+  fulfil(route, {
+    ok: true,
+    // The hidden list (R-Y148) is empty here.
+    peers: route.request().postDataJSON()?.hidden ? [] : PEERS,
+    state: 'S',
+    more: false,
+  })
 );
 await page.route('**/api/telegram/stories-peer', (route) => {
   const { chat } = route.request().postDataJSON();

@@ -94,3 +94,45 @@ export const agoParts = (nowSec, dateSec) => {
   }
   return { unit: 'days', count: Math.floor(seconds / 86_400) };
 };
+
+// ---- Story interactions (R-Y148; learned, never copied) ----
+
+/** The reactions the small picker offers; the first is the quick like. */
+export const STORY_REACTIONS = ['❤', '👍', '🔥', '🎉', '😍', '😢', '😁', '👎'];
+
+/** The quick like. */
+export const LIKE = STORY_REACTIONS[0];
+
+/**
+ * The reaction a press leaves: pressing the one already there takes it
+ * back (`''`, sent as ReactionEmpty), else the pressed one.
+ */
+export const reactionAfter = (current, pressed) =>
+  current === pressed ? '' : pressed;
+
+/** The peers shown in the strip (not hidden) and in the hidden list. */
+export const visiblePeers = (peers) => peers.filter((p) => !p.hidden);
+export const hiddenPeers = (peers) => peers.filter((p) => p.hidden);
+
+/** A peer moved to (or from) the hidden list. */
+export const setHidden = (peers, peerId, hidden) =>
+  orderStrip(peers.map((p) => (p.peer === peerId ? { ...p, hidden } : p)));
+
+/**
+ * The ring a chat row gets: 'unread' while some stories are unseen,
+ * 'seen' when there are only seen ones, '' for none (hidden stories and
+ * one's own have none).
+ */
+export const ringOf = (peers, peerId) => {
+  const peer = peers.find((p) => p.peer === peerId);
+  if (!peer || peer.hidden || peer.self) {
+    return '';
+  }
+  return hasUnread(peer) ? 'unread' : 'seen';
+};
+
+/** Own stories' viewers shown after a page: the new ones joined, once each. */
+export const joinViews = (held, page) => {
+  const seen = new Set(held.map((v) => v.user));
+  return [...held, ...page.filter((v) => !seen.has(v.user))];
+};

@@ -140,14 +140,16 @@ const ChatBadges = ({ chat, t }) => {
   ];
 };
 
-// `storyUnread`: the peer has stories not yet seen (a ring, R-Y140).
+// `story`: 'unread' or 'seen' when the peer has stories (a ring, R-Y140);
+// a click on the avatar then opens them (`onStory(peer)`, R-Y148).
 export const ChatItem = ({
   api,
   chat,
   active,
   onSelect,
   onMenu,
-  storyUnread = false,
+  story = '',
+  onStory,
 }) => {
   const t = useT();
   const { chatTime } = useDates();
@@ -156,7 +158,7 @@ export const ChatItem = ({
     'button',
     {
       type: 'button',
-      className: `chat-item${active ? ' active' : ''}${storyUnread ? ' has-story' : ''}`,
+      className: `chat-item${active ? ' active' : ''}${story ? ` has-story is-${story}` : ''}`,
       'data-chat': chat.key,
       'aria-current': active ? 'true' : undefined,
       onClick: () => onSelect(chat.key),
@@ -175,7 +177,24 @@ export const ChatItem = ({
         : undefined,
     },
     [
-      el(ChatAvatar, { key: 'a', api, chat }),
+      story
+        ? el(
+            'span',
+            {
+              key: 'a',
+              className: 'chat-item-ring',
+              role: 'link',
+              'data-story-ring': chat.chat,
+              'data-story-state': story,
+              title: t('chat.stories.title'),
+              onClick: (e) => {
+                e.stopPropagation();
+                onStory?.(String(chat.chat));
+              },
+            },
+            el(ChatAvatar, { api, chat })
+          )
+        : el(ChatAvatar, { key: 'a', api, chat }),
       el('span', { key: 'b', className: 'chat-item-body' }, [
         el('span', { key: 'top', className: 'chat-item-top' }, [
           el('span', { key: 'n', className: 'chat-item-name' }, [

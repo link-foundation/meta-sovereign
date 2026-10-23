@@ -188,13 +188,24 @@
  *                       -> { ok, messages, complete } what was saved from
  *                       one chat, oldest first
  *   POST /api/telegram/saved-delete {peer} -> { ok } all saved from it
- *   POST /api/telegram/stories {state?} -> { ok, peers, state, more } the
- *                       strip: who has stories, a page at a time (R-Y140)
+ *   POST /api/telegram/stories {state?, hidden?} -> { ok, peers, state,
+ *                       more } the strip: who has stories, a page at a time
+ *                       (R-Y140); `hidden: true` the hidden ones (R-Y148)
  *   POST /api/telegram/stories-peer {chat} -> { ok, peer, stories } one
  *                       peer's stories to show
  *   POST /api/telegram/stories-read {chat, maxId} -> { ok } seen up to maxId
  *   GET  /api/telegram/story?peer=&id= -> a story's picture or video (by
  *                       range), downloaded once
+ *   POST /api/telegram/story-reply {chat, id, text} -> { ok } a private
+ *                       reply to a story (R-Y148)
+ *   POST /api/telegram/story-react {chat, id, reaction} -> { ok, reaction }
+ *                       an emoji reaction; '' takes it back
+ *   POST /api/telegram/story-views {chat, id, offset?} -> { ok, count,
+ *                       viewsCount, reactionsCount, views, next } the
+ *                       viewers of one's own story, 50 a page
+ *   POST /api/telegram/story-delete {chat, id} -> { ok } one's own story
+ *   POST /api/telegram/stories-hide {chat, hidden} -> { ok, hidden } a
+ *                       peer's stories to or from the hidden list
  *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
  *                                         about, username, phone, hasPhoto,
  *                                         aboutMax } the user's own profile
@@ -302,6 +313,7 @@ import { TTL_POSTS } from './routes-telegram-ttl.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
 import { validSendAs } from '../sources/telegram-send-as-client.js';
 import { STORIES_POSTS } from './routes-telegram-stories.js';
+import { STORY_ACTION_POSTS } from './routes-telegram-story-actions.js';
 import { LINK_PREVIEW_POSTS } from './routes-telegram-link-preview.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
@@ -1019,6 +1031,7 @@ const POSTS = {
   ...TTL_POSTS,
   ...SEND_AS_POSTS,
   ...STORIES_POSTS,
+  ...STORY_ACTION_POSTS,
   ...LINK_PREVIEW_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(

@@ -3,7 +3,8 @@
 // is, the picture (5 seconds) or the video (to its end), the caption with
 // its formatting. The right half goes on, the left half back, past the
 // last story the next peer's, past the last peer it closes; Escape or ×
-// closes, Space pauses. Media areas, reactions and replies are not here.
+// closes, Space pauses. Replies, reactions, views, deleting and hiding
+// (R-Y148) are in ./story-actions.js. Media areas are not here.
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
@@ -11,6 +12,14 @@ import { Icon } from './icons.js';
 import { MessageText } from './message-text.js';
 import { mediaSrc } from './media-src.js';
 import { PeerAvatar } from './peer-avatar.js';
+import {
+  ConfirmDelete,
+  OwnFoot,
+  ReactionButtons,
+  ReplyBox,
+  StoryMenu,
+  ViewersPanel,
+} from './story-actions.js';
 import {
   PHOTO_MS,
   agoParts,
@@ -52,7 +61,7 @@ const useStoryLists = (api, peers, at) => {
         );
     }
   }, [api, peers, at]);
-  return lists;
+  return [lists, setLists];
 };
 
 // The address of a story's picture or video.
@@ -167,6 +176,22 @@ const Head = ({ api, t, peer, story, ctl }) =>
           el(Icon, { name: ctl.muted ? 'mute' : 'volume', size: 18 })
         )
       : null,
+    peer.self
+      ? null
+      : el(
+          'button',
+          {
+            key: 'o',
+            type: 'button',
+            className: 'ghost icon-btn story-btn',
+            'data-action': 'story-menu',
+            'aria-haspopup': 'menu',
+            'aria-label': t('chat.stories.menu'),
+            title: t('chat.stories.menu'),
+            onClick: ctl.toggleMenu,
+          },
+          el(Icon, { name: 'more', size: 18 })
+        ),
     el(
       'button',
       {
@@ -272,7 +297,7 @@ const stateText = (t, entry, story) => {
 
 // The story shown, and what moves on: `go('next' | 'previous')`.
 const useShown = (api, peers, pos, setPos) => {
-  const lists = useStoryLists(api, peers, pos.peerIndex);
+  const [lists, setLists] = useStoryLists(api, peers, pos.peerIndex);
   const peer = peers[pos.peerIndex];
   const entry = lists[peer.peer];
   const ready = entry?.status === 'ok';
@@ -303,12 +328,23 @@ const useShown = (api, peers, pos, setPos) => {
     }
     return Boolean(to);
   };
-  return { peer, entry, story, go };
+  // A story deleted: it leaves the list (and the bars).
+  const drop = (peerId, id) =>
+    setLists((held) => ({
+      ...held,
+      [peerId]: {
+        ...held[peerId],
+        stories: held[peerId].stories.filter((x) => x.id !== id),
+      },
+    }));
+  return { peer, entry, story, go, drop };
 };
 
 // Escape closes; the arrows and the halves of the picture go on and back;
 // Space pauses.
 const KEY_STEPS = { ArrowRight: 'next', ArrowLeft: 'previous' };
+
+const typing = (e) => /^(INPUT|TEXTAREA)$/.test(e.target?.tagName ?? '');
 
 const useViewerKeys = (actions) => {
   const latest = useRef(actions);
@@ -318,7 +354,9 @@ const useViewerKeys = (actions) => {
       const now = latest.current;
       if (e.key === 'Escape') {
         e.stopPropagation();
-        now.onClose();
+        now.escape();
+      } else if (typing(e)) {
+        return;
       } else if (KEY_STEPS[e.key]) {
         now.step(KEY_STEPS[e.key]);
       } else if (e.key === ' ') {
@@ -347,13 +385,207 @@ const Caption = ({ api, story }) =>
       )
     : null;
 
-export const StoryViewer = ({ api, peers, start, onClose, onRead }) => {
+// What the viewer holds besides the story (R-Y148): the reply box's
+// focus, the one open panel (menu, picker, viewers, confirm), reactions
+// sent and peers hidden here.
+const useExtras = () => {
+  const [focus, setFocus] = useState(false);
+  const [overlay, setOverlay] = useState(null);
+  const [reacts, setReacts] = useState({});
+  const [hiddenNow, setHiddenNow] = useState({});
+  return {
+    focus,
+    setFocus,
+    overlay,
+    setOverlay,
+    reacts,
+    react: (key, reaction) =>
+      setReacts((held) => ({ ...held, [key]: reaction })),
+    hiddenNow,
+    setHiddenNow: (id, hidden) =>
+      setHiddenNow((held) => ({ ...held, [id]: hidden })),
+  };
+};
+
+// The bottom of the frame: the reply box and the heart on someone
+// else's story, the views on one's own.
+const Foot = ({ api, peer, story, x }) => {
+  const key = `${peer.peer}:${story.id}`;
+  if (peer.self || story.mine) {
+    return el(OwnFoot, {
+      story,
+      onViewers: () => x.setOverlay('viewers'),
+      onDelete: () => x.setOverlay('confirm'),
+    });
+  }
+  return el('div', { className: 'story-foot' }, [
+    // Channels' stories take no private reply.
+    peer.peer.startsWith('-')
+      ? el('span', { key: 's', className: 'story-head-space' })
+      : el(ReplyBox, { key: 'r', api, peer, story, onFocus: x.setFocus }),
+    el(ReactionButtons, {
+      key: 'x',
+      api,
+      peer,
+      story,
+      current: x.reacts[key] ?? story.reaction ?? '',
+      onReacted: (reaction) => x.react(key, reaction),
+      picker: x.overlay === 'picker',
+      onPicker: (on) => x.setOverlay(on ? 'picker' : null),
+    }),
+  ]);
+};
+
+// The panels over the story: the menu, the viewers, the delete question.
+const Overlays = ({ api, peer, story, x, deleteStory, toggleHide }) => {
+  if (x.overlay === 'menu') {
+    return el(StoryMenu, {
+      hidden: x.hiddenNow[peer.peer] ?? Boolean(peer.hidden),
+      onToggle: toggleHide,
+    });
+  }
+  if (story && x.overlay === 'viewers') {
+    return el(ViewersPanel, {
+      api,
+      peer,
+      story,
+      onClose: () => x.setOverlay(null),
+    });
+  }
+  return story && x.overlay === 'confirm'
+    ? el(ConfirmDelete, {
+        onYes: deleteStory,
+        onNo: () => x.setOverlay(null),
+      })
+    : null;
+};
+
+// Deleting one's story, and hiding a peer's: Telegram first, then the view.
+const useStoryEdits = ({ api, onHide, shown, x }) => {
+  const deleteStory = async () => {
+    const { peer, entry, story, pos, setPos, step, drop } = shown;
+    const answer = await Promise.resolve(
+      api?.telegramStoryDelete?.({ chat: peer.peer, id: story.id })
+    ).catch(() => null);
+    x.setOverlay(null);
+    if (!answer?.ok) {
+      return;
+    }
+    const left = (entry?.stories?.length ?? 1) - 1;
+    if (left <= 0) {
+      step('next');
+    } else {
+      setPos({
+        peerIndex: pos.peerIndex,
+        storyIndex: Math.min(pos.storyIndex, left - 1),
+      });
+    }
+    drop(peer.peer, story.id);
+  };
+  const toggleHide = async () => {
+    const { peer } = shown;
+    const next = !(x.hiddenNow[peer.peer] ?? Boolean(peer.hidden));
+    x.setOverlay(null);
+    if (await onHide?.(peer.peer, next)) {
+      x.setHiddenNow(peer.peer, next);
+    }
+  };
+  return { deleteStory, toggleHide };
+};
+
+// The clock of the story shown, told as seen once it is.
+const usePlayback = ({ story, key, running, step, seen }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [progress, setProgress] = useClock({
+    key,
+    ms: pictureMs(story),
+    running: Boolean(story) && loaded && running,
+    onEnd: () => step('next'),
+  });
+  // A story with no picture has nothing to wait for.
+  useEffect(() => setLoaded(story?.media?.kind === 'none'), [key]);
+  useEffect(() => {
+    if (story) {
+      seen();
+    }
+  }, [key]);
+  return [progress, setProgress, setLoaded];
+};
+
+// Escape: first the panel or the reply box in use, then the viewer.
+const escapeStep = (x, onClose) => {
+  if (x.overlay !== null) {
+    x.setOverlay(null);
+  } else if (x.focus) {
+    document.activeElement?.blur?.();
+  } else {
+    onClose();
+  }
+};
+
+// The buttons of the head.
+const controls = ({ paused, muted, setPaused, setMuted, x, onClose }) => ({
+  paused,
+  muted,
+  togglePause: (e) => {
+    e.currentTarget.blur();
+    setPaused((p) => !p);
+  },
+  toggleMute: (e) => {
+    e.currentTarget.blur();
+    setMuted((m) => !m);
+  },
+  toggleMenu: () => x.setOverlay(x.overlay === 'menu' ? null : 'menu'),
+  forceMute: () => setMuted(true),
+  close: onClose,
+});
+
+// The picture or video, or the words that stand for it; the halves
+// that go on and back.
+const Stage = ({ t, entry, story, url, ctl, step, setProgress, setLoaded }) => {
+  const text = stateText(t, entry, story);
+  return el(React.Fragment, null, [
+    story
+      ? el(Media, {
+          key: 'm',
+          story,
+          url,
+          ctl,
+          setProgress,
+          onEnd: () => step('next'),
+          onReady: () => setLoaded(true),
+          onFail: () => setLoaded(true),
+        })
+      : null,
+    text
+      ? el('p', { key: 'e', className: 'story-text', role: 'status' }, text)
+      : null,
+  ]);
+};
+
+const Zones = ({ t, step }) =>
+  el(React.Fragment, null, [
+    el(Zone, {
+      key: 'l',
+      side: 'left',
+      label: t('chat.stories.prev'),
+      onClick: () => step('previous'),
+    }),
+    el(Zone, {
+      key: 'r',
+      side: 'right',
+      label: t('chat.stories.next'),
+      onClick: () => step('next'),
+    }),
+  ]);
+
+export const StoryViewer = ({ api, peers, start, onClose, onRead, onHide }) => {
   const t = useT();
   const [pos, setPos] = useState({ peerIndex: start, storyIndex: null });
   const [paused, setPaused] = useState(false);
   const [muted, setMuted] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const { peer, entry, story, go } = useShown(api, peers, pos, setPos);
+  const x = useExtras();
+  const { peer, entry, story, go, drop } = useShown(api, peers, pos, setPos);
   const url = useStoryUrl(api, peer.peer, story);
   const key = story ? `${peer.peer}:${story.id}` : '';
   const step = (direction) => {
@@ -361,35 +593,28 @@ export const StoryViewer = ({ api, peers, start, onClose, onRead }) => {
       onClose();
     }
   };
-  const [progress, setProgress] = useClock({
+  // Playback waits while the reply box is used or a panel is open.
+  const held = x.focus || x.overlay !== null;
+  const [progress, setProgress, setLoaded] = usePlayback({
+    story,
     key,
-    ms: pictureMs(story),
-    running: Boolean(story) && loaded && !paused,
-    onEnd: () => step('next'),
+    running: !paused && !held,
+    step,
+    seen: () => onRead(peer.peer, story.id),
   });
-  // A story with no picture has nothing to wait for.
-  useEffect(() => setLoaded(story?.media?.kind === 'none'), [key]);
-  useEffect(() => {
-    if (story) {
-      onRead(peer.peer, story.id);
-    }
-  }, [key]);
-  const ctl = {
-    paused,
-    muted,
-    togglePause: (e) => {
-      e.currentTarget.blur();
-      setPaused((p) => !p);
-    },
-    toggleMute: (e) => {
-      e.currentTarget.blur();
-      setMuted((m) => !m);
-    },
-    forceMute: () => setMuted(true),
-    close: onClose,
-  };
-  useViewerKeys({ step, onClose, togglePause: () => setPaused((p) => !p) });
-  const text = stateText(t, entry, story);
+  const edits = useStoryEdits({
+    api,
+    onHide,
+    x,
+    shown: { peer, entry, story, pos, setPos, step, drop },
+  });
+  const ctl = controls({ paused, muted, setPaused, setMuted, x, onClose });
+  const playing = { ...ctl, paused: paused || held };
+  useViewerKeys({
+    step,
+    escape: () => escapeStep(x, onClose),
+    togglePause: () => setPaused((p) => !p),
+  });
   return el(
     'div',
     {
@@ -399,9 +624,9 @@ export const StoryViewer = ({ api, peers, start, onClose, onRead }) => {
       'aria-label': peer.name,
       'data-story-viewer': peer.peer,
       'data-story': story?.id ?? '',
-      'data-paused': paused ? 'true' : 'false',
+      'data-paused': paused || held ? 'true' : 'false',
     },
-    el('div', { className: 'story-frame' }, [
+    el('div', { className: `story-frame${story ? ' has-foot' : ''}` }, [
       el(Bars, {
         key: 'b',
         count: entry?.stories?.length ?? 0,
@@ -409,34 +634,21 @@ export const StoryViewer = ({ api, peers, start, onClose, onRead }) => {
         progress,
       }),
       el(Head, { key: 'h', api, t, peer, story, ctl }),
-      story
-        ? el(Media, {
-            key: 'm',
-            story,
-            url,
-            ctl,
-            setProgress,
-            onEnd: () => step('next'),
-            onReady: () => setLoaded(true),
-            onFail: () => setLoaded(true),
-          })
-        : null,
-      text
-        ? el('p', { key: 'e', className: 'story-text', role: 'status' }, text)
-        : null,
-      el(Zone, {
-        key: 'l',
-        side: 'left',
-        label: t('chat.stories.prev'),
-        onClick: () => step('previous'),
+      el(Stage, {
+        key: 's',
+        t,
+        entry,
+        story,
+        url,
+        ctl: playing,
+        step,
+        setProgress,
+        setLoaded,
       }),
-      el(Zone, {
-        key: 'r',
-        side: 'right',
-        label: t('chat.stories.next'),
-        onClick: () => step('next'),
-      }),
+      el(Zones, { key: 'z', t, step }),
       el(Caption, { key: 'c', api, story }),
+      story ? el(Foot, { key: 'f', api, peer, story, x }) : null,
+      el(Overlays, { key: 'o', api, peer, story, x, ...edits }),
     ])
   );
 };

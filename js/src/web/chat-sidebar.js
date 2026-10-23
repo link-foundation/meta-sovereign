@@ -15,7 +15,7 @@ import { MyProfile } from './chat-profile.js';
 import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
 import { GlobalResults, useGlobalSearch } from './chat-global.js';
-import { StoriesStrip, useStories } from './stories.js';
+import { StoriesStrip, StoryViewerHost, useStories } from './stories.js';
 
 const el = React.createElement;
 
@@ -263,7 +263,8 @@ export const Sidebar = ({ state, api }) => {
       key: chat.key,
       api,
       chat,
-      storyUnread: stories.rings(chat),
+      story: stories.rings(chat),
+      onStory: stories.open,
       active: chat.key === state.current?.key,
       onSelect: state.select,
       onMenu: listMenu.onMenu,
@@ -306,6 +307,7 @@ export const Sidebar = ({ state, api }) => {
         stories,
         hidden: storiesHidden(state),
       }),
+      el(StoryViewerHost, { key: 'viewer', api, stories }),
     ]),
     el(
       'nav',

@@ -2,7 +2,8 @@
  * Viewing Telegram stories, as Telegram Desktop does (R-Y140; learned,
  * never copied). Read only — posting a story is not here:
  * - `stories({ state })` — the strip above the chat list
- *   (stories.getAllStories, not hidden): the first call has no `state`;
+ *   (stories.getAllStories, not hidden; `hidden: true` the hidden ones,
+ *   R-Y148): the first call has no `state`;
  *   a call with the `state` an answer gave asks for the next page
  *   (`next`). → `{ ok, peers: [{ peer, name, self, count, lastId,
  *   maxReadId, unread }], state, more }` (`notModified` when Telegram
@@ -10,7 +11,8 @@
  * - `storiesPeer({ chat })` — one peer's stories to show
  *   (stories.getPeerStories; the skipped and `min` ones read again with
  *   stories.getStoriesByID) → `{ ok, peer, stories: [{ id, date, expire,
- *   caption, entities, media: { kind, duration, w, h }, mine }] }`;
+ *   caption, entities, media: { kind, duration, w, h }, mine, views,
+ *   reactions, reaction }] }`;
  * - `storiesRead({ chat, maxId })` — they were seen up to `maxId`
  *   (stories.readStories);
  * - `storyMedia({ chat, id })` — a story's picture (the largest size) or
@@ -126,6 +128,12 @@ export const shapeStory = (item) => {
     entities: (item.entities ?? []).map(shapeEntity),
     media: mediaOf(item.media),
     mine: Boolean(item.out),
+    views: Number(item.views?.viewsCount ?? 0),
+    reactions: Number(item.views?.reactionsCount ?? 0),
+    reaction:
+      item.sentReaction?.className === 'ReactionEmoji'
+        ? String(item.sentReaction.emoticon)
+        : '',
   };
 };
 
@@ -158,11 +166,12 @@ const allStories = (env, userClient) => async (request) => {
   ) {
     return badRequest;
   }
+  const hidden = request?.hidden === true;
   return connected(env, userClient, failure, async (c) => {
     const answer = await runIn(env, 'stories', () =>
       c.client.invoke(
         new c.Api.stories.GetAllStories({
-          hidden: false,
+          hidden,
           ...(state ? { next: true, state } : {}),
         })
       )

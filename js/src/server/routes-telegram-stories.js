@@ -10,12 +10,14 @@ export const STORIES_POSTS = {
   stories: async (account, body) =>
     (body.state === undefined ||
       (typeof body.state === 'string' && STATE.test(body.state))) &&
+    (body.hidden === undefined || typeof body.hidden === 'boolean') &&
     typeof account.stories === 'function'
       ? [
           200,
-          await account.stories(
-            body.state === undefined ? {} : { state: body.state }
-          ),
+          await account.stories({
+            ...(body.state === undefined ? {} : { state: body.state }),
+            ...(body.hidden ? { hidden: true } : {}),
+          }),
         ]
       : bad('a page state or nothing required'),
   'stories-peer': async (account, body) =>

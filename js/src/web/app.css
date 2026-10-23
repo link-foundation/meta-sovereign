@@ -6822,7 +6822,18 @@ button[aria-busy='true']::before {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.chat-item.has-story > .avatar {
+.chat-item-ring {
+  display: inline-flex;
+  flex: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.chat-item.has-story .chat-item-ring > .avatar {
+  box-shadow:
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--border);
+}
+.chat-item.has-story.is-unread .chat-item-ring > .avatar {
   box-shadow:
     0 0 0 2px var(--bg),
     0 0 0 4px #34c759;
@@ -7104,4 +7115,182 @@ span.bubble-effect {
 .composer-edit-bar > svg {
   flex: none;
   color: var(--accent);
+}
+/* Story interactions (R-Y148): the reply box and the reactions under a
+   story, the views of one's own, the menu, the delete question. */
+.story-frame.has-foot .story-caption {
+  inset: auto 0 3.4rem;
+}
+.story-foot,
+.story-own {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.55);
+}
+.story-reply {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.story-reply-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font: inherit;
+}
+.story-reply-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.story-note {
+  position: absolute;
+  inset: auto 0 100%;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+}
+.story-react {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.story-heart.is-on {
+  color: #ff4d6d;
+}
+.story-react-emoji {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.story-picker {
+  position: absolute;
+  inset: auto 0 100% auto;
+  display: flex;
+  gap: 0.1rem;
+  margin-bottom: 0.4rem;
+  padding: 0.3rem;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+.story-picker-item {
+  padding: 0.2rem 0.3rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.story-picker-item.is-on {
+  background: var(--bg-active);
+}
+.story-views,
+.story-more {
+  color: #fff;
+}
+.story-views-reactions {
+  color: #fff;
+  font-size: 0.9rem;
+}
+.story-menu {
+  position: absolute;
+  inset: 3.4rem 0.5rem auto auto;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  color: var(--text);
+}
+.story-viewers {
+  position: absolute;
+  inset: 20% 0 0;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--bg-elev);
+  color: var(--text);
+}
+.story-viewers-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.story-viewers-head .story-btn {
+  color: var(--text);
+}
+.story-viewers-list {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.story-viewers-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.8rem;
+}
+.story-viewers .story-viewer-avatar {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+.story-viewer-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.story-viewer-date {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.story-viewer-reaction {
+  font-size: 1.2rem;
+}
+.story-viewers .story-note {
+  position: static;
+  color: var(--text-muted);
+  background: none;
+}
+.story-viewers .story-more {
+  color: var(--accent);
+}
+.story-confirm {
+  position: absolute;
+  inset: 50% 1rem auto;
+  z-index: 8;
+  transform: translateY(-50%);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elev);
+  color: var(--text);
+}
+.story-confirm-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.stories-hidden-toggle {
+  margin-inline-start: 0.5rem;
 }

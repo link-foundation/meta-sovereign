@@ -993,6 +993,13 @@ export const api = {
   telegramStories: (body = {}) => telegramPost('stories', body),
   telegramStoriesPeer: (body = {}) => telegramPost('stories-peer', body),
   telegramStoriesRead: (body = {}) => telegramPost('stories-read', body),
+  // Story interactions (R-Y148): a private reply, a reaction, the viewers
+  // of one's own story, deleting it, and hiding a peer's stories.
+  telegramStoryReply: (body = {}) => telegramPost('story-reply', body),
+  telegramStoryReact: (body = {}) => telegramPost('story-react', body),
+  telegramStoryViews: (body = {}) => telegramPost('story-views', body),
+  telegramStoryDelete: (body = {}) => telegramPost('story-delete', body),
+  telegramStoriesHide: (body = {}) => telegramPost('stories-hide', body),
   telegramStoryUrl: async ({ peer, id } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !peer || !id) {
