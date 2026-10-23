@@ -7,6 +7,7 @@
 // `MessageText` draws.
 
 import React, { useState } from 'react';
+import { CustomEmoji } from './custom-emoji.js';
 
 const el = React.createElement;
 
@@ -50,6 +51,9 @@ const entitiesOf = (text, entities) => {
       url: e?.url ?? null,
       language: e?.language ?? null,
       collapsed: Boolean(e?.collapsed),
+      documentId: /^\d{1,20}$/.test(String(e?.documentId))
+        ? String(e.documentId)
+        : null,
     }))
     .filter(
       (e) =>
@@ -149,11 +153,31 @@ const TAGS = {
   'mention-name': 'span',
 };
 
-const drawNode = (node, key) => {
+// Custom emoji and nothing else, 1 to 3 of them: shown big.
+const onlyCustomEmoji = (tree) => {
+  const emoji = tree.filter((n) => typeof n !== 'string');
+  return (
+    emoji.length >= 1 &&
+    emoji.length <= 3 &&
+    emoji.every((n) => n.kind === 'emoji' && n.documentId) &&
+    tree.every((n) => typeof n !== 'string' || n.trim() === '')
+  );
+};
+
+const drawNode = (node, key, ctx) => {
   if (typeof node === 'string') {
     return node;
   }
-  const children = node.children.map(drawNode);
+  if (node.kind === 'emoji' && node.documentId && ctx.api) {
+    return el(CustomEmoji, {
+      key,
+      id: node.documentId,
+      text: node.text,
+      api: ctx.api,
+      big: ctx.big,
+    });
+  }
+  const children = node.children.map((child, i) => drawNode(child, i, ctx));
   if (node.kind === 'pre') {
     return el(
       'pre',
@@ -189,6 +213,13 @@ const drawNode = (node, key) => {
   );
 };
 
-/** The message text, formatted. */
-export const MessageText = ({ text, entities }) =>
-  textTree(text, entities).map(drawNode);
+/**
+ * The message text, formatted. `api` (a Telegram user account's page
+ * api) lets custom emoji draw as their pictures; without it they stay
+ * the emoji the message carries.
+ */
+export const MessageText = ({ text, entities, api = null }) => {
+  const tree = textTree(text, entities);
+  const ctx = { api, big: Boolean(api) && onlyCustomEmoji(tree) };
+  return tree.map((node, i) => drawNode(node, i, ctx));
+};

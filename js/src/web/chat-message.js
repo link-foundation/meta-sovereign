@@ -1018,6 +1018,9 @@ const BubbleContent = ({
           key: 'x',
           text: parts.text,
           entities: parts.entities,
+          // Custom emoji are Telegram's (a user account's; the server
+          // answers none to a bot).
+          api: message.source === 'telegram' ? api : null,
         }),
         inlineTime(parts)
           ? el(BubbleFooter, {

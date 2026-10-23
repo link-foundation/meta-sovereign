@@ -111,7 +111,9 @@
     "test:e2e:sticker-menu": "node js/tests/e2e-sticker-menu-browser.mjs",
     "test:e2e:sticker-menu:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-menu-browser.mjs",
     "test:e2e:emoji-keywords": "node js/tests/e2e-emoji-keywords-browser.mjs",
-    "test:e2e:emoji-keywords:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-keywords-browser.mjs"
+    "test:e2e:emoji-keywords:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-keywords-browser.mjs",
+    "test:e2e:custom-emoji": "node js/tests/e2e-custom-emoji-browser.mjs",
+    "test:e2e:custom-emoji:webkit": "E2E_BROWSER=webkit node js/tests/e2e-custom-emoji-browser.mjs"
   },
   "keywords": [
     "personal-crm",

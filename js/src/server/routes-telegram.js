@@ -89,6 +89,10 @@
  *   GET  /api/telegram/media?chat=&id=&size=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
+ *   GET  /api/telegram/custom-emoji?id=&full=1
+ *                                      -> a custom emoji's picture, or
+ *                                         (full) its animation or video
+ *                                         (R-Y120)
  *   GET  /api/telegram/file?chat=&id=  -> a message's video, voice, audio,
  *                                         GIF or sticker (up to 64 MB), by
  *                                         byte range for players to seek
@@ -816,6 +820,36 @@ const handleSticker = async (account, req, res, ctx) => {
   return true;
 };
 
+// GET /api/telegram/custom-emoji?id=&full=1 -> a custom emoji's picture,
+// or (full) its animation or video; the id only digits (R-Y120).
+const handleCustomEmoji = async (account, req, res, ctx) => {
+  if (!fromApp(req, ctx?.allowOrigins)) {
+    return refuse(req, res, ctx, 'custom-emoji', 'emoji load only in the app');
+  }
+  if (typeof account.customEmojiPicture !== 'function') {
+    return json(res, 501, { error: 'custom emoji not available' }) ?? true;
+  }
+  const query = new URL(req.url, 'http://local').searchParams;
+  if (!/^\d{1,20}$/.test(query.get('id') ?? '')) {
+    return json(res, 400, { error: 'bad id' }) ?? true;
+  }
+  const result = await account.customEmojiPicture({
+    id: query.get('id'),
+    full: query.get('full') === '1',
+  });
+  if (!result?.buffer) {
+    return json(res, 404, { error: 'no picture' }) ?? true;
+  }
+  res.writeHead(200, {
+    'content-type': result.mimeType || 'application/octet-stream',
+    'content-length': result.buffer.length,
+    'cache-control': 'private, max-age=31536000, immutable',
+    'x-content-type-options': 'nosniff',
+  });
+  res.end(result.buffer);
+  return true;
+};
+
 // `bytes=a-b` of a file of `size` bytes: [start, end], or null.
 export const byteRange = (header, size) => {
   const match = /^bytes=(\d*)-(\d*)$/.exec(String(header ?? '').trim());
@@ -978,6 +1012,7 @@ const handleUnreadMarks = async (account, req, res) => {
 const GETS = {
   media: handleMedia,
   sticker: handleSticker,
+  'custom-emoji': handleCustomEmoji,
   file: handleFile,
   avatar: handleAvatar,
   'chat-info': handleChatInfo,

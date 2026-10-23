@@ -5550,3 +5550,41 @@ button[aria-busy='true']::before {
   opacity: 0.6;
   cursor: default;
 }
+
+/* A custom emoji in a message's text (R-Y120): its picture inline at the
+   text's size, the fallback emoji hidden (but still copied) once drawn. */
+.msg-custom-emoji {
+  position: relative;
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  vertical-align: -0.3em;
+  line-height: 1.25em;
+  text-align: center;
+}
+.msg-custom-emoji.big {
+  width: 3.5em;
+  height: 3.5em;
+  line-height: 3.5em;
+  margin: 0.1em;
+}
+.msg-custom-emoji.big .msg-custom-emoji-text {
+  font-size: 3em;
+}
+.msg-custom-emoji.drawn .msg-custom-emoji-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.msg-custom-emoji-img,
+.msg-custom-emoji-anim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}

@@ -1045,6 +1045,16 @@ export const api = {
     return origin ? new URL(path, origin).toString() : path;
   },
 
+  // A custom emoji's picture (`full`: its animation or video) (R-Y120).
+  telegramCustomEmojiUrl: async ({ id, full = false } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !/^\d{1,20}$/.test(String(id ?? ''))) {
+      return null;
+    }
+    const path = `/api/telegram/custom-emoji?id=${id}${full ? '&full=1' : ''}`;
+    return origin ? new URL(path, origin).toString() : path;
+  },
+
   // A message's video, voice, audio, GIF or sticker, streamed by range.
   telegramFileUrl: async ({ chat, id } = {}) => {
     const { client, origin } = await ensure();

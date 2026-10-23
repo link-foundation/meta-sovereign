@@ -43,6 +43,7 @@ import { createChatRemoval } from './telegram-chat-removal.js';
 import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
 import { createStickers } from './telegram-stickers.js';
+import { createCustomEmoji } from './telegram-custom-emoji.js';
 import { createEmojiKeywords } from './telegram-emoji-keywords.js';
 import { createBotActions } from './telegram-bots.js';
 import { createSharedMedia } from './telegram-shared.js';
@@ -340,6 +341,7 @@ const chatActions = (env, context) => ({
   ...createScheduled(env, context),
   ...createFolders(env, context),
   ...createStickers(env, context),
+  ...createCustomEmoji(env, context),
   ...createEmojiKeywords(env, context),
   ...createBotActions(env, context),
   ...createSharedMedia(env, context),
