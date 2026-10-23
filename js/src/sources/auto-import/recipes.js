@@ -28,33 +28,7 @@ import {
   parseVkHtmlPage,
   peerFromArchivePath,
 } from '../vk-html-archive.js';
-
-// X archives ship data as `window.YTD.<name>.part0 = [ ... ]`.
-const ytdPayload = (text) => JSON.parse(text.replace(/^[^=[]*=\s*/, ''));
-
-const xToArchive = (name, text) => {
-  const items = ytdPayload(text);
-  if (/direct-messages/i.test(name)) {
-    const dms = [];
-    for (const item of items) {
-      const conversation = item.dmConversation ?? item;
-      for (const message of conversation.messages ?? []) {
-        const create = message.messageCreate;
-        if (create) {
-          dms.push({
-            id: create.id,
-            senderId: create.senderId,
-            conversationId: conversation.conversationId,
-            text: create.text,
-            createdAt: create.createdAt,
-          });
-        }
-      }
-    }
-    return { dms };
-  }
-  return { tweets: items };
-};
+import { xToArchive } from '../archive/x-dms.js';
 
 // LinkedIn headers are "CONVERSATION ID", "FROM", ...; the adapter
 // reads them as CONVERSATION_ID, FROM, ...
@@ -109,7 +83,9 @@ export const autoImportRecipes = {
   x: {
     url: 'https://x.com/settings/download_your_data',
     domains: ['x.com', 'twitter.com'],
-    files: /(^|\/)(tweets|direct-messages)(-part\d+)?\.js(on)?$/i,
+    // Direct messages (1:1 and group) and account.js, which names "me" (R-Z10).
+    files:
+      /(^|\/)(tweets|direct-messages(-group)?|account)(-part\d+)?\.js(on)?$/i,
     toArchive: xToArchive,
   },
   whatsapp: {
@@ -137,7 +113,8 @@ export const autoImportRecipes = {
   facebook: {
     url: 'https://accountscenter.facebook.com/info_and_permissions/dyi/',
     domains: ['facebook.com'],
-    files: /(message_\d+|messages_[^/]*|posts_[^/]*)\.json$/i,
+    // Messenger and Instagram threads, JSON or HTML (R-Z10).
+    files: /(message_\d+|messages_[^/]*|posts_[^/]*)\.(json|html)$/i,
   },
   linkedin: {
     url: 'https://www.linkedin.com/mypreferences/d/download-my-data',

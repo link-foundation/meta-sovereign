@@ -9,9 +9,9 @@ Telegram — эталонная сеть, её матрица ниже. У ка�
 | Telegram (эта страница) | ниже                                                           | —              | —        | —                 | —          |
 | VK                      | [features/vk.ru.md](./features/vk.ru.md)                       | 30             | 22       | 36                | 5          |
 | WhatsApp                | [features/whatsapp.ru.md](./features/whatsapp.ru.md)           | 6              | 26       | 28                | 8          |
-| Facebook + Instagram    | [features/facebook.ru.md](./features/facebook.ru.md)           | 5              | 35       | 29                | 1          |
-| X                       | [features/x.ru.md](./features/x.ru.md)                         | 7              | 22       | 24                | 5          |
-| LinkedIn                | [features/linkedin.ru.md](./features/linkedin.ru.md)           | 4              | 19       | 27                | 3          |
+| Facebook + Instagram    | [features/facebook.ru.md](./features/facebook.ru.md)           | 6              | 37       | 26                | 1          |
+| X                       | [features/x.ru.md](./features/x.ru.md)                         | 8              | 22       | 23                | 5          |
+| LinkedIn                | [features/linkedin.ru.md](./features/linkedin.ru.md)           | 6              | 17       | 27                | 3          |
 | Email                   | [features/email.ru.md](./features/email.ru.md)                 | 29             | 23       | 25                | 3          |
 | GitHub                  | [features/github.ru.md](./features/github.ru.md)               | 22             | 16       | 26                | 2          |
 | Upwork                  | [features/upwork.ru.md](./features/upwork.ru.md)               | 4              | 21       | 19                | 1          |

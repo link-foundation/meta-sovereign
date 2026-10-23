@@ -10,6 +10,9 @@
  */
 
 import { buildMessageLink } from './link.js';
+import { createArchiveContext } from './archive/context.js';
+import { linkedinDate, shortHash } from './archive/text.js';
+import { withLegacy } from './archive/legacy.js';
 import {
   authHeaders,
   contentText,
@@ -216,31 +219,79 @@ export const createLinkedInLive = ({
   return adapter;
 };
 
-const archiveRowToLink = (row) =>
-  buildMessageLink({
+const names = (text) =>
+  String(text ?? '')
+    .split(/[,;]\s*/)
+    .map((n) => n.trim())
+    .filter(Boolean);
+
+const attachmentUrls = (text) =>
+  String(text ?? '')
+    .split(/[\s,;]+/)
+    .filter((u) => /^https?:\/\//i.test(u))
+    .map((url) => ({ kind: 'file', url, name: url.split('/').pop() || null }));
+
+// Header spellings: "CONVERSATION ID", conversation_id, from, date…
+const ALIASES = { CONVERSATION: 'CONVERSATION_ID', ID: 'CONVERSATION_ID' };
+
+const normalizedRow = (row) => {
+  const out = {};
+  for (const [key, value] of Object.entries(row)) {
+    const name = key.trim().toUpperCase().replace(/\s+/g, '_');
+    out[ALIASES[name] ?? name] = value;
+  }
+  return out;
+};
+
+const peopleOf = (row, from) => {
+  const to = names(row.TO);
+  return {
+    chatName: row.CONVERSATION_TITLE || row.SUBJECT || null,
+    chatType: to.length > 1 ? 'group' : 'private',
+    participants: [...new Set([from, ...to])].filter(Boolean),
+  };
+};
+
+const archiveRowToLink = (raw, ctx) => {
+  const row = normalizedRow(raw);
+  const conversation = row.CONVERSATION_ID || null;
+  const from = row.FROM || null;
+  const iso = linkedinDate(row.DATE);
+  const sender = row.SENDER_PROFILE_URL || from;
+  const n = ctx.ordinal(`${conversation}|${iso}|${sender}`);
+  const folder = String(row.FOLDER ?? '').toLowerCase();
+  const link = buildMessageLink({
     source: SOURCE,
-    externalId: row.CONVERSATION_ID
-      ? `${row.CONVERSATION_ID}-${row.DATE}`
-      : String(row.id),
-    sender: row.FROM ?? row.from,
-    chat: row.CONVERSATION_ID ?? row.conversation,
-    body: row.CONTENT ?? row.content ?? '',
-    timestamp: row.DATE ?? row.date,
-    senderName: row.FROM ?? row.from ?? null,
-    chatName: row.CONVERSATION_TITLE ?? row.conversation_title ?? null,
-    raw: {
-      id: row.CONVERSATION_ID ?? row.id ?? null,
-      date: row.DATE ?? row.date ?? null,
-    },
+    externalId: `${conversation}:${iso || row.DATE}:${shortHash(sender)}:${n}`,
+    sender,
+    chat: conversation,
+    body: row.CONTENT || row.SUBJECT || '',
+    timestamp: iso ?? (row.DATE || null),
+    senderName: from,
+    ...peopleOf(row, from),
+    outgoing: folder ? folder === 'sent' : null,
+    folder: folder || null,
+    attachments: attachmentUrls(row.ATTACHMENTS),
+    raw: { id: conversation, date: row.DATE || null },
   });
+  // An older build called it `<conversation>-<date text>`.
+  return withLegacy(link, {
+    id: `msg:linkedin:${conversation}-${row.DATE}`,
+    sender: from,
+    chat: conversation,
+  });
+};
 
 const live = createLinkedInLive();
 
 export const linkedinSource = {
   name: SOURCE,
-  async parseArchive(archive) {
+  async parseArchive(archive, ctx) {
     const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
-    return (obj.messages ?? []).map(archiveRowToLink);
+    const shared = ctx?.ordinal
+      ? ctx
+      : createArchiveContext({ network: SOURCE });
+    return (obj.messages ?? []).map((row) => archiveRowToLink(row, shared));
   },
   live,
   syncResume: (resume, options) => live.syncResume(resume, options),

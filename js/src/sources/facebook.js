@@ -1,8 +1,9 @@
 /**
  * Facebook source adapter (R-E5).
  *
- * Reads `messages/inbox/<thread>/message_*.json` files from Facebook's
- * download-your-data archive (UTF-8 form, not the mojibake one).
+ * Reads `messages/inbox/<thread>/message_*.json|html` files from Facebook's
+ * and Instagram's download-your-data archives (R-Z10: mojibake repaired,
+ * media copied, collision-free ids; see ./archive/meta-thread.js).
  * The live side targets Messenger Platform / Graph API page messaging:
  * pull page conversations, normalize webhook events, send text replies,
  * and update page profile metadata when credentials permit it.
@@ -18,6 +19,8 @@ import {
   resolveOption,
 } from './http.js';
 import { contentSticker } from './sticker.js';
+import { createArchiveContext } from './archive/context.js';
+import { metaHtmlToLinks, metaJsonToLinks } from './archive/meta-thread.js';
 
 const SOURCE = 'facebook';
 
@@ -262,27 +265,25 @@ export const createFacebookLive = ({
   };
 };
 
+/**
+ * Messenger / Instagram archive entries (R-Z10). The JSON form has its
+ * latin-1 mojibake repaired; the HTML form is read too. A path under an
+ * Instagram export folder yields `instagram` links.
+ */
+const isInstagramPath = (name) => /instagram/i.test(String(name ?? ''));
+
+const parseMetaArchive = async (archive, ctx) => {
+  const network = isInstagramPath(ctx?.entryName) ? 'instagram' : SOURCE;
+  const archiveCtx = ctx?.ordinal ? ctx : createArchiveContext({ network });
+  const args = { network, ctx: archiveCtx, entryName: ctx?.entryName };
+  if (typeof archive === 'string' && /^\s*</.test(archive)) {
+    return metaHtmlToLinks({ ...args, html: archive });
+  }
+  return metaJsonToLinks({ ...args, archive });
+};
+
 export const facebookSource = {
   name: SOURCE,
-  async parseArchive(archive) {
-    const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
-    const out = [];
-    const chatId = obj.thread_path ?? obj.title ?? 'unknown';
-    for (const m of obj.messages ?? []) {
-      out.push(
-        buildMessageLink({
-          source: SOURCE,
-          externalId: String(
-            m.timestamp_ms ?? `${m.sender_name}-${m.timestamp}`
-          ),
-          sender: m.sender_name,
-          chat: chatId,
-          body: m.content ?? '',
-          timestamp: m.timestamp_ms,
-        })
-      );
-    }
-    return out;
-  },
+  parseArchive: parseMetaArchive,
   live: createFacebookLive(),
 };

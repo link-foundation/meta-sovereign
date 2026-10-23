@@ -7,6 +7,7 @@
  */
 
 import { buildMessageLink } from './link.js';
+import { xDmsToLinks } from './archive/x-dms.js';
 import {
   authHeaders,
   contentTarget,
@@ -310,8 +311,14 @@ export const createXLive = ({
 
 export const xSource = {
   name: SOURCE,
-  async parseArchive(archive) {
+  async parseArchive(archive, ctx) {
     const obj = typeof archive === 'string' ? JSON.parse(archive) : archive;
+    if (obj.account) {
+      if (ctx?.state) {
+        ctx.state.self = obj.account;
+      }
+      return [];
+    }
     const out = [];
     for (const t of obj.tweets ?? []) {
       const tw = t.tweet ?? t;
@@ -327,19 +334,7 @@ export const xSource = {
         })
       );
     }
-    for (const dm of obj.dms ?? []) {
-      out.push(
-        buildMessageLink({
-          source: SOURCE,
-          externalId: String(dm.id),
-          sender: String(dm.senderId),
-          chat: String(dm.conversationId),
-          body: dm.text ?? '',
-          timestamp: dm.createdAt,
-          raw: dm,
-        })
-      );
-    }
+    out.push(...(await xDmsToLinks(obj, ctx)));
     return out;
   },
   live: createXLive(),

@@ -34,6 +34,8 @@ const OPTIONAL = {
   forwardedFrom: given,
   reactions: nonEmpty,
   delivery: given,
+  participants: nonEmpty,
+  folder: given,
 };
 
 const optionalFields = (fields) =>

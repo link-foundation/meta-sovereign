@@ -24,14 +24,14 @@ There is no LinkedIn-specific server route or page screen except the CV screen (
 
 ## Messages display
 
-| Feature                                      | Status         | Access         | Requirements | Notes / what is missing                                                                                                                                                                                                                                                        |
-| -------------------------------------------- | -------------- | -------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Read messages live via the API               | Not accessible | Not accessible | R-E6         | LinkedIn offers no messaging API to personal apps. The adapter's live pull reads posts, not messages: with a token and `r_member_social` approval it imports the user's own posts as chat `feed:<urn>`.                                                                        |
-| Read messages via the web app                | Partial        | Web            | R-Y38        | Selectors for the thread and list; reads 5 chats x 20 messages by default. Selectors are unverified and there is no linkedin.com fixture test. Media and attachments, reactions and replies are not extracted.                                                                 |
-| Archive messages (`messages.csv`)            | Partial        | Archive        | R-E6         | Tested. Message id is `CONVERSATION_ID-DATE`, so two messages in the same second collide; the sender is a name, not a profile URL; subject, folder, attachments and group participants are dropped; own messages are not marked; the date stays a raw string (planned, R-Z10). |
-| Attachments, voice notes, reactions, replies | Not supported  | Web + Archive  | R-Y39        | Not parsed in the browser table or in the CSV.                                                                                                                                                                                                                                 |
-| Link previews and shared posts in messages   | Not supported  | Web            | —            | Not built.                                                                                                                                                                                                                                                                     |
-| Edited / deleted markers                     | Not supported  | Web            | —            | Not built.                                                                                                                                                                                                                                                                     |
+| Feature                                      | Status         | Access         | Requirements | Notes / what is missing                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| -------------------------------------------- | -------------- | -------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Read messages live via the API               | Not accessible | Not accessible | R-E6         | LinkedIn offers no messaging API to personal apps. The adapter's live pull reads posts, not messages: with a token and `r_member_social` approval it imports the user's own posts as chat `feed:<urn>`.                                                                                                                                                                                                                                                                                 |
+| Read messages via the web app                | Partial        | Web            | R-Y38        | Selectors for the thread and list; reads 5 chats x 20 messages by default. Selectors are unverified and there is no linkedin.com fixture test. Media and attachments, reactions and replies are not extracted.                                                                                                                                                                                                                                                                          |
+| Archive messages (`messages.csv`)            | Supported      | Archive        | R-E6         | Fixed (R-Z10): the id is the conversation, the ISO date (a time with no zone is read in this machine's time zone, `UTC` stays UTC), a digest of the sender and a counter, so same-second messages never collide; the sender is the profile URL with the name kept; participants, subject/title, folder (inbox, sent, archived), own-message flag and attachment URLs are kept; the date is ISO text; quoted newlines are read. Attachment files are not in the CSV, only links. Tested. |
+| Attachments, voice notes, reactions, replies | Not supported  | Web + Archive  | R-Y39        | Not parsed in the browser table or in the CSV.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Link previews and shared posts in messages   | Not supported  | Web            | —            | Not built.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| Edited / deleted markers                     | Not supported  | Web            | —            | Not built.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Sending and composing
 
@@ -149,17 +149,17 @@ There is no LinkedIn-specific server route or page screen except the CV screen (
 
 ## Import and export
 
-| Feature                                                                   | Status        | Access  | Requirements | Notes / what is missing                                        |
-| ------------------------------------------------------------------------- | ------------- | ------- | ------------ | -------------------------------------------------------------- |
-| Import `messages.csv`                                                     | Partial       | Archive | R-E6         | See "Archive messages". Tested.                                |
-| Import Connections, Profile, Positions, Shares, Comments, Invitations CSV | Not supported | Archive | —            | The file pattern matches `messages.csv` only (planned, R-Z10). |
-| Export the CV to links notation                                           | Supported     | —       | R-V1         | `cvToLino`; tested.                                            |
+| Feature                                                                   | Status        | Access  | Requirements | Notes / what is missing                                                                                            |
+| ------------------------------------------------------------------------- | ------------- | ------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
+| Import `messages.csv`                                                     | Supported     | Archive | R-E6         | See "Archive messages". Importing twice adds nothing (R-Z10); a failed store write stops the import with an error. |
+| Import Connections, Profile, Positions, Shares, Comments, Invitations CSV | Not supported | Archive | —            | The file pattern matches `messages.csv` only (planned, R-Z10).                                                     |
+| Export the CV to links notation                                           | Supported     | —       | R-V1         | `cvToLino`; tested.                                                                                                |
 
 ## Counts
 
 | Section                           | Supported | Partial | Not supported | Not accessible |
 | --------------------------------- | --------- | ------- | ------------- | -------------- |
-| Messages display                  | 0         | 2       | 3             | 1              |
+| Messages display                  | 1         | 1       | 3             | 1              |
 | Sending and composing             | 0         | 4       | 4             | 0              |
 | Chat list                         | 0         | 1       | 2             | 0              |
 | Chats, groups and communities     | 0         | 1       | 1             | 0              |
@@ -174,14 +174,14 @@ There is no LinkedIn-specific server route or page screen except the CV screen (
 | Notifications                     | 0         | 0       | 1             | 0              |
 | Accounts                          | 0         | 2       | 0             | 0              |
 | Automation, greetings and CV sync | 1         | 3       | 0             | 0              |
-| Import and export                 | 1         | 1       | 1             | 0              |
-| **Total**                         | **4**     | **19**  | **27**        | **3**          |
+| Import and export                 | 2         | 0       | 1             | 0              |
+| **Total**                         | **6**     | **17**  | **27**        | **3**          |
 
 ## Known gaps
 
 1. A LinkedIn chat message no longer becomes a public feed post, and profile or resume sync is `unsupported` unless `shareAsPost` is passed (fixed, R-Z4). Messages to LinkedIn go through the web app, which is untested against the real site.
 2. Messaging has only the browser route, and its selectors are unverified; LinkedIn may restrict an automated account.
-3. The archive import is thin: colliding ids, no sender profile URL, no subject, folder, attachments or participants, and no Connections, Shares or Profile files (planned, R-Z10).
+3. The archive import reads `messages.csv` fully (R-Z10); Connections, Shares and Profile files are still not imported (planned, R-Z10).
 4. Profile writing covers only headline, About and skills; location, experience and education are not written.
 5. Post lifecycle through the API is minimal: no post id, edit, delete, media, or connections-only visibility; the author URN is typed by hand.
 6. Reading your own posts needs LinkedIn's approval for `r_member_social`.

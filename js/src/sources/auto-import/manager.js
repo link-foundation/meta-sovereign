@@ -154,9 +154,14 @@ const statusError = (message, status) =>
   Object.assign(new Error(message), { status });
 
 // Never throws: a broken file becomes an error row in the job report.
-const importArtifact = async (store, provider, filePath) => {
+const importArtifact = async (store, provider, filePath, options = {}) => {
   try {
-    return await importDownloadedFile({ store, provider, filePath });
+    return await importDownloadedFile({
+      store,
+      provider,
+      filePath,
+      ...options,
+    });
   } catch (error) {
     return [
       { name: path.basename(filePath), imported: 0, error: error.message },
@@ -207,6 +212,30 @@ const captureOpenChat = async (store, job, scrape) => {
   return { name: `page: ${chat}`, imported: links.length };
 };
 
+// Imports one downloaded file into the job, growing its counts live and
+// surfacing an aborted (store write failed) import as the job's error.
+const importInto = async (store, dataDir, job, filePath, touch) => {
+  const reports = await importArtifact(store, job.provider, filePath, {
+    mediaDir: dataDir ? path.join(dataDir, 'media') : null,
+    onProgress: progressOf(job, touch),
+  });
+  job.files.push(...reports);
+  const stopped = reports.find((r) => r.aborted);
+  if (stopped) {
+    touch(job, { error: stopped.error });
+  }
+};
+
+// Counts grow while a big archive imports (R-Z10).
+const progressOf = (job, touch) => {
+  const seen = new Map();
+  return ({ name, imported }) => {
+    job.imported += imported - (seen.get(name) ?? 0);
+    seen.set(name, imported);
+    touch(job);
+  };
+};
+
 export const createAutoImportManager = ({
   store,
   dataDir,
@@ -252,9 +281,7 @@ export const createAutoImportManager = ({
       return;
     }
     touch(job, { state: 'importing' });
-    const reports = await importArtifact(store, job.provider, artifact.path);
-    job.files.push(...reports);
-    job.imported += reports.reduce((n, r) => n + r.imported, 0);
+    await importInto(store, dataDir, job, artifact.path, touch);
     if (job.state === 'importing') {
       touch(job, { state: 'waiting' });
     }
