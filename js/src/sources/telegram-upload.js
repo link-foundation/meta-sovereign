@@ -27,6 +27,10 @@
  * replyTo })` sends one upload — Ogg Opus, as the page recorded it — as
  * Telegram's voice note: its length in seconds and its waveform (100
  * values 0..31, packed five bits each, as Telegram keeps it).
+ *
+ * A round video (R-Y150): `sendRound({ chat, token, duration, size,
+ * replyTo })` sends one upload (WebM or MP4) as a video note
+ * (./telegram-round.js).
  */
 
 import { randomBytes } from 'node:crypto';
@@ -40,6 +44,7 @@ import { pipeline } from 'node:stream/promises';
 import { apiEntities, parseFormatted } from './telegram-format.js';
 import { sendError } from './telegram-send.js';
 import { withSendAs } from './telegram-send-as-client.js';
+import { roundFileOf, roundOptions } from './telegram-round.js';
 
 // Telegram takes files up to 2 GB from an account (4 GB with Premium).
 export const MAX_UPLOAD = 2000 * 1024 * 1024;
@@ -234,6 +239,32 @@ const sendBatch = async ({ client, Api, CustomFile, peer, batch, options }) => {
   }
 };
 
+// One recorded upload sent as a single message: a voice note (R-Y108)
+// or a round video (R-Y150).
+const singleSender =
+  ({ env, userClient, dialogOf, tools, uploads, drop }, fileOf, optionsOf) =>
+  async (args = {}) => {
+    const { chat, token, sendAs = null, ...rest } = args;
+    const upload = uploads.get(token);
+    const client = chat && upload?.path ? await userClient() : null;
+    if (!client) {
+      await drop(token);
+      return { ok: false, supported: Boolean(chat && upload) };
+    }
+    try {
+      const sender = await withSendAs(env, client, sendAs);
+      return await voiceSent(
+        { env, client: sender, dialogOf, tools },
+        String(chat),
+        fileOf(upload, optionsOf(rest))
+      );
+    } catch (error) {
+      throw sendError(error);
+    } finally {
+      await drop(token);
+    }
+  };
+
 // Scheduled ones: the chat's list is asked afresh (R-Y102).
 const scheduledNote = (env, scheduleDate, chat) => {
   if (!scheduleDate) {
@@ -387,28 +418,16 @@ export const createFileSender = (
     }
   };
 
-  // One recorded voice, as Telegram's voice note (R-Y108).
-  const sendVoice = async ({ chat, token, sendAs = null, ...rest } = {}) => {
-    const upload = uploads.get(token);
-    const client = chat && upload?.path ? await userClient() : null;
-    if (!client) {
-      await drop(token);
-      return { ok: false, supported: Boolean(chat && upload) };
-    }
-    try {
-      const sender = await withSendAs(env, client, sendAs);
-      return await voiceSent(
-        { env, client: sender, dialogOf, tools },
-        String(chat),
-        voiceFileOf(upload, voiceOptions(rest))
-      );
-    } catch (error) {
-      throw sendError(error);
-    } finally {
-      await drop(token);
-    }
-  };
+  const sender = { env, userClient, dialogOf, tools, uploads, drop };
+  const sendVoice = singleSender(sender, voiceFileOf, voiceOptions);
+  const sendRound = singleSender(sender, roundFileOf, roundOptions);
 
   // `held`: the uploads, for an action that sends one itself (R-Y129).
-  return { receiveUpload, sendFiles, sendVoice, held: { uploads, drop } };
+  return {
+    receiveUpload,
+    sendFiles,
+    sendVoice,
+    sendRound,
+    held: { uploads, drop },
+  };
 };

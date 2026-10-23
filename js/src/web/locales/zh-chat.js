@@ -369,6 +369,13 @@ export const zhChat = {
   'chat.voice.release': '在此区域外松开以取消',
   'chat.voice.hold': '按住以录制音频',
   'chat.voice.denied': '无法使用麦克风',
+  // 圆形视频消息 (R-Y150)。
+  'chat.round.record': '按住录制视频消息',
+  'chat.round.send': '发送视频消息',
+  'chat.round.toVoice': '切换到语音消息',
+  'chat.round.toVideo': '切换到视频消息',
+  'chat.round.denied': '没有可用的摄像头，已切回语音消息',
+  'chat.round.recording': '正在录制视频消息',
   'chat.bot.toast': '{name}',
   'chat.bot.unsupported': '此按钮仅在 Telegram 官方应用中可用',
   'chat.bot.openTitle': '打开此链接？',

@@ -106,6 +106,10 @@
  *                                  replyTo?}
  *                                      -> { ok, ids } a recorded voice
  *                                         as a voice message (R-Y108)
+ *   POST /api/telegram/send-round {chat, token, duration, size?,
+ *                                  replyTo?}
+ *                                      -> { ok, ids } a recorded clip
+ *                                         as a round video (R-Y150)
  *   POST /api/telegram/send-as {chat}  -> { ok, current, peers, premium }
  *                                         who may send in a supergroup
  *                                         and who does by default; send-
@@ -318,6 +322,7 @@ import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { EFFECTS_POSTS } from './routes-telegram-effects.js';
+import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
@@ -1038,6 +1043,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...EFFECTS_POSTS,
+  ...ROUND_POSTS,
   ...PRIVACY_POSTS,
   ...SHARE_POSTS,
   ...INLINE_POSTS,

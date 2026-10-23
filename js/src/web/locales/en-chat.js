@@ -388,6 +388,13 @@ export const enChat = {
   'chat.voice.release': 'Release outside this field to cancel',
   'chat.voice.hold': 'Hold to record audio',
   'chat.voice.denied': 'No access to the microphone',
+  // Round video messages (R-Y150).
+  'chat.round.record': 'Hold to record a video message',
+  'chat.round.send': 'Send the video message',
+  'chat.round.toVoice': 'Switch to voice messages',
+  'chat.round.toVideo': 'Switch to video messages',
+  'chat.round.denied': 'No camera available. Back to voice messages',
+  'chat.round.recording': 'Recording a video message',
   'chat.bot.toast': '{name}',
   'chat.bot.unsupported': "This button works only in Telegram's own apps",
   'chat.bot.openTitle': 'Open this link?',

@@ -388,6 +388,13 @@ export const hiChat = {
   'chat.voice.release': 'रद्द करने के लिए इस क्षेत्र के बाहर छोड़ें',
   'chat.voice.hold': 'ऑडियो रिकॉर्ड करने के लिए दबाए रखें',
   'chat.voice.denied': 'माइक्रोफ़ोन तक पहुँच नहीं है',
+  // गोल वीडियो संदेश (R-Y150).
+  'chat.round.record': 'वीडियो संदेश रिकॉर्ड करने के लिए दबाए रखें',
+  'chat.round.send': 'वीडियो संदेश भेजें',
+  'chat.round.toVoice': 'वॉइस संदेशों पर जाएँ',
+  'chat.round.toVideo': 'वीडियो संदेशों पर जाएँ',
+  'chat.round.denied': 'कैमरा उपलब्ध नहीं है। वॉइस संदेशों पर लौट आए',
+  'chat.round.recording': 'वीडियो संदेश रिकॉर्ड हो रहा है',
   'chat.bot.toast': '{name}',
   'chat.bot.unsupported': 'यह बटन केवल Telegram के अपने ऐप्स में काम करता है',
   'chat.bot.openTitle': 'यह लिंक खोलें?',

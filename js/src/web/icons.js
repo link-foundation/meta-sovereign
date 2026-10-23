@@ -257,6 +257,16 @@ const ICONS = {
     ['path', { d: 'M19 10v2a7 7 0 0 1-14 0v-2' }],
     ['rect', { x: 9, y: 2, width: 6, height: 13, rx: 3 }],
   ],
+  // Lucide video: recording a round video (R-Y150).
+  camera: [
+    [
+      'path',
+      {
+        d: 'm16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5',
+      },
+    ],
+    ['rect', { x: 2, y: 6, width: 14, height: 12, rx: 2 }],
+  ],
   keyboard: [
     ['path', { d: 'M10 8h.01' }],
     ['path', { d: 'M12 12h.01' }],

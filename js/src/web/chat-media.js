@@ -66,7 +66,7 @@ export const useNearView = (ref) => {
 };
 
 // A URL from `api[method](args)` once `when` is true.
-const useUrl = (api, method, args, when) => {
+export const useUrl = (api, method, args, when) => {
   const [url, setUrl] = useState(null);
   const key = JSON.stringify(args);
   useEffect(() => {
@@ -88,7 +88,7 @@ const previewOf = (media) =>
   media?.strippedB64 ? strippedJpegDataUrl(media.strippedB64) : null;
 
 // The frame under a video or GIF: its blurred preview, then its thumbnail.
-const Poster = ({ media, thumb }) => {
+export const Poster = ({ media, thumb }) => {
   const preview = previewOf(media);
   const src = thumb || preview;
   return src
@@ -188,76 +188,6 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
       ...videoControls(t, { media, gif, playing, file, setPlaying }),
     ]
   );
-};
-
-/** A round video message: a circle that plays with sound on a click. */
-export const MediaRound = ({ media, api, chat, msgId }) => {
-  const t = useT();
-  const ref = useRef(null);
-  const { near } = useNearView(ref);
-  const [playing, setPlaying] = useState(false);
-  const thumb = useUrl(
-    api,
-    'telegramMediaUrl',
-    { chat, id: msgId, size: 'm' },
-    near && media.hasThumb
-  );
-  const file = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, near);
-  return el(
-    'div',
-    {
-      ref,
-      className: 'bubble-round',
-      role: 'button',
-      tabIndex: 0,
-      'aria-label': t(playing ? 'chat.media.pause' : 'chat.media.play'),
-      onClick: () => setPlaying((p) => !p),
-      onKeyDown: (e) => e.key === 'Enter' && setPlaying((p) => !p),
-    },
-    [
-      el(Poster, { key: 'poster', media, thumb }),
-      file
-        ? el(RoundPlayer, {
-            key: 'v',
-            src: file,
-            playing,
-            onEnd: () => setPlaying(false),
-          })
-        : null,
-      el(
-        'span',
-        { key: 'badge', className: 'media-badge' },
-        clockOf(media.duration)
-      ),
-    ]
-  );
-};
-
-// Muted and looping until clicked, then from the start with sound.
-const RoundPlayer = ({ src, playing, onEnd }) => {
-  const ref = useRef(null);
-  useEffect(() => {
-    const video = ref.current;
-    if (!video) {
-      return;
-    }
-    video.muted = !playing;
-    video.loop = !playing;
-    if (playing) {
-      video.currentTime = 0;
-    }
-    video.play?.()?.catch?.(() => {});
-  }, [playing]);
-  return el('video', {
-    ref,
-    className: 'media-video',
-    ...mediaSrc(src),
-    autoPlay: true,
-    muted: true,
-    loop: true,
-    playsInline: true,
-    onEnded: onEnd,
-  });
 };
 
 // Play/pause of one <audio>, its position and length.

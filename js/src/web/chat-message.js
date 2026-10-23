@@ -32,13 +32,8 @@ import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
 import { menuItems } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
-import {
-  MediaAudio,
-  MediaCard,
-  MediaFile,
-  MediaRound,
-  MediaVideo,
-} from './chat-media.js';
+import { MediaAudio, MediaCard, MediaFile, MediaVideo } from './chat-media.js';
+import { MediaRound } from './chat-round.js';
 import { MediaStickerBox } from './chat-sticker-box.js';
 import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';

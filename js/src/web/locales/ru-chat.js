@@ -388,6 +388,13 @@ export const ruChat = {
   'chat.voice.release': 'Отпустите вне этого поля для отмены',
   'chat.voice.hold': 'Удерживайте для записи аудио',
   'chat.voice.denied': 'Нет доступа к микрофону',
+  // Видеосообщения-кружки (R-Y150).
+  'chat.round.record': 'Удерживайте, чтобы записать видеосообщение',
+  'chat.round.send': 'Отправить видеосообщение',
+  'chat.round.toVoice': 'Перейти к голосовым сообщениям',
+  'chat.round.toVideo': 'Перейти к видеосообщениям',
+  'chat.round.denied': 'Камера недоступна. Вернулись к голосовым сообщениям',
+  'chat.round.recording': 'Запись видеосообщения',
   'chat.bot.toast': '{name}',
   'chat.bot.unsupported': 'Эта кнопка работает только в приложениях Telegram',
   'chat.bot.openTitle': 'Открыть эту ссылку?',

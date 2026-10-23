@@ -7332,3 +7332,96 @@ span.bubble-effect {
   max-height: 90vh;
   overflow-y: auto;
 }
+
+/* Round video messages (R-Y150): playing in a circle, and recording. */
+.bubble-round {
+  transition: transform 0.2s ease;
+}
+.bubble-round.playing {
+  transform: scale(1.08);
+  z-index: 1;
+}
+.bubble-round .round-ring,
+.round-record .round-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.round-ring circle {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+@media (max-width: 480px) {
+  .bubble-round {
+    width: 12rem;
+    height: 12rem;
+  }
+}
+.round-switch {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.round-switch:hover {
+  color: var(--accent);
+}
+.round-record {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+.round-record-circle {
+  position: relative;
+  flex: none;
+  width: min(15rem, 70vw);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #000;
+}
+.round-live {
+  position: absolute;
+  inset: 0;
+}
+.round-live canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.round-live canvas {
+  transform: scaleX(-1);
+}
+.round-record-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: var(--bg-elev);
+  color: var(--text);
+}
+.round-time {
+  font-variant-numeric: tabular-nums;
+}
+.round-send {
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+}

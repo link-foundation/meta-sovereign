@@ -82,6 +82,7 @@ import { formatShortcut } from './text-shortcuts.js';
 import { useEmojiPanel } from './chat-emoji.js';
 import { useStickerTabs } from './chat-stickers.js';
 import { useVoice } from './chat-voice.js';
+import { useRoundVideo } from './chat-round-record.js';
 import { useFormatBar } from './chat-format-bar.js';
 import {
   KeyboardToggle,
@@ -997,14 +998,30 @@ const useSendLater = ({ state, api, composer, attach }) => {
 
 const unless = (hide, part) => (hide ? null : part);
 
+// The switch between microphone and camera, while the box is empty (R-Y150).
+const recordButtons = ({ voice, round, empty }) =>
+  empty && !voice.recording && !round.recording && round.switcher
+    ? [round.switcher]
+    : [];
+
+// The microphone or camera in Send's place while the box is empty or a
+// recording is on; null when Send belongs there.
+const recordControl = ({ voice, round, empty }) => {
+  const shown = empty || voice.phase !== 'idle' || round.phase !== 'idle';
+  if (!shown) {
+    return null;
+  }
+  if (round.active) {
+    return round.button;
+  }
+  return voice.enabled ? voice.button : null;
+};
+
 const composing = (event) =>
   Boolean(event.nativeEvent?.isComposing) || event.keyCode === 229;
 
 // Recording or editing: the buttons that make no sense are gone.
-const isBare = (voice, editing) => Boolean(voice.recording || editing);
-
-const micOrSend = (voice, editing, text) =>
-  voice.enabled && !editing && (voice.phase !== 'idle' || !text.trim());
+const isBare = (recording, editing) => Boolean(recording || editing);
 
 // The bar over the box: the message being edited, else the reply.
 const barOver = (composer, editing) =>
@@ -1019,6 +1036,26 @@ const barOver = (composer, editing) =>
         replyTo: composer.replyTo ?? null,
         onClear: composer.clearReplyTo,
       });
+
+// The row's end: the bot keyboard, emoji, the microphone/camera switch,
+// and the microphone or camera in Send's place (never while editing).
+const endButtons = (parts) => {
+  const { bare, recording, editing, voice, round, text, reply, emoji } = parts;
+  const empty = !text.trim();
+  return [
+    bare ? null : el(KeyboardToggle, { key: 'kb', reply }),
+    recording ? null : emoji.button,
+    ...(editing ? [] : recordButtons({ voice, round, empty })),
+    (editing ? null : recordControl({ voice, round, empty })) ??
+      el(SendButton, {
+        key: 'send',
+        composer: parts.composer,
+        editing,
+        text,
+        menu: parts.menu,
+      }),
+  ];
+};
 
 // The Send button (a check mark while a message is edited, R-Y146).
 const SendButton = ({ composer, editing, text, menu }) => {
@@ -1069,6 +1106,9 @@ const Composer = ({ state, api, keys }) => {
   });
   // With nothing typed, the microphone (R-Y108).
   const voice = useVoice({ state, api });
+  // Or, switched over, the camera: a round video (R-Y150).
+  const round = useRoundVideo({ state, api });
+  const recording = voice.recording || round.recording;
   // Text selected in the box: the formatting bar (R-Y109).
   const format = useFormatBar({ box, setText: typeText });
   // A bot's keyboard under the box, and what it asks of it (R-Y110).
@@ -1085,9 +1125,7 @@ const Composer = ({ state, api, keys }) => {
   const linkPreview = useLinkPreview({ api, state, text, composer });
   // Editing a message: the caret at the end, no files, no voice (R-Y146).
   const editing = composer.editing ?? null;
-  const bare = isBare(voice, editing);
-  // With nothing typed (never while editing) the microphone replaces Send.
-  const micInstead = micOrSend(voice, editing, text);
+  const bare = isBare(recording, editing);
   useCaretAtEnd(box, editing?.message.id ?? null);
   const onKeyDown = (event) => {
     keys?.(event);
@@ -1130,6 +1168,7 @@ const Composer = ({ state, api, keys }) => {
       el('div', { key: 'row', className: 'chat-composer-row' }, [
         unless(bare, sendAs.button),
         voice.bar,
+        round.overlay,
         unless(bare, commands.menuButton),
         bare
           ? null
@@ -1146,7 +1185,7 @@ const Composer = ({ state, api, keys }) => {
               scheduled: later.scheduled,
               onOpen: later.openList,
             }),
-        voice.recording
+        recording
           ? null
           : el('textarea', {
               key: 'input',
@@ -1160,17 +1199,18 @@ const Composer = ({ state, api, keys }) => {
               onKeyDown,
               onPaste: editing ? undefined : pasteFiles(attach),
             }),
-        bare ? null : el(KeyboardToggle, { key: 'kb', reply }),
-        voice.recording ? null : emoji.button,
-        micInstead
-          ? voice.button
-          : el(SendButton, {
-              key: 'send',
-              composer,
-              editing,
-              text,
-              menu: later.textMenu,
-            }),
+        ...endButtons({
+          bare,
+          recording,
+          editing,
+          voice,
+          round,
+          text,
+          reply,
+          emoji,
+          composer,
+          menu: later.textMenu,
+        }),
       ]),
       el(ReplyKeyboard, { key: 'reply-kb', reply }),
     ]

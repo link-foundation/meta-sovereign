@@ -1083,6 +1083,13 @@ export const api = {
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for files' },
 
+  // A round video (R-Y150): its upload's token, length in seconds and
+  // side → { ok, ids }.
+  telegramSendRound: async (body = {}) =>
+    (await serverPostReport('/api/telegram/send-round', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for files' },
+
   // A bot's button pressed (R-Y110): `{ chat, id, data }` → the bot's
   // answer `{ ok, message, alert, url }`.
   telegramBotCallback: async (body = {}) =>
