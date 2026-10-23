@@ -29,11 +29,22 @@ const InstantViewButton = ({ url }) => {
   );
 };
 
+// What the page is: a story, a sticker set, a theme, a unique gift (R-Y221).
+const PageKind = ({ badge }) =>
+  el(
+    'span',
+    { className: 'bubble-wp-kind', 'data-wp-kind': badge },
+    useT()(`chat.preview.${badge}`)
+  );
+
 export const WebPreview = ({ webPage }) => {
   if (!webPage) {
     return null;
   }
+  const kind = webPage.kindOf;
+  const title = webPage.title || kind?.name;
   return el('div', { className: 'bubble-webpage' }, [
+    kind ? el(PageKind, { key: 'kind', badge: kind.badge }) : null,
     webPage.siteName
       ? el(
           'span',
@@ -41,12 +52,8 @@ export const WebPreview = ({ webPage }) => {
           webPage.siteName
         )
       : null,
-    webPage.title
-      ? el(
-          'strong',
-          { key: 'title', className: 'bubble-wp-title' },
-          webPage.title
-        )
+    title
+      ? el('strong', { key: 'title', className: 'bubble-wp-title' }, title)
       : null,
     webPage.description
       ? el(

@@ -8,6 +8,12 @@
 
 import React, { useState } from 'react';
 import { CustomEmoji } from './custom-emoji.js';
+import { useLocaleContext } from './i18n.js';
+import {
+  EXTRA_KINDS,
+  extraFields,
+  formattedDateText,
+} from './entity-extras.js';
 import { inviteHashOf, openInvite } from './chat-invite.js';
 import { openMessageLink } from './message-links.js';
 import { openLoginLink } from './chat-bot-login.js';
@@ -42,6 +48,8 @@ const KINDS = {
   MessageEntityCashtag: 'tag',
   MessageEntityBotCommand: 'tag',
   MessageEntityCustomEmoji: 'emoji',
+  // Bank card, formatted date and diff marks (R-Y221).
+  ...EXTRA_KINDS,
 };
 
 const URL_IN_TEXT = /\bhttps?:\/\/[^\s<>"']+[^\s<>"'.,;:!?)\]}]/g;
@@ -63,6 +71,7 @@ const entitiesOf = (text, entities) => {
       url: e?.url ?? null,
       language: e?.language ?? null,
       collapsed: Boolean(e?.collapsed),
+      ...extraFields(e),
       documentId: /^\d{1,20}$/.test(String(e?.documentId))
         ? String(e.documentId)
         : null,
@@ -176,6 +185,60 @@ const onlyCustomEmoji = (tree) => {
   );
 };
 
+// A date written for the viewer: its text from the flags (the message's own
+// text stays when they say nothing), the original on hover (R-Y221).
+const DateEntity = ({ node, children }) => {
+  const { locale } = useLocaleContext();
+  const text = formattedDateText(node, locale);
+  return el(
+    'time',
+    {
+      className: 'msg-date',
+      dateTime: new Date(node.date * 1000).toISOString(),
+      title: node.text,
+    },
+    text || children
+  );
+};
+
+// A card number: shown in groups, copied when clicked (R-Y221).
+const BankCard = ({ node, children }) => {
+  const { t } = useLocaleContext();
+  const [copied, setCopied] = useState(false);
+  const copy = (event) => {
+    event.stopPropagation();
+    globalThis.navigator?.clipboard
+      ?.writeText(node.text.replace(/\s+/g, ''))
+      .then(() => setCopied(true))
+      .catch(() => {});
+  };
+  return el(
+    'span',
+    {
+      className: 'msg-bankcard',
+      role: 'button',
+      tabIndex: 0,
+      'data-bankcard': 'copy',
+      title: copied ? t('chat.bankCard.copied') : t('chat.bankCard.copy'),
+      onClick: copy,
+      onKeyDown: (event) => event.key === 'Enter' && copy(event),
+    },
+    children
+  );
+};
+
+// Entities with a look of their own that are not links (R-Y221).
+const EXTRA_NODES = {
+  date: (node, key, children) => el(DateEntity, { key, node }, children),
+  bankcard: (node, key, children) => el(BankCard, { key, node }, children),
+  'diff-replace': (node, key, children) =>
+    el(
+      'span',
+      { key, className: 'msg-diff-replace', title: node.oldText || undefined },
+      children
+    ),
+};
+
 const drawNode = (node, key, ctx) => {
   if (typeof node === 'string') {
     return node;
@@ -190,6 +253,10 @@ const drawNode = (node, key, ctx) => {
     });
   }
   const children = node.children.map((child, i) => drawNode(child, i, ctx));
+  const extra = EXTRA_NODES[node.kind];
+  if (extra) {
+    return extra(node, key, children);
+  }
   if (node.kind === 'pre') {
     return el(
       'pre',

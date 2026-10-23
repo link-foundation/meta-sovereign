@@ -107,7 +107,13 @@ export const documentPicture = (doc, want) => {
  * `part`th item once unlocked (a locked one has no file), else null.
  */
 export const mediaOf = (raw, part = 0) => {
-  const media = raw?.media;
+  // A service message's photo (a new group photo, a suggested profile
+  // photo) is downloaded as a message's photo (R-Y221).
+  const media =
+    raw?.media ??
+    (raw?.action?.photo
+      ? { className: 'MessageMediaPhoto', photo: raw.action.photo }
+      : undefined);
   if (media?.className !== 'MessageMediaPaidMedia') {
     return media;
   }

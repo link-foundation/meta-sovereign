@@ -18,6 +18,7 @@
  */
 
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { actionNamesOf } from './telegram-service-names.js';
 
 const SOURCE = 'telegram';
 
@@ -597,5 +598,7 @@ export const rawMessage = (message) => {
   }
   const raw = plainOf(message, 0, new WeakSet());
   delete raw?.sender; // the sender's entity: a person link has it
-  return raw;
+  // The names a service message's action holds ids of (R-Y221).
+  const names = actionNamesOf(message);
+  return names && raw ? { ...raw, actionNames: names } : raw;
 };

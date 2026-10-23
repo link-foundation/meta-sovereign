@@ -18,6 +18,8 @@ import {
   serviceWords,
 } from './giveaway-model.js';
 import { giftCodeCardOf } from './gift-manage-model.js';
+import { serviceTextInfo } from './service-texts.js';
+import { webpageKindOf } from './webpage-kind.js';
 
 // Standard JFIF + Huffman table header, verbatim from Telegram's spec.
 const JPEG_HEADER_HEX =
@@ -273,22 +275,9 @@ const SPECIAL_SERVICE = {
   MessageActionGeoProximityReached: proximityInfo,
 };
 
-/** Service text i18n key + data for a service link, or null. */
-export const serviceInfo = (link, msgById = new Map()) => {
-  if (!link?.service) {
-    return null;
-  }
-  const special = SPECIAL_SERVICE[link.service]?.(link, msgById);
-  if (special) {
-    return special;
-  }
-  const action = link.raw?.action ?? {};
+// A line of the older words: the actor, then a fixed phrase or a title.
+const plainServiceInfo = (link, action) => {
   const title = typeof action.title === 'string' ? action.title : null;
-  // Giveaways and paid messages (R-Y184): a line with its numbers.
-  const words = serviceWords(link.service, action);
-  if (words) {
-    return { ...words, title: null, titleKey: '', user: null };
-  }
   const key =
     link.service === 'MessageActionTopicEdit' && !title
       ? topicEditKey(action)
@@ -299,6 +288,27 @@ export const serviceInfo = (link, msgById = new Map()) => {
     titleKey: TITLE_KEYS[link.service] ?? 'chat.service.titleChangedFmt',
     user: link.senderName ?? null,
   };
+};
+
+/** Service text i18n key + data for a service link, or null. */
+export const serviceInfo = (link, msgById = new Map()) => {
+  if (!link?.service) {
+    return null;
+  }
+  const special = SPECIAL_SERVICE[link.service]?.(link, msgById);
+  if (special) {
+    return special;
+  }
+  const action = link.raw?.action ?? {};
+  // Giveaways and paid messages (R-Y184): a line with its numbers; every
+  // other action: the actor, the people named, the numbers (R-Y221).
+  const words =
+    serviceWords(link.service, action) ??
+    serviceTextInfo(link, () => msgById.get(replyLinkId(link) ?? ''));
+  if (words) {
+    return { title: null, titleKey: '', user: null, ...words };
+  }
+  return plainServiceInfo(link, action);
 };
 
 // ---- media parsing helpers -----------------------------------------------
@@ -436,6 +446,8 @@ const parseWebpageMedia = (wp) => ({
   photo: wp.photo ?? null,
   // A page Telegram cached opens in the reader (R-Y205).
   instantView: Boolean(wp.cachedPage),
+  // A story, sticker set, theme or unique gift page (R-Y221).
+  kindOf: webpageKindOf(wp.attributes),
 });
 
 // What has no file: a place, a contact, a poll, a checklist, a die — each drawn as a
@@ -509,6 +521,11 @@ const CARD_MEDIA = {
   MessageMediaGame: (m) => gameOf(m.game),
   MessageMediaInvoice: (m) => ({ kind: 'invoice', title: m.title ?? null }),
   MessageMediaUnsupported: () => ({ kind: 'unsupported' }),
+  // A live stream's card (R-Y221).
+  MessageMediaVideoStream: (m) => ({
+    kind: 'live-stream',
+    rtmp: Boolean(m.rtmpStream),
+  }),
   MessageMediaPaidMedia: (m) => parsePaid(m),
   // Giveaways (R-Y184): the running one and its results.
   MessageMediaGiveaway: giveawayOf,

@@ -168,4 +168,191 @@ export const ruChatAccount = {
   'chat.folderUpdates.join': 'Вступить в чаты',
   'chat.folderUpdates.hide': 'Скрыть',
   'settings.notifyTg.signUp': 'Новые контакты в Telegram',
+  // Служебные сообщения с именами людей (R-Y221).
+  'chat.service.someone': 'Кто-то',
+  'chat.service.you': 'вас',
+  'chat.service.view': 'Посмотреть',
+  'chat.service.joined': '{actor} вступил(а) в группу',
+  'chat.service.joinedMe': 'Вы вступили в группу',
+  'chat.service.added': '{actor} добавил(а) {users}',
+  'chat.service.addedMe': 'Вы добавили {users}',
+  'chat.service.left': '{actor} покинул(а) группу',
+  'chat.service.leftMe': 'Вы покинули группу',
+  'chat.service.removed': '{actor} удалил(а) {users}',
+  'chat.service.removedMe': 'Вы удалили {users}',
+  'chat.service.joinedLink':
+    '{actor} вступил(а) в группу по ссылке-приглашению',
+  'chat.service.joinedLinkMe': 'Вы вступили в группу по ссылке-приглашению',
+  'chat.service.joinedRequest': '{actor} принят(а) в группу',
+  'chat.service.joinedRequestMe': 'Вас приняли в группу',
+  'chat.service.signedUp': '{actor} теперь в Telegram',
+  'chat.service.historyClear': 'История очищена',
+  'chat.service.photoSet': '{actor} изменил(а) фото группы',
+  'chat.service.photoSetMe': 'Вы изменили фото группы',
+  'chat.service.channelPhotoSet': 'Фото канала обновлено',
+  'chat.service.photoDel': '{actor} удалил(а) фото группы',
+  'chat.service.photoDelMe': 'Вы удалили фото группы',
+  'chat.service.channelPhotoDel': 'Фото канала удалено',
+  'chat.service.boost':
+    '{actor} усилил(а) этот чат {count, plural, one {# раз} few {# раза} other {# раз}}',
+  'chat.service.boostMe':
+    'Вы усилили этот чат {count, plural, one {# раз} few {# раза} other {# раз}}',
+  'chat.service.screenshot': '{actor} сделал(а) снимок экрана!',
+  'chat.service.screenshotMe': 'Вы сделали снимок экрана!',
+  'chat.service.botCreated': '{actor} создал(а) бота {bot}',
+  'chat.service.botCreatedMe': 'Вы создали бота {bot}',
+  'chat.service.ownerChanged': '{actor} назначил(а) нового владельца: {users}',
+  'chat.service.ownerChangedMe': 'Вы назначили нового владельца: {users}',
+  'chat.service.ownerPending':
+    '{users} станет владельцем этого чата после завершения передачи',
+  'chat.service.groupCallStarted': '{actor} начал(а) групповой звонок',
+  'chat.service.groupCallStartedMe': 'Вы начали групповой звонок',
+  'chat.service.groupCallEnded': 'Групповой звонок завершён ({duration})',
+  'chat.service.groupCallInvite':
+    '{actor} пригласил(а) {users} в групповой звонок',
+  'chat.service.groupCallInviteMe': 'Вы пригласили {users} в групповой звонок',
+  'chat.service.groupCallScheduled': 'Групповой звонок запланирован на {date}',
+  'chat.service.confMissed': 'Пропущенный конференц-звонок',
+  'chat.service.confActive': 'Идёт конференц-звонок',
+  'chat.service.confEnded': 'Конференц-звонок ({duration})',
+  'chat.service.confStarted': 'Конференц-звонок',
+  'chat.service.ttlSet':
+    '{actor} включил(а) автоудаление сообщений через {period}',
+  'chat.service.ttlSetMe': 'Вы включили автоудаление сообщений через {period}',
+  'chat.service.ttlOff': '{actor} отключил(а) автоудаление',
+  'chat.service.ttlOffMe': 'Вы отключили автоудаление',
+  'chat.service.ttlDefault': 'Сообщения удаляются через {period} по умолчанию',
+  'chat.service.themeSet': '{actor} сменил(а) тему чата на {theme}',
+  'chat.service.themeSetMe': 'Вы сменили тему чата на {theme}',
+  'chat.service.themeOff': '{actor} отключил(а) тему чата',
+  'chat.service.themeOffMe': 'Вы отключили тему чата',
+  'chat.service.wallpaper': '{actor} установил(а) новые обои для этого чата',
+  'chat.service.wallpaperMe': 'Вы установили новые обои для этого чата',
+  'chat.service.wallpaperSame':
+    '{actor} установил(а) для этого чата те же обои',
+  'chat.service.wallpaperSameMe': 'Вы установили для этого чата те же обои',
+  'chat.service.wallpaperBoth': '{actor} установил(а) новые обои для вас обоих',
+  'chat.service.wallpaperBothMe':
+    'Вы установили новые обои для себя и для {peer}',
+  'chat.service.noFwdOn': '{actor} запретил(а) сохранение содержимого',
+  'chat.service.noFwdOnMe': 'Вы запретили сохранение содержимого',
+  'chat.service.noFwdOff': '{actor} разрешил(а) сохранение содержимого',
+  'chat.service.noFwdOffMe': 'Вы разрешили сохранение содержимого',
+  'chat.service.noFwdAskOn':
+    '{actor} попросил(а) запретить сохранение содержимого',
+  'chat.service.noFwdAskOnMe': 'Вы попросили запретить сохранение содержимого',
+  'chat.service.noFwdAskOff':
+    '{actor} попросил(а) разрешить сохранение содержимого',
+  'chat.service.noFwdAskOffMe': 'Вы попросили разрешить сохранение содержимого',
+  'chat.service.noFwdExpired':
+    'Срок запроса на изменение сохранения содержимого истёк',
+  'chat.service.botAllowedDomain':
+    'Вы разрешили этому боту писать вам, когда вошли на {domain}',
+  'chat.service.botAllowedApp':
+    'Вы разрешили этому боту писать вам, когда открыли {app}',
+  'chat.service.botAllowedMenu':
+    'Вы разрешили этому боту писать вам, когда добавили его в меню вложений',
+  'chat.service.botAllowed': 'Вы разрешили этому боту писать вам',
+  'chat.service.webView': 'Данные из «{text}» отправлены боту',
+  'chat.service.custom': '{text}',
+  'chat.service.passportSent': 'Вы отправили данные Telegram Passport: {types}',
+  'chat.service.passportGot':
+    '{actor} отправил(а) вам данные Telegram Passport: {types}',
+  'chat.service.passport.PersonalDetails': 'личные данные',
+  'chat.service.passport.Passport': 'паспорт',
+  'chat.service.passport.DriverLicense': 'водительские права',
+  'chat.service.passport.IdentityCard': 'удостоверение личности',
+  'chat.service.passport.InternalPassport': 'внутренний паспорт',
+  'chat.service.passport.Address': 'адрес',
+  'chat.service.passport.UtilityBill': 'счёт за коммунальные услуги',
+  'chat.service.passport.BankStatement': 'банковская выписка',
+  'chat.service.passport.RentalAgreement': 'договор аренды',
+  'chat.service.passport.PassportRegistration': 'регистрация в паспорте',
+  'chat.service.passport.TemporaryRegistration': 'временная регистрация',
+  'chat.service.passport.Phone': 'номер телефона',
+  'chat.service.passport.Email': 'адрес электронной почты',
+  'chat.service.paymentSent': 'Вы оплатили {amount}',
+  'chat.service.paymentGot': '{actor} оплатил(а) вам {amount}',
+  'chat.service.paymentRefunded': 'Платёж на {amount} возвращён',
+  'chat.service.giftBare': 'подарок',
+  'chat.service.giftPremium':
+    '{actor} подарил(а) вам подарок: Telegram Premium на {period} ({amount})',
+  'chat.service.giftPremiumMe':
+    'Вы подарили {peer} Telegram Premium на {period} ({amount})',
+  'chat.service.giftStars': '{actor} подарил(а) вам подарок: {stars} ⭐',
+  'chat.service.giftStarsMe': 'Вы подарили {peer}: {stars} ⭐',
+  'chat.service.giftTon': '{actor} подарил(а) вам подарок: {ton} TON',
+  'chat.service.giftTonMe': 'Вы подарили {peer}: {ton} TON',
+  'chat.service.prize': 'Вы выиграли приз в розыгрыше: {stars} ⭐',
+  'chat.service.prizeUnclaimed': 'Приз в розыгрыше ({stars} ⭐) не получен',
+  'chat.service.starGift':
+    '{actor} подарил(а) вам подарок: {gift} ({stars} ⭐)',
+  'chat.service.starGiftMe': 'Вы подарили {peer}: {gift} ({stars} ⭐)',
+  'chat.service.giftUnique':
+    '{actor} подарил(а) вам уникальный подарок: {gift}',
+  'chat.service.giftUniqueMe': 'Вы подарили {peer} уникальный подарок: {gift}',
+  'chat.service.giftUniqueUpgrade': '{actor} улучшил(а) подарок до {gift}',
+  'chat.service.giftUniqueUpgradeMe': 'Вы улучшили подарок до {gift}',
+  'chat.service.giftUniqueTransfer': '{actor} передал(а) вам {gift}',
+  'chat.service.giftUniqueTransferMe': 'Вы передали {gift} пользователю {peer}',
+  'chat.service.offer': 'Предложение купить {gift} за {price} ⭐',
+  'chat.service.offerAccepted':
+    'Предложение купить {gift} за {price} ⭐ принято',
+  'chat.service.offerDeclined':
+    'Предложение купить {gift} за {price} ⭐ отклонено',
+  'chat.service.offerDeclinedNow':
+    'Предложение купить {gift} за {price} ⭐ было отклонено',
+  'chat.service.offerExpired':
+    'Срок предложения купить {gift} за {price} ⭐ истёк',
+  'chat.service.suggestPhoto':
+    '{actor} предлагает вам использовать это фото как фото профиля',
+  'chat.service.suggestPhotoMe':
+    'Вы предложили {peer} использовать это фото как фото профиля',
+  'chat.service.suggestBirthday':
+    '{actor} предлагает вам указать {date} как день рождения',
+  'chat.service.suggestBirthdayMe':
+    'Вы предложили {peer} указать {date} как день рождения',
+  'chat.service.pollAdd': '{actor} добавил(а) вариант «{text}»',
+  'chat.service.pollAddMe': 'Вы добавили вариант «{text}»',
+  'chat.service.pollDel': '{actor} удалил(а) вариант «{text}»',
+  'chat.service.pollDelMe': 'Вы удалили вариант «{text}»',
+  'chat.service.todoAdd': '{actor} добавил(а) в список: {tasks}',
+  'chat.service.todoAddMe': 'Вы добавили в список: {tasks}',
+  'chat.service.todoDone': '{actor} выполнил(а): {tasks}',
+  'chat.service.todoDoneMe': 'Вы выполнили: {tasks}',
+  'chat.service.todoUndone': '{actor} снял(а) отметку о выполнении: {tasks}',
+  'chat.service.todoUndoneMe': 'Вы сняли отметку о выполнении: {tasks}',
+  'chat.service.todoBoth':
+    '{actor} выполнил(а): {tasks}; снял(а) отметку: {other}',
+  'chat.service.todoBothMe': 'Вы выполнили: {tasks}; сняли отметку: {other}',
+  'chat.service.suggestApproved': 'Предложенный пост одобрен',
+  'chat.service.suggestRejected': 'Предложенный пост отклонён',
+  'chat.service.suggestBalance':
+    'Предложенный пост нельзя одобрить: не хватает звёзд',
+  'chat.service.suggestPaid': 'Предложенный пост опубликован: {price} ⭐',
+  'chat.service.suggestRefund': 'Оплата предложенного поста возвращена',
+  'chat.service.unit.second':
+    '{count, plural, one {# секунду} few {# секунды} other {# секунд}}',
+  'chat.service.unit.minute':
+    '{count, plural, one {# минуту} few {# минуты} other {# минут}}',
+  'chat.service.unit.hour':
+    '{count, plural, one {# час} few {# часа} other {# часов}}',
+  'chat.service.unit.day':
+    '{count, plural, one {# день} few {# дня} other {# дней}}',
+  'chat.service.unit.week':
+    '{count, plural, one {# неделю} few {# недели} other {# недель}}',
+  'chat.service.unit.month':
+    '{count, plural, one {# месяц} few {# месяца} other {# месяцев}}',
+  'chat.service.unit.year':
+    '{count, plural, one {# год} few {# года} other {# лет}}',
+  // Сущности и вложения (R-Y221).
+  'chat.bankCard.copy': 'Скопировать номер карты',
+  'chat.bankCard.copied': 'Номер карты скопирован',
+  'chat.liveStream': 'Прямой эфир',
+  'chat.liveStreamRtmp': 'Прямой эфир (RTMP)',
+  'chat.preview.story': 'История',
+  'chat.preview.stickerSet': 'Набор стикеров',
+  'chat.preview.emojiSet': 'Набор эмодзи',
+  'chat.preview.theme': 'Тема чата',
+  'chat.preview.uniqueGift': 'Уникальный подарок',
 };

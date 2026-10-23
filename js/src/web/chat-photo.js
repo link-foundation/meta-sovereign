@@ -205,7 +205,12 @@ const ViewerMenu = ({ t, onStickers }) => {
 
 // Fullscreen viewer: ESC or click overlay closes. `stickers`, when the
 // photo has stickers on it: `{ api, chat, msgId }` (R-Y206).
-const PhotoViewer = ({ src, onClose, onRequestFull, stickers = null }) => {
+export const PhotoViewer = ({
+  src,
+  onClose,
+  onRequestFull,
+  stickers = null,
+}) => {
   const t = useT();
   const [asking, setAsking] = useState(false);
   // Escape closes the sticker sets' dialog first, not the viewer too.

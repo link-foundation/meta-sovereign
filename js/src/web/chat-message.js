@@ -43,7 +43,6 @@ import { MediaStickerBox } from './chat-sticker-box.js';
 import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
-import { formatCallDuration } from './call-model.js';
 import { CommentsBar } from './chat-comments-bar.js';
 import { ViewCount } from './chat-views.js';
 import { FactCheck } from './chat-fact-check.js';
@@ -51,7 +50,7 @@ import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 import { useRowReactions } from './chat-quick-reaction.js';
 import { PaidMedia, PaidReactionChip } from './chat-paid.js';
 import { ReadTimeLine } from './chat-read-time.js';
-import { GiftCodeLine } from './chat-gift-code-button.js';
+import { ServiceLine } from './chat-service-line.js';
 import { ModerationBoxes } from './chat-moderation.js';
 
 const el = React.createElement;
@@ -293,41 +292,9 @@ const Reactions = ({ reactions, paid, api, chat, msgId }) => {
   );
 };
 
-// ---- Service line -------------------------------------------------------
+// ---- Service line: ./chat-service-line.js (R-Y221) ----------------------
 
-export const ServiceLine = ({ link, msgById }) => {
-  const t = useT();
-  const { service } = parseMessageParts(link, msgById ?? new Map());
-  if (!service) {
-    return null;
-  }
-  let text = t(service.key, service.params);
-  if (service.title) {
-    text = t(service.titleKey, { title: service.title });
-  }
-  if (service.user && service.key !== 'chat.service.pin') {
-    text = `${service.user}: ${text}`;
-  }
-  const length = formatCallDuration(service.duration);
-  if (length) {
-    text = `${text} (${length})`;
-  }
-  return el(
-    'div',
-    {
-      className: 'service-line',
-      role: 'note',
-      'data-message': link.id,
-    },
-    [
-      el('span', { key: 't' }, text),
-      // A gift code's line opens what it holds (R-Y193).
-      link.service === 'MessageActionGiftCode'
-        ? el(GiftCodeLine, { key: 'g', raw: link.raw })
-        : null,
-    ]
-  );
-};
+export { ServiceLine };
 
 // ---- Context menu -------------------------------------------------------
 
@@ -1242,7 +1209,7 @@ export const MessageBubble = ({
   });
 
   if (message.service) {
-    return el(ServiceLine, { link: message, msgById });
+    return el(ServiceLine, { link: message, msgById, api });
   }
 
   const parts = parseMessageParts(message, msgById ?? new Map());

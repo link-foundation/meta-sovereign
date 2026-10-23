@@ -892,7 +892,25 @@ const NoteCard = ({ media }) => {
   );
 };
 
+// A live stream (R-Y221): its card only names it; a tap opens nothing.
+const LiveStreamCard = ({ media }) => {
+  const t = useT();
+  return el(
+    'div',
+    { className: 'bubble-card live-stream', 'data-live-stream': '' },
+    [
+      el('span', { key: 'd', className: 'live-dot', 'aria-hidden': 'true' }),
+      el(
+        'strong',
+        { key: 't' },
+        t(media.rtmp ? 'chat.liveStreamRtmp' : 'chat.liveStream')
+      ),
+    ]
+  );
+};
+
 const CARDS = {
+  'live-stream': LiveStreamCard,
   place: PlaceCard,
   contact: ContactCard,
   poll: Poll,
