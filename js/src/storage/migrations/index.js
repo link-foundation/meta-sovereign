@@ -13,11 +13,12 @@
  */
 
 import * as m0001 from './0001-email-threads.js';
+import * as m0002 from './0002-whatsapp-chat-ids.js';
 
-export const MIGRATIONS = Object.freeze([m0001]);
+export const MIGRATIONS = Object.freeze([m0001, m0002]);
 
 /** The schema version this build writes and understands. */
-export const CURRENT_SCHEMA = 1;
+export const CURRENT_SCHEMA = 2;
 
 export {
   SCHEMA_ID,

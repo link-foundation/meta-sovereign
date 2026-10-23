@@ -44,7 +44,7 @@ test('every web app entry describes sign-in, sending, reading and actions', () =
     assert.ok(ui.chats?.item, `${id}.chats`);
     assert.ok(ui.actions?.menu && ui.actions?.delete, `${id}.actions`);
     assert.match(
-      ui.chatUrl(ui.target({ chat: '12345' }), { text: '' }),
+      ui.chatUrl(ui.target({ chat: '1234567' }), { text: '' }),
       /^https:\/\//
     );
   }

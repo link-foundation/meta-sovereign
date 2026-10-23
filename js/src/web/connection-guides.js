@@ -234,10 +234,10 @@ export const providerCatalogue = {
     archive: {
       title: 'Import a WhatsApp chat export',
       titleKey: 'connections.whatsapp.archive.title',
-      hint: 'In the WhatsApp app, open a chat -> ... -> More -> Export chat (no media). Drop the resulting "WhatsApp Chat with NAME.txt" into the import box.',
+      hint: 'In the WhatsApp app, open a chat -> ... -> More -> Export chat (with or without media). Drop the resulting "WhatsApp Chat with NAME.txt" or .zip into the import box.',
       hintKey: 'connections.whatsapp.archive.hint',
       fileHint: 'WhatsApp Chat with *.txt',
-      accept: '.txt,text/plain',
+      accept: '.txt,.zip,text/plain,application/zip',
     },
     apiCredentials: {
       title: 'Connect the WhatsApp Cloud API',

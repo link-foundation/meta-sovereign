@@ -8,7 +8,7 @@ Telegram संदर्भ नेटवर्क है और उसकी म
 | -------------------- | -------------------------------------------------------------- | ------- | ----- | -------- | ------------- |
 | Telegram (यही पृष्ठ) | नीचे                                                           | —       | —     | —        | —             |
 | VK                   | [features/vk.hi.md](./features/vk.hi.md)                       | 30      | 22    | 36       | 5             |
-| WhatsApp             | [features/whatsapp.hi.md](./features/whatsapp.hi.md)           | 2       | 26    | 32       | 8             |
+| WhatsApp             | [features/whatsapp.hi.md](./features/whatsapp.hi.md)           | 6       | 26    | 28       | 8             |
 | Facebook + Instagram | [features/facebook.hi.md](./features/facebook.hi.md)           | 5       | 35    | 29       | 1             |
 | X                    | [features/x.hi.md](./features/x.hi.md)                         | 7       | 22    | 24       | 5             |
 | LinkedIn             | [features/linkedin.hi.md](./features/linkedin.hi.md)           | 4       | 19    | 27       | 3             |

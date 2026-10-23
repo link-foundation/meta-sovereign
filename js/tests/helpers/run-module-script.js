@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const SCRIPTS = path.join(ROOT, 'node_modules', '.cache', 'ms-scripts');
 
-export const runModuleScript = (source) => {
+export const runModuleScript = (source, { env } = {}) => {
   mkdirSync(SCRIPTS, { recursive: true });
   const dir = mkdtempSync(path.join(SCRIPTS, 'run-'));
   try {
@@ -23,6 +23,7 @@ export const runModuleScript = (source) => {
     return execFileSync(process.execPath, args, {
       encoding: 'utf8',
       cwd: ROOT,
+      ...(env ? { env: { ...process.env, ...env } } : {}),
       stdio: ['ignore', 'pipe', 'pipe'],
     });
   } catch (error) {

@@ -36,6 +36,7 @@ import {
 } from './telegram-sessions.js';
 import { byPopularity, formatUsers, serviceUsers } from './popularity.js';
 import { BrowserSignIns, listOf } from './browser-sign-ins.js';
+import { WhatsAppWebPanel } from './whatsapp-web.js';
 import { Busy } from '../spinner.js';
 import { EmailPullRow } from './email-pull.js';
 
@@ -330,9 +331,35 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
     }
   };
 
+  // A WhatsApp export with media is a zip: the server reads it (R-Z9).
+  const importZip = async (file) => {
+    setStatus(working(t('settings.importing', { label: file.name })));
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let binary = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    }
+    const answer = await api.whatsappArchive(
+      file.name,
+      globalThis.btoa(binary)
+    );
+    setStatus(
+      answer?.error
+        ? t('whatsapp.web.zipFailed', { error: answer.error })
+        : t('whatsapp.web.zipImported', {
+            label: file.name,
+            count: answer.imported,
+          })
+    );
+  };
+
   const onFile = async (event) => {
     const file = event.target.files?.[0];
     if (!file) {
+      return;
+    }
+    if (/\.zip$/i.test(file.name)) {
+      await importZip(file);
       return;
     }
     // Mail is read as bytes, so every part keeps its own charset (R-Z5).
@@ -893,6 +920,9 @@ const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
         { key: 'hint', className: 'meta' },
         tx(t, provider.archive.hint, provider.archive.hintKey)
       ),
+      providerId === 'whatsapp'
+        ? el(WhatsAppWebPanel, { key: 'wa-web' })
+        : null,
       el(ProviderCardActions, {
         key: 'actions',
         providerId,

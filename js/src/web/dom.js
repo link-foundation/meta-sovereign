@@ -848,6 +848,17 @@ const rawApi = {
     (await serverPostReport(`/api/auto-import/browsers/${action}`, body).catch(
       (error) => ({ error: error.message })
     )) ?? { error: 'server required for browser sign-ins' },
+  // WhatsApp Web sign-in window and zip exports (R-Z9).
+  whatsappWeb: async (action = 'status') =>
+    (action === 'status'
+      ? await serverFetch('/api/whatsapp/web').catch(() => null)
+      : await serverPostReport(`/api/whatsapp/web/${action}`, {}).catch(
+          (error) => ({ error: error.message })
+        )) ?? { error: 'server required for WhatsApp Web' },
+  whatsappArchive: async (name, data) =>
+    (await serverPostReport('/api/whatsapp/archive', { name, data }).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for zip imports' },
   // Find the user's own Telegram sign-ins on this computer: scan folders
   // for bot tokens and user sessions, identify the account each belongs
   // to, and connect the chosen one. Masked hints only, never the value.

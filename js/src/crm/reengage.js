@@ -525,7 +525,7 @@ export const createReengageSession = ({
     index += 1;
     return current();
   };
-  const sendCurrent = async () => {
+  const sendCurrent = async (userConfirmed = false) => {
     const draft = requireCurrent();
     if (typeof send !== 'function') {
       throw new Error('re-engage session has no sender; use markSent()');
@@ -536,6 +536,7 @@ export const createReengageSession = ({
       owner: 'reengage',
       draft,
       send,
+      userConfirmed,
       clock,
     });
     if (outcome.status === 'sent') {
@@ -579,7 +580,7 @@ export const createReengageSession = ({
       return items[index];
     },
     /** Send the current draft — the one action safe mode allows. */
-    confirm: sendCurrent,
+    confirm: () => sendCurrent(true),
     /** The user sent it in their own app; record it and move on. */
     async markSent() {
       const draft = requireCurrent();

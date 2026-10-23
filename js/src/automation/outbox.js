@@ -208,6 +208,10 @@ export const guardedSend = async ({
   draft,
   send,
   settings = null,
+  // The user pressed Send on this very message. Anything else is an
+  // automated send and carries `automated: true` to the sender, which
+  // refuses WhatsApp Web for it (R-Z9).
+  userConfirmed = false,
   clock = () => new Date(),
   log = () => {},
 }) => {
@@ -247,7 +251,14 @@ export const guardedSend = async ({
     } catch (error) {
       return refused('outbox-unavailable', `not sent: ${error.message}`);
     }
-    return await deliverOnce({ store, record, draft, send, clock, log });
+    return await deliverOnce({
+      store,
+      record,
+      draft: { ...draft, automated: !userConfirmed },
+      send,
+      clock,
+      log,
+    });
   } finally {
     running.delete(id);
   }

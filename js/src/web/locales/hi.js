@@ -635,7 +635,22 @@ export const hi = {
   'connections.whatsapp.label': 'WhatsApp',
   'connections.whatsapp.archive.title': 'WhatsApp चैट निर्यात आयात करें',
   'connections.whatsapp.archive.hint':
-    'WhatsApp ऐप में, चैट खोलें -> ... -> अधिक -> चैट निर्यात (बिना मीडिया)। परिणामी "WhatsApp Chat with NAME.txt" को आयात बॉक्स में डालें।',
+    'WhatsApp ऐप में, चैट खोलें -> ... -> अधिक -> चैट निर्यात (मीडिया के साथ या बिना)। परिणामी "WhatsApp Chat with NAME.txt" या .zip को आयात बॉक्स में डालें।',
+  'whatsapp.web.terms':
+    'WhatsApp की शर्तें WhatsApp Web या अनौपचारिक क्लाइंट के स्वचालित या बड़े पैमाने पर उपयोग की अनुमति नहीं देतीं। यहाँ इसका उपयोग केवल आपकी अपनी चैट खोलने और आपके खुद पुष्टि किए संदेश भेजने के लिए होता है; अभिवादन और ऑटोमेशन कभी निजी WhatsApp पर नहीं भेजते।',
+  'whatsapp.web.title': 'WhatsApp Web (निजी खाता)',
+  'whatsapp.web.signIn': 'WhatsApp Web में साइन इन करें',
+  'whatsapp.web.close': 'विंडो बंद करें',
+  'whatsapp.web.opening': 'विंडो खुल रही है…',
+  'whatsapp.web.waiting':
+    'WhatsApp Web की विंडो खुली है। फ़ोन पर: WhatsApp > लिंक्ड डिवाइस > डिवाइस लिंक करें, और QR कोड खुद स्कैन करें।',
+  'whatsapp.web.signedIn':
+    'WhatsApp Web में साइन इन हो गया ({when} को पुष्टि हुई)।',
+  'whatsapp.web.closed':
+    'साइन इन नहीं है। विंडो यहीं, आपके सामने खुलेगी और कोड केवल आप स्कैन करते हैं।',
+  'whatsapp.web.failed': 'WhatsApp Web नहीं खुल सका: {error}',
+  'whatsapp.web.zipFailed': 'zip पढ़ा नहीं जा सका: {error}',
+  'whatsapp.web.zipImported': '{label}: {count} संदेश आयात हुए।',
   'connections.whatsapp.archive.fileHint': 'WhatsApp Chat with *.txt',
   'connections.whatsapp.api.title': 'WhatsApp Cloud API जोड़ें',
   'connections.whatsapp.api.hint':

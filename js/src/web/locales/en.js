@@ -636,7 +636,21 @@ export const en = {
   'connections.whatsapp.label': 'WhatsApp',
   'connections.whatsapp.archive.title': 'Import a WhatsApp chat export',
   'connections.whatsapp.archive.hint':
-    'In the WhatsApp app, open a chat -> ... -> More -> Export chat (no media). Drop the resulting "WhatsApp Chat with NAME.txt" into the import box.',
+    'In the WhatsApp app, open a chat -> ... -> More -> Export chat (with or without media). Drop the resulting "WhatsApp Chat with NAME.txt" or .zip into the import box.',
+  'whatsapp.web.terms':
+    "WhatsApp's terms do not allow automated or bulk use of WhatsApp Web or of unofficial clients. Here it is used only to open your own chats and to send a message you confirm yourself; greetings and automations never send to a personal WhatsApp.",
+  'whatsapp.web.title': 'WhatsApp Web (personal account)',
+  'whatsapp.web.signIn': 'Sign in to WhatsApp Web',
+  'whatsapp.web.close': 'Close the window',
+  'whatsapp.web.opening': 'Opening the window…',
+  'whatsapp.web.waiting':
+    'A WhatsApp Web window is open. On your phone: WhatsApp > Linked devices > Link a device, and scan the QR code yourself.',
+  'whatsapp.web.signedIn': 'Signed in to WhatsApp Web (confirmed {when}).',
+  'whatsapp.web.closed':
+    'Not signed in. The window opens here, in plain sight, and only you scan the code.',
+  'whatsapp.web.failed': 'Could not open WhatsApp Web: {error}',
+  'whatsapp.web.zipFailed': 'Could not read the zip: {error}',
+  'whatsapp.web.zipImported': '{label}: {count} messages imported.',
   'connections.whatsapp.archive.fileHint': 'WhatsApp Chat with *.txt',
   'connections.whatsapp.api.title': 'Connect the WhatsApp Cloud API',
   'connections.whatsapp.api.hint':

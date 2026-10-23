@@ -93,7 +93,13 @@ const postOn = async (name, content, outbox, resolveSource) => {
       chat: content?.chat ?? null,
       text: typeof content === 'string' ? content : (content?.text ?? ''),
     },
-    send: () => asSend(name, 'post', () => live.post(content)),
+    send: ({ automated }) =>
+      asSend(name, 'post', () =>
+        // WhatsApp refuses an automated personal send (R-Z9).
+        name === 'whatsapp'
+          ? live.post(content, { automated })
+          : live.post(content)
+      ),
   });
   return outcome.status === 'sent'
     ? { network: name, ok: true, result: outcome.result }

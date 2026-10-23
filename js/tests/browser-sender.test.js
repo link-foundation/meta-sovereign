@@ -348,10 +348,13 @@ test('readRecent parses WhatsApp data-pre-plain-text', async () => {
   });
   const { openSession } = fakeSessions(() => commander);
   const sender = createBrowserSender({ openSession, ...quick });
-  const [link] = await sender.readRecent({ source: 'whatsapp', to: '123' });
-  assert.equal(link.id, 'msg:whatsapp:123:false_123@c.us_ABC');
+  const [link] = await sender.readRecent({
+    source: 'whatsapp',
+    to: '4915123456',
+  });
+  assert.equal(link.id, 'msg:whatsapp:+4915123456:false_123@c.us_ABC');
   assert.equal(link.sender, 'Anna Petrova');
-  assert.equal(link.chat, '123');
+  assert.equal(link.chat, '+4915123456');
 });
 
 test('extractMessages reads the page through the descriptor', () => {

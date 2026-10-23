@@ -618,7 +618,20 @@ export const zh = {
   'connections.whatsapp.label': 'WhatsApp',
   'connections.whatsapp.archive.title': '导入 WhatsApp 聊天导出',
   'connections.whatsapp.archive.hint':
-    '在 WhatsApp 应用中,打开聊天 -> ... -> 更多 -> 导出聊天(无媒体)。把生成的 "WhatsApp Chat with NAME.txt" 拖入导入框。',
+    '在 WhatsApp 应用中,打开聊天 -> ... -> 更多 -> 导出聊天(含或不含媒体)。把生成的 "WhatsApp Chat with NAME.txt" 或 .zip 拖入导入框。',
+  'whatsapp.web.terms':
+    'WhatsApp 的条款不允许自动化或批量使用 WhatsApp Web 或非官方客户端。这里只用它打开你自己的聊天，并发送你亲自确认的消息；问候和自动化绝不会发送到个人 WhatsApp。',
+  'whatsapp.web.title': 'WhatsApp Web（个人账号）',
+  'whatsapp.web.signIn': '登录 WhatsApp Web',
+  'whatsapp.web.close': '关闭窗口',
+  'whatsapp.web.opening': '正在打开窗口…',
+  'whatsapp.web.waiting':
+    'WhatsApp Web 窗口已打开。在手机上：WhatsApp > 已关联的设备 > 关联设备，然后自己扫描二维码。',
+  'whatsapp.web.signedIn': '已登录 WhatsApp Web（{when} 确认）。',
+  'whatsapp.web.closed': '未登录。窗口会在这里公开打开，只有你自己扫描二维码。',
+  'whatsapp.web.failed': '无法打开 WhatsApp Web：{error}',
+  'whatsapp.web.zipFailed': '无法读取 zip：{error}',
+  'whatsapp.web.zipImported': '{label}：已导入 {count} 条消息。',
   'connections.whatsapp.archive.fileHint': 'WhatsApp Chat with *.txt',
   'connections.whatsapp.api.title': '连接 WhatsApp Cloud API',
   'connections.whatsapp.api.hint':

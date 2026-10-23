@@ -151,8 +151,12 @@ const sendEnvelope = async (
       contact: envelope.contact,
       text: envelope.text ?? `sticker:${envelope.sticker?.id ?? ''}`,
     },
-    send: () =>
-      live.post(outgoingContent(envelope), credentials[envelope.network] ?? {}),
+    send: ({ automated }) =>
+      live.post(outgoingContent(envelope), {
+        ...(credentials[envelope.network] ?? {}),
+        // WhatsApp refuses an automated personal send (R-Z9).
+        ...(envelope.network === 'whatsapp' ? { automated } : {}),
+      }),
     clock,
   });
   if (outcome.status !== 'sent') {

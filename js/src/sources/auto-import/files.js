@@ -9,9 +9,9 @@ import { getSource, stampSourceLink, buildMessageLink } from '../index.js';
 import { archiveReaderFor } from './archive.js';
 import { autoImportRecipes } from './recipes.js';
 
-const toArchive = (recipe, name, text) => {
+const toArchive = (recipe, name, text, context = {}) => {
   if (recipe.toArchive) {
-    return recipe.toArchive(name, text);
+    return recipe.toArchive(name, text, context);
   }
   const trimmed = text.trim();
   if (/\.json$/i.test(name) || /^[[{]/.test(trimmed)) {
@@ -24,8 +24,8 @@ const toArchive = (recipe, name, text) => {
   return text;
 };
 
-const parseEntry = async (provider, recipe, name, data) => {
-  const archive = toArchive(recipe, name, data.toString('utf8'));
+const parseEntry = async (provider, recipe, name, data, context) => {
+  const archive = toArchive(recipe, name, data.toString('utf8'), context);
   return (await getSource(provider).parseArchive(archive)) ?? [];
 };
 
@@ -47,6 +47,7 @@ export const importDownloadedFile = async ({ store, provider, filePath }) => {
     : recipe.files.test(name)
       ? [{ name, read: () => buf }]
       : [];
+  const names = reader ? reader(buf).map((entry) => entry.name) : [];
   const reports = [];
   for (const entry of candidates) {
     const label = reader ? `${name}:${entry.name}` : name;
@@ -55,7 +56,10 @@ export const importDownloadedFile = async ({ store, provider, filePath }) => {
         provider,
         recipe,
         entry.name,
-        entry.read()
+        entry.read(),
+        // The container's own name and file list (WhatsApp names the chat
+        // after the zip and finds the media in it).
+        { container: reader ? name : null, entries: names }
       );
       for (const link of links) {
         await store.put(stampSourceLink(link, provider));

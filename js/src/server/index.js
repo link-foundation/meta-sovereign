@@ -87,6 +87,8 @@ import { createChatIndex } from './chat-index.js';
 import { handleChatRoutes } from './routes-chat.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
+import { handleWhatsAppRoutes } from './routes-whatsapp.js';
+import { profileDirIn } from '../sources/whatsapp-web-signin.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEmailGets } from './routes-email.js';
@@ -573,6 +575,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleEventRoutes(store, req, res, p, ctx),
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
+    () => handleWhatsAppRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),
     () => handleEmailGets(store, req, res, p, url, ctx),
@@ -721,6 +724,26 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
   return { wsHandle, signaling };
 };
 
+// The browser sender signs in to the web apps in profiles inside the store
+// (owner only), the same ones "Sign in to WhatsApp Web" opens (R-Z9).
+const withStoreProfiles = (automations = {}, storeDir) => ({
+  ...automations,
+  browser: {
+    profileDirFor: (source) => profileDirIn(storeDir, source),
+    ...automations.browser,
+  },
+});
+
+// The open connections of `server`, so a shutdown can end them.
+const trackSockets = (server) => {
+  const sockets = new Set();
+  server.on('connection', (socket) => {
+    sockets.add(socket);
+    socket.on('close', () => sockets.delete(socket));
+  });
+  return sockets;
+};
+
 // The automations' part of the context, fed by the Telegram account.
 const automationFor = (store, automations, log, telegramAccount, later) =>
   automationContext(
@@ -783,6 +806,7 @@ export const startServer = async ({
   });
   // Services that run in the background start only after the port is ours.
   const later = [];
+  automations = withStoreProfiles(automations, storeDir);
   const chatIndex = createChatIndex(store);
   const telegramAccount = telegramAccountFor(
     store,
@@ -831,11 +855,7 @@ export const startServer = async ({
     chatIndex,
   };
   const server = createHttpServer(store, ctx, log);
-  const sockets = new Set();
-  server.on('connection', (socket) => {
-    sockets.add(socket);
-    socket.on('close', () => sockets.delete(socket));
-  });
+  const sockets = trackSockets(server);
   let bus = null;
   if (enableHandlers) {
     bus = registerDefaultHandlers(store, { browser: () => ctx.send });
@@ -882,6 +902,7 @@ export const startServer = async ({
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
         ctx.autoImport?.close();
+        ctx.whatsappSignIn?.stop().catch(() => {});
         ctx.chatIndex.close();
         stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
         wsHandle?.close();

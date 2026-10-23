@@ -102,7 +102,7 @@ test('CLI: migrate --status, --dry-run (writes nothing) and migrate', async () =
     await runCli(['migrate', `--store=${dir}`, '--status'], { log }),
     0
   );
-  assert.match(out.at(-1), /schema version 0 .*1 migration\(s\) pending/);
+  assert.match(out.at(-1), /schema version 0 .*2 migration\(s\) pending/);
 
   out.length = 0;
   assert.equal(
@@ -131,8 +131,8 @@ test('CLI: migrate --status, --dry-run (writes nothing) and migrate', async () =
 
   out.length = 0;
   await runCli(['migrate', `--store=${dir}`, '--status'], { log });
-  assert.match(out[0], /schema version 1 .*up to date/);
-  assert.match(out[1], /applied 0001-email-threads/);
+  assert.match(out[0], /schema version 2 .*up to date/);
+  assert.match(out.join('\n'), /applied 0001-email-threads/);
   out.length = 0;
   await runCli(['migrate', `--store=${dir}`], { log });
   assert.match(out[0], /nothing to migrate/);

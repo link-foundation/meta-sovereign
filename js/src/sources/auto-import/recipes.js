@@ -22,6 +22,7 @@
  */
 
 import { parseCsv } from './archive.js';
+import { chatNameFromFile } from '../whatsapp-ids.js';
 
 // X archives ship data as `window.YTD.<name>.part0 = [ ... ]`.
 const ytdPayload = (text) => JSON.parse(text.replace(/^[^=[]*=\s*/, ''));
@@ -97,7 +98,14 @@ export const autoImportRecipes = {
   whatsapp: {
     url: 'https://web.whatsapp.com/',
     domains: ['whatsapp.com'],
+    // An "Export chat" .txt, or the .zip of one with media (R-Z9); the
+    // chat is named after the file (or the zip holding `_chat.txt`).
     files: /\.txt$/i,
+    toArchive: (name, text, context = {}) => ({
+      text,
+      fileName: chatNameFromFile(name) ? name : (context.container ?? name),
+      files: context.entries ?? [],
+    }),
     scrape: {
       chat: '#main header span[dir="auto"]',
       message: '#main div[data-id]',

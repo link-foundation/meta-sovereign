@@ -117,9 +117,16 @@ export const extractMessages = (spec) => {
     const match = raw && pattern ? pattern.exec(raw) : null;
     return match ? match[1] : raw;
   };
+  const chatPattern = spec.chatPattern ? new RegExp(spec.chatPattern) : null;
+  const chatOf = (node) => {
+    const raw = spec.idAttribute ? node.getAttribute(spec.idAttribute) : null;
+    const match = raw && chatPattern ? chatPattern.exec(raw) : null;
+    return match ? match[1] : null;
+  };
   const rows = Array.from(document.querySelectorAll(spec.item));
   return rows.slice(-spec.limit).map((node) => ({
     id: idOf(node),
+    ...(chatPattern ? { chat: chatOf(node) } : {}),
     sender: squash(pick(node, spec.sender, spec.senderAttribute)),
     body: String(pick(node, spec.body) ?? '').trim(),
     time: squash(pick(node, spec.time, spec.timeAttribute)) || null,
@@ -169,7 +176,7 @@ const toMessageLink = (source, chat, row) => {
 };
 
 /** First candidate of a comma-separated selector list that matches. */
-const firstMatch = async (commander, selector) => {
+export const firstMatch = async (commander, selector) => {
   for (const candidate of selectorCandidates(selector)) {
     if ((await commander.count({ selector: candidate })) > 0) {
       return candidate;
@@ -488,6 +495,11 @@ export const createBrowserSender = ({
     async readRecent({ source, chat, to, limit = 20 } = {}) {
       const ui = uiFor(source);
       const target = ui.target({ chat, to });
+      // A stable chat id (E.164 number / group JID), not the typed form
+      // and not the page's title (R-Z9).
+      const normalize = (value) => ui.normalizeChat?.(value) ?? null;
+      const chatOf = (row) =>
+        normalize(row.chat) ?? normalize(target) ?? String(target);
       const rows = await inChat(source, target, {}, (commander) =>
         commander.evaluate({
           fn: extractMessages,
@@ -496,7 +508,7 @@ export const createBrowserSender = ({
       );
       return (Array.isArray(rows) ? rows : [])
         .filter((row) => row && String(row.body ?? '').length > 0)
-        .map((row) => toMessageLink(source, String(target), row));
+        .map((row) => toMessageLink(source, chatOf(row), row));
     },
 
     /** Networks with an open page. */
@@ -572,6 +584,10 @@ export const createFallbackSender =
         apiError ? { apiError: apiError.message } : {}
       );
     } catch (error) {
+      // "Not allowed to automate this" is the answer, not a pair of failures.
+      if (error?.code === 'unsupported') {
+        throw error;
+      }
       if (!apiError) {
         throw error;
       }
@@ -581,6 +597,26 @@ export const createFallbackSender =
       );
     }
   };
+
+/**
+ * Networks whose web app may only be driven for a send the user confirms:
+ * WhatsApp's terms forbid automated and bulk use of Web, so an automated
+ * draft (`automated: true`, set by `guardedSend` for everything the user
+ * did not press Send on) is refused with `unsupported` (R-Z9).
+ */
+export const WEB_USER_CONFIRMED_ONLY = Object.freeze(['whatsapp']);
+
+const refuseAutomatedWeb = (draft) => {
+  if (
+    draft?.automated === true &&
+    WEB_USER_CONFIRMED_ONLY.includes(draft.source)
+  ) {
+    throw codedError(
+      `${draft.source}: an automated send cannot go through the web app (its terms forbid automation); send it yourself, or connect the Business Cloud API`,
+      'unsupported'
+    );
+  }
+};
 
 /**
  * The sender automations and the chat composer use: the source adapter's
@@ -624,13 +660,15 @@ export const createDefaultSender = ({
     : null;
   const send = createFallbackSender({
     apiSend: adapterSend,
-    browserSend: (draft) =>
-      browserFor().send({
+    browserSend: (draft) => {
+      refuseAutomatedWeb(draft);
+      return browserFor().send({
         source: draft.source,
         chat: draft.chat,
         to: draft.contact ?? draft.to,
         text: draft.text,
-      }),
+      });
+    },
     log,
   });
   const actions = createMessageActions({

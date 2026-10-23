@@ -33,6 +33,8 @@
  *   the message, shown on hover), then the menu items.
  */
 
+import { chatIdOf, parseChatRef } from './whatsapp-ids.js';
+
 /** VK peer ids of group chats start here (`messages.send` peer_id). */
 const VK_CHAT_PEER_OFFSET = 2000000000;
 
@@ -170,12 +172,25 @@ const whatsapp = {
   name: 'WhatsApp',
   loginUrl: 'https://web.whatsapp.com/',
   // The click-to-chat URL opens the chat and pre-fills the composer.
+  // Only a person's number opens a chat this way. A group, a linked id or
+  // a `title:` chat has no number: stripping its digits would open the
+  // WRONG person's chat, so it is refused (R-Z9).
   chatUrl: (target, { text = '' } = {}) => {
-    const phone = String(target).replace(/\D/g, '');
+    const ref = parseChatRef(target);
+    if (ref?.kind !== 'person') {
+      throw Object.assign(
+        new Error(
+          `whatsapp: "${target}" is not a phone number; WhatsApp Web can only be opened by number from here`
+        ),
+        { code: 'unsupported-target' }
+      );
+    }
     const query = text ? `&text=${encodeURIComponent(text)}` : '';
-    return `https://web.whatsapp.com/send?phone=${phone}${query}`;
+    return `https://web.whatsapp.com/send?phone=${ref.id.slice(1)}${query}`;
   },
   target: ({ chat, to }) => to ?? chat,
+  // The stable chat id of a JID or number (E.164 / group JID).
+  normalizeChat: chatIdOf,
   loggedIn: '#pane-side, div[aria-label="Chat list"], #main footer',
   loggedOut: 'canvas[aria-label="Scan me!"], div[data-ref], .landing-main',
   composer:
@@ -191,7 +206,9 @@ const whatsapp = {
     idAttribute: 'data-id',
     // `data-id` is `<out>_<chat jid>_<message id>`: the message id is
     // what the Cloud API calls `wamid`'s last part.
-    idPattern: '_([^_]+)$',
+    // Groups add the participant: `false_<group>@g.us_<msg>_<who>@c.us`.
+    idPattern: '^(?:true|false)_[^_]+_([^_]+)',
+    chatPattern: '^(?:true|false)_([^_]+)_',
     sender: '[data-pre-plain-text]',
     senderAttribute: 'data-pre-plain-text',
     body: 'span.selectable-text, .copyable-text span',

@@ -647,7 +647,21 @@ export const ru = {
   'connections.whatsapp.label': 'WhatsApp',
   'connections.whatsapp.archive.title': 'Импорт экспорта чата WhatsApp',
   'connections.whatsapp.archive.hint':
-    'В приложении WhatsApp откройте чат -> ... -> Ещё -> Экспорт чата (без медиа). Перетащите получившийся файл «WhatsApp Chat with NAME.txt» в окно импорта.',
+    'В приложении WhatsApp откройте чат -> ... -> Ещё -> Экспорт чата (с медиа или без). Перетащите получившийся файл «WhatsApp Chat with NAME.txt» или .zip в окно импорта.',
+  'whatsapp.web.terms':
+    'Условия WhatsApp не разрешают автоматическое или массовое использование WhatsApp Web и неофициальных клиентов. Здесь он нужен только чтобы открыть ваши чаты и отправить сообщение, которое вы подтвердили сами; приветствия и автоматизации никогда не пишут в личный WhatsApp.',
+  'whatsapp.web.title': 'WhatsApp Web (личный аккаунт)',
+  'whatsapp.web.signIn': 'Войти в WhatsApp Web',
+  'whatsapp.web.close': 'Закрыть окно',
+  'whatsapp.web.opening': 'Открываем окно…',
+  'whatsapp.web.waiting':
+    'Окно WhatsApp Web открыто. На телефоне: WhatsApp > Связанные устройства > Привязка устройства, и сами отсканируйте QR-код.',
+  'whatsapp.web.signedIn': 'Вход в WhatsApp Web выполнен (проверено {when}).',
+  'whatsapp.web.closed':
+    'Вход не выполнен. Окно откроется здесь, у вас на виду, а код сканируете только вы.',
+  'whatsapp.web.failed': 'Не удалось открыть WhatsApp Web: {error}',
+  'whatsapp.web.zipFailed': 'Не удалось прочитать zip: {error}',
+  'whatsapp.web.zipImported': '{label}: импортировано сообщений: {count}.',
   'connections.whatsapp.archive.fileHint': 'WhatsApp Chat with *.txt',
   'connections.whatsapp.api.title': 'Подключите WhatsApp Cloud API',
   'connections.whatsapp.api.hint':

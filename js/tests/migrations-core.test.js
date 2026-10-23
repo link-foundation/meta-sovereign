@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { createBrowserStore } from '../src/storage/browser-store.js';
 import {
+  CURRENT_SCHEMA,
   SCHEMA_ID,
   runMigrations,
   versionOf,
@@ -230,13 +231,16 @@ test('the browser adapter runs the same modules over the page store', async () =
   const result = await migrateBrowserStore(store, {
     onEvent: (e) => events.push(e.event),
   });
-  assert.equal(result.migrated.to, 1);
+  assert.equal(result.migrated.to, CURRENT_SCHEMA);
   assert.deepEqual(events.slice(0, 1), ['migration_started']);
   const mail = await store.get('msg:email:a');
   assert.equal(mail.timestamp, '2024-01-02T10:00:00.000Z');
   assert.equal(mail.chat, 'a@x');
   // Saved: the snapshot the driver holds carries the new version.
-  assert.equal(snapshot().links.find((l) => l.id === SCHEMA_ID).version, 1);
+  assert.equal(
+    snapshot().links.find((l) => l.id === SCHEMA_ID).version,
+    CURRENT_SCHEMA
+  );
   // A second load does nothing.
   assert.equal((await migrateBrowserStore(store)).migrated, null);
 });
@@ -253,7 +257,7 @@ test('the browser adapter refuses a store from a newer build and leaves it alone
 test('an empty browser store is stamped without running anything', async () => {
   const { store } = await fakeBrowser();
   const result = await migrateBrowserStore(store);
-  assert.equal(result.version, 1);
+  assert.equal(result.version, CURRENT_SCHEMA);
   assert.equal(result.migrated, null);
 });
 

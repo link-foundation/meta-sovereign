@@ -8,7 +8,7 @@ Telegram — эталонная сеть, её матрица ниже. У ка�
 | ----------------------- | -------------------------------------------------------------- | -------------- | -------- | ----------------- | ---------- |
 | Telegram (эта страница) | ниже                                                           | —              | —        | —                 | —          |
 | VK                      | [features/vk.ru.md](./features/vk.ru.md)                       | 30             | 22       | 36                | 5          |
-| WhatsApp                | [features/whatsapp.ru.md](./features/whatsapp.ru.md)           | 2              | 26       | 32                | 8          |
+| WhatsApp                | [features/whatsapp.ru.md](./features/whatsapp.ru.md)           | 6              | 26       | 28                | 8          |
 | Facebook + Instagram    | [features/facebook.ru.md](./features/facebook.ru.md)           | 5              | 35       | 29                | 1          |
 | X                       | [features/x.ru.md](./features/x.ru.md)                         | 7              | 22       | 24                | 5          |
 | LinkedIn                | [features/linkedin.ru.md](./features/linkedin.ru.md)           | 4              | 19       | 27                | 3          |

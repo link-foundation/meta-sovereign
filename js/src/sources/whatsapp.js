@@ -1,9 +1,8 @@
 /**
  * WhatsApp source adapter (R-E4).
  *
- * Parses the `_chat.txt` text format produced by WhatsApp's per-chat
- * "Export chat" feature. Each line looks like:
- *   `[2026-04-30, 14:32:11] Alice: Hello!`
+ * Parses the text of WhatsApp's per-chat "Export chat" (Android and iOS
+ * layouts, see ./whatsapp-archive.js; chat ids, see ./whatsapp-ids.js).
  *
  * The live adapter targets WhatsApp Cloud API: outbound text messages
  * go to `/{phone-number-id}/messages`, profile updates go to
@@ -26,11 +25,12 @@ import {
   contentText,
   requestJson,
   resolveOption,
+  unsupportedError,
 } from './http.js';
 import { contentSticker } from './sticker.js';
+import { parseWhatsAppArchive } from './whatsapp-archive.js';
 
 const SOURCE = 'whatsapp';
-const LINE = /^\[([^\]]+)\]\s+([^:]+):\s+(.*)$/;
 
 const messageBody = (message) => {
   if (message.text?.body) {
@@ -223,6 +223,26 @@ export const whatsappStatusesToUpdates = (payload) => {
   return out;
 };
 
+// A personal number has no official API: with no Cloud API credentials an
+// automated send (greeting, rule, broadcast) is refused with `unsupported`
+// instead of failing on a missing token or driving WhatsApp Web, whose
+// terms forbid automated use. A send the user confirms may still go
+// through the browser sender (R-Z9).
+export const PERSONAL_AUTOMATION_MESSAGE =
+  'WhatsApp: automated sends need the WhatsApp Business Cloud API; a personal WhatsApp account can only be sent to by hand (WhatsApp does not allow automation of the personal app)';
+
+const refuseAutomatedPersonal = (options, token, phone) => {
+  if (options.automated !== true) {
+    return;
+  }
+  try {
+    token(options.token);
+    phone(options.phoneNumberId);
+  } catch {
+    throw unsupportedError(PERSONAL_AUTOMATION_MESSAGE);
+  }
+};
+
 export const createWhatsAppCloudLive = ({
   token = null,
   phoneNumberId = null,
@@ -305,6 +325,7 @@ export const createWhatsAppCloudLive = ({
       };
     },
     async post(content, options = {}) {
+      refuseAutomatedPersonal(options, resolvedToken, resolvedPhone);
       const to = options.to ?? contentTarget(content);
       const text = contentText(content);
       const sticker = contentSticker(content);
@@ -349,33 +370,9 @@ export const createWhatsAppCloudLive = ({
 
 export const whatsappSource = {
   name: SOURCE,
+  // Both export layouts, any date order, zip media names (R-Z9).
   async parseArchive(archive) {
-    const text = typeof archive === 'string' ? archive : String(archive);
-    const out = [];
-    let counter = 0;
-    let chatId = 'unknown';
-    if (typeof archive === 'object' && archive?.chat) {
-      chatId = String(archive.chat);
-    }
-    for (const raw of text.split(/\r?\n/)) {
-      const m = raw.match(LINE);
-      if (!m) {
-        continue;
-      }
-      const [, ts, sender, body] = m;
-      counter += 1;
-      out.push(
-        buildMessageLink({
-          source: SOURCE,
-          externalId: String(counter),
-          sender: sender.trim(),
-          chat: chatId,
-          body,
-          timestamp: ts,
-        })
-      );
-    }
-    return out;
+    return parseWhatsAppArchive(archive);
   },
   live: createWhatsAppCloudLive(),
 };
