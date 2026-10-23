@@ -66,6 +66,8 @@ SPA server को इस क्रम में चुनता है ([`js/src
 
 पूर्ण requirement → status mapping [`docs/REQUIREMENTS.hi.md`](docs/REQUIREMENTS.hi.md) में है; per-issue case studies [`docs/case-studies/`](docs/case-studies/) में हैं।
 
+Telegram क्लाइंट की हर सुविधा — समर्थित, आंशिक, रोकी हुई या असमर्थित, और API या वेब ऐप से पहुँच — [`docs/FEATURES.hi.md`](docs/FEATURES.hi.md) में दर्ज है।
+
 ## स्थिति
 
 issue #1 का prototype implement हो चुका है और PR #2 में track है:

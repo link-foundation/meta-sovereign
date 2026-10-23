@@ -66,6 +66,8 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 
 完整的需求到状态映射见 [`docs/REQUIREMENTS.zh.md`](docs/REQUIREMENTS.zh.md)；每个 issue 的案例研究在 [`docs/case-studies/`](docs/case-studies/)。
 
+每项 Telegram 客户端功能（已支持、部分、搁置或不支持，以及能否通过 API 或网页应用访问）记录在 [`docs/FEATURES.zh.md`](docs/FEATURES.zh.md)。
+
 ## 状态
 
 issue #1 目标原型已实现并在 PR #2 中跟踪：

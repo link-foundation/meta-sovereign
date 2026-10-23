@@ -18,6 +18,7 @@ const localizedDocGroups = [
   'docs/BEST-PRACTICES.md',
   'docs/CONTRIBUTING.md',
   'docs/CV-SYNC.md',
+  'docs/FEATURES.md',
   'docs/GREETINGS.md',
   'docs/REQUIREMENTS.md',
   'docs/ROADMAP.md',

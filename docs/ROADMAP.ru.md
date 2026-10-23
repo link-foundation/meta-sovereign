@@ -11,6 +11,9 @@ Done с implementation evidence.
 #2. Если во время review найден новый gap, добавьте его сюда с matching
 requirement ID перед тем, как помечать соответствующее требование Done.
 
+Какие функции клиента Telegram поддерживаются, поддерживаются частично, в
+парковке или не поддерживаются, учтено в [`docs/FEATURES.ru.md`](./FEATURES.ru.md).
+
 ## Закрытый scope
 
 История закрытого implementation scope сохранена в

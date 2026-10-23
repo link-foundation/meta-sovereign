@@ -11,6 +11,9 @@ implementation evidence के साथ Done है।
 रखी गई है। Review के दौरान नया gap मिले तो related requirement को Done
 mark करने से पहले matching requirement ID के साथ उसे यहां add करें।
 
+Telegram क्लाइंट की कौन-सी सुविधाएँ समर्थित, आंशिक, रोकी हुई या असमर्थित हैं,
+यह [`docs/FEATURES.hi.md`](./FEATURES.hi.md) में दर्ज है।
+
 ## बंद scope
 
 बंद implementation history

@@ -67,6 +67,8 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 
 The full requirement → status mapping lives in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md); the per-issue case studies live in [`docs/case-studies/`](docs/case-studies/).
 
+Every Telegram client feature, with what is supported, partial, parked or not supported, and whether it is reachable by API or web app, is tracked in [`docs/FEATURES.md`](docs/FEATURES.md).
+
 ## Status
 
 The prototype targeted by issue #1 is implemented and tracked in PR #2:

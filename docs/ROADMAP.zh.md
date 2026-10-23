@@ -9,6 +9,9 @@ issue #1 的路线图目前为空。原始 issue 和 PR #2 maintainer follow-up 
 此文件继续保留为 PR #2 要求的 reviewer-facing roadmap ledger。如果评审中
 发现新的缺口，请先用匹配的需求 ID 记录到这里，再把相关需求标记为 Done。
 
+哪些 Telegram 客户端功能已支持、部分支持、搁置或不支持，记录在
+[`docs/FEATURES.zh.md`](./FEATURES.zh.md)。
+
 ## 已关闭范围
 
 关闭范围的实现历史保存在

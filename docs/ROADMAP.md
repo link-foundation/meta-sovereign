@@ -11,6 +11,9 @@ This file stays present as the reviewer-facing roadmap ledger requested
 in PR #2. If a new gap is found during review, add it here with the
 matching requirement ID before marking the related requirement Done.
 
+What Telegram client features are supported, partial, parked or not
+supported is tracked in [`docs/FEATURES.md`](./FEATURES.md).
+
 ## Closed Scope
 
 The closed implementation history is preserved in

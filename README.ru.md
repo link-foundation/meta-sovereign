@@ -66,6 +66,8 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 
 Полная карта requirement → status находится в [`docs/REQUIREMENTS.ru.md`](docs/REQUIREMENTS.ru.md); per-issue case studies — в [`docs/case-studies/`](docs/case-studies/).
 
+Каждая функция клиента Telegram — поддерживается, частично, в парковке или нет, и доступна ли через API или веб-приложение — учтена в [`docs/FEATURES.ru.md`](docs/FEATURES.ru.md).
+
 ## Статус
 
 Прототип для issue #1 реализован и отслежен в PR #2:
