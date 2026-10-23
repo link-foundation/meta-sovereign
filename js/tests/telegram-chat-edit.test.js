@@ -76,9 +76,36 @@ test('contacts are listed by name, without oneself', async () => {
   const { actions } = make(() => contactsAnswer);
   const answer = await actions.chatContacts();
   assert.deepEqual(answer.contacts, [
-    { id: '4', name: 'Al', username: 'al' },
-    { id: '5', name: 'Bo Z', username: null },
+    { id: '4', name: 'Al', username: 'al', phone: null, online: false },
+    { id: '5', name: 'Bo Z', username: null, phone: null, online: false },
   ]);
+});
+
+test('contacts carry their phone and last seen (R-Y189)', async () => {
+  const { actions } = make(() => ({
+    users: [
+      {
+        id: 4n,
+        firstName: 'Al',
+        phone: '15551234',
+        status: { className: 'UserStatusOnline' },
+      },
+      {
+        id: 5n,
+        firstName: 'Bo',
+        status: { className: 'UserStatusRecently' },
+      },
+    ],
+  }));
+  const { contacts } = await actions.chatContacts();
+  assert.deepEqual(contacts[0], {
+    id: '4',
+    name: 'Al',
+    username: null,
+    phone: '15551234',
+    online: true,
+  });
+  assert.equal(contacts[1].lastSeen, 'recently');
 });
 
 test('a group is created from contacts, applied and remembered', async () => {

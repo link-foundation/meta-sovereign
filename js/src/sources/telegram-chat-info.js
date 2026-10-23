@@ -30,7 +30,7 @@ const isChannel = (chat) => chat.startsWith('-100');
 const isGroup = (chat) => !isChannel(chat) && chat.startsWith('-');
 
 // Parse UserStatus into { online, lastSeen? }.
-const statusOf = (status) => {
+export const statusOf = (status) => {
   const cn = status?.className;
   if (cn === 'UserStatusOnline') {
     return { online: true };

@@ -2,7 +2,8 @@
  * New groups and channels, and a chat's info edited, as Telegram Desktop
  * does (R-Y129; learned, never copied):
  * - `chatContacts()` — the user's contacts to pick members from
- *   (contacts.getContacts) → `{ ok, contacts: [{ id, name, username }] }`;
+ *   (contacts.getContacts) → `{ ok, contacts: [{ id, name, username, phone, online,
+ *   lastSeen? }] }` (R-Y189: `lastSeen` an ISO time, or recently/week/month);
  * - `createGroup({ title, users })` — a basic group of those contacts
  *   (messages.createChat) → `{ ok, chat, title }`;
  * - `createChannel({ title, about })` — a broadcast channel
@@ -15,6 +16,7 @@
  */
 
 import { markedId } from './telegram-invite.js';
+import { statusOf } from './telegram-chat-info.js';
 import { connect, runIn, connected } from './telegram-stickers.js';
 
 export const MAX_TITLE = 128;
@@ -88,6 +90,9 @@ const createContacts = (env, userClient, known) => async () =>
           id: textOf(u.id),
           name: nameOf(u),
           username: u.username ?? null,
+          // The Contacts window (R-Y189): number and last seen.
+          phone: u.phone ? String(u.phone) : null,
+          ...statusOf(u.status),
         }))
         .sort((a, b) => a.name.localeCompare(b.name)),
     };

@@ -207,6 +207,7 @@ import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { EXPORT_POSTS } from './routes-telegram-export.js';
 import { PAID_POSTS } from './routes-telegram-paid.js';
 import { VOICE_CHAT_POSTS } from './routes-telegram-voice-chat.js';
+import { CONTACTS_POSTS } from './routes-telegram-contacts.js';
 import { QUICK_REPLY_POSTS } from './routes-telegram-quick-replies.js';
 import { HASHTAG_POSTS } from './routes-telegram-hashtags.js';
 import { RINGTONE_GETS, RINGTONE_POSTS } from './routes-telegram-ringtones.js';
@@ -990,6 +991,7 @@ const POSTS = {
   ...EXPORT_POSTS,
   ...PAID_POSTS,
   ...VOICE_CHAT_POSTS,
+  ...CONTACTS_POSTS,
   ...QUICK_REPLY_POSTS,
   ...HASHTAG_POSTS,
   ...RINGTONE_POSTS,

@@ -193,6 +193,8 @@
     "test:e2e:dice": "node js/tests/e2e-dice-browser.mjs",
     "test:e2e:dice:webkit": "E2E_BROWSER=webkit node js/tests/e2e-dice-browser.mjs",
     "test:e2e:readers": "node js/tests/e2e-readers-browser.mjs",
+    "test:e2e:contacts": "node js/tests/e2e-contacts-browser.mjs",
+    "test:e2e:contacts:webkit": "E2E_BROWSER=webkit node js/tests/e2e-contacts-browser.mjs",
     "test:e2e:readers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-readers-browser.mjs",
     "test:e2e:bot-commands": "node js/tests/e2e-bot-commands-browser.mjs",
     "test:e2e:inline-bots": "node js/tests/e2e-inline-bots-browser.mjs",

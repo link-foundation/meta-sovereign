@@ -51,6 +51,7 @@ import { createChatlists } from './telegram-chatlists.js';
 import { createStickers } from './telegram-stickers.js';
 import { createStickerSets } from './telegram-sticker-sets.js';
 import { createContactsEdit } from './telegram-contacts-edit.js';
+import { createContactsActions } from './telegram-contacts.js';
 import { createChatThemes } from './telegram-chat-themes.js';
 import { createUsernames } from './telegram-usernames.js';
 import { createInvites } from './telegram-invite.js';
@@ -451,7 +452,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
 // sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
 // messages and channel autotranslation (R-Y184); voice chats and group calls
-// (R-Y188).
+// (R-Y188); the Contacts window and read times (R-Y189).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -478,6 +479,7 @@ const chatActions = (env, context) => {
     ...stickers,
     ...createStickerSets(env, { ...context, stickers: stickerLists }),
     ...createContactsEdit(env, context),
+    ...createContactsActions(env, context),
     ...createChatThemes(env, context),
     ...createUsernames(env, context),
     ...createCustomEmoji(env, context),

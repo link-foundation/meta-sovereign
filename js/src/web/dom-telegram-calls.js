@@ -86,6 +86,9 @@ export const TELEGRAM_CALLS = {
   telegramReactors: body('reactors'),
   // New groups and channels, a chat's info edited (R-Y129).
   telegramChatContacts: none('chat-contacts'),
+  // The Contacts window and read times (R-Y189).
+  telegramContactStatuses: none('contact-statuses'),
+  telegramReadTime: body('message-read-time'),
   telegramGroupCreate: body('group-create'),
   telegramChannelCreate: body('channel-create'),
   telegramChatEdit: body('chat-edit'),

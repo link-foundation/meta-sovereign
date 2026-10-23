@@ -47,6 +47,7 @@ import { ViewCount } from './chat-views.js';
 import { FactCheck } from './chat-fact-check.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 import { PaidMedia, PaidReactionChip } from './chat-paid.js';
+import { ReadTimeLine } from './chat-read-time.js';
 
 const el = React.createElement;
 
@@ -571,6 +572,7 @@ export const MsgContextMenu = ({
   selectedText = '',
   target = {},
   reactions = true,
+  api = null,
   onClose,
   onAction,
 }) => {
@@ -628,6 +630,9 @@ export const MsgContextMenu = ({
           })
         : null,
       ...(items ?? []).map((key) => {
+        if (key === 'readTime') {
+          return el(ReadTimeLine, { key, api, message });
+        }
         const [label, icon] = MENU_ITEMS[key] ?? [key, 'more'];
         return el(
           'li',
@@ -1269,6 +1274,7 @@ export const MessageBubble = ({
         message,
         menuFor,
         selecting,
+        api,
         onClose: () => setMenu(null),
         onAction,
       }),

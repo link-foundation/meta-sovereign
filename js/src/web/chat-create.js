@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { openChat } from './chat-state.js';
+import { useContactsWindow } from './chat-contacts-window.js';
 import { useEsc } from './chat-invite.js';
 
 const el = React.createElement;
@@ -323,6 +324,8 @@ export const NewChat = ({ api, AddContact = null }) => {
   const t = useT();
   const [menu, setMenu] = useState(false);
   const [dialog, setDialog] = useState(null);
+  // Contacts, as Desktop's main menu has it (R-Y189).
+  const contacts = useContactsWindow({ api, AddContact });
   if (typeof api?.telegramGroupCreate !== 'function') {
     return null;
   }
@@ -371,6 +374,20 @@ export const NewChat = ({ api, AddContact = null }) => {
             },
             t('chat.create.newChannel')
           ),
+          el(
+            'button',
+            {
+              key: 'ct',
+              type: 'button',
+              role: 'menuitem',
+              'data-action': 'open-contacts',
+              onClick: () => {
+                setMenu(false);
+                contacts.open();
+              },
+            },
+            t('chat.contacts.title')
+          ),
           canAdd
             ? el(
                 'button',
@@ -386,6 +403,7 @@ export const NewChat = ({ api, AddContact = null }) => {
             : null,
         ])
       : null,
+    contacts.dialog,
     dialog === 'group'
       ? el(GroupDialog, { key: 'dg', api, close: () => setDialog(null) })
       : null,

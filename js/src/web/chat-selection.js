@@ -38,6 +38,7 @@ import { networkMessageId } from './chat-model.js';
 import { gifIdOf } from './gif-id.js';
 import { isSongMessage } from './chat-music-save.js';
 import { hasReaders, hasReactors } from './chat-readers.js';
+import { hasReadTime } from './chat-read-time.js';
 import { hasTranslation } from './chat-translate.js';
 import { useT } from './i18n.js';
 import { noForwardsIn } from './chat-settings.js';
@@ -211,11 +212,18 @@ const singleItems = ({
     'forward',
     'delete',
     canReport(message, chat) && 'report',
-    hasReaders(message, chat) && 'readers',
-    hasReactors(message) && 'reactors',
+    ...whoItems(message, chat),
     'select',
+    // "Read at 14:05", a line, not an action (R-Y189).
+    hasReadTime(message, chat, info) && 'readTime',
   ];
 };
+
+// Who read it and who reacted (R-Y127).
+const whoItems = (message, chat) => [
+  hasReaders(message, chat) && 'readers',
+  hasReactors(message) && 'reactors',
+];
 
 // The menu while messages are selected: on one of them, what the
 // selection offers; on another, Select and Select up to this message.

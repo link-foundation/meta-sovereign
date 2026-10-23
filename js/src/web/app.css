@@ -10414,3 +10414,42 @@ span.bubble-effect {
   gap: 0.4rem;
   font-size: 0.85rem;
 }
+
+/* The Contacts window and read times in a private chat (R-Y189). */
+.contacts-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+.contacts-controls .chat-search {
+  flex: 1 1 100%;
+}
+.contacts-sort,
+.contacts-add {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.contacts-add {
+  margin-left: auto;
+}
+.contact-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.contact-status.is-online {
+  color: var(--accent);
+}
+.msg-context-menu li.msg-context-info {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: default;
+}
