@@ -60,6 +60,7 @@ import {
   listSources,
 } from '../sources/index.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
+import { createExtraAccounts } from '../sources/telegram-accounts.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
@@ -393,6 +394,21 @@ const telegramAccountFor = (store, log, options) => {
   return account;
 };
 
+// The extra accounts' live side (R-Y198): lazy, it dials nothing until an
+// extra account exists in the store and is asked for. None without an
+// account 1.
+const telegramContext = (store, log, account) => ({
+  telegramAccount: account,
+  telegramStore: store,
+  telegramAccounts: account
+    ? createExtraAccounts({ store, log: (e) => log?.(e) })
+    : null,
+});
+
+// Stop the services that were started (errors are not the caller's).
+const stopAll = (...services) =>
+  services.forEach((service) => service?.stop().catch(() => {}));
+
 // `telegram` sends and types through the connected account; every other
 // network keeps its adapter.
 const accountSources = (account) => (name) => {
@@ -605,7 +621,7 @@ export const startServer = async ({
     autoImportSignIns,
     telegramMtproto,
     telegramCreds,
-    telegramAccount,
+    ...telegramContext(store, log, telegramAccount),
     chatIndex,
   };
   const server = http.createServer((req, res) => {
@@ -675,7 +691,7 @@ export const startServer = async ({
         ctx.closeAutomations().catch(() => {});
         ctx.autoImport?.close();
         ctx.chatIndex.close();
-        telegramAccount?.stop().catch(() => {});
+        stopAll(telegramAccount, ctx.telegramAccounts);
         wsHandle?.close();
         signaling?.close();
         closeFront();

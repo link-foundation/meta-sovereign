@@ -1111,4 +1111,21 @@ export const enChatMore = {
   'chat.call.err.fingerprint': "The call's key fingerprint did not match.",
   'chat.call.err.restart': 'The call was interrupted.',
   'chat.call.err.failed': 'The call did not work.',
+  'chat.accounts.title': 'Accounts',
+  'chat.accounts.slot': 'Account {n}',
+  'chat.accounts.current': 'Current account',
+  'chat.accounts.add': 'Add account',
+  'chat.accounts.limit':
+    'You have {limit} accounts, the most allowed. More need Telegram Premium.',
+  'chat.accounts.loading': 'Loading…',
+  'chat.accounts.failed': 'Could not read the accounts.',
+  'chat.accounts.logout': 'Log out',
+  'chat.accounts.logoutTitle': 'Log out of {name}?',
+  'chat.accounts.logoutBody':
+    'Only this account is logged out here. Your other accounts are not changed.',
+  'chat.accounts.cancel': 'Cancel',
+  'chat.accounts.back': 'Back',
+  'chat.accounts.noChats': 'No chats.',
+  'chat.accounts.preview':
+    'This account’s chats, read-only. Opening and answering them is not available yet.',
 };

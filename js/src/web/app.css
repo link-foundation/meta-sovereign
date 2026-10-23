@@ -10982,3 +10982,50 @@ button.profile-username.is-collectible {
   flex-direction: row;
   justify-content: space-between;
 }
+
+/* The account switcher (R-Y198). */
+.accounts-list > .account-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.account-row .account-open {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+.account-unread {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+}
+.account-logout {
+  color: var(--danger);
+}
+.accounts-add {
+  margin-top: 10px;
+}
+.accounts-chats-head,
+.accounts-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.accounts-actions {
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.account-dialog {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}

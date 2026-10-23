@@ -204,6 +204,7 @@ import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
+import { ACCOUNTS_POSTS, resolveAccount } from './routes-telegram-accounts.js';
 import { APPS_POSTS } from './routes-telegram-apps.js';
 import { CHANNEL_DM_POSTS } from './routes-telegram-channel-dm.js';
 import { EXPORT_POSTS } from './routes-telegram-export.js';
@@ -995,6 +996,7 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  ...ACCOUNTS_POSTS,
   ...APPS_POSTS,
   ...CHECKLIST_STATS_POSTS,
   ...PROXY_POSTS,
@@ -1365,7 +1367,13 @@ const dispatch = async (account, req, res, p, ctx) => {
     return false;
   }
   const body = await readBody(req).catch(() => ({}));
-  const [status, answer] = await POSTS[name](account, body);
+  // `account` in the body picks an extra account; absent is account 1,
+  // as always (R-Y198).
+  const target = await resolveAccount(ctx, account, name, body);
+  if (target.error) {
+    return json(res, target.error[0], target.error[1]) ?? true;
+  }
+  const [status, answer] = await POSTS[name](target.account, body, ctx);
   return json(res, status, answer) ?? true;
 };
 

@@ -33,6 +33,7 @@ import {
   probeBrowserAutomation,
 } from '../sources/auto-import/index.js';
 import { createTelegramMtproto } from '../sources/telegram-mtproto.js';
+import { accountSlot, saveExtraAccount } from '../sources/telegram-accounts.js';
 
 const PREFIX = '/api/auto-import';
 const JOB_ROUTE =
@@ -232,9 +233,22 @@ const saveUserSession = async (store, apiId, apiHash, session) => {
 // and dropping the controller once the sign-in is complete.
 const loginReply = async (store, logins, id, login, meta) => {
   if (login.state === 'done') {
-    await saveUserSession(store, meta.apiId, meta.apiHash, login.session);
+    // An extra account (R-Y198) is kept under its own namespaced keys;
+    // account 1 is saved exactly as before.
+    if (meta.slot > 1) {
+      await saveExtraAccount(store, meta.slot, {
+        apiId: meta.apiId,
+        apiHash: meta.apiHash,
+        session: login.session,
+        account: login.account,
+      });
+    } else {
+      await saveUserSession(store, meta.apiId, meta.apiHash, login.session);
+    }
     logins.delete(id);
-    return { done: true, account: login.account };
+    return meta.slot > 1
+      ? { done: true, account: login.account, extra: meta.slot }
+      : { done: true, account: login.account };
   }
   if (login.state === 'password') {
     return { needs: 'password' };
@@ -245,19 +259,37 @@ const loginReply = async (store, logins, id, login, meta) => {
   return { needs: login.state };
 };
 
+const badLogin = (message) =>
+  Object.assign(new Error(message), { status: 400 });
+
+// The slot a sign-in is for: absent is account 1, as always. An extra
+// account beyond the third needs Premium (R-Y198).
+const loginSlot = async (body, ctx) => {
+  const slot = accountSlot(body.account);
+  if (slot === null) {
+    throw badLogin('no such account slot');
+  }
+  if (slot > 3) {
+    const me = await ctx.telegramAccount?.accountMe?.().catch(() => null);
+    if (!me?.premium) {
+      throw badLogin('more than 3 accounts need Telegram Premium');
+    }
+  }
+  return slot;
+};
+
 const startLogin = async (store, body, ctx) => {
   const { apiId, apiHash, phone } = body;
   if (!apiId || !apiHash || !phone) {
-    throw Object.assign(new Error('api_id, api_hash and phone are required'), {
-      status: 400,
-    });
+    throw badLogin('api_id, api_hash and phone are required');
   }
+  const slot = await loginSlot(body, ctx);
   const login = await mtprotoFor(ctx).createLogin({ apiId, apiHash, phone });
   await login.ready();
   const id = `tg-login-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const logins = loginsFor(ctx);
-  logins.set(id, { login, apiId, apiHash });
-  return loginReply(store, logins, id, login, { apiId, apiHash });
+  logins.set(id, { login, apiId, apiHash, slot });
+  return loginReply(store, logins, id, login, { apiId, apiHash, slot });
 };
 
 const continueLogin = async (store, action, body, ctx) => {
@@ -268,7 +300,7 @@ const continueLogin = async (store, action, body, ctx) => {
       status: 404,
     });
   }
-  const { login, apiId, apiHash } = entry;
+  const { login, apiId, apiHash, slot } = entry;
   if (action === 'cancel') {
     await login.cancel();
     logins.delete(body.id);
@@ -279,7 +311,7 @@ const continueLogin = async (store, action, body, ctx) => {
   } else {
     await login.submitPassword(body.password);
   }
-  return loginReply(store, logins, body.id, login, { apiId, apiHash });
+  return loginReply(store, logins, body.id, login, { apiId, apiHash, slot });
 };
 
 const telegramLoginRoute = async (store, req, res, ctx, action) => {
@@ -289,7 +321,8 @@ const telegramLoginRoute = async (store, req, res, ctx, action) => {
       ? await startLogin(store, body, ctx)
       : await continueLogin(store, action, body, ctx);
   ctx.log?.({ event: 'telegram_login', action, state: result.needs ?? 'done' });
-  if (result.done) {
+  // Account 1's service is only told about account 1's sign-in.
+  if (result.done && !result.extra) {
     accountConnected(ctx);
   }
   return json(res, 200, result) ?? true;

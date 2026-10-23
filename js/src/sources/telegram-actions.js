@@ -53,6 +53,7 @@ import { createStickers } from './telegram-stickers.js';
 import { createStickerSets } from './telegram-sticker-sets.js';
 import { createContactsEdit } from './telegram-contacts-edit.js';
 import { createContactsActions } from './telegram-contacts.js';
+import { createAccountsActions } from './telegram-accounts.js';
 import { createChatThemes } from './telegram-chat-themes.js';
 import { createUsernames } from './telegram-usernames.js';
 import { createInvites } from './telegram-invite.js';
@@ -462,7 +463,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // interface scale and the connection proxy (R-Y192); channel direct messages
 // and suggested posts (R-Y191); popular mini apps, similar bots, prepared
 // messages and collectible usernames (R-Y194); managing received and unique
-// gifts and gift codes (R-Y193); private one-to-one calls (R-Y196).
+// gifts and gift codes (R-Y193); private one-to-one calls (R-Y196); more than
+// one account (R-Y198).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -493,6 +495,7 @@ const chatActions = (env, context) => {
     ...createStickerSets(env, { ...context, stickers: stickerLists }),
     ...createContactsEdit(env, context),
     ...createContactsActions(env, context),
+    ...createAccountsActions(env, context),
     ...createChatThemes(env, context),
     ...createUsernames(env, context),
     ...createCustomEmoji(env, context),

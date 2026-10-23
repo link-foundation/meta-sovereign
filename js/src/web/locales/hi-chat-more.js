@@ -1116,4 +1116,21 @@ export const hiChatMore = {
   'chat.call.err.fingerprint': 'कॉल की कुंजी का फ़िंगरप्रिंट मेल नहीं खाया।',
   'chat.call.err.restart': 'कॉल बाधित हो गई।',
   'chat.call.err.failed': 'कॉल नहीं हो सकी।',
+  'chat.accounts.title': 'खाते',
+  'chat.accounts.slot': 'खाता {n}',
+  'chat.accounts.current': 'वर्तमान खाता',
+  'chat.accounts.add': 'खाता जोड़ें',
+  'chat.accounts.limit':
+    'आपके पास {limit} खाते हैं, यही अधिकतम है। अधिक के लिए Telegram Premium चाहिए।',
+  'chat.accounts.loading': 'लोड हो रहा है…',
+  'chat.accounts.failed': 'खाते पढ़े नहीं जा सके।',
+  'chat.accounts.logout': 'लॉग आउट',
+  'chat.accounts.logoutTitle': '{name} से लॉग आउट करें?',
+  'chat.accounts.logoutBody':
+    'केवल यही खाता यहाँ लॉग आउट होगा। आपके अन्य खाते नहीं बदलेंगे।',
+  'chat.accounts.cancel': 'रद्द करें',
+  'chat.accounts.back': 'वापस',
+  'chat.accounts.noChats': 'कोई चैट नहीं।',
+  'chat.accounts.preview':
+    'इस खाते की चैट, केवल पढ़ने के लिए। उन्हें खोलना और जवाब देना अभी उपलब्ध नहीं है।',
 };

@@ -9,6 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { openChat } from './chat-state.js';
 import { useContactsWindow } from './chat-contacts-window.js';
+import { useAccountsWindow } from './chat-accounts.js';
 import { useEsc } from './chat-invite.js';
 
 const el = React.createElement;
@@ -326,6 +327,8 @@ export const NewChat = ({ api, AddContact = null }) => {
   const [dialog, setDialog] = useState(null);
   // Contacts, as Desktop's main menu has it (R-Y189).
   const contacts = useContactsWindow({ api, AddContact });
+  // The account switcher (R-Y198).
+  const accounts = useAccountsWindow({ api });
   if (typeof api?.telegramGroupCreate !== 'function') {
     return null;
   }
@@ -374,6 +377,22 @@ export const NewChat = ({ api, AddContact = null }) => {
             },
             t('chat.create.newChannel')
           ),
+          typeof api?.telegramAccounts === 'function'
+            ? el(
+                'button',
+                {
+                  key: 'ac-sw',
+                  type: 'button',
+                  role: 'menuitem',
+                  'data-action': 'open-accounts',
+                  onClick: () => {
+                    setMenu(false);
+                    accounts.open();
+                  },
+                },
+                t('chat.accounts.title')
+              )
+            : null,
           el(
             'button',
             {
@@ -404,6 +423,7 @@ export const NewChat = ({ api, AddContact = null }) => {
         ])
       : null,
     contacts.dialog,
+    accounts.dialog,
     dialog === 'group'
       ? el(GroupDialog, { key: 'dg', api, close: () => setDialog(null) })
       : null,

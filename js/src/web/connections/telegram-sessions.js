@@ -385,7 +385,7 @@ const useFinder = (onConnected) => {
 const LoginField = ({ id, type, value, onChange, placeholder }) =>
   el(CredentialField, { id, type, value, placeholder, onChange });
 
-const useTelegramLogin = (onConnected) => {
+const useTelegramLogin = (onConnected, slot = 1) => {
   const [form, setForm] = useState({
     apiId: '',
     apiHash: '',
@@ -438,6 +438,8 @@ const useTelegramLogin = (onConnected) => {
         apiId: form.apiId,
         apiHash: form.apiHash,
         phone: form.phone,
+        // An extra account signs in to its own slot (R-Y198).
+        ...(slot > 1 ? { account: slot } : {}),
       }),
     submitCode: () => run('code', { id: idRef.current, code: form.code }),
     submitPassword: () =>
@@ -445,9 +447,9 @@ const useTelegramLogin = (onConnected) => {
   };
 };
 
-export const TelegramLoginForm = ({ onConnected }) => {
+export const TelegramLoginForm = ({ onConnected, account = 1 }) => {
   const t = useT();
-  const l = useTelegramLogin(onConnected);
+  const l = useTelegramLogin(onConnected, account);
   if (l.needs === 'done') {
     return el('section', { className: 'card tg-login tg-login-done' }, [
       el('strong', { key: 't' }, t('telegramLogin.connected')),
@@ -466,7 +468,11 @@ export const TelegramLoginForm = ({ onConnected }) => {
         : { key: 'telegramLogin.sendCode', on: l.start };
   return el(
     'section',
-    { className: 'card tg-login', 'data-tutorial-id': 'telegram-login' },
+    {
+      className: 'card tg-login',
+      'data-tutorial-id': 'telegram-login',
+      ...(account > 1 ? { 'data-login-account': account } : {}),
+    },
     [
       el('header', { key: 'h', className: 'tg-login-head' }, [
         el('h3', { key: 't' }, t('telegramLogin.title')),

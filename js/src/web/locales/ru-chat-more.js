@@ -1127,4 +1127,21 @@ export const ruChatMore = {
   'chat.call.err.fingerprint': 'Отпечаток ключа звонка не совпал.',
   'chat.call.err.restart': 'Звонок был прерван.',
   'chat.call.err.failed': 'Звонок не получился.',
+  'chat.accounts.title': 'Аккаунты',
+  'chat.accounts.slot': 'Аккаунт {n}',
+  'chat.accounts.current': 'Текущий аккаунт',
+  'chat.accounts.add': 'Добавить аккаунт',
+  'chat.accounts.limit':
+    'У вас {limit} аккаунта — это максимум. Больше можно с Telegram Premium.',
+  'chat.accounts.loading': 'Загрузка…',
+  'chat.accounts.failed': 'Не удалось прочитать аккаунты.',
+  'chat.accounts.logout': 'Выйти',
+  'chat.accounts.logoutTitle': 'Выйти из аккаунта {name}?',
+  'chat.accounts.logoutBody':
+    'Выход только из этого аккаунта. Остальные аккаунты не изменятся.',
+  'chat.accounts.cancel': 'Отмена',
+  'chat.accounts.back': 'Назад',
+  'chat.accounts.noChats': 'Нет чатов.',
+  'chat.accounts.preview':
+    'Чаты этого аккаунта, только для чтения. Открывать их и отвечать пока нельзя.',
 };
