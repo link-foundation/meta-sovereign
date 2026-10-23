@@ -178,10 +178,11 @@ try {
   await page.waitForSelector('[data-action="attach"]');
   await page.fill('.chat-composer textarea', 'the two of them');
 
-  // The paperclip: the system's picker (two pictures).
+  // The paperclip's menu: File, the system's picker (two pictures).
+  await page.click('[data-action="attach"]');
   const [chooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    page.click('[data-action="attach"]'),
+    page.click('[data-action="attach-file"]'),
   ]);
   await chooser.setFiles([
     { name: 'one.png', mimeType: 'image/png', buffer: PNG },

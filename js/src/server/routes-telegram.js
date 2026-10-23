@@ -724,6 +724,58 @@ for (const [name, [method, valid, fields]] of Object.entries(POLL_POSTS)) {
   };
 }
 
+// A new poll (R-Y121): strict limits, as Telegram's.
+const POLL_LIMITS = { question: 255, option: 100, solution: 200 };
+const textOf = (value, max) =>
+  typeof value === 'string' && value.trim().length > 0 && value.length <= max;
+const validOptionList = (options) =>
+  Array.isArray(options) &&
+  options.length >= 2 &&
+  options.length <= 10 &&
+  options.every((o) => textOf(o, POLL_LIMITS.option));
+// A quiz names its one right answer (and may explain it); it takes no
+// multiple answers. Anything else names none.
+const validQuiz = (b) =>
+  !(b.quiz && b.multiple) &&
+  (b.quiz
+    ? Number.isInteger(b.correct) &&
+      b.correct >= 0 &&
+      b.correct < b.options.length
+    : b.correct === undefined && b.solution === undefined) &&
+  (b.solution === undefined ||
+    (typeof b.solution === 'string' &&
+      b.solution.length <= POLL_LIMITS.solution));
+const validPoll = (b) =>
+  validChat(b.chat) &&
+  textOf(b.question, POLL_LIMITS.question) &&
+  validOptionList(b.options) &&
+  ['anonymous', 'multiple', 'quiz'].every((k) => typeof b[k] === 'boolean') &&
+  validQuiz(b) &&
+  (b.silent === undefined || typeof b.silent === 'boolean') &&
+  (b.scheduleDate === undefined || validSchedule(b.scheduleDate));
+POSTS['send-poll'] = async (account, body) => {
+  if (!validPoll(body) || typeof account.sendPoll !== 'function') {
+    return [400, { error: 'a valid poll required', code: 'bad-request' }];
+  }
+  const replyTo = Number(body.replyTo);
+  return [
+    200,
+    await account.sendPoll({
+      chat: body.chat,
+      question: body.question.trim(),
+      options: body.options.map((o) => o.trim()),
+      anonymous: body.anonymous,
+      multiple: body.multiple,
+      quiz: body.quiz,
+      ...(body.quiz ? { correct: body.correct } : {}),
+      ...(body.solution?.trim() ? { solution: body.solution.trim() } : {}),
+      replyTo: Number.isInteger(replyTo) && replyTo > 0 ? replyTo : null,
+      clientId: typeof body.clientId === 'string' ? body.clientId : null,
+      ...whenOf(body),
+    }),
+  ];
+};
+
 // Pictures are the user's own: only the app's pages may load them, so
 // another site open in the browser can neither see them nor make
 // Telegram download them. The server's own page: browsers say where an

@@ -987,6 +987,10 @@ export const api = {
       error: 'server required for polls',
     },
 
+  // A new poll (R-Y121): { chat, question, options, anonymous, multiple,
+  // quiz, correct?, solution?, replyTo?, silent?, scheduleDate? }.
+  telegramSendPoll: (body = {}) => telegramPost('send-poll', body),
+
   // Edit, delete, react to, forward a message or mark a chat read on any
   // network: the server tries the API, then the network's web app.
   messageAction: async (action, body = {}) =>

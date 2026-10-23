@@ -5588,3 +5588,67 @@ button[aria-busy='true']::before {
   object-fit: contain;
   pointer-events: none;
 }
+
+/* A new poll (R-Y121): the paperclip's menu and the dialog. */
+.attach-menu {
+  position: fixed;
+}
+.attach-menu li {
+  padding: 0;
+}
+.attach-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.poll-dialog {
+  width: min(460px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+}
+.poll-dialog h3 {
+  margin: 0;
+}
+.poll-heading {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted, inherit);
+}
+.poll-question,
+.poll-option input[type='text'],
+.poll-solution {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+}
+.poll-options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.poll-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.poll-option input[type='text'] {
+  flex: 1;
+  min-width: 0;
+}
+.poll-remove {
+  flex: none;
+}
+.poll-dialog .schedule-hint {
+  margin: 0;
+}

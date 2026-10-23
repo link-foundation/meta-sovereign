@@ -54,6 +54,7 @@ import {
   useAttach,
   useDropFiles,
 } from './chat-attach.js';
+import { PollDialog, usePollCreate } from './chat-poll-create.js';
 import {
   ScheduleDialog,
   ScheduledButton,
@@ -951,6 +952,8 @@ const Composer = ({ state, api, keys }) => {
   // Files and photos: the paperclip, a paste, a drop (R-Y99).
   const attach = useAttach({ state, api });
   const dragging = useDropFiles(attach);
+  // A new poll, from the paperclip's menu (R-Y121).
+  const poll = usePollCreate({ state, api, composer });
   // The Send buttons' menu; scheduled messages (R-Y102).
   const later = useSendLater({ state, api, composer, attach });
   // The emoji panel (R-Y104), with stickers and GIFs (R-Y105).
@@ -1010,7 +1013,13 @@ const Composer = ({ state, api, keys }) => {
       }),
       el('div', { key: 'row', className: 'chat-composer-row' }, [
         voice.bar,
-        voice.recording ? null : el(AttachButton, { key: 'attach', attach }),
+        voice.recording
+          ? null
+          : el(AttachButton, {
+              key: 'attach',
+              attach,
+              onPoll: poll.enabled ? poll.show : null,
+            }),
         voice.recording
           ? null
           : el(ScheduledButton, {
@@ -1061,6 +1070,7 @@ const Composer = ({ state, api, keys }) => {
       attach,
       sendProps: later.filesMenu.props,
     }),
+    poll.shown ? el(PollDialog, { key: 'poll', poll }) : null,
     ...later.parts,
     ...(stickers.parts ?? []),
   ]);

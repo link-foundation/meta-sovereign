@@ -13,10 +13,15 @@
  *   what in a public poll: messages.getPollVotes) and `toggleTodo`
  *   (messages.toggleTodoCompleted).
  *
+ * - `sendPoll` (a new poll, R-Y121: messages.sendMedia with InputMediaPoll; its
+ *   answers as InputPollAnswer, a quiz's right one by its place;
+ *   Telegram's answer goes to the live handler).
+ *
  * An option is bytes; the app and the store name it in base64 (R-Y28).
  */
 
 import { peerChatId } from './telegram-updates.js';
+import { randomIdOf, replyHeader, sendError } from './telegram-send.js';
 
 const SOURCE = 'telegram';
 
@@ -128,6 +133,33 @@ const closedPoll = (Api, helpers, poll) =>
     hash: helpers.returnBigInt(String(poll.hash ?? 0)),
   });
 
+const withText = (Api, value) =>
+  new Api.TextWithEntities({ text: String(value), entities: [] });
+
+// A new poll as `InputMediaPoll`: its answers as `InputPollAnswer`
+// (Telegram names them), the right one of a quiz by its place — layer
+// 225's way of making a poll.
+const newPoll = (Api, helpers, draft) => {
+  const quiz = draft.quiz === true;
+  return new Api.InputMediaPoll({
+    poll: new Api.Poll({
+      id: helpers.returnBigInt(0),
+      publicVoters: draft.anonymous === false,
+      multipleChoice: !quiz && draft.multiple === true,
+      quiz,
+      question: withText(Api, draft.question),
+      answers: draft.options.map(
+        (option) => new Api.InputPollAnswer({ text: withText(Api, option) })
+      ),
+      hash: helpers.returnBigInt(0),
+    }),
+    ...(quiz ? { correctAnswers: [draft.correct] } : {}),
+    ...(quiz && draft.solution
+      ? { solution: String(draft.solution), solutionEntities: [] }
+      : {}),
+  });
+};
+
 // Who voted, by name: from the users and chats Telegram sent along.
 const namesOf = (result) => {
   const names = new Map();
@@ -155,6 +187,49 @@ const voteOf = (names) => (v) => {
     date: Number(v.date) || null,
   };
 };
+
+// A new poll (messages.sendMedia); Telegram's answer goes through the
+// live handler, so it shows in the chat as other sends do.
+const createPollSender =
+  (env, { userClient, apply }) =>
+  async (draft = {}) => {
+    const target = String(draft.chat ?? '');
+    const client = target ? await userClient() : null;
+    if (!client) {
+      return { ok: false, supported: false };
+    }
+    const { Api, helpers } = await env.importer();
+    try {
+      const result = await env.connection.withPeer(client, target, (peer) =>
+        env.queue.run(`poll:send:${target}`, 'view', () =>
+          client.invoke(
+            new Api.messages.SendMedia({
+              peer,
+              media: newPoll(Api, helpers, draft),
+              message: '',
+              randomId: randomIdOf(draft.clientId, 0, helpers),
+              clearDraft: false,
+              ...(draft.silent ? { silent: true } : {}),
+              ...(draft.scheduleDate
+                ? { scheduleDate: draft.scheduleDate }
+                : {}),
+              ...replyHeader(Api, draft.replyTo, null),
+            })
+          )
+        )
+      );
+      if (result && typeof result === 'object') {
+        await apply(client, result);
+      }
+    } catch (error) {
+      throw sendError(error);
+    }
+    if (draft.scheduleDate) {
+      env.actions?.scheduledChanged?.(target);
+      return { ok: true, chat: target, scheduled: true };
+    }
+    return { ok: true, chat: target };
+  };
 
 /**
  * The poll and checklist actions over the user's client. `apply(client,
@@ -275,6 +350,7 @@ export const createPollActions = (env, { userClient, apply }) => {
     });
 
   return {
+    sendPoll: createPollSender(env, { userClient, apply }),
     votePoll: vote,
     stopPoll: stop,
     pollResults: results,

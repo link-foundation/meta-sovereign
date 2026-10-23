@@ -6,7 +6,7 @@
 // (pictures as photos, else as files) and "Group items" (albums); Send
 // uploads them, showing how far, and Telegram gets them together.
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 
@@ -224,13 +224,76 @@ export const pasteFiles = (attach) => (event) => {
   }
 };
 
-/** The paperclip by the message box. */
-export const AttachButton = ({ attach }) => {
+// The paperclip's choices (R-Y99): files, and a poll when the page can
+// make one. Fixed over the button, closed by a click elsewhere or Escape.
+const AttachMenu = ({ at, onFile, onPoll, onClose }) => {
+  const t = useT();
+  useEffect(() => {
+    const onKey = (e) => e.key === 'Escape' && onClose();
+    const onDown = (e) => e.target.closest?.('.attach-menu') || onClose();
+    globalThis.addEventListener?.('keydown', onKey);
+    globalThis.addEventListener?.('pointerdown', onDown);
+    return () => {
+      globalThis.removeEventListener?.('keydown', onKey);
+      globalThis.removeEventListener?.('pointerdown', onDown);
+    };
+  }, [onClose]);
+  const item = (key, icon, label, run) =>
+    el(
+      'li',
+      { key },
+      el(
+        'button',
+        {
+          type: 'button',
+          className: 'attach-menu-item',
+          'data-action': `attach-${key}`,
+          onClick: () => {
+            onClose();
+            run();
+          },
+        },
+        [
+          el(Icon, { key: 'i', name: icon, size: 18 }),
+          el('span', { key: 't' }, t(label)),
+        ]
+      )
+    );
+  return el(
+    'ul',
+    {
+      className: 'msg-context-menu attach-menu',
+      role: 'menu',
+      style: { left: at.x, bottom: at.y },
+    },
+    [
+      item('file', 'file', 'chat.attach.file', onFile),
+      item('poll', 'chart', 'chat.attach.poll', onPoll),
+    ]
+  );
+};
+
+/**
+ * The paperclip by the message box. With `onPoll` it opens a small menu
+ * (File, Poll); without, it goes straight to the files.
+ */
+export const AttachButton = ({ attach, onPoll = null }) => {
   const t = useT();
   const input = useRef(null);
+  const [at, setAt] = useState(null);
+  const close = useCallback(() => setAt(null), []);
   if (!attach.enabled) {
     return null;
   }
+  const pick = () => input.current?.click();
+  const open = (event) => {
+    if (!onPoll) {
+      pick();
+      return;
+    }
+    const box = event.currentTarget.getBoundingClientRect();
+    setAt({ x: box.left, y: (globalThis.innerHeight ?? 768) - box.top + 6 });
+  };
   return el('span', { className: 'chat-attach' }, [
     el(
       'button',
@@ -241,10 +304,13 @@ export const AttachButton = ({ attach }) => {
         'data-action': 'attach',
         'aria-label': t('chat.attach.button'),
         title: t('chat.attach.button'),
-        onClick: () => input.current?.click(),
+        onClick: open,
       },
       el(Icon, { name: 'paperclip', size: 20 })
     ),
+    at
+      ? el(AttachMenu, { key: 'm', at, onFile: pick, onPoll, onClose: close })
+      : null,
     el('input', {
       key: 'i',
       ref: input,
