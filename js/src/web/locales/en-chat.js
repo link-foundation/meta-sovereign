@@ -625,4 +625,6 @@ export const enChat = {
   'chat.edit.setPhoto': 'Set photo',
   'chat.edit.removePhoto': 'Remove photo',
   'chat.edit.photoWillGo': 'The photo will be removed',
+  'chat.notify.hidden': 'New message',
+  'chat.notify.message': 'Message',
 };

@@ -313,6 +313,16 @@ export const hi = {
   'settings.readReceipts': 'चैट पढ़ने पर उसे पढ़ा हुआ चिह्नित करें',
   'settings.readReceiptsHint':
     'डिफ़ॉल्ट रूप से चालू, जैसे Telegram के अपने ऐप में। बंद होने पर यहाँ चैट पढ़ने से Telegram पर वह पढ़ी हुई नहीं मानी जाती: भेजने वाले को ✓✓ नहीं दिखता और अपठित गिनती बनी रहती है।',
+  'settings.notify.title': 'सूचनाएँ',
+  'settings.notify.on': 'नए संदेश सूचनाओं के रूप में दिखाएँ',
+  'settings.notify.preview': 'भेजने वाला और पाठ दिखाएँ',
+  'settings.notify.count': 'पेज के शीर्षक में अपठित संख्या',
+  'settings.notify.granted': 'यह ब्राउज़र इस पेज की सूचनाएँ दिखाता है।',
+  'settings.notify.default':
+    'जब आप सूचनाएँ चालू करेंगे, ब्राउज़र अनुमति माँगेगा।',
+  'settings.notify.denied':
+    'ब्राउज़र की सेटिंग में इस पेज की सूचनाएँ अवरुद्ध हैं।',
+  'settings.notify.unsupported': 'यह ब्राउज़र सूचनाएँ नहीं दिखा सकता।',
   'connections.enterManually': 'हाथ से दर्ज करें',
   'connections.howToConnect': 'कैसे कनेक्ट करें',
   'connections.recommended': 'अनुशंसित',

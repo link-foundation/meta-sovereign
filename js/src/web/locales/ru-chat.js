@@ -635,4 +635,6 @@ export const ruChat = {
   'chat.edit.setPhoto': 'Выбрать фото',
   'chat.edit.removePhoto': 'Удалить фото',
   'chat.edit.photoWillGo': 'Фото будет удалено',
+  'chat.notify.hidden': 'Новое сообщение',
+  'chat.notify.message': 'Сообщение',
 };

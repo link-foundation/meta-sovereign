@@ -598,4 +598,6 @@ export const zhChat = {
   'chat.edit.setPhoto': '设置照片',
   'chat.edit.removePhoto': '移除照片',
   'chat.edit.photoWillGo': '照片将被移除',
+  'chat.notify.hidden': '新消息',
+  'chat.notify.message': '消息',
 };

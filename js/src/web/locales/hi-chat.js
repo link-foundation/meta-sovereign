@@ -625,4 +625,6 @@ export const hiChat = {
   'chat.edit.setPhoto': 'फ़ोटो चुनें',
   'chat.edit.removePhoto': 'फ़ोटो हटाएँ',
   'chat.edit.photoWillGo': 'फ़ोटो हटा दी जाएगी',
+  'chat.notify.hidden': 'नया संदेश',
+  'chat.notify.message': 'संदेश',
 };

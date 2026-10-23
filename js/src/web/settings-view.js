@@ -9,6 +9,12 @@ import React from 'react';
 import { useT } from './i18n.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
+import {
+  NOTIFY_KEY,
+  NOTIFY_PREVIEW_KEY,
+  TITLE_COUNT_KEY,
+  usePref,
+} from './chat-notify.js';
 
 const el = React.createElement;
 
@@ -70,6 +76,18 @@ export const AppearanceSettings = ({ appearance }) => {
   );
 };
 
+const Check = ({ action, checked, onChange, label }) =>
+  el('label', { className: 'check' }, [
+    el('input', {
+      key: 'i',
+      type: 'checkbox',
+      checked,
+      'data-action': action,
+      onChange: (event) => onChange(event.target.checked),
+    }),
+    ` ${label}`,
+  ]);
+
 /**
  * What other people may see: "typing…" (off by default) and that a chat
  * was read (on by default, as in Telegram's own apps).
@@ -83,36 +101,85 @@ export const PrivacySettings = () => {
     { className: 'card privacy', 'aria-labelledby': 'privacy-title' },
     [
       el('h3', { key: 'h', id: 'privacy-title' }, t('settings.privacy.title')),
-      el('label', { key: 'typing', className: 'check' }, [
-        el('input', {
-          key: 'i',
-          type: 'checkbox',
-          checked: shareTyping,
-          'data-action': 'share-typing',
-          onChange: (event) => setShareTyping(event.target.checked),
-        }),
-        ` ${t('settings.shareTyping')}`,
-      ]),
+      el(Check, {
+        key: 'typing',
+        action: 'share-typing',
+        checked: shareTyping,
+        onChange: setShareTyping,
+        label: t('settings.shareTyping'),
+      }),
       el(
         'p',
         { key: 'hint', className: 'meta' },
         t('settings.shareTypingHint')
       ),
-      el('label', { key: 'read', className: 'check' }, [
-        el('input', {
-          key: 'i',
-          type: 'checkbox',
-          checked: readReceipts,
-          'data-action': 'read-receipts',
-          onChange: (event) => setReadReceipts(event.target.checked),
-        }),
-        ` ${t('settings.readReceipts')}`,
-      ]),
+      el(Check, {
+        key: 'read',
+        action: 'read-receipts',
+        checked: readReceipts,
+        onChange: setReadReceipts,
+        label: t('settings.readReceipts'),
+      }),
       el(
         'p',
         { key: 'read-hint', className: 'meta' },
         t('settings.readReceiptsHint')
       ),
+    ]
+  );
+};
+
+// What the browser says of notifications: allowed, blocked, or not asked.
+const permissionNow = () =>
+  typeof globalThis.Notification === 'function'
+    ? globalThis.Notification.permission
+    : 'unsupported';
+
+/** New messages as the system's notifications, and the title's count (R-Y134). */
+export const NotificationSettings = () => {
+  const t = useT();
+  const [notify, setNotify] = usePref(NOTIFY_KEY, true);
+  const [preview, setPreview] = usePref(NOTIFY_PREVIEW_KEY, true);
+  const [count, setCount] = usePref(TITLE_COUNT_KEY, true);
+  const [permission, setPermission] = React.useState(permissionNow);
+  const turn = async (on) => {
+    setNotify(on);
+    if (on && permission === 'default') {
+      const answer = await globalThis.Notification.requestPermission();
+      setPermission(answer);
+    }
+  };
+  return el(
+    'section',
+    { className: 'card notifications', 'aria-labelledby': 'notify-title' },
+    [
+      el('h3', { key: 'h', id: 'notify-title' }, t('settings.notify.title')),
+      el(Check, {
+        key: 'on',
+        action: 'notify',
+        checked: notify && permission !== 'denied',
+        onChange: turn,
+        label: t('settings.notify.on'),
+      }),
+      el(
+        'p',
+        { key: 'state', className: 'meta', 'data-permission': permission },
+        t(`settings.notify.${permission}`)
+      ),
+      el(Check, {
+        key: 'preview',
+        action: 'notify-preview',
+        checked: preview,
+        onChange: setPreview,
+        label: t('settings.notify.preview'),
+      }),
+      el(Check, {
+        key: 'count',
+        action: 'title-count',
+        checked: count,
+        onChange: setCount,
+        label: t('settings.notify.count'),
+      }),
     ]
   );
 };
@@ -144,5 +211,6 @@ export const SettingsView = () => {
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
     el(PrivacySettings, { key: 'privacy' }),
+    el(NotificationSettings, { key: 'notify' }),
   ]);
 };

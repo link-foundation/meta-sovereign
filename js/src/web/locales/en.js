@@ -314,6 +314,16 @@ export const en = {
   'settings.readReceipts': 'Mark chats as read when I read them',
   'settings.readReceiptsHint':
     'On by default, as in Telegram’s own apps. When off, reading a chat here does not mark it read on Telegram: the sender does not see ✓✓ and unread counts stay.',
+  'settings.notify.title': 'Notifications',
+  'settings.notify.on': 'Show new messages as notifications',
+  'settings.notify.preview': 'Show the sender and the text',
+  'settings.notify.count': 'Unread count in the page title',
+  'settings.notify.granted': 'This browser shows notifications from this page.',
+  'settings.notify.default':
+    'The browser will ask to allow notifications when you turn them on.',
+  'settings.notify.denied':
+    'Notifications are blocked for this page in the browser’s settings.',
+  'settings.notify.unsupported': 'This browser cannot show notifications.',
   'connections.enterManually': 'Enter manually',
   'connections.howToConnect': 'How to connect',
   'connections.recommended': 'Recommended',

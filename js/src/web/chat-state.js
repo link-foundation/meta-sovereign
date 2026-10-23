@@ -32,6 +32,7 @@ import {
 import { localizePreset } from './automations-model.js';
 import { readReadReceipts, readShareTyping } from './privacy-prefs.js';
 import { useComposer, useLiveLinks } from './chat-live.js';
+import { useNotifications } from './chat-notify.js';
 import { useReplyTargets } from './chat-replies.js';
 import { useChatInfo } from './chat-info.js';
 import { isTypingActive } from '../sources/live-links.js';
@@ -955,6 +956,7 @@ export const useChatState = (
     setActive(chatKey(target.source, String(target.chat)));
   };
   const opening = useOpening({ show, current, setActive, setNotice });
+  useNotifications({ chats: all, current, show, t });
   const composer = useComposer({
     api,
     current,

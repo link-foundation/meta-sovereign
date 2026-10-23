@@ -314,6 +314,17 @@ export const ru = {
   'settings.readReceipts': 'Отмечать чаты прочитанными, когда я их читаю',
   'settings.readReceiptsHint':
     'По умолчанию включено, как в приложениях Telegram. Когда выключено, чтение чата здесь не отмечает его прочитанным в Telegram: отправитель не видит ✓✓, счётчики непрочитанных остаются.',
+  'settings.notify.title': 'Уведомления',
+  'settings.notify.on': 'Показывать новые сообщения уведомлениями',
+  'settings.notify.preview': 'Показывать отправителя и текст',
+  'settings.notify.count': 'Число непрочитанных в заголовке страницы',
+  'settings.notify.granted': 'Браузер показывает уведомления этой страницы.',
+  'settings.notify.default':
+    'Браузер спросит разрешение на уведомления, когда вы их включите.',
+  'settings.notify.denied':
+    'Уведомления для этой страницы запрещены в настройках браузера.',
+  'settings.notify.unsupported':
+    'Этот браузер не умеет показывать уведомления.',
   'connections.enterManually': 'Ввести вручную',
   'connections.howToConnect': 'Как подключить',
   'connections.recommended': 'Рекомендуем',

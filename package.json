@@ -135,7 +135,9 @@
     "test:e2e:dice": "node js/tests/e2e-dice-browser.mjs",
     "test:e2e:dice:webkit": "E2E_BROWSER=webkit node js/tests/e2e-dice-browser.mjs",
     "test:e2e:readers": "node js/tests/e2e-readers-browser.mjs",
-    "test:e2e:readers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-readers-browser.mjs"
+    "test:e2e:readers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-readers-browser.mjs",
+    "test:e2e:notify": "node js/tests/e2e-notify-browser.mjs",
+    "test:e2e:notify:webkit": "E2E_BROWSER=webkit node js/tests/e2e-notify-browser.mjs"
   },
   "keywords": [
     "personal-crm",
