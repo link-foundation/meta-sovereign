@@ -11,6 +11,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { PipButton, usePip } from './chat-pip.js';
 import { Checklist, Poll } from './chat-poll.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
@@ -166,6 +167,9 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
     gif ? near : playing
   );
   const video = file && (gif ? visible || playing : playing);
+  // Picture-in-picture where the browser has it (R-Y182).
+  const videoRef = useRef(null);
+  const pip = usePip(videoRef, Boolean(video));
   return el(
     'div',
     {
@@ -179,6 +183,7 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
       video
         ? el('video', {
             key: 'video',
+            ref: videoRef,
             className: 'media-video',
             ...mediaSrc(file),
             poster: thumb ?? undefined,
@@ -191,6 +196,7 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
           })
         : null,
       ...videoControls(t, { media, gif, playing, file, setPlaying }),
+      !gif && video ? el(PipButton, { key: 'pip', pip }) : null,
     ]
   );
 };

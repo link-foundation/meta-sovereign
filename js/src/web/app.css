@@ -9516,3 +9516,61 @@ span.bubble-effect {
   max-height: 90vh;
   overflow-y: auto;
 }
+
+/* Hashtag search, live view counters and picture-in-picture (R-Y182). */
+.msg-tag-search {
+  cursor: pointer;
+}
+.msg-tag-search:hover,
+.msg-tag-search:focus-visible {
+  text-decoration: underline;
+}
+.tag-results {
+  display: flex;
+  flex-direction: column;
+}
+.bubble-views,
+.bubble-forwards {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+.bubble-views {
+  gap: 0.25rem;
+  margin-right: 0.15rem;
+}
+.media-pip {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+}
+.media-pip:hover,
+.media-pip.active {
+  background: rgba(0, 0, 0, 0.8);
+}
+.bubble-round .media-pip {
+  top: 0.9rem;
+  right: 50%;
+  transform: translateX(50%);
+}
+.pip-keeper {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}

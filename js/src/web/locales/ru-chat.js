@@ -1007,4 +1007,16 @@ export const ruChat = {
   'business.away.title': 'Автоответ',
   'business.away.intro': 'Отвечайте автоматически, когда вас нет.',
   'business.away.on': 'Отправлять автоответ',
+  'chat.tags.title': 'Поиск {tag}',
+  'chat.tags.scope.chat': 'Этот чат',
+  'chat.tags.scope.all': 'Все чаты',
+  'chat.tags.scope.public': 'Публичные посты',
+  'chat.tags.none': 'Ничего не найдено',
+  'chat.tags.failed': 'Поиск не удался. Попробуйте ещё раз.',
+  'chat.tags.flood':
+    'Telegram просит подождать перед новым поиском. Попробуйте позже.',
+  'chat.tags.more': 'Показать ещё',
+  'chat.tags.unknownChat': 'Не удалось найти @{username}',
+  'chat.media.pip': 'Картинка в картинке',
+  'chat.media.pipExit': 'Выйти из режима «картинка в картинке»',
 };

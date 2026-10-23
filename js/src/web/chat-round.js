@@ -10,6 +10,7 @@ import { useT } from './i18n.js';
 import { mediaSrc } from './media-src.js';
 import { Poster, clockOf, useNearView, useUrl } from './chat-media.js';
 import { Transcribable, useTranscribe } from './chat-transcribe.js';
+import { PipButton, inPip, usePip } from './chat-pip.js';
 
 const el = React.createElement;
 
@@ -59,7 +60,8 @@ const useRoundVideo = ({ mode, visible, ready, onProgress, length }) => {
     }
     if (mode === 'playing' || visible) {
       video.play?.()?.catch?.(() => {});
-    } else {
+    } else if (!inPip(video)) {
+      // A video in the small window goes on playing (R-Y182).
       video.pause?.();
     }
   }, [mode, visible, ready]);
@@ -92,6 +94,7 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
     onProgress: setProgress,
     length: media.duration,
   });
+  const pip = usePip(ref, Boolean(file));
   const toggle = () => setMode(nextMode);
   const onEnd = () => {
     setMode('idle');
@@ -155,6 +158,7 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
             { key: 'badge', className: 'media-badge' },
             clockOf(media.duration)
           ),
+      file ? el(PipButton, { key: 'pip', pip }) : null,
     ]
   );
   return el(Transcribable, { state: words, round: true }, circle);

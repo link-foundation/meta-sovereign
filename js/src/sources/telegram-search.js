@@ -6,7 +6,9 @@
  *
  * `searchChat({ chat, q, offsetId? })` → `{ ids, count, more }`: the
  * network ids found (newest first), how many Telegram counts in all,
- * and whether there are older ones (ask again with the last id).
+ * and whether there are older ones (ask again with the last id). With
+ * `links: true` (a hashtag's list, R-Y182) it also answers `messages`
+ * (the found ones as links) and `cursor` (the last id, when there is more).
  */
 
 export const SEARCH_PAGE = 50;
@@ -18,7 +20,7 @@ export const MAX_QUERY = 256;
  * `writeChanged`.
  */
 export const createChatSearch = (env, { userClient, dialogOf, tools }) => {
-  const searchChat = async ({ chat, q, offsetId = 0 } = {}) => {
+  const searchChat = async ({ chat, q, offsetId = 0, links = false } = {}) => {
     const query = String(q ?? '')
       .trim()
       .slice(0, MAX_QUERY);
@@ -47,18 +49,23 @@ export const createChatSearch = (env, { userClient, dialogOf, tools }) => {
     const messages = [...(found ?? [])].filter(
       (m) => m && m.id !== undefined && m.className !== 'MessageEmpty'
     );
-    await tools.writeChanged(
-      env.store,
-      tools.toLinks(await dialogOf(target), messages)
-    );
+    const shown = tools.toLinks(await dialogOf(target), messages);
+    await tools.writeChanged(env.store, shown);
     const ids = messages.map((m) => Number(m.id));
     const count = Number(found?.total ?? ids.length) || ids.length;
+    const more = ids.length === SEARCH_PAGE; // a full page: older ones may be
     return {
       ok: true,
       ids,
       count,
-      // A full page: there may be older ones.
-      more: ids.length === SEARCH_PAGE,
+      more,
+      // A hashtag's list (R-Y182) wants the messages, and where to go on.
+      ...(links
+        ? {
+            messages: shown.map(({ raw: _raw, ...row }) => row),
+            cursor: more ? String(ids.at(-1)) : null,
+          }
+        : {}),
     };
   };
   return { searchChat };

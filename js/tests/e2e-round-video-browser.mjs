@@ -282,6 +282,24 @@ const playback = async () => {
         .canPlayType('video/webm; codecs="vp8"') !== ''
   );
   await round.locator('video').waitFor({ timeout: 10_000 });
+  // Picture-in-picture (R-Y182): the button is there exactly where the
+  // browser can do it (a headless one may not; it is not entered here).
+  const canPip = await round
+    .locator('video')
+    .evaluate(
+      (v) =>
+        (document.pictureInPictureEnabled === true &&
+          typeof v.requestPictureInPicture === 'function' &&
+          v.disablePictureInPicture !== true) ||
+        (typeof v.webkitSetPresentationMode === 'function' &&
+          typeof v.webkitSupportsPresentationMode === 'function' &&
+          v.webkitSupportsPresentationMode('picture-in-picture'))
+    );
+  await until(
+    async () =>
+      (await round.locator('[data-action="pip"]').count()) === (canPip ? 1 : 0),
+    `the picture-in-picture button follows the browser (${canPip})`
+  );
   if (decodes) {
     // Muted and looped, in place, once it is on screen.
     await until(async () => !(await videoState()).paused, 'plays in place');

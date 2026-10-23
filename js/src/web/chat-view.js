@@ -47,6 +47,7 @@ import { ChatAvatar } from './chat-list.js';
 import { EmojiStatus } from './emoji-status.js';
 import { replyRefOf, useChatActions } from './chat-actions.js';
 import { useMessageLinks } from './chat-link-open.js';
+import { TagSearchHost } from './chat-tags.js';
 import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
@@ -1126,6 +1127,8 @@ export const ChatScreen = ({ state, api }) => {
     { value: quote },
     el('div', { className: 'chat-shell', 'data-pane': pane }, [
       el(Sidebar, { key: 'side', state: { ...state, select }, api }),
+      // A clicked #hashtag or $cashtag searches (R-Y182).
+      el(TagSearchHost, { key: 'tag-search', api, state }),
       state.current
         ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
             // While messages are selected Desktop's top bar shows what

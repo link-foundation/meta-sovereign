@@ -77,6 +77,7 @@ import { createForumView } from './telegram-forum-view.js';
 import { createPinnedList } from './telegram-pinned-list.js';
 import { createSimilarChannels } from './telegram-similar-channels.js';
 import { createFactChecks } from './telegram-fact-checks.js';
+import { createViews } from './telegram-views.js';
 import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createChatReactions } from './telegram-chat-reactions.js';
 import { createChatSettings } from './telegram-chat-settings.js';
@@ -430,7 +431,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // gifts, paid reactions and paid media (R-Y176); two-step verification, account
 // self-destruct, sensitive content and per-session settings (R-Y177); a
 // birthday, colours and a personal channel on profiles (R-Y178); Telegram
-// Business quick replies, greeting and away messages (R-Y179).
+// Business quick replies, greeting and away messages (R-Y179); live view
+// counters of channel posts and hashtag search (R-Y182).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -485,6 +487,7 @@ const chatActions = (env, context) => {
     ...createPinnedList(env, context),
     ...createSimilarChannels(env, context),
     ...createFactChecks(env, context),
+    ...createViews(env, context),
     ...createTopicAdmin(env, context),
     ...createChatReactions(env, context),
     ...createChatSettings(env, context),

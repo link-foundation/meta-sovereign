@@ -42,6 +42,7 @@ import { InlineKeyboard } from './chat-bots.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
 import { formatCallDuration } from './call-model.js';
 import { CommentsBar } from './chat-comments-bar.js';
+import { ViewCount } from './chat-views.js';
 import { FactCheck } from './chat-fact-check.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 import { PaidMedia, PaidReactionChip } from './chat-paid.js';
@@ -978,6 +979,7 @@ const BubbleFooter = ({ parts, message, time, t, spacer = false, api, mine }) =>
           ? el('span', { key: 'fx', className: 'bubble-effect' }, '✨')
           : el(EffectBadge, { key: 'fx', id: parts.effect, message, api, mine })
         : null,
+      el(ViewCount, { key: 'views', message, api, track: !spacer }),
       `${time(message.timestamp)}${message.via === 'browser' ? ' · web' : ''}`,
       message.delivery
         ? el(DeliveryIcon, { key: 'd', status: message.delivery })

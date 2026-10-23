@@ -18,7 +18,11 @@ import { MyProfile } from './chat-profile.js';
 import { CallsButton } from './chat-calls.js';
 import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
-import { GlobalResults, useGlobalSearch } from './chat-global.js';
+import {
+  GlobalResults,
+  openFoundMessage,
+  useGlobalSearch,
+} from './chat-global.js';
 import { BirthdaysBlock } from './chat-person-extras.js';
 import { StoriesStrip, StoryViewerHost, useStories } from './stories.js';
 
@@ -268,16 +272,7 @@ const globalProps = (api, state, global) => ({
   search: global,
   listed: new Set(state.chats.map((c) => c.key)),
   onOpenPeer: (peer) => state.openAt({ source: 'telegram', ...peer }),
-  onOpenMessage: (link) =>
-    state.openAt(
-      {
-        source: 'telegram',
-        chat: link.chat,
-        name: link.chatName,
-        kind: link.chatType === 'personal_chat' ? 'user' : link.chatType,
-      },
-      link.id
-    ),
+  onOpenMessage: (link) => openFoundMessage(state, link),
 });
 
 // Stories give way to a search and to the archive.

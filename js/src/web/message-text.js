@@ -12,6 +12,7 @@ import { inviteHashOf, openInvite } from './chat-invite.js';
 import { openMessageLink } from './message-links.js';
 import { addlistSlugOf } from './chat-folder-model.js';
 import { openAddlist } from './chat-folder-share.js';
+import { openTagSearch, parseTag } from './chat-tags.js';
 
 const el = React.createElement;
 
@@ -222,6 +223,26 @@ const drawNode = (node, key, ctx) => {
             event.preventDefault();
           }
         },
+      },
+      children
+    );
+  }
+  if (node.kind === 'tag' && parseTag(node.text)) {
+    // A hashtag or cashtag opens a search for it (R-Y182).
+    const search = (event) => {
+      event.stopPropagation();
+      openTagSearch(node.text);
+    };
+    return el(
+      'span',
+      {
+        key,
+        className: 'msg-tag msg-tag-search',
+        role: 'button',
+        tabIndex: 0,
+        'data-tag': node.text,
+        onClick: search,
+        onKeyDown: (event) => event.key === 'Enter' && search(event),
       },
       children
     );

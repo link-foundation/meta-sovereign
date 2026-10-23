@@ -477,6 +477,15 @@ const ICONS = {
     ['path', { d: 'M9 18h6' }],
     ['path', { d: 'M10 22h4' }],
   ],
+  // Views of a post, and picture-in-picture (R-Y182).
+  eye: [
+    ['path', { d: 'M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z' }],
+    ['circle', { cx: 12, cy: 12, r: 3 }],
+  ],
+  pip: [
+    ['rect', { x: 2, y: 4, width: 20, height: 16, rx: 2 }],
+    ['rect', { x: 12, y: 12, width: 8, height: 6, rx: 1 }],
+  ],
   chart: [
     ['path', { d: 'M3 3v16a2 2 0 0 0 2 2h16' }],
     ['path', { d: 'M7 16h8' }],

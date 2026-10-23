@@ -205,6 +205,7 @@ import { GETS } from './routes-telegram-files.js';
 import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { QUICK_REPLY_POSTS } from './routes-telegram-quick-replies.js';
+import { HASHTAG_POSTS } from './routes-telegram-hashtags.js';
 import { SAVED_GIFS_POSTS } from './routes-telegram-saved-gifs.js';
 import { FORUM_VIEW_POSTS } from './routes-telegram-forum-view.js';
 import { TRANSCRIBE_POSTS } from './routes-telegram-transcribe.js';
@@ -974,6 +975,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...QUICK_REPLY_POSTS,
+  ...HASHTAG_POSTS,
   ...SAVED_GIFS_POSTS,
   ...FORUM_VIEW_POSTS,
   ...TRANSCRIBE_POSTS,

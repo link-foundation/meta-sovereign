@@ -10,7 +10,10 @@
  * members, mine }] }`;
  * `searchGlobal({ q, cursor? })` → `{ ok, messages, count, more, cursor }`
  * — `messages` the found ones as links, newest first; `cursor` asks for
- * the page after them.
+ * the page after them;
+ * `searchTag({ tag, scope, cursor? })` (R-Y182) — a hashtag or cashtag in
+ * every chat (`scope: 'all'`, messages.searchGlobal) or in public posts
+ * (`scope: 'public'`, channels.searchPosts), answered as searchGlobal.
  */
 
 export const GLOBAL_PAGE = 30;
@@ -82,6 +85,29 @@ const globalRequest = (Api, query, after) =>
     offsetId: after?.id ?? 0,
     limit: GLOBAL_PAGE,
   });
+
+// channels.searchPosts (R-Y182): a hashtag by itself, a cashtag as a query.
+const postsRequest = (Api, tag, after) =>
+  new Api.channels.SearchPosts({
+    ...(tag.startsWith('#') ? { hashtag: tag.slice(1) } : { query: tag }),
+    offsetRate: after?.rate ?? 0,
+    offsetPeer: after?.peer ?? new Api.InputPeerEmpty(),
+    offsetId: after?.id ?? 0,
+    limit: GLOBAL_PAGE,
+  });
+
+// Telegram's refusal of a search as the page's code.
+const tagFailure = (error) => {
+  const name = String(error?.errorMessage ?? error?.message ?? '');
+  return {
+    ok: false,
+    error: name,
+    code: /FLOOD|STARS/.test(name) ? 'flood' : 'failed',
+  };
+};
+
+/** A hashtag (#tag) or cashtag ($TAG) as the search takes it. */
+export const TAG = /^[#$][\p{L}\p{N}_]{1,64}$/u;
 
 const realOf = (answer) =>
   (answer?.messages ?? []).filter(
@@ -192,21 +218,10 @@ export const createGlobalSearch = (env, { userClient, tools }) => {
       .map(slim);
   };
 
-  const searchGlobal = async ({ q, cursor = null, priority = 'view' } = {}) => {
-    const query = queryOf(q);
-    const client = query ? await userClient() : null;
-    if (!client) {
-      return { ok: false, supported: false };
-    }
-    const after = cursor ? cursors.get(cursor) : null;
-    if (cursor && !after) {
-      return { ok: true, messages: [], count: 0, more: false, cursor: null };
-    }
-    const { Api, utils } = await env.importer();
-    const answer = await env.queue.run(
-      `global:${query}:${cursor ?? ''}`,
-      priority,
-      () => client.invoke(globalRequest(Api, query, after))
+  // One page of what Telegram finds, stored, with the next page's cursor.
+  const page = async ({ Api, utils, client, key, request, priority }) => {
+    const answer = await env.queue.run(key, priority ?? 'view', () =>
+      client.invoke(request)
     );
     const list = realOf(answer);
     const entities = entitiesOf(answer, utils);
@@ -221,5 +236,51 @@ export const createGlobalSearch = (env, { userClient, tools }) => {
     };
   };
 
-  return { searchPeers, searchGlobal };
+  const searchGlobal = async ({ q, cursor = null, priority = 'view' } = {}) => {
+    const query = queryOf(q);
+    const client = query ? await userClient() : null;
+    if (!client) {
+      return { ok: false, supported: false };
+    }
+    const after = cursor ? cursors.get(cursor) : null;
+    if (cursor && !after) {
+      return { ok: true, messages: [], count: 0, more: false, cursor: null };
+    }
+    const { Api, utils } = await env.importer();
+    return page({
+      Api,
+      utils,
+      client,
+      priority,
+      key: `global:${query}:${cursor ?? ''}`,
+      request: globalRequest(Api, query, after),
+    });
+  };
+
+  // A hashtag or cashtag everywhere, or in public posts (R-Y182).
+  const searchTag = async ({ tag, scope = 'all', cursor = null } = {}) => {
+    const client = TAG.test(String(tag)) ? await userClient() : null;
+    if (!client) {
+      return { ok: false, supported: false };
+    }
+    const after = cursor ? cursors.get(cursor) : null;
+    if (cursor && !after) {
+      return { ok: true, messages: [], count: 0, more: false, cursor: null };
+    }
+    const { Api, utils } = await env.importer();
+    const make = scope === 'public' ? postsRequest : globalRequest;
+    try {
+      return await page({
+        Api,
+        utils,
+        client,
+        key: `tag:${scope}:${tag}:${cursor ?? ''}`,
+        request: make(Api, tag, after),
+      });
+    } catch (error) {
+      return tagFailure(error);
+    }
+  };
+
+  return { searchPeers, searchGlobal, searchTag };
 };

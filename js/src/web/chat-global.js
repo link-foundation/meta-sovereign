@@ -190,7 +190,7 @@ const whoOf = (t, link) => {
   return link.chatType === 'group' ? (link.senderName ?? null) : null;
 };
 
-const MessageRow = ({ api, link, query, onOpen }) => {
+export const MessageRow = ({ api, link, query, onOpen }) => {
   const t = useT();
   const { chatTime } = useDates();
   const who = whoOf(t, link);
@@ -325,3 +325,18 @@ export const GlobalResults = ({
     el(MoreRow, { key: 'more', search }),
   ]);
 };
+
+/**
+ * Opens the chat of a found message at that message (a search across
+ * Telegram, a hashtag's list, R-Y182); `state.openAt` is the chat screen's.
+ */
+export const openFoundMessage = (state, link) =>
+  state.openAt(
+    {
+      source: 'telegram',
+      chat: link.chat,
+      name: link.chatName,
+      kind: link.chatType === 'personal_chat' ? 'user' : link.chatType,
+    },
+    link.id
+  );

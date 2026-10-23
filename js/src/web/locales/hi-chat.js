@@ -998,4 +998,16 @@ export const hiChat = {
   'business.away.title': 'अनुपस्थिति संदेश',
   'business.away.intro': 'आपके न होने पर अपने-आप जवाब दें।',
   'business.away.on': 'अनुपस्थिति संदेश भेजें',
+  'chat.tags.title': '{tag} खोजें',
+  'chat.tags.scope.chat': 'यह चैट',
+  'chat.tags.scope.all': 'सभी चैट',
+  'chat.tags.scope.public': 'सार्वजनिक पोस्ट',
+  'chat.tags.none': 'कुछ नहीं मिला',
+  'chat.tags.failed': 'खोज विफल रही। फिर कोशिश करें।',
+  'chat.tags.flood':
+    'Telegram अगली खोज से पहले रुकने को कहता है। बाद में कोशिश करें।',
+  'chat.tags.more': 'और दिखाएँ',
+  'chat.tags.unknownChat': '@{username} नहीं मिला',
+  'chat.media.pip': 'पिक्चर इन पिक्चर',
+  'chat.media.pipExit': 'पिक्चर इन पिक्चर से बाहर निकलें',
 };

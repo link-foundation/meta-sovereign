@@ -1245,6 +1245,9 @@ export const api = {
     telegramPost('similar-channels', body),
   telegramSimilarJoin: (body = {}) => telegramPost('similar-join', body),
   telegramFactChecks: (body = {}) => telegramPost('fact-checks', body),
+  // A hashtag's messages and the live counters of posts (R-Y182).
+  telegramSearchTag: (body = {}) => telegramPost('search-tag', body),
+  telegramMessageViews: (body = {}) => telegramPost('message-views', body),
   telegramNotifyChatSet: (body = {}) => telegramPost('notify-chat-set', body),
   telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
   telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),

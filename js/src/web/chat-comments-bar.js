@@ -7,19 +7,21 @@
 import React from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { useLiveStats } from './chat-views.js';
 
 const el = React.createElement;
 
 /**
- * What a message's thread holds, from Telegram's `replies` header:
+ * What a message's thread holds, from Telegram's `replies` header (the
+ * count as the last live answer says, R-Y182):
  * `{ comments, count, unread }`, or null when there is no bar to show.
  */
-export const threadOf = (message) => {
+export const threadOf = (message, liveReplies = null) => {
   const replies = message?.raw?.replies;
   if (!replies || message.pending || message.service) {
     return null;
   }
-  const count = Number(replies.replies) || 0;
+  const count = Number(liveReplies ?? replies.replies) || 0;
   const comments = Boolean(replies.comments);
   if (!comments && count === 0) {
     return null;
@@ -40,7 +42,7 @@ const labelOf = (t, thread) => {
 
 export const CommentsBar = ({ message, onAction }) => {
   const t = useT();
-  const thread = threadOf(message);
+  const thread = threadOf(message, useLiveStats(message).replies);
   if (!thread || typeof onAction !== 'function') {
     return null;
   }
