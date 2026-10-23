@@ -120,6 +120,8 @@
     "test:e2e:poll-create:webkit": "E2E_BROWSER=webkit node js/tests/e2e-poll-create-browser.mjs",
     "test:e2e:forum-topics": "node js/tests/e2e-forum-topics-browser.mjs",
     "test:e2e:forum-topics:webkit": "E2E_BROWSER=webkit node js/tests/e2e-forum-topics-browser.mjs",
+    "test:e2e:attach-schedule": "node js/tests/e2e-attach-schedule-browser.mjs",
+    "test:e2e:attach-schedule:webkit": "E2E_BROWSER=webkit node js/tests/e2e-attach-schedule-browser.mjs",
     "test:e2e:invite-link": "node js/tests/e2e-invite-link-browser.mjs",
     "test:e2e:invite-link:webkit": "E2E_BROWSER=webkit node js/tests/e2e-invite-link-browser.mjs"
   },

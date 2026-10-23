@@ -402,7 +402,12 @@ export const AttachDialog = ({ attach, sendProps = {} }) => {
     if (attach.items.length === 0) {
       return undefined;
     }
-    const onKey = (e) => e.key === 'Escape' && !busy && attach.close();
+    // Escape in the schedule dialog over this one closes only that one.
+    const onKey = (e) =>
+      e.key === 'Escape' &&
+      !busy &&
+      !globalThis.document?.querySelector('.schedule-dialog') &&
+      attach.close();
     globalThis.addEventListener?.('keydown', onKey);
     return () => globalThis.removeEventListener?.('keydown', onKey);
   }, [attach.items.length, busy]);
