@@ -292,6 +292,13 @@ export const TELEGRAM_CALLS = {
   // ({ chat, user }) (R-Y125).
   telegramMembers: body('members'),
   telegramMemberRemove: body('member-remove'),
+  // Delete all from a member, anti-spam false positives, a broadcast group,
+  // ownership and the channels left (R-Y200).
+  telegramModerateUser: body('moderate-user'),
+  telegramNotSpam: body('not-spam'),
+  telegramConvertGigagroup: body('convert-gigagroup'),
+  telegramTransferOwnership: body('transfer-ownership'),
+  telegramLeftChannels: body('left-channels'),
   // Block, contacts and report (R-Y128).
   telegramPeerBlock: body('peer-block'),
   telegramPeerContact: body('peer-contact'),

@@ -1201,4 +1201,60 @@ export const hiChatMore = {
   'chat.attachBot.terms': 'मैं मिनी ऐप्स के उपयोग की शर्तों से सहमत हूँ',
   'chat.attachBot.add': 'जोड़ें',
   'chat.attachBot.remove': 'मेनू से हटाएं',
+  // Delete all from a member, ownership, broadcast groups and the
+  // channels left (R-Y200).
+  'chat.mod.reportSpam': 'स्पैम की शिकायत करें',
+  'chat.mod.ban': 'उपयोगकर्ता को प्रतिबंधित करें',
+  'chat.mod.deleteAll': '{name} के सभी संदेश हटाएँ',
+  'chat.mod.title': '{name} का प्रबंधन',
+  'chat.mod.apply': 'लागू करें',
+  'chat.mod.menu': 'प्रतिबंध / सब हटाएँ',
+  'chat.mod.transferButton': 'स्वामित्व सौंपें',
+  'chat.mod.transferTitle': 'स्वामित्व सौंपना',
+  'chat.mod.transferBody':
+    'चुना गया सदस्य इस चैट का स्वामी बन जाएगा और आप एडमिन होंगे। पुष्टि के लिए अपना दो-चरणीय सत्यापन पासवर्ड दर्ज करें। यह केवल Telegram को भेजा जाता है और कहीं सहेजा नहीं जाता।',
+  'chat.mod.transferDone': 'स्वामित्व सौंप दिया गया।',
+  'chat.mod.password': 'दो-चरणीय सत्यापन पासवर्ड',
+  'chat.mod.transferGo': 'सौंपें',
+  'chat.mod.notSpam': 'स्पैम नहीं है',
+  'chat.mod.notSpamDone': 'स्पैम नहीं के रूप में दर्ज किया गया',
+  'chat.mod.gigaButton': 'ब्रॉडकास्ट समूह में बदलें',
+  'chat.mod.gigaHint': 'बहुत बड़े समूहों के लिए। केवल एडमिन लिख सकेंगे।',
+  'chat.mod.gigaTitle': 'ब्रॉडकास्ट समूह में बदलना',
+  'chat.mod.gigaBody':
+    'इस समूह में केवल एडमिन लिख सकेंगे, बाकी सदस्य केवल पढ़ेंगे। इसे पलटा नहीं जा सकता। बदलें?',
+  'chat.mod.gigaGo': 'बदलें',
+  'chat.mod.gigaDone': 'यह अब ब्रॉडकास्ट समूह है।',
+  'chat.mod.err.failed': 'Telegram ने इसकी अनुमति नहीं दी।',
+  'chat.mod.err.bad-request': 'यह अनुरोध मान्य नहीं है।',
+  'chat.mod.err.not-admin': 'इसके लिए आपके पास एडमिन अधिकार होने चाहिए।',
+  'chat.mod.err.user-admin': 'एडमिन को इस तरह प्रबंधित नहीं किया जा सकता।',
+  'chat.mod.err.not-member': 'यह व्यक्ति इस चैट में नहीं है।',
+  'chat.mod.err.no-message': 'वह संदेश अब उपलब्ध नहीं है।',
+  'chat.mod.err.not-supergroup': 'केवल सुपरग्रुप बदला जा सकता है।',
+  'chat.mod.err.too-few': 'यह समूह बदलने के लिए बहुत छोटा है।',
+  'chat.mod.err.no-access': 'यह चैट आपके लिए उपलब्ध नहीं है।',
+  'chat.mod.err.password-missing':
+    'पहले गोपनीयता और सुरक्षा में दो-चरणीय सत्यापन चालू करें; स्वामित्व सौंपने के लिए Telegram को यह चाहिए।',
+  'chat.mod.err.password-fresh':
+    'दो-चरणीय सत्यापन पासवर्ड हाल ही में सेट हुआ है। लगभग {hours} घंटे बाद फिर कोशिश करें।',
+  'chat.mod.err.session-fresh':
+    'यह सत्र बहुत नया है। लगभग {hours} घंटे बाद फिर कोशिश करें।',
+  'chat.mod.err.password-wrong': 'पासवर्ड सही नहीं है।',
+  'chat.mod.err.srp-invalid':
+    'पासवर्ड जाँच की अवधि समाप्त हो गई। फिर कोशिश करें।',
+  'chat.mod.err.too-many-public':
+    'इस व्यक्ति के पास पहले से बहुत सारी सार्वजनिक चैट हैं।',
+  'chat.mod.err.privacy':
+    'यह व्यक्ति स्वयं को स्वामी बनाए जाने की अनुमति नहीं देता।',
+  'chat.mod.err.flood': 'बहुत अधिक प्रयास। कुछ देर रुकें।',
+  'chat.left.open': 'छोड़े गए चैनल',
+  'chat.left.title': 'छोड़े गए चैनल',
+  'chat.left.loading': 'लोड हो रहा है…',
+  'chat.left.none': 'आपने कोई चैनल नहीं छोड़ा है।',
+  'chat.left.hint':
+    'पूर्वावलोकन देखने के लिए कोई चैनल खोलें; जब तक आप जुड़ें न दबाएँ, कुछ नहीं जुड़ता।',
+  'chat.left.more': 'और दिखाएँ',
+  'chat.left.err.failed': 'Telegram ने सूची नहीं दिखाई।',
+  'chat.left.err.flood': 'बहुत अधिक प्रयास। कुछ देर रुकें।',
 };

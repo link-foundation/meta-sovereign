@@ -53,18 +53,30 @@ const EVENT = 'ms-invite-open';
 export const openInvite = (hash) =>
   globalThis.dispatchEvent?.(new CustomEvent(EVENT, { detail: { hash } }));
 
-/** Calls `onClose` on Escape while mounted. */
+// The open dialogs' Escape handlers, oldest first: Escape closes only the
+// newest, the one on top, as Telegram Desktop closes one layer at a time.
+const escapes = [];
+const onEscape = (e) => {
+  if (e.key === 'Escape') {
+    escapes.at(-1)?.current?.();
+  }
+};
+
+/** Calls `onClose` on Escape while mounted and on top. */
 export const useEsc = (onClose) => {
   const latest = useRef(onClose);
   latest.current = onClose;
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') {
-        latest.current?.();
+    if (escapes.length === 0) {
+      globalThis.addEventListener?.('keydown', onEscape);
+    }
+    escapes.push(latest);
+    return () => {
+      escapes.splice(escapes.lastIndexOf(latest), 1);
+      if (escapes.length === 0) {
+        globalThis.removeEventListener?.('keydown', onEscape);
       }
     };
-    globalThis.addEventListener?.('keydown', onKey);
-    return () => globalThis.removeEventListener?.('keydown', onKey);
   }, []);
 };
 

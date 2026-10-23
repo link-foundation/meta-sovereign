@@ -206,6 +206,7 @@ import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { BOT_LOGIN_POSTS } from './routes-telegram-bot-login.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { ACCOUNTS_POSTS, resolveAccount } from './routes-telegram-accounts.js';
+import { ADMIN_EXTRAS_POSTS } from './routes-telegram-admin-extras.js';
 import { APPS_POSTS } from './routes-telegram-apps.js';
 import { CHANNEL_DM_POSTS } from './routes-telegram-channel-dm.js';
 import { EXPORT_POSTS } from './routes-telegram-export.js';
@@ -999,6 +1000,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...ACCOUNTS_POSTS,
+  ...ADMIN_EXTRAS_POSTS,
   ...APPS_POSTS,
   ...CHECKLIST_STATS_POSTS,
   ...PROXY_POSTS,

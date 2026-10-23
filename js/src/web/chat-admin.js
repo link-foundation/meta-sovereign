@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Frame } from './chat-readers.js';
 import { ForumToggle } from './chat-topic-admin.js';
+import { NotSpam } from './chat-moderation.js';
 
 const el = React.createElement;
 
@@ -234,7 +235,7 @@ const PermissionsDialog = ({ api, chat, info, close }) => {
   );
 };
 
-const LogRow = ({ event, t, dates }) =>
+const LogRow = ({ event, t, dates, api, chat }) =>
   el('li', { className: 'admin-event', 'data-event': event.kind }, [
     el('strong', { key: 'n', className: 'member-name' }, event.userName),
     el(
@@ -250,6 +251,10 @@ const LogRow = ({ event, t, dates }) =>
       { key: 'w', className: 'meta admin-event-when' },
       dates.dateTime(event.date)
     ),
+    // A deleted message may be one anti-spam took by mistake (R-Y200).
+    event.kind === 'delete' && event.msgId
+      ? el(NotSpam, { key: 's', api, chat, msgId: event.msgId })
+      : null,
   ]);
 
 const useLog = (api, chat) => {
@@ -275,7 +280,7 @@ const useLog = (api, chat) => {
   return [state, load];
 };
 
-const LogBody = ({ state, load, t }) => {
+const LogBody = ({ state, load, t, api, chat }) => {
   const dates = useDates();
   if (state.phase === 'loading') {
     return el('p', { className: 'meta' }, t('chat.admin.loading'));
@@ -291,7 +296,7 @@ const LogBody = ({ state, load, t }) => {
       'ul',
       { key: 'l', className: 'member-list' },
       state.events.map((event) =>
-        el(LogRow, { key: event.id, event, t, dates })
+        el(LogRow, { key: event.id, event, t, dates, api, chat })
       )
     ),
     state.next
@@ -316,7 +321,7 @@ const LogDialog = ({ api, chat, close }) => {
   return el(
     Frame,
     { title: t('chat.admin.log'), close, name: 'admin-log' },
-    el(LogBody, { state, load, t })
+    el(LogBody, { state, load, t, api, chat: String(chat.chat) })
   );
 };
 

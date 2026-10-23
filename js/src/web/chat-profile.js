@@ -18,6 +18,10 @@ import { ProfileUsernames } from './chat-usernames.js';
 import { StarsDialog } from './chat-stars.js';
 import { ProfileExtrasDialog } from './chat-profile-extras.js';
 import { BusinessButton, BusinessDialog } from './business-menu.js';
+import {
+  LeftChannelsButton,
+  LeftChannelsDialog,
+} from './chat-left-channels.js';
 
 const el = React.createElement;
 
@@ -267,6 +271,7 @@ const Card = ({
   openStars,
   openExtras,
   openBusiness,
+  openLeft,
   emojiStatus,
   openStatus,
 }) => {
@@ -392,6 +397,8 @@ const Card = ({
         : null,
       // Telegram Business (R-Y179) opens over the card.
       el(BusinessButton, { key: 'bz', api, onClick: openBusiness }),
+      // The channels left (R-Y200) open over the card.
+      el(LeftChannelsButton, { key: 'lc', api, onClick: openLeft }),
       // Stickers and emoji (R-Y169) opens over the card.
       typeof api?.telegramStickerSets === 'function'
         ? el(
@@ -416,6 +423,7 @@ const OVER = {
   stars: StarsDialog,
   extras: ProfileExtrasDialog,
   business: BusinessDialog,
+  left: LeftChannelsDialog,
   status: EmojiStatusDialog,
 };
 
@@ -445,6 +453,7 @@ const ProfileDialog = ({ api, close }) => {
         openStars: () => setOver('stars'),
         openExtras: () => setOver('extras'),
         openBusiness: () => setOver('business'),
+        openLeft: () => setOver('left'),
         emojiStatus: chosen === undefined ? state.profile.emojiStatus : chosen,
         openStatus: () => setOver('status'),
       }),

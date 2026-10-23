@@ -8,6 +8,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { About, FormDialog, Title, errorText } from './chat-create.js';
+import {
+  ConvertGigagroup,
+  TransferOwnership,
+  canConvert,
+  canTransfer,
+} from './chat-moderation.js';
 
 const el = React.createElement;
 
@@ -183,6 +189,14 @@ const EditDialog = ({ api, chat, info, close }) => {
           setRemoved(true);
         },
       }),
+      // The owner of a supergroup: a broadcast group (R-Y200).
+      canConvert(chat, info, api)
+        ? el(ConvertGigagroup, { key: 'g', api, chat })
+        : null,
+      // The owner may hand the chat over (R-Y200).
+      canTransfer(chat, info, api)
+        ? el(TransferOwnership, { key: 't2', api, chat })
+        : null,
     ]
   );
 };

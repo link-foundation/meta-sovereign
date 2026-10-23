@@ -87,6 +87,9 @@ const shape = (answer, participants, total, offset = 0) => {
       .filter((m) => m.id !== ''),
     canBan: canBanIn(entity),
     canInvite: canInviteIn(entity),
+    // R-Y200: delete all from a member, transfer ownership.
+    canDelete: Boolean(entity.creator || entity.adminRights?.deleteMessages),
+    owner: Boolean(entity.creator),
   };
 };
 
@@ -148,7 +151,7 @@ const createReader =
   };
 
 // The person as an input peer, from what GramJS knows, else by id alone.
-const inputPeerOf = async (c, user) => {
+export const inputPeerOf = async (c, user) => {
   const id = c.helpers.returnBigInt(user);
   const known = await Promise.resolve()
     .then(() => c.client.getInputEntity?.(id))

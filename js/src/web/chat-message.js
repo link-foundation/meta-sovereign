@@ -50,6 +50,7 @@ import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 import { PaidMedia, PaidReactionChip } from './chat-paid.js';
 import { ReadTimeLine } from './chat-read-time.js';
 import { GiftCodeLine } from './chat-gift-code-button.js';
+import { ModerationBoxes } from './chat-moderation.js';
 
 const el = React.createElement;
 
@@ -704,11 +705,17 @@ export const DeleteDialog = ({
   message,
   messages = message ? [message] : [],
   isGroup,
+  moderation = null,
   onClose,
   onDelete,
 }) => {
   const t = useT();
   useEscClose(onClose);
+  // Report spam, ban, delete all from the sender (R-Y200).
+  const [picked, setPicked] = useState({});
+  const extra = moderation
+    ? { moderation: { ...picked, user: moderation.user } }
+    : {};
   const allMine = messages.every((m) => m.sender === 'me');
   return el(
     'div',
@@ -725,6 +732,9 @@ export const DeleteDialog = ({
           ? t('chat.deleteConfirmMany', { count: messages.length })
           : t('chat.deleteConfirm')
       ),
+      moderation
+        ? el(ModerationBoxes, { key: 'mod', ...moderation, picked, setPicked })
+        : null,
       el('div', { key: 'btns', className: 'delete-dialog-btns' }, [
         el(
           'button',
@@ -733,7 +743,7 @@ export const DeleteDialog = ({
             type: 'button',
             onClick: () => {
               onClose();
-              onDelete({ revoke: false });
+              onDelete({ revoke: false, ...extra });
             },
           },
           t('chat.deleteForMe')
@@ -749,7 +759,7 @@ export const DeleteDialog = ({
                   className: 'danger',
                   onClick: () => {
                     onClose();
-                    onDelete({ revoke: true });
+                    onDelete({ revoke: true, ...extra });
                   },
                 },
                 t('chat.deleteForEveryone')

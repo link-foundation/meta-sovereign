@@ -11249,3 +11249,31 @@ button.profile-username.is-collectible {
   color: var(--accent);
   cursor: pointer;
 }
+
+/* R-Y200: moderation boxes in the delete dialog, "Not spam" in Recent
+   actions, the broadcast group row and the channels you left. */
+.moderation-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+.not-spam {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+.giga-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+}
+.left-channels {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+/* R-Y200: a channel's preview opened from the list stays above it. */
+.delete-dialog-overlay[data-dialog='similar-preview'] {
+  z-index: 2300;
+}

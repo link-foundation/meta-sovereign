@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { openChat } from './chat-state.js';
 import { useEsc } from './chat-invite.js';
+import { ModerateDialog, moderationOptions } from './chat-moderation.js';
 
 const el = React.createElement;
 const PAGE = 50;
@@ -48,6 +49,8 @@ const useMembers = (api, chat, q) => {
                 phase: 'ready',
                 total: answer.total,
                 canBan: Boolean(answer.canBan),
+                canDelete: Boolean(answer.canDelete),
+                owner: Boolean(answer.owner),
                 members: [...(offset ? old.members : []), ...answer.members],
                 done: answer.members.length < PAGE,
               }
@@ -77,7 +80,24 @@ const Badge = ({ member, t }) => {
   );
 };
 
-const Row = ({ member, canRemove, onRemove, t }) =>
+// A row's extra button (R-Y200): moderate (ban, delete all).
+const RowExtras = ({ on, t }) => [
+  on.moderate
+    ? el(
+        'button',
+        {
+          key: 'm',
+          type: 'button',
+          className: 'member-remove',
+          'data-action': 'moderate-member',
+          onClick: () => on.moderate(),
+        },
+        t('chat.mod.menu')
+      )
+    : null,
+];
+
+const Row = ({ member, canRemove, onRemove, extras, t }) =>
   el('li', { className: 'member-row', 'data-member': member.id }, [
     el(
       'button',
@@ -111,6 +131,7 @@ const Row = ({ member, canRemove, onRemove, t }) =>
           t('chat.members.remove')
         )
       : null,
+    el(RowExtras, { key: 'x', on: extras, t }),
   ]);
 
 const RemoveDialog = ({ member, busy, error, onYes, onNo, t }) => {
@@ -191,11 +212,46 @@ const removable = (state, member) =>
   member.role !== 'creator' &&
   member.role !== 'admin';
 
+// What a row may be asked beyond Remove (R-Y200): ban or delete all in a
+// supergroup (not oneself, not an admin).
+const extrasOf = (api, chat, state, open) => {
+  const options = moderationOptions({
+    canBan: state.canBan,
+    canDeleteMessages: state.canDelete,
+  });
+  const supergroup = /^-100/.test(String(chat.chat));
+  return (member) => ({
+    moderate:
+      supergroup &&
+      options.length > 0 &&
+      !member.self &&
+      member.role !== 'creator' &&
+      member.role !== 'admin'
+        ? () => open({ kind: 'moderate', member, options })
+        : null,
+  });
+};
+
+// The dialog a row's extra button opened (R-Y200).
+const ExtraDialog = ({ api, chat, open, close, done }) =>
+  open?.kind === 'moderate'
+    ? el(ModerateDialog, {
+        api,
+        chat: String(chat.chat),
+        member: open.member,
+        options: open.options,
+        close,
+        done: (what) => done(open, what),
+      })
+    : null;
+
 const MembersBody = ({ api, chat }) => {
   const t = useT();
   const [q, setQ] = useState('');
   const [state, setState, more] = useMembers(api, String(chat.chat), q.trim());
   const removal = useRemoval(api, String(chat.chat), setState);
+  const [extra, setExtra] = useState(null);
+  const extras = extrasOf(api, chat, state, setExtra);
   const { members, phase } = state;
   return el('section', { className: 'person-section chat-members' }, [
     el(
@@ -232,6 +288,7 @@ const MembersBody = ({ api, chat }) => {
           t,
           canRemove: removable(state, member),
           onRemove: removal.ask,
+          extras: extras(member),
         })
       )
     ),
@@ -250,6 +307,24 @@ const MembersBody = ({ api, chat }) => {
           t('chat.members.more')
         )
       : null,
+    el(ExtraDialog, {
+      key: 'x',
+      api,
+      chat,
+      open: extra,
+      close: () => setExtra(null),
+      done: (was, what) => {
+        setExtra(null);
+        // A banned member leaves the list.
+        if (what.banned) {
+          setState((old) => ({
+            ...old,
+            total: Math.max(0, (old.total ?? 1) - 1),
+            members: old.members.filter((m) => m.id !== was.member.id),
+          }));
+        }
+      },
+    }),
     removal.asking
       ? el(RemoveDialog, {
           key: 'd',

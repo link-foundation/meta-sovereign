@@ -116,6 +116,21 @@ export const canEditIn = (entity = {}) =>
 export const canBanIn = (entity = {}) =>
   Boolean(entity.creator || entity.adminRights?.banUsers);
 
+// What the user may do about other people's messages and about who owns
+// the chat (R-Y200): delete them (creator, or an admin who may delete
+// messages), own the chat (the creator: transfer it, and convert a
+// supergroup to a broadcast group).
+export const moderationOf = (entity = {}) => ({
+  canDeleteMessages: Boolean(
+    entity.creator || entity.adminRights?.deleteMessages
+  ),
+  owner: Boolean(entity.creator),
+  canConvertGiga: Boolean(
+    entity.creator && entity.megagroup && !entity.gigagroup
+  ),
+  gigagroup: Boolean(entity.gigagroup),
+});
+
 // Whether the user may set the chat's auto-delete timer (R-Y143): its
 // creator, or an admin with the right to delete messages.
 export const canSetTtlIn = (entity = {}) =>
@@ -242,6 +257,7 @@ const fetchChannel = async (client, Api, inputPeer, peers) => {
     canViewStarsRevenue: Boolean(full.canViewStarsRevenue),
     canEdit: canEditIn(entity),
     canBan: canBanIn(entity),
+    ...moderationOf(entity),
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
     ...reactionsInfo(entity, full),
@@ -276,6 +292,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     canPin: canPinIn(entity),
     canEdit: canEditIn(entity),
     canBan: canBanIn(entity),
+    ...moderationOf(entity),
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
     ...reactionsInfo(entity, full),

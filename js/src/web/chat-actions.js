@@ -20,6 +20,7 @@ import {
   quotedName,
   quotedText,
 } from './chat-message.js';
+import { deleteModeration } from './chat-moderation.js';
 import { parseMessageParts } from './message-parts.js';
 import { StopPollDialog } from './chat-poll.js';
 import { useForwardStage } from './chat-forward.js';
@@ -124,8 +125,29 @@ const useSenders = (state, api) => {
       globalThis.dispatchEvent?.(new globalThis.Event('meta-reacted'));
     }
   };
-  const remove = async (messages, { revoke }) => {
+  const remove = async (messages, { revoke, moderation }) => {
     const { telegram, other } = split(sentOnly(messages));
+    // Report, ban and delete all go first: the report needs the messages
+    // (R-Y200); "delete all" leaves nothing for the plain delete.
+    if (moderation && typeof api?.telegramModerateUser === 'function') {
+      const { user, ...what } = moderation;
+      const flags = Object.fromEntries(
+        Object.entries(what).filter(([, on]) => on === true)
+      );
+      if (Object.keys(flags).length > 0) {
+        report(
+          await api.telegramModerateUser({
+            chat: state.current.chat,
+            user,
+            ids: telegram.map(networkMessageId),
+            ...flags,
+          })
+        );
+        if (flags.deleteAll) {
+          return;
+        }
+      }
+    }
     await generic('delete', other, { revoke });
     if (telegram.length > 0 && typeof api?.telegramDelete === 'function') {
       report(
@@ -402,6 +424,7 @@ const dialogsOf = ({ state, send, selection, open, close, stage }) => {
           key: 'del',
           messages: deleting,
           isGroup: !state.current?.personal,
+          moderation: deleteModeration(state.current, state.info, deleting),
           onClose: () => setDeleting(null),
           onDelete: (opts) => {
             send.remove(deleting, opts);

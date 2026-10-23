@@ -1211,4 +1211,60 @@ export const ruChatMore = {
   'chat.attachBot.terms': 'Я принимаю условия использования мини-приложений',
   'chat.attachBot.add': 'Добавить',
   'chat.attachBot.remove': 'Убрать из меню',
+  // Delete all from a member, ownership, broadcast groups and the
+  // channels left (R-Y200).
+  'chat.mod.reportSpam': 'Пожаловаться на спам',
+  'chat.mod.ban': 'Заблокировать пользователя',
+  'chat.mod.deleteAll': 'Удалить все сообщения от {name}',
+  'chat.mod.title': 'Модерация: {name}',
+  'chat.mod.apply': 'Применить',
+  'chat.mod.menu': 'Бан / удалить все',
+  'chat.mod.transferButton': 'Передать владение',
+  'chat.mod.transferTitle': 'Передача владения',
+  'chat.mod.transferBody':
+    'Выбранный участник станет владельцем этого чата, а вы станете администратором. Введите пароль двухэтапной аутентификации для подтверждения. Он уходит только в Telegram и нигде не хранится.',
+  'chat.mod.transferDone': 'Владение передано.',
+  'chat.mod.password': 'Пароль двухэтапной аутентификации',
+  'chat.mod.transferGo': 'Передать',
+  'chat.mod.notSpam': 'Не спам',
+  'chat.mod.notSpamDone': 'Отмечено как не спам',
+  'chat.mod.gigaButton': 'Преобразовать в вещательную группу',
+  'chat.mod.gigaHint':
+    'Для очень больших групп. Писать смогут только администраторы.',
+  'chat.mod.gigaTitle': 'Преобразование в вещательную группу',
+  'chat.mod.gigaBody':
+    'Писать в этой группе смогут только администраторы, остальные участники будут только читать. Это нельзя отменить. Преобразовать?',
+  'chat.mod.gigaGo': 'Преобразовать',
+  'chat.mod.gigaDone': 'Теперь это вещательная группа.',
+  'chat.mod.err.failed': 'Telegram этого не разрешил.',
+  'chat.mod.err.bad-request': 'Такой запрос недопустим.',
+  'chat.mod.err.not-admin': 'Для этого нужны права администратора.',
+  'chat.mod.err.user-admin': 'Администратора так модерировать нельзя.',
+  'chat.mod.err.not-member': 'Этого человека нет в чате.',
+  'chat.mod.err.no-message': 'Это сообщение уже недоступно.',
+  'chat.mod.err.not-supergroup': 'Преобразовать можно только супергруппу.',
+  'chat.mod.err.too-few': 'Группа слишком мала для преобразования.',
+  'chat.mod.err.no-access': 'Этот чат вам недоступен.',
+  'chat.mod.err.password-missing':
+    'Сначала включите двухэтапную аутентификацию в разделе «Конфиденциальность и безопасность»: без неё Telegram не передаёт владение.',
+  'chat.mod.err.password-fresh':
+    'Пароль двухэтапной аутентификации задан недавно. Повторите примерно через {hours} ч.',
+  'chat.mod.err.session-fresh':
+    'Этот сеанс слишком новый. Повторите примерно через {hours} ч.',
+  'chat.mod.err.password-wrong': 'Пароль неверный.',
+  'chat.mod.err.srp-invalid': 'Проверка пароля устарела. Попробуйте ещё раз.',
+  'chat.mod.err.too-many-public':
+    'У этого человека слишком много публичных чатов.',
+  'chat.mod.err.privacy':
+    'Этот человек не разрешает назначать себя владельцем.',
+  'chat.mod.err.flood': 'Слишком много попыток. Подождите немного.',
+  'chat.left.open': 'Покинутые каналы',
+  'chat.left.title': 'Покинутые каналы',
+  'chat.left.loading': 'Загрузка…',
+  'chat.left.none': 'Вы не покидали каналов.',
+  'chat.left.hint':
+    'Откройте канал, чтобы увидеть предпросмотр; вступления не будет, пока вы не нажмёте «Вступить».',
+  'chat.left.more': 'Показать ещё',
+  'chat.left.err.failed': 'Telegram не показал список.',
+  'chat.left.err.flood': 'Слишком много попыток. Подождите немного.',
 };

@@ -1196,4 +1196,59 @@ export const enChatMore = {
   'chat.attachBot.terms': 'I agree to the terms of use of mini apps',
   'chat.attachBot.add': 'Add',
   'chat.attachBot.remove': 'Remove from menu',
+  // Delete all from a member, ownership, broadcast groups and the
+  // channels left (R-Y200).
+  'chat.mod.reportSpam': 'Report spam',
+  'chat.mod.ban': 'Ban user',
+  'chat.mod.deleteAll': 'Delete all from {name}',
+  'chat.mod.title': 'Moderate {name}',
+  'chat.mod.apply': 'Apply',
+  'chat.mod.menu': 'Ban / delete all',
+  'chat.mod.transferButton': 'Transfer ownership',
+  'chat.mod.transferTitle': 'Transfer ownership',
+  'chat.mod.transferBody':
+    'The chosen member will become the owner of this chat and you will be an admin. Enter your 2-Step Verification password to confirm. It is only sent to Telegram and never kept.',
+  'chat.mod.transferDone': 'Ownership was transferred.',
+  'chat.mod.password': '2-Step Verification password',
+  'chat.mod.transferGo': 'Transfer',
+  'chat.mod.notSpam': 'Not spam',
+  'chat.mod.notSpamDone': 'Reported as not spam',
+  'chat.mod.gigaButton': 'Convert to broadcast group',
+  'chat.mod.gigaHint':
+    'For very large groups. Only admins will be able to write.',
+  'chat.mod.gigaTitle': 'Convert to broadcast group',
+  'chat.mod.gigaBody':
+    'Only admins will be able to write in this group, and members will only read. This cannot be undone. Convert it?',
+  'chat.mod.gigaGo': 'Convert',
+  'chat.mod.gigaDone': 'This group is now a broadcast group.',
+  'chat.mod.err.failed': 'Telegram did not allow that.',
+  'chat.mod.err.bad-request': 'That request is not valid.',
+  'chat.mod.err.not-admin': 'You need to be an admin with the right for this.',
+  'chat.mod.err.user-admin': 'An admin cannot be moderated this way.',
+  'chat.mod.err.not-member': 'That person is not in this chat.',
+  'chat.mod.err.no-message': 'That message is no longer available.',
+  'chat.mod.err.not-supergroup': 'Only a supergroup can be converted.',
+  'chat.mod.err.too-few': 'This group is too small to convert.',
+  'chat.mod.err.no-access': 'This chat is not available to you.',
+  'chat.mod.err.password-missing':
+    'Turn on 2-Step Verification in Privacy and Security first; Telegram needs it to transfer ownership.',
+  'chat.mod.err.password-fresh':
+    'The 2-Step Verification password was set recently. Try again in about {hours} h.',
+  'chat.mod.err.session-fresh':
+    'This session is too new. Try again in about {hours} h.',
+  'chat.mod.err.password-wrong': 'The password is not right.',
+  'chat.mod.err.srp-invalid': 'The password check expired. Try again.',
+  'chat.mod.err.too-many-public':
+    'That person has too many public chats to take another.',
+  'chat.mod.err.privacy': 'That person does not allow being made owner.',
+  'chat.mod.err.flood': 'Too many tries. Wait a while.',
+  'chat.left.open': 'Channels you left',
+  'chat.left.title': 'Channels you left',
+  'chat.left.loading': 'Loading…',
+  'chat.left.none': 'You have not left any channels.',
+  'chat.left.hint':
+    'Open one to see its preview; nothing is joined until you press Join.',
+  'chat.left.more': 'Show more',
+  'chat.left.err.failed': 'Telegram did not show the list.',
+  'chat.left.err.flood': 'Too many tries. Wait a while.',
 };

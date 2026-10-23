@@ -52,7 +52,7 @@ const errorText = (t, code) => {
   return text === key ? t('chat.similar.err.failed') : text;
 };
 
-const Preview = ({ api, item, onJoined, onClose }) => {
+export const Preview = ({ api, item, onJoined, onClose }) => {
   const t = useT();
   const [state, setState] = useState({ busy: false, code: null });
   useEsc(onClose);
@@ -127,7 +127,7 @@ const Preview = ({ api, item, onJoined, onClose }) => {
   );
 };
 
-const Card = ({ api, item, t, onPick }) =>
+export const Card = ({ api, item, t, onPick }) =>
   el(
     'button',
     {

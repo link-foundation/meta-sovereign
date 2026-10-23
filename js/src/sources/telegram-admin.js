@@ -12,7 +12,8 @@
  *   (channels.toggleSlowMode);
  * - `adminLog({ chat, maxId? })` — a supergroup's or channel's recent
  *   actions, newest first, a page at a time (channels.getAdminLog) →
- *   `{ ok, events: [{ id, date, user, userName, kind, text? }], next }`.
+ *   `{ ok, events: [{ id, date, user, userName, kind, text?, msgId? }],
+ *   next }`; `msgId` is a deleted message's id (R-Y200).
  * Telegram's errors become codes the page shows as text.
  */
 
@@ -219,6 +220,8 @@ const eventOf = (event, names) => {
   const make =
     KINDS[action.className.replace('ChannelAdminLogEventAction', '')];
   const [kind, text] = make ? make(action, who) : ['other', action.className];
+  // A deleted message's id, for "Not spam" (R-Y200).
+  const msgId = kind === 'delete' ? action.message?.id : undefined;
   return {
     id: textOf(event.id),
     date: Number(event.date) * 1000,
@@ -226,6 +229,7 @@ const eventOf = (event, names) => {
     userName: names.get(user) || user,
     kind,
     ...(text ? { text } : {}),
+    ...(msgId ? { msgId: Number(msgId) } : {}),
   };
 };
 
