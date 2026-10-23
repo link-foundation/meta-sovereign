@@ -7988,3 +7988,25 @@ span.bubble-effect {
   opacity: 0;
   cursor: pointer;
 }
+
+/* Reordering the pinned chats by drag (R-Y159): the lifted row follows the
+   pointer, the rows it passes slide aside and leave its place open. */
+.chat-list .chat-item[data-pinned] {
+  position: relative;
+  transition: transform 0.15s ease;
+}
+.chat-list.is-pin-dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grabbing;
+}
+.chat-list.is-pin-dragging .chat-item {
+  cursor: grabbing;
+}
+.chat-list .chat-item.is-lifted {
+  transition: none;
+  background: var(--bg-elev);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
+  outline: 1px solid var(--accent);
+  opacity: 0.96;
+}

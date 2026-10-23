@@ -204,6 +204,7 @@ import { DICE } from '../sources/telegram-send.js';
 import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
+import { PINNED_ORDER_POSTS } from './routes-telegram-pinned-order.js';
 import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
 import { CHAT_REACTIONS_POSTS } from './routes-telegram-chat-reactions.js';
 import { INVITE_LINKS_POSTS } from './routes-telegram-invite-links.js';
@@ -951,6 +952,7 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...COMMON_CHATS_POSTS,
+  ...PINNED_ORDER_POSTS,
   ...TOPIC_ADMIN_POSTS,
   ...CHAT_REACTIONS_POSTS,
   ...INVITE_LINKS_POSTS,

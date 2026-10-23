@@ -1120,4 +1120,7 @@ export const zhChat = {
   'chat.reactions.err.reaction-invalid': 'Telegram 不认识其中的某个回应。',
   'chat.reactions.err.no-access': '你无法使用此聊天。',
   'chat.reactions.empty': '请至少选择一个回应。',
+  'chat.pinReorder.up': '上移',
+  'chat.pinReorder.down': '下移',
+  'chat.pinReorder.failed': '无法调整置顶聊天的顺序。',
 };

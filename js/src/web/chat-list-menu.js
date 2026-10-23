@@ -6,6 +6,8 @@
 // marked unread loses the mark when it is opened, as in Desktop. Last,
 // in red, after a question (R-Y100): clear the history, delete a
 // personal chat ("Also delete for …"), leave a group or a channel.
+// A pinned chat among several can also move up or down one place, the
+// keyboard way to reorder them (R-Y159).
 
 import React, { useEffect, useRef, useState } from 'react';
 import { MsgContextMenu } from './chat-message.js';
@@ -21,13 +23,26 @@ export const MUTE_FOR = Object.freeze({
   muteForever: 0,
 });
 
+// Move up / down one place among the pinned chats (R-Y159).
+const pinMoves = (chat, position) =>
+  chat.pinned > 0 && position
+    ? [
+        ...(position.index > 0 ? ['pinUp'] : []),
+        ...(position.index < position.count - 1 ? ['pinDown'] : []),
+      ]
+    : [];
+
 /** The menu's items for a chat, in Desktop's order; none off Telegram. */
-export const chatMenuItems = (chat, { telegramUser = true } = {}) => {
+export const chatMenuItems = (
+  chat,
+  { telegramUser = true, position = null } = {}
+) => {
   if (chat?.source !== 'telegram' || !telegramUser) {
     return [];
   }
   return [
     chat.pinned > 0 ? 'unpinChat' : 'pinChat',
+    ...pinMoves(chat, position),
     chat.muted ? 'unmute' : 'mute',
     chat.unread > 0 || chat.marked ? 'markRead' : 'markUnread',
     chat.archived ? 'unarchive' : 'archive',
@@ -164,7 +179,7 @@ export const chatMenuRequest = (key, chat) => {
  * row's right-click calls. Failures go to `state.notify`, as the
  * messages' menu's do.
  */
-export const useChatListMenu = ({ state, api }) => {
+export const useChatListMenu = ({ state, api, pins = null }) => {
   const [open, setOpen] = useState(null);
   const telegramUser = state.telegram?.kind !== 'bot';
   const ask = async (request) => {
@@ -178,7 +193,10 @@ export const useChatListMenu = ({ state, api }) => {
   };
   const latest = useRef(null);
   latest.current = (chat, point) => {
-    const items = chatMenuItems(chat, { telegramUser });
+    const items = chatMenuItems(chat, {
+      telegramUser,
+      position: pins?.position(chat) ?? null,
+    });
     if (items.length > 0) {
       setOpen({ chat, point, items });
     }
@@ -198,6 +216,10 @@ export const useChatListMenu = ({ state, api }) => {
   const onAction = (key, chat) => {
     if (REMOVAL[key]) {
       setRemoving({ chat, key });
+      return;
+    }
+    if (key === 'pinUp' || key === 'pinDown') {
+      pins?.move(chat, key === 'pinUp' ? -1 : 1);
       return;
     }
     if (key === 'mute') {

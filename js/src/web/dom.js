@@ -905,6 +905,12 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for the chat list menu' },
 
+  // The pinned chats in a new order (R-Y159): { folder: 0 | 1, chats }.
+  telegramPinnedReorder: async (body = {}) =>
+    (await serverPostReport('/api/telegram/pinned-reorder', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for the pinned order' },
+
   // Search in one chat (R-Y98): { chat, q, offsetId? } → { ids, count,
   // more }, newest first; the messages found are stored.
   // Across Telegram (R-Y107): { q } → { ok, peers }; { q, cursor? } →

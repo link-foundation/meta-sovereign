@@ -162,6 +162,8 @@
     "test:e2e:notify:webkit": "E2E_BROWSER=webkit node js/tests/e2e-notify-browser.mjs",
     "test:e2e:notify-settings": "node js/tests/e2e-notify-settings-browser.mjs",
     "test:e2e:notify-settings:webkit": "E2E_BROWSER=webkit node js/tests/e2e-notify-settings-browser.mjs",
+    "test:e2e:pinned-reorder": "node js/tests/e2e-pinned-reorder-browser.mjs",
+    "test:e2e:pinned-reorder:webkit": "E2E_BROWSER=webkit node js/tests/e2e-pinned-reorder-browser.mjs",
     "test:e2e:effects": "node js/tests/e2e-effects-browser.mjs",
     "test:e2e:effects:webkit": "E2E_BROWSER=webkit node js/tests/e2e-effects-browser.mjs",
     "test:e2e:peer-bar": "node js/tests/e2e-peer-bar-browser.mjs",

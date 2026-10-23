@@ -1195,4 +1195,7 @@ export const ruChat = {
     'Telegram не знает одну из этих реакций.',
   'chat.reactions.err.no-access': 'Этот чат вам недоступен.',
   'chat.reactions.empty': 'Выберите хотя бы одну реакцию.',
+  'chat.pinReorder.up': 'Переместить выше',
+  'chat.pinReorder.down': 'Переместить ниже',
+  'chat.pinReorder.failed': 'Не удалось изменить порядок закреплённых чатов.',
 };

@@ -142,6 +142,7 @@ const ChatBadges = ({ chat, t }) => {
 
 // `story`: 'unread' or 'seen' when the peer has stories (a ring, R-Y140);
 // a click on the avatar then opens them (`onStory(peer)`, R-Y148).
+// `onPinDown(event, chat)` starts the drag of a pinned row (R-Y159).
 export const ChatItem = ({
   api,
   chat,
@@ -150,6 +151,7 @@ export const ChatItem = ({
   onMenu,
   story = '',
   onStory,
+  onPinDown,
 }) => {
   const t = useT();
   const { chatTime } = useDates();
@@ -160,6 +162,10 @@ export const ChatItem = ({
       type: 'button',
       className: `chat-item${active ? ' active' : ''}${story ? ` has-story is-${story}` : ''}`,
       'data-chat': chat.key,
+      'data-pinned': chat.pinned > 0 && onPinDown ? '' : undefined,
+      // A pinned chat is dragged to a new place (R-Y159).
+      onPointerDown:
+        chat.pinned > 0 && onPinDown ? (e) => onPinDown(e, chat) : undefined,
       'aria-current': active ? 'true' : undefined,
       onClick: () => onSelect(chat.key),
       // Its menu, as in Telegram's list (R-Y97): pin, mute, archive…

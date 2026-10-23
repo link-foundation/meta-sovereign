@@ -1176,4 +1176,7 @@ export const enChat = {
     'Telegram does not know one of these reactions.',
   'chat.reactions.err.no-access': 'This chat is not available to you.',
   'chat.reactions.empty': 'Select at least one reaction.',
+  'chat.pinReorder.up': 'Move up',
+  'chat.pinReorder.down': 'Move down',
+  'chat.pinReorder.failed': 'The pinned chats could not be reordered.',
 };

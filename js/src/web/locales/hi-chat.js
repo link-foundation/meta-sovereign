@@ -1181,4 +1181,7 @@ export const hiChat = {
     'Telegram इनमें से एक प्रतिक्रिया नहीं जानता।',
   'chat.reactions.err.no-access': 'यह चैट आपके लिए उपलब्ध नहीं है।',
   'chat.reactions.empty': 'कम से कम एक प्रतिक्रिया चुनें।',
+  'chat.pinReorder.up': 'ऊपर ले जाएँ',
+  'chat.pinReorder.down': 'नीचे ले जाएँ',
+  'chat.pinReorder.failed': 'पिन किए गए चैट का क्रम नहीं बदला जा सका।',
 };

@@ -65,6 +65,7 @@ import { createCommonChats } from './telegram-common-chats.js';
 import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createChatReactions } from './telegram-chat-reactions.js';
 import { createNotifySettings } from './telegram-notify-settings.js';
+import { createPinnedOrder } from './telegram-pinned-order.js';
 import { createShareMedia } from './telegram-share-media.js';
 import { createBotCommands } from './telegram-bot-commands.js';
 import { createProfile } from './telegram-profile.js';
@@ -389,8 +390,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y148); reaction tags of Saved Messages and the default timer (R-Y151);
 // invite links and join requests (R-Y152); posting stories (R-Y156); links
 // to messages (R-Y154); chat backgrounds (R-Y155); notification settings,
-// global and by chat (R-Y157); groups in common (R-Y158); which reactions
-// a chat allows (R-Y160).
+// global and by chat (R-Y157); groups in common (R-Y158); which reactions a
+// chat allows (R-Y160); reordering the pinned chats (R-Y159).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -434,6 +435,7 @@ const chatActions = (env, context) => {
     ...createChatReactions(env, context),
     ...createWallpapers(env, context),
     ...createNotifySettings(env, context),
+    ...createPinnedOrder(env, context),
     ...createShareMedia(env, context),
     ...createChatEdit(env, withUploads),
     ...createProfile(env, withUploads),

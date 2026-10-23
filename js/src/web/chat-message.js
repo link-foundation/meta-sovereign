@@ -373,6 +373,9 @@ const MENU_ITEMS = {
   // The chat list's menu (R-Y97; ./chat-list-menu.js).
   pinChat: ['chat.list.pin', 'pin'],
   unpinChat: ['chat.list.unpin', 'pin'],
+  // Moving a pinned chat one place (R-Y159).
+  pinUp: ['chat.pinReorder.up', 'chevron-up'],
+  pinDown: ['chat.pinReorder.down', 'chevron-down'],
   mute: ['chat.list.mute', 'mute'],
   unmute: ['chat.list.unmute', 'volume'],
   mute1h: ['chat.list.mute1h', 'clock'],

@@ -10,6 +10,7 @@ import { CHAT_FILTERS, CHAT_SORTS, groupChats } from './chat-model.js';
 import { Notice } from './notice.js';
 import { ArchiveHead, ArchiveItem, ChatItem } from './chat-list.js';
 import { useChatListMenu } from './chat-list-menu.js';
+import { usePinnedOrder } from './chat-pin-order.js';
 import { NewChat } from './chat-create.js';
 import { MyProfile } from './chat-profile.js';
 import { Spinner } from './spinner.js';
@@ -40,6 +41,7 @@ export const NOTICE = {
   stored: 'chat.notice.stored',
   failed: 'chat.notice.failed',
   'action-failed': 'chat.notice.actionFailed',
+  'pin-reorder-failed': 'chat.pinReorder.failed',
   copied: 'chat.notice.copied',
   'link-copied': 'chat.notice.linkCopied',
   'image-copied': 'chat.notice.imageCopied',
@@ -252,8 +254,9 @@ const storiesHidden = (state) =>
 export const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
-  const listMenu = useChatListMenu({ state, api });
-  const page = useShownChats(list, state);
+  const pins = usePinnedOrder({ state, api });
+  const listMenu = useChatListMenu({ state, api, pins });
+  const page = useShownChats(list, { ...state, chats: pins.chats });
   useListLoading(list, state, page.chats.length);
   const global = useGlobalSearch(api, state.query, globalOn(state));
   const stories = useStories(api, globalOn(state));
@@ -268,6 +271,7 @@ export const Sidebar = ({ state, api }) => {
       active: chat.key === state.current?.key,
       onSelect: state.select,
       onMenu: listMenu.onMenu,
+      onPinDown: pins.onPinDown,
     });
   const archived = state.folder === 'archive' && !state.query;
   const archiveRow =
