@@ -958,6 +958,8 @@ export const api = {
   // The panel's menu ({ id, action }; R-Y115).
   telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),
   telegramStickerSetBox: (body = {}) => telegramPost('sticker-set-box', body),
+  // A die's animations ({ emoticon }; R-Y130).
+  telegramDice: (body = {}) => telegramPost('dice', body),
   telegramStickerSetInstall: (body = {}) =>
     telegramPost('sticker-set-install', body),
   telegramSendDocument: (body = {}) => telegramPost('send-document', body),

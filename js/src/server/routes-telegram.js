@@ -115,6 +115,10 @@
  *                                      -> { ok, set, items } the set a
  *                                         chat's sticker belongs to, for
  *                                         its box (R-Y124)
+ *   POST /api/telegram/dice {emoticon}
+ *                                      -> { ok, emoticon, items } a die's
+ *                                         animations: items[n] rolls to n
+ *                                         (R-Y130)
  *   POST /api/telegram/emoji-keywords {lang}
  *                                      -> { ok, lang, keywords } the words
  *                                         emoji are found by (R-Y117)
@@ -149,6 +153,7 @@ import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
 import { SHARED_KINDS } from '../sources/telegram-shared.js';
 import { STICKER_SAVES } from '../sources/telegram-stickers.js';
+import { DICE } from '../sources/telegram-send.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -761,6 +766,11 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'chat and user required', code: 'bad-request' }],
+  // A die's animations (R-Y130).
+  dice: async (account, body) =>
+    DICE.includes(body.emoticon) && typeof account.stickerDice === 'function'
+      ? [200, await account.stickerDice({ emoticon: body.emoticon })]
+      : [400, { error: 'a die emoji required', code: 'bad-request' }],
   // The set of a sticker in a chat, for its box (R-Y124).
   'sticker-set-box': async (account, body) =>
     validSetBox(body) && typeof account.stickerSetBox === 'function'

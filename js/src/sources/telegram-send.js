@@ -166,6 +166,34 @@ const whenFields = ({ silent = false, scheduleDate = null } = {}) => ({
   ...(scheduleDate ? { scheduleDate } : {}),
 });
 
+// The emoji Telegram's apps send as a die when sent alone (R-Y130).
+export const DICE = Object.freeze(['🎲', '🎯', '🏀', '⚽', '🎳', '🎰']);
+
+/** The die a message's whole text names, or null. */
+export const diceOf = (text) => {
+  const bare = String(text ?? '')
+    .trim()
+    .replaceAll('\uFE0F', '');
+  return DICE.includes(bare) ? bare : null;
+};
+
+// What a part is sent as: a die (messages.sendMedia) for a lone die's
+// emoji, else the text (messages.sendMessage).
+const partRequest = (Api, { text, formatting, ...fields }) => {
+  const dice = formatting.length === 0 && Api.InputMediaDice && diceOf(text);
+  return dice
+    ? new Api.messages.SendMedia({
+        ...fields,
+        media: new Api.InputMediaDice({ emoticon: dice }),
+        message: '',
+      })
+    : new Api.messages.SendMessage({
+        ...fields,
+        message: text,
+        ...(formatting.length > 0 ? { entities: formatting } : {}),
+      });
+};
+
 // One part through messages.SendMessage, with our random_id. `onResult`
 // sees Telegram's raw answer: it carries the update counter (pts) that
 // the catch-up tracks, and GramJS does not pass RPC answers to the
@@ -193,10 +221,10 @@ const sendPart = async ({
       when,
     });
   }
-  const request = new Api.messages.SendMessage({
+  const request = partRequest(Api, {
+    text,
+    formatting,
     peer: await client.getInputEntity(peer),
-    message: text,
-    ...(formatting.length > 0 ? { entities: formatting } : {}),
     randomId,
     clearDraft: true,
     ...whenFields(when),

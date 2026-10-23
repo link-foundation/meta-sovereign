@@ -577,13 +577,101 @@ const ContactCard = ({ media }) => {
   ]);
 };
 
-const Dice = ({ media }) =>
+const DiceCard = ({ media }) =>
   el('div', { className: 'bubble-dice', title: String(media.value ?? '') }, [
     el('span', { key: 'e', className: 'dice-emoji' }, media.emoticon),
     media.value
       ? el('span', { key: 'v', className: 'dice-value' }, String(media.value))
       : null,
   ]);
+
+// A die as Telegram's apps draw it (R-Y130): the animation of its set
+// (asked once a page) that rolls to its value — played once for a die
+// just thrown, shown at rest on its value for an older one. The slot
+// machine, built of many parts, stays a card.
+const ROLLING = new Set(['🎲', '🎯', '🏀', '⚽', '🎳']);
+const FRESH_S = 30;
+const diceSets = new Map();
+const diceSet = (api, emoticon) => {
+  if (!diceSets.has(emoticon)) {
+    const asked = Promise.resolve(api.telegramDice({ emoticon }))
+      .catch(() => null)
+      .then((answer) => {
+        if (!answer?.ok) {
+          diceSets.delete(emoticon);
+        }
+        return answer?.ok ? answer : null;
+      });
+    diceSets.set(emoticon, asked);
+  }
+  return diceSets.get(emoticon);
+};
+
+const useDiceFile = (api, media, when) => {
+  const [file, setFile] = useState(null);
+  useEffect(() => {
+    const usable =
+      when &&
+      ROLLING.has(media.emoticon) &&
+      typeof api?.telegramDice === 'function' &&
+      typeof api?.telegramStickerUrl === 'function';
+    if (!usable) {
+      return undefined;
+    }
+    let live = true;
+    diceSet(api, media.emoticon)
+      .then((set) => {
+        const item = set?.items?.[media.value ?? 0];
+        return item?.format === 'tgs'
+          ? api.telegramStickerUrl({ id: item.id, full: true })
+          : null;
+      })
+      .then((url) => live && setFile(url ?? null))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [api, media.emoticon, media.value, when]);
+  return file;
+};
+
+const lessMotion = () =>
+  globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+
+const Dice = ({ media, api }) => {
+  const ref = useRef(null);
+  const { near, visible } = useNearView(ref);
+  const file = useDiceFile(api, media, near);
+  const [drawn, setDrawn] = useState(false);
+  const [fresh] = useState(
+    () =>
+      Boolean(media.sent) &&
+      Date.now() / 1000 - media.sent < FRESH_S &&
+      !lessMotion()
+  );
+  return el(
+    'div',
+    {
+      ref,
+      className: 'bubble-sticker bubble-die',
+      title: String(media.value ?? ''),
+      'data-dice': media.emoticon,
+    },
+    [
+      file
+        ? el(LottieSticker, {
+            key: 'l',
+            src: file,
+            play: visible,
+            loop: false,
+            end: !fresh,
+            onReady: setDrawn,
+          })
+        : null,
+      drawn ? null : el(DiceCard, { key: 'c', media }),
+    ]
+  );
+};
 
 const NoteCard = ({ media }) => {
   const t = useT();

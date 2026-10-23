@@ -954,7 +954,8 @@ const BubbleMedia = ({ parts, api, chat, netId, mine, album, topic }) => {
 const bare = (parts) =>
   !parts.text &&
   !parts.fwdFrom &&
-  ['sticker', 'round'].includes(parts.media?.type);
+  (['sticker', 'round'].includes(parts.media?.type) ||
+    parts.media?.kind === 'dice');
 
 // Time row: "edited · 12:34 ✓"
 const BubbleFooter = ({ parts, message, time, t, spacer = false }) =>

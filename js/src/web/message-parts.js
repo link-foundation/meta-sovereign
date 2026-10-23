@@ -358,10 +358,12 @@ const CARD_MEDIA = {
   }),
   MessageMediaPoll: parsePoll,
   MessageMediaToDo: parseTodo,
-  MessageMediaDice: (m) => ({
+  MessageMediaDice: (m, raw) => ({
     kind: 'dice',
     emoticon: m.emoticon ?? '🎲',
     value: m.value ?? null,
+    // When it was thrown: a fresh die rolls, an old one lies still.
+    sent: Number(raw?.date) || null,
   }),
   MessageMediaStory: () => ({ kind: 'story' }),
   MessageMediaGame: (m) => ({ kind: 'game', title: m.game?.title ?? null }),
@@ -372,7 +374,7 @@ const CARD_MEDIA = {
 export const parseMedia = (raw) => {
   const mc = raw.media?.className;
   if (CARD_MEDIA[mc]) {
-    return CARD_MEDIA[mc](raw.media);
+    return CARD_MEDIA[mc](raw.media, raw);
   }
   if (mc === 'MessageMediaPhoto' && raw.media?.photo) {
     return parsePhotoMedia(raw.media.photo);

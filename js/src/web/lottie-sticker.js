@@ -84,9 +84,17 @@ export const forgetLottie = () => texts.clear();
 
 /**
  * The animation at `src`, playing while `play`; `onReady(true)` once it
- * draws, `onReady(false)` when it cannot.
+ * draws, `onReady(false)` when it cannot. `loop: false` plays it once and
+ * holds its last frame; `end` shows that frame at once.
  */
-export const LottieSticker = ({ src, play, onReady, className }) => {
+export const LottieSticker = ({
+  src,
+  play,
+  onReady,
+  className,
+  loop = true,
+  end = false,
+}) => {
   const box = useRef(null);
   const player = useRef(null);
   const [failed, setFailed] = useState(false);
@@ -101,7 +109,7 @@ export const LottieSticker = ({ src, play, onReady, className }) => {
         player.current = lottie.loadAnimation({
           container: box.current,
           renderer: 'svg',
-          loop: true,
+          loop,
           autoplay: false,
           animationData: JSON.parse(text),
           rendererSettings: { preserveAspectRatio: 'xMidYMid meet' },
@@ -111,6 +119,11 @@ export const LottieSticker = ({ src, play, onReady, className }) => {
             onReady?.(true);
           }
         });
+        if (end) {
+          // Shown as it ends (a die thrown long ago lies on its value).
+          player.current.goToAndStop(player.current.totalFrames - 1, true);
+          return;
+        }
         if (play && !lessMotion()) {
           player.current.play();
         }
@@ -130,6 +143,9 @@ export const LottieSticker = ({ src, play, onReady, className }) => {
   useEffect(() => {
     const anim = player.current;
     if (!anim) {
+      return;
+    }
+    if (end) {
       return;
     }
     if (play && !lessMotion()) {

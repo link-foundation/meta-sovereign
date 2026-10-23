@@ -36,7 +36,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pickSize } from './telegram-media.js';
-import { randomIdOf, replyHeader, sendError } from './telegram-send.js';
+import { DICE, randomIdOf, replyHeader, sendError } from './telegram-send.js';
 import { createStickerSearch } from './telegram-sticker-search.js';
 
 const LISTS_MS = 10 * 60_000;
@@ -603,6 +603,45 @@ const createBox =
     };
   };
 
+// A die's animations (R-Y130): Telegram's set for its emoji
+// (inputStickerSetDice), the n-th sticker rolling to the value n, the
+// first one the die at rest; kept an hour.
+const createDice = (env, { userClient }, lists, now) => {
+  const kept = new Map(); // emoticon -> { at, answer }
+  return async ({ emoticon } = {}) => {
+    const key = String(emoticon ?? '');
+    if (!DICE.includes(key)) {
+      return { ok: false, error: 'unknown die', code: 'bad-request' };
+    }
+    const entry = kept.get(key);
+    if (entry && now() - entry.at < SET_MS) {
+      return entry.answer;
+    }
+    const c = await connect(env, userClient);
+    if (!c) {
+      return { ok: false, supported: false };
+    }
+    const answer = await runIn(env, `stickers:dice:${key}`, () =>
+      c.client.invoke(
+        new c.Api.messages.GetStickerSet({
+          stickerset: new c.Api.InputStickerSetDice({ emoticon: key }),
+          hash: 0,
+        })
+      )
+    );
+    if (!answer?.set || answer.set.id === undefined) {
+      return { ok: false, error: 'unknown set', code: 'unknown-set' };
+    }
+    const result = {
+      ok: true,
+      emoticon: key,
+      items: lists.keepSet(answer.set, answer),
+    };
+    kept.set(key, { at: now(), answer: result });
+    return result;
+  };
+};
+
 /** `env`: the account's; `apply(client, result)` the live handler. */
 export const createStickers = (
   env,
@@ -620,5 +659,6 @@ export const createStickers = (
     stickerSave: createSaver(env, { userClient }, lists),
     stickerSetInstall: createInstaller(env, { userClient }, lists),
     stickerSetBox: createBox(env, { userClient }, lists),
+    stickerDice: createDice(env, { userClient }, lists, now),
   };
 };
