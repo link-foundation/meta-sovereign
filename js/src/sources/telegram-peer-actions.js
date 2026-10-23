@@ -1,0 +1,177 @@
+/**
+ * What Telegram Desktop offers on a person or a chat besides talking
+ * (R-Y128; learned, never copied):
+ * - `peerBlock({ chat, block })` — "Block user" / "Unblock user"
+ *   (contacts.block, contacts.unblock);
+ * - `peerContact({ chat, add, firstName, lastName, share })` — "Add to
+ *   contacts" with the name typed (contacts.addContact; `share` lets them
+ *   see our phone number) / "Delete contact" (contacts.deleteContacts);
+ * - `peerReport({ chat, option, message })` — "Report" as layer 225 has
+ *   it (messages.report on the whole chat, no message ids): the first
+ *   call, with no option, answers `{ result: 'choose', title, options:
+ *   [{ text, option }] }`; a call with a chosen `option` (base64 of its
+ *   bytes) answers `choose` again (a narrower list), `comment` (Telegram
+ *   asks for words: `optional`, `option`) or `reported`; the comment comes
+ *   back in `message`;
+ * - `peerReportSpam({ chat })` — "Report spam" on a stranger's chat
+ *   (messages.reportSpam).
+ * Telegram's errors become codes the page shows as text.
+ */
+
+import { connect, runIn } from './telegram-stickers.js';
+
+const CODES = {
+  USER_ID_INVALID: 'no-user',
+  CONTACT_ID_INVALID: 'no-user',
+  PEER_ID_INVALID: 'no-access',
+  CHANNEL_PRIVATE: 'no-access',
+  CHAT_ID_INVALID: 'no-access',
+  CONTACT_NAME_EMPTY: 'name-empty',
+  OPTION_INVALID: 'bad-option',
+  MESSAGE_TOO_LONG: 'too-long',
+  FLOOD_WAIT: 'flood',
+};
+
+const failure = (error) => {
+  const name = String(error?.errorMessage ?? error?.message ?? '');
+  const key = Object.keys(CODES).find((k) => name.includes(k));
+  return { ok: false, error: key ?? 'failed', code: CODES[key] ?? 'failed' };
+};
+
+const USER = /^\d{1,20}$/;
+const CHAT = /^-?\d{1,20}$/;
+const BASE64 = /^[A-Za-z0-9+/]*={0,2}$/;
+
+const bytesOf = (value) => Buffer.from(String(value ?? ''), 'base64');
+const base64Of = (bytes) => Buffer.from(bytes ?? []).toString('base64');
+
+// A person as an input user, from the peer the chat resolves to.
+const inputUserOf = async (c, peer) => {
+  const known =
+    typeof peer === 'string'
+      ? await c.client.getInputEntity(c.helpers.returnBigInt(peer))
+      : peer;
+  return new c.Api.InputUser({
+    userId: known.userId,
+    accessHash: known.accessHash ?? c.zero,
+  });
+};
+
+// Telegram's ReportResult as the page reads it.
+const shapeReport = (result) => {
+  switch (result?.className) {
+    case 'ReportResultChooseOption':
+      return {
+        ok: true,
+        result: 'choose',
+        title: result.title ?? '',
+        options: (result.options ?? []).map((o) => ({
+          text: o.text,
+          option: base64Of(o.option),
+        })),
+      };
+    case 'ReportResultAddComment':
+      return {
+        ok: true,
+        result: 'comment',
+        optional: Boolean(result.optional),
+        option: base64Of(result.option),
+      };
+    default:
+      return { ok: true, result: 'reported' };
+  }
+};
+
+// Checks the request, connects, runs `use` on the peer through the queue,
+// and maps Telegram's errors.
+const doing = (env, userClient, valid, name, use) => async (request) => {
+  const chat = String(request?.chat ?? '');
+  if (!valid(chat, request ?? {})) {
+    return { ok: false, error: 'bad request', code: 'failed' };
+  }
+  const c = await connect(env, userClient);
+  if (!c) {
+    return { ok: false, supported: false };
+  }
+  try {
+    return await runIn(env, `${name}:${chat}`, () =>
+      env.connection.withPeer(c.client, chat, (peer) => use(c, peer, request))
+    );
+  } catch (error) {
+    return failure(error);
+  }
+};
+
+const block = async (c, peer, { block: on }) => {
+  const Request = on ? c.Api.contacts.Block : c.Api.contacts.Unblock;
+  await c.client.invoke(new Request({ id: peer }));
+  return { ok: true, blocked: on };
+};
+
+const contact = async (c, peer, request) => {
+  const id = await inputUserOf(c, peer);
+  if (!request.add) {
+    await c.client.invoke(new c.Api.contacts.DeleteContacts({ id: [id] }));
+    return { ok: true, contact: false };
+  }
+  await c.client.invoke(
+    new c.Api.contacts.AddContact({
+      id,
+      firstName: request.firstName.trim(),
+      lastName: (request.lastName ?? '').trim(),
+      phone: '',
+      ...(request.share ? { addPhonePrivacyException: true } : {}),
+    })
+  );
+  return { ok: true, contact: true };
+};
+
+const report = async (c, peer, request) =>
+  shapeReport(
+    await c.client.invoke(
+      new c.Api.messages.Report({
+        peer,
+        id: [],
+        option: bytesOf(request.option),
+        message: request.message ?? '',
+      })
+    )
+  );
+
+const reportSpam = async (c, peer) => {
+  await c.client.invoke(new c.Api.messages.ReportSpam({ peer }));
+  return { ok: true };
+};
+
+const text = (value, max) => typeof value === 'string' && value.length <= max;
+
+const validContact = (chat, r) =>
+  USER.test(chat) &&
+  (r.add !== true ||
+    (text(r.firstName, 64) &&
+      r.firstName.trim() !== '' &&
+      (r.lastName === undefined || text(r.lastName, 64))));
+
+const validReport = (chat, r) =>
+  CHAT.test(chat) &&
+  (r.option === undefined || (text(r.option, 2048) && BASE64.test(r.option))) &&
+  (r.message === undefined || text(r.message, 512));
+
+export const createPeerActions = (env, { userClient }) => ({
+  peerBlock: doing(
+    env,
+    userClient,
+    (chat, r) => USER.test(chat) && typeof r.block === 'boolean',
+    'peer-block',
+    block
+  ),
+  peerContact: doing(env, userClient, validContact, 'peer-contact', contact),
+  peerReport: doing(env, userClient, validReport, 'peer-report', report),
+  peerReportSpam: doing(
+    env,
+    userClient,
+    (chat) => CHAT.test(chat),
+    'peer-report-spam',
+    reportSpam
+  ),
+});

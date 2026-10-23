@@ -34,6 +34,7 @@ import React, {
   useState,
 } from 'react';
 import { networkMessageId } from './chat-model.js';
+import { hasReaders, hasReactors } from './chat-readers.js';
 import { useT } from './i18n.js';
 
 const el = React.createElement;
@@ -150,6 +151,8 @@ const singleItems = ({ message, chat, info, selectedText, target, now }) => {
     linkItem({ message, chat, info, target }),
     'forward',
     'delete',
+    hasReaders(message, chat) && 'readers',
+    hasReactors(message) && 'reactors',
     'select',
   ];
 };

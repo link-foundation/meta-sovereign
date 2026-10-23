@@ -369,6 +369,9 @@ const MENU_ITEMS = {
   forward: ['chat.forward', 'forward'],
   delete: ['chat.delete', 'trash'],
   select: ['chat.select', 'select'],
+  // Who read it, who reacted (R-Y127).
+  readers: ['chat.readers.item', 'check-double'],
+  reactors: ['chat.reactors.item', 'heart'],
   selectBulk: ['chat.selectBulk', 'select'],
   copySelectedItems: ['chat.copySelectedItems', 'copy'],
   forwardSelected: ['chat.forwardSelected', 'forward'],

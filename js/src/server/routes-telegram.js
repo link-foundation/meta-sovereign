@@ -62,6 +62,14 @@
  *                                         oldest first (R-Y126)
  *   POST /api/telegram/comments-read {chat, post, max}
  *                                      -> { ok } the comments up to max read
+ *   POST /api/telegram/readers {chat, id}
+ *                                      -> { ok, readers: [{ id, name, date }] }
+ *                                         who read the user's own message
+ *                                         in a small group (R-Y127)
+ *   POST /api/telegram/reactors {chat, id, emoji?, offset?}
+ *                                      -> { ok, count, items, next } who
+ *                                         reacted to a message, by page
+ *                                         (R-Y127)
  *   POST /api/telegram/comment-send {chat, post, text, replyTo?, clientId?}
  *                                      -> { ok, chat } a comment sent to
  *                                         the discussion group
@@ -104,6 +112,13 @@
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
+ *   POST /api/telegram/peer-block {chat, block} -> { ok, blocked }
+ *   POST /api/telegram/peer-contact {chat, add, firstName?, lastName?,
+ *                                    share?} -> { ok, contact }
+ *   POST /api/telegram/peer-report {chat, option?, message?} -> { ok,
+ *                  result: choose{title, options} | comment{optional,
+ *                  option} | reported } (R-Y128)
+ *   POST /api/telegram/peer-report-spam {chat} -> { ok }
  *   POST /api/telegram/members {chat, q?, offset?, limit?}
  *                                      -> { ok, total, members, canBan,
  *                                         canInvite } a group's members,
@@ -194,6 +209,17 @@ const validMembersPage = (body) =>
     (Number.isInteger(body.offset) && body.offset >= 0)) &&
   (body.limit === undefined ||
     (Number.isInteger(body.limit) && body.limit >= 1 && body.limit <= 200));
+
+// A peer action: the account's answer, a bad request being a 400 (R-Y128).
+const peerAction = async (account, name, body) => {
+  if (typeof account[name] !== 'function') {
+    return [400, { error: 'chat required', code: 'bad-request' }];
+  }
+  const answer = await account[name](body);
+  return answer?.error === 'bad request'
+    ? [400, { error: 'bad request', code: 'bad-request' }]
+    : [200, answer];
+};
 
 // POST /api/telegram/<name>: [status, answer] for one request body.
 // Without sound; at a time (R-Y102).
@@ -521,6 +547,31 @@ const POSTS = {
           }),
         ]
       : [400, { error: 'chat, post and max required', code: 'bad-request' }],
+  // Who read a message, who reacted to it (R-Y127).
+  readers: async (account, body) =>
+    validChat(body.chat) &&
+    positive(body.id) &&
+    typeof account.messageReaders === 'function'
+      ? [200, await account.messageReaders({ chat: body.chat, id: body.id })]
+      : [400, { error: 'chat and id required', code: 'bad-request' }],
+  reactors: async (account, body) =>
+    validChat(body.chat) &&
+    positive(body.id) &&
+    (body.emoji === undefined ||
+      (typeof body.emoji === 'string' && body.emoji.length <= 64)) &&
+    (body.offset === undefined ||
+      (typeof body.offset === 'string' && body.offset.length <= 256)) &&
+    typeof account.messageReactors === 'function'
+      ? [
+          200,
+          await account.messageReactors({
+            chat: body.chat,
+            id: body.id,
+            emoji: body.emoji ?? '',
+            offset: body.offset ?? '',
+          }),
+        ]
+      : [400, { error: 'chat and id required', code: 'bad-request' }],
   'comment-send': async (account, body) =>
     validComment(body) && typeof account.sendComment === 'function'
       ? [
@@ -771,6 +822,12 @@ const POSTS = {
     DICE.includes(body.emoticon) && typeof account.stickerDice === 'function'
       ? [200, await account.stickerDice({ emoticon: body.emoticon })]
       : [400, { error: 'a die emoji required', code: 'bad-request' }],
+  // Block, contacts and report (R-Y128); the account checks each request.
+  'peer-block': (account, body) => peerAction(account, 'peerBlock', body),
+  'peer-contact': (account, body) => peerAction(account, 'peerContact', body),
+  'peer-report': (account, body) => peerAction(account, 'peerReport', body),
+  'peer-report-spam': (account, body) =>
+    peerAction(account, 'peerReportSpam', body),
   // The set of a sticker in a chat, for its box (R-Y124).
   'sticker-set-box': async (account, body) =>
     validSetBox(body) && typeof account.stickerSetBox === 'function'

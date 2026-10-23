@@ -175,6 +175,9 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     about: full.about ?? null,
     photo: hasPhoto(user.photo),
     pinned: full.pinnedMsgId ?? null,
+    // Blocked by us, and in our contacts (R-Y128).
+    blocked: Boolean(full.blocked),
+    contact: Boolean(user.contact),
     ...(user.bot ? { bot: true } : {}),
     ...(lastSeen !== undefined ? { lastSeen } : {}),
   };

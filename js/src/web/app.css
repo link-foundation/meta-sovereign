@@ -5996,3 +5996,77 @@ button[aria-busy='true']::before {
 .bubble-die > * {
   grid-area: 1 / 1;
 }
+
+/* "Seen by" and who reacted (R-Y127). */
+.reader-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 96vw);
+  max-height: min(80vh, 640px);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.reader-body {
+  padding: 0.6rem 0.8rem;
+  overflow-y: auto;
+}
+.reader-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0;
+}
+.reader-emoji,
+.reader-when {
+  flex: none;
+}
+.reader-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+.reader-tab {
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.reader-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* Block, contacts and report in the info column; the report dialog (R-Y128). */
+.peer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+}
+.peer-action,
+.peer-reason {
+  text-align: left;
+}
+.peer-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.peer-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.peer-comment {
+  width: 100%;
+  min-height: 5rem;
+  box-sizing: border-box;
+}

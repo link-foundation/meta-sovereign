@@ -86,6 +86,7 @@ test('the menu lists what Telegram Desktop does, in its order', () => {
       'copyLink',
       'forward',
       'delete',
+      'readers',
       'select',
     ]
   );

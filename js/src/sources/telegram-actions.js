@@ -45,12 +45,14 @@ import { createFolders } from './telegram-folders.js';
 import { createStickers } from './telegram-stickers.js';
 import { createInvites } from './telegram-invite.js';
 import { createMembers } from './telegram-members.js';
+import { createPeerActions } from './telegram-peer-actions.js';
 import { createCustomEmoji } from './telegram-custom-emoji.js';
 import { createEmojiKeywords } from './telegram-emoji-keywords.js';
 import { createBotActions } from './telegram-bots.js';
 import { createSharedMedia } from './telegram-shared.js';
 import { createForum } from './telegram-forum.js';
 import { createComments } from './telegram-comments.js';
+import { createReadersActions } from './telegram-readers.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -336,7 +338,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y100); scheduled messages (R-Y102); folders (R-Y103); stickers and
 // saved GIFs (R-Y105); bots' buttons (R-Y110); shared media (R-Y111);
 // forum topics (R-Y122); invite links (R-Y123); members (R-Y125);
-// comments (R-Y126).
+// comments (R-Y126); who read and who reacted (R-Y127); block, contacts
+// and report (R-Y128).
 const chatActions = (env, context) => ({
   ...createPollActions(env, context),
   ...createDialogActions(env, context),
@@ -354,7 +357,9 @@ const chatActions = (env, context) => ({
   ...createForum(env, context),
   ...createInvites(env, context),
   ...createMembers(env, context),
+  ...createPeerActions(env, context),
   ...createComments(env, context),
+  ...createReadersActions(env, context),
 });
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a

@@ -950,10 +950,19 @@ export const api = {
   telegramComments: (body = {}) => telegramPost('comments', body),
   telegramCommentSend: (body = {}) => telegramPost('comment-send', body),
   telegramCommentsRead: (body = {}) => telegramPost('comments-read', body),
+  // Who read a message ({ chat, id }), who reacted ({ chat, id, emoji?,
+  // offset? }) (R-Y127).
+  telegramReaders: (body = {}) => telegramPost('readers', body),
+  telegramReactors: (body = {}) => telegramPost('reactors', body),
   // A group's members ({ chat, q, offset, limit }) and one removed
   // ({ chat, user }) (R-Y125).
   telegramMembers: (body = {}) => telegramPost('members', body),
   telegramMemberRemove: (body = {}) => telegramPost('member-remove', body),
+  // Block, contacts and report (R-Y128).
+  telegramPeerBlock: (body = {}) => telegramPost('peer-block', body),
+  telegramPeerContact: (body = {}) => telegramPost('peer-contact', body),
+  telegramPeerReport: (body = {}) => telegramPost('peer-report', body),
+  telegramPeerReportSpam: (body = {}) => telegramPost('peer-report-spam', body),
   telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
   // The panel's menu ({ id, action }; R-Y115).
   telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),
