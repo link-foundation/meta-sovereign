@@ -38,6 +38,7 @@ import { MediaStickerBox } from './chat-sticker-box.js';
 import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
+import { formatCallDuration } from './call-model.js';
 import { CommentsBar } from './chat-comments-bar.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 
@@ -313,6 +314,10 @@ export const ServiceLine = ({ link }) => {
   }
   if (service.user && service.key !== 'chat.service.pin') {
     text = `${service.user}: ${text}`;
+  }
+  const length = formatCallDuration(service.duration);
+  if (length) {
+    text = `${text} (${length})`;
   }
   return el(
     'div',

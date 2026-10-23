@@ -1099,6 +1099,8 @@ export const api = {
   telegramEffects: (body = {}) => telegramPost('effects', body),
   telegramSendAs: (body = {}) => telegramPost('send-as', body),
   telegramSendAsSave: (body = {}) => telegramPost('send-as-save', body),
+  // The recent calls list (R-Y163).
+  telegramCalls: (body = {}) => telegramPost('calls', body),
   telegramNotifySettings: () => telegramPost('notify-settings', {}),
   telegramNotifySettingsSet: (body = {}) =>
     telegramPost('notify-settings-set', body),

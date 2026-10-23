@@ -9,6 +9,7 @@
 
 import { parsePoll, parseTodo } from './poll-parts.js';
 import { inTopicOnly } from './forum-topics.js';
+import { callLine } from './call-model.js';
 
 // Standard JFIF + Huffman table header, verbatim from Telegram's spec.
 const JPEG_HEADER_HEX =
@@ -183,6 +184,10 @@ export const serviceInfo = (link) => {
   }
   const action = link.raw?.action ?? {};
   const title = typeof action.title === 'string' ? action.title : null;
+  if (link.service === 'MessageActionPhoneCall') {
+    // Incoming, outgoing, missed or cancelled, video or not (R-Y163).
+    return { ...callLine(link), title: null, titleKey: '', user: null };
+  }
   const key =
     link.service === 'MessageActionTopicEdit' && !title
       ? topicEditKey(action)

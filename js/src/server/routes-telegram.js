@@ -214,6 +214,7 @@ import {
   WALLPAPER_POSTS,
 } from './routes-telegram-wallpapers.js';
 import { NOTIFY_SETTINGS_POSTS } from './routes-telegram-notify-settings.js';
+import { CALLS_POSTS } from './routes-telegram-calls.js';
 import { EFFECTS_POSTS } from './routes-telegram-effects.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
@@ -959,6 +960,7 @@ const POSTS = {
   ...STORY_POST_POSTS,
   ...WALLPAPER_POSTS,
   ...NOTIFY_SETTINGS_POSTS,
+  ...CALLS_POSTS,
   ...EFFECTS_POSTS,
   ...ROUND_POSTS,
   ...PRIVACY_POSTS,

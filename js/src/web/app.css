@@ -7929,6 +7929,14 @@ span.bubble-effect {
 
 /* Groups in common (R-Y158). */
 .common-chat {
+}
+
+/* The recent calls list (R-Y163). */
+.calls-scroll {
+  max-height: min(56vh, 460px);
+  overflow-y: auto;
+}
+.call-row {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -7944,11 +7952,25 @@ span.bubble-effect {
   background: var(--bg-elev);
 }
 .common-chat-text {
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.call-row:hover,
+.call-row:focus-visible {
+  background: var(--bg-elev);
+}
+.call-text {
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 .common-chat-text strong {
+}
+
+.call-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -8009,4 +8031,16 @@ span.bubble-effect {
   box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
   outline: 1px solid var(--accent);
   opacity: 0.96;
+}
+
+.call-row.is-missed .call-name,
+.call-arrow.is-missed {
+  color: var(--danger);
+}
+.call-arrow {
+  font-weight: 600;
+}
+.call-arrow.is-in:not(.is-missed),
+.call-arrow.is-out {
+  color: var(--accent);
 }
