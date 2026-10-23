@@ -36,6 +36,11 @@ import {
 } from '../crm/address-form.js';
 import { addressFormOf } from '../crm/person-learn.js';
 import {
+  safeRegExp,
+  safeRegExpOrNull,
+  safeTest,
+} from '../patterns/safe-regex.js';
+import {
   DAY_MS,
   defaultReengageTemplates,
   findDormantContacts,
@@ -117,7 +122,7 @@ const normalizeTrigger = (trigger) => {
   if (kind === 'incoming') {
     const pattern = String(trigger.pattern ?? '');
     const flags = String(trigger.flags ?? 'iu');
-    new RegExp(pattern, flags);
+    safeRegExp(pattern, flags);
     return { kind, pattern, flags };
   }
   return { kind };
@@ -196,11 +201,12 @@ export const hasTrigger = (automation, kind) =>
 
 /** The `incoming` trigger whose pattern matches `text`, if any. */
 export const incomingTrigger = (automation, text) =>
-  automation.triggers.find(
-    (t) =>
-      t.kind === 'incoming' &&
-      new RegExp(t.pattern, t.flags).test(String(text ?? ''))
-  ) ?? null;
+  automation.triggers.find((t) => {
+    // A stored pattern that cannot be used (too long, invalid) never fires;
+    // one that runs too long counts as no match (R-Z1, ReDoS).
+    const regex = t.kind === 'incoming' && safeRegExpOrNull(t.pattern, t.flags);
+    return regex ? safeTest(regex, text) : false;
+  }) ?? null;
 
 const PRESET_TEXTS = {
   jobs: {

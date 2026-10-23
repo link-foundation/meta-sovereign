@@ -219,7 +219,10 @@ export const listenHttpAndHttps = (
       });
     });
     front.once('error', reject);
-    front.listen(port, host, () => resolve(front));
+    front.listen(port, host, () => {
+      front.off('error', reject);
+      resolve(front);
+    });
   });
 
 /**
@@ -247,6 +250,13 @@ export const listenLocal = async (
       return { listener, tls: { certPath: local.certPath } };
     }
   }
-  await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
+  // A busy port rejects (it used to hang for ever, R-Z1).
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, '127.0.0.1', () => {
+      server.off('error', reject);
+      resolve();
+    });
+  });
   return { listener: server, tls: null };
 };

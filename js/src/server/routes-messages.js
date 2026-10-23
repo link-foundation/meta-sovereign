@@ -172,7 +172,7 @@ const ACTIONS = {
 
 const handleAction = async (store, req, res, ctx, name) => {
   const action = ACTIONS[name];
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   const links = await messagesOf(store, body);
   const problem = action.check(body, links);
   if (problem) {

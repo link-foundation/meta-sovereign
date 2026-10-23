@@ -69,8 +69,57 @@ export const parseAllowedOrigins = (value = process.env.MS_ALLOW_ORIGINS) => {
   return [...new Set(list.map(toOrigin).filter(Boolean))];
 };
 
-const isSameOrigin = (req, origin) =>
-  origin === `http://${req.headers.host ?? ''}`;
+const LOOPBACK_NAMES = new Set(['127.0.0.1', 'localhost', '[::1]']);
+
+// The Host header as { hostname, port }, or null when it is not one.
+const parseHost = (value) => {
+  try {
+    const url = new URL(`http://${String(value ?? '')}`);
+    return url.username || url.pathname !== '/' || url.search
+      ? null
+      : { hostname: url.hostname, port: url.port };
+  } catch {
+    return null;
+  }
+};
+
+const envHosts = () =>
+  String(process.env.MS_ALLOW_HOSTS ?? '')
+    .toLowerCase()
+    .split(/[,\s]+/)
+    .filter(Boolean);
+
+/**
+ * Whether a request is addressed to this server by a loopback name
+ * (`127.0.0.1`, `localhost`, `[::1]`) and, when the port is known, its
+ * port. A page on another site whose DNS was rebound to 127.0.0.1 still
+ * sends its own name in `Host`, so this refuses it (R-Z1, DNS rebinding).
+ * `MS_ALLOW_HOSTS` (comma separated `host:port`) adds names by hand.
+ * @param {{headers: object}} req
+ * @param {number|null} [port] the server's port; any port when null
+ */
+export const hostAllowed = (req, port = null) => {
+  const raw = String(req.headers?.host ?? '').toLowerCase();
+  if (envHosts().includes(raw)) {
+    return true;
+  }
+  const host = parseHost(raw);
+  return (
+    host !== null &&
+    LOOPBACK_NAMES.has(host.hostname) &&
+    (port === null || host.port === String(port))
+  );
+};
+
+// The page the server itself serves: `http://` or — on its own TLS
+// listener — `https://` at the same loopback host (R-Z1).
+const isSameOrigin = (req, origin) => {
+  const host = String(req.headers.host ?? '');
+  return (
+    hostAllowed(req) &&
+    (origin === `http://${host}` || origin === `https://${host}`)
+  );
+};
 
 /**
  * Classify a request's `Origin` header.

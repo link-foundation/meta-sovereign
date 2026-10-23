@@ -1184,6 +1184,23 @@ export const hasRequiredCredentials = (provider, credentials = {}) => {
   return true;
 };
 
+// The server tells the page that a secret is saved, never its value
+// (R-Z1): a masked link (`masked: true`) counts as "saved" for every field
+// it holds, though the page has no value to probe with.
+export const hasSavedCredentials = (provider, links = [], credentials = {}) => {
+  const masked = new Set(
+    links.filter((link) => link?.masked === true).map((link) => link.id)
+  );
+  const fields = provider?.apiCredentials?.fields ?? [];
+  return requiredFieldsFor(provider).every((id) => {
+    const field = fields.find((f) => f.id === id);
+    return (
+      (typeof credentials[id] === 'string' && credentials[id].length > 0) ||
+      (field && masked.has(field.secretId))
+    );
+  });
+};
+
 export const buildProbeUrl = ({ provider, credentials = {} } = {}) => {
   if (!provider || !provider.apiCredentials) {
     return null;

@@ -20,6 +20,7 @@ import { startServer } from '../src/server/index.js';
 import {
   buildProbeUrl,
   credentialsFromLinks,
+  hasSavedCredentials,
   providerCatalogue,
 } from '../src/web/connection-guides.js';
 
@@ -55,12 +56,23 @@ describe('Provider credentials roundtrip (issue #16)', () => {
       );
       expect(links.length).toBe(1);
       expect(links[0].id).toBe('secret:telegram:bot-token');
-      expect(links[0].value).toBe(sampleToken);
-
-      // The provider detail recovers a field-id map from secret:* links
-      // and hands it to buildProbeUrl unchanged.
+      // The server says it is saved, not what it is (R-Z1).
+      expect(links[0].value).toBe(undefined);
+      expect(links[0].masked).toBe(true);
       const provider = providerCatalogue.telegram;
-      const credentials = credentialsFromLinks(provider, links);
+      expect(hasSavedCredentials(provider, links)).toBe(true);
+
+      // The page's own store holds the value it typed (the browser keeps
+      // its secrets); the provider detail recovers a field-id map from
+      // those links and hands it to buildProbeUrl unchanged.
+      const local = [
+        {
+          id: 'secret:telegram:bot-token',
+          tokens: ['secret', 'telegram', 'token'],
+          value: sampleToken,
+        },
+      ];
+      const credentials = credentialsFromLinks(provider, local);
       expect(credentials).toEqual({ token: sampleToken });
 
       const url = buildProbeUrl({ provider, credentials });
@@ -102,7 +114,8 @@ describe('Provider credentials roundtrip (issue #16)', () => {
       const before = await fetch(
         `${base}/links/secret:telegram:bot-token`
       ).then((r) => r.json());
-      expect(before.value).toBe('will-be-forgotten');
+      expect(before.value).toBe(undefined);
+      expect(before.masked).toBe(true);
 
       // Mirrors api.del in dom.js (DELETE /links/:id).
       await fetch(`${base}/links/secret:telegram:bot-token`, {

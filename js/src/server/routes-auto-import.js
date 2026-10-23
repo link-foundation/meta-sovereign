@@ -95,8 +95,16 @@ const availability = async (ctx) => {
   return ctx.autoImportProbe;
 };
 
+// An error that carries its own status is told as is; an unexpected one
+// is logged above and answered generically (R-Z1).
 const fail = (res, error) =>
-  json(res, error.status ?? 500, { error: error.message }) ?? true;
+  (error.status
+    ? json(res, error.status, { ok: false, error: error.message })
+    : json(res, 500, {
+        ok: false,
+        error: 'internal server error',
+        code: 'internal',
+      })) ?? true;
 
 const handleJobRoute = async (manager, req, res, id, action) => {
   if (!action && req.method === 'GET') {
@@ -187,7 +195,7 @@ const TELEGRAM_ROUTE = /^\/api\/auto-import\/telegram\/(scan|identify|use)$/;
 // kinds, paths and masked hints (see ../sources/auto-import/telegram-creds.js).
 const telegramRoute = async (store, req, res, ctx, action) => {
   const creds = telegramCredsFor(ctx);
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   if (action === 'scan') {
     const result = await creds.scan({ roots: body.roots });
     ctx.log?.({ event: 'telegram_creds_scan', found: result.entries.length });
@@ -403,7 +411,7 @@ const loginStep = (store, action, body, ctx) => {
 };
 
 const telegramLoginRoute = async (store, req, res, ctx, action) => {
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   const result = await loginStep(store, action, body, ctx);
   ctx.log?.({
     event: 'telegram_login',

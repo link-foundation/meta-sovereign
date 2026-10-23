@@ -23,6 +23,7 @@ import {
   buildProbeHeaders,
   buildProbeUrl,
   credentialsFromLinks,
+  hasSavedCredentials,
   hasRequiredCredentials,
   providerCatalogue,
   tryDirect,
@@ -672,7 +673,9 @@ export const ProviderConnectionControls = ({
 }) => {
   const t = useT();
   const credentials = credentialsFromLinks(provider, links);
-  const ready = hasRequiredCredentials(provider, credentials);
+  const ready =
+    hasRequiredCredentials(provider, credentials) ||
+    hasSavedCredentials(provider, links, credentials);
   return el(
     'section',
     {

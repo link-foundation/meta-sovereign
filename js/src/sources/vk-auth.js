@@ -29,7 +29,7 @@
  * VK ID app) stay the primary path.
  */
 
-import { addSearch } from './http.js';
+import { addSearch, timedRequest } from './http.js';
 import { createVkLive } from './vk.js';
 
 /** Date the `gate` column of `VK_TOKEN_SOURCES` was last probed. */
@@ -163,16 +163,20 @@ export const probeVkOAuthGate = async ({
   fetchImpl = globalThis.fetch,
 } = {}) => {
   const url = buildVkAuthorizeUrl({ clientId, scope, host });
-  const res = await fetchImpl(url, {
-    redirect: 'manual',
-    headers: { 'Accept-Language': 'en' },
-  });
-  const body = await res.text();
-  return {
-    clientId: Number(clientId),
-    status: res.status,
-    outcome: classifyVkOAuthGate({ status: res.status, body }),
-  };
+  return timedRequest(
+    fetchImpl,
+    url,
+    { redirect: 'manual', headers: { 'Accept-Language': 'en' } },
+    { write: false },
+    async (res) => {
+      const body = await res.text();
+      return {
+        clientId: Number(clientId),
+        status: res.status,
+        outcome: classifyVkOAuthGate({ status: res.status, body }),
+      };
+    }
+  );
 };
 
 /**

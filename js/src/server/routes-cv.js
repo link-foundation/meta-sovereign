@@ -107,7 +107,7 @@ const handleRead = async (store, req, res, p, ctx) => {
   if (p !== '/api/cv/read' || req.method !== 'POST') {
     return false;
   }
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   return guarded(res, async () => {
     const ids = platformIds(body.platforms);
     const result = await readAllCvs(ids, liveOptions(store, body, ctx));
@@ -119,7 +119,7 @@ const handleCompare = async (store, req, res, p) => {
   if (p !== '/api/cv/compare' || req.method !== 'POST') {
     return false;
   }
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   return guarded(res, async () => {
     const entries = await entriesFor(store, body);
     return json(res, 200, {
@@ -134,7 +134,7 @@ const handleSync = async (store, req, res, p, ctx) => {
   if (p !== '/api/cv/sync' || req.method !== 'POST') {
     return false;
   }
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   return guarded(res, async () => {
     const ids = platformIds(body.platforms);
     const run = (dryRun, confirmedPlan = null) =>

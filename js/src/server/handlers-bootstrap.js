@@ -16,6 +16,7 @@ import {
   automationHandler,
 } from '../handlers/index.js';
 import { runGraph } from '../automation/index.js';
+import { safeRegExpOrNull } from '../patterns/safe-regex.js';
 import { pullLiveInto } from '../sources/index.js';
 
 const hydrate = (persisted) => {
@@ -23,7 +24,7 @@ const hydrate = (persisted) => {
   for (const n of persisted.nodes ?? []) {
     nodes.set(n.id, {
       ...n,
-      regex: n.regex ? new RegExp(n.regex, n.flags ?? 'i') : undefined,
+      regex: n.regex ? safeRegExpOrNull(n.regex, n.flags ?? 'i') : undefined,
     });
   }
   return { nodes, edges: persisted.edges ?? [] };

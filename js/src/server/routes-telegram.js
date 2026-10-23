@@ -194,7 +194,7 @@
  */
 
 import { classifyOrigin } from './cors.js';
-import { json, readBody } from './util.js';
+import { bodyFailure, json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
@@ -1405,7 +1405,7 @@ const dispatch = async (account, req, res, p, ctx) => {
   if (req.method !== 'POST' || !Object.hasOwn(POSTS, name)) {
     return false;
   }
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   // `account` in the body picks an extra account; absent is account 1,
   // as always (R-Y198).
   const target = await resolveAccount(ctx, account, name, body);
@@ -1473,6 +1473,9 @@ export const handleTelegramRoutes = async (req, res, p, ctx) => {
   try {
     return await dispatch(account, req, res, p, ctx);
   } catch (error) {
+    if (bodyFailure(error)) {
+      throw error; // a bad request body: 400/413, not a 502 (R-Z1)
+    }
     ctx.log?.({
       level: 'error',
       event: 'telegram_route_failed',

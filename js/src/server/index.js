@@ -63,7 +63,7 @@ import { createTelegramAccount } from '../sources/telegram-account.js';
 import { createExtraAccounts } from '../sources/telegram-accounts.js';
 import { createExtraRuntime, telegramChats } from './telegram-extras.js';
 import { accountScope } from './account-scope.js';
-import { json } from './util.js';
+import { bodyFailure, fail, json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
 import { handleCvRoutes } from './routes-cv.js';
@@ -98,7 +98,12 @@ import { listenLocal } from './local-tls.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
 import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
-import { classifyOrigin, handleCors, parseAllowedOrigins } from './cors.js';
+import {
+  classifyOrigin,
+  handleCors,
+  hostAllowed,
+  parseAllowedOrigins,
+} from './cors.js';
 import {
   hostedUiUrl,
   localUiEnabled,
@@ -268,7 +273,8 @@ const automationContext = (
   store,
   automations = {},
   log = null,
-  getSource = getSourceDefault
+  getSource = getSourceDefault,
+  later = []
 ) => {
   const say = (event) => log?.(event);
   // The saved connection's token and ids, so the API is really tried
@@ -315,15 +321,19 @@ const automationContext = (
   });
   const autopilot = createAutopilot({ store, runner, log: say });
   if (automations.scheduler !== false) {
-    scheduler.start();
-    // An autopilot left on goes on after a restart.
-    autopilot.resume().catch((error) =>
-      say({
-        level: 'warn',
-        event: 'autopilot_resume_failed',
-        error: error.message,
-      })
-    );
+    // Started once the port is really ours (R-Z1): a second `serve` on a
+    // busy port must not run automation on the same store.
+    later.push(() => {
+      scheduler.start();
+      // An autopilot left on goes on after a restart.
+      autopilot.resume().catch((error) =>
+        say({
+          level: 'warn',
+          event: 'autopilot_resume_failed',
+          error: error.message,
+        })
+      );
+    });
   }
   return {
     send,
@@ -368,7 +378,7 @@ const listenTracked = async (server, sockets, options) => {
  * inject a fake login (`telegramMtproto`/`telegramCreds`) get no real
  * account unless they pass one, so nothing ever dials Telegram.
  */
-const telegramAccountFor = (store, log, options) => {
+const telegramAccountFor = (store, log, options, later = []) => {
   if (options.telegramAccount !== undefined) {
     return options.telegramAccount || null;
   }
@@ -381,7 +391,7 @@ const telegramAccountFor = (store, log, options) => {
     chats: options.chats,
     mediaDir: options.mediaDir ?? null,
   });
-  account.start();
+  later.push(() => account.start());
   return account;
 };
 
@@ -391,7 +401,7 @@ const telegramAccountFor = (store, log, options) => {
 // R-Y202: each signed-in extra account also runs on its own store, in a
 // subdirectory of the store dir (a memory store when the server was given
 // a store of its own, as tests do, so nothing is made on disk).
-const telegramContext = (store, log, account, extra = {}) => {
+const telegramContext = (store, log, account, extra = {}, later = []) => {
   const say = (e) => log?.(e);
   const runtime = account
     ? createExtraRuntime({
@@ -403,7 +413,7 @@ const telegramContext = (store, log, account, extra = {}) => {
       })
     : null;
   // Signed-in extra accounts start with the server.
-  runtime?.startAll().catch(() => {});
+  later.push(() => runtime?.startAll().catch(() => {}));
   return {
     telegramAccount: account,
     telegramStore: store,
@@ -449,8 +459,11 @@ const handlePage = (req, res, p, ctx) =>
 
 // Same rule as HTTP: no sockets for pages on other websites, none while
 // locked (R-Y183).
+// Nor for a Host that is not this server's own (DNS rebinding, R-Z1).
 const socketAllowed = (ctx) => (req) =>
-  classifyOrigin(req, ctx.allowOrigins) !== 'denied' && !ctx.passcode.locked();
+  hostAllowed(req, ctx.port) &&
+  classifyOrigin(req, ctx.allowOrigins) !== 'denied' &&
+  !ctx.passcode.locked();
 
 // The local passcode (R-Y183): its own routes, then the gate that refuses
 // everything else while the server is locked.
@@ -462,6 +475,11 @@ const handlePageOrLock = async (req, res, p, ctx) =>
 
 const route = async (store, req, res, ctx) => {
   applySecurityHeaders(res);
+  // First of all, on every route: only a loopback Host with this server's
+  // port may use it. A rebound DNS name sends its own name (R-Z1).
+  if (!hostAllowed(req, ctx.port)) {
+    return fail(res, 421, 'bad-host', 'unexpected Host header');
+  }
   if (handleCors(req, res, ctx.allowOrigins)) {
     return;
   }
@@ -530,7 +548,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
       return;
     }
   }
-  return json(res, 404, { error: 'unknown route' });
+  return fail(res, 404, 'unknown-route', 'unknown route');
 };
 
 const initStore = async ({
@@ -600,9 +618,51 @@ const createHttpServer = (store, ctx, log) =>
         error: err.message,
         stack: err.stack ?? null,
       });
-      json(res, 500, { error: err.message });
+      // A body the client sent badly is its own error (400/413); any other
+      // failure is told in the log, not to the page (paths, internals).
+      const [status, body] = bodyFailure(err) ?? [
+        500,
+        { ok: false, error: 'internal server error', code: 'internal' },
+      ];
+      json(res, status, body);
     });
   });
+
+// A port that cannot be listened on, told so that a person can act on it.
+const listenFailure = (error, port) =>
+  error?.code === 'EADDRINUSE'
+    ? Object.assign(
+        new Error(
+          `port ${port} is already in use (another meta-sovereign running? try --port=<n>)`
+        ),
+        { code: 'EADDRINUSE', cause: error }
+      )
+    : error;
+
+// Listen; when the port cannot be had, let go of what was opened (nothing
+// background was started) and fail with a message a person can act on.
+const listenOrRelease = async (server, sockets, options, release) => {
+  try {
+    return await listenTracked(server, sockets, options);
+  } catch (error) {
+    await release();
+    throw listenFailure(error, options.port);
+  }
+};
+
+// The page's live sockets: sync and WebRTC signalling (same rules as HTTP).
+const attachSockets = (server, ctx, store, { enableSync, node }) => {
+  if (!enableSync) {
+    return { wsHandle: null, signaling: null };
+  }
+  const verifyOrigin = socketAllowed(ctx);
+  const wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
+  createPeer(store, { node }).connect(wsHandle.transport);
+  const signaling = attachSignaling(server, { path: '/rtc', verifyOrigin });
+  ctx.sync = wsHandle;
+  ctx.signaling = signaling;
+  return { wsHandle, signaling };
+};
 
 export const startServer = async ({
   port = 0,
@@ -651,14 +711,21 @@ export const startServer = async ({
     secretPassphrase,
     log,
   });
+  // Services that run in the background start only after the port is ours.
+  const later = [];
   const chatIndex = createChatIndex(store);
-  const telegramAccount = telegramAccountFor(store, log, {
-    telegramAccount: telegramAccountOption,
-    telegramMtproto,
-    telegramCreds,
-    chats: () => telegramChats(chatIndex),
-    mediaDir: mediaDirOf(storeDir),
-  });
+  const telegramAccount = telegramAccountFor(
+    store,
+    log,
+    {
+      telegramAccount: telegramAccountOption,
+      telegramMtproto,
+      telegramCreds,
+      chats: () => telegramChats(chatIndex),
+      mediaDir: mediaDirOf(storeDir),
+    },
+    later
+  );
   const ctx = {
     archiveDir: resolvedArchiveDir,
     sync: null,
@@ -672,7 +739,8 @@ export const startServer = async ({
       store,
       automations,
       log,
-      accountSources(telegramAccount)
+      accountSources(telegramAccount),
+      later
     ),
     ...greetingContext(greetings),
     storeDir,
@@ -686,12 +754,13 @@ export const startServer = async ({
     autoImportSignIns,
     telegramMtproto,
     telegramCreds,
-    ...telegramContext(store, log, telegramAccount, {
-      providedStore,
-      storeDir,
-      telegramExtraStore,
-      telegramExtraBuild,
-    }),
+    ...telegramContext(
+      store,
+      log,
+      telegramAccount,
+      { providedStore, storeDir, telegramExtraStore, telegramExtraBuild },
+      later
+    ),
     chatIndex,
   };
   const server = createHttpServer(store, ctx, log);
@@ -704,23 +773,30 @@ export const startServer = async ({
   if (enableHandlers) {
     bus = registerDefaultHandlers(store, { browser: () => ctx.send });
   }
-  let wsHandle = null;
-  let signaling = null;
-  if (enableSync) {
-    const verifyOrigin = socketAllowed(ctx);
-    wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
-    const peer = createPeer(store, { node });
-    peer.connect(wsHandle.transport);
-    signaling = attachSignaling(server, { path: '/rtc', verifyOrigin });
-    ctx.sync = wsHandle;
-    ctx.signaling = signaling;
-  }
+  const { wsHandle, signaling } = attachSockets(server, ctx, store, {
+    enableSync,
+    node,
+  });
   const {
     listener,
     tls: secure,
     closeFront,
-  } = await listenTracked(server, sockets, { port, storeDir, tls, log });
+  } = await listenOrRelease(
+    server,
+    sockets,
+    { port, storeDir, tls, log },
+    async () => {
+      bus?.close();
+      wsHandle?.close();
+      signaling?.close();
+      ctx.replies.close().catch(() => {});
+      ctx.chatIndex.close();
+      await flush().catch(() => {});
+    }
+  );
   ctx.tls = Boolean(secure);
+  ctx.port = listener.address().port;
+  later.forEach((start) => start());
   return {
     port: listener.address().port,
     tls: secure,

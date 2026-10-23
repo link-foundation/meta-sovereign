@@ -14,6 +14,8 @@
  * link in the unified database.
  */
 
+import { safeTest } from './safe-regex.js';
+
 const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const tokenise = (s) => s.split(/\s+/).filter(Boolean);
@@ -47,9 +49,10 @@ export const simplifyRegex = (regex) => {
   return new RegExp(src, regex.flags);
 };
 
+// Under a time budget and on bounded text (R-Z1, ReDoS).
 export const matchAll = (regex, messages) =>
   messages.filter((m) =>
-    regex.test(typeof m === 'string' ? m : (m.body ?? ''))
+    safeTest(regex, typeof m === 'string' ? m : (m.body ?? ''))
   );
 
 export const createPattern = ({ id, examples, label }) => ({

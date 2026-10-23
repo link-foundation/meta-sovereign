@@ -543,7 +543,10 @@ test('fallback: both failing raises an error with both causes', async () => {
 });
 
 test('fallback: safe-mode and bad-draft errors are not retried', async () => {
-  assert.deepEqual([...NO_FALLBACK_CODES], ['safe-mode', 'bad-draft']);
+  assert.deepEqual(
+    [...NO_FALLBACK_CODES],
+    ['safe-mode', 'bad-draft', 'unknown-delivery']
+  );
   for (const error of [
     new SafeModeError('one at a time'),
     Object.assign(new Error('empty'), { code: 'bad-draft' }),

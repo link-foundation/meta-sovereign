@@ -61,7 +61,7 @@ const handleList = async (res, archiveDir) => {
 // MS_SECRET_PASSPHRASE: with one the archive is encrypted and holds the
 // secrets; without, it leaves them out and says so (R-Z2).
 const handleCreate = async (store, req, res, archiveDir, fallback) => {
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req, { allowEmpty: false });
   const passphrase = body.passphrase || fallback || null;
   try {
     const made = await makeBackup(store, { archiveDir, passphrase });
@@ -85,8 +85,11 @@ const handleCreate = async (store, req, res, archiveDir, fallback) => {
 };
 
 const handleRestore = async (store, req, res, archiveDir, fallback) => {
-  const body = await readBody(req).catch(() => ({}));
-  const target = body.file ? safeUnder(archiveDir, body.file) : null;
+  const body = await readBody(req, { allowEmpty: false });
+  const target =
+    typeof body.file === 'string' && body.file
+      ? safeUnder(archiveDir, body.file)
+      : null;
   if (!target) {
     json(res, 400, { error: 'file is required and must be in archiveDir' });
     return true;

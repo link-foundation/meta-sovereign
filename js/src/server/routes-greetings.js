@@ -18,7 +18,7 @@
  *                                     download URL embeds the bot token)
  */
 
-import { json, readBody, text } from './util.js';
+import { bodyFailure, json, readBody, text } from './util.js';
 import { confirmed } from './confirmations.js';
 import { getSource } from '../sources/index.js';
 import {
@@ -60,7 +60,7 @@ const handleSelection = async (store, req, res, p) => {
     return json(res, 200, await loadGreetingSelection(store)) ?? true;
   }
   if (req.method === 'PUT') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await saveGreetingSelection(store, body)) ?? true;
   }
   return false;
@@ -70,7 +70,7 @@ const handleStickers = async (store, req, res, p, ctx) => {
   if (p !== '/api/greetings/stickers' || req.method !== 'POST') {
     return false;
   }
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   const result = await listLiveGreetingStickers({
     networks: listOrNull(body.networks) ?? ['vk', 'telegram'],
     selection: await loadGreetingSelection(store),
@@ -84,7 +84,7 @@ const handlePlan = async (store, req, res, p, ctx) => {
   if (p !== '/api/greetings/plan' || req.method !== 'POST') {
     return false;
   }
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   const makePlan = () =>
     planFromStore(store, {
       mode: body.mode === 'reply' ? 'reply' : 'initiate',
@@ -152,6 +152,10 @@ export const handleGreetingRoutes = async (store, req, res, p, url, ctx) => {
       (await handleFile(store, req, res, p, url, ctx))
     );
   } catch (error) {
-    return json(res, 502, { error: error.message }) ?? true;
+    const [status, body] = bodyFailure(error) ?? [
+      502,
+      { error: error.message },
+    ];
+    return json(res, status, body) ?? true;
   }
 };

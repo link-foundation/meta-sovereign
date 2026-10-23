@@ -6,7 +6,9 @@
  * truth; nothing is held in server-side memory.
  */
 
-import { json, readBody } from './util.js';
+import { fail, json, readBody } from './util.js';
+import { maskSecret, maskSecrets } from './secret-mask.js';
+import { safeRegExp } from '../patterns/safe-regex.js';
 import { inferRegex, simplifyRegex, inferRegexLcs } from '../patterns/index.js';
 import { runGraph } from '../automation/index.js';
 import {
@@ -62,13 +64,31 @@ const listLinks = async (store, res, url) => {
   const visible = includeTombstones(url)
     ? all
     : all.filter((l) => !isTombstone(l));
-  return json(res, 200, visible) ?? true;
+  // A saved secret is told as present, never as its value (R-Z1).
+  return json(res, 200, maskSecrets(visible)) ?? true;
+};
+
+const MAX_ID_LENGTH = 2048;
+
+/** Why `link` cannot be stored, or null: an object with a real string id. */
+export const linkProblem = (link) => {
+  if (typeof link?.id !== 'string' || !link.id.trim()) {
+    return 'a link needs a non-empty string id';
+  }
+  if (link.id.length > MAX_ID_LENGTH) {
+    return `a link id is at most ${MAX_ID_LENGTH} characters`;
+  }
+  return null;
 };
 
 const putLink = async (store, req, res) => {
   const link = await readBody(req);
+  const problem = linkProblem(link);
+  if (problem) {
+    return fail(res, 400, 'bad-link', problem) ?? true;
+  }
   await store.put(link);
-  return json(res, 200, link) ?? true;
+  return json(res, 200, maskSecret(link)) ?? true;
 };
 
 const getLink = async (store, res, id, url) => {
@@ -76,7 +96,7 @@ const getLink = async (store, res, id, url) => {
   if (!link || (isTombstone(link) && !includeTombstones(url))) {
     return json(res, 404, { error: 'not found' }) ?? true;
   }
-  return json(res, 200, link) ?? true;
+  return json(res, 200, maskSecret(link)) ?? true;
 };
 
 // Issue #6 / R-K1: soft-delete by default. The destructive path
@@ -102,7 +122,7 @@ const deleteLink = async (store, res, id, url) => {
       ok: true,
       soft: true,
       deleted: tombstoned.deleted ?? null,
-      link: tombstoned,
+      link: maskSecret(tombstoned),
     }) ?? true
   );
 };
@@ -129,7 +149,7 @@ const handleLinks = async (store, req, res, p, url) => {
 };
 
 const handleExportEncrypted = async (store, req, res, ctx) => {
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   const passphrase = body.passphrase ?? ctx?.secretPassphrase ?? null;
   if (!passphrase) {
     json(res, 400, {
@@ -146,7 +166,7 @@ const handleExportEncrypted = async (store, req, res, ctx) => {
 };
 
 const handlePurgeTombstones = async (store, req, res) => {
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   if (body.confirm !== true) {
     json(res, 400, {
       error:
@@ -183,7 +203,7 @@ const handlePurgeTombstones = async (store, req, res) => {
 
 const handlePrefixedPut = async (store, req, res, prefix, kind) => {
   const link = await readBody(req);
-  if (!link.id?.startsWith(`${prefix}:`)) {
+  if (typeof link.id !== 'string' || !link.id.startsWith(`${prefix}:`)) {
     json(res, 400, { error: `${kind}.id must start with "${prefix}:"` });
     return true;
   }
@@ -202,8 +222,25 @@ const handlePrefixedGet = async (store, res, prefix) => {
   return true;
 };
 
+const MAX_EXAMPLES = 500;
+const MAX_EXAMPLE_LENGTH = 2000;
+
 const handlePatternInfer = async (req, res) => {
   const { examples, mode = 'simple' } = await readBody(req);
+  if (
+    !Array.isArray(examples) ||
+    examples.length > MAX_EXAMPLES ||
+    examples.some((e) => typeof e !== 'string' || e.length > MAX_EXAMPLE_LENGTH)
+  ) {
+    return (
+      fail(
+        res,
+        400,
+        'bad-examples',
+        'examples must be a short list of strings'
+      ) ?? true
+    );
+  }
   const regex =
     mode === 'lcs'
       ? inferRegexLcs(examples ?? [])
@@ -227,12 +264,22 @@ const handlePatterns = async (store, req, res, p) => {
 
 const handleGraphRun = async (store, req, res) => {
   const { id, message, mode = 'semi' } = await readBody(req);
+  if (typeof id !== 'string' || !id) {
+    return fail(res, 400, 'bad-request', 'id (a graph id) is needed') ?? true;
+  }
   const persisted = await store.get(id);
   if (!persisted) {
     json(res, 404, { error: `graph ${id} not found` });
     return true;
   }
-  json(res, 200, runGraph(hydrateGraph(persisted), message, { mode }));
+  let graph;
+  try {
+    graph = hydrateGraph(persisted);
+  } catch (error) {
+    // A stored pattern that is too long or not a regex (R-Z1).
+    return fail(res, 400, 'unsafe-pattern', error.message) ?? true;
+  }
+  json(res, 200, runGraph(graph, message, { mode }));
   return true;
 };
 
@@ -254,7 +301,7 @@ const hydrateGraph = (persisted) => {
   for (const n of persisted.nodes ?? []) {
     nodes.set(n.id, {
       ...n,
-      regex: n.regex ? new RegExp(n.regex, n.flags ?? 'i') : undefined,
+      regex: n.regex ? safeRegExp(n.regex, n.flags ?? 'i') : undefined,
       group: n.group,
     });
   }
@@ -302,7 +349,7 @@ const handleProfile = async (store, req, res, p, ctx) => {
  * user confirmed exactly that profile and those networks.
  */
 const confirmedSync = async (store, req, res, ctx, { id, action, run }) => {
-  const body = await readBody(req).catch(() => ({}));
+  const body = await readBody(req);
   const networks = Array.isArray(body.networks)
     ? body.networks.filter((n) => listSources().includes(n))
     : [];
@@ -565,11 +612,11 @@ const sendEmail = async (store, body, ctx) => {
 
 const handleEmail = async (store, req, res, p, ctx) => {
   if (p === '/api/email/pull' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await pullEmail(store, body, ctx)) ?? true;
   }
   if (p === '/api/email/send' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return confirmedSend(res, ctx, body, 'email', () =>
       sendEmail(store, body, ctx)
     );
@@ -647,15 +694,15 @@ const postGithubComment = async (store, body, ctx) => {
 
 const handleGithub = async (store, req, res, p, ctx) => {
   if (p === '/api/github/pull' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await pullGithub(store, body, ctx)) ?? true;
   }
   if (p === '/api/github/clone' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await cloneGithub(store, body, ctx)) ?? true;
   }
   if (p === '/api/github/post-comment' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return confirmedSend(res, ctx, body, 'github', () =>
       postGithubComment(store, body, ctx)
     );
@@ -735,15 +782,15 @@ const postUpworkMessage = async (store, body, ctx) => {
 
 const handleUpwork = async (store, req, res, p, ctx) => {
   if (p === '/api/upwork/pull' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await pullUpwork(store, body, ctx)) ?? true;
   }
   if (p === '/api/upwork/search' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await searchUpwork(store, body, ctx)) ?? true;
   }
   if (p === '/api/upwork/post-message' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return confirmedSend(res, ctx, body, 'upwork', () =>
       postUpworkMessage(store, body, ctx)
     );
@@ -822,15 +869,15 @@ const postPeoplePerHourMessage = async (store, body, ctx) => {
 
 const handlePeoplePerHour = async (store, req, res, p, ctx) => {
   if (p === '/api/peopleperhour/pull' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await pullPeoplePerHour(store, body, ctx)) ?? true;
   }
   if (p === '/api/peopleperhour/search' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return json(res, 200, await searchPeoplePerHour(store, body, ctx)) ?? true;
   }
   if (p === '/api/peopleperhour/post-message' && req.method === 'POST') {
-    const body = await readBody(req).catch(() => ({}));
+    const body = await readBody(req);
     return confirmedSend(res, ctx, body, 'peopleperhour', () =>
       postPeoplePerHourMessage(store, body, ctx)
     );

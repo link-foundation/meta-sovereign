@@ -148,7 +148,11 @@ describe('http server with secret passphrase', () => {
       const got = await fetch(`${base}/links/secret:telegram:bot-token`).then(
         (r) => r.json()
       );
-      expect(got.value).toBe('plaintext-only-on-the-wire');
+      // The server never hands a secret's value to a page (R-Z1): it says
+      // the secret is there.
+      expect(got.value).toBe(undefined);
+      expect(got.masked).toBe(true);
+      expect(got.present).toBe(true);
 
       // Verify the on-disk text store contains ciphertext, not plaintext.
       const linoText = await fs.readFile(path.join(dir, 'data.lino'), 'utf8');

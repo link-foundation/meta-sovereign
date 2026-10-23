@@ -21,7 +21,7 @@
  * audience, a cycle) is answered with 400 `{ error }`.
  */
 
-import { json, readBody } from './util.js';
+import { bodyFailure, json, readBody } from './util.js';
 import {
   AUDIENCE_PREFIX,
   LIST_PREFIX,
@@ -120,7 +120,11 @@ export const handlePeopleRoutes = async (store, req, res, p, url) => {
     const body = req.method === 'GET' ? {} : await readBody(req);
     json(res, 200, await route(store, body ?? {}, url));
   } catch (error) {
-    json(res, 400, { error: error.message });
+    const [status, body] = bodyFailure(error) ?? [
+      400,
+      { error: error.message },
+    ];
+    json(res, status, body);
   }
   return true;
 };

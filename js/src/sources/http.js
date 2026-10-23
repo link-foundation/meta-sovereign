@@ -94,27 +94,95 @@ export const markSendOutcome = (error, { status, ambiguous }) => {
   return target;
 };
 
-// Send and read one response, marking what we know about delivery.
-const exchange = async (fetchImpl, target, init) => {
-  let res;
-  try {
-    res = await fetchImpl(target, init);
-  } catch (error) {
-    // The request may have reached the server (timeout, reset): we do
-    // not know whether it was accepted (R-Z4).
-    throw markSendOutcome(error, { ambiguous: true });
-  }
-  try {
-    return { res, parsed: await parseResponseBody(res) };
-  } catch (error) {
-    throw markSendOutcome(error, { ambiguous: res.ok || res.status >= 500 });
+// Outbound time budget (R-Z1). A stalled connection must not hang a paced
+// send loop for ever. A READ that times out may be tried again with a
+// backoff; a SEND that times out may already have been delivered, so it is
+// reported as `send-unknown` (outcome unknown, R-Z4) and never retried or
+// sent another way.
+export const DEFAULT_TIMEOUT_MS = 30_000;
+const READ_METHODS = new Set(['GET', 'HEAD']);
+const BACKOFF_MS = 250;
+
+const isTimeout = (error) =>
+  error?.name === 'TimeoutError' || error?.name === 'AbortError';
+
+const timeoutSignal = (ms) =>
+  ms > 0 && typeof globalThis.AbortSignal?.timeout === 'function'
+    ? globalThis.AbortSignal.timeout(ms)
+    : undefined;
+
+const pause = (ms) =>
+  new Promise((resolve) => globalThis.setTimeout(resolve, ms));
+
+const timeoutError = (cause, write, ms) =>
+  write
+    ? Object.assign(
+        markSendOutcome(
+          new Error(
+            `request timed out after ${ms} ms; it may have been delivered`
+          ),
+          { ambiguous: true }
+        ),
+        { code: 'send-unknown', outcome: 'unknown', fallback: false, cause }
+      )
+    : Object.assign(new Error(`request timed out after ${ms} ms`), {
+        code: 'timeout',
+        cause,
+      });
+
+const budgetOf = (init, options) => ({
+  timeoutMs: options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+  write:
+    options.write ??
+    !READ_METHODS.has(String(init?.method ?? 'GET').toUpperCase()),
+  retries: options.retries ?? 1,
+  sleep: options.sleep ?? pause,
+});
+
+/**
+ * Run `fetchImpl(url, init)` and `consume(response)` (reading the body)
+ * under one time budget.
+ * @param {{timeoutMs?: number, write?: boolean, retries?: number,
+ *   sleep?: Function}} options `write` defaults to "not GET/HEAD".
+ */
+export const timedRequest = async (
+  fetchImpl,
+  url,
+  init,
+  options = {},
+  consume = (res) => res
+) => {
+  const { timeoutMs, write, retries, sleep } = budgetOf(init, options);
+  for (let attempt = 0; ; attempt += 1) {
+    const signal = init?.signal ? undefined : timeoutSignal(timeoutMs);
+    try {
+      const res = await fetchImpl(url, signal ? { ...init, signal } : init);
+      return await consume(res);
+    } catch (error) {
+      if (!isTimeout(error)) {
+        throw error;
+      }
+      if (write || attempt >= retries) {
+        throw timeoutError(error, write, timeoutMs);
+      }
+      await sleep(BACKOFF_MS * 2 ** attempt);
+    }
   }
 };
 
 export const requestJson = async (
   fetchImpl,
   url,
-  { method = 'GET', headers = {}, search = null, body = undefined } = {}
+  {
+    method = 'GET',
+    headers = {},
+    search = null,
+    body = undefined,
+    timeoutMs,
+    write,
+    retries,
+    sleep,
+  } = {}
 ) => {
   const target = addSearch(new URL(url), search ?? {});
   const init = { method, headers: { ...headers } };
@@ -126,16 +194,42 @@ export const requestJson = async (
       init.body = JSON.stringify(body);
     }
   }
-  const { res, parsed } = await exchange(fetchImpl, target, init);
-  if (!res.ok) {
-    const detail =
-      typeof parsed === 'string' ? parsed : JSON.stringify(parsed ?? {});
-    throw markSendOutcome(
-      new Error(`HTTP ${res.status} ${res.statusText}: ${detail}`),
-      { status: res.status, ambiguous: isAmbiguousStatus(res.status) }
-    );
-  }
-  return parsed;
+  // A network failure after the request left may still have reached the
+  // server: ambiguous (R-Z4). A timeout is handled by timedRequest.
+  const send = (url, opts) =>
+    fetchImpl(url, opts).catch((error) => {
+      throw isTimeout(error)
+        ? error
+        : markSendOutcome(error, { ambiguous: true });
+    });
+  return timedRequest(
+    send,
+    target,
+    init,
+    { timeoutMs, write, retries, sleep },
+    async (res) => {
+      let parsed;
+      try {
+        parsed = await parseResponseBody(res);
+      } catch (error) {
+        if (isTimeout(error)) {
+          throw error;
+        }
+        throw markSendOutcome(error, {
+          ambiguous: res.ok || res.status >= 500,
+        });
+      }
+      if (!res.ok) {
+        const detail =
+          typeof parsed === 'string' ? parsed : JSON.stringify(parsed ?? {});
+        throw markSendOutcome(
+          new Error(`HTTP ${res.status} ${res.statusText}: ${detail}`),
+          { status: res.status, ambiguous: isAmbiguousStatus(res.status) }
+        );
+      }
+      return parsed;
+    }
+  );
 };
 
 export const authHeaders = (token, prefix = 'Bearer') => ({

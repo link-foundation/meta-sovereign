@@ -19,6 +19,10 @@
 import { buildMessageLink } from './link.js';
 import { contentSticker } from './sticker.js';
 import { greetingEmoji } from '../greetings/detect.js';
+import { DEFAULT_TIMEOUT_MS, timedRequest } from './http.js';
+
+// Bot API methods that only read: a timeout there is retried (R-Z1).
+const BOT_READS = /^get[A-Z]/;
 
 const SOURCE = 'telegram';
 
@@ -479,6 +483,8 @@ export const createTelegramBotLive = ({
   token = null,
   fetchImpl = globalThis.fetch,
   baseUrl = 'https://api.telegram.org',
+  // `{ timeoutMs?, retries?, sleep? }` for the outbound time budget.
+  timing = null,
 } = {}) => {
   const root = baseUrl.replace(/\/+$/, '');
   const call = async (method, body = {}, tokenOverride = null) => {
@@ -491,18 +497,31 @@ export const createTelegramBotLive = ({
     if (!fetchImpl) {
       throw new Error('telegram live API requires fetch');
     }
-    const res = await fetchImpl(`${root}/bot${authToken}/${method}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const payload = await res.json();
-    if (!res.ok || payload.ok === false) {
-      throw new Error(
-        `telegram ${method}: ${payload.description ?? `HTTP ${res.status}`}`
-      );
-    }
-    return payload.result;
+    // A long poll waits `timeout` seconds on purpose (R-Z1).
+    const wait = Number(body.timeout) > 0 ? body.timeout * 1000 : 0;
+    return timedRequest(
+      fetchImpl,
+      `${root}/bot${authToken}/${method}`,
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      },
+      {
+        timeoutMs: DEFAULT_TIMEOUT_MS + wait,
+        write: !BOT_READS.test(method),
+        ...(timing ?? {}),
+      },
+      async (res) => {
+        const payload = await res.json();
+        if (!res.ok || payload.ok === false) {
+          throw new Error(
+            `telegram ${method}: ${payload.description ?? `HTTP ${res.status}`}`
+          );
+        }
+        return payload.result;
+      }
+    );
   };
 
   return {

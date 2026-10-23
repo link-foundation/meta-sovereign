@@ -7,6 +7,7 @@
  */
 
 import { json } from './util.js';
+import { safeRegExpOrNull } from '../patterns/safe-regex.js';
 import { extractFacts } from '../facts/index.js';
 import { localSearch } from '../crm/index.js';
 import { evalAudience } from '../crm/audience.js';
@@ -56,8 +57,11 @@ const facts = async (store) => {
     .map((p2) => ({
       id: p2.id,
       regex:
-        typeof p2.regex === 'string' ? new RegExp(p2.regex, 'i') : p2.regex,
-    }));
+        typeof p2.regex === 'string'
+          ? safeRegExpOrNull(p2.regex, 'i')
+          : p2.regex,
+    }))
+    .filter((p2) => p2.regex);
   return extractFacts(messages, patterns);
 };
 

@@ -33,6 +33,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { timedRequest } from '../http.js';
 
 const statusError = (message, status) =>
   Object.assign(new Error(message), { status });
@@ -491,8 +492,13 @@ const isDeadError = (error) =>
 // reachable API that rejects the token is a dead credential; a network error
 // is not (it rethrows untagged and the token is kept, unverified).
 const identifyBot = async (value, fetchImpl) => {
-  const res = await fetchImpl(`https://api.telegram.org/bot${value}/getMe`);
-  const me = (await res.json())?.result;
+  const me = await timedRequest(
+    fetchImpl,
+    `https://api.telegram.org/bot${value}/getMe`,
+    undefined,
+    { write: false },
+    async (res) => (await res.json())?.result
+  );
   if (!me) {
     throw deadError('bot token rejected by Telegram');
   }

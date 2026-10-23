@@ -35,7 +35,7 @@
  * chat menu can test an edited automation before saving it.
  */
 
-import { json, readBody } from './util.js';
+import { bodyFailure, json, readBody } from './util.js';
 import { confirmed } from './confirmations.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
 import {
@@ -461,8 +461,13 @@ const handleWrite = async (store, req, res, p) => {
   return false;
 };
 
-const statusFor = (error) =>
-  error.code === 'confirm-required' ? [400, error.code] : [400, 'bad-request'];
+const statusFor = (error) => {
+  if (error.code === 'confirm-required') {
+    return [400, error.code];
+  }
+  // A body that is not JSON, or too big (R-Z1).
+  return bodyFailure(error) ? [error.status, error.code] : [400, 'bad-request'];
+};
 
 export const handleAutomationRoutes = async (store, req, res, p, url, ctx) => {
   const get = req.method === 'GET' ? GET[p] : null;

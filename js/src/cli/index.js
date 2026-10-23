@@ -215,12 +215,21 @@ const serveCmd = async (args, log) => {
   if (serverLog) {
     installCrashLogging(serverLog.log);
   }
-  const handle = await startServer({
-    port: Number(args.port ?? 8787),
-    storeDir,
-    ...(serverLog ? { log: serverLog.log } : {}),
-    ...serveOptions(args),
-  });
+  let handle;
+  try {
+    handle = await startServer({
+      port: Number(args.port ?? 8787),
+      storeDir,
+      ...(serverLog ? { log: serverLog.log } : {}),
+      ...serveOptions(args),
+    });
+  } catch (error) {
+    // A busy port (or any start failure) ends here with a message, a
+    // non-zero exit and nothing left running (R-Z1).
+    log(`cannot start the server: ${error.message}`);
+    await serverLog?.close();
+    return 1;
+  }
   logAddresses(handle, log);
   if (serverLog) {
     log(`verbose logs → ${serverLog.file}`);

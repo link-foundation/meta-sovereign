@@ -72,7 +72,11 @@ const codedError = (message, code) =>
   Object.assign(new Error(message), { code });
 
 /** Errors that must never trigger a browser retry. */
-export const NO_FALLBACK_CODES = Object.freeze(['safe-mode', 'bad-draft']);
+export const NO_FALLBACK_CODES = Object.freeze([
+  'safe-mode',
+  'bad-draft',
+  'unknown-delivery', // alias of send-unknown (R-Z1)
+]);
 
 // An adapter marks an error `fallback: false` when the message may
 // already be out (a connected account): sending it again through the
