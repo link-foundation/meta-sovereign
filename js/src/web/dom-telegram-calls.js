@@ -413,4 +413,17 @@ export const TELEGRAM_CALLS = {
   telegramAttachMenuBots: none('attach-menu-bots'),
   telegramAttachMenuBot: body('attach-menu-bot'),
   telegramAttachMenuToggle: body('attach-menu-toggle'),
+  // Adding members and administrators (R-Y204): who can be added ({ chat }),
+  // adding ({ chat, users }), sending the invite link to those who could
+  // not be added ({ chat, users }), the administrators ({ chat }), one made
+  // or dismissed ({ chat, user, rights?, rank?, dismiss?, broadcast? }), the
+  // history new members see ({ chat, hidden }) and upgrading a basic group
+  // to a supergroup ({ chat }).
+  telegramAddCandidates: body('chat-add-candidates'),
+  telegramMembersAdd: body('members-add'),
+  telegramMembersInviteLink: body('members-invite-link'),
+  telegramChatAdmins: body('chat-admins'),
+  telegramAdminSet: body('admin-set'),
+  telegramHistoryHidden: body('history-hidden'),
+  telegramGroupUpgrade: body('group-upgrade'),
 };

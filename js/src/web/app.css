@@ -11317,3 +11317,36 @@ button.profile-username.is-collectible {
   color: var(--link);
   cursor: pointer;
 }
+
+/* Adding members and administrators (R-Y204). */
+.admins-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.admins-section h4 {
+  margin: 0;
+}
+.admins-section .member-open[disabled] {
+  cursor: default;
+  opacity: 0.85;
+}
+.admin-rights {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.admin-right input:disabled + span {
+  color: var(--text-muted);
+}
+.admin-history {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}

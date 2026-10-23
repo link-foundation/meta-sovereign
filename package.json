@@ -265,6 +265,8 @@
     "test:e2e:admin": "node js/tests/e2e-admin-browser.mjs",
     "test:e2e:admin-extras": "node js/tests/e2e-admin-extras-browser.mjs",
     "test:e2e:admin-extras:webkit": "E2E_BROWSER=webkit node js/tests/e2e-admin-extras-browser.mjs",
+    "test:e2e:admins": "node js/tests/e2e-admins-browser.mjs",
+    "test:e2e:admins:webkit": "E2E_BROWSER=webkit node js/tests/e2e-admins-browser.mjs",
     "test:e2e:export": "node js/tests/e2e-export-browser.mjs",
     "test:e2e:security": "node js/tests/e2e-security-browser.mjs",
     "test:e2e:security:webkit": "E2E_BROWSER=webkit node js/tests/e2e-security-browser.mjs",

@@ -33,6 +33,7 @@ import { ChatWallpaperAction } from './chat-wallpaper.js';
 import { ChatThemeAction } from './chat-theme.js';
 import { UsernamesAction } from './chat-usernames.js';
 import { EditChat } from './chat-edit.js';
+import { AddMembers } from './chat-add-members.js';
 import { AdminActions } from './chat-admin.js';
 import { InviteLinksActions } from './chat-invite-links.js';
 import { PersonalChannelCard } from './chat-person-extras.js';
@@ -330,6 +331,7 @@ export const PersonPanel = ({
         chat?.source === 'telegram'
           ? el(InviteLink, { key: 'i', api, chat, info })
           : null,
+        el(AddMembers, { key: 'am', api, chat, info }),
         el(Members, { key: 'mb', api, chat, info }),
         el(AdminActions, { key: 'ad', api, chat, info }),
         el(InviteLinksActions, { key: 'il', api, chat, info }),

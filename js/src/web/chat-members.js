@@ -11,6 +11,7 @@ import { useT } from './i18n.js';
 import { openChat } from './chat-state.js';
 import { useEsc } from './chat-invite.js';
 import { ModerateDialog, moderationOptions } from './chat-moderation.js';
+import { useMembersChanged } from './chat-add-members.js';
 
 const el = React.createElement;
 const PAGE = 50;
@@ -34,6 +35,8 @@ const errorText = (t, code) => {
 const useMembers = (api, chat, q) => {
   const [state, setState] = useState({ phase: 'loading', members: [] });
   const asking = useRef(0);
+  // People added by "Add members" (R-Y204): the list is read again.
+  const changed = useMembersChanged();
   const read = (offset) => {
     const token = ++asking.current;
     api
@@ -61,7 +64,7 @@ const useMembers = (api, chat, q) => {
   useEffect(() => {
     const timer = globalThis.setTimeout(() => read(0), q ? TYPING_MS : 0);
     return () => globalThis.clearTimeout(timer);
-  }, [api, chat, q]);
+  }, [api, chat, q, changed]);
   return [state, setState, () => read(state.members.length)];
 };
 

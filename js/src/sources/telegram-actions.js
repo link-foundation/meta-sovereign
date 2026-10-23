@@ -61,6 +61,7 @@ import { createMembers } from './telegram-members.js';
 import { createModeration } from './telegram-moderation.js';
 import { createOwnership } from './telegram-ownership.js';
 import { createLeftChannels } from './telegram-left-channels.js';
+import { createChatAdmins } from './telegram-chat-admins.js';
 import { createPeerActions } from './telegram-peer-actions.js';
 import { createVoiceChat } from './telegram-voice-chat.js';
 import { createCustomEmoji } from './telegram-custom-emoji.js';
@@ -471,7 +472,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // gifts and gift codes (R-Y193); private one-to-one calls (R-Y196); more than
 // one account (R-Y198); story stealth mode, reactions and reports (R-Y199); bot
 // login links and attachment-menu bots (R-Y201); moderation, ownership
-// transfer, broadcast groups and left channels (R-Y200).
+// transfer, broadcast groups and left channels (R-Y200); adding members,
+// administrators and upgrading groups (R-Y204).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -515,6 +517,7 @@ const chatActions = (env, context) => {
     ...createModeration(env, context),
     ...createOwnership(env, context),
     ...createLeftChannels(env, context),
+    ...createChatAdmins(env, context),
     ...createPeerActions(env, context),
     ...createVoiceChat(env, context),
     ...createComments(env, context),

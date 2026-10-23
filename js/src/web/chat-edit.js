@@ -14,6 +14,8 @@ import {
   canConvert,
   canTransfer,
 } from './chat-moderation.js';
+import { AdminsSection, hasAdminSection } from './chat-admins.js';
+import { Frame } from './chat-readers.js';
 
 const el = React.createElement;
 
@@ -197,16 +199,48 @@ const EditDialog = ({ api, chat, info, close }) => {
       canTransfer(chat, info, api)
         ? el(TransferOwnership, { key: 't2', api, chat })
         : null,
+      // Administrators and the history for new members (R-Y204).
+      el(AdminsSection, { key: 'adm', api, chat, info, leave: close }),
     ]
   );
 };
+
+// An admin who may manage admins or members but not the chat's info gets
+// "Administrators" alone, as Telegram Desktop's Manage section (R-Y204).
+const AdminsOnly = ({ api, chat, info, open, setOpen, t }) =>
+  el('div', { className: 'chat-edit-bar' }, [
+    el(
+      'button',
+      {
+        key: 'b',
+        type: 'button',
+        'data-action': 'chat-admins',
+        onClick: () => setOpen(true),
+      },
+      t('chat.admins.title')
+    ),
+    open
+      ? el(
+          Frame,
+          {
+            key: 'd',
+            title: t('chat.admins.title'),
+            name: 'chat-admins',
+            close: () => setOpen(false),
+          },
+          el(AdminsSection, { api, chat, info, leave: () => setOpen(false) })
+        )
+      : null,
+  ]);
 
 /** "Edit" in the info column, for those who may; the dialog it opens. */
 export const EditChat = ({ api, chat, info }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
   if (!canEditInfo(chat, info) || typeof api?.telegramChatEdit !== 'function') {
-    return null;
+    return hasAdminSection(chat, info)
+      ? el(AdminsOnly, { api, chat, info, open, setOpen, t })
+      : null;
   }
   return el('div', { className: 'chat-edit-bar' }, [
     el(

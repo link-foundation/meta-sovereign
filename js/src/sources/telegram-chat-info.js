@@ -23,6 +23,7 @@ import { canReactIn, reactionsOf } from './telegram-chat-reactions.js';
 import { settingsInfo } from './telegram-chat-settings.js';
 import { birthdayOf, colorOf } from './telegram-profile-extras.js';
 import { monoforumInfo } from './telegram-channel-dm-shape.js';
+import { ALL_ADMIN_RIGHTS } from './telegram-admin-rights.js';
 
 const CHAT = /^-?\d{1,20}$/;
 const CACHE_TTL_MS = 60_000;
@@ -160,6 +161,21 @@ const usernamesInfo = (entity) => {
     : {};
 };
 
+// What the user may do with administrators and the history new members see
+// (R-Y204): their own rights (the creator has all), who may add admins, and
+// whether the history is hidden from new members.
+const adminInfo = (entity, full, kind) => ({
+  creator: Boolean(entity.creator),
+  myRights: Object.fromEntries(
+    ALL_ADMIN_RIGHTS.map((key) => [key, Boolean(entity.adminRights?.[key])])
+  ),
+  canAddAdmins: Boolean(entity.creator || entity.adminRights?.addAdmins),
+  canToggleHistory:
+    kind === 'channel' &&
+    Boolean(entity.creator || entity.adminRights?.changeInfo),
+  historyHidden: Boolean(full?.hiddenPrehistory),
+});
+
 // The primary invite link the full chat carries, for those who may see it.
 const inviteOf = (entity, full) =>
   canInviteIn(entity) && typeof full.exportedInvite?.link === 'string'
@@ -267,6 +283,7 @@ const fetchChannel = async (client, Api, inputPeer, peers) => {
     ...usernamesInfo(entity),
     ...collectibleOf(entity),
     ...inviteOf(entity, full),
+    ...adminInfo(entity, full, 'channel'),
     ...requestsOf(entity, full, result.users),
     ...(await monoforumOf(entity, result.chats ?? [], peers)),
   };
@@ -298,6 +315,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     ...reactionsInfo(entity, full),
     settings: settingsInfo(entity, full, result.chats ?? []),
     ...inviteOf(entity, full),
+    ...adminInfo(entity, full, 'group'),
     ...requestsOf(entity, full, result.users),
   };
 };
