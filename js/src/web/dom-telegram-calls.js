@@ -344,4 +344,9 @@ export const TELEGRAM_CALLS = {
   telegramPaidPriceSave: body('paid-price-save'),
   // A giveaway's details ({ chat, id, channels?, winners? }; R-Y184).
   telegramGiveawayInfo: body('giveaway-info'),
+  // The connection proxy (R-Y192): read it (never the password or secret),
+  // save it, and a short TCP check of its address.
+  telegramProxyGet: none('proxy-get'),
+  telegramProxySave: body('proxy-save'),
+  telegramProxyCheck: body('proxy-check'),
 };

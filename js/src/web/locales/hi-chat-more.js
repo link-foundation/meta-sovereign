@@ -803,4 +803,57 @@ export const hiChatMore = {
   'chat.readTime.on': '{date} को पढ़ा गया',
   'chat.readTime.plain': 'पढ़ा गया',
   'chat.readTime.hidden': 'गोपनीयता द्वारा छिपाया गया',
+  // HTML5 bot games (R-Y190).
+  'chat.game.play': 'खेलें',
+  'chat.game.scores': 'उच्च स्कोर',
+  'chat.game.scoresOf': 'उच्च स्कोर: {game}',
+  'chat.game.loading': 'स्कोर लोड हो रहे हैं…',
+  'chat.game.empty': 'अभी कोई स्कोर नहीं।',
+  'chat.game.err.failed': 'स्कोर लोड नहीं हो सके।',
+  'chat.game.err.no-access': 'यह गेम उपलब्ध नहीं है।',
+  'chat.game.err.not-found': 'संदेश नहीं मिला।',
+  'chat.service.gameScore': '{user} ने {game} में {score} स्कोर किया',
+  'chat.service.gameScoreBare': '{user} ने {score} स्कोर किया',
+  'settings.scale.title': 'इंटरफ़ेस स्केल',
+  'settings.scale.intro':
+    'ऐप में हर चीज़ और संदेशों के टेक्स्ट का आकार। इसी ब्राउज़र में सहेजा जाता है।',
+  'settings.scale.label': 'इंटरफ़ेस स्केल',
+  'settings.scale.auto': 'स्वतः',
+  'settings.scale.textSize': 'संदेश टेक्स्ट का आकार (px)',
+  'settings.scale.textDefault': 'डिफ़ॉल्ट आकार',
+  'settings.scale.keys': 'स्केल के लिए Ctrl/Cmd + = / - / 0 का उपयोग करें',
+  'settings.scale.keysNote':
+    'डिफ़ॉल्ट रूप से बंद: ब्राउज़र इन कुंजियों को अपने पेज ज़ूम के लिए इस्तेमाल करता है। चालू करने पर, पेज फ़ोकस में होने पर ये यहाँ स्केल बदलती हैं। कुछ ब्राउज़र पेज को इन्हें लेने नहीं देते।',
+  'settings.proxy.title': 'कनेक्शन प्रकार',
+  'settings.proxy.intro':
+    'ऐप Telegram तक कैसे पहुँचे: सीधे, या प्रॉक्सी से। बदलाव पर खाता दोबारा जुड़ता है।',
+  'settings.proxy.change': 'कनेक्शन प्रकार बदलें',
+  'settings.proxy.kind.none': 'सीधा (प्रॉक्सी नहीं)',
+  'settings.proxy.kind.socks5': 'SOCKS5 प्रॉक्सी',
+  'settings.proxy.kind.mtproto': 'MTProto प्रॉक्सी',
+  'settings.proxy.host': 'होस्ट',
+  'settings.proxy.port': 'पोर्ट',
+  'settings.proxy.username': 'उपयोगकर्ता नाम (वैकल्पिक)',
+  'settings.proxy.password': 'पासवर्ड (वैकल्पिक)',
+  'settings.proxy.secret': 'सीक्रेट',
+  'settings.proxy.keepSet': 'पहले से सेट है। रखने के लिए खाली छोड़ें।',
+  'settings.proxy.fromLink':
+    'प्रॉक्सी लिंक से। सहेजें दबाने तक कुछ सहेजा नहीं जाएगा।',
+  'settings.proxy.check': 'जाँचें',
+  'settings.proxy.save': 'सहेजें',
+  'settings.proxy.cancel': 'रद्द करें',
+  'settings.proxy.reachable': 'प्रॉक्सी ने {ms} ms में जवाब दिया।',
+  'settings.proxy.unreachable': 'प्रॉक्सी ने जवाब नहीं दिया।',
+  'settings.proxy.err.bad-host':
+    'होस्ट नाम या IP पता लिखें, http:// या पाथ के बिना।',
+  'settings.proxy.err.bad-port': 'पोर्ट 1 से 65535 के बीच की संख्या है।',
+  'settings.proxy.err.bad-login':
+    'पासवर्ड के लिए उपयोगकर्ता नाम चाहिए, और दोनों छोटे हों (255 बाइट तक)।',
+  'settings.proxy.err.bad-secret':
+    'सीक्रेट hex या base64url में होना चाहिए (16 बाइट)।',
+  'settings.proxy.err.unsupported-secret':
+    'यह क्लाइंट fake-TLS (ee) सीक्रेट का उपयोग नहीं कर सकता।',
+  'settings.proxy.err.bad-kind': 'कनेक्शन प्रकार चुनें।',
+  'settings.proxy.err.bad-request': 'फ़ील्ड जाँचकर फिर कोशिश करें।',
+  'settings.proxy.err.failed': 'प्रॉक्सी सहेजा नहीं गया।',
 };

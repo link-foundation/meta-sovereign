@@ -31,6 +31,7 @@
 import { buildMessageLink } from './link.js';
 import { personLink } from './live-links.js';
 import { accountOf, gramjsClientFactory } from './telegram-mtproto.js';
+import { readProxy } from './telegram-proxy.js';
 import { createTelegramBotLive } from './telegram.js';
 import { stampSourceLink } from './index.js';
 import { putAll } from '../storage/universal.js';
@@ -1261,7 +1262,10 @@ const connectionRecorder = (store) => {
 
 export const createTelegramAccount = ({
   store,
-  clientFactory = gramjsClientFactory(),
+  // The saved connection proxy is read whenever a client is built (R-Y192).
+  clientFactory = gramjsClientFactory(importTelegram, {
+    proxy: () => readProxy(store),
+  }),
   importer = importTelegram,
   botLive = createTelegramBotLive(),
   log = () => {},

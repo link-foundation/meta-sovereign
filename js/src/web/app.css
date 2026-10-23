@@ -9875,7 +9875,8 @@ span.bubble-effect {
 .notify-sound legend {
   width: 100%;
 }
-.media-settings .media-limit {
+.media-settings .media-limit,
+.scale-settings .media-limit {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -10481,4 +10482,23 @@ span.bubble-effect {
 }
 .game-points {
   flex: none;
+}
+
+/* Interface scale and connection proxy (R-Y192). */
+.proxy-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(26rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+}
+.proxy-kinds {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.scale-settings input[type='range'] {
+  flex: 1;
+  min-width: 8rem;
 }

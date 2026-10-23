@@ -218,6 +218,8 @@
     "test:e2e:pinned-reorder:webkit": "E2E_BROWSER=webkit node js/tests/e2e-pinned-reorder-browser.mjs",
     "test:e2e:effects": "node js/tests/e2e-effects-browser.mjs",
     "test:e2e:effects:webkit": "E2E_BROWSER=webkit node js/tests/e2e-effects-browser.mjs",
+    "test:e2e:scale-proxy": "node js/tests/e2e-scale-proxy-browser.mjs",
+    "test:e2e:scale-proxy:webkit": "E2E_BROWSER=webkit node js/tests/e2e-scale-proxy-browser.mjs",
     "test:e2e:peer-bar": "node js/tests/e2e-peer-bar-browser.mjs",
     "test:e2e:voice-chat": "node js/tests/e2e-voice-chat-browser.mjs",
     "test:e2e:voice-chat:webkit": "E2E_BROWSER=webkit node js/tests/e2e-voice-chat-browser.mjs",

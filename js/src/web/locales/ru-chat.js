@@ -1457,15 +1457,4 @@ export const ruChat = {
   'chat.service.paidPriceOff': 'Сообщения здесь снова бесплатны',
   'chat.service.paidRefunded':
     'Возвращено {count, plural, one {# платное сообщение} few {# платных сообщения} other {# платных сообщений}}: {stars} ⭐',
-  // HTML5 bot games (R-Y190).
-  'chat.game.play': 'Играть',
-  'chat.game.scores': 'Рекорды',
-  'chat.game.scoresOf': 'Рекорды: {game}',
-  'chat.game.loading': 'Загружаем рекорды…',
-  'chat.game.empty': 'Рекордов пока нет.',
-  'chat.game.err.failed': 'Не удалось загрузить рекорды.',
-  'chat.game.err.no-access': 'Эта игра недоступна.',
-  'chat.game.err.not-found': 'Сообщение не найдено.',
-  'chat.service.gameScore': '{user} набрал(а) {score} в игре {game}',
-  'chat.service.gameScoreBare': '{user} набрал(а) {score}',
 };

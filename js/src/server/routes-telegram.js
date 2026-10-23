@@ -232,6 +232,7 @@ import {
   WALLPAPER_GETS,
   WALLPAPER_POSTS,
 } from './routes-telegram-wallpapers.js';
+import { PROXY_POSTS } from './routes-telegram-proxy.js';
 import { NOTIFY_SETTINGS_POSTS } from './routes-telegram-notify-settings.js';
 import { CALLS_POSTS } from './routes-telegram-calls.js';
 import { EFFECTS_POSTS, validEffect } from './routes-telegram-effects.js';
@@ -989,6 +990,7 @@ const POSTS = {
         ]
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
+  ...PROXY_POSTS,
   ...EXPORT_POSTS,
   ...PAID_POSTS,
   ...VOICE_CHAT_POSTS,

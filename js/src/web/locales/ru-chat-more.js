@@ -814,4 +814,57 @@ export const ruChatMore = {
   'chat.readTime.on': 'Прочитано {date}',
   'chat.readTime.plain': 'Прочитано',
   'chat.readTime.hidden': 'Скрыто настройками приватности',
+  // HTML5 bot games (R-Y190).
+  'chat.game.play': 'Играть',
+  'chat.game.scores': 'Рекорды',
+  'chat.game.scoresOf': 'Рекорды: {game}',
+  'chat.game.loading': 'Загружаем рекорды…',
+  'chat.game.empty': 'Рекордов пока нет.',
+  'chat.game.err.failed': 'Не удалось загрузить рекорды.',
+  'chat.game.err.no-access': 'Эта игра недоступна.',
+  'chat.game.err.not-found': 'Сообщение не найдено.',
+  'chat.service.gameScore': '{user} набрал(а) {score} в игре {game}',
+  'chat.service.gameScoreBare': '{user} набрал(а) {score}',
+  'settings.scale.title': 'Масштаб интерфейса',
+  'settings.scale.intro':
+    'Размер всего в приложении и текста сообщений. Хранится в этом браузере.',
+  'settings.scale.label': 'Масштаб интерфейса',
+  'settings.scale.auto': 'Авто',
+  'settings.scale.textSize': 'Размер текста сообщений (px)',
+  'settings.scale.textDefault': 'Размер по умолчанию',
+  'settings.scale.keys': 'Ctrl/Cmd + = / - / 0 меняют масштаб',
+  'settings.scale.keysNote':
+    'Выключено по умолчанию: браузер использует эти клавиши для своего масштаба страницы. Если включить, они меняют масштаб здесь, пока страница в фокусе. Не все браузеры позволяют странице перехватить их.',
+  'settings.proxy.title': 'Тип соединения',
+  'settings.proxy.intro':
+    'Как приложение подключается к Telegram: напрямую или через прокси. После изменения аккаунт подключается заново.',
+  'settings.proxy.change': 'Изменить тип соединения',
+  'settings.proxy.kind.none': 'Напрямую (без прокси)',
+  'settings.proxy.kind.socks5': 'Прокси SOCKS5',
+  'settings.proxy.kind.mtproto': 'Прокси MTProto',
+  'settings.proxy.host': 'Хост',
+  'settings.proxy.port': 'Порт',
+  'settings.proxy.username': 'Имя пользователя (необязательно)',
+  'settings.proxy.password': 'Пароль (необязательно)',
+  'settings.proxy.secret': 'Секрет',
+  'settings.proxy.keepSet': 'Уже задан. Оставьте пустым, чтобы сохранить его.',
+  'settings.proxy.fromLink':
+    'Из ссылки на прокси. Ничего не сохранится, пока вы не нажмёте «Сохранить».',
+  'settings.proxy.check': 'Проверить',
+  'settings.proxy.save': 'Сохранить',
+  'settings.proxy.cancel': 'Отмена',
+  'settings.proxy.reachable': 'Прокси ответил за {ms} мс.',
+  'settings.proxy.unreachable': 'Прокси не ответил.',
+  'settings.proxy.err.bad-host':
+    'Введите имя хоста или IP-адрес, без http:// и пути.',
+  'settings.proxy.err.bad-port': 'Порт — число от 1 до 65535.',
+  'settings.proxy.err.bad-login':
+    'Пароль требует имени пользователя; оба значения короткие (до 255 байт).',
+  'settings.proxy.err.bad-secret':
+    'Секрет должен быть в hex или base64url (16 байт).',
+  'settings.proxy.err.unsupported-secret':
+    'Этот клиент не поддерживает секрет fake-TLS (ee).',
+  'settings.proxy.err.bad-kind': 'Выберите тип соединения.',
+  'settings.proxy.err.bad-request': 'Проверьте поля и попробуйте снова.',
+  'settings.proxy.err.failed': 'Прокси не сохранён.',
 };

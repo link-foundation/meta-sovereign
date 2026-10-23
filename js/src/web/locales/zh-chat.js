@@ -1352,15 +1352,4 @@ export const zhChat = {
   'chat.service.paidPrice': '此处每条消息现收费 {count} ⭐',
   'chat.service.paidPriceOff': '此处消息已恢复免费',
   'chat.service.paidRefunded': '已退回 {count} 条付费消息，退还 {stars} ⭐',
-  // HTML5 bot games (R-Y190).
-  'chat.game.play': '开始游戏',
-  'chat.game.scores': '高分榜',
-  'chat.game.scoresOf': '高分榜：{game}',
-  'chat.game.loading': '正在加载分数…',
-  'chat.game.empty': '暂无分数。',
-  'chat.game.err.failed': '无法加载分数。',
-  'chat.game.err.no-access': '此游戏不可用。',
-  'chat.game.err.not-found': '未找到该消息。',
-  'chat.service.gameScore': '{user} 在 {game} 中得了 {score} 分',
-  'chat.service.gameScoreBare': '{user} 得了 {score} 分',
 };

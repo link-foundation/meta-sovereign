@@ -28,6 +28,8 @@ import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
 import { ModeBadge } from './telegram-online.js';
 import { InviteHost } from './chat-invite.js';
+import { ProxyHost } from './settings-proxy.js';
+import { useApplyUiScale } from './ui-scale.js';
 import { AddlistHost } from './chat-folder-share.js';
 import { AppNotifications } from './app-notify.js';
 import { LockScreen, useLocalLock } from './passcode.js';
@@ -81,6 +83,8 @@ const App = () => {
   const [active, setActive] = useState('chat');
   const online = useOnlineMode();
   useApplyAppearance();
+  // The interface scale and message text size (R-Y192).
+  useApplyUiScale();
   const { theme, toggle } = useAppearance();
   const localeApi = useLocale();
   const { t } = localeApi;
@@ -206,6 +210,7 @@ const App = () => {
         )
       ),
       el(InviteHost, { key: 'invite-host', api }),
+      el(ProxyHost, { key: 'proxy-host', api }),
       el(AddlistHost, { key: 'addlist-host', api }),
       // The Chat section notifies by itself; the others through this.
       active === 'chat'

@@ -19,6 +19,7 @@
  */
 
 import { importTelegram } from './telegram-layer.js';
+import { proxyOptions } from './telegram-proxy.js';
 
 const deferred = () => {
   let resolve;
@@ -46,10 +47,18 @@ export const accountOf = (me = {}) => ({
   phone: me.phone ?? null,
 });
 
+// `{ proxy }` for GramJS when a proxy is set, else nothing (direct).
+const proxyParams = (setting) => {
+  const proxy = proxyOptions(setting);
+  return proxy ? { proxy } : {};
+};
+
 // Build the real GramJS client. Imported lazily; absent in environments
 // that never do user-account auth.
+// `proxy()` (optional) answers the saved connection proxy setting when a
+// client is built (R-Y192), so a changed proxy is used by the next one.
 export const gramjsClientFactory =
-  (importer = importTelegram) =>
+  (importer = importTelegram, { proxy = async () => null } = {}) =>
   async ({ apiId, apiHash, session }) => {
     const telegram = await importer();
     const { TelegramClient } = telegram;
@@ -61,7 +70,11 @@ export const gramjsClientFactory =
       // Every "wait N seconds" reaches the account's queue, which holds
       // all requests that long (GramJS would otherwise sleep through
       // waits under a minute and retry at once, unseen).
-      { connectionRetries: 5, floodSleepThreshold: 0 }
+      {
+        connectionRetries: 5,
+        floodSleepThreshold: 0,
+        ...proxyParams(await proxy()),
+      }
     );
     return client;
   };

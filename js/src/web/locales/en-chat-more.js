@@ -802,4 +802,57 @@ export const enChatMore = {
   'chat.readTime.on': 'Read on {date}',
   'chat.readTime.plain': 'Read',
   'chat.readTime.hidden': 'Hidden by privacy',
+  // HTML5 bot games (R-Y190).
+  'chat.game.play': 'Play',
+  'chat.game.scores': 'High scores',
+  'chat.game.scoresOf': 'High scores: {game}',
+  'chat.game.loading': 'Loading the scores…',
+  'chat.game.empty': 'No scores yet.',
+  'chat.game.err.failed': 'Could not load the scores.',
+  'chat.game.err.no-access': 'This game is not available.',
+  'chat.game.err.not-found': 'The message was not found.',
+  'chat.service.gameScore': '{user} scored {score} in {game}',
+  'chat.service.gameScoreBare': '{user} scored {score}',
+  'settings.scale.title': 'Interface scale',
+  'settings.scale.intro':
+    'The size of everything in the app, and of the text in messages. Kept in this browser.',
+  'settings.scale.label': 'Interface scale',
+  'settings.scale.auto': 'Auto',
+  'settings.scale.textSize': 'Message text size (px)',
+  'settings.scale.textDefault': 'Default size',
+  'settings.scale.keys': 'Use Ctrl/Cmd + = / - / 0 for the scale',
+  'settings.scale.keysNote':
+    'Off by default: the browser uses these keys for its own page zoom. When on, they change the scale here instead, while this page is focused. Some browsers may not let a page take them over.',
+  'settings.proxy.title': 'Connection type',
+  'settings.proxy.intro':
+    'How the app reaches Telegram: directly, or through a proxy. A change reconnects the account.',
+  'settings.proxy.change': 'Change connection type',
+  'settings.proxy.kind.none': 'Direct (no proxy)',
+  'settings.proxy.kind.socks5': 'SOCKS5 proxy',
+  'settings.proxy.kind.mtproto': 'MTProto proxy',
+  'settings.proxy.host': 'Host',
+  'settings.proxy.port': 'Port',
+  'settings.proxy.username': 'Username (optional)',
+  'settings.proxy.password': 'Password (optional)',
+  'settings.proxy.secret': 'Secret',
+  'settings.proxy.keepSet': 'Already set. Leave empty to keep it.',
+  'settings.proxy.fromLink':
+    'From a proxy link. Nothing is saved until you press Save.',
+  'settings.proxy.check': 'Check',
+  'settings.proxy.save': 'Save',
+  'settings.proxy.cancel': 'Cancel',
+  'settings.proxy.reachable': 'The proxy answered in {ms} ms.',
+  'settings.proxy.unreachable': 'The proxy did not answer.',
+  'settings.proxy.err.bad-host':
+    'Type a host name or an IP address, without http:// or a path.',
+  'settings.proxy.err.bad-port': 'The port is a number from 1 to 65535.',
+  'settings.proxy.err.bad-login':
+    'A password needs a user name, and both must be short (up to 255 bytes).',
+  'settings.proxy.err.bad-secret':
+    'The secret must be hex or base64url (16 bytes).',
+  'settings.proxy.err.unsupported-secret':
+    'This client cannot use a fake-TLS (ee) secret.',
+  'settings.proxy.err.bad-kind': 'Choose a connection type.',
+  'settings.proxy.err.bad-request': 'Check the fields and try again.',
+  'settings.proxy.err.failed': 'The proxy was not saved.',
 };

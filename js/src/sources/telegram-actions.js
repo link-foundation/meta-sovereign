@@ -36,6 +36,7 @@ import { withSendAs } from './telegram-send-as-client.js';
 import { createFileReader, createMediaReader } from './telegram-media.js';
 import { createAvatarReader } from './telegram-avatars.js';
 import { createChatInfoReader } from './telegram-chat-info.js';
+import { createProxy } from './telegram-proxy.js';
 import { createWallpapers } from './telegram-wallpapers.js';
 import { createUnreadMarks } from './telegram-unread.js';
 import { createPollActions } from './telegram-polls.js';
@@ -453,7 +454,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
 // sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
 // messages and channel autotranslation (R-Y184); voice chats and group calls
-// (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190).
+// (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190);
+// interface scale and the connection proxy (R-Y192).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -548,6 +550,7 @@ const chatActions = (env, context) => {
     ...createInviteLinks(env, context),
     ...createMessageLinks(env, context),
     ...createHistoryExport(env, context),
+    ...createProxy(env),
   };
 };
 
