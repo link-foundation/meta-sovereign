@@ -64,4 +64,74 @@ export const enChatAccount = {
   'chat.translate.turnOn': 'Offer to translate this chat',
   'chat.translate.toggleFailed':
     'Telegram did not change the translation setting.',
+  'chat.phone.change': 'Change number',
+  'chat.phone.title': 'Change phone number',
+  'chat.phone.warning':
+    'All your cloud data (chats, contacts, media, settings) will move to the new number. Your old number will no longer be linked to this account, and people who have your new number will see you in their contacts. Telegram sends a confirmation code to the new number.',
+  'chat.phone.new': 'New phone number (with country code)',
+  'chat.phone.sent': 'A code was sent to {phone}. Enter it below.',
+  'chat.phone.code': 'Confirmation code',
+  'chat.phone.submit.warn': 'Continue',
+  'chat.phone.submit.phone': 'Send code',
+  'chat.phone.submit.code': 'Change number',
+  'chat.phone.err.occupied':
+    'This phone number is already used by another Telegram account.',
+  'chat.phone.err.phone-invalid': 'This phone number is not valid.',
+  'chat.phone.err.banned': 'This phone number is banned.',
+  'chat.phone.err.flood': 'Too many attempts. Try again a little later.',
+  'chat.phone.err.code-invalid':
+    'The code is not right. Check it and try again.',
+  'chat.phone.err.code-expired':
+    'The code has expired. Go back and request a new one.',
+  'chat.phone.err.fresh':
+    'Telegram does not allow changing the number so soon after logging in. Try again later.',
+  'chat.phone.err.send-failed': 'Telegram could not send the code. Try again.',
+  'chat.phone.err.bad-request': 'Enter the phone number first.',
+  'chat.phone.err.failed': 'The number was not changed.',
+  'chat.deleteAccount.title': 'Delete account',
+  'chat.deleteAccount.hint':
+    'Deleting your account removes all your chats, contacts and cloud data for good, and cannot be undone. Telegram does this on its own web page, where you confirm with a code sent to Telegram; this app never deletes an account itself.',
+  'chat.deleteAccount.open': 'Delete my account',
+  'chat.security.years': '{count, plural, one {# year} other {# years}}',
+  'dataExport.title': 'Export Telegram data',
+  'dataExport.open': 'Export Telegram data',
+  'dataExport.what': 'Information to export',
+  'dataExport.info': 'Account information',
+  'dataExport.contacts': 'Contacts list',
+  'dataExport.chats': 'Chats to export',
+  'dataExport.kind.personal': 'Personal chats',
+  'dataExport.kind.bots': 'Bot chats',
+  'dataExport.kind.privateGroups': 'Private groups',
+  'dataExport.kind.privateChannels': 'Private channels',
+  'dataExport.kind.publicChats': 'Public groups and channels',
+  'dataExport.media': 'Include media (photos, videos, voice messages, files)',
+  'dataExport.note':
+    "Telegram prepares the data in a takeout session, and the files are saved on this computer in this app's exports folder. Telegram may ask you to wait before the first export.",
+  'dataExport.state.running': 'Exporting…',
+  'dataExport.state.cancelling': 'Stopping…',
+  'dataExport.state.done': 'Export finished.',
+  'dataExport.state.cancelled':
+    'Export cancelled. What was saved so far stays in the folder.',
+  'dataExport.state.failed':
+    'The export stopped with an error. What was saved so far stays in the folder.',
+  'dataExport.phase.starting': 'Starting…',
+  'dataExport.phase.info': 'Reading account information…',
+  'dataExport.phase.contacts': 'Reading contacts…',
+  'dataExport.phase.chats': 'Reading the chat list…',
+  'dataExport.phase.writing': 'Writing the summary…',
+  'dataExport.phase.finished': 'Done',
+  'dataExport.chatsOf': 'Chats: {done} of {total}',
+  'dataExport.time.days': '{count, plural, one {# day} other {# days}}',
+  'dataExport.time.hours': '{count, plural, one {# hour} other {# hours}}',
+  'dataExport.time.minutes':
+    '{count, plural, one {# minute} other {# minutes}}',
+  'dataExport.err.takeout-delay': 'Telegram will allow the export in {time}.',
+  'dataExport.err.bad-request':
+    'Choose at least one thing to export, and check the dates and the size.',
+  'dataExport.err.busy': 'Another export is already running.',
+  'dataExport.err.no-access':
+    'Telegram did not allow reading some of the data.',
+  'dataExport.err.flood': 'Telegram asked to wait. Try again a little later.',
+  'dataExport.err.no-export': 'There is no finished export to show.',
+  'dataExport.err.failed': 'The export did not work.',
 };

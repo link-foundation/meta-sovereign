@@ -12,6 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useT, useLocaleContext } from './i18n.js';
 import { FormDialog } from './chat-create.js';
 import { TtlChoices, periodWords } from './chat-ttl.js';
+import { DeleteAccountRow } from './chat-account-data.js';
 import { CloseFriendsDialog } from './chat-contacts-edit.js';
 import { LocalPasscode } from './chat-passcode.js';
 import { PaidMessagesSetting } from './chat-privacy-paid.js';
@@ -738,6 +739,16 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
           title: t('chat.security.selfDestruct'),
         },
         el(AccountTtl, secProps)
+      ),
+      // Delete my account: Telegram's own page opens in a new tab (R-Y212).
+      el(
+        Section,
+        {
+          key: 'da',
+          name: 'delete-account',
+          title: t('chat.deleteAccount.title'),
+        },
+        el(DeleteAccountRow)
       ),
       sec.state.data?.content?.canChange
         ? el(

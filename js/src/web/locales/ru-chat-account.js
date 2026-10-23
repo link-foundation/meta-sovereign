@@ -64,4 +64,79 @@ export const ruChatAccount = {
   'chat.translate.turnOff': 'Не переводить этот чат',
   'chat.translate.turnOn': 'Предлагать перевод этого чата',
   'chat.translate.toggleFailed': 'Telegram не изменил настройку перевода.',
+  'chat.phone.change': 'Сменить номер',
+  'chat.phone.title': 'Смена номера телефона',
+  'chat.phone.warning':
+    'Все ваши облачные данные (чаты, контакты, медиа, настройки) перейдут на новый номер. Старый номер больше не будет связан с этим аккаунтом, а те, у кого сохранён ваш новый номер, увидят вас в своих контактах. Telegram отправит код подтверждения на новый номер.',
+  'chat.phone.new': 'Новый номер телефона (с кодом страны)',
+  'chat.phone.sent': 'Код отправлен на {phone}. Введите его ниже.',
+  'chat.phone.code': 'Код подтверждения',
+  'chat.phone.submit.warn': 'Продолжить',
+  'chat.phone.submit.phone': 'Отправить код',
+  'chat.phone.submit.code': 'Сменить номер',
+  'chat.phone.err.occupied':
+    'Этот номер уже используется другим аккаунтом Telegram.',
+  'chat.phone.err.phone-invalid': 'Этот номер телефона недопустим.',
+  'chat.phone.err.banned': 'Этот номер телефона заблокирован.',
+  'chat.phone.err.flood': 'Слишком много попыток. Попробуйте чуть позже.',
+  'chat.phone.err.code-invalid':
+    'Код неверный. Проверьте его и попробуйте снова.',
+  'chat.phone.err.code-expired':
+    'Срок действия кода истёк. Вернитесь и запросите новый.',
+  'chat.phone.err.fresh':
+    'Telegram не разрешает менять номер так скоро после входа. Попробуйте позже.',
+  'chat.phone.err.send-failed':
+    'Telegram не смог отправить код. Попробуйте ещё раз.',
+  'chat.phone.err.bad-request': 'Сначала введите номер телефона.',
+  'chat.phone.err.failed': 'Номер не изменён.',
+  'chat.deleteAccount.title': 'Удаление аккаунта',
+  'chat.deleteAccount.hint':
+    'Удаление аккаунта безвозвратно стирает все ваши чаты, контакты и облачные данные. Telegram делает это на своей веб-странице, где вы подтверждаете действие кодом, присланным в Telegram; само приложение аккаунт никогда не удаляет.',
+  'chat.deleteAccount.open': 'Удалить мой аккаунт',
+  'chat.security.years':
+    '{count, plural, one {# год} few {# года} many {# лет} other {# года}}',
+  'dataExport.title': 'Экспорт данных Telegram',
+  'dataExport.open': 'Экспорт данных Telegram',
+  'dataExport.what': 'Что экспортировать',
+  'dataExport.info': 'Сведения об аккаунте',
+  'dataExport.contacts': 'Список контактов',
+  'dataExport.chats': 'Чаты для экспорта',
+  'dataExport.kind.personal': 'Личные чаты',
+  'dataExport.kind.bots': 'Чаты с ботами',
+  'dataExport.kind.privateGroups': 'Частные группы',
+  'dataExport.kind.privateChannels': 'Частные каналы',
+  'dataExport.kind.publicChats': 'Публичные группы и каналы',
+  'dataExport.media':
+    'Включить медиа (фото, видео, голосовые сообщения, файлы)',
+  'dataExport.note':
+    'Telegram готовит данные в сеансе экспорта, а файлы сохраняются на этом компьютере в папке экспорта приложения. Перед первым экспортом Telegram может попросить подождать.',
+  'dataExport.state.running': 'Идёт экспорт…',
+  'dataExport.state.cancelling': 'Останавливаю…',
+  'dataExport.state.done': 'Экспорт завершён.',
+  'dataExport.state.cancelled':
+    'Экспорт отменён. Всё, что успело сохраниться, осталось в папке.',
+  'dataExport.state.failed':
+    'Экспорт остановился с ошибкой. Всё, что успело сохраниться, осталось в папке.',
+  'dataExport.phase.starting': 'Запуск…',
+  'dataExport.phase.info': 'Читаю сведения об аккаунте…',
+  'dataExport.phase.contacts': 'Читаю контакты…',
+  'dataExport.phase.chats': 'Читаю список чатов…',
+  'dataExport.phase.writing': 'Записываю итоговый файл…',
+  'dataExport.phase.finished': 'Готово',
+  'dataExport.chatsOf': 'Чатов: {done} из {total}',
+  'dataExport.time.days':
+    '{count, plural, one {# день} few {# дня} many {# дней} other {# дня}}',
+  'dataExport.time.hours':
+    '{count, plural, one {# час} few {# часа} many {# часов} other {# часа}}',
+  'dataExport.time.minutes':
+    '{count, plural, one {# минута} few {# минуты} many {# минут} other {# минуты}}',
+  'dataExport.err.takeout-delay': 'Telegram разрешит экспорт через {time}.',
+  'dataExport.err.bad-request':
+    'Выберите хотя бы что-то для экспорта и проверьте даты и размер.',
+  'dataExport.err.busy': 'Другой экспорт уже идёт.',
+  'dataExport.err.no-access': 'Telegram не разрешил прочитать часть данных.',
+  'dataExport.err.flood': 'Telegram просит подождать. Попробуйте чуть позже.',
+  'dataExport.err.no-export':
+    'Нет завершённого экспорта, который можно показать.',
+  'dataExport.err.failed': 'Экспорт не удался.',
 };

@@ -13,12 +13,14 @@ import { useT } from './i18n.js';
 const el = React.createElement;
 
 /** The self-destruct periods: months, as the days Telegram holds. */
-export const ACCOUNT_MONTHS = Object.freeze([1, 3, 6, 12]);
+export const ACCOUNT_MONTHS = Object.freeze([1, 3, 6, 12, 18, 24]);
 const ACCOUNT_DAYS = new Map([
   [1, 30],
   [3, 90],
   [6, 180],
   [12, 365],
+  [18, 548],
+  [24, 730],
 ]);
 /** The inactivity periods for old sessions, in days. */
 export const SESSION_DAYS = Object.freeze([7, 30, 90, 180, 365]);
@@ -456,7 +458,10 @@ const SavedSelect = ({ t, name, value, options, label, save }) => {
   ]);
 };
 
-const monthsWords = (t, months) => t('chat.security.months', { count: months });
+const monthsWords = (t, months) =>
+  months === 24
+    ? t('chat.security.years', { count: 2 })
+    : t('chat.security.months', { count: months });
 
 /** Account self-destruct: "If away for" 1 / 3 / 6 / 12 months. */
 export const AccountTtl = ({ api, t, setError, sec }) => {

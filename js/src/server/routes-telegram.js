@@ -221,6 +221,7 @@ import { ADMIN_EXTRAS_POSTS } from './routes-telegram-admin-extras.js';
 import { APPS_POSTS } from './routes-telegram-apps.js';
 import { CHANNEL_DM_POSTS } from './routes-telegram-channel-dm.js';
 import { EXPORT_POSTS } from './routes-telegram-export.js';
+import { ACCOUNT_DATA_POSTS } from './routes-telegram-account-data.js';
 import { PAID_POSTS } from './routes-telegram-paid.js';
 import { VOICE_CHAT_POSTS } from './routes-telegram-voice-chat.js';
 import { CONTACTS_POSTS } from './routes-telegram-contacts.js';
@@ -1024,6 +1025,7 @@ const POSTS = {
   ...PROXY_POSTS,
   ...CHANNEL_DM_POSTS,
   ...EXPORT_POSTS,
+  ...ACCOUNT_DATA_POSTS,
   ...PAID_POSTS,
   ...VOICE_CHAT_POSTS,
   ...CONTACTS_POSTS,

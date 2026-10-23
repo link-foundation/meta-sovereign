@@ -12,6 +12,11 @@ import { Field, FormDialog } from './chat-create.js';
 import { PhotoButtons, uploadPhoto } from './chat-edit.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { PrivacyDialog } from './chat-privacy.js';
+import {
+  ChangePhoneDialog,
+  ExportDataButton,
+  ExportDataDialog,
+} from './chat-account-data.js';
 import { StickerSettingsDialog } from './chat-sticker-settings.js';
 import { EmojiStatusDialog, EmojiStatusRow } from './chat-emoji-status.js';
 import { ProfileUsernames } from './chat-usernames.js';
@@ -207,7 +212,7 @@ const UsernameField = ({ t, value, status, set }) =>
       : null,
   ]);
 
-const PhoneRow = ({ t, phone }) => {
+const PhoneRow = ({ t, phone, onChange }) => {
   const [shown, setShown] = useState(false);
   if (!phone) {
     return null;
@@ -229,6 +234,19 @@ const PhoneRow = ({ t, phone }) => {
       },
       shown ? t('chat.profile.hidePhone') : t('chat.profile.showPhone')
     ),
+    // Change phone number (R-Y212) opens over the card.
+    onChange
+      ? el(
+          'button',
+          {
+            key: 'c',
+            type: 'button',
+            'data-action': 'change-phone',
+            onClick: onChange,
+          },
+          t('chat.phone.change')
+        )
+      : null,
   ]);
 };
 
@@ -259,6 +277,10 @@ const saveChanges = async (api, profile, form) => {
   return answers.length > 0 && failed ? (failed.code ?? 'failed') : null;
 };
 
+// A card button that opens a dialog over the card.
+const OpenButton = ({ action, label, onClick }) =>
+  el('button', { type: 'button', 'data-action': action, onClick }, label);
+
 const Card = ({
   api,
   t,
@@ -274,6 +296,9 @@ const Card = ({
   openLeft,
   emojiStatus,
   openStatus,
+  openPhone,
+  openData,
+  phone,
 }) => {
   const [form, setForm] = useState({
     firstName: profile.firstName,
@@ -350,7 +375,12 @@ const Card = ({
         api,
         usernames: profile.usernames ?? [],
       }),
-      el(PhoneRow, { key: 'ph', t, phone: profile.phone }),
+      el(PhoneRow, {
+        key: 'ph',
+        t,
+        phone: phone ?? profile.phone,
+        onChange: openPhone,
+      }),
       // The emoji status (R-Y162) opens its picker over the card.
       el(EmojiStatusRow, {
         key: 'es',
@@ -372,16 +402,14 @@ const Card = ({
           )
         : null,
       // Privacy and security (R-Y139) opens over the card.
-      el(
-        'button',
-        {
-          key: 'pv',
-          type: 'button',
-          'data-action': 'open-privacy',
-          onClick: openPrivacy,
-        },
-        t('chat.profile.privacy')
-      ),
+      el(OpenButton, {
+        key: 'pv',
+        action: 'open-privacy',
+        label: t('chat.profile.privacy'),
+        onClick: openPrivacy,
+      }),
+      // Export Telegram data (R-Y212) opens over the card.
+      el(ExportDataButton, { key: 'xd', api, onClick: openData }),
       // Telegram Stars (R-Y176) opens over the card.
       typeof api?.telegramStarsStatus === 'function'
         ? el(
@@ -401,16 +429,12 @@ const Card = ({
       el(LeftChannelsButton, { key: 'lc', api, onClick: openLeft }),
       // Stickers and emoji (R-Y169) opens over the card.
       typeof api?.telegramStickerSets === 'function'
-        ? el(
-            'button',
-            {
-              key: 'ss',
-              type: 'button',
-              'data-action': 'open-sticker-settings',
-              onClick: openStickers,
-            },
-            t('chat.profile.stickers')
-          )
+        ? el(OpenButton, {
+            key: 'ss',
+            action: 'open-sticker-settings',
+            label: t('chat.profile.stickers'),
+            onClick: openStickers,
+          })
         : null,
     ]
   );
@@ -425,6 +449,8 @@ const OVER = {
   business: BusinessDialog,
   left: LeftChannelsDialog,
   status: EmojiStatusDialog,
+  phone: ChangePhoneDialog,
+  data: ExportDataDialog,
 };
 
 const ProfileDialog = ({ api, close }) => {
@@ -435,6 +461,8 @@ const ProfileDialog = ({ api, close }) => {
   const [over, setOver] = useState(null);
   // The emoji status (R-Y162): undefined is the one Telegram has.
   const [chosen, setChosen] = useState(undefined);
+  // The phone number just changed (R-Y212): shown over the old one.
+  const [phone, setPhone] = useState(undefined);
   if (state.phase === 'ready') {
     const Over = over ? OVER[over] : null;
     // While another dialog is over the card, Escape and a click outside
@@ -456,6 +484,9 @@ const ProfileDialog = ({ api, close }) => {
         openLeft: () => setOver('left'),
         emojiStatus: chosen === undefined ? state.profile.emojiStatus : chosen,
         openStatus: () => setOver('status'),
+        openPhone: () => setOver('phone'),
+        openData: () => setOver('data'),
+        phone,
       }),
       Over
         ? el(Over, {
@@ -463,6 +494,7 @@ const ProfileDialog = ({ api, close }) => {
             api,
             close: () => setOver(null),
             ...(over === 'status' ? { onChange: setChosen } : {}),
+            ...(over === 'phone' ? { onChanged: setPhone } : {}),
           })
         : null,
     ]);

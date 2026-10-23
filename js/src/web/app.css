@@ -11975,3 +11975,14 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
 .chat-more-group .meta {
   margin: 0.2rem 0.7rem;
 }
+
+/* R-Y212: change phone number, delete account, export Telegram data. */
+.delete-account {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.delete-account button {
+  color: var(--danger, #d33);
+}

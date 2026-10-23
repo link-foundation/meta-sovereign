@@ -96,7 +96,7 @@ export const newRun = ({ env, c, job, now, sleep, publish }) => ({
   toMs: job.options.to === null ? null : dayEndMs(job.options.to),
 });
 
-const stopping = (r) => r.job.state === 'cancelling';
+export const stopping = (r) => r.job.state === 'cancelling';
 
 // A wait Telegram asked for, cut short by Cancel.
 const waitFor = async (r, seconds) => {
@@ -112,7 +112,7 @@ const waitSeconds = (error) =>
     : floodSeconds(error);
 
 // `use` through the queue; after "wait N seconds" wait and ask again.
-const asked = async (r, key, use) => {
+export const asked = async (r, key, use) => {
   for (let tries = 0; ; tries += 1) {
     try {
       return await (r.env.queue

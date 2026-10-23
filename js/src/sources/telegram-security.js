@@ -14,7 +14,7 @@
  * - `removePassword({ current })` — the same call with an empty digest;
  * - `confirmPasswordEmail({ code })`, `resendPasswordEmail()`,
  *   `cancelPasswordEmail()` — account.confirmPasswordEmail / resend / cancel;
- * - `setAccountTtl({ days })` — account.setAccountTTL (30, 90, 180, 365);
+ * - `setAccountTtl({ days })` — account.setAccountTTL (30, 90, 180, 365, 548, 730; R-Y212);
  * - `setSensitive({ enabled })` — account.setContentSettings, only when
  *   Telegram says it can be changed;
  * - `setSessionSettings({ hash, secretChats, calls })` —
@@ -26,7 +26,7 @@
 
 import { connected, failureOf, runIn } from './telegram-stickers.js';
 
-export const ACCOUNT_TTL_DAYS = [30, 90, 180, 365];
+export const ACCOUNT_TTL_DAYS = [30, 90, 180, 365, 548, 730];
 export const SESSION_TTL_DAYS = [7, 30, 90, 180, 365];
 export const PASSWORD_MAX = 256;
 export const HINT_MAX = 255;

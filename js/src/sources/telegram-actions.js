@@ -137,6 +137,8 @@ import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
 import { createInstantView } from './telegram-instant-view.js';
 import { createHistoryExport } from './telegram-export.js';
+import { createAccountData } from './telegram-account-data.js';
+import { createPhoneChange } from './telegram-phone-change.js';
 import { createDrafts } from './telegram-drafts.js';
 import { createCalendar } from './telegram-calendar.js';
 import { createTopPeers } from './telegram-top-peers.js';
@@ -473,7 +475,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // counters of channel posts and hashtag search (R-Y182); Telegram Business
 // opening hours, location, intro, chat links, chatbots and folder tags
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
-// sending a gift (R-Y185); exporting chat history (R-Y186); giveaways, paid
+// sending a gift (R-Y185); exporting chat history (R-Y186), changing the phone number and exporting Telegram data (R-Y212); giveaways, paid
 // messages and channel autotranslation (R-Y184); voice chats and group calls
 // (R-Y188); the Contacts window and read times (R-Y189); bot games (R-Y190);
 // interface scale and the connection proxy (R-Y192); channel direct messages
@@ -488,7 +490,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // stickers, the quick reaction and custom emoji search (R-Y206); cloud
 // drafts, the calendar's day counts and frequent contacts (R-Y207);
 // editing and linking one's stories (R-Y210); cloud themes and the
-// per-chat translation switch (R-Y209).
+// per-chat translation switch (R-Y209); changing the phone number and
+// exporting the account's data (R-Y212).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -603,6 +606,8 @@ const chatActions = (env, context) => {
     ...createInviteLinks(env, context),
     ...createMessageLinks(env, context),
     ...createHistoryExport(env, context),
+    ...createAccountData(env, context),
+    ...createPhoneChange(env, context),
     ...createProxy(env),
     ...createChannelDm(env, context),
     ...createDrafts(env, context),

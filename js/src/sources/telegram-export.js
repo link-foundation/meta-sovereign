@@ -58,17 +58,17 @@ const validMedia = (media) =>
     ([k, v]) => MEDIA_KEYS.includes(k) && typeof v === 'boolean'
   );
 
-const validRange = (from, to) =>
+export const validRange = (from, to) =>
   [from, to].every((d) => d === null || isDay(d)) &&
   (from === null || to === null || from <= to);
 
-const validFormats = (formats) =>
+export const validFormats = (formats) =>
   Array.isArray(formats) &&
   formats.length > 0 &&
   new Set(formats).size === formats.length &&
   formats.every((f) => FORMATS.includes(f));
 
-const validLimit = (limit) =>
+export const validLimit = (limit) =>
   Number.isInteger(limit) && limit >= 1 && limit <= MAX_LIMIT_MB;
 
 /**

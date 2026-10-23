@@ -7,6 +7,14 @@ const body = (route) => ({ route, body: true });
 const none = (route) => ({ route, body: false });
 
 export const TELEGRAM_CALLS = {
+  // Change phone number (the code goes to the new number) and Export
+  // Telegram data through a takeout session (R-Y212).
+  telegramPhoneChangeSend: body('phone-change-send'),
+  telegramPhoneChangeConfirm: body('phone-change-confirm'),
+  telegramDataExportStart: body('data-export-start'),
+  telegramDataExportStatus: none('data-export-status'),
+  telegramDataExportCancel: none('data-export-cancel'),
+  telegramDataExportReveal: none('data-export-reveal'),
   // Cloud drafts synced and cleared, the calendar's day counts, frequent
   // contacts listed, removed and turned off (R-Y207).
   telegramDraftsSync: none('drafts-sync'),
