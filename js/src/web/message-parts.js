@@ -10,6 +10,7 @@
 import { parsePoll, parseTodo } from './poll-parts.js';
 import { inTopicOnly } from './forum-topics.js';
 import { callLine } from './call-model.js';
+import { paidOf, paidReactionOf } from './stars-model.js';
 
 // Standard JFIF + Huffman table header, verbatim from Telegram's spec.
 const JPEG_HEADER_HEX =
@@ -396,7 +397,22 @@ const CARD_MEDIA = {
   MessageMediaGame: (m) => ({ kind: 'game', title: m.game?.title ?? null }),
   MessageMediaInvoice: (m) => ({ kind: 'invoice', title: m.title ?? null }),
   MessageMediaUnsupported: () => ({ kind: 'unsupported' }),
+  MessageMediaPaidMedia: (m) => parsePaid(m),
 };
+
+// Paid media (R-Y176): blurred previews until paid; once unlocked one
+// item is the message's own photo or video, several are a grid.
+function parsePaid(media) {
+  const paid = paidOf(media, (thumb) =>
+    strippedBytesOf(extractPhotoSizes({ sizes: thumb ? [thumb] : [] }))
+  );
+  if (!paid) {
+    return null;
+  }
+  return !paid.locked && paid.items.length === 1
+    ? parseMedia({ media: paid.items[0].media })
+    : { kind: 'paid', ...paid };
+}
 
 export const parseMedia = (raw) => {
   const mc = raw.media?.className;
@@ -582,6 +598,8 @@ export const parseMessageParts = (link, msgById = new Map()) => {
     replyRef: parseReply(link, raw, msgById),
     fwdFrom: parseFwd(raw, link),
     reactions: parseReactions(raw, link),
+    // The paid ⭐ reaction of a channel post (R-Y176).
+    paidReaction: paidReactionOf(raw.reactions),
     edited: Boolean(raw.editDate ?? link.edited),
     // The seconds after which it deletes itself, 0 when it does not (R-Y143).
     ttl: Number(raw.ttlPeriod) || 0,

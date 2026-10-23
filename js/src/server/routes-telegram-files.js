@@ -7,7 +7,7 @@
  * Its routes:
  *   GET  /api/telegram/story?peer=&id= -> a story's picture or video (by
  *                       range), downloaded once
- *   GET  /api/telegram/media?chat=&id=&size=
+ *   GET  /api/telegram/media?chat=&id=&size=&part=
  *                                      -> a message's picture (s/m/x/y/w),
  *                                         downloaded once, then from disk
  *   GET  /api/telegram/custom-emoji?id=&full=1
@@ -81,6 +81,8 @@ const handleMedia = async (account, req, res, ctx) => {
     chat: query.get('chat'),
     id: Number(query.get('id')),
     size: query.get('size') || 'm',
+    // The item of a paid-media message (R-Y176).
+    part: Number(query.get('part') || 0),
   });
   if (!result?.buffer) {
     return json(res, 404, { error: 'no picture' }) ?? true;

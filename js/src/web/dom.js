@@ -1076,6 +1076,14 @@ export const api = {
   telegramMyBoosts: (body = {}) => telegramPost('my-boosts', body),
   telegramBoostApply: (body = {}) => telegramPost('boost-apply', body),
   telegramBoosters: (body = {}) => telegramPost('boosters', body),
+  // Telegram Stars (R-Y176).
+  telegramStarsStatus: () => telegramPost('stars-status', {}),
+  telegramStarsHistory: (body = {}) => telegramPost('stars-history', body),
+  telegramStarGifts: (body = {}) => telegramPost('star-gifts', body),
+  telegramStarGiftSave: (body = {}) => telegramPost('star-gift-save', body),
+  telegramPaidReaction: (body = {}) => telegramPost('paid-reaction', body),
+  telegramPaidMediaUnlock: (body = {}) =>
+    telegramPost('paid-media-unlock', body),
   telegramDefaultTtl: () => telegramPost('privacy-ttl', {}),
   telegramDefaultTtlSet: (body = {}) => telegramPost('privacy-ttl-set', body),
   // Viewing stories (R-Y140): the strip, one peer's, seen up to an id,
@@ -1285,12 +1293,12 @@ export const api = {
    * URL for a Telegram photo via the media proxy.
    * Returns null when the server is offline or the endpoint is unknown.
    */
-  telegramMediaUrl: async ({ chat, id, size = 'm' } = {}) => {
+  telegramMediaUrl: async ({ chat, id, size = 'm', part = 0 } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !chat || !id) {
       return null;
     }
-    const path = `/api/telegram/media?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}&size=${encodeURIComponent(size)}`;
+    const path = `/api/telegram/media?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}&size=${encodeURIComponent(size)}${part ? `&part=${part}` : ''}`;
     return origin ? new URL(path, origin).toString() : path;
   },
 

@@ -44,6 +44,7 @@ import { formatCallDuration } from './call-model.js';
 import { CommentsBar } from './chat-comments-bar.js';
 import { FactCheck } from './chat-fact-check.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
+import { PaidMedia, PaidReactionChip } from './chat-paid.js';
 
 const el = React.createElement;
 
@@ -286,20 +287,32 @@ const WebPreview = ({ webPage }) => {
 
 // ---- Reactions ----------------------------------------------------------
 
-const Reactions = ({ reactions }) => {
-  if (!reactions?.length) {
+const Reactions = ({ reactions, paid, api, chat, msgId }) => {
+  if (!reactions?.length && !paid) {
     return null;
   }
   return el(
     'div',
     { className: 'bubble-reactions', 'aria-label': 'Reactions' },
-    reactions.map((r) =>
-      el(
-        'span',
-        { key: r.emoticon, className: 'bubble-reaction' },
-        `${r.emoticon} ${r.count}`
-      )
-    )
+    [
+      ...(reactions ?? []).map((r) =>
+        el(
+          'span',
+          { key: r.emoticon, className: 'bubble-reaction' },
+          `${r.emoticon} ${r.count}`
+        )
+      ),
+      // The paid ⭐ of a channel post opens its dialog (R-Y176).
+      paid
+        ? el(PaidReactionChip, {
+            key: 'paid',
+            reaction: paid,
+            api,
+            chat,
+            msgId,
+          })
+        : null,
+    ]
   );
 };
 
@@ -858,7 +871,8 @@ export const ForwardPicker = ({ chats, onClose, onForward }) => {
 const inlineTime = (parts) =>
   Boolean(parts.text) &&
   parts.media?.kind !== 'webpage' &&
-  !(parts.reactions?.length > 0);
+  !(parts.reactions?.length > 0) &&
+  !parts.paidReaction;
 
 // CSS class for the bubble div.
 // A photo or an album: the bubble is as wide as it, the caption under it
@@ -912,6 +926,9 @@ const BubbleMedia = ({ parts, api, chat, netId, mine, album, topic }) => {
   const media = parts.media;
   if (media?.kind === 'photo') {
     return el(MediaPhoto, { media, api, chat, msgId: netId });
+  }
+  if (media?.kind === 'paid') {
+    return el(PaidMedia, { media, api, chat, msgId: netId });
   }
   if (media?.kind === 'document') {
     const view = (netId && DOCUMENT_VIEWS[media.type]) || MediaFile;
@@ -1045,7 +1062,14 @@ const BubbleContent = ({
     ? el(WebPreview, { key: 'wp', webPage: parts.media })
     : null,
   el(FactCheck, { key: 'fc', message, api }),
-  el(Reactions, { key: 'rx', reactions: parts.reactions }),
+  el(Reactions, {
+    key: 'rx',
+    reactions: parts.reactions,
+    paid: parts.paidReaction,
+    api,
+    chat,
+    msgId: netId,
+  }),
   el(BubbleFooter, { key: 'time', parts, message, time, t, api, mine }),
   composer
     ? el(BubbleActionsInner, { key: 'actions', message, composer })

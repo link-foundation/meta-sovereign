@@ -164,6 +164,8 @@
     "test:e2e:strip-hide:webkit": "E2E_BROWSER=webkit node js/tests/e2e-strip-hide-browser.mjs",
     "test:e2e:web-sessions": "node js/tests/e2e-web-sessions-browser.mjs",
     "test:e2e:web-sessions:webkit": "E2E_BROWSER=webkit node js/tests/e2e-web-sessions-browser.mjs",
+    "test:e2e:stars": "node js/tests/e2e-stars-browser.mjs",
+    "test:e2e:stars:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stars-browser.mjs",
     "test:e2e:saved-tags": "node js/tests/e2e-saved-tags-browser.mjs",
     "test:e2e:saved-tags:webkit": "E2E_BROWSER=webkit node js/tests/e2e-saved-tags-browser.mjs",
     "test:e2e:members": "node js/tests/e2e-members-browser.mjs",

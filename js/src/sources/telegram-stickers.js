@@ -711,6 +711,9 @@ export const createStickers = (
       learn: lists.learnSet,
       known: (id) => lists.setOf(id)?.set ?? null,
       changed: lists.changed,
+      // Documents of other lists (a gift's sticker, R-Y176).
+      remember: lists.remember,
+      onAgain: lists.onAgain,
     },
   };
 };

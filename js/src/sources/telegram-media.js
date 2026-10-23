@@ -28,6 +28,9 @@ const SIZES = new Set(['s', 'm', 'x', 'y', 'w']);
 
 const CHAT = /^-?\d{1,20}$/;
 
+const whole = (n, min, max = Infinity) =>
+  Number.isInteger(n) && n >= min && n <= max;
+
 const text = (value) =>
   value === null || value === undefined ? null : String(value.value ?? value);
 
@@ -97,11 +100,24 @@ const documentPicture = (doc, want) => {
 };
 
 /**
+ * The media a message shows: its own, or for paid media (R-Y176) the
+ * `part`th item once unlocked (a locked one has no file), else null.
+ */
+export const mediaOf = (raw, part = 0) => {
+  const media = raw?.media;
+  if (media?.className !== 'MessageMediaPaidMedia') {
+    return media;
+  }
+  const item = media.extendedMedia?.[part];
+  return item?.className === 'MessageExtendedMedia' ? item.media : null;
+};
+
+/**
  * What to download for a stored message: `{ kind, file, thumb, mimeType }`
  * (`file` the photo or document as stored), or null when it has no picture.
  */
-export const pictureOf = (raw, want = 'm') => {
-  const media = raw?.media;
+export const pictureOf = (raw, want = 'm', part = 0) => {
+  const media = mediaOf(raw, part);
   const photo = photoOf(media);
   if (photo?.id !== undefined && photo.sizes) {
     const thumb = pickSize(photo.sizes, want);
@@ -168,14 +184,14 @@ export const createMediaReader = ({
     return buffer?.length ? Buffer.from(buffer) : null;
   };
 
-  const fetchPicture = async (chat, id, want) => {
+  const fetchPicture = async (chat, id, want, part) => {
     const linkId = `msg:telegram:${chat}:${id}`;
-    const picture = pictureOf((await store.get(linkId))?.raw, want);
+    const picture = pictureOf((await store.get(linkId))?.raw, want, part);
     const client = picture ? await clientOf() : null;
     if (!client) {
       return null;
     }
-    const key = `media:${chat}:${id}:${picture.thumb}`;
+    const key = `media:${chat}:${id}:${picture.thumb}${part ? `:p${part}` : ''}`;
     try {
       return {
         buffer: await queue.run(key, 'list', () => download(client, picture)),
@@ -188,7 +204,7 @@ export const createMediaReader = ({
       // The file reference is old: read the message again, then retry.
       log({ event: 'telegram_media_reference_expired' });
       await refresh({ chat, ids: [id], priority: 'list' });
-      const fresh = pictureOf((await store.get(linkId))?.raw, want);
+      const fresh = pictureOf((await store.get(linkId))?.raw, want, part);
       return fresh
         ? {
             buffer: await queue.run(`${key}:again`, 'list', () =>
@@ -200,21 +216,26 @@ export const createMediaReader = ({
     }
   };
 
-  const read = async ({ chat, id, size = 'm' } = {}) => {
+  const read = async ({ chat, id, size = 'm', part = 0 } = {}) => {
     const target = String(chat ?? '');
     const msg = Number(id);
     const want = SIZES.has(size) ? size : 'm';
-    // Both name a path in the app folder: digits only.
-    if (!CHAT.test(target) || !Number.isInteger(msg) || msg <= 0) {
+    // All name a path in the app folder: digits only. `part` is the item
+    // of a paid-media message (R-Y176).
+    if (!CHAT.test(target) || !whole(msg, 1) || !whole(part, 0, 9)) {
       return null;
     }
-    const file = path.join(dir, target, `${msg}-${want}`);
+    const file = path.join(
+      dir,
+      target,
+      `${msg}-${want}${part ? `-p${part}` : ''}`
+    );
     const cached = await readCache(file);
     if (cached) {
       const meta = await readCache(`${file}.type`);
       return { buffer: cached, mimeType: meta?.toString() || 'image/jpeg' };
     }
-    const got = await fetchPicture(target, msg, want);
+    const got = await fetchPicture(target, msg, want, part);
     if (!got?.buffer) {
       return null;
     }
@@ -304,7 +325,7 @@ export const createFileReader = ({
 
   const getDoc = async (chat, id) => {
     const link = await store.get(`msg:${SOURCE}:${chat}:${id}`);
-    const media = link?.raw?.media;
+    const media = mediaOf(link?.raw);
     return media?.className === 'MessageMediaDocument' ? media.document : null;
   };
 

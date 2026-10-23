@@ -15,6 +15,7 @@ import { PrivacyDialog } from './chat-privacy.js';
 import { StickerSettingsDialog } from './chat-sticker-settings.js';
 import { EmojiStatusDialog, EmojiStatusRow } from './chat-emoji-status.js';
 import { ProfileUsernames } from './chat-usernames.js';
+import { StarsDialog } from './chat-stars.js';
 
 const el = React.createElement;
 
@@ -261,6 +262,7 @@ const Card = ({
   error,
   openPrivacy,
   openStickers,
+  openStars,
   emojiStatus,
   openStatus,
 }) => {
@@ -358,6 +360,19 @@ const Card = ({
         },
         t('chat.profile.privacy')
       ),
+      // Telegram Stars (R-Y176) opens over the card.
+      typeof api?.telegramStarsStatus === 'function'
+        ? el(
+            'button',
+            {
+              key: 'st',
+              type: 'button',
+              'data-action': 'open-stars',
+              onClick: openStars,
+            },
+            t('chat.profile.stars')
+          )
+        : null,
       // Stickers and emoji (R-Y169) opens over the card.
       typeof api?.telegramStickerSets === 'function'
         ? el(
@@ -381,6 +396,7 @@ const ProfileDialog = ({ api, close }) => {
   const [error, setError] = useState(null);
   const [privacy, setPrivacy] = useState(false);
   const [stickers, setStickers] = useState(false);
+  const [stars, setStars] = useState(false);
   // The emoji status (R-Y162): undefined is the one Telegram has.
   const [picker, setPicker] = useState(false);
   const [chosen, setChosen] = useState(undefined);
@@ -393,11 +409,12 @@ const ProfileDialog = ({ api, close }) => {
         api,
         t,
         profile: state.profile,
-        close: privacy || picker || stickers ? () => {} : close,
+        close: privacy || picker || stickers || stars ? () => {} : close,
         error,
         setError,
         openPrivacy: () => setPrivacy(true),
         openStickers: () => setStickers(true),
+        openStars: () => setStars(true),
         emojiStatus: chosen === undefined ? state.profile.emojiStatus : chosen,
         openStatus: () => setPicker(true),
       }),
@@ -413,6 +430,13 @@ const ProfileDialog = ({ api, close }) => {
             key: 'ss',
             api,
             close: () => setStickers(false),
+          })
+        : null,
+      stars
+        ? el(StarsDialog, {
+            key: 'st',
+            api,
+            close: () => setStars(false),
           })
         : null,
       picker

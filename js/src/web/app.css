@@ -9109,3 +9109,193 @@ span.bubble-effect {
 .transcript-rate button.on {
   opacity: 1;
 }
+
+/* Telegram Stars, paid reactions and paid media (R-Y176). */
+.paid-portal {
+  display: contents;
+}
+.bubble-reaction-paid {
+  font: inherit;
+  font-size: 0.82rem;
+  color: inherit;
+  cursor: pointer;
+}
+.bubble-reaction-paid.mine {
+  border-color: var(--accent-fill, var(--chat-accent));
+}
+.bubble-reaction-paid:disabled {
+  cursor: default;
+}
+[data-dialog='paid-reaction'] input[type='range'] {
+  width: 100%;
+}
+[data-dialog='paid-reaction'] input[type='number'] {
+  width: 8rem;
+}
+.paid-top {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+.paid-media {
+  position: relative;
+  width: min(320px, 100%);
+  overflow: hidden;
+  border-radius: 10px;
+}
+.paid-previews,
+.paid-open {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.paid-preview {
+  display: block;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+.paid-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(14px);
+  transform: scale(1.2);
+}
+.paid-unlock {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.4rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.paid-item {
+  position: relative;
+  display: block;
+  width: calc(50% - 2px);
+  aspect-ratio: 1;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+.paid-open .paid-item:only-child {
+  width: 100%;
+}
+.paid-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.paid-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.6rem;
+}
+.stars-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.stars-balance {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+}
+.stars-balance strong {
+  font-size: 1.4rem;
+}
+.stars-tabs {
+  display: flex;
+  gap: 0.3rem;
+}
+.stars-tabs button.active {
+  background: var(--bg-active);
+  border-color: var(--accent-fill, var(--chat-accent));
+}
+.stars-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.stars-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.stars-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.stars-amount {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.stars-amount.in {
+  color: var(--accent);
+}
+.stars-amount.out {
+  color: var(--danger);
+}
+.stars-tag {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--bg-active);
+}
+.gift-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.5rem;
+}
+.gift-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem;
+  font-size: 0.75rem;
+  text-align: center;
+}
+.gift-cell .sticker-picture {
+  width: 4rem;
+  height: 4rem;
+}
+.gift-cell.hidden-gift {
+  opacity: 0.55;
+}
+.gift-stars {
+  font-weight: 600;
+}
+.gift-from {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gift-big .sticker-picture {
+  display: block;
+  width: 8rem;
+  height: 8rem;
+  margin: 0 auto;
+}
+.gift-text {
+  white-space: pre-wrap;
+}
