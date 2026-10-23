@@ -1161,4 +1161,24 @@ export const hiChat = {
   'chat.common.more': 'और दिखाएँ',
   'chat.common.loading': 'लोड हो रहा है…',
   'chat.common.err': 'Telegram ने सूची नहीं दी।',
+  // Which reactions a chat allows (R-Y160).
+  'chat.reactions.title': 'प्रतिक्रियाएँ',
+  'chat.reactions.open': 'प्रतिक्रियाएँ…',
+  'chat.reactions.hint':
+    'चुनें कि इस चैट के संदेशों पर लोग कौन-सी प्रतिक्रियाएँ दे सकते हैं।',
+  'chat.reactions.all': 'सभी प्रतिक्रियाएँ',
+  'chat.reactions.some': 'कुछ प्रतिक्रियाएँ',
+  'chat.reactions.none': 'कोई प्रतिक्रिया नहीं',
+  'chat.reactions.enable': 'प्रतिक्रियाएँ चालू करें',
+  'chat.reactions.count':
+    '{count, plural, one {# प्रतिक्रिया} other {# प्रतिक्रियाएँ}}',
+  'chat.reactions.save': 'सहेजें',
+  'chat.reactions.loading': 'लोड हो रहा है…',
+  'chat.reactions.err.not-admin':
+    'इसे केवल चैट प्रबंधित करने वाले बदल सकते हैं।',
+  'chat.reactions.err.failed': 'Telegram ने बदलाव स्वीकार नहीं किया।',
+  'chat.reactions.err.reaction-invalid':
+    'Telegram इनमें से एक प्रतिक्रिया नहीं जानता।',
+  'chat.reactions.err.no-access': 'यह चैट आपके लिए उपलब्ध नहीं है।',
+  'chat.reactions.empty': 'कम से कम एक प्रतिक्रिया चुनें।',
 };

@@ -1175,4 +1175,24 @@ export const ruChat = {
   'chat.common.more': 'Показать ещё',
   'chat.common.loading': 'Загрузка…',
   'chat.common.err': 'Telegram не отдал список.',
+  // Which reactions a chat allows (R-Y160).
+  'chat.reactions.title': 'Реакции',
+  'chat.reactions.open': 'Реакции…',
+  'chat.reactions.hint':
+    'Выберите, какие реакции можно ставить на сообщения в этом чате.',
+  'chat.reactions.all': 'Все реакции',
+  'chat.reactions.some': 'Некоторые реакции',
+  'chat.reactions.none': 'Без реакций',
+  'chat.reactions.enable': 'Включить реакции',
+  'chat.reactions.count':
+    '{count, plural, one {# реакция} few {# реакции} many {# реакций} other {# реакции}}',
+  'chat.reactions.save': 'Сохранить',
+  'chat.reactions.loading': 'Загрузка…',
+  'chat.reactions.err.not-admin':
+    'Это могут менять только те, кто управляет чатом.',
+  'chat.reactions.err.failed': 'Telegram не принял изменение.',
+  'chat.reactions.err.reaction-invalid':
+    'Telegram не знает одну из этих реакций.',
+  'chat.reactions.err.no-access': 'Этот чат вам недоступен.',
+  'chat.reactions.empty': 'Выберите хотя бы одну реакцию.',
 };

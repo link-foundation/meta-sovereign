@@ -994,6 +994,10 @@ export const api = {
     telegramPost('chat-permissions-set', body),
   telegramSlowMode: (body = {}) => telegramPost('slow-mode', body),
   telegramAdminLog: (body = {}) => telegramPost('admin-log', body),
+  // Which reactions a group or channel allows (R-Y160).
+  telegramAvailableReactions: () => telegramPost('available-reactions', {}),
+  telegramChatReactionsSet: (body = {}) =>
+    telegramPost('chat-reactions-set', body),
   // Invite links and join requests (R-Y152).
   telegramInviteLinks: (body = {}) => telegramPost('invite-links', body),
   telegramInviteCreate: (body = {}) => telegramPost('invite-create', body),

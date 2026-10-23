@@ -16,6 +16,7 @@ import { PeerBar } from './chat-peer-actions.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
 import { TtlBadge } from './chat-ttl.js';
+import { ChatReactionsScope } from './chat-reactions.js';
 import { ChatWall } from './chat-wallpaper.js';
 import { SavedChats, SavedToggle, useSavedView } from './chat-saved.js';
 import {
@@ -764,7 +765,11 @@ const Stream = ({ state, api, actions }) => {
         chat: state.current.chat,
         info: state.info,
       }),
-      scroll,
+      el(
+        ChatReactionsScope,
+        { key: 'scope', chat: state.current, info: state.info },
+        scroll
+      ),
     ]),
     days.calendar,
     el(UnreadMarks, {

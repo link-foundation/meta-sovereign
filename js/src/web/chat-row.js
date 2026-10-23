@@ -72,7 +72,8 @@ export const useRowHandlers = ({
       open(point);
     },
     onSwipe: () => onAction('reply', message),
-    onDoubleTap: () => onAction('react', message, quickReaction),
+    onDoubleTap: () =>
+      quickReaction && onAction('react', message, quickReaction),
   });
   // The text selected when the right button went down: Safari selects
   // the word under a right-click before the menu event, Telegram

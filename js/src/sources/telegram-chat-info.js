@@ -17,6 +17,7 @@
 
 import { importTelegram } from './telegram-layer.js';
 import { wallpaperPage } from './telegram-wallpapers.js';
+import { canReactIn, reactionsOf } from './telegram-chat-reactions.js';
 
 const CHAT = /^-?\d{1,20}$/;
 const CACHE_TTL_MS = 60_000;
@@ -118,6 +119,13 @@ export const canSetTtlIn = (entity = {}) =>
 // The auto-delete period a full chat carries, in seconds, or 0 (off).
 const ttlOf = (full) => Number(full?.ttlPeriod) || 0;
 
+// Which reactions a group or channel allows, and whether the user may
+// change that (R-Y160).
+const reactionsInfo = (entity, full) => ({
+  reactions: reactionsOf(full),
+  canSetReactions: canReactIn(entity),
+});
+
 // The chat's own wallpaper, when it has one (R-Y155).
 const wallpaperOf = (full) => {
   const wallpaper = wallpaperPage(full?.wallpaper);
@@ -190,6 +198,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     canBan: canBanIn(entity),
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
+    ...reactionsInfo(entity, full),
     ...wallpaperOf(full),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
@@ -218,6 +227,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     canBan: canBanIn(entity),
     ttlPeriod: ttlOf(full),
     canSetTtl: canSetTtlIn(entity),
+    ...reactionsInfo(entity, full),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
   };

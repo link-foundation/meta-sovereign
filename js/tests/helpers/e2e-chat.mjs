@@ -72,7 +72,16 @@ export const openChatApp = async (
     viewport: { width: 1200, height: 800 },
   });
   const errors = [];
-  page.on('pageerror', (e) => errors.push(String(e)));
+  // WebKit reports a request the page dropped mid-flight (one that a
+  // test's end or a reload cut short, its rejection handled) as this
+  // error; the app is same-origin, so it is never a real access check.
+  const ABORTED =
+    /^(Error: )?Fetch API cannot load .+ due to access control checks\.?$/;
+  page.on('pageerror', (e) => {
+    if (!ABORTED.test(String(e))) {
+      errors.push(String(e));
+    }
+  });
   // The browser's own dialogs must never be used.
   page.on('dialog', (d) => {
     errors.push(`browser dialog: ${d.message()}`);

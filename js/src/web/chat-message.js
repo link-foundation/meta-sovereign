@@ -39,6 +39,7 @@ import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
 import { CommentsBar } from './chat-comments-bar.js';
+import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 
 const el = React.createElement;
 
@@ -327,14 +328,7 @@ export const ServiceLine = ({ link }) => {
 // ---- Context menu -------------------------------------------------------
 
 /** The reactions the menu offers in one tap, as Telegram's first row. */
-export const QUICK_REACTIONS = Object.freeze([
-  '👍',
-  '❤️',
-  '😂',
-  '😮',
-  '😢',
-  '🔥',
-]);
+export const QUICK_REACTIONS = DEFAULT_REACTIONS;
 
 // Each menu item's label key and icon, as Telegram Desktop names them.
 const MENU_ITEMS = {
@@ -508,11 +502,11 @@ const moveFocus = (e) => {
   items[(at + step + items.length) % items.length]?.focus();
 };
 
-const ReactionsRow = ({ message, onClose, onAction, t }) =>
+const ReactionsRow = ({ message, onClose, onAction, t, allowed }) =>
   el(
     'li',
     { key: 'react', role: 'none', className: 'msg-context-reactions' },
-    QUICK_REACTIONS.map((emoji) =>
+    allowed.map((emoji) =>
       el(
         'button',
         {
@@ -571,7 +565,13 @@ export const MsgContextMenu = ({
     onClose();
     onAction(key, message, itemValue(key, { selectedText, target }));
   };
-  const reacts = reactions && !message.pending && message.source !== undefined;
+  const allowed = useAllowedReactions();
+  // Only the reactions the chat allows; none, no strip (R-Y160).
+  const reacts =
+    reactions &&
+    allowed.length > 0 &&
+    !message.pending &&
+    message.source !== undefined;
   const menu = el(
     'ul',
     {
@@ -584,7 +584,14 @@ export const MsgContextMenu = ({
     },
     [
       reacts
-        ? el(ReactionsRow, { key: 'rx', message, onClose, onAction, t })
+        ? el(ReactionsRow, {
+            key: 'rx',
+            message,
+            onClose,
+            onAction,
+            t,
+            allowed,
+          })
         : null,
       ...(items ?? []).map((key) => {
         const [label, icon] = MENU_ITEMS[key] ?? [key, 'more'];
@@ -1126,6 +1133,7 @@ export const MessageBubble = ({
   fastReply = false,
 }) => {
   const t = useT();
+  const allowedReactions = useAllowedReactions();
   const { time } = useDates();
   const [menu, setMenu] = useState(null);
   const row = useRef(null);
@@ -1141,7 +1149,7 @@ export const MessageBubble = ({
     onSelect,
     onAction,
     setMenu,
-    quickReaction: QUICK_REACTIONS[0],
+    quickReaction: allowedReactions[0],
   });
 
   if (message.service) {

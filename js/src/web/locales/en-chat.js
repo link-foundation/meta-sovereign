@@ -1156,4 +1156,24 @@ export const enChat = {
   'chat.common.more': 'Show more',
   'chat.common.loading': 'Loading…',
   'chat.common.err': 'Telegram did not give the list.',
+  // Which reactions a chat allows (R-Y160).
+  'chat.reactions.title': 'Reactions',
+  'chat.reactions.open': 'Reactions…',
+  'chat.reactions.hint':
+    'Choose which reactions people can use on messages in this chat.',
+  'chat.reactions.all': 'All reactions',
+  'chat.reactions.some': 'Some reactions',
+  'chat.reactions.none': 'No reactions',
+  'chat.reactions.enable': 'Enable reactions',
+  'chat.reactions.count':
+    '{count, plural, one {# reaction} other {# reactions}}',
+  'chat.reactions.save': 'Save',
+  'chat.reactions.loading': 'Loading…',
+  'chat.reactions.err.not-admin':
+    'Only those who manage the chat can change this.',
+  'chat.reactions.err.failed': 'Telegram did not accept the change.',
+  'chat.reactions.err.reaction-invalid':
+    'Telegram does not know one of these reactions.',
+  'chat.reactions.err.no-access': 'This chat is not available to you.',
+  'chat.reactions.empty': 'Select at least one reaction.',
 };
