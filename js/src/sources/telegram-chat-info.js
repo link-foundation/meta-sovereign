@@ -17,6 +17,8 @@
 
 import { importTelegram } from './telegram-layer.js';
 import { wallpaperPage } from './telegram-wallpapers.js';
+import { themeOf } from './telegram-chat-themes.js';
+import { usernamesOf } from './telegram-usernames.js';
 import { canReactIn, reactionsOf } from './telegram-chat-reactions.js';
 import { settingsInfo } from './telegram-chat-settings.js';
 
@@ -133,6 +135,14 @@ const wallpaperOf = (full) => {
   return wallpaper ? { wallpaper } : {};
 };
 
+// A channel's several usernames, for the user who owns it (R-Y170).
+const usernamesInfo = (entity) => {
+  const usernames = usernamesOf(entity.usernames);
+  return entity.creator && usernames.length > 0
+    ? { usernames, canEditUsernames: true }
+    : {};
+};
+
 // The primary invite link the full chat carries, for those who may see it.
 const inviteOf = (entity, full) =>
   canInviteIn(entity) && typeof full.exportedInvite?.link === 'string'
@@ -205,6 +215,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     // Sign messages, Discussion, Join to send… (R-Y165).
     settings: settingsInfo(entity, full, result.chats ?? []),
     ...wallpaperOf(full),
+    ...usernamesInfo(entity),
     ...inviteOf(entity, full),
     ...requestsOf(entity, full, result.users),
   };
@@ -282,6 +293,8 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     // Groups both belong to (R-Y158); the list is a separate call.
     commonChats: user.self ? 0 : Number(full.commonChatsCount) || 0,
     ...wallpaperOf(full),
+    // The theme of this chat, by its emoticon (R-Y170).
+    ...(themeOf(full) ? { theme: themeOf(full) } : {}),
     ...(user.self ? { self: true } : {}),
     ...(user.bot ? { bot: true } : {}),
     ...(lastSeen !== undefined ? { lastSeen } : {}),

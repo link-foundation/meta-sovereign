@@ -1137,6 +1137,12 @@ export const api = {
   telegramCloseFriendsSet: (body = {}) =>
     telegramPost('close-friends-set', body),
   telegramContactImport: (body = {}) => telegramPost('contact-import', body),
+  // Chat themes and several usernames (R-Y170).
+  telegramChatThemes: (body = {}) => telegramPost('chat-themes', body),
+  telegramChatThemeSet: (body = {}) => telegramPost('chat-theme-set', body),
+  telegramUsernameToggle: (body = {}) => telegramPost('username-toggle', body),
+  telegramUsernamesReorder: (body = {}) =>
+    telegramPost('usernames-reorder', body),
   telegramSendAs: (body = {}) => telegramPost('send-as', body),
   telegramSendAsSave: (body = {}) => telegramPost('send-as-save', body),
   // The recent calls list (R-Y163).

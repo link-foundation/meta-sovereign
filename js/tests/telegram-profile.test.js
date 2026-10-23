@@ -94,6 +94,7 @@ test('myProfile reads the user with users.getFullUser', async () => {
     lastName: 'Lee',
     about: 'Hello',
     username: 'annlee',
+    usernames: [],
     phone: '+15551234567',
     hasPhoto: true,
     aboutMax: 70,

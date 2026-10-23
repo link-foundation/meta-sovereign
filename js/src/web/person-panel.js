@@ -23,6 +23,8 @@ import { TtlActions } from './chat-ttl.js';
 import { ReactionsAction } from './chat-reactions.js';
 import { SettingsAction } from './chat-settings.js';
 import { ChatWallpaperAction } from './chat-wallpaper.js';
+import { ChatThemeAction } from './chat-theme.js';
+import { UsernamesAction } from './chat-usernames.js';
 import { EditChat } from './chat-edit.js';
 import { AdminActions } from './chat-admin.js';
 import { InviteLinksActions } from './chat-invite-links.js';
@@ -322,6 +324,8 @@ export const PersonPanel = ({
         el(ReactionsAction, { key: 'rx', api, chat, info }),
         el(SettingsAction, { key: 'cs', api, chat, info }),
         el(ChatWallpaperAction, { key: 'wall', api, chat }),
+        el(ChatThemeAction, { key: 'theme', api, chat, info }),
+        el(UsernamesAction, { key: 'un', api, chat, info }),
         el(NotifyRow, { key: 'nr', api, chat }),
         el(PeerActions, { key: 'pa', api, chat, info }),
         el(CommonChatsRow, { key: 'cc', api, chat, info, onOpenChat }),

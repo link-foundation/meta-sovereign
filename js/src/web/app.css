@@ -8816,3 +8816,87 @@ span.bubble-effect {
   padding: 0.4rem 0;
   border-bottom: 1px solid var(--border);
 }
+
+/* Chat themes and several usernames (R-Y170). */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+  gap: 0.5rem;
+}
+.theme-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  color: var(--text);
+  cursor: pointer;
+}
+.theme-tile.is-selected {
+  border-color: var(--accent);
+}
+.theme-tile:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.theme-swatch {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  height: 2.4rem;
+  padding: 0.25rem;
+  border-radius: 6px;
+  background: var(--swatch-accent, var(--bg-active));
+}
+.theme-swatch-bubble {
+  width: 60%;
+  height: 0.9rem;
+  border-radius: 6px;
+  background: var(--swatch-bubble, transparent);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 55%);
+}
+.theme-tile-emoji {
+  font-size: 1.3rem;
+}
+.usernames-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.username-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-elev);
+}
+.username-row.is-inactive {
+  opacity: 0.7;
+}
+.username-row[draggable='true'] {
+  cursor: grab;
+}
+.username-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--link);
+}
+.username-moves {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+.profile-usernames {
+  margin-top: 0.5rem;
+}

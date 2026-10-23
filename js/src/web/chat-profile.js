@@ -14,6 +14,7 @@ import { PeerAvatar } from './peer-avatar.js';
 import { PrivacyDialog } from './chat-privacy.js';
 import { StickerSettingsDialog } from './chat-sticker-settings.js';
 import { EmojiStatusDialog, EmojiStatusRow } from './chat-emoji-status.js';
+import { ProfileUsernames } from './chat-usernames.js';
 
 const el = React.createElement;
 
@@ -331,6 +332,12 @@ const Card = ({
         value: form.username,
         status,
         set: set('username'),
+      }),
+      // The collectible usernames besides it (R-Y170).
+      el(ProfileUsernames, {
+        key: 'un',
+        api,
+        usernames: profile.usernames ?? [],
       }),
       el(PhoneRow, { key: 'ph', t, phone: profile.phone }),
       // The emoji status (R-Y162) opens its picker over the card.

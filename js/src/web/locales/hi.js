@@ -6,9 +6,11 @@
 // font-fallback in the platform Chrome / Safari / Firefox.
 
 import { hiChat } from './hi-chat.js';
+import { hiChatMore } from './hi-chat-more.js';
 
 export const hi = {
   ...hiChat,
+  ...hiChatMore,
   appName: 'meta-sovereign',
   skipLink: 'मुख्य सामग्री पर जाएँ',
   'header.theme': 'थीम',

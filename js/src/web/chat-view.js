@@ -19,6 +19,7 @@ import { NotifyButton } from './chat-notify-settings.js';
 import { TtlBadge } from './chat-ttl.js';
 import { ChatReactionsScope } from './chat-reactions.js';
 import { ChatWall } from './chat-wallpaper.js';
+import { useChatTheme } from './chat-theme.js';
 import { SavedChats, SavedToggle, useSavedView } from './chat-saved.js';
 import {
   SavedTagBar,
@@ -1069,6 +1070,8 @@ export const ChatScreen = ({ state, api }) => {
   const saved = useSavedView(state.current, state.info);
   // Its reaction tags and the filter they make (R-Y151).
   const tags = useSavedTags(api, state.current, state.info);
+  // The chat's theme colours, scoped to its view (R-Y170).
+  const theme = useChatTheme(api, state.current, state.info);
   // Phones show one pane at a time (list → conversation → back), as
   // Telegram and WhatsApp do; wider screens show both and ignore it.
   // One function for every render, so the list's rows stay as they are.
@@ -1095,7 +1098,7 @@ export const ChatScreen = ({ state, api }) => {
     el('div', { className: 'chat-shell', 'data-pane': pane }, [
       el(Sidebar, { key: 'side', state: { ...state, select }, api }),
       state.current
-        ? el('section', { key: 'main', className: 'chat-main' }, [
+        ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
             // While messages are selected Desktop's top bar shows what
             // can be done with them; the composer stays.
             actions.selection.ids.length > 0

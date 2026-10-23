@@ -5,9 +5,11 @@
 // consistency on common UI verbs.
 
 import { ruChat } from './ru-chat.js';
+import { ruChatMore } from './ru-chat-more.js';
 
 export const ru = {
   ...ruChat,
+  ...ruChatMore,
   appName: 'meta-sovereign',
   skipLink: 'Перейти к основному содержимому',
   'header.theme': 'Тема',

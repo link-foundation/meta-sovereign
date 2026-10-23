@@ -6,9 +6,11 @@
 // brand identifiers.
 
 import { enChat } from './en-chat.js';
+import { enChatMore } from './en-chat-more.js';
 
 export const en = {
   ...enChat,
+  ...enChatMore,
   appName: 'meta-sovereign',
   skipLink: 'Skip to main content',
   'header.theme': 'Theme',

@@ -206,6 +206,7 @@ import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { FOLDER_EDIT_POSTS } from './routes-telegram-folder-edit.js';
 import { STICKER_SETTINGS_POSTS } from './routes-telegram-sticker-settings.js';
+import { CHAT_THEME_POSTS } from './routes-telegram-chat-themes.js';
 import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
 import { STATS_POSTS } from './routes-telegram-stats.js';
 import { PINNED_LIST_POSTS } from './routes-telegram-pinned-list.js';
@@ -966,6 +967,7 @@ const POSTS = {
   ...FOLDER_EDIT_POSTS,
   ...WEB_APPS_POSTS,
   ...STICKER_SETTINGS_POSTS,
+  ...CHAT_THEME_POSTS,
   ...COMMON_CHATS_POSTS,
   ...STATS_POSTS,
   ...PINNED_LIST_POSTS,

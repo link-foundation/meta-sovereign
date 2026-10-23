@@ -6,9 +6,11 @@
 // `zh-Hant-TW`, …) resolve to this dictionary via prefix matching.
 
 import { zhChat } from './zh-chat.js';
+import { zhChatMore } from './zh-chat-more.js';
 
 export const zh = {
   ...zhChat,
+  ...zhChatMore,
   appName: 'meta-sovereign',
   skipLink: '跳到主要内容',
   'header.theme': '主题',
