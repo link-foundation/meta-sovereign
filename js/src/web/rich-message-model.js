@@ -26,6 +26,10 @@ export const quoteRichText = (replyTo) =>
     .join('')
     .trim();
 
+/** The address key of a document's whole file (R-Y224): `file:<id>`. */
+export const fileKey = (id, download) =>
+  `${download ? 'download' : 'file'}:${id}`;
+
 /** The pictures a shaped rich message asks for: `photo:<id>`, `document:<id>`. */
 export const richFiles = (shaped) => [
   ...shaped.photos.map((id) => `photo:${id}`),

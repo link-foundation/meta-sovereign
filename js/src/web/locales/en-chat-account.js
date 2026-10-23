@@ -342,4 +342,5 @@ export const enChatAccount = {
   'chat.service.walletConnectAccepted': 'Wallet connection accepted',
   'chat.service.walletConnectDeclined': 'Wallet connection declined',
   'chat.service.noPaidToken': 'A free-message token was used instead of paying',
+  'chat.iv.download': 'Download',
 };

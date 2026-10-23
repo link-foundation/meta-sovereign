@@ -101,6 +101,11 @@ const Reader = ({ api, url, close }) => {
         base && /^\d{1,20}$/.test(String(id))
           ? `${base}?kind=${kind}&id=${id}`
           : null,
+      // A video, audio or file of the page (R-Y224).
+      file: (id, download) =>
+        base && /^\d{1,20}$/.test(String(id))
+          ? `${base}?kind=document&id=${id}&full=1${download ? '&download=1' : ''}`
+          : null,
       scrollTo: (name) => {
         const found = [
           ...(root.current?.querySelectorAll('[data-anchor]') ?? []),

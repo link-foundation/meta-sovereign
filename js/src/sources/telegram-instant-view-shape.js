@@ -209,6 +209,18 @@ const photoBlock = (block, ctx) => {
   };
 };
 
+// A document's name, type and size from the page's or message's
+// documents, for a file row and a player (R-Y224; learned, never copied).
+const docInfo = (id, ctx) => {
+  const doc = ctx.files.get(id);
+  const named = (doc?.attributes ?? []).find((a) => a?.fileName);
+  return {
+    name: plain(named?.fileName).slice(0, 255),
+    mime: plain(doc?.mimeType).slice(0, 100),
+    size: Number(plain(doc?.size)) || 0,
+  };
+};
+
 const mediaBlock = (kind, block, ctx, field) => {
   const id = idOf(block[field]);
   if (!id) {
@@ -218,6 +230,7 @@ const mediaBlock = (kind, block, ctx, field) => {
   return {
     k: kind,
     id,
+    ...docInfo(id, ctx),
     caption: caption(block.caption, ctx),
   };
 };
@@ -414,14 +427,10 @@ const fileBlock = (b, ctx) => {
     return null;
   }
   ctx.documents.add(id);
-  const doc = ctx.files.get(id);
-  const named = (doc?.attributes ?? []).find((a) => a?.fileName);
   return {
     k: 'file',
     id,
-    name: plain(named?.fileName).slice(0, 255),
-    mime: plain(doc?.mimeType).slice(0, 100),
-    size: Number(plain(doc?.size)) || 0,
+    ...docInfo(id, ctx),
     caption: caption(b.caption, ctx),
   };
 };

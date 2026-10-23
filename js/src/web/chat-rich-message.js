@@ -12,7 +12,7 @@ import { Blocks } from './chat-instant-view-render.js';
 import { BotButton } from './chat-bots.js';
 import { buttonOf } from './bot-keyboard.js';
 import { shapeRich } from '../sources/telegram-instant-view-shape.js';
-import { richFiles, wordsOf } from './rich-message-model.js';
+import { richFiles, wordsOf, fileKey } from './rich-message-model.js';
 
 const el = React.createElement;
 
@@ -28,14 +28,27 @@ const useUrls = (api, chat, msgId, shaped) => {
     if (!files || typeof api?.telegramMediaUrl !== 'function') {
       return undefined;
     }
+    const ask = (key, call) =>
+      Promise.resolve(call)
+        .then((url) => [key, url])
+        .catch(() => [key, null]);
+    // A document also has its whole file: to play, and to save (R-Y224).
+    const whole = (rich) =>
+      typeof api.telegramFileUrl === 'function' && rich.startsWith('document:')
+        ? [false, true].map((download) =>
+            ask(
+              fileKey(rich.slice(9), download),
+              api.telegramFileUrl({ chat, id: msgId, rich, download })
+            )
+          )
+        : [];
     Promise.all(
-      files.split(',').map((rich) =>
-        Promise.resolve(
-          api.telegramMediaUrl({ chat, id: msgId, size: 'x', rich })
-        )
-          .then((url) => [rich, url])
-          .catch(() => [rich, null])
-      )
+      files
+        .split(',')
+        .flatMap((rich) => [
+          ask(rich, api.telegramMediaUrl({ chat, id: msgId, size: 'x', rich })),
+          ...whole(rich),
+        ])
     ).then((pairs) => live && setUrls(Object.fromEntries(pairs)));
     return () => {
       live = false;
@@ -76,6 +89,7 @@ export const RichMessage = ({ rich, api, chat, msgId, message, onAction }) => {
       t,
       locale,
       media: (kind, id) => urls[`${kind}:${id}`] ?? null,
+      file: (id, download) => urls[fileKey(id, download)] ?? null,
       scrollTo: () => {},
       button: (one, key) => el(RichButton, { key, one, message, onAction }),
     }),

@@ -312,4 +312,5 @@ export const zhChatAccount = {
   'chat.service.walletConnectAccepted': '钱包连接已接受',
   'chat.service.walletConnectDeclined': '钱包连接已拒绝',
   'chat.service.noPaidToken': '使用了免费消息令牌，无需付费',
+  'chat.iv.download': '下载',
 };

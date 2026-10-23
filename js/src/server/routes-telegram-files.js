@@ -17,9 +17,13 @@
  *   GET  /api/telegram/map?lat=&lon=&w=&h=&zoom=&scale=&hash=
  *                                      -> a place's map picture, kept a
  *                                         day; strict 400s (R-Y131)
- *   GET  /api/telegram/file?chat=&id=  -> a message's video, voice, audio,
+ *   GET  /api/telegram/file?chat=&id=&rich=document:<id>&download=1
+ *                                      -> a message's video, voice, audio,
  *                                         GIF or sticker (up to 64 MB), by
- *                                         byte range for players to seek
+ *                                         byte range for players to seek;
+ *                                         `rich`: a file of its rich message,
+ *                                         `download=1`: saved under its name
+ *                                         (R-Y224); a bad `rich` is a 400
  *   GET  /api/telegram/avatar?peer=&size=s|b&chat=&msg=
  *                                      -> a person's or chat's photo; 404
  *                                         when they have none
@@ -30,6 +34,7 @@
 import { classifyOrigin } from './cors.js';
 import { json } from './util.js';
 import { answerMap } from '../sources/telegram-map.js';
+import { RICH_DOCUMENT } from '../sources/telegram-media.js';
 
 // Pictures are the user's own: only the app's pages may load them, so
 // another site open in the browser can neither see them nor make
@@ -187,10 +192,27 @@ export const byteRange = (header, size) => {
   return start <= end && start < size ? [start, end] : null;
 };
 
+// How a rich message's or Instant View page's file is handed over
+// (R-Y224; learned, never copied): saved under its name when asked, and
+// shown in the page only when it is a video or an audio.
+export const dispositionOf = ({ mimeType, name }, download) => {
+  if (!download && /^(video|audio)\//.test(mimeType ?? '')) {
+    return {};
+  }
+  const plain = String(name || 'file')
+    .replace(/[\p{Cc}"\\/]/gu, '_')
+    .slice(0, 255);
+  const ascii = plain.replace(/[^\x20-\x7e]/g, '_');
+  return {
+    'content-disposition': `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(plain)}`,
+  };
+};
+
 // The bytes of a file, whole or the range the player asked for.
-export const sendBytes = (req, res, { buffer, mimeType }) => {
+export const sendBytes = (req, res, { buffer, mimeType }, extra = {}) => {
   const size = buffer.length;
   const head = {
+    ...extra,
     'content-type': mimeType || 'application/octet-stream',
     'accept-ranges': 'bytes',
     'cache-control': 'private, max-age=31536000, immutable',
@@ -217,7 +239,23 @@ export const sendBytes = (req, res, { buffer, mimeType }) => {
   return true;
 };
 
-// GET /api/telegram/file?chat=&id= -> the message's file, by range.
+// A whole file as the player or the download link asked for it, or the
+// error status (R-Y224): shared by the message-file and Instant View routes.
+export const answerFile = (req, res, result, query, saved) => {
+  if (result?.error === 'too-large') {
+    return json(res, 413, { error: 'too-large', size: result.size }) ?? true;
+  }
+  if (!result?.buffer) {
+    return json(res, 404, { error: 'no file' }) ?? true;
+  }
+  const extra = saved
+    ? dispositionOf(result, query.get('download') === '1')
+    : {};
+  return sendBytes(req, res, result, extra);
+};
+
+// GET /api/telegram/file?chat=&id=&rich=document:<id>&download=1 -> the
+// message's file, or a file of its rich message (R-Y224), by range.
 const handleFile = async (account, req, res, ctx) => {
   if (!fromApp(req, ctx?.allowOrigins)) {
     return refuse(req, res, ctx, 'file', 'files load only in the app');
@@ -226,17 +264,16 @@ const handleFile = async (account, req, res, ctx) => {
     return json(res, 501, { error: 'files not available' }) ?? true;
   }
   const query = new URL(req.url, 'http://local').searchParams;
+  const rich = query.get('rich') ?? '';
+  if (rich && !RICH_DOCUMENT.test(rich)) {
+    return json(res, 400, { error: 'bad file' }) ?? true;
+  }
   const result = await account.file({
     chat: query.get('chat'),
     id: Number(query.get('id')),
+    ...(rich ? { rich } : {}),
   });
-  if (result?.error === 'too-large') {
-    return json(res, 413, { error: 'too-large', size: result.size }) ?? true;
-  }
-  if (!result?.buffer) {
-    return json(res, 404, { error: 'no file' }) ?? true;
-  }
-  return sendBytes(req, res, result);
+  return answerFile(req, res, result, query, Boolean(rich));
 };
 
 // GET /api/telegram/story?peer=&id= -> a story's picture or video, by

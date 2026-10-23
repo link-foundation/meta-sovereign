@@ -171,18 +171,54 @@ const photoBlock = (b, ctx) => {
   ]);
 };
 
-// A video or audio is shown by its thumbnail and name; the page itself
-// plays it in the browser ("Open in browser").
-const fileBlock = (label) => (b, ctx) =>
-  el('figure', { className: `iv-figure iv-${label}` }, [
-    el(Picture, { key: 'i', id: b.id, kind: 'document', ctx }),
+// A download link for a document (R-Y224; learned, never copied): the
+// context builds the address (`ctx.file(id, download)`), a click always
+// saves, whatever the automatic-download settings say. Nothing when the
+// context has no file route.
+const DownloadLink = ({ b, ctx }) => {
+  const href = ctx.file?.(b.id, true) ?? null;
+  return href
+    ? el(
+        'a',
+        {
+          className: 'iv-file-download',
+          href,
+          download: b.name || '',
+          'data-download': b.id,
+        },
+        ctx.t('chat.iv.download')
+      )
+    : null;
+};
+
+// A video or an audio plays in the page: the player asks nothing until
+// played (preload none, no autoplay) and Telegram's bytes come by range
+// through the context's file route; its thumbnail is the poster.
+const playerBlock = (label) => (b, ctx) => {
+  const src = ctx.file?.(b.id, false) ?? null;
+  const poster = label === 'video' ? ctx.media('document', b.id) : null;
+  const player = src
+    ? el(label, {
+        key: 'p',
+        className: `iv-player iv-${label}-player`,
+        controls: true,
+        preload: 'none',
+        src,
+        ...(poster ? { poster } : {}),
+        'data-player': label,
+      })
+    : null;
+  return el('figure', { className: `iv-figure iv-${label}` }, [
+    player ?? el(Picture, { key: 'i', id: b.id, kind: 'document', ctx }),
     el(
       'span',
       { key: 'l', className: 'iv-file-label' },
-      ctx.t(`chat.iv.${label}`)
+      b.name || ctx.t(`chat.iv.${label}`)
     ),
+    el(DownloadLink, { key: 'd', b, ctx }),
     el(Caption, { key: 'c', caption: b.caption, ctx }),
   ]);
+};
 
 const cardLink = (href, label, extra) => {
   const safe = linkOf(href);
@@ -461,6 +497,7 @@ const fileRowBlock = (b, ctx) =>
     b.size
       ? el('small', { key: 's', className: 'iv-file-size' }, sizeText(b.size))
       : null,
+    el(DownloadLink, { key: 'd', b, ctx }),
     el(Caption, { key: 'c', caption: b.caption, ctx }),
   ]);
 
@@ -502,8 +539,8 @@ const BLOCKS = {
   quote: quoteBlock('blockquote', 'iv-quote'),
   pullquote: quoteBlock('blockquote', 'iv-pullquote'),
   photo: photoBlock,
-  video: fileBlock('video'),
-  audio: fileBlock('audio'),
+  video: playerBlock('video'),
+  audio: playerBlock('audio'),
   cover: (b, ctx) => el(Blocks, { blocks: [b.block], ctx }),
   embed: embedBlock,
   embedpost: embedPostBlock,

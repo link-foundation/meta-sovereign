@@ -348,4 +348,5 @@ export const hiChatAccount = {
   'chat.service.walletConnectAccepted': 'वॉलेट कनेक्शन स्वीकार किया गया',
   'chat.service.walletConnectDeclined': 'वॉलेट कनेक्शन अस्वीकार किया गया',
   'chat.service.noPaidToken': 'भुगतान के बजाय मुफ़्त संदेश टोकन इस्तेमाल हुआ',
+  'chat.iv.download': 'डाउनलोड करें',
 };

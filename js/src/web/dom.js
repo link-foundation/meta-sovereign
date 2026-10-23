@@ -1217,12 +1217,14 @@ const rawApi = {
   },
 
   // A message's video, voice, audio, GIF or sticker, streamed by range.
-  telegramFileUrl: async ({ chat, id } = {}) => {
+  // `rich`: `document:<id>` of its rich message, `download`: saved under
+  // its name (R-Y224).
+  telegramFileUrl: async ({ chat, id, rich, download } = {}) => {
     const { client, origin } = await ensure();
     if (!client.isOnline() || !chat || !id) {
       return null;
     }
-    const path = `/api/telegram/file?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}`;
+    const path = `/api/telegram/file?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}${rich ? `&rich=${encodeURIComponent(rich)}` : ''}${download ? '&download=1' : ''}`;
     return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 

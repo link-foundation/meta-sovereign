@@ -223,6 +223,8 @@
     "test:e2e:instant-view:webkit": "E2E_BROWSER=webkit node js/tests/e2e-instant-view-browser.mjs",
     "test:e2e:rich-messages": "node js/tests/e2e-rich-messages-browser.mjs",
     "test:e2e:rich-messages:webkit": "E2E_BROWSER=webkit node js/tests/e2e-rich-messages-browser.mjs",
+    "test:e2e:rich-files": "node js/tests/e2e-rich-files-browser.mjs",
+    "test:e2e:rich-files:webkit": "E2E_BROWSER=webkit node js/tests/e2e-rich-files-browser.mjs",
     "test:e2e:inline-bots": "node js/tests/e2e-inline-bots-browser.mjs",
     "test:e2e:inline-bots:webkit": "E2E_BROWSER=webkit node js/tests/e2e-inline-bots-browser.mjs",
     "test:e2e:bot-commands:webkit": "E2E_BROWSER=webkit node js/tests/e2e-bot-commands-browser.mjs",

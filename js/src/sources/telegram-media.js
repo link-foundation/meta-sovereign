@@ -189,6 +189,9 @@ export const readCache = async (file) => {
   }
 };
 
+/** `document:<id>`: a whole file of a rich message (R-Y224). */
+export const RICH_DOCUMENT = /^document:\d{1,20}$/;
+
 const validRequest = (chat, msg, part, rich) =>
   CHAT.test(chat) &&
   whole(msg, 1) &&
@@ -331,9 +334,16 @@ export const fileLocation = (Api, helpers, doc) => {
   });
 };
 
+/** A document's file name (its DocumentAttributeFilename), or ''. */
+export const nameOf = (doc) =>
+  (
+    text((doc?.attributes ?? []).find((a) => a?.fileName)?.fileName) ?? ''
+  ).slice(0, 255);
+
 /**
- * `read({ chat, id })` → `{ buffer, mimeType }`, or null when the
- * message has no document, or `{ error: 'too-large', size }` when the
+ * `read({ chat, id, rich? })` → `{ buffer, mimeType, name }`, or null when
+ * the message has no document (`rich`: `document:<id>` of its rich message,
+ * R-Y224), or `{ error: 'too-large', size }` when the
  * file exceeds 64 MB. Concurrent requests for the same file share one
  * download. An expired file reference triggers one re-read and retry.
  */
@@ -363,72 +373,99 @@ export const createFileReader = ({
     return buffer?.length ? Buffer.from(buffer) : null;
   };
 
-  const getDoc = async (chat, id) => {
+  // The message's document, or the rich message's `document:<id>`
+  // (R-Y224; learned, never copied).
+  const getDoc = async (chat, id, rich = '') => {
     const link = await store.get(`msg:${SOURCE}:${chat}:${id}`);
+    if (rich) {
+      const want = rich.slice('document:'.length);
+      return (
+        (link?.raw?.richMessage?.documents ?? []).find(
+          (one) => text(one?.id) === want
+        ) ?? null
+      );
+    }
     const media = mediaOf(link?.raw);
     return media?.className === 'MessageMediaDocument' ? media.document : null;
   };
 
-  const downloadWithRetry = async (client, chat, id) => {
-    const doc = await getDoc(chat, id);
+  const downloadWithRetry = async (client, chat, id, rich) => {
+    const doc = await getDoc(chat, id, rich);
     if (!doc?.id) {
       return null;
     }
     try {
-      return { buffer: await download(client, doc), mimeType: doc.mimeType };
+      return {
+        buffer: await download(client, doc),
+        mimeType: doc.mimeType,
+        name: nameOf(doc),
+      };
     } catch (error) {
       if (!expired(error) || !refresh) {
         throw error;
       }
       log({ event: 'telegram_file_reference_expired' });
       await refresh({ chat, ids: [id], priority: 'list' });
-      const fresh = await getDoc(chat, id);
+      const fresh = await getDoc(chat, id, rich);
       if (!fresh?.id) {
         return null;
       }
       return {
         buffer: await download(client, fresh),
         mimeType: fresh.mimeType,
+        name: nameOf(fresh),
       };
     }
   };
 
-  const read = async ({ chat, id } = {}) => {
+  const fromDisk = async (file, buffer, doc, started) => {
+    const typeBuf = await readCache(`${file}.type`);
+    log({
+      event: 'telegram_file',
+      kind: docKind(doc),
+      bytes: buffer.length,
+      cached: true,
+      duration_ms: Date.now() - started,
+    });
+    return {
+      buffer,
+      mimeType: typeBuf?.toString() || 'application/octet-stream',
+      name: nameOf(doc),
+    };
+  };
+
+  const read = async ({ chat, id, rich = '' } = {}) => {
     const target = String(chat ?? '');
     const msg = Number(id);
-    if (!CHAT.test(target) || !Number.isInteger(msg) || msg <= 0) {
+    if (
+      !CHAT.test(target) ||
+      !Number.isInteger(msg) ||
+      msg <= 0 ||
+      (rich && !RICH_DOCUMENT.test(rich))
+    ) {
       return null;
     }
-    const file = path.join(dir, target, `${msg}-file`);
+    // Digits only, so the name stays inside the media folder.
+    const tag = rich ? `-${rich.replace(':', '')}` : '';
+    const file = path.join(dir, target, `${msg}-file${tag}`);
+    const opened = Date.now();
     const cachedBuf = await readCache(file);
+    const doc = await getDoc(target, msg, rich);
     if (cachedBuf) {
-      const typeBuf = await readCache(`${file}.type`);
-      const started = Date.now();
-      const doc = await getDoc(target, msg);
-      log({
-        event: 'telegram_file',
-        kind: docKind(doc),
-        bytes: cachedBuf.length,
-        cached: true,
-        duration_ms: Date.now() - started,
-      });
-      return {
-        buffer: cachedBuf,
-        mimeType: typeBuf?.toString() || 'application/octet-stream',
-      };
+      return fromDisk(file, cachedBuf, doc, opened);
     }
-
     // Check size before downloading.
-    const doc = await getDoc(target, msg);
     if (!doc?.id) {
       return null;
     }
     const size = Number(doc.size ?? 0);
-    if (size > MAX_FILE_BYTES) {
-      return { error: 'too-large', size };
-    }
+    return size > MAX_FILE_BYTES
+      ? { error: 'too-large', size }
+      : fetchFile(file, { target, msg, rich, doc });
+  };
 
-    const flightKey = `${target}:${msg}`;
+  const fetchFile = async (file, { target, msg, rich, doc }) => {
+    const flightKey = `${target}:${msg}:${rich}`;
     if (inFlight.has(flightKey)) {
       return inFlight.get(flightKey);
     }
@@ -438,7 +475,7 @@ export const createFileReader = ({
       return null;
     }
     const kind = docKind(doc);
-    const p = downloadWithRetry(client, target, msg)
+    const p = downloadWithRetry(client, target, msg, rich)
       .then(async (got) => {
         if (!got?.buffer) {
           return null;

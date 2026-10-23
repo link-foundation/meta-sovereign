@@ -11,6 +11,9 @@
  *   (`kind` 'photo' or 'document'), downloaded through the Telegram
  *   client with the media helpers (never from the page's own site) →
  *   `{ buffer, mimeType }` or null. Pages and pictures are kept in memory.
+ *   With `full: true` a document comes whole (up to 64 MB) with its name,
+ *   for a page's video, audio and files (R-Y224; learned, never copied);
+ *   the last two are kept so a player's range requests share one download.
  */
 
 import { runIn, connected, failureOf } from './telegram-stickers.js';
@@ -20,6 +23,7 @@ import {
   bigSize,
   documentPicture,
 } from './telegram-media.js';
+import { createWholeFiles } from './telegram-instant-view-whole.js';
 import { shapePage, safeHref } from './telegram-instant-view-shape.js';
 
 const CODES = {
@@ -81,6 +85,7 @@ export const createInstantView = (env, context) => {
   const pages = new Map(); // url -> { at, answer }
   const files = new Map(); // `kind:id` -> Photo | Document
   const bytes = new Map(); // `kind:id` -> { buffer, mimeType }
+  const wholeFile = createWholeFiles(env, context, files);
   const now = () => (env.now ? env.now() : Date.now());
 
   const remember = (page, shaped) => {
@@ -170,8 +175,11 @@ export const createInstantView = (env, context) => {
       : null;
   };
 
-  const instantViewFile = async ({ kind, id } = {}) => {
+  const instantViewFile = async ({ kind, id, full = false } = {}) => {
     const key = `${kind}:${id}`;
+    if (full && kind === 'document' && files.has(key) && ID.test(id)) {
+      return wholeFile(key);
+    }
     if (
       !KINDS.includes(kind) ||
       !ID.test(String(id ?? '')) ||

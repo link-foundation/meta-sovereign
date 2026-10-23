@@ -367,4 +367,5 @@ export const ruChatAccount = {
   'chat.service.walletConnectDeclined': 'Подключение кошелька отклонено',
   'chat.service.noPaidToken':
     'Вместо оплаты использован жетон бесплатного сообщения',
+  'chat.iv.download': 'Скачать',
 };
