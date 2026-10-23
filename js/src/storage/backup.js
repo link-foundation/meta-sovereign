@@ -20,6 +20,7 @@ import {
 } from 'node:crypto';
 import { putAll } from './universal.js';
 import { ensurePrivateDir, sweepTemp, writeFileDurable } from './durable.js';
+import { enoughSpace, skippedEvent } from './disk-space.js';
 
 const ENC_VERSION = 1;
 const KDF_N = 1 << 14;
@@ -109,11 +110,18 @@ export const verifyBackup = async (file, { passphrase = null } = {}) => {
  * rename, fsync of the folder), 0600, then read back; one that does not
  * verify is removed and the call fails. Secrets (`secret:*` links) go in
  * only when the archive is encrypted; otherwise they are left out and the
- * manifest says so (R-Z2).
+ * manifest says so (R-Z2). On a nearly full disk nothing is written and the
+ * answer is `{ skipped: true, reason: 'low_disk', needed, free }` (R-Z14).
  */
 export const makeBackup = async (
   store,
-  { archiveDir, now = new Date(), passphrase = null }
+  {
+    archiveDir,
+    now = new Date(),
+    passphrase = null,
+    onEvent = () => {},
+    measureFree,
+  }
 ) => {
   await ensurePrivateDir(archiveDir);
   const all = await store.query();
@@ -127,6 +135,15 @@ export const makeBackup = async (
     links,
   };
   const plaintext = JSON.stringify(manifest, null, 2);
+  // The archive is about as large as its text (a third more once encrypted
+  // and base64'd); on a nearly full disk it is skipped, not half written
+  // (R-Z14).
+  const estimate = Math.ceil(plaintext.length * (passphrase ? 1.4 : 1));
+  const space = await enoughSpace(archiveDir, estimate, measureFree);
+  if (!space.ok) {
+    onEvent(skippedEvent('backup_skipped', space));
+    return { skipped: true, reason: 'low_disk', ...space, links: 0 };
+  }
   const name = `meta-sovereign-${stamp(now)}.json${passphrase ? '.enc' : ''}`;
   const file = path.join(archiveDir, name);
   await writeFileDurable(
@@ -147,8 +164,15 @@ export const makeBackup = async (
   };
 };
 
-export const createBackup = async (store, options) =>
-  (await makeBackup(store, options)).file;
+export const createBackup = async (store, options) => {
+  const made = await makeBackup(store, options);
+  if (made.skipped) {
+    throw Object.assign(new Error('not enough free disk space for a backup'), {
+      code: 'LOW_DISK',
+    });
+  }
+  return made.file;
+};
 
 /**
  * Keep the newest `keep` archives. Nothing is deleted unless the newest

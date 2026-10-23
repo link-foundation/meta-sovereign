@@ -282,9 +282,9 @@ export const createMediaReader = ({
     if (!got?.buffer) {
       return null;
     }
-    await fs.mkdir(path.dirname(file), { recursive: true });
-    await fs.writeFile(file, got.buffer);
-    await fs.writeFile(`${file}.type`, got.mimeType);
+    await fs.mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
+    await fs.writeFile(file, got.buffer, { mode: 0o600 });
+    await fs.writeFile(`${file}.type`, got.mimeType, { mode: 0o600 });
     return got;
   };
 
@@ -480,9 +480,9 @@ export const createFileReader = ({
         if (!got?.buffer) {
           return null;
         }
-        await fs.mkdir(path.dirname(file), { recursive: true });
-        await fs.writeFile(file, got.buffer);
-        await fs.writeFile(`${file}.type`, got.mimeType ?? '');
+        await fs.mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
+        await fs.writeFile(file, got.buffer, { mode: 0o600 });
+        await fs.writeFile(`${file}.type`, got.mimeType ?? '', { mode: 0o600 });
         log({
           event: 'telegram_file',
           kind,

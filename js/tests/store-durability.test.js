@@ -158,7 +158,16 @@ test('opening a store tightens older loose files and folders', async () => {
     await fs.chmod(path.join(dir, name), 0o644);
   }
   await fs.chmod(path.join(dir, 'logs'), 0o755);
+  await fs.mkdir(path.join(dir, 'media', 'telegram', 'a'), { recursive: true });
+  await fs.writeFile(path.join(dir, 'media', 'telegram', 'a', 'p.jpg'), '');
+  for (const rel of ['media', 'media/telegram', 'media/telegram/a']) {
+    await fs.chmod(path.join(dir, rel), 0o755);
+  }
+  await fs.chmod(path.join(dir, 'media', 'telegram', 'a', 'p.jpg'), 0o644);
   await openDualStore(dir);
+  assert.equal(await mode(path.join(dir, 'media')), 0o700);
+  assert.equal(await mode(path.join(dir, 'media/telegram/a')), 0o700);
+  assert.equal(await mode(path.join(dir, 'media/telegram/a/p.jpg')), 0o600);
   for (const name of [
     'data.lino',
     'data.bin',

@@ -1001,4 +1001,8 @@ export const zh = {
   'greetings.textOnly': '仅文字',
 
   /* ---- Telegram 消息显示 ---- */
+
+  /* ---- R-Z14 ---- */
+  'disk.banner': '磁盘几乎已满 — 新消息可能无法保存',
+  'disk.dismiss': '隐藏',
 };

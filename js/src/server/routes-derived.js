@@ -12,6 +12,7 @@ import { extractFacts } from '../facts/index.js';
 import { localSearch } from '../crm/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
+import { diskHealth } from '../storage/disk-space.js';
 
 const computeStatus = (all, diffs) => ({
   links: all.length,
@@ -116,14 +117,21 @@ const HANDLERS = {
         min: Number(url.searchParams.get('min') ?? 0.2),
       }
     ),
-  '/api/health': async (store) => ({
-    ok: true,
-    links: (await store.query()).length,
-    time: new Date().toISOString(),
-  }),
+  // `disk` and `store` tell the page when new messages may not be saved
+  // (R-Z14); `freeBytes` is null when the platform cannot say.
+  '/api/health': async (store, _url, ctx = {}) => {
+    const { degraded = false, queuedBytes = 0 } = ctx.storeHealth?.() ?? {};
+    return {
+      ok: true,
+      links: (await store.query()).length,
+      time: new Date().toISOString(),
+      disk: await diskHealth(ctx.storeDir ?? '.', ctx.diskFree),
+      store: { degraded, queuedBytes },
+    };
+  },
 };
 
-export const handleDerivedRoutes = async (store, req, res, p, url) => {
+export const handleDerivedRoutes = async (store, req, res, p, url, ctx) => {
   if (req.method !== 'GET') {
     return false;
   }
@@ -131,5 +139,5 @@ export const handleDerivedRoutes = async (store, req, res, p, url) => {
   if (!handler) {
     return false;
   }
-  return json(res, 200, await handler(store, url)) ?? true;
+  return json(res, 200, await handler(store, url, ctx)) ?? true;
 };

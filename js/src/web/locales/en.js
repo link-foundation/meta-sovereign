@@ -1039,4 +1039,8 @@ export const en = {
   /* ---- Telegram message display (chat-message.js / message-parts.js) ---- */
 
   /* Service message strings */
+
+  /* ---- R-Z14 ---- */
+  'disk.banner': 'Disk almost full — new messages may not be saved',
+  'disk.dismiss': 'Hide',
 };

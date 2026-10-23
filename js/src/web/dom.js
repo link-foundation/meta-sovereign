@@ -541,6 +541,11 @@ const rawApi = {
     const { client } = await ensure();
     return client.isOnline();
   },
+  // The server's disk and store health, null when it cannot be asked (R-Z14).
+  health: async () => {
+    const response = await serverResponse('/api/health');
+    return response?.ok ? response.json().catch(() => null) : null;
+  },
   on: async (handler) => {
     const { client } = await ensure();
     return client.on(handler);

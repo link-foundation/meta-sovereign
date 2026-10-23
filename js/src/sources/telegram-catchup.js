@@ -49,6 +49,20 @@ export const ptsStep = (update) =>
     ? { pts: Number(update.pts), count: Number(update.ptsCount) }
     : null;
 
+/**
+ * An update was seen but its store write failed: put the counter's `state`
+ * back to just before it, so the difference that follows brings it again
+ * (R-Z14). True when the counter moved.
+ */
+export const rewindPts = (state, update) => {
+  const step = ptsStep(update);
+  if (!step || !state || state.pts <= step.pts - step.count) {
+    return false;
+  }
+  state.pts = step.pts - step.count;
+  return true;
+};
+
 /** A user or chat as GramJS's marked peer id (what `_entities` uses). */
 export const markedId = (entity) => {
   const id = String(entity?.id?.value ?? entity?.id ?? '');
@@ -219,7 +233,9 @@ const replay = async ({ client, handle, channelTooLong }, result) => {
       continue;
     }
     update._entities = entities;
-    await handle(client, update);
+    // Strict: a store write that fails stops the replay before the
+    // counter moves, so the next try fetches the same updates (R-Z14).
+    await handle(client, update, { strict: true });
   }
   return updates.length;
 };

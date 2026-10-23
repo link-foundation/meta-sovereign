@@ -18,8 +18,10 @@
  */
 
 import { promises as fs } from 'node:fs';
+import path from 'node:path';
 import { getHeapStatistics } from 'node:v8';
 import { Worker } from 'node:worker_threads';
+import { enoughSpace, skippedEvent } from './disk-space.js';
 
 const MIN_INTERVAL_MS = 60_000;
 
@@ -156,11 +158,26 @@ export const createDoubletsMirror = async (
     minIntervalMs = MIN_INTERVAL_MS,
     snapshot = snapshotInWorker,
     onError = () => {},
+    onEvent = () => {},
+    measureFree,
   }
 ) => {
+  // The new file is as large as the old one (or, the first time, about as
+  // large as the log): without that much free plus a margin, skip it
+  // rather than fill the disk the log needs (R-Z14).
+  const spaceFor = async () => {
+    const size = (await fs.stat(filePath).catch(() => null))?.size;
+    const log = (await fs.stat(text.filePath).catch(() => null))?.size ?? 0;
+    return enoughSpace(path.dirname(filePath), size ?? log, measureFree);
+  };
   const snapshots = createSnapshots({
     run: async () => {
       await text.flush(); // every write so far is in the log
+      const space = await spaceFor();
+      if (!space.ok) {
+        onEvent(skippedEvent('snapshot_skipped', space));
+        return { links: 0, bytes: 0, skipped: true };
+      }
       return snapshot(text.filePath, filePath);
     },
     minIntervalMs,

@@ -1034,4 +1034,8 @@ export const hi = {
   'greetings.textOnly': 'केवल टेक्स्ट',
 
   /* ---- Telegram संदेश प्रदर्शन ---- */
+
+  /* ---- R-Z14 ---- */
+  'disk.banner': 'डिस्क लगभग भर चुकी है — नए संदेश सहेजे न जा सकें',
+  'disk.dismiss': 'छिपाएँ',
 };

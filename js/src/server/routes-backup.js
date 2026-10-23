@@ -65,6 +65,17 @@ const handleCreate = async (store, req, res, archiveDir, fallback) => {
   const passphrase = body.passphrase || fallback || null;
   try {
     const made = await makeBackup(store, { archiveDir, passphrase });
+    if (made.skipped) {
+      // Fail closed and say why (R-Z14).
+      json(res, 507, {
+        ok: false,
+        error: 'Not enough free disk space for a backup',
+        code: 'LOW_DISK',
+        needed: made.needed,
+        free: made.free,
+      });
+      return true;
+    }
     if (typeof body.keep === 'number' && body.keep > 0) {
       await pruneBackups({ archiveDir, keep: body.keep, passphrase });
     }

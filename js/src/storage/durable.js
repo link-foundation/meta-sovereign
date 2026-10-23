@@ -74,15 +74,22 @@ export const writeFileDurable = async (
   const tmp = `${file}.${process.pid}${tag}.tmp`;
   const handle = await fs.open(tmp, 'w', FILE_MODE);
   try {
-    await handle.writeFile(data);
-    if (utime) {
-      await handle.utimes(utime[0], utime[1]);
+    try {
+      await handle.writeFile(data);
+      if (utime) {
+        await handle.utimes(utime[0], utime[1]);
+      }
+      await handle.sync();
+    } finally {
+      await handle.close();
     }
-    await handle.sync();
-  } finally {
-    await handle.close();
+    await fs.rename(tmp, file);
+  } catch (error) {
+    // A full disk: the half-written temp file goes at once, not at the
+    // next start (R-Z14).
+    await fs.unlink(tmp).catch(() => {});
+    throw error;
   }
-  await fs.rename(tmp, file);
   await fsyncDir(dir);
 };
 

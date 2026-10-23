@@ -24,6 +24,7 @@ import { LanguageSwitcher } from './language-switcher.js';
 import { AppShell } from './shell/app-shell.js';
 import { useAppearance, useApplyAppearance } from './appearance.js';
 import { WebModeBanner } from './web-mode-banner.js';
+import { DiskBanner } from './disk-banner.js';
 import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
 import { ModeBadge } from './telegram-online.js';
@@ -203,6 +204,7 @@ const App = () => {
             'data-view': active,
           },
           [
+            el(DiskBanner, { key: 'disk', api }),
             el(WebModeBanner, {
               key: 'web-mode',
               online,

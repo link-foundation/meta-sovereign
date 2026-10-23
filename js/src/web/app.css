@@ -12304,3 +12304,23 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
   min-height: 0;
   padding: 0.1rem 0.6rem;
 }
+
+/* Disk almost full (R-Z14): a quiet, dismissible strip above the views. */
+.disk-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--bg-elev);
+  color: var(--text);
+}
+.disk-banner > span {
+  flex: 1;
+}
+main[data-view='chat'] > .disk-banner {
+  margin: 0.75rem;
+}

@@ -29,6 +29,8 @@ import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore } from './universal.js';
 import { parseLino } from './lino.js';
 import { FILE_MODE, fsyncDir, fsyncFile, tighten } from './durable.js';
+import { enoughSpace, skippedEvent } from './disk-space.js';
+import { createWriteQueue, storeError, writeFailed } from './write-queue.js';
 
 const legacyNodeToLink = (node) => {
   const [id, ...tokens] = node.tokens;
@@ -381,16 +383,23 @@ export const readLinoFile = async (filePath) => {
 const rewriteFile = async (filePath, links) => {
   await fs.mkdir(path.dirname(filePath), { recursive: true, mode: 0o700 });
   const tmp = `${filePath}.${process.pid}.tmp`;
-  const handle = await fs.open(tmp, 'w', FILE_MODE);
   try {
-    for (let at = 0; at < links.length; at += CHUNK) {
-      await handle.write(formatLinoRecords(links.slice(at, at + CHUNK)));
+    const handle = await fs.open(tmp, 'w', FILE_MODE);
+    try {
+      for (let at = 0; at < links.length; at += CHUNK) {
+        await handle.write(formatLinoRecords(links.slice(at, at + CHUNK)));
+      }
+      await handle.sync();
+    } finally {
+      await handle.close();
     }
-    await handle.sync();
-  } finally {
-    await handle.close();
+    await fs.rename(tmp, filePath);
+  } catch (error) {
+    // The half-written copy goes at once: on a full disk it is what
+    // keeps the disk full (R-Z14).
+    await fs.unlink(tmp).catch(() => {});
+    throw error;
   }
-  await fs.rename(tmp, filePath);
   await fsyncDir(path.dirname(filePath));
 };
 
@@ -450,6 +459,116 @@ const createTally = (loaded, { compactAfter, compactBytes }) => {
 // number of links written.
 const SYNC_MS = 200;
 
+// A compaction skipped for lack of space is asked again after this long (R-Z14).
+const COMPACT_RETRY_MS = 10 * 60_000;
+
+// Flushes appends to disk together, `syncMs` after the first (R-Z2).
+const createSyncer = (filePath, syncMs, enqueue) => {
+  let dirty = false; // appended but not yet flushed to disk
+  let timer = null;
+  const now = async () => {
+    if (dirty) {
+      dirty = false;
+      try {
+        await fsyncFile(filePath);
+      } catch (error) {
+        dirty = true; // not durable yet: the next flush tries again
+        throw error;
+      }
+    }
+  };
+  return {
+    now,
+    clean: () => {
+      dirty = false;
+    },
+    soon: () => {
+      dirty = true;
+      if (timer) {
+        return;
+      }
+      timer = globalThis.setTimeout(() => {
+        timer = null;
+        enqueue(now).catch(() => {});
+      }, syncMs);
+      timer.unref?.();
+    },
+  };
+};
+
+const compactionFailed = (onEvent) => (error) =>
+  onEvent({
+    level: 'warn',
+    event: 'compaction_failed',
+    code: error?.code ?? null,
+  });
+
+// The log rewritten with one line per live link, after the unreadable
+// lines were set aside (R-Z2); skipped when the disk has no room for the
+// copy (R-Z14). `{ skipped }`.
+const compactLog = async ({ filePath, bad, mem, onCorrupt, onEvent, free }) => {
+  if (bad.overflow) {
+    return { skipped: false }; // more unreadable lines than can be kept
+  }
+  const size = (await fs.stat(filePath).catch(() => null))?.size ?? 0;
+  const space = await enoughSpace(path.dirname(filePath), size, free);
+  if (!space.ok) {
+    onEvent(skippedEvent('compaction_skipped', space));
+    return { skipped: true };
+  }
+  if (bad.lines.length > 0) {
+    const file = await quarantine(filePath, bad.lines);
+    onCorrupt({ count: bad.lines.length, file, quarantined: true });
+    bad.lines = [];
+    bad.count = 0;
+  }
+  await rewriteFile(filePath, await mem.query());
+  return { skipped: false };
+};
+
+// Writes wait here and go to disk as one append (group commit); each
+// caller resolves when its batch is written. A batch the disk refused
+// rejects every put in it with STORE_WRITE_FAILED (R-Z14).
+const createAppender = ({
+  wq,
+  syncer,
+  enqueue,
+  maintain,
+  rewriting,
+  compactOrThrow,
+}) => {
+  let batch = [];
+  const drain = async () => {
+    const jobs = batch;
+    batch = [];
+    if (!rewriting()) {
+      wq.push(Buffer.from(jobs.map((j) => j.texts.join('')).join('')));
+    }
+    try {
+      const down = wq.down();
+      if (down) {
+        throw down; // the retry timer writes; no hammering
+      }
+      await (rewriting() ? compactOrThrow() : wq.write());
+    } catch (error) {
+      wq.fail(error);
+      const failure = writeFailed(error);
+      jobs.forEach((job) => job.reject(failure));
+      return;
+    }
+    syncer.soon();
+    jobs.forEach((job) => job.resolve());
+    await maintain();
+  };
+  return (texts) =>
+    new Promise((resolve, reject) => {
+      batch.push({ texts, resolve, reject });
+      if (batch.length === 1) {
+        enqueue(drain);
+      }
+    });
+};
+
 const readOnlyError = () =>
   Object.assign(new Error('the store was opened read-only'), {
     code: 'STORE_READ_ONLY',
@@ -463,6 +582,12 @@ export const createLinoTextStore = async (
     syncMs = SYNC_MS,
     readOnly = false,
     onCorrupt = () => {},
+    // `{ level, event, ... }`: degraded, recovered, compaction_skipped (R-Z14).
+    onEvent = () => {},
+    // The write queue's `{ retryMs, retryMaxMs, maxQueueBytes, openAppend }`
+    // (tests inject an append handle that fails).
+    queue: queueOptions = {},
+    measureFree,
   } = {}
 ) => {
   const mem = createMemoryStore();
@@ -477,7 +602,6 @@ export const createLinoTextStore = async (
     onCorrupt({ count: bad.count, file: filePath });
   }
   let rewrite = loaded.legacy && !readOnly; // the next write rewrites it all
-  let open = loaded.open;
   if (!readOnly) {
     await tighten(filePath);
   }
@@ -489,80 +613,75 @@ export const createLinoTextStore = async (
     tail = run.catch(() => {});
     return run;
   };
-  let dirty = false; // appended but not yet flushed to disk
-  let syncTimer = null;
-  const syncNow = async () => {
-    if (dirty) {
-      dirty = false;
-      await fsyncFile(filePath);
-    }
-  };
-  const syncSoon = () => {
-    if (syncTimer) {
-      return;
-    }
-    syncTimer = globalThis.setTimeout(() => {
-      syncTimer = null;
-      enqueue(syncNow).catch(() => {});
-    }, syncMs);
-    syncTimer.unref?.();
-  };
+  const syncer = createSyncer(filePath, syncMs, enqueue);
+  let compactAfterAt = 0; // not before (a compaction was skipped)
   const compact = async () => {
-    if (bad.overflow) {
-      return; // more unreadable lines than can be kept: never destroy them
+    const done = await compactLog({
+      filePath,
+      bad,
+      mem,
+      onCorrupt,
+      onEvent,
+      free: measureFree,
+    });
+    if (done.skipped) {
+      compactAfterAt = Date.now() + COMPACT_RETRY_MS;
+      return done;
     }
-    if (bad.lines.length > 0) {
-      const file = await quarantine(filePath, bad.lines);
-      onCorrupt({ count: bad.lines.length, file, quarantined: true });
-      bad.lines = [];
-      bad.count = 0;
+    if (!bad.overflow) {
+      syncer.clean();
+      tally.compacted();
+      rewrite = false;
+      wq.rewritten();
     }
-    const links = await mem.query();
-    await rewriteFile(filePath, links);
-    dirty = false;
-    tally.compacted();
-    rewrite = false;
-    open = false;
+    return done;
   };
   // Writes wait here and go to disk as one append (group commit); each
   // caller resolves when its batch is written. `texts` are encoded at call
   // time, so later changes to the objects cannot leak into the file.
-  let batch = [];
-  const drain = async () => {
-    const jobs = batch;
-    batch = [];
+  //
+  // Memory is updated BEFORE the disk write (R-Z14), so reads see a change
+  // at once. The invariant: whatever a caller was told is saved is on disk,
+  // and whatever could not be written stays in `queue` (bounded) and is
+  // retried until it is; a put whose batch failed rejects with
+  // STORE_WRITE_FAILED ("not confirmed") but its text is still queued, so
+  // the disk converges to memory once the disk allows. Nothing is dropped
+  // silently; past `maxQueueBytes` new puts are refused (STORE_FULL) before
+  // they touch memory.
+  const wq = createWriteQueue({
+    ...queueOptions,
+    filePath,
+    onEvent,
+    enqueue,
+    open: loaded.open,
+    attempt: () => (rewrite ? compactOrThrow() : wq.write()),
+    onRecovered: syncer.soon,
+  });
+  const compactOrThrow = async () => {
+    const done = await compact();
+    if (done?.skipped) {
+      throw storeError('ENOSPC', 'not enough free space to rewrite the log');
+    }
+  };
+  const maintain = async () => {
+    // The batch is on disk by now; a failed compaction costs nothing but
+    // the rewrite, so it never fails the writes (R-Z14).
     try {
-      if (rewrite) {
-        await compact(); // the memory store already holds these writes
-      } else {
-        const text = jobs.map((job) => job.texts.join('')).join('');
-        await fs.mkdir(path.dirname(filePath), {
-          recursive: true,
-          mode: 0o700,
-        });
-        await fs.appendFile(filePath, open ? `\n${text}` : text, {
-          mode: FILE_MODE,
-        });
-        open = false;
-        dirty = true;
-        syncSoon();
-        if (tally.superseded()) {
-          await compact();
-        }
+      if (tally.superseded() && Date.now() >= compactAfterAt) {
+        await compact();
       }
     } catch (error) {
-      jobs.forEach((job) => job.reject(error));
-      return;
+      compactionFailed(onEvent)(error);
     }
-    jobs.forEach((job) => job.resolve());
   };
-  const append = (texts) =>
-    new Promise((resolve, reject) => {
-      batch.push({ texts, resolve, reject });
-      if (batch.length === 1) {
-        enqueue(drain);
-      }
-    });
+  const append = createAppender({
+    wq,
+    syncer,
+    enqueue,
+    maintain,
+    rewriting: () => rewrite,
+    compactOrThrow,
+  });
   // Each link's line, counted as written.
   const lineOf = (link) => {
     const text = formatLinoRecords([link]);
@@ -570,12 +689,14 @@ export const createLinoTextStore = async (
     return text;
   };
   if (!readOnly && tally.superseded()) {
-    await enqueue(compact);
+    // A failed (or skipped) compaction must not stop the store opening.
+    await enqueue(compact).catch(compactionFailed(onEvent));
   }
   const guard = () => {
     if (readOnly) {
       throw readOnlyError();
     }
+    wq.guard();
   };
 
   return {
@@ -603,12 +724,21 @@ export const createLinoTextStore = async (
       return ok;
     },
     /** Resolves once every write so far is on disk (flushed, not just written). */
-    flush: () => enqueue(syncNow),
+    flush: () =>
+      enqueue(async () => {
+        // Never claim "on disk" for what is still waiting (R-Z14).
+        if (wq.down() && !(await wq.retry())) {
+          throw writeFailed(wq.down());
+        }
+        await syncer.now();
+      }),
     /** Rewrite the file with one line per live link. */
     compact: () => {
       guard();
       return enqueue(compact);
     },
+    /** `{ degraded, queuedBytes, error }`: whether writes are failing (R-Z14). */
+    health: wq.health,
     /** Lines that could not be read when the log was opened. */
     corruptLines: () => bad.count,
     filePath,

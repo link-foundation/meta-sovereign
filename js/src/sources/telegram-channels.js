@@ -92,6 +92,27 @@ const cover = async ({ store, now }, chat, ids, gap) => {
   await store.put(historyLink(chat, next));
 };
 
+const channelWarn = (log) => (error) =>
+  log({
+    level: 'warn',
+    event: 'telegram_channel_catch_up_failed',
+    code: error?.code ?? null,
+    error: error?.message,
+  });
+
+// A live update was not stored: the channel's number goes back to just
+// before it (R-Z14). Returns the chat to catch up, or null.
+const rewindChannel = (states, dirty, update) => {
+  const step = channelStep(update);
+  const state = step && !step.tooLong ? states.get(step.chat) : null;
+  if (!state || !(state.pts > step.pts - step.count)) {
+    return null;
+  }
+  states.set(step.chat, { ...state, pts: step.pts - step.count, at: 0 });
+  dirty.add(step.chat);
+  return step.chat;
+};
+
 const replay = async (ctx, client, chat, result, gap) => {
   const entities = entitiesOf(result);
   const messages = result.newMessages ?? result.messages ?? [];
@@ -104,7 +125,9 @@ const replay = async (ctx, client, chat, result, gap) => {
   ];
   for (const update of updates) {
     update._entities = entities;
-    await ctx.handle(client, update);
+    // Strict: the channel's number must not pass an update that was not
+    // stored (R-Z14).
+    await ctx.handle(client, update, { strict: true });
   }
   await cover(
     ctx,
@@ -134,6 +157,7 @@ export const createChannelSync = ({
   timers = globalThis,
 }) => {
   const ctx = { store, handle, now };
+  const warnFailed = channelWarn(log);
   const states = new Map(); // chat -> { pts, at } (at: last caught up)
   const dirty = new Set();
   const opened = new Map(); // chat -> when the user last read it
@@ -265,16 +289,18 @@ export const createChannelSync = ({
     }
   };
 
+  // A live channel update that could not be stored: the channel is caught
+  // up again from just before it, so it is fetched, not lost (R-Z14).
+  const failed = (update) => {
+    const chat = rewindChannel(states, dirty, update);
+    if (chat) {
+      difference(chat).catch(warnFailed);
+    }
+  };
+
   return {
-    observe: (update) =>
-      observe(update).catch((error) =>
-        log({
-          level: 'warn',
-          event: 'telegram_channel_catch_up_failed',
-          code: error?.code ?? null,
-          error: error?.message,
-        })
-      ),
+    failed,
+    observe: (update) => observe(update).catch(warnFailed),
     seed,
     difference,
     /** Whether a channel's number is known (it can be caught up). */

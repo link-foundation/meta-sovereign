@@ -542,7 +542,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleMessageRoutes(store, req, res, p, url, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),
     () => ctx.learned?.(store, req, res, p, url, ctx) ?? false,
-    () => handleDerivedRoutes(store, req, res, p, url),
+    () => handleDerivedRoutes(store, req, res, p, url, ctx),
   ]) {
     if (await handle()) {
       return;
@@ -576,6 +576,8 @@ const initStore = async ({
           event: 'store_snapshot_failed',
           error: error.message,
         }),
+      // A full disk: degraded, recovered, *_skipped (R-Z14).
+      onEvent: (event) => log?.(event),
     });
     // The binary snapshot may have missed the last writes (a crash).
     await store.reconcile();
@@ -592,7 +594,10 @@ const initStore = async ({
   if (secretPassphrase) {
     store = wrapSecretStore({ inner: store, passphrase: secretPassphrase });
   }
-  return { store, resolvedArchiveDir, flush };
+  // The unwritten-changes state for /api/health (R-Z14).
+  const storeHealth = () =>
+    unwrapped.health?.() ?? { degraded: false, queuedBytes: 0 };
+  return { store, resolvedArchiveDir, flush, storeHealth };
 };
 
 // The HTTP server: each request is logged, and routed (./account-scope.js
@@ -664,6 +669,16 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
   return { wsHandle, signaling };
 };
 
+// The automations' part of the context, fed by the Telegram account.
+const automationFor = (store, automations, log, telegramAccount, later) =>
+  automationContext(
+    store,
+    automations,
+    log,
+    accountSources(telegramAccount),
+    later
+  );
+
 export const startServer = async ({
   port = 0,
   storeDir = '.meta-sovereign',
@@ -703,8 +718,10 @@ export const startServer = async ({
   // HTTPS on the same port for Safari (./local-tls.js, R-Y64); off
   // unless asked for, `serve` turns it on.
   tls,
+  // Tests: a fake `(dir) => bytes|null` for the free disk space (R-Z14).
+  diskFree,
 } = {}) => {
-  const { store, resolvedArchiveDir, flush } = await initStore({
+  const { store, resolvedArchiveDir, flush, storeHealth } = await initStore({
     providedStore,
     storeDir,
     archiveDir,
@@ -735,15 +752,11 @@ export const startServer = async ({
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
-    ...automationContext(
-      store,
-      automations,
-      log,
-      accountSources(telegramAccount),
-      later
-    ),
+    ...automationFor(store, automations, log, telegramAccount, later),
     ...greetingContext(greetings),
     storeDir,
+    storeHealth,
+    diskFree,
     passcode: createPasscodeLock({ dir: storeDir }),
     log,
     clientLog: createClientLogRoute(),

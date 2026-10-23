@@ -382,6 +382,16 @@ const MANY_CHATS = new Set([
   'phone-call',
 ]);
 
+// The log line for an update that could not be stored (R-Z14).
+const reportFailure = (log, effect, error) =>
+  log({
+    level: 'error',
+    event: 'telegram_update_failed',
+    kind: effect.kind,
+    code: error.code ?? null,
+    error: error.message,
+  });
+
 /**
  * Apply live updates to the store.
  *   toLinks(dialog, messages)  the sync's message mapping
@@ -397,6 +407,9 @@ export const createTelegramLive = ({
   now = () => Date.now(),
   // A private call's update goes to the call machine (R-Y196).
   onPhoneCall = async () => {},
+  // A live update whose store write failed: the update counters step
+  // back so the next catch-up fetches it again (R-Z14).
+  onFailed = () => {},
 }) => {
   const entityOf = (entities, id) =>
     id === null || id === undefined
@@ -516,8 +529,12 @@ export const createTelegramLive = ({
     return write ? write(client, effect) : false;
   };
 
-  /** One raw GramJS update. */
-  const handle = async (client, update) => {
+  /**
+   * One raw GramJS update. A failure is logged and swallowed, unless
+   * `strict` (a catch-up replaying a difference): then it is thrown, so
+   * the counter never moves past an update that was not stored (R-Z14).
+   */
+  const handle = async (client, update, { strict = false } = {}) => {
     const effect = updateEffect(update);
     if (!effect) {
       return;
@@ -527,12 +544,15 @@ export const createTelegramLive = ({
         await touch();
       }
     } catch (error) {
-      log({
-        level: 'error',
-        event: 'telegram_update_failed',
-        kind: effect.kind,
-        error: error.message,
-      });
+      reportFailure(log, effect, error);
+      if (strict) {
+        throw error;
+      }
+      try {
+        onFailed(update);
+      } catch {
+        // the hook must not turn a logged failure into a crash
+      }
     }
   };
 

@@ -41,7 +41,7 @@ import {
   readLink,
 } from './telegram-account-live.js';
 import { BACKFILL_EVERY_MS, createBackfill } from './telegram-backfill.js';
-import { createTelegramCatchUp } from './telegram-catchup.js';
+import { createTelegramCatchUp, rewindPts } from './telegram-catchup.js';
 import { createChannelSync } from './telegram-channels.js';
 import {
   createFetchQueue,
@@ -963,6 +963,15 @@ const draftOptions = (draft) => {
   };
 };
 
+// A live update whose store write failed: the counters step back and the
+// difference is fetched again, so it is not lost (R-Z14).
+const failedLive = (env, update) => {
+  if (rewindPts(env.catchUp?.state(), update)) {
+    env.catchUp.run('store-failed').catch(() => {});
+  }
+  env.channels?.failed(update);
+};
+
 /** history / post / setTyping through the connected account. */
 const createMessaging = (env) => {
   const { store, connection, botLive, importer, now } = env;
@@ -1310,6 +1319,8 @@ export const createTelegramAccount = ({
     log,
     now,
     onPhoneCall: (client, effect) => env.phoneCalls?.handle(client, effect),
+    // A live update that could not be stored is fetched again (R-Z14).
+    onFailed: (update) => failedLive(env, update),
     // Pollers (no event stream) look at `changedAt` to know to refresh.
     touch: () =>
       recordSync(store, { changedAt: new Date(now()).toISOString() }),

@@ -60,6 +60,9 @@ export const createDualStore = ({ binary, text }) => ({
     await binary.flush?.();
     await text.flush?.();
   },
+  /** `{ degraded, queuedBytes }`: whether the log's writes are failing (R-Z14). */
+  health: () =>
+    text.health?.() ?? { degraded: false, queuedBytes: 0, error: null },
   async reconcile() {
     if (binary.mirrors === text) {
       return binary.refresh();
@@ -114,8 +117,27 @@ const readOnlyStore = (text) => ({
   flush: async () => {},
   reconcile: async () => ({ put: 0, deleted: 0 }),
   corruptLines: text.corruptLines,
+  health: () => ({ degraded: false, queuedBytes: 0, error: null }),
   readOnly: true,
 });
+
+// A folder and everything below it (the downloaded pictures and files).
+const tightenTree = async (folder) => {
+  if (!(await fs.stat(folder).catch(() => null))) {
+    return;
+  }
+  await tighten(folder, DIR_MODE);
+  for (const entry of await fs
+    .readdir(folder, { withFileTypes: true })
+    .catch(() => [])) {
+    const full = path.join(folder, entry.name);
+    if (entry.isDirectory()) {
+      await tightenTree(full);
+    } else if (entry.isFile()) {
+      await tighten(full);
+    }
+  }
+};
 
 // Everything in the store folder is private to the user (R-Z2): the files
 // are tightened when the store opens (cheap, idempotent); new ones are
@@ -132,6 +154,7 @@ const tightenFolder = async (dir) => {
       await tighten(path.join(folder, name));
     }
   }
+  await tightenTree(path.join(dir, 'media'));
   await sweepTemp(dir);
 };
 
@@ -141,10 +164,12 @@ const tightenFolder = async (dir) => {
  * `STORE_LOCKED` when another process holds it; `readOnly: true` takes no
  * lock, never writes or compacts, and works while `serve` runs.
  * `onCorrupt({ count, file })` hears of unreadable lines (never their text).
+ * `onEvent({ level, event, ... })` hears of a full disk (R-Z14): store_degraded,
+ * store_recovered, compaction_skipped, snapshot_skipped.
  */
 export const openDualStore = async (
   dir,
-  { onError, onCorrupt, readOnly = false } = {}
+  { onError, onCorrupt, onEvent, readOnly = false } = {}
 ) => {
   await ensurePrivateDir(dir);
   if (readOnly) {
@@ -160,10 +185,12 @@ export const openDualStore = async (
     await tightenFolder(dir);
     const text = await createLinoTextStore(path.join(dir, 'data.lino'), {
       onCorrupt,
+      onEvent,
     });
     const binary = await createDoubletsMirror(path.join(dir, 'data.bin'), {
       text,
       onError,
+      onEvent,
     });
     return {
       ...createDualStore({ binary, text }),

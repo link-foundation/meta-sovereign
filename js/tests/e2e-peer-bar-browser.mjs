@@ -46,7 +46,11 @@ for (const [chat, name, type] of [
   });
 }
 
-const { base, page, until, finish } = await openChatApp('peer-bar', { store });
+const { base, page, until, finish } = await openChatApp('peer-bar', {
+  store,
+  // 200 MB free: the page warns that the disk is almost full (R-Z14).
+  serverOptions: { diskFree: async () => 200 * 1024 * 1024 },
+});
 await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );
@@ -78,6 +82,16 @@ const done = (name, chat) => calls.some(([n, c]) => n === name && c === chat);
 
 await finish(async () => {
   await page.goto(`${base}/`);
+
+  // The disk-almost-full notice (R-Z14): shown, then hidden for the session.
+  const banner = page.locator('.disk-banner');
+  await banner.waitFor({ timeout: 10000 });
+  assert(
+    (await banner.textContent()).includes('Disk almost full'),
+    'the banner says the disk is almost full'
+  );
+  await banner.locator('[data-action="disk-banner-dismiss"]').click();
+  await until(async () => (await banner.count()) === 0, 'the banner goes');
 
   // A stranger: who they are, and Telegram's three offers in order.
   await open(ANN);

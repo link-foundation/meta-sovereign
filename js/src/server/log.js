@@ -69,22 +69,72 @@ const sizeOf = (file) => {
   }
 };
 
-export const jsonLog =
-  ({ write = (line) => process.stdout.write(line) } = {}) =>
-  (entry) =>
-    write(formatLine(entry));
+/**
+ * Wrap sinks so a log line never throws (R-Z14): a full disk made a
+ * stdout/file write throw inside the uncaughtException handler, and the
+ * logger crashed while reporting a crash. A line that cannot be written is
+ * counted; the next time writing works one `log_lines_dropped` summary
+ * (with the count) is written first.
+ */
+export const createSafeWriter = (sinks) => {
+  let dropped = 0;
+  const attempt = (sink, line) => {
+    try {
+      sink(line);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const write = (line) => {
+    let ok = true;
+    for (const sink of sinks) {
+      ok = attempt(sink, line) && ok;
+    }
+    return ok;
+  };
+  const emit = (line) => {
+    if (dropped > 0) {
+      const summary = formatLine({
+        level: 'warn',
+        event: 'log_lines_dropped',
+        count: dropped,
+      });
+      if (write(summary)) {
+        dropped = 0;
+      }
+    }
+    if (!write(line)) {
+      dropped += 1;
+    }
+  };
+  emit.drop = () => {
+    dropped += 1; // lost later (an asynchronous stream error)
+  };
+  emit.dropped = () => dropped;
+  return emit;
+};
+
+export const jsonLog = ({
+  write = (line) => process.stdout.write(line),
+} = {}) => {
+  const emit = createSafeWriter([write]);
+  return (entry) => emit(formatLine(entry));
+};
 
 /**
  * The verbose, file-backed logger the running server uses by default.
  * Appends every entry to `<storeDir>/logs/meta-sovereign.log` and (unless
  * `toStdout` is false) mirrors it to stdout. Returns the logger, the log
  * file path (so the CLI can point the user at it), and a `close()`.
+ * Writing never throws; see `createSafeWriter`.
  */
 export const createServerLog = async ({
   storeDir,
   toStdout = true,
   maxBytes = MAX_BYTES,
   keep = KEEP_FILES,
+  stdout = (line) => process.stdout.write(line),
 } = {}) => {
   const dir = path.join(storeDir ?? '.meta-sovereign', 'logs');
   await mkdir(dir, { recursive: true, mode: 0o700 });
@@ -95,36 +145,44 @@ export const createServerLog = async ({
     rotate(file, keep);
     size = 0;
   }
+  let emit = null;
   const open = () => {
     // Opened now, not lazily, so a rotation right after finds the file.
     const stream = createWriteStream(file, {
       fd: openSync(file, 'a', 0o600),
     });
-    stream.on('error', () => {}); // a full disk must not crash the server
+    // A full disk must not crash the server; the failed stream is
+    // replaced on the next line, and what it lost is counted.
+    stream.on('error', () => {
+      emit?.drop();
+      if (out === stream) {
+        out = null;
+      }
+    });
     return stream;
   };
   let out = open();
   await chmod(file, 0o600).catch(() => {}); // an older log was 0644
-  const log = (entry) => {
-    const line = formatLine(entry);
+  const toFile = (line) => {
     if (size + line.length > maxBytes && size > 0) {
       const finished = out;
       rotate(file, keep); // the old stream keeps writing to the renamed file
-      out = open();
+      out = null;
       size = 0;
-      finished.end();
+      finished?.end();
     }
+    out ??= open();
     out.write(line);
     size += line.length;
-    if (toStdout) {
-      process.stdout.write(line);
-    }
   };
+  emit = createSafeWriter([toFile, ...(toStdout ? [stdout] : [])]);
+  const log = (entry) => emit(formatLine(entry));
   log({ level: 'info', event: 'log_opened', file, pid: process.pid });
   return {
     log,
     file,
-    close: () => new Promise((resolve) => out.end(resolve)),
+    dropped: emit.dropped,
+    close: () => new Promise((resolve) => (out ? out.end(resolve) : resolve())),
   };
 };
 
@@ -135,13 +193,19 @@ export const createServerLog = async ({
  * keeps serving, and the full trace is on disk for the user to read.
  */
 export const installCrashLogging = (log) => {
-  const report = (event) => (cause) =>
-    log({
-      level: 'error',
-      event,
-      error: String(cause?.message ?? cause), // redacted by the logger
-      stack: cause?.stack ?? null,
-    });
+  // A handler that throws would crash the process while reporting one (R-Z14).
+  const report = (event) => (cause) => {
+    try {
+      log({
+        level: 'error',
+        event,
+        error: String(cause?.message ?? cause), // redacted by the logger
+        stack: cause?.stack ?? null,
+      });
+    } catch {
+      // nothing left to report to
+    }
+  };
   const onException = report('uncaught_exception');
   const onRejection = report('unhandled_rejection');
   process.on('uncaughtException', onException);
