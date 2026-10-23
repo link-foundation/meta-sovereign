@@ -23,6 +23,7 @@ import {
 import { parseMessageParts } from './message-parts.js';
 import { StopPollDialog } from './chat-poll.js';
 import { useBotPress } from './chat-bots.js';
+import { useComments } from './chat-comments.js';
 import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
@@ -374,6 +375,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const copy = useCopy(state);
   // A bot's buttons under its message (R-Y110).
   const bots = useBotPress({ state, api, copy });
+  // A post's comments, a message's thread (R-Y126).
+  const comments = useComments({ api });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -437,6 +440,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     };
     act.copyPostLink = act.copyLink;
     act.bot = () => bots.press(message, value);
+    act.comments = () => comments.open(message);
     return act[action]?.();
   };
 
@@ -485,6 +489,6 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     menuFor,
     top,
     keys,
-    dialogs: [...dialogs, bots.dialog],
+    dialogs: [...dialogs, bots.dialog, comments.dialog],
   };
 };

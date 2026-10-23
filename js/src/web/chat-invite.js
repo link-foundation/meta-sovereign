@@ -53,7 +53,8 @@ const EVENT = 'ms-invite-open';
 export const openInvite = (hash) =>
   globalThis.dispatchEvent?.(new CustomEvent(EVENT, { detail: { hash } }));
 
-const useEsc = (onClose) => {
+/** Calls `onClose` on Escape while mounted. */
+export const useEsc = (onClose) => {
   const latest = useRef(onClose);
   latest.current = onClose;
   useEffect(() => {

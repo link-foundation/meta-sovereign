@@ -947,6 +947,12 @@ export const api = {
   telegramInviteCheck: (body = {}) => telegramPost('invite-check', body),
   telegramInviteJoin: (body = {}) => telegramPost('invite-join', body),
   telegramInviteRevoke: (body = {}) => telegramPost('invite-revoke', body),
+  telegramComments: (body = {}) => telegramPost('comments', body),
+  telegramCommentSend: (body = {}) => telegramPost('comment-send', body),
+  // A group's members ({ chat, q, offset, limit }) and one removed
+  // ({ chat, user }) (R-Y125).
+  telegramMembers: (body = {}) => telegramPost('members', body),
+  telegramMemberRemove: (body = {}) => telegramPost('member-remove', body),
   telegramGifSearch: (body = {}) => telegramPost('gif-search', body),
   // The panel's menu ({ id, action }; R-Y115).
   telegramStickerSave: (body = {}) => telegramPost('sticker-save', body),

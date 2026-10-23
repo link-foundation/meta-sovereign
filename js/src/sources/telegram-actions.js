@@ -44,11 +44,13 @@ import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
 import { createStickers } from './telegram-stickers.js';
 import { createInvites } from './telegram-invite.js';
+import { createMembers } from './telegram-members.js';
 import { createCustomEmoji } from './telegram-custom-emoji.js';
 import { createEmojiKeywords } from './telegram-emoji-keywords.js';
 import { createBotActions } from './telegram-bots.js';
 import { createSharedMedia } from './telegram-shared.js';
 import { createForum } from './telegram-forum.js';
+import { createComments } from './telegram-comments.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -333,7 +335,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // in a chat (R-Y98) and across Telegram (R-Y107); files and photos (R-Y99); clear, delete, leave
 // (R-Y100); scheduled messages (R-Y102); folders (R-Y103); stickers and
 // saved GIFs (R-Y105); bots' buttons (R-Y110); shared media (R-Y111);
-// forum topics (R-Y122); invite links (R-Y123).
+// forum topics (R-Y122); invite links (R-Y123); members (R-Y125);
+// comments (R-Y126).
 const chatActions = (env, context) => ({
   ...createPollActions(env, context),
   ...createDialogActions(env, context),
@@ -350,6 +353,8 @@ const chatActions = (env, context) => ({
   ...createSharedMedia(env, context),
   ...createForum(env, context),
   ...createInvites(env, context),
+  ...createMembers(env, context),
+  ...createComments(env, context),
 });
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a

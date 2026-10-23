@@ -5777,6 +5777,61 @@ button[aria-busy='true']::before {
   gap: 0.5rem;
 }
 
+/* A group's members in the info column (R-Y125). */
+.member-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0.3rem 0;
+}
+.member-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.member-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0.2rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.member-initial {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.member-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.member-badge {
+  flex: none;
+}
+.member-remove {
+  flex: none;
+  color: var(--danger);
+}
+
 /* A sticker in a chat opens its set's box; the box (R-Y124). */
 .bubble-sticker.has-set {
   cursor: pointer;
@@ -5813,4 +5868,127 @@ button[aria-busy='true']::before {
 /* Over the sticky top bar, so a click beside the box closes it. */
 .delete-dialog-overlay.sticker-overlay {
   z-index: 2200;
+}
+/* A post's comments: the bar under it and the panel (R-Y126). */
+.bubble-comments {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.1rem 0.1rem;
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.92em;
+  cursor: pointer;
+  text-align: start;
+}
+.bubble-comments .icon-chevron-right {
+  margin-inline-start: auto;
+}
+.bubble-comments-label {
+  font-weight: 600;
+}
+.bubble-comments-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+/* Over the sticky top bar, so a click beside the panel closes it. */
+.delete-dialog-overlay.comments-overlay {
+  z-index: 2200;
+}
+.comments-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(var(--chat-column, 640px), 96vw);
+  height: min(88vh, 900px);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.comments-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+}
+.comments-head-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.comments-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.8rem;
+}
+.comments-column {
+  width: 100%;
+}
+.comments-start {
+  align-self: center;
+  padding: 0.2rem 0.7rem;
+  border-radius: 1rem;
+  background: var(--bg-elev);
+  font-size: 0.85em;
+}
+.comments-older {
+  align-self: center;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: none;
+  color: var(--accent);
+  padding: 0.25rem 0.8rem;
+  cursor: pointer;
+}
+.comments-failed {
+  color: var(--danger);
+  margin: 0;
+}
+.comments-composer {
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 0.8rem;
+  background: var(--bg-elev);
+}
+.comments-composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.comments-composer textarea {
+  flex: 1 1 auto;
+  resize: none;
+  min-height: 2.4rem;
+  height: 2.4rem;
+  max-height: 8rem;
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: inherit;
+}
+.comments-reply {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.4rem;
+  color: var(--accent);
+}
+.comments-reply-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text);
 }

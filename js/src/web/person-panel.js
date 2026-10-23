@@ -12,6 +12,7 @@ import { Icon } from './icons.js';
 import { Busy } from './spinner.js';
 import { ProfileHead, SharedMedia } from './chat-shared.js';
 import { InviteLink } from './chat-invite.js';
+import { Members } from './chat-members.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
@@ -296,6 +297,7 @@ export const PersonPanel = ({
         chat?.source === 'telegram'
           ? el(InviteLink, { key: 'i', api, chat, info })
           : null,
+        el(Members, { key: 'mb', api, chat, info }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,
       ]),

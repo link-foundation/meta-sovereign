@@ -44,6 +44,7 @@ import { MediaStickerBox } from './chat-sticker-box.js';
 import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
+import { CommentsBar } from './chat-comments-bar.js';
 
 const el = React.createElement;
 
@@ -1216,6 +1217,7 @@ export const MessageBubble = ({
             time,
             t,
           }),
+          el(CommentsBar, { key: 'comments', message, onAction }),
           fastReply && !selecting && canFastReply(message, mine, onAction)
             ? el(FastReply, {
                 key: 'fast',

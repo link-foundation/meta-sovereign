@@ -55,6 +55,14 @@
  *   POST /api/telegram/forum-topics {chat}
  *                                      -> { ok, forum, topics } a forum
  *                                         group's topics (R-Y122)
+ *   POST /api/telegram/comments {chat, post, before?, limit?}
+ *                                      -> { ok, group, root, messages,
+ *                                         complete } a channel post's
+ *                                         comments or a message's thread,
+ *                                         oldest first (R-Y126)
+ *   POST /api/telegram/comment-send {chat, post, text, replyTo?, clientId?}
+ *                                      -> { ok, chat } a comment sent to
+ *                                         the discussion group
  *   POST /api/telegram/shared-counts {chat}
  *                                      -> { ok, counts } how many photos,
  *                                         videos, files… (R-Y111)
@@ -94,6 +102,13 @@
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
+ *   POST /api/telegram/members {chat, q?, offset?, limit?}
+ *                                      -> { ok, total, members, canBan,
+ *                                         canInvite } a group's members,
+ *                                         recent or found by words (R-Y125)
+ *   POST /api/telegram/member-remove {chat, user}
+ *                                      -> { ok } a member removed from the
+ *                                         group; they may come back
  *   POST /api/telegram/sticker-set-box {id, accessHash} | {shortName}
  *                                      -> { ok, set, items } the set a
  *                                         chat's sticker belongs to, for
@@ -163,6 +178,16 @@ const validIds = (ids) =>
 const validChat = (chat) =>
   typeof chat === 'string' && /^-?\d{1,20}$/.test(chat);
 
+// A group's marked id, and a members page: words and a window (R-Y125).
+const GROUP_CHAT = /^-\d{1,20}$/;
+const validMembersPage = (body) =>
+  (body.q === undefined ||
+    (typeof body.q === 'string' && body.q.length <= 64)) &&
+  (body.offset === undefined ||
+    (Number.isInteger(body.offset) && body.offset >= 0)) &&
+  (body.limit === undefined ||
+    (Number.isInteger(body.limit) && body.limit >= 1 && body.limit <= 200));
+
 // POST /api/telegram/<name>: [status, answer] for one request body.
 // Without sound; at a time (R-Y102).
 const whenOf = (body) => ({
@@ -225,6 +250,18 @@ const validSetBox = (body) =>
   (typeof body.shortName === 'string' && SHORT_NAME.test(body.shortName));
 
 const positive = (n) => Number.isInteger(n) && n > 0;
+
+// A comment: a post of a chat, words to send, what it answers (R-Y126).
+const MAX_COMMENT = 16_384;
+const validComment = (body) =>
+  validChat(body.chat) &&
+  positive(body.post) &&
+  typeof body.text === 'string' &&
+  body.text.trim().length > 0 &&
+  body.text.length <= MAX_COMMENT &&
+  (body.replyTo === undefined || positive(body.replyTo)) &&
+  (body.clientId === undefined ||
+    (typeof body.clientId === 'string' && body.clientId.length <= 64));
 
 // A search across Telegram: a query of a sane length, and the account
 // able to run it.
@@ -447,6 +484,35 @@ const POSTS = {
       }),
     ];
   },
+  // A post's comments, a message's thread (R-Y126).
+  comments: async (account, body) =>
+    validChat(body.chat) &&
+    positive(body.post) &&
+    (body.before === undefined || positive(body.before)) &&
+    typeof account.comments === 'function'
+      ? [
+          200,
+          await account.comments({
+            chat: body.chat,
+            post: body.post,
+            before: body.before ?? null,
+            limit: Math.min(Number(body.limit) || 50, 100),
+          }),
+        ]
+      : [400, { error: 'chat and post required', code: 'bad-request' }],
+  'comment-send': async (account, body) =>
+    validComment(body) && typeof account.sendComment === 'function'
+      ? [
+          200,
+          await account.sendComment({
+            chat: body.chat,
+            post: body.post,
+            text: body.text,
+            replyTo: body.replyTo ?? null,
+            clientId: body.clientId,
+          }),
+        ]
+      : [400, { error: 'bad comment', code: 'bad-request' }],
   // A forum group's topics (R-Y122).
   'forum-topics': async (account, body) =>
     validChat(body.chat) && typeof account.forumTopics === 'function'
@@ -652,6 +718,33 @@ const POSTS = {
     typeof account.revokeChatInvite === 'function'
       ? [200, await account.revokeChatInvite({ chat: String(body.chat) })]
       : [400, { error: 'chat required', code: 'bad-request' }],
+  // A group's members and removing one (R-Y125).
+  members: async (account, body) =>
+    GROUP_CHAT.test(String(body.chat ?? '')) &&
+    validMembersPage(body) &&
+    typeof account.chatMembers === 'function'
+      ? [
+          200,
+          await account.chatMembers({
+            chat: body.chat,
+            q: body.q ?? '',
+            offset: body.offset ?? 0,
+            limit: body.limit ?? 50,
+          }),
+        ]
+      : [400, { error: 'chat required', code: 'bad-request' }],
+  'member-remove': async (account, body) =>
+    GROUP_CHAT.test(String(body.chat ?? '')) &&
+    /^\d{1,20}$/.test(String(body.user ?? '')) &&
+    typeof account.removeMember === 'function'
+      ? [
+          200,
+          await account.removeMember({
+            chat: body.chat,
+            user: String(body.user),
+          }),
+        ]
+      : [400, { error: 'chat and user required', code: 'bad-request' }],
   // The set of a sticker in a chat, for its box (R-Y124).
   'sticker-set-box': async (account, body) =>
     validSetBox(body) && typeof account.stickerSetBox === 'function'
