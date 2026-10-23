@@ -10,13 +10,15 @@ import { Readable } from 'node:stream';
 
 import {
   dayBreaks,
+  dayClosed,
+  monthEnds,
   dayKeyOf,
   dayLabel,
   dayStart,
   monthCells,
 } from '../src/web/chat-days.js';
 import { mergeNewer, underCeiling } from '../src/web/chat-jump.js';
-import { windowMessages } from '../src/web/chat-window.js';
+import { firstTimeOf, windowMessages } from '../src/web/chat-window.js';
 import { followMove } from '../src/web/chat-view.js';
 import { createChatIndex } from '../src/server/chat-index.js';
 import { coverSlice } from '../src/sources/telegram-history.js';
@@ -308,4 +310,41 @@ test('the route asks for a date and for the page after a message', async () => {
     ['at', 'newer', 'history']
   );
   assert.equal(calls[1][1].after, 7);
+});
+
+test('days after today and before the chat’s first message are closed', () => {
+  const now = new Date(2026, 9, 23, 12).getTime();
+  const first = at(2026, 9, 15, 9);
+  assert.equal(dayClosed('2026-10-24', { now, first }), true);
+  assert.equal(dayClosed('2026-10-23', { now, first }), false);
+  assert.equal(dayClosed('2026-09-15', { now, first }), false);
+  assert.equal(dayClosed('2026-09-14', { now, first }), true);
+  // First message unknown: the past is not bounded.
+  assert.equal(dayClosed('2001-01-01', { now }), false);
+  assert.equal(dayClosed('2001-01-01', { now, first: null }), false);
+});
+
+test('the month arrows stop at the first message’s month and this one', () => {
+  const now = new Date(2026, 9, 23, 12).getTime();
+  const first = at(2026, 9, 15, 9);
+  assert.deepEqual(monthEnds(2026, 9, { now, first }), {
+    atFirst: false,
+    atLast: true,
+  });
+  assert.deepEqual(monthEnds(2026, 8, { now, first }), {
+    atFirst: true,
+    atLast: false,
+  });
+  assert.deepEqual(monthEnds(2025, 0, { now }), {
+    atFirst: false,
+    atLast: false,
+  });
+});
+
+test('the first message is known once the window has no older one', () => {
+  const window = { server: true, messages: [msg(1, at(2026, 8, 15))] };
+  assert.equal(firstTimeOf(window, false), at(2026, 8, 15));
+  assert.equal(firstTimeOf(window, true), null);
+  assert.equal(firstTimeOf({ ...window, server: false }, false), null);
+  assert.equal(firstTimeOf({ server: true, messages: [] }, false), null);
 });

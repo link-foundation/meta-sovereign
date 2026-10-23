@@ -15,8 +15,11 @@
  *
  * Telegram deletes history a part at a time (`offset` says there is
  * more); it is asked again until done. The chat's stored messages are
- * then marked deleted, so the chat and its messages leave the screens at
- * once; the update counters move with Telegram's answers.
+ * then marked deleted, so the messages leave the screens at once; the
+ * chat goes with them after `delete` and `leave`, but a cleared chat
+ * stays in the list, empty, as Telegram keeps it: its read link holds
+ * when it was cleared and its name and type, as the list is built from
+ * messages. The update counters move with Telegram's answers.
  */
 
 const SOURCE = 'telegram';
@@ -123,7 +126,33 @@ export const createChatRemoval = (env, { userClient, apply }) => {
     for (const link of stored) {
       await env.store.put({ ...link, deleted: true });
     }
-    return stored.length;
+    return stored;
+  };
+
+  // A cleared chat is kept in the list by its read link; delete and
+  // leave take that mark away, and the chat with it.
+  const markCleared = async (chat, action, stored) => {
+    const id = `read:${SOURCE}:${chat}`;
+    const before = (await env.store.get(id)) ?? {
+      id,
+      tokens: ['read', SOURCE, chat],
+      kind: 'read',
+      source: SOURCE,
+      chat,
+    };
+    const link = { ...before };
+    for (const field of ['clearedAt', 'chatName', 'chatType']) {
+      delete link[field];
+    }
+    if (action === 'clear') {
+      const known = stored.find((m) => m.chatName || m.chatType) ?? before;
+      Object.assign(link, {
+        clearedAt: new Date().toISOString(),
+        chatName: known.chatName,
+        chatType: known.chatType,
+      });
+    }
+    await env.store.put(link);
   };
 
   /** `{ chat, action, revoke? }` → `{ ok, deleted }`. */
@@ -143,8 +172,9 @@ export const createChatRemoval = (env, { userClient, apply }) => {
     if (answer && typeof answer === 'object') {
       await apply(client, answer);
     }
-    const deleted = await forget(target);
-    return { ok: true, chat: target, action, deleted };
+    const stored = await forget(target);
+    await markCleared(target, action, stored);
+    return { ok: true, chat: target, action, deleted: stored.length };
   };
 
   return { removeChat };

@@ -171,12 +171,28 @@ export const monthCells = (year, month, first = 1) => {
   ];
 };
 
-const MonthHead = ({ year, month, setMonth, locale, now }) => {
+/**
+ * Whether a day (`YYYY-MM-DD`) cannot be picked: after today, or before
+ * the chat's first message (`first`, a time; unknown: nothing before).
+ */
+export const dayClosed = (key, { now = Date.now(), first = null } = {}) => {
+  const firstKey = first === null ? null : dayKeyOf(first);
+  return key > dayKeyOf(now) || (firstKey !== null && key < firstKey);
+};
+
+/** The month arrows that stop: `{ atFirst, atLast }` for a month. */
+export const monthEnds = (year, month, { now = Date.now(), first = null }) => {
+  const at = `${year}-${pad(month + 1)}`;
+  const firstKey = first === null ? null : dayKeyOf(first);
+  return {
+    atFirst: firstKey !== null && at <= firstKey.slice(0, 7),
+    atLast: at >= dayKeyOf(now).slice(0, 7),
+  };
+};
+
+const MonthHead = ({ year, month, setMonth, locale, now, first }) => {
   const t = useT();
-  const today = new Date(now);
-  const last =
-    year > today.getFullYear() ||
-    (year === today.getFullYear() && month >= today.getMonth());
+  const { atFirst, atLast: last } = monthEnds(year, month, { now, first });
   const move = (by) => setMonth(new Date(year, month + by, 1));
   return el('div', { className: 'calendar-head' }, [
     el(
@@ -187,6 +203,7 @@ const MonthHead = ({ year, month, setMonth, locale, now }) => {
         className: 'calendar-move',
         'aria-label': t('chat.days.previous'),
         'data-move': 'previous',
+        disabled: atFirst,
         onClick: () => move(-1),
       },
       el(Icon, { name: 'chevron-left', size: 18 })
@@ -230,7 +247,7 @@ const Weekdays = ({ locale, first }) =>
     })
   );
 
-const DayCell = ({ year, month, day, chosen, now, onPick }) => {
+const DayCell = ({ year, month, day, chosen, now, first, onPick }) => {
   const key = `${year}-${pad(month + 1)}-${pad(day)}`;
   const today = dayKeyOf(now);
   const classes = ['calendar-day'];
@@ -246,7 +263,7 @@ const DayCell = ({ year, month, day, chosen, now, onPick }) => {
       type: 'button',
       className: classes.join(' '),
       'data-date': key,
-      disabled: key > today,
+      disabled: dayClosed(key, { now, first }),
       onClick: () => onPick(dayStart(key)),
     },
     String(day)
@@ -255,9 +272,16 @@ const DayCell = ({ year, month, day, chosen, now, onPick }) => {
 
 /**
  * The calendar: the month of `day`, the months before it a click away,
- * none after today's. `onPick(ms)` gets the picked day's local midnight.
+ * none after today's nor before `first` (the chat's first message's
+ * time, when known). `onPick(ms)` gets the picked day's local midnight.
  */
-export const Calendar = ({ day, onPick, onClose, now = Date.now() }) => {
+export const Calendar = ({
+  day,
+  first = null,
+  onPick,
+  onClose,
+  now = Date.now(),
+}) => {
   const t = useT();
   const { locale } = useLocaleContext();
   const [shown, setMonth] = useState(() => new Date(dayStart(day)));
@@ -270,7 +294,7 @@ export const Calendar = ({ day, onPick, onClose, now = Date.now() }) => {
   }, []);
   const year = shown.getFullYear();
   const month = shown.getMonth();
-  const first = firstWeekday(locale);
+  const weekStart = firstWeekday(locale);
   return el(
     'div',
     {
@@ -288,12 +312,13 @@ export const Calendar = ({ day, onPick, onClose, now = Date.now() }) => {
         setMonth,
         locale,
         now,
+        first,
       }),
-      el(Weekdays, { key: 'w', locale, first }),
+      el(Weekdays, { key: 'w', locale, first: weekStart }),
       el(
         'div',
         { key: 'd', className: 'calendar-days' },
-        monthCells(year, month, first).map((n, i) =>
+        monthCells(year, month, weekStart).map((n, i) =>
           n === null
             ? el('span', { key: `e${i}` })
             : el(DayCell, {
@@ -303,6 +328,7 @@ export const Calendar = ({ day, onPick, onClose, now = Date.now() }) => {
                 day: n,
                 chosen: day,
                 now,
+                first,
                 onPick,
               })
         )
@@ -336,7 +362,7 @@ const WAIT_ROW_MS = 3000;
  * chat at its first message, its date at the top; a day after the last
  * message goes to the end (`toEnd`).
  */
-export const useDayJump = ({ history, box, toEnd, notify }) => {
+export const useDayJump = ({ history, box, toEnd, notify, first = null }) => {
   const [day, setDay] = useState(null);
   const pick = async (ms) => {
     setDay(null);
@@ -372,6 +398,7 @@ export const useDayJump = ({ history, box, toEnd, notify }) => {
       ? el(Calendar, {
           key: 'calendar',
           day,
+          first,
           onPick: pick,
           onClose: () => setDay(null),
         })

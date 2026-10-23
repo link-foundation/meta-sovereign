@@ -219,6 +219,36 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
   };
 };
 
+// A chat whose history was cleared (R-Y100): kept in the list, empty,
+// as Telegram keeps it, its time from when it was cleared. The read
+// link says so (`clearedAt`) and remembers the chat's name and type.
+const clearedChat = (key, read, links, self, now) => {
+  const name = read.chatName ?? String(read.chat);
+  const kind = chatKind(read.chatType, 1);
+  const chat = {
+    key,
+    source: read.source,
+    chat: String(read.chat),
+    name,
+    personal: read.chatType
+      ? isPersonalChatType(read.chatType)
+      : kind === 'private',
+    kind,
+    people: [],
+    count: 0,
+    unread: 0,
+    ...unreadMarks([], read, self),
+    muted: mutedNow(read, now),
+    pinned: Number(read.pinnedRank ?? 0) || 0,
+    archived: Number(read.folder ?? 0) === 1,
+    marked: Number(read.unreadMark ?? 0) > 0,
+    last: { body: '', mine: false, at: read.clearedAt },
+    search: fold(`${name}\n${read.chat}\n${read.source}`),
+    empty: true,
+  };
+  return named(chat, links);
+};
+
 // A one-to-one chat with only our own messages (written from Contacts)
 // takes the person's name from their `person:` link.
 const named = (chat, links) => {
@@ -257,10 +287,14 @@ export const summarizeChats = (
     groups.get(key).push(link);
   }
   const words = fold(query).split(/\s+/).filter(Boolean);
+  const cleared = [...reads.entries()]
+    .filter(([key, read]) => read.clearedAt && !groups.has(key))
+    .map(([key, read]) => clearedChat(key, read, links, self, Date.now()));
   return [...groups.entries()]
     .map(([key, messages]) =>
       named(summarize(key, messages, self, reads.get(key)), links)
     )
+    .concat(cleared)
     .filter((c) => words.every((w) => c.search.includes(w)))
     .sort((a, b) => String(b.last.at).localeCompare(String(a.last.at)));
 };

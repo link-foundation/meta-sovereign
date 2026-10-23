@@ -231,3 +231,45 @@ test('the route checks the chat and the action (R-Y100)', async () => {
   );
   assert.deepEqual(calls, [{ chat: '42', action: 'delete', revoke: false }]);
 });
+
+test('a cleared chat stays in the list, empty; delete removes it (R-Y100)', async () => {
+  const { store, actions, shown } = await setup('42');
+  await actions.removeChat({ chat: '42', action: 'clear' });
+  assert.deepEqual(await shown(), ['42', '999'].sort(), 'kept after clear');
+  const rows = summarizeChats(await store.query(() => true));
+  const row = rows.find((c) => c.chat === '42');
+  assert.equal(row.name, 'Fake Eve');
+  assert.equal(row.count, 0);
+  assert.equal(row.last.body, '');
+  assert.ok(Date.parse(row.last.at) > 0, 'its time is when it was cleared');
+  // A server restart or page reload reads the same stored links.
+  assert.equal((await store.get('read:telegram:42')).chatName, 'Fake Eve');
+  // A clear again, with no messages left, still keeps the name.
+  await actions.removeChat({ chat: '42', action: 'clear' });
+  const again = summarizeChats(await store.query(() => true));
+  assert.equal(again.find((c) => c.chat === '42').name, 'Fake Eve');
+  // A new message brings the usual row back, not a second one.
+  await store.put({
+    id: 'msg:telegram:42:9',
+    source: 'telegram',
+    chat: '42',
+    sender: '42',
+    chatName: 'Fake Eve',
+    body: 'back',
+    timestamp: new Date(1_770_000_000_000).toISOString(),
+  });
+  const back = summarizeChats(await store.query(() => true));
+  assert.equal(back.filter((c) => c.chat === '42').length, 1);
+  assert.equal(back.find((c) => c.chat === '42').last.body, 'back');
+  // Delete takes the chat away for good.
+  await actions.removeChat({ chat: '42', action: 'delete' });
+  assert.deepEqual(await shown(), ['999']);
+});
+
+test('a group cleared stays; once left it is gone (R-Y100)', async () => {
+  const { actions, shown } = await setup('-77');
+  await actions.removeChat({ chat: '-77', action: 'clear' });
+  assert.deepEqual(await shown(), ['-77', '999']);
+  await actions.removeChat({ chat: '-77', action: 'leave' });
+  assert.deepEqual(await shown(), ['999']);
+});

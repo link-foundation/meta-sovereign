@@ -126,6 +126,13 @@ export const hasOlder = (window, { telegram, complete }) =>
   Boolean(window?.server) &&
   (window.more || (telegram && !complete && !window.complete));
 
+/**
+ * When the chat's first message was sent, once the window holds it (no
+ * older message to load); null while that is not known.
+ */
+export const firstTimeOf = (window, older) =>
+  window?.server && !older ? (window.messages?.[0]?.timestamp ?? null) : null;
+
 const isTelegram = (api, chat) =>
   chat?.source === 'telegram' && typeof api.telegramHistory === 'function';
 
@@ -331,6 +338,7 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     Boolean(current) && historyComplete(links ?? [], current.chat);
   const window = key ? (windows.get(key) ?? EMPTY) : EMPTY;
   const telegram = isTelegram(api, current);
+  const olderLeft = hasOlder(window, { telegram, complete });
 
   const older = async (target, chat, held) => {
     const oldest = held.messages[0];
@@ -398,7 +406,8 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     detached: Boolean(window.ceiling),
     ceilingId: window.ceiling?.id ?? null,
     view: window.view ?? 0,
-    older: hasOlder(window, { telegram, complete }),
+    older: olderLeft,
+    first: firstTimeOf(window, olderLeft),
     stalled: Boolean(window.stalledAt),
     loading: window.loading,
     failed: window.failed,

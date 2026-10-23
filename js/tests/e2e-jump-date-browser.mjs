@@ -250,6 +250,63 @@ try {
     'the down button gone at the end'
   );
 
+  // Once the chat is read back to its first message the calendar stops
+  // there: the days before it are closed and the arrow cannot go on.
+  await until(
+    async () => {
+      await scroller.evaluate((node) => {
+        node.scrollTop = 0;
+      });
+      return has(1);
+    },
+    'the first message',
+    40_000
+  );
+  await page.locator('.chat-day .chat-day-pill').first().click();
+  await page.locator('.calendar').waitFor({ timeout: 5000 });
+  const firstDay = sent[0].when;
+  const firstKey = keyOf(firstDay);
+  const prev = page.locator('[data-move="previous"]');
+  // Back to the first message's month.
+  for (let i = 0; i < 16 && !(await prev.isDisabled()); i += 1) {
+    await prev.click();
+  }
+  assert(await prev.isDisabled(), 'no month before the first message');
+  const shownDays = await page
+    .locator('[data-date]')
+    .evaluateAll((list) => list.map((b) => [b.dataset.date, b.disabled]));
+  assert(
+    shownDays[0][0].slice(0, 7) === firstKey.slice(0, 7),
+    `stopped at the first month: ${shownDays[0][0]}`
+  );
+  for (const [date, disabled] of shownDays) {
+    assert(
+      disabled === date < firstKey,
+      `${date} ${disabled ? 'closed' : 'open'} (first ${firstKey})`
+    );
+  }
+  assert(
+    shownDays.some(([date, disabled]) => date < firstKey && disabled) ||
+      firstDay.getDate() === 1,
+    'a day before the first message is closed'
+  );
+  // The future is closed at the other end.
+  for (
+    let i = 0;
+    i < 16 && !(await page.locator('[data-move="next"]').isDisabled());
+    i += 1
+  ) {
+    await page.locator('[data-move="next"]').click();
+  }
+  const today = keyOf(new Date());
+  const lastDays = await page
+    .locator('[data-date]')
+    .evaluateAll((list) => list.map((b) => [b.dataset.date, b.disabled]));
+  for (const [date, disabled] of lastDays) {
+    assert(disabled === date > today, `${date} closed: ${disabled}`);
+  }
+  await page.keyboard.press('Escape');
+
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log(`[e2e-jump-date] OK (${engine})`);
 } catch (error) {

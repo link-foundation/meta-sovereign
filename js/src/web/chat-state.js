@@ -967,6 +967,7 @@ export const useChatState = (
     moreChats,
     history: {
       older: history.older,
+      first: history.first,
       loading: history.loading,
       failed: history.failed,
       stalled: history.stalled,

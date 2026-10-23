@@ -619,6 +619,7 @@ const Stream = ({ state, api, actions }) => {
   };
   const days = useDayJump({
     history: state.history,
+    first: state.history?.first ?? null,
     box: follow.box,
     toEnd: follow.toEnd,
     notify: () => state.notify?.({ kind: 'date-failed' }),
