@@ -78,6 +78,34 @@ export const createMemoryStore = () => {
       handlers.add(handler);
       return () => handlers.delete(handler);
     },
+    /** How many links are held. */
+    size: () => data.size,
+    /**
+     * The matching links in batches of `batchSize` copies, each handed to
+     * `onBatch` (awaited) before the next is gathered: a pass over a large
+     * store holds one batch, not every match (R-Z17). Writes made by
+     * `onBatch` are safe (a link written again keeps its place). Resolves
+     * to how many links were looked at.
+     */
+    async scan(filter, batchSize, onBatch) {
+      let batch = [];
+      let looked = 0;
+      for (const link of data.values()) {
+        looked += 1;
+        if (!filter || filter(link)) {
+          batch.push({ ...link });
+          if (batch.length >= batchSize) {
+            const full = batch;
+            batch = [];
+            await onBatch(full);
+          }
+        }
+      }
+      if (batch.length > 0) {
+        await onBatch(batch);
+      }
+      return looked;
+    },
   };
 };
 

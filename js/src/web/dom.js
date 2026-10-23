@@ -4,6 +4,7 @@
 // back to the local browser store when offline.
 
 import { LOCKED_EVENT } from './passcode.js';
+import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import {
   createBrowserStore,
   pickBrowserDriver,
@@ -102,14 +103,34 @@ const followServer = (client, origin) => {
   return watch;
 };
 
+// The page's store, brought to the current data schema (R-Z17). One written
+// by a newer build is not touched: the page works on a scratch copy and
+// says so (`ms-schema-too-new`), so nothing of it is overwritten.
+const openMigratedStore = async (suffix) => {
+  const store = await createBrowserStore({
+    driver: pickBrowserDriver({ suffix }),
+  });
+  try {
+    await migrateBrowserStore(store);
+    return store;
+  } catch (error) {
+    if (error?.code !== 'STORE_TOO_NEW') {
+      throw error;
+    }
+    globalThis.msSchemaTooNew = true; // for a banner that mounts later
+    globalThis.dispatchEvent?.(
+      new CustomEvent('ms-schema-too-new', { detail: error.message })
+    );
+    return createBrowserStore();
+  }
+};
+
 const boot = async () => {
   // An extra Telegram account keeps its own copy in the browser, so
   // nothing of it mixes with account 1's (R-Y202).
   const slot = activeAccount();
   const suffix = slot > 1 ? `@telegram-${slot}` : '';
-  const store = await createBrowserStore({
-    driver: pickBrowserDriver({ suffix }),
-  });
+  const store = await openMigratedStore(suffix);
   // Local handler bus so writes to broadcast:* trigger work even
   // when the SPA is fully offline.
   const bus = createHandlerBus(store);

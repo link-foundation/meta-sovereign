@@ -34,6 +34,13 @@ const PROTOCOL = 'meta-sovereign-sync.v1';
 const IS_BUN = typeof globalThis.Bun !== 'undefined';
 const IS_DENO = typeof globalThis.Deno !== 'undefined' && !IS_BUN;
 
+// Whether the server's handshake head carries our key's accept value. The
+// bytes after it are kept as bytes: frames the server sent right after the
+// handshake (queued messages, the schema hello) arrive in the same chunk,
+// and turning them into text would corrupt their headers (R-Z17).
+const acceptedBy = (head, expected) =>
+  head.toString('utf8').includes(`Sec-WebSocket-Accept: ${expected}`);
+
 const broadcast = (sockets, text) => {
   const frame = encodeTextFrame(text);
   for (const s of sockets) {
@@ -265,7 +272,7 @@ export const connectSyncWebSocket = ({
         ].join('\r\n')
       );
       const expected = acceptKey(key);
-      let handshake = '';
+      let handshake = Buffer.alloc(0);
       let upgraded = false;
       const reader = createFrameReader({
         onText: (text) => {
@@ -281,23 +288,20 @@ export const connectSyncWebSocket = ({
       });
       socket.on('data', (chunk) => {
         if (!upgraded) {
-          handshake += chunk.toString('utf8');
+          handshake = Buffer.concat([handshake, chunk]);
           const idx = handshake.indexOf('\r\n\r\n');
           if (idx === -1) {
             return;
           }
-          if (!handshake.includes(`Sec-WebSocket-Accept: ${expected}`)) {
+          if (!acceptedBy(handshake.subarray(0, idx), expected)) {
             fail(new Error('websocket handshake rejected'));
             socket.destroy();
             return;
           }
           upgraded = true;
           settled = true;
-          const tail = Buffer.from(handshake.slice(idx + 4), 'binary');
-          handshake = '';
-          if (tail.length) {
-            reader(tail);
-          }
+          const tail = handshake.subarray(idx + 4);
+          handshake = Buffer.alloc(0);
           resolve({
             transport: {
               send: (event) => {
@@ -313,6 +317,10 @@ export const connectSyncWebSocket = ({
                 socket.end(() => r());
               }),
           });
+          if (tail.length) {
+            // After the caller had its turn to listen.
+            globalThis.setTimeout(() => reader(tail), 0);
+          }
           return;
         }
         reader(chunk);

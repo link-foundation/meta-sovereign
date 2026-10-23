@@ -27,6 +27,12 @@ import {
 } from './greetings-commands.js';
 import { TRUST_HELP, createTrustCommands } from './trust-commands.js';
 import {
+  MIGRATE_HELP,
+  SCHEMA_ERROR_CODES,
+  createMigrateCommands,
+  migrationNotice,
+} from './migrate-commands.js';
+import {
   openDualStore,
   bulkPurge,
   isTombstone,
@@ -38,6 +44,7 @@ import {
   restoreBackup,
 } from '../storage/backup.js';
 import { writeEncryptedExport } from '../storage/export-encrypted.js';
+import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import {
   listCvSources,
   listSources,
@@ -110,10 +117,13 @@ ${AUTOMATION_HELP}
   vault-list    [--file=<path>]
 ${CV_HELP}
 ${GREETINGS_HELP}
+${MIGRATE_HELP}
   help
 `;
 
-const openStore = (dir) => openDualStore(dir);
+// A writer migrates the store first (R-Z17) and says so on stderr.
+const openStore = (dir) =>
+  openDualStore(dir, { onEvent: migrationNotice(console.error) });
 // Read-only commands take no lock and never write, so they work while
 // `serve` owns the store (R-Z2).
 const openReadOnly = (dir) => openDualStore(dir, { readOnly: true });
@@ -611,7 +621,12 @@ const resumeCmd = async (args, log) => {
 
 const syncListenCmd = async (args, log) => {
   const store = await openStore(args.store ?? '.meta-sovereign');
-  const peer = createPeer(store, { node: 'cli-listener' });
+  const peer = createPeer(store, {
+    node: 'cli-listener',
+    schemaVersion: CURRENT_SCHEMA,
+    hub: true,
+    onMismatch: (error) => log(error.message),
+  });
   const handle = await startSyncListener({ port: Number(args.port ?? 0) });
   peer.connect(handle.transport);
   log(`sync listener on tcp://127.0.0.1:${handle.port}`);
@@ -620,7 +635,11 @@ const syncListenCmd = async (args, log) => {
 
 const syncConnectCmd = async (args, log) => {
   const store = await openStore(args.store ?? '.meta-sovereign');
-  const peer = createPeer(store, { node: 'cli-client' });
+  const peer = createPeer(store, {
+    node: 'cli-client',
+    schemaVersion: CURRENT_SCHEMA,
+    onMismatch: (error) => log(error.message),
+  });
   const client = await connectSyncPeer({
     port: Number(args.port),
     host: args.host ?? '127.0.0.1',
@@ -782,6 +801,8 @@ const COMMANDS = {
   ...createGreetingCommands({ openStore }),
   // Let Safari trust the server's own certificate (R-Y64).
   ...createTrustCommands(),
+  // Bring a store to the current data schema, or look first (R-Z17).
+  ...createMigrateCommands(),
   help: async (_a, log) => {
     log(HELP);
     return 0;
@@ -798,8 +819,8 @@ export const runCli = async (argv, { log = console.log } = {}) => {
   try {
     return await handler(parseArgs(rest), log);
   } catch (error) {
-    if (error?.code === 'STORE_LOCKED') {
-      log(error.message); // another process owns the store (R-Z2)
+    if (error?.code === 'STORE_LOCKED' || SCHEMA_ERROR_CODES.has(error?.code)) {
+      log(error.message); // another process owns the store (R-Z2); the schema (R-Z17)
       return 1;
     }
     throw error;

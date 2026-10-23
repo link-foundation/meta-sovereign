@@ -350,9 +350,37 @@ export const createBrowserStore = async ({
       emit({ type: 'put', link: cloneLink(link) });
       return link;
     },
+    async putMany(links) {
+      for (const link of links) {
+        await this.put(link);
+      }
+      return links;
+    },
     async get(id) {
       const v = data.get(id);
       return v ? cloneLink(v) : null;
+    },
+    /** How many links are held (R-Z17). */
+    size: () => data.size,
+    /** The matching links in batches of copies (the migration runner, R-Z17). */
+    async scan(filter, batchSize, onBatch) {
+      let batch = [];
+      let looked = 0;
+      for (const link of [...data.values()]) {
+        looked += 1;
+        if (!filter || filter(link)) {
+          batch.push(cloneLink(link));
+          if (batch.length >= batchSize) {
+            const full = batch;
+            batch = [];
+            await onBatch(full);
+          }
+        }
+      }
+      if (batch.length > 0) {
+        await onBatch(batch);
+      }
+      return looked;
     },
     async delete(id) {
       const existed = data.has(id);

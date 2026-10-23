@@ -24,6 +24,11 @@ import { createLinoTextStore } from './lino-store.js';
 import { createDoubletsMirror } from './doublets-mirror.js';
 import { acquireStoreLock } from './store-lock.js';
 import { DIR_MODE, ensurePrivateDir, sweepTemp, tighten } from './durable.js';
+import {
+  checkReadOnly,
+  migrateOpenStore,
+  recoverJournal,
+} from './migrations/node-runner.js';
 
 const putEach = async (store, links) => {
   for (const link of links) {
@@ -53,6 +58,8 @@ export const createDualStore = ({ binary, text }) => ({
   async query(filter) {
     return binary.query(filter);
   },
+  scan: (filter, size, onBatch) => binary.scan?.(filter, size, onBatch),
+  size: () => binary.size?.(),
   subscribe(h) {
     return binary.subscribe(h);
   },
@@ -107,13 +114,17 @@ export const createDualStore = ({ binary, text }) => ({
   },
 });
 
-const readOnlyStore = (text) => ({
+const readOnlyStore = (text, schema) => ({
+  schema,
+  migration: null,
   get: (id) => text.get(id),
   query: (filter) => text.query(filter),
   subscribe: (handler) => text.subscribe(handler),
   put: text.put,
   putMany: text.putMany,
   delete: text.delete,
+  scan: text.scan,
+  size: text.size,
   flush: async () => {},
   reconcile: async () => ({ put: 0, deleted: 0 }),
   corruptLines: text.corruptLines,
@@ -165,27 +176,54 @@ const tightenFolder = async (dir) => {
  * lock, never writes or compacts, and works while `serve` runs.
  * `onCorrupt({ count, file })` hears of unreadable lines (never their text).
  * `onEvent({ level, event, ... })` hears of a full disk (R-Z14): store_degraded,
- * store_recovered, compaction_skipped, snapshot_skipped.
+ * store_recovered, compaction_skipped, snapshot_skipped; and of the schema
+ * (R-Z17): migration_started / _step / _done / _failed / _rolled_back,
+ * schema_too_new, schema_old_read_only.
+ *
+ * A writer brings the store to the current schema before it returns
+ * (`./migrations/node-runner.js`): STORE_TOO_NEW for a store written by a
+ * newer version, LOW_DISK when there is no room to migrate, MIGRATION_FAILED
+ * (the store is put back as it was). A read-only open never migrates: an
+ * older store is read as it is, a newer one is refused. `store.schema` is
+ * `{ version, current, migrated }`.
  */
 export const openDualStore = async (
   dir,
-  { onError, onCorrupt, onEvent, readOnly = false } = {}
+  {
+    onError,
+    onCorrupt,
+    onEvent = () => {},
+    readOnly = false,
+    measureFree,
+    // Tests: another chain of migrations and the version it ends at.
+    migrations,
+    current,
+  } = {}
 ) => {
   await ensurePrivateDir(dir);
   if (readOnly) {
-    return readOnlyStore(
-      await createLinoTextStore(path.join(dir, 'data.lino'), {
-        readOnly: true,
-        onCorrupt,
-      })
-    );
+    const text = await createLinoTextStore(path.join(dir, 'data.lino'), {
+      readOnly: true,
+      onCorrupt,
+    });
+    return readOnlyStore(text, await checkReadOnly({ text, onEvent, current }));
   }
   const lock = await acquireStoreLock(dir);
   try {
     await tightenFolder(dir);
+    // A migration that did not finish is undone before the log is read.
+    await recoverJournal(dir, onEvent);
     const text = await createLinoTextStore(path.join(dir, 'data.lino'), {
       onCorrupt,
       onEvent,
+    });
+    const schema = await migrateOpenStore({
+      dir,
+      text,
+      onEvent,
+      measureFree,
+      migrations,
+      current,
     });
     const binary = await createDoubletsMirror(path.join(dir, 'data.bin'), {
       text,
@@ -194,6 +232,8 @@ export const openDualStore = async (
     });
     return {
       ...createDualStore({ binary, text }),
+      schema,
+      migration: schema.migrated,
       corruptLines: text.corruptLines,
       close: lock.release,
     };

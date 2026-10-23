@@ -569,6 +569,25 @@ const createAppender = ({
     });
 };
 
+// While a migration runs (R-Z17) the log is only appended to: its length is
+// what a rollback truncates back to.
+const createHold = () => {
+  let held = 0;
+  return {
+    active: () => held > 0,
+    take: () => {
+      held += 1;
+      let done = false;
+      return () => {
+        if (!done) {
+          done = true;
+          held -= 1;
+        }
+      };
+    },
+  };
+};
+
 const readOnlyError = () =>
   Object.assign(new Error('the store was opened read-only'), {
     code: 'STORE_READ_ONLY',
@@ -663,11 +682,16 @@ export const createLinoTextStore = async (
       throw storeError('ENOSPC', 'not enough free space to rewrite the log');
     }
   };
+  const hold = createHold();
   const maintain = async () => {
     // The batch is on disk by now; a failed compaction costs nothing but
     // the rewrite, so it never fails the writes (R-Z14).
     try {
-      if (tally.superseded() && Date.now() >= compactAfterAt) {
+      if (
+        !hold.active() &&
+        tally.superseded() &&
+        Date.now() >= compactAfterAt
+      ) {
         await compact();
       }
     } catch (error) {
@@ -741,6 +765,10 @@ export const createLinoTextStore = async (
     health: wq.health,
     /** Lines that could not be read when the log was opened. */
     corruptLines: () => bad.count,
+    /** No compaction until the returned `release()` is called (R-Z17). */
+    holdCompaction: hold.take,
+    /** Whether the next write rewrites the whole log (an old format). */
+    needsRewrite: () => rewrite,
     filePath,
   };
 };

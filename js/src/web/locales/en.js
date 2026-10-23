@@ -1043,4 +1043,8 @@ export const en = {
   /* ---- R-Z14 ---- */
   'disk.banner': 'Disk almost full — new messages may not be saved',
   'disk.dismiss': 'Hide',
+
+  /* ---- R-Z17 ---- */
+  'schema.tooNew':
+    'This data was saved by a newer version of the app. Update the app to keep using it.',
 };

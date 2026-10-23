@@ -208,6 +208,8 @@ export const createDoubletsMirror = async (
     mirrors: text,
     get: (id) => text.get(id),
     query: (filter) => text.query(filter),
+    scan: (filter, size, onBatch) => text.scan(filter, size, onBatch),
+    size: () => text.size(),
     subscribe: (handler) => text.subscribe(handler),
     async put(link) {
       snapshots.later();

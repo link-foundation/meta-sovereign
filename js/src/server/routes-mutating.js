@@ -36,6 +36,7 @@ import {
   isTombstone,
 } from '../storage/soft-delete.js';
 import { exportEncrypted } from '../storage/export-encrypted.js';
+import { SCHEMA_ID } from '../storage/migrations/index.js';
 
 const includeTombstones = (url) => {
   const v = url?.searchParams.get('include');
@@ -80,11 +81,18 @@ export const linkProblem = (link) => {
   return null;
 };
 
+// The schema marker is the app's own; the API never writes it (R-Z17).
+const reserved = (res) =>
+  fail(res, 400, 'reserved-link', 'meta:schema is reserved') ?? true;
+
 const putLink = async (store, req, res) => {
   const link = await readBody(req);
   const problem = linkProblem(link);
   if (problem) {
     return fail(res, 400, 'bad-link', problem) ?? true;
+  }
+  if (link.id === SCHEMA_ID) {
+    return reserved(res);
   }
   await store.put(link);
   return json(res, 200, maskSecret(link)) ?? true;
@@ -142,7 +150,7 @@ const handleLinks = async (store, req, res, p, url) => {
     return getLink(store, res, id, url);
   }
   if (req.method === 'DELETE') {
-    return deleteLink(store, res, id, url);
+    return id === SCHEMA_ID ? reserved(res) : deleteLink(store, res, id, url);
   }
   return false;
 };

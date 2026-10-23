@@ -18,9 +18,16 @@ import {
   createCipheriv,
   createDecipheriv,
 } from 'node:crypto';
-import { putAll } from './universal.js';
+import { createMemoryStore, putAll } from './universal.js';
 import { ensurePrivateDir, sweepTemp, writeFileDurable } from './durable.js';
 import { enoughSpace, skippedEvent } from './disk-space.js';
+import {
+  CURRENT_SCHEMA,
+  MIGRATIONS,
+  SCHEMA_ID,
+  runMigrations,
+  versionOf,
+} from './migrations/index.js';
 
 const ENC_VERSION = 1;
 const KDF_N = 1 << 14;
@@ -126,12 +133,15 @@ export const makeBackup = async (
   await ensurePrivateDir(archiveDir);
   const all = await store.query();
   const links = passphrase ? all : all.filter((l) => !isSecretId(l));
+  const schemaVersion = versionOf(all.find((l) => l.id === SCHEMA_ID));
   const secretsExcluded = all.length - links.length;
   const manifest = {
     createdAt: now.toISOString(),
     version: 1,
     secrets: passphrase ? 'included-encrypted' : 'excluded',
     secretsExcluded,
+    // The data schema the links are in (R-Z17); a manifest without it is version 0.
+    schema: { version: schemaVersion },
     links,
   };
   const plaintext = JSON.stringify(manifest, null, 2);
@@ -243,10 +253,59 @@ export const createBackupScheduler = ({
   };
 };
 
+/**
+ * The links of a backup in the current shapes (R-Z17). A backup of an older
+ * schema is migrated in memory, before anything is written to the store, so
+ * a failing migration leaves the store untouched; one of a newer schema is
+ * refused with BACKUP_TOO_NEW. The backup's own `meta:schema` is never
+ * restored (the store keeps its own).
+ */
+export const linksOfManifest = async (
+  manifest,
+  { onEvent = () => {}, migrations = MIGRATIONS, current = CURRENT_SCHEMA } = {}
+) => {
+  const version = Number.isInteger(manifest?.schema?.version)
+    ? manifest.schema.version
+    : 0;
+  if (version > current) {
+    throw Object.assign(
+      new Error(
+        `this backup was written by a newer version (schema ${version}, this app understands up to ${current}); update the app`
+      ),
+      { code: 'BACKUP_TOO_NEW', found: version, current }
+    );
+  }
+  const links = manifest.links.filter((l) => l.id !== SCHEMA_ID);
+  if (version === current) {
+    return links;
+  }
+  const scratch = createMemoryStore();
+  await scratch.putMany(links);
+  onEvent({
+    level: 'info',
+    event: 'migration_started',
+    from: version,
+    to: current,
+  });
+  const summary = await runMigrations(scratch, {
+    migrations,
+    from: version,
+    onEvent,
+  });
+  onEvent({
+    level: 'info',
+    event: 'migration_done',
+    from: version,
+    to: summary.to,
+    changed: summary.changed,
+  });
+  return (await scratch.query()).filter((l) => l.id !== SCHEMA_ID);
+};
+
 export const restoreBackup = async (
   store,
   file,
-  { passphrase = null } = {}
+  { passphrase = null, onEvent = () => {} } = {}
 ) => {
   let raw = await fs.readFile(file, 'utf8');
   if (file.endsWith('.enc')) {
@@ -265,5 +324,5 @@ export const restoreBackup = async (
       code: 'BACKUP_INVALID',
     });
   }
-  return putAll(store, manifest.links);
+  return putAll(store, await linksOfManifest(manifest, { onEvent }));
 };

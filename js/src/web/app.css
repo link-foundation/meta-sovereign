@@ -12325,6 +12325,14 @@ main[data-view='chat'] > .disk-banner {
   margin: 0.75rem;
 }
 
+/* A store from a newer version (R-Z17): the same strip, not dismissible. */
+.disk-banner[data-banner='schema-too-new'] {
+  border-left-color: var(--danger, var(--accent));
+}
+main[data-view='chat'] > .disk-banner[data-banner='schema-too-new'] {
+  margin: 0.75rem;
+}
+
 /* Send safety: the send log, quiet hours, the opt-out list (R-Z3). */
 .automation-safety {
   margin-top: 1.5rem;

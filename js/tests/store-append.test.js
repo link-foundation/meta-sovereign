@@ -20,6 +20,11 @@ import {
   applyLinoRecords,
   tombstoneRecord,
 } from '../src/storage/lino-store.js';
+import {
+  CURRENT_SCHEMA,
+  SCHEMA_ID,
+  schemaLink,
+} from '../src/storage/migrations/index.js';
 import { startServer } from '../src/server/index.js';
 import { waitFor } from './helpers/wait-for.js';
 
@@ -255,15 +260,19 @@ test('the server reconciles on start and writes the snapshot on close', async ()
 test('the opened store holds each link once; data.bin mirrors the log', async () => {
   const dir = await tmpdir();
   const store = await openDualStore(dir);
+  // A store that already has its schema link (R-Z17): opening it again
+  // migrates nothing, so the snapshot stays up to date.
+  await store.put(schemaLink({ version: CURRENT_SCHEMA }));
   await store.putMany([message(1), message(2)]);
   await store.put(message(2, { body: 'edited' }));
   await store.delete('msg:telegram:1:1');
   assert.equal((await store.get('msg:telegram:1:2')).body, 'edited');
   await store.flush();
   const bin = path.join(dir, 'data.bin');
-  assert.deepEqual(decodeArchive(await fs.readFile(bin)), [
-    message(2, { body: 'edited' }),
-  ]);
+  assert.deepEqual(
+    decodeArchive(await fs.readFile(bin)).filter((l) => l.id !== SCHEMA_ID),
+    [message(2, { body: 'edited' })]
+  );
   // Up to date: opening again writes nothing.
   const again = await openDualStore(dir);
   assert.deepEqual(await again.reconcile(), {
@@ -286,7 +295,7 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
   await third.flush();
   assert.deepEqual(
     decodeArchive(await fs.readFile(bin)).map((l) => l.id),
-    ['msg:telegram:1:2', 'msg:telegram:1:3']
+    ['meta:schema', 'msg:telegram:1:2', 'msg:telegram:1:3']
   );
 });
 

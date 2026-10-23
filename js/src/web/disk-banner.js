@@ -32,7 +32,7 @@ const saveDismissed = () => {
 };
 
 // The health answer, now and every minute while the page is open.
-const useHealth = (api) => {
+export const useHealth = (api) => {
   const [health, setHealth] = useState(null);
   useEffect(() => {
     let cancelled = false;

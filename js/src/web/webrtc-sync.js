@@ -37,6 +37,7 @@ import {
   createWebRtcTransport,
 } from '../sync/webrtc-transport.js';
 import { createPeer } from '../sync/peer.js';
+import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 
 const wrapBrowserWebSocket = (ws) => {
   const handlers = new Set();
@@ -74,6 +75,7 @@ export const attachWebRtcSync = ({
   RTCPeerConnection = globalThis.RTCPeerConnection,
   WebSocketImpl = globalThis.WebSocket,
   rtcConfig = { iceServers: [] },
+  onMismatch = () => {},
 } = {}) => {
   if (!RTCPeerConnection || !WebSocketImpl) {
     return null;
@@ -99,7 +101,12 @@ export const attachWebRtcSync = ({
   signaling.on('peer-joined', () => {
     transport.startAsInitiator().catch(() => {});
   });
-  const peer = createPeer(store, { node: 'web' });
+  // A browser and a peer of another data schema exchange nothing (R-Z17).
+  const peer = createPeer(store, {
+    node: 'web',
+    schemaVersion: CURRENT_SCHEMA,
+    onMismatch,
+  });
   const detach = peer.connect(transport);
   return {
     transport,

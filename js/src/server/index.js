@@ -55,6 +55,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { openDualStore, wrapSecretStore } from '../storage/index.js';
+import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
 import {
   getSource as getSourceDefault,
   liveOptionsFrom,
@@ -630,8 +631,11 @@ const initStore = async ({
     store = wrapSecretStore({ inner: store, passphrase: secretPassphrase });
   }
   // The unwritten-changes state for /api/health (R-Z14).
-  const storeHealth = () =>
-    unwrapped.health?.() ?? { degraded: false, queuedBytes: 0 };
+  // ... and the data schema it was opened at (R-Z17).
+  const storeHealth = () => ({
+    ...(unwrapped.health?.() ?? { degraded: false, queuedBytes: 0 }),
+    schema: unwrapped.schema ?? null,
+  });
   return { store, resolvedArchiveDir, flush, storeHealth };
 };
 
@@ -697,7 +701,20 @@ const attachSockets = (server, ctx, store, { enableSync, node }) => {
   }
   const verifyOrigin = socketAllowed(ctx);
   const wsHandle = attachSyncWebSocket(server, { path: '/ws', verifyOrigin });
-  createPeer(store, { node }).connect(wsHandle.transport);
+  // Peers of another data schema are refused, with a log line (R-Z17).
+  createPeer(store, {
+    node,
+    schemaVersion: CURRENT_SCHEMA,
+    hub: true,
+    onMismatch: (error) =>
+      ctx.log?.({
+        level: 'warn',
+        event: 'schema_mismatch',
+        local: error.local,
+        remote: error.remote,
+        message: error.message,
+      }),
+  }).connect(wsHandle.transport);
   const signaling = attachSignaling(server, { path: '/rtc', verifyOrigin });
   ctx.sync = wsHandle;
   ctx.signaling = signaling;

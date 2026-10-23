@@ -87,13 +87,32 @@ export const merge = (a, b) => {
   return { ...winner, children: [...childIds] };
 };
 
+// Secrets and the schema marker never leave the store (R-Z2, R-Z17): each
+// side's `meta:schema` is its own.
 const isSecretEvent = (event) =>
   event &&
   event.link &&
   typeof event.link.id === 'string' &&
-  event.link.id.startsWith('secret:');
+  (event.link.id.startsWith('secret:') || event.link.id === 'meta:schema');
 
-export const createPeer = (store, { node = 'local' } = {}) => {
+const HELLO = 'hello';
+
+/** The refusal text, naming both versions; the older side must update. */
+export const schemaMismatch = (local, remote) => {
+  const older =
+    remote === null || remote < local ? 'the other side' : 'this side';
+  return Object.assign(
+    new Error(
+      `SCHEMA_MISMATCH: this side is at data schema ${local}, the other side at ${remote ?? 'an unversioned build'}; ${older} must update the app. No data was exchanged.`
+    ),
+    { code: 'SCHEMA_MISMATCH', local, remote }
+  );
+};
+
+export const createPeer = (
+  store,
+  { node = 'local', schemaVersion, onMismatch = () => {}, hub = false } = {}
+) => {
   const subs = new Set();
   let muted = false;
   store.subscribe((event) => {
@@ -129,17 +148,61 @@ export const createPeer = (store, { node = 'local' } = {}) => {
         muted = false;
       }
     },
+    /**
+     * Plug a transport in. With `schemaVersion` set (R-Z17) every event
+     * carries it and the peer says `{ type: 'hello', schema }` on connect;
+     * an event or hello of another version is not applied, and
+     * `onMismatch(error)` hears SCHEMA_MISMATCH once per version seen. A
+     * peer without a version (or an old build) speaks as before. `hub`:
+     * the transport fans out to many sockets, so one wrong one must not
+     * silence the rest.
+     */
     connect(transport) {
-      const offLocal = this.onLocal((e) => transport.send(e));
-      const offRemote = transport.onMessage((e) => this.receive(e));
-      return () => {
-        offLocal();
-        if (typeof offRemote === 'function') {
-          offRemote();
-        }
-      };
+      return schemaVersion === undefined
+        ? plug(this, transport, null)
+        : plug(this, transport, { local: schemaVersion, onMismatch, hub });
     },
   };
+};
+
+// Connect `peer` to `transport`; `gate` (or null) is the schema check.
+const plug = (peer, transport, gate) => {
+  const stop = (offLocal, offRemote) => () => {
+    offLocal();
+    if (typeof offRemote === 'function') {
+      offRemote();
+    }
+  };
+  if (!gate) {
+    return stop(
+      peer.onLocal((e) => transport.send(e)),
+      transport.onMessage((e) => peer.receive(e))
+    );
+  }
+  const seen = new Set();
+  let refused = false;
+  const mismatch = (remote) => {
+    refused = !gate.hub;
+    if (!seen.has(remote)) {
+      seen.add(remote);
+      gate.onMismatch(schemaMismatch(gate.local, remote));
+    }
+  };
+  const offLocal = peer.onLocal((e) => {
+    if (!refused) {
+      transport.send({ ...e, schema: gate.local });
+    }
+  });
+  const offRemote = transport.onMessage((e) => {
+    const remote = Number.isInteger(e?.schema) ? e.schema : null;
+    if (remote !== gate.local) {
+      mismatch(remote);
+      return undefined;
+    }
+    return e.type === HELLO ? undefined : peer.receive(e);
+  });
+  transport.send({ type: HELLO, schema: gate.local });
+  return stop(offLocal, offRemote);
 };
 
 export const loopback = () => {

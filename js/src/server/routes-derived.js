@@ -13,6 +13,11 @@ import { localSearch } from '../crm/index.js';
 import { evalAudience } from '../crm/audience.js';
 import { aggregateContacts } from './aggregate.js';
 import { diskHealth } from '../storage/disk-space.js';
+import {
+  CURRENT_SCHEMA,
+  SCHEMA_ID,
+  versionOf,
+} from '../storage/migrations/index.js';
 
 const computeStatus = (all, diffs) => ({
   links: all.length,
@@ -120,13 +125,22 @@ const HANDLERS = {
   // `disk` and `store` tell the page when new messages may not be saved
   // (R-Z14); `freeBytes` is null when the platform cannot say.
   '/api/health': async (store, _url, ctx = {}) => {
-    const { degraded = false, queuedBytes = 0 } = ctx.storeHealth?.() ?? {};
+    const {
+      degraded = false,
+      queuedBytes = 0,
+      schema = null,
+    } = ctx.storeHealth?.() ?? {};
     return {
       ok: true,
       links: (await store.query()).length,
       time: new Date().toISOString(),
       disk: await diskHealth(ctx.storeDir ?? '.', ctx.diskFree),
       store: { degraded, queuedBytes },
+      // The data schema this store is at and the one this build writes (R-Z17).
+      schema: {
+        version: schema?.version ?? versionOf(await store.get(SCHEMA_ID)),
+        current: CURRENT_SCHEMA,
+      },
     };
   },
 };

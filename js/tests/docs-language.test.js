@@ -18,6 +18,7 @@ const localizedDocGroups = [
   'docs/BEST-PRACTICES.md',
   'docs/CONTRIBUTING.md',
   'docs/CV-SYNC.md',
+  'docs/DATA-MIGRATIONS.md',
   'docs/FEATURES.md',
   'docs/features/vk.md',
   'docs/features/whatsapp.md',

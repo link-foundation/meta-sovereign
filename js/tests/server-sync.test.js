@@ -14,6 +14,7 @@ import assert from 'node:assert/strict';
 
 import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/index.js';
+import { CURRENT_SCHEMA } from '../src/storage/migrations/index.js';
 import { createPeer, vcTick, connectSyncWebSocket } from '../src/sync/index.js';
 
 const settle = () => new Promise((r) => setTimeout(r, 30));
@@ -27,7 +28,9 @@ test('main server exposes /ws sync alongside REST', async () => {
     port: handle.port,
     path: '/ws',
   });
-  createPeer(aStore, { node: 'client' }).connect(client.transport);
+  createPeer(aStore, { node: 'client', schemaVersion: CURRENT_SCHEMA }).connect(
+    client.transport
+  );
 
   await store.put({
     id: 'l:server-side',
@@ -113,7 +116,9 @@ test('REST + sync coexist: PUT /links also replicates over /ws', async () => {
     port: handle.port,
     path: '/ws',
   });
-  createPeer(aStore, { node: 'client' }).connect(client.transport);
+  createPeer(aStore, { node: 'client', schemaVersion: CURRENT_SCHEMA }).connect(
+    client.transport
+  );
 
   await fetch(`http://127.0.0.1:${handle.port}/links`, {
     method: 'PUT',
