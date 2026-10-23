@@ -402,6 +402,23 @@ main[data-view='chat'] > .web-mode-banner {
   color: var(--text-subtle);
   margin: 0.8rem 0.375rem 0.3rem;
 }
+/* A search across Telegram (R-Y107): the sections under the chats, the
+   count of messages found, the words found in the accent colour. */
+.global-group h3 {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.global-count {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.global-message mark {
+  background: none;
+  color: var(--chat-accent);
+  font-weight: 600;
+}
 .chat-list-grow {
   min-height: 1px;
 }

@@ -677,15 +677,32 @@ const useHashChat = () => {
  * A chat with no messages here yet (a contact never written to, or one
  * whose history is still loading), named from its person link.
  */
+// What a search across Telegram said of a chat not in the list yet
+// (R-Y107): its name and kind, until its messages say.
+const chatHints = new Map();
+const KIND_OF_PEER = { user: 'private', bot: 'private' };
+
+/** Remember a found chat's name and kind (`user`, `bot`, `group`…). */
+export const hintChat = ({ source, chat, name, kind }) => {
+  if (name) {
+    chatHints.set(chatKey(source, String(chat)), {
+      name,
+      kind: KIND_OF_PEER[kind] ?? kind ?? 'private',
+    });
+  }
+};
+
 export const emptyChat = (links = [], { source, chat }) => {
   const person = links.find((l) => l?.id === `person:${source}:${chat}`);
+  const hint = chatHints.get(chatKey(source, String(chat)));
+  const kind = hint?.kind ?? 'private';
   return {
     key: chatKey(source, chat),
     source,
     chat: String(chat),
-    name: person?.name ?? person?.handle ?? String(chat),
-    personal: true,
-    kind: 'private',
+    name: person?.name ?? person?.handle ?? hint?.name ?? String(chat),
+    personal: kind === 'private',
+    kind,
     people: [String(chat)],
     count: 0,
     last: { body: '', mine: false, at: null },
@@ -869,6 +886,17 @@ export const useChatState = (
     openChat(target);
     setActive(chatKey(target.source, String(target.chat)));
   };
+  // A chat opened from a search across Telegram (R-Y107), at a message
+  // when one was found: `arrival` until the chat has gone to it.
+  const [arrival, setArrival] = useState(null);
+  const openAt = (target, id = null) => {
+    hintChat(target);
+    show(target);
+    setNotice(null);
+    setArrival(
+      id ? { key: chatKey(target.source, String(target.chat)), id } : null
+    );
+  };
   const composer = useComposer({
     api,
     current,
@@ -939,6 +967,9 @@ export const useChatState = (
       setActive(key);
       setNotice(null);
     },
+    openAt,
+    arrival,
+    arrived: () => setArrival(null),
     messages,
     replyTargets,
     unreadLine: firstUnreadId(messages, unreadAfter),

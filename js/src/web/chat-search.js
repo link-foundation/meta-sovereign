@@ -12,11 +12,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { Spinner } from './spinner.js';
+import { goToMessage } from './chat-jump.js';
 
 const el = React.createElement;
 
 const WAIT_MS = 350;
-const FLASH_MS = 1600;
 
 const fold = (text) => String(text ?? '').toLocaleLowerCase();
 
@@ -33,21 +33,6 @@ export const localMatches = (messages = [], query = '') => {
 };
 
 const linkIdOf = (chat, id) => `msg:telegram:${chat}:${id}`;
-
-// Where a found message is: its row (or its album's), flashed.
-const showMessage = (id) => {
-  const safe = globalThis.CSS?.escape(id) ?? String(id);
-  const node = globalThis.document?.querySelector(
-    `.chat-scroll [data-message="${safe}"], .chat-scroll [data-items~="${safe}"]`
-  );
-  if (!node) {
-    return false;
-  }
-  node.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
-  node.classList?.add('is-found');
-  globalThis.setTimeout(() => node.classList?.remove('is-found'), FLASH_MS);
-  return true;
-};
 
 const CLOSED = Object.freeze({
   open: false,
@@ -79,9 +64,7 @@ export const useChatSearch = ({ api, current, messages, reach }) => {
     if (id === undefined) {
       return;
     }
-    if (!showMessage(id) && (await reach?.(id))) {
-      globalThis.setTimeout(() => showMessage(id), 60);
-    }
+    await goToMessage(id, reach);
   };
 
   const ask = async (query, offsetId = 0) => {

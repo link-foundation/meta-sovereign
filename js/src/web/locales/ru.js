@@ -1036,6 +1036,14 @@ export const ru = {
   'chat.days.close': 'Закрыть',
   'chat.days.failed':
     'Не удалось открыть эту дату. Попробуйте ещё раз чуть позже.',
+  'chat.global.peers': 'Глобальный поиск',
+  'chat.global.messages': 'Сообщения',
+  'chat.global.found':
+    '{count, plural, one {# сообщение} few {# сообщения} many {# сообщений} other {# сообщения}}',
+  'chat.global.kind.user': 'Пользователь',
+  'chat.global.kind.bot': 'Бот',
+  'chat.global.kind.group': 'Группа',
+  'chat.global.kind.channel': 'Канал',
   'chat.unreadLine': 'Непрочитанные сообщения',
   'chat.failedCount': 'Не отправлено сообщений: {count}',
   'chat.resendAll': 'Отправить все снова',

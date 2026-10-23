@@ -13,6 +13,9 @@
  *                                      -> { ok, id, newest } the first message
  *                                         at or after `date` (unix seconds)
  *                                         and a page around it (R-Y106)
+ *                       {chat, id} -> { ok, id, newest } message `id` and a
+ *                                         page around it (a jump to a message
+ *                                         far back, R-Y107)
  *   POST /api/telegram/dialogs {priority?}
  *                                      -> { written, complete } the next page
  *                                         of the chat list
@@ -35,6 +38,12 @@
  *                                         pin, unpin, mute (for seconds),
  *                                         unmute, archive, unarchive,
  *                                         read, unread (R-Y97)
+ *   POST /api/telegram/search-peers {q}
+ *                                      -> { ok, peers } people and chats by
+ *                                         name or username (R-Y107)
+ *   POST /api/telegram/search-global {q, cursor?}
+ *                                      -> { ok, messages, count, more, cursor }
+ *                                         messages in every chat (R-Y107)
  *   POST /api/telegram/search {chat, q, offsetId?}
  *                                      -> { ids, count, more } the chat's
  *                                         messages with `q`, newest first,
@@ -68,6 +77,7 @@ import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
+import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
 import {
   MAX_CAPTION,
@@ -133,6 +143,16 @@ const validDocument = (body) =>
   STICKER_ID.test(String(body.id ?? '')) &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
 
+const positive = (n) => Number.isInteger(n) && n > 0;
+
+// A search across Telegram: a query of a sane length, and the account
+// able to run it.
+const globalQuery = (body, run) =>
+  typeof body.q === 'string' &&
+  body.q.trim().length > 0 &&
+  body.q.length <= MAX_GLOBAL_QUERY &&
+  typeof run === 'function';
+
 // A chat's newest page, or the page before message `before`.
 const historyPage = async (account, body) => [
   200,
@@ -189,19 +209,21 @@ const POSTS = {
   },
   // The first message on a date, and a page around it (R-Y106).
   'history-at': async (account, body) => {
+    const where = positive(body.id)
+      ? { id: body.id, read: account.historyAround }
+      : { date: body.date, read: account.historyAt };
     if (
       !validChat(body.chat) ||
-      !Number.isInteger(body.date) ||
-      body.date <= 0 ||
-      typeof account.historyAt !== 'function'
+      !positive(where.id ?? where.date) ||
+      typeof where.read !== 'function'
     ) {
       return [400, { error: 'chat and date required', code: 'bad-request' }];
     }
     return [
       200,
-      await account.historyAt({
+      await where.read({
         chat: body.chat,
-        date: body.date,
+        ...(where.id ? { id: where.id } : { date: where.date }),
         priority: priorityOf(body.priority),
       }),
     ];
@@ -311,6 +333,22 @@ const POSTS = {
       }),
     ];
   },
+  // Search across Telegram (R-Y107).
+  'search-peers': async (account, body) =>
+    globalQuery(body, account.searchPeers)
+      ? [200, await account.searchPeers({ q: body.q })]
+      : [400, { error: 'q required', code: 'bad-request' }],
+  'search-global': async (account, body) =>
+    globalQuery(body, account.searchGlobal) &&
+    (body.cursor === undefined || typeof body.cursor === 'string')
+      ? [
+          200,
+          await account.searchGlobal({
+            q: body.q,
+            cursor: body.cursor ?? null,
+          }),
+        ]
+      : [400, { error: 'q required', code: 'bad-request' }],
   // Clear, delete or leave a chat (R-Y100).
   'remove-chat': async (account, body) => {
     if (

@@ -21,6 +21,7 @@ const rangeOf = (params) => ({
   before: params.get('before') || null,
   after: params.get('after') || null,
   at: params.get('at') || null,
+  around: params.get('around') || null,
 });
 
 export const handleChatRoutes = async (req, res, p, url, ctx) => {

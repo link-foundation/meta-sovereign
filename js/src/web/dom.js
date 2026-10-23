@@ -832,7 +832,8 @@ export const api = {
       error: 'server required for Telegram history',
     },
   // The first message on a date and a page around it (R-Y106):
-  // { chat, date } (unix seconds) → { ok, id, newest }.
+  // { chat, date } (unix seconds) → { ok, id, newest }; or message `id`
+  // and a page around it (R-Y107): { chat, id } → { ok, id, newest }.
   telegramHistoryAt: async (body = {}) =>
     (await serverPostReport('/api/telegram/history-at', body).catch(
       (error) => ({ error: error.message })
@@ -892,6 +893,16 @@ export const api = {
 
   // Search in one chat (R-Y98): { chat, q, offsetId? } → { ids, count,
   // more }, newest first; the messages found are stored.
+  // Across Telegram (R-Y107): { q } → { ok, peers }; { q, cursor? } →
+  // { ok, messages, count, more, cursor }.
+  telegramSearchPeers: async (body = {}) =>
+    (await serverPostReport('/api/telegram/search-peers', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for search' },
+  telegramSearchGlobal: async (body = {}) =>
+    (await serverPostReport('/api/telegram/search-global', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for search' },
   telegramSearch: async (body = {}) =>
     (await serverPostReport('/api/telegram/search', body).catch((error) => ({
       error: error.message,

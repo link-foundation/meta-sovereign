@@ -1,12 +1,13 @@
 // A chat window opened far back, as Telegram's apps open a date picked
-// in the calendar (R-Y106; learned, never copied): the page around the
+// in the calendar (R-Y106) or a message far back — a mention, a match of
+// a search, a reply (R-Y107; learned, never copied): the page around the
 // first message on or after that moment replaces what is held, with a
 // `ceiling` — the newest message held — so nothing newer shows above a
 // gap; scrolling down reads the pages after it (`loadNewer`) until the
 // newest is reached and the ceiling goes; the round "down" button goes
 // back to the newest at once (`toNewest`).
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { byTime, networkMessageId } from './chat-model.js';
 
 /** A window after a page newer than its ceiling arrived. */
@@ -69,8 +70,129 @@ const askAt = async (api, current, ms) => {
     : { id: linkIdOf(current, answer.id) };
 };
 
+const FLASH_MS = 1600;
+const SHOW_TRIES = 20;
+
+const SETTLE_MS = 160;
+
+const rowOf = (id) => {
+  const safe = globalThis.CSS?.escape(id) ?? String(id);
+  return globalThis.document?.querySelector(
+    `.chat-scroll [data-message="${safe}"], .chat-scroll [data-items~="${safe}"]`
+  );
+};
+
+// Whether a row is in its stream's view.
+const seen = (node) => {
+  const box = node?.closest?.('.chat-scroll')?.getBoundingClientRect?.();
+  const row = node?.getBoundingClientRect?.();
+  return Boolean(box && row) && row.bottom > box.top && row.top < box.bottom;
+};
+
+// Where a message is: its row (or its album's), in the middle, flashed;
+// at once when the chat was opened around it (`instant`), smoothly when
+// it was drawn already, as Telegram's apps go.
+const showMessage = (id, { instant = false } = {}) => {
+  const node = rowOf(id);
+  if (!node) {
+    return false;
+  }
+  node.scrollIntoView?.({
+    block: 'center',
+    behavior: instant ? 'auto' : 'smooth',
+  });
+  node.classList?.add('is-found');
+  globalThis.setTimeout(() => node.classList?.remove('is-found'), FLASH_MS);
+  return true;
+};
+
+const pause = (ms) =>
+  new Promise((resolve) => globalThis.setTimeout(resolve, ms));
+
+// A chat opened around a message: shown once drawn, and again while the
+// chat's own moves (its first scroll to the end) took it out of view.
+const showOpened = async (id) => {
+  let shown = false;
+  for (let i = 0; i < SHOW_TRIES && !shown; i += 1) {
+    await frame();
+    shown = showMessage(id, { instant: true });
+  }
+  for (let i = 0; shown && i < 3; i += 1) {
+    await pause(SETTLE_MS);
+    if (!seen(rowOf(id))) {
+      showMessage(id, { instant: true });
+    }
+  }
+  return shown;
+};
+
+const frame = () =>
+  new Promise((resolve) =>
+    (globalThis.requestAnimationFrame ?? globalThis.setTimeout)(resolve)
+  );
+
 /**
- * `{ jump(ms), loadNewer(), toNewest() }` for the open chat's window;
+ * Go to message `id` (a link id), as a click on a reply, a pinned
+ * message, a mention or a match does in Telegram's apps: shown when
+ * drawn; else `reach(id)` opens the chat around it, and it is shown once
+ * drawn. Whether it is.
+ */
+export const goToMessage = async (id, reach) => {
+  if (showMessage(id)) {
+    return true;
+  }
+  if (!id || !(await reach?.(id))) {
+    return false;
+  }
+  return showOpened(id);
+};
+
+// A chat opened at a found message waits this long after its first page
+// shows, so the chat's own scroll to its end comes first.
+const ARRIVE_MS = 120;
+
+/**
+ * A chat opened from a search across Telegram goes to the message found
+ * (R-Y107) once its first page shows: `state.arrival` is `{ key, id }`,
+ * `state.arrived()` says it is done.
+ */
+export const useArrival = (state) => {
+  const arrival = state.arrival;
+  const key = state.current?.key ?? null;
+  const reach = state.history?.reach;
+  const shown = (state.messages?.length ?? 0) > 0;
+  useEffect(() => {
+    if (!arrival || arrival.key !== key || !reach || !shown) {
+      return undefined;
+    }
+    let gone = false;
+    const timer = globalThis.setTimeout(async () => {
+      await goToMessage(arrival.id, reach);
+      if (!gone) {
+        state.arrived?.();
+      }
+    }, ARRIVE_MS);
+    return () => {
+      gone = true;
+      globalThis.clearTimeout(timer);
+    };
+  }, [arrival, key, reach, shown]);
+};
+
+// Telegram asked for message `id` (a link id) and a page around it, to
+// be stored; when it cannot answer (offline), the store may hold it.
+const askAround = async (api, current, id) => {
+  const num = networkMessageId({ id });
+  if (typeof api.telegramHistoryAt === 'function' && num) {
+    await api
+      .telegramHistoryAt({ chat: String(current.chat), id: num })
+      .catch(() => null);
+  }
+};
+
+/**
+ * `{ jump(ms), jumpTo(id), loadNewer(), toNewest() }` for the open
+ * chat's window;
  * `patch`, `ref`, `refill` and `retry` are the window's own.
  */
 export const useWindowJump = (
@@ -110,6 +232,35 @@ export const useWindowJump = (
       }
       patch(target, () => opened(page));
       return { id: found };
+    },
+    [api, key, telegram]
+  );
+
+  // Message `id` (a link id) shown: the window holds it already, or the
+  // page around it replaces what is held; whether it is there.
+  const jumpTo = useCallback(
+    async (id) => {
+      const held = key ? ref.current.get(key) : null;
+      if (held?.messages?.some((m) => m.id === id)) {
+        return true;
+      }
+      if (!current || typeof api.chatPage !== 'function') {
+        return false;
+      }
+      const target = key;
+      if (telegram) {
+        await askAround(api, current, id);
+      }
+      const page = await api.chatPage({
+        key: target,
+        around: id,
+        limit: pageSize,
+      });
+      if (!page || page.target !== id) {
+        return false;
+      }
+      patch(target, () => opened(page));
+      return true;
     },
     [api, key, telegram]
   );
@@ -171,5 +322,5 @@ export const useWindowJump = (
     refill(key);
   }, [key]);
 
-  return { jump, loadNewer, toNewest };
+  return { jump, jumpTo, loadNewer, toNewest };
 };

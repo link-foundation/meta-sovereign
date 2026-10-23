@@ -19,13 +19,6 @@ import { byTime, chatMessages, networkMessageId } from './chat-model.js';
 import { underCeiling, useWindowJump } from './chat-jump.js';
 
 export const PAGE_SIZE = 50;
-// How far back a jump to a message may load (pages of PAGE_SIZE), and
-// how long it waits for a page already coming.
-const REACH_PAGES = 40;
-const REACH_WAIT_MS = 30_000;
-const REACH_POLL_MS = 100;
-const pause = (ms) =>
-  new Promise((resolve) => globalThis.setTimeout(resolve, ms));
 export const PREFETCH_SIZE = 30;
 const PREFETCH_QUEUE = 40;
 const HOLD_MS = 30_000;
@@ -353,7 +346,8 @@ export const useChatWindow = (api, current, links, tick = 0) => {
       limit: PAGE_SIZE,
     });
     patch(target, (w) => {
-      const next = result ? mergePage(w, result) : w;
+      // A jump opened another window meanwhile: the page is not its.
+      const next = result && w.view === held.view ? mergePage(w, result) : w;
       const grew = next.messages[0]?.id !== w.messages[0]?.id;
       return {
         ...next,
@@ -388,42 +382,6 @@ export const useChatWindow = (api, current, links, tick = 0) => {
   const latestLoadOlder = useRef(loadOlder);
   latestLoadOlder.current = loadOlder;
 
-  // Load older pages until message `id` is held (a mention far back,
-  // R-Y55; a match of a search, R-Y98); whether it is. A page already
-  // coming (the user scrolled) is waited for, not taken as the end.
-  const reach = useCallback(
-    async (id) => {
-      const until = Date.now() + REACH_WAIT_MS;
-      for (let page = 0; page < REACH_PAGES; page += 1) {
-        const held = key ? ref.current.get(key) : null;
-        if (!held || held.messages?.some((m) => m.id === id)) {
-          return Boolean(held);
-        }
-        if (held.loading && Date.now() < until) {
-          await pause(REACH_POLL_MS);
-          page -= 1;
-          continue;
-        }
-        if (
-          held.loading ||
-          isStalled(held) ||
-          !hasOlder(held, { telegram, complete })
-        ) {
-          return false;
-        }
-        patch(key, () => ({ loading: true, failed: false }));
-        try {
-          await older(key, current.chat, held);
-        } catch {
-          patch(key, () => ({ loading: false, failed: true }));
-          return false;
-        }
-      }
-      return false;
-    },
-    [api, key, telegram, complete]
-  );
-
   useStallEnd(key, window.stalledAt, patch);
   const jumps = useWindowJump(api, current, {
     telegram,
@@ -445,7 +403,8 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     loading: window.loading,
     failed: window.failed,
     loadOlder,
-    reach,
+    // A jump to a message (a mention, a match of a search): R-Y107.
+    reach: jumps.jumpTo,
   };
 };
 

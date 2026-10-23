@@ -37,6 +37,7 @@ import { createUnreadMarks } from './telegram-unread.js';
 import { createPollActions } from './telegram-polls.js';
 import { createDialogActions } from './telegram-dialogs.js';
 import { createChatSearch } from './telegram-search.js';
+import { createGlobalSearch } from './telegram-global.js';
 import { createFileSender } from './telegram-upload.js';
 import { createChatRemoval } from './telegram-chat-removal.js';
 import { createScheduled } from './telegram-scheduled.js';
@@ -323,13 +324,14 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 };
 
 // Polls and checklists (R-Y74); the chat list's menu (R-Y97); search
-// in a chat (R-Y98); files and photos (R-Y99); clear, delete, leave
+// in a chat (R-Y98) and across Telegram (R-Y107); files and photos (R-Y99); clear, delete, leave
 // (R-Y100); scheduled messages (R-Y102); folders (R-Y103); stickers and
 // saved GIFs (R-Y105).
 const chatActions = (env, context) => ({
   ...createPollActions(env, context),
   ...createDialogActions(env, context),
   ...createChatSearch(env, context),
+  ...createGlobalSearch(env, context),
   ...createFileSender(env, context),
   ...createChatRemoval(env, context),
   ...createScheduled(env, context),

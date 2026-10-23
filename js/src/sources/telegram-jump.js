@@ -101,6 +101,43 @@ export const createHistoryJump = (env, tools, { whereIs }) => {
   };
 
   /**
+   * Message `id` and the messages around it, stored (from Telegram unless
+   * the stretch already holds it): `{ ok, id, newest }` — `id` null when
+   * Telegram has no such message (deleted).
+   */
+  const historyAround = async ({ chat, id, limit = 50, priority = 'view' }) => {
+    const target = String(chat ?? '');
+    const record = await store.get(historyLinkId(target));
+    if (target && covers(record, id)) {
+      return { ok: true, id: Number(id), newest: false, cached: true };
+    }
+    const at = target && id > 0 ? await open(target, priority) : null;
+    if (!at) {
+      return { ok: false, supported: false };
+    }
+    const half = Math.max(1, Math.floor(limit / 2));
+    const read = (side, options) =>
+      queue.run(`around:${target}:${id}:${side}`, priority, () =>
+        at.client.getMessages(at.peer, options)
+      );
+    // Messages after `id - 1`, oldest first: `id` itself, then newer.
+    const later = real(
+      await read('after', { offsetId: id - 1, reverse: true, limit: half })
+    );
+    const earlier = real(
+      await read('before', { offsetId: id, limit: limit - half })
+    );
+    const written = await keep(target, at.dialog, [...earlier, ...later]);
+    const found = later.find((m) => Number(m.id) === Number(id));
+    return {
+      ok: true,
+      id: found ? Number(id) : (later[0]?.id ?? null),
+      newest: later.length < half,
+      written,
+    };
+  };
+
+  /**
    * The page after message `after`, stored (from Telegram unless the
    * stretch already holds it): `{ written, cached, newest }`.
    */
@@ -127,5 +164,5 @@ export const createHistoryJump = (env, tools, { whereIs }) => {
     return { written, cached: false, newest: list.length < limit };
   };
 
-  return { historyAt, newer };
+  return { historyAt, historyAround, newer };
 };

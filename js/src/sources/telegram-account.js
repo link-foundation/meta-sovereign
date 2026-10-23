@@ -1061,6 +1061,7 @@ const addReaders = (env, { pace, mediaDir }) => {
     {
       credentials: () => readTelegramCredentials(store),
       toLinks: telegramDialogLinks,
+      dialogOfEntity,
       writeChanged,
     },
     { mediaDir }
@@ -1100,6 +1101,7 @@ const restoreHolds = ({ store, queue }) =>
 const readersOf = (env, backfill) => ({
   history: env.pages.history,
   historyAt: env.pages.historyAt,
+  historyAround: env.pages.historyAround,
   newer: env.pages.newer,
   moreDialogs: env.pages.moreDialogs,
   readFirst: backfill.prefer,

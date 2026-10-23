@@ -7,7 +7,8 @@
  *   page(key, before)  a page of one chat, older than message `before`
  *                      (the chat the user reads, as they scroll back);
  *                      or newer than message `after`, or around a time
- *                      `at` (a jump to a date, R-Y106).
+ *                      `at` (a jump to a date, R-Y106), or around
+ *                      message `around` (a jump to a message, R-Y107).
  *
  * The index holds a few numbers per message (id, time, network id), kept
  * current through the store's change feed. Its own feed marks a message
@@ -41,6 +42,64 @@ const newestOf = (entries) => {
     }
   }
   return head;
+};
+
+// Where a page older than message `before` ends (exclusive).
+const endBefore = async (store, sorted, before) => {
+  if (!before) {
+    return sorted.length;
+  }
+  const at = sorted.findIndex((e) => e.id === before);
+  if (at >= 0) {
+    return at;
+  }
+  const link = await store.get(before);
+  if (!link) {
+    return sorted.length;
+  }
+  const mark = entryOf(link);
+  const after = sorted.findIndex((e) => order(e, mark) >= 0);
+  return after < 0 ? sorted.length : after;
+};
+
+// Where a message (or the moment) a page is centred on stands.
+const targetOf = async (store, sorted, { at, around }) => {
+  if (around) {
+    const held = sorted.findIndex((e) => e.id === around);
+    if (held >= 0) {
+      return held;
+    }
+    const link = await store.get(around);
+    if (!link) {
+      return -1;
+    }
+    return sorted.findIndex((e) => order(e, entryOf(link)) >= 0);
+  }
+  const mark = { ts: String(at), num: 0 };
+  return sorted.findIndex((e) => order(e, mark) >= 0);
+};
+
+// `[start, end, target]` of the page asked for.
+const boundsOf = async (store, sorted, range, limit) => {
+  if (range.at || range.around) {
+    const found = await targetOf(store, sorted, range);
+    const from = found < 0 ? sorted.length : found;
+    // Around a message the page stays full at the chat's end too.
+    const last = range.around ? sorted.length - limit : from;
+    const start = Math.max(0, Math.min(from - Math.floor(limit / 2), last));
+    return [
+      start,
+      Math.min(sorted.length, start + limit),
+      found < 0 ? null : sorted[found].id,
+    ];
+  }
+  if (range.after) {
+    let start = await endBefore(store, sorted, range.after);
+    start += sorted[start]?.id === range.after ? 1 : 0;
+    return [start, Math.min(sorted.length, start + limit)];
+  }
+  const end = await endBefore(store, sorted, range.before);
+  return [Math.max(0, end - limit), end];
 };
 
 export const createChatIndex = (store) => {
@@ -122,24 +181,6 @@ export const createChatIndex = (store) => {
     return chat.sorted;
   };
 
-  // Where a page older than message `before` ends (exclusive).
-  const endBefore = async (sorted, before) => {
-    if (!before) {
-      return sorted.length;
-    }
-    const at = sorted.findIndex((e) => e.id === before);
-    if (at >= 0) {
-      return at;
-    }
-    const link = await store.get(before);
-    if (!link) {
-      return sorted.length;
-    }
-    const mark = entryOf(link);
-    const after = sorted.findIndex((e) => order(e, mark) >= 0);
-    return after < 0 ? sorted.length : after;
-  };
-
   return {
     ready: () => ready,
     /** The store's change feed, with `quiet` on history read ahead. */
@@ -159,41 +200,24 @@ export const createChatIndex = (store) => {
      * `before` (the newest ones without it); `more` when the store holds
      * older ones still, `newer` when it holds newer ones. With `after`,
      * the ones newer than that message; with `at` (an ISO time), the
-     * ones around it, `target` the first at or after it (null: none).
+     * ones around it, `target` the first at or after it (null: none);
+     * with `around` (a message's id), the ones around that message,
+     * `target` it (or the first after it when the store lacks it).
      */
-    async page(
-      key,
-      { before = null, after = null, at = null, limit = 50 } = {}
-    ) {
+    async page(key, range = {}) {
       await ready;
       const chat = chats.get(key);
       if (!chat) {
         return { messages: [], more: false, newer: false, target: null };
       }
       const sorted = sortedOf(chat);
-      let start;
-      let end;
-      let target;
-      if (at) {
-        const mark = { ts: String(at), num: 0 };
-        const found = sorted.findIndex((e) => order(e, mark) >= 0);
-        const from = found < 0 ? sorted.length : found;
-        target = found < 0 ? null : sorted[found].id;
-        start = Math.max(0, from - Math.floor(limit / 2));
-        end = Math.min(sorted.length, start + limit);
-      } else if (after) {
-        start = await endBefore(sorted, after);
-        start += sorted[start]?.id === after ? 1 : 0;
-        end = Math.min(sorted.length, start + limit);
-      } else {
-        end = await endBefore(sorted, before);
-        start = Math.max(0, end - limit);
-      }
+      const limit = range.limit ?? 50;
+      const [start, end, target] = await boundsOf(store, sorted, range, limit);
       return {
         messages: await linksOf(sorted.slice(start, end)),
         more: start > 0,
         newer: end < sorted.length,
-        ...(at ? { target } : {}),
+        ...(range.at || range.around ? { target } : {}),
       };
     },
     /** How many messages of a chat the store holds. */

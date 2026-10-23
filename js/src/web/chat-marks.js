@@ -1,6 +1,7 @@
 // Telegram's round @ and ♥ buttons above "down" (R-Y55): how many
 // mentions of us and reactions to our messages are not seen yet; a click
-// goes to the oldest one (loading older pages up to it) and tells
+// goes to the oldest one (the chat opened around it when it is far back,
+// R-Y107) and tells
 // Telegram it was seen — after the last one, the chat's whole list.
 
 import React, { useEffect, useRef, useState } from 'react';
@@ -14,7 +15,7 @@ const KINDS = [
 ];
 
 /** `next(kind)` goes to the next unread mark; `busy` while it does. */
-export const useUnreadMarks = (api, current, { reach, scrollTo }) => {
+export const useUnreadMarks = (api, current, { scrollTo }) => {
   const queues = useRef({ mentions: [], reactions: [] });
   const [busy, setBusy] = useState(null);
   const chat = current?.source === 'telegram' ? current.chat : null;
@@ -46,9 +47,7 @@ export const useUnreadMarks = (api, current, { reach, scrollTo }) => {
         return;
       }
       const key = `msg:telegram:${chat}:${id}`;
-      if (await reach?.(key)) {
-        globalThis.setTimeout(() => scrollTo(key), 60);
-      }
+      await scrollTo(key);
       await api.telegramReadMarks?.({ chat, kind, ids: [id], last });
     } finally {
       setBusy(null);
