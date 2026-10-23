@@ -384,7 +384,7 @@ describe('Microsoft Graph email live adapter', () => {
         expect(call.url.searchParams.get('$top')).toBe('1');
         expect(call.init.headers.Authorization).toBe('Bearer graph-token');
         expect(call.init.headers.Prefer).toBe(
-          'outlook.body-content-type="text"'
+          'outlook.body-content-type="html"'
         );
         return {
           value: [
@@ -463,9 +463,36 @@ describe('JMAP email live adapter', () => {
         };
       },
       (call) => {
+        // The real drafts and sent mailbox ids and the identity, by role.
+        expect(call.body.methodCalls[0][0]).toBe('Mailbox/get');
+        return {
+          methodResponses: [
+            [
+              'Mailbox/get',
+              {
+                list: [
+                  { id: 'mb-drafts', role: 'drafts' },
+                  { id: 'mb-sent', role: 'sent' },
+                ],
+              },
+              'm',
+            ],
+            [
+              'Identity/get',
+              { list: [{ id: 'id-1', email: 'me@x.com' }] },
+              'i',
+            ],
+          ],
+        };
+      },
+      (call) => {
         expect(call.url.pathname).toBe('/jmap');
         expect(call.body.methodCalls[0][0]).toBe('Email/set');
         expect(call.body.methodCalls[1][0]).toBe('EmailSubmission/set');
+        const [, set] = call.body.methodCalls[0];
+        expect(Object.keys(set.create.draft.mailboxIds)).toEqual(['mb-drafts']);
+        const [, submit] = call.body.methodCalls[1];
+        expect(submit.create.send.identityId).toBe('id-1');
         return {
           methodResponses: [['EmailSubmission/set', { created: {} }, 's']],
         };

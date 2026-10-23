@@ -18,6 +18,7 @@
  */
 
 import { emailSource } from './email.js';
+import { emailOptionsFrom, secretValue } from './email-store.js';
 import { putAll } from '../storage/universal.js';
 import { telegramSource } from './telegram.js';
 import { vkSource } from './vk.js';
@@ -137,9 +138,6 @@ const OPTION_KEYS = {
   'user-id': 'userId',
 };
 
-const secretValue = (link) =>
-  link?.token ?? link?.value ?? link?.body ?? link?.text ?? null;
-
 const secretToken = async (store, source, explicitId) => {
   const ids = [
     explicitId,
@@ -161,7 +159,8 @@ const secretToken = async (store, source, explicitId) => {
  * server; nothing here is logged.
  */
 export const liveOptionsFrom = async (store, source) => {
-  const options = {};
+  // Email's host, login and password too, and its sync and thread helpers (R-Z5).
+  const options = source === 'email' ? await emailOptionsFrom(store) : {};
   const token = await secretToken(store, source);
   if (token) {
     options.token = token;
@@ -259,12 +258,18 @@ const pullApiInto = async (store, source, options = {}) => {
       : null) ??
     saved.token ??
     null;
-  const result = await live.pullMessages({ ...saved, ...options, token });
+  // An option left undefined (a CLI flag not given) keeps the saved value.
+  const given = Object.fromEntries(
+    Object.entries(options).filter(([, value]) => value !== undefined)
+  );
+  const result = await live.pullMessages({ ...saved, ...given, token });
   const links = result.links ?? [];
   await putAll(
     store,
     links.map((link) => stampSourceLink(link, source))
   );
+  // What the pull remembers is written once the links are stored (R-Z5).
+  await result.afterStore?.();
   return {
     source,
     imported: links.length,

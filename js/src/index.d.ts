@@ -22,6 +22,8 @@ export declare const startServer: (opts: {
   port?: number;
   storeDir?: string;
   emailLiveFactory?: (config: unknown) => unknown;
+  /** Periodic pull of a connected mailbox; `false` turns it off. */
+  emailPoll?: false | { intervalMs?: number; firstMs?: number };
   cv?: {
     commander?: unknown;
     sessionFactory?: (options?: unknown) => unknown;

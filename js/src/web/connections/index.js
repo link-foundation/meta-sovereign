@@ -37,6 +37,7 @@ import {
 import { byPopularity, formatUsers, serviceUsers } from './popularity.js';
 import { BrowserSignIns, listOf } from './browser-sign-ins.js';
 import { Busy } from '../spinner.js';
+import { EmailPullRow } from './email-pull.js';
 
 const el = React.createElement;
 
@@ -334,8 +335,12 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
     if (!file) {
       return;
     }
-    const text = await file.text();
-    await importPayload(text, file.name);
+    // Mail is read as bytes, so every part keeps its own charset (R-Z5).
+    const content =
+      providerId === 'email'
+        ? new Uint8Array(await file.arrayBuffer())
+        : await file.text();
+    await importPayload(content, file.name);
   };
 
   const onPaste = async () => {
@@ -703,6 +708,7 @@ export const ProviderConnectionControls = ({
         initialValues: credentials,
         refresh,
       }),
+      providerId === 'email' ? el(EmailPullRow, { key: 'email-pull' }) : null,
       el(ProviderArchiveImport, { key: 'arch', providerId, provider }),
       el(ConnectionProbeRow, {
         key: 'probe',

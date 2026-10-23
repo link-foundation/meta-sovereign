@@ -364,4 +364,13 @@ export const zhChatAccount = {
   'safety.quiet.zone': '时区（留空：本机时区）',
   'safety.quiet.save': '保存',
   'safety.saved': '已保存',
+  'email.pull.button': '立即收取邮件',
+  'email.pull.working': '正在收取邮件…',
+  'email.pull.done': '已收取 {count} 封新邮件',
+  'email.pull.failed': '无法收取邮件：{message}',
+  'email.pull.rateLimited': '刚刚收取过邮件；请在 {seconds} 秒后重试',
+  'email.pull.hint':
+    '使用已保存的服务器、登录名和密码（或令牌），只收取新邮件。',
+  'email.attachments': '附件',
+  'email.download': '下载',
 };

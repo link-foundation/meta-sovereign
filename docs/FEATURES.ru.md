@@ -12,7 +12,7 @@ Telegram — эталонная сеть, её матрица ниже. У ка�
 | Facebook + Instagram    | [features/facebook.ru.md](./features/facebook.ru.md)           | 5              | 35       | 29                | 1          |
 | X                       | [features/x.ru.md](./features/x.ru.md)                         | 7              | 22       | 24                | 5          |
 | LinkedIn                | [features/linkedin.ru.md](./features/linkedin.ru.md)           | 4              | 19       | 27                | 3          |
-| Email                   | [features/email.ru.md](./features/email.ru.md)                 | 12             | 25       | 40                | 3          |
+| Email                   | [features/email.ru.md](./features/email.ru.md)                 | 29             | 23       | 25                | 3          |
 | GitHub                  | [features/github.ru.md](./features/github.ru.md)               | 14             | 15       | 35                | 2          |
 | Upwork                  | [features/upwork.ru.md](./features/upwork.ru.md)               | 4              | 21       | 19                | 1          |
 | PeoplePerHour           | [features/peopleperhour.ru.md](./features/peopleperhour.ru.md) | 2              | 15       | 12                | 1          |

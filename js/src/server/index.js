@@ -38,6 +38,7 @@
  *   GET  /api/greetings/*          -> greeting stickers/texts (routes-greetings.js)
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
+ *   GET  /api/email/attachment     -> a mail attachment from the media folder (routes-email.js)
  *   GET  /api/backups              -> list archives (gated on archiveDir)
  *   POST /api/backups              -> { passphrase?, keep? } -> { file }
  *   POST /api/backups/restore      -> { file, passphrase? } -> { restored }
@@ -87,6 +88,10 @@ import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
+import { handleEmailGets } from './routes-email.js';
+import { createAttachmentStore } from './email-attachments.js';
+import { createEmailPoller } from './email-poller.js';
+import { setAttachmentSink } from '../sources/email.js';
 import { handleEventRoutes } from './routes-events.js';
 import { createPasscodeLock } from './passcode.js';
 import { gateLocked, handlePasscodeRoutes } from './routes-passcode.js';
@@ -373,6 +378,21 @@ const githubCheckOf = (store, log, given) =>
 const mediaDirOf = (storeDir) =>
   storeDir ? path.join(storeDir, 'media', 'telegram') : null;
 
+// Mail (R-Z5): where attachments are kept next to the store, and the
+// periodic pull of a connected mailbox (`emailPoll: false` turns it off).
+const emailContext = (store, storeDir, poll, log, later) => {
+  const emailFiles = storeDir
+    ? createAttachmentStore(path.join(storeDir, 'media', 'email'))
+    : null;
+  setAttachmentSink(emailFiles ? (bytes) => emailFiles.save(bytes) : null);
+  const emailPoller =
+    poll === false
+      ? { start() {}, stop() {} }
+      : createEmailPoller({ store, log, ...poll });
+  later.push(() => emailPoller.start());
+  return { emailFiles, emailPoller };
+};
+
 // Listen (with HTTPS beside HTTP when asked, ./local-tls.js) and track
 // the front server's sockets as well, so close() ends them all.
 const listenTracked = async (server, sockets, options) => {
@@ -554,6 +574,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),
+    () => handleEmailGets(store, req, res, p, url, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),
     () => ctx.learned?.(store, req, res, p, url, ctx) ?? false,
     () => handleDerivedRoutes(store, req, res, p, url, ctx),
@@ -704,6 +725,7 @@ export const startServer = async ({
   node = 'server',
   secretPassphrase = process.env.MS_SECRET_PASSPHRASE ?? null,
   emailLiveFactory = null,
+  emailPoll,
   cv = {},
   // `{ self?, clink? }` for the reply-graph autocomplete (/api/suggest).
   replies,
@@ -763,6 +785,7 @@ export const startServer = async ({
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
+    ...emailContext(store, storeDir, emailPoll, log, later),
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
@@ -838,6 +861,7 @@ export const startServer = async ({
     close: () =>
       new Promise((resolve) => {
         bus?.close();
+        ctx.emailPoller.stop();
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
         ctx.autoImport?.close();

@@ -1243,6 +1243,25 @@ const rawApi = {
     return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
+  // A mail attachment's address (R-Z5): its download, or (inline) the
+  // picture a mail shows; `n` is its place in the message's attachments.
+  emailAttachmentUrl: async ({ id, n, inline } = {}) => {
+    const { client, origin } = await ensure();
+    if (!client.isOnline() || !id) {
+      return null;
+    }
+    const path = `/api/email/attachment?id=${encodeURIComponent(id)}&n=${Number(n) || 0}${inline ? '&inline=1' : ''}`;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
+  },
+
+  // Fetch new mail from the saved connection (R-Z5): { ok, imported, … }
+  // or { ok: false, error, code }.
+  emailPull: async (body = {}) =>
+    (await serverPostReport('/api/email/pull', body).catch((error) => ({
+      ok: false,
+      error: error.message,
+    }))) ?? { ok: false, error: 'server required', code: 'no-server' },
+
   // A chat's title, members and how many are online, or a person's
   // last seen; null when the server cannot tell.
   // The page's errors, in the server's log (./client-log.js).

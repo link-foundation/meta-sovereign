@@ -43,6 +43,7 @@ import { MediaStickerBox } from './chat-sticker-box.js';
 import { topicOfMessage } from './forum-topics.js';
 import { InlineKeyboard } from './chat-bots.js';
 import { RichMessage } from './chat-rich-message.js';
+import { emailBubble } from './chat-email-body.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
 import { CommentsBar } from './chat-comments-bar.js';
 import { ViewCount } from './chat-views.js';
@@ -1066,6 +1067,7 @@ const BubbleContent = ({
         onAction,
       })
     : null,
+  emailBubble(message, api),
   parts.text
     ? el('span', { key: 'body', className: 'bubble-body' }, [
         el(MessageText, {

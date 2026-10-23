@@ -45,6 +45,8 @@ describe('Node email raw protocol transport', () => {
     const { server, port } = await startLineServer(({ line, socket }) => {
       if (line === 'USER alice' || line === 'PASS secret') {
         socket.write('+OK\r\n');
+      } else if (line === 'UIDL' || line === 'LIST') {
+        socket.write('-ERR not supported\r\n');
       } else if (line === 'STAT') {
         socket.write('+OK 1 100\r\n');
       } else if (line === 'RETR 1') {
@@ -60,7 +62,7 @@ describe('Node email raw protocol transport', () => {
         protocol: 'pop3',
         host: '127.0.0.1',
         port,
-        secure: false,
+        security: 'none',
         username: 'alice',
         password: 'secret',
       });
@@ -100,7 +102,7 @@ describe('Node email raw protocol transport', () => {
         protocol: 'imap',
         host: '127.0.0.1',
         port,
-        secure: false,
+        security: 'none',
         username: 'alice',
         password: 'secret',
       });
@@ -154,7 +156,7 @@ describe('Node email raw protocol transport', () => {
         protocol: 'smtp',
         host: '127.0.0.1',
         port,
-        secure: false,
+        security: 'none',
         username: 'alice',
         password: 'secret',
       });

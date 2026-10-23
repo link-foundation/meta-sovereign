@@ -402,4 +402,14 @@ export const hiChatAccount = {
   'safety.quiet.zone': 'समय क्षेत्र (खाली: इस कंप्यूटर का)',
   'safety.quiet.save': 'सहेजें',
   'safety.saved': 'सहेजा गया',
+  'email.pull.button': 'अभी मेल लाएँ',
+  'email.pull.working': 'मेल लाया जा रहा है…',
+  'email.pull.done': '{count} नए संदेश मिले',
+  'email.pull.failed': 'मेल नहीं लाया जा सका: {message}',
+  'email.pull.rateLimited':
+    'मेल अभी-अभी लाया गया था; {seconds} सेकंड बाद फिर कोशिश करें',
+  'email.pull.hint':
+    'सहेजे गए सर्वर, लॉगिन और पासवर्ड (या टोकन) का उपयोग करता है और केवल नया मेल लाता है।',
+  'email.attachments': 'अटैचमेंट',
+  'email.download': 'डाउनलोड करें',
 };

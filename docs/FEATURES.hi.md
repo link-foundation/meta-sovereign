@@ -12,7 +12,7 @@ Telegram संदर्भ नेटवर्क है और उसकी म
 | Facebook + Instagram | [features/facebook.hi.md](./features/facebook.hi.md)           | 5       | 35    | 29       | 1             |
 | X                    | [features/x.hi.md](./features/x.hi.md)                         | 7       | 22    | 24       | 5             |
 | LinkedIn             | [features/linkedin.hi.md](./features/linkedin.hi.md)           | 4       | 19    | 27       | 3             |
-| Email                | [features/email.hi.md](./features/email.hi.md)                 | 12      | 25    | 40       | 3             |
+| Email                | [features/email.hi.md](./features/email.hi.md)                 | 29      | 23    | 25       | 3             |
 | GitHub               | [features/github.hi.md](./features/github.hi.md)               | 14      | 15    | 35       | 2             |
 | Upwork               | [features/upwork.hi.md](./features/upwork.hi.md)               | 4       | 21    | 19       | 1             |
 | PeoplePerHour        | [features/peopleperhour.hi.md](./features/peopleperhour.hi.md) | 2       | 15    | 12       | 1             |

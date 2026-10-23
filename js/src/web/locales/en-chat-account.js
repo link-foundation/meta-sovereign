@@ -396,4 +396,14 @@ export const enChatAccount = {
   'safety.quiet.zone': 'Time zone (empty: this computer)',
   'safety.quiet.save': 'Save',
   'safety.saved': 'Saved',
+  'email.pull.button': 'Fetch mail now',
+  'email.pull.working': 'Fetching mail…',
+  'email.pull.done': 'Fetched {count} new messages',
+  'email.pull.failed': 'Could not fetch mail: {message}',
+  'email.pull.rateLimited':
+    'Mail was fetched a moment ago; try again in {seconds} s',
+  'email.pull.hint':
+    'Uses the saved server, login and password (or token) and fetches only new mail.',
+  'email.attachments': 'Attachments',
+  'email.download': 'Download',
 };

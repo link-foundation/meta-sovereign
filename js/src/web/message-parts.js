@@ -722,8 +722,9 @@ export const attachmentMedia = (attachments) => {
 };
 
 // The text of a message: none for a rich one, which draws its blocks.
+// A mail with an HTML tree draws that tree instead (chat-email-body.js).
 const bodyOf = (link, rich) =>
-  typeof link?.body === 'string' && !rich ? link.body : '';
+  typeof link?.body === 'string' && !rich && !link.bodyTree ? link.body : '';
 
 /**
  * Parse a message link into all display parts.
@@ -734,7 +735,10 @@ const bodyOf = (link, rich) =>
  */
 export const parseMessageParts = (link, msgById = new Map()) => {
   const raw = link?.raw ?? {};
-  const media = parseMedia(raw) ?? attachmentMedia(link?.attachments);
+  // A mail lists its attachments itself (chat-email-body.js).
+  const media =
+    parseMedia(raw) ??
+    (link?.source === 'email' ? null : attachmentMedia(link?.attachments));
   const rich = richOf(raw);
   const body = bodyOf(link, rich);
   return {

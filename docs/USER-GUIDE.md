@@ -326,6 +326,22 @@ as `secret:email:host` / `secret:email:username` / `secret:email:password`,
 in addition to the OAuth token — so mailboxes that use password auth work
 without an OAuth flow.
 
+**Mail connection and security (R-Z5).** The server reads these saved fields
+(`secret:email:*`: host, port, security, username, password, mailbox, `ca`)
+for every pull and send. On the Email card, "Fetch mail now" pulls new mail
+(at most once every 15 seconds); a poller also pulls every 10 minutes once a
+mailbox is connected, and only new mail is fetched. `secure: false` now means
+STARTTLS is required: the connection is upgraded and its certificate is
+verified before the password is sent, and a server that cannot do it is
+refused. Plain text is allowed only for `127.0.0.1` (for example Proton
+Bridge). Certificates are always verified; to trust a private certificate
+save its CA in `ca`. A saved password is never sent to a different host than
+the one it was saved for. If you used `secure: false` against a real server
+before, it used to travel in clear text or fail; it now uses STARTTLS. Mail
+is shown from a sanitised copy: scripts, remote pictures and tracking pixels
+are removed, and attachments are downloads only. Not yet: an OAuth sign-in
+screen, a protocol field and a folder picker.
+
 The server needs permission to start a browser process and to write to
 its store directory. Optional settings:
 

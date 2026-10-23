@@ -24,7 +24,7 @@ An audit of the finished work found gaps. They are grouped in two waves. Wave 1 
 - R-Z2 (done): make the store, backups, saved secrets and logs safer.
 - R-Z3 (done): make automated sending safer (at most once, paced, quiet hours, opt-out list).
 - R-Z4 (done): make send and sync results truthful (no public LinkedIn post by mistake, no false CV-sync success, X direct messages, clear fallbacks).
-- R-Z5: fix email.
+- R-Z5 (done): fix email (safe sending, correct parsing and threading, verified TLS, incremental pulls, a fetch button).
 - R-Z6: get CI green (Deno, Bun, Windows, `cargo test`, browser e2e in CI).
 
 ### Wave 2 — planned, not now

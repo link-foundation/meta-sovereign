@@ -421,4 +421,14 @@ export const ruChatAccount = {
   'safety.quiet.zone': 'Часовой пояс (пусто: как на этом компьютере)',
   'safety.quiet.save': 'Сохранить',
   'safety.saved': 'Сохранено',
+  'email.pull.button': 'Получить почту',
+  'email.pull.working': 'Получаем почту…',
+  'email.pull.done': 'Получено новых писем: {count}',
+  'email.pull.failed': 'Не удалось получить почту: {message}',
+  'email.pull.rateLimited':
+    'Почту только что получали; повторите через {seconds} с',
+  'email.pull.hint':
+    'Используются сохранённые сервер, логин и пароль (или токен); забираются только новые письма.',
+  'email.attachments': 'Вложения',
+  'email.download': 'Скачать',
 };
