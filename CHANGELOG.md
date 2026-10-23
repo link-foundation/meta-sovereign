@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.3
+
+### Patch Changes
+
+- e2f95c0: Inbox pulls that run for VK, Upwork and PeoplePerHour, VK live updates, names, media, reactions and safe sends (R-Z8).
+
 ## 0.49.2
 
 ### Patch Changes
