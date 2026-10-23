@@ -230,6 +230,7 @@ import { EFFECTS_POSTS, validEffect } from './routes-telegram-effects.js';
 import { EMOJI_STATUS_POSTS } from './routes-telegram-emoji-status.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
+import { SECURITY_POSTS } from './routes-telegram-security.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
 import { MESSAGE_LINK_POSTS } from './routes-telegram-message-links.js';
@@ -994,6 +995,7 @@ const POSTS = {
   ...EMOJI_STATUS_POSTS,
   ...ROUND_POSTS,
   ...PRIVACY_POSTS,
+  ...SECURITY_POSTS,
   ...SHARE_POSTS,
   ...INLINE_POSTS,
   ...TTL_POSTS,

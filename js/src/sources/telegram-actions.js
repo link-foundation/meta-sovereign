@@ -88,6 +88,7 @@ import { createBotCommands } from './telegram-bot-commands.js';
 import { createWebApps } from './telegram-web-apps.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
+import { createSecurity } from './telegram-security.js';
 import { createInviteLinks } from './telegram-invite-links.js';
 import { createTtl } from './telegram-ttl.js';
 import { createAccountExtras } from './telegram-account-extras.js';
@@ -423,7 +424,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // archive settings, logged-in websites and pinned Saved Messages chats
 // (R-Y174); live folders, drag to reorder and shared folders (R-Y172); voice
 // and video note transcription (R-Y175); Telegram Stars: balance, history,
-// gifts, paid reactions and paid media (R-Y176).
+// gifts, paid reactions and paid media (R-Y176); two-step verification, account
+// self-destruct, sensitive content and per-session settings (R-Y177).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -490,6 +492,7 @@ const chatActions = (env, context) => {
     ...createProfile(env, withUploads),
     ...createStoryPost(env, withUploads),
     ...createPrivacy(env, context),
+    ...createSecurity(env, context),
     ...createTtl(env, context),
     ...createAccountExtras(env, context),
     ...createSavedTags(env, context),

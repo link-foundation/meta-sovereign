@@ -13,6 +13,14 @@ import { useT, useLocaleContext } from './i18n.js';
 import { FormDialog } from './chat-create.js';
 import { TtlChoices, periodWords } from './chat-ttl.js';
 import { CloseFriendsDialog } from './chat-contacts-edit.js';
+import {
+  AccountTtl,
+  SensitiveContent,
+  SessionSwitches,
+  SessionTtl,
+  TwoStep,
+  useSecurity,
+} from './chat-security.js';
 
 const el = React.createElement;
 
@@ -195,7 +203,7 @@ const Confirm = ({ t, text, onYes, onNo, name, yes }) =>
     ),
   ]);
 
-const SessionRow = ({ t, locale, s, asking, ask, stop, end }) =>
+const SessionRow = ({ api, setError, t, locale, s, asking, ask, stop, end }) =>
   el('div', { className: 'privacy-session', 'data-session': s.hash }, [
     el('strong', { key: 'd' }, s.device || s.platform),
     el(
@@ -213,6 +221,7 @@ const SessionRow = ({ t, locale, s, asking, ask, stop, end }) =>
         ? t('chat.privacy.thisDevice')
         : t('chat.privacy.lastActive', { date: when(s.active, locale) })
     ),
+    s.pending ? null : el(SessionSwitches, { key: 'sw', api, s, setError }),
     s.current
       ? null
       : asking
@@ -292,6 +301,8 @@ const Sessions = ({ api, t, setError }) => {
     ...sessions.map((s) =>
       el(SessionRow, {
         key: s.hash,
+        api,
+        setError,
         t,
         locale,
         s,
@@ -317,6 +328,20 @@ const Sessions = ({ api, t, setError }) => {
           { key: 'ttl', className: 'meta', 'data-ttl-days': ttlDays },
           t('chat.privacy.ttl', { days: ttlDays })
         )
+      : null,
+    ttlDays > 0
+      ? el(SessionTtl, {
+          key: 'ttl-edit',
+          api,
+          t,
+          days: ttlDays,
+          setError,
+          onSaved: (days) =>
+            setState({
+              phase: 'ready',
+              data: { ...state.data, ttlDays: days },
+            }),
+        })
       : null,
   ]);
 };
@@ -657,6 +682,8 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
   const [error, setError] = useState(null);
   const props = { api, t, setError };
   const archive = useArchiveSettings(api, t, setError);
+  const sec = useSecurity(api);
+  const secProps = { ...props, sec };
   return el(
     FormDialog,
     {
@@ -684,6 +711,31 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
         },
         el(SwitchGroup, { t, archive, names: PRIVACY_SWITCHES })
       ),
+      el(
+        Section,
+        { key: 'ts', name: 'two-step', title: t('chat.security.twoStep') },
+        el(TwoStep, secProps)
+      ),
+      el(
+        Section,
+        {
+          key: 'at',
+          name: 'account-ttl',
+          title: t('chat.security.selfDestruct'),
+        },
+        el(AccountTtl, secProps)
+      ),
+      sec.state.data?.content?.canChange
+        ? el(
+            Section,
+            {
+              key: 'sc',
+              name: 'sensitive',
+              title: t('chat.security.sensitiveTitle'),
+            },
+            el(SensitiveContent, secProps)
+          )
+        : null,
       el(
         Section,
         { key: 'ar', name: 'archive', title: t('chat.archive.settingsTitle') },

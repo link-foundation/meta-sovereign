@@ -1141,6 +1141,20 @@ export const api = {
     telegramPost('session-terminate', body),
   telegramSessionsTerminateOthers: () =>
     telegramPost('sessions-terminate-others', {}),
+  // Two-step verification, self-destruct, sensitive content and per-session
+  // settings (R-Y177).
+  telegramSecurity: () => telegramPost('security', {}),
+  telegramPasswordSet: (body = {}) => telegramPost('password-set', body),
+  telegramPasswordRemove: (body = {}) => telegramPost('password-remove', body),
+  telegramPasswordEmailConfirm: (body = {}) =>
+    telegramPost('password-email-confirm', body),
+  telegramPasswordEmailResend: () => telegramPost('password-email-resend', {}),
+  telegramPasswordEmailCancel: () => telegramPost('password-email-cancel', {}),
+  telegramAccountTtlSet: (body = {}) => telegramPost('account-ttl-set', body),
+  telegramSensitiveSet: (body = {}) => telegramPost('sensitive-set', body),
+  telegramSessionSettings: (body = {}) =>
+    telegramPost('session-settings', body),
+  telegramSessionTtlSet: (body = {}) => telegramPost('session-ttl-set', body),
   telegramBlocked: (body = {}) => telegramPost('blocked', body),
   telegramUnblock: (body = {}) => telegramPost('unblock', body),
   // A group's members ({ chat, q, offset, limit }) and one removed

@@ -217,6 +217,8 @@
     "test:e2e:translate": "node js/tests/e2e-translate-browser.mjs",
     "test:e2e:translate:webkit": "E2E_BROWSER=webkit node js/tests/e2e-translate-browser.mjs",
     "test:e2e:admin": "node js/tests/e2e-admin-browser.mjs",
+    "test:e2e:security": "node js/tests/e2e-security-browser.mjs",
+    "test:e2e:security:webkit": "E2E_BROWSER=webkit node js/tests/e2e-security-browser.mjs",
     "test:e2e:stats": "node js/tests/e2e-stats-browser.mjs",
     "test:e2e:stats:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stats-browser.mjs",
     "test:e2e:common-chats": "node js/tests/e2e-common-chats-browser.mjs",

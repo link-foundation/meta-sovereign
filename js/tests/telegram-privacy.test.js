@@ -284,6 +284,8 @@ test('sessions: shape, the current one marked, the auto-terminate period', async
     hash: '1',
     current: true,
     official: false,
+    secretChats: true,
+    calls: true,
     pending: false,
     device: 'Pixel',
     platform: 'Android',

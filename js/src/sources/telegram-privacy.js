@@ -242,6 +242,9 @@ export const sessionOf = (a) => ({
   hash: textOf(a.hash),
   current: Boolean(a.current),
   official: Boolean(a.officialApp),
+  // R-Y177: Telegram's flags say what is refused.
+  secretChats: !a.encryptedRequestsDisabled,
+  calls: !a.callRequestsDisabled,
   pending: Boolean(a.unconfirmed),
   device: a.deviceModel ?? '',
   platform: a.platform ?? '',
