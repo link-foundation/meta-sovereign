@@ -42,7 +42,9 @@ describe('SMTP security', () => {
         'secret@example.com',
       ]);
       assert.ok(server.seen.includes('RCPT TO:<secret@example.com>'));
-      assert.doesNotMatch(script.data.join('\n'), /bcc|secret@example\.com/i);
+      // (not the Message-ID line: its random hex can spell "bcc")
+      const headers = script.data.filter((line) => !/^Message-ID:/i.test(line));
+      assert.doesNotMatch(headers.join('\n'), /bcc|secret@example\.com/i);
       assert.match(script.data.join('\n'), /^Message-ID: <.+@example\.com>$/m);
       assert.match(script.data.join('\n'), /^Date: /m);
       assert.equal(result.messageId.startsWith('<'), true);

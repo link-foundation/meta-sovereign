@@ -44,8 +44,12 @@ if (mtime === null) {
   // One temp file per worker: two stores over one folder may snapshot at
   // the same time, and must not rename each other's file away.
   // Flushed before the rename, and the folder after it (R-Z2).
+  // Dated half a millisecond into the log's millisecond: the comparison is
+  // in whole milliseconds, and Deno turns seconds into a time rounding down,
+  // which would leave the snapshot a millisecond older than its log.
+  const at = mtime.getTime() / 1000 + 0.0005;
   await writeFileDurable(to, bytes, {
-    utime: [mtime, mtime],
+    utime: [at, at],
     tag: `.${threadId}.snapshot`,
   });
   parentPort.postMessage({ links, bytes: bytes.length });

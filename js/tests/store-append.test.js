@@ -123,8 +123,15 @@ test('one large record written again and again is compacted by size', async () =
     await writer.put(big(i));
   }
   assert.ok((await fs.stat(file)).size > 80_000, 'grown');
-  const reader = await createLinoTextStore(file, options);
-  assert.ok((await fs.stat(file)).size < 5_000, 'compacted when opened');
+  const events = [];
+  const reader = await createLinoTextStore(file, {
+    ...options,
+    onEvent: (event) => events.push(event),
+  });
+  assert.ok(
+    (await fs.stat(file)).size < 5_000,
+    `compacted when opened (${JSON.stringify(events)})`
+  );
   assert.equal((await reader.get('sync:telegram')).at, 79);
   assert.equal((await reader.query()).length, 3);
   // Deleting it counts too: its text is no longer live.
