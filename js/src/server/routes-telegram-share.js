@@ -1,5 +1,20 @@
 // Sharing a place and a contact (R-Y142): the routes of the POSTS table in
 // routes-telegram.js, each validated strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/send-location {chat, lat, lon, accuracy?, live?,
+//                       replyTo?, silent?, scheduleDate?, clientId?} -> { ok }
+//                       a place (latitude -90..90, longitude -180..180,
+//                       accuracy 0..1500 m) or, with live 900, 3600 or
+//                       28800 seconds, a live location (R-Y142)
+//   POST /api/telegram/stop-live-location {chat, id} -> { ok } our live
+//                       location message stops
+//   POST /api/telegram/send-contact {chat, contact | firstName, lastName?,
+//                       phone, replyTo?, silent?, scheduleDate?, clientId?}
+//                       -> { ok } one of our contacts by id (its phone read
+//                       server-side) or a typed name and phone
+//   POST /api/telegram/update-live-location {chat, id, lat, lon, accuracy?,
+//                       heading?} -> { ok } our live location moved (R-Y147)
 
 import { validSendAs } from '../sources/telegram-send-as-client.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';

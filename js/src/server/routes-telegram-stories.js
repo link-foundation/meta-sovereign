@@ -1,5 +1,13 @@
 // Viewing stories (R-Y140): the routes of the POSTS table in
 // routes-telegram.js, each validated strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/stories {state?, hidden?} -> { ok, peers, state,
+//                       more } the strip: who has stories, a page at a time
+//                       (R-Y140); `hidden: true` the hidden ones (R-Y148)
+//   POST /api/telegram/stories-peer {chat} -> { ok, peer, stories } one
+//                       peer's stories to show
+//   POST /api/telegram/stories-read {chat, maxId} -> { ok } seen up to maxId
 
 const CHAT = /^-?\d{1,20}$/;
 const STATE = /^[A-Za-z0-9+/=_-]{1,256}$/;

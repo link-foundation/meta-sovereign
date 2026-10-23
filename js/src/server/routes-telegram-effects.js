@@ -1,6 +1,11 @@
 // Message effects (R-Y149): the routes of the POSTS table in
 // routes-telegram.js. The send itself carries `effect` (a decimal
 // string) through /api/send; see `validEffect`.
+//
+// Its routes:
+//   POST /api/telegram/effects {}      -> { ok, effects: [{ id, emoticon,
+//                                         premiumRequired? }], premium }
+//                                         the message effects (R-Y149)
 
 import { EFFECT_ID } from '../sources/telegram-effects.js';
 

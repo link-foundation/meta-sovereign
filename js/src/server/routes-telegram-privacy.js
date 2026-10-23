@@ -1,5 +1,24 @@
 // Privacy and security (R-Y139): the routes of the POSTS table in
 // routes-telegram.js, each validated strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/privacy         -> { ok, keys: [{ key, choice,
+//                                         label, allow, disallow,
+//                                         options }] } who can see what
+//                                         (R-Y139)
+//   POST /api/telegram/privacy-set {key, choice}
+//                                      -> { ok, ...key } choice everybody,
+//                                         contacts or nobody; exceptions kept
+//   POST /api/telegram/privacy-ttl     -> { ok, period } the timer new chats
+//                                         start with (R-Y151)
+//   POST /api/telegram/privacy-ttl-set {period}
+//                                      -> { ok, period } 0 or a TTL period
+//   POST /api/telegram/sessions        -> { ok, ttlDays, sessions } devices
+//   POST /api/telegram/session-terminate {hash} -> { ok } not the current one
+//   POST /api/telegram/sessions-terminate-others -> { ok }
+//   POST /api/telegram/blocked {offset?, limit?}
+//                                      -> { ok, count, items, next }
+//   POST /api/telegram/unblock {id, accessHash} -> { ok }
 
 import {
   PRIVACY_KEYS,

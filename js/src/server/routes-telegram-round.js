@@ -1,5 +1,11 @@
 // A recorded round video to send (R-Y150): the route of the POSTS table
 // in routes-telegram.js, validated strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/send-round {chat, token, duration, size?,
+//                                  replyTo?}
+//                                      -> { ok, ids } a recorded clip
+//                                         as a round video (R-Y150)
 
 import {
   MAX_ROUND_SECONDS,

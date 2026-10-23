@@ -66,12 +66,6 @@
  *                                      -> { ok, readers: [{ id, name, date }] }
  *                                         who read the user's own message
  *                                         in a small group (R-Y127)
- *   POST /api/telegram/link-preview {text, url} -> { ok, state:
- *        'ready'|'pending'|'empty', preview? } the message box's link
- *        preview (R-Y145); its picture: GET …/link-preview-photo?id=
- *   POST /api/telegram/effects {}      -> { ok, effects: [{ id, emoticon,
- *                                         premiumRequired? }], premium }
- *                                         the message effects (R-Y149)
  *   POST /api/telegram/translate {chat, ids, to}
  *                                      -> { ok, items: [{ id, text,
  *                                         entities }] } 1..20 messages
@@ -106,19 +100,6 @@
  *                                  replyTo?}
  *                                      -> { ok, ids } a recorded voice
  *                                         as a voice message (R-Y108)
- *   POST /api/telegram/send-round {chat, token, duration, size?,
- *                                  replyTo?}
- *                                      -> { ok, ids } a recorded clip
- *                                         as a round video (R-Y150)
- *   POST /api/telegram/send-as {chat}  -> { ok, current, peers, premium }
- *                                         who may send in a supergroup
- *                                         and who does by default; send-
- *                                         files, -voice, -document, -poll
- *                                         and a message take `sendAs`
- *                                         (a peer id) too (R-Y141)
- *   POST /api/telegram/send-as-save {chat, sendAs}
- *                                      -> { ok, current } the default
- *                                         identity kept (R-Y141)
  *   POST /api/telegram/bot-callback {chat, id, data?, game?}
  *                                      -> { ok, message, alert, url } a
  *                                         bot's button pressed (R-Y110)
@@ -149,95 +130,6 @@
  *                                      -> { ok } a chat's name, description
  *                                         and photo (an upload's token, or
  *                                         "remove") changed
- *   POST /api/telegram/chat-permissions {chat} -> { ok, rights, slowMode,
- *                       canEdit } what members may do (true: allowed)
- *   POST /api/telegram/chat-permissions-set {chat, rights} -> { ok } only
- *                       the known boolean rights, changed (R-Y133)
- *   POST /api/telegram/slow-mode {chat, seconds} -> { ok } seconds 0, 10,
- *                       30, 60, 300, 900 or 3600
- *   POST /api/telegram/admin-log {chat, maxId?} -> { ok, events, next }
- *   POST /api/telegram/topic-icons {} -> { ok, icons: [{ id, emoji }] } the
- *                       emoji a topic may carry (R-Y153)
- *   POST /api/telegram/topic-create {chat, title, iconColor, iconEmojiId?}
- *                       -> { ok } title up to 128, one of Telegram's six
- *                       colours (R-Y153)
- *   POST /api/telegram/topic-edit {chat, topic, title?, iconEmojiId?,
- *                       closed?, hidden?} -> { ok } (R-Y153)
- *   POST /api/telegram/topic-pin {chat, topic, pinned} -> { ok } (R-Y153)
- *   POST /api/telegram/topic-delete {chat, topic} -> { ok } the topic and
- *                       its messages, never General (R-Y153)
- *   POST /api/telegram/forum-toggle {chat, enabled} -> { ok } a
- *                       supergroup's Topics on or off (R-Y153)
- *   POST /api/telegram/send-location {chat, lat, lon, accuracy?, live?,
- *                       replyTo?, silent?, scheduleDate?, clientId?} -> { ok }
- *                       a place (latitude -90..90, longitude -180..180,
- *                       accuracy 0..1500 m) or, with live 900, 3600 or
- *                       28800 seconds, a live location (R-Y142)
- *   POST /api/telegram/stop-live-location {chat, id} -> { ok } our live
- *                       location message stops
- *   POST /api/telegram/send-contact {chat, contact | firstName, lastName?,
- *                       phone, replyTo?, silent?, scheduleDate?, clientId?}
- *                       -> { ok } one of our contacts by id (its phone read
- *                       server-side) or a typed name and phone
- *   POST /api/telegram/inline-bot {username} -> { ok, bot: { id, username,
- *                       name, placeholder } } a bot with inline mode, or
- *                       code not-inline / no-bot (R-Y138)
- *   POST /api/telegram/inline-results {chat, username, query, offset?}
- *                       -> { ok, bot, queryId, gallery, results, next,
- *                       switchPm, switchWebview } a bot's answers, a page
- *   POST /api/telegram/inline-send {chat, queryId, id, replyTo?, clientId?,
- *                       sendAs?} -> { ok } one of those answers sent (as
- *                       the picked identity; location and contact sends
- *                       take `sendAs` too) (R-Y147)
- *   POST /api/telegram/inline-start-bot {username, startParam}
- *                       -> { ok, chat } "switch to PM": /start with the
- *                       parameter that bot's answer offered (R-Y147)
- *   POST /api/telegram/update-live-location {chat, id, lat, lon, accuracy?,
- *                       heading?} -> { ok } our live location moved (R-Y147)
- *   POST /api/telegram/history-ttl {chat, period} -> { ok, period } a
- *                       chat's auto-delete timer (seconds: 0, 1 day, 1
- *                       week, 1 month, 3 months, 6 months, 1 year) (R-Y143)
- *   POST /api/telegram/saved-dialogs {offsetDate?, offsetId?, offsetPeer?,
- *                       limit?} -> { ok, dialogs, next, complete } Saved
- *                       Messages by the chat they came from, paged
- *   POST /api/telegram/saved-history {chat, peer, before?, limit?}
- *                       -> { ok, messages, complete } what was saved from
- *                       one chat, oldest first
- *   POST /api/telegram/saved-delete {peer} -> { ok } all saved from it
- *   POST /api/telegram/saved-tags      -> { ok, premium, tags: [{ reaction,
- *                                         title, count }] } Saved Messages
- *                                         reaction tags (R-Y151)
- *   POST /api/telegram/saved-tag-search {chat, reaction, offsetId?}
- *                                      -> { ok, messages, more } saved
- *                                         messages with that reaction
- *   POST /api/telegram/saved-tag-rename {reaction, title}
- *                                      -> { ok, title } "" removes (Premium)
- *   POST /api/telegram/stories {state?, hidden?} -> { ok, peers, state,
- *                       more } the strip: who has stories, a page at a time
- *                       (R-Y140); `hidden: true` the hidden ones (R-Y148)
- *   POST /api/telegram/stories-peer {chat} -> { ok, peer, stories } one
- *                       peer's stories to show
- *   POST /api/telegram/stories-read {chat, maxId} -> { ok } seen up to maxId
- *   GET  /api/telegram/story?peer=&id= -> a story's picture or video (by
- *                       range), downloaded once
- *   POST /api/telegram/story-reply {chat, id, text} -> { ok } a private
- *                       reply to a story (R-Y148)
- *   POST /api/telegram/story-react {chat, id, reaction} -> { ok, reaction }
- *                       an emoji reaction; '' takes it back
- *   POST /api/telegram/story-views {chat, id, offset?} -> { ok, count,
- *                       viewsCount, reactionsCount, views, next } the
- *                       viewers of one's own story, 50 a page
- *   POST /api/telegram/story-delete {chat, id} -> { ok } one's own story
- *   POST /api/telegram/stories-hide {chat, hidden} -> { ok, hidden } a
- *                       peer's stories to or from the hidden list
- *   POST /api/telegram/story-can-post  -> { ok, remains, premium,
- *                       captionMax } or { ok: false, code: too-many |
- *                       premium } (stories.canSendStory; R-Y156)
- *   POST /api/telegram/story-post {token, kind: photo|video, caption,
- *                       privacy: everyone|contacts|close-friends|selected,
- *                       users?, screenshots?, pinned?, period?, duration?,
- *                       width?, height?} -> { ok } an upload posted as
- *                       the user's story (stories.sendStory; R-Y156)
  *   POST /api/telegram/profile         -> { ok, id, firstName, lastName,
  *                                         about, username, phone, hasPhoto,
  *                                         aboutMax } the user's own profile
@@ -253,42 +145,9 @@
  *   POST /api/telegram/profile-photo {token} | {remove: true}
  *                                      -> { ok } an upload set as the photo,
  *                                         or the photo removed
- *   POST /api/telegram/privacy         -> { ok, keys: [{ key, choice,
- *                                         label, allow, disallow,
- *                                         options }] } who can see what
- *                                         (R-Y139)
- *   POST /api/telegram/privacy-set {key, choice}
- *                                      -> { ok, ...key } choice everybody,
- *                                         contacts or nobody; exceptions kept
- *   POST /api/telegram/privacy-ttl     -> { ok, period } the timer new chats
- *                                         start with (R-Y151)
- *   POST /api/telegram/privacy-ttl-set {period}
- *                                      -> { ok, period } 0 or a TTL period
- *   POST /api/telegram/sessions        -> { ok, ttlDays, sessions } devices
- *   POST /api/telegram/session-terminate {hash} -> { ok } not the current one
- *   POST /api/telegram/sessions-terminate-others -> { ok }
- *   POST /api/telegram/blocked {offset?, limit?}
- *                                      -> { ok, count, items, next }
- *   POST /api/telegram/unblock {id, accessHash} -> { ok }
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
- *   POST /api/telegram/invite-links {chat, revoked?, offsetLink?,
- *                  offsetDate?} -> { ok, primary, links, count, next }
- *                                         the user's invite links (R-Y152)
- *   POST /api/telegram/invite-create {chat, title?, expireDate?, usageLimit?,
- *                  requestNeeded?} -> { ok, invite } (expireDate: unix s)
- *   POST /api/telegram/invite-edit {chat, link, revoked?, title?, expireDate?,
- *                  usageLimit?, requestNeeded?} -> { ok, invite }
- *   POST /api/telegram/invite-delete {chat, link} -> { ok } a revoked link
- *   POST /api/telegram/invite-delete-revoked {chat} -> { ok } all of them
- *   POST /api/telegram/invite-importers {chat, link? | requested: true,
- *                  offset?} -> { ok, importers, count, next } who joined
- *                                         through a link, or who asks to join
- *   POST /api/telegram/join-request-hide {chat, user, accessHash?, approved}
- *                                      -> { ok } one request decided
- *   POST /api/telegram/join-requests-hide-all {chat, approved, link?}
- *                                      -> { ok } every request decided
  *   POST /api/telegram/peer-block {chat, block} -> { ok, blocked }
  *   POST /api/telegram/peer-contact {chat, add, firstName?, lastName?,
  *                                    share?} -> { ok, contact }
@@ -326,25 +185,9 @@
  *   POST /api/telegram/remove-chat {chat, action, revoke?}
  *                                      -> { ok, deleted } clear, delete
  *                                         or leave the chat (R-Y100)
- *   GET  /api/telegram/media?chat=&id=&size=
- *                                      -> a message's picture (s/m/x/y/w),
- *                                         downloaded once, then from disk
- *   GET  /api/telegram/custom-emoji?id=&full=1
- *                                      -> a custom emoji's picture, or
- *                                         (full) its animation or video
- *                                         (R-Y120)
- *   GET  /api/telegram/map?lat=&lon=&w=&h=&zoom=&scale=&hash=
- *                                      -> a place's map picture, kept a
- *                                         day; strict 400s (R-Y131)
- *   GET  /api/telegram/file?chat=&id=  -> a message's video, voice, audio,
- *                                         GIF or sticker (up to 64 MB), by
- *                                         byte range for players to seek
- *   GET  /api/telegram/avatar?peer=&size=s|b&chat=&msg=
- *                                      -> a person's or chat's photo; 404
- *                                         when they have none
- *   GET  /api/telegram/chat-info?chat= -> { kind, title, members, online,
- *                                         username, about, photo, lastSeen? }
  * Responses carry the account's public name and counts, never a secret.
+ *
+ * Routes of the routes-telegram-*.js tables are documented in those files.
  */
 
 import { classifyOrigin } from './cors.js';

@@ -1,6 +1,15 @@
 // A group's permissions, slow mode and recent actions (R-Y133): the
 // routes of the POSTS table in routes-telegram.js, each validated
 // strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/chat-permissions {chat} -> { ok, rights, slowMode,
+//                       canEdit } what members may do (true: allowed)
+//   POST /api/telegram/chat-permissions-set {chat, rights} -> { ok } only
+//                       the known boolean rights, changed (R-Y133)
+//   POST /api/telegram/slow-mode {chat, seconds} -> { ok } seconds 0, 10,
+//                       30, 60, 300, 900 or 3600
+//   POST /api/telegram/admin-log {chat, maxId?} -> { ok, events, next }
 
 import { RIGHT_KEYS, SLOW_MODES } from '../sources/telegram-admin.js';
 

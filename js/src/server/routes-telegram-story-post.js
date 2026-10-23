@@ -1,5 +1,15 @@
 // Posting a story (R-Y156): the routes of the POSTS table in
 // routes-telegram.js, each validated strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/story-can-post  -> { ok, remains, premium,
+//                       captionMax } or { ok: false, code: too-many |
+//                       premium } (stories.canSendStory; R-Y156)
+//   POST /api/telegram/story-post {token, kind: photo|video, caption,
+//                       privacy: everyone|contacts|close-friends|selected,
+//                       users?, screenshots?, pinned?, period?, duration?,
+//                       width?, height?} -> { ok } an upload posted as
+//                       the user's story (stories.sendStory; R-Y156)
 
 import {
   CAPTION_MAX_PREMIUM,

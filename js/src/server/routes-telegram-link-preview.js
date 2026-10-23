@@ -2,6 +2,11 @@
 // table in routes-telegram.js, validated strictly before the account is
 // asked. The picture is served by GET /api/telegram/link-preview-photo
 // (routes-telegram-files.js).
+//
+// Its routes:
+//   POST /api/telegram/link-preview {text, url} -> { ok, state:
+//        'ready'|'pending'|'empty', preview? } the message box's link
+//        preview (R-Y145); its picture: GET …/link-preview-photo?id=
 
 import { PREVIEW_URL } from '../sources/telegram-link-preview.js';
 

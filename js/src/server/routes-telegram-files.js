@@ -3,6 +3,28 @@
  * a message's picture, a sticker's, a custom emoji's, a place's map, a
  * file by range, a peer's photo; and the GETs the page reads as JSON — a
  * chat's info, its unread marks. See ./routes-telegram.js for the list.
+ *
+ * Its routes:
+ *   GET  /api/telegram/story?peer=&id= -> a story's picture or video (by
+ *                       range), downloaded once
+ *   GET  /api/telegram/media?chat=&id=&size=
+ *                                      -> a message's picture (s/m/x/y/w),
+ *                                         downloaded once, then from disk
+ *   GET  /api/telegram/custom-emoji?id=&full=1
+ *                                      -> a custom emoji's picture, or
+ *                                         (full) its animation or video
+ *                                         (R-Y120)
+ *   GET  /api/telegram/map?lat=&lon=&w=&h=&zoom=&scale=&hash=
+ *                                      -> a place's map picture, kept a
+ *                                         day; strict 400s (R-Y131)
+ *   GET  /api/telegram/file?chat=&id=  -> a message's video, voice, audio,
+ *                                         GIF or sticker (up to 64 MB), by
+ *                                         byte range for players to seek
+ *   GET  /api/telegram/avatar?peer=&size=s|b&chat=&msg=
+ *                                      -> a person's or chat's photo; 404
+ *                                         when they have none
+ *   GET  /api/telegram/chat-info?chat= -> { kind, title, members, online,
+ *                                         username, about, photo, lastSeen? }
  */
 
 import { classifyOrigin } from './cors.js';

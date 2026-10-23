@@ -1,6 +1,21 @@
 // Inline bots in the message box (R-Y138): the routes of the POSTS table
 // in routes-telegram.js, each validated strictly before the account is
 // asked.
+//
+// Its routes:
+//   POST /api/telegram/inline-bot {username} -> { ok, bot: { id, username,
+//                       name, placeholder } } a bot with inline mode, or
+//                       code not-inline / no-bot (R-Y138)
+//   POST /api/telegram/inline-results {chat, username, query, offset?}
+//                       -> { ok, bot, queryId, gallery, results, next,
+//                       switchPm, switchWebview } a bot's answers, a page
+//   POST /api/telegram/inline-send {chat, queryId, id, replyTo?, clientId?,
+//                       sendAs?} -> { ok } one of those answers sent (as
+//                       the picked identity; location and contact sends
+//                       take `sendAs` too) (R-Y147)
+//   POST /api/telegram/inline-start-bot {username, startParam}
+//                       -> { ok, chat } "switch to PM": /start with the
+//                       parameter that bot's answer offered (R-Y147)
 
 import {
   MAX_OFFSET,

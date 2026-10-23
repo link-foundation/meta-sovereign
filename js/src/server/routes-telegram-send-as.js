@@ -1,5 +1,16 @@
 // "Send as" in a group (R-Y141): the routes of the POSTS table in
 // routes-telegram.js, each validated strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/send-as {chat}  -> { ok, current, peers, premium }
+//                                         who may send in a supergroup
+//                                         and who does by default; send-
+//                                         files, -voice, -document, -poll
+//                                         and a message take `sendAs`
+//                                         (a peer id) too (R-Y141)
+//   POST /api/telegram/send-as-save {chat, sendAs}
+//                                      -> { ok, current } the default
+//                                         identity kept (R-Y141)
 
 const SUPERGROUP = /^-100\d{1,15}$/;
 const PEER = /^-?\d{1,20}$/;

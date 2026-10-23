@@ -1,6 +1,16 @@
 // Reaction tags of Saved Messages (R-Y151): the routes of the POSTS table
 // in routes-telegram.js, each validated strictly before the account is
 // asked.
+//
+// Its routes:
+//   POST /api/telegram/saved-tags      -> { ok, premium, tags: [{ reaction,
+//                                         title, count }] } Saved Messages
+//                                         reaction tags (R-Y151)
+//   POST /api/telegram/saved-tag-search {chat, reaction, offsetId?}
+//                                      -> { ok, messages, more } saved
+//                                         messages with that reaction
+//   POST /api/telegram/saved-tag-rename {reaction, title}
+//                                      -> { ok, title } "" removes (Premium)
 
 import { TITLE_MAX, validReaction } from '../sources/telegram-saved-tags.js';
 

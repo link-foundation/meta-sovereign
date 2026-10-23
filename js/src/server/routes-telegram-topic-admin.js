@@ -1,6 +1,20 @@
 // Managing a forum group's topics (R-Y153): the routes of the POSTS table
 // in routes-telegram.js, each validated strictly before the account is
 // asked. The sources validate again; this keeps junk off the account.
+//
+// Its routes:
+//   POST /api/telegram/topic-icons {} -> { ok, icons: [{ id, emoji }] } the
+//                       emoji a topic may carry (R-Y153)
+//   POST /api/telegram/topic-create {chat, title, iconColor, iconEmojiId?}
+//                       -> { ok } title up to 128, one of Telegram's six
+//                       colours (R-Y153)
+//   POST /api/telegram/topic-edit {chat, topic, title?, iconEmojiId?,
+//                       closed?, hidden?} -> { ok } (R-Y153)
+//   POST /api/telegram/topic-pin {chat, topic, pinned} -> { ok } (R-Y153)
+//   POST /api/telegram/topic-delete {chat, topic} -> { ok } the topic and
+//                       its messages, never General (R-Y153)
+//   POST /api/telegram/forum-toggle {chat, enabled} -> { ok } a
+//                       supergroup's Topics on or off (R-Y153)
 
 import { TITLE_MAX, TOPIC_COLORS } from '../sources/telegram-topic-admin.js';
 

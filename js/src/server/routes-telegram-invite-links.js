@@ -1,6 +1,24 @@
 // A group's or channel's invite links and join requests (R-Y152): the
 // routes of the POSTS table in routes-telegram.js, each validated
 // strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/invite-links {chat, revoked?, offsetLink?,
+//                  offsetDate?} -> { ok, primary, links, count, next }
+//                                         the user's invite links (R-Y152)
+//   POST /api/telegram/invite-create {chat, title?, expireDate?, usageLimit?,
+//                  requestNeeded?} -> { ok, invite } (expireDate: unix s)
+//   POST /api/telegram/invite-edit {chat, link, revoked?, title?, expireDate?,
+//                  usageLimit?, requestNeeded?} -> { ok, invite }
+//   POST /api/telegram/invite-delete {chat, link} -> { ok } a revoked link
+//   POST /api/telegram/invite-delete-revoked {chat} -> { ok } all of them
+//   POST /api/telegram/invite-importers {chat, link? | requested: true,
+//                  offset?} -> { ok, importers, count, next } who joined
+//                                         through a link, or who asks to join
+//   POST /api/telegram/join-request-hide {chat, user, accessHash?, approved}
+//                                      -> { ok } one request decided
+//   POST /api/telegram/join-requests-hide-all {chat, approved, link?}
+//                                      -> { ok } every request decided
 
 import {
   validLink,

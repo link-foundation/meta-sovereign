@@ -1,6 +1,18 @@
 // A chat's auto-delete timer and Saved Messages by chat (R-Y143): the
 // routes of the POSTS table in routes-telegram.js, each validated
 // strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/history-ttl {chat, period} -> { ok, period } a
+//                       chat's auto-delete timer (seconds: 0, 1 day, 1
+//                       week, 1 month, 3 months, 6 months, 1 year) (R-Y143)
+//   POST /api/telegram/saved-dialogs {offsetDate?, offsetId?, offsetPeer?,
+//                       limit?} -> { ok, dialogs, next, complete } Saved
+//                       Messages by the chat they came from, paged
+//   POST /api/telegram/saved-history {chat, peer, before?, limit?}
+//                       -> { ok, messages, complete } what was saved from
+//                       one chat, oldest first
+//   POST /api/telegram/saved-delete {peer} -> { ok } all saved from it
 
 import { TTL_PERIODS } from '../sources/telegram-ttl.js';
 

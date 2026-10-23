@@ -1,5 +1,17 @@
 // Story interactions (R-Y148): the routes of the POSTS table in
 // routes-telegram.js, each validated strictly before the account is asked.
+//
+// Its routes:
+//   POST /api/telegram/story-reply {chat, id, text} -> { ok } a private
+//                       reply to a story (R-Y148)
+//   POST /api/telegram/story-react {chat, id, reaction} -> { ok, reaction }
+//                       an emoji reaction; '' takes it back
+//   POST /api/telegram/story-views {chat, id, offset?} -> { ok, count,
+//                       viewsCount, reactionsCount, views, next } the
+//                       viewers of one's own story, 50 a page
+//   POST /api/telegram/story-delete {chat, id} -> { ok } one's own story
+//   POST /api/telegram/stories-hide {chat, hidden} -> { ok, hidden } a
+//                       peer's stories to or from the hidden list
 
 const CHAT = /^-?\d{1,20}$/;
 const OFFSET = /^[A-Za-z0-9+/=_.-]{0,256}$/;
