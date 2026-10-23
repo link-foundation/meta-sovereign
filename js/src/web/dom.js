@@ -908,6 +908,17 @@ export const api = {
       error: error.message,
     }))) ?? { error: 'server required for search' },
 
+  // A chat's shared media (R-Y111): how many of each kind → { ok,
+  // counts }; a kind's page → { ok, messages, count, more, last }.
+  telegramSharedCounts: async (chat) =>
+    (await serverPostReport('/api/telegram/shared-counts', { chat }).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for shared media' },
+  telegramSharedMedia: async (body = {}) =>
+    (await serverPostReport('/api/telegram/shared-media', body).catch(
+      (error) => ({ error: error.message })
+    )) ?? { error: 'server required for shared media' },
+
   // Clear, delete or leave a chat (R-Y100): { chat, action: 'clear' |
   // 'delete' | 'leave', revoke? } → { ok, deleted }.
   telegramRemoveChat: async (body = {}) =>

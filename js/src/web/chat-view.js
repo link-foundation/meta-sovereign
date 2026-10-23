@@ -233,17 +233,22 @@ const subtitleOf = (t, state, chatTime) => {
 };
 
 // Who this is: what the conversation tells about them (R-Y50).
-const AboutButton = ({ about, onAbout }) => {
+// A personal chat's, and every Telegram chat's (its profile, R-Y111).
+const hasAbout = (chat) =>
+  Boolean(chat?.personal) || chat?.source === 'telegram';
+
+const AboutButton = ({ about, onAbout, chat }) => {
   const t = useT();
+  const label = t(chat?.personal ? 'chat.about.open' : 'chat.about.chatInfo');
   return el(
     'button',
     {
       type: 'button',
       className: about ? 'chat-about icon-btn active' : 'chat-about icon-btn',
       'data-action': 'chat-about',
-      'aria-label': t('chat.about.open'),
+      'aria-label': label,
       'aria-pressed': about,
-      title: t('chat.about.open'),
+      title: label,
       onClick: onAbout,
     },
     el(Icon, { name: 'user' })
@@ -286,7 +291,9 @@ const Header = ({ state, api, onBack, about, onAbout, find }) => {
       ),
     ]),
     el(SearchButton, { key: 'find', find }),
-    chat.personal ? el(AboutButton, { key: 'about', about, onAbout }) : null,
+    hasAbout(chat)
+      ? el(AboutButton, { key: 'about', about, onAbout, chat })
+      : null,
     el(AutomationMenu, {
       key: 'm',
       menu: state.menu,
@@ -1090,7 +1097,7 @@ const PinnedBar = ({ pinned, onOpen }) => {
 // profile column).
 const ChatTop = ({ state, api, onBack }) => {
   const [about, setAbout] = useState(false);
-  const chat = about && state.current?.personal ? state.current : null;
+  const chat = about && hasAbout(state.current) ? state.current : null;
   const find = useChatSearch({
     api,
     current: state.current,
@@ -1113,7 +1120,15 @@ const ChatTop = ({ state, api, onBack }) => {
           key: `about:${chat.key}`,
           api,
           chat,
+          info: state.info ?? null,
           username: state.info?.username ?? null,
+          onGo: (id) => {
+            // Narrow, the column covers the messages: it goes.
+            if (!globalThis.matchMedia?.('(min-width: 900px)').matches) {
+              setAbout(false);
+            }
+            return goToMessage(id, state.history?.reach);
+          },
           lastId: networkMessageId(
             state.messages.findLast((m) => !m.pending) ?? null
           ),

@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { Busy } from './spinner.js';
+import { ProfileHead, SharedMedia } from './chat-shared.js';
 
 const el = React.createElement;
 const AGAIN_MS = 10_000; // while the history is still being read
@@ -244,24 +245,36 @@ const OpenInTelegram = ({ chat, username, lastId, t }) => {
     : null;
 };
 
-/** The panel; `onClose` hides it. */
-export const PersonPanel = ({ api, chat, username, lastId, onClose }) => {
+/**
+ * The panel; `onClose` hides it. Every Telegram chat's has its profile
+ * and shared media (R-Y111), `info` the chat's, `onGo(id)` going to a
+ * message; a personal chat's, what the conversation tells.
+ */
+export const PersonPanel = ({
+  api,
+  chat,
+  info = null,
+  username,
+  lastId,
+  onClose,
+  onGo,
+}) => {
   const t = useT();
   const { dateTime } = useDates();
-  const learned = usePersonLearned(api, chat?.key, true);
+  const personal = Boolean(chat?.personal);
+  const learned = usePersonLearned(api, chat?.key, personal);
+  const title = personal
+    ? t('chat.about.title', { name: chat?.name ?? '' })
+    : t('chat.about.chatInfo');
   return el(
     'aside',
     {
       className: 'person-panel',
-      'aria-label': t('chat.about.title', { name: chat?.name ?? '' }),
+      'aria-label': title,
     },
     [
       el('header', { key: 'h', className: 'person-panel-head' }, [
-        el(
-          'strong',
-          { key: 't' },
-          t('chat.about.title', { name: chat?.name ?? '' })
-        ),
+        el('strong', { key: 't' }, title),
         el(
           'button',
           {
@@ -275,11 +288,13 @@ export const PersonPanel = ({ api, chat, username, lastId, onClose }) => {
           el(Icon, { name: 'close' })
         ),
       ]),
-      el(
-        'div',
-        { key: 'b', className: 'person-panel-body' },
-        el(Body, { learned, t, dateTime })
-      ),
+      el('div', { key: 'b', className: 'person-panel-body' }, [
+        chat?.source === 'telegram'
+          ? el(ProfileHead, { key: 'p', api, chat, info })
+          : null,
+        el(SharedMedia, { key: 'm', api, chat, onGo }),
+        personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,
+      ]),
       el(OpenInTelegram, { key: 'f', chat, username, lastId, t }),
     ]
   );

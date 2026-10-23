@@ -1059,6 +1059,22 @@ export const ru = {
   'chat.bot.keyboard': 'Клавиатура бота',
   'chat.bot.showKeyboard': 'Показать клавиатуру бота',
   'chat.bot.hideKeyboard': 'Скрыть клавиатуру бота',
+  'chat.about.chatInfo': 'Информация',
+  'chat.shared.none': 'Пока нет общих медиа',
+  'chat.shared.photos':
+    '{count, plural, one {# фотография} few {# фотографии} many {# фотографий} other {# фотографии}}',
+  'chat.shared.videos':
+    '{count, plural, one {# видео} few {# видео} many {# видео} other {# видео}}',
+  'chat.shared.files':
+    '{count, plural, one {# файл} few {# файла} many {# файлов} other {# файла}}',
+  'chat.shared.music':
+    '{count, plural, one {# аудиофайл} few {# аудиофайла} many {# аудиофайлов} other {# аудиофайла}}',
+  'chat.shared.links':
+    '{count, plural, one {# ссылка} few {# ссылки} many {# ссылок} other {# ссылки}}',
+  'chat.shared.voice':
+    '{count, plural, one {# голосовое сообщение} few {# голосовых сообщения} many {# голосовых сообщений} other {# голосового сообщения}}',
+  'chat.shared.gifs':
+    '{count, plural, one {# GIF} few {# GIF} many {# GIF} other {# GIF}}',
   'chat.global.peers': 'Глобальный поиск',
   'chat.global.messages': 'Сообщения',
   'chat.global.found':

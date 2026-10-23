@@ -1048,6 +1048,18 @@ export const en = {
   'chat.bot.keyboard': "The bot's keyboard",
   'chat.bot.showKeyboard': "Show the bot's keyboard",
   'chat.bot.hideKeyboard': "Hide the bot's keyboard",
+  'chat.about.chatInfo': 'Info',
+  'chat.shared.none': 'No shared media yet',
+  'chat.shared.photos': '{count, plural, one {# photo} other {# photos}}',
+  'chat.shared.videos': '{count, plural, one {# video} other {# videos}}',
+  'chat.shared.files': '{count, plural, one {# file} other {# files}}',
+  'chat.shared.music':
+    '{count, plural, one {# audio file} other {# audio files}}',
+  'chat.shared.links':
+    '{count, plural, one {# shared link} other {# shared links}}',
+  'chat.shared.voice':
+    '{count, plural, one {# voice message} other {# voice messages}}',
+  'chat.shared.gifs': '{count, plural, one {# GIF} other {# GIFs}}',
   'chat.global.peers': 'Global search',
   'chat.global.messages': 'Messages',
   'chat.global.found': '{count, plural, one {# message} other {# messages}}',

@@ -48,6 +48,12 @@
  *                                      -> { ids, count, more } the chat's
  *                                         messages with `q`, newest first,
  *                                         stored (R-Y98)
+ *   POST /api/telegram/shared-counts {chat}
+ *                                      -> { ok, counts } how many photos,
+ *                                         videos, files… (R-Y111)
+ *   POST /api/telegram/shared-media {chat, kind, offsetId?}
+ *                                      -> { ok, messages, count, more,
+ *                                         last } a kind's, newest first
  *   POST /api/telegram/upload?name=   (application/octet-stream body)
  *                                      -> { token, name, size } one file
  *                                         kept for send-files (R-Y99)
@@ -84,6 +90,7 @@ import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
 import { MAX_QUERY } from '../sources/telegram-search.js';
+import { SHARED_KINDS } from '../sources/telegram-shared.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
 import {
@@ -357,6 +364,30 @@ const POSTS = {
         chat: body.chat,
         q: body.q,
         offsetId: Number.isInteger(body.offsetId) ? body.offsetId : 0,
+      }),
+    ];
+  },
+  // A chat's shared media (R-Y111): how many of each kind, and a kind's.
+  'shared-counts': async (account, body) =>
+    validChat(body.chat) && typeof account.sharedCounts === 'function'
+      ? [200, await account.sharedCounts({ chat: body.chat })]
+      : [400, { error: 'chat required', code: 'bad-request' }],
+  'shared-media': async (account, body) => {
+    if (
+      !validChat(body.chat) ||
+      !Object.hasOwn(SHARED_KINDS, String(body.kind)) ||
+      (body.offsetId !== undefined &&
+        !(Number.isInteger(body.offsetId) && body.offsetId >= 0)) ||
+      typeof account.sharedMedia !== 'function'
+    ) {
+      return [400, { error: 'chat and kind required', code: 'bad-request' }];
+    }
+    return [
+      200,
+      await account.sharedMedia({
+        chat: body.chat,
+        kind: body.kind,
+        offsetId: body.offsetId ?? 0,
       }),
     ];
   },

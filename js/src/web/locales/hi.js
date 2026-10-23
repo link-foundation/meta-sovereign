@@ -1044,6 +1044,17 @@ export const hi = {
   'chat.bot.keyboard': 'बॉट का कीबोर्ड',
   'chat.bot.showKeyboard': 'बॉट का कीबोर्ड दिखाएँ',
   'chat.bot.hideKeyboard': 'बॉट का कीबोर्ड छिपाएँ',
+  'chat.about.chatInfo': 'जानकारी',
+  'chat.shared.none': 'अभी कोई साझा मीडिया नहीं',
+  'chat.shared.photos': '{count, plural, one {# फ़ोटो} other {# फ़ोटो}}',
+  'chat.shared.videos': '{count, plural, one {# वीडियो} other {# वीडियो}}',
+  'chat.shared.files': '{count, plural, one {# फ़ाइल} other {# फ़ाइलें}}',
+  'chat.shared.music':
+    '{count, plural, one {# ऑडियो फ़ाइल} other {# ऑडियो फ़ाइलें}}',
+  'chat.shared.links': '{count, plural, one {# साझा लिंक} other {# साझा लिंक}}',
+  'chat.shared.voice':
+    '{count, plural, one {# वॉइस संदेश} other {# वॉइस संदेश}}',
+  'chat.shared.gifs': '{count, plural, one {# GIF} other {# GIF}}',
   'chat.global.peers': 'वैश्विक खोज',
   'chat.global.messages': 'संदेश',
   'chat.global.found': '{count, plural, one {# संदेश} other {# संदेश}}',
