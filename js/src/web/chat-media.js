@@ -14,6 +14,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { PipButton, usePip } from './chat-pip.js';
+import { AttachedButton } from './chat-attached-button.js';
 import { Checklist, Poll } from './chat-poll.js';
 import { GiveawayCard, GiveawayResultsCard } from './chat-giveaway.js';
 import { GiftCodeCard } from './chat-gift-code-button.js';
@@ -248,6 +249,8 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
         },
       }),
       !gif && video ? el(PipButton, { key: 'pip', pip }) : null,
+      // "Stickers in this video" (R-Y206).
+      el(AttachedButton, { key: 'stickers', api, media, chat, msgId }),
     ]
   );
 };

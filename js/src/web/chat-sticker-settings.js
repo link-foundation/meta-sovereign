@@ -5,13 +5,15 @@
 // archived or removed (after an in-page question); "Archived stickers"
 // lists the archived sets, a page at a time, each with Add to bring it
 // back. The sticker panel in the composer asks its lists again after
-// every change.
+// every change. "Clear recent stickers" empties the panel's recent list and
+// "Quick reaction" chooses the double-click reaction (R-Y206).
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { FormDialog } from './chat-create.js';
 import { SetThumb, forgetStickers } from './chat-stickers.js';
 import { countKey, moveItem, orderIds } from './sticker-settings-model.js';
+import { QuickReactionPicker } from './chat-quick-reaction.js';
 
 const el = React.createElement;
 
@@ -280,6 +282,68 @@ const SetList = ({ api, emojis, archived, setError }) => {
   ]);
 };
 
+// "Clear recent stickers" (R-Y206), after an in-page question.
+const ClearRecent = ({ api, setError }) => {
+  const t = useT();
+  const [step, setStep] = useState('idle'); // idle | ask | busy | done
+  if (typeof api?.telegramStickerRecentClear !== 'function') {
+    return null;
+  }
+  const clear = async () => {
+    setStep('busy');
+    const answer = await Promise.resolve(
+      api.telegramStickerRecentClear()
+    ).catch(() => null);
+    if (answer?.ok) {
+      setError(null);
+      forgetStickers();
+      setStep('done');
+    } else {
+      setError(errorText(t, answer?.code));
+      setStep('idle');
+    }
+  };
+  if (step === 'ask' || step === 'busy') {
+    return el(
+      'span',
+      { className: 'privacy-confirm', 'data-confirm': 'clear-recent' },
+      [
+        el('span', { key: 't' }, t('chat.extras.clearAsk')),
+        el(Button, {
+          key: 'y',
+          action: 'confirm-clear-recent',
+          label: t('chat.extras.clearYes'),
+          onClick: clear,
+          disabled: step === 'busy',
+          danger: true,
+        }),
+        el(Button, {
+          key: 'n',
+          action: 'cancel-clear-recent',
+          label: t('chat.stickerSettings.confirmNo'),
+          onClick: () => setStep('idle'),
+          disabled: step === 'busy',
+        }),
+      ]
+    );
+  }
+  return el('span', { className: 'sticker-clear-recent' }, [
+    el(Button, {
+      key: 'c',
+      action: 'clear-recent',
+      label: t('chat.extras.clearRecent'),
+      onClick: () => setStep('ask'),
+    }),
+    step === 'done'
+      ? el(
+          'span',
+          { key: 'd', className: 'meta', 'data-done': 'clear-recent' },
+          t('chat.extras.cleared')
+        )
+      : null,
+  ]);
+};
+
 const Tab = ({ name, current, label, onClick }) =>
   el(
     'button',
@@ -317,6 +381,8 @@ export const StickerSettingsDialog = ({ api, close }) => {
       outside: true,
     },
     [
+      // The double-click reaction (R-Y206).
+      el(QuickReactionPicker, { key: 'q', api, onError: setError }),
       el('div', { key: 't', className: 'sticker-tabs', role: 'tablist' }, [
         el(Tab, {
           key: 's',
@@ -333,6 +399,9 @@ export const StickerSettingsDialog = ({ api, close }) => {
           onClick: () => choose('emoji'),
         }),
       ]),
+      kind === 'stickers' && !archived
+        ? el(ClearRecent, { key: 'cr', api, setError })
+        : null,
       el(Button, {
         key: 'a',
         action: 'toggle-archived',

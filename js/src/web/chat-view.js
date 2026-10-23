@@ -100,8 +100,7 @@ import {
 } from './chat-schedule.js';
 import { canEffect, EffectPanel } from './chat-effects.js';
 import { formatShortcut } from './text-shortcuts.js';
-import { useEmojiPanel } from './chat-emoji.js';
-import { useStickerTabs } from './chat-stickers.js';
+import { useEmojiTools } from './chat-emoji-tools.js';
 import { useVoice } from './chat-voice.js';
 import { useRoundVideo } from './chat-round-record.js';
 import { useFormatBar } from './chat-format-bar.js';
@@ -737,14 +736,6 @@ const ReplyBar = ({ replyTo, onClear }) => {
   ]);
 };
 
-// Telegram's words for emoji (R-Y117), when a Telegram user account is
-// there: for the emoji panel's search in any chat.
-const emojiKeywordsOf = (state, api) =>
-  state.telegram?.kind === 'user' &&
-  typeof api?.telegramEmojiKeywords === 'function'
-    ? (lang) => api.telegramEmojiKeywords({ lang })
-    : null;
-
 // "Send without sound" and "Schedule message" for the message box and
 // the files' box, and the chat's scheduled messages (./chat-schedule.js).
 const useSendLater = ({ state, api, composer, attach }) => {
@@ -934,13 +925,9 @@ const Composer = ({ state, api, keys }) => {
   // The emoji panel (R-Y104), with stickers and GIFs (R-Y105).
   const box = useRef(null);
   const typeText = (next) => composer.setText(next, { typed: true });
-  const stickers = useStickerTabs({ state, api, composer });
-  const emoji = useEmojiPanel({
-    box,
-    setText: typeText,
-    extra: stickers.tabs,
-    keywords: emojiKeywordsOf(state, api),
-  });
+  // ":word" suggests emoji by Telegram's words (R-Y206).
+  const tools = useEmojiTools({ state, api, composer, box, text, typeText });
+  const { stickers, emoji } = tools;
   // With nothing typed, the microphone (R-Y108).
   const voice = useVoice({ state, api });
   // Or, switched over, the camera: a round video (R-Y150).
@@ -975,7 +962,10 @@ const Composer = ({ state, api, keys }) => {
     const first = suggest.suggestions?.[0];
     // Enter that confirms an input method's word (Chinese, Japanese…) is
     // not a Send.
-    if (composing(event) || inline.onKey(event) || commands.onKey(event)) {
+    if (
+      composing(event) ||
+      [inline, commands, tools.suggest].some((part) => part.onKey(event))
+    ) {
       return;
     }
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -999,6 +989,7 @@ const Composer = ({ state, api, keys }) => {
     [
       inline.panel,
       commands.list,
+      tools.suggest.list,
       el(Suggestions, { key: 's', suggest, composer }),
       format.bar,
       emoji.panel,

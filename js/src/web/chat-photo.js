@@ -7,11 +7,14 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useT } from './i18n.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { useAutoLoad } from './auto-download.js';
 import { Icon } from './icons.js';
+import { AttachedStickers } from './chat-attached-stickers.js';
+import { viewerStickers } from './chat-attached-button.js';
 
 const el = React.createElement;
 
@@ -134,6 +137,8 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
         ? el(PhotoViewer, {
             key: 'viewer',
             src: src || strippedUrl,
+            // "Stickers in this photo" in the viewer's menu (R-Y206).
+            stickers: viewerStickers(api, media, chat, msgId),
             onClose: () => setOpen(false),
             onRequestFull: async () => {
               if (!api?.telegramMediaUrl) {
@@ -154,29 +159,99 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
   );
 };
 
-// Fullscreen viewer: ESC or click overlay closes.
-const PhotoViewer = ({ src, onClose, onRequestFull }) => {
+// The viewer's menu button; its one item opens the photo's sticker sets.
+const ViewerMenu = ({ t, onStickers }) => {
+  const [open, setOpen] = useState(false);
+  return el(
+    'div',
+    { className: 'photo-viewer-menu', onClick: (e) => e.stopPropagation() },
+    [
+      el(
+        'button',
+        {
+          key: 'm',
+          type: 'button',
+          className: 'photo-viewer-more',
+          'data-action': 'viewer-menu',
+          'aria-haspopup': 'menu',
+          'aria-expanded': open ? 'true' : 'false',
+          'aria-label': t('chat.extras.viewerMenu'),
+          onClick: () => setOpen(!open),
+        },
+        '\u22ef'
+      ),
+      open
+        ? el(
+            'div',
+            { key: 'l', className: 'photo-viewer-items', role: 'menu' },
+            el(
+              'button',
+              {
+                type: 'button',
+                role: 'menuitem',
+                'data-action': 'attached-stickers',
+                onClick: () => {
+                  setOpen(false);
+                  onStickers();
+                },
+              },
+              t('chat.extras.attached')
+            )
+          )
+        : null,
+    ]
+  );
+};
+
+// Fullscreen viewer: ESC or click overlay closes. `stickers`, when the
+// photo has stickers on it: `{ api, chat, msgId }` (R-Y206).
+const PhotoViewer = ({ src, onClose, onRequestFull, stickers = null }) => {
   const t = useT();
+  const [asking, setAsking] = useState(false);
+  // Escape closes the sticker sets' dialog first, not the viewer too.
+  const asked = useRef(false);
+  asked.current = asking;
   useEffect(() => {
     onRequestFull?.();
-    const onKey = (e) => e.key === 'Escape' && onClose();
+    const onKey = (e) => e.key === 'Escape' && !asked.current && onClose();
     globalThis.addEventListener?.('keydown', onKey);
     return () => globalThis.removeEventListener?.('keydown', onKey);
   }, []);
-  return el(
+  const view = el(
     'div',
     {
       className: 'photo-viewer',
       role: 'dialog',
       'aria-modal': 'true',
       'aria-label': t('chat.openMedia'),
-      onClick: onClose,
+      // React bubbles a click to the photo under the viewer, which would
+      // open it again.
+      onClick: (e) => {
+        e.stopPropagation();
+        onClose();
+      },
     },
-    el('img', {
-      ...mediaSrc(src),
-      className: 'photo-viewer-img',
-      alt: '',
-      onClick: (e) => e.stopPropagation(),
-    })
+    [
+      el('img', {
+        key: 'img',
+        ...mediaSrc(src),
+        className: 'photo-viewer-img',
+        alt: '',
+        onClick: (e) => e.stopPropagation(),
+      }),
+      stickers
+        ? el(ViewerMenu, { key: 'menu', t, onStickers: () => setAsking(true) })
+        : null,
+      asking
+        ? el(AttachedStickers, {
+            key: 'attached',
+            ...stickers,
+            onClose: () => setAsking(false),
+          })
+        : null,
+    ]
   );
+  // On the page's body: the chat's own layer is under the header.
+  const root = globalThis.document?.body;
+  return root ? createPortal(view, root) : view;
 };

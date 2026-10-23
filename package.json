@@ -160,6 +160,8 @@
     "test:e2e:emoji-status:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-status-browser.mjs",
     "test:e2e:sticker-settings": "node js/tests/e2e-sticker-settings-browser.mjs",
     "test:e2e:sticker-settings:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-settings-browser.mjs",
+    "test:e2e:sticker-extras": "node js/tests/e2e-sticker-extras-browser.mjs",
+    "test:e2e:sticker-extras:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-extras-browser.mjs",
     "test:e2e:chat-theme": "node js/tests/e2e-chat-theme-browser.mjs",
     "test:e2e:chat-theme:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-theme-browser.mjs",
     "test:e2e:contacts-edit": "node js/tests/e2e-contacts-edit-browser.mjs",

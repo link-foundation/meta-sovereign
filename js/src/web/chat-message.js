@@ -48,6 +48,7 @@ import { CommentsBar } from './chat-comments-bar.js';
 import { ViewCount } from './chat-views.js';
 import { FactCheck } from './chat-fact-check.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
+import { useRowReactions } from './chat-quick-reaction.js';
 import { PaidMedia, PaidReactionChip } from './chat-paid.js';
 import { ReadTimeLine } from './chat-read-time.js';
 import { GiftCodeLine } from './chat-gift-code-button.js';
@@ -1237,7 +1238,7 @@ export const MessageBubble = ({
     onSelect,
     onAction,
     setMenu,
-    quickReaction: allowedReactions[0],
+    ...useRowReactions(api, allowedReactions),
   });
 
   if (message.service) {

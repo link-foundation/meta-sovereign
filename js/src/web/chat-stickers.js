@@ -43,6 +43,7 @@ import {
 import { composerReplyId } from './forum-topics.js';
 import { RemoveSetDialog } from './chat-sticker-box.js';
 import { sendAsField } from './chat-send-as.js';
+import { FeaturedSets } from './chat-sticker-trending.js';
 
 const el = React.createElement;
 
@@ -231,7 +232,7 @@ const Section = ({ id, title, action = null, children }) =>
 const added = new Set();
 
 // A found set's Add button; `onAdd(set)` resolves true once it is added.
-const AddSet = ({ set, onAdd }) => {
+export const AddSet = ({ set, onAdd }) => {
   const t = useT();
   const [state, setState] = useState(
     set.installed || added.has(set.id) ? 'added' : 'add'
@@ -276,7 +277,15 @@ const RemoveSet = ({ set, onRemove }) => {
 
 // A set's stickers, asked once the list comes near it; until then a
 // space as tall as they will be, so the bar's jumps land.
-const SetSection = ({ api, set, onSend, onMenu, onAdd, onRemove }) => {
+export const SetSection = ({
+  api,
+  set,
+  onSend,
+  onMenu,
+  onAdd,
+  onRemove,
+  mark = null,
+}) => {
   const ref = useRef(null);
   const { near } = useNearView(ref);
   const answer = useAnswer(
@@ -294,7 +303,14 @@ const SetSection = ({ api, set, onSend, onMenu, onAdd, onRemove }) => {
       Section,
       {
         id: `set:${set.id}`,
-        title: set.title,
+        title: mark
+          ? el(
+              React.Fragment,
+              null,
+              set.title,
+              el('span', { className: 'sticker-new' }, mark)
+            )
+          : set.title,
         action:
           onAdd && set.installed === false
             ? el(AddSet, { key: 'add', set, onAdd })
@@ -350,7 +366,7 @@ const Bar = ({ api, sections, inView, jump }) => {
   );
 };
 
-const Note = ({ text }) => el('p', { className: 'emoji-none' }, text);
+export const Note = ({ text }) => el('p', { className: 'emoji-none' }, text);
 
 const failure = (answer, t) =>
   answer?.supported === false
@@ -437,9 +453,21 @@ export const StickersTab = ({
   onRemove,
   version,
 }) => {
+  const t = useT();
   const [query, setQuery] = useState('');
+  // The trending sets over the panel (R-Y206).
+  const [trending, setTrending] = useState(false);
   const q = useDebounced(query.trim());
   const search = canSearch(api, 'telegramStickerSearch');
+  if (trending) {
+    return el(FeaturedSets, {
+      api,
+      onSend,
+      onMenu,
+      onAdd,
+      onBack: () => setTrending(false),
+    });
+  }
   return el(React.Fragment, null, [
     search
       ? el(SearchBox, {
@@ -448,6 +476,19 @@ export const StickersTab = ({
           value: query,
           onChange: setQuery,
         })
+      : null,
+    canSearch(api, 'telegramStickerFeatured')
+      ? el(
+          'button',
+          {
+            key: 'trending',
+            type: 'button',
+            className: 'sticker-trending-button',
+            'data-action': 'sticker-trending',
+            onClick: () => setTrending(true),
+          },
+          t('chat.extras.trending')
+        )
       : null,
     search && q
       ? el(
@@ -849,7 +890,7 @@ export const useStickerTabs = ({ state, api, composer }) => {
   const send = useSend({ state, api, composer });
   const menu = useStickerMenu({ state, api, send });
   if (!canStickers(state, api)) {
-    return { tabs: [], parts: null };
+    return { tabs: [], parts: null, featuredEmoji: null };
   }
   const props = (close) => ({
     api,
@@ -873,5 +914,16 @@ export const useStickerTabs = ({ state, api, composer }) => {
       },
     ],
     parts: menu.parts,
+    // The trending custom emoji sets, for the emoji tab (R-Y206).
+    featuredEmoji:
+      typeof api.telegramStickerFeatured === 'function'
+        ? (back) =>
+            el(FeaturedSets, {
+              api,
+              emojis: true,
+              onAdd: menu.add,
+              onBack: back,
+            })
+        : null,
   };
 };

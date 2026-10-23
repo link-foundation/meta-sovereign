@@ -53,7 +53,7 @@ export const stickerSetOf = (media) => {
 };
 
 // Escape closes the box or the question.
-const useEscape = (onClose) => {
+export const useEscape = (onClose) => {
   const latest = useRef(onClose);
   latest.current = onClose;
   useEffect(() => {
@@ -68,7 +68,7 @@ const useEscape = (onClose) => {
   }, []);
 };
 
-const Overlay = ({ label, onClose, className, children }) =>
+export const Overlay = ({ label, onClose, className, children }) =>
   el(
     'div',
     {

@@ -10,6 +10,7 @@ import { useT } from './i18n.js';
 import { FormDialog } from './chat-create.js';
 import { EmojiStatus } from './emoji-status.js';
 import { CustomEmoji } from './custom-emoji.js';
+import { EmojiStatusSearch } from './chat-emoji-status-search.js';
 import { DURATIONS, activeStatus, untilOf } from './emoji-status-model.js';
 
 const el = React.createElement;
@@ -137,6 +138,14 @@ const Picker = ({ api, t, lists, onSet }) => {
           t('chat.emojiStatus.locked')
         )
       : el(Choices, { key: 'd', t, duration, setDuration }),
+    // Custom emoji found by words, for Premium (R-Y206).
+    locked
+      ? null
+      : el(EmojiStatusSearch, {
+          key: 's',
+          api,
+          onPick: (id) => onSet(id, untilOf(seconds)),
+        }),
     el(Grid, {
       key: 'r',
       api,

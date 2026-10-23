@@ -433,4 +433,15 @@ export const TELEGRAM_CALLS = {
   telegramAdminSet: body('admin-set'),
   telegramHistoryHidden: body('history-hidden'),
   telegramGroupUpgrade: body('group-upgrade'),
+  // Sticker and emoji extras (R-Y206): the trending sets ({ emojis?, old?,
+  // offset? }) and those seen ({ ids }), the recent stickers cleared, the
+  // sets used in a photo or video ({ chat, id }), the quick reaction and a
+  // new one ({ emoji }), and custom emoji found by words ({ q }).
+  telegramStickerFeatured: body('sticker-featured'),
+  telegramStickerFeaturedRead: body('sticker-featured-read'),
+  telegramStickerRecentClear: none('sticker-recent-clear'),
+  telegramStickerAttached: body('sticker-attached'),
+  telegramQuickReaction: none('quick-reaction'),
+  telegramQuickReactionSet: body('quick-reaction-set'),
+  telegramCustomEmojiSearch: body('custom-emoji-search'),
 };

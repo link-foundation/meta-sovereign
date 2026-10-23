@@ -1374,4 +1374,33 @@ export const hiChatMore = {
   'chat.iv.err.flood': 'बहुत अधिक अनुरोध। बाद में प्रयास करें।',
   'chat.iv.err.bad-request': 'यह अनुरोध मान्य नहीं था।',
   'chat.iv.err.failed': 'कुछ गलत हो गया। फिर प्रयास करें।',
+  // Sticker and emoji extras (R-Y206).
+  'chat.extras.trending': 'ट्रेंडिंग',
+  'chat.extras.trendingTitle': 'ट्रेंडिंग स्टिकर',
+  'chat.extras.trendingEmoji': 'ट्रेंडिंग इमोजी',
+  'chat.extras.back': 'वापस',
+  'chat.extras.new': 'नया',
+  'chat.extras.more': 'और दिखाएँ',
+  'chat.extras.noTrending': 'अभी कोई ट्रेंडिंग सेट नहीं है।',
+  'chat.extras.clearRecent': 'हाल के स्टिकर साफ़ करें',
+  'chat.extras.clearAsk': 'हाल में इस्तेमाल किए स्टिकरों की सूची साफ़ करें?',
+  'chat.extras.clearYes': 'साफ़ करें',
+  'chat.extras.cleared': 'हाल के स्टिकर साफ़ हो गए।',
+  'chat.extras.quickReaction': 'त्वरित प्रतिक्रिया',
+  'chat.extras.quickHint': 'प्रतिक्रिया देने के लिए संदेश पर डबल-क्लिक करें।',
+  'chat.extras.attached': 'इस फ़ोटो में स्टिकर',
+  'chat.extras.attachedNone': 'कोई स्टिकर सेट नहीं मिला।',
+  'chat.extras.viewerMenu': 'और',
+  'chat.extras.suggestEmoji': 'इमोजी सुझाव',
+  'chat.extras.customSearch': 'कस्टम इमोजी खोजें',
+  'chat.extras.customNone': 'कोई कस्टम इमोजी नहीं मिला।',
+  'chat.extras.err.failed': 'कुछ गड़बड़ हो गई। फिर कोशिश करें।',
+  'chat.extras.err.expired':
+    'फ़ोटो पुराना हो गया है। चैट फिर खोलकर दोबारा कोशिश करें।',
+  'chat.extras.err.no-stickers': 'इसमें कोई स्टिकर नहीं है।',
+  'chat.extras.err.reaction-invalid':
+    'यह प्रतिक्रिया इस्तेमाल नहीं की जा सकती।',
+  'chat.extras.err.premium-required':
+    'कस्टम इमोजी के लिए Telegram Premium चाहिए।',
+  'chat.extras.err.bad-request': 'वह अनुरोध मान्य नहीं था।',
 };

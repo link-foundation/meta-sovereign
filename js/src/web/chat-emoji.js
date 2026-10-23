@@ -202,7 +202,7 @@ const keywordsOf = (source, lang) => {
 };
 
 // The words for the page's language, once something is searched.
-const useKeywords = (source, searching) => {
+export const useKeywords = (source, searching) => {
   const lang = String(useLocaleContext()?.locale ?? 'en').slice(0, 2);
   const [words, setWords] = useState(null);
   const latest = useRef(source);
@@ -556,9 +556,11 @@ export const jumpTo = (scroller, key) => {
   }
 };
 
-const EmojiTab = ({ recent, onPick, tones, onTone, keywords }) => {
+const EmojiTab = ({ recent, onPick, tones, onTone, keywords, featured }) => {
   const t = useT();
   const [query, setQuery] = useState('');
+  // The trending custom emoji sets over the panel (R-Y206).
+  const [trending, setTrending] = useState(false);
   const scroller = useRef(null);
   const words = useKeywords(keywords, query.trim().length > 0);
   const found = useMemo(() => findEmoji(query, 120, words), [query, words]);
@@ -580,6 +582,9 @@ const EmojiTab = ({ recent, onPick, tones, onTone, keywords }) => {
   };
   const jump = (key) => jumpTo(scroller, key);
   const searching = query.trim().length > 0;
+  if (trending && featured) {
+    return featured(() => setTrending(false));
+  }
   return el(React.Fragment, null, [
     el('input', {
       key: 'q',
@@ -591,6 +596,19 @@ const EmojiTab = ({ recent, onPick, tones, onTone, keywords }) => {
       value: query,
       onChange: (event) => setQuery(event.target.value),
     }),
+    featured && !searching
+      ? el(
+          'button',
+          {
+            key: 'trending',
+            type: 'button',
+            className: 'sticker-trending-button',
+            'data-action': 'emoji-trending',
+            onClick: () => setTrending(true),
+          },
+          t('chat.extras.trendingEmoji')
+        )
+      : null,
     el(
       'div',
       { key: 's', className: 'emoji-scroll', ref: scroller },
@@ -699,6 +717,7 @@ const Panel = ({
   extra,
   close,
   keywords,
+  featured,
 }) => {
   const t = useT();
   const [chosen, setChosen] = useState(readTab);
@@ -729,6 +748,7 @@ const Panel = ({
             tones,
             onTone,
             keywords,
+            featured,
           }),
     ]
   );
@@ -737,7 +757,8 @@ const Panel = ({
 /**
  * The panel for a message box: `box` is its textarea's ref, `setText`
  * sets its text; `extra` more tabs (`{ key, label, render(close) }`);
- * `keywords(lang)` Telegram's words for emoji, when there are any.
+ * `keywords(lang)` Telegram's words for emoji, when there are any;
+ * `featured(back)` the trending custom emoji sets (R-Y206), when offered.
  * Answers `{ button, panel }` to put in the composer.
  */
 export const useEmojiPanel = ({
@@ -745,6 +766,7 @@ export const useEmojiPanel = ({
   setText,
   extra = NONE,
   keywords = null,
+  featured = null,
 }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -793,6 +815,7 @@ export const useEmojiPanel = ({
           extra,
           close,
           keywords,
+          featured,
         })
       : null,
   };

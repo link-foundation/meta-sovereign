@@ -38,8 +38,10 @@ const targetOf = (node) => {
 
 /**
  * The row's ways in, as in Telegram Desktop: right-click (or a long
- * press) opens the menu where it happened, a double-click (or a swipe to
- * the left) replies, a double tap reacts with 👍; while messages are
+ * press) opens the menu where it happened, a swipe to the left replies, a
+ * double-click reacts with the quick reaction the user chose in Settings
+ * (R-Y206; a reply while none is known), a double tap reacts with it
+ * (👍 by default); while messages are
  * selected a click anywhere on the row adds or takes the message
  * (Shift+click a range), a right-click anywhere opens the selection's
  * menu, and nothing inside the row opens. With none selected a click on
@@ -56,6 +58,7 @@ export const useRowHandlers = ({
   onAction,
   setMenu,
   quickReaction,
+  doubleClickReaction = null,
 }) => {
   const open = (point, node = null) => {
     setMenu({
@@ -141,7 +144,12 @@ export const useRowHandlers = ({
         return;
       }
       dropTextSelection();
-      onAction('reply', message);
+      // The account's quick reaction when it is known, else a reply (R-Y206).
+      if (doubleClickReaction) {
+        onAction('react', message, doubleClickReaction);
+      } else {
+        onAction('reply', message);
+      }
     },
   };
 };

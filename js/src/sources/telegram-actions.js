@@ -66,6 +66,9 @@ import { createPeerActions } from './telegram-peer-actions.js';
 import { createVoiceChat } from './telegram-voice-chat.js';
 import { createCustomEmoji } from './telegram-custom-emoji.js';
 import { createEmojiKeywords } from './telegram-emoji-keywords.js';
+import { createStickerTrending } from './telegram-sticker-trending.js';
+import { createQuickReaction } from './telegram-quick-reaction.js';
+import { createCustomEmojiSearch } from './telegram-custom-emoji-search.js';
 import { createBotActions } from './telegram-bots.js';
 import { createSharedMedia } from './telegram-shared.js';
 import { createForum } from './telegram-forum.js';
@@ -476,7 +479,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // login links and attachment-menu bots (R-Y201); moderation, ownership
 // transfer, broadcast groups and left channels (R-Y200); adding members,
 // administrators and upgrading groups (R-Y204); request-peer buttons
-// and recent locations (R-Y208); Instant View (R-Y205).
+// and recent locations (R-Y208); Instant View (R-Y205); trending
+// stickers, the quick reaction and custom emoji search (R-Y206).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -512,6 +516,9 @@ const chatActions = (env, context) => {
     ...createUsernames(env, context),
     ...createCustomEmoji(env, context),
     ...createEmojiKeywords(env, context),
+    ...createStickerTrending(env, { ...context, stickers: stickerLists }),
+    ...createQuickReaction(env, context),
+    ...createCustomEmojiSearch(env, context),
     ...createBotActions(env, context),
     ...createSharedMedia(env, context),
     ...createForum(env, context),
