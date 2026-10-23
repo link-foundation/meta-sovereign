@@ -15,28 +15,10 @@ import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { buildMessageLink } from '../src/sources/link.js';
 import { automationPresets } from '../src/automation/automations.js';
+import { assert, browserOf } from './helpers/e2e-chat.mjs';
 
-const skip = (msg) => {
-  console.log(`[e2e-draft] SKIP: ${msg}`);
-  process.exit(0);
-};
-if (!process.env.RUN_BROWSER_E2E) {
-  skip('RUN_BROWSER_E2E not set');
-}
 // E2E_BROWSER=webkit runs it in Safari's engine.
-const engine = process.env.E2E_BROWSER || 'chromium';
-let browserType;
-try {
-  browserType = (await import('playwright'))[engine];
-} catch {
-  skip('playwright not installed');
-}
-
-const assert = (cond, msg) => {
-  if (!cond) {
-    throw new Error(`assertion failed: ${msg}`);
-  }
-};
+const { engine, browserType } = await browserOf('draft');
 
 const DAY = 86_400_000;
 const store = createMemoryStore();

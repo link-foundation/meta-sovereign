@@ -300,6 +300,25 @@ const requestsWriter = async (store, now, effect) => {
   return false;
 };
 
+// The folders changed elsewhere (R-Y172): one link whose `rev` grows with
+// each change, so the page knows to ask for the folders again.
+export const FOLDERS_LIVE_ID = `folders-live:${SOURCE}`;
+
+const foldersLiveWriter = async (store, now, effect) => {
+  const before = await store.get(FOLDERS_LIVE_ID);
+  await store.put({
+    id: FOLDERS_LIVE_ID,
+    tokens: ['folders-live', SOURCE],
+    kind: 'folders-live',
+    source: SOURCE,
+    rev: (Number(before?.rev) || 0) + 1,
+    change: effect.change,
+    folder: effect.id,
+    at: new Date(now()).toISOString(),
+  });
+  return false;
+};
+
 // A deletion: those messages are marked `deleted` (kept, for the record).
 const deleteWriter = async (store, { chat, ids }) => {
   const wanted = new Set(ids.map(String));
@@ -438,7 +457,13 @@ export const createTelegramLive = ({
   } = chatStateWriters({ store, now });
 
   // Effects that name no one chat.
-  const MANY_CHATS = new Set(['delete', 'pinned-order', 'folders', 'poll']);
+  const MANY_CHATS = new Set([
+    'delete',
+    'pinned-order',
+    'folders',
+    'folders-live',
+    'poll',
+  ]);
 
   // What each kind of effect writes; true when the chat needs a refresh.
   const writers = {
@@ -457,6 +482,7 @@ export const createTelegramLive = ({
     draft: (_client, effect) => onDraft(effect),
     typing: (_client, effect) => onTyping(effect),
     requests: (_client, effect) => requestsWriter(store, now, effect),
+    'folders-live': (_client, effect) => foldersLiveWriter(store, now, effect),
     poll: (_client, effect) => pollWriter(store, effect),
   };
 

@@ -7,8 +7,9 @@
  * include, exclude, pinned }`, the lists being our chat ids.
  *
  * - `folderSave({ id?, folder })` — messages.updateDialogFilter with a
- *   DialogFilter (layer 225: the title is a TextWithEntities). With no
- *   `id` the folder is new and takes the next free id (Telegram wants the
+ *   DialogFilter (layer 225: the title is a TextWithEntities; a shared
+ *   folder, `chatlist: true`, is a DialogFilterChatlist with chats only,
+ *   R-Y172). With no `id` the folder is new and takes the next free id (Telegram wants the
  *   client to choose it, 2 or more);
  * - `folderDelete({ id })` — the same method with no filter;
  * - `foldersReorder({ order })` — messages.updateDialogFiltersOrder; the
@@ -62,6 +63,16 @@ const chatList = (list) =>
   list.every((c) => typeof c === 'string' && CHAT.test(c)) &&
   new Set(list).size === list.length;
 
+const flagOk = (folder, flag) =>
+  folder[flag] === undefined || typeof folder[flag] === 'boolean';
+
+// A shared folder (chat list) names its chats and nothing else.
+const chatlistOk = (folder) =>
+  ['chatlist', 'hasMyInvites'].every((flag) => flagOk(folder, flag)) &&
+  (folder.chatlist !== true ||
+    (FLAGS.every((flag) => folder[flag] !== true) &&
+      (folder.exclude ?? []).length === 0));
+
 /** Whether `folder` is a folder the page may send (strict). */
 export const validFolder = (folder) => {
   if (!folder || typeof folder !== 'object' || Array.isArray(folder)) {
@@ -74,9 +85,8 @@ export const validFolder = (folder) => {
     (folder.emoticon === undefined ||
       folder.emoticon === null ||
       (typeof folder.emoticon === 'string' && folder.emoticon.length <= 16)) &&
-    FLAGS.every(
-      (flag) => folder[flag] === undefined || typeof folder[flag] === 'boolean'
-    ) &&
+    FLAGS.every((flag) => flagOk(folder, flag)) &&
+    chatlistOk(folder) &&
     ['include', 'exclude', 'pinned'].every(
       (key) => folder[key] === undefined || chatList(folder[key])
     )
@@ -92,7 +102,7 @@ const inputOf = (env, c, chat) =>
     typeof peer === 'object' ? peer : await c.client.getInputEntity(peer)
   );
 
-const inputsOf = async (env, c, chats = []) => {
+export const inputsOf = async (env, c, chats = []) => {
   const peers = [];
   for (const chat of chats) {
     peers.push(await inputOf(env, c, chat));
@@ -106,6 +116,20 @@ const filterOf = async (env, c, id, folder) => {
   const include = folder.include ?? [];
   const exclude = folder.exclude ?? [];
   const pinned = (folder.pinned ?? []).filter((x) => !exclude.includes(x));
+  if (folder.chatlist === true) {
+    // A shared folder takes chats by name only (layer 225: no flags).
+    return new c.Api.DialogFilterChatlist({
+      ...(folder.hasMyInvites ? { hasMyInvites: true } : {}),
+      id,
+      title: new c.Api.TextWithEntities({
+        text: folder.title.trim(),
+        entities: [],
+      }),
+      ...emoticon,
+      pinnedPeers: await inputsOf(env, c, pinned),
+      includePeers: await inputsOf(env, c, include),
+    });
+  }
   const flags = Object.fromEntries(
     FLAGS.filter((flag) => folder[flag] === true).map((flag) => [flag, true])
   );

@@ -957,6 +957,20 @@ export const api = {
   telegramFoldersReorder: (body = {}) => telegramPost('folders-reorder', body),
   telegramFoldersSuggested: (body = {}) =>
     telegramPost('folders-suggested', body),
+  // Shared folders, chat lists (R-Y172): the folder's links, made, edited,
+  // deleted; what an addlist link leads to and joining it; leaving.
+  telegramChatlistInvites: (body = {}) =>
+    telegramPost('chatlist-invites', body),
+  telegramChatlistExport: (body = {}) => telegramPost('chatlist-export', body),
+  telegramChatlistInviteEdit: (body = {}) =>
+    telegramPost('chatlist-invite-edit', body),
+  telegramChatlistInviteDelete: (body = {}) =>
+    telegramPost('chatlist-invite-delete', body),
+  telegramChatlistCheck: (body = {}) => telegramPost('chatlist-check', body),
+  telegramChatlistJoin: (body = {}) => telegramPost('chatlist-join', body),
+  telegramChatlistLeaveSuggestions: (body = {}) =>
+    telegramPost('chatlist-leave-suggestions', body),
+  telegramChatlistLeave: (body = {}) => telegramPost('chatlist-leave', body),
   // Stickers and saved GIFs (R-Y105): the panel's lists ({ fresh }),
   // a set's stickers ({ id }), one sent ({ chat, id, replyTo, silent,
   // scheduleDate, clientId }).

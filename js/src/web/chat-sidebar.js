@@ -12,7 +12,7 @@ import { ArchiveHead, ArchiveItem, ChatItem } from './chat-list.js';
 import { useChatListMenu } from './chat-list-menu.js';
 import { usePinnedOrder } from './chat-pin-order.js';
 import { NewChat } from './chat-create.js';
-import { FolderTabMenu } from './chat-folder-edit.js';
+import { FolderTabMenu, tabDragStart } from './chat-folder-edit.js';
 import { AddContactDialog } from './chat-contacts-edit.js';
 import { MyProfile } from './chat-profile.js';
 import { CallsButton } from './chat-calls.js';
@@ -124,6 +124,13 @@ const FilterTabs = ({ state }) => {
               state.filter === tab.key ? 'chat-filter active' : 'chat-filter',
             'aria-selected': state.filter === tab.key ? 'true' : 'false',
             'data-filter': tab.key,
+            // A folder's tab can be dragged sideways (R-Y172).
+            ...(state.folderTools && /^folder:\d+$/.test(tab.key)
+              ? {
+                  'data-folder-tab': '',
+                  onPointerDown: tabDragStart(state.folderTools),
+                }
+              : {}),
             onClick: () => state.setFilter(tab.key),
             onContextMenu: (event) =>
               folderMenuAt(state.folderTools, tab, event, setMenu),

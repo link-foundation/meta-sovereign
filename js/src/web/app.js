@@ -28,6 +28,7 @@ import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
 import { ModeBadge } from './telegram-online.js';
 import { InviteHost } from './chat-invite.js';
+import { AddlistHost } from './chat-folder-share.js';
 import { AppNotifications } from './app-notify.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
@@ -204,6 +205,7 @@ const App = () => {
         )
       ),
       el(InviteHost, { key: 'invite-host', api }),
+      el(AddlistHost, { key: 'addlist-host', api }),
       // The Chat section notifies by itself; the others through this.
       active === 'chat'
         ? null

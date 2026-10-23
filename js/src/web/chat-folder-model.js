@@ -37,17 +37,28 @@ export const ICONS = [
 export const letters = (text) => [...String(text ?? '')].length;
 
 /** A folder to edit: Telegram's own, or a blank one (`folder` null). */
-export const draftOf = (folder = null) => ({
-  id: folder && Number.isInteger(folder.id) ? folder.id : null,
-  title: folder?.title ?? '',
-  emoticon: folder?.emoticon ?? null,
-  ...Object.fromEntries(
-    [...KINDS_IN, ...KINDS_OUT].map((k) => [k, Boolean(folder?.[k])])
-  ),
-  include: [...(folder?.include ?? [])],
-  exclude: [...(folder?.exclude ?? [])],
-  pinned: [...(folder?.pinned ?? [])],
-});
+export const draftOf = (folder = null) => {
+  const f = folder ?? {};
+  return {
+    id: Number.isInteger(f.id) ? f.id : null,
+    title: f.title ?? '',
+    emoticon: f.emoticon ?? null,
+    ...Object.fromEntries(
+      [...KINDS_IN, ...KINDS_OUT].map((k) => [k, Boolean(f[k])])
+    ),
+    include: [...(f.include ?? [])],
+    exclude: [...(f.exclude ?? [])],
+    pinned: [...(f.pinned ?? [])],
+    // A shared folder (R-Y172) takes chats by name only.
+    chatlist: Boolean(f.chatlist),
+    hasMyInvites: Boolean(f.hasMyInvites),
+  };
+};
+
+// A folder takes a kind of chat or a chat by name (a shared one, only that).
+const takesSomething = (draft) =>
+  (!draft.chatlist && KINDS_IN.some((k) => draft[k])) ||
+  draft.include.length > 0;
 
 /** Why a draft cannot be sent yet: a code for words, or null. */
 export const draftProblem = (draft) => {
@@ -58,8 +69,7 @@ export const draftProblem = (draft) => {
   if (letters(title) > TITLE_MAX) {
     return 'title-long';
   }
-  const takes = KINDS_IN.some((k) => draft[k]) || draft.include.length > 0;
-  return takes ? null : 'include-empty';
+  return takesSomething(draft) ? null : 'include-empty';
 };
 
 /** The body of folder-save for a draft (a new folder has no `id`). */
@@ -69,11 +79,17 @@ export const requestOf = (draft) => ({
     title: draft.title.trim(),
     ...(draft.emoticon ? { emoticon: draft.emoticon } : {}),
     ...Object.fromEntries(
-      [...KINDS_IN, ...KINDS_OUT].map((k) => [k, draft[k]])
+      [...KINDS_IN, ...KINDS_OUT].map((k) => [
+        k,
+        draft.chatlist ? false : draft[k],
+      ])
     ),
     include: draft.include,
-    exclude: draft.exclude,
+    exclude: draft.chatlist ? [] : draft.exclude,
     pinned: draft.pinned.filter((c) => !draft.exclude.includes(c)),
+    ...(draft.chatlist
+      ? { chatlist: true, hasMyInvites: draft.hasMyInvites }
+      : {}),
   },
 });
 
@@ -99,15 +115,69 @@ export const withPick = (draft, side, chat) => {
  * Telegram put it. `null` when it cannot move.
  */
 export const movedOrder = (folders, id, step) => {
+  const from = folders.filter((f) => !f.all).findIndex((f) => f.id === id);
+  return movedTo(folders, from, from + step);
+};
+
+/**
+ * The same, for a folder dragged from place `from` to place `to` among the
+ * named folders (R-Y172); `null` when it did not move.
+ */
+export const movedTo = (folders, from, to) => {
   const named = folders.filter((f) => !f.all).map((f) => f.id);
-  const from = named.indexOf(id);
-  const to = from + step;
-  if (from < 0 || to < 0 || to >= named.length) {
+  const outside = (n) => n < 0 || n >= named.length;
+  if (from === to || outside(from) || outside(to)) {
     return null;
   }
-  [named[from], named[to]] = [named[to], named[from]];
+  const [lifted] = named.splice(from, 1);
+  named.splice(to, 0, lifted);
   let next = 0;
   return folders.map((f) => (f.all ? 0 : named[next++]));
+};
+
+const HOSTS = /^(?:www\.)?(?:t\.me|telegram\.me|telegram\.dog)$/i;
+const SLUG = /^[A-Za-z0-9_-]{8,64}$/;
+
+/** The slug of a shared folder's link (t.me/addlist/slug), or null. */
+export const addlistSlugOf = (href) => {
+  let url;
+  try {
+    url = new URL(String(href ?? '').trim());
+  } catch {
+    return null;
+  }
+  let slug = null;
+  if (url.protocol === 'tg:') {
+    slug = url.hostname === 'addlist' ? url.searchParams.get('slug') : null;
+  } else if (HOSTS.test(url.hostname)) {
+    slug = /^\/addlist\/([^/]+)\/?$/.exec(url.pathname)?.[1] ?? null;
+  }
+  return SLUG.test(slug ?? '') ? slug : null;
+};
+
+/**
+ * The folder's groups and channels that a link can carry:
+ * `{ chat, name }`, named from `chats` (the picker's list).
+ */
+export const eligibleChats = (folder, chats = []) => {
+  const names = new Map(chats.map((c) => [c.chat, c.name]));
+  return (folder.include ?? [])
+    .filter((chat) => /^-\d+$/.test(chat))
+    .map((chat) => ({ chat, name: names.get(chat) ?? chat }));
+};
+
+/**
+ * Why a folder cannot be shared (a code), or null: Telegram shares only a
+ * folder of chosen groups and channels, no kinds, nothing left out.
+ */
+export const shareProblem = (folder) => {
+  if ([...KINDS_IN, ...KINDS_OUT].some((k) => folder[k])) {
+    return 'kinds';
+  }
+  if ((folder.exclude ?? []).length > 0) {
+    return 'excluded';
+  }
+  return eligibleChats(folder).length === 0 ? 'no-chats' : null;
 };
 
 /** The recommended folders not yet among the user's (by name). */
@@ -135,3 +205,19 @@ export const FOLDERS_CHANGED = 'meta-sovereign:folders-changed';
 
 export const announceFolders = () =>
   globalThis.dispatchEvent?.(new globalThis.Event(FOLDERS_CHANGED));
+
+/**
+ * A folder write from a dialog: busy while Telegram answers, then the
+ * folders are announced and the dialog closes, or the error is shown.
+ */
+export const folderWrite = async (ask, { t, setBusy, setError, close }) => {
+  setBusy(true);
+  const answer = await ask().catch(() => null);
+  setBusy(false);
+  if (answer?.ok) {
+    announceFolders();
+    close();
+  } else {
+    setError(errorKey(t, answer?.code ?? 'failed'));
+  }
+};

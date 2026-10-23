@@ -231,6 +231,20 @@ const SIMPLE_EFFECTS = {
       }))
       .filter((f) => f.chat),
   }),
+  // The folders changed on another device (R-Y172): one folder, all of
+  // them, or their order. The page asks Telegram for the list again.
+  UpdateDialogFilter: (u) => ({
+    kind: 'folders-live',
+    change: 'filter',
+    id: Number(u.id) || 0,
+  }),
+  UpdateDialogFilters: () => ({ kind: 'folders-live', change: 'all', id: 0 }),
+  UpdateDialogFilterOrder: (u) => ({
+    kind: 'folders-live',
+    change: 'order',
+    id: 0,
+    order: (u.order ?? []).map(Number),
+  }),
   // Marked unread, or the mark taken off, on any device (R-Y97).
   UpdateDialogUnreadMark: (u) =>
     u.peer?.className === 'DialogPeer'

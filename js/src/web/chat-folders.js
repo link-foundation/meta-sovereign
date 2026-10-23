@@ -18,6 +18,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { FOLDERS_CHANGED } from './chat-folder-model.js';
+import { watchFolders } from './chat-folder-live.js';
 
 const REFRESH_MS = 5 * 60_000;
 
@@ -149,8 +150,11 @@ export const useTelegramFolders = (api, telegram) => {
     globalThis.addEventListener?.('focus', load);
     // Changed by the page itself (R-Y164): asked again at once.
     globalThis.addEventListener?.(FOLDERS_CHANGED, load);
+    // Changed on another device (R-Y172): asked again at once.
+    const unwatch = watchFolders(api, () => load({ type: FOLDERS_CHANGED }));
     return () => {
       gone = true;
+      unwatch();
       globalThis.clearInterval(timer);
       globalThis.removeEventListener?.('focus', load);
       globalThis.removeEventListener?.(FOLDERS_CHANGED, load);

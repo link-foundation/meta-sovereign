@@ -25,7 +25,7 @@ export const fulfil = (route, body, status = 200) =>
   });
 
 // The browser asked for, or the test skipped as a pass.
-const browserOf = async (name) => {
+export const browserOf = async (name) => {
   const skip = (msg) => {
     console.log(`[e2e-${name}] SKIP: ${msg}`);
     process.exit(0);

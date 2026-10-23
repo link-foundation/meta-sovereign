@@ -9,7 +9,7 @@
  *     contacts, nonContacts, groups, broadcasts, bots,   // who is in
  *     excludeMuted, excludeRead, excludeArchived,       // who is not
  *     include: [chat], exclude: [chat], pinned: [chat],  // by name
- *     chatlist? }                                       // a shared one
+ *     chatlist?, hasMyInvites? }                        // a shared one
  *
  * and `{ id: 0, all: true }` where "All chats" stands among them (a
  * Premium user may move it). Chats are our chat ids (Telegram's marked
@@ -67,7 +67,12 @@ export const folderOf = (filter, selfId = null) => {
   };
   if (filter.className === 'DialogFilterChatlist') {
     // A shared folder: its chats by name only.
-    return { ...base, chatlist: true, exclude: [] };
+    return {
+      ...base,
+      chatlist: true,
+      hasMyInvites: Boolean(filter.hasMyInvites),
+      exclude: [],
+    };
   }
   return {
     ...base,

@@ -14,6 +14,9 @@ import { useT } from './i18n.js';
 import { FormDialog, Field, Picker } from './chat-create.js';
 import { Frame } from './chat-readers.js';
 import { useEsc } from './chat-invite.js';
+import { watchFolders } from './chat-folder-live.js';
+import { LeaveFolder, ShareFolder } from './chat-folder-share.js';
+import { beginPinGesture } from './chat-pin-drag.js';
 import {
   FOLDERS_CHANGED,
   ICONS,
@@ -25,8 +28,10 @@ import {
   draftOf,
   draftProblem,
   errorKey,
+  folderWrite,
   freshSuggestions,
   movedOrder,
+  movedTo,
   requestOf,
   withPick,
 } from './chat-folder-model.js';
@@ -95,8 +100,11 @@ export const useFolders = (api) => {
       stop = load();
     };
     globalThis.addEventListener?.(FOLDERS_CHANGED, again);
+    // Changed on another device (R-Y172).
+    const unwatch = watchFolders(api, again);
     return () => {
       stop();
+      unwatch();
       globalThis.removeEventListener?.(FOLDERS_CHANGED, again);
     };
   }, [load]);
@@ -105,7 +113,8 @@ export const useFolders = (api) => {
 
 const Section = ({ t, side, draft, setDraft, chats }) => {
   const [open, setOpen] = useState(false);
-  const kinds = side === 'include' ? KINDS_IN : KINDS_OUT;
+  // A shared folder takes chats by name only (R-Y172): no kinds.
+  const kinds = draft.chatlist ? [] : side === 'include' ? KINDS_IN : KINDS_OUT;
   return el('fieldset', { className: 'folder-section', 'data-section': side }, [
     el('legend', { key: 'l' }, t(`chat.folderEdit.${side}`)),
     ...kinds.map((kind) =>
@@ -177,23 +186,19 @@ export const FolderEditor = ({ api, chats, folder = null, close }) => {
   const [draft, setDraft] = useState(() => draftOf(folder));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [sharing, setSharing] = useState(false);
   const save = async () => {
     const problem = draftProblem(draft);
     if (problem) {
       setError(errorKey(t, problem));
       return;
     }
-    setBusy(true);
-    const answer = await api
-      .telegramFolderSave(requestOf(draft))
-      .catch(() => null);
-    setBusy(false);
-    if (answer?.ok) {
-      announceFolders();
-      close();
-    } else {
-      setError(errorKey(t, answer?.code ?? 'failed'));
-    }
+    await folderWrite(() => api.telegramFolderSave(requestOf(draft)), {
+      t,
+      setBusy,
+      setError,
+      close,
+    });
   };
   return onBody(
     el(
@@ -222,7 +227,38 @@ export const FolderEditor = ({ api, chats, folder = null, close }) => {
         }),
         el(IconRow, { key: 'i', t, draft, setDraft }),
         el(Section, { key: 'in', t, side: 'include', draft, setDraft, chats }),
-        el(Section, { key: 'out', t, side: 'exclude', draft, setDraft, chats }),
+        draft.chatlist
+          ? null
+          : el(Section, {
+              key: 'out',
+              t,
+              side: 'exclude',
+              draft,
+              setDraft,
+              chats,
+            }),
+        folder
+          ? el(
+              'button',
+              {
+                key: 'share',
+                type: 'button',
+                className: 'folder-share-btn',
+                'data-action': 'folder-share',
+                onClick: () => setSharing(true),
+              },
+              t('chat.folderShare.open')
+            )
+          : null,
+        sharing
+          ? el(ShareFolder, {
+              key: 'share-dialog',
+              api,
+              folder,
+              chats,
+              close: () => setSharing(false),
+            })
+          : null,
       ]
     )
   );
@@ -234,17 +270,12 @@ export const FolderDelete = ({ api, folder, close }) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const remove = async () => {
-    setBusy(true);
-    const answer = await api
-      .telegramFolderDelete({ id: folder.id })
-      .catch(() => null);
-    setBusy(false);
-    if (answer?.ok) {
-      announceFolders();
-      close();
-    } else {
-      setError(errorKey(t, answer?.code ?? 'failed'));
-    }
+    await folderWrite(() => api.telegramFolderDelete({ id: folder.id }), {
+      t,
+      setBusy,
+      setError,
+      close,
+    });
   };
   return onBody(
     el(
@@ -280,42 +311,68 @@ const RowButton = ({ action, label, onClick, disabled = false }) =>
     label
   );
 
+const DRAG_ROWS = { list: '.folder-list', rows: '.folder-row[data-folder-id]' };
+
+// A press on a row (not on its buttons) may become a drag (R-Y172).
+const dragFrom = (act) => (event) => {
+  if (
+    event.target.closest?.('button, input') ||
+    (event.pointerType === 'mouse' && event.button !== 0)
+  ) {
+    return;
+  }
+  beginPinGesture(event, event.currentTarget, act.drag, DRAG_ROWS);
+};
+
 const FolderRow = ({ t, folder, index, last, act }) =>
-  el('li', { className: 'folder-row', 'data-folder-id': folder.id }, [
-    el(
-      'span',
-      { key: 'n', className: 'folder-row-name' },
-      `${folder.emoticon ? `${folder.emoticon} ` : ''}${folder.title}`
-    ),
-    el(RowButton, {
-      key: 'u',
-      action: 'folder-up',
-      label: t('chat.folderEdit.moveUp'),
-      disabled: index === 0,
-      onClick: () => act.move(folder, -1),
-    }),
-    el(RowButton, {
-      key: 'd',
-      action: 'folder-down',
-      label: t('chat.folderEdit.moveDown'),
-      disabled: last,
-      onClick: () => act.move(folder, 1),
-    }),
-    folder.chatlist
-      ? null
-      : el(RowButton, {
-          key: 'e',
-          action: 'folder-edit',
-          label: t('chat.folderEdit.edit'),
-          onClick: () => act.edit(folder),
-        }),
-    el(RowButton, {
-      key: 'x',
-      action: 'folder-delete',
-      label: t('chat.folderEdit.delete'),
-      onClick: () => act.remove(folder),
-    }),
-  ]);
+  el(
+    'li',
+    {
+      className: 'folder-row',
+      'data-folder-id': folder.id,
+      onPointerDown: dragFrom(act),
+    },
+    [
+      el(
+        'span',
+        { key: 'n', className: 'folder-row-name' },
+        `${folder.emoticon ? `${folder.emoticon} ` : ''}${folder.title}`
+      ),
+      el(RowButton, {
+        key: 'u',
+        action: 'folder-up',
+        label: t('chat.folderEdit.moveUp'),
+        disabled: index === 0,
+        onClick: () => act.move(folder, -1),
+      }),
+      el(RowButton, {
+        key: 'd',
+        action: 'folder-down',
+        label: t('chat.folderEdit.moveDown'),
+        disabled: last,
+        onClick: () => act.move(folder, 1),
+      }),
+      el(RowButton, {
+        key: 'e',
+        action: 'folder-edit',
+        label: t('chat.folderEdit.edit'),
+        onClick: () => act.edit(folder),
+      }),
+      folder.chatlist
+        ? el(RowButton, {
+            key: 'x',
+            action: 'folder-leave',
+            label: t('chat.folderShare.leave'),
+            onClick: () => act.leave(folder),
+          })
+        : el(RowButton, {
+            key: 'x',
+            action: 'folder-delete',
+            label: t('chat.folderEdit.delete'),
+            onClick: () => act.remove(folder),
+          }),
+    ]
+  );
 
 const Suggested = ({ t, items, add }) =>
   items.length === 0
@@ -355,8 +412,13 @@ export const FolderManager = ({ api, data, chats: given = null }) => {
   const t = useT();
   const [editing, setEditing] = useState(undefined); // undefined: none
   const [deleting, setDeleting] = useState(null);
+  const [leaving, setLeaving] = useState(null);
   const [error, setError] = useState(null);
-  const chats = useChatChoices(api, editing !== undefined, given);
+  const chats = useChatChoices(
+    api,
+    editing !== undefined || leaving !== null,
+    given
+  );
   const named = data.folders.filter((f) => !f.all);
   const run = async (ask) => {
     setError(null);
@@ -370,8 +432,14 @@ export const FolderManager = ({ api, data, chats: given = null }) => {
   const act = {
     edit: setEditing,
     remove: setDeleting,
+    leave: setLeaving,
     move: (folder, step) => {
       const order = movedOrder(data.folders, folder.id, step);
+      return order && run(() => api.telegramFoldersReorder({ order }));
+    },
+    // Dragged from place `from` to place `to` (R-Y172).
+    drag: (from, to) => {
+      const order = movedTo(data.folders, from, to);
       return order && run(() => api.telegramFoldersReorder({ order }));
     },
   };
@@ -439,6 +507,15 @@ export const FolderManager = ({ api, data, chats: given = null }) => {
           api,
           folder: deleting,
           close: () => setDeleting(null),
+        })
+      : null,
+    leaving
+      ? el(LeaveFolder, {
+          key: 'leave',
+          api,
+          folder: leaving,
+          chats,
+          close: () => setLeaving(null),
         })
       : null,
   ]);
@@ -523,20 +600,25 @@ const TabMenu = ({ t, menu, folder, pick, close }) => {
         style: { left: menu.x, top: menu.y },
       },
       [
-        folder.chatlist
-          ? null
-          : el(MenuItem, {
-              key: 'e',
-              action: 'folder-menu-edit',
-              label: t('chat.folderEdit.editFolder'),
-              onClick: () => pick('edit'),
-            }),
         el(MenuItem, {
-          key: 'd',
-          action: 'folder-menu-delete',
-          label: t('chat.folderEdit.deleteFolder'),
-          onClick: () => pick('delete'),
+          key: 'e',
+          action: 'folder-menu-edit',
+          label: t('chat.folderEdit.editFolder'),
+          onClick: () => pick('edit'),
         }),
+        folder.chatlist
+          ? el(MenuItem, {
+              key: 'd',
+              action: 'folder-menu-leave',
+              label: t('chat.folderShare.leaveFolder'),
+              onClick: () => pick('leave'),
+            })
+          : el(MenuItem, {
+              key: 'd',
+              action: 'folder-menu-delete',
+              label: t('chat.folderEdit.deleteFolder'),
+              onClick: () => pick('delete'),
+            }),
         el(MenuItem, {
           key: 'r',
           action: 'folder-menu-reorder',
@@ -570,8 +652,46 @@ export const FolderTabMenu = ({ tools, menu, close }) => {
   if (stage === 'delete') {
     return el(FolderDelete, { api: tools.api, folder, close });
   }
+  if (stage === 'leave') {
+    return el(LeaveFolder, {
+      api: tools.api,
+      folder,
+      chats: tools.chats,
+      close,
+    });
+  }
   if (stage === 'reorder') {
     return el(ReorderFrame, { tools, close });
   }
   return el(TabMenu, { t, menu, folder, pick: setStage, close });
+};
+
+const TAB_DRAG = {
+  list: '.chat-filters',
+  rows: '.chat-filter[data-folder-tab]',
+  axis: 'x',
+};
+
+/**
+ * A press on a folder tab may become a drag sideways (R-Y172): dropped, the
+ * folders are put in the new order (`tools`: the tab menu's, or null).
+ */
+export const tabDragStart = (tools) => (event) => {
+  if (!tools || (event.pointerType === 'mouse' && event.button !== 0)) {
+    return;
+  }
+  beginPinGesture(
+    event,
+    event.currentTarget,
+    (from, to) => {
+      const order = movedTo(tools.folders, from, to);
+      if (order) {
+        Promise.resolve(tools.api.telegramFoldersReorder({ order })).then(
+          announceFolders,
+          announceFolders
+        );
+      }
+    },
+    TAB_DRAG
+  );
 };

@@ -7,6 +7,9 @@
  * gap where it would land. Letting go drops it there; Escape or a
  * cancelled pointer puts it back. Pointer events, so a mouse, a finger
  * and a pen all work.
+ *
+ * The same gesture reorders the folder tabs (sideways) and the rows of
+ * Settings → Folders (R-Y172): `options` name the rows and the axis.
  */
 
 // Desktop starts a drag after this many pixels (startDragDistance).
@@ -21,15 +24,16 @@ const SCROLL_PX = 10;
  * the place whose rectangle holds the lifted row's middle (the nearest
  * one past the ends). `rects` are the pinned rows' rectangles, top first.
  */
-export const dropIndex = (rects, from, dy) => {
+export const dropIndex = (rects, from, dy, axis = 'y') => {
   if (!rects[from]) {
     return from;
   }
-  const middle = rects[from].top + dy + rects[from].height / 2;
+  const [start, size] = axis === 'x' ? ['left', 'width'] : ['top', 'height'];
+  const middle = rects[from][start] + dy + rects[from][size] / 2;
   let best = 0;
   let distance = Infinity;
   rects.forEach((rect, at) => {
-    const away = Math.abs(rect.top + rect.height / 2 - middle);
+    const away = Math.abs(rect[start] + rect[size] / 2 - middle);
     if (away < distance) {
       best = at;
       distance = away;
@@ -49,10 +53,13 @@ export const slideOf = (at, from, to) => {
   return to < from && at >= to && at < from ? 1 : 0;
 };
 
-const setSlides = (rows, from, to, height) => {
-  rows.forEach((row, at) => {
-    if (at !== from) {
-      row.style.transform = `translateY(${slideOf(at, from, to) * height}px)`;
+const shift = (g, amount) => `translate${g.axis.toUpperCase()}(${amount}px)`;
+
+const setSlides = (g) => {
+  const size = g.rects[g.from][g.sizeKey];
+  g.rows.forEach((row, at) => {
+    if (at !== g.from) {
+      row.style.transform = shift(g, slideOf(at, g.from, g.to) * size);
     }
   });
 };
@@ -67,9 +74,10 @@ const clearLook = (list, rows) => {
 };
 
 // One gesture's state, the rows it moves and the list around them.
-const gestureOf = (e, row) => {
-  const list = row.closest('.chat-list');
-  const rows = [...(list?.querySelectorAll('.chat-item[data-pinned]') ?? [])];
+const PINNED = { list: '.chat-list', rows: '.chat-item[data-pinned]' };
+const gestureOf = (e, row, { list: listSelector, rows: rowSelector, axis }) => {
+  const list = row.closest(listSelector);
+  const rows = [...(list?.querySelectorAll(rowSelector) ?? [])];
   const rects = rows.map((r) => r.getBoundingClientRect());
   const from = rows.indexOf(row);
   if (!list || rows.length < 2 || from < 0) {
@@ -81,8 +89,12 @@ const gestureOf = (e, row) => {
     rects,
     from,
     to: from,
-    y0: e.clientY,
-    x0: e.clientX,
+    axis,
+    posKey: axis === 'x' ? 'left' : 'top',
+    sizeKey: axis === 'x' ? 'width' : 'height',
+    // Where the pointer began, along the axis (y0) and across it (x0).
+    y0: axis === 'x' ? e.clientX : e.clientY,
+    x0: axis === 'x' ? e.clientY : e.clientX,
     pointer: e.pointerId,
     touch: e.pointerType !== 'mouse',
     active: false,
@@ -98,23 +110,27 @@ const lift = (g) => {
   globalThis.getSelection?.()?.removeAllRanges?.();
 };
 
+// `y` is the pointer along the gesture's axis.
 const follow = (g, y) => {
-  const first = g.rects[0].top - g.rects[g.from].top;
-  const last = g.rects.at(-1).top - g.rects[g.from].top;
+  const at = g.rects[g.from][g.posKey];
+  const first = g.rects[0][g.posKey] - at;
+  const last = g.rects.at(-1)[g.posKey] - at;
   const dy = Math.min(last, Math.max(first, y - g.y0));
-  g.rows[g.from].style.transform = `translateY(${dy}px)`;
-  g.to = dropIndex(g.rects, g.from, dy);
-  setSlides(g.rows, g.from, g.to, g.rects[g.from].height);
+  g.rows[g.from].style.transform = shift(g, dy);
+  g.to = dropIndex(g.rects, g.from, dy, g.axis);
+  setSlides(g);
 };
 
 /**
  * Starts the gesture a pointer-down on a pinned `row` may become.
  * `onDrop(from, to)` is called with the row's old and new place among the
- * pinned rows when it was moved. Returns nothing; the listeners remove
- * themselves when the gesture ends.
+ * pinned rows when it was moved. `options`: `{ list, rows, axis }`, the
+ * selectors of the list and its rows and 'y' or 'x' (the pinned chats by
+ * default). Returns nothing; the listeners remove themselves when the
+ * gesture ends.
  */
-export const beginPinGesture = (e, row, onDrop) => {
-  const g = gestureOf(e, row);
+export const beginPinGesture = (e, row, onDrop, options = {}) => {
+  const g = gestureOf(e, row, { ...PINNED, axis: 'y', ...options });
   if (!g) {
     return;
   }
@@ -152,14 +168,16 @@ export const beginPinGesture = (e, row, onDrop) => {
     if (ev.pointerId !== g.pointer) {
       return;
     }
-    const far = Math.hypot(ev.clientX - g.x0, ev.clientY - g.y0);
+    const along = g.axis === 'x' ? ev.clientX : ev.clientY;
+    const across = g.axis === 'x' ? ev.clientY : ev.clientX;
+    const far = Math.hypot(across - g.x0, along - g.y0);
     if (!g.active && g.touch && far > SCROLL_PX) {
       end(false);
     } else if (!g.active && !g.touch && far >= DRAG_START_PX) {
       lift(g);
     }
     if (g.active) {
-      follow(g, ev.clientY);
+      follow(g, along);
     }
   };
   on('pointermove', move);

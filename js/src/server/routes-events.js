@@ -28,6 +28,8 @@ export const EVENT_PREFIXES = Object.freeze([
   'typing:',
   // Who waits to join a chat (R-Y161): its bar follows.
   'requests:',
+  // Folders changed on another device (R-Y172): the tabs follow.
+  'folders-live:',
   'person:',
   'history:',
   'sync:telegram',

@@ -10,6 +10,8 @@ import React, { useState } from 'react';
 import { CustomEmoji } from './custom-emoji.js';
 import { inviteHashOf, openInvite } from './chat-invite.js';
 import { openMessageLink } from './message-links.js';
+import { addlistSlugOf } from './chat-folder-model.js';
+import { openAddlist } from './chat-folder-share.js';
 
 const el = React.createElement;
 
@@ -207,9 +209,14 @@ const drawNode = (node, key, ctx) => {
           event.stopPropagation();
           // An invite link asks first, in a dialog (R-Y123).
           const hash = inviteHashOf(href);
+          const list = addlistSlugOf(href);
           if (hash) {
             event.preventDefault();
             openInvite(hash);
+          } else if (list) {
+            // A shared folder's link asks first, in a preview (R-Y172).
+            event.preventDefault();
+            openAddlist(list);
           } else if (openMessageLink(href)) {
             // A link to a message opens in the app (R-Y154).
             event.preventDefault();

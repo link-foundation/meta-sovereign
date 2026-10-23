@@ -46,6 +46,7 @@ import { createChatRemoval } from './telegram-chat-removal.js';
 import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
 import { createFolderEdit } from './telegram-folder-edit.js';
+import { createChatlists } from './telegram-chatlists.js';
 import { createStickers } from './telegram-stickers.js';
 import { createStickerSets } from './telegram-sticker-sets.js';
 import { createContactsEdit } from './telegram-contacts-edit.js';
@@ -418,7 +419,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y169); channel boosts (R-Y173); chat themes and several usernames
 // (R-Y170); saving a chat's GIF and viewing a forum as messages (R-Y171);
 // archive settings, logged-in websites and pinned Saved Messages chats
-// (R-Y174).
+// (R-Y174); live folders, drag to reorder and shared folders (R-Y172).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -441,6 +442,7 @@ const chatActions = (env, context) => {
     ...createScheduled(env, context),
     ...createFolders(env, context),
     ...createFolderEdit(env, context),
+    ...createChatlists(env, context),
     ...stickers,
     ...createStickerSets(env, { ...context, stickers: stickerLists }),
     ...createContactsEdit(env, context),

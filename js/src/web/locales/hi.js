@@ -8,11 +8,13 @@
 import { hiChat } from './hi-chat.js';
 import { hiChatMore } from './hi-chat-more.js';
 import { hiChatAccount } from './hi-chat-account.js';
+import { hiFolders } from './hi-folders.js';
 
 export const hi = {
   ...hiChat,
   ...hiChatMore,
   ...hiChatAccount,
+  ...hiFolders,
   appName: 'meta-sovereign',
   skipLink: 'मुख्य सामग्री पर जाएँ',
   'header.theme': 'थीम',

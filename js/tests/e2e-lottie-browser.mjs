@@ -15,27 +15,9 @@ import path from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/universal.js';
+import { assert, browserOf } from './helpers/e2e-chat.mjs';
 
-const skip = (msg) => {
-  console.log(`[e2e-lottie] SKIP: ${msg}`);
-  process.exit(0);
-};
-if (!process.env.RUN_BROWSER_E2E) {
-  skip('RUN_BROWSER_E2E not set');
-}
-const engine = process.env.E2E_BROWSER || 'chromium';
-let browserType;
-try {
-  browserType = (await import('playwright'))[engine];
-} catch {
-  skip('playwright not installed');
-}
-
-const assert = (cond, msg) => {
-  if (!cond) {
-    throw new Error(`assertion failed: ${msg}`);
-  }
-};
+const { engine, browserType } = await browserOf('lottie');
 
 // A turning orange circle, one second a turn.
 const still = (k) => ({ a: 0, k });

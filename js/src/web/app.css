@@ -8970,3 +8970,71 @@ span.bubble-effect {
 .stories-menu li {
   cursor: pointer;
 }
+
+/* Dragging folders to reorder them, and shared folders (R-Y172). */
+.chat-filters .chat-filter[data-folder-tab],
+.folder-list .folder-row[data-folder-id] {
+  position: relative;
+  transition: transform 0.15s ease;
+  touch-action: pan-x;
+}
+.folder-list .folder-row[data-folder-id] {
+  touch-action: pan-y;
+  cursor: grab;
+}
+.chat-filters.is-pin-dragging,
+.folder-list.is-pin-dragging {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grabbing;
+}
+.chat-filters .chat-filter.is-lifted,
+.folder-list .folder-row.is-lifted {
+  transition: none;
+  background: var(--bg-elev);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
+  outline: 1px solid var(--accent);
+  opacity: 0.96;
+}
+.share-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+}
+.share-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.share-link-main {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.share-link-url {
+  overflow-wrap: anywhere;
+}
+.share-link-btns,
+.share-form-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.share-form {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.folder-share-btn {
+  align-self: flex-start;
+}

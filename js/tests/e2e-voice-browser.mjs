@@ -22,27 +22,9 @@ import path from 'node:path';
 import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { oggPages, voiceDuration } from '../src/web/voice-ogg.js';
+import { assert, browserOf } from './helpers/e2e-chat.mjs';
 
-const skip = (msg) => {
-  console.log(`[e2e-voice] SKIP: ${msg}`);
-  process.exit(0);
-};
-if (!process.env.RUN_BROWSER_E2E) {
-  skip('RUN_BROWSER_E2E not set');
-}
-const engine = process.env.E2E_BROWSER || 'chromium';
-let browserType;
-try {
-  browserType = (await import('playwright'))[engine];
-} catch {
-  skip('playwright not installed');
-}
-
-const assert = (cond, msg) => {
-  if (!cond) {
-    throw new Error(`assertion failed: ${msg}`);
-  }
-};
+const { engine, browserType } = await browserOf('voice');
 
 const CHAT = '555';
 const store = createMemoryStore();
