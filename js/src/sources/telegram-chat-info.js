@@ -195,6 +195,8 @@ const fetchChannel = async (client, Api, inputPeer) => {
     forum: Boolean(entity.forum),
     topics: topicRightsIn(entity),
     canToggleForum: Boolean(entity.creator) && !entity.broadcast,
+    // Statistics for admins of channels and big supergroups (R-Y167).
+    canViewStats: Boolean(full.canViewStats),
     canEdit: canEditIn(entity),
     canBan: canBanIn(entity),
     ttlPeriod: ttlOf(full),

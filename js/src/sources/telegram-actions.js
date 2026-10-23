@@ -65,6 +65,7 @@ import { createEmojiStatus } from './telegram-emoji-status.js';
 import { createMessageLinks } from './telegram-message-links.js';
 import { createAdminActions } from './telegram-admin.js';
 import { createCommonChats } from './telegram-common-chats.js';
+import { createStats } from './telegram-stats.js';
 import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createChatReactions } from './telegram-chat-reactions.js';
 import { createChatSettings } from './telegram-chat-settings.js';
@@ -399,7 +400,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // chat allows (R-Y160); reordering the pinned chats (R-Y159); the recent
 // calls list (R-Y163); emoji statuses (R-Y162); a group's and channel's
 // settings, the discussion group included (R-Y165); creating and editing chat
-// folders (R-Y164).
+// folders (R-Y164); statistics of channels and supergroups (R-Y167).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -440,6 +441,7 @@ const chatActions = (env, context) => {
     ...createLinkPreview(env, context),
     ...createAdminActions(env, context),
     ...createCommonChats(env, context),
+    ...createStats(env, context),
     ...createTopicAdmin(env, context),
     ...createChatReactions(env, context),
     ...createChatSettings(env, context),

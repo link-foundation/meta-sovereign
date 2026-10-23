@@ -1122,6 +1122,9 @@ export const api = {
     telegramPost('notify-settings-set', body),
   telegramNotifyChat: (body = {}) => telegramPost('notify-chat', body),
   telegramCommonChats: (body = {}) => telegramPost('common-chats', body),
+  // Statistics of a channel or supergroup (R-Y167).
+  telegramChatStats: (body = {}) => telegramPost('chat-stats', body),
+  telegramStatsGraph: (body = {}) => telegramPost('stats-graph', body),
   telegramNotifyChatSet: (body = {}) => telegramPost('notify-chat-set', body),
   telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
   telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),

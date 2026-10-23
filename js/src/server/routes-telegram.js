@@ -205,6 +205,7 @@ import { GETS } from './routes-telegram-files.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { FOLDER_EDIT_POSTS } from './routes-telegram-folder-edit.js';
 import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
+import { STATS_POSTS } from './routes-telegram-stats.js';
 import { PINNED_ORDER_POSTS } from './routes-telegram-pinned-order.js';
 import { TOPIC_ADMIN_POSTS } from './routes-telegram-topic-admin.js';
 import { CHAT_REACTIONS_POSTS } from './routes-telegram-chat-reactions.js';
@@ -960,6 +961,7 @@ const POSTS = {
   ...ADMIN_POSTS,
   ...FOLDER_EDIT_POSTS,
   ...COMMON_CHATS_POSTS,
+  ...STATS_POSTS,
   ...PINNED_ORDER_POSTS,
   ...TOPIC_ADMIN_POSTS,
   ...CHAT_REACTIONS_POSTS,
