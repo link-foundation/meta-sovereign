@@ -42,6 +42,7 @@ import { InlineKeyboard } from './chat-bots.js';
 import { inlineKeyboardOf } from './bot-keyboard.js';
 import { formatCallDuration } from './call-model.js';
 import { CommentsBar } from './chat-comments-bar.js';
+import { FactCheck } from './chat-fact-check.js';
 import { DEFAULT_REACTIONS, useAllowedReactions } from './chat-reactions.js';
 
 const el = React.createElement;
@@ -1037,6 +1038,7 @@ const BubbleContent = ({
   parts.media?.kind === 'webpage'
     ? el(WebPreview, { key: 'wp', webPage: parts.media })
     : null,
+  el(FactCheck, { key: 'fc', message, api }),
   el(Reactions, { key: 'rx', reactions: parts.reactions }),
   el(BubbleFooter, { key: 'time', parts, message, time, t, api, mine }),
   composer

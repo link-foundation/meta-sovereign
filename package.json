@@ -189,6 +189,8 @@
     "test:e2e:stats:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stats-browser.mjs",
     "test:e2e:common-chats": "node js/tests/e2e-common-chats-browser.mjs",
     "test:e2e:common-chats:webkit": "E2E_BROWSER=webkit node js/tests/e2e-common-chats-browser.mjs",
+    "test:e2e:pinned-list": "node js/tests/e2e-pinned-list-browser.mjs",
+    "test:e2e:pinned-list:webkit": "E2E_BROWSER=webkit node js/tests/e2e-pinned-list-browser.mjs",
     "test:e2e:admin:webkit": "E2E_BROWSER=webkit node js/tests/e2e-admin-browser.mjs",
     "test:e2e:chat-reactions": "node js/tests/e2e-chat-reactions-browser.mjs",
     "test:e2e:chat-reactions:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-reactions-browser.mjs",

@@ -1125,6 +1125,13 @@ export const api = {
   // Statistics of a channel or supergroup (R-Y167).
   telegramChatStats: (body = {}) => telegramPost('chat-stats', body),
   telegramStatsGraph: (body = {}) => telegramPost('stats-graph', body),
+  // The pinned messages list, similar channels, fact checks (R-Y166).
+  telegramPinnedList: (body = {}) => telegramPost('pinned-list', body),
+  telegramUnpinAll: (body = {}) => telegramPost('unpin-all', body),
+  telegramSimilarChannels: (body = {}) =>
+    telegramPost('similar-channels', body),
+  telegramSimilarJoin: (body = {}) => telegramPost('similar-join', body),
+  telegramFactChecks: (body = {}) => telegramPost('fact-checks', body),
   telegramNotifyChatSet: (body = {}) => telegramPost('notify-chat-set', body),
   telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
   telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),

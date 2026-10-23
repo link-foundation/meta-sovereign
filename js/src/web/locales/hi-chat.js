@@ -1371,4 +1371,21 @@ export const hiChat = {
   'chat.stats.g.messages': 'संदेश',
   'chat.stats.g.actions': 'कार्रवाइयाँ',
   'chat.stats.g.weekdays': 'सप्ताह के दिन के अनुसार गतिविधि',
+  // The pinned messages list, similar channels and fact checks (R-Y166).
+  'chat.pinnedList.title':
+    '{count, plural, one {# पिन किया संदेश} other {# पिन किए संदेश}}',
+  'chat.pinnedList.unpin': 'अनपिन करें',
+  'chat.pinnedList.unpinAll': 'सभी संदेश अनपिन करें',
+  'chat.pinnedList.unpinAllBody':
+    'यहाँ के सभी पिन किए संदेश अनपिन करें? इसे वापस नहीं किया जा सकता।',
+  'chat.pinnedList.unpinAllYes': 'सभी अनपिन करें',
+  'chat.pinnedList.hide': 'पिन किए संदेश छिपाएँ',
+  'chat.pinnedList.err': 'Telegram ने यह नहीं किया। फिर कोशिश करें।',
+  'chat.similar.title': 'मिलते-जुलते चैनल',
+  'chat.similar.err.failed': 'जुड़ नहीं सके। फिर कोशिश करें।',
+  'chat.similar.err.too-many': 'आप बहुत ज़्यादा चैनलों से जुड़ चुके हैं।',
+  'chat.similar.err.private': 'यह चैनल निजी है।',
+  'chat.similar.err.not-found': 'यह चैनल नहीं मिला।',
+  'chat.factCheck.title': 'तथ्य-जाँच',
+  'chat.factCheck.source': '{country} के लिए तथ्य-जाँच',
 };

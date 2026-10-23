@@ -1384,4 +1384,21 @@ export const ruChat = {
   'chat.stats.g.messages': 'Сообщения',
   'chat.stats.g.actions': 'Действия',
   'chat.stats.g.weekdays': 'Активность по дням недели',
+  // The pinned messages list, similar channels and fact checks (R-Y166).
+  'chat.pinnedList.title':
+    '{count, plural, one {# закреплённое сообщение} few {# закреплённых сообщения} many {# закреплённых сообщений} other {# закреплённого сообщения}}',
+  'chat.pinnedList.unpin': 'Открепить',
+  'chat.pinnedList.unpinAll': 'Открепить все сообщения',
+  'chat.pinnedList.unpinAllBody':
+    'Открепить все закреплённые сообщения здесь? Это нельзя отменить.',
+  'chat.pinnedList.unpinAllYes': 'Открепить все',
+  'chat.pinnedList.hide': 'Скрыть закреплённые сообщения',
+  'chat.pinnedList.err': 'Telegram не выполнил это. Повторите попытку.',
+  'chat.similar.title': 'Похожие каналы',
+  'chat.similar.err.failed': 'Не удалось вступить. Повторите попытку.',
+  'chat.similar.err.too-many': 'Вы вступили в слишком много каналов.',
+  'chat.similar.err.private': 'Этот канал закрытый.',
+  'chat.similar.err.not-found': 'Этот канал не найден.',
+  'chat.factCheck.title': 'Проверка фактов',
+  'chat.factCheck.source': 'Проверка фактов для: {country}',
 };

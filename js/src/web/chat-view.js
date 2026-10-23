@@ -13,6 +13,7 @@
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
 import { PeerBar } from './chat-peer-actions.js';
+import { PinnedBar } from './chat-pinned.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
 import { TtlBadge } from './chat-ttl.js';
@@ -39,13 +40,7 @@ import { useLeaving } from './chat-leaving.js';
 import { infoLine } from './chat-info.js';
 import { PersonPanel } from './person-panel.js';
 import { UnreadMarks, useUnreadMarks } from './chat-marks.js';
-import {
-  MessageBubble,
-  QuoteContext,
-  ReplyQuote,
-  mediaLabel,
-} from './chat-message.js';
-import { parseMessageParts } from './message-parts.js';
+import { MessageBubble, QuoteContext, ReplyQuote } from './chat-message.js';
 import { ChatAvatar } from './chat-list.js';
 import { EmojiStatus } from './emoji-status.js';
 import { replyRefOf, useChatActions } from './chat-actions.js';
@@ -1000,46 +995,6 @@ const Composer = ({ state, api, keys }) => {
   ]);
 };
 
-// Pinned message bar shown when the newest loaded pinned message is known.
-// The chat's pinned message above the stream, as in Telegram: an
-// accent bar, "Pinned message" and one line of it; a click goes to it.
-const PinnedBar = ({ pinned, onOpen }) => {
-  const t = useT();
-  if (!pinned) {
-    return null;
-  }
-  const { text, media } = parseMessageParts(pinned);
-  const line = text || mediaLabel(t, media);
-  return el(
-    'button',
-    {
-      type: 'button',
-      className: 'chat-pinned-bar',
-      onClick: () => onOpen(pinned.id),
-    },
-    [
-      el('span', {
-        key: 'bar',
-        className: 'chat-pinned-line',
-        'aria-hidden': 'true',
-      }),
-      el('span', { key: 'b', className: 'chat-pinned-body' }, [
-        el(
-          'span',
-          { key: 'h', className: 'chat-pinned-title' },
-          t('chat.pinnedMessage')
-        ),
-        el(
-          'span',
-          { key: 'x', className: 'chat-pinned-text' },
-          line.length > 120 ? `${line.slice(0, 120)}…` : line
-        ),
-      ]),
-      el(Icon, { key: 'i', name: 'pin', size: 18 }),
-    ]
-  );
-};
-
 /** The screen itself, pure: everything comes from `state`. */
 // The header, and beside the messages what the conversation tells about
 // the person, open until closed (in every personal chat, as Telegram's
@@ -1073,6 +1028,7 @@ const ChatTop = ({ state, api, onBack, saved }) => {
           info: state.info ?? null,
           username: state.info?.username ?? null,
           onOpenChat: (target) => state.openAt?.(target),
+          hasChat: (key) => state.hasChat?.(key) ?? false,
           onGo: (id) => {
             // Narrow, the column covers the messages: it goes.
             if (!globalThis.matchMedia?.('(min-width: 900px)').matches) {
@@ -1156,7 +1112,8 @@ export const ChatScreen = ({ state, api }) => {
             }),
             el(PinnedBar, {
               key: 'pin',
-              pinned: state.pinned,
+              state,
+              api,
               onOpen: (id) => goToMessage(id, state.history?.reach),
             }),
             // Add contact, Block, Report spam over a stranger's chat (R-Y137).

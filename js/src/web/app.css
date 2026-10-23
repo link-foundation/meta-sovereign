@@ -8411,3 +8411,120 @@ span.bubble-effect {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+/* The pinned messages list, similar channels and fact checks (R-Y166). */
+.chat-pinned-wrap {
+  display: flex;
+  flex: none;
+  align-items: stretch;
+  background: var(--bg-elev);
+  border-bottom: 1px solid var(--border);
+}
+.chat-pinned-wrap > .chat-pinned-bar {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  border-bottom: 0;
+}
+.chat-pinned-side {
+  flex: none;
+  align-self: center;
+  margin-right: 0.5rem;
+  color: var(--text-muted);
+}
+.pinned-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.pinned-item-go {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  height: auto;
+  padding: 0.5rem 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pinned-item-go:hover {
+  background: var(--bg-active);
+}
+.pinned-item-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+.pinned-item-unpin {
+  flex: none;
+  height: auto;
+  padding: 0.25rem 0.6rem;
+  color: var(--accent);
+}
+.pinned-list-foot {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+.similar-title {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.similar-row {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+.similar-channel {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 5.5rem;
+  height: auto;
+  padding: 0.4rem 0.25rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  text-align: center;
+  cursor: pointer;
+}
+.similar-channel:hover {
+  background: var(--bg-active);
+}
+.similar-channel-name {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fact-check {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-left: 2px solid var(--chat-accent, var(--accent));
+  border-radius: 0.3rem;
+  background: var(--bg-elev);
+  font-size: 0.85rem;
+}
+.fact-check-title {
+  color: var(--chat-accent, var(--accent));
+}
+.fact-check-pending {
+  display: block;
+  min-height: 1px;
+}

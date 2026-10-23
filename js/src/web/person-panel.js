@@ -12,6 +12,7 @@ import { Icon } from './icons.js';
 import { Busy } from './spinner.js';
 import { ProfileHead, SharedMedia } from './chat-shared.js';
 import { InviteLink } from './chat-invite.js';
+import { SimilarChannels } from './chat-similar.js';
 import { Members } from './chat-members.js';
 import { PeerActions } from './chat-peer-actions.js';
 import { NotifyRow } from './chat-notify-settings.js';
@@ -272,6 +273,7 @@ export const PersonPanel = ({
   onClose,
   onGo,
   onOpenChat,
+  hasChat,
 }) => {
   const t = useT();
   const { dateTime } = useDates();
@@ -321,6 +323,14 @@ export const PersonPanel = ({
         el(NotifyRow, { key: 'nr', api, chat }),
         el(PeerActions, { key: 'pa', api, chat, info }),
         el(CommonChatsRow, { key: 'cc', api, chat, info, onOpenChat }),
+        el(SimilarChannels, {
+          key: 'sc',
+          api,
+          chat,
+          info,
+          hasChat,
+          onOpenChat,
+        }),
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,
       ]),

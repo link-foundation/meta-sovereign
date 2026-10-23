@@ -1366,4 +1366,21 @@ export const enChat = {
   'chat.stats.g.messages': 'Messages',
   'chat.stats.g.actions': 'Actions',
   'chat.stats.g.weekdays': 'Activity by day of the week',
+  // The pinned messages list, similar channels and fact checks (R-Y166).
+  'chat.pinnedList.title':
+    '{count, plural, one {# pinned message} other {# pinned messages}}',
+  'chat.pinnedList.unpin': 'Unpin',
+  'chat.pinnedList.unpinAll': 'Unpin all messages',
+  'chat.pinnedList.unpinAllBody':
+    'Unpin all pinned messages here? This cannot be undone.',
+  'chat.pinnedList.unpinAllYes': 'Unpin all',
+  'chat.pinnedList.hide': 'Hide pinned messages',
+  'chat.pinnedList.err': 'Telegram did not do that. Try again.',
+  'chat.similar.title': 'Similar channels',
+  'chat.similar.err.failed': 'Could not join. Try again.',
+  'chat.similar.err.too-many': 'You have joined too many channels.',
+  'chat.similar.err.private': 'This channel is private.',
+  'chat.similar.err.not-found': 'This channel was not found.',
+  'chat.factCheck.title': 'Fact check',
+  'chat.factCheck.source': 'Fact check for {country}',
 };
