@@ -196,10 +196,11 @@ await finish(async () => {
     'no more to load'
   );
 
-  // Arrows move; Enter sends the picked one and empties the box.
+  // Arrows move; Enter sends the picked one and empties the box. The
+  // pointer is moved off the results first: hovering one picks it.
+  await page.mouse.move(0, 0);
   assert((await selected()) === 'g0', 'first selected');
-  await box.press('ArrowDown');
-  await box.press('ArrowDown');
+  await box.press('ArrowDown').then(() => box.press('ArrowDown'));
   assert((await selected()) === 'g2', `down: ${await selected()}`);
   await box.press('ArrowUp');
   assert((await selected()) === 'g1', 'up');
