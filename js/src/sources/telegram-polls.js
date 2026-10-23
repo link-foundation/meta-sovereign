@@ -21,6 +21,7 @@
  */
 
 import { peerChatId } from './telegram-updates.js';
+import { withSendAs } from './telegram-send-as-client.js';
 import { randomIdOf, replyHeader, sendError } from './telegram-send.js';
 
 const SOURCE = 'telegram';
@@ -194,12 +195,13 @@ const createPollSender =
   (env, { userClient, apply }) =>
   async (draft = {}) => {
     const target = String(draft.chat ?? '');
-    const client = target ? await userClient() : null;
-    if (!client) {
+    const own = target ? await userClient() : null;
+    if (!own) {
       return { ok: false, supported: false };
     }
     const { Api, helpers } = await env.importer();
     try {
+      const client = await withSendAs(env, own, draft.sendAs);
       const result = await env.connection.withPeer(client, target, (peer) =>
         env.queue.run(`poll:send:${target}`, 'view', () =>
           client.invoke(

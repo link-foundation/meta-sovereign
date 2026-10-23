@@ -6561,6 +6561,27 @@ button[aria-busy='true']::before {
   border-radius: 6px;
 }
 .inline-result.inline-list {
+}
+
+/* R-Y141: "Send as" — the avatar button left of the box and its list. */
+.send-as-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+.send-as-button .send-as-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.send-as-item {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -6652,6 +6673,7 @@ button[aria-busy='true']::before {
   gap: 0.7rem;
   width: 100%;
   padding: 0.5rem 0.4rem;
+  padding: 0.35rem 0.4rem;
   border: 0;
   border-radius: var(--radius);
   background: none;
@@ -6696,4 +6718,23 @@ button[aria-busy='true']::before {
 .saved-head-name {
   flex: 1 1 auto;
   min-width: 0;
+  text-align: start;
+  cursor: pointer;
+}
+.send-as-item:hover:not(:disabled),
+.send-as-item.active {
+  background: var(--bg-elev);
+}
+.send-as-item:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.send-as-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.send-as-text small {
+  color: var(--text-muted);
 }

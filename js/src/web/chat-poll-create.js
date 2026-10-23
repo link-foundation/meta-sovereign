@@ -12,6 +12,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { composerReplyId } from './forum-topics.js';
+import { sendAsField } from './chat-send-as.js';
 
 const el = React.createElement;
 
@@ -91,6 +92,7 @@ export const usePollCreate = ({ state, api, composer }) => {
         chat: String(state.current.chat),
         ...body,
         ...(reply ? { replyTo: reply } : {}),
+        ...sendAsField(state.current.chat),
         clientId: newClientId(),
       })
       .catch((error) => ({ error: error.message }));

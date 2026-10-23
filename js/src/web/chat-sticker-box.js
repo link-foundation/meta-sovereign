@@ -17,6 +17,7 @@ import { useT } from './i18n.js';
 import { MediaSticker } from './chat-media.js';
 import { Grid } from './chat-stickers.js';
 import { topicReplyId } from './forum-topics.js';
+import { sendAsField } from './chat-send-as.js';
 
 const el = React.createElement;
 
@@ -194,6 +195,7 @@ export const StickerSetBox = ({ api, chat, topic = null, from, onClose }) => {
       chat: String(chat),
       ...(replyTo ? { replyTo } : {}),
       id: item.id,
+      ...sendAsField(chat),
       clientId: `doc-${Date.now()}-${sent}`,
     });
   };

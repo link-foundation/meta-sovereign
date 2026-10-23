@@ -39,6 +39,7 @@ import { pipeline } from 'node:stream/promises';
 
 import { apiEntities, parseFormatted } from './telegram-format.js';
 import { sendError } from './telegram-send.js';
+import { withSendAs } from './telegram-send-as-client.js';
 
 // Telegram takes files up to 2 GB from an account (4 GB with Premium).
 export const MAX_UPLOAD = 2000 * 1024 * 1024;
@@ -233,6 +234,15 @@ const sendBatch = async ({ client, Api, CustomFile, peer, batch, options }) => {
   }
 };
 
+// Scheduled ones: the chat's list is asked afresh (R-Y102).
+const scheduledNote = (env, scheduleDate, chat) => {
+  if (!scheduleDate) {
+    return {};
+  }
+  env.actions?.scheduledChanged?.(chat);
+  return { scheduled: true };
+};
+
 /**
  * `env` is the account's; `userClient()` the user client or null;
  * `dialogOf(chat)` the chat as listed; `tools` its `toLinks` and
@@ -346,6 +356,7 @@ export const createFileSender = (
     replyTo = null,
     silent = false,
     scheduleDate = null,
+    sendAs = null,
   } = {}) => {
     const files = tokens.map((token) => ({ token, ...uploads.get(token) }));
     const client = await clientFor(chat, files);
@@ -354,24 +365,21 @@ export const createFileSender = (
       return { ok: false, supported: Boolean(chat && files.length > 0) };
     }
     const target = String(chat);
-    // Scheduled ones: the chat's list is asked afresh (R-Y102).
-    const scheduledNote = (at) => {
-      if (!scheduleDate) {
-        return {};
-      }
-      env.actions?.scheduledChanged?.(at);
-      return { scheduled: true };
-    };
     try {
       const ids = await sendAll({
-        client,
+        client: await withSendAs(env, client, sendAs),
         target,
         batches: batchesOf(files, { asPhoto, group }),
         caption: String(caption ?? '').slice(0, MAX_CAPTION),
         replyTo,
         when: { silent, scheduleDate },
       });
-      return { ok: true, chat: target, ids, ...scheduledNote(target) };
+      return {
+        ok: true,
+        chat: target,
+        ids,
+        ...scheduledNote(env, scheduleDate, target),
+      };
     } catch (error) {
       throw sendError(error);
     } finally {
@@ -380,7 +388,7 @@ export const createFileSender = (
   };
 
   // One recorded voice, as Telegram's voice note (R-Y108).
-  const sendVoice = async ({ chat, token, ...rest } = {}) => {
+  const sendVoice = async ({ chat, token, sendAs = null, ...rest } = {}) => {
     const upload = uploads.get(token);
     const client = chat && upload?.path ? await userClient() : null;
     if (!client) {
@@ -388,8 +396,9 @@ export const createFileSender = (
       return { ok: false, supported: Boolean(chat && upload) };
     }
     try {
+      const sender = await withSendAs(env, client, sendAs);
       return await voiceSent(
-        { env, client, dialogOf, tools },
+        { env, client: sender, dialogOf, tools },
         String(chat),
         voiceFileOf(upload, voiceOptions(rest))
       );

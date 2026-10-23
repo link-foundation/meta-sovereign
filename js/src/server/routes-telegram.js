@@ -100,6 +100,15 @@
  *                                  replyTo?}
  *                                      -> { ok, ids } a recorded voice
  *                                         as a voice message (R-Y108)
+ *   POST /api/telegram/send-as {chat}  -> { ok, current, peers, premium }
+ *                                         who may send in a supergroup
+ *                                         and who does by default; send-
+ *                                         files, -voice, -document, -poll
+ *                                         and a message take `sendAs`
+ *                                         (a peer id) too (R-Y141)
+ *   POST /api/telegram/send-as-save {chat, sendAs}
+ *                                      -> { ok, current } the default
+ *                                         identity kept (R-Y141)
  *   POST /api/telegram/bot-callback {chat, id, data?, game?}
  *                                      -> { ok, message, alert, url } a
  *                                         bot's button pressed (R-Y110)
@@ -269,6 +278,8 @@ import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
 import { TTL_POSTS } from './routes-telegram-ttl.js';
+import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
+import { validSendAs } from '../sources/telegram-send-as-client.js';
 import { INVITE_HASH } from '../sources/telegram-invite.js';
 import { MAX_GLOBAL_QUERY } from '../sources/telegram-global.js';
 import { removalAllowed } from '../sources/telegram-chat-removal.js';
@@ -326,6 +337,8 @@ const peerAction = async (account, name, body) => {
 // POST /api/telegram/<name>: [status, answer] for one request body.
 // Without sound; at a time (R-Y102).
 const whenOf = (body) => ({
+  // Sent as another identity in a group (R-Y141).
+  ...(body.sendAs === undefined ? {} : { sendAs: body.sendAs }),
   ...(body.silent === true ? { silent: true } : {}),
   ...(body.scheduleDate !== undefined
     ? { scheduleDate: body.scheduleDate }
@@ -372,6 +385,7 @@ const validFiles = (body) =>
   body.tokens.length > 0 &&
   body.tokens.length <= MAX_FILES &&
   body.tokens.every((t) => typeof t === 'string' && /^[a-f0-9]{32}$/.test(t)) &&
+  validSendAs(body.sendAs) &&
   (body.caption === undefined || typeof body.caption === 'string') &&
   String(body.caption ?? '').length <= MAX_CAPTION &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
@@ -385,6 +399,7 @@ const validVoice = (body) =>
   Number.isFinite(body.duration) &&
   body.duration >= 0 &&
   body.duration <= MAX_VOICE_SECONDS &&
+  validSendAs(body.sendAs) &&
   (body.waveform === undefined ||
     (Array.isArray(body.waveform) &&
       body.waveform.length <= WAVEFORM_SIZE &&
@@ -395,6 +410,7 @@ const validVoice = (body) =>
 const STICKER_ID = /^\d{1,20}$/;
 const validDocument = (body) =>
   validChat(body.chat) &&
+  validSendAs(body.sendAs) &&
   STICKER_ID.test(String(body.id ?? '')) &&
   (body.scheduleDate === undefined || validSchedule(body.scheduleDate));
 
@@ -977,6 +993,7 @@ const POSTS = {
   ...SHARE_POSTS,
   ...INLINE_POSTS,
   ...TTL_POSTS,
+  ...SEND_AS_POSTS,
   // The user's own profile (R-Y136).
   profile: profileRoute(
     'myProfile',
@@ -1240,6 +1257,7 @@ const validPoll = (b) =>
   validOptionList(b.options) &&
   ['anonymous', 'multiple', 'quiz'].every((k) => typeof b[k] === 'boolean') &&
   validQuiz(b) &&
+  validSendAs(b.sendAs) &&
   (b.silent === undefined || typeof b.silent === 'boolean') &&
   (b.scheduleDate === undefined || validSchedule(b.scheduleDate));
 POSTS['send-poll'] = async (account, body) => {

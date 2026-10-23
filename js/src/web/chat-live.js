@@ -28,6 +28,7 @@ import {
   waitsForNetwork,
   writeSaved,
 } from './chat-outbox.js';
+import { sendAsField } from './chat-send-as.js';
 
 const BATCH_MS = 80;
 // A failed load of the chat list is tried again after this long.
@@ -189,6 +190,7 @@ const sendResult = async (api, item) => {
       ...(item.topic ? { topic: item.topic } : {}),
       ...(item.silent ? { silent: true } : {}),
       ...(item.scheduleDate ? { scheduleDate: item.scheduleDate } : {}),
+      ...(item.sendAs ? { sendAs: item.sendAs } : {}),
     });
     return result ?? { status: 'failed', code: 'no-answer' };
   } catch (error) {
@@ -510,6 +512,7 @@ export const useComposer = ({
       attempts: 0,
       ...outFields({ replyTo: replyId, replyQuote: quote, topic }),
       ...outFields({ silent, scheduleDate }),
+      ...sendAsField(current.chat),
     });
   };
 
@@ -531,6 +534,7 @@ export const useComposer = ({
       attempts: 0,
       ...(answer ? { replyTo: answer } : {}),
       ...(topic ? { topic } : {}),
+      ...sendAsField(current.chat),
     });
   };
 

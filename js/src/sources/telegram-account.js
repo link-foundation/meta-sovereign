@@ -63,6 +63,7 @@ import {
   formattedParts,
 } from './telegram-send.js';
 import { rawEntities } from './telegram-format.js';
+import { validSendAs, withSendAs } from './telegram-send-as-client.js';
 import { GENERAL_TOPIC, inTopicOnly } from '../web/forum-topics.js';
 import {
   importTelegram,
@@ -818,9 +819,14 @@ const postAsUser = async (
     topic = null,
     silent,
     scheduleDate,
+    sendAs,
   }
 ) => {
-  const { client } = await env.connection.open(creds);
+  const { client: own } = await env.connection.open(creds);
+  // Sent as another identity (R-Y141).
+  const client = await withSendAs(env, own, sendAs).catch((error) => {
+    throw sendError(error);
+  });
   const { Api, helpers } = await env.importer().catch(() => ({}));
   const maxLength = await messageLengthMax(client, Api);
   const release = env.live.expectOwn({
@@ -901,6 +907,8 @@ const draftOptions = (draft) => {
     scheduleDate: Number.isInteger(draft.scheduleDate)
       ? draft.scheduleDate
       : null,
+    // The identity it is sent as (R-Y141).
+    sendAs: validSendAs(draft.sendAs) ? draft.sendAs : undefined,
   };
 };
 

@@ -16,6 +16,7 @@ import { Icon } from './icons.js';
 import { canAttach } from './chat-attach.js';
 import { voiceDuration, webmToOgg } from './voice-ogg.js';
 import { composerReplyId } from './forum-topics.js';
+import { sendAsField } from './chat-send-as.js';
 
 const el = React.createElement;
 
@@ -159,6 +160,7 @@ const sendRecording = async ({ api, chat, replyTo, blob, type, levels }) => {
     duration: Math.max(1, Math.round(voiceDuration(ogg))),
     waveform: waveformOf(levels),
     ...(replyTo ? { replyTo } : {}),
+    ...sendAsField(chat),
   });
 };
 

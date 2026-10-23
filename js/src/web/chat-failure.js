@@ -14,6 +14,11 @@ export const failureText = (t, message) => {
       return t('chat.failure.forbidden');
     case 'unknown-chat':
       return t('chat.failure.unknownChat');
+    // "Send as" refused (R-Y141).
+    case 'send-as-invalid':
+      return t('chat.sendAs.err.send-as-invalid');
+    case 'premium-required':
+      return t('chat.sendAs.err.premium');
     case 'too-long':
       return t('chat.failure.tooLong');
     case 'too-large':

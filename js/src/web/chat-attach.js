@@ -10,6 +10,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { composerReplyId } from './forum-topics.js';
+import { sendAsField } from './chat-send-as.js';
 
 const el = React.createElement;
 
@@ -147,6 +148,7 @@ export const useAttach = ({ state, api }) => {
           group,
           ...replyOf(composer),
           ...when,
+          ...sendAsField(current.chat),
         })
       : up;
     if (answer?.ok) {

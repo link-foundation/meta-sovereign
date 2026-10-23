@@ -91,8 +91,17 @@ const errorText = (error) =>
 const codeError = (code, message, extra = {}) =>
   Object.assign(new Error(message), { code, fallback: false, ...extra });
 
-/** Telegram's error as a composer-friendly `{ code, retryAfter? }` error. */
-export const sendError = (error) => {
+// A refused "send as" (R-Y141).
+const refusedSendAs = (text) => {
+  if (/SEND_AS_PEER_INVALID/.test(text)) {
+    return codeError('send-as-invalid', text);
+  }
+  return /PREMIUM_ACCOUNT_REQUIRED/.test(text)
+    ? codeError('premium-required', text)
+    : null;
+};
+
+const otherSendError = (error) => {
   const text = errorText(error);
   const flood = /FLOOD_WAIT_?(\d+)?/.exec(text);
   if (flood) {
@@ -124,6 +133,10 @@ export const sendError = (error) => {
   // — a message that may already be sent must not be sent again.
   return codeError(error?.code ?? 'send-failed', text || 'send failed');
 };
+
+/** Telegram's error as a composer-friendly `{ code, retryAfter? }` error. */
+export const sendError = (error) =>
+  refusedSendAs(errorText(error)) ?? otherSendError(error);
 
 // Whom the message answers, and the part of it quoted; in a forum
 // topic (R-Y122), the topic: its first message answered when nothing

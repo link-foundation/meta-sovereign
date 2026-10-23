@@ -38,6 +38,7 @@ import { MsgContextMenu } from './chat-message.js';
 import { canSchedule, ScheduleDialog } from './chat-schedule.js';
 import { composerReplyId } from './forum-topics.js';
 import { RemoveSetDialog } from './chat-sticker-box.js';
+import { sendAsField } from './chat-send-as.js';
 
 const el = React.createElement;
 
@@ -676,6 +677,7 @@ const useSend =
       id: item.id,
       ...(replyTo ? { replyTo } : {}),
       ...when,
+      ...sendAsField(state.current.chat),
       clientId: `doc-${Date.now()}-${sent}`,
     });
     if (answer?.ok) {

@@ -62,6 +62,7 @@ import { createBotCommands } from './telegram-bot-commands.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
 import { createTtl } from './telegram-ttl.js';
+import { createSendAs } from './telegram-send-as.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -354,7 +355,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y135); the user's own profile (R-Y136); inline bots (R-Y138, made by
 // the stickers' module, which keeps the files their answers name); privacy
 // and security (R-Y139); sharing a place and a contact (R-Y142);
-// auto-delete timers and Saved Messages by chat (R-Y143).
+// auto-delete timers and Saved Messages by chat (R-Y143); "send as"
+// (R-Y141).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -395,6 +397,7 @@ const chatActions = (env, context) => {
     ...createProfile(env, withUploads),
     ...createPrivacy(env, context),
     ...createTtl(env, context),
+    ...createSendAs(env, context),
   };
 };
 

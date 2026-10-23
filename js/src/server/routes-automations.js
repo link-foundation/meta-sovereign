@@ -45,6 +45,7 @@ import {
 import { listAutomations } from '../automation/drafts.js';
 import { isTypingActive, typingLink } from '../sources/live-links.js';
 import { validSchedule } from '../sources/telegram-scheduled.js';
+import { validSendAs } from '../sources/telegram-send-as-client.js';
 
 const fail = (res, status, code, error) =>
   json(res, status, { error, code }) ?? true;
@@ -140,6 +141,8 @@ const buildDraft = (body) => {
     ...(replyTo ? { replyTo } : {}),
     ...(replyQuote ? { replyQuote } : {}),
     ...topicField(body),
+    // The identity it is sent as in a group (R-Y141).
+    ...(body.sendAs === undefined ? {} : { sendAs: body.sendAs }),
     // Without sound; at a time (R-Y102).
     ...(body.silent === true ? { silent: true } : {}),
     ...(body.scheduleDate !== undefined
@@ -185,6 +188,9 @@ const handleSend = async (store, res, body, ctx) => {
   }
   if (body.scheduleDate !== undefined && !validSchedule(body.scheduleDate)) {
     return fail(res, 400, 'bad-schedule', 'a time from now to a year ahead');
+  }
+  if (!validSendAs(body.sendAs)) {
+    return fail(res, 400, 'bad-send-as', 'a peer id to send as');
   }
   const draft = buildDraft(body);
   // The composer's Send press confirms exactly this text.

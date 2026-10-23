@@ -36,6 +36,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { pickSize } from './telegram-media.js';
+import { withSendAs } from './telegram-send-as-client.js';
 import { DICE, randomIdOf, replyHeader, sendError } from './telegram-send.js';
 import { createStickerSearch } from './telegram-sticker-search.js';
 import { createInlineBots } from './telegram-inline-bots.js';
@@ -497,9 +498,10 @@ const createSender = (env, { userClient, apply }, lists) => {
       return { ok: false, supported: false };
     }
     try {
+      const client = await withSendAs(env, c.client, draft.sendAs);
       const result = await lists.withDoc(key, (doc) =>
-        env.connection.withPeer(c.client, target, (peer) =>
-          c.client.invoke(sendRequest(c, doc, peer, draft))
+        env.connection.withPeer(client, target, (peer) =>
+          client.invoke(sendRequest(c, doc, peer, draft))
         )
       );
       if (result && typeof result === 'object') {

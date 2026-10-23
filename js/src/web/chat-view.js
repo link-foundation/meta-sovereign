@@ -92,6 +92,7 @@ import {
 } from './chat-days.js';
 import { goToMessage, useArrival, useStreamJumps } from './chat-jump.js';
 import { NOTICE, Sidebar, noticeInWords } from './chat-sidebar.js';
+import { useSendAs } from './chat-send-as.js';
 
 export { failureText, waitingText } from './chat-failure.js';
 export { autopilotText } from './chat-automation.js';
@@ -974,6 +975,8 @@ const Composer = ({ state, api, keys }) => {
   const share = useShare({ state, api, composer });
   // The Send buttons' menu; scheduled messages (R-Y102).
   const later = useSendLater({ state, api, composer, attach });
+  // Who sends in a supergroup: the avatar button (R-Y141).
+  const sendAs = useSendAs(api, state.current);
   // The emoji panel (R-Y104), with stickers and GIFs (R-Y105).
   const box = useRef(null);
   const typeText = (next) => composer.setText(next, { typed: true });
@@ -1040,6 +1043,7 @@ const Composer = ({ state, api, keys }) => {
         onClear: composer.clearReplyTo,
       }),
       el('div', { key: 'row', className: 'chat-composer-row' }, [
+        unless(voice.recording, sendAs.button),
         voice.bar,
         unless(voice.recording, commands.menuButton),
         voice.recording
@@ -1102,6 +1106,7 @@ const Composer = ({ state, api, keys }) => {
     }),
     poll.shown ? el(PollDialog, { key: 'poll', poll }) : null,
     el(ShareDialog, { key: 'share', share, api }),
+    sendAs.dialog,
     ...later.parts,
     ...(stickers.parts ?? []),
   ]);

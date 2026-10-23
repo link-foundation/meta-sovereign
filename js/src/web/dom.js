@@ -1003,6 +1003,8 @@ export const api = {
   telegramPeerReport: (body = {}) => telegramPost('peer-report', body),
   telegramPeerReportSpam: (body = {}) => telegramPost('peer-report-spam', body),
   // The bar over a chat with a stranger (R-Y137).
+  telegramSendAs: (body = {}) => telegramPost('send-as', body),
+  telegramSendAsSave: (body = {}) => telegramPost('send-as-save', body),
   telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
   telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),
   telegramPeerShareContact: (body = {}) =>
