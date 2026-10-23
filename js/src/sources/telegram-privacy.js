@@ -19,10 +19,15 @@
  * - `blockedUsers({ offset, limit })` — contacts.getBlocked → `{ ok,
  *   count, items, next }`; `unblockUser({ id, accessHash })` —
  *   contacts.unblock.
+ * - `defaultTtl()` — messages.getDefaultHistoryTTL → `{ ok, period }`
+ *   (seconds, 0 off); `setDefaultTtl({ period })` —
+ *   messages.setDefaultHistoryTTL, the timer new chats start with
+ *   (R-Y151; the period is one of TTL_PERIODS).
  * Telegram's errors become codes the page shows as text.
  */
 
 import { connected, failureOf, runIn } from './telegram-stickers.js';
+import { TTL_PERIODS } from './telegram-ttl.js';
 
 /** The page's key → the InputPrivacyKey constructor. */
 export const PRIVACY_KEYS = {
@@ -49,6 +54,7 @@ const CODES = {
   PRIVACY_KEY_INVALID: 'key-invalid',
   PRIVACY_VALUE_INVALID: 'value-invalid',
   USER_ID_INVALID: 'user-invalid',
+  TTL_PERIOD_INVALID: 'bad-period',
   FLOOD_WAIT: 'flood',
 };
 const failure = failureOf(CODES);
@@ -368,7 +374,38 @@ const unblock =
     });
   };
 
+const readDefaultTtl = (env, userClient) => async () =>
+  connected(env, userClient, failure, async (c) => {
+    const answer = await ask(
+      env,
+      c,
+      'default-ttl',
+      new c.Api.messages.GetDefaultHistoryTTL()
+    );
+    return { ok: true, period: Number(answer?.period ?? 0) || 0 };
+  });
+
+const writeDefaultTtl =
+  (env, userClient) =>
+  async (request = {}) => {
+    const { period } = request;
+    if (!TTL_PERIODS.includes(period)) {
+      return bad('bad-request');
+    }
+    return connected(env, userClient, failure, async (c) => {
+      await ask(
+        env,
+        c,
+        'default-ttl',
+        new c.Api.messages.SetDefaultHistoryTTL({ period })
+      );
+      return { ok: true, period };
+    });
+  };
+
 export const createPrivacy = (env, context) => ({
+  defaultTtl: readDefaultTtl(env, context.userClient),
+  setDefaultTtl: writeDefaultTtl(env, context.userClient),
   privacyRules: readRules(env, context.userClient),
   setPrivacy: writeRule(env, context.userClient),
   sessions: readSessions(env, context.userClient),

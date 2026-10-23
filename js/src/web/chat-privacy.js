@@ -10,6 +10,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useT, useLocaleContext } from './i18n.js';
 import { FormDialog } from './chat-create.js';
+import { TtlChoices, periodWords } from './chat-ttl.js';
 
 const el = React.createElement;
 
@@ -318,6 +319,56 @@ const Sessions = ({ api, t, setError }) => {
   ]);
 };
 
+// The timer new chats start with (R-Y151): the current period, and a click
+// opens the same choices as a chat's timer (Off, 1 day, 1 week, 1 month,
+// "Other…" for the longer ones); Save sends the period.
+const AutoDelete = ({ api, t, setError }) => {
+  const ask = useCallback(() => api.telegramDefaultTtl(), [api]);
+  const [state, setState] = useAsked(ask);
+  const [open, setOpen] = useState(false);
+  if (state.phase !== 'ready') {
+    return el(Message, { t, state });
+  }
+  const period = state.data.period;
+  return el('div', { className: 'privacy-ttl' }, [
+    el(
+      'button',
+      {
+        key: 'b',
+        type: 'button',
+        className: 'admin-open',
+        'data-action': 'default-ttl',
+        'aria-expanded': open,
+        onClick: () => setOpen(!open),
+      },
+      [
+        t('chat.privacy.autoDelete'),
+        el(
+          'span',
+          { key: 'p', className: 'meta ttl-now', 'data-default-ttl': period },
+          ` ${periodWords(t, period)}`
+        ),
+      ]
+    ),
+    el('p', { key: 'h', className: 'meta' }, t('chat.privacy.autoDeleteHint')),
+    open
+      ? el(TtlChoices, {
+          key: `c${period}`,
+          current: period,
+          save: (value) => api.telegramDefaultTtlSet({ period: value }),
+          done: (value) => {
+            setError(null);
+            setOpen(false);
+            setState({
+              phase: 'ready',
+              data: { ...state.data, period: value },
+            });
+          },
+        })
+      : null,
+  ]);
+};
+
 const PAGE = 50;
 
 const Blocked = ({ api, t, setError }) => {
@@ -426,6 +477,11 @@ export const PrivacyDialog = ({ api, close }) => {
         Section,
         { key: 'r', name: 'rules', title: t('chat.privacy.rules') },
         el(Rules, props)
+      ),
+      el(
+        Section,
+        { key: 'a', name: 'auto-delete', title: t('chat.privacy.autoDelete') },
+        el(AutoDelete, props)
       ),
       el(
         Section,

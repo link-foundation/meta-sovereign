@@ -920,6 +920,28 @@ export const ruChat = {
   'chat.saved.err.failed': 'Что-то пошло не так. Повторите попытку.',
   'chat.saved.err.no-access': 'Этот чат недоступен.',
   'chat.saved.err.flood': 'Слишком много попыток. Подождите и повторите.',
+  // Reaction tags of Saved Messages, the default timer (R-Y151).
+  'chat.privacy.autoDelete': 'Автоудаление сообщений',
+  'chat.privacy.autoDeleteHint':
+    'Действует для новых чатов; в существующих остаётся их собственный таймер.',
+  'chat.savedTags.label': 'Теги реакций',
+  'chat.savedTags.chip': '{title}: {count}',
+  'chat.savedTags.clear': 'Показать все сохранённые сообщения',
+  'chat.savedTags.filtering': 'Сохранённые сообщения с тегом {tag}',
+  'chat.savedTags.empty': 'Нет сохранённых сообщений с этим тегом.',
+  'chat.savedTags.loading': 'Загрузка…',
+  'chat.savedTags.more': 'Показать ещё',
+  'chat.savedTags.renameTitle': 'Назвать тег',
+  'chat.savedTags.renameHint':
+    'До 12 символов. Оставьте пустым, чтобы убрать название.',
+  'chat.savedTags.renameField': 'Название тега',
+  'chat.savedTags.save': 'Сохранить',
+  'chat.savedTags.premium': 'Для названий тегов нужен Telegram Premium.',
+  'chat.savedTags.locked': 'Для названий тегов нужен Premium',
+  'chat.savedTags.err.failed': 'Что-то пошло не так. Повторите попытку.',
+  'chat.savedTags.err.premium': 'Для названий тегов нужен Telegram Premium.',
+  'chat.savedTags.err.bad-reaction': 'Telegram не знает такой реакции.',
+  'chat.savedTags.err.flood': 'Слишком много попыток. Подождите и повторите.',
   // Просмотр историй (R-Y140).
   'chat.stories.title': 'Истории',
   'chat.stories.mine': 'Моя история',

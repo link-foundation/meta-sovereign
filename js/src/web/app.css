@@ -7294,3 +7294,41 @@ span.bubble-effect {
 .stories-hidden-toggle {
   margin-inline-start: 0.5rem;
 }
+
+/* R-Y151: reaction tags of Saved Messages, the default timer. */
+.saved-tags {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.saved-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.saved-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--bg-elev);
+  color: inherit;
+  cursor: pointer;
+}
+.saved-tag.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.saved-tag-big {
+  margin: 0;
+  font-size: 2rem;
+}
+.privacy-ttl .admin-body {
+  padding-top: 0.4rem;
+}
+[data-dialog='privacy'] .chat-form-dialog {
+  max-height: 90vh;
+  overflow-y: auto;
+}

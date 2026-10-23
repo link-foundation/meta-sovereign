@@ -15,6 +15,11 @@
 import { PeerBar } from './chat-peer-actions.js';
 import { TtlBadge } from './chat-ttl.js';
 import { SavedChats, SavedToggle, useSavedView } from './chat-saved.js';
+import {
+  SavedTagBar,
+  SavedTagResults,
+  useSavedTags,
+} from './chat-saved-tags.js';
 import React, {
   useCallback,
   useEffect,
@@ -1283,6 +1288,8 @@ export const ChatScreen = ({ state, api }) => {
   const actions = useChatActions({ state, api, t, locale, selfName });
   // Saved Messages as chats, or as messages (R-Y143).
   const saved = useSavedView(state.current, state.info);
+  // Its reaction tags and the filter they make (R-Y151).
+  const tags = useSavedTags(api, state.current, state.info);
   // Phones show one pane at a time (list → conversation → back), as
   // Telegram and WhatsApp do; wider screens show both and ignore it.
   // One function for every render, so the list's rows stay as they are.
@@ -1348,9 +1355,12 @@ export const ChatScreen = ({ state, api }) => {
               labels: NOTICE,
               dismiss: state.dismiss,
             }),
+            saved.on ? null : el(SavedTagBar, { key: 'tags', api, tags }),
             saved.on
               ? el(SavedChats, { key: 'saved', api, chat: state.current })
-              : el(Stream, { key: 's', state, api, actions }),
+              : tags.active
+                ? el(SavedTagResults, { key: 'tagged', api, tags })
+                : el(Stream, { key: 's', state, api, actions }),
             saved.on
               ? null
               : el(Composer, { key: 'c', state, api, keys: actions.keys }),

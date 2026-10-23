@@ -6,6 +6,7 @@ import {
   CHOICES,
   PAGE_MAX,
 } from '../sources/telegram-privacy.js';
+import { TTL_PERIODS } from '../sources/telegram-ttl.js';
 
 const NOT_SUPPORTED = [400, { error: 'not supported', code: 'bad-request' }];
 
@@ -58,6 +59,19 @@ export const PRIVACY_POSTS = {
     () => true,
     () => ({}),
     'no sessions'
+  ),
+  // The default auto-delete timer of new chats (R-Y151).
+  'privacy-ttl': route(
+    'defaultTtl',
+    () => true,
+    () => ({}),
+    'no timer'
+  ),
+  'privacy-ttl-set': route(
+    'setDefaultTtl',
+    (b) => TTL_PERIODS.includes(b.period),
+    (b) => ({ period: b.period }),
+    'a period of Telegram required'
   ),
   blocked: route(
     'blockedUsers',

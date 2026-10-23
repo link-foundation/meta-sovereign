@@ -305,6 +305,26 @@ const SubChatHead = ({ name, onBack, onDelete, t }) =>
     ),
   ]);
 
+/** Saved messages drawn with the chat's own bubbles, read only. */
+export const savedBubbles = (api, list) => {
+  const msgById = new Map(list.map((m) => [m.id, m]));
+  return list.map((message, i) =>
+    el(MessageBubble, {
+      key: message.id,
+      message,
+      isPersonal: true,
+      showName: false,
+      showAvatar: false,
+      run: {
+        first: list[i - 1]?.sender !== message.sender,
+        last: list[i + 1]?.sender !== message.sender,
+      },
+      msgById,
+      api,
+    })
+  );
+};
+
 const SubChat = ({ api, chat, dialog, onBack }) => {
   const t = useT();
   const name = dialog.name || t('chat.saved.unknown');
@@ -323,7 +343,6 @@ const SubChat = ({ api, chat, dialog, onBack }) => {
     }
   };
   const list = state.messages;
-  const msgById = new Map(list.map((m) => [m.id, m]));
   return el('div', { className: 'saved-sub', 'data-saved': 'messages' }, [
     el(SubChatHead, {
       key: 'h',
@@ -358,21 +377,7 @@ const SubChat = ({ api, chat, dialog, onBack }) => {
           t,
           code: state.phase === 'error' && state.code,
         }),
-        ...list.map((message, i) =>
-          el(MessageBubble, {
-            key: message.id,
-            message,
-            isPersonal: true,
-            showName: false,
-            showAvatar: false,
-            run: {
-              first: list[i - 1]?.sender !== message.sender,
-              last: list[i + 1]?.sender !== message.sender,
-            },
-            msgById,
-            api,
-          })
-        ),
+        ...savedBubbles(api, list),
       ]),
     ]),
     asking

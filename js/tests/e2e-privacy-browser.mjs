@@ -66,6 +66,17 @@ await page.route('**/api/telegram/privacy-set', (route) => {
     ? fulfil(route, { ok: false, error: 'x', code: 'privacy-too-long' })
     : fulfil(route, { ok: true, ...row, choice: body.choice });
 });
+const ttlSets = [];
+await page.route('**/api/telegram/privacy-ttl', (route) =>
+  fulfil(route, { ok: true, period: 0 })
+);
+await page.route('**/api/telegram/privacy-ttl-set', (route) => {
+  ttlSets.push(route.request().postDataJSON());
+  return fulfil(route, {
+    ok: true,
+    period: route.request().postDataJSON().period,
+  });
+});
 const session = (hash, extra) => ({
   hash,
   current: false,
@@ -174,6 +185,39 @@ const rulesSteps = async () => {
   );
 };
 
+// The default auto-delete timer of new chats (R-Y151): the current period
+// shows, a click opens the choices, 1 week sends 604800.
+const autoDeleteSteps = async () => {
+  const button = dialog.locator('[data-action="default-ttl"]');
+  await button.waitFor({ timeout: 5000 });
+  assert(
+    (await button.textContent()).includes('Off'),
+    'the default is Off at first'
+  );
+  assert(
+    (await dialog.textContent()).includes('new chats'),
+    'the line says it applies to new chats'
+  );
+  assert(ttlSets.length === 0, 'nothing sent before Save');
+  await button.click();
+  await dialog.locator('[data-ttl="86400"]').waitFor();
+  await dialog.locator('[data-ttl="604800"]').check();
+  await dialog.locator('[data-action="ttl-save"]').click();
+  await until(() => ttlSets.length === 1, 'the default timer asked');
+  assert(
+    JSON.stringify(ttlSets[0]) === JSON.stringify({ period: 604800 }),
+    `period sent: ${JSON.stringify(ttlSets)}`
+  );
+  await until(
+    async () =>
+      (await button
+        .locator('[data-default-ttl]')
+        .getAttribute('data-default-ttl')) === '604800',
+    'the new default shown'
+  );
+  assert((await button.textContent()).includes('1 week'), 'one week shown');
+};
+
 const sessionSteps = async () => {
   await sessionRow('1').waitFor({ timeout: 5000 });
   assert((await sessionRow('1').textContent()).includes('This device'), 'mine');
@@ -245,6 +289,7 @@ const closeSteps = async () => {
 
 await finish(async () => {
   await rulesSteps();
+  await autoDeleteSteps();
   await sessionSteps();
   await blockedSteps();
   await closeSteps();

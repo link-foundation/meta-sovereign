@@ -188,6 +188,14 @@
  *                       -> { ok, messages, complete } what was saved from
  *                       one chat, oldest first
  *   POST /api/telegram/saved-delete {peer} -> { ok } all saved from it
+ *   POST /api/telegram/saved-tags      -> { ok, premium, tags: [{ reaction,
+ *                                         title, count }] } Saved Messages
+ *                                         reaction tags (R-Y151)
+ *   POST /api/telegram/saved-tag-search {chat, reaction, offsetId?}
+ *                                      -> { ok, messages, more } saved
+ *                                         messages with that reaction
+ *   POST /api/telegram/saved-tag-rename {reaction, title}
+ *                                      -> { ok, title } "" removes (Premium)
  *   POST /api/telegram/stories {state?, hidden?} -> { ok, peers, state,
  *                       more } the strip: who has stories, a page at a time
  *                       (R-Y140); `hidden: true` the hidden ones (R-Y148)
@@ -228,6 +236,10 @@
  *   POST /api/telegram/privacy-set {key, choice}
  *                                      -> { ok, ...key } choice everybody,
  *                                         contacts or nobody; exceptions kept
+ *   POST /api/telegram/privacy-ttl     -> { ok, period } the timer new chats
+ *                                         start with (R-Y151)
+ *   POST /api/telegram/privacy-ttl-set {period}
+ *                                      -> { ok, period } 0 or a TTL period
  *   POST /api/telegram/sessions        -> { ok, ttlDays, sessions } devices
  *   POST /api/telegram/session-terminate {hash} -> { ok } not the current one
  *   POST /api/telegram/sessions-terminate-others -> { ok }
@@ -310,6 +322,7 @@ import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
 import { TTL_POSTS } from './routes-telegram-ttl.js';
+import { SAVED_TAGS_POSTS } from './routes-telegram-saved-tags.js';
 import { SEND_AS_POSTS } from './routes-telegram-send-as.js';
 import { validSendAs } from '../sources/telegram-send-as-client.js';
 import { STORIES_POSTS } from './routes-telegram-stories.js';
@@ -1029,6 +1042,7 @@ const POSTS = {
   ...SHARE_POSTS,
   ...INLINE_POSTS,
   ...TTL_POSTS,
+  ...SAVED_TAGS_POSTS,
   ...SEND_AS_POSTS,
   ...STORIES_POSTS,
   ...STORY_ACTION_POSTS,

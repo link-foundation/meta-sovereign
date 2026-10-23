@@ -903,6 +903,28 @@ export const enChat = {
   'chat.saved.err.failed': 'Something went wrong. Try again.',
   'chat.saved.err.no-access': 'This chat is not available.',
   'chat.saved.err.flood': 'Too many tries. Wait a while and try again.',
+  // Reaction tags of Saved Messages, the default timer (R-Y151).
+  'chat.privacy.autoDelete': 'Auto-delete messages',
+  'chat.privacy.autoDeleteHint':
+    'Applies to new chats you start; existing chats keep their own timer.',
+  'chat.savedTags.label': 'Reaction tags',
+  'chat.savedTags.chip': '{title}: {count}',
+  'chat.savedTags.clear': 'Show all saved messages',
+  'chat.savedTags.filtering': 'Saved messages tagged {tag}',
+  'chat.savedTags.empty': 'No saved messages have this tag.',
+  'chat.savedTags.loading': 'Loading…',
+  'chat.savedTags.more': 'Show more',
+  'chat.savedTags.renameTitle': 'Name this tag',
+  'chat.savedTags.renameHint':
+    'Up to 12 characters. Leave it empty to remove the name.',
+  'chat.savedTags.renameField': 'Tag name',
+  'chat.savedTags.save': 'Save',
+  'chat.savedTags.premium': 'Naming tags needs Telegram Premium.',
+  'chat.savedTags.locked': 'Naming tags needs Premium',
+  'chat.savedTags.err.failed': 'Something went wrong. Try again.',
+  'chat.savedTags.err.premium': 'Naming tags needs Telegram Premium.',
+  'chat.savedTags.err.bad-reaction': 'Telegram does not know this reaction.',
+  'chat.savedTags.err.flood': 'Too many tries. Wait a while and try again.',
   // Viewing stories (R-Y140).
   'chat.stories.title': 'Stories',
   'chat.stories.mine': 'My story',

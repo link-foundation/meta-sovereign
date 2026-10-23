@@ -908,6 +908,28 @@ export const hiChat = {
   'chat.saved.err.failed': 'कुछ गड़बड़ हुई। फिर कोशिश करें।',
   'chat.saved.err.no-access': 'यह चैट उपलब्ध नहीं है।',
   'chat.saved.err.flood': 'बहुत अधिक कोशिशें। थोड़ा रुककर फिर कोशिश करें।',
+  // Reaction tags of Saved Messages, the default timer (R-Y151).
+  'chat.privacy.autoDelete': 'संदेश अपने-आप हटाएँ',
+  'chat.privacy.autoDeleteHint':
+    'यह नई चैट पर लागू होता है; मौजूदा चैट अपना टाइमर रखती हैं।',
+  'chat.savedTags.label': 'रिएक्शन टैग',
+  'chat.savedTags.chip': '{title}: {count}',
+  'chat.savedTags.clear': 'सभी सहेजे गए संदेश दिखाएँ',
+  'chat.savedTags.filtering': '{tag} टैग वाले सहेजे गए संदेश',
+  'chat.savedTags.empty': 'इस टैग वाला कोई सहेजा गया संदेश नहीं है।',
+  'chat.savedTags.loading': 'लोड हो रहा है…',
+  'chat.savedTags.more': 'और दिखाएँ',
+  'chat.savedTags.renameTitle': 'इस टैग को नाम दें',
+  'chat.savedTags.renameHint': 'अधिकतम 12 अक्षर। नाम हटाने के लिए खाली छोड़ें।',
+  'chat.savedTags.renameField': 'टैग का नाम',
+  'chat.savedTags.save': 'सहेजें',
+  'chat.savedTags.premium': 'टैग को नाम देने के लिए Telegram Premium चाहिए।',
+  'chat.savedTags.locked': 'टैग को नाम देने के लिए Premium चाहिए',
+  'chat.savedTags.err.failed': 'कुछ गड़बड़ हो गई। फिर कोशिश करें।',
+  'chat.savedTags.err.premium':
+    'टैग को नाम देने के लिए Telegram Premium चाहिए।',
+  'chat.savedTags.err.bad-reaction': 'Telegram इस रिएक्शन को नहीं जानता।',
+  'chat.savedTags.err.flood': 'बहुत अधिक कोशिशें। थोड़ा रुककर फिर कोशिश करें।',
   // स्टोरी देखना (R-Y140)।
   'chat.stories.title': 'स्टोरी',
   'chat.stories.mine': 'मेरी स्टोरी',

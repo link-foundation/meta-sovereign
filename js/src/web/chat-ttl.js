@@ -130,86 +130,102 @@ const Choice = ({ seconds, value, disabled, onPick, t }) =>
     el('span', { key: 'l' }, periodWords(t, seconds)),
   ]);
 
-const TtlDialog = ({ api, chat, current, close }) => {
+/**
+ * The choices of a period with Save (R-Y151 shares them with the default
+ * timer): `save(period)` asks Telegram and answers `{ ok, code? }`;
+ * `done(period)` runs when it was saved.
+ */
+export const TtlChoices = ({ current, hint, save, done }) => {
   const t = useT();
   const [value, setValue] = useState(current);
   // A period outside Desktop's first four shows its list open.
   const [more, setMore] = useState(TTL_MORE.includes(current));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-  const save = async () => {
+  const run = async () => {
     setBusy(true);
     setError(null);
-    const answer = await api
-      .telegramHistoryTtl({ chat: String(chat.chat), period: value })
-      .catch(() => null);
+    const answer = await save(value).catch(() => null);
     setBusy(false);
     if (answer?.ok) {
-      remember(chat.chat, value);
-      close();
+      done(value);
     } else {
       setError(answer?.code ?? 'failed');
     }
   };
   const periods = more ? [...TTL_MAIN, ...TTL_MORE] : TTL_MAIN;
+  return el('div', { className: 'admin-body' }, [
+    hint ? el('p', { key: 'h', className: 'meta' }, hint) : null,
+    el(
+      'p',
+      { key: 'c', className: 'meta', 'data-ttl-current': current },
+      t('chat.ttl.current', { period: periodWords(t, current) })
+    ),
+    ...periods.map((seconds) =>
+      el(Choice, {
+        key: seconds,
+        seconds,
+        value,
+        disabled: busy,
+        onPick: setValue,
+        t,
+      })
+    ),
+    more
+      ? null
+      : el(
+          'button',
+          {
+            key: 'o',
+            type: 'button',
+            className: 'comments-older',
+            'data-action': 'ttl-other',
+            onClick: () => setMore(true),
+          },
+          t('chat.ttl.other')
+        ),
+    error
+      ? el(
+          'p',
+          {
+            key: 'e',
+            className: 'comments-failed',
+            role: 'alert',
+            'data-ttl-error': error,
+          },
+          errorText(t, error)
+        )
+      : null,
+    el(
+      'button',
+      {
+        key: 's',
+        type: 'button',
+        className: 'primary',
+        'data-action': 'ttl-save',
+        disabled: busy || value === current,
+        onClick: run,
+      },
+      t('chat.ttl.save')
+    ),
+  ]);
+};
+
+const TtlDialog = ({ api, chat, current, close }) => {
+  const t = useT();
   return el(
     Frame,
     { title: t('chat.ttl.title'), close, name: 'history-ttl' },
-    el('div', { className: 'admin-body' }, [
-      el('p', { key: 'h', className: 'meta' }, t('chat.ttl.hint')),
-      el(
-        'p',
-        { key: 'c', className: 'meta', 'data-ttl-current': current },
-        t('chat.ttl.current', { period: periodWords(t, current) })
-      ),
-      ...periods.map((seconds) =>
-        el(Choice, {
-          key: seconds,
-          seconds,
-          value,
-          disabled: busy,
-          onPick: setValue,
-          t,
-        })
-      ),
-      more
-        ? null
-        : el(
-            'button',
-            {
-              key: 'o',
-              type: 'button',
-              className: 'comments-older',
-              'data-action': 'ttl-other',
-              onClick: () => setMore(true),
-            },
-            t('chat.ttl.other')
-          ),
-      error
-        ? el(
-            'p',
-            {
-              key: 'e',
-              className: 'comments-failed',
-              role: 'alert',
-              'data-ttl-error': error,
-            },
-            errorText(t, error)
-          )
-        : null,
-      el(
-        'button',
-        {
-          key: 's',
-          type: 'button',
-          className: 'primary',
-          'data-action': 'ttl-save',
-          disabled: busy || value === current,
-          onClick: save,
-        },
-        t('chat.ttl.save')
-      ),
-    ])
+    el(TtlChoices, {
+      current,
+      hint: t('chat.ttl.hint'),
+      save: (period) =>
+        api.telegramHistoryTtl({ chat: String(chat.chat), period }),
+      done: (period) => {
+        remember(chat.chat, period);
+        close();
+      },
+    })
   );
 };
 

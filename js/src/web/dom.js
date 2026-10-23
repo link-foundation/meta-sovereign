@@ -988,6 +988,12 @@ export const api = {
   telegramSavedDialogs: (body = {}) => telegramPost('saved-dialogs', body),
   telegramSavedHistory: (body = {}) => telegramPost('saved-history', body),
   telegramSavedDelete: (body = {}) => telegramPost('saved-delete', body),
+  // Reaction tags of Saved Messages and the default timer (R-Y151).
+  telegramSavedTags: () => telegramPost('saved-tags', {}),
+  telegramSavedTagSearch: (body = {}) => telegramPost('saved-tag-search', body),
+  telegramSavedTagRename: (body = {}) => telegramPost('saved-tag-rename', body),
+  telegramDefaultTtl: () => telegramPost('privacy-ttl', {}),
+  telegramDefaultTtlSet: (body = {}) => telegramPost('privacy-ttl-set', body),
   // Viewing stories (R-Y140): the strip, one peer's, seen up to an id,
   // and a story's picture or video.
   telegramStories: (body = {}) => telegramPost('stories', body),
