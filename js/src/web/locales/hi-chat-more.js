@@ -1132,7 +1132,7 @@ export const hiChatMore = {
   'chat.accounts.back': 'वापस',
   'chat.accounts.noChats': 'कोई चैट नहीं।',
   'chat.accounts.preview':
-    'इस खाते की चैट, केवल पढ़ने के लिए। उन्हें खोलना और जवाब देना अभी उपलब्ध नहीं है।',
+    'इस खाते की चैट, पूर्वावलोकन। उन्हें खोलने और जवाब देने के लिए इस पर स्विच करें।',
   'chat.schedule.onlineMenu': 'ऑनलाइन होने पर भेजें',
   'chat.schedule.whenOnline': 'ऑनलाइन होने पर',
   'chat.schedule.reminderMenu': 'रिमाइंडर सेट करें',
@@ -1331,4 +1331,7 @@ export const hiChatMore = {
   'chat.admins.err.none-picked': 'कम से कम एक व्यक्ति चुनें।',
   'chat.admins.err.bad-request': 'यह अनुरोध मान्य नहीं था।',
   'chat.admins.err.failed': 'कुछ गलत हो गया। फिर प्रयास करें।',
+  'chat.accounts.switch': 'स्विच करें',
+  'chat.accounts.using': '{name} उपयोग में है',
+  'chat.accounts.othersUnread': 'आपके अन्य खातों में अपठित: {count}',
 };

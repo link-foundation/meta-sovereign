@@ -48,7 +48,13 @@ export const browserOf = async (name) => {
  */
 export const openChatApp = async (
   name,
-  { store, send = async () => ({ via: 'fake' }), telegramAccount = false }
+  {
+    store,
+    send = async () => ({ via: 'fake' }),
+    telegramAccount = false,
+    // More server options (R-Y202: the extra accounts' stores and services).
+    serverOptions = {},
+  }
 ) => {
   const { engine, browserType } = await browserOf(name);
   const dir = await mkdtemp(path.join(os.tmpdir(), `ms-e2e-${name}-`));
@@ -65,6 +71,7 @@ export const openChatApp = async (
       setTyping: async () => ({ supported: false }),
       send,
     },
+    ...serverOptions,
   });
   const base = `http://127.0.0.1:${handle.port}`;
   const browser = await browserType.launch({ headless: true });

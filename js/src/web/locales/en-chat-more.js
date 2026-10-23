@@ -1127,7 +1127,7 @@ export const enChatMore = {
   'chat.accounts.back': 'Back',
   'chat.accounts.noChats': 'No chats.',
   'chat.accounts.preview':
-    'This account’s chats, read-only. Opening and answering them is not available yet.',
+    'This account’s chats, a preview. Switch to it to open and answer them.',
   'chat.schedule.onlineMenu': 'Send when online',
   'chat.schedule.whenOnline': 'When online',
   'chat.schedule.reminderMenu': 'Set a reminder',
@@ -1323,4 +1323,7 @@ export const enChatMore = {
   'chat.admins.err.none-picked': 'Pick at least one person.',
   'chat.admins.err.bad-request': 'That request was not valid.',
   'chat.admins.err.failed': 'Something went wrong. Try again.',
+  'chat.accounts.switch': 'Switch',
+  'chat.accounts.using': 'Using {name}',
+  'chat.accounts.othersUnread': 'Unread in your other accounts: {count}',
 };

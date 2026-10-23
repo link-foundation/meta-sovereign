@@ -163,6 +163,22 @@ const accountConnected = (ctx) => {
   });
 };
 
+// An extra account (R-Y202) signed in: its own store and service start
+// and pull its chats, so switching to it shows them.
+const extraConnected = (ctx, slot) => {
+  ctx.telegramExtras
+    ?.start(slot)
+    .then((entry) => entry?.account.connected())
+    .catch((error) => {
+      ctx.log?.({
+        level: 'error',
+        event: 'telegram_extra_connect_failed',
+        slot,
+        error: error.message,
+      });
+    });
+};
+
 const TELEGRAM_ROUTE = /^\/api\/auto-import\/telegram\/(scan|identify|use)$/;
 
 // Find the user's own Telegram sign-ins (bot tokens and user sessions)
@@ -397,6 +413,10 @@ const telegramLoginRoute = async (store, req, res, ctx, action) => {
   // Account 1's service is only told about account 1's sign-in.
   if (result.done && !result.extra) {
     accountConnected(ctx);
+  }
+  // An extra account starts its own service at once (R-Y202).
+  if (result.done && result.extra) {
+    extraConnected(ctx, result.extra);
   }
   return json(res, 200, result) ?? true;
 };

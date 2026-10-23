@@ -204,6 +204,8 @@
     "test:e2e:accounts:webkit": "E2E_BROWSER=webkit node js/tests/e2e-accounts-browser.mjs",
     "test:e2e:qr-login": "node js/tests/e2e-qr-login-browser.mjs",
     "test:e2e:qr-login:webkit": "E2E_BROWSER=webkit node js/tests/e2e-qr-login-browser.mjs",
+    "test:e2e:accounts-switch": "node js/tests/e2e-accounts-switch-browser.mjs",
+    "test:e2e:accounts-switch:webkit": "E2E_BROWSER=webkit node js/tests/e2e-accounts-switch-browser.mjs",
     "test:e2e:contacts:webkit": "E2E_BROWSER=webkit node js/tests/e2e-contacts-browser.mjs",
     "test:e2e:readers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-readers-browser.mjs",
     "test:e2e:bot-commands": "node js/tests/e2e-bot-commands-browser.mjs",

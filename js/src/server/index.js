@@ -61,6 +61,8 @@ import {
 } from '../sources/index.js';
 import { createTelegramAccount } from '../sources/telegram-account.js';
 import { createExtraAccounts } from '../sources/telegram-accounts.js';
+import { createExtraRuntime, telegramChats } from './telegram-extras.js';
+import { accountScope } from './account-scope.js';
 import { json } from './util.js';
 import { handleDerivedRoutes } from './routes-derived.js';
 import { handleMutatingRoutes } from './routes-mutating.js';
@@ -340,17 +342,6 @@ const automationContext = (
  * nothing to a real network.
  * @param {{resolveSource?: Function, sleep?: Function}} greetings
  */
-// The Telegram chats the background download goes through: each with
-// its type and newest message, from the chat index.
-const telegramChats = async (chatIndex) =>
-  (await chatIndex.heads())
-    .filter((link) => link.source === 'telegram')
-    .map((link) => ({
-      chat: String(link.chat),
-      chatType: link.chatType ?? null,
-      at: link.timestamp ?? null,
-    }));
-
 // Whether GitHub accounts link back (R-Y53): the given one, or GitHub's.
 const githubCheckOf = (store, log, given) =>
   given ?? createGitHubCheck({ store, log });
@@ -397,13 +388,29 @@ const telegramAccountFor = (store, log, options) => {
 // The extra accounts' live side (R-Y198): lazy, it dials nothing until an
 // extra account exists in the store and is asked for. None without an
 // account 1.
-const telegramContext = (store, log, account) => ({
-  telegramAccount: account,
-  telegramStore: store,
-  telegramAccounts: account
-    ? createExtraAccounts({ store, log: (e) => log?.(e) })
-    : null,
-});
+// R-Y202: each signed-in extra account also runs on its own store, in a
+// subdirectory of the store dir (a memory store when the server was given
+// a store of its own, as tests do, so nothing is made on disk).
+const telegramContext = (store, log, account, extra = {}) => {
+  const say = (e) => log?.(e);
+  const runtime = account
+    ? createExtraRuntime({
+        home: store,
+        storeDir: extra.providedStore ? null : extra.storeDir,
+        openStore: extra.telegramExtraStore ?? null,
+        build: extra.telegramExtraBuild ?? undefined,
+        log: say,
+      })
+    : null;
+  // Signed-in extra accounts start with the server.
+  runtime?.startAll().catch(() => {});
+  return {
+    telegramAccount: account,
+    telegramStore: store,
+    telegramAccounts: account ? createExtraAccounts({ store, log: say }) : null,
+    telegramExtras: runtime,
+  };
+};
 
 // Stop the services that were started (errors are not the caller's).
 const stopAll = (...services) =>
@@ -463,6 +470,16 @@ const route = async (store, req, res, ctx) => {
   if (await handlePageOrLock(req, res, p, ctx)) {
     return;
   }
+  // A request for an extra Telegram account runs on that account's own
+  // store and service; none for account 1 (R-Y202).
+  const scope = await accountScope(req, url, p, ctx);
+  if (scope.refuse) {
+    return json(res, scope.refuse[0], scope.refuse[1]);
+  }
+  return routeOn(scope.store ?? store, req, res, scope.ctx ?? ctx, url, p);
+};
+
+const routeOn = async (store, req, res, ctx, url, p) => {
   if (p === '/sources' && req.method === 'GET') {
     return json(res, 200, listSources());
   }
@@ -543,6 +560,33 @@ const initStore = async ({
   return { store, resolvedArchiveDir, flush };
 };
 
+// The HTTP server: each request is logged, and routed (./account-scope.js
+// picks the Telegram account it is for).
+const createHttpServer = (store, ctx, log) =>
+  http.createServer((req, res) => {
+    const start = Date.now();
+    res.on('finish', () => {
+      log?.({
+        event: 'http',
+        method: req.method,
+        path: (req.url ?? '').split('?')[0],
+        status: res.statusCode,
+        duration_ms: Date.now() - start,
+      });
+    });
+    route(store, req, res, ctx).catch((err) => {
+      log?.({
+        level: 'error',
+        event: 'http_error',
+        method: req.method,
+        path: (req.url ?? '').split('?')[0],
+        error: err.message,
+        stack: err.stack ?? null,
+      });
+      json(res, 500, { error: err.message });
+    });
+  });
+
 export const startServer = async ({
   port = 0,
   storeDir = '.meta-sovereign',
@@ -569,6 +613,10 @@ export const startServer = async ({
   telegramCreds,
   // A `createTelegramAccount()` (or `false` for none); see telegramAccountFor.
   telegramAccount: telegramAccountOption,
+  // Tests: the extra accounts' stores and services (R-Y202), see
+  // ./telegram-extras.js `createExtraRuntime`.
+  telegramExtraStore,
+  telegramExtraBuild,
   // Tests and demos pass a fake, so GitHub is never asked (R-Y53).
   githubCheck,
   // The hosted app and whether this server also serves its own copy
@@ -621,32 +669,15 @@ export const startServer = async ({
     autoImportSignIns,
     telegramMtproto,
     telegramCreds,
-    ...telegramContext(store, log, telegramAccount),
+    ...telegramContext(store, log, telegramAccount, {
+      providedStore,
+      storeDir,
+      telegramExtraStore,
+      telegramExtraBuild,
+    }),
     chatIndex,
   };
-  const server = http.createServer((req, res) => {
-    const start = Date.now();
-    res.on('finish', () => {
-      log?.({
-        event: 'http',
-        method: req.method,
-        path: (req.url ?? '').split('?')[0],
-        status: res.statusCode,
-        duration_ms: Date.now() - start,
-      });
-    });
-    route(store, req, res, ctx).catch((err) => {
-      log?.({
-        level: 'error',
-        event: 'http_error',
-        method: req.method,
-        path: (req.url ?? '').split('?')[0],
-        error: err.message,
-        stack: err.stack ?? null,
-      });
-      json(res, 500, { error: err.message });
-    });
-  });
+  const server = createHttpServer(store, ctx, log);
   const sockets = new Set();
   server.on('connection', (socket) => {
     sockets.add(socket);
@@ -691,7 +722,7 @@ export const startServer = async ({
         ctx.closeAutomations().catch(() => {});
         ctx.autoImport?.close();
         ctx.chatIndex.close();
-        stopAll(telegramAccount, ctx.telegramAccounts);
+        stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
         wsHandle?.close();
         signaling?.close();
         closeFront();

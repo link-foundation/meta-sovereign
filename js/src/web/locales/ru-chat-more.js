@@ -1143,7 +1143,7 @@ export const ruChatMore = {
   'chat.accounts.back': 'Назад',
   'chat.accounts.noChats': 'Нет чатов.',
   'chat.accounts.preview':
-    'Чаты этого аккаунта, только для чтения. Открывать их и отвечать пока нельзя.',
+    'Чаты этого аккаунта, предпросмотр. Переключитесь на него, чтобы открывать чаты и отвечать.',
   'chat.schedule.onlineMenu': 'Отправить, когда будет в сети',
   'chat.schedule.whenOnline': 'Когда будет в сети',
   'chat.schedule.reminderMenu': 'Установить напоминание',
@@ -1342,4 +1342,7 @@ export const ruChatMore = {
   'chat.admins.err.none-picked': 'Выберите хотя бы одного человека.',
   'chat.admins.err.bad-request': 'Некорректный запрос.',
   'chat.admins.err.failed': 'Что-то пошло не так. Попробуйте ещё раз.',
+  'chat.accounts.switch': 'Переключиться',
+  'chat.accounts.using': 'Используется {name}',
+  'chat.accounts.othersUnread': 'Непрочитанных в других аккаунтах: {count}',
 };

@@ -30,6 +30,7 @@ import {
 } from '../greetings/plan.js';
 import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
 import { bindPaid, guardApi, paidGate } from './paid-send.js';
+import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 
 export const h = (tag, attrs = {}, children = []) => {
   const el = document.createElement(tag);
@@ -102,7 +103,13 @@ const followServer = (client, origin) => {
 };
 
 const boot = async () => {
-  const store = await createBrowserStore({ driver: pickBrowserDriver() });
+  // An extra Telegram account keeps its own copy in the browser, so
+  // nothing of it mixes with account 1's (R-Y202).
+  const slot = activeAccount();
+  const suffix = slot > 1 ? `@telegram-${slot}` : '';
+  const store = await createBrowserStore({
+    driver: pickBrowserDriver({ suffix }),
+  });
   // Local handler bus so writes to broadcast:* trigger work even
   // when the SPA is fully offline.
   const bus = createHandlerBus(store);
@@ -115,21 +122,25 @@ const boot = async () => {
   const server = discovered
     ? {
         origin: discovered.origin,
-        fetchImpl: globalThis.fetch.bind(globalThis),
+        // The links and chat pages of the account this tab uses (R-Y202).
+        fetchImpl: (url, init) =>
+          globalThis.fetch(scopedUrl(String(url), init?.method ?? 'GET'), init),
       }
     : null;
   const client = createOfflineClient({
     store,
     server,
-    replyDriver: pickSnapshotDriver('meta-sovereign:reply-model'),
+    replyDriver: pickSnapshotDriver(`meta-sovereign:reply-model${suffix}`),
   });
   // When a server is reachable, also open a WebRTC peer sync over its
   // /rtc broker so writes propagate browser-to-browser without the
   // server relaying every byte (R-J7). Best-effort: a missing
-  // RTCPeerConnection (older browsers) just skips this path.
-  const rtc = discovered
-    ? attachWebRtcSync({ store, origin: discovered.origin })
-    : null;
+  // RTCPeerConnection (older browsers) just skips this path. Only account
+  // 1's: the peers are account 1's pages (R-Y202).
+  const rtc =
+    discovered && slot === 1
+      ? attachWebRtcSync({ store, origin: discovered.origin })
+      : null;
   return {
     store,
     bus,
@@ -185,7 +196,10 @@ const serverResponse = async (path, init, { network = false } = {}) => {
   // 127.0.0.1, so a relative path would hit the page's host instead
   // of the server. `new URL` keeps same-origin deployments unchanged
   // and points cross-origin ones at the backend the client is using.
-  const url = origin ? new URL(path, origin).toString() : path;
+  const url = scopedUrl(
+    origin ? new URL(path, origin).toString() : path,
+    init?.method ?? 'GET'
+  );
   return fetch(url, init)
     .then(announceLocked)
     .catch(() => (network ? NO_ANSWER : null));
@@ -270,7 +284,10 @@ const uploadFile = async (file, { onProgress, signal } = {}) => {
   }
   const name = encodeURIComponent(file?.name || 'file');
   const path = `/api/telegram/upload?name=${name}`;
-  const url = origin ? new URL(path, origin).toString() : path;
+  const url = scopedUrl(
+    origin ? new URL(path, origin).toString() : path,
+    'POST'
+  );
   return new Promise((resolve) => {
     const xhr = new globalThis.XMLHttpRequest();
     xhr.open('POST', url);
@@ -765,7 +782,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/greetings/file?id=${encodeURIComponent(fileId)}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
   listBackups: async () => (await serverFetch('/api/backups')) ?? [],
   createBackup: async ({ passphrase = null, keep } = {}) =>
@@ -841,9 +858,9 @@ const rawApi = {
     if (!client.isOnline() || typeof Source !== 'function') {
       return () => {};
     }
-    const url = origin
-      ? new URL('/api/events', origin).toString()
-      : '/api/events';
+    const url = scopedUrl(
+      origin ? new URL('/api/events', origin).toString() : '/api/events'
+    );
     const source = new Source(url);
     source.addEventListener('ready', () => {
       onState('open');
@@ -858,6 +875,29 @@ const rawApi = {
       }
     });
     source.addEventListener('error', () => onState('closed'));
+    return () => source.close();
+  },
+  /**
+   * New incoming messages of every Telegram account the server runs
+   * (GET /api/telegram/accounts-events, R-Y202), so the account the page
+   * shows can notify for the others: `onEvent({ account, chat, ... })`.
+   * Returns a stop function; without a server it does nothing.
+   */
+  telegramAccountsEvents: async (onEvent) => {
+    const { client, origin } = await ensure();
+    const Source = globalThis.EventSource;
+    if (!client.isOnline() || typeof Source !== 'function') {
+      return () => {};
+    }
+    const path = '/api/telegram/accounts-events';
+    const source = new Source(origin ? new URL(path, origin).toString() : path);
+    source.addEventListener('message', (event) => {
+      try {
+        onEvent(JSON.parse(event.data));
+      } catch {
+        // A malformed frame: skip it.
+      }
+    });
     return () => source.close();
   },
   // Mark a chat read up to a message on Telegram, and save its draft
@@ -993,7 +1033,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/telegram/link-preview-photo?id=${id}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
   telegramStoryUrl: async ({ peer, id } = {}) => {
     const { client, origin } = await ensure();
@@ -1001,7 +1041,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/telegram/story?peer=${encodeURIComponent(peer)}&id=${encodeURIComponent(id)}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
   telegramWallpaperUrl: async ({ id, slug = '', size = 'full' } = {}) => {
     const { origin } = await ensure();
@@ -1013,7 +1053,7 @@ const rawApi = {
       query.set('slug', slug);
     }
     const path = `/api/telegram/wallpaper?${query}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
   telegramRingtoneUrl: async ({ id } = {}) => {
     const { origin } = await ensure();
@@ -1021,7 +1061,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/telegram/ringtone?id=${encodeURIComponent(id)}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
   // A saved song's audio on a profile (R-Y185).
   telegramMusicUrl: async ({ id } = {}) => {
@@ -1030,7 +1070,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/telegram/music?id=${encodeURIComponent(id)}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
   passcode: passcodeCall,
   telegramScheduledReschedule: (body = {}) =>
@@ -1110,7 +1150,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/telegram/media?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}&size=${encodeURIComponent(size)}${part ? `&part=${part}` : ''}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
   // A person's or chat's photo (`s` small, `b` big); the server answers
@@ -1126,7 +1166,7 @@ const rawApi = {
         ? `&chat=${encodeURIComponent(chat)}&msg=${encodeURIComponent(msg)}`
         : '';
     const path = `/api/telegram/avatar?peer=${encodeURIComponent(peer)}&size=${encodeURIComponent(size)}${where}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
   // A sticker's or GIF's picture (`id`), a set's (`set`), or the video
@@ -1140,7 +1180,7 @@ const rawApi = {
       ? `set=${encodeURIComponent(set)}`
       : `id=${encodeURIComponent(id)}${full ? '&full=1' : ''}`;
     const path = `/api/telegram/sticker?${which}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
   // A place's map picture from the server (R-Y131).
@@ -1154,7 +1194,7 @@ const rawApi = {
       query.set('hash', hash);
     }
     const path = `/api/telegram/map?${query}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
   // A custom emoji's picture (`full`: its animation or video) (R-Y120).
@@ -1164,7 +1204,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/telegram/custom-emoji?id=${id}${full ? '&full=1' : ''}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
   // A message's video, voice, audio, GIF or sticker, streamed by range.
@@ -1174,7 +1214,7 @@ const rawApi = {
       return null;
     }
     const path = `/api/telegram/file?chat=${encodeURIComponent(chat)}&id=${encodeURIComponent(id)}`;
-    return origin ? new URL(path, origin).toString() : path;
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
   // A chat's title, members and how many are online, or a person's

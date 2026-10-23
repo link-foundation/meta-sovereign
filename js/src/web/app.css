@@ -11350,3 +11350,58 @@ button.profile-username.is-collectible {
   border: 1px solid var(--border);
   border-radius: 8px;
 }
+
+/* The account the chat shows, beside the list's menu, and the other
+   accounts' unread on it (R-Y202). */
+.new-chat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.active-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 5.5rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.active-account-name {
+  min-width: 0;
+  max-width: 3.4rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.new-chat-btn {
+  position: relative;
+}
+.new-chat-unread {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.45rem;
+  margin: 0;
+  font-size: 0.65rem;
+  line-height: 1.2;
+}
+.new-chat-menu .account-unread {
+  margin-left: 0.5rem;
+}
+.account-switch {
+  margin-left: auto;
+}
+.account-row .account-unread {
+  margin-left: 0;
+}
+.chat-sidebar-top .chat-sort {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.chat-sidebar-top .new-chat {
+  flex: none;
+}
+.new-chat > .new-chat-menu {
+  top: 100%;
+}

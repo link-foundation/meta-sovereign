@@ -253,26 +253,35 @@ export const loadDoubletsWebDriver = async (options = {}) => {
  *   2. IndexedDB if present (durable, larger quota)
  *   3. localStorage as fallback (older browsers, private mode)
  *   4. In-memory if nothing persistent works
+ * `suffix` keeps another copy apart (an extra Telegram account's, R-Y202).
  */
-export const pickBrowserDriver = () => {
+export const pickBrowserDriver = ({ suffix = '' } = {}) => {
   const doubletsWeb = globalThis.DoubletsWeb ?? globalThis.doubletsWeb ?? null;
   if (doubletsWeb) {
     try {
-      return createDoubletsWebDriver({ doubletsWeb });
+      return createDoubletsWebDriver({
+        doubletsWeb,
+        snapshotDriver: createBestSnapshotDriver(
+          `${DOUBLETS_WEB_SNAPSHOT_KEY}${suffix}`
+        ),
+      });
     } catch {
       // fall through
     }
   }
   if (typeof globalThis.indexedDB !== 'undefined') {
     try {
-      return createIndexedDbDriver();
+      return createIndexedDbDriver({ dbName: `meta-sovereign${suffix}` });
     } catch {
       // fall through
     }
   }
   if (typeof globalThis.localStorage !== 'undefined') {
     try {
-      return createLocalStorageDriver();
+      return createLocalStorageDriver(
+        globalThis.localStorage,
+        `${SNAPSHOT_KEY}${suffix}`
+      );
     } catch {
       // fall through
     }

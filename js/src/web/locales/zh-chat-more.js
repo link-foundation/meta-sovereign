@@ -1063,7 +1063,8 @@ export const zhChatMore = {
   'chat.accounts.cancel': '取消',
   'chat.accounts.back': '返回',
   'chat.accounts.noChats': '没有聊天。',
-  'chat.accounts.preview': '此账号的聊天，仅供查看。暂不能打开或回复。',
+  'chat.accounts.preview':
+    '此账号的聊天，仅为预览。切换到该账号即可打开并回复。',
   'chat.schedule.onlineMenu': '对方上线时发送',
   'chat.schedule.whenOnline': '上线时',
   'chat.schedule.reminderMenu': '设置提醒',
@@ -1243,4 +1244,7 @@ export const zhChatMore = {
   'chat.admins.err.none-picked': '请至少选择一人。',
   'chat.admins.err.bad-request': '请求无效。',
   'chat.admins.err.failed': '出错了，请重试。',
+  'chat.accounts.switch': '切换',
+  'chat.accounts.using': '正在使用 {name}',
+  'chat.accounts.othersUnread': '其他账号的未读消息：{count}',
 };

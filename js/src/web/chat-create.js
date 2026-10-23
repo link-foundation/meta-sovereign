@@ -9,7 +9,11 @@ import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { openChat } from './chat-state.js';
 import { useContactsWindow } from './chat-contacts-window.js';
-import { useAccountsWindow } from './chat-accounts.js';
+import {
+  unreadBadge,
+  useAccountsWindow,
+  useActiveAccount,
+} from './chat-accounts.js';
 import { useEsc } from './chat-invite.js';
 
 const el = React.createElement;
@@ -317,6 +321,21 @@ const ChannelDialog = ({ api, close }) => {
   );
 };
 
+// The other accounts' unread count on the "+" and its Accounts entry (R-Y202).
+const othersBadge = (count, key, extra, t) =>
+  count > 0
+    ? el(
+        'span',
+        {
+          key,
+          className: `account-unread ${extra}`.trim(),
+          'data-others-unread': count,
+          title: t('chat.accounts.othersUnread', { count }),
+        },
+        unreadBadge(count)
+      )
+    : null;
+
 /**
  * The list's "+": New Group and New Channel, each in a dialog; and, when
  * `AddContact` is given (R-Y169), Add contact by phone number.
@@ -329,6 +348,8 @@ export const NewChat = ({ api, AddContact = null }) => {
   const contacts = useContactsWindow({ api, AddContact });
   // The account switcher (R-Y198).
   const accounts = useAccountsWindow({ api });
+  // Which account is shown, and the others' unread (R-Y202).
+  const active = useActiveAccount(api);
   if (typeof api?.telegramGroupCreate !== 'function') {
     return null;
   }
@@ -339,6 +360,7 @@ export const NewChat = ({ api, AddContact = null }) => {
     setDialog(kind);
   };
   return el('span', { className: 'new-chat' }, [
+    active.chip,
     el(
       'button',
       {
@@ -351,7 +373,7 @@ export const NewChat = ({ api, AddContact = null }) => {
         'aria-expanded': menu,
         onClick: () => setMenu(!menu),
       },
-      '+'
+      ['+', othersBadge(active.others, 'ou', 'new-chat-unread', t)]
     ),
     menu
       ? el('div', { key: 'm', className: 'new-chat-menu', role: 'menu' }, [
@@ -390,7 +412,10 @@ export const NewChat = ({ api, AddContact = null }) => {
                     accounts.open();
                   },
                 },
-                t('chat.accounts.title')
+                [
+                  t('chat.accounts.title'),
+                  othersBadge(active.others, 'u', '', t),
+                ]
               )
             : null,
           el(

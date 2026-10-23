@@ -16,10 +16,10 @@ export const TELEGRAM_CALLS = {
   telegramPublicForwards: body('public-forwards'),
   telegramStarsRevenue: body('stars-revenue'),
   // More than one account (R-Y198): the signed-in accounts, the other
-  // accounts' unread counts, one extra account's chat list ({ account })
+  // accounts' unread counts ({ all } adds account 1's, R-Y202), one extra account's chat list ({ account })
   // and logging an extra account out ({ account }).
   telegramAccounts: none('accounts'),
-  telegramAccountsUnread: none('accounts-unread'),
+  telegramAccountsUnread: body('accounts-unread'),
   telegramAccountsDialogs: body('accounts-dialogs'),
   telegramAccountsLogout: body('accounts-logout'),
   // Voice chats, video chats and live streams (R-Y188): the chat's call,

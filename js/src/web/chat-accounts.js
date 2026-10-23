@@ -3,10 +3,11 @@
 // name, "Add account" (3 accounts, 5 with Premium) and Log out of an
 // extra account, after a confirmation. Account 1 is the existing single
 // account: it is the one the app shows, and it is never logged out here.
-// Another account shows its chat list, read live and read-only, with the
-// other accounts' unread counts; opening and answering its chats is not
-// done yet (see src/sources/telegram-accounts.js). Nothing is written
-// here except by Add account (the existing sign-in) and Log out.
+// Another account can be previewed (its chat list and unread) and Switched
+// to (R-Y202): the whole chat app then shows that account, its chats, its
+// messages and its notifications (./chat-accounts-live.js), and the
+// other accounts' unread counts stay on this window's entry. Nothing is
+// written here except by Add account (the existing sign-in) and Log out.
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useT } from './i18n.js';
@@ -15,6 +16,8 @@ import { PeerAvatar } from './peer-avatar.js';
 import { avatarFor } from './chat-model.js';
 import { peerColorClass } from './peer-color.js';
 import { TelegramLoginForm } from './connections/telegram-sessions.js';
+import { activeAccount } from './telegram-account-scope.js';
+import { switchAccount, useAccountsSummary } from './chat-accounts-live.js';
 
 const el = React.createElement;
 
@@ -46,13 +49,22 @@ const useAccounts = (api, reload) => {
         if (!live) {
           return null;
         }
+        // The one on screen is the tab's, not always account 1 (R-Y202).
+        const active = activeAccount();
         setState(
           a?.ok
-            ? { ...a, phase: 'ready', accounts: a.accounts ?? [] }
+            ? {
+                ...a,
+                phase: 'ready',
+                accounts: (a.accounts ?? []).map((x) => ({
+                  ...x,
+                  current: x.account === active,
+                })),
+              }
             : { phase: 'error', accounts: [] }
         );
         return a?.ok && a.accounts.length > 1
-          ? api.telegramAccountsUnread()
+          ? api.telegramAccountsUnread({ all: true })
           : null;
       })
       .then(
@@ -72,7 +84,7 @@ const useAccounts = (api, reload) => {
   return state;
 };
 
-const AccountAvatar = ({ api, account, name }) =>
+export const AccountAvatar = ({ api, account, name }) =>
   account.id
     ? el(PeerAvatar, {
         api,
@@ -146,6 +158,19 @@ const AccountRow = ({ api, t, account, onOpen, onLogout }) => {
         : el(
             'button',
             {
+              key: 'w',
+              type: 'button',
+              className: 'account-switch',
+              'data-action': 'switch-account',
+              onClick: () => switchAccount(account.account),
+            },
+            t('chat.accounts.switch')
+          ),
+      account.current || account.account === 1
+        ? null
+        : el(
+            'button',
+            {
               key: 'x',
               type: 'button',
               className: 'account-logout',
@@ -195,6 +220,17 @@ const ChatsView = ({ api, t, account, back }) => {
           t('chat.accounts.back')
         ),
         el('strong', { key: 't' }, accountLabel(t, account)),
+        el(
+          'button',
+          {
+            key: 'w',
+            type: 'button',
+            className: 'account-switch',
+            'data-action': 'switch-account',
+            onClick: () => switchAccount(account.account),
+          },
+          t('chat.accounts.switch')
+        ),
       ]),
       el('p', { key: 'p', className: 'meta' }, t('chat.accounts.preview')),
       state.phase === 'loading'
@@ -359,8 +395,17 @@ export const AccountsDialog = ({ api, close }) => {
     setView({ name: 'list' });
     setReload((n) => n + 1);
   }, []);
-  const open = (account) =>
-    account.current ? close() : setView({ name: 'chats', account });
+  // The account on screen closes the window; account 1 is shown at once;
+  // another is previewed first, with a Switch button (R-Y202).
+  const open = (account) => {
+    if (account.current) {
+      close();
+    } else if (account.account === 1) {
+      switchAccount(1);
+    } else {
+      setView({ name: 'chats', account });
+    }
+  };
   let body;
   if (view.name === 'chats') {
     body = el(ChatsView, { api, t, account: view.account, back: list });
@@ -414,5 +459,37 @@ export const useAccountsWindow = ({ api }) => {
   return {
     open: () => setShown(true),
     dialog: shown ? el(AccountsDialog, { key: 'accounts', api, close }) : null,
+  };
+};
+
+/**
+ * Which account the chat shows, always visible beside the list's menu
+ * (R-Y202): its avatar and name, and the other accounts' unread count.
+ * Nothing while there is one account only.
+ */
+export const useActiveAccount = (api) => {
+  const t = useT();
+  const summary = useAccountsSummary(api);
+  const many = (summary.accounts?.length ?? 0) > 1;
+  const current = summary.current ?? { account: summary.active };
+  const name = accountLabel(t, current);
+  return {
+    others: summary.others,
+    chip: many
+      ? el(
+          'span',
+          {
+            key: 'active-account',
+            className: 'active-account',
+            'data-active-account': summary.active,
+            title: t('chat.accounts.using', { name }),
+            'aria-label': t('chat.accounts.using', { name }),
+          },
+          [
+            el(AccountAvatar, { key: 'a', api, account: current, name }),
+            el('span', { key: 'n', className: 'active-account-name' }, name),
+          ]
+        )
+      : null,
   };
 };

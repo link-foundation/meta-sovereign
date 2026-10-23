@@ -10,6 +10,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { chatPreview } from './chat-list.js';
 import { SOUND_KEY, playNotifySound, soundOf } from './notify-sound.js';
+import { activeAccount } from './telegram-account-scope.js';
+import {
+  ACCOUNT_MESSAGE,
+  accountNotification,
+  switchAccount,
+} from './chat-accounts-live.js';
 import {
   getNotifyRules,
   loadNotifyRules,
@@ -152,6 +158,80 @@ const useNotifyRules = (api) => {
   }, [api]);
 };
 
+// A name for an account, asked once from the server's list.
+const accountName = async (api, t, slot) => {
+  const list = await api.telegramAccounts?.().catch(() => null);
+  const found = list?.accounts?.find((a) => a.account === slot);
+  return (
+    found?.name ||
+    (found?.username ? `@${found.username}` : null) ||
+    t('chat.accounts.slot', { n: slot })
+  );
+};
+
+// A new message of an account the page is not showing (R-Y202): the
+// notification names the account; a click shows that account and the chat.
+const notifyOther = async (api, t, event) => {
+  globalThis.dispatchEvent?.(new globalThis.Event(ACCOUNT_MESSAGE));
+  if (event.muted || !readPref(NOTIFY_KEY, true) || !notifyAllowed()) {
+    return;
+  }
+  const name = await accountName(api, t, event.account);
+  if (readPref(SOUND_KEY, true)) {
+    playNotifySound(api, 'default');
+  }
+  const { title, body } = accountNotification(
+    t,
+    event,
+    name,
+    readPref(NOTIFY_PREVIEW_KEY, true)
+  );
+  try {
+    const note = new globalThis.Notification(title, {
+      body,
+      tag: `account-${event.account}-${event.chat}`,
+    });
+    note.onclick = () => {
+      globalThis.focus?.();
+      switchAccount(event.account, event.chat);
+      note.close();
+    };
+  } catch {
+    // A browser that shows notifications only from a service worker.
+  }
+};
+
+const useOtherAccounts = (api, t) => {
+  useEffect(() => {
+    if (typeof api?.telegramAccountsEvents !== 'function') {
+      return undefined;
+    }
+    const seen = new Set();
+    let live = true;
+    let stop = () => {};
+    api
+      .telegramAccountsEvents((event) => {
+        const key = `${event.account}:${event.id}`;
+        if (event.account === activeAccount() || seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        notifyOther(api, t, event).catch(() => {});
+      })
+      .then((close) => {
+        stop = close;
+        if (!live) {
+          close();
+        }
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+      stop();
+    };
+  }, [api]);
+};
+
 /**
  * Shows a notification for each chat with news. `show({ source, chat })`
  * opens a chat; `current` is the open one.
@@ -162,6 +242,7 @@ export const useNotifications = ({ chats, current, show, t, api }) => {
   latest.current = show;
   useTitleCount(chats, readPref(TITLE_COUNT_KEY, true));
   useNotifyRules(api);
+  useOtherAccounts(api, t);
   useEffect(() => {
     if (chats.length === 0) {
       return;

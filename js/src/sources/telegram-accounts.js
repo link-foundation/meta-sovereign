@@ -15,9 +15,10 @@
  * name, show its chat list and unread count read live from Telegram
  * (nothing is written to the message store, so no `telegram@2` messages
  * mix with account 1's), and be logged out (auth.logOut, then only its `@2` keys go).
- * Reading, sending and syncing messages of an extra account are NOT done:
- * they need every `msg:telegram:*` key and the page's `source:
- * 'telegram'` to carry the account, which is a much larger change.
+ * R-Y202 makes an extra account fully usable: each runs on its own store
+ * (src/server/telegram-extras.js), so `msg:telegram:*` and the page's
+ * `source: 'telegram'` stay as they are. The dialogs here remain the
+ * preview of an account whose service is not running.
  *
  * Session contents are never logged or returned.
  */
@@ -121,6 +122,8 @@ export const saveExtraAccount = async (
       account?.username ||
       null,
     username: account?.username ?? null,
+    // Its own id (R-Y202): the avatar of the account it is shown with.
+    accountId: account?.id ? String(account.id) : null,
     updated: stamp(),
   });
 };

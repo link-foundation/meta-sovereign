@@ -206,7 +206,11 @@ import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { BOT_LOGIN_POSTS } from './routes-telegram-bot-login.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { CHAT_ADMINS_POSTS } from './routes-telegram-chat-admins.js';
-import { ACCOUNTS_POSTS, resolveAccount } from './routes-telegram-accounts.js';
+import {
+  ACCOUNTS_GETS,
+  ACCOUNTS_POSTS,
+  resolveAccount,
+} from './routes-telegram-accounts.js';
 import { ADMIN_EXTRAS_POSTS } from './routes-telegram-admin-extras.js';
 import { APPS_POSTS } from './routes-telegram-apps.js';
 import { CHANNEL_DM_POSTS } from './routes-telegram-channel-dm.js';
@@ -1354,6 +1358,7 @@ const ALL_GETS = {
   ...WALLPAPER_GETS,
   ...RINGTONE_GETS,
   ...PROFILE_STORIES_GETS,
+  ...ACCOUNTS_GETS,
 };
 
 const dispatch = async (account, req, res, p, ctx) => {
