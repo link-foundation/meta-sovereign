@@ -1324,6 +1324,7 @@ const ChatTop = ({ state, api, onBack, saved }) => {
           chat,
           info: state.info ?? null,
           username: state.info?.username ?? null,
+          onOpenChat: (target) => state.openAt?.(target),
           onGo: (id) => {
             // Narrow, the column covers the messages: it goes.
             if (!globalThis.matchMedia?.('(min-width: 900px)').matches) {

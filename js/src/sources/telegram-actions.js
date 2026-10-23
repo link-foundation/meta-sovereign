@@ -61,6 +61,7 @@ import { createTranslate } from './telegram-translate.js';
 import { createEffects } from './telegram-effects.js';
 import { createMessageLinks } from './telegram-message-links.js';
 import { createAdminActions } from './telegram-admin.js';
+import { createCommonChats } from './telegram-common-chats.js';
 import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createNotifySettings } from './telegram-notify-settings.js';
 import { createShareMedia } from './telegram-share-media.js';
@@ -387,7 +388,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // (R-Y148); reaction tags of Saved Messages and the default timer (R-Y151);
 // invite links and join requests (R-Y152); posting stories (R-Y156); links
 // to messages (R-Y154); chat backgrounds (R-Y155); notification settings,
-// global and by chat (R-Y157).
+// global and by chat (R-Y157); groups in common (R-Y158).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -426,6 +427,7 @@ const chatActions = (env, context) => {
     ...createStoryActions(env, context),
     ...createLinkPreview(env, context),
     ...createAdminActions(env, context),
+    ...createCommonChats(env, context),
     ...createTopicAdmin(env, context),
     ...createWallpapers(env, context),
     ...createNotifySettings(env, context),

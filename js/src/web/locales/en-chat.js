@@ -1148,4 +1148,12 @@ export const enChat = {
   'chat.notifySet.reset': 'Reset to default',
   'chat.notifySet.done': 'Done',
   'chat.notifySet.err': 'Telegram did not accept the change.',
+  // Groups in common (R-Y158).
+  'chat.common.row':
+    '{count, plural, one {# group in common} other {# groups in common}}',
+  'chat.common.title': 'Groups in common',
+  'chat.common.members': '{count, plural, one {# member} other {# members}}',
+  'chat.common.more': 'Show more',
+  'chat.common.loading': 'Loading…',
+  'chat.common.err': 'Telegram did not give the list.',
 };

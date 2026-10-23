@@ -1097,4 +1097,11 @@ export const zhChat = {
   'chat.notifySet.reset': '恢复默认',
   'chat.notifySet.done': '完成',
   'chat.notifySet.err': 'Telegram 未接受此更改。',
+  // Groups in common (R-Y158).
+  'chat.common.row': '{count} 个共同群组',
+  'chat.common.title': '共同群组',
+  'chat.common.members': '{count} 位成员',
+  'chat.common.more': '显示更多',
+  'chat.common.loading': '加载中…',
+  'chat.common.err': 'Telegram 没有返回列表。',
 };

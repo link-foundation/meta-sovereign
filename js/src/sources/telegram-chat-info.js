@@ -4,7 +4,7 @@
  *   GET /api/telegram/chat-info?chat=<id>
  *   → { chat, kind, title, members, online, username, about, photo,
  *       pinned (the newest pinned message's id), broadcast?, bot?,
- *       lastSeen? }
+ *       lastSeen?, commonChats? (a person: groups in common) }
  *
  * Fetched through the account's queue at `view` priority and cached in
  * memory for 60 s (online counts change, so longer is wrong). The three
@@ -263,6 +263,8 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     // (not in Saved Messages, the chat with oneself) (R-Y143).
     ttlPeriod: ttlOf(full),
     canSetTtl: !user.self,
+    // Groups both belong to (R-Y158); the list is a separate call.
+    commonChats: user.self ? 0 : Number(full.commonChatsCount) || 0,
     ...wallpaperOf(full),
     ...(user.self ? { self: true } : {}),
     ...(user.bot ? { bot: true } : {}),

@@ -1093,6 +1093,7 @@ export const api = {
   telegramNotifySettingsSet: (body = {}) =>
     telegramPost('notify-settings-set', body),
   telegramNotifyChat: (body = {}) => telegramPost('notify-chat', body),
+  telegramCommonChats: (body = {}) => telegramPost('common-chats', body),
   telegramNotifyChatSet: (body = {}) => telegramPost('notify-chat-set', body),
   telegramPeerSettings: (body = {}) => telegramPost('peer-settings', body),
   telegramPeerHideBar: (body = {}) => telegramPost('peer-hide-bar', body),

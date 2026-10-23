@@ -49,7 +49,7 @@ const bytesOf = (value) => Buffer.from(String(value ?? ''), 'base64');
 const base64Of = (bytes) => Buffer.from(bytes ?? []).toString('base64');
 
 // A person as an input user, from the peer the chat resolves to.
-const inputUserOf = async (c, peer) => {
+export const inputUserOf = async (c, peer) => {
   const known =
     typeof peer === 'string'
       ? await c.client.getInputEntity(c.helpers.returnBigInt(peer))

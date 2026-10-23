@@ -7926,3 +7926,30 @@ span.bubble-effect {
   flex-wrap: wrap;
   gap: 0.4rem;
 }
+
+/* Groups in common (R-Y158). */
+.common-chat {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.35rem 0.2rem;
+  background: none;
+  border: 0;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.common-chat:hover {
+  background: var(--bg-elev);
+}
+.common-chat-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.common-chat-text strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

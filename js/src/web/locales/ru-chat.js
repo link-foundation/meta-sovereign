@@ -1166,4 +1166,13 @@ export const ruChat = {
   'chat.notifySet.reset': 'Сбросить до умолчаний',
   'chat.notifySet.done': 'Готово',
   'chat.notifySet.err': 'Telegram не принял изменение.',
+  // Groups in common (R-Y158).
+  'chat.common.row':
+    '{count, plural, one {# общая группа} few {# общие группы} other {# общих групп}}',
+  'chat.common.title': 'Общие группы',
+  'chat.common.members':
+    '{count, plural, one {# участник} few {# участника} other {# участников}}',
+  'chat.common.more': 'Показать ещё',
+  'chat.common.loading': 'Загрузка…',
+  'chat.common.err': 'Telegram не отдал список.',
 };

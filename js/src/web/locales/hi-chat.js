@@ -1154,4 +1154,11 @@ export const hiChat = {
   'chat.notifySet.reset': 'डिफ़ॉल्ट पर रीसेट करें',
   'chat.notifySet.done': 'हो गया',
   'chat.notifySet.err': 'Telegram ने बदलाव स्वीकार नहीं किया।',
+  // Groups in common (R-Y158).
+  'chat.common.row': '{count} साझा समूह',
+  'chat.common.title': 'साझा समूह',
+  'chat.common.members': '{count} सदस्य',
+  'chat.common.more': 'और दिखाएँ',
+  'chat.common.loading': 'लोड हो रहा है…',
+  'chat.common.err': 'Telegram ने सूची नहीं दी।',
 };
