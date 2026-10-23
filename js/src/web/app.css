@@ -10141,3 +10141,84 @@ span.bubble-effect {
   max-height: 45vh;
   overflow-y: auto;
 }
+
+/* Export chat history (R-Y186): the header's ⋯ menu and the dialog. */
+.chat-more .chat-menu-list {
+  width: auto;
+  min-width: 13rem;
+  padding: 0.25rem;
+}
+.chat-more-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.chat-more-item:hover,
+.chat-more-item:focus-visible {
+  background: var(--bg-hover, rgba(127, 127, 127, 0.15));
+}
+.export-dialog {
+  width: min(460px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.export-form,
+.export-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.export-media {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.7rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.export-media .pin-dialog-option {
+  margin: 0.2rem 0;
+}
+.export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+}
+.export-field input,
+.export-field select {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: inherit;
+  box-sizing: border-box;
+  width: 100%;
+}
+.export-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.export-progress p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.export-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border);
+  overflow: hidden;
+}
+.export-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}

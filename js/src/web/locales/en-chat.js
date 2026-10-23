@@ -1280,4 +1280,56 @@ export const enChat = {
   'chat.sendGift.err.verify':
     'Telegram wants a verification; do this in the official app.',
   'chat.sendGift.err.flood': 'Too many requests; try again in a while.',
+  // Export chat history (R-Y186).
+  'chat.export.menu': 'More',
+  'chat.export.open': 'Export chat history',
+  'chat.export.title': 'Export chat history',
+  'chat.export.include': 'Media to include',
+  'chat.export.kind.photos': 'Photos',
+  'chat.export.kind.videos': 'Videos',
+  'chat.export.kind.voice': 'Voice messages',
+  'chat.export.kind.roundVideo': 'Round video messages',
+  'chat.export.kind.stickers': 'Stickers',
+  'chat.export.kind.gifs': 'GIFs',
+  'chat.export.kind.files': 'Files',
+  'chat.export.limit': 'Size limit for videos and files (MB)',
+  'chat.export.from': 'From date (empty: from the start)',
+  'chat.export.to': 'To date (empty: to the end)',
+  'chat.export.format': 'Format',
+  'chat.export.format.html': 'HTML (pages to read)',
+  'chat.export.format.json': 'JSON (machine-readable)',
+  'chat.export.format.both': 'HTML and JSON',
+  'chat.export.folder': 'Save to (full path of the folder)',
+  'chat.export.start': 'Export',
+  'chat.export.cancelJob': 'Cancel export',
+  'chat.export.close': 'Close',
+  'chat.export.show': 'Show my data',
+  'chat.export.note':
+    'Everything stays on this computer. Telegram is only asked to read the messages and send the files.',
+  'chat.export.state.running': 'Exporting…',
+  'chat.export.state.cancelling': 'Stopping…',
+  'chat.export.state.done': 'Export finished.',
+  'chat.export.state.cancelled':
+    'Export stopped. What was saved stays in the folder.',
+  'chat.export.state.failed':
+    'The export stopped because of an error. What was saved stays in the folder.',
+  'chat.export.messages': 'Messages: {done}',
+  'chat.export.messagesOf': 'Messages: {done} of {total}',
+  'chat.export.files': 'Files: {files} ({bytes}); skipped: {skipped}',
+  'chat.export.current': 'Downloading {name}',
+  'chat.export.where': 'Saved in {folder}',
+  'chat.export.err.bad-request':
+    'Check the options: pick a format, a size limit of 1 to 4000 MB and a valid date range.',
+  'chat.export.err.relative-folder':
+    'Type the full path of the folder, not a relative one.',
+  'chat.export.err.inside-store':
+    'This folder is where the app keeps its own data. Choose another one.',
+  'chat.export.err.bad-folder': 'This folder cannot be used.',
+  'chat.export.err.busy':
+    'Another export is running. Wait for it to finish or cancel it.',
+  'chat.export.err.no-access':
+    'Telegram does not let this account read this chat.',
+  'chat.export.err.flood': 'Telegram asked to wait. Try again a little later.',
+  'chat.export.err.no-export': 'There is no finished export to show.',
+  'chat.export.err.failed': 'The export did not work.',
 };

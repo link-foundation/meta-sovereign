@@ -45,6 +45,7 @@ import {
 } from './chat-window.js';
 import { splitTopicKey } from './forum-topics.js';
 import { useTranscriptFeed } from './chat-transcribe.js';
+import { useExportFeed } from './chat-export.js';
 import { topicMessages, useForumTopics, viewedChat } from './chat-topics.js';
 import { useAutopilotBase } from './autopilot-hook.js';
 import {
@@ -1008,6 +1009,8 @@ export const useChatState = (
   const typingNow = useTypingIn(api, current, { tick, pollMs, links });
   // Voice transcriptions the server learned (R-Y175).
   useTranscriptFeed(links);
+  // How far a chat's history export is (R-Y186).
+  useExportFeed(links);
   return {
     loading: links === null,
     live,

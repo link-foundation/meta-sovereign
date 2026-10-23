@@ -48,7 +48,7 @@ export const browserOf = async (name) => {
  */
 export const openChatApp = async (
   name,
-  { store, send = async () => ({ via: 'fake' }) }
+  { store, send = async () => ({ via: 'fake' }), telegramAccount = false }
 ) => {
   const { engine, browserType } = await browserOf(name);
   const dir = await mkdtemp(path.join(os.tmpdir(), `ms-e2e-${name}-`));
@@ -58,7 +58,7 @@ export const openChatApp = async (
     store,
     enableSync: false,
     enableHandlers: false,
-    telegramAccount: false,
+    telegramAccount,
     log: null,
     automations: {
       scheduler: false,

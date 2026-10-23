@@ -179,6 +179,12 @@ const ICONS = {
     ['line', { x1: 10, y1: 8, x2: 14, y2: 8 }],
     ['line', { x1: 18, y1: 16, x2: 22, y2: 16 }],
   ],
+  // The "⋯" of a menu button (R-Y186).
+  dots: [
+    ['circle', { cx: 5, cy: 12, r: 1.4 }],
+    ['circle', { cx: 12, cy: 12, r: 1.4 }],
+    ['circle', { cx: 19, cy: 12, r: 1.4 }],
+  ],
   more: [
     ['rect', { x: 3, y: 3, width: 7, height: 7, rx: 1 }],
     ['rect', { x: 14, y: 3, width: 7, height: 7, rx: 1 }],

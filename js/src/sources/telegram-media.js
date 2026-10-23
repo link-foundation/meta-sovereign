@@ -252,7 +252,7 @@ export const createMediaReader = ({
 const MAX_FILE_BYTES = 64 * 1024 * 1024;
 
 // Document kind for the log (best-effort from mime and attributes).
-const docKind = (doc) => {
+export const docKind = (doc) => {
   const mime = doc?.mimeType ?? '';
   const attrs = doc?.attributes ?? [];
   if (attrs.some((a) => a?.className === 'DocumentAttributeAnimated')) {
@@ -281,7 +281,7 @@ const docKind = (doc) => {
   return 'file';
 };
 
-const fileLocation = (Api, helpers, doc) => {
+export const fileLocation = (Api, helpers, doc) => {
   const big = (value) => helpers.returnBigInt(text(value));
   return new Api.InputDocumentFileLocation({
     id: big(doc.id),

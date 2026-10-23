@@ -111,6 +111,7 @@ import { createStories } from './telegram-stories.js';
 import { createStoryActions } from './telegram-story-actions.js';
 import { createStoryPost } from './telegram-story-post.js';
 import { createLinkPreview } from './telegram-link-preview.js';
+import { createHistoryExport } from './telegram-export.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -442,7 +443,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // counters of channel posts and hashtag search (R-Y182); Telegram Business
 // opening hours, location, intro, chat links, chatbots and folder tags
 // (R-Y180); notification sounds (R-Y181); stories and music on profiles and
-// sending a gift (R-Y185).
+// sending a gift (R-Y185); exporting chat history (R-Y186).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -531,6 +532,7 @@ const chatActions = (env, context) => {
     ...createEmojiStatus(env, context),
     ...createInviteLinks(env, context),
     ...createMessageLinks(env, context),
+    ...createHistoryExport(env, context),
   };
 };
 

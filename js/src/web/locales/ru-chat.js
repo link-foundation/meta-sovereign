@@ -1299,4 +1299,57 @@ export const ruChat = {
   'chat.sendGift.err.verify':
     'Telegram требует подтверждение; сделайте это в официальном приложении.',
   'chat.sendGift.err.flood': 'Слишком много запросов; попробуйте позже.',
+  // Export chat history (R-Y186).
+  'chat.export.menu': 'Ещё',
+  'chat.export.open': 'Экспорт истории чата',
+  'chat.export.title': 'Экспорт истории чата',
+  'chat.export.include': 'Какие файлы сохранить',
+  'chat.export.kind.photos': 'Фото',
+  'chat.export.kind.videos': 'Видео',
+  'chat.export.kind.voice': 'Голосовые сообщения',
+  'chat.export.kind.roundVideo': 'Видеосообщения',
+  'chat.export.kind.stickers': 'Стикеры',
+  'chat.export.kind.gifs': 'GIF-анимации',
+  'chat.export.kind.files': 'Файлы',
+  'chat.export.limit': 'Предел размера для видео и файлов (МБ)',
+  'chat.export.from': 'С даты (пусто: с начала)',
+  'chat.export.to': 'По дату (пусто: до конца)',
+  'chat.export.format': 'Формат',
+  'chat.export.format.html': 'HTML (страницы для чтения)',
+  'chat.export.format.json': 'JSON (для программ)',
+  'chat.export.format.both': 'HTML и JSON',
+  'chat.export.folder': 'Куда сохранить (полный путь к папке)',
+  'chat.export.start': 'Экспортировать',
+  'chat.export.cancelJob': 'Отменить экспорт',
+  'chat.export.close': 'Закрыть',
+  'chat.export.show': 'Показать мои данные',
+  'chat.export.note':
+    'Всё остаётся на этом компьютере. У Telegram только читаются сообщения и скачиваются файлы.',
+  'chat.export.state.running': 'Идёт экспорт…',
+  'chat.export.state.cancelling': 'Останавливаем…',
+  'chat.export.state.done': 'Экспорт завершён.',
+  'chat.export.state.cancelled':
+    'Экспорт остановлен. Что успело сохраниться, осталось в папке.',
+  'chat.export.state.failed':
+    'Экспорт прервался из-за ошибки. Что успело сохраниться, осталось в папке.',
+  'chat.export.messages': 'Сообщений: {done}',
+  'chat.export.messagesOf': 'Сообщений: {done} из {total}',
+  'chat.export.files': 'Файлов: {files} ({bytes}); пропущено: {skipped}',
+  'chat.export.current': 'Скачивается {name}',
+  'chat.export.where': 'Сохранено в {folder}',
+  'chat.export.err.bad-request':
+    'Проверьте параметры: выберите формат, предел размера от 1 до 4000 МБ и верные даты.',
+  'chat.export.err.relative-folder':
+    'Введите полный путь к папке, а не относительный.',
+  'chat.export.err.inside-store':
+    'В этой папке приложение хранит свои данные. Выберите другую.',
+  'chat.export.err.bad-folder': 'Эту папку использовать нельзя.',
+  'chat.export.err.busy':
+    'Уже идёт другой экспорт. Дождитесь его конца или отмените.',
+  'chat.export.err.no-access':
+    'Telegram не даёт этому аккаунту читать этот чат.',
+  'chat.export.err.flood': 'Telegram просит подождать. Попробуйте чуть позже.',
+  'chat.export.err.no-export':
+    'Нет завершённого экспорта, который можно показать.',
+  'chat.export.err.failed': 'Экспорт не получился.',
 };

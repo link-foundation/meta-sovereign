@@ -37,6 +37,8 @@ export const EVENT_PREFIXES = Object.freeze([
   'sync:telegram',
   // Where an automation's autopilot is (R-Y87): the monitor follows it.
   'automation-autopilot:',
+  // How far a chat's history export is (R-Y186): the dialog follows it.
+  'export:',
 ]);
 
 export const isStreamedId = (id) =>

@@ -16,6 +16,7 @@ import { PeerBar } from './chat-peer-actions.js';
 import { PinnedBar } from './chat-pinned.js';
 import { RequestsBar } from './chat-join-requests.js';
 import { NotifyButton } from './chat-notify-settings.js';
+import { ExportMenu } from './chat-export.js';
 import { TtlBadge } from './chat-ttl.js';
 import { ChatReactionsScope } from './chat-reactions.js';
 import { ChatWall } from './chat-wallpaper.js';
@@ -367,6 +368,8 @@ const Header = ({
     // View as messages / View as topics in a forum (R-Y171).
     el(ForumViewMenu, { key: 'forum-view', view: forumView }),
     el(NotifyButton, { key: 'notify', api, chat }),
+    // "Export chat history" in the header's ⋯ menu (R-Y186).
+    el(ExportMenu, { key: 'more', api, chat }),
     hasAbout(chat)
       ? el(AboutButton, { key: 'about', about, onAbout, chat })
       : null,

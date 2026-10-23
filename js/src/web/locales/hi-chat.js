@@ -1287,4 +1287,56 @@ export const hiChat = {
   'chat.sendGift.err.verify':
     'Telegram सत्यापन चाहता है; यह आधिकारिक ऐप में करें।',
   'chat.sendGift.err.flood': 'बहुत अधिक अनुरोध; कुछ देर बाद फिर कोशिश करें।',
+  // Export chat history (R-Y186).
+  'chat.export.menu': 'और',
+  'chat.export.open': 'चैट इतिहास निर्यात करें',
+  'chat.export.title': 'चैट इतिहास निर्यात करें',
+  'chat.export.include': 'कौन-सी मीडिया शामिल करें',
+  'chat.export.kind.photos': 'फ़ोटो',
+  'chat.export.kind.videos': 'वीडियो',
+  'chat.export.kind.voice': 'वॉइस संदेश',
+  'chat.export.kind.roundVideo': 'गोल वीडियो संदेश',
+  'chat.export.kind.stickers': 'स्टिकर',
+  'chat.export.kind.gifs': 'GIF एनिमेशन',
+  'chat.export.kind.files': 'फ़ाइलें',
+  'chat.export.limit': 'वीडियो और फ़ाइलों की आकार सीमा (MB)',
+  'chat.export.from': 'इस तारीख़ से (खाली: शुरुआत से)',
+  'chat.export.to': 'इस तारीख़ तक (खाली: अंत तक)',
+  'chat.export.format': 'प्रारूप',
+  'chat.export.format.html': 'HTML (पढ़ने के पन्ने)',
+  'chat.export.format.json': 'JSON (मशीन के लिए)',
+  'chat.export.format.both': 'HTML और JSON',
+  'chat.export.folder': 'यहाँ सहेजें (फ़ोल्डर का पूरा पथ)',
+  'chat.export.start': 'निर्यात करें',
+  'chat.export.cancelJob': 'निर्यात रद्द करें',
+  'chat.export.close': 'बंद करें',
+  'chat.export.show': 'मेरा डेटा दिखाएँ',
+  'chat.export.note':
+    'सब कुछ इसी कंप्यूटर पर रहता है। Telegram से केवल संदेश पढ़े जाते हैं और फ़ाइलें उतारी जाती हैं।',
+  'chat.export.state.running': 'निर्यात हो रहा है…',
+  'chat.export.state.cancelling': 'रोका जा रहा है…',
+  'chat.export.state.done': 'निर्यात पूरा हुआ।',
+  'chat.export.state.cancelled':
+    'निर्यात रोक दिया गया। जो सहेजा जा चुका है वह फ़ोल्डर में रहेगा।',
+  'chat.export.state.failed':
+    'त्रुटि के कारण निर्यात रुक गया। जो सहेजा जा चुका है वह फ़ोल्डर में रहेगा।',
+  'chat.export.messages': 'संदेश: {done}',
+  'chat.export.messagesOf': 'संदेश: {done} / {total}',
+  'chat.export.files': 'फ़ाइलें: {files} ({bytes}); छोड़ी गईं: {skipped}',
+  'chat.export.current': '{name} उतारी जा रही है',
+  'chat.export.where': '{folder} में सहेजा गया',
+  'chat.export.err.bad-request':
+    'विकल्प जाँचें: प्रारूप चुनें, 1 से 4000 MB की आकार सीमा और सही तारीख़ें दें।',
+  'chat.export.err.relative-folder':
+    'फ़ोल्डर का पूरा पथ लिखें, सापेक्ष पथ नहीं।',
+  'chat.export.err.inside-store':
+    'यह वह फ़ोल्डर है जहाँ ऐप अपना डेटा रखता है। कोई और चुनें।',
+  'chat.export.err.bad-folder': 'यह फ़ोल्डर इस्तेमाल नहीं हो सकता।',
+  'chat.export.err.busy':
+    'दूसरा निर्यात चल रहा है। उसके पूरा होने की प्रतीक्षा करें या उसे रद्द करें।',
+  'chat.export.err.no-access': 'Telegram इस खाते को यह चैट पढ़ने नहीं देता।',
+  'chat.export.err.flood':
+    'Telegram ने रुकने को कहा है। थोड़ी देर बाद फिर कोशिश करें।',
+  'chat.export.err.no-export': 'दिखाने लायक कोई पूरा निर्यात नहीं है।',
+  'chat.export.err.failed': 'निर्यात नहीं हो सका।',
 };

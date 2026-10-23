@@ -308,4 +308,12 @@ export const TELEGRAM_CALLS = {
   telegramSendLocation: body('send-location'),
   telegramStopLive: body('stop-live-location'),
   telegramUpdateLive: body('update-live-location'),
+  // Exporting a chat's history to a folder (R-Y186): the default folder and
+  // the running export, start ({ chat, media, sizeLimitMb, from, to,
+  // formats, folder }), status, cancel, and the folder shown.
+  telegramExportDefaults: none('export-defaults'),
+  telegramExportStart: body('export-start'),
+  telegramExportStatus: none('export-status'),
+  telegramExportCancel: none('export-cancel'),
+  telegramExportReveal: none('export-reveal'),
 };
