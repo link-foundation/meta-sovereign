@@ -956,7 +956,8 @@ export const useChatState = (
     setActive(chatKey(target.source, String(target.chat)));
   };
   const opening = useOpening({ show, current, setActive, setNotice });
-  useNotifications({ chats: all, current, show, t });
+  // The first look is the list as loaded, not the opened chat alone.
+  useNotifications({ chats: links ? all : [], current, show, t });
   const composer = useComposer({
     api,
     current,

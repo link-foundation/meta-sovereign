@@ -3,7 +3,8 @@
 // server's event stream) to a chat that is not open shows a notification
 // with the chat's name, the sender and the text; one to the open chat
 // does not; a click on it opens the chat; the page's title counts what is
-// unread; Settings turns them off and hides the text. The browser's
+// unread; Settings turns them off and hides the text; another section
+// notifies too, and its click comes back to the chat (R-Y144). The browser's
 // Notification faked in the page, fake chats in a memory store, a server
 // on a free port, a headless browser; nothing reaches a network or a
 // running app. Not part of `npm test`; run it with:
@@ -115,11 +116,8 @@ await finish(async () => {
     'the browser allows them'
   );
   await preview.uncheck();
-  const backToChat = async () => {
-    await page.locator('button[data-view="chat"]').click();
-    await page.locator('.chat-composer textarea').waitFor({ timeout: 15000 });
-  };
-  await backToChat();
+  // In another section the app still notifies (R-Y144): the text hidden.
+  await page.waitForTimeout(1000);
   await store.put(message(ANN, 'Fake Ann', 3, 'a secret'));
   await until(async () => (await notes()).length === 2, 'notified again');
   const second = (await notes())[1];
@@ -127,10 +125,28 @@ await finish(async () => {
     second.title === 'meta-sovereign' && second.body === 'New message',
     `hidden: ${JSON.stringify(second)}`
   );
+  await until(
+    async () => /^\(\d+\) /.test(await page.title()),
+    'the title counts unread in Settings'
+  );
+  // Its click brings the Chat section with that chat, and coming back
+  // notifies nothing old.
+  await page.evaluate(() => globalThis.__notes[1].onclick());
+  await page.locator('.chat-composer textarea').waitFor({ timeout: 15000 });
+  await until(
+    async () => (await hash()) === `#chat=telegram:${ANN}`,
+    'the chat opens from Settings'
+  );
+  await page.waitForTimeout(800);
+  assert((await notes()).length === 2, 'nothing old on coming back');
   await page.locator('button[data-view="settings"]').click();
   await page.locator('[data-action="notify"]').uncheck();
-  await backToChat();
-  await store.put(message(ANN, 'Fake Ann', 4, 'once more'));
+  await store.put(message(BOB, 'Fake Bob', 3, 'once more'));
   await page.waitForTimeout(800);
-  assert((await notes()).length === 2, 'off: no notification');
+  assert((await notes()).length === 2, 'off in Settings: none');
+  await page.locator('button[data-view="chat"]').click();
+  await page.locator('.chat-composer textarea').waitFor({ timeout: 15000 });
+  await store.put(message(BOB, 'Fake Bob', 4, 'and again'));
+  await page.waitForTimeout(800);
+  assert((await notes()).length === 2, `off: ${JSON.stringify(await notes())}`);
 });
