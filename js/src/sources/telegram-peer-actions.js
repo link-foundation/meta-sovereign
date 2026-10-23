@@ -18,7 +18,7 @@
  * Telegram's errors become codes the page shows as text.
  */
 
-import { connect, runIn } from './telegram-stickers.js';
+import { runIn, connected, failureOf } from './telegram-stickers.js';
 
 const CODES = {
   USER_ID_INVALID: 'no-user',
@@ -32,11 +32,7 @@ const CODES = {
   FLOOD_WAIT: 'flood',
 };
 
-const failure = (error) => {
-  const name = String(error?.errorMessage ?? error?.message ?? '');
-  const key = Object.keys(CODES).find((k) => name.includes(k));
-  return { ok: false, error: key ?? 'failed', code: CODES[key] ?? 'failed' };
-};
+const failure = failureOf(CODES);
 
 const USER = /^\d{1,20}$/;
 const CHAT = /^-?\d{1,20}$/;
@@ -89,17 +85,15 @@ const doing = (env, userClient, valid, name, use) => async (request) => {
   if (!valid(chat, request ?? {})) {
     return { ok: false, error: 'bad request', code: 'failed' };
   }
-  const c = await connect(env, userClient);
-  if (!c) {
-    return { ok: false, supported: false };
-  }
-  try {
-    return await runIn(env, `${name}:${chat}`, () =>
-      env.connection.withPeer(c.client, chat, (peer) => use(c, peer, request))
-    );
-  } catch (error) {
-    return failure(error);
-  }
+  return connected(
+    env,
+    userClient,
+    failure,
+    async (c) =>
+      await runIn(env, `${name}:${chat}`, () =>
+        env.connection.withPeer(c.client, chat, (peer) => use(c, peer, request))
+      )
+  );
 };
 
 const block = async (c, peer, { block: on }) => {

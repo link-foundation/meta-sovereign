@@ -954,6 +954,11 @@ export const api = {
   // offset? }) (R-Y127).
   telegramReaders: (body = {}) => telegramPost('readers', body),
   telegramReactors: (body = {}) => telegramPost('reactors', body),
+  // New groups and channels, a chat's info edited (R-Y129).
+  telegramChatContacts: () => telegramPost('chat-contacts', {}),
+  telegramGroupCreate: (body = {}) => telegramPost('group-create', body),
+  telegramChannelCreate: (body = {}) => telegramPost('channel-create', body),
+  telegramChatEdit: (body = {}) => telegramPost('chat-edit', body),
   // A group's members ({ chat, q, offset, limit }) and one removed
   // ({ chat, user }) (R-Y125).
   telegramMembers: (body = {}) => telegramPost('members', body),

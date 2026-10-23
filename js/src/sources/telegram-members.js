@@ -12,7 +12,7 @@
  * Telegram's errors become codes the page shows as text.
  */
 
-import { connect, runIn } from './telegram-stickers.js';
+import { runIn, connected, failureOf } from './telegram-stickers.js';
 
 const CODES = {
   CHAT_ADMIN_REQUIRED: 'not-admin',
@@ -23,11 +23,7 @@ const CODES = {
   CHAT_ID_INVALID: 'no-access',
 };
 
-const failure = (error) => {
-  const name = String(error?.errorMessage ?? error?.message ?? '');
-  const key = Object.keys(CODES).find((k) => name.includes(k));
-  return { ok: false, error: key ?? 'failed', code: CODES[key] ?? 'failed' };
-};
+const failure = failureOf(CODES);
 
 const CHAT = /^-\d{1,20}$/;
 const USER = /^\d{1,20}$/;
@@ -145,16 +141,10 @@ const createReader =
     const q = typeof request.q === 'string' ? request.q.trim() : '';
     const offset = Math.max(0, Math.floor(Number(request.offset) || 0));
     const limit = Math.min(200, Math.max(1, Number(request.limit) || 50));
-    const c = await connect(env, userClient);
-    if (!c) {
-      return { ok: false, supported: false };
-    }
-    try {
+    return connected(env, userClient, failure, async (c) => {
       const ask = isChannel(chat) ? readChannel : readGroup;
       return await ask(c, env, { chat, q, offset, limit });
-    } catch (error) {
-      return failure(error);
-    }
+    });
   };
 
 // The person as an input peer, from what GramJS knows, else by id alone.
@@ -210,11 +200,7 @@ const createRemover =
     if (!CHAT.test(chat) || !USER.test(user)) {
       return { ok: false, error: 'bad request', code: 'failed' };
     }
-    const c = await connect(env, userClient);
-    if (!c) {
-      return { ok: false, supported: false };
-    }
-    try {
+    return connected(env, userClient, failure, async (c) => {
       const participant = await inputPeerOf(c, user);
       await runIn(env, `member-remove:${chat}:${user}`, () =>
         isChannel(chat)
@@ -224,9 +210,7 @@ const createRemover =
           : removeFromGroup(c, chat, participant)
       );
       return { ok: true };
-    } catch (error) {
-      return failure(error);
-    }
+    });
   };
 
 export const createMembers = (env, context) => ({

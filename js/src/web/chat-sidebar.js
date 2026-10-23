@@ -10,6 +10,7 @@ import { CHAT_FILTERS, CHAT_SORTS, groupChats } from './chat-model.js';
 import { Notice } from './notice.js';
 import { ArchiveHead, ArchiveItem, ChatItem } from './chat-list.js';
 import { useChatListMenu } from './chat-list-menu.js';
+import { NewChat } from './chat-create.js';
 import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
 import { GlobalResults, useGlobalSearch } from './chat-global.js';
@@ -278,6 +279,7 @@ export const Sidebar = ({ state, api }) => {
           t('chat.aside')
         ),
         el(SortChoice, { key: 's', state }),
+        globalOn(state) ? el(NewChat, { key: 'n', api }) : null,
       ]),
       el('input', {
         key: 'q',

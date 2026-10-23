@@ -157,6 +157,27 @@ export const connect = async (env, userClient) => {
   return { client, Api, helpers, zero: helpers.returnBigInt(0) };
 };
 
+// Connects, runs `use` with the connection, and turns Telegram's errors
+// into the page's codes with `fail`.
+export const connected = async (env, userClient, fail, use) => {
+  const c = await connect(env, userClient);
+  if (!c) {
+    return { ok: false, supported: false };
+  }
+  try {
+    return await use(c);
+  } catch (error) {
+    return fail(error);
+  }
+};
+
+// Telegram's error names, by `codes`, as the page's codes.
+export const failureOf = (codes) => (error) => {
+  const name = String(error?.errorMessage ?? error?.message ?? '');
+  const key = Object.keys(codes).find((k) => name.includes(k));
+  return { ok: false, error: key ?? 'failed', code: codes[key] ?? 'failed' };
+};
+
 export const inputSet = (c, set) =>
   new c.Api.InputStickerSetID({
     id: c.helpers.returnBigInt(text(set.id)),

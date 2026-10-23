@@ -92,6 +92,18 @@ export const canPinIn = (entity = {}) => {
 export const canInviteIn = (entity = {}) =>
   Boolean(entity.creator || entity.adminRights?.inviteUsers);
 
+// Whether the user may change the chat's name, description and photo: its
+// creator, an admin with the right to change info, or, in a group, a member
+// whom neither the group's rights nor their own restrict (R-Y129).
+export const canEditIn = (entity = {}) =>
+  Boolean(entity.creator || entity.adminRights?.changeInfo) ||
+  (!entity.broadcast &&
+    !entity.left &&
+    !entity.deactivated &&
+    Boolean(entity.defaultBannedRights) &&
+    !entity.defaultBannedRights.changeInfo &&
+    !entity.bannedRights?.changeInfo);
+
 // The primary invite link the full chat carries, for those who may see it.
 const inviteOf = (entity, full) =>
   canInviteIn(entity) && typeof full.exportedInvite?.link === 'string'
@@ -116,6 +128,7 @@ const fetchChannel = async (client, Api, inputPeer) => {
     pinned: full.pinnedMsgId ?? null,
     canPin: canPinIn(entity),
     broadcast: Boolean(entity.broadcast),
+    canEdit: canEditIn(entity),
     ...inviteOf(entity, full),
   };
 };
@@ -138,6 +151,7 @@ const fetchGroup = async (client, Api, helpers, inputPeer, chat) => {
     photo: hasPhoto(entity.photo),
     pinned: full.pinnedMsgId ?? null,
     canPin: canPinIn(entity),
+    canEdit: canEditIn(entity),
     ...inviteOf(entity, full),
   };
 };

@@ -16,6 +16,7 @@ import { infoLine } from './chat-info.js';
 import { parseMessageParts } from './message-parts.js';
 import { mediaLabel } from './chat-message.js';
 import { networkMessageId } from './chat-model.js';
+import { useEdited } from './chat-edit.js';
 
 const el = React.createElement;
 
@@ -101,11 +102,16 @@ export const useSharedList = (api, chat, kind) => {
 /** The column's top: photo, name, status, @username, about text. */
 export const ProfileHead = ({ api, chat, info }) => {
   const t = useT();
+  const was = useEdited(chat.key);
   const { chatTime } = useDates();
   const status = info ? infoLine(t, info, { kind: chat.kind, chatTime }) : '';
   return el('div', { className: 'profile-head' }, [
     el(ChatAvatar, { key: 'a', api, chat, size: 'b' }),
-    el('strong', { key: 'n', className: 'profile-name' }, chat.name),
+    el(
+      'strong',
+      { key: 'n', className: 'profile-name' },
+      was.title ?? chat.name
+    ),
     status
       ? el('span', { key: 's', className: 'meta profile-status' }, status)
       : null,
@@ -122,8 +128,12 @@ export const ProfileHead = ({ api, chat, info }) => {
           `@${info.username}`
         )
       : null,
-    info?.about
-      ? el('p', { key: 'b', className: 'profile-about' }, info.about)
+    (was.about ?? info?.about)
+      ? el(
+          'p',
+          { key: 'b', className: 'profile-about' },
+          was.about ?? info.about
+        )
       : null,
   ]);
 };

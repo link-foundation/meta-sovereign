@@ -400,5 +400,6 @@ export const createFileSender = (
     }
   };
 
-  return { receiveUpload, sendFiles, sendVoice };
+  // `held`: the uploads, for an action that sends one itself (R-Y129).
+  return { receiveUpload, sendFiles, sendVoice, held: { uploads, drop } };
 };

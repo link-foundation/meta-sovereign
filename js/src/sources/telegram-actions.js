@@ -53,6 +53,7 @@ import { createSharedMedia } from './telegram-shared.js';
 import { createForum } from './telegram-forum.js';
 import { createComments } from './telegram-comments.js';
 import { createReadersActions } from './telegram-readers.js';
+import { createChatEdit } from './telegram-chat-edit.js';
 
 const SOURCE = 'telegram';
 const MAX_IDS = 100;
@@ -339,28 +340,39 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // saved GIFs (R-Y105); bots' buttons (R-Y110); shared media (R-Y111);
 // forum topics (R-Y122); invite links (R-Y123); members (R-Y125);
 // comments (R-Y126); who read and who reacted (R-Y127); block, contacts
-// and report (R-Y128).
-const chatActions = (env, context) => ({
-  ...createPollActions(env, context),
-  ...createDialogActions(env, context),
-  ...createChatSearch(env, context),
-  ...createGlobalSearch(env, context),
-  ...createFileSender(env, context),
-  ...createChatRemoval(env, context),
-  ...createScheduled(env, context),
-  ...createFolders(env, context),
-  ...createStickers(env, context),
-  ...createCustomEmoji(env, context),
-  ...createEmojiKeywords(env, context),
-  ...createBotActions(env, context),
-  ...createSharedMedia(env, context),
-  ...createForum(env, context),
-  ...createInvites(env, context),
-  ...createMembers(env, context),
-  ...createPeerActions(env, context),
-  ...createComments(env, context),
-  ...createReadersActions(env, context),
-});
+// and report (R-Y128); new groups and channels, a chat's info edited (R-Y129).
+const chatActions = (env, context) => {
+  const { held, ...files } = createFileSender(env, context);
+  const { uploads, drop } = held;
+  return {
+    ...createPollActions(env, context),
+    ...createDialogActions(env, context),
+    ...createChatSearch(env, context),
+    ...createGlobalSearch(env, context),
+    ...files,
+    ...createChatRemoval(env, context),
+    ...createScheduled(env, context),
+    ...createFolders(env, context),
+    ...createStickers(env, context),
+    ...createCustomEmoji(env, context),
+    ...createEmojiKeywords(env, context),
+    ...createBotActions(env, context),
+    ...createSharedMedia(env, context),
+    ...createForum(env, context),
+    ...createInvites(env, context),
+    ...createMembers(env, context),
+    ...createPeerActions(env, context),
+    ...createComments(env, context),
+    ...createReadersActions(env, context),
+    ...createChatEdit(env, {
+      ...context,
+      uploads: {
+        uploadOf: (token) => uploads.get(token) ?? null,
+        dropUpload: drop,
+      },
+    }),
+  };
+};
 
 // A message's file (video, voice, GIF, sticker), a peer's photo and a
 // chat's members and who is online, each read through the queue.

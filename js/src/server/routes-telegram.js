@@ -109,6 +109,17 @@
  *   POST /api/telegram/invite-join {hash}
  *                                      -> { ok, chat? } the user joined
  *                                         (or asked to), on their press
+ *   POST /api/telegram/chat-contacts   -> { ok, contacts } the contacts to
+ *                                         pick a new group's members from
+ *                                         (R-Y129)
+ *   POST /api/telegram/group-create {title, users}
+ *                                      -> { ok, chat, title } a basic group
+ *   POST /api/telegram/channel-create {title, about?}
+ *                                      -> { ok, chat, title } a channel
+ *   POST /api/telegram/chat-edit {chat, title?, about?, photo?}
+ *                                      -> { ok } a chat's name, description
+ *                                         and photo (an upload's token, or
+ *                                         "remove") changed
  *   POST /api/telegram/invite-revoke {chat}
  *                                      -> { ok, link } a chat's primary
  *                                         invite link replaced
@@ -790,6 +801,50 @@ const POSTS = {
     typeof account.revokeChatInvite === 'function'
       ? [200, await account.revokeChatInvite({ chat: String(body.chat) })]
       : [400, { error: 'chat required', code: 'bad-request' }],
+  // New groups and channels, a chat's info edited (R-Y129).
+  'chat-contacts': async (account) =>
+    typeof account.chatContacts === 'function'
+      ? [200, await account.chatContacts()]
+      : [400, { error: 'not available', code: 'bad-request' }],
+  'group-create': async (account, body) =>
+    typeof body.title === 'string' &&
+    Array.isArray(body.users) &&
+    body.users.every((u) => /^\d{1,20}$/.test(String(u))) &&
+    typeof account.createGroup === 'function'
+      ? [
+          200,
+          await account.createGroup({
+            title: body.title,
+            users: body.users.map(String),
+          }),
+        ]
+      : [400, { error: 'title and users required', code: 'bad-request' }],
+  'channel-create': async (account, body) =>
+    typeof body.title === 'string' &&
+    (body.about === undefined || typeof body.about === 'string') &&
+    typeof account.createChannel === 'function'
+      ? [
+          200,
+          await account.createChannel({ title: body.title, about: body.about }),
+        ]
+      : [400, { error: 'title required', code: 'bad-request' }],
+  'chat-edit': async (account, body) =>
+    /^-\d{1,20}$/.test(String(body.chat ?? '')) &&
+    ['title', 'about', 'photo'].every(
+      (k) => body[k] === undefined || typeof body[k] === 'string'
+    ) &&
+    ['title', 'about', 'photo'].some((k) => body[k] !== undefined) &&
+    typeof account.editChatInfo === 'function'
+      ? [
+          200,
+          await account.editChatInfo({
+            chat: body.chat,
+            title: body.title,
+            about: body.about,
+            photo: body.photo,
+          }),
+        ]
+      : [400, { error: 'chat and a change required', code: 'bad-request' }],
   // A group's members and removing one (R-Y125).
   members: async (account, body) =>
     GROUP_CHAT.test(String(body.chat ?? '')) &&

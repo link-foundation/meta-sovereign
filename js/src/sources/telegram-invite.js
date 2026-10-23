@@ -14,7 +14,7 @@
  * Telegram's errors become codes the page shows as text.
  */
 
-import { connect, runIn } from './telegram-stickers.js';
+import { runIn, connected, failureOf } from './telegram-stickers.js';
 
 export const INVITE_HASH = /^[A-Za-z0-9_-]{8,64}$/;
 
@@ -29,11 +29,7 @@ const CODES = {
   CHAT_ADMIN_REQUIRED: 'not-admin',
 };
 
-const failure = (error) => {
-  const name = String(error?.errorMessage ?? error?.message ?? '');
-  const key = Object.keys(CODES).find((k) => name.includes(k));
-  return { ok: false, error: key ?? 'failed', code: CODES[key] ?? 'failed' };
-};
+const failure = failureOf(CODES);
 
 const BAD_HASH = { ok: false, error: 'invite-invalid', code: 'invite-invalid' };
 
@@ -80,18 +76,12 @@ const createChecker =
     if (!INVITE_HASH.test(hash)) {
       return BAD_HASH;
     }
-    const c = await connect(env, userClient);
-    if (!c) {
-      return { ok: false, supported: false };
-    }
-    try {
+    return connected(env, userClient, failure, async (c) => {
       const found = await runIn(env, `invite:check:${hash}`, () =>
         c.client.invoke(new c.Api.messages.CheckChatInvite({ hash }))
       );
       return describe(found ?? {});
-    } catch (error) {
-      return failure(error);
-    }
+    });
   };
 
 const createJoiner =
@@ -101,11 +91,7 @@ const createJoiner =
     if (!INVITE_HASH.test(hash)) {
       return BAD_HASH;
     }
-    const c = await connect(env, userClient);
-    if (!c) {
-      return { ok: false, supported: false };
-    }
-    try {
+    return connected(env, userClient, failure, async (c) => {
       const result = await runIn(env, `invite:join:${hash}`, () =>
         c.client.invoke(new c.Api.messages.ImportChatInvite({ hash }))
       );
@@ -114,9 +100,7 @@ const createJoiner =
       }
       const chat = (result?.chats ?? []).find(Boolean);
       return { ok: true, ...(chat ? { chat: markedId(chat) } : {}) };
-    } catch (error) {
-      return failure(error);
-    }
+    });
   };
 
 const createRevoker =
@@ -126,11 +110,7 @@ const createRevoker =
     if (!/^-\d{1,20}$/.test(target)) {
       return { ok: false, error: 'bad chat', code: 'failed' };
     }
-    const c = await connect(env, userClient);
-    if (!c) {
-      return { ok: false, supported: false };
-    }
-    try {
+    return connected(env, userClient, failure, async (c) => {
       const result = await runIn(env, `invite:revoke:${target}`, () =>
         env.connection.withPeer(c.client, target, (peer) =>
           c.client.invoke(
@@ -145,9 +125,7 @@ const createRevoker =
       return typeof link === 'string' && link
         ? { ok: true, link }
         : { ok: false, error: 'failed', code: 'failed' };
-    } catch (error) {
-      return failure(error);
-    }
+    });
   };
 
 /** `env` is the account's; `apply(client, result)` the live handler. */

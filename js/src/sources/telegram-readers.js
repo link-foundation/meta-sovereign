@@ -14,7 +14,7 @@
  * shows as text.
  */
 
-import { connect, runIn } from './telegram-stickers.js';
+import { connect, runIn, failureOf } from './telegram-stickers.js';
 
 const CODES = {
   MSG_TOO_OLD: 'too-old',
@@ -25,11 +25,7 @@ const CODES = {
   CHANNEL_PRIVATE: 'no-access',
 };
 
-const failure = (error) => {
-  const name = String(error?.errorMessage ?? error?.message ?? '');
-  const key = Object.keys(CODES).find((k) => name.includes(k));
-  return { ok: false, error: key ?? 'failed', code: CODES[key] ?? 'failed' };
-};
+const failure = failureOf(CODES);
 
 const CHAT = /^-?\d{1,20}$/;
 const textOf = (value) => String(value?.value ?? value);
