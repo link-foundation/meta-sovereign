@@ -28,6 +28,7 @@ import { useWebAppHost } from './chat-web-apps.js';
 import { useComments } from './chat-comments.js';
 import { useReaders } from './chat-readers.js';
 import { useTranslate } from './chat-translate.js';
+import { useSavedGifs } from './chat-saved-gifs.js';
 import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
@@ -465,6 +466,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const readers = useReaders({ api });
   // A message translated in a box (R-Y132).
   const translate = useTranslate({ api });
+  // Save GIF / Remove from GIFs on a GIF message (R-Y171).
+  const gifs = useSavedGifs({ api, state });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -492,6 +495,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       copy: () => copy(message.body ?? ''),
       copySelected: () => copy(value),
       copyUrl: () => copy(value, 'link-copied'),
+      saveMessageGif: () => gifs.toggle(message),
+      unsaveMessageGif: () => gifs.toggle(message),
       copyLink: () => copy(linkOf(state, api, message), 'link-copied'),
       saveAs: () => saveMedia(api, chat, message, value === 'photo'),
       copyImage: () => copyImage(state, api, chat, message),
@@ -558,6 +563,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       info: state.info,
       selectedText,
       target,
+      gifs: gifs.ids,
       selection: {
         ids: selection.ids,
         has: selection.has,

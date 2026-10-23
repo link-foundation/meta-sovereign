@@ -35,6 +35,7 @@ import React, {
   useState,
 } from 'react';
 import { networkMessageId } from './chat-model.js';
+import { gifIdOf } from './gif-id.js';
 import { hasReaders, hasReactors } from './chat-readers.js';
 import { hasTranslation } from './chat-translate.js';
 import { useT } from './i18n.js';
@@ -99,6 +100,7 @@ const LEAVES = new Set([
   'copySelected',
   'saveAs',
   'copyImage',
+  'saveMessageGif',
 ]);
 
 // Anyone pins in a private chat; a group or channel says if they may.
@@ -152,8 +154,26 @@ const mediaItems = (target, sent) => {
   return target.sticker && sent ? ['saveAs'] : [];
 };
 
+// "Save GIF" on a GIF of Telegram, "Remove from GIFs" when it is saved
+// (R-Y171); `gifs` the Set of saved ids.
+const gifItem = (message, gifs) => {
+  const id = message.source === 'telegram' ? gifIdOf(message) : null;
+  if (!id) {
+    return null;
+  }
+  return gifs?.has(id) ? 'unsaveMessageGif' : 'saveMessageGif';
+};
+
 // The menu with nothing selected.
-const singleItems = ({ message, chat, info, selectedText, target, now }) => {
+const singleItems = ({
+  message,
+  chat,
+  info,
+  selectedText,
+  target,
+  now,
+  gifs,
+}) => {
   const sent = !message.pending;
   if (!sent) {
     return [message.body ? 'copy' : null, 'delete'];
@@ -169,6 +189,7 @@ const singleItems = ({ message, chat, info, selectedText, target, now }) => {
     ...pollItems(message),
     canStopLive(message) && 'stopLive',
     ...mediaItems(target, sent),
+    gifItem(message, gifs),
     copy,
     linkItem({ message, chat, info, target }),
     hasTranslation(message) && 'translate',
@@ -218,6 +239,7 @@ export const menuItems = ({
   selection = null,
   order = [],
   now = Date.now(),
+  gifs = null,
 }) => {
   if ((selection?.ids?.length ?? 0) > 0) {
     return selectedItems(message, selection, order);
@@ -230,6 +252,7 @@ export const menuItems = ({
     selectedText,
     target,
     now,
+    gifs,
   }).filter((key) => key && !(locked && LEAVES.has(key)));
 };
 

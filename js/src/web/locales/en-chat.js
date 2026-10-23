@@ -71,7 +71,7 @@ export const enChat = {
   'chat.stickers.unfave': 'Remove from Favorites',
   'chat.stickers.unrecent': 'Remove from Recent',
   'chat.stickers.saveGif': 'Save GIF',
-  'chat.stickers.unsaveGif': 'Delete GIF',
+  'chat.stickers.unsaveGif': 'Remove from GIFs',
   'chat.stickers.addSet': 'Add',
   'chat.stickers.removeSet': 'Remove',
   'chat.stickers.removeSetAsk':
@@ -232,6 +232,10 @@ export const enChat = {
   'chat.media.contactAdded': 'Added to contacts',
   'chat.media.contactFailed': 'Not added',
   'chat.topics.label': 'Topics',
+  // A forum as messages or as topics (R-Y171).
+  'chat.forumView.menu': 'More',
+  'chat.forumView.asMessages': 'View as messages',
+  'chat.forumView.asTopics': 'View as topics',
   'chat.topics.all': 'All',
   'chat.topics.closed': 'Closed topic',
   // Managing topics (R-Y153).

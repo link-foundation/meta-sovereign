@@ -349,6 +349,9 @@ const MENU_ITEMS = {
   unfaveSticker: ['chat.stickers.unfave', 'star'],
   removeRecent: ['chat.stickers.unrecent', 'trash'],
   saveGif: ['chat.stickers.saveGif', 'download'],
+  // A GIF message's (R-Y171).
+  saveMessageGif: ['chat.stickers.saveGif', 'download'],
+  unsaveMessageGif: ['chat.stickers.unsaveGif', 'trash'],
   deleteGif: ['chat.stickers.unsaveGif', 'trash'],
   reply: ['chat.reply', 'reply'],
   quoteReply: ['chat.quoteReply', 'quote'],

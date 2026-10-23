@@ -70,6 +70,8 @@ import { createMessageLinks } from './telegram-message-links.js';
 import { createAdminActions } from './telegram-admin.js';
 import { createCommonChats } from './telegram-common-chats.js';
 import { createStats } from './telegram-stats.js';
+import { createGifSave } from './telegram-gif-save.js';
+import { createForumView } from './telegram-forum-view.js';
 import { createPinnedList } from './telegram-pinned-list.js';
 import { createSimilarChannels } from './telegram-similar-channels.js';
 import { createFactChecks } from './telegram-fact-checks.js';
@@ -413,7 +415,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // messages list, similar channels and fact checks (R-Y166); bot mini apps
 // (R-Y168); sticker and emoji sets, close friends and adding a contact by phone
 // (R-Y169); channel boosts (R-Y173); chat themes and several usernames
-// (R-Y170).
+// (R-Y170); saving a chat's GIF and viewing a forum as messages (R-Y171).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -461,6 +463,8 @@ const chatActions = (env, context) => {
     ...createAdminActions(env, context),
     ...createCommonChats(env, context),
     ...createStats(env, context),
+    ...createGifSave(env, { ...context, stickers: stickerLists }),
+    ...createForumView(env, context),
     ...createPinnedList(env, context),
     ...createSimilarChannels(env, context),
     ...createFactChecks(env, context),

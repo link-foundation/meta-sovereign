@@ -8900,3 +8900,36 @@ span.bubble-effect {
 .profile-usernames {
   margin-top: 0.5rem;
 }
+
+/* A forum as messages or as topics (R-Y171): the header's ⋯ menu. */
+.forum-view-menu {
+  display: inline-flex;
+}
+.forum-view-list {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.3rem);
+  z-index: 20;
+  min-width: 11rem;
+  padding: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  box-shadow: 0 10px 30px var(--shadow);
+}
+.forum-view-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.forum-view-item:hover {
+  background: var(--border);
+}

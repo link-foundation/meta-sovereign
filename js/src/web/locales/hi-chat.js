@@ -71,7 +71,7 @@ export const hiChat = {
   'chat.stickers.unfave': 'पसंदीदा से हटाएँ',
   'chat.stickers.unrecent': 'हाल के से हटाएँ',
   'chat.stickers.saveGif': 'GIF सहेजें',
-  'chat.stickers.unsaveGif': 'GIF हटाएँ',
+  'chat.stickers.unsaveGif': 'GIF से हटाएँ',
   'chat.stickers.addSet': 'जोड़ें',
   'chat.stickers.removeSet': 'हटाएँ',
   'chat.stickers.removeSetAsk':
@@ -232,6 +232,10 @@ export const hiChat = {
   'chat.media.contactAdded': 'संपर्कों में जोड़ा गया',
   'chat.media.contactFailed': 'जोड़ा नहीं गया',
   'chat.topics.label': 'विषय',
+  // A forum as messages or as topics (R-Y171).
+  'chat.forumView.menu': 'और',
+  'chat.forumView.asMessages': 'संदेशों के रूप में देखें',
+  'chat.forumView.asTopics': 'विषयों के रूप में देखें',
   'chat.topics.all': 'सभी',
   'chat.topics.closed': 'बंद विषय',
   // Managing topics (R-Y153).

@@ -70,7 +70,7 @@ export const zhChat = {
   'chat.stickers.unfave': '从收藏中移除',
   'chat.stickers.unrecent': '从最近使用中移除',
   'chat.stickers.saveGif': '保存 GIF',
-  'chat.stickers.unsaveGif': '删除 GIF',
+  'chat.stickers.unsaveGif': '从 GIF 中移除',
   'chat.stickers.addSet': '添加',
   'chat.stickers.removeSet': '移除',
   'chat.stickers.removeSetAsk':
@@ -220,6 +220,10 @@ export const zhChat = {
   'chat.media.contactAdded': '已添加到联系人',
   'chat.media.contactFailed': '未能添加',
   'chat.topics.label': '话题',
+  // A forum as messages or as topics (R-Y171).
+  'chat.forumView.menu': '更多',
+  'chat.forumView.asMessages': '以消息查看',
+  'chat.forumView.asTopics': '以话题查看',
   'chat.topics.all': '全部',
   'chat.topics.closed': '话题已关闭',
   // Managing topics (R-Y153).

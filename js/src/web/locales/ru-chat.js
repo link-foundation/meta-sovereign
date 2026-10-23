@@ -71,7 +71,7 @@ export const ruChat = {
   'chat.stickers.unfave': 'Удалить из избранного',
   'chat.stickers.unrecent': 'Удалить из недавних',
   'chat.stickers.saveGif': 'Сохранить GIF',
-  'chat.stickers.unsaveGif': 'Удалить GIF',
+  'chat.stickers.unsaveGif': 'Убрать из GIF',
   'chat.stickers.addSet': 'Добавить',
   'chat.stickers.removeSet': 'Удалить',
   'chat.stickers.removeSetAsk':
@@ -233,6 +233,10 @@ export const ruChat = {
   'chat.media.contactAdded': 'Добавлен в контакты',
   'chat.media.contactFailed': 'Не добавлен',
   'chat.topics.label': 'Темы',
+  // A forum as messages or as topics (R-Y171).
+  'chat.forumView.menu': 'Ещё',
+  'chat.forumView.asMessages': 'Показать как сообщения',
+  'chat.forumView.asTopics': 'Показать как темы',
   'chat.topics.all': 'Все',
   'chat.topics.closed': 'Тема закрыта',
   // Managing topics (R-Y153).

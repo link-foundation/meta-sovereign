@@ -69,6 +69,7 @@ import {
 import { PollDialog, usePollCreate } from './chat-poll-create.js';
 import { ShareDialog, useShare } from './chat-share.js';
 import { TopicTabs } from './chat-topics.js';
+import { ForumViewMenu, stripForum, useForumView } from './chat-forum-view.js';
 import { TopicClosedBar, topicClosedFor } from './chat-topic-admin.js';
 import {
   ScheduleDialog,
@@ -287,7 +288,16 @@ const AboutButton = ({ about, onAbout, chat }) => {
   );
 };
 
-const Header = ({ state, api, onBack, about, onAbout, find, saved }) => {
+const Header = ({
+  state,
+  api,
+  onBack,
+  about,
+  onAbout,
+  find,
+  saved,
+  forumView,
+}) => {
   const t = useT();
   const { chatTime } = useDates();
   const chat = state.current;
@@ -330,6 +340,8 @@ const Header = ({ state, api, onBack, about, onAbout, find, saved }) => {
     ]),
     el(SearchButton, { key: 'find', find }),
     el(SavedToggle, { key: 'saved', saved }),
+    // View as messages / View as topics in a forum (R-Y171).
+    el(ForumViewMenu, { key: 'forum-view', view: forumView }),
     el(NotifyButton, { key: 'notify', api, chat }),
     hasAbout(chat)
       ? el(AboutButton, { key: 'about', about, onAbout, chat })
@@ -1005,7 +1017,7 @@ const Composer = ({ state, api, keys }) => {
 // The header, and beside the messages what the conversation tells about
 // the person, open until closed (in every personal chat, as Telegram's
 // profile column).
-const ChatTop = ({ state, api, onBack, saved }) => {
+const ChatTop = ({ state, api, onBack, saved, forumView }) => {
   const [about, setAbout] = useState(false);
   const chat = about && hasAbout(state.current) ? state.current : null;
   const find = useChatSearch({
@@ -1024,6 +1036,7 @@ const ChatTop = ({ state, api, onBack, saved }) => {
       onAbout: () => setAbout((open) => !open),
       find,
       saved,
+      forumView,
     }),
     el(SearchBar, { key: 'find', find }),
     chat
@@ -1068,6 +1081,8 @@ export const ChatScreen = ({ state, api }) => {
   useMessageLinks({ state, api });
   // Saved Messages as chats, or as messages (R-Y143).
   const saved = useSavedView(state.current, state.info);
+  // A forum as its messages or as its topics (R-Y171).
+  const forumView = useForumView({ api, state });
   // Its reaction tags and the filter they make (R-Y151).
   const tags = useSavedTags(api, state.current, state.info);
   // The chat's theme colours, scoped to its view (R-Y170).
@@ -1109,11 +1124,12 @@ export const ChatScreen = ({ state, api }) => {
                   api,
                   onBack: () => setPane('list'),
                   saved,
+                  forumView,
                 }),
             // A forum's topics, as Telegram's tabs layout (R-Y122).
             el(TopicTabs, {
               key: 'topics',
-              forum: state.forum,
+              forum: stripForum(forumView, state.forum),
               api,
               chat: state.current,
               info: state.info,

@@ -186,13 +186,26 @@ export const inputSet = (c, set) =>
     accessHash: c.helpers.returnBigInt(text(set.accessHash)),
   });
 
+// Telegram's hash of a list of ids (messages.getSavedGifs asks by it, and
+// answers savedGifsNotModified when the list is the same).
+const hashOf = (helpers, gifs) => {
+  let hash = 0n;
+  for (const gif of gifs) {
+    hash ^= hash >> 21n;
+    hash = BigInt.asUintN(64, hash ^ (hash << 35n));
+    hash ^= hash >> 4n;
+    hash = BigInt.asUintN(64, hash + BigInt(gif.id));
+  }
+  return helpers.returnBigInt(BigInt.asIntN(64, hash).toString());
+};
+
 // The lists: the panel's, a set's, the saved GIFs; every document they
 // name kept by id, with the list it came from.
 const createLists = (env, userClient, now) => {
   const docs = new Map(); // id -> { doc, from }
   const sets = new Map(); // id -> { set, at, items }
   const refetch = new Map(); // a list's prefix -> ask it again
-  const kept = { panel: null, gifs: null }; // { at, answer }
+  const kept = { panel: null, gifs: null, gifList: null }; // { at, answer }
   const run = (key, use) => runIn(env, key, use);
   const fresher = (entry, ms) => entry && now() - entry.at < ms;
 
@@ -259,7 +272,8 @@ const createLists = (env, userClient, now) => {
     return { ok: true, id: key, stickers: items };
   };
 
-  const savedGifs = async ({ fresh = false } = {}) => {
+  // `full`: ask for the whole list, not by hash (a file reference expired).
+  const savedGifs = async ({ fresh = false, full = false } = {}) => {
     if (!fresh && fresher(kept.gifs, LISTS_MS)) {
       return kept.gifs.answer;
     }
@@ -267,8 +281,15 @@ const createLists = (env, userClient, now) => {
     if (!c) {
       return { ok: false, supported: false };
     }
-    const answer = await ask(c, 'gifs', c.Api.messages.GetSavedGifs);
-    const gifs = remember(answer?.gifs, 'gifs', 'gif');
+    const before = kept.gifList;
+    const hash = before && !full ? hashOf(c.helpers, before) : c.zero;
+    const answer = await run('stickers:gifs', () =>
+      c.client.invoke(new c.Api.messages.GetSavedGifs({ hash }))
+    );
+    const same = answer?.className === 'messages.SavedGifsNotModified';
+    const gifs =
+      same && before ? before : remember(answer?.gifs, 'gifs', 'gif');
+    kept.gifList = gifs;
     kept.gifs = { at: now(), answer: { ok: true, gifs } };
     return kept.gifs.answer;
   };
@@ -282,7 +303,7 @@ const createLists = (env, userClient, now) => {
     } else if (from.startsWith('set:')) {
       await stickerSet({ id: from.slice(4), fresh: true });
     } else if (from === 'gifs') {
-      await savedGifs({ fresh: true });
+      await savedGifs({ fresh: true, full: true });
     } else {
       await stickerPanel({ fresh: true });
     }

@@ -59,6 +59,18 @@ const kept = new Map();
 /** Forget what was kept (tests). */
 export const forgetStickers = () => kept.clear();
 
+/** Forget the saved GIFs kept: they changed elsewhere (R-Y171). */
+export const forgetGifs = () => kept.delete('gifs');
+
+// Who wants to know when the panel saved or deleted a GIF (R-Y171).
+const gifWatchers = new Set();
+
+/** `fn()` runs when the panel's menu changed the saved GIFs; returns the stop. */
+export const watchGifs = (fn) => {
+  gifWatchers.add(fn);
+  return () => gifWatchers.delete(fn);
+};
+
 // `api[method](body)`'s answer, kept by `key`; asked again when `fresh`.
 const useAnswer = (
   api,
@@ -705,6 +717,9 @@ const useStickerMenu = ({ state, api, send }) => {
     ).catch((error) => ({ error: error.message }));
     if (answer?.ok) {
       setVersion((v) => v + 1);
+      if (/Gif$/.test(action)) {
+        gifWatchers.forEach((fn) => fn());
+      }
       return;
     }
     state.notify?.({

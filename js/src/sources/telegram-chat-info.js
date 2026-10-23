@@ -203,6 +203,8 @@ const fetchChannel = async (client, Api, inputPeer) => {
     canPin: canPinIn(entity),
     broadcast: Boolean(entity.broadcast),
     forum: Boolean(entity.forum),
+    // "View as messages" is on for this forum (R-Y171).
+    forumAsMessages: Boolean(full.viewForumAsMessages),
     topics: topicRightsIn(entity),
     canToggleForum: Boolean(entity.creator) && !entity.broadcast,
     // Statistics for admins of channels and big supergroups (R-Y167).
