@@ -232,6 +232,20 @@ test('the pictures downloaded once into the app folder (R-Y105)', async () => {
       null,
       'a still sticker has no video'
     );
+    // An animated sticker's animation, as Telegram keeps it (R-Y113).
+    const animation = await stickers.stickerPicture({ id: '3', full: true });
+    assert.equal(animation.mimeType, 'application/x-tgsticker');
+    assert.deepEqual(log.at(-1), ['download', 'InputDocumentFileLocation', '']);
+    const downloads = log.filter((e) => e[0] === 'download').length;
+    assert.equal(
+      (await stickers.stickerPicture({ id: '3', full: true })).mimeType,
+      'application/x-tgsticker'
+    );
+    assert.equal(
+      log.filter((e) => e[0] === 'download').length,
+      downloads,
+      'kept'
+    );
     const thumb = await stickers.stickerPicture({ set: '7' });
     assert.equal(thumb.mimeType, 'image/webp', "the set's first sticker");
     assert.equal(await stickers.stickerPicture({ id: '12345' }), null);

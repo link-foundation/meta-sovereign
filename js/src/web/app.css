@@ -5455,3 +5455,23 @@ button[aria-busy='true']::before {
   grid-column: 1 / -1;
   height: 1px;
 }
+
+/* An animated sticker (R-Y113): its SVG over the picture till it draws. */
+.lottie-sticker {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.bubble-sticker > * {
+  grid-area: 1 / 1;
+}
+.sticker-picture {
+  position: relative;
+}
+.sticker-picture .lottie-sticker + img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

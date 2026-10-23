@@ -103,7 +103,9 @@
     "test:e2e:shared": "node js/tests/e2e-shared-browser.mjs",
     "test:e2e:shared:webkit": "E2E_BROWSER=webkit node js/tests/e2e-shared-browser.mjs",
     "test:e2e:sticker-search": "node js/tests/e2e-sticker-search-browser.mjs",
-    "test:e2e:sticker-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-search-browser.mjs"
+    "test:e2e:sticker-search:webkit": "E2E_BROWSER=webkit node js/tests/e2e-sticker-search-browser.mjs",
+    "test:e2e:lottie": "node js/tests/e2e-lottie-browser.mjs",
+    "test:e2e:lottie:webkit": "E2E_BROWSER=webkit node js/tests/e2e-lottie-browser.mjs"
   },
   "keywords": [
     "personal-crm",
@@ -137,6 +139,7 @@
     "husky": "^9.1.7",
     "jscpd": "^5.4.1",
     "lint-staged": "^17.6.0",
+    "lottie-web": "5.13.0",
     "prettier": "^3.9.10",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

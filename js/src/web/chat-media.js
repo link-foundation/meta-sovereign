@@ -14,6 +14,7 @@ import { Icon } from './icons.js';
 import { Checklist, Poll } from './chat-poll.js';
 import { strippedJpegDataUrl } from './message-parts.js';
 import { crossOriginFor, mediaSrc, saveUrl } from './media-src.js';
+import { LottieSticker } from './lottie-sticker.js';
 
 const el = React.createElement;
 
@@ -377,8 +378,51 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
   );
 };
 
-/** A sticker: a picture or a looping video, with no bubble. */
-export const MediaSticker = ({ media, api, chat, msgId }) => {
+// What shows of a sticker while nothing plays: its picture, its blurred
+// preview or its emoji.
+const StillSticker = ({ picture, preview, emoji }) =>
+  (picture ?? preview)
+    ? el('img', { ...mediaSrc(picture ?? preview), alt: emoji ?? '' })
+    : el('span', { className: 'sticker-emoji' }, emoji ?? '🖼');
+
+// An animated sticker (R-Y113): its picture until the animation draws.
+const AnimatedSticker = ({ media, api, chat, msgId }) => {
+  const ref = useRef(null);
+  const { near, visible } = useNearView(ref);
+  const [drawn, setDrawn] = useState(false);
+  const picture = useUrl(
+    api,
+    'telegramMediaUrl',
+    { chat, id: msgId, size: 'm' },
+    near
+  );
+  const file = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, near);
+  return el(
+    'div',
+    { ref, className: 'bubble-sticker', title: media.emoji ?? undefined },
+    [
+      file
+        ? el(LottieSticker, {
+            key: 'l',
+            src: file,
+            play: visible,
+            onReady: setDrawn,
+          })
+        : null,
+      drawn
+        ? null
+        : el(StillSticker, {
+            key: 's',
+            picture,
+            preview: previewOf(media),
+            emoji: media.emoji,
+          }),
+    ]
+  );
+};
+
+// A still sticker, or a video one looping while on screen.
+const PlainSticker = ({ media, api, chat, msgId }) => {
   const ref = useRef(null);
   const { near, visible } = useNearView(ref);
   const webm = media.stickerFormat === 'webm';
@@ -394,37 +438,34 @@ export const MediaSticker = ({ media, api, chat, msgId }) => {
     { chat, id: msgId },
     near && webm
   );
-  const preview = previewOf(media);
   return el(
     'div',
     { ref, className: 'bubble-sticker', title: media.emoji ?? undefined },
-    [
-      video && visible
-        ? el('video', {
-            key: 'v',
-            ...mediaSrc(video),
-            autoPlay: true,
-            muted: true,
-            loop: true,
-            playsInline: true,
-          })
-        : null,
-      !video || !visible
-        ? (picture ?? preview)
-          ? el('img', {
-              key: 'i',
-              ...mediaSrc(picture ?? preview),
-              alt: media.emoji ?? '',
-            })
-          : el(
-              'span',
-              { key: 'e', className: 'sticker-emoji' },
-              media.emoji ?? '🖼'
-            )
-        : null,
-    ]
+    video && visible
+      ? el('video', {
+          ...mediaSrc(video),
+          autoPlay: true,
+          muted: true,
+          loop: true,
+          playsInline: true,
+        })
+      : el(StillSticker, {
+          picture,
+          preview: previewOf(media),
+          emoji: media.emoji,
+        })
   );
 };
+
+/**
+ * A sticker: a picture, a looping video or an animation (R-Y113), with
+ * no bubble.
+ */
+export const MediaSticker = (props) =>
+  el(
+    props.media.stickerFormat === 'tgs' ? AnimatedSticker : PlainSticker,
+    props
+  );
 
 /** A file: its icon, name and size; a click saves it. */
 export const MediaFile = ({ media, api, chat, msgId }) => {

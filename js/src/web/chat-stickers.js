@@ -21,6 +21,7 @@ import { Icon } from './icons.js';
 import { useNearView } from './chat-media.js';
 import { mediaSrc } from './media-src.js';
 import { jumpTo, useInView } from './chat-emoji.js';
+import { LottieSticker } from './lottie-sticker.js';
 
 const el = React.createElement;
 
@@ -32,6 +33,7 @@ export const canStickers = (state, api) =>
   typeof api?.telegramSendDocument === 'function';
 
 const moving = (item) => item.format === 'webm' || item.format === 'mp4';
+const animated = (item) => item.format === 'tgs';
 
 // The answers kept while the page is open, so the panel opens on them
 // at once (and asks again behind).
@@ -94,11 +96,35 @@ const Picture = ({ api, item }) => {
   const video = useStickerUrl(
     api,
     { id: item.id, full: true },
-    near && moving(item)
+    near && (moving(item) || animated(item))
   );
   const [broken, setBroken] = useState(false);
-  let shown = el('span', { className: 'sticker-empty' }, item.emoji ?? '');
-  if (video && visible) {
+  const [drawn, setDrawn] = useState(false);
+  const still =
+    picture && !broken
+      ? el('img', {
+          key: 'i',
+          ...mediaSrc(picture),
+          alt: item.emoji ?? '',
+          draggable: false,
+          loading: 'lazy',
+          onError: () => setBroken(true),
+        })
+      : null;
+  let shown =
+    still ?? el('span', { className: 'sticker-empty' }, item.emoji ?? '');
+  if (video && animated(item)) {
+    // An animation plays while on screen, its picture over it till then.
+    shown = [
+      el(LottieSticker, {
+        key: 'l',
+        src: video,
+        play: visible,
+        onReady: setDrawn,
+      }),
+      drawn ? null : still,
+    ];
+  } else if (video && visible) {
     shown = el('video', {
       ...mediaSrc(video),
       autoPlay: true,
@@ -106,14 +132,6 @@ const Picture = ({ api, item }) => {
       loop: true,
       playsInline: true,
       poster: picture ?? undefined,
-    });
-  } else if (picture && !broken) {
-    shown = el('img', {
-      ...mediaSrc(picture),
-      alt: item.emoji ?? '',
-      draggable: false,
-      loading: 'lazy',
-      onError: () => setBroken(true),
     });
   }
   return el('span', { ref, className: 'sticker-picture' }, shown);

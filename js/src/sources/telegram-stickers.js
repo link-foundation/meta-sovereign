@@ -10,8 +10,9 @@
  * - `savedGifs({ fresh })` — the saved GIFs (getSavedGifs);
  * - `stickerPicture({ id | set, full })` — what the panel shows: a
  *   still sticker itself, else a sticker's or GIF's thumbnail, a set's
- *   own picture; `full` a video sticker's or GIF's video (to play while
- *   pointed at). Each downloaded once into the app folder;
+ *   own picture; `full` a video sticker's or GIF's video, or an
+ *   animated sticker's animation (R-Y113), to play while on screen.
+ *   Each downloaded once into the app folder;
  * - `sendDocument({ chat, id, replyTo, silent, scheduleDate, clientId })`
  *   — a sticker or GIF sent as it is (messages.sendMedia); Telegram's
  *   answer goes through the live handler, so it shows in the chat.
@@ -33,6 +34,8 @@ const SET_MS = 60 * 60_000;
 const MAX_PICTURE = 512 * 1024;
 const MAX_VIDEO = 4 * 1024 * 1024;
 const ID = /^\d{1,20}$/;
+// What the panel is given: a picture, a video or an animated sticker.
+const FULL_TYPE = /^(image\/|video\/|application\/x-tgsticker$)/;
 
 const text = (value) =>
   value === null || value === undefined ? '' : String(value.value ?? value);
@@ -310,10 +313,11 @@ const createPictures = (env, { userClient, mediaDir }, lists) => {
       return buffer?.length ? Buffer.from(buffer) : null;
     });
 
-  // A video sticker's or GIF's video, when small enough.
+  // A video sticker's or GIF's video, or an animated sticker's
+  // animation (R-Y113), when small enough.
   const video = async (c, id, doc) => {
     const size = Number(doc.size ?? 0);
-    if (!['webm', 'mp4'].includes(formatOf(doc)) || size > MAX_VIDEO) {
+    if (!['webm', 'mp4', 'tgs'].includes(formatOf(doc)) || size > MAX_VIDEO) {
       return null;
     }
     const buffer = await download(
@@ -397,7 +401,7 @@ const createPictures = (env, { userClient, mediaDir }, lists) => {
     const file = path.join(mediaDir, 'stickers', name);
     const cached = await readCache(file);
     const type = cached ? String(await readCache(`${file}.type`)) : '';
-    if (cached && /^(image|video)\//.test(type)) {
+    if (cached && FULL_TYPE.test(type)) {
       return { buffer: cached, mimeType: type };
     }
     const got = await fetchFresh({ key, set, full });
