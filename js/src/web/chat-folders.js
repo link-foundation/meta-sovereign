@@ -16,7 +16,8 @@
  * tabs (all, private, groups, channels).
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { FOLDERS_CHANGED } from './chat-folder-model.js';
 
 const REFRESH_MS = 5 * 60_000;
 
@@ -131,24 +132,52 @@ export const useTelegramFolders = (api, telegram) => {
       return undefined;
     }
     let gone = false;
-    const load = () =>
-      api.telegramFolders().then(
-        (answer) => {
-          if (!gone && answer?.ok) {
-            setFolders(Array.isArray(answer.folders) ? answer.folders : []);
-          }
-        },
-        () => {}
-      );
+    const load = (event) =>
+      api
+        .telegramFolders(event?.type === FOLDERS_CHANGED ? { fresh: true } : {})
+        .then(
+          (answer) => {
+            if (!gone && answer?.ok) {
+              setFolders(Array.isArray(answer.folders) ? answer.folders : []);
+            }
+          },
+          () => {}
+        );
     load();
     const timer = globalThis.setInterval(load, REFRESH_MS);
     // Back to the window: changed in Telegram's settings meanwhile?
     globalThis.addEventListener?.('focus', load);
+    // Changed by the page itself (R-Y164): asked again at once.
+    globalThis.addEventListener?.(FOLDERS_CHANGED, load);
     return () => {
       gone = true;
       globalThis.clearInterval(timer);
       globalThis.removeEventListener?.('focus', load);
+      globalThis.removeEventListener?.(FOLDERS_CHANGED, load);
     };
   }, [enabled, api]);
   return folders;
 };
+
+/**
+ * What the folder tabs' menu needs (R-Y164): the api, the folders and the
+ * Telegram chats to pick from; null when there are no folders to change.
+ */
+export const useFolderTools = (api, folders, all) =>
+  useMemo(
+    () =>
+      folders.some((f) => !f.all) &&
+      typeof api?.telegramFolderSave === 'function'
+        ? {
+            api,
+            folders,
+            chats: all
+              .filter((c) => c.source === 'telegram')
+              .map((c) => ({
+                chat: String(c.chat),
+                name: c.name ?? String(c.chat),
+              })),
+          }
+        : null,
+    [api, folders, all]
+  );

@@ -11,6 +11,7 @@ import { TelegramNotifySettings } from './settings-notify.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
 import { api } from './dom.js';
 import { ChatBackgroundSettings } from './chat-wallpaper.js';
+import { FoldersSettings } from './chat-folder-edit.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import {
   NOTIFY_KEY,
@@ -214,6 +215,7 @@ export const SettingsView = () => {
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
     el(ChatBackgroundSettings, { key: 'background', api }),
+    el(FoldersSettings, { key: 'folders', api }),
     el(PrivacySettings, { key: 'privacy' }),
     el(NotificationSettings, { key: 'notify' }),
     el(TelegramNotifySettings, { key: 'notify-telegram', api }),

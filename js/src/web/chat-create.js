@@ -155,7 +155,15 @@ const matches = (contact, q) =>
   contact.name.toLowerCase().includes(q) ||
   (contact.username ?? '').toLowerCase().includes(q);
 
-export const Picker = ({ contacts, picked, toggle, t }) => {
+// `field` names the data attribute of each check (R-Y164 picks chats too).
+export const Picker = ({
+  contacts,
+  picked,
+  toggle,
+  t,
+  placeholder,
+  field = 'contact',
+}) => {
   const [q, setQ] = useState('');
   const words = q.trim().toLowerCase();
   return el('div', { className: 'chat-pick' }, [
@@ -164,8 +172,8 @@ export const Picker = ({ contacts, picked, toggle, t }) => {
       type: 'search',
       className: 'chat-search',
       'data-field': 'search',
-      placeholder: t('chat.create.searchContacts'),
-      'aria-label': t('chat.create.searchContacts'),
+      placeholder: placeholder ?? t('chat.create.searchContacts'),
+      'aria-label': placeholder ?? t('chat.create.searchContacts'),
       value: q,
       onChange: (event) => setQ(event.target.value),
     }),
@@ -182,7 +190,7 @@ export const Picker = ({ contacts, picked, toggle, t }) => {
               el('input', {
                 key: 'c',
                 type: 'checkbox',
-                'data-contact': c.id,
+                [`data-${field}`]: c.id,
                 checked: picked.has(c.id),
                 onChange: () => toggle(c.id),
               }),

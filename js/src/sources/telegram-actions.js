@@ -45,6 +45,7 @@ import { createFileSender } from './telegram-upload.js';
 import { createChatRemoval } from './telegram-chat-removal.js';
 import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
+import { createFolderEdit } from './telegram-folder-edit.js';
 import { createStickers } from './telegram-stickers.js';
 import { createInvites } from './telegram-invite.js';
 import { createMembers } from './telegram-members.js';
@@ -397,7 +398,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // global and by chat (R-Y157); groups in common (R-Y158); which reactions a
 // chat allows (R-Y160); reordering the pinned chats (R-Y159); the recent
 // calls list (R-Y163); emoji statuses (R-Y162); a group's and channel's
-// settings, the discussion group included (R-Y165).
+// settings, the discussion group included (R-Y165); creating and editing chat
+// folders (R-Y164).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -418,6 +420,7 @@ const chatActions = (env, context) => {
     ...createChatRemoval(env, context),
     ...createScheduled(env, context),
     ...createFolders(env, context),
+    ...createFolderEdit(env, context),
     ...createStickers(env, context),
     ...createCustomEmoji(env, context),
     ...createEmojiKeywords(env, context),

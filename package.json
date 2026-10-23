@@ -169,6 +169,8 @@
     "test:e2e:effects": "node js/tests/e2e-effects-browser.mjs",
     "test:e2e:effects:webkit": "E2E_BROWSER=webkit node js/tests/e2e-effects-browser.mjs",
     "test:e2e:peer-bar": "node js/tests/e2e-peer-bar-browser.mjs",
+    "test:e2e:folder-edit": "node js/tests/e2e-folder-edit-browser.mjs",
+    "test:e2e:folder-edit:webkit": "E2E_BROWSER=webkit node js/tests/e2e-folder-edit-browser.mjs",
     "test:e2e:peer-bar:webkit": "E2E_BROWSER=webkit node js/tests/e2e-peer-bar-browser.mjs",
     "test:e2e:forward-options": "node js/tests/e2e-forward-options-browser.mjs",
     "test:e2e:forward-options:webkit": "E2E_BROWSER=webkit node js/tests/e2e-forward-options-browser.mjs",

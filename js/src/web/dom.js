@@ -949,6 +949,14 @@ export const api = {
   // A chat's scheduled messages (R-Y102): { chat } → { ok, links };
   // sent now, deleted ({ chat, ids }), moved ({ chat, id, date }).
   telegramFolders: (body = {}) => telegramPost('folders', body),
+  // Folders made, changed, deleted, ordered (R-Y164): { id?, folder },
+  // { id }, { order } (every folder id, 0 for "All chats"), and the
+  // recommended ones.
+  telegramFolderSave: (body = {}) => telegramPost('folder-save', body),
+  telegramFolderDelete: (body = {}) => telegramPost('folder-delete', body),
+  telegramFoldersReorder: (body = {}) => telegramPost('folders-reorder', body),
+  telegramFoldersSuggested: (body = {}) =>
+    telegramPost('folders-suggested', body),
   // Stickers and saved GIFs (R-Y105): the panel's lists ({ fresh }),
   // a set's stickers ({ id }), one sent ({ chat, id, replyTo, silent,
   // scheduleDate, clientId }).

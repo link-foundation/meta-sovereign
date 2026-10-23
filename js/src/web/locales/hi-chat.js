@@ -1268,4 +1268,60 @@ export const hiChat = {
     'बहुत ज़्यादा कोशिशें। कुछ देर रुककर फिर प्रयास करें।',
   'chat.settings.err.bad-request': 'यह बदलाव मान्य नहीं है।',
   'chat.settings.err.failed': 'Telegram ने बदलाव स्वीकार नहीं किया।',
+  // Creating and editing chat folders (R-Y164).
+  'chat.folderEdit.title': 'फ़ोल्डर',
+  'chat.folderEdit.intro':
+    'आपके Telegram फ़ोल्डर: चैट सूची के ऊपर के टैब। बदलाव Telegram में होते हैं और यहाँ तुरंत दिखते हैं।',
+  'chat.folderEdit.loading': 'फ़ोल्डर लोड हो रहे हैं...',
+  'chat.folderEdit.none': 'अभी कोई फ़ोल्डर नहीं।',
+  'chat.folderEdit.create': 'नया फ़ोल्डर बनाएँ',
+  'chat.folderEdit.recommended': 'सुझाए गए फ़ोल्डर',
+  'chat.folderEdit.add': 'जोड़ें',
+  'chat.folderEdit.moveUp': 'ऊपर ले जाएँ',
+  'chat.folderEdit.moveDown': 'नीचे ले जाएँ',
+  'chat.folderEdit.edit': 'बदलें',
+  'chat.folderEdit.delete': 'हटाएँ',
+  'chat.folderEdit.deleteTitle': 'फ़ोल्डर हटाएँ',
+  'chat.folderEdit.deleteAsk':
+    'फ़ोल्डर "{name}" हटाएँ? आपकी चैट अपनी जगह रहेंगी।',
+  'chat.folderEdit.editTitle': 'फ़ोल्डर बदलें',
+  'chat.folderEdit.newTitle': 'नया फ़ोल्डर',
+  'chat.folderEdit.save': 'सहेजें',
+  'chat.folderEdit.name': 'फ़ोल्डर का नाम (अधिकतम {max} अक्षर)',
+  'chat.folderEdit.icon': 'फ़ोल्डर आइकन',
+  'chat.folderEdit.noIcon': 'कोई नहीं',
+  'chat.folderEdit.include': 'शामिल चैट',
+  'chat.folderEdit.exclude': 'बाहर रखी चैट',
+  'chat.folderEdit.kind.contacts': 'संपर्क',
+  'chat.folderEdit.kind.nonContacts': 'गैर-संपर्क',
+  'chat.folderEdit.kind.groups': 'ग्रुप',
+  'chat.folderEdit.kind.broadcasts': 'चैनल',
+  'chat.folderEdit.kind.bots': 'बॉट',
+  'chat.folderEdit.kind.excludeMuted': 'म्यूट की गई',
+  'chat.folderEdit.kind.excludeRead': 'पढ़ी हुई',
+  'chat.folderEdit.kind.excludeArchived': 'संग्रहीत',
+  'chat.folderEdit.chooseChats': 'चैट चुनें ({count})',
+  'chat.folderEdit.searchChats': 'चैट खोजें',
+  'chat.folderEdit.menu': 'फ़ोल्डर',
+  'chat.folderEdit.editFolder': 'फ़ोल्डर बदलें',
+  'chat.folderEdit.deleteFolder': 'फ़ोल्डर हटाएँ',
+  'chat.folderEdit.reorder': 'क्रम बदलें',
+  'chat.folderEdit.err.title-empty': 'फ़ोल्डर को एक नाम दें।',
+  'chat.folderEdit.err.title-long': 'नाम बहुत लंबा है: अधिकतम 12 अक्षर।',
+  'chat.folderEdit.err.include-empty':
+    'शामिल करने के लिए कम से कम एक प्रकार की चैट या एक चैट चुनें।',
+  'chat.folderEdit.err.include-too-much':
+    'इस फ़ोल्डर में बहुत ज़्यादा चैट हैं: अधिकतम 100 (Telegram Premium के साथ 200)।',
+  'chat.folderEdit.err.too-many-folders':
+    'आपके पास Telegram द्वारा अनुमत अधिकतम फ़ोल्डर हैं: 10 (Telegram Premium के साथ 20)। पहले एक हटाएँ।',
+  'chat.folderEdit.err.id-invalid':
+    'Telegram अब इस फ़ोल्डर को नहीं जानता। सूची फिर खोलें।',
+  'chat.folderEdit.err.not-supported':
+    'Telegram इस फ़ोल्डर को समर्थन नहीं देता।',
+  'chat.folderEdit.err.no-access':
+    'इस फ़ोल्डर की कोई चैट आपके खाते के लिए उपलब्ध नहीं है।',
+  'chat.folderEdit.err.premium': 'इसके लिए Telegram Premium चाहिए।',
+  'chat.folderEdit.err.flood':
+    'बहुत ज़्यादा कोशिशें। कुछ देर रुककर फिर कोशिश करें।',
+  'chat.folderEdit.err.failed': 'कुछ गड़बड़ हुई। फिर कोशिश करें।',
 };

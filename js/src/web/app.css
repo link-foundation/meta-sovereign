@@ -8124,6 +8124,48 @@ span.bubble-effect {
   gap: 0.1rem;
 }
 .settings-discussion {
+}
+
+/* Creating and editing chat folders (R-Y164). */
+.folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+}
+.folder-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.folder-row-name {
+  flex: 1 1 8rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.folder-row-btn,
+.folder-choose {
+  background: var(--bg-active);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+}
+.folder-row-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.folder-suggested h4 {
+  margin: 0.8rem 0 0.4rem;
+}
+.folder-section {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -8147,4 +8189,52 @@ span.bubble-effect {
 .settings-groups button {
   width: 100%;
   text-align: left;
+  padding: 0.5rem 0.7rem;
+}
+.folder-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.folder-icon {
+  min-width: 2.2rem;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+.folder-icon.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.folder-menu {
+  position: fixed;
+  z-index: 2100;
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px var(--shadow);
+  padding: 0.25rem;
+}
+.folder-menu-item {
+  background: none;
+  color: var(--text);
+  border: 0;
+  border-radius: var(--radius);
+  padding: 0.4rem 0.7rem;
+  text-align: left;
+  cursor: pointer;
+}
+.folder-menu-item:hover,
+.folder-menu-item:focus-visible {
+  background: var(--bg-active);
+}
+.chat-form-dialog:has(.folder-section) {
+  max-height: 90vh;
+  overflow-y: auto;
 }

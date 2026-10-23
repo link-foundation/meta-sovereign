@@ -52,6 +52,7 @@ import {
   folderTabs,
   isFolderFilter,
   peopleOf,
+  useFolderTools,
   useTelegramFolders,
 } from './chat-folders.js';
 
@@ -934,6 +935,7 @@ export const useChatState = (
   const target = useHashChat();
   const folders = useTelegramFolders(api, telegram);
   const list = useChatList(links, target, query, folders);
+  const folderTools = useFolderTools(api, folders, list.all);
   const { all, chats, filter, setFilter, sort, setSort } = list;
   useEffect(() => {
     if (target) {
@@ -1011,6 +1013,8 @@ export const useChatState = (
     filter,
     setFilter,
     tabs: list.tabs,
+    // The tabs' menu: edit, delete, reorder (R-Y164).
+    folderTools,
     sort,
     setSort,
     folder: list.folder,

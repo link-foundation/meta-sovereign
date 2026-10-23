@@ -12,6 +12,7 @@ import { ArchiveHead, ArchiveItem, ChatItem } from './chat-list.js';
 import { useChatListMenu } from './chat-list-menu.js';
 import { usePinnedOrder } from './chat-pin-order.js';
 import { NewChat } from './chat-create.js';
+import { FolderTabMenu } from './chat-folder-edit.js';
 import { MyProfile } from './chat-profile.js';
 import { CallsButton } from './chat-calls.js';
 import { Spinner } from './spinner.js';
@@ -80,8 +81,18 @@ const OWN_TABS = CHAT_FILTERS.map((key) => ({
   label: `chat.filter.${key}`,
 }));
 
+// A right-click on a folder's tab opens its menu (R-Y164).
+const folderMenuAt = (tools, tab, event, open) => {
+  const id = /^folder:(\d+)$/.exec(tab.key)?.[1];
+  if (tools && id) {
+    event.preventDefault();
+    open({ id: Number(id), x: event.clientX, y: event.clientY });
+  }
+};
+
 const FilterTabs = ({ state }) => {
   const t = useT();
+  const [menu, setMenu] = useState(null);
   if (typeof state.setFilter !== 'function') {
     return null;
   }
@@ -92,35 +103,47 @@ const FilterTabs = ({ state }) => {
       role: 'tablist',
       'aria-label': t('chat.filter.label'),
     },
-    (state.tabs ?? OWN_TABS).map((tab) =>
-      el(
-        'button',
-        {
-          key: tab.key,
-          type: 'button',
-          role: 'tab',
-          className:
-            state.filter === tab.key ? 'chat-filter active' : 'chat-filter',
-          'aria-selected': state.filter === tab.key ? 'true' : 'false',
-          'data-filter': tab.key,
-          onClick: () => state.setFilter(tab.key),
-        },
-        [
-          el('span', { key: 't' }, tab.title ?? t(tab.label)),
-          tab.unread > 0
-            ? el(
-                'span',
-                {
-                  key: 'n',
-                  className: 'chat-filter-unread',
-                  'aria-label': t('chat.unread', { count: tab.unread }),
-                },
-                String(tab.unread)
-              )
-            : null,
-        ]
-      )
-    )
+    [
+      menu && state.folderTools
+        ? el(FolderTabMenu, {
+            key: 'folder-menu',
+            tools: state.folderTools,
+            menu,
+            close: () => setMenu(null),
+          })
+        : null,
+      ...(state.tabs ?? OWN_TABS).map((tab) =>
+        el(
+          'button',
+          {
+            key: tab.key,
+            type: 'button',
+            role: 'tab',
+            className:
+              state.filter === tab.key ? 'chat-filter active' : 'chat-filter',
+            'aria-selected': state.filter === tab.key ? 'true' : 'false',
+            'data-filter': tab.key,
+            onClick: () => state.setFilter(tab.key),
+            onContextMenu: (event) =>
+              folderMenuAt(state.folderTools, tab, event, setMenu),
+          },
+          [
+            el('span', { key: 't' }, tab.title ?? t(tab.label)),
+            tab.unread > 0
+              ? el(
+                  'span',
+                  {
+                    key: 'n',
+                    className: 'chat-filter-unread',
+                    'aria-label': t('chat.unread', { count: tab.unread }),
+                  },
+                  String(tab.unread)
+                )
+              : null,
+          ]
+        )
+      ),
+    ]
   );
 };
 
