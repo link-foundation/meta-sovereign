@@ -96,6 +96,7 @@ const Reader = ({ api, url, close }) => {
   const ctx = useMemo(
     () => ({
       t,
+      api,
       locale,
       media: (kind, id) =>
         base && /^\d{1,20}$/.test(String(id))
@@ -113,7 +114,7 @@ const Reader = ({ api, url, close }) => {
         found?.scrollIntoView?.({ block: 'start' });
       },
     }),
-    [t, locale, base]
+    [t, locale, base, api]
   );
   const answer = state.answer;
   const title = answer?.siteName || t('chat.iv.title');

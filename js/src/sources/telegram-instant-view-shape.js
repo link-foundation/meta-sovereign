@@ -9,7 +9,11 @@
  * - `shapeText(rich, ctx)` — a RichText as inline nodes: `{ t: 'text', s }`,
  *   `{ t: 'b'|'i'|'u'|'s'|'code'|'sub'|'sup'|'mark', c }`, `{ t: 'a', href,
  *   c }`, `{ t: 'a', anchor, c }` (same page), `{ t: 'anchor', name, c }`,
- *   `{ t: 'img', id, w, h }`;
+ *   `{ t: 'img', id, w, h }`, and (R-Y225; learned, never copied) the
+ *   rich-text kinds of Telegram's entities: `{ t: 'tag', s, c }` (hashtag,
+ *   cashtag, bot command), `{ t: 'bankcard', s, c }`, `{ t: 'user', id,
+ *   c }`, `{ t: 'date', date, ...flags, s, c }`, `{ t: 'emoji', id, s }`,
+ *   `{ t: 'button', c, type, style }` and `{ t: 'math', s }`;
  * - `shapePage(page)` — `{ url, rtl, blocks, photos, documents }`, the
  *   last two the ids the page may ask the media route for.
  */
@@ -90,8 +94,37 @@ const anchorOf = (url, ctx) => {
 const wrap = (node, children) =>
   children.length > 0 ? [{ ...node, c: children }] : [];
 
+// The words of shaped inline nodes (a mention's name, a link's text).
+const wordsIn = (nodes) =>
+  nodes
+    .map((node) =>
+      typeof node.s === 'string' ? node.s : wordsIn(node.c ?? [])
+    )
+    .join('');
+
+const MENTION = /^@?([A-Za-z0-9_]{3,64})$/;
+
+// Links the words themselves are (R-Y225): the entity kinds of a normal
+// message, which have no address of their own. Null when the words are
+// not one (the kind then stays plain words).
+const AUTO = {
+  TextMention: (words) => {
+    const name = MENTION.exec(words)?.[1];
+    return name ? `https://t.me/${name}` : null;
+  },
+  TextAutoUrl: (words) =>
+    safeHref(/^[a-z][a-z0-9+.-]*:/i.test(words) ? words : `https://${words}`),
+  TextAutoEmail: (words) => (EMAIL.test(words) ? `mailto:${words}` : null),
+  TextAutoPhone: (words) =>
+    PHONE.test(words) ? `tel:${words.replace(/[^\d+]/g, '')}` : null,
+};
+
 const linkOf = (rich, children, ctx) => {
   const name = rich.className;
+  if (AUTO[name]) {
+    const href = AUTO[name](wordsIn(children).trim());
+    return href ? wrap({ t: 'a', href }, children) : children;
+  }
   if (name === 'TextEmail') {
     const email = plain(rich.email).trim();
     return EMAIL.test(email)
@@ -123,12 +156,75 @@ const imageOf = (rich, ctx) => {
 };
 
 // Text with no text inside (R-Y220): a formula, a custom emoji's picture
-// word.
+// (its `alt` word stays as the fallback).
 const LEAVES = {
   TextMath: (rich) =>
     plain(rich.source) ? [{ t: 'math', s: plain(rich.source) }] : [],
-  TextCustomEmoji: (rich) =>
-    plain(rich.alt) ? [{ t: 'text', s: plain(rich.alt) }] : [],
+  TextCustomEmoji: (rich) => {
+    const alt = plain(rich.alt);
+    const id = /^\d{1,20}$/.test(plain(rich.documentId))
+      ? plain(rich.documentId)
+      : null;
+    if (!alt) {
+      return [];
+    }
+    return id ? [{ t: 'emoji', id, s: alt }] : [{ t: 'text', s: alt }];
+  },
+};
+
+const DATE_FLAGS = [
+  'relative',
+  'shortTime',
+  'longTime',
+  'shortDate',
+  'longDate',
+  'dayOfWeek',
+];
+
+// Kinds that wrap their words in a node of their own (R-Y225).
+const WRAPPED = {
+  TextHashtag: () => ({ t: 'tag' }),
+  TextCashtag: () => ({ t: 'tag' }),
+  TextBotCommand: () => ({ t: 'tag' }),
+  TextBankCard: () => ({ t: 'bankcard' }),
+  TextMentionName: (rich) =>
+    /^\d{1,20}$/.test(plain(rich.userId))
+      ? { t: 'user', id: plain(rich.userId) }
+      : null,
+  TextDate: (rich) => ({
+    t: 'date',
+    date: Number(rich.date) || 0,
+    ...Object.fromEntries(DATE_FLAGS.map((key) => [key, Boolean(rich[key])])),
+  }),
+};
+
+// The node of a wrapping kind, with the words it holds as `s`.
+const wrappedNode = (rich, children) => {
+  const node = WRAPPED[rich.className]?.(rich);
+  return node ? wrap({ ...node, s: wordsIn(children) }, children) : children;
+};
+
+const LINKS = new Set([
+  'TextUrl',
+  'TextEmail',
+  'TextPhone',
+  ...Object.keys(AUTO),
+]);
+
+// Kinds with a shape of their own: an anchor, a button (R-Y225), and
+// the words wrapped in a node.
+const OWN = {
+  TextAnchor: (rich, children) => {
+    const anchor = plain(rich.name);
+    return NAME.test(anchor)
+      ? [{ t: 'anchor', name: anchor, c: children }]
+      : children;
+  },
+  TextButton: (rich, children, ctx) =>
+    children.length > 0 ? [{ t: 'button', ...pageButton(rich, ctx) }] : [],
+  ...Object.fromEntries(
+    Object.keys(WRAPPED).map((name) => [name, wrappedNode])
+  ),
 };
 
 const richNodes = (rich, ctx, depth) => {
@@ -153,15 +249,10 @@ const richNodes = (rich, ctx, depth) => {
   if (INLINE[name]) {
     return wrap({ t: INLINE[name] }, children);
   }
-  if (name === 'TextAnchor') {
-    const anchor = plain(rich.name);
-    return NAME.test(anchor)
-      ? [{ t: 'anchor', name: anchor, c: children }]
-      : children;
+  if (OWN[name]) {
+    return OWN[name](rich, children, ctx);
   }
-  return ['TextUrl', 'TextEmail', 'TextPhone'].includes(name)
-    ? linkOf(rich, children, ctx)
-    : children;
+  return LINKS.has(name) ? linkOf(rich, children, ctx) : children;
 };
 
 /** A RichText as inline nodes (see the header). */
@@ -410,6 +501,7 @@ const pageButton = (one, ctx) => {
       bgPrimary: Boolean(style.bgPrimary),
       bgDanger: Boolean(style.bgDanger),
       bgSuccess: Boolean(style.bgSuccess),
+      link: Boolean(style.link),
     },
   };
 };

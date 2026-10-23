@@ -12265,3 +12265,42 @@ body:has(.photo-viewer) .delete-dialog-overlay.sticker-overlay {
   font-style: italic;
   color: var(--text-subtle);
 }
+
+/* Rich text kinds of rich messages and Instant View pages (R-Y225). */
+.iv-math-rendered,
+.iv-math-inline.is-rendered {
+  font-family: 'Latin Modern Math', 'STIX Two Math', 'Cambria Math', serif;
+  font-style: normal;
+}
+.iv-math-rendered {
+  margin: 0.4rem 0;
+  overflow-x: auto;
+  text-align: center;
+}
+.iv-math-rendered math[display='block'] {
+  display: block math;
+}
+.iv-math-inline.is-rendered {
+  padding: 0;
+  background: none;
+}
+.iv-math-inline.is-rendered .katex {
+  white-space: nowrap;
+}
+.bot-button.is-link {
+  background: none;
+  color: var(--link);
+  text-decoration: underline;
+}
+.bot-button.is-inert {
+  display: inline-block;
+  min-height: 0;
+  padding: 0 0.4rem;
+  cursor: default;
+}
+.iv-inline-button .bot-button {
+  display: inline-block;
+  flex: 0 1 auto;
+  min-height: 0;
+  padding: 0.1rem 0.6rem;
+}

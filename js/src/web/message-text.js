@@ -189,7 +189,7 @@ const onlyCustomEmoji = (tree) => {
 
 // A date written for the viewer: its text from the flags (the message's own
 // text stays when they say nothing), the original on hover (R-Y221).
-const DateEntity = ({ node, children }) => {
+export const DateEntity = ({ node, children }) => {
   const { locale } = useLocaleContext();
   const text = formattedDateText(node, locale);
   return el(
@@ -204,7 +204,7 @@ const DateEntity = ({ node, children }) => {
 };
 
 // A card number: shown in groups, copied when clicked (R-Y221).
-const BankCard = ({ node, children }) => {
+export const BankCard = ({ node, children }) => {
   const { t } = useLocaleContext();
   const [copied, setCopied] = useState(false);
   const copy = (event) => {

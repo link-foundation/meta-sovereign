@@ -216,9 +216,13 @@ await finish(async () => {
     (await thinking.textContent()).includes('weighing two options'),
     'thinking words'
   );
-  // The formula stays LaTeX text.
+  // The formula is typeset (R-Y225); its LaTeX stays on hover.
+  await first.locator('[data-block="math"] math').waitFor({ timeout: 15000 });
   assert(
-    (await first.locator('[data-block="math"]').textContent()) === 'E = mc^2',
+    (await first
+      .locator('[data-block="math"] [title]')
+      .first()
+      .getAttribute('title')) === 'E = mc^2',
     'math source'
   );
   // The task list has its boxes, one ticked.

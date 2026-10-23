@@ -36,6 +36,9 @@ const toneOf = (style) => {
   if (style?.bgSuccess) {
     return 'success';
   }
+  if (style?.link) {
+    return 'link';
+  }
   return style?.bgPrimary ? 'primary' : null;
 };
 

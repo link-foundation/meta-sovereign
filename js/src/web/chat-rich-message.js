@@ -90,10 +90,11 @@ export const RichMessage = ({ rich, api, chat, msgId, message, onAction }) => {
       locale,
       media: (kind, id) => urls[`${kind}:${id}`] ?? null,
       file: (id, download) => urls[fileKey(id, download)] ?? null,
+      api,
       scrollTo: () => {},
       button: (one, key) => el(RichButton, { key, one, message, onAction }),
     }),
-    [t, locale, urls, message, onAction]
+    [t, locale, urls, message, onAction, api]
   );
   return el(
     'div',

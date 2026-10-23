@@ -1,9 +1,12 @@
 // Draws an Instant View page tree (R-Y205; learned, never copied) with
 // React elements only: the server's tree (telegram-instant-view-shape.js)
 // holds plain data, never HTML. A link is drawn only for http, https, tg,
-// mailto and tel; external links open in a new tab with rel=noopener.
+// mailto and tel; external links open in a new tab with rel=noopener. The
+// one exception to "elements only" is a formula's MathML (rich-text-nodes.js
+// explains why that is safe). The entity-like kinds (R-Y225) are drawn there.
 
 import React, { useState } from 'react';
+import { Formula, richKindNode } from './rich-text-nodes.js';
 
 const el = React.createElement;
 
@@ -36,14 +39,15 @@ function inlineOne(node, ctx, key) {
     return el(React.Fragment, { key }, node.s);
   }
   const kids = el(Inline, { nodes: node.c, ctx });
+  const rich = richKindNode(node, ctx, kids);
+  if (rich !== undefined) {
+    return el(React.Fragment, { key }, rich);
+  }
   if (TAGS[node.t]) {
     return el(TAGS[node.t], { key }, kids);
   }
   if (node.t === 'anchor') {
     return el('span', { key, 'data-anchor': node.name }, kids);
-  }
-  if (node.t === 'math') {
-    return el('code', { key, className: 'iv-math-inline' }, node.s);
   }
   if (node.t === 'spoiler') {
     return el(Spoiler, { key }, kids);
@@ -441,12 +445,12 @@ const thinkingBlock = (b, ctx) =>
     el('div', { key: 'b' }, el(Inline, { nodes: b.c, ctx })),
   ]);
 
-// A formula: its LaTeX source, as written, in a block of its own.
+// A formula in a block of its own: typeset, else its LaTeX as written.
 const mathBlock = (b) =>
   el(
-    'pre',
-    { className: 'iv-math', 'data-block': 'math', 'data-format': 'latex' },
-    el('code', null, b.source)
+    'div',
+    { className: 'iv-math', 'data-block': 'math' },
+    el(Formula, { source: b.source, display: true })
   );
 
 const quoteBlocksBlock = (b, ctx) =>
