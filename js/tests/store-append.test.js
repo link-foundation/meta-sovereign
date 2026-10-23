@@ -105,6 +105,33 @@ test('a mostly superseded file is compacted when opened', async () => {
   assert.equal((await reader.get('msg:telegram:1:1')).body, 'edit 29');
 });
 
+test('one large record written again and again is compacted by size', async () => {
+  const file = path.join(await tmpdir(), 'data.lino');
+  const big = (i) => ({ id: 'sync:telegram', at: i, tops: 'x'.repeat(2000) });
+  const options = { compactAfter: Infinity, compactBytes: 10_000 };
+  const store = await createLinoTextStore(file, options);
+  await store.putMany([message(1), message(2)]);
+  for (let i = 0; i < 40; i += 1) {
+    await store.put(big(i));
+  }
+  const size = (await fs.stat(file)).size;
+  assert.ok(size < 20_000, `compacted by size (${size} bytes)`);
+  // A log grown by an older version is compacted when opened.
+  const writer = await createLinoTextStore(file, { compactAfter: Infinity });
+  for (let i = 40; i < 80; i += 1) {
+    await writer.put(big(i));
+  }
+  assert.ok((await fs.stat(file)).size > 80_000, 'grown');
+  const reader = await createLinoTextStore(file, options);
+  assert.ok((await fs.stat(file)).size < 5_000, 'compacted when opened');
+  assert.equal((await reader.get('sync:telegram')).at, 79);
+  assert.equal((await reader.query()).length, 3);
+  // Deleting it counts too: its text is no longer live.
+  await reader.delete('sync:telegram');
+  await reader.put(message(3));
+  assert.equal((await (await createLinoTextStore(file)).query()).length, 3);
+});
+
 test('a line torn by a crash mid-append is skipped, later writes are kept', async () => {
   const file = path.join(await tmpdir(), 'data.lino');
   const store = await createLinoTextStore(file);

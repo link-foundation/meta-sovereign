@@ -13,7 +13,9 @@
  * write costs the size of what changed, not of the whole store. On load
  * the records apply in order (a later one replaces an earlier one with
  * the same id). Once superseded lines outnumber the live links (and pass
- * `compactAfter`), the file is rewritten with one line per live link.
+ * `compactAfter`), or superseded text outweighs the live text (and passes
+ * `compactBytes` characters), the file is rewritten with one line per
+ * live link.
  *
  * Files written by the earlier indented `id token…` format (which kept
  * only id/tokens/children) are still read and are rewritten in the
@@ -83,6 +85,9 @@ export const applyLinoRecords = (records) => {
 };
 
 const COMPACT_AFTER = 5000;
+// Superseded text worth a rewrite even when the lines are few: one large
+// record written again and again (a sync state) grew a log to gigabytes.
+const COMPACT_BYTES = 64 * 1024 * 1024;
 // Records per chunk when the file is rewritten (no giant string).
 const CHUNK = 1000;
 
@@ -151,12 +156,15 @@ const createInterner = () => {
 // soon as a later one replaces it.
 const streamRecords = async (filePath) => {
   const byId = new Map();
+  const sizes = new Map(); // id -> its live line's length
   const intern = createInterner();
   let lines = 0;
+  let chars = 0; // of the whole file, superseded lines too
   let open = false;
   const input = createReadStream(filePath, { encoding: 'utf8' });
   const reader = createInterface({ input, crlfDelay: Infinity });
   for await (const line of reader) {
+    chars += line.length + 1;
     if (!isRecordLine(line)) {
       continue;
     }
@@ -172,8 +180,12 @@ const streamRecords = async (filePath) => {
     }
     if (isTombstoneRecord(record)) {
       byId.delete(record.id);
+      sizes.delete(record.id);
     } else {
-      byId.set(record.id, intern(record));
+      // The key a copy too: a slice of its line would keep the line.
+      const id = ownCopy(record.id);
+      byId.set(id, intern(record));
+      sizes.set(id, line.length + 1);
     }
   }
   let statResult;
@@ -198,7 +210,8 @@ const streamRecords = async (filePath) => {
       await handle.close();
     }
   }
-  return { live: [...byId.values()], lines, legacy: false, open };
+  const live = [...byId.values()];
+  return { live, lines, legacy: false, open, sizes, chars };
 };
 
 // The first line that is not blank: the legacy format has no records.
@@ -280,7 +293,9 @@ export const forEachLiveRecord = async (filePath, onRecord) => {
       if (record && isTombstoneRecord(record)) {
         last.delete(record.id);
       } else if (record) {
-        last.set(record.id, at);
+        // A copy: the id as decoded is a slice of its line, and would
+        // keep every line in memory (the snapshot worker ran out of it).
+        last.set(ownCopy(record.id), at);
       }
     }
     const wanted = new Set(last.values());
@@ -319,7 +334,8 @@ export const readLinoFile = async (filePath) => {
     const records = readRecordLines(text);
     const open = text.length > 0 && !text.endsWith('\n');
     const live = applyLinoRecords(records);
-    return { live, lines: records.length, legacy: false, open };
+    const chars = text.length;
+    return { live, lines: records.length, legacy: false, open, chars };
   }
   return streamRecords(filePath);
 };
@@ -339,16 +355,56 @@ const rewriteFile = async (filePath, links) => {
   await fs.rename(tmp, filePath);
 };
 
+// Each live link's line length, as read (or as it would be written).
+const sizesOf = (loaded) =>
+  loaded.sizes ??
+  new Map(
+    loaded.live.map((link) => [link.id, formatLinoRecords([link]).length])
+  );
+
+// How much of the file is live text and how much superseded: by lines
+// (many small rewrites) and by characters (one large record rewritten).
+const createTally = (loaded, { compactAfter, compactBytes }) => {
+  const sizes = sizesOf(loaded);
+  let live = 0;
+  for (const size of sizes.values()) {
+    live += size;
+  }
+  let lines = loaded.lines; // record lines in the file
+  let chars = loaded.chars ?? live; // characters in the file
+  return {
+    wrote(id, size) {
+      live += size - (sizes.get(id) ?? 0);
+      sizes.set(id, size);
+      lines += 1;
+      chars += size;
+    },
+    removed(id, size) {
+      live -= sizes.get(id) ?? 0;
+      sizes.delete(id);
+      lines += 1;
+      chars += size;
+    },
+    compacted() {
+      lines = sizes.size;
+      chars = live;
+    },
+    superseded: () =>
+      lines - sizes.size > Math.max(sizes.size, compactAfter) ||
+      chars - live > Math.max(live, compactBytes),
+  };
+};
+
 export const createLinoTextStore = async (
   filePath,
-  { compactAfter = COMPACT_AFTER } = {}
+  { compactAfter = COMPACT_AFTER, compactBytes = COMPACT_BYTES } = {}
 ) => {
   const mem = createMemoryStore();
   const loaded = await readLinoFile(filePath);
-  const { live } = loaded;
-  await mem.putMany(live);
-  const ids = new Set(live.map((link) => link.id));
-  let lines = loaded.lines; // record lines in the file
+  await mem.putMany(loaded.live);
+  const tally = createTally(loaded, { compactAfter, compactBytes });
+  loaded.live = null;
+  loaded.sizes = null;
   let rewrite = loaded.legacy; // the next write rewrites the whole file
   let open = loaded.open;
 
@@ -362,28 +418,33 @@ export const createLinoTextStore = async (
   const compact = async () => {
     const links = await mem.query();
     await rewriteFile(filePath, links);
-    lines = links.length;
+    tally.compacted();
     rewrite = false;
     open = false;
   };
-  const superseded = () => lines - ids.size > Math.max(ids.size, compactAfter);
-  // `text` is encoded at call time, so later changes to the objects
+  // `texts` are encoded at call time, so later changes to the objects
   // cannot leak into the file.
-  const append = (text, count) =>
+  const append = (texts) =>
     enqueue(async () => {
       if (rewrite) {
         await compact(); // the memory store already holds this write
         return;
       }
+      const text = texts.join('');
       await fs.mkdir(path.dirname(filePath), { recursive: true });
       await fs.appendFile(filePath, open ? `\n${text}` : text);
       open = false;
-      lines += count;
-      if (superseded()) {
+      if (tally.superseded()) {
         await compact();
       }
     });
-  if (superseded()) {
+  // Each link's line, counted as written.
+  const lineOf = (link) => {
+    const text = formatLinoRecords([link]);
+    tally.wrote(link.id, text.length);
+    return text;
+  };
+  if (tally.superseded()) {
     await enqueue(compact);
   }
 
@@ -391,23 +452,20 @@ export const createLinoTextStore = async (
     ...mem,
     async put(link) {
       const out = await mem.put(link);
-      ids.add(link.id);
-      await append(formatLinoRecords([link]), 1);
+      await append([lineOf(link)]);
       return out;
     },
     async putMany(links) {
       const out = await mem.putMany(links);
-      for (const link of links) {
-        ids.add(link.id);
-      }
-      await append(formatLinoRecords(links), links.length);
+      await append(links.map(lineOf));
       return out;
     },
     async delete(id) {
       const ok = await mem.delete(id);
       if (ok) {
-        ids.delete(id);
-        await append(formatLinoRecords([tombstoneRecord(id)]), 1);
+        const text = formatLinoRecords([tombstoneRecord(id)]);
+        tally.removed(id, text.length);
+        await append([text]);
       }
       return ok;
     },

@@ -134,6 +134,8 @@ const createPairIndex = (links) => {
  * `[source, target]` rows). A large store is encoded as it is read,
  * never held as decoded records too.
  */
+const ownCopy = (text) => (text.length < 13 ? text : ` ${text}`.slice(1));
+
 export const createNetworkEncoder = () => {
   const links = createLinkTable();
   const pair = createPairIndex(links);
@@ -142,7 +144,9 @@ export const createNetworkEncoder = () => {
     let address = names.get(name);
     if (address === undefined) {
       address = links.push(links.length + 1, links.length + 1);
-      names.set(name, address);
+      // A copy: a name read from a log line can be a slice of the line,
+      // which would keep the whole line (and so the whole log) in memory.
+      names.set(ownCopy(name), address);
     }
     return address;
   };

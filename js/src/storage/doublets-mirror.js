@@ -18,16 +18,25 @@
  */
 
 import { promises as fs } from 'node:fs';
+import { getHeapStatistics } from 'node:v8';
 import { Worker } from 'node:worker_threads';
 
 const MIN_INTERVAL_MS = 60_000;
 
 const WORKER_URL = new URL('./doublets-snapshot-worker.js', import.meta.url);
 
+const heapLimitMb = () =>
+  Math.round(getHeapStatistics().heap_size_limit / 2 ** 20);
+
 /** Write the snapshot of `from` (a `.lino` log) to `to` in a worker. */
 export const snapshotInWorker = (from, to) =>
   new Promise((resolve, reject) => {
-    const worker = new Worker(WORKER_URL, { workerData: { from, to } });
+    const worker = new Worker(WORKER_URL, {
+      workerData: { from, to },
+      // A worker's own default heap is smaller than the server's; a large
+      // store's snapshot needs as much as the server may use.
+      resourceLimits: { maxOldGenerationSizeMb: heapLimitMb() },
+    });
     let result = null;
     worker.once('message', (message) => {
       result = message;
