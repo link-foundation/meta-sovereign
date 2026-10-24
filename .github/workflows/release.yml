@@ -418,6 +418,9 @@ jobs:
       # The same scripts in WebKit (R-Z12); reported, never a gate.
       - name: Run browser e2e scripts (WebKit, non-gating)
         continue-on-error: true
+        # The tutorial's WebKit run hung CI once; a stuck step must not
+        # take the whole job past its timeout.
+        timeout-minutes: 12
         run: |
           failed=()
           for name in browser consistency chat-menu selection offline \
