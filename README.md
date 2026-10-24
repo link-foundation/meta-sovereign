@@ -1,6 +1,20 @@
 # meta-sovereign (languages: en • [zh](README.zh.md) • [hi](README.hi.md) • [ru](README.ru.md))
 
-A personal **meta profile sovereign** system — a unified inbox + CRM + automation platform that the user actually owns. Local-first, privacy-respecting, with all your contacts, chats, email, and patterns from VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour providers.
+**One inbox, one contact book and one set of automations for every network you speak through — running on your own machine.**
+
+meta-sovereign represents **a person or an organisation online**. Connect Telegram, VK, WhatsApp, Facebook and Instagram, X, LinkedIn, email, GitHub, Upwork, PeoplePerHour and job boards (career.habr.com, hh.ru, superjob.ru and more), and work every conversation from one app. Local-first and open source: your messages, contacts and keys stay in a store you own, with encrypted backups and no cloud in between.
+
+### Built for
+
+| Who / what        | How meta-sovereign helps                                                                                                                                         |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Individuals**   | All your chats in one place, reconnect with people gone quiet, remember what was said (facts), one CV on every job site.                                         |
+| **Sales**         | Leads from every network in one CRM, audiences by rule, mass-personal outreach that sends each message once and politely, follow-ups, fast replies.              |
+| **Marketing**     | Broadcasts to audiences, posts to Telegram channels, LinkedIn and X, community members kept fresh, an opt-out list every automated send honours.                 |
+| **User support**  | One Operator queue for every incoming message, answers from a VK community or Telegram Business account, auto-replies as safe drafts, a knowledge base of facts. |
+| **Organisations** | The same tools for a brand, a shop or a project: its accounts, its contacts, its data on its own machine. Team mode (several operators) is on the roadmap.       |
+
+What works for each scenario today, what is partial and what comes next is in the roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Try it now (no install)
 
@@ -61,34 +75,24 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 
 ## What it does
 
-- **Unified inbox** spanning VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
-- **CV synchronisation** across LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV and SuperJob: read every profile through your own browser, see the differences field by field, and push the agreed values back ([`docs/CV-SYNC.md`](docs/CV-SYNC.md)).
-- **Greetings**: open dialogs on VK, Telegram, WhatsApp, Messenger, X and email with a "hi" or a greeting sticker, the way [konard/vk-bot](https://github.com/konard/vk-bot) does — pick stickers in the UI, preview who gets what, send with a pause between messages ([`docs/GREETINGS.md`](docs/GREETINGS.md)).
-- **Chat** with the connected Telegram account that behaves like Telegram's own apps: each message sent once, delivery ticks, live updates and catch-up after a gap, read marking, cloud drafts, retries that survive a reload. How the open-source Telegram, Signal and Element clients do it, pinned to the commits we read, is in [`docs/CHAT-REFERENCES.md`](docs/CHAT-REFERENCES.md).
-- **Personal CRM**: contacts, communities, group memberships, intersections, mass-personal outreach.
-- **Personal memory**: structured `question → answer` facts captured automatically from conversations.
-- **Conversation automation platform**: pattern editors, reply-variation editors, n8n-style dialog graphs.
-- **Portable data store**: dual binary ([Doublets](https://github.com/linksplatform/doublets-rs)) + text ([Links Notation](https://github.com/link-foundation/links-notation)) representation, automated backups, `.lino` import/export.
-- **Local-first runtime**: WebRTC sync between user-owned devices, optional self-hosted personal cloud.
-- **Two stacks**: JS + Rust/WebAssembly (default) and pure Rust (server/microservice variant). The on-disk format is shared.
+- **Unified inbox** across VK, Telegram, X, WhatsApp, Facebook, Instagram, LinkedIn, email, GitHub, Upwork, PeoplePerHour and job boards, with live updates where the network allows (Telegram, the VK Long Poll, incremental IMAP, GitHub) and full-size archive imports for the rest.
+- **Chat that behaves like Telegram's own apps**: each message sent once, delivery ticks, live updates and catch-up after a gap, read marking, cloud drafts, retries that survive a reload. How the open-source Telegram, Signal and Element clients do it, pinned to the commits we read, is in [`docs/CHAT-REFERENCES.md`](docs/CHAT-REFERENCES.md).
+- **CRM**: everything known about a contact in one view, the same person across networks, communities and memberships, search, audiences by rule (`friends:vk & chat:vk:… - list:blocked`).
+- **Outreach, broadcasts and automations**: who to message, when, on what conditions and with which text; a preview of who gets what; safe drafts by default or paced auto-send with quiet hours, a per-chat cooldown, daily caps and an opt-out list. Every automated send goes through one outbox, so it happens at most once and an unclear result is never retried by itself ([`docs/USER-GUIDE.md` §11](docs/USER-GUIDE.md#11-automations-message-people-by-rule-safely)).
+- **Operator queue and replies**: walk unread messages chat by chat, reply suggestions from your own past answers (Tab takes one), patterns and reply variations, auto-replies on a matching message.
+- **Business and community accounts**: a VK community token runs the Bots Long Poll; Telegram Business quick replies, greeting and away messages, hours and chatbots.
+- **Memory**: structured `question → answer` facts captured from conversations, checked in the chat.
+- **Greetings**: open dialogs on VK, Telegram, WhatsApp, Messenger, X and email with a "hi" or a greeting sticker, the way [konard/vk-bot](https://github.com/konard/vk-bot) does ([`docs/GREETINGS.md`](docs/GREETINGS.md)).
+- **CV synchronisation** across LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV and SuperJob through your own browser, field by field ([`docs/CV-SYNC.md`](docs/CV-SYNC.md)).
+- **Your data, safe**: a crash-safe local store ([Doublets](https://github.com/linksplatform/doublets-rs) binary + [Links Notation](https://github.com/link-foundation/links-notation) text), automatic schema migrations ([`docs/DATA-MIGRATIONS.md`](docs/DATA-MIGRATIONS.md)), streamed encrypted backups, full-disk handling, encrypted secrets, a local server that refuses other sites.
+- **Everywhere you are**: the hosted web app, a desktop app with the server inside, mobile shells, WebRTC sync between your own devices, offline writes replayed later; a pure-Rust server variant shares the on-disk format.
+- **Four languages**: the app and every document are in English, Russian, Hindi and Chinese.
 
-The full requirement → status mapping lives in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md); the per-issue case studies live in [`docs/case-studies/`](docs/case-studies/).
-
-Every Telegram client feature, with what is supported, partial, parked or not supported, and whether it is reachable by API or web app, is tracked in [`docs/FEATURES.md`](docs/FEATURES.md).
+Every feature, network by network, with what is supported, partial or not supported and whether it is reachable by API or web app: [`docs/FEATURES.md`](docs/FEATURES.md). Every requirement with its evidence: [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md).
 
 ## Status
 
-The prototype targeted by issue #1 is implemented and tracked in PR #2:
-
-- **Data layer (R-A\*)**: `DualStore` keeps Doublets binary + Links Notation text in lock-step, with AES-256-GCM encrypted backups (`createBackupScheduler`) and `secret:*` link encryption (only when `MS_SECRET_PASSPHRASE` is set; the rest of the store is not encrypted).
-- **Service connectors (R-E\*)**: archive parser + live API connector for VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru, email, GitHub, Upwork, and PeoplePerHour.
-- **Pattern matching and automation (R-C\*)**: `inferRegex` / `simplifyRegex` / `compilePeg`, fuzzy reply-variation extraction, and an n8n-style automation graph (`createGraph` + `runGraph`).
-- **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile and resume sync envelopes.
-- **CV synchronisation (R-V\*)**: declarative browser plans for seven job platforms, cross-platform diff, selective writes, and a redacted telemetry stream with HTML/screenshot artifacts for every run.
-- **Distribution (R-F\*)**: NPM library, CLI (`js/bin/meta-sovereign.js`), local server (`meta-sovereign serve`), Electron shell, Capacitor mobile shell, Docker microservices for web + WebRTC.
-- **Stacks (R-G\*)**: default JS server + React SPA + Rust/WASM heavy workloads; alternative pure-Rust server (`meta-sovereign-rs serve`).
-- **Hardening (R-K\*)**: soft-delete by default, AES-256-GCM master-key vault with multi-method unlock, encrypted export.
-- **Browser publishing (R-L\*)**: GitHub Pages CI workflow, SPA on a public URL, user-first README and user guide.
+Requirements R-A to R-Z24 are done and checked in CI on Node, Bun and Deno across Linux, macOS and Windows, with browser end-to-end tests in Chromium. Tests use fakes: nothing is sent from a real account in tests, and only Telegram's message display was also checked against a real store. The scenario-by-scenario state and the next steps (live verification, guided sign-in, team mode, a sales pipeline, campaign results) are in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Repository structure
 

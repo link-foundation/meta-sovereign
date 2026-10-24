@@ -1,6 +1,20 @@
 # meta-sovereign (languages: [en](README.md) • [zh](README.zh.md) • [hi](README.hi.md) • ru)
 
-`meta-sovereign` — персональная система **meta profile sovereign**: единый inbox, CRM и платформа автоматизации, которыми реально владеет пользователь. Система local-first, уважает приватность и собирает контакты, чаты, почту и паттерны из VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email-провайдеров.
+**Один inbox, одна книга контактов и одни автоматизации для всех сетей, через которые вы общаетесь, — на вашем собственном компьютере.**
+
+meta-sovereign представляет **человека или организацию в интернете**. Подключите Telegram, VK, WhatsApp, Facebook и Instagram, X, LinkedIn, почту, GitHub, Upwork, PeoplePerHour и сайты вакансий (career.habr.com, hh.ru, superjob.ru и другие) и ведите все разговоры в одном приложении. Local-first и open source: сообщения, контакты и ключи остаются в вашем хранилище, с зашифрованными резервными копиями и без облака посередине.
+
+### Для кого
+
+| Кто / что       | Чем помогает meta-sovereign                                                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Люди**        | Все чаты в одном месте, возобновить общение с теми, кто давно молчит, помнить, что было сказано (факты), одно резюме на всех сайтах вакансий.                            |
+| **Продажи**     | Лиды из всех сетей в одной CRM, аудитории по правилам, массово-персональные рассылки, где каждое сообщение уходит один раз и вежливо, follow-up, быстрые ответы.         |
+| **Маркетинг**   | Рассылки по аудиториям, посты в каналы Telegram, LinkedIn и X, актуальные участники сообществ, список отписавшихся, который соблюдает каждая автоматическая отправка.    |
+| **Поддержка**   | Одна очередь оператора для всех входящих, ответы от имени сообщества VK или аккаунта Telegram Business, автоответы как безопасные черновики, база знаний из фактов.      |
+| **Организации** | Те же инструменты для бренда, магазина или проекта: его аккаунты, его контакты, его данные на его компьютере. Командный режим (несколько операторов) — в дорожной карте. |
+
+Что уже работает для каждого сценария, что частично и что дальше — в дорожной карте: [`docs/ROADMAP.ru.md`](docs/ROADMAP.ru.md).
 
 ## Попробовать сразу (без установки)
 
@@ -61,33 +75,24 @@ SPA выбирает сервер в таком порядке ([`js/src/web/dis
 
 ## Что умеет система
 
-- **Единый inbox** для VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email.
-- **Синхронизация CV** между LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV и SuperJob: прочитать каждый профиль через собственный браузер, увидеть различия по полям и записать согласованные значения обратно ([`docs/CV-SYNC.ru.md`](docs/CV-SYNC.ru.md)).
-- **Приветствия**: начинать диалоги в VK, Telegram, WhatsApp, Messenger, X и email с «привет» или стикера-приветствия, как это делает [konard/vk-bot](https://github.com/konard/vk-bot), — выбрать стикеры в интерфейсе, посмотреть, кому что уйдёт, и отправить с паузой между сообщениями ([`docs/GREETINGS.ru.md`](docs/GREETINGS.ru.md)).
-- **Personal CRM**: контакты, сообщества, членства в группах, пересечения, массовый персонализированный outreach.
-- **Personal memory**: структурированные факты `question → answer`, автоматически извлеченные из разговоров.
-- **Платформа conversation automation**: редакторы паттернов, варианты ответов, n8n-style dialog graphs.
-- **Переносимое хранилище**: бинарное [Doublets](https://github.com/linksplatform/doublets-rs) + текстовое [Links Notation](https://github.com/link-foundation/links-notation), автоматические backup, `.lino` import/export.
-- **Local-first runtime**: WebRTC sync между устройствами пользователя, optional self-hosted personal cloud.
-- **Два стека**: JS + Rust/WebAssembly по умолчанию и pure Rust server/microservice variant. On-disk format общий.
+- **Единый inbox** для VK, Telegram, X, WhatsApp, Facebook, Instagram, LinkedIn, почты, GitHub, Upwork, PeoplePerHour и сайтов вакансий: живые обновления там, где сеть это позволяет (Telegram, VK Long Poll, инкрементальный IMAP, GitHub), и импорт архивов любого размера для остальных.
+- **Чат, который ведёт себя как приложения Telegram**: каждое сообщение отправляется один раз, галочки доставки, живые обновления и догрузка после разрыва, отметки о прочтении, облачные черновики, повторы, переживающие перезагрузку ([`docs/CHAT-REFERENCES.ru.md`](docs/CHAT-REFERENCES.ru.md)).
+- **CRM**: всё о контакте в одном окне, один и тот же человек в разных сетях, сообщества и членства, поиск, аудитории по правилам (`friends:vk & chat:vk:… - list:blocked`).
+- **Рассылки, broadcast и автоматизации**: кому писать, когда, при каких условиях и каким текстом; предпросмотр, кто что получит; по умолчанию безопасные черновики или отправка с паузами, тихими часами, перерывом для каждого чата, дневными лимитами и списком отписавшихся. Каждая автоматическая отправка идёт через один outbox: не больше одного раза, а неясный результат сам не повторяется ([`docs/USER-GUIDE.ru.md`](docs/USER-GUIDE.ru.md), §11).
+- **Очередь оператора и ответы**: непрочитанные сообщения чат за чатом, подсказки ответов из ваших прошлых ответов (Tab берёт подсказку), паттерны и варианты ответов, автоответы на подходящее сообщение.
+- **Аккаунты бизнеса и сообществ**: токен сообщества VK запускает Bots Long Poll; Telegram Business: быстрые ответы, приветствие и сообщение об отсутствии, часы работы, чат-боты.
+- **Память**: структурированные факты `вопрос → ответ` из разговоров, с проверкой прямо в чате.
+- **Приветствия**: начинать диалоги в VK, Telegram, WhatsApp, Messenger, X и почте с «привет» или стикера, как [konard/vk-bot](https://github.com/konard/vk-bot) ([`docs/GREETINGS.ru.md`](docs/GREETINGS.ru.md)).
+- **Синхронизация резюме** между LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV и SuperJob через ваш собственный браузер, поле за полем ([`docs/CV-SYNC.ru.md`](docs/CV-SYNC.ru.md)).
+- **Ваши данные в безопасности**: локальное хранилище, переживающее сбои ([Doublets](https://github.com/linksplatform/doublets-rs) + [Links Notation](https://github.com/link-foundation/links-notation)), автоматические миграции схемы ([`docs/DATA-MIGRATIONS.ru.md`](docs/DATA-MIGRATIONS.ru.md)), потоковые зашифрованные резервные копии, работа при полном диске, зашифрованные секреты, локальный сервер, который не пускает чужие сайты.
+- **Везде, где вы**: веб-приложение, настольное приложение со встроенным сервером, мобильные оболочки, WebRTC-синхронизация между вашими устройствами, офлайн-записи, которые доотправляются позже; вариант сервера на чистом Rust использует тот же формат на диске.
+- **Четыре языка**: приложение и все документы — на английском, русском, хинди и китайском.
 
-Полная карта requirement → status находится в [`docs/REQUIREMENTS.ru.md`](docs/REQUIREMENTS.ru.md); per-issue case studies — в [`docs/case-studies/`](docs/case-studies/).
-
-Каждая функция клиента Telegram — поддерживается, частично, в парковке или нет, и доступна ли через API или веб-приложение — учтена в [`docs/FEATURES.ru.md`](docs/FEATURES.ru.md).
+Каждая функция по каждой сети — поддерживается, частично или нет, и доступна ли через API или веб-приложение: [`docs/FEATURES.ru.md`](docs/FEATURES.ru.md). Каждое требование с подтверждением: [`docs/REQUIREMENTS.ru.md`](docs/REQUIREMENTS.ru.md).
 
 ## Статус
 
-Прототип для issue #1 реализован и отслежен в PR #2:
-
-- **Data layer (R-A\*)**: `DualStore` держит Doublets binary и Links Notation text в lock-step, поддерживает AES-256-GCM backups и encryption для `secret:*` links (только при заданной `MS_SECRET_PASSPHRASE`; остальное хранилище не шифруется).
-- **Service connectors (R-E\*)**: archive parsers и live API connectors для VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru и email.
-- **Pattern matching and automation (R-C\*)**: `inferRegex`, `simplifyRegex`, `compilePeg`, fuzzy reply-variation extraction и `createGraph` / `runGraph`.
-- **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile и resume sync envelopes.
-- **Синхронизация CV (R-V\*)**: декларативные browser plans для семи job platforms, cross-platform diff, выборочная запись и redacted telemetry с HTML/screenshot artifacts для каждого запуска.
-- **Distribution (R-F\*)**: NPM library, CLI, local server, Electron shell, Capacitor mobile shell, Docker microservices для web + WebRTC.
-- **Stacks (R-G\*)**: JS server + React SPA + Rust/WASM heavy workloads; alternative pure Rust server.
-- **Hardening (R-K\*)**: soft-delete by default, AES-256-GCM master-key vault, несколько методов unlock, encrypted export.
-- **Browser publishing (R-L\*)**: GitHub Pages CI workflow, публичный SPA URL, README и user guide для пользователя.
+Требования R-A–R-Z24 выполнены и проверяются в CI на Node, Bun и Deno в Linux, macOS и Windows, с браузерными end-to-end тестами в Chromium. Тесты используют подделки: ничего не отправляется с реального аккаунта, и только отображение сообщений Telegram дополнительно проверено на реальном хранилище. Состояние по сценариям и следующие шаги (проверка на живых аккаунтах, вход по OAuth, командный режим, воронка продаж, результаты кампаний) — в [`docs/ROADMAP.ru.md`](docs/ROADMAP.ru.md).
 
 ## Структура репозитория
 

@@ -4,6 +4,8 @@ This page collects the user-facing flows for `meta-sovereign` in one
 place. The flows are ordered from "install nothing" to "install
 everything", so you can stop reading the moment you have what you need.
 
+meta-sovereign represents a person or an organisation online: one inbox, CRM and automations for personal use, sales, marketing and user support. What each scenario can do today is in [`ROADMAP.md`](./ROADMAP.md).
+
 > **TL;DR:** Open <https://link-foundation.github.io/meta-sovereign/>.
 > That's the whole web app. Optionally start a local Rust server (or
 > the JS server) so the app can sync your data between devices.

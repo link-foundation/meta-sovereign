@@ -1,6 +1,20 @@
 # meta-sovereign (languages: [en](README.md) • zh • [hi](README.hi.md) • [ru](README.ru.md))
 
-`meta-sovereign` 是个人 **meta profile sovereign** 系统：用户自己拥有的统一收件箱、CRM 和自动化平台。它优先本地运行，尊重隐私，汇总来自 VK、Telegram、X、WhatsApp、Facebook、LinkedIn、career.habr.com、hh.ru、superjob.ru 以及电子邮件提供商的联系人、聊天、邮件和模式数据。
+**为您使用的每个网络提供同一个收件箱、同一本通讯录和同一套自动化——运行在您自己的电脑上。**
+
+meta-sovereign 在网上**代表一个人或一个组织**。连接 Telegram、VK、WhatsApp、Facebook 和 Instagram、X、LinkedIn、电子邮件、GitHub、Upwork、PeoplePerHour 以及招聘网站（career.habr.com、hh.ru、superjob.ru 等），在一个应用中处理所有对话。本地优先、开源：您的消息、联系人和密钥保存在您自己的存储中，有加密备份，中间没有云。
+
+### 适用对象
+
+| 谁 / 什么    | meta-sovereign 如何帮助                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| **个人**     | 所有聊天集中一处，重新联系久未联系的人，记住说过的话（事实），在每个招聘网站上保持同一份简历。                           |
+| **销售**     | 来自每个网络的潜在客户汇入一个 CRM，按规则划分受众，大规模个性化外联（每条消息只发一次、礼貌有节奏），跟进，快速回复。   |
+| **市场营销** | 向受众群发，在 Telegram 频道、LinkedIn 和 X 发帖，社区成员保持最新，每次自动发送都遵守退订名单。                         |
+| **用户支持** | 所有来信进入一个 Operator 队列，以 VK 社区或 Telegram Business 账号回复，自动回复以安全草稿形式出现，事实构成知识库。    |
+| **组织**     | 同样的工具服务于品牌、店铺或项目：它的账号、它的联系人、它的数据都在它自己的电脑上。团队模式（多名操作员）已列入路线图。 |
+
+每个场景今天能用什么、哪些是部分支持、下一步做什么，请见路线图：[`docs/ROADMAP.zh.md`](docs/ROADMAP.zh.md)。
 
 ## 立即试用（无需安装）
 
@@ -61,33 +75,24 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 
 ## 功能概览
 
-- **统一收件箱**：覆盖 VK、Telegram、X、WhatsApp、Facebook、LinkedIn、career.habr.com、hh.ru、superjob.ru 和电子邮件。
-- **简历同步**：覆盖 LinkedIn、hh.ru、Habr Career、Naukri、VietnamWorks、TopCV 和 SuperJob——通过你自己的浏览器读取每份简历，逐字段查看差异，再把商定的内容写回去（[`docs/CV-SYNC.zh.md`](docs/CV-SYNC.zh.md)）。
-- **问候**：像 [konard/vk-bot](https://github.com/konard/vk-bot) 那样，用一句“你好”或一个问候贴纸在 VK、Telegram、WhatsApp、Messenger、X 和电子邮件中开启对话——在界面中挑选贴纸，预览谁会收到什么，并在消息之间留出间隔发送（[`docs/GREETINGS.zh.md`](docs/GREETINGS.zh.md)）。
-- **个人 CRM**：联系人、社区、群组成员、交集、批量个性化触达。
-- **个人记忆**：自动从对话中抽取结构化 `question → answer` 事实。
-- **对话自动化平台**：模式编辑器、回复变体编辑器、类似 n8n 的对话图。
-- **可移植数据存储**：二进制 [Doublets](https://github.com/linksplatform/doublets-rs) + 文本 [Links Notation](https://github.com/link-foundation/links-notation) 双表示，自动备份，`.lino` 导入/导出。
-- **本地优先运行时**：用户自有设备之间 WebRTC 同步，可选自托管个人云。
-- **双技术栈**：JS + Rust/WebAssembly（默认）和纯 Rust 服务器/微服务变体。磁盘格式共享。
+- **统一收件箱**：覆盖 VK、Telegram、X、WhatsApp、Facebook、Instagram、LinkedIn、电子邮件、GitHub、Upwork、PeoplePerHour 和招聘网站；网络允许时实时更新（Telegram、VK Long Poll、增量 IMAP、GitHub），其余可导入任意大小的存档。
+- **像 Telegram 官方应用一样的聊天**：每条消息只发送一次，送达对勾，实时更新与断线后补齐，已读标记，云端草稿，刷新后仍保留的重试（[`docs/CHAT-REFERENCES.zh.md`](docs/CHAT-REFERENCES.zh.md)）。
+- **CRM**：一个视图看到联系人的全部信息，跨网络识别同一个人，社区与成员关系，搜索，按规则定义受众（`friends:vk & chat:vk:… - list:blocked`）。
+- **外联、群发与自动化**：给谁发、何时发、在什么条件下发、发什么内容；预览谁会收到什么；默认生成安全草稿，或按节奏自动发送，并有安静时段、每个聊天的冷却期、每日上限和退订名单。每次自动发送都经过同一个发件箱：最多发送一次，结果不明时不会自行重试（[`docs/USER-GUIDE.zh.md`](docs/USER-GUIDE.zh.md) 第 11 节）。
+- **Operator 队列与回复**：逐个聊天处理未读消息，根据您以往的回答给出回复建议（按 Tab 采用），模式与回复变体，对匹配消息自动回复。
+- **企业与社区账号**：VK 社区令牌运行 Bots Long Poll；Telegram Business 的快捷回复、问候与离开消息、营业时间和聊天机器人。
+- **记忆**：从对话中提取结构化的 `问题 → 答案` 事实，并可在聊天中核对。
+- **问候**：像 [konard/vk-bot](https://github.com/konard/vk-bot) 一样，在 VK、Telegram、WhatsApp、Messenger、X 和电子邮件中用一句“你好”或问候贴纸开启对话（[`docs/GREETINGS.zh.md`](docs/GREETINGS.zh.md)）。
+- **简历同步**：通过您自己的浏览器在 LinkedIn、hh.ru、Habr Career、Naukri、VietnamWorks、TopCV 和 SuperJob 之间逐字段同步（[`docs/CV-SYNC.zh.md`](docs/CV-SYNC.zh.md)）。
+- **数据安全**：抗崩溃的本地存储（[Doublets](https://github.com/linksplatform/doublets-rs) + [Links Notation](https://github.com/link-foundation/links-notation)），自动数据结构迁移（[`docs/DATA-MIGRATIONS.zh.md`](docs/DATA-MIGRATIONS.zh.md)），流式加密备份，磁盘写满时的处理，加密的密钥，拒绝其他网站访问的本地服务器。
+- **随处可用**：网页应用、内置服务器的桌面应用、移动外壳、设备间 WebRTC 同步、离线写入稍后补发；纯 Rust 服务器使用相同的磁盘格式。
+- **四种语言**：应用和所有文档都有英文、俄文、印地文和中文版本。
 
-完整的需求到状态映射见 [`docs/REQUIREMENTS.zh.md`](docs/REQUIREMENTS.zh.md)；每个 issue 的案例研究在 [`docs/case-studies/`](docs/case-studies/)。
-
-每项 Telegram 客户端功能（已支持、部分、搁置或不支持，以及能否通过 API 或网页应用访问）记录在 [`docs/FEATURES.zh.md`](docs/FEATURES.zh.md)。
+逐个网络的每项功能——已支持、部分支持或不支持，以及是否可通过 API 或网页应用实现：[`docs/FEATURES.zh.md`](docs/FEATURES.zh.md)。每条需求及其证据：[`docs/REQUIREMENTS.zh.md`](docs/REQUIREMENTS.zh.md)。
 
 ## 状态
 
-issue #1 目标原型已实现并在 PR #2 中跟踪：
-
-- **数据层（R-A\*）**：`DualStore` 让 Doublets 二进制和 Links Notation 文本保持同步，支持 AES-256-GCM 静态加密备份和 `secret:*` 链接加密（仅在设置了 `MS_SECRET_PASSPHRASE` 时；存储的其余部分不加密）。
-- **服务连接器（R-E\*）**：VK、Telegram、X、WhatsApp、Facebook、LinkedIn、career.habr.com、hh.ru、superjob.ru 和 email 的归档解析器与可用 live API 连接器。
-- **模式匹配和自动化（R-C\*）**：`inferRegex`、`simplifyRegex`、`compilePeg`、模糊回复变体抽取和 `createGraph` / `runGraph`。
-- **CRM（R-D\*）**：联系人聚合、audience DSL、批量个性化触达、资料和简历同步 envelope。
-- **简历同步（R-V\*）**：七个求职平台的声明式浏览器计划、跨平台差异比较、可选择字段的写入，以及每次运行都带 HTML/截图产物的脱敏遥测流。
-- **分发（R-F\*）**：NPM 库、CLI、本地服务器、Electron shell、Capacitor 移动 shell、Docker web + WebRTC 微服务。
-- **技术栈（R-G\*）**：默认 JS server + React SPA + Rust/WASM 重型任务；纯 Rust 服务器作为替代。
-- **加固（R-K\*）**：默认软删除、AES-256-GCM 主密钥 vault、多种解锁方式、加密导出。
-- **浏览器发布（R-L\*）**：GitHub Pages CI workflow、公开 SPA URL、面向用户的 README 和用户指南。
+需求 R-A 至 R-Z24 均已完成，并在 CI 中于 Linux、macOS 和 Windows 上用 Node、Bun 和 Deno 检查，另有 Chromium 浏览器端到端测试。测试使用模拟服务：测试中不会从真实账号发送任何内容，只有 Telegram 的消息显示另外在真实存储上核对过。各场景的状态与下一步（真实账号验证、OAuth 登录、团队模式、销售管道、活动结果）见 [`docs/ROADMAP.zh.md`](docs/ROADMAP.zh.md)。
 
 ## 仓库结构
 

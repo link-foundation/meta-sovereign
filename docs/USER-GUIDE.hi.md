@@ -2,6 +2,8 @@
 
 यह पेज `meta-sovereign` की user-facing flows को एक जगह रखता है। क्रम “कुछ भी install नहीं” से “सब कुछ install” तक है, ताकि जरूरत पूरी होते ही आप रुक सकें।
 
+meta-sovereign किसी व्यक्ति या संगठन को ऑनलाइन दर्शाता है: व्यक्तिगत उपयोग, बिक्री, मार्केटिंग और उपयोगकर्ता सहायता के लिए एक इनबॉक्स, CRM और ऑटोमेशन। आज हर परिदृश्य क्या कर सकता है: [`ROADMAP.hi.md`](./ROADMAP.hi.md)।
+
 > **TL;DR:** <https://link-foundation.github.io/meta-sovereign/> खोलें। यही पूरा web app है। Data को devices के बीच sync करने के लिए optional local Rust server या JS server start करें।
 
 ## 1. कुछ install न करें — web app खोलें

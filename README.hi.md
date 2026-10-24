@@ -1,6 +1,20 @@
 # meta-sovereign (languages: [en](README.md) • [zh](README.zh.md) • hi • [ru](README.ru.md))
 
-`meta-sovereign` एक व्यक्तिगत **meta profile sovereign** सिस्टम है: ऐसा unified inbox, CRM और automation platform जिसका स्वामित्व सचमुच उपयोगकर्ता के पास रहता है। यह local-first और privacy-respecting है, और VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru तथा email providers से contacts, chats, email और patterns को एक जगह लाता है।
+**आप जिन भी नेटवर्क पर बात करते हैं, उन सबके लिए एक इनबॉक्स, एक संपर्क सूची और एक ही ऑटोमेशन — आपकी अपनी मशीन पर।**
+
+meta-sovereign **किसी व्यक्ति या संगठन को ऑनलाइन दर्शाता है**। Telegram, VK, WhatsApp, Facebook और Instagram, X, LinkedIn, ईमेल, GitHub, Upwork, PeoplePerHour और जॉब बोर्ड (career.habr.com, hh.ru, superjob.ru और अन्य) जोड़ें और हर बातचीत एक ही ऐप से करें। Local-first और open source: आपके संदेश, संपर्क और कुंजियाँ आपके अपने स्टोर में रहती हैं, एन्क्रिप्टेड बैकअप के साथ और बीच में कोई क्लाउड नहीं।
+
+### किसके लिए
+
+| कौन / क्या            | meta-sovereign कैसे मदद करता है                                                                                                                            |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **व्यक्ति**           | सभी चैट एक जगह, लंबे समय से चुप लोगों से फिर जुड़ना, जो कहा गया वह याद रखना (तथ्य), हर जॉब साइट पर एक जैसा CV।                                             |
+| **बिक्री**            | हर नेटवर्क के लीड एक CRM में, नियम से ऑडियंस, mass-personal outreach जिसमें हर संदेश एक ही बार और शालीनता से जाता है, फ़ॉलो-अप, तेज़ उत्तर।                |
+| **मार्केटिंग**        | ऑडियंस को broadcast, Telegram चैनल, LinkedIn और X पर पोस्ट, community सदस्य हमेशा ताज़ा, एक opt-out सूची जिसे हर स्वचालित भेजना मानता है।                  |
+| **उपयोगकर्ता सहायता** | हर आने वाले संदेश के लिए एक Operator कतार, VK community या Telegram Business खाते से उत्तर, सुरक्षित ड्राफ़्ट के रूप में auto-reply, तथ्यों का ज्ञान-आधार। |
+| **संगठन**             | ब्रांड, दुकान या प्रोजेक्ट के लिए वही उपकरण: उसके खाते, उसके संपर्क, उसका डेटा उसकी अपनी मशीन पर। टीम मोड (कई ऑपरेटर) रोडमैप में है।                       |
+
+हर परिदृश्य के लिए आज क्या चलता है, क्या आंशिक है और आगे क्या है — रोडमैप में: [`docs/ROADMAP.hi.md`](docs/ROADMAP.hi.md)।
 
 ## अभी चलाकर देखें (install नहीं)
 
@@ -61,33 +75,24 @@ SPA server को इस क्रम में चुनता है ([`js/src
 
 ## यह क्या करता है
 
-- **Unified inbox**: VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru और email।
-- **CV synchronisation**: LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV और SuperJob — हर profile को अपने ही browser से पढ़ें, field दर field अंतर देखें और तय किए गए values वापस लिखें ([`docs/CV-SYNC.hi.md`](docs/CV-SYNC.hi.md))।
-- **Greetings**: VK, Telegram, WhatsApp, Messenger, X और email पर "hi" या greeting sticker से बातचीत शुरू करें, जैसे [konard/vk-bot](https://github.com/konard/vk-bot) करता है — UI में stickers चुनें, देखें किसे क्या जाएगा, और messages के बीच pause के साथ भेजें ([`docs/GREETINGS.hi.md`](docs/GREETINGS.hi.md))।
-- **Personal CRM**: contacts, communities, group memberships, intersections और mass-personal outreach।
-- **Personal memory**: conversations से structured `question → answer` facts।
-- **Conversation automation platform**: pattern editors, reply-variation editors और n8n-style dialog graphs।
-- **Portable data store**: binary [Doublets](https://github.com/linksplatform/doublets-rs) + text [Links Notation](https://github.com/link-foundation/links-notation), automated backups और `.lino` import/export।
-- **Local-first runtime**: user-owned devices के बीच WebRTC sync और optional self-hosted personal cloud।
-- **Two stacks**: JS + Rust/WebAssembly default stack और pure Rust server/microservice variant; on-disk format साझा है।
+- **एकीकृत इनबॉक्स**: VK, Telegram, X, WhatsApp, Facebook, Instagram, LinkedIn, ईमेल, GitHub, Upwork, PeoplePerHour और जॉब बोर्ड; जहाँ नेटवर्क अनुमति देता है वहाँ लाइव अपडेट (Telegram, VK Long Poll, incremental IMAP, GitHub), बाकी के लिए किसी भी आकार के आर्काइव का आयात।
+- **Telegram के अपने ऐप जैसी चैट**: हर संदेश एक बार भेजा जाता है, डिलीवरी टिक, लाइव अपडेट और अंतराल के बाद catch-up, पढ़ा-चिह्न, cloud ड्राफ़्ट, reload के बाद भी बचे रहने वाले retry ([`docs/CHAT-REFERENCES.hi.md`](docs/CHAT-REFERENCES.hi.md))।
+- **CRM**: किसी संपर्क के बारे में सब कुछ एक दृश्य में, अलग-अलग नेटवर्क पर वही व्यक्ति, communities और सदस्यताएँ, खोज, नियम से ऑडियंस (`friends:vk & chat:vk:… - list:blocked`)।
+- **Outreach, broadcast और ऑटोमेशन**: किसे, कब, किन शर्तों पर और किस पाठ से लिखना है; कौन क्या पाएगा इसका preview; डिफ़ॉल्ट रूप से सुरक्षित ड्राफ़्ट, या quiet hours, हर चैट का cooldown, दैनिक सीमा और opt-out सूची के साथ धीमी गति से स्वचालित भेजना। हर स्वचालित भेजना एक ही outbox से जाता है: अधिक से अधिक एक बार, और अस्पष्ट परिणाम अपने आप दोहराया नहीं जाता ([`docs/USER-GUIDE.hi.md`](docs/USER-GUIDE.hi.md), §11)।
+- **Operator कतार और उत्तर**: अपठित संदेश चैट-दर-चैट, आपके पिछले उत्तरों से सुझाव (Tab एक चुनता है), पैटर्न और उत्तर के रूप, मिलते संदेश पर auto-reply।
+- **व्यवसाय और community खाते**: VK community token Bots Long Poll चलाता है; Telegram Business के quick replies, स्वागत और अनुपस्थिति संदेश, कार्य-समय और chatbots।
+- **स्मृति**: बातचीत से निकाले गए `प्रश्न → उत्तर` तथ्य, चैट में जाँच के साथ।
+- **अभिवादन**: VK, Telegram, WhatsApp, Messenger, X और ईमेल पर "hi" या स्टिकर से बातचीत शुरू करें, [konard/vk-bot](https://github.com/konard/vk-bot) की तरह ([`docs/GREETINGS.hi.md`](docs/GREETINGS.hi.md))।
+- **CV सिंक**: LinkedIn, hh.ru, Habr Career, Naukri, VietnamWorks, TopCV और SuperJob पर आपके अपने ब्राउज़र से, फ़ील्ड-दर-फ़ील्ड ([`docs/CV-SYNC.hi.md`](docs/CV-SYNC.hi.md))।
+- **आपका डेटा सुरक्षित**: crash-safe लोकल स्टोर ([Doublets](https://github.com/linksplatform/doublets-rs) + [Links Notation](https://github.com/link-foundation/links-notation)), स्वचालित schema migrations ([`docs/DATA-MIGRATIONS.hi.md`](docs/DATA-MIGRATIONS.hi.md)), streamed एन्क्रिप्टेड बैकअप, भरी डिस्क का प्रबंधन, एन्क्रिप्टेड secrets, एक लोकल सर्वर जो दूसरी साइटों को मना करता है।
+- **हर जगह**: वेब ऐप, सर्वर सहित डेस्कटॉप ऐप, मोबाइल shells, आपके उपकरणों के बीच WebRTC सिंक, ऑफ़लाइन लिखे को बाद में भेजना; pure-Rust सर्वर वही on-disk format उपयोग करता है।
+- **चार भाषाएँ**: ऐप और हर दस्तावेज़ अंग्रेज़ी, रूसी, हिंदी और चीनी में।
 
-पूर्ण requirement → status mapping [`docs/REQUIREMENTS.hi.md`](docs/REQUIREMENTS.hi.md) में है; per-issue case studies [`docs/case-studies/`](docs/case-studies/) में हैं।
-
-Telegram क्लाइंट की हर सुविधा — समर्थित, आंशिक, रोकी हुई या असमर्थित, और API या वेब ऐप से पहुँच — [`docs/FEATURES.hi.md`](docs/FEATURES.hi.md) में दर्ज है।
+हर नेटवर्क की हर सुविधा — समर्थित, आंशिक या असमर्थित, और API या वेब ऐप से पहुँच: [`docs/FEATURES.hi.md`](docs/FEATURES.hi.md)। हर आवश्यकता और उसका प्रमाण: [`docs/REQUIREMENTS.hi.md`](docs/REQUIREMENTS.hi.md)।
 
 ## स्थिति
 
-issue #1 का prototype implement हो चुका है और PR #2 में track है:
-
-- **Data layer (R-A\*)**: `DualStore` Doublets binary और Links Notation text को lock-step में रखता है; AES-256-GCM backups और `secret:*` link encryption (केवल `MS_SECRET_PASSPHRASE` सेट होने पर; बाक़ी store encrypted नहीं) उपलब्ध हैं।
-- **Service connectors (R-E\*)**: VK, Telegram, X, WhatsApp, Facebook, LinkedIn, career.habr.com, hh.ru, superjob.ru और email के archive parsers तथा live connectors।
-- **Pattern matching और automation (R-C\*)**: `inferRegex`, `simplifyRegex`, `compilePeg`, fuzzy reply variation extraction और `createGraph` / `runGraph`।
-- **CRM (R-D\*)**: contact aggregation, audience DSL, mass-personal outreach, profile और resume sync envelopes।
-- **CV synchronisation (R-V\*)**: सात job platforms के declarative browser plans, cross-platform diff, चुनिंदा writes और हर run के लिए HTML/screenshot artifacts वाली redacted telemetry stream।
-- **Distribution (R-F\*)**: NPM library, CLI, local server, Electron shell, Capacitor mobile shell और Docker web + WebRTC microservices।
-- **Stacks (R-G\*)**: JS server + React SPA + Rust/WASM heavy workloads, साथ में pure Rust server।
-- **Hardening (R-K\*)**: soft delete by default, AES-256-GCM master-key vault, multiple unlock methods और encrypted export।
-- **Browser publishing (R-L\*)**: GitHub Pages CI workflow, public SPA URL और user-first README/user guide।
+आवश्यकताएँ R-A से R-Z24 पूरी हैं और CI में Linux, macOS और Windows पर Node, Bun और Deno के साथ जाँची जाती हैं, Chromium में browser end-to-end tests के साथ। Tests नकली सर्वर उपयोग करते हैं: किसी असली खाते से कुछ नहीं भेजा जाता, और केवल Telegram के संदेश-प्रदर्शन को असली स्टोर पर भी जाँचा गया। परिदृश्य-वार स्थिति और अगले कदम (लाइव खातों पर जाँच, OAuth साइन-इन, टीम मोड, बिक्री pipeline, अभियान परिणाम): [`docs/ROADMAP.hi.md`](docs/ROADMAP.hi.md)।
 
 ## Repository structure
 

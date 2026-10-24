@@ -2,6 +2,8 @@
 
 本页把 `meta-sovereign` 的用户流程集中在一起。流程从“什么都不安装”到“安装完整环境”排序，你可以在满足需求时停止阅读。
 
+meta-sovereign 在网上代表一个人或一个组织：为个人使用、销售、市场营销和用户支持提供同一个收件箱、CRM 和自动化。各场景目前能做什么，见 [`ROADMAP.zh.md`](./ROADMAP.zh.md)。
+
 > **TL;DR:** 打开 <https://link-foundation.github.io/meta-sovereign/>。这就是完整 web app。可选地启动本地 Rust server（或 JS server），让 app 在设备之间同步数据。
 
 ## 1. 不安装任何东西 — 打开 web app
