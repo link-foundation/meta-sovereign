@@ -13,6 +13,7 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { encodeLine } from 'lino-objects-codec';
 
+import { assertMode } from './helpers/mode.js';
 import { createLinoTextStore } from '../src/storage/lino-store.js';
 import { openDualStore } from '../src/storage/dual-store.js';
 import { createMemoryStore } from '../src/storage/index.js';
@@ -26,7 +27,6 @@ import {
 } from '../src/storage/backup.js';
 
 const tmp = (name) => fs.mkdtemp(path.join(os.tmpdir(), `ms-z16-${name}-`));
-const mode = async (file) => (await fs.stat(file)).mode & 0o777;
 const link = (i, extra = {}) => ({
   id: `msg:z:${i}`,
   tokens: ['msg', 'z', `${i}`],
@@ -65,7 +65,7 @@ test('a plain backup round-trips, leaves secrets out and counts them', async () 
   assert.equal(made.secrets, 'excluded');
   assert.equal(made.secretsExcluded, 5);
   assert.equal(made.links, 45);
-  assert.equal(await mode(made.file), 0o600);
+  await assertMode(made.file, 0o600);
   assert.ok(made.file.endsWith('.msbk'));
   assert.ok(!(await fs.readFile(made.file)).includes('S3CR3T'));
   assert.equal(await verifyBackup(made.file), true);
