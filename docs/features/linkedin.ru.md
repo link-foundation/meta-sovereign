@@ -4,7 +4,7 @@
 
 ## Объём и доступ
 
-1. **Официальный API.** Документация: Posts API https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api и Sign In with LinkedIn (OIDC) https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2.
+1. **Официальный API.** Документация: Posts API <https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api> и Sign In with LinkedIn (OIDC) <https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2>.
    - Самообслуживание для участника: `openid profile email` (OIDC `GET /v2/userinfo`: sub, имя, фото, locale, email) и `w_member_social` (создание, изменение текста через PARTIAL_UPDATE и удаление постов; изображения, видео, документы, мультиизображения, опрос, статья, репост).
    - **Ограничено:** `r_member_social` (чтение своих постов, комментариев, лайков) доступен только одобренным пользователям, поэтому обычному личному приложению недоступно даже чтение своих постов через `GET /rest/posts?q=author`.
    - **Messaging API только для партнёров**, самостоятельного доступа нет (общеизвестно): личные сообщения читать и отправлять нельзя. API правки профиля тоже только для партнёрских программ.

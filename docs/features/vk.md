@@ -12,7 +12,7 @@ Three routes exist.
    - Since 2024-06-25 VK no longer grants the user `messages` right to new apps, and the user-token implicit flow is closed. Only legacy tokens (Kate Mobile, VK Admin) ever had it, and those have been cut off. Tokens of the vk.com web client (id 6287487) and VK Calls (7793118) are reported to still work, at the risk of the user's own account (freezes of 24 hours to 4 days are reported).
    - A **community token** works only for that community's dialogs. It cannot read the user's personal chats; member listing, friends and typing partly do not apply (error 27).
    - Every messaging method (`messages.getConversations`, `getHistory`, `send`, `edit`, `delete`, `markAsRead`, `sendReaction`, `getLongPollServer`, photo and document upload) needs the `messages` (and `photos` / `docs`) right; a user token without it gets error 7 or 15.
-   - Docs: https://dev.vk.ru/ru/api/access-token/getting-started , https://dev.vk.ru/ru/reference/access-rights , https://dev.vk.ru/ru/reference/errors , https://dev.vk.com/en/method/messages .
+   - Docs: <https://dev.vk.ru/ru/api/access-token/getting-started> , <https://dev.vk.ru/ru/reference/access-rights> , <https://dev.vk.ru/ru/reference/errors> , <https://dev.vk.com/en/method/messages> .
 2. **Web app (vk.com/im) in the user's own browser profile.** The only route that works without a `messages` token: the user signs in once in the profile. The selectors cover two VK UI generations and are unverified against live vk.com.
 3. **Data export archive** (https://vk.com/data_protection?section=rules). The importer reads the JSON shape of konard/vk-export (`conversations[].messages[]`). VK's own export is HTML; its pages are now read too (R-Z8, not yet tried on a real archive).
 

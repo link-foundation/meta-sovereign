@@ -4,7 +4,7 @@
 
 ## 范围与访问方式
 
-1. **官方 API。** 文档：Posts API https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api 和 Sign In with LinkedIn (OIDC) https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2。
+1. **官方 API。** 文档：Posts API <https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api> 和 Sign In with LinkedIn (OIDC) <https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2>。
    - 会员自助可用：`openid profile email`（OIDC `GET /v2/userinfo`：sub、姓名、头像、语言区域、邮箱）和 `w_member_social`（创建帖子、通过 PARTIAL_UPDATE 修改正文、删除帖子；图片、视频、文档、多图、投票、文章、转发）。
    - **受限：** `r_member_social`（读取自己的帖子、评论、点赞）仅对获批用户开放，因此普通个人应用连通过 `GET /rest/posts?q=author` 读取自己的帖子也做不到。
    - **Messaging API 仅限合作伙伴**，没有自助开通途径（常识）：个人无法读取或发送消息。资料编辑 API 同样只对合作伙伴项目开放。

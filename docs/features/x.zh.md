@@ -6,7 +6,7 @@
 
 对个人账号有三条路径：
 
-1. **官方 API v2**（`https://api.x.com`）。文档：https://docs.x.com/x-api/getting-started/pricing 和 https://developer.x.com/en/docs/authentication/oauth-2-0。访问按用量付费（无订阅）：按定价页，读取 DM 事件约每资源 $0.010，创建 DM 约每请求 $0.015，读取帖子 $0.005，发帖 $0.015（含 URL 为 $0.20）。定价页没有说明哪个方案开放 DM，DM 端点参考文档也无法获取，因此是否有 DM 资格必须在 X Developer Console 中确认。DM 端点需要带 `dm.read` / `dm.write` 权限范围的用户上下文令牌（常识，此处未验证）。应用只接受一个手动粘贴的 bearer 令牌（`secret:x:token` 或环境变量 `X_ACCESS_TOKEN`）；没有 OAuth 流程、没有刷新、也不检查权限范围。
+1. **官方 API v2**（`https://api.x.com`）。文档：<https://docs.x.com/x-api/getting-started/pricing> 和 <https://developer.x.com/en/docs/authentication/oauth-2-0>。访问按用量付费（无订阅）：按定价页，读取 DM 事件约每资源 $0.010，创建 DM 约每请求 $0.015，读取帖子 $0.005，发帖 $0.015（含 URL 为 $0.20）。定价页没有说明哪个方案开放 DM，DM 端点参考文档也无法获取，因此是否有 DM 资格必须在 X Developer Console 中确认。DM 端点需要带 `dm.read` / `dm.write` 权限范围的用户上下文令牌（常识，此处未验证）。应用只接受一个手动粘贴的 bearer 令牌（`secret:x:token` 或环境变量 `X_ACCESS_TOKEN`）；没有 OAuth 流程、没有刷新、也不检查权限范围。
 2. **浏览器中的网页应用**（x.com/messages），通过应用的浏览器自动化：发送、读取聊天列表和历史、删除、回应。选择器是尽力而为的，没有在真实账号上验证。X 的 DM 没有编辑和转发。
 3. **归档导入**（设置 > 下载你的数据）：`tweets.js` 和 `direct-messages.js`。
 

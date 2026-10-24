@@ -29,3 +29,14 @@ https://web\.archive\.org
 # on push to main, so it 404s on PRs and the very first main build until
 # the deploy job completes. Skip it in the link checker.
 https://link-foundation\.github\.io/meta-sovereign
+
+# Hosts that answer link checkers with 403/500/HTTP2 errors (bot protection)
+# although the pages exist for people (R-Z18)
+https://support\.upwork\.com
+https://www\.upwork\.com
+https://dev\.vk\.ru
+https://api\.superjob\.ru
+
+# Copied next to js/src/web/download/index.html by js/scripts/build-pages.mjs
+# from desktop/icon.svg, so it does not exist in the source tree
+download/icon\.svg

@@ -154,8 +154,8 @@ Fixes shipped with R-Z11: GitHub send/edit/delete/react by the saved id, owner/r
 
 1. Edit, delete and react need the saved GitHub id: items pulled before R-Z11 are backfilled by migration 0004 where the stored url / raw allow it; the rest refuse with `no-external-id` until the repository is fetched again.
 2. No cross-repository search inbox ("everything involving me" through `GET /issues`); the inbox is the chosen repositories plus notifications.
-3. No new-activity badges on the page; Fetch now and the schedule report counts only.
-4. Fidelity: issue/PR state, labels, review-comment diff context, Markdown rendering, permalink, reactions and avatars are not shown.
+3. No new-activity badges on the page; Fetch now and the schedule report counts only. (The GitHub card does list unread notifications with a "Mark read" button, R-Z20, and review comments show their diff context, R-Z11.)
+4. Fidelity: issue/PR state, labels, Markdown rendering, permalink, reactions and avatars are not shown.
 5. Discussions are read and written through GraphQL only with a token that may use them; otherwise the repository pulls and the reason is shown.
 6. Token flow: no OAuth device flow, one account only, no Enterprise base URL in the UI, and guidance on classic vs fine-grained tokens is thin (notifications need a classic token).
 7. Repository clone has no size cap or binary check and cannot clone all repositories at once.

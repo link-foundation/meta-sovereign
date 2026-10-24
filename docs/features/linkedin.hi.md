@@ -4,7 +4,7 @@
 
 ## दायरा और पहुँच
 
-1. **आधिकारिक API।** दस्तावेज़: Posts API https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api और Sign In with LinkedIn (OIDC) https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2।
+1. **आधिकारिक API।** दस्तावेज़: Posts API <https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api> और Sign In with LinkedIn (OIDC) <https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2>।
    - सदस्य के लिए स्व-सेवा: `openid profile email` (OIDC `GET /v2/userinfo`: sub, नाम, चित्र, locale, ईमेल) और `w_member_social` (पोस्ट बनाना, टिप्पणी-पाठ को PARTIAL_UPDATE से बदलना और हटाना; चित्र, वीडियो, दस्तावेज़, बहु-चित्र, पोल, लेख, रीशेयर)।
    - **प्रतिबंधित:** `r_member_social` (अपनी पोस्ट, टिप्पणियाँ, लाइक पढ़ना) केवल स्वीकृत उपयोगकर्ताओं के लिए है, इसलिए सामान्य व्यक्तिगत ऐप के लिए `GET /rest/posts?q=author` से अपनी पोस्ट पढ़ना भी उपलब्ध नहीं।
    - **Messaging API केवल पार्टनर के लिए है**, स्व-सेवा पहुँच नहीं (सामान्य जानकारी): व्यक्तिगत संदेश पढ़ना या भेजना नहीं। प्रोफ़ाइल संपादन API भी केवल पार्टनर कार्यक्रमों के लिए है।

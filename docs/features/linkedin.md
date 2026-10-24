@@ -4,7 +4,7 @@ Back to the [Telegram feature matrix](../FEATURES.md). This page covers LinkedIn
 
 ## Scope and access
 
-1. **Official API.** Docs: Posts API https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api and Sign In with LinkedIn (OIDC) https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2.
+1. **Official API.** Docs: Posts API <https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api> and Sign In with LinkedIn (OIDC) <https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2>.
    - Self-serve for a member: `openid profile email` (OIDC `GET /v2/userinfo`: sub, name, picture, locale, email) and `w_member_social` (create, update by PARTIAL_UPDATE of the commentary, and delete posts; images, video, documents, multi-image, poll, article, reshare).
    - **Restricted:** `r_member_social` (read own posts, comments, likes) is for approved users only, so even reading your own posts through `GET /rest/posts?q=author` is not available to a normal personal app.
    - **The Messaging API is partner-only**, with no self-serve access (general knowledge): no personal message read or send. The profile edit API is also for partner programs only.

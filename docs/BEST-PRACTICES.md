@@ -96,7 +96,7 @@ This configuration (implemented in this template) ensures:
 - **Main branch**: Newer runs cancel older runs, preventing blocking (Issue #1274 fix)
 - **PR branches**: Runs are queued to preserve check history
 
-See [DETAILED-COMPARISON.md](./case-studies/issue-25/DETAILED-COMPARISON.md) for the full analysis of best practices from both repositories.
+See `docs/case-studies/issue-25/DETAILED-COMPARISON.md` (not in this repository) for the full analysis of best practices from both repositories.
 
 #### Fresh Merge Simulation
 
@@ -231,6 +231,6 @@ Each layer catches different issues, ensuring no problematic code reaches produc
 - [Code Architecture Principles](https://github.com/link-foundation/code-architecture-principles)
 - [hive-mind CI/CD Best Practices](https://github.com/link-assistant/hive-mind/blob/main/docs/CI-CD-BEST-PRACTICES.md)
 - [hive-mind CI/CD Case Studies](https://github.com/link-assistant/hive-mind/tree/main/docs/case-studies)
-- [Issue #1274 Analysis](./case-studies/issue-25/data/issue-1274-case-study.md) - Concurrency blocking
-- [Issue #1278 Analysis](./case-studies/issue-25/data/issue-1278-case-study.md) - always() cancellation prevention
+- Issue #1274 Analysis - Concurrency blocking
+- Issue #1278 Analysis - always() cancellation prevention
 - [Pipeline template issue #29 analysis](./case-studies/pipeline-template-issue-29/README.md) - CI/CD best practices alignment

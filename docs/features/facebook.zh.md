@@ -8,11 +8,11 @@
 
 个人账号有三条途径。只有第三条适用于个人收件箱的实时消息，而且尚未对照真实标记测试。
 
-1. **官方 API（Graph API / Messenger Platform）。**适配器使用 `https://graph.facebook.com/v22.0`，配合*主页（Page）*访问令牌和主页 id。Messenger Platform 只服务主页：主页的收件箱、webhook、24 小时标准消息窗口，以及除应用角色之外所有人都需要的 App Review（`pages_messaging`）。**个人 Messenger 收件箱没有 API**（旧的 `read_mailbox` 权限和 Chat API 都已不存在）。该适配器只对运营主页的人有用。文档：https://developers.facebook.com/docs/messenger-platform/ 、https://developers.facebook.com/docs/graph-api/reference/page/conversations/ 、https://developers.facebook.com/docs/messenger-platform/send-messages/ 。
-2. **“下载你的信息”数据归档。**导入器按顺序读取每个会话的 `message_N.json` 或 `.html` 并合并（R-Z10）。自动导入方案会打开 Accounts Center 的“下载你的信息”页面；“连接”页面接受 `.json` 和 `.zip`。归档是一次性快照：端到端加密聊天不在普通导出中（Meta 另行提供），也不会有新消息到达。文档：https://www.facebook.com/help/212802592074644 。
+1. **官方 API（Graph API / Messenger Platform）。**适配器使用 `https://graph.facebook.com/v22.0`，配合*主页（Page）*访问令牌和主页 id。Messenger Platform 只服务主页：主页的收件箱、webhook、24 小时标准消息窗口，以及除应用角色之外所有人都需要的 App Review（`pages_messaging`）。**个人 Messenger 收件箱没有 API**（旧的 `read_mailbox` 权限和 Chat API 都已不存在）。该适配器只对运营主页的人有用。文档：<https://developers.facebook.com/docs/messenger-platform/> 、<https://developers.facebook.com/docs/graph-api/reference/page/conversations/> 、<https://developers.facebook.com/docs/messenger-platform/send-messages/> 。
+2. **“下载你的信息”数据归档。**导入器按顺序读取每个会话的 `message_N.json` 或 `.html` 并合并（R-Z10）。自动导入方案会打开 Accounts Center 的“下载你的信息”页面；“连接”页面接受 `.json` 和 `.zip`。归档是一次性快照：端到端加密聊天不在普通导出中（Meta 另行提供），也不会有新消息到达。文档：<https://www.facebook.com/help/212802592074644> 。
 3. **浏览器中的网页应用。**应用在持久的自动化配置文件中驱动 `https://www.facebook.com/messages/`：发送、读取最近消息和聊天列表、编辑、撤回、回应、转发。不使用 `messenger.com`；它在 2026 年是否仍提供完整的网页客户端并不确定，因为 Meta 一直在把它并入 `facebook.com/messages`。
 
-**Instagram Direct。**应用中没有单独的 Instagram 来源、网页入口或连接指南；Instagram 归档通过 Facebook 配方导入，作为 `instagram` 链接（R-Z10）。：Instagram 归档导入）。官方途径：Instagram Messaging API 只服务关联到主页的商业和创作者账号，不服务个人账号（https://developers.facebook.com/docs/instagram-platform/instagram-api-with-facebook-login/messaging-api/ ）。个人收件箱可以通过“下载你的信息”归档（与 Facebook 相同的 `message_1.json` 结构）以及浏览器中的 `instagram.com/direct/` 访问。
+**Instagram Direct。**应用中没有单独的 Instagram 来源、网页入口或连接指南；Instagram 归档通过 Facebook 配方导入，作为 `instagram` 链接（R-Z10）。：Instagram 归档导入）。官方途径：Instagram Messaging API 只服务关联到主页的商业和创作者账号，不服务个人账号（<https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api/> ）。个人收件箱可以通过“下载你的信息”归档（与 Facebook 相同的 `message_1.json` 结构）以及浏览器中的 `instagram.com/direct/` 访问。
 
 **不可访问：**语音和视频通话、Rooms、在网页应用中没有用户恢复 PIN 的端到端加密聊天（PIN 流程需要用户本人）、移动应用独有的 Messenger 功能（Chat Heads、AR 特效、支付），以及所有个人收件箱的 API 调用（根本没有）。
 
