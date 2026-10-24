@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.14
+
+### Patch Changes
+
+- 1faf84f: Linux WebKit fixes (R-Z22): reduced visual effects switch transitions off instead of leaving a 0.01ms fade (which gave low-contrast text while the theme switched); the tutorial card never covers the control it points at (the target is scrolled into the space the card leaves free, and the card collapses when it cannot be), including with taller fonts; the card takes focus on every step even when the page grabs it back. Stored data is unchanged.
+
 ## 0.49.13
 
 ### Patch Changes
