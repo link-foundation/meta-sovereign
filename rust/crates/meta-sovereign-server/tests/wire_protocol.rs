@@ -233,16 +233,17 @@ fn webrtc_signaling_relays_between_two_peers() {
     .expect("serve");
     let mut a = open_ws(h.port(), "/rtc?room=test");
     let mut b = open_ws(h.port(), "/rtc?room=test");
-    // Drain b's "peer-joined" frame from joining itself (sent to a),
-    // and the announcement a will receive *about* b.
-    std::thread::sleep(Duration::from_millis(150));
-    let peer_joined_to_a = read_one_text_frame(&mut a);
+    // The server adds a peer to the room just after its handshake, so
+    // either may be in it first: the one already there hears "peer-joined"
+    // about the other. Once one has, both are in the room.
+    let (joined, _) = first_text_frame(&mut a, &mut b);
     assert!(
-        peer_joined_to_a.contains("peer-joined"),
-        "expected peer-joined, got {peer_joined_to_a:?}"
+        joined.contains("peer-joined"),
+        "expected peer-joined, got {joined:?}"
     );
-    // a sends an offer; b should receive it.
+    // a sends an offer; b receives it.
     write_text_frame(&mut a, "{\"type\":\"offer\",\"sdp\":\"x\"}");
+    b.set_read_timeout(Some(Duration::from_secs(3))).unwrap();
     let relayed = read_one_text_frame(&mut b);
     assert!(relayed.contains("\"type\":\"offer\""), "got {relayed:?}");
     h.shutdown();
@@ -256,16 +257,43 @@ fn open_ws(port: u16, path: &str) -> TcpStream {
     );
     s.write_all(req.as_bytes()).unwrap();
     s.set_read_timeout(Some(Duration::from_secs(3))).unwrap();
+    // One byte at a time: a frame right behind the handshake stays unread.
     let mut buf = Vec::new();
-    let mut tmp = [0u8; 256];
-    while !buf.windows(4).any(|w| w == b"\r\n\r\n") {
-        let n = s.read(&mut tmp).unwrap();
-        if n == 0 {
+    let mut byte = [0u8; 1];
+    while !buf.ends_with(b"\r\n\r\n") {
+        if s.read(&mut byte).unwrap() == 0 {
             break;
         }
-        buf.extend_from_slice(&tmp[..n]);
+        buf.push(byte[0]);
     }
     s
+}
+
+// The first text frame either stream receives, and which one (0 = a).
+fn first_text_frame(a: &mut TcpStream, b: &mut TcpStream) -> (String, usize) {
+    let deadline = std::time::Instant::now() + Duration::from_secs(5);
+    a.set_nonblocking(true).unwrap();
+    b.set_nonblocking(true).unwrap();
+    let mut probe = [0u8; 1];
+    let has_data = |s: &TcpStream, probe: &mut [u8; 1]| matches!(s.peek(probe), Ok(n) if n > 0);
+    let which = loop {
+        if has_data(a, &mut probe) {
+            break 0;
+        }
+        if has_data(b, &mut probe) {
+            break 1;
+        }
+        assert!(
+            std::time::Instant::now() < deadline,
+            "no frame on either peer"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    a.set_nonblocking(false).unwrap();
+    b.set_nonblocking(false).unwrap();
+    let s = if which == 0 { a } else { b };
+    s.set_read_timeout(Some(Duration::from_secs(3))).unwrap();
+    (read_one_text_frame(s), which)
 }
 
 fn write_text_frame(stream: &mut TcpStream, text: &str) {
