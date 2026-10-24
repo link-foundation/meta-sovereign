@@ -436,4 +436,11 @@ export const zhChatAccount = {
   'settings.translate.chats': '翻译整个聊天',
   'settings.translate.hint':
     '在其他语言的聊天上方显示翻译栏（需要 Telegram Premium）。保存在此设备上。',
+  // Custom emoji in the emoji panel (R-Y214).
+  'chat.emoji.customOne': '自定义表情',
+  'chat.emoji.groupEmoji': '群组表情',
+  'chat.emoji.groups': '表情分组',
+  'chat.emoji.premiumNeeded': '使用自定义表情需要 Premium。',
+  'chat.emoji.cat.group-emoji': '群组表情',
+  'chat.emoji.cat.custom': '我的表情',
 };

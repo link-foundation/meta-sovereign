@@ -474,4 +474,11 @@ export const enChatAccount = {
   'settings.translate.chats': 'Translate entire chats',
   'settings.translate.hint':
     'Show a bar over chats in another language to translate them (needs Telegram Premium). Kept on this device.',
+  // Custom emoji in the emoji panel (R-Y214).
+  'chat.emoji.customOne': 'Custom emoji',
+  'chat.emoji.groupEmoji': 'Group emoji',
+  'chat.emoji.groups': 'Emoji groups',
+  'chat.emoji.premiumNeeded': 'Premium is needed to use custom emoji.',
+  'chat.emoji.cat.group-emoji': 'Group emoji',
+  'chat.emoji.cat.custom': 'My emoji',
 };

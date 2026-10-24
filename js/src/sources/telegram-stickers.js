@@ -97,7 +97,12 @@ export const panelItem = (doc, kind = 'sticker') => {
     id: text(doc.id),
     kind,
     format: formatOf(doc),
-    emoji: attribute(doc, 'DocumentAttributeSticker')?.alt ?? null,
+    // A custom emoji's alt is the emoji it stands for (R-Y214).
+    emoji:
+      (
+        attribute(doc, 'DocumentAttributeSticker') ??
+        attribute(doc, 'DocumentAttributeCustomEmoji')
+      )?.alt ?? null,
     w: Number(size?.w ?? 0) || null,
     h: Number(size?.h ?? 0) || null,
   };

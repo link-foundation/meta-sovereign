@@ -35,6 +35,7 @@ export const CLASS_OF = Object.freeze({
   code: 'MessageEntityCode',
   pre: 'MessageEntityPre',
   link: 'MessageEntityTextUrl',
+  customEmoji: 'MessageEntityCustomEmoji',
 });
 
 const TYPE_OF = Object.fromEntries(
@@ -45,6 +46,9 @@ const WORD = /[\p{L}\p{N}]/u;
 const SPACE = /\s/u;
 const LINK =
   /^\[([^[\]\n]+)\]\(((?:https?:\/\/|tg:\/\/|mailto:)[^\s()]+|(?:[\p{L}\p{N}-]+\.)+\p{L}{2,}(?:\/[^\s()]*)?)\)/u;
+// ![😀](tg://emoji?id=5368324170671202286): a custom emoji (R-Y214) — the
+// fallback emoji it stands for, then the document's id.
+const EMOJI = /^!\[([^[\]\s]{1,32})\]\(tg:\/\/emoji\?id=(\d{1,20})\)/u;
 const LANGUAGE = /^([\w+#.-]{1,32})\n/;
 
 const isWord = (char) => Boolean(char) && WORD.test(char);
@@ -101,6 +105,22 @@ const linkAt = (src, i) => {
     : null;
 };
 
+const emojiAt = (src, i) => {
+  if (src[i] !== '!') {
+    return null;
+  }
+  const found = EMOJI.exec(src.slice(i));
+  return found
+    ? {
+        type: 'customEmoji',
+        inner: found[1],
+        literal: true,
+        end: i + found[0].length,
+        documentId: found[2],
+      }
+    : null;
+};
+
 // **bold**, __italic__, ~~strike~~, ||spoiler||: at a word's edge, not
 // starting or ending with a space; the first close that fits ends it.
 const pairAt = (src, i) => {
@@ -143,7 +163,7 @@ const underlineAt = (src, i) => {
     : null;
 };
 
-const MATCHERS = [preAt, codeAt, linkAt, underlineAt, pairAt];
+const MATCHERS = [preAt, codeAt, emojiAt, linkAt, underlineAt, pairAt];
 
 const parseInto = (src, out) => {
   let i = 0;
@@ -168,6 +188,7 @@ const parseInto = (src, out) => {
         length,
         ...(match.type === 'pre' ? { language: match.language } : {}),
         ...(match.url ? { url: match.url } : {}),
+        ...(match.documentId ? { documentId: match.documentId } : {}),
       });
     }
     i = match.end;
@@ -190,6 +211,13 @@ export const apiEntities = (Api, entities = []) =>
     .filter((e) => Api?.[CLASS_OF[e.type]])
     .map((e) => {
       const { type, ...fields } = e;
+      if (type === 'customEmoji') {
+        // The document's id is a 64-bit number: a BigInt (R-Y214).
+        return new Api[CLASS_OF[type]]({
+          ...fields,
+          documentId: BigInt(fields.documentId),
+        });
+      }
       return new Api[CLASS_OF[type]](
         type === 'pre' ? { ...fields, language: fields.language ?? '' } : fields
       );
@@ -227,26 +255,33 @@ const OPEN = {
   code: () => '`',
   pre: (e) => `\`\`\`${e.language ?? ''}\n`,
   link: () => '[',
+  customEmoji: () => '![',
 };
 const CLOSE = {
   ...OPEN,
   pre: () => '\n```',
   underline: () => '</u>',
   link: (e) => `](${e.url})`,
+  customEmoji: (e) => `](tg://emoji?id=${e.documentId})`,
 };
 
 /**
  * A message's text and entities back as what one would type: editing a
  * formatted message keeps its formatting, as Desktop's edit box does.
- * Entities markdown cannot say (quotes, custom emoji) are
- * left out.
+ * Custom emoji come back as `![😀](tg://emoji?id=…)` (R-Y214); entities
+ * markdown cannot say (quotes) are left out.
  */
 export const toMarkdown = (text, entities = []) => {
   const known = entities
-    .map((e) => ({ ...e, type: e.type ?? TYPE_OF[e.className] }))
+    .map((e) => ({
+      ...e,
+      type: e.type ?? TYPE_OF[e.className],
+      documentId: e.documentId?.value ?? e.documentId,
+    }))
     .filter(
       (e) =>
         OPEN[e.type] &&
+        (e.type !== 'customEmoji' || /^\d{1,20}$/.test(String(e.documentId))) &&
         Number(e.length) > 0 &&
         (e.type !== 'link' || e.url) &&
         e.offset + e.length <= text.length

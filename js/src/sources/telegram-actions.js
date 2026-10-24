@@ -99,6 +99,7 @@ import { createTopicAdmin } from './telegram-topic-admin.js';
 import { createChatReactions } from './telegram-chat-reactions.js';
 import { createChatSettings } from './telegram-chat-settings.js';
 import { createGroupExtras } from './telegram-group-extras.js';
+import { createEmojiGroups } from './telegram-emoji-groups.js';
 import { createNotifySettings } from './telegram-notify-settings.js';
 import { createRingtones } from './telegram-ringtones.js';
 import { createPinnedOrder } from './telegram-pinned-order.js';
@@ -501,7 +502,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // exporting the account's data (R-Y212); a group's sticker set and emoji
 // pack, pinned topics reordered, new chats in a shared folder and the
 // new-contacts notification (R-Y211); ephemeral messages (R-Y223); deleted
-// messages marked with the one tombstone shape (R-Z7).
+// messages marked with the one tombstone shape (R-Z7); custom emoji in the
+// composer and the emoji panel's category groups (R-Y214).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -626,6 +628,7 @@ const chatActions = (env, context) => {
     ...createCalendar(env, context),
     ...createTopPeers(env, context),
     ...createGroupExtras(env, context),
+    ...createEmojiGroups(env, context),
   };
 };
 

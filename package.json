@@ -156,6 +156,8 @@
     "test:e2e:emoji-keywords:webkit": "E2E_BROWSER=webkit node js/tests/e2e-emoji-keywords-browser.mjs",
     "test:e2e:custom-emoji": "node js/tests/e2e-custom-emoji-browser.mjs",
     "test:e2e:custom-emoji:webkit": "E2E_BROWSER=webkit node js/tests/e2e-custom-emoji-browser.mjs",
+    "test:e2e:custom-emoji-composer": "node js/tests/e2e-custom-emoji-composer-browser.mjs",
+    "test:e2e:custom-emoji-composer:webkit": "E2E_BROWSER=webkit node js/tests/e2e-custom-emoji-composer-browser.mjs",
     "test:e2e:poll-create": "node js/tests/e2e-poll-create-browser.mjs",
     "test:e2e:poll-create:webkit": "E2E_BROWSER=webkit node js/tests/e2e-poll-create-browser.mjs",
     "test:e2e:share-location": "node js/tests/e2e-share-location-browser.mjs",

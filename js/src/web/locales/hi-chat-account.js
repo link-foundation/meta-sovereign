@@ -478,4 +478,11 @@ export const hiChatAccount = {
   'settings.translate.chats': 'पूरी चैट का अनुवाद करें',
   'settings.translate.hint':
     'दूसरी भाषा की चैट के ऊपर अनुवाद के लिए एक पट्टी दिखाएँ (Telegram Premium चाहिए)। इस डिवाइस पर सहेजा जाता है।',
+  // Custom emoji in the emoji panel (R-Y214).
+  'chat.emoji.customOne': 'कस्टम इमोजी',
+  'chat.emoji.groupEmoji': 'ग्रुप इमोजी',
+  'chat.emoji.groups': 'इमोजी समूह',
+  'chat.emoji.premiumNeeded': 'कस्टम इमोजी के लिए प्रीमियम चाहिए।',
+  'chat.emoji.cat.group-emoji': 'ग्रुप इमोजी',
+  'chat.emoji.cat.custom': 'मेरे इमोजी',
 };

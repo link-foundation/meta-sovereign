@@ -487,4 +487,6 @@ export const TELEGRAM_CALLS = {
   telegramQuickReaction: none('quick-reaction'),
   telegramQuickReactionSet: body('quick-reaction-set'),
   telegramCustomEmojiSearch: body('custom-emoji-search'),
+  // The emoji panel's Premium flag and category groups (R-Y214).
+  telegramEmojiPanelInfo: body('emoji-panel-info'),
 };

@@ -12680,3 +12680,40 @@ audio.remote-player {
   flex: 1 1 auto;
   color: var(--text-muted);
 }
+
+/* Custom emoji, the group's emoji pack and emoji groups in the emoji
+   panel (R-Y214). */
+.emoji-groups {
+  display: flex;
+  gap: 0.2rem;
+  overflow-x: auto;
+  padding: 0 0.5rem 0.25rem;
+}
+.emoji-group {
+  flex: 0 0 auto;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.3rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.emoji-group.active {
+  background: var(--accent-bg, var(--bg));
+  color: var(--accent, inherit);
+}
+.emoji-note {
+  margin: 0 0.6rem 0.3rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.custom-emoji-cell .msg-custom-emoji {
+  font-size: inherit;
+}

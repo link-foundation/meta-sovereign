@@ -24,6 +24,18 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocaleContext, useT } from './i18n.js';
 import { Icon } from './icons.js';
 import { EMOJI_CATEGORIES, EMOJI_TONES } from './emoji-data.js';
+import {
+  CustomCell,
+  GroupEmojiSection,
+  GridSection,
+  GroupTabs,
+  InstalledSections,
+  PremiumNote,
+  saveJson,
+  storedJson,
+  useCustomPanel,
+  useCustomTools,
+} from './chat-emoji-custom.js';
 
 const el = React.createElement;
 
@@ -84,6 +96,8 @@ const CATEGORY_ICONS = {
   objects: 'bulb',
   symbols: 'heart',
   flags: 'flag',
+  'group-emoji': 'star',
+  custom: 'star',
 };
 
 /** Every category's emoji as `[{ emoji, name }]`, parsed once. */
@@ -118,6 +132,22 @@ const byBare = () => {
     }
   }
   return barely;
+};
+
+/**
+ * The standard emoji a group's `emoticons` name (Telegram's emoji groups,
+ * R-Y214), in the group's order.
+ */
+export const itemsOfEmoticons = (emoticons) => {
+  const index = byBare();
+  const found = new Map();
+  for (const emoticon of emoticons ?? []) {
+    const item = index.get(bare(String(emoticon)));
+    if (item && !found.has(item.emoji)) {
+      found.set(item.emoji, item);
+    }
+  }
+  return [...found.values()];
 };
 
 /**
@@ -279,24 +309,14 @@ export const rememberTone = (
 export const withRecent = (recent, emoji) =>
   [emoji, ...recent.filter((e) => e !== emoji)].slice(0, RECENT_MAX);
 
-const readRecent = (storage = globalThis.localStorage) => {
-  try {
-    const saved = JSON.parse(storage?.getItem(RECENT_KEY) ?? 'null');
-    return Array.isArray(saved) && saved.every((e) => typeof e === 'string')
-      ? saved.slice(0, RECENT_MAX)
-      : FIRST_RECENT;
-  } catch {
-    return FIRST_RECENT;
-  }
+const readRecent = (storage) => {
+  const saved = storedJson(RECENT_KEY, storage);
+  return Array.isArray(saved) && saved.every((e) => typeof e === 'string')
+    ? saved.slice(0, RECENT_MAX)
+    : FIRST_RECENT;
 };
 
-const saveRecent = (recent, storage = globalThis.localStorage) => {
-  try {
-    storage?.setItem(RECENT_KEY, JSON.stringify(recent));
-  } catch {
-    // Private mode: remembered until the page closes.
-  }
-};
+const saveRecent = (recent, storage) => saveJson(RECENT_KEY, recent, storage);
 
 /**
  * Put `text` in `area` at the caret (over the selection), as typing
@@ -426,14 +446,10 @@ const Cell = ({ item, onPick, toning }) => {
   );
 };
 
-const Section = ({ id, title, list, onPick, toning }) =>
-  el('section', { className: 'emoji-section', 'data-category': id }, [
-    el('h4', { key: 'h', className: 'emoji-section-title' }, title),
-    el(
-      'div',
-      { key: 'g', className: 'emoji-grid' },
-      list.map((item) => el(Cell, { key: item.emoji, item, onPick, toning }))
-    ),
+const Section = ({ id, title, list, onPick, toning, extra = NONE }) =>
+  el(GridSection, { id, title }, [
+    ...list.map((item) => el(Cell, { key: item.emoji, item, onPick, toning })),
+    ...extra,
   ]);
 
 // The six variants of a base emoji over (or under) its cell; Escape or a
@@ -556,8 +572,140 @@ export const jumpTo = (scroller, key) => {
   }
 };
 
-const EmojiTab = ({ recent, onPick, tones, onTone, keywords, featured }) => {
+// The standard emoji, as the panel lists them: Telegram's emoji group when
+// one is chosen, else the recent ones (with the recent custom emoji) and
+// the categories (R-Y214).
+const standardSections = ({ group, sections, tools, pickCustom, toning }) => {
+  if (group) {
+    return [
+      {
+        key: 'group',
+        title: group.title,
+        list: itemsOfEmoticons(group.emoticons),
+      },
+    ];
+  }
+  return sections
+    .filter((s) => s.list.length > 0)
+    .map((s) => ({
+      ...s,
+      toning: s.key === 'recent' ? null : toning,
+      extra:
+        s.key === 'recent' && tools
+          ? tools.recent.map((item) =>
+              el(CustomCell, {
+                key: `custom-${item.id}`,
+                item,
+                api: tools.api,
+                onPick: pickCustom,
+              })
+            )
+          : NONE,
+    }));
+};
+
+// The scrolling part: search results, or the group's pack, the standard
+// sections and the account's custom emoji sets.
+const EmojiScroll = ({
+  scroller,
+  searching,
+  found,
+  chosen,
+  shown,
+  tools,
+  panel,
+  onPick,
+  toning,
+}) => {
   const t = useT();
+  let body;
+  if (searching) {
+    body =
+      found.length > 0
+        ? el(Section, {
+            id: 'found',
+            title: t('chat.emoji.found'),
+            list: found,
+            onPick,
+            toning,
+          })
+        : el('p', { className: 'emoji-none' }, t('chat.emoji.none'));
+  } else {
+    body = [
+      chosen
+        ? null
+        : el(GroupEmojiSection, {
+            key: 'group-emoji',
+            tools,
+            onPick: panel.pick,
+          }),
+      ...shown.map((s) =>
+        el(Section, {
+          key: s.key,
+          id: s.key,
+          title: s.title ?? t(`chat.emoji.cat.${s.key}`),
+          list: s.list,
+          onPick,
+          toning: s.toning,
+          extra: s.extra,
+        })
+      ),
+      chosen || !tools
+        ? null
+        : el(InstalledSections, {
+            key: 'installed',
+            tools,
+            sets: panel.sets,
+            onPick: panel.pick,
+          }),
+    ];
+  }
+  return el('div', { className: 'emoji-scroll', ref: scroller }, body);
+};
+
+// The bar below: a button per section to jump to.
+const CategoryBar = ({ bar, inView, jump }) => {
+  const t = useT();
+  return el(
+    'div',
+    { className: 'emoji-cats', role: 'toolbar' },
+    bar.map((s) =>
+      el(
+        'button',
+        {
+          key: s.key,
+          type: 'button',
+          className: inView === s.key ? 'emoji-cat active' : 'emoji-cat',
+          title: t(`chat.emoji.cat.${s.key}`),
+          'aria-label': t(`chat.emoji.cat.${s.key}`),
+          'data-jump': s.key,
+          onClick: () => jump(s.target ?? s.key),
+        },
+        el(Icon, { name: CATEGORY_ICONS[s.key], size: 18 })
+      )
+    )
+  );
+};
+
+// The bar's buttons: the group's pack, the standard sections, the sets.
+const barOf = (sections, tools, sets) => [
+  ...(tools?.groupSet?.shortName ? [{ key: 'group-emoji' }] : []),
+  ...sections,
+  ...(sets?.length > 0 ? [{ key: 'custom', target: `set-${sets[0].id}` }] : []),
+];
+
+const EmojiTab = ({
+  recent,
+  onPick,
+  tones,
+  onTone,
+  keywords,
+  featured,
+  tools,
+}) => {
+  const t = useT();
+  const panel = useCustomPanel(tools);
+  const { group } = panel;
   const [query, setQuery] = useState('');
   // The trending custom emoji sets over the panel (R-Y206).
   const [trending, setTrending] = useState(false);
@@ -581,7 +729,16 @@ const EmojiTab = ({ recent, onPick, tones, onTone, keywords, featured }) => {
     setAt(null);
   };
   const jump = (key) => jumpTo(scroller, key);
+  const bar = barOf(sections, tools, panel.sets);
   const searching = query.trim().length > 0;
+  const chosen = searching ? null : group;
+  const shown = standardSections({
+    group: chosen,
+    sections,
+    tools,
+    pickCustom: panel.pick,
+    toning,
+  });
   if (trending && featured) {
     return featured(() => setTrending(false));
   }
@@ -596,6 +753,14 @@ const EmojiTab = ({ recent, onPick, tones, onTone, keywords, featured }) => {
       value: query,
       onChange: (event) => setQuery(event.target.value),
     }),
+    el(GroupTabs, {
+      key: 'groups',
+      groups: searching ? NONE : (panel.info?.groups ?? NONE),
+      active: group,
+      api: tools?.api,
+      onPick: panel.setGroup,
+    }),
+    panel.note ? el(PremiumNote, { key: 'note' }) : null,
     featured && !searching
       ? el(
           'button',
@@ -609,32 +774,18 @@ const EmojiTab = ({ recent, onPick, tones, onTone, keywords, featured }) => {
           t('chat.extras.trendingEmoji')
         )
       : null,
-    el(
-      'div',
-      { key: 's', className: 'emoji-scroll', ref: scroller },
-      searching
-        ? found.length > 0
-          ? el(Section, {
-              id: 'found',
-              title: t('chat.emoji.found'),
-              list: found,
-              onPick,
-              toning,
-            })
-          : el('p', { className: 'emoji-none' }, t('chat.emoji.none'))
-        : sections
-            .filter((s) => s.list.length > 0)
-            .map((s) =>
-              el(Section, {
-                key: s.key,
-                id: s.key,
-                title: t(`chat.emoji.cat.${s.key}`),
-                list: s.list,
-                onPick,
-                toning: s.key === 'recent' ? null : toning,
-              })
-            )
-    ),
+    el(EmojiScroll, {
+      key: 's',
+      scroller,
+      searching,
+      found,
+      chosen,
+      shown,
+      tools,
+      panel,
+      onPick,
+      toning,
+    }),
     at
       ? el(TonePopover, {
           key: 'tones',
@@ -644,27 +795,9 @@ const EmojiTab = ({ recent, onPick, tones, onTone, keywords, featured }) => {
           close: closeTones,
         })
       : null,
-    searching
+    searching || chosen
       ? null
-      : el(
-          'div',
-          { key: 'c', className: 'emoji-cats', role: 'toolbar' },
-          sections.map((s) =>
-            el(
-              'button',
-              {
-                key: s.key,
-                type: 'button',
-                className: inView === s.key ? 'emoji-cat active' : 'emoji-cat',
-                title: t(`chat.emoji.cat.${s.key}`),
-                'aria-label': t(`chat.emoji.cat.${s.key}`),
-                'data-jump': s.key,
-                onClick: () => jump(s.key),
-              },
-              el(Icon, { name: CATEGORY_ICONS[s.key], size: 18 })
-            )
-          )
-        ),
+      : el(CategoryBar, { key: 'c', bar, inView, jump }),
   ]);
 };
 
@@ -718,6 +851,7 @@ const Panel = ({
   close,
   keywords,
   featured,
+  tools,
 }) => {
   const t = useT();
   const [chosen, setChosen] = useState(readTab);
@@ -749,6 +883,7 @@ const Panel = ({
             onTone,
             keywords,
             featured,
+            tools,
           }),
     ]
   );
@@ -758,7 +893,9 @@ const Panel = ({
  * The panel for a message box: `box` is its textarea's ref, `setText`
  * sets its text; `extra` more tabs (`{ key, label, render(close) }`);
  * `keywords(lang)` Telegram's words for emoji, when there are any;
- * `featured(back)` the trending custom emoji sets (R-Y206), when offered.
+ * `featured(back)` the trending custom emoji sets (R-Y206), when offered;
+ * `custom` ({ api, groupSet }) the Premium emoji, the group's pack and
+ * Telegram's emoji groups (R-Y214), when a Telegram user account is there.
  * Answers `{ button, panel }` to put in the composer.
  */
 export const useEmojiPanel = ({
@@ -767,6 +904,7 @@ export const useEmojiPanel = ({
   extra = NONE,
   keywords = null,
   featured = null,
+  custom = null,
 }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -779,6 +917,9 @@ export const useEmojiPanel = ({
   const [inside] = useState(() => [button, panelRef]);
   const close = useMemo(() => () => setOpen(false), []);
   useClosing(open, close, inside);
+  const tools = useCustomTools(custom, (text) =>
+    insertAtCaret(box.current, text, setText)
+  );
   const pick = (emoji) => {
     insertAtCaret(box.current, emoji, setText);
     const next = withRecent(recent, emoji);
@@ -816,6 +957,7 @@ export const useEmojiPanel = ({
           close,
           keywords,
           featured,
+          tools,
         })
       : null,
   };

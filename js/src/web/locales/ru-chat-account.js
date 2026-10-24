@@ -499,4 +499,11 @@ export const ruChatAccount = {
   'settings.translate.chats': 'Переводить чаты целиком',
   'settings.translate.hint':
     'Показывать над чатами на другом языке панель для их перевода (нужен Telegram Premium). Хранится на этом устройстве.',
+  // Custom emoji in the emoji panel (R-Y214).
+  'chat.emoji.customOne': 'Анимированный эмодзи',
+  'chat.emoji.groupEmoji': 'Эмодзи группы',
+  'chat.emoji.groups': 'Группы эмодзи',
+  'chat.emoji.premiumNeeded': 'Для анимированных эмодзи нужен Premium.',
+  'chat.emoji.cat.group-emoji': 'Эмодзи группы',
+  'chat.emoji.cat.custom': 'Мои эмодзи',
 };
