@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.7
+
+### Patch Changes
+
+- c0eda9c: Streaming .msbk backups, schema-aware restore and daily scheduled backups by default (R-Z16).
+
 ## 0.49.6
 
 ### Patch Changes
