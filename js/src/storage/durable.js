@@ -9,7 +9,7 @@
  * user: 0600, directories 0700 (a no-op on Windows).
  */
 
-import { createWriteStream, promises as fs } from 'node:fs';
+import { createWriteStream, promises as fs, renameSync } from 'node:fs';
 import path from 'node:path';
 import { pipeline } from 'node:stream/promises';
 
@@ -81,6 +81,39 @@ export const renameDurable = async (
         throw error;
       }
       await sleep(delayMs * attempt);
+    }
+  }
+};
+
+// A pause that blocks this thread: only for the short waits below.
+const blockFor = (ms) =>
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+/**
+ * `renameDurable` for the few writes that must stay synchronous (the
+ * passcode file, a mail attachment, log rotation): the same codes, the
+ * same attempts and pauses, about a second in all at worst.
+ */
+export const renameDurableSync = (
+  from,
+  to,
+  {
+    rename = renameSync,
+    platform = process.platform,
+    sleep = blockFor,
+    attempts = 10,
+    delayMs = 20,
+  } = {}
+) => {
+  const codes = platform === 'win32' ? WINDOWS_BUSY : new Set(['EBUSY']);
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return rename(from, to);
+    } catch (error) {
+      if (attempt >= attempts || !codes.has(error?.code)) {
+        throw error;
+      }
+      sleep(delayMs * attempt);
     }
   }
 };

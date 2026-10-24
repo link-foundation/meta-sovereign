@@ -1,10 +1,19 @@
 // Renames over a busy file on Windows (R-Z19): fakes only, every OS.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { promises as fs } from 'node:fs';
+import {
+  promises as fs,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { renameDurable, writeFileDurable } from '../src/storage/durable.js';
+import {
+  renameDurable,
+  renameDurableSync,
+  writeFileDurable,
+} from '../src/storage/durable.js';
 import { createLinoTextStore } from '../src/storage/lino-store.js';
 import { assertMode } from './helpers/mode.js';
 
@@ -175,4 +184,58 @@ test('compaction succeeds after readers of the same file were closed', async () 
   }
   const lines = (await fs.readFile(file, 'utf8')).trim().split('\n');
   assert.ok(lines.length < 8, `compacted (${lines.length})`);
+});
+
+// The synchronous twin for the passcode file, mail attachments and logs.
+const flakySync = (times, code = 'EPERM') => {
+  const rename = (from, to) => {
+    rename.calls += 1;
+    if (rename.calls <= times) {
+      throw busy(code);
+    }
+    return renameSync(from, to);
+  };
+  rename.calls = 0;
+  return rename;
+};
+
+test('sync: a busy target is retried on win32, then renamed', async () => {
+  const dir = await tmpdir();
+  writeFileSync(path.join(dir, 'a'), 'new');
+  writeFileSync(path.join(dir, 'b'), 'old');
+  const rename = flakySync(3, 'EBUSY');
+  const pauses = [];
+  renameDurableSync(path.join(dir, 'a'), path.join(dir, 'b'), {
+    platform: 'win32',
+    rename,
+    sleep: (ms) => pauses.push(ms),
+  });
+  assert.equal(rename.calls, 4);
+  assert.deepEqual(pauses, [20, 40, 60]);
+  assert.equal(readFileSync(path.join(dir, 'b'), 'utf8'), 'new');
+});
+
+test('sync: gives up after the attempts; EPERM elsewhere is not retried', () => {
+  const always = flakySync(Infinity);
+  assert.throws(
+    () =>
+      renameDurableSync('a', 'b', {
+        platform: 'win32',
+        rename: always,
+        sleep: () => {},
+      }),
+    { code: 'EPERM' }
+  );
+  assert.equal(always.calls, 10);
+  const once = flakySync(Infinity);
+  assert.throws(
+    () =>
+      renameDurableSync('a', 'b', {
+        platform: 'linux',
+        rename: once,
+        sleep: () => {},
+      }),
+    { code: 'EPERM' }
+  );
+  assert.equal(once.calls, 1);
 });

@@ -14,6 +14,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { renameDurableSync } from '../storage/durable.js';
 
 export const PASSCODE_MAX = 256;
 /** The idle periods of the auto-lock in minutes; 0 is off. */
@@ -135,7 +136,12 @@ export const createPasscodeLock = ({
     fs.mkdirSync(dir, { recursive: true });
     const tmp = `${file}.${process.pid}.tmp`;
     fs.writeFileSync(tmp, JSON.stringify(data), { mode: 0o600 });
-    fs.renameSync(tmp, file);
+    try {
+      renameDurableSync(tmp, file);
+    } catch (error) {
+      fs.rmSync(tmp, { force: true });
+      throw error;
+    }
     cache = { stamp: null, data: null };
   };
 

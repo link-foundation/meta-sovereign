@@ -16,16 +16,11 @@
  *                      on by default for `meta-sovereign serve`.
  */
 
-import {
-  createWriteStream,
-  openSync,
-  renameSync,
-  statSync,
-  unlinkSync,
-} from 'node:fs';
+import { createWriteStream, openSync, statSync, unlinkSync } from 'node:fs';
 import { chmod, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { redact } from './redact.js';
+import { renameDurableSync } from '../storage/durable.js';
 
 // A stray BigInt (e.g. a GramJS account id) must never crash a log write.
 const safe = (_key, value) =>
@@ -53,12 +48,19 @@ const rotate = (file, keep) => {
   }
   for (let n = keep - 1; n >= 1; n -= 1) {
     try {
-      renameSync(`${file}.${n}`, `${file}.${n + 1}`);
+      renameDurableSync(`${file}.${n}`, `${file}.${n + 1}`);
     } catch {
       // gap in the series
     }
   }
-  renameSync(file, `${file}.1`);
+  // Still held after the retries (Windows): keep writing to this file and
+  // try again once it has grown by another `maxBytes`.
+  try {
+    renameDurableSync(file, `${file}.1`);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 const sizeOf = (file) => {
@@ -165,11 +167,13 @@ export const createServerLog = async ({
   await chmod(file, 0o600).catch(() => {}); // an older log was 0644
   const toFile = (line) => {
     if (size + line.length > maxBytes && size > 0) {
-      const finished = out;
-      rotate(file, keep); // the old stream keeps writing to the renamed file
-      out = null;
       size = 0;
-      finished?.end();
+      // The old stream keeps writing to the renamed file until it ends.
+      if (rotate(file, keep)) {
+        const finished = out;
+        out = null;
+        finished?.end();
+      }
     }
     out ??= open();
     out.write(line);

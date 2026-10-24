@@ -11,12 +11,13 @@
 import { createHash } from 'node:crypto';
 import {
   mkdirSync,
-  renameSync,
+  rmSync,
   writeFileSync,
   existsSync,
   readFileSync,
 } from 'node:fs';
 import path from 'node:path';
+import { renameDurableSync } from '../storage/durable.js';
 
 export const MAX_ATTACHMENT_BYTES = 50 * 1024 * 1024;
 
@@ -45,7 +46,12 @@ export const createAttachmentStore = (dir) => {
         mkdirSync(root, { recursive: true, mode: 0o700 });
         const temp = `${file}.${process.pid}.tmp`;
         writeFileSync(temp, bytes, { mode: 0o600 });
-        renameSync(temp, file);
+        try {
+          renameDurableSync(temp, file);
+        } catch (error) {
+          rmSync(temp, { force: true });
+          throw error;
+        }
       }
       return hash;
     },
