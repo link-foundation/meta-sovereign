@@ -280,7 +280,7 @@ test("a backup uses the server's secret passphrase when the body has none", asyn
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ passphrase: null }),
       });
-      assert.match((await res.json()).file, /\.json\.enc$/);
+      assert.match((await res.json()).file, /\.msbk\.enc$/);
     }
   );
 });

@@ -20,6 +20,7 @@ import {
   linksOfManifest,
   restoreBackup,
 } from '../src/storage/backup.js';
+import { scanArchive } from '../src/storage/backup-archive.js';
 import { JOURNAL } from '../src/storage/migrations/node-runner.js';
 import { tmpdir, writeOldStore, oldLinks } from './helpers/test-migrations.mjs';
 
@@ -166,7 +167,7 @@ test('a backup records the schema; restoring an older one migrates it, a newer o
     schemaLink({ version: CURRENT_SCHEMA }),
   ]);
   const file = await createBackup(store, { archiveDir });
-  const manifest = JSON.parse(await fs.readFile(file, 'utf8'));
+  const { manifest } = await scanArchive(file, {});
   assert.deepEqual(manifest.schema, { version: CURRENT_SCHEMA });
 
   // An old archive (no `schema`: version 0) with an old-shape mail.

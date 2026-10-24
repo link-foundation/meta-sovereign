@@ -1,10 +1,10 @@
 /**
  * The automatic backup, started once the port is ours (R-A4, R-Z7).
  *
- * OFF by default (the streaming backups of R-Z16 switch it on).
- * `MS_BACKUP_INTERVAL_HOURS` (or the `backups.intervalHours` option) sets
- * the interval in hours, `0` or unset means off; `MS_BACKUP_KEEP` (or
- * `backups.keep`) sets how many archives are kept (default 7, `0` keeps
+ * ON by default (R-Z16): a streaming backup every 24 hours, the newest 3
+ * kept. `MS_BACKUP_INTERVAL_HOURS` (or the `backups.intervalHours` option)
+ * sets the interval in hours, `0` turns it off; `MS_BACKUP_KEEP` (or
+ * `backups.keep`) sets how many archives are kept (default 3, `0` keeps
  * all). A value that is not a number >= 0 is ignored for the default and
  * logged once.
  * The archive is encrypted, and holds the secrets, only when the server has
@@ -15,8 +15,8 @@
 import { createBackupScheduler } from '../storage/backup.js';
 
 const HOUR_MS = 3_600_000;
-export const DEFAULT_INTERVAL_HOURS = 0;
-export const DEFAULT_KEEP = 7;
+export const DEFAULT_INTERVAL_HOURS = 24;
+export const DEFAULT_KEEP = 3;
 
 // A number >= 0, or the fallback; `bad` collects the names that were wrong.
 const number = (value, fallback, name, bad) => {

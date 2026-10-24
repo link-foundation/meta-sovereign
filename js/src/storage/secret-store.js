@@ -56,6 +56,11 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
     return inner;
   }
   return {
+    // A backup streams the log as stored (secrets sealed) and a restore
+    // puts them back unsealed-again-free (R-Z16).
+    rawStore: inner,
+    logFile: inner.logFile,
+    flushLog: inner.flushLog,
     async put(link) {
       if (isSecret(link)) {
         const sealed = sealLink(link, passphrase);

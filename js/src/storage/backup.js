@@ -1,33 +1,57 @@
 /**
- * Backup helper — snapshots a DualStore directory into a single
- * timestamped file in the configured archive folder, and applies
- * a simple keep-last-N retention policy (R-A4).
+ * Backup helper — snapshots a store into a single timestamped file in the
+ * configured archive folder, and applies a simple keep-last-N retention
+ * policy (R-A4).
  *
- * The archive format is intentionally trivial: a JSON manifest that
- * embeds the .lino text and base64'd binary blob. A future PR will
- * swap this for tar.zst once we add zstd-codec; the call sites do not
- * change because they only use `createBackup(store, opts)`.
+ * Archives are written and read as streams (format 2, `backup-archive.js`,
+ * R-Z16): the store's log is gzipped line by line and sealed in 1 MB
+ * authenticated frames (AES-256-GCM with a passphrase), so a multi-gigabyte
+ * store backs up and restores in flat memory. `data.bin` is not archived: it
+ * is a snapshot of the log and is rebuilt from it when the store opens.
+ * Archives of the earlier format (one JSON document, `.json`/`.json.enc`)
+ * still verify and restore.
  */
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { setInterval, clearInterval } from 'node:timers';
+import { PassThrough } from 'node:stream';
+import { once } from 'node:events';
 import {
   randomBytes,
   scryptSync,
   createCipheriv,
   createDecipheriv,
 } from 'node:crypto';
+import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore, putAll } from './universal.js';
-import { ensurePrivateDir, sweepTemp, writeFileDurable } from './durable.js';
-import { enoughSpace, skippedEvent } from './disk-space.js';
 import {
   CURRENT_SCHEMA,
   MIGRATIONS,
   SCHEMA_ID,
   runMigrations,
+  schemaLink,
   versionOf,
 } from './migrations/index.js';
+import {
+  ensurePrivateDir,
+  fsyncDir,
+  tighten,
+  sweepTemp,
+  writeStreamDurable,
+} from './durable.js';
+import { enoughSpace, skippedEvent } from './disk-space.js';
+import { acquireStoreLock } from './store-lock.js';
+import {
+  archiveContent,
+  archiveError,
+  archiveStages,
+  isArchiveFormat2,
+  isSecretLine,
+  logLines,
+  quickCheckArchive,
+  scanArchive,
+} from './backup-archive.js';
 
 const ENC_VERSION = 1;
 const KDF_N = 1 << 14;
@@ -36,10 +60,9 @@ const deriveKey = (passphrase, salt) =>
   scryptSync(passphrase, salt, 32, { N: KDF_N });
 
 /**
- * Encrypt a backup manifest with AES-256-GCM. The output envelope
- * is JSON with base64 fields so it remains diff-friendly and trivially
- * portable — the binary path can use the same envelope when the call
- * sites move to tar.zst (R-A4 hardening).
+ * Encrypt a small text with AES-256-GCM. The output envelope is JSON with
+ * base64 fields. (Used for single secrets and exports; backups of a whole
+ * store are framed, see `backup-archive.js`.)
  */
 export const encryptBackup = (plaintext, passphrase) => {
   const salt = randomBytes(16);
@@ -80,45 +103,93 @@ export const decryptBackup = (envelopeJson, passphrase) => {
 const stamp = (d = new Date()) =>
   d.toISOString().replace(/[:.]/g, '-').replace('T', '_').replace(/Z$/, '');
 
-const isSecretId = (link) =>
-  typeof link?.id === 'string' && link.id.startsWith('secret:');
+/** Whether `name` is one of our archives (format 2 `.msbk`, or the old `.json`). */
+export const isBackupFile = (name) =>
+  /^meta-sovereign-.*\.(json|msbk)(\.enc)?$/.test(name);
 
-const BACKUP_FILE = /^meta-sovereign-.*\.json(\.enc)?$/;
+// A second backup into one folder at the same time fails fast.
+const running = new Set();
+
+const looksWhole = (raw, file, passphrase) => {
+  if (!file.endsWith('.enc')) {
+    return Array.isArray(JSON.parse(raw)?.links);
+  }
+  const env = JSON.parse(raw);
+  const whole = ['salt', 'iv', 'tag', 'ct'].every(
+    (k) => typeof env[k] === 'string' && env[k].length > 0
+  );
+  if (!whole || env.cipher !== 'aes-256-gcm') {
+    return false;
+  }
+  return passphrase
+    ? Array.isArray(JSON.parse(decryptBackup(raw, passphrase))?.links)
+    : true;
+};
 
 /**
- * Whether the archive `file` is complete (R-Z2): a plain one parses and
- * holds a links array; an encrypted one has a whole envelope and, when the
- * passphrase is at hand, decrypts to such a manifest. Never throws.
+ * Whether the archive `file` is complete (R-Z2, R-Z16). A format 2 archive
+ * is checked cheaply by default (its frames must end on the final one; no
+ * passphrase needed); `full: true` reads and checks every frame, the
+ * manifest, the line count and the SHA-256 (needs the passphrase of an
+ * encrypted one). An old-format archive parses and holds a links array.
+ * Never throws.
  */
-export const verifyBackup = async (file, { passphrase = null } = {}) => {
+export const verifyBackup = async (
+  file,
+  { passphrase = null, full = false } = {}
+) => {
   try {
-    const raw = await fs.readFile(file, 'utf8');
-    if (!file.endsWith('.enc')) {
-      return Array.isArray(JSON.parse(raw)?.links);
+    if (await isArchiveFormat2(file)) {
+      if (!full) {
+        return await quickCheckArchive(file);
+      }
+      await scanArchive(file, { passphrase });
+      return true;
     }
-    const env = JSON.parse(raw);
-    const whole = ['salt', 'iv', 'tag', 'ct'].every(
-      (k) => typeof env[k] === 'string' && env[k].length > 0
-    );
-    if (!whole || env.cipher !== 'aes-256-gcm') {
-      return false;
-    }
-    return passphrase
-      ? Array.isArray(JSON.parse(decryptBackup(raw, passphrase))?.links)
-      : true;
+    return looksWhole(await fs.readFile(file, 'utf8'), file, passphrase);
   } catch {
     return false;
   }
 };
 
+// Free space a backup of `store` needs: gzip takes the text to about a
+// third; a store without a log file is estimated from its link count.
+const estimateBytes = async (store, passphrase) => {
+  const text = store.logFile
+    ? ((await fs.stat(store.logFile).catch(() => null))?.size ?? 0)
+    : (await store.query()).length * 1024;
+  return Math.ceil(text * 0.35 * (passphrase ? 1.02 : 1)) + 4096;
+};
+
+// Read the new archive back whole and compare it with what was written.
+const confirmWritten = async (file, passphrase, stats) => {
+  try {
+    const read = await scanArchive(file, { passphrase });
+    if (read.sha256 !== stats.sha256 || read.lines !== stats.lines) {
+      throw new Error('content differs');
+    }
+  } catch (cause) {
+    await fs.unlink(file).catch(() => {});
+    throw Object.assign(new Error('the backup could not be read back'), {
+      code: 'BACKUP_VERIFY_FAILED',
+      cause,
+    });
+  }
+};
+
 /**
  * Write a backup and say what it holds: `{ file, links, secrets,
- * secretsExcluded }`. The archive is written atomically (temp file, fsync,
- * rename, fsync of the folder), 0600, then read back; one that does not
- * verify is removed and the call fails. Secrets (`secret:*` links) go in
- * only when the archive is encrypted; otherwise they are left out and the
- * manifest says so (R-Z2). On a nearly full disk nothing is written and the
- * answer is `{ skipped: true, reason: 'low_disk', needed, free }` (R-Z14).
+ * secretsExcluded, bytes, sha256 }` (`links` counts the log records
+ * archived). The log is streamed up to the length it had when the backup
+ * began, cut back to its last whole line, so writes landing meanwhile
+ * cannot tear it. The archive is written atomically (temp file, fsync,
+ * rename, fsync of the folder), 0600, then read back whole and compared
+ * with what was written; one that does not verify is removed and the call
+ * fails. Secrets (`secret:*` links) go in only when the archive is
+ * encrypted; otherwise they are filtered out while streaming and the
+ * manifest counts them (R-Z2). On a nearly full disk nothing is written
+ * and the answer is `{ skipped: true, reason: 'low_disk', needed, free }`
+ * (R-Z14).
  */
 export const makeBackup = async (
   store,
@@ -127,51 +198,52 @@ export const makeBackup = async (
     now = new Date(),
     passphrase = null,
     onEvent = () => {},
+    onProgress,
     measureFree,
   }
 ) => {
   await ensurePrivateDir(archiveDir);
-  const all = await store.query();
-  const links = passphrase ? all : all.filter((l) => !isSecretId(l));
-  const schemaVersion = versionOf(all.find((l) => l.id === SCHEMA_ID));
-  const secretsExcluded = all.length - links.length;
-  const manifest = {
-    createdAt: now.toISOString(),
-    version: 1,
-    secrets: passphrase ? 'included-encrypted' : 'excluded',
-    secretsExcluded,
-    // The data schema the links are in (R-Z17); a manifest without it is version 0.
-    schema: { version: schemaVersion },
-    links,
-  };
-  const plaintext = JSON.stringify(manifest, null, 2);
-  // The archive is about as large as its text (a third more once encrypted
-  // and base64'd); on a nearly full disk it is skipped, not half written
-  // (R-Z14).
-  const estimate = Math.ceil(plaintext.length * (passphrase ? 1.4 : 1));
-  const space = await enoughSpace(archiveDir, estimate, measureFree);
+  await tighten(archiveDir, 0o700);
+  const space = await enoughSpace(
+    archiveDir,
+    await estimateBytes(store, passphrase),
+    measureFree
+  );
   if (!space.ok) {
     onEvent(skippedEvent('backup_skipped', space));
     return { skipped: true, reason: 'low_disk', ...space, links: 0 };
   }
-  const name = `meta-sovereign-${stamp(now)}.json${passphrase ? '.enc' : ''}`;
-  const file = path.join(archiveDir, name);
-  await writeFileDurable(
-    file,
-    passphrase ? encryptBackup(plaintext, passphrase) : plaintext
-  );
-  if (!(await verifyBackup(file, { passphrase }))) {
-    await fs.unlink(file).catch(() => {});
-    throw Object.assign(new Error('the backup could not be read back'), {
-      code: 'BACKUP_VERIFY_FAILED',
-    });
+  const folder = path.resolve(archiveDir);
+  if (running.has(folder)) {
+    throw archiveError('BACKUP_BUSY', 'a backup is already running');
   }
-  return {
-    file,
-    links: links.length,
-    secrets: manifest.secrets,
-    secretsExcluded,
-  };
+  running.add(folder);
+  const file = path.join(
+    archiveDir,
+    `meta-sovereign-${stamp(now)}.msbk${passphrase ? '.enc' : ''}`
+  );
+  try {
+    const { stream, stats } = archiveContent({
+      store,
+      createdAt: now.toISOString(),
+      includeSecrets: Boolean(passphrase),
+      schema: store.get ? versionOf(await store.get(SCHEMA_ID)) : null,
+      encodeLine,
+      onProgress,
+    });
+    await writeStreamDurable(file, stream, ...archiveStages(passphrase));
+    await confirmWritten(file, passphrase, stats);
+    return {
+      file,
+      links: stats.lines,
+      secrets: passphrase ? 'included-encrypted' : 'excluded',
+      secretsExcluded: stats.secretsExcluded,
+      bytes: (await fs.stat(file)).size,
+      sha256: stats.sha256,
+    };
+  } finally {
+    running.delete(folder);
+  }
 };
 
 export const createBackup = async (store, options) => {
@@ -188,12 +260,13 @@ export const createBackup = async (store, options) => {
  * Keep the newest `keep` archives. Nothing is deleted unless the newest
  * archive verifies as complete (a crash or a full disk may have left a
  * truncated one that must not cost the older good ones), and leftover
- * temp files of a crashed write are swept (R-Z2).
+ * temp files of a crashed write are swept (R-Z2). The check is the cheap
+ * one (frame structure; the full read happened when it was written).
  */
 export const pruneBackups = async ({ archiveDir, keep, passphrase = null }) => {
   await sweepTemp(archiveDir);
   const entries = await fs.readdir(archiveDir).catch(() => []);
-  const ours = entries.filter((f) => BACKUP_FILE.test(f)).sort();
+  const ours = entries.filter(isBackupFile).sort();
   const toDelete = ours.slice(0, Math.max(0, ours.length - keep));
   if (keep < 1 || toDelete.length === 0) {
     return [];
@@ -272,12 +345,20 @@ export const createBackupScheduler = ({
   };
 };
 
+const tooNew = (version, current) =>
+  Object.assign(
+    new Error(
+      `this backup was written by a newer version (schema ${version}, this app understands up to ${current}); update the app`
+    ),
+    { code: 'BACKUP_TOO_NEW', found: version, current }
+  );
+
 /**
- * The links of a backup in the current shapes (R-Z17). A backup of an older
- * schema is migrated in memory, before anything is written to the store, so
- * a failing migration leaves the store untouched; one of a newer schema is
- * refused with BACKUP_TOO_NEW. The backup's own `meta:schema` is never
- * restored (the store keeps its own).
+ * The links of an old-format backup in the current shapes (R-Z17). A backup
+ * of an older schema is migrated in memory, before anything is written to
+ * the store, so a failing migration leaves the store untouched; one of a
+ * newer schema is refused with BACKUP_TOO_NEW. The backup's own
+ * `meta:schema` is never restored (the store keeps its own).
  */
 export const linksOfManifest = async (
   manifest,
@@ -287,12 +368,7 @@ export const linksOfManifest = async (
     ? manifest.schema.version
     : 0;
   if (version > current) {
-    throw Object.assign(
-      new Error(
-        `this backup was written by a newer version (schema ${version}, this app understands up to ${current}); update the app`
-      ),
-      { code: 'BACKUP_TOO_NEW', found: version, current }
-    );
+    throw tooNew(version, current);
   }
   const links = manifest.links.filter((l) => l.id !== SCHEMA_ID);
   if (version === current) {
@@ -321,11 +397,90 @@ export const linksOfManifest = async (
   return (await scratch.query()).filter((l) => l.id !== SCHEMA_ID);
 };
 
-export const restoreBackup = async (
-  store,
-  file,
-  { passphrase = null, onEvent = () => {} } = {}
-) => {
+// The schema a format 2 archive was written in; refuses a newer one.
+const archiveSchema = (manifest) => {
+  const version = manifest?.schema?.version;
+  if (!Number.isInteger(version)) {
+    return null;
+  }
+  if (version > CURRENT_SCHEMA) {
+    throw tooNew(version, CURRENT_SCHEMA);
+  }
+  return version;
+};
+
+// Lower the store's schema stamp to the archive's, so the records restored
+// in older shapes are migrated when the store next opens (R-Z17).
+const stampOlder = async (store, version) => {
+  if (version === null || version >= CURRENT_SCHEMA) {
+    return;
+  }
+  const existing = await store.get(SCHEMA_ID);
+  if (versionOf(existing) > version) {
+    await store.put({
+      ...schemaLink({ version, applied: existing?.applied ?? [] }),
+      app: existing?.app ?? null,
+    });
+  }
+};
+
+const TOMBSTONE = '~deleted';
+const isTombstone = (record) =>
+  record?.[TOMBSTONE] === true && Object.keys(record).length === 2;
+
+const BATCH = 500;
+
+const malformed = () =>
+  archiveError('BACKUP_INVALID', 'not a valid backup: a record is malformed');
+
+const recordOfLine = (line) => {
+  let record;
+  try {
+    record = decodeLine({ notation: line });
+  } catch {
+    throw malformed();
+  }
+  if (typeof record?.id !== 'string' || !record.id) {
+    throw malformed();
+  }
+  return record;
+};
+
+// Replay the archive's records into `target`, a batch at a time.
+const applyArchive = async (target, file, passphrase) => {
+  let batch = [];
+  let restored = 0;
+  const flush = async () => {
+    if (batch.length > 0) {
+      await putAll(target, batch);
+      restored += batch.length;
+      batch = [];
+    }
+  };
+  await scanArchive(file, {
+    passphrase,
+    onLine: async (line) => {
+      const record = recordOfLine(line);
+      if (record.id === SCHEMA_ID) {
+        return; // the store keeps its own stamp (see stampOlder)
+      }
+      if (isTombstone(record)) {
+        await flush();
+        await target.delete(record.id);
+        return;
+      }
+      batch.push(record);
+      if (batch.length >= BATCH) {
+        await flush();
+      }
+    },
+  });
+  await flush();
+  return restored;
+};
+
+// The old format: one JSON document, checked whole before anything is written.
+const restoreLegacy = async (store, file, passphrase, onEvent) => {
   let raw = await fs.readFile(file, 'utf8');
   if (file.endsWith('.enc')) {
     if (!passphrase) {
@@ -334,14 +489,132 @@ export const restoreBackup = async (
     raw = decryptBackup(raw, passphrase);
   }
   const manifest = JSON.parse(raw);
-  // Checked whole before anything is written: no half restore (R-Z2).
   const valid =
     Array.isArray(manifest?.links) &&
     manifest.links.every((l) => l && typeof l === 'object' && l.id);
   if (!valid) {
-    throw Object.assign(new Error('not a valid backup: links are malformed'), {
-      code: 'BACKUP_INVALID',
-    });
+    throw archiveError(
+      'BACKUP_INVALID',
+      'not a valid backup: links are malformed'
+    );
   }
   return putAll(store, await linksOfManifest(manifest, { onEvent }));
+};
+
+/**
+ * Put the archive's links into the open `store` and say how many (R-Z16).
+ * The whole archive is read and checked first (every frame, the manifest,
+ * the SHA-256, every record), so a damaged or tampered file changes
+ * nothing; then its records are replayed in order, 500 at a time (a later
+ * record replaces an earlier one, a tombstone deletes). Replaying is
+ * idempotent: an interrupted restore is finished by running it again. The
+ * store is the caller's open one, which holds the folder's lock, so
+ * another process cannot write to the folder meanwhile (R-Z2); to replace
+ * the store of a folder that no process has open, use `restoreBackupToDir`.
+ */
+export const restoreBackup = async (
+  store,
+  file,
+  { passphrase = null, onEvent = () => {} } = {}
+) => {
+  if (!(await isArchiveFormat2(file))) {
+    return restoreLegacy(store, file, passphrase, onEvent);
+  }
+  const { manifest } = await scanArchive(file, {
+    passphrase,
+    onLine: (line) => {
+      recordOfLine(line);
+    },
+  });
+  const version = archiveSchema(manifest);
+  // The secret wrapper would seal the log's already sealed secrets again.
+  const restored = await applyArchive(
+    store.rawStore ?? store,
+    file,
+    passphrase
+  );
+  await stampOlder(store.rawStore ?? store, version);
+  return restored;
+};
+
+// Write `line` to `out`, waiting when its buffer is full.
+const emitLine = async (out, line) => {
+  if (!out.write(`${line}\n`)) {
+    await once(out, 'drain');
+  }
+};
+
+// Feed `out` the archive's records, then (for a plain archive, which holds
+// no secrets) the secrets of the log being replaced; end it when whole.
+const feedRestored = async (out, file, { passphrase, oldLog }) => {
+  try {
+    const { manifest } = await scanArchive(file, {
+      passphrase,
+      onLine: (line) => emitLine(out, line),
+    });
+    if (oldLog && manifest.secrets === 'excluded') {
+      for await (const line of logLines({ logFile: oldLog })) {
+        if (isSecretLine(line)) {
+          await emitLine(out, line);
+        }
+      }
+    }
+    out.end();
+  } catch (error) {
+    out.destroy(error);
+  }
+};
+
+/**
+ * Restore an archive as the store of the folder `dir` (R-Z16): the
+ * archive is checked whole, then written to a temp file, fsynced and
+ * renamed over `data.lino` in one step, so the folder holds the old store
+ * or the whole new one, never half. Refuses (`STORE_LOCKED`) when another
+ * process has the folder open, and (`BACKUP_TARGET_NOT_EMPTY`) when it
+ * already holds a store unless `replace: true`; the replaced log is kept
+ * beside it as `data.lino.before-restore-<time>`. A plain archive has no
+ * secrets, so the folder's own `secret:*` lines are carried over. `data.bin`
+ * is removed: it is rebuilt from the log when the store opens. Resolves to
+ * the number of records restored.
+ */
+export const restoreBackupToDir = async (
+  file,
+  dir,
+  { passphrase = null, replace = false } = {}
+) => {
+  if (!(await isArchiveFormat2(file))) {
+    throw archiveError(
+      'BACKUP_INVALID',
+      'only format 2 backups restore into a folder'
+    );
+  }
+  const checked = await scanArchive(file, { passphrase });
+  archiveSchema(checked.manifest);
+  await ensurePrivateDir(dir);
+  const lock = await acquireStoreLock(dir);
+  try {
+    const log = path.join(dir, 'data.lino');
+    const old = await fs.stat(log).catch(() => null);
+    if (old && old.size > 0 && !replace) {
+      throw archiveError(
+        'BACKUP_TARGET_NOT_EMPTY',
+        'the folder already holds a store (use replace)'
+      );
+    }
+    if (old) {
+      await fs.link(log, `${log}.before-restore-${stamp()}`);
+    }
+    const out = new PassThrough();
+    const feeding = feedRestored(out, file, {
+      passphrase,
+      oldLog: old ? log : null,
+    });
+    await writeStreamDurable(log, out);
+    await feeding;
+    await fs.rm(path.join(dir, 'data.bin'), { force: true });
+    await fsyncDir(dir);
+    return checked.lines;
+  } finally {
+    lock.release();
+  }
 };

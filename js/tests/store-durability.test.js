@@ -265,9 +265,11 @@ test('plain backups leave secrets out and say so; encrypted ones keep them', asy
   const plain = await makeBackup(store, { archiveDir: dir });
   assert.equal(plain.secrets, 'excluded');
   assert.equal(plain.secretsExcluded, 1);
-  const text = await fs.readFile(plain.file, 'utf8');
-  assert.ok(!text.includes('S3CR3T'));
-  assert.equal(JSON.parse(text).secrets, 'excluded');
+  assert.ok(!(await fs.readFile(plain.file)).includes('S3CR3T'));
+  const restored = createMemoryStore();
+  await restoreBackup(restored, plain.file);
+  assert.equal(await restored.get('secret:telegram:session'), null);
+  assert.ok(await restored.get('msg:1'));
   await assertMode(plain.file, 0o600);
 
   const enc = await makeBackup(store, {

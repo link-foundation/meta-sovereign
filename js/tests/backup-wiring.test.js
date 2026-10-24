@@ -36,29 +36,34 @@ const run = async (extra, wait = 400) => {
   return { files, events, dir };
 };
 
-test('settings: off and keep 7 by default, hours switch it on', () => {
+test('settings: daily and keep 3 by default, 0 hours switches it off', () => {
   assert.deepEqual(backupSettings({}, {}), {
-    intervalMs: 0,
-    keep: 7,
+    intervalMs: 24 * HOUR,
+    keep: 3,
     invalid: [],
   });
   assert.equal(
-    backupSettings({}, { MS_BACKUP_INTERVAL_HOURS: '24' }).intervalMs,
-    24 * HOUR
+    backupSettings({}, { MS_BACKUP_INTERVAL_HOURS: '6' }).intervalMs,
+    6 * HOUR
   );
+  assert.equal(
+    backupSettings({}, { MS_BACKUP_INTERVAL_HOURS: '0' }).intervalMs,
+    0
+  );
+  assert.equal(backupSettings({}, { MS_BACKUP_KEEP: '0' }).keep, 0);
   assert.equal(backupSettings({ intervalHours: 0 }, {}).intervalMs, 0);
   assert.equal(
-    backupSettings({}, { MS_BACKUP_INTERVAL_HOURS: '6', MS_BACKUP_KEEP: '3' })
+    backupSettings({}, { MS_BACKUP_INTERVAL_HOURS: '6', MS_BACKUP_KEEP: '5' })
       .keep,
-    3
+    5
   );
   // Nonsense falls back to the defaults and is reported.
   const bad = backupSettings(
     {},
     { MS_BACKUP_INTERVAL_HOURS: 'x', MS_BACKUP_KEEP: '-2' }
   );
-  assert.equal(bad.intervalMs, 0);
-  assert.equal(bad.keep, 7);
+  assert.equal(bad.intervalMs, 24 * HOUR);
+  assert.equal(bad.keep, 3);
   assert.deepEqual(bad.invalid, ['MS_BACKUP_INTERVAL_HOURS', 'MS_BACKUP_KEEP']);
 });
 
@@ -81,9 +86,9 @@ test('an invalid setting logs once and the server still starts', async () => {
   }
 });
 
-test('by default no automatic backup runs', async () => {
+test('by default a daily backup is scheduled, not run at start', async () => {
   const { files } = await run({}, 150);
-  assert.equal(files.length, 0);
+  assert.equal(files.length, 0, 'the first run is one interval after start');
 });
 
 test('a started server writes a backup on its interval', async () => {
@@ -121,4 +126,17 @@ test('a nearly full disk skips the run and logs it', async () => {
 test('0 hours means no automatic backup', async () => {
   const { files } = await run({ backups: { intervalHours: 0 } });
   assert.equal(files.length, 0);
+});
+
+test('an automatic backup is private and leaves no temp file behind', async () => {
+  const { files, dir } = await run({ backups: { intervalHours: 0.00002 } });
+  assert.ok(files.length >= 1);
+  assert.deepEqual(
+    (await fs.readdir(dir)).filter((f) => f.includes('.tmp')),
+    []
+  );
+  if (process.platform !== 'win32') {
+    assert.equal((await fs.stat(dir)).mode & 0o077, 0);
+    assert.equal((await fs.stat(path.join(dir, files[0]))).mode & 0o077, 0);
+  }
 });

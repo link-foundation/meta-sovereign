@@ -130,6 +130,7 @@ const readOnlyStore = (text, schema) => ({
   corruptLines: text.corruptLines,
   health: () => ({ degraded: false, queuedBytes: 0, error: null }),
   readOnly: true,
+  logFile: text.filePath, // streamed by a backup (R-Z16)
 });
 
 // A folder and everything below it (the downloaded pictures and files).
@@ -235,6 +236,9 @@ export const openDualStore = async (
       schema,
       migration: schema.migrated,
       corruptLines: text.corruptLines,
+      // What a backup streams, and the flush of just the log (R-Z16).
+      logFile: text.filePath,
+      flushLog: () => text.flush(),
       close: lock.release,
     };
   } catch (error) {

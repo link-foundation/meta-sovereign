@@ -43,6 +43,7 @@ import {
   createBackup,
   pruneBackups,
   restoreBackup,
+  restoreBackupToDir,
 } from '../storage/backup.js';
 import { writeEncryptedExport } from '../storage/export-encrypted.js';
 import { CURRENT_SCHEMA } from '../storage/migrations/index.js';
@@ -80,7 +81,7 @@ Commands:
   import        --source=<name> --file=<path> --store=<dir>
   export        --file=<path> --store=<dir>
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
-  restore       --file=<path> --store=<dir>
+  restore       --file=<path> --store=<dir> [--replace]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
   serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=false] [--tls=false] [--quiet-logs]
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
@@ -171,6 +172,18 @@ const passcodeCmd = async (args, log) => {
 };
 
 const restoreCmd = async (args, log) => {
+  if (args.replace) {
+    // Swap the whole log in one step; the store must not be in use (R-Z16).
+    const n = await restoreBackupToDir(
+      args.file,
+      args.store ?? '.meta-sovereign',
+      {
+        replace: true,
+      }
+    );
+    log(`replaced the store with ${n} records from ${args.file}`);
+    return 0;
+  }
   const store = await openStore(args.store ?? '.meta-sovereign');
   const n = await restoreBackup(store, args.file);
   log(`restored ${n} links from ${args.file}`);

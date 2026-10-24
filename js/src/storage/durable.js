@@ -9,8 +9,9 @@
  * user: 0600, directories 0700 (a no-op on Windows).
  */
 
-import { promises as fs } from 'node:fs';
+import { createWriteStream, promises as fs } from 'node:fs';
 import path from 'node:path';
+import { pipeline } from 'node:stream/promises';
 
 export const FILE_MODE = 0o600;
 export const DIR_MODE = 0o700;
@@ -93,6 +94,30 @@ export const writeFileDurable = async (
   } catch (error) {
     // A full disk: the half-written temp file goes at once, not at the
     // next start (R-Z14).
+    await fs.unlink(tmp).catch(() => {});
+    throw error;
+  }
+  await fsyncDir(dir);
+};
+
+/**
+ * Like `writeFileDurable`, but the content is a pipeline of streams
+ * (`source, ...stages`) written as it is produced, so a multi-gigabyte
+ * file never exists in memory (R-Z16). Temp file at 0600, fsync, rename,
+ * fsync of the folder; the temp file goes at once when anything fails.
+ */
+export const writeStreamDurable = async (file, ...streams) => {
+  const dir = path.dirname(file);
+  await ensurePrivateDir(dir);
+  const tmp = `${file}.${process.pid}.tmp`;
+  try {
+    await pipeline(
+      ...streams,
+      createWriteStream(tmp, { flags: 'w', mode: FILE_MODE })
+    );
+    await fsyncFile(tmp);
+    await fs.rename(tmp, file);
+  } catch (error) {
     await fs.unlink(tmp).catch(() => {});
     throw error;
   }

@@ -18,17 +18,16 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { json, readBody } from './util.js';
 import { safeMessage } from './redact.js';
-import { makeBackup, restoreBackup, pruneBackups } from '../storage/backup.js';
+import {
+  isBackupFile,
+  makeBackup,
+  restoreBackup,
+  pruneBackups,
+} from '../storage/backup.js';
 
 const listFiles = async (archiveDir) => {
   const entries = await fs.readdir(archiveDir).catch(() => []);
-  const ours = entries
-    .filter(
-      (f) =>
-        f.startsWith('meta-sovereign-') &&
-        (f.endsWith('.json') || f.endsWith('.json.enc'))
-    )
-    .sort();
+  const ours = entries.filter(isBackupFile).sort();
   const out = [];
   for (const f of ours) {
     const stat = await fs.stat(path.join(archiveDir, f)).catch(() => null);

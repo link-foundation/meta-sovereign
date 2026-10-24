@@ -46,7 +46,7 @@ describe('backup', () => {
       archiveDir: dir,
       passphrase: 'correct horse',
     });
-    expect(file.endsWith('.json.enc')).toBe(true);
+    expect(file.endsWith('.msbk.enc')).toBe(true);
     const onDisk = await fs.readFile(file, 'utf8');
     expect(onDisk.includes('secret')).toBe(false);
     const s2 = createMemoryStore();
