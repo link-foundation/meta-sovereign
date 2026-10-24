@@ -66,6 +66,54 @@ const check = (ok, label) => {
   }
 };
 
+// What CI needs to see when a step fails (R-Z21): Playwright's call
+// log (why a click never completed: covered, unstable, off screen),
+// the element at the middle of the lit target (tag and class only, no
+// page text) and the frame time (a starved renderer shows here).
+const failureReport = async (page, error, where) => {
+  const ansi = new RegExp(`${String.fromCharCode(27)}\\[[0-9;]*m`, 'g');
+  const lines = String(error.message).replace(ansi, '').split('\n');
+  const log = lines.indexOf('Call log:');
+  const calls = log < 0 ? [] : lines.slice(log + 1, log + 16);
+  const probe = await page
+    .evaluate(async () => {
+      const id = document
+        .querySelector('[data-tutorial-overlay]')
+        ?.getAttribute('data-tutorial-target');
+      const target = id
+        ? [...document.querySelectorAll(`[data-tutorial-id="${id}"]`)].find(
+            (el) => el.getBoundingClientRect().width > 0
+          )
+        : null;
+      const r = target?.getBoundingClientRect();
+      const x = r ? r.left + r.width / 2 : null;
+      const y = r
+        ? Math.min(
+            Math.max(r.top + r.height / 2, 1),
+            globalThis.innerHeight - 1
+          )
+        : null;
+      const hit = r ? document.elementFromPoint(x, y) : null;
+      const start = globalThis.performance.now();
+      for (let i = 0; i < 10; i += 1) {
+        await new Promise((done) => globalThis.requestAnimationFrame(done));
+      }
+      return {
+        target: id,
+        at: r ? [Math.round(x), Math.round(y)] : null,
+        hit: hit ? `${hit.tagName.toLowerCase()}.${hit.className}` : null,
+        frameMs: Math.round((globalThis.performance.now() - start) / 10),
+        scrollY: Math.round(globalThis.scrollY),
+      };
+    })
+    .catch((e) => ({ probeFailed: e.message.split('\n')[0] }));
+  return [
+    `${lines[0]} ${where}`,
+    ...calls.map((line) => `      ${line.trim()}`),
+    `      probe ${JSON.stringify(probe)}`,
+  ].join('\n');
+};
+
 const geometry = (page) =>
   page.evaluate(() => {
     const card = document.querySelector('.tutorial-step');
@@ -299,6 +347,8 @@ const pickEmailManually = async (page, label) => {
 const walk = async (engineName, viewport, base) => {
   const browser = await playwright[engineName].launch();
   const page = await browser.newPage({ viewport });
+  // A click that cannot complete fails in 10 s, not 30 (R-Z21).
+  page.setDefaultTimeout(10_000);
   const label = `${engineName}/${viewport.name}`;
   console.log(`- ${label}`);
   try {
@@ -426,7 +476,11 @@ const walk = async (engineName, viewport, base) => {
     });
   } catch (error) {
     const at = await geometry(page).catch(() => ({}));
-    const message = `${error.message.split('\n')[0]} (on step ${at.step}, side=${at.side})`;
+    const message = await failureReport(
+      page,
+      error,
+      `(on step ${at.step}, side=${at.side})`
+    );
     failures.push(`${label}: ${message}`);
     console.log(`  ✗ ${message}`);
     await page
@@ -471,6 +525,7 @@ const waitForPlace = (page, view, detail) =>
 const edgeCases = async (engineName, viewport, base) => {
   const browser = await playwright[engineName].launch();
   const page = await browser.newPage({ viewport });
+  page.setDefaultTimeout(10_000);
   const label = `${engineName}/${viewport.name}/pages`;
   console.log(`- ${label}`);
   const at = async (step, view, detail, what) => {
@@ -592,7 +647,11 @@ const edgeCases = async (engineName, viewport, base) => {
     await at('setup', 'connections', true, 'setup via Back from Contacts');
   } catch (error) {
     const where = await placeOf(page).catch(() => ({}));
-    const message = `${error.message.split('\n')[0]} (at ${JSON.stringify(where)})`;
+    const message = await failureReport(
+      page,
+      error,
+      `(at ${JSON.stringify(where)})`
+    );
     failures.push(`${label}: ${message}`);
     console.log(`  ✗ ${message}`);
     await page
