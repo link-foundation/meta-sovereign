@@ -342,24 +342,27 @@ const ProviderArchiveImport = ({ providerId, provider }) => {
     }
   };
 
-  // A WhatsApp export with media is a zip: the server reads it (R-Z9).
+  // A zip export (WhatsApp with media, Facebook, X, ...) is streamed to the
+  // server, which reads it in place (R-Z9, R-Z23).
   const importZip = async (file) => {
     setStatus(working(t('settings.importing', { label: file.name })));
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    let binary = '';
-    for (let i = 0; i < bytes.length; i += 0x8000) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-    }
-    const answer = await api.whatsappArchive(
-      file.name,
-      globalThis.btoa(binary)
-    );
+    const answer = await api.archiveUpload(providerId, file, {
+      onProgress: (share) =>
+        setStatus(
+          working(
+            t('settings.uploading', {
+              label: file.name,
+              percent: Math.round(share * 100),
+            })
+          )
+        ),
+    });
     setStatus(
       answer?.error
         ? t('whatsapp.web.zipFailed', { error: answer.error })
         : t('whatsapp.web.zipImported', {
             label: file.name,
-            count: answer.imported,
+            count: answer.imported ?? 0,
           })
     );
   };

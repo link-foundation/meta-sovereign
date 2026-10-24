@@ -51,58 +51,57 @@ const withMedia = async (links, ctx, counts) => {
   return out;
 };
 
+// The chat, and its media copied out, of an export zip already on disk.
+const readZipFile = async (name, file, mediaDir) => {
+  const zip = await openZipFile(file);
+  try {
+    const chat = textEntry(zip.entries);
+    if (!chat) {
+      throw new Error('no chat .txt found in this zip');
+    }
+    const archive = {
+      text: (await chat.read()).toString('utf8'),
+      fileName: /whatsapp/i.test(chat.name) ? chat.name : name,
+      files: zip.entries.map((e) => e.name),
+    };
+    const ctx = createArchiveContext({
+      network: 'whatsapp',
+      entries: zip.entries,
+      save: mediaDir ? mediaSaver(mediaDir) : null,
+    });
+    const counts = { saved: 0, missing: 0 };
+    const links = await withMedia(
+      await getSource('whatsapp').parseArchive(archive),
+      ctx,
+      counts
+    );
+    return { links, media: { ...counts, warnings: ctx.warnings } };
+  } finally {
+    await zip.close();
+  }
+};
+
 const readZip = async (name, bytes, mediaDir) => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-whatsapp-'));
   const file = path.join(dir, 'export.zip');
   try {
     await fs.writeFile(file, bytes, { mode: 0o600 });
-    const zip = await openZipFile(file);
-    try {
-      const chat = textEntry(zip.entries);
-      if (!chat) {
-        throw new Error('no chat .txt found in this zip');
-      }
-      const archive = {
-        text: (await chat.read()).toString('utf8'),
-        fileName: /whatsapp/i.test(chat.name) ? chat.name : name,
-        files: zip.entries.map((e) => e.name),
-      };
-      const ctx = createArchiveContext({
-        network: 'whatsapp',
-        entries: zip.entries,
-        save: mediaDir ? mediaSaver(mediaDir) : null,
-      });
-      const counts = { saved: 0, missing: 0 };
-      const links = await withMedia(
-        await getSource('whatsapp').parseArchive(archive),
-        ctx,
-        counts
-      );
-      return { links, media: { ...counts, warnings: ctx.warnings } };
-    } finally {
-      await zip.close();
-    }
+    return await readZipFile(name, file, mediaDir);
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }
 };
 
-export const importWhatsAppFile = async (
-  store,
-  name,
-  bytes,
-  { mediaDir = null } = {}
-) => {
-  const { links, media } = isZip(name, bytes)
-    ? await readZip(name, bytes, mediaDir)
-    : {
-        links: await getSource('whatsapp').parseArchive({
-          text: bytes.toString('utf8'),
-          fileName: name,
-          files: [],
-        }),
-        media: null,
-      };
+const readText = async (name, bytes) => ({
+  links: await getSource('whatsapp').parseArchive({
+    text: bytes.toString('utf8'),
+    fileName: name,
+    files: [],
+  }),
+  media: null,
+});
+
+const storeLinks = async (store, { links, media }) => {
   for (const link of links) {
     await store.put(stampSourceLink(link, 'whatsapp'));
   }
@@ -111,4 +110,42 @@ export const importWhatsAppFile = async (
     chat: links[0]?.chat ?? null,
     ...(media ? { media } : {}),
   };
+};
+
+export const importWhatsAppFile = async (
+  store,
+  name,
+  bytes,
+  { mediaDir = null } = {}
+) =>
+  storeLinks(
+    store,
+    isZip(name, bytes)
+      ? await readZip(name, bytes, mediaDir)
+      : await readText(name, bytes)
+  );
+
+/**
+ * The same for a file already on disk (an upload streamed to a temp file,
+ * R-Z23): a zip is read in place, never loaded whole.
+ */
+export const importWhatsAppPath = async (
+  store,
+  name,
+  file,
+  { mediaDir = null } = {}
+) => {
+  const handle = await fs.open(file, 'r');
+  const head = Buffer.alloc(4);
+  try {
+    await handle.read(head, 0, 4, 0);
+  } finally {
+    await handle.close();
+  }
+  return storeLinks(
+    store,
+    isZip(name, head)
+      ? await readZipFile(name, file, mediaDir)
+      : await readText(name, await fs.readFile(file))
+  );
 };

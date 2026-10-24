@@ -312,13 +312,11 @@ const serverPostReport = async (path, body, options) => {
 // cannot say that of an upload, XMLHttpRequest can. Resolves to the
 // server's answer, `{ error }` when it refused, null when there is no
 // server.
-const uploadFile = async (file, { onProgress, signal } = {}) => {
+const uploadTo = async (path, file, { onProgress, signal } = {}) => {
   const { client, origin } = await ensure();
   if (!client.isOnline() || typeof globalThis.XMLHttpRequest !== 'function') {
     return null;
   }
-  const name = encodeURIComponent(file?.name || 'file');
-  const path = `/api/telegram/upload?name=${name}`;
   const url = scopedUrl(
     origin ? new URL(path, origin).toString() : path,
     'POST'
@@ -347,6 +345,13 @@ const uploadFile = async (file, { onProgress, signal } = {}) => {
     xhr.send(file);
   });
 };
+
+const uploadFile = (file, options) =>
+  uploadTo(
+    `/api/telegram/upload?name=${encodeURIComponent(file?.name || 'file')}`,
+    file,
+    options
+  );
 
 let patternWorker = null;
 let patternSeq = 0;
@@ -911,6 +916,14 @@ const rawApi = {
       : await serverPostReport(`/api/whatsapp/web/${action}`, {}).catch(
           (error) => ({ error: error.message })
         )) ?? { error: 'server required for WhatsApp Web' },
+  // An export file streamed to the server's importer (R-Z23): any size,
+  // a zip read in place. `{ error }` without a server.
+  archiveUpload: async (source, file, options) =>
+    (await uploadTo(
+      `/api/archive/upload?source=${encodeURIComponent(source)}&name=${encodeURIComponent(file?.name || 'archive')}`,
+      file,
+      options
+    )) ?? { error: 'server required for zip imports' },
   whatsappArchive: async (name, data) =>
     (await serverPostReport('/api/whatsapp/archive', { name, data }).catch(
       (error) => ({ error: error.message })

@@ -169,6 +169,7 @@ export const en = {
   'settings.archivePastePlaceholder': 'Paste archive contents here',
   'settings.archivePasteWith': 'Paste {label} contents',
   'settings.importPasted': 'Import pasted contents',
+  'settings.uploading': 'Sending {label} to the local server... {percent}%',
   'settings.importing': 'Importing {label}...',
   'settings.importedCount': 'Imported {count} messages from {label}.',
   'settings.importFailed': 'Import failed: {message}',

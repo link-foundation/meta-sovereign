@@ -4,7 +4,9 @@
 // whose file was never imported. The page must draw the picture from
 // /api/media (it loads), a file chip with name and size, a "media not
 // imported" chip instead of a broken image, and the reaction with its
-// actors in the title. Nothing reaches a network. Not part of `npm test`:
+// actors in the title. Then a Facebook .zip picked in the Connections import
+// box is streamed to /api/archive/upload and imported as Facebook (R-Z23).
+// Nothing reaches a network. Not part of `npm test`:
 //
 //   RUN_BROWSER_E2E=1 npm run test:e2e:archive-media
 //   RUN_BROWSER_E2E=1 npm run test:e2e:archive-media:webkit
@@ -17,6 +19,7 @@ import { createMemoryStore } from '../src/storage/universal.js';
 import { buildMessageLink } from '../src/sources/link.js';
 import { stampSourceLink } from '../src/sources/index.js';
 import { assert, openChatApp } from './helpers/e2e-chat.mjs';
+import { zipOf } from './helpers/zip-fixture.js';
 
 const PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
@@ -142,6 +145,59 @@ await finish(async () => {
   assert(
     (await page.locator('img[data-archive-image]').count()) === 1,
     'one picture'
+  );
+
+  // R-Z23: a zip picked in the import box goes to the server's importer.
+  const thread = 'your_facebook_activity/messages/inbox/bob_Q1';
+  const zip = zipOf([
+    [
+      `${thread}/message_1.json`,
+      JSON.stringify({
+        participants: [{ name: 'Bob' }, { name: 'Me' }],
+        title: 'Bob',
+        thread_path: 'inbox/bob_Q1',
+        messages: [
+          {
+            sender_name: 'Bob',
+            timestamp_ms: 1700000000000,
+            content: 'zip hi',
+          },
+          { sender_name: 'Me', timestamp_ms: 1700000001000, content: 'zip yo' },
+        ],
+      }),
+      8,
+    ],
+  ]);
+  await page.click('button[data-view="connections"]');
+  const open =
+    'article[data-provider-id="facebook"] button[data-action="open-connection-detail"]';
+  await page.waitForSelector(open, { timeout: 10000 });
+  await page.click(open);
+  const detail = page.locator('#conn-facebook');
+  await detail.waitFor({ timeout: 10000 });
+  const manual = detail.locator('[data-action="connection-mode-manual"]');
+  if ((await manual.count()) > 0) {
+    await manual.click();
+  }
+  const picker = detail.locator('input[data-action="archive-file"]');
+  await picker.waitFor({ state: 'attached', timeout: 10000 });
+  await picker.setInputFiles({
+    name: 'facebook-export.zip',
+    mimeType: 'application/zip',
+    buffer: zip,
+  });
+  await until(
+    () =>
+      detail.evaluate((node) =>
+        /facebook-export\.zip: 2 /.test(node.textContent)
+      ),
+    'zip imported through the upload route'
+  );
+  const stored = await store.query((l) => /^zip (hi|yo)$/.test(l.body ?? ''));
+  assert(stored.length === 2, `zip messages stored: ${stored.length}`);
+  assert(
+    stored.every((l) => l.source === 'facebook'),
+    'zip read as Facebook'
   );
 });
 

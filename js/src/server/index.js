@@ -40,6 +40,7 @@
  *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/email/attachment     -> a mail attachment from the media folder (routes-email.js)
  *   GET  /api/media/<network>/<sha256>[.ext] -> imported archive media (routes-media.js, R-Z15)
+ *   POST /api/archive/upload?source=&name= -> import an export file (routes-archive-upload.js)
  *   GET  /api/backups              -> list archives (gated on archiveDir)
  *   POST /api/backups              -> { passphrase?, keep? } -> { file }
  *   POST /api/backups/restore      -> { file, passphrase? } -> { restored }
@@ -97,6 +98,7 @@ import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEmailGets } from './routes-email.js';
 import { handleMediaGets } from './routes-media.js';
+import { handleArchiveUpload } from './routes-archive-upload.js';
 import { createAttachmentStore } from './email-attachments.js';
 import {
   VK_CAPTCHA_HOSTS,
@@ -586,6 +588,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),
+    () => handleArchiveUpload(store, req, res, p, ctx),
     () => handlePullRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),

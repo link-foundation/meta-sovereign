@@ -170,6 +170,7 @@ export const hi = {
   'settings.archivePastePlaceholder': 'यहाँ संग्रह की सामग्री चिपकाएँ',
   'settings.archivePasteWith': '{label} की सामग्री चिपकाएँ',
   'settings.importPasted': 'चिपकाई सामग्री आयात करें',
+  'settings.uploading': '{label} लोकल सर्वर को भेजी जा रही है... {percent}%',
   'settings.importing': '{label} आयात हो रहा है...',
   'settings.importedCount': '{label} से {count} संदेश आयात किए।',
   'settings.importFailed': 'आयात विफल: {message}',

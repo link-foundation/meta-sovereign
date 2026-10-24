@@ -8,7 +8,7 @@ Telegram is the reference network and its matrix is below. Every other network h
 | -------------------- | -------------------------------------------------------- | --------- | ------- | ------------- | -------------- |
 | Telegram (this page) | below                                                    | —         | —       | —             | —              |
 | VK                   | [features/vk.md](./features/vk.md)                       | 34        | 22      | 32            | 5              |
-| WhatsApp             | [features/whatsapp.md](./features/whatsapp.md)           | 6         | 28      | 26            | 8              |
+| WhatsApp             | [features/whatsapp.md](./features/whatsapp.md)           | 7         | 27      | 26            | 8              |
 | Facebook + Instagram | [features/facebook.md](./features/facebook.md)           | 6         | 37      | 26            | 1              |
 | X                    | [features/x.md](./features/x.md)                         | 8         | 22      | 23            | 5              |
 | LinkedIn             | [features/linkedin.md](./features/linkedin.md)           | 6         | 18      | 26            | 3              |

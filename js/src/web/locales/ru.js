@@ -168,6 +168,7 @@ export const ru = {
   'settings.archivePastePlaceholder': 'Вставьте содержимое архива сюда',
   'settings.archivePasteWith': 'Вставьте содержимое {label}',
   'settings.importPasted': 'Импортировать вставленное',
+  'settings.uploading': 'Передаём {label} локальному серверу... {percent}%',
   'settings.importing': 'Импортируем {label}...',
   'settings.importedCount': 'Импортировано {count} сообщений из {label}.',
   'settings.importFailed': 'Импорт не удался: {message}',

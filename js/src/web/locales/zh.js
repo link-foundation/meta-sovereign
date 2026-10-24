@@ -167,6 +167,7 @@ export const zh = {
   'settings.archivePastePlaceholder': '在此粘贴归档内容',
   'settings.archivePasteWith': '粘贴 {label} 内容',
   'settings.importPasted': '导入粘贴内容',
+  'settings.uploading': '正在把 {label} 发送到本地服务器… {percent}%',
   'settings.importing': '正在导入 {label}...',
   'settings.importedCount': '已从 {label} 导入 {count} 条消息。',
   'settings.importFailed': '导入失败：{message}',
