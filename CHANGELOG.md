@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.11
+
+### Patch Changes
+
+- 8121032: VK voice, audio and video play inline from exact VK CDN hosts (`media-src`), a VK video page is a link-out card, VK captcha dialog on user actions (background pulls mark the connection as needing attention), VK chat scroll-back, GitHub unread notifications with a user-clicked "Mark read" (send-unknown on an ambiguous failure), and mail pulled by the shared pull runner instead of its own timer (R-Z20).
+
 ## 0.49.10
 
 ### Patch Changes
