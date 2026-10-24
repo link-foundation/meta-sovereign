@@ -163,25 +163,40 @@ const visiblePart = (r, viewport) => {
 
 // The click lands on the control, not on the card in front of it.
 const assertClickable = async (page, label, selector) => {
-  const hit = await page.evaluate((sel) => {
-    const el = document.querySelector(sel);
-    const r = el?.getBoundingClientRect();
-    if (!r) {
-      return { found: false };
-    }
-    const top = document.elementFromPoint(
-      r.left + r.width / 2,
-      Math.min(Math.max(r.top + r.height / 2, 1), globalThis.innerHeight - 1)
-    );
-    return {
-      found: true,
-      onCard: Boolean(top?.closest('.tutorial-step')),
-      inside: Boolean(top && el.contains(top)),
-    };
-  }, selector);
+  const read = () =>
+    page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      const r = el?.getBoundingClientRect();
+      if (!r) {
+        return { found: false };
+      }
+      const card = document.querySelector('.tutorial-step');
+      const c = card.getBoundingClientRect();
+      const top = document.elementFromPoint(
+        r.left + r.width / 2,
+        Math.min(Math.max(r.top + r.height / 2, 1), globalThis.innerHeight - 1)
+      );
+      const round = (n) => Math.round(n);
+      return {
+        found: true,
+        onCard: Boolean(top?.closest('.tutorial-step')),
+        offScreen: r.bottom > globalThis.innerHeight || r.top < 0,
+        control: [r.top, r.height].map(round),
+        card: [c.top, c.height].map(round),
+        compact: card.dataset.compact ?? null,
+        viewportHeight: globalThis.innerHeight,
+        scrollY: round(globalThis.scrollY),
+      };
+    }, selector);
+  // The card may still be settling (it checks again after layout).
+  let hit = await read();
+  for (let i = 0; i < 12 && hit.onCard; i += 1) {
+    await page.waitForTimeout(250);
+    hit = await read();
+  }
   check(
-    hit.found && !hit.onCard,
-    `${label}: ${selector} is under the card ${JSON.stringify(hit)}`
+    hit.found && !hit.onCard && !hit.offScreen,
+    `${label}: ${selector} is under the card or off screen ${JSON.stringify(hit)}`
   );
 };
 
