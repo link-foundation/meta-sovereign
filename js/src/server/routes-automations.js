@@ -199,6 +199,20 @@ const sendOnce = (ctx, draft, send) => {
   return promise;
 };
 
+// The network has it: a store that cannot take the copy (a full disk,
+// R-Z14) does not make it unsent — answering "failed" would invite a
+// second send. The sync brings the message once the store takes writes.
+const keepSent = async (store, links) => {
+  try {
+    for (const link of links) {
+      await store.put(link);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 const handleSend = async (store, res, body, ctx) => {
   if (!validChat(body) || !String(body.text ?? '').trim()) {
     return fail(res, 400, 'bad-message', 'source, chat and text are needed');
@@ -232,14 +246,13 @@ const handleSend = async (store, res, body, ctx) => {
     const sent = await sendOnce(ctx, draft, async () => {
       const result = await ctx.send(draft);
       const links = sentLinks(draft, result);
-      for (const link of links) {
-        await store.put(link);
-      }
+      const stored = await keepSent(store, links);
       return {
         status: 'sent',
         via: result?.via,
         link: links.at(-1) ?? null,
         links,
+        ...(stored ? {} : { stored: false }),
         ...(result?.scheduled ? { scheduled: true } : {}),
       };
     });

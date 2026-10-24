@@ -216,6 +216,32 @@ test('the composer sends through /api/send and stores the message', async () => 
   }
 });
 
+test('a send the network took stays sent when the store write fails', async () => {
+  const { server, store, sent, confirmCall } = await boot();
+  const put = store.put.bind(store);
+  store.put = async (link) => {
+    if (link.sender === 'me') {
+      throw Object.assign(new Error('disk full'), {
+        code: 'STORE_WRITE_FAILED',
+      });
+    }
+    return put(link);
+  };
+  try {
+    const draft = { source: 'vk', chat: '101', text: 'Ок', clientId: 'c-1' };
+    const first = await confirmCall('/api/send', draft);
+    assert.equal(first.status, 200);
+    assert.equal(first.body.status, 'sent');
+    assert.equal(first.body.stored, false);
+    // A retry of the same draft is the first one's answer, not a resend.
+    const again = await confirmCall('/api/send', draft);
+    assert.equal(again.status, 200);
+    assert.equal(sent.length, 1);
+  } finally {
+    await server.close();
+  }
+});
+
 test('typing status is set and listed per chat', async () => {
   const { server, call } = await boot();
   try {
