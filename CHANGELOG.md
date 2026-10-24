@@ -1,5 +1,17 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.16
+
+### Patch Changes
+
+- Stopping the server waits for a backup in flight to finish and prune, so the archives kept match the setting (flaky on slow runners).
+
+  Contact notes, Share my contact link and QR code, contact and phone links, contact photos, suggested birthday, synced contacts and Block user in Replies; a change with no answer is reported as unknown (R-Y217).
+
+  Secret-chat protocol groundwork (TL layer 73, AES-IGE packets, key exchange, sequence numbers), tested and not exposed in the page or routes (R-Y219).
+
+  Login email change, Forgot password and reset request, passkey list and delete, add passkey through the browser's WebAuthn, and the sign-in code warning before a message is sent (R-Y218).
+
 ## 0.49.15
 
 ### Patch Changes
