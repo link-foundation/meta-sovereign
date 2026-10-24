@@ -13,6 +13,7 @@ import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import {
   handleArchiveUpload,
   uploadName,
+  UPLOAD_TIMEOUT_MS,
 } from '../src/server/routes-archive-upload.js';
 import { createMemoryStore } from '../src/storage/index.js';
 import { zipOf } from './helpers/zip-fixture.js';
@@ -155,4 +156,10 @@ test('an upload name is a plain file name', () => {
   assert.equal(uploadName('..'), 'archive');
   assert.equal(uploadName(''), 'archive');
   assert.equal(uploadName(null), 'archive');
+});
+
+test('a big upload may take hours to arrive, not the default 5 minutes', () => {
+  assert.ok(UPLOAD_TIMEOUT_MS >= 60 * 60_000);
+  // Below the 6 h after which a temp folder counts as a crashed upload's.
+  assert.ok(UPLOAD_TIMEOUT_MS < 6 * 60 * 60_000);
 });

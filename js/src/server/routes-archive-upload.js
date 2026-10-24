@@ -37,8 +37,10 @@ import { isFatalWrite } from '../sources/archive/context.js';
 
 export const ARCHIVE_UPLOAD_ROUTE = '/api/archive/upload';
 const UPLOADS = 'uploads';
-// A temp folder this old is a crashed upload's.
+// A temp folder this old is a crashed upload's: no request lives that long.
 const STALE_MS = 6 * 60 * 60_000;
+/** How long a request may take to arrive (the server's `requestTimeout`). */
+export const UPLOAD_TIMEOUT_MS = 3 * 60 * 60_000;
 
 const reply = (res, status, body) =>
   json(res, status, { ok: status < 400, ...body }) ?? true;

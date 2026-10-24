@@ -98,7 +98,10 @@ import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEmailGets } from './routes-email.js';
 import { handleMediaGets } from './routes-media.js';
-import { handleArchiveUpload } from './routes-archive-upload.js';
+import {
+  handleArchiveUpload,
+  UPLOAD_TIMEOUT_MS,
+} from './routes-archive-upload.js';
 import { createAttachmentStore } from './email-attachments.js';
 import {
   VK_CAPTCHA_HOSTS,
@@ -662,7 +665,9 @@ const initStore = async ({
 // The HTTP server: each request is logged, and routed (./account-scope.js
 // picks the Telegram account it is for).
 const createHttpServer = (store, ctx, log) =>
-  http.createServer((req, res) => {
+  // A big export uploaded over Wi-Fi takes longer than Node's default 5
+  // minutes to arrive (R-Z23); headers still time out at Node's 60 s.
+  http.createServer({ requestTimeout: UPLOAD_TIMEOUT_MS }, (req, res) => {
     const start = Date.now();
     res.on('finish', () => {
       log?.({
