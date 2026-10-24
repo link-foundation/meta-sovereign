@@ -86,9 +86,12 @@ export const createPullRunner = ({
   const lastStart = new Map();
   const running = new Set();
   const timers = new Map();
+  // Runs in flight, so that `stop()` can be waited for: a server that
+  // closed mid-run would otherwise store the pull after its last flush.
+  const flights = new Set();
   let stopped = true;
 
-  const execute = async (source) => {
+  const runOnce = async (source) => {
     const job = jobs[source];
     running.add(source);
     lastStart.set(source, now());
@@ -113,6 +116,13 @@ export const createPullRunner = ({
     } finally {
       running.delete(source);
     }
+  };
+
+  const execute = (source) => {
+    const flight = runOnce(source);
+    flights.add(flight);
+    flight.finally(() => flights.delete(flight)).catch(() => {});
+    return flight;
   };
 
   const fetchNow = async (source) => {
@@ -181,12 +191,14 @@ export const createPullRunner = ({
         }
       }
     },
+    /** Stop the schedules; resolves once the runs in flight are done. */
     stop() {
       stopped = true;
       for (const timer of timers.values()) {
         clearTimer(timer);
       }
       timers.clear();
+      return Promise.allSettled([...flights]).then(() => {});
     },
     sources: () => Object.keys(jobs),
     connected: (source) => jobs[source].ready(),

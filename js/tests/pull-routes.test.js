@@ -232,4 +232,29 @@ describe('the pull schedule (R-Z8)', () => {
     release({ imported: 0 });
     expect((await third).ok).toBe(true);
   });
+
+  it('stop() resolves only once the run in flight has stored its state', async () => {
+    const store = createMemoryStore();
+    let release;
+    const runner = createPullRunner({
+      store,
+      jobs: {
+        upwork: {
+          ready: async () => true,
+          run: () => new Promise((resolve) => (release = resolve)),
+          intervalMs: 0,
+        },
+      },
+    });
+    const running = runner.fetchNow('upwork');
+    await new Promise((r) => setTimeout(r, 5));
+    let stopped = false;
+    const done = runner.stop().then(() => (stopped = true));
+    await new Promise((r) => setTimeout(r, 5));
+    expect(stopped).toBe(false);
+    release({ imported: 1 });
+    await done;
+    expect((await loadPullState(store, 'upwork')).lastOkAt).toBeTruthy();
+    expect((await running).ok).toBe(true);
+  });
 });

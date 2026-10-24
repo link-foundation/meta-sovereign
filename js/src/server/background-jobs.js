@@ -78,7 +78,8 @@ export const backgroundJobs = ({ ctx, store, log, later, backups }) => {
   });
   const purge = cachePurgeFor({ store, log, later });
   return {
-    // Returns a promise settled once a backup in flight has finished.
+    // Returns a promise settled once a backup and the pulls in flight
+    // have finished.
     stopJobs: () => {
       const backupDone = backup.stopBackups();
       audience.stopAudienceSync();
@@ -86,8 +87,8 @@ export const backgroundJobs = ({ ctx, store, log, later, backups }) => {
       // The other timers and pollers the server started with the port.
       ctx.autoImport?.close();
       ctx.whatsappSignIn?.stop().catch(() => {});
-      ctx.stopPulls?.();
-      return backupDone;
+      const pullsDone = ctx.stopPulls?.();
+      return Promise.all([backupDone, pullsDone]).then(() => {});
     },
   };
 };
