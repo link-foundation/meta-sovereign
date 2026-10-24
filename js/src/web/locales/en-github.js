@@ -27,4 +27,15 @@ export const enGithub = {
     'GitHub rate limit reached. Try again in {seconds} s.',
   'github.inbox.error.bad-request': 'These settings are not valid.',
   'github.inbox.error.generic': 'GitHub could not be reached: {error}',
+  'github.notifications.title': 'Unread notifications',
+  'github.notifications.refresh': 'Refresh the list',
+  'github.notifications.none':
+    'No unread notifications saved. Tick "fetch my notifications" and press Fetch now.',
+  'github.notifications.markRead': 'Mark read',
+  'github.notifications.error.send-unknown':
+    'GitHub may or may not have marked it read. Nothing was repeated; fetch again to see.',
+  'github.notifications.error.rate-limited':
+    'GitHub rate limit reached. Try again later.',
+  'github.notifications.error.no-token': 'Save a GitHub access token first.',
+  'github.notifications.error.generic': 'GitHub did not mark it read: {error}',
 };

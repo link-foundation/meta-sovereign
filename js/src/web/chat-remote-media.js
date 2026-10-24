@@ -4,8 +4,11 @@
 // Pictures are drawn from the https address the network gave (VK's picture
 // CDNs are the only hosts the page's CSP `img-src` allows besides vk.com); a
 // picture that cannot load falls back to a link chip. Voice messages, files,
-// videos and other things are chips that open in a new tab: the page's CSP
-// has no `media-src`, so audio and video are not played inline.
+// videos and other things are chips that open in a new tab. A voice message,
+// audio or video the network gave as a direct file on one of VK's CDNs
+// (`item.src`, which the CSP `media-src` lists exactly) is played inline
+// (R-Z20); a VK video that only has its page is a card with its picture and
+// a link out, never an iframe.
 
 import React, { useState } from 'react';
 import { useT } from './i18n.js';
@@ -83,7 +86,55 @@ const Picture = ({ item, src }) => {
       );
 };
 
+// A direct audio or video file, played in place; a file that will not play
+// falls back to the link chip.
+const Player = ({ item, src }) => {
+  const t = useT();
+  const [broken, setBroken] = useState(false);
+  if (broken) {
+    return el(Chip, { item });
+  }
+  const video = item.kind === 'video';
+  return el(video ? 'video' : 'audio', {
+    className: `remote-player remote-${item.kind}`,
+    src,
+    controls: true,
+    preload: 'none',
+    poster: video ? (https(item.thumb) ?? undefined) : undefined,
+    'aria-label': labelOf(t, item),
+    'data-remote-kind': item.kind,
+    'data-remote-player': video ? 'video' : 'audio',
+    onError: () => setBroken(true),
+  });
+};
+
+// A video with only its VK page: the still picture and a link out.
+const VideoCard = ({ item, thumb }) => {
+  const t = useT();
+  return el('div', { className: 'remote-card', 'data-remote-kind': 'video' }, [
+    thumb ? el(Picture, { key: 'p', item, src: thumb }) : null,
+    el(
+      'a',
+      {
+        key: 'a',
+        className: 'remote-chip',
+        href: https(item.url),
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      },
+      `${t('chat.remote.openVideo')}${item.title ? `: ${item.title}` : ''}${seconds(item.duration)}`
+    ),
+  ]);
+};
+
 const Item = ({ item }) => {
+  const playable = https(item.src);
+  if (playable && ['voice', 'audio', 'video'].includes(item.kind)) {
+    return el(Player, { item, src: playable });
+  }
+  if (item.kind === 'video' && https(item.url)) {
+    return el(VideoCard, { item, thumb: https(item.thumb) });
+  }
   const picture =
     ['photo', 'sticker', 'gif'].includes(item.kind) && https(item.url);
   if (picture) {

@@ -402,7 +402,8 @@ jobs:
           for name in browser pages chat-menu chat-search selection attach \
             send-extras folders passcode service-messages ephemeral \
             rich-messages rich-text instant-view account-data accounts offline \
-            email greetings autopilot peer-bar tutorial archive-media; do
+            email greetings autopilot peer-bar tutorial archive-media \
+            vk-followups github-inbox; do
             echo "::group::test:e2e:${name}"
             if ! npm run --silent "test:e2e:${name}"; then
               failed+=("${name}")
@@ -424,7 +425,8 @@ jobs:
         run: |
           failed=()
           for name in browser consistency chat-menu selection offline \
-            email greetings autopilot peer-bar archive-media; do
+            email greetings autopilot peer-bar archive-media vk-followups \
+            github-inbox; do
             echo "::group::test:e2e:${name}:webkit"
             if ! npm run --silent "test:e2e:${name}:webkit"; then
               failed+=("${name}")

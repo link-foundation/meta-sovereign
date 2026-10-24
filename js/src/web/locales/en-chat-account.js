@@ -450,4 +450,16 @@ export const enChatAccount = {
   'chat.archive.notImported': 'Media not imported: {name}',
   'chat.archive.notImportedShort': 'Media not imported',
   'chat.archive.save': 'Save {name}',
+  'vk.captcha.title': 'VK asks you to confirm you are a person',
+  'vk.captcha.hint':
+    'Type the characters from the picture. VK needs this once; the same request is then repeated one time.',
+  'vk.captcha.label': 'Characters in the picture',
+  'vk.captcha.image': 'VK captcha picture',
+  'vk.captcha.noImage':
+    'VK did not give a picture to show. Cancel and try again later.',
+  'vk.captcha.submit': 'Continue',
+  'vk.captcha.cancel': 'Cancel',
+  'pull.captcha':
+    'VK asks for a captcha. Open a VK chat and scroll up to solve it, or try again later.',
+  'chat.remote.openVideo': 'Open the video on VK',
 };

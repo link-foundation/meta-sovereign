@@ -23,6 +23,8 @@ import { liveOptionsFrom, pullLiveInto } from '../sources/index.js';
 import { createUpworkLive } from '../sources/upwork.js';
 import { createPeoplePerHourLive } from '../sources/peopleperhour.js';
 import { createGithubService } from './github-service.js';
+import { handleVkRoutes } from './routes-vk.js';
+import { emailConfigured } from '../sources/email-store.js';
 import { fail, json, readBody } from './util.js';
 
 const MINUTE = 60_000;
@@ -34,9 +36,24 @@ const connected = (store, source) => async () =>
 // still comes from the store.
 const liveOf = (make, given) => (given ? make(given) : undefined);
 
+// Mail (R-Z5, on the shared runner since R-Z20): every ten minutes, the first
+// pull 30 s after the server listens, never faster than a minute, backed off
+// after a failure like every job. `emailPoll: false` keeps only the button.
+// `email.pull` (tests) replaces the real pull.
+const MIN_EMAIL_MS = MINUTE;
+const emailJob = (store, poll = {}) => ({
+  ready: async () => emailConfigured(await liveOptionsFrom(store, 'email')),
+  run: () =>
+    (poll.pull ?? ((s) => pullLiveInto(s, 'email', { limit: 20 })))(store),
+  intervalMs:
+    poll === false ? 0 : Math.max(MIN_EMAIL_MS, poll.intervalMs ?? 10 * MINUTE),
+  firstDelayMs: poll === false ? 0 : (poll.firstMs ?? 30_000),
+});
+
 /** The jobs: network -> { ready, run, intervalMs }. */
 export const pullJobs = (store, { vkInbox, github, options = {} }) => ({
   ...(github ? { github: github.pullJob() } : {}),
+  email: emailJob(store, options.email),
   vk: {
     ready: vkInbox.ready,
     run: vkInbox.fetch,
@@ -103,6 +120,8 @@ const statusOf = async (store, ctx) => {
       connected: await ctx.pullRunner.connected(source),
       lastOkAt: state.lastOkAt ?? null,
       lastError: state.lastError ?? null,
+      // A captcha, or anything else only the user can clear (R-Z20).
+      needsAttention: state.lastError?.needsAttention === true,
     };
   }
   return { ok: true, sources };
@@ -116,6 +135,9 @@ const sourceOf = (body) =>
 export const handlePullRoutes = async (store, req, res, p, ctx) => {
   if (!ctx.pullRunner) {
     return false;
+  }
+  if (p.startsWith('/api/vk/')) {
+    return handleVkRoutes(req, res, p, ctx);
   }
   if (p === '/api/pull/status' && req.method === 'GET') {
     return json(res, 200, await statusOf(store, ctx)) ?? true;
@@ -139,7 +161,7 @@ export const handlePullRoutes = async (store, req, res, p, ctx) => {
 };
 
 /** What a server keeps for the pulls; they start with the other `later` services. */
-export const pullContext = (store, log, options, later) => {
+export const pullContext = (store, log, options, later, emailPoll) => {
   // GitHub's picker routes work even when the pulls are off; its schedule is
   // one more job of the shared runner (R-Z11).
   // Tests give `pulls.githubLiveFactory`, a fake createGithubLive.
@@ -153,11 +175,17 @@ export const pullContext = (store, log, options, later) => {
   if (options === false) {
     return { ...given, pullRunner: null };
   }
-  const services = createPullServices(store, log, options ?? {}, github);
+  const services = createPullServices(
+    store,
+    log,
+    { ...options, email: emailPoll },
+    github
+  );
   later.push(services.start);
   return {
     ...given,
     pullRunner: services.pullRunner,
+    vkInbox: services.vkInbox,
     stopPulls: services.stop,
   };
 };

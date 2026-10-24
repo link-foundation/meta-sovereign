@@ -115,8 +115,14 @@ describe('greetings api catalogue and selection', () => {
       const { headers } = await fetchJson(`${base}/api/greetings/catalogue`);
       const csp = headers.get('content-security-policy');
       expect(csp).toContain(
-        "img-src 'self' data: blob: https://vk.com https://*.userapi.com https://*.vk-cdn.net https://*.vkuserphoto.ru;"
+        "img-src 'self' data: blob: https://vk.com https://*.userapi.com https://*.vk-cdn.net https://*.vkuseraudio.net https://*.vkuservideo.net https://*.vkuserphoto.ru https://api.vk.com https://api.vk.ru;"
       );
+      // R-Z20: VK audio/video files only from VK's CDNs, never `*`.
+      expect(csp).toContain(
+        "media-src 'self' https://*.userapi.com https://*.vk-cdn.net https://*.vkuseraudio.net https://*.vkuservideo.net;"
+      );
+      expect(csp).toContain('frame-src https:;');
+      expect(csp).not.toMatch(/media-src[^;]*\*[;\s]/);
       expect(csp).toContain("default-src 'self'");
     });
   });

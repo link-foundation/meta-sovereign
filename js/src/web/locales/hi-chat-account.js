@@ -454,4 +454,16 @@ export const hiChatAccount = {
   'chat.archive.notImported': 'मीडिया आयात नहीं हुआ: {name}',
   'chat.archive.notImportedShort': 'मीडिया आयात नहीं हुआ',
   'chat.archive.save': '{name} सहेजें',
+  'vk.captcha.title': 'VK आपसे पुष्टि माँगता है कि आप इंसान हैं',
+  'vk.captcha.hint':
+    'चित्र के अक्षर लिखें। VK को यह एक बार चाहिए; फिर वही अनुरोध एक बार दोहराया जाता है।',
+  'vk.captcha.label': 'चित्र में अक्षर',
+  'vk.captcha.image': 'VK कैप्चा चित्र',
+  'vk.captcha.noImage':
+    'VK ने दिखाने के लिए चित्र नहीं दिया। रद्द करें और बाद में फिर कोशिश करें।',
+  'vk.captcha.submit': 'आगे बढ़ें',
+  'vk.captcha.cancel': 'रद्द करें',
+  'pull.captcha':
+    'VK कैप्चा माँग रहा है। इसे हल करने के लिए VK चैट खोलकर ऊपर स्क्रॉल करें, या बाद में कोशिश करें।',
+  'chat.remote.openVideo': 'VK पर वीडियो खोलें',
 };

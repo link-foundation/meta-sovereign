@@ -26,4 +26,16 @@ export const hiGithub = {
     'GitHub की दर सीमा पूरी हो गई। {seconds} सेकंड बाद फिर कोशिश करें।',
   'github.inbox.error.bad-request': 'ये सेटिंग मान्य नहीं हैं।',
   'github.inbox.error.generic': 'GitHub तक नहीं पहुँचा जा सका: {error}',
+  'github.notifications.title': 'अपठित सूचनाएँ',
+  'github.notifications.refresh': 'सूची ताज़ा करें',
+  'github.notifications.none':
+    'कोई अपठित सूचना सहेजी नहीं है। «मेरी सूचनाएँ लाएँ» चुनें और अभी लाएँ दबाएँ।',
+  'github.notifications.markRead': 'पढ़ा हुआ चिह्नित करें',
+  'github.notifications.error.send-unknown':
+    'पता नहीं GitHub ने इसे पढ़ा चिह्नित किया या नहीं। कुछ दोहराया नहीं गया; देखने के लिए फिर से लाएँ।',
+  'github.notifications.error.rate-limited':
+    'GitHub की दर सीमा पूरी हो गई। बाद में फिर कोशिश करें।',
+  'github.notifications.error.no-token': 'पहले GitHub एक्सेस टोकन सहेजें।',
+  'github.notifications.error.generic':
+    'GitHub ने इसे पढ़ा चिह्नित नहीं किया: {error}',
 };

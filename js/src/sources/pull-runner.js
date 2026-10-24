@@ -21,6 +21,10 @@
  * whose user turned the schedule off can still be fetched by hand) and its
  * `intervalMs` is then just how often `due()` is asked.
  *
+ * A pull that VK stops with a captcha (code `captcha`) is marked
+ * `needsAttention` in `lastError`: neither the schedule nor this runner
+ * shows or solves it (R-Z20; the page asks only for the user's own actions).
+ *
  * `pull-state:<source>` keeps `lastOkAt` and a job's own cursor.
  */
 
@@ -97,7 +101,13 @@ export const createPullRunner = ({
       const out = failure(error, { source });
       log?.({ level: 'warn', event: 'pull_failed', source, code: out.code });
       await savePullState(store, source, {
-        lastError: { code: out.code, at: new Date(now()).toISOString() },
+        lastError: {
+          code: out.code,
+          at: new Date(now()).toISOString(),
+          // A captcha only the user can solve, in the app: the schedule
+          // backs off and never asks (R-Z20).
+          ...(out.code === 'captcha' ? { needsAttention: true } : {}),
+        },
       }).catch(() => {});
       return out;
     } finally {
@@ -160,6 +170,10 @@ export const createPullRunner = ({
     fetchNow,
     /** Start the schedules (call after the server listens). */
     start() {
+      // A second start must not run a second schedule (R-Z20).
+      if (!stopped) {
+        return;
+      }
       stopped = false;
       for (const [source, job] of Object.entries(jobs)) {
         if (job.intervalMs > 0) {

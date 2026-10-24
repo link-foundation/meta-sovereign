@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
 import { FetchNow } from './fetch-now.js';
+import { GithubNotifications } from './github-notifications.js';
 
 const el = React.createElement;
 
@@ -221,6 +222,9 @@ export const GithubInbox = () => {
           before: () => api.githubInbox('settings', settings),
         }),
       ]),
+      settings?.notifications
+        ? el(GithubNotifications, { key: 'notifications' })
+        : null,
       el(
         'p',
         {

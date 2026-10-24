@@ -126,6 +126,8 @@ import { NOTICE, Sidebar, noticeInWords } from './chat-sidebar.js';
 import { useSendAs } from './chat-send-as.js';
 import { usePaidSend } from './chat-paid-send.js';
 import { useLiveWatch } from './live-watch.js';
+// VK's captcha, asked of the user when scroll-back needs it (R-Z20).
+import { VkCaptchaDialog } from './vk-captcha.js';
 import {
   OlderRow,
   UnreadLine,
@@ -1339,5 +1341,12 @@ const kindOf = (current) => current?.kind ?? 'private';
 
 export const ChatView = ({ api = defaultApi, ...options }) => {
   const t = useT();
-  return el(ChatScreen, { state: useChatState(api, { t, ...options }), api });
+  return el(React.Fragment, null, [
+    el(ChatScreen, {
+      key: 'screen',
+      state: useChatState(api, { t, ...options }),
+      api,
+    }),
+    el(VkCaptchaDialog, { key: 'vk-captcha' }),
+  ]);
 };

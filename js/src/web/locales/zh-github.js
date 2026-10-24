@@ -25,4 +25,15 @@ export const zhGithub = {
     '已达 GitHub 速率限制。请在 {seconds} 秒后重试。',
   'github.inbox.error.bad-request': '这些设置无效。',
   'github.inbox.error.generic': '无法连接 GitHub：{error}',
+  'github.notifications.title': '未读通知',
+  'github.notifications.refresh': '刷新列表',
+  'github.notifications.none':
+    '没有已保存的未读通知。请勾选“拉取我的通知”并点击“立即拉取”。',
+  'github.notifications.markRead': '标为已读',
+  'github.notifications.error.send-unknown':
+    'GitHub 可能已标为已读，也可能没有。没有重复任何操作；请再次拉取查看。',
+  'github.notifications.error.rate-limited':
+    '已达 GitHub 速率限制，请稍后重试。',
+  'github.notifications.error.no-token': '请先保存 GitHub 访问令牌。',
+  'github.notifications.error.generic': 'GitHub 未能标为已读：{error}',
 };

@@ -14,6 +14,12 @@ const el = React.createElement;
 /** The networks whose inbox the server pulls on demand and on a schedule. */
 export const FETCHABLE = new Set(['vk', 'upwork', 'peopleperhour']);
 
+// Codes with a sentence of their own (R-Z20: a VK captcha needs the user).
+const PLAIN_ERRORS = {
+  captcha: 'pull.captcha',
+  'not-connected': 'pull.notConnected',
+};
+
 /** The message to show for the server's answer to a pull. */
 export const pullMessage = (t, answer) => {
   if (answer?.ok) {
@@ -29,8 +35,9 @@ export const pullMessage = (t, answer) => {
     );
     return { tone: 'wait', text: t('pull.rateLimited', { seconds }) };
   }
-  if (answer?.code === 'not-connected') {
-    return { tone: 'error', text: t('pull.notConnected') };
+  const fixed = PLAIN_ERRORS[answer?.code];
+  if (fixed) {
+    return { tone: 'error', text: t(fixed) };
   }
   return {
     tone: 'error',

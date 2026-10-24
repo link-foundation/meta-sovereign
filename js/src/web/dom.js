@@ -868,6 +868,13 @@ const rawApi = {
         : await serverPostReport(path, body);
     return answer ?? { ok: false, code: 'no-server', error: 'server required' };
   },
+  // Older messages of a VK chat (R-Z20): the server's own answer, with its
+  // error code and a captcha to show, is kept.
+  vkHistory: async (body) =>
+    (await serverPostReport('/api/vk/history', body).catch((error) => ({
+      ok: false,
+      error: error.message,
+    }))) ?? { ok: false, code: 'no-server', error: 'server required' },
   // Browser auto-import (local JS server only).
   autoImportStatus: async () =>
     (await serverFetch('/api/auto-import').catch(() => null)) ?? {

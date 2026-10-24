@@ -98,7 +98,12 @@ import { handleMessageRoutes } from './routes-messages.js';
 import { handleEmailGets } from './routes-email.js';
 import { handleMediaGets } from './routes-media.js';
 import { createAttachmentStore } from './email-attachments.js';
-import { createEmailPoller } from './email-poller.js';
+import {
+  VK_CAPTCHA_HOSTS,
+  VK_IMAGE_HOSTS,
+  VK_MEDIA_HOSTS,
+  cspSources,
+} from '../sources/vk-hosts.js';
 import { setAttachmentSink } from '../sources/email.js';
 import { handleEventRoutes } from './routes-events.js';
 import { createPasscodeLock } from './passcode.js';
@@ -156,7 +161,9 @@ export const CSP =
   "style-src 'self'; " +
   "img-src 'self' data: blob: https://vk.com " +
   // VK's picture CDNs, for photos and stickers in VK chats (R-Z8).
-  'https://*.userapi.com https://*.vk-cdn.net https://*.vkuserphoto.ru; ' +
+  `${cspSources(VK_IMAGE_HOSTS)} ${cspSources(VK_CAPTCHA_HOSTS)}; ` +
+  // Direct VK audio and video files (R-Z20); a VK video page is a link.
+  `media-src 'self' ${cspSources(VK_MEDIA_HOSTS)}; ` +
   'frame-src https:; ' +
   "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; " +
   "worker-src 'self'; " +
@@ -391,17 +398,12 @@ const mediaDirOf = (storeDir) =>
 
 // Mail (R-Z5): where attachments are kept next to the store, and the
 // periodic pull of a connected mailbox (`emailPoll: false` turns it off).
-const emailContext = (store, storeDir, poll, log, later) => {
+const emailContext = (storeDir) => {
   const emailFiles = storeDir
     ? createAttachmentStore(path.join(storeDir, 'media', 'email'))
     : null;
   setAttachmentSink(emailFiles ? (bytes) => emailFiles.save(bytes) : null);
-  const emailPoller =
-    poll === false
-      ? { start() {}, stop() {} }
-      : createEmailPoller({ store, log, ...poll });
-  later.push(() => emailPoller.start());
-  return { emailFiles, emailPoller };
+  return { emailFiles };
 };
 
 // Listen (with HTTPS beside HTTP when asked, ./local-tls.js) and track
@@ -839,7 +841,7 @@ export const startServer = async ({
     signaling: null,
     secretPassphrase,
     emailLiveFactory,
-    ...emailContext(store, storeDir, emailPoll, log, later),
+    ...emailContext(storeDir),
     ...uiContext(allowOrigins, uiUrl, localUi),
     ...cvContext(cv),
     replies: replyService(store, storeDir, replies),
@@ -866,7 +868,7 @@ export const startServer = async ({
       later
     ),
     chatIndex,
-    ...pullContext(store, log, pulls, later),
+    ...pullContext(store, log, pulls, later, emailPoll),
   };
   Object.assign(ctx, backgroundJobs({ ctx, store, log, later, backups }));
   const server = createHttpServer(store, ctx, log);
@@ -912,7 +914,6 @@ export const startServer = async ({
     close: () =>
       new Promise((resolve) => {
         bus?.close();
-        ctx.emailPoller.stop();
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
         ctx.stopJobs();

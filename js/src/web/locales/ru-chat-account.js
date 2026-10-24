@@ -475,4 +475,16 @@ export const ruChatAccount = {
   'chat.archive.notImported': 'Медиа не импортировано: {name}',
   'chat.archive.notImportedShort': 'Медиа не импортировано',
   'chat.archive.save': 'Сохранить {name}',
+  'vk.captcha.title': 'VK просит подтвердить, что вы человек',
+  'vk.captcha.hint':
+    'Введите символы с картинки. VK требует это один раз; затем тот же запрос повторяется один раз.',
+  'vk.captcha.label': 'Символы на картинке',
+  'vk.captcha.image': 'Картинка капчи VK',
+  'vk.captcha.noImage':
+    'VK не дал картинку для показа. Отмените и попробуйте позже.',
+  'vk.captcha.submit': 'Продолжить',
+  'vk.captcha.cancel': 'Отмена',
+  'pull.captcha':
+    'VK просит капчу. Откройте чат VK и прокрутите вверх, чтобы пройти её, или попробуйте позже.',
+  'chat.remote.openVideo': 'Открыть видео во ВКонтакте',
 };

@@ -350,7 +350,7 @@ the one it was saved for. If you used `secure: false` against a real server
 before, it used to travel in clear text or fail; it now uses STARTTLS. Mail
 is shown from a sanitised copy: scripts, remote pictures and tracking pixels
 are removed, and attachments are downloads only. Not yet: an OAuth sign-in
-screen, a protocol field and a folder picker.
+screen, a protocol field and a folder picker. The scheduled-pulls switch (`pulls`) also covers mail now: with `pulls: false` mail is not pulled on a schedule.
 
 The server needs permission to start a browser process and to write to
 its store directory. Optional settings:

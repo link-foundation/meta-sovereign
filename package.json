@@ -204,6 +204,8 @@
     "test:e2e:boosts:webkit": "E2E_BROWSER=webkit node js/tests/e2e-boosts-browser.mjs",
     "test:e2e:inbox-pull": "node js/tests/e2e-inbox-pull-browser.mjs",
     "test:e2e:inbox-pull:webkit": "E2E_BROWSER=webkit node js/tests/e2e-inbox-pull-browser.mjs",
+    "test:e2e:vk-followups": "node js/tests/e2e-vk-followups-browser.mjs",
+    "test:e2e:vk-followups:webkit": "E2E_BROWSER=webkit node js/tests/e2e-vk-followups-browser.mjs",
     "test:e2e:github-inbox": "node js/tests/e2e-github-inbox-browser.mjs",
     "test:e2e:github-inbox:webkit": "E2E_BROWSER=webkit node js/tests/e2e-github-inbox-browser.mjs",
     "test:e2e:archive-settings": "node js/tests/e2e-archive-settings-browser.mjs",

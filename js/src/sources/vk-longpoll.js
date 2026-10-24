@@ -181,7 +181,7 @@ const linksOfBatch = async (live, batch) => {
 };
 
 const failureDelay = (error, fails) =>
-  AUTH_CODES.has(Number(error?.vkCode))
+  AUTH_CODES.has(Number(error?.vkCode)) || error?.code === 'captcha'
     ? 5 * 60_000
     : Math.min(5 * 60_000, 5000 * 2 ** Math.min(fails - 1, 6));
 
@@ -307,6 +307,17 @@ export const createVkLongPoll = ({
           event: 'vk_longpoll_failed',
           code: error.code ?? error.vkCode ?? null,
         });
+        if (error.code === 'captcha') {
+          // Only the user can solve it, in the app; this loop just waits
+          // and says so (R-Z20).
+          await savePullState(store, SOURCE, {
+            lastError: {
+              code: 'captcha',
+              at: new Date(now()).toISOString(),
+              needsAttention: true,
+            },
+          }).catch(() => {});
+        }
         await sleep(failureDelay(error, fails));
       }
     }

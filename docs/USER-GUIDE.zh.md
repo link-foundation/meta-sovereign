@@ -452,3 +452,4 @@ GramJS 用户*字符串会话*(保存为 `.telegram_session`)。在
 **邮箱登录名和密码。** 邮箱的"手动输入"可填写 IMAP/SMTP 服务器、登录名(地址)和密码(或应用专用密码),除 OAuth 令牌外,分别保存为 `secret:email:host` / `secret:email:username` / `secret:email:password`。
 
 **邮件连接与安全（R-Z5）。** 服务器在每次拉取和发送时读取这些已保存字段（`secret:email:*`：host、port、security、username、password、mailbox、`ca`）。在 Email 卡片上，“立即收取邮件”会拉取新邮件（每 15 秒最多一次）；连接邮箱后轮询器也每 10 分钟拉取一次，且只取新邮件。`secure: false` 现在表示必须使用 STARTTLS：发送密码前先升级连接并验证证书，不能升级的服务器会被拒绝。明文只允许用于 `127.0.0.1`（例如 Proton Bridge）。证书始终验证；要信任私有证书，请把它的 CA 保存到 `ca`。已保存的密码绝不会发给另一个主机。以前对真实服务器使用 `secure: false` 会以明文传输或失败；现在使用 STARTTLS。邮件从清理后的副本显示：脚本、远程图片和跟踪像素被移除，附件只能下载。尚未提供：OAuth 登录界面、协议字段和文件夹选择。
+定时拉取开关（`pulls`）现在也管邮件：`pulls: false` 时不再按计划收取邮件。

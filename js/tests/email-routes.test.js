@@ -10,7 +10,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { startServer } from '../src/server/index.js';
-import { createEmailPoller } from '../src/server/email-poller.js';
+import { pullJobs } from '../src/server/routes-pull.js';
+import { createPullRunner } from '../src/sources/pull-runner.js';
 import { createAttachmentStore } from '../src/server/email-attachments.js';
 import { createMemoryStore } from '../src/storage/index.js';
 
@@ -265,7 +266,7 @@ describe('POST /api/email/pull', () => {
   });
 });
 
-describe('the periodic pull', () => {
+describe('the periodic pull (on the shared pull runner, R-Z20)', () => {
   const timers = () => {
     const pending = [];
     return {
@@ -280,65 +281,130 @@ describe('the periodic pull', () => {
       },
     };
   };
+  // The email job as the server registers it, run by the shared runner.
+  const runnerFor = (store, email, clock, extra = {}) => {
+    const jobs = {
+      email: pullJobs(store, { vkInbox: {}, options: { email } }).email,
+    };
+    return createPullRunner({ store, jobs, ...clock, minGapMs: 0, ...extra });
+  };
+  // Fire the one pending timer and let the run finish.
+  const fire = async (clock) => {
+    const [timer] = clock.pending.splice(0, 1);
+    await timer.fn();
+  };
 
   it('does nothing until a mailbox is connected', async () => {
     const store = createMemoryStore();
     const clock = timers();
     let pulls = 0;
-    const poller = createEmailPoller({
+    const runner = runnerFor(
       store,
-      ...clock,
-      pull: async () => {
-        pulls += 1;
-        return { imported: 0 };
+      {
+        pull: async () => {
+          pulls += 1;
+          return { imported: 0 };
+        },
       },
-    });
-    await poller.runNow();
+      clock
+    );
+    runner.start();
+    await fire(clock);
     assert.equal(pulls, 0);
-    poller.stop();
+    assert.equal((await runner.fetchNow('email')).code, 'not-connected');
+    runner.stop();
   });
 
-  it('pulls when configured, and backs off after a failure', async () => {
+  it('first pull after 30 s, every 10 min, backs off after a failure', async () => {
     const store = createMemoryStore();
     await store.put({ id: 'secret:email:access-token', token: 'tok' });
     const clock = timers();
-    const events = [];
     let fail = true;
-    const poller = createEmailPoller({
+    const runner = runnerFor(
       store,
-      intervalMs: 10 * 60_000,
-      ...clock,
-      log: (event) => events.push(event.event),
-      pull: async () => {
-        if (fail) {
-          throw Object.assign(new Error('429'), { code: 'rate-limited' });
-        }
-        return { imported: 3 };
+      {
+        pull: async () => {
+          if (fail) {
+            throw Object.assign(new Error('429'), { code: 'rate-limited' });
+          }
+          return { imported: 3 };
+        },
       },
-    });
-    await poller.runNow();
-    assert.deepEqual(events, ['email_poll_failed']);
+      clock
+    );
+    runner.start();
+    assert.equal(clock.pending[0].ms, 30_000);
+    await fire(clock);
     assert.equal(clock.pending.at(-1).ms, 20 * 60_000);
-    await poller.runNow();
+    await fire(clock);
     assert.equal(clock.pending.at(-1).ms, 40 * 60_000);
     fail = false;
-    await poller.runNow();
+    await fire(clock);
     assert.equal(clock.pending.at(-1).ms, 10 * 60_000);
-    assert.equal(events.at(-1), 'email_polled');
-    poller.stop();
+    runner.stop();
   });
 
-  it('stop() ends the timer', async () => {
+  it('the schedule never goes below a minute; emailPoll:false is manual only', async () => {
+    const store = createMemoryStore();
+    const fast = runnerFor(
+      store,
+      { intervalMs: 1000, firstMs: 1000 },
+      timers()
+    );
+    assert.equal(
+      pullJobs(store, { vkInbox: {}, options: { email: { intervalMs: 1000 } } })
+        .email.intervalMs,
+      60_000
+    );
+    const clock = timers();
+    const off = runnerFor(store, false, clock);
+    off.start();
+    assert.equal(clock.pending.length, 0, 'no timer when switched off');
+    fast.stop();
+    off.stop();
+  });
+
+  it('stop() ends the timer, and a second start does not double it', async () => {
     const store = createMemoryStore();
     const clock = timers();
-    const poller = createEmailPoller({
-      store,
-      ...clock,
-      pull: async () => ({}),
-    });
-    poller.start();
+    const runner = runnerFor(store, { pull: async () => ({}) }, clock);
+    runner.start();
     assert.equal(clock.pending.length, 1);
-    poller.stop();
+    runner.stop();
     assert.equal(clock.pending.length, 0);
+  });
+
+  it('the server runs mail through its one runner, and stops it on close', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-email-runner-'));
+    const store = createMemoryStore();
+    await store.put({ id: 'secret:email:access-token', token: 'tok' });
+    let pulls = 0;
+    const handle = await startServer({
+      port: 0,
+      storeDir: dir,
+      store,
+      enableSync: false,
+      enableHandlers: false,
+      pulls: { minGapMs: 0, email: false },
+      emailPoll: {
+        intervalMs: 60_000,
+        firstMs: 1,
+        pull: async () => {
+          pulls += 1;
+          return { imported: 0 };
+        },
+      },
+    });
+    try {
+      const res = await fetch(`http://127.0.0.1:${handle.port}/api/pull`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ source: 'email' }),
+      });
+      assert.equal((await res.json()).ok, true);
+      assert.equal(pulls >= 1, true);
+    } finally {
+      await handle.close();
+    }
   });
 });

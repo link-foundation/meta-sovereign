@@ -17,6 +17,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { byTime, chatMessages, networkMessageId } from './chat-model.js';
 import { underCeiling, useWindowJump } from './chat-jump.js';
+import { askVkCaptcha } from './vk-captcha.js';
 
 export const PAGE_SIZE = 50;
 export const PREFETCH_SIZE = 30;
@@ -140,6 +141,44 @@ export const firstTimeOf = (window, older) =>
 
 const isTelegram = (api, chat) =>
   chat?.source === 'telegram' && typeof api.telegramHistory === 'function';
+
+const isVk = (api, chat) =>
+  chat?.source === 'vk' && typeof api.vkHistory === 'function';
+
+// After a captcha was cancelled or failed, the chat is not asked again for
+// this long (R-Z20): scrolling at the top must not re-open the dialog.
+export const CAPTCHA_HOLD_MS = 120_000;
+
+/**
+ * VK asked for the page before `oldest` (R-Z20): true when the chat's first
+ * message is stored now. VK's captcha is put to the user once and the same
+ * request repeated once; a cancel or a second captcha holds the window.
+ */
+export const askVkOlder = async (api, current, oldest, ask = askVkCaptcha) => {
+  const id = networkMessageId(oldest);
+  const body = {
+    chat: String(current.chat),
+    ...(id ? { before: String(id) } : {}),
+  };
+  let answer = await api.vkHistory(body);
+  if (answer?.code === 'captcha') {
+    const key = answer.captcha?.sid ? await ask(answer.captcha) : null;
+    answer = key
+      ? await api.vkHistory({
+          ...body,
+          captchaSid: answer.captcha.sid,
+          captchaKey: key,
+        })
+      : { code: 'captcha' };
+  }
+  if (answer?.ok) {
+    return Boolean(answer.complete);
+  }
+  throw Object.assign(new Error(answer?.error ?? 'no answer'), {
+    hold: answer?.code === 'captcha',
+    retryAfter: answer?.retryAfterMs ? answer.retryAfterMs / 1000 : undefined,
+  });
+};
 
 // A newest page that did not come (the server busy, a moment offline)
 // is asked again after these waits, while the chat stays open.
@@ -285,10 +324,11 @@ const useStallEnd = (key, stalledAt, patch) => {
     if (!stalledAt || !key) {
       return undefined;
     }
+    // A hold (a captcha) sets `stalledAt` ahead of now (R-Z20).
     const timer = globalThis.setTimeout(
       () =>
         patch(key, (w) => (w.stalledAt === stalledAt ? { stalledAt: 0 } : {})),
-      STALL_MS
+      Math.max(STALL_MS, stalledAt - Date.now() + STALL_MS)
     );
     return () => globalThis.clearTimeout(timer);
   }, [key, stalledAt, patch]);
@@ -348,7 +388,8 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     Boolean(current) && historyComplete(links ?? [], current.chat);
   const window = key ? (windows.get(key) ?? EMPTY) : EMPTY;
   const telegram = isTelegram(api, current);
-  const olderLeft = hasOlder(window, { telegram, complete });
+  const vk = isVk(api, current);
+  const olderLeft = hasOlder(window, { telegram: telegram || vk, complete });
 
   const older = async (target, chat, held) => {
     const oldest = held.messages[0];
@@ -356,6 +397,10 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     // hole (a jump or a search stores messages far back).
     if (telegram && (!held.more || !storedBelow(links, chat, oldest))) {
       const complete = await askOlder(api, current, oldest);
+      patch(target, () => ({ complete }));
+    } else if (vk && !held.more) {
+      // The store has nothing older: VK is asked (R-Z20).
+      const complete = await askVkOlder(api, current, oldest);
       patch(target, () => ({ complete }));
     }
     const result = await api.chatPage({
@@ -376,27 +421,40 @@ export const useChatWindow = (api, current, links, tick = 0) => {
     });
   };
 
+  const inFlight = useRef(new Set());
   const loadOlder = useCallback(async () => {
     const held = key ? ref.current.get(key) : null;
     if (
       !current ||
       !held ||
       held.loading ||
+      inFlight.current.has(key) ||
       isStalled(held) ||
-      !hasOlder(held, { telegram, complete })
+      !hasOlder(held, { telegram: telegram || vk, complete })
     ) {
       return;
     }
     const target = key;
+    // `loading` lands a render later: two scroll events must not both ask.
+    inFlight.current.add(target);
     patch(target, () => ({ loading: true, failed: false }));
     try {
       await older(target, current.chat, held);
       retry.done(target);
     } catch (error) {
+      if (error.hold) {
+        patch(target, () => ({
+          loading: false,
+          stalledAt: Date.now() + CAPTCHA_HOLD_MS,
+        }));
+        return;
+      }
       patch(target, () => ({ loading: false, failed: true }));
       retry.later(target, () => latestLoadOlder.current(), error.retryAfter);
+    } finally {
+      inFlight.current.delete(target);
     }
-  }, [api, key, telegram, complete]);
+  }, [api, key, telegram, vk, complete]);
   const latestLoadOlder = useRef(loadOlder);
   latestLoadOlder.current = loadOlder;
 

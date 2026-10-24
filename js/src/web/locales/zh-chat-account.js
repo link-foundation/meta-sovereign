@@ -414,4 +414,14 @@ export const zhChatAccount = {
   'chat.archive.notImported': '媒体未导入：{name}',
   'chat.archive.notImportedShort': '媒体未导入',
   'chat.archive.save': '保存 {name}',
+  'vk.captcha.title': 'VK 要求确认你是真人',
+  'vk.captcha.hint':
+    '输入图片中的字符。VK 只需要这一次；之后同一请求会重复一次。',
+  'vk.captcha.label': '图片中的字符',
+  'vk.captcha.image': 'VK 验证码图片',
+  'vk.captcha.noImage': 'VK 没有提供可显示的图片。请取消，稍后再试。',
+  'vk.captcha.submit': '继续',
+  'vk.captcha.cancel': '取消',
+  'pull.captcha': 'VK 要求验证码。请打开 VK 聊天并向上滚动来完成，或稍后再试。',
+  'chat.remote.openVideo': '在 VK 打开视频',
 };

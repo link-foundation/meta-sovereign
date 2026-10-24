@@ -100,6 +100,16 @@ const errorEntry = (error) => ({
   ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
 });
 
+// A write that may have been delivered: reported as unknown, never repeated.
+const unknownIfAmbiguous = (error) =>
+  error?.ambiguous === true && error.code !== 'send-unknown'
+    ? Object.assign(error, {
+        code: 'send-unknown',
+        outcome: 'unknown',
+        fallback: false,
+      })
+    : error;
+
 const putAll = async (store, links) => {
   for (const link of links) {
     await store.put(stampSourceLink(link, 'github'));
@@ -307,16 +317,26 @@ export const createGithubService = ({
   const notifications = () => storedNotifications(store);
 
   // Marking read changes GitHub: only on an explicit call (never by fetching).
+  // A failure that may have reached GitHub is `send-unknown` and is not
+  // repeated; the stored copy stays unread until the next fetch shows what
+  // GitHub says (R-Z4, R-Z20).
   const markRead = async ({ threadId = null, all = false } = {}) => {
     const { token, live } = await withLive();
+    try {
+      if (all) {
+        await live.markAllRead({ token });
+      } else {
+        await live.markThreadRead(threadId, { token });
+      }
+    } catch (error) {
+      throw unknownIfAmbiguous(error);
+    }
     if (all) {
-      await live.markAllRead({ token });
       for (const link of await notifications()) {
         await store.put({ ...link, unread: false });
       }
       return { ok: true, all: true };
     }
-    await live.markThreadRead(threadId, { token });
     const link = await store.get(`notification:github:${threadId}`);
     if (link) {
       await store.put({ ...link, unread: false });

@@ -30,6 +30,7 @@ import {
   resolveOption,
 } from './http.js';
 import { contentSticker } from './sticker.js';
+import { vkMediaUrl } from './vk-hosts.js';
 import { isGreetingText } from '../greetings/detect.js';
 import { vkStickerPreview } from '../greetings/catalog.js';
 import {
@@ -141,6 +142,19 @@ const vkChatType = (peerId) => {
   return 'private';
 };
 
+// A video: a playable file only when the attachment carries a direct mp4 on a
+// VK CDN; the `player` address of video.get is an iframe page on vk.com, so
+// the page gets the video's own page to link out to, never a frame (R-Z20).
+const vkVideoLinks = (vid) => ({
+  src: vkMediaUrl(
+    vid.files?.mp4_720 ?? vid.files?.mp4_480 ?? vid.files?.mp4_360 ?? ''
+  ),
+  page:
+    vid.owner_id !== undefined && vid.id !== undefined
+      ? `https://vk.com/video${vid.owner_id}_${vid.id}`
+      : null,
+});
+
 // One handler per VK attachment type — kept small so vkAttachments stays
 // under complexity 10.
 const vkAttachmentHandlers = {
@@ -177,10 +191,14 @@ const vkAttachmentHandlers = {
   },
   audio(att) {
     const { artist, title } = att.audio ?? {};
+    // VK gives most apps no audio file address; when it does and it is a
+    // direct file on a VK CDN, the page plays it (R-Z20).
+    const src = att.audio?.url ? vkMediaUrl(att.audio.url) : null;
     return {
       kind: 'audio',
       title: [artist, title].filter(Boolean).join(' - ') || null,
       duration: att.audio?.duration ?? null,
+      ...(src && !/\.m3u8(\?|$)/.test(src) ? { src } : {}),
     };
   },
   wall(att) {
@@ -195,9 +213,12 @@ const vkAttachmentHandlers = {
   },
   audio_message(att) {
     const am = att.audio_message ?? {};
+    // mp3 first: Safari cannot play ogg (R-Z20).
+    const src = vkMediaUrl(am.link_mp3 ?? am.link_ogg ?? '');
     return {
       kind: 'voice',
       url: am.link_ogg ?? am.link_mp3 ?? null,
+      ...(src ? { src } : {}),
       duration: am.duration ?? null,
     };
   },
@@ -207,11 +228,14 @@ const vkAttachmentHandlers = {
       vid.image?.find((i) => i.width >= 320)?.url ??
       vid.image?.[0]?.url ??
       null;
+    const { src, page } = vkVideoLinks(vid);
     return {
       kind: 'video',
       title: vid.title ?? null,
       duration: vid.duration ?? null,
       thumb,
+      ...(page ? { url: page } : {}),
+      ...(src ? { src } : {}),
     };
   },
   sticker(att) {
@@ -656,6 +680,9 @@ const vkLivePulls = (call) => {
             offset: options.offset,
             start_message_id: options.startMessageId,
             extended: 1,
+            // The user solved VK's captcha: the same request again (R-Z20).
+            captcha_sid: options.captchaSid,
+            captcha_key: options.captchaKey,
           },
           options.token
         )

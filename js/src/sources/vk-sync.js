@@ -9,6 +9,8 @@
  * When the Long Poll is not running, one poll with `wait=0` drains pending
  * events too. A user token is held to 3 requests a second, a community token
  * to 20 (./vk-limits.js); error 6 backs off.
+ *
+ * `older` (./vk-older.js) is scroll-back for a VK chat (R-Z20).
  */
 
 import { putAll } from '../storage/universal.js';
@@ -18,6 +20,7 @@ import { VK_COMMUNITY_RPS, VK_USER_RPS } from './vk-limits.js';
 import { loadPullState, savePullState } from './pull-runner.js';
 import { codedError } from './http.js';
 import { createVkLongPoll, detectMode, stamp } from './vk-longpoll.js';
+import { createVkOlder } from './vk-older.js';
 
 const SOURCE = 'vk';
 const BACKFILL_CHATS = 3;
@@ -114,6 +117,8 @@ export const createVkInbox = ({
     return imported;
   };
 
+  const older = createVkOlder({ store, context });
+
   /** "Fetch now" and the periodic pull: chats, more history, pending events. */
   const fetch = async () => {
     const { live } = await context();
@@ -128,6 +133,7 @@ export const createVkInbox = ({
   return {
     ready,
     fetch,
+    older,
     step: longpoll.step,
     start: longpoll.start,
     stop: longpoll.stop,

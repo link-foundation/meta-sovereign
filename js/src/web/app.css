@@ -12567,3 +12567,43 @@ main[data-view='chat'] > .api-error-toast {
   color: var(--text-muted);
   border-style: dashed;
 }
+
+/* R-Z20: VK players, video link card, captcha picture, notification list */
+.remote-player {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 8px;
+}
+audio.remote-player {
+  height: 40px;
+}
+.remote-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.vk-captcha-img {
+  display: block;
+  max-width: 100%;
+  background: #fff;
+  border-radius: 8px;
+}
+.notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.notification-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.note-title {
+  flex: 1 1 12rem;
+  overflow-wrap: anywhere;
+}

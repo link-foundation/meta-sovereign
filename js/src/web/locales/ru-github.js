@@ -27,4 +27,17 @@ export const ruGithub = {
     'Достигнут лимит запросов GitHub. Повторите через {seconds} с.',
   'github.inbox.error.bad-request': 'Эти настройки недопустимы.',
   'github.inbox.error.generic': 'GitHub недоступен: {error}',
+  'github.notifications.title': 'Непрочитанные уведомления',
+  'github.notifications.refresh': 'Обновить список',
+  'github.notifications.none':
+    'Непрочитанных уведомлений нет. Отметьте «загружать мои уведомления» и нажмите «Загрузить».',
+  'github.notifications.markRead': 'Отметить прочитанным',
+  'github.notifications.error.send-unknown':
+    'Неизвестно, отметил ли GitHub уведомление. Ничего не повторялось; загрузите снова, чтобы увидеть.',
+  'github.notifications.error.rate-limited':
+    'Достигнут лимит запросов GitHub. Повторите позже.',
+  'github.notifications.error.no-token':
+    'Сначала сохраните токен доступа GitHub.',
+  'github.notifications.error.generic':
+    'GitHub не отметил уведомление: {error}',
 };
