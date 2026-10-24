@@ -10,6 +10,17 @@ export const TELEGRAM_CALLS = {
   // A press on an ephemeral message's callback button ({ chat, id, data })
   // -> the bot's answer (R-Y223).
   telegramEphemeralCallback: body('ephemeral-callback'),
+  // Local storage management (usage, clear by kind or all, the size and age
+  // limits), reaction notifications, resetting all notifications and
+  // Telegram's automatic-download preset (R-Y215).
+  telegramStorageUsage: none('storage-usage'),
+  telegramStorageClear: body('storage-clear'),
+  telegramStorageLimits: none('storage-limits'),
+  telegramStorageLimitsSet: body('storage-limits-set'),
+  telegramReactionNotify: none('reaction-notify'),
+  telegramReactionNotifySet: body('reaction-notify-set'),
+  telegramNotifyReset: none('notify-reset'),
+  telegramAutoDownloadPreset: none('auto-download-preset'),
   // Change phone number (the code goes to the new number) and Export
   // Telegram data through a takeout session (R-Y212).
   telegramPhoneChangeSend: body('phone-change-send'),

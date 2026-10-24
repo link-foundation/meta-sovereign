@@ -208,6 +208,7 @@ import { ADMIN_POSTS } from './routes-telegram-admin.js';
 import { TRANSLATE_CHAT_POSTS } from './routes-telegram-translate-chat.js';
 import { GROUP_EXTRAS_POSTS } from './routes-telegram-group-extras.js';
 import { EMOJI_GROUPS_POSTS } from './routes-telegram-emoji-groups.js';
+import { STORAGE_POSTS } from './routes-telegram-storage.js';
 import {
   INSTANT_VIEW_GETS,
   INSTANT_VIEW_POSTS,
@@ -1025,6 +1026,7 @@ const POSTS = {
   ...TRANSLATE_CHAT_POSTS,
   ...GROUP_EXTRAS_POSTS,
   ...EMOJI_GROUPS_POSTS,
+  ...STORAGE_POSTS,
   ...INSTANT_VIEW_POSTS,
   ...STICKER_EXTRAS_POSTS,
   ...DRAFTS_CALENDAR_POSTS,

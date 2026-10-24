@@ -7592,7 +7592,8 @@ span.bubble-effect {
 }
 
 /* Notification settings (R-Y157): Settings sections and a chat's dialog. */
-.telegram-notify .notify-scope {
+.telegram-notify .notify-scope,
+.telegram-notify .notify-block {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
@@ -12716,4 +12717,44 @@ audio.remote-player {
 }
 .custom-emoji-cell .msg-custom-emoji {
   font-size: inherit;
+}
+
+/* Local storage management, reaction notifications (R-Y215). */
+.storage-settings .storage-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.storage-kinds,
+.storage-chats ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.storage-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+  border-top: 1px solid var(--border);
+}
+.storage-row .storage-name {
+  flex: 1;
+}
+.storage-settings .storage-panel > button {
+  align-self: flex-start;
+}
+.storage-settings .media-limit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.telegram-notify .notify-block .media-limit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.telegram-notify .notify-block button {
+  align-self: flex-start;
 }

@@ -90,6 +90,43 @@ export const withChoice = (settings, scope, change) =>
       : { ...settings, ...change }
   );
 
+// The offered size nearest to `bytes` (0 when there is none to download).
+const nearestMb = (bytes) => {
+  const wanted = Number(bytes) / MB;
+  if (!(wanted > 0)) {
+    return 0;
+  }
+  return LIMITS_MB.filter((n) => n > 0).reduce((best, n) =>
+    Math.abs(n - wanted) < Math.abs(best - wanted) ? n : best
+  );
+};
+
+/**
+ * The page's settings for Telegram's automatic-download preset (`medium`
+ * of account.getAutoDownloadSettings, as the server answers it: `{
+ * disabled, photoMax, videoMax, fileMax }` in bytes), the same for the
+ * three kinds of chat; anything unusable gives the defaults (R-Y215).
+ */
+export const settingsFromPreset = (preset) => {
+  if (!preset || typeof preset !== 'object') {
+    return settingsFrom(null);
+  }
+  const off = preset.disabled === true;
+  const row = {
+    photos: !off && Number(preset.photoMax) > 0,
+    videoMb: off ? 0 : nearestMb(preset.videoMax),
+    fileMb: off ? 0 : nearestMb(preset.fileMax),
+    voice: !off,
+  };
+  return settingsFrom({
+    users: row,
+    chats: row,
+    broadcasts: row,
+    autoplayGif: DEFAULTS.autoplayGif,
+    autoplayVideo: DEFAULTS.autoplayVideo,
+  });
+};
+
 /** The scope Telegram's settings file a chat kind under. */
 export const scopeOfKind = (kind) => {
   if (kind === 'channel') {

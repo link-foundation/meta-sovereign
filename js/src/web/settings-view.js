@@ -10,6 +10,7 @@ import { useT } from './i18n.js';
 import { TelegramNotifySettings } from './settings-notify.js';
 import { SoundSettings } from './settings-sounds.js';
 import { MediaSettings } from './settings-media.js';
+import { StorageSettings } from './settings-storage.js';
 import { ScaleSettings } from './settings-scale.js';
 import { ProxySettings } from './settings-proxy.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
@@ -240,8 +241,9 @@ export const SettingsView = () => {
     el(NotificationSettings, { key: 'notify' }),
     el(TelegramNotifySettings, { key: 'notify-telegram', api }),
     el(SoundSettings, { key: 'sounds', api }),
-    el(MediaSettings, { key: 'media' }),
+    el(MediaSettings, { key: 'media', api }),
     el(ScaleSettings, { key: 'scale' }),
     el(ProxySettings, { key: 'proxy', api }),
+    el(StorageSettings, { key: 'storage', api }),
   ]);
 };

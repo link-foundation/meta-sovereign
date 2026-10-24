@@ -12,6 +12,7 @@ import {
   LIMITS_MB,
   SCOPES,
   setAutoDownload,
+  settingsFromPreset,
   useAutoDownloadSettings,
   withChoice,
 } from './auto-download.js';
@@ -94,7 +95,16 @@ const Scope = ({ scope, row, onChange, t }) =>
     }),
   ]);
 
-export const MediaSettings = () => {
+// "Reset to default": Telegram's medium preset when the account answers,
+// else the page's own defaults (R-Y215).
+const resetToDefault = (api) =>
+  Promise.resolve(api?.telegramAutoDownloadPreset?.())
+    .catch(() => null)
+    .then((answer) =>
+      setAutoDownload(settingsFromPreset(answer?.ok ? answer.medium : null))
+    );
+
+export const MediaSettings = ({ api }) => {
   const t = useT();
   const settings = useAutoDownloadSettings();
   const change = (scope, body) =>
@@ -128,6 +138,16 @@ export const MediaSettings = () => {
         onChange: (autoplayVideo) => change(null, { autoplayVideo }),
         label: t('settings.media.autoplayVideo'),
       }),
+      el(
+        'button',
+        {
+          key: 'reset',
+          type: 'button',
+          'data-action': 'auto-download-reset',
+          onClick: () => resetToDefault(api),
+        },
+        t('settings.media.reset')
+      ),
     ]
   );
 };

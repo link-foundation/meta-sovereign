@@ -12,6 +12,10 @@ import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { ChatNotifyDialog } from './chat-notify-settings.js';
 import {
+  ReactionNotifySettings,
+  ResetNotifications,
+} from './settings-notify-extras.js';
+import {
   exceptionState,
   rulesFrom,
   setNotifyRules,
@@ -172,7 +176,7 @@ const SignUpToggle = ({ api }) => {
 };
 
 // The rules shared with the notifications, kept up to date here.
-const useRules = (api) => {
+const useRules = (api, epoch) => {
   const [rules, setRules] = useState(getNotifyRules);
   const [phase, setPhase] = useState('loading');
   useEffect(() => subscribeNotifyRules(setRules), []);
@@ -196,14 +200,16 @@ const useRules = (api) => {
     return () => {
       live = false;
     };
-  }, [api]);
+  }, [api, epoch]);
   return { rules, phase };
 };
 
 /** The three sections; nothing without a connected Telegram account. */
 export const TelegramNotifySettings = ({ api }) => {
   const t = useT();
-  const { rules, phase } = useRules(api);
+  // Bumped after a reset, to load what the page shows again (R-Y215).
+  const [epoch, setEpoch] = useState(0);
+  const { rules, phase } = useRules(api, epoch);
   const [open, setOpen] = useState(null);
   const [failed, setFailed] = useState(false);
   if (phase !== 'ready') {
@@ -266,10 +272,16 @@ export const TelegramNotifySettings = ({ api }) => {
             }),
         })
       ),
-      el(SignUpToggle, { key: 'signup', api }),
+      el(SignUpToggle, { key: `signup${epoch}`, api }),
+      el(ReactionNotifySettings, { key: `reactions${epoch}`, api }),
       failed
         ? el('p', { key: 'f', role: 'alert' }, t('settings.notifyTg.failed'))
         : null,
+      el(ResetNotifications, {
+        key: 'reset',
+        api,
+        onDone: () => setEpoch((n) => n + 1),
+      }),
       open
         ? el(ChatNotifyDialog, {
             key: 'd',
