@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.12
+
+### Patch Changes
+
+- b075716: Documentation links are valid in all four languages: bare URLs next to CJK and Devanagari punctuation are wrapped, dead links replaced, bot-blocking hosts listed in `.lycheeignore`, and stale GitHub known gaps updated (R-Z18).
+
 ## 0.49.11
 
 ### Patch Changes
