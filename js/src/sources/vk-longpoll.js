@@ -206,6 +206,9 @@ export const createVkLongPoll = ({
 }) => {
   let session = null;
   let looping = false;
+  // Each start's loop; a stopped one ends even if another has started.
+  let generation = 0;
+  let loopDone = Promise.resolve();
   let abort = new AbortController();
 
   const request = (state, seconds) =>
@@ -280,10 +283,11 @@ export const createVkLongPoll = ({
     return { ok: true, updates: updates.length, imported: links.length };
   };
 
-  const loop = async () => {
+  const loop = async (gen) => {
     let fails = 0;
+    const live = () => looping && gen === generation;
     await sleep(startDelayMs);
-    while (looping) {
+    while (live()) {
       try {
         if (await ready()) {
           const started = now();
@@ -297,7 +301,7 @@ export const createVkLongPoll = ({
           await sleep(idleMs);
         }
       } catch (error) {
-        if (!looping) {
+        if (!live()) {
           return;
         }
         fails += 1;
@@ -332,13 +336,16 @@ export const createVkLongPoll = ({
     start() {
       if (!looping) {
         looping = true;
-        loop();
+        generation += 1;
+        loopDone = loop(generation).catch(() => {});
       }
     },
+    /** Resolves once a batch in flight is stored (no write after close). */
     stop() {
       looping = false;
       abort.abort();
       cancelPauses();
+      return loopDone;
     },
   };
 };

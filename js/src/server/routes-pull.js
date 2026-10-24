@@ -106,10 +106,7 @@ export const createPullServices = (store, log, options = {}, github = null) => {
       vkInbox.start();
     },
     // Resolves once the pulls in flight have stored what they fetched.
-    stop: () => {
-      vkInbox.stop();
-      return pullRunner.stop();
-    },
+    stop: () => Promise.all([vkInbox.stop(), pullRunner.stop()]).then(() => {}),
   };
 };
 

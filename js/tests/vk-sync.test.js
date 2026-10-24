@@ -345,6 +345,47 @@ describe('VK Long Poll loop (R-Z8)', () => {
   });
 });
 
+describe('VK Long Poll stop', () => {
+  it('resolves only once the batch in flight is stored', async () => {
+    const store = createMemoryStore();
+    await saveToken(store);
+    let release;
+    const gate = new Promise((r) => {
+      release = r;
+    });
+    let asked;
+    const reading = new Promise((r) => {
+      asked = r;
+    });
+    const fake = createFakeVk({
+      methods: userMethods({
+        'messages.getById': async () => {
+          asked();
+          await gate;
+          return {
+            items: [message(62, 7, 'late')],
+            profiles: [{ id: 7, first_name: 'Ann', last_name: 'Lee' }],
+          };
+        },
+      }),
+      poll: () => ({ ts: '8', updates: [[4, 62, 1, 7, 1700000000, 'x', {}]] }),
+    });
+    const inbox = inboxOf(store, fake, { startDelayMs: 0 });
+    inbox.start();
+    await reading;
+    let stopped = false;
+    const stopping = inbox.stop().then(() => {
+      stopped = true;
+    });
+    await new Promise((r) => setTimeout(r, 10));
+    expect(stopped).toBe(false);
+    release();
+    await stopping;
+    expect(await idsOf(store)).toEqual(['msg:vk:62']);
+    expect((await loadPullState(store, 'vk')).ts).toBe('8');
+  });
+});
+
 describe('VK Bots Long Poll, community token (R-Z8)', () => {
   it('uses groups.getLongPollServer and stores message_new', async () => {
     const store = createMemoryStore();
