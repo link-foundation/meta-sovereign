@@ -17,6 +17,7 @@ import {
   b64urlToBytes,
   bytesToB64url,
   creationOptions,
+  passkeyErrorKey,
   passkeysSupported,
 } from '../src/web/passkey-codec.js';
 import {
@@ -429,4 +430,16 @@ test('a failing code lookup never blocks writing; guardCodes stops a declined se
     status: 'sent',
   });
   assert.equal(sent.length, 2);
+});
+
+test('a passkey the browser refuses for the page address is told in words', () => {
+  assert.equal(
+    passkeyErrorKey(Object.assign(new Error('x'), { name: 'SecurityError' })),
+    'chat.passkeys.err.origin'
+  );
+  assert.equal(
+    passkeyErrorKey(Object.assign(new Error('x'), { name: 'NotAllowedError' })),
+    'chat.passkeys.err.cancelled'
+  );
+  assert.equal(passkeyErrorKey(null), 'chat.passkeys.err.cancelled');
 });

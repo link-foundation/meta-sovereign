@@ -306,6 +306,8 @@ const passkeySteps = async () => {
 const signInCodeSteps = async () => {
   await page.keyboard.press('Escape');
   await dialog.waitFor({ state: 'detached' });
+  await page.keyboard.press('Escape');
+  await over('my-profile').waitFor({ state: 'detached' });
   await page.locator(`[data-chat="telegram:${CHAT}"]`).click();
   const box = page.locator('.chat-composer textarea');
   await box.fill('hello there');

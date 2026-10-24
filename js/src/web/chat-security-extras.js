@@ -13,6 +13,7 @@ import { Ask, Over, ResetNotice, dateText } from './chat-security-forgot.js';
 import {
   attestationPayload,
   creationOptions,
+  passkeyErrorKey,
   passkeysSupported,
 } from './passkey-codec.js';
 
@@ -178,8 +179,8 @@ const addPasskey = async ({ api, t, fail }) => {
   let credential;
   try {
     credential = await globalThis.navigator.credentials.create(options);
-  } catch {
-    return t('chat.passkeys.err.cancelled');
+  } catch (error) {
+    return t(passkeyErrorKey(error));
   }
   const payload = attestationPayload(credential);
   if (!payload) {

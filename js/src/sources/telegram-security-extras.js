@@ -17,10 +17,12 @@
  * - `signInCodes()` — the login codes Telegram's service account (777000)
  *   sent in the last few minutes; `invalidateCodes({ codes })` —
  *   account.invalidateSignInCodes, asked when the user shares such a code.
- * A code is never logged or put in an error. Telegram's errors become codes.
+ * A code is never logged or put in an error. Telegram's errors become codes;
+ * a change whose answer never came is `send-unknown` (./telegram-write-outcome.js).
  */
 
 import { connected, failureOf, runIn } from './telegram-stickers.js';
+import { writeFailureOf } from './telegram-write-outcome.js';
 
 const CODES = {
   EMAIL_INVALID: 'email-invalid',
@@ -38,6 +40,7 @@ const CODES = {
   FLOOD_WAIT: 'flood',
 };
 const failure = failureOf(CODES);
+const writeFailure = writeFailureOf(CODES);
 const bad = { ok: false, error: 'bad-request', code: 'bad-request' };
 
 /** The service account that sends login codes. */
@@ -117,10 +120,10 @@ const codesOk = (r) =>
 
 export const createSecurityExtras = (env, context) => {
   const run =
-    (valid, build, done = () => ({})) =>
+    (valid, build, done = () => ({}), fail = writeFailure) =>
     async (request = {}) =>
       valid(request)
-        ? connected(env, context.userClient, failure, async (c) => {
+        ? connected(env, context.userClient, fail, async (c) => {
             const answer = await runIn(env, 'security', () =>
               c.client.invoke(build(c, request))
             );
@@ -169,12 +172,14 @@ export const createSecurityExtras = (env, context) => {
     passkeys: run(
       any,
       (c) => new c.Api.account.GetPasskeys(),
-      (a) => ({ passkeys: (a.passkeys ?? []).map(passkeyOf) })
+      (a) => ({ passkeys: (a.passkeys ?? []).map(passkeyOf) }),
+      failure
     ),
     passkeyOptions: run(
       any,
       (c) => new c.Api.account.InitPasskeyRegistration(),
-      (a) => ({ options: text(a.options?.data) })
+      (a) => ({ options: text(a.options?.data) }),
+      failure
     ),
     passkeyRegister: run(registerOk, registration, (a) => ({
       passkey: passkeyOf(a),

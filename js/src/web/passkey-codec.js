@@ -87,3 +87,14 @@ export const attestationPayload = (credential) => {
 /** Whether this browser can make passkeys. */
 export const passkeysSupported = (nav = globalThis.navigator) =>
   typeof nav?.credentials?.create === 'function';
+
+/**
+ * The text key for a failed `navigator.credentials.create`: a passkey of
+ * Telegram belongs to Telegram's own domain, so a browser on another
+ * address refuses it with a SecurityError (told in words); anything else
+ * (the user cancelled, no authenticator) is "not created".
+ */
+export const passkeyErrorKey = (error) =>
+  error?.name === 'SecurityError'
+    ? 'chat.passkeys.err.origin'
+    : 'chat.passkeys.err.cancelled';
