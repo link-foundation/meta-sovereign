@@ -28,6 +28,7 @@
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { renameDurable } from '../../storage/durable.js';
 import { execFile } from 'node:child_process';
 import { autoImportRecipes } from './recipes.js';
 
@@ -229,7 +230,7 @@ export const createSignIns = ({
     const file = fileOf(provider);
     const temp = `${file}.${process.pid}.tmp`;
     await fs.writeFile(temp, JSON.stringify(seed), { mode: 0o600 });
-    await fs.rename(temp, file);
+    await renameDurable(temp, file); // (R-Z19)
   };
 
   const access = () => probeFullDiskAccess({ platform, homeDir, env });

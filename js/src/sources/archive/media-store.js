@@ -8,6 +8,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { createWriteStream, promises as fs } from 'node:fs';
 import path from 'node:path';
+import { renameDurable } from '../../storage/durable.js';
 import { pipeline } from 'node:stream/promises';
 
 const extensionOf = (name) => {
@@ -39,7 +40,7 @@ export const saveMedia = async ({ mediaDir, network, stream, name }) => {
     );
     const sha256 = hash.digest('hex');
     const file = `${sha256}${extensionOf(name)}`;
-    await fs.rename(temp, path.join(dir, file));
+    await renameDurable(temp, path.join(dir, file)); // (R-Z19)
     await fs.chmod(path.join(dir, file), 0o600);
     return { path: `media/${network}/${file}`, sha256, size };
   } catch (error) {

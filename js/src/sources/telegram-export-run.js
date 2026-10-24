@@ -10,6 +10,7 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import { renameDurable } from '../storage/durable.js';
 import { rawMessage, floodSeconds } from './telegram-history.js';
 import { bigSize, locationOf, fileLocation } from './telegram-media.js';
 import { failureOf } from './telegram-stickers.js';
@@ -149,7 +150,7 @@ const download = async (r, info, target) => {
         outputFile: part,
       })
     );
-    await fs.rename(part, target);
+    await renameDurable(part, target); // (R-Z19)
   } catch (error) {
     await fs.rm(part, { force: true });
     throw error;

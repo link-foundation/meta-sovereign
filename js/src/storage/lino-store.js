@@ -28,7 +28,13 @@ import { createInterface } from 'node:readline';
 import { decodeLine, encodeLine } from 'lino-objects-codec';
 import { createMemoryStore } from './universal.js';
 import { parseLino } from './lino.js';
-import { FILE_MODE, fsyncDir, fsyncFile, tighten } from './durable.js';
+import {
+  FILE_MODE,
+  fsyncDir,
+  fsyncFile,
+  renameDurable,
+  tighten,
+} from './durable.js';
 import { enoughSpace, skippedEvent } from './disk-space.js';
 import { createWriteQueue, storeError, writeFailed } from './write-queue.js';
 
@@ -380,7 +386,7 @@ export const readLinoFile = async (filePath) => {
 // Write every link to a temp file in chunks, flush it to disk, swap it
 // in, and flush the directory: after a power cut the file is the old log
 // or the whole new one, never an empty or half-written one (R-Z2).
-const rewriteFile = async (filePath, links) => {
+const rewriteFile = async (filePath, links, rename) => {
   await fs.mkdir(path.dirname(filePath), { recursive: true, mode: 0o700 });
   const tmp = `${filePath}.${process.pid}.tmp`;
   try {
@@ -393,7 +399,7 @@ const rewriteFile = async (filePath, links) => {
     } finally {
       await handle.close();
     }
-    await fs.rename(tmp, filePath);
+    await renameDurable(tmp, filePath, { rename });
   } catch (error) {
     // The half-written copy goes at once: on a full disk it is what
     // keeps the disk full (R-Z14).
@@ -461,6 +467,9 @@ const SYNC_MS = 200;
 
 // A compaction skipped for lack of space is asked again after this long (R-Z14).
 const COMPACT_RETRY_MS = 10 * 60_000;
+// A compaction that failed (a busy file on Windows) leaves the old log intact
+// and is asked again after this, not on every batch (R-Z19).
+const COMPACT_FAILED_RETRY_MS = 30_000;
 
 // Flushes appends to disk together, `syncMs` after the first (R-Z2).
 const createSyncer = (filePath, syncMs, enqueue) => {
@@ -506,7 +515,15 @@ const compactionFailed = (onEvent) => (error) =>
 // The log rewritten with one line per live link, after the unreadable
 // lines were set aside (R-Z2); skipped when the disk has no room for the
 // copy (R-Z14). `{ skipped }`.
-const compactLog = async ({ filePath, bad, mem, onCorrupt, onEvent, free }) => {
+const compactLog = async ({
+  filePath,
+  bad,
+  mem,
+  onCorrupt,
+  onEvent,
+  free,
+  rename,
+}) => {
   if (bad.overflow) {
     return { skipped: false }; // more unreadable lines than can be kept
   }
@@ -522,7 +539,7 @@ const compactLog = async ({ filePath, bad, mem, onCorrupt, onEvent, free }) => {
     bad.lines = [];
     bad.count = 0;
   }
-  await rewriteFile(filePath, await mem.query());
+  await rewriteFile(filePath, await mem.query(), rename);
   return { skipped: false };
 };
 
@@ -588,6 +605,14 @@ const createHold = () => {
   };
 };
 
+// A compaction skipped for lack of space, as an error for the write queue.
+const throwingWhenSkipped = (compact) => async () => {
+  const done = await compact();
+  if (done?.skipped) {
+    throw storeError('ENOSPC', 'not enough free space to rewrite the log');
+  }
+};
+
 const readOnlyError = () =>
   Object.assign(new Error('the store was opened read-only'), {
     code: 'STORE_READ_ONLY',
@@ -607,6 +632,7 @@ export const createLinoTextStore = async (
     // (tests inject an append handle that fails).
     queue: queueOptions = {},
     measureFree,
+    rename, // injectable fs.rename (R-Z19)
   } = {}
 ) => {
   const mem = createMemoryStore();
@@ -642,6 +668,7 @@ export const createLinoTextStore = async (
       onCorrupt,
       onEvent,
       free: measureFree,
+      rename,
     });
     if (done.skipped) {
       compactAfterAt = Date.now() + COMPACT_RETRY_MS;
@@ -676,16 +703,9 @@ export const createLinoTextStore = async (
     attempt: () => (rewrite ? compactOrThrow() : wq.write()),
     onRecovered: syncer.soon,
   });
-  const compactOrThrow = async () => {
-    const done = await compact();
-    if (done?.skipped) {
-      throw storeError('ENOSPC', 'not enough free space to rewrite the log');
-    }
-  };
+  const compactOrThrow = throwingWhenSkipped(compact);
   const hold = createHold();
   const maintain = async () => {
-    // The batch is on disk by now; a failed compaction costs nothing but
-    // the rewrite, so it never fails the writes (R-Z14).
     try {
       if (
         !hold.active() &&
@@ -695,6 +715,7 @@ export const createLinoTextStore = async (
         await compact();
       }
     } catch (error) {
+      compactAfterAt = Date.now() + COMPACT_FAILED_RETRY_MS;
       compactionFailed(onEvent)(error);
     }
   };

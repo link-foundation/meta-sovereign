@@ -45,6 +45,46 @@ export const fsyncDir = async (dir) => {
   }
 };
 
+const WINDOWS_BUSY = new Set(['EPERM', 'EBUSY', 'EACCES']);
+const defaultSleep = (ms) =>
+  new Promise((resolve) => {
+    globalThis.setTimeout(resolve, ms);
+  });
+
+/**
+ * Rename `from` over `to`, retrying while another handle holds the target
+ * (R-Z19). On Windows a rename fails with EPERM/EBUSY/EACCES while any
+ * process (antivirus, the search indexer, our own snapshot worker) has the
+ * target open, usually for a few milliseconds: retried up to `attempts`
+ * times with a growing pause (about a second in all, like graceful-fs).
+ * Elsewhere rename is atomic and those codes are real errors, so only
+ * EBUSY is retried. After the last attempt the error is thrown and the
+ * target is untouched. `rename`, `platform` and `sleep` are injectable.
+ */
+export const renameDurable = async (
+  from,
+  to,
+  {
+    rename = fs.rename,
+    platform = process.platform,
+    sleep = defaultSleep,
+    attempts = 10,
+    delayMs = 20,
+  } = {}
+) => {
+  const codes = platform === 'win32' ? WINDOWS_BUSY : new Set(['EBUSY']);
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await rename(from, to);
+    } catch (error) {
+      if (attempt >= attempts || !codes.has(error?.code)) {
+        throw error;
+      }
+      await sleep(delayMs * attempt);
+    }
+  }
+};
+
 /** Create `dir` (and parents) private to the user. */
 export const ensurePrivateDir = (dir) =>
   fs.mkdir(dir, { recursive: true, mode: DIR_MODE });
@@ -74,7 +114,7 @@ export const tighten = async (target, mode = FILE_MODE) => {
 export const writeFileDurable = async (
   file,
   data,
-  { utime, tag = '' } = {}
+  { utime, tag = '', rename } = {}
 ) => {
   const dir = path.dirname(file);
   await ensurePrivateDir(dir);
@@ -90,7 +130,7 @@ export const writeFileDurable = async (
     } finally {
       await handle.close();
     }
-    await fs.rename(tmp, file);
+    await renameDurable(tmp, file, { rename });
   } catch (error) {
     // A full disk: the half-written temp file goes at once, not at the
     // next start (R-Z14).
@@ -116,7 +156,7 @@ export const writeStreamDurable = async (file, ...streams) => {
       createWriteStream(tmp, { flags: 'w', mode: FILE_MODE })
     );
     await fsyncFile(tmp);
-    await fs.rename(tmp, file);
+    await renameDurable(tmp, file);
   } catch (error) {
     await fs.unlink(tmp).catch(() => {});
     throw error;

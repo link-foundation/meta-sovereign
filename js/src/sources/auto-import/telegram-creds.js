@@ -32,6 +32,7 @@
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { renameDurable } from '../../storage/durable.js';
 import crypto from 'node:crypto';
 import { timedRequest } from '../http.js';
 
@@ -765,7 +766,7 @@ export const createTelegramCreds = ({
       typeof v === 'bigint' ? v.toString() : v
     );
     await fs.writeFile(temp, text, { mode: 0o600 });
-    await fs.rename(temp, cacheFile);
+    await renameDurable(temp, cacheFile); // (R-Z19)
   };
 
   const verifyAll = (records) =>
