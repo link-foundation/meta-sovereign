@@ -12,6 +12,7 @@ import { useT } from './i18n.js';
 import { FormDialog, Field } from './chat-create.js';
 import { Grid, Section } from './chat-stickers.js';
 import { useNearView } from './chat-media.js';
+import { useRedrawOn } from './use-redraw.js';
 
 const el = React.createElement;
 
@@ -42,15 +43,7 @@ export const canSetGroupStickers = (chat, info, api) =>
 const EVENT = 'ms-group-sets';
 const saved = new Map(); // chat key -> { stickers?, emojis? } (null: taken off)
 
-/** Draws the component again whenever `name` is dispatched. */
-export const useRedrawOn = (name) => {
-  const [, again] = useState(0);
-  useEffect(() => {
-    const on = () => again((n) => n + 1);
-    globalThis.addEventListener?.(name, on);
-    return () => globalThis.removeEventListener?.(name, on);
-  }, [name]);
-};
+export { useRedrawOn };
 
 const remember = (key, kind, set) => {
   saved.set(key, { ...saved.get(key), [kind]: set });

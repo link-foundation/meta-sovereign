@@ -117,6 +117,9 @@ export const TELEGRAM_CALLS = {
   // offset? }) (R-Y127).
   telegramReaders: body('readers'),
   telegramTranslate: body('translate'),
+  // The translate bar's Premium check and a message's summary (R-Y213).
+  telegramTranslateAccount: none('translate-account'),
+  telegramSummarize: body('summarize'),
   // Voice and video note transcription (R-Y175).
   telegramTranscribe: body('transcribe'),
   telegramTranscribeRate: body('transcribe-rate'),

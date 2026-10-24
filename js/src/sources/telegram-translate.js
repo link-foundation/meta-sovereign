@@ -13,7 +13,7 @@
 
 import { connected, runIn, failureOf } from './telegram-stickers.js';
 
-const CODES = {
+export const CODES = {
   TRANSLATIONS_DISABLED: 'disabled',
   TRANSLATE_REQ_QUOTA_EXCEEDED: 'quota',
   FLOOD_WAIT: 'quota',
@@ -22,15 +22,15 @@ const CODES = {
   PREMIUM_ACCOUNT_REQUIRED: 'premium',
 };
 
-const failure = failureOf(CODES);
+export const failure = failureOf(CODES);
 
-const CHAT = /^-?\d{1,20}$/;
-const LANG = /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/;
+export const CHAT = /^-?\d{1,20}$/;
+export const LANG = /^[a-z]{2,3}(-[A-Za-z]{2,4})?$/;
 const MAX_IDS = 20;
 const MAX_KEPT = 500;
 
 // An entity as the page draws it: plain fields, ids as strings.
-const plainEntity = (one) => ({
+export const plainEntity = (one) => ({
   className: one.className,
   offset: Number(one.offset),
   length: Number(one.length),

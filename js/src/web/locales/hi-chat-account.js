@@ -466,4 +466,16 @@ export const hiChatAccount = {
   'pull.captcha':
     'VK कैप्चा माँग रहा है। इसे हल करने के लिए VK चैट खोलकर ऊपर स्क्रॉल करें, या बाद में कोशिश करें।',
   'chat.remote.openVideo': 'VK पर वीडियो खोलें',
+  'chat.translateBar.to': '{language} में अनुवाद करें',
+  'chat.translateBar.original': 'मूल दिखाएँ',
+  'chat.translateBar.other': 'किसी अन्य भाषा में अनुवाद करें',
+  'chat.translateBar.skip': '{language} का अनुवाद न करें',
+  'chat.translateBar.more': 'अनुवाद के और विकल्प',
+  'chat.summarize.item': 'सारांश',
+  'chat.summarize.title': 'सारांश',
+  'chat.summarize.label': 'सारांश',
+  'settings.translate.title': 'भाषा',
+  'settings.translate.chats': 'पूरी चैट का अनुवाद करें',
+  'settings.translate.hint':
+    'दूसरी भाषा की चैट के ऊपर अनुवाद के लिए एक पट्टी दिखाएँ (Telegram Premium चाहिए)। इस डिवाइस पर सहेजा जाता है।',
 };

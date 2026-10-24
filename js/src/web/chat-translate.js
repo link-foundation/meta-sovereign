@@ -53,41 +53,52 @@ export const startLanguage = (locale, browser = globalThis.navigator) => {
   return 'en';
 };
 
+/** The length from which the menu offers a summary of a message (R-Y213). */
+export const SUMMARY_MIN = 600;
+
+/** Whether the menu offers "Summarize": a long sent message. */
+export const hasSummary = (message) =>
+  hasTranslation(message) && String(message.body).length > SUMMARY_MIN;
+
 const errorText = (t, code) => {
   const key = `chat.translate.err.${code}`;
   const text = t(key);
   return text === key ? t('chat.translate.err.failed') : text;
 };
 
-// The translation of one message into `to`, asked again when `to` changes.
-const useTranslation = (api, message, to) => {
+// What a call to the server answers, asked again when `deps` change.
+const useCall = (call, deps, pick) => {
   const [state, setState] = useState({ phase: 'loading' });
   useEffect(() => {
     let live = true;
     setState({ phase: 'loading' });
-    api
-      .telegramTranslate({
-        chat: String(message.chat),
-        ids: [networkMessageId(message)],
-        to,
-      })
+    Promise.resolve(call())
       .catch(() => null)
-      .then((answer) => {
-        const item = answer?.items?.[0];
-        if (live) {
-          setState(
-            answer?.ok && item
-              ? { phase: 'ready', item }
-              : { phase: 'error', code: answer?.code }
-          );
-        }
-      });
+      .then((answer) => live && setState(pick(answer)));
     return () => {
       live = false;
     };
-  }, [api, message, to]);
+  }, deps);
   return state;
 };
+
+const readyOr = (item, answer) =>
+  answer?.ok && item
+    ? { phase: 'ready', item }
+    : { phase: 'error', code: answer?.code };
+
+// The translation of one message into `to`, asked again when `to` changes.
+const useTranslation = (api, message, to) =>
+  useCall(
+    () =>
+      api.telegramTranslate({
+        chat: String(message.chat),
+        ids: [networkMessageId(message)],
+        to,
+      }),
+    [api, message, to],
+    (answer) => readyOr(answer?.items?.[0], answer)
+  );
 
 const Block = ({ label, kind, children }) =>
   el('section', { className: 'translate-block', 'data-translate': kind }, [
@@ -198,14 +209,69 @@ const TranslatePanel = ({ message, api, close }) => {
   );
 };
 
-/** The box of the open chat: `{ open(message), dialog }`. */
+// The summary of one message in the page's language (R-Y213).
+const useSummary = (api, message, locale) =>
+  useCall(
+    () =>
+      api.telegramSummarize({
+        chat: String(message.chat),
+        id: networkMessageId(message),
+        to: startLanguage(locale),
+      }),
+    [api, message, locale],
+    (answer) => readyOr(answer, answer)
+  );
+
+const SummaryPanel = ({ message, api, close }) => {
+  const t = useT();
+  const { locale } = useLocaleContext();
+  const state = useSummary(api, message, locale);
+  return el(
+    Frame,
+    { title: t('chat.summarize.title'), close, name: 'summarize' },
+    [
+      el(
+        Block,
+        { key: 's', label: t('chat.summarize.label'), kind: 'summary' },
+        el(Result, { state, t })
+      ),
+      el('div', { key: 'f', className: 'translate-foot' }, [
+        el(
+          'button',
+          {
+            key: 'x',
+            type: 'button',
+            'data-action': 'close-summary',
+            onClick: close,
+          },
+          t('chat.translate.close')
+        ),
+      ]),
+    ]
+  );
+};
+
+/**
+ * The boxes of the open chat: `{ open(message), summarize(message),
+ * dialog }`.
+ */
 export const useTranslate = ({ api }) => {
   const [shown, setShown] = useState(null);
-  const close = useCallback(() => setShown(null), []);
-  return {
-    open: setShown,
-    dialog: shown
-      ? el(TranslatePanel, { key: 'translate', message: shown, api, close })
-      : null,
-  };
+  const [summed, setSummed] = useState(null);
+  const close = useCallback(() => {
+    setShown(null);
+    setSummed(null);
+  }, []);
+  let dialog = null;
+  if (shown) {
+    dialog = el(TranslatePanel, {
+      key: 'translate',
+      message: shown,
+      api,
+      close,
+    });
+  } else if (summed) {
+    dialog = el(SummaryPanel, { key: 'summary', message: summed, api, close });
+  }
+  return { open: setShown, summarize: setSummed, dialog };
 };

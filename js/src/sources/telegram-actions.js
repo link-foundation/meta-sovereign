@@ -26,7 +26,8 @@
  *   ./telegram-scheduled.js (R-Y102), chat folders ./telegram-folders.js
  *   (R-Y103); translating messages is ./telegram-translate.js (R-Y132);
  *   message effects are ./telegram-effects.js (R-Y149); emoji statuses
- *   ./telegram-emoji-status.js (R-Y162).
+ *   ./telegram-emoji-status.js (R-Y162); the translate bar and summaries
+ *   ./telegram-translate-chat.js (R-Y213).
  */
 
 import { updatesOfResult, entitiesOf } from './telegram-catchup.js';
@@ -78,6 +79,7 @@ import { createReadersActions } from './telegram-readers.js';
 import { createMapActions } from './telegram-map.js';
 import { createChatEdit } from './telegram-chat-edit.js';
 import { createTranslate } from './telegram-translate.js';
+import { createTranslateChat } from './telegram-translate-chat.js';
 import { createTranscribe } from './telegram-transcribe.js';
 import { createEphemeral } from './telegram-ephemeral.js';
 import { createEffects } from './telegram-effects.js';
@@ -560,6 +562,7 @@ const chatActions = (env, context) => {
     ...createApps(env, { ...context, offer: inlineOffer }),
     ...createMapActions(env, context),
     ...createTranslate(env, context),
+    ...createTranslateChat(env, context),
     ...createTranscribe(env, context),
     ...createEphemeral(env, context),
     ...createStories(env, context),

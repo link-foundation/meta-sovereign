@@ -4,23 +4,21 @@
 // on. The chat's info carries `translationsDisabled`; what was just set
 // here is believed over that (cached) info.
 
-import React, { useState, useSyncExternalStore } from 'react';
+import React, { useState } from 'react';
+import { useRedrawOn } from './use-redraw.js';
 import { useT } from './i18n.js';
 
 const el = React.createElement;
 
 const own = new Map(); // chat -> disabled, as just set here
-const listeners = new Set();
-let version = 0;
-const subscribe = (listener) => {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-};
+const EVENT = 'ms-translation-switch';
 const remember = (chat, disabled) => {
   own.set(String(chat), disabled);
-  version += 1;
-  listeners.forEach((listener) => listener());
+  globalThis.dispatchEvent?.(new CustomEvent(EVENT));
 };
+
+/** Redraws the component when a switch is set here. */
+export const useTranslationSwitches = () => useRedrawOn(EVENT);
 
 /** For tests: what was set here, forgotten. */
 export const forgetTranslationSwitches = () => {
@@ -40,14 +38,21 @@ export const canSwitchTranslations = (chat, info, api) =>
   !info?.self &&
   typeof api?.telegramTranslationsToggle === 'function';
 
+/** Turns the offer to translate `chat` off or on; whether Telegram took it. */
+export const switchTranslations = async (api, chat, disabled) => {
+  const answer = await Promise.resolve(
+    api.telegramTranslationsToggle({ chat: String(chat), disabled })
+  ).catch(() => null);
+  if (answer?.ok) {
+    remember(chat, disabled);
+  }
+  return Boolean(answer?.ok);
+};
+
 /** The menu item; `done()` closes the menu once asked. */
 export const TranslationSwitch = ({ api, chat, info, done }) => {
   const t = useT();
-  useSyncExternalStore(
-    subscribe,
-    () => version,
-    () => version
-  );
+  useTranslationSwitches();
   const [failed, setFailed] = useState(false);
   if (!canSwitchTranslations(chat, info, api)) {
     return null;
@@ -55,14 +60,7 @@ export const TranslationSwitch = ({ api, chat, info, done }) => {
   const off = translationsOff(chat.chat, info);
   const flip = async () => {
     setFailed(false);
-    const answer = await Promise.resolve(
-      api.telegramTranslationsToggle({
-        chat: String(chat.chat),
-        disabled: !off,
-      })
-    ).catch(() => null);
-    if (answer?.ok) {
-      remember(chat.chat, !off);
+    if (await switchTranslations(api, chat.chat, !off)) {
       done();
     } else {
       setFailed(true);

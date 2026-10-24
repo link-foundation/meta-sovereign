@@ -12649,3 +12649,34 @@ audio.remote-player {
 .tutorial-overlay .tutorial-step[data-compact='true'] .tutorial-examples {
   display: none;
 }
+
+/* The translate bar over a foreign-language chat, and the summary
+   (R-Y213). */
+.translate-bar {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.2rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elev);
+  flex: none;
+  font-size: 0.9rem;
+}
+.translate-bar-main {
+  flex: 1 1 auto;
+  padding: 0.35rem 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+.translate-bar-text {
+  flex: 1 1 auto;
+  color: var(--text-muted);
+}

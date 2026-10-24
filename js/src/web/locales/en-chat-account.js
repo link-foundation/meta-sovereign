@@ -462,4 +462,16 @@ export const enChatAccount = {
   'pull.captcha':
     'VK asks for a captcha. Open a VK chat and scroll up to solve it, or try again later.',
   'chat.remote.openVideo': 'Open the video on VK',
+  'chat.translateBar.to': 'Translate to {language}',
+  'chat.translateBar.original': 'Show original',
+  'chat.translateBar.other': 'Translate to another language',
+  'chat.translateBar.skip': 'Do not translate {language}',
+  'chat.translateBar.more': 'More translation options',
+  'chat.summarize.item': 'Summarize',
+  'chat.summarize.title': 'Summary',
+  'chat.summarize.label': 'Summary',
+  'settings.translate.title': 'Language',
+  'settings.translate.chats': 'Translate entire chats',
+  'settings.translate.hint':
+    'Show a bar over chats in another language to translate them (needs Telegram Premium). Kept on this device.',
 };

@@ -13,6 +13,7 @@
 //     confirmation), edit, switch "ты"/"вы", mark as sent by hand, skip.
 
 import { PeerBar } from './chat-peer-actions.js';
+import { TranslateBar } from './chat-translate-bar.js';
 import { VoiceChatBar } from './chat-voice-chat.js';
 import {
   CallButton,
@@ -1278,6 +1279,8 @@ export const ChatScreen = ({ state, api }) => {
                 chat: state.current,
                 live: state.groupCall,
               }),
+              // "Translate to <language>" over a foreign-language chat (R-Y213).
+              el(TranslateBar, { key: 'translate-bar', api, state }),
               // Add contact, Block, Report spam over a stranger's chat (R-Y137).
               el(PeerBar, {
                 key: `peer:${state.current.key}`,

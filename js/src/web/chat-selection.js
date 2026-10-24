@@ -41,7 +41,7 @@ import { hasReaders, hasReactors } from './chat-readers.js';
 import { hasMessageStats } from './chat-message-stats.js';
 import { hasReadTime } from './chat-read-time.js';
 import { hasGameScores } from './chat-games.js';
-import { hasTranslation } from './chat-translate.js';
+import { hasSummary, hasTranslation } from './chat-translate.js';
 import { useT } from './i18n.js';
 import { noForwardsIn } from './chat-settings.js';
 
@@ -215,6 +215,7 @@ const singleItems = ({
     copy,
     linkItem({ message, chat, info, target }),
     hasTranslation(message) && 'translate',
+    hasSummary(message) && 'summarize',
     'forward',
     'delete',
     canReport(message, chat) && 'report',

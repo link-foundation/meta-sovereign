@@ -578,6 +578,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     Object.assign(act, readers.actions(message));
     act.gameScores = () => games.open(message);
     act.translate = () => translate.open(message);
+    act.summarize = () => translate.summarize(message);
     return act[action]?.();
   };
 

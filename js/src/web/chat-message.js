@@ -34,6 +34,7 @@ import { EmojiStatus } from './emoji-status.js';
 import { statusOfLink } from './emoji-status-model.js';
 import { peerColorClass } from './peer-color.js';
 import { MessageText } from './message-text.js';
+import { useTranslated } from './translate-store.js';
 import { menuItems } from './chat-selection.js';
 import { useRowHandlers } from './chat-row.js';
 import { GameCard } from './chat-games.js';
@@ -369,6 +370,8 @@ const MENU_ITEMS = {
   select: ['chat.select', 'select'],
   // Who read it, who reacted (R-Y127).
   translate: ['chat.translate.item', 'globe'],
+  // A long message's summary (R-Y213).
+  summarize: ['chat.summarize.item', 'bulb'],
   readers: ['chat.readers.item', 'check-double'],
   reactors: ['chat.reactors.item', 'heart'],
   // A channel post's statistics (R-Y195).
@@ -969,6 +972,18 @@ const bare = (parts) =>
   (['sticker', 'round'].includes(parts.media?.type) ||
     parts.media?.kind === 'dice');
 
+// The text of a bubble: translated while its chat is shown so (R-Y213).
+const ShownText = ({ parts, message, api }) => {
+  const translated = useTranslated(message);
+  return el(MessageText, {
+    text: translated ? translated.text : parts.text,
+    entities: translated ? translated.entities : parts.entities,
+    // Custom emoji are Telegram's (a user account's; the server
+    // answers none to a bot).
+    api: message.source === 'telegram' ? api : null,
+  });
+};
+
 // Time row: "edited · 12:34 ✓"
 const BubbleFooter = ({ parts, message, time, t, spacer = false, api, mine }) =>
   el(
@@ -1074,14 +1089,7 @@ const BubbleContent = ({
   emailBubble(message, api),
   parts.text
     ? el('span', { key: 'body', className: 'bubble-body' }, [
-        el(MessageText, {
-          key: 'x',
-          text: parts.text,
-          entities: parts.entities,
-          // Custom emoji are Telegram's (a user account's; the server
-          // answers none to a bot).
-          api: message.source === 'telegram' ? api : null,
-        }),
+        el(ShownText, { key: 'x', parts, message, api }),
         inlineTime(parts)
           ? el(BubbleFooter, {
               key: 'sp',

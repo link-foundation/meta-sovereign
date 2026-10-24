@@ -487,4 +487,16 @@ export const ruChatAccount = {
   'pull.captcha':
     'VK просит капчу. Откройте чат VK и прокрутите вверх, чтобы пройти её, или попробуйте позже.',
   'chat.remote.openVideo': 'Открыть видео во ВКонтакте',
+  'chat.translateBar.to': 'Перевести на {language}',
+  'chat.translateBar.original': 'Показать оригинал',
+  'chat.translateBar.other': 'Перевести на другой язык',
+  'chat.translateBar.skip': 'Не переводить {language}',
+  'chat.translateBar.more': 'Ещё варианты перевода',
+  'chat.summarize.item': 'Кратко',
+  'chat.summarize.title': 'Краткое содержание',
+  'chat.summarize.label': 'Краткое содержание',
+  'settings.translate.title': 'Язык',
+  'settings.translate.chats': 'Переводить чаты целиком',
+  'settings.translate.hint':
+    'Показывать над чатами на другом языке панель для их перевода (нужен Telegram Premium). Хранится на этом устройстве.',
 };

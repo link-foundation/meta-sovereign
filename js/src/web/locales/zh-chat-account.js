@@ -424,4 +424,16 @@ export const zhChatAccount = {
   'vk.captcha.cancel': '取消',
   'pull.captcha': 'VK 要求验证码。请打开 VK 聊天并向上滚动来完成，或稍后再试。',
   'chat.remote.openVideo': '在 VK 打开视频',
+  'chat.translateBar.to': '翻译为{language}',
+  'chat.translateBar.original': '显示原文',
+  'chat.translateBar.other': '翻译为其他语言',
+  'chat.translateBar.skip': '不翻译{language}',
+  'chat.translateBar.more': '更多翻译选项',
+  'chat.summarize.item': '总结',
+  'chat.summarize.title': '摘要',
+  'chat.summarize.label': '摘要',
+  'settings.translate.title': '语言',
+  'settings.translate.chats': '翻译整个聊天',
+  'settings.translate.hint':
+    '在其他语言的聊天上方显示翻译栏（需要 Telegram Premium）。保存在此设备上。',
 };

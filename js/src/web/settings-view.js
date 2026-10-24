@@ -17,6 +17,7 @@ import { EFFECTS_MODES, useEffectsSetting } from './effects.js';
 import { api } from './dom.js';
 import { ChatBackgroundSettings } from './chat-wallpaper.js';
 import { CloudThemeSettings } from './cloud-themes.js';
+import { TranslateSettings } from './chat-translate-bar.js';
 import { FoldersSettings } from './chat-folder-edit.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import {
@@ -234,6 +235,7 @@ export const SettingsView = () => {
     el(ChatBackgroundSettings, { key: 'background', api }),
     el(CloudThemeSettings, { key: 'cloud-themes', api }),
     el(FoldersSettings, { key: 'folders', api }),
+    el(TranslateSettings, { key: 'translate' }),
     el(PrivacySettings, { key: 'privacy' }),
     el(NotificationSettings, { key: 'notify' }),
     el(TelegramNotifySettings, { key: 'notify-telegram', api }),
