@@ -87,5 +87,6 @@ export const backupJobFor = ({ ctx, store, log, later, backups }) => {
       });
     });
   }
+  // Resolves once a backup in flight has finished (and pruned).
   return { stopBackups: () => scheduler?.stop() };
 };

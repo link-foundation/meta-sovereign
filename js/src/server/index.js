@@ -916,13 +916,13 @@ export const startServer = async ({
         bus?.close();
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
-        ctx.stopJobs();
+        const jobsDone = ctx.stopJobs();
         ctx.chatIndex.close();
         stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
         wsHandle?.close();
         signaling?.close();
         closeFront();
-        server.close(() => resolve());
+        server.close(() => Promise.resolve(jobsDone).then(resolve, resolve));
         for (const socket of sockets) {
           socket.destroy();
         }

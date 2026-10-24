@@ -310,6 +310,7 @@ export const createBackupScheduler = ({
   }
   // One run at a time: a slow backup is not started over (R-Z7).
   let running = false;
+  let current = Promise.resolve();
   const tick = async () => {
     if (running) {
       return;
@@ -335,13 +336,26 @@ export const createBackupScheduler = ({
       running = false;
     }
   };
-  const handle = setInterval(tick, intervalMs);
+  // The run in flight, so that `stop()` can be waited for: a server that
+  // closed mid-run would otherwise leave a new archive written and the old
+  // ones not yet pruned (a race the Windows runners hit).
+  const start = () => {
+    if (!running) {
+      current = tick();
+    }
+    return current;
+  };
+  const handle = setInterval(start, intervalMs);
   if (typeof handle.unref === 'function') {
     handle.unref();
   }
   return {
-    runNow: tick,
-    stop: () => clearInterval(handle),
+    runNow: start,
+    // Resolves once the run in flight (if any) is done; never rejects.
+    stop: () => {
+      clearInterval(handle);
+      return current.catch(() => {});
+    },
   };
 };
 
