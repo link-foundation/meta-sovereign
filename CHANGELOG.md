@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.8
+
+### Patch Changes
+
+- 3c37a49: Consistent states, errors, dialogs and locales across pages; WebKit e2e green and in CI (R-Z12).
+
 ## 0.49.7
 
 ### Patch Changes
