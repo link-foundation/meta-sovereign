@@ -174,16 +174,21 @@ export const createDoubletsMirror = async (
     onEvent = () => {},
     measureFree,
     clock,
+    // The file system calls behind the free-space check; a test on a
+    // virtual clock replaces them so no real I/O sits inside its schedule.
+    spaceCheck,
   }
 ) => {
   // The new file is as large as the old one (or, the first time, about as
   // large as the log): without that much free plus a margin, skip it
   // rather than fill the disk the log needs (R-Z14).
-  const spaceFor = async () => {
-    const size = (await fs.stat(filePath).catch(() => null))?.size;
-    const log = (await fs.stat(text.filePath).catch(() => null))?.size ?? 0;
-    return enoughSpace(path.dirname(filePath), size ?? log, measureFree);
-  };
+  const spaceFor =
+    spaceCheck ??
+    (async () => {
+      const size = (await fs.stat(filePath).catch(() => null))?.size;
+      const log = (await fs.stat(text.filePath).catch(() => null))?.size ?? 0;
+      return enoughSpace(path.dirname(filePath), size ?? log, measureFree);
+    });
   const snapshots = createSnapshots({
     run: async () => {
       await text.flush(); // every write so far is in the log

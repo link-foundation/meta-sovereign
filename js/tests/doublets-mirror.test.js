@@ -12,8 +12,8 @@ const virtualClock = () => {
   let time = 1_000_000;
   let nextId = 1;
   const timers = new Map();
-  // The mirror's free-space check does real (async) file system calls, so a
-  // turn lets those finish too, not only promises.
+  // The free-space check is replaced (`spaceCheck`), so nothing real runs
+  // inside the schedule; a turn lets promises settle.
   const turn = () =>
     new Promise((resolve) => globalThis.setTimeout(resolve, 8));
   const clock = {
@@ -60,6 +60,7 @@ test('a failing snapshot is reported once per try, and tried less often', async 
   const mirror = await createDoubletsMirror('/nonexistent/data.bin', {
     text: fakeText(),
     clock,
+    spaceCheck: async () => ({ ok: true }),
     minIntervalMs: 60,
     onError: (error) => errors.push(error.message),
     snapshot: async () => {
@@ -89,6 +90,7 @@ test('after a failure the usual pace returns; writes during a snapshot wait for 
   const mirror = await createDoubletsMirror('/nonexistent/data.bin', {
     text: fakeText(),
     clock,
+    spaceCheck: async () => ({ ok: true }),
     minIntervalMs: 20,
     onError: (error) => errors.push(error.message),
     snapshot: async () => {
