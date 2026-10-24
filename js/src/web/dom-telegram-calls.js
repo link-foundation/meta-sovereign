@@ -32,6 +32,18 @@ export const TELEGRAM_CALLS = {
   telegramChannelEmojiStatus: body('channel-emoji-status'),
   telegramInactiveChannels: none('inactive-channels'),
   telegramLeaveChannels: body('leave-channels'),
+  // Contact extras (R-Y217): a note, the share-my-contact link and opening
+  // one, a phone link, a photo for a contact, a suggested birthday, the
+  // synced contacts and Block user in the Replies chat.
+  telegramContactNote: body('contact-note'),
+  telegramContactToken: none('contact-token'),
+  telegramContactTokenOpen: body('contact-token-open'),
+  telegramPhoneResolve: body('phone-resolve'),
+  telegramContactPhoto: body('contact-photo'),
+  telegramBirthdaySuggest: body('birthday-suggest'),
+  telegramSavedContacts: none('saved-contacts'),
+  telegramSavedContactsReset: none('saved-contacts-reset'),
+  telegramBlockFromReplies: body('block-from-replies'),
   // Change phone number (the code goes to the new number) and Export
   // Telegram data through a takeout session (R-Y212).
   telegramPhoneChangeSend: body('phone-change-send'),
@@ -352,6 +364,20 @@ export const TELEGRAM_CALLS = {
   telegramSensitiveSet: body('sensitive-set'),
   telegramSessionSettings: body('session-settings'),
   telegramSessionTtlSet: body('session-ttl-set'),
+  // Login email, password reset and recovery, passkeys, sign-in codes
+  // (R-Y218).
+  telegramLoginEmailSend: body('login-email-send'),
+  telegramLoginEmailVerify: body('login-email-verify'),
+  telegramRecoveryRequest: none('recovery-request'),
+  telegramRecoveryConfirm: body('recovery-confirm'),
+  telegramPasswordReset: none('password-reset'),
+  telegramPasswordResetCancel: none('password-reset-cancel'),
+  telegramPasskeys: none('passkeys'),
+  telegramPasskeyOptions: none('passkey-options'),
+  telegramPasskeyRegister: body('passkey-register'),
+  telegramPasskeyDelete: body('passkey-delete'),
+  telegramSignInCodes: none('sign-in-codes'),
+  telegramInvalidateCodes: body('invalidate-codes'),
   telegramBlocked: body('blocked'),
   telegramUnblock: body('unblock'),
   // A group's members ({ chat, q, offset, limit }) and one removed

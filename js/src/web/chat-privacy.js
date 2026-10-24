@@ -17,14 +17,17 @@ import { CloseFriendsDialog } from './chat-contacts-edit.js';
 import { LocalPasscode } from './chat-passcode.js';
 import { PaidMessagesSetting } from './chat-privacy-paid.js';
 import { ClearDrafts } from './chat-drafts-clear.js';
+import { SyncedContacts } from './chat-contacts-synced.js';
 import {
   AccountTtl,
   SensitiveContent,
   SessionSwitches,
   SessionTtl,
   TwoStep,
+  errorText as securityError,
   useSecurity,
 } from './chat-security.js';
+import { SecurityExtras } from './chat-security-extras.js';
 
 const el = React.createElement;
 
@@ -726,6 +729,16 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
         { key: 'ts', name: 'two-step', title: t('chat.security.twoStep') },
         el(TwoStep, secProps)
       ),
+      // Login email, passkeys, a pending password reset (R-Y218).
+      el(
+        Section,
+        {
+          key: 'se',
+          name: 'security-extras',
+          title: t('chat.loginEmail.title'),
+        },
+        el(SecurityExtras, { api, sec, fail: securityError })
+      ),
       el(
         Section,
         { key: 'lp', name: 'local-passcode', title: t('passcode.title') },
@@ -785,6 +798,12 @@ const PrivacyForm = ({ api, close, friends, setFriends }) => {
           title: t('chat.contactsEdit.closeFriends'),
         },
         el(CloseFriends, { ...props, setOpen: setFriends })
+      ),
+      // Contacts → Delete synced contacts, with their count (R-Y217).
+      el(
+        Section,
+        { key: 'sy', name: 'synced', title: t('chat.synced.title') },
+        el(SyncedContacts, { api })
       ),
       el(
         Section,

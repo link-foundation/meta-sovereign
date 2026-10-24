@@ -134,6 +134,8 @@ test('securityState: the password, the TTL and the content settings', async () =
       emailPending: true,
       emailPattern: 'a***@b.c',
       resetPending: false,
+      loginEmail: '',
+      resetDate: null,
     },
     accountTtlDays: 180,
     content: { enabled: true, canChange: true },

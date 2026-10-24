@@ -8,6 +8,8 @@ const PAID_FAILURES = {
   'paid-declined': 'chat.paidSend.declined',
   'paid-required': 'chat.paidSend.changed',
   'paid-balance': 'chat.paid.err.balance',
+  // A sign-in code the user chose not to share (R-Y218).
+  'code-declined': 'chat.signInCode.declined',
 };
 
 /** Whether the failure is about a paid chat (R-Y184), told in words. */

@@ -319,6 +319,8 @@
     "test:e2e:account-data": "node js/tests/e2e-account-data-browser.mjs",
     "test:e2e:security": "node js/tests/e2e-security-browser.mjs",
     "test:e2e:security:webkit": "E2E_BROWSER=webkit node js/tests/e2e-security-browser.mjs",
+    "test:e2e:security-extras": "node js/tests/e2e-security-extras-browser.mjs",
+    "test:e2e:security-extras:webkit": "E2E_BROWSER=webkit node js/tests/e2e-security-extras-browser.mjs",
     "test:e2e:stats": "node js/tests/e2e-stats-browser.mjs",
     "test:e2e:stats:webkit": "E2E_BROWSER=webkit node js/tests/e2e-stats-browser.mjs",
     "test:e2e:checklist-stats": "node js/tests/e2e-checklist-stats-browser.mjs",

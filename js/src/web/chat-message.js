@@ -411,6 +411,8 @@ const MENU_ITEMS = {
   hideTopic: ['chat.topics.menu.hide', 'mute'],
   showTopic: ['chat.topics.menu.show', 'volume'],
   deleteTopic: ['chat.topics.menu.delete', 'trash'],
+  // Block user, in the Replies chat (R-Y217).
+  blockSender: ['chat.replies.block', 'lock'],
 };
 
 // Delete and leave are drawn in red, as Desktop draws them.
@@ -419,6 +421,7 @@ const DANGER = new Set([
   'deleteSelected',
   'deleteChat',
   'deleteTopic',
+  'blockSender',
   'leaveGroup',
   'leaveChannel',
 ]);

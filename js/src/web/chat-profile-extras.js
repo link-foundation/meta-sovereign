@@ -74,7 +74,7 @@ const Select = ({ label, name, value, onChange, children }) =>
     ),
   ]);
 
-const BirthdayEditor = ({ t, form, set }) => {
+export const BirthdayEditor = ({ t, form, set }) => {
   const { locale } = useLocaleContext();
   const month = Number(form.month) || 1;
   const year = form.year === '' ? undefined : Number(form.year);

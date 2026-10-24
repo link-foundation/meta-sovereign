@@ -12,6 +12,7 @@ import { Frame } from './chat-readers.js';
 import { infoLine } from './chat-info.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { openChat } from './chat-state.js';
+import { ShareContactDialog } from './chat-contact-share.js';
 
 const el = React.createElement;
 
@@ -171,7 +172,7 @@ const ContactRow = ({ api, contact, line, onOpen }) =>
     )
   );
 
-const Controls = ({ t, query, setQuery, mode, setMode, onAdd }) =>
+const Controls = ({ t, query, setQuery, mode, setMode, onAdd, onShare }) =>
   el('div', { className: 'contacts-controls' }, [
     el('input', {
       key: 'q',
@@ -212,6 +213,20 @@ const Controls = ({ t, query, setQuery, mode, setMode, onAdd }) =>
           t('chat.contactsEdit.addContact')
         )
       : null,
+    // Share my contact: a link and a QR code (R-Y217).
+    onShare
+      ? el(
+          'button',
+          {
+            key: 'sh',
+            type: 'button',
+            className: 'contacts-add',
+            'data-action': 'contacts-share',
+            onClick: onShare,
+          },
+          t('chat.contactShare.open')
+        )
+      : null,
   ]);
 
 const Empty = ({ t, state, shown }) => {
@@ -240,6 +255,7 @@ export const ContactsDialog = ({ api, close, AddContact = null }) => {
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState('seen');
   const [adding, setAdding] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [reload, setReload] = useState(0);
   const state = useContactList(api, reload);
   const shown = useMemo(
@@ -264,6 +280,9 @@ export const ContactsDialog = ({ api, close, AddContact = null }) => {
       },
     });
   }
+  if (sharing) {
+    return el(ShareContactDialog, { api, close: () => setSharing(false) });
+  }
   return el(
     Frame,
     { title: t('chat.contacts.title'), close, name: 'contacts' },
@@ -276,6 +295,10 @@ export const ContactsDialog = ({ api, close, AddContact = null }) => {
         mode,
         setMode,
         onAdd: canAdd ? () => setAdding(true) : null,
+        onShare:
+          typeof api.telegramContactToken === 'function'
+            ? () => setSharing(true)
+            : null,
       }),
       el(Empty, { key: 'e', t, state, shown }),
       el(

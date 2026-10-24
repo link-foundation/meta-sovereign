@@ -74,6 +74,11 @@ const passwordOf = (answer) => ({
   emailPending: Boolean(answer?.emailUnconfirmedPattern),
   emailPattern: answer?.emailUnconfirmedPattern ?? '',
   resetPending: Number(answer?.pendingResetDate ?? 0) > 0,
+  // The login email's pattern and the date a reset becomes final (R-Y218).
+  loginEmail: answer?.loginEmailPattern ?? '',
+  resetDate: answer?.pendingResetDate
+    ? new Date(Number(answer.pendingResetDate) * 1000).toISOString()
+    : null,
 });
 
 const settle = async (promise) => {

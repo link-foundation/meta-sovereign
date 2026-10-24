@@ -117,9 +117,11 @@ import { createRequestPeer } from './telegram-request-peer.js';
 import { createWebApps } from './telegram-web-apps.js';
 import { createBotLogin } from './telegram-bot-login.js';
 import { createApps } from './telegram-apps.js';
+import { createContactExtras } from './telegram-contact-extras.js';
 import { createProfile } from './telegram-profile.js';
 import { createPrivacy } from './telegram-privacy.js';
 import { createSecurity } from './telegram-security.js';
+import { createSecurityExtras } from './telegram-security-extras.js';
 import { createInviteLinks } from './telegram-invite-links.js';
 import { createTtl } from './telegram-ttl.js';
 import { createAccountExtras } from './telegram-account-extras.js';
@@ -460,7 +462,7 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // permissions, slow mode and recent actions (R-Y133); a bot's commands
 // (R-Y135); the user's own profile (R-Y136); inline bots (R-Y138, made by
 // the stickers' module, which keeps the files their answers name); privacy
-// and security (R-Y139); sharing a place and a contact (R-Y142);
+// and security (R-Y139, R-Y218); sharing a place and a contact (R-Y142);
 // auto-delete timers and Saved Messages by chat (R-Y143); "send as"
 // (R-Y141); viewing stories (R-Y140); the message box's link preview
 // (R-Y145); story replies, reactions, viewers, deleting and hiding
@@ -510,6 +512,9 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // cache's management, reaction notifications and resetting notifications
 // (R-Y215); a channel's public link, look and deletion, and inactive
 // channels to leave (R-Y216).
+// pack, pinned topics reordered, new chats in a shared folder and the new-contacts notification (R-Y211); contact
+// notes, share-my-contact links, phone links, photos for contacts, suggested
+// birthdays, synced contacts and blocking from Replies (R-Y217).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -603,9 +608,11 @@ const chatActions = (env, context) => {
     ...createShareMedia(env, context),
     ...createChatEdit(env, withUploads),
     ...createProfile(env, withUploads),
+    ...createContactExtras(env, withUploads),
     ...createStoryPost(env, withUploads),
     ...createPrivacy(env, context),
     ...createSecurity(env, context),
+    ...createSecurityExtras(env, context),
     ...createTtl(env, context),
     ...createAccountExtras(env, context),
     ...createSavedTags(env, context),

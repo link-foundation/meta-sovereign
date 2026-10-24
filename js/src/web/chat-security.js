@@ -9,6 +9,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { ForgotPassword } from './chat-security-forgot.js';
 
 const el = React.createElement;
 
@@ -412,6 +413,14 @@ export const TwoStep = (props) => {
               },
               t('chat.privacy.confirmNo')
             ),
+            // The current password is asked: "Forgot password?" (R-Y218).
+            ts.mode === 'set'
+              ? null
+              : el(ForgotPassword, {
+                  key: 'fg',
+                  ...{ api: props.api, fail: errorText, sec },
+                  onDone: () => ts.open(null),
+                }),
           ]),
         ])
       : null,

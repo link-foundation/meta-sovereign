@@ -64,6 +64,7 @@ import { InstantViewHost } from './chat-instant-view.js';
 import { BusinessIntro } from './chat-business-profile.js';
 import { BotBar } from './chat-business-bots.js';
 import { useBusinessLinks } from './chat-business-link-open.js';
+import { useProfileRequest } from './contact-links.js';
 import { SelectionTop } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
@@ -1093,6 +1094,8 @@ const Composer = ({ state, api, keys }) => {
 // profile column).
 const ChatTop = ({ state, api, onBack, saved, forumView, call }) => {
   const [about, setAbout] = useState(false);
+  // A contact or phone link opens the person's column (R-Y217).
+  useProfileRequest(state.current, () => setAbout(true));
   const chat = about && hasAbout(state.current) ? state.current : null;
   const find = useChatSearch({
     api,

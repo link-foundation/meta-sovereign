@@ -13,6 +13,7 @@ import { Balance, useBalance } from './chat-paid.js';
 import { overPage } from './paid-portal.js';
 import { canAfford } from './stars-model.js';
 import { bindPaid, paidGate } from './paid-send.js';
+import { useSignInCodeWarning } from './chat-sign-in-code.js';
 
 const el = React.createElement;
 
@@ -127,6 +128,8 @@ export const usePaidSend = (api, chat) => {
   const t = useT();
   const stars = usePrice(chat);
   const { first, answer } = useAsks();
+  // A message holding a sign-in code is asked about too (R-Y218).
+  const signCode = useSignInCodeWarning();
   return {
     stars,
     label:
@@ -141,13 +144,16 @@ export const usePaidSend = (api, chat) => {
             t('chat.paidSend.perMessage', { count: stars })
           )
         : null,
-    dialog: first
-      ? el(AskDialog, {
-          key: 'paid-ask',
-          api,
-          offer: first.offer,
-          answer: (value) => answer(first, value),
-        })
-      : null,
+    dialog: el(React.Fragment, { key: 'paid-dialogs' }, [
+      first
+        ? el(AskDialog, {
+            key: 'paid-ask',
+            api,
+            offer: first.offer,
+            answer: (value) => answer(first, value),
+          })
+        : null,
+      signCode,
+    ]),
   };
 };

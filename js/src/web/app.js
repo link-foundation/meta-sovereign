@@ -39,6 +39,7 @@ import { GiftHost } from './chat-gift-unique.js';
 import { useApplyUiScale } from './ui-scale.js';
 import { AddlistHost } from './chat-folder-share.js';
 import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
+import { ContactLinkHost } from './contact-links.js';
 import { AppNotifications } from './app-notify.js';
 import { LockScreen, useLocalLock } from './passcode.js';
 
@@ -232,6 +233,8 @@ const App = () => {
       el(AddlistHost, { key: 'addlist-host', api }),
       // A t.me/addtheme link's preview (R-Y209).
       el(AddthemeHost, { key: 'addtheme-host', api }),
+      // A t.me/contact or t.me/+phone link opens the person (R-Y217).
+      el(ContactLinkHost, { key: 'contact-link-host', api }),
       // The Chat section notifies by itself; the others through this.
       active === 'chat'
         ? null

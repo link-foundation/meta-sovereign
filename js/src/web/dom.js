@@ -32,6 +32,7 @@ import {
 } from '../greetings/plan.js';
 import { TELEGRAM_CALLS } from './dom-telegram-calls.js';
 import { bindPaid, guardApi, paidGate } from './paid-send.js';
+import { guardCodes, pageCodeGate } from './sign-in-code-guard.js';
 import { activeAccount, scopedUrl } from './telegram-account-scope.js';
 
 export const h = (tag, attrs = {}, children = []) => {
@@ -1399,4 +1400,5 @@ bindPaid({
   },
 });
 
-export const api = guardApi(rawApi, paidGate);
+// A message holding a fresh sign-in code asks first too (R-Y218).
+export const api = guardCodes(guardApi(rawApi, paidGate), pageCodeGate(rawApi));

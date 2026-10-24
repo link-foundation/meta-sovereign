@@ -17,6 +17,7 @@ import { SimilarBots } from './chat-similar-bots.js';
 import { BotAttachRow } from './chat-attach-bots.js';
 import { Members } from './chat-members.js';
 import { PeerActions } from './chat-peer-actions.js';
+import { ContactExtras } from './chat-contact-extras.js';
 import { NotifyRow } from './chat-notify-settings.js';
 import { CommonChatsRow } from './chat-common-chats.js';
 import { ChannelDmRow } from './chat-channel-dm.js';
@@ -350,6 +351,8 @@ export const PersonPanel = ({
         el(UsernamesAction, { key: 'un', api, chat, info }),
         el(NotifyRow, { key: 'nr', api, chat }),
         el(PeerActions, { key: 'pa', api, chat, info }),
+        // A contact's note, photo and suggested birthday (R-Y217).
+        el(ContactExtras, { key: 'ce', api, chat, info }),
         el(CommonChatsRow, { key: 'cc', api, chat, info, onOpenChat }),
         // The channel's direct messages (R-Y191).
         el(ChannelDmRow, { key: 'dm', api, chat, info }),

@@ -25,6 +25,7 @@ import { birthdayOf, colorOf } from './telegram-profile-extras.js';
 import { monoforumInfo } from './telegram-channel-dm-shape.js';
 import { groupStickersInfo } from './telegram-group-extras.js';
 import { statusOf as emojiStatusOf } from './telegram-emoji-status.js';
+import { noteOf } from './telegram-contact-extras.js';
 import { ALL_ADMIN_RIGHTS } from './telegram-admin-rights.js';
 
 const CHAT = /^-?\d{1,20}$/;
@@ -408,6 +409,8 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     // The theme of this chat, by its emoticon (R-Y170).
     ...(themeOf(full) ? { theme: themeOf(full) } : {}),
     ...translationsOf(full),
+    // The private note and a personal photo of a contact (R-Y217).
+    ...noteOf(full),
     ...(user.self ? { self: true } : {}),
     ...(user.bot ? { bot: true } : {}),
     ...botRevenueOf(user, full),

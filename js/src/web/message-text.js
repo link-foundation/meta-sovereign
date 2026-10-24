@@ -23,6 +23,7 @@ import { openInstantViewLink } from './chat-instant-view-open.js';
 import { openProxyLink } from './proxy-model.js';
 import { openGiftLink } from './gift-manage-model.js';
 import { openThemeLink } from './cloud-themes.js';
+import { openContactLink } from './contact-links.js';
 import { addlistSlugOf } from './chat-folder-model.js';
 import { openAddlist } from './chat-folder-share.js';
 import { openTagSearch, parseTag } from './chat-tags.js';
@@ -302,7 +303,8 @@ const drawNode = (node, key, ctx) => {
             openGiftLink(href) ||
             openThemeLink(href) ||
             openLoginLink(href) ||
-            openAttachLink(href)
+            openAttachLink(href) ||
+            openContactLink(href)
           ) {
             // A link to a message opens in the app (R-Y154); a business
             // chat link opens its chat with the text in the box (R-Y180);
@@ -310,7 +312,8 @@ const drawNode = (node, key, ctx) => {
             // gift or gift code link opens its viewer (R-Y193); a link of a
             // login domain asks Telegram first (R-Y201), a t.me/iv link or a link
             // with a cached page opens the reader (R-Y205), and a bot's
-            // startattach link offers the attachment menu (R-Y201).
+            // startattach link offers the attachment menu (R-Y201), and a
+            // contact or phone link opens the person (R-Y217).
             event.preventDefault();
           }
         },

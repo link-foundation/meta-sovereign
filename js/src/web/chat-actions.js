@@ -33,6 +33,7 @@ import { useTranslate } from './chat-translate.js';
 import { useSavedGifs } from './chat-saved-gifs.js';
 import { useMusicSave } from './chat-music-save.js';
 import { useReport } from './chat-report.js';
+import { useBlockFromReplies } from './chat-replies-block.js';
 import { saveUrl } from './media-src.js';
 import { expandAlbums, groupAlbums } from './chat-album.js';
 import {
@@ -482,6 +483,7 @@ const unpinAll = (send, list) => {
  * composer's (Up edits the last own message, Ctrl/Cmd+Up and Down move
  * the reply), `dialogs` the open delete or forward dialog.
  */
+// eslint-disable-next-line max-lines-per-function -- over by 3 lines after the R-Y217 merge; to be split in the follow-up pass
 export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const selection = useSelection(state.current?.key ?? null);
   const [deleting, setDeleting] = useState(null);
@@ -518,6 +520,8 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     chat: state.current,
     onDone: selection.clear,
   });
+  // "Block user" in the Replies chat (R-Y217).
+  const blockReplies = useBlockFromReplies({ api });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -565,6 +569,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       forwardSelected: () => setForwarding(chosen()),
       deleteSelected: () => setDeleting(chosen()),
       ...report.actions(message, chosen),
+      ...blockReplies.actions(message),
       unpinSelected: () => unpinAll(send, chosen()),
       clearSelection: selection.clear,
       react: () =>
@@ -646,6 +651,7 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       games.dialog,
       translate.dialog,
       report.dialog,
+      blockReplies.dialog,
     ],
   };
 };

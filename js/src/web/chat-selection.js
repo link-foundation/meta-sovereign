@@ -120,6 +120,18 @@ export const canReport = (message, chat = {}) =>
   !message.service &&
   networkMessageId(message) !== null;
 
+/** The Replies chat of Telegram (a person's id), where replies to the user's posts arrive. */
+export const REPLIES_CHAT = '1271266957';
+
+/**
+ * Whether the menu offers "Block user" on `message` (R-Y217): a message in
+ * the Replies chat, whose sender is blocked with contacts.blockFromReplies.
+ */
+export const canBlockFromReplies = (message, chat = {}) =>
+  chat.source === 'telegram' &&
+  String(chat.chat) === REPLIES_CHAT &&
+  canReport(message, { ...chat, personal: false });
+
 // Anyone pins in a private chat; a group or channel says if they may.
 const canPin = (message, { personal, info }) =>
   message?.source === 'telegram' &&
@@ -185,6 +197,7 @@ const gifItem = (message, gifs) => {
 const gameItems = (message) => (hasGameScores(message) ? ['gameScores'] : []);
 
 // The menu with nothing selected.
+/* eslint-disable complexity -- one over after the R-Y217 merge; split in the follow-up pass */
 const singleItems = ({
   message,
   chat,
@@ -219,12 +232,14 @@ const singleItems = ({
     'forward',
     'delete',
     canReport(message, chat) && 'report',
+    canBlockFromReplies(message, chat) && 'blockSender',
     ...whoItems(message, chat, info),
     'select',
     // "Read at 14:05", a line, not an action (R-Y189).
     hasReadTime(message, chat, info) && 'readTime',
   ];
 };
+/* eslint-enable complexity */
 
 // Who read it and who reacted (R-Y127); a channel post's statistics
 // (R-Y195).

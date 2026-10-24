@@ -243,6 +243,7 @@ import { FOLDER_EDIT_POSTS } from './routes-telegram-folder-edit.js';
 import { CHATLIST_POSTS } from './routes-telegram-chatlists.js';
 import { STICKER_SETTINGS_POSTS } from './routes-telegram-sticker-settings.js';
 import { CHAT_THEME_POSTS } from './routes-telegram-chat-themes.js';
+import { CONTACT_EXTRAS_POSTS } from './routes-telegram-contact-extras.js';
 import { CLOUD_THEME_POSTS } from './routes-telegram-cloud-themes.js';
 import { COMMON_CHATS_POSTS } from './routes-telegram-common-chats.js';
 import { STATS_POSTS } from './routes-telegram-stats.js';
@@ -267,6 +268,7 @@ import { EMOJI_STATUS_POSTS } from './routes-telegram-emoji-status.js';
 import { ROUND_POSTS } from './routes-telegram-round.js';
 import { PRIVACY_POSTS } from './routes-telegram-privacy.js';
 import { SECURITY_POSTS } from './routes-telegram-security.js';
+import { SECURITY_EXTRAS_POSTS } from './routes-telegram-security-extras.js';
 import { SHARE_POSTS } from './routes-telegram-share.js';
 import { INLINE_POSTS } from './routes-telegram-inline.js';
 import { MESSAGE_LINK_POSTS } from './routes-telegram-message-links.js';
@@ -1022,6 +1024,7 @@ const POSTS = {
   ...ADMIN_POSTS,
   ...EPHEMERAL_POSTS,
   ...YEXTRAS_POSTS,
+  ...CONTACT_EXTRAS_POSTS,
   ...GROUP_EXTRAS_POSTS,
   ...INSTANT_VIEW_POSTS,
   ...STICKER_EXTRAS_POSTS,
@@ -1071,6 +1074,7 @@ const POSTS = {
   ...ROUND_POSTS,
   ...PRIVACY_POSTS,
   ...SECURITY_POSTS,
+  ...SECURITY_EXTRAS_POSTS,
   ...SHARE_POSTS,
   ...INLINE_POSTS,
   ...TTL_POSTS,
