@@ -7,7 +7,7 @@ Telegram 是参照网络，其矩阵在下方。其他每个网络都有自己�
 | 网络                 | 矩阵                                                           | 已支持 | 部分支持 | 不支持 | 无法访问 |
 | -------------------- | -------------------------------------------------------------- | ------ | -------- | ------ | -------- |
 | Telegram（本页）     | 下方                                                           | —      | —        | —      | —        |
-| VK                   | [features/vk.zh.md](./features/vk.zh.md)                       | 30     | 22       | 36     | 5        |
+| VK                   | [features/vk.zh.md](./features/vk.zh.md)                       | 35     | 22       | 31     | 5        |
 | WhatsApp             | [features/whatsapp.zh.md](./features/whatsapp.zh.md)           | 7      | 27       | 26     | 8        |
 | Facebook + Instagram | [features/facebook.zh.md](./features/facebook.zh.md)           | 6      | 37       | 26     | 1        |
 | X                    | [features/x.zh.md](./features/x.zh.md)                         | 8      | 22       | 23     | 5        |

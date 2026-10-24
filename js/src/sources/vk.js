@@ -354,6 +354,14 @@ export const vkReachability = (item, peerProfile = null) => {
   return flags;
 };
 
+// A community's (negative) id writing in a dialog with a person (a positive
+// peer below the chat range) is the community answering: a community
+// token's own reply (Bots Long Poll `message_reply`), so ours (R-Z8).
+const byCommunity = (msg) => {
+  const peer = Number(msg.peer_id);
+  return Number(msg.from_id) < 0 && peer > 0 && peer < 2000000000;
+};
+
 /** Derives chatType/outgoing/edited/forwardedFrom from a raw VK message. */
 const vkMessageMeta = (msg, conversation, peerProfile = null) => {
   const edited = msg.update_time
@@ -363,7 +371,8 @@ const vkMessageMeta = (msg, conversation, peerProfile = null) => {
     (msg.fwd_messages?.length ?? 0) > 0
       ? { id: String(msg.fwd_messages[0].from_id ?? '') }
       : null;
-  const outgoing = msg.out === 1 || msg.out === true ? true : null;
+  const outgoing =
+    msg.out === 1 || msg.out === true || byCommunity(msg) ? true : null;
   return {
     chatType: vkChatType(vkPeerId(msg, conversation)),
     ...vkReachability(conversation, peerProfile),

@@ -425,6 +425,47 @@ describe('VK Bots Long Poll, community token (R-Z8)', () => {
     expect(state.groupId).toBe(555);
     expect(state.ts).toBe('41');
   });
+
+  it("marks the community's own reply as outgoing, a person's as not", async () => {
+    const store = createMemoryStore();
+    await saveToken(store);
+    const fake = createFakeVk({
+      methods: {
+        'users.get': () => [],
+        'groups.getById': () => ({ groups: [{ id: 555, name: 'Shop' }] }),
+        'groups.getLongPollServer': () => ({
+          key: 'gk',
+          server: 'https://lp.vk.fake/im1',
+          ts: '40',
+        }),
+      },
+      poll: () => ({
+        ts: '41',
+        updates: [
+          {
+            type: 'message_new',
+            object: { message: { ...message(900, 7, 'order?'), peer_id: 7 } },
+            group_id: 555,
+          },
+          {
+            type: 'message_reply',
+            object: { ...message(901, -555, 'on its way'), peer_id: 7 },
+            group_id: 555,
+          },
+        ],
+      }),
+    });
+    await inboxOf(store, fake).step({ wait: 0 });
+    const asked = await store.get('msg:vk:900');
+    const answered = await store.get('msg:vk:901');
+    expect(asked.chat).toBe('7');
+    expect(asked.chatType).toBe('private');
+    expect(asked.outgoing ?? null).toBe(null);
+    expect(answered.chat).toBe('7');
+    expect(answered.sender).toBe('-555');
+    expect(answered.outgoing).toBe(true);
+    expect(answered.senderName).toBe('Shop');
+  });
 });
 
 describe('contacts from messages with unix-second times (R-Z8)', () => {

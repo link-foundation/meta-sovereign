@@ -140,23 +140,42 @@ const communityBatch = (updates, now) => {
 const personName = (p) =>
   [p.first_name, p.last_name].filter(Boolean).join(' ') || p.name || null;
 
-// Names of community-poll senders; a failure only leaves them unnamed.
-const namesOf = async (live, messages) => {
-  const ids = [
-    ...new Set(messages.map((m) => m.from_id).filter((id) => id > 0)),
-  ];
+// Names of community-poll senders (people, and the community itself for
+// its own replies); a failure only leaves them unnamed.
+const peopleNames = async (live, ids) => {
   if (ids.length === 0) {
-    return new Map();
+    return [];
   }
-  try {
-    const people = await live.call('users.get', {
-      user_ids: ids.join(','),
-      fields: PEOPLE,
-    });
-    return new Map(asList(people).map((p) => [String(p.id), personName(p)]));
-  } catch {
-    return new Map();
+  const people = await live.call('users.get', {
+    user_ids: ids.join(','),
+    fields: PEOPLE,
+  });
+  return asList(people).map((p) => [String(p.id), personName(p)]);
+};
+
+const communityNames = async (live, ids) => {
+  if (ids.length === 0) {
+    return [];
   }
+  const got = await live.call('groups.getById', {
+    group_ids: ids.map((id) => -id).join(','),
+  });
+  return asList(got?.groups ?? got).map((g) => [`-${g.id}`, g.name ?? null]);
+};
+
+const namesOf = async (live, messages) => {
+  const ids = [...new Set(messages.map((m) => Number(m.from_id)))];
+  const named = await Promise.all([
+    peopleNames(
+      live,
+      ids.filter((id) => id > 0)
+    ).catch(() => []),
+    communityNames(
+      live,
+      ids.filter((id) => id < 0)
+    ).catch(() => []),
+  ]);
+  return new Map(named.flat());
 };
 
 const linksOfBatch = async (live, batch) => {
