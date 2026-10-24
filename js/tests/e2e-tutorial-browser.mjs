@@ -149,6 +149,42 @@ const overlaps = (a, b) =>
   a.top < b.top + b.height - 0.5 &&
   b.top < a.top + a.height - 0.5;
 
+// The part of a rect that is on the screen.
+const visiblePart = (r, viewport) => {
+  const top = Math.max(r.top, 0);
+  const left = Math.max(r.left, 0);
+  return {
+    top,
+    left,
+    width: Math.min(r.left + r.width, viewport.width) - left,
+    height: Math.min(r.top + r.height, viewport.height) - top,
+  };
+};
+
+// The click lands on the control, not on the card in front of it.
+const assertClickable = async (page, label, selector) => {
+  const hit = await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    const r = el?.getBoundingClientRect();
+    if (!r) {
+      return { found: false };
+    }
+    const top = document.elementFromPoint(
+      r.left + r.width / 2,
+      Math.min(Math.max(r.top + r.height / 2, 1), globalThis.innerHeight - 1)
+    );
+    return {
+      found: true,
+      onCard: Boolean(top?.closest('.tutorial-step')),
+      inside: Boolean(top && el.contains(top)),
+    };
+  }, selector);
+  check(
+    hit.found && !hit.onCard,
+    `${label}: ${selector} is under the card ${JSON.stringify(hit)}`
+  );
+};
+
 const stepOf = (page) =>
   page
     .locator('[data-tutorial-step]')
@@ -184,9 +220,19 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
       card.top + card.height <= viewport.height + 0.5,
     `${where}: card inside viewport ${JSON.stringify(card)} target ${JSON.stringify(g.target)} scrollY ${g.scrollY}`
   );
-  if (g.target && g.side !== 'dock') {
+  if (g.target) {
+    // The card never covers what it asks the user to click (R-Z22),
+    // docked or not. A target taller than the room beside the card (the
+    // whole services grid) is read from its top, so its first
+    // screenful - the part the user starts with - must be clear.
+    const seen = visiblePart(g.target, viewport);
+    const room = viewport.height - card.height - 2 * 12;
+    const probe =
+      g.target.height > room
+        ? { ...seen, height: Math.min(seen.height, 40) }
+        : seen;
     check(
-      !overlaps(card, g.target),
+      !overlaps(card, probe),
       `${where}: card ${JSON.stringify(card)} covers target ${JSON.stringify(g.target)}`
     );
   }
@@ -344,12 +390,46 @@ const pickEmailManually = async (page, label) => {
   );
 };
 
-const walk = async (engineName, viewport, base) => {
+// Linux fonts are taller than the ones the layout was tuned on, so the
+// card grows. Simulate that on any machine (R-Z22): bigger text and
+// looser lines in the card, which must still never cover its target.
+const makeCardTall = async (page, tall) =>
+  tall &&
+  page.addInitScript(() => {
+    const style = document.createElement('style');
+    style.textContent =
+      '.tutorial-step{font-size:1.6em !important;line-height:2.3 !important}';
+    document.addEventListener('DOMContentLoaded', () =>
+      document.head.append(style)
+    );
+  });
+
+// The "pick a service" step lights the whole services section and the
+// first service stays clickable in front of the card.
+const assertPickStep = async (page, label) => {
+  const pick = await assertPlacement(page, label);
+  check(
+    pick.targetId === 'connections:list',
+    `${label}: pick lights ${pick.targetId}, not the whole section`
+  );
+  await assertClickable(
+    page,
+    label,
+    '[data-tutorial-id="connections:email"] [data-action="open-connection-detail"]'
+  );
+  await assertSteadyOnScroll(page, label);
+  await assertSectionReachable(page, label);
+};
+
+const walk = async (engineName, viewport, base, tall) => {
   const browser = await playwright[engineName].launch();
   const page = await browser.newPage({ viewport });
+  await makeCardTall(page, tall);
   // A click that cannot complete fails in 10 s, not 30 (R-Z21).
   page.setDefaultTimeout(10_000);
-  const label = `${engineName}/${viewport.name}`;
+  const label = [engineName, viewport.name, tall && 'tall-card']
+    .filter(Boolean)
+    .join('/');
   console.log(`- ${label}`);
   try {
     await page.goto(base, { waitUntil: 'domcontentloaded' });
@@ -392,13 +472,7 @@ const walk = async (engineName, viewport, base) => {
     await page.click('[data-action="tutorial-next"]');
     await waitForStep(page, 'pick');
     await settle(page);
-    const pick = await assertPlacement(page, label);
-    check(
-      pick.targetId === 'connections:list',
-      `${label}: pick lights ${pick.targetId}, not the whole section`
-    );
-    await assertSteadyOnScroll(page, label);
-    await assertSectionReachable(page, label);
+    await assertPickStep(page, label);
 
     await pickEmailManually(page, label);
 
@@ -688,6 +762,7 @@ try {
   for (const engineName of engines) {
     for (const viewport of VIEWPORTS) {
       await walk(engineName, viewport, base);
+      await walk(engineName, viewport, base, true);
     }
     for (const viewport of VIEWPORTS.filter((v) =>
       ['desktop', 'phone'].includes(v.name)

@@ -17,6 +17,8 @@ const { base, page, errors, until, finish } = await openChatApp(
   }
 );
 
+// E2E_REDUCED_EFFECTS=1: the setting is forced on before the first page.
+const forced = process.env.E2E_REDUCED_EFFECTS === '1';
 const effects = () =>
   page.evaluate(() => document.documentElement.dataset.effects);
 const blur = (selector) =>
@@ -39,8 +41,16 @@ await finish(async () => {
   // Default on a normal machine: full effects, the glass blurs.
   await page.goto(`${base}/`);
   await page.waitForSelector('.topbar.glass', { timeout: 10000 });
-  await until(async () => (await effects()) === 'full', 'full by default');
-  assert((await blur('.topbar.glass')) !== 'none', 'glass blurs by default');
+  if (forced) {
+    // The CI WebKit step starts every context with the setting on
+    // (helpers/e2e-reduced-effects.mjs), so there is no default to see.
+    console.log(
+      '[e2e-visual-effects] full by default: skipped (reduced is forced)'
+    );
+  } else {
+    await until(async () => (await effects()) === 'full', 'full by default');
+    assert((await blur('.topbar.glass')) !== 'none', 'glass blurs by default');
+  }
 
   // The URL forces it for the visit.
   await page.goto(`${base}/?effects=reduced`);

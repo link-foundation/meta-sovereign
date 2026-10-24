@@ -38,6 +38,7 @@ import {
 } from './tutorial-follow.js';
 import { parseConnectionHash } from './connections/hash.js';
 import { startIndex } from './tutorial-start.js';
+import { useClearOfCard } from './tutorial-clear.js';
 
 const el = React.createElement;
 
@@ -114,6 +115,8 @@ export const defaultSteps = [
     id: 'pick',
     connecting: true,
     tutorialId: 'connections:list',
+    // The first service stays clear of the card (R-Z22).
+    mustShow: '[data-tutorial-id="connections:email"]',
     route: { view: 'connections', detail: false },
     completeAt: { view: 'connections', detail: true },
     titleKey: 'tutorial.connections.title',
@@ -720,13 +723,19 @@ const prefersReducedMotion = () =>
 // of the screen — the card goes in that room, above it, never over it.
 const tooTall = (r, room) => r.height > (globalThis.innerHeight ?? 0) - room;
 
+// The sticky header's bottom edge: a tall target's top goes just below
+// it; useClearOfCard then makes room for the card (R-Z22).
+const chromeBottom = () =>
+  globalThis.document?.querySelector('.topbar')?.getBoundingClientRect()
+    .bottom ?? 0;
+
 const inView = (element, room) => {
   const r = element.getBoundingClientRect();
   const height = globalThis.innerHeight ?? 0;
   const width = globalThis.innerWidth ?? 0;
   const across = r.left >= 0 && r.right <= width;
   return tooTall(r, room)
-    ? across && r.top >= room - 1 && r.top <= Math.max(room, height / 2)
+    ? across && r.top >= chromeBottom() - 1 && r.top <= height / 2
     : across && r.top >= 0 && r.bottom <= height;
 };
 
@@ -766,7 +775,7 @@ const useRevealTarget = (stepId, element, room = 0) => {
         tries === 0 && !prefersReducedMotion() ? 'smooth' : 'auto';
       const r = element.getBoundingClientRect();
       if (tooTall(r, room)) {
-        globalThis.scrollBy?.({ top: r.top - room, behavior });
+        globalThis.scrollBy?.({ top: r.top - chromeBottom(), behavior });
       } else {
         element.scrollIntoView?.({
           block: 'nearest',
@@ -791,6 +800,8 @@ const useRevealTarget = (stepId, element, room = 0) => {
 // Focus follows the tour once the user is in it. When the tour opens
 // by itself on page load (nothing focused yet), the first step leaves
 // focus alone so the skip link stays the first Tab stop.
+const FOCUS_RETRY_MS = [120, 350, 800];
+
 const useDialogFocus = (cardRef, stepId, visible) => {
   const doc = globalThis.document;
   const opened = useRef(null);
@@ -807,10 +818,31 @@ const useDialogFocus = (cardRef, stepId, visible) => {
   );
   useEffect(() => {
     if (!visible || stepId === opened.current.quietStep) {
-      return;
+      return undefined;
     }
     opened.current.quietStep = null;
-    cardRef.current?.focus?.({ preventScroll: true });
+    const grab = () => cardRef.current?.focus?.({ preventScroll: true });
+    grab();
+    // The page may take focus back a moment later (a view that focuses
+    // its composer as it mounts, a renderer that was still painting):
+    // grab it again, for a short while, until the user acts (R-Z22).
+    let acted = false;
+    const onAct = () => {
+      acted = true;
+    };
+    const events = ['keydown', 'pointerdown', 'mousedown', 'touchstart'];
+    events.forEach((name) => doc?.addEventListener(name, onAct, true));
+    const timers = FOCUS_RETRY_MS.map((delay) =>
+      globalThis.setTimeout(() => {
+        if (!acted && doc?.activeElement !== cardRef.current) {
+          grab();
+        }
+      }, delay)
+    );
+    return () => {
+      timers.forEach((timer) => globalThis.clearTimeout(timer));
+      events.forEach((name) => doc?.removeEventListener(name, onAct, true));
+    };
   }, [stepId, visible]);
 };
 
@@ -871,6 +903,7 @@ const Step = ({
   side,
   follow,
   arrowStyle,
+  compact = false,
 }) => {
   const t = useT();
   const titleId = `tutorial-step-${step.id}`;
@@ -886,6 +919,7 @@ const Step = ({
       'data-tutorial-step': step.id,
       'data-side': side,
       'data-follow': follow,
+      'data-compact': compact ? 'true' : undefined,
       tabIndex: -1,
       style,
     },
@@ -1182,6 +1216,15 @@ const TutorialLayer = ({
   const layout = cardLayout({ placed, cardSize, waiting });
   useDialogFocus(cardRef, step.id, layout.side !== 'pending');
   useDockSpace(dockSpace(layout, cardSize));
+  const compact = useClearOfCard({
+    cardRef,
+    element,
+    stepId: step.id,
+    placed: layout,
+    cardSize,
+    viewportOf: viewportSize,
+    mustShow: step.mustShow,
+  });
   return el(
     'div',
     {
@@ -1212,6 +1255,7 @@ const TutorialLayer = ({
         side: layout.side,
         follow: layout.mode,
         arrowStyle: layout.arrowStyle,
+        compact,
       }),
     ]
   );

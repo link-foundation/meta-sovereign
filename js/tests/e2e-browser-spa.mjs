@@ -787,6 +787,25 @@ const stepConnectionsCredentialRoundtrip = async ({
 
 const stepSkipLink = async ({ page, base }) => {
   await page.goto(base, { waitUntil: 'load' });
+  // Wait for the app to have rendered and run its first effects (they set
+  // <html data-effects>), with the skip link still in the page and focus
+  // still on the document; a Tab before that races hydration.
+  await page.waitForFunction(
+    () =>
+      document.documentElement.dataset.effects &&
+      document.querySelector('a.skip-link') &&
+      (!document.activeElement ||
+        document.activeElement === document.body ||
+        document.activeElement === document.documentElement)
+  );
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        globalThis.requestAnimationFrame(() =>
+          globalThis.requestAnimationFrame(resolve)
+        )
+      )
+  );
   // WebKit only Tabs to links with Option held ("Press Tab to highlight
   // each item"); the other engines Tab to links by default.
   await page.keyboard.press(

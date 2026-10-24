@@ -12622,7 +12622,12 @@ audio.remote-player {
 :root[data-effects='reduced'] *::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
+  /* 0s, not 0.01ms: the default transition-property is `all`, so any
+     non-zero duration turns every colour change (the theme switch at
+     load) into a transition, and axe read light text on a dark fill
+     (R-Z22). */
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
 }
 :root[data-effects='reduced'] {
   --surface-glass-bg: var(--bg-elev);
@@ -12636,4 +12641,11 @@ audio.remote-player {
   box-shadow:
     0 0 0 4px rgba(0, 0, 0, 0.5),
     0 0 0 3px rgba(102, 178, 255, 1);
+}
+
+/* The card collapses to its title and buttons when its target cannot be
+   scrolled clear of it (R-Z22). */
+.tutorial-overlay .tutorial-step[data-compact='true'] .tutorial-body,
+.tutorial-overlay .tutorial-step[data-compact='true'] .tutorial-examples {
+  display: none;
 }

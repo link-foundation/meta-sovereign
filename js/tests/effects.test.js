@@ -148,3 +148,17 @@ test('settling waits for load and idle, with a timeout fallback', async () => {
   });
   assert.equal(delay, 2000);
 });
+
+test('reduced effects switch transitions off, never to a sliver (R-Z22)', async () => {
+  // A 0.01ms duration still transitions `all`: the theme switch at load
+  // was caught half-way (light text on a dark fill) by axe in WebKit.
+  const { readFile } = await import('node:fs/promises');
+  const css = await readFile(
+    new URL('../src/web/app.css', import.meta.url),
+    'utf8'
+  );
+  const start = css.indexOf(":root[data-effects='reduced'] *::after {");
+  const rule = css.slice(start, css.indexOf('}', start));
+  assert.match(rule, /transition-duration: 0s !important/);
+  assert.doesNotMatch(rule, /transition-duration: 0\.01ms/);
+});
