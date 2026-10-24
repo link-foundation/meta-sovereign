@@ -369,6 +369,9 @@ jobs:
       # `pages` has its own WebKit half; the dedicated WebKit step below
       # runs the :webkit scripts, so skip the duplicate inside `pages`.
       E2E_SAFARI: '0'
+      # Scripts that loop over engines (the tutorial) stay on chromium here;
+      # their WebKit half runs in the non-gating step below.
+      E2E_ENGINES: chromium
     steps:
       - uses: actions/checkout@v7
 
@@ -426,6 +429,12 @@ jobs:
             fi
             echo "::endgroup::"
           done
+          echo "::group::test:e2e:tutorial (webkit)"
+          if ! E2E_ENGINES=webkit npm run --silent test:e2e:tutorial; then
+            failed+=("tutorial")
+            echo "::warning::test:e2e:tutorial (webkit) failed"
+          fi
+          echo "::endgroup::"
           if [ "${#failed[@]}" -gt 0 ]; then
             echo "Failed WebKit e2e scripts: ${failed[*]}"
             exit 1
