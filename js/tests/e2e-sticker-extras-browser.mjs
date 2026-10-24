@@ -381,9 +381,14 @@ const colonSteps = async () => {
   await box().click();
   await page.keyboard.type('say :ca');
   await strip.waitFor({ timeout: 5000 });
-  const items = await strip
-    .locator('[data-emoji-suggest]')
-    .evaluateAll((all) => all.map((b) => b.dataset.emojiSuggest));
+  // The strip appears at ":c" and narrows as the next keys land; read it
+  // only once ":ca" has settled (the cat comes first), not mid-typing.
+  const read = () =>
+    strip
+      .locator('[data-emoji-suggest]')
+      .evaluateAll((all) => all.map((b) => b.dataset.emojiSuggest));
+  await until(async () => (await read())[0] === '🐈', 'ca suggestions settled');
+  const items = await read();
   assert(items[0] === '🐈' && items.includes('🐱'), `suggested: ${items}`);
   assert(items.includes('🥕'), 'the words it begins');
   // Tab puts the first in place of ":ca".

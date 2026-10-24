@@ -24,7 +24,11 @@ const failed = (error) => ({
 });
 
 const useEditor = ({ api, tick, refresh, setNotice, confirm, t }) => {
-  const [automations] = useLoaded(() => api.automations(), [api, tick], null);
+  const [automations, , loadError] = useLoaded(
+    () => api.automations(),
+    [api, tick],
+    null
+  );
   const [base, setBase] = useState(null);
   const [form, setForm] = useState(null);
   const [error, setError] = useState(null);
@@ -67,7 +71,9 @@ const useEditor = ({ api, tick, refresh, setNotice, confirm, t }) => {
     refresh();
   };
   return {
-    loading: automations === null,
+    loading: automations === null && !loadError,
+    loadError: automations === null ? loadError : null,
+    retryLoad: refresh,
     list,
     current: base,
     form,

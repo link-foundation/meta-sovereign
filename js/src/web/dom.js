@@ -3,6 +3,7 @@
 // (see ./client.js): it tries the discovered server first, and falls
 // back to the local browser store when offline.
 
+import { reportApiFailure } from './api-errors.js';
 import { LOCKED_EVENT } from './passcode.js';
 import { migrateBrowserStore } from '../storage/migrations/browser-runner.js';
 import {
@@ -266,6 +267,16 @@ const serverFetch = async (path, init) => {
   // otherwise `{error: 'unknown route'}` would reach the screens as
   // if it were data.
   if (!response?.ok) {
+    if (response) {
+      // Logged once per distinct error, never shown for a read (R-Z12).
+      const data = await response.json().catch(() => null);
+      reportApiFailure({
+        path,
+        method: init?.method ?? 'GET',
+        status: response.status,
+        data,
+      });
+    }
     return null;
   }
   return response.json().catch(() => null);
@@ -291,6 +302,8 @@ const serverPostReport = async (path, body, options) => {
   if (!data || data.error === 'unknown route') {
     return null;
   }
+  // A refusal is logged and toasted for the user's action (R-Z12).
+  reportApiFailure({ path, method: 'POST', status: response.status, data });
   return { ...data, httpStatus: response.status };
 };
 

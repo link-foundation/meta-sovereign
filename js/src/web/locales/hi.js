@@ -1059,4 +1059,30 @@ export const hi = {
   /* ---- R-Z17 ---- */
   'schema.tooNew':
     'ये डेटा ऐप के नए संस्करण ने सहेजा था। इनका उपयोग जारी रखने के लिए ऐप अपडेट करें।',
+  /* ---- R-Z12 ---- */
+  'error.load': 'यह सूची लोड नहीं हो सकी।',
+  'error.retry': 'फिर कोशिश करें',
+  'settings.saveFailed': 'सहेजा नहीं जा सका: {error}',
+  'error.code.unknown': 'कुछ गड़बड़ हो गई',
+  'error.code.bad-host': 'स्थानीय सर्वर ने इस पेज का पता अस्वीकार कर दिया',
+  'error.code.too-large': 'भेजने के लिए यह बहुत बड़ा है',
+  'error.code.bad-json': 'अनुरोध बिगड़ा हुआ था और लागू नहीं हुआ',
+  'error.code.internal': 'स्थानीय सर्वर में आंतरिक त्रुटि हुई',
+  'error.code.send-unknown':
+    'पता नहीं कि यह भेजा गया या नहीं — दोबारा कोशिश से पहले चैट देखें',
+  'error.code.unsupported': 'यहाँ समर्थित नहीं है',
+  'error.code.unsupported-chat': 'इस चैट में समर्थित नहीं है',
+  'error.code.captcha':
+    'नेटवर्क कैप्चा माँग रहा है — पहले आधिकारिक ऐप में उसे पूरा करें',
+  'error.code.LOW_DISK': 'डिस्क लगभग भरी है — कुछ सहेजा नहीं गया',
+  'error.code.STORE_WRITE_FAILED':
+    'स्टोर डिस्क पर नहीं लिख सका — कुछ सहेजा नहीं गया',
+  'error.code.STORE_FULL': 'डिस्क भरी है — कुछ सहेजा नहीं गया',
+  'error.code.STORE_LOCKED': 'स्टोर किसी दूसरी चल रही प्रति ने लॉक कर रखा है',
+  'error.code.outbox-unavailable':
+    'भेजने का लॉग उपलब्ध नहीं है, इसलिए कुछ नहीं भेजा गया',
+  'error.code.send-in-doubt':
+    'पिछला संदेश शायद जा चुका है — उसे दोहराया नहीं गया',
+  'error.code.timeout': 'अनुरोध का समय समाप्त हो गया',
+  'error.code.network': 'स्थानीय सर्वर से कोई उत्तर नहीं',
 };

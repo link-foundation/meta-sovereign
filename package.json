@@ -343,7 +343,9 @@
     "test:e2e:private-call": "node js/tests/e2e-private-call-browser.mjs",
     "test:e2e:private-call:webkit": "E2E_BROWSER=webkit node js/tests/e2e-private-call-browser.mjs",
     "test:e2e:whatsapp-signin": "node js/tests/e2e-whatsapp-signin-browser.mjs",
-    "test:e2e:whatsapp-signin:webkit": "E2E_BROWSER=webkit node js/tests/e2e-whatsapp-signin-browser.mjs"
+    "test:e2e:whatsapp-signin:webkit": "E2E_BROWSER=webkit node js/tests/e2e-whatsapp-signin-browser.mjs",
+    "test:e2e:consistency": "node js/tests/e2e-consistency-browser.mjs",
+    "test:e2e:consistency:webkit": "E2E_BROWSER=webkit node js/tests/e2e-consistency-browser.mjs"
   },
   "keywords": [
     "personal-crm",

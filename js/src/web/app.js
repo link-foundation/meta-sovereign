@@ -26,6 +26,8 @@ import { useAppearance, useApplyAppearance } from './appearance.js';
 import { WebModeBanner } from './web-mode-banner.js';
 import { DiskBanner } from './disk-banner.js';
 import { SchemaBanner } from './schema-banner.js';
+import { ApiErrorToast } from './api-errors.js';
+import { installDialogFocus } from './dialog-focus.js';
 import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
 import { ModeBadge } from './telegram-online.js';
@@ -207,6 +209,7 @@ const App = () => {
           [
             el(DiskBanner, { key: 'disk', api }),
             el(SchemaBanner, { key: 'schema', api }),
+            el(ApiErrorToast, { key: 'api-error' }),
             el(WebModeBanner, {
               key: 'web-mode',
               online,
@@ -257,4 +260,5 @@ const Root = () => {
 
 const mount = document.getElementById('app');
 installClientLog({ send: api.clientLog });
+installDialogFocus();
 createRoot(mount).render(el(Root));

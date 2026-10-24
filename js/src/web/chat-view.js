@@ -36,6 +36,7 @@ import {
   useSavedTags,
 } from './chat-saved-tags.js';
 import React, { useCallback, useRef, useState } from 'react';
+import { LoadError } from './api-errors.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
@@ -697,6 +698,16 @@ const ChatLoading = ({ t }) =>
     el('section', { key: 'main', className: 'chat-main' }),
   ]);
 
+// The skeleton while the list loads; why and a retry button if it cannot (R-Z12).
+const ChatLoadingOrError = ({ t, state }) =>
+  state.loadError
+    ? el(LoadError, {
+        error: state.loadError,
+        retry: state.retryLoad,
+        what: 'chat',
+      })
+    : el(ChatLoading, { t });
+
 /** No network, the local server restarting, Telegram reconnecting. */
 const ConnectionBanner = ({ banner }) => {
   const t = useT();
@@ -1183,7 +1194,7 @@ export const ChatScreen = ({ state, api }) => {
   const [help, setHelp] = useState(false);
   useScreenShortcuts({ state, select, setPane, setHelp });
   if (state.loading) {
-    return el(ChatLoading, { t });
+    return el(ChatLoadingOrError, { t, state });
   }
   if (state.total === 0) {
     // Connected but nothing synced yet: say so, never "connect" again.

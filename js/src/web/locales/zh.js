@@ -1023,4 +1023,25 @@ export const zh = {
 
   /* ---- R-Z17 ---- */
   'schema.tooNew': '这些数据由更新版本的应用保存。请更新应用以继续使用。',
+  /* ---- R-Z12 ---- */
+  'error.load': '无法加载此列表。',
+  'error.retry': '重试',
+  'settings.saveFailed': '无法保存：{error}',
+  'error.code.unknown': '出错了',
+  'error.code.bad-host': '本地服务器拒绝了此页面的地址',
+  'error.code.too-large': '内容太大，无法发送',
+  'error.code.bad-json': '请求格式错误，未被应用',
+  'error.code.internal': '本地服务器发生内部错误',
+  'error.code.send-unknown': '不确定是否已发送 — 重试前请先查看聊天',
+  'error.code.unsupported': '此处不支持',
+  'error.code.unsupported-chat': '此聊天不支持',
+  'error.code.captcha': '网络要求验证码 — 请先在官方应用中完成',
+  'error.code.LOW_DISK': '磁盘几乎已满 — 未保存任何内容',
+  'error.code.STORE_WRITE_FAILED': '存储无法写入磁盘 — 未保存任何内容',
+  'error.code.STORE_FULL': '磁盘已满 — 未保存任何内容',
+  'error.code.STORE_LOCKED': '存储被另一个正在运行的副本锁定',
+  'error.code.outbox-unavailable': '发送日志不可用，因此未发送任何内容',
+  'error.code.send-in-doubt': '上一次发送可能已送出 — 未重复发送',
+  'error.code.timeout': '请求超时',
+  'error.code.network': '本地服务器没有响应',
 };

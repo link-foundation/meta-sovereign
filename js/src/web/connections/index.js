@@ -179,8 +179,9 @@ const ProviderCredentialsForm = ({
   // new object on every render, which used to wipe "Saved." at once.
   const initialKey = JSON.stringify(initialValues ?? {});
   useEffect(() => {
+    // The status stays: saving changes the saved values, and wiping the
+    // "Saved." that announces it made the e2e (R-O13) race the refresh.
     setValues(initialValues);
-    setStatus('');
   }, [initialKey]);
 
   const fields = provider.apiCredentials?.fields ?? [];
@@ -188,18 +189,26 @@ const ProviderCredentialsForm = ({
   const save = async () => {
     setStatus(working(t('settings.saving')));
     let saved = 0;
-    for (const field of fields) {
-      const value = values[field.id] ?? '';
-      if (value.length === 0) {
-        continue;
+    try {
+      for (const field of fields) {
+        const value = values[field.id] ?? '';
+        if (value.length === 0) {
+          continue;
+        }
+        await api.put({
+          id: field.secretId,
+          tokens: ['secret', providerId, field.id],
+          value,
+          updated: new Date().toISOString(),
+        });
+        saved += 1;
       }
-      await api.put({
-        id: field.secretId,
-        tokens: ['secret', providerId, field.id],
-        value,
-        updated: new Date().toISOString(),
-      });
-      saved += 1;
+    } catch (error) {
+      // Never "Saving..." forever, never a silent half-save (R-Z12).
+      setStatus(
+        t('settings.saveFailed', { error: String(error?.message ?? error) })
+      );
+      return;
     }
     setStatus(t('settings.saved'));
     if (saved > 0) {

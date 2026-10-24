@@ -4,6 +4,7 @@
 // flows through the injected `api` (./dom.js in the SPA), so the screen
 // renders in tests with a fake one.
 
+import { logOnce } from './api-errors.js';
 import {
   useCallback,
   useEffect,
@@ -103,19 +104,30 @@ const useInterval = (fn, ms, deps) => {
 /** Load once per `deps`, ignoring answers that arrive after a change. */
 export const useLoaded = (load, deps, initial) => {
   const [value, setValue] = useState(initial);
+  const [error, setError] = useState(null); // R-Z12: never a silent hang
   useEffect(() => {
     let live = true;
     Promise.resolve()
       .then(load)
       .then(
-        (next) => live && next !== undefined && setValue(next),
-        () => {}
+        (next) => {
+          if (live) {
+            setError(null);
+            if (next !== undefined) {
+              setValue(next);
+            }
+          }
+        },
+        (failure) => {
+          logOnce('load', failure);
+          live && setError(failure);
+        }
       );
     return () => {
       live = false;
     };
   }, deps);
-  return [value, setValue];
+  return [value, setValue, error];
 };
 
 const NO_SUBSCRIBE = () => () => {};
@@ -949,7 +961,7 @@ export const useChatState = (
 ) => {
   const [tick, setTick] = useState(0);
   const refresh = () => setTick((n) => n + 1);
-  const { links, live, add } = useLiveLinks(api, tick, refresh);
+  const { links, live, add, failed, retry } = useLiveLinks(api, tick, refresh);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState('');
   const [notice, setNotice] = useState(null);
@@ -1026,6 +1038,8 @@ export const useChatState = (
   useExportFeed(links);
   return {
     loading: links === null,
+    loadError: links === null ? failed : null,
+    retryLoad: retry,
     live,
     banner,
     telegram,

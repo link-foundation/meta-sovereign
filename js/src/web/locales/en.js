@@ -1063,4 +1063,30 @@ export const en = {
   /* ---- R-Z17 ---- */
   'schema.tooNew':
     'This data was saved by a newer version of the app. Update the app to keep using it.',
+  /* ---- R-Z12 ---- */
+  'error.load': 'Could not load this list.',
+  'error.retry': 'Try again',
+  'settings.saveFailed': 'Could not save: {error}',
+  'error.code.unknown': 'Something went wrong',
+  'error.code.bad-host': "The local server refused this page's address",
+  'error.code.too-large': 'That is too large to send',
+  'error.code.bad-json': 'The request was malformed and was not applied',
+  'error.code.internal': 'The local server hit an internal error',
+  'error.code.send-unknown':
+    'It is not known whether this was sent — check the chat before trying again',
+  'error.code.unsupported': 'Not supported here',
+  'error.code.unsupported-chat': 'Not supported in this chat',
+  'error.code.captcha':
+    'The network asks for a captcha — complete it in the official app first',
+  'error.code.LOW_DISK': 'The disk is almost full — nothing was saved',
+  'error.code.STORE_WRITE_FAILED':
+    'The store could not write to disk — nothing was saved',
+  'error.code.STORE_FULL': 'The disk is full — nothing was saved',
+  'error.code.STORE_LOCKED': 'The store is locked by another running copy',
+  'error.code.outbox-unavailable':
+    'The send log is unavailable, so nothing was sent',
+  'error.code.send-in-doubt':
+    'A previous send may have gone out — it was not repeated',
+  'error.code.timeout': 'The request timed out',
+  'error.code.network': 'No answer from the local server',
 };

@@ -462,7 +462,21 @@ const stepBackupRestore = async ({ base }) => {
 };
 
 const stepThemeToggle = async ({ page }) => {
+  const before = await page.evaluate(
+    () => document.documentElement.dataset.theme
+  );
   await page.click('button[data-action="theme-toggle"]');
+  // <html data-theme> is applied in an effect after the click, so reading
+  // it at once saw the old value and then raced the reload. Wait for the
+  // flip and for the stored choice, then reload.
+  await page.waitForFunction(
+    (was) =>
+      document.documentElement.dataset.theme !== was &&
+      window.localStorage.getItem('metaSovereignTheme') ===
+        document.documentElement.dataset.theme,
+    before,
+    { timeout: 5000 }
+  );
   const after = await page.evaluate(
     () => document.documentElement.dataset.theme
   );
@@ -471,6 +485,12 @@ const stepThemeToggle = async ({ page }) => {
     `theme toggle: data-theme=${after}`
   );
   await page.reload({ waitUntil: 'load' });
+  // The app sets data-theme once React has mounted, after the load event.
+  await page.waitForFunction(
+    () => document.documentElement.dataset.theme !== undefined,
+    undefined,
+    { timeout: 5000 }
+  );
   const persisted = await page.evaluate(
     () => document.documentElement.dataset.theme
   );
@@ -690,6 +710,16 @@ const stepConnectionsCredentialRoundtrip = async ({
     { timeout: 5000 }
   );
 
+  // R-O13 / R-Z12: "Saved." stays after the saved values refresh the form
+  // (it used to be wiped at once, so this step raced the refresh).
+  await page.waitForTimeout(800);
+  assert(
+    await page.$eval('section[data-provider="telegram"]', (card) =>
+      /Saved\./.test(card.textContent)
+    ),
+    'connections: "Saved." vanished after the refresh'
+  );
+
   // Browser saves go through the offline-first SPA client, so verify
   // with the same client API instead of the server's /links endpoint.
   // The bundle exposes the api as window.__msApi (see app.js).
@@ -757,7 +787,11 @@ const stepConnectionsCredentialRoundtrip = async ({
 
 const stepSkipLink = async ({ page, base }) => {
   await page.goto(base, { waitUntil: 'load' });
-  await page.keyboard.press('Tab');
+  // WebKit only Tabs to links with Option held ("Press Tab to highlight
+  // each item"); the other engines Tab to links by default.
+  await page.keyboard.press(
+    process.env.E2E_BROWSER === 'webkit' ? 'Alt+Tab' : 'Tab'
+  );
   const focused = await page.evaluate(() => {
     const el = document.activeElement;
     if (!el) {

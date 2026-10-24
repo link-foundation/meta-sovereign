@@ -9,6 +9,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
+import { errorText } from '../api-errors.js';
 
 const el = React.createElement;
 const POLL_MS = 2000;
@@ -60,7 +61,11 @@ export const WhatsAppWebPanel = () => {
     try {
       const next = await api.whatsappWeb(action);
       if (next?.error) {
-        setError(t('whatsapp.web.failed', { error: next.error }));
+        setError(
+          t('whatsapp.web.failed', {
+            error: errorText(t, next.code, next.error),
+          })
+        );
       } else {
         setStatus(next);
       }

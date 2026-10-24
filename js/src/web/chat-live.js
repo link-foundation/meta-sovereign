@@ -15,6 +15,7 @@
 //     Telegram chat's draft follows the one on the user's other devices.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { logOnce } from './api-errors.js';
 import {
   DRAFTS_KEY,
   OUTBOX_KEY,
@@ -65,6 +66,7 @@ export const useLiveLinks = (api, tick, refresh) => {
   const [links, setLinks] = useState(null);
   const [retry, setRetry] = useState(0);
   const [live, setLive] = useState(false);
+  const [failed, setFailed] = useState(null); // why no list yet (R-Z12)
   const during = useRef(null); // events seen while a load runs
   const buffer = useRef([]);
   const timer = useRef(null);
@@ -81,6 +83,7 @@ export const useLiveLinks = (api, tick, refresh) => {
       .then(
         (next) => {
           if (current && next !== undefined) {
+            setFailed(null);
             setLinks(applyLinkEvents(next, seen));
           }
         },
@@ -88,6 +91,8 @@ export const useLiveLinks = (api, tick, refresh) => {
           if (!current) {
             return;
           }
+          logOnce('chat list', error);
+          setFailed(String(error?.message ?? error ?? 'failed'));
           // Nothing shown yet: what this browser holds, until the server
           // answers; a list already shown stays as it is.
           if (Array.isArray(error?.local)) {
@@ -170,7 +175,7 @@ export const useLiveLinks = (api, tick, refresh) => {
     },
     [flush]
   );
-  return { links, live, add };
+  return { links, live, add, failed, retry: () => setRetry((n) => n + 1) };
 };
 
 let counter = 0;

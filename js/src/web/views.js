@@ -10,6 +10,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { LoadError, logOnce } from './api-errors.js';
 import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { networkName } from './connection-guides.js';
@@ -35,6 +36,7 @@ const useAsyncValue = (loader, deps, initialValue) => {
     value: initialValue,
   });
   const loaded = useRef(false);
+  const [again, setAgain] = useState(0);
   useEffect(() => {
     let cancelled = false;
     // A reload keeps what is shown until the new answer: no flash.
@@ -51,6 +53,7 @@ const useAsyncValue = (loader, deps, initialValue) => {
           }
         },
         (error) => {
+          logOnce('view', error);
           if (!cancelled) {
             setState({
               loading: false,
@@ -63,21 +66,24 @@ const useAsyncValue = (loader, deps, initialValue) => {
     return () => {
       cancelled = true;
     };
-  }, deps);
-  return state;
+  }, [...deps, again]);
+  return {
+    ...state,
+    retry: () => {
+      loaded.current = false;
+      setAgain((n) => n + 1);
+    },
+  };
 };
 
 const Loading = () => el(PageLoading);
-
-const ErrorMessage = ({ error }) =>
-  error ? el('pre', { role: 'alert' }, String(error.message ?? error)) : null;
 
 const AsyncFrame = ({ state, children }) => {
   if (state.loading) {
     return el(Loading);
   }
   if (state.error) {
-    return el(ErrorMessage, { error: state.error });
+    return el(LoadError, { error: state.error, retry: state.retry });
   }
   return children(state.value);
 };

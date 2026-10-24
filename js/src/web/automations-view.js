@@ -8,6 +8,7 @@
 // out; people can be searched, picked and run on directly.
 
 import React from 'react';
+import { LoadError } from './api-errors.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useT } from './i18n.js';
 import { Notice, reasonText } from './notice.js';
@@ -956,9 +957,19 @@ export const AutomationsScreen = ({ state }) => {
       dismiss: state.dismiss,
     }),
     el('div', { key: 'b', className: 'automations-body' }, [
-      editor.loading
-        ? el(Busy, { key: 'l' }, t('common.loading'))
-        : el(AutomationList, { key: 'l', editor, autopilot: state.autopilot }),
+      editor.loadError
+        ? el(LoadError, {
+            key: 'l',
+            error: editor.loadError,
+            retry: editor.retryLoad,
+          })
+        : editor.loading
+          ? el(Busy, { key: 'l' }, t('common.loading'))
+          : el(AutomationList, {
+              key: 'l',
+              editor,
+              autopilot: state.autopilot,
+            }),
       el('div', { key: 'e', className: 'col' }, [
         editor.form
           ? el(Editor, { key: 'ed', state })

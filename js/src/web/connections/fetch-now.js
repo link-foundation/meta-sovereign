@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { api } from '../dom.js';
 import { useT } from '../i18n.js';
+import { errorText } from '../api-errors.js';
 import { Busy } from '../spinner.js';
 
 const el = React.createElement;
@@ -33,7 +34,9 @@ export const pullMessage = (t, answer) => {
   }
   return {
     tone: 'error',
-    text: t('pull.failed', { error: answer?.error ?? answer?.code ?? '?' }),
+    text: t('pull.failed', {
+      error: errorText(t, answer?.code, answer?.error ?? answer?.code ?? '?'),
+    }),
   };
 };
 

@@ -12531,3 +12531,28 @@ a.remote-chip:hover {
   text-transform: none;
   text-decoration: underline;
 }
+
+/* A list that could not load, with a retry button (R-Z12). */
+.load-error {
+  margin: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--bg-elev);
+}
+
+/* The error toast floats above any open dialog so a refusal is never hidden. */
+.api-error-toast {
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10001;
+  max-width: min(36rem, calc(100vw - 2rem));
+  margin: 0;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 25%);
+}
+main[data-view='chat'] > .api-error-toast {
+  margin: 0;
+}
