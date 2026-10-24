@@ -16,6 +16,16 @@ import { GAP, intersects } from './tutorial-placement.js';
 
 const ATTEMPT_DELAYS_MS = [0, 250, 700];
 const RESIZE_DEBOUNCE_MS = 60;
+const GESTURE_MS = 150;
+const PRESS_EVENTS = ['pointerdown', 'mousedown', 'touchstart'];
+const RELEASE_EVENTS = [
+  'pointerup',
+  'pointercancel',
+  'mouseup',
+  'touchend',
+  'touchcancel',
+];
+const KEY_EVENTS = ['keydown', 'wheel'];
 
 const boxOf = (node) => {
   const r = node.getBoundingClientRect();
@@ -52,11 +62,15 @@ export const placedClear = (target, card, band, viewport) => {
   return target.top >= band.top - 2 && target.top <= band.top + size / 4;
 };
 
-const scrollInto = (element, band, viewport, block) => {
+// The scrolling port is the whole window, including the strip a phone's
+// bottom navigation covers (`viewport.height` leaves that strip out).
+const screenHeight = () => globalThis.innerHeight ?? 0;
+
+const scrollInto = (element, band, block) => {
   const style = element.style;
   const saved = [style.scrollMarginTop, style.scrollMarginBottom];
   style.scrollMarginTop = `${Math.max(0, band.top)}px`;
-  style.scrollMarginBottom = `${Math.max(0, viewport.height - band.bottom)}px`;
+  style.scrollMarginBottom = `${Math.max(0, screenHeight() - band.bottom)}px`;
   try {
     element.scrollIntoView?.({ block, inline: 'nearest', behavior: 'auto' });
   } finally {
@@ -83,9 +97,9 @@ export const clearOnce = (element, cardNode, viewport, mustShow = '') => {
   }
   const target = boxOf(element);
   const fits = target.height <= band.bottom - band.top;
-  scrollInto(element, band, viewport, fits ? 'nearest' : 'start');
+  scrollInto(element, band, fits ? 'nearest' : 'start');
   if (control && !ok()) {
-    scrollInto(control, band, viewport, 'nearest');
+    scrollInto(control, band, 'nearest');
   }
   return ok() ? 'scrolled' : 'stuck';
 };
@@ -116,7 +130,35 @@ export const useClearOfCard = ({
     ) {
       return undefined;
     }
+    // While the user is acting (a button held down, a key, the wheel)
+    // the page is theirs: a scroll now could move the control from
+    // under the click. The check waits for the gesture to end.
+    let busyUntil = 0;
+    let waiting = 0;
+    let pressed = false;
+    const onPress = () => {
+      pressed = true;
+    };
+    const onRelease = () => {
+      pressed = false;
+    };
+    const onKey = () => {
+      busyUntil = Date.now() + GESTURE_MS;
+    };
+    const listeners = [
+      ...PRESS_EVENTS.map((name) => [name, onPress]),
+      ...RELEASE_EVENTS.map((name) => [name, onRelease]),
+      ...KEY_EVENTS.map((name) => [name, onKey]),
+    ];
+    const doc = globalThis.document;
+    listeners.forEach(([name, fn]) => doc.addEventListener(name, fn, true));
     const check = (final) => {
+      const wait = pressed ? GESTURE_MS : busyUntil - Date.now();
+      if (wait > 0) {
+        globalThis.clearTimeout(waiting);
+        waiting = globalThis.setTimeout(() => check(final), wait + 20);
+        return;
+      }
       const result =
         element.isConnected && node.isConnected
           ? clearOnce(element, node, viewportOf(), mustShow)
@@ -137,6 +179,7 @@ export const useClearOfCard = ({
     const observer = Observer
       ? new Observer(() => {
           globalThis.clearTimeout(late);
+          globalThis.clearTimeout(waiting);
           late = globalThis.setTimeout(() => check(true), RESIZE_DEBOUNCE_MS);
         })
       : null;
@@ -145,6 +188,9 @@ export const useClearOfCard = ({
       timers.forEach((timer) => globalThis.clearTimeout(timer));
       globalThis.clearTimeout(late);
       observer?.disconnect();
+      listeners.forEach(([name, fn]) =>
+        doc.removeEventListener(name, fn, true)
+      );
     };
   }, [stepId, element, key, cardSize?.height, compact]);
   return compact;
