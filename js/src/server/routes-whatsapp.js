@@ -6,16 +6,19 @@
  *   POST /api/whatsapp/web/close       -> closes it
  *   POST /api/whatsapp/archive {name, data(base64)}
  *                                      -> imports an "Export chat" .txt or .zip
+ *                                         (a zip's photos/videos/files are kept in media/whatsapp, R-Z15)
  *
  * The sign-in window is for the person to scan the QR code themselves
  * (see ../sources/whatsapp-web-signin.js); these routes never touch it.
  */
 
+import path from 'node:path';
 import { json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { safeMessage } from './redact.js';
 import { createWhatsAppWebSignIn } from '../sources/whatsapp-web-signin.js';
 import { importWhatsAppFile } from '../sources/whatsapp-file.js';
+import { isFatalWrite } from '../sources/archive/context.js';
 
 const PREFIX = '/api/whatsapp/';
 
@@ -43,7 +46,7 @@ const failure = (res, error) =>
     code: error.code ?? 'internal',
   });
 
-const archiveRoute = async (store, req, res) => {
+const archiveRoute = async (store, req, res, ctx) => {
   const body = await readBody(req, { limit: 64 * 1024 * 1024 });
   const bytes = Buffer.from(String(body.data ?? ''), 'base64');
   if (bytes.length === 0 || typeof body.name !== 'string') {
@@ -53,9 +56,21 @@ const archiveRoute = async (store, req, res) => {
     });
   }
   try {
-    return reply(res, 200, await importWhatsAppFile(store, body.name, bytes));
+    // Media files of a zip are kept next to the store (R-Z15).
+    const mediaDir = ctx?.storeDir ? path.join(ctx.storeDir, 'media') : null;
+    return reply(
+      res,
+      200,
+      await importWhatsAppFile(store, body.name, bytes, { mediaDir })
+    );
   } catch (error) {
-    return reply(res, 400, { error: safeMessage(error), code: 'bad-archive' });
+    // A full or unwritable disk is not a bad file (R-Z14).
+    return isFatalWrite(error)
+      ? reply(res, 507, {
+          error: safeMessage(error),
+          code: 'store-write-failed',
+        })
+      : reply(res, 400, { error: safeMessage(error), code: 'bad-archive' });
   }
 };
 
@@ -94,7 +109,7 @@ export const handleWhatsAppRoutes = async (store, req, res, p, ctx) => {
     });
   }
   if (isArchive) {
-    return req.method === 'POST' ? archiveRoute(store, req, res) : false;
+    return req.method === 'POST' ? archiveRoute(store, req, res, ctx) : false;
   }
   const expected = route === 'web' ? 'GET' : 'POST';
   return req.method === expected

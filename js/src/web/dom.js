@@ -1334,6 +1334,12 @@ const rawApi = {
     return scopedUrl(origin ? new URL(path, origin).toString() : path);
   },
 
+  // An imported archive file's address (R-Z15): `/api/media/<network>/<file>`.
+  archiveMediaUrl: async (path) => {
+    const { origin } = await ensure();
+    return scopedUrl(origin ? new URL(path, origin).toString() : path);
+  },
+
   // Fetch new mail from the saved connection (R-Z5): { ok, imported, … }
   // or { ok: false, error, code }.
   emailPull: async (body = {}) =>

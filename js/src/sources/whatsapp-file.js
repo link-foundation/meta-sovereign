@@ -1,12 +1,20 @@
 /**
- * Import one WhatsApp "Export chat" file that arrived as bytes (R-Z9):
- * the `.txt`, or the `.zip` of an export with media. The text is parsed
- * by ./whatsapp-archive.js; the zip's other entries are only used to map
- * `<attached: ...>` names to files inside the zip (the media bytes are
- * not copied into the store).
+ * Import one WhatsApp "Export chat" file that arrived as bytes (R-Z9,
+ * R-Z15): the `.txt`, or the `.zip` of an export with media. The text is
+ * parsed by ./whatsapp-archive.js. A zip is written to a private temp file
+ * and read with the streaming reader (./archive/zip-file.js); each file
+ * the chat names (`<attached: f>`, `f (file attached)`) is copied into
+ * `<store>/media/whatsapp/<sha256>.<ext>` (0600) and the attachment gets
+ * `path`, `sha256` and `size`, so the page can show it. Without a
+ * `mediaDir` the names are mapped but no bytes are kept.
  */
 
-import { readZipEntries } from './auto-import/archive.js';
+import { promises as fs } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { createArchiveContext } from './archive/context.js';
+import { mediaSaver } from './archive/media-store.js';
+import { openZipFile } from './archive/zip-file.js';
 import { getSource, stampSourceLink } from './index.js';
 
 const ZIP_LOCAL_HEADER = 0x04034b50;
@@ -19,23 +27,88 @@ const textEntry = (entries) =>
   entries.find((e) => /(^|\/)_chat\.txt$/i.test(e.name)) ??
   entries.find((e) => /\.txt$/i.test(e.name));
 
-export const importWhatsAppFile = async (store, name, bytes) => {
-  let archive = { text: bytes.toString('utf8'), fileName: name, files: [] };
-  if (isZip(name, bytes)) {
-    const entries = readZipEntries(bytes);
-    const chat = textEntry(entries);
-    if (!chat) {
-      throw new Error('no chat .txt found in this zip');
+// Copy each attachment's file into media/ and say where it went.
+const withMedia = async (links, ctx, counts) => {
+  const out = [];
+  for (const link of links) {
+    const attachments = [];
+    for (const attachment of link.attachments ?? []) {
+      const copy = attachment.file ? await ctx.media(attachment.file) : null;
+      counts[copy ? 'saved' : 'missing'] += attachment.omitted ? 0 : 1;
+      attachments.push(
+        copy
+          ? {
+              ...attachment,
+              path: copy.path,
+              sha256: copy.sha256,
+              size: copy.size,
+            }
+          : attachment
+      );
     }
-    archive = {
-      text: chat.read().toString('utf8'),
-      fileName: /whatsapp/i.test(chat.name) ? chat.name : name,
-      files: entries.map((e) => e.name),
-    };
+    out.push(attachments.length ? { ...link, attachments } : link);
   }
-  const links = await getSource('whatsapp').parseArchive(archive);
+  return out;
+};
+
+const readZip = async (name, bytes, mediaDir) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-whatsapp-'));
+  const file = path.join(dir, 'export.zip');
+  try {
+    await fs.writeFile(file, bytes, { mode: 0o600 });
+    const zip = await openZipFile(file);
+    try {
+      const chat = textEntry(zip.entries);
+      if (!chat) {
+        throw new Error('no chat .txt found in this zip');
+      }
+      const archive = {
+        text: (await chat.read()).toString('utf8'),
+        fileName: /whatsapp/i.test(chat.name) ? chat.name : name,
+        files: zip.entries.map((e) => e.name),
+      };
+      const ctx = createArchiveContext({
+        network: 'whatsapp',
+        entries: zip.entries,
+        save: mediaDir ? mediaSaver(mediaDir) : null,
+      });
+      const counts = { saved: 0, missing: 0 };
+      const links = await withMedia(
+        await getSource('whatsapp').parseArchive(archive),
+        ctx,
+        counts
+      );
+      return { links, media: { ...counts, warnings: ctx.warnings } };
+    } finally {
+      await zip.close();
+    }
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+};
+
+export const importWhatsAppFile = async (
+  store,
+  name,
+  bytes,
+  { mediaDir = null } = {}
+) => {
+  const { links, media } = isZip(name, bytes)
+    ? await readZip(name, bytes, mediaDir)
+    : {
+        links: await getSource('whatsapp').parseArchive({
+          text: bytes.toString('utf8'),
+          fileName: name,
+          files: [],
+        }),
+        media: null,
+      };
   for (const link of links) {
     await store.put(stampSourceLink(link, 'whatsapp'));
   }
-  return { imported: links.length, chat: links[0]?.chat ?? null };
+  return {
+    imported: links.length,
+    chat: links[0]?.chat ?? null,
+    ...(media ? { media } : {}),
+  };
 };

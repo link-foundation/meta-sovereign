@@ -12556,3 +12556,14 @@ a.remote-chip:hover {
 main[data-view='chat'] > .api-error-toast {
   margin: 0;
 }
+
+/* R-Z15: attachments of imported archive messages (pictures, players,
+   file chips, "media not imported"). */
+.archive-media audio,
+.archive-media video {
+  max-width: 100%;
+}
+.remote-chip.is-missing {
+  color: var(--text-muted);
+  border-style: dashed;
+}

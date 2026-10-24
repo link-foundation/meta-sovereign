@@ -8,6 +8,7 @@
 // code copied — the algorithm is Telegram's own spec).
 
 import { parsePoll, parseTodo } from './poll-parts.js';
+import { archiveItem } from './archive-media-model.js';
 import { quoteRichText, richOf } from './rich-message-model.js';
 import { richServiceWords } from './rich-service-model.js';
 import { inTopicOnly } from './forum-topics.js';
@@ -683,7 +684,12 @@ const parseReactions = (raw, link) =>
         .map((r) => ({ emoticon: r.reaction.emoticon, count: r.count ?? 1 }))
     : (Array.isArray(link?.reactions) ? link.reactions : [])
         .filter((r) => r?.emoji)
-        .map((r) => ({ emoticon: r.emoji, count: r.count ?? 1 }));
+        .map((r) => ({
+          emoticon: r.emoji,
+          count: r.count ?? 1,
+          // Who reacted, when the import kept it (R-Z15).
+          by: Array.isArray(r.by) ? r.by.map(String) : [],
+        }));
 
 // A label for an attachment that is not a file (a place, a contact…).
 const ATTACHMENT_LABELS = {
@@ -704,6 +710,22 @@ const remoteMedia = (list) => ({
     ...a,
     label: ATTACHMENT_LABELS[a.kind]?.(a) ?? a.name ?? a.title ?? null,
   })),
+});
+
+// Imported archives keep their files in media/ (R-Z15): all attachments
+// of such a message are drawn together (./chat-archive-media.js).
+const ARCHIVE_SOURCES = new Set([
+  'facebook',
+  'instagram',
+  'x',
+  'linkedin',
+  'whatsapp',
+]);
+
+const archiveMedia = (list) => ({
+  kind: 'archive',
+  type: list[0].kind ?? 'file',
+  items: list.map(archiveItem),
 });
 
 // One attachment as a link or a file.
@@ -734,12 +756,16 @@ const singleAttachmentMedia = (a) => {
  * attachments together as `remote` (all of them), else the first one as a
  * link or a file.
  */
-export const attachmentMedia = (attachments) => {
+export const attachmentMedia = (attachments, source = null) => {
+  const archive = ARCHIVE_SOURCES.has(source);
   const list = (Array.isArray(attachments) ? attachments : []).filter(
-    (a) => a?.kind
+    (a) => a?.kind || (archive && a?.type)
   );
   if (list.length === 0) {
     return null;
+  }
+  if (archive) {
+    return archiveMedia(list);
   }
   return list.length > 1 || REMOTE_KINDS.has(list[0].kind)
     ? remoteMedia(list)
@@ -751,6 +777,11 @@ export const attachmentMedia = (attachments) => {
 const bodyOf = (link, rich) =>
   typeof link?.body === 'string' && !rich && !link.bodyTree ? link.body : '';
 
+const linkMedia = (link) =>
+  link?.source === 'email'
+    ? null
+    : attachmentMedia(link?.attachments, link?.source);
+
 /**
  * Parse a message link into all display parts.
  *
@@ -761,9 +792,7 @@ const bodyOf = (link, rich) =>
 export const parseMessageParts = (link, msgById = new Map()) => {
   const raw = link?.raw ?? {};
   // A mail lists its attachments itself (chat-email-body.js).
-  const media =
-    parseMedia(raw) ??
-    (link?.source === 'email' ? null : attachmentMedia(link?.attachments));
+  const media = parseMedia(raw) ?? linkMedia(link);
   const rich = richOf(raw);
   const body = bodyOf(link, rich);
   return {

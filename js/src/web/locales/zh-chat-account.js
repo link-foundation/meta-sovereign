@@ -410,4 +410,8 @@ export const zhChatAccount = {
   'automations.audiences.synced':
     '已从 {networks} 个网络读取 {members} 名成员。',
   'automations.audiences.syncFailed': '无法读取成员，请重试。',
+  // Imported archive media (R-Z15).
+  'chat.archive.notImported': '媒体未导入：{name}',
+  'chat.archive.notImportedShort': '媒体未导入',
+  'chat.archive.save': '保存 {name}',
 };

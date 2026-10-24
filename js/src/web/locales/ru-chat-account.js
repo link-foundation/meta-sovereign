@@ -471,4 +471,8 @@ export const ruChatAccount = {
     'Прочитано участников: {members}, сетей: {networks}.',
   'automations.audiences.syncFailed':
     'Не удалось прочитать участников. Попробуйте ещё раз.',
+  // Imported archive media (R-Z15).
+  'chat.archive.notImported': 'Медиа не импортировано: {name}',
+  'chat.archive.notImportedShort': 'Медиа не импортировано',
+  'chat.archive.save': 'Сохранить {name}',
 };

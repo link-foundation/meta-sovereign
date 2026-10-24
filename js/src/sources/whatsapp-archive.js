@@ -154,6 +154,11 @@ const KINDS = [
 const kindOf = (name) =>
   KINDS.find(([, re]) => re.test(name))?.[0] ?? 'document';
 
+// The page's network-neutral attachment kinds (R-Z15); `type` stays as
+// stored by R-Z9 so earlier imports and later ones read alike.
+const PAGE_KIND = { image: 'photo', document: 'file', contact: 'file' };
+const pageKind = (type) => PAGE_KIND[type] ?? type;
+
 const lookupFile = (files, name) => {
   const base = (f) => String(f).split(/[\\/]/).pop();
   return (
@@ -169,7 +174,13 @@ const mediaOf = (body, files) => {
   const line = first.trim();
   if (OMITTED.test(line)) {
     return {
-      attachment: { type: 'media', name: null, file: null, omitted: true },
+      attachment: {
+        type: 'media',
+        kind: 'file',
+        name: null,
+        file: null,
+        omitted: true,
+      },
       caption: more.join('\n').trim(),
     };
   }
@@ -179,8 +190,9 @@ const mediaOf = (body, files) => {
     return null;
   }
   const file = lookupFile(files, name);
+  const type = kindOf(name);
   return {
-    attachment: { type: kindOf(name), name, file, omitted: false },
+    attachment: { type, kind: pageKind(type), name, file, omitted: false },
     caption: more.join('\n').trim(),
   };
 };

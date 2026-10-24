@@ -4,7 +4,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, mkdtempSync, existsSync } from 'node:fs';
-import { deflateRawSync } from 'node:zlib';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -16,6 +15,7 @@ import {
   chatNameFromFile,
   toE164,
 } from '../src/sources/whatsapp-ids.js';
+import { zipOf } from './helpers/zip-fixture.js';
 import { importWhatsAppFile } from '../src/sources/whatsapp-file.js';
 import { createWhatsAppWebSignIn } from '../src/sources/whatsapp-web-signin.js';
 import {
@@ -100,6 +100,7 @@ test('iOS 24-hour: BOM, direction marks, dots, attached file', async () => {
   assert.equal(links[0].timestamp, local(2026, 10, 25, 14, 32, 11));
   assert.deepEqual(links[1].attachments[0], {
     type: 'image',
+    kind: 'photo',
     name: '00000012-PHOTO-2026-10-25-14-33-00.jpg',
     file: '00000012-PHOTO-2026-10-25-14-33-00.jpg',
     omitted: false,
@@ -161,41 +162,6 @@ test('chat ids: E.164 number, group JID, hash of the name only as a fallback', (
   assert.notEqual(archiveChatId('Anna'), archiveChatId('Bob'));
   assert.equal(chatNameFromFile('_chat.txt'), null);
 });
-
-// A stored-entries zip, enough for readZipEntries.
-const zipOf = (entries) => {
-  const locals = [];
-  const centrals = [];
-  let offset = 0;
-  for (const [name, data, method = 0] of entries) {
-    const raw = Buffer.from(data);
-    const body = method === 8 ? deflateRawSync(raw) : raw;
-    const nameBuf = Buffer.from(name);
-    const local = Buffer.alloc(30);
-    local.writeUInt32LE(0x04034b50, 0);
-    local.writeUInt16LE(method, 8);
-    local.writeUInt32LE(body.length, 18);
-    local.writeUInt32LE(raw.length, 22);
-    local.writeUInt16LE(nameBuf.length, 26);
-    const central = Buffer.alloc(46);
-    central.writeUInt32LE(0x02014b50, 0);
-    central.writeUInt16LE(method, 10);
-    central.writeUInt32LE(body.length, 20);
-    central.writeUInt32LE(raw.length, 24);
-    central.writeUInt16LE(nameBuf.length, 28);
-    central.writeUInt32LE(offset, 42);
-    locals.push(local, nameBuf, body);
-    centrals.push(central, nameBuf);
-    offset += 30 + nameBuf.length + body.length;
-  }
-  const centralBuf = Buffer.concat(centrals);
-  const end = Buffer.alloc(22);
-  end.writeUInt32LE(0x06054b50, 0);
-  end.writeUInt16LE(entries.length, 10);
-  end.writeUInt32LE(centralBuf.length, 12);
-  end.writeUInt32LE(offset, 16);
-  return Buffer.concat([...locals, centralBuf, end]);
-};
 
 test('a zip export: chat named after the zip, media names map to entries', async () => {
   const store = createMemoryStore();

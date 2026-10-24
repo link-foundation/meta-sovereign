@@ -39,6 +39,7 @@
  *   POST /api/email/pull           -> local-server email API/protocol proxy
  *   POST /api/email/send           -> local-server email send proxy
  *   GET  /api/email/attachment     -> a mail attachment from the media folder (routes-email.js)
+ *   GET  /api/media/<network>/<sha256>[.ext] -> imported archive media (routes-media.js, R-Z15)
  *   GET  /api/backups              -> list archives (gated on archiveDir)
  *   POST /api/backups              -> { passphrase?, keep? } -> { file }
  *   POST /api/backups/restore      -> { file, passphrase? } -> { restored }
@@ -95,6 +96,7 @@ import { profileDirIn } from '../sources/whatsapp-web-signin.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
 import { handleEmailGets } from './routes-email.js';
+import { handleMediaGets } from './routes-media.js';
 import { createAttachmentStore } from './email-attachments.js';
 import { createEmailPoller } from './email-poller.js';
 import { setAttachmentSink } from '../sources/email.js';
@@ -586,6 +588,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => handleTelegramRoutes(req, res, p, ctx),
     () => handleMessageRoutes(store, req, res, p, url, ctx),
     () => handleEmailGets(store, req, res, p, url, ctx),
+    () => handleMediaGets(req, res, p, ctx),
     () => handleDeletedRoutes(store, req, res, p, url, ctx),
     () => handleAudienceSyncRoute(store, req, res, p, ctx),
     () => handleChatRoutes(req, res, p, url, ctx),

@@ -446,4 +446,8 @@ export const enChatAccount = {
     '{members} members read from {networks} networks.',
   'automations.audiences.syncFailed':
     'The members could not be read. Try again.',
+  // Imported archive media (R-Z15).
+  'chat.archive.notImported': 'Media not imported: {name}',
+  'chat.archive.notImportedShort': 'Media not imported',
+  'chat.archive.save': 'Save {name}',
 };

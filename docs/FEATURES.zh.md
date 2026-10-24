@@ -8,10 +8,10 @@ Telegram 是参照网络，其矩阵在下方。其他每个网络都有自己�
 | -------------------- | -------------------------------------------------------------- | ------ | -------- | ------ | -------- |
 | Telegram（本页）     | 下方                                                           | —      | —        | —      | —        |
 | VK                   | [features/vk.zh.md](./features/vk.zh.md)                       | 30     | 22       | 36     | 5        |
-| WhatsApp             | [features/whatsapp.zh.md](./features/whatsapp.zh.md)           | 6      | 26       | 28     | 8        |
+| WhatsApp             | [features/whatsapp.zh.md](./features/whatsapp.zh.md)           | 6      | 28       | 26     | 8        |
 | Facebook + Instagram | [features/facebook.zh.md](./features/facebook.zh.md)           | 6      | 37       | 26     | 1        |
 | X                    | [features/x.zh.md](./features/x.zh.md)                         | 8      | 22       | 23     | 5        |
-| LinkedIn             | [features/linkedin.zh.md](./features/linkedin.zh.md)           | 6      | 17       | 27     | 3        |
+| LinkedIn             | [features/linkedin.zh.md](./features/linkedin.zh.md)           | 6      | 18       | 26     | 3        |
 | Email                | [features/email.zh.md](./features/email.zh.md)                 | 29     | 23       | 25     | 3        |
 | GitHub               | [features/github.zh.md](./features/github.zh.md)               | 22     | 16       | 26     | 2        |
 | Upwork               | [features/upwork.zh.md](./features/upwork.zh.md)               | 5      | 21       | 18     | 1        |

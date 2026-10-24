@@ -292,7 +292,11 @@ const Reactions = ({ reactions, paid, api, chat, msgId }) => {
       ...(reactions ?? []).map((r) =>
         el(
           'span',
-          { key: r.emoticon, className: 'bubble-reaction' },
+          {
+            key: r.emoticon,
+            className: 'bubble-reaction',
+            title: r.by?.length ? r.by.join(', ') : undefined,
+          },
           `${r.emoticon} ${r.count}`
         )
       ),

@@ -450,4 +450,8 @@ export const hiChatAccount = {
   'automations.audiences.synced':
     '{networks} नेटवर्क से {members} सदस्य पढ़े गए।',
   'automations.audiences.syncFailed': 'सदस्य नहीं पढ़े जा सके। फिर कोशिश करें।',
+  // Imported archive media (R-Z15).
+  'chat.archive.notImported': 'मीडिया आयात नहीं हुआ: {name}',
+  'chat.archive.notImportedShort': 'मीडिया आयात नहीं हुआ',
+  'chat.archive.save': '{name} सहेजें',
 };
