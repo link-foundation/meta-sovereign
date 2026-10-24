@@ -352,7 +352,7 @@ export const PersonPanel = ({
         el(NotifyRow, { key: 'nr', api, chat }),
         el(PeerActions, { key: 'pa', api, chat, info }),
         // A contact's note, photo and suggested birthday (R-Y217).
-        el(ContactExtras, { key: 'ce', api, chat, info }),
+        el(ContactExtras, { key: `ce:${chat.chat}`, api, chat, info }),
         el(CommonChatsRow, { key: 'cc', api, chat, info, onOpenChat }),
         // The channel's direct messages (R-Y191).
         el(ChannelDmRow, { key: 'dm', api, chat, info }),

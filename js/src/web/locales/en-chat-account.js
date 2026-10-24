@@ -681,4 +681,10 @@ export const enChatAccount = {
   'chat.security.err.passkey-invalid': 'Telegram did not accept this passkey.',
   'chat.security.err.reset-wait':
     'A reset was declined recently. Try again later.',
+  'chat.security.err.send-unknown':
+    'No answer came from Telegram. It may have been done: check before trying again.',
+  'chat.contactExtras.err.send-unknown':
+    'No answer came from Telegram. It may have been done: check before trying again.',
+  'chat.passkeys.err.origin':
+    "The browser refused: Telegram's passkeys belong to Telegram's own web address, which this app's address is not. Add the passkey in an official Telegram app.",
 };

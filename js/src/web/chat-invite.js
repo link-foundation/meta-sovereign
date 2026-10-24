@@ -34,7 +34,7 @@ export const inviteHashOf = (href) => {
   for (const pattern of PATTERNS) {
     const found = pattern.exec(value);
     // t.me/+<digits> is a phone number (R-Y217), not an invite.
-    if (found && !/^\d{8,15}$/.test(found[1])) {
+    if (found && !/^\d{5,15}$/.test(found[1])) {
       return found[1];
     }
   }

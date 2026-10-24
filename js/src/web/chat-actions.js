@@ -476,6 +476,37 @@ const unpinAll = (send, list) => {
   }
 };
 
+// What the menu reads of the selection.
+const menuSelection = (selection, flags) => ({
+  ids: selection.ids,
+  has: selection.has,
+  ...flags,
+});
+
+// The hooks of the features that act on a message: bot buttons, mini
+// apps, comments, readers, game scores, translation, GIFs, music, reports.
+const useFeatureHooks = ({ state, api, copy, selection }) => ({
+  // A bot's buttons under its message (R-Y110).
+  bots: useBotPress({ state, api, copy }),
+  // A bot's mini app, over the chat (R-Y168).
+  webApp: useWebAppHost({ api, state }),
+  // A post's comments, a message's thread (R-Y126).
+  comments: useComments({ api }),
+  // Who read, who reacted (R-Y127); a post's statistics (R-Y195).
+  readers: useReadersWithStats({ api, info: state.info }),
+  games: useGameScores({ api }),
+  // A message translated in a box (R-Y132).
+  translate: useTranslate({ api }),
+  // Save GIF / Remove from GIFs on a GIF message (R-Y171).
+  gifs: useSavedGifs({ api, state }),
+  // "Add to profile music" on a song message (R-Y185).
+  saveMusic: useMusicSave({ api, state }),
+  // Other people's messages reported (R-Y175).
+  report: useReport({ api, chat: state.current, onDone: selection.clear }),
+  // "Block user" in the Replies chat (R-Y217).
+  blockReplies: useBlockFromReplies({ api }),
+});
+
 /**
  * The open chat's message actions: `{ selection, onAction(action,
  * message, value), menuFor(message, { selectedText, target }), top,
@@ -483,7 +514,6 @@ const unpinAll = (send, list) => {
  * composer's (Up edits the last own message, Ctrl/Cmd+Up and Down move
  * the reply), `dialogs` the open delete or forward dialog.
  */
-// eslint-disable-next-line max-lines-per-function -- over by 3 lines after the R-Y217 merge; to be split in the follow-up pass
 export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
   const selection = useSelection(state.current?.key ?? null);
   const [deleting, setDeleting] = useState(null);
@@ -499,29 +529,18 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
     choose: setForwarding,
   });
   const copy = useCopy(state);
-  // A bot's buttons under its message (R-Y110).
-  const bots = useBotPress({ state, api, copy });
-  // A bot's mini app, over the chat (R-Y168).
-  const webApp = useWebAppHost({ api, state });
-  // A post's comments, a message's thread (R-Y126).
-  const comments = useComments({ api });
-  // Who read, who reacted (R-Y127); a post's statistics (R-Y195).
-  const readers = useReadersWithStats({ api, info: state.info });
-  const games = useGameScores({ api });
-  // A message translated in a box (R-Y132).
-  const translate = useTranslate({ api });
-  // Save GIF / Remove from GIFs on a GIF message (R-Y171).
-  const gifs = useSavedGifs({ api, state });
-  // "Add to profile music" on a song message (R-Y185).
-  const saveMusic = useMusicSave({ api, state });
-  // Other people's messages reported (R-Y175).
-  const report = useReport({
-    api,
-    chat: state.current,
-    onDone: selection.clear,
-  });
-  // "Block user" in the Replies chat (R-Y217).
-  const blockReplies = useBlockFromReplies({ api });
+  const {
+    bots,
+    webApp,
+    comments,
+    readers,
+    games,
+    translate,
+    gifs,
+    saveMusic,
+    report,
+    blockReplies,
+  } = useFeatureHooks({ state, api, copy, selection });
   const messages = state.messages ?? [];
   // As the chat draws them: an album is one row, chosen with its items.
   const rows = groupAlbums(messages);
@@ -614,14 +633,10 @@ export const useChatActions = ({ state, api, t, locale, selfName = null }) => {
       selectedText,
       target,
       gifs: gifs.ids,
-      selection: {
-        ids: selection.ids,
-        has: selection.has,
-        canForward,
-        canCopy: !lockedAny,
-        canReport: top.canReport,
+      selection: menuSelection(selection, {
+        ...{ canForward, canCopy: !lockedAny, canReport: top.canReport },
         anyPinned: chosen().some((m) => m.raw?.pinned),
-      },
+      }),
       order,
     });
 

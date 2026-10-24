@@ -682,4 +682,10 @@ export const hiChatAccount = {
   'chat.security.err.passkey-invalid': 'Telegram ने यह पासकी स्वीकार नहीं की।',
   'chat.security.err.reset-wait':
     'हाल ही में रीसेट अस्वीकार किया गया था। बाद में फिर कोशिश करें।',
+  'chat.security.err.send-unknown':
+    'Telegram से कोई उत्तर नहीं आया। हो सकता है कि यह हो चुका हो: दोबारा कोशिश करने से पहले जाँच लें।',
+  'chat.contactExtras.err.send-unknown':
+    'Telegram से कोई उत्तर नहीं आया। हो सकता है कि यह हो चुका हो: दोबारा कोशिश करने से पहले जाँच लें।',
+  'chat.passkeys.err.origin':
+    'ब्राउज़र ने मना कर दिया: Telegram की passkeys Telegram के अपने वेब पते से जुड़ी होती हैं, जो इस ऐप का पता नहीं है। passkey को आधिकारिक Telegram ऐप में जोड़ें।',
 };

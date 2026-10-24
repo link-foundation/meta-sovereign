@@ -24,6 +24,7 @@
  */
 
 import { connected, failureOf, runIn } from './telegram-stickers.js';
+import { writeFailureOf } from './telegram-write-outcome.js';
 import { uploadedFile } from './telegram-chat-edit.js';
 import { validBirthday } from './telegram-profile-extras.js';
 import { inputUserOf } from './telegram-peer-actions.js';
@@ -45,6 +46,7 @@ const CODES = {
   FLOOD_WAIT: 'flood',
 };
 const failure = failureOf(CODES);
+const writeFailure = writeFailureOf(CODES);
 const bad = (code) => ({ ok: false, error: code, code });
 
 export const USER = /^\d{1,20}$/;
@@ -102,7 +104,7 @@ const setNote =
     if (!USER.test(chat) || note === null || note.length > NOTE_MAX) {
       return bad('bad-request');
     }
-    return connected(env, userClient, failure, async (c) => {
+    return connected(env, userClient, writeFailure, async (c) => {
       await withUser(env, c, chat, 'contact-note', (id) =>
         c.client.invoke(
           new c.Api.contacts.UpdateContactNote({ id, note: notePage(c, note) })
@@ -185,7 +187,9 @@ const setPhoto =
       if (!USER.test(chat) || !MODES.includes(body.mode)) {
         return bad('bad-request');
       }
-      return await connected(env, userClient, failure, async (c) => {
+      return await connected(env, userClient, writeFailure, async (conn) => {
+        // uploadedFile reads the importer from `c.env`.
+        const c = { ...conn, env };
         const sent = await withUser(
           env,
           c,
@@ -214,7 +218,7 @@ const suggestBirthday =
     if (!USER.test(chat) || !validBirthday({ day, month, year })) {
       return bad('birthday-invalid');
     }
-    return connected(env, userClient, failure, async (c) => {
+    return connected(env, userClient, writeFailure, async (c) => {
       await withUser(env, c, chat, 'contact-birthday', (id) =>
         c.client.invoke(
           new c.Api.users.SuggestBirthday({
@@ -240,7 +244,7 @@ const savedCount = (env, userClient) => async () =>
   });
 
 const savedReset = (env, userClient) => async () =>
-  connected(env, userClient, failure, async (c) => {
+  connected(env, userClient, writeFailure, async (c) => {
     await runIn(env, 'contacts:saved-reset', () =>
       c.client.invoke(new c.Api.contacts.ResetSaved())
     );
@@ -257,7 +261,7 @@ const blockReplies =
     ) {
       return bad('bad-request');
     }
-    return connected(env, userClient, failure, async (c) => {
+    return connected(env, userClient, writeFailure, async (c) => {
       await runIn(env, 'block-from-replies', () =>
         c.client.invoke(
           new c.Api.contacts.BlockFromReplies({

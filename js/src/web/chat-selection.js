@@ -196,8 +196,20 @@ const gifItem = (message, gifs) => {
 // A game's high scores (R-Y190).
 const gameItems = (message) => (hasGameScores(message) ? ['gameScores'] : []);
 
+// The end of the menu: forward, delete, report, Block user in the Replies
+// chat (R-Y217), who read it, Select and the read time.
+const tailItems = (message, chat, info) => [
+  'forward',
+  'delete',
+  canReport(message, chat) && 'report',
+  canBlockFromReplies(message, chat) && 'blockSender',
+  ...whoItems(message, chat, info),
+  'select',
+  // "Read at 14:05", a line, not an action (R-Y189).
+  hasReadTime(message, chat, info) && 'readTime',
+];
+
 // The menu with nothing selected.
-/* eslint-disable complexity -- one over after the R-Y217 merge; split in the follow-up pass */
 const singleItems = ({
   message,
   chat,
@@ -229,17 +241,9 @@ const singleItems = ({
     linkItem({ message, chat, info, target }),
     hasTranslation(message) && 'translate',
     hasSummary(message) && 'summarize',
-    'forward',
-    'delete',
-    canReport(message, chat) && 'report',
-    canBlockFromReplies(message, chat) && 'blockSender',
-    ...whoItems(message, chat, info),
-    'select',
-    // "Read at 14:05", a line, not an action (R-Y189).
-    hasReadTime(message, chat, info) && 'readTime',
+    ...tailItems(message, chat, info),
   ];
 };
-/* eslint-enable complexity */
 
 // Who read it and who reacted (R-Y127); a channel post's statistics
 // (R-Y195).

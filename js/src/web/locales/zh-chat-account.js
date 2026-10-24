@@ -624,4 +624,10 @@ export const zhChatAccount = {
   'chat.security.err.no-reset': '没有可取消的重置请求。',
   'chat.security.err.passkey-invalid': 'Telegram 未接受此通行密钥。',
   'chat.security.err.reset-wait': '最近的重置被取消了。请稍后重试。',
+  'chat.security.err.send-unknown':
+    'Telegram 没有回应。操作可能已经完成：请先查看，再决定是否重试。',
+  'chat.contactExtras.err.send-unknown':
+    'Telegram 没有回应。操作可能已经完成：请先查看，再决定是否重试。',
+  'chat.passkeys.err.origin':
+    '浏览器拒绝了：Telegram 的通行密钥属于 Telegram 自己的网址，而本应用的网址不是它。请在官方 Telegram 应用中添加通行密钥。',
 };

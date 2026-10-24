@@ -703,4 +703,10 @@ export const ruChatAccount = {
   'chat.security.err.no-reset': 'Нет запроса на сброс, который можно отменить.',
   'chat.security.err.passkey-invalid': 'Telegram не принял этот ключ доступа.',
   'chat.security.err.reset-wait': 'Недавно сброс был отменён. Повторите позже.',
+  'chat.security.err.send-unknown':
+    'Telegram не ответил. Возможно, это уже сделано: проверьте, прежде чем повторять.',
+  'chat.contactExtras.err.send-unknown':
+    'Telegram не ответил. Возможно, это уже сделано: проверьте, прежде чем повторять.',
+  'chat.passkeys.err.origin':
+    'Браузер отказал: ключи доступа Telegram привязаны к собственному веб-адресу Telegram, а адрес этого приложения другой. Добавьте ключ в официальном приложении Telegram.',
 };
