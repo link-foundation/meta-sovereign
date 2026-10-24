@@ -1,5 +1,13 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.18
+
+### Patch Changes
+
+- The README, user guide and a rewritten roadmap say who meta-sovereign is for — a person or an organisation represented online, for personal use, sales, marketing and user support — and map each scenario's critical paths to their status and the next steps (R-Z25). A VK community's own reply (Bots Long Poll `message_reply`) is shown as ours and named after the community; the VK matrix and every language's overview counts are brought up to date.
+
+  The passcode file, saved mail attachments and log rotation retry a rename that Windows refuses for a moment (antivirus, the search indexer), as the store already did; a log that stays held keeps being written instead of failing (R-Z19).
+
 ## 0.49.17
 
 ### Patch Changes
