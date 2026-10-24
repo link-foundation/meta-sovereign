@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.13
+
+### Patch Changes
+
+- 73a4c71: The page stays usable when the browser renders slowly (software-rendered WebKit on Linux): a bounded frame-time probe and Settings → Appearance → "Reduce visual effects" (auto/on/off, `?effects=reduced`) set `html[data-effects="reduced"]`, which drops backdrop blur, the tutorial's page-sized dim and non-essential animations; the Linux WebKit e2e step runs with it forced to show whether slow compositing was the cause (R-Z21).
+
 ## 0.49.12
 
 ### Patch Changes
