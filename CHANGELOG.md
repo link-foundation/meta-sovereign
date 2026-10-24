@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.6
+
+### Patch Changes
+
+- 9967f60: Wired the audience-sync and cache-purge jobs, an opt-in backup schedule, one tombstone shape with migration 0006, and Upwork/PeoplePerHour cache docs (R-Z7).
+
 ## 0.49.5
 
 ### Patch Changes
