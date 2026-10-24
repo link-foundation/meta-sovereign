@@ -8,7 +8,9 @@ import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
 import { ChatAvatar } from './chat-list.js';
 import { chatKey } from './chat-model.js';
-import { useEsc } from './chat-invite.js';
+import { isTooMany, useEsc } from './chat-invite.js';
+import { createPortal } from 'react-dom';
+import { InactiveChannels } from './chat-channel-limit.js';
 
 const el = React.createElement;
 
@@ -97,6 +99,17 @@ export const Preview = ({ api, item, onJoined, onClose }) => {
             'p',
             { key: 'e', className: 'invite-error', role: 'alert' },
             errorText(t, state.code)
+          )
+        : null,
+      // The channel limit: inactive channels to leave, in the page's body (R-Y216).
+      isTooMany(state.code)
+        ? createPortal(
+            el(InactiveChannels, {
+              key: 'limit',
+              api,
+              onClose: () => setState({ busy: false, code: null }),
+            }),
+            document.body
           )
         : null,
       el('div', { key: 'b', className: 'delete-dialog-btns' }, [

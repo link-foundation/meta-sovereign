@@ -16,6 +16,7 @@ import {
 } from './chat-moderation.js';
 import { AdminsSection, hasAdminSection } from './chat-admins.js';
 import { Frame } from './chat-readers.js';
+import { ManageRows } from './chat-manage.js';
 import { GroupSetRows, useRedrawOn } from './chat-group-stickers.js';
 
 const el = React.createElement;
@@ -197,6 +198,8 @@ const EditDialog = ({ api, chat, info, close }) => {
         : null,
       // The group's sticker set and emoji pack (R-Y211).
       el(GroupSetRows, { key: 'gs', api, chat, info }),
+      // Channel type, appearance and deletion (R-Y216).
+      el(ManageRows, { key: 'mg', api, chat, info, leave: close }),
       // Administrators and the history for new members (R-Y204).
       el(AdminsSection, { key: 'adm', api, chat, info, leave: close }),
     ]

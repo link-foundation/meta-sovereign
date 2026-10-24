@@ -228,7 +228,7 @@ const EmojiChoices = ({ api, t, kind, ids, value, locked, set }) =>
         ),
       ]);
 
-const ColorEditor = ({
+export const ColorEditor = ({
   api,
   t,
   kind,
@@ -313,11 +313,11 @@ const ChannelEditor = ({ t, channels, value, set }) =>
     ]
   );
 
-const sameColor = (a, b) =>
+export const sameColor = (a, b) =>
   (a?.color ?? null) === (b?.color ?? null) &&
   (a?.emoji ?? null) === (b?.emoji ?? null);
 
-const colorBody = (forProfile, value) => ({
+export const colorBody = (forProfile, value) => ({
   forProfile,
   ...(value.color === null ? {} : { color: value.color }),
   ...(value.emoji === null ? {} : { emoji: value.emoji }),

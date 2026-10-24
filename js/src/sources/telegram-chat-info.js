@@ -24,6 +24,7 @@ import { settingsInfo } from './telegram-chat-settings.js';
 import { birthdayOf, colorOf } from './telegram-profile-extras.js';
 import { monoforumInfo } from './telegram-channel-dm-shape.js';
 import { groupStickersInfo } from './telegram-group-extras.js';
+import { statusOf as emojiStatusOf } from './telegram-emoji-status.js';
 import { ALL_ADMIN_RIGHTS } from './telegram-admin-rights.js';
 
 const CHAT = /^-?\d{1,20}$/;
@@ -166,6 +167,20 @@ const usernamesInfo = (entity) => {
     : {};
 };
 
+// A channel's name colour, profile colour and emoji status, for those who
+// may change them (R-Y216): the creator, or an admin with the change-info right.
+const lookInfo = (entity) =>
+  entity.creator || entity.adminRights?.changeInfo
+    ? {
+        canAppearance: true,
+        look: {
+          color: colorOf(entity.color),
+          profileColor: colorOf(entity.profileColor),
+          status: emojiStatusOf(entity.emojiStatus),
+        },
+      }
+    : {};
+
 // What the user may do with administrators and the history new members see
 // (R-Y204): their own rights (the creator has all), who may add admins, and
 // whether the history is hidden from new members.
@@ -288,6 +303,7 @@ const fetchChannel = async (client, Api, inputPeer, peers) => {
     ...wallpaperOf(full),
     ...usernamesInfo(entity),
     ...collectibleOf(entity),
+    ...lookInfo(entity),
     ...inviteOf(entity, full),
     // The group's sticker set and emoji pack (R-Y211).
     ...groupStickersInfo(entity, full),

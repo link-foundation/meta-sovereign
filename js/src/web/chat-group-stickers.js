@@ -204,7 +204,7 @@ const SetDialog = ({ api, chat, kind, current, close }) => {
 
 // The dialog sits in the page's body, and its submit stays its own: Edit's
 // form is the dialog's parent in the React tree, and would take it too.
-const aside = (node) =>
+export const aside = (node) =>
   createPortal(
     el(
       'div',

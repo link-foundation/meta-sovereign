@@ -180,19 +180,27 @@ const Picker = ({ api, t, lists, onSet }) => {
   ]);
 };
 
-/** The picker over the profile card; `onChange(status|null)` after a save. */
-export const EmojiStatusDialog = ({ api, close, onChange }) => {
+/**
+ * The picker over the profile card; `onChange(status|null)` after a save.
+ * With `chat` (a channel's marked id) it sets that channel's status instead,
+ * for anyone who may (boosts decide, not Premium; R-Y216), `current` being
+ * the status it has.
+ */
+export const EmojiStatusDialog = ({ api, close, onChange, chat, current }) => {
   const t = useT();
   const state = useStatuses(api);
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(null); // { current } after a save
   const set = async (documentId, until) => {
-    const answer = await api
-      .telegramEmojiStatusSet({
-        documentId,
-        ...(until === undefined ? {} : { until }),
-      })
-      .catch(() => null);
+    const request = {
+      documentId,
+      ...(until === undefined ? {} : { until }),
+    };
+    const answer = await (
+      chat
+        ? api.telegramChannelEmojiStatus({ chat: String(chat), ...request })
+        : api.telegramEmojiStatusSet(request)
+    ).catch(() => null);
     if (answer?.ok) {
       const next = documentId === null ? null : { id: documentId, until };
       setError(null);
@@ -204,7 +212,11 @@ export const EmojiStatusDialog = ({ api, close, onChange }) => {
   };
   const ready = state.phase === 'ready';
   const lists = ready
-    ? { ...state, ...(saved ? { current: saved.current } : {}) }
+    ? {
+        ...state,
+        ...(chat ? { premium: true, current: current ?? null } : {}),
+        ...(saved ? { current: saved.current } : {}),
+      }
     : null;
   let body;
   if (ready) {

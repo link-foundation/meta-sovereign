@@ -356,6 +356,8 @@
     "test:e2e:whatsapp-signin:webkit": "E2E_BROWSER=webkit node js/tests/e2e-whatsapp-signin-browser.mjs",
     "test:e2e:consistency": "node js/tests/e2e-consistency-browser.mjs",
     "test:e2e:consistency:webkit": "E2E_BROWSER=webkit node js/tests/e2e-consistency-browser.mjs",
+    "test:e2e:channel-manage": "node js/tests/e2e-channel-manage-browser.mjs",
+    "test:e2e:channel-manage:webkit": "E2E_BROWSER=webkit node js/tests/e2e-channel-manage-browser.mjs",
     "test:e2e:storage": "node js/tests/e2e-storage-browser.mjs",
     "test:e2e:storage:webkit": "E2E_BROWSER=webkit node js/tests/e2e-storage-browser.mjs"
   },

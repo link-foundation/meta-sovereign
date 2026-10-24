@@ -520,4 +520,51 @@ export const enChatAccount = {
     'All notification settings, including the exceptions of chats, go back to their defaults.',
   'settings.notifyReset.yes': 'Reset',
   'settings.media.reset': 'Reset to default',
+  'chat.manage.typeChannel': 'Channel type',
+  'chat.manage.typeGroup': 'Group type',
+  'chat.manage.public': 'Public',
+  'chat.manage.private': 'Private',
+  'chat.manage.publicNote':
+    'Anyone can find it in search and join through the public link.',
+  'chat.manage.privateNote': 'People can only join through an invite link.',
+  'chat.manage.link': 'Public link',
+  'chat.manage.checking': 'Checking the link…',
+  'chat.manage.available': '{name} is available.',
+  'chat.manage.crowded':
+    'You have too many public channels. Revoke the link of one of them:',
+  'chat.manage.revoke': 'Revoke link',
+  'chat.manage.deactivate': 'Deactivate all usernames',
+  'chat.manage.deactivateBody':
+    'All collectible usernames of this chat will be deactivated.',
+  'chat.manage.deactivateConfirm': 'Deactivate',
+  'chat.manage.look': 'Appearance',
+  'chat.manage.lookTitle': 'Name color, profile color and emoji status',
+  'chat.manage.deleteChannel': 'Delete channel',
+  'chat.manage.deleteGroup': 'Delete group',
+  'chat.manage.deleteChannelTitle': 'Delete channel {name}?',
+  'chat.manage.deleteGroupTitle': 'Delete group {name}?',
+  'chat.manage.deleteBody':
+    '{name} will be deleted for everyone, with all its messages. This cannot be undone.',
+  'chat.manage.deleteConfirm': 'Delete for everyone',
+  'chat.manage.err.failed': 'Telegram did not accept this. Try again.',
+  'chat.manage.err.invalid':
+    'The link needs 5 to 32 letters, digits or underscores and must start with a letter.',
+  'chat.manage.err.taken': 'This link is already taken.',
+  'chat.manage.err.too-many-public':
+    'You have too many public channels. Revoke one of the links below.',
+  'chat.manage.err.not-admin': 'You may not change this.',
+  'chat.manage.err.no-access': 'This chat is not available.',
+  'chat.manage.err.boosts': 'The channel needs more boosts for this.',
+  'chat.manage.err.flood': 'Too many tries. Wait a little.',
+  'chat.manage.err.too-large':
+    'This chat is too large to delete here. Ask Telegram support.',
+  'chat.limit.title': 'Too many channels',
+  'chat.limit.body':
+    'You have joined the most channels Telegram allows. Leave some inactive ones to join more.',
+  'chat.limit.last': 'Last active {date}',
+  'chat.limit.leave': 'Leave',
+  'chat.limit.empty': 'There are no inactive channels to leave.',
+  'chat.limit.loading': 'Looking for inactive channels…',
+  'chat.limit.err.failed': 'Could not leave the channels. Try again.',
+  'chat.emojiStatus.err.boosts': 'The channel needs more boosts for this.',
 };

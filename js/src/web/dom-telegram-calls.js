@@ -21,6 +21,17 @@ export const TELEGRAM_CALLS = {
   telegramReactionNotifySet: body('reaction-notify-set'),
   telegramNotifyReset: none('notify-reset'),
   telegramAutoDownloadPreset: none('auto-download-preset'),
+  // A channel's public link, colours and emoji status, inactive channels to
+  // leave (R-Y216); deleting a chat is telegramRemoveChat with 'destroy'.
+  telegramChannelUsernameCheck: body('channel-username-check'),
+  telegramChannelUsernameSave: body('channel-username-save'),
+  telegramPublicChannels: none('public-channels'),
+  telegramPublicLinkRevoke: body('public-link-revoke'),
+  telegramUsernamesDeactivate: body('usernames-deactivate'),
+  telegramChannelColorSave: body('channel-color-save'),
+  telegramChannelEmojiStatus: body('channel-emoji-status'),
+  telegramInactiveChannels: none('inactive-channels'),
+  telegramLeaveChannels: body('leave-channels'),
   // Change phone number (the code goes to the new number) and Export
   // Telegram data through a takeout session (R-Y212).
   telegramPhoneChangeSend: body('phone-change-send'),

@@ -12,6 +12,9 @@
  * - `leave` — a basic group: the user leaves it (messages.deleteChatUser)
  *   and its history goes; a supergroup or channel:
  *   channels.leaveChannel.
+ * - `destroy` — the owner deletes a group or channel for everyone
+ *   (channels.deleteChannel, messages.deleteChat; R-Y216), no undo; the
+ *   chat leaves the list like a left one.
  *
  * Telegram deletes history a part at a time (`offset` says there is
  * more); it is asked again until done. The chat's stored messages are
@@ -25,7 +28,12 @@
 import { markDeleted as tombstone } from '../storage/soft-delete.js';
 
 const SOURCE = 'telegram';
-export const REMOVAL_ACTIONS = Object.freeze(['clear', 'delete', 'leave']);
+export const REMOVAL_ACTIONS = Object.freeze([
+  'clear',
+  'delete',
+  'leave',
+  'destroy',
+]);
 const MAX_ROUNDS = 100;
 
 const kindOf = (chat) => {
@@ -42,7 +50,7 @@ export const removalAllowed = (chat, action) => {
   if (action === 'delete') {
     return kind === 'personal';
   }
-  if (action === 'leave') {
+  if (action === 'leave' || action === 'destroy') {
     return kind !== 'personal';
   }
   return action === 'clear';
@@ -84,6 +92,9 @@ export const createChatRemoval = (env, { userClient, apply }) => {
   };
 
   const askChannel = async (client, Api, peer, { action, chat }) => {
+    if (action === 'destroy') {
+      return client.invoke(new Api.channels.DeleteChannel({ channel: peer }));
+    }
     if (action === 'leave') {
       return client.invoke(new Api.channels.LeaveChannel({ channel: peer }));
     }
@@ -100,6 +111,14 @@ export const createChatRemoval = (env, { userClient, apply }) => {
     const kind = kindOf(chat);
     if (kind === 'channel') {
       return askChannel(client, Api, peer, { action, chat });
+    }
+    if (kind === 'group' && action === 'destroy') {
+      const { helpers } = await env.importer();
+      return client.invoke(
+        new Api.messages.DeleteChat({
+          chatId: helpers.returnBigInt(String(chat).slice(1)),
+        })
+      );
     }
     if (kind === 'group' && action === 'leave') {
       const { helpers } = await env.importer();

@@ -33,6 +33,7 @@ import { shouldAutoOpen, useAnyConnection } from './tutorial-start.js';
 import { Icon } from './icons.js';
 import { ModeBadge } from './telegram-online.js';
 import { InviteHost } from './chat-invite.js';
+import { LimitHost } from './chat-channel-limit.js';
 import { ProxyHost } from './settings-proxy.js';
 import { GiftHost } from './chat-gift-unique.js';
 import { useApplyUiScale } from './ui-scale.js';
@@ -224,6 +225,7 @@ const App = () => {
         )
       ),
       el(InviteHost, { key: 'invite-host', api }),
+      el(LimitHost, { key: 'limit-host', api }),
       el(ProxyHost, { key: 'proxy-host', api }),
       // Unique gifts and gift codes, from links and buttons (R-Y193).
       el(GiftHost, { key: 'gift-host', api }),

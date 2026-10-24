@@ -524,4 +524,52 @@ export const hiChatAccount = {
     'चैट के अपवादों सहित सभी सूचना सेटिंग अपने डिफ़ॉल्ट पर लौट जाएँगी।',
   'settings.notifyReset.yes': 'रीसेट करें',
   'settings.media.reset': 'डिफ़ॉल्ट पर रीसेट करें',
+  'chat.manage.typeChannel': 'चैनल का प्रकार',
+  'chat.manage.typeGroup': 'समूह का प्रकार',
+  'chat.manage.public': 'सार्वजनिक',
+  'chat.manage.private': 'निजी',
+  'chat.manage.publicNote':
+    'इसे खोज में पाया जा सकता है और सार्वजनिक लिंक से जुड़ा जा सकता है।',
+  'chat.manage.privateNote': 'लोग केवल आमंत्रण लिंक से जुड़ सकते हैं।',
+  'chat.manage.link': 'सार्वजनिक लिंक',
+  'chat.manage.checking': 'लिंक जाँचा जा रहा है…',
+  'chat.manage.available': '{name} उपलब्ध है।',
+  'chat.manage.crowded':
+    'आपके पास बहुत ज़्यादा सार्वजनिक चैनल हैं। उनमें से किसी एक का लिंक रद्द करें:',
+  'chat.manage.revoke': 'लिंक रद्द करें',
+  'chat.manage.deactivate': 'सभी यूज़रनेम निष्क्रिय करें',
+  'chat.manage.deactivateBody':
+    'इस चैट के सभी संग्रहणीय यूज़रनेम निष्क्रिय कर दिए जाएँगे।',
+  'chat.manage.deactivateConfirm': 'निष्क्रिय करें',
+  'chat.manage.look': 'रूप-रंग',
+  'chat.manage.lookTitle': 'नाम का रंग, प्रोफ़ाइल का रंग और इमोजी स्टेटस',
+  'chat.manage.deleteChannel': 'चैनल हटाएँ',
+  'chat.manage.deleteGroup': 'समूह हटाएँ',
+  'chat.manage.deleteChannelTitle': 'चैनल {name} हटाएँ?',
+  'chat.manage.deleteGroupTitle': 'समूह {name} हटाएँ?',
+  'chat.manage.deleteBody':
+    '{name} सभी के लिए, सभी संदेशों सहित, हटा दिया जाएगा। इसे पूर्ववत नहीं किया जा सकता।',
+  'chat.manage.deleteConfirm': 'सबके लिए हटाएँ',
+  'chat.manage.err.failed':
+    'Telegram ने इसे स्वीकार नहीं किया। फिर कोशिश करें।',
+  'chat.manage.err.invalid':
+    'लिंक में 5 से 32 अक्षर, अंक या अंडरस्कोर हों और वह अक्षर से शुरू हो।',
+  'chat.manage.err.taken': 'यह लिंक पहले से लिया जा चुका है।',
+  'chat.manage.err.too-many-public':
+    'आपके पास बहुत ज़्यादा सार्वजनिक चैनल हैं। नीचे से एक लिंक रद्द करें।',
+  'chat.manage.err.not-admin': 'आप इसे नहीं बदल सकते।',
+  'chat.manage.err.no-access': 'यह चैट उपलब्ध नहीं है।',
+  'chat.manage.err.boosts': 'इसके लिए चैनल को और बूस्ट चाहिए।',
+  'chat.manage.err.flood': 'बहुत ज़्यादा कोशिशें। थोड़ा रुकें।',
+  'chat.manage.err.too-large':
+    'यह चैट यहाँ हटाने के लिए बहुत बड़ी है। Telegram सहायता से संपर्क करें।',
+  'chat.limit.title': 'बहुत ज़्यादा चैनल',
+  'chat.limit.body':
+    'आप Telegram द्वारा अनुमत अधिकतम चैनलों से जुड़ चुके हैं। और जुड़ने के लिए कुछ निष्क्रिय चैनल छोड़ें।',
+  'chat.limit.last': 'आख़िरी सक्रियता {date}',
+  'chat.limit.leave': 'छोड़ें',
+  'chat.limit.empty': 'छोड़ने के लिए कोई निष्क्रिय चैनल नहीं है।',
+  'chat.limit.loading': 'निष्क्रिय चैनल खोजे जा रहे हैं…',
+  'chat.limit.err.failed': 'चैनल छोड़े नहीं जा सके। फिर कोशिश करें।',
+  'chat.emojiStatus.err.boosts': 'इसके लिए चैनल को और बूस्ट चाहिए।',
 };

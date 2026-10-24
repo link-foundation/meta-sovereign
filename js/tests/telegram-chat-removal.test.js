@@ -29,9 +29,11 @@ const Api = {
   messages: {
     DeleteHistory: tl('messages.DeleteHistory'),
     DeleteChatUser: tl('messages.DeleteChatUser'),
+    DeleteChat: tl('messages.DeleteChat'),
   },
   channels: {
     LeaveChannel: tl('channels.LeaveChannel'),
+    DeleteChannel: tl('channels.DeleteChannel'),
     DeleteHistory: tl('channels.DeleteHistory'),
   },
   InputUserSelf: tl('InputUserSelf'),
@@ -160,6 +162,30 @@ test('leave a channel; clear a supergroup up to its newest message (R-Y100)', as
   assert.equal(cleared.calls[0].className, 'channels.DeleteHistory');
   assert.equal(cleared.calls[0].maxId, 3);
   assert.equal(cleared.calls[0].forEveryone, false);
+});
+
+test('destroy: the owner deletes a channel or a basic group for everyone (R-Y216)', async () => {
+  const channel = await setup('-1005');
+  const done = await channel.actions.removeChat({
+    chat: '-1005',
+    action: 'destroy',
+  });
+  assert.equal(done.ok, true);
+  assert.deepEqual(
+    channel.calls.map((c) => c.className),
+    ['channels.DeleteChannel']
+  );
+  assert.deepEqual(await channel.shown(), ['999']);
+  const group = await setup('-77');
+  await group.actions.removeChat({ chat: '-77', action: 'destroy' });
+  assert.deepEqual(
+    group.calls.map((c) => c.className),
+    ['messages.DeleteChat']
+  );
+  assert.equal(group.calls[0].chatId, 77n);
+  assert.deepEqual(await group.shown(), ['999']);
+  assert.equal(removalAllowed('42', 'destroy'), false);
+  assert.equal(removalAllowed('-7', 'destroy'), true);
 });
 
 test('what Telegram has not for a chat is not asked (R-Y100)', async () => {

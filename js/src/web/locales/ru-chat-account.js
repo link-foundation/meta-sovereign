@@ -546,4 +546,51 @@ export const ruChatAccount = {
     'Все настройки уведомлений, включая исключения чатов, вернутся к значениям по умолчанию.',
   'settings.notifyReset.yes': 'Сбросить',
   'settings.media.reset': 'Сбросить по умолчанию',
+  'chat.manage.typeChannel': 'Тип канала',
+  'chat.manage.typeGroup': 'Тип группы',
+  'chat.manage.public': 'Публичный',
+  'chat.manage.private': 'Частный',
+  'chat.manage.publicNote':
+    'Его можно найти в поиске и вступить по публичной ссылке.',
+  'chat.manage.privateNote': 'Вступить можно только по ссылке-приглашению.',
+  'chat.manage.link': 'Публичная ссылка',
+  'chat.manage.checking': 'Проверяем ссылку…',
+  'chat.manage.available': '{name} свободно.',
+  'chat.manage.crowded':
+    'У вас слишком много публичных каналов. Отзовите ссылку одного из них:',
+  'chat.manage.revoke': 'Отозвать ссылку',
+  'chat.manage.deactivate': 'Отключить все юзернеймы',
+  'chat.manage.deactivateBody':
+    'Все коллекционные юзернеймы этого чата будут отключены.',
+  'chat.manage.deactivateConfirm': 'Отключить',
+  'chat.manage.look': 'Оформление',
+  'chat.manage.lookTitle': 'Цвет имени, цвет профиля и эмодзи-статус',
+  'chat.manage.deleteChannel': 'Удалить канал',
+  'chat.manage.deleteGroup': 'Удалить группу',
+  'chat.manage.deleteChannelTitle': 'Удалить канал «{name}»?',
+  'chat.manage.deleteGroupTitle': 'Удалить группу «{name}»?',
+  'chat.manage.deleteBody':
+    '«{name}» будет удалён для всех вместе со всеми сообщениями. Это нельзя отменить.',
+  'chat.manage.deleteConfirm': 'Удалить для всех',
+  'chat.manage.err.failed': 'Telegram не принял это. Попробуйте ещё раз.',
+  'chat.manage.err.invalid':
+    'Ссылка: от 5 до 32 букв, цифр или подчёркиваний, начинается с буквы.',
+  'chat.manage.err.taken': 'Эта ссылка уже занята.',
+  'chat.manage.err.too-many-public':
+    'У вас слишком много публичных каналов. Отзовите одну из ссылок ниже.',
+  'chat.manage.err.not-admin': 'Вам нельзя это менять.',
+  'chat.manage.err.no-access': 'Этот чат недоступен.',
+  'chat.manage.err.boosts': 'Каналу нужно больше бустов.',
+  'chat.manage.err.flood': 'Слишком много попыток. Подождите немного.',
+  'chat.manage.err.too-large':
+    'Чат слишком большой, чтобы удалить его здесь. Обратитесь в поддержку Telegram.',
+  'chat.limit.title': 'Слишком много каналов',
+  'chat.limit.body':
+    'Вы вступили в максимум каналов, разрешённый Telegram. Покиньте неактивные, чтобы вступать в новые.',
+  'chat.limit.last': 'Был активен {date}',
+  'chat.limit.leave': 'Покинуть',
+  'chat.limit.empty': 'Неактивных каналов нет.',
+  'chat.limit.loading': 'Ищем неактивные каналы…',
+  'chat.limit.err.failed': 'Не удалось покинуть каналы. Попробуйте ещё раз.',
+  'chat.emojiStatus.err.boosts': 'Каналу нужно больше бустов.',
 };

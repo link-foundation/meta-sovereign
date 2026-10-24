@@ -12758,3 +12758,37 @@ audio.remote-player {
 .telegram-notify .notify-block button {
   align-self: flex-start;
 }
+
+/* Channel type, appearance, deletion and the channel limit (R-Y216). */
+.chat-manage-rows .group-set-row.danger {
+  color: var(--danger, #d33);
+}
+.public-link-kinds {
+  display: flex;
+  gap: 0.5rem;
+}
+.public-link-kinds button.chosen {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.public-link-status.is-error {
+  color: var(--danger, #d33);
+}
+.public-link-channel,
+.limit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.3rem 0;
+}
+.limit-list {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.limit-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

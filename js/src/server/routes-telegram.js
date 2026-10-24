@@ -205,10 +205,8 @@ import { GETS } from './routes-telegram-files.js';
 import { WEB_APPS_POSTS } from './routes-telegram-web-apps.js';
 import { BOT_LOGIN_POSTS } from './routes-telegram-bot-login.js';
 import { ADMIN_POSTS } from './routes-telegram-admin.js';
-import { TRANSLATE_CHAT_POSTS } from './routes-telegram-translate-chat.js';
 import { GROUP_EXTRAS_POSTS } from './routes-telegram-group-extras.js';
-import { EMOJI_GROUPS_POSTS } from './routes-telegram-emoji-groups.js';
-import { STORAGE_POSTS } from './routes-telegram-storage.js';
+import { YEXTRAS_POSTS } from './routes-telegram-yextras.js';
 import {
   INSTANT_VIEW_GETS,
   INSTANT_VIEW_POSTS,
@@ -1023,10 +1021,8 @@ const POSTS = {
       : [400, { error: 'chat and a change required', code: 'bad-request' }],
   ...ADMIN_POSTS,
   ...EPHEMERAL_POSTS,
-  ...TRANSLATE_CHAT_POSTS,
+  ...YEXTRAS_POSTS,
   ...GROUP_EXTRAS_POSTS,
-  ...EMOJI_GROUPS_POSTS,
-  ...STORAGE_POSTS,
   ...INSTANT_VIEW_POSTS,
   ...STICKER_EXTRAS_POSTS,
   ...DRAFTS_CALENDAR_POSTS,

@@ -48,6 +48,13 @@ const openChat = ({ source, chat }) => {
 };
 
 const EVENT = 'ms-invite-open';
+// A join refused for the channel limit asks for the inactive channels (the
+// list is chat-channel-limit.js's, mounted once in app.js; R-Y216).
+export const LIMIT_EVENT = 'ms-channel-limit';
+
+/** Whether `code` is a join refused for the channel limit. */
+export const isTooMany = (code) =>
+  code === 'too-many-chats' || code === 'too-many';
 
 /** Asks the dialog (mounted once, in the app) to open for `hash`. */
 export const openInvite = (hash) =>
@@ -154,6 +161,9 @@ const InviteDialog = ({ api, hash, close }) => {
       close();
     } else {
       setState({ phase: 'error', code: answer?.code ?? 'failed' });
+      if (isTooMany(answer?.code)) {
+        globalThis.dispatchEvent?.(new CustomEvent(LIMIT_EVENT));
+      }
     }
   };
   const { phase, invite } = state;

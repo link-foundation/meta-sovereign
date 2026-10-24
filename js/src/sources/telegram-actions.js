@@ -46,6 +46,7 @@ import { createChatSearch } from './telegram-search.js';
 import { createGlobalSearch } from './telegram-global.js';
 import { createFileSender } from './telegram-upload.js';
 import { createChatRemoval } from './telegram-chat-removal.js';
+import { createChannelManage } from './telegram-channel-manage.js';
 import { createScheduled } from './telegram-scheduled.js';
 import { createFolders } from './telegram-folders.js';
 import { createFolderEdit } from './telegram-folder-edit.js';
@@ -507,7 +508,8 @@ export const createActions = (env, tools, { mediaDir = null } = {}) => {
 // messages marked with the one tombstone shape (R-Z7); custom emoji in the
 // composer and the emoji panel's category groups (R-Y214); the media
 // cache's management, reaction notifications and resetting notifications
-// (R-Y215).
+// (R-Y215); a channel's public link, look and deletion, and inactive
+// channels to leave (R-Y216).
 const chatActions = (env, context) => {
   const { held, ...files } = createFileSender(env, context);
   const { uploads, drop } = held;
@@ -530,6 +532,7 @@ const chatActions = (env, context) => {
     ...createGlobalSearch(env, context),
     ...files,
     ...createChatRemoval(env, context),
+    ...createChannelManage(env, context),
     ...createScheduled(env, context),
     ...createFolders(env, context),
     ...createFolderEdit(env, context),
