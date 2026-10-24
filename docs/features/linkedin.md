@@ -149,11 +149,11 @@ There is no LinkedIn-specific server route or page screen except the CV screen (
 
 ## Import and export
 
-| Feature                                                                   | Status        | Access  | Requirements | Notes / what is missing                                                                                            |
-| ------------------------------------------------------------------------- | ------------- | ------- | ------------ | ------------------------------------------------------------------------------------------------------------------ |
-| Import `messages.csv`                                                     | Supported     | Archive | R-E6         | See "Archive messages". Importing twice adds nothing (R-Z10); a failed store write stops the import with an error. |
-| Import Connections, Profile, Positions, Shares, Comments, Invitations CSV | Not supported | Archive | —            | The file pattern matches `messages.csv` only (planned, R-Z10).                                                     |
-| Export the CV to links notation                                           | Supported     | —       | R-V1         | `cvToLino`; tested.                                                                                                |
+| Feature                                                                   | Status        | Access  | Requirements | Notes / what is missing                                                                                                                                                                 |
+| ------------------------------------------------------------------------- | ------------- | ------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Import `messages.csv`                                                     | Supported     | Archive | R-E6         | See "Archive messages". Importing twice adds nothing (R-Z10); a failed store write stops the import with an error. The export .zip can be dropped into the import box as it is (R-Z23). |
+| Import Connections, Profile, Positions, Shares, Comments, Invitations CSV | Not supported | Archive | —            | The file pattern matches `messages.csv` only (planned, R-Z10).                                                                                                                          |
+| Export the CV to links notation                                           | Supported     | —       | R-V1         | `cvToLino`; tested.                                                                                                                                                                     |
 
 ## Counts
 

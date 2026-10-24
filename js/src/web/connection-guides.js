@@ -40,10 +40,10 @@ export const providerCatalogue = {
     archive: {
       title: 'Import .eml or mbox mail exports',
       titleKey: 'connections.email.archive.title',
-      hint: 'Export mail from your provider as .eml files or an mbox archive, including Gmail Takeout mbox files. Drop the file into the import box with source "email".',
+      hint: 'Export mail from your provider as .eml files or an mbox archive, including Gmail Takeout mbox files (the Takeout .zip works as it is). Drop the file into the import box with source "email".',
       hintKey: 'connections.email.archive.hint',
       fileHint: '*.eml, *.mbox',
-      accept: '.eml,.mbox,message/rfc822,application/mbox',
+      accept: '.eml,.mbox,message/rfc822,application/mbox,.zip,application/zip',
     },
     apiCredentials: {
       title: 'Connect email APIs and protocols',
@@ -111,7 +111,7 @@ export const providerCatalogue = {
       hint: 'Telegram Desktop -> Settings -> Advanced -> Export Telegram data. Pick "Personal chats" + "JSON" and drop the resulting "result.json" into the import box below.',
       hintKey: 'connections.telegram.archive.hint',
       fileHint: 'result.json',
-      accept: '.json,application/json',
+      accept: '.json,application/json,.zip,application/zip',
     },
     apiCredentials: {
       title: 'Connect the Telegram Bot API',
@@ -150,10 +150,10 @@ export const providerCatalogue = {
     archive: {
       title: 'Import a VK conversations archive',
       titleKey: 'connections.vk.archive.title',
-      hint: 'Open https://vk.com/data_protection, request your archive, unzip it and load the "messages" JSON files.',
+      hint: 'Open https://vk.com/data_protection, request your archive and drop the .zip as it is (or the "messages" files from it) into the import box.',
       hintKey: 'connections.vk.archive.hint',
       fileHint: 'messages*.json',
-      accept: '.json,application/json',
+      accept: '.json,application/json,.zip,application/zip',
     },
     apiCredentials: {
       title: 'Connect the VK API',
@@ -191,10 +191,10 @@ export const providerCatalogue = {
     archive: {
       title: 'Import an X data archive',
       titleKey: 'connections.x.archive.title',
-      hint: 'Settings -> Your account -> Download an archive of your data. Once the archive is ready, unzip it and select the JSON files under data/ for tweets and direct messages.',
+      hint: 'Settings -> Your account -> Download an archive of your data. Once the archive is ready, drop the .zip as it is (or tweets.js and direct-messages.js from its data/ folder) into the import box.',
       hintKey: 'connections.x.archive.hint',
       fileHint: 'tweets.js, direct-messages.js',
-      accept: '.js,.json,application/json',
+      accept: '.js,.json,application/json,.zip,application/zip',
     },
     apiCredentials: {
       title: 'Connect the X API v2',
@@ -339,10 +339,10 @@ export const providerCatalogue = {
     archive: {
       title: 'Import a LinkedIn data export',
       titleKey: 'connections.linkedin.archive.title',
-      hint: 'Settings & Privacy -> Data privacy -> Get a copy of your data. Pick "Want something in particular?" and request "Messages" + "Posts".',
+      hint: 'Settings & Privacy -> Data privacy -> Get a copy of your data. Pick "Want something in particular?" and request "Messages" + "Posts". Drop the .zip LinkedIn sends (or messages.csv from it) into the import box.',
       hintKey: 'connections.linkedin.archive.hint',
       fileHint: 'messages.csv, Shares.csv',
-      accept: '.csv,text/csv,.json,application/json',
+      accept: '.csv,text/csv,.json,application/json,.zip,application/zip',
     },
     apiCredentials: {
       title: 'Connect the LinkedIn REST API',

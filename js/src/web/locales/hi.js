@@ -586,7 +586,7 @@ export const hi = {
   'connections.email.label': 'ईमेल',
   'connections.email.archive.title': '.eml या mbox मेल निर्यात आयात करें',
   'connections.email.archive.hint':
-    'अपने प्रदाता से मेल को .eml फ़ाइल या mbox संग्रह के रूप में निर्यात करें (Gmail Takeout mbox फ़ाइल सहित)। फ़ाइल को आयात बॉक्स में डालें और स्रोत "email" चुनें।',
+    'अपने प्रदाता से मेल को .eml फ़ाइल या mbox संग्रह के रूप में निर्यात करें (Gmail Takeout mbox फ़ाइल सहित; Takeout की .zip भी वैसे ही चलती है)। फ़ाइल को आयात बॉक्स में डालें और स्रोत "email" चुनें।',
   'connections.email.archive.fileHint': '*.eml, *.mbox',
   'connections.email.api.title': 'ईमेल API और प्रोटोकॉल जोड़ें',
   'connections.email.api.hint':
@@ -615,7 +615,7 @@ export const hi = {
   'connections.vk.label': 'VK',
   'connections.vk.archive.title': 'VK संवाद संग्रह आयात करें',
   'connections.vk.archive.hint':
-    'https://vk.com/data_protection खोलें, अपना संग्रह माँगें, अनज़िप करें और "messages" JSON फ़ाइलें लोड करें।',
+    'https://vk.com/data_protection खोलें, अपना संग्रह माँगें और .zip को वैसे ही (या उसकी "messages" फ़ाइलें) आयात बॉक्स में डालें।',
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': 'VK API जोड़ें',
   'connections.vk.api.hint':
@@ -626,7 +626,7 @@ export const hi = {
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': 'X डेटा संग्रह आयात करें',
   'connections.x.archive.hint':
-    'सेटिंग्स -> आपका खाता -> अपने डेटा का संग्रह डाउनलोड करें। तैयार होने पर अनज़िप करें और data/ के अंदर ट्वीट व डायरेक्ट मेसेज JSON फ़ाइलें चुनें।',
+    'सेटिंग्स -> आपका खाता -> अपने डेटा का संग्रह डाउनलोड करें। तैयार होने पर .zip को वैसे ही (या उसके data/ फ़ोल्डर से tweets.js और direct-messages.js) आयात बॉक्स में डालें।',
   'connections.x.archive.fileHint': 'tweets.js, direct-messages.js',
   'connections.x.api.title': 'X API v2 जोड़ें',
   'connections.x.api.hint':
@@ -681,7 +681,7 @@ export const hi = {
   'connections.linkedin.label': 'LinkedIn',
   'connections.linkedin.archive.title': 'LinkedIn डेटा निर्यात आयात करें',
   'connections.linkedin.archive.hint':
-    'सेटिंग्स और गोपनीयता -> डेटा गोपनीयता -> अपने डेटा की प्रति प्राप्त करें। "विशिष्ट कुछ चाहिए?" चुनें और "Messages" + "Posts" माँगें।',
+    'सेटिंग्स और गोपनीयता -> डेटा गोपनीयता -> अपने डेटा की प्रति प्राप्त करें। "विशिष्ट कुछ चाहिए?" चुनें और "Messages" + "Posts" माँगें। LinkedIn से आई .zip (या उसमें से messages.csv) आयात बॉक्स में डालें।',
   'connections.linkedin.archive.fileHint': 'messages.csv, Shares.csv',
   'connections.linkedin.api.title': 'LinkedIn REST API जोड़ें',
   'connections.linkedin.api.hint':

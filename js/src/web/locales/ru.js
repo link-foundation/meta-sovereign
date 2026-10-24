@@ -597,7 +597,7 @@ export const ru = {
   'connections.email.label': 'Почта',
   'connections.email.archive.title': 'Импорт экспорта почты в .eml или mbox',
   'connections.email.archive.hint':
-    'Экспортируйте почту от вашего провайдера в файлы .eml или архив mbox, включая mbox-файлы Gmail Takeout. Перетащите файл в окно импорта с источником «email».',
+    'Экспортируйте почту от вашего провайдера в файлы .eml или архив mbox, включая mbox-файлы Gmail Takeout (подойдёт и сам .zip Takeout). Перетащите файл в окно импорта с источником «email».',
   'connections.email.archive.fileHint': '*.eml, *.mbox',
   'connections.email.api.title': 'Подключите API и протоколы почты',
   'connections.email.api.hint':
@@ -626,7 +626,7 @@ export const ru = {
   'connections.vk.label': 'ВКонтакте',
   'connections.vk.archive.title': 'Импорт архива переписок ВКонтакте',
   'connections.vk.archive.hint':
-    'Откройте https://vk.com/data_protection, запросите архив, распакуйте его и загрузите JSON-файлы из папки messages.',
+    'Откройте https://vk.com/data_protection, запросите архив и перетащите в окно импорта сам .zip (или файлы из его папки messages).',
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': 'Подключите API ВКонтакте',
   'connections.vk.api.hint':
@@ -637,7 +637,7 @@ export const ru = {
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': 'Импорт архива данных X',
   'connections.x.archive.hint':
-    'Settings -> Your account -> Download an archive of your data. Когда архив готов, распакуйте его и выберите JSON-файлы в папке data/ для твитов и личных сообщений.',
+    'Settings -> Your account -> Download an archive of your data. Когда архив готов, перетащите в окно импорта сам .zip (или tweets.js и direct-messages.js из его папки data/).',
   'connections.x.archive.fileHint': 'tweets.js, direct-messages.js',
   'connections.x.api.title': 'Подключите X API v2',
   'connections.x.api.hint':
@@ -692,7 +692,7 @@ export const ru = {
   'connections.linkedin.label': 'LinkedIn',
   'connections.linkedin.archive.title': 'Импорт экспорта данных LinkedIn',
   'connections.linkedin.archive.hint':
-    'Settings & Privacy -> Data privacy -> Get a copy of your data. Выберите «Want something in particular?» и запросите «Messages» + «Posts».',
+    'Settings & Privacy -> Data privacy -> Get a copy of your data. Выберите «Want something in particular?» и запросите «Messages» + «Posts». Перетащите в окно импорта .zip от LinkedIn (или messages.csv из него).',
   'connections.linkedin.archive.fileHint': 'messages.csv, Shares.csv',
   'connections.linkedin.api.title': 'Подключите LinkedIn REST API',
   'connections.linkedin.api.hint':

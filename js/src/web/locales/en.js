@@ -586,7 +586,7 @@ export const en = {
   'connections.email.label': 'Email',
   'connections.email.archive.title': 'Import .eml or mbox mail exports',
   'connections.email.archive.hint':
-    'Export mail from your provider as .eml files or an mbox archive, including Gmail Takeout mbox files. Drop the file into the import box with source "email".',
+    'Export mail from your provider as .eml files or an mbox archive, including Gmail Takeout mbox files (the Takeout .zip works as it is). Drop the file into the import box with source "email".',
   'connections.email.archive.fileHint': '*.eml, *.mbox',
   'connections.email.api.title': 'Connect email APIs and protocols',
   'connections.email.api.hint':
@@ -615,7 +615,7 @@ export const en = {
   'connections.vk.label': 'VK',
   'connections.vk.archive.title': 'Import a VK conversations archive',
   'connections.vk.archive.hint':
-    'Open https://vk.com/data_protection, request your archive, unzip it and load the "messages" JSON files.',
+    'Open https://vk.com/data_protection, request your archive and drop the .zip as it is (or the "messages" files from it) into the import box.',
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': 'Connect the VK API',
   'connections.vk.api.hint':
@@ -626,7 +626,7 @@ export const en = {
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': 'Import an X data archive',
   'connections.x.archive.hint':
-    'Settings -> Your account -> Download an archive of your data. Once the archive is ready, unzip it and select the JSON files under data/ for tweets and direct messages.',
+    'Settings -> Your account -> Download an archive of your data. Once the archive is ready, drop the .zip as it is (or tweets.js and direct-messages.js from its data/ folder) into the import box.',
   'connections.x.archive.fileHint': 'tweets.js, direct-messages.js',
   'connections.x.api.title': 'Connect the X API v2',
   'connections.x.api.hint':
@@ -681,7 +681,7 @@ export const en = {
   'connections.linkedin.label': 'LinkedIn',
   'connections.linkedin.archive.title': 'Import a LinkedIn data export',
   'connections.linkedin.archive.hint':
-    'Settings & Privacy -> Data privacy -> Get a copy of your data. Pick "Want something in particular?" and request "Messages" + "Posts".',
+    'Settings & Privacy -> Data privacy -> Get a copy of your data. Pick "Want something in particular?" and request "Messages" + "Posts". Drop the .zip LinkedIn sends (or messages.csv from it) into the import box.',
   'connections.linkedin.archive.fileHint': 'messages.csv, Shares.csv',
   'connections.linkedin.api.title': 'Connect the LinkedIn REST API',
   'connections.linkedin.api.hint':

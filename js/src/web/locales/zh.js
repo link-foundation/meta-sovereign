@@ -569,7 +569,7 @@ export const zh = {
   'connections.email.label': '电子邮件',
   'connections.email.archive.title': '导入 .eml 或 mbox 邮件导出',
   'connections.email.archive.hint':
-    '从你的邮件提供方导出邮件为 .eml 文件或 mbox 归档,包括 Gmail Takeout 的 mbox 文件。将文件拖入导入框,来源选择 "email"。',
+    '从你的邮件提供方导出邮件为 .eml 文件或 mbox 归档,包括 Gmail Takeout 的 mbox 文件(Takeout 的 .zip 也可直接使用)。将文件拖入导入框,来源选择 "email"。',
   'connections.email.archive.fileHint': '*.eml, *.mbox',
   'connections.email.api.title': '连接邮件 API 与协议',
   'connections.email.api.hint':
@@ -598,7 +598,7 @@ export const zh = {
   'connections.vk.label': 'VK',
   'connections.vk.archive.title': '导入 VK 会话归档',
   'connections.vk.archive.hint':
-    '打开 https://vk.com/data_protection 申请归档,解压后加载 "messages" JSON 文件。',
+    '打开 https://vk.com/data_protection 申请归档,将 .zip 原样(或其中的 "messages" 文件)拖入导入框。',
   'connections.vk.archive.fileHint': 'messages*.json',
   'connections.vk.api.title': '连接 VK API',
   'connections.vk.api.hint':
@@ -609,7 +609,7 @@ export const zh = {
   'connections.x.label': 'X (Twitter)',
   'connections.x.archive.title': '导入 X 数据归档',
   'connections.x.archive.hint':
-    '设置 -> 你的账户 -> 下载你的数据归档。归档准备好后解压,选择 data/ 下的推文和私信 JSON 文件。',
+    '设置 -> 你的账户 -> 下载你的数据归档。归档准备好后,将 .zip 原样(或其 data/ 文件夹中的 tweets.js 和 direct-messages.js)拖入导入框。',
   'connections.x.archive.fileHint': 'tweets.js, direct-messages.js',
   'connections.x.api.title': '连接 X API v2',
   'connections.x.api.hint':
@@ -662,7 +662,7 @@ export const zh = {
   'connections.linkedin.label': 'LinkedIn',
   'connections.linkedin.archive.title': '导入 LinkedIn 数据导出',
   'connections.linkedin.archive.hint':
-    '设置与隐私 -> 数据隐私 -> 获取数据副本。选择「需要特定内容?」并请求「消息」+「帖子」。',
+    '设置与隐私 -> 数据隐私 -> 获取数据副本。选择「需要特定内容?」并请求「消息」+「帖子」。将 LinkedIn 发来的 .zip(或其中的 messages.csv)拖入导入框。',
   'connections.linkedin.archive.fileHint': 'messages.csv, Shares.csv',
   'connections.linkedin.api.title': '连接 LinkedIn REST API',
   'connections.linkedin.api.hint':
