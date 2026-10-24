@@ -1,8 +1,10 @@
 /**
  * The cryptography of secret chats (R-Y219; learned from Telegram's public
- * description, https://core.telegram.org/api/end-to-end, never copied from
- * a GPL client). Pure: the random bytes come in as an argument, so the
- * tests fix them.
+ * description, https://core.telegram.org/api/end-to-end, and the layer-73
+ * schema credited in ./secret-chat-tl.js; never copied from a GPL client).
+ * Groundwork only: nothing imports this module but the secret-chat session
+ * and the tests, and no route or page uses it. Pure: the random bytes come
+ * in as an argument, so the tests fix them.
  *
  * Key exchange: the same Diffie-Hellman steps as a call's (./private-call-dh.js):
  * the requester sends g_a, the accepter answers g_b, both get
@@ -65,7 +67,7 @@ const xor16 = (a, b) => {
 const blocks = (mode, key) => {
   const cipher = (
     mode === 'encrypt' ? crypto.createCipheriv : crypto.createDecipheriv
-  )('aes-256-ecb', key, null);
+  )('aes-256-ecb', key, Buffer.alloc(0));
   cipher.setAutoPadding(false);
   return (block) => cipher.update(block);
 };

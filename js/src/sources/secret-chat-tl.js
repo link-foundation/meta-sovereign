@@ -6,7 +6,7 @@
  *
  * The secret layer used is 73 (MTProto 2.0 only): the latest layer whose
  * constructors are written here, so every peer from layer 73 up reads them.
- * The schema is not part of layer-225.tl (it is a separate schema), so the
+ * The schema is not part of layer-232.tl (it is a separate schema), so the
  * constructor ids below were each checked as the CRC32 of the schema line
  * (old style: `Vector long`, `bytes` written as `string`) in the tests.
  *
