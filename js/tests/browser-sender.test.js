@@ -178,6 +178,48 @@ test('send presses Enter when no send button is found', async () => {
   assert.deepEqual(commander.calls.at(-1), ['press', 'Enter']);
 });
 
+// R-Z4: a press that fails may have sent the message (the click landed,
+// the answer was lost); it is "unknown", never retried or sent again.
+test('a failure while pressing Send is reported as maybe delivered', async () => {
+  const commander = fakeCommander({ present: signedIn('vk') });
+  commander.clickButton = async ({ selector }) => {
+    commander.calls.push(['click', selector]);
+    if (selector === first(WEB_UIS.vk.send.selector)) {
+      throw new Error('Target closed');
+    }
+    return true;
+  };
+  const { openSession } = fakeSessions(() => commander);
+  const sender = createBrowserSender({ openSession, ...quick });
+  await assert.rejects(sender.send({ source: 'vk', chat: 1, text: 'hi' }), {
+    code: 'send-unknown',
+    outcome: 'unknown',
+    ambiguous: true,
+    fallback: false,
+  });
+});
+
+test('fallback: a web UI that may have sent is not "both failed"', async () => {
+  const maybe = Object.assign(new Error('Target closed'), {
+    ambiguous: true,
+    code: 'send-unknown',
+  });
+  const send = createFallbackSender({
+    apiSend: async () => {
+      throw new Error('token expired');
+    },
+    browserSend: async () => {
+      throw maybe;
+    },
+  });
+  await assert.rejects(send(draft), (error) => {
+    assert.equal(error, maybe);
+    assert.equal(error.code, 'send-unknown');
+    assert.equal(error.outcome, 'unknown');
+    return true;
+  });
+});
+
 test('input "fill" fills the composer instead of typing', async () => {
   const commander = fakeCommander({ present: signedIn('vk') });
   const { openSession } = fakeSessions(() => commander);

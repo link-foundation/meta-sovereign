@@ -39,6 +39,7 @@ import { createAdapterSender } from '../crm/reengage.js';
 import { WEB_UIS } from './web-uis.js';
 import { createBrowserActions } from './browser-actions.js';
 import { createMessageActions } from './message-actions.js';
+import { markSendOutcome } from './http.js';
 
 const isNumericId = (value) => /^-?\d+$/.test(String(value));
 
@@ -227,16 +228,29 @@ const typeLines = async (commander, text, delayMs) => {
   }
 };
 
+// A failure while pressing Send may come after the press took effect: the
+// message may be out, so it is never retried or sent another way (R-Z4).
+const sentInDoubt = (error) =>
+  Object.assign(markSendOutcome(error, { ambiguous: true }), {
+    code: 'send-unknown',
+    outcome: 'unknown',
+    fallback: false,
+  });
+
 /** Click the send button when it is there, otherwise press the key. */
 const pressSend = async (ui, commander) => {
   const button = ui.send?.selector
     ? await firstMatch(commander, ui.send.selector)
     : null;
-  if (button) {
-    await commander.clickButton({ selector: button, scrollIntoView: true });
-    return;
+  try {
+    if (button) {
+      await commander.clickButton({ selector: button, scrollIntoView: true });
+      return;
+    }
+    await commander.pressKey({ key: ui.send?.key ?? 'Enter' });
+  } catch (error) {
+    throw sentInDoubt(error);
   }
-  await commander.pressKey({ key: ui.send?.key ?? 'Enter' });
 };
 
 /**
@@ -534,6 +548,22 @@ const markUnknown = (error) => {
   return error;
 };
 
+// What a failed web-UI send raises after the API failed with `apiError`.
+const browserFailure = (error, apiError, draft, action) => {
+  // "Not allowed to automate this" is the answer, not a pair of failures.
+  if (error?.code === 'unsupported') {
+    return error;
+  }
+  // Maybe delivered by the web UI: told as such, never "failed" (R-Z4).
+  if (!apiError || error?.ambiguous === true) {
+    return markUnknown(error);
+  }
+  return new SendFallbackError(
+    [apiError, error],
+    `${draft?.source}: ${action === 'send' ? 'sending' : action} failed through the API (${apiError.message}) and the web UI (${error.message})`
+  );
+};
+
 /**
  * API first, browser second.
  *
@@ -584,17 +614,7 @@ export const createFallbackSender =
         apiError ? { apiError: apiError.message } : {}
       );
     } catch (error) {
-      // "Not allowed to automate this" is the answer, not a pair of failures.
-      if (error?.code === 'unsupported') {
-        throw error;
-      }
-      if (!apiError) {
-        throw error;
-      }
-      throw new SendFallbackError(
-        [apiError, error],
-        `${draft?.source}: ${action === 'send' ? 'sending' : action} failed through the API (${apiError.message}) and the web UI (${error.message})`
-      );
+      throw browserFailure(error, apiError, draft, action);
     }
   };
 

@@ -26,6 +26,9 @@ const FAILURE_KEYS = {
   'too-long': 'chat.failure.tooLong',
   'too-large': 'chat.failure.tooLarge',
   'after-failure': 'chat.failure.afterFailure',
+  // Maybe delivered (a lost answer, a web UI that failed after Send, R-Z4).
+  'send-unknown': 'chat.failure.sendUnknown',
+  'unknown-delivery': 'chat.failure.sendUnknown',
   network: 'chat.failure.network',
   'no-answer': 'chat.failure.network',
   // Automated sends (R-Z3).

@@ -160,6 +160,8 @@ export const ruChat = {
   'chat.newMessages': 'Новых сообщений: {count} ↓',
   'chat.delivery.waiting': 'Ещё не отправлено — попробуем снова',
   'chat.failure.afterFailure': 'Не отправлено: не ушло сообщение перед ним.',
+  'chat.failure.sendUnknown':
+    'Возможно, сообщение уже отправлено. Проверьте чат, прежде чем отправлять снова.',
   'chat.failure.network': 'Локальный сервер не ответил.',
   'chat.waiting.flood':
     'Telegram попросил подождать — отправим через {seconds} с',

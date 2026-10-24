@@ -153,6 +153,7 @@ export const zhChat = {
   'chat.newMessages': '新消息：{count} ↓',
   'chat.delivery.waiting': '尚未发送——稍后自动重试',
   'chat.failure.afterFailure': '未发送：它前面的消息没有发出。',
+  'chat.failure.sendUnknown': '可能已经发送。再次发送前请先查看聊天。',
   'chat.failure.network': '本地服务器没有响应。',
   'chat.waiting.flood': 'Telegram 要求等待——{seconds} 秒后发送',
   'chat.waiting.offline': '没有网络——恢复后自动发送',

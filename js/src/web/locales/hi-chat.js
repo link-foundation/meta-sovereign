@@ -159,6 +159,8 @@ export const hiChat = {
   'chat.newMessages': 'नए संदेश: {count} ↓',
   'chat.delivery.waiting': 'अभी नहीं भेजा गया — फिर कोशिश होगी',
   'chat.failure.afterFailure': 'नहीं भेजा गया: इससे पहले वाला संदेश नहीं गया।',
+  'chat.failure.sendUnknown':
+    'हो सकता है यह भेजा जा चुका हो। दोबारा भेजने से पहले चैट देख लें।',
   'chat.failure.network': 'लोकल सर्वर से कोई जवाब नहीं मिला।',
   'chat.waiting.flood':
     'Telegram ने रुकने को कहा — {seconds} सेकंड में भेजेंगे',

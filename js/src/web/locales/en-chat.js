@@ -161,6 +161,8 @@ export const enChat = {
   'chat.newMessages': 'New messages: {count} ↓',
   'chat.delivery.waiting': 'Not sent yet — will try again',
   'chat.failure.afterFailure': 'Not sent: the message before it failed.',
+  'chat.failure.sendUnknown':
+    'It may have been sent. Check the chat before sending it again.',
   'chat.failure.network': 'No answer from the local server.',
   'chat.waiting.flood': 'Telegram asked to wait — sending in {seconds} s',
   'chat.waiting.offline': 'No connection — will send when it is back',
