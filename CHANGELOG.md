@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.9
+
+### Patch Changes
+
+- 7b7781e: Store file renames (compaction, durable writes, export and cache files) now retry on Windows when antivirus or the indexer holds the file open (EPERM/EBUSY/EACCES, about a second in all). A compaction that still cannot rename leaves the old log intact, is reported, and is tried again 30 seconds later (R-Z19).
+
 ## 0.49.8
 
 ### Patch Changes
