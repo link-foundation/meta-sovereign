@@ -1,5 +1,17 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.15
+
+### Patch Changes
+
+- Channel public link, appearance, delete for everyone and the inactive-channels list for the channel limit (R-Y216).
+
+  Custom emoji in the composer, the group's emoji pack and emoji groups in the emoji panel (R-Y214).
+
+  Local storage management, reaction notification settings, reset of all notifications and Telegram's auto-download preset (R-Y215).
+
+  Chat translate bar over foreign-language chats and a summary of long messages (R-Y213).
+
 ## 0.49.14
 
 ### Patch Changes
