@@ -1,5 +1,23 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.49.17
+
+### Patch Changes
+
+- The Connections import box streams any export file to the local server (`POST /api/archive/upload`): a Facebook, X or LinkedIn zip is read by its own importer instead of the WhatsApp one, and a WhatsApp export is no longer capped at 64 MB (R-Z23).
+
+  A web-UI send that fails while or after pressing Send is reported as "may have been sent" (`send-unknown`) and is never retried by the composer, so a message can no longer go out twice; the composer says so in every language.
+
+  Stopping the server waits for an inbox pull in flight (VK, GitHub, email, job boards) to store what it fetched, as it already did for a backup.
+
+  A composer send the network accepted is no longer reported as failed when the local store cannot save its copy (a full disk), so it is never sent twice (R-Z24).
+
+  A large export or Telegram file uploaded to the local server (over Wi-Fi from another device, for example) may take up to 3 hours to arrive instead of failing after Node's default 5 minutes.
+
+  Stopping the server also waits for a VK live-update batch in flight to be stored, so it can no longer write after the final flush; a restarted VK live loop never runs next to the old one.
+
+  The import boxes for X, LinkedIn, VK, email (Google Takeout) and Telegram accept the export .zip as it is; the local server reads it in place (R-Z23).
+
 ## 0.49.16
 
 ### Patch Changes
