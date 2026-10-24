@@ -577,18 +577,50 @@ const stepAxeAudit = async ({ page, base }) => {
   // via CDP `Runtime.evaluate`, which is not subject to the page CSP,
   // and exposes `window.axe` for the subsequent run.
   await page.evaluate(axeSource);
-  const violations = await page.evaluate(async () => {
-    const results = await window.axe.run(document, {
-      runOnly: ['wcag2a', 'wcag2aa'],
-      resultTypes: ['violations'],
+  const audit = () =>
+    page.evaluate(async () => {
+      // Colours are read once the page is still: fonts in, animations and
+      // theme transitions over (WebKit sometimes measured the header
+      // mid-fade and failed every label in it at once).
+      await document.fonts?.ready;
+      await Promise.all(
+        document.getAnimations().map((a) => a.finished.catch(() => {}))
+      );
+      await new Promise((r) =>
+        globalThis.requestAnimationFrame(() =>
+          globalThis.requestAnimationFrame(r)
+        )
+      );
+      const results = await window.axe.run(document, {
+        runOnly: ['wcag2a', 'wcag2aa'],
+        resultTypes: ['violations'],
+      });
+      return results.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        help: v.help,
+        nodes: v.nodes.map((n) => n.target),
+      }));
     });
-    return results.violations.map((v) => ({
-      id: v.id,
-      impact: v.impact,
-      help: v.help,
-      nodes: v.nodes.map((n) => n.target),
-    }));
-  });
+  let violations = await audit();
+  if (violations.some((v) => v.id === 'color-contrast')) {
+    // A real contrast problem is still there a moment later; a frame
+    // caught mid-transition is not.
+    await page.waitForTimeout(1000);
+    const again = await audit();
+    const still = new Set(
+      (again.find((v) => v.id === 'color-contrast')?.nodes ?? []).map((n) =>
+        JSON.stringify(n)
+      )
+    );
+    violations = violations
+      .map((v) =>
+        v.id === 'color-contrast'
+          ? { ...v, nodes: v.nodes.filter((n) => still.has(JSON.stringify(n))) }
+          : v
+      )
+      .filter((v) => v.nodes.length > 0);
+  }
   const blocking = violations.filter(
     (v) => v.impact === 'serious' || v.impact === 'critical'
   );
