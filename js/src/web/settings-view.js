@@ -13,6 +13,7 @@ import { MediaSettings } from './settings-media.js';
 import { ScaleSettings } from './settings-scale.js';
 import { ProxySettings } from './settings-proxy.js';
 import { SKINS, THEME_MODES, useAppearance } from './appearance.js';
+import { EFFECTS_MODES, useEffectsSetting } from './effects.js';
 import { api } from './dom.js';
 import { ChatBackgroundSettings } from './chat-wallpaper.js';
 import { CloudThemeSettings } from './cloud-themes.js';
@@ -49,6 +50,7 @@ const Choices = ({ name, legend, options, value, onChange, label }) =>
 /** Theme mode (system, light, dark, auto) and skin (t3, Telegram, …). */
 export const AppearanceSettings = ({ appearance }) => {
   const t = useT();
+  const { effects, setEffects } = useEffectsSetting();
   return el(
     'section',
     { className: 'card appearance', 'aria-labelledby': 'appearance-title' },
@@ -79,6 +81,16 @@ export const AppearanceSettings = ({ appearance }) => {
           value: appearance.skin,
           onChange: appearance.setSkin,
           label: (skin) => t(`settings.skin.${skin}`),
+        }),
+        // Blur and dims off on a slow browser (R-Z21).
+        el(Choices, {
+          key: 'effects',
+          name: 'effects-mode',
+          legend: t('settings.appearance.effects'),
+          options: EFFECTS_MODES,
+          value: effects,
+          onChange: setEffects,
+          label: (mode) => t(`settings.effects.${mode}`),
         })
       ),
     ]

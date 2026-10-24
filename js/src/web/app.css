@@ -12607,3 +12607,33 @@ audio.remote-player {
   flex: 1 1 12rem;
   overflow-wrap: anywhere;
 }
+
+/* Reduced visual effects (R-Z21). <html data-effects="reduced"> is set by
+   effects.js when the browser renders slowly (a frame probe), or by the
+   Settings choice / ?effects=reduced: no backdrop blur (the same solid
+   surfaces as `prefers-reduced-transparency`), no page-sized dim around
+   the tutorial's ring, and no non-essential animation or transition. */
+:root[data-effects='reduced'] * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+:root[data-effects='reduced'] *,
+:root[data-effects='reduced'] *::before,
+:root[data-effects='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+:root[data-effects='reduced'] {
+  --surface-glass-bg: var(--bg-elev);
+}
+:root[data-effects='reduced'] .chat-composer {
+  background: var(--bg-elev);
+}
+:root[data-effects='reduced']
+  .tutorial-overlay-spotlight
+  .tutorial-spotlight-frame {
+  box-shadow:
+    0 0 0 4px rgba(0, 0, 0, 0.5),
+    0 0 0 3px rgba(102, 178, 255, 1);
+}

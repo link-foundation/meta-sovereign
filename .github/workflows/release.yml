@@ -403,7 +403,7 @@ jobs:
             send-extras folders passcode service-messages ephemeral \
             rich-messages rich-text instant-view account-data accounts offline \
             email greetings autopilot peer-bar tutorial archive-media \
-            vk-followups github-inbox; do
+            vk-followups github-inbox visual-effects; do
             echo "::group::test:e2e:${name}"
             if ! npm run --silent "test:e2e:${name}"; then
               failed+=("${name}")
@@ -422,11 +422,18 @@ jobs:
         # The tutorial's WebKit run hung CI once; a stuck step must not
         # take the whole job past its timeout.
         timeout-minutes: 12
+        # Software-rendered WebKit on Linux draws a frame in seconds, so
+        # clicks never settle (R-Z21). Run with "Reduce visual effects"
+        # on (no blur, no page-sized dim): if these pass while the
+        # earlier run failed, slow compositing was the cause.
+        env:
+          E2E_REDUCED_EFFECTS: '1'
+          NODE_OPTIONS: --import ./js/tests/helpers/e2e-reduced-effects.mjs
         run: |
           failed=()
           for name in browser consistency chat-menu selection offline \
             email greetings autopilot peer-bar archive-media vk-followups \
-            github-inbox; do
+            github-inbox visual-effects; do
             echo "::group::test:e2e:${name}:webkit"
             if ! npm run --silent "test:e2e:${name}:webkit"; then
               failed+=("${name}")

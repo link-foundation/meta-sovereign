@@ -23,6 +23,7 @@ import { LocaleContext, useLocale } from './i18n.js';
 import { LanguageSwitcher } from './language-switcher.js';
 import { AppShell } from './shell/app-shell.js';
 import { useAppearance, useApplyAppearance } from './appearance.js';
+import { useApplyEffects } from './effects.js';
 import { WebModeBanner } from './web-mode-banner.js';
 import { DiskBanner } from './disk-banner.js';
 import { SchemaBanner } from './schema-banner.js';
@@ -103,6 +104,8 @@ const App = () => {
   // the header button (R-M12) — see ./tutorial-start.js.
   const connected = useAnyConnection(api);
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  // Frosted glass and dims off on a slow-rendering browser (R-Z21).
+  useApplyEffects(tutorialOpen);
   const decided = useRef(false);
   useEffect(() => {
     if (connected === null || decided.current) {

@@ -524,7 +524,7 @@ the server away; the server adds rarer ones when you pause. It shows when the ot
 your behalf — is typing. Sending uses the network's API and falls back
 to its official web UI. **Settings → Appearance** picks the theme
 (system, light, dark, or auto by the time of day) and the skin (t3.codes,
-Telegram, WhatsApp or Signal).
+Telegram, WhatsApp or Signal). **Reduce visual effects** (automatic, always or never) drops the blur and animations on a browser that draws slowly.
 
 Messages work as in Telegram Desktop. Right-click a message (or press
 and hold it on a phone) for its menu, opened where you clicked: its

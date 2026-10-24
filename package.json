@@ -275,6 +275,8 @@
     "test:e2e:scale-proxy": "node js/tests/e2e-scale-proxy-browser.mjs",
     "test:e2e:scale-proxy:webkit": "E2E_BROWSER=webkit node js/tests/e2e-scale-proxy-browser.mjs",
     "test:e2e:peer-bar": "node js/tests/e2e-peer-bar-browser.mjs",
+    "test:e2e:visual-effects": "node js/tests/e2e-visual-effects-browser.mjs",
+    "test:e2e:visual-effects:webkit": "E2E_BROWSER=webkit node js/tests/e2e-visual-effects-browser.mjs",
     "test:e2e:voice-chat": "node js/tests/e2e-voice-chat-browser.mjs",
     "test:e2e:voice-chat:webkit": "E2E_BROWSER=webkit node js/tests/e2e-voice-chat-browser.mjs",
     "test:e2e:sounds": "node js/tests/e2e-sounds-browser.mjs",
