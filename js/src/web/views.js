@@ -24,6 +24,7 @@ import { useDates, useT } from './i18n.js';
 import { ConnectionsList, ConnectionDetail } from './connections/index.js';
 import { connectionHash, parseConnectionHash } from './connections/hash.js';
 import { PageLoading } from './spinner.js';
+import { useContactsRevision } from './contacts-live.js';
 
 const el = React.createElement;
 
@@ -196,7 +197,8 @@ const ContactIdentity = ({ contact }) => {
 export const ContactsView = () => {
   const t = useT();
   const { dateTime: fmtTs } = useDates();
-  const state = useAsyncValue(() => api.contacts(), [], []);
+  const [revision, refresh] = useContactsRevision(api);
+  const state = useAsyncValue(() => api.contacts(), [revision], []);
   const [query, setQuery] = useState('');
   return el(AsyncFrame, { state }, (contacts) => {
     if (!contacts || contacts.length === 0) {
@@ -240,6 +242,17 @@ export const ContactsView = () => {
         : null;
     return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('contacts.title', { count: contacts.length })),
+      el(
+        'button',
+        {
+          key: 'refresh',
+          type: 'button',
+          className: 'ghost',
+          onClick: refresh,
+          'data-action': 'contacts-refresh',
+        },
+        t('contacts.refresh')
+      ),
       el('input', {
         key: 'q',
         type: 'search',

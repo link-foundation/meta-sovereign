@@ -98,6 +98,7 @@ export const hi = {
   'contacts.actions': 'कार्रवाइयाँ',
   'contacts.message': 'संदेश',
   'contacts.messageTo': '{name} को संदेश',
+  'contacts.refresh': 'संपर्क रीफ़्रेश करें',
   'contacts.search': 'संपर्क खोजें',
   'automation.title': 'स्वचालन ग्राफ़',
   'automation.edges': '{count} किनारे',

@@ -97,6 +97,7 @@ export const zh = {
   'contacts.actions': '操作',
   'contacts.message': '发消息',
   'contacts.messageTo': '给 {name} 发消息',
+  'contacts.refresh': '刷新联系人',
   'contacts.search': '搜索联系人',
   'automation.title': '自动化图',
   'automation.edges': '{count} 条边',

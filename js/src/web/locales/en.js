@@ -97,6 +97,7 @@ export const en = {
   'contacts.actions': 'Actions',
   'contacts.message': 'Message',
   'contacts.messageTo': 'Message {name}',
+  'contacts.refresh': 'Refresh contacts',
   'contacts.search': 'Search contacts',
   'automation.title': 'Automation graphs',
   'automation.edges': '{count} edges',

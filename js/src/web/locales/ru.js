@@ -96,6 +96,7 @@ export const ru = {
   'contacts.actions': 'Действия',
   'contacts.message': 'Написать',
   'contacts.messageTo': 'Написать {name}',
+  'contacts.refresh': 'Обновить контакты',
   'contacts.search': 'Поиск контактов',
   'automation.title': 'Графы автоматизации',
   'automation.edges': 'Связей: {count}',
