@@ -3,7 +3,10 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { discoverServer } from '../src/web/discover.js';
 
-const ok = () => ({ ok: true, json: async () => ({ links: 0 }) });
+const ok = () => ({
+  ok: true,
+  json: async () => ({ service: 'meta-sovereign', links: 0 }),
+});
 const fail = () => ({ ok: false, json: async () => ({}) });
 
 describe('mobile and Electron packaging', () => {

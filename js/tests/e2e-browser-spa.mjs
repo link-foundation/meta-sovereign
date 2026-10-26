@@ -96,7 +96,7 @@ const navViewsAll = [
 // JS backend (full surface, including outreach + backup + theme + a11y).
 const startJsBackend = async () => {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-e2e-js-'));
-  const handle = await startServer({ port: 0, storeDir: dir });
+  const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
   return {
     name: 'js',
     base: `http://127.0.0.1:${handle.port}`,

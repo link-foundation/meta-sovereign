@@ -268,7 +268,7 @@ const useRetry = (key) => {
 const useOpenChat = (
   api,
   current,
-  { supported, refill, retry, patch, newest }
+  { supported, telegram, refill, retry, patch, newest }
 ) => {
   const key = current?.key ?? null;
   useEffect(() => {
@@ -278,13 +278,17 @@ const useOpenChat = (
     const target = current.key;
     const chat = current.chat;
     refill(target);
-    if (!isTelegram(api, current)) {
+    if (!telegram) {
       return;
     }
+    let cancelled = false;
     // Asks Telegram only when the store does not have it; again and
     // again until it answers.
-    const ask = () =>
-      api
+    const ask = () => {
+      if (cancelled) {
+        return;
+      }
+      return api
         .telegramHistory({
           chat,
           ...topicAsk(current),
@@ -293,6 +297,9 @@ const useOpenChat = (
         })
         .catch(() => null)
         .then((result) => {
+          if (cancelled) {
+            return null;
+          }
           if (!result || result.error) {
             retry.later(target, ask, result?.retryAfter);
             return null;
@@ -303,8 +310,12 @@ const useOpenChat = (
           }
           return result.written > 0 ? newest(target) : null;
         });
+    };
     ask();
-  }, [api, key]);
+    return () => {
+      cancelled = true;
+    };
+  }, [api, key, telegram]);
 };
 
 const useRefill = (newest, key) => {
@@ -339,7 +350,13 @@ const useStallEnd = (key, stalledAt, patch) => {
  * `loadOlder()`. Without a server (offline, the static site), none — the
  * chat shows what the page holds.
  */
-export const useChatWindow = (api, current, links, tick = 0) => {
+export const useChatWindow = (
+  api,
+  current,
+  links,
+  tick = 0,
+  { telegramAvailable = true } = {}
+) => {
   const [windows, setWindows] = useState(() => new Map());
   const ref = useRef(windows);
   ref.current = windows;
@@ -354,6 +371,7 @@ export const useChatWindow = (api, current, links, tick = 0) => {
   }, []);
   const key = current?.key ?? null;
   const supported = typeof api.chatPage === 'function';
+  const telegram = telegramAvailable && isTelegram(api, current);
 
   const newest = useCallback(
     async (target) => {
@@ -368,7 +386,14 @@ export const useChatWindow = (api, current, links, tick = 0) => {
   const refill = useRefill(newest, key);
   const retry = useRetry(key);
 
-  useOpenChat(api, current, { supported, refill, retry, patch, newest });
+  useOpenChat(api, current, {
+    supported,
+    telegram,
+    refill,
+    retry,
+    patch,
+    newest,
+  });
 
   // The page reconnected or the store caught up (a restart, a sync):
   // what the store got meanwhile came with no event, so the open chat's
@@ -387,7 +412,6 @@ export const useChatWindow = (api, current, links, tick = 0) => {
   const complete =
     Boolean(current) && historyComplete(links ?? [], current.chat);
   const window = key ? (windows.get(key) ?? EMPTY) : EMPTY;
-  const telegram = isTelegram(api, current);
   const vk = isVk(api, current);
   const olderLeft = hasOlder(window, { telegram: telegram || vk, complete });
 
@@ -497,7 +521,11 @@ const knownChats = (links) =>
  * newest messages are read into the store, one chat at a time, newest
  * request first, only for chats never read. Telegram's "wait" pauses it.
  */
-export const usePrefetch = (api, links, { now = () => Date.now() } = {}) => {
+export const usePrefetch = (
+  api,
+  links,
+  { now = () => Date.now(), enabled = true } = {}
+) => {
   const asked = useRef(new Set());
   const queue = useRef([]);
   const busy = useRef(false);
@@ -506,7 +534,16 @@ export const usePrefetch = (api, links, { now = () => Date.now() } = {}) => {
   const known = useMemo(() => knownChats(links ?? []), [links]);
   const knownRef = useRef(known);
   knownRef.current = known;
-  const supported = typeof api.telegramHistory === 'function';
+  const supported = enabled && typeof api.telegramHistory === 'function';
+  const available = useRef(supported);
+  available.current = supported;
+  useEffect(() => {
+    if (!supported) {
+      queue.current.length = 0;
+      asked.current.clear();
+      globalThis.clearTimeout(timer.current);
+    }
+  }, [supported]);
 
   const pump = useCallback(async () => {
     if (busy.current) {
@@ -514,7 +551,7 @@ export const usePrefetch = (api, links, { now = () => Date.now() } = {}) => {
     }
     busy.current = true;
     try {
-      while (queue.current.length > 0) {
+      while (available.current && queue.current.length > 0) {
         const wait = holdUntil.current - now();
         if (wait > 0) {
           globalThis.clearTimeout(timer.current);
@@ -566,7 +603,7 @@ export const usePrefetch = (api, links, { now = () => Date.now() } = {}) => {
       }
       pump();
     },
-    [api, pump]
+    [api, pump, supported]
   );
 };
 

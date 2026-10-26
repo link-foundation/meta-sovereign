@@ -44,7 +44,7 @@ export const hi = {
   'webMode.download': 'डेस्कटॉप ऐप पाएँ (सर्वर शामिल)',
   'webMode.dismiss': 'छिपाएँ',
   'webMode.safari':
-    'Safari https pages को http://127.0.0.1 तक नहीं पहुँचने देता, पर server के certificate पर भरोसा करने के बाद वह https से server तक पहुँचता है: एक बार npx -y meta-sovereign trust चलाएँ। तब तक नीचे दिए लिंक से सर्वर से ऐप खोलें, या डेस्कटॉप ऐप का उपयोग करें।',
+    'Safari इस HTTPS पेज को local HTTP API तक पहुँचने नहीं देता। एक बार node js/bin/meta-sovereign.js trust से local HTTPS certificate पर भरोसा करें, फिर इसी hosted app का उपयोग करें। Localhost UI वैकल्पिक है (--local-ui=true)।',
   'webMode.openLocal': 'सर्वर से ऐप खोलें',
   'webMode.localFound':
     '{origin} पर सर्वर चल रहा है, पर यह ब्राउज़र इस पेज को उस तक पहुँचने नहीं देता। नीचे दिए लिंक से सर्वर से ऐप खोलें।',
@@ -52,7 +52,7 @@ export const hi = {
     'Safari को यहाँ से जुड़ने देने के लिए server पर एक बार भरोसा करें: {command} चलाएँ, या सर्वर पर भरोसा करें click करें, Show Details → visit this website चुनें और अपना password डालें। फिर फिर से जाँचें click करें।',
   'webMode.trustLink': 'सर्वर पर भरोसा करें',
   'webMode.localOff':
-    '{origin} पर सर्वर चल रहा है, पर Safari इस पेज को उस तक पहुँचने नहीं देता, और सर्वर की अपनी ऐप कॉपी बंद है। सर्वर को --local-ui=false के बिना शुरू करें, या यह पेज Chrome या Firefox में खोलें।',
+    '{origin} पर server चल रहा है। वैकल्पिक localhost UI बंद है; GitHub Pages default app है। Safari के लिए HTTPS enable करें और local certificate trust करें। --local-ui=true केवल वैकल्पिक local web app enable करता है।',
   'nav.chat': 'चैट',
   'nav.operator': 'ऑपरेटर',
   'nav.contacts': 'संपर्क',

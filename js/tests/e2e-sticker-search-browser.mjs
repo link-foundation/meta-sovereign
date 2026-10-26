@@ -77,6 +77,7 @@ const GIFS = {
 
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-sticker-search-'));
 const handle = await startServer({
+  localUi: true,
   port: 0,
   storeDir: dir,
   store,

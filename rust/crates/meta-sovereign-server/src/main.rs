@@ -3,7 +3,8 @@
 //! Usage:
 //!   meta-sovereign-rs serve [--port 8787] [--web ./js/src/web]
 //!
-//! When `--web` points at the SPA assets the Rust server doubles as
+//! GitHub Pages is the default UI: https://link-foundation.github.io/meta-sovereign/.
+//! When `--web` explicitly points at the SPA assets the Rust server doubles as
 //! the static host, so the SPA can be opened at the same origin and
 //! `discover.js` picks the server up via the same-origin probe.
 
@@ -93,6 +94,7 @@ fn main() {
         "meta-sovereign-rs listening on http://127.0.0.1:{}",
         handle.port()
     );
+    println!("open the app → https://link-foundation.github.io/meta-sovereign/");
 
     let stop = Arc::new(AtomicBool::new(false));
     let stop_for_handler = Arc::clone(&stop);

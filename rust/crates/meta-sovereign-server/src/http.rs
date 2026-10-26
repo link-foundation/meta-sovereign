@@ -31,6 +31,81 @@ use crate::ws::{accept_key, encode_pong_frame, encode_text_frame, Frame, FrameRe
 
 const MAX_HEAD_BYTES: usize = 64 * 1024;
 const MAX_BODY_BYTES: usize = 16 * 1024 * 1024;
+const PAGES_ORIGIN: &str = "https://link-foundation.github.io";
+
+// Apply the same loopback Host and exact-origin boundary before HTTP,
+// WebSocket sync and WebRTC signalling. CORS never uses a wildcard.
+fn request_boundary(req: &Request, port: u16) -> Option<Response> {
+    let host = req
+        .headers
+        .get("host")
+        .map(|s| s.to_ascii_lowercase())
+        .unwrap_or_default();
+    let valid_host = ["127.0.0.1", "localhost", "[::1]"]
+        .iter()
+        .any(|name| host == format!("{name}:{port}"));
+    if !valid_host {
+        return Some(Response::json(
+            421,
+            "{\"error\":\"unexpected Host header\"}",
+        ));
+    }
+    let origin = req.headers.get("origin").map(String::as_str);
+    let same = origin == Some(format!("http://{host}").as_str());
+    if origin.is_some() && origin != Some(PAGES_ORIGIN) && !same {
+        return Some(Response::json(403, "{\"error\":\"origin denied\"}"));
+    }
+    if origin.is_none()
+        && req.headers.get("sec-fetch-site").map(String::as_str) == Some("cross-site")
+    {
+        return Some(Response::json(
+            403,
+            "{\"error\":\"cross-site request denied\"}",
+        ));
+    }
+    if req.method == "OPTIONS" {
+        let method = req
+            .headers
+            .get("access-control-request-method")
+            .map(String::as_str)
+            .unwrap_or("");
+        let headers = req
+            .headers
+            .get("access-control-request-headers")
+            .map(String::as_str)
+            .unwrap_or("");
+        if origin != Some(PAGES_ORIGIN)
+            || !["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS"].contains(&method)
+            || headers
+                .split(',')
+                .any(|h| !h.trim().is_empty() && !h.trim().eq_ignore_ascii_case("content-type"))
+        {
+            return Some(Response::json(403, "{\"error\":\"preflight denied\"}"));
+        }
+        let mut response = Response::bytes(204, "text/plain", Vec::new());
+        response.headers.extend([
+            ("access-control-allow-origin".into(), PAGES_ORIGIN.into()),
+            (
+                "access-control-allow-methods".into(),
+                "GET, HEAD, PUT, POST, DELETE, OPTIONS".into(),
+            ),
+            ("access-control-allow-headers".into(), "content-type".into()),
+            ("vary".into(), "Origin".into()),
+        ]);
+        if req
+            .headers
+            .get("access-control-request-private-network")
+            .map(String::as_str)
+            == Some("true")
+        {
+            response
+                .headers
+                .push(("access-control-allow-private-network".into(), "true".into()));
+        }
+        return Some(response);
+    }
+    None
+}
 
 #[derive(Debug, Clone)]
 pub struct Request {
@@ -271,6 +346,10 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         }
     };
 
+    if let Some(response) = request_boundary(&parsed, stream.local_addr()?.port()) {
+        return write_response(&mut stream, &response);
+    }
+
     if is_websocket_upgrade(&parsed) {
         if parsed.path == "/ws" {
             return upgrade_ws(stream, &parsed, sync_peers, ws_outgoing, ws_incoming);
@@ -304,7 +383,13 @@ fn handle_connection(mut stream: TcpStream, ctx: ConnectionCtx) -> std::io::Resu
         ws_peers: sync_peers.load(Ordering::SeqCst),
         rtc_rooms: signaling.rooms().len(),
     };
-    let response = dispatch(&state, &root, &req, metrics_ctx);
+    let mut response = dispatch(&state, &root, &req, metrics_ctx);
+    response.headers.push(("vary".into(), "Origin".into()));
+    if req.headers.get("origin").map(String::as_str) == Some(PAGES_ORIGIN) {
+        response
+            .headers
+            .push(("access-control-allow-origin".into(), PAGES_ORIGIN.into()));
+    }
     let status = response.status;
     write_response(&mut stream, &response)?;
     if log_format == LogFormat::Json {
@@ -593,9 +678,6 @@ fn write_response(stream: &mut TcpStream, response: &Response) -> std::io::Resul
     if !sent_conn {
         head.push_str("connection: close\r\n");
     }
-    if !sent_extra.contains_key("access-control-allow-origin") {
-        head.push_str("access-control-allow-origin: *\r\n");
-    }
     for (k, v) in security_headers() {
         if !sent_extra.contains_key(*k) {
             head.push_str(&format!("{k}: {v}\r\n"));
@@ -639,12 +721,14 @@ fn status_reason(code: u16) -> &'static str {
         201 => "Created",
         204 => "No Content",
         301 => "Moved Permanently",
+        302 => "Found",
         304 => "Not Modified",
         400 => "Bad Request",
         401 => "Unauthorized",
         403 => "Forbidden",
         404 => "Not Found",
         405 => "Method Not Allowed",
+        421 => "Misdirected Request",
         500 => "Internal Server Error",
         _ => "OK",
     }

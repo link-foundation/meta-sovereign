@@ -140,6 +140,7 @@ fn status(state: &ServerState) -> Value {
     }
     let contacts = aggregate_contacts(&all).len();
     ok_object(&[
+        ("service", Value::String("meta-sovereign".into())),
         ("links", Value::Number(all.len() as f64)),
         ("messages", Value::Number(count_prefix("msg:") as f64)),
         ("patterns", Value::Number(count_prefix("pattern:") as f64)),

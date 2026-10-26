@@ -42,6 +42,44 @@ const connectedLine = (t, telegram) => {
     : t('chat.account.connected');
 };
 
+/** Cached Telegram history needs a signed-in account to fetch more. */
+export const ChatAccountNotice = ({ state }) => {
+  const t = useT();
+  const { telegram, current } = state;
+  if (
+    current?.source !== 'telegram' ||
+    !telegram?.ready ||
+    (telegram.connected && !telegram.needsLogin)
+  ) {
+    return null;
+  }
+  return el(
+    'div',
+    { className: 'chat-banner', role: 'status', 'data-banner': 'sign-in' },
+    [
+      el(
+        'span',
+        { key: 't' },
+        t(
+          telegram.needsLogin
+            ? 'header.telegramSignIn'
+            : 'chat.account.disconnected'
+        )
+      ),
+      el(
+        'button',
+        {
+          key: 'c',
+          type: 'button',
+          className: 'ghost',
+          onClick: openConnections,
+        },
+        t('chat.account.openConnection')
+      ),
+    ]
+  );
+};
+
 /** Chat with no conversations yet, but Telegram is connected. */
 export const ChatAccountEmpty = ({ telegram }) => {
   const t = useT();

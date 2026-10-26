@@ -5,7 +5,6 @@
 // ./web-mode-banner.js shows; it touches no DOM so Node can test it.
 
 import { localServerHelp } from './connection-guides.js';
-import { DEFAULT_PORTS } from './discover.js';
 
 export const DOWNLOAD_PAGE_URL =
   'https://link-foundation.github.io/meta-sovereign/download/';
@@ -42,10 +41,9 @@ const downloadHref = (location) =>
     ? './download/'
     : DOWNLOAD_PAGE_URL;
 
-// A server seen but not usable from here: its own copy is a link away
-// (never opened by itself). Safari may also block the picture: then the
-// link is to our port. A server with that copy off is named.
-const localLinks = (nearby, safariHint) => {
+// Offer a local UI only when the server's beacon confirms it is enabled.
+// The default hosted UI connects through the trusted local HTTPS API.
+const localLinks = (nearby) => {
   if (nearby) {
     // With https on, trusting its certificate once lets this page in.
     const trustHref = nearby.tls
@@ -55,9 +53,7 @@ const localLinks = (nearby, safariHint) => {
       ? { localHref: `${nearby.origin}/`, localFound: nearby.origin, trustHref }
       : { localHref: null, localOff: nearby.origin, trustHref };
   }
-  return {
-    localHref: safariHint ? `http://127.0.0.1:${DEFAULT_PORTS[0]}/` : null,
-  };
+  return { localHref: null };
 };
 
 /**
@@ -83,7 +79,7 @@ export const webModeNotice = ({
     // the desktop build, so only plain browsers get the download link.
     downloadHref: runtime === 'web' ? downloadHref(location) : null,
     safariHint,
-    ...localLinks(nearby, safariHint),
+    ...localLinks(nearby),
     commands: localServerHelp.options.filter((option) =>
       SERVER_OPTION_IDS.includes(option.id)
     ),

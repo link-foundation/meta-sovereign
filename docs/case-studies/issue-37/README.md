@@ -117,10 +117,10 @@ Each item was reproduced first: in CI logs (kept locally under
 2. **The hosted SPA could never see a local JS server.** The server sent
    no CORS headers, so the browser hid every response from
    `discoverServer()`. `js/src/server/cors.js` now answers allow-listed
-   origins (`https://link-foundation.github.io`, `https://localhost`,
-   `capacitor://localhost` by default). It refuses preflights and
-   state-changing requests from every other origin, so an arbitrary
-   website still cannot write to the store. It can be configured with
+   origins (only `https://link-foundation.github.io` by default, plus
+   the server’s own exact loopback origin). It now refuses reads, writes,
+   preflights and socket upgrades from other origins. WebViews need an
+   explicit allow-list entry. It can be configured with
    `MS_ALLOW_ORIGINS` or `meta-sovereign serve --allow-origin=<origins|none>`.
    See `cors-before.txt` and `cors-after.txt` and
    `js/tests/server-cors.test.js`.
@@ -191,20 +191,20 @@ Until then:
 
 - **Safari** treats `http://127.0.0.1` as mixed content on an HTTPS page
   ([WebKit bug 171934](https://bugs.webkit.org/show_bug.cgi?id=171934)),
-  so the hosted app stays in browser-only mode there. The notice tells
-  Safari users to open the app from the local server
-  (`http://127.0.0.1:8787`) or use the desktop app. The WebKit result in
+  the hosted app now connects through the local HTTPS API after the
+  server certificate is trusted (`node js/bin/meta-sovereign.js trust`).
+  GitHub Pages remains the default UI. For offline use, the local web
+  app is optional (`serve --local-ui=true`); the desktop shell bundles it. The WebKit result in
   `cors-after.txt` is from an `http://localhost` page, so it does not
   test this case.
 - **Chrome 142+ / Firefox 153+** ask the user once for Local Network
   Access before the hosted page may reach `127.0.0.1`. That prompt is
   the browser's and cannot be skipped.
-- **The Rust server** answers every response with
-  `access-control-allow-origin: *` (`rust/crates/meta-sovereign-server/src/http.rs`).
-  This works with the hosted app, but it is more permissive than the JS
-  allow-list. Porting the allow-list to Rust is a follow-up.
-- **WebSocket `Origin` checks** are not part of this PR. The CORS
-  allow-list covers HTTP only.
+- **Current security boundary:** both JS and Rust now reject foreign
+  origins and DNS-rebinding Hosts before HTTP, WebSocket sync and WebRTC
+  signaling. Rust no longer returns wildcard CORS headers. See
+  [local server security](../../LOCAL-SERVER-SECURITY.md) for current
+  certificate setup and hardware-protection limits.
 - **Unsigned builds:**
   - Ad-hoc macOS builds open through System Settings → Privacy &
     Security → "Open Anyway", and cannot auto-update (Squirrel.Mac needs

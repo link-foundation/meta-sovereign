@@ -101,7 +101,10 @@ const cachedStatus = (store) => {
 const HANDLERS = {
   '/api/contacts': async (store) =>
     aggregateContacts(await store.query(), { people: true }),
-  '/api/status': (store) => cachedStatus(store),
+  '/api/status': async (store) => ({
+    service: 'meta-sovereign',
+    ...(await cachedStatus(store)),
+  }),
   '/api/autocomplete': async (store, url) =>
     completionsFor(
       await store.query(),

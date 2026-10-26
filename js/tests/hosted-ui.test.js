@@ -51,10 +51,20 @@ test('the hosted address, the switch, and the ports the app looks at', () => {
   );
   assert.equal(hostedUiUrl('javascript:alert(1)'), HOSTED_UI_URL);
   assert.equal(hostedUiUrl('not a url'), HOSTED_UI_URL);
-  for (const off of ['false', 'off', '0', 'no', 'none', ' OFF ']) {
+  for (const off of [
+    undefined,
+    null,
+    false,
+    'false',
+    'off',
+    '0',
+    'no',
+    'none',
+    ' OFF ',
+  ]) {
     assert.equal(localUiEnabled(off), false, off);
   }
-  for (const on of [undefined, null, true, 'true', 'on', '1']) {
+  for (const on of [true, 'true', 'on', '1']) {
     assert.equal(localUiEnabled(on), true, String(on));
   }
   assert.equal(DEFAULT_PORTS[0], 8787, 'our port is looked at first');
@@ -64,17 +74,21 @@ test('the hosted address, the switch, and the ports the app looks at', () => {
 });
 
 test('with the local copy on, the server serves the app itself', async () => {
-  await withServer({ uiUrl: undefined }, async (base, handle) => {
-    assert.equal(handle.localUi, true);
-    assert.equal(handle.uiUrl, HOSTED_UI_URL);
-    const page = await fetch(`${base}/`);
-    assert.equal(page.status, 200);
-    assert.match(await page.text(), /meta-sovereign/);
-  });
+  await withServer(
+    { uiUrl: undefined, localUi: true },
+    async (base, handle) => {
+      assert.equal(handle.localUi, true);
+      assert.equal(handle.uiUrl, HOSTED_UI_URL);
+      const page = await fetch(`${base}/`);
+      assert.equal(page.status, 200);
+      assert.match(await page.text(), /meta-sovereign/);
+    }
+  );
 });
 
-test('with the local copy off, / opens the hosted app, no address in its link', async () => {
-  await withServer({ localUi: 'false' }, async (base) => {
+test('by default, / opens GitHub Pages and only the API is served locally', async () => {
+  await withServer({}, async (base, handle) => {
+    assert.equal(handle.localUi, false);
     const page = await fetch(`${base}/`, { redirect: 'manual' });
     assert.equal(page.status, 302);
     assert.equal(page.headers.get('location'), HOSTED_UI_URL);
@@ -107,13 +121,17 @@ test('the hosted app finds a server on our port by itself', async () => {
     fetchImpl: async (url) => {
       asked.push(url);
       return url.startsWith('http://127.0.0.1:8787/')
-        ? { ok: true, json: async () => ({ links: 0 }) }
+        ? {
+            ok: true,
+            json: async () => ({ service: 'meta-sovereign', links: 0 }),
+          }
         : { ok: false };
     },
   });
   assert.deepEqual(found, { origin: 'http://127.0.0.1:8787' });
   assert.deepEqual(asked, [
     'https://link-foundation.github.io/api/status',
+    'https://127.0.0.1:8787/api/status',
     'http://127.0.0.1:8787/api/status',
   ]);
 });
@@ -131,15 +149,15 @@ test('the hosted app finds the server over https when http is blocked', async ()
         throw new TypeError('blocked as mixed content');
       }
       return url.startsWith('https://127.0.0.1:8787/')
-        ? { ok: true, json: async () => ({ links: 0 }) }
+        ? {
+            ok: true,
+            json: async () => ({ service: 'meta-sovereign', links: 0 }),
+          }
         : { ok: false };
     },
   });
   assert.deepEqual(found, { origin: 'https://127.0.0.1:8787' });
-  assert.deepEqual(asked.slice(1), [
-    'http://127.0.0.1:8787/api/status',
-    'https://127.0.0.1:8787/api/status',
-  ]);
+  assert.deepEqual(asked.slice(1), ['https://127.0.0.1:8787/api/status']);
 });
 
 // Safari: the hosted page cannot ask the server anything, but sees its
@@ -154,7 +172,7 @@ test('the server shows Safari its picture, sized by the local copy', async () =>
       .slice(1)
       .map(Number);
   };
-  await withServer({}, async (base) =>
+  await withServer({ localUi: true }, async (base) =>
     assert.deepEqual(await size(base), [BEACON_WIDTH, 1])
   );
   await withServer({ localUi: false }, async (base) =>

@@ -34,6 +34,7 @@ await store.put({
 
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-offline-'));
 const handle = await startServer({
+  localUi: true,
   port: 0,
   storeDir: dir,
   store,
@@ -47,6 +48,12 @@ const browser = await browserType.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(String(e)));
+let historyRequests = 0;
+page.on('request', (request) => {
+  if (new URL(request.url()).pathname === '/api/telegram/history') {
+    historyRequests += 1;
+  }
+});
 
 // What the server would say about Telegram, changed as the test goes.
 let telegram = {
@@ -86,6 +93,36 @@ try {
     'a wait is shown nowhere'
   );
   console.log('[e2e-offline] asked to wait: Online, nothing shown');
+
+  // Cached chats on a fresh server must not pretend Telegram is loading.
+  telegram = {
+    ...telegram,
+    connected: false,
+    kind: null,
+    error: null,
+    code: null,
+  };
+  await page.waitForSelector('[data-banner="sign-in"]');
+  assert(
+    (await page.locator('.chat-older').count()) === 0,
+    'no endless history spinner without an account'
+  );
+  const before = historyRequests;
+  await page.waitForTimeout(6000);
+  assert(
+    historyRequests === before,
+    'no history retries while Telegram is disconnected'
+  );
+  const resumed = page.waitForRequest(
+    (request) => new URL(request.url()).pathname === '/api/telegram/history'
+  );
+  telegram = { ...telegram, connected: true, kind: 'user' };
+  await page.waitForSelector('[data-banner="sign-in"]', { state: 'detached' });
+  await resumed;
+  assert(historyRequests > before, 'history resumes when the account connects');
+  console.log(
+    '[e2e-offline] disconnected: sign-in prompt, no history loop; reconnected: history resumes'
+  );
 
   telegram = { ...telegram, error: 'connect ECONNREFUSED', offline: true };
   await badgeSays('Offline');

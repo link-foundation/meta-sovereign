@@ -59,23 +59,43 @@ const runtimeCandidates = () => {
   ];
 };
 
-const probe = async (origin, fetchImpl, signal) => {
+const probe = async (origin, fetchImpl, signal, timeout) => {
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  signal?.addEventListener('abort', abort, { once: true });
+  const timer = globalThis.setTimeout(abort, timeout);
   try {
-    const res = await fetchImpl(`${origin}${HEALTH}`, { signal });
+    if (signal?.aborted) {
+      return false;
+    }
+    const res = await fetchImpl(`${origin}${HEALTH}`, {
+      signal: controller.signal,
+    });
     const json = await res.json().catch(() => null);
     // A server locked by its passcode (R-Y183) is still the server: the
     // page shows its unlock screen.
-    if (res.status === 423 && json?.code === 'locked') {
+    if (
+      res.status === 423 &&
+      json?.service === 'meta-sovereign' &&
+      json?.code === 'locked'
+    ) {
       return true;
     }
     if (!res.ok) {
       return false;
     }
-    // Loose duck-type check: we accept anything that looks like the
-    // status payload (an object with a numeric counter).
-    return json && typeof json === 'object';
+    // Do not attach to an unrelated JSON service on a common local port.
+    // HTTPS authenticates the server; this identifies its wire protocol.
+    return (
+      json?.service === 'meta-sovereign' &&
+      Number.isSafeInteger(json.links) &&
+      json.links >= 0
+    );
   } catch {
     return false;
+  } finally {
+    globalThis.clearTimeout(timer);
+    signal?.removeEventListener('abort', abort);
   }
 };
 
@@ -101,10 +121,10 @@ const buildCandidateList = (origin, storage, candidates) => {
   }
   const secure = String(origin ?? '').startsWith('https:');
   for (const port of DEFAULT_PORTS) {
-    list.push(`http://127.0.0.1:${port}`);
     if (secure) {
       list.push(`https://127.0.0.1:${port}`);
     }
+    list.push(`http://127.0.0.1:${port}`);
   }
   for (const c of candidates) {
     list.push(c);
@@ -118,15 +138,19 @@ export const discoverServer = async ({
   origin = globalThis.location?.origin,
   candidates = [],
   signal,
+  probeTimeoutMs = 1500,
 } = {}) => {
   const seen = new Set();
   const list = buildCandidateList(origin, storage, candidates);
   for (const candidate of list) {
+    if (signal?.aborted) {
+      return null;
+    }
     if (!candidate || seen.has(candidate)) {
       continue;
     }
     seen.add(candidate);
-    if (await probe(candidate, fetchImpl, signal)) {
+    if (await probe(candidate, fetchImpl, signal, probeTimeoutMs)) {
       return { origin: candidate };
     }
   }

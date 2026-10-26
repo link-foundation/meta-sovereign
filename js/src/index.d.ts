@@ -21,6 +21,10 @@ export declare const runCli: (argv: string[]) => Promise<number>;
 export declare const startServer: (opts: {
   port?: number;
   storeDir?: string;
+  /** Serve the bundled web UI; defaults to false (GitHub Pages is the UI). */
+  localUi?: boolean | string;
+  /** Override the default GitHub Pages app URL. */
+  uiUrl?: string;
   emailLiveFactory?: (config: unknown) => unknown;
   /** Periodic pull of a connected mailbox; `false` turns it off. */
   emailPoll?: false | { intervalMs?: number; firstMs?: number };

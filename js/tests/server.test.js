@@ -75,7 +75,7 @@ const withDeadline = (promise, ms, message) =>
 describe('http server lifecycle', () => {
   it('tears down idle keep-alive sockets during shutdown', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-keepalive-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     let sock = null;
     let closePromise = null;
     let closedHandle = false;
@@ -112,6 +112,7 @@ describe('http server', () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv-'));
     // No Telegram account: it would add its own repair marker link.
     const handle = await startServer({
+      localUi: true,
       port: 0,
       storeDir: dir,
       telegramAccount: false,
@@ -133,7 +134,7 @@ describe('http server', () => {
   });
   it('exposes /sources', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv2-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     try {
       const r = await fetchJson(`http://127.0.0.1:${handle.port}/sources`);
       expect(r.body.includes('telegram')).toBe(true);
@@ -144,7 +145,7 @@ describe('http server', () => {
 
   it('serves the SPA shell at /', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv3-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     try {
       const r = await fetch(`http://127.0.0.1:${handle.port}/`);
       const text = await r.text();
@@ -171,7 +172,7 @@ describe('http server', () => {
 
   it('exposes derived API routes', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv4-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       await fetchJson(`${base}/links`, {
@@ -235,7 +236,7 @@ describe('http server', () => {
 
   it('mounts browser-safe sibling modules under /storage and /handlers', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv5-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       const browserStore = await fetch(`${base}/storage/browser-store.js`);
@@ -275,6 +276,7 @@ describe('email server routes', () => {
   it('proxies email pull/send through local server fallback routes', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-email-'));
     const handle = await startServer({
+      localUi: true,
       port: 0,
       storeDir: dir,
       emailLiveFactory: ({ protocol }) => {
@@ -358,7 +360,7 @@ describe('email server routes', () => {
 describe('http server observability', () => {
   it('exposes /metrics in Prometheus exposition format', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-mtr-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       await fetch(`${base}/links`, {
@@ -382,7 +384,12 @@ describe('http server observability', () => {
     const lines = [];
     const log = jsonLog({ write: (line) => lines.push(line) });
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-log-'));
-    const handle = await startServer({ port: 0, storeDir: dir, log });
+    const handle = await startServer({
+      localUi: true,
+      port: 0,
+      storeDir: dir,
+      log,
+    });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       await fetch(`${base}/sources`).then((r) => r.text());
@@ -401,7 +408,7 @@ describe('http server observability', () => {
   });
   it('emits Content-Security-Policy + hardening headers on every response', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-csp-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       const html = await fetch(`${base}/`);
@@ -430,7 +437,7 @@ describe('http server observability', () => {
 describe('static asset caching', () => {
   it('makes browsers revalidate SPA assets so updates are never stale', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-srv-cache-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       for (const asset of ['/', '/app.min.js', '/app.css']) {

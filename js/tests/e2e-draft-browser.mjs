@@ -57,6 +57,7 @@ const pacing = (ms) => ({ minDelayMs: ms, maxDelayMs: ms, typing: false });
 const sent = [];
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-draft-'));
 const handle = await startServer({
+  localUi: true,
   port: 0,
   storeDir: dir,
   store,

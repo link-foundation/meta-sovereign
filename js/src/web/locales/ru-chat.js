@@ -114,6 +114,8 @@ export const ruChat = {
   'chat.earlierFailed': 'Не удалось загрузить более ранние сообщения.',
   'chat.you': 'Вы',
   'chat.account.connected': 'Telegram подключён',
+  'chat.account.disconnected':
+    'Подключите Telegram, чтобы загрузить остальные сообщения чата.',
   'chat.account.connectedAs': 'Подключено как {name}',
   'chat.account.bot': 'Подключён бот Telegram',
   'chat.account.loading':

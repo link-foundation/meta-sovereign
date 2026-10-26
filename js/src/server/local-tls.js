@@ -21,7 +21,13 @@ import { promises as fs } from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
 import tls from 'node:tls';
-import { DIR_MODE, tighten } from '../storage/durable.js';
+import { DIR_MODE, tighten, writeFileDurable } from '../storage/durable.js';
+import {
+  certificateFingerprint,
+  createDeviceKeyProtector,
+  isDeviceKey,
+  unlockLocalKey,
+} from './local-key.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Apple accepts a trusted server certificate for at most 825 days.
@@ -149,10 +155,21 @@ export const makeLocalCertificate = ({
   };
 };
 
-const usable = (cert, now) => {
+const usable = (cert, key, now) => {
   try {
     const x509 = new crypto.X509Certificate(cert);
-    return Date.parse(x509.validTo) - now > RENEW_DAYS * DAY_MS;
+    return (
+      !x509.ca &&
+      x509.verify(x509.publicKey) &&
+      x509.checkPrivateKey(crypto.createPrivateKey(key)) &&
+      Date.parse(x509.validFrom) <= now &&
+      Date.parse(x509.validTo) - now > RENEW_DAYS * DAY_MS &&
+      x509.subjectAltName?.split(', ').length === 3 &&
+      x509.subjectAltName.includes('DNS:localhost') &&
+      x509.subjectAltName.includes('IP Address:127.0.0.1') &&
+      (x509.subjectAltName.includes('IP Address:0:0:0:0:0:0:0:1') ||
+        x509.subjectAltName.includes('IP Address:::1'))
+    );
   } catch {
     return false;
   }
@@ -173,24 +190,60 @@ export const localTlsPaths = (storeDir) => {
  * needed: `{ key, cert, certPath, made }`. The key is readable by its
  * owner only.
  */
-export const loadLocalTls = async (storeDir, { now = Date.now() } = {}) => {
+export const loadLocalTls = async (
+  storeDir,
+  { now = Date.now(), protector } = {}
+) => {
   const paths = localTlsPaths(storeDir);
-  const [key, cert] = await Promise.all([
+  const [encoded, diskCert] = await Promise.all([
     fs.readFile(paths.key, 'utf8').catch(() => null),
     fs.readFile(paths.cert, 'utf8').catch(() => null),
   ]);
   // The key is private whatever mode an older version created it with (R-Z2).
   await tighten(paths.key);
   await tighten(paths.dir, DIR_MODE);
-  if (key && cert && usable(cert, now)) {
-    return { key, cert, certPath: paths.cert, made: false };
+  const deviceKey = isDeviceKey(encoded);
+  // Keep the certificate with its sealed key so a crash between the two
+  // file renames can recover the pair without replacing the trusted key.
+  const cert = deviceKey
+    ? (JSON.parse(encoded).certificate ?? diskCert)
+    : diskCert;
+  const protection =
+    protector ?? (deviceKey ? await createDeviceKeyProtector(storeDir) : null);
+  const key = deviceKey
+    ? await unlockLocalKey(encoded, cert, protection)
+    : encoded;
+  const finish = async (pair, made) => {
+    const sealed = Boolean(protection);
+    if (made || (sealed && !deviceKey)) {
+      const saved = sealed
+        ? JSON.stringify({
+            ...(await protection.seal(
+              pair.key,
+              certificateFingerprint(pair.cert)
+            )),
+            certificate: pair.cert,
+          })
+        : pair.key;
+      await writeFileDurable(paths.key, saved);
+    }
+    if (made || diskCert !== pair.cert) {
+      await writeFileDurable(paths.cert, pair.cert);
+    }
+    return {
+      ...pair,
+      certPath: paths.cert,
+      made,
+      protection: sealed ? 'secure-enclave' : 'file',
+      fingerprint: certificateFingerprint(pair.cert),
+    };
+  };
+  if (key && cert && usable(cert, key, now)) {
+    return finish({ key, cert }, false);
   }
   const fresh = makeLocalCertificate({ now });
   await fs.mkdir(paths.dir, { recursive: true, mode: 0o700 });
-  await fs.writeFile(paths.key, fresh.key, { mode: 0o600 });
-  await fs.writeFile(paths.cert, fresh.cert);
-  await tighten(paths.key); // an old key file keeps its old mode on rewrite
-  return { ...fresh, certPath: paths.cert, made: true };
+  return finish(fresh, true);
 };
 
 /** Whether this runtime can share one port between HTTP and HTTPS. */
@@ -238,8 +291,9 @@ export const listenHttpAndHttps = (
 
 /**
  * Listen as the server does: HTTPS beside HTTP on the same port when
- * `tls` is asked for and the runtime can share it, plain HTTP otherwise
- * (or when the certificate cannot be made). Resolves `{ listener, tls }`
+ * `tls` is asked for and the runtime can share it, plain HTTP otherwise.
+ * Certificate or device-key failures reject instead of downgrading.
+ * Resolves `{ listener, tls }`
  * with `tls` as `{ certPath }` or null.
  */
 export const listenLocal = async (
@@ -247,18 +301,26 @@ export const listenLocal = async (
   { port, storeDir, tls: wanted = false, log }
 ) => {
   if (wanted && storeDir && canShareTlsPort()) {
-    let local = null;
+    let local;
     try {
       local = await loadLocalTls(storeDir);
     } catch (error) {
-      log?.({ level: 'warn', event: 'tls_off', error: error.message });
+      log?.({ level: 'error', event: 'tls_failed', error: error.message });
+      throw error; // A locked or copied device key must never downgrade to HTTP.
     }
     if (local) {
       if (local.made) {
         log?.({ event: 'tls_certificate_made', path: local.certPath });
       }
       const listener = await listenHttpAndHttps(server, local, port);
-      return { listener, tls: { certPath: local.certPath } };
+      return {
+        listener,
+        tls: {
+          certPath: local.certPath,
+          fingerprint: local.fingerprint,
+          protection: local.protection,
+        },
+      };
     }
   }
   // A busy port rejects (it used to hang for ever, R-Z1).

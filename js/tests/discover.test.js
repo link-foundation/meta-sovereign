@@ -19,7 +19,7 @@ const fakeStorage = () => {
   };
 };
 
-const ok = (data = { ok: 1 }) => ({
+const ok = (data = { service: 'meta-sovereign', links: 0 }) => ({
   ok: true,
   json: async () => data,
 });
@@ -88,4 +88,47 @@ test('discover returns null when nothing answers', async () => {
     candidates: ['http://nope.local:1234'],
   });
   assert.equal(out, null);
+});
+
+test('discovery rejects unrelated JSON services and prefers trusted local HTTPS', async () => {
+  const calls = [];
+  const found = await discoverServer({
+    origin: 'https://link-foundation.github.io',
+    storage: null,
+    fetchImpl: async (url) => {
+      calls.push(url);
+      return url.startsWith('https://127.0.0.1:8787/')
+        ? ok()
+        : ok({ links: 12 });
+    },
+  });
+  assert.deepEqual(found, { origin: 'https://127.0.0.1:8787' });
+  assert.equal(calls.length, 2);
+  assert.equal(
+    await discoverServer({
+      origin: 'http://127.0.0.1:8787',
+      storage: null,
+      fetchImpl: async () => ok({ error: 'some other app' }),
+    }),
+    null
+  );
+});
+
+test('a stalled candidate times out so discovery can try the real server', async () => {
+  const found = await discoverServer({
+    origin: 'http://127.0.0.1:9999',
+    storage: null,
+    probeTimeoutMs: 10,
+    fetchImpl: (url, { signal }) =>
+      url.includes(':9999/')
+        ? new Promise((_resolve, reject) =>
+            signal.addEventListener(
+              'abort',
+              () => reject(new Error('aborted')),
+              { once: true }
+            )
+          )
+        : Promise.resolve(ok()),
+  });
+  assert.deepEqual(found, { origin: 'http://127.0.0.1:8787' });
 });

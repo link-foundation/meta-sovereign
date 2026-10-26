@@ -59,6 +59,7 @@ export const openChatApp = async (
   const { engine, browserType } = await browserOf(name);
   const dir = await mkdtemp(path.join(os.tmpdir(), `ms-e2e-${name}-`));
   const handle = await startServer({
+    localUi: true,
     port: 0,
     storeDir: dir,
     store,

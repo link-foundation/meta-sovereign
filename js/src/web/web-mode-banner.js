@@ -114,7 +114,9 @@ export const WebModeBanner = ({
         ? el(
             'p',
             { key: 'trust', className: 'meta' },
-            t('webMode.trust', { command: 'npx -y meta-sovereign trust' })
+            t('webMode.trust', {
+              command: 'node js/bin/meta-sovereign.js trust',
+            })
           )
         : null,
       notice.localOff

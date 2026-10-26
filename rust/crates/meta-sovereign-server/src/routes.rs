@@ -141,6 +141,15 @@ pub fn dispatch(
     req: &Request,
     metrics: MetricsCtx,
 ) -> Response {
+    if root.path.is_none() && req.method == "GET" && (req.path == "/" || req.path == "/index.html")
+    {
+        let mut response = Response::bytes(302, "text/plain", Vec::new());
+        response.headers.push((
+            "location".into(),
+            "https://link-foundation.github.io/meta-sovereign/".into(),
+        ));
+        return response;
+    }
     if let Some(r) = serve_static(root, req) {
         return r;
     }

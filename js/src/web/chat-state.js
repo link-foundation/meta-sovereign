@@ -645,6 +645,7 @@ const useTelegramAccount = (
   useInterval(load, supported ? every : 0, [load, every]);
   return {
     ...(status ?? { connected: false }),
+    ready: status !== null,
     syncing: Boolean(status?.syncing),
   };
 };
@@ -955,6 +956,15 @@ const useShownMessages = (api, links, current, window, pending, topic) => {
   return useEphemeral(api, current, links, shown, topic);
 };
 
+const useHistory = (api, current, links, tick, telegram) => {
+  const telegramAvailable =
+    telegram.connected && telegram.kind === 'user' && !telegram.needsLogin;
+  return {
+    history: useChatWindow(api, current, links, tick, { telegramAvailable }),
+    prefetch: usePrefetch(api, links, { enabled: telegramAvailable }),
+  };
+};
+
 export const useChatState = (
   api,
   { t, confirm = defaultConfirm, pollMs = 2500 } = {}
@@ -990,8 +1000,7 @@ export const useChatState = (
     return (key) => names.get(key) ?? null;
   }, [all]);
   const { forum, viewed, readMax } = useTopicView(api, current, tick);
-  const history = useChatWindow(api, viewed, links, tick);
-  const prefetch = usePrefetch(api, links);
+  const { history, prefetch } = useHistory(api, viewed, links, tick, telegram);
   const moreChats = useMoreChats(api, telegram, live ? null : refresh);
   const after = (next) => {
     setNotice(next);

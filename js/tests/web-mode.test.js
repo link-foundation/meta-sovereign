@@ -130,7 +130,7 @@ describe('webModeNotice', () => {
         nearby,
         location: PAGES,
       });
-    expect(notice(UA.safariMac).localHref).toBe('http://127.0.0.1:8787/');
+    expect(notice(UA.safariMac).localHref).toBe(null);
     expect(notice(UA.chrome).localHref).toBe(null);
     // A server seen by its picture: named and linked, never opened.
     const seen = notice(UA.safariMac, {
@@ -150,7 +150,7 @@ describe('webModeNotice', () => {
     expect(off.localHref).toBe(null);
     const html = render({ online: false, notice: off });
     expect(html).toContain('http://127.0.0.1:8788');
-    expect(html).toContain('--local-ui=false');
+    expect(html).toContain('--local-ui=true');
     expect(off.trustHref).toBe(null);
   });
 
@@ -167,7 +167,7 @@ describe('webModeNotice', () => {
     const html = render({ online: false, notice: secure });
     expect(html).toContain('class="web-mode-trust"');
     expect(html).toContain('href="https://127.0.0.1:8788/trust"');
-    expect(html).toContain('npx -y meta-sovereign trust');
+    expect(html).toContain('node js/bin/meta-sovereign.js trust');
   });
 });
 

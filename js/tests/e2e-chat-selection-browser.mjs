@@ -37,6 +37,7 @@ for (let i = 1; i <= 14; i++) {
 }
 const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-selection-'));
 const handle = await startServer({
+  localUi: true,
   port: 0,
   storeDir: dir,
   store,

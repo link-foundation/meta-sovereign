@@ -46,7 +46,7 @@ export const COPY = Object.freeze({
     serverGithubNote:
       'If npm answers 404 (the package is not published yet), run it straight from GitHub:',
     safariNote:
-      'Safari does not let https pages reach http://127.0.0.1. In Safari, open http://127.0.0.1:8787 directly or use the desktop app.',
+      'Safari blocks this HTTPS page from reaching the local HTTP API. Trust the local HTTPS certificate once with node js/bin/meta-sovereign.js trust, then keep using this hosted app. The localhost UI is optional (--local-ui=true).',
     installTitle: 'Installing',
     windowsHint:
       'Unsigned builds trigger Microsoft SmartScreen: choose “More info”, then “Run anyway”. The portable .exe runs without installing.',
@@ -107,7 +107,7 @@ export const COPY = Object.freeze({
     serverGithubNote:
       'Если npm отвечает 404 (пакет ещё не опубликован), запустите прямо из GitHub:',
     safariNote:
-      'Safari не разрешает https-страницам обращаться к http://127.0.0.1. В Safari откройте http://127.0.0.1:8787 напрямую или используйте десктопное приложение.',
+      'Safari блокирует обращения этой HTTPS-страницы к локальному HTTP API. Один раз выполните node js/bin/meta-sovereign.js trust, чтобы доверять локальному HTTPS-сертификату, и продолжайте пользоваться размещённым приложением. Localhost-интерфейс необязателен (--local-ui=true).',
     installTitle: 'Установка',
     windowsHint:
       'Неподписанные сборки вызывают предупреждение Microsoft SmartScreen: нажмите «Подробнее», затем «Выполнить в любом случае». Портативный .exe работает без установки.',
@@ -168,7 +168,7 @@ export const COPY = Object.freeze({
     serverGithubNote:
       '如果 npm 返回 404（软件包尚未发布），可直接从 GitHub 运行：',
     safariNote:
-      'Safari 不允许 https 页面访问 http://127.0.0.1。在 Safari 中请直接打开 http://127.0.0.1:8787，或使用桌面应用。',
+      'Safari 阻止此 HTTPS 页面访问本地 HTTP API。运行一次 node js/bin/meta-sovereign.js trust 以信任本地 HTTPS 证书，然后继续使用此托管应用。localhost 界面是可选的（--local-ui=true）。',
     installTitle: '安装说明',
     windowsHint:
       '未签名的版本会触发 Microsoft SmartScreen：点击“更多信息”，然后点击“仍要运行”。便携版 .exe 无需安装即可运行。',
@@ -229,7 +229,7 @@ export const COPY = Object.freeze({
     serverGithubNote:
       'अगर npm 404 देता है (पैकेज अभी प्रकाशित नहीं हुआ है), तो सीधे GitHub से चलाएँ:',
     safariNote:
-      'Safari https पेजों को http://127.0.0.1 तक पहुँचने नहीं देता। Safari में सीधे http://127.0.0.1:8787 खोलें या डेस्कटॉप ऐप का उपयोग करें।',
+      'Safari इस HTTPS पेज को local HTTP API तक पहुँचने नहीं देता। एक बार node js/bin/meta-sovereign.js trust से local HTTPS certificate पर भरोसा करें, फिर इसी hosted app का उपयोग करें। Localhost UI वैकल्पिक है (--local-ui=true)।',
     installTitle: 'इंस्टॉल करना',
     windowsHint:
       'बिना हस्ताक्षर वाले बिल्ड पर Microsoft SmartScreen चेतावनी देता है: “More info” और फिर “Run anyway” चुनें। पोर्टेबल .exe बिना इंस्टॉल किए चलता है।',

@@ -14,6 +14,7 @@
  */
 
 import path from 'node:path';
+import { maybeOpenHostedApp } from './browser-open.js';
 import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
@@ -25,7 +26,11 @@ import {
   GREETINGS_HELP,
   createGreetingCommands,
 } from './greetings-commands.js';
-import { TRUST_HELP, createTrustCommands } from './trust-commands.js';
+import {
+  TRUST_HELP,
+  createTrustCommands,
+  setupLocalCertificate,
+} from './trust-commands.js';
 import {
   MIGRATE_HELP,
   SCHEMA_ERROR_CODES,
@@ -83,7 +88,9 @@ Commands:
   backup        --store=<dir> --archive=<dir> [--keep=<n>]
   restore       --file=<path> --store=<dir> [--replace]
   passcode      --clear [--store=<dir>]   (remove a forgotten local passcode)
-  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=false] [--tls=false] [--quiet-logs]
+  serve         [--port=<n>] [--store=<dir>] [--allow-origin=<origins|none>] [--ui-url=<url>] [--local-ui=true] [--tls=false] [--trust=true|false] [--hardware-key=false] [--open=true|false] [--quiet-logs]
+                open https://link-foundation.github.io/meta-sovereign/; the localhost UI is opt-in
+                on macOS: protect the TLS key with Secure Enclave; detect trust, set it up once in an interactive terminal
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
                 https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
 ${TRUST_HELP}
@@ -196,7 +203,7 @@ const serveOptions = (args) => ({
   // back to MS_ALLOW_ORIGINS and then the built-in defaults.
   ...(args['allow-origin'] ? { allowOrigins: args['allow-origin'] } : {}),
   // The hosted app is the UI; the server's own copy is a fallback
-  // that `--local-ui=false` turns off (R-Y58, R-Y59).
+  // enabled with `--local-ui=true` (R-Y58, R-Y59).
   ...(args['ui-url'] ? { uiUrl: args['ui-url'] } : {}),
   ...(args['local-ui'] !== undefined ? { localUi: args['local-ui'] } : {}),
   // https beside http on the same port, for Safari (R-Y64).
@@ -221,7 +228,7 @@ const logAddresses = (handle, log) => {
   log(
     handle.localUi
       ? `local copy (fallback, e.g. for Safari or offline) → ${origin}/`
-      : `local copy off: ${origin}/ opens the app above`
+      : `local copy off: ${origin}/ opens the app above (enable with --local-ui=true)`
   );
 };
 
@@ -242,6 +249,9 @@ const serveCmd = async (args, log) => {
   }
   let handle;
   try {
+    if (args.foreground !== false) {
+      await setupLocalCertificate(args, log);
+    }
     handle = await startServer({
       port: Number(args.port ?? 8787),
       storeDir,
@@ -256,6 +266,7 @@ const serveCmd = async (args, log) => {
     return 1;
   }
   logAddresses(handle, log);
+  maybeOpenHostedApp(args, handle, log);
   if (serverLog) {
     log(`verbose logs → ${serverLog.file}`);
   }

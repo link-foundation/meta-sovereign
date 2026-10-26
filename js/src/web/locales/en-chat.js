@@ -114,6 +114,8 @@ export const enChat = {
   'chat.earlierFailed': 'Could not load earlier messages.',
   'chat.you': 'You',
   'chat.account.connected': 'Telegram is connected',
+  'chat.account.disconnected':
+    'Connect Telegram to load the rest of this chat.',
   'chat.account.connectedAs': 'Connected as {name}',
   'chat.account.bot': 'A Telegram bot is connected',
   'chat.account.loading':

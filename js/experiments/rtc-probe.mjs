@@ -5,7 +5,7 @@ import { startServer } from '../src/server/index.js';
 import { chromium } from 'playwright';
 
 const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-rtc-probe-'));
-const h = await startServer({ port: 0, storeDir: dir });
+const h = await startServer({ localUi: true, port: 0, storeDir: dir });
 const base = `http://127.0.0.1:${h.port}`;
 console.log('base', base);
 

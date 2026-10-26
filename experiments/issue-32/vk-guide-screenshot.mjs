@@ -23,7 +23,12 @@ const outDir =
 const lang = process.argv[3] ?? 'en';
 
 const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-vk-guide-'));
-const server = await startServer({ storeDir, enableSync: false, log: null });
+const server = await startServer({
+  localUi: true,
+  storeDir,
+  enableSync: false,
+  log: null,
+});
 const base = `http://127.0.0.1:${server.port}`;
 const browser = await chromium.launch(
   process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}

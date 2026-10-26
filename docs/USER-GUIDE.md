@@ -154,7 +154,7 @@ working from the browser store.
 
 The hosted app lives on `https://link-foundation.github.io`, so the
 browser asks the local server for permission first (CORS). The JS
-server allows that origin and the Capacitor app by default. To allow
+server allows only that hosted origin by default, plus its own exact loopback origin. Other WebViews require explicit configuration. To allow
 another origin, for example your own copy of the SPA:
 
 ```bash
@@ -164,12 +164,13 @@ meta-sovereign serve --allow-origin=https://example.org
 ```
 
 The hosted app is the default UI. `serve` prints its address, the app
-finds the server on port 8787 by itself, and the server's own copy at <http://127.0.0.1:8787>
-stays as a fallback (Safari, no internet). To stop serving it:
+finds the server on port 8787 by itself. By default `/` redirects to
+<https://link-foundation.github.io/meta-sovereign/> and the localhost web UI
+is disabled. To enable the optional local copy for offline use:
 
 ```bash
-meta-sovereign serve --local-ui=false   # or MS_LOCAL_UI=off
-# / now opens the hosted app; --ui-url=<url> names another hosted copy
+meta-sovereign serve --local-ui=true    # or MS_LOCAL_UI=on
+# / now serves the optional localhost UI; --ui-url=<url> names another hosted copy
 meta-sovereign serve --tls=false        # or MS_TLS=off — turns HTTPS off
 ```
 
@@ -185,10 +186,13 @@ Browser notes:
   `https://127.0.0.1:8787/trust` in Safari, click **Show Details → visit
   this website** and enter your password, then click **Check again**. After
   that, the hosted app in Safari connects over HTTPS without extra steps.
-  Before trusting, the notice links **Open the app from the server**
-  (<http://127.0.0.1:8787>) and **Trust the server**
-  (<https://127.0.0.1:8787/trust>). `--tls=false` / `MS_TLS=off` turns
-  HTTPS off; the server's own copy stays as a fallback.
+  Before trusting, the notice links **Trust the server**
+  (<https://127.0.0.1:8787/trust>). **Open the app from the server**
+  appears only when `--local-ui=true` is enabled. Safari connects to the
+  hosted app through the trusted local HTTPS API without enabling a local
+  web UI. `--tls=false` / `MS_TLS=off` turns HTTPS off.
+
+On macOS, interactive `serve` now handles the full setup: it protects this installation’s TLS key with Secure Enclave, detects existing certificate trust, requests trust only when needed, and opens the GitHub Pages app. For a headless launch use `node js/bin/meta-sovereign.js serve --trust=true --open=true`. `--trust=false` and `--open=false` opt out. The Swift helper needs the macOS Command Line Tools; `--hardware-key=false` explicitly opts into a file key on unsupported Macs. Hardware protection applies to the key on disk; Node uses it in memory. See [local server setup and security](./LOCAL-SERVER-SECURITY.md) for the exact access rules and limits.
 
 ## 6. Sync between your devices (WebRTC)
 
@@ -591,16 +595,16 @@ plan and ask y/N; scripts pass `--yes`.
 
 ## 12. Troubleshooting
 
-| Symptom                                                                | Fix                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| The SPA is stuck on a loading spinner.                                 | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled.                                                                                                                                                                                                                                                                      |
-| The SPA cannot reach my local server.                                  | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                                                                                                                                                                                                                                                                                         |
-| The hosted app stays in browser-only mode while the server runs.       | Click **Check again**. Allow the browser's local network prompt. On Safari: run `node js/bin/meta-sovereign.js trust` once (macOS) or open **Trust the server** (<https://127.0.0.1:8787/trust>), click Show Details → visit this website, then **Check again**. Or click **Open the app from the server** (<http://127.0.0.1:8787>). If you host the SPA yourself, start the server with `--allow-origin=<your origin>`. |
-| Photos and avatars show as initials or empty frames in the hosted app. | Update the server: the page asks for pictures as CORS requests, which the server lets through for the app's own origins only. If you host the SPA yourself, add its origin with `--allow-origin`. Refused loads appear in the log as `telegram_media_refused` (which page asked and how), loads that failed in the page as `client_media_failed` (counts by route).                                                       |
-| Some messages or avatars are missing right after a reload.             | Wait a few seconds: the chat asks for its messages again until they come, and a photo still downloading from Telegram shows once it is saved (the first time, Telegram sends each one slowly). Saved photos load at once afterwards.                                                                                                                                                                                      |
-| The server reports `EADDRINUSE`.                                       | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.                                                                                                                                                                                                                                                                                |
-| WebRTC sync stops between two LANs.                                    | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                                                                                                                                                                                                                                                                                                  |
-| `cargo build` fails with `linker` error.                               | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                                                                                                                                                                                                                                                                                     |
+| Symptom                                                                | Fix                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The SPA is stuck on a loading spinner.                                 | Open dev tools → Application → IndexedDB and confirm a `meta-sovereign` database exists; if not, your browser may have third-party storage disabled.                                                                                                                                                                                                                                                                                                                   |
+| The SPA cannot reach my local server.                                  | Open **Settings → Server** in the app and paste the exact URL. The discovery path falls back to a saved override.                                                                                                                                                                                                                                                                                                                                                      |
+| The hosted app stays in browser-only mode while the server runs.       | Click **Check again**. Allow the browser's local network prompt. On Safari: run `node js/bin/meta-sovereign.js trust` once (macOS) or open **Trust the server** (<https://127.0.0.1:8787/trust>), click Show Details → visit this website, then **Check again**. If started with `--local-ui=true`, you can also click **Open the app from the server** (<http://127.0.0.1:8787>). If you host the SPA yourself, start the server with `--allow-origin=<your origin>`. |
+| Photos and avatars show as initials or empty frames in the hosted app. | Update the server: the page asks for pictures as CORS requests, which the server lets through for the app's own origins only. If you host the SPA yourself, add its origin with `--allow-origin`. Refused loads appear in the log as `telegram_media_refused` (which page asked and how), loads that failed in the page as `client_media_failed` (counts by route).                                                                                                    |
+| Some messages or avatars are missing right after a reload.             | Wait a few seconds: the chat asks for its messages again until they come, and a photo still downloading from Telegram shows once it is saved (the first time, Telegram sends each one slowly). Saved photos load at once afterwards.                                                                                                                                                                                                                                   |
+| The server reports `EADDRINUSE`.                                       | Pass `--port=NNNN` to `meta-sovereign serve` or `cargo run --manifest-path rust/Cargo.toml -p meta-sovereign-server -- serve --port=NNNN`.                                                                                                                                                                                                                                                                                                                             |
+| WebRTC sync stops between two LANs.                                    | Configure a TURN server — see [`docs/WEBRTC-TURN.md`](./WEBRTC-TURN.md).                                                                                                                                                                                                                                                                                                                                                                                               |
+| `cargo build` fails with `linker` error.                               | Install a C toolchain (`build-essential` on Debian/Ubuntu, Xcode CLI tools on macOS).                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ## 13. Where to go next
 

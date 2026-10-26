@@ -1,9 +1,8 @@
 /**
  * Verifies the local web server now bundles a WebSocket sync
- * endpoint (/ws) and a WebRTC signaling broker (/rtc) on the same
- * port the SPA is served from. This is the architecture the latest
- * directive requires: SPA hits one origin, picks up REST + sync +
- * signaling without any cross-origin gymnastics.
+ * endpoint (/ws) and a WebRTC signaling broker (/rtc) on the API port.
+ * The default GitHub Pages app discovers that backend origin for REST,
+ * sync and signaling; serving the SPA on it is optional.
  *
  * Also verifies a written `broadcast:*` link does NOT fire the broadcast
  * handler that was bootstrapped onto the store.

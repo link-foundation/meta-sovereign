@@ -104,7 +104,7 @@ Electron 和 Capacitor shell 原样复用 `js/src/web/`，所以界面与 GitHub
 
 在 offline mode 下，托管的 app 会显示 **browser-only mode** 提示，包含启动本地 server 的命令、**Check again** 按钮和桌面 app 的链接。导入、自动化、同步、简历同步和问候需要 server；联系人、模式和群发继续使用浏览器存储工作。
 
-托管的 app 位于 `https://link-foundation.github.io`，因此浏览器会先向本地 server 请求许可（CORS）。JS server 默认允许该 origin 和 Capacitor app。要允许其他 origin，例如你自己部署的 SPA：
+托管的 app 位于 `https://link-foundation.github.io`，因此浏览器会先向本地 server 请求许可（CORS）。JS server 默认只允许此托管 origin 及服务器自身的精确 loopback origin。WebView 需要显式配置。要允许其他 origin，例如你自己部署的 SPA：
 
 ```bash
 meta-sovereign serve --allow-origin=https://example.org
@@ -112,19 +112,22 @@ meta-sovereign serve --allow-origin=https://example.org
 # --allow-origin=none 关闭跨源访问
 ```
 
-默认界面是托管的应用。`serve` 会打印其地址，应用会自行在端口 8787 上找到服务器，服务器自己在
-<http://127.0.0.1:8787> 上的副本作为备用保留（Safari、无网络时）。若不再提供它：
+默认界面是 GitHub Pages 上的托管应用。`serve` 会打印其地址，应用会自行在端口 8787 上找到服务器。
+默认 `/` 重定向到 <https://link-foundation.github.io/meta-sovereign/>，localhost 界面关闭。
+如需离线使用可选的本地副本，请显式启用：
 
 ```bash
-meta-sovereign serve --local-ui=false   # 或 MS_LOCAL_UI=off
-# 此时 / 会打开托管的应用；--ui-url=<url> 指定另一个托管副本
+meta-sovereign serve --local-ui=true    # 或 MS_LOCAL_UI=on
+# 此时 / 提供可选的 localhost 界面；--ui-url=<url> 指定另一个托管副本
 meta-sovereign serve --tls=false        # 或 MS_TLS=off — 关闭 HTTPS
 ```
 
 浏览器说明：
 
 - **Chrome 和 Edge**（以及较新的 Firefox）会询问一次页面能否访问本地网络中的设备。请允许。
-- **Safari** 不允许 `https` 页面访问 `http://127.0.0.1`，但允许访问 `https://127.0.0.1`；server 现在也在同一端口上提供 HTTPS，并使用专为 localhost 颁发的自签名证书。若要让托管 app 在 Safari 中直接连接，请信任该证书一次：运行 `node js/bin/meta-sovereign.js trust`（macOS 将证书添加到 login keychain；其他系统会打印证书路径），或在 Safari 中打开 `https://127.0.0.1:8787/trust`，点击 **显示详情 → 访问此网站** 并输入密码，然后点击 **Check again**。此后托管 app 在 Safari 中可直接通过 HTTPS 连接，无需额外步骤。信任之前，提示会提供 **从服务器打开应用**（<http://127.0.0.1:8787>）和 **信任服务器**（<https://127.0.0.1:8787/trust>）的链接。`--tls=false` / `MS_TLS=off` 可关闭 HTTPS；服务器自带副本仍作为备用保留。
+- **Safari** 不允许 `https` 页面访问 `http://127.0.0.1`，但允许访问 `https://127.0.0.1`；server 现在也在同一端口上提供 HTTPS，并使用专为 localhost 颁发的自签名证书。若要让托管 app 在 Safari 中直接连接，请信任该证书一次：运行 `node js/bin/meta-sovereign.js trust`（macOS 将证书添加到 login keychain；其他系统会打印证书路径），或在 Safari 中打开 `https://127.0.0.1:8787/trust`，点击 **显示详情 → 访问此网站** 并输入密码，然后点击 **Check again**。此后托管 app 在 Safari 中可直接通过 HTTPS 连接，无需额外步骤。信任之前，提示会提供 **信任服务器**（<https://127.0.0.1:8787/trust>）链接；仅在 `--local-ui=true` 时显示 **从服务器打开应用**。Safari 通过受信任的本地 HTTPS API 使用托管应用，无需启用 localhost 界面。`--tls=false` / `MS_TLS=off` 可关闭 HTTPS。
+
+在 macOS 交互式终端中，`serve` 会完成整个设置：使用 Secure Enclave 保护本次安装的 TLS 私钥，检测证书是否已受信任，仅在需要时请求信任，并打开 GitHub Pages 应用。无交互终端时可运行 `node js/bin/meta-sovereign.js serve --trust=true --open=true`。`--trust=false` 和 `--open=false` 可关闭相应操作。Swift 辅助程序需要 macOS Command Line Tools；不支持的 Mac 可显式使用 `--hardware-key=false` 选择文件密钥。硬件保护针对磁盘上的密钥；Node 在内存中使用密钥。详见[本地服务器设置与安全](./LOCAL-SERVER-SECURITY.md)。
 
 ## 6. 在设备之间同步（WebRTC）
 
@@ -418,16 +421,16 @@ HTTP：`/api/automations`（列出，`PUT` 保存）、`/api/automations/plan`�
 
 ## 12. 故障排除
 
-| 现象                                                 | 处理方式                                                                                                                                                                                                                                                                                                                                                              |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SPA 卡在 loading spinner。                           | 打开 dev tools → Application → IndexedDB，确认存在 `meta-sovereign` 数据库；否则浏览器可能禁用了存储。                                                                                                                                                                                                                                                                |
-| SPA 无法访问本地 server。                            | 在 app 中打开 **Settings → Server**，粘贴准确 URL。                                                                                                                                                                                                                                                                                                                   |
-| server 已运行，托管的 app 仍处于 browser-only mode。 | 点击 **Check again**。允许浏览器的本地网络提示。在 Safari 中：运行一次 `node js/bin/meta-sovereign.js trust`（macOS）或打开 **信任服务器**（<https://127.0.0.1:8787/trust>），点击「显示详情 → 访问此网站」，然后 **Check again**。也可点击 **从服务器打开应用**（<http://127.0.0.1:8787>）。如果 SPA 是你自己托管的，用 `--allow-origin=<你的 origin>` 启动 server。 |
-| 托管的 app 中照片和头像只显示首字母或空框。          | 更新 server：页面以 CORS 请求获取图片，server 只放行应用自己的 origin。如果 SPA 是你自己托管的，用 `--allow-origin` 加上它的 origin。被拒绝的加载在日志中记为 `telegram_media_refused`（哪个页面、如何请求），页面中加载失败的记为 `client_media_failed`（按路由计数）。                                                                                              |
-| 刷新后部分消息或头像缺失。                           | 稍等几秒：聊天会重新请求消息直到拿到，仍在从 Telegram 下载的头像保存后即会显示（首次时 Telegram 逐个缓慢发送）。之后已保存的头像会立即加载。                                                                                                                                                                                                                          |
-| Server 报告 `EADDRINUSE`。                           | 传入 `--port=NNNN` 给 `meta-sovereign serve` 或 Rust `serve --port=NNNN`。                                                                                                                                                                                                                                                                                            |
-| WebRTC 跨网络停止同步。                              | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                                                                                                                                                                                                                                                                                |
-| `cargo build` 出现 linker 错。                       | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                                                                                                                                                                                                                                                                                    |
+| 现象                                                 | 处理方式                                                                                                                                                                                                                                                                                                                                                                                       |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPA 卡在 loading spinner。                           | 打开 dev tools → Application → IndexedDB，确认存在 `meta-sovereign` 数据库；否则浏览器可能禁用了存储。                                                                                                                                                                                                                                                                                         |
+| SPA 无法访问本地 server。                            | 在 app 中打开 **Settings → Server**，粘贴准确 URL。                                                                                                                                                                                                                                                                                                                                            |
+| server 已运行，托管的 app 仍处于 browser-only mode。 | 点击 **Check again**。允许浏览器的本地网络提示。在 Safari 中：运行一次 `node js/bin/meta-sovereign.js trust`（macOS）或打开 **信任服务器**（<https://127.0.0.1:8787/trust>），点击「显示详情 → 访问此网站」，然后 **Check again**。仅在 `--local-ui=true` 时也可点击 **从服务器打开应用**（<http://127.0.0.1:8787>）。如果 SPA 是你自己托管的，用 `--allow-origin=<你的 origin>` 启动 server。 |
+| 托管的 app 中照片和头像只显示首字母或空框。          | 更新 server：页面以 CORS 请求获取图片，server 只放行应用自己的 origin。如果 SPA 是你自己托管的，用 `--allow-origin` 加上它的 origin。被拒绝的加载在日志中记为 `telegram_media_refused`（哪个页面、如何请求），页面中加载失败的记为 `client_media_failed`（按路由计数）。                                                                                                                       |
+| 刷新后部分消息或头像缺失。                           | 稍等几秒：聊天会重新请求消息直到拿到，仍在从 Telegram 下载的头像保存后即会显示（首次时 Telegram 逐个缓慢发送）。之后已保存的头像会立即加载。                                                                                                                                                                                                                                                   |
+| Server 报告 `EADDRINUSE`。                           | 传入 `--port=NNNN` 给 `meta-sovereign serve` 或 Rust `serve --port=NNNN`。                                                                                                                                                                                                                                                                                                                     |
+| WebRTC 跨网络停止同步。                              | 配置 TURN server，见 [`docs/WEBRTC-TURN.zh.md`](./WEBRTC-TURN.zh.md)。                                                                                                                                                                                                                                                                                                                         |
+| `cargo build` 出现 linker 错。                       | 安装 C toolchain（Debian/Ubuntu 为 `build-essential`，macOS 为 Xcode CLI tools）。                                                                                                                                                                                                                                                                                                             |
 
 ## 13. 下一步
 

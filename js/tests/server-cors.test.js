@@ -44,12 +44,13 @@ const preflight = (base, origin, extra = {}) =>
   });
 
 describe('parseAllowedOrigins', () => {
-  it('falls back to the hosted app and Capacitor origins', () => {
+  it('defaults only to the official GitHub Pages origin', () => {
     expect(parseAllowedOrigins(undefined)).toEqual([
       ...DEFAULT_ALLOWED_ORIGINS,
     ]);
     expect(parseAllowedOrigins('')).toEqual([...DEFAULT_ALLOWED_ORIGINS]);
     expect(DEFAULT_ALLOWED_ORIGINS).toContain(PAGES);
+    expect(DEFAULT_ALLOWED_ORIGINS).toEqual([PAGES]);
   });
 
   it('normalises comma/space lists, drops paths and duplicates', () => {
@@ -137,7 +138,36 @@ describe('server CORS (issue #37)', () => {
       const status = await fetch(`${base}/api/status`, {
         headers: { origin: EVIL },
       });
+      expect(status.status).toBe(403);
       expect(status.headers.get('access-control-allow-origin')).toBe(null);
+    });
+  });
+
+  it('refuses other GitHub Pages sites, null origins, cross-site no-cors reads and unsupported preflights', async () => {
+    await withServer({}, async (base) => {
+      for (const origin of [
+        'https://evil.github.io',
+        'null',
+        'https://localhost',
+        'capacitor://localhost',
+      ]) {
+        const response = await fetch(`${base}/api/status`, {
+          headers: { origin },
+        });
+        expect(response.status).toBe(403);
+      }
+      const response = await fetch(`${base}/api/status`, {
+        headers: { 'sec-fetch-site': 'cross-site' },
+      });
+      expect(response.status).toBe(403);
+      const unsupported = await preflight(base, PAGES, {
+        'access-control-request-method': 'TRACE',
+      });
+      expect(unsupported.status).toBe(403);
+      const headers = await preflight(base, PAGES, {
+        'access-control-request-headers': 'content-type, x-unknown',
+      });
+      expect(headers.status).toBe(403);
     });
   });
 

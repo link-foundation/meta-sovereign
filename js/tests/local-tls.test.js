@@ -7,6 +7,8 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import https from 'node:https';
+import net from 'node:net';
+import tls from 'node:tls';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -39,6 +41,74 @@ const getSecure = (url, ca) =>
       })
       .on('error', reject);
   });
+
+const upgradeStatus = (port, { path: target, origin, ca }) =>
+  new Promise((resolve, reject) => {
+    const socket = ca
+      ? tls.connect({ host: '127.0.0.1', port, ca })
+      : net.connect({ host: '127.0.0.1', port });
+    socket.once(ca ? 'secureConnect' : 'connect', () => {
+      socket.write(
+        `GET ${target} HTTP/1.1\r\nHost: 127.0.0.1:${port}\r\n${origin ? `Origin: ${origin}\r\n` : ''}Upgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Version: 13\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\r\n`
+      );
+    });
+    socket.setTimeout(3000, () =>
+      socket.destroy(new Error('upgrade timed out'))
+    );
+    socket.on('error', reject);
+    socket.once('data', (chunk) => {
+      socket.destroy();
+      resolve(Number(chunk.toString().match(/^HTTP\/1\.1 (\d+)/)?.[1]));
+    });
+  });
+
+test('TLS sync and signaling refuse direct plaintext and foreign origins', async (t) => {
+  if (!canShareTlsPort()) {
+    t.skip('runtime has no shared TLS listener');
+    return;
+  }
+  const storeDir = await tempStore();
+  const handle = await startServer({
+    storeDir,
+    port: 0,
+    tls: true,
+    enableHandlers: false,
+    telegramAccount: false,
+  });
+  try {
+    const ca = await fs.readFile(handle.tls.certPath, 'utf8');
+    for (const target of ['/ws', '/rtc?room=security']) {
+      assert.equal(await upgradeStatus(handle.port, { path: target }), 403);
+      assert.equal(
+        await upgradeStatus(handle.port, {
+          path: target,
+          ca,
+          origin: 'https://evil.example',
+        }),
+        403
+      );
+      assert.equal(
+        await upgradeStatus(handle.port, {
+          path: target,
+          ca,
+          origin: `https://127.0.0.1:${handle.port}`,
+        }),
+        101
+      );
+      assert.equal(
+        await upgradeStatus(handle.port, {
+          path: target,
+          ca,
+          origin: 'https://link-foundation.github.io',
+        }),
+        101
+      );
+    }
+  } finally {
+    await handle.close();
+    await fs.rm(storeDir, { recursive: true, force: true });
+  }
+});
 
 test('the certificate is for this machine only, and fit for Safari', () => {
   const now = Date.parse('2026-10-21T00:00:00Z');
@@ -102,6 +172,7 @@ test('the store keeps its certificate and makes a new one near its end', async (
 test('one port answers http and https, and https has a trust page', async () => {
   const storeDir = await tempStore();
   const handle = await startServer({
+    localUi: true,
     port: 0,
     storeDir,
     enableHandlers: false,
@@ -117,8 +188,23 @@ test('one port answers http and https, and https has a trust page', async () => 
     }
     assert.ok(handle.tls?.certPath);
     const ca = await fs.readFile(handle.tls.certPath, 'utf8');
-    const plain = await fetch(`http://127.0.0.1:${handle.port}/api/status`);
-    assert.equal(plain.status, 200);
+    const plain = await fetch(`http://127.0.0.1:${handle.port}/api/status`, {
+      redirect: 'manual',
+    });
+    assert.equal(plain.status, 307);
+    assert.equal(
+      plain.headers.get('location'),
+      `https://127.0.0.1:${handle.port}/api/status`
+    );
+    const localUi = await fetch(`http://127.0.0.1:${handle.port}/`, {
+      redirect: 'manual',
+    });
+    assert.equal(localUi.status, 307);
+    const pagesHttp = await fetch(
+      `http://127.0.0.1:${handle.port}/api/status`,
+      { headers: { origin: 'https://link-foundation.github.io' } }
+    );
+    assert.equal(pagesHttp.status, 200);
     const secure = await getSecure(
       `https://127.0.0.1:${handle.port}/api/status`,
       ca
@@ -134,7 +220,7 @@ test('one port answers http and https, and https has a trust page', async () => 
       await fetch(`http://127.0.0.1:${handle.port}/trust`)
     ).text();
     assert.match(notYet, new RegExp(`https://127.0.0.1:${handle.port}/trust`));
-    assert.match(notYet, /meta-sovereign trust/);
+    assert.match(notYet, /meta-sovereign\.js trust/);
     // An untrusted client is refused, as Safari is before the trust.
     await assert.rejects(
       getSecure(`https://127.0.0.1:${handle.port}/api/status`, undefined)
@@ -158,6 +244,7 @@ test('one port answers http and https, and https has a trust page', async () => 
 test('without tls the server is plain http and has no trust page', async () => {
   const storeDir = await tempStore();
   const handle = await startServer({
+    localUi: true,
     port: 0,
     storeDir,
     enableHandlers: false,

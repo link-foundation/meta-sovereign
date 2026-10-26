@@ -5,6 +5,7 @@ import { createMemoryStore } from '../js/src/storage/index.js';
 import { startServer } from '../js/src/server/index.js';
 
 const handle = await startServer({
+  localUi: true,
   port: 0,
   store: createMemoryStore(),
   enableHandlers: false,

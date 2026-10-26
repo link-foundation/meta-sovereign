@@ -25,7 +25,8 @@ fn read_until_close(stream: &mut TcpStream) -> String {
 
 fn http_request(port: u16, raw: &str) -> String {
     let mut s = TcpStream::connect(("127.0.0.1", port)).expect("connect");
-    s.write_all(raw.as_bytes()).expect("write");
+    let request = raw.replace("Host: x\r\n", &format!("Host: 127.0.0.1:{port}\r\n"));
+    s.write_all(request.as_bytes()).expect("write");
     read_until_close(&mut s)
 }
 
@@ -35,6 +36,37 @@ fn body_of(resp: &str) -> &str {
     } else {
         ""
     }
+}
+
+#[test]
+fn local_server_boundary_restricts_http_and_socket_origins() {
+    let h = serve(ServerOptions::default()).expect("serve");
+    let pages = "https://link-foundation.github.io";
+    let allowed = http_request(
+        h.port(),
+        &format!("GET /api/status HTTP/1.1\r\nHost: x\r\nOrigin: {pages}\r\n\r\n"),
+    );
+    assert!(allowed.starts_with("HTTP/1.1 200"));
+    assert!(allowed.contains(&format!("access-control-allow-origin: {pages}")));
+    assert!(!allowed.contains("access-control-allow-origin: *"));
+    for origin in ["https://evil.example", "https://evil.github.io", "null"] {
+        for route in ["/api/status", "/links", "/ws", "/rtc"] {
+            let request = format!("GET {route} HTTP/1.1\r\nHost: x\r\nOrigin: {origin}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n");
+            assert!(http_request(h.port(), &request).starts_with("HTTP/1.1 403"));
+        }
+    }
+    let rebound = http_request(
+        h.port(),
+        "GET /api/status HTTP/1.1\r\nHost: evil.example\r\n\r\n",
+    );
+    assert!(rebound.starts_with("HTTP/1.1 421"));
+    let preflight = http_request(h.port(), &format!("OPTIONS /links HTTP/1.1\r\nHost: x\r\nOrigin: {pages}\r\nAccess-Control-Request-Method: PUT\r\nAccess-Control-Request-Headers: content-type\r\nAccess-Control-Request-Private-Network: true\r\n\r\n"));
+    assert!(preflight.starts_with("HTTP/1.1 204"));
+    assert!(preflight.contains("access-control-allow-private-network: true"));
+    let root = http_request(h.port(), "GET / HTTP/1.1\r\nHost: x\r\n\r\n");
+    assert!(root.starts_with("HTTP/1.1 302"));
+    assert!(root.contains("location: https://link-foundation.github.io/meta-sovereign/"));
+    h.shutdown();
 }
 
 #[test]
@@ -206,7 +238,11 @@ fn websocket_handshake_succeeds_on_ws_path() {
     .expect("serve");
     let mut s = TcpStream::connect(("127.0.0.1", h.port())).expect("connect");
     let req = "GET /ws HTTP/1.1\r\nHost: x\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\nSec-WebSocket-Version: 13\r\n\r\n";
-    s.write_all(req.as_bytes()).unwrap();
+    s.write_all(
+        req.replace("Host: x\r\n", &format!("Host: 127.0.0.1:{}\r\n", h.port()))
+            .as_bytes(),
+    )
+    .unwrap();
     s.set_read_timeout(Some(Duration::from_secs(3))).unwrap();
     let mut buf = [0u8; 1024];
     let mut acc = Vec::new();
@@ -253,7 +289,7 @@ fn open_ws(port: u16, path: &str) -> TcpStream {
     let mut s = TcpStream::connect(("127.0.0.1", port)).expect("connect");
     let key = "dGhlIHNhbXBsZSBub25jZQ==";
     let req = format!(
-        "GET {path} HTTP/1.1\r\nHost: x\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n"
+        "GET {path} HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: {key}\r\nSec-WebSocket-Version: 13\r\n\r\n"
     );
     s.write_all(req.as_bytes()).unwrap();
     s.set_read_timeout(Some(Duration::from_secs(3))).unwrap();

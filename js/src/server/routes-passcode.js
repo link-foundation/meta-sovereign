@@ -39,7 +39,11 @@ const passcodeOk = (v, min = 1) =>
   typeof v === 'string' && v.length >= min && v.length <= PASSCODE_MAX;
 
 const refuse = (res) =>
-  json(res, 423, { error: 'locked', code: 'locked' }) ?? true;
+  json(res, 423, {
+    service: 'meta-sovereign',
+    error: 'locked',
+    code: 'locked',
+  }) ?? true;
 
 const bad = (res, error) => json(res, 400, { error, code: 'bad-request' });
 

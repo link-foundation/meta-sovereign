@@ -114,6 +114,8 @@ export const hiChat = {
   'chat.earlierFailed': 'पुराने संदेश लोड नहीं हो सके।',
   'chat.you': 'आप',
   'chat.account.connected': 'Telegram जुड़ा है',
+  'chat.account.disconnected':
+    'इस चैट के बाकी संदेश लोड करने के लिए Telegram कनेक्ट करें।',
   'chat.account.connectedAs': '{name} के रूप में जुड़ा',
   'chat.account.bot': 'एक Telegram बॉट जुड़ा है',
   'chat.account.loading':

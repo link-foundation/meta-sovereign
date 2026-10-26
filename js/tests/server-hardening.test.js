@@ -99,6 +99,8 @@ test('Host header: only a loopback name with the server port is served', async (
       `127.0.0.1.evil.example:${port}`,
       `127.0.0.1:${port + 1}`,
       'localhost',
+      `127.0.0.1:${port}#other`,
+      `:secret@127.0.0.1:${port}`,
     ]) {
       const bad = await raw(handle, { headers: { host } });
       assert.equal(bad.status, 421, host);
@@ -166,14 +168,17 @@ test('the hosted app (GitHub Pages) still reaches the server, preflight included
   });
 });
 
-test("the server's own https origin is same-origin for writes", async () => {
-  const req = (host, origin) => ({ headers: { host, origin } });
+test("same-origin requires the server's host, port and actual TLS scheme", async () => {
+  const req = (host, origin, encrypted = false) => ({
+    headers: { host, origin },
+    socket: { encrypted },
+  });
   assert.equal(
-    classifyOrigin(req('127.0.0.1:8787', 'https://127.0.0.1:8787'), []),
+    classifyOrigin(req('127.0.0.1:8787', 'https://127.0.0.1:8787', true), []),
     'same'
   );
   assert.equal(
-    classifyOrigin(req('localhost:8787', 'https://localhost:8787'), []),
+    classifyOrigin(req('localhost:8787', 'https://localhost:8787', true), []),
     'same'
   );
   assert.equal(
@@ -192,7 +197,7 @@ test("the server's own https origin is same-origin for writes", async () => {
       { id: 'note:3' },
       { origin: `https://127.0.0.1:${handle.port}` }
     );
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 403);
     await res.text();
   });
 });

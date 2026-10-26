@@ -43,7 +43,7 @@ export const zh = {
   'webMode.download': '下载桌面应用（内置服务器）',
   'webMode.dismiss': '隐藏',
   'webMode.safari':
-    'Safari 不允许 https 页面访问 http://127.0.0.1,但在信任服务器的证书后,它可以通过 https 访问服务器:运行一次 npx -y meta-sovereign trust。在此之前,请通过下方链接从服务器打开应用,或使用桌面应用。',
+    'Safari 阻止此 HTTPS 页面访问本地 HTTP API。运行一次 node js/bin/meta-sovereign.js trust 以信任本地 HTTPS 证书，然后继续使用此托管应用。localhost 界面是可选的（--local-ui=true）。',
   'webMode.openLocal': '从服务器打开应用',
   'webMode.localFound':
     '服务器在 {origin} 运行,但此浏览器不允许此页面访问它。请通过下方链接从服务器打开应用。',
@@ -51,7 +51,7 @@ export const zh = {
     '要让 Safari 从这里连接,请信任服务器一次:运行 {command},或点击「信任服务器」,选择「显示详细信息」→「访问此网站」并输入密码。然后点击重新检测。',
   'webMode.trustLink': '信任服务器',
   'webMode.localOff':
-    '服务器在 {origin} 运行,但 Safari 不允许此页面访问它,且服务器自带的应用副本已关闭。请不带 --local-ui=false 启动服务器,或在 Chrome 或 Firefox 中打开此页面。',
+    '服务器在 {origin} 运行。可选的 localhost 界面已关闭；GitHub Pages 是默认应用。Safari 需要启用 HTTPS 并信任本地证书。仅在需要本地网页应用时使用 --local-ui=true。',
   'nav.chat': '聊天',
   'nav.operator': '操作员',
   'nav.contacts': '联系人',

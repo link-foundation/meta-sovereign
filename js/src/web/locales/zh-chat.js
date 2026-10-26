@@ -110,6 +110,7 @@ export const zhChat = {
   'chat.earlierFailed': '无法加载更早的消息。',
   'chat.you': '你',
   'chat.account.connected': 'Telegram 已连接',
+  'chat.account.disconnected': '连接 Telegram 以加载此聊天的其余消息。',
   'chat.account.connectedAs': '已连接为 {name}',
   'chat.account.bot': '已连接 Telegram 机器人',
   'chat.account.loading': '正在加载你的聊天和联系人…稍后即会显示在这里。',

@@ -2,14 +2,14 @@
  * Local web server (R-F4) + universal links HTTP surface (R-F8) + UI (R-F1).
  *
  * Endpoints (full list lives in `routes-derived.js` and `routes-mutating.js`):
- *   GET  /                         -> SPA shell
- *   GET  /app.js, /app.min.js, /app.css -> SPA assets
+ *   GET  /                         -> GitHub Pages redirect (SPA with localUi=true)
+ *   GET  /app.js, /app.min.js, /app.css -> optional SPA assets (localUi=true)
  *   GET  /links, /links/:id        -> read links
  *   PUT  /links                    -> upsert
  *   DEL  /links/:id                -> delete
  *   GET  /sources                  -> list message-source adapters
  *   GET  /api/contacts             -> contacts derived from messages
- *   GET  /api/status               -> store stats + verify diff count
+ *   GET  /api/status               -> service identity + store stats + verify diff count
  *   GET  /api/autocomplete?q=&me=  -> outgoing-history-driven completions
  *   GET  /api/suggest?source=&chat=&typed= -> reply-graph autocomplete
  *   GET  /api/audience?q=          -> set-algebra over store filters
@@ -515,7 +515,37 @@ const handlePage = (req, res, p, ctx) =>
 const socketAllowed = (ctx) => (req) =>
   hostAllowed(req, ctx.port) &&
   classifyOrigin(req, ctx.allowOrigins) !== 'denied' &&
+  (!ctx.tls ||
+    req.socket?.encrypted ||
+    classifyOrigin(req, ctx.allowOrigins) === 'allowed') &&
   !ctx.passcode.locked();
+
+// With TLS enabled, direct local access uses the trusted certificate.
+// The public bootstrap routes stay usable before trust; an allow-listed
+// hosted page may still use HTTP where its browser supports loopback.
+const redirectLocalTls = (req, res, url, ctx) => {
+  if (
+    !ctx.tls ||
+    req.socket?.encrypted ||
+    classifyOrigin(req, ctx.allowOrigins) === 'allowed'
+  ) {
+    return false;
+  }
+  const p = url.pathname;
+  if (
+    p === '/trust' ||
+    p === '/api/beacon.svg' ||
+    (!ctx.localUi && (p === '/' || p === '/index.html'))
+  ) {
+    return false;
+  }
+  res.writeHead(307, {
+    location: `https://${req.headers.host}${url.pathname}${url.search}`,
+    'content-length': '0',
+  });
+  res.end();
+  return true;
+};
 
 // The local passcode (R-Y183): its own routes, then the gate that refuses
 // everything else while the server is locked.
@@ -537,6 +567,9 @@ const route = async (store, req, res, ctx) => {
   }
   const url = new URL(req.url, 'http://localhost');
   const p = url.pathname;
+  if (redirectLocalTls(req, res, url, ctx)) {
+    return;
+  }
   if (await handlePageOrLock(req, res, p, ctx)) {
     return;
   }

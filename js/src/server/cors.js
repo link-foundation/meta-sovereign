@@ -15,23 +15,23 @@
  *   - origins on the allow-list get `Access-Control-Allow-Origin`
  *     echoed back, plus a preflight answer that also opts in to
  *     Chrome's Private Network Access check;
- *   - every other origin gets no CORS headers, a 403 on preflight and
- *     a 403 on state-changing methods, so a random website cannot
+ *   - every other origin gets no CORS headers and a 403 on every method,
+ *     so a random website cannot
  *     post `text/plain` bodies (which skip preflight) to the store.
  *
- * The allow-list defaults to the official hosted app plus the
- * Capacitor WebView origins, and can be replaced with the
+ * The allow-list defaults only to the official GitHub Pages origin.
+ * Same-origin localhost is checked separately. Other embedders explicitly
+ * configure their WebView origin. The list can be replaced with the
  * `MS_ALLOW_ORIGINS` environment variable or `serve --allow-origin=`
  * (comma/space separated; `none` disables cross-origin access).
  */
 
+import { fail } from './util.js';
+
 export const DEFAULT_ALLOWED_ORIGINS = Object.freeze([
   'https://link-foundation.github.io',
-  'https://localhost',
-  'capacitor://localhost',
 ]);
 
-const SAFE_METHODS = new Set(['GET', 'HEAD']);
 const ALLOWED_METHODS = 'GET, HEAD, PUT, POST, DELETE, OPTIONS';
 const ALLOWED_HEADERS = 'content-type';
 
@@ -75,7 +75,11 @@ const LOOPBACK_NAMES = new Set(['127.0.0.1', 'localhost', '[::1]']);
 const parseHost = (value) => {
   try {
     const url = new URL(`http://${String(value ?? '')}`);
-    return url.username || url.pathname !== '/' || url.search
+    return url.username ||
+      url.password ||
+      url.pathname !== '/' ||
+      url.search ||
+      url.hash
       ? null
       : { hostname: url.hostname, port: url.port };
   } catch {
@@ -117,7 +121,7 @@ const isSameOrigin = (req, origin) => {
   const host = String(req.headers.host ?? '');
   return (
     hostAllowed(req) &&
-    (origin === `http://${host}` || origin === `https://${host}`)
+    origin === `${req.socket?.encrypted ? 'https' : 'http'}://${host}`
   );
 };
 
@@ -147,14 +151,24 @@ const writeEmpty = (res, status) => {
  */
 export const handleCors = (req, res, allowed) => {
   const verdict = classifyOrigin(req, allowed);
+  res.setHeader('vary', 'Origin');
   if (verdict === 'allowed') {
     res.setHeader('access-control-allow-origin', req.headers.origin);
-    res.setHeader('vary', 'Origin');
   }
   const preflight =
     req.method === 'OPTIONS' && req.headers['access-control-request-method'];
   if (preflight) {
-    if (verdict !== 'allowed') {
+    const method = req.headers['access-control-request-method'];
+    const headers = String(req.headers['access-control-request-headers'] ?? '')
+      .toLowerCase()
+      .split(',')
+      .map((h) => h.trim())
+      .filter(Boolean);
+    if (
+      verdict !== 'allowed' ||
+      !ALLOWED_METHODS.split(', ').includes(method) ||
+      headers.some((h) => h !== ALLOWED_HEADERS)
+    ) {
       writeEmpty(res, 403);
       return true;
     }
@@ -167,8 +181,14 @@ export const handleCors = (req, res, allowed) => {
     writeEmpty(res, 204);
     return true;
   }
-  if (verdict === 'denied' && !SAFE_METHODS.has(req.method)) {
-    writeEmpty(res, 403);
+  // Cross-site no-cors image/form requests omit Origin. Only the tiny
+  // public discovery beacon may be read this way; no API or stream may.
+  const foreignWithoutOrigin =
+    verdict === 'none' &&
+    req.headers['sec-fetch-site'] === 'cross-site' &&
+    req.url?.split('?')[0] !== '/api/beacon.svg';
+  if (verdict === 'denied' || foreignWithoutOrigin) {
+    fail(res, 403, 'forbidden', 'origin is not allowed');
     return true;
   }
   return false;

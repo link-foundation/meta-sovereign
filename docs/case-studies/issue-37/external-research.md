@@ -174,9 +174,11 @@ server is started".
 - **Safari is the exception**: WebKit bug 171934 ("Don't treat loopback
   addresses as mixed content") is still open (last modified 2026-08-19)
   ([bugs.webkit.org/171934](https://bugs.webkit.org/show_bug.cgi?id=171934)).
-  Safari users of the hosted app therefore stay in restricted mode, and
-  should open the app from the local server itself
-  (`http://127.0.0.1:8787`) or use the desktop app.
+  That limited the hosted app at the time of this research. The current
+  server also offers a local HTTPS API: trust its certificate once with
+  `node js/bin/meta-sovereign.js trust`, then keep using the default
+  GitHub Pages app. The localhost UI is an opt-in offline alternative
+  (`serve --local-ui=true`), also bundled in the desktop shell.
 - JSON `PUT`/`POST`/`DELETE` trigger a CORS preflight; the server must
   answer `Access-Control-Allow-Origin/-Methods/-Headers`
   ([MDN CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS)).

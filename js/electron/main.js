@@ -167,6 +167,7 @@ export const startDesktop = async () => {
     ]);
   const handle = await startServer({
     port: 0,
+    localUi: true,
     storeDir: resolveDesktopStoreDir({ app }),
   });
 

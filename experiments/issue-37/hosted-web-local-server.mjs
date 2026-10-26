@@ -87,6 +87,7 @@ const main = async () => {
   const pageUrl = `http://localhost:${host.address().port}/`;
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-cors-'));
   const server = await startServer({
+    localUi: true,
     port: 0,
     storeDir,
     enableHandlers: false,

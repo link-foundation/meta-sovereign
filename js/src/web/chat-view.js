@@ -41,7 +41,7 @@ import { LoadError } from './api-errors.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
-import { ChatAccountEmpty } from './chat-account.js';
+import { ChatAccountEmpty, ChatAccountNotice } from './chat-account.js';
 import { networkName } from './connection-guides.js';
 import { networkMessageId } from './chat-model.js';
 import { presetName } from './automations-model.js';
@@ -1305,6 +1305,7 @@ export const ChatScreen = ({ state, api }) => {
                 live: state.joinRequests,
               }),
               el(ConnectionBanner, { key: 'b', banner: state.banner }),
+              el(ChatAccountNotice, { key: 'account', state }),
               el(FailedBar, { key: 'failed', composer: state.composer }),
               el(AutopilotBar, { key: 'ap', autopilot: state.autopilot }),
               el(NextChatBar, {

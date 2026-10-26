@@ -303,6 +303,36 @@ test('screen: typing status, translated, and the empty states', () => {
   assert.match(none, /chat menu/);
 });
 
+test('screen: cached Telegram chats explain why history needs a connection', () => {
+  const current = {
+    ...screenState().current,
+    source: 'telegram',
+    key: 'telegram:101',
+  };
+  const state = screenState({
+    current,
+    telegram: { ready: true, connected: false },
+  });
+  const html = render(state);
+  assert.match(html, /data-banner="sign-in"/);
+  assert.match(html, /Connect Telegram to load the rest of this chat/);
+  assert.match(html, /Open Telegram connection/);
+  for (const telegram of [
+    { ready: false, connected: false },
+    { ready: true, connected: true },
+  ]) {
+    assert.doesNotMatch(
+      render({ ...state, telegram }),
+      /data-banner="sign-in"/
+    );
+  }
+  const ended = render({
+    ...state,
+    telegram: { ready: true, connected: true, needsLogin: true },
+  });
+  assert.match(ended, /sign in again/);
+});
+
 test('notice: exclusion reasons in words, unknown ones as they are', () => {
   const t = (key, vars) => translate('en', key, vars);
   assert.equal(reasonText(t, 'talked-recently'), 'talked recently');

@@ -43,7 +43,7 @@ export const en = {
   'webMode.download': 'Get the desktop app (server included)',
   'webMode.dismiss': 'Hide',
   'webMode.safari':
-    "Safari does not let https pages reach http://127.0.0.1, but it reaches the server over https once it trusts the server's certificate: run npx -y meta-sovereign trust once. Until then, open the app from the server with the link below, or use the desktop app.",
+    'Safari blocks this HTTPS page from reaching the local HTTP API. Trust the local HTTPS certificate once with node js/bin/meta-sovereign.js trust, then keep using this hosted app. The localhost UI is optional (--local-ui=true).',
   'webMode.openLocal': 'Open the app from the server',
   'webMode.localFound':
     'A server runs at {origin}, but this browser does not let this page reach it. Open the app from the server with the link below.',
@@ -51,7 +51,7 @@ export const en = {
     'To let Safari connect from here, trust the server once: run {command}, or click Trust the server, choose Show Details → visit this website and enter your password. Then click Check again.',
   'webMode.trustLink': 'Trust the server',
   'webMode.localOff':
-    "A server runs at {origin}, but Safari does not let this page reach it, and the server's own copy of the app is turned off. Start the server without --local-ui=false, or open this page in Chrome or Firefox.",
+    'A server runs at {origin}. Its optional localhost UI is disabled; GitHub Pages is the default app. For Safari, enable HTTPS and trust the local certificate. Use --local-ui=true only to enable a local web app.',
   'nav.chat': 'Chat',
   'nav.operator': 'Operator',
   'nav.contacts': 'Contacts',

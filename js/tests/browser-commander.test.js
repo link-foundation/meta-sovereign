@@ -49,7 +49,7 @@ const seedMessages = async (base) => {
 describe('browser-commander placeholder: drives every SPA nav target', () => {
   it('serves the SPA shell + every JSON endpoint a nav click triggers', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-bc-'));
-    const handle = await startServer({ port: 0, storeDir: dir });
+    const handle = await startServer({ localUi: true, port: 0, storeDir: dir });
     const base = `http://127.0.0.1:${handle.port}`;
     try {
       // 1. Browser opens "/", expects HTML shell with nav buttons.

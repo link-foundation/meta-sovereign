@@ -10,7 +10,7 @@
  *      served at the platforms' own URLs through Playwright request
  *      interception — no live job board is touched;
  *   2. a real `browser-commander` session over that page is handed to
- *      `startServer({cv: {commander}})`, so `/api/cv/read` and
+ *      `startServer({ localUi: true,cv: {commander}})`, so `/api/cv/read` and
  *      `/api/cv/sync` do exactly what they do in production;
  *   3. a second browser page opens the SPA the server serves and
  *      clicks through Read → Compare → Plan sync, screenshotting the
@@ -143,6 +143,7 @@ const main = async () => {
   });
 
   const server = await startServer({
+    localUi: true,
     port: 0,
     storeDir,
     cv: { commander: session.commander },

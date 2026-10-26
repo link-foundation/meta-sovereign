@@ -272,8 +272,11 @@ const webkitPage = async (browser, { trusted, siteOrigin, ...where }) => {
 };
 
 // Before the trust: the page stays where it is, names the server, links
-// its trust page and its own copy, which then works.
-const untrustedSafari = async (browser, { siteUrl, siteOrigin, ...where }) => {
+// its trust page; a local UI link appears only when explicitly enabled.
+const untrustedSafari = async (
+  browser,
+  { siteUrl, siteOrigin, localUi, ...where }
+) => {
   const { page, tried, errors } = await webkitPage(browser, {
     trusted: false,
     siteOrigin,
@@ -282,7 +285,7 @@ const untrustedSafari = async (browser, { siteUrl, siteOrigin, ...where }) => {
   const failures = errors;
   const { serverOrigin } = where;
   await look(page, siteUrl, { serverOrigin, problems: [] });
-  const link = await waitForLink(page, 'a.web-mode-local');
+  const link = localUi ? await waitForLink(page, 'a.web-mode-local') : null;
   const trust = await waitForLink(page, 'a.web-mode-trust');
   const named = await page.evaluate(
     (origin) =>
@@ -301,6 +304,15 @@ const untrustedSafari = async (browser, { siteUrl, siteOrigin, ...where }) => {
   }
   if (trust !== `${serverOrigin.replace(/^http:/, 'https:')}/trust`) {
     failures.push('webkit: the notice does not link the trust page');
+  }
+  if (!localUi) {
+    if (!named || (await page.locator('a.web-mode-local').count()) !== 0) {
+      failures.push(
+        'webkit: the default API-only server should be named without a local UI link'
+      );
+    }
+    await page.context().close();
+    return failures;
   }
   if (link !== `${serverOrigin}/` || !named) {
     failures.push('webkit: the notice does not name and link the server');
@@ -340,7 +352,7 @@ const trustedSafari = async (browser, { siteUrl, ...where }) => {
 
 // The hosted copy in WebKit (R-Y60, R-Y64). An http site is also opened
 // from an https address, where Safari's limits apply.
-const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
+const safariRun = async ({ site, siteOrigin, serverOrigin, localUi }) => {
   if (process.env.E2E_SAFARI === '0') {
     return [];
   }
@@ -368,7 +380,7 @@ const safariRun = async ({ site, siteOrigin, serverOrigin }) => {
           siteUrl: `${MIRROR_ORIGIN}${new URL(site.url).pathname}`,
           siteOrigin: MIRROR_ORIGIN,
         };
-    const where = { ...secure, serverOrigin, realOrigin: siteOrigin };
+    const where = { ...secure, serverOrigin, realOrigin: siteOrigin, localUi };
     failures.push(...(await untrustedSafari(browser, where)));
     failures.push(...(await trustedSafari(browser, where)));
   } finally {
@@ -412,7 +424,7 @@ const main = async () => {
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-e2e-pages-'));
   const site = await pagesSite();
   const siteOrigin = new URL(site.url).origin;
-  const handle = await startServer({
+  const serverOptions = {
     port: await portToUse(),
     storeDir,
     telegramAccount: false,
@@ -420,6 +432,13 @@ const main = async () => {
     allowOrigins: [siteOrigin, MIRROR_ORIGIN],
     // https beside http, as `serve` runs it, for Safari (R-Y64).
     tls: true,
+  };
+  // The legacy local-UI comparison explicitly opts out of TLS. The
+  // default backend below enables TLS and is tested in Safari over HTTPS.
+  let handle = await startServer({
+    ...serverOptions,
+    localUi: true,
+    tls: false,
   });
   const serverOrigin = `http://127.0.0.1:${handle.port}`;
   await seed(handle.store);
@@ -465,7 +484,29 @@ const main = async () => {
     });
     await shoot(page, 'local.png');
     failures.push(...verdicts(hosted, local));
-    failures.push(...(await safariRun({ site, siteOrigin, serverOrigin })));
+    // The default backend serves no web UI; the hosted app still works.
+    const port = handle.port;
+    await handle.close();
+    handle = await startServer({ ...serverOptions, port });
+    const redirect = await fetch(`${serverOrigin}/`, { redirect: 'manual' });
+    if (
+      handle.localUi ||
+      redirect.status !== 302 ||
+      (
+        await fetch(`${serverOrigin}/app.min.js`, {
+          headers: { origin: siteOrigin },
+        })
+      ).status !== 404
+    ) {
+      failures.push(
+        'default server should redirect to GitHub Pages and serve no UI assets'
+      );
+    }
+    const apiOnly = await look(page, site.url, { serverOrigin, problems: [] });
+    failures.push(...verdicts(hosted, apiOnly));
+    failures.push(
+      ...(await safariRun({ site, siteOrigin, serverOrigin, localUi: false }))
+    );
   } finally {
     await session.close?.().catch(() => {});
     await handle.close();
@@ -479,7 +520,9 @@ const main = async () => {
     }
     process.exit(1);
   }
-  say('PASS: the hosted copy works like the local one');
+  say(
+    'PASS: GitHub Pages works with the default API-only server and the optional local UI'
+  );
 };
 
 await main();

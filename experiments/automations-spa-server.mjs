@@ -92,6 +92,7 @@ for (const [source, chat, sender, body, days, chatType, chatName] of rows) {
   );
 }
 const handle = await startServer({
+  localUi: true,
   port,
   store,
   enableHandlers: false,

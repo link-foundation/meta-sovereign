@@ -30,7 +30,7 @@ const startStub = async () => {
       res.end(JSON.stringify(body));
     };
     if (req.url === '/api/status') {
-      json(200, { links: 0 });
+      json(200, { service: 'meta-sovereign', links: 0 });
       return;
     }
     if (req.url === '/api/cv/stored') {
