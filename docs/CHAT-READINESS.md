@@ -4,6 +4,8 @@ The default app is [GitHub Pages](https://link-foundation.github.io/meta-soverei
 
 The Pages entry uses content-versioned script and stylesheet filenames, so reopening the latest build does not reuse an older interface from the browser cache.
 
+If startup discovery fails, the hosted app retries after 5, 10, 20 and then every 30 seconds. Returning to the tab, making it visible or regaining network connectivity starts an immediate check. Checks never overlap; finding the server reloads the app once. A failed browser connection does not mean the server process stopped. The offline notice describes the connection state and ongoing retries; passcode checks go only to a discovered local server.
+
 ## Opening and reading a conversation
 
 A cached preview stays visible while the chat loads. A status above the messages explains foreground loading, background history, interrupted connections and Telegram's requested wait, including a retry countdown. Completed short conversations say **All available messages loaded** in the header. A short conversation can legitimately contain only a few messages; that completion state comes from the history returned by Telegram, not from the number of cached previews.

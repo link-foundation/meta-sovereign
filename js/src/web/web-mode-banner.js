@@ -93,6 +93,11 @@ export const WebModeBanner = ({
     [
       el('h2', { key: 'h', id: 'web-mode-title' }, t('webMode.title')),
       el('p', { key: 'body' }, t('webMode.body')),
+      el(
+        'p',
+        { key: 'retrying', className: 'meta', role: 'status' },
+        t('webMode.retrying')
+      ),
       ...notice.commands.map((option) =>
         el('div', { key: option.id, className: 'col local-server-help-opt' }, [
           el('div', { key: 'h', className: 'meta' }, t(option.headingKey)),

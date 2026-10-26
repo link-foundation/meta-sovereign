@@ -40,11 +40,12 @@ export const en = {
   'header.telegramSignIn': 'Telegram ended this session; sign in again',
   'webMode.title': 'Browser-only mode',
   'webMode.body':
-    'No local server was found, so the app works with the data stored in this browser. Imports from mail and messengers, scheduled automations, sync between devices, CV sync and greetings turn on once a local server is running. Start one with Node.js 20 or newer:',
+    'The app is not connected to a local server, so it works with the data stored in this browser. Imports from mail and messengers, scheduled automations, sync between devices, CV sync and greetings turn on once a local server is running. Start one with Node.js 20 or newer:',
+  'webMode.retrying': 'Looking for your local server automatically.',
   'webMode.retry': 'Check again',
   'webMode.checking': 'Looking for a local server…',
   'webMode.notFound':
-    'Still no server answering at http://127.0.0.1:8787. Start it and check again.',
+    'The browser still cannot connect to the local server. Check that it is running and its certificate is trusted. Retrying automatically.',
   'webMode.download': 'Get the desktop app (server included)',
   'webMode.dismiss': 'Hide',
   'webMode.safari':

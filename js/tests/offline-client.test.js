@@ -335,3 +335,77 @@ test('a copy opened while its server was down looks again until it answers', asy
   await timers.shift()[0]();
   assert.equal(found.length, 1, 'a stopped search finds nothing');
 });
+
+test('rediscovery wakes on returning to the tab and coalesces overlapping checks', async () => {
+  const events = new globalThis.EventTarget();
+  const document = new globalThis.EventTarget();
+  document.visibilityState = 'hidden';
+  const timers = new Map();
+  let nextId = 0;
+  let calls = 0;
+  let release;
+  let up = false;
+  const found = [];
+  const watch = createRediscovery({
+    events,
+    document,
+    discover: () => {
+      calls += 1;
+      return up
+        ? { origin: 'https://127.0.0.1:8787' }
+        : new Promise((r) => {
+            release = r;
+          });
+    },
+    found: (server) => found.push(server.origin),
+    setTimer: (fn) => {
+      timers.set(++nextId, fn);
+      return nextId;
+    },
+    clearTimer: (id) => timers.delete(id),
+  });
+  const pending = watch.check();
+  events.dispatchEvent(new globalThis.Event('focus'));
+  events.dispatchEvent(new globalThis.Event('online'));
+  await Promise.resolve();
+  assert.equal(calls, 1, 'one discovery at a time');
+  release(null);
+  await pending;
+  assert.equal(timers.size, 1, 'one background retry remains');
+  document.dispatchEvent(new globalThis.Event('visibilitychange'));
+  assert.equal(calls, 1, 'a hidden tab does not wake the search');
+  up = true;
+  document.visibilityState = 'visible';
+  document.dispatchEvent(new globalThis.Event('visibilitychange'));
+  await new Promise((resolve) => globalThis.setTimeout(resolve, 0));
+  assert.deepEqual(found, ['https://127.0.0.1:8787']);
+  assert.equal(timers.size, 0);
+  events.dispatchEvent(new globalThis.Event('focus'));
+  events.dispatchEvent(new globalThis.Event('online'));
+  await watch.check();
+  assert.equal(calls, 2, 'successful discovery removes wake listeners');
+});
+
+test('stopping rediscovery during a probe prevents a late reload or retry', async () => {
+  let release;
+  let found = 0;
+  let scheduled = 0;
+  const watch = createRediscovery({
+    discover: () =>
+      new Promise((r) => {
+        release = r;
+      }),
+    found: () => {
+      found += 1;
+    },
+    setTimer: () => ++scheduled,
+    clearTimer: () => {},
+  });
+  const pending = watch.check();
+  await Promise.resolve();
+  watch.stop();
+  release({ origin: 'https://127.0.0.1:8787' });
+  await pending;
+  assert.equal(found, 0);
+  assert.equal(scheduled, 1);
+});

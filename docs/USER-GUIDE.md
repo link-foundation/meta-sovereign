@@ -74,6 +74,8 @@ Once the package is published to npm, `npx -y meta-sovereign serve` (or `npm ins
 
 Open conversations load first and show loading or retry status until their history is ready. All / Private / Groups / Channels filters remain available inside every Telegram folder. Drag the vertical dividers to resize columns; widths are remembered. Calls is in the main menu after Chat, and Telegram account editing is under Profile. The default dark controls use white line icons.
 
+GitHub Pages and the optional localhost app both retry failed startup discovery after 5, 10, 20 and then every 30 seconds. Returning to the tab or regaining network connectivity triggers an immediate check. Concurrent checks are coalesced; recovery reloads once. Browser-only mode sends no passcode request to the static website.
+
 **All** is the last folder tab by default. Turn on **Settings → Folder tabs → Always show “All” first** to keep it first in this browser. Named folders keep their Telegram order. The strip reveals the selected tab on startup, after folder updates and when resizing columns; your selected folder is remembered.
 
 The JS server keeps its store under your OS user: `~/Library/Application Support/Meta Sovereign/store` on macOS, `%APPDATA%/Meta Sovereign/store` on Windows, and `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store` on Linux. Starting `serve` from an older checkout migrates its `.meta-sovereign` store once, preserving messages, contacts, sessions, media and certificate; a compatibility link preserves old paths. Restarts and a different working directory reuse the same store. `--store` or `META_SOVEREIGN_STORE_DIR` override it. See [chat readiness and data storage](CHAT-READINESS.md).

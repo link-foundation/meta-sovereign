@@ -392,36 +392,64 @@ export const createRediscovery = ({
   delays = LOOK_AGAIN_MS,
   setTimer = (fn, ms) => globalThis.setTimeout(fn, ms),
   clearTimer = (timer) => globalThis.clearTimeout(timer),
+  events = globalThis,
+  document = globalThis.document,
 }) => {
   let timer = null;
   let stopped = false;
-  const plan = (attempt) => {
+  let checking = false;
+  let attempt = 0;
+  const clear = () => {
+    clearTimer(timer);
+    timer = null;
+  };
+  const stop = () => {
+    stopped = true;
+    clear();
+    events.removeEventListener?.('focus', wake);
+    events.removeEventListener?.('online', wake);
+    document?.removeEventListener?.('visibilitychange', visible);
+  };
+  const check = async () => {
+    if (stopped || checking) {
+      return;
+    }
+    clear();
+    checking = true;
+    const server = await Promise.resolve()
+      .then(() => discover())
+      .catch(() => null);
+    checking = false;
+    if (stopped) {
+      return;
+    }
+    if (server) {
+      stop();
+      found(server);
+    } else {
+      plan();
+    }
+  };
+  const wake = () => {
+    void check();
+  };
+  const visible = () => {
+    if (document?.visibilityState !== 'hidden') {
+      wake();
+    }
+  };
+  const plan = () => {
     if (stopped) {
       return;
     }
     const wait = delays[Math.min(attempt, delays.length - 1)];
-    timer = setTimer(async () => {
-      timer = null;
-      const server = await Promise.resolve()
-        .then(() => discover())
-        .catch(() => null);
-      if (stopped) {
-        return;
-      }
-      if (server) {
-        stopped = true;
-        found(server);
-      } else {
-        plan(attempt + 1);
-      }
-    }, wait);
+    attempt += 1;
+    timer = setTimer(check, wait);
     timer?.unref?.();
   };
-  plan(0);
-  return {
-    stop: () => {
-      stopped = true;
-      clearTimer(timer);
-    },
-  };
+  events.addEventListener?.('focus', wake);
+  events.addEventListener?.('online', wake);
+  document?.addEventListener?.('visibilitychange', visible);
+  plan();
+  return { stop, check };
 };

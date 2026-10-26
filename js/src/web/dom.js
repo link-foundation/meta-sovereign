@@ -75,19 +75,16 @@ export const findNearbyServer = async ({
 const localBroadcast = async (networks, body) =>
   (networks ?? []).map((n) => ({ network: n, queued: true, body }));
 
-const LOOPBACK = /^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/;
-
-// The local copy keeps up with its server (R-Y65): the server back with
-// a new build reloads it (`check()` on every return), and a copy opened
-// while its server was down looks for it again.
+// Every copy, including GitHub Pages, retries a failed initial discovery.
+// The optional local copy also follows new server builds (R-Y65).
 const followServer = (client, origin) => {
   const here = globalThis.location?.origin ?? '';
   const reload = () => globalThis.location?.reload?.();
   if (!origin) {
-    if (LOOPBACK.test(here)) {
-      createRediscovery({ discover: () => discoverServer({}), found: reload });
-    }
-    return null;
+    return createRediscovery({
+      discover: () => discoverServer({}),
+      found: reload,
+    });
   }
   if (origin !== here || typeof globalThis.fetch !== 'function') {
     return null;
@@ -193,6 +190,7 @@ const ensure = () => {
  * otherwise decide the binding for every file after it.
  */
 export const resetServerBinding = () => {
+  bootPromise?.then(({ follow }) => follow?.stop?.()).catch(() => {});
   bootPromise = null;
   automationApi = null;
 };
@@ -242,6 +240,9 @@ const passcodeCall = async (op, body) => {
   // Not through `client.isOnline()`: a locked server answers its health
   // check with 423, which must not make the unlock screen think it is gone.
   const { origin } = await ensure();
+  if (!origin) {
+    return null;
+  }
   const path = `/api/passcode/${op}`;
   const init =
     body === undefined
@@ -251,7 +252,7 @@ const passcodeCall = async (op, body) => {
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(body),
         };
-  const response = await fetch(origin ? new URL(path, origin) : path, init)
+  const response = await fetch(new URL(path, origin), init)
     .then(announceLocked)
     .catch(() => null);
   const data = response ? await response.json().catch(() => ({})) : null;

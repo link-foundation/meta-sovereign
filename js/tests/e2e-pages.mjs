@@ -137,8 +137,10 @@ const seed = async (store) => {
 };
 
 // What a copy of the app shows, read from the page.
-const look = async (page, url, { serverOrigin, problems }) => {
-  await page.goto(url);
+const look = async (page, url, { serverOrigin, problems, navigate = true }) => {
+  if (navigate) {
+    await page.goto(url);
+  }
   for (let i = 0; i < 60; i += 1) {
     const online = await page
       .evaluate(() => Boolean(document.querySelector('.mode-badge.online')))
@@ -217,6 +219,68 @@ const fence = async (page, { serverOrigin, siteOrigin, tried }) => {
       ? r.continue()
       : r.abort();
   });
+};
+
+// A failed first discovery on the hosted origin must heal without Check again.
+const recoverHosted = async (
+  page,
+  siteUrl,
+  serverOrigin,
+  { wake = false, tried } = {}
+) => {
+  let available = false;
+  let wrongPasscode = 0;
+  const siteOrigin = new URL(siteUrl).origin;
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.origin === siteOrigin && url.pathname === '/api/passcode/status') {
+      wrongPasscode += 1;
+    }
+  });
+  for (const origin of [
+    serverOrigin,
+    serverOrigin.replace(/^http:/, 'https:'),
+  ]) {
+    await page.route(`${origin}/api/status`, (route) => {
+      tried?.add(new URL(route.request().url()).origin);
+      return available ? route.continue() : route.abort();
+    });
+  }
+  await page.goto(siteUrl);
+  const waitFor = async (online) => {
+    for (let i = 0; i < 120; i += 1) {
+      const ready = await page
+        .evaluate(
+          (connected) =>
+            Boolean(
+              document.querySelector(
+                connected ? '.mode-badge.online' : '.web-mode-banner'
+              )
+            ),
+          online
+        )
+        .catch(() => false);
+      if (ready) {
+        return;
+      }
+      await sleep(250);
+    }
+    throw new Error(
+      `hosted app did not become ${online ? 'online' : 'offline'}`
+    );
+  };
+  await waitFor(false);
+  available = true;
+  if (wake) {
+    await page.evaluate(() =>
+      globalThis.dispatchEvent(new globalThis.Event('focus'))
+    );
+  }
+  await waitFor(true);
+  if (wrongPasscode) {
+    throw new Error('offline passcode request hit the static website');
+  }
+  say(`hosted startup recovered via ${wake ? 'tab focus' : 'automatic retry'}`);
 };
 
 // A local build is served over http, where Safari's limits do not
@@ -335,9 +399,11 @@ const trustedSafari = async (browser, { siteUrl, ...where }) => {
     ...where,
   });
   const failures = errors;
+  await recoverHosted(page, siteUrl, where.serverOrigin, { wake: true, tried });
   const seen = await look(page, siteUrl, {
     serverOrigin: where.serverOrigin,
     problems: [],
+    navigate: false,
   });
   await shoot(page, 'safari-trusted.png');
   say(
@@ -471,7 +537,12 @@ const main = async () => {
         problems.push(`${response.status()} ${url}`);
       }
     });
-    const hosted = await look(page, site.url, { serverOrigin, problems });
+    await recoverHosted(page, site.url, serverOrigin, { tried });
+    const hosted = await look(page, site.url, {
+      serverOrigin,
+      problems,
+      navigate: false,
+    });
     await shoot(page, 'hosted.png');
     say(`the hosted copy tried ${[...tried].join(' → ')}`);
     if (!tried.has(serverOrigin)) {
