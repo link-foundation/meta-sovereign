@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.51.1
+
+### Patch Changes
+
+- 0389dbe: Rename the global folder tab to All, place it last by default, and add Settings → Folder tabs → Always show “All” first. Reveal the selected tab on startup, folder updates and column resizing while preserving named folders’ Telegram order and the selected folder.
+
 ## 0.51.0
 
 ### Minor Changes
