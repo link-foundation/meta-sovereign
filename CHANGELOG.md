@@ -1,5 +1,17 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.50.0
+
+### Minor Changes
+
+- Import macOS Contacts, including synced iCloud accounts, or a vCard export into the local contact directory. Preview changes before saving, preserve source identities across repeated imports, and search email addresses and phone numbers. Add the same import flow to the CLI, paginate large directories, count contacts without messages, and keep system access behind an explicit click and OS permission.
+
+  Keep the Contacts directory current while Telegram and other sources sync. Batch live changes, refresh after reconnect or focus, keep a polling fallback, and provide a manual refresh without losing the current search.
+
+  Use GitHub Pages as the default web app and keep the local server as its backend. The localhost UI is disabled unless `--local-ui=true` or `MS_LOCAL_UI=on` is set; desktop shells explicitly enable their bundled UI. Update all four languages' guides and connection notices. Cached Telegram chats stop requesting history when no user account is connected and show how to connect instead of an endless spinner.
+
+  Interactive macOS startup now detects certificate trust, requests it only when needed, protects the per-installation TLS key at rest with a device-only Secure Enclave wrapping key, and opens the hosted app. Both JS and Rust restrict default browser access to the official GitHub Pages origin and the exact local origin, including socket upgrades; unrelated discovery responses are rejected.
+
 ## 0.49.18
 
 ### Patch Changes
