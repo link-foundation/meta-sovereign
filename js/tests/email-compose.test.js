@@ -22,13 +22,15 @@ describe('composeMessage', () => {
         to: 'a@example.com',
         cc: 'c@example.com',
         bcc: ['secret@example.com', 'other@example.com'],
+        messageId: '<bcc-regression@example.com>',
         subject: 'Hi',
         text: 'x',
       },
       { now: NOW }
     );
-    assert.doesNotMatch(raw, /bcc/i);
+    assert.doesNotMatch(raw.split('\r\n\r\n')[0], /^bcc:/im);
     assert.doesNotMatch(raw, /secret@example\.com/);
+    assert.doesNotMatch(raw, /other@example\.com/);
     assert.deepEqual(recipients, [
       'a@example.com',
       'c@example.com',
