@@ -84,6 +84,9 @@ const openPrivacy = async () => {
   if ((await page.locator('[data-dialog="privacy"]').count()) > 0) {
     return;
   }
+  if ((await page.locator('[data-action="my-profile"]').count()) === 0) {
+    await page.locator('button[data-view="profile"]').click();
+  }
   await page.locator('[data-action="my-profile"]').first().click();
   await until(
     async () =>

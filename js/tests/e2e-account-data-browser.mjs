@@ -137,6 +137,9 @@ const says = async (locator, words, what) =>
   until(async () => (await locator.textContent())?.includes(words), what);
 
 const openProfile = async () => {
+  if ((await page.locator('[data-action="my-profile"]').count()) === 0) {
+    await page.locator('button[data-view="profile"]').click();
+  }
   await page.locator('[data-action="my-profile"]').click();
   await profile.locator('[data-field="firstName"]').waitFor({ timeout: 5000 });
 };

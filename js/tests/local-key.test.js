@@ -10,7 +10,11 @@ import {
   localTlsPaths,
   makeLocalCertificate,
 } from '../src/server/local-tls.js';
-import { setupLocalCertificate } from '../src/cli/trust-commands.js';
+import {
+  setupLocalCertificate,
+  waitForLocalCertificate,
+} from '../src/cli/trust-commands.js';
+import { deviceKeyFailure } from '../src/server/local-key.js';
 
 // Models a non-exportable, per-device wrapping key; another instance
 // represents another device and cannot decrypt the first one's envelope.
@@ -133,4 +137,44 @@ test('serve detects existing trust, requests it once, and respects headless/expl
   calls.length = 0;
   await setupLocalCertificate({ tls: false }, () => {}, options);
   assert.deepEqual(calls, []);
+});
+
+test('a locked Mac waits for its original key instead of replacing its identity', async () => {
+  const locked = deviceKeyFailure(
+    'Local TLS device key: OSStatus error -25308.'
+  );
+  assert.equal(locked.code, 'DEVICE_KEY_LOCKED');
+  const otherDevice = deviceKeyFailure('authentication failed');
+  assert.equal(otherDevice.code, 'DEVICE_KEY_UNAVAILABLE');
+  const messages = [];
+  let attempts = 0;
+  let pauses = 0;
+  const original = { fingerprint: 'same-identity' };
+  assert.equal(
+    await waitForLocalCertificate(
+      async () => {
+        attempts += 1;
+        if (attempts < 3) {
+          throw locked;
+        }
+        return original;
+      },
+      (message) => messages.push(message),
+      async () => {
+        pauses += 1;
+      }
+    ),
+    original
+  );
+  assert.equal(pauses, 2);
+  assert.equal(messages.length, 1);
+  await assert.rejects(
+    waitForLocalCertificate(
+      async () => {
+        throw otherDevice;
+      },
+      () => {}
+    ),
+    { code: 'DEVICE_KEY_UNAVAILABLE' }
+  );
 });

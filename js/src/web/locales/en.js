@@ -98,6 +98,37 @@ export const en = {
     'Could not mark this conversation read. Your card is still here; try Done again.',
   'nav.unreadAtLeast': 'At least {count} unread',
   'nav.unreadCount': '{count} unread',
+  'marketplace.apiNote':
+    'Optional API and archive access. For browser sign-in and profiles, use Work accounts above.',
+  'marketplace.title': 'Work accounts',
+  'marketplace.intro':
+    'Sign in to Upwork, Fiverr, PeoplePerHour or Wellfound in a browser window on the computer running your local server. Save a profile here to view it in Connections and Profile.',
+  'marketplace.show': 'Show session window',
+  'marketplace.open': 'Open sign-in browser',
+  'marketplace.capture': 'Save this profile',
+  'marketplace.close': 'Close session window',
+  'marketplace.windowOpen': 'Session window is open',
+  'marketplace.windowClosed': 'Session window is closed',
+  'marketplace.instructions':
+    'Complete sign-in yourself, open your own profile in the same tab, then choose Save this profile. Closing the window keeps its sign-in session for your next visit.',
+  'marketplace.noProfile': 'No profile saved yet.',
+  'marketplace.viewProfile': 'View profile on the service',
+  'marketplace.captured': 'Profile saved {at}',
+  'marketplace.signInObserved': 'Sign-in observed {at}',
+  'marketplace.working': 'Working…',
+  'marketplace.help': 'Profile help',
+  'marketplace.needsProfile':
+    'Open your own profile in the session window first. Login pages and challenges cannot be saved as a profile.',
+  'marketplace.sessionClosed':
+    'The session window is closed. Open it again to save your profile.',
+  'marketplace.pageChanged':
+    'The browser changed pages while reading. Open your profile and try again.',
+  'marketplace.browserUnavailable':
+    'Browser support is unavailable on the server. Install browser-commander and Playwright there, then try again.',
+  'marketplace.serverRequired':
+    'Connect to an updated local server to sign in and save these profiles.',
+  'marketplace.failed':
+    'This action could not finish. Check the session window and try again.',
   'operator.title': 'Operator',
   'operator.next': 'Next (N)',
   'operator.done': 'Done (D)',

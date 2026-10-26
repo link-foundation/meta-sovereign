@@ -41,6 +41,7 @@ import { Busy } from '../spinner.js';
 import { EmailPullRow } from './email-pull.js';
 import { FETCHABLE, FetchNow } from './fetch-now.js';
 import { GithubInbox } from './github-inbox.js';
+import { MarketplaceAccounts } from '../marketplace-accounts.js';
 
 const el = React.createElement;
 
@@ -890,6 +891,13 @@ const ProviderCardActions = ({
   ]);
 };
 
+const WorkApiNote = ({ providerId }) => {
+  const t = useT();
+  return ['upwork', 'peopleperhour'].includes(providerId)
+    ? el('p', { className: 'meta' }, t('marketplace.apiNote'))
+    : null;
+};
+
 const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
   const t = useT();
   const { locale } = useLocaleContext();
@@ -913,6 +921,7 @@ const ProviderCard = ({ providerId, status, autoImport, onOpen }) => {
         el('h3', { key: 'label' }, tx(t, provider.label, provider.labelKey)),
         el(StateBadge, { key: 'badge', state }),
       ]),
+      el(WorkApiNote, { key: 'work-api-note', providerId }),
       users || signedIn
         ? el(
             'p',
@@ -995,6 +1004,7 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
             status: autoImport,
             onImported: reload,
           }),
+      el(MarketplaceAccounts, { key: 'marketplaces', api }),
       el(
         'div',
         { key: 'grid', className: 'connections-grid' },

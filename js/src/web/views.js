@@ -29,6 +29,7 @@ import { useContactsRevision } from './contacts-live.js';
 import { ContactsImport } from './contacts-import.js';
 import { CallsContent } from './chat-calls.js';
 import { MyProfile } from './chat-profile.js';
+import { MarketplaceAccounts } from './marketplace-accounts.js';
 
 const el = React.createElement;
 
@@ -953,6 +954,7 @@ export const ProfileView = () => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [status, setStatus] = useState('');
+  const [marketplaceProfiles, setMarketplaceProfiles] = useState(0);
 
   useEffect(() => {
     const { profile, resume } = state.value;
@@ -980,12 +982,24 @@ export const ProfileView = () => {
     if (profileEmpty && !name && !bio && !title && !body) {
       return el('div', { className: 'col' }, [
         el(MyProfile, { key: 'telegram', api }),
-        el(ConnectionGuide, { key: 'guide', section: 'profile' }),
+        el(MarketplaceAccounts, {
+          key: 'marketplaces',
+          api,
+          onProfiles: setMarketplaceProfiles,
+        }),
+        marketplaceProfiles
+          ? null
+          : el(ConnectionGuide, { key: 'guide', section: 'profile' }),
       ]);
     }
     return el('div', { className: 'col' }, [
       el('h2', { key: 'profile-h' }, t('profile.title')),
       el(MyProfile, { key: 'telegram', api }),
+      el(MarketplaceAccounts, {
+        key: 'marketplaces',
+        api,
+        onProfiles: setMarketplaceProfiles,
+      }),
       el('div', { key: 'profile', className: 'col' }, [
         el('input', {
           key: 'name',

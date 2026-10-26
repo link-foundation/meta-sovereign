@@ -163,7 +163,19 @@ const boot = async () => {
   // 1's: the peers are account 1's pages (R-Y202).
   const rtc =
     discovered && slot === 1
-      ? attachWebRtcSync({ store, origin: discovered.origin })
+      ? attachWebRtcSync({
+          store,
+          origin: discovered.origin,
+          onError: (error) => {
+            rawApi
+              .clientLog({
+                level: 'warn',
+                event: 'rtc_negotiation_failed',
+                error: String(error?.message ?? 'rtc-failed').slice(0, 300),
+              })
+              .catch(() => {});
+          },
+        })
       : null;
   return {
     store,
@@ -551,6 +563,17 @@ const greetingsOffline = (networks) => ({
 });
 
 const rawApi = {
+  marketplaces: async () =>
+    (await serverFetch('/api/marketplaces')) ?? {
+      ok: false,
+      accounts: [],
+      code: 'server-required',
+    },
+  marketplaceAction: async (id, action) =>
+    (await serverPostReport(
+      `/api/marketplaces/${encodeURIComponent(id)}/${encodeURIComponent(action)}`,
+      {}
+    )) ?? { ok: false, code: 'server-required' },
   // Plain POSTs to /api/telegram/<route> (./dom-telegram-calls.js).
   ...telegramCalls,
   ...Object.fromEntries(AUTOMATION_CALLS.map((n) => [n, automationCall(n)])),

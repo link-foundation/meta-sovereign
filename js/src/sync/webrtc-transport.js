@@ -21,7 +21,15 @@
 const TYPE_OFFER = 'offer';
 const TYPE_ANSWER = 'answer';
 const TYPE_ICE = 'ice';
-const TYPE_PEER_JOINED = 'peer-joined';
+
+// The broker broadcasts frames to the room, including late answers from other
+// tabs. Event dispatch must consume rejected negotiation promises as well.
+const onSignal = (signaling, type, handler, onError) =>
+  signaling.on(type, (msg) =>
+    Promise.resolve()
+      .then(() => handler(msg))
+      .catch(onError)
+  );
 
 /**
  * Wrap a `{ send, onMessage }` transport (typically a WebSocket to
@@ -74,11 +82,15 @@ export const createWebRtcTransport = ({
   initiator = false,
   rtcConfig = { iceServers: [] },
   channelLabel = 'meta-sovereign-sync',
+  onError = (error) =>
+    globalThis.console?.warn?.('WebRTC negotiation failed', error),
 }) => {
   const pc = new RTCPeerConnection(rtcConfig);
   const recvHandlers = new Set();
   const sendQueue = [];
   let dataChannel = null;
+  let awaitingAnswer = false;
+  let closed = false;
 
   const wireChannel = (channel) => {
     dataChannel = channel;
@@ -112,18 +124,36 @@ export const createWebRtcTransport = ({
     }
   };
 
-  signaling.on(TYPE_OFFER, async (msg) => {
-    await pc.setRemoteDescription({ type: 'offer', sdp: msg.sdp });
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    signaling.sendAnswer(answer.sdp);
-  });
+  const offOffer = onSignal(
+    signaling,
+    TYPE_OFFER,
+    async (msg) => {
+      if (closed || awaitingAnswer || dataChannel?.readyState === 'open') {
+        return;
+      }
+      await pc.setRemoteDescription({ type: 'offer', sdp: msg.sdp });
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      signaling.sendAnswer(answer.sdp);
+    },
+    onError
+  );
 
-  signaling.on(TYPE_ANSWER, async (msg) => {
-    await pc.setRemoteDescription({ type: 'answer', sdp: msg.sdp });
-  });
+  const offAnswer = onSignal(
+    signaling,
+    TYPE_ANSWER,
+    async (msg) => {
+      if (closed || !awaitingAnswer) {
+        return;
+      }
+      // Claim this answer before awaiting: a duplicate cannot race it.
+      awaitingAnswer = false;
+      await pc.setRemoteDescription({ type: 'answer', sdp: msg.sdp });
+    },
+    onError
+  );
 
-  signaling.on(TYPE_ICE, async (msg) => {
+  const offIce = signaling.on(TYPE_ICE, async (msg) => {
     if (msg.candidate) {
       try {
         await pc.addIceCandidate(msg.candidate);
@@ -134,22 +164,26 @@ export const createWebRtcTransport = ({
   });
 
   const startAsInitiator = async () => {
+    if (closed || awaitingAnswer || dataChannel?.readyState === 'open') {
+      return;
+    }
+    awaitingAnswer = true;
     if (!dataChannel) {
       // Late initiation: open the data channel now if we deferred it.
       wireChannel(pc.createDataChannel(channelLabel));
     }
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    signaling.sendOffer(offer.sdp);
+    try {
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      signaling.sendOffer(offer.sdp);
+    } catch (error) {
+      awaitingAnswer = false;
+      throw error;
+    }
   };
 
   if (initiator) {
-    startAsInitiator().catch(() => {});
-  } else {
-    signaling.on(TYPE_PEER_JOINED, async () => {
-      // When a new peer joins, *they* become initiator; this side
-      // does nothing extra. Hook left in case callers want to know.
-    });
+    startAsInitiator().catch(onError);
   }
 
   return {
@@ -166,6 +200,10 @@ export const createWebRtcTransport = ({
       return () => recvHandlers.delete(h);
     },
     close: () => {
+      closed = true;
+      offOffer();
+      offAnswer();
+      offIce();
       try {
         dataChannel?.close();
       } catch {

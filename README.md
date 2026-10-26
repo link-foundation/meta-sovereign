@@ -85,6 +85,7 @@ The full user-facing flow — install nothing, install Rust server, install JS s
 - **Contact imports**: preview and import macOS Contacts (including synced iCloud accounts) or vCard exports from any platform; repeated imports keep stable identities. The directory updates during sync and includes people without messages. See [contact imports](docs/CONTACTS-IMPORT.md).
 
 - **Outreach, broadcasts and automations**: who to message, when, on what conditions and with which text; a preview of who gets what; safe drafts by default or paced auto-send with quiet hours, a per-chat cooldown, daily caps and an opt-out list. Every automated send goes through one outbox, so it happens at most once and an unclear result is never retried by itself ([`docs/USER-GUIDE.md` §11](docs/USER-GUIDE.md#11-automations-message-people-by-rule-safely)).
+- **Work accounts**: manual sign-in and saved profile snapshots for Upwork, Fiverr, PeoplePerHour and Wellfound in Connections and Profile. [Setup and initial support limits](docs/WORK-ACCOUNTS.md).
 - **Operator queue and replies**: walk unread messages chat by chat, reply suggestions from your own past answers (Tab takes one), patterns and reply variations, auto-replies on a matching message.
 - **Business and community accounts**: a VK community token runs the Bots Long Poll; Telegram Business quick replies, greeting and away messages, hours and chatbots.
 - **Memory**: structured `question → answer` facts captured from conversations, checked in the chat.

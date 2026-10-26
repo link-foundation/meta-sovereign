@@ -76,6 +76,8 @@ export const attachWebRtcSync = ({
   WebSocketImpl = globalThis.WebSocket,
   rtcConfig = { iceServers: [] },
   onMismatch = () => {},
+  onError = (error) =>
+    globalThis.console?.warn?.('WebRTC negotiation failed', error),
 } = {}) => {
   if (!RTCPeerConnection || !WebSocketImpl) {
     return null;
@@ -95,11 +97,12 @@ export const attachWebRtcSync = ({
     RTCPeerConnection,
     initiator: false,
     rtcConfig,
+    onError,
   });
   // Existing peers (us, until someone else joins) become initiator
   // when the broker says a new peer arrived.
   signaling.on('peer-joined', () => {
-    transport.startAsInitiator().catch(() => {});
+    transport.startAsInitiator().catch(onError);
   });
   // A browser and a peer of another data schema exchange nothing (R-Z17).
   const peer = createPeer(store, {

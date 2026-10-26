@@ -86,6 +86,7 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 
 - **外联、群发与自动化**：给谁发、何时发、在什么条件下发、发什么内容；预览谁会收到什么；默认生成安全草稿，或按节奏自动发送，并有安静时段、每个聊天的冷却期、每日上限和退订名单。每次自动发送都经过同一个发件箱：最多发送一次，结果不明时不会自行重试（[`docs/USER-GUIDE.zh.md`](docs/USER-GUIDE.zh.md) 第 11 节）。
 - **Operator 队列与回复**：逐个聊天处理未读消息，根据您以往的回答给出回复建议（按 Tab 采用），模式与回复变体，对匹配消息自动回复。
+- **工作账户**：在 Connections 和 Profile 中打开独立浏览器窗口，手动登录 Upwork、Fiverr、PeoplePerHour 和 Wellfound，保留会话并保存本地资料快照。这是初步支持；见[指南](docs/WORK-ACCOUNTS.md)。
 - **企业与社区账号**：VK 社区令牌运行 Bots Long Poll；Telegram Business 的快捷回复、问候与离开消息、营业时间和聊天机器人。
 - **记忆**：从对话中提取结构化的 `问题 → 答案` 事实，并可在聊天中核对。
 - **问候**：像 [konard/vk-bot](https://github.com/konard/vk-bot) 一样，在 VK、Telegram、WhatsApp、Messenger、X 和电子邮件中用一句“你好”或问候贴纸开启对话（[`docs/GREETINGS.zh.md`](docs/GREETINGS.zh.md)）。

@@ -96,6 +96,34 @@ export const zh = {
   'operator.failed': '无法将会话标为已读。此卡片仍保留，请再次点击完成。',
   'nav.unreadAtLeast': '至少 {count} 条未读',
   'nav.unreadCount': '{count} 条未读',
+  'marketplace.apiNote':
+    '可选的 API 与导出文件连接。浏览器登录及个人资料请使用上方工作账号。',
+  'marketplace.title': '工作账号',
+  'marketplace.intro':
+    '在运行本地服务器的电脑上打开浏览器窗口，登录 Upwork、Fiverr、PeoplePerHour 或 Wellfound。保存的资料可在连接和个人资料中查看。',
+  'marketplace.show': '显示会话窗口',
+  'marketplace.open': '打开登录浏览器',
+  'marketplace.capture': '保存此个人资料',
+  'marketplace.close': '关闭会话窗口',
+  'marketplace.windowOpen': '会话窗口已打开',
+  'marketplace.windowClosed': '会话窗口已关闭',
+  'marketplace.instructions':
+    '请自行完成登录，在同一标签页打开自己的个人资料，然后点击保存此个人资料。关闭窗口会保留登录会话，供下次使用。',
+  'marketplace.noProfile': '尚未保存个人资料。',
+  'marketplace.viewProfile': '在网站查看个人资料',
+  'marketplace.captured': '个人资料保存于 {at}',
+  'marketplace.signInObserved': '在 {at} 观察到登录',
+  'marketplace.working': '处理中…',
+  'marketplace.help': '个人资料帮助',
+  'marketplace.needsProfile':
+    '请先在会话窗口打开自己的个人资料。登录页和验证页无法保存为个人资料。',
+  'marketplace.sessionClosed': '会话窗口已关闭。请重新打开以保存个人资料。',
+  'marketplace.pageChanged': '读取时页面发生了变化。请打开个人资料后重试。',
+  'marketplace.browserUnavailable':
+    '服务器尚未安装浏览器支持。请在服务器上安装 browser-commander 和 Playwright 后重试。',
+  'marketplace.serverRequired':
+    '请连接更新后的本地服务器，以登录并保存这些个人资料。',
+  'marketplace.failed': '操作未能完成。请检查会话窗口后重试。',
   'operator.title': '操作员',
   'operator.next': '下一个 (N)',
   'operator.done': '完成 (D)',

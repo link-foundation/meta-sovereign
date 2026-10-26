@@ -113,6 +113,10 @@ library, so it stays a JS server feature. Against the Rust server the
 Connections panel shows that browser import needs the JS server, and
 manual archive import keeps working.
 
+### Work account sign-in and profiles
+
+`GET /api/marketplaces` and `POST /api/marketplaces/<service>/{open,profile,close}` are **JS only**, implemented in `js/src/server/routes-marketplaces.js`. They provide initial manual sign-in and saved profile snapshots for Upwork, Fiverr, PeoplePerHour and Wellfound. They use app-owned persistent browser profiles and require the optional browser packages. Other backends show the local-server requirement; they do not claim an authenticated connection. See [work accounts](WORK-ACCOUNTS.md).
+
 ## 5. CV synchronisation
 
 | Route               | Method | JS server                    | Rust server | Status      |

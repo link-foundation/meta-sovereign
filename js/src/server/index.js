@@ -94,6 +94,7 @@ import { handleChatRoutes } from './routes-chat.js';
 import { createClinkReplyStore } from '../replies/reply-store-clink.js';
 import { handleAutoImportRoutes } from './routes-auto-import.js';
 import { handleWhatsAppRoutes } from './routes-whatsapp.js';
+import { handleMarketplaceRoutes } from './routes-marketplaces.js';
 import { profileDirIn } from '../sources/whatsapp-web-signin.js';
 import { handleTelegramRoutes } from './routes-telegram.js';
 import { handleMessageRoutes } from './routes-messages.js';
@@ -628,6 +629,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
     () => handleWhatsAppRoutes(store, req, res, p, ctx),
+    () => handleMarketplaceRoutes(store, req, res, p, ctx),
     () => handleArchiveUpload(store, req, res, p, ctx),
     () => handlePullRoutes(store, req, res, p, ctx),
     () => handleTelegramRoutes(req, res, p, ctx),
@@ -960,7 +962,10 @@ export const startServer = async ({
         bus?.close();
         ctx.replies.close().catch(() => {});
         ctx.closeAutomations().catch(() => {});
-        const jobsDone = ctx.stopJobs();
+        const jobsDone = Promise.allSettled([
+          ctx.stopJobs(),
+          ctx.marketplaceSessions?.stop(),
+        ]);
         ctx.chatIndex.close();
         stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
         wsHandle?.close();

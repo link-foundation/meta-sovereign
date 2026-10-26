@@ -25,6 +25,31 @@ export const TRUST_HELP = `  trust         [--store=<dir>] [--remove=true]
 const enabled = (value, fallback = true) =>
   value === undefined ? fallback : String(value) !== 'false';
 
+/** A locked device keeps its identity: retry only this temporary OS refusal. */
+export const waitForLocalCertificate = async (
+  create,
+  log,
+  pause = () => new Promise((resolve) => globalThis.setTimeout(resolve, 5000))
+) => {
+  let announced = false;
+  for (;;) {
+    try {
+      return await create();
+    } catch (error) {
+      if (error.code !== 'DEVICE_KEY_LOCKED') {
+        throw error;
+      }
+      if (!announced) {
+        log(
+          'Waiting for this Mac to be unlocked to access its protected TLS key…'
+        );
+        announced = true;
+      }
+      await pause();
+    }
+  }
+};
+
 /** Ask macOS to evaluate this exact leaf certificate for local TLS only. */
 export const certificateIsTrusted = (
   certPath,
@@ -64,11 +89,13 @@ export const setupLocalCertificate = async (args, log, options = {}) => {
     return null;
   }
   const storeDir = args.store ?? defaultStoreDir();
-  const protector =
-    enabled(args['hardware-key']) && platform === 'darwin'
-      ? await deviceProtector(storeDir)
-      : null;
-  const local = await load(storeDir, { protector });
+  const local = await waitForLocalCertificate(async () => {
+    const protector =
+      enabled(args['hardware-key']) && platform === 'darwin'
+        ? await deviceProtector(storeDir)
+        : null;
+    return load(storeDir, { protector });
+  }, log);
   log(`local TLS identity (SHA-256) → ${local.fingerprint}`);
   log(`local TLS key protection → ${local.protection}`);
   if (platform !== 'darwin' || trusted(local.certPath)) {

@@ -98,6 +98,37 @@ export const ru = {
     'Не удалось отметить диалог прочитанным. Карточка сохранена; нажмите «Готово» ещё раз.',
   'nav.unreadAtLeast': 'Не менее {count} непрочитанных',
   'nav.unreadCount': 'Непрочитанных: {count}',
+  'marketplace.apiNote':
+    'Дополнительный доступ к API и архивам. Вход через браузер и профили находятся выше, в разделе «Рабочие аккаунты».',
+  'marketplace.title': 'Рабочие аккаунты',
+  'marketplace.intro':
+    'Войдите в Upwork, Fiverr, PeoplePerHour или Wellfound в окне браузера на компьютере с локальным сервером. Сохранённый профиль виден в Подключениях и Профиле.',
+  'marketplace.show': 'Показать окно сеанса',
+  'marketplace.open': 'Открыть браузер для входа',
+  'marketplace.capture': 'Сохранить этот профиль',
+  'marketplace.close': 'Закрыть окно сеанса',
+  'marketplace.windowOpen': 'Окно сеанса открыто',
+  'marketplace.windowClosed': 'Окно сеанса закрыто',
+  'marketplace.instructions':
+    'Войдите самостоятельно, откройте свой профиль в той же вкладке и нажмите «Сохранить этот профиль». Закрытие окна сохраняет сеанс входа для следующего посещения.',
+  'marketplace.noProfile': 'Профиль ещё не сохранён.',
+  'marketplace.viewProfile': 'Посмотреть профиль на сайте',
+  'marketplace.captured': 'Профиль сохранён: {at}',
+  'marketplace.signInObserved': 'Вход обнаружен: {at}',
+  'marketplace.working': 'Выполняется…',
+  'marketplace.help': 'Справка о профиле',
+  'marketplace.needsProfile':
+    'Сначала откройте свой профиль в окне сеанса. Страницы входа и проверки не сохраняются как профиль.',
+  'marketplace.sessionClosed':
+    'Окно сеанса закрыто. Откройте его снова для сохранения профиля.',
+  'marketplace.pageChanged':
+    'Страница изменилась во время чтения. Откройте профиль и повторите попытку.',
+  'marketplace.browserUnavailable':
+    'На сервере нет поддержки браузера. Установите там browser-commander и Playwright и повторите попытку.',
+  'marketplace.serverRequired':
+    'Подключитесь к обновлённому локальному серверу для входа и сохранения профилей.',
+  'marketplace.failed':
+    'Действие не завершено. Проверьте окно сеанса и повторите попытку.',
   'operator.title': 'Оператор',
   'operator.next': 'Далее (N)',
   'operator.done': 'Готово (D)',

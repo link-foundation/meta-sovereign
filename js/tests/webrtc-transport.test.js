@@ -228,3 +228,70 @@ test('webrtc transport queues sends until the data channel opens', async () => {
   tA.close();
   tB.close();
 });
+
+test('late room answers and repeated peer joins cannot renegotiate an active connection', async () => {
+  const bus = makeBus();
+  const remote = signalingChannel(bus.connect('remote'));
+  const errors = [];
+  let offers = 0;
+  let answers = 0;
+  const Rtc = makeFakeRtc([]);
+  class StrictRtc extends Rtc {
+    async createOffer() {
+      offers += 1;
+      return super.createOffer();
+    }
+    async setRemoteDescription(description) {
+      if (description.type === 'answer') {
+        answers += 1;
+        assert.equal(answers, 1, 'only one answer can complete an offer');
+      }
+      return super.setRemoteDescription(description);
+    }
+  }
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(bus.connect('local')),
+    RTCPeerConnection: StrictRtc,
+    onError: (error) => errors.push(error),
+  });
+  remote.sendAnswer('unsolicited');
+  await settle();
+  assert.equal(answers, 0);
+  await Promise.all([
+    transport.startAsInitiator(),
+    transport.startAsInitiator(),
+  ]);
+  remote.sendAnswer('first');
+  remote.sendAnswer('duplicate');
+  await waitFor(() => answers > 0);
+  await waitFor(() => transport.pc.localDescription && offers === 1);
+  await settle();
+  await transport.startAsInitiator();
+  assert.equal(offers, 1, 'a joined tab cannot replace the open data channel');
+  assert.equal(answers, 1);
+  assert.deepEqual(errors, []);
+  transport.close();
+  remote.sendAnswer('after close');
+  await settle();
+  assert.equal(answers, 1);
+});
+
+test('unexpected SDP failures are reported without an unhandled rejection', async () => {
+  const bus = makeBus();
+  const remote = signalingChannel(bus.connect('remote'));
+  const errors = [];
+  class FailingRtc extends makeFakeRtc([]) {
+    async setRemoteDescription() {
+      throw new Error('invalid remote SDP');
+    }
+  }
+  const transport = createWebRtcTransport({
+    signaling: signalingChannel(bus.connect('local')),
+    RTCPeerConnection: FailingRtc,
+    onError: (error) => errors.push(error.message),
+  });
+  remote.sendOffer('broken');
+  await waitFor(() => errors.length > 0);
+  assert.deepEqual(errors, ['invalid remote SDP']);
+  transport.close();
+});

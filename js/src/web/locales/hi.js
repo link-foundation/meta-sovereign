@@ -99,6 +99,37 @@ export const hi = {
     'बातचीत को पढ़ा हुआ चिह्नित नहीं किया जा सका। कार्ड यहीं है; फिर से पूरा दबाएँ।',
   'nav.unreadAtLeast': 'कम से कम {count} अपठित',
   'nav.unreadCount': '{count} अपठित',
+  'marketplace.apiNote':
+    'वैकल्पिक API और आर्काइव पहुँच। ब्राउज़र साइन-इन और प्रोफ़ाइल के लिए ऊपर कार्य खाते देखें।',
+  'marketplace.title': 'कार्य खाते',
+  'marketplace.intro':
+    'लोकल सर्वर वाले कंप्यूटर पर ब्राउज़र विंडो में Upwork, Fiverr, PeoplePerHour या Wellfound में साइन इन करें। प्रोफ़ाइल सहेजने के बाद वह कनेक्शन और प्रोफ़ाइल में दिखेगी।',
+  'marketplace.show': 'सत्र की विंडो दिखाएँ',
+  'marketplace.open': 'साइन-इन ब्राउज़र खोलें',
+  'marketplace.capture': 'यह प्रोफ़ाइल सहेजें',
+  'marketplace.close': 'सत्र की विंडो बंद करें',
+  'marketplace.windowOpen': 'सत्र की विंडो खुली है',
+  'marketplace.windowClosed': 'सत्र की विंडो बंद है',
+  'marketplace.instructions':
+    'खुद साइन इन करें, उसी टैब में अपनी प्रोफ़ाइल खोलें और यह प्रोफ़ाइल सहेजें दबाएँ। विंडो बंद करने पर अगली बार के लिए साइन-इन सत्र बना रहता है।',
+  'marketplace.noProfile': 'अभी कोई प्रोफ़ाइल नहीं सहेजी गई।',
+  'marketplace.viewProfile': 'साइट पर प्रोफ़ाइल देखें',
+  'marketplace.captured': 'प्रोफ़ाइल {at} को सहेजी गई',
+  'marketplace.signInObserved': 'साइन-इन {at} को देखा गया',
+  'marketplace.working': 'काम हो रहा है…',
+  'marketplace.help': 'प्रोफ़ाइल सहायता',
+  'marketplace.needsProfile':
+    'पहले सत्र की विंडो में अपनी प्रोफ़ाइल खोलें। लॉगिन और जाँच पेज प्रोफ़ाइल के रूप में नहीं सहेजे जा सकते।',
+  'marketplace.sessionClosed':
+    'सत्र की विंडो बंद है। प्रोफ़ाइल सहेजने के लिए उसे फिर खोलें।',
+  'marketplace.pageChanged':
+    'पढ़ते समय पेज बदल गया। अपनी प्रोफ़ाइल खोलकर फिर कोशिश करें।',
+  'marketplace.browserUnavailable':
+    'सर्वर पर ब्राउज़र सुविधा उपलब्ध नहीं है। वहाँ browser-commander और Playwright इंस्टॉल करके फिर कोशिश करें।',
+  'marketplace.serverRequired':
+    'साइन इन और प्रोफ़ाइल सहेजने के लिए अपडेट किए गए लोकल सर्वर से जुड़ें।',
+  'marketplace.failed':
+    'कार्य पूरा नहीं हो सका। सत्र की विंडो जाँचकर फिर कोशिश करें।',
   'operator.title': 'ऑपरेटर',
   'operator.next': 'अगला (N)',
   'operator.done': 'पूरा (D)',

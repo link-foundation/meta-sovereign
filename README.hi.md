@@ -86,6 +86,7 @@ SPA server को इस क्रम में चुनता है ([`js/src
 
 - **Outreach, broadcast और ऑटोमेशन**: किसे, कब, किन शर्तों पर और किस पाठ से लिखना है; कौन क्या पाएगा इसका preview; डिफ़ॉल्ट रूप से सुरक्षित ड्राफ़्ट, या quiet hours, हर चैट का cooldown, दैनिक सीमा और opt-out सूची के साथ धीमी गति से स्वचालित भेजना। हर स्वचालित भेजना एक ही outbox से जाता है: अधिक से अधिक एक बार, और अस्पष्ट परिणाम अपने आप दोहराया नहीं जाता ([`docs/USER-GUIDE.hi.md`](docs/USER-GUIDE.hi.md), §11)।
 - **Operator कतार और उत्तर**: अपठित संदेश चैट-दर-चैट, आपके पिछले उत्तरों से सुझाव (Tab एक चुनता है), पैटर्न और उत्तर के रूप, मिलते संदेश पर auto-reply।
+- **कार्य खाते**: Upwork, Fiverr, PeoplePerHour और Wellfound के लिए अलग ब्राउज़र विंडो में मैन्युअल साइन-इन, स्थायी सत्र और स्थानीय प्रोफ़ाइल स्नैपशॉट Connections और Profile में उपलब्ध हैं। यह शुरुआती समर्थन है; [गाइड](docs/WORK-ACCOUNTS.md) देखें।
 - **व्यवसाय और community खाते**: VK community token Bots Long Poll चलाता है; Telegram Business के quick replies, स्वागत और अनुपस्थिति संदेश, कार्य-समय और chatbots।
 - **स्मृति**: बातचीत से निकाले गए `प्रश्न → उत्तर` तथ्य, चैट में जाँच के साथ।
 - **अभिवादन**: VK, Telegram, WhatsApp, Messenger, X और ईमेल पर "hi" या स्टिकर से बातचीत शुरू करें, [konard/vk-bot](https://github.com/konard/vk-bot) की तरह ([`docs/GREETINGS.hi.md`](docs/GREETINGS.hi.md))।

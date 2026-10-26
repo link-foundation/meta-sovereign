@@ -11,8 +11,19 @@ import { compileSwiftHelper } from './native-helper.js';
 const SOURCE = fileURLToPath(
   new URL('./local-key-enclave.swift', import.meta.url)
 );
-const failure = (message) =>
-  Object.assign(new Error(message), { code: 'DEVICE_KEY_UNAVAILABLE' });
+const failure = (message, code = 'DEVICE_KEY_UNAVAILABLE') =>
+  Object.assign(new Error(message), { code });
+
+/** OSStatus -25308 is a temporarily inaccessible key, not another device. */
+export const deviceKeyFailure = (stderr) =>
+  /OSStatus error -25308/.test(String(stderr))
+    ? failure(
+        'Unlock this Mac to access its device-protected TLS key.',
+        'DEVICE_KEY_LOCKED'
+      )
+    : failure(
+        'The TLS key cannot be unlocked by this Mac. Unlock the original device; copied keys cannot be used on another computer.'
+      );
 
 /** Compile our small CryptoKit helper locally, once per source revision. */
 const helper = async (storeDir, run) => {
@@ -47,9 +58,7 @@ export const createDeviceKeyProtector = async (
       maxBuffer: 64 * 1024,
     });
     if (result.status !== 0) {
-      throw failure(
-        'The TLS key cannot be unlocked by this Mac. Unlock the original device; copied keys cannot be used on another computer.'
-      );
+      throw deviceKeyFailure(result.stderr);
     }
     return JSON.parse(result.stdout);
   };
