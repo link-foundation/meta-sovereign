@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "https://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleIdentifier</key><string>org.link-foundation.meta-sovereign.contacts-import</string>
+  <key>CFBundleName</key><string>Meta Sovereign Contacts Import</string>
+  <key>NSContactsUsageDescription</key><string>Import the contacts you choose into your local Meta Sovereign address book, including iCloud and other accounts synced with this Mac. Contacts are not uploaded to any messaging service.</string>
+</dict></plist>

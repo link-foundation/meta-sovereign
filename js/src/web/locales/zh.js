@@ -97,6 +97,28 @@ export const zh = {
   'contacts.actions': '操作',
   'contacts.message': '发消息',
   'contacts.messageTo': '给 {name} 发消息',
+  'contacts.addressBook': '通讯录',
+  'contacts.showMore': '显示更多（剩余 {count} 个）',
+  'contacts.import.title': '导入联系人',
+  'contacts.import.hint':
+    '从此 Mac 的“通讯录”导入，包括已同步的 iCloud、Google 和 Exchange 账户，或选择 vCard（.vcf）导出文件。保存前可预览。不会将联系人上传到消息服务。',
+  'contacts.import.system': 'macOS / iCloud 联系人',
+  'contacts.import.vcard': '选择 vCard 文件',
+  'contacts.import.server': '导入联系人需要最新的本地服务器。',
+  'contacts.import.permission':
+    '请在 macOS 权限提示中，或“系统设置 → 隐私与安全性 → 通讯录”中允许应用访问联系人，然后重试。',
+  'contacts.import.expired': '预览已过期，请重新预览联系人。',
+  'contacts.import.unavailable':
+    '系统通讯录导入适用于 macOS。其他系统可导入 vCard 文件。',
+  'contacts.import.tooLarge': '请选择不超过 10 MB 的 vCard 文件。',
+  'contacts.import.failed': '无法导入联系人：{error}',
+  'contacts.import.summary':
+    '新增 {created} 个，更新 {updated} 个，未变化或跳过 {skipped} 个。',
+  'contacts.import.apply': '导入 {count} 个联系人',
+  'contacts.import.cancel': '取消',
+  'contacts.import.reading': '正在读取联系人…macOS 可能会请求权限。',
+  'contacts.import.importing': '正在保存联系人…',
+  'contacts.import.done': '已导入 {count} 个联系人。',
   'contacts.refresh': '刷新联系人',
   'contacts.search': '搜索联系人',
   'automation.title': '自动化图',

@@ -18,6 +18,8 @@ Telegram 是参照网络，其矩阵在下方。其他每个网络都有自己�
 | PeoplePerHour        | [features/peopleperhour.zh.md](./features/peopleperhour.zh.md) | 3      | 15       | 11     | 1        |
 | Job boards           | [features/job-boards.zh.md](./features/job-boards.zh.md)       | 3      | 29       | 22     | 1        |
 
+除 Telegram 矩阵外，应用也支持本地通讯录导入：macOS 通讯录（包括已同步的 iCloud 账户）和 vCard 文件，提供预览、系统授权和重复记录处理。联系人目录在同步期间更新，也计入没有消息的联系人。参见[联系人导入](CONTACTS-IMPORT.md)和 R-Z26。
+
 ## 当前范围
 
 当前的优先事项是完整显示私聊、群组和频道中的每一条消息。特殊功能暂缓，列在此处以便日后回来处理。只实现通过 API（MTProto，第 232 层，`telegram` 包）或浏览器中网络的网页应用可达的功能；只有官方应用能做到的标为“不可访问”。

@@ -403,7 +403,7 @@ jobs:
             send-extras folders passcode service-messages ephemeral \
             rich-messages rich-text instant-view account-data accounts offline \
             email greetings autopilot peer-bar tutorial archive-media \
-            vk-followups github-inbox visual-effects; do
+            vk-followups github-inbox visual-effects contacts-directory; do
             echo "::group::test:e2e:${name}"
             if ! npm run --silent "test:e2e:${name}"; then
               failed+=("${name}")
@@ -433,7 +433,7 @@ jobs:
           failed=()
           for name in browser consistency chat-menu selection offline \
             email greetings autopilot peer-bar archive-media vk-followups \
-            github-inbox visual-effects; do
+            github-inbox visual-effects contacts-directory; do
             echo "::group::test:e2e:${name}:webkit"
             if ! npm run --silent "test:e2e:${name}:webkit"; then
               failed+=("${name}")
@@ -574,7 +574,8 @@ jobs:
 
   # The package as npm would ship it, without publishing: `npm pack`
   # builds the tarball `npm publish` uploads, npx runs it, and the
-  # server it starts must serve the app (js/tests/pack-smoke.mjs).
+  # server must default to Pages and expose its local HTTPS API
+  # (js/tests/pack-smoke.mjs).
   package:
     name: Package (packed and run with npx)
     runs-on: ubuntu-latest

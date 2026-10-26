@@ -27,6 +27,8 @@ same है।
 `/api/facts`, `/api/search`, `/api/health`, `/sources` और `/metrics`
 दोनों servers पर parity में हैं।
 
+पता पुस्तिका आयात **केवल JS** में है: `GET /api/contacts/import`, `POST /api/contacts/import/preview` और `POST /api/contacts/import/apply`। macOS Contacts या vCard का पूर्वावलोकन होता है, फिर पुष्ट बैच स्थानीय रूप से सहेजता है। Rust सर्वर और केवल-ब्राउज़र मोड में ये रूट नहीं हैं। [संपर्क आयात](CONTACTS-IMPORT.md) देखें।
+
 ## 3. Mutating CRUD routes
 
 patterns, graphs, replies, profile, resume, broadcast और

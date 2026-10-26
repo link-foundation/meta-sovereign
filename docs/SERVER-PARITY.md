@@ -42,6 +42,8 @@ behave identically on both servers (R-K1, R-K2, R-K3).
 | `/sources`          | GET    | `js/src/server/index.js`          | `rust/crates/.../handlers.rs::sources`      | Parity |
 | `/metrics`          | GET    | `js/src/server/metrics.js`        | `rust/crates/.../handlers.rs::metrics_text` | Parity |
 
+Address-book imports are **JS only**: `GET /api/contacts/import`, `POST /api/contacts/import/preview` and `POST /api/contacts/import/apply`. They preview macOS Contacts or a vCard file, then save the confirmed batch locally. The Rust server and browser-only mode do not implement these routes. See [contact imports](CONTACTS-IMPORT.md).
+
 ## 3. Mutating CRUD routes
 
 | Route                 | Method | JS server                          | Rust server                   | Status |

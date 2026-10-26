@@ -63,7 +63,18 @@ const addPerson = (entry, person) => {
   entry.name ??= person.name ?? null;
   entry.handle ??= person.handle ?? null;
   // A private chat is addressed by the person's own id.
-  entry.open ??= { source: person.source, chat: String(person.user) };
+  if (person.source !== 'addressbook') {
+    entry.open ??= { source: person.source, chat: String(person.user) };
+  }
+  if (person.emails?.length) {
+    entry.emails = person.emails;
+  }
+  if (person.phones?.length) {
+    entry.phones = person.phones;
+  }
+  if (person.organization) {
+    entry.organization = person.organization;
+  }
   if (person.contact) {
     entry.contact = true;
   }

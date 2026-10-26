@@ -98,6 +98,30 @@ export const hi = {
   'contacts.actions': 'कार्रवाइयाँ',
   'contacts.message': 'संदेश',
   'contacts.messageTo': '{name} को संदेश',
+  'contacts.addressBook': 'पता पुस्तिका',
+  'contacts.showMore': 'और दिखाएँ ({count} शेष)',
+  'contacts.import.title': 'संपर्क आयात करें',
+  'contacts.import.hint':
+    'इस Mac के Contacts से आयात करें, जिनमें synced iCloud, Google और Exchange accounts शामिल हैं, या vCard (.vcf) export चुनें। सहेजने से पहले समीक्षा करें। संपर्क किसी messaging service पर अपलोड नहीं होते।',
+  'contacts.import.system': 'macOS / iCloud संपर्क',
+  'contacts.import.vcard': 'vCard फ़ाइल चुनें',
+  'contacts.import.server': 'संपर्क आयात के लिए नवीनतम local server चाहिए।',
+  'contacts.import.permission':
+    'macOS permission prompt या System Settings → Privacy & Security → Contacts में app को Contacts access दें, फिर दोबारा कोशिश करें।',
+  'contacts.import.expired':
+    'पूर्वावलोकन की समय सीमा समाप्त हुई। संपर्कों का फिर पूर्वावलोकन करें।',
+  'contacts.import.unavailable':
+    'System Contacts macOS पर उपलब्ध है। अन्य systems पर vCard export आयात करें।',
+  'contacts.import.tooLarge': 'अधिकतम 10 MB की vCard फ़ाइल चुनें।',
+  'contacts.import.failed': 'संपर्क आयात नहीं हो सके: {error}',
+  'contacts.import.summary':
+    '{created} नए, {updated} अपडेट, {skipped} अपरिवर्तित या छोड़े गए।',
+  'contacts.import.apply': '{count} संपर्क आयात करें',
+  'contacts.import.cancel': 'रद्द करें',
+  'contacts.import.reading':
+    'संपर्क पढ़े जा रहे हैं… macOS अनुमति माँग सकता है।',
+  'contacts.import.importing': 'संपर्क सहेजे जा रहे हैं…',
+  'contacts.import.done': '{count} संपर्क आयात किए गए।',
   'contacts.refresh': 'संपर्क रीफ़्रेश करें',
   'contacts.search': 'संपर्क खोजें',
   'automation.title': 'स्वचालन ग्राफ़',

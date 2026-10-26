@@ -15,6 +15,7 @@
 
 import path from 'node:path';
 import { maybeOpenHostedApp } from './browser-open.js';
+import { CONTACTS_HELP, createContactCommands } from './contact-commands.js';
 import { promises as fs } from 'node:fs';
 import { parseArgs } from './lino-args.js';
 import { CV_HELP, createCvCommands } from './cv-commands.js';
@@ -94,6 +95,7 @@ Commands:
                 verbose logs are written to <store>/logs/meta-sovereign.log by default
                 https is served on the same port (for Safari); --tls=false or MS_TLS=off turns it off
 ${TRUST_HELP}
+${CONTACTS_HELP}
   sources
   source-pull   --source=<name> [--protocol=<p>] [--host=<mail-host>] [--owner=<o>] [--repo=<r>] [--state=<s>] [--offset=<n>] [--limit=<n>] [--store=<dir>]
   email-send    --protocol=<gmail|microsoft-graph|jmap|smtp> --to=<email> --subject=<s> --text=<body> [--host=<mail-host>]
@@ -827,6 +829,7 @@ const COMMANDS = {
   ...createGreetingCommands({ openStore }),
   // Let Safari trust the server's own certificate (R-Y64).
   ...createTrustCommands(),
+  ...createContactCommands({ openStore }),
   // Bring a store to the current data schema, or look first (R-Z17).
   ...createMigrateCommands(),
   help: async (_a, log) => {

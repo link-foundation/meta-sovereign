@@ -28,6 +28,8 @@ servers. `?include=tombstones`, `?showDeleted=1`,
 `/api/facts`, `/api/search`, `/api/health`, `/sources` и `/metrics`
 имеют parity на обоих servers.
 
+Импорт адресных книг доступен **только в JS**: `GET /api/contacts/import`, `POST /api/contacts/import/preview` и `POST /api/contacts/import/apply`. Предпросмотр Контактов macOS или vCard, затем сохранение подтверждённого пакета локально. Rust-сервер и режим только браузера не реализуют эти маршруты. См. [импорт контактов](CONTACTS-IMPORT.md).
+
 ## 3. Mutating CRUD routes
 
 patterns, graphs, replies, profile, resume, broadcast, а также

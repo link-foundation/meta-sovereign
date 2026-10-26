@@ -628,6 +628,21 @@ const rawApi = {
     const { client } = await ensure();
     return client.contacts();
   },
+  contactsImportSources: async () =>
+    (await serverFetch('/api/contacts/import')) ?? {
+      ok: false,
+      system: { available: false },
+    },
+  contactsImportPreview: async (body) =>
+    (await serverPostReport('/api/contacts/import/preview', body)) ?? {
+      ok: false,
+      code: 'server-required',
+    },
+  contactsImportApply: async (body) =>
+    (await serverPostReport('/api/contacts/import/apply', body)) ?? {
+      ok: false,
+      code: 'server-required',
+    },
   broadcast: async (text, networks) => {
     const { client } = await ensure();
     return client.broadcast({ text, networks });

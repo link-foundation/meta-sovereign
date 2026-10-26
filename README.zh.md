@@ -80,6 +80,7 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 - **统一收件箱**：覆盖 VK、Telegram、X、WhatsApp、Facebook、Instagram、LinkedIn、电子邮件、GitHub、Upwork、PeoplePerHour 和招聘网站；网络允许时实时更新（Telegram、VK Long Poll、增量 IMAP、GitHub），其余可导入任意大小的存档。
 - **像 Telegram 官方应用一样的聊天**：每条消息只发送一次，送达对勾，实时更新与断线后补齐，已读标记，云端草稿，刷新后仍保留的重试（[`docs/CHAT-REFERENCES.zh.md`](docs/CHAT-REFERENCES.zh.md)）。
 - **CRM**：一个视图看到联系人的全部信息，跨网络识别同一个人，社区与成员关系，搜索，按规则定义受众（`friends:vk & chat:vk:… - list:blocked`）。
+- **导入联系人**：预览并导入 macOS 通讯录（包括已同步的 iCloud 账户）或任何平台导出的 vCard；重复导入保留记录身份。目录在同步期间自动更新，也包含没有消息的联系人。参见[联系人导入](docs/CONTACTS-IMPORT.md)。
 - **外联、群发与自动化**：给谁发、何时发、在什么条件下发、发什么内容；预览谁会收到什么；默认生成安全草稿，或按节奏自动发送，并有安静时段、每个聊天的冷却期、每日上限和退订名单。每次自动发送都经过同一个发件箱：最多发送一次，结果不明时不会自行重试（[`docs/USER-GUIDE.zh.md`](docs/USER-GUIDE.zh.md) 第 11 节）。
 - **Operator 队列与回复**：逐个聊天处理未读消息，根据您以往的回答给出回复建议（按 Tab 采用），模式与回复变体，对匹配消息自动回复。
 - **企业与社区账号**：VK 社区令牌运行 Bots Long Poll；Telegram Business 的快捷回复、问候与离开消息、营业时间和聊天机器人。

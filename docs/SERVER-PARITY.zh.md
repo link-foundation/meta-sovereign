@@ -26,6 +26,8 @@ server 是回退：今天功能更多，能在 Bun/Node/Deno 所在环境运行�
 `/api/facts`、`/api/search`、`/api/health`、`/sources` 和 `/metrics`
 在两个 server 上 parity。
 
+通讯录导入**仅 JS 支持**：`GET /api/contacts/import`、`POST /api/contacts/import/preview` 和 `POST /api/contacts/import/apply`。预览 macOS 通讯录或 vCard，再将确认的批次保存到本地。Rust 服务器及仅浏览器模式未实现这些路由。参见[联系人导入](CONTACTS-IMPORT.md)。
+
 ## 3. Mutating CRUD routes
 
 patterns、graphs、replies、profile、resume、broadcast 以及

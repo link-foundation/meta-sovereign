@@ -1140,6 +1140,9 @@ export const getProvider = (id) => {
  * source id ("vk", "telegram"); unknown ids are shown as they are.
  */
 export const networkName = (t, source) => {
+  if (source === 'addressbook') {
+    return t('contacts.addressBook');
+  }
   const provider = providerCatalogue[source];
   return provider ? t(provider.labelKey) : source;
 };

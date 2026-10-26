@@ -177,6 +177,14 @@ MS_SECRET_PASSPHRASE='只有你自己知道的长 passphrase' node js/bin/meta-s
 
 ## 8. 导入数据
 
+### 导入通讯录（macOS、iCloud 和 vCard）
+
+在**联系人 → 导入联系人**中选择 macOS / iCloud 联系人或 vCard 文件。此功能需要 JavaScript 服务器或桌面应用；默认网页应用仍为 [GitHub Pages](https://link-foundation.github.io/meta-sovereign/)。macOS 仅在点击并获得系统授权后读取系统通讯录中已同步的账户（包括 iCloud、Google 和 Exchange）。原生助手需要 macOS Command Line Tools。在任何平台也可从服务商导出 `.vcf` 文件。先查看新增、更新和跳过的数量，再选择导入；取消不会保存联系人记录。重复导入未更改的记录不会产生副本。导入只保存在本地，不会上传到消息服务。
+
+Telegram 用户账户已通过 `contacts.getContacts` 导入其已保存的 Telegram 联系人，这与系统通讯录不同。目录在同步期间自动刷新，保留搜索条件，并提供刷新按钮；没有消息的联系人也计入其中。字段、限制、系统权限、CLI 命令和存储锁说明见[联系人导入](CONTACTS-IMPORT.md)。
+
+### 导入消息归档
+
 把 archive 放入 `~/.meta-sovereign/imports/`（可配置），然后运行：
 
 ```bash

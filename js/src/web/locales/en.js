@@ -97,6 +97,28 @@ export const en = {
   'contacts.actions': 'Actions',
   'contacts.message': 'Message',
   'contacts.messageTo': 'Message {name}',
+  'contacts.addressBook': 'Address book',
+  'contacts.showMore': 'Show more ({count} remaining)',
+  'contacts.import.title': 'Import contacts',
+  'contacts.import.hint':
+    'Import from Contacts on this Mac, including synced iCloud, Google and Exchange accounts, or choose a vCard (.vcf) export. Review before saving. Nothing is uploaded to a messaging service.',
+  'contacts.import.system': 'macOS / iCloud contacts',
+  'contacts.import.vcard': 'Choose vCard file',
+  'contacts.import.server': 'Contact import needs an up-to-date local server.',
+  'contacts.import.permission':
+    'Allow Contacts access for the app in the macOS permission prompt or in System Settings → Privacy & Security → Contacts, then try again.',
+  'contacts.import.expired': 'The preview expired. Preview the contacts again.',
+  'contacts.import.unavailable':
+    'System Contacts is available on macOS. You can import a vCard export on other systems.',
+  'contacts.import.tooLarge': 'Choose a vCard file no larger than 10 MB.',
+  'contacts.import.failed': 'Could not import contacts: {error}',
+  'contacts.import.summary':
+    '{created} new, {updated} to update, {skipped} unchanged or skipped.',
+  'contacts.import.apply': 'Import {count} contacts',
+  'contacts.import.cancel': 'Cancel',
+  'contacts.import.reading': 'Reading contacts… macOS may ask for permission.',
+  'contacts.import.importing': 'Saving contacts…',
+  'contacts.import.done': 'Imported {count} contacts.',
   'contacts.refresh': 'Refresh contacts',
   'contacts.search': 'Search contacts',
   'automation.title': 'Automation graphs',

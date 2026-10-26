@@ -58,6 +58,14 @@ if (engine === 'chromium') {
   });
 }
 const page = await context.newPage();
+// This exercises a connected chat's menus. Disconnected cached chats
+// intentionally show a connection guide (covered by the offline tests).
+await page.route('**/api/telegram/status', (route) =>
+  route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({ connected: true, kind: 'user', offline: false }),
+  })
+);
 if (engine !== 'chromium') {
   await page.addInitScript(() => {
     const clipboard = globalThis.navigator.clipboard;
@@ -256,7 +264,10 @@ try {
   console.log('[e2e-chat-selection] OK');
 } catch (error) {
   failed = true;
-  console.error('[e2e-chat-selection] FAIL:', error.message.split('\n')[0]);
+  console.error('[e2e-chat-selection] FAIL:', error.stack ?? error.message);
+  await page.screenshot({
+    path: path.join(os.tmpdir(), `ms-chat-selection-${engine}.png`),
+  });
 } finally {
   await browser.close();
   await handle.close();

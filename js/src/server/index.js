@@ -76,6 +76,7 @@ import { handleBackupRoutes } from './routes-backup.js';
 import { handleSuggestRoutes } from './routes-suggest.js';
 import { handleAutomationRoutes } from './routes-automations.js';
 import { handlePeopleRoutes } from './routes-people.js';
+import { handleContactsImport } from './routes-contacts-import.js';
 import {
   createAutomationRunner,
   createAutomationScheduler,
@@ -620,6 +621,7 @@ const routeOn = async (store, req, res, ctx, url, p) => {
     return;
   }
   for (const handle of [
+    () => handleContactsImport(store, req, res, p, ctx),
     () => handleEventRoutes(store, req, res, p, ctx),
     () => ctx.clientLog?.(req, res, p, ctx) ?? false,
     () => handleAutoImportRoutes(store, req, res, p, ctx),
@@ -842,6 +844,7 @@ export const startServer = async ({
   telegramExtraBuild,
   // Tests and demos pass a fake, so GitHub is never asked (R-Y53).
   githubCheck,
+  systemContactsReader,
   // The hosted app, and whether this serves its own copy (./hosted-ui.js).
   uiUrl,
   localUi,
@@ -890,6 +893,7 @@ export const startServer = async ({
     ...greetingContext(greetings),
     storeDir,
     storeHealth,
+    systemContactsReader,
     diskFree,
     passcode: createPasscodeLock({ dir: storeDir }),
     log,
@@ -921,11 +925,7 @@ export const startServer = async ({
     enableSync,
     node,
   });
-  const {
-    listener,
-    tls: secure,
-    closeFront,
-  } = await listenOrRelease(
+  const listening = await listenOrRelease(
     server,
     sockets,
     { port, storeDir, tls, log },
@@ -938,12 +938,12 @@ export const startServer = async ({
       await flush().catch(() => {});
     }
   );
-  ctx.tls = Boolean(secure);
-  ctx.port = listener.address().port;
+  ctx.tls = listening.tls;
+  ctx.port = listening.listener.address().port;
   later.forEach((start) => start());
   return {
-    port: listener.address().port,
-    tls: secure,
+    port: ctx.port,
+    tls: ctx.tls,
     store,
     bus,
     sync: wsHandle,
@@ -962,7 +962,7 @@ export const startServer = async ({
         stopAll(telegramAccount, ctx.telegramAccounts, ctx.telegramExtras);
         wsHandle?.close();
         signaling?.close();
-        closeFront();
+        listening.closeFront();
         server.close(() => Promise.resolve(jobsDone).then(resolve, resolve));
         for (const socket of sockets) {
           socket.destroy();

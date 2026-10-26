@@ -251,6 +251,14 @@ What it does **not** encrypt: the rest of the store (`data.lino` and `data.bin`:
 
 ## 8. Importing data
 
+### Import address books (macOS, iCloud and vCard)
+
+In **Contacts → Import contacts**, choose **macOS / iCloud contacts** or **Choose vCard file**. Use the JavaScript server or desktop app; the default web app remains [GitHub Pages](https://link-foundation.github.io/meta-sovereign/). macOS reads accounts already synced in the system Contacts app (including iCloud, Google and Exchange), only after your click and OS permission. The native helper requires macOS Command Line Tools. On any platform, export a `.vcf` file from your provider instead. Review the new, updated and skipped counts before choosing **Import**; **Cancel** saves no contact records. Repeated unchanged imports create no duplicates. Imported contacts stay local and are not uploaded to messaging services.
+
+Telegram user accounts already import their saved Telegram contacts through `contacts.getContacts`; this is distinct from the system address book. The directory refreshes during sync, keeps the current search and offers **Refresh contacts**. People without messages are included. For fields, limits, permission troubleshooting, CLI commands and the store-lock rule, see [contact imports](CONTACTS-IMPORT.md).
+
+### Import message archives
+
 Drop archive files into `~/.meta-sovereign/imports/` (configurable)
 and run:
 

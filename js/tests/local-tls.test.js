@@ -221,6 +221,10 @@ test('one port answers http and https, and https has a trust page', async () => 
     ).text();
     assert.match(notYet, new RegExp(`https://127.0.0.1:${handle.port}/trust`));
     assert.match(notYet, /meta-sovereign\.js trust/);
+    assert.ok(
+      notYet.includes(handle.tls.fingerprint),
+      'the trust page names the exact certificate'
+    );
     // An untrusted client is refused, as Safari is before the trust.
     await assert.rejects(
       getSecure(`https://127.0.0.1:${handle.port}/api/status`, undefined)

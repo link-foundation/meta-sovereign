@@ -96,6 +96,31 @@ export const ru = {
   'contacts.actions': 'Действия',
   'contacts.message': 'Написать',
   'contacts.messageTo': 'Написать {name}',
+  'contacts.addressBook': 'Адресная книга',
+  'contacts.showMore': 'Показать ещё (осталось {count})',
+  'contacts.import.title': 'Импорт контактов',
+  'contacts.import.hint':
+    'Импортируйте контакты этого Mac, включая синхронизированные аккаунты iCloud, Google и Exchange, или выберите экспорт vCard (.vcf). Проверьте результат перед сохранением. Контакты не отправляются в мессенджеры.',
+  'contacts.import.system': 'Контакты macOS / iCloud',
+  'contacts.import.vcard': 'Выбрать файл vCard',
+  'contacts.import.server':
+    'Для импорта контактов нужен актуальный локальный сервер.',
+  'contacts.import.permission':
+    'Разрешите доступ к контактам в запросе macOS или в «Системные настройки → Конфиденциальность и безопасность → Контакты» и повторите попытку.',
+  'contacts.import.expired':
+    'Предпросмотр устарел. Просмотрите контакты заново.',
+  'contacts.import.unavailable':
+    'Системные контакты доступны в macOS. На других системах можно импортировать vCard.',
+  'contacts.import.tooLarge': 'Выберите файл vCard размером не более 10 МБ.',
+  'contacts.import.failed': 'Не удалось импортировать контакты: {error}',
+  'contacts.import.summary':
+    'Новых: {created}, обновлений: {updated}, без изменений или пропущено: {skipped}.',
+  'contacts.import.apply': 'Импортировать контакты: {count}',
+  'contacts.import.cancel': 'Отмена',
+  'contacts.import.reading':
+    'Читаем контакты… macOS может запросить разрешение.',
+  'contacts.import.importing': 'Сохраняем контакты…',
+  'contacts.import.done': 'Импортировано контактов: {count}.',
   'contacts.refresh': 'Обновить контакты',
   'contacts.search': 'Поиск контактов',
   'automation.title': 'Графы автоматизации',

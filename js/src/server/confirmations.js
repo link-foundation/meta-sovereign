@@ -46,6 +46,7 @@ export const withoutToken = (body = {}) => {
 export const createConfirmations = ({
   ttlMs = CONFIRM_TTL_MS,
   now = () => Date.now(),
+  maxPending = MAX_PENDING,
 } = {}) => {
   const pending = new Map();
   const digest = (action, payload) =>
@@ -55,7 +56,7 @@ export const createConfirmations = ({
   const prune = () => {
     const at = now();
     for (const [token, entry] of pending) {
-      if (entry.expires <= at || pending.size > MAX_PENDING) {
+      if (entry.expires <= at || pending.size >= maxPending) {
         pending.delete(token);
       }
     }

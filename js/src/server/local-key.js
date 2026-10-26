@@ -4,10 +4,9 @@
 // process already running as the same user on the original, unlocked Mac.
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ensurePrivateDir } from '../storage/durable.js';
+import { compileSwiftHelper } from './native-helper.js';
 
 const SOURCE = fileURLToPath(
   new URL('./local-key-enclave.swift', import.meta.url)
@@ -17,35 +16,18 @@ const failure = (message) =>
 
 /** Compile our small CryptoKit helper locally, once per source revision. */
 const helper = async (storeDir, run) => {
-  const source = await fs.readFile(SOURCE);
-  const digest = crypto
-    .createHash('sha256')
-    .update(source)
-    .digest('hex')
-    .slice(0, 20);
-  const dir = path.resolve(storeDir, 'tls', 'native');
-  await ensurePrivateDir(dir);
-  const executable = path.join(dir, `local-key-${digest}`);
   try {
-    await fs.access(executable, fs.constants.X_OK);
-    return executable;
+    return await compileSwiftHelper({
+      dir: path.resolve(storeDir, 'tls', 'native'),
+      name: 'local-key',
+      source: SOURCE,
+      run,
+    });
   } catch {
-    // Build outside the target path so interrupted compiles are never reused.
-  }
-  const temp = `${executable}.${process.pid}.tmp`;
-  const built = run('xcrun', ['swiftc', '-O', SOURCE, '-o', temp], {
-    encoding: 'utf8',
-    timeout: 60_000,
-  });
-  if (built.status !== 0) {
-    await fs.rm(temp, { force: true });
     throw failure(
       'Secure Enclave helper could not be built. Install the macOS Command Line Tools, or explicitly use --hardware-key=false.'
     );
   }
-  await fs.chmod(temp, 0o700);
-  await fs.rename(temp, executable);
-  return executable;
 };
 
 /** A protector for this Mac, or null on platforms without this provider. */

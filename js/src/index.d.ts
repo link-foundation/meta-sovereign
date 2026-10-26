@@ -25,6 +25,8 @@ export declare const startServer: (opts: {
   localUi?: boolean | string;
   /** Override the default GitHub Pages app URL. */
   uiUrl?: string;
+  /** Inject a local system address-book reader; used only after an import request. */
+  systemContactsReader?: (storeDir: string) => Promise<unknown[]>;
   emailLiveFactory?: (config: unknown) => unknown;
   /** Periodic pull of a connected mailbox; `false` turns it off. */
   emailPoll?: false | { intervalMs?: number; firstMs?: number };

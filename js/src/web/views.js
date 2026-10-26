@@ -25,6 +25,7 @@ import { ConnectionsList, ConnectionDetail } from './connections/index.js';
 import { connectionHash, parseConnectionHash } from './connections/hash.js';
 import { PageLoading } from './spinner.js';
 import { useContactsRevision } from './contacts-live.js';
+import { ContactsImport } from './contacts-import.js';
 
 const el = React.createElement;
 
@@ -173,7 +174,14 @@ export const openContactChat = ({ source, chat }) =>
   );
 
 const contactMatches = (contact, words) => {
-  const text = [contact.name, contact.handle, contact.id]
+  const text = [
+    contact.name,
+    contact.handle,
+    contact.id,
+    contact.organization,
+    ...(contact.emails ?? []),
+    ...(contact.phones ?? []),
+  ]
     .filter(Boolean)
     .join(' ')
     .toLocaleLowerCase();
@@ -181,7 +189,12 @@ const contactMatches = (contact, words) => {
 };
 
 const ContactIdentity = ({ contact }) => {
-  const extra = [contact.handle ? `@${contact.handle}` : null, contact.id]
+  const extra = [
+    contact.handle ? `@${contact.handle}` : null,
+    ...(contact.emails ?? []),
+    ...(contact.phones ?? []),
+    contact.networks?.includes('addressbook') ? null : contact.id,
+  ]
     .filter((v) => v && v !== contact.name)
     .join(' · ');
   return contact.name
@@ -200,9 +213,18 @@ export const ContactsView = () => {
   const [revision, refresh] = useContactsRevision(api);
   const state = useAsyncValue(() => api.contacts(), [revision], []);
   const [query, setQuery] = useState('');
+  const [limit, setLimit] = useState(100);
+  const imports = el(ContactsImport, {
+    key: 'import',
+    api,
+    onImported: refresh,
+  });
   return el(AsyncFrame, { state }, (contacts) => {
     if (!contacts || contacts.length === 0) {
-      return el(ConnectionGuide, { section: 'contacts' });
+      return el('div', { className: 'col' }, [
+        imports,
+        el(ConnectionGuide, { key: 'guide', section: 'contacts' }),
+      ]);
     }
     const words = query.toLocaleLowerCase().split(/\s+/).filter(Boolean);
     const shown = contacts.filter((c) => contactMatches(c, words));
@@ -242,6 +264,7 @@ export const ContactsView = () => {
         : null;
     return el('div', { className: 'col' }, [
       el('h2', { key: 'h' }, t('contacts.title', { count: contacts.length })),
+      imports,
       el(
         'button',
         {
@@ -260,7 +283,10 @@ export const ContactsView = () => {
         placeholder: t('contacts.search'),
         'aria-label': t('contacts.search'),
         value: query,
-        onChange: (event) => setQuery(event.target.value),
+        onChange: (event) => {
+          setQuery(event.target.value);
+          setLimit(100);
+        },
       }),
       el('table', { key: 'table', className: 'stack-table' }, [
         el('thead', { key: 'head' }, [
@@ -273,23 +299,38 @@ export const ContactsView = () => {
         el(
           'tbody',
           { key: 'body' },
-          shown.map((contact) =>
-            el('tr', { key: contact.id }, [
-              cell(0, el(ContactIdentity, { contact })),
-              cell(
-                1,
-                (contact.networks ?? [])
-                  .map((n) => networkName(t, n))
-                  .join(', ')
-              ),
-              cell(2, String((contact.chats ?? []).length)),
-              cell(3, String(contact.messageCount ?? contact.count ?? 0)),
-              cell(4, contact.lastSeen ? fmtTs(contact.lastSeen) : '—'),
-              cell(5, messageButton(contact)),
-            ])
-          )
+          shown
+            .slice(0, limit)
+            .map((contact) =>
+              el('tr', { key: contact.id }, [
+                cell(0, el(ContactIdentity, { contact })),
+                cell(
+                  1,
+                  (contact.networks ?? [])
+                    .map((n) => networkName(t, n))
+                    .join(', ')
+                ),
+                cell(2, String((contact.chats ?? []).length)),
+                cell(3, String(contact.messageCount ?? contact.count ?? 0)),
+                cell(4, contact.lastSeen ? fmtTs(contact.lastSeen) : '—'),
+                cell(5, messageButton(contact)),
+              ])
+            )
         ),
       ]),
+      shown.length > limit
+        ? el(
+            'button',
+            {
+              key: 'more',
+              type: 'button',
+              className: 'ghost',
+              onClick: () => setLimit((n) => n + 100),
+              'data-action': 'contacts-more',
+            },
+            t('contacts.showMore', { count: shown.length - limit })
+          )
+        : null,
     ]);
   });
 };

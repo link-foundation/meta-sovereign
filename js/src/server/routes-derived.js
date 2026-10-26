@@ -25,7 +25,7 @@ const computeStatus = (all, diffs) => ({
   patterns: all.filter((l) => l.id?.startsWith('pattern:')).length,
   graphs: all.filter((l) => l.id?.startsWith('graph:')).length,
   replies: all.filter((l) => l.id?.startsWith('reply:')).length,
-  contacts: aggregateContacts(all).length,
+  contacts: aggregateContacts(all, { people: true }).length,
   chats: new Set(
     all
       .filter((l) => l.id?.startsWith('msg:'))

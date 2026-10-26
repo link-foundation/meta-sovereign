@@ -18,6 +18,8 @@ Telegram is the reference network and its matrix is below. Every other network h
 | PeoplePerHour        | [features/peopleperhour.md](./features/peopleperhour.md) | 3         | 15      | 11            | 1              |
 | Job boards           | [features/job-boards.md](./features/job-boards.md)       | 3         | 29      | 22            | 1              |
 
+The app also supports local address-book imports outside the Telegram matrix: macOS Contacts (including synced iCloud accounts) and vCard files, with preview, OS permission and duplicate handling. The Contacts directory refreshes during sync and counts people without messages. See [contact imports](CONTACTS-IMPORT.md) and R-Z26.
+
 ## Scope now
 
 The priority now is complete display of every message in private chats, groups and channels. Exotic features stay parked and are listed here to come back to later. Only features reachable through the API (MTProto, layer 232, via the `telegram` package) or through the network's web app in a browser are implemented; what only the official apps can do is marked "Not accessible".

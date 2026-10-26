@@ -41,6 +41,25 @@ test('a token works once, for the same action and body only', () => {
   assert.deepEqual(withoutToken({ a: 1, confirmToken: 'x' }), { a: 1 });
 });
 
+test('a bounded preview cache evicts the oldest plan and drops expired plans', () => {
+  let now = 1000;
+  const confirmations = createConfirmations({
+    maxPending: 2,
+    ttlMs: 50,
+    now: () => now,
+  });
+  const first = confirmations.issue('import', {}, 'oldest');
+  const second = confirmations.issue('import', {}, 'second');
+  const third = confirmations.issue('import', {}, 'third');
+  assert.equal(confirmations.consume(first.token, 'import', {}), null);
+  assert.deepEqual(confirmations.consume(second.token, 'import', {}), {
+    data: 'second',
+  });
+  now += 51;
+  confirmations.issue('import', {}, 'fresh');
+  assert.equal(confirmations.consume(third.token, 'import', {}), null);
+});
+
 // Raw upgrade request: the status line tells whether the socket opened.
 const upgradeStatus = (port, path, origin) =>
   new Promise((resolve, reject) => {

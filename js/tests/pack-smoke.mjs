@@ -1,9 +1,8 @@
 // The package as npm would ship it, without publishing it: `npm pack`
 // builds the very tarball `npm publish` uploads, and `npx --package`
 // runs it the way `npx -y meta-sovereign serve` will once it is on the
-// registry. The server it starts must serve the app, answer the hosted
-// app (CORS) and Safari (its picture), on a free port of its own and a
-// store of its own.
+// registry. The server must default to the hosted app, answer that
+// origin (CORS) and Safari (its picture), on a free port and store.
 //
 //   npm run test:pack
 
@@ -58,7 +57,16 @@ const pack = (dir) => {
   if (packed.status !== 0) {
     throw new Error(`npm pack failed: ${packed.stderr}`);
   }
-  const [{ filename, size, entryCount }] = JSON.parse(packed.stdout);
+  const [{ filename, size, entryCount, files }] = JSON.parse(packed.stdout);
+  for (const required of [
+    'js/src/server/local-key-enclave.swift',
+    'js/src/sources/system-contacts.swift',
+    'js/src/sources/system-contacts.plist',
+  ]) {
+    if (!files.some((file) => file.path === required)) {
+      throw new Error(`the package is missing ${required}`);
+    }
+  }
   say(`packed ${filename}: ${entryCount} files, ${size} bytes`);
   return path.join(dir, filename);
 };
@@ -68,7 +76,9 @@ const waitFor = async (url, child) => {
     if (child.exitCode !== null) {
       throw new Error(`the server exited with ${child.exitCode}`);
     }
-    const answer = await fetch(url).catch(() => null);
+    const answer = await fetch(url, {
+      headers: { origin: new URL(HOSTED_UI_URL).origin },
+    }).catch(() => null);
     if (answer?.ok) {
       return;
     }
@@ -78,10 +88,10 @@ const waitFor = async (url, child) => {
 };
 
 // The status over https, trusting only the server's own certificate.
-const secureStatus = (base, ca) =>
+const secureResponse = (base, ca, pathname) =>
   new Promise((resolve) => {
     https
-      .get(`${base.replace(/^http:/, 'https:')}/api/status`, { ca }, (res) => {
+      .get(`${base.replace(/^http:/, 'https:')}${pathname}`, { ca }, (res) => {
         res.resume();
         resolve(res.statusCode);
       })
@@ -116,16 +126,15 @@ const problemsOf = async (base, storeDir) => {
   const ca = await fs
     .readFile(localTlsPaths(storeDir).cert, 'utf8')
     .catch(() => null);
-  if (!ca || (await secureStatus(base, ca)) !== 200) {
+  if (!ca || (await secureResponse(base, ca, '/api/status')) !== 200) {
     problems.push('the server does not answer https with its certificate');
   }
-  const page = await fetch(`${base}/`);
-  if (!page.ok || !(await page.text()).includes('app.min.js')) {
-    problems.push('the local copy of the app is not served');
+  const page = await fetch(`${base}/`, { redirect: 'manual' });
+  if (page.status !== 302 || page.headers.get('location') !== HOSTED_UI_URL) {
+    problems.push('the default app is not GitHub Pages');
   }
-  const bundle = await fetch(`${base}/app.min.js`);
-  if (!bundle.ok) {
-    problems.push(`app.min.js: ${bundle.status}`);
+  if (ca && (await secureResponse(base, ca, '/app.min.js')) !== 404) {
+    problems.push('the localhost UI is enabled without opting in');
   }
   return problems;
 };
@@ -146,6 +155,9 @@ const main = async () => {
         `--package=${tarball}`,
         'meta-sovereign',
         'serve',
+        '--trust=false',
+        '--open=false',
+        '--hardware-key=false',
         `--port=${port}`,
         `--store=${path.join(dir, 'store')}`,
       ],
@@ -172,7 +184,9 @@ const main = async () => {
       process.exitCode = 1;
       return;
     }
-    say('PASS: the packed package runs and serves the app');
+    say(
+      'PASS: the packed server defaults to GitHub Pages with a local HTTPS API'
+    );
   } catch (error) {
     console.error(`[pack-smoke] FAIL: ${error.message}\n${log}`);
     process.exitCode = 1;
