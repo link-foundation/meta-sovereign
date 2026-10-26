@@ -24,6 +24,7 @@
  */
 
 import { readFileSync, appendFileSync, existsSync } from 'fs';
+import { extractBrokenUrls } from './lychee-report.mjs';
 
 const WAYBACK_API = 'https://archive.org/wayback/available?url=';
 
@@ -38,45 +39,6 @@ function setOutput(name, value) {
     appendFileSync(outputFile, `${name}=${value}\n`);
   }
   console.log(`${name}=${value}`);
-}
-
-/**
- * Extract broken URLs from lychee markdown output
- * Lychee markdown format includes lines like:
- *   * [404] https://example.com/broken-link
- *   * [ERROR] https://another-broken.com
- * @param {string} content - The markdown content from lychee
- * @returns {string[]} Array of broken URLs
- */
-function extractBrokenUrls(content) {
-  const urls = [];
-
-  // Match lines with error status codes or ERROR markers followed by URLs
-  // Lychee output format: [STATUS_CODE] URL or bullet points with links
-  const urlPattern =
-    /\[(?:4\d\d|5\d\d|ERROR|TIMEOUT|UNKNOWN)\]\s+(https?:\/\/[^\s)]+)/gi;
-  let match;
-
-  while ((match = urlPattern.exec(content)) !== null) {
-    const url = match[1].trim();
-    if (url && !urls.includes(url)) {
-      urls.push(url);
-    }
-  }
-
-  // Also match plain URL lines in broken sections
-  // Lychee sometimes outputs: `[ERROR] url | description`
-  const linePattern = /^\s*(?:\*|-)\s+.*?(https?:\/\/[^\s|)>\]]+)/gm;
-  let lineMatch;
-
-  while ((lineMatch = linePattern.exec(content)) !== null) {
-    const url = lineMatch[1].trim().replace(/[.,;!?]+$/, '');
-    if (url && !urls.includes(url) && url.startsWith('http')) {
-      urls.push(url);
-    }
-  }
-
-  return urls;
 }
 
 /**
