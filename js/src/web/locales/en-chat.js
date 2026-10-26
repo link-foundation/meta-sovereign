@@ -64,7 +64,7 @@ export const enChat = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
-  'chat.folder.all': 'All chats',
+  'chat.folder.all': 'All',
   'chat.emoji.title': 'Emoji',
   'chat.emoji.tab': 'Emoji',
   'chat.stickers.title': 'Stickers',

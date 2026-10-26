@@ -29,6 +29,7 @@ import { StoriesStrip, StoryViewerHost, useStories } from './stories.js';
 import { AppsSection, useSearchFocus } from './chat-apps-search.js';
 import { TopPeersSection } from './chat-top-peers.js';
 import { useDraftsSync } from './chat-drafts-clear.js';
+import { useSelectedTab } from './chat-tab-scroll.js';
 
 const el = React.createElement;
 
@@ -124,6 +125,11 @@ const newChatsBadge = (state, tab, t) => {
 const FilterTabs = ({ state }) => {
   const t = useT();
   const [menu, setMenu] = useState(null);
+  const tabs = state.tabs ?? OWN_TABS;
+  const ref = useSelectedTab(
+    state.filter,
+    JSON.stringify(tabs.map((tab) => [tab.key, tab.title ?? t(tab.label)]))
+  );
   if (typeof state.setFilter !== 'function') {
     return null;
   }
@@ -131,6 +137,7 @@ const FilterTabs = ({ state }) => {
     'div',
     {
       className: 'chat-filters',
+      ref,
       role: 'tablist',
       'aria-label': t('chat.filter.label'),
     },
@@ -143,7 +150,7 @@ const FilterTabs = ({ state }) => {
             close: () => setMenu(null),
           })
         : null,
-      ...(state.tabs ?? OWN_TABS).map((tab) =>
+      ...tabs.map((tab) =>
         el(
           'button',
           {
@@ -186,7 +193,7 @@ const FilterTabs = ({ state }) => {
   );
 };
 
-// A chat type narrows the selected folder, including All chats and Archive.
+// A chat type narrows the selected folder, including All and Archive.
 const KindTabs = ({ state }) => {
   const t = useT();
   return state.kindFilter === null || state.kindFilter === undefined

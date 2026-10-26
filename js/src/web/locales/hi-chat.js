@@ -64,7 +64,7 @@ export const hiChat = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
-  'chat.folder.all': 'सभी चैट',
+  'chat.folder.all': 'सभी',
   'chat.emoji.title': 'इमोजी',
   'chat.emoji.tab': 'इमोजी',
   'chat.stickers.title': 'स्टिकर',

@@ -1,6 +1,6 @@
 // Real browser e2e for chat folders (R-Y103): with Telegram's folders the
-// tabs above the chat list are "All chats" and the folders, in
-// Telegram's order, each with its unread chats; a folder lists the chats
+// named folders keep Telegram's order, followed by "All" (or first by an
+// app preference); selected tabs stay visible. A folder lists the chats
 // its rules take (by kind, by name, not the muted ones), its own pinned
 // chat first; the chosen folder is remembered; without folders the
 // list's own tabs stay. Fake chats in a memory store, Telegram's folders
@@ -10,14 +10,8 @@
 //
 //   RUN_BROWSER_E2E=1 npm run test:e2e:folders
 
-import { mkdtemp, rm } from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
-import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/universal.js';
-import { assert, browserOf } from './helpers/e2e-chat.mjs';
-
-const { engine, browserType } = await browserOf('folders');
+import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 
 const store = createMemoryStore();
 const at = Date.now();
@@ -68,7 +62,7 @@ for (const [chat, extra] of [
 }
 
 // Telegram's folders: "Work" (groups, not muted; the channel by name and
-// pinned) before "All chats", then "Friends" (contacts).
+// pinned) before the remote default folder, then "Friends" (contacts).
 let folders = [
   {
     id: 2,
@@ -90,57 +84,14 @@ let folders = [
   },
 ];
 
-const dir = await mkdtemp(path.join(os.tmpdir(), 'ms-e2e-folders-'));
-const handle = await startServer({
-  localUi: true,
-  port: 0,
-  storeDir: dir,
-  store,
-  enableSync: false,
-  enableHandlers: false,
-  telegramAccount: false,
-  log: null,
-});
-const base = `http://127.0.0.1:${handle.port}`;
-const browser = await browserType.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
-const errors = [];
-page.on('pageerror', (e) => errors.push(String(e)));
+const { base, page, until, finish } = await openChatApp('folders', { store });
 
-const fulfil = (route, body) =>
-  route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(body),
-  });
-await page.route('**/api/telegram/status', (route) =>
-  fulfil(route, {
-    connected: true,
-    kind: 'user',
-    account: { username: 'owner' },
-    offline: false,
-    needsLogin: false,
-  })
-);
-await page.route('**/api/telegram/history', (route) =>
-  fulfil(route, { written: 0, cached: 0, complete: true })
-);
 let asked = 0;
 await page.route('**/api/telegram/folders', (route) => {
   asked += 1;
   fulfil(route, { ok: true, folders });
 });
 
-const until = async (check, what, ms = 10_000) => {
-  const end = Date.now() + ms;
-  while (Date.now() < end) {
-    if (await check()) {
-      return;
-    }
-    await page.waitForTimeout(50);
-  }
-  throw new Error(`timed out: ${what}`);
-};
 const tabs = () =>
   page
     .locator('.chat-filters .chat-filter')
@@ -156,8 +107,108 @@ const listed = () =>
     .locator('.chat-list [data-chat]')
     .evaluateAll((list) => list.map((row) => row.dataset.chat));
 
-let failed = false;
-try {
+const allVisible = () =>
+  page.locator('.chat-filters').evaluate((strip) => {
+    const all = strip.querySelector('[data-filter="all"]');
+    const bounds = strip.getBoundingClientRect();
+    const tab = all?.getBoundingClientRect();
+    return tab && tab.left >= bounds.left - 1 && tab.right <= bounds.right + 1;
+  });
+
+const placementSteps = async () => {
+  // A real overflow: the default All is far beyond the initial viewport.
+  await page.locator('[data-filter="all"]').click();
+  folders = [
+    ...folders,
+    ...Array.from({ length: 12 }, (_, i) => ({
+      id: i + 10,
+      title: `Folder ${i + 10}`,
+      groups: true,
+    })),
+  ];
+  await page.reload();
+  await until(async () => (await tabs()).length === 15, 'many folders loaded');
+  assert((await tabs()).at(-1)[0] === 'all', 'All is last by default');
+  await until(allVisible, 'All revealed on startup');
+  assert(
+    await page.locator('.chat-filters').evaluate((node) => node.scrollLeft > 0),
+    'overflow strip scrolled to All'
+  );
+
+  // Content before All can grow after load (badges, fonts, accessibility zoom).
+  const named = page.locator('.chat-filters [data-folder-tab]');
+  await named.evaluateAll((tabs) =>
+    tabs.forEach((tab) => {
+      tab.style.paddingInline = '2rem';
+    })
+  );
+  await until(allVisible, 'All revealed after preceding tabs grow');
+  await named.evaluateAll((tabs) =>
+    tabs.forEach((tab) => {
+      tab.style.paddingInline = '';
+    })
+  );
+
+  // A narrower column keeps the selected All visible without moving the page.
+  const before = await page.evaluate(() => globalThis.scrollY);
+  const divider = page.locator('[data-panel-divider="chats"]');
+  await divider.focus();
+  await divider.press('Home');
+  await until(allVisible, 'All revealed after resizing');
+  assert(
+    (await page.evaluate(() => globalThis.scrollY)) === before,
+    'revealing a tab leaves vertical page scroll unchanged'
+  );
+
+  // Settings affects only this browser, persists across reloads and is reversible.
+  await page.locator('button[data-view="settings"]').click();
+  const first = page.locator('[data-action="folder-all-first"]');
+  assert(!(await first.isChecked()), 'first placement starts disabled');
+  await first.check();
+  await page.locator('button[data-view="chat"]').click();
+  await until(
+    async () => (await tabs()).length === 15 && (await tabs())[0][0] === 'all',
+    'All first by preference'
+  );
+  await until(allVisible, 'All first visible');
+  await page.reload();
+  await until(
+    async () => (await tabs()).length === 15 && (await tabs())[0][0] === 'all',
+    'first placement remembered'
+  );
+  await until(allVisible, 'All first visible after reload');
+  await page.locator('button[data-view="settings"]').click();
+  assert(await first.isChecked(), 'settings remembers first placement');
+  await first.uncheck();
+  await page.locator('button[data-view="chat"]').click();
+  await until(
+    async () =>
+      (await tabs()).length === 15 && (await tabs()).at(-1)[0] === 'all',
+    'All back at the end'
+  );
+  await until(allVisible, 'All last visible after changing preference');
+
+  // A remembered named folder is revealed too, rather than resetting to All.
+  await page.locator('[data-filter="folder:2"]').click();
+  await page.reload();
+  await until(
+    async () =>
+      (await page
+        .locator('[data-filter="folder:2"]')
+        .getAttribute('aria-selected')) === 'true',
+    'remembered named folder selected'
+  );
+  assert(
+    await page.locator('[data-filter="folder:2"]').evaluate((tab) => {
+      const bounds = tab.parentElement.getBoundingClientRect();
+      const rect = tab.getBoundingClientRect();
+      return rect.left >= bounds.left - 1 && rect.right <= bounds.right + 1;
+    }),
+    'remembered folder visible'
+  );
+};
+
+await finish(async () => {
   await page.goto(`${base}/`);
   await until(
     async () => (await tabs()).some(([key]) => key === 'folder:2'),
@@ -168,8 +219,8 @@ try {
     JSON.stringify(shown) ===
       JSON.stringify([
         ['folder:2', 'Work', '1'],
-        ['all', 'All chats', ''],
         ['folder:3', 'Friends', '1'],
+        ['all', 'All', ''],
       ]),
     `tabs: ${JSON.stringify(shown)}`
   );
@@ -246,6 +297,8 @@ try {
     'the friends tab chosen'
   );
 
+  await placementSteps();
+
   // The folders gone: the list's own tabs, and every chat.
   folders = [];
   await page.reload();
@@ -258,18 +311,4 @@ try {
     'every chat'
   );
   assert(asked >= 3, `asked: ${asked}`);
-
-  assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
-  console.log(`[e2e-folders] OK (${engine})`);
-} catch (error) {
-  failed = true;
-  console.error(`[e2e-folders] FAIL (${engine}): ${error.message}`);
-  await page.screenshot({
-    path: path.join(os.tmpdir(), `ms-e2e-folders-${engine}.png`),
-  });
-} finally {
-  await browser.close();
-  await handle.close();
-  await rm(dir, { recursive: true, force: true });
-}
-process.exit(failed ? 1 : 0);
+});

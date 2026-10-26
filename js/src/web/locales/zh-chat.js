@@ -60,7 +60,7 @@ export const zhChat = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
-  'chat.folder.all': '所有聊天',
+  'chat.folder.all': '全部',
   'chat.emoji.title': '表情',
   'chat.emoji.tab': '表情',
   'chat.stickers.title': '贴纸',

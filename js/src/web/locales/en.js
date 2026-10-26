@@ -1024,6 +1024,10 @@ export const en = {
   'automations.audiences.use': 'Use',
   'automations.audiences.count': 'Count',
   'automations.audiences.resolved': '{count} people: {names}',
+  'settings.folderTabs.title': 'Folder tabs',
+  'settings.folderTabs.allFirst': 'Always show “All” first',
+  'settings.folderTabs.hint':
+    '“All” appears last by default. This browser remembers your choice; the order in Telegram stays the same.',
   'settings.appearance.title': 'Appearance',
   'settings.appearance.intro':
     'The theme and skin apply to every screen and are kept in this browser. The Theme button in the header switches between light and dark.',

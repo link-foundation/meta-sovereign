@@ -1024,6 +1024,10 @@ export const hi = {
   'automations.audiences.use': 'इस्तेमाल करें',
   'automations.audiences.count': 'गिनें',
   'automations.audiences.resolved': '{count} लोग: {names}',
+  'settings.folderTabs.title': 'फ़ोल्डर टैब',
+  'settings.folderTabs.allFirst': '“सभी” हमेशा पहले दिखाएँ',
+  'settings.folderTabs.hint':
+    'डिफ़ॉल्ट रूप से “सभी” आख़िर में है। यह ब्राउज़र आपकी पसंद याद रखता है; Telegram का क्रम नहीं बदलता।',
   'settings.appearance.title': 'रूप-रंग',
   'settings.appearance.intro':
     'थीम और स्किन हर स्क्रीन पर लागू होती हैं और इसी ब्राउज़र में सहेजी जाती हैं। हेडर का थीम बटन हल्की और गहरी थीम के बीच बदलता है।',

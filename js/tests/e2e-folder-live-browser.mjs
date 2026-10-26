@@ -122,7 +122,7 @@ const drag = async (from, to, { cancel = false } = {}) => {
 
 const liveSteps = async () => {
   await page.goto(`${base}/`);
-  await until(async () => (await tabKeys()) === 'all,folder:2', 'first tabs');
+  await until(async () => (await tabKeys()) === 'folder:2,all', 'first tabs');
   await page.evaluate(() => {
     globalThis.__same = true;
   });
@@ -132,7 +132,7 @@ const liveSteps = async () => {
   folders = [...folders, { id: 3, title: 'News', ...blank }];
   await elsewhere('filter');
   await until(
-    async () => (await tabKeys()) === 'all,folder:2,folder:3',
+    async () => (await tabKeys()) === 'folder:2,folder:3,all',
     'the folder from another device as a tab'
   );
   assert(
@@ -168,7 +168,7 @@ const liveSteps = async () => {
   // The tabs on the chat screen followed meanwhile.
   await page.locator('button[data-view="chat"]').click();
   await until(
-    async () => (await tabKeys()) === 'all,folder:3,folder:2',
+    async () => (await tabKeys()) === 'folder:3,folder:2,all',
     'the tabs in the new order'
   );
 };
@@ -179,7 +179,7 @@ const dragSteps = async () => {
   await drag(tab(3), tab(2), { cancel: true });
   await page.waitForTimeout(300);
   assert(orders.length === 0, 'Escape puts a lifted tab back');
-  assert((await tabKeys()) === 'all,folder:3,folder:2', 'nothing moved');
+  assert((await tabKeys()) === 'folder:3,folder:2,all', 'nothing moved');
   await drag(tab(3), tab(2));
   await until(async () => orders.length === 1, 'the order saved');
   assert(
@@ -187,12 +187,13 @@ const dragSteps = async () => {
     `the order: ${JSON.stringify(orders[0])}`
   );
   await until(
-    async () => (await tabKeys()) === 'all,folder:2,folder:3',
+    async () => (await tabKeys()) === 'folder:2,folder:3,all',
     'the tabs follow the drag'
   );
   assert(
-    (await page.locator('.chat-filter.active').getAttribute('data-filter')) ===
-      'all',
+    (await page
+      .locator('.chat-filters .active')
+      .getAttribute('data-filter')) === 'all',
     'the drop chose no tab'
   );
 

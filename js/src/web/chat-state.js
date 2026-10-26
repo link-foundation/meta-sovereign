@@ -59,6 +59,7 @@ import {
   folderTabs,
   isFolderFilter,
   peopleOf,
+  useAllFirst,
   useFolderTools,
   useTelegramFolders,
 } from './chat-folders.js';
@@ -841,6 +842,7 @@ const useChatList = (links, target, query, folders = []) => {
     [CHAT_FILTERS.includes(remembered) ? remembered : 'all', ...CHAT_FILTERS]
   );
   const [sort, setSort] = useChatSort();
+  const [allFirst] = useAllFirst();
   // Telegram's main list or the archive; a search looks through both,
   // and through every folder.
   const [folder, setFolder] = useState('main');
@@ -878,8 +880,8 @@ const useChatList = (links, target, query, folders = []) => {
   );
   const archive = useMemo(() => archiveSummary(all), [all]);
   const tabs = useMemo(
-    () => folderTabs(folders, { all, people, fallback: OWN_TABS }),
-    [folders, all, people]
+    () => folderTabs(folders, { all, people, fallback: OWN_TABS, allFirst }),
+    [folders, all, people, allFirst]
   );
   return {
     all,

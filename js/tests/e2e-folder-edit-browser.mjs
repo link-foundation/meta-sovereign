@@ -228,9 +228,7 @@ const tabSteps = async () => {
   );
   assert(
     JSON.stringify((await tabs()).map(([, label]) => label)) ===
-      JSON.stringify(['All chats', 'Work', 'Groups']) ||
-      JSON.stringify((await tabs()).map(([, label]) => label)) ===
-        JSON.stringify(['Work', 'Groups', 'All chats']),
+      JSON.stringify(['Work', 'Groups', 'All']),
     `tabs: ${JSON.stringify(await tabs())}`
   );
   await page.locator('[data-filter="folder:2"]').click();

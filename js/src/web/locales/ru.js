@@ -1040,6 +1040,10 @@ export const ru = {
   'automations.audiences.use': 'Использовать',
   'automations.audiences.count': 'Посчитать',
   'automations.audiences.resolved': 'Людей: {count}. {names}',
+  'settings.folderTabs.title': 'Вкладки папок',
+  'settings.folderTabs.allFirst': 'Всегда показывать «Все» первой',
+  'settings.folderTabs.hint':
+    'По умолчанию «Все» — последняя вкладка. Выбор сохраняется в этом браузере; порядок в Telegram не меняется.',
   'settings.appearance.title': 'Внешний вид',
   'settings.appearance.intro':
     'Тема и оформление действуют на всех экранах и сохраняются в этом браузере. Кнопка «Тема» в шапке переключает светлую и тёмную.',

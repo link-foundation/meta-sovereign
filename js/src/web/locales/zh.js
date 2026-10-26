@@ -987,6 +987,10 @@ export const zh = {
   'automations.audiences.use': '使用',
   'automations.audiences.count': '统计',
   'automations.audiences.resolved': '{count} 人：{names}',
+  'settings.folderTabs.title': '文件夹标签',
+  'settings.folderTabs.allFirst': '始终将“全部”放在最前',
+  'settings.folderTabs.hint':
+    '“全部”默认位于最后。此浏览器会记住您的选择；Telegram 中的顺序不变。',
   'settings.appearance.title': '外观',
   'settings.appearance.intro':
     '主题和皮肤作用于所有界面，并保存在此浏览器中。页眉中的“主题”按钮可在浅色和深色之间切换。',

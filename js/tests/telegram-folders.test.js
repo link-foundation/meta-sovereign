@@ -187,7 +187,7 @@ test("who is in a folder, as Telegram's apps decide (R-Y103)", () => {
   assert.equal(shared(chat(-1, { kind: 'group' })), false, 'by name only');
 });
 
-test("a folder's own pins come first; tabs in Telegram's order (R-Y103)", () => {
+test("a folder's own pins come first; All has a local placement preference", () => {
   const folder = {
     id: 4,
     title: 'Friends',
@@ -223,10 +223,21 @@ test("a folder's own pins come first; tabs in Telegram's order (R-Y103)", () => 
     ]
   );
   assert.equal(
-    folderTabs([folder], { all, people, fallback })[0].key,
+    folderTabs([folder], { all, people, fallback }).at(-1).key,
     'all',
-    '"All chats" first when Telegram does not place it'
+    'All last even when Telegram does not include it'
   );
+  const other = { ...folder, id: 5, title: 'Work' };
+  const remote = [{ id: 0, all: true }, folder, other];
+  for (const allFirst of [false, true]) {
+    assert.deepEqual(
+      folderTabs(remote, { allFirst }).map((tab) => tab.key),
+      allFirst
+        ? ['all', 'folder:4', 'folder:5']
+        : ['folder:4', 'folder:5', 'all']
+    );
+  }
+  assert.equal(remote[0].all, true, 'remote order remains untouched');
   assert.equal(isFolderFilter('folder:4'), true);
   assert.equal(isFolderFilter('group'), false);
 });

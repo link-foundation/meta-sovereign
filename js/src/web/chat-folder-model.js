@@ -114,8 +114,9 @@ export const withPick = (draft, side, chat) => {
 
 /**
  * The ids of every folder in the order after `id` moves `step` places
- * (-1 up, 1 down) among the named folders; "All chats" (0) stays where
- * Telegram put it. `null` when it cannot move.
+ * (-1 up, 1 down) among the named folders; the remote default folder (0)
+ * stays where Telegram put it. The app places All separately. `null` when
+ * it cannot move.
  */
 export const movedOrder = (folders, id, step) => {
   const from = folders.filter((f) => !f.all).findIndex((f) => f.id === id);

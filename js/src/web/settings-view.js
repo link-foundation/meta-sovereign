@@ -20,6 +20,7 @@ import { ChatBackgroundSettings } from './chat-wallpaper.js';
 import { CloudThemeSettings } from './cloud-themes.js';
 import { TranslateSettings } from './chat-translate-bar.js';
 import { FoldersSettings } from './chat-folder-edit.js';
+import { useAllFirst } from './chat-folders.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import {
   NOTIFY_KEY,
@@ -110,6 +111,23 @@ const Check = ({ action, checked, onChange, label }) =>
     }),
     ` ${label}`,
   ]);
+
+/** A local layout preference; never changes Telegram's remote folder order. */
+export const FolderTabSettings = () => {
+  const t = useT();
+  const [allFirst, setAllFirst] = useAllFirst();
+  return el('section', { className: 'card folder-tab-settings' }, [
+    el('h3', { key: 'h' }, t('settings.folderTabs.title')),
+    el(Check, {
+      key: 'first',
+      action: 'folder-all-first',
+      checked: allFirst,
+      onChange: setAllFirst,
+      label: t('settings.folderTabs.allFirst'),
+    }),
+    el('p', { key: 'hint', className: 'meta' }, t('settings.folderTabs.hint')),
+  ]);
+};
 
 /**
  * What other people may see: "typing…" (off by default) and that a chat
@@ -233,6 +251,7 @@ export const SettingsView = () => {
       t('settings.openConnections')
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
+    el(FolderTabSettings, { key: 'folder-tabs' }),
     el(ChatBackgroundSettings, { key: 'background', api }),
     el(CloudThemeSettings, { key: 'cloud-themes', api }),
     el(FoldersSettings, { key: 'folders', api }),

@@ -55,6 +55,8 @@ JS server 监听同一个端口，使用同一套 wire protocol；SPA 不关心�
 
 打开的聊天优先加载，并显示加载或重试状态。全部 / 私聊 / 群组 / 频道筛选在每个 Telegram 文件夹内都可用。拖动竖直分隔线调整列宽，尺寸会保存。通话位于主菜单聊天之后，Telegram 账户编辑移到个人资料。默认深色控件使用白色线条图标。
 
+**全部** 默认是最后一个文件夹标签。启用 **设置 → 文件夹标签 → 始终将“全部”放在最前**，可在此浏览器中将其固定在最前。命名文件夹保留 Telegram 中的顺序。启动、文件夹更新及调整列宽时会滚动到选中的标签；所选文件夹会被记住。
+
 JS 服务器将数据保存在操作系统用户的应用文件夹：macOS 为 `~/Library/Application Support/Meta Sovereign/store`，Windows 为 `%APPDATA%/Meta Sovereign/store`，Linux 为 `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store`。从旧 checkout 启动 `serve` 会一次性迁移 `.meta-sovereign`，保留消息、联系人、会话、媒体和证书，并用兼容目录链接保留旧路径。重启或改变工作目录仍使用同一存储。可通过 `--store` 或 `META_SOVEREIGN_STORE_DIR` 覆盖。参见[聊天就绪与数据存储](CHAT-READINESS.md)。
 
 ## 4. 安装桌面或移动 app

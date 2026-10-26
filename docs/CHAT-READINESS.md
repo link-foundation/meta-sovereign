@@ -14,7 +14,7 @@ You can keep composing while history loads. Older pages load as you approach the
 
 ## Folders and panel widths
 
-Telegram folders keep their own row, order and unread counts. A second row provides **All / Private / Groups / Channels** inside every selected folder, including All chats. Folder and type choices are independent and remembered; narrowing a folder never silently switches to a global list. The same type selection applies to archived items when browsing the archive.
+Named Telegram folders keep their own row, order and unread counts. The global **All** tab is last by default. **Settings → Folder tabs → Always show “All” first** moves it first in this browser without changing the remote Telegram folder order. On startup, folder updates and column resizing, the strip scrolls horizontally to reveal the selected tab; a remembered named-folder selection is preserved. A second row provides **All / Private / Groups / Channels** inside every selected folder, including All. Folder and type choices are independent and remembered; narrowing a folder never silently switches to a global list. The same type selection applies to archived items when browsing the archive.
 
 On desktop, drag the vertical dividers to change the navigation, chat-list and open-details column widths. Widths are saved in this browser. Focus a divider and use the arrow keys; Home and End choose its bounds. Double-click or press Enter to reset its width. Compact phone layouts keep their single-column navigation.
 

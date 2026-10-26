@@ -63,7 +63,7 @@ export const ruChat = {
   'chat.about.network.instagram': 'Instagram',
   'chat.about.network.facebook': 'Facebook',
   'chat.about.network.habr': 'Habr',
-  'chat.folder.all': 'Все чаты',
+  'chat.folder.all': 'Все',
   'chat.emoji.title': 'Эмодзи',
   'chat.emoji.tab': 'Эмодзи',
   'chat.stickers.title': 'Стикеры',

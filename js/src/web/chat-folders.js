@@ -11,14 +11,18 @@
  *   people, groups, channels, bots), and it must not be muted, read or
  *   archived when the folder leaves those out.
  *
- * A folder's pinned chats come first, in its own order. "All chats"
- * stands where Telegram puts it; with no folders the list keeps its own
- * tabs (all, private, groups, channels).
+ * A folder's pinned chats come first, in its own order. "All" is last
+ * by default, or first by an app preference; with no folders the list keeps
+ * its own tabs (all, private, groups, channels).
  */
 
 import { useEffect, useMemo, useState } from 'react';
 import { FOLDERS_CHANGED, isTag } from './chat-folder-model.js';
 import { watchFolders } from './chat-folder-live.js';
+import { usePref } from './chat-notify.js';
+
+export const FOLDER_ALL_FIRST_KEY = 'metaSovereignFolderAllFirst';
+export const useAllFirst = () => usePref(FOLDER_ALL_FIRST_KEY, false);
 
 const REFRESH_MS = 5 * 60_000;
 
@@ -99,18 +103,20 @@ export const unreadChats = (chats = []) =>
   chats.filter((c) => (c.unread > 0 || c.marked) && !c.muted).length;
 
 /**
- * The tabs above the list: Telegram's folders in Telegram's order, "All
- * chats" where it stands — or, without folders, `fallback` (the list's
- * own tabs). Each `{ key, title?, label?, unread }`.
+ * Named folders keep Telegram's order. The app's "All" tab is last unless
+ * `allFirst` is enabled; this never changes the order saved to Telegram.
+ * Without folders, use `fallback`. Each `{ key, title?, label?, unread }`.
  */
-export const folderTabs = (folders = [], { all = [], people, fallback }) => {
+export const folderTabs = (
+  folders = [],
+  { all = [], people, fallback, allFirst = false }
+) => {
   const named = folders.filter((f) => !f.all);
   if (named.length === 0) {
     return fallback;
   }
-  const order = folders.some((f) => f.all)
-    ? folders
-    : [{ id: 0, all: true }, ...folders];
+  const entire = { id: 0, all: true };
+  const order = allFirst ? [entire, ...named] : [...named, entire];
   return order.map((folder) =>
     folder.all
       ? { key: 'all', label: 'chat.folder.all', unread: 0 }
