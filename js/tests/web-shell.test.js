@@ -19,7 +19,7 @@ import { navItems } from '../src/web/nav-items.js';
 import { LocaleContext, availableLocales } from '../src/web/i18n.js';
 import { dictionaries } from '../src/web/locales/index.js';
 
-const renderShell = ({ width, active = 'chat' }) => {
+const renderShell = ({ width, active = 'chat', counts = {} }) => {
   const ctx = {
     locale: 'en',
     t: (key, vars) => {
@@ -45,11 +45,29 @@ const renderShell = ({ width, active = 'chat' }) => {
         width,
         active,
         onSelect: () => {},
+        counts,
         children: React.createElement('main', null, 'view'),
       })
     )
   );
 };
+
+test('unread badges follow icons at every width and expose full accessible counts', () => {
+  for (const width of [390, 768, 1280]) {
+    const html = renderShell({
+      width,
+      counts: { chat: 143, operator: 7, calls: { count: 4, more: true } },
+    });
+    assert.match(html, /data-nav-count="chat"[^>]*>99\+<\/span>/);
+    assert.match(html, /aria-label="Chat, 143 unread"/);
+    assert.match(html, /data-nav-count="operator"[^>]*>7<\/span>/);
+    assert.match(html, /aria-label="Calls, At least 4 unread"/);
+  }
+  assert.doesNotMatch(
+    renderShell({ width: 1280, counts: { chat: 0, calls: 0, operator: 0 } }),
+    /data-nav-count/
+  );
+});
 
 test('classifyViewport: ≤640 → compact, 641-1023 → medium, ≥1024 → expanded', () => {
   assert.equal(classifyViewport(320), 'compact');

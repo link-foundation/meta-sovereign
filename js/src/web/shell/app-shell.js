@@ -51,7 +51,16 @@ export const COMPACT_PRIMARY = [
   'connections',
 ];
 
-const NavButton = ({ id, label, short, active, onSelect, variant }) =>
+const NavButton = ({
+  id,
+  label,
+  short,
+  active,
+  onSelect,
+  variant,
+  badge,
+  description,
+}) =>
   el(
     'button',
     {
@@ -60,11 +69,29 @@ const NavButton = ({ id, label, short, active, onSelect, variant }) =>
       'data-tutorial-id': `nav:${id}`,
       className: `nav-item nav-item-${variant}${active ? ' active' : ''}`,
       'aria-current': active ? 'page' : undefined,
+      'aria-label': badge?.count > 0 ? `${label}, ${description}` : undefined,
       title: variant === 'rail' || short !== label ? label : undefined,
       onClick: () => onSelect(id),
     },
     [
-      el(Icon, { key: 'i', name: id }),
+      el('span', { key: 'icon', className: 'nav-icon' }, [
+        el(Icon, { key: 'i', name: id }),
+        badge?.count > 0
+          ? el(
+              'span',
+              {
+                key: 'count',
+                className: 'nav-count',
+                'data-nav-count': id,
+                'aria-hidden': 'true',
+                title: description,
+              },
+              badge.count > 99
+                ? '99+'
+                : `${badge.count}${badge.more ? '+' : ''}`
+            )
+          : null,
+      ]),
       el('span', { key: 'l', className: 'nav-label' }, short),
     ]
   );
@@ -79,7 +106,14 @@ const shortLabel = (t, id, label, variant) => {
   return short === key ? label : short;
 };
 
-const renderNavButtons = (t, active, onSelect, variant, items = navItems) =>
+const renderNavButtons = (
+  t,
+  active,
+  onSelect,
+  variant,
+  items = navItems,
+  counts = {}
+) =>
   items.map(([id, labelKey]) =>
     el(NavButton, {
       key: id,
@@ -89,10 +123,16 @@ const renderNavButtons = (t, active, onSelect, variant, items = navItems) =>
       active: id === active,
       onSelect,
       variant,
+      badge:
+        typeof counts[id] === 'object' ? counts[id] : { count: counts[id] },
+      description: t(
+        counts[id]?.more ? 'nav.unreadAtLeast' : 'nav.unreadCount',
+        { count: counts[id]?.count ?? counts[id] ?? 0 }
+      ),
     })
   );
 
-const BottomNav = ({ active, onSelect, t }) => {
+const BottomNav = ({ active, onSelect, t, counts }) => {
   const [open, setOpen] = useState(false);
   const primary = navItems.filter(([id]) => COMPACT_PRIMARY.includes(id));
   const rest = navItems.filter(([id]) => !COMPACT_PRIMARY.includes(id));
@@ -126,7 +166,7 @@ const BottomNav = ({ active, onSelect, t }) => {
         'aria-label': t('shell.moreAria'),
         hidden: !open,
       },
-      renderNavButtons(t, active, pick, 'sheet', rest)
+      renderNavButtons(t, active, pick, 'sheet', rest, counts)
     ),
     el(
       'nav',
@@ -137,7 +177,7 @@ const BottomNav = ({ active, onSelect, t }) => {
         'aria-label': t('shell.primaryNavAria'),
       },
       [
-        ...renderNavButtons(t, active, pick, 'bottom', primary),
+        ...renderNavButtons(t, active, pick, 'bottom', primary, counts),
         el(
           'button',
           {
@@ -162,7 +202,7 @@ const BottomNav = ({ active, onSelect, t }) => {
   ]);
 };
 
-const SideRail = ({ active, onSelect, t }) =>
+const SideRail = ({ active, onSelect, t, counts }) =>
   el(
     'nav',
     {
@@ -170,10 +210,10 @@ const SideRail = ({ active, onSelect, t }) =>
       role: 'navigation',
       'aria-label': t('shell.primaryNavAria'),
     },
-    renderNavButtons(t, active, onSelect, 'rail')
+    renderNavButtons(t, active, onSelect, 'rail', navItems, counts)
   );
 
-const PermanentDrawer = ({ active, onSelect, t }) =>
+const PermanentDrawer = ({ active, onSelect, t, counts }) =>
   el(
     'nav',
     {
@@ -190,11 +230,17 @@ const PermanentDrawer = ({ active, onSelect, t }) =>
         min: 160,
         max: 420,
       }),
-      ...renderNavButtons(t, active, onSelect, 'drawer'),
+      ...renderNavButtons(t, active, onSelect, 'drawer', navItems, counts),
     ]
   );
 
-export const AppShell = ({ width, active, onSelect, children }) => {
+export const AppShell = ({
+  width,
+  active,
+  onSelect,
+  children,
+  counts = {},
+}) => {
   const t = useT();
   const layout = classifyViewport(width);
   return el(
@@ -202,14 +248,14 @@ export const AppShell = ({ width, active, onSelect, children }) => {
     { className: `app-shell app-shell-${layout}`, 'data-layout': layout },
     [
       layout === 'expanded'
-        ? el(PermanentDrawer, { key: 'drawer', active, onSelect, t })
+        ? el(PermanentDrawer, { key: 'drawer', active, onSelect, t, counts })
         : null,
       layout === 'medium'
-        ? el(SideRail, { key: 'rail', active, onSelect, t })
+        ? el(SideRail, { key: 'rail', active, onSelect, t, counts })
         : null,
       el('div', { key: 'body', className: 'app-shell-body' }, children),
       layout === 'compact'
-        ? el(BottomNav, { key: 'bottom', active, onSelect, t })
+        ? el(BottomNav, { key: 'bottom', active, onSelect, t, counts })
         : null,
     ]
   );

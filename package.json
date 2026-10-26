@@ -352,6 +352,8 @@
     "test:e2e:translate-bar:webkit": "E2E_BROWSER=webkit node js/tests/e2e-translate-bar-browser.mjs",
     "test:e2e:wallpapers": "node js/tests/e2e-wallpapers-browser.mjs",
     "test:e2e:wallpapers:webkit": "E2E_BROWSER=webkit node js/tests/e2e-wallpapers-browser.mjs",
+    "test:e2e:operator": "node js/tests/e2e-operator-browser.mjs",
+    "test:e2e:operator:webkit": "E2E_BROWSER=webkit node js/tests/e2e-operator-browser.mjs",
     "test:e2e:calls": "node js/tests/e2e-calls-browser.mjs",
     "test:e2e:calls:webkit": "E2E_BROWSER=webkit node js/tests/e2e-calls-browser.mjs",
     "test:e2e:private-call": "node js/tests/e2e-private-call-browser.mjs",

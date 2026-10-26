@@ -6,13 +6,13 @@ meta-sovereign represents **a person or an organisation online**. Connect Telegr
 
 ### Built for
 
-| Who / what        | How meta-sovereign helps                                                                                                                                         |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Individuals**   | All your chats in one place, reconnect with people gone quiet, remember what was said (facts), one CV on every job site.                                         |
-| **Sales**         | Leads from every network in one CRM, audiences by rule, mass-personal outreach that sends each message once and politely, follow-ups, fast replies.              |
-| **Marketing**     | Broadcasts to audiences, posts to Telegram channels, LinkedIn and X, community members kept fresh, an opt-out list every automated send honours.                 |
-| **User support**  | One Operator queue for every incoming message, answers from a VK community or Telegram Business account, auto-replies as safe drafts, a knowledge base of facts. |
-| **Organisations** | The same tools for a brand, a shop or a project: its accounts, its contacts, its data on its own machine. Team mode (several operators) is on the roadmap.       |
+| Who / what        | How meta-sovereign helps                                                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Individuals**   | All your chats in one place, reconnect with people gone quiet, remember what was said (facts), one CV on every job site.                                      |
+| **Sales**         | Leads from every network in one CRM, audiences by rule, mass-personal outreach that sends each message once and politely, follow-ups, fast replies.           |
+| **Marketing**     | Broadcasts to audiences, posts to Telegram channels, LinkedIn and X, community members kept fresh, an opt-out list every automated send honours.              |
+| **User support**  | One Operator queue of unread conversations, answers from a VK community or Telegram Business account, auto-replies as safe drafts, a knowledge base of facts. |
+| **Organisations** | The same tools for a brand, a shop or a project: its accounts, its contacts, its data on its own machine. Team mode (several operators) is on the roadmap.    |
 
 What works for each scenario today, what is partial and what comes next is in the roadmap: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 

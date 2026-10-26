@@ -38,6 +38,22 @@ const watch = () => {
   };
 };
 
+test('a missed-call badge read is logged without a mutation error toast', () => {
+  const spy = watch();
+  try {
+    reportApiFailure({
+      path: '/api/telegram/calls',
+      method: 'POST',
+      status: 503,
+      data: { ok: false, code: 'network', error: 'temporarily unavailable' },
+    });
+    assert.equal(spy.warned.length, 1);
+    assert.equal(spy.events.length, 0);
+  } finally {
+    spy.stop();
+  }
+});
+
 test('failureOf reads the uniform shape and server errors', () => {
   assert.deepEqual(
     failureOf(507, { ok: false, error: 'full', code: 'STORE_FULL' }),

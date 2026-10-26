@@ -110,6 +110,9 @@ export const openChatApp = async (
     await page.route('**/api/telegram/history', (route) =>
       fulfil(route, { written: 0, cached: true, complete: true })
     );
+    await page.route('**/api/telegram/calls', (route) =>
+      fulfil(route, { ok: true, calls: [], next: null })
+    );
   }
   const until = async (check, what, ms = 10_000) => {
     const end = Date.now() + ms;

@@ -10,6 +10,7 @@ import { useLiveLinks } from './chat-live.js';
 import { summarizeChats } from './chat-model.js';
 import { openChat } from './chat-state.js';
 import { useNotifications } from './chat-notify.js';
+import { usePublishChatFeed } from './navigation-counts.js';
 
 const NO_CHATS = Object.freeze([]);
 
@@ -21,6 +22,7 @@ export const AppNotifications = ({ api, t, onOpen }) => {
     () => (links ? summarizeChats(links) : NO_CHATS),
     [links]
   );
+  usePublishChatFeed(chats, links);
   useNotifications({
     chats,
     current: null,

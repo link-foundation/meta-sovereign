@@ -34,6 +34,8 @@ export const KNOWN_CODES = [
 // Never a toast: a feature probe or a chat that cannot do it is explained
 // inline by the panel that asked. Codes outside KNOWN_CODES are the panels'.
 const INLINE_ONLY = new Set(['unsupported', 'unsupported-chat']);
+// This read-only POST also supplies the background missed-call badge.
+const READ_POSTS = new Set(['/api/telegram/calls']);
 
 const seen = new Set();
 
@@ -70,6 +72,7 @@ export const reportApiFailure = ({ path, method = 'GET', status, data }) => {
   }
   if (
     method !== 'GET' &&
+    !READ_POSTS.has(path) &&
     KNOWN_CODES.includes(failure.code) &&
     !INLINE_ONLY.has(failure.code)
   ) {

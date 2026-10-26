@@ -64,6 +64,7 @@ import {
   useTelegramFolders,
 } from './chat-folders.js';
 import { tagMap } from './chat-folder-tags.js';
+import { usePublishChatFeed } from './navigation-counts.js';
 
 export { shownAutopilot } from './autopilot-hook.js';
 
@@ -375,14 +376,15 @@ const useOtherReadMarker = (api, current, enabled = readReadReceipts) => {
 // and the unread line.
 // `topicRead`: where an open forum topic is read up to (R-Y122); the
 // chat's own marker otherwise.
-const useReading = (api, current, links, topicRead = null) => {
+const useReading = (api, current, links, topicRead = null, autoRead = true) => {
   const chatRead = current
     ? readInboxUpTo(links ?? [], splitTopicKey(current.key).key)
     : 0;
   const inboxMaxId = current?.topic ? (topicRead ?? chatRead) : chatRead;
-  useOtherReadMarker(api, current);
+  const enabled = () => autoRead && readReadReceipts();
+  useOtherReadMarker(api, current, enabled);
   return {
-    seen: useReadMarker(api, current, inboxMaxId),
+    seen: useReadMarker(api, current, inboxMaxId, enabled),
     unreadAfter: useUnreadLine(current, inboxMaxId, links !== null),
   };
 };
@@ -982,35 +984,49 @@ const useHistory = (api, current, links, tick, telegram) => {
   };
 };
 
-export const useChatState = (
-  api,
-  { t, confirm = defaultConfirm, pollMs = 2500 } = {}
-) => {
-  const [tick, setTick] = useState(0);
-  const refresh = () => setTick((n) => n + 1);
-  const { links, live, add, failed, retry } = useLiveLinks(api, tick, refresh);
-  const [query, setQuery] = useState('');
+const useCurrentChat = (all, target, selectFirst) => {
   const [active, setActive] = useState('');
-  const [notice, setNotice] = useState(null);
-  const telegram = useTelegramAccount(api, refresh, { live });
-  const target = useHashChat();
-  const folders = useTelegramFolders(api, telegram);
-  const list = useChatList(links, target, query, folders);
-  const folderTools = useFolderTools(api, folders, list.all);
-  // New chats in shared folders the user joined (R-Y211).
-  const folderUpdates = useChatlistUpdates(api, folders);
-  const { all, chats, filter, setFilter, sort, setSort } = list;
   useEffect(() => {
     if (target) {
       setActive(chatKey(target.source, target.chat));
     }
   }, [target?.source, target?.chat]);
   useEffect(() => {
-    if (all.length && !all.some((c) => c.key === active)) {
+    if (selectFirst && all.length && !all.some((c) => c.key === active)) {
       setActive(all[0].key);
     }
-  }, [all, active]);
+  }, [all, active, selectFirst]);
   const current = all.find((c) => c.key === active) ?? null;
+  return [active, setActive, current];
+};
+
+export const useChatState = (
+  api,
+  {
+    t,
+    confirm = defaultConfirm,
+    pollMs = 2500,
+    autoRead = true,
+    followHash = true,
+    selectFirst = true,
+  } = {}
+) => {
+  const [tick, setTick] = useState(0);
+  const refresh = () => setTick((n) => n + 1);
+  const { links, live, add, failed, retry } = useLiveLinks(api, tick, refresh);
+  const [query, setQuery] = useState('');
+  const [notice, setNotice] = useState(null);
+  const telegram = useTelegramAccount(api, refresh, { live });
+  const hashTarget = useHashChat();
+  const target = followHash ? hashTarget : null;
+  const folders = useTelegramFolders(api, telegram);
+  const list = useChatList(links, target, query, folders);
+  const folderTools = useFolderTools(api, folders, list.all);
+  // New chats in shared folders the user joined (R-Y211).
+  const folderUpdates = useChatlistUpdates(api, folders);
+  const { all, chats, filter, setFilter, sort, setSort } = list;
+  usePublishChatFeed(all, links);
+  const [active, setActive, current] = useCurrentChat(all, target, selectFirst);
   // A chat's name by its key (where a forward came from).
   const chatName = useMemo(() => {
     const names = new Map(all.map((c) => [c.key, c.name]));
@@ -1054,7 +1070,13 @@ export const useChatState = (
   const replyTargets = useReplyTargets(api, messages, known, history.window, [
     pinnedId,
   ]);
-  const { seen, unreadAfter } = useReading(api, viewed, links, readMax);
+  const { seen, unreadAfter } = useReading(
+    api,
+    viewed,
+    links,
+    readMax,
+    autoRead
+  );
   const banner = useConnectionBanner(live, telegram);
 
   const typingNow = useTypingIn(api, current, { tick, pollMs, links });
@@ -1069,6 +1091,7 @@ export const useChatState = (
     live,
     banner,
     telegram,
+    all,
     chats,
     total: all.length,
     chatName,

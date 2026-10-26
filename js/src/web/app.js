@@ -42,6 +42,7 @@ import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
 import { ContactLinkHost } from './contact-links.js';
 import { AppNotifications } from './app-notify.js';
 import { LockScreen, useLocalLock } from './passcode.js';
+import { useNavigationCounts } from './navigation-counts.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
 // source modules are not each served, so `import('/dom.js')` fails.
@@ -88,8 +89,14 @@ const useViewportWidth = () => {
   return width;
 };
 
+const ViewNotifications = ({ active, t, onOpen }) =>
+  active === 'chat' || active === 'operator'
+    ? null
+    : el(AppNotifications, { api, t, onOpen });
+
 const App = () => {
   const [active, setActive] = useState('chat');
+  const counts = useNavigationCounts(api, active);
   const online = useOnlineMode();
   useApplyAppearance();
   // A cloud theme's accent and bubbles on the page (R-Y209).
@@ -201,6 +208,7 @@ const App = () => {
           width,
           active,
           onSelect: setActive,
+          counts,
         },
         el(
           'main',
@@ -236,14 +244,12 @@ const App = () => {
       // A t.me/contact or t.me/+phone link opens the person (R-Y217).
       el(ContactLinkHost, { key: 'contact-link-host', api }),
       // The Chat section notifies by itself; the others through this.
-      active === 'chat'
-        ? null
-        : el(AppNotifications, {
-            key: 'notify',
-            api,
-            t,
-            onOpen: () => setActive('chat'),
-          }),
+      el(ViewNotifications, {
+        key: 'notify',
+        active,
+        t,
+        onOpen: () => setActive('chat'),
+      }),
       el(TutorialOverlay, {
         key: 'tutorial-overlay',
         open: tutorialOpen,

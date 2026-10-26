@@ -115,6 +115,9 @@ export const useChatShortcuts = (state) => {
   latest.current = state;
   useEffect(() => {
     const onKey = (event) => {
+      if (latest.current.enabled === false) {
+        return;
+      }
       const name = shortcutOf(event);
       // A box on top (delete, forward, ...) keeps the keys to itself.
       if (!name || (name !== 'help' && modalOpen())) {

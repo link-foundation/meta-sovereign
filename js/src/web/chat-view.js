@@ -1162,8 +1162,15 @@ const ComposerOrClosed = ({ state, api, keys }) =>
     : el(Composer, { state, api, keys });
 
 // The shortcuts of ./shortcuts.js on this screen's state.
-const useScreenShortcuts = ({ state, select, setPane, setHelp }) =>
+const useScreenShortcuts = ({
+  state,
+  select,
+  setPane,
+  setHelp,
+  enabled = true,
+}) =>
   useChatShortcuts({
+    enabled,
     chats: state.chats,
     current: state.current,
     select,
@@ -1177,7 +1184,122 @@ const useScreenShortcuts = ({ state, select, setPane, setHelp }) =>
     openHelp: () => setHelp(true),
   });
 
-export const ChatScreen = ({ state, api }) => {
+const Conversation = ({
+  t,
+  state,
+  api,
+  actions,
+  theme,
+  saved,
+  forumView,
+  privateCall,
+  tags,
+  setPane,
+}) =>
+  state.current
+    ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
+        el(ConversationHeader, {
+          key: 'header',
+          actions,
+          state,
+          api,
+          onBack: () => setPane('list'),
+          saved,
+          forumView,
+          call: privateCall,
+        }),
+        // A forum's topics, as Telegram's tabs layout (R-Y122).
+        el(TopicTabs, {
+          key: 'topics',
+          forum: stripForum(forumView, state.forum),
+          api,
+          chat: state.current,
+          info: state.info,
+        }),
+        el(PinnedBar, {
+          key: 'pin',
+          state,
+          api,
+          onOpen: (id) => goToMessage(id, state.history?.reach),
+        }),
+        // The messages kept after a delete: view, recover, purge (R-Z7).
+        el(DeletedBar, {
+          key: `deleted:${state.current.key}`,
+          state,
+          api,
+        }),
+        // The live locations shared in the chat (R-Y197).
+        el(LiveLocationsBar, {
+          key: `live:${state.current.key}`,
+          state,
+          api,
+          onGo: (id) => goToMessage(id, state.history?.reach),
+        }),
+        // The chat's voice chat or live stream (R-Y188).
+        el(VoiceChatBar, {
+          key: `voice:${state.current.key}`,
+          api,
+          chat: state.current,
+          live: state.groupCall,
+        }),
+        // "Translate to <language>" over a foreign-language chat (R-Y213).
+        el(TranslateBar, { key: 'translate-bar', api, state }),
+        // Add contact, Block, Report spam over a stranger's chat (R-Y137).
+        el(PeerBar, {
+          key: `peer:${state.current.key}`,
+          api,
+          chat: state.current,
+        }),
+        // The bot a business connected to this chat (R-Y180).
+        el(BotBar, {
+          key: `bot:${state.current.key}`,
+          api,
+          chat: state.current,
+        }),
+        // "N requested to join" for those who may invite (R-Y152).
+        el(RequestsBar, {
+          key: `requests:${state.current.key}`,
+          api,
+          chat: state.current,
+          info: state.info,
+          live: state.joinRequests,
+        }),
+        el(ConnectionBanner, { key: 'b', banner: state.banner }),
+        el(ChatAccountNotice, { key: 'account', state }),
+        el(FailedBar, { key: 'failed', composer: state.composer }),
+        el(AutopilotBar, { key: 'ap', autopilot: state.autopilot }),
+        el(NextChatBar, {
+          key: 'next',
+          drafts: state.drafts,
+          autopilot: state.autopilot,
+        }),
+        el(Notice, {
+          key: 'n',
+          notice: noticeInWords(t, state.notice),
+          labels: NOTICE,
+          dismiss: state.dismiss,
+        }),
+        saved.on ? null : el(SavedTagBar, { key: 'tags', api, tags }),
+        saved.on
+          ? el(SavedChats, { key: 'saved', api, chat: state.current })
+          : tags.active
+            ? el(SavedTagResults, { key: 'tagged', api, tags })
+            : el(Stream, { key: 's', state, api, actions }),
+        // A closed topic has no composer for those who cannot manage
+        // topics (R-Y153).
+        saved.on
+          ? null
+          : el(ComposerOrClosed, {
+              key: 'c',
+              state: actions.withForward(state),
+              api,
+              keys: actions.keys,
+            }),
+        ...actions.dialogs,
+      ])
+    : null;
+
+export const ChatScreen = ({ state, api, embedded = false }) => {
   const { t, locale } = useLocaleContext();
   const [pane, setPane] = useState('list');
   const account = state.telegram?.account;
@@ -1211,7 +1333,7 @@ export const ChatScreen = ({ state, api }) => {
   );
   // Desktop's keyboard shortcuts and their list (R-Y183).
   const [help, setHelp] = useState(false);
-  useScreenShortcuts({ state, select, setPane, setHelp });
+  useScreenShortcuts({ state, select, setPane, setHelp, enabled: !embedded });
   if (state.loading) {
     return el(ChatLoadingOrError, { t, state });
   }
@@ -1229,126 +1351,46 @@ export const ChatScreen = ({ state, api }) => {
     el(
       ChatKindContext.Provider,
       { value: kindOf(state.current) },
-      el('div', { className: 'chat-shell', 'data-pane': pane }, [
-        el(Sidebar, {
-          key: 'side',
-          state: { ...state, select, openShortcuts: () => setHelp(true) },
-          api,
-        }),
-        el(ShortcutsHost, {
-          key: 'shortcuts',
-          open: help,
-          close: () => setHelp(false),
-        }),
-        // The call window and an incoming call's notification (R-Y196).
-        el(PrivateCallHost, { key: 'private-call', api, state: privateCall }),
-        // A clicked #hashtag or $cashtag searches (R-Y182).
-        el(TagSearchHost, { key: 'tag-search', api, state }),
-        // The Instant View reader (R-Y205).
-        el(InstantViewHost, { key: 'instant-view', api }),
-        state.current
-          ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
-              el(ConversationHeader, {
-                key: 'header',
-                actions,
-                state,
-                api,
-                onBack: () => setPane('list'),
-                saved,
-                forumView,
-                call: privateCall,
-              }),
-              // A forum's topics, as Telegram's tabs layout (R-Y122).
-              el(TopicTabs, {
-                key: 'topics',
-                forum: stripForum(forumView, state.forum),
-                api,
-                chat: state.current,
-                info: state.info,
-              }),
-              el(PinnedBar, {
-                key: 'pin',
-                state,
-                api,
-                onOpen: (id) => goToMessage(id, state.history?.reach),
-              }),
-              // The messages kept after a delete: view, recover, purge (R-Z7).
-              el(DeletedBar, {
-                key: `deleted:${state.current.key}`,
-                state,
+      el(
+        'div',
+        {
+          className: `chat-shell${embedded ? ' chat-embedded' : ''}`,
+          'data-pane': embedded ? 'chat' : pane,
+        },
+        [
+          embedded
+            ? null
+            : el(Sidebar, {
+                key: 'side',
+                state: { ...state, select, openShortcuts: () => setHelp(true) },
                 api,
               }),
-              // The live locations shared in the chat (R-Y197).
-              el(LiveLocationsBar, {
-                key: `live:${state.current.key}`,
-                state,
-                api,
-                onGo: (id) => goToMessage(id, state.history?.reach),
-              }),
-              // The chat's voice chat or live stream (R-Y188).
-              el(VoiceChatBar, {
-                key: `voice:${state.current.key}`,
-                api,
-                chat: state.current,
-                live: state.groupCall,
-              }),
-              // "Translate to <language>" over a foreign-language chat (R-Y213).
-              el(TranslateBar, { key: 'translate-bar', api, state }),
-              // Add contact, Block, Report spam over a stranger's chat (R-Y137).
-              el(PeerBar, {
-                key: `peer:${state.current.key}`,
-                api,
-                chat: state.current,
-              }),
-              // The bot a business connected to this chat (R-Y180).
-              el(BotBar, {
-                key: `bot:${state.current.key}`,
-                api,
-                chat: state.current,
-              }),
-              // "N requested to join" for those who may invite (R-Y152).
-              el(RequestsBar, {
-                key: `requests:${state.current.key}`,
-                api,
-                chat: state.current,
-                info: state.info,
-                live: state.joinRequests,
-              }),
-              el(ConnectionBanner, { key: 'b', banner: state.banner }),
-              el(ChatAccountNotice, { key: 'account', state }),
-              el(FailedBar, { key: 'failed', composer: state.composer }),
-              el(AutopilotBar, { key: 'ap', autopilot: state.autopilot }),
-              el(NextChatBar, {
-                key: 'next',
-                drafts: state.drafts,
-                autopilot: state.autopilot,
-              }),
-              el(Notice, {
-                key: 'n',
-                notice: noticeInWords(t, state.notice),
-                labels: NOTICE,
-                dismiss: state.dismiss,
-              }),
-              saved.on ? null : el(SavedTagBar, { key: 'tags', api, tags }),
-              saved.on
-                ? el(SavedChats, { key: 'saved', api, chat: state.current })
-                : tags.active
-                  ? el(SavedTagResults, { key: 'tagged', api, tags })
-                  : el(Stream, { key: 's', state, api, actions }),
-              // A closed topic has no composer for those who cannot manage
-              // topics (R-Y153).
-              saved.on
-                ? null
-                : el(ComposerOrClosed, {
-                    key: 'c',
-                    state: actions.withForward(state),
-                    api,
-                    keys: actions.keys,
-                  }),
-              ...actions.dialogs,
-            ])
-          : null,
-      ])
+          el(ShortcutsHost, {
+            key: 'shortcuts',
+            open: help,
+            close: () => setHelp(false),
+          }),
+          // The call window and an incoming call's notification (R-Y196).
+          el(PrivateCallHost, { key: 'private-call', api, state: privateCall }),
+          // A clicked #hashtag or $cashtag searches (R-Y182).
+          el(TagSearchHost, { key: 'tag-search', api, state }),
+          // The Instant View reader (R-Y205).
+          el(InstantViewHost, { key: 'instant-view', api }),
+          el(Conversation, {
+            t,
+            key: 'conversation',
+            state,
+            api,
+            actions,
+            theme,
+            saved,
+            forumView,
+            privateCall,
+            tags,
+            setPane,
+          }),
+        ]
+      )
     )
   );
 };

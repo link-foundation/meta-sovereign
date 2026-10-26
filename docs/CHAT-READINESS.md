@@ -14,6 +14,10 @@ Opening a chat gives its requests `view` priority. A queued prefetch for that ch
 
 You can keep composing while history loads. Older pages load as you approach the top, and the partial-history notice also offers **Load earlier**. Cached messages and history coverage remain on disk, so a restart resumes missing history instead of discarding what was downloaded.
 
+## Operator and navigation counts
+
+**Operator** opens one unread conversation card at a time, without the chat list. The card includes history, unread context and the normal reply composer. **Next (N)** leaves it unread and moves to the next conversation; **Done (D)** acknowledges the displayed message boundary and advances only after the server succeeds. A failed acknowledgement keeps the card with a retry message. Typing in a field never activates these shortcuts. New unread conversations enter the queue live; a finished queue says “No unread conversations.” Monochrome circles beside Chat, Calls and Operator show unread messages, unread missed calls and waiting conversations. Zero counts are hidden; Calls uses “+” when older call history remains beyond the loaded recent page, and opening Calls acknowledges its notifications in this browser.
+
 ## Folders and panel widths
 
 Named Telegram folders keep their own row, order and unread counts. The global **All** tab is last by default. **Settings → Folder tabs → Always show “All” first** moves it first in this browser without changing the remote Telegram folder order. On startup, folder updates and column resizing, the strip scrolls horizontally to reveal the selected tab; a remembered named-folder selection is preserved. A second row provides **All / Private / Groups / Channels** inside every selected folder, including All. Folder and type choices are independent and remembered; narrowing a folder never silently switches to a global list. The same type selection applies to archived items when browsing the archive.

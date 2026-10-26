@@ -12979,3 +12979,85 @@ audio.remote-player {
   background: #303135;
   color: #fff;
 }
+
+/* Operator uses the conversation itself as its queue card. */
+main[data-view='operator']:has(> .operator-workspace) {
+  max-width: none;
+  padding: 0;
+}
+.operator-workspace {
+  height: calc(100dvh - var(--topbar-h));
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+.operator-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.operator-toolbar h2,
+.operator-toolbar p {
+  margin: 0;
+}
+.operator-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.operator-card {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.chat-shell.chat-embedded {
+  grid-template-columns: minmax(0, 1fr);
+}
+.chat-embedded .chat-back {
+  display: none;
+}
+.operator-empty {
+  margin: auto;
+  text-align: center;
+}
+.nav-icon {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.nav-count {
+  position: absolute;
+  top: -0.45rem;
+  right: -0.6rem;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  padding: 0 0.2rem;
+  border: 1px solid var(--bg);
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-size: 0.65rem;
+  line-height: 1.1rem;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme='dark'] .nav-count {
+  background: #fff;
+  color: #000;
+}
+@media (max-width: 640px) {
+  .operator-workspace {
+    height: calc(
+      100dvh - var(--topbar-h) - var(--bottom-nav-h) - var(--safe-bottom)
+    );
+    padding: 0.5rem;
+  }
+}

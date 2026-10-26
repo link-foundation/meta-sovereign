@@ -144,8 +144,8 @@ await finish(async () => {
 
   // More pages loaded; the old call shows its date and long duration.
   assert(
-    JSON.stringify(asked[1]) === JSON.stringify({ missed: false, offsetId: 5 }),
-    `paged: ${JSON.stringify(asked[1])}`
+    asked.some((body) => body.missed === false && body.offsetId === 5),
+    `paged: ${JSON.stringify(asked)}`
   );
   const last = (await rows.allTextContents())[3];
   assert(last.includes('Cy Old') && last.includes('1:01:01'), last);

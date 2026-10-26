@@ -15,6 +15,7 @@ import { api } from './dom.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { networkName } from './connection-guides.js';
 import { ChatView } from './chat-view.js';
+import { OperatorView } from './operator-view.js';
 import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
 import { GreetingsView } from './greetings-view.js';
@@ -95,73 +96,7 @@ const AsyncFrame = ({ state, children }) => {
 const refreshReducer = (value) => value + 1;
 const BACKUPS_EVERY_MS = 15_000;
 
-export const OperatorView = () => {
-  const t = useT();
-  const { dateTime: fmtTs } = useDates();
-  const state = useAsyncValue(() => api.links(), [], []);
-  const [index, setIndex] = useState(0);
-  const queue = useMemo(
-    () =>
-      state.value
-        .filter((link) => link.id?.startsWith('msg:') && link.sender !== 'me')
-        .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp))),
-    [state.value]
-  );
-  const next = () => setIndex((current) => Math.min(current + 1, queue.length));
-
-  useEffect(() => {
-    const onKey = (event) => {
-      if (['d', 'D', 'n', 'N'].includes(event.key)) {
-        next();
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  });
-
-  return el(AsyncFrame, { state }, () => {
-    const msg = queue[index];
-    if (!msg) {
-      return el(ConnectionGuide, { section: 'operator' });
-    }
-    return el('div', { className: 'col operator' }, [
-      el('h2', { key: 'h' }, t('operator.title')),
-      el(
-        'div',
-        { key: 'status', className: 'meta' },
-        t('operator.progress', {
-          current: index + 1,
-          total: queue.length,
-        })
-      ),
-      el('div', { key: 'card', className: 'card' }, [
-        el(
-          'div',
-          { key: 'meta', className: 'meta' },
-          `${msg.source} - ${msg.chat} - ${msg.sender} - ${fmtTs(msg.timestamp)}`
-        ),
-        el('div', { key: 'body', className: 'big' }, msg.body ?? ''),
-        el('div', { key: 'actions', className: 'row' }, [
-          el(
-            'button',
-            { key: 'next', type: 'button', onClick: next },
-            t('operator.next')
-          ),
-          el(
-            'button',
-            {
-              key: 'done',
-              type: 'button',
-              className: 'primary',
-              onClick: next,
-            },
-            t('operator.done')
-          ),
-        ]),
-      ]),
-    ]);
-  });
-};
+export { OperatorView } from './operator-view.js';
 
 // "Message" on a contact: open their one-to-one chat (it appears in Chat
 // even before the first message, named from the contact).
