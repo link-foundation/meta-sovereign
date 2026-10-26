@@ -80,6 +80,10 @@ const localBroadcast = async (networks, body) =>
 const followServer = (client, origin) => {
   const here = globalThis.location?.origin ?? '';
   const reload = () => globalThis.location?.reload?.();
+  // DOM API helpers are also used by scripts and tests without a page.
+  if (!here) {
+    return null;
+  }
   if (!origin) {
     return createRediscovery({
       discover: () => discoverServer({}),
