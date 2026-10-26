@@ -58,9 +58,12 @@ export const installClientLog = ({
   };
   let failed = null;
   const sendFailed = () => {
+    const count =
+      (failed.avatar ?? 0) + (failed.media ?? 0) + (failed.file ?? 0);
+    const retrying = count > 0 && failed.retrying === count;
     const entry = {
-      level: 'warn',
-      event: 'media_failed',
+      level: retrying ? 'info' : 'warn',
+      event: retrying ? 'media_retrying' : 'media_failed',
       view: view(),
       ...failed,
     };
@@ -80,6 +83,9 @@ export const installClientLog = ({
       globalThis.setTimeout(sendFailed, MEDIA_EVERY_MS);
     }
     failed[route] = (failed[route] ?? 0) + 1;
+    if (event.target.dataset?.mediaRetrying === 'true') {
+      failed.retrying = (failed.retrying ?? 0) + 1;
+    }
     failed.cors = (failed.cors ?? 0) + (event.target.crossOrigin ? 1 : 0);
   };
   const onError = (event) =>

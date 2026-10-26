@@ -771,6 +771,14 @@ export const providerCatalogue = {
 //     shows. It points the user at Connections -> provider detail, where
 //     the matching provider owns credentials, archive import, and probe.
 export const connectionGuides = {
+  calls: {
+    title: 'Calls',
+    titleKey: 'chat.calls.title',
+    body: 'Connect a Telegram user account to see your recent calls.',
+    bodyKey: 'chat.calls.connectHint',
+    providers: ['telegram'],
+    connectFirst: { providerId: 'telegram' },
+  },
   chat: {
     title: 'Your unified inbox starts empty.',
     titleKey: 'guide.chat.title',

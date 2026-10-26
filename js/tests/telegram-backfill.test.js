@@ -119,6 +119,29 @@ test('the chat list is read first, then histories, at background priority', asyn
   assert.equal(backfill.progress().phase, 'done');
 });
 
+test('the focused chat loads ahead of dialog enumeration and sidebar prefetch, then releases that preference once complete', async () => {
+  const store = createMemoryStore();
+  const calls = [];
+  const backfill = backfillWith(store, {
+    calls,
+    queue: {
+      pending: (priority) => (priority === 'view' ? 0 : 3),
+      heldFor: () => 0,
+    },
+  });
+  backfill.focus('g1');
+  assert.equal(await backfill.step(), 'wanted');
+  assert.equal(calls[0].history.chat, 'g1');
+  assert.equal(calls[0].history.priority, 'view');
+  assert.equal(await backfill.step(), 'yield');
+  assert.equal(
+    calls.length,
+    1,
+    'completed focus stops bypassing queued prefetch'
+  );
+  backfill.stop();
+});
+
 test('nothing is downloaded while the user waits or Telegram asked to wait', async () => {
   const store = createMemoryStore();
   const calls = [];

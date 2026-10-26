@@ -11,6 +11,7 @@
  * this module importing the entry point back.
  */
 
+import { defaultStoreDir } from '../storage/app-directory.js';
 import {
   compareAllCvs,
   cvPlatformCatalogue,
@@ -147,7 +148,7 @@ const planCmd = async (args, log) => {
 };
 
 const readCmd = async (args, log, openStore, injected) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const ids = parsePlatforms(args.platforms);
   const { entries, failures } = await readAllCvs(
     ids,
@@ -168,7 +169,7 @@ const readCmd = async (args, log, openStore, injected) => {
 };
 
 const diffCmd = async (args, log, openStore) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const entries = await loadStoredCvs(store, parsePlatforms(args.platforms));
   const comparison = compareAllCvs(entries, { prefer: args.prefer ?? null });
   const diffs = diffAllCvs(entries, null);
@@ -213,7 +214,7 @@ const applyConfirmed = async (preview, { args, log, ask, run }) => {
 };
 
 const syncCmd = async (args, log, openStore, injected) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const ids = parsePlatforms(args.platforms);
   const run = (dryRun, confirmed = null) =>
     syncCvAcross(ids, {
@@ -256,7 +257,7 @@ const syncCmd = async (args, log, openStore, injected) => {
 };
 
 const telemetryCmd = async (args, log, openStore) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const events = await loadCvTelemetry(store, {
     runId: args.run ?? null,
     platform: args.platform ?? null,

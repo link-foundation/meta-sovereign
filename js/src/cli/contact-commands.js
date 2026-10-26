@@ -1,4 +1,5 @@
 // Local address-book imports, with the same parser and plan as the app.
+import { defaultStoreDir } from '../storage/app-directory.js';
 import { promises as fs } from 'node:fs';
 import { decodeVcard, parseVcard } from '../sources/vcard.js';
 import { readSystemContacts } from '../sources/system-contacts.js';
@@ -17,7 +18,7 @@ export const createContactCommands = ({ openStore }) => ({
       log('choose --file=<contacts.vcf> or --system');
       return 1;
     }
-    const storeDir = args.store ?? '.meta-sovereign';
+    const storeDir = args.store ?? defaultStoreDir();
     const store = await openStore(storeDir);
     try {
       const rows = system

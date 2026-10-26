@@ -104,6 +104,13 @@ export const openChatApp = async (
       needsLogin: false,
     })
   );
+  if (!telegramAccount && !serverOptions.telegramAccount) {
+    // A connected fixture with only cached messages has no real history
+    // reader. Tests that exercise loading override this route explicitly.
+    await page.route('**/api/telegram/history', (route) =>
+      fulfil(route, { written: 0, cached: true, complete: true })
+    );
+  }
   const until = async (check, what, ms = 10_000) => {
     const end = Date.now() + ms;
     while (Date.now() < end) {

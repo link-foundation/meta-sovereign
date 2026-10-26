@@ -460,6 +460,81 @@ test('a chat read once is answered from the store (R-Y24)', async () => {
   await account.stop();
 });
 
+test('a foreground open shares an in-flight prefetch instead of downloading the same history twice', async () => {
+  const store = createMemoryStore();
+  await seed(store);
+  const client = longChat(120);
+  const getMessages = client.getMessages.bind(client);
+  let release;
+  let started;
+  const began = new Promise((resolve) => {
+    started = resolve;
+  });
+  client.getMessages = async (...args) => {
+    started();
+    await new Promise((resolve) => {
+      release = resolve;
+    });
+    return getMessages(...args);
+  };
+  const account = accountWith(store, client);
+  try {
+    const prefetch = account.history({
+      chat: '42',
+      limit: 30,
+      priority: 'prefetch',
+    });
+    await began;
+    const opened = account.history({ chat: '42', limit: 50, priority: 'view' });
+    release();
+    const [first, second] = await Promise.all([prefetch, opened]);
+    assert.equal(first.written, 30);
+    assert.equal(second.written, 30);
+    assert.equal(client.calls.length, 1);
+  } finally {
+    await account.stop();
+  }
+});
+
+test('a queued older page preserves history coverage advanced by a concurrent live update', async () => {
+  const store = createMemoryStore();
+  await seed(store);
+  const client = longChat(120);
+  const account = accountWith(store, client);
+  try {
+    await account.history({ chat: '42', limit: 50 });
+    const getMessages = client.getMessages.bind(client);
+    let release;
+    let started;
+    const began = new Promise((resolve) => {
+      started = resolve;
+    });
+    client.getMessages = async (...args) => {
+      started();
+      await new Promise((resolve) => {
+        release = resolve;
+      });
+      return getMessages(...args);
+    };
+    const older = account.history({
+      chat: '42',
+      limit: 50,
+      before: 71,
+      priority: 'view',
+    });
+    await began;
+    const record = await store.get(historyLinkId('42'));
+    await store.put({ ...record, newest: 130 });
+    release();
+    await older;
+    const merged = await store.get(historyLinkId('42'));
+    assert.equal(merged.newest, 130);
+    assert.equal(merged.oldest, 21);
+  } finally {
+    await account.stop();
+  }
+});
+
 test('scrolling back reads older pages until the first message', async () => {
   const store = createMemoryStore();
   await seed(store);

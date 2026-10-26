@@ -19,7 +19,12 @@
  * as their history is read on demand only (R-Y30).
  */
 
-import { coverSlice, historyLink, historyLinkId } from './telegram-history.js';
+import {
+  coverSlice,
+  historyLink,
+  historyLinkId,
+  floodSeconds,
+} from './telegram-history.js';
 import { peerChatId } from './telegram-updates.js';
 import { entitiesOf } from './telegram-catchup.js';
 import { importTelegram } from './telegram-layer.js';
@@ -92,13 +97,17 @@ const cover = async ({ store, now }, chat, ids, gap) => {
   await store.put(historyLink(chat, next));
 };
 
-const channelWarn = (log) => (error) =>
+const channelWarn = (log) => (error) => {
+  const waiting = error?.code === 'flood-wait' || floodSeconds(error) > 0;
   log({
-    level: 'warn',
-    event: 'telegram_channel_catch_up_failed',
+    level: waiting ? 'info' : 'warn',
+    event: waiting
+      ? 'telegram_channel_catch_up_waits'
+      : 'telegram_channel_catch_up_failed',
     code: error?.code ?? null,
     error: error?.message,
   });
+};
 
 // A live update was not stored: the channel's number goes back to just
 // before it (R-Z14). Returns the chat to catch up, or null.

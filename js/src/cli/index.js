@@ -13,6 +13,7 @@
  * entry point unit-testable.
  */
 
+import { defaultStoreDir, resolveUserStore } from '../storage/app-directory.js';
 import path from 'node:path';
 import { maybeOpenHostedApp } from './browser-open.js';
 import { CONTACTS_HELP, createContactCommands } from './contact-commands.js';
@@ -144,14 +145,14 @@ const importCmd = async (args, log) => {
   const file = args.file;
   const archive = await fs.readFile(file, 'utf8');
   const parsed = file.endsWith('.json') ? JSON.parse(archive) : archive;
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const n = await importInto(store, args.source, parsed);
   log(`imported ${n} messages from ${args.source}`);
   return 0;
 };
 
 const exportCmd = async (args, log) => {
-  const store = await openReadOnly(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? defaultStoreDir());
   const links = await store.query();
   await fs.writeFile(args.file, JSON.stringify(links, null, 2));
   log(`exported ${links.length} links to ${args.file}`);
@@ -159,7 +160,7 @@ const exportCmd = async (args, log) => {
 };
 
 const backupCmd = async (args, log) => {
-  const store = await openReadOnly(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? defaultStoreDir());
   const file = await createBackup(store, { archiveDir: args.archive });
   if (args.keep) {
     await pruneBackups({ archiveDir: args.archive, keep: Number(args.keep) });
@@ -175,7 +176,7 @@ const passcodeCmd = async (args, log) => {
     log('usage: meta-sovereign passcode --clear [--store=<dir>]');
     return 1;
   }
-  const cleared = clearPasscode(args.store ?? '.meta-sovereign');
+  const cleared = clearPasscode(args.store ?? defaultStoreDir());
   log(cleared ? 'local passcode cleared' : 'no local passcode was set');
   return 0;
 };
@@ -185,7 +186,7 @@ const restoreCmd = async (args, log) => {
     // Swap the whole log in one step; the store must not be in use (R-Z16).
     const n = await restoreBackupToDir(
       args.file,
-      args.store ?? '.meta-sovereign',
+      args.store ?? defaultStoreDir(),
       {
         replace: true,
       }
@@ -193,7 +194,7 @@ const restoreCmd = async (args, log) => {
     log(`replaced the store with ${n} records from ${args.file}`);
     return 0;
   }
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const n = await restoreBackup(store, args.file);
   log(`restored ${n} links from ${args.file}`);
   return 0;
@@ -235,7 +236,7 @@ const logAddresses = (handle, log) => {
 };
 
 const serveCmd = async (args, log) => {
-  const storeDir = args.store ?? '.meta-sovereign';
+  const storeDir = args.store ?? defaultStoreDir();
   // Verbose logging is on by default: every request, event and error is
   // written to a file in the app folder (and echoed here), so the root
   // cause of any issue is always on disk. `--quiet-logs` opts out.
@@ -313,7 +314,7 @@ const rawEmailTransport = (args, protocol) =>
     : null;
 
 const sourcePullCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const protocol = args.protocol;
   const result = await pullLiveInto(store, args.source, {
     protocol,
@@ -384,7 +385,7 @@ const githubLiveFromArgs = (args) =>
   });
 
 const githubCloneCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const live = githubLiveFromArgs(args);
   const result = await live.cloneRepo({
     owner: args.owner,
@@ -490,7 +491,7 @@ const peoplePerHourMessageCmd = boardMessageCmd(
 );
 
 const audienceCmd = async (args, log) => {
-  const store = await openReadOnly(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? defaultStoreDir());
   const all = await store.query();
   const matched = evalAudience(all, args.query ?? '');
   log(JSON.stringify(matched, null, 2));
@@ -498,7 +499,7 @@ const audienceCmd = async (args, log) => {
 };
 
 const factsCmd = async (args, log) => {
-  const store = await openReadOnly(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? defaultStoreDir());
   const all = await store.query();
   const messages = all.filter((l) => l.id?.startsWith('msg:'));
   const patterns = all
@@ -515,7 +516,7 @@ const factsCmd = async (args, log) => {
 };
 
 const searchCmd = async (args, log) => {
-  const store = await openReadOnly(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? defaultStoreDir());
   const results = await localSearch(store, {
     query: args.query ?? '',
     min: Number(args.min ?? 0.2),
@@ -525,7 +526,7 @@ const searchCmd = async (args, log) => {
 };
 
 const broadcastCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const networks = (args.networks?.split(',') ?? listSources()).filter((n) =>
     listSources().includes(n)
   );
@@ -543,7 +544,7 @@ const broadcastCmd = async (args, log) => {
 };
 
 const listByPrefixCmd = (prefix) => async (args, log) => {
-  const store = await openReadOnly(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? defaultStoreDir());
   const all = await store.query();
   log(
     JSON.stringify(
@@ -566,7 +567,7 @@ const patternsInferCmd = async (args, log) => {
 };
 
 const graphsRunCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const persisted = await store.get(args.id);
   if (!persisted) {
     log(`graph ${args.id} not found`);
@@ -589,7 +590,7 @@ const graphsRunCmd = async (args, log) => {
 };
 
 const profileCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   if (args.name || args.bio) {
     const profile = {
       id: 'profile:me',
@@ -619,7 +620,7 @@ const profileCmd = async (args, log) => {
 };
 
 const resumeCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   if (args.title || args.body) {
     const resume = {
       id: 'resume:me',
@@ -648,7 +649,7 @@ const resumeCmd = async (args, log) => {
 };
 
 const syncListenCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const peer = createPeer(store, {
     node: 'cli-listener',
     schemaVersion: CURRENT_SCHEMA,
@@ -662,7 +663,7 @@ const syncListenCmd = async (args, log) => {
 };
 
 const syncConnectCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const peer = createPeer(store, {
     node: 'cli-client',
     schemaVersion: CURRENT_SCHEMA,
@@ -680,7 +681,7 @@ const syncConnectCmd = async (args, log) => {
 };
 
 const outreachCmd = async (args, log) => {
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const all = await store.query();
   const matched = evalAudience(all, args.query ?? '');
   const replyGroup = args.reply
@@ -702,7 +703,7 @@ const exportEncryptedCmd = async (args, log) => {
     log('export-encrypted: --passphrase is required (R-K13)');
     return 1;
   }
-  const store = await openReadOnly(args.store ?? '.meta-sovereign');
+  const store = await openReadOnly(args.store ?? defaultStoreDir());
   const file = await writeEncryptedExport(store, args.file, {
     passphrase: args.passphrase,
   });
@@ -715,7 +716,7 @@ const purgeTombstonesCmd = async (args, log) => {
     log('purge-tombstones: refusing without --confirm=true (R-K4)');
     return 1;
   }
-  const store = await openStore(args.store ?? '.meta-sovereign');
+  const store = await openStore(args.store ?? defaultStoreDir());
   const idPrefix = args['id-prefix'] ?? null;
   const olderThan = args['older-than']
     ? new Date(args['older-than']).toISOString()
@@ -741,7 +742,7 @@ const purgeTombstonesCmd = async (args, log) => {
 };
 
 const vaultFile = (args) =>
-  args.file ?? path.join(args.store ?? '.meta-sovereign', 'vault.json');
+  args.file ?? path.join(args.store ?? defaultStoreDir(), 'vault.json');
 
 const vaultInitCmd = async (args, log) => {
   const file = vaultFile(args);
@@ -860,7 +861,26 @@ export const runCli = async (argv, { log = console.log } = {}) => {
     return 1;
   }
   try {
-    return await handler(parseArgs(rest), log);
+    const args = parseArgs(rest);
+    if (
+      args.store === undefined &&
+      ![
+        'help',
+        '--help',
+        '-h',
+        'version',
+        '--version',
+        '-v',
+        undefined,
+      ].includes(cmd)
+    ) {
+      args.store =
+        ['serve', 'trust'].includes(cmd) &&
+        !process.env.META_SOVEREIGN_STORE_DIR
+          ? await resolveUserStore({ log })
+          : defaultStoreDir();
+    }
+    return await handler(args, log);
   } catch (error) {
     if (error?.code === 'STORE_LOCKED' || SCHEMA_ERROR_CODES.has(error?.code)) {
       log(error.message); // another process owns the store (R-Z2); the schema (R-Z17)

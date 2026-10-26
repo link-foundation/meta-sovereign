@@ -276,6 +276,43 @@ test('catch-up: another account does not take the saved number', async () => {
   await catchUp.stop();
 });
 
+test('catch-up respects a Telegram wait without retry storms or false gateway errors', async () => {
+  const store = createMemoryStore();
+  const timers = manualTimers();
+  const logs = [];
+  let now = 0;
+  const client = fakeClient([
+    { pts: 10, qts: 0, date: 1, seq: 0 },
+    Object.assign(new Error('FLOOD_WAIT_20'), {
+      errorMessage: 'FLOOD_WAIT_20',
+    }),
+    { className: 'updates.DifferenceEmpty', date: 2, seq: 1 },
+  ]);
+  const catchUp = createTelegramCatchUp({
+    store,
+    timers,
+    now: () => now,
+    importer: async () => ({ Api: fakeApi() }),
+    handle: async () => {},
+    log: (entry) => logs.push(entry),
+  });
+  try {
+    await catchUp.attach(client, { id: 77 });
+    await catchUp.run('poll');
+    assert.ok(timers.pending().includes(20000));
+    await catchUp.run('poll');
+    assert.equal(client.asked.length, 2, 'polling cannot bypass Telegram wait');
+    assert.equal(logs.at(-1).event, 'telegram_catch_up_waits');
+    assert.equal(logs.at(-1).level, 'warn');
+    now = 20000;
+    timers.fire();
+    await settle();
+    assert.equal(client.asked.length, 3);
+  } finally {
+    await catchUp.stop();
+  }
+});
+
 test('catch-up: on reconnect, on a gap, and following our own sends', async () => {
   const store = createMemoryStore();
   const empty = { className: 'updates.DifferenceEmpty', date: 1, seq: 0 };

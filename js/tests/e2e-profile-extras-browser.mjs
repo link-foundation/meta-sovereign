@@ -207,6 +207,7 @@ await finish(async () => {
   );
 
   // Editing one's own: nothing is written before Save.
+  await page.locator('button[data-view="profile"]').click();
   await page.locator('[data-action="my-profile"]').click();
   await page.locator('[data-action="open-profile-extras"]').click();
   const dialog = page.locator('[data-dialog="profile-extras"]');

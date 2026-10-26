@@ -8,6 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { Icon } from './icons.js';
 import { Field, FormDialog } from './chat-create.js';
 import { PhotoButtons, uploadPhoto } from './chat-edit.js';
 import { PeerAvatar } from './peer-avatar.js';
@@ -518,7 +519,7 @@ const ProfileDialog = ({ api, close }) => {
   );
 };
 
-/** "My profile" by the chat list's title; the card it opens. */
+/** Telegram account editing inside the main Profile section. */
 export const MyProfile = ({ api }) => {
   const t = useT();
   const [open, setOpen] = useState(false);
@@ -531,13 +532,17 @@ export const MyProfile = ({ api }) => {
       {
         key: 'b',
         type: 'button',
-        className: 'icon-btn my-profile-btn',
+        className: 'my-profile-btn',
         'data-action': 'my-profile',
         'aria-label': t('chat.profile.open'),
         title: t('chat.profile.open'),
         onClick: () => setOpen(true),
       },
-      '\u{1F464}'
+      [
+        el(Icon, { key: 'icon', name: 'profile' }),
+        ' Telegram · ',
+        t('chat.profile.open'),
+      ]
     ),
     open
       ? el(ProfileDialog, { key: 'd', api, close: () => setOpen(false) })

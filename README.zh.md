@@ -61,6 +61,8 @@ node js/bin/meta-sovereign.js serve
 
 在 macOS 交互式终端中，`serve` 会完成整个设置：使用 Secure Enclave 保护本次安装的 TLS 私钥，检测证书是否已受信任，仅在需要时请求信任，并打开 GitHub Pages 应用。无交互终端时可运行 `node js/bin/meta-sovereign.js serve --trust=true --open=true`。`--trust=false` 和 `--open=false` 可关闭相应操作。Swift 辅助程序需要 macOS Command Line Tools；不支持的 Mac 可显式使用 `--hardware-key=false` 选择文件密钥。硬件保护针对磁盘上的密钥；Node 在内存中使用密钥。详见[本地服务器设置与安全](docs/LOCAL-SERVER-SECURITY.md)。
 
+打开的聊天优先加载，并显示加载或重试状态。全部 / 私聊 / 群组 / 频道筛选在每个 Telegram 文件夹内都可用。拖动竖直分隔线调整列宽，尺寸会保存。通话位于主菜单聊天之后，Telegram 账户编辑移到个人资料。默认深色控件使用白色线条图标。 JS 服务器将数据保存在操作系统用户的应用文件夹：macOS 为 `~/Library/Application Support/Meta Sovereign/store`，Windows 为 `%APPDATA%/Meta Sovereign/store`，Linux 为 `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store`。从旧 checkout 启动 `serve` 会一次性迁移 `.meta-sovereign`，保留消息、联系人、会话、媒体和证书，并用兼容目录链接保留旧路径。重启或改变工作目录仍使用同一存储。可通过 `--store` 或 `META_SOVEREIGN_STORE_DIR` 覆盖。参见[聊天就绪与数据存储](docs/CHAT-READINESS.md)。
+
 ## 将 SPA 连接到服务器
 
 SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/discover.js)）：
@@ -81,6 +83,7 @@ SPA 按以下顺序选择服务器（[`js/src/web/discover.js`](js/src/web/disco
 - **像 Telegram 官方应用一样的聊天**：每条消息只发送一次，送达对勾，实时更新与断线后补齐，已读标记，云端草稿，刷新后仍保留的重试（[`docs/CHAT-REFERENCES.zh.md`](docs/CHAT-REFERENCES.zh.md)）。
 - **CRM**：一个视图看到联系人的全部信息，跨网络识别同一个人，社区与成员关系，搜索，按规则定义受众（`friends:vk & chat:vk:… - list:blocked`）。
 - **导入联系人**：预览并导入 macOS 通讯录（包括已同步的 iCloud 账户）或任何平台导出的 vCard；重复导入保留记录身份。目录在同步期间自动更新，也包含没有消息的联系人。参见[联系人导入](docs/CONTACTS-IMPORT.md)。
+
 - **外联、群发与自动化**：给谁发、何时发、在什么条件下发、发什么内容；预览谁会收到什么；默认生成安全草稿，或按节奏自动发送，并有安静时段、每个聊天的冷却期、每日上限和退订名单。每次自动发送都经过同一个发件箱：最多发送一次，结果不明时不会自行重试（[`docs/USER-GUIDE.zh.md`](docs/USER-GUIDE.zh.md) 第 11 节）。
 - **Operator 队列与回复**：逐个聊天处理未读消息，根据您以往的回答给出回复建议（按 Tab 采用），模式与回复变体，对匹配消息自动回复。
 - **企业与社区账号**：VK 社区令牌运行 Bots Long Poll；Telegram Business 的快捷回复、问候与离开消息、营业时间和聊天机器人。

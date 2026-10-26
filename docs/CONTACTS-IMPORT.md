@@ -40,7 +40,7 @@ node js/bin/meta-sovereign.js contacts-import --system --preview
 node js/bin/meta-sovereign.js contacts-import --system
 ```
 
-Use `--store=<directory>` to select another store. The default is `.meta-sovereign` relative to the current directory. `--preview` prints counts without writing contacts; omitting it applies the import. `--system` is macOS only and can request OS permission even for a preview, because the source must be read to calculate changes.
+Use `--store=<directory>` to select another store. The default is the OS user’s application store, independent of the current directory; see [persistent data](CHAT-READINESS.md#durable-application-folder). `--preview` prints counts without writing contacts; omitting it applies the import. `--system` is macOS only and can request OS permission even for a preview, because the source must be read to calculate changes.
 
 The CLI opens the store directly and respects its exclusive lock. Stop a server using that store first, use a separate store, or use the app's import controls while the server runs. No command uploads contacts to an external service.
 

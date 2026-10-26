@@ -403,7 +403,7 @@ jobs:
             send-extras folders passcode service-messages ephemeral \
             rich-messages rich-text instant-view account-data accounts offline \
             email greetings autopilot peer-bar tutorial archive-media \
-            vk-followups github-inbox visual-effects contacts-directory; do
+            vk-followups github-inbox visual-effects contacts-directory chat-loading calls profile profile-extras; do
             echo "::group::test:e2e:${name}"
             if ! npm run --silent "test:e2e:${name}"; then
               failed+=("${name}")
@@ -433,7 +433,7 @@ jobs:
           failed=()
           for name in browser consistency chat-menu selection offline \
             email greetings autopilot peer-bar archive-media vk-followups \
-            github-inbox visual-effects contacts-directory; do
+            github-inbox visual-effects contacts-directory chat-loading calls profile profile-extras; do
             echo "::group::test:e2e:${name}:webkit"
             if ! npm run --silent "test:e2e:${name}:webkit"; then
               failed+=("${name}")

@@ -358,6 +358,15 @@ const newJob = (key, priority, task, seq) => {
   return job;
 };
 
+const promoteJobs = (waiting, matches, priority, pump) => {
+  for (const job of waiting) {
+    if (matches(job.key) && rank(priority) < rank(job.priority)) {
+      job.priority = priority;
+    }
+  }
+  pump();
+};
+
 export const createFetchQueue = ({
   now = () => Date.now(),
   log = () => {},
@@ -514,6 +523,9 @@ export const createFetchQueue = ({
     run,
     note,
     hold,
+    /** Promote queued work when a prefetched chat is opened. */
+    promote: (matches, priority = 'view') =>
+      promoteJobs(waiting, matches, priority, pump),
     /** How many requests wait at `priority` or more urgent. */
     pending: (priority = 'background') =>
       waiting.filter((job) => rank(job.priority) <= rank(priority)).length,

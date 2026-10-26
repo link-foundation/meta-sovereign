@@ -811,7 +811,7 @@ const OWN_TABS = CHAT_FILTERS.map((key) => ({
   unread: 0,
 }));
 
-// Telegram's folders replace the list's own tabs (R-Y103); a remembered
+// Telegram folders and the independent type filter compose (R-Z27); a remembered
 // tab that is not there now shows every chat.
 const shownFilter = (filter, folders) => {
   const named = folders.filter((f) => !f.all);
@@ -836,6 +836,10 @@ const useChatList = (links, target, query, folders = []) => {
     return [emptyChat(links ?? [], target), ...list];
   }, [links, target]);
   const [remembered, setFilter] = useChatFilter();
+  const [kindFilter, setKindFilter] = useRemembered(
+    'meta-sovereign.chat.kind',
+    [CHAT_FILTERS.includes(remembered) ? remembered : 'all', ...CHAT_FILTERS]
+  );
   const [sort, setSort] = useChatSort();
   // Telegram's main list or the archive; a search looks through both,
   // and through every folder.
@@ -844,25 +848,34 @@ const useChatList = (links, target, query, folders = []) => {
   const shown = shownFilter(remembered, folders);
   const tabFolder = query ? null : shown.folder;
   const filter = shown.filter;
+  const hasFolders = folders.some((f) => !f.all);
+  const chooseFilter = (value) => {
+    setFilter(value);
+    if (!hasFolders) {
+      setKindFilter(value);
+    }
+  };
+  const kind = hasFolders ? kindFilter : filter;
   // The folder tags on the rows, but the open folder's (R-Y180).
   const tags = useMemo(
     () => tagMap(all, folders, people, tabFolder?.id ?? null),
     [all, folders, people, tabFolder]
   );
-  const chats = useMemo(() => {
-    if (tabFolder) {
-      return sortChats(chatsInFolder(all, tabFolder, people), sort);
-    }
-    return sortChats(
-      filterChats(
-        query
-          ? summarizeChats(links ?? [], { query })
-          : folderChats(all, folder),
-        isFolderFilter(filter) ? 'all' : filter
+  const chats = useMemo(
+    () =>
+      sortChats(
+        filterChats(
+          tabFolder
+            ? chatsInFolder(all, tabFolder, people)
+            : query
+              ? summarizeChats(links ?? [], { query })
+              : folderChats(all, folder),
+          kind
+        ),
+        sort
       ),
-      sort
-    );
-  }, [links, query, all, filter, sort, folder, tabFolder, people]);
+    [links, query, all, kind, sort, folder, tabFolder, people]
+  );
   const archive = useMemo(() => archiveSummary(all), [all]);
   const tabs = useMemo(
     () => folderTabs(folders, { all, people, fallback: OWN_TABS }),
@@ -872,7 +885,9 @@ const useChatList = (links, target, query, folders = []) => {
     all,
     chats,
     filter,
-    setFilter,
+    setFilter: chooseFilter,
+    kindFilter: hasFolders ? kindFilter : null,
+    setKindFilter,
     tabs,
     sort,
     setSort,
@@ -1062,6 +1077,8 @@ export const useChatState = (
     filter,
     setFilter,
     tabs: list.tabs,
+    kindFilter: list.kindFilter,
+    setKindFilter: list.setKindFilter,
     // Folder tags by chat key (R-Y180).
     tags: list.tags,
     // The tabs' menu: edit, delete, reorder (R-Y164).
@@ -1075,21 +1092,7 @@ export const useChatState = (
     archive: list.archive,
     prefetch,
     moreChats,
-    history: {
-      older: history.older,
-      first: history.first,
-      loading: history.loading,
-      failed: history.failed,
-      stalled: history.stalled,
-      loadOlder: history.loadOlder,
-      reach: history.reach,
-      detached: history.detached,
-      ceilingId: history.ceilingId,
-      view: history.view,
-      jump: history.jump,
-      loadNewer: history.loadNewer,
-      toNewest: history.toNewest,
-    },
+    history,
     current,
     forum,
     info,

@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { byTime, chatMessages, networkMessageId } from './chat-model.js';
 import { underCeiling, useWindowJump } from './chat-jump.js';
 import { askVkCaptcha } from './vk-captcha.js';
+import { watchChatHistory } from './chat-history-load.js';
 
 export const PAGE_SIZE = 50;
 export const PREFETCH_SIZE = 30;
@@ -84,6 +85,7 @@ const askOlder = async (api, current, oldest) => {
   if (!answer || answer.error) {
     throw Object.assign(new Error(answer?.error ?? 'no answer'), {
       retryAfter: answer?.retryAfter,
+      code: answer?.code,
     });
   }
   return Boolean(answer.complete);
@@ -259,7 +261,11 @@ const useRetry = (key) => {
       )
     );
   }, []);
-  const done = useCallback((target) => tries.current.delete(target), []);
+  const done = useCallback((target) => {
+    tries.current.delete(target);
+    globalThis.clearTimeout(timers.current.get(target));
+    timers.current.delete(target);
+  }, []);
   return { later, done };
 };
 
@@ -268,7 +274,7 @@ const useRetry = (key) => {
 const useOpenChat = (
   api,
   current,
-  { supported, telegram, refill, retry, patch, newest }
+  { supported, telegram, refill, patch, newest }
 ) => {
   const key = current?.key ?? null;
   useEffect(() => {
@@ -276,45 +282,11 @@ const useOpenChat = (
       return;
     }
     const target = current.key;
-    const chat = current.chat;
     refill(target);
     if (!telegram) {
       return;
     }
-    let cancelled = false;
-    // Asks Telegram only when the store does not have it; again and
-    // again until it answers.
-    const ask = () => {
-      if (cancelled) {
-        return;
-      }
-      return api
-        .telegramHistory({
-          chat,
-          ...topicAsk(current),
-          limit: PAGE_SIZE,
-          priority: 'view',
-        })
-        .catch(() => null)
-        .then((result) => {
-          if (cancelled) {
-            return null;
-          }
-          if (!result || result.error) {
-            retry.later(target, ask, result?.retryAfter);
-            return null;
-          }
-          retry.done(target);
-          if (result.complete) {
-            patch(target, () => ({ complete: true }));
-          }
-          return result.written > 0 ? newest(target) : null;
-        });
-    };
-    ask();
-    return () => {
-      cancelled = true;
-    };
+    return watchChatHistory({ api, current, patch, newest, delay: retryDelay });
   }, [api, key, telegram]);
 };
 
@@ -350,6 +322,79 @@ const useStallEnd = (key, stalledAt, patch) => {
  * `loadOlder()`. Without a server (offline, the static site), none — the
  * chat shows what the page holds.
  */
+const useLoadOlder = ({
+  api,
+  current,
+  key,
+  ref,
+  patch,
+  retry,
+  older,
+  telegram,
+  vk,
+  complete,
+}) => {
+  const inFlight = useRef(new Set());
+  const loadOlder = useCallback(async () => {
+    const held = key ? ref.current.get(key) : null;
+    if (
+      !current ||
+      !held ||
+      held.loading ||
+      held.initialLoading ||
+      inFlight.current.has(key) ||
+      isStalled(held) ||
+      !hasOlder(held, { telegram: telegram || vk, complete })
+    ) {
+      return;
+    }
+    const target = key;
+    // `loading` lands a render later: two scroll events must not both ask.
+    inFlight.current.add(target);
+    patch(target, () => ({
+      loading: true,
+      failed: false,
+      retryAt: 0,
+      retryCode: null,
+    }));
+    try {
+      await older(target, current.chat, held);
+      retry.done(target);
+    } catch (error) {
+      if (error.hold) {
+        patch(target, () => ({
+          loading: false,
+          stalledAt: Date.now() + CAPTCHA_HOLD_MS,
+        }));
+        return;
+      }
+      patch(target, () => ({
+        loading: false,
+        failed: true,
+        retryAt: Date.now() + retryDelay(0, error.retryAfter),
+        retryCode: error.code ?? 'network',
+      }));
+      retry.later(target, () => latestLoadOlder.current(), error.retryAfter);
+    } finally {
+      inFlight.current.delete(target);
+    }
+  }, [api, key, telegram, vk, complete]);
+  const latestLoadOlder = useRef(loadOlder);
+  latestLoadOlder.current = loadOlder;
+
+  return loadOlder;
+};
+
+const windowLoadState = (window, { telegram, vk, complete }) => ({
+  complete: Boolean((telegram || vk) && (complete || window.complete)),
+  loading: Boolean(window.loading || window.initialLoading),
+  initialLoading: Boolean(window.initialLoading),
+  backgroundLoading: Boolean(window.backgroundLoading),
+  retryAt: window.retryAt ?? 0,
+  retryCode: window.retryCode ?? null,
+  incomplete: (telegram || vk) && !complete && !window.complete,
+});
+
 export const useChatWindow = (
   api,
   current,
@@ -445,42 +490,18 @@ export const useChatWindow = (
     });
   };
 
-  const inFlight = useRef(new Set());
-  const loadOlder = useCallback(async () => {
-    const held = key ? ref.current.get(key) : null;
-    if (
-      !current ||
-      !held ||
-      held.loading ||
-      inFlight.current.has(key) ||
-      isStalled(held) ||
-      !hasOlder(held, { telegram: telegram || vk, complete })
-    ) {
-      return;
-    }
-    const target = key;
-    // `loading` lands a render later: two scroll events must not both ask.
-    inFlight.current.add(target);
-    patch(target, () => ({ loading: true, failed: false }));
-    try {
-      await older(target, current.chat, held);
-      retry.done(target);
-    } catch (error) {
-      if (error.hold) {
-        patch(target, () => ({
-          loading: false,
-          stalledAt: Date.now() + CAPTCHA_HOLD_MS,
-        }));
-        return;
-      }
-      patch(target, () => ({ loading: false, failed: true }));
-      retry.later(target, () => latestLoadOlder.current(), error.retryAfter);
-    } finally {
-      inFlight.current.delete(target);
-    }
-  }, [api, key, telegram, vk, complete]);
-  const latestLoadOlder = useRef(loadOlder);
-  latestLoadOlder.current = loadOlder;
+  const loadOlder = useLoadOlder({
+    api,
+    current,
+    key,
+    ref,
+    patch,
+    retry,
+    older,
+    telegram,
+    vk,
+    complete,
+  });
 
   useStallEnd(key, window.stalledAt, patch);
   const jumps = useWindowJump(api, current, {
@@ -501,7 +522,7 @@ export const useChatWindow = (
     older: olderLeft,
     first: firstTimeOf(window, olderLeft),
     stalled: Boolean(window.stalledAt),
-    loading: window.loading,
+    ...windowLoadState(window, { telegram, vk, complete }),
     failed: window.failed,
     loadOlder,
     // A jump to a message (a mention, a match of a search): R-Y107.

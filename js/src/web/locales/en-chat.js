@@ -2,6 +2,19 @@
 // each file small; its keys are part of the en dictionary.
 
 export const enChat = {
+  'chat.history.complete': 'All available messages loaded',
+  'chat.history.background':
+    'Loading earlier history first. You can keep chatting.',
+  'chat.history.loading': 'Loading messages for this chat first…',
+  'chat.history.wait': 'Telegram asked to wait. Retrying in {seconds} seconds…',
+  'chat.history.retry':
+    'Loading was interrupted. Retrying in {seconds} seconds…',
+  'chat.history.partial':
+    'Showing {count} saved messages. Earlier history has not been downloaded yet.',
+  'chat.history.more': 'Load earlier',
+  'chat.calls.connectHint':
+    'Connect a Telegram user account to see your recent calls.',
+
   'chat.aside': 'Chats',
   'chat.back': 'Back to chats',
   'chat.placeholder': 'Type a message...',

@@ -6,6 +6,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useT } from './i18n.js';
+import { Icon } from './icons.js';
 import { applyFormat } from './text-shortcuts.js';
 
 const el = React.createElement;
@@ -102,7 +103,7 @@ const FormatBar = ({ onApply }) => {
           onMouseDown: (event) => event.preventDefault(),
           onClick: () => onApply(kind),
         },
-        label
+        kind === 'link' ? el(Icon, { name: 'connections' }) : label
       )
     )
   );

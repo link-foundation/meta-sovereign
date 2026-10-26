@@ -15,13 +15,53 @@
 
 import os from 'node:os';
 import path from 'node:path';
+import { promises as fs } from 'node:fs';
+import { defaultStoreDir } from '../storage/app-directory.js';
 
 /** Packages a live run needs, in the order we report them. */
 export const BROWSER_PACKAGES = ['browser-commander', 'playwright'];
 
 /** Default persistent profile directory: sessions must survive runs. */
 export const defaultProfileDir = (platform = 'shared') =>
-  path.join(os.homedir(), '.meta-sovereign', 'browser-profiles', platform);
+  path.join(defaultStoreDir(), 'browser-profiles', platform);
+
+const persistentProfile = async (platform) => {
+  const target = defaultProfileDir(platform);
+  const legacy = path.join(
+    os.homedir(),
+    '.meta-sovereign',
+    'browser-profiles',
+    platform
+  );
+  const exists = (file) =>
+    fs.lstat(file).then(
+      () => true,
+      () => false
+    );
+  if (!(await exists(target)) && (await exists(legacy))) {
+    if (await exists(path.join(legacy, 'SingletonLock'))) {
+      throw Object.assign(
+        new Error(
+          'Close the existing CV browser before migrating its profile.'
+        ),
+        { code: 'browser-profile-in-use' }
+      );
+    }
+    await fs.mkdir(path.dirname(target), { recursive: true, mode: 0o700 });
+    await fs.rename(legacy, target);
+    try {
+      await fs.symlink(
+        target,
+        legacy,
+        process.platform === 'win32' ? 'junction' : 'dir'
+      );
+    } catch (error) {
+      await fs.rename(target, legacy);
+      throw error;
+    }
+  }
+  return target;
+};
 
 const defaultImporters = {
   'browser-commander': () => import('browser-commander'),
@@ -137,7 +177,7 @@ export const openBrowserSession = async ({
         return launchWithCommander({
           bc,
           headless,
-          profileDir: profileDir ?? defaultProfileDir(platform),
+          profileDir: profileDir ?? (await persistentProfile(platform)),
           slowMo,
           locale,
           verbose,

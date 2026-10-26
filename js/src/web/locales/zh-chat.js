@@ -2,6 +2,16 @@
 // each file small; its keys are part of the zh dictionary.
 
 export const zhChat = {
+  'chat.history.complete': '已加载所有可用消息',
+  'chat.history.background': '正在优先加载此聊天的早期历史，您可以继续聊天。',
+  'chat.history.loading': '正在优先加载此聊天的消息…',
+  'chat.history.wait': 'Telegram 要求等待，将在 {seconds} 秒后重试…',
+  'chat.history.retry': '加载中断，将在 {seconds} 秒后重试…',
+  'chat.history.partial':
+    '正在显示 {count} 条已保存的消息，更早的历史尚未下载。',
+  'chat.history.more': '加载更早消息',
+  'chat.calls.connectHint': '连接 Telegram 用户账户以查看最近通话。',
+
   'chat.aside': '聊天',
   'chat.back': '返回聊天列表',
   'chat.placeholder': '输入消息...',

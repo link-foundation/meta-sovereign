@@ -119,6 +119,7 @@ import { createLearnedRoute } from './routes-learned.js';
 import { createGitHubCheck } from '../sources/github-check.js';
 import { handleMetrics } from './metrics.js';
 import { jsonLog } from './log.js';
+import { defaultStoreDir } from '../storage/app-directory.js';
 import { listenLocal } from './local-tls.js';
 import { handlePullRoutes, pullContext } from './routes-pull.js';
 import { createPeer, attachSyncWebSocket } from '../sync/index.js';
@@ -126,6 +127,7 @@ import { attachSignaling } from '../sync/webrtc-signaling.js';
 import { registerDefaultHandlers } from './handlers-bootstrap.js';
 import {
   classifyOrigin,
+  corsContext,
   handleCors,
   hostAllowed,
   parseAllowedOrigins,
@@ -710,6 +712,7 @@ const createHttpServer = (store, ctx, log) =>
         method: req.method,
         path: (req.url ?? '').split('?')[0],
         status: res.statusCode,
+        ...(res.statusCode === 403 ? corsContext(req) : {}),
         duration_ms: Date.now() - start,
       });
     });
@@ -813,7 +816,7 @@ const automationFor = (store, automations, log, telegramAccount, later) =>
 
 export const startServer = async ({
   port = 0,
-  storeDir = '.meta-sovereign',
+  storeDir = defaultStoreDir(),
   archiveDir,
   store: providedStore,
   enableHandlers = true,

@@ -13,6 +13,12 @@ import { hiTranscribe } from './hi-transcribe.js';
 import { hiGithub } from './hi-github.js';
 
 export const hi = {
+  'nav.calls': 'कॉल',
+  'panels.hint':
+    'चौड़ाई बदलने के लिए खींचें। रीसेट के लिए डबल क्लिक या Enter दबाएँ।',
+  'panels.navigation': 'नेविगेशन की चौड़ाई बदलें',
+  'panels.chats': 'चैट सूची की चौड़ाई बदलें',
+  'panels.details': 'विवरण की चौड़ाई बदलें',
   ...hiChat,
   ...hiChatMore,
   ...hiChatAccount,

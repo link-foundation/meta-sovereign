@@ -13,6 +13,7 @@ import { useLocaleContext, useT } from './i18n.js';
 import { Frame } from './chat-readers.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { formatCallDuration, groupCalls } from './call-model.js';
+import { Icon } from './icons.js';
 
 const el = React.createElement;
 
@@ -219,24 +220,37 @@ const Body = ({ api, state, missed, more, open }) => {
   );
 };
 
-const CallsPanel = ({ api, close, onOpenChat }) => {
-  const t = useT();
+export const CallsContent = ({ api, onOpenChat }) => {
   const [missed, setMissed] = useState(false);
   const [state, more] = useCalls(api, missed);
   const open = (row) => {
-    close();
     onOpenChat({ chat: row.chat, name: row.name || row.chat, kind: 'user' });
   };
+  return el('section', { className: 'calls-content' }, [
+    el(Tabs, { key: 't', missed, setMissed }),
+    el(Body, { key: 'b', api, state, missed, more, open }),
+  ]);
+};
+
+const CallsPanel = ({ api, close, onOpenChat }) => {
+  const t = useT();
   return createPortal(
-    el(Frame, { title: t('chat.calls.title'), close, name: 'calls' }, [
-      el(Tabs, { key: 't', missed, setMissed }),
-      el(Body, { key: 'b', api, state, missed, more, open }),
-    ]),
+    el(
+      Frame,
+      { title: t('chat.calls.title'), close, name: 'calls' },
+      el(CallsContent, {
+        api,
+        onOpenChat: (peer) => {
+          close();
+          onOpenChat(peer);
+        },
+      })
+    ),
     document.body
   );
 };
 
-/** "Calls" by the chat list's title; the panel it opens. */
+/** Optional dialog launcher for embedders; the app uses the main Calls section. */
 export const CallsButton = ({ api, state }) => {
   const t = useT();
   const [shown, setShown] = useState(false);
@@ -256,7 +270,7 @@ export const CallsButton = ({ api, state }) => {
         title: t('chat.calls.title'),
         onClick: () => setShown(true),
       },
-      '\u{1F4DE}'
+      el(Icon, { name: 'calls' })
     ),
     shown
       ? el(CallsPanel, {

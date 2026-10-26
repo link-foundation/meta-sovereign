@@ -19,6 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { useT } from '../i18n.js';
 import { navItems } from '../nav-items.js';
 import { Icon } from '../icons.js';
+import { PanelDivider } from '../panel-resize.js';
 
 const el = React.createElement;
 
@@ -180,7 +181,17 @@ const PermanentDrawer = ({ active, onSelect, t }) =>
       role: 'navigation',
       'aria-label': t('shell.primaryNavAria'),
     },
-    renderNavButtons(t, active, onSelect, 'drawer')
+    [
+      el(PanelDivider, {
+        key: 'resize',
+        name: 'navigation',
+        variable: '--nav-width',
+        initial: 232,
+        min: 160,
+        max: 420,
+      }),
+      ...renderNavButtons(t, active, onSelect, 'drawer'),
+    ]
   );
 
 export const AppShell = ({ width, active, onSelect, children }) => {

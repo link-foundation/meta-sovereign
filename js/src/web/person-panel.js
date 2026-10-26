@@ -9,6 +9,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
+import { PanelDivider } from './panel-resize.js';
 import { Busy } from './spinner.js';
 import { ProfileHead, SharedMedia } from './chat-shared.js';
 import { InviteLink } from './chat-invite.js';
@@ -304,6 +305,16 @@ export const PersonPanel = ({
       'aria-label': title,
     },
     [
+      el(PanelDivider, {
+        key: 'resize',
+        name: 'details',
+        variable: '--details-width',
+        initial: 352,
+        min: 240,
+        max: 600,
+        side: 'left',
+        target: '.chat-main',
+      }),
       el('header', { key: 'h', className: 'person-panel-head' }, [
         el('strong', { key: 't' }, title),
         el(

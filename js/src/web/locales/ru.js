@@ -12,6 +12,12 @@ import { ruTranscribe } from './ru-transcribe.js';
 import { ruGithub } from './ru-github.js';
 
 export const ru = {
+  'nav.calls': 'Звонки',
+  'panels.hint':
+    'Перетащите для изменения ширины. Двойной щелчок или Enter — сброс.',
+  'panels.navigation': 'Ширина навигации',
+  'panels.chats': 'Ширина списка чатов',
+  'panels.details': 'Ширина сведений',
   ...ruChat,
   ...ruChatMore,
   ...ruChatAccount,

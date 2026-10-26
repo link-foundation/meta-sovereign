@@ -99,6 +99,32 @@ const channelCatchUp = async (env, chat, plan, priority) => {
   return { written: fed ?? 0, cached: false };
 };
 
+const coalesceHistory = (readHistory, queue) => {
+  const histories = new Map();
+  return (options = {}) => {
+    const key = JSON.stringify([String(options.chat), options.before ?? null]);
+    const existing = histories.get(key);
+    if ((options.priority ?? 'view') === 'view') {
+      if (existing) {
+        existing.options.priority = 'view';
+      }
+      const chat = String(options.chat);
+      queue.promote?.(
+        (key) => key === `entity:${chat}` || key.startsWith(`messages:${chat}:`)
+      );
+    }
+    if (existing) {
+      return existing.promise;
+    }
+    const entry = { options: { ...options } };
+    entry.promise = readHistory(entry.options).finally(() =>
+      histories.delete(key)
+    );
+    histories.set(key, entry);
+    return entry.promise;
+  };
+};
+
 const createPages = (env, tools) => {
   const { store, connection, queue, now } = env;
   // Input peers of listed dialogs, so the next page can say where to go on.
@@ -144,12 +170,9 @@ const createPages = (env, tools) => {
    * than that message id (the user scrolls back), none for the newest.
    * Returns what was written and whether the chat's start is stored.
    */
-  const history = async ({
-    chat,
-    limit = 50,
-    before = null,
-    priority = 'view',
-  } = {}) => {
+  const readHistory = async (options = {}) => {
+    const { chat, limit = 50, before = null } = options;
+    const priority = () => options.priority ?? 'view';
     const creds = await tools.credentials();
     if (creds?.kind !== 'user' || !chat) {
       return { written: 0 };
@@ -168,7 +191,7 @@ const createPages = (env, tools) => {
         complete: Boolean(record?.complete),
       };
     }
-    const caughtUp = await channelCatchUp(env, target, plan, priority);
+    const caughtUp = await channelCatchUp(env, target, plan, priority());
     if (caughtUp) {
       return { ...caughtUp, complete: Boolean(record?.complete) };
     }
@@ -178,16 +201,18 @@ const createPages = (env, tools) => {
       tools,
       client,
       target,
-      priority
+      priority()
     );
     const list = [
-      ...((await getMessages(client, peer, target, plan, priority)) ?? []),
+      ...((await getMessages(client, peer, target, plan, priority())) ?? []),
     ];
     const written = await tools.writeChanged(
       store,
       tools.toLinks(dialog, list)
     );
-    const cover = coverSlice(record, {
+    // Live updates or another page may have advanced coverage while the
+    // RPC was queued. Merge with the current record, preserving that work.
+    const cover = coverSlice(await store.get(historyLinkId(target)), {
       ids: list.map((m) => m?.id),
       limit,
       mode: plan.mode,
@@ -199,6 +224,8 @@ const createPages = (env, tools) => {
     }
     return { written, cached: false, complete: Boolean(cover.complete) };
   };
+
+  const history = coalesceHistory(readHistory, queue);
 
   /**
    * Remember the input peers of listed dialogs (for `offsetPeer`, and in

@@ -10,6 +10,7 @@
  * `serve`; this command is for doing it on purpose, or looking first.
  */
 
+import { defaultStoreDir } from '../storage/app-directory.js';
 import { openDualStore } from '../storage/dual-store.js';
 import {
   MIGRATIONS,
@@ -100,7 +101,7 @@ const migrateCmd = async (dir, log) => {
 
 export const createMigrateCommands = () => ({
   migrate: async (args, log) => {
-    const dir = args.store ?? '.meta-sovereign';
+    const dir = args.store ?? defaultStoreDir();
     if (args.status) {
       return statusCmd(dir, log);
     }

@@ -26,6 +26,8 @@ import { connectionHash, parseConnectionHash } from './connections/hash.js';
 import { PageLoading } from './spinner.js';
 import { useContactsRevision } from './contacts-live.js';
 import { ContactsImport } from './contacts-import.js';
+import { CallsContent } from './chat-calls.js';
+import { MyProfile } from './chat-profile.js';
 
 const el = React.createElement;
 
@@ -1041,10 +1043,14 @@ export const ProfileView = () => {
     const profileEmpty =
       !(profile?.name || profile?.bio) && !(resume?.title || resume?.body);
     if (profileEmpty && !name && !bio && !title && !body) {
-      return el(ConnectionGuide, { section: 'profile' });
+      return el('div', { className: 'col' }, [
+        el(MyProfile, { key: 'telegram', api }),
+        el(ConnectionGuide, { key: 'guide', section: 'profile' }),
+      ]);
     }
     return el('div', { className: 'col' }, [
       el('h2', { key: 'profile-h' }, t('profile.title')),
+      el(MyProfile, { key: 'telegram', api }),
       el('div', { key: 'profile', className: 'col' }, [
         el('input', {
           key: 'name',
@@ -1275,8 +1281,29 @@ const ConnectionsView = () => {
   });
 };
 
+export const CallsView = () => {
+  const t = useT();
+  const status = useAsyncValue(() => api.telegramStatus(), [], null);
+  const connected = status.value?.connected && status.value.kind === 'user';
+  return el(AsyncFrame, { state: status }, () =>
+    connected
+      ? el('div', { className: 'col' }, [
+          el('h2', { key: 'h' }, t('chat.calls.title')),
+          el(CallsContent, {
+            key: 'calls',
+            api,
+            onOpenChat: (peer) => {
+              openContactChat({ source: 'telegram', chat: peer.chat });
+            },
+          }),
+        ])
+      : el(ConnectionGuide, { section: 'calls' })
+  );
+};
+
 export const views = {
   chat: ChatView,
+  calls: CallsView,
   operator: OperatorView,
   contacts: ContactsView,
   automation: AutomationView,

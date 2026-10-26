@@ -11,6 +11,7 @@
  * The runner is injected so the tests never touch a real keychain.
  */
 
+import { defaultStoreDir } from '../storage/app-directory.js';
 import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
@@ -62,7 +63,7 @@ export const setupLocalCertificate = async (args, log, options = {}) => {
   if (!enabled(args.tls) || process.env.MS_TLS === 'off' || !supported) {
     return null;
   }
-  const storeDir = args.store ?? '.meta-sovereign';
+  const storeDir = args.store ?? defaultStoreDir();
   const protector =
     enabled(args['hardware-key']) && platform === 'darwin'
       ? await deviceProtector(storeDir)
@@ -128,7 +129,7 @@ export const createTrustCommands = ({
 } = {}) => ({
   trust: async (args, log) => {
     const remove = String(args.remove ?? 'false') !== 'false';
-    const { certPath } = await loadLocalTls(args.store ?? '.meta-sovereign');
+    const { certPath } = await loadLocalTls(args.store ?? defaultStoreDir());
     if (platform !== 'darwin') {
       log(manualSteps(certPath));
       return 0;

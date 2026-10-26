@@ -27,6 +27,7 @@
  */
 
 import { connectionStateOf } from './telegram-updates.js';
+import { floodSeconds } from './telegram-history.js';
 
 export const TELEGRAM_STATE_ID = 'state:telegram';
 
@@ -212,8 +213,9 @@ const createBackoff = (timers) => {
   return {
     reset: () => {
       ms = 0;
+      stop();
     },
-    later: (fn) => {
+    later: (fn, minimumMs = 0) => {
       ms = Math.min(ms ? ms * 2 : FIRST_RETRY_MS, MAX_RETRY_MS);
       stop();
       timer = later(
@@ -222,7 +224,7 @@ const createBackoff = (timers) => {
           timer = null;
           fn();
         },
-        ms
+        Math.max(ms, minimumMs)
       );
     },
     stop,
@@ -325,6 +327,20 @@ const saveCounter = async (store, account, counter) => {
  *   importer()              resolves { Api } (the `telegram` package)
  *   onConnection(state)     GramJS's connection: 1, 0 or -1
  */
+const logCatchUpFailure = (log, error, reason) => {
+  const wait =
+    floodSeconds(error) ||
+    (error.code === 'flood-wait' ? Number(error.retryAfter) : 0);
+  log({
+    level: wait ? 'warn' : 'error',
+    event: wait ? 'telegram_catch_up_waits' : 'telegram_catch_up_failed',
+    reason,
+    error: error.message,
+    ...(wait ? { retryAfter: wait } : {}),
+  });
+  return wait;
+};
+
 export const createTelegramCatchUp = ({
   store,
   handle,
@@ -336,6 +352,7 @@ export const createTelegramCatchUp = ({
   onConnection = () => {},
   gapMs = GAP_MS,
   timers = globalThis,
+  now = Date.now,
 }) => {
   let client = null;
   let account = null;
@@ -344,6 +361,7 @@ export const createTelegramCatchUp = ({
   let running = null;
   let again = false;
   let connection = null;
+  let retryAt = 0;
 
   const save = () => {
     timers.clearTimeout(saveTimer);
@@ -392,20 +410,16 @@ export const createTelegramCatchUp = ({
       backoff.reset();
       return true;
     } catch (error) {
-      log({
-        level: 'error',
-        event: 'telegram_catch_up_failed',
-        reason,
-        error: error.message,
-      });
-      backoff.later(() => run(reason).catch(() => {}));
+      const wait = logCatchUpFailure(log, error, reason);
+      retryAt = wait ? now() + wait * 1000 : 0;
+      backoff.later(() => run(reason).catch(() => {}), wait * 1000);
       return false;
     }
   };
 
   /** Catch up now (one at a time; a call during a run runs once more). */
   const run = (reason = 'manual') => {
-    if (!client) {
+    if (!client || now() < retryAt) {
       return Promise.resolve();
     }
     if (running) {

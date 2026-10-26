@@ -51,6 +51,12 @@ JS server उसी port पर listen करता है और वही wire
 
 Package npm पर publish होने के बाद `npx -y meta-sovereign serve` (या `npm install -g meta-sovereign && meta-sovereign serve`) काम करेगा; तब तक दोनों में से कोई नहीं करता।
 
+### चैट की तैयारी और स्थायी डेटा
+
+खुली चैट पहले लोड होती है और लोडिंग या पुनःप्रयास की स्थिति दिखाती है। सभी / निजी / समूह / चैनल फ़िल्टर हर Telegram फ़ोल्डर में उपलब्ध हैं। कॉलम की चौड़ाई ऊर्ध्वाधर डिवाइडर खींचकर बदलें; आकार याद रखे जाते हैं। कॉल मुख्य मेनू में चैट के बाद है और Telegram खाता संपादन प्रोफ़ाइल में है। डार्क थीम में नियंत्रण सफ़ेद रेखा आइकन इस्तेमाल करते हैं।
+
+JS सर्वर OS उपयोगकर्ता की ऐप फ़ोल्डर में डेटा रखता है: macOS में `~/Library/Application Support/Meta Sovereign/store`, Windows में `%APPDATA%/Meta Sovereign/store` और Linux में `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store`। पुराने checkout से `serve` चलाने पर `.meta-sovereign` एक बार स्थानांतरित होता है; संदेश, संपर्क, सत्र, मीडिया और प्रमाणपत्र सुरक्षित रहते हैं तथा लिंक पुराने पथ बनाए रखता है। रीस्टार्ट और अलग कार्य निर्देशिका में वही स्टोर इस्तेमाल होता है। `--store` या `META_SOVEREIGN_STORE_DIR` से बदलें। [चैट और डेटा संग्रहण](CHAT-READINESS.md) देखें।
+
 ## 4. desktop या mobile app install करें
 
 Desktop और mobile apps GitHub Pages वाले उसी SPA को built-in server के साथ native shell में wrap करते हैं। खुद server start किए बिना पूरा app चाहिए तो इन्हें इस्तेमाल करें।
@@ -186,7 +192,7 @@ Telegram उपयोगकर्ता खाते पहले से `contac
 
 ### संदेश आर्काइव आयात
 
-Archive files `~/.meta-sovereign/imports/` में रखें और चलाएँ:
+Archive files `<store>/imports/` में रखें और चलाएँ:
 
 ```bash
 meta-sovereign import

@@ -19,6 +19,7 @@
  * the chat menu does); with `--test` the conditions are ignored there.
  */
 
+import { defaultStoreDir } from '../storage/app-directory.js';
 import { promises as fs } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
 import { getSource } from '../sources/index.js';
@@ -383,7 +384,7 @@ const automationsCmd = async (args, log, deps) => {
     log(`unknown subcommand "${sub}"\n${AUTOMATION_HELP}`);
     return 1;
   }
-  const store = await deps.openStore(args.store ?? '.meta-sovereign');
+  const store = await deps.openStore(args.store ?? defaultStoreDir());
   const { runner, close } = runnerFor(store, args, deps);
   try {
     return await handler({

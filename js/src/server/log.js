@@ -19,6 +19,7 @@
 import { createWriteStream, openSync, statSync, unlinkSync } from 'node:fs';
 import { chmod, mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { defaultStoreDir } from '../storage/app-directory.js';
 import { redact } from './redact.js';
 import { renameDurableSync } from '../storage/durable.js';
 
@@ -138,7 +139,7 @@ export const createServerLog = async ({
   keep = KEEP_FILES,
   stdout = (line) => process.stdout.write(line),
 } = {}) => {
-  const dir = path.join(storeDir ?? '.meta-sovereign', 'logs');
+  const dir = path.join(storeDir ?? defaultStoreDir(), 'logs');
   await mkdir(dir, { recursive: true, mode: 0o700 });
   await chmod(dir, 0o700).catch(() => {});
   const file = path.join(dir, 'meta-sovereign.log');

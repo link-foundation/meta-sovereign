@@ -108,8 +108,8 @@ await page.route('**/api/telegram/calls', (route) => {
 
 await finish(async () => {
   await page.goto(base);
-  await page.locator('[data-action="calls"]').click();
-  const panel = page.locator('[data-dialog="calls"]');
+  await page.locator('button[data-view="calls"]').click();
+  const panel = page.locator('main[data-view="calls"]');
   await panel.locator('.call-row').first().waitFor({ timeout: 15000 });
 
   // Grouped: Ann's three calls are one row; Bob's video call; Ann missed.

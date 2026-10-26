@@ -61,6 +61,8 @@ Default UI hosted app है: `serve` उसका पता छापता ह
 
 macOS पर interactive `serve` पूरा setup करता है: इस installation की TLS key को Secure Enclave से protect करता है, certificate trust जाँचता है, जरूरत पर ही trust माँगता है और GitHub Pages app खोलता है। Headless launch: `node js/bin/meta-sovereign.js serve --trust=true --open=true`। `--trust=false` और `--open=false` से opt out करें। Swift helper को macOS Command Line Tools चाहिए; unsupported Mac पर `--hardware-key=false` स्पष्ट रूप से file key चुनता है। Hardware protection disk की key पर लागू है; Node key को memory में उपयोग करता है। नियम और सीमाएँ: [local server setup और security](docs/LOCAL-SERVER-SECURITY.md)।
 
+खुली चैट पहले लोड होती है और लोडिंग या पुनःप्रयास की स्थिति दिखाती है। सभी / निजी / समूह / चैनल फ़िल्टर हर Telegram फ़ोल्डर में उपलब्ध हैं। कॉलम की चौड़ाई ऊर्ध्वाधर डिवाइडर खींचकर बदलें; आकार याद रखे जाते हैं। कॉल मुख्य मेनू में चैट के बाद है और Telegram खाता संपादन प्रोफ़ाइल में है। डार्क थीम में नियंत्रण सफ़ेद रेखा आइकन इस्तेमाल करते हैं। JS सर्वर OS उपयोगकर्ता की ऐप फ़ोल्डर में डेटा रखता है: macOS में `~/Library/Application Support/Meta Sovereign/store`, Windows में `%APPDATA%/Meta Sovereign/store` और Linux में `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store`। पुराने checkout से `serve` चलाने पर `.meta-sovereign` एक बार स्थानांतरित होता है; संदेश, संपर्क, सत्र, मीडिया और प्रमाणपत्र सुरक्षित रहते हैं तथा लिंक पुराने पथ बनाए रखता है। रीस्टार्ट और अलग कार्य निर्देशिका में वही स्टोर इस्तेमाल होता है। `--store` या `META_SOVEREIGN_STORE_DIR` से बदलें। [चैट और डेटा संग्रहण](docs/CHAT-READINESS.md) देखें।
+
 ## SPA को server से जोड़ें
 
 SPA server को इस क्रम में चुनता है ([`js/src/web/discover.js`](js/src/web/discover.js)):
@@ -81,6 +83,7 @@ SPA server को इस क्रम में चुनता है ([`js/src
 - **Telegram के अपने ऐप जैसी चैट**: हर संदेश एक बार भेजा जाता है, डिलीवरी टिक, लाइव अपडेट और अंतराल के बाद catch-up, पढ़ा-चिह्न, cloud ड्राफ़्ट, reload के बाद भी बचे रहने वाले retry ([`docs/CHAT-REFERENCES.hi.md`](docs/CHAT-REFERENCES.hi.md))।
 - **CRM**: किसी संपर्क के बारे में सब कुछ एक दृश्य में, अलग-अलग नेटवर्क पर वही व्यक्ति, communities और सदस्यताएँ, खोज, नियम से ऑडियंस (`friends:vk & chat:vk:… - list:blocked`)।
 - **संपर्क आयात**: macOS Contacts (सिंक किए गए iCloud खातों सहित) या किसी भी प्लेटफ़ॉर्म के vCard निर्यात का पूर्वावलोकन करके आयात करें। दोबारा आयात करने पर रिकॉर्ड की पहचान बनी रहती है। निर्देशिका सिंक के दौरान अपडेट होती है और बिना संदेश वाले लोग भी दिखाती है। [संपर्क आयात](docs/CONTACTS-IMPORT.md) देखें।
+
 - **Outreach, broadcast और ऑटोमेशन**: किसे, कब, किन शर्तों पर और किस पाठ से लिखना है; कौन क्या पाएगा इसका preview; डिफ़ॉल्ट रूप से सुरक्षित ड्राफ़्ट, या quiet hours, हर चैट का cooldown, दैनिक सीमा और opt-out सूची के साथ धीमी गति से स्वचालित भेजना। हर स्वचालित भेजना एक ही outbox से जाता है: अधिक से अधिक एक बार, और अस्पष्ट परिणाम अपने आप दोहराया नहीं जाता ([`docs/USER-GUIDE.hi.md`](docs/USER-GUIDE.hi.md), §11)।
 - **Operator कतार और उत्तर**: अपठित संदेश चैट-दर-चैट, आपके पिछले उत्तरों से सुझाव (Tab एक चुनता है), पैटर्न और उत्तर के रूप, मिलते संदेश पर auto-reply।
 - **व्यवसाय और community खाते**: VK community token Bots Long Poll चलाता है; Telegram Business के quick replies, स्वागत और अनुपस्थिति संदेश, कार्य-समय और chatbots।

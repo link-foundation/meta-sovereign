@@ -13,6 +13,11 @@ import { zhTranscribe } from './zh-transcribe.js';
 import { zhGithub } from './zh-github.js';
 
 export const zh = {
+  'nav.calls': '通话',
+  'panels.hint': '拖动以调整宽度，双击或按 Enter 重置。',
+  'panels.navigation': '调整导航宽度',
+  'panels.chats': '调整聊天列表宽度',
+  'panels.details': '调整详情宽度',
   ...zhChat,
   ...zhChatMore,
   ...zhChatAccount,

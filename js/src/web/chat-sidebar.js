@@ -1,6 +1,6 @@
 // The chat list beside the chat (R-Y31, R-Y49, R-Y68, R-Y71, R-Y97,
 // R-Y103, R-Y140): the stories strip, the search box, the sort, the tabs (All / Private / Groups /
-// Channels, or Telegram's folders), the archive's row, the chats a page
+// Channels alongside Telegram's folders), the archive's row, the chats a page
 // at a time; while something is typed, what Telegram finds across all
 // chats under them (R-Y107).
 
@@ -16,9 +16,8 @@ import { NewChat } from './chat-create.js';
 import { FolderTabMenu, tabDragStart } from './chat-folder-edit.js';
 import { FolderUpdatesBar, folderIdOfKey } from './chat-folder-updates.js';
 import { AddContactDialog } from './chat-contacts-edit.js';
-import { MyProfile } from './chat-profile.js';
-import { CallsButton } from './chat-calls.js';
 import { Spinner } from './spinner.js';
+import { PanelDivider } from './panel-resize.js';
 import { failureText } from './chat-failure.js';
 import {
   GlobalResults,
@@ -87,7 +86,7 @@ const SortChoice = ({ state }) => {
 };
 
 // All / Private / Groups / Channels — in the list's order under each —
-// or Telegram's folders (R-Y103).
+// independently within Telegram's folders (R-Y103, R-Z27).
 const OWN_TABS = CHAT_FILTERS.map((key) => ({
   key,
   label: `chat.filter.${key}`,
@@ -187,6 +186,39 @@ const FilterTabs = ({ state }) => {
   );
 };
 
+// A chat type narrows the selected folder, including All chats and Archive.
+const KindTabs = ({ state }) => {
+  const t = useT();
+  return state.kindFilter === null || state.kindFilter === undefined
+    ? null
+    : el(
+        'div',
+        {
+          className: 'chat-kind-filters',
+          role: 'tablist',
+          'aria-label': t('chat.filter.label'),
+        },
+        OWN_TABS.map((tab) =>
+          el(
+            'button',
+            {
+              key: tab.key,
+              type: 'button',
+              role: 'tab',
+              className:
+                state.kindFilter === tab.key
+                  ? 'chat-filter active'
+                  : 'chat-filter',
+              'aria-selected': state.kindFilter === tab.key,
+              'data-kind-filter': tab.key,
+              onClick: () => state.setKindFilter(tab.key),
+            },
+            t(tab.label)
+          )
+        )
+      );
+};
+
 // Chats that show in the list (or are one screen away) are prefetched;
 // the list's end, one screen before it shows, reads its next page.
 const useListLoading = (list, state, shown) => {
@@ -227,8 +259,11 @@ const LIST_PAGE = 60;
 
 const useShownChats = (list, state) => {
   const [shown, setShown] = useState(LIST_PAGE);
-  const { query, filter, folder, sort } = state;
-  useEffect(() => setShown(LIST_PAGE), [query, filter, folder, sort]);
+  const { query, filter, kindFilter, folder, sort } = state;
+  useEffect(
+    () => setShown(LIST_PAGE),
+    [query, filter, kindFilter, folder, sort]
+  );
   const more = shown < state.chats.length;
   useEffect(() => {
     const Observer = globalThis.IntersectionObserver;
@@ -330,6 +365,16 @@ const PeopleHost = ({ api, state, focus }) => {
   });
 };
 
+const SidebarDivider = () =>
+  el(PanelDivider, {
+    name: 'chats',
+    variable: '--chat-sidebar-width',
+    target: '.chat-shell',
+    initial: 320,
+    min: 220,
+    max: 700,
+  });
+
 export const Sidebar = ({ state, api }) => {
   const t = useT();
   const list = useRef(null);
@@ -365,6 +410,7 @@ export const Sidebar = ({ state, api }) => {
       : null;
   const moreRow = listEnd(t, state, page.more);
   return el('aside', { className: 'chat-sidebar' }, [
+    el(SidebarDivider, { key: 'resize' }),
     el('div', { key: 'h', className: 'chat-sidebar-head' }, [
       el('div', { key: 'top', className: 'chat-sidebar-top' }, [
         el(
@@ -376,8 +422,6 @@ export const Sidebar = ({ state, api }) => {
         globalOn(state)
           ? el(NewChat, { key: 'n', api, AddContact: AddContactDialog })
           : null,
-        globalOn(state) ? el(MyProfile, { key: 'me', api }) : null,
-        el(CallsButton, { key: 'calls', api, state }),
         el(ShortcutsButton, { key: 'keys', onOpen: state.openShortcuts }),
       ]),
       el('input', {
@@ -411,6 +455,7 @@ export const Sidebar = ({ state, api }) => {
       }),
       el(PeopleHost, { key: 'top', api, state, focus }),
       el(FilterTabs, { key: 'f', state }),
+      el(KindTabs, { key: 'kinds', state }),
       el(FolderUpdatesBar, { key: 'fu', state }),
       el(StoriesStrip, {
         key: 'stories',

@@ -77,6 +77,7 @@ const gone = (locator, what) =>
 const field = (name) => dialog.locator(`[data-field="${name}"]`);
 const status = () => dialog.locator('[data-username-status]');
 const opened = async () => {
+  await page.locator('button[data-view="profile"]').click();
   await page.locator('[data-action="my-profile"]').click();
   await field('firstName').waitFor({ timeout: 5000 });
 };

@@ -1230,7 +1230,16 @@ const restoreHolds = ({ store, queue }) =>
 // list, and a chat's whole history before others' (someone is being
 // learned about, R-Y50).
 const readersOf = (env, backfill) => ({
-  history: env.pages.history,
+  history: async (options = {}) => {
+    if (options.priority === 'view') {
+      backfill.focus(options.chat);
+    }
+    const result = await env.pages.history(options);
+    return {
+      ...result,
+      background: backfill.active(options.chat) && !result.complete,
+    };
+  },
   historyAt: env.pages.historyAt,
   historyAround: env.pages.historyAround,
   newer: env.pages.newer,

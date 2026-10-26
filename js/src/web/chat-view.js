@@ -38,6 +38,7 @@ import {
 } from './chat-saved-tags.js';
 import React, { useCallback, useRef, useState } from 'react';
 import { LoadError } from './api-errors.js';
+import { HistoryStatus } from './chat-history-status.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
@@ -377,9 +378,7 @@ const Header = ({
               ? 'meta online'
               : 'meta',
         },
-        isTyping(state.typing)
-          ? el(TypingLine, { typing: state.typing })
-          : subtitleOf(t, state, chatTime)
+        el(ChatSubtitle, { state, t, chatTime })
       ),
     ]),
     // "Call" in a private chat (R-Y196).
@@ -1092,6 +1091,20 @@ const Composer = ({ state, api, keys }) => {
 // The header, and beside the messages what the conversation tells about
 // the person, open until closed (in every personal chat, as Telegram's
 // profile column).
+const ChatSubtitle = ({ state, t, chatTime }) =>
+  isTyping(state.typing)
+    ? el(TypingLine, { typing: state.typing })
+    : el(React.Fragment, null, [
+        subtitleOf(t, state, chatTime),
+        state.history?.complete && !state.history.older
+          ? el(
+              'span',
+              { key: 'complete', 'data-history-complete': true },
+              ` · ${t('chat.history.complete')}`
+            )
+          : null,
+      ]);
+
 const ChatTop = ({ state, api, onBack, saved, forumView, call }) => {
   const [about, setAbout] = useState(false);
   // A contact or phone link opens the person's column (R-Y217).
@@ -1235,19 +1248,16 @@ export const ChatScreen = ({ state, api }) => {
         el(InstantViewHost, { key: 'instant-view', api }),
         state.current
           ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
-              // While messages are selected Desktop's top bar shows what
-              // can be done with them; the composer stays.
-              actions.selection.ids.length > 0
-                ? el(SelectionTop, { key: 'h', ...actions.top })
-                : el(ChatTop, {
-                    key: 'h',
-                    state,
-                    api,
-                    onBack: () => setPane('list'),
-                    saved,
-                    forumView,
-                    call: privateCall,
-                  }),
+              el(ConversationHeader, {
+                key: 'header',
+                actions,
+                state,
+                api,
+                onBack: () => setPane('list'),
+                saved,
+                forumView,
+                call: privateCall,
+              }),
               // A forum's topics, as Telegram's tabs layout (R-Y122).
               el(TopicTabs, {
                 key: 'topics',
@@ -1345,6 +1355,26 @@ export const ChatScreen = ({ state, api }) => {
 
 // The kind of the open chat, for the media download settings (R-Y181).
 const kindOf = (current) => current?.kind ?? 'private';
+
+const ConversationHeader = ({
+  actions,
+  state,
+  api,
+  onBack,
+  saved,
+  forumView,
+  call,
+}) =>
+  el(React.Fragment, null, [
+    actions.selection.ids.length > 0
+      ? el(SelectionTop, { key: 'h', ...actions.top })
+      : el(ChatTop, { key: 'h', state, api, onBack, saved, forumView, call }),
+    el(HistoryStatus, {
+      key: 'history-status',
+      history: state.history,
+      count: state.messages.length,
+    }),
+  ]);
 
 export const ChatView = ({ api = defaultApi, ...options }) => {
   const t = useT();

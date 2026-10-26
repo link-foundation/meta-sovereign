@@ -13,6 +13,11 @@ import { enTranscribe } from './en-transcribe.js';
 import { enGithub } from './en-github.js';
 
 export const en = {
+  'nav.calls': 'Calls',
+  'panels.hint': 'Drag to resize. Double-click or press Enter to reset.',
+  'panels.navigation': 'Resize navigation',
+  'panels.chats': 'Resize chat list',
+  'panels.details': 'Resize details',
   ...enChat,
   ...enChatMore,
   ...enChatAccount,

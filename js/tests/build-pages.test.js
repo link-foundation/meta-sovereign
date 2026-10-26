@@ -63,6 +63,19 @@ describe('build-pages', () => {
       expect(index).toMatch(/rel="manifest"/);
       expect(index).toMatch(/manifest\.webmanifest/);
       expect(index).toMatch(/name="theme-color"/);
+      const assets = [
+        ...index.matchAll(
+          /(?:src|href)="\.\/(app\.[a-f0-9]{16}\.(?:min\.js|css))"/g
+        ),
+      ];
+      expect(assets.length).toBe(2);
+      for (const [, name] of assets) {
+        expect(existsSync(join(dest, name))).toBe(true);
+        const original = name.endsWith('.css') ? 'app.css' : 'app.min.js';
+        expect(await readFile(join(dest, name), 'utf8')).toBe(
+          await readFile(join(dest, original), 'utf8')
+        );
+      }
     } finally {
       await rm(dest, { recursive: true, force: true });
     }

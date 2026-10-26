@@ -2,6 +2,19 @@
 // each file small; its keys are part of the hi dictionary.
 
 export const hiChat = {
+  'chat.history.complete': 'सभी उपलब्ध संदेश लोड हो गए',
+  'chat.history.background':
+    'पहले इस चैट का पुराना इतिहास लोड हो रहा है। आप बातचीत जारी रख सकते हैं।',
+  'chat.history.loading': 'पहले इस चैट के संदेश लोड हो रहे हैं…',
+  'chat.history.wait':
+    'Telegram ने प्रतीक्षा करने को कहा है। {seconds} सेकंड में फिर कोशिश होगी…',
+  'chat.history.retry': 'लोडिंग रुक गई। {seconds} सेकंड में फिर कोशिश होगी…',
+  'chat.history.partial':
+    '{count} सहेजे संदेश दिख रहे हैं। पुराना इतिहास अभी डाउनलोड नहीं हुआ है।',
+  'chat.history.more': 'पुराने संदेश लोड करें',
+  'chat.calls.connectHint':
+    'हाल की कॉल देखने के लिए Telegram उपयोगकर्ता खाता जोड़ें।',
+
   'chat.aside': 'चैट',
   'chat.back': 'चैट सूची पर वापस',
   'chat.placeholder': 'संदेश लिखें...',

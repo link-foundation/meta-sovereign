@@ -2,6 +2,18 @@
 // each file small; its keys are part of the ru dictionary.
 
 export const ruChat = {
+  'chat.history.complete': 'Все доступные сообщения загружены',
+  'chat.history.background':
+    'Загружаем раннюю историю этого чата в первую очередь. Вы можете продолжать переписку.',
+  'chat.history.loading': 'В первую очередь загружаем сообщения этого чата…',
+  'chat.history.wait': 'Telegram просит подождать. Повтор через {seconds} с…',
+  'chat.history.retry': 'Загрузка прервана. Повтор через {seconds} с…',
+  'chat.history.partial':
+    'Показано сохранённых сообщений: {count}. Более ранняя история ещё не загружена.',
+  'chat.history.more': 'Загрузить раньше',
+  'chat.calls.connectHint':
+    'Подключите пользовательскую учётную запись Telegram, чтобы видеть историю звонков.',
+
   'chat.aside': 'Чаты',
   'chat.back': 'К списку чатов',
   'chat.placeholder': 'Введите сообщение...',

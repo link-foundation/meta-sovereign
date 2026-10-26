@@ -364,6 +364,8 @@
     "test:e2e:channel-manage:webkit": "E2E_BROWSER=webkit node js/tests/e2e-channel-manage-browser.mjs",
     "test:e2e:storage": "node js/tests/e2e-storage-browser.mjs",
     "test:e2e:storage:webkit": "E2E_BROWSER=webkit node js/tests/e2e-storage-browser.mjs",
+    "test:e2e:chat-loading": "node js/tests/e2e-chat-loading-browser.mjs",
+    "test:e2e:chat-loading:webkit": "E2E_BROWSER=webkit node js/tests/e2e-chat-loading-browser.mjs",
     "test:e2e:contacts-directory": "node js/tests/e2e-contacts-directory-browser.mjs",
     "test:e2e:contacts-directory:webkit": "E2E_BROWSER=webkit node js/tests/e2e-contacts-directory-browser.mjs"
   },

@@ -10,6 +10,7 @@
 
 export const navItems = [
   ['chat', 'nav.chat'],
+  ['calls', 'nav.calls'],
   ['operator', 'nav.operator'],
   ['contacts', 'nav.contacts'],
   ['automation', 'nav.automation'],

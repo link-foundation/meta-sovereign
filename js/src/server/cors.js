@@ -140,6 +140,17 @@ export const classifyOrigin = (req, allowed) => {
   return allowed.includes(origin) ? 'allowed' : 'denied';
 };
 
+/** Safe metadata for refused requests, without URLs, cookies or tokens. */
+export const corsContext = (req) => ({
+  origin: toOrigin(req.headers?.origin) ?? null,
+  transport: req.socket?.encrypted ? 'https' : 'http',
+  fetchSite: ['same-origin', 'same-site', 'cross-site', 'none'].includes(
+    req.headers?.['sec-fetch-site']
+  )
+    ? req.headers['sec-fetch-site']
+    : null,
+});
+
 const writeEmpty = (res, status) => {
   res.writeHead(status, { 'content-length': '0' });
   res.end();

@@ -12,7 +12,7 @@
 // full requirement trace.
 //
 // Outputs (under `dist/pages/` by default):
-//   - index.html                 — SPA entry (copied verbatim).
+//   - index.html                 — SPA entry with versioned asset paths.
 //   - 404.html                   — copy of index.html so SPA deep
 //                                  links resolve on GitHub Pages.
 //   - .nojekyll                  — empty marker so files starting
@@ -38,6 +38,7 @@ import {
   stat,
 } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -107,6 +108,26 @@ const injectManifestLink = (html) => {
     '    <link rel="manifest" href="./manifest.webmanifest" />\n' +
     '    <meta name="theme-color" content="#0b0d12" />\n';
   return html.replace('</head>', `${link}  </head>`);
+};
+
+// A new interface must not reuse a previous deployment's ten-minute
+// browser/CDN cache. Keep canonical files too, for probes and embedders.
+const versionEntryAssets = async (html, destDir, written) => {
+  for (const name of ['app.min.js', 'app.css']) {
+    const from = join(destDir, name);
+    if (!existsSync(from)) {
+      continue;
+    }
+    const hash = createHash('sha256')
+      .update(await readFile(from))
+      .digest('hex')
+      .slice(0, 16);
+    const versioned = name.replace('app.', `app.${hash}.`);
+    await copyFile(from, join(destDir, versioned));
+    written.push(versioned);
+    html = html.replaceAll(`./${name}"`, `./${versioned}"`);
+  }
+  return html;
 };
 
 const copyAdditionalAssets = async (srcDir, destDir) => {
@@ -197,7 +218,11 @@ export const buildPages = async ({
   // original index.html).
   const indexPath = join(destDir, 'index.html');
   const html = await readFile(indexPath, 'utf8');
-  await writeFile(indexPath, injectManifestLink(html), 'utf8');
+  await writeFile(
+    indexPath,
+    await versionEntryAssets(injectManifestLink(html), destDir, written),
+    'utf8'
+  );
 
   // 404.html is a verbatim copy of index.html so SPA deep links
   // resolve to the SPA shell instead of GitHub's default 404 page.

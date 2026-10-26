@@ -70,6 +70,12 @@ The JS server listens on the same port and speaks the same wire protocol; the SP
 
 Once the package is published to npm, `npx -y meta-sovereign serve` (or `npm install -g meta-sovereign && meta-sovereign serve`) will work; until then neither does.
 
+### Chat readiness and persistent data
+
+Open conversations load first and show loading or retry status until their history is ready. All / Private / Groups / Channels filters remain available inside every Telegram folder. Drag the vertical dividers to resize columns; widths are remembered. Calls is in the main menu after Chat, and Telegram account editing is under Profile. The default dark controls use white line icons.
+
+The JS server keeps its store under your OS user: `~/Library/Application Support/Meta Sovereign/store` on macOS, `%APPDATA%/Meta Sovereign/store` on Windows, and `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store` on Linux. Starting `serve` from an older checkout migrates its `.meta-sovereign` store once, preserving messages, contacts, sessions, media and certificate; a compatibility link preserves old paths. Restarts and a different working directory reuse the same store. `--store` or `META_SOVEREIGN_STORE_DIR` override it. See [chat readiness and data storage](CHAT-READINESS.md).
+
 ## 4. Install the desktop or mobile app
 
 The desktop and mobile apps wrap the **same** SPA you get from
@@ -259,7 +265,7 @@ Telegram user accounts already import their saved Telegram contacts through `con
 
 ### Import message archives
 
-Drop archive files into `~/.meta-sovereign/imports/` (configurable)
+Drop archive files into `<store>/imports/` (configurable)
 and run:
 
 ```bash

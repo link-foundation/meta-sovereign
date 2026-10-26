@@ -194,6 +194,7 @@
  */
 
 import { classifyOrigin } from './cors.js';
+import { telegramRouteError } from './telegram-route-error.js';
 import { bodyFailure, json, readBody } from './util.js';
 import { isTrustedMutation } from './routes-auto-import.js';
 import { DIALOG_ACTIONS } from '../sources/telegram-dialogs.js';
@@ -1482,18 +1483,6 @@ export const handleTelegramRoutes = async (req, res, p, ctx) => {
     if (bodyFailure(error)) {
       throw error; // a bad request body: 400/413, not a 502 (R-Z1)
     }
-    ctx.log?.({
-      level: 'error',
-      event: 'telegram_route_failed',
-      path: p,
-      error: error.message,
-    });
-    return (
-      json(res, 502, {
-        error: error.message,
-        code: error.code,
-        ...(error.retryAfter ? { retryAfter: error.retryAfter } : {}),
-      }) ?? true
-    );
+    return telegramRouteError(res, p, error, ctx.log);
   }
 };

@@ -178,6 +178,23 @@ test('pictures that do not load are counted in the log, not named', async () => 
         cors: 2,
       },
     ]);
+    listeners['error:capture']({
+      target: {
+        src: `${SERVER}/api/telegram/avatar?peer=9`,
+        crossOrigin: 'anonymous',
+        dataset: { mediaRetrying: 'true' },
+      },
+    });
+    timers[1]();
+    await Promise.resolve();
+    assert.equal(sent[1].level, 'info');
+    assert.equal(sent[1].event, 'media_retrying');
+    assert.equal(sent[1].retrying, 1);
+    fail(`${SERVER}/api/telegram/avatar?peer=9`, 'anonymous');
+    timers[2]();
+    await Promise.resolve();
+    assert.equal(sent[2].level, 'warn', 'terminal failures still surface');
+    assert.equal(sent[2].event, 'media_failed');
     stop();
   } finally {
     globalThis.setTimeout = realSetTimeout;

@@ -177,7 +177,7 @@ const usePhoto = (api, { source, peer, size, chat, msg }) => {
     }
     photos.set(key, false);
   };
-  return [url, settle];
+  return [url, settle, attempt < RETRY_DELAYS_MS.length];
 };
 
 /**
@@ -198,7 +198,13 @@ export const PeerAvatar = ({
   title,
 }) => {
   const { initials } = avatarFor(name ?? peer);
-  const [url, remember] = usePhoto(api, { source, peer, size, chat, msg });
+  const [url, remember, retrying] = usePhoto(api, {
+    source,
+    peer,
+    size,
+    chat,
+    msg,
+  });
   const box = useRef(null);
   const cached =
     Boolean(url) && photos.get(photoKey(source, peer, size)) === url;
@@ -223,6 +229,7 @@ export const PeerAvatar = ({
             loading: 'lazy',
             decoding: 'async',
             draggable: false,
+            'data-media-retrying': retrying ? 'true' : 'false',
             className: shown ? 'shown' : undefined,
             onLoad: () => {
               done();

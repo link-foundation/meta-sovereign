@@ -79,6 +79,12 @@ if (engine !== 'chromium') {
   });
 }
 const errors = [];
+await page.route('**/api/telegram/history', (route) =>
+  route.fulfill({
+    contentType: 'application/json',
+    body: JSON.stringify({ written: 0, cached: true, complete: true }),
+  })
+);
 page.on('pageerror', (e) => errors.push(String(e)));
 
 // The message's text, scrolled into view.

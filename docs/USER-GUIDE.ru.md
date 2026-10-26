@@ -51,6 +51,12 @@ JS server слушает тот же port и говорит тем же wire pro
 
 Когда пакет будет опубликован в npm, заработают `npx -y meta-sovereign serve` (или `npm install -g meta-sovereign && meta-sovereign serve`); до тех пор ни то, ни другое не работает.
 
+### Готовность чата и постоянное хранилище
+
+Открытый чат загружается первым и показывает загрузку или ожидание повторной попытки. Фильтры Все / Личные / Группы / Каналы доступны внутри каждой папки Telegram. Вертикальные разделители меняют ширину столбцов; размеры запоминаются. Звонки находятся в главном меню после Чата, редактор аккаунта Telegram — в Профиле. В тёмной теме элементы управления используют белые контурные значки.
+
+JS-сервер хранит данные в папке пользователя ОС: `~/Library/Application Support/Meta Sovereign/store` в macOS, `%APPDATA%/Meta Sovereign/store` в Windows и `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store` в Linux. Запуск `serve` из старого checkout однократно переносит `.meta-sovereign`, сохраняя сообщения, контакты, сессии, медиа и сертификат; ссылка сохраняет старые пути. Перезапуск и другой рабочий каталог используют то же хранилище. Переопределение: `--store` или `META_SOVEREIGN_STORE_DIR`. См. [чаты и хранение данных](CHAT-READINESS.md).
+
 ## 4. Установить desktop или mobile app
 
 Desktop и mobile apps заворачивают тот же SPA с GitHub Pages и встроенный server в native shell. Используйте их, если нужно полное приложение без отдельного запуска server.
@@ -186,7 +192,7 @@ MS_SECRET_PASSPHRASE='длинная фраза, которую знаете т�
 
 ### Импорт архивов сообщений
 
-Положите archive files в `~/.meta-sovereign/imports/` (configurable) и выполните:
+Положите archive files в `<store>/imports/` (configurable) и выполните:
 
 ```bash
 meta-sovereign import

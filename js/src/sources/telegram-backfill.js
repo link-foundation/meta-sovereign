@@ -133,6 +133,24 @@ const paceAfter = (did, everyMs) => {
  * call it directly). `chats()` lists the account's chats; `pages` is the
  * account's page reader, `queue` its request queue.
  */
+const recordsOf = async (store, list) =>
+  new Map(
+    await Promise.all(
+      list.map(async (c) => [c.chat, await store.get(historyLinkId(c.chat))])
+    )
+  );
+
+const backfillDelay = (failures, base, heldFor) =>
+  Math.max(
+    failures === 0 ? base : Math.min(MAX_BACKOFF_MS, base * 2 ** failures),
+    heldFor
+  );
+
+const cachedChatList = async (listed, chats, at) =>
+  at - listed.at >= CHATS_FRESH_MS
+    ? { at, chats: (await chats()) ?? [] }
+    : listed;
+
 export const createBackfill = ({
   store,
   queue,
@@ -150,32 +168,27 @@ export const createBackfill = ({
   let listed = { at: -Infinity, chats: [] };
   const skip = new Set(); // chats Telegram gave nothing older for
   const wanted = new Set(); // chats asked for first, until whole
+  let focus = null;
+  const focused = () => (focus && focus.until > now() ? focus.chat : null);
   let progress = { phase: 'idle', chats: 0, complete: 0 };
   let waitedForMemory = false;
 
-  const chatList = async () => {
-    if (now() - listed.at >= CHATS_FRESH_MS) {
-      listed = { at: now(), chats: (await chats()) ?? [] };
-    }
-    return listed.chats;
-  };
-
-  const recordsOf = async (list) =>
-    new Map(
-      await Promise.all(
-        list.map(async (c) => [c.chat, await store.get(historyLinkId(c.chat))])
-      )
-    );
-
   const histories = async () => {
-    const list = await chatList();
-    const records = await recordsOf(list);
+    listed = await cachedChatList(listed, chats, now());
+    const list = listed.chats;
+    const records = await recordsOf(store, list);
     for (const chat of wanted) {
       if (records.get(chat)?.complete || skip.has(chat)) {
         wanted.delete(chat);
       }
     }
-    const next = nextBackfill(list, records, [...skip], [...wanted]);
+    const active = focused();
+    const next = nextBackfill(
+      list,
+      records,
+      [...skip],
+      [active, ...wanted].filter(Boolean)
+    );
     progress = backfillProgress(next?.kind ?? 'done', list, records);
     if (!next) {
       return 'done';
@@ -186,7 +199,7 @@ export const createBackfill = ({
         chat: next.chat,
         before: next.before,
         limit: BACKFILL_PAGE,
-        priority: 'background',
+        priority: next.chat === active ? 'view' : 'background',
       });
     } catch (error) {
       if (!unreachableChat(error)) {
@@ -212,7 +225,12 @@ export const createBackfill = ({
     if ((await credentials())?.kind !== 'user') {
       return 'idle';
     }
-    if (queue.pending('prefetch') > 0 || queue.heldFor() > 0) {
+    const active =
+      focused() && !(await store.get(historyLinkId(focused())))?.complete;
+    if (
+      queue.pending(active ? 'view' : 'prefetch') > 0 ||
+      queue.heldFor() > 0
+    ) {
       return 'yield';
     }
     if (memoryFull()) {
@@ -225,6 +243,10 @@ export const createBackfill = ({
     }
     waitedForMemory = false;
     const state = (await store.get(syncId)) ?? {};
+    // The open conversation does not wait for every dialog to be listed.
+    if (active) {
+      return histories();
+    }
     if (!state.dialogsComplete) {
       await pages.moreDialogs({ limit: DIALOGS_PAGE, priority: 'background' });
       listed = { at: -Infinity, chats: [] };
@@ -235,11 +257,6 @@ export const createBackfill = ({
   };
 
   // Longer after each failure in a row; never before Telegram's "wait".
-  const delay = (base) =>
-    Math.max(
-      failures === 0 ? base : Math.min(MAX_BACKOFF_MS, base * 2 ** failures),
-      queue.heldFor()
-    );
 
   const schedule = (ms) => {
     timer = globalThis.setTimeout(tick, ms);
@@ -263,7 +280,7 @@ export const createBackfill = ({
       });
     }
     if (timer !== null) {
-      schedule(delay(base));
+      schedule(backfillDelay(failures, base, queue.heldFor()));
     }
   }
 
@@ -273,6 +290,13 @@ export const createBackfill = ({
     prefer: (chat) => {
       wanted.add(String(chat));
     },
+    focus: (chat) => {
+      focus = { chat: String(chat), until: now() + 60_000 };
+      listed.at = -Infinity;
+      skip.delete(String(chat));
+    },
+    active: (chat) =>
+      everyMs > 0 && focused() === String(chat) && progress.phase !== 'memory',
     wanted: (chat) => wanted.has(String(chat)),
     start: () => {
       if (timer === null && everyMs > 0) {

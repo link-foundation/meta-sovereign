@@ -51,6 +51,12 @@ JS server 监听同一个端口，使用同一套 wire protocol；SPA 不关心�
 
 包发布到 npm 之后，`npx -y meta-sovereign serve`（或 `npm install -g meta-sovereign && meta-sovereign serve`）才会可用；在此之前两者都不能用。
 
+### 聊天就绪与持久化数据
+
+打开的聊天优先加载，并显示加载或重试状态。全部 / 私聊 / 群组 / 频道筛选在每个 Telegram 文件夹内都可用。拖动竖直分隔线调整列宽，尺寸会保存。通话位于主菜单聊天之后，Telegram 账户编辑移到个人资料。默认深色控件使用白色线条图标。
+
+JS 服务器将数据保存在操作系统用户的应用文件夹：macOS 为 `~/Library/Application Support/Meta Sovereign/store`，Windows 为 `%APPDATA%/Meta Sovereign/store`，Linux 为 `${XDG_CONFIG_HOME:-~/.config}/Meta Sovereign/store`。从旧 checkout 启动 `serve` 会一次性迁移 `.meta-sovereign`，保留消息、联系人、会话、媒体和证书，并用兼容目录链接保留旧路径。重启或改变工作目录仍使用同一存储。可通过 `--store` 或 `META_SOVEREIGN_STORE_DIR` 覆盖。参见[聊天就绪与数据存储](CHAT-READINESS.md)。
+
 ## 4. 安装桌面或移动 app
 
 桌面和移动 app 把 GitHub Pages 上的同一个 SPA 加上内置 server，封装到 native shell 中。想使用完整功能又不想自己启动 server 时使用它们。
@@ -185,7 +191,7 @@ Telegram 用户账户已通过 `contacts.getContacts` 导入其已保存的 Tele
 
 ### 导入消息归档
 
-把 archive 放入 `~/.meta-sovereign/imports/`（可配置），然后运行：
+把 archive 放入 `<store>/imports/`（可配置），然后运行：
 
 ```bash
 meta-sovereign import

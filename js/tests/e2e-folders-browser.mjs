@@ -191,6 +191,40 @@ try {
     `work: ${JSON.stringify(work)}`
   );
 
+  const kind = (name) => page.locator(`[data-kind-filter="${name}"]`);
+  await kind('group').click();
+  await until(
+    async () => (await listed()).join() === 'telegram:-333',
+    'groups within Work'
+  );
+  assert(
+    (await page
+      .locator('[data-filter="folder:2"]')
+      .getAttribute('aria-selected')) === 'true',
+    'type filter keeps folder selected'
+  );
+  await kind('channel').click();
+  await until(
+    async () => (await listed()).join() === 'telegram:-100555',
+    'channels within Work'
+  );
+  await page.locator('[data-filter="all"]').click();
+  await until(
+    async () => (await listed()).join() === 'telegram:-100555',
+    'channel type also applies to All chats'
+  );
+  await kind('private').click();
+  await until(
+    async () => (await listed()).length === 2,
+    'private chats within All chats'
+  );
+  await page.locator('[data-filter="folder:2"]').click();
+  await until(
+    async () => (await listed()).length === 0,
+    'private type excludes groups and channels inside folder'
+  );
+  await kind('all').click();
+
   await page.locator('[data-filter="folder:3"]').click();
   await until(
     async () => (await listed()).join() === 'telegram:111',

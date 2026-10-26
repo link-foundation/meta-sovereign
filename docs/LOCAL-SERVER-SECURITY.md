@@ -43,3 +43,5 @@ node js/bin/meta-sovereign.js trust --remove=true
 ```
 
 Revoking trust leaves the local data and protected key in place. Keep `<store>/tls/` private and out of version control. Restore a backup onto another computer as data, then create and trust that computer's own TLS identity rather than copying a sealed device key.
+
+The default store is the OS user’s application folder. Startup migrates an older checkout store without changing its certificate or protected key. See [persistent data and migration](CHAT-READINESS.md#durable-application-folder).

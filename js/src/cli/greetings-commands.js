@@ -11,6 +11,7 @@
  * its own `openStore`, and the tests inject fake source adapters.
  */
 
+import { defaultStoreDir } from '../storage/app-directory.js';
 import { parseList } from './cv-commands.js';
 import { getSource } from '../sources/index.js';
 import {
@@ -40,7 +41,7 @@ const optionalNumber = (value) =>
 
 const asJson = (value) => JSON.stringify(value, null, 2);
 
-const storeOf = (args, openStore) => openStore(args.store ?? '.meta-sovereign');
+const storeOf = (args, openStore) => openStore(args.store ?? defaultStoreDir());
 
 /**
  * `--stickers=vk:21,facebook:369239263222822` → selection entries. The
