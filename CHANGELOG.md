@@ -1,5 +1,11 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.52.0
+
+### Minor Changes
+
+- 9e18b3d: Make Operator a live queue of unread conversation cards with embedded history and reply composer, without the chat list. Next preserves unread state; Done acknowledges the shown boundary, retains failures for retry and advances after success. Keep keyboard shortcuts out of text fields. Add accessible monochrome unread badges to Chat, Calls and Operator across navigation layouts, reusing the current chat feed and acknowledging reviewed missed-call notifications locally.
+
 ## 0.51.2
 
 ### Patch Changes
