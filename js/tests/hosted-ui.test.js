@@ -24,6 +24,8 @@ import {
   mayNeedPicture,
 } from '../src/web/discover.js';
 import { findNearbyServer } from '../src/web/dom.js';
+import { handleDerivedRoutes } from '../src/server/routes-derived.js';
+import { createMemoryStore } from '../src/storage/universal.js';
 
 const withServer = async (opts, use) => {
   const storeDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ms-ui-'));
@@ -130,9 +132,9 @@ test('the hosted app finds a server on our port by itself', async () => {
   });
   assert.deepEqual(found, { origin: 'http://127.0.0.1:8787' });
   assert.deepEqual(asked, [
-    'https://link-foundation.github.io/api/status',
-    'https://127.0.0.1:8787/api/status',
-    'http://127.0.0.1:8787/api/status',
+    'https://link-foundation.github.io/api/status?probe=1',
+    'https://127.0.0.1:8787/api/status?probe=1',
+    'http://127.0.0.1:8787/api/status?probe=1',
   ]);
 });
 
@@ -157,7 +159,9 @@ test('the hosted app finds the server over https when http is blocked', async ()
     },
   });
   assert.deepEqual(found, { origin: 'https://127.0.0.1:8787' });
-  assert.deepEqual(asked.slice(1), ['https://127.0.0.1:8787/api/status']);
+  assert.deepEqual(asked.slice(1), [
+    'https://127.0.0.1:8787/api/status?probe=1',
+  ]);
 });
 
 // Safari: the hosted page cannot ask the server anything, but sees its
@@ -275,4 +279,98 @@ test('status is worked out once until the store changes', async () => {
     assert.equal((await status()).messages, a.messages + 1);
     assert.equal(reads, 2);
   });
+});
+
+test('discovery never queries or verifies the store and retains origin checks', async () => {
+  await withServer({}, async (base, h) => {
+    const query = h.store.query;
+    const verify = h.store.verify;
+    h.store.query = h.store.verify = async () => {
+      throw new Error('discovery must not scan history');
+    };
+    try {
+      const answer = await fetch(`${base}/api/status?probe=1`, {
+        headers: { origin: 'https://link-foundation.github.io' },
+      });
+      assert.equal(answer.status, 200);
+      assert.deepEqual(await answer.json(), {
+        service: 'meta-sovereign',
+        discovery: true,
+      });
+      const denied = await fetch(`${base}/api/status?probe=1`, {
+        headers: { origin: 'https://unrelated.example' },
+      });
+      assert.equal(denied.status, 403);
+    } finally {
+      h.store.query = query;
+      h.store.verify = verify;
+    }
+  });
+});
+
+const derivedStatus = async (store, query = '') => {
+  let body;
+  await handleDerivedRoutes(
+    store,
+    { method: 'GET' },
+    {
+      writeHead: () => {},
+      end: (json) => {
+        body = JSON.parse(json);
+      },
+    },
+    '/api/status',
+    new URL(`http://server.test/api/status${query}`)
+  );
+  return body;
+};
+
+test('sync writes during slow statistics do not spawn overlapping verifications or delay discovery', async () => {
+  const store = createMemoryStore();
+  let finish;
+  let started;
+  const waiting = new Promise((resolve) => {
+    started = resolve;
+  });
+  let verifications = 0;
+  store.verify = () => {
+    verifications += 1;
+    started();
+    return verifications === 1
+      ? new Promise((resolve) => {
+          finish = resolve;
+        })
+      : [];
+  };
+  const first = derivedStatus(store);
+  await waiting;
+  try {
+    await store.put({
+      id: 'msg:test:1',
+      source: 'test',
+      chat: '1',
+      body: 'new',
+    });
+    const second = derivedStatus(store);
+    assert.deepEqual(await derivedStatus(store, '?probe=1'), {
+      service: 'meta-sovereign',
+      discovery: true,
+    });
+    assert.equal(
+      verifications,
+      1,
+      'all full-status callers share the pending snapshot'
+    );
+    finish([]);
+    const [a, b] = await Promise.all([first, second]);
+    assert.deepEqual(a, b);
+    assert.equal(
+      (await derivedStatus(store)).messages,
+      1,
+      'the next snapshot includes the intervening write'
+    );
+    assert.equal(verifications, 2);
+  } finally {
+    finish([]);
+  }
 });

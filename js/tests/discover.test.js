@@ -69,7 +69,7 @@ test('discover falls back to default localhost ports', async () => {
 
 test('discover tries caller-supplied LAN candidates last', async () => {
   const fetchImpl = async (url) =>
-    url === 'http://192.168.1.50:8787/api/status' ? ok() : fail();
+    url === 'http://192.168.1.50:8787/api/status?probe=1' ? ok() : fail();
   const out = await discoverServer({
     fetchImpl,
     storage: fakeStorage(),
@@ -131,4 +131,31 @@ test('a stalled candidate times out so discovery can try the real server', async
         : Promise.resolve(ok()),
   });
   assert.deepEqual(found, { origin: 'http://127.0.0.1:8787' });
+});
+
+test('discovery accepts the lightweight identity without requesting full statistics', async () => {
+  const calls = [];
+  assert.deepEqual(
+    await discoverServer({
+      origin: 'https://127.0.0.1:8787',
+      storage: null,
+      fetchImpl: async (url, init) => {
+        calls.push(url);
+        assert.equal(new URL(url).searchParams.get('probe'), '1');
+        assert.equal(init.cache, 'no-store');
+        return ok({ service: 'meta-sovereign', discovery: true });
+      },
+    }),
+    { origin: 'https://127.0.0.1:8787' }
+  );
+  assert.equal(calls.length, 1);
+  assert.equal(
+    await discoverServer({
+      origin: 'https://127.0.0.1:8787',
+      storage: null,
+      fetchImpl: async () =>
+        ok({ service: 'another-service', discovery: true }),
+    }),
+    null
+  );
 });

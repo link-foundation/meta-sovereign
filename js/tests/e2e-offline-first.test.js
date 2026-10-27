@@ -98,7 +98,7 @@ test('server discovery picks the first reachable candidate, then degrades on fai
     if (!serverUp) {
       throw new Error('refused');
     }
-    if (url === 'http://127.0.0.1:8787/api/status') {
+    if (url === 'http://127.0.0.1:8787/api/status?probe=1') {
       return {
         ok: true,
         json: async () => ({ service: 'meta-sovereign', links: 0 }),

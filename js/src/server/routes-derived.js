@@ -71,40 +71,56 @@ const facts = async (store) => {
   return extractFacts(messages, patterns);
 };
 
-// Every page that looks for the server asks /api/status, and reading
-// and verifying the whole store takes seconds on a big one: the answer
-// is kept until the store changes, and requests that come while it is
-// being worked out share it.
+// Full statistics may take seconds on a large store. Discovery uses the
+// constant-cost probe below; statistics callers share one in-flight snapshot,
+// even when background sync writes while that snapshot is being computed.
 const statuses = new WeakMap();
 const cachedStatus = (store) => {
   let entry = statuses.get(store);
   if (!entry) {
-    entry = { value: null, watched: typeof store.subscribe === 'function' };
+    entry = {
+      value: null,
+      pending: null,
+      revision: 0,
+      watched: typeof store.subscribe === 'function',
+    };
     statuses.set(store, entry);
     store.subscribe?.(() => {
       entry.value = null;
+      entry.revision += 1;
     });
   }
-  if (!entry.value || !entry.watched) {
-    const value = (async () =>
-      computeStatus(await store.query(), (await store.verify?.()) ?? []))();
-    entry.value = value;
-    value.catch(() => {
-      if (entry.value === value) {
-        entry.value = null;
+  if (entry.pending) {
+    return entry.pending;
+  }
+  if (entry.value && entry.watched) {
+    return entry.value;
+  }
+  const revision = entry.revision;
+  entry.pending = (async () => {
+    try {
+      const value = computeStatus(
+        await store.query(),
+        (await store.verify?.()) ?? []
+      );
+      if (entry.revision === revision) {
+        entry.value = value;
       }
-    });
-  }
-  return entry.value;
+      return value;
+    } finally {
+      entry.pending = null;
+    }
+  })();
+  return entry.pending;
 };
 
 const HANDLERS = {
   '/api/contacts': async (store) =>
     aggregateContacts(await store.query(), { people: true }),
-  '/api/status': async (store) => ({
-    service: 'meta-sovereign',
-    ...(await cachedStatus(store)),
-  }),
+  '/api/status': async (store, url) =>
+    url.searchParams.get('probe') === '1'
+      ? { service: 'meta-sovereign', discovery: true }
+      : { service: 'meta-sovereign', ...(await cachedStatus(store)) },
   '/api/autocomplete': async (store, url) =>
     completionsFor(
       await store.query(),

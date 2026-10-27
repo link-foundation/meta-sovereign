@@ -164,6 +164,7 @@ test('the server refuses every route but status and unlock while locked', async 
     );
     for (const [method, route] of [
       ['GET', '/api/status'],
+      ['GET', '/api/status?probe=1'],
       ['GET', '/api/events'],
       ['POST', '/api/telegram/status'],
       ['GET', '/links'],

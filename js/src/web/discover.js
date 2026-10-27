@@ -27,7 +27,9 @@
  * it is fully unit-testable in plain Node (no DOM globals required).
  */
 
-const HEALTH = '/api/status';
+// Older servers ignore the query and return their usual status. Updated
+// servers identify themselves without scanning/verifying message history.
+export const DISCOVERY_PATH = '/api/status?probe=1';
 const STORAGE_KEY = 'metaServer';
 // The ports a server is looked for on, ours (8787) first; `serve`
 // warns when it listens on another one (R-Y58).
@@ -59,6 +61,11 @@ const runtimeCandidates = () => {
   ];
 };
 
+const identifiesServer = (json) =>
+  json?.service === 'meta-sovereign' &&
+  (json.discovery === true ||
+    (Number.isSafeInteger(json.links) && json.links >= 0));
+
 const probe = async (origin, fetchImpl, signal, timeout) => {
   const controller = new AbortController();
   const abort = () => controller.abort();
@@ -68,8 +75,9 @@ const probe = async (origin, fetchImpl, signal, timeout) => {
     if (signal?.aborted) {
       return false;
     }
-    const res = await fetchImpl(`${origin}${HEALTH}`, {
+    const res = await fetchImpl(`${origin}${DISCOVERY_PATH}`, {
       signal: controller.signal,
+      cache: 'no-store',
     });
     const json = await res.json().catch(() => null);
     // A server locked by its passcode (R-Y183) is still the server: the
@@ -86,11 +94,7 @@ const probe = async (origin, fetchImpl, signal, timeout) => {
     }
     // Do not attach to an unrelated JSON service on a common local port.
     // HTTPS authenticates the server; this identifies its wire protocol.
-    return (
-      json?.service === 'meta-sovereign' &&
-      Number.isSafeInteger(json.links) &&
-      json.links >= 0
-    );
+    return identifiesServer(json);
   } catch {
     return false;
   } finally {

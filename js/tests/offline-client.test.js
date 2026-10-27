@@ -161,6 +161,31 @@ test('a slow or failed read does not take the app offline while the server answe
   assert.deepEqual(events, []);
 });
 
+test('failed full statistics stay online when the lightweight availability probe succeeds', async () => {
+  const store = createMemoryStore();
+  const asked = [];
+  const client = createOfflineClient({
+    store,
+    server: {
+      origin: 'http://server.test',
+      fetchImpl: async (url) => {
+        asked.push(url);
+        if (new URL(url).searchParams.get('probe') === '1') {
+          return { ok: true };
+        }
+        throw new Error('statistics timed out');
+      },
+    },
+  });
+  const summary = await client.status();
+  assert.equal(client.isOnline(), true);
+  assert.equal(summary.online, true);
+  assert.deepEqual(asked, [
+    'http://server.test/api/status',
+    'http://server.test/api/status?probe=1',
+  ]);
+});
+
 test('writing a broadcast link triggers the local handler bus when offline', async () => {
   // The handler bus runs in the SPA when offline so the user can still
   // queue broadcasts; this just checks the link is shaped correctly.

@@ -1004,7 +1004,6 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
             status: autoImport,
             onImported: reload,
           }),
-      el(MarketplaceAccounts, { key: 'marketplaces', api }),
       el(
         'div',
         { key: 'grid', className: 'connections-grid' },
@@ -1018,6 +1017,7 @@ export const ConnectionsList = ({ status, onOpen, initialAutoImport }) => {
           })
         )
       ),
+      el(MarketplaceAccounts, { key: 'marketplaces', api }),
     ]
   );
 };

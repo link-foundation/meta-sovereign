@@ -241,8 +241,16 @@ const recoverHosted = async (
     serverOrigin,
     serverOrigin.replace(/^http:/, 'https:'),
   ]) {
-    await page.route(`${origin}/api/status`, (route) => {
+    await page.route(`${origin}/api/status*`, async (route) => {
       tried?.add(new URL(route.request().url()).origin);
+      // Large archives take longer to compute than discovery's 1.5s deadline.
+      // Recovery must use the scan-free probe, even while statistics are slow.
+      if (
+        available &&
+        new URL(route.request().url()).searchParams.get('probe') !== '1'
+      ) {
+        await sleep(2000);
+      }
       return available ? route.continue() : route.abort();
     });
   }
@@ -532,7 +540,8 @@ const main = async () => {
       const url = response.url();
       // The hosted copy asks its own origin for /api/status first.
       const expected =
-        url === `${siteOrigin}/api/status` || url.includes('/api/telegram/');
+        url.startsWith(`${siteOrigin}/api/status`) ||
+        url.includes('/api/telegram/');
       if (response.status() >= 400 && !expected) {
         problems.push(`${response.status()} ${url}`);
       }

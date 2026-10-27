@@ -29,7 +29,7 @@ const startStub = async () => {
       res.writeHead(status, { 'content-type': 'application/json' });
       res.end(JSON.stringify(body));
     };
-    if (req.url === '/api/status') {
+    if (new URL(req.url, 'http://test').pathname === '/api/status') {
       json(200, { service: 'meta-sovereign', links: 0 });
       return;
     }

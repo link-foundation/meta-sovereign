@@ -18,7 +18,9 @@ describe('mobile and Electron packaging', () => {
     const calls = [];
     const fetchImpl = async (url) => {
       calls.push(url);
-      return url === 'http://192.168.1.20:8787/api/status' ? ok() : fail();
+      return url === 'http://192.168.1.20:8787/api/status?probe=1'
+        ? ok()
+        : fail();
     };
     try {
       const out = await discoverServer({
@@ -28,7 +30,7 @@ describe('mobile and Electron packaging', () => {
         candidates: [],
       });
       expect(out).toEqual({ origin: 'http://192.168.1.20:8787' });
-      expect(calls[0]).toBe('http://192.168.1.20:8787/api/status');
+      expect(calls[0]).toBe('http://192.168.1.20:8787/api/status?probe=1');
     } finally {
       globalThis.metaSovereignShell = previous;
     }

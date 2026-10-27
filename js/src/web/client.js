@@ -22,6 +22,7 @@
 import { createReplyCache } from '../replies/reply-cache.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { aggregateContacts } from '../server/aggregate.js';
+import { DISCOVERY_PATH } from './discover.js';
 
 // A read the server has not answered in this long falls back to local.
 const READ_TIMEOUT_MS = 30_000;
@@ -78,7 +79,7 @@ const computeAutocomplete = async (store, q, me = 'me') => {
 const computeContacts = async (store) =>
   aggregateContacts(await store.query(), { people: true });
 
-// The server failed a read: ask its /api/status now and then, and use
+// The server failed a read: ask its lightweight discovery probe, and use
 // it again once it answers.
 const createReturnWatch = ({
   server,
@@ -101,7 +102,10 @@ const createReturnWatch = ({
       }
       const signal = timeoutSignal(recheckMs);
       const back = await target
-        .fetchImpl(`${target.origin}/api/status`, signal ? { signal } : {})
+        .fetchImpl(`${target.origin}${DISCOVERY_PATH}`, {
+          cache: 'no-store',
+          ...(signal ? { signal } : {}),
+        })
         .then((res) => res.ok)
         .catch(() => false);
       if (server() !== target) {
@@ -122,11 +126,14 @@ const createReturnWatch = ({
   return { start, stop };
 };
 
-// Whether the server answers its /api/status.
+// Availability must not wait for contact aggregation or database verification.
 const answers = (target) => {
   const signal = timeoutSignal(STATUS_TIMEOUT_MS);
   return target
-    .fetchImpl(`${target.origin}/api/status`, signal ? { signal } : {})
+    .fetchImpl(`${target.origin}${DISCOVERY_PATH}`, {
+      cache: 'no-store',
+      ...(signal ? { signal } : {}),
+    })
     .then((res) => res.ok)
     .catch(() => false);
 };
@@ -211,7 +218,7 @@ export const createOfflineClient = ({
       // One read failed: the caller sees local data instead of a thrown
       // error. The app goes offline only when the server does not answer
       // its status either (a slow or failed read is not "gone").
-      if (path === '/api/status' || !(await answers(server))) {
+      if (!(await answers(server))) {
         setOnline(false);
         watch.start();
       }
@@ -319,7 +326,7 @@ export const createOfflineClient = ({
     async status() {
       return fetchOrLocal('/api/status', async () => {
         const links = await store.query();
-        return { online: false, count: links.length };
+        return { online, count: links.length };
       });
     },
 

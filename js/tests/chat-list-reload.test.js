@@ -22,7 +22,7 @@ const serverWith = (state) => ({
   fetchImpl: async (url) => {
     const path = url.replace('http://server.test', '');
     const ok = (body) => ({ ok: true, status: 200, json: async () => body });
-    if (path === '/api/status') {
+    if (path.startsWith('/api/status')) {
       return ok({ ok: true });
     }
     if (state.down) {
