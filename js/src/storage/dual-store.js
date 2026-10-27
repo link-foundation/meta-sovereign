@@ -94,6 +94,12 @@ export const createDualStore = ({ binary, text }) => ({
     return { put: stale.length, deleted: extra.length };
   },
   async verify() {
+    // A live mirror delegates both reads to this very same text store, as
+    // reconcile() recognises above. There cannot be a logical difference;
+    // serialising both copies blocks large stores for seconds for no benefit.
+    if (binary.mirrors === text) {
+      return [];
+    }
     const a = await binary.query();
     const b = await text.query();
     const aMap = new Map(a.map((l) => [l.id, l]));

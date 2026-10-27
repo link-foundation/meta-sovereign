@@ -5,6 +5,34 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createDoubletsMirror } from '../src/storage/doublets-mirror.js';
+import { createDualStore } from '../src/storage/dual-store.js';
+import { createMemoryStore } from '../src/storage/universal.js';
+
+test('verification does not scan two views of the identical live store', async () => {
+  const text = {
+    query: async () => {
+      throw new Error('redundant archive scan');
+    },
+  };
+  const mirror = await createDoubletsMirror('/nonexistent/data.bin', { text });
+  const dual = createDualStore({ binary: mirror, text });
+  assert.deepEqual(await dual.verify(), []);
+});
+
+test('independent stores still report changed and missing records', async () => {
+  const binary = createMemoryStore();
+  const text = createMemoryStore();
+  await binary.put({ id: 'changed', body: 'binary' });
+  await text.put({ id: 'changed', body: 'text' });
+  await binary.put({ id: 'binary-only' });
+  await text.put({ id: 'text-only' });
+  const differences = await createDualStore({ binary, text }).verify();
+  assert.deepEqual(differences.map((entry) => entry.id).sort(), [
+    'binary-only',
+    'changed',
+    'text-only',
+  ]);
+});
 
 // A virtual clock: the mirror's schedule is checked in virtual time, so the
 // result does not depend on how loaded or slow the runner is (R-Z6).
