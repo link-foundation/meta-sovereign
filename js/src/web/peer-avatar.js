@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { avatarFor } from './chat-model.js';
 import { peerColorClass } from './peer-color.js';
 import { mediaSrc } from './media-src.js';
+import { MediaLoading } from './media-loading.js';
 
 const el = React.createElement;
 
@@ -180,6 +181,9 @@ const usePhoto = (api, { source, peer, size, chat, msg }) => {
   return [url, settle, attempt < RETRY_DELAYS_MS.length];
 };
 
+const photoPending = (url, granted, shown, failed) =>
+  Boolean(url && granted && !shown && !failed);
+
 /**
  * `<span class="{className} peer-avatar peer-color-N">` with initials,
  * and the photo over them once it loads. `peer` is the person's or
@@ -210,7 +214,11 @@ export const PeerAvatar = ({
     Boolean(url) && photos.get(photoKey(source, peer, size)) === url;
   const [granted, done] = useSlot(box, url, cached);
   const [shown, setShown] = useState(false);
-  useEffect(() => setShown(false), [url]);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    setShown(false);
+    setFailed(false);
+  }, [url]);
   return el(
     'span',
     {
@@ -221,6 +229,10 @@ export const PeerAvatar = ({
     },
     [
       el('span', { key: 'i', className: 'peer-avatar-initials' }, initials),
+      el(MediaLoading, {
+        key: 'loading',
+        active: photoPending(url, granted, shown, failed),
+      }),
       url && granted
         ? el('img', {
             key: 'p',
@@ -239,6 +251,7 @@ export const PeerAvatar = ({
             onError: () => {
               done();
               remember(false);
+              setFailed(true);
               setShown(false);
             },
           })

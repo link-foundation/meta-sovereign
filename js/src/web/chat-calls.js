@@ -14,6 +14,7 @@ import { Frame } from './chat-readers.js';
 import { PeerAvatar } from './peer-avatar.js';
 import { formatCallDuration, groupCalls } from './call-model.js';
 import { Icon } from './icons.js';
+import { PageLoading } from './spinner.js';
 
 const el = React.createElement;
 
@@ -171,14 +172,17 @@ const Body = ({ api, state, missed, more, open }) => {
     }
   }, [state.calls.length, state.next]);
   if (state.phase === 'loading') {
-    return el('p', { className: 'meta' }, t('chat.calls.loading'));
+    return el(PageLoading, {
+      label: t('chat.calls.loading'),
+      className: 'calls-state',
+    });
   }
   const rows = groupCalls(state.calls);
   return el(
     'div',
     {
       ref: node,
-      className: 'calls-scroll',
+      className: `calls-scroll${rows.length === 0 ? ' calls-state' : ''}`,
       onScroll: (e) => nearEnd(e.currentTarget) && more(),
     },
     [

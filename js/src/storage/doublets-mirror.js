@@ -42,6 +42,10 @@ export const snapshotInWorker = (from, to) =>
     let result = null;
     worker.once('message', (message) => {
       result = message;
+      // The message follows the durable rename. Deno's worker compatibility
+      // layer can keep its port alive without emitting an exit event.
+      resolve(message);
+      Promise.resolve(worker.terminate()).catch(() => {});
     });
     worker.once('error', reject);
     worker.once('exit', (code) => {
@@ -92,6 +96,7 @@ const createSnapshots = ({
   let lastAt = 0;
   let lastCost = 0;
   let failures = 0;
+  let closed = false;
   const once = async () => {
     const started = clock.now();
     try {
@@ -115,6 +120,9 @@ const createSnapshots = ({
   };
   let later = null;
   const now = () => {
+    if (closed) {
+      return Promise.resolve(null);
+    }
     clock.clearTimeout(timer);
     timer = null;
     if (queued) {
@@ -123,7 +131,7 @@ const createSnapshots = ({
     if (!inFlight) {
       inFlight = once().finally(() => {
         inFlight = null;
-        if (wanted && !queued) {
+        if (wanted && !queued && !closed) {
           wanted = false;
           later();
         }
@@ -139,7 +147,7 @@ const createSnapshots = ({
     return queued;
   };
   later = () => {
-    if (timer) {
+    if (closed || timer) {
       return;
     }
     if (inFlight || queued) {
@@ -157,7 +165,14 @@ const createSnapshots = ({
     }, wait);
     timer.unref?.();
   };
-  return { now, later };
+  const close = async () => {
+    closed = true;
+    wanted = false;
+    clock.clearTimeout(timer);
+    timer = null;
+    await (queued ?? inFlight);
+  };
+  return { now, later, close };
 };
 
 /**
@@ -230,6 +245,7 @@ export const createDoubletsMirror = async (
     },
     /** Write the snapshot now (after the log) and wait for it. */
     flush: () => snapshots.now(),
+    close: () => snapshots.close(),
     /** A snapshot older than the log is written again, in the background. */
     async refresh() {
       const behind = await stale();

@@ -19,3 +19,5 @@ Provider mode changes replace the current provider entry, so Back leaves the pro
 History entries retain the section's window scroll. Restoration waits for asynchronously loaded content to be tall enough, and user input cancels a pending restoration. Existing chat reading-position, folder, column-width and draft behavior continues within each conversation surface.
 
 Regression coverage: `app-navigation.test.js`, `e2e-navigation-browser.mjs` and `e2e-operator-browser.mjs`. Browser checks cover all menu sections, direct links, provider modes, Back/Forward, reloads without a Chat flash, Operator card restoration without read acknowledgements, scroll restoration and compact navigation in Chromium and WebKit.
+
+A chat deep link opens the conversation pane directly on phones as well as desktops. Operator's postponed card order is retained per tab; selecting Next never acknowledges the chat. See [UI states and queue behavior](UI-STATES.md).

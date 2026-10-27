@@ -615,6 +615,9 @@ export const zhChatMore = {
   'chat.webApp.notResponding':
     '应用尚未响应。其网站可能不可用，或禁止嵌入窗口。',
   'chat.webApp.openFailed': '无法打开小程序。请重试。',
+  'chat.about.telegramWebHint':
+    '此联系人没有公开用户名或可见电话号码。Telegram 网页版需要单独登录。',
+  'chat.media.unavailable': '媒体无法加载。',
   'chat.webApp.loading': '正在加载小程序…',
   'chat.webApp.ok': '确定',
   'chat.webApp.cancel': '取消',

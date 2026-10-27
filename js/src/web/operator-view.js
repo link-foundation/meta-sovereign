@@ -8,7 +8,8 @@ import { LoadError } from './api-errors.js';
 import { useOperatorUnread } from './operator-unread.js';
 import { navigateApp, operatorHash, appNavigation } from './app-route.js';
 import { useOperatorScope } from './operator-prefs.js';
-import { Busy } from './spinner.js';
+import { postponeOperatorChat, useOperatorOrder } from './operator-order.js';
+import { PageLoading } from './spinner.js';
 import { Icon } from './icons.js';
 import {
   completeOperatorChat,
@@ -31,10 +32,11 @@ const useOperator = (api, t) => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [scope] = useOperatorScope();
-  const queue = operatorQueue(state.all, handled, scope);
+  const [order, setOrder] = useOperatorOrder(state.all, state.loading);
+  const queue = operatorQueue(state.all, handled, scope, order);
   const latest = useRef(null);
   const unread = useOperatorUnread(api, state, queue);
-  latest.current = { state, queue, busy: busy || !unread.current };
+  latest.current = { state, queue, order, busy: busy || !unread.current };
   useEffect(() => {
     if (unread.current && appNavigation().snapshot().view === 'operator') {
       navigateApp(
@@ -58,9 +60,13 @@ const useOperator = (api, t) => {
 
   const advance = () => {
     const { state: now, queue: items } = latest.current;
-    const index = items.findIndex((chat) => chat.key === now.current?.key);
-    const following = items[(index + 1) % items.length];
+    if (latest.current.busy || !now.current) {
+      return;
+    }
+    const following = items.find((chat) => chat.key !== now.current.key);
     if (following && following.key !== now.current?.key) {
+      latest.current.busy = true;
+      setOrder(postponeOperatorChat(latest.current.order, now.current.key));
       navigateApp({ view: 'operator', anchor: operatorHash(following.key) });
       now.select(following.key);
       setError(null);
@@ -143,7 +149,10 @@ const OperatorCard = ({ state, api, current, unread, queue, t }) => {
     return null;
   }
   if (unread.checking || queue.length) {
-    return el(Busy, { 'data-operator-checking': '' }, t('operator.checking'));
+    return el(PageLoading, {
+      label: t('operator.checking'),
+      'data-operator-checking': '',
+    });
   }
   return el('div', { className: 'operator-empty', role: 'status' }, [
     el('h3', { key: 'h' }, t('operator.empty')),
@@ -160,12 +169,7 @@ export const OperatorView = ({ api = defaultApi }) => {
   const t = useT();
   const { state, current, queue, busy, error, advance, done, unread } =
     useOperator(api, t);
-  if (state.loading) {
-    return state.loadError
-      ? el(LoadError, { error: state.loadError, retry: state.retryLoad })
-      : el(Busy, null, t('operator.loading'));
-  }
-  if (needsConnection(state)) {
+  if (!state.loading && needsConnection(state)) {
     return el(ConnectionGuide, { section: 'operator' });
   }
   return el(
@@ -183,7 +187,9 @@ export const OperatorView = ({ api = defaultApi }) => {
               role: 'status',
               'aria-live': 'polite',
             },
-            t('operator.remaining', { count: queue.length })
+            state.loading
+              ? t('operator.loading')
+              : t('operator.remaining', { count: queue.length })
           ),
         ]),
         el('div', { key: 'actions', className: 'row' }, [
@@ -236,7 +242,21 @@ export const OperatorView = ({ api = defaultApi }) => {
             error
           )
         : null,
-      el(OperatorCard, { key: 'body', state, api, current, unread, queue, t }),
+      state.loading
+        ? el(PageLoading, {
+            key: 'body',
+            label: t('operator.loading'),
+            'data-operator-loading': '',
+          })
+        : el(OperatorCard, {
+            key: 'body',
+            state,
+            api,
+            current,
+            unread,
+            queue,
+            t,
+          }),
     ]
   );
 };

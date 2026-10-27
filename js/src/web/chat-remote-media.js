@@ -13,6 +13,8 @@
 import React, { useState } from 'react';
 import { useT } from './i18n.js';
 
+import { LoadingImage, LoadingPlayer } from './media-loading.js';
+
 const el = React.createElement;
 
 const https = (url) => (/^https:\/\//.test(url ?? '') ? url : null);
@@ -66,7 +68,7 @@ const Picture = ({ item, src }) => {
     return el(Chip, { item });
   }
   const label = item.name ?? t(CHIP_LABELS[item.kind] ?? 'chat.remote.photo');
-  const image = el('img', {
+  const image = el(LoadingImage, {
     className: `remote-img remote-${item.kind}`,
     src,
     alt: label,
@@ -95,7 +97,8 @@ const Player = ({ item, src }) => {
     return el(Chip, { item });
   }
   const video = item.kind === 'video';
-  return el(video ? 'video' : 'audio', {
+  return el(LoadingPlayer, {
+    as: video ? 'video' : 'audio',
     className: `remote-player remote-${item.kind}`,
     src,
     controls: true,

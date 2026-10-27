@@ -276,7 +276,8 @@ test('a quote names the user and shows the quoted picture', () => {
   );
   assert.match(html, /class="bubble-reply-name">Konstantin Dyachenko</);
   assert.match(html, />Photo</);
-  assert.match(html, /class="bubble-reply-thumb" src="data:image\/jpeg/);
+  assert.match(html, /<img[^>]*class="bubble-reply-thumb"/);
+  assert.match(html, /src="data:image\/jpeg/);
 });
 
 test('a sticker that replies keeps no bubble', () => {

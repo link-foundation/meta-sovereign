@@ -54,7 +54,7 @@ const { base, page, until, finish } = await openChatApp('operator', {
 let failRead = false;
 let failDirectory = true;
 await page.addInitScript(() =>
-  globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off')
+  globalThis.localStorage.removeItem('metaSovereignReadReceipts')
 );
 await page.route(/\/links\?except=msg:/, (route) =>
   failDirectory
@@ -114,7 +114,7 @@ const card = () =>
 const badge = (name) => page.locator(`[data-nav-count="${name}"]`);
 
 const startupFailureSteps = async () => {
-  await page.goto(base);
+  await page.goto(`${base}/#/operator`);
   await until(
     async () => (await page.locator('[data-load-error]').count()) > 0,
     'startup directory failure is visible'
@@ -251,6 +251,21 @@ const restoreCardSteps = async () => {
   assert(reads.length === 0, 'history navigation never completes work');
 };
 
+const postponeSteps = async () => {
+  await store.put(message('555', 2, 'Third unread question', at - 30_000));
+  await store.put(read('555', 1, 1));
+  await until(
+    async () => (await badge('operator').textContent()) === '3',
+    'three queued conversations'
+  );
+  await page.locator('[data-action="operator-next"]').click();
+  await until(
+    async () => (await card()) === 'telegram:222',
+    'Next conversation'
+  );
+  assert(reads.length === 0, 'Next preserves unread state');
+};
+
 await finish(async () => {
   await startupFailureSteps();
   await until(
@@ -288,12 +303,7 @@ await finish(async () => {
     'opening and viewing a card keeps unread messages unread'
   );
 
-  await page.locator('[data-action="operator-next"]').click();
-  await until(
-    async () => (await card()) === 'telegram:222',
-    'Next conversation'
-  );
-  assert(reads.length === 0, 'Next preserves unread state');
+  await postponeSteps();
   await restoreCardSteps();
   const box = page.locator('.operator-card textarea');
   await box.pressSequentially('need a reply');
@@ -311,6 +321,7 @@ await finish(async () => {
     'composer clears after sending'
   );
   failRead = true;
+  assert(reads.length === 0, 'replying also preserves unread state until Done');
   await page.locator('[data-action="operator-done"]').click();
   await until(
     async () =>
@@ -319,14 +330,27 @@ await finish(async () => {
   );
   assert((await card()) === 'telegram:222', 'failed Done retains the card');
   assert(
-    (await badge('operator').textContent()) === '2',
+    (await badge('operator').textContent()) === '3',
     'failed Done keeps the unread count'
   );
   failRead = false;
   await page.locator('[data-action="operator-done"]').click();
   await until(
+    async () => (await card()) === 'telegram:555',
+    'Done respects the skipped card at the end'
+  );
+  assert(
+    (await store.get('read:telegram:111')).unreadCount === 1,
+    'skipped chat remains unread in the store'
+  );
+  assert(
+    reads.filter((body) => body.chat === '111').length === 0,
+    'no read acknowledgement for Next'
+  );
+  await page.locator('[data-action="operator-done"]').click();
+  await until(
     async () => (await card()) === 'telegram:111',
-    'Done advances to remaining unread chat'
+    'skipped card returns after all other work'
   );
   await until(
     async () => (await badge('operator').textContent()) === '1',

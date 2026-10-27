@@ -10,6 +10,11 @@ import { useT } from './i18n.js';
 import { mediaSrc } from './media-src.js';
 import { Poster, clockOf, sizeOf, useNearView, useUrl } from './chat-media.js';
 import { Icon } from './icons.js';
+import {
+  MediaLoading,
+  useMediaReady,
+  useMediaSource,
+} from './media-loading.js';
 import { useAutoLoad } from './auto-download.js';
 import { Transcribable, useTranscribe } from './chat-transcribe.js';
 import { PipButton, inPip, usePip } from './chat-pip.js';
@@ -91,12 +96,15 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
   // R-Y181: the video comes by itself when the settings allow it, else on
   // the first click, the circle showing a download button with its size.
   const load = useAutoLoad('voice', media.size);
-  const file = useUrl(
+  const source = useMediaSource(
     api,
     'telegramFileUrl',
     { chat, id: msgId },
     near && load.allowed
   );
+  const file = source.url;
+  const readiness = useMediaReady(file);
+
   const { ref, onTime } = useRoundVideo({
     mode,
     visible,
@@ -143,10 +151,17 @@ export const MediaRound = ({ media, api, chat, msgId }) => {
             loop: true,
             playsInline: true,
             preload: 'auto',
+            ...readiness.handlers,
             onTimeUpdate: onTime,
             onEnded: onEnd,
           })
         : null,
+      el(MediaLoading, {
+        key: 'loading',
+        active: near && load.allowed && !readiness.ready,
+        failed: source.failed || readiness.failed,
+        retry: source.retry,
+      }),
       load.allowed
         ? null
         : el('span', { key: 'get', className: 'media-play media-download' }, [

@@ -648,6 +648,9 @@ export const enChatMore = {
   'chat.webApp.notResponding':
     'The app has not responded. Its website may be unavailable or may block embedded windows.',
   'chat.webApp.openFailed': 'The Mini App could not be opened. Try again.',
+  'chat.about.telegramWebHint':
+    'This contact has no public username or visible phone number. Telegram Web needs its own sign-in.',
+  'chat.media.unavailable': 'Media could not be loaded.',
   'chat.webApp.loading': 'Loading the app…',
   'chat.webApp.ok': 'OK',
   'chat.webApp.cancel': 'Cancel',

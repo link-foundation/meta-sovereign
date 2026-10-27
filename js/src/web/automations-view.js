@@ -15,7 +15,7 @@ import { Notice, reasonText } from './notice.js';
 import { networkName } from './connection-guides.js';
 import { useAutomationsState } from './automations-state.js';
 import { exclusionSummary } from './automations-model.js';
-import { Busy } from './spinner.js';
+import { PageLoading } from './spinner.js';
 import { SafetyPanel } from './automations-safety.js';
 import { autopilotText, useSecondsTo } from './chat-automation.js';
 
@@ -964,7 +964,7 @@ export const AutomationsScreen = ({ state }) => {
             retry: editor.retryLoad,
           })
         : editor.loading
-          ? el(Busy, { key: 'l' }, t('common.loading'))
+          ? el(PageLoading, { key: 'l' })
           : el(AutomationList, {
               key: 'l',
               editor,

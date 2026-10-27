@@ -215,6 +215,7 @@ const startRustBackend = async () => {
 
 const stepShellLoadsNavButtons = async ({ page, base, supports }) => {
   await page.goto(base, { waitUntil: 'load' });
+  await page.waitForSelector('button[data-view="chat"]');
   for (const v of supports.navViews) {
     const sel = `button[data-view="${v}"]`;
     const found = await page.$(sel);

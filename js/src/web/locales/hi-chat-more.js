@@ -649,6 +649,9 @@ export const hiChatMore = {
   'chat.webApp.notResponding':
     'ऐप ने जवाब नहीं दिया। उसकी वेबसाइट अनुपलब्ध हो सकती है या एम्बेडेड विंडो रोक सकती है।',
   'chat.webApp.openFailed': 'मिनी ऐप नहीं खुल सका। फिर प्रयास करें।',
+  'chat.about.telegramWebHint':
+    'इस संपर्क का सार्वजनिक उपयोगकर्ता नाम या दिखाई देने वाला फ़ोन नंबर नहीं है। Telegram Web में अलग से साइन इन करना होगा।',
+  'chat.media.unavailable': 'मीडिया लोड नहीं हो सका।',
   'chat.webApp.loading': 'ऐप लोड हो रहा है…',
   'chat.webApp.ok': 'ठीक है',
   'chat.webApp.cancel': 'रद्द करें',

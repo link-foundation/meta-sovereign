@@ -300,6 +300,7 @@ const linkSteps = async () => {
 };
 
 const syncedSteps = async () => {
+  await page.locator('button[data-view="profile"]').click();
   await page.locator('[data-action="my-profile"]').click();
   await page.locator('[data-action="open-privacy"]').click();
   const dialog = over('privacy');

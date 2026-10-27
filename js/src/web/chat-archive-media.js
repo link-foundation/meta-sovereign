@@ -13,6 +13,8 @@ import { useT } from './i18n.js';
 import { mediaSrc } from './media-src.js';
 import { formatSize } from './download/model.js';
 
+import { LoadingImage, LoadingPlayer, MediaLoading } from './media-loading.js';
+
 const el = React.createElement;
 
 // The address the page loads the file from (the app's server).
@@ -71,14 +73,18 @@ const PICTURES = new Set(['photo', 'gif', 'sticker']);
 const Stored = ({ item, url }) => {
   const [broken, setBroken] = useState(false);
   if (!url) {
-    return null;
+    return el(
+      'span',
+      { className: 'loading-image' },
+      el(MediaLoading, { active: true })
+    );
   }
   const label = item.name ?? item.kind;
   if (PICTURES.has(item.kind) && !broken) {
     return el(
       'a',
       { href: url, target: '_blank', rel: 'noopener noreferrer', title: label },
-      el('img', {
+      el(LoadingImage, {
         ...mediaSrc(url),
         className: `remote-img remote-${item.kind}`,
         alt: label,
@@ -90,7 +96,8 @@ const Stored = ({ item, url }) => {
     );
   }
   if (item.kind === 'video' && !broken) {
-    return el('video', {
+    return el(LoadingPlayer, {
+      as: 'video',
       ...mediaSrc(url),
       className: 'remote-img',
       controls: true,
@@ -100,7 +107,8 @@ const Stored = ({ item, url }) => {
     });
   }
   if ((item.kind === 'audio' || item.kind === 'voice') && !broken) {
-    return el('audio', {
+    return el(LoadingPlayer, {
+      as: 'audio',
       ...mediaSrc(url),
       controls: true,
       preload: 'none',

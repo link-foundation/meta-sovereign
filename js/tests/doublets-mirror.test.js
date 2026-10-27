@@ -81,6 +81,41 @@ const fakeText = () => ({
   flush: async () => {},
 });
 
+test('closing waits for an active snapshot and cancels deferred writes before a folder can move', async () => {
+  const clock = virtualClock();
+  let finish;
+  let runs = 0;
+  const mirror = await createDoubletsMirror('/nonexistent/data.bin', {
+    text: fakeText(),
+    clock,
+    spaceCheck: async () => ({ ok: true }),
+    snapshot: () => {
+      runs += 1;
+      return new Promise((resolve) => {
+        finish = resolve;
+      });
+    },
+  });
+  await mirror.put({ id: 'first' });
+  await clock.advance(1);
+  assert.equal(runs, 1);
+  await mirror.put({ id: 'queued' });
+  let closed = false;
+  const closing = mirror.close().then(() => {
+    closed = true;
+  });
+  await Promise.resolve();
+  assert.equal(
+    closed,
+    false,
+    'the worker must finish before releasing ownership'
+  );
+  finish({ links: 1 });
+  await closing;
+  await clock.advance(1_000_000);
+  assert.equal(runs, 1, 'no worker starts after close or migration');
+});
+
 test('a failing snapshot is reported once per try, and tried less often', async () => {
   const clock = virtualClock();
   const starts = [];

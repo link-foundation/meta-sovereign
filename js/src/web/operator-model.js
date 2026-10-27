@@ -8,15 +8,22 @@ export const operatorRevision = (chat) =>
   `${chat.last?.message?.id ?? ''}:${chat.unread}:${Boolean(chat.marked)}`;
 
 /** One conversation per card; viewing it alone never completes it. */
-export const operatorQueue = (chats = [], handled = new Map(), scope) =>
-  sortChats(
+export const operatorQueue = (
+  chats = [],
+  handled = new Map(),
+  scope,
+  order = []
+) => {
+  const postponed = new Map(order.map((key, index) => [key, index]));
+  return sortChats(
     chats.filter(
       (chat) =>
         operatorEligible(chat, scope) &&
         handled.get(chat.key) !== operatorRevision(chat)
     ),
     'oldest'
-  );
+  ).sort((a, b) => (postponed.get(a.key) ?? -1) - (postponed.get(b.key) ?? -1));
+};
 
 export const operatorReadMax = (chat, messages = []) =>
   Math.max(

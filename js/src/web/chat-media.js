@@ -13,6 +13,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
+import {
+  MediaLoading,
+  LoadingImage,
+  useMediaSource,
+  useMediaReady,
+} from './media-loading.js';
 import { PipButton, usePip } from './chat-pip.js';
 import { AttachedButton } from './chat-attached-button.js';
 import { Checklist, Poll } from './chat-poll.js';
@@ -81,23 +87,8 @@ export const useNearView = (ref) => {
 };
 
 // A URL from `api[method](args)` once `when` is true.
-export const useUrl = (api, method, args, when) => {
-  const [url, setUrl] = useState(null);
-  const key = JSON.stringify(args);
-  useEffect(() => {
-    if (!when || typeof api?.[method] !== 'function' || !args.chat) {
-      return undefined;
-    }
-    let active = true;
-    api[method](args)
-      .then((next) => active && setUrl(next ?? null))
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, [api, method, key, when]);
-  return url;
-};
+export const useUrl = (api, method, args, when) =>
+  useMediaSource(api, method, args, when).url;
 
 const previewOf = (media) =>
   media?.strippedB64 ? strippedJpegDataUrl(media.strippedB64) : null;
@@ -107,7 +98,7 @@ export const Poster = ({ media, thumb }) => {
   const preview = previewOf(media);
   const src = thumb || preview;
   return src
-    ? el('img', {
+    ? el(LoadingImage, {
         className: thumb ? 'media-poster' : 'media-poster blurred',
         ...mediaSrc(src),
         alt: '',
@@ -128,10 +119,7 @@ const videoStyle = (media, fill) =>
 
 // The play button (a download button with the size when the file is not
 // loaded by itself), the spinner while it loads, the length (or "GIF").
-const videoControls = (
-  t,
-  { media, gif, playing, file, still, manual, play }
-) => [
+const videoControls = (t, { media, gif, playing, still, manual, play }) => [
   still && !playing
     ? el(
         'button',
@@ -154,9 +142,6 @@ const videoControls = (
             ]
           : el(Icon, { name: 'play', size: 28 })
       )
-    : null,
-  playing && !file
-    ? el('span', { key: 'wait', className: 'media-spinner' })
     : null,
   !playing
     ? el(
@@ -182,7 +167,7 @@ export const videoMode = (gif, playing, load) => {
 };
 
 // The <video> itself: a muted loop when `silent`, else with controls.
-const videoElement = ({ file, thumb, silent, videoRef }) =>
+const videoElement = ({ file, thumb, silent, videoRef, progress }) =>
   el('video', {
     key: `video-${silent}`,
     ref: videoRef,
@@ -195,7 +180,11 @@ const videoElement = ({ file, thumb, silent, videoRef }) =>
     playsInline: true,
     controls: !silent,
     preload: 'auto',
+    ...progress.handlers,
   });
+
+const playbackWanted = (playing, quiet, visible) =>
+  playing || (quiet && visible);
 
 /**
  * A video: plays in place on a click; a GIF plays muted while seen.
@@ -216,13 +205,17 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
     { chat, id: msgId, size: 'm' },
     near && media.hasThumb
   );
-  const file = useUrl(
+  const source = useMediaSource(
     api,
     'telegramFileUrl',
     { chat, id: msgId },
     playing || (near && fetchNear)
   );
-  const video = file && (playing || (quiet && visible));
+  const file = source.url;
+  const progress = useMediaReady(file);
+
+  const wantsVideo = playbackWanted(playing, quiet, visible);
+  const video = file && wantsVideo;
   const silent = gif || quiet;
   // Picture-in-picture where the browser has it (R-Y182).
   const videoRef = useRef(null);
@@ -237,7 +230,7 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
     },
     [
       el(Poster, { key: 'poster', media, thumb }),
-      video ? videoElement({ file, thumb, silent, videoRef }) : null,
+      video ? videoElement({ file, thumb, silent, videoRef, progress }) : null,
       ...videoControls(t, {
         media,
         gif,
@@ -250,6 +243,12 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
           setPlaying(true);
         },
       }),
+      el(MediaLoading, {
+        key: 'loading',
+        active: wantsVideo && !progress.ready,
+        failed: source.failed || progress.failed,
+        retry: source.retry,
+      }),
       !gif && video ? el(PipButton, { key: 'pip', pip }) : null,
       // "Stickers in this video" (R-Y206).
       el(AttachedButton, { key: 'stickers', api, media, chat, msgId }),
@@ -260,7 +259,13 @@ export const MediaVideo = ({ media, api, chat, msgId, fill = false }) => {
 // Play/pause of one <audio>, its position and length.
 export const useAudio = (src, autoplay = true) => {
   const audio = useRef(null);
-  const [state, setState] = useState({ playing: false, at: 0, length: 0 });
+  const [state, setState] = useState({
+    playing: false,
+    at: 0,
+    length: 0,
+    loading: false,
+    failed: false,
+  });
   useEffect(() => {
     if (!src) {
       return undefined;
@@ -274,8 +279,21 @@ export const useAudio = (src, autoplay = true) => {
         playing: !player.paused,
         at: player.currentTime || 0,
         length: Number.isFinite(player.duration) ? player.duration : 0,
+        loading: player.readyState < 3 && !player.error,
+        failed: Boolean(player.error),
       });
-    const events = ['play', 'pause', 'timeupdate', 'ended', 'loadedmetadata'];
+    const events = [
+      'play',
+      'pause',
+      'timeupdate',
+      'ended',
+      'loadedmetadata',
+      'loadstart',
+      'waiting',
+      'canplay',
+      'playing',
+      'error',
+    ];
     for (const name of events) {
       player.addEventListener(name, update);
     }
@@ -328,14 +346,18 @@ const useAudioFile = ({ media, api, chat, msgId }, box) => {
     media.type === 'voice' ? 'voice' : 'file',
     media.size
   );
-  const src = useUrl(
+  const source = useMediaSource(
     api,
     'telegramFileUrl',
     { chat, id: msgId },
     wanted || (near && load.allowed)
   );
-  return { load, src, wanted, setWanted };
+  return { load, src: source.url, source, wanted, setWanted };
 };
+
+const audioLoading = (src, player, wanted) =>
+  (src && player.loading) || (wanted && !src);
+const audioFailed = (source, player) => source.failed || player.failed;
 
 // A voice note's waveform (played bars marked), or a song's title.
 const AudioLabel = ({ media, voice, done, t }) =>
@@ -364,7 +386,7 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
   const t = useT();
   const voice = media.type === 'voice';
   const box = useRef(null);
-  const { load, src, wanted, setWanted } = useAudioFile(
+  const { load, src, source, wanted, setWanted } = useAudioFile(
     { media, api, chat, msgId },
     box
   );
@@ -375,6 +397,11 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
   const waiting = !load.auto && !src && Boolean(media.size);
   const press = () => {
     load.ask();
+    if (source.failed || player.failed) {
+      source.retry();
+      setWanted(true);
+      return;
+    }
     return src ? player.toggle() : setWanted(true);
   };
   // "→A" beside a voice note's waveform, its text under it (R-Y175).
@@ -399,8 +426,8 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
           ),
           onClick: press,
         },
-        wanted && !src
-          ? el('span', { className: 'media-spinner small' })
+        audioLoading(src, player, wanted) && !source.failed
+          ? el(MediaLoading, { active: true, small: true })
           : el(Icon, { name: player.playing ? 'pause' : 'play', size: 20 })
       ),
       el('div', { key: 'body', className: 'audio-body' }, [
@@ -412,6 +439,14 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
           waiting ? ` · ${sizeOf(media.size)}` : ''
         ),
       ]),
+      audioFailed(source, player)
+        ? el(MediaLoading, {
+            key: 'failed',
+            active: false,
+            failed: true,
+            small: true,
+          })
+        : null,
       el(TranscribeButton, { key: 'words', state: words }),
     ]
   );
@@ -420,9 +455,13 @@ export const MediaAudio = ({ media, api, chat, msgId }) => {
 
 // What shows of a sticker while nothing plays: its picture, its blurred
 // preview or its emoji.
-const StillSticker = ({ picture, preview, emoji }) =>
+const StillSticker = ({ picture, preview, emoji, showProgress = true }) =>
   (picture ?? preview)
-    ? el('img', { ...mediaSrc(picture ?? preview), alt: emoji ?? '' })
+    ? el(LoadingImage, {
+        ...mediaSrc(picture ?? preview),
+        alt: emoji ?? '',
+        showProgress,
+      })
     : el('span', { className: 'sticker-emoji' }, emoji ?? '🖼');
 
 // An animated sticker (R-Y113): its picture until the animation draws.
@@ -436,7 +475,14 @@ const AnimatedSticker = ({ media, api, chat, msgId, onOpen }) => {
     { chat, id: msgId, size: 'm' },
     near
   );
-  const file = useUrl(api, 'telegramFileUrl', { chat, id: msgId }, near);
+  const source = useMediaSource(
+    api,
+    'telegramFileUrl',
+    { chat, id: msgId },
+    near
+  );
+  const file = source.url;
+  const [animationFailed, setAnimationFailed] = useState(false);
   return el(
     'div',
     {
@@ -451,14 +497,24 @@ const AnimatedSticker = ({ media, api, chat, msgId, onOpen }) => {
             key: 'l',
             src: file,
             play: visible,
-            onReady: setDrawn,
+            onReady: (ready) => {
+              setDrawn(ready);
+              setAnimationFailed(!ready);
+            },
           })
         : null,
+      el(MediaLoading, {
+        key: 'loading',
+        active: near && !drawn,
+        failed: source.failed || animationFailed,
+        retry: source.retry,
+      }),
       drawn
         ? null
         : el(StillSticker, {
             key: 's',
             picture,
+            showProgress: false,
             preview: previewOf(media),
             emoji: media.emoji,
           }),
@@ -471,18 +527,22 @@ const PlainSticker = ({ media, api, chat, msgId, onOpen }) => {
   const ref = useRef(null);
   const { near, visible } = useNearView(ref);
   const webm = media.stickerFormat === 'webm';
-  const picture = useUrl(
+  const pictureSource = useMediaSource(
     api,
     'telegramMediaUrl',
     { chat, id: msgId, size: 'm' },
     near && !webm
   );
-  const video = useUrl(
+  const picture = pictureSource.url;
+  const source = useMediaSource(
     api,
     'telegramFileUrl',
     { chat, id: msgId },
     near && webm
   );
+  const video = source.url;
+  const progress = useMediaReady(video);
+
   return el(
     'div',
     {
@@ -491,19 +551,37 @@ const PlainSticker = ({ media, api, chat, msgId, onOpen }) => {
       title: media.emoji ?? undefined,
       onClick: onOpen ?? undefined,
     },
-    video && visible
-      ? el('video', {
-          ...mediaSrc(video),
-          autoPlay: true,
-          muted: true,
-          loop: true,
-          playsInline: true,
-        })
-      : el(StillSticker, {
-          picture,
-          preview: previewOf(media),
-          emoji: media.emoji,
-        })
+    [
+      video && visible
+        ? el('video', {
+            ...progress.handlers,
+            ...mediaSrc(video),
+            autoPlay: true,
+            muted: true,
+            loop: true,
+            playsInline: true,
+          })
+        : el(StillSticker, {
+            picture,
+            preview: previewOf(media),
+            emoji: media.emoji,
+          }),
+      webm
+        ? el(MediaLoading, {
+            key: 'loading',
+            active: near && visible && !progress.ready,
+            failed: source.failed || progress.failed,
+            retry: source.retry,
+          })
+        : !picture && near
+          ? el(MediaLoading, {
+              key: 'picture-loading',
+              active: true,
+              failed: pictureSource.failed,
+              retry: pictureSource.retry,
+            })
+          : null,
+    ]
   );
 };
 
@@ -517,6 +595,11 @@ export const MediaSticker = (props) =>
     props
   );
 
+const documentLabel = (media, t) =>
+  media.filename || media.mimeType || t('chat.document');
+const fileExtension = (media) =>
+  (media.filename?.split('.').pop() ?? '').slice(0, 4);
+
 /**
  * A file: its icon, name and size; a click saves it. A file the automatic
  * download settings allow is fetched when near the screen (R-Y181), so the
@@ -528,26 +611,36 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
   const box = useRef(null);
   const { near } = useNearView(box);
   const load = useAutoLoad('file', media.size);
-  const src = useUrl(
+  const source = useMediaSource(
     api,
     'telegramFileUrl',
     { chat, id: msgId },
     wanted || (near && load.allowed)
   );
+  const src = source.url;
   useEffect(() => {
+    let active = true;
     if (src && wanted) {
-      saveUrl(src, media.filename || '');
+      Promise.resolve(saveUrl(src, media.filename || '')).finally(
+        () => active && setWanted(false)
+      );
     }
+    return () => {
+      active = false;
+    };
   }, [src, wanted]);
-  const label = media.filename || media.mimeType || t('chat.document');
+
+  const label = documentLabel(media, t);
   // Another network's attachment opens where that network keeps it.
   const href = /^https:\/\//.test(media.url ?? '') ? media.url : null;
-  const ext = (media.filename?.split('.').pop() ?? '').slice(0, 4);
+  const ext = fileExtension(media);
   const body = [
     el(
       'span',
       { key: 'ic', className: 'file-icon' },
-      ext || el(Icon, { name: 'file', size: 20 })
+      wanted && !source.failed
+        ? el(MediaLoading, { active: true, small: true })
+        : ext || el(Icon, { name: 'file', size: 20 })
     ),
     el('span', { key: 'n', className: 'file-lines' }, [
       el('span', { key: 'n', className: 'bubble-doc-name' }, label),
@@ -582,8 +675,13 @@ export const MediaFile = ({ media, api, chat, msgId }) => {
       ref: box,
       type: 'button',
       className: 'bubble-doc',
-      disabled: !msgId || wanted,
-      onClick: () => setWanted(true),
+      disabled: !msgId || (wanted && !source.failed),
+      onClick: () => {
+        if (source.failed) {
+          source.retry();
+        }
+        setWanted(true);
+      },
       'aria-label': t('chat.media.save', { name: label }),
     },
     body

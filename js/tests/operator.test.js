@@ -1,4 +1,8 @@
 import { readOperatorScope } from '../src/web/operator-prefs.js';
+import {
+  postponeOperatorChat,
+  readOperatorOrder,
+} from '../src/web/operator-order.js';
 import { unreadCount, summarizeChats } from '../src/web/chat-model.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -23,6 +27,29 @@ const chat = (id, unread, extra = {}) => ({
     message: { id: `msg:telegram:${id}:20` },
   },
   ...extra,
+});
+
+test('Next postpones unread work behind every other card; Done never jumps back to skipped work early', () => {
+  const items = [chat(1, 1), chat(2, 2), chat(3, 1)];
+  let order = postponeOperatorChat([], 'telegram:1');
+  const keys = (handled = new Map()) =>
+    operatorQueue(items, handled, undefined, order).map((item) => item.key);
+  assert.deepEqual(keys(), ['telegram:2', 'telegram:3', 'telegram:1']);
+  const done = new Map([['telegram:2', operatorRevision(items[1])]]);
+  assert.deepEqual(keys(done), ['telegram:3', 'telegram:1']);
+  order = postponeOperatorChat(order, 'telegram:3');
+  assert.deepEqual(keys(done), ['telegram:1', 'telegram:3']);
+  order = postponeOperatorChat(order, 'telegram:1');
+  assert.deepEqual(keys(done), ['telegram:3', 'telegram:1']);
+  assert.deepEqual(
+    items.map((item) => item.unread),
+    [1, 2, 1]
+  );
+  assert.deepEqual(
+    readOperatorOrder({ getItem: () => JSON.stringify(order) }),
+    order
+  );
+  assert.deepEqual(readOperatorOrder({ getItem: () => '{invalid' }), []);
 });
 
 test('operator queues positive unread counts once, including muted chats, and excludes zero-count marks', () => {

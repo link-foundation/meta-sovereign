@@ -45,7 +45,7 @@ import { ChatAccountEmpty, ChatAccountNotice } from './chat-account.js';
 import { networkName } from './connection-guides.js';
 import { networkMessageId } from './chat-model.js';
 import { presetName } from './automations-model.js';
-import { useChatState } from './chat-state.js';
+import { useChatState, chatFromHash } from './chat-state.js';
 import { Icon } from './icons.js';
 import { Notice } from './notice.js';
 import { useLeaving } from './chat-leaving.js';
@@ -191,38 +191,46 @@ const automationTriggerKey = (automation) => {
     : 'manual';
 };
 
+const AutomationMenuToggle = ({ menu, activeCount, t }) =>
+  el(
+    'button',
+    {
+      type: 'button',
+      className: 'chat-menu-toggle',
+      'aria-expanded': menu.open ? 'true' : 'false',
+      'data-action': 'chat-automations',
+      'aria-label': t('chat.automations'),
+      title: t('chat.automations'),
+      onClick: menu.toggle,
+    },
+    [
+      el(Icon, { key: 'i', name: 'automation', size: 16 }),
+      el(
+        'span',
+        { key: 'l', className: 'chat-automation-label' },
+        t('chat.automations')
+      ),
+      activeCount
+        ? el(
+            'span',
+            {
+              key: 'active',
+              className: 'automation-active-count',
+              'data-automation-active-count': activeCount,
+            },
+            String(activeCount)
+          )
+        : null,
+    ]
+  );
+
 const AutomationMenu = ({ menu, autopilot }) => {
   const t = useT();
   const activeCount = menu.automations.filter(
     (item) => autopilot?.stateFor?.(item.id)?.on
   ).length;
   return el('div', { className: 'chat-menu' }, [
-    el(
-      'button',
-      {
-        key: 'toggle',
-        type: 'button',
-        className: 'chat-menu-toggle',
-        'aria-expanded': menu.open ? 'true' : 'false',
-        'data-action': 'chat-automations',
-        onClick: menu.toggle,
-      },
-      [
-        el(Icon, { key: 'i', name: 'automation', size: 16 }),
-        el('span', { key: 'l' }, t('chat.automations')),
-        activeCount
-          ? el(
-              'span',
-              {
-                key: 'active',
-                className: 'automation-active-count',
-                'data-automation-active-count': activeCount,
-              },
-              String(activeCount)
-            )
-          : null,
-      ]
-    ),
+    el(AutomationMenuToggle, { key: 'toggle', menu, activeCount, t }),
     menu.open
       ? el(
           'div',
@@ -445,23 +453,25 @@ const Header = ({
         el(ChatSubtitle, { state, t, chatTime })
       ),
     ]),
-    // "Call" in a private chat (R-Y196).
-    el(CallButton, { key: 'call', state, call }),
-    el(SearchButton, { key: 'find', find }),
-    el(SavedToggle, { key: 'saved', saved }),
-    // View as messages / View as topics in a forum (R-Y171).
-    el(ForumViewMenu, { key: 'forum-view', view: forumView }),
-    el(NotifyButton, { key: 'notify', api, chat }),
-    // "Export chat history" in the header's ⋯ menu (R-Y186).
-    el(ExportMenu, { key: 'more', api, chat, info: state.info }),
-    hasAbout(chat)
-      ? el(AboutButton, { key: 'about', about, onAbout, chat })
-      : null,
-    el(AutomationMenu, {
-      key: 'm',
-      menu: state.menu,
-      autopilot: state.autopilot,
-    }),
+    el('div', { key: 'actions', className: 'chat-header-actions' }, [
+      // "Call" in a private chat (R-Y196).
+      el(CallButton, { key: 'call', state, call }),
+      el(SearchButton, { key: 'find', find }),
+      el(SavedToggle, { key: 'saved', saved }),
+      // View as messages / View as topics in a forum (R-Y171).
+      el(ForumViewMenu, { key: 'forum-view', view: forumView }),
+      el(NotifyButton, { key: 'notify', api, chat }),
+      // "Export chat history" in the header's ⋯ menu (R-Y186).
+      el(ExportMenu, { key: 'more', api, chat, info: state.info }),
+      hasAbout(chat)
+        ? el(AboutButton, { key: 'about', about, onAbout, chat })
+        : null,
+      el(AutomationMenu, {
+        key: 'm',
+        menu: state.menu,
+        autopilot: state.autopilot,
+      }),
+    ]),
   ]);
 };
 
@@ -1361,9 +1371,12 @@ const Conversation = ({
       ])
     : null;
 
+const initialChatPane = () =>
+  chatFromHash(globalThis.location?.hash) ? 'chat' : 'list';
+
 export const ChatScreen = ({ state, api, embedded = false }) => {
   const { t, locale } = useLocaleContext();
-  const [pane, setPane] = useState('list');
+  const [pane, setPane] = useState(initialChatPane);
   const account = state.telegram?.account;
   const selfName =
     [account?.firstName, account?.lastName].filter(Boolean).join(' ') || null;

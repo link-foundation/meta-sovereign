@@ -90,6 +90,23 @@ test('the About panel opens the chat in Telegram', () => {
   assert.equal(url('77&evil=true'), null);
   assert.equal(url('-42'), 'https://web.telegram.org/a/#-42');
   assert.equal(telegramChatUrl({ source: 'vk', chat: '1' }), null);
+  assert.equal(
+    url('77', { username: 'someone', native: true }),
+    'tg://resolve?domain=someone'
+  );
+  assert.equal(
+    url('77', { phone: '+12345678901', native: true, text: 'hello world' }),
+    'tg://resolve?phone=12345678901&text=hello%20world'
+  );
+  assert.equal(
+    url('-1001234', { lastId: 56, native: true }),
+    'tg://privatepost?channel=1234&post=56'
+  );
+  assert.equal(
+    url('77', { native: true }),
+    'https://web.telegram.org/a/#77',
+    'do not invent unsupported numeric native links'
+  );
 });
 
 test('a failed draft says why in words', () => {

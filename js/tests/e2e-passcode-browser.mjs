@@ -148,7 +148,7 @@ await app.finish(async () => {
   await field('unlock-passcode').fill('open sesame');
   await action('unlock').click();
   await until(
-    async () => (await page.locator('.chat-item').count()) > 0,
+    async () => (await page.locator('main[data-view="profile"]').count()) > 0,
     'the app back after unlocking'
   );
   assert((await apiStatus()) === 200, 'open again after unlocking');
@@ -159,7 +159,7 @@ await app.finish(async () => {
   await field('unlock-passcode').fill('open sesame');
   await action('unlock').click();
   await until(
-    async () => (await page.locator('.chat-item').count()) > 0,
+    async () => (await page.locator('main[data-view="profile"]').count()) > 0,
     'unlocked again'
   );
 
@@ -177,7 +177,7 @@ await app.finish(async () => {
   await page.clock.install();
   await page.reload();
   await until(
-    async () => (await page.locator('.chat-item').count()) > 0,
+    async () => (await page.locator('main[data-view="profile"]').count()) > 0,
     'reloaded'
   );
   await page.clock.fastForward(90_000);
@@ -186,7 +186,7 @@ await app.finish(async () => {
   await field('unlock-passcode').fill('open sesame');
   await action('unlock').click();
   await until(
-    async () => (await page.locator('.chat-item').count()) > 0,
+    async () => (await page.locator('main[data-view="profile"]').count()) > 0,
     'unlocked after the auto-lock'
   );
 

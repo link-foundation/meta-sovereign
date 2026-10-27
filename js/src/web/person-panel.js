@@ -15,7 +15,7 @@ import {
 } from '../sources/telegram-chat-url.js';
 export { telegramChatUrl } from '../sources/telegram-chat-url.js';
 import { PanelDivider } from './panel-resize.js';
-import { Busy } from './spinner.js';
+import { Busy, PageLoading } from './spinner.js';
 import { ProfileHead, SharedMedia } from './chat-shared.js';
 import { InviteLink } from './chat-invite.js';
 import { SimilarChannels } from './chat-similar.js';
@@ -203,7 +203,7 @@ const Asked = ({ asked, t }) =>
 
 const Body = ({ learned, t, dateTime }) => {
   if (!learned) {
-    return el(Busy, null, t('chat.about.loading'));
+    return el(PageLoading, { label: t('chat.about.loading') });
   }
   return [
     learned.complete === false
@@ -239,17 +239,17 @@ const OpenInTelegram = ({ chat, username, phone, lastId, t }) => {
     username,
     phone,
     lastId,
+    native: true,
   });
   return href
-    ? el(
-        'footer',
-        { className: 'person-panel-foot' },
+    ? el('footer', { className: 'person-panel-foot' }, [
         el(
           'a',
           {
+            key: 'open',
             className: 'button person-open-telegram',
             href,
-            target: '_blank',
+            target: isTelegramWebUrl(href) ? '_blank' : undefined,
             rel: 'noopener noreferrer',
           },
           t(
@@ -257,8 +257,15 @@ const OpenInTelegram = ({ chat, username, phone, lastId, t }) => {
               ? 'chat.about.openTelegramWeb'
               : 'chat.about.openTelegram'
           )
-        )
-      )
+        ),
+        isTelegramWebUrl(href)
+          ? el(
+              'p',
+              { key: 'hint', className: 'meta telegram-open-hint' },
+              t('chat.about.telegramWebHint')
+            )
+          : null,
+      ])
     : null;
 };
 

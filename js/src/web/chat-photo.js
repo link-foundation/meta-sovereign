@@ -13,6 +13,12 @@ import { strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
 import { useAutoLoad } from './auto-download.js';
 import { Icon } from './icons.js';
+import { useNearView } from './chat-media.js';
+import {
+  MediaLoading,
+  useMediaReady,
+  useMediaSource,
+} from './media-loading.js';
 import { AttachedStickers } from './chat-attached-stickers.js';
 import { viewerStickers } from './chat-attached-button.js';
 
@@ -39,55 +45,66 @@ const bytesText = (bytes) =>
     ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
     : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 
+const PhotoImage = ({ src, preview, ready }) => {
+  const shown = src || preview;
+  return shown
+    ? el('img', {
+        ...mediaSrc(shown),
+        onLoad: src ? ready.handlers.onLoad : undefined,
+        onError: src ? ready.handlers.onError : undefined,
+        'data-media-ready': src && !ready.ready ? 'false' : undefined,
+        className:
+          !ready.ready && preview
+            ? 'bubble-photo-img blurred'
+            : 'bubble-photo-img',
+        alt: '',
+        draggable: false,
+      })
+    : el('span', { className: 'bubble-photo-placeholder' });
+};
+
+const photoBusy = (near, load, ready, failed) =>
+  near && load.allowed && !ready.ready && !failed;
+const requestPhotoFull = async (api, chat, msgId, setFull) => {
+  const url = await api?.telegramMediaUrl?.({ chat, id: msgId, size: 'x' });
+  if (url) {
+    setFull(url);
+  }
+};
+
 // A lazy-loading photo that shows the stripped thumbnail immediately
 // and fetches the real one when scrolled near view.
 export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
   const t = useT();
   const ref = useRef(null);
-  const [src, setSrc] = useState(null);
-  const [failed, setFailed] = useState(false);
+  const [full, setFull] = useState(null);
+  const { near } = useNearView(ref);
   const [open, setOpen] = useState(false);
   // R-Y181: a photo the settings do not allow waits for a click.
   const load = useAutoLoad('photo');
   const bytes = photoBytes(media);
-  const strippedUrl =
-    !failed && media?.strippedB64
-      ? strippedJpegDataUrl(media.strippedB64)
-      : null;
+  const strippedUrl = media?.strippedB64
+    ? strippedJpegDataUrl(media.strippedB64)
+    : null;
 
-  useEffect(() => {
-    const el2 = ref.current;
-    if (!el2 || !api?.telegramMediaUrl || !chat || !msgId || !load.allowed) {
-      return undefined;
-    }
-    const Observer = globalThis.IntersectionObserver;
-    if (typeof Observer !== 'function') {
-      return undefined;
-    }
-    let active = true;
-    const obs = new Observer(
-      (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) {
-          return;
-        }
-        obs.disconnect();
-        api.telegramMediaUrl({ chat, id: msgId, size: 'm' }).then((url) => {
-          if (active && url) {
-            setSrc(url);
-          }
-        });
-      },
-      { rootMargin: '200px' }
-    );
-    obs.observe(el2);
-    return () => {
-      active = false;
-      obs.disconnect();
-    };
-  }, [api, chat, msgId, load.allowed]);
-
+  const source = useMediaSource(
+    api,
+    'telegramMediaUrl',
+    { chat, id: msgId, size: 'm' },
+    near && load.allowed
+  );
+  const src = full || source.url;
+  const ready = useMediaReady(src);
   const imgSrc = src || strippedUrl;
-  const blurred = !src && Boolean(strippedUrl);
+  const fail = source.failed || ready.failed;
+
+  const openPhoto = () => {
+    if (!load.allowed) {
+      load.ask();
+    } else if (imgSrc) {
+      setOpen(true);
+    }
+  };
 
   return el(
     'div',
@@ -101,10 +118,9 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
       tabIndex: 0,
       'aria-label': t('chat.openMedia'),
       'data-download': load.allowed ? undefined : 'manual',
-      onClick: () => (load.allowed ? imgSrc && setOpen(true) : load.ask()),
-      onKeyDown: (e) =>
-        e.key === 'Enter' &&
-        (load.allowed ? imgSrc && setOpen(true) : load.ask()),
+      'aria-busy': photoBusy(near, load, ready, fail),
+      onClick: openPhoto,
+      onKeyDown: (e) => e.key === 'Enter' && openPhoto(),
     },
     [
       load.allowed
@@ -119,20 +135,13 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
                 )
               : null,
           ]),
-      imgSrc
-        ? el('img', {
-            key: 'img',
-            ...mediaSrc(imgSrc),
-            // Not loaded (refused, gone): the blurred preview, or nothing,
-            // never the browser's broken picture.
-            onError: () => (src ? setSrc(null) : setFailed(true)),
-            className: blurred
-              ? 'bubble-photo-img blurred'
-              : 'bubble-photo-img',
-            alt: '',
-            draggable: false,
-          })
-        : el('span', { key: 'ph', className: 'bubble-photo-placeholder' }),
+      el(PhotoImage, { key: 'image', src, preview: strippedUrl, ready }),
+      el(MediaLoading, {
+        key: 'loading',
+        active: photoBusy(near, load, ready, fail),
+        failed: fail,
+        retry: source.retry,
+      }),
       open
         ? el(PhotoViewer, {
             key: 'viewer',
@@ -140,19 +149,7 @@ export const MediaPhoto = ({ media, api, chat, msgId, fill = false }) => {
             // "Stickers in this photo" in the viewer's menu (R-Y206).
             stickers: viewerStickers(api, media, chat, msgId),
             onClose: () => setOpen(false),
-            onRequestFull: async () => {
-              if (!api?.telegramMediaUrl) {
-                return;
-              }
-              const url = await api.telegramMediaUrl({
-                chat,
-                id: msgId,
-                size: 'x',
-              });
-              if (url) {
-                setSrc(url);
-              }
-            },
+            onRequestFull: () => requestPhotoFull(api, chat, msgId, setFull),
           })
         : null,
     ]
@@ -213,14 +210,23 @@ export const PhotoViewer = ({
 }) => {
   const t = useT();
   const [asking, setAsking] = useState(false);
+  const ready = useMediaReady(src);
+  const [fullLoading, setFullLoading] = useState(Boolean(onRequestFull));
   // Escape closes the sticker sets' dialog first, not the viewer too.
   const asked = useRef(false);
   asked.current = asking;
   useEffect(() => {
-    onRequestFull?.();
+    let active = true;
+    Promise.resolve()
+      .then(() => onRequestFull?.())
+      .catch(() => {})
+      .finally(() => active && setFullLoading(false));
     const onKey = (e) => e.key === 'Escape' && !asked.current && onClose();
     globalThis.addEventListener?.('keydown', onKey);
-    return () => globalThis.removeEventListener?.('keydown', onKey);
+    return () => {
+      active = false;
+      globalThis.removeEventListener?.('keydown', onKey);
+    };
   }, []);
   const view = el(
     'div',
@@ -241,8 +247,15 @@ export const PhotoViewer = ({
         key: 'img',
         ...mediaSrc(src),
         className: 'photo-viewer-img',
+        ...ready.handlers,
+        'data-media-ready': ready.ready ? 'true' : 'false',
         alt: '',
         onClick: (e) => e.stopPropagation(),
+      }),
+      el(MediaLoading, {
+        key: 'loading',
+        active: fullLoading || !ready.ready,
+        failed: ready.failed,
       }),
       stickers
         ? el(ViewerMenu, { key: 'menu', t, onStickers: () => setAsking(true) })

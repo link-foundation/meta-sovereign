@@ -245,7 +245,14 @@ export const openDualStore = async (
       // What a backup streams, and the flush of just the log (R-Z16).
       logFile: text.filePath,
       flushLog: () => text.flush(),
-      close: lock.release,
+      async close() {
+        try {
+          await binary.close();
+          await text.flush();
+        } finally {
+          lock.release();
+        }
+      },
     };
   } catch (error) {
     lock.release();

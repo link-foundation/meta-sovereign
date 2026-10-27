@@ -17,6 +17,7 @@
  */
 
 import crypto from 'node:crypto';
+import { matchesLocalCertificate } from './local-certificate-check.js';
 import { promises as fs } from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
@@ -155,25 +156,19 @@ export const makeLocalCertificate = ({
   };
 };
 
-const usable = (cert, key, now) => {
-  try {
-    const x509 = new crypto.X509Certificate(cert);
-    return (
-      !x509.ca &&
-      x509.verify(x509.publicKey) &&
-      x509.checkPrivateKey(crypto.createPrivateKey(key)) &&
-      Date.parse(x509.validFrom) <= now &&
-      Date.parse(x509.validTo) - now > RENEW_DAYS * DAY_MS &&
-      x509.subjectAltName?.split(', ').length === 3 &&
-      x509.subjectAltName.includes('DNS:localhost') &&
-      x509.subjectAltName.includes('IP Address:127.0.0.1') &&
-      (x509.subjectAltName.includes('IP Address:0:0:0:0:0:0:0:1') ||
-        x509.subjectAltName.includes('IP Address:::1'))
-    );
-  } catch {
-    return false;
-  }
-};
+const usable = (cert, key, now) =>
+  matchesLocalCertificate(cert, key, {
+    now,
+    renewMs: RENEW_DAYS * DAY_MS,
+    san: extension(
+      '2.5.29.17',
+      seq(
+        tlv(0x82, Buffer.from('localhost')),
+        tlv(0x87, Buffer.from([127, 0, 0, 1])),
+        tlv(0x87, LOOPBACK_V6)
+      )
+    ),
+  });
 
 /** Where the certificate of a store lives. */
 export const localTlsPaths = (storeDir) => {

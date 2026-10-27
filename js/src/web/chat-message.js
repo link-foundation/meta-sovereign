@@ -22,6 +22,7 @@ import { createPortal } from 'react-dom';
 import { useT, useDates } from './i18n.js';
 import { parseMessageParts, strippedJpegDataUrl } from './message-parts.js';
 import { mediaSrc } from './media-src.js';
+import { LoadingImage } from './media-loading.js';
 import { Icon } from './icons.js';
 import { failureText, isPaidFailure } from './chat-failure.js';
 import { MediaPhoto } from './chat-photo.js';
@@ -192,7 +193,8 @@ const QuoteThumb = ({ media, chat, msgId }) => {
   const blurred = strippedJpegDataUrl(media.strippedB64);
   const src = sharp ?? blurred;
   return src
-    ? el('img', {
+    ? el(LoadingImage, {
+        compact: true,
         className: `bubble-reply-thumb${media.isSticker ? ' is-sticker' : ''}`,
         ...mediaSrc(src),
         alt: '',

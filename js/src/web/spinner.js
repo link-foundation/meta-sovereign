@@ -35,12 +35,17 @@ export const Spinner = ({ size = 'small', label = null }) =>
     )
   );
 
-export const PageLoading = ({ label = null }) => {
+export const PageLoading = ({ label = null, className = '', ...rest }) => {
   const t = useT();
   const text = label ?? t('common.loading');
   return el(
     'div',
-    { className: 'page-loading', role: 'status', 'aria-live': 'polite' },
+    {
+      className: ['page-loading', className].filter(Boolean).join(' '),
+      role: 'status',
+      'aria-live': 'polite',
+      ...rest,
+    },
     [
       el(Spinner, { key: 's', size: 'large' }),
       el('span', { key: 't', className: 'sr-only' }, text),

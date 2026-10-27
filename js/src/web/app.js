@@ -38,6 +38,7 @@ import { AppNotifications } from './app-notify.js';
 import { LockScreen, useLocalLock } from './passcode.js';
 import { useAppNavigation } from './app-navigation.js';
 import { useNavigationCounts } from './navigation-counts.js';
+import { PageLoading } from './spinner.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
 // source modules are not each served, so `import('/dom.js')` fails.
@@ -237,7 +238,13 @@ const Root = () => {
   const lock = useLocalLock(api);
   return lock.phase === 'locked'
     ? el(LocaleContext.Provider, { value: localeApi }, el(LockScreen, { api }))
-    : el(App);
+    : lock.phase === 'loading'
+      ? el(
+          LocaleContext.Provider,
+          { value: localeApi },
+          el('div', { className: 'app-start-loading' }, el(PageLoading))
+        )
+      : el(App);
 };
 
 const mount = document.getElementById('app');
