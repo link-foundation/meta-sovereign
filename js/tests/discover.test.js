@@ -159,3 +159,30 @@ test('discovery accepts the lightweight identity without requesting full statist
     null
   );
 });
+
+test('the primary local server can answer after a busy startup without being called offline', async () => {
+  const server = await discoverServer({
+    origin: 'https://link-foundation.github.io',
+    storage: null,
+    fetchImpl: (url, { signal }) => {
+      if (!url.startsWith('https://127.0.0.1:8787/')) {
+        return Promise.resolve(fail());
+      }
+      return new Promise((resolve, reject) => {
+        const timer = globalThis.setTimeout(
+          () => resolve(ok({ service: 'meta-sovereign', discovery: true })),
+          1800
+        );
+        signal.addEventListener(
+          'abort',
+          () => {
+            globalThis.clearTimeout(timer);
+            reject(new Error('aborted'));
+          },
+          { once: true }
+        );
+      });
+    },
+  });
+  assert.deepEqual(server, { origin: 'https://127.0.0.1:8787' });
+});

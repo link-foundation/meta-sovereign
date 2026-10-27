@@ -142,7 +142,7 @@ export const discoverServer = async ({
   origin = globalThis.location?.origin,
   candidates = [],
   signal,
-  probeTimeoutMs = 1500,
+  probeTimeoutMs,
 } = {}) => {
   const seen = new Set();
   const list = buildCandidateList(origin, storage, candidates);
@@ -154,7 +154,13 @@ export const discoverServer = async ({
       continue;
     }
     seen.add(candidate);
-    if (await probe(candidate, fetchImpl, signal, probeTimeoutMs)) {
+    // A large archive can briefly block even the tiny probe during startup.
+    // Give our primary loopback server room to answer; other ports stay quick.
+    const primary = ['https:', 'http:'].some(
+      (scheme) => candidate === `${scheme}//127.0.0.1:${DEFAULT_PORTS[0]}`
+    );
+    const timeout = probeTimeoutMs ?? (primary ? 15_000 : 1500);
+    if (await probe(candidate, fetchImpl, signal, timeout)) {
       return { origin: candidate };
     }
   }
