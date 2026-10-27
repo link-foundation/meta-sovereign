@@ -156,7 +156,7 @@ describe('Telegram export → dormant contacts', () => {
     expect(plan.drafts.length).toBe(1);
     expect(plan.drafts[0].name).toBe('Иван');
     expect(plan.drafts[0].form).toBe('informal');
-    expect(plan.drafts[0].prefill.url).toBe('tg://user?id=55');
+    expect(plan.drafts[0].prefill.url).toBe('https://web.telegram.org/a/#55');
   });
 });
 

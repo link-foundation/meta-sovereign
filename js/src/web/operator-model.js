@@ -1,15 +1,19 @@
 import { networkMessageId, sortChats } from './chat-model.js';
+import { DEFAULT_OPERATOR_SCOPE } from './operator-prefs.js';
 
 export const needsAttention = (chat) => Number(chat.unread) > 0;
+export const operatorEligible = (chat, scope = DEFAULT_OPERATOR_SCOPE) =>
+  needsAttention(chat) && Boolean(scope[chat.kind]);
 export const operatorRevision = (chat) =>
   `${chat.last?.message?.id ?? ''}:${chat.unread}:${Boolean(chat.marked)}`;
 
 /** One conversation per card; viewing it alone never completes it. */
-export const operatorQueue = (chats = [], handled = new Map()) =>
+export const operatorQueue = (chats = [], handled = new Map(), scope) =>
   sortChats(
     chats.filter(
       (chat) =>
-        needsAttention(chat) && handled.get(chat.key) !== operatorRevision(chat)
+        operatorEligible(chat, scope) &&
+        handled.get(chat.key) !== operatorRevision(chat)
     ),
     'oldest'
   );

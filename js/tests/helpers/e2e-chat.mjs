@@ -52,6 +52,7 @@ export const openChatApp = async (
     store,
     send = async () => ({ via: 'fake' }),
     telegramAccount = false,
+    secure = false,
     // More server options (R-Y202: the extra accounts' stores and services).
     serverOptions = {},
   }
@@ -66,6 +67,7 @@ export const openChatApp = async (
     enableSync: false,
     enableHandlers: false,
     telegramAccount,
+    tls: secure,
     log: null,
     automations: {
       scheduler: false,
@@ -74,10 +76,11 @@ export const openChatApp = async (
     },
     ...serverOptions,
   });
-  const base = `http://127.0.0.1:${handle.port}`;
+  const base = `${secure ? 'https' : 'http'}://127.0.0.1:${handle.port}`;
   const browser = await browserType.launch({ headless: true });
   const page = await browser.newPage({
     viewport: { width: 1200, height: 800 },
+    ignoreHTTPSErrors: secure,
   });
   const errors = [];
   // WebKit reports a request the page dropped mid-flight (one that a

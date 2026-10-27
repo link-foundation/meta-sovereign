@@ -69,7 +69,7 @@ export const handleEventRoutes = (store, req, res, p, ctx) => {
   res.writeHead(200, {
     'content-type': 'text/event-stream; charset=utf-8',
     'cache-control': 'no-cache, no-transform',
-    connection: 'keep-alive',
+    ...(req.httpVersionMajor === 2 ? {} : { connection: 'keep-alive' }),
     'x-accel-buffering': 'no',
   });
   // Reconnect quickly after the server restarts.

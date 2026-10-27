@@ -21,6 +21,8 @@ import { CloudThemeSettings } from './cloud-themes.js';
 import { TranslateSettings } from './chat-translate-bar.js';
 import { FoldersSettings } from './chat-folder-edit.js';
 import { useAllFirst } from './chat-folders.js';
+import { useStoriesEnabled } from './stories-pref.js';
+import { useOperatorScope } from './operator-prefs.js';
 import { useReadReceipts, useShareTyping } from './privacy-prefs.js';
 import {
   NOTIFY_KEY,
@@ -126,6 +128,40 @@ export const FolderTabSettings = () => {
       label: t('settings.folderTabs.allFirst'),
     }),
     el('p', { key: 'hint', className: 'meta' }, t('settings.folderTabs.hint')),
+  ]);
+};
+
+export const StoriesSettings = () => {
+  const t = useT();
+  const [enabled, setEnabled] = useStoriesEnabled();
+  return el('section', { className: 'card stories-settings' }, [
+    el('h3', { key: 'h' }, t('settings.stories.title')),
+    el(Check, {
+      key: 'show',
+      action: 'stories-enabled',
+      checked: enabled,
+      onChange: setEnabled,
+      label: t('settings.stories.show'),
+    }),
+    el('p', { key: 'hint', className: 'meta' }, t('settings.stories.hint')),
+  ]);
+};
+
+export const OperatorSettings = () => {
+  const t = useT();
+  const [scope, setScope] = useOperatorScope();
+  return el('section', { className: 'card operator-settings' }, [
+    el('h3', { key: 'h' }, t('settings.operator.title')),
+    el('p', { key: 'hint', className: 'meta' }, t('settings.operator.hint')),
+    ...Object.entries(scope).map(([kind, enabled]) =>
+      el(Check, {
+        key: kind,
+        action: `operator-${kind}`,
+        checked: enabled,
+        onChange: (on) => setScope(kind, on),
+        label: t(`settings.operator.${kind}`),
+      })
+    ),
   ]);
 };
 
@@ -252,6 +288,8 @@ export const SettingsView = () => {
     ),
     el(AppearanceSettings, { key: 'appearance', appearance }),
     el(FolderTabSettings, { key: 'folder-tabs' }),
+    el(StoriesSettings, { key: 'stories' }),
+    el(OperatorSettings, { key: 'operator' }),
     el(ChatBackgroundSettings, { key: 'background', api }),
     el(CloudThemeSettings, { key: 'cloud-themes', api }),
     el(FoldersSettings, { key: 'folders', api }),

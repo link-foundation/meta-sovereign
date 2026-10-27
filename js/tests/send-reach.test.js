@@ -71,11 +71,24 @@ test('photos take at most a few of the browser connections at a time', () => {
 test('the About panel opens the chat in Telegram', () => {
   const url = (chat, extra = {}) =>
     telegramChatUrl({ source: 'telegram', chat, ...extra });
-  assert.equal(url('77'), 'tg://user?id=77');
+  assert.equal(url('77'), 'https://web.telegram.org/a/#77');
   assert.equal(url('77', { username: 'someone' }), 'https://t.me/someone');
   assert.equal(url('-1001234', { lastId: '56' }), 'https://t.me/c/1234/56');
-  assert.equal(url('-1001234'), 'https://t.me/c/1234');
-  assert.equal(url('-42'), 'tg://openmessage?chat_id=42');
+  assert.equal(url('-1001234'), 'https://web.telegram.org/a/#-1001234');
+  assert.equal(
+    url('77', { phone: '+1 (234) 567-8901' }),
+    'https://t.me/+12345678901'
+  );
+  assert.equal(
+    url('77', { username: '@someone', text: 'hello world' }),
+    'https://t.me/someone?text=hello%20world'
+  );
+  assert.equal(
+    url('77', { username: 'javascript:evil', phone: 'bad' }),
+    'https://web.telegram.org/a/#77'
+  );
+  assert.equal(url('77&evil=true'), null);
+  assert.equal(url('-42'), 'https://web.telegram.org/a/#-42');
   assert.equal(telegramChatUrl({ source: 'vk', chat: '1' }), null);
 });
 

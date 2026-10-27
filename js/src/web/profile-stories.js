@@ -14,6 +14,7 @@ import { mediaSrc } from './media-src.js';
 import { StoryViewer } from './story-viewer.js';
 import { clockOf } from './chat-media.js';
 import { storiesInOrder, topIds } from './profile-stories-model.js';
+import { useStoriesEnabled } from './stories-pref.js';
 
 const el = React.createElement;
 
@@ -482,11 +483,13 @@ const Section = ({ api, chat, name }) => {
 };
 
 /** The person's or channel's pinned stories in the info column. */
-export const ProfileStoriesRow = ({ api, chat }) =>
-  hasProfileStories(chat, api)
+export const ProfileStoriesRow = ({ api, chat }) => {
+  const [enabled] = useStoriesEnabled();
+  return enabled && hasProfileStories(chat, api)
     ? el(Section, {
         api,
         chat: String(chat.chat),
         name: String(chat.name ?? ''),
       })
     : null;
+};

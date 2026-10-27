@@ -86,6 +86,10 @@ await page.addInitScript(() => {
   // A picture stays long enough to be acted on.
   globalThis.__STORY_PHOTO_MS__ = 60_000;
 });
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignStoriesEnabled', 'on');
+});
+
 await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );

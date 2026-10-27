@@ -3,10 +3,9 @@
 
 export const zhChat = {
   'chat.history.complete': '已加载所有可用消息',
-  'chat.history.background': '正在优先加载此聊天的早期历史，您可以继续聊天。',
-  'chat.history.loading': '正在优先加载此聊天的消息…',
-  'chat.history.wait': 'Telegram 要求等待，将在 {seconds} 秒后重试…',
-  'chat.history.retry': '加载中断，将在 {seconds} 秒后重试…',
+  'chat.history.loading': '正在加载消息…',
+  'chat.history.wait': 'Telegram 要求等待，稍后将自动重试…',
+  'chat.history.retry': '连接中断，将自动重试…',
   'chat.calls.connectHint': '连接 Telegram 用户账户以查看最近通话。',
 
   'chat.aside': '聊天',
@@ -21,6 +20,7 @@ export const zhChat = {
   'chat.about.title': '关于 {name}',
   'chat.marks.mentions': '未读提及',
   'chat.marks.reactions': '未读回应',
+  'chat.about.openTelegramWeb': '在 Telegram 网页版中打开',
   'chat.about.openTelegram': '在 Telegram 中打开',
   'chat.about.close': '关闭',
   'chat.about.loading': '正在从对话中学习…',

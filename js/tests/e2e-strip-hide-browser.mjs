@@ -54,6 +54,10 @@ const away = new Set();
 const { base, page, until, finish } = await openChatApp('strip-hide', {
   store,
 });
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignStoriesEnabled', 'on');
+});
+
 await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );

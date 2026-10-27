@@ -3,11 +3,9 @@
 
 export const ruChat = {
   'chat.history.complete': 'Все доступные сообщения загружены',
-  'chat.history.background':
-    'Загружаем раннюю историю этого чата в первую очередь. Вы можете продолжать переписку.',
-  'chat.history.loading': 'В первую очередь загружаем сообщения этого чата…',
-  'chat.history.wait': 'Telegram просит подождать. Повтор через {seconds} с…',
-  'chat.history.retry': 'Загрузка прервана. Повтор через {seconds} с…',
+  'chat.history.loading': 'Загружаем сообщения…',
+  'chat.history.wait': 'Telegram просит подождать. Повторим автоматически…',
+  'chat.history.retry': 'Соединение прервано. Повторим автоматически…',
   'chat.calls.connectHint':
     'Подключите пользовательскую учётную запись Telegram, чтобы видеть историю звонков.',
 
@@ -23,6 +21,7 @@ export const ruChat = {
   'chat.about.title': 'О собеседнике: {name}',
   'chat.marks.mentions': 'Непрочитанные упоминания',
   'chat.marks.reactions': 'Непрочитанные реакции',
+  'chat.about.openTelegramWeb': 'Открыть в Telegram Web',
   'chat.about.openTelegram': 'Открыть в Telegram',
   'chat.about.close': 'Закрыть',
   'chat.about.loading': 'Изучаю переписку…',

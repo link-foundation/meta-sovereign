@@ -6,6 +6,7 @@ import { ChatScreen } from './chat-view.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { LoadError } from './api-errors.js';
 import { useOperatorUnread } from './operator-unread.js';
+import { useOperatorScope } from './operator-prefs.js';
 import { Busy } from './spinner.js';
 import { Icon } from './icons.js';
 import {
@@ -27,7 +28,8 @@ const useOperator = (api, t) => {
   const [handled, setHandled] = useState(() => new Map());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-  const queue = operatorQueue(state.all, handled);
+  const [scope] = useOperatorScope();
+  const queue = operatorQueue(state.all, handled, scope);
   const latest = useRef(null);
   const unread = useOperatorUnread(api, state, queue);
   latest.current = { state, queue, busy: busy || !unread.current };

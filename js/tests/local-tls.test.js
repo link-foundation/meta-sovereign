@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import https from 'node:https';
+import http2 from 'node:http2';
 import net from 'node:net';
 import tls from 'node:tls';
 import os from 'node:os';
@@ -105,6 +106,87 @@ test('TLS sync and signaling refuse direct plaintext and foreign origins', async
       );
     }
   } finally {
+    await handle.close();
+    await fs.rm(storeDir, { recursive: true, force: true });
+  }
+});
+
+test('HTTPS multiplexes API probes beside six live streams and retains access checks', async (t) => {
+  if (!canShareTlsPort()) {
+    t.skip('runtime has no shared TLS listener');
+    return;
+  }
+  const storeDir = await tempStore();
+  const handle = await startServer({
+    storeDir,
+    port: 0,
+    tls: true,
+    enableHandlers: false,
+    telegramAccount: false,
+  });
+  let session;
+  const streams = [];
+  try {
+    const ca = await fs.readFile(handle.tls.certPath, 'utf8');
+    const base = `https://127.0.0.1:${handle.port}`;
+    session = http2.connect(base, { ca });
+    const request = (target, headers = {}) => {
+      const stream = session.request({
+        ':path': target,
+        origin: 'https://link-foundation.github.io',
+        ...headers,
+      });
+      streams.push(stream);
+      stream.setEncoding('utf8');
+      stream.setTimeout(3000, () =>
+        stream.destroy(new Error('HTTP/2 request timed out'))
+      );
+      return stream;
+    };
+    const held = await Promise.all(
+      Array.from(
+        { length: 6 },
+        () =>
+          new Promise((resolve, reject) => {
+            const stream = request('/api/events');
+            stream.once('error', reject);
+            stream.once('data', (body) => {
+              assert.match(body, /retry:|event: ready/);
+              stream.setTimeout(0);
+              resolve(stream);
+            });
+            stream.end();
+          })
+      )
+    );
+    assert.equal(session.alpnProtocol, 'h2');
+    const get = (headers) =>
+      new Promise((resolve, reject) => {
+        const stream = request('/api/status?probe=1', headers);
+        let status;
+        let body = '';
+        stream.on('response', (head) => {
+          status = head[':status'];
+        });
+        stream.on('data', (chunk) => {
+          body += chunk;
+        });
+        stream.on('error', reject);
+        stream.on('end', () => resolve({ status, body }));
+        stream.end();
+      });
+    const probe = await get();
+    assert.equal(probe.status, 200);
+    assert.equal(JSON.parse(probe.body).service, 'meta-sovereign');
+    assert.ok(
+      held.every((stream) => !stream.closed),
+      'all six event streams remain active while the API responds'
+    );
+    assert.equal((await get({ origin: 'https://evil.example' })).status, 403);
+    assert.equal((await get({ ':authority': 'evil.example' })).status, 421);
+  } finally {
+    streams.forEach((stream) => stream.close());
+    session?.destroy();
     await handle.close();
     await fs.rm(storeDir, { recursive: true, force: true });
   }

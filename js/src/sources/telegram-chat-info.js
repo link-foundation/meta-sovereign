@@ -377,6 +377,11 @@ const extrasOf = (user, full) => ({
 const botRevenueOf = (user, full) =>
   user.bot && full.canViewRevenue ? { canViewStarsRevenue: true } : {};
 
+const contactReach = (user) => ({
+  username: user.username ?? null,
+  phone: user.phone ?? null,
+});
+
 const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
   const storedPeer = inputPeer ?? (await peers.input(chat));
   const id = inputUserOf(Api, helpers, storedPeer, chat);
@@ -389,7 +394,7 @@ const fetchUser = async (client, Api, helpers, inputPeer, peers, chat) => {
     title: nameOf(user),
     members: 1,
     online,
-    username: user.username ?? null,
+    ...contactReach(user),
     about: full.about ?? null,
     photo: hasPhoto(user.photo),
     pinned: full.pinnedMsgId ?? null,

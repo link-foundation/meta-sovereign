@@ -10,6 +10,7 @@ import { presetName } from './automations-model.js';
 import { Icon } from './icons.js';
 import { Spinner } from './spinner.js';
 import { failureText } from './chat-failure.js';
+import { isTelegramWebUrl } from '../sources/telegram-chat-url.js';
 
 const el = React.createElement;
 
@@ -29,7 +30,13 @@ const OpenElsewhere = ({ prefill, t }) =>
           target: '_blank',
           rel: 'noopener noreferrer',
         },
-        t(prefill.prefillsText ? 'chat.draft.openFilled' : 'chat.draft.open')
+        t(
+          isTelegramWebUrl(prefill.url)
+            ? 'chat.about.openTelegramWeb'
+            : prefill.prefillsText
+              ? 'chat.draft.openFilled'
+              : 'chat.draft.open'
+        )
       )
     : null;
 

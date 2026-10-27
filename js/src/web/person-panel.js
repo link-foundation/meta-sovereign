@@ -9,6 +9,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDates, useT } from './i18n.js';
 import { Icon } from './icons.js';
+import {
+  telegramChatUrl,
+  isTelegramWebUrl,
+} from '../sources/telegram-chat-url.js';
+export { telegramChatUrl } from '../sources/telegram-chat-url.js';
 import { PanelDivider } from './panel-resize.js';
 import { Busy } from './spinner.js';
 import { ProfileHead, SharedMedia } from './chat-shared.js';
@@ -227,34 +232,12 @@ const Body = ({ learned, t, dateTime }) => {
   ];
 };
 
-/**
- * Where Telegram's own app opens this chat: a public username's t.me
- * page, else the person (`tg://user?id=`), a supergroup or channel at its
- * newest message (`t.me/c/`), a basic group by its id. Null elsewhere.
- */
-export const telegramChatUrl = ({ source, chat, username, lastId } = {}) => {
-  if (source !== 'telegram' || !chat) {
-    return null;
-  }
-  if (username) {
-    return `https://t.me/${encodeURIComponent(username)}`;
-  }
-  const id = String(chat);
-  if (/^\d+$/.test(id)) {
-    return `tg://user?id=${id}`;
-  }
-  if (/^-100\d+$/.test(id)) {
-    const post = /^\d+$/.test(String(lastId ?? '')) ? `/${lastId}` : '';
-    return `https://t.me/c/${id.slice(4)}${post}`;
-  }
-  return /^-\d+$/.test(id) ? `tg://openmessage?chat_id=${id.slice(1)}` : null;
-};
-
-const OpenInTelegram = ({ chat, username, lastId, t }) => {
+const OpenInTelegram = ({ chat, username, phone, lastId, t }) => {
   const href = telegramChatUrl({
     source: chat?.source,
     chat: chat?.chat,
     username,
+    phone,
     lastId,
   });
   return href
@@ -269,7 +252,11 @@ const OpenInTelegram = ({ chat, username, lastId, t }) => {
             target: '_blank',
             rel: 'noopener noreferrer',
           },
-          t('chat.about.openTelegram')
+          t(
+            isTelegramWebUrl(href)
+              ? 'chat.about.openTelegramWeb'
+              : 'chat.about.openTelegram'
+          )
         )
       )
     : null;
@@ -381,7 +368,14 @@ export const PersonPanel = ({
         el(SharedMedia, { key: 'm', api, chat, onGo }),
         personal ? el(Body, { key: 'l', learned, t, dateTime }) : null,
       ]),
-      el(OpenInTelegram, { key: 'f', chat, username, lastId, t }),
+      el(OpenInTelegram, {
+        key: 'f',
+        chat,
+        username,
+        phone: info?.phone,
+        lastId,
+        t,
+      }),
     ]
   );
 };

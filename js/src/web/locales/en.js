@@ -1071,6 +1071,16 @@ export const en = {
   'automations.audiences.use': 'Use',
   'automations.audiences.count': 'Count',
   'automations.audiences.resolved': '{count} people: {names}',
+  'settings.operator.title': 'Operator',
+  'settings.operator.hint':
+    'Include unread conversations from these types. Private one-to-one chats are enabled by default. The menu badge uses the same selection.',
+  'settings.operator.private': 'Private one-to-one chats',
+  'settings.operator.group': 'Groups and group chats',
+  'settings.operator.channel': 'Channels',
+  'settings.stories.title': 'Stories',
+  'settings.stories.show': 'Show stories',
+  'settings.stories.hint':
+    'Off by default. Enable the stories strip, avatar rings and profile stories in this browser.',
   'settings.folderTabs.title': 'Folder tabs',
   'settings.folderTabs.allFirst': 'Always show “All” first',
   'settings.folderTabs.hint':

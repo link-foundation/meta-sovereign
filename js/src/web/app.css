@@ -15,6 +15,8 @@
   /* One height for every button, input and select; one header height
      the sticky drawer, rail and full-height chat measure against. */
   --control-h: 2.25rem;
+  --control-gap: 0.5rem;
+  --control-pad: 0.4rem 0.9rem;
   --radius: 8px;
   --topbar-h: 3.5rem;
   --bottom-nav-h: 4rem;
@@ -174,7 +176,7 @@ body {
   }
   .header-btn {
     width: var(--control-h);
-    padding: 0;
+    padding: 0.25rem;
   }
   .btn-label {
     display: none;
@@ -193,7 +195,16 @@ body {
   flex-wrap: wrap;
   gap: 0.25rem;
 }
-.topbar nav button {
+.topbar nav /* Action containers inherit a nonzero gap even when a new toolbar omits it.
+   Named layouts can choose a denser spacing; no margins fight their alignment. */
+:where(*:has(> :is(button, a.button, [role='button']) ~ :is(button, a.button, [role='button']))) {
+  gap: var(--control-gap);
+}
+/* Inline actions in prose/table cells do not participate in flex/grid gaps. */
+:where(p, td, dd, .meta) > :is(button, a.button) + :is(button, a.button) {
+  margin-inline-start: var(--control-gap);
+}
+button {
   background: transparent;
   color: var(--text-muted);
   border: 1px solid transparent;
@@ -426,6 +437,9 @@ main[data-view='chat'] > .web-mode-banner {
   min-height: 1px;
 }
 
+.chat-list > .chat-item + .chat-item {
+  margin-block-start: 0.25rem;
+}
 .chat-item {
   /* Rows out of sight are not laid out or painted (R-Y71). */
   content-visibility: auto;
@@ -1197,8 +1211,10 @@ main[data-view='chat'] > .web-mode-banner {
 a.button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: var(--control-gap);
   min-height: var(--control-h);
-  padding: 0.4rem 0.9rem;
+  padding: var(--control-pad);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg-active);
@@ -1409,7 +1425,7 @@ a.button {
 }
 .icon-btn {
   width: var(--control-h);
-  padding: 0;
+  padding: 0.25rem;
   border-color: transparent;
   background: transparent;
 }
@@ -1522,7 +1538,7 @@ button {
   color: inherit;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.4rem 0.9rem;
+  padding: var(--control-pad);
   font: inherit;
   font-size: 0.9rem;
   line-height: 1.2;
@@ -1551,7 +1567,7 @@ button.primary:hover:not(:disabled) {
 }
 .row {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--control-gap);
   align-items: center;
   flex-wrap: wrap;
 }
@@ -2833,6 +2849,10 @@ button.primary .recommended-tag {
   flex-direction: column;
   gap: 0.3rem;
 }
+.automation-list li {
+  display: grid;
+  gap: var(--control-gap);
+}
 .automation-list button {
   width: 100%;
   text-align: left;
@@ -3608,6 +3628,9 @@ button.primary .recommended-tag {
    rounded, frosted, an icon before each item; it grows from the corner
    it opened at. */
 .msg-context-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   position: fixed;
   /* Above a dialog: the files' Send button has a menu too (R-Y102). */
   z-index: 2100;
@@ -6791,7 +6814,7 @@ button[aria-busy='true']::before {
   scrollbar-width: thin;
 }
 .stories-strip.is-compact .stories-list {
-  gap: 0;
+  gap: 0.25rem;
 }
 .story-peer {
   display: flex;
@@ -9184,7 +9207,7 @@ span.bubble-effect {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  padding: 0.4rem 0.9rem;
+  padding: var(--control-pad);
   border: 0;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.6);
@@ -12907,23 +12930,6 @@ audio.remote-player {
   overflow-x: auto;
   flex-shrink: 0;
   scrollbar-width: thin;
-}
-.chat-history-status {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--text);
-  background: var(--chat-sidebar);
-  font-size: 0.85rem;
-}
-.chat-history-status span {
-  flex: 1;
-}
-.chat-history-status button {
-  flex-shrink: 0;
 }
 .calls-content {
   min-height: 12rem;

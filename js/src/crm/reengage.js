@@ -22,6 +22,10 @@ import {
   definedOnly,
   defaultAddressRules,
 } from './address-form.js';
+import {
+  telegramChatUrl,
+  isTelegramWebUrl,
+} from '../sources/telegram-chat-url.js';
 import { addressFormOf } from './person-learn.js';
 import {
   batchStopReason,
@@ -300,12 +304,18 @@ export const templateFor = (templates, form) =>
  * where the platform documents one; `null` elsewhere (copy the text).
  *
  * - e-mail: RFC 6068 `mailto:<addr>?body=` (line breaks as %0D%0A).
- * - Telegram: `tg://user?id=<id>` opens the chat with that user (Bot
- *   API docs); the text still has to be pasted, because Telegram has no
- *   pre-fill parameter for a user chat.
+ * - Telegram: documented username/phone links can prefill text; numeric-only
+ *   peers open the specific chat in Telegram Web (sign-in may be required).
  * - VK: `https://vk.com/im?sel=<peer>` opens the dialog with a user.
  */
-export const prefillLinkFor = ({ source, contact, chat, text }) => {
+export const prefillLinkFor = ({
+  source,
+  contact,
+  chat,
+  text,
+  username,
+  phone,
+}) => {
   const id = String(contact ?? '');
   const peer = String(chat ?? id);
   if (source === 'email' && /^[^\s@]+@[^\s@]+$/.test(id)) {
@@ -319,7 +329,10 @@ export const prefillLinkFor = ({ source, contact, chat, text }) => {
   }
   const tg = source === 'telegram' ? id.match(/^(?:user)?(\d+)$/) : null;
   if (tg) {
-    return { url: `tg://user?id=${tg[1]}`, prefillsText: false };
+    const url = telegramChatUrl({ source, chat: tg[1], username, phone, text });
+    return url
+      ? { url, prefillsText: Boolean(text) && !isTelegramWebUrl(url) }
+      : null;
   }
   return null;
 };

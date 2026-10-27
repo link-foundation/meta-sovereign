@@ -1,4 +1,5 @@
 // Unread conversations are Operator cards, with a real composer and no list.
+import { assertControlSpacing } from './helpers/e2e-controls.mjs';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
 import { summarizeChats } from '../src/web/chat-model.js';
@@ -44,6 +45,7 @@ await store.put({ ...read('001', 1, 6), forum: 1 });
 const sends = [];
 const { base, page, until, finish } = await openChatApp('operator', {
   store,
+  secure: true,
   send: async (draft) => {
     sends.push(draft);
     return { via: 'fake' };
@@ -122,8 +124,8 @@ const startupFailureSteps = async () => {
     (await page.locator('.operator-empty').count()) === 0,
     'a failed first load is never an empty queue'
   );
+  await page.locator('main[data-view="operator"] [data-load-error]').waitFor();
   failDirectory = false;
-  await page.locator('[data-action="load-retry"]').first().click();
   await until(
     async () => (await card()) === 'telegram:111',
     'skip the stale zero-unread candidate'
@@ -149,6 +151,70 @@ const remountFailureSteps = async () => {
     'no false empty state during refresh failure'
   );
   failDirectory = false;
+};
+
+const scopeSteps = async () => {
+  for (const [chat, chatType] of [
+    ['-55', 'group'],
+    ['-10066', 'channel'],
+  ]) {
+    await store.put({
+      ...message(chat, 2, `Unread ${chatType}`, at - 600_000),
+      chatType,
+    });
+    await store.put(read(chat, 1, 1));
+  }
+  await page.locator('button[data-view="settings"]').click();
+  const setting = (kind) => page.locator(`[data-action="operator-${kind}"]`);
+  assert(
+    await setting('private').isChecked(),
+    'one-to-one chats enabled by default'
+  );
+  assert(
+    !(await setting('group').isChecked()) &&
+      !(await setting('channel').isChecked()),
+    'groups and channels excluded by default'
+  );
+  await until(
+    async () => (await badge('operator').textContent()) === '1',
+    'default badge counts only private work'
+  );
+  await setting('private').uncheck();
+  await setting('group').check();
+  await page.locator('button[data-view="operator"]').click();
+  await until(
+    async () => (await card()) === 'telegram:-55',
+    'explicit group opt-in changes the queue'
+  );
+  await assertControlSpacing(page);
+  await page.locator('button[data-view="settings"]').click();
+  await setting('channel').check();
+  await until(
+    async () => (await badge('operator').textContent()) === '2',
+    'badge updates immediately to configured types'
+  );
+  await page.reload();
+  await page.locator('button[data-view="settings"]').click();
+  await setting('channel').waitFor();
+  assert(
+    (await setting('channel').isChecked()) &&
+      !(await setting('private').isChecked()),
+    'scope survives reload'
+  );
+  await setting('group').uncheck();
+  await page.locator('button[data-view="operator"]').click();
+  await until(
+    async () => (await card()) === 'telegram:-10066',
+    'channel opt-in applies to embedded cards too'
+  );
+  await page.locator('button[data-view="settings"]').click();
+  await setting('private').check();
+  await setting('channel').uncheck();
+  await page.locator('button[data-view="operator"]').click();
+  await until(
+    async () => (await card()) === 'telegram:111',
+    'returning to private scope never keeps a stale channel card'
+  );
 };
 
 await finish(async () => {
@@ -292,4 +358,5 @@ await finish(async () => {
     async () => (await card()) === 'telegram:111',
     'unread work survives switching sections'
   );
+  await scopeSteps();
 });

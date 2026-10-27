@@ -139,7 +139,7 @@ export const useStories = (api, enabled) => {
     unread,
     // The ring of a chat row of the list: 'unread', 'seen' or ''.
     rings: (chat) =>
-      chat.source === 'telegram' ? ringOf(peers, chat.chat) : '',
+      enabled && chat.source === 'telegram' ? ringOf(peers, chat.chat) : '',
   };
 };
 

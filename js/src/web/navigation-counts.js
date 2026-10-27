@@ -1,7 +1,8 @@
 // Menu badges share the queue's unread rules. Calls acknowledge the missed
 // call notifications when their section is opened, independently of chat reads.
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { needsAttention } from './operator-model.js';
+import { operatorEligible } from './operator-model.js';
+import { useOperatorScope } from './operator-prefs.js';
 import { activeAccount } from './telegram-account-scope.js';
 
 // Reuse the active screen's feed instead of opening another history stream.
@@ -45,13 +46,13 @@ export const missedCallCount = (calls, links, seen, started) => {
   }).length;
 };
 
-export const navigationCounts = (chats, missed = 0) => ({
+export const navigationCounts = (chats, missed = 0, scope) => ({
   chat: chats.reduce(
     (sum, chat) =>
       sum + (chat.muted ? 0 : Math.max(0, Number(chat.unread) || 0)),
     0
   ),
-  operator: chats.filter(needsAttention).length,
+  operator: chats.filter((chat) => operatorEligible(chat, scope)).length,
   calls: missed,
 });
 
@@ -111,6 +112,7 @@ const useMissedCalls = (api, revision) => {
 };
 
 export const useNavigationCounts = (api, active) => {
+  const [scope] = useOperatorScope();
   const { chats, links } = useSyncExternalStore(subscribe, snapshot, snapshot);
   const revision = (links ?? [])
     .filter((l) => l.raw?.action?.className === 'MessageActionPhoneCall')
@@ -145,7 +147,7 @@ export const useNavigationCounts = (api, active) => {
       ? 0
       : missedCallCount(calls, links ?? [], seen, started.current);
   return {
-    ...navigationCounts(chats),
+    ...navigationCounts(chats, 0, scope),
     calls: { count: missed, more: Boolean(next) },
   };
 };

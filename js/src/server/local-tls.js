@@ -20,7 +20,7 @@ import crypto from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import net from 'node:net';
 import path from 'node:path';
-import tls from 'node:tls';
+import http2 from 'node:http2';
 import { DIR_MODE, tighten, writeFileDurable } from '../storage/durable.js';
 import {
   certificateFingerprint,
@@ -265,8 +265,19 @@ export const listenHttpAndHttps = (
   host = '127.0.0.1'
 ) =>
   new Promise((resolve, reject) => {
-    const secure = tls.createServer({ key, cert }, (socket) =>
-      httpServer.emit('connection', socket)
+    // Multiplex API calls, media and event streams over HTTPS. HTTP/1's six
+    // browser connections can otherwise all wait behind long media downloads.
+    const secure = http2.createSecureServer(
+      { key, cert, allowHTTP1: true },
+      (req, res) => {
+        // Keep the existing strict Host and Origin checks for HTTP/2 too.
+        req.headers.host ??= req.headers[':authority'];
+        httpServer.emit('request', req, res);
+      }
+    );
+    secure.requestTimeout = httpServer.requestTimeout;
+    secure.on('upgrade', (req, socket, head) =>
+      httpServer.emit('upgrade', req, socket, head)
     );
     // A browser that does not trust the certificate yet hangs up.
     secure.on('tlsClientError', () => {});

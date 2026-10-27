@@ -26,6 +26,7 @@ import {
 } from './chat-global.js';
 import { BirthdaysBlock } from './chat-person-extras.js';
 import { StoriesStrip, StoryViewerHost, useStories } from './stories.js';
+import { useStoriesEnabled } from './stories-pref.js';
 import { AppsSection, useSearchFocus } from './chat-apps-search.js';
 import { TopPeersSection } from './chat-top-peers.js';
 import { useDraftsSync } from './chat-drafts-clear.js';
@@ -349,8 +350,8 @@ const appsShown = (state, focus) =>
   globalOn(state) && (focus.focused || Boolean(state.query));
 
 // Stories give way to a search and to the archive.
-const storiesHidden = (state) =>
-  Boolean(state.query) || state.folder === 'archive';
+const storiesHidden = (state, enabled = true) =>
+  !enabled || Boolean(state.query) || state.folder === 'archive';
 
 // Contacts with a birthday today or soon (R-Y178), over the list.
 const BirthdaysHost = ({ api, state }) =>
@@ -391,7 +392,8 @@ export const Sidebar = ({ state, api }) => {
   useListLoading(list, state, page.chats.length);
   const global = useGlobalSearch(api, state.query, globalOn(state));
   const focus = useSearchFocus();
-  const stories = useStories(api, globalOn(state));
+  const [showStories] = useStoriesEnabled();
+  const stories = useStories(api, globalOn(state) && showStories);
   const oldest = state.sort === 'oldest';
   const item = (chat) =>
     el(ChatRow, {
@@ -468,7 +470,7 @@ export const Sidebar = ({ state, api }) => {
         key: 'stories',
         api,
         stories,
-        hidden: storiesHidden(state),
+        hidden: storiesHidden(state, showStories),
       }),
       el(StoryViewerHost, { key: 'viewer', api, stories }),
       el(BirthdaysHost, { key: 'birthdays', api, state }),

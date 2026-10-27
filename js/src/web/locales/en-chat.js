@@ -3,12 +3,9 @@
 
 export const enChat = {
   'chat.history.complete': 'All available messages loaded',
-  'chat.history.background':
-    'Loading earlier history first. You can keep chatting.',
-  'chat.history.loading': 'Loading messages for this chat first…',
-  'chat.history.wait': 'Telegram asked to wait. Retrying in {seconds} seconds…',
-  'chat.history.retry':
-    'Loading was interrupted. Retrying in {seconds} seconds…',
+  'chat.history.loading': 'Loading messages…',
+  'chat.history.wait': 'Telegram asked to wait. Retrying automatically…',
+  'chat.history.retry': 'Connection interrupted. Retrying automatically…',
   'chat.calls.connectHint':
     'Connect a Telegram user account to see your recent calls.',
 
@@ -24,6 +21,7 @@ export const enChat = {
   'chat.about.title': 'About {name}',
   'chat.marks.mentions': 'Unread mentions',
   'chat.marks.reactions': 'Unread reactions',
+  'chat.about.openTelegramWeb': 'Open in Telegram Web',
   'chat.about.openTelegram': 'Open in Telegram',
   'chat.about.close': 'Close',
   'chat.about.loading': 'Learning from the conversation…',

@@ -20,29 +20,10 @@ import {
   typingStatus,
 } from '../src/web/chat-model.js';
 import { ChatScreen, reasonText } from '../src/web/chat-view.js';
-import { HistoryStatus } from '../src/web/chat-history-status.js';
+import { OlderRow } from '../src/web/chat-follow.js';
 
 const NOW = Date.parse('2026-10-11T12:00:00Z');
 
-test('idle partial history has no persistent saved-message warning or manual load button', () => {
-  assert.equal(
-    renderToStaticMarkup(
-      React.createElement(HistoryStatus, {
-        history: { incomplete: true, older: true },
-        count: 50,
-      })
-    ),
-    ''
-  );
-  const loading = renderToStaticMarkup(
-    React.createElement(HistoryStatus, {
-      history: { incomplete: true, loading: true },
-      count: 50,
-    })
-  );
-  assert.match(loading, /data-history-status="loading"/);
-  assert.doesNotMatch(loading, /<button/);
-});
 const at = (hoursAgo) => new Date(NOW - hoursAgo * 3_600_000).toISOString();
 let seq = 0;
 const msg = (chat, sender, body, hoursAgo, extra = {}) => ({
@@ -249,6 +230,50 @@ const screenState = (overrides = {}) => {
     ...overrides,
   };
 };
+
+test('Chat and Operator never render loading panels in any history phase', () => {
+  const histories = [
+    { incomplete: true, older: true },
+    { incomplete: true, initialLoading: true },
+    { incomplete: true, backgroundLoading: true },
+    { incomplete: true, loading: true },
+    { incomplete: true, retryAt: Date.now() + 2000, retryCode: 'flood-wait' },
+    {
+      incomplete: true,
+      failed: true,
+      retryAt: Date.now() + 2000,
+      retryCode: 'network',
+    },
+  ];
+  for (const history of histories) {
+    for (const embedded of [false, true]) {
+      const html = renderToStaticMarkup(
+        React.createElement(ChatScreen, {
+          state: screenState({ history }),
+          embedded,
+        })
+      );
+      assert.doesNotMatch(
+        html,
+        /chat-history-status|data-history-status|Loading earlier history first|Showing \d+ saved messages/
+      );
+      const row = renderToStaticMarkup(
+        React.createElement(OlderRow, { history })
+      );
+      if (history.older || history.backgroundLoading) {
+        assert.equal(
+          row,
+          '',
+          'idle and background history do not pretend to be fetching'
+        );
+      } else {
+        assert.match(row, /class="chat-older"/);
+        assert.match(row, /class="sr-only"/);
+        assert.doesNotMatch(row, /<button/);
+      }
+    }
+  }
+});
 
 test('screen: sidebar, header, menu, draft, composer chips', () => {
   const html = render(screenState());

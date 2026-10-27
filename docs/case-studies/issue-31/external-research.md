@@ -32,14 +32,7 @@ already in place.
   `draft_text` is "UTF-8 text to pre-enter into the text input bar, if
   the user can write in the chat."
 
-Telegram exports identify people by numeric `from_id` (`user123…`), not
-by username or phone, so `prefillLinkFor` uses `tg://user?id=` and marks
-the link `prefillsText: false`; the screen then offers Copy next to
-"Open chat". Whether a desktop/mobile client opens a `tg://user?id=`
-link typed outside a bot message depends on the client and the user's
-privacy settings; this was not verified on real clients. A username- or
-phone-based `?text=` link is the documented improvement once an
-importer records usernames (see the case study's Known Limits).
+The original numeric-ID fallback was incorrect for normal clients and was replaced on 2026-10-28. Drafts use username/phone `t.me` links when available, with documented text prefilling. Numeric-only contacts use `https://web.telegram.org/a/#<id>` and retain Copy because this Web route has no supported draft-text parameter. Telegram Web requires its own sign-in to the same account. See the pinned [Telegram Web A routing reference](../../CHAT-REFERENCES.md#opening-a-specific-conversation). The old PR JSON and verification logs record the historical implementation, not the current link behavior.
 
 ## VK
 

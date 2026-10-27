@@ -28,6 +28,8 @@ The Swift helper is compiled locally using the macOS Command Line Tools. On a Ma
 
 ## Browser and transport access
 
+On Node, trusted local HTTPS negotiates HTTP/2 so API calls remain independent of media downloads and open event streams. HTTP/1 clients and WebSocket upgrades remain supported on the same port. Authority/Host validation and Origin restrictions apply to both versions. See the [Node HTTP/2 compatibility API](https://nodejs.org/api/http2.html#compatibility-api).
+
 The JavaScript and Rust HTTP servers allow browser requests only from their own exact loopback origin or `https://link-foundation.github.io` by default. The scheme, host and port must match for same-origin requests. Other origins, including `null`, unrelated GitHub Pages sites, other localhost ports and Capacitor WebViews, are refused unless explicitly configured. Origin checks also apply before `/ws` sync and `/rtc` signaling upgrades. The Rust server does not implement TLS or hardware key protection; use the JavaScript server for Safari's trusted HTTPS connection.
 
 Preflight responses echo the exact allowed origin, list supported methods and headers, and grant private-network access only for an allowed preflight. There are no wildcard CORS responses. Requests from denied origins are refused on reads as well as writes. Browser cross-site requests without an Origin header are refused except for the JavaScript server's public discovery beacon. The beacon contains only discovery capability information.

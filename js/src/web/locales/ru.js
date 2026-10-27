@@ -1087,6 +1087,16 @@ export const ru = {
   'automations.audiences.use': 'Использовать',
   'automations.audiences.count': 'Посчитать',
   'automations.audiences.resolved': 'Людей: {count}. {names}',
+  'settings.operator.title': 'Оператор',
+  'settings.operator.hint':
+    'Включать непрочитанные диалоги этих типов. По умолчанию включены только личные диалоги. Счётчик меню использует тот же выбор.',
+  'settings.operator.private': 'Личные диалоги один на один',
+  'settings.operator.group': 'Группы и групповые чаты',
+  'settings.operator.channel': 'Каналы',
+  'settings.stories.title': 'Истории',
+  'settings.stories.show': 'Показывать истории',
+  'settings.stories.hint':
+    'По умолчанию выключено. Включает ленту историй, обводки аватаров и истории в профилях в этом браузере.',
   'settings.folderTabs.title': 'Вкладки папок',
   'settings.folderTabs.allFirst': 'Всегда показывать «Все» первой',
   'settings.folderTabs.hint':

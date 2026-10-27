@@ -36,6 +36,7 @@
 // unit/integration suites. Two-browser WebRTC convergence is exercised
 // below as part of this browser run when the JS backend is active.
 
+import { assertControlSpacing } from './helpers/e2e-controls.mjs';
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -313,6 +314,7 @@ const stepClickEveryNavButton = async ({ page, commander, supports }) => {
     );
     const active = await page.$eval('button.active', (el) => el.dataset.view);
     assert(active === v, `expected active=${v}, got ${active}`);
+    await assertControlSpacing(page);
   }
 };
 

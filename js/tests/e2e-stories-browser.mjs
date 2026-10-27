@@ -131,6 +131,10 @@ const { base, page, until, finish } = await openChatApp('stories', { store });
 await page.addInitScript(() => {
   globalThis.__STORY_PHOTO_MS__ = 600;
 });
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignStoriesEnabled', 'on');
+});
+
 await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );

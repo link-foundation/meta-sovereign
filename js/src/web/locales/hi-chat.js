@@ -3,12 +3,10 @@
 
 export const hiChat = {
   'chat.history.complete': 'सभी उपलब्ध संदेश लोड हो गए',
-  'chat.history.background':
-    'पहले इस चैट का पुराना इतिहास लोड हो रहा है। आप बातचीत जारी रख सकते हैं।',
-  'chat.history.loading': 'पहले इस चैट के संदेश लोड हो रहे हैं…',
+  'chat.history.loading': 'संदेश लोड हो रहे हैं…',
   'chat.history.wait':
-    'Telegram ने प्रतीक्षा करने को कहा है। {seconds} सेकंड में फिर कोशिश होगी…',
-  'chat.history.retry': 'लोडिंग रुक गई। {seconds} सेकंड में फिर कोशिश होगी…',
+    'Telegram ने प्रतीक्षा करने को कहा है। अपने आप फिर कोशिश होगी…',
+  'chat.history.retry': 'कनेक्शन रुक गया। अपने आप फिर कोशिश होगी…',
   'chat.calls.connectHint':
     'हाल की कॉल देखने के लिए Telegram उपयोगकर्ता खाता जोड़ें।',
 
@@ -24,6 +22,7 @@ export const hiChat = {
   'chat.about.title': '{name} के बारे में',
   'chat.marks.mentions': 'अपठित उल्लेख',
   'chat.marks.reactions': 'अपठित प्रतिक्रियाएँ',
+  'chat.about.openTelegramWeb': 'Telegram Web में खोलें',
   'chat.about.openTelegram': 'Telegram में खोलें',
   'chat.about.close': 'बंद करें',
   'chat.about.loading': 'बातचीत से सीखा जा रहा है…',

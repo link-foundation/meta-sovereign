@@ -1,3 +1,4 @@
+import { readOperatorScope } from '../src/web/operator-prefs.js';
 import { unreadCount } from '../src/web/chat-model.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -14,6 +15,7 @@ import {
 const chat = (id, unread, extra = {}) => ({
   key: `telegram:${id}`,
   source: 'telegram',
+  kind: 'private',
   chat: String(id),
   unread,
   last: {
@@ -53,6 +55,39 @@ test('operator queues positive unread counts once, including muted chats, and ex
     operator: 1,
     calls: 2,
   });
+});
+
+test('Operator defaults to private chats; configured types and badges share the filter', () => {
+  const items = ['private', 'group', 'channel'].map((kind, i) =>
+    chat(i + 1, 1, { kind })
+  );
+  assert.deepEqual(
+    operatorQueue(items).map((c) => c.kind),
+    ['private']
+  );
+  assert.equal(navigationCounts(items).operator, 1);
+  const scope = { private: false, group: true, channel: true };
+  assert.deepEqual(
+    operatorQueue(items, new Map(), scope).map((c) => c.kind),
+    ['group', 'channel']
+  );
+  assert.equal(navigationCounts(items, 0, scope).operator, 2);
+  const storage = (text) => ({ getItem: () => text });
+  assert.deepEqual(readOperatorScope(storage(null)), {
+    private: true,
+    group: false,
+    channel: false,
+  });
+  assert.deepEqual(readOperatorScope(storage('{broken')), {
+    private: true,
+    group: false,
+    channel: false,
+  });
+  assert.deepEqual(readOperatorScope(storage(JSON.stringify(scope))), scope);
+  assert.deepEqual(
+    readOperatorScope(storage('{"private":"false","group":true}')),
+    { private: true, group: true, channel: false }
+  );
 });
 
 test('Done acknowledges the displayed boundary and clears a manual mark explicitly', async () => {

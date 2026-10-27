@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { unreadCount } from './chat-model.js';
-import { needsAttention } from './operator-model.js';
 
 const candidateOf = ({ state, queue }, skipped) => {
   const active = state.current;
-  return active && needsAttention(active) && !skipped.has(active.key)
+  return active &&
+    queue.some((chat) => chat.key === active.key) &&
+    !skipped.has(active.key)
     ? active
     : queue.find((chat) => !skipped.has(chat.key));
 };
@@ -32,12 +33,13 @@ export const useOperatorUnread = (api, state, queue) => {
   const [retry, setRetry] = useState(0);
   const current = state.current;
   const first = queue[0]?.key;
-  const valid = current && needsAttention(current) && verified === current.key;
+  const eligible = current && queue.some((chat) => chat.key === current.key);
+  const valid = eligible && verified === current.key;
   useEffect(() => {
     if (valid) {
       return undefined;
     }
-    if (current && !needsAttention(current)) {
+    if (current && !eligible) {
       state.select('');
     }
     if (!first) {
@@ -75,7 +77,7 @@ export const useOperatorUnread = (api, state, queue) => {
     return () => {
       stopped = true;
     };
-  }, [api, valid, current?.key, first, retry]);
+  }, [api, valid, eligible, current?.key, first, retry]);
   useEffect(() => {
     if (!error) {
       return undefined;

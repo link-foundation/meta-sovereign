@@ -1027,6 +1027,16 @@ export const zh = {
   'automations.audiences.use': '使用',
   'automations.audiences.count': '统计',
   'automations.audiences.resolved': '{count} 人：{names}',
+  'settings.operator.title': '操作台',
+  'settings.operator.hint':
+    '包含这些类型的未读会话。默认仅启用一对一私聊。菜单角标使用相同的选择。',
+  'settings.operator.private': '一对一私聊',
+  'settings.operator.group': '群组和群聊',
+  'settings.operator.channel': '频道',
+  'settings.stories.title': '动态',
+  'settings.stories.show': '显示动态',
+  'settings.stories.hint':
+    '默认关闭。在此浏览器中启用动态栏、头像圆环和个人资料动态。',
   'settings.folderTabs.title': '文件夹标签',
   'settings.folderTabs.allFirst': '始终将“全部”放在最前',
   'settings.folderTabs.hint':

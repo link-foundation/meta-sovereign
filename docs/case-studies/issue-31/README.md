@@ -245,7 +245,7 @@ is tried first and the official web UI second, through
 browser-commander in a persistent profile the user signed into once.
 If both fail the draft stays, with an "Open chat" link where the
 platform documents one (`mailto:` with the body prefilled,
-`tg://user?id=`, `https://vk.com/im?sel=`), and **I sent it myself**
+Telegram username/phone or exact-chat Web links, `https://vk.com/im?sel=`), and **I sent it myself**
 records a manual send, so the contact is handled either way.
 
 ## Requirements
@@ -266,11 +266,7 @@ chat type.
 
 ## Known Limits
 
-- Telegram contacts imported from an export are numeric ids, so the
-  "Open chat" link is `tg://user?id=…`, which opens the chat but cannot
-  prefill text. Telegram does document a prefilled link for usernames
-  and phone numbers (`t.me/<username>?text=…`), which can be used once
-  an importer records usernames.
+- Numeric-only Telegram contacts open the exact conversation in Telegram Web, which requires its own account sign-in. Native clients need a username or a phone number; numeric ID mention links do not select a chat.
 - Address-form rules cover Russian, Chinese and Hindi. Other languages
   with a T–V distinction (German du/Sie, French tu/vous, …) can be added
   as `pattern:*` links without code changes, but none ship by default.

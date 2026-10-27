@@ -65,6 +65,10 @@ const myStory = {
 const { base, page, until, finish } = await openChatApp('story-post', {
   store,
 });
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignStoriesEnabled', 'on');
+});
+
 await page.route('**/api/telegram/history', (route) =>
   fulfil(route, { written: 0, cached: 0, complete: true })
 );

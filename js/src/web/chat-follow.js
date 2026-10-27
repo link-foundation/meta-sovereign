@@ -6,6 +6,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
 import { Spinner } from './spinner.js';
+import { Icon } from './icons.js';
 
 const el = React.createElement;
 
@@ -121,23 +122,38 @@ export const useKeepPlace = (box, state) => {
   };
 };
 
+// A compact marker inside the message list, never a header bar. Background
+// history availability alone is not an active request and shows no loader.
 export const OlderRow = ({ history }) => {
   const t = useT();
-  if (!history?.older && !history?.loading) {
+  const progress = history ?? {};
+  const loading = Boolean(progress.initialLoading || progress.loading);
+  const waiting = Boolean(progress.retryAt || progress.failed);
+  if (!loading && !waiting) {
     return null;
   }
+  const label = loading
+    ? t(
+        progress.initialLoading ? 'chat.history.loading' : 'chat.loadingEarlier'
+      )
+    : t(
+        progress.retryCode === 'flood-wait'
+          ? 'chat.history.wait'
+          : 'chat.history.retry'
+      );
   return el(
     'div',
     {
       className: 'chat-older',
       role: 'status',
-      // A failed load is asked again by itself (R-Y96): the arc stays.
-      'data-older': history.failed ? 'retrying' : 'loading',
+      title: label,
+      'data-older': loading ? 'loading' : 'waiting',
     },
     [
-      // Telegram shows the arc alone above the messages.
-      el(Spinner, { key: 's' }),
-      el('span', { key: 't', className: 'sr-only' }, t('chat.loadingEarlier')),
+      loading
+        ? el(Spinner, { key: 's' })
+        : el(Icon, { key: 's', name: 'clock', size: 16 }),
+      el('span', { key: 't', className: 'sr-only' }, label),
     ]
   );
 };

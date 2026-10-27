@@ -38,7 +38,6 @@ import {
 } from './chat-saved-tags.js';
 import React, { useCallback, useRef, useState } from 'react';
 import { LoadError } from './api-errors.js';
-import { HistoryStatus } from './chat-history-status.js';
 import { api as defaultApi } from './dom.js';
 import { sentence, useDates, useLocaleContext, useT } from './i18n.js';
 import { ConnectionGuide } from './connection-guide.js';
@@ -1470,16 +1469,9 @@ const ConversationHeader = ({
   forumView,
   call,
 }) =>
-  el(React.Fragment, null, [
-    actions.selection.ids.length > 0
-      ? el(SelectionTop, { key: 'h', ...actions.top })
-      : el(ChatTop, { key: 'h', state, api, onBack, saved, forumView, call }),
-    el(HistoryStatus, {
-      key: 'history-status',
-      history: state.history,
-      count: state.messages.length,
-    }),
-  ]);
+  actions.selection.ids.length > 0
+    ? el(SelectionTop, { key: 'h', ...actions.top })
+    : el(ChatTop, { key: 'h', state, api, onBack, saved, forumView, call });
 
 export const ChatView = ({ api = defaultApi, ...options }) => {
   const t = useT();

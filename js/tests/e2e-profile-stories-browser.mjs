@@ -39,6 +39,10 @@ const story = (id, extra = {}) => ({
 });
 
 const asks = [];
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignStoriesEnabled', 'on');
+});
+
 await page.route('**/api/telegram/profile-stories', (route) => {
   const body = route.request().postDataJSON();
   asks.push(body);

@@ -1068,6 +1068,16 @@ export const hi = {
   'automations.audiences.use': 'इस्तेमाल करें',
   'automations.audiences.count': 'गिनें',
   'automations.audiences.resolved': '{count} लोग: {names}',
+  'settings.operator.title': 'ऑपरेटर',
+  'settings.operator.hint':
+    'इन प्रकारों की अपठित बातचीत शामिल करें। डिफ़ॉल्ट रूप से केवल निजी एक-से-एक चैट चालू हैं। मेनू की गिनती भी यही चयन उपयोग करती है।',
+  'settings.operator.private': 'निजी एक-से-एक चैट',
+  'settings.operator.group': 'समूह और समूह चैट',
+  'settings.operator.channel': 'चैनल',
+  'settings.stories.title': 'स्टोरी',
+  'settings.stories.show': 'स्टोरी दिखाएँ',
+  'settings.stories.hint':
+    'डिफ़ॉल्ट रूप से बंद। इस ब्राउज़र में स्टोरी पट्टी, अवतार रिंग और प्रोफ़ाइल स्टोरी चालू करें।',
   'settings.folderTabs.title': 'फ़ोल्डर टैब',
   'settings.folderTabs.allFirst': '“सभी” हमेशा पहले दिखाएँ',
   'settings.folderTabs.hint':
