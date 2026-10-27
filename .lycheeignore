@@ -40,3 +40,6 @@ https://api\.superjob\.ru
 # Copied next to js/src/web/download/index.html by js/scripts/build-pages.mjs
 # from desktop/icon.svg, so it does not exist in the source tree
 download/icon\.svg
+
+# Fiverr challenges automated link checks with 403; keep the official profile guide.
+^https://help\.fiverr\.com/hc/en-us/articles/360010558598(?:-|$)
