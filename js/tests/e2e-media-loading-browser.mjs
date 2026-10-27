@@ -48,6 +48,10 @@ for (const [id, attribute] of [
 const { page, base, until, finish } = await openChatApp('media-loading', {
   store,
 });
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
+  globalThis.localStorage.setItem('metaSovereignSkin', 't3');
+});
 const PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
   'base64'
@@ -127,6 +131,14 @@ const playerSteps = async () => {
   await video.locator('[data-media-loading]').waitFor({ state: 'detached' });
   const audio = page.locator('.bubble-audio');
   await audio.scrollIntoViewIfNeeded();
+  const colors = await audio.locator('.audio-play').evaluate((node) => {
+    const style = globalThis.getComputedStyle(node);
+    return [style.backgroundColor, style.color];
+  });
+  assert(
+    colors[0] !== colors[1] && colors[0] === 'rgb(44, 45, 48)',
+    'dark audio controls retain readable white-on-dark contrast'
+  );
   await audio.locator('.audio-play').click();
   await audio
     .locator('[data-media-loading="loading"]')

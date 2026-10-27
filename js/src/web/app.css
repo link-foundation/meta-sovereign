@@ -13189,7 +13189,9 @@ audio.remote-player {
   color: #fff;
 }
 :root[data-theme='dark'][data-skin='t3'] .composer-send,
-:root[data-theme='dark'][data-skin='t3'] button.primary {
+:root[data-theme='dark'][data-skin='t3'] button.primary,
+:root[data-theme='dark'][data-skin='t3'] .audio-play,
+:root[data-theme='dark'][data-skin='t3'] .reader-tab.active {
   background: #2c2d30;
   color: #fff;
 }
