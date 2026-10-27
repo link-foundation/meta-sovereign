@@ -248,9 +248,12 @@ export const openDualStore = async (
       async close() {
         try {
           await binary.close();
-          await text.flush();
         } finally {
-          lock.release();
+          try {
+            await text.flush();
+          } finally {
+            lock.release();
+          }
         }
       },
     };
