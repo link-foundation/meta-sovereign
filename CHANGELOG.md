@@ -1,5 +1,25 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.53.3
+
+### Patch Changes
+
+- Center page and pane loading states in the same content regions as empty states, retain the Operator toolbar during startup, and align profile actions with consistent spacing. Preserve the selected conversation when a narrow screen opens a chat deep link.
+
+  Keep skipped Operator cards unread at the end of a tab's queue across navigation and reloads. Only successful Done acknowledges messages; completion respects postponed order.
+
+  Track media decoding and playback readiness separately from URL availability. Reserve photo/album geometry, show loading for photos, viewers, previews, avatars, video, audio, round videos, stickers and imported/remote media, and expose retry/fallback after failures. Open known Telegram peers through native protocol links; explain separate Web sign-in for contacts without a username or visible phone number.
+
+  Drain or cancel snapshot workers before releasing the store writer lock, preventing a background snapshot from racing application-folder migration. Handle Deno worker completion without waiting for an exit event its compatibility layer may omit. Preserve Profile after passcode unlock in browser regression coverage.
+
+  Wait for passcode status before rendering cached data. Validate persisted loopback certificates with portable crypto primitives so Deno does not replace trusted certificates because optional X509 methods are missing.
+
+  Restore the current app section, conversation/provider detail, Operator card and section scroll after reloads and browser Back/Forward. Share routing across menus and cross-component links, avoid duplicate visits, and preserve saved Operator selection while its directory loads.
+
+  Exclude bots from Operator by default with a separate persistent opt-in shared by queue and badge. Preserve bot identity from live and exported messages. Accept Telegram SDK empty-string ready/request events, initialize iframe handshakes, and replace endless Mini App loading with timeout, retry and manual browser fallback while retaining frame/origin validation.
+
+  Clear a stale scroll-request failure marker when foreground history finishes successfully, so a completed conversation does not keep displaying an interrupted-connection indicator.
+
 ## 0.53.2
 
 ### Patch Changes
