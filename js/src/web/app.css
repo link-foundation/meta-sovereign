@@ -4324,8 +4324,17 @@ img[data-media-ready='false'] {
 .loading-player.loading-audio {
   min-height: 3.5rem;
 }
-.bubble-video:has(.media-loading) .media-play {
-  visibility: hidden;
+.media-poster .media-loading {
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0.5rem;
+}
+.media-poster .media-loading > .spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+:is(.bubble-video, .bubble-round):has(> video) > .media-poster {
+  display: none;
 }
 .bubble-sticker {
   position: relative;
