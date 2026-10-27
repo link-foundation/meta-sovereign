@@ -157,6 +157,7 @@ const scopeSteps = async () => {
   for (const [chat, chatType] of [
     ['-55', 'group'],
     ['-10066', 'channel'],
+    ['444', 'bot_chat'],
   ]) {
     await store.put({
       ...message(chat, 2, `Unread ${chatType}`, at - 600_000),
@@ -175,6 +176,7 @@ const scopeSteps = async () => {
       !(await setting('channel').isChecked()),
     'groups and channels excluded by default'
   );
+  assert(!(await setting('bot').isChecked()), 'bots excluded by default');
   await until(
     async () => (await badge('operator').textContent()) === '1',
     'default badge counts only private work'
@@ -208,13 +210,45 @@ const scopeSteps = async () => {
     'channel opt-in applies to embedded cards too'
   );
   await page.locator('button[data-view="settings"]').click();
-  await setting('private').check();
+  await setting('bot').check();
   await setting('channel').uncheck();
+  await page.locator('button[data-view="operator"]').click();
+  await until(
+    async () => (await card()) === 'telegram:444',
+    'bot opt-in works independently of private chats'
+  );
+  await until(
+    async () => (await badge('operator').textContent()) === '1',
+    'bot badge matches the bot-only queue'
+  );
+  await page.locator('button[data-view="settings"]').click();
+  await setting('private').check();
+  await setting('bot').uncheck();
   await page.locator('button[data-view="operator"]').click();
   await until(
     async () => (await card()) === 'telegram:111',
     'returning to private scope never keeps a stale channel card'
   );
+};
+
+const restoreCardSteps = async () => {
+  await page.goBack();
+  await until(
+    async () => (await card()) === 'telegram:111',
+    'Back restores the previous Operator card'
+  );
+  await page.goForward();
+  await until(
+    async () => (await card()) === 'telegram:222',
+    'Forward restores the next Operator card'
+  );
+  await page.reload();
+  await page.locator('main[data-view="operator"]').waitFor();
+  await until(
+    async () => (await card()) === 'telegram:222',
+    'reload keeps Operator and its unread card'
+  );
+  assert(reads.length === 0, 'history navigation never completes work');
 };
 
 await finish(async () => {
@@ -260,6 +294,7 @@ await finish(async () => {
     'Next conversation'
   );
   assert(reads.length === 0, 'Next preserves unread state');
+  await restoreCardSteps();
   const box = page.locator('.operator-card textarea');
   await box.pressSequentially('need a reply');
   assert(

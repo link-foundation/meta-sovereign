@@ -11,6 +11,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useT } from './i18n.js';
+import { navigateApp, chatHash } from './app-route.js';
 import { Icon } from './icons.js';
 
 const el = React.createElement;
@@ -42,11 +43,8 @@ export const inviteHashOf = (href) => {
 };
 
 // Opens a chat by its address, as the chat list's links do (the hash).
-const openChat = ({ source, chat }) => {
-  if (globalThis.location) {
-    globalThis.location.hash = `chat=${source}:${encodeURIComponent(chat)}`;
-  }
-};
+const openChat = (target) =>
+  navigateApp({ view: 'chat', anchor: chatHash(target) });
 
 const EVENT = 'ms-invite-open';
 // A join refused for the channel limit asks for the inactive channels (the

@@ -1,5 +1,5 @@
 import { readOperatorScope } from '../src/web/operator-prefs.js';
-import { unreadCount } from '../src/web/chat-model.js';
+import { unreadCount, summarizeChats } from '../src/web/chat-model.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -66,7 +66,7 @@ test('Operator defaults to private chats; configured types and badges share the 
     ['private']
   );
   assert.equal(navigationCounts(items).operator, 1);
-  const scope = { private: false, group: true, channel: true };
+  const scope = { private: false, bot: false, group: true, channel: true };
   assert.deepEqual(
     operatorQueue(items, new Map(), scope).map((c) => c.kind),
     ['group', 'channel']
@@ -75,19 +75,36 @@ test('Operator defaults to private chats; configured types and badges share the 
   const storage = (text) => ({ getItem: () => text });
   assert.deepEqual(readOperatorScope(storage(null)), {
     private: true,
+    bot: false,
     group: false,
     channel: false,
   });
   assert.deepEqual(readOperatorScope(storage('{broken')), {
     private: true,
+    bot: false,
     group: false,
     channel: false,
   });
   assert.deepEqual(readOperatorScope(storage(JSON.stringify(scope))), scope);
   assert.deepEqual(
     readOperatorScope(storage('{"private":"false","group":true}')),
-    { private: true, group: true, channel: false }
+    { private: true, bot: false, group: true, channel: false }
   );
+});
+
+test('bots remain outside the default queue and badge, with an independent opt-in', () => {
+  const items = [chat(1, 2), chat(2, 3, { bot: true })];
+  assert.deepEqual(
+    operatorQueue(items).map((c) => c.key),
+    ['telegram:1']
+  );
+  assert.equal(navigationCounts(items).operator, 1);
+  const scope = { private: false, bot: true, group: false, channel: false };
+  assert.deepEqual(
+    operatorQueue(items, new Map(), scope).map((c) => c.key),
+    ['telegram:2']
+  );
+  assert.equal(navigationCounts(items, 0, scope).operator, 1);
 });
 
 test('Done acknowledges the displayed boundary and clears a manual mark explicitly', async () => {
@@ -186,4 +203,27 @@ test('forum topic totals override stale dialog counters without losing later liv
     }),
     0
   );
+});
+
+test('live and exported bot identity survives conversation summarization', () => {
+  for (const fields of [
+    { bot: true, chatType: 'personal_chat' },
+    { chatType: 'bot_chat' },
+    { chatType: 'bot' },
+  ]) {
+    const chats = summarizeChats([
+      {
+        id: 'msg:telegram:99:1',
+        source: 'telegram',
+        chat: '99',
+        sender: '99',
+        body: 'hello',
+        timestamp: new Date().toISOString(),
+        ...fields,
+      },
+    ]);
+    assert.equal(chats[0].bot, true);
+    assert.equal(chats[0].kind, 'private');
+    assert.equal(operatorQueue(chats).length, 0);
+  }
 });

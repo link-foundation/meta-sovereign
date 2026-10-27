@@ -643,6 +643,11 @@ export const enChatMore = {
   'chat.webApp.reload': 'Reload',
   'chat.webApp.close': 'Close',
   'chat.webApp.back': 'Back',
+  'chat.webApp.retry': 'Retry',
+  'chat.webApp.browser': 'Open in browser',
+  'chat.webApp.notResponding':
+    'The app has not responded. Its website may be unavailable or may block embedded windows.',
+  'chat.webApp.openFailed': 'The Mini App could not be opened. Try again.',
   'chat.webApp.loading': 'Loading the app…',
   'chat.webApp.ok': 'OK',
   'chat.webApp.cancel': 'Cancel',

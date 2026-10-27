@@ -370,3 +370,5 @@ The CI/CD pipeline inherited from `js-ai-driven-development-pipeline-template` c
 ## License
 
 [Unlicense](LICENSE) - Public Domain
+
+Reloads and browser history preserve your section and conversation context; see [navigation](docs/NAVIGATION.md). [Mini App recovery](docs/MINI-APPS.md) documents SDK compatibility and external-site limitations.

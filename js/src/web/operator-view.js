@@ -6,6 +6,7 @@ import { ChatScreen } from './chat-view.js';
 import { ConnectionGuide } from './connection-guide.js';
 import { LoadError } from './api-errors.js';
 import { useOperatorUnread } from './operator-unread.js';
+import { navigateApp, operatorHash, appNavigation } from './app-route.js';
 import { useOperatorScope } from './operator-prefs.js';
 import { Busy } from './spinner.js';
 import { Icon } from './icons.js';
@@ -22,7 +23,8 @@ const useOperator = (api, t) => {
   const state = useChatState(api, {
     t,
     autoRead: false,
-    followHash: false,
+    followHash: true,
+    hashView: 'operator',
     selectFirst: false,
   });
   const [handled, setHandled] = useState(() => new Map());
@@ -33,6 +35,14 @@ const useOperator = (api, t) => {
   const latest = useRef(null);
   const unread = useOperatorUnread(api, state, queue);
   latest.current = { state, queue, busy: busy || !unread.current };
+  useEffect(() => {
+    if (unread.current && appNavigation().snapshot().view === 'operator') {
+      navigateApp(
+        { view: 'operator', anchor: operatorHash(unread.current.key) },
+        { replace: true }
+      );
+    }
+  }, [unread.current?.key]);
   // Once the read acknowledgement arrives, a later manual unread mark
   // on the same message may enqueue this conversation again.
   useEffect(() => {
@@ -51,6 +61,7 @@ const useOperator = (api, t) => {
     const index = items.findIndex((chat) => chat.key === now.current?.key);
     const following = items[(index + 1) % items.length];
     if (following && following.key !== now.current?.key) {
+      navigateApp({ view: 'operator', anchor: operatorHash(following.key) });
       now.select(following.key);
       setError(null);
     }

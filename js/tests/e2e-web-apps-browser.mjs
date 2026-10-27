@@ -79,7 +79,7 @@ const APP = `<!doctype html><meta charset="utf-8"><title>fake app</title>
 <p id="hi">hello from the app</p>
 <script>
 window.got = [];
-const send = (t, d) =>
+const send = (t, d = '') =>
   parent.postMessage(JSON.stringify({ eventType: t, eventData: d }), '*');
 const kind = location.pathname.slice(1);
 addEventListener('message', (e) => {
@@ -218,6 +218,9 @@ const menuApp = async () => {
     `sandbox: ${sandbox}`
   );
   assert((await frame.getAttribute('src')).startsWith(ORIGIN), 'src');
+  await panel
+    .locator('.web-app-loading')
+    .waitFor({ state: 'detached', timeout: 5000 });
   assert(
     (await panel.locator('.web-app-title').textContent()) === 'Fake Bot',
     'title'
@@ -427,6 +430,39 @@ const linkApp = async () => {
   await panel.waitFor({ state: 'detached', timeout: 5000 });
 };
 
+const unavailableApp = async () => {
+  await open(MENU);
+  await page.route(`${ORIGIN}/menu**`, (route) =>
+    route.fulfill({
+      status: 521,
+      headers: { 'x-frame-options': 'SAMEORIGIN' },
+      contentType: 'text/html',
+      body: '<!doctype html><title>Unavailable</title>',
+    })
+  );
+  await page.clock.install();
+  await page.locator('[data-web-app-menu]').click();
+  await panel.locator('iframe').waitFor();
+  await page.clock.fastForward(15_100);
+  await panel.locator('[data-web-app-failed]').waitFor();
+  assert(
+    (await panel.locator('.web-app-spinner').count()) === 0,
+    'an unavailable app never spins forever'
+  );
+  assert(
+    (
+      await panel
+        .locator('[data-action="web-app-browser"]')
+        .getAttribute('href')
+    ).startsWith(ORIGIN),
+    'manual browser fallback retains the launch destination'
+  );
+  await page.unroute(`${ORIGIN}/menu**`);
+  await panel.locator('[data-action="web-app-retry"]').click();
+  await panel.locator('.web-app-loading').waitFor({ state: 'detached' });
+  await panel.locator('[data-action="web-app-close"]').click();
+};
+
 await finish(async () => {
   await menuApp();
   await spoofing();
@@ -434,6 +470,7 @@ await finish(async () => {
   await keyboardApp();
   await inlineApp();
   await linkApp();
+  await unavailableApp();
   if (process.env.E2E_SHOT) {
     await page.screenshot({ path: process.env.E2E_SHOT });
   }

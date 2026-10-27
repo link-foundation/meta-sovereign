@@ -30,10 +30,16 @@ test('opening a chat exposes pending state, refreshes a concurrently filled cach
   });
   assert.equal(state.initialLoading, true);
   assert.equal(request.priority, 'view');
+  // A concurrent scroll request can fail before the foreground read succeeds.
+  // Completion must also clear that older request's retry marker.
+  state = { ...state, failed: true, retryAt: 5000, retryCode: 'flood-wait' };
   resolve({ cached: true, written: 0, complete: true });
   await tick();
   assert.equal(state.initialLoading, false);
   assert.equal(state.complete, true);
+  assert.equal(state.failed, false);
+  assert.equal(state.retryAt, 0);
+  assert.equal(state.retryCode, null);
   assert.equal(refreshed, 1);
   stop();
   const lateStop = watchChatHistory({

@@ -1029,8 +1029,9 @@ export const zh = {
   'automations.audiences.resolved': '{count} 人：{names}',
   'settings.operator.title': '操作台',
   'settings.operator.hint':
-    '包含这些类型的未读会话。默认仅启用一对一私聊。菜单角标使用相同的选择。',
-  'settings.operator.private': '一对一私聊',
+    '默认仅启用与人的私聊。机器人、群组和频道关闭；请选择要包含的类型。菜单角标使用相同选择。',
+  'settings.operator.bot': '机器人',
+  'settings.operator.private': '与人的一对一私聊',
   'settings.operator.group': '群组和群聊',
   'settings.operator.channel': '频道',
   'settings.stories.title': '动态',

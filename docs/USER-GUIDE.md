@@ -644,3 +644,7 @@ plan and ask y/N; scripts pass `--yes`.
 - [`docs/case-studies/`](./case-studies/) — full case studies for
   every issue, including the issue-#8 case study covering this
   publishing setup.
+
+Reloads preserve the current section, selected conversation/provider, eligible Operator card and window scroll. Back/Forward works across menus and details; repeated menu clicks do not add duplicate visits. See [navigation](NAVIGATION.md).
+
+Operator excludes bots by default. Settings → Operator provides an independent Bots switch shared with the badge.

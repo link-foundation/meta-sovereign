@@ -140,6 +140,23 @@ const say = (eventType, eventData, extra = {}) => ({
 });
 const read = (event) => readBridgeMessage(event, { frame, origin: ORIGIN });
 
+test('official SDK no-argument events accept eventData empty strings without accepting bad action payloads', () => {
+  for (const type of [
+    'web_app_ready',
+    'web_app_close',
+    'web_app_request_theme',
+    'web_app_request_viewport',
+  ]) {
+    assert.equal(read(say(type, '')).type, type);
+  }
+  assert.equal(read(say('web_app_data_send', '')), null);
+  assert.equal(
+    read(say('web_app_ready', '', { origin: 'https://evil.example' })),
+    null
+  );
+  assert.equal(read(say('web_app_ready', '', { source: {} })), null);
+});
+
 test('a message is believed only from the frame and its origin', () => {
   assert.deepEqual(read(say('web_app_ready')), {
     type: 'web_app_ready',

@@ -19,6 +19,7 @@ import { OperatorView } from './operator-view.js';
 import { AutomationsView } from './automations-view.js';
 import { CvView } from './cv-view.js';
 import { GreetingsView } from './greetings-view.js';
+import { navigateApp, backInApp } from './app-route.js';
 import { navItems } from './nav-items.js';
 import { SettingsView } from './settings-view.js';
 import { useDates, useT } from './i18n.js';
@@ -1135,15 +1136,6 @@ export const StatusView = () => {
 const connectionPlace = () =>
   parseConnectionHash(globalThis.location?.hash ?? '');
 
-const clearConnectionHash = () => {
-  const location = globalThis.location;
-  if (!location?.hash?.startsWith('#conn-')) {
-    return;
-  }
-  const next = `${location.pathname}${location.search}`;
-  globalThis.history?.replaceState?.(null, '', next);
-};
-
 // A provider page opens at its top; Back to the list returns to where
 // the user was in it (the list is long on phones).
 const useListScroll = (activeProviderId) => {
@@ -1205,16 +1197,17 @@ const ConnectionsView = () => {
       // Switching tabs replaces the hash: Back still leaves the page.
       onMode: (mode) => {
         setPlace({ provider: activeProviderId, mode });
-        const { pathname = '', search = '' } = globalThis.location ?? {};
-        globalThis.history?.replaceState?.(
-          null,
-          '',
-          `${pathname}${search}${connectionHash(activeProviderId, mode)}`
+        navigateApp(
+          {
+            view: 'connections',
+            anchor: connectionHash(activeProviderId, mode),
+          },
+          { replace: true }
         );
       },
       onBack: () => {
         setPlace({ provider: null, mode: 'import' });
-        clearConnectionHash();
+        backInApp({ view: 'connections', anchor: '' });
         setRefresh((value) => value + 1);
       },
     });
@@ -1223,9 +1216,10 @@ const ConnectionsView = () => {
     status,
     onOpen: (providerId, mode = 'import') => {
       setPlace({ provider: providerId, mode });
-      if (globalThis.location) {
-        globalThis.location.hash = connectionHash(providerId, mode);
-      }
+      navigateApp({
+        view: 'connections',
+        anchor: connectionHash(providerId, mode),
+      });
     },
   });
 };

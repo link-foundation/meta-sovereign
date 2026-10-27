@@ -2,13 +2,7 @@
 // ./dom.js keeps the offline-first storage, discovery, WebRTC sync,
 // and server fallback contracts stable.
 
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { api } from './dom.js';
 import { installClientLog } from './client-log.js';
@@ -42,6 +36,7 @@ import { AddthemeHost, useApplyCloudTheme } from './cloud-themes.js';
 import { ContactLinkHost } from './contact-links.js';
 import { AppNotifications } from './app-notify.js';
 import { LockScreen, useLocalLock } from './passcode.js';
+import { useAppNavigation } from './app-navigation.js';
 import { useNavigationCounts } from './navigation-counts.js';
 
 // Browser e2e tests reach the booted api here: in the bundled build the
@@ -95,7 +90,8 @@ const ViewNotifications = ({ active, t, onOpen }) =>
     : el(AppNotifications, { api, t, onOpen });
 
 const App = () => {
-  const [active, setActive] = useState('chat');
+  const [route, navigate] = useAppNavigation();
+  const active = route.view;
   const counts = useNavigationCounts(api, active);
   const online = useOnlineMode();
   useApplyAppearance();
@@ -126,40 +122,12 @@ const App = () => {
     }
   }, [connected]);
 
-  // Listen for cross-component "switch to view N and scroll to anchor"
-  // events fired by the per-section "Connect first" CTAs (R-O7).
-  useEffect(() => {
-    const onNavigate = (event) => {
-      const detail = event.detail ?? {};
-      if (typeof detail.view === 'string') {
-        setActive(detail.view);
-      }
-      if (typeof detail.anchor === 'string') {
-        // Update the URL hash so the Connections view can open the
-        // matching `id="conn-{provider}"` detail on first paint.
-        if (globalThis.location) {
-          globalThis.location.hash = detail.anchor;
-        }
-      }
-    };
-    globalThis.addEventListener('meta-sovereign:navigate', onNavigate);
-    return () =>
-      globalThis.removeEventListener('meta-sovereign:navigate', onNavigate);
-  }, []);
   const openTutorial = () => {
     tutorial.reopen();
     setTutorialOpen(true);
   };
   const closeTutorial = () => setTutorialOpen(false);
   const View = useMemo(() => views[active] ?? views.chat, [active]);
-  // Another section starts at its top, not at the old one's scroll.
-  const shownView = useRef(active);
-  useLayoutEffect(() => {
-    if (shownView.current !== active) {
-      shownView.current = active;
-      globalThis.scrollTo?.(0, 0);
-    }
-  }, [active]);
 
   return el(LocaleContext.Provider, { value: localeApi }, [
     el(React.Fragment, { key: 'shell' }, [
@@ -207,7 +175,7 @@ const App = () => {
           key: 'shell-nav',
           width,
           active,
-          onSelect: setActive,
+          onSelect: (view) => navigate({ view }),
           counts,
         },
         el(
@@ -248,7 +216,7 @@ const App = () => {
         key: 'notify',
         active,
         t,
-        onOpen: () => setActive('chat'),
+        onOpen: () => navigate({ view: 'chat' }),
       }),
       el(TutorialOverlay, {
         key: 'tutorial-overlay',

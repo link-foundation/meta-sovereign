@@ -8670,6 +8670,16 @@ span.bubble-effect {
   background: var(--bg-elev);
   pointer-events: none;
 }
+.web-app-loading.is-failed {
+  flex-direction: column;
+  gap: var(--control-gap);
+  padding: 1.25rem;
+  text-align: center;
+  pointer-events: auto;
+}
+.web-app-loading.is-failed .row {
+  justify-content: center;
+}
 .web-app-spinner {
   display: inline-block;
   width: 1.4rem;

@@ -276,6 +276,8 @@ const headerOf = (data) => {
 // Each documented event the page acts on: how its data is read; null
 // data refuses the event.
 const READERS = {
+  iframe_ready: (d) => ({ reloadSupported: flag(d.reload_supported, false) }),
+  iframe_will_reload: () => ({}),
   web_app_ready: () => ({}),
   web_app_expand: () => ({}),
   web_app_close: () => ({}),
@@ -339,6 +341,17 @@ const bodyOf = (data) => {
  * carry `origin` (the address's origin); its body is JSON text (or an
  * object) `{ eventType, eventData }` of a known event with valid data.
  */
+const EMPTY_EVENTS = new Set([
+  'web_app_ready',
+  'web_app_close',
+  'web_app_expand',
+  'web_app_request_theme',
+  'web_app_request_viewport',
+  'web_app_request_safe_area',
+  'web_app_request_content_safe_area',
+  'iframe_will_reload',
+]);
+
 export const readBridgeMessage = (event, { frame, origin }) => {
   if (!frame || !origin || event?.source !== frame || event.origin !== origin) {
     return null;
@@ -348,7 +361,12 @@ export const readBridgeMessage = (event, { frame, origin }) => {
   if (typeof type !== 'string' || !Object.hasOwn(READERS, type)) {
     return null;
   }
-  const raw = body.eventData === undefined ? {} : body.eventData;
+  // Telegram's official SDK serializes no-argument events with eventData: ''.
+  const raw =
+    body.eventData === undefined ||
+    (body.eventData === '' && EMPTY_EVENTS.has(type))
+      ? {}
+      : body.eventData;
   const data = isObject(raw) ? READERS[type](raw) : null;
   return data ? { type, data } : null;
 };
@@ -375,6 +393,7 @@ export const initialPanel = () => ({
 });
 
 const SETTERS = {
+  iframe_will_reload: (s) => ({ ...s, ready: false }),
   web_app_ready: (s) => ({ ...s, ready: true }),
   web_app_expand: (s) => ({ ...s, expanded: true }),
   web_app_setup_main_button: (s, d) => ({ ...s, main: d }),

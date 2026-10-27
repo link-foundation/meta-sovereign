@@ -1089,8 +1089,9 @@ export const ru = {
   'automations.audiences.resolved': 'Людей: {count}. {names}',
   'settings.operator.title': 'Оператор',
   'settings.operator.hint':
-    'Включать непрочитанные диалоги этих типов. По умолчанию включены только личные диалоги. Счётчик меню использует тот же выбор.',
-  'settings.operator.private': 'Личные диалоги один на один',
+    'По умолчанию включены личные диалоги с людьми. Боты, группы и каналы выключены; выберите нужные типы. Счётчик меню использует тот же выбор.',
+  'settings.operator.bot': 'Боты',
+  'settings.operator.private': 'Личные диалоги с людьми',
   'settings.operator.group': 'Группы и групповые чаты',
   'settings.operator.channel': 'Каналы',
   'settings.stories.title': 'Истории',

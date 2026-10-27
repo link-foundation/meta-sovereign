@@ -650,6 +650,12 @@ export const ruChatMore = {
   'chat.webApp.reload': 'Обновить',
   'chat.webApp.close': 'Закрыть',
   'chat.webApp.back': 'Назад',
+  'chat.webApp.retry': 'Повторить',
+  'chat.webApp.browser': 'Открыть в браузере',
+  'chat.webApp.notResponding':
+    'Приложение не ответило. Его сайт может быть недоступен или запрещать встроенные окна.',
+  'chat.webApp.openFailed':
+    'Не удалось открыть мини-приложение. Попробуйте снова.',
   'chat.webApp.loading': 'Загрузка приложения…',
   'chat.webApp.ok': 'ОК',
   'chat.webApp.cancel': 'Отмена',

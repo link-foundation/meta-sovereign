@@ -644,6 +644,11 @@ export const hiChatMore = {
   'chat.webApp.reload': 'रीलोड करें',
   'chat.webApp.close': 'बंद करें',
   'chat.webApp.back': 'वापस',
+  'chat.webApp.retry': 'पुनः प्रयास',
+  'chat.webApp.browser': 'ब्राउज़र में खोलें',
+  'chat.webApp.notResponding':
+    'ऐप ने जवाब नहीं दिया। उसकी वेबसाइट अनुपलब्ध हो सकती है या एम्बेडेड विंडो रोक सकती है।',
+  'chat.webApp.openFailed': 'मिनी ऐप नहीं खुल सका। फिर प्रयास करें।',
   'chat.webApp.loading': 'ऐप लोड हो रहा है…',
   'chat.webApp.ok': 'ठीक है',
   'chat.webApp.cancel': 'रद्द करें',

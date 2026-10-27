@@ -610,6 +610,11 @@ export const zhChatMore = {
   'chat.webApp.reload': '重新加载',
   'chat.webApp.close': '关闭',
   'chat.webApp.back': '返回',
+  'chat.webApp.retry': '重试',
+  'chat.webApp.browser': '在浏览器中打开',
+  'chat.webApp.notResponding':
+    '应用尚未响应。其网站可能不可用，或禁止嵌入窗口。',
+  'chat.webApp.openFailed': '无法打开小程序。请重试。',
   'chat.webApp.loading': '正在加载小程序…',
   'chat.webApp.ok': '确定',
   'chat.webApp.cancel': '取消',

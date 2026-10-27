@@ -4,6 +4,12 @@
 // flows through the injected `api` (./dom.js in the SPA), so the screen
 // renders in tests with a fake one.
 
+import {
+  navigateApp,
+  parseAppRoute,
+  chatHash,
+  splitChatAddress,
+} from './app-route.js';
 import { telegramStatusFor } from './telegram-status.js';
 import { logOnce } from './api-errors.js';
 import {
@@ -492,11 +498,8 @@ const useAutomationMenu = ({ api, current, confirm, t, after }) => {
 };
 
 /** `#chat=<source>:<chat>`: opens that chat (Contacts, the autopilot). */
-export const openChat = ({ source, chat }) => {
-  if (globalThis.location) {
-    globalThis.location.hash = `chat=${source}:${encodeURIComponent(chat)}`;
-  }
-};
+export const openChat = (target) =>
+  navigateApp({ view: 'chat', anchor: chatHash(target) });
 
 /**
  * After a draft is settled, the next chat its automation fits (R-Y86):
@@ -700,15 +703,13 @@ const useChatFilter = () =>
 const useChatSort = () => useRemembered(SORT_KEY, CHAT_SORTS);
 
 /** `#chat=<source>:<chat>` — a chat opened from Contacts. */
-export const chatFromHash = (hash = '') => {
-  const match = /^#chat=([a-z0-9_-]+):(.+)$/i.exec(String(hash));
-  return match
-    ? { source: match[1], chat: decodeURIComponent(match[2]) }
-    : null;
+export const chatFromHash = (hash = '', view = 'chat') => {
+  const route = parseAppRoute(hash);
+  return route?.view === view ? (route.chat ?? null) : null;
 };
 
-const useHashChat = () => {
-  const read = () => chatFromHash(globalThis.location?.hash);
+const useHashChat = (view) => {
+  const read = () => chatFromHash(globalThis.location?.hash, view);
   const [target, setTarget] = useState(read);
   useEffect(() => {
     const onHash = () => setTarget(read());
@@ -913,13 +914,17 @@ const useChatList = (links, target, query, folders = []) => {
 // asks it to go to its newest, `toEnd` counting the asks, as in Desktop,
 // R-Y109), or from a search across Telegram (`openAt`, R-Y107) at a
 // message when one was found — `arrival` until the chat has gone to it.
-const useOpening = ({ show, current, setActive, setNotice }) => {
+const useOpening = ({ show, current, setActive, setNotice, followHash }) => {
   const [arrival, setArrival] = useState(null);
   const [toEnd, setToEnd] = useState(0);
   return {
     select: (key) => {
       if (key === current?.key) {
         setToEnd((n) => n + 1);
+      }
+      if (followHash) {
+        const chat = splitChatAddress(key);
+        navigateApp({ view: 'chat', anchor: chat ? chatHash(chat) : '' });
       }
       setActive(key);
       setNotice(null);
@@ -990,7 +995,9 @@ const useHistory = (api, current, links, tick, telegram) => {
 };
 
 const useCurrentChat = (all, target, selectFirst) => {
-  const [active, setActive] = useState('');
+  const [active, setActive] = useState(() =>
+    target ? chatKey(target.source, target.chat) : ''
+  );
   useEffect(() => {
     if (target) {
       setActive(chatKey(target.source, target.chat));
@@ -1014,6 +1021,7 @@ export const useChatState = (
     autoRead = true,
     followHash = true,
     selectFirst = true,
+    hashView = 'chat',
   } = {}
 ) => {
   const [tick, setTick] = useState(0);
@@ -1022,7 +1030,7 @@ export const useChatState = (
   const [query, setQuery] = useState('');
   const [notice, setNotice] = useState(null);
   const telegram = useTelegramAccount(api, refresh, { live });
-  const hashTarget = useHashChat();
+  const hashTarget = useHashChat(hashView);
   const target = followHash ? hashTarget : null;
   const folders = useTelegramFolders(api, telegram);
   const list = useChatList(links, target, query, folders);
@@ -1050,7 +1058,13 @@ export const useChatState = (
     openChat(target);
     setActive(chatKey(target.source, String(target.chat)));
   };
-  const opening = useOpening({ show, current, setActive, setNotice });
+  const opening = useOpening({
+    show,
+    current,
+    setActive,
+    setNotice,
+    followHash: followHash && hashView === 'chat',
+  });
   // The first look is the list as loaded, not the opened chat alone.
   useNotifications({ chats: links ? all : [], current, show, t, api });
   const composer = useComposer({

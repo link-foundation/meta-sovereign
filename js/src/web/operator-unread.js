@@ -36,7 +36,7 @@ export const useOperatorUnread = (api, state, queue) => {
   const eligible = current && queue.some((chat) => chat.key === current.key);
   const valid = eligible && verified === current.key;
   useEffect(() => {
-    if (valid) {
+    if (state.loading || valid) {
       return undefined;
     }
     if (current && !eligible) {
@@ -77,7 +77,7 @@ export const useOperatorUnread = (api, state, queue) => {
     return () => {
       stopped = true;
     };
-  }, [api, valid, eligible, current?.key, first, retry]);
+  }, [api, state.loading, valid, eligible, current?.key, first, retry]);
   useEffect(() => {
     if (!error) {
       return undefined;

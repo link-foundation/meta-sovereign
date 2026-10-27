@@ -1070,8 +1070,9 @@ export const hi = {
   'automations.audiences.resolved': '{count} लोग: {names}',
   'settings.operator.title': 'ऑपरेटर',
   'settings.operator.hint':
-    'इन प्रकारों की अपठित बातचीत शामिल करें। डिफ़ॉल्ट रूप से केवल निजी एक-से-एक चैट चालू हैं। मेनू की गिनती भी यही चयन उपयोग करती है।',
-  'settings.operator.private': 'निजी एक-से-एक चैट',
+    'डिफ़ॉल्ट रूप से केवल लोगों के साथ निजी चैट चालू हैं। बॉट, समूह और चैनल बंद हैं; शामिल करने के प्रकार चुनें। मेनू बैज वही चयन उपयोग करता है।',
+  'settings.operator.bot': 'बॉट',
+  'settings.operator.private': 'लोगों के साथ निजी चैट',
   'settings.operator.group': 'समूह और समूह चैट',
   'settings.operator.channel': 'चैनल',
   'settings.stories.title': 'स्टोरी',

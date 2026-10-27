@@ -706,7 +706,7 @@ const stepConnectionsCredentialRoundtrip = async ({
   base,
   commander,
 }) => {
-  await page.goto(base, { waitUntil: 'load' });
+  await page.goto(`${base}/#/connections`, { waitUntil: 'load' });
   await page.click('button[data-view="connections"]');
   await page.waitForSelector(
     'article[data-provider-id="telegram"] button[data-action="open-connection-detail"]',

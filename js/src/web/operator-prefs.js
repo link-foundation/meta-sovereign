@@ -3,6 +3,7 @@ import { useSyncExternalStore } from 'react';
 export const OPERATOR_SCOPE_KEY = 'metaSovereignOperatorScope';
 export const DEFAULT_OPERATOR_SCOPE = Object.freeze({
   private: true,
+  bot: false,
   group: false,
   channel: false,
 });

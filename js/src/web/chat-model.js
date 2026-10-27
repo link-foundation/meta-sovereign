@@ -119,7 +119,7 @@ export const unreadMarks = (messages, read, self = ['me']) => {
   };
 };
 
-const PRIVATE_TYPES = new Set(['bot_chat', 'saved_messages']);
+const PRIVATE_TYPES = new Set(['bot', 'bot_chat', 'saved_messages']);
 
 /**
  * Which tab a chat is under: `private` (one other person, a bot, saved
@@ -203,6 +203,11 @@ export const filterChats = (chats = [], filter = 'all') =>
 // A forum group (R-Y122), by its read link.
 const isForum = (read) => Number(read?.forum ?? 0) > 0;
 
+const botIdentity = (head = {}, read = {}) =>
+  head.bot || read?.bot || ['bot', 'bot_chat'].includes(head.chatType)
+    ? { bot: true }
+    : {};
+
 const summarize = (key, messages, self, read = null, now = Date.now()) => {
   const sorted = [...messages].sort(byTime);
   const last = sorted.at(-1);
@@ -221,6 +226,7 @@ const summarize = (key, messages, self, read = null, now = Date.now()) => {
       ? isPersonalChatType(last.chatType)
       : people.size <= 1,
     kind: chatKind(last.chatType, people.size),
+    ...botIdentity(last, read),
     people: [...people],
     count: sorted.length,
     unread: unreadCount(sorted, read, self),
@@ -264,6 +270,7 @@ const clearedChat = (key, read, links, self, now) => {
       ? isPersonalChatType(read.chatType)
       : kind === 'private',
     kind,
+    ...botIdentity(read),
     people: [],
     count: 0,
     unread: 0,

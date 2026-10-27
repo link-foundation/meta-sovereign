@@ -1073,8 +1073,9 @@ export const en = {
   'automations.audiences.resolved': '{count} people: {names}',
   'settings.operator.title': 'Operator',
   'settings.operator.hint':
-    'Include unread conversations from these types. Private one-to-one chats are enabled by default. The menu badge uses the same selection.',
-  'settings.operator.private': 'Private one-to-one chats',
+    'Private chats with people are enabled by default. Bots, groups and channels are off; choose the types to include. The menu badge uses the same selection.',
+  'settings.operator.bot': 'Bots',
+  'settings.operator.private': 'Private chats with people',
   'settings.operator.group': 'Groups and group chats',
   'settings.operator.channel': 'Channels',
   'settings.stories.title': 'Stories',

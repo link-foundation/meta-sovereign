@@ -3,7 +3,7 @@ import { DEFAULT_OPERATOR_SCOPE } from './operator-prefs.js';
 
 export const needsAttention = (chat) => Number(chat.unread) > 0;
 export const operatorEligible = (chat, scope = DEFAULT_OPERATOR_SCOPE) =>
-  needsAttention(chat) && Boolean(scope[chat.kind]);
+  needsAttention(chat) && Boolean(scope[chat.bot ? 'bot' : chat.kind]);
 export const operatorRevision = (chat) =>
   `${chat.last?.message?.id ?? ''}:${chat.unread}:${Boolean(chat.marked)}`;
 

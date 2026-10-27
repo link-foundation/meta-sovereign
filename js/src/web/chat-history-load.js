@@ -47,6 +47,7 @@ export const watchChatHistory = ({
       tries = 0;
       update({
         initialLoading: false,
+        failed: false,
         backgroundLoading: Boolean(result.background),
         retryAt: 0,
         retryCode: null,

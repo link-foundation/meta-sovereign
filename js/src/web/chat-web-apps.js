@@ -13,7 +13,7 @@
 // carrying its origin, are heard; what it asks is read by strict rules
 // (web-apps-model.js) and anything else is ignored.
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useT } from './i18n.js';
 import { Icon } from './icons.js';
@@ -31,6 +31,7 @@ import {
 } from './web-apps-model.js';
 import { openMessageLink } from './message-links.js';
 import { usePreparedShare } from './chat-prepared-share.js';
+import { WebAppLoading, useWebAppProgress } from './web-app-loading.js';
 
 const el = React.createElement;
 
@@ -96,8 +97,7 @@ export const useWebAppHost = ({ api, state }) => {
     const url = appUrl(answer?.url);
     // Never the app's own origin: the sandbox keeps nothing apart then.
     if (!answer?.ok || !url || originOf(url) === globalThis.location?.origin) {
-      setSession(null);
-      state?.notify?.({ kind: 'action-failed' });
+      setSession({ id, request, url: null, error: answer?.code ?? 'failed' });
       return;
     }
     setSession({
@@ -150,6 +150,10 @@ const SAFE = { left: 0, top: 0, right: 0, bottom: 0 };
 // What each event the app asks does besides changing the panel: `c` is
 // `{ post, size, request, session, api, close, popup }`.
 const EFFECTS = {
+  iframe_ready: (c) => {
+    c.post('theme_changed', { theme_params: themeNow() });
+    c.post('viewport_changed', c.size());
+  },
   web_app_request_theme: (c) =>
     c.post('theme_changed', { theme_params: themeNow() }),
   web_app_request_viewport: (c) => c.post('viewport_changed', c.size()),
@@ -189,7 +193,7 @@ const dataSender =
 const useBridge = ({ session, frame, onEvent }) => {
   const latest = useRef(onEvent);
   latest.current = onEvent;
-  useEffect(() => {
+  useLayoutEffect(() => {
     const origin = originOf(session.url);
     const on = (event) => {
       const message = readBridgeMessage(event, {
@@ -448,6 +452,7 @@ const WebAppPanel = ({ session, api, chats, onClose, onReload }) => {
   const frame = useRef(null);
   const body = useRef(null);
   const [panel, setPanel] = useState(initialPanel);
+  const progress = useWebAppProgress(panel.ready);
   const [popup, setPopup] = useState(null);
   const origin = originOf(session.url);
   const post = (type, data) => postTo(frame.current, origin, type, data);
@@ -565,16 +570,17 @@ const WebAppPanel = ({ session, api, chats, onClose, onReload }) => {
                   sandbox: SANDBOX,
                   referrerPolicy: 'no-referrer',
                   'data-web-app-frame': true,
+                  onError: progress.onError,
                 })
               : null,
-            panel.ready
-              ? null
-              : el(
-                  'div',
-                  { key: 'loading', className: 'web-app-loading' },
-                  el('span', { className: 'web-app-spinner' }),
-                  el('span', { className: 'sr-only' }, t('chat.webApp.loading'))
-                ),
+            el(WebAppLoading, {
+              key: 'loading',
+              ready: panel.ready,
+              failed: progress.failed,
+              error: session.error,
+              url: session.url,
+              onRetry: onReload,
+            }),
           ]
         ),
         el(Bottom, { key: 'bottom', panel, post }),
