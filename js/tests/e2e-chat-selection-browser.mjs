@@ -58,6 +58,10 @@ if (engine === 'chromium') {
   });
 }
 const page = await context.newPage();
+await page.addInitScript(() => {
+  globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
+  globalThis.localStorage.setItem('metaSovereignSkin', 't3');
+});
 // This exercises a connected chat's menus. Disconnected cached chats
 // intentionally show a connection guide (covered by the offline tests).
 await page.route('**/api/telegram/status', (route) =>
@@ -306,6 +310,17 @@ try {
   assert(
     (await top())?.startsWith('FORWARD 1 DELETE 1'),
     'menu Select selects the full row'
+  );
+  const selectedColors = await page
+    .locator('.bubble-check.is-checked')
+    .first()
+    .evaluate((node) => {
+      const style = globalThis.getComputedStyle(node);
+      return [style.backgroundColor, style.color];
+    });
+  assert(
+    selectedColors.join() === 'rgb(255, 255, 255),rgb(0, 0, 0)',
+    'selected checks are monochrome in the default dark theme'
   );
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log('[e2e-chat-selection] OK');

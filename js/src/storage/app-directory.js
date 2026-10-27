@@ -2,6 +2,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import { renameDurable } from './durable.js';
 import { acquireStoreLock } from './store-lock.js';
 
 export const defaultStoreDir = ({
@@ -55,9 +56,9 @@ export const resolveUserStore = async ({
     await fs.mkdir(path.dirname(target), { recursive: true, mode: 0o700 });
     if (await exists(target)) {
       // Preserve even an unused desktop folder; never delete user files.
-      await fs.rename(target, `${target}.before-migration-${Date.now()}`);
+      await renameDurable(target, `${target}.before-migration-${Date.now()}`);
     }
-    await fs.rename(legacy, target);
+    await renameDurable(legacy, target);
     try {
       await fs.symlink(
         target,
@@ -66,7 +67,7 @@ export const resolveUserStore = async ({
       );
     } catch (error) {
       // Restore the old location when a compatibility link cannot be made.
-      await fs.rename(target, legacy);
+      await renameDurable(target, legacy);
       throw error;
     }
     await fs.chmod(target, 0o700);

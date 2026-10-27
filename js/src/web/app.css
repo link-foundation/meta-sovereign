@@ -12955,6 +12955,8 @@ audio.remote-player {
 }
 /* Default dark controls use neutral surfaces and white line icons. */
 :root[data-theme='dark'][data-skin='t3'] {
+  --msg-select-overlay: rgba(255, 255, 255, 0.16);
+  --msg-select-check: #fff;
   --bg: #08090b;
   --bg-elev: #121315;
   --bg-active: #292a2d;
@@ -13106,4 +13108,8 @@ main[data-view='operator']:has(> .operator-workspace) {
   color: var(--bg);
   min-width: 1.4em;
   text-align: center;
+}
+
+:root[data-theme='dark'][data-skin='t3'] .bubble-check.is-checked {
+  color: #000;
 }
