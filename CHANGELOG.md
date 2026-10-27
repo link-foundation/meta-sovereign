@@ -1,5 +1,19 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.53.1
+
+### Patch Changes
+
+- Keep large, actively syncing archives from making a healthy local server appear offline. Use a scan-free identity probe for discovery and availability checks, allow a busy primary server time to finish startup, retain support for older servers, and share in-flight statistics work even when new messages arrive. Cover hosted Chromium/WebKit recovery with statistics slower than the discovery deadline. Keep the tutorial's first service visible when work-account cards make Connections taller.
+
+  Avoid scanning and serialising the complete archive twice when verifying the live binary mirror, whose logical reads delegate to the same authoritative text store. Keep full comparison for independent stores. This prevents full status requests in older browser tabs from blocking discovery and chat requests on large archives.
+
+  Keep Chat and Operator stable during slow or failed local-server requests. Share the conversation directory and event stream, retain known account/data state, ignore stale availability failures, and validate Telegram unread counters before opening an Operator card. Exclude zero-unread manual marks, correct phantom forum unread counts using complete topic lists, and align notification count rules and labels.
+
+  Support message selection and context menus across the full row, including outside the centered column, with monochrome selected rows and checkmarks in the default dark theme. Automatically load earlier history on scroll without an idle saved-message notice or manual button. Deduplicate composer suggestions and discard stale results. Distinguish real Telegram Business bots from visibly active, paused or off app autopilots. Avoid full archive copies during routine health and typing polls; report Telegram backfill waits as waits. Cover the shared behaviors in Chromium, WebKit and focused regressions.
+
+  Retry temporary Windows sharing errors when moving an older store into the user application folder, preserving the writer lock and rollback behavior.
+
 ## 0.53.0
 
 ### Minor Changes
