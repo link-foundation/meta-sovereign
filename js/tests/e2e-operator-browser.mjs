@@ -1,6 +1,7 @@
 // Unread conversations are Operator cards, with a real composer and no list.
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, fulfil, openChatApp } from './helpers/e2e-chat.mjs';
+import { summarizeChats } from '../src/web/chat-model.js';
 
 const store = createMemoryStore();
 const at = Date.now();
@@ -36,6 +37,10 @@ for (const chat of ['111', '222', '333']) {
   await store.put(message(chat, 2, `Unread question ${chat}`));
   await store.put(read(chat, chat === '333' ? 2 : 1, chat === '333' ? 0 : 1));
 }
+await store.put(message('000', 2, 'Already read in Telegram'));
+await store.put(read('000', 1, 1)); // Deliberately stale; Telegram will report zero.
+await store.put(message('001', 2, 'Forum with no unread topics'));
+await store.put({ ...read('001', 1, 6), forum: 1 });
 const sends = [];
 const { base, page, until, finish } = await openChatApp('operator', {
   store,
@@ -45,6 +50,37 @@ const { base, page, until, finish } = await openChatApp('operator', {
   },
 });
 let failRead = false;
+let failDirectory = true;
+await page.addInitScript(() =>
+  globalThis.localStorage.setItem('metaSovereignReadReceipts', 'off')
+);
+await page.route(/\/links\?except=msg:/, (route) =>
+  failDirectory
+    ? fulfil(route, { error: 'temporary directory outage' }, 503)
+    : route.continue()
+);
+const inspected = [];
+await page.route('**/api/telegram/dialog-state', async (route) => {
+  const { chat } = route.request().postDataJSON();
+  inspected.push(chat);
+  const current = summarizeChats(await store.query()).find(
+    (item) => item.chat === chat
+  );
+  const unread = chat === '000' ? 0 : (current?.unread ?? 0);
+  const link =
+    chat === '001'
+      ? {
+          ...read(chat, 1, 6),
+          forum: 1,
+          forumUnreadCount: 0,
+          forumUnreadTopId: 2,
+          forumDialogUnreadCount: 6,
+          forumReadInboxMaxId: 1,
+        }
+      : read(chat, unread ? 1 : 2, unread);
+  await store.put(link);
+  return fulfil(route, { ok: true, read: link });
+});
 const reads = [];
 await page.route('**/api/telegram/read', async (route) => {
   const body = route.request().postDataJSON();
@@ -75,8 +111,48 @@ const card = () =>
   page.locator('[data-operator-chat]').getAttribute('data-operator-chat');
 const badge = (name) => page.locator(`[data-nav-count="${name}"]`);
 
-await finish(async () => {
+const startupFailureSteps = async () => {
   await page.goto(base);
+  await until(
+    async () => (await page.locator('[data-load-error]').count()) > 0,
+    'startup directory failure is visible'
+  );
+  await page.locator('button[data-view="operator"]').click();
+  assert(
+    (await page.locator('.operator-empty').count()) === 0,
+    'a failed first load is never an empty queue'
+  );
+  failDirectory = false;
+  await page.locator('[data-action="load-retry"]').first().click();
+  await until(
+    async () => (await card()) === 'telegram:111',
+    'skip the stale zero-unread candidate'
+  );
+  assert(
+    inspected.includes('000'),
+    'check Telegram counters before selecting stale work'
+  );
+};
+
+const remountFailureSteps = async () => {
+  failDirectory = true;
+  await page.locator('button[data-view="calls"]').click();
+  const reopened = Date.now();
+  await page.locator('button[data-view="operator"]').click();
+  await until(
+    async () => (await card()) === 'telegram:111',
+    'cached card survives a failed directory refresh'
+  );
+  assert(Date.now() - reopened < 2500, 'remount paints a cached card promptly');
+  assert(
+    (await page.locator('.operator-empty').count()) === 0,
+    'no false empty state during refresh failure'
+  );
+  failDirectory = false;
+};
+
+await finish(async () => {
+  await startupFailureSteps();
   await until(
     async () => (await badge('operator').textContent()) === '2',
     'two unread conversations'
@@ -94,6 +170,7 @@ await finish(async () => {
     await page.locator('.operator-card .chat-composer textarea').isVisible(),
     'embedded composer visible'
   );
+  await remountFailureSteps();
   assert(
     (await page.locator('.operator-card .chat-sidebar').count()) === 0,
     'no conversation list in Operator'

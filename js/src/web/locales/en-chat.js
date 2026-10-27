@@ -9,9 +9,6 @@ export const enChat = {
   'chat.history.wait': 'Telegram asked to wait. Retrying in {seconds} seconds…',
   'chat.history.retry':
     'Loading was interrupted. Retrying in {seconds} seconds…',
-  'chat.history.partial':
-    'Showing {count} saved messages. Earlier history has not been downloaded yet.',
-  'chat.history.more': 'Load earlier',
   'chat.calls.connectHint':
     'Connect a Telegram user account to see your recent calls.',
 
@@ -150,6 +147,14 @@ export const enChat = {
   'chat.subtitle.personal': '{source} · personal chat',
   'chat.subtitle.group':
     '{source} · {count, plural, one {# person} other {# people}}',
+  'chat.automation.triggers.enabled': 'Automatic triggers enabled',
+  'chat.automation.triggers.disabled': 'Automatic triggers disabled',
+  'chat.automation.triggers.manual': 'Manual runs only',
+  'chat.automation.summary':
+    'App automations: {count} autopilots active. Telegram Business bots are managed separately.',
+  'chat.automation.active': 'Autopilot active',
+  'chat.automation.paused': 'Autopilot paused',
+  'chat.automation.off': 'Autopilot off',
   'chat.automations': 'Automations',
   'chat.automation.none':
     'No automation is offered in chats yet. Add the "chat menu" trigger to one under Automation.',
@@ -1108,8 +1113,9 @@ export const enChat = {
   'chat.business.bots.canReply': 'The bot may reply to messages',
   'chat.business.bots.disconnect': 'Disconnect the bot',
   'chat.business.bots.disconnectAsk': 'Disconnect this bot from all chats?',
-  'chat.business.bar.managed': '{name} manages this chat',
-  'chat.business.bar.paused': '{name} is paused in this chat',
+  'chat.business.bar.managed': 'Telegram Business bot {name} manages this chat',
+  'chat.business.bar.paused':
+    'Telegram Business bot {name} is paused in this chat',
   'chat.business.bar.pause': 'Pause',
   'chat.business.bar.resume': 'Resume',
   'chat.business.bar.remove': 'Remove the bot from this chat',

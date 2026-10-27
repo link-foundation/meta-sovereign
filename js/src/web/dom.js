@@ -225,7 +225,7 @@ const NO_ANSWER = Object.freeze({
 
 const serverResponse = async (path, init, { network = false } = {}) => {
   const { client, origin } = await ensure();
-  if (!client.isOnline()) {
+  if (!origin) {
     return null;
   }
   // The discovered origin is not always the page's own origin: the
@@ -237,8 +237,13 @@ const serverResponse = async (path, init, { network = false } = {}) => {
     origin ? new URL(path, origin).toString() : path,
     init?.method ?? 'GET'
   );
-  return fetch(url, init)
-    .then(announceLocked)
+  const deadline = path === '/api/telegram/status' ? 10_000 : 30_000;
+  const signal = init?.signal ?? globalThis.AbortSignal?.timeout?.(deadline);
+  return fetch(url, { ...init, ...(signal ? { signal } : {}) })
+    .then((response) => {
+      client.reached?.();
+      return announceLocked(response);
+    })
     .catch(() => (network ? NO_ANSWER : null));
 };
 
@@ -589,9 +594,9 @@ const rawApi = {
     const { client } = await ensure();
     return client.linksWithPrefix(prefix);
   },
-  chatLinks: async () => {
+  chatLinks: async (options) => {
     const { client } = await ensure();
-    return client.chatLinks();
+    return client.chatLinks(options);
   },
   chatPage: async (request) => {
     const { client } = await ensure();
@@ -989,6 +994,10 @@ const rawApi = {
     },
   // The connected Telegram account: is one connected, how did the last
   // sync go, and pull now / one chat's history (server only).
+  telegramDialogState: async (body) =>
+    (await serverPostReport('/api/telegram/dialog-state', body).catch(
+      () => null
+    )) ?? { ok: false, offline: true },
   telegramStatus: async () =>
     (await serverFetch('/api/telegram/status').catch(() => null)) ?? {
       connected: false,

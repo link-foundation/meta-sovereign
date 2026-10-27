@@ -126,7 +126,11 @@ const renderNavButtons = (
       badge:
         typeof counts[id] === 'object' ? counts[id] : { count: counts[id] },
       description: t(
-        counts[id]?.more ? 'nav.unreadAtLeast' : 'nav.unreadCount',
+        id === 'calls' && counts[id]?.more
+          ? 'nav.unreadAtLeast'
+          : ['chat', 'calls', 'operator'].includes(id)
+            ? `nav.unread.${id}`
+            : 'nav.unreadCount',
         { count: counts[id]?.count ?? counts[id] ?? 0 }
       ),
     })

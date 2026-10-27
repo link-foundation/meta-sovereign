@@ -35,7 +35,10 @@ export const KNOWN_CODES = [
 // inline by the panel that asked. Codes outside KNOWN_CODES are the panels'.
 const INLINE_ONLY = new Set(['unsupported', 'unsupported-chat']);
 // This read-only POST also supplies the background missed-call badge.
-const READ_POSTS = new Set(['/api/telegram/calls']);
+const READ_POSTS = new Set([
+  '/api/telegram/calls',
+  '/api/telegram/dialog-state',
+]);
 
 const seen = new Set();
 

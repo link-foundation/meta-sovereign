@@ -13,7 +13,10 @@ import {
   validWeekly,
 } from '../src/sources/telegram-business.js';
 import { createBusinessLinks } from '../src/sources/telegram-business-links.js';
-import { createBusinessBots } from '../src/sources/telegram-business-bots.js';
+import {
+  createBusinessBots,
+  barOf,
+} from '../src/sources/telegram-business-bots.js';
 import { createFolders, folderOf } from '../src/sources/telegram-folders.js';
 import { validFolder } from '../src/sources/telegram-folder-edit.js';
 import {
@@ -51,6 +54,13 @@ import {
 const NAMES = {
   '': ['InputUserSelf', 'InputUser', 'InputGeoPoint', 'InputDocument'],
 };
+
+test('an absent, null or zero Telegram Business bot never produces a managing banner', () => {
+  for (const businessBotId of [undefined, null, 0, 0n, '0', 'null']) {
+    assert.equal(barOf({ businessBotId }, []), null);
+  }
+  assert.equal(barOf({ businessBotId: 500n }, []).id, '500');
+});
 const apiOf = (spec) => {
   const Api = {};
   for (const name of NAMES['']) {

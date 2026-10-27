@@ -95,6 +95,9 @@ export const zh = {
   'operator.emptyHint': '新的未读会话会自动出现在这里。',
   'operator.failed': '无法将会话标为已读。此卡片仍保留，请再次点击完成。',
   'nav.unreadAtLeast': '至少 {count} 条未读',
+  'nav.unread.chat': '所有文件夹中有 {count} 条未读消息（不含静音聊天）',
+  'nav.unread.calls': '{count} 个未查看的未接来电',
+  'nav.unread.operator': '所有文件夹中有 {count} 个会话包含未读消息',
   'nav.unreadCount': '{count} 条未读',
   'marketplace.apiNote':
     '可选的 API 与导出文件连接。浏览器登录及个人资料请使用上方工作账号。',
@@ -124,6 +127,8 @@ export const zh = {
   'marketplace.serverRequired':
     '请连接更新后的本地服务器，以登录并保存这些个人资料。',
   'marketplace.failed': '操作未能完成。请检查会话窗口后重试。',
+  'operator.loading': '正在加载未读会话…',
+  'operator.checking': '正在向 Telegram 确认未读状态…',
   'operator.title': '操作员',
   'operator.next': '下一个 (N)',
   'operator.done': '完成 (D)',

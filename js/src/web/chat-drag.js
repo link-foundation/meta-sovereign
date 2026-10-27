@@ -129,7 +129,10 @@ export const useDragSelect = ({ box, column, selection, order }) => {
   const onClick = (event) => {
     const now = latest.current;
     if (
-      !now.selection.active ||
+      event.button !== 0 ||
+      event.ctrlKey ||
+      event.metaKey ||
+      Boolean(globalThis.getSelection?.()?.toString?.()) ||
       event.target?.closest?.('[data-row], [role="menu"], a, button, input')
     ) {
       return;
@@ -253,5 +256,26 @@ export const useDragSelect = ({ box, column, selection, order }) => {
     globalThis.addEventListener?.('mouseup', up);
   };
 
-  return { onMouseDown: begin, onClick };
+  const onContextMenu = (event) => {
+    if (
+      event.target?.closest?.('[data-row], [role="menu"], a, button, input')
+    ) {
+      return;
+    }
+    const row = rowAt(event.clientX, event.clientY, column?.current);
+    if (!row) {
+      return;
+    }
+    event.preventDefault();
+    row.dispatchEvent(
+      new globalThis.MouseEvent('contextmenu', {
+        bubbles: true,
+        cancelable: true,
+        button: 2,
+        clientX: event.clientX,
+        clientY: event.clientY,
+      })
+    );
+  };
+  return { onMouseDown: begin, onClick, onContextMenu };
 };

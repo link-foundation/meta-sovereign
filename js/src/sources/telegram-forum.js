@@ -73,6 +73,44 @@ const lastOf = (link) =>
       }
     : null;
 
+// Forum dialogs can retain a nonzero aggregate after every topic was read.
+// Only a complete topic list can replace that aggregate with an exact count.
+const saveTopicUnread = async (store, chat, topics, count, baseline) => {
+  if (!Number.isFinite(count) || count < 0 || count > topics.length) {
+    return false;
+  }
+  const before = await store.get(`read:telegram:${chat}`);
+  if (
+    ['inboxMaxId', 'unreadTopId', 'unreadCount'].some(
+      (key) => before?.[key] !== baseline?.[key]
+    )
+  ) {
+    return false;
+  }
+  const unreadCount = topics.reduce(
+    (sum, topic) => sum + Math.max(0, topic.unread),
+    0
+  );
+  const top = Math.max(
+    Number(before?.unreadTopId ?? 0),
+    ...topics.map((topic) => topic.top),
+    0
+  );
+  await store.put({
+    ...before,
+    id: `read:telegram:${chat}`,
+    tokens: ['read', 'telegram', chat],
+    source: 'telegram',
+    chat,
+    forum: 1,
+    forumUnreadCount: unreadCount,
+    forumUnreadTopId: top,
+    forumDialogUnreadCount: Number(before?.unreadCount ?? 0),
+    forumReadInboxMaxId: Number(before?.inboxMaxId ?? 0),
+  });
+  return true;
+};
+
 /**
  * `env` is the account's; `userClient()` the user client or null;
  * `dialogOf(chat)` the chat as listed; `tools` its `toLinks` and
@@ -92,6 +130,7 @@ export const createForum = (
       return { ok: false, supported: false };
     }
     const { Api } = await env.importer();
+    const baseline = await env.store.get(`read:telegram:${target}`);
     let answer;
     try {
       answer = await env.queue.run(`forum-topics:${target}`, 'view', () =>
@@ -126,7 +165,15 @@ export const createForum = (
         .map((t) => topicOf(t, lastOf(byId.get(Number(t?.topMessage)))))
         .filter(Boolean)
     );
-    const result = { ok: true, forum: true, topics };
+    const count = Number(answer?.count);
+    const complete = await saveTopicUnread(
+      env.store,
+      target,
+      topics,
+      count,
+      baseline
+    );
+    const result = { ok: true, forum: true, topics, count, complete };
     kept.set(target, { at: now(), answer: result });
     return result;
   };

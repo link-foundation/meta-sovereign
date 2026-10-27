@@ -66,3 +66,26 @@ test('without a server the chat list is this browser’s own', async () => {
   const client = createOfflineClient({ store, server: null });
   assert.equal((await client.chatLinks()).length, 1);
 });
+
+test('server counters win stale browser counters and publish before a slow local cache', async () => {
+  let unlock;
+  const local = new Promise((resolve) => {
+    unlock = resolve;
+  });
+  const store = { query: () => local };
+  const client = createOfflineClient({
+    store,
+    server: serverWith({ down: false }),
+  });
+  let progress;
+  const load = client.chatLinks({
+    onProgress: (links) => {
+      progress = links;
+    },
+  });
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(progress.length, 3);
+  unlock([{ id: 'read:telegram:1', unreadCount: 999, folder: 1 }]);
+  const links = await load;
+  assert.equal(links.find((link) => link.id === 'read:telegram:1').folder, 0);
+});

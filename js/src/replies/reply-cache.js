@@ -289,30 +289,34 @@ export const createReplyCache = ({
  * none — three at most, as the strip shows them.
  */
 export const mergeSuggestions = (local, remote, { limit = 8 } = {}) => {
-  if (!local) {
-    return remote ?? { stage: 'none', suggestions: [] };
-  }
-  if (!remote?.suggestions?.length) {
-    return local;
-  }
-  const whole = (list) => list.filter((s) => s.kind !== 'word');
-  const shown = new Set(
-    whole(local.suggestions).map((s) => normalizeMessage(s.text))
-  );
-  const added = whole(remote.suggestions).filter(
-    (s) => !shown.has(normalizeMessage(s.text))
-  );
-  const wholes = [...whole(local.suggestions), ...added].slice(0, limit);
-  const taken = new Set(wholes.map((s) => normalizeMessage(s.text)));
-  const wordsOf = (result) =>
-    result.suggestions.filter(
-      (s) => s.kind === 'word' && !taken.has(normalizeMessage(s.text))
-    );
-  const known = wordsOf(local);
-  const words = (known.length > 0 ? known : wordsOf(remote)).slice(
-    0,
-    Math.min(3, limit - wholes.length)
-  );
-  const suggestions = [...wholes, ...words];
-  return { ...local, stage: suggestions[0]?.kind ?? 'none', suggestions };
+  const base = local ?? remote ?? { stage: 'none', suggestions: [] };
+  const seen = new Set();
+  const unique = (list) =>
+    list.filter((suggestion) => {
+      const key = normalizeMessage(suggestion.text);
+      if (!key || seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  const localItems = local?.suggestions ?? [];
+  const remoteItems = remote?.suggestions ?? [];
+  const whole = unique(
+    [...localItems, ...remoteItems].filter((s) => s.kind !== 'word')
+  ).slice(0, limit);
+  const knownWords = localItems.filter((s) => s.kind === 'word');
+  const words = unique(
+    knownWords.length
+      ? knownWords
+      : remoteItems.filter((s) => s.kind === 'word')
+  ).slice(0, Math.min(3, limit - whole.length));
+  const suggestions = [...whole, ...words];
+  return {
+    ...base,
+    stage: suggestions.length
+      ? (suggestions[0]?.kind ?? base.stage ?? 'none')
+      : 'none',
+    suggestions,
+  };
 };

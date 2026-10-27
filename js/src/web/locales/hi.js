@@ -98,6 +98,9 @@ export const hi = {
   'operator.failed':
     'बातचीत को पढ़ा हुआ चिह्नित नहीं किया जा सका। कार्ड यहीं है; फिर से पूरा दबाएँ।',
   'nav.unreadAtLeast': 'कम से कम {count} अपठित',
+  'nav.unread.chat': 'सभी फ़ोल्डर में {count} अपठित संदेश, म्यूट चैट छोड़कर',
+  'nav.unread.calls': '{count} अपठित मिस्ड कॉल',
+  'nav.unread.operator': 'सभी फ़ोल्डर में अपठित संदेश वाली {count} बातचीत',
   'nav.unreadCount': '{count} अपठित',
   'marketplace.apiNote':
     'वैकल्पिक API और आर्काइव पहुँच। ब्राउज़र साइन-इन और प्रोफ़ाइल के लिए ऊपर कार्य खाते देखें।',
@@ -130,6 +133,8 @@ export const hi = {
     'साइन इन और प्रोफ़ाइल सहेजने के लिए अपडेट किए गए लोकल सर्वर से जुड़ें।',
   'marketplace.failed':
     'कार्य पूरा नहीं हो सका। सत्र की विंडो जाँचकर फिर कोशिश करें।',
+  'operator.loading': 'अपठित बातचीत लोड हो रही हैं…',
+  'operator.checking': 'Telegram से अपठित स्थिति जाँची जा रही है…',
   'operator.title': 'ऑपरेटर',
   'operator.next': 'अगला (N)',
   'operator.done': 'पूरा (D)',

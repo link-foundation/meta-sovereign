@@ -152,6 +152,8 @@ test('server discovery picks the first reachable candidate, then degrades on fai
   serverUp = false;
   const acFlap = await client.autocomplete('local');
   assert.equal(acFlap[0]?.text, 'local-only-fallback');
+  assert.equal(client.isOnline(), true);
+  await client.autocomplete('local');
   assert.equal(client.isOnline(), false);
   assert.deepEqual(events, [{ type: 'mode-change', online: false }]);
 });

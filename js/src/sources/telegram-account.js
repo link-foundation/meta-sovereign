@@ -28,6 +28,7 @@
  * chat ids and the account's public name only.
  */
 
+import { createDialogState } from './telegram-dialog-state.js';
 import { buildMessageLink } from './link.js';
 import { personLink } from './live-links.js';
 import { accountOf, gramjsClientFactory } from './telegram-mtproto.js';
@@ -583,7 +584,6 @@ export const pinnedRanks = (listed) => {
   return ranks;
 };
 
-// What Telegram knows about a chat's reading and draft, as listed.
 const dialogReadLink = (chat, dialog, rank) => {
   const state = dialog.dialog ?? {};
   const draft = state.draft;
@@ -1123,10 +1123,15 @@ const createMessaging = (env) => {
     return { ok: true };
   };
 
-  return { post, setTyping, markRead, saveDraft };
+  return {
+    post,
+    setTyping,
+    markRead,
+    saveDraft,
+    dialogState: createDialogState(env, userChat),
+  };
 };
 
-// The user's connection, opened again if it was dropped.
 const reopenerOf = (store, connection) => async () => {
   const creds = await readTelegramCredentials(store);
   if (creds?.kind === 'user') {

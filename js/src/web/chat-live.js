@@ -14,8 +14,16 @@
 //   - the queue and every chat's unsent draft survive a reload, and a
 //     Telegram chat's draft follows the one on the user's other devices.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { logOnce } from './api-errors.js';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+import { chatFeedFor } from './chat-feed.js';
+export { applyLinkEvents } from './chat-feed.js';
 import {
   DRAFTS_KEY,
   OUTBOX_KEY,
@@ -32,150 +40,25 @@ import {
 import { sendAsField } from './chat-send-as.js';
 import { useEditMode } from './chat-edit-mode.js';
 
-const BATCH_MS = 80;
-// A failed load of the chat list is tried again after this long.
-const RETRY_MS = 5000;
-
-/** Apply `{ type: 'put', link } | { type: 'delete', id }` events. */
-export const applyLinkEvents = (links, events = []) => {
-  if (!links || events.length === 0) {
-    return links;
-  }
-  const byId = new Map(links.map((l) => [l.id, l]));
-  for (const event of events) {
-    if (event?.type === 'delete' && event.id) {
-      byId.delete(event.id);
-    } else if (event?.type === 'put' && event.link?.id) {
-      byId.set(event.link.id, event.link);
-    }
-  }
-  return [...byId.values()];
-};
-
-/**
- * All links, loaded on each `tick` and kept current by the server's event
- * stream. Events that arrive while a load is in flight are applied again
- * on top of its answer, so none is lost to the reload. Each time the
- * stream (re)opens, `refresh()` reloads once to catch up on what was
- * missed while it was closed. A load that fails is tried again after
- * RETRY_MS (the screen would otherwise wait on it for ever), keeping the
- * list it had: a server being restarted never leaves the screen with
- * only the few chats this browser holds.
- */
-export const useLiveLinks = (api, tick, refresh) => {
-  const [links, setLinks] = useState(null);
-  const [retry, setRetry] = useState(0);
-  const [live, setLive] = useState(false);
-  const [failed, setFailed] = useState(null); // why no list yet (R-Z12)
-  const during = useRef(null); // events seen while a load runs
-  const buffer = useRef([]);
-  const timer = useRef(null);
-
-  useEffect(() => {
-    let current = true;
-    let again = null;
-    const seen = [];
-    during.current = seen;
-    Promise.resolve()
-      // The chat list and each chat's newest message; the open chat's
-      // history comes by page (./chat-window.js).
-      .then(() => (api.chatLinks ? api.chatLinks() : api.links()))
-      .then(
-        (next) => {
-          if (current && next !== undefined) {
-            setFailed(null);
-            setLinks(applyLinkEvents(next, seen));
-          }
-        },
-        (error) => {
-          if (!current) {
-            return;
-          }
-          logOnce('chat list', error);
-          setFailed(String(error?.message ?? error ?? 'failed'));
-          // Nothing shown yet: what this browser holds, until the server
-          // answers; a list already shown stays as it is.
-          if (Array.isArray(error?.local)) {
-            setLinks((before) => before ?? applyLinkEvents(error.local, seen));
-          }
-          again = globalThis.setTimeout(() => setRetry((n) => n + 1), RETRY_MS);
-        }
-      )
-      .finally(() => {
-        if (during.current === seen) {
-          during.current = null;
-        }
-      });
-    return () => {
-      current = false;
-      globalThis.clearTimeout(again);
-    };
-  }, [api, tick, retry]);
-
-  const flush = useCallback(() => {
-    timer.current = null;
-    const batch = buffer.current.splice(0);
-    during.current?.push(...batch);
-    setLinks((before) => applyLinkEvents(before, batch));
-  }, []);
-
-  /** Take events now (batched, so a burst renders once). */
-  const push = useCallback(
-    (events) => {
-      buffer.current.push(...events);
-      timer.current ??= globalThis.setTimeout(flush, BATCH_MS);
-    },
-    [flush]
+/** Shared directory: reopening a view shows its last good snapshot immediately. */
+export const useLiveLinks = (api, tick) => {
+  const feed = useMemo(() => chatFeedFor(api), [api]);
+  const snapshot = useSyncExternalStore(
+    feed.subscribe,
+    feed.snapshot,
+    feed.snapshot
   );
-
   useEffect(() => {
-    if (typeof api.events !== 'function') {
-      return undefined;
-    }
-    let stop = () => {};
-    let stopped = false;
-    Promise.resolve(
-      api.events(
-        (event) => push([event]),
-        (state) => {
-          setLive(state === 'open');
-          if (state === 'open') {
-            refresh();
-          }
-        }
-      )
-    ).then(
-      (close) => {
-        if (stopped) {
-          close?.();
-        } else {
-          stop = close ?? stop;
-        }
-      },
-      () => {}
-    );
-    return () => {
-      stopped = true;
-      stop();
-      globalThis.clearTimeout(timer.current);
-      timer.current = null;
-    };
-  }, [api, push]);
-
-  /**
-   * Links we got another way (a send's answer) show at once — in the
-   * same render that drops their pending bubble, so nothing flickers.
-   */
+    feed.refresh();
+  }, [feed, tick]);
+  useEffect(() => feed.follow(), [feed]);
   const add = useCallback(
     (list = []) => {
-      buffer.current.push(
-        ...list.filter(Boolean).map((link) => ({ type: 'put', link }))
-      );
-      flush();
+      feed.push(list.filter(Boolean).map((link) => ({ type: 'put', link })));
     },
-    [flush]
+    [feed]
   );
-  return { links, live, add, failed, retry: () => setRetry((n) => n + 1) };
+  return { ...snapshot, add, retry: feed.refresh };
 };
 
 let counter = 0;

@@ -7,9 +7,6 @@ export const zhChat = {
   'chat.history.loading': '正在优先加载此聊天的消息…',
   'chat.history.wait': 'Telegram 要求等待，将在 {seconds} 秒后重试…',
   'chat.history.retry': '加载中断，将在 {seconds} 秒后重试…',
-  'chat.history.partial':
-    '正在显示 {count} 条已保存的消息，更早的历史尚未下载。',
-  'chat.history.more': '加载更早消息',
   'chat.calls.connectHint': '连接 Telegram 用户账户以查看最近通话。',
 
   'chat.aside': '聊天',
@@ -140,6 +137,14 @@ export const zhChat = {
   'chat.typingAutomation': '{name} 正在替你输入…',
   'chat.subtitle.personal': '{source} · 私聊',
   'chat.subtitle.group': '{source} · {count} 人',
+  'chat.automation.triggers.enabled': '自动触发已启用',
+  'chat.automation.triggers.disabled': '自动触发已禁用',
+  'chat.automation.triggers.manual': '仅手动运行',
+  'chat.automation.summary':
+    '应用自动化：{count} 个自动驾驶正在运行。Telegram Business 机器人单独管理。',
+  'chat.automation.active': '自动驾驶正在运行',
+  'chat.automation.paused': '自动驾驶已暂停',
+  'chat.automation.off': '自动驾驶已关闭',
   'chat.automations': '自动化',
   'chat.automation.none':
     '聊天中还没有可用的自动化。请在“自动化”中为某个自动化添加“聊天菜单”触发器。',
@@ -1042,8 +1047,9 @@ export const zhChat = {
   'chat.business.bots.canReply': '允许机器人回复消息',
   'chat.business.bots.disconnect': '断开机器人',
   'chat.business.bots.disconnectAsk': '要将此机器人从所有聊天中断开吗？',
-  'chat.business.bar.managed': '{name} 正在管理此聊天',
-  'chat.business.bar.paused': '{name} 在此聊天中已暂停',
+  'chat.business.bar.managed': 'Telegram Business 机器人 {name} 正在管理此聊天',
+  'chat.business.bar.paused':
+    'Telegram Business 机器人 {name} 在此聊天中已暂停',
   'chat.business.bar.pause': '暂停',
   'chat.business.bar.resume': '恢复',
   'chat.business.bar.remove': '从此聊天中移除机器人',

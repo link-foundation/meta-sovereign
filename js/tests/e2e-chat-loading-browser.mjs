@@ -16,12 +16,23 @@ const message = (n) => ({
   raw: { id: n },
 });
 await store.put(message(50));
+for (let n = 1; n <= 120; n++) {
+  await store.put({
+    ...message(n),
+    id: `msg:telegram:43:${n}`,
+    chat: '43',
+    chatName: 'Automatic scrolling fixture',
+  });
+}
 const { page, base, finish } = await openChatApp('chat-loading', { store });
 let release;
 let requests = 0;
 let stage = 'pending';
 await page.route('**/api/telegram/history', async (route) => {
   const request = route.request().postDataJSON();
+  if (request.chat === '43') {
+    return fulfil(route, { written: 0, cached: true, complete: false });
+  }
   if (request.priority === 'prefetch') {
     return fulfil(route, { written: 0, cached: true, complete: false });
   }
@@ -61,6 +72,30 @@ await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
   globalThis.localStorage.setItem('metaSovereignSkin', 't3');
 });
+const automaticScrollSteps = async () => {
+  await page.locator('[data-chat="telegram:43"]').click();
+  await page.locator('[data-row="msg:telegram:43:120"]').waitFor();
+  assert(
+    (await page.getByText(/Showing \d+ saved messages/).count()) === 0,
+    'no partial-history notice'
+  );
+  assert(
+    (await page
+      .getByRole('button', { name: 'Load earlier', exact: true })
+      .count()) === 0,
+    'no manual earlier-history button'
+  );
+  for (let n = 0; n < 3; n++) {
+    await page.locator('.chat-scroll').evaluate((node) => {
+      node.scrollTop = 0;
+      node.dispatchEvent(new globalThis.Event('scroll', { bubbles: true }));
+    });
+    await page.waitForTimeout(400);
+  }
+  await page
+    .locator('[data-row="msg:telegram:43:1"]')
+    .waitFor({ state: 'attached', timeout: 3000 });
+};
 await finish(async () => {
   await page.goto(`${base}/#chat=telegram:42`);
   await page.locator('[data-row="msg:telegram:42:50"]').waitFor();
@@ -161,4 +196,5 @@ await finish(async () => {
       2,
     'Enter resets chat width'
   );
+  await automaticScrollSteps();
 });

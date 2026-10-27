@@ -214,7 +214,14 @@ const useBotBar = (api, chat) => {
     let live = true;
     api
       .telegramBusinessBotChat({ chat: String(chat.chat) })
-      .then((answer) => live && answer?.ok && setBar(answer.bar))
+      .then(
+        (answer) =>
+          live &&
+          answer?.ok &&
+          setBar(
+            /^[1-9]\d*$/.test(String(answer.bar?.id ?? '')) ? answer.bar : null
+          )
+      )
       .catch(() => {});
     return () => {
       live = false;
@@ -255,7 +262,7 @@ export const BotBar = ({ api, chat }) => {
         t(
           bar.paused ? 'chat.business.bar.paused' : 'chat.business.bar.managed',
           {
-            name: bar.name,
+            name: bar.name || `#${bar.id}`,
           }
         )
       ),

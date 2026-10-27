@@ -8,6 +8,27 @@ import { createPeer, loopback } from '../src/sync/index.js';
 import { startServer } from '../src/server/index.js';
 
 describe('secret store encryption', () => {
+  it('filtered reads avoid cloning unrelated messages and retain decrypted filtering', async () => {
+    const inner = createMemoryStore();
+    const wrapped = wrapSecretStore({ inner, passphrase: 'fixture' });
+    await wrapped.put({ id: 'secret:one', value: 'keep' });
+    await wrapped.put({ id: 'msg:one', body: 'large history' });
+    await wrapped.put({ id: 'typing:one', until: 1 });
+    let copied;
+    const query = inner.query;
+    inner.query = async (filter) => {
+      const result = await query(filter);
+      copied = result.length;
+      return result;
+    };
+    const result = await wrapped.query((link) => link.id.startsWith('typing:'));
+    expect(result.length).toBe(1);
+    expect(copied).toBe(2); // One matching public link and one sealed secret, not the message.
+    expect((await wrapped.query((link) => link.value === 'keep'))[0].id).toBe(
+      'secret:one'
+    );
+    expect(wrapped.size()).toBe(3);
+  });
   it('encrypts secret:* payload at rest and decrypts on read', async () => {
     const inner = createMemoryStore();
     const wrapped = wrapSecretStore({ inner, passphrase: 'hunter2' });

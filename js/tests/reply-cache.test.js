@@ -54,6 +54,33 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
 
 const texts = (result) => result.suggestions.map((s) => [s.kind, s.text]);
 
+test('suggestions remove duplicates within either source and across reply/word types', () => {
+  const local = {
+    suggestions: [
+      { kind: 'reply', text: 'Hello' },
+      { kind: 'reply', text: ' hello ' },
+      { kind: 'word', text: 'hello' },
+      { kind: 'word', text: 'Thanks' },
+      { kind: 'word', text: 'thanks' },
+    ],
+  };
+  const remote = {
+    suggestions: [
+      { kind: 'reply', text: 'HELLO' },
+      { kind: 'reply', text: 'Welcome' },
+      { kind: 'reply', text: 'welcome' },
+    ],
+  };
+  assert.deepEqual(
+    mergeSuggestions(local, remote).suggestions.map((s) => s.text),
+    ['Hello', 'Welcome', 'Thanks']
+  );
+  assert.deepEqual(
+    mergeSuggestions(null, remote).suggestions.map((s) => s.text),
+    ['HELLO', 'Welcome']
+  );
+});
+
 const INPUTS = ['', 'При', 'Зд', 'Как ваши ', 'Как ваши д', 'Хор'];
 
 test('the whole index goes out as links and comes back the same', () => {
@@ -225,7 +252,7 @@ test('the server adds what the copy lacks; the copy keeps its order', () => {
     mergeSuggestions(local, remote).suggestions.map((s) => s.text),
     ['Привет, как дела?', 'Привет, редкое', 'Привет всем']
   );
-  assert.equal(mergeSuggestions(local, null), local);
+  assert.deepEqual(mergeSuggestions(local, null), local);
   // Words the copy does not know come from the server.
   assert.deepEqual(
     mergeSuggestions(
@@ -234,7 +261,7 @@ test('the server adds what the copy lacks; the copy keeps its order', () => {
     ).suggestions.map((s) => s.text),
     ['привет, как дела', 'Привет, редкое', 'Привет мир']
   );
-  assert.equal(mergeSuggestions(null, remote), remote);
+  assert.deepEqual(mergeSuggestions(null, remote), remote);
 });
 
 const fakeResponse = () => {

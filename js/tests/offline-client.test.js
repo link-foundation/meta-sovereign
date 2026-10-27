@@ -98,6 +98,8 @@ test('server failure flips client to offline and keeps working', async () => {
 
   const sugg = await client.autocomplete('flap');
   assert.equal(sugg[0].text, 'flap test');
+  assert.equal(client.isOnline(), true, 'one failed probe is not an outage');
+  await client.autocomplete('flap');
   assert.equal(client.isOnline(), false);
   assert.ok(events.some((e) => e.type === 'mode-change' && e.online === false));
 });
@@ -123,6 +125,8 @@ test('a client gone offline after a failed read comes back with its server', asy
   const events = [];
   client.on((e) => events.push(e.online));
   await client.autocomplete('a');
+  assert.equal(client.isOnline(), true);
+  await timers.shift()();
   assert.equal(client.isOnline(), false);
   assert.equal(timers.length, 1, 'one check is planned, not one per read');
   await client.autocomplete('b');
@@ -302,6 +306,8 @@ test('online mode: links() adds the server links to the local ones', async () =>
     },
   });
   assert.equal((await down.links()).length, 2);
+  assert.equal(down.isOnline(), true);
+  await down.links();
   assert.equal(down.isOnline(), false);
 });
 

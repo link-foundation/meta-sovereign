@@ -20,8 +20,29 @@ import {
   typingStatus,
 } from '../src/web/chat-model.js';
 import { ChatScreen, reasonText } from '../src/web/chat-view.js';
+import { HistoryStatus } from '../src/web/chat-history-status.js';
 
 const NOW = Date.parse('2026-10-11T12:00:00Z');
+
+test('idle partial history has no persistent saved-message warning or manual load button', () => {
+  assert.equal(
+    renderToStaticMarkup(
+      React.createElement(HistoryStatus, {
+        history: { incomplete: true, older: true },
+        count: 50,
+      })
+    ),
+    ''
+  );
+  const loading = renderToStaticMarkup(
+    React.createElement(HistoryStatus, {
+      history: { incomplete: true, loading: true },
+      count: 50,
+    })
+  );
+  assert.match(loading, /data-history-status="loading"/);
+  assert.doesNotMatch(loading, /<button/);
+});
 const at = (hoursAgo) => new Date(NOW - hoursAgo * 3_600_000).toISOString();
 let seq = 0;
 const msg = (chat, sender, body, hoursAgo, extra = {}) => ({

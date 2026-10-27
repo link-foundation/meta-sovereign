@@ -502,6 +502,13 @@ const searchWords = (q) =>
 const LANG = /^[a-z]{2}$/;
 
 const POSTS = {
+  'dialog-state': async (account, body) => [
+    200,
+    (await account.dialogState?.({ chat: body.chat })) ?? {
+      ok: false,
+      supported: false,
+    },
+  ],
   sync: async (account, body) => [
     200,
     await account.sync({ full: Boolean(body.full), reason: 'manual' }),

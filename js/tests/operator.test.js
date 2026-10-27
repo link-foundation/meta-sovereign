@@ -1,3 +1,4 @@
+import { unreadCount } from '../src/web/chat-model.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -22,7 +23,7 @@ const chat = (id, unread, extra = {}) => ({
   ...extra,
 });
 
-test('operator queues unread conversations once, includes manual marks and muted chats', () => {
+test('operator queues positive unread counts once, including muted chats, and excludes zero-count marks', () => {
   const items = [
     chat(3, 0),
     chat(2, 4, { muted: true }),
@@ -30,10 +31,10 @@ test('operator queues unread conversations once, includes manual marks and muted
   ];
   assert.deepEqual(
     operatorQueue(items).map((c) => c.key),
-    ['telegram:1', 'telegram:2']
+    ['telegram:2']
   );
   const handled = new Map([['telegram:2', operatorRevision(items[1])]]);
-  assert.equal(operatorQueue(items, handled).length, 1);
+  assert.equal(operatorQueue(items, handled).length, 0);
   assert.equal(
     operatorQueue(
       [
@@ -48,8 +49,8 @@ test('operator queues unread conversations once, includes manual marks and muted
     'a new message reenqueues a handled chat'
   );
   assert.deepEqual(navigationCounts(items, 2), {
-    chat: 5,
-    operator: 2,
+    chat: 0,
+    operator: 1,
     calls: 2,
   });
 });
@@ -119,6 +120,35 @@ test('missed call badges use chat read markers and reviewed-call boundaries', ()
   );
   assert.equal(
     missedCallCount(calls, links, { at: 200, ids: ['2:14'] }, 150),
+    0
+  );
+});
+
+test('forum topic totals override stale dialog counters without losing later live messages', () => {
+  const read = {
+    unreadCount: 6,
+    inboxMaxId: 1550,
+    unreadTopId: 1556,
+    forumUnreadCount: 0,
+    forumUnreadTopId: 1556,
+    forumDialogUnreadCount: 6,
+    forumReadInboxMaxId: 1550,
+  };
+  assert.equal(unreadCount([], read), 0);
+  assert.equal(operatorQueue([chat(1, unreadCount([], read))]).length, 0);
+  const live = { id: 'msg:telegram:1:1557', sender: 'other' };
+  assert.equal(unreadCount([live], read), 1);
+  assert.equal(
+    unreadCount([live], { ...read, unreadCount: 7, unreadTopId: 1557 }),
+    1
+  );
+  assert.equal(
+    unreadCount([], {
+      ...read,
+      inboxMaxId: 1557,
+      unreadCount: 0,
+      unreadTopId: 1557,
+    }),
     0
   );
 });

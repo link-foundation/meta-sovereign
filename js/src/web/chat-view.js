@@ -181,8 +181,22 @@ const TypingLine = ({ typing }) => {
   return null;
 };
 
+const automationTriggerKey = (automation) => {
+  const automatic = automation.triggers?.some((trigger) =>
+    ['incoming', 'schedule'].includes(trigger.kind)
+  );
+  return automatic
+    ? automation.enabled === false
+      ? 'disabled'
+      : 'enabled'
+    : 'manual';
+};
+
 const AutomationMenu = ({ menu, autopilot }) => {
   const t = useT();
+  const activeCount = menu.automations.filter(
+    (item) => autopilot?.stateFor?.(item.id)?.on
+  ).length;
   return el('div', { className: 'chat-menu' }, [
     el(
       'button',
@@ -197,6 +211,17 @@ const AutomationMenu = ({ menu, autopilot }) => {
       [
         el(Icon, { key: 'i', name: 'automation', size: 16 }),
         el('span', { key: 'l' }, t('chat.automations')),
+        activeCount
+          ? el(
+              'span',
+              {
+                key: 'active',
+                className: 'automation-active-count',
+                'data-automation-active-count': activeCount,
+              },
+              String(activeCount)
+            )
+          : null,
       ]
     ),
     menu.open
@@ -211,68 +236,108 @@ const AutomationMenu = ({ menu, autopilot }) => {
                   t('chat.automation.none')
                 ),
               ]
-            : menu.automations.map((a) => {
-                const apOn = autopilot?.stateFor?.(a.id)?.on;
-                return el('div', { key: a.id, className: 'chat-menu-item' }, [
-                  el('span', { key: 'n', className: 'chat-menu-name' }, [
-                    el('strong', { key: 'n' }, a.name),
-                    el(
-                      'small',
-                      { key: 'm', className: 'meta' },
-                      sentence(t(`automations.mode.${a.mode}`))
-                    ),
-                  ]),
-                  el(
-                    'button',
-                    {
-                      key: 'test',
-                      type: 'button',
-                      role: 'menuitem',
-                      'data-action': 'chat-automation-test',
-                      'data-automation': a.id,
-                      onClick: () => menu.run(a, { test: true }),
-                    },
-                    t('chat.automation.test')
-                  ),
-                  el(
-                    'button',
-                    {
-                      key: 'run',
-                      type: 'button',
-                      role: 'menuitem',
-                      'data-action': 'chat-automation-run',
-                      'data-automation': a.id,
-                      onClick: () => menu.run(a, { test: false }),
-                    },
-                    t('chat.automation.run')
-                  ),
-                  apOn
-                    ? el(
-                        'button',
+            : [
+                el(
+                  'p',
+                  {
+                    key: 'status',
+                    className: 'meta',
+                    'data-automation-summary': '',
+                  },
+                  t('chat.automation.summary', { count: activeCount })
+                ),
+                ...menu.automations.map((a) => {
+                  const run = autopilot?.stateFor?.(a.id);
+                  const apOn = run?.on;
+                  return el('div', { key: a.id, className: 'chat-menu-item' }, [
+                    el('span', { key: 'n', className: 'chat-menu-name' }, [
+                      el('strong', { key: 'n' }, a.name),
+                      el(
+                        'small',
                         {
-                          key: 'ap',
-                          type: 'button',
-                          role: 'menuitem',
-                          'data-action': 'autopilot-stop',
-                          'data-automation': a.id,
-                          onClick: () => autopilot.stop(a.id),
+                          key: 'status',
+                          className: 'automation-state',
+                          'data-automation-state': apOn
+                            ? 'active'
+                            : run?.status === 'paused'
+                              ? 'paused'
+                              : 'off',
                         },
-                        t('chat.autopilot.stop')
-                      )
-                    : el(
-                        'button',
-                        {
-                          key: 'ap',
-                          type: 'button',
-                          role: 'menuitem',
-                          'data-action': 'autopilot-start',
-                          'data-automation': a.id,
-                          onClick: () => autopilot?.start(a.id),
-                        },
-                        t('chat.draft.autopilot')
+                        t(
+                          apOn
+                            ? 'chat.automation.active'
+                            : run?.status === 'paused'
+                              ? 'chat.automation.paused'
+                              : 'chat.automation.off'
+                        )
                       ),
-                ]);
-              })
+                      el(
+                        'small',
+                        {
+                          key: 'triggers',
+                          className: 'meta',
+                          'data-automation-triggers': automationTriggerKey(a),
+                        },
+                        t(`chat.automation.triggers.${automationTriggerKey(a)}`)
+                      ),
+                      el(
+                        'small',
+                        { key: 'm', className: 'meta' },
+                        sentence(t(`automations.mode.${a.mode}`))
+                      ),
+                    ]),
+                    el(
+                      'button',
+                      {
+                        key: 'test',
+                        type: 'button',
+                        role: 'menuitem',
+                        'data-action': 'chat-automation-test',
+                        'data-automation': a.id,
+                        onClick: () => menu.run(a, { test: true }),
+                      },
+                      t('chat.automation.test')
+                    ),
+                    el(
+                      'button',
+                      {
+                        key: 'run',
+                        type: 'button',
+                        role: 'menuitem',
+                        'data-action': 'chat-automation-run',
+                        'data-automation': a.id,
+                        onClick: () => menu.run(a, { test: false }),
+                      },
+                      t('chat.automation.run')
+                    ),
+                    apOn
+                      ? el(
+                          'button',
+                          {
+                            key: 'ap',
+                            type: 'button',
+                            role: 'menuitem',
+                            'data-action': 'autopilot-stop',
+                            'data-automation': a.id,
+                            onClick: () => autopilot.stop(a.id),
+                          },
+                          t('chat.autopilot.stop')
+                        )
+                      : el(
+                          'button',
+                          {
+                            key: 'ap',
+                            type: 'button',
+                            role: 'menuitem',
+                            'data-action': 'autopilot-start',
+                            'data-automation': a.id,
+                            onClick: () => autopilot?.start(a.id),
+                          },
+                          t('chat.draft.autopilot')
+                        ),
+                  ]);
+                }),
+              ]
         )
       : null,
   ]);
@@ -486,9 +551,7 @@ const Stream = ({ state, api, actions }) => {
       className: 'chat-scroll',
       ref: follow.box,
       onScroll,
-      // Beside the column and between rows too, as in Desktop.
-      onMouseDown: drag.onMouseDown,
-      onClick: drag.onClick,
+      ...drag,
     },
     [
       // The date of what is at the top, over it while scrolling.

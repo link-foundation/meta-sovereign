@@ -90,7 +90,7 @@ const botOf = (connectedBot, users) => {
 
 // Telegram's PeerSettings, as the bar over a managed chat reads them.
 export const barOf = (settings, users) => {
-  if (settings?.businessBotId === undefined) {
+  if (!/^[1-9]\d*$/.test(String(settings?.businessBotId ?? ''))) {
     return null;
   }
   const user = (users ?? []).find(

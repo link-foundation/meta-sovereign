@@ -108,7 +108,9 @@ export const useRowHandlers = ({
       if (
         e.button === 0 &&
         !message.pending &&
-        e.target.closest?.('.bubble-time') &&
+        (e.target.closest?.('.bubble-time') ||
+          (!bubble.current?.contains(e.target) &&
+            !e.target.closest?.('.msg-avatar, a, button, [role="menu"]'))) &&
         !selectedTextIn(bubble.current)
       ) {
         e.preventDefault();

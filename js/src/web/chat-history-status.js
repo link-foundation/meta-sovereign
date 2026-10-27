@@ -33,16 +33,10 @@ const phaseOf = (history, now) => {
       key: 'chat.history.background',
     };
   }
-  return {
-    busy: false,
-    waiting: false,
-    phase: 'partial',
-    key: 'chat.history.partial',
-  };
+  return { busy: false, waiting: false, phase: null, key: null };
 };
 
-// Kept outside the scrolling messages, so a partial cache never looks
-// like a complete conversation and a Telegram wait is always explained.
+// Active loading and Telegram waits stay visible. Older history loads on scroll.
 export const HistoryStatus = ({ history, count }) => {
   const t = useT();
   const [now, setNow] = useState(Date.now);
@@ -56,7 +50,7 @@ export const HistoryStatus = ({ history, count }) => {
     return () => globalThis.clearInterval(timer);
   }, [until]);
   const { busy, waiting, phase, key } = phaseOf(history, now);
-  if (!busy && !until && !history?.incomplete) {
+  if (!busy && !waiting) {
     return null;
   }
   return el(
@@ -77,18 +71,6 @@ export const HistoryStatus = ({ history, count }) => {
           seconds: Math.max(1, Math.ceil((until - now) / 1000)),
         })
       ),
-      !busy && !waiting && history?.older
-        ? el(
-            'button',
-            {
-              key: 'more',
-              type: 'button',
-              className: 'ghost',
-              onClick: history.loadOlder,
-            },
-            t('chat.history.more')
-          )
-        : null,
     ]
   );
 };

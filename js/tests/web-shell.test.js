@@ -59,7 +59,10 @@ test('unread badges follow icons at every width and expose full accessible count
       counts: { chat: 143, operator: 7, calls: { count: 4, more: true } },
     });
     assert.match(html, /data-nav-count="chat"[^>]*>99\+<\/span>/);
-    assert.match(html, /aria-label="Chat, 143 unread"/);
+    assert.match(
+      html,
+      /aria-label="Chat, 143 unread messages across all folders, excluding muted chats"/
+    );
     assert.match(html, /data-nav-count="operator"[^>]*>7<\/span>/);
     assert.match(html, /aria-label="Calls, At least 4 unread"/);
   }

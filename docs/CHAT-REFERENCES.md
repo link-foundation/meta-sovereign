@@ -218,3 +218,9 @@ The research behind these links, with the full notes, is in
   [`FAB_THRESHOLD`](https://github.com/Ajaxy/telegram-tt/blob/f67a40879a7d78c2683ec5a296cf55bc22417d56/src/components/middle/hooks/useScrollHooks.ts#L20).
 - Element keeps the unread divider fixed while the room is open
   ([`RoomTimelineViewModel`](https://github.com/element-hq/element-web/blob/fc4d45cce130f3dce0d824ecef87bd948bcef842/apps/web/src/viewmodels/room/timeline/RoomTimelineViewModel.ts#L303)).
+
+### Full-width message selection and context-menu coverage (2026-10-28)
+
+Read Telegram Web A at [`6002824`](https://github.com/Ajaxy/telegram-tt/tree/6002824b6532f3d913997ce496d9ab5f9b86bc22): [message container](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/message/Message.tsx), [outer interaction handlers](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/components/middle/message/hooks/useOuterHandlers.ts), and [context-menu handlers](https://github.com/Ajaxy/telegram-tt/blob/6002824b6532f3d913997ce496d9ab5f9b86bc22/src/hooks/useContextMenuHandlers.ts). The container owns selection-mode clicks; normal text/link interaction remains available outside selection, and touch context handling distinguishes taps and long presses. Our own row hit testing extends selection and right-click coverage outside the centered column. No upstream implementation was copied.
+
+Operator’s read-only counter refresh follows Telegram’s [`messages.getPeerDialogs`](https://core.telegram.org/method/messages.getPeerDialogs) contract. It does not call history/mention/reaction read methods.

@@ -48,7 +48,7 @@ export const missedCallCount = (calls, links, seen, started) => {
 export const navigationCounts = (chats, missed = 0) => ({
   chat: chats.reduce(
     (sum, chat) =>
-      sum + Math.max(0, Number(chat.unread) || (chat.marked ? 1 : 0)),
+      sum + (chat.muted ? 0 : Math.max(0, Number(chat.unread) || 0)),
     0
   ),
   operator: chats.filter(needsAttention).length,

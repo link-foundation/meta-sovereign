@@ -61,6 +61,7 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
     rawStore: inner,
     logFile: inner.logFile,
     flushLog: inner.flushLog,
+    size: inner.size ? () => inner.size() : undefined,
     async put(link) {
       if (isSecret(link)) {
         const sealed = sealLink(link, passphrase);
@@ -83,7 +84,11 @@ export const wrapSecretStore = ({ inner, passphrase }) => {
       return inner.delete(id);
     },
     async query(filter) {
-      const all = await inner.query();
+      // Apply non-secret filters before cloning the archive. A typing or health
+      // poll must not allocate a copy of every stored message.
+      const all = await inner.query(
+        filter ? (link) => isSecret(link) || filter(link) : undefined
+      );
       const opened = all.map((l) =>
         l.id.startsWith(SECRET_PREFIX) && l.enc ? openLink(l, passphrase) : l
       );

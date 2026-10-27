@@ -4,6 +4,7 @@
 // flows through the injected `api` (./dom.js in the SPA), so the screen
 // renders in tests with a fake one.
 
+import { telegramStatusFor } from './telegram-status.js';
 import { logOnce } from './api-errors.js';
 import {
   useCallback,
@@ -612,7 +613,8 @@ const useTelegramAccount = (
   refresh,
   { pollMs = STATUS_EVERY_MS, live = false } = {}
 ) => {
-  const [status, setStatus] = useState(null);
+  const resource = useMemo(() => telegramStatusFor(api), [api]);
+  const [status, setStatus] = useState(resource.snapshot);
   const seen = useRef(undefined);
   // With the event stream open, changes arrive by themselves; a reload
   // on `changedAt` is only for when it is not.
@@ -623,8 +625,11 @@ const useTelegramAccount = (
     if (!supported) {
       return Promise.resolve(null);
     }
-    return api.telegramStatus().then(
+    return resource.read().then(
       (next) => {
+        if (!next || next.offline === true || next.error) {
+          return next;
+        }
         setStatus(next);
         const changed = next?.changedAt ?? null;
         if (
@@ -1086,8 +1091,9 @@ export const useChatState = (
   useExportFeed(links);
   return {
     loading: links === null,
-    loadError: links === null ? failed : null,
+    loadError: failed,
     retryLoad: retry,
+    addLinks: add,
     live,
     banner,
     telegram,

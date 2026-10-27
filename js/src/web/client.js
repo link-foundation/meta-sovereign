@@ -22,15 +22,10 @@
 import { createReplyCache } from '../replies/reply-cache.js';
 import { createReplyService } from '../replies/reply-service.js';
 import { aggregateContacts } from '../server/aggregate.js';
-import { DISCOVERY_PATH } from './discover.js';
+import { createAvailability } from './server-availability.js';
 
 // A read the server has not answered in this long falls back to local.
 const READ_TIMEOUT_MS = 30_000;
-// After a read failed, the server is asked this often whether it is
-// back (a busy moment must not leave the app offline until a reload).
-const RECHECK_MS = 10_000;
-// After one read failed, the server's status is waited for this long.
-const STATUS_TIMEOUT_MS = 10_000;
 const timeoutSignal = (ms) => globalThis.AbortSignal?.timeout?.(ms);
 
 // The local links, plus the server's that the local store does not hold
@@ -79,65 +74,6 @@ const computeAutocomplete = async (store, q, me = 'me') => {
 const computeContacts = async (store) =>
   aggregateContacts(await store.query(), { people: true });
 
-// The server failed a read: ask its lightweight discovery probe, and use
-// it again once it answers.
-const createReturnWatch = ({
-  server,
-  online,
-  setOnline,
-  recheckMs = RECHECK_MS,
-  setTimer = (fn, ms) => globalThis.setTimeout(fn, ms),
-  clearTimer = (timer) => globalThis.clearTimeout(timer),
-}) => {
-  let recheck = null;
-  const start = () => {
-    const target = server();
-    if (recheck || !target?.fetchImpl) {
-      return;
-    }
-    recheck = setTimer(async () => {
-      recheck = null;
-      if (online() || server() !== target) {
-        return;
-      }
-      const signal = timeoutSignal(recheckMs);
-      const back = await target
-        .fetchImpl(`${target.origin}${DISCOVERY_PATH}`, {
-          cache: 'no-store',
-          ...(signal ? { signal } : {}),
-        })
-        .then((res) => res.ok)
-        .catch(() => false);
-      if (server() !== target) {
-        return;
-      }
-      if (back) {
-        setOnline(true);
-      } else {
-        start();
-      }
-    }, recheckMs);
-    recheck?.unref?.();
-  };
-  const stop = () => {
-    clearTimer(recheck);
-    recheck = null;
-  };
-  return { start, stop };
-};
-
-// Availability must not wait for contact aggregation or database verification.
-const answers = (target) => {
-  const signal = timeoutSignal(STATUS_TIMEOUT_MS);
-  return target
-    .fetchImpl(`${target.origin}${DISCOVERY_PATH}`, {
-      cache: 'no-store',
-      ...(signal ? { signal } : {}),
-    })
-    .then((res) => res.ok)
-    .catch(() => false);
-};
-
 // `timing` ({ recheckMs, setTimer, clearTimer }) is for tests.
 // The browser's copy of the reply index (../replies/reply-cache.js), kept
 // by `driver` and brought up to date from the server.
@@ -165,6 +101,30 @@ const suggestParams = ({ source, chat, lastMessage, typed, limit }) => {
   return params;
 };
 
+const loadDirectory = async (store, fetchOrLocal, { onProgress }) => {
+  const [remote, heads] = await Promise.all([
+    fetchOrLocal('/links?except=msg:', () => null),
+    fetchOrLocal('/api/chat/heads', () => null),
+  ]);
+  if (!Array.isArray(remote) || !Array.isArray(heads)) {
+    const local = await store.query().catch(() => []);
+    throw Object.assign(new Error('the server did not answer'), { local });
+  }
+  const directory = [...remote, ...heads];
+  onProgress?.(directory);
+  // Let the first card paint before consulting a potentially large browser
+  // cache. Server read markers always win over older cached read markers.
+  if (onProgress) {
+    await new Promise((resolve) => globalThis.setTimeout(resolve, 0));
+  }
+  const local = await store.query().catch(() => []);
+  return [
+    ...new Map(
+      [...local, ...directory].map((link) => [link.id, link])
+    ).values(),
+  ];
+};
+
 export const createOfflineClient = ({
   store,
   server,
@@ -187,9 +147,8 @@ export const createOfflineClient = ({
     emit({ type: 'mode-change', online });
   };
 
-  const watch = createReturnWatch({
+  const watch = createAvailability({
     server: () => server,
-    online: () => online,
     setOnline,
     ...timing,
   });
@@ -210,18 +169,13 @@ export const createOfflineClient = ({
         `${server.origin}${path}`,
         signal ? { signal } : undefined
       );
+      watch.reached();
       if (!res.ok) {
-        throw new Error(`status ${res.status}`);
+        return fallback();
       }
       return await res.json();
     } catch {
-      // One read failed: the caller sees local data instead of a thrown
-      // error. The app goes offline only when the server does not answer
-      // its status either (a slow or failed read is not "gone").
-      if (!(await answers(server))) {
-        setOnline(false);
-        watch.start();
-      }
+      await watch.failed();
       return fallback();
     }
   };
@@ -234,6 +188,7 @@ export const createOfflineClient = ({
       return () => handlers.delete(handler);
     },
     isOnline: () => online,
+    reached: watch.reached,
     setServer: (next) => {
       watch.stop();
       server = next;
@@ -280,20 +235,8 @@ export const createOfflineClient = ({
      * local store holds only a few chats, so a list already shown is kept
      * and the load is tried again rather than shrunk to those.
      */
-    async chatLinks() {
-      const local = await store.query();
-      if (!server) {
-        return local;
-      }
-      const remote = await fetchOrLocal('/links?except=msg:', () => null);
-      const heads = Array.isArray(remote)
-        ? await fetchOrLocal('/api/chat/heads', () => null)
-        : null;
-      if (!Array.isArray(heads)) {
-        throw Object.assign(new Error('the server did not answer'), { local });
-      }
-      return withRemote(local, [...remote, ...heads]);
-    },
+    chatLinks: (options = {}) =>
+      server ? loadDirectory(store, fetchOrLocal, options) : store.query(),
     /** A page of one chat from the server's store; null without one. */
     async chatPage(request) {
       return fetchOrLocal(

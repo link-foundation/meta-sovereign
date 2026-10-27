@@ -58,18 +58,40 @@ const readLinkOf = (links, key) =>
  * device) moves `inboxMaxId` on and resets the count. 0 without a read
  * link (networks that do not say).
  */
+const unreadSnapshot = (read) => {
+  const forum =
+    Number.isFinite(read.forumUnreadCount) &&
+    Number(read.inboxMaxId ?? 0) === Number(read.forumReadInboxMaxId ?? 0);
+  if (!forum) {
+    return {
+      count: Number(read.unreadCount ?? 0),
+      top: Number(read.unreadTopId ?? 0),
+    };
+  }
+  return {
+    count:
+      read.forumUnreadCount +
+      Math.max(
+        0,
+        Number(read.unreadCount ?? 0) - Number(read.forumDialogUnreadCount ?? 0)
+      ),
+    top: Math.max(
+      Number(read.unreadTopId ?? 0),
+      Number(read.forumUnreadTopId ?? 0)
+    ),
+  };
+};
+
 export const unreadCount = (messages, read, self = ['me']) => {
   if (!read) {
     return 0;
   }
-  const after = Math.max(
-    Number(read.unreadTopId ?? 0),
-    Number(read.inboxMaxId ?? 0)
-  );
+  const snapshot = unreadSnapshot(read);
+  const after = Math.max(snapshot.top, Number(read.inboxMaxId ?? 0));
   const newer = messages.filter(
     (m) => !isMine(m, self) && (networkMessageId(m) ?? 0) > after
   ).length;
-  return Number(read.unreadCount ?? 0) + newer;
+  return Math.max(0, snapshot.count + newer);
 };
 
 /**

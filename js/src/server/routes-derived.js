@@ -151,7 +151,7 @@ const HANDLERS = {
     } = ctx.storeHealth?.() ?? {};
     return {
       ok: true,
-      links: (await store.query()).length,
+      links: (await store.size?.()) ?? (await store.query()).length,
       time: new Date().toISOString(),
       disk: await diskHealth(ctx.storeDir ?? '.', ctx.diskFree),
       store: { degraded, queuedBytes },

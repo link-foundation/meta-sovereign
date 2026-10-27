@@ -23,7 +23,7 @@
  */
 
 import { getHeapStatistics } from 'node:v8';
-import { historyLinkId } from './telegram-history.js';
+import { historyLinkId, floodSeconds } from './telegram-history.js';
 
 export const BACKFILL_EVERY_MS = 5000;
 export const BACKFILL_PAGE = 100;
@@ -271,10 +271,11 @@ export const createBackfill = ({
       // Nothing to read now; new chats may come with the list.
       base = paceAfter(did, everyMs);
     } catch (error) {
-      failures += 1;
+      const wait = floodSeconds(error);
+      failures = wait ? 0 : failures + 1;
       log({
-        level: 'warn',
-        event: 'telegram_backfill_failed',
+        level: wait ? 'info' : 'warn',
+        event: wait ? 'telegram_backfill_waits' : 'telegram_backfill_failed',
         code: error?.code ?? null,
         error: error?.message,
       });

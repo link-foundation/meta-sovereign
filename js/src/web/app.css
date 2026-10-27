@@ -4564,7 +4564,7 @@ button.primary .recommended-tag {
   flex: none;
   width: 1.1em;
   height: 1.1em;
-  color: var(--link);
+  color: var(--text);
   vertical-align: -0.2em;
 }
 .spinner svg {
@@ -13093,4 +13093,17 @@ main[data-view='operator']:has(> .operator-workspace) {
 }
 .marketplace-account {
   overflow-wrap: anywhere;
+}
+
+.automation-state {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+}
+.automation-active-count {
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bg);
+  min-width: 1.4em;
+  text-align: center;
 }

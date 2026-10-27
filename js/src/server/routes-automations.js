@@ -41,6 +41,7 @@
  * chat menu can test an edited automation before saving it.
  */
 
+import { createLiveSubset } from './live-subset.js';
 import { bodyFailure, json, readBody } from './util.js';
 import { confirmed } from './confirmations.js';
 import { previewFields } from '../sources/telegram-link-preview.js';
@@ -441,9 +442,16 @@ const POST = {
 
 // Only typing links are read (asked every few seconds: copying the
 // whole store each time cost memory and time).
+const typingByStore = new WeakMap();
 const typingNow = async (store, q) => {
+  if (!typingByStore.has(store)) {
+    typingByStore.set(
+      store,
+      createLiveSubset(store, (link) => link?.id?.startsWith('typing:'))
+    );
+  }
   const now = Date.now();
-  return (await store.query((l) => l?.id?.startsWith('typing:'))).filter(
+  return (await typingByStore.get(store)()).filter(
     (l) =>
       (!q.get('source') || l.source === q.get('source')) &&
       (!q.has('chat') || String(l.chat) === q.get('chat')) &&

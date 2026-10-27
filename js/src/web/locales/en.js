@@ -97,6 +97,11 @@ export const en = {
   'operator.failed':
     'Could not mark this conversation read. Your card is still here; try Done again.',
   'nav.unreadAtLeast': 'At least {count} unread',
+  'nav.unread.chat':
+    '{count} unread messages across all folders, excluding muted chats',
+  'nav.unread.calls': '{count} unread missed calls',
+  'nav.unread.operator':
+    '{count} conversations with unread messages across all folders',
   'nav.unreadCount': '{count} unread',
   'marketplace.apiNote':
     'Optional API and archive access. For browser sign-in and profiles, use Work accounts above.',
@@ -129,6 +134,8 @@ export const en = {
     'Connect to an updated local server to sign in and save these profiles.',
   'marketplace.failed':
     'This action could not finish. Check the session window and try again.',
+  'operator.loading': 'Loading unread conversations…',
+  'operator.checking': 'Checking unread status with Telegram…',
   'operator.title': 'Operator',
   'operator.next': 'Next (N)',
   'operator.done': 'Done (D)',

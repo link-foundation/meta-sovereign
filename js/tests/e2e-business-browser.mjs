@@ -339,6 +339,7 @@ const menu = page.locator('[data-dialog="business"]');
 const openSection = async (id) => {
   // Closing a section brings the menu back; else it opens from My profile.
   if ((await menu.count()) === 0) {
+    await page.locator('button[data-view="profile"]').click();
     await page.locator('[data-action="my-profile"]').click();
     await page.locator('[data-action="open-business"]').click();
   }

@@ -325,6 +325,30 @@ const derivedStatus = async (store, query = '') => {
   return body;
 };
 
+test('routine health polls use the store size without reading the message archive', async () => {
+  const store = createMemoryStore();
+  await store.put({ id: 'msg:test:1' });
+  store.query = async () => {
+    throw new Error('health must not copy the archive');
+  };
+  let answer;
+  await handleDerivedRoutes(
+    store,
+    { method: 'GET' },
+    {
+      writeHead: () => {},
+      end: (value) => {
+        answer = JSON.parse(value);
+      },
+    },
+    '/api/health',
+    new URL('http://local/api/health'),
+    { diskFree: async () => null }
+  );
+  assert.equal(answer.links, 1);
+  assert.equal(answer.ok, true);
+});
+
 test('sync writes during slow statistics do not spawn overlapping verifications or delay discovery', async () => {
   const store = createMemoryStore();
   let finish;

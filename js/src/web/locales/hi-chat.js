@@ -9,9 +9,6 @@ export const hiChat = {
   'chat.history.wait':
     'Telegram ने प्रतीक्षा करने को कहा है। {seconds} सेकंड में फिर कोशिश होगी…',
   'chat.history.retry': 'लोडिंग रुक गई। {seconds} सेकंड में फिर कोशिश होगी…',
-  'chat.history.partial':
-    '{count} सहेजे संदेश दिख रहे हैं। पुराना इतिहास अभी डाउनलोड नहीं हुआ है।',
-  'chat.history.more': 'पुराने संदेश लोड करें',
   'chat.calls.connectHint':
     'हाल की कॉल देखने के लिए Telegram उपयोगकर्ता खाता जोड़ें।',
 
@@ -149,6 +146,14 @@ export const hiChat = {
   'chat.typingAutomation': '{name} आपकी ओर से लिख रहा है…',
   'chat.subtitle.personal': '{source} · निजी चैट',
   'chat.subtitle.group': '{source} · {count} लोग',
+  'chat.automation.triggers.enabled': 'स्वचालित ट्रिगर चालू',
+  'chat.automation.triggers.disabled': 'स्वचालित ट्रिगर बंद',
+  'chat.automation.triggers.manual': 'केवल मैन्युअल रन',
+  'chat.automation.summary':
+    'ऐप स्वचालन: {count} ऑटोपायलट सक्रिय। Telegram Business बॉट अलग से प्रबंधित होते हैं।',
+  'chat.automation.active': 'ऑटोपायलट सक्रिय',
+  'chat.automation.paused': 'ऑटोपायलट रुका हुआ',
+  'chat.automation.off': 'ऑटोपायलट बंद',
   'chat.automations': 'स्वचालन',
   'chat.automation.none':
     'चैट में अभी कोई स्वचालन उपलब्ध नहीं है। स्वचालन में किसी एक में "चैट मेनू" ट्रिगर जोड़ें।',
@@ -1114,8 +1119,10 @@ export const hiChat = {
   'chat.business.bots.canReply': 'बॉट संदेशों का जवाब दे सकता है',
   'chat.business.bots.disconnect': 'बॉट हटाएँ',
   'chat.business.bots.disconnectAsk': 'इस बॉट को सभी चैट से हटाएँ?',
-  'chat.business.bar.managed': '{name} इस चैट को संभाल रहा है',
-  'chat.business.bar.paused': '{name} इस चैट में रुका हुआ है',
+  'chat.business.bar.managed':
+    'Telegram Business बॉट {name} इस चैट को संभाल रहा है',
+  'chat.business.bar.paused':
+    'Telegram Business बॉट {name} इस चैट में रुका हुआ है',
   'chat.business.bar.pause': 'रोकें',
   'chat.business.bar.resume': 'फिर शुरू करें',
   'chat.business.bar.remove': 'इस चैट से बॉट हटाएँ',

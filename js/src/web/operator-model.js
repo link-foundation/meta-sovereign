@@ -1,6 +1,6 @@
 import { networkMessageId, sortChats } from './chat-model.js';
 
-export const needsAttention = (chat) => chat.unread > 0 || chat.marked;
+export const needsAttention = (chat) => Number(chat.unread) > 0;
 export const operatorRevision = (chat) =>
   `${chat.last?.message?.id ?? ''}:${chat.unread}:${Boolean(chat.marked)}`;
 

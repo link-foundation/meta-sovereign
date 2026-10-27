@@ -3,6 +3,7 @@
 // of Telegram, the reply header a send in a topic carries, and the
 // routes. Fake clients; nothing reaches a network.
 
+import { unreadCount } from '../src/web/chat-model.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Readable } from 'node:stream';
@@ -159,7 +160,12 @@ test("the chat index pages a topic's messages alone", async () => {
   index.close();
 });
 
-const forumSetup = ({ fail = null, topics = [], messages = [] } = {}) => {
+const forumSetup = ({
+  fail = null,
+  topics = [],
+  messages = [],
+  count = topics.length,
+} = {}) => {
   const asked = [];
   const pages = [];
   const written = [];
@@ -170,7 +176,7 @@ const forumSetup = ({ fail = null, topics = [], messages = [] } = {}) => {
       if (fail) {
         throw fail;
       }
-      return { topics, messages };
+      return { topics, messages, count };
     },
     getMessages: async (peer, options) => {
       pages.push({ peer, options });
@@ -204,6 +210,7 @@ const forumSetup = ({ fail = null, topics = [], messages = [] } = {}) => {
     { now: () => clock }
   );
   return {
+    store: env.store,
     forum,
     asked,
     pages,
@@ -473,4 +480,31 @@ test('a post in a topic answers nothing; the topic service lines', () => {
     service({ className: 'MessageActionChatEditTitle', title: 'G' }).titleKey,
     'chat.service.titleChangedFmt'
   );
+});
+
+test('complete forum topic counters correct phantom dialog unread; partial pages never imply zero', async () => {
+  for (const count of [2, 101]) {
+    const { forum, store } = forumSetup({
+      count,
+      topics: [TOPIC(1, { unreadCount: 0 }), TOPIC(2, { unreadCount: 0 })],
+    });
+    await store.put({
+      id: 'read:telegram:-1005',
+      source: 'telegram',
+      chat: '-1005',
+      forum: 1,
+      unreadCount: 6,
+      unreadTopId: 1556,
+      inboxMaxId: 1550,
+    });
+    const answer = await forum.forumTopics({ chat: '-1005', fresh: true });
+    const read = await store.get('read:telegram:-1005');
+    assert.equal(answer.complete, count === 2);
+    assert.equal(unreadCount([], read), count === 2 ? 0 : 6);
+    assert.equal(
+      read.unreadCount,
+      6,
+      'keep the raw dialog baseline for subsequent deltas'
+    );
+  }
 });

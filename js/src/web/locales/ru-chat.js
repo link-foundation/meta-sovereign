@@ -8,9 +8,6 @@ export const ruChat = {
   'chat.history.loading': 'В первую очередь загружаем сообщения этого чата…',
   'chat.history.wait': 'Telegram просит подождать. Повтор через {seconds} с…',
   'chat.history.retry': 'Загрузка прервана. Повтор через {seconds} с…',
-  'chat.history.partial':
-    'Показано сохранённых сообщений: {count}. Более ранняя история ещё не загружена.',
-  'chat.history.more': 'Загрузить раньше',
   'chat.calls.connectHint':
     'Подключите пользовательскую учётную запись Telegram, чтобы видеть историю звонков.',
 
@@ -148,6 +145,14 @@ export const ruChat = {
   'chat.typingAutomation': '{name} печатает за вас…',
   'chat.subtitle.personal': '{source} · личный чат',
   'chat.subtitle.group': '{source} · участников: {count}',
+  'chat.automation.triggers.enabled': 'Автоматические триггеры включены',
+  'chat.automation.triggers.disabled': 'Автоматические триггеры выключены',
+  'chat.automation.triggers.manual': 'Только ручной запуск',
+  'chat.automation.summary':
+    'Автоматизации приложения: активных автопилотов — {count}. Боты Telegram Business управляются отдельно.',
+  'chat.automation.active': 'Автопилот активен',
+  'chat.automation.paused': 'Автопилот на паузе',
+  'chat.automation.off': 'Автопилот выключен',
   'chat.automations': 'Автоматизации',
   'chat.automation.none':
     'В чатах пока нет автоматизаций. Добавьте триггер «меню чата» в разделе «Автоматизация».',
@@ -1126,8 +1131,10 @@ export const ruChat = {
   'chat.business.bots.canReply': 'Бот может отвечать на сообщения',
   'chat.business.bots.disconnect': 'Отключить бота',
   'chat.business.bots.disconnectAsk': 'Отключить этого бота от всех чатов?',
-  'chat.business.bar.managed': 'Этим чатом управляет {name}',
-  'chat.business.bar.paused': '{name} приостановлен в этом чате',
+  'chat.business.bar.managed':
+    'Бот Telegram Business {name} управляет этим чатом',
+  'chat.business.bar.paused':
+    'Бот Telegram Business {name} приостановлен в этом чате',
   'chat.business.bar.pause': 'Приостановить',
   'chat.business.bar.resume': 'Возобновить',
   'chat.business.bar.remove': 'Убрать бота из этого чата',

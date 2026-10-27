@@ -266,6 +266,47 @@ try {
       0,
     'text selection dropped'
   );
+  await page.keyboard.press('Escape');
+  await pause();
+  // The entire line belongs to its message, even outside the centered column.
+  await page.setViewportSize({ width: 2200, height: 1000 });
+  const outside = async (n) => {
+    const rect = await bodyBox(n);
+    const scroll = await page.locator('.chat-scroll').boundingBox();
+    return [scroll.x + scroll.width - 12, rect.y + rect.height / 2];
+  };
+  await page.mouse.click(...(await outside(3)));
+  await pause();
+  assert(
+    (await top())?.startsWith('FORWARD 1 DELETE 1'),
+    'blank full-line click starts selection'
+  );
+  await page.mouse.click(...(await outside(4)));
+  await pause();
+  assert(
+    (await top())?.startsWith('FORWARD 2 DELETE 2'),
+    'blank full-line click adds outgoing messages'
+  );
+  await page.mouse.click(...(await outside(3)));
+  await pause();
+  assert(
+    (await top())?.startsWith('FORWARD 1 DELETE 1'),
+    'blank full-line click toggles selection'
+  );
+  await page.keyboard.press('Escape');
+  await pause();
+  await page.mouse.click(...(await outside(4)), { button: 'right' });
+  await page.waitForSelector('[role=menu] [data-action]', { timeout: 3000 });
+  assert(
+    (await menu()).includes('select'),
+    'message menu opens outside the centered column'
+  );
+  await page.click('[role=menu] [data-action="select"]');
+  await pause();
+  assert(
+    (await top())?.startsWith('FORWARD 1 DELETE 1'),
+    'menu Select selects the full row'
+  );
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log('[e2e-chat-selection] OK');
 } catch (error) {
