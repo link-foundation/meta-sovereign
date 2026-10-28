@@ -20,13 +20,10 @@ import {
   applyLinoRecords,
   tombstoneRecord,
 } from '../src/storage/lino-store.js';
-import {
-  CURRENT_SCHEMA,
-  SCHEMA_ID,
-  schemaLink,
-} from '../src/storage/migrations/index.js';
+import { CURRENT_SCHEMA, schemaLink } from '../src/storage/migrations/index.js';
 import { startServer } from '../src/server/index.js';
 import { waitFor } from './helpers/wait-for.js';
+import { messageVersions } from '../src/storage/message-versions.js';
 
 const tmpdir = () => fs.mkdtemp(path.join(os.tmpdir(), 'ms-append-'));
 
@@ -269,9 +266,17 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
   assert.equal((await store.get('msg:telegram:1:2')).body, 'edited');
   await store.flush();
   const bin = path.join(dir, 'data.bin');
+  const saved = await store.query();
+  const sorted = (links) => links.toSorted((a, b) => a.id.localeCompare(b.id));
   assert.deepEqual(
-    decodeArchive(await fs.readFile(bin)).filter((l) => l.id !== SCHEMA_ID),
-    [message(2, { body: 'edited' })]
+    sorted(decodeArchive(await fs.readFile(bin))),
+    sorted(saved)
+  );
+  assert.deepEqual(
+    (await messageVersions(store, message(2).id)).versions.map(
+      (record) => record.snapshot.body
+    ),
+    ['edited', message(2).body]
   );
   // Up to date: opening again writes nothing.
   const again = await openDualStore(dir);
@@ -294,8 +299,10 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
   assert.equal((await third.reconcile()).stale, true);
   await third.flush();
   assert.deepEqual(
-    decodeArchive(await fs.readFile(bin)).map((l) => l.id),
-    ['meta:schema', 'msg:telegram:1:2', 'msg:telegram:1:3']
+    decodeArchive(await fs.readFile(bin))
+      .map((l) => l.id)
+      .sort(),
+    [...saved.map((link) => link.id), 'msg:telegram:1:3'].sort()
   );
 });
 
