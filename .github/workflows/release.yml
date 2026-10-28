@@ -405,7 +405,7 @@ jobs:
 
   # === RUST CRATES (R-Z6) ===
   # fmt, clippy (warnings are errors) and the crates' own tests, so the
-  # Rust port can not rot unseen. Not a release gate.
+  # Rust port can not rot unseen. Required by the terminal release gate.
   rust:
     concurrency:
       group: check-${{ github.workflow }}-${{ github.ref }}-rust-${{ strategy.job-index || 0 }}

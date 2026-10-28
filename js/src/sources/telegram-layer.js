@@ -15,6 +15,7 @@
 
 import { readFileSync } from 'node:fs';
 import Module, { createRequire } from 'node:module';
+import { configureTelegramCrypto } from './telegram-runtime.js';
 
 export const LAYER = 232;
 
@@ -36,6 +37,7 @@ let installed = null;
  * before the first `import('teleproto')`; later it only reports.
  */
 export const installTelegramLayer = ({ schema = SCHEMA } = {}) => {
+  configureTelegramCrypto();
   if (installed) {
     return installed;
   }

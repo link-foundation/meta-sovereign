@@ -1,5 +1,6 @@
-// Bounded probe for abrupt Windows Deno exits when loading the native addon
-// in successive test workers. No Telegram connection or account is needed.
+// Bounded Windows Deno native-addon reproduction. The default verifies the
+// application fix and portable backend. --raw-native deliberately reproduces
+// the unguarded native crash in a child. No Telegram account/network is used.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -9,16 +10,27 @@ import { fileURLToPath } from 'node:url';
 
 const dir = await mkdtemp(join(tmpdir(), 'issue43-cifrante-'));
 const entry = fileURLToPath(new URL('../package.json', import.meta.url));
+const runtime = new URL(
+  '../js/src/sources/telegram-runtime.js',
+  import.meta.url
+);
 try {
   const source = `
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
-Deno.test('finite AES-IGE native-addon probe', () => {
+Deno.test('finite AES-IGE native-addon probe', async () => {
+  if (process.env.ISSUE43_CRYPTO_MODE === 'application') {
+    const { configureTelegramCrypto } = await import(${JSON.stringify(runtime.href)});
+    configureTelegramCrypto();
+  }
   console.log('before require');
   const { IGE } = createRequire(${JSON.stringify(entry)})('teleproto/crypto/IGE.js');
   console.log('before construction');
   const cipher = new IGE(Buffer.alloc(32, 1), Buffer.alloc(32, 2));
   console.log('before encryption', IGE.backend());
+  if (Deno.build.os === 'windows' && process.env.ISSUE43_CRYPTO_MODE !== 'raw-native') {
+    assert.equal(IGE.backend(), 'wasm');
+  }
   const input = Buffer.alloc(144, 3);
   const encrypted = cipher.encryptIge(input);
   console.log('before decryption');
@@ -32,8 +44,15 @@ Deno.test('finite AES-IGE native-addon probe', () => {
     await writeFile(file, source);
   }
   const results = [];
-  for (const mode of ['default', 'portable']) {
-    const env = { ...process.env, RUST_BACKTRACE: '1' };
+  const modes = process.argv.includes('--raw-native')
+    ? ['raw-native']
+    : ['application', 'portable'];
+  for (const mode of modes) {
+    const env = {
+      ...process.env,
+      RUST_BACKTRACE: '1',
+      ISSUE43_CRYPTO_MODE: mode,
+    };
     if (mode === 'portable') {
       env.CIFRANTE_NATIVE = '0';
     } else {
@@ -69,8 +88,8 @@ Deno.test('finite AES-IGE native-addon probe', () => {
   }
   assert.deepEqual(
     results,
-    [0, 0],
-    'Both default and portable AES probes must pass'
+    modes.map(() => 0),
+    'Every requested AES probe must pass (raw native is a deliberate reproduction)'
   );
 } finally {
   await rm(dir, { recursive: true, force: true });

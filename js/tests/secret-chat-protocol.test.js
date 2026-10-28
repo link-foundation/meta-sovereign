@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import { createRequire } from 'node:module';
+import { configureTelegramCrypto } from '../src/sources/telegram-runtime.js';
 
 import {
   CONSTRUCTORS,
@@ -279,6 +280,7 @@ test('AES-IGE agrees with the GramJS implementation, both ways', () => {
     }
   };
   trace('before loading teleproto crypto');
+  configureTelegramCrypto();
   const { IGE } = require('teleproto/crypto/IGE.js');
   trace('loaded teleproto crypto');
   const key = crypto.randomBytes(32);
