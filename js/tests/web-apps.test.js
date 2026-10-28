@@ -106,6 +106,12 @@ test('colours are read as #rrggbb and the theme falls back', () => {
   assert.equal(theme.text_color, '#ffffff');
   assert.equal(theme.secondary_bg_color, '#0e1116');
   assert.equal(theme.button_text_color, '#ffffff');
+  assert.equal(
+    themeParamsOf((name) => (name === '--accent-fill' ? '#2c2d30' : '#ffffff'))
+      .button_color,
+    '#2c2d30',
+    'Mini App button colours use the same readable fill as native controls'
+  );
   assert.ok(Object.values(theme).every((v) => /^#[0-9a-f]{6}$/.test(v)));
   assert.ok(Object.keys(theme).includes('destructive_text_color'));
 });

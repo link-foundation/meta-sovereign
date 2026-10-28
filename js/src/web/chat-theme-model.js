@@ -7,16 +7,37 @@
 export const cssColour = (value) =>
   `#${(Number(value) & 0xffffff).toString(16).padStart(6, '0')}`;
 
-/** Black or white, whichever reads better on `value` (a colour int). */
-export const readableOn = (value) => {
+const luminanceOf = (value) => {
   const n = Number(value) & 0xffffff;
   const channel = (shift) => {
     const c = ((n >> shift) & 255) / 255;
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   };
-  const luminance =
-    0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0);
-  return luminance > 0.4 ? '#101418' : '#ffffff';
+  return 0.2126 * channel(16) + 0.7152 * channel(8) + 0.0722 * channel(0);
+};
+
+/** Black or white, whichever reads better on `value` (a colour int). */
+export const readableOn = (value) => {
+  const light = luminanceOf(value) + 0.05;
+  return light / (luminanceOf(0x101418) + 0.05) > 1.05 / light
+    ? '#101418'
+    : '#ffffff';
+};
+
+/** A hue-preserving fill with at least 4.5:1 contrast under white text. */
+export const whiteTextFill = (value) => {
+  const n = Number(value) & 0xffffff;
+  for (let scale = 100; scale >= 0; scale -= 1) {
+    const shade = [16, 8, 0].reduce(
+      (out, shift) =>
+        out | (Math.floor((((n >> shift) & 255) * scale) / 100) << shift),
+      0
+    );
+    if (1.05 / (luminanceOf(shade) + 0.05) >= 4.5) {
+      return cssColour(shade);
+    }
+  }
+  return '#000000';
 };
 
 const isColour = (value) => typeof value === 'number' && Number.isFinite(value);
@@ -39,6 +60,7 @@ export const themeVars = (theme, dark) => {
   const vars = {};
   if (isColour(settings.accent)) {
     vars['--chat-accent'] = cssColour(settings.accent);
+    vars['--chat-accent-fill'] = whiteTextFill(settings.accent);
   }
   const bubble = isColour(settings.messages?.[0])
     ? settings.messages[0]
@@ -57,7 +79,9 @@ export const previewOf = (theme, dark) => {
     ? {
         accent: vars['--chat-accent'] ?? vars['--bubble-out'],
         bubble: vars['--bubble-out'] ?? vars['--chat-accent'],
-        text: vars['--bubble-out-text'] ?? '#ffffff',
+        text:
+          vars['--bubble-out-text'] ??
+          readableOn(Number.parseInt(vars['--chat-accent'].slice(1), 16)),
       }
     : null;
 };

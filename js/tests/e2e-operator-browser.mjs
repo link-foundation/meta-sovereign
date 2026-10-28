@@ -53,9 +53,10 @@ const { base, page, until, finish } = await openChatApp('operator', {
 });
 let failRead = false;
 let failDirectory = true;
-await page.addInitScript(() =>
-  globalThis.localStorage.removeItem('metaSovereignReadReceipts')
-);
+await page.addInitScript(() => {
+  globalThis.localStorage.removeItem('metaSovereignReadReceipts');
+  globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
+});
 await page.route(/\/links\?except=msg:/, (route) =>
   failDirectory
     ? fulfil(route, { error: 'temporary directory outage' }, 503)
@@ -266,7 +267,42 @@ const postponeSteps = async () => {
   assert(reads.length === 0, 'Next preserves unread state');
 };
 
-await finish(async () => {
+const selectionSteps = async () => {
+  for (const width of [1200, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    const row = page.locator('[data-row="msg:telegram:111:1"]');
+    const time = row.locator('.bubble-time');
+    await time.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(200);
+    const before = await row.locator('.bubble').boundingBox();
+    await time.click();
+    await page.locator('.operator-card .selection-top').waitFor();
+    const during = await row.locator('.bubble').boundingBox();
+    const check = await row.locator('.bubble-check').boundingBox();
+    const column = await page
+      .locator('.operator-card .chat-column')
+      .boundingBox();
+    assert(
+      check.x > column.x + column.width,
+      `${width}: Operator check stays outside the column`
+    );
+    for (const key of ['x', 'y', 'width', 'height']) {
+      assert(
+        Math.abs(before[key] - during[key]) <= 1,
+        `${width}: Operator selection keeps ${key}`
+      );
+    }
+    await assertControlSpacing(page);
+    await page.keyboard.press('Escape');
+    assert(
+      reads.length === 0,
+      'selecting and clearing never acknowledge Operator work'
+    );
+  }
+  await page.setViewportSize({ width: 1200, height: 800 });
+};
+
+const initialCardSteps = async () => {
   await startupFailureSteps();
   await until(
     async () => (await badge('operator').textContent()) === '2',
@@ -302,7 +338,11 @@ await finish(async () => {
     reads.length === 0,
     'opening and viewing a card keeps unread messages unread'
   );
+  await selectionSteps();
+};
 
+await finish(async () => {
+  await initialCardSteps();
   await postponeSteps();
   await restoreCardSteps();
   const box = page.locator('.operator-card textarea');

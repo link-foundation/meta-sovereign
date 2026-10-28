@@ -11,6 +11,7 @@ import path from 'node:path';
 import { startServer } from '../src/server/index.js';
 import { createMemoryStore } from '../src/storage/universal.js';
 import { assert, browserOf } from './helpers/e2e-chat.mjs';
+import { assertFilledContrast, pixelsAt } from './helpers/e2e-colors.mjs';
 
 // E2E_BROWSER=webkit runs it in Safari's engine.
 const { engine, browserType } = await browserOf('chat-selection');
@@ -21,7 +22,7 @@ const store = createMemoryStore();
 const now = Date.now();
 const names = ['Alice', 'Bob', 'Carol'];
 for (let i = 1; i <= 14; i++) {
-  const mine = i % 4 === 0;
+  const mine = i % 4 === 0 || i >= 12;
   await store.put({
     id: idOf(i),
     source: 'telegram',
@@ -95,6 +96,15 @@ page.on('pageerror', (e) => errors.push(String(e)));
 const bodyBox = async (n) => {
   const body = page.locator(`[data-row="${idOf(n)}"] .bubble-body`);
   await body.scrollIntoViewIfNeeded();
+  // A floating composer can cover a DOM-visible row. Scroll that target
+  // into the unobscured part of the list before using pointer coordinates.
+  const rect = await body.boundingBox();
+  const composer = await page.locator('.chat-composer').boundingBox();
+  if (rect.y + rect.height > composer.y - 8) {
+    await body.evaluate((node) =>
+      node.scrollIntoView({ block: 'center', behavior: 'instant' })
+    );
+  }
   return body.boundingBox();
 };
 const at = async (n, dx = 0) => {
@@ -322,6 +332,104 @@ try {
     selectedColors.join() === 'rgb(255, 255, 255),rgb(0, 0, 0)',
     'selected checks are monochrome in the default dark theme'
   );
+  await page.keyboard.press('Escape');
+  await pause();
+
+  // Incoming and outgoing bubbles keep the same geometry in both modes.
+  for (const width of [2200, 1100, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await bodyBox(12);
+    await pause();
+    const bubble = page.locator(`[data-row="${idOf(12)}"] > .bubble`);
+    const incoming = page.locator(`[data-row="${idOf(11)}"] > .bubble`);
+    const before = await bubble.boundingBox();
+    const incomingBefore = await incoming.boundingBox();
+    const headerBefore = await page.locator('.chat-header').boundingBox();
+    const scrollBefore = await page
+      .locator('.chat-scroll')
+      .evaluate((node) => ({ top: node.scrollTop, height: node.scrollHeight }));
+    const scrollBox = await page.locator('.chat-scroll').boundingBox();
+    await page.mouse.click(
+      scrollBox.x + scrollBox.width - 12,
+      before.y + before.height / 2
+    );
+    await pause();
+    const during = await bubble.boundingBox();
+    const incomingDuring = await incoming.boundingBox();
+    const headerDuring = await page.locator('.chat-header').boundingBox();
+    const scrollDuring = await page
+      .locator('.chat-scroll')
+      .evaluate((node) => ({ top: node.scrollTop, height: node.scrollHeight }));
+    for (const key of ['x', 'y', 'width', 'height']) {
+      assert(
+        Math.abs(before[key] - during[key]) <= 1,
+        `${width}: selection keeps bubble ${key}: ${JSON.stringify({ before, during, headerBefore, headerDuring, scrollBefore, scrollDuring })}`
+      );
+      assert(
+        Math.abs(incomingBefore[key] - incomingDuring[key]) <= 1,
+        `${width}: selection keeps incoming bubble ${key}`
+      );
+    }
+    const column = await page.locator('.chat-column').boundingBox();
+    const check = await page.locator('.bubble-check.is-checked').boundingBox();
+    const scroll = await page.locator('.chat-scroll').boundingBox();
+    assert(
+      check.x > column.x + column.width,
+      `${width}: check outside the message column`
+    );
+    assert(
+      check.x + check.width <= scroll.x + scroll.width,
+      `${width}: check fits the chat`
+    );
+    const second = await page.locator(`[data-row="${idOf(13)}"]`).boundingBox();
+    await page.mouse.click(
+      scrollBox.x + scrollBox.width - 12,
+      second.y + second.height / 2
+    );
+    await pause();
+    const row12 = await page.locator(`[data-row="${idOf(12)}"]`).boundingBox();
+    const row13 = await page.locator(`[data-row="${idOf(13)}"]`).boundingBox();
+    const y = row12.y + row12.height / 2;
+    const pixels = await pixelsAt(page, [
+      [scroll.x + 8, y],
+      [row12.x + 4, y],
+      [scroll.x + 8, row12.y + row12.height - 1],
+      [scroll.x + 8, row13.y - 1],
+      [scroll.x + 8, row13.y + 1],
+      ...Array.from(
+        { length: Math.ceil(row13.y - row12.y - row12.height) + 4 },
+        (_, i) => [scroll.x + 8, Math.floor(row12.y + row12.height) - 2 + i]
+      ),
+    ]);
+    assert(
+      pixels.every((pixel) =>
+        pixel.every((value, i) => Math.abs(value - pixels[0][i]) <= 1)
+      ),
+      `${width}: selection is uniform across the row/gutters and never doubles at seams: ${JSON.stringify(pixels)}`
+    );
+    if (process.env.E2E_SHOT) {
+      await page.screenshot({
+        path:
+          width === 2200
+            ? process.env.E2E_SHOT
+            : process.env.E2E_SHOT.replace(/\.png$/, `-${width}.png`),
+      });
+    }
+    await page.keyboard.press('Escape');
+    await pause();
+    const after = await bubble.boundingBox();
+    const scrollAfter = await page
+      .locator('.chat-scroll')
+      .evaluate((node) => node.scrollTop);
+    const headerAfter = await page.locator('.chat-header').boundingBox();
+    for (const key of ['x', 'y', 'width', 'height']) {
+      assert(
+        Math.abs(before[key] - after[key]) <= 1,
+        `${width}: clearing keeps bubble ${key}: ${JSON.stringify({ before, during, after, headerDuring, headerAfter, scrollBefore, scrollDuring, scrollAfter })}`
+      );
+    }
+  }
+  await assertFilledContrast(page);
   assert(errors.length === 0, `page errors: ${errors.join('; ')}`);
   console.log('[e2e-chat-selection] OK');
 } catch (error) {

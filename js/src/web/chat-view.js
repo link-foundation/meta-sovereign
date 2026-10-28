@@ -65,7 +65,7 @@ import { BusinessIntro } from './chat-business-profile.js';
 import { BotBar } from './chat-business-bots.js';
 import { useBusinessLinks } from './chat-business-link-open.js';
 import { useProfileRequest } from './contact-links.js';
-import { SelectionTop } from './chat-selection.js';
+import { ConversationHeader } from './chat-selection.js';
 import { useDragSelect } from './chat-drag.js';
 import { Busy, ChatListSkeleton, Spinner } from './spinner.js';
 import { useComposerText, useSuggestionsFor } from './chat-suggest.js';
@@ -1177,7 +1177,7 @@ const ChatSubtitle = ({ state, t, chatTime }) =>
           : null,
       ]);
 
-const ChatTop = ({ state, api, onBack, saved, forumView, call }) => {
+const ChatTop = ({ state, api, onBack, saved, forumView, call, actions }) => {
   const [about, setAbout] = useState(false);
   // A contact or phone link opens the person's column (R-Y217).
   useProfileRequest(state.current, () => setAbout(true));
@@ -1189,18 +1189,21 @@ const ChatTop = ({ state, api, onBack, saved, forumView, call }) => {
     reach: state.history?.reach,
   });
   return [
-    el(Header, {
-      key: 'h',
-      state,
-      api,
-      onBack,
-      about: Boolean(chat),
-      onAbout: () => setAbout((open) => !open),
-      find,
-      saved,
-      forumView,
-      call,
-    }),
+    el(
+      ConversationHeader,
+      { key: 'h', actions },
+      el(Header, {
+        state,
+        api,
+        onBack,
+        about: Boolean(chat),
+        onAbout: () => setAbout((open) => !open),
+        find,
+        saved,
+        forumView,
+        call,
+      })
+    ),
     el(SearchBar, { key: 'find', find }),
     chat
       ? el(PersonPanel, {
@@ -1270,7 +1273,7 @@ const Conversation = ({
 }) =>
   state.current
     ? el('section', { key: 'main', className: 'chat-main', ...theme }, [
-        el(ConversationHeader, {
+        el(ChatTop, {
           key: 'header',
           actions,
           state,
@@ -1472,19 +1475,6 @@ export const ChatScreen = ({ state, api, embedded = false }) => {
 
 // The kind of the open chat, for the media download settings (R-Y181).
 const kindOf = (current) => current?.kind ?? 'private';
-
-const ConversationHeader = ({
-  actions,
-  state,
-  api,
-  onBack,
-  saved,
-  forumView,
-  call,
-}) =>
-  actions.selection.ids.length > 0
-    ? el(SelectionTop, { key: 'h', ...actions.top })
-    : el(ChatTop, { key: 'h', state, api, onBack, saved, forumView, call });
 
 export const ChatView = ({ api = defaultApi, ...options }) => {
   const t = useT();

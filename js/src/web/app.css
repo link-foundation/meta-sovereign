@@ -8,8 +8,10 @@
   --text-muted: #c9d1d9;
   --text-subtle: #9198a1;
   --accent: #238636;
+  --accent-fill: #238636;
   --accent-bg: #1f6feb33;
   --danger: #f85149;
+  --danger-fill: #bd2c2c;
   --link: #4493f8;
   --shadow: rgba(0, 0, 0, 0.4);
   /* One height for every button, input and select; one header height
@@ -38,6 +40,7 @@
   --danger: #cf222e;
   --link: #0969da;
   --accent: #1a7f37;
+  --accent-fill: #1a7f37;
   --accent-bg: #ddf4ff;
   --shadow: rgba(0, 0, 0, 0.08);
   --scrollbar: rgba(0, 0, 0, 0.2);
@@ -57,6 +60,7 @@
     --danger: #cf222e;
     --link: #0969da;
     --accent: #1a7f37;
+    --accent-fill: #1a7f37;
     --accent-bg: #ddf4ff;
     --shadow: rgba(0, 0, 0, 0.08);
     --scrollbar: rgba(0, 0, 0, 0.2);
@@ -281,7 +285,9 @@ main[data-view='chat'] > .web-mode-banner {
   --bubble-radius: 14px;
   --bubble-tail: 14px;
   --chat-accent: var(--accent);
+  --chat-accent-fill: var(--accent-fill);
   --chat-column: 46rem;
+  --chat-header-h: 3.75rem;
   --chat-font-size: 0.95rem;
 }
 :root[data-theme='light'] {
@@ -379,7 +385,7 @@ main[data-view='chat'] > .web-mode-banner {
   margin-left: 0.3rem;
   padding: 0 0.3rem;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 600;
@@ -521,11 +527,15 @@ main[data-view='chat'] > .web-mode-banner {
   min-width: 0;
   min-height: 0;
 }
+.chat-header-slot {
+  flex-shrink: 0;
+  min-height: var(--chat-header-h);
+}
 .chat-header {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  min-height: 3.5rem;
+  min-height: var(--chat-header-h);
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border);
   background: var(--chat-sidebar);
@@ -550,10 +560,14 @@ main[data-view='chat'] > .web-mode-banner {
   min-width: 0;
 }
 @container conversation (max-width: 650px) {
-  .chat-header {
+  .chat-header-slot,
+  .chat-header,
+  .person-panel {
+    --chat-header-h: 6.5rem;
+  }
+  .chat-header:not(.selection-top) {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    min-height: 6.5rem;
     gap: var(--control-gap);
   }
   .chat-header-actions {
@@ -567,18 +581,15 @@ main[data-view='chat'] > .web-mode-banner {
   .chat-header-actions .chat-menu-toggle {
     padding-inline: 0.5rem;
   }
-  .person-panel {
-    top: 6.5rem;
-  }
 }
 .chat-header {
   flex-shrink: 0;
 }
 @media (max-width: 720px) {
-  .chat-header {
+  .chat-header:not(.selection-top) {
     grid-template-columns: auto auto minmax(0, 1fr);
   }
-  .chat-embedded .chat-header {
+  .chat-embedded .chat-header:not(.selection-top) {
     grid-template-columns: auto minmax(0, 1fr);
   }
 }
@@ -649,7 +660,7 @@ main[data-view='chat'] > .web-mode-banner {
    messages, under the header, as Telegram's profile column. */
 .person-panel {
   position: absolute;
-  top: 3.5rem;
+  top: var(--chat-header-h);
   right: 0;
   bottom: 0;
   z-index: 5;
@@ -662,7 +673,8 @@ main[data-view='chat'] > .web-mode-banner {
 }
 /* Wide enough: the messages make room for it instead of going under. */
 @media (min-width: 900px) {
-  .chat-main:has(> .person-panel) > :not(.chat-header, .person-panel) {
+  .chat-main:has(> .person-panel)
+    > :not(.chat-header, .chat-header-slot, .person-panel) {
     margin-right: min(22rem, 100%);
   }
   .chat-main:has(> .person-panel) > .chat-composer {
@@ -874,7 +886,9 @@ main[data-view='chat'] > .web-mode-banner {
 .chat-scroll {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 1rem 1rem 9rem;
+  overflow-x: hidden;
+  /* Always reserve the check gutter, so selecting never moves bubbles. */
+  padding: 1rem 2.75rem 9rem;
 }
 .chat-column {
   display: flex;
@@ -1019,7 +1033,7 @@ main[data-view='chat'] > .web-mode-banner {
   min-width: 1.25rem;
   padding: 0 0.4rem;
   border-radius: 999px;
-  background: var(--chat-accent);
+  background: var(--chat-accent-fill);
   color: #fff;
   font-size: 0.72rem;
   font-weight: 600;
@@ -1048,7 +1062,7 @@ main[data-view='chat'] > .web-mode-banner {
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 999px;
-  background: var(--chat-accent);
+  background: var(--chat-accent-fill);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
@@ -1206,7 +1220,7 @@ main[data-view='chat'] > .web-mode-banner {
   height: 1.35rem;
   padding: 0 0.35rem;
   border-radius: 999px;
-  background: var(--chat-accent);
+  background: var(--chat-accent-fill);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
@@ -1510,7 +1524,7 @@ a.button {
     padding: 0.5rem 0.75rem;
   }
   .chat-scroll {
-    padding-inline: 0.75rem;
+    padding-inline: 2.25rem;
   }
 }
 .meta {
@@ -3069,6 +3083,7 @@ button.primary .recommended-tag {
 }
 :root[data-skin='signal'] {
   --accent: #2c6bed;
+  --accent-fill: #2c6bed;
   --accent-bg: #2c6bed22;
   --chat-accent: #2c6bed;
   --chat-bg: #ffffff;
@@ -3187,6 +3202,7 @@ button.primary .recommended-tag {
 
 /* Bubble row: avatar + bubble side by side. */
 .bubble-row {
+  --msg-row-gap: 0.5rem;
   display: flex;
   align-items: flex-end;
   gap: 0.4rem;
@@ -3539,7 +3555,7 @@ button.primary .recommended-tag {
   width: 2.6rem;
   height: 2.6rem;
   border-radius: 50%;
-  background: var(--chat-accent, var(--accent));
+  background: var(--chat-accent-fill);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
@@ -3735,38 +3751,42 @@ button.primary .recommended-tag {
   opacity: 1;
 }
 
-/* Selecting messages (R-Y67, R-Y68), drawn as Telegram Desktop draws
-   it: each row gets a round check at its right end, outgoing bubbles
-   move left to make room, a selected row is tinted across the whole
-   chat, and a click anywhere on a row picks it. */
+/* Selecting messages: checks sit outside the stable message column,
+   a selected row is tinted across the whole chat, and a click anywhere
+   on a row picks it. */
 :root {
   --msg-select-overlay: rgba(53, 140, 212, 0.3);
   --msg-select-check: #4ab44a;
 }
 .chat-column .bubble-row {
-  transition:
-    transform 0.2s ease-out,
-    padding-right 0.15s ease-out;
+  transition: transform 0.2s ease-out;
 }
 .chat-column.is-selecting .bubble-row {
-  padding-right: 2.25rem;
   cursor: default;
   -webkit-user-select: none;
   user-select: none;
 }
 .chat-column.is-selecting .bubble-row.is-selected {
-  /* The tint runs from edge to edge and meets the next selected row's. */
-  box-shadow: 0 0 0 100vmax var(--msg-select-overlay);
-  clip-path: inset(-0.25rem -100vmax);
+  isolation: isolate;
+}
+.chat-column.is-selecting .bubble-row.is-selected::before {
+  /* Fill the row as well as its gutters. Each row owns only the gap
+     above it. One rectangle avoids clipped-shadow seams and stacking. */
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--msg-row-gap)) -100vmax 0;
+  z-index: -1;
+  background: var(--msg-select-overlay);
+  pointer-events: none;
 }
 .bubble-check {
   position: absolute;
-  right: 0.3rem;
+  right: -2rem;
   bottom: 5px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.95);
+  border: 2px solid var(--text);
   background: rgba(0, 0, 0, 0.22);
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
   display: flex;
@@ -3797,6 +3817,7 @@ button.primary .recommended-tag {
 /* Desktop's top bar while messages are selected: FORWARD n and DELETE n
    on the left, CANCEL on the right; it slides in over the chat's. */
 .selection-top {
+  flex-wrap: wrap;
   gap: 0.5rem;
   animation: selection-top-in 0.15s ease-out;
 }
@@ -3822,7 +3843,7 @@ button.primary .recommended-tag {
   cursor: pointer;
 }
 .selection-top-button {
-  background: var(--chat-accent, var(--accent));
+  background: var(--chat-accent-fill);
   color: #fff;
 }
 .selection-top-button:hover {
@@ -3955,7 +3976,7 @@ button.primary .recommended-tag {
   justify-content: flex-end;
 }
 .delete-dialog-btns button.danger {
-  background: var(--danger);
+  background: var(--danger-fill);
   color: #fff;
   border-color: var(--danger);
 }
@@ -4016,6 +4037,7 @@ button.primary .recommended-tag {
 /* One sender's run (chat-view.js messageRuns): bubbles sit close, and
    the corners between them are rounded less, as in Telegram. */
 .bubble-row:not([data-run-first]) {
+  --msg-row-gap: 0.2rem;
   margin-top: -0.3rem;
 }
 .bubble-row:not([data-run-first]) > .bubble.in {
@@ -4366,7 +4388,7 @@ img[data-media-ready='false'] {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--chat-accent, var(--accent));
+  background: var(--chat-accent-fill);
   color: #fff;
   cursor: pointer;
 }
@@ -4587,13 +4609,13 @@ img[data-media-ready='false'] {
   margin-top: 0.18rem;
   border-radius: 50%;
   color: #fff;
-  background: var(--chat-accent, var(--link));
+  background: var(--chat-accent-fill);
 }
 .poll-answer.correct .poll-mark {
-  background: #3fb950;
+  background: #1a7f37;
 }
 .poll-answer.wrong .poll-mark {
-  background: var(--danger);
+  background: var(--danger-fill);
 }
 .poll-bar-track {
   grid-column: 2;
@@ -4650,7 +4672,7 @@ img[data-media-ready='false'] {
 .poll-choice.picked .poll-circle,
 .poll-choice.picked .poll-box {
   border-color: var(--chat-accent, var(--link));
-  background: var(--chat-accent, var(--link))
+  background: var(--chat-accent-fill)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
     center / 80% no-repeat;
 }
@@ -5076,7 +5098,7 @@ button[aria-busy='true']::before {
   min-width: 1rem;
   padding: 0 0.25rem;
   border-radius: 0.5rem;
-  background: var(--accent, #3390ec);
+  background: var(--accent-fill);
   color: #fff;
   font-size: 0.65rem;
   line-height: 1rem;
@@ -5449,7 +5471,7 @@ button[aria-busy='true']::before {
   color: var(--accent);
 }
 .calendar-day.is-chosen {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
 }
 
@@ -5503,15 +5525,15 @@ button[aria-busy='true']::before {
   cursor: progress;
 }
 .bot-button.is-primary {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
 }
 .bot-button.is-success {
-  background: #2e9e4f;
+  background: #1a7f37;
   color: #fff;
 }
 .bot-button.is-danger {
-  background: var(--danger);
+  background: var(--danger-fill);
   color: #fff;
 }
 .bot-button-text {
@@ -5770,7 +5792,7 @@ button[aria-busy='true']::before {
   padding: 0.2rem 0.75rem;
   border: 0;
   border-radius: 999px;
-  background: var(--chat-accent, var(--accent));
+  background: var(--chat-accent-fill);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
@@ -5930,7 +5952,7 @@ button[aria-busy='true']::before {
   width: 1.3rem;
   height: 1.3rem;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
@@ -5947,7 +5969,7 @@ button[aria-busy='true']::before {
   min-width: 1.2rem;
   padding: 0 0.35rem;
   border-radius: 999px;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   font-size: 0.72rem;
   font-weight: 600;
@@ -5970,7 +5992,7 @@ button[aria-busy='true']::before {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   font-size: 1.8rem;
   display: flex;
@@ -6041,7 +6063,7 @@ button[aria-busy='true']::before {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   display: flex;
   align-items: center;
@@ -6267,7 +6289,7 @@ button[aria-busy='true']::before {
   cursor: pointer;
 }
 .reader-tab.active {
-  background: var(--accent);
+  background: var(--accent-fill);
   border-color: var(--accent);
   color: #fff;
 }
@@ -6694,7 +6716,7 @@ button[aria-busy='true']::before {
   flex: 1;
 }
 .share-tab.is-active {
-  background: var(--accent);
+  background: var(--accent-fill);
   color: var(--accent-contrast, #fff);
 }
 .share-contacts {
@@ -8896,7 +8918,7 @@ span.bubble-effect {
   border-radius: 10px;
   font: inherit;
   font-weight: 600;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   cursor: pointer;
 }
@@ -10571,11 +10593,11 @@ span.bubble-effect {
 }
 .voice-join {
   border-color: var(--accent);
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
 }
 .voice-leave {
-  border-color: var(--danger);
+  border-color: var(--danger-fill);
   color: var(--danger);
 }
 .voice-pill:disabled {
@@ -11171,12 +11193,12 @@ button.profile-username.is-collectible {
 }
 .private-call-btn.accept {
   color: #fff;
-  background: var(--accent);
+  background: var(--accent-fill);
   border-color: transparent;
 }
 .private-call-btn.end {
   color: #fff;
-  background: var(--danger);
+  background: var(--danger-fill);
   border-color: transparent;
 }
 .private-call-btn.end svg {
@@ -11235,7 +11257,7 @@ button.profile-username.is-collectible {
   min-width: 20px;
   padding: 1px 6px;
   border-radius: 10px;
-  background: var(--accent);
+  background: var(--accent-fill);
   color: #fff;
   font-size: 12px;
   text-align: center;
@@ -11918,7 +11940,7 @@ button.profile-username.is-collectible {
   margin-left: 0.4rem;
   padding: 0 0.35rem;
   border-radius: 999px;
-  background: var(--chat-accent, var(--accent));
+  background: var(--chat-accent-fill);
   color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
@@ -13154,7 +13176,8 @@ audio.remote-player {
   gap: 0.5rem;
 }
 @media (min-width: 900px) {
-  .chat-main:has(> .person-panel) > :not(.chat-header, .person-panel) {
+  .chat-main:has(> .person-panel)
+    > :not(.chat-header, .chat-header-slot, .person-panel) {
     margin-right: min(var(--details-width, 352px), 100%);
   }
   .chat-main:has(> .person-panel) > .chat-composer {
@@ -13188,15 +13211,8 @@ audio.remote-player {
 :root[data-theme='dark'] .nav-item .icon {
   color: #fff;
 }
-:root[data-theme='dark'][data-skin='t3'] .composer-send,
-:root[data-theme='dark'][data-skin='t3'] button.primary,
-:root[data-theme='dark'][data-skin='t3'] .audio-play,
-:root[data-theme='dark'][data-skin='t3'] .reader-tab.active {
-  background: #2c2d30;
-  color: #fff;
-}
 :root[data-theme='dark'][data-skin='t3'] {
-  --accent-fill: #303135;
+  --accent-fill: #2c2d30;
 }
 :root[data-theme='dark'][data-skin='t3'] .chat-filter-unread,
 :root[data-theme='dark'][data-skin='t3'] .story-add-badge {

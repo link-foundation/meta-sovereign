@@ -21,6 +21,7 @@ import {
   readableOn,
   settingsFor,
   themeVars,
+  whiteTextFill,
 } from '../src/web/chat-theme-model.js';
 import {
   activeOrder,
@@ -348,19 +349,51 @@ test('themeVars: accent and outgoing bubble for the mode, the other when missing
   const page = themePage(LIST.themes[0]);
   assert.deepEqual(themeVars(page, false), {
     '--chat-accent': '#ff8800',
+    '--chat-accent-fill': whiteTextFill(0xff8800),
     '--bubble-out': '#112233',
     '--bubble-out-text': '#ffffff',
   });
   assert.deepEqual(themeVars(page, true), {
     '--chat-accent': '#00aaff',
+    '--chat-accent-fill': whiteTextFill(0x00aaff),
     '--bubble-out': '#334455',
     '--bubble-out-text': '#ffffff',
   });
   const lone = themePage(LIST.themes[1]);
   assert.equal(settingsFor(lone, true), lone.light);
-  assert.deepEqual(themeVars(lone, true), { '--chat-accent': '#cc2266' });
+  assert.deepEqual(themeVars(lone, true), {
+    '--chat-accent': '#cc2266',
+    '--chat-accent-fill': '#cc2266',
+  });
   assert.deepEqual(themeVars({ light: null, dark: null }, false), {});
   assert.deepEqual(themeVars(null, false), {});
+});
+
+test('bright theme fills retain readable white labels while accent text keeps its colour', () => {
+  for (const accent of [
+    0xffffff, 0xffff00, 0x00ff00, 0x00ffff, 0xff8800, 0x00aaff, 0xff00ff,
+    0x000000,
+  ]) {
+    const theme = { dark: { accent } };
+    const vars = themeVars(theme, true);
+    assert.equal(vars['--chat-accent'], cssColour(accent));
+    const rgb = vars['--chat-accent-fill']
+      .slice(1)
+      .match(/../g)
+      .map((c) => Number.parseInt(c, 16) / 255);
+    const linear = rgb.map((c) =>
+      c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+    );
+    const l = linear.reduce(
+      (sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i],
+      0
+    );
+    assert.ok(
+      1.05 / (l + 0.05) >= 4.5,
+      `${cssColour(accent)}: readable filled label`
+    );
+  }
+  assert.equal(readableOn(0xff8800), '#101418');
 });
 
 test('previewOf: accent, bubble and text, or null', () => {

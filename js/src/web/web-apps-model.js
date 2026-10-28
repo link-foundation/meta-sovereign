@@ -163,7 +163,7 @@ const THEME = {
   text_color: ['--text', '#e6edf3'],
   hint_color: ['--text-subtle', '#9198a1'],
   link_color: ['--link', '#4493f8'],
-  button_color: ['--accent', '#238636'],
+  button_color: ['--accent-fill', '#238636'],
   button_text_color: [null, '#ffffff'],
   header_bg_color: ['--bg-elev', '#161b22'],
   bottom_bar_bg_color: ['--bg-elev', '#161b22'],

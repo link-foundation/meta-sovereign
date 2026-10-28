@@ -615,6 +615,17 @@ export const useSelectionKeys = (selection, { onCopy, onDelete }) => {
   }, [active]);
 };
 
+// A persistent slot prevents WebKit from clamping the list's scroll
+// position while React replaces the normal header with its selection bar.
+export const ConversationHeader = ({ actions, children }) =>
+  el(
+    'div',
+    { className: 'chat-header-slot' },
+    actions.selection.ids.length > 0
+      ? el(SelectionTop, { ...actions.top })
+      : children
+  );
+
 // A top-bar button: its label in capitals and, after it, the count.
 const TopButton = ({ action, label, count, onClick, filled = true }) =>
   el(

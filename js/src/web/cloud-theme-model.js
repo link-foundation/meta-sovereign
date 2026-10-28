@@ -96,7 +96,12 @@ export const cloudVars = (theme, dark) => {
   const accent = vars['--chat-accent'];
   return {
     ...(accent
-      ? { '--accent': accent, '--accent-fill': accent, '--chat-accent': accent }
+      ? {
+          '--accent': accent,
+          '--accent-fill': vars['--chat-accent-fill'],
+          '--chat-accent': accent,
+          '--chat-accent-fill': vars['--chat-accent-fill'],
+        }
       : {}),
     ...(vars['--bubble-out']
       ? {
@@ -112,6 +117,7 @@ export const CLOUD_VARS = Object.freeze([
   '--accent',
   '--accent-fill',
   '--chat-accent',
+  '--chat-accent-fill',
   '--bubble-out',
   '--bubble-out-text',
 ]);

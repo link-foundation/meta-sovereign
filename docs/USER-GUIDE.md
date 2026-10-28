@@ -576,6 +576,8 @@ copies them, each as "[date time] Name: text". **Esc** ends selecting,
 edits your last message, and **Ctrl/Cmd+↑/↓** choose the message to
 reply to.
 
+Selection checks sit outside the message column, so bubbles stay in place when selecting or clearing messages. The selection highlight spans the full row without overlapping darker bands between adjacent messages. The same selection controls work inside Operator cards.
+
 The chat list is Telegram's: pinned chats first, in their order, with a
 pin; a muted chat's count in grey; archived chats behind one **Archived
 Chats** row; and each row says who wrote last and what ("🙂 Sticker",
