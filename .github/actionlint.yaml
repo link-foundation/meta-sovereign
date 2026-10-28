@@ -1,0 +1,8 @@
+# Current generally available labels verified against actions/runner-images.
+# actionlint 1.7.12 has not added these hosted labels to its built-in list.
+# https://github.com/actions/runner-images#available-images
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
+    - ubuntu-26.04-arm
+    - windows-11-vs2026-arm

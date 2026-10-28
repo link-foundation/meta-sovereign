@@ -121,15 +121,13 @@ describe('mobile and Electron packaging', () => {
     expect(pkg.scripts['build:mobile']).toBe(
       'npm run build:web && node js/scripts/build-mobile.mjs'
     );
-    expect(pkg.scripts.electron).toContain(
-      'npm exec --yes --package electron@^44.9.0'
-    );
+    expect(pkg.scripts.electron).toContain('node js/scripts/run-electron.mjs');
     expect(pkg.scripts['mobile:sync']).toBe(
       'npm run build:mobile && node js/scripts/mobile-platform.mjs sync'
     );
     expect(Boolean(pkg.scripts['mobile:ios'])).toBe(true);
     expect(Boolean(pkg.scripts['mobile:android'])).toBe(true);
-    expect(pkg.peerDependencies['@capacitor/cli']).toBe('^8.5.3');
+    expect(pkg.peerDependencies['@capacitor/cli']).toBe('^8.6.0');
 
     const cap = JSON.parse(await fs.readFile('capacitor.config.json', 'utf8'));
     expect(cap.appId).toBe('foundation.link.meta.sovereign');

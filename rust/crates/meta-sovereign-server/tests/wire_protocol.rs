@@ -7,7 +7,7 @@ use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::time::Duration;
 
-use meta_sovereign_server::{serve, ServerOptions};
+use meta_sovereign_server::{ServerOptions, serve};
 
 fn read_until_close(stream: &mut TcpStream) -> String {
     let mut out = Vec::new();
@@ -51,7 +51,9 @@ fn local_server_boundary_restricts_http_and_socket_origins() {
     assert!(!allowed.contains("access-control-allow-origin: *"));
     for origin in ["https://evil.example", "https://evil.github.io", "null"] {
         for route in ["/api/status", "/links", "/ws", "/rtc"] {
-            let request = format!("GET {route} HTTP/1.1\r\nHost: x\r\nOrigin: {origin}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n");
+            let request = format!(
+                "GET {route} HTTP/1.1\r\nHost: x\r\nOrigin: {origin}\r\nUpgrade: websocket\r\nConnection: Upgrade\r\n\r\n"
+            );
             assert!(http_request(h.port(), &request).starts_with("HTTP/1.1 403"));
         }
     }
@@ -60,7 +62,12 @@ fn local_server_boundary_restricts_http_and_socket_origins() {
         "GET /api/status HTTP/1.1\r\nHost: evil.example\r\n\r\n",
     );
     assert!(rebound.starts_with("HTTP/1.1 421"));
-    let preflight = http_request(h.port(), &format!("OPTIONS /links HTTP/1.1\r\nHost: x\r\nOrigin: {pages}\r\nAccess-Control-Request-Method: PUT\r\nAccess-Control-Request-Headers: content-type\r\nAccess-Control-Request-Private-Network: true\r\n\r\n"));
+    let preflight = http_request(
+        h.port(),
+        &format!(
+            "OPTIONS /links HTTP/1.1\r\nHost: x\r\nOrigin: {pages}\r\nAccess-Control-Request-Method: PUT\r\nAccess-Control-Request-Headers: content-type\r\nAccess-Control-Request-Private-Network: true\r\n\r\n"
+        ),
+    );
     assert!(preflight.starts_with("HTTP/1.1 204"));
     assert!(preflight.contains("access-control-allow-private-network: true"));
     let root = http_request(h.port(), "GET / HTTP/1.1\r\nHost: x\r\n\r\n");

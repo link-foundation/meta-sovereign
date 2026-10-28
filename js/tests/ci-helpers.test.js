@@ -185,6 +185,39 @@ test('GitHub release probes distinguish absence from unknown failures', async ()
   );
 });
 
+test('npm 12 registry version arrays distinguish published versions from unexpected responses', async () => {
+  const { npmVersionState } = await import('../scripts/registry-state.mjs');
+  assert.equal(
+    npmVersionState({ status: 0, stdout: '["1.2.3"]' }, '1.2.3'),
+    'published'
+  );
+  for (const stdout of ['[]', '["1.2.4"]', '["1.2.3","1.2.4"]']) {
+    assert.throws(
+      () => npmVersionState({ status: 0, stdout }, '1.2.3'),
+      /Unexpected registry version/
+    );
+  }
+});
+
+test('npm 12 pack metadata selects the exact package from the keyed result', async () => {
+  const { npmPackEntry } = await import('../scripts/registry-state.mjs');
+  const entry = {
+    name: 'meta-sovereign',
+    filename: 'meta-sovereign-1.2.3.tgz',
+    files: [],
+  };
+  assert.deepEqual(
+    npmPackEntry(JSON.stringify({ 'meta-sovereign': entry }), 'meta-sovereign'),
+    entry
+  );
+  for (const value of [{}, { other: entry }, { 'meta-sovereign': {} }]) {
+    assert.throws(
+      () => npmPackEntry(JSON.stringify(value), 'meta-sovereign'),
+      /pack metadata/
+    );
+  }
+});
+
 test('dependency graph preflight permits PR capability notices but fails main and unknown errors', async () => {
   const { checkDependencyGraph } =
     await import('../scripts/dependency-graph.mjs');

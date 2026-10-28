@@ -22,7 +22,7 @@ R-Z32 要求验证实际发布的源码，并保留失败诊断。[issue 43 调�
 
 发布任务等待最终流水线门禁。只读检查取消过时运行；发布写操作串行执行且不中途取消。经过验证的提交之后，只允许版本、changelog 和 changeset 元数据变化。源码或依赖变化需要新的成功 CI。
 
-npm 可信发布要求 Node 24 自带的 npm 至少为 11.5.1、`id-token: write`，并为 `link-foundation/meta-sovereign` 的 `release.yml` 配置 trusted publisher。必要时须由包管理员在 npm 初始化包和发布者。token 交换被拒绝后，不得绕过检查发布。
+npm 可信发布要求 Node 26.12.1 和固定的 npm 12.2.1、`id-token: write`，并为 `link-foundation/meta-sovereign` 的 `release.yml` 配置 trusted publisher。必要时须由包管理员在 npm 初始化包和发布者。token 交换被拒绝后，不得绕过检查发布。
 
 启用 **Settings → Security → Code security → Dependency graph**。PR 在功能不可用时给出说明，无须贡献者提供秘密。`main` 缺少依赖图或 npm 发布者配置时，preflight 会在昂贵构建前失败并明确说明设置步骤。网络、身份验证和无效 API 响应仍是错误。
 
@@ -32,7 +32,7 @@ npm 可信发布要求 Node 24 自带的 npm 至少为 11.5.1、`id-token: write
 
 发布辅助工具由 manifest 和 lockfile 固定。Telegram 使用维护中的 `teleproto` 及兼容层，公开 provider 标识仍为 `telegram`。KaTeX 已修补。npm、Bun 和 Deno 均明确批准经过审查的原生安装脚本。
 
-`electron-builder` 固定为 `27.0.0-alpha.13`，因为 26.x 仍含弃用依赖。这是构建工具的预发布版本，所有原生打包目标都必须通过 CI；运行时包的 Node 要求不变。不得隐藏警告或强行覆盖不兼容的主版本。lockfile 回归检查拒绝 deprecated 条目。
+`electron-builder` 固定为 `27.0.0-alpha.13`，因为 26.x 仍含弃用依赖。这是构建工具的预发布版本，所有原生打包目标都必须通过 CI。不得隐藏警告或强行覆盖不兼容的主版本。lockfile 回归检查拒绝 deprecated 条目。
 
 v27 构建器的新配置保留相同的打包文件、原生模块策略、desktop 文件和 macOS 权限。临时签名使用 `mac.sign.identity` 和 `mac.sign.sign`。现有 updater 6 通道明确保留未签名的更新清单和 Windows 文件；启用 Authenticode 验证之前必须配置签名发布者。Staged updater 使用精确且限定范围的 npm alias，将弃用的 `lodash.isequal` 替换为 `lodash.isequalwith@4.4.0`。未提供 customizer 时，两者执行相同的布尔深度比较。每次安装后都会验证真正的 updater 缓存对相同、变更的元数据和缺失文件的处理。上游修复发布后应移除此 override；将整个 `lodash` 作为 alias 会返回包装对象，因此不安全。
 
@@ -46,6 +46,6 @@ GitHub 测试 fixture 在清理时关闭其拥有的所有连接，包括 keep-a
 
 `MS_LIFECYCLE_DEBUG=1` 输出固定的关闭阶段名称、经过的毫秒数和自有连接数，不含请求或账户内容。默认关闭，Windows Node CI 显式启用。keep-alive 回归测试阻塞内存存储的 flush，分别验证套接字关闭和持久化；随后必须释放 flush 并等待完整关闭。
 
-GitHub 多次无法分配 macOS ARM runner 后，Node 和 WebKit 改用固定版本的原生 `macos-15-intel` 池。Bun、Deno 和桌面打包仍覆盖 macOS ARM。九种运行时/操作系统组合及两项浏览器检查仍为必需；排队不算检查成功。
+GitHub 多次无法分配 macOS ARM runner 后，Node 和 WebKit 改用固定版本的原生 `macos-26-intel` 池。Bun、Deno 和桌面打包仍覆盖 macOS ARM。九种运行时/操作系统组合及两项浏览器检查仍为必需；排队不算检查成功。
 
 所有自有网络 fixture 共用跟踪 socket 的关闭 helper，覆盖 GitHub、serverFetch、archive/WhatsApp/marketplace 路由、本地 Pages 和邮件协议。Rust 文档在检查和两条发布路径中均拒绝警告（`RUSTDOCFLAGS=-D warnings`）。临时 Git fixture 设置自己的 LF 策略，不修改用户设置。

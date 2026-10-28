@@ -5,7 +5,7 @@
 //
 //   RUN_BROWSER_E2E=1 npm run test:e2e:selection
 
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { startServer } from '../src/server/index.js';
@@ -49,6 +49,11 @@ const handle = await startServer({
 });
 const base = `http://127.0.0.1:${handle.port}`;
 const browser = await browserType.launch({ headless: true });
+if (process.env.CI_TUTORIAL_DEBUG === '1') {
+  const { probeInput } =
+    await import('../../experiments/issue50-webkit-input.mjs');
+  await probeInput(browser);
+}
 const context = await browser.newContext({
   viewport: { width: 1100, height: 800 },
 });
@@ -59,6 +64,51 @@ if (engine === 'chromium') {
   });
 }
 const page = await context.newPage();
+const inputs = [];
+if (process.env.CI_TUTORIAL_DEBUG === '1') {
+  page.on('console', (message) => {
+    if (message.text().startsWith('[ms-debug]')) {
+      console.log(message.text());
+    }
+  });
+  await page.exposeFunction('recordSelectionInput', (input) => {
+    inputs.push(input);
+    if (inputs.length > 40) {
+      inputs.shift();
+    }
+  });
+}
+await page.addInitScript(() => {
+  globalThis.metaSovereignDebug =
+    typeof globalThis.recordSelectionInput === 'function';
+  globalThis.addEventListener(
+    'click',
+    (event) => {
+      globalThis.recordSelectionInput?.({
+        type: 'window-click',
+        x: event.clientX,
+        y: event.clientY,
+      });
+    },
+    true
+  );
+  for (const type of ['mousedown', 'mouseup', 'click']) {
+    document.addEventListener(
+      type,
+      (event) => {
+        globalThis.recordSelectionInput?.({
+          type,
+          x: event.clientX,
+          y: event.clientY,
+          target: event.target?.className,
+          row: event.target?.closest?.('[data-row]')?.dataset.row,
+          at: globalThis.performance.now(),
+        });
+      },
+      true
+    );
+  }
+});
 await page.addInitScript(() => {
   globalThis.localStorage.setItem('metaSovereignTheme', 'dark');
   globalThis.localStorage.setItem('metaSovereignSkin', 't3');
@@ -107,6 +157,15 @@ const bodyBox = async (n) => {
   }
   return body.boundingBox();
 };
+// Stay in the blank gutter rather than the native scrollbar hit area.
+// Overlay scrollbars do not reduce clientWidth on macOS.
+const gutterX = () =>
+  page.locator('.chat-scroll').evaluate((node) => {
+    const box = node.getBoundingClientRect();
+    const column = node.querySelector('.chat-column').getBoundingClientRect();
+    const right = box.left + node.clientLeft + node.clientWidth;
+    return (column.right + right) / 2;
+  });
 const at = async (n, dx = 0) => {
   const b = await bodyBox(n);
   return [b.x + 10 + dx, b.y + b.height / 2];
@@ -286,8 +345,7 @@ try {
   await page.setViewportSize({ width: 2200, height: 1000 });
   const outside = async (n) => {
     const rect = await bodyBox(n);
-    const scroll = await page.locator('.chat-scroll').boundingBox();
-    return [scroll.x + scroll.width - 12, rect.y + rect.height / 2];
+    return [await gutterX(), rect.y + rect.height / 2];
   };
   await page.mouse.click(...(await outside(3)));
   await pause();
@@ -348,11 +406,8 @@ try {
     const scrollBefore = await page
       .locator('.chat-scroll')
       .evaluate((node) => ({ top: node.scrollTop, height: node.scrollHeight }));
-    const scrollBox = await page.locator('.chat-scroll').boundingBox();
-    await page.mouse.click(
-      scrollBox.x + scrollBox.width - 12,
-      before.y + before.height / 2
-    );
+    const blankX = await gutterX();
+    await page.mouse.click(blankX, before.y + before.height / 2);
     await pause();
     const during = await bubble.boundingBox();
     const incomingDuring = await incoming.boundingBox();
@@ -382,10 +437,7 @@ try {
       `${width}: check fits the chat`
     );
     const second = await page.locator(`[data-row="${idOf(13)}"]`).boundingBox();
-    await page.mouse.click(
-      scrollBox.x + scrollBox.width - 12,
-      second.y + second.height / 2
-    );
+    await page.mouse.click(blankX, second.y + second.height / 2);
     await pause();
     const row12 = await page.locator(`[data-row="${idOf(12)}"]`).boundingBox();
     const row13 = await page.locator(`[data-row="${idOf(13)}"]`).boundingBox();
@@ -407,12 +459,13 @@ try {
       ),
       `${width}: selection is uniform across the row/gutters and never doubles at seams: ${JSON.stringify(pixels)}`
     );
-    if (process.env.E2E_SHOT) {
+    const shot =
+      process.env.E2E_SHOT ||
+      (process.env.E2E_ARTIFACT_DIR &&
+        path.join(process.env.E2E_ARTIFACT_DIR, `selection-${engine}.png`));
+    if (shot) {
       await page.screenshot({
-        path:
-          width === 2200
-            ? process.env.E2E_SHOT
-            : process.env.E2E_SHOT.replace(/\.png$/, `-${width}.png`),
+        path: width === 2200 ? shot : shot.replace(/\.png$/, `-${width}.png`),
       });
     }
     await page.keyboard.press('Escape');
@@ -435,8 +488,34 @@ try {
 } catch (error) {
   failed = true;
   console.error('[e2e-chat-selection] FAIL:', error.stack ?? error.message);
+  console.error(
+    '[e2e-chat-selection] geometry:',
+    await page.evaluate(() => {
+      const node = document.querySelector('.chat-scroll');
+      return {
+        viewport: [globalThis.innerWidth, globalThis.innerHeight],
+        screen: [globalThis.screen.width, globalThis.screen.height],
+        column: document
+          .querySelector('.chat-column')
+          ?.getBoundingClientRect()
+          .toJSON(),
+        rows: [...document.querySelectorAll('[data-row]')]
+          .slice(0, 4)
+          .map((row) => ({
+            id: row.dataset.row,
+            box: row.getBoundingClientRect().toJSON(),
+          })),
+        scroll: node?.getBoundingClientRect().toJSON(),
+        clientWidth: node?.clientWidth,
+        textSelection: globalThis.getSelection()?.toString(),
+      };
+    })
+  );
+  console.error('[e2e-chat-selection] inputs:', JSON.stringify(inputs));
+  const artifactDir = process.env.E2E_ARTIFACT_DIR || os.tmpdir();
+  await mkdir(artifactDir, { recursive: true });
   await page.screenshot({
-    path: path.join(os.tmpdir(), `ms-chat-selection-${engine}.png`),
+    path: path.join(artifactDir, `ms-chat-selection-${engine}.png`),
   });
 } finally {
   await browser.close();

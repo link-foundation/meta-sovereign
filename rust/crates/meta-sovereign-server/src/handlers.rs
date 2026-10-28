@@ -130,12 +130,12 @@ fn status(state: &ServerState) -> Value {
     };
     let mut chats = std::collections::HashSet::new();
     for l in &all {
-        if let Some(id) = l.get("id").and_then(|v| v.as_str()) {
-            if id.starts_with("msg:") {
-                let source = l.get("source").and_then(|v| v.as_str()).unwrap_or("");
-                let chat = l.get("chat").and_then(|v| v.as_str()).unwrap_or("");
-                chats.insert(format!("{source}:{chat}"));
-            }
+        if let Some(id) = l.get("id").and_then(|v| v.as_str())
+            && id.starts_with("msg:")
+        {
+            let source = l.get("source").and_then(|v| v.as_str()).unwrap_or("");
+            let chat = l.get("chat").and_then(|v| v.as_str()).unwrap_or("");
+            chats.insert(format!("{source}:{chat}"));
         }
     }
     let contacts = aggregate_contacts(&all).len();
@@ -189,14 +189,13 @@ fn aggregate_contacts(all: &[Value]) -> Vec<Value> {
         entry.networks.insert(source);
         entry.chats.insert(chat);
         entry.message_count += 1;
-        if let Some(ts) = timestamp {
-            if entry
+        if let Some(ts) = timestamp
+            && entry
                 .last_seen
                 .as_deref()
                 .is_none_or(|cur| ts.as_str() > cur)
-            {
-                entry.last_seen = Some(ts);
-            }
+        {
+            entry.last_seen = Some(ts);
         }
     }
     by_contact
@@ -320,12 +319,11 @@ fn eval_audience(all: &[Value], q: &str) -> Vec<Value> {
     for part in union_parts {
         let intersect_terms: Vec<&str> = part.split('&').collect();
         for link in all {
-            if intersect_terms.iter().all(|t| link_matches_term(link, t)) {
-                if let Some(id) = link.get("id").and_then(|v| v.as_str()) {
-                    if seen_ids.insert(id.to_string()) {
-                        out.push(link.clone());
-                    }
-                }
+            if intersect_terms.iter().all(|t| link_matches_term(link, t))
+                && let Some(id) = link.get("id").and_then(|v| v.as_str())
+                && seen_ids.insert(id.to_string())
+            {
+                out.push(link.clone());
             }
         }
     }
@@ -564,16 +562,15 @@ fn graph_run(state: &ServerState, req: &Request) -> Response {
             }
             if let Some(matched) = last_match {
                 for edge in &edges {
-                    if edge.get("from").and_then(|v| v.as_str()) == Some(&matched) {
-                        if let Some(to) = edge.get("to").and_then(|v| v.as_str()) {
-                            if let Some(node) = node_by_id.get(to) {
-                                plan.push(ok_object(&[
-                                    ("step", Value::String("follow".into())),
-                                    ("node", Value::String(to.into())),
-                                    ("group", node.get("group").cloned().unwrap_or(Value::Null)),
-                                ]));
-                            }
-                        }
+                    if edge.get("from").and_then(|v| v.as_str()) == Some(&matched)
+                        && let Some(to) = edge.get("to").and_then(|v| v.as_str())
+                        && let Some(node) = node_by_id.get(to)
+                    {
+                        plan.push(ok_object(&[
+                            ("step", Value::String("follow".into())),
+                            ("node", Value::String(to.into())),
+                            ("group", node.get("group").cloned().unwrap_or(Value::Null)),
+                        ]));
                     }
                 }
             }

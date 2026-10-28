@@ -1,21 +1,22 @@
 // WebKit emits a JS-source diagnostic even for a handled fetch rejection
+// or EventSource cancellation (experiments/issue50-eventsource-navigation.mjs)
 // during document replacement (microsoft/playwright#43120). Keep this
 // exception confined to WebKit and this fixture's exact origin. An actual
 // unhandled rejection (e.g. TypeError: Load failed) still fails the test.
 import path from 'node:path';
 
-const handledWebKitFetch = (error, engine, base) => {
+const handledWebKitLoad = (error, engine, base) => {
   // Playwright parses this native console diagnostic at the first colon,
   // putting its prefix and scheme in Error.name. Ordinary application
   // exceptions with identical message text must still fail.
   if (
     engine !== 'webkit' ||
-    !/^Fetch API cannot load https?$/.test(error.name)
+    !/^(?:Fetch API|EventSource) cannot load https?$/.test(error.name)
   ) {
     return false;
   }
   const match =
-    /^Fetch API cannot load (.+) due to access control checks\.?$/.exec(
+    /^(?:Fetch API|EventSource) cannot load (.+) due to access control checks\.?$/.exec(
       String(error)
     );
   if (!match) {
@@ -36,8 +37,8 @@ export const watchChatPages = (context, { errors, engine, base, trace }) => {
   const watch = (page) => {
     page.on('pageerror', (error) => {
       const message = String(error);
-      if (handledWebKitFetch(error, engine, base)) {
-        trace?.('handled WebKit same-origin fetch diagnostic');
+      if (handledWebKitLoad(error, engine, base)) {
+        trace?.('handled WebKit same-origin network diagnostic');
       } else {
         errors.push(message);
       }

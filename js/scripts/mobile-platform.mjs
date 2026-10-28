@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { spawnCommandSync } from './command-process.mjs';
 
 const [platform, action = 'open'] = process.argv.slice(2);
 const valid = new Set(['ios', 'android']);
 const actions = new Set(['open', 'sync']);
-const cliPackage = '@capacitor/cli@^7.6.2';
+const pkg = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+);
+const cliPackage = `@capacitor/cli@${pkg.peerDependencies['@capacitor/cli']}`;
 if (platform !== 'sync' && (!valid.has(platform) || !actions.has(action))) {
   console.error(
     'usage: node js/scripts/mobile-platform.mjs <ios|android> [open|sync]\n       node js/scripts/mobile-platform.mjs sync'

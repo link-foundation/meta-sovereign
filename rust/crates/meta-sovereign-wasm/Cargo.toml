@@ -1,7 +1,8 @@
 [package]
 name = "meta-sovereign-wasm"
 version = "0.17.0"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 license = "Unlicense"
 description = "WebAssembly exports for browser-side meta-sovereign workloads."
 repository = "https://github.com/link-foundation/meta-sovereign"

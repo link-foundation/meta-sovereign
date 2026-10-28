@@ -80,7 +80,42 @@ const traceTutorial = async (page) => {
   if (process.env.CI_TUTORIAL_DEBUG !== '1') {
     return;
   }
+  page.on('framenavigated', (frame) => {
+    if (frame === page.mainFrame()) {
+      console.log(`[tutorial-navigation] ${frame.url()}`);
+    }
+  });
+  page.on('request', (request) => {
+    if (request.isNavigationRequest() && request.frame() === page.mainFrame()) {
+      console.log(`[tutorial-document-request] ${request.url()}`);
+    }
+  });
+  page.on('crash', () => console.log('[tutorial-crash]'));
+  page.on('console', (message) => {
+    if (/^\[(tutorial-|ms-debug)/.test(message.text())) {
+      console.log(message.text());
+    }
+  });
   await page.addInitScript(() => {
+    globalThis.metaSovereignDebug = true;
+    console.log('[tutorial-document]', globalThis.performance.timeOrigin);
+    globalThis.addEventListener('beforeunload', () => {
+      console.log('[tutorial-unload]', globalThis.location.href);
+    });
+    const fetch = globalThis.fetch.bind(globalThis);
+    globalThis.fetch = async (...args) => {
+      const response = await fetch(...args);
+      const url = String(args[0]);
+      if (url.includes('probe=1') || url.includes('app.min.js')) {
+        console.log(
+          '[tutorial-fetch]',
+          url,
+          response.status,
+          response.headers.get('etag')
+        );
+      }
+      return response;
+    };
     globalThis.__tutorialEvents = [];
     let previous;
     new globalThis.MutationObserver(() => {
@@ -93,6 +128,7 @@ const traceTutorial = async (page) => {
           step,
           at: Math.round(globalThis.performance.now()),
         });
+        console.log('[tutorial-transition]', step ?? 'absent');
       }
     }).observe(document, {
       subtree: true,
@@ -309,6 +345,9 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
     return g;
   }
   const { card, viewport } = g;
+  if (g.step === 'backup' && process.env.E2E_ARTIFACT_DIR) {
+    await screenshot(page, `${label}-rendered`);
+  }
   check(
     card.left >= 0 &&
       card.top >= 0 &&
@@ -573,6 +612,9 @@ const walk = async (engineName, viewport, base, tall) => {
 
     // Contacts, then Chat (version 5); "open a chat" only with contacts.
     for (const id of ['contacts', 'chat', 'automation', 'backup']) {
+      if (process.env.CI_TUTORIAL_DEBUG === '1') {
+        console.log(`[tutorial-next] ${await stepOf(page)} -> ${id}`);
+      }
       await page.click('[data-action="tutorial-next"]');
       // "open a chat" passes by itself while there are no contacts.
       if (id === 'chat') {

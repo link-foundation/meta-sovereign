@@ -12,26 +12,29 @@ env:
 jobs:
   dependencies:
     name: Audit installed npm dependencies and Cargo.lock
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
           package-manager-cache: false
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - run: npm ci --no-audit --no-fund
       - run: npm audit --package-lock-only --audit-level=low
-      - uses: taiki-e/install-action@1e29709c0ec63babbe8f266397a465f29a825f91 # v2.87.31
+      - uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
         with:
           tool: cargo-audit@0.22.2
       - run: cargo audit --file rust/Cargo.lock --deny warnings
 
   codeql:
     name: CodeQL (${{ matrix.language }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     permissions:
       actions: read
@@ -42,29 +45,32 @@ jobs:
       matrix:
         language: [javascript-typescript, python, rust, actions]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: github/codeql-action/init@v4
+      - uses: github/codeql-action/init@v4.39.1
         with:
           languages: ${{ matrix.language }}
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
-      - uses: github/codeql-action/analyze@v4
+      - uses: github/codeql-action/analyze@v4.39.1
 
   pipeline-status:
     name: Security pipeline status
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     if: ${{ !cancelled() }}
     needs: [dependencies, codeql]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - env:
           NEEDS_JSON: ${{ toJSON(needs) }}
         run: node js/scripts/check-pipeline-status.mjs

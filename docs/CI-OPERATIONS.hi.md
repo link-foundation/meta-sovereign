@@ -22,7 +22,7 @@ R-Z32 के अनुसार प्रकाशित स्रोत की 
 
 प्रकाशन अंतिम pipeline gate की प्रतीक्षा करता है। केवल पढ़ने वाली जाँच पुराने रन रद्द करती है; रिलीज़ लेखन क्रम से और बिना cancellation होता है। जाँचे गए कमिट के बाद केवल version/changelog/changeset metadata आगे बढ़ सकता है। स्रोत या निर्भरता बदलने पर नया सफल CI चाहिए।
 
-npm के लिए Node 24 का bundled npm कम से कम 11.5.1, `id-token: write` और `link-foundation/meta-sovereign` के `release.yml` workflow का trusted publisher चाहिए। ज़रूरत होने पर package administrator npm में package/publisher की शुरुआती स्थापना करे। token exchange का इनकार मिलने पर बिना जाँच publish न करें।
+npm के लिए Node 26.12.1 और pinned npm 12.2.1, `id-token: write` और `link-foundation/meta-sovereign` के `release.yml` workflow का trusted publisher चाहिए। ज़रूरत होने पर package administrator npm में package/publisher की शुरुआती स्थापना करे। token exchange का इनकार मिलने पर बिना जाँच publish न करें।
 
 **Settings → Security → Code security → Dependency graph** चालू करें। PR में capability न होने की सूचना बिना contributor secrets के मिलती है। `main` पर dependency graph या npm publisher न होने पर preflight महँगी build से पहले स्पष्ट निर्देश देकर विफल होता है। network/authentication और गलत API response त्रुटियाँ हैं।
 
@@ -32,7 +32,7 @@ npm के लिए Node 24 का bundled npm कम से कम 11.5.1, `id
 
 Release helpers manifest और lockfile में pinned हैं। Telegram का maintained `teleproto` client और compatibility layer इस्तेमाल होता है; provider की पहचान `telegram` रहती है। KaTeX patched है। समीक्षा किए native install scripts npm, Bun और Deno में स्पष्ट रूप से स्वीकृत हैं।
 
-`electron-builder` को `27.0.0-alpha.13` पर pin किया है क्योंकि 26.x में deprecated dependencies बची हैं। यह build tool का prerelease है और हर native packaging target को CI पास करना चाहिए; runtime package की Node सीमा नहीं बदलती। warnings न छिपाएँ और असंगत major overrides न करें। lockfile regression deprecated entries रोकता है।
+`electron-builder` को `27.0.0-alpha.13` पर pin किया है क्योंकि 26.x में deprecated dependencies बची हैं। यह build tool का prerelease है और हर native packaging target को CI पास करना चाहिए। warnings न छिपाएँ और असंगत major overrides न करें। lockfile regression deprecated entries रोकता है।
 
 v27 बिल्डर का नया कॉन्फ़िगरेशन पैकेज की वही फ़ाइलें, नेटिव मॉड्यूल नीति, desktop प्रविष्टि और macOS अनुमतियाँ रखता है। Ad-hoc हस्ताक्षर में `mac.sign.identity` और `mac.sign.sign` उपयोग होते हैं। मौजूदा updater 6 चैनल बिना हस्ताक्षर वाले अपडेट मैनिफ़ेस्ट और Windows आर्टिफ़ैक्ट स्पष्ट रूप से रखता है; Authenticode जाँच सक्षम करने के लिए हस्ताक्षर प्रकाशक कॉन्फ़िगर होना चाहिए। Staged updater में सीमित और सटीक npm alias अप्रचलित `lodash.isequal` को `lodash.isequalwith@4.4.0` से बदलता है। Customizer के बिना दोनों समान boolean deep comparison करते हैं। प्रत्येक इंस्टॉल वास्तविक updater cache में समान/बदले metadata और गायब फ़ाइल जाँचता है। Upstream सुधार के बाद override हटाएँ; पूरे `lodash` का alias wrapper लौटाता है और सुरक्षित नहीं है।
 
@@ -46,6 +46,6 @@ GitHub test fixtures teardown पर अपने सभी connections बं�
 
 `MS_LIFECYCLE_DEBUG=1` shutdown चरणों के निश्चित नाम, बीते milliseconds और अपने connections की संख्या दिखाता है; request या account की सामग्री नहीं। यह डिफ़ॉल्ट रूप से बंद है और Windows Node CI में चालू है। Keep-alive regression memory में flush रोककर socket closure को persistence से अलग जाँचता है; फिर flush छोड़ना और पूरा shutdown समाप्त होने तक प्रतीक्षा करना अनिवार्य है।
 
-GitHub द्वारा macOS ARM runner बार-बार आवंटित न कर पाने के बाद Node और WebKit पिन किए गए मूल `macos-15-intel` पूल पर चलते हैं। Bun, Deno और desktop पैकेजिंग में macOS ARM कवरेज बना रहता है। सभी नौ runtime/OS संयोजन और दोनों ब्राउज़र जाँच अनिवार्य हैं; कतार में होना सफल जाँच नहीं है।
+GitHub द्वारा macOS ARM runner बार-बार आवंटित न कर पाने के बाद Node और WebKit पिन किए गए मूल `macos-26-intel` पूल पर चलते हैं। Bun, Deno और desktop पैकेजिंग में macOS ARM कवरेज बना रहता है। सभी नौ runtime/OS संयोजन और दोनों ब्राउज़र जाँच अनिवार्य हैं; कतार में होना सफल जाँच नहीं है।
 
 GitHub, serverFetch, archive/WhatsApp/marketplace routes, स्थानीय Pages और mail protocols के सभी अपने network fixtures एक ही socket-tracking shutdown helper उपयोग करते हैं। Rust documentation जाँच और दोनों release paths में warnings पर विफल होती है (`RUSTDOCFLAGS=-D warnings`)। अस्थायी Git fixtures उपयोगकर्ता की settings बदले बिना अपनी LF policy तय करते हैं।

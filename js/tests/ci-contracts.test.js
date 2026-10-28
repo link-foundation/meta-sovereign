@@ -219,3 +219,32 @@ test('standalone shell lint selects maintained scripts without reference evidenc
     files.slice(0, 2).sort()
   );
 });
+
+// Browser Commander now launches Chrome for Testing directly. Ubuntu's
+// AppArmor restriction must be lifted before that sandbox starts.
+test('Ubuntu browser fixtures permit Chromium user-namespace sandboxing', () => {
+  const steps = workflow('release.yml').jobs['e2e-browser'].steps;
+  const setup = steps.findIndex((step) =>
+    step.run?.includes('kernel.apparmor_restrict_unprivileged_userns=0')
+  );
+  const browser = steps.findIndex((step) =>
+    step.run?.includes('run-browser-checks.mjs')
+  );
+  assert.ok(
+    setup >= 0 && setup < browser,
+    'enable namespaces before browser checks'
+  );
+  assert.equal(steps[setup].if, "runner.os == 'Linux'");
+});
+
+test('browser jobs install Chromium for the cross-origin Pages fixture in either matrix lane', () => {
+  const steps = workflow('release.yml').jobs['e2e-browser'].steps;
+  const install = steps.find(({ name }) => name === 'Install the browser');
+  // e2e-pages always compares the server and hosted copies in Chromium,
+  // even while the rest of the matrix lane exercises WebKit.
+  assert.match(
+    install.run,
+    /playwright install --with-deps chromium "\$BROWSER"/
+  );
+  assert.equal(install.env.BROWSER, '${{ matrix.browser }}');
+});

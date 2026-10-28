@@ -28,7 +28,7 @@ Use fixture data for verbose probes. Never log session strings, tokens, user mes
 
 The publishing jobs wait for the terminal pipeline gate. Read-only checks cancel superseded runs; release writes are serialized without cancellation. Before versioning or publishing, the tree guard allows only version/changelog/changeset metadata to advance beyond the validated commit. New source or dependency edits require a new validated run.
 
-Trusted npm publishing needs Node 24's bundled npm (at least 11.5.1), `id-token: write`, and a trusted publisher for `link-foundation/meta-sovereign`, workflow `release.yml`. A package administrator must bootstrap the package/publisher in npm when needed. Never replace a refused token exchange with an unchecked publish attempt.
+Trusted npm publishing needs Node 26.12.1 and the pinned npm 12.2.1, `id-token: write`, and a trusted publisher for `link-foundation/meta-sovereign`, workflow `release.yml`. A package administrator must bootstrap the package/publisher in npm when needed. Never replace a refused token exchange with an unchecked publish attempt.
 
 Enable **Settings → Security → Code security → Dependency graph** for dependency review. Capability absence is reported on PRs without requiring contributor secrets. On `main`, missing dependency graph or npm publisher configuration fails preflight with explicit setup guidance before expensive builds. Network, authentication and malformed API responses remain errors.
 
@@ -38,7 +38,7 @@ Registry probes recognize only an exact version response or an explicit npm E404
 
 Committed manifests and lockfiles pin release helpers. The Telegram integration uses the maintained `teleproto` client with its compatibility layer; its public provider identity remains `telegram`. KaTeX is patched. Reviewed native install scripts are explicitly approved for npm, Bun and Deno.
 
-Electron-builder is pinned to `27.0.0-alpha.13` because the 26.x dependency tree still contains deprecated packages. This is a prerelease build-tool dependency and requires all native packaging targets to pass CI; runtime package engines are unchanged. Keep upstream warnings visible, avoid incompatible major overrides, and update the pin only with packaging evidence. The lockfile regression rejects deprecated registry entries.
+Electron-builder is pinned to `27.0.0-alpha.13` because the 26.x dependency tree still contains deprecated packages. This is a prerelease build-tool dependency and requires all native packaging targets to pass CI. Keep upstream warnings visible, avoid incompatible major overrides, and update the pin only with packaging evidence. The lockfile regression rejects deprecated registry entries.
 
 The v27 builder configuration preserves the same packaged files, native-module policy, desktop entry and macOS entitlements under the new schema. Ad-hoc signing uses `mac.sign.identity` and `mac.sign.sign`. The existing updater-6 channel retains unsigned update manifests and unsigned Windows artifacts explicitly; Windows Authenticode verification requires a configured signing publisher before it can be enabled. The staged updater scopes an exact npm alias from deprecated `lodash.isequal` to `lodash.isequalwith@4.4.0`. Without a customizer both methods perform the same boolean deep comparison. Every installed desktop stage verifies the actual updater cache against cloned and changed metadata and missing files. Remove this compatibility override when upstream ships its replacement; aliasing the entire `lodash` package would return a wrapper and is unsafe.
 
@@ -52,6 +52,6 @@ GitHub test fixtures close every owned connection during teardown, including per
 
 `MS_LIFECYCLE_DEBUG=1` reports fixed shutdown stage names, elapsed milliseconds and owned connection counts, without request or account contents. It is off by default and enabled for Windows Node CI. The keep-alive regression holds an in-memory flush to check socket closure separately from persistence; it must then release the flush and await complete shutdown.
 
-Node and WebKit use the pinned native `macos-15-intel` runner pool after repeated GitHub macOS ARM allocation failures. Bun, Deno and desktop packaging retain macOS ARM coverage. All nine runtime/OS combinations and both browser gates remain required; queued jobs never count as successful checks.
+Node and WebKit use the pinned native `macos-26-intel` runner pool after repeated GitHub macOS ARM allocation failures. Bun, Deno and desktop packaging retain macOS ARM coverage. All nine runtime/OS combinations and both browser gates remain required; queued jobs never count as successful checks.
 
 All owned network fixtures use the same socket-tracking shutdown helper, including GitHub, serverFetch, archive/WhatsApp/marketplace routes, local Pages and mail protocols. Rust documentation rejects warnings in the check and both release paths (`RUSTDOCFLAGS=-D warnings`). Temporary Git fixtures set their own LF policy without changing user settings.

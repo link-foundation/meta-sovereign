@@ -8,6 +8,14 @@
 
 import { activeAccount } from './telegram-account-scope.js';
 
+// Opt-in, local console diagnostics for navigation and pointer delivery.
+// No page content or credentials are included by callers.
+export const debugBrowser = (event, fields = {}) => {
+  if (globalThis.metaSovereignDebug === true) {
+    globalThis.console?.debug?.('[ms-debug]', event, JSON.stringify(fields));
+  }
+};
+
 const PER_MINUTE = 20;
 const MEDIA_ROUTE = /\/api\/telegram\/(avatar|media|file)\b/;
 const MEDIA_EVERY_MS = 10_000;

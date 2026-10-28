@@ -47,10 +47,10 @@ fn body_value<'a>(body: &'a Value, key: &str, aliases: &[&str]) -> Option<&'a Va
         if let Some(v) = body.get(name) {
             return Some(v);
         }
-        if let Some(c) = cfg {
-            if let Some(v) = c.get(name) {
-                return Some(v);
-            }
+        if let Some(c) = cfg
+            && let Some(v) = c.get(name)
+        {
+            return Some(v);
         }
     }
     None
@@ -88,10 +88,10 @@ fn extract_archive_records(body: &Value) -> Option<&Vec<Value>> {
 
 fn first_str<'a>(record: &'a Value, keys: &[&str]) -> Option<&'a str> {
     for k in keys {
-        if let Some(s) = record.get(k).and_then(|v| v.as_str()) {
-            if !s.is_empty() {
-                return Some(s);
-            }
+        if let Some(s) = record.get(k).and_then(|v| v.as_str())
+            && !s.is_empty()
+        {
+            return Some(s);
         }
     }
     None
@@ -147,10 +147,10 @@ fn normalize_record(record: &Value, index: usize) -> Value {
     // archives that already carry metadata.
     if let Some(extra) = record.get("tokens").and_then(|v| v.as_array()) {
         for tok in extra {
-            if let Some(s) = tok.as_str() {
-                if !tokens.iter().any(|existing| existing.as_str() == Some(s)) {
-                    tokens.push(Value::String(s.into()));
-                }
+            if let Some(s) = tok.as_str()
+                && !tokens.iter().any(|existing| existing.as_str() == Some(s))
+            {
+                tokens.push(Value::String(s.into()));
             }
         }
     }

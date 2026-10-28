@@ -7,13 +7,16 @@ import {
 } from './helpers/e2e-page-errors.mjs';
 
 const base = 'http://127.0.0.1:49743';
-const accessError = (url = `${base}/api/status?probe=1`) => {
+const accessError = (
+  url = `${base}/api/status?probe=1`,
+  initiator = 'Fetch API'
+) => {
   // Match the actual Error.name/message split captured by the WebKit probe.
   const scheme = /^https?:/.exec(url)?.[0].slice(0, -1) ?? 'http';
   const error = new Error(
     `${url.replace(/^https?:(?:\/\/| \/)/, '/')} due to access control checks.`
   );
-  error.name = `Fetch API cannot load ${scheme}`;
+  error.name = `${initiator} cannot load ${scheme}`;
   return error;
 };
 const fixture = (options = {}) => {
@@ -58,6 +61,28 @@ test('access-control errors from another origin or engine remain failures', () =
   }
 });
 
+test('native EventSource cancellation is scoped to WebKit and the fixture origin', () => {
+  for (const engine of ['webkit', 'chromium', 'firefox']) {
+    const { first, errors } = fixture({ engine });
+    const native = accessError(
+      `${base}/api/telegram/accounts-events`,
+      'EventSource'
+    );
+    const foreign = accessError('http://127.0.0.1:49744/events', 'EventSource');
+    const genuine = new Error(String(native));
+    first.emit('pageerror', native);
+    first.emit('pageerror', foreign);
+    first.emit('pageerror', genuine);
+    assert.deepEqual(
+      errors,
+      (engine === 'webkit'
+        ? [foreign, genuine]
+        : [native, foreign, genuine]
+      ).map(String)
+    );
+  }
+});
+
 test('malformed URLs and real unhandled fetch rejections remain failures', () => {
   const { first, errors } = fixture();
   const failures = [
@@ -89,7 +114,7 @@ test('handled WebKit diagnostics have opt-in tracing', () => {
   const { newPage, errors } = fixture({ trace: (event) => trace.push(event) });
   newPage().emit('pageerror', accessError());
   assert.deepEqual(errors, []);
-  assert.deepEqual(trace, ['handled WebKit same-origin fetch diagnostic']);
+  assert.deepEqual(trace, ['handled WebKit same-origin network diagnostic']);
 });
 
 test('native WebKit display-form URLs retain the exact origin boundary', () => {

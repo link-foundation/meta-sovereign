@@ -4,11 +4,11 @@
 # in a follow-up PR; this Dockerfile reserves the deployable shape so
 # the surrounding infrastructure (compose files, Helm charts) can be
 # wired up in parallel.
-FROM node:24-alpine
+FROM node:26.12.1-alpine@sha256:40cd011b55415bc894e45b02fdd5a5dfde056921b7d23a64c74f80497af48797
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev || npm install --omit=dev
+RUN npm install --global npm@12.2.1 && npm ci --omit=dev
 COPY js/src ./js/src
 COPY js/bin ./js/bin
 

@@ -1,6 +1,14 @@
 // Only a registry E404 is evidence that a version is unpublished.
 import { spawnCommandSync } from './command-process.mjs';
 
+export function npmPackEntry(stdout, name) {
+  const entry = JSON.parse(stdout)[name];
+  if (entry?.name !== name || !entry.filename || !Array.isArray(entry.files)) {
+    throw new Error(`Unexpected npm pack metadata for ${name}`);
+  }
+  return entry;
+}
+
 export function npmVersionState(result, version) {
   let data;
   try {
@@ -11,7 +19,8 @@ export function npmVersionState(result, version) {
     );
   }
   if (result.status === 0) {
-    if (data !== version) {
+    const versions = Array.isArray(data) ? data : [data];
+    if (versions.length !== 1 || versions[0] !== version) {
       throw new Error(`Unexpected registry version: ${JSON.stringify(data)}`);
     }
     return 'published';

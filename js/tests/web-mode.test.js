@@ -208,6 +208,32 @@ describe('WebModeBanner', () => {
 });
 
 describe('api.rediscover', () => {
+  it('does not reload when a manual discovery finishes after navigation', async () => {
+    const { api } = await import('../src/web/dom.js');
+    const lifetime = new AbortController();
+    const discovery = Promise.withResolvers();
+    let reloads = 0;
+    const pending = api.rediscover({
+      discover: () => discovery.promise,
+      reload: () => {
+        reloads += 1;
+      },
+      signal: lifetime.signal,
+    });
+    lifetime.abort();
+    discovery.resolve({ origin: 'http://127.0.0.1:8787' });
+    expect(await pending).toBe(false);
+    expect(reloads).toBe(0);
+    expect(
+      await api.rediscover({
+        signal: lifetime.signal,
+        discover: () => {
+          throw new Error('An aborted page must not probe');
+        },
+      })
+    ).toBe(false);
+  });
+
   it('reloads only when a server answers', async () => {
     const { api } = await import('../src/web/dom.js');
     let reloads = 0;

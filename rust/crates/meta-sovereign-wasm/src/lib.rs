@@ -4,10 +4,10 @@
 //! and calls [`pattern_matches`] so the SPA can run the same matcher as
 //! the pure-Rust server for heavy pattern previews.
 
-use std::alloc::{alloc, dealloc, Layout};
+use std::alloc::{Layout, alloc, dealloc};
 use std::slice;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn ms_alloc(len: usize) -> *mut u8 {
     if len == 0 {
         return std::ptr::null_mut();
@@ -25,7 +25,7 @@ pub extern "C" fn ms_alloc(len: usize) -> *mut u8 {
 ///
 /// `ptr` must come from `ms_alloc(len)` with the same `len`, and must not be
 /// used or freed again afterwards.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn ms_dealloc(ptr: *mut u8, len: usize) {
     if ptr.is_null() || len == 0 {
         return;
@@ -52,7 +52,7 @@ fn matches_utf8(pattern: &[u8], input: &[u8]) -> u32 {
 /// # Safety
 ///
 /// Each pointer must be null or valid for reads of its length in bytes.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn pattern_matches(
     pattern_ptr: *const u8,
     pattern_len: usize,

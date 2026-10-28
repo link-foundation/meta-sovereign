@@ -49,7 +49,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-detect-changes-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Detect Changes
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~5s. Cap at 5min so a hung detection step
     # surfaces quickly instead of stalling the whole pipeline.
     timeout-minutes: 5
@@ -62,7 +62,7 @@ jobs:
       rust-changed: ${{ steps.changes.outputs.rust-changed }}
       any-code-changed: ${{ steps.changes.outputs.any-code-changed }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -76,7 +76,7 @@ jobs:
 
   release-preflight:
     name: Release credential preflight
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -84,13 +84,16 @@ jobs:
     outputs:
       graph-enabled: ${{ steps.graph.outputs.enabled }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
           package-manager-cache: false
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - name: Check dependency review capability before building
         id: graph
         continue-on-error: true
@@ -127,7 +130,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-test-compilation-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Test Compilation
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~4s. Tight cap fails fast on accidental infinite loops.
     timeout-minutes: 5
     needs: [detect-changes, release-preflight]
@@ -137,7 +140,7 @@ jobs:
       needs.detect-changes.outputs.js-changed == 'true' ||
       needs.detect-changes.outputs.workflow-changed == 'true'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -150,7 +153,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-check-file-line-limits-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Check File Line Limits
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~3s. Just walks the tree counting lines.
     timeout-minutes: 5
     needs: [detect-changes, release-preflight]
@@ -160,7 +163,7 @@ jobs:
       needs.detect-changes.outputs.js-changed == 'true' ||
       needs.detect-changes.outputs.workflow-changed == 'true'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -181,12 +184,12 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-version-check-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Check for Manual Version Changes
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~6s. Read-only diff inspection.
     timeout-minutes: 5
     if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -204,21 +207,24 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-changeset-check-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Check for Changesets
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~13s including npm install. 10min covers cold cache.
     timeout-minutes: 10
     needs: [detect-changes, release-preflight]
     if: github.event_name == 'pull_request' && needs.detect-changes.outputs.any-code-changed == 'true'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -252,7 +258,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-lint-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Lint and Format Check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~23s including npm install + ESLint + Prettier + jscpd
     # + secretlint. 10min cap protects against a hung lint plugin.
     timeout-minutes: 10
@@ -265,7 +271,7 @@ jobs:
       needs.detect-changes.outputs.package-changed == 'true' ||
       needs.detect-changes.outputs.workflow-changed == 'true'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           # For PRs, fetch enough history to merge with base branch
@@ -278,9 +284,12 @@ jobs:
         run: bash js/scripts/simulate-fresh-merge.sh
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -335,17 +344,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-15, windows-2025]
+        os: [ubuntu-26.04, macos-26, windows-2025]
         runtime: [node, bun, deno]
         # Retain all nine runtime/OS targets. Use the separate native Intel
         # pool for Node after repeated hosted ARM runner allocation failures;
         # Bun/Deno and desktop packaging still cover macOS ARM.
         include:
-          - os: macos-15
+          - os: macos-26
             runtime: node
-            runner: macos-15-intel
+            runner: macos-26-intel
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           # For PRs, fetch enough history to merge with base branch
@@ -359,10 +368,12 @@ jobs:
         run: bash js/scripts/simulate-fresh-merge.sh
 
       - name: Setup Node.js
-        if: matrix.runtime == 'node'
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies (Node.js)
         if: matrix.runtime == 'node'
@@ -376,9 +387,9 @@ jobs:
 
       - name: Setup Bun
         if: matrix.runtime == 'bun'
-        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          bun-version: latest
+          bun-version: 1.4.4
 
       - name: Install dependencies (Bun)
         if: matrix.runtime == 'bun'
@@ -393,9 +404,9 @@ jobs:
 
       - name: Setup Deno
         if: matrix.runtime == 'deno'
-        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2
+        uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
-          deno-version: v2.x
+          deno-version: v2.9.8
 
       - name: Install reviewed native dependency scripts (Deno)
         if: matrix.runtime == 'deno'
@@ -421,7 +432,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-rust-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Rust (fmt, clippy, test)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Cold build ~4min, cached ~1min.
     timeout-minutes: 20
     needs:
@@ -438,17 +449,18 @@ jobs:
     if: >-
       !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.rust-changed == 'true' || needs.detect-changes.outputs.workflow-changed == 'true'))
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
+          toolchain: 1.99.1
           components: rustfmt, clippy
 
       - name: Cache cargo
-        uses: actions/cache@v6
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ~/.cargo/registry
@@ -498,9 +510,9 @@ jobs:
       matrix:
         include:
           - browser: chromium
-            runner: ubuntu-24.04
+            runner: ubuntu-26.04
           - browser: webkit
-            runner: macos-15-intel
+            runner: macos-26-intel
     env:
       RUN_BROWSER_E2E: '1'
       E2E_BROWSER: ${{ matrix.browser }}
@@ -510,7 +522,7 @@ jobs:
       CI_TUTORIAL_DEBUG: '1'
       DEBUG: ${{ vars.CI_BROWSER_DEBUG == '1' && 'pw:api' || '' }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -519,22 +531,31 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: bash js/scripts/simulate-fresh-merge.sh
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
           cache: npm
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - run: npm ci --no-audit --no-fund
       - name: Install the browser
         env:
           BROWSER: ${{ matrix.browser }}
-        run: npx playwright install --with-deps "$BROWSER"
+        # The Pages fixture always uses Chromium, including in the WebKit lane.
+        run: npx playwright install --with-deps chromium "$BROWSER"
+      # Browser Commander launches Chrome directly with its sandbox enabled.
+      # Match the Pages fixture setup on supported Ubuntu runners.
+      - name: Let Chromium sandbox itself
+        if: runner.os == 'Linux'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: npm run build:web
       - name: Run browser checks
         id: browser-checks
         run: node js/scripts/run-browser-checks.mjs
       - name: Preserve browser diagnostics
         if: ${{ !cancelled() && steps.browser-checks.outcome != 'skipped' && steps.browser-checks.outcome != '' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: browser-${{ matrix.browser }}
           path: artifacts/browser/
@@ -551,7 +572,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-docs-build-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Build API Docs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: ~25s. cargo doc dominates and is well-bounded.
     timeout-minutes: 15
     needs:
@@ -573,14 +594,17 @@ jobs:
       needs.detect-changes.outputs.rust-changed == 'true' ||
       needs.detect-changes.outputs.workflow-changed == 'true')
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -590,12 +614,14 @@ jobs:
 
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: 1.99.1
 
       - name: Build Rust crate docs
         run: cargo doc --manifest-path rust/Cargo.toml --no-deps --workspace
 
       - name: Upload JS API docs artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: docs-api-js
           path: docs/api/
@@ -603,7 +629,7 @@ jobs:
           retention-days: 30
 
       - name: Upload Rust crate docs artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: docs-api-rust
           path: rust/target/doc/
@@ -617,7 +643,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-validate-docs-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Validate Documentation
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Typical run: <5s. Pure shell file walk.
     timeout-minutes: 5
     needs: [detect-changes, release-preflight]
@@ -625,7 +651,7 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       needs.detect-changes.outputs.docs-changed == 'true'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -692,7 +718,7 @@ jobs:
       group: check-${{ github.workflow }}-${{ github.ref }}-package-${{ strategy.job-index || 0 }}
       cancel-in-progress: true
     name: Package (packed and run with npx)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     needs:
       [
@@ -710,14 +736,17 @@ jobs:
       needs.detect-changes.outputs.any-code-changed == 'true' ||
       needs.detect-changes.outputs.package-changed == 'true')
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -735,7 +764,7 @@ jobs:
 
       - name: Preserve package diagnostics
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: package-diagnostics
           path: artifacts/pack/
@@ -743,7 +772,7 @@ jobs:
 
   backup-memory:
     name: Backup memory regression (200k links)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     needs:
       [
@@ -759,12 +788,15 @@ jobs:
     if: >-
       !cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (!cancelled() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') && (needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch'))
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - run: npm ci --no-audit --no-fund
       - name: Verify streaming memory bound and complete round trip
         env:
@@ -773,24 +805,32 @@ jobs:
 
   workflow-lint:
     name: Workflow, shell and pipeline contracts
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     needs: [detect-changes, release-preflight]
     if: needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - run: npm ci --no-audit --no-fund
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.15.2'
       - name: actionlint, ShellCheck and pyflakes
         run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 -color
       - name: ShellCheck standalone scripts and hooks
         run: git ls-files -z -- '*.sh' '.husky/*' ':(exclude)dev/log/**' ':(exclude)docs/case-studies/**' | xargs -0 docker run --rm -v "$PWD:/repo" -w /repo --entrypoint shellcheck rhysd/actionlint@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 --shell=bash
+      - name: Compile standard-library Python utilities
+        run: python -m compileall -q experiments
       - name: Install pinned workflow security scanner
-        run: pipx install zizmor==1.30.1
+        run: python -m pip install --disable-pip-version-check zizmor==1.31.1
       - name: Workflow security audit (offline deterministic policy)
         run: zizmor --offline --format plain .github/workflows
       - name: Check pipeline gate and browser coverage
@@ -804,28 +844,31 @@ jobs:
 
   dependency-audit:
     name: Dependency security audit
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     needs: [detect-changes, release-preflight]
     if: needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
           package-manager-cache: false
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - run: npm ci --no-audit --no-fund
       - run: npm audit --package-lock-only --audit-level=low
-      - uses: taiki-e/install-action@1e29709c0ec63babbe8f266397a465f29a825f91 # v2.87.31
+      - uses: taiki-e/install-action@86f7a0ffb25f40114606501a311ebcfaf882ea32 # v2.88.0
         with:
           tool: cargo-audit@0.22.2
       - run: cargo audit --file rust/Cargo.lock --deny warnings
 
   codeql:
     name: CodeQL (${{ matrix.language }})
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     needs:
       [
@@ -848,34 +891,70 @@ jobs:
       matrix:
         language: [javascript-typescript, python, rust, actions]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: github/codeql-action/init@v4
+      - uses: github/codeql-action/init@v4.39.1
         with:
           languages: ${{ matrix.language }}
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
-      - uses: github/codeql-action/analyze@v4
+      - uses: github/codeql-action/analyze@v4.39.1
 
   dependency-review:
     name: Review dependency changes
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     needs: [detect-changes, release-preflight]
     if: github.event_name == 'pull_request' && needs.release-preflight.outputs.graph-enabled == 'true'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/dependency-review-action@v5
+      - uses: actions/dependency-review-action@v5.0.0
         with:
           fail-on-severity: low
           comment-summary-in-pr: never
 
+  native-and-container:
+    name: Native helpers and containers (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    needs: [detect-changes, release-preflight]
+    if: needs.detect-changes.outputs.any-code-changed == 'true' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-26.04, macos-26]
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Swift
+        if: runner.os == 'macOS'
+        run: |
+          curl --fail --location --silent --show-error https://download.swift.org/swiftly/darwin/swiftly-1.2.0.pkg -o "$RUNNER_TEMP/swiftly.pkg"
+          echo "a1b48692b00ea6902957423473c87bee7c7f3e18c015a4a09317102f6820b987  $RUNNER_TEMP/swiftly.pkg" | shasum -a 256 --check
+          installer -pkg "$RUNNER_TEMP/swiftly.pkg" -target CurrentUserHomeDirectory
+          "$HOME/.swiftly/bin/swiftly" init --skip-install --assume-yes --no-modify-profile
+          . "$HOME/.swiftly/env.sh"
+          swiftly install 6.4.1 --use --assume-yes
+          echo "$HOME/.swiftly/bin" >> "$GITHUB_PATH"
+      - name: Type-check Apple SDK helpers without accessing personal data
+        if: runner.os == 'macOS'
+        run: |
+          swift_compiler_version=$(swiftc --version)
+          echo "$swift_compiler_version"
+          [[ "$swift_compiler_version" == *"Swift version 6.4.1 "* ]]
+          swiftc -typecheck js/src/server/local-key-enclave.swift
+          swiftc -parse-as-library -typecheck js/src/sources/system-contacts.swift
+      - name: Build both Docker services from the committed lockfile
+        if: runner.os == 'Linux'
+        run: docker compose -f docker/docker-compose.yml build
+
   pipeline-status:
     name: Pipeline status
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     if: ${{ !cancelled() }}
     needs:
@@ -897,15 +976,19 @@ jobs:
         workflow-lint,
         dependency-audit,
         dependency-review,
+        native-and-container,
         codeql,
       ]
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
+
       - name: Require every selected check to pass
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
@@ -924,7 +1007,7 @@ jobs:
     needs: [pipeline-status, release-preflight]
     if: >-
       !cancelled() && github.ref == 'refs/heads/main' && github.event_name == 'push' && needs.pipeline-status.result == 'success'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Permissions required for npm OIDC trusted publishing
     permissions:
       contents: write
@@ -932,7 +1015,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -941,11 +1024,14 @@ jobs:
         run: gh auth setup-git
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
           package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1009,6 +1095,8 @@ jobs:
       - name: Setup Rust toolchain for release docs
         if: steps.publish.outputs.published == 'true' || steps.check_release.outputs.github_release_missing == 'true'
         uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: 1.99.1
 
       - name: Build Rust crate docs for release
         if: steps.publish.outputs.published == 'true' || steps.check_release.outputs.github_release_missing == 'true'
@@ -1031,7 +1119,7 @@ jobs:
     name: Instant Release
     needs: [pipeline-status, release-preflight]
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && github.event.inputs.release_mode == 'instant'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # Same envelope as the automated release path.
     timeout-minutes: 30
     # Permissions required for npm OIDC trusted publishing
@@ -1041,7 +1129,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -1050,11 +1138,14 @@ jobs:
         run: gh auth setup-git
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
           package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1102,6 +1193,8 @@ jobs:
       - name: Setup Rust toolchain for release docs
         if: steps.publish.outputs.published == 'true'
         uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: 1.99.1
 
       - name: Build Rust crate docs for release
         if: steps.publish.outputs.published == 'true'
@@ -1121,22 +1214,25 @@ jobs:
       cancel-in-progress: false
     name: Create Changeset PR
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.release_mode == 'changeset-pr'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # PR creation only — install + format + open PR. 10min is generous.
     timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@v7.1.0
         with:
-          node-version: '24.x'
+          node-version: '26.12.1'
+
+      - name: Use pinned npm
+        run: npm install --global npm@12.2.1 # zizmor: ignore[adhoc-packages] -- Exact bootstrap tool pin; project dependencies use npm ci.
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -1155,7 +1251,7 @@ jobs:
           echo "Formatted changeset files"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'chore: add changeset for manual ${{ github.event.inputs.bump_type }} release'

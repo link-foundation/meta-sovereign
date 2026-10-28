@@ -1,7 +1,8 @@
 [package]
 name = "meta-sovereign-server"
 version = "0.17.0"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 license = "Unlicense"
 description = "Pure-Rust local HTTP + WebSocket + WebRTC-signalling server for meta-sovereign (R-G2)."
 repository = "https://github.com/link-foundation/meta-sovereign"

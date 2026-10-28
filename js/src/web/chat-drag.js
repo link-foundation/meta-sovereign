@@ -14,6 +14,7 @@
 
 import { useRef } from 'react';
 import { rangeOf } from './chat-selection.js';
+import { debugBrowser } from './client-log.js';
 
 // Desktop starts a drag after this many pixels (startDragDistance).
 const DRAG_START_PX = 4;
@@ -94,6 +95,10 @@ export const dragStarts = ({
 // The click that ends a drag must not also pick the row it ends on.
 const swallowNextClick = () => {
   const stop = (event) => {
+    debugBrowser('drag-click-suppressed', {
+      x: event.clientX,
+      y: event.clientY,
+    });
     event.preventDefault();
     event.stopPropagation();
   };
@@ -182,6 +187,7 @@ export const useDragSelect = ({ box, column, selection, order }) => {
       adding: true,
       frame: null,
     };
+    debugBrowser('drag-press', { x: press.x, y: press.y, from: press.from });
 
     const update = () => {
       const over =
@@ -241,6 +247,7 @@ export const useDragSelect = ({ box, column, selection, order }) => {
     };
 
     const up = () => {
+      debugBrowser('drag-release', { dragging: press.dragging });
       globalThis.removeEventListener?.('mousemove', move);
       globalThis.removeEventListener?.('mouseup', up);
       if (press.frame !== null) {

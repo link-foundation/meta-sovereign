@@ -24,10 +24,10 @@ use std::thread;
 use std::time::Duration;
 
 use crate::handlers;
-use crate::routes::{dispatch, MetricsCtx, StaticRoot};
+use crate::routes::{MetricsCtx, StaticRoot, dispatch};
 use crate::signaling::Signaling;
 use crate::state::ServerState;
-use crate::ws::{accept_key, encode_pong_frame, encode_text_frame, Frame, FrameReader};
+use crate::ws::{Frame, FrameReader, accept_key, encode_pong_frame, encode_text_frame};
 
 const MAX_HEAD_BYTES: usize = 64 * 1024;
 const MAX_BODY_BYTES: usize = 16 * 1024 * 1024;

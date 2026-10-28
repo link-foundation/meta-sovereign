@@ -13,8 +13,8 @@
 - `npm run mobile:android` 在需要时创建/同步 Android 项目，并用 Android
   Studio 打开。
 
-包装层调用 `@capacitor/cli@^7.6.2`，这是支持本包 Node 20 engine 的最新
-Capacitor major。
+包装层从 `package.json` 读取 Capacitor CLI 版本范围（当前为
+`@capacitor/cli@^8.6.0`）。请使用 Node.js 26.12.1 或更高版本。
 
 WebView 会先加载 `discovery-shell.js`，再加载 React bundle。原生代码或启
 动 URL 可以通过 `window.metaSovereignShell.discoveryCandidates`、
