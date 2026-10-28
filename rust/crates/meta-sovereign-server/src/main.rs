@@ -9,10 +9,10 @@
 //! `discover.js` picks the server up via the same-origin probe.
 
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-use meta_sovereign_server::{serve, LogFormat, ServerOptions};
+use meta_sovereign_server::{LogFormat, ServerOptions, serve};
 
 fn parse_args() -> ServerOptions {
     let mut port: u16 = 8787;

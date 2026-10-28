@@ -93,7 +93,7 @@
     "build:web": "node js/scripts/build-web.mjs",
     "build:pages": "node js/scripts/build-pages.mjs",
     "build:mobile": "npm run build:web && node js/scripts/build-mobile.mjs",
-    "electron": "npm exec --yes --package electron@^44.9.0 -- electron js/electron/main.js",
+    "electron": "node js/scripts/run-electron.mjs",
     "desktop:prepare": "npm run build:web && node js/scripts/prepare-desktop.mjs",
     "desktop:build": "npm run build:web && node js/scripts/build-desktop.mjs",
     "desktop:icon": "node js/scripts/render-desktop-icon.mjs",
@@ -401,11 +401,11 @@
     "url": "https://github.com/link-foundation/meta-sovereign"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=26.12.1"
   },
   "dependencies": {
     "links-notation": "^0.27.1",
-    "lino-objects-codec": "^0.9.2"
+    "lino-objects-codec": "^0.9.3"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
@@ -419,7 +419,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.7",
     "husky": "^9.1.7",
-    "jscpd": "^5.4.1",
+    "jscpd": "^5.4.2",
     "katex": "0.19.1",
     "lino-arguments": "0.4.0",
     "lint-staged": "^17.6.0",
@@ -439,12 +439,12 @@
     "teleproto": "1.232.0"
   },
   "peerDependencies": {
-    "@capacitor/android": "^8.5.3",
-    "@capacitor/cli": "^8.5.3",
-    "@capacitor/core": "^8.5.3",
-    "@capacitor/ios": "^8.5.3",
-    "electron": "^44.9.0",
-    "electron-updater": "^6.8.9"
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0",
+    "electron": "^45.1.0",
+    "electron-updater": "^6.8.11"
   },
   "peerDependenciesMeta": {
     "@capacitor/android": {
@@ -486,5 +486,6 @@
     "better-sqlite3",
     "esbuild",
     "node-pty"
-  ]
+  ],
+  "packageManager": "npm@12.2.1"
 }

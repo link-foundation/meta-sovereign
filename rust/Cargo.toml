@@ -13,9 +13,13 @@
 # this repository or bundled into the desktop app, not reusable libraries.
 
 [workspace]
-resolver = "2"
+resolver = "3"
 members = [
   "crates/meta-sovereign-core",
   "crates/meta-sovereign-server",
   "crates/meta-sovereign-wasm",
 ]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.99.1"

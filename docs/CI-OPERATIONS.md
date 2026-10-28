@@ -28,7 +28,7 @@ Use fixture data for verbose probes. Never log session strings, tokens, user mes
 
 The publishing jobs wait for the terminal pipeline gate. Read-only checks cancel superseded runs; release writes are serialized without cancellation. Before versioning or publishing, the tree guard allows only version/changelog/changeset metadata to advance beyond the validated commit. New source or dependency edits require a new validated run.
 
-Trusted npm publishing needs Node 24's bundled npm (at least 11.5.1), `id-token: write`, and a trusted publisher for `link-foundation/meta-sovereign`, workflow `release.yml`. A package administrator must bootstrap the package/publisher in npm when needed. Never replace a refused token exchange with an unchecked publish attempt.
+Trusted npm publishing needs Node 26.12.1 and the pinned npm 12.2.1, `id-token: write`, and a trusted publisher for `link-foundation/meta-sovereign`, workflow `release.yml`. A package administrator must bootstrap the package/publisher in npm when needed. Never replace a refused token exchange with an unchecked publish attempt.
 
 Enable **Settings → Security → Code security → Dependency graph** for dependency review. Capability absence is reported on PRs without requiring contributor secrets. On `main`, missing dependency graph or npm publisher configuration fails preflight with explicit setup guidance before expensive builds. Network, authentication and malformed API responses remain errors.
 

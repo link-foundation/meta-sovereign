@@ -16,7 +16,7 @@ Commands:
 - `npm run mobile:android` जरूरत पड़ने पर Android project बनाता/sync
   करता है और उसे Android Studio में खोलता है।
 
-Wrapper `@capacitor/cli@^7.6.2` चलाता है, जो इस package के Node 20
+Wrapper `@capacitor/cli@^8.6.0` चलाता है, जो इस package के Node 26
 engine को support करने वाला latest Capacitor major है।
 
 WebView React bundle से पहले `discovery-shell.js` load करता है। Native

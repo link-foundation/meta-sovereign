@@ -536,3 +536,7 @@ surface पर **uniformly** लागू होती है।
 
 Future PR या commit feature land करे तो changeset और PR description में
 matching `R-*` ID reference करें, ताकि यह list live spec बनी रहे।
+
+| ID    | Requirement                                                             | Status                                                                                                                                                            |
+| ----- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-Z33 | सभी ecosystems में dependencies और toolchains वर्तमान रखें (issue #50)। | प्रगति में: registry सूची, npm lock, Node/npm/Rust/Swift/Python/Docker/Actions और mobile CLI; PR #51 में पूर्ण CI सत्यापन; प्रमाण dev/log/issues/50/pulls/51 में। |

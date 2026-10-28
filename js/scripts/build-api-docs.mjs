@@ -18,19 +18,6 @@ const root = path.resolve(jsRoot, '..');
 const outDir = path.resolve(root, process.argv[2] ?? 'docs/api');
 const srcDir = path.resolve(jsRoot, 'src');
 
-const walk = async (dir, acc = []) => {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  for (const e of entries) {
-    const p = path.join(dir, e.name);
-    if (e.isDirectory()) {
-      await walk(p, acc);
-    } else if (e.isFile() && p.endsWith('.js')) {
-      acc.push(p);
-    }
-  }
-  return acc;
-};
-
 const headerComment = (text) => {
   const m = text.match(/^\s*\/\*\*([\s\S]*?)\*\//);
   if (!m) {
@@ -87,7 +74,11 @@ const renderModule = (relPath, text) => {
   return lines.join('\n');
 };
 
-const files = (await walk(srcDir)).sort();
+const files = [];
+for await (const file of fs.glob('**/*.js', { cwd: srcDir })) {
+  files.push(path.join(srcDir, file));
+}
+files.sort();
 await fs.mkdir(outDir, { recursive: true });
 
 const sections = [];

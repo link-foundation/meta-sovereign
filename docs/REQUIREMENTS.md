@@ -882,3 +882,7 @@ snapshot.
 - Reply suggestions deduplicate both sources and reject results for stale text/chat. An empty composer may show relevant replies. Telegram Business bot banners require a real bot identity and are distinct from explicit active/paused/off app autopilots.
 
 Evidence: `js/tests/chat-feed.test.js`, `js/tests/telegram-dialog-state.test.js`, `js/tests/live-subset.test.js`, `js/tests/hosted-ui.test.js`, `js/tests/operator.test.js`, `js/tests/reply-cache.test.js`, `js/tests/telegram-business.test.js`, `js/tests/e2e-operator-browser.mjs`, `js/tests/e2e-chat-selection-browser.mjs`, and `js/tests/e2e-chat-loading-browser.mjs`.
+
+| ID    | Requirement                                                                    | Status                                                                                                                                                                                                           |
+| ----- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R-Z33 | Keep every dependency and toolchain current across all ecosystems (issue #50). | In progress: live registry inventory, npm lock refresh, Node/npm/Rust/Swift/Python/Docker/Actions pins, mobile launcher alignment and full CI verification in PR #51; evidence under dev/log/issues/50/pulls/51. |

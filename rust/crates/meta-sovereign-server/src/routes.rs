@@ -289,9 +289,10 @@ mod tests {
         let body = r#"{"protocol":"smtp","message":{"to":"b@x","subject":"hi"}}"#;
         let r = dispatch(&s, &root, &body_req("POST", "/api/email/send", body), ctx());
         assert_eq!(r.status, 200);
-        assert!(r
-            .body_string()
-            .contains("\"status\":\"needs-local-server\""));
+        assert!(
+            r.body_string()
+                .contains("\"status\":\"needs-local-server\"")
+        );
     }
 
     #[test]

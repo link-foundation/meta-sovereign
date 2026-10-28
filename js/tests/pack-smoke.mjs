@@ -1,3 +1,4 @@
+import { npmPackEntry } from '../scripts/registry-state.mjs';
 // The package as npm would ship it, without publishing it: `npm pack`
 // builds the very tarball `npm publish` uploads, and `npx --package`
 // runs it the way `npx -y meta-sovereign serve` will once it is on the
@@ -67,7 +68,10 @@ const pack = (dir) => {
   if (packed.status !== 0) {
     throw new Error(`npm pack failed: ${packed.stderr}`);
   }
-  const [{ filename, size, entryCount, files }] = JSON.parse(packed.stdout);
+  const { filename, size, entryCount, files } = npmPackEntry(
+    packed.stdout,
+    'meta-sovereign'
+  );
   for (const required of [
     'js/src/server/local-key-enclave.swift',
     'js/src/sources/system-contacts.swift',
