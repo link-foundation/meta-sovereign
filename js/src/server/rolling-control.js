@@ -5,6 +5,7 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { rollingDirectory, verifyRelease } from './rolling-release.js';
+import { writeFileDurable } from '../storage/durable.js';
 
 export const controlAddress = (storeDir) =>
   process.platform === 'win32'
@@ -105,16 +106,26 @@ export const createServerControl = async ({
   storeDir,
   handle,
   log = () => {},
+  writeInfo = writeFileDurable,
 }) => {
   await fs.mkdir(rollingDirectory(storeDir), { recursive: true, mode: 0o700 });
   await cleanStaleSocket(storeDir);
-  const save = () =>
-    fs.writeFile(
-      infoFile(storeDir),
-      JSON.stringify({ protocol, hostPid: process.pid, ...handle.status() }),
-      { mode: 0o600 }
-    );
+  let saving = Promise.resolve();
+  const save = () => {
+    const data = JSON.stringify({
+      protocol,
+      hostPid: process.pid,
+      ...handle.status(),
+    });
+    saving = saving
+      .catch(() => {})
+      .then(() => writeInfo(infoFile(storeDir), data));
+    return saving;
+  };
   const perform = async (command) => {
+    // A socket can accept before its startup metadata has finished writing,
+    // especially on Windows. Readiness must include that durable write.
+    await initialized;
     if (command.protocol !== protocol) {
       throw new Error('incompatible server control protocol');
     }
@@ -173,25 +184,36 @@ export const createServerControl = async ({
         );
     });
   });
-  await new Promise((resolve, reject) => {
-    server.once('error', reject);
-    server.listen(controlAddress(storeDir), resolve);
-  });
-  if (process.platform !== 'win32') {
-    await fs.chmod(controlAddress(storeDir), 0o600);
-  }
-  await save();
-  return {
-    close: async () => {
-      // Stop accepting immediately, then destroy every control connection.
-      // Deno's net.Server can omit the close callback after Unix IPC traffic;
-      // worker shutdown must not depend on that compatibility event.
-      server.close();
-      connections.forEach((socket) => socket.destroy());
-      if (process.platform !== 'win32') {
-        await fs.unlink(controlAddress(storeDir)).catch(() => {});
-      }
-      await fs.unlink(infoFile(storeDir)).catch(() => {});
-    },
+  let listening = false;
+  const close = async () => {
+    // Stop accepting immediately, then destroy every control connection.
+    // Deno's net.Server can omit the close callback after Unix IPC traffic;
+    // worker shutdown must not depend on that compatibility event.
+    server.close();
+    connections.forEach((socket) => socket.destroy());
+    if (process.platform !== 'win32') {
+      await fs.unlink(controlAddress(storeDir)).catch(() => {});
+    }
+    await fs.unlink(infoFile(storeDir)).catch(() => {});
   };
+  const initialized = (async () => {
+    await new Promise((resolve, reject) => {
+      server.once('error', reject);
+      server.listen(controlAddress(storeDir), resolve);
+    });
+    listening = true;
+    if (process.platform !== 'win32') {
+      await fs.chmod(controlAddress(storeDir), 0o600);
+    }
+    await save();
+  })();
+  try {
+    await initialized;
+  } catch (error) {
+    if (listening) {
+      await close();
+    }
+    throw error;
+  }
+  return { close };
 };
