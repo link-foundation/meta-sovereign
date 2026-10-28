@@ -1,6 +1,6 @@
 --- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/scripts/format-release-notes.mjs
 +++ js/scripts/format-release-notes.mjs
-@@ -1,50 +1,41 @@
+@@ -1,50 +1,42 @@
  #!/usr/bin/env node
  
  /**
@@ -39,6 +39,7 @@
    buildNpmVersionBadge,
 -  buildReleaseDescription,
 -  hasGeneratedNpmBadge,
++  hasNpmVersionBadge,
    normalizeReleaseVersionForBadge,
  } from './format-release-notes-helpers.mjs';
 -import { bootstrapDependencies } from './bootstrap-dependencies.mjs';
@@ -63,14 +64,14 @@
  const config = makeConfig({
    yargs: ({ yargs, getenv }) =>
      yargs
-@@ -100,38 +91,80 @@
+@@ -100,38 +92,80 @@
  
    const currentBody = releaseData.body || '';
  
 -  // Skip only a generated npm badge image.
 -  if (hasGeneratedNpmBadge(currentBody)) {
-+  // Skip if already formatted (has shields.io badge image)
-+  if (currentBody.includes('img.shields.io')) {
++  // Skip only this package/version's generated badge.
++  if (hasNpmVersionBadge(currentBody, packageName, version)) {
      console.log('ℹ️ Release notes already formatted');
      process.exit(0);
    }
@@ -165,7 +166,7 @@
        const prsData = JSON.parse(prResult.stdout);
  
        // Find the PR that's not the version bump PR (not "chore: version packages")
-@@ -140,10 +173,8 @@
+@@ -140,10 +174,8 @@
        );
  
        if (relevantPr) {
@@ -178,7 +179,7 @@
        } else if (prsData.length > 0) {
          console.log(
            '⚠️ Found PRs but all are version bump PRs, not linking any'
-@@ -154,12 +185,15 @@
+@@ -154,12 +186,15 @@
          );
        }
      } catch (error) {
@@ -195,7 +196,7 @@
    }
  
    // Build formatted release notes
-@@ -168,12 +202,9 @@
+@@ -168,12 +203,9 @@
  
    let formattedBody = `${cleanDescription}`;
  
@@ -211,7 +212,7 @@
    }
  
    formattedBody += `\n\n---\n\n${npmBadge}`;
-@@ -184,11 +215,12 @@
+@@ -184,11 +216,12 @@
      { stdin: updatePayload }
    );
  

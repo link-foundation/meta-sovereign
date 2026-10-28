@@ -1,3 +1,7 @@
+export function hasNpmVersionBadge(body, packageName, releaseVersion) {
+  return body.includes(buildNpmVersionBadge(packageName, releaseVersion));
+}
+
 export function normalizeReleaseVersionForBadge(releaseVersion) {
   const trimmedVersion = releaseVersion.trim();
   const semverTagMatch = trimmedVersion.match(

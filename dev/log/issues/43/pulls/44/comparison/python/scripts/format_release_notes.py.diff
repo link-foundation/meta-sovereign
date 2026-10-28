@@ -1,6 +1,6 @@
 --- python@317c243a7cc832b0abfe4d30989c5095d17fcd78/scripts/format_release_notes.py
 +++ js/scripts/format-release-notes.mjs
-@@ -1,265 +1,227 @@
+@@ -1,265 +1,228 @@
 -#!/usr/bin/env python3
 -"""
 -Format GitHub release notes with enhanced information.
@@ -293,6 +293,7 @@
 +import { readPackageInfo } from './package-info.mjs';
 +import {
 +  buildNpmVersionBadge,
++  hasNpmVersionBadge,
 +  normalizeReleaseVersionForBadge,
 +} from './format-release-notes-helpers.mjs';
 +
@@ -359,8 +360,8 @@
 +
 +  const currentBody = releaseData.body || '';
 +
-+  // Skip if already formatted (has shields.io badge image)
-+  if (currentBody.includes('img.shields.io')) {
++  // Skip only this package/version's generated badge.
++  if (hasNpmVersionBadge(currentBody, packageName, version)) {
 +    console.log('ℹ️ Release notes already formatted');
 +    process.exit(0);
 +  }

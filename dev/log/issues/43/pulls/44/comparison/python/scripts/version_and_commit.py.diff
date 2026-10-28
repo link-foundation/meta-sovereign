@@ -1,6 +1,6 @@
 --- python@317c243a7cc832b0abfe4d30989c5095d17fcd78/scripts/version_and_commit.py
 +++ js/scripts/version-and-commit.mjs
-@@ -1,382 +1,291 @@
+@@ -1,382 +1,290 @@
 -#!/usr/bin/env python3
 -"""
 -Version packages and commit to main branch.
@@ -421,6 +421,7 @@
 +} from './js-paths.mjs';
 +
 +import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
++import { commitReleaseVersion } from './version-and-commit-helpers.mjs';
 +
 +// Import link-foundation libraries
 +const { $ } = await loadCommandStream();
@@ -644,9 +645,7 @@
 +      console.log(`Staged release metadata: ${staged.stdout}`);
 +
 +      // Commit with version number as message
-+      const commitMessage = newVersion;
-+      const escapedMessage = commitMessage.replace(/"/g, '\\"');
-+      await $`git commit -m "${escapedMessage}"`;
++      await commitReleaseVersion($, newVersion);
 +      assertValidatedReleaseTree(localHead, 'HEAD');
 +
 +      // Push directly to main

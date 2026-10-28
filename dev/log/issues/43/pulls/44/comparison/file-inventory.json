@@ -1069,7 +1069,7 @@
       "buildReleaseDescription"
     ],
     "environment": [],
-    "local_sha256": "36009c6e95408404d5ac5ad5a06ab8fb86cf9fd3c534c0bc18c21744a44c1d7b",
+    "local_sha256": "3aee0b7e7a615b3d5f57b0afa6eafa12fcae70460e8de403ab51288a106ba186",
     "identical": false,
     "diff": "comparison/js/scripts/format-release-notes-helpers.mjs.diff"
   },
@@ -1086,7 +1086,7 @@
     "environment": [
       "DEBUG"
     ],
-    "local_sha256": "5a45791f5ed1570c57eccc5b8731a57a0acf98538cc0957e0516d14f326fe1e5",
+    "local_sha256": "ffea8532c434819e69d15d08e830423499100dcec1bab126522dac1ddc64fe6d",
     "identical": false,
     "diff": "comparison/js/scripts/format-release-notes.mjs.diff"
   },
@@ -1799,7 +1799,7 @@
     "environment": [
       "GITHUB_OUTPUT"
     ],
-    "local_sha256": "8d42098c57471d30f80a43471d2c7007312af88c0992f934c8e2666ef8a7a56a",
+    "local_sha256": "7176c5dadbb248b9ff67a719a09933af85290632ed3639ca5fea0bcfc2d6c719",
     "identical": false,
     "diff": "comparison/js/scripts/version-and-commit.mjs.diff"
   },
@@ -4619,7 +4619,7 @@
       "main"
     ],
     "environment": [],
-    "local_sha256": "8d42098c57471d30f80a43471d2c7007312af88c0992f934c8e2666ef8a7a56a",
+    "local_sha256": "7176c5dadbb248b9ff67a719a09933af85290632ed3639ca5fea0bcfc2d6c719",
     "identical": false,
     "diff": "comparison/rust/scripts/version-and-commit.rs.diff"
   },
@@ -6003,7 +6003,7 @@
       "main"
     ],
     "environment": [],
-    "local_sha256": "5a45791f5ed1570c57eccc5b8731a57a0acf98538cc0957e0516d14f326fe1e5",
+    "local_sha256": "ffea8532c434819e69d15d08e830423499100dcec1bab126522dac1ddc64fe6d",
     "identical": false,
     "diff": "comparison/python/scripts/format_release_notes.py.diff"
   },
@@ -6259,7 +6259,7 @@
       "main"
     ],
     "environment": [],
-    "local_sha256": "8d42098c57471d30f80a43471d2c7007312af88c0992f934c8e2666ef8a7a56a",
+    "local_sha256": "7176c5dadbb248b9ff67a719a09933af85290632ed3639ca5fea0bcfc2d6c719",
     "identical": false,
     "diff": "comparison/python/scripts/version_and_commit.py.diff"
   },

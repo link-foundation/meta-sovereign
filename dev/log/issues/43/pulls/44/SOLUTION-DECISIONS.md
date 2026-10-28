@@ -36,3 +36,9 @@ This complements the requirement inventory and causal findings in [README.md](RE
 - A11–A15: preserve forward history and existing features, merge current main, include one patch changeset/four-language documentation, report shared defects upstream, inspect actual fresh CI logs/warnings and update the existing PR. Final archive-only verification and ready state are linked in PR 44; no default-branch merge is performed.
 
 Known product boundaries are explicit in [comparison/REVIEW.md](comparison/REVIEW.md): no new Docker registry, crates.io or PyPI product is introduced merely because a template publishes one. Existing npm/GitHub/desktop/Pages/documentation capabilities are retained. Real production publication is protected by main-only feasibility checks and is not triggered to validate a PR.
+
+## F22/F23: release-script CodeQL checks and complete evidence
+
+For idempotence, requiring the exact generated package/version badge reuses the existing builder and avoids a new Markdown/URL parsing dependency. Hostname substring checks cannot establish that marker; the structured template recognizer is another valid choice but accepts unrelated package/version badges. For commit messages, reuse installed command-stream's single-argument interpolation rather than extending a manual shell escaper; a real Git fixture proves literal preservation. No security thresholds, query suppressions or alert dismissals change.
+
+For evidence, listing workflow jobs is insufficient: GitHub attaches code-scanning conclusions through a separate service context. Collect commit-wide check runs and legacy statuses, paginate annotations, and verify the PR's entire status rollup before readiness. The raw 52-result SARIF is retained with a per-finding inventory; two release-script findings are fixed here and the other 50 remain existing product/test baseline alerts, without a claim that the whole product is security-alert-free.

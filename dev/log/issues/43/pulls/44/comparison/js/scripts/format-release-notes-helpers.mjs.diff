@@ -1,16 +1,19 @@
 --- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/scripts/format-release-notes-helpers.mjs
 +++ js/scripts/format-release-notes-helpers.mjs
-@@ -1,8 +1,16 @@
+@@ -1,8 +1,20 @@
 -import { URL } from 'node:url';
 -import { normalizeReleaseVersion } from './release-naming.mjs';
-+export function normalizeReleaseVersionForBadge(releaseVersion) {
++export function hasNpmVersionBadge(body, packageName, releaseVersion) {
++  return body.includes(buildNpmVersionBadge(packageName, releaseVersion));
++}
+ 
+ export function normalizeReleaseVersionForBadge(releaseVersion) {
+-  return normalizeReleaseVersion(releaseVersion);
 +  const trimmedVersion = releaseVersion.trim();
 +  const semverTagMatch = trimmedVersion.match(
 +    /(?:^|-)v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)$/i
 +  );
- 
--export function normalizeReleaseVersionForBadge(releaseVersion) {
--  return normalizeReleaseVersion(releaseVersion);
++
 +  if (semverTagMatch) {
 +    return semverTagMatch[1];
 +  }
@@ -21,7 +24,7 @@
  }
  
  export function encodeShieldsStaticBadgeSegment(value) {
-@@ -16,86 +24,3 @@
+@@ -16,86 +28,3 @@
  
    return `[![npm version](https://img.shields.io/badge/npm-${badgeVersion}-blue.svg)](https://www.npmjs.com/package/${packageName}/v/${packageVersionPath})`;
  }

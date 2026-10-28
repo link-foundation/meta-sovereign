@@ -43,3 +43,7 @@ Additional review findings: v27 configuration/API migration, native checksummed 
 
 - [x] F21: preserve all three post-archive Bun failures; reproduce foreign test discovery with bounded owned sentinels, scope the actual Bun configuration to js/tests, verify 15 focused Bun contracts, refresh pinned comparisons and report shared template defect as issue 269.
 - [ ] Verify the complete post-F21 runtime/browser/native matrix on the final source and record the fresh run links in PR 44.
+
+- [x] F22: preserve failed standalone CodeQL context despite four successful workflows, reproduce both release-script defects, repair literal message handling and exact badge identity, verify 13 relevant Node tests, compare existing upstream repair without duplicate reports.
+- [x] F23: reproduce and repair missing commit-wide service-check evidence with a finite offline two-page annotation regression; retain full SARIF and every existing GitHub alert without claiming a zero-alert product audit.
+- [ ] Require every fresh PR check context, including standalone CodeQL, to pass on the final head before readiness.

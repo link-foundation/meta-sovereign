@@ -36,6 +36,7 @@ import {
 } from './js-paths.mjs';
 
 import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
+import { commitReleaseVersion } from './version-and-commit-helpers.mjs';
 
 // Import link-foundation libraries
 const { $ } = await loadCommandStream();
@@ -259,9 +260,7 @@ async function main() {
       console.log(`Staged release metadata: ${staged.stdout}`);
 
       // Commit with version number as message
-      const commitMessage = newVersion;
-      const escapedMessage = commitMessage.replace(/"/g, '\\"');
-      await $`git commit -m "${escapedMessage}"`;
+      await commitReleaseVersion($, newVersion);
       assertValidatedReleaseTree(localHead, 'HEAD');
 
       // Push directly to main

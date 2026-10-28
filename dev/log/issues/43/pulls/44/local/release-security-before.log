@@ -1,0 +1,56 @@
+✖ release notes skip only the generated badge for the requested package and version (3.725208ms)
+[master (root-commit) a1e4c4f] 1.2.3
+ 1 file changed, 1 insertion(+)
+ create mode 100644 version.txt
+[master 2a5f1cf] 1.2.4 \"quoted\" C:\release\ $(exit 9) \`exit 9\`
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+✖ release commits preserve literal quotes, backslashes and shell metacharacters (962.329388ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1128.045589
+
+✖ failing tests:
+
+test at js/tests/ci-release-format.test.js:14:1
+✖ release notes skip only the generated badge for the requested package and version (3.725208ms)
+  AssertionError [ERR_ASSERTION]: Fix img.shields.io rendering
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/ci-release-format.test.js:28:12)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/ci-release-format.test.js:32:1
+✖ release commits preserve literal quotes, backslashes and shell metacharacters (962.329388ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '1.2.4 \\"quoted\\" C:\\release\\ $(exit 9) \\`exit 9\\`'
+  - '1.2.4 "quoted" C:\\release\\ $(exit 9) \\`exit 9\\`'
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/ci-release-format.test.js:46:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '1.2.4 \\"quoted\\" C:\\release\\ $(exit 9) \\`exit 9\\`',
+    expected: '1.2.4 "quoted" C:\\release\\ $(exit 9) \\`exit 9\\`',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

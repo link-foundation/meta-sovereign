@@ -28,6 +28,23 @@ def api(endpoint):
     return json.loads(gh('api', endpoint, '--paginate', '--slurp'))
 
 
+def collect_commit_checks(head_sha):
+    """Workflow success does not imply a standalone CodeQL service check passed."""
+    pages = api(f'repos/{REPO}/commits/{head_sha}/check-runs?filter=all&per_page=100')
+    checks = [check for page in pages for check in page['check_runs']]
+    save(f'github/commit-{head_sha}-check-runs.json', json.dumps(checks, indent=2).encode())
+    statuses = api(f'repos/{REPO}/commits/{head_sha}/statuses?per_page=100')
+    save(f'github/commit-{head_sha}-statuses.json', json.dumps(statuses, indent=2).encode())
+    for check in checks:
+        if check.get('output', {}).get('annotations_count', 0):
+            check_id = check['id']
+            data = api(f'repos/{REPO}/check-runs/{check_id}/annotations?per_page=100')
+            save(f'github/annotations/{check_id}.json', json.dumps(data, indent=2).encode())
+    failures = [f"{check['name']}: {check['conclusion']}" for check in checks
+                if check.get('conclusion') not in (None, 'success', 'skipped', 'neutral')]
+    print(f'Commit {head_sha}: {len(checks)} checks; non-passing: {failures}', flush=True)
+
+
 def collect_diagnostic_artifacts():
     """Keep all small log/report artifacts; never duplicate native installers."""
     entries = {}
@@ -69,9 +86,13 @@ def main():
     runs = [run for page in pages for run in page['workflow_runs']]
     save('github/branch-runs.json', json.dumps(runs, indent=2).encode())
     ids = set(args.run_id) if args.run_id else {run['id'] for run in runs} | {40683241777, 40688263368, 40683241643, 40683241745}
+    collected_commits = set()
     for run_id in sorted(ids):
         run = json.loads(gh('api', f'repos/{REPO}/actions/runs/{run_id}'))
         save(f'github/run-{run_id}.json', json.dumps(run, indent=2).encode())
+        if run['head_sha'] not in collected_commits:
+            collect_commit_checks(run['head_sha'])
+            collected_commits.add(run['head_sha'])
         jobs = [job for page in api(f'repos/{REPO}/actions/runs/{run_id}/jobs?per_page=100') for job in page['jobs']]
         save(f'github/run-{run_id}-jobs.json', json.dumps(jobs, indent=2).encode())
         artifacts = api(f'repos/{REPO}/actions/runs/{run_id}/artifacts?per_page=100')

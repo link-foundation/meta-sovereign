@@ -1,0 +1,25 @@
+{
+  "reviewed_at_utc": "2026-10-28",
+  "sources": [
+    {
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-url-substring-sanitization/",
+      "fact": "A hostname substring does not establish URL identity. Here the observable defect is formatting skipped for ordinary prose or an unrelated URL."
+    },
+    {
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-sanitization/",
+      "fact": "Custom escaping can mishandle existing escape characters. Use a tested argument encoder instead."
+    },
+    {
+      "url": "https://github.com/link-foundation/command-stream/blob/main/js/README.md#smart-quoting--security",
+      "fact": "The installed 2.4.0 library preserves interpolated values as single arguments; pre-escaping changes literal data. A real temporary Git fixture verifies this contract."
+    },
+    {
+      "url": "https://github.com/link-foundation/js-ai-driven-development-pipeline-template/issues/208",
+      "fact": "Equivalent formatter skip defect was reported and closed on 2026-10-07. Both pinned and current template use a structured badge recognizer; current version writer uses argv-based runStrict. No duplicate upstream report is needed."
+    },
+    {
+      "url": "https://raw.githubusercontent.com/github/codeql-action/v4/analyze/action.yml",
+      "fact": "analyze output and wait-for-processing inputs describe SARIF generation/upload processing, distinct from the GitHub code-scanning service check conclusion."
+    }
+  ]
+}

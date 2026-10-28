@@ -1,0 +1,27 @@
+✔ release dependencies normalize ESM and nested CommonJS and reject unsupported shapes (3.263757ms)
+✔ pipeline gate rejects failed, cancelled and missing results (1.217591ms)
+✔ registry probe distinguishes unpublished versions from authentication and network failures (0.545107ms)
+✔ package startup fails promptly on child exit and hung health request (50.489692ms)
+✔ release metadata guard allows only version changes, never dependency edits (11.410743ms)
+✔ OIDC preflight verifies the actual package exchange and rejects unknown or refused responses (4.153026ms)
+::notice::Dependency comparison is unavailable (HTTP 403). A repository administrator must enable Dependency graph and grant workflow access at https://github.com/owner/repo/settings/security_analysis. The API does not distinguish disabled configuration from denied access. PR dependency review cannot run; lockfile audits remain required.
+✔ installed release shell rejects nonzero command exits (461.251301ms)
+✔ GitHub release probes distinguish absence from unknown failures (4.76616ms)
+✔ dependency graph preflight permits PR capability notices but fails main and unknown errors (3.88656ms)
+✔ publish retries classify actual npm output, refusing authentication and unknown failures (1.599464ms)
+✔ release notes skip only the generated badge for the requested package and version (1.866792ms)
+[master (root-commit) 4f446d8] 1.2.3
+ 1 file changed, 1 insertion(+)
+ create mode 100644 version.txt
+[master 2ac6330] 1.2.4 "quoted" C:\release\ $(exit 9) \`exit 9\`
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+✔ release commits preserve literal quotes, backslashes and shell metacharacters (636.690314ms)
+✔ release guard compares committed Git trees and rejects source or dependency drift (1298.757842ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2924.793418

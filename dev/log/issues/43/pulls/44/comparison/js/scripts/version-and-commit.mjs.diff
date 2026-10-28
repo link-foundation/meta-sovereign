@@ -32,7 +32,7 @@
  
  import {
    getJsRoot,
-@@ -25,20 +34,12 @@
+@@ -25,20 +34,13 @@
    needsCd,
    parseJsRootConfig,
  } from './js-paths.mjs';
@@ -42,6 +42,7 @@
 -import { printUntrusted } from './github-actions-log.mjs';
 -import { checkStagedFormatting } from './check-staged-formatting.mjs';
 -import { runStrict } from './run-command.mjs';
++import { commitReleaseVersion } from './version-and-commit-helpers.mjs';
  
  // Import link-foundation libraries
 -// Loaded through bootstrapDependencies: when installed helpers are unavailable,
@@ -56,7 +57,7 @@
  
  // Parse CLI arguments using lino-arguments
  const config = makeConfig({
-@@ -78,10 +79,9 @@
+@@ -78,10 +80,9 @@
  console.log('Parsed configuration:', {
    mode,
    bumpType,
@@ -68,7 +69,7 @@
  
  // Detect if positional arguments were used (common mistake)
  const args = process.argv.slice(2);
-@@ -95,20 +95,20 @@
+@@ -95,20 +96,20 @@
    console.error('Usage:');
    console.error('  Changeset mode:');
    console.error(
@@ -96,7 +97,7 @@
    );
    process.exit(1);
  }
-@@ -124,7 +124,7 @@
+@@ -124,7 +125,7 @@
  if (mode === 'instant' && !bumpType) {
    console.error('Error: --bump-type is required for instant mode');
    console.error(
@@ -105,7 +106,7 @@
    );
    process.exit(1);
  }
-@@ -176,12 +176,8 @@
+@@ -176,12 +177,8 @@
  async function main() {
    try {
      // Configure git
@@ -119,7 +120,7 @@
  
      // Check if remote main has advanced (handles re-runs after partial success)
      console.log('Checking for remote changes...');
-@@ -196,30 +192,23 @@
+@@ -196,30 +193,23 @@
      const remoteHead = remoteHeadResult.stdout.trim();
  
      if (localHead !== remoteHead) {
@@ -162,7 +163,7 @@
        }
      }
  
-@@ -233,9 +222,9 @@
+@@ -233,9 +223,9 @@
        // Pass --js-root to ensure consistent path handling
        // Rely on command-stream's auto-quoting for proper argument handling
        if (description) {
@@ -174,7 +175,7 @@
        }
      } else {
        console.log('Running changeset version...');
-@@ -262,31 +251,25 @@
+@@ -262,31 +252,23 @@
        console.log('Changes detected, committing...');
  
        // Stage all changes (package.json, package-lock.json, CHANGELOG.md, deleted changesets)
@@ -202,9 +203,7 @@
 -      // rejection, and reporting version_committed=true for a push that never
 -      // landed would let the publish job work from a version that exists only
 -      // in the runner.
-+      const commitMessage = newVersion;
-+      const escapedMessage = commitMessage.replace(/"/g, '\\"');
-+      await $`git commit -m "${escapedMessage}"`;
++      await commitReleaseVersion($, newVersion);
 +      assertValidatedReleaseTree(localHead, 'HEAD');
 +
 +      // Push directly to main
