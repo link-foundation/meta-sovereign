@@ -1,6 +1,6 @@
 --- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/tests/check-web-archive.test.js
 +++ js/tests/ci-contracts.test.js
-@@ -1,152 +1,165 @@
+@@ -1,152 +1,221 @@
 -// Regression tests for the lychee report parser used by the Broken Link
 -// Checker workflow. A lychee error without an http(s) URL - a missing local
 -// file, an unresolvable root-relative link - has no Wayback equivalent. Such
@@ -23,18 +23,14 @@
 +import os from 'node:os';
 +import path from 'node:path';
  import { fileURLToPath } from 'node:url';
-+import { parse } from 'yaml';
- 
+-
 -import {
 -  extractBrokenLinks,
 -  extractBrokenUrls,
 -  extractErrorsSection,
 -} from '../scripts/check-web-archive.mjs';
 -import { itUnless, sandboxed } from './helpers/skip.js';
-+const root = fileURLToPath(new URL('../../', import.meta.url));
-+const workflow = (name) =>
-+  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
+-
 -const here = dirname(fileURLToPath(import.meta.url));
 -const report = readFileSync(
 -  join(here, 'fixtures', 'lychee-report.md'),
@@ -55,19 +51,8 @@
 -    const legacy = '# Link report\n\n* [404] https://broken.example/legacy\n';
 -    assert.equal(extractErrorsSection(legacy), legacy);
 -  });
-+test('browser failures cannot become a green release', () => {
-+  const jobs = workflow('release.yml').jobs;
-+  assert.ok(
-+    jobs['e2e-browser'].strategy.matrix.include.some(
-+      ({ browser }) => browser === 'webkit'
-+    )
-+  );
-+  for (const step of jobs['e2e-browser'].steps) {
-+    assert.notEqual(step['continue-on-error'], true);
-+  }
-+  assert.ok(jobs.release.needs.includes('pipeline-status'));
- });
- 
+-});
+-
 -describe('extractBrokenUrls', () => {
 -  it('ignores successful redirects outside the errors section', () => {
 -    const shortReport = `## Errors per input
@@ -105,25 +90,8 @@
 -      'https://example.com/rust/link_cli/',
 -    ]);
 -  });
-+test('every Rust documentation path rejects warnings', () => {
-+  const flow = workflow('release.yml');
-+  let checked = 0;
-+  for (const job of Object.values(flow.jobs)) {
-+    for (const step of job.steps || []) {
-+      if (!step.run?.includes('cargo doc ')) {
-+        continue;
-+      }
-+      const flags =
-+        step.env?.RUSTDOCFLAGS ??
-+        job.env?.RUSTDOCFLAGS ??
-+        flow.env?.RUSTDOCFLAGS;
-+      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
-+      checked++;
-+    }
-+  }
-+  assert.equal(checked, 3, 'Check and both release documentation paths');
- });
- 
+-});
+-
 -describe('extractBrokenLinks', () => {
 -  it('reports errors that the Wayback Machine cannot answer', () => {
 -    const { others } = extractBrokenLinks(report);
@@ -160,6 +128,67 @@
 -    const reported = Number(/🚫 Errors\s*\|\s*(\d+)/.exec(report)[1]);
 -    assert.equal(urls.length + others.length, reported);
 -  });
+-});
+-
+-describe('check-web-archive.mjs end to end', () => {
+-  itUnless(sandboxed)(
+-    'fails when the only lychee errors have no http URL to archive',
+-    async () => {
+-      const scriptPath = join(here, '..', 'scripts', 'check-web-archive.mjs');
+-      const workDir = mkdtempSync(join(tmpdir(), 'web-archive-'));
+-      const reportPath = join(workDir, 'out.md');
+-      const outputPath = join(workDir, 'github-output.txt');
+-      writeFileSync(
+-        reportPath,
+-        `## Errors per input
+-
+-### Errors in docs/index.md
+-
+-* [ERROR] <file:///repo/docs/api/Some.Type.yml> (at 15:12) | File not found. Check if file exists and path is correct
+-`
+-      );
+-      writeFileSync(outputPath, '');
+-
+-      const result = spawnSync(process.execPath, [scriptPath], {
+-        encoding: 'utf-8',
++import { parse } from 'yaml';
++
++const root = fileURLToPath(new URL('../../', import.meta.url));
++const workflow = (name) =>
++  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
++
++test('browser failures cannot become a green release', () => {
++  const jobs = workflow('release.yml').jobs;
++  assert.ok(
++    jobs['e2e-browser'].strategy.matrix.include.some(
++      ({ browser }) => browser === 'webkit'
++    )
++  );
++  for (const step of jobs['e2e-browser'].steps) {
++    assert.notEqual(step['continue-on-error'], true);
++  }
++  assert.ok(jobs.release.needs.includes('pipeline-status'));
++});
++
++test('every Rust documentation path rejects warnings', () => {
++  const flow = workflow('release.yml');
++  let checked = 0;
++  for (const job of Object.values(flow.jobs)) {
++    for (const step of job.steps || []) {
++      if (!step.run?.includes('cargo doc ')) {
++        continue;
++      }
++      const flags =
++        step.env?.RUSTDOCFLAGS ??
++        job.env?.RUSTDOCFLAGS ??
++        flow.env?.RUSTDOCFLAGS;
++      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
++      checked++;
++    }
++  }
++  assert.equal(checked, 3, 'Check and both release documentation paths');
++});
++
 +test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
 +  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
 +    if (!name.endsWith('.yml')) {
@@ -176,27 +205,81 @@
 +    }
 +    assert.equal(flow.permissions.contents, 'read', name);
 +  }
- });
- 
--describe('check-web-archive.mjs end to end', () => {
--  itUnless(sandboxed)(
--    'fails when the only lychee errors have no http URL to archive',
--    async () => {
--      const scriptPath = join(here, '..', 'scripts', 'check-web-archive.mjs');
--      const workDir = mkdtempSync(join(tmpdir(), 'web-archive-'));
--      const reportPath = join(workDir, 'out.md');
--      const outputPath = join(workDir, 'github-output.txt');
--      writeFileSync(
--        reportPath,
--        `## Errors per input
++});
++
 +const fixture = (t) => {
 +  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
 +  t.after(() => rmSync(dir, { recursive: true, force: true }));
 +  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
 +  return dir;
 +};
- 
--### Errors in docs/index.md
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
+         env: {
+           ...process.env,
+-          LYCHEE_OUTPUT: reportPath,
+-          GITHUB_OUTPUT: outputPath,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
+         },
+-      });
+-
+-      assert.equal(result.status, 1, result.stdout + result.stderr);
+-      assert.match(readFileSync(outputPath, 'utf-8'), /all_archived=false/);
+-      rmSync(workDir, { recursive: true, force: true });
+-    }
+-  );
+-});
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
++}
++
 +test('syntax checking finds malformed nested JavaScript', (t) => {
 +  const cwd = fixture(t);
 +  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
@@ -209,24 +292,7 @@
 +  );
 +  assert.notEqual(result.status, 0, result.stdout);
 +});
- 
--* [ERROR] <file:///repo/docs/api/Some.Type.yml> (at 15:12) | File not found. Check if file exists and path is correct
--`
--      );
--      writeFileSync(outputPath, '');
--
--      const result = spawnSync(process.execPath, [scriptPath], {
--        encoding: 'utf-8',
--        env: {
--          ...process.env,
--          LYCHEE_OUTPUT: reportPath,
--          GITHUB_OUTPUT: outputPath,
--        },
--      });
--
--      assert.equal(result.status, 1, result.stdout + result.stderr);
--      assert.match(readFileSync(outputPath, 'utf-8'), /all_archived=false/);
--      rmSync(workDir, { recursive: true, force: true });
++
 +test('missing lychee report fails instead of claiming all links archived', (t) => {
 +  const cwd = fixture(t);
 +  const result = spawnSync(
@@ -243,10 +309,10 @@
 +        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
 +        GITHUB_OUTPUT: '',
 +      },
-     }
-   );
++    }
++  );
 +  assert.notEqual(result.status, 0, result.stdout);
- });
++});
 +
 +test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
 +  const { workflowPolicyErrors } =

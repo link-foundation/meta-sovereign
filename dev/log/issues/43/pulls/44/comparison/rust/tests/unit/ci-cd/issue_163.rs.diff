@@ -1,6 +1,6 @@
 --- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/tests/unit/ci-cd/issue_163.rs
 +++ js/tests/ci-contracts.test.js
-@@ -1,398 +1,165 @@
+@@ -1,398 +1,221 @@
 -//! Regression tests for issues #163 and #167.
 -//!
 -//! The release credentials were first exercised by the very step that
@@ -12,6 +12,16 @@
 -//! verifies token/crate scopes, Docker Hub with an attempted blob-upload write (a
 -//! login -- or a token endpoint -- proves authentication, not
 -//! authorisation).
+-
+-use std::fs;
+-use std::path::{Path, PathBuf};
+-#[cfg(unix)]
+-use std::process::{Command, Output};
+-#[cfg(unix)]
+-use std::time::{SystemTime, UNIX_EPOCH};
+-
+-fn repo_path(relative: &str) -> PathBuf {
+-    Path::new(env!("CARGO_MANIFEST_DIR")).join(relative)
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -27,20 +37,11 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--use std::fs;
--use std::path::{Path, PathBuf};
--#[cfg(unix)]
--use std::process::{Command, Output};
--#[cfg(unix)]
--use std::time::{SystemTime, UNIX_EPOCH};
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--fn repo_path(relative: &str) -> PathBuf {
--    Path::new(env!("CARGO_MANIFEST_DIR")).join(relative)
--}
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
@@ -53,12 +54,7 @@
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--fn release_yml() -> String {
--    fs::read_to_string(repo_path(".github/workflows/release.yml"))
--        .expect("release.yml should exist")
--        .replace("\r\n", "\n")
--}
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -77,14 +73,7 @@
 +  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
- 
--fn job_block<'a>(workflow: &'a str, job: &str) -> &'a str {
--    let marker = format!("  {job}:\n");
--    let start = workflow
--        .find(&marker)
--        .unwrap_or_else(|| panic!("release.yml should declare the {job} job"));
--    let body_start = start + marker.len();
--    let rest = &workflow[body_start..];
++
 +test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
 +  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
 +    if (!name.endsWith('.yml')) {
@@ -102,7 +91,84 @@
 +    assert.equal(flow.permissions.contents, 'read', name);
 +  }
 +});
++
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
  
+-fn release_yml() -> String {
+-    fs::read_to_string(repo_path(".github/workflows/release.yml"))
+-        .expect("release.yml should exist")
+-        .replace("\r\n", "\n")
+-}
+-
+-fn job_block<'a>(workflow: &'a str, job: &str) -> &'a str {
+-    let marker = format!("  {job}:\n");
+-    let start = workflow
+-        .find(&marker)
+-        .unwrap_or_else(|| panic!("release.yml should declare the {job} job"));
+-    let body_start = start + marker.len();
+-    let rest = &workflow[body_start..];
+-
 -    let next_job = rest
 -        .lines()
 -        .scan(0usize, |offset, line| {
@@ -114,31 +180,13 @@
 -            let starts_at_job_indent = line.starts_with("  ") && !line.starts_with("    ");
 -            (starts_at_job_indent && line.trim_end().ends_with(':')).then_some(offset)
 -        });
-+const fixture = (t) => {
-+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
-+  t.after(() => rmSync(dir, { recursive: true, force: true }));
-+  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
-+  return dir;
-+};
- 
+-
 -    next_job.map_or_else(
 -        || &workflow[start..],
 -        |end| &workflow[start..body_start + end],
 -    )
 -}
-+test('syntax checking finds malformed nested JavaScript', (t) => {
-+  const cwd = fixture(t);
-+  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
-+  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
-+  spawnSync('git', ['add', '.'], { cwd });
-+  const result = spawnSync(
-+    'bash',
-+    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
-+    { cwd, encoding: 'utf8' }
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
-+});
- 
+-
 -#[cfg(unix)]
 -fn temp_dir(name: &str) -> PathBuf {
 -    let nanos = SystemTime::now()
@@ -149,27 +197,7 @@
 -    fs::create_dir_all(&path).unwrap();
 -    path
 -}
-+test('missing lychee report fails instead of claiming all links archived', (t) => {
-+  const cwd = fixture(t);
-+  const result = spawnSync(
-+    process.execPath,
-+    [
-+      ...(globalThis.Deno ? ['run', '-A'] : []),
-+      path.join(root, 'js/scripts/check-web-archive.mjs'),
-+    ],
-+    {
-+      cwd,
-+      encoding: 'utf8',
-+      env: {
-+        ...process.env,
-+        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
-+        GITHUB_OUTPUT: '',
-+      },
-+    }
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
-+});
- 
+-
 -/// An offline curl: answers each URL the preflight script probes with a
 -/// configurable verdict, so the behaviour tests never touch a network. The
 -/// response table is the environment (`FAKE_*` variables); the defaults are a
@@ -211,45 +239,7 @@
 -globalThis.fetch = async (url, request) => {
 -  if (!url.endsWith('/api/v1/crates/new') || request.method !== 'PUT') {
 -    throw new Error('unexpected publish probe');
-+test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
-+  const { workflowPolicyErrors } =
-+    await import('../scripts/workflow-policy.mjs');
-+  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
-+  const errors = workflowPolicyErrors(text);
-+  assert.ok(errors.some((error) => error.includes('runner')));
-+  assert.ok(errors.some((error) => error.includes('timeout')));
-+  assert.deepEqual(
-+    workflowPolicyErrors(
-+      text
-+        .replace('ubuntu-latest', 'ubuntu-24.04')
-+        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
-+    ),
-+    []
-+  );
-+});
-+
-+test('committed dependency tree contains no deprecated registry packages', () => {
-+  const lock = JSON.parse(
-+    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
-+  );
-+  const deprecated = Object.entries(lock.packages)
-+    .filter(([, info]) => info.deprecated)
-+    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
-+  assert.deepEqual(deprecated, []);
-+});
-+
-+test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
-+  const cwd = fixture(t);
-+  const files = [
-+    'js/scripts/check.sh',
-+    '.husky/pre-commit',
-+    'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
-+    'docs/case-studies/example/data/reference.sh',
-+  ];
-+  for (const file of files) {
-+    mkdirSync(path.dirname(path.join(cwd, file)), { recursive: true });
-+    writeFileSync(path.join(cwd, file), '#!/bin/sh\n');
-   }
+-  }
 -  const length = request.body.readUInt32LE();
 -  if (request.body.length !== 4 + length) throw new Error('archive must be absent');
 -  const status = Number(process.env.FAKE_CRATES_STATUS || 400);
@@ -257,7 +247,28 @@
 -};
 -").unwrap();
 -    #[cfg(unix)]
--    {
++test('syntax checking finds malformed nested JavaScript', (t) => {
++  const cwd = fixture(t);
++  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
++  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
++  spawnSync('git', ['add', '.'], { cwd });
++  const result = spawnSync(
++    'bash',
++    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
++    { cwd, encoding: 'utf8' }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
++test('missing lychee report fails instead of claiming all links archived', (t) => {
++  const cwd = fixture(t);
++  const result = spawnSync(
++    process.execPath,
++    [
++      ...(globalThis.Deno ? ['run', '-A'] : []),
++      path.join(root, 'js/scripts/check-web-archive.mjs'),
++    ],
+     {
 -        use std::os::unix::fs::PermissionsExt;
 -        fs::set_permissions(bin.join("curl"), fs::Permissions::from_mode(0o755)).unwrap();
 -    }
@@ -540,6 +551,57 @@
 -        "pipeline-status must observe release-preflight"
 -    );
 -}
++      cwd,
++      encoding: 'utf8',
++      env: {
++        ...process.env,
++        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
++        GITHUB_OUTPUT: '',
++      },
++    }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
++test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
++  const { workflowPolicyErrors } =
++    await import('../scripts/workflow-policy.mjs');
++  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
++  const errors = workflowPolicyErrors(text);
++  assert.ok(errors.some((error) => error.includes('runner')));
++  assert.ok(errors.some((error) => error.includes('timeout')));
++  assert.deepEqual(
++    workflowPolicyErrors(
++      text
++        .replace('ubuntu-latest', 'ubuntu-24.04')
++        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
++    ),
++    []
++  );
++});
++
++test('committed dependency tree contains no deprecated registry packages', () => {
++  const lock = JSON.parse(
++    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
++  );
++  const deprecated = Object.entries(lock.packages)
++    .filter(([, info]) => info.deprecated)
++    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
++  assert.deepEqual(deprecated, []);
++});
++
++test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
++  const cwd = fixture(t);
++  const files = [
++    'js/scripts/check.sh',
++    '.husky/pre-commit',
++    'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
++    'docs/case-studies/example/data/reference.sh',
++  ];
++  for (const file of files) {
++    mkdirSync(path.dirname(path.join(cwd, file)), { recursive: true });
++    writeFileSync(path.join(cwd, file), '#!/bin/sh\n');
++  }
 +  spawnSync('git', ['add', '.'], { cwd });
 +  const step = workflow('release.yml').jobs['workflow-lint'].steps.find(
 +    ({ name }) => name === 'ShellCheck standalone scripts and hooks'

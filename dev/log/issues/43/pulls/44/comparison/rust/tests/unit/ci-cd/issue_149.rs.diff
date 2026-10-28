@@ -1,6 +1,6 @@
 --- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/tests/unit/ci-cd/issue_149.rs
 +++ js/tests/ci-contracts.test.js
-@@ -1,124 +1,165 @@
+@@ -1,124 +1,221 @@
 -//! Regression tests for issue #149.
 -//!
 -//! `release.yml` declared the crates.io credentials in the workflow-level
@@ -14,27 +14,9 @@
 -//! These tests pin the invariant in both directions: no workflow-level `env:`
 -//! value anywhere under `.github/workflows` may reference `secrets.`, and the
 -//! two publish steps must still receive OIDC credentials or token fallback.
-+import { test } from 'node:test';
-+import assert from 'node:assert/strict';
-+import {
-+  readFileSync,
-+  readdirSync,
-+  mkdtempSync,
-+  mkdirSync,
-+  writeFileSync,
-+  rmSync,
-+} from 'node:fs';
-+import { spawnSync } from 'node:child_process';
-+import os from 'node:os';
-+import path from 'node:path';
-+import { fileURLToPath } from 'node:url';
-+import { parse } from 'yaml';
- 
+-
 -use std::fs;
-+const root = fileURLToPath(new URL('../../', import.meta.url));
-+const workflow = (name) =>
-+  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
+-
 -fn workflows() -> Vec<(String, String)> {
 -    let dir = format!("{}/.github/workflows", env!("CARGO_MANIFEST_DIR"));
 -    let mut files: Vec<(String, String)> = fs::read_dir(&dir)
@@ -61,7 +43,26 @@
 -    files.sort_by(|left, right| left.0.cmp(&right.0));
 -    assert!(!files.is_empty(), "there should be workflows to audit");
 -    files
--}
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import {
++  readFileSync,
++  readdirSync,
++  mkdtempSync,
++  mkdirSync,
++  writeFileSync,
++  rmSync,
++} from 'node:fs';
++import { spawnSync } from 'node:child_process';
++import os from 'node:os';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++import { parse } from 'yaml';
++
++const root = fileURLToPath(new URL('../../', import.meta.url));
++const workflow = (name) =>
++  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
@@ -74,17 +75,7 @@
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--/// The workflow-level `env:` block: every line until the next top-level key.
--fn workflow_level_env(workflow: &str) -> Vec<&str> {
--    let mut lines = workflow.lines();
--    let Some(_) = lines.find(|line| *line == "env:") else {
--        return Vec::new();
--    };
--    lines
--        .take_while(|line| line.trim().is_empty() || line.starts_with([' ', '\t']))
--        .collect()
--}
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -103,7 +94,99 @@
 +  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
++
++test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
++  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
++    if (!name.endsWith('.yml')) {
++      continue;
++    }
++    const flow = workflow(name);
++    for (const job of Object.values(flow.jobs)) {
++      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
++      for (const step of job.steps || []) {
++        if (step.uses?.startsWith('actions/checkout@')) {
++          assert.equal(step.with?.['persist-credentials'], false, name);
++        }
++      }
++    }
++    assert.equal(flow.permissions.contents, 'read', name);
++  }
++});
++
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
  
+-/// The workflow-level `env:` block: every line until the next top-level key.
+-fn workflow_level_env(workflow: &str) -> Vec<&str> {
+-    let mut lines = workflow.lines();
+-    let Some(_) = lines.find(|line| *line == "env:") else {
+-        return Vec::new();
+-    };
+-    lines
+-        .take_while(|line| line.trim().is_empty() || line.starts_with([' ', '\t']))
+-        .collect()
+-}
+-
 -/// The defect itself. A workflow-level `env:` reaches every job, so a secret
 -/// declared there is handed to jobs that only run `cargo test` on a branch.
 -#[test]
@@ -117,25 +200,10 @@
 -                 step that needs them instead: {}",
 -                line.trim()
 -            );
-+test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
-+  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
-+    if (!name.endsWith('.yml')) {
-+      continue;
-+    }
-+    const flow = workflow(name);
-+    for (const job of Object.values(flow.jobs)) {
-+      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
-+      for (const step of job.steps || []) {
-+        if (step.uses?.startsWith('actions/checkout@')) {
-+          assert.equal(step.with?.['persist-credentials'], false, name);
-         }
-+      }
-     }
+-        }
+-    }
 -}
-+    assert.equal(flow.permissions.contents, 'read', name);
-+  }
-+});
- 
+-
 -/// Narrower restatement of the same rule for the credential that prompted it.
 -#[test]
 -fn release_workflow_level_env_omits_the_crates_io_credentials() {
@@ -143,13 +211,7 @@
 -        .into_iter()
 -        .find(|(name, _)| name == "release.yml")
 -        .expect("release.yml should exist");
-+const fixture = (t) => {
-+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
-+  t.after(() => rmSync(dir, { recursive: true, force: true }));
-+  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
-+  return dir;
-+};
- 
+-
 -    for line in workflow_level_env(&release) {
 -        let declaration = line.trim();
 -        assert!(
@@ -158,6 +220,42 @@
 -            "release.yml must not put the crates.io publish credentials in the \
 -             workflow-level env: {declaration}"
 -        );
+-    }
+-}
+-
+-/// The other direction: removing the inherited env must not disarm publishing.
+-#[test]
+-fn both_publish_steps_declare_the_crates_io_credentials() {
+-    let (_, release) = workflows()
+-        .into_iter()
+-        .find(|(name, _)| name == "release.yml")
+-        .expect("release.yml should exist");
+-
+-    let publish_steps: Vec<&str> = release
+-        .split("- name: Publish to Crates.io")
+-        .skip(1)
+-        .collect();
+-
+-    assert_eq!(
+-        publish_steps.len(),
+-        2,
+-        "release.yml should publish from exactly two jobs (auto-release and manual-release)"
+-    );
+-
+-    for step in publish_steps {
+-        let step = step
+-            .split("\n      - name:")
+-            .next()
+-            .expect("a step body should be present");
+-        assert!(
+-            step.contains(
+-                "CARGO_REGISTRY_TOKEN: ${{ steps.crates_auth.outputs.token || secrets.CARGO_REGISTRY_TOKEN || secrets.CARGO_TOKEN }}"
+-            ),
+-            "the publish step must declare CARGO_REGISTRY_TOKEN itself, since it is no \
+-             longer inherited from the workflow-level env"
+-        );
+-    }
+-}
 +test('syntax checking finds malformed nested JavaScript', (t) => {
 +  const cwd = fixture(t);
 +  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
@@ -187,19 +285,11 @@
 +        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
 +        GITHUB_OUTPUT: '',
 +      },
-     }
--}
++    }
 +  );
 +  assert.notEqual(result.status, 0, result.stdout);
 +});
- 
--/// The other direction: removing the inherited env must not disarm publishing.
--#[test]
--fn both_publish_steps_declare_the_crates_io_credentials() {
--    let (_, release) = workflows()
--        .into_iter()
--        .find(|(name, _)| name == "release.yml")
--        .expect("release.yml should exist");
++
 +test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
 +  const { workflowPolicyErrors } =
 +    await import('../scripts/workflow-policy.mjs');
@@ -216,11 +306,7 @@
 +    []
 +  );
 +});
- 
--    let publish_steps: Vec<&str> = release
--        .split("- name: Publish to Crates.io")
--        .skip(1)
--        .collect();
++
 +test('committed dependency tree contains no deprecated registry packages', () => {
 +  const lock = JSON.parse(
 +    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
@@ -230,27 +316,7 @@
 +    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
 +  assert.deepEqual(deprecated, []);
 +});
- 
--    assert_eq!(
--        publish_steps.len(),
--        2,
--        "release.yml should publish from exactly two jobs (auto-release and manual-release)"
--    );
--
--    for step in publish_steps {
--        let step = step
--            .split("\n      - name:")
--            .next()
--            .expect("a step body should be present");
--        assert!(
--            step.contains(
--                "CARGO_REGISTRY_TOKEN: ${{ steps.crates_auth.outputs.token || secrets.CARGO_REGISTRY_TOKEN || secrets.CARGO_TOKEN }}"
--            ),
--            "the publish step must declare CARGO_REGISTRY_TOKEN itself, since it is no \
--             longer inherited from the workflow-level env"
--        );
--    }
--}
++
 +test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
 +  const cwd = fixture(t);
 +  const files = [

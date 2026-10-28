@@ -1,8 +1,43 @@
 --- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/tests/workflow-reliability.test.js
 +++ js/tests/ci-contracts.test.js
-@@ -1,679 +1,165 @@
+@@ -1,679 +1,221 @@
 -import { describe, it, expect } from 'test-anywhere';
 -import { readFileSync, readdirSync } from 'node:fs';
+-
+-const WORKFLOW_DIRECTORY = '.github/workflows';
+-// GitHub documents `queue` although actionlint 1.7.12 does not know it yet:
+-// https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
+-const SUPPORTED_CONCURRENCY_KEYS = new Set([
+-  'group',
+-  'cancel-in-progress',
+-  'queue',
+-]);
+-
+-function readWorkflow(filePath) {
+-  return readFileSync(filePath, 'utf8').replaceAll('\r\n', '\n');
+-}
+-
+-function listWorkflowPaths() {
+-  return readdirSync(WORKFLOW_DIRECTORY)
+-    .filter((fileName) => /\.ya?ml$/.test(fileName))
+-    .map((fileName) => `${WORKFLOW_DIRECTORY}/${fileName}`);
+-}
+-
+-function getUnsupportedConcurrencyKeys(workflow) {
+-  const lines = workflow.split('\n');
+-  const unsupportedKeys = [];
+-
+-  for (let index = 0; index < lines.length; index += 1) {
+-    const concurrency = lines[index].match(/^(\s*)concurrency:\s*$/);
+-
+-    if (!concurrency) {
+-      continue;
+-    }
+-
+-    const keyIndentation = concurrency[1].length + 2;
+-
+-    for (const line of lines.slice(index + 1)) {
+-      if (line.trim() === '' || line.trimStart().startsWith('#')) {
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -18,22 +53,11 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--const WORKFLOW_DIRECTORY = '.github/workflows';
--// GitHub documents `queue` although actionlint 1.7.12 does not know it yet:
--// https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency
--const SUPPORTED_CONCURRENCY_KEYS = new Set([
--  'group',
--  'cancel-in-progress',
--  'queue',
--]);
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--function readWorkflow(filePath) {
--  return readFileSync(filePath, 'utf8').replaceAll('\r\n', '\n');
--}
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
@@ -46,51 +70,15 @@
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--function listWorkflowPaths() {
--  return readdirSync(WORKFLOW_DIRECTORY)
--    .filter((fileName) => /\.ya?ml$/.test(fileName))
--    .map((fileName) => `${WORKFLOW_DIRECTORY}/${fileName}`);
--}
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
 +  for (const job of Object.values(flow.jobs)) {
 +    for (const step of job.steps || []) {
 +      if (!step.run?.includes('cargo doc ')) {
-+        continue;
-+      }
-+      const flags =
-+        step.env?.RUSTDOCFLAGS ??
-+        job.env?.RUSTDOCFLAGS ??
-+        flow.env?.RUSTDOCFLAGS;
-+      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
-+      checked++;
-+    }
-+  }
-+  assert.equal(checked, 3, 'Check and both release documentation paths');
-+});
- 
--function getUnsupportedConcurrencyKeys(workflow) {
--  const lines = workflow.split('\n');
--  const unsupportedKeys = [];
--
--  for (let index = 0; index < lines.length; index += 1) {
--    const concurrency = lines[index].match(/^(\s*)concurrency:\s*$/);
--
--    if (!concurrency) {
-+test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
-+  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
-+    if (!name.endsWith('.yml')) {
-       continue;
-     }
--
--    const keyIndentation = concurrency[1].length + 2;
--
--    for (const line of lines.slice(index + 1)) {
--      if (line.trim() === '' || line.trimStart().startsWith('#')) {
--        continue;
--      }
+         continue;
+       }
 -
 -      const indentation = line.match(/^\s*/)[0].length;
 -
@@ -276,6 +264,22 @@
 -        // GitHub rejects the workflow when a queue may also cancel.
 -        if (settings.includes('queue: max')) {
 -          expect(settings).not.toContain('cancel-in-progress: true');
++      const flags =
++        step.env?.RUSTDOCFLAGS ??
++        job.env?.RUSTDOCFLAGS ??
++        flow.env?.RUSTDOCFLAGS;
++      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
++      checked++;
++    }
++  }
++  assert.equal(checked, 3, 'Check and both release documentation paths');
++});
++
++test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
++  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
++    if (!name.endsWith('.yml')) {
++      continue;
++    }
 +    const flow = workflow(name);
 +    for (const job of Object.values(flow.jobs)) {
 +      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
@@ -287,7 +291,71 @@
      }
 -
 -    expect(writers.length).toBe(7);
--  });
++    assert.equal(flow.permissions.contents, 'read', name);
++  }
++});
++
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
+   });
 -
 -  it('uses only keys supported by GitHub Actions', () => {
 -    const violations = [];
@@ -301,7 +369,90 @@
 -    }
 -
 -    expect(violations).toEqual([]);
--  });
++}
++
++test('syntax checking finds malformed nested JavaScript', (t) => {
++  const cwd = fixture(t);
++  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
++  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
++  spawnSync('git', ['add', '.'], { cwd });
++  const result = spawnSync(
++    'bash',
++    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
++    { cwd, encoding: 'utf8' }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
++test('missing lychee report fails instead of claiming all links archived', (t) => {
++  const cwd = fixture(t);
++  const result = spawnSync(
++    process.execPath,
++    [
++      ...(globalThis.Deno ? ['run', '-A'] : []),
++      path.join(root, 'js/scripts/check-web-archive.mjs'),
++    ],
++    {
++      cwd,
++      encoding: 'utf8',
++      env: {
++        ...process.env,
++        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
++        GITHUB_OUTPUT: '',
++      },
++    }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
++test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
++  const { workflowPolicyErrors } =
++    await import('../scripts/workflow-policy.mjs');
++  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
++  const errors = workflowPolicyErrors(text);
++  assert.ok(errors.some((error) => error.includes('runner')));
++  assert.ok(errors.some((error) => error.includes('timeout')));
++  assert.deepEqual(
++    workflowPolicyErrors(
++      text
++        .replace('ubuntu-latest', 'ubuntu-24.04')
++        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
++    ),
++    []
++  );
++});
++
++test('committed dependency tree contains no deprecated registry packages', () => {
++  const lock = JSON.parse(
++    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
++  );
++  const deprecated = Object.entries(lock.packages)
++    .filter(([, info]) => info.deprecated)
++    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
++  assert.deepEqual(deprecated, []);
++});
++
++test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
++  const cwd = fixture(t);
++  const files = [
++    'js/scripts/check.sh',
++    '.husky/pre-commit',
++    'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
++    'docs/case-studies/example/data/reference.sh',
++  ];
++  for (const file of files) {
++    mkdirSync(path.dirname(path.join(cwd, file)), { recursive: true });
++    writeFileSync(path.join(cwd, file), '#!/bin/sh\n');
++  }
++  spawnSync('git', ['add', '.'], { cwd });
++  const step = workflow('release.yml').jobs['workflow-lint'].steps.find(
++    ({ name }) => name === 'ShellCheck standalone scripts and hooks'
++  );
++  const selection = step.run.split(' | xargs')[0];
++  const result = spawnSync('bash', ['-c', selection], {
++    cwd,
++    encoding: 'utf8',
+   });
 -
 -  it('uses job-level concurrency so stale checks cannot cancel active writers', () => {
 -    const workflowPaths = [
@@ -576,10 +727,9 @@
 -
 -      expect(evaluateWorkflowIf(condition, excludedOnlyPush)).toBe(false);
 -    });
-+    assert.equal(flow.permissions.contents, 'read', name);
-   }
- });
- 
+-  }
+-});
+-
 -describe('manual release quality gates', () => {
 -  function getManualReleaseContext({
 -    releaseMode,
@@ -592,13 +742,7 @@
 -      releaseMode,
 -      result: 'skipped',
 -    });
-+const fixture = (t) => {
-+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
-+  t.after(() => rmSync(dir, { recursive: true, force: true }));
-+  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
-+  return dir;
-+};
- 
+-
 -    context.cancelled = cancelled;
 -    context.needs.lint.result = lintResult;
 -    context.needs.test = { result: testResult };
@@ -690,19 +834,8 @@
 -      ).toBe(false);
 -    });
 -  }
-+test('syntax checking finds malformed nested JavaScript', (t) => {
-+  const cwd = fixture(t);
-+  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
-+  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
-+  spawnSync('git', ['add', '.'], { cwd });
-+  const result = spawnSync(
-+    'bash',
-+    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
-+    { cwd, encoding: 'utf8' }
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
- });
- 
+-});
+-
 -describe('npm publish token bootstrap', () => {
 -  // The first publish of a brand-new package cannot use OIDC trusted publishing
 -  // (npm returns E404 because a trusted publisher can only be configured for an
@@ -717,27 +850,8 @@
 -      expect(job).toContain('NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}');
 -    });
 -  }
-+test('missing lychee report fails instead of claiming all links archived', (t) => {
-+  const cwd = fixture(t);
-+  const result = spawnSync(
-+    process.execPath,
-+    [
-+      ...(globalThis.Deno ? ['run', '-A'] : []),
-+      path.join(root, 'js/scripts/check-web-archive.mjs'),
-+    ],
-+    {
-+      cwd,
-+      encoding: 'utf8',
-+      env: {
-+        ...process.env,
-+        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
-+        GITHUB_OUTPUT: '',
-+      },
-+    }
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
- });
- 
+-});
+-
 -describe('npm user config cleanup', () => {
 -  for (const jobName of ['release', 'instant-release']) {
 -    it(`removes deprecated always-auth before npm commands in the ${jobName} job`, () => {
@@ -752,38 +866,14 @@
 -      expect(job).toContain('run: node scripts/sanitize-npm-userconfig.mjs');
 -    });
 -  }
-+test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
-+  const { workflowPolicyErrors } =
-+    await import('../scripts/workflow-policy.mjs');
-+  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
-+  const errors = workflowPolicyErrors(text);
-+  assert.ok(errors.some((error) => error.includes('runner')));
-+  assert.ok(errors.some((error) => error.includes('timeout')));
-+  assert.deepEqual(
-+    workflowPolicyErrors(
-+      text
-+        .replace('ubuntu-latest', 'ubuntu-24.04')
-+        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
-+    ),
-+    []
-+  );
- });
- 
+-});
+-
 -describe('install-from-package smoke test', () => {
 -  for (const jobName of ['release', 'instant-release']) {
 -    it(`smoke-tests the published npm package in the ${jobName} job`, () => {
 -      const workflow = readWorkflow('.github/workflows/release.yml');
 -      const job = getJobBlock(workflow, jobName);
-+test('committed dependency tree contains no deprecated registry packages', () => {
-+  const lock = JSON.parse(
-+    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
-+  );
-+  const deprecated = Object.entries(lock.packages)
-+    .filter(([, info]) => info.deprecated)
-+    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
-+  assert.deepEqual(deprecated, []);
-+});
- 
+-
 -      expectOrdered(job, [
 -        '- name: Publish to npm',
 -        '- name: Smoke-test published npm package',
@@ -796,30 +886,11 @@
 -        'node scripts/smoke-test-package.mjs --package-version "$PACKAGE_VERSION"',
 -      ]);
 -    });
-+test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
-+  const cwd = fixture(t);
-+  const files = [
-+    'js/scripts/check.sh',
-+    '.husky/pre-commit',
-+    'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
-+    'docs/case-studies/example/data/reference.sh',
-+  ];
-+  for (const file of files) {
-+    mkdirSync(path.dirname(path.join(cwd, file)), { recursive: true });
-+    writeFileSync(path.join(cwd, file), '#!/bin/sh\n');
-   }
-+  spawnSync('git', ['add', '.'], { cwd });
-+  const step = workflow('release.yml').jobs['workflow-lint'].steps.find(
-+    ({ name }) => name === 'ShellCheck standalone scripts and hooks'
-+  );
-+  const selection = step.run.split(' | xargs')[0];
-+  const result = spawnSync('bash', ['-c', selection], {
-+    cwd,
-+    encoding: 'utf8',
-+  });
+-  }
+-});
 +  assert.equal(result.status, 0, result.stderr);
 +  assert.deepEqual(
 +    result.stdout.split('\0').filter(Boolean).sort(),
 +    files.slice(0, 2).sort()
 +  );
- });
++});

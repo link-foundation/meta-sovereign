@@ -1,6 +1,6 @@
 --- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/tests/unit/ci-cd/issue_161.rs
 +++ js/tests/ci-contracts.test.js
-@@ -1,269 +1,165 @@
+@@ -1,269 +1,221 @@
 -//! Regression tests for issue #161.
 -//!
 -//! Principle 12 asks for three documentation checks; only the link checker
@@ -10,6 +10,19 @@
 -//! half is `scripts/check-required-docs.sh`, wired into the `validate-docs`
 -//! job; the size-limit half gives `.md` files their own (larger) budget in
 -//! `scripts/check-file-size.rs`.
+-
+-#![cfg(not(windows))]
+-
+-use std::fmt::Write as _;
+-use std::fs;
+-use std::path::{Path, PathBuf};
+-use std::process::{Command, Output};
+-use std::time::{SystemTime, UNIX_EPOCH};
+-
+-fn script_path() -> String {
+-    format!(
+-        "{}/scripts/check-required-docs.sh",
+-        env!("CARGO_MANIFEST_DIR")
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -25,36 +38,24 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--#![cfg(not(windows))]
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--use std::fmt::Write as _;
--use std::fs;
--use std::path::{Path, PathBuf};
--use std::process::{Command, Output};
--use std::time::{SystemTime, UNIX_EPOCH};
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
 +    jobs['e2e-browser'].strategy.matrix.include.some(
 +      ({ browser }) => browser === 'webkit'
-+    )
+     )
 +  );
 +  for (const step of jobs['e2e-browser'].steps) {
 +    assert.notEqual(step['continue-on-error'], true);
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--fn script_path() -> String {
--    format!(
--        "{}/scripts/check-required-docs.sh",
--        env!("CARGO_MANIFEST_DIR")
--    )
--}
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -73,15 +74,7 @@
 +  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
- 
--fn run_script(dir: &Path, args: &[&str]) -> Output {
--    Command::new("bash")
--        .arg(script_path())
--        .args(args)
--        .current_dir(dir)
--        .output()
--        .expect("check-required-docs.sh should run")
--}
++
 +test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
 +  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
 +    if (!name.endsWith('.yml')) {
@@ -99,7 +92,79 @@
 +    assert.equal(flow.permissions.contents, 'read', name);
 +  }
 +});
++
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
  
+-fn run_script(dir: &Path, args: &[&str]) -> Output {
+-    Command::new("bash")
+-        .arg(script_path())
+-        .args(args)
+-        .current_dir(dir)
+-        .output()
+-        .expect("check-required-docs.sh should run")
+-}
+-
 -fn requirement_lines() -> Vec<String> {
 -    let output = run_script(Path::new("/"), &["--list"]);
 -    assert!(
@@ -115,13 +180,7 @@
 -    assert!(!lines.is_empty(), "the requirement table must not be empty");
 -    lines
 -}
-+const fixture = (t) => {
-+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
-+  t.after(() => rmSync(dir, { recursive: true, force: true }));
-+  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
-+  return dir;
-+};
- 
+-
 -fn temp_dir(name: &str) -> PathBuf {
 -    let nanos = SystemTime::now()
 -        .duration_since(UNIX_EPOCH)
@@ -131,19 +190,7 @@
 -    fs::create_dir_all(&path).unwrap();
 -    path
 -}
-+test('syntax checking finds malformed nested JavaScript', (t) => {
-+  const cwd = fixture(t);
-+  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
-+  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
-+  spawnSync('git', ['add', '.'], { cwd });
-+  const result = spawnSync(
-+    'bash',
-+    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
-+    { cwd, encoding: 'utf8' }
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
-+});
- 
+-
 -/// Build a documentation tree from the requirement table the check itself
 -/// prints, so these tests exercise the same source of truth the job runs.
 -fn build_repo_satisfying_the_table(name: &str) -> PathBuf {
@@ -161,51 +208,16 @@
 -            let _ = writeln!(content, "\n## {section}\n\nBody of {section}.");
 -        }
 -        fs::write(&file, content).unwrap();
-+test('missing lychee report fails instead of claiming all links archived', (t) => {
-+  const cwd = fixture(t);
-+  const result = spawnSync(
-+    process.execPath,
-+    [
-+      ...(globalThis.Deno ? ['run', '-A'] : []),
-+      path.join(root, 'js/scripts/check-web-archive.mjs'),
-+    ],
-+    {
-+      cwd,
-+      encoding: 'utf8',
-+      env: {
-+        ...process.env,
-+        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
-+        GITHUB_OUTPUT: '',
-+      },
-     }
+-    }
 -    repo
 -}
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
-+});
- 
+-
 -/// The whole point of the check: a repository whose docs match the table
 -/// passes, so the failure cases below are meaningful.
 -#[test]
 -fn a_repository_satisfying_the_script_s_own_table_passes() {
 -    let repo = build_repo_satisfying_the_table("satisfied");
-+test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
-+  const { workflowPolicyErrors } =
-+    await import('../scripts/workflow-policy.mjs');
-+  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
-+  const errors = workflowPolicyErrors(text);
-+  assert.ok(errors.some((error) => error.includes('runner')));
-+  assert.ok(errors.some((error) => error.includes('timeout')));
-+  assert.deepEqual(
-+    workflowPolicyErrors(
-+      text
-+        .replace('ubuntu-latest', 'ubuntu-24.04')
-+        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
-+    ),
-+    []
-+  );
-+});
- 
+-
 -    let output = run_script(&repo, &[]);
 -    assert!(
 -        output.status.success(),
@@ -213,16 +225,7 @@
 -        String::from_utf8_lossy(&output.stdout)
 -    );
 -}
-+test('committed dependency tree contains no deprecated registry packages', () => {
-+  const lock = JSON.parse(
-+    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
-+  );
-+  const deprecated = Object.entries(lock.packages)
-+    .filter(([, info]) => info.deprecated)
-+    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
-+  assert.deepEqual(deprecated, []);
-+});
- 
+-
 -/// The check is not decoration: gutting a section fails the build and says
 -/// which document lost what.
 -#[test]
@@ -397,6 +400,67 @@
 -        "the docs budget must be selected per file, not globally"
 -    );
 -}
++test('syntax checking finds malformed nested JavaScript', (t) => {
++  const cwd = fixture(t);
++  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
++  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
++  spawnSync('git', ['add', '.'], { cwd });
++  const result = spawnSync(
++    'bash',
++    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
++    { cwd, encoding: 'utf8' }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
++test('missing lychee report fails instead of claiming all links archived', (t) => {
++  const cwd = fixture(t);
++  const result = spawnSync(
++    process.execPath,
++    [
++      ...(globalThis.Deno ? ['run', '-A'] : []),
++      path.join(root, 'js/scripts/check-web-archive.mjs'),
++    ],
++    {
++      cwd,
++      encoding: 'utf8',
++      env: {
++        ...process.env,
++        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
++        GITHUB_OUTPUT: '',
++      },
++    }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
++test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
++  const { workflowPolicyErrors } =
++    await import('../scripts/workflow-policy.mjs');
++  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
++  const errors = workflowPolicyErrors(text);
++  assert.ok(errors.some((error) => error.includes('runner')));
++  assert.ok(errors.some((error) => error.includes('timeout')));
++  assert.deepEqual(
++    workflowPolicyErrors(
++      text
++        .replace('ubuntu-latest', 'ubuntu-24.04')
++        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
++    ),
++    []
++  );
++});
++
++test('committed dependency tree contains no deprecated registry packages', () => {
++  const lock = JSON.parse(
++    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
++  );
++  const deprecated = Object.entries(lock.packages)
++    .filter(([, info]) => info.deprecated)
++    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
++  assert.deepEqual(deprecated, []);
++});
++
 +test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
 +  const cwd = fixture(t);
 +  const files = [

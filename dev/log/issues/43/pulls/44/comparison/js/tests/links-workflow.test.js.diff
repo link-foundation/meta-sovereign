@@ -1,8 +1,28 @@
 --- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/tests/links-workflow.test.js
 +++ js/tests/ci-contracts.test.js
-@@ -1,99 +1,165 @@
+@@ -1,99 +1,221 @@
 -import { readFileSync } from 'node:fs';
 -import { describe, expect, it } from 'test-anywhere';
+-
+-const workflow = readFileSync('.github/workflows/links.yml', 'utf8').replaceAll(
+-  '\r\n',
+-  '\n'
+-);
+-
+-function getStepBlock(stepName) {
+-  const lines = workflow.split('\n');
+-  const header = `      - name: ${stepName}`;
+-  const start = lines.findIndex((line) => line === header);
+-
+-  if (start === -1) {
+-    return '';
+-  }
+-
+-  const end = lines.findIndex(
+-    (line, index) => index > start && line.startsWith('      - ')
+-  );
+-
+-  return lines.slice(start, end === -1 ? lines.length : end).join('\n');
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -18,19 +38,11 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--const workflow = readFileSync('.github/workflows/links.yml', 'utf8').replaceAll(
--  '\r\n',
--  '\n'
--);
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--function getStepBlock(stepName) {
--  const lines = workflow.split('\n');
--  const header = `      - name: ${stepName}`;
--  const start = lines.findIndex((line) => line === header);
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
@@ -43,9 +55,7 @@
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--  if (start === -1) {
--    return '';
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -61,92 +71,15 @@
 +      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
 +      checked++;
 +    }
-   }
++  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
- 
--  const end = lines.findIndex(
--    (line, index) => index > start && line.startsWith('      - ')
--  );
--
--  return lines.slice(start, end === -1 ? lines.length : end).join('\n');
--}
--
--describe('broken link workflow', () => {
--  it('fails for every nonzero Lychee exit even when an archive exists', () => {
--    const failureStep = getStepBlock('Fail if broken links were found');
--
--    expect(failureStep).toContain('!cancelled()');
--    expect(failureStep).toContain('steps.lychee.outputs.exit_code != 0');
--    expect(failureStep).not.toContain('steps.webarchive.outputs.all_archived');
--    expect(failureStep).toContain(
--      'An archive is a suggested replacement; it does not make the live link valid.'
--    );
--  });
--
--  it('re-asks the links that never got an answer before giving up', () => {
--    const recheckStep = getStepBlock('Re-check transient link failures');
--
--    expect(recheckStep).toContain('id: recheck');
--    expect(recheckStep).toContain('node scripts/recheck-broken-links.mjs');
--    expect(recheckStep).toContain('if: steps.lychee.outputs.exit_code != 0');
--    expect(recheckStep).toContain('LYCHEE_OUTPUT: lychee/out.md');
--    expect(recheckStep).toContain('RECOVERED_OUTPUT: lychee/recovered.txt');
--    expect(recheckStep).toContain('GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}');
--  });
--
--  // `== 'false'` would read a skipped or crashed re-check as "nothing was
--  // recovered" and skip the failure step on an empty output. Only the
--  // negated form fails safe.
--  it('downgrades a failure only when every unanswered link recovered', () => {
--    const webarchiveStep = getStepBlock(
--      'Check broken links against Web Archive'
--    );
--    const failureStep = getStepBlock('Fail if broken links were found');
--
--    for (const step of [webarchiveStep, failureStep]) {
--      expect(step).toContain("steps.recheck.outputs.all_recovered != 'true'");
--      expect(step).not.toMatch(/all_recovered\s*==\s*'false'/);
++
 +test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
 +  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
 +    if (!name.endsWith('.yml')) {
 +      continue;
-     }
--  });
--
--  it('feeds the recovered list to the Web Archive check', () => {
--    const webarchiveStep = getStepBlock(
--      'Check broken links against Web Archive'
--    );
--
--    expect(webarchiveStep).toContain('RECOVERED_URLS: lychee/recovered.txt');
--  });
--
--  // The checker, the archive fallback, and the re-check run from files the
--  // paths filters must name; otherwise editing them silently skips the link
--  // check on the pull request that changed them.
--  it('triggers on changes to every file the check depends on', () => {
--    const expected = [
--      '.lycheeignore',
--      'scripts/check-web-archive.mjs',
--      'scripts/recheck-broken-links.mjs',
--      'tests/fixtures/lychee-report.md',
--      'tests/links-workflow.test.js',
--      'tests/recheck-broken-links.test.js',
--    ];
--
--    for (const trigger of ['push', 'pull_request']) {
--      const triggerBlock = workflow.match(
--        new RegExp(
--          `^  ${trigger}:\\n(?:    .*\\n)*?    paths:\\n((?:      .*\\n)+)`,
--          'm'
--        )
--      );
--
--      expect(Boolean(triggerBlock)).toBe(true);
--
--      for (const path of expected) {
--        expect(triggerBlock[1]).toContain(`- '${path}'`);
++    }
 +    const flow = workflow(name);
 +    for (const job of Object.values(flow.jobs)) {
 +      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
@@ -154,8 +87,8 @@
 +        if (step.uses?.startsWith('actions/checkout@')) {
 +          assert.equal(step.with?.['persist-credentials'], false, name);
 +        }
-       }
-     }
++      }
++    }
 +    assert.equal(flow.permissions.contents, 'read', name);
 +  }
 +});
@@ -167,6 +100,72 @@
 +  return dir;
 +};
 +
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
+ 
+-describe('broken link workflow', () => {
+-  it('fails for every nonzero Lychee exit even when an archive exists', () => {
+-    const failureStep = getStepBlock('Fail if broken links were found');
+-
+-    expect(failureStep).toContain('!cancelled()');
+-    expect(failureStep).toContain('steps.lychee.outputs.exit_code != 0');
+-    expect(failureStep).not.toContain('steps.webarchive.outputs.all_archived');
+-    expect(failureStep).toContain(
+-      'An archive is a suggested replacement; it does not make the live link valid.'
+-    );
 +test('syntax checking finds malformed nested JavaScript', (t) => {
 +  const cwd = fixture(t);
 +  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
@@ -249,9 +248,73 @@
 +    cwd,
 +    encoding: 'utf8',
    });
+-
+-  it('re-asks the links that never got an answer before giving up', () => {
+-    const recheckStep = getStepBlock('Re-check transient link failures');
+-
+-    expect(recheckStep).toContain('id: recheck');
+-    expect(recheckStep).toContain('node scripts/recheck-broken-links.mjs');
+-    expect(recheckStep).toContain('if: steps.lychee.outputs.exit_code != 0');
+-    expect(recheckStep).toContain('LYCHEE_OUTPUT: lychee/out.md');
+-    expect(recheckStep).toContain('RECOVERED_OUTPUT: lychee/recovered.txt');
+-    expect(recheckStep).toContain('GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}');
+-  });
+-
+-  // `== 'false'` would read a skipped or crashed re-check as "nothing was
+-  // recovered" and skip the failure step on an empty output. Only the
+-  // negated form fails safe.
+-  it('downgrades a failure only when every unanswered link recovered', () => {
+-    const webarchiveStep = getStepBlock(
+-      'Check broken links against Web Archive'
+-    );
+-    const failureStep = getStepBlock('Fail if broken links were found');
+-
+-    for (const step of [webarchiveStep, failureStep]) {
+-      expect(step).toContain("steps.recheck.outputs.all_recovered != 'true'");
+-      expect(step).not.toMatch(/all_recovered\s*==\s*'false'/);
+-    }
+-  });
+-
+-  it('feeds the recovered list to the Web Archive check', () => {
+-    const webarchiveStep = getStepBlock(
+-      'Check broken links against Web Archive'
+-    );
+-
+-    expect(webarchiveStep).toContain('RECOVERED_URLS: lychee/recovered.txt');
+-  });
+-
+-  // The checker, the archive fallback, and the re-check run from files the
+-  // paths filters must name; otherwise editing them silently skips the link
+-  // check on the pull request that changed them.
+-  it('triggers on changes to every file the check depends on', () => {
+-    const expected = [
+-      '.lycheeignore',
+-      'scripts/check-web-archive.mjs',
+-      'scripts/recheck-broken-links.mjs',
+-      'tests/fixtures/lychee-report.md',
+-      'tests/links-workflow.test.js',
+-      'tests/recheck-broken-links.test.js',
+-    ];
+-
+-    for (const trigger of ['push', 'pull_request']) {
+-      const triggerBlock = workflow.match(
+-        new RegExp(
+-          `^  ${trigger}:\\n(?:    .*\\n)*?    paths:\\n((?:      .*\\n)+)`,
+-          'm'
+-        )
+-      );
+-
+-      expect(Boolean(triggerBlock)).toBe(true);
+-
+-      for (const path of expected) {
+-        expect(triggerBlock[1]).toContain(`- '${path}'`);
+-      }
+-    }
+-  });
+-});
 +  assert.equal(result.status, 0, result.stderr);
 +  assert.deepEqual(
 +    result.stdout.split('\0').filter(Boolean).sort(),
 +    files.slice(0, 2).sort()
 +  );
- });
++});

@@ -38,3 +38,5 @@ Additional review findings: v27 configuration/API migration, native checksummed 
 
 - [x] Preserve F19 native WebKit missing-card failure, repair the proven diagnostic gap, retain a focused phone reproduction selector, and verify the phone sequence through Playwright MCP without claiming the historical cause.
 - [ ] Review new source `6526815` native WebKit diagnostics and all required CI; preserve failures and continue any proven fix.
+
+- [x] Forward-merge main release `a58fdab` (0.55.0), retain the pending patch changeset, reproduce four false-green browser skip variants and fix their common gate. Fourteen Node contracts and six selected Deno cases pass.

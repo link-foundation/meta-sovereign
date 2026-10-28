@@ -1,8 +1,37 @@
 --- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/tests/ci-workflow-policy.test.js
 +++ js/tests/ci-contracts.test.js
-@@ -1,55 +1,165 @@
+@@ -1,55 +1,221 @@
 -import { describe, it, expect } from 'test-anywhere';
 -import { checkWorkflowPolicy } from '../scripts/check-ci-workflows.mjs';
+-
+-describe('workflow policy regression protection', () => {
+-  for (const spec of [
+-    'secretlint',
+-    '@secretlint/preset',
+-    'secretlint@latest',
+-    'secretlint@^13.0.7',
+-  ]) {
+-    for (const option of ['-p ', '--package=']) {
+-      it(`rejects unpinned package ${option}${spec}`, () => {
+-        expect(
+-          checkWorkflowPolicy(`run: npx --yes ${option}${spec} scan`).length
+-        ).toBeGreaterThan(0);
+-      });
+-    }
+-  }
+-  it('checks every package option and a continued shell command', () => {
+-    expect(
+-      checkWorkflowPolicy('run: npx -p good@1.2.3 -p bad scan').length
+-    ).toBe(1);
+-    expect(
+-      checkWorkflowPolicy('run: npx -p good@1.2.3 \\\n  --package bad scan')
+-        .length
+-    ).toBe(1);
+-    expect(
+-      checkWorkflowPolicy(
+-        'run: npx -p secretlint@13.0.7 -p @secretlint/preset@13.0.7 scan'
+-      )
+-    ).toEqual([]);
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -18,20 +47,7 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--describe('workflow policy regression protection', () => {
--  for (const spec of [
--    'secretlint',
--    '@secretlint/preset',
--    'secretlint@latest',
--    'secretlint@^13.0.7',
--  ]) {
--    for (const option of ['-p ', '--package=']) {
--      it(`rejects unpinned package ${option}${spec}`, () => {
--        expect(
--          checkWorkflowPolicy(`run: npx --yes ${option}${spec} scan`).length
--        ).toBeGreaterThan(0);
--      });
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
@@ -63,21 +79,8 @@
 +        flow.env?.RUSTDOCFLAGS;
 +      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
 +      checked++;
-     }
-   }
--  it('checks every package option and a continued shell command', () => {
--    expect(
--      checkWorkflowPolicy('run: npx -p good@1.2.3 -p bad scan').length
--    ).toBe(1);
--    expect(
--      checkWorkflowPolicy('run: npx -p good@1.2.3 \\\n  --package bad scan')
--        .length
--    ).toBe(1);
--    expect(
--      checkWorkflowPolicy(
--        'run: npx -p secretlint@13.0.7 -p @secretlint/preset@13.0.7 scan'
--      )
--    ).toEqual([]);
++    }
++  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
 +
@@ -105,6 +108,71 @@
 +  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
 +  return dir;
 +};
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
+   });
+-  it('rejects floating matrix and direct runner labels but ignores comments', () => {
+-    expect(
+-      checkWorkflowPolicy('os: [ubuntu-24.04, macos-latest, windows-latest]')
+-        .length
+-    ).toBe(1);
+-    expect(checkWorkflowPolicy('runs-on: ubuntu-latest').length).toBe(1);
+-    expect(
+-      checkWorkflowPolicy('# runs-on: ubuntu-latest\nruns-on: macos-15')
+-    ).toEqual([]);
++}
 +
 +test('syntax checking finds malformed nested JavaScript', (t) => {
 +  const cwd = fixture(t);
@@ -188,16 +256,6 @@
 +    cwd,
 +    encoding: 'utf8',
    });
--  it('rejects floating matrix and direct runner labels but ignores comments', () => {
--    expect(
--      checkWorkflowPolicy('os: [ubuntu-24.04, macos-latest, windows-latest]')
--        .length
--    ).toBe(1);
--    expect(checkWorkflowPolicy('runs-on: ubuntu-latest').length).toBe(1);
--    expect(
--      checkWorkflowPolicy('# runs-on: ubuntu-latest\nruns-on: macos-15')
--    ).toEqual([]);
--  });
 -  it('rejects zizmor version drift and versions unsupported by the pinned action', () => {
 -    const workflow =
 -      'uses: zizmorcore/zizmor-action@v0.6.4\nwith:\n  version: 1.30.1\nrun: pipx run zizmor==1.30.1\n# pipx run zizmor==1.30.1';
@@ -210,9 +268,10 @@
 -      checkWorkflowPolicy(workflow.replaceAll('1.30.1', '9.0.0')).length
 -    ).toBeGreaterThan(0);
 -  });
+-});
 +  assert.equal(result.status, 0, result.stderr);
 +  assert.deepEqual(
 +    result.stdout.split('\0').filter(Boolean).sort(),
 +    files.slice(0, 2).sort()
 +  );
- });
++});

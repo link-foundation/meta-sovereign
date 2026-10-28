@@ -23,6 +23,7 @@ python experiments/issue43-collect.py
 python experiments/issue43-compare.py
 python experiments/issue43-runs.py
 python experiments/issue43-verify-evidence.py
+python experiments/issue43-review-ci.py RUN_ID
 ```
 
 After the full run collection, `issue43-runs.py --run-id RUN_ID` can refresh selected runs; this also collects and verifies all diagnostic log/report artifacts recorded in the archive.
@@ -96,6 +97,8 @@ The issue asks for all CI false positives, false negatives, warnings and errors 
 
 | 16:27:47–16:30:47 | Native WebKit run 40724371995 reports one missing tutorial card on the phone viewport. The suite and terminal gate fail; Chromium and the remaining 40 WebKit suites pass. The assertion omitted its expected step and did not retain a screenshot |
 | 16:42:05 | `6526815` preserves tutorial step/input diagnostics and logical-failure screenshots, opts CI into tracing, and starts fresh verification including the latest main recovery merge |
+
+| After archive commit `5051e0e` | Forward merge `28e6b6f` incorporates main release `a58fdab` (0.55.0), retaining this PR’s pending patch changeset. Final review reproduces four false-green skip spellings and fixes their common aggregate gate (F20) |
 
 The first prepared branch run was superseded/cancelled rather than treated as an application failure. Read-only cancellation is expected when a newer source revision arrives; release writes use a separate non-cancelling concurrency policy. A stale passing run never substitutes for a newer failing run.
 
@@ -239,6 +242,12 @@ Native macOS WebKit in run **40724371995** fails one phone assertion: `ci-logs/w
 `6526815` retains the expected step in walkthrough labels, captures missing-card screenshots in the uploaded artifact directory, and adds opt-in `CI_TUTORIAL_DEBUG=1` transition/input tracing, bounded to recent interaction events. The failure probe records the saved tutorial preference as well as hit/frame geometry. Ordinary runs keep tracing off; the owned CI fixture opts in. `E2E_VIEWPORTS` supports a focused reproduction and rejects an empty selection. No assertion, browser engine, viewport or deadline was removed or relaxed.
 
 A local Linux WebKit phone probe stalled before a result and was terminated after roughly four minutes; `local/tutorial-phone-before.log` and `tutorial-local-memory-processes.txt` retain that limitation. It does not certify native macOS behavior. A separate isolated Playwright MCP Chromium phone walkthrough passes Back, provider selection, Contacts, Chat, Automation, Backup and Escape. Its screenshot is `local/tutorial-phone-chromium.png`; browser and temporary server are closed afterward. This manual pass is not a reproduction of the historical WebKit failure. Fresh native WebKit CI must be reviewed, and the original disappearing-card cause remains explicitly unproved unless new evidence establishes it.
+
+### F20. Required browser suites could report a skip as success
+
+The runner rejected only the exact text `SKIP: playwright not installed`. Actual maintained suites also emit `SKIP: playwright is not installed`, `SKIP: no Playwright browser is installed`, `webkit not installed, skipped`, and the explicit-opt-in skip. Their zero exit status could therefore certify an unexecuted mandatory suite. This affects the shared runner for the entire 41-suite manifest, not only Tutorial.
+
+Six owned temporary fixtures execute the real runner against one finite fake suite; they do not launch browsers or run the matrix. Before the fix, the success control and exact old spelling pass, but all four alternative skip cases incorrectly exit zero (`local/browser-skip-gate-before.log`). The runner now rejects all `SKIP:` markers and the engine-unavailable marker in addition to nonzero/terminated child results. All **14 Node contracts** and **six selected Deno cases** pass afterward; lint/format pass. Local opt-in behavior of the individual scripts remains available, while the mandatory aggregate cannot call a skipped suite successful. The flaw was in this PR's shared runner, so it is not attributed to an upstream template.
 
 ## All 17 best-practice principles
 

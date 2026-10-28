@@ -1,6 +1,8 @@
 # Validation and evidence limits
 
-The latest implementation source is `65268154cac2817e09720bad18570a16ab7e12ab` (tutorial diagnostic preservation), following `2d42df908e5fe8f1cfa5db86ab33100ab9e833f2`, including the forward merge of `main` `fbf377b` (message-history single-write recovery, following release 0.54.1). The preceding implementation `c086c8f` has the complete fixture and warning fixes. Checks must match this source or a later evidence-only commit; older passing runs do not certify a newer product change.
+The archive first captured implementation source `65268154cac2817e09720bad18570a16ab7e12ab` (tutorial diagnostic preservation), following `2d42df908e5fe8f1cfa5db86ab33100ab9e833f2`, including the forward merge of `main` `fbf377b` (message-history single-write recovery, following release 0.54.1). The preceding implementation `c086c8f` has the complete fixture and warning fixes. Checks must match this source or a later evidence-only commit; older passing runs do not certify a newer product change.
+
+The final forward merge `28e6b6f` also includes main release `a58fdab` (0.55.0). The subsequent F20 skip-gate correction has reproducing before/after evidence below; final current-head CI, including these later changes, is linked in PR 44. Older source runs do not certify the gate correction.
 
 ## Focused local validation
 
@@ -26,6 +28,7 @@ Only relevant tests/checks were run locally with limited concurrency. No full lo
 | Native macOS runner pool | `runner-pool-{contracts,policy,actionlint,format}.log`, capacity annotations | All nine runtime/OS combinations retained; native Intel Node/WebKit, ARM Bun/Deno/desktop; focused policy and lint pass |
 | Rustdoc warnings / Windows Git line conversion | `rustdoc-warning-{before,after}.log`, `precommit-crlf-{before,after}.log`, `final-warning-deno.log` | Both reproduced before fixing; all three Rustdoc paths reject warnings; owned Git fixture has an explicit LF policy; focused Node/Deno and formatting pass |
 | Tutorial failure diagnostics | `tutorial-diagnostics-{lint,contracts}.log`, `tutorial-phone-before.log`, `tutorial-phone-chromium.png` | CI missing-card failure preserved; focused Chromium phone flow passes through Playwright MCP; Linux WebKit stall is explicitly inconclusive; native CI pending |
+| Mandatory browser skip classification | `browser-skip-gate-{before,after,deno,lint,format}.log` | Four real skip variants are falsely green before; 14 Node contracts and six selected Deno cases pass after; success control retained |
 | Formatting/lint | `lint-native-fpm.log`, `lint-version-unknown.log`, `format-experiments.log`, `lint-experiments.log` | Relevant maintained files pass |
 
 Before logs intentionally retain nonzero failures, and failed experiment attempts are not erased. In particular, `local/validate-ci-docs.log` records an attempted nonexistent command; actual documentation validation lives inline in the workflow and is verified by the fresh CI documentation job, not by that failed command.

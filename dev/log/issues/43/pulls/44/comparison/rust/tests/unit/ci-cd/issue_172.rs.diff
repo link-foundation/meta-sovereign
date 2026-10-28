@@ -1,8 +1,24 @@
 --- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/tests/unit/ci-cd/issue_172.rs
 +++ js/tests/ci-contracts.test.js
-@@ -1,44 +1,165 @@
+@@ -1,44 +1,221 @@
 -//! Regression test for issue #172: a command root may return while a worker
 -//! remains alive holding the stdout inherited from the CI step.
+-
+-#![cfg(target_os = "linux")]
+-
+-use std::fs;
+-use std::process::Command;
+-
+-#[test]
+-fn a_surviving_worker_cannot_hold_the_callers_pipeline_open() {
+-    let marker = format!("issue-172-survivor-{}", std::process::id());
+-    let dir = std::env::temp_dir().join(&marker);
+-    let _ = fs::remove_dir_all(&dir);
+-    fs::create_dir_all(&dir).expect("create fixture directory");
+-    let command = dir.join("command.sh");
+-    fs::write(
+-        &command,
+-        format!("#!/usr/bin/env bash\nsh -c 'sleep 20' {marker} &\necho root-finished\nexit 0\n"),
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -18,39 +34,48 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--#![cfg(target_os = "linux")]
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--use std::fs;
--use std::process::Command;
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
 +    jobs['e2e-browser'].strategy.matrix.include.some(
 +      ({ browser }) => browser === 'webkit'
-+    )
+     )
+-    .expect("write worker fixture");
+-
+-    let pipeline = format!(
+-        "BUDGET_POLL_SECONDS=0.1 BUDGET_STATE_PARENT={} \
+-         bash scripts/run-with-budget-warning.sh 3 'worker probe' bash {} 2>&1 | tee /dev/null",
+-        dir.display(),
+-        command.display()
+-    );
+-    let output = Command::new("timeout")
+-        .args(["6", "bash", "-c", &pipeline])
+-        .current_dir(env!("CARGO_MANIFEST_DIR"))
+-        .output()
+-        .expect("run pipeline fixture");
+-
+-    let _ = Command::new("pkill").args(["-f", &marker]).status();
+-    let _ = fs::remove_dir_all(&dir);
+-
+-    assert!(
+-        output.status.success(),
+-        "the wrapper returned but a survivor kept its stdout pipe open: status={:?} stdout={} stderr={}",
+-        output.status.code(),
+-        String::from_utf8_lossy(&output.stdout),
+-        String::from_utf8_lossy(&output.stderr)
+-    );
 +  );
 +  for (const step of jobs['e2e-browser'].steps) {
 +    assert.notEqual(step['continue-on-error'], true);
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--#[test]
--fn a_surviving_worker_cannot_hold_the_callers_pipeline_open() {
--    let marker = format!("issue-172-survivor-{}", std::process::id());
--    let dir = std::env::temp_dir().join(&marker);
--    let _ = fs::remove_dir_all(&dir);
--    fs::create_dir_all(&dir).expect("create fixture directory");
--    let command = dir.join("command.sh");
--    fs::write(
--        &command,
--        format!("#!/usr/bin/env bash\nsh -c 'sleep 20' {marker} &\necho root-finished\nexit 0\n"),
--    )
--    .expect("write worker fixture");
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -69,18 +94,7 @@
 +  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
- 
--    let pipeline = format!(
--        "BUDGET_POLL_SECONDS=0.1 BUDGET_STATE_PARENT={} \
--         bash scripts/run-with-budget-warning.sh 3 'worker probe' bash {} 2>&1 | tee /dev/null",
--        dir.display(),
--        command.display()
--    );
--    let output = Command::new("timeout")
--        .args(["6", "bash", "-c", &pipeline])
--        .current_dir(env!("CARGO_MANIFEST_DIR"))
--        .output()
--        .expect("run pipeline fixture");
++
 +test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
 +  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
 +    if (!name.endsWith('.yml')) {
@@ -98,24 +112,70 @@
 +    assert.equal(flow.permissions.contents, 'read', name);
 +  }
 +});
- 
--    let _ = Command::new("pkill").args(["-f", &marker]).status();
--    let _ = fs::remove_dir_all(&dir);
++
 +const fixture = (t) => {
 +  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
 +  t.after(() => rmSync(dir, { recursive: true, force: true }));
 +  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
 +  return dir;
 +};
- 
--    assert!(
--        output.status.success(),
--        "the wrapper returned but a survivor kept its stdout pipe open: status={:?} stdout={} stderr={}",
--        output.status.code(),
--        String::from_utf8_lossy(&output.stdout),
--        String::from_utf8_lossy(&output.stderr)
--    );
--}
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
++
 +test('syntax checking finds malformed nested JavaScript', (t) => {
 +  const cwd = fixture(t);
 +  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });

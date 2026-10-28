@@ -26,6 +26,8 @@ This complements the requirement inventory and causal findings in [README.md](RE
 
 | F19: missing tutorial card with no retained context | Assume a race or retry green; preserve the failed step, inputs, preference and screenshot | Add default-off tracing with explicit CI opt-in and capture logical-failure screenshots; retain all assertions and viewports | Original failed native WebKit run and artifact, focused isolated MCP walkthrough, fresh native CI. Historical disappearing-card cause is unproved |
 
+| F20: alternate missing-browser/opt-in skip messages were green | Match one exact spelling; reject every maintained skip marker in the common runner | Keep script opt-in behavior, make the mandatory aggregate fail on any skipped suite and retain nonzero/termination failures | Real runner with six finite owned fake-suite fixtures: four false passes before, 14 Node contracts and six selected Deno cases pass after |
+
 ## Requirement-level execution plan and evidence
 
 - A1–A3: authenticated collection of the original four workflows, complete issue/feedback/subissue discovery, revision-pinned complete template trees and every active CI/config/test reference. Source hashes and downloaded artifact digests are independently checked.

@@ -75,6 +75,62 @@ const fixture = (t) => {
   return dir;
 };
 
+for (const [message, expected] of [
+  ['all checks passed', 0],
+  ['SKIP: playwright not installed', 1],
+  ['SKIP: playwright is not installed', 1],
+  ['SKIP: no Playwright browser is installed', 1],
+  ['webkit not installed, skipped', 1],
+  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
+]) {
+  test(`mandatory browser runner classifies: ${message}`, (t) => {
+    const cwd = fixture(t);
+    const scripts = path.join(cwd, 'js/scripts');
+    const helpers = path.join(cwd, 'js/tests/helpers');
+    mkdirSync(scripts, { recursive: true });
+    mkdirSync(helpers, { recursive: true });
+    writeFileSync(
+      path.join(scripts, 'run-browser-checks.mjs'),
+      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
+    );
+    writeFileSync(
+      path.join(scripts, 'browser-checks.json'),
+      JSON.stringify(['tutorial'])
+    );
+    writeFileSync(
+      path.join(helpers, 'e2e-reduced-effects.mjs'),
+      '// fixture\n'
+    );
+    writeFileSync(
+      path.join(cwd, 'package.json'),
+      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
+    );
+    writeFileSync(
+      path.join(cwd, 'fixture.mjs'),
+      `console.log(${JSON.stringify(message)});\n`
+    );
+    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
+    const result = spawnSync(
+      'node',
+      [path.join(scripts, 'run-browser-checks.mjs')],
+      {
+        cwd,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          NODE_OPTIONS: '--max-old-space-size=384',
+          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
+        },
+      }
+    );
+    assert.equal(result.status, expected, result.stdout + result.stderr);
+    const summary = JSON.parse(
+      readFileSync(path.join(cwd, 'artifacts/summary.json'))
+    );
+    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
+  });
+}
+
 test('syntax checking finds malformed nested JavaScript', (t) => {
   const cwd = fixture(t);
   mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });

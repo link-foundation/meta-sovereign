@@ -1,7 +1,14 @@
 --- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/tests/unit/ci-cd/issue_119.rs
 +++ js/tests/ci-contracts.test.js
-@@ -1,31 +1,165 @@
+@@ -1,31 +1,221 @@
 -use std::fs;
+-
+-fn release_workflow() -> String {
+-    fs::read_to_string(format!(
+-        "{}/.github/workflows/release.yml",
+-        env!("CARGO_MANIFEST_DIR")
+-    ))
+-    .expect("release workflow should exist")
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -17,25 +24,11 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--fn release_workflow() -> String {
--    fs::read_to_string(format!(
--        "{}/.github/workflows/release.yml",
--        env!("CARGO_MANIFEST_DIR")
--    ))
--    .expect("release workflow should exist")
--}
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--#[test]
--fn every_docker_build_uses_the_gha_layer_cache() {
--    let workflow = release_workflow();
--    let build_steps = workflow
--        .split("      - name: ")
--        .filter(|step| step.contains("uses: docker/build-push-action@v7"))
--        .collect::<Vec<_>>();
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
@@ -48,18 +41,7 @@
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--    assert_eq!(build_steps.len(), 2, "expected both Docker build steps");
--    for step in build_steps {
--        let step = step.split("\n      - name: ").next().unwrap();
--        assert!(
--            step.contains("cache-from: type=gha"),
--            "Docker build step must restore the shared GHA layer cache:\n{step}"
--        );
--        assert!(
--            step.contains("cache-to: type=gha,mode=max"),
--            "Docker build step must save all layers to the shared GHA cache:\n{step}"
--        );
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -74,8 +56,7 @@
 +        flow.env?.RUSTDOCFLAGS;
 +      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
 +      checked++;
-     }
--}
++    }
 +  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
@@ -105,6 +86,83 @@
 +  return dir;
 +};
 +
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
+ 
+-#[test]
+-fn every_docker_build_uses_the_gha_layer_cache() {
+-    let workflow = release_workflow();
+-    let build_steps = workflow
+-        .split("      - name: ")
+-        .filter(|step| step.contains("uses: docker/build-push-action@v7"))
+-        .collect::<Vec<_>>();
+-
+-    assert_eq!(build_steps.len(), 2, "expected both Docker build steps");
+-    for step in build_steps {
+-        let step = step.split("\n      - name: ").next().unwrap();
+-        assert!(
+-            step.contains("cache-from: type=gha"),
+-            "Docker build step must restore the shared GHA layer cache:\n{step}"
+-        );
+-        assert!(
+-            step.contains("cache-to: type=gha,mode=max"),
+-            "Docker build step must save all layers to the shared GHA cache:\n{step}"
+-        );
+-    }
+-}
 +test('syntax checking finds malformed nested JavaScript', (t) => {
 +  const cwd = fixture(t);
 +  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });

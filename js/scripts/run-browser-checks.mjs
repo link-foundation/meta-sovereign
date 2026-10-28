@@ -37,7 +37,10 @@ for (const name of checks) {
     `Completed ${name} in ${Date.now() - start}ms; exit ${result.status}`
   );
   console.log('::endgroup::');
-  if (result.status !== 0 || /SKIP: playwright not installed/.test(log)) {
+  if (
+    result.status !== 0 ||
+    /\bSKIP:|\bnot installed,\s*skipped\b/i.test(log)
+  ) {
     failures.push(name);
   }
 }

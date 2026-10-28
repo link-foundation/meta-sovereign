@@ -1,6 +1,6 @@
 --- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/tests/unit/ci-cd/issue_160.rs
 +++ js/tests/ci-contracts.test.js
-@@ -1,88 +1,165 @@
+@@ -1,88 +1,221 @@
 -//! Regression tests for issues #160, #165 and #166.
 -//!
 -//! - #160: actionlint 1.7.7 false-positived on real hosted runner labels and
@@ -14,6 +14,16 @@
 -//!   the job's own comment told users to reproduce with `zizmor==1.30.0`, a
 -//!   version the action cannot install. The version input is now named and
 -//!   the documentation matches it.
+-
+-use std::fs;
+-
+-fn workflows() -> String {
+-    fs::read_to_string(format!(
+-        "{}/.github/workflows/workflows.yml",
+-        env!("CARGO_MANIFEST_DIR")
+-    ))
+-    .expect("workflows.yml should exist")
+-    .replace("\r\n", "\n")
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -29,20 +39,11 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--use std::fs;
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--fn workflows() -> String {
--    fs::read_to_string(format!(
--        "{}/.github/workflows/workflows.yml",
--        env!("CARGO_MANIFEST_DIR")
--    ))
--    .expect("workflows.yml should exist")
--    .replace("\r\n", "\n")
--}
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
@@ -55,11 +56,7 @@
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--/// The zizmor version the action runs and the version documented for local
--/// reproduction must be the same number, or a contributor reproducing a
--/// finding locally is running a different analyser than CI did.
--const ZIZMOR_VERSION: &str = "1.30.1";
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -78,10 +75,7 @@
 +  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
- 
--#[test]
--fn the_zizmor_version_is_named_instead_of_left_to_the_action_default() {
--    let workflows = workflows();
++
 +test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
 +  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
 +    if (!name.endsWith('.yml')) {
@@ -99,7 +93,79 @@
 +    assert.equal(flow.permissions.contents, 'read', name);
 +  }
 +});
++
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
  
+-/// The zizmor version the action runs and the version documented for local
+-/// reproduction must be the same number, or a contributor reproducing a
+-/// finding locally is running a different analyser than CI did.
+-const ZIZMOR_VERSION: &str = "1.30.1";
+-
+-#[test]
+-fn the_zizmor_version_is_named_instead_of_left_to_the_action_default() {
+-    let workflows = workflows();
+-
 -    assert!(
 -        workflows.contains(&format!("version: {ZIZMOR_VERSION}")),
 -        "the zizmor step must pin version: {ZIZMOR_VERSION}; the action's `latest` \
@@ -111,29 +177,11 @@
 -         actually runs; 1.30.0 was never installable through this action"
 -    );
 -}
-+const fixture = (t) => {
-+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
-+  t.after(() => rmSync(dir, { recursive: true, force: true }));
-+  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
-+  return dir;
-+};
- 
+-
 -#[test]
 -fn the_pedantic_pass_enforces_the_hash_pin_policy_on_images() {
 -    let workflows = workflows();
-+test('syntax checking finds malformed nested JavaScript', (t) => {
-+  const cwd = fixture(t);
-+  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
-+  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
-+  spawnSync('git', ['add', '.'], { cwd });
-+  const result = spawnSync(
-+    'bash',
-+    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
-+    { cwd, encoding: 'utf8' }
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
-+});
- 
+-
 -    let pedantic = workflows
 -        .split("- name: Audit for pedantic-only high-severity findings")
 -        .nth(1)
@@ -142,27 +190,7 @@
 -             audit does not exist in the regular persona, so the '*': hash-pin \
 -             policy is unenforced for `uses: docker://` references without it",
 -        );
-+test('missing lychee report fails instead of claiming all links archived', (t) => {
-+  const cwd = fixture(t);
-+  const result = spawnSync(
-+    process.execPath,
-+    [
-+      ...(globalThis.Deno ? ['run', '-A'] : []),
-+      path.join(root, 'js/scripts/check-web-archive.mjs'),
-+    ],
-+    {
-+      cwd,
-+      encoding: 'utf8',
-+      env: {
-+        ...process.env,
-+        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
-+        GITHUB_OUTPUT: '',
-+      },
-+    }
-+  );
-+  assert.notEqual(result.status, 0, result.stdout);
-+});
- 
+-
 -    for required in [
 -        &format!("pipx run zizmor=={ZIZMOR_VERSION}"),
 -        "--persona pedantic",
@@ -175,6 +203,56 @@
 -        );
 -    }
 -}
+-
+-#[test]
+-fn container_image_uses_are_digest_pinned() {
+-    let workflows = workflows();
+-
+-    for line in workflows
+-        .lines()
+-        .filter(|line| line.trim_start().starts_with("uses: docker://"))
++test('syntax checking finds malformed nested JavaScript', (t) => {
++  const cwd = fixture(t);
++  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
++  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
++  spawnSync('git', ['add', '.'], { cwd });
++  const result = spawnSync(
++    'bash',
++    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
++    { cwd, encoding: 'utf8' }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
++test('missing lychee report fails instead of claiming all links archived', (t) => {
++  const cwd = fixture(t);
++  const result = spawnSync(
++    process.execPath,
++    [
++      ...(globalThis.Deno ? ['run', '-A'] : []),
++      path.join(root, 'js/scripts/check-web-archive.mjs'),
++    ],
+     {
+-        assert!(
+-            line.contains("@sha256:"),
+-            "`uses: docker://` references must be digest-pinned; the regular \
+-             zizmor persona cannot see this class of mutable ref, so the pin is \
+-             the enforcement:\n{line}"
+-        );
+-    }
+-}
++      cwd,
++      encoding: 'utf8',
++      env: {
++        ...process.env,
++        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
++        GITHUB_OUTPUT: '',
++      },
++    }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
++
 +test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
 +  const { workflowPolicyErrors } =
 +    await import('../scripts/workflow-policy.mjs');
@@ -191,10 +269,7 @@
 +    []
 +  );
 +});
- 
--#[test]
--fn container_image_uses_are_digest_pinned() {
--    let workflows = workflows();
++
 +test('committed dependency tree contains no deprecated registry packages', () => {
 +  const lock = JSON.parse(
 +    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
@@ -204,19 +279,7 @@
 +    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
 +  assert.deepEqual(deprecated, []);
 +});
- 
--    for line in workflows
--        .lines()
--        .filter(|line| line.trim_start().starts_with("uses: docker://"))
--    {
--        assert!(
--            line.contains("@sha256:"),
--            "`uses: docker://` references must be digest-pinned; the regular \
--             zizmor persona cannot see this class of mutable ref, so the pin is \
--             the enforcement:\n{line}"
--        );
--    }
--}
++
 +test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
 +  const cwd = fixture(t);
 +  const files = [

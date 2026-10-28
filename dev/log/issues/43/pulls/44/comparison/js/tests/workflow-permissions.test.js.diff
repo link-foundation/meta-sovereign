@@ -1,8 +1,16 @@
 --- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/tests/workflow-permissions.test.js
 +++ js/tests/ci-contracts.test.js
-@@ -1,124 +1,165 @@
+@@ -1,124 +1,221 @@
 -import { describe, it, expect } from 'test-anywhere';
 -import { readdirSync, readFileSync } from 'node:fs';
+-
+-const WORKFLOW_DIR = '.github/workflows';
+-
+-function readWorkflow(fileName) {
+-  return readFileSync(`${WORKFLOW_DIR}/${fileName}`, 'utf8').replaceAll(
+-    '\r\n',
+-    '\n'
+-  );
 +import { test } from 'node:test';
 +import assert from 'node:assert/strict';
 +import {
@@ -18,33 +26,24 @@
 +import path from 'node:path';
 +import { fileURLToPath } from 'node:url';
 +import { parse } from 'yaml';
- 
--const WORKFLOW_DIR = '.github/workflows';
++
 +const root = fileURLToPath(new URL('../../', import.meta.url));
 +const workflow = (name) =>
 +  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
- 
--function readWorkflow(fileName) {
--  return readFileSync(`${WORKFLOW_DIR}/${fileName}`, 'utf8').replaceAll(
--    '\r\n',
--    '\n'
++
 +test('browser failures cannot become a green release', () => {
 +  const jobs = workflow('release.yml').jobs;
 +  assert.ok(
 +    jobs['e2e-browser'].strategy.matrix.include.some(
 +      ({ browser }) => browser === 'webkit'
 +    )
-   );
--}
++  );
 +  for (const step of jobs['e2e-browser'].steps) {
 +    assert.notEqual(step['continue-on-error'], true);
 +  }
 +  assert.ok(jobs.release.needs.includes('pipeline-status'));
 +});
- 
--function listWorkflowFiles() {
--  return readdirSync(WORKFLOW_DIR).filter((file) => /\.ya?ml$/.test(file));
--}
++
 +test('every Rust documentation path rejects warnings', () => {
 +  const flow = workflow('release.yml');
 +  let checked = 0;
@@ -63,7 +62,92 @@
 +  }
 +  assert.equal(checked, 3, 'Check and both release documentation paths');
 +});
++
++test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
++  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
++    if (!name.endsWith('.yml')) {
++      continue;
++    }
++    const flow = workflow(name);
++    for (const job of Object.values(flow.jobs)) {
++      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
++      for (const step of job.steps || []) {
++        if (step.uses?.startsWith('actions/checkout@')) {
++          assert.equal(step.with?.['persist-credentials'], false, name);
++        }
++      }
++    }
++    assert.equal(flow.permissions.contents, 'read', name);
++  }
++});
++
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
++
++for (const [message, expected] of [
++  ['all checks passed', 0],
++  ['SKIP: playwright not installed', 1],
++  ['SKIP: playwright is not installed', 1],
++  ['SKIP: no Playwright browser is installed', 1],
++  ['webkit not installed, skipped', 1],
++  ['SKIP: set RUN_BROWSER_E2E=1 to run', 1],
++]) {
++  test(`mandatory browser runner classifies: ${message}`, (t) => {
++    const cwd = fixture(t);
++    const scripts = path.join(cwd, 'js/scripts');
++    const helpers = path.join(cwd, 'js/tests/helpers');
++    mkdirSync(scripts, { recursive: true });
++    mkdirSync(helpers, { recursive: true });
++    writeFileSync(
++      path.join(scripts, 'run-browser-checks.mjs'),
++      readFileSync(path.join(root, 'js/scripts/run-browser-checks.mjs'))
++    );
++    writeFileSync(
++      path.join(scripts, 'browser-checks.json'),
++      JSON.stringify(['tutorial'])
++    );
++    writeFileSync(
++      path.join(helpers, 'e2e-reduced-effects.mjs'),
++      '// fixture\n'
++    );
++    writeFileSync(
++      path.join(cwd, 'package.json'),
++      JSON.stringify({ scripts: { 'test:e2e:tutorial': 'node fixture.mjs' } })
++    );
++    writeFileSync(
++      path.join(cwd, 'fixture.mjs'),
++      `console.log(${JSON.stringify(message)});\n`
++    );
++    // The CI runner is a Node entry point even when this contract runs on Deno/Bun.
++    const result = spawnSync(
++      'node',
++      [path.join(scripts, 'run-browser-checks.mjs')],
++      {
++        cwd,
++        encoding: 'utf8',
++        env: {
++          ...process.env,
++          NODE_OPTIONS: '--max-old-space-size=384',
++          E2E_ARTIFACT_DIR: path.join(cwd, 'artifacts'),
++        },
++      }
++    );
++    assert.equal(result.status, expected, result.stdout + result.stderr);
++    const summary = JSON.parse(
++      readFileSync(path.join(cwd, 'artifacts/summary.json'))
++    );
++    assert.deepEqual(summary.failures, expected ? ['tutorial'] : []);
++  });
+ }
  
+-function listWorkflowFiles() {
+-  return readdirSync(WORKFLOW_DIR).filter((file) => /\.ya?ml$/.test(file));
+-}
+-
 -function getRunBlocks(workflow) {
 -  const lines = workflow.split('\n');
 -  const blocks = [];
@@ -72,11 +156,8 @@
 -    const match = lines[index].match(/^(\s*)run:\s*(?:[|>-]+)?\s*(.*)$/);
 -
 -    if (!match) {
-+test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
-+  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
-+    if (!name.endsWith('.yml')) {
-       continue;
-     }
+-      continue;
+-    }
 -
 -    const indentation = match[1].length;
 -    const block = [match[2]];
@@ -88,19 +169,10 @@
 -    ) {
 -      block.push(lines[index + 1]);
 -      index += 1;
-+    const flow = workflow(name);
-+    for (const job of Object.values(flow.jobs)) {
-+      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
-+      for (const step of job.steps || []) {
-+        if (step.uses?.startsWith('actions/checkout@')) {
-+          assert.equal(step.with?.['persist-credentials'], false, name);
-+        }
-+      }
-     }
+-    }
 -
 -    blocks.push(block.join('\n'));
-+    assert.equal(flow.permissions.contents, 'read', name);
-   }
+-  }
 -
 -  return blocks;
 -}
@@ -133,58 +205,6 @@
 -    );
 -
 -    expect(missing).toEqual([]);
--  });
--
--  it('defaults every workflow to read-only repository contents', () => {
--    for (const file of listWorkflowFiles()) {
--      expect(getTopLevelPermissions(readWorkflow(file))).toBe(
--        '  contents: read'
--      );
--    }
--  });
--
--  it('keeps built-in-token write escalation on the publishing jobs only', () => {
--    const workflow = readWorkflow('release.yml');
--    const jobsBody = workflow.slice(workflow.indexOf('\njobs:\n'));
--
--    for (const job of ['release', 'instant-release']) {
--      const start = jobsBody.indexOf(`\n  ${job}:\n`);
--      expect(start).not.toBe(-1);
--
--      const rest = jobsBody.slice(start + 1);
--      const end = rest.search(/\n {2}[a-zA-Z0-9_-]+:\n/);
--      const block = end === -1 ? rest : rest.slice(0, end);
--
--      expect(block.includes('      contents: write')).toBe(true);
--    }
--
--    const changesetStart = jobsBody.indexOf('\n  changeset-pr:\n');
--    const changesetRest = jobsBody.slice(changesetStart + 1);
--    const changesetEnd = changesetRest.search(/\n {2}[a-zA-Z0-9_-]+:\n/);
--    const changesetBlock = changesetRest.slice(0, changesetEnd);
--    expect(changesetBlock).toContain('      contents: read');
--    expect(changesetBlock).not.toContain('      contents: write');
--  });
- });
- 
--describe('workflow command injection policy', () => {
--  it('never interpolates contributor-controlled inputs directly into run scripts', () => {
--    const unsafeExpression =
--      /\$\{\{\s*(?:inputs\.|github\.event\.inputs\.|github\.head_ref)[^}]*\}\}/;
--    const violations = [];
-+const fixture = (t) => {
-+  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
-+  t.after(() => rmSync(dir, { recursive: true, force: true }));
-+  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
-+  return dir;
-+};
- 
--    for (const file of listWorkflowFiles()) {
--      getRunBlocks(readWorkflow(file)).forEach((runBlock, index) => {
--        if (unsafeExpression.test(runBlock)) {
--          violations.push(`${file}:run-block-${index + 1}`);
--        }
--      });
 +test('syntax checking finds malformed nested JavaScript', (t) => {
 +  const cwd = fixture(t);
 +  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
@@ -214,12 +234,11 @@
 +        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
 +        GITHUB_OUTPUT: '',
 +      },
-     }
++    }
 +  );
 +  assert.notEqual(result.status, 0, result.stdout);
 +});
- 
--    expect(violations).toEqual([]);
++
 +test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
 +  const { workflowPolicyErrors } =
 +    await import('../scripts/workflow-policy.mjs');
@@ -268,9 +287,59 @@
 +    cwd,
 +    encoding: 'utf8',
    });
+-
+-  it('defaults every workflow to read-only repository contents', () => {
+-    for (const file of listWorkflowFiles()) {
+-      expect(getTopLevelPermissions(readWorkflow(file))).toBe(
+-        '  contents: read'
+-      );
+-    }
+-  });
+-
+-  it('keeps built-in-token write escalation on the publishing jobs only', () => {
+-    const workflow = readWorkflow('release.yml');
+-    const jobsBody = workflow.slice(workflow.indexOf('\njobs:\n'));
+-
+-    for (const job of ['release', 'instant-release']) {
+-      const start = jobsBody.indexOf(`\n  ${job}:\n`);
+-      expect(start).not.toBe(-1);
+-
+-      const rest = jobsBody.slice(start + 1);
+-      const end = rest.search(/\n {2}[a-zA-Z0-9_-]+:\n/);
+-      const block = end === -1 ? rest : rest.slice(0, end);
+-
+-      expect(block.includes('      contents: write')).toBe(true);
+-    }
+-
+-    const changesetStart = jobsBody.indexOf('\n  changeset-pr:\n');
+-    const changesetRest = jobsBody.slice(changesetStart + 1);
+-    const changesetEnd = changesetRest.search(/\n {2}[a-zA-Z0-9_-]+:\n/);
+-    const changesetBlock = changesetRest.slice(0, changesetEnd);
+-    expect(changesetBlock).toContain('      contents: read');
+-    expect(changesetBlock).not.toContain('      contents: write');
+-  });
+-});
+-
+-describe('workflow command injection policy', () => {
+-  it('never interpolates contributor-controlled inputs directly into run scripts', () => {
+-    const unsafeExpression =
+-      /\$\{\{\s*(?:inputs\.|github\.event\.inputs\.|github\.head_ref)[^}]*\}\}/;
+-    const violations = [];
+-
+-    for (const file of listWorkflowFiles()) {
+-      getRunBlocks(readWorkflow(file)).forEach((runBlock, index) => {
+-        if (unsafeExpression.test(runBlock)) {
+-          violations.push(`${file}:run-block-${index + 1}`);
+-        }
+-      });
+-    }
+-
+-    expect(violations).toEqual([]);
+-  });
+-});
 +  assert.equal(result.status, 0, result.stderr);
 +  assert.deepEqual(
 +    result.stdout.split('\0').filter(Boolean).sort(),
 +    files.slice(0, 2).sort()
 +  );
- });
++});
