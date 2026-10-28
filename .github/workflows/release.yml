@@ -393,9 +393,15 @@ jobs:
 
       - name: Run tests (Deno)
         if: matrix.runtime == 'deno'
+        shell: bash
         # Deno requires --allow-all for private Windows named pipes. Tests
         # remain isolated in fixture stores and never use personal accounts.
-        run: deno test --allow-all js/tests
+        env:
+          CI_CRYPTO_DIAGNOSTICS: ${{ runner.os == 'Windows' && '1' || '0' }}
+          RUST_BACKTRACE: '1'
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then node experiments/issue43-cifrante.mjs; fi
+          deno test --allow-all js/tests
 
   # === RUST CRATES (R-Z6) ===
   # fmt, clippy (warnings are errors) and the crates' own tests, so the

@@ -84,6 +84,14 @@ describe('desktop package.json', () => {
     expect(DESKTOP_ENTRY_NAME).toBe(`${builderConfig.executableName}.desktop`);
     expect(builderConfig.linux.syncDesktopName).toBe(undefined);
   });
+
+  it('replaces only the updater deprecated comparator with its compatible two-argument form', () => {
+    expect(desktopPackageJson(rootPkg).overrides).toEqual({
+      'electron-updater': {
+        'lodash.isequal': 'npm:lodash.isequalwith@4.4.0',
+      },
+    });
+  });
 });
 
 describe('electron-builder config', () => {

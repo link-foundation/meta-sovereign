@@ -34,4 +34,4 @@ npm 可信发布要求 Node 24 自带的 npm 至少为 11.5.1、`id-token: write
 
 `electron-builder` 固定为 `27.0.0-alpha.13`，因为 26.x 仍含弃用依赖。这是构建工具的预发布版本，所有原生打包目标都必须通过 CI；运行时包的 Node 要求不变。不得隐藏警告或强行覆盖不兼容的主版本。lockfile 回归检查拒绝 deprecated 条目。
 
-v27 构建器的新配置保留相同的打包文件、原生模块策略、desktop 文件和 macOS 权限。临时签名使用 `mac.sign.identity` 和 `mac.sign.sign`。现有 updater 6 通道明确保留未签名的更新清单和 Windows 文件；启用 Authenticode 验证之前必须配置签名发布者。单独安装的 updater 仍然报告上游 `lodash.isequal` 弃用警告；该警告保持可见，尚未解决。
+v27 构建器的新配置保留相同的打包文件、原生模块策略、desktop 文件和 macOS 权限。临时签名使用 `mac.sign.identity` 和 `mac.sign.sign`。现有 updater 6 通道明确保留未签名的更新清单和 Windows 文件；启用 Authenticode 验证之前必须配置签名发布者。Staged updater 使用精确且限定范围的 npm alias，将弃用的 `lodash.isequal` 替换为 `lodash.isequalwith@4.4.0`。未提供 customizer 时，两者执行相同的布尔深度比较。每次安装后都会验证真正的 updater 缓存对相同、变更的元数据和缺失文件的处理。上游修复发布后应移除此 override；将整个 `lodash` 作为 alias 会返回包装对象，因此不安全。
