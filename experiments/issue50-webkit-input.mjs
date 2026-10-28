@@ -7,7 +7,7 @@ export const probeInput = async (browser) => {
   });
   try {
     await page.setContent(
-      '<style>body{margin:0}#scroll{position:fixed;inset:116px 0 0 552px;overflow:auto}#column{width:736px;height:1800px;margin:auto;background:#ddd}</style><div id="scroll"><div id="column">Messages</div></div>'
+      '<style>body{margin:0;color-scheme:dark}*{scrollbar-color:#555 transparent}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#555}#scroll{position:fixed;inset:116px 0 0 552px;overflow:auto}#column{width:736px;height:1800px;margin:auto;background:#ddd}</style><div id="scroll"><div id="column">Messages</div></div>'
     );
     await page.evaluate(() => {
       globalThis.inputs = [];
@@ -25,6 +25,9 @@ export const probeInput = async (browser) => {
       }
     });
     await page.setViewportSize({ width: 2200, height: 1000 });
+    await page.locator('#scroll').evaluate((node) => {
+      node.scrollTop = 200;
+    });
     for (const x of [1800, 2188, 1800, 2188]) {
       await page.mouse.click(x, 246);
     }

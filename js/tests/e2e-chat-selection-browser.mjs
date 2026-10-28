@@ -157,6 +157,15 @@ const bodyBox = async (n) => {
   }
   return body.boundingBox();
 };
+// Stay in the blank gutter rather than the native scrollbar hit area.
+// Overlay scrollbars do not reduce clientWidth on macOS.
+const gutterX = () =>
+  page.locator('.chat-scroll').evaluate((node) => {
+    const box = node.getBoundingClientRect();
+    const column = node.querySelector('.chat-column').getBoundingClientRect();
+    const right = box.left + node.clientLeft + node.clientWidth;
+    return (column.right + right) / 2;
+  });
 const at = async (n, dx = 0) => {
   const b = await bodyBox(n);
   return [b.x + 10 + dx, b.y + b.height / 2];
@@ -336,13 +345,7 @@ try {
   await page.setViewportSize({ width: 2200, height: 1000 });
   const outside = async (n) => {
     const rect = await bodyBox(n);
-    // macOS WebKit can reserve a native scrollbar inside the border box.
-    // Click the blank content beside the column, clear of that scrollbar.
-    const right = await page.locator('.chat-scroll').evaluate((node) => {
-      const box = node.getBoundingClientRect();
-      return box.left + node.clientLeft + node.clientWidth;
-    });
-    return [right - 12, rect.y + rect.height / 2];
+    return [await gutterX(), rect.y + rect.height / 2];
   };
   await page.mouse.click(...(await outside(3)));
   await pause();
@@ -403,11 +406,8 @@ try {
     const scrollBefore = await page
       .locator('.chat-scroll')
       .evaluate((node) => ({ top: node.scrollTop, height: node.scrollHeight }));
-    const scrollBox = await page.locator('.chat-scroll').boundingBox();
-    await page.mouse.click(
-      scrollBox.x + scrollBox.width - 12,
-      before.y + before.height / 2
-    );
+    const blankX = await gutterX();
+    await page.mouse.click(blankX, before.y + before.height / 2);
     await pause();
     const during = await bubble.boundingBox();
     const incomingDuring = await incoming.boundingBox();
@@ -437,10 +437,7 @@ try {
       `${width}: check fits the chat`
     );
     const second = await page.locator(`[data-row="${idOf(13)}"]`).boundingBox();
-    await page.mouse.click(
-      scrollBox.x + scrollBox.width - 12,
-      second.y + second.height / 2
-    );
+    await page.mouse.click(blankX, second.y + second.height / 2);
     await pause();
     const row12 = await page.locator(`[data-row="${idOf(12)}"]`).boundingBox();
     const row13 = await page.locator(`[data-row="${idOf(13)}"]`).boundingBox();
@@ -462,12 +459,13 @@ try {
       ),
       `${width}: selection is uniform across the row/gutters and never doubles at seams: ${JSON.stringify(pixels)}`
     );
-    if (process.env.E2E_SHOT) {
+    const shot =
+      process.env.E2E_SHOT ||
+      (process.env.E2E_ARTIFACT_DIR &&
+        path.join(process.env.E2E_ARTIFACT_DIR, `selection-${engine}.png`));
+    if (shot) {
       await page.screenshot({
-        path:
-          width === 2200
-            ? process.env.E2E_SHOT
-            : process.env.E2E_SHOT.replace(/\.png$/, `-${width}.png`),
+        path: width === 2200 ? shot : shot.replace(/\.png$/, `-${width}.png`),
       });
     }
     await page.keyboard.press('Escape');

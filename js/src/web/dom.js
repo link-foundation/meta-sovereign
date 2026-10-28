@@ -25,7 +25,7 @@ import {
   mayNeedPicture,
 } from './discover.js';
 import { createOfflineClient } from './client.js';
-import { followServer } from './server-follow.js';
+import { createPageLifetime, followServer } from './server-follow.js';
 import { createHandlerBus, broadcastHandler } from '../handlers/index.js';
 import { createAutomationApi } from './automation-api.js';
 import { attachWebRtcSync } from './webrtc-sync.js';
@@ -65,6 +65,7 @@ export const h = (tag, attrs = {}, children = []) => {
 };
 
 let bootPromise = null;
+const pageLifetime = createPageLifetime();
 
 /**
  * A server this page can see but not use (Safari keeps an https page
@@ -114,7 +115,7 @@ const boot = async () => {
   const built = broadcastHandler({ broadcast: localBroadcast });
   bus.register('broadcast', built.selector, built.run);
 
-  const discovered = await discoverServer({});
+  const discovered = await discoverServer({ signal: pageLifetime });
   debugBrowser('boot-discovery', { discovered });
   if (discovered) {
     rememberServerConnection();
@@ -172,7 +173,9 @@ const boot = async () => {
     rtc,
     nearby,
     origin: discovered?.origin ?? null,
-    follow: followServer(client, discovered?.origin ?? null),
+    follow: followServer(client, discovered?.origin ?? null, {
+      signal: pageLifetime,
+    }),
   };
 };
 

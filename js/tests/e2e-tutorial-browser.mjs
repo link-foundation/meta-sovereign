@@ -345,6 +345,9 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
     return g;
   }
   const { card, viewport } = g;
+  if (g.step === 'backup' && process.env.E2E_ARTIFACT_DIR) {
+    await screenshot(page, `${label}-rendered`);
+  }
   check(
     card.left >= 0 &&
       card.top >= 0 &&
