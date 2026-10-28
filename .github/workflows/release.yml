@@ -505,6 +505,7 @@ jobs:
       E2E_ENGINES: ${{ matrix.browser }}
       E2E_SAFARI: '0'
       E2E_ARTIFACT_DIR: artifacts/browser
+      CI_TUTORIAL_DEBUG: '1'
       DEBUG: ${{ vars.CI_BROWSER_DEBUG == '1' && 'pw:api' || '' }}
     steps:
       - uses: actions/checkout@v7

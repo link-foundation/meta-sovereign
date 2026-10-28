@@ -56,7 +56,82 @@ const VIEWPORTS = [
   { name: 'short-desktop', width: 1280, height: 560 },
   { name: 'tablet', width: 800, height: 900 },
   { name: 'phone', width: 390, height: 844 },
-];
+].filter(
+  (viewport) =>
+    !process.env.E2E_VIEWPORTS ||
+    process.env.E2E_VIEWPORTS.split(',').includes(viewport.name)
+);
+if (VIEWPORTS.length === 0) {
+  throw new Error(
+    `No tutorial viewport matches E2E_VIEWPORTS=${process.env.E2E_VIEWPORTS}`
+  );
+}
+
+const screenshot = async (page, label) => {
+  const dir = process.env.E2E_ARTIFACT_DIR || 'artifacts/browser';
+  await fs.mkdir(dir, { recursive: true });
+  await page.screenshot({
+    path: path.join(dir, `tutorial-${label.replaceAll('/', '-')}.png`),
+  });
+};
+
+// Owned, empty fixtures only. Keep input/transition tracing opt-in.
+const traceTutorial = async (page) => {
+  if (process.env.CI_TUTORIAL_DEBUG !== '1') {
+    return;
+  }
+  await page.addInitScript(() => {
+    globalThis.__tutorialEvents = [];
+    let previous;
+    new globalThis.MutationObserver(() => {
+      const step = document.querySelector('[data-tutorial-step]')?.dataset
+        .tutorialStep;
+      if (step !== previous) {
+        previous = step;
+        globalThis.__tutorialEvents.push({
+          type: 'step',
+          step,
+          at: Math.round(globalThis.performance.now()),
+        });
+      }
+    }).observe(document, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['data-tutorial-step'],
+    });
+    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown']) {
+      document.addEventListener(
+        type,
+        (event) => {
+          const target = event.target?.closest?.(
+            '[data-action], [data-tutorial-id]'
+          );
+          globalThis.__tutorialEvents.push({
+            type,
+            action: target?.getAttribute('data-action'),
+            target: target?.getAttribute('data-tutorial-id'),
+            key: type === 'keydown' ? event.key : undefined,
+            step: document.querySelector('[data-tutorial-step]')?.dataset
+              .tutorialStep,
+            at: Math.round(globalThis.performance.now()),
+          });
+          if (globalThis.__tutorialEvents.length > 100) {
+            globalThis.__tutorialEvents.shift();
+          }
+        },
+        true
+      );
+    }
+  });
+};
+
+const createPage = async (browser, viewport) => {
+  const page = await browser.newPage({ viewport });
+  await traceTutorial(page);
+  page.setDefaultTimeout(10_000);
+  return page;
+};
 
 const failures = [];
 const check = (ok, label) => {
@@ -104,6 +179,8 @@ const failureReport = async (page, error, where) => {
         hit: hit ? `${hit.tagName.toLowerCase()}.${hit.className}` : null,
         frameMs: Math.round((globalThis.performance.now() - start) / 10),
         scrollY: Math.round(globalThis.scrollY),
+        preference: globalThis.localStorage.getItem('metaSovereignTutorial'),
+        events: globalThis.__tutorialEvents,
       };
     })
     .catch((e) => ({ probeFailed: e.message.split('\n')[0] }));
@@ -225,6 +302,10 @@ const assertPlacement = async (page, label, { focus = true } = {}) => {
   const where = `${label} [${g.step}, side=${g.side}]`;
   check(Boolean(g.card), `${where}: card rendered`);
   if (!g.card) {
+    console.log(
+      await failureReport(page, new Error('Tutorial card disappeared'), where)
+    );
+    await screenshot(page, label);
     return g;
   }
   const { card, viewport } = g;
@@ -438,10 +519,9 @@ const assertPickStep = async (page, label) => {
 
 const walk = async (engineName, viewport, base, tall) => {
   const browser = await playwright[engineName].launch();
-  const page = await browser.newPage({ viewport });
+  const page = await createPage(browser, viewport);
   await makeCardTall(page, tall);
   // A click that cannot complete fails in 10 s, not 30 (R-Z21).
-  page.setDefaultTimeout(10_000);
   const label = [engineName, viewport.name, tall && 'tall-card']
     .filter(Boolean)
     .join('/');
@@ -455,7 +535,7 @@ const walk = async (engineName, viewport, base, tall) => {
     await settle(page);
     // Opened by itself on load: focus stays put, the skip link is
     // still the first Tab stop.
-    await assertPlacement(page, label, { focus: false });
+    await assertPlacement(page, `${label}/connect`, { focus: false });
     // (WebKit, like Safari by default, skips links on Tab.)
     if (engineName === 'chromium') {
       await page.keyboard.press('Tab');
@@ -472,7 +552,7 @@ const walk = async (engineName, viewport, base, tall) => {
     await page.click('[data-tutorial-id="nav:connections"] >> visible=true');
     await waitForStep(page, 'pick');
     await settle(page);
-    await assertPlacement(page, label);
+    await assertPlacement(page, `${label}/pick`);
     const first = await page.evaluate(
       () =>
         document
@@ -505,7 +585,7 @@ const walk = async (engineName, viewport, base, tall) => {
       }
       await waitForStep(page, id);
       await settle(page);
-      await assertPlacement(page, label);
+      await assertPlacement(page, `${label}/${id}`);
     }
 
     // Short desktop: the drawer scrolls; ring and card must follow in
@@ -572,11 +652,7 @@ const walk = async (engineName, viewport, base, tall) => {
     );
     failures.push(`${label}: ${message}`);
     console.log(`  ✗ ${message}`);
-    await page
-      .screenshot({
-        path: path.join(os.tmpdir(), `tutorial-${label.replace('/', '-')}.png`),
-      })
-      .catch(() => {});
+    await screenshot(page, label).catch(() => {});
   } finally {
     await browser.close();
   }
@@ -613,8 +689,7 @@ const waitForPlace = (page, view, detail) =>
 
 const edgeCases = async (engineName, viewport, base) => {
   const browser = await playwright[engineName].launch();
-  const page = await browser.newPage({ viewport });
-  page.setDefaultTimeout(10_000);
+  const page = await createPage(browser, viewport);
   const label = `${engineName}/${viewport.name}/pages`;
   console.log(`- ${label}`);
   const at = async (step, view, detail, what) => {
@@ -743,14 +818,7 @@ const edgeCases = async (engineName, viewport, base) => {
     );
     failures.push(`${label}: ${message}`);
     console.log(`  ✗ ${message}`);
-    await page
-      .screenshot({
-        path: path.join(
-          os.tmpdir(),
-          `tutorial-${label.replaceAll('/', '-')}.png`
-        ),
-      })
-      .catch(() => {});
+    await screenshot(page, label).catch(() => {});
   } finally {
     await browser.close();
   }
