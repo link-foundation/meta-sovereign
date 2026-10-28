@@ -3,10 +3,26 @@
 import { READ_RECOVERED_EVENT } from './read-retry.js';
 import { retryableReadResponse, retryableReadData } from './request-policy.js';
 
-const decodedResponse = async (response, body) => {
+const decodedResponse = async (response, body, progress) => {
+  // Deadlines measure inactivity. A large, healthy download can take longer
+  // than one deadline while continuing to deliver bytes.
+  const reader =
+    response.body?.pipeThrough && globalThis.TransformStream
+      ? new globalThis.Response(
+          response.body.pipeThrough(
+            new globalThis.TransformStream({
+              transform: (chunk, output) => {
+                progress();
+                output.enqueue(chunk);
+              },
+            })
+          ),
+          { headers: response.headers }
+        )
+      : response;
   const data = [204, 205].includes(response.status)
     ? null
-    : await response[body]().catch((error) => {
+    : await reader[body]().catch((error) => {
         if (response.ok) {
           throw error;
         }
@@ -25,13 +41,18 @@ const requestScope = (signals, clock, timeoutMs = 0) => {
   const controller = new AbortController();
   const inputs = [...signals, controller.signal].filter(Boolean);
   const callbacks = [];
-  const timer = timeoutMs
-    ? clock.setTimeout(() => {
+  let timer = null;
+  const renew = () => {
+    clock.clearTimeout(timer);
+    if (timeoutMs && !controller.signal.aborted) {
+      timer = clock.setTimeout(() => {
         controller.abort(
           Object.assign(new Error('request deadline'), { name: 'TimeoutError' })
         );
-      }, timeoutMs)
-    : null;
+      }, timeoutMs);
+    }
+  };
+  renew();
   let signal;
   if (globalThis.AbortSignal?.any) {
     signal = globalThis.AbortSignal.any(inputs);
@@ -49,6 +70,7 @@ const requestScope = (signals, clock, timeoutMs = 0) => {
   }
   return {
     signal,
+    renew,
     close: () => {
       clock.clearTimeout(timer);
       callbacks.forEach((close) => close());
@@ -105,9 +127,10 @@ export const createRecoveringRequest = ({
             signal: attempt.signal,
           });
           reached();
+          attempt.renew();
           if (!retry || !(await retryableReadResponse(response))) {
             const result = body
-              ? await decodedResponse(response, body)
+              ? await decodedResponse(response, body, attempt.renew)
               : response;
             if (!retry || body !== 'json' || !retryableReadData(result.data)) {
               return result;

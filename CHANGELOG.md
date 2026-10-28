@@ -1,5 +1,15 @@
 # Changelog (languages: en • [zh](CHANGELOG.zh.md) • [hi](CHANGELOG.hi.md) • [ru](CHANGELOG.ru.md))
 
+## 0.54.0
+
+### Minor Changes
+
+- Retry interrupted reads and media automatically across the app, including POST-based provider readers. Suppress transient connection error toasts, preserve cached content, share pending reads and resume them on reconnection.
+
+  Keep retrying failed reads while retaining the last good screen. Resume the durable message queue when the local server recovers, across all app sections. Hide browser-only setup after a real connection unless enabled in Settings. Filter automation metadata before copying the archive to keep foreground requests responsive. Align chat toolbar controls and fix HTTP/2 event headers.
+
+  Keep the local listener and certificate active while a replacement server worker warms up. Repeated serve commands reuse or upgrade the running host, with exclusive writer handoff, rollback, crash recovery and automatic safe-read retries.
+
 ## 0.53.4
 
 ### Patch Changes

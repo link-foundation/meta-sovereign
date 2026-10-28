@@ -264,3 +264,101 @@ test('interrupted binary bodies are retried before a download or media consumer 
     client.stop();
   }
 });
+
+test('a healthy download can exceed the deadline in total while its bytes keep arriving', async () => {
+  let now = 0;
+  let next = 0;
+  let calls = 0;
+  const timers = new Map();
+  const clock = {
+    setTimeout: (fn, ms) => {
+      next += 1;
+      if (ms === 0) {
+        globalThis.queueMicrotask(fn);
+      } else {
+        timers.set(next, { fn, at: now + ms });
+      }
+      return next;
+    },
+    clearTimeout: (id) => timers.delete(id),
+  };
+  const client = fixture(
+    async (_url, { signal }) => {
+      calls += 1;
+      if (calls > 1) {
+        return new globalThis.Response('unexpected restart');
+      }
+      let chunks = 0;
+      return new globalThis.Response(
+        new globalThis.ReadableStream({
+          pull: (output) => {
+            now += 10;
+            for (const [id, timer] of timers) {
+              if (timer.at <= now) {
+                timers.delete(id);
+                timer.fn();
+              }
+            }
+            if (signal.aborted) {
+              output.error(signal.reason);
+            } else if (chunks++ < 50) {
+              output.enqueue(new Uint8Array([1]));
+            } else {
+              output.close();
+            }
+          },
+        })
+      );
+    },
+    { clock, timeoutMs: 100 }
+  );
+  try {
+    const response = await client.request(
+      '/api/telegram/file',
+      {},
+      { retry: true, body: 'blob' }
+    );
+    assert.equal((await response.blob()).size, 50);
+    assert.equal(calls, 1);
+    assert.ok(now > 100);
+    assert.equal(timers.size, 0);
+  } finally {
+    client.stop();
+  }
+});
+
+test('a body that stops delivering bytes still times out and resumes automatically', async () => {
+  let calls = 0;
+  const client = fixture(
+    async (_url, { signal }) => {
+      calls += 1;
+      if (calls > 1) {
+        return new globalThis.Response('resumed bytes');
+      }
+      return new globalThis.Response(
+        new globalThis.ReadableStream({
+          start: (output) => {
+            output.enqueue(new Uint8Array([1]));
+            signal.addEventListener(
+              'abort',
+              () => output.error(signal.reason),
+              { once: true }
+            );
+          },
+        })
+      );
+    },
+    { timeoutMs: 5 }
+  );
+  try {
+    const response = await client.request(
+      '/api/telegram/file',
+      {},
+      { retry: true, body: 'blob' }
+    );
+    assert.equal(await (await response.blob()).text(), 'resumed bytes');
+    assert.equal(calls, 2);
+  } finally {
+    client.stop();
+  }
+});
