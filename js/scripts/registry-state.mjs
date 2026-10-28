@@ -1,5 +1,5 @@
 // Only a registry E404 is evidence that a version is unpublished.
-import { spawnSync } from 'node:child_process';
+import { spawnCommandSync } from './command-process.mjs';
 
 export function npmVersionState(result, version) {
   let data;
@@ -26,8 +26,8 @@ export function npmVersionState(result, version) {
 
 export function probeNpmVersion(name, version) {
   return npmVersionState(
-    spawnSync(
-      process.platform === 'win32' ? 'npm.cmd' : 'npm',
+    spawnCommandSync(
+      'npm',
       [
         'view',
         `${name}@${version}`,
@@ -38,7 +38,6 @@ export function probeNpmVersion(name, version) {
       ],
       {
         encoding: 'utf8',
-        shell: process.platform === 'win32',
       }
     ),
     version

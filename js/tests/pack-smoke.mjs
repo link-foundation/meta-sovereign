@@ -6,7 +6,10 @@
 //
 //   npm run test:pack
 
-import { spawn, spawnSync } from 'node:child_process';
+import {
+  spawnCommand as spawn,
+  spawnCommandSync as spawnSync,
+} from '../scripts/command-process.mjs';
 import { promises as fs, appendFileSync } from 'node:fs';
 import https from 'node:https';
 import net from 'node:net';
@@ -26,8 +29,8 @@ const repoRoot = path.resolve(
   '../..'
 );
 const say = (msg) => console.log(`[pack-smoke] ${msg}`);
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+const npm = 'npm';
+const npx = 'npx';
 
 // npx starts the server as its own child: stop them all.
 const stop = (child) => {
@@ -60,7 +63,6 @@ const pack = (dir) => {
   const packed = spawnSync(npm, ['pack', '--json', '--pack-destination', dir], {
     cwd: repoRoot,
     encoding: 'utf8',
-    shell: process.platform === 'win32',
   });
   if (packed.status !== 0) {
     throw new Error(`npm pack failed: ${packed.stderr}`);
@@ -176,7 +178,6 @@ const main = async () => {
         {
           cwd: path.join(dir, 'run'),
           env: environment,
-          shell: process.platform === 'win32',
           detached: process.platform !== 'win32',
         }
       );
@@ -209,7 +210,6 @@ const main = async () => {
         cwd: path.join(dir, 'run'),
         // Its own npm cache: nothing of this run is left behind.
         env: environment,
-        shell: process.platform === 'win32',
         detached: process.platform !== 'win32',
       }
     );

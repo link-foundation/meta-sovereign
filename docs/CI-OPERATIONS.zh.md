@@ -37,3 +37,5 @@ npm 可信发布要求 Node 24 自带的 npm 至少为 11.5.1、`id-token: write
 v27 构建器的新配置保留相同的打包文件、原生模块策略、desktop 文件和 macOS 权限。临时签名使用 `mac.sign.identity` 和 `mac.sign.sign`。现有 updater 6 通道明确保留未签名的更新清单和 Windows 文件；启用 Authenticode 验证之前必须配置签名发布者。Staged updater 使用精确且限定范围的 npm alias，将弃用的 `lodash.isequal` 替换为 `lodash.isequalwith@4.4.0`。未提供 customizer 时，两者执行相同的布尔深度比较。每次安装后都会验证真正的 updater 缓存对相同、变更的元数据和缺失文件的处理。上游修复发布后应移除此 override；将整个 `lodash` 作为 alias 会返回包装对象，因此不安全。
 
 Windows Deno 在 Telegram 初始化之前选择 cifrante 现有的 WASM AES 后端：cifrante 0.6.0 创建原生 IGE 时会使 Deno 2.9.8 以 `0xC0000005` 崩溃。其他运行时及平台的选择保持原样。有界的 `experiments/issue43-cifrante.mjs` 验证应用路径与加密解密；`--raw-native` 明确重现原生崩溃。`CI_CRYPTO_DIAGNOSTICS=1` 启用测试阶段跟踪，默认关闭。运行时及加密断言均保留。
+
+Desktop、registry、mobile 和 package-smoke 命令共用精确固定的 `cross-spawn@7.0.6`，以解析 Windows npm/npx shim 并转义参数。Node 的参数数组与 `shell: true` 组合会触发 DEP0190；共用启动器设置 `shell: false` 并保留命令失败状态。回归测试以 `--throw-deprecation` 运行 npm/npx，并检查参数原样传递及退出码。

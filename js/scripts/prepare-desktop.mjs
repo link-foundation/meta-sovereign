@@ -24,7 +24,7 @@
 //   npx electron-builder --config desktop/electron-builder.config.cjs \
 //     --projectDir dist/desktop/app --publish never
 
-import { execFileSync } from 'node:child_process';
+import { execCommandSync } from './command-process.mjs';
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -102,8 +102,7 @@ const parseArgs = (argv) => {
 };
 
 const npmInstall = (cwd) => {
-  // `shell` lets Windows resolve npm.cmd; all arguments are constants.
-  execFileSync(
+  execCommandSync(
     'npm',
     [
       'install',
@@ -113,7 +112,7 @@ const npmInstall = (cwd) => {
       '--ignore-scripts',
       '--no-package-lock',
     ],
-    { cwd, stdio: 'inherit', shell: process.platform === 'win32' }
+    { cwd, stdio: 'inherit' }
   );
 };
 

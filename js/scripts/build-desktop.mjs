@@ -20,7 +20,7 @@
 // installed `electron` package, or the newest release matching the
 // `electron` peer range (resolved with `npm view`).
 
-import { execFileSync } from 'node:child_process';
+import { execCommandSync } from './command-process.mjs';
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,11 +34,9 @@ const APP_DIR = join(ROOT, 'dist', 'desktop', 'app');
 const RELEASE_DIR = join(ROOT, 'dist', 'desktop', 'release');
 const CONFIG = join(ROOT, 'desktop', 'electron-builder.config.cjs');
 
-// `shell` lets Windows resolve npm.cmd/npx.cmd.
 const run = (cmd, args, opts = {}) =>
-  execFileSync(cmd, args, {
+  execCommandSync(cmd, args, {
     cwd: ROOT,
-    shell: process.platform === 'win32',
     ...opts,
   });
 

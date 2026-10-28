@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Keep the publisher runtime explicit. No unauthenticated curl-to-execute fallbacks.
-import { execFileSync } from 'node:child_process';
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const version = execFileSync(npm, ['--version'], { encoding: 'utf8' }).trim();
+import { execCommandSync } from './command-process.mjs';
+const npm = 'npm';
+const version = execCommandSync(npm, ['--version'], {
+  encoding: 'utf8',
+}).trim();
 const [major, minor, patch] = version.split('.').map(Number);
 if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) {
   throw new Error(

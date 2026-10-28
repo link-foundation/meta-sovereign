@@ -1,6 +1,6 @@
 // Finite, isolated dependency-resolution and updater-cache compatibility probe.
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execCommandSync } from '../js/scripts/command-process.mjs';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -20,13 +20,12 @@ try {
       },
     })
   );
-  const output = execFileSync(
+  const output = execCommandSync(
     'npm',
     ['install', '--ignore-scripts', '--no-fund'],
     {
       cwd: dir,
       encoding: 'utf8',
-      shell: process.platform === 'win32',
       env: { ...process.env, NODE_OPTIONS: '--max-old-space-size=512' },
     }
   );

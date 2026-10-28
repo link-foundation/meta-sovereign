@@ -58,6 +58,7 @@ on: # zizmor: ignore[dangerous-triggers]
       - 'js/electron/**'
       - 'js/scripts/build-desktop.mjs'
       - 'js/scripts/desktop-release-gate.mjs'
+      - 'js/scripts/command-process.mjs'
       - 'js/scripts/prepare-desktop.mjs'
       - 'js/scripts/validate-desktop-updater.mjs'
       - 'js/scripts/normalize-desktop-artifacts.mjs'
