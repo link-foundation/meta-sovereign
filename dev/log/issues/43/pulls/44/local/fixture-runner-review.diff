@@ -1,0 +1,141 @@
+diff --git a/.github/workflows/release.yml b/.github/workflows/release.yml
+index da81326..f61a53a 100644
+--- a/.github/workflows/release.yml
++++ b/.github/workflows/release.yml
+@@ -305,7 +305,7 @@ jobs:
+       group: check-${{ github.workflow }}-${{ github.ref }}-test-${{ strategy.job-index || 0 }}
+       cancel-in-progress: true
+     name: Test (${{ matrix.runtime }} on ${{ matrix.os }})
+-    runs-on: ${{ matrix.os }}
++    runs-on: ${{ matrix.runner || matrix.os }}
+     # Typical run: 13–55s (deno on Windows can spike to ~2min on cold runners).
+     # 10min cap surfaces a hung test or flaky network well before the
+     # 6h GitHub default — the user wants flaky tests to fail fast.
+@@ -336,6 +336,13 @@ jobs:
+       matrix:
+         os: [ubuntu-24.04, macos-15, windows-2025]
+         runtime: [node, bun, deno]
++        # Retain all nine runtime/OS targets. Use the separate native Intel
++        # pool for Node after repeated hosted ARM runner allocation failures;
++        # Bun/Deno and desktop packaging still cover macOS ARM.
++        include:
++          - os: macos-15
++            runtime: node
++            runner: macos-15-intel
+     steps:
+       - uses: actions/checkout@v7
+         with:
+@@ -490,7 +497,7 @@ jobs:
+           - browser: chromium
+             runner: ubuntu-24.04
+           - browser: webkit
+-            runner: macos-15
++            runner: macos-15-intel
+     env:
+       RUN_BROWSER_E2E: '1'
+       E2E_BROWSER: ${{ matrix.browser }}
+diff --git a/.secretlintignore b/.secretlintignore
+index d445cbb..f915d99 100644
+--- a/.secretlintignore
++++ b/.secretlintignore
+@@ -1,2 +1,2 @@
+-# Immutable public workflow logs and template reference source, never executed.
++# Immutable public workflow logs and template reference source.
+ dev/log/**
+diff --git a/js/tests/fake-github.test.js b/js/tests/fake-github.test.js
+new file mode 100644
+index 0000000..5d2611b
+--- /dev/null
++++ b/js/tests/fake-github.test.js
+@@ -0,0 +1,50 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import net from 'node:net';
++import { startFakeGithub } from './helpers/fake-github.mjs';
++import { waitFor } from './helpers/wait-for.js';
++
++const connect = (port) =>
++  new Promise((resolve, reject) => {
++    const socket = net.createConnection({ host: '127.0.0.1', port });
++    socket.once('connect', () => resolve(socket));
++    socket.on('error', reject);
++  });
++
++test(
++  'fake GitHub closes owned connections without waiting for clients',
++  { timeout: 5000 },
++  async () => {
++    const fake = await startFakeGithub();
++    const port = Number(new URL(fake.baseUrl).port);
++    const socket = await connect(port);
++    let closing;
++    let timer;
++    try {
++      // Headers reach the fixture, but the client deliberately never sends its
++      // body. server.close alone waits for the client or the runtime deadline.
++      socket.write(
++        'POST /unfinished HTTP/1.1\r\nHost: localhost\r\nContent-Length: 1\r\n\r\n'
++      );
++      await waitFor(() => fake.state.requests.length === 1, {
++        timeoutMs: 1000,
++      });
++      closing = fake.close();
++      await Promise.race([
++        closing,
++        new Promise((_, reject) => {
++          timer = setTimeout(
++            () => reject(new Error('Fixture shutdown waited for its client')),
++            500
++          );
++        }),
++      ]);
++      await waitFor(() => socket.destroyed, { timeoutMs: 1000 });
++      assert.equal(socket.destroyed, true);
++    } finally {
++      clearTimeout(timer);
++      socket.destroy();
++      await (closing ?? fake.close());
++    }
++  }
++);
+diff --git a/js/tests/helpers/fake-github.mjs b/js/tests/helpers/fake-github.mjs
+index 385fbcc..9f043fb 100644
+--- a/js/tests/helpers/fake-github.mjs
++++ b/js/tests/helpers/fake-github.mjs
+@@ -190,10 +190,35 @@ export const startFakeGithub = async (initial = {}) => {
+       return rest(state, req, res, url);
+     });
+   });
++  // Fixture teardown owns its clients too. Waiting for fetch keep-alive or
++  // incomplete request timeouts can consume minutes on another runtime.
++  const sockets = new Set();
++  server.on('connection', (socket) => {
++    sockets.add(socket);
++    socket.on('close', () => sockets.delete(socket));
++  });
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+   return {
+     state,
+     baseUrl: `http://127.0.0.1:${server.address().port}`,
+-    close: () => new Promise((resolve) => server.close(resolve)),
++    close: () =>
++      new Promise((resolve) => {
++        const debug = process.env.CI_FIXTURE_DEBUG === '1';
++        const started = Date.now();
++        if (debug) {
++          console.error(
++            `[fake-github] closing ${sockets.size} owned connections`
++          );
++        }
++        server.close(() => {
++          if (debug) {
++            console.error(`[fake-github] closed in ${Date.now() - started} ms`);
++          }
++          resolve();
++        });
++        for (const socket of sockets) {
++          socket.destroy();
++        }
++      }),
+   };
+ };

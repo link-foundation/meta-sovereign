@@ -1,0 +1,90 @@
+--- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/Cargo.toml
++++ rust/Cargo.toml
+@@ -1,68 +1,21 @@
+-[package]
+-name = "example-sum-package-name"
+-version = "0.20.2"
+-edition = "2021"
+-description = "A Rust package template for AI-driven development"
+-readme = "README.md"
+-license = "Unlicense"
+-keywords = ["template", "rust", "ai-driven"]
+-categories = ["development-tools"]
+-repository = "https://github.com/link-foundation/rust-ai-driven-development-pipeline-template"
+-documentation = "https://github.com/link-foundation/rust-ai-driven-development-pipeline-template"
+-rust-version = "1.70"
++# Cargo workspace for the pure-Rust port (R-G2).
++# Crates here are the Rust counterparts of the JS modules in `js/src/`.
++#
++# - `meta-sovereign-core`: data types, indented Links Notation codec,
++#   `MemoryStore`, `LinoTextStore`, vector-clock CRDT, pattern synthesis.
++# - `meta-sovereign-server`: zero-dependency HTTP + WebSocket sync +
++#   WebRTC signalling broker, on the same wire protocol as the JS server,
++#   so the SPA boots against either backend without changes.
++# - `meta-sovereign-wasm`: WebAssembly exports for browser-side workloads.
++#
++# None of them is published to crates.io (`publish = false` in each
++# crate, issue #39): they are the app's server and WASM build, run from
++# this repository or bundled into the desktop app, not reusable libraries.
+ 
+-# Narrow allowlist of files shipped in the published `.crate` archive.
+-# Keeping this list tight prevents docs, case studies, generated CI artifacts,
+-# changelog fragments, and experiments from silently inflating the release
+-# archive past the crates.io 10 MiB upload limit. See issue #58.
+-include = [
+-    "src/**/*.rs",
+-    "examples/**/*.rs",
+-    "README.md",
+-    "LICENSE",
+-    "CHANGELOG.md",
++[workspace]
++resolver = "2"
++members = [
++  "crates/meta-sovereign-core",
++  "crates/meta-sovereign-server",
++  "crates/meta-sovereign-wasm",
+ ]
+-
+-[lib]
+-name = "example_sum_package_name"
+-path = "src/lib.rs"
+-
+-[[bin]]
+-name = "example-sum-package-name"
+-path = "src/main.rs"
+-
+-[dependencies]
+-lino-arguments = "0.3"
+-clap = { version = "4.4", features = ["derive", "env"] }
+-
+-[dev-dependencies]
+-regex = "1"
+-serde_json = "1"
+-walkdir = "2"
+-
+-[lints.rust]
+-unsafe_code = "forbid"
+-
+-[lints.clippy]
+-all = { level = "warn", priority = -1 }
+-pedantic = { level = "warn", priority = -1 }
+-nursery = { level = "warn", priority = -1 }
+-
+-# Allow some common patterns
+-module_name_repetitions = "allow"
+-too_many_lines = "allow"
+-missing_errors_doc = "allow"
+-missing_panics_doc = "allow"
+-
+-[[test]]
+-name = "unit"
+-path = "tests/unit/mod.rs"
+-
+-[[test]]
+-name = "integration"
+-path = "tests/integration/mod.rs"
+-
+-[profile.release]
+-lto = true
+-codegen-units = 1
+-strip = true

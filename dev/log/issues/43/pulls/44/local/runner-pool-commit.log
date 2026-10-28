@@ -1,0 +1,17 @@
+⋯ Backing up original state…
+✔ Done backing up original state (2350ee2)!
+⋯ Running tasks for staged files…
+    *.md — 4 files
+      ⋯ prettier --write
+      ⋯ prettier --check
+
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 cf236dc] fix(ci): use native Intel pool for stalled macOS checks
+ 5 files changed, 17 insertions(+), 2 deletions(-)

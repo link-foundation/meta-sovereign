@@ -1,0 +1,1825 @@
+﻿2026-10-28T14:47:08.1119898Z Current runner version: '2.338.0'
+2026-10-28T14:47:08.1390547Z ##[group]Runner Image Provisioner
+2026-10-28T14:47:08.1391546Z Hosted Compute Agent
+2026-10-28T14:47:08.1392229Z Version: 20261021.618
+2026-10-28T14:47:08.1392915Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T14:47:08.1393760Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T14:47:08.1394515Z Worker ID: {758de08c-3589-48f2-956f-73639135eb04}
+2026-10-28T14:47:08.1395199Z Region: westus
+2026-10-28T14:47:08.1395723Z Cloud: Azure
+2026-10-28T14:47:08.1396232Z ##[endgroup]
+2026-10-28T14:47:08.1397666Z ##[group]Operating System
+2026-10-28T14:47:08.1398384Z Microsoft Windows Server 2025
+2026-10-28T14:47:08.1398990Z 10.0.26100
+2026-10-28T14:47:08.1399503Z Datacenter
+2026-10-28T14:47:08.1400002Z ##[endgroup]
+2026-10-28T14:47:08.1400514Z ##[group]Runner Image
+2026-10-28T14:47:08.1401113Z Image: windows-2025-vs2026
+2026-10-28T14:47:08.1401702Z Version: 20261021.278.1
+2026-10-28T14:47:08.1403740Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261021.278/images/windows/Windows2025-VS2026-Readme.md
+2026-10-28T14:47:08.1405387Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261021.278
+2026-10-28T14:47:08.1406386Z ##[endgroup]
+2026-10-28T14:47:08.1407531Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T14:47:08.1409523Z Contents: read
+2026-10-28T14:47:08.1410115Z Metadata: read
+2026-10-28T14:47:08.1410660Z ##[endgroup]
+2026-10-28T14:47:08.1412998Z Secret source: Actions
+2026-10-28T14:47:08.1413885Z Cache mode: write
+2026-10-28T14:47:08.1414613Z Prepare workflow directory
+2026-10-28T14:47:08.4165685Z Prepare all required actions
+2026-10-28T14:47:08.4217637Z Getting action download info
+2026-10-28T14:47:08.7740206Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T14:47:08.9534816Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T14:47:09.2037667Z Download action repository 'oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6' (SHA:0c5077e51419868618aeaa5fe8019c62421857d6)
+2026-10-28T14:47:09.6127831Z Download action repository 'denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed' (SHA:22d081ff2d3a40755e97629de92e3bcbfa7cf2ed)
+2026-10-28T14:47:12.0192428Z Complete job name: Test (deno on windows-2025)
+2026-10-28T14:47:13.2912434Z ##[group]Run actions/checkout@v7
+2026-10-28T14:47:13.2913333Z with:
+2026-10-28T14:47:13.2913594Z   persist-credentials: false
+2026-10-28T14:47:13.2913881Z   fetch-depth: 0
+2026-10-28T14:47:13.2914145Z   repository: link-foundation/meta-sovereign
+2026-10-28T14:47:13.2916886Z   token: ***
+2026-10-28T14:47:13.2917130Z   ssh-strict: true
+2026-10-28T14:47:13.2917358Z   ssh-user: git
+2026-10-28T14:47:13.2917578Z   clean: true
+2026-10-28T14:47:13.2917818Z   sparse-checkout-cone-mode: true
+2026-10-28T14:47:13.2918104Z   fetch-tags: false
+2026-10-28T14:47:13.2918344Z   show-progress: true
+2026-10-28T14:47:13.2918628Z   lfs: false
+2026-10-28T14:47:13.2918850Z   submodules: false
+2026-10-28T14:47:13.2919092Z   set-safe-directory: true
+2026-10-28T14:47:13.2919357Z   allow-unsafe-pr-checkout: false
+2026-10-28T14:47:13.2919843Z env:
+2026-10-28T14:47:13.2920054Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:13.2920308Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:13.2920658Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:13.2920907Z ##[endgroup]
+2026-10-28T14:47:13.4969398Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T14:47:13.4970891Z ##[group]Getting Git version info
+2026-10-28T14:47:13.4971325Z Working directory is 'D:\a\meta-sovereign\meta-sovereign'
+2026-10-28T14:47:13.5952112Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-28T14:47:13.9485991Z git version 2.56.0.windows.2
+2026-10-28T14:47:13.9540776Z ##[endgroup]
+2026-10-28T14:47:13.9585782Z Temporarily overriding HOME='D:\a\_temp\35c31cfb-d416-4c9e-83ad-2ac80398d1e3' before making global git config changes
+2026-10-28T14:47:13.9703404Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:47:13.9704751Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:47:14.0303087Z Deleting the contents of 'D:\a\meta-sovereign\meta-sovereign'
+2026-10-28T14:47:14.0309127Z ##[group]Determining repository object format
+2026-10-28T14:47:14.0311251Z ##[endgroup]
+2026-10-28T14:47:14.0311763Z ##[group]Initializing the repository
+2026-10-28T14:47:14.0323669Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:47:14.1402432Z Initialized empty Git repository in D:/a/meta-sovereign/meta-sovereign/.git/
+2026-10-28T14:47:14.1504630Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:47:14.2340961Z ##[endgroup]
+2026-10-28T14:47:14.2341804Z ##[group]Disabling automatic garbage collection
+2026-10-28T14:47:14.2352511Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-28T14:47:14.2793348Z ##[endgroup]
+2026-10-28T14:47:14.2794072Z ##[group]Setting up auth
+2026-10-28T14:47:14.2794575Z Removing SSH command configuration
+2026-10-28T14:47:14.2805406Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:47:14.3309743Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:47:16.0276835Z Removing HTTP extra header
+2026-10-28T14:47:16.0289975Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:47:16.0770523Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:47:16.7387152Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:47:16.7388721Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:47:16.7994579Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:47:17.4260747Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-28T14:47:17.4705273Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D:\a\_temp\git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:17.5111469Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D:\a\_temp\git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:17.5559536Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:17.5974728Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:17.6376753Z ##[endgroup]
+2026-10-28T14:47:17.6377141Z ##[group]Fetching the repository
+2026-10-28T14:47:17.6389938Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +8ef678716b8aff20b0e5fbba3af2bc860d86183a:refs/remotes/pull/44/merge
+2026-10-28T14:47:23.9054304Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:47:23.9056573Z  * [new branch]      cli-version-flag                         -> origin/cli-version-flag
+2026-10-28T14:47:23.9057760Z  * [new branch]      issue-1-fc41adad29ce                     -> origin/issue-1-fc41adad29ce
+2026-10-28T14:47:23.9058977Z  * [new branch]      issue-10-a884af8ade4e                    -> origin/issue-10-a884af8ade4e
+2026-10-28T14:47:23.9059877Z  * [new branch]      issue-12-1fbe3b7d05b4                    -> origin/issue-12-1fbe3b7d05b4
+2026-10-28T14:47:23.9060914Z  * [new branch]      issue-13-a1a0ad676c96                    -> origin/issue-13-a1a0ad676c96
+2026-10-28T14:47:23.9062627Z  * [new branch]      issue-16-d636f69ce59c                    -> origin/issue-16-d636f69ce59c
+2026-10-28T14:47:23.9063279Z  * [new branch]      issue-18-511583e63fad                    -> origin/issue-18-511583e63fad
+2026-10-28T14:47:23.9063824Z  * [new branch]      issue-20-2e1bcf090e36                    -> origin/issue-20-2e1bcf090e36
+2026-10-28T14:47:23.9064414Z  * [new branch]      issue-25-dac43a780b5c                    -> origin/issue-25-dac43a780b5c
+2026-10-28T14:47:23.9064922Z  * [new branch]      issue-27-05348a151c4d                    -> origin/issue-27-05348a151c4d
+2026-10-28T14:47:23.9065468Z  * [new branch]      issue-29-e17abd0f073c                    -> origin/issue-29-e17abd0f073c
+2026-10-28T14:47:23.9065985Z  * [new branch]      issue-3-98d902f006cb                     -> origin/issue-3-98d902f006cb
+2026-10-28T14:47:23.9066499Z  * [new branch]      issue-31-5ccfae6dabce                    -> origin/issue-31-5ccfae6dabce
+2026-10-28T14:47:23.9067005Z  * [new branch]      issue-32-af891cdcb951                    -> origin/issue-32-af891cdcb951
+2026-10-28T14:47:23.9067537Z  * [new branch]      issue-35-9b770690b2d5                    -> origin/issue-35-9b770690b2d5
+2026-10-28T14:47:23.9068074Z  * [new branch]      issue-37-3578e6d14474                    -> origin/issue-37-3578e6d14474
+2026-10-28T14:47:23.9068595Z  * [new branch]      issue-39-6f54edfad12b                    -> origin/issue-39-6f54edfad12b
+2026-10-28T14:47:23.9069096Z  * [new branch]      issue-4-30c7e8dd5217                     -> origin/issue-4-30c7e8dd5217
+2026-10-28T14:47:23.9069599Z  * [new branch]      issue-43-1924384484c0                    -> origin/issue-43-1924384484c0
+2026-10-28T14:47:23.9070846Z  * [new branch]      issue-5-bb4787c0c23a                     -> origin/issue-5-bb4787c0c23a
+2026-10-28T14:47:23.9072145Z  * [new branch]      issue-6-adb97494d4d6                     -> origin/issue-6-adb97494d4d6
+2026-10-28T14:47:23.9073620Z  * [new branch]      issue-8-c22927792fe8                     -> origin/issue-8-c22927792fe8
+2026-10-28T14:47:23.9074137Z  * [new branch]      main                                     -> origin/main
+2026-10-28T14:47:23.9074659Z  * [new branch]      tutorial-brands-auto-import              -> origin/tutorial-brands-auto-import
+2026-10-28T14:47:23.9075173Z  * [new tag]         v0.21.0                                  -> v0.21.0
+2026-10-28T14:47:23.9075554Z  * [new tag]         v0.22.0                                  -> v0.22.0
+2026-10-28T14:47:23.9075892Z  * [new tag]         v0.23.0                                  -> v0.23.0
+2026-10-28T14:47:23.9076239Z  * [new tag]         v0.24.0                                  -> v0.24.0
+2026-10-28T14:47:23.9076579Z  * [new tag]         v0.25.0                                  -> v0.25.0
+2026-10-28T14:47:23.9076909Z  * [new tag]         v0.26.0                                  -> v0.26.0
+2026-10-28T14:47:23.9077246Z  * [new tag]         v0.27.0                                  -> v0.27.0
+2026-10-28T14:47:23.9077573Z  * [new tag]         v0.28.0                                  -> v0.28.0
+2026-10-28T14:47:23.9077921Z  * [new tag]         v0.29.0                                  -> v0.29.0
+2026-10-28T14:47:23.9078307Z  * [new tag]         v0.30.0                                  -> v0.30.0
+2026-10-28T14:47:23.9078659Z  * [new tag]         v0.31.0                                  -> v0.31.0
+2026-10-28T14:47:23.9079214Z  * [new tag]         v0.32.0                                  -> v0.32.0
+2026-10-28T14:47:23.9079918Z  * [new tag]         v0.33.0                                  -> v0.33.0
+2026-10-28T14:47:23.9080283Z  * [new tag]         v0.34.0                                  -> v0.34.0
+2026-10-28T14:47:23.9080623Z  * [new tag]         v0.35.0                                  -> v0.35.0
+2026-10-28T14:47:23.9080965Z  * [new tag]         v0.36.0                                  -> v0.36.0
+2026-10-28T14:47:23.9081308Z  * [new tag]         v0.37.0                                  -> v0.37.0
+2026-10-28T14:47:23.9081642Z  * [new tag]         v0.38.0                                  -> v0.38.0
+2026-10-28T14:47:23.9081974Z  * [new tag]         v0.39.0                                  -> v0.39.0
+2026-10-28T14:47:23.9082302Z  * [new tag]         v0.40.0                                  -> v0.40.0
+2026-10-28T14:47:23.9082630Z  * [new tag]         v0.41.0                                  -> v0.41.0
+2026-10-28T14:47:23.9082972Z  * [new tag]         v0.42.0                                  -> v0.42.0
+2026-10-28T14:47:23.9083297Z  * [new tag]         v0.43.0                                  -> v0.43.0
+2026-10-28T14:47:23.9083641Z  * [new tag]         v0.44.0                                  -> v0.44.0
+2026-10-28T14:47:23.9083974Z  * [new tag]         v0.45.0                                  -> v0.45.0
+2026-10-28T14:47:23.9084298Z  * [new tag]         v0.46.0                                  -> v0.46.0
+2026-10-28T14:47:23.9084628Z  * [new tag]         v0.46.1                                  -> v0.46.1
+2026-10-28T14:47:23.9085051Z  * [new tag]         v0.46.2                                  -> v0.46.2
+2026-10-28T14:47:23.9085687Z  * [new tag]         v0.47.0                                  -> v0.47.0
+2026-10-28T14:47:23.9086676Z  * [new tag]         v0.47.1                                  -> v0.47.1
+2026-10-28T14:47:23.9087282Z  * [new tag]         v0.47.2                                  -> v0.47.2
+2026-10-28T14:47:23.9087866Z  * [new tag]         v0.48.0                                  -> v0.48.0
+2026-10-28T14:47:23.9088417Z  * [new tag]         v0.49.1                                  -> v0.49.1
+2026-10-28T14:47:23.9088971Z  * [new tag]         v0.49.10                                 -> v0.49.10
+2026-10-28T14:47:23.9089770Z  * [new tag]         v0.49.11                                 -> v0.49.11
+2026-10-28T14:47:23.9090343Z  * [new tag]         v0.49.12                                 -> v0.49.12
+2026-10-28T14:47:23.9090895Z  * [new tag]         v0.49.13                                 -> v0.49.13
+2026-10-28T14:47:23.9091494Z  * [new tag]         v0.49.14                                 -> v0.49.14
+2026-10-28T14:47:23.9092051Z  * [new tag]         v0.49.15                                 -> v0.49.15
+2026-10-28T14:47:23.9092656Z  * [new tag]         v0.49.16                                 -> v0.49.16
+2026-10-28T14:47:23.9093221Z  * [new tag]         v0.49.17                                 -> v0.49.17
+2026-10-28T14:47:23.9093831Z  * [new tag]         v0.49.18                                 -> v0.49.18
+2026-10-28T14:47:23.9094386Z  * [new tag]         v0.49.2                                  -> v0.49.2
+2026-10-28T14:47:23.9094959Z  * [new tag]         v0.49.3                                  -> v0.49.3
+2026-10-28T14:47:23.9095549Z  * [new tag]         v0.49.4                                  -> v0.49.4
+2026-10-28T14:47:23.9096134Z  * [new tag]         v0.49.5                                  -> v0.49.5
+2026-10-28T14:47:23.9096696Z  * [new tag]         v0.49.6                                  -> v0.49.6
+2026-10-28T14:47:23.9097298Z  * [new tag]         v0.49.7                                  -> v0.49.7
+2026-10-28T14:47:23.9097903Z  * [new tag]         v0.49.8                                  -> v0.49.8
+2026-10-28T14:47:23.9098518Z  * [new tag]         v0.49.9                                  -> v0.49.9
+2026-10-28T14:47:23.9099368Z  * [new tag]         v0.50.0                                  -> v0.50.0
+2026-10-28T14:47:23.9099955Z  * [new tag]         v0.51.0                                  -> v0.51.0
+2026-10-28T14:47:23.9100535Z  * [new tag]         v0.51.1                                  -> v0.51.1
+2026-10-28T14:47:23.9101117Z  * [new tag]         v0.51.2                                  -> v0.51.2
+2026-10-28T14:47:23.9101997Z  * [new tag]         v0.52.0                                  -> v0.52.0
+2026-10-28T14:47:23.9102588Z  * [new tag]         v0.53.0                                  -> v0.53.0
+2026-10-28T14:47:23.9103170Z  * [new tag]         v0.53.1                                  -> v0.53.1
+2026-10-28T14:47:23.9104301Z  * [new tag]         v0.53.2                                  -> v0.53.2
+2026-10-28T14:47:23.9104876Z  * [new tag]         v0.53.3                                  -> v0.53.3
+2026-10-28T14:47:23.9105433Z  * [new tag]         v0.53.4                                  -> v0.53.4
+2026-10-28T14:47:23.9105980Z  * [new tag]         v0.54.0                                  -> v0.54.0
+2026-10-28T14:47:23.9106523Z  * [new tag]         v0.54.1                                  -> v0.54.1
+2026-10-28T14:47:23.9107167Z  * [new ref]         8ef678716b8aff20b0e5fbba3af2bc860d86183a -> pull/44/merge
+2026-10-28T14:47:23.9115082Z ##[endgroup]
+2026-10-28T14:47:23.9115561Z ##[group]Determining the checkout info
+2026-10-28T14:47:23.9116984Z ##[endgroup]
+2026-10-28T14:47:23.9127031Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-28T14:47:23.9668629Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-28T14:47:24.0072481Z ##[group]Checking out the ref
+2026-10-28T14:47:24.0082599Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/44/merge
+2026-10-28T14:47:24.8405678Z Note: switching to 'refs/remotes/pull/44/merge'.
+2026-10-28T14:47:24.8406011Z 
+2026-10-28T14:47:24.8406226Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T14:47:24.8406727Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T14:47:24.8407184Z state without impacting any branches by switching back to a branch.
+2026-10-28T14:47:24.8407864Z 
+2026-10-28T14:47:24.8408664Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T14:47:24.8409246Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T14:47:24.8409854Z 
+2026-10-28T14:47:24.8410006Z   git switch -c <new-branch-name>
+2026-10-28T14:47:24.8410185Z 
+2026-10-28T14:47:24.8410272Z Or undo this operation with:
+2026-10-28T14:47:24.8410425Z 
+2026-10-28T14:47:24.8410503Z   git switch -
+2026-10-28T14:47:24.8410612Z 
+2026-10-28T14:47:24.8410813Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T14:47:24.8411103Z 
+2026-10-28T14:47:24.8411449Z HEAD is now at 8ef6787 Merge 504e07daa95f6100355926f2f371ed0d4ff72c07 into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:47:24.8529014Z ##[endgroup]
+2026-10-28T14:47:24.9029509Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-28T14:47:24.9539124Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:47:24.9588230Z ##[group]Removing auth
+2026-10-28T14:47:24.9588509Z Removing SSH command configuration
+2026-10-28T14:47:24.9597381Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:47:25.0003080Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:47:25.6514987Z Removing HTTP extra header
+2026-10-28T14:47:25.6529880Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:47:25.6948481Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:47:26.3189632Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:47:26.3198436Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:47:26.3563629Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:47:26.3565307Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:47:26.3566102Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:47:26.3566643Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:47:26.3617317Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:47:26.3981883Z D:\a\_temp\git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:26.4034166Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D\:\\a\\_temp\\git\-credentials\-382aad3f\-37b1\-441f\-8299\-472920f1ae12\.config
+2026-10-28T14:47:26.4451743Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:47:26.4813422Z D:\a\_temp\git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:26.4866073Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-382aad3f\-37b1\-441f\-8299\-472920f1ae12\.config
+2026-10-28T14:47:26.5315544Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:47:26.5677770Z /github/runner_temp/git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:26.5732260Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-382aad3f\-37b1\-441f\-8299\-472920f1ae12\.config
+2026-10-28T14:47:26.6144691Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:47:26.6504703Z /github/runner_temp/git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config
+2026-10-28T14:47:26.6554809Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-382aad3f\-37b1\-441f\-8299\-472920f1ae12\.config
+2026-10-28T14:47:26.6966454Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:47:27.3204195Z Removing credentials config 'D:\a\_temp\git-credentials-382aad3f-37b1-441f-8299-472920f1ae12.config'
+2026-10-28T14:47:27.3218132Z ##[endgroup]
+2026-10-28T14:47:27.3894434Z ##[group]Run bash js/scripts/simulate-fresh-merge.sh
+2026-10-28T14:47:27.3894965Z [36;1mbash js/scripts/simulate-fresh-merge.sh[0m
+2026-10-28T14:47:27.3915613Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:47:27.3915993Z env:
+2026-10-28T14:47:27.3916154Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:27.3916365Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:27.3916616Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:27.3916820Z   BASE_REF: main
+2026-10-28T14:47:27.3916995Z ##[endgroup]
+2026-10-28T14:47:27.5764186Z === Synchronizing PR with latest main ===
+2026-10-28T14:47:27.5764987Z This prevents stale merge preview issues (see docs/case-studies/issue-23)
+2026-10-28T14:47:27.5765511Z 
+2026-10-28T14:47:27.6702395Z Fetching latest main...
+2026-10-28T14:47:28.0700726Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:47:28.0701597Z  * branch            main       -> FETCH_HEAD
+2026-10-28T14:47:28.1773140Z Current checkout (merge preview): 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:47:28.1774248Z Latest base branch (main): 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:47:28.1774793Z 
+2026-10-28T14:47:28.2250457Z Merge preview is up-to-date with main. No simulation needed.
+2026-10-28T14:47:28.2250957Z 
+2026-10-28T14:47:28.3572806Z ##[group]Run denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+2026-10-28T14:47:28.3573242Z with:
+2026-10-28T14:47:28.3573417Z   deno-version: v2.x
+2026-10-28T14:47:28.3573622Z   deno-binary-name: deno
+2026-10-28T14:47:28.3573824Z   cache: false
+2026-10-28T14:47:28.3573990Z env:
+2026-10-28T14:47:28.3574145Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:28.3574356Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:28.3574608Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:28.3574813Z ##[endgroup]
+2026-10-28T14:47:28.6419651Z Going to install stable version 2.9.8.
+2026-10-28T14:47:28.6433356Z Downloading Deno from https://github.com/denoland/deno/releases/download/v2.9.8/deno-x86_64-pc-windows-msvc.zip.
+2026-10-28T14:47:29.4027402Z [command]"C:\Program Files\PowerShell\7\pwsh.exe" -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command "$ErrorActionPreference = 'Stop' ; try { Add-Type -AssemblyName System.IO.Compression.ZipFile } catch { } ; try { [System.IO.Compression.ZipFile]::ExtractToDirectory('D:\a\_temp\0cfd15ad-8333-4046-ad48-e2e93386f0ed', 'D:\a\_temp\bd9549ef-8e1a-44dd-bd5f-56bdbb6be90a', $true) } catch { if (($_.Exception.GetType().FullName -eq 'System.Management.Automation.MethodException') -or ($_.Exception.GetType().FullName -eq 'System.Management.Automation.RuntimeException') ){ Expand-Archive -LiteralPath 'D:\a\_temp\0cfd15ad-8333-4046-ad48-e2e93386f0ed' -DestinationPath 'D:\a\_temp\bd9549ef-8e1a-44dd-bd5f-56bdbb6be90a' -Force } else { throw $_ } } ;"
+2026-10-28T14:47:30.2114067Z Cached Deno to C:\hostedtoolcache\windows\deno\2.9.8\x64.
+2026-10-28T14:47:30.2156444Z Installation complete.
+2026-10-28T14:47:30.2787690Z ##[group]Run deno install
+2026-10-28T14:47:30.2788025Z [36;1mdeno install[0m
+2026-10-28T14:47:30.3515132Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-28T14:47:30.3515516Z env:
+2026-10-28T14:47:30.3515693Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:30.3515919Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:30.3516188Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:30.3516412Z ##[endgroup]
+2026-10-28T14:47:31.4477333Z Seeded deno.lock from D:\a\meta-sovereign\meta-sovereign\package-lock.json
+2026-10-28T14:47:31.4531041Z [0m[32mDownload[0m https://registry.npmjs.org/lottie-web
+2026-10-28T14:47:31.4537286Z [0m[32mDownload[0m https://registry.npmjs.org/command-stream
+2026-10-28T14:47:31.4538182Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd
+2026-10-28T14:47:31.4539061Z [0m[32mDownload[0m https://registry.npmjs.org/electron-builder
+2026-10-28T14:47:31.4540006Z [0m[32mDownload[0m https://registry.npmjs.org/test-anywhere
+2026-10-28T14:47:31.4540987Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fcli
+2026-10-28T14:47:31.4541852Z [0m[32mDownload[0m https://registry.npmjs.org/lint-staged
+2026-10-28T14:47:31.4542658Z [0m[32mDownload[0m https://registry.npmjs.org/axe-core
+2026-10-28T14:47:31.4544963Z [0m[32mDownload[0m https://registry.npmjs.org/teleproto
+2026-10-28T14:47:31.4545958Z [0m[32mDownload[0m https://registry.npmjs.org/lino-arguments
+2026-10-28T14:47:31.4547357Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fsecretlint-rule-preset-recommend
+2026-10-28T14:47:31.4548742Z [0m[32mDownload[0m https://registry.npmjs.org/eslint
+2026-10-28T14:47:31.4549573Z [0m[32mDownload[0m https://registry.npmjs.org/yaml
+2026-10-28T14:47:31.4551626Z [0m[32mDownload[0m https://registry.npmjs.org/prettier
+2026-10-28T14:47:31.4552908Z [0m[32mDownload[0m https://registry.npmjs.org/katex
+2026-10-28T14:47:31.4554333Z [0m[32mDownload[0m https://registry.npmjs.org/playwright
+2026-10-28T14:47:31.4554957Z [0m[32mDownload[0m https://registry.npmjs.org/husky
+2026-10-28T14:47:31.4555552Z [0m[32mDownload[0m https://registry.npmjs.org/react-dom
+2026-10-28T14:47:31.4557569Z [0m[32mDownload[0m https://registry.npmjs.org/secretlint
+2026-10-28T14:47:31.4558326Z [0m[32mDownload[0m https://registry.npmjs.org/react
+2026-10-28T14:47:31.4559075Z [0m[32mDownload[0m https://registry.npmjs.org/doublets-web
+2026-10-28T14:47:31.4560407Z [0m[32mDownload[0m https://registry.npmjs.org/links-notation
+2026-10-28T14:47:31.4561478Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint%2fjs
+2026-10-28T14:47:31.4562413Z [0m[32mDownload[0m https://registry.npmjs.org/lino-objects-codec
+2026-10-28T14:47:31.4563383Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-config-prettier
+2026-10-28T14:47:31.4564370Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-plugin-prettier
+2026-10-28T14:47:31.4565335Z [0m[32mDownload[0m https://registry.npmjs.org/esbuild
+2026-10-28T14:47:31.4566114Z [0m[32mDownload[0m https://registry.npmjs.org/browser-commander
+2026-10-28T14:47:31.6602431Z [0m[32mDownload[0m https://registry.npmjs.org/prettier-linter-helpers
+2026-10-28T14:47:31.6610591Z [0m[32mDownload[0m https://registry.npmjs.org/synckit
+2026-10-28T14:47:31.6661194Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fconfig-creator
+2026-10-28T14:47:31.6662405Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fformatter
+2026-10-28T14:47:31.6663449Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fnode
+2026-10-28T14:47:31.6664526Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fprofiler
+2026-10-28T14:47:31.6666698Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fresolver
+2026-10-28T14:47:31.6667793Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fwalker
+2026-10-28T14:47:31.6668867Z [0m[32mDownload[0m https://registry.npmjs.org/debug
+2026-10-28T14:47:31.6692350Z [0m[32mDownload[0m https://registry.npmjs.org/read-pkg
+2026-10-28T14:47:31.6893555Z [0m[32mDownload[0m https://registry.npmjs.org/commander
+2026-10-28T14:47:31.6903380Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-darwin-arm64
+2026-10-28T14:47:31.6906491Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-darwin-x64
+2026-10-28T14:47:31.6910194Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-linux-arm64-gnu
+2026-10-28T14:47:31.6911238Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-linux-arm64-musl
+2026-10-28T14:47:31.6912064Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-linux-x64-gnu
+2026-10-28T14:47:31.6921865Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-linux-x64-musl
+2026-10-28T14:47:31.6923763Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-windows-arm64-msvc
+2026-10-28T14:47:31.6925171Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-windows-x64-msvc
+2026-10-28T14:47:31.6926107Z [0m[32mDownload[0m https://registry.npmjs.org/getenv
+2026-10-28T14:47:31.6926585Z [0m[32mDownload[0m https://registry.npmjs.org/lino-env
+2026-10-28T14:47:31.6926995Z [0m[32mDownload[0m https://registry.npmjs.org/yargs
+2026-10-28T14:47:31.6932322Z [0m[32mDownload[0m https://registry.npmjs.org/picomatch
+2026-10-28T14:47:31.6939481Z [0m[32mDownload[0m https://registry.npmjs.org/string-argv
+2026-10-28T14:47:31.6940430Z [0m[32mDownload[0m https://registry.npmjs.org/tinyexec
+2026-10-28T14:47:31.7001541Z [0m[32mDownload[0m https://registry.npmjs.org/big-integer
+2026-10-28T14:47:31.7040308Z [0m[32mDownload[0m https://registry.npmjs.org/cifrante
+2026-10-28T14:47:31.7041048Z [0m[32mDownload[0m https://registry.npmjs.org/mime
+2026-10-28T14:47:31.7041532Z [0m[32mDownload[0m https://registry.npmjs.org/node-localstorage
+2026-10-28T14:47:31.7042311Z [0m[32mDownload[0m https://registry.npmjs.org/socks
+2026-10-28T14:47:31.7043012Z [0m[32mDownload[0m https://registry.npmjs.org/store2
+2026-10-28T14:47:31.7049484Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fapply-release-plan
+2026-10-28T14:47:31.7053988Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fassemble-release-plan
+2026-10-28T14:47:31.7057879Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fchangelog-git
+2026-10-28T14:47:31.7058960Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fconfig
+2026-10-28T14:47:31.7059861Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2ferrors
+2026-10-28T14:47:31.7060829Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fget-dependents-graph
+2026-10-28T14:47:31.7062139Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fgit
+2026-10-28T14:47:31.7063310Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fpre
+2026-10-28T14:47:31.7064151Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fread
+2026-10-28T14:47:31.7064930Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fshould-skip-package
+2026-10-28T14:47:31.7065526Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2ftypes
+2026-10-28T14:47:31.7066027Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fwrite
+2026-10-28T14:47:31.7066492Z [0m[32mDownload[0m https://registry.npmjs.org/@clack%2fprompts
+2026-10-28T14:47:31.7066965Z [0m[32mDownload[0m https://registry.npmjs.org/@manypkg%2fget-packages
+2026-10-28T14:47:31.7067501Z [0m[32mDownload[0m https://registry.npmjs.org/@pnpm%2fdeps.graph-sequencer
+2026-10-28T14:47:31.7067974Z [0m[32mDownload[0m https://registry.npmjs.org/cac
+2026-10-28T14:47:31.7068680Z [0m[32mDownload[0m https://registry.npmjs.org/import-meta-resolve
+2026-10-28T14:47:31.7069185Z [0m[32mDownload[0m https://registry.npmjs.org/launch-editor
+2026-10-28T14:47:31.7069998Z [0m[32mDownload[0m https://registry.npmjs.org/package-manager-detector
+2026-10-28T14:47:31.7073447Z [0m[32mDownload[0m https://registry.npmjs.org/semver
+2026-10-28T14:47:31.7074358Z [0m[32mDownload[0m https://registry.npmjs.org/fast-diff
+2026-10-28T14:47:31.7078800Z [0m[32mDownload[0m https://registry.npmjs.org/@dual-bundle%2fimport-meta-resolve
+2026-10-28T14:47:31.7079917Z [0m[32mDownload[0m https://registry.npmjs.org/@pkgr%2fcore
+2026-10-28T14:47:31.7081221Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fnormalize-package-data
+2026-10-28T14:47:31.7082288Z [0m[32mDownload[0m https://registry.npmjs.org/normalize-package-data
+2026-10-28T14:47:31.7083173Z [0m[32mDownload[0m https://registry.npmjs.org/parse-json
+2026-10-28T14:47:31.7083963Z [0m[32mDownload[0m https://registry.npmjs.org/type-fest
+2026-10-28T14:47:31.7084756Z [0m[32mDownload[0m https://registry.npmjs.org/unicorn-magic
+2026-10-28T14:47:31.7085597Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js
+2026-10-28T14:47:31.7086456Z [0m[32mDownload[0m https://registry.npmjs.org/@xterm%2fheadless
+2026-10-28T14:47:31.7087280Z [0m[32mDownload[0m https://registry.npmjs.org/cross-spawn
+2026-10-28T14:47:31.7088075Z [0m[32mDownload[0m https://registry.npmjs.org/execa
+2026-10-28T14:47:31.7088897Z [0m[32mDownload[0m https://registry.npmjs.org/gifenc
+2026-10-28T14:47:31.7089978Z [0m[32mDownload[0m https://registry.npmjs.org/node-pty
+2026-10-28T14:47:31.7091037Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint-community%2feslint-utils
+2026-10-28T14:47:31.7092086Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint-community%2fregexpp
+2026-10-28T14:47:31.7093097Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint%2fconfig-array
+2026-10-28T14:47:31.7094151Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint%2fconfig-helpers
+2026-10-28T14:47:31.7095064Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint%2fcore
+2026-10-28T14:47:31.7095943Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint%2fplugin-kit
+2026-10-28T14:47:31.7096817Z [0m[32mDownload[0m https://registry.npmjs.org/@humanfs%2fnode
+2026-10-28T14:47:31.7099324Z [0m[32mDownload[0m https://registry.npmjs.org/@humanwhocodes%2fmodule-importer
+2026-10-28T14:47:31.7100896Z [0m[32mDownload[0m https://registry.npmjs.org/@humanwhocodes%2fretry
+2026-10-28T14:47:31.7102093Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2festree
+2026-10-28T14:47:31.7103183Z [0m[32mDownload[0m https://registry.npmjs.org/ajv
+2026-10-28T14:47:31.7103986Z [0m[32mDownload[0m https://registry.npmjs.org/escape-string-regexp
+2026-10-28T14:47:31.7104866Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-scope
+2026-10-28T14:47:31.7105761Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-visitor-keys
+2026-10-28T14:47:31.7106883Z [0m[32mDownload[0m https://registry.npmjs.org/espree
+2026-10-28T14:47:31.7107892Z [0m[32mDownload[0m https://registry.npmjs.org/esquery
+2026-10-28T14:47:31.7108573Z [0m[32mDownload[0m https://registry.npmjs.org/esutils
+2026-10-28T14:47:31.7109563Z [0m[32mDownload[0m https://registry.npmjs.org/fast-deep-equal
+2026-10-28T14:47:31.7111335Z [0m[32mDownload[0m https://registry.npmjs.org/file-entry-cache
+2026-10-28T14:47:31.7112102Z [0m[32mDownload[0m https://registry.npmjs.org/find-up
+2026-10-28T14:47:31.7112823Z [0m[32mDownload[0m https://registry.npmjs.org/glob-parent
+2026-10-28T14:47:31.7113530Z [0m[32mDownload[0m https://registry.npmjs.org/ignore
+2026-10-28T14:47:31.7114549Z [0m[32mDownload[0m https://registry.npmjs.org/imurmurhash
+2026-10-28T14:47:31.7115591Z [0m[32mDownload[0m https://registry.npmjs.org/is-glob
+2026-10-28T14:47:31.7116549Z [0m[32mDownload[0m https://registry.npmjs.org/json-stable-stringify-without-jsonify
+2026-10-28T14:47:31.7117464Z [0m[32mDownload[0m https://registry.npmjs.org/minimatch
+2026-10-28T14:47:31.7118228Z [0m[32mDownload[0m https://registry.npmjs.org/natural-compare
+2026-10-28T14:47:31.7118993Z [0m[32mDownload[0m https://registry.npmjs.org/optionator
+2026-10-28T14:47:31.7194205Z [0m[32mDownload[0m https://registry.npmjs.org/ms
+2026-10-28T14:47:31.7196414Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2faix-ppc64
+2026-10-28T14:47:31.7198836Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fandroid-arm
+2026-10-28T14:47:31.7200583Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fandroid-arm64
+2026-10-28T14:47:31.7201549Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fandroid-x64
+2026-10-28T14:47:31.7202450Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fdarwin-arm64
+2026-10-28T14:47:31.7203316Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fdarwin-x64
+2026-10-28T14:47:31.7204150Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2ffreebsd-arm64
+2026-10-28T14:47:31.7204980Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2ffreebsd-x64
+2026-10-28T14:47:31.7205823Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-arm
+2026-10-28T14:47:31.7206744Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-arm64
+2026-10-28T14:47:31.7207666Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-ia32
+2026-10-28T14:47:31.7208951Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-loong64
+2026-10-28T14:47:31.7209888Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-mips64el
+2026-10-28T14:47:31.7210793Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-ppc64
+2026-10-28T14:47:31.7211690Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-riscv64
+2026-10-28T14:47:31.7212547Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-s390x
+2026-10-28T14:47:31.7213363Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2flinux-x64
+2026-10-28T14:47:31.7214220Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fnetbsd-arm64
+2026-10-28T14:47:31.7215108Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fnetbsd-x64
+2026-10-28T14:47:31.7215981Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fopenbsd-arm64
+2026-10-28T14:47:31.7217168Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fopenbsd-x64
+2026-10-28T14:47:31.7219928Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fopenharmony-arm64
+2026-10-28T14:47:31.7222408Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fsunos-x64
+2026-10-28T14:47:31.7223926Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fwin32-arm64
+2026-10-28T14:47:31.7225143Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fwin32-ia32
+2026-10-28T14:47:31.7226680Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild%2fwin32-x64
+2026-10-28T14:47:31.7237453Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2ftypes
+2026-10-28T14:47:31.7360091Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2fdarwin-arm64
+2026-10-28T14:47:31.7361481Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2fdarwin-x64
+2026-10-28T14:47:31.7379058Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2flinux-arm64-gnu
+2026-10-28T14:47:31.7380328Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2flinux-arm64-musl
+2026-10-28T14:47:31.7381417Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2flinux-x64-gnu
+2026-10-28T14:47:31.7382473Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2flinux-x64-musl
+2026-10-28T14:47:31.7383517Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2fwin32-arm64
+2026-10-28T14:47:31.7384531Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante%2fwin32-x64
+2026-10-28T14:47:31.7453014Z [0m[32mDownload[0m https://registry.npmjs.org/better-sqlite3
+2026-10-28T14:47:31.7456192Z [0m[32mDownload[0m https://registry.npmjs.org/bplist-parser
+2026-10-28T14:47:31.7456751Z [0m[32mDownload[0m https://registry.npmjs.org/csv-parse
+2026-10-28T14:47:31.7457188Z [0m[32mDownload[0m https://registry.npmjs.org/log-lazy
+2026-10-28T14:47:31.7459207Z [0m[32mDownload[0m https://registry.npmjs.org/plist
+2026-10-28T14:47:31.7460055Z [0m[32mDownload[0m https://registry.npmjs.org/upng-js
+2026-10-28T14:47:31.7461286Z [0m[32mDownload[0m https://registry.npmjs.org/webp-wasm
+2026-10-28T14:47:31.7805705Z [0m[32mDownload[0m https://registry.npmjs.org/app-builder-lib
+2026-10-28T14:47:31.7818415Z [0m[32mDownload[0m https://registry.npmjs.org/builder-util
+2026-10-28T14:47:31.7819438Z [0m[32mDownload[0m https://registry.npmjs.org/builder-util-runtime
+2026-10-28T14:47:31.7820230Z [0m[32mDownload[0m https://registry.npmjs.org/chalk
+2026-10-28T14:47:31.7876154Z [0m[32mDownload[0m https://registry.npmjs.org/ci-info
+2026-10-28T14:47:31.8036757Z [0m[32mDownload[0m https://registry.npmjs.org/dmg-builder
+2026-10-28T14:47:31.8041944Z [0m[32mDownload[0m https://registry.npmjs.org/electron-publish
+2026-10-28T14:47:31.8071100Z [0m[32mDownload[0m https://registry.npmjs.org/fs-extra
+2026-10-28T14:47:31.8071991Z [0m[32mDownload[0m https://registry.npmjs.org/simple-update-notifier
+2026-10-28T14:47:31.8072875Z [0m[32mDownload[0m https://registry.npmjs.org/write-file-atomic
+2026-10-28T14:47:31.8073705Z [0m[32mDownload[0m https://registry.npmjs.org/picocolors
+2026-10-28T14:47:31.8074433Z [0m[32mDownload[0m https://registry.npmjs.org/shell-quote
+2026-10-28T14:47:31.8095290Z [0m[32mDownload[0m https://registry.npmjs.org/estraverse
+2026-10-28T14:47:31.8411068Z [0m[32mDownload[0m https://registry.npmjs.org/@xmldom%2fxmldom
+2026-10-28T14:47:31.8587475Z [0m[32mDownload[0m https://registry.npmjs.org/xmlbuilder
+2026-10-28T14:47:31.8827636Z [0m[32mDownload[0m https://registry.npmjs.org/hosted-git-info
+2026-10-28T14:47:31.8830636Z [0m[32mDownload[0m https://registry.npmjs.org/validate-npm-package-license
+2026-10-28T14:47:31.8832583Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fconfig-loader
+2026-10-28T14:47:31.8833509Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fcore
+2026-10-28T14:47:31.8834374Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint%2fsource-creator
+2026-10-28T14:47:31.8837887Z [0m[32mDownload[0m https://registry.npmjs.org/p-map
+2026-10-28T14:47:31.8839307Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint%2flinter-formatter
+2026-10-28T14:47:31.8840276Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint%2fmodule-interop
+2026-10-28T14:47:31.8841142Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint%2ftypes
+2026-10-28T14:47:31.8841953Z [0m[32mDownload[0m https://registry.npmjs.org/pluralize
+2026-10-28T14:47:31.8842663Z [0m[32mDownload[0m https://registry.npmjs.org/table
+2026-10-28T14:47:31.8843381Z [0m[32mDownload[0m https://registry.npmjs.org/terminal-link
+2026-10-28T14:47:31.8844125Z [0m[32mDownload[0m https://registry.npmjs.org/is-extglob
+2026-10-28T14:47:31.8844913Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fesrecurse
+2026-10-28T14:47:31.8845678Z [0m[32mDownload[0m https://registry.npmjs.org/esrecurse
+2026-10-28T14:47:31.8846362Z [0m[32mDownload[0m https://registry.npmjs.org/path-key
+2026-10-28T14:47:31.8847109Z [0m[32mDownload[0m https://registry.npmjs.org/shebang-command
+2026-10-28T14:47:31.8848737Z [0m[32mDownload[0m https://registry.npmjs.org/which
+2026-10-28T14:47:31.8849687Z [0m[32mDownload[0m https://registry.npmjs.org/@babel%2fcode-frame
+2026-10-28T14:47:31.9096322Z [0m[32mDownload[0m https://registry.npmjs.org/index-to-position
+2026-10-28T14:47:31.9148501Z [0m[32mDownload[0m https://registry.npmjs.org/locate-path
+2026-10-28T14:47:31.9165745Z [0m[32mDownload[0m https://registry.npmjs.org/path-exists
+2026-10-28T14:47:31.9198480Z [0m[32mDownload[0m https://registry.npmjs.org/cliui
+2026-10-28T14:47:31.9346341Z [0m[32mDownload[0m https://registry.npmjs.org/escalade
+2026-10-28T14:47:31.9347182Z [0m[32mDownload[0m https://registry.npmjs.org/get-caller-file
+2026-10-28T14:47:31.9347688Z [0m[32mDownload[0m https://registry.npmjs.org/string-width
+2026-10-28T14:47:31.9348117Z [0m[32mDownload[0m https://registry.npmjs.org/y18n
+2026-10-28T14:47:31.9348522Z [0m[32mDownload[0m https://registry.npmjs.org/yargs-parser
+2026-10-28T14:47:31.9349773Z [0m[32mDownload[0m https://registry.npmjs.org/require-directory
+2026-10-28T14:47:31.9350316Z [0m[32mDownload[0m https://registry.npmjs.org/ip-address
+2026-10-28T14:47:31.9350759Z [0m[32mDownload[0m https://registry.npmjs.org/smart-buffer
+2026-10-28T14:47:31.9351764Z [0m[32mDownload[0m https://registry.npmjs.org/deep-is
+2026-10-28T14:47:31.9352239Z [0m[32mDownload[0m https://registry.npmjs.org/fast-levenshtein
+2026-10-28T14:47:31.9352676Z [0m[32mDownload[0m https://registry.npmjs.org/levn
+2026-10-28T14:47:31.9353087Z [0m[32mDownload[0m https://registry.npmjs.org/prelude-ls
+2026-10-28T14:47:31.9354231Z [0m[32mDownload[0m https://registry.npmjs.org/type-check
+2026-10-28T14:47:31.9355298Z [0m[32mDownload[0m https://registry.npmjs.org/word-wrap
+2026-10-28T14:47:31.9356409Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fformat
+2026-10-28T14:47:31.9357035Z [0m[32mDownload[0m https://registry.npmjs.org/human-id
+2026-10-28T14:47:31.9357809Z [0m[32mDownload[0m https://registry.npmjs.org/flat-cache
+2026-10-28T14:47:31.9373547Z [0m[32mDownload[0m https://registry.npmjs.org/@sindresorhus%2fmerge-streams
+2026-10-28T14:47:31.9374410Z [0m[32mDownload[0m https://registry.npmjs.org/figures
+2026-10-28T14:47:31.9374976Z [0m[32mDownload[0m https://registry.npmjs.org/get-stream
+2026-10-28T14:47:31.9375452Z [0m[32mDownload[0m https://registry.npmjs.org/human-signals
+2026-10-28T14:47:31.9375916Z [0m[32mDownload[0m https://registry.npmjs.org/is-plain-obj
+2026-10-28T14:47:31.9376357Z [0m[32mDownload[0m https://registry.npmjs.org/is-stream
+2026-10-28T14:47:31.9417093Z [0m[32mDownload[0m https://registry.npmjs.org/npm-run-path
+2026-10-28T14:47:31.9466862Z [0m[32mDownload[0m https://registry.npmjs.org/pretty-ms
+2026-10-28T14:47:31.9467669Z [0m[32mDownload[0m https://registry.npmjs.org/signal-exit
+2026-10-28T14:47:31.9468488Z [0m[32mDownload[0m https://registry.npmjs.org/strip-final-newline
+2026-10-28T14:47:31.9469608Z [0m[32mDownload[0m https://registry.npmjs.org/which-command
+2026-10-28T14:47:31.9470085Z [0m[32mDownload[0m https://registry.npmjs.org/yoctocolors
+2026-10-28T14:47:31.9470554Z [0m[32mDownload[0m https://registry.npmjs.org/brace-expansion
+2026-10-28T14:47:31.9471090Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-android-arm-eabi
+2026-10-28T14:47:31.9471664Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-android-arm64
+2026-10-28T14:47:31.9472218Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-darwin-arm64
+2026-10-28T14:47:31.9473215Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-darwin-x64
+2026-10-28T14:47:31.9473806Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-linux-arm-gnueabihf
+2026-10-28T14:47:31.9474394Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-linux-arm64-gnu
+2026-10-28T14:47:31.9474969Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-linux-arm64-musl
+2026-10-28T14:47:31.9475541Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-linux-x64-gnu
+2026-10-28T14:47:31.9476092Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-linux-x64-musl
+2026-10-28T14:47:31.9476659Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-win32-arm64-msvc
+2026-10-28T14:47:31.9748311Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-win32-ia32-msvc
+2026-10-28T14:47:32.0069849Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg%2fresvg-js-win32-x64-msvc
+2026-10-28T14:47:32.0070808Z [0m[32mDownload[0m https://registry.npmjs.org/tagged-tag
+2026-10-28T14:47:32.0071615Z [0m[32mDownload[0m https://registry.npmjs.org/@manypkg%2ffind-root
+2026-10-28T14:47:32.0072438Z [0m[32mDownload[0m https://registry.npmjs.org/@manypkg%2ftools
+2026-10-28T14:47:32.0111999Z [0m[32mDownload[0m https://registry.npmjs.org/node-addon-api
+2026-10-28T14:47:32.0113788Z [0m[32mDownload[0m https://registry.npmjs.org/jsonc-parser
+2026-10-28T14:47:32.0115196Z [0m[32mDownload[0m https://registry.npmjs.org/@humanfs%2fcore
+2026-10-28T14:47:32.0116025Z [0m[32mDownload[0m https://registry.npmjs.org/@humanfs%2ftypes
+2026-10-28T14:47:32.0116909Z [0m[32mDownload[0m https://registry.npmjs.org/fast-json-stable-stringify
+2026-10-28T14:47:32.0118164Z [0m[32mDownload[0m https://registry.npmjs.org/json-schema-traverse
+2026-10-28T14:47:32.0119257Z [0m[32mDownload[0m https://registry.npmjs.org/uri-js
+2026-10-28T14:47:32.0120355Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets%2fparse
+2026-10-28T14:47:32.0121198Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fjson-schema
+2026-10-28T14:47:32.0122570Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint%2fobject-schema
+2026-10-28T14:47:32.0123413Z [0m[32mDownload[0m https://registry.npmjs.org/pako
+2026-10-28T14:47:32.0124439Z [0m[32mDownload[0m https://registry.npmjs.org/@clack%2fcore
+2026-10-28T14:47:32.0125536Z [0m[32mDownload[0m https://registry.npmjs.org/fast-string-width
+2026-10-28T14:47:32.0126327Z [0m[32mDownload[0m https://registry.npmjs.org/fast-wrap-ansi
+2026-10-28T14:47:32.0127368Z [0m[32mDownload[0m https://registry.npmjs.org/sisteransi
+2026-10-28T14:47:32.0204019Z [0m[32mDownload[0m https://registry.npmjs.org/acorn
+2026-10-28T14:47:32.0221673Z [0m[32mDownload[0m https://registry.npmjs.org/acorn-jsx
+2026-10-28T14:47:32.0222476Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-styles
+2026-10-28T14:47:32.0409561Z [0m[32mDownload[0m https://registry.npmjs.org/supports-color
+2026-10-28T14:47:32.1148903Z [0m[32mDownload[0m https://registry.npmjs.org/graceful-fs
+2026-10-28T14:47:32.1310884Z [0m[32mDownload[0m https://registry.npmjs.org/slide
+2026-10-28T14:47:32.1381573Z [0m[32mDownload[0m https://registry.npmjs.org/jsonfile
+2026-10-28T14:47:32.1505595Z [0m[32mDownload[0m https://registry.npmjs.org/universalify
+2026-10-28T14:47:32.1649639Z [0m[32mDownload[0m https://registry.npmjs.org/sax
+2026-10-28T14:47:32.1692935Z [0m[32mDownload[0m https://registry.npmjs.org/js-yaml
+2026-10-28T14:47:32.1704475Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fdebug
+2026-10-28T14:47:32.1705561Z [0m[32mDownload[0m https://registry.npmjs.org/http-proxy-agent
+2026-10-28T14:47:32.1706603Z [0m[32mDownload[0m https://registry.npmjs.org/https-proxy-agent
+2026-10-28T14:47:32.1707604Z [0m[32mDownload[0m https://registry.npmjs.org/sanitize-filename
+2026-10-28T14:47:32.1708638Z [0m[32mDownload[0m https://registry.npmjs.org/source-map-support
+2026-10-28T14:47:32.1709620Z [0m[32mDownload[0m https://registry.npmjs.org/stat-mode
+2026-10-28T14:47:32.1710504Z [0m[32mDownload[0m https://registry.npmjs.org/temp-file
+2026-10-28T14:47:32.1711445Z [0m[32mDownload[0m https://registry.npmjs.org/tiny-async-pool
+2026-10-28T14:47:32.1712388Z [0m[32mDownload[0m https://registry.npmjs.org/shebang-regex
+2026-10-28T14:47:32.1713282Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-correct
+2026-10-28T14:47:32.1714296Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-expression-parse
+2026-10-28T14:47:32.1715252Z [0m[32mDownload[0m https://registry.npmjs.org/isexe
+2026-10-28T14:47:32.1914773Z [0m[32mDownload[0m https://registry.npmjs.org/lodash.truncate
+2026-10-28T14:47:32.1942878Z [0m[32mDownload[0m https://registry.npmjs.org/slice-ansi
+2026-10-28T14:47:32.1978182Z [0m[32mDownload[0m https://registry.npmjs.org/strip-ansi
+2026-10-28T14:47:32.2056758Z [0m[32mDownload[0m https://registry.npmjs.org/fast-uri
+2026-10-28T14:47:32.2164829Z [0m[32mDownload[0m https://registry.npmjs.org/require-from-string
+2026-10-28T14:47:32.2166491Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-escapes
+2026-10-28T14:47:32.2167530Z [0m[32mDownload[0m https://registry.npmjs.org/supports-hyperlinks
+2026-10-28T14:47:32.2168587Z [0m[32mDownload[0m https://registry.npmjs.org/@azu%2fformat-text
+2026-10-28T14:47:32.2169653Z [0m[32mDownload[0m https://registry.npmjs.org/@azu%2fstyle-format
+2026-10-28T14:47:32.2170980Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint%2fresolver
+2026-10-28T14:47:32.2171953Z [0m[32mDownload[0m https://registry.npmjs.org/lodash
+2026-10-28T14:47:32.2172824Z [0m[32mDownload[0m https://registry.npmjs.org/text-table
+2026-10-28T14:47:32.2173828Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint%2fast-node-types
+2026-10-28T14:47:32.2175381Z [0m[32mDownload[0m https://registry.npmjs.org/istextorbinary
+2026-10-28T14:47:32.2177544Z [0m[32mDownload[0m https://registry.npmjs.org/get-east-asian-width
+2026-10-28T14:47:32.2238803Z [0m[32mDownload[0m https://registry.npmjs.org/emoji-regex
+2026-10-28T14:47:32.2262244Z [0m[32mDownload[0m https://registry.npmjs.org/is-fullwidth-code-point
+2026-10-28T14:47:32.2263357Z [0m[32mDownload[0m https://registry.npmjs.org/wrap-ansi
+2026-10-28T14:47:32.2264131Z [0m[32mDownload[0m https://registry.npmjs.org/p-locate
+2026-10-28T14:47:32.2265253Z [0m[32mDownload[0m https://registry.npmjs.org/@babel%2fhelper-validator-identifier
+2026-10-28T14:47:32.2266317Z [0m[32mDownload[0m https://registry.npmjs.org/js-tokens
+2026-10-28T14:47:32.2267464Z [0m[32mDownload[0m https://registry.npmjs.org/rc-config-loader
+2026-10-28T14:47:32.2268393Z [0m[32mDownload[0m https://registry.npmjs.org/lru-cache
+2026-10-28T14:47:32.2269276Z [0m[32mDownload[0m https://registry.npmjs.org/@sec-ant%2freadable-stream
+2026-10-28T14:47:32.2270167Z [0m[32mDownload[0m https://registry.npmjs.org/cacheable
+2026-10-28T14:47:32.2270972Z [0m[32mDownload[0m https://registry.npmjs.org/flatted
+2026-10-28T14:47:32.2271766Z [0m[32mDownload[0m https://registry.npmjs.org/hookified
+2026-10-28T14:47:32.2272844Z [0m[32mDownload[0m https://registry.npmjs.org/parse-ms
+2026-10-28T14:47:32.2273750Z [0m[32mDownload[0m https://registry.npmjs.org/is-unicode-supported
+2026-10-28T14:47:32.2274659Z [0m[32mDownload[0m https://registry.npmjs.org/balanced-match
+2026-10-28T14:47:32.2286974Z [0m[32mDownload[0m https://registry.npmjs.org/punycode
+2026-10-28T14:47:32.2294064Z [0m[32mDownload[0m https://registry.npmjs.org/fast-string-truncated-width
+2026-10-28T14:47:32.2296034Z [0m[32mDownload[0m https://registry.npmjs.org/jju
+2026-10-28T14:47:32.2297050Z [0m[32mDownload[0m https://registry.npmjs.org/tinyglobby
+2026-10-28T14:47:32.2298560Z [0m[32mDownload[0m https://registry.npmjs.org/structured-source
+2026-10-28T14:47:32.2304302Z [0m[32mDownload[0m https://registry.npmjs.org/@electron%2fasar
+2026-10-28T14:47:32.2307542Z [0m[32mDownload[0m https://registry.npmjs.org/@electron%2ffuses
+2026-10-28T14:47:32.2308621Z [0m[32mDownload[0m https://registry.npmjs.org/@electron%2fget
+2026-10-28T14:47:32.2310589Z [0m[32mDownload[0m https://registry.npmjs.org/@electron%2fnotarize
+2026-10-28T14:47:32.2311556Z [0m[32mDownload[0m https://registry.npmjs.org/@electron%2fosx-sign
+2026-10-28T14:47:32.2312456Z [0m[32mDownload[0m https://registry.npmjs.org/@electron%2frebuild
+2026-10-28T14:47:32.2323716Z [0m[32mDownload[0m https://registry.npmjs.org/@electron%2funiversal
+2026-10-28T14:47:32.2324626Z [0m[32mDownload[0m https://registry.npmjs.org/@noble%2fhashes
+2026-10-28T14:47:32.2325523Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar%2fwebcrypto
+2026-10-28T14:47:32.2326402Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2ffs-extra
+2026-10-28T14:47:32.2327162Z [0m[32mDownload[0m https://registry.npmjs.org/asn1js
+2026-10-28T14:47:32.2327901Z [0m[32mDownload[0m https://registry.npmjs.org/chromium-pickle-js
+2026-10-28T14:47:32.2328647Z [0m[32mDownload[0m https://registry.npmjs.org/dotenv
+2026-10-28T14:47:32.2329361Z [0m[32mDownload[0m https://registry.npmjs.org/dotenv-expand
+2026-10-28T14:47:32.2330059Z [0m[32mDownload[0m https://registry.npmjs.org/ejs
+2026-10-28T14:47:32.2330890Z [0m[32mDownload[0m https://registry.npmjs.org/electron-builder-squirrel-windows
+2026-10-28T14:47:32.2331778Z [0m[32mDownload[0m https://registry.npmjs.org/isbinaryfile
+2026-10-28T14:47:32.2332811Z [0m[32mDownload[0m https://registry.npmjs.org/jiti
+2026-10-28T14:47:32.2333864Z [0m[32mDownload[0m https://registry.npmjs.org/json5
+2026-10-28T14:47:32.2334544Z [0m[32mDownload[0m https://registry.npmjs.org/lazy-val
+2026-10-28T14:47:32.2335234Z [0m[32mDownload[0m https://registry.npmjs.org/pkijs
+2026-10-28T14:47:32.2335966Z [0m[32mDownload[0m https://registry.npmjs.org/proper-lockfile
+2026-10-28T14:47:32.2336793Z [0m[32mDownload[0m https://registry.npmjs.org/resedit
+2026-10-28T14:47:32.2337451Z [0m[32mDownload[0m https://registry.npmjs.org/tar
+2026-10-28T14:47:32.2338088Z [0m[32mDownload[0m https://registry.npmjs.org/undici
+2026-10-28T14:47:32.2338738Z [0m[32mDownload[0m https://registry.npmjs.org/unzipper
+2026-10-28T14:47:32.2339421Z [0m[32mDownload[0m https://registry.npmjs.org/base64-js
+2026-10-28T14:47:32.2340106Z [0m[32mDownload[0m https://registry.npmjs.org/agent-base
+2026-10-28T14:47:32.2340883Z [0m[32mDownload[0m https://registry.npmjs.org/truncate-utf8-bytes
+2026-10-28T14:47:32.2341723Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-exceptions
+2026-10-28T14:47:32.2342531Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-license-ids
+2026-10-28T14:47:32.2343304Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fms
+2026-10-28T14:47:32.2344074Z [0m[32mDownload[0m https://registry.npmjs.org/async-exit-hook
+2026-10-28T14:47:32.2344872Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-regex
+2026-10-28T14:47:32.2345664Z [0m[32mDownload[0m https://registry.npmjs.org/has-flag
+2026-10-28T14:47:32.2346470Z [0m[32mDownload[0m https://registry.npmjs.org/buffer-from
+2026-10-28T14:47:32.2347294Z [0m[32mDownload[0m https://registry.npmjs.org/source-map
+2026-10-28T14:47:32.2348045Z [0m[32mDownload[0m https://registry.npmjs.org/environment
+2026-10-28T14:47:32.2349315Z [0m[32mDownload[0m https://registry.npmjs.org/astral-regex
+2026-10-28T14:47:32.2356403Z [0m[32mDownload[0m https://registry.npmjs.org/p-limit
+2026-10-28T14:47:32.2357662Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcredential-provider-ini
+2026-10-28T14:47:32.2358854Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcredential-provider-sso
+2026-10-28T14:47:32.2359862Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fnested-clients
+2026-10-28T14:47:32.2360704Z [0m[32mDownload[0m https://registry.npmjs.org/aws4
+2026-10-28T14:47:32.2361409Z [0m[32mDownload[0m https://registry.npmjs.org/form-data
+2026-10-28T14:47:32.2362237Z [0m[32mDownload[0m https://registry.npmjs.org/@cacheable%2fmemory
+2026-10-28T14:47:32.2363088Z [0m[32mDownload[0m https://registry.npmjs.org/@cacheable%2futils
+2026-10-28T14:47:32.2363849Z [0m[32mDownload[0m https://registry.npmjs.org/keyv
+2026-10-28T14:47:32.2364526Z [0m[32mDownload[0m https://registry.npmjs.org/qified
+2026-10-28T14:47:32.2365220Z [0m[32mDownload[0m https://registry.npmjs.org/yallist
+2026-10-28T14:47:32.2365933Z [0m[32mDownload[0m https://registry.npmjs.org/scheduler
+2026-10-28T14:47:32.2366701Z [0m[32mDownload[0m https://registry.npmjs.org/binaryextensions
+2026-10-28T14:47:32.2367444Z [0m[32mDownload[0m https://registry.npmjs.org/editions
+2026-10-28T14:47:32.2368162Z [0m[32mDownload[0m https://registry.npmjs.org/textextensions
+2026-10-28T14:47:32.2368867Z [0m[32mDownload[0m https://registry.npmjs.org/argparse
+2026-10-28T14:47:32.2369569Z [0m[32mDownload[0m https://registry.npmjs.org/color-convert
+2026-10-28T14:47:32.2370311Z [0m[32mDownload[0m https://registry.npmjs.org/fdir
+2026-10-28T14:47:32.2371016Z [0m[32mDownload[0m https://registry.npmjs.org/boundary
+2026-10-28T14:47:32.2372512Z [0m[32mDownload[0m https://registry.npmjs.org/jake
+2026-10-28T14:47:32.2373330Z [0m[32mDownload[0m https://registry.npmjs.org/pvtsutils
+2026-10-28T14:47:32.2374083Z [0m[32mDownload[0m https://registry.npmjs.org/pvutils
+2026-10-28T14:47:32.2374796Z [0m[32mDownload[0m https://registry.npmjs.org/tslib
+2026-10-28T14:47:32.2376891Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2fnode
+2026-10-28T14:47:32.2377881Z [0m[32mDownload[0m https://registry.npmjs.org/utf8-byte-length
+2026-10-28T14:47:32.2378737Z [0m[32mDownload[0m https://registry.npmjs.org/retry
+2026-10-28T14:47:32.2379519Z [0m[32mDownload[0m https://registry.npmjs.org/pe-library
+2026-10-28T14:47:32.2380317Z [0m[32mDownload[0m https://registry.npmjs.org/bluebird
+2026-10-28T14:47:32.2381075Z [0m[32mDownload[0m https://registry.npmjs.org/duplexer2
+2026-10-28T14:47:32.2381810Z [0m[32mDownload[0m https://registry.npmjs.org/node-int64
+2026-10-28T14:47:32.2382821Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar%2fasn1-schema
+2026-10-28T14:47:32.2385101Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar%2fjson-schema
+2026-10-28T14:47:32.2386655Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar%2futils
+2026-10-28T14:47:32.2387761Z [0m[32mDownload[0m https://registry.npmjs.org/webcrypto-core
+2026-10-28T14:47:32.2400790Z [0m[32mDownload[0m https://registry.npmjs.org/bytestreamjs
+2026-10-28T14:47:32.2401760Z [0m[32mDownload[0m https://registry.npmjs.org/@isaacs%2ffs-minipass
+2026-10-28T14:47:32.2404516Z [0m[32mDownload[0m https://registry.npmjs.org/chownr
+2026-10-28T14:47:32.2409772Z [0m[32mDownload[0m https://registry.npmjs.org/minipass
+2026-10-28T14:47:32.2433242Z [0m[32mDownload[0m https://registry.npmjs.org/minizlib
+2026-10-28T14:47:32.2450397Z [0m[32mDownload[0m https://registry.npmjs.org/env-paths
+2026-10-28T14:47:32.2514035Z [0m[32mDownload[0m https://registry.npmjs.org/progress
+2026-10-28T14:47:32.2515509Z [0m[32mDownload[0m https://registry.npmjs.org/sumchecker
+2026-10-28T14:47:32.2522617Z [0m[32mDownload[0m https://registry.npmjs.org/promise-retry
+2026-10-28T14:47:32.2524668Z [0m[32mDownload[0m https://registry.npmjs.org/@malept%2fcross-spawn-promise
+2026-10-28T14:47:32.2525612Z [0m[32mDownload[0m https://registry.npmjs.org/node-abi
+2026-10-28T14:47:32.2526760Z [0m[32mDownload[0m https://registry.npmjs.org/node-api-version
+2026-10-28T14:47:32.2527580Z [0m[32mDownload[0m https://registry.npmjs.org/node-gyp
+2026-10-28T14:47:32.2528383Z [0m[32mDownload[0m https://registry.npmjs.org/read-binary-file-arch
+2026-10-28T14:47:32.2529226Z [0m[32mDownload[0m https://registry.npmjs.org/glob
+2026-10-28T14:47:32.2529965Z [0m[32mDownload[0m https://registry.npmjs.org/color-name
+2026-10-28T14:47:32.2531916Z [0m[32mDownload[0m https://registry.npmjs.org/asynckit
+2026-10-28T14:47:32.2533246Z [0m[32mDownload[0m https://registry.npmjs.org/combined-stream
+2026-10-28T14:47:32.2535593Z [0m[32mDownload[0m https://registry.npmjs.org/es-set-tostringtag
+2026-10-28T14:47:32.2536515Z [0m[32mDownload[0m https://registry.npmjs.org/hasown
+2026-10-28T14:47:32.2537288Z [0m[32mDownload[0m https://registry.npmjs.org/mime-types
+2026-10-28T14:47:32.2592011Z [0m[32mDownload[0m https://registry.npmjs.org/@keyv%2fserialize
+2026-10-28T14:47:32.2655193Z [0m[32mDownload[0m https://registry.npmjs.org/hashery
+2026-10-28T14:47:32.2685864Z [0m[32mDownload[0m https://registry.npmjs.org/@keyv%2fbigmap
+2026-10-28T14:47:32.2838742Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcore
+2026-10-28T14:47:32.2851919Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fsignature-v4-multi-region
+2026-10-28T14:47:32.2853415Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2ftypes
+2026-10-28T14:47:32.2854417Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy%2fcore
+2026-10-28T14:47:32.2855493Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy%2ffetch-http-handler
+2026-10-28T14:47:32.2856745Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy%2fnode-http-handler
+2026-10-28T14:47:32.2857803Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy%2ftypes
+2026-10-28T14:47:32.2858713Z [0m[32mDownload[0m https://registry.npmjs.org/async
+2026-10-28T14:47:32.2859583Z [0m[32mDownload[0m https://registry.npmjs.org/filelist
+2026-10-28T14:47:32.3055429Z [0m[32mDownload[0m https://registry.npmjs.org/version-range
+2026-10-28T14:47:32.3056718Z [0m[32mDownload[0m https://registry.npmjs.org/es-errors
+2026-10-28T14:47:32.3057993Z [0m[32mDownload[0m https://registry.npmjs.org/get-intrinsic
+2026-10-28T14:47:32.3058971Z [0m[32mDownload[0m https://registry.npmjs.org/has-tostringtag
+2026-10-28T14:47:32.3131850Z [0m[32mDownload[0m https://registry.npmjs.org/readable-stream
+2026-10-28T14:47:32.3315338Z [0m[32mDownload[0m https://registry.npmjs.org/function-bind
+2026-10-28T14:47:32.3342045Z [0m[32mDownload[0m https://registry.npmjs.org/mime-db
+2026-10-28T14:47:32.3371071Z [0m[32mDownload[0m https://registry.npmjs.org/err-code
+2026-10-28T14:47:32.3450491Z [0m[32mDownload[0m https://registry.npmjs.org/delayed-stream
+2026-10-28T14:47:32.3457695Z [0m[32mDownload[0m https://registry.npmjs.org/exponential-backoff
+2026-10-28T14:47:32.3458527Z [0m[32mDownload[0m https://registry.npmjs.org/nopt
+2026-10-28T14:47:32.3459294Z [0m[32mDownload[0m https://registry.npmjs.org/proc-log
+2026-10-28T14:47:32.3483396Z [0m[32mDownload[0m https://registry.npmjs.org/path-scurry
+2026-10-28T14:47:32.3496894Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2ftoken-providers
+2026-10-28T14:47:32.3605563Z [0m[32mDownload[0m https://registry.npmjs.org/has-symbols
+2026-10-28T14:47:32.3606940Z [0m[32mDownload[0m https://registry.npmjs.org/call-bind-apply-helpers
+2026-10-28T14:47:32.3608004Z [0m[32mDownload[0m https://registry.npmjs.org/es-define-property
+2026-10-28T14:47:32.3608977Z [0m[32mDownload[0m https://registry.npmjs.org/es-object-atoms
+2026-10-28T14:47:32.3609915Z [0m[32mDownload[0m https://registry.npmjs.org/get-proto
+2026-10-28T14:47:32.3632456Z [0m[32mDownload[0m https://registry.npmjs.org/gopd
+2026-10-28T14:47:32.3716183Z [0m[32mDownload[0m https://registry.npmjs.org/math-intrinsics
+2026-10-28T14:47:32.3742875Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcredential-provider-env
+2026-10-28T14:47:32.3749845Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcredential-provider-http
+2026-10-28T14:47:32.3751752Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcredential-provider-login
+2026-10-28T14:47:32.3752948Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcredential-provider-process
+2026-10-28T14:47:32.3754452Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fcredential-provider-web-identity
+2026-10-28T14:47:32.3755149Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy%2fcredential-provider-imds
+2026-10-28T14:47:32.3755677Z [0m[32mDownload[0m https://registry.npmjs.org/core-util-is
+2026-10-28T14:47:32.3756089Z [0m[32mDownload[0m https://registry.npmjs.org/inherits
+2026-10-28T14:47:32.3756472Z [0m[32mDownload[0m https://registry.npmjs.org/isarray
+2026-10-28T14:47:32.3756903Z [0m[32mDownload[0m https://registry.npmjs.org/process-nextick-args
+2026-10-28T14:47:32.3757372Z [0m[32mDownload[0m https://registry.npmjs.org/safe-buffer
+2026-10-28T14:47:32.3757788Z [0m[32mDownload[0m https://registry.npmjs.org/string_decoder
+2026-10-28T14:47:32.3758209Z [0m[32mDownload[0m https://registry.npmjs.org/util-deprecate
+2026-10-28T14:47:32.3758662Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk%2fxml-builder
+2026-10-28T14:47:32.3759165Z [0m[32mDownload[0m https://registry.npmjs.org/@aws%2flambda-invoke-store
+2026-10-28T14:47:32.3759668Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy%2fsignature-v4
+2026-10-28T14:47:32.3760100Z [0m[32mDownload[0m https://registry.npmjs.org/bowser
+2026-10-28T14:47:32.3760472Z [0m[32mDownload[0m https://registry.npmjs.org/abbrev
+2026-10-28T14:47:32.3760868Z [0m[32mDownload[0m https://registry.npmjs.org/dunder-proto
+2026-10-28T14:47:32.4286749Z [0m[32mDownload[0m https://registry.npmjs.org/playwright-core
+2026-10-28T14:47:32.8460644Z [0m[32mDownload[0m https://registry.npmjs.org/yocto-queue
+2026-10-28T14:47:32.8462383Z [0m[32mDownload[0m https://registry.npmjs.org/undici-types
+2026-10-28T14:47:32.8976209Z [0m[32mDownload[0m https://registry.npmjs.org/puppeteer
+2026-10-28T14:47:32.8977186Z [0m[32mDownload[0m https://registry.npmjs.org/selenium-webdriver
+2026-10-28T14:47:32.8977711Z [0m[32mDownload[0m https://registry.npmjs.org/@types%2feslint
+2026-10-28T14:47:32.8978766Z [0m[32mDownload[0m https://registry.npmjs.org/@dotenvx%2fdotenvx
+2026-10-28T14:47:33.0547976Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd/-/jscpd-5.4.1.tgz
+2026-10-28T14:47:33.0549534Z [0m[32mDownload[0m https://registry.npmjs.org/links-notation/-/links-notation-0.27.1.tgz
+2026-10-28T14:47:33.0550733Z [0m[32mDownload[0m https://registry.npmjs.org/axe-core/-/axe-core-4.14.0.tgz
+2026-10-28T14:47:33.0551785Z [0m[32mDownload[0m https://registry.npmjs.org/command-stream/-/command-stream-2.4.0.tgz
+2026-10-28T14:47:33.0553023Z [0m[32mDownload[0m https://registry.npmjs.org/lino-objects-codec/-/lino-objects-codec-0.9.2.tgz
+2026-10-28T14:47:33.0554326Z [0m[32mDownload[0m https://registry.npmjs.org/lottie-web/-/lottie-web-5.13.0.tgz
+2026-10-28T14:47:33.0555395Z [0m[32mDownload[0m https://registry.npmjs.org/playwright/-/playwright-1.64.1.tgz
+2026-10-28T14:47:33.0556530Z [0m[32mDownload[0m https://registry.npmjs.org/prettier/-/prettier-3.9.10.tgz
+2026-10-28T14:47:33.0557259Z [0m[32mDownload[0m https://registry.npmjs.org/react/-/react-19.3.1.tgz
+2026-10-28T14:47:33.0558212Z [0m[32mDownload[0m https://registry.npmjs.org/browser-commander/-/browser-commander-0.32.1.tgz
+2026-10-28T14:47:33.0559222Z [0m[32mDownload[0m https://registry.npmjs.org/teleproto/-/teleproto-1.232.0.tgz
+2026-10-28T14:47:33.0560255Z [0m[32mDownload[0m https://registry.npmjs.org/test-anywhere/-/test-anywhere-0.9.1.tgz
+2026-10-28T14:47:33.0561235Z [0m[32mDownload[0m https://registry.npmjs.org/secretlint/-/secretlint-13.1.0.tgz
+2026-10-28T14:47:33.0561983Z [0m[32mDownload[0m https://registry.npmjs.org/yaml/-/yaml-2.9.0.tgz
+2026-10-28T14:47:33.0563107Z [0m[32mDownload[0m https://registry.npmjs.org/lint-staged/-/lint-staged-17.6.0.tgz
+2026-10-28T14:47:33.0564176Z [0m[32mDownload[0m https://registry.npmjs.org/lino-arguments/-/lino-arguments-0.4.0.tgz
+2026-10-28T14:47:33.0564810Z [0m[32mDownload[0m https://registry.npmjs.org/react-dom/-/react-dom-19.3.1.tgz
+2026-10-28T14:47:33.0565671Z [0m[32mDownload[0m https://registry.npmjs.org/eslint/-/eslint-10.13.0.tgz
+2026-10-28T14:47:33.0566425Z [0m[32mDownload[0m https://registry.npmjs.org/katex/-/katex-0.19.1.tgz
+2026-10-28T14:47:33.0567007Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint/js/-/js-10.0.1.tgz
+2026-10-28T14:47:33.0567821Z [0m[32mDownload[0m https://registry.npmjs.org/electron-builder/-/electron-builder-27.0.0-alpha.13.tgz
+2026-10-28T14:47:33.0569560Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/secretlint-rule-preset-recommend/-/secretlint-rule-preset-recommend-13.1.0.tgz
+2026-10-28T14:47:33.0570744Z [0m[32mDownload[0m https://registry.npmjs.org/doublets-web/-/doublets-web-0.1.3.tgz
+2026-10-28T14:47:33.0571779Z [0m[32mDownload[0m https://registry.npmjs.org/esbuild/-/esbuild-0.28.2.tgz
+2026-10-28T14:47:33.0573090Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-10.1.8.tgz
+2026-10-28T14:47:33.0574337Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-plugin-prettier/-/eslint-plugin-prettier-5.5.7.tgz
+2026-10-28T14:47:33.0575337Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/cli/-/cli-3.0.3.tgz
+2026-10-28T14:47:33.0576157Z [0m[32mDownload[0m https://registry.npmjs.org/husky/-/husky-9.1.7.tgz
+2026-10-28T14:47:33.0577101Z [0m[32mDownload[0m https://registry.npmjs.org/jscpd-windows-x64-msvc/-/jscpd-windows-x64-msvc-5.4.1.tgz
+2026-10-28T14:47:33.0578059Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg/resvg-js/-/resvg-js-2.6.2.tgz
+2026-10-28T14:47:33.0578741Z [0m[32mDownload[0m https://registry.npmjs.org/cross-spawn/-/cross-spawn-7.0.6.tgz
+2026-10-28T14:47:33.0579801Z [0m[32mDownload[0m https://registry.npmjs.org/execa/-/execa-10.1.0.tgz
+2026-10-28T14:47:33.0580791Z [0m[32mDownload[0m https://registry.npmjs.org/node-pty/-/node-pty-1.1.0.tgz
+2026-10-28T14:47:33.0581347Z [0m[32mDownload[0m https://registry.npmjs.org/gifenc/-/gifenc-1.0.3.tgz
+2026-10-28T14:47:33.0582172Z [0m[32mDownload[0m https://registry.npmjs.org/@xterm/headless/-/headless-6.0.0.tgz
+2026-10-28T14:47:33.0583065Z [0m[32mDownload[0m https://registry.npmjs.org/links-notation/-/links-notation-0.25.2.tgz
+2026-10-28T14:47:33.0584758Z [0m[32mDownload[0m https://registry.npmjs.org/playwright-core/-/playwright-core-1.64.1.tgz
+2026-10-28T14:47:33.0585970Z [0m[32mDownload[0m https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-13.0.3.tgz
+2026-10-28T14:47:33.0586826Z [0m[32mDownload[0m https://registry.npmjs.org/csv-parse/-/csv-parse-7.0.3.tgz
+2026-10-28T14:47:33.0587840Z [0m[32mDownload[0m https://registry.npmjs.org/plist/-/plist-5.0.0.tgz
+2026-10-28T14:47:33.0588923Z [0m[32mDownload[0m https://registry.npmjs.org/webp-wasm/-/webp-wasm-1.0.6.tgz
+2026-10-28T14:47:33.0589950Z [0m[32mDownload[0m https://registry.npmjs.org/bplist-parser/-/bplist-parser-0.5.0.tgz
+2026-10-28T14:47:33.0591594Z [0m[32mDownload[0m https://registry.npmjs.org/log-lazy/-/log-lazy-1.0.4.tgz
+2026-10-28T14:47:33.0592731Z [0m[32mDownload[0m https://registry.npmjs.org/upng-js/-/upng-js-2.1.0.tgz
+2026-10-28T14:47:33.0593760Z [0m[32mDownload[0m https://registry.npmjs.org/socks/-/socks-2.8.10.tgz
+2026-10-28T14:47:33.0594778Z [0m[32mDownload[0m https://registry.npmjs.org/store2/-/store2-2.14.4.tgz
+2026-10-28T14:47:33.0595889Z [0m[32mDownload[0m https://registry.npmjs.org/big-integer/-/big-integer-1.6.52.tgz
+2026-10-28T14:47:33.0597012Z [0m[32mDownload[0m https://registry.npmjs.org/cifrante/-/cifrante-0.6.0.tgz
+2026-10-28T14:47:33.0598206Z [0m[32mDownload[0m https://registry.npmjs.org/node-localstorage/-/node-localstorage-2.2.1.tgz
+2026-10-28T14:47:33.0600001Z [0m[32mDownload[0m https://registry.npmjs.org/mime/-/mime-3.0.0.tgz
+2026-10-28T14:47:33.0601130Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/node/-/node-13.1.0.tgz
+2026-10-28T14:47:33.0602269Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/profiler/-/profiler-13.1.0.tgz
+2026-10-28T14:47:33.0603438Z [0m[32mDownload[0m https://registry.npmjs.org/read-pkg/-/read-pkg-10.1.0.tgz
+2026-10-28T14:47:33.0604596Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/resolver/-/resolver-13.1.0.tgz
+2026-10-28T14:47:33.0605832Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/formatter/-/formatter-13.1.0.tgz
+2026-10-28T14:47:33.0607132Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/config-creator/-/config-creator-13.1.0.tgz
+2026-10-28T14:47:33.0608305Z [0m[32mDownload[0m https://registry.npmjs.org/debug/-/debug-4.4.3.tgz
+2026-10-28T14:47:33.0609376Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/walker/-/walker-13.1.0.tgz
+2026-10-28T14:47:33.0610507Z [0m[32mDownload[0m https://registry.npmjs.org/tinyexec/-/tinyexec-1.3.1.tgz
+2026-10-28T14:47:33.0611591Z [0m[32mDownload[0m https://registry.npmjs.org/string-argv/-/string-argv-0.3.2.tgz
+2026-10-28T14:47:33.0612730Z [0m[32mDownload[0m https://registry.npmjs.org/picomatch/-/picomatch-4.0.7.tgz
+2026-10-28T14:47:33.0614199Z [0m[32mDownload[0m https://registry.npmjs.org/yaml/-/yaml-2.9.1.tgz
+2026-10-28T14:47:33.0615190Z [0m[32mDownload[0m https://registry.npmjs.org/lino-env/-/lino-env-0.2.8.tgz
+2026-10-28T14:47:33.0616217Z [0m[32mDownload[0m https://registry.npmjs.org/getenv/-/getenv-2.0.0.tgz
+2026-10-28T14:47:33.0617199Z [0m[32mDownload[0m https://registry.npmjs.org/yargs/-/yargs-18.2.0.tgz
+2026-10-28T14:47:33.0618224Z [0m[32mDownload[0m https://registry.npmjs.org/scheduler/-/scheduler-0.28.0.tgz
+2026-10-28T14:47:33.0619785Z [0m[32mDownload[0m https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz
+2026-10-28T14:47:33.0621267Z [0m[32mDownload[0m https://registry.npmjs.org/minimatch/-/minimatch-10.2.6.tgz
+2026-10-28T14:47:33.0622430Z [0m[32mDownload[0m https://registry.npmjs.org/optionator/-/optionator-0.9.4.tgz
+2026-10-28T14:47:33.0623644Z [0m[32mDownload[0m https://registry.npmjs.org/file-entry-cache/-/file-entry-cache-11.1.5.tgz
+2026-10-28T14:47:33.0624781Z [0m[32mDownload[0m https://registry.npmjs.org/espree/-/espree-11.2.0.tgz
+2026-10-28T14:47:33.0626301Z [0m[32mDownload[0m https://registry.npmjs.org/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz
+2026-10-28T14:47:33.0627992Z [0m[32mDownload[0m https://registry.npmjs.org/escape-string-regexp/-/escape-string-regexp-4.0.0.tgz
+2026-10-28T14:47:33.0629419Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-5.0.1.tgz
+2026-10-28T14:47:33.0631664Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.9.0.tgz
+2026-10-28T14:47:33.0632871Z [0m[32mDownload[0m https://registry.npmjs.org/natural-compare/-/natural-compare-1.4.0.tgz
+2026-10-28T14:47:33.0633829Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint/config-helpers/-/config-helpers-0.7.0.tgz
+2026-10-28T14:47:33.0634828Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint/config-array/-/config-array-0.23.5.tgz
+2026-10-28T14:47:33.0636097Z [0m[32mDownload[0m https://registry.npmjs.org/@humanwhocodes/retry/-/retry-0.4.3.tgz
+2026-10-28T14:47:33.0637312Z [0m[32mDownload[0m https://registry.npmjs.org/find-up/-/find-up-5.0.0.tgz
+2026-10-28T14:47:33.0638387Z [0m[32mDownload[0m https://registry.npmjs.org/@types/estree/-/estree-1.0.8.tgz
+2026-10-28T14:47:33.0639904Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint-community/regexpp/-/regexpp-4.12.2.tgz
+2026-10-28T14:47:33.0641303Z [0m[32mDownload[0m https://registry.npmjs.org/@humanwhocodes/module-importer/-/module-importer-1.0.1.tgz
+2026-10-28T14:47:33.0642840Z [0m[32mDownload[0m https://registry.npmjs.org/esutils/-/esutils-2.0.3.tgz
+2026-10-28T14:47:33.0643832Z [0m[32mDownload[0m https://registry.npmjs.org/ajv/-/ajv-6.15.0.tgz
+2026-10-28T14:47:33.0644813Z [0m[32mDownload[0m https://registry.npmjs.org/ignore/-/ignore-5.3.2.tgz
+2026-10-28T14:47:33.0646379Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint/plugin-kit/-/plugin-kit-0.7.3.tgz
+2026-10-28T14:47:33.0647861Z [0m[32mDownload[0m https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz
+2026-10-28T14:47:33.0648913Z [0m[32mDownload[0m https://registry.npmjs.org/esquery/-/esquery-1.7.0.tgz
+2026-10-28T14:47:33.0649935Z [0m[32mDownload[0m https://registry.npmjs.org/glob-parent/-/glob-parent-6.0.2.tgz
+2026-10-28T14:47:33.0651017Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-scope/-/eslint-scope-9.1.2.tgz
+2026-10-28T14:47:33.0652099Z [0m[32mDownload[0m https://registry.npmjs.org/@humanfs/node/-/node-0.16.8.tgz
+2026-10-28T14:47:33.0653126Z [0m[32mDownload[0m https://registry.npmjs.org/is-glob/-/is-glob-4.0.3.tgz
+2026-10-28T14:47:33.0654188Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint/core/-/core-1.2.1.tgz
+2026-10-28T14:47:33.0655286Z [0m[32mDownload[0m https://registry.npmjs.org/commander/-/commander-15.0.0.tgz
+2026-10-28T14:47:33.0656651Z [0m[32mDownload[0m https://registry.npmjs.org/app-builder-lib/-/app-builder-lib-27.0.0-alpha.13.tgz
+2026-10-28T14:47:33.0658392Z [0m[32mDownload[0m https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz
+2026-10-28T14:47:33.0660130Z [0m[32mDownload[0m https://registry.npmjs.org/builder-util-runtime/-/builder-util-runtime-10.0.0-alpha.12.tgz
+2026-10-28T14:47:33.0661634Z [0m[32mDownload[0m https://registry.npmjs.org/electron-publish/-/electron-publish-27.0.0-alpha.13.tgz
+2026-10-28T14:47:33.0662846Z [0m[32mDownload[0m https://registry.npmjs.org/fs-extra/-/fs-extra-11.4.1.tgz
+2026-10-28T14:47:33.0663808Z [0m[32mDownload[0m https://registry.npmjs.org/yargs/-/yargs-17.7.3.tgz
+2026-10-28T14:47:33.0665460Z [0m[32mDownload[0m https://registry.npmjs.org/builder-util/-/builder-util-27.0.0-alpha.13.tgz
+2026-10-28T14:47:33.0667118Z [0m[32mDownload[0m https://registry.npmjs.org/ci-info/-/ci-info-4.3.1.tgz
+2026-10-28T14:47:33.0668039Z [0m[32mDownload[0m https://registry.npmjs.org/dmg-builder/-/dmg-builder-27.0.0-alpha.13.tgz
+2026-10-28T14:47:33.0669050Z [0m[32mDownload[0m https://registry.npmjs.org/simple-update-notifier/-/simple-update-notifier-2.0.0.tgz
+2026-10-28T14:47:33.0670020Z [0m[32mDownload[0m https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.28.2.tgz
+2026-10-28T14:47:33.0670878Z [0m[32mDownload[0m https://registry.npmjs.org/synckit/-/synckit-0.12.3.tgz
+2026-10-28T14:47:33.0671826Z [0m[32mDownload[0m https://registry.npmjs.org/prettier-linter-helpers/-/prettier-linter-helpers-1.0.1.tgz
+2026-10-28T14:47:33.0672782Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/write/-/write-1.0.1.tgz
+2026-10-28T14:47:33.0673708Z [0m[32mDownload[0m https://registry.npmjs.org/@pnpm/deps.graph-sequencer/-/deps.graph-sequencer-1100.0.1.tgz
+2026-10-28T14:47:33.0675371Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/get-dependents-graph/-/get-dependents-graph-3.0.0.tgz
+2026-10-28T14:47:33.0676825Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/config/-/config-4.0.1.tgz
+2026-10-28T14:47:33.0677997Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/types/-/types-7.0.0.tgz
+2026-10-28T14:47:33.0679218Z [0m[32mDownload[0m https://registry.npmjs.org/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz
+2026-10-28T14:47:33.0680736Z [0m[32mDownload[0m https://registry.npmjs.org/package-manager-detector/-/package-manager-detector-1.9.0.tgz
+2026-10-28T14:47:33.0682328Z [0m[32mDownload[0m https://registry.npmjs.org/cac/-/cac-7.1.0.tgz
+2026-10-28T14:47:33.0683423Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/errors/-/errors-1.0.0.tgz
+2026-10-28T14:47:33.0684766Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/apply-release-plan/-/apply-release-plan-8.1.1.tgz
+2026-10-28T14:47:33.0686351Z [0m[32mDownload[0m https://registry.npmjs.org/@clack/prompts/-/prompts-1.8.1.tgz
+2026-10-28T14:47:33.0687562Z [0m[32mDownload[0m https://registry.npmjs.org/@manypkg/get-packages/-/get-packages-3.1.0.tgz
+2026-10-28T14:47:33.0688868Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/changelog-git/-/changelog-git-1.0.0.tgz
+2026-10-28T14:47:33.0690329Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/should-skip-package/-/should-skip-package-1.0.0.tgz
+2026-10-28T14:47:33.0691709Z [0m[32mDownload[0m https://registry.npmjs.org/launch-editor/-/launch-editor-2.14.2.tgz
+2026-10-28T14:47:33.0692840Z [0m[32mDownload[0m https://registry.npmjs.org/semver/-/semver-7.8.5.tgz
+2026-10-28T14:47:33.0693874Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/read/-/read-1.0.1.tgz
+2026-10-28T14:47:33.0694941Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/pre/-/pre-3.0.0.tgz
+2026-10-28T14:47:33.0696035Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/git/-/git-4.0.1.tgz
+2026-10-28T14:47:33.0697403Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/assemble-release-plan/-/assemble-release-plan-7.0.0.tgz
+2026-10-28T14:47:33.0699014Z [0m[32mDownload[0m https://registry.npmjs.org/@resvg/resvg-js-win32-x64-msvc/-/resvg-js-win32-x64-msvc-2.6.2.tgz
+2026-10-28T14:47:33.0700440Z [0m[32mDownload[0m https://registry.npmjs.org/shebang-command/-/shebang-command-2.0.0.tgz
+2026-10-28T14:47:33.0701537Z [0m[32mDownload[0m https://registry.npmjs.org/which/-/which-2.0.2.tgz
+2026-10-28T14:47:33.0702911Z [0m[32mDownload[0m https://registry.npmjs.org/path-key/-/path-key-3.1.1.tgz
+2026-10-28T14:47:33.0704032Z [0m[32mDownload[0m https://registry.npmjs.org/human-signals/-/human-signals-8.0.1.tgz
+2026-10-28T14:47:33.0705154Z [0m[32mDownload[0m https://registry.npmjs.org/is-stream/-/is-stream-4.0.1.tgz
+2026-10-28T14:47:33.0706256Z [0m[32mDownload[0m https://registry.npmjs.org/npm-run-path/-/npm-run-path-6.0.0.tgz
+2026-10-28T14:47:33.0707785Z [0m[32mDownload[0m https://registry.npmjs.org/@sindresorhus/merge-streams/-/merge-streams-4.0.0.tgz
+2026-10-28T14:47:33.0709017Z [0m[32mDownload[0m https://registry.npmjs.org/figures/-/figures-6.1.0.tgz
+2026-10-28T14:47:33.0710094Z [0m[32mDownload[0m https://registry.npmjs.org/pretty-ms/-/pretty-ms-9.3.1.tgz
+2026-10-28T14:47:33.0711181Z [0m[32mDownload[0m https://registry.npmjs.org/get-stream/-/get-stream-9.0.1.tgz
+2026-10-28T14:47:33.0712283Z [0m[32mDownload[0m https://registry.npmjs.org/signal-exit/-/signal-exit-4.1.0.tgz
+2026-10-28T14:47:33.0713559Z [0m[32mDownload[0m https://registry.npmjs.org/strip-final-newline/-/strip-final-newline-4.0.0.tgz
+2026-10-28T14:47:33.0714887Z [0m[32mDownload[0m https://registry.npmjs.org/is-plain-obj/-/is-plain-obj-4.1.0.tgz
+2026-10-28T14:47:33.0716440Z [0m[32mDownload[0m https://registry.npmjs.org/yoctocolors/-/yoctocolors-2.2.0.tgz
+2026-10-28T14:47:33.0717708Z [0m[32mDownload[0m https://registry.npmjs.org/which-command/-/which-command-0.1.0.tgz
+2026-10-28T14:47:33.0718781Z [0m[32mDownload[0m https://registry.npmjs.org/node-addon-api/-/node-addon-api-7.1.1.tgz
+2026-10-28T14:47:33.0719738Z [0m[32mDownload[0m https://registry.npmjs.org/node-addon-api/-/node-addon-api-8.9.2.tgz
+2026-10-28T14:47:33.0721055Z [0m[32mDownload[0m https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.9.12.tgz
+2026-10-28T14:47:33.0721839Z [0m[32mDownload[0m https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-15.1.1.tgz
+2026-10-28T14:47:33.0722513Z [0m[32mDownload[0m https://registry.npmjs.org/pako/-/pako-1.0.11.tgz
+2026-10-28T14:47:33.0723337Z [0m[32mDownload[0m https://registry.npmjs.org/ip-address/-/ip-address-10.7.4.tgz
+2026-10-28T14:47:33.0723932Z [0m[32mDownload[0m https://registry.npmjs.org/smart-buffer/-/smart-buffer-4.2.0.tgz
+2026-10-28T14:47:33.0724688Z [0m[32mDownload[0m https://registry.npmjs.org/@cifrante/win32-x64/-/win32-x64-0.6.0.tgz
+2026-10-28T14:47:33.0725950Z [0m[32mDownload[0m https://registry.npmjs.org/write-file-atomic/-/write-file-atomic-1.3.4.tgz
+2026-10-28T14:47:33.0726980Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/source-creator/-/source-creator-13.1.0.tgz
+2026-10-28T14:47:33.0727881Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/types/-/types-13.1.0.tgz
+2026-10-28T14:47:33.0728640Z [0m[32mDownload[0m https://registry.npmjs.org/p-map/-/p-map-7.1.1.tgz
+2026-10-28T14:47:33.0729345Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/core/-/core-13.1.0.tgz
+2026-10-28T14:47:33.0730272Z [0m[32mDownload[0m https://registry.npmjs.org/@secretlint/config-loader/-/config-loader-13.1.0.tgz
+2026-10-28T14:47:33.0731225Z [0m[32mDownload[0m https://registry.npmjs.org/unicorn-magic/-/unicorn-magic-0.4.1.tgz
+2026-10-28T14:47:33.0732233Z [0m[32mDownload[0m https://registry.npmjs.org/@types/normalize-package-data/-/normalize-package-data-2.4.4.tgz
+2026-10-28T14:47:33.0733473Z [0m[32mDownload[0m https://registry.npmjs.org/normalize-package-data/-/normalize-package-data-8.0.0.tgz
+2026-10-28T14:47:33.0734640Z [0m[32mDownload[0m https://registry.npmjs.org/type-fest/-/type-fest-5.10.0.tgz
+2026-10-28T14:47:33.0735612Z [0m[32mDownload[0m https://registry.npmjs.org/parse-json/-/parse-json-8.3.0.tgz
+2026-10-28T14:47:33.0736446Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint/types/-/types-15.8.0.tgz
+2026-10-28T14:47:33.0737337Z [0m[32mDownload[0m https://registry.npmjs.org/pluralize/-/pluralize-8.0.0.tgz
+2026-10-28T14:47:33.0738250Z [0m[32mDownload[0m https://registry.npmjs.org/table/-/table-6.9.0.tgz
+2026-10-28T14:47:33.0739007Z [0m[32mDownload[0m https://registry.npmjs.org/terminal-link/-/terminal-link-5.0.0.tgz
+2026-10-28T14:47:33.0740308Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint/linter-formatter/-/linter-formatter-15.8.0.tgz
+2026-10-28T14:47:33.0741515Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint/module-interop/-/module-interop-15.8.0.tgz
+2026-10-28T14:47:33.0742641Z [0m[32mDownload[0m https://registry.npmjs.org/chalk/-/chalk-5.6.2.tgz
+2026-10-28T14:47:33.0743413Z [0m[32mDownload[0m https://registry.npmjs.org/ms/-/ms-2.1.3.tgz
+2026-10-28T14:47:33.0744072Z [0m[32mDownload[0m https://registry.npmjs.org/ignore/-/ignore-7.0.14.tgz
+2026-10-28T14:47:33.0744943Z [0m[32mDownload[0m https://registry.npmjs.org/links-notation/-/links-notation-0.11.2.tgz
+2026-10-28T14:47:33.0745788Z [0m[32mDownload[0m https://registry.npmjs.org/y18n/-/y18n-5.0.8.tgz
+2026-10-28T14:47:33.0746495Z [0m[32mDownload[0m https://registry.npmjs.org/yargs-parser/-/yargs-parser-22.0.0.tgz
+2026-10-28T14:47:33.0747251Z [0m[32mDownload[0m https://registry.npmjs.org/cliui/-/cliui-9.0.1.tgz
+2026-10-28T14:47:33.0748008Z [0m[32mDownload[0m https://registry.npmjs.org/escalade/-/escalade-3.2.0.tgz
+2026-10-28T14:47:33.0748749Z [0m[32mDownload[0m https://registry.npmjs.org/string-width/-/string-width-8.3.0.tgz
+2026-10-28T14:47:33.0749515Z [0m[32mDownload[0m https://registry.npmjs.org/get-caller-file/-/get-caller-file-2.0.5.tgz
+2026-10-28T14:47:33.0750440Z [0m[32mDownload[0m https://registry.npmjs.org/brace-expansion/-/brace-expansion-5.0.12.tgz
+2026-10-28T14:47:33.0751355Z [0m[32mDownload[0m https://registry.npmjs.org/type-check/-/type-check-0.4.0.tgz
+2026-10-28T14:47:33.0752033Z [0m[32mDownload[0m https://registry.npmjs.org/deep-is/-/deep-is-0.1.4.tgz
+2026-10-28T14:47:33.0752745Z [0m[32mDownload[0m https://registry.npmjs.org/word-wrap/-/word-wrap-1.2.5.tgz
+2026-10-28T14:47:33.0753557Z [0m[32mDownload[0m https://registry.npmjs.org/levn/-/levn-0.4.1.tgz
+2026-10-28T14:47:33.0754433Z [0m[32mDownload[0m https://registry.npmjs.org/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz
+2026-10-28T14:47:33.0755276Z [0m[32mDownload[0m https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz
+2026-10-28T14:47:33.0756063Z [0m[32mDownload[0m https://registry.npmjs.org/flat-cache/-/flat-cache-6.1.23.tgz
+2026-10-28T14:47:33.0757159Z [0m[32mDownload[0m https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.3.2.tgz
+2026-10-28T14:47:33.0758357Z [0m[32mDownload[0m https://registry.npmjs.org/acorn/-/acorn-8.19.0.tgz
+2026-10-28T14:47:33.0759217Z [0m[32mDownload[0m https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-3.4.3.tgz
+2026-10-28T14:47:33.0760189Z [0m[32mDownload[0m https://registry.npmjs.org/@eslint/object-schema/-/object-schema-3.0.5.tgz
+2026-10-28T14:47:33.0761067Z [0m[32mDownload[0m https://registry.npmjs.org/path-exists/-/path-exists-4.0.0.tgz
+2026-10-28T14:47:33.0761848Z [0m[32mDownload[0m https://registry.npmjs.org/locate-path/-/locate-path-6.0.0.tgz
+2026-10-28T14:47:33.0762705Z [0m[32mDownload[0m https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-0.4.1.tgz
+2026-10-28T14:47:33.0763889Z [0m[32mDownload[0m https://registry.npmjs.org/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz
+2026-10-28T14:47:33.0764792Z [0m[32mDownload[0m https://registry.npmjs.org/uri-js/-/uri-js-4.4.1.tgz
+2026-10-28T14:47:33.0765636Z [0m[32mDownload[0m https://registry.npmjs.org/estraverse/-/estraverse-5.3.0.tgz
+2026-10-28T14:47:33.0766186Z [0m[32mDownload[0m https://registry.npmjs.org/esrecurse/-/esrecurse-4.3.0.tgz
+2026-10-28T14:47:33.0767040Z [0m[32mDownload[0m https://registry.npmjs.org/@types/esrecurse/-/esrecurse-4.3.1.tgz
+2026-10-28T14:47:33.0767861Z [0m[32mDownload[0m https://registry.npmjs.org/@humanfs/types/-/types-0.15.0.tgz
+2026-10-28T14:47:33.0768581Z [0m[32mDownload[0m https://registry.npmjs.org/@humanfs/core/-/core-0.19.2.tgz
+2026-10-28T14:47:33.0769307Z [0m[32mDownload[0m https://registry.npmjs.org/is-extglob/-/is-extglob-2.1.1.tgz
+2026-10-28T14:47:33.0770185Z [0m[32mDownload[0m https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.15.tgz
+2026-10-28T14:47:33.0770766Z [0m[32mDownload[0m https://registry.npmjs.org/lazy-val/-/lazy-val-1.0.5.tgz
+2026-10-28T14:47:33.0771415Z [0m[32mDownload[0m https://registry.npmjs.org/@electron/asar/-/asar-4.3.1.tgz
+2026-10-28T14:47:33.0773411Z [0m[32mDownload[0m https://registry.npmjs.org/@types/fs-extra/-/fs-extra-9.0.13.tgz
+2026-10-28T14:47:33.0774507Z [0m[32mDownload[0m https://registry.npmjs.org/chromium-pickle-js/-/chromium-pickle-js-0.2.0.tgz
+2026-10-28T14:47:33.0775464Z [0m[32mDownload[0m https://registry.npmjs.org/@electron/universal/-/universal-3.0.6.tgz
+2026-10-28T14:47:33.0776657Z [0m[32mDownload[0m https://registry.npmjs.org/electron-builder-squirrel-windows/-/electron-builder-squirrel-windows-27.0.0-alpha.13.tgz
+2026-10-28T14:47:33.0777785Z [0m[32mDownload[0m https://registry.npmjs.org/isbinaryfile/-/isbinaryfile-5.0.7.tgz
+2026-10-28T14:47:33.0779015Z [0m[32mDownload[0m https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.2.tgz
+2026-10-28T14:47:33.0779843Z [0m[32mDownload[0m https://registry.npmjs.org/dotenv/-/dotenv-17.4.2.tgz
+2026-10-28T14:47:33.0780548Z [0m[32mDownload[0m https://registry.npmjs.org/json5/-/json5-2.2.3.tgz
+2026-10-28T14:47:33.0781340Z [0m[32mDownload[0m https://registry.npmjs.org/proper-lockfile/-/proper-lockfile-4.1.2.tgz
+2026-10-28T14:47:33.0782174Z [0m[32mDownload[0m https://registry.npmjs.org/temp-file/-/temp-file-3.4.0.tgz
+2026-10-28T14:47:33.0783037Z [0m[32mDownload[0m https://registry.npmjs.org/@electron/rebuild/-/rebuild-4.2.1.tgz
+2026-10-28T14:47:33.0783891Z [0m[32mDownload[0m https://registry.npmjs.org/unzipper/-/unzipper-0.12.5.tgz
+2026-10-28T14:47:33.0784525Z [0m[32mDownload[0m https://registry.npmjs.org/resedit/-/resedit-3.1.0.tgz
+2026-10-28T14:47:33.0785254Z [0m[32mDownload[0m https://registry.npmjs.org/semver/-/semver-7.7.4.tgz
+2026-10-28T14:47:33.0785987Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar/webcrypto/-/webcrypto-1.7.2.tgz
+2026-10-28T14:47:33.0786771Z [0m[32mDownload[0m https://registry.npmjs.org/@electron/fuses/-/fuses-2.1.3.tgz
+2026-10-28T14:47:33.0787531Z [0m[32mDownload[0m https://registry.npmjs.org/ejs/-/ejs-3.1.10.tgz
+2026-10-28T14:47:33.0788545Z [0m[32mDownload[0m https://registry.npmjs.org/@electron/get/-/get-5.1.0.tgz
+2026-10-28T14:47:33.0789278Z [0m[32mDownload[0m https://registry.npmjs.org/undici/-/undici-7.30.1.tgz
+2026-10-28T14:47:33.0790075Z [0m[32mDownload[0m https://registry.npmjs.org/dotenv-expand/-/dotenv-expand-13.0.0.tgz
+2026-10-28T14:47:33.0790722Z [0m[32mDownload[0m https://registry.npmjs.org/tar/-/tar-7.5.22.tgz
+2026-10-28T14:47:33.0791579Z [0m[32mDownload[0m https://registry.npmjs.org/tiny-async-pool/-/tiny-async-pool-1.3.0.tgz
+2026-10-28T14:47:33.0792498Z [0m[32mDownload[0m https://registry.npmjs.org/@electron/notarize/-/notarize-3.1.2.tgz
+2026-10-28T14:47:33.0793202Z [0m[32mDownload[0m https://registry.npmjs.org/jiti/-/jiti-2.7.0.tgz
+2026-10-28T14:47:33.0793917Z [0m[32mDownload[0m https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-4.1.0.tgz
+2026-10-28T14:47:33.0794812Z [0m[32mDownload[0m https://registry.npmjs.org/@noble/hashes/-/hashes-2.4.0.tgz
+2026-10-28T14:47:33.0795324Z [0m[32mDownload[0m https://registry.npmjs.org/which/-/which-5.0.0.tgz
+2026-10-28T14:47:33.0796074Z [0m[32mDownload[0m https://registry.npmjs.org/ajv/-/ajv-8.20.0.tgz
+2026-10-28T14:47:33.0796679Z [0m[32mDownload[0m https://registry.npmjs.org/pkijs/-/pkijs-3.4.3.tgz
+2026-10-28T14:47:33.0797406Z [0m[32mDownload[0m https://registry.npmjs.org/asn1js/-/asn1js-3.1.0.tgz
+2026-10-28T14:47:33.0798480Z [0m[32mDownload[0m https://registry.npmjs.org/@electron/osx-sign/-/osx-sign-2.7.2.tgz
+2026-10-28T14:47:33.0799181Z [0m[32mDownload[0m https://registry.npmjs.org/plist/-/plist-3.1.0.tgz
+2026-10-28T14:47:33.0799925Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-styles/-/ansi-styles-4.3.0.tgz
+2026-10-28T14:47:33.0800832Z [0m[32mDownload[0m https://registry.npmjs.org/supports-color/-/supports-color-7.2.0.tgz
+2026-10-28T14:47:33.0801607Z [0m[32mDownload[0m https://registry.npmjs.org/sax/-/sax-1.6.1.tgz
+2026-10-28T14:47:33.0802390Z [0m[32mDownload[0m https://registry.npmjs.org/form-data/-/form-data-4.0.6.tgz
+2026-10-28T14:47:33.0804041Z [0m[32mDownload[0m https://registry.npmjs.org/mime/-/mime-2.6.0.tgz
+2026-10-28T14:47:33.0805318Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/nested-clients/-/nested-clients-3.997.48.tgz
+2026-10-28T14:47:33.0807233Z [0m[32mDownload[0m https://registry.npmjs.org/aws4/-/aws4-1.13.2.tgz
+2026-10-28T14:47:33.0808215Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/credential-provider-sso/-/credential-provider-sso-3.973.18.tgz
+2026-10-28T14:47:33.0810113Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/credential-provider-ini/-/credential-provider-ini-3.973.19.tgz
+2026-10-28T14:47:33.0811532Z [0m[32mDownload[0m https://registry.npmjs.org/jsonfile/-/jsonfile-6.2.1.tgz
+2026-10-28T14:47:33.0812695Z [0m[32mDownload[0m https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz
+2026-10-28T14:47:33.0813900Z [0m[32mDownload[0m https://registry.npmjs.org/universalify/-/universalify-2.0.1.tgz
+2026-10-28T14:47:33.0815175Z [0m[32mDownload[0m https://registry.npmjs.org/require-directory/-/require-directory-2.1.1.tgz
+2026-10-28T14:47:33.0816398Z [0m[32mDownload[0m https://registry.npmjs.org/yargs-parser/-/yargs-parser-21.1.1.tgz
+2026-10-28T14:47:33.0817483Z [0m[32mDownload[0m https://registry.npmjs.org/cliui/-/cliui-8.0.1.tgz
+2026-10-28T14:47:33.0819195Z [0m[32mDownload[0m https://registry.npmjs.org/string-width/-/string-width-4.2.3.tgz
+2026-10-28T14:47:33.0820391Z [0m[32mDownload[0m https://registry.npmjs.org/https-proxy-agent/-/https-proxy-agent-7.0.6.tgz
+2026-10-28T14:47:33.0821346Z [0m[32mDownload[0m https://registry.npmjs.org/stat-mode/-/stat-mode-1.0.0.tgz
+2026-10-28T14:47:33.0822177Z [0m[32mDownload[0m https://registry.npmjs.org/@types/debug/-/debug-4.1.13.tgz
+2026-10-28T14:47:33.0823368Z [0m[32mDownload[0m https://registry.npmjs.org/http-proxy-agent/-/http-proxy-agent-7.0.2.tgz
+2026-10-28T14:47:33.0824639Z [0m[32mDownload[0m https://registry.npmjs.org/sanitize-filename/-/sanitize-filename-1.6.4.tgz
+2026-10-28T14:47:33.0826287Z [0m[32mDownload[0m https://registry.npmjs.org/source-map-support/-/source-map-support-0.5.21.tgz
+2026-10-28T14:47:33.0827772Z [0m[32mDownload[0m https://registry.npmjs.org/@dual-bundle/import-meta-resolve/-/import-meta-resolve-4.2.1.tgz
+2026-10-28T14:47:33.0829059Z [0m[32mDownload[0m https://registry.npmjs.org/@pkgr/core/-/core-0.3.6.tgz
+2026-10-28T14:47:33.0830154Z [0m[32mDownload[0m https://registry.npmjs.org/fast-diff/-/fast-diff-1.3.0.tgz
+2026-10-28T14:47:33.0831278Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/format/-/format-0.1.2.tgz
+2026-10-28T14:47:33.0832384Z [0m[32mDownload[0m https://registry.npmjs.org/human-id/-/human-id-4.2.2.tgz
+2026-10-28T14:47:33.0833583Z [0m[32mDownload[0m https://registry.npmjs.org/jsonc-parser/-/jsonc-parser-3.3.1.tgz
+2026-10-28T14:47:33.0834717Z [0m[32mDownload[0m https://registry.npmjs.org/@clack/core/-/core-1.5.1.tgz
+2026-10-28T14:47:33.0835884Z [0m[32mDownload[0m https://registry.npmjs.org/fast-string-width/-/fast-string-width-3.0.2.tgz
+2026-10-28T14:47:33.0837124Z [0m[32mDownload[0m https://registry.npmjs.org/sisteransi/-/sisteransi-1.0.5.tgz
+2026-10-28T14:47:33.0838271Z [0m[32mDownload[0m https://registry.npmjs.org/fast-wrap-ansi/-/fast-wrap-ansi-0.2.2.tgz
+2026-10-28T14:47:33.0839821Z [0m[32mDownload[0m https://registry.npmjs.org/@manypkg/find-root/-/find-root-3.1.0.tgz
+2026-10-28T14:47:33.0840980Z [0m[32mDownload[0m https://registry.npmjs.org/@manypkg/tools/-/tools-2.1.2.tgz
+2026-10-28T14:47:33.0842106Z [0m[32mDownload[0m https://registry.npmjs.org/shell-quote/-/shell-quote-1.12.0.tgz
+2026-10-28T14:47:33.0843243Z [0m[32mDownload[0m https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz
+2026-10-28T14:47:33.0844357Z [0m[32mDownload[0m https://registry.npmjs.org/@changesets/parse/-/parse-1.0.0.tgz
+2026-10-28T14:47:33.0845524Z [0m[32mDownload[0m https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz
+2026-10-28T14:47:33.0846619Z [0m[32mDownload[0m https://registry.npmjs.org/isexe/-/isexe-2.0.0.tgz
+2026-10-28T14:47:33.0847860Z [0m[32mDownload[0m https://registry.npmjs.org/path-key/-/path-key-4.0.0.tgz
+2026-10-28T14:47:33.0849041Z [0m[32mDownload[0m https://registry.npmjs.org/unicorn-magic/-/unicorn-magic-0.3.0.tgz
+2026-10-28T14:47:33.0850327Z [0m[32mDownload[0m https://registry.npmjs.org/is-unicode-supported/-/is-unicode-supported-2.1.0.tgz
+2026-10-28T14:47:33.0851571Z [0m[32mDownload[0m https://registry.npmjs.org/parse-ms/-/parse-ms-4.0.0.tgz
+2026-10-28T14:47:33.0852798Z [0m[32mDownload[0m https://registry.npmjs.org/@sec-ant/readable-stream/-/readable-stream-0.4.1.tgz
+2026-10-28T14:47:33.0853897Z [0m[32mDownload[0m https://registry.npmjs.org/slide/-/slide-1.1.6.tgz
+2026-10-28T14:47:33.0854990Z [0m[32mDownload[0m https://registry.npmjs.org/istextorbinary/-/istextorbinary-9.5.0.tgz
+2026-10-28T14:47:33.0856255Z [0m[32mDownload[0m https://registry.npmjs.org/structured-source/-/structured-source-4.0.0.tgz
+2026-10-28T14:47:33.0857475Z [0m[32mDownload[0m https://registry.npmjs.org/rc-config-loader/-/rc-config-loader-4.1.4.tgz
+2026-10-28T14:47:33.0859013Z [0m[32mDownload[0m https://registry.npmjs.org/hosted-git-info/-/hosted-git-info-9.0.3.tgz
+2026-10-28T14:47:33.0860566Z [0m[32mDownload[0m https://registry.npmjs.org/validate-npm-package-license/-/validate-npm-package-license-3.0.4.tgz
+2026-10-28T14:47:33.0861959Z [0m[32mDownload[0m https://registry.npmjs.org/tagged-tag/-/tagged-tag-1.0.0.tgz
+2026-10-28T14:47:33.0863026Z [0m[32mDownload[0m https://registry.npmjs.org/type-fest/-/type-fest-4.41.0.tgz
+2026-10-28T14:47:33.0864159Z [0m[32mDownload[0m https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.29.7.tgz
+2026-10-28T14:47:33.0865406Z [0m[32mDownload[0m https://registry.npmjs.org/index-to-position/-/index-to-position-1.2.0.tgz
+2026-10-28T14:47:33.0866739Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint/ast-node-types/-/ast-node-types-15.8.0.tgz
+2026-10-28T14:47:33.0868269Z [0m[32mDownload[0m https://registry.npmjs.org/slice-ansi/-/slice-ansi-4.0.0.tgz
+2026-10-28T14:47:33.0869377Z [0m[32mDownload[0m https://registry.npmjs.org/strip-ansi/-/strip-ansi-6.0.1.tgz
+2026-10-28T14:47:33.0870551Z [0m[32mDownload[0m https://registry.npmjs.org/lodash.truncate/-/lodash.truncate-4.4.2.tgz
+2026-10-28T14:47:33.0871767Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-escapes/-/ansi-escapes-7.3.0.tgz
+2026-10-28T14:47:33.0873056Z [0m[32mDownload[0m https://registry.npmjs.org/supports-hyperlinks/-/supports-hyperlinks-4.6.0.tgz
+2026-10-28T14:47:33.0874375Z [0m[32mDownload[0m https://registry.npmjs.org/@azu/style-format/-/style-format-1.0.1.tgz
+2026-10-28T14:47:33.0875490Z [0m[32mDownload[0m https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz
+2026-10-28T14:47:33.0876610Z [0m[32mDownload[0m https://registry.npmjs.org/@azu/format-text/-/format-text-1.0.2.tgz
+2026-10-28T14:47:33.0877819Z [0m[32mDownload[0m https://registry.npmjs.org/@textlint/resolver/-/resolver-15.8.0.tgz
+2026-10-28T14:47:33.0879266Z [0m[32mDownload[0m https://registry.npmjs.org/pluralize/-/pluralize-2.0.0.tgz
+2026-10-28T14:47:33.0880329Z [0m[32mDownload[0m https://registry.npmjs.org/lodash/-/lodash-4.18.1.tgz
+2026-10-28T14:47:33.0881401Z [0m[32mDownload[0m https://registry.npmjs.org/string-width/-/string-width-7.2.0.tgz
+2026-10-28T14:47:33.0882593Z [0m[32mDownload[0m https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-9.0.2.tgz
+2026-10-28T14:47:33.0883665Z [0m[32mDownload[0m https://registry.npmjs.org/strip-ansi/-/strip-ansi-7.2.0.tgz
+2026-10-28T14:47:33.0884937Z [0m[32mDownload[0m https://registry.npmjs.org/get-east-asian-width/-/get-east-asian-width-1.7.0.tgz
+2026-10-28T14:47:33.0886223Z [0m[32mDownload[0m https://registry.npmjs.org/balanced-match/-/balanced-match-4.0.4.tgz
+2026-10-28T14:47:33.0887373Z [0m[32mDownload[0m https://registry.npmjs.org/hookified/-/hookified-1.15.1.tgz
+2026-10-28T14:47:33.0888446Z [0m[32mDownload[0m https://registry.npmjs.org/flatted/-/flatted-3.4.4.tgz
+2026-10-28T14:47:33.0889769Z [0m[32mDownload[0m https://registry.npmjs.org/cacheable/-/cacheable-2.5.0.tgz
+2026-10-28T14:47:33.0890831Z [0m[32mDownload[0m https://registry.npmjs.org/p-locate/-/p-locate-5.0.0.tgz
+2026-10-28T14:47:33.0891892Z [0m[32mDownload[0m https://registry.npmjs.org/punycode/-/punycode-2.3.1.tgz
+2026-10-28T14:47:33.0892881Z [0m[32mDownload[0m https://registry.npmjs.org/glob/-/glob-13.0.6.tgz
+2026-10-28T14:47:33.0893880Z [0m[32mDownload[0m https://registry.npmjs.org/@types/node/-/node-26.6.5.tgz
+2026-10-28T14:47:33.0894886Z [0m[32mDownload[0m https://registry.npmjs.org/plist/-/plist-3.1.1.tgz
+2026-10-28T14:47:33.0895883Z [0m[32mDownload[0m https://registry.npmjs.org/argparse/-/argparse-2.0.1.tgz
+2026-10-28T14:47:33.0896875Z [0m[32mDownload[0m https://registry.npmjs.org/signal-exit/-/signal-exit-3.0.7.tgz
+2026-10-28T14:47:33.0897947Z [0m[32mDownload[0m https://registry.npmjs.org/retry/-/retry-0.12.0.tgz
+2026-10-28T14:47:33.0899313Z [0m[32mDownload[0m https://registry.npmjs.org/fs-extra/-/fs-extra-10.1.0.tgz
+2026-10-28T14:47:33.0900494Z [0m[32mDownload[0m https://registry.npmjs.org/async-exit-hook/-/async-exit-hook-2.0.1.tgz
+2026-10-28T14:47:33.0901658Z [0m[32mDownload[0m https://registry.npmjs.org/node-abi/-/node-abi-4.40.0.tgz
+2026-10-28T14:47:33.0902953Z [0m[32mDownload[0m https://registry.npmjs.org/@malept/cross-spawn-promise/-/cross-spawn-promise-2.0.0.tgz
+2026-10-28T14:47:33.0904384Z [0m[32mDownload[0m https://registry.npmjs.org/node-api-version/-/node-api-version-0.2.1.tgz
+2026-10-28T14:47:33.0905747Z [0m[32mDownload[0m https://registry.npmjs.org/read-binary-file-arch/-/read-binary-file-arch-1.0.6.tgz
+2026-10-28T14:47:33.0906987Z [0m[32mDownload[0m https://registry.npmjs.org/node-gyp/-/node-gyp-12.4.0.tgz
+2026-10-28T14:47:33.0908072Z [0m[32mDownload[0m https://registry.npmjs.org/node-int64/-/node-int64-0.4.0.tgz
+2026-10-28T14:47:33.0909147Z [0m[32mDownload[0m https://registry.npmjs.org/duplexer2/-/duplexer2-0.1.4.tgz
+2026-10-28T14:47:33.0910458Z [0m[32mDownload[0m https://registry.npmjs.org/fs-extra/-/fs-extra-11.3.1.tgz
+2026-10-28T14:47:33.0911503Z [0m[32mDownload[0m https://registry.npmjs.org/bluebird/-/bluebird-3.7.2.tgz
+2026-10-28T14:47:33.0912583Z [0m[32mDownload[0m https://registry.npmjs.org/pe-library/-/pe-library-2.0.1.tgz
+2026-10-28T14:47:33.0913786Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar/asn1-schema/-/asn1-schema-2.11.1.tgz
+2026-10-28T14:47:33.0915075Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar/json-schema/-/json-schema-1.1.12.tgz
+2026-10-28T14:47:33.0916258Z [0m[32mDownload[0m https://registry.npmjs.org/@peculiar/utils/-/utils-2.0.3.tgz
+2026-10-28T14:47:33.0917657Z [0m[32mDownload[0m https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz
+2026-10-28T14:47:33.0918753Z [0m[32mDownload[0m https://registry.npmjs.org/webcrypto-core/-/webcrypto-core-1.9.2.tgz
+2026-10-28T14:47:33.0919849Z [0m[32mDownload[0m https://registry.npmjs.org/jake/-/jake-10.9.4.tgz
+2026-10-28T14:47:33.0920880Z [0m[32mDownload[0m https://registry.npmjs.org/sumchecker/-/sumchecker-3.0.1.tgz
+2026-10-28T14:47:33.0921975Z [0m[32mDownload[0m https://registry.npmjs.org/progress/-/progress-2.0.3.tgz
+2026-10-28T14:47:33.0923018Z [0m[32mDownload[0m https://registry.npmjs.org/env-paths/-/env-paths-3.0.0.tgz
+2026-10-28T14:47:33.0924156Z [0m[32mDownload[0m https://registry.npmjs.org/@isaacs/fs-minipass/-/fs-minipass-4.0.1.tgz
+2026-10-28T14:47:33.0925225Z [0m[32mDownload[0m https://registry.npmjs.org/minipass/-/minipass-7.1.3.tgz
+2026-10-28T14:47:33.0926229Z [0m[32mDownload[0m https://registry.npmjs.org/chownr/-/chownr-3.0.0.tgz
+2026-10-28T14:47:33.0927233Z [0m[32mDownload[0m https://registry.npmjs.org/yallist/-/yallist-5.0.0.tgz
+2026-10-28T14:47:33.0928283Z [0m[32mDownload[0m https://registry.npmjs.org/minizlib/-/minizlib-3.1.0.tgz
+2026-10-28T14:47:33.0929310Z [0m[32mDownload[0m https://registry.npmjs.org/semver/-/semver-5.7.2.tgz
+2026-10-28T14:47:33.0930658Z [0m[32mDownload[0m https://registry.npmjs.org/promise-retry/-/promise-retry-2.0.1.tgz
+2026-10-28T14:47:33.0931835Z [0m[32mDownload[0m https://registry.npmjs.org/lru-cache/-/lru-cache-6.0.0.tgz
+2026-10-28T14:47:33.0932849Z [0m[32mDownload[0m https://registry.npmjs.org/isexe/-/isexe-3.1.5.tgz
+2026-10-28T14:47:33.0934028Z [0m[32mDownload[0m https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz
+2026-10-28T14:47:33.0935375Z [0m[32mDownload[0m https://registry.npmjs.org/require-from-string/-/require-from-string-2.0.2.tgz
+2026-10-28T14:47:33.0936593Z [0m[32mDownload[0m https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.9.tgz
+2026-10-28T14:47:33.0938001Z [0m[32mDownload[0m https://registry.npmjs.org/bytestreamjs/-/bytestreamjs-2.0.1.tgz
+2026-10-28T14:47:33.0939097Z [0m[32mDownload[0m https://registry.npmjs.org/pvutils/-/pvutils-1.2.0.tgz
+2026-10-28T14:47:33.0940141Z [0m[32mDownload[0m https://registry.npmjs.org/pvtsutils/-/pvtsutils-1.3.6.tgz
+2026-10-28T14:47:33.0941235Z [0m[32mDownload[0m https://registry.npmjs.org/@noble/hashes/-/hashes-1.8.0.tgz
+2026-10-28T14:47:33.0942385Z [0m[32mDownload[0m https://registry.npmjs.org/isbinaryfile/-/isbinaryfile-4.0.10.tgz
+2026-10-28T14:47:33.0943522Z [0m[32mDownload[0m https://registry.npmjs.org/base64-js/-/base64-js-1.5.1.tgz
+2026-10-28T14:47:33.0944588Z [0m[32mDownload[0m https://registry.npmjs.org/@xmldom/xmldom/-/xmldom-0.8.15.tgz
+2026-10-28T14:47:33.0945723Z [0m[32mDownload[0m https://registry.npmjs.org/color-convert/-/color-convert-2.0.1.tgz
+2026-10-28T14:47:33.0946836Z [0m[32mDownload[0m https://registry.npmjs.org/has-flag/-/has-flag-4.0.0.tgz
+2026-10-28T14:47:33.0947888Z [0m[32mDownload[0m https://registry.npmjs.org/mime-types/-/mime-types-2.1.35.tgz
+2026-10-28T14:47:33.0949131Z [0m[32mDownload[0m https://registry.npmjs.org/es-set-tostringtag/-/es-set-tostringtag-2.1.0.tgz
+2026-10-28T14:47:33.0950433Z [0m[32mDownload[0m https://registry.npmjs.org/combined-stream/-/combined-stream-1.0.8.tgz
+2026-10-28T14:47:33.0951806Z [0m[32mDownload[0m https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz
+2026-10-28T14:47:33.0952940Z [0m[32mDownload[0m https://registry.npmjs.org/hasown/-/hasown-2.0.4.tgz
+2026-10-28T14:47:33.0953981Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/core/-/core-3.978.6.tgz
+2026-10-28T14:47:33.0955241Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy/node-http-handler/-/node-http-handler-4.13.0.tgz
+2026-10-28T14:47:33.0956520Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/types/-/types-3.975.0.tgz
+2026-10-28T14:47:33.0958297Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/signature-v4-multi-region/-/signature-v4-multi-region-3.996.49.tgz
+2026-10-28T14:47:33.0959686Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy/core/-/core-3.37.0.tgz
+2026-10-28T14:47:33.0960944Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy/fetch-http-handler/-/fetch-http-handler-5.8.0.tgz
+2026-10-28T14:47:33.0962270Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy/types/-/types-4.19.0.tgz
+2026-10-28T14:47:33.0963526Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/token-providers/-/token-providers-3.1150.0.tgz
+2026-10-28T14:47:33.0964952Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/nested-clients/-/nested-clients-3.997.51.tgz
+2026-10-28T14:47:33.0966679Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/credential-provider-web-identity/-/credential-provider-web-identity-3.972.83.tgz
+2026-10-28T14:47:33.0968633Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/credential-provider-process/-/credential-provider-process-3.972.77.tgz
+2026-10-28T14:47:33.0970399Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy/credential-provider-imds/-/credential-provider-imds-4.5.2.tgz
+2026-10-28T14:47:33.0972098Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/credential-provider-login/-/credential-provider-login-3.972.84.tgz
+2026-10-28T14:47:33.0973959Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/credential-provider-env/-/credential-provider-env-3.972.77.tgz
+2026-10-28T14:47:33.0975634Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/credential-provider-http/-/credential-provider-http-3.972.79.tgz
+2026-10-28T14:47:33.0977007Z [0m[32mDownload[0m https://registry.npmjs.org/wrap-ansi/-/wrap-ansi-7.0.0.tgz
+2026-10-28T14:47:33.0978444Z [0m[32mDownload[0m https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz
+2026-10-28T14:47:33.0979780Z [0m[32mDownload[0m https://registry.npmjs.org/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz
+2026-10-28T14:47:33.0981115Z [0m[32mDownload[0m https://registry.npmjs.org/agent-base/-/agent-base-7.1.4.tgz
+2026-10-28T14:47:33.0982244Z [0m[32mDownload[0m https://registry.npmjs.org/@types/ms/-/ms-2.1.0.tgz
+2026-10-28T14:47:33.0983425Z [0m[32mDownload[0m https://registry.npmjs.org/truncate-utf8-bytes/-/truncate-utf8-bytes-1.0.2.tgz
+2026-10-28T14:47:33.0984694Z [0m[32mDownload[0m https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.2.tgz
+2026-10-28T14:47:33.0985829Z [0m[32mDownload[0m https://registry.npmjs.org/source-map/-/source-map-0.6.1.tgz
+2026-10-28T14:47:33.0987204Z [0m[32mDownload[0m https://registry.npmjs.org/fast-string-truncated-width/-/fast-string-truncated-width-3.0.3.tgz
+2026-10-28T14:47:33.0988513Z [0m[32mDownload[0m https://registry.npmjs.org/jju/-/jju-1.4.0.tgz
+2026-10-28T14:47:33.0989596Z [0m[32mDownload[0m https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.17.tgz
+2026-10-28T14:47:33.0990804Z [0m[32mDownload[0m https://registry.npmjs.org/textextensions/-/textextensions-6.11.0.tgz
+2026-10-28T14:47:33.0992122Z [0m[32mDownload[0m https://registry.npmjs.org/binaryextensions/-/binaryextensions-6.11.0.tgz
+2026-10-28T14:47:33.0993308Z [0m[32mDownload[0m https://registry.npmjs.org/editions/-/editions-6.22.0.tgz
+2026-10-28T14:47:33.0994352Z [0m[32mDownload[0m https://registry.npmjs.org/boundary/-/boundary-2.0.0.tgz
+2026-10-28T14:47:33.0995681Z [0m[32mDownload[0m https://registry.npmjs.org/lru-cache/-/lru-cache-11.5.3.tgz
+2026-10-28T14:47:33.0996842Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-correct/-/spdx-correct-3.2.0.tgz
+2026-10-28T14:47:33.0998512Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-expression-parse/-/spdx-expression-parse-3.0.1.tgz
+2026-10-28T14:47:33.0999793Z [0m[32mDownload[0m https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz
+2026-10-28T14:47:33.1001187Z [0m[32mDownload[0m https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.29.7.tgz
+2026-10-28T14:47:33.1002632Z [0m[32mDownload[0m https://registry.npmjs.org/astral-regex/-/astral-regex-2.0.0.tgz
+2026-10-28T14:47:33.1003759Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz
+2026-10-28T14:47:33.1004875Z [0m[32mDownload[0m https://registry.npmjs.org/environment/-/environment-1.1.0.tgz
+2026-10-28T14:47:33.1005967Z [0m[32mDownload[0m https://registry.npmjs.org/has-flag/-/has-flag-5.0.1.tgz
+2026-10-28T14:47:33.1007099Z [0m[32mDownload[0m https://registry.npmjs.org/supports-color/-/supports-color-10.2.2.tgz
+2026-10-28T14:47:33.1008296Z [0m[32mDownload[0m https://registry.npmjs.org/emoji-regex/-/emoji-regex-10.6.0.tgz
+2026-10-28T14:47:33.1009406Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-styles/-/ansi-styles-6.2.3.tgz
+2026-10-28T14:47:33.1010512Z [0m[32mDownload[0m https://registry.npmjs.org/ansi-regex/-/ansi-regex-6.4.0.tgz
+2026-10-28T14:47:33.1011553Z [0m[32mDownload[0m https://registry.npmjs.org/qified/-/qified-0.10.1.tgz
+2026-10-28T14:47:33.1012550Z [0m[32mDownload[0m https://registry.npmjs.org/keyv/-/keyv-5.6.0.tgz
+2026-10-28T14:47:33.1013576Z [0m[32mDownload[0m https://registry.npmjs.org/@cacheable/memory/-/memory-2.2.0.tgz
+2026-10-28T14:47:33.1014593Z [0m[32mDownload[0m https://registry.npmjs.org/@cacheable/utils/-/utils-2.5.0.tgz
+2026-10-28T14:47:33.1015639Z [0m[32mDownload[0m https://registry.npmjs.org/p-limit/-/p-limit-3.1.0.tgz
+2026-10-28T14:47:33.1016978Z [0m[32mDownload[0m https://registry.npmjs.org/path-scurry/-/path-scurry-2.0.2.tgz
+2026-10-28T14:47:33.1018533Z [0m[32mDownload[0m https://registry.npmjs.org/undici-types/-/undici-types-8.9.0.tgz
+2026-10-28T14:47:33.1019617Z [0m[32mDownload[0m https://registry.npmjs.org/which/-/which-6.0.1.tgz
+2026-10-28T14:47:33.1020804Z [0m[32mDownload[0m https://registry.npmjs.org/exponential-backoff/-/exponential-backoff-3.1.3.tgz
+2026-10-28T14:47:33.1021969Z [0m[32mDownload[0m https://registry.npmjs.org/nopt/-/nopt-9.0.0.tgz
+2026-10-28T14:47:33.1022950Z [0m[32mDownload[0m https://registry.npmjs.org/proc-log/-/proc-log-6.1.0.tgz
+2026-10-28T14:47:33.1023976Z [0m[32mDownload[0m https://registry.npmjs.org/undici/-/undici-6.29.1.tgz
+2026-10-28T14:47:33.1024981Z [0m[32mDownload[0m https://registry.npmjs.org/env-paths/-/env-paths-2.2.1.tgz
+2026-10-28T14:47:33.1026104Z [0m[32mDownload[0m https://registry.npmjs.org/readable-stream/-/readable-stream-2.3.8.tgz
+2026-10-28T14:47:33.1027169Z [0m[32mDownload[0m https://registry.npmjs.org/filelist/-/filelist-1.0.6.tgz
+2026-10-28T14:47:33.1028042Z [0m[32mDownload[0m https://registry.npmjs.org/async/-/async-3.2.6.tgz
+2026-10-28T14:47:33.1028907Z [0m[32mDownload[0m https://registry.npmjs.org/err-code/-/err-code-2.0.3.tgz
+2026-10-28T14:47:33.1029814Z [0m[32mDownload[0m https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz
+2026-10-28T14:47:33.1030754Z [0m[32mDownload[0m https://registry.npmjs.org/color-name/-/color-name-1.1.4.tgz
+2026-10-28T14:47:33.1031690Z [0m[32mDownload[0m https://registry.npmjs.org/mime-db/-/mime-db-1.52.0.tgz
+2026-10-28T14:47:33.1032709Z [0m[32mDownload[0m https://registry.npmjs.org/has-tostringtag/-/has-tostringtag-1.0.2.tgz
+2026-10-28T14:47:33.1033894Z [0m[32mDownload[0m https://registry.npmjs.org/get-intrinsic/-/get-intrinsic-1.3.0.tgz
+2026-10-28T14:47:33.1034892Z [0m[32mDownload[0m https://registry.npmjs.org/es-errors/-/es-errors-1.3.0.tgz
+2026-10-28T14:47:33.1036212Z [0m[32mDownload[0m https://registry.npmjs.org/delayed-stream/-/delayed-stream-1.0.0.tgz
+2026-10-28T14:47:33.1037266Z [0m[32mDownload[0m https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz
+2026-10-28T14:47:33.1038759Z [0m[32mDownload[0m https://registry.npmjs.org/@aws-sdk/xml-builder/-/xml-builder-3.972.41.tgz
+2026-10-28T14:47:33.1039808Z [0m[32mDownload[0m https://registry.npmjs.org/bowser/-/bowser-2.15.0.tgz
+2026-10-28T14:47:33.1040932Z [0m[32mDownload[0m https://registry.npmjs.org/@aws/lambda-invoke-store/-/lambda-invoke-store-0.3.0.tgz
+2026-10-28T14:47:33.1042175Z [0m[32mDownload[0m https://registry.npmjs.org/@smithy/signature-v4/-/signature-v4-5.7.4.tgz
+2026-10-28T14:47:33.1043357Z [0m[32mDownload[0m https://registry.npmjs.org/utf8-byte-length/-/utf8-byte-length-1.0.5.tgz
+2026-10-28T14:47:33.1044353Z [0m[32mDownload[0m https://registry.npmjs.org/fdir/-/fdir-6.5.0.tgz
+2026-10-28T14:47:33.1045330Z [0m[32mDownload[0m https://registry.npmjs.org/version-range/-/version-range-4.15.0.tgz
+2026-10-28T14:47:33.1046399Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-license-ids/-/spdx-license-ids-3.0.24.tgz
+2026-10-28T14:47:33.1047556Z [0m[32mDownload[0m https://registry.npmjs.org/spdx-exceptions/-/spdx-exceptions-2.5.0.tgz
+2026-10-28T14:47:33.1048598Z [0m[32mDownload[0m https://registry.npmjs.org/hookified/-/hookified-2.2.0.tgz
+2026-10-28T14:47:33.1049597Z [0m[32mDownload[0m https://registry.npmjs.org/@keyv/serialize/-/serialize-1.1.1.tgz
+2026-10-28T14:47:33.1050574Z [0m[32mDownload[0m https://registry.npmjs.org/@keyv/bigmap/-/bigmap-1.3.1.tgz
+2026-10-28T14:47:33.1051507Z [0m[32mDownload[0m https://registry.npmjs.org/hashery/-/hashery-1.5.1.tgz
+2026-10-28T14:47:33.1052476Z [0m[32mDownload[0m https://registry.npmjs.org/yocto-queue/-/yocto-queue-0.1.0.tgz
+2026-10-28T14:47:33.1053402Z [0m[32mDownload[0m https://registry.npmjs.org/isexe/-/isexe-4.0.0.tgz
+2026-10-28T14:47:33.1054328Z [0m[32mDownload[0m https://registry.npmjs.org/abbrev/-/abbrev-4.0.0.tgz
+2026-10-28T14:47:33.1055449Z [0m[32mDownload[0m https://registry.npmjs.org/inherits/-/inherits-2.0.4.tgz
+2026-10-28T14:47:33.1056595Z [0m[32mDownload[0m https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-2.0.1.tgz
+2026-10-28T14:47:33.1057750Z [0m[32mDownload[0m https://registry.npmjs.org/safe-buffer/-/safe-buffer-5.1.2.tgz
+2026-10-28T14:47:33.1059131Z [0m[32mDownload[0m https://registry.npmjs.org/isarray/-/isarray-1.0.0.tgz
+2026-10-28T14:47:33.1060135Z [0m[32mDownload[0m https://registry.npmjs.org/string_decoder/-/string_decoder-1.1.1.tgz
+2026-10-28T14:47:33.1061221Z [0m[32mDownload[0m https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.3.tgz
+2026-10-28T14:47:33.1062300Z [0m[32mDownload[0m https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz
+2026-10-28T14:47:33.1063336Z [0m[32mDownload[0m https://registry.npmjs.org/minimatch/-/minimatch-5.1.9.tgz
+2026-10-28T14:47:33.1064350Z [0m[32mDownload[0m https://registry.npmjs.org/has-symbols/-/has-symbols-1.1.0.tgz
+2026-10-28T14:47:33.1065547Z [0m[32mDownload[0m https://registry.npmjs.org/call-bind-apply-helpers/-/call-bind-apply-helpers-1.0.2.tgz
+2026-10-28T14:47:33.1066845Z [0m[32mDownload[0m https://registry.npmjs.org/es-define-property/-/es-define-property-1.0.1.tgz
+2026-10-28T14:47:33.1068036Z [0m[32mDownload[0m https://registry.npmjs.org/math-intrinsics/-/math-intrinsics-1.1.0.tgz
+2026-10-28T14:47:33.1068731Z [0m[32mDownload[0m https://registry.npmjs.org/es-object-atoms/-/es-object-atoms-1.1.2.tgz
+2026-10-28T14:47:33.1069351Z [0m[32mDownload[0m https://registry.npmjs.org/get-proto/-/get-proto-1.0.1.tgz
+2026-10-28T14:47:33.1069883Z [0m[32mDownload[0m https://registry.npmjs.org/gopd/-/gopd-1.2.0.tgz
+2026-10-28T14:47:33.1070460Z [0m[32mDownload[0m https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.7.tgz
+2026-10-28T14:47:33.1071090Z [0m[32mDownload[0m https://registry.npmjs.org/dunder-proto/-/dunder-proto-1.0.1.tgz
+2026-10-28T14:47:33.1071907Z [0m[32mDownload[0m https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz
+2026-10-28T14:47:33.1666607Z [0m[32mInitialize[0m jscpd@5.4.1
+2026-10-28T14:47:33.2257986Z [0m[32mInitialize[0m doublets-web@0.1.3
+2026-10-28T14:47:33.2258663Z [0m[32mInitialize[0m husky@9.1.7
+2026-10-28T14:47:33.2269174Z [0m[32mInitialize[0m eslint-plugin-prettier@5.5.7
+2026-10-28T14:47:33.2315975Z [0m[32mInitialize[0m esbuild@0.28.2
+2026-10-28T14:47:33.2557182Z [0m[32mInitialize[0m cross-spawn@7.0.6
+2026-10-28T14:47:33.2560702Z [0m[32mInitialize[0m eslint-config-prettier@10.1.8
+2026-10-28T14:47:33.2727185Z [0m[32mInitialize[0m upng-js@2.1.0
+2026-10-28T14:47:33.2994138Z [0m[32mInitialize[0m log-lazy@1.0.4
+2026-10-28T14:47:33.3107100Z [0m[32mInitialize[0m bplist-parser@0.5.0
+2026-10-28T14:47:33.3347746Z [0m[32mInitialize[0m secretlint@13.1.0
+2026-10-28T14:47:33.3377712Z [0m[32mInitialize[0m react@19.3.1
+2026-10-28T14:47:33.3461177Z [0m[32mInitialize[0m gifenc@1.0.3
+2026-10-28T14:47:33.3463048Z [0m[32mInitialize[0m debug@4.4.3
+2026-10-28T14:47:33.3648740Z [0m[32mInitialize[0m mime@3.0.0
+2026-10-28T14:47:33.3653218Z [0m[32mInitialize[0m big-integer@1.6.52
+2026-10-28T14:47:33.3899667Z [0m[32mInitialize[0m escape-string-regexp@4.0.0
+2026-10-28T14:47:33.4101570Z [0m[32mInitialize[0m lino-arguments@0.4.0
+2026-10-28T14:47:33.4198203Z [0m[32mInitialize[0m picomatch@4.0.7
+2026-10-28T14:47:33.4439703Z [0m[32mInitialize[0m store2@2.14.4
+2026-10-28T14:47:33.4484454Z [0m[32mInitialize[0m @changesets/git@4.0.1
+2026-10-28T14:47:33.4672297Z [0m[32mInitialize[0m scheduler@0.28.0
+2026-10-28T14:47:33.4685749Z [0m[32mInitialize[0m webp-wasm@1.0.6
+2026-10-28T14:47:33.4696012Z [0m[32mInitialize[0m espree@11.2.0
+2026-10-28T14:47:33.4696883Z [0m[32mInitialize[0m ignore@5.3.2
+2026-10-28T14:47:33.4825269Z [0m[32mInitialize[0m fast-deep-equal@3.1.3
+2026-10-28T14:47:33.4920513Z [0m[32mInitialize[0m @changesets/read@1.0.1
+2026-10-28T14:47:33.5039769Z [0m[32mInitialize[0m eslint-visitor-keys@5.0.1
+2026-10-28T14:47:33.5040324Z [0m[32mInitialize[0m @changesets/assemble-release-plan@7.0.0
+2026-10-28T14:47:33.5219298Z [0m[32mInitialize[0m @changesets/pre@3.0.0
+2026-10-28T14:47:33.5241832Z [0m[32mInitialize[0m read-pkg@10.1.0
+2026-10-28T14:47:33.5376850Z [0m[32mInitialize[0m lino-objects-codec@0.9.2
+2026-10-28T14:47:33.5504921Z [0m[32mInitialize[0m natural-compare@1.4.0
+2026-10-28T14:47:33.5505704Z [0m[32mInitialize[0m string-argv@0.3.2
+2026-10-28T14:47:33.5577821Z [0m[32mInitialize[0m socks@2.8.10
+2026-10-28T14:47:33.5598408Z [0m[32mInitialize[0m file-entry-cache@11.1.5
+2026-10-28T14:47:33.5613688Z [0m[32mInitialize[0m is-glob@4.0.3
+2026-10-28T14:47:33.5917250Z [0m[32mInitialize[0m optionator@0.9.4
+2026-10-28T14:47:33.5928344Z [0m[32mInitialize[0m glob-parent@6.0.2
+2026-10-28T14:47:33.6121823Z [0m[32mInitialize[0m imurmurhash@0.1.4
+2026-10-28T14:47:33.6233274Z [0m[32mInitialize[0m tinyexec@1.3.1
+2026-10-28T14:47:33.6314488Z [0m[32mInitialize[0m electron-builder@27.0.0-alpha.13
+2026-10-28T14:47:33.6361135Z [0m[32mInitialize[0m esutils@2.0.3
+2026-10-28T14:47:33.6602533Z [0m[32mInitialize[0m links-notation@0.27.1
+2026-10-28T14:47:33.6733142Z [0m[32mInitialize[0m commander@15.0.0
+2026-10-28T14:47:33.7097103Z [0m[32mInitialize[0m links-notation@0.25.2
+2026-10-28T14:47:33.7499431Z [0m[32mInitialize[0m lint-staged@17.6.0
+2026-10-28T14:47:33.8112708Z [0m[32mInitialize[0m semver@7.8.5
+2026-10-28T14:47:33.9115727Z [0m[32mInitialize[0m minimatch@10.2.6
+2026-10-28T14:47:35.2526341Z [0m[32mInitialize[0m @types/estree@1.0.8
+2026-10-28T14:47:35.2560016Z [0m[32mInitialize[0m prettier-linter-helpers@1.0.1
+2026-10-28T14:47:35.2684444Z [0m[32mInitialize[0m ci-info@4.3.1
+2026-10-28T14:47:35.2685207Z [0m[32mInitialize[0m @resvg/resvg-js@2.6.2
+2026-10-28T14:47:35.2838108Z [0m[32mInitialize[0m chalk@4.1.2
+2026-10-28T14:47:35.3707338Z [0m[32mInitialize[0m execa@10.1.0
+2026-10-28T14:47:35.3794637Z [0m[32mInitialize[0m cac@7.1.0
+2026-10-28T14:47:35.4210416Z [0m[32mInitialize[0m json-stable-stringify-without-jsonify@1.0.1
+2026-10-28T14:47:35.4342171Z [0m[32mInitialize[0m import-meta-resolve@4.2.0
+2026-10-28T14:47:35.4615750Z [0m[32mInitialize[0m @humanwhocodes/module-importer@1.0.1
+2026-10-28T14:47:35.5403207Z [0m[32mInitialize[0m find-up@5.0.0
+2026-10-28T14:47:35.5840013Z [0m[32mInitialize[0m eslint-scope@9.1.2
+2026-10-28T14:47:35.7008348Z [0m[32mInitialize[0m shebang-command@2.0.0
+2026-10-28T14:47:36.0190159Z [0m[32mInitialize[0m @secretlint/secretlint-rule-preset-recommend@13.1.0
+2026-10-28T14:47:36.1316890Z [0m[32mInitialize[0m lino-env@0.2.8
+2026-10-28T14:47:36.1789377Z [0m[32mInitialize[0m package-manager-detector@1.9.0
+2026-10-28T14:47:36.2088647Z [0m[32mInitialize[0m plist@5.0.0
+2026-10-28T14:47:36.2616250Z [0m[32mInitialize[0m fs-extra@11.4.1
+2026-10-28T14:47:36.2897330Z [0m[32mInitialize[0m which@2.0.2
+2026-10-28T14:47:36.2898371Z [0m[32mInitialize[0m path-key@3.1.1
+2026-10-28T14:47:36.3511402Z [0m[32mInitialize[0m simple-update-notifier@2.0.0
+2026-10-28T14:47:36.3658561Z [0m[32mInitialize[0m launch-editor@2.14.2
+2026-10-28T14:47:36.4420449Z [0m[32mInitialize[0m @eslint/js@10.0.1
+2026-10-28T14:47:36.4513340Z [0m[32mInitialize[0m dmg-builder@27.0.0-alpha.13
+2026-10-28T14:47:36.4514448Z [0m[32mInitialize[0m getenv@2.0.0
+2026-10-28T14:47:36.4514978Z [0m[32mInitialize[0m npm-run-path@6.0.0
+2026-10-28T14:47:36.4518111Z [0m[32mInitialize[0m is-stream@4.0.1
+2026-10-28T14:47:36.6248840Z [0m[32mInitialize[0m human-signals@8.0.1
+2026-10-28T14:47:36.6506640Z [0m[32mInitialize[0m node-localstorage@2.2.1
+2026-10-28T14:47:36.6604433Z [0m[32mInitialize[0m @eslint-community/eslint-utils@4.9.0
+2026-10-28T14:47:37.0788490Z [0m[32mInitialize[0m pretty-ms@9.3.1
+2026-10-28T14:47:37.1022670Z [0m[32mInitialize[0m figures@6.1.0
+2026-10-28T14:47:37.3886936Z [0m[32mInitialize[0m strip-final-newline@4.0.0
+2026-10-28T14:47:37.4328958Z [0m[32mInitialize[0m is-plain-obj@4.1.0
+2026-10-28T14:47:37.4991238Z [0m[32mInitialize[0m which-command@0.1.0
+2026-10-28T14:47:37.5232798Z [0m[32mInitialize[0m yoctocolors@2.2.0
+2026-10-28T14:47:37.5542641Z [0m[32mInitialize[0m get-stream@9.0.1
+2026-10-28T14:47:37.5757812Z [0m[32mInitialize[0m @eslint/config-helpers@0.7.0
+2026-10-28T14:47:37.5922717Z [0m[32mInitialize[0m yaml@2.9.0
+2026-10-28T14:47:37.6108525Z [0m[32mInitialize[0m yargs@18.2.0
+2026-10-28T14:47:37.6204392Z [0m[32mInitialize[0m esquery@1.7.0
+2026-10-28T14:47:37.6672742Z [0m[32mInitialize[0m @xmldom/xmldom@0.9.12
+2026-10-28T14:47:37.6729324Z [0m[32mInitialize[0m electron-publish@27.0.0-alpha.13
+2026-10-28T14:47:37.6807425Z [0m[32mInitialize[0m @secretlint/resolver@13.1.0
+2026-10-28T14:47:37.7103192Z [0m[32mInitialize[0m @eslint-community/regexpp@4.12.2
+2026-10-28T14:47:37.7206261Z [0m[32mInitialize[0m synckit@0.12.3
+2026-10-28T14:47:37.7209384Z [0m[32mInitialize[0m write-file-atomic@1.3.4
+2026-10-28T14:47:37.7502039Z [0m[32mInitialize[0m signal-exit@4.1.0
+2026-10-28T14:47:37.7611990Z [0m[32mInitialize[0m unicorn-magic@0.4.1
+2026-10-28T14:47:37.7817715Z [0m[32mInitialize[0m builder-util@27.0.0-alpha.13
+2026-10-28T14:47:37.7866906Z [0m[32mInitialize[0m p-map@7.1.1
+2026-10-28T14:47:37.7867488Z [0m[32mInitialize[0m smart-buffer@4.2.0
+2026-10-28T14:47:37.7902661Z [0m[32mInitialize[0m node-addon-api@7.1.1
+2026-10-28T14:47:37.7986568Z [0m[32mInitialize[0m @eslint/plugin-kit@0.7.3
+2026-10-28T14:47:37.7987260Z [0m[32mInitialize[0m node-addon-api@8.9.2
+2026-10-28T14:47:37.8095724Z [0m[32mInitialize[0m builder-util-runtime@10.0.0-alpha.12
+2026-10-28T14:47:37.8096618Z [0m[32mInitialize[0m parse-json@8.3.0
+2026-10-28T14:47:37.8157383Z [0m[32mInitialize[0m ajv@6.15.0
+2026-10-28T14:47:37.8206328Z [0m[32mInitialize[0m normalize-package-data@8.0.0
+2026-10-28T14:47:37.8208035Z [0m[32mInitialize[0m pluralize@8.0.0
+2026-10-28T14:47:37.8335874Z [0m[32mInitialize[0m ms@2.1.3
+2026-10-28T14:47:37.8426584Z [0m[32mInitialize[0m @changesets/errors@1.0.0
+2026-10-28T14:47:37.8427950Z [0m[32mInitialize[0m terminal-link@5.0.0
+2026-10-28T14:47:37.8630402Z [0m[32mInitialize[0m ignore@7.0.14
+2026-10-28T14:47:37.8865834Z [0m[32mInitialize[0m yargs@17.7.3
+2026-10-28T14:47:37.8941819Z [0m[32mInitialize[0m @secretlint/profiler@13.1.0
+2026-10-28T14:47:37.8996847Z [0m[32mInitialize[0m @manypkg/get-packages@3.1.0
+2026-10-28T14:47:37.9020309Z [0m[32mInitialize[0m ip-address@10.7.4
+2026-10-28T14:47:37.9134826Z [0m[32mInitialize[0m @humanwhocodes/retry@0.4.3
+2026-10-28T14:47:37.9169181Z [0m[32mInitialize[0m @changesets/get-dependents-graph@3.0.0
+2026-10-28T14:47:37.9222672Z [0m[32mInitialize[0m chalk@5.6.2
+2026-10-28T14:47:37.9252326Z [0m[32mInitialize[0m y18n@5.0.8
+2026-10-28T14:47:37.9270752Z [0m[32mInitialize[0m yargs-parser@22.0.0
+2026-10-28T14:47:37.9293752Z [0m[32mInitialize[0m get-caller-file@2.0.5
+2026-10-28T14:47:37.9409952Z [0m[32mInitialize[0m escalade@3.2.0
+2026-10-28T14:47:37.9523695Z [0m[32mInitialize[0m type-check@0.4.0
+2026-10-28T14:47:37.9584235Z [0m[32mInitialize[0m xmlbuilder@15.1.1
+2026-10-28T14:47:37.9709726Z [0m[32mInitialize[0m @clack/prompts@1.8.1
+2026-10-28T14:47:37.9712546Z [0m[32mInitialize[0m fast-levenshtein@2.0.6
+2026-10-28T14:47:37.9997838Z [0m[32mInitialize[0m deep-is@0.1.4
+2026-10-28T14:47:38.0184620Z [0m[32mInitialize[0m @humanfs/node@0.16.8
+2026-10-28T14:47:38.0185577Z [0m[32mInitialize[0m flat-cache@6.1.23
+2026-10-28T14:47:38.0186109Z [0m[32mInitialize[0m acorn-jsx@5.3.2
+2026-10-28T14:47:38.0333216Z [0m[32mInitialize[0m @eslint/core@1.2.1
+2026-10-28T14:47:38.0412699Z [0m[32mInitialize[0m @changesets/config@4.0.1
+2026-10-28T14:47:38.0413406Z [0m[32mInitialize[0m @secretlint/node@13.1.0
+2026-10-28T14:47:38.0443335Z [0m[32mInitialize[0m locate-path@6.0.0
+2026-10-28T14:47:38.0444442Z [0m[32mInitialize[0m @secretlint/formatter@13.1.0
+2026-10-28T14:47:38.0479337Z [0m[32mInitialize[0m links-notation@0.11.2
+2026-10-28T14:47:38.0570286Z [0m[32mInitialize[0m yaml@2.9.1
+2026-10-28T14:47:38.0571345Z [0m[32mInitialize[0m brace-expansion@5.0.12
+2026-10-28T14:47:38.0573016Z [0m[32mInitialize[0m path-exists@4.0.0
+2026-10-28T14:47:38.1032804Z [0m[32mInitialize[0m eslint-visitor-keys@3.4.3
+2026-10-28T14:47:39.2912373Z [0m[32mInitialize[0m esrecurse@4.3.0
+2026-10-28T14:47:39.2929948Z [0m[32mInitialize[0m is-extglob@2.1.1
+2026-10-28T14:47:39.3041958Z [0m[32mInitialize[0m @changesets/should-skip-package@1.0.0
+2026-10-28T14:47:39.3123609Z [0m[32mInitialize[0m @changesets/types@7.0.0
+2026-10-28T14:47:39.3132436Z [0m[32mInitialize[0m isbinaryfile@5.0.7
+2026-10-28T14:47:39.3160101Z [0m[32mInitialize[0m json-schema-traverse@0.4.1
+2026-10-28T14:47:39.3233828Z [0m[32mInitialize[0m @changesets/write@1.0.1
+2026-10-28T14:47:39.3304834Z [0m[32mInitialize[0m @changesets/changelog-git@1.0.0
+2026-10-28T14:47:39.3371613Z [0m[32mInitialize[0m proper-lockfile@4.1.2
+2026-10-28T14:47:39.3390107Z [0m[32mInitialize[0m string-width@4.2.3
+2026-10-28T14:47:39.3535121Z [0m[32mInitialize[0m @pnpm/deps.graph-sequencer@1100.0.1
+2026-10-28T14:47:39.3778846Z [0m[32mInitialize[0m @secretlint/config-creator@13.1.0
+2026-10-28T14:47:39.3780534Z [0m[32mInitialize[0m @types/debug@4.1.13
+2026-10-28T14:47:39.3849989Z [0m[32mInitialize[0m fast-json-stable-stringify@2.1.0
+2026-10-28T14:47:39.3940742Z [0m[32mInitialize[0m @eslint/config-array@0.23.5
+2026-10-28T14:47:39.3977837Z [0m[32mInitialize[0m stat-mode@1.0.0
+2026-10-28T14:47:39.4000712Z [0m[32mInitialize[0m dotenv@17.4.2
+2026-10-28T14:47:39.4048313Z [0m[32mInitialize[0m chromium-pickle-js@0.2.0
+2026-10-28T14:47:39.4060765Z [0m[32mInitialize[0m https-proxy-agent@7.0.6
+2026-10-28T14:47:39.4102371Z [0m[32mInitialize[0m @types/normalize-package-data@2.4.4
+2026-10-28T14:47:39.4422634Z [0m[32mInitialize[0m @secretlint/walker@13.1.0
+2026-10-28T14:47:39.4424085Z [0m[32mInitialize[0m lazy-val@1.0.5
+2026-10-28T14:47:39.4450916Z [0m[32mInitialize[0m @textlint/module-interop@15.8.0
+2026-10-28T14:47:39.4451841Z [0m[32mInitialize[0m word-wrap@1.2.5
+2026-10-28T14:47:39.4549682Z [0m[32mInitialize[0m levn@0.4.1
+2026-10-28T14:47:39.4645895Z [0m[32mInitialize[0m pako@1.0.11
+2026-10-28T14:47:39.4717126Z [0m[32mInitialize[0m prelude-ls@1.2.1
+2026-10-28T14:47:39.4835220Z [0m[32mInitialize[0m acorn@8.19.0
+2026-10-28T14:47:39.4854046Z [0m[32mInitialize[0m unzipper@0.12.5
+2026-10-28T14:47:39.4913038Z [0m[32mInitialize[0m @changesets/cli@3.0.3
+2026-10-28T14:47:39.4913648Z [0m[32mInitialize[0m tiny-async-pool@1.3.0
+2026-10-28T14:47:39.5014844Z [0m[32mInitialize[0m temp-file@3.4.0
+2026-10-28T14:47:39.5017959Z [0m[32mInitialize[0m @types/json-schema@7.0.15
+2026-10-28T14:47:39.5101862Z [0m[32mInitialize[0m dotenv-expand@13.0.0
+2026-10-28T14:47:39.5307054Z [0m[32mInitialize[0m @humanfs/core@0.19.2
+2026-10-28T14:47:39.5307535Z [0m[32mInitialize[0m hosted-git-info@4.1.0
+2026-10-28T14:47:39.5374000Z [0m[32mInitialize[0m which@5.0.0
+2026-10-28T14:47:39.5494313Z [0m[32mInitialize[0m @types/esrecurse@4.3.1
+2026-10-28T14:47:39.5707213Z [0m[32mInitialize[0m form-data@4.0.6
+2026-10-28T14:47:39.5707909Z [0m[32mInitialize[0m ansi-styles@4.3.0
+2026-10-28T14:47:39.5763908Z [0m[32mInitialize[0m aws4@1.13.2
+2026-10-28T14:47:39.5866184Z [0m[32mInitialize[0m supports-color@7.2.0
+2026-10-28T14:47:40.5055939Z [0m[32mInitialize[0m @changesets/apply-release-plan@8.1.1
+2026-10-28T14:47:40.5241425Z [0m[32mInitialize[0m @types/fs-extra@9.0.13
+2026-10-28T14:47:40.5300356Z [0m[32mInitialize[0m @eslint/object-schema@3.0.5
+2026-10-28T14:47:40.5354093Z [0m[32mInitialize[0m semver@7.7.4
+2026-10-28T14:47:40.5802307Z [0m[32mInitialize[0m cliui@8.0.1
+2026-10-28T14:47:40.5860846Z [0m[32mInitialize[0m cliui@9.0.1
+2026-10-28T14:47:40.5861474Z [0m[32mInitialize[0m graceful-fs@4.2.11
+2026-10-28T14:47:40.5980696Z [0m[32mInitialize[0m sax@1.6.1
+2026-10-28T14:47:40.6121542Z [0m[32mInitialize[0m universalify@2.0.1
+2026-10-28T14:47:40.6303190Z [0m[32mInitialize[0m table@6.9.0
+2026-10-28T14:47:40.6418678Z [0m[32mInitialize[0m mime@2.6.0
+2026-10-28T14:47:40.6512472Z [0m[32mInitialize[0m electron-builder-squirrel-windows@27.0.0-alpha.13
+2026-10-28T14:47:40.6513428Z [0m[32mInitialize[0m string-width@8.3.0
+2026-10-28T14:47:40.6554114Z [0m[32mInitialize[0m ejs@3.1.10
+2026-10-28T14:47:40.6554768Z [0m[32mInitialize[0m estraverse@5.3.0
+2026-10-28T14:47:40.6587379Z [0m[32mInitialize[0m json5@2.2.3
+2026-10-28T14:47:40.6677120Z [0m[32mInitialize[0m @humanfs/types@0.15.0
+2026-10-28T14:47:40.6746900Z [0m[32mInitialize[0m cifrante@0.6.0
+2026-10-28T14:47:40.6792973Z [0m[32mInitialize[0m js-yaml@4.3.2
+2026-10-28T14:47:40.7015529Z [0m[32mInitialize[0m @secretlint/source-creator@13.1.0
+2026-10-28T14:47:40.7016991Z [0m[32mInitialize[0m @sindresorhus/merge-streams@4.0.0
+2026-10-28T14:47:40.7031713Z [0m[32mInitialize[0m jsonfile@6.2.1
+2026-10-28T14:47:40.7121519Z [0m[32mInitialize[0m uri-js@4.4.1
+2026-10-28T14:47:40.7308915Z [0m[32mInitialize[0m @electron/fuses@2.1.3
+2026-10-28T14:47:40.7454227Z [0m[32mInitialize[0m @electron/get@5.1.0
+2026-10-28T14:47:40.7510796Z [0m[32mInitialize[0m @textlint/linter-formatter@15.8.0
+2026-10-28T14:47:40.7618679Z [0m[32mInitialize[0m asn1js@3.1.0
+2026-10-28T14:47:40.7692694Z [0m[32mInitialize[0m @electron/notarize@3.1.2
+2026-10-28T14:47:40.7790188Z [0m[32mInitialize[0m @textlint/types@15.8.0
+2026-10-28T14:47:40.7932518Z [0m[32mInitialize[0m csv-parse@7.0.3
+2026-10-28T14:47:40.7934699Z [0m[32mInitialize[0m @cifrante/win32-x64@0.6.0
+2026-10-28T14:47:40.8030424Z [0m[32mInitialize[0m resedit@3.1.0
+2026-10-28T14:47:40.8031796Z [0m[32mInitialize[0m yargs-parser@21.1.1
+2026-10-28T14:47:40.8139783Z [0m[32mInitialize[0m @electron/universal@3.0.6
+2026-10-28T14:47:40.8140916Z [0m[32mInitialize[0m @peculiar/webcrypto@1.7.2
+2026-10-28T14:47:40.8324458Z [0m[32mInitialize[0m plist@3.1.0
+2026-10-28T14:47:40.8542241Z [0m[32mInitialize[0m sanitize-filename@1.6.4
+2026-10-28T14:47:40.8972730Z [0m[32mInitialize[0m @electron/rebuild@4.2.1
+2026-10-28T14:47:40.8973601Z [0m[32mInitialize[0m source-map-support@0.5.21
+2026-10-28T14:47:40.8974992Z [0m[32mInitialize[0m @aws-sdk/credential-provider-ini@3.973.19
+2026-10-28T14:47:40.9001337Z [0m[32mInitialize[0m sisteransi@1.0.5
+2026-10-28T14:47:40.9002364Z [0m[32mInitialize[0m @secretlint/types@13.1.0
+2026-10-28T14:47:40.9171193Z [0m[32mInitialize[0m @aws-sdk/credential-provider-sso@3.973.18
+2026-10-28T14:47:40.9172427Z [0m[32mInitialize[0m @secretlint/config-loader@13.1.0
+2026-10-28T14:47:40.9178809Z [0m[32mInitialize[0m @secretlint/core@13.1.0
+2026-10-28T14:47:40.9321278Z [0m[32mInitialize[0m http-proxy-agent@7.0.2
+2026-10-28T14:47:40.9323109Z [0m[32mInitialize[0m fast-string-width@3.0.2
+2026-10-28T14:47:40.9439951Z [0m[32mInitialize[0m fast-wrap-ansi@0.2.2
+2026-10-28T14:47:40.9654082Z [0m[32mInitialize[0m human-id@4.2.2
+2026-10-28T14:47:40.9654934Z [0m[32mInitialize[0m fast-diff@1.3.0
+2026-10-28T14:47:40.9655539Z [0m[32mInitialize[0m @changesets/format@0.1.2
+2026-10-28T14:47:41.0079768Z [0m[32mInitialize[0m @pkgr/core@0.3.6
+2026-10-28T14:47:41.0118270Z [0m[32mInitialize[0m @electron/asar@4.3.1
+2026-10-28T14:47:41.0130141Z [0m[32mInitialize[0m @clack/core@1.5.1
+2026-10-28T14:47:41.6959862Z [0m[32mInitialize[0m @noble/hashes@2.4.0
+2026-10-28T14:47:41.6961044Z [0m[32mInitialize[0m get-east-asian-width@1.7.0
+2026-10-28T14:47:41.6961933Z [0m[32mInitialize[0m unicorn-magic@0.3.0
+2026-10-28T14:47:41.6962822Z [0m[32mInitialize[0m supports-hyperlinks@4.6.0
+2026-10-28T14:47:41.7076130Z [0m[32mInitialize[0m @electron/osx-sign@2.7.2
+2026-10-28T14:47:41.7230100Z [0m[32mInitialize[0m shell-quote@1.12.0
+2026-10-28T14:47:41.7230812Z [0m[32mInitialize[0m balanced-match@4.0.4
+2026-10-28T14:47:41.7231405Z [0m[32mInitialize[0m parse-ms@4.0.0
+2026-10-28T14:47:41.7231760Z [0m[32mInitialize[0m shebang-regex@3.0.0
+2026-10-28T14:47:41.7417367Z [0m[32mInitialize[0m pkijs@3.4.3
+2026-10-28T14:47:41.7585988Z [0m[32mInitialize[0m tagged-tag@1.0.0
+2026-10-28T14:47:41.7586818Z [0m[32mInitialize[0m slice-ansi@4.0.0
+2026-10-28T14:47:41.7929888Z [0m[32mInitialize[0m isexe@2.0.0
+2026-10-28T14:47:41.7930610Z [0m[32mInitialize[0m jsonc-parser@3.3.1
+2026-10-28T14:47:41.7931184Z [0m[32mInitialize[0m ansi-escapes@7.3.0
+2026-10-28T14:47:41.7984105Z [0m[32mInitialize[0m @dual-bundle/import-meta-resolve@4.2.1
+2026-10-28T14:47:41.7985710Z [0m[32mInitialize[0m is-unicode-supported@2.1.0
+2026-10-28T14:47:41.7986383Z [0m[32mInitialize[0m jiti@2.7.0
+2026-10-28T14:47:41.8366753Z [0m[32mInitialize[0m slide@1.1.6
+2026-10-28T14:47:41.8378085Z [0m[32mInitialize[0m structured-source@4.0.0
+2026-10-28T14:47:41.8379379Z [0m[32mInitialize[0m path-key@4.0.0
+2026-10-28T14:47:41.8546774Z [0m[32mInitialize[0m strip-ansi@7.2.0
+2026-10-28T14:47:41.8636442Z [0m[32mInitialize[0m validate-npm-package-license@3.0.4
+2026-10-28T14:47:41.8637291Z [0m[32mInitialize[0m strip-ansi@6.0.1
+2026-10-28T14:47:41.8793399Z [0m[32mInitialize[0m @manypkg/find-root@3.1.0
+2026-10-28T14:47:41.8794898Z [0m[32mInitialize[0m text-table@0.2.0
+2026-10-28T14:47:41.8797087Z [0m[32mInitialize[0m index-to-position@1.2.0
+2026-10-28T14:47:41.8797712Z [0m[32mInitialize[0m lodash.truncate@4.4.2
+2026-10-28T14:47:41.8798248Z [0m[32mInitialize[0m wrap-ansi@9.0.2
+2026-10-28T14:47:41.8836873Z [0m[32mInitialize[0m hosted-git-info@9.0.3
+2026-10-28T14:47:41.8837659Z [0m[32mInitialize[0m pluralize@2.0.0
+2026-10-28T14:47:41.8839530Z [0m[32mInitialize[0m type-fest@5.10.0
+2026-10-28T14:47:41.9004618Z [0m[32mInitialize[0m hookified@1.15.1
+2026-10-28T14:47:41.9025354Z [0m[32mInitialize[0m cacheable@2.5.0
+2026-10-28T14:47:41.9132434Z [0m[32mInitialize[0m flatted@3.4.4
+2026-10-28T14:47:41.9730147Z [0m[32mInitialize[0m @manypkg/tools@2.1.2
+2026-10-28T14:47:41.9739495Z [0m[32mInitialize[0m p-locate@5.0.0
+2026-10-28T14:47:41.9747812Z [0m[32mInitialize[0m string-width@7.2.0
+2026-10-28T14:47:41.9756512Z [0m[32mInitialize[0m punycode@2.3.1
+2026-10-28T14:47:41.9758267Z [0m[32mInitialize[0m picocolors@1.1.1
+2026-10-28T14:47:41.9762985Z [0m[32mInitialize[0m signal-exit@3.0.7
+2026-10-28T14:47:41.9763678Z [0m[32mInitialize[0m async-exit-hook@2.0.1
+2026-10-28T14:47:41.9764287Z [0m[32mInitialize[0m node-abi@4.40.0
+2026-10-28T14:47:41.9864127Z [0m[32mInitialize[0m retry@0.12.0
+2026-10-28T14:47:41.9894158Z [0m[32mInitialize[0m @malept/cross-spawn-promise@2.0.0
+2026-10-28T14:47:42.0038704Z [0m[32mInitialize[0m istextorbinary@9.5.0
+2026-10-28T14:47:42.0039419Z [0m[32mInitialize[0m node-api-version@0.2.1
+2026-10-28T14:47:42.0039899Z [0m[32mInitialize[0m read-binary-file-arch@1.0.6
+2026-10-28T14:47:42.0040280Z [0m[32mInitialize[0m duplexer2@0.1.4
+2026-10-28T14:47:42.0341648Z [0m[32mInitialize[0m axe-core@4.14.0
+2026-10-28T14:47:42.0342603Z [0m[32mInitialize[0m node-int64@0.4.0
+2026-10-28T14:47:42.0343924Z [0m[32mInitialize[0m require-directory@2.1.1
+2026-10-28T14:47:42.0345381Z [0m[32mInitialize[0m argparse@2.0.1
+2026-10-28T14:47:42.0463576Z [0m[32mInitialize[0m plist@3.1.1
+2026-10-28T14:47:42.0636735Z [0m[32mInitialize[0m fs-extra@10.1.0
+2026-10-28T14:47:42.1038036Z [0m[32mInitialize[0m @changesets/parse@1.0.0
+2026-10-28T14:47:42.1330747Z [0m[32mInitialize[0m rc-config-loader@4.1.4
+2026-10-28T14:47:42.1552124Z [0m[32mInitialize[0m tslib@2.8.1
+2026-10-28T14:47:42.1599341Z [0m[32mInitialize[0m fs-extra@11.3.1
+2026-10-28T14:47:42.1744039Z [0m[32mInitialize[0m webcrypto-core@1.9.2
+2026-10-28T14:47:42.1810578Z [0m[32mInitialize[0m @peculiar/json-schema@1.1.12
+2026-10-28T14:47:42.2000948Z [0m[32mInitialize[0m progress@2.0.3
+2026-10-28T14:47:42.2002304Z [0m[32mInitialize[0m env-paths@3.0.0
+2026-10-28T14:47:42.2260786Z [0m[32mInitialize[0m pe-library@2.0.1
+2026-10-28T14:47:42.2261862Z [0m[32mInitialize[0m @peculiar/asn1-schema@2.11.1
+2026-10-28T14:47:42.2417968Z [0m[32mInitialize[0m sumchecker@3.0.1
+2026-10-28T14:47:42.2621320Z [0m[32mInitialize[0m chownr@3.0.0
+2026-10-28T14:47:42.2761206Z [0m[32mInitialize[0m @sec-ant/readable-stream@0.4.1
+2026-10-28T14:47:42.2781056Z [0m[32mInitialize[0m semver@5.7.2
+2026-10-28T14:47:42.2866573Z [0m[32mInitialize[0m yallist@5.0.0
+2026-10-28T14:47:42.2981206Z [0m[32mInitialize[0m lru-cache@6.0.0
+2026-10-28T14:47:42.3103014Z [0m[32mInitialize[0m promise-retry@2.0.1
+2026-10-28T14:47:42.3255362Z [0m[32mInitialize[0m minizlib@3.1.0
+2026-10-28T14:47:42.4050519Z [0m[32mInitialize[0m require-from-string@2.0.2
+2026-10-28T14:47:42.9934809Z [0m[32mInitialize[0m type-fest@4.41.0
+2026-10-28T14:47:43.0055942Z [0m[32mInitialize[0m jake@10.9.4
+2026-10-28T14:47:43.0215235Z [0m[32mInitialize[0m @isaacs/fs-minipass@4.0.1
+2026-10-28T14:47:43.0216582Z [0m[32mInitialize[0m json-schema-traverse@1.0.0
+2026-10-28T14:47:43.0736515Z [0m[32mInitialize[0m minipass@7.1.3
+2026-10-28T14:47:43.0738569Z [0m[32mInitialize[0m @azu/format-text@1.0.2
+2026-10-28T14:47:43.0739168Z [0m[32mInitialize[0m @azu/style-format@1.0.1
+2026-10-28T14:47:43.0757513Z [0m[32mInitialize[0m pvtsutils@1.3.6
+2026-10-28T14:47:43.0930163Z [0m[32mInitialize[0m pvutils@1.2.0
+2026-10-28T14:47:43.1056648Z [0m[32mInitialize[0m isbinaryfile@4.0.10
+2026-10-28T14:47:43.1172329Z [0m[32mInitialize[0m base64-js@1.5.1
+2026-10-28T14:47:43.1237887Z [0m[32mInitialize[0m isexe@3.1.5
+2026-10-28T14:47:43.1477446Z [0m[32mInitialize[0m has-flag@4.0.0
+2026-10-28T14:47:43.1538415Z [0m[32mInitialize[0m color-convert@2.0.1
+2026-10-28T14:47:43.1560418Z [0m[32mInitialize[0m mime-types@2.1.35
+2026-10-28T14:47:43.1603051Z [0m[32mInitialize[0m @peculiar/utils@2.0.3
+2026-10-28T14:47:43.1676226Z [0m[32mInitialize[0m bluebird@3.7.2
+2026-10-28T14:47:43.1707041Z [0m[32mInitialize[0m combined-stream@1.0.8
+2026-10-28T14:47:43.1881970Z [0m[32mInitialize[0m es-set-tostringtag@2.1.0
+2026-10-28T14:47:43.1882667Z [0m[32mInitialize[0m bytestreamjs@2.0.1
+2026-10-28T14:47:43.1947862Z [0m[32mInitialize[0m hasown@2.0.4
+2026-10-28T14:47:43.2213477Z [0m[32mInitialize[0m fast-uri@3.1.9
+2026-10-28T14:47:43.2261408Z [0m[32mInitialize[0m @xmldom/xmldom@0.8.15
+2026-10-28T14:47:43.2431827Z [0m[32mInitialize[0m @textlint/resolver@15.8.0
+2026-10-28T14:47:43.2439455Z [0m[32mInitialize[0m asynckit@0.4.0
+2026-10-28T14:47:43.2618450Z [0m[32mInitialize[0m @aws-sdk/signature-v4-multi-region@3.996.49
+2026-10-28T14:47:43.3676051Z [0m[32mInitialize[0m @babel/code-frame@7.29.7
+2026-10-28T14:47:43.3678487Z [0m[32mInitialize[0m @aws-sdk/credential-provider-web-identity@3.972.83
+2026-10-28T14:47:43.3760960Z [0m[32mInitialize[0m undici@7.30.1
+2026-10-28T14:47:43.3860653Z [0m[32mInitialize[0m @aws-sdk/credential-provider-process@3.972.77
+2026-10-28T14:47:43.4225714Z [0m[32mInitialize[0m @smithy/node-http-handler@4.13.0
+2026-10-28T14:47:43.4226338Z [0m[32mInitialize[0m wrap-ansi@7.0.0
+2026-10-28T14:47:43.4297366Z [0m[32mInitialize[0m @aws-sdk/credential-provider-env@3.972.77
+2026-10-28T14:47:43.4367560Z [0m[32mInitialize[0m @aws-sdk/credential-provider-login@3.972.84
+2026-10-28T14:47:43.4447818Z [0m[32mInitialize[0m teleproto@1.232.0
+2026-10-28T14:47:43.4711747Z [0m[32mInitialize[0m emoji-regex@8.0.0
+2026-10-28T14:47:43.4755129Z [0m[32mInitialize[0m is-fullwidth-code-point@3.0.0
+2026-10-28T14:47:43.4786598Z [0m[32mInitialize[0m agent-base@7.1.4
+2026-10-28T14:47:43.5251793Z [0m[32mInitialize[0m truncate-utf8-bytes@1.0.2
+2026-10-28T14:47:43.5252274Z [0m[32mInitialize[0m buffer-from@1.1.2
+2026-10-28T14:47:43.5252602Z [0m[32mInitialize[0m @types/ms@2.1.0
+2026-10-28T14:47:43.5252910Z [0m[32mInitialize[0m tinyglobby@0.2.17
+2026-10-28T14:47:43.5253300Z [0m[32mInitialize[0m fast-string-truncated-width@3.0.3
+2026-10-28T14:47:43.5324172Z [0m[32mInitialize[0m jju@1.4.0
+2026-10-28T14:47:43.5653248Z [0m[32mInitialize[0m @smithy/credential-provider-imds@4.5.2
+2026-10-28T14:47:43.5769500Z [0m[32mInitialize[0m source-map@0.6.1
+2026-10-28T14:47:43.5770683Z [0m[32mInitialize[0m boundary@2.0.0
+2026-10-28T14:47:43.5808473Z [0m[32mInitialize[0m textextensions@6.11.0
+2026-10-28T14:47:43.5832822Z [0m[32mInitialize[0m spdx-correct@3.2.0
+2026-10-28T14:47:43.5867528Z [0m[32mInitialize[0m js-tokens@4.0.0
+2026-10-28T14:47:43.5954185Z [0m[32mInitialize[0m astral-regex@2.0.0
+2026-10-28T14:47:43.5973740Z [0m[32mInitialize[0m ansi-regex@5.0.1
+2026-10-28T14:47:43.6126874Z [0m[32mInitialize[0m binaryextensions@6.11.0
+2026-10-28T14:47:43.6135296Z [0m[32mInitialize[0m environment@1.1.0
+2026-10-28T14:47:43.6232721Z [0m[32mInitialize[0m has-flag@5.0.1
+2026-10-28T14:47:43.6876638Z [0m[32mInitialize[0m supports-color@10.2.2
+2026-10-28T14:47:44.1980861Z [0m[32mInitialize[0m @babel/helper-validator-identifier@7.29.7
+2026-10-28T14:47:44.3276623Z [0m[32mInitialize[0m qified@0.10.1
+2026-10-28T14:47:44.3277806Z [0m[32mInitialize[0m ansi-regex@6.4.0
+2026-10-28T14:47:44.3278216Z [0m[32mInitialize[0m ansi-styles@6.2.3
+2026-10-28T14:47:44.3278552Z [0m[32mInitialize[0m emoji-regex@10.6.0
+2026-10-28T14:47:44.3278883Z [0m[32mInitialize[0m p-limit@3.1.0
+2026-10-28T14:47:44.3435344Z [0m[32mInitialize[0m which@6.0.1
+2026-10-28T14:47:44.3501961Z [0m[32mInitialize[0m ajv@8.20.0
+2026-10-28T14:47:44.3597076Z [0m[32mInitialize[0m @textlint/ast-node-types@15.8.0
+2026-10-28T14:47:44.3657863Z [0m[32mInitialize[0m nopt@9.0.0
+2026-10-28T14:47:44.3942997Z [0m[32mInitialize[0m path-scurry@2.0.2
+2026-10-28T14:47:44.4392548Z [0m[32mInitialize[0m env-paths@2.2.1
+2026-10-28T14:47:44.4543381Z [0m[32mInitialize[0m spdx-expression-parse@3.0.1
+2026-10-28T14:47:44.4544284Z [0m[32mInitialize[0m readable-stream@2.3.8
+2026-10-28T14:47:44.4545459Z [0m[32mInitialize[0m mime-db@1.52.0
+2026-10-28T14:47:44.4629013Z [0m[32mInitialize[0m keyv@5.6.0
+2026-10-28T14:47:44.4632971Z [0m[32mInitialize[0m undici-types@8.9.0
+2026-10-28T14:47:44.4822383Z [0m[32mInitialize[0m get-intrinsic@1.3.0
+2026-10-28T14:47:44.4862378Z [0m[32mInitialize[0m editions@6.22.0
+2026-10-28T14:47:44.5048234Z [0m[32mInitialize[0m delayed-stream@1.0.0
+2026-10-28T14:47:44.5048865Z [0m[32mInitialize[0m filelist@1.0.6
+2026-10-28T14:47:44.5049351Z [0m[32mInitialize[0m color-name@1.1.4
+2026-10-28T14:47:44.5204064Z [0m[32mInitialize[0m @aws-sdk/credential-provider-http@3.972.79
+2026-10-28T14:47:44.5258131Z [0m[32mInitialize[0m bowser@2.15.0
+2026-10-28T14:47:44.5278330Z [0m[32mInitialize[0m exponential-backoff@3.1.3
+2026-10-28T14:47:44.5355141Z [0m[32mInitialize[0m err-code@2.0.3
+2026-10-28T14:47:44.5363884Z [0m[32mInitialize[0m yallist@4.0.0
+2026-10-28T14:47:44.5572733Z [0m[32mInitialize[0m @smithy/fetch-http-handler@5.8.0
+2026-10-28T14:47:44.5641267Z [0m[32mInitialize[0m proc-log@6.1.0
+2026-10-28T14:47:44.5650671Z [0m[32mInitialize[0m @cacheable/memory@2.2.0
+2026-10-28T14:47:44.5651410Z [0m[32mInitialize[0m function-bind@1.1.2
+2026-10-28T14:47:44.5688772Z [0m[32mInitialize[0m @cacheable/utils@2.5.0
+2026-10-28T14:47:44.5789191Z [0m[32mInitialize[0m has-tostringtag@1.0.2
+2026-10-28T14:47:44.5939783Z [0m[32mInitialize[0m @aws/lambda-invoke-store@0.3.0
+2026-10-28T14:47:44.6074980Z [0m[32mInitialize[0m brace-expansion@2.1.7
+2026-10-28T14:47:44.6080974Z [0m[32mInitialize[0m yocto-queue@0.1.0
+2026-10-28T14:47:44.6382155Z [0m[32mInitialize[0m isarray@1.0.0
+2026-10-28T14:47:44.6383223Z [0m[32mInitialize[0m spdx-license-ids@3.0.24
+2026-10-28T14:47:44.6553895Z [0m[32mInitialize[0m string_decoder@1.1.1
+2026-10-28T14:47:44.6614950Z [0m[32mInitialize[0m @aws-sdk/xml-builder@3.972.41
+2026-10-28T14:47:44.6733961Z [0m[32mInitialize[0m @aws-sdk/nested-clients@3.997.48
+2026-10-28T14:47:44.7009168Z [0m[32mInitialize[0m safe-buffer@5.1.2
+2026-10-28T14:47:44.7072734Z [0m[32mInitialize[0m fdir@6.5.0
+2026-10-28T14:47:44.7168030Z [0m[32mInitialize[0m process-nextick-args@2.0.1
+2026-10-28T14:47:44.7169117Z [0m[32mInitialize[0m hashery@1.5.1
+2026-10-28T14:47:44.7332733Z [0m[32mInitialize[0m browser-commander@0.32.1
+2026-10-28T14:47:44.7420261Z [0m[32mInitialize[0m isexe@4.0.0
+2026-10-28T14:47:44.7450973Z [0m[32mInitialize[0m @smithy/signature-v4@5.7.4
+2026-10-28T14:47:44.7845535Z [0m[32mInitialize[0m get-proto@1.0.1
+2026-10-28T14:47:44.7847157Z [0m[32mInitialize[0m has-symbols@1.1.0
+2026-10-28T14:47:44.7947476Z [0m[32mInitialize[0m @aws-sdk/types@3.975.0
+2026-10-28T14:47:44.8070812Z [0m[32mInitialize[0m es-object-atoms@1.1.2
+2026-10-28T14:47:44.8169822Z [0m[32mInitialize[0m math-intrinsics@1.1.0
+2026-10-28T14:47:44.8172291Z [0m[32mInitialize[0m util-deprecate@1.0.2
+2026-10-28T14:47:44.8215040Z [0m[32mInitialize[0m es-define-property@1.0.1
+2026-10-28T14:47:44.8389475Z [0m[32mInitialize[0m abbrev@4.0.0
+2026-10-28T14:47:44.8391070Z [0m[32mInitialize[0m utf8-byte-length@1.0.5
+2026-10-28T14:47:44.8391757Z [0m[32mInitialize[0m call-bind-apply-helpers@1.0.2
+2026-10-28T14:47:44.8392317Z [0m[32mInitialize[0m glob@13.0.6
+2026-10-28T14:47:44.8597367Z [0m[32mInitialize[0m core-util-is@1.0.3
+2026-10-28T14:47:44.8854087Z [0m[32mInitialize[0m minimatch@5.1.9
+2026-10-28T14:47:44.8855263Z [0m[32mInitialize[0m inherits@2.0.4
+2026-10-28T14:47:44.8928125Z [0m[32mInitialize[0m es-errors@1.3.0
+2026-10-28T14:47:44.8975389Z [0m[32mInitialize[0m gopd@1.2.0
+2026-10-28T14:47:44.9053782Z [0m[32mInitialize[0m @keyv/bigmap@1.3.1
+2026-10-28T14:47:44.9330881Z [0m[32mInitialize[0m async@3.2.6
+2026-10-28T14:47:44.9332081Z [0m[32mInitialize[0m spdx-exceptions@2.5.0
+2026-10-28T14:47:44.9428192Z [0m[32mInitialize[0m balanced-match@1.0.2
+2026-10-28T14:47:44.9520338Z [0m[32mInitialize[0m hookified@2.2.0
+2026-10-28T14:47:44.9727899Z [0m[32mInitialize[0m dunder-proto@1.0.1
+2026-10-28T14:47:44.9953665Z [0m[32mInitialize[0m version-range@4.15.0
+2026-10-28T14:47:45.5577423Z [0m[32mInitialize[0m @xterm/headless@6.0.0
+2026-10-28T14:47:45.9418461Z [0m[32mInitialize[0m @keyv/serialize@1.1.1
+2026-10-28T14:47:45.9789264Z [0m[32mInitialize[0m @aws-sdk/token-providers@3.1150.0
+2026-10-28T14:47:45.9866604Z [0m[32mInitialize[0m @aws-sdk/core@3.978.6
+2026-10-28T14:47:46.1969238Z [0m[32mInitialize[0m playwright@1.64.1
+2026-10-28T14:47:46.3256807Z [0m[32mInitialize[0m lru-cache@11.5.3
+2026-10-28T14:47:46.3470067Z [0m[32mInitialize[0m @types/node@26.6.5
+2026-10-28T14:47:46.3518521Z [0m[32mInitialize[0m tar@7.5.22
+2026-10-28T14:47:46.3696520Z [0m[32mInitialize[0m @resvg/resvg-js-win32-x64-msvc@2.6.2
+2026-10-28T14:47:46.3837336Z [0m[32mInitialize[0m node-gyp@12.4.0
+2026-10-28T14:47:46.3950709Z [0m[32mInitialize[0m react-dom@19.3.1
+2026-10-28T14:47:46.4326365Z [0m[32mInitialize[0m @esbuild/win32-x64@0.28.2
+2026-10-28T14:47:46.5486681Z [0m[32mInitialize[0m command-stream@2.4.0
+2026-10-28T14:47:47.2542905Z [0m[32mInitialize[0m prettier@3.9.10
+2026-10-28T14:47:47.3622659Z [0m[32mInitialize[0m undici@6.29.1
+2026-10-28T14:47:47.4015680Z [0m[32mInitialize[0m @noble/hashes@1.8.0
+2026-10-28T14:47:47.4828801Z [0m[32mInitialize[0m katex@0.19.1
+2026-10-28T14:47:47.5452258Z [0m[32mInitialize[0m better-sqlite3@13.0.3
+2026-10-28T14:47:47.5699244Z [0m[32mInitialize[0m @smithy/types@4.19.0
+2026-10-28T14:47:47.5882597Z [0m[32mInitialize[0m playwright-core@1.64.1
+2026-10-28T14:47:47.7501501Z [0m[32mInitialize[0m test-anywhere@0.9.1
+2026-10-28T14:47:47.7959144Z [0m[32mInitialize[0m eslint@10.13.0
+2026-10-28T14:47:47.8793773Z [0m[32mInitialize[0m @aws-sdk/nested-clients@3.997.51
+2026-10-28T14:47:47.9083504Z [0m[32mInitialize[0m jscpd-windows-x64-msvc@5.4.1
+2026-10-28T14:47:48.9750551Z [0m[32mInitialize[0m lottie-web@5.13.0
+2026-10-28T14:47:48.9920991Z [0m[32mInitialize[0m node-pty@1.1.0
+2026-10-28T14:47:49.2847958Z [0m[32mInitialize[0m lodash@4.18.1
+2026-10-28T14:47:51.1351128Z [0m[32mInitialize[0m app-builder-lib@27.0.0-alpha.13
+2026-10-28T14:47:51.8159279Z [0m[32mInitialize[0m @smithy/core@3.37.0
+2026-10-28T14:47:52.8619413Z [0m[32mInitialize[0m esbuild@0.28.2: running 'postinstall' script
+2026-10-28T14:47:52.8663304Z [0m[32mInitialize[0m node-pty@1.1.0: running 'install' script
+2026-10-28T14:47:53.0558510Z [0m[32mInitialize[0m node-pty@1.1.0: running 'postinstall' script
+2026-10-28T14:47:53.4633016Z [0m[38;5;245mInstalled[0m 468 [0m[38;5;245mpackages[0m [0m[38;5;245min[0m 22s
+2026-10-28T14:47:53.4633729Z [0m[38;5;245mReused[0m 0 [0m[38;5;245mpackages from cache[0m
+2026-10-28T14:47:53.4634298Z [0m[38;5;245mDownloaded[0m 0 [0m[38;5;245mpackages from JSR[0m
+2026-10-28T14:47:53.4634878Z [0m[38;5;245mDownloaded[0m 468 [0m[38;5;245mpackages from npm[0m
+2026-10-28T14:47:53.4636463Z [0m[32m++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[0m
+2026-10-28T14:47:53.4643321Z 
+2026-10-28T14:47:53.4643721Z [0m[36mDependencies:[0m
+2026-10-28T14:47:53.4644311Z [0m[32m+[0m [0m[38;5;245mnpm:[0maxe-core [0m[38;5;245m4.14.0[0m
+2026-10-28T14:47:53.4645152Z [0m[32m+[0m [0m[38;5;245mnpm:[0mbrowser-commander [0m[38;5;245m0.32.1[0m
+2026-10-28T14:47:53.4645930Z [0m[32m+[0m [0m[38;5;245mnpm:[0mdoublets-web [0m[38;5;245m0.1.3[0m
+2026-10-28T14:47:53.4646736Z [0m[32m+[0m [0m[38;5;245mnpm:[0mlinks-notation [0m[38;5;245m0.27.1[0m
+2026-10-28T14:47:53.4647705Z [0m[32m+[0m [0m[38;5;245mnpm:[0mlino-objects-codec [0m[38;5;245m0.9.2[0m
+2026-10-28T14:47:53.4648903Z [0m[32m+[0m [0m[38;5;245mnpm:[0mplaywright [0m[38;5;245m1.64.1[0m
+2026-10-28T14:47:53.4649613Z [0m[32m+[0m [0m[38;5;245mnpm:[0mteleproto [0m[38;5;245m1.232.0[0m
+2026-10-28T14:47:53.4650002Z 
+2026-10-28T14:47:53.4650211Z [0m[36mDev dependencies:[0m
+2026-10-28T14:47:53.4650715Z [0m[32m+[0m [0m[38;5;245mnpm:[0m@changesets/cli [0m[38;5;245m3.0.3[0m
+2026-10-28T14:47:53.4651625Z [0m[32m+[0m [0m[38;5;245mnpm:[0m@eslint/js [0m[38;5;245m10.0.1[0m
+2026-10-28T14:47:53.4652248Z [0m[32m+[0m [0m[38;5;245mnpm:[0m@secretlint/secretlint-rule-preset-recommend [0m[38;5;245m13.1.0[0m
+2026-10-28T14:47:53.4652855Z [0m[32m+[0m [0m[38;5;245mnpm:[0mcommand-stream [0m[38;5;245m2.4.0[0m
+2026-10-28T14:47:53.4653383Z [0m[32m+[0m [0m[38;5;245mnpm:[0melectron-builder [0m[38;5;245m27.0.0-alpha.13[0m
+2026-10-28T14:47:53.4653903Z [0m[32m+[0m [0m[38;5;245mnpm:[0mesbuild [0m[38;5;245m0.28.2[0m
+2026-10-28T14:47:53.4654367Z [0m[32m+[0m [0m[38;5;245mnpm:[0meslint [0m[38;5;245m10.13.0[0m
+2026-10-28T14:47:53.4654858Z [0m[32m+[0m [0m[38;5;245mnpm:[0meslint-config-prettier [0m[38;5;245m10.1.8[0m
+2026-10-28T14:47:53.4655401Z [0m[32m+[0m [0m[38;5;245mnpm:[0meslint-plugin-prettier [0m[38;5;245m5.5.7[0m
+2026-10-28T14:47:53.4655883Z [0m[32m+[0m [0m[38;5;245mnpm:[0mhusky [0m[38;5;245m9.1.7[0m
+2026-10-28T14:47:53.4656290Z [0m[32m+[0m [0m[38;5;245mnpm:[0mjscpd [0m[38;5;245m5.4.1[0m
+2026-10-28T14:47:53.4656699Z [0m[32m+[0m [0m[38;5;245mnpm:[0mkatex [0m[38;5;245m0.19.1[0m
+2026-10-28T14:47:53.4657153Z [0m[32m+[0m [0m[38;5;245mnpm:[0mlino-arguments [0m[38;5;245m0.4.0[0m
+2026-10-28T14:47:53.4657636Z [0m[32m+[0m [0m[38;5;245mnpm:[0mlint-staged [0m[38;5;245m17.6.0[0m
+2026-10-28T14:47:53.4658077Z [0m[32m+[0m [0m[38;5;245mnpm:[0mlottie-web [0m[38;5;245m5.13.0[0m
+2026-10-28T14:47:53.4658498Z [0m[32m+[0m [0m[38;5;245mnpm:[0mprettier [0m[38;5;245m3.9.10[0m
+2026-10-28T14:47:53.4659092Z [0m[32m+[0m [0m[38;5;245mnpm:[0mreact [0m[38;5;245m19.3.1[0m
+2026-10-28T14:47:53.4659514Z [0m[32m+[0m [0m[38;5;245mnpm:[0mreact-dom [0m[38;5;245m19.3.1[0m
+2026-10-28T14:47:53.4659937Z [0m[32m+[0m [0m[38;5;245mnpm:[0msecretlint [0m[38;5;245m13.1.0[0m
+2026-10-28T14:47:53.4660368Z [0m[32m+[0m [0m[38;5;245mnpm:[0mtest-anywhere [0m[38;5;245m0.9.1[0m
+2026-10-28T14:47:53.4660789Z [0m[32m+[0m [0m[38;5;245mnpm:[0myaml [0m[38;5;245m2.9.0[0m
+2026-10-28T14:47:53.6179305Z ##[group]Run if [ "$RUNNER_OS" = Windows ]; then node experiments/issue43-cifrante.mjs; fi
+2026-10-28T14:47:53.6179981Z [36;1mif [ "$RUNNER_OS" = Windows ]; then node experiments/issue43-cifrante.mjs; fi[0m
+2026-10-28T14:47:53.6180389Z [36;1mdeno test --allow-all js/tests[0m
+2026-10-28T14:47:53.6197110Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:47:53.6197481Z env:
+2026-10-28T14:47:53.6197661Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:53.6197873Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:53.6198115Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:53.6198326Z   CI_CRYPTO_DIAGNOSTICS: 1
+2026-10-28T14:47:53.6198520Z   RUST_BACKTRACE: 1
+2026-10-28T14:47:53.6198698Z ##[endgroup]
+2026-10-28T14:47:57.6644375Z {"mode":"default","status":3221225477,"signal":null}
+2026-10-28T14:47:57.6649626Z [0m[38;5;245mrunning 1 test from ../../../../C:/Users/RUNNER~1/AppData/Local/Temp/issue43-cifrante-TywUh0/probe0.test.js[0m
+2026-10-28T14:47:57.6650689Z finite AES-IGE native-addon probe ...
+2026-10-28T14:47:57.6651256Z [0m[38;5;245m------- output -------[0m
+2026-10-28T14:47:57.6652069Z before require
+2026-10-28T14:47:57.6652383Z before construction
+2026-10-28T14:47:57.6652697Z  
+2026-10-28T14:47:58.1154768Z {"mode":"portable","status":0,"signal":null}
+2026-10-28T14:47:58.1156099Z [0m[38;5;245mrunning 1 test from ../../../../C:/Users/RUNNER~1/AppData/Local/Temp/issue43-cifrante-TywUh0/probe0.test.js[0m
+2026-10-28T14:47:58.1157189Z finite AES-IGE native-addon probe ...
+2026-10-28T14:47:58.1157552Z [0m[38;5;245m------- output -------[0m
+2026-10-28T14:47:58.1157818Z before require
+2026-10-28T14:47:58.1158004Z before construction
+2026-10-28T14:47:58.1158203Z before encryption wasm
+2026-10-28T14:47:58.1158399Z before decryption
+2026-10-28T14:47:58.1158581Z after disposal
+2026-10-28T14:47:58.1158833Z [0m[38;5;245m----- output end -----[0m
+2026-10-28T14:47:58.1159293Z finite AES-IGE native-addon probe ... [0m[32mok[0m [0m[38;5;245m(51ms)[0m
+2026-10-28T14:47:58.1160025Z [0m[38;5;245mrunning 1 test from ../../../../C:/Users/RUNNER~1/AppData/Local/Temp/issue43-cifrante-TywUh0/probe1.test.js[0m
+2026-10-28T14:47:58.1160554Z finite AES-IGE native-addon probe ...
+2026-10-28T14:47:58.1160889Z [0m[38;5;245m------- post-test output -------[0m
+2026-10-28T14:47:58.1161150Z before require
+2026-10-28T14:47:58.1161322Z before construction
+2026-10-28T14:47:58.1161511Z before encryption wasm
+2026-10-28T14:47:58.1161699Z before decryption
+2026-10-28T14:47:58.1161868Z after disposal
+2026-10-28T14:47:58.1162119Z [0m[38;5;245m----- post-test output end -----[0m
+2026-10-28T14:47:58.1162579Z finite AES-IGE native-addon probe ... [0m[32mok[0m [0m[38;5;245m(47ms)[0m
+2026-10-28T14:47:58.1163294Z [0m[38;5;245mrunning 1 test from ../../../../C:/Users/RUNNER~1/AppData/Local/Temp/issue43-cifrante-TywUh0/probe2.test.js[0m
+2026-10-28T14:47:58.1163816Z finite AES-IGE native-addon probe ...
+2026-10-28T14:47:58.1164130Z [0m[38;5;245m------- post-test output -------[0m
+2026-10-28T14:47:58.1164389Z before require
+2026-10-28T14:47:58.1164557Z before construction
+2026-10-28T14:47:58.1164746Z before encryption wasm
+2026-10-28T14:47:58.1165190Z before decryption
+2026-10-28T14:47:58.1165372Z after disposal
+2026-10-28T14:47:58.1165640Z [0m[38;5;245m----- post-test output end -----[0m
+2026-10-28T14:47:58.1166169Z finite AES-IGE native-addon probe ... [0m[32mok[0m [0m[38;5;245m(45ms)[0m
+2026-10-28T14:47:58.1166597Z 
+2026-10-28T14:47:58.1166822Z [0m[32mok[0m | 3 passed | 0 failed [0m[38;5;245m(316ms)[0m
+2026-10-28T14:47:58.1167045Z 
+2026-10-28T14:47:58.1167116Z  
+2026-10-28T14:47:58.1499296Z node:internal/modules/run_main:123
+2026-10-28T14:47:58.1499759Z     triggerUncaughtException(
+2026-10-28T14:47:58.1500039Z     ^
+2026-10-28T14:47:58.1500149Z 
+2026-10-28T14:47:58.1500428Z AssertionError [ERR_ASSERTION]: Both default and portable AES probes must pass
+2026-10-28T14:47:58.1503339Z + actual - expected
+2026-10-28T14:47:58.1503546Z 
+2026-10-28T14:47:58.1503631Z   [
+2026-10-28T14:47:58.1503820Z +   3221225477,
+2026-10-28T14:47:58.1504029Z     0,
+2026-10-28T14:47:58.1504210Z -   0
+2026-10-28T14:47:58.1504409Z   ]
+2026-10-28T14:47:58.1504513Z 
+2026-10-28T14:47:58.1504821Z     at file:///D:/a/meta-sovereign/meta-sovereign/experiments/issue43-cifrante.mjs:70:10 {
+2026-10-28T14:47:58.1505353Z   generatedMessage: false,
+2026-10-28T14:47:58.1505640Z   code: 'ERR_ASSERTION',
+2026-10-28T14:47:58.1505885Z   actual: [ 3221225477, 0 ],
+2026-10-28T14:47:58.1506133Z   expected: [ 0, 0 ],
+2026-10-28T14:47:58.1506376Z   operator: 'deepStrictEqual',
+2026-10-28T14:47:58.1506638Z   diff: 'simple'
+2026-10-28T14:47:58.1506840Z }
+2026-10-28T14:47:58.1506943Z 
+2026-10-28T14:47:58.1507026Z Node.js v22.23.4
+2026-10-28T14:47:58.1678873Z ##[error]Process completed with exit code 1.
+2026-10-28T14:47:58.2547120Z Post job cleanup.
+2026-10-28T14:47:58.5099124Z Caching is not enabled. Caching is skipped.
+2026-10-28T14:47:58.6538881Z Post job cleanup.
+2026-10-28T14:47:58.8877626Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-28T14:47:58.9259348Z git version 2.56.0.windows.2
+2026-10-28T14:47:58.9332819Z Temporarily overriding HOME='D:\a\_temp\3ad846ed-da0c-4609-b76d-1b1993cfde87' before making global git config changes
+2026-10-28T14:47:58.9334098Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:47:58.9343600Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:47:58.9739699Z Removing SSH command configuration
+2026-10-28T14:47:58.9751134Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:47:59.0161756Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:47:59.6270632Z Removing HTTP extra header
+2026-10-28T14:47:59.6281964Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:47:59.6739339Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:48:00.2730167Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:48:00.2741463Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:48:00.3132831Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:48:00.9370503Z Cleaning up orphan processes

@@ -1,0 +1,1142 @@
+﻿2026-10-28T14:45:53.2233760Z Current runner version: '2.338.0'
+2026-10-28T14:45:53.2252720Z ##[group]Runner Image Provisioner
+2026-10-28T14:45:53.2253410Z Hosted Compute Agent
+2026-10-28T14:45:53.2253870Z Version: 20260828.587
+2026-10-28T14:45:53.2254320Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-10-28T14:45:53.2254960Z Build Date: 2026-08-28T16:44:25Z
+2026-10-28T14:45:53.2255520Z Worker ID: {4f72c18f-7750-4e15-aab3-04ffe6768a2a}
+2026-10-28T14:45:53.2256020Z Azure Region: westus
+2026-10-28T14:45:53.2256420Z ##[endgroup]
+2026-10-28T14:45:53.2257650Z ##[group]Operating System
+2026-10-28T14:45:53.2258090Z macOS
+2026-10-28T14:45:53.2258500Z 15.7.9
+2026-10-28T14:45:53.2259050Z 24G830
+2026-10-28T14:45:53.2259480Z ##[endgroup]
+2026-10-28T14:45:53.2259880Z ##[group]Runner Image
+2026-10-28T14:45:53.2260380Z Image: macos-15-arm64
+2026-10-28T14:45:53.2260870Z Version: 20260907.0337.1
+2026-10-28T14:45:53.2261860Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260907.0337/images/macos/macos-15-arm64-Readme.md
+2026-10-28T14:45:53.2263230Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260907.0337
+2026-10-28T14:45:53.2263920Z ##[endgroup]
+2026-10-28T14:45:53.2264800Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T14:45:53.2266600Z Contents: read
+2026-10-28T14:45:53.2267120Z Metadata: read
+2026-10-28T14:45:53.2267560Z ##[endgroup]
+2026-10-28T14:45:53.2269230Z Secret source: Actions
+2026-10-28T14:45:53.2270000Z Cache mode: write
+2026-10-28T14:45:53.2270570Z Prepare workflow directory
+2026-10-28T14:45:53.2835850Z Prepare all required actions
+2026-10-28T14:45:53.2874230Z Getting action download info
+2026-10-28T14:45:53.5668070Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T14:45:53.9338060Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T14:45:54.4627070Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T14:45:55.0297260Z Complete job name: Build (macos)
+2026-10-28T14:45:55.1084990Z ##[group]Run actions/checkout@v7
+2026-10-28T14:45:55.1085660Z with:
+2026-10-28T14:45:55.1086060Z   persist-credentials: false
+2026-10-28T14:45:55.1086590Z   ref: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:55.1087210Z   repository: link-foundation/meta-sovereign
+2026-10-28T14:45:55.1092400Z   token: ***
+2026-10-28T14:45:55.1092790Z   ssh-strict: true
+2026-10-28T14:45:55.1093170Z   ssh-user: git
+2026-10-28T14:45:55.1093670Z   clean: true
+2026-10-28T14:45:55.1094080Z   sparse-checkout-cone-mode: true
+2026-10-28T14:45:55.1094600Z   fetch-depth: 1
+2026-10-28T14:45:55.1095000Z   fetch-tags: false
+2026-10-28T14:45:55.1095420Z   show-progress: true
+2026-10-28T14:45:55.1095840Z   lfs: false
+2026-10-28T14:45:55.1096230Z   submodules: false
+2026-10-28T14:45:55.1096770Z   set-safe-directory: true
+2026-10-28T14:45:55.1097350Z   allow-unsafe-pr-checkout: false
+2026-10-28T14:45:55.1098330Z env:
+2026-10-28T14:45:55.1098900Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:55.1099470Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:55.1100090Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:55.1100630Z ##[endgroup]
+2026-10-28T14:45:55.5642750Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T14:45:55.5644880Z ##[group]Getting Git version info
+2026-10-28T14:45:55.5645650Z Working directory is '/Users/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:45:55.5646750Z [command]/opt/homebrew/bin/git version
+2026-10-28T14:45:55.6278280Z git version 2.55.0
+2026-10-28T14:45:55.6297690Z ##[endgroup]
+2026-10-28T14:45:55.6310210Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/fb631c74-ff95-4d99-aeab-3885024bca77/.gitconfig'
+2026-10-28T14:45:55.6314710Z Temporarily overriding HOME='/Users/runner/work/_temp/fb631c74-ff95-4d99-aeab-3885024bca77' before making global git config changes
+2026-10-28T14:45:55.6323780Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:45:55.6328590Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:45:55.6508230Z Deleting the contents of '/Users/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:45:55.6511050Z ##[group]Determining repository object format
+2026-10-28T14:45:55.6514290Z ##[endgroup]
+2026-10-28T14:45:55.6517480Z ##[group]Initializing the repository
+2026-10-28T14:45:55.6518480Z [command]/opt/homebrew/bin/git init /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:45:55.6824780Z Initialized empty Git repository in /Users/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T14:45:55.6841940Z [command]/opt/homebrew/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:45:55.6973210Z ##[endgroup]
+2026-10-28T14:45:55.6975160Z ##[group]Disabling automatic garbage collection
+2026-10-28T14:45:55.6977140Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-10-28T14:45:55.7232370Z ##[endgroup]
+2026-10-28T14:45:55.7233560Z ##[group]Setting up auth
+2026-10-28T14:45:55.7234260Z Removing SSH command configuration
+2026-10-28T14:45:55.7235510Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:55.7240150Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:45:55.8754780Z Removing HTTP extra header
+2026-10-28T14:45:55.8761100Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:45:55.8830230Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:45:56.0509110Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:45:56.0612580Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:45:56.0919580Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:45:56.2113830Z [command]/opt/homebrew/bin/git config --file /Users/runner/work/_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T14:45:56.2182500Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path /Users/runner/work/_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:56.2262810Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:56.2268140Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:56.2357460Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:56.2419180Z ##[endgroup]
+2026-10-28T14:45:56.2420390Z ##[group]Fetching the repository
+2026-10-28T14:45:56.2433620Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:57.9465600Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:45:57.9468480Z  * branch            8ef678716b8aff20b0e5fbba3af2bc860d86183a -> FETCH_HEAD
+2026-10-28T14:45:57.9472200Z [command]/opt/homebrew/bin/git rev-parse --verify --quiet 8ef678716b8aff20b0e5fbba3af2bc860d86183a^{object}
+2026-10-28T14:45:57.9555300Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:57.9558380Z ##[endgroup]
+2026-10-28T14:45:57.9559040Z ##[group]Determining the checkout info
+2026-10-28T14:45:57.9562390Z ##[endgroup]
+2026-10-28T14:45:57.9563220Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-10-28T14:45:57.9648650Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T14:45:57.9776100Z ##[group]Checking out the ref
+2026-10-28T14:45:57.9777950Z [command]/opt/homebrew/bin/git checkout --progress --force 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:58.4188430Z HEAD is now at 8ef6787 Merge 504e07daa95f6100355926f2f371ed0d4ff72c07 into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:45:58.4201380Z ##[endgroup]
+2026-10-28T14:45:58.4353860Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-28T14:45:58.4423300Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:58.4458870Z ##[group]Removing auth
+2026-10-28T14:45:58.4491060Z Removing SSH command configuration
+2026-10-28T14:45:58.4497880Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:58.4548820Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:45:58.5345080Z Removing HTTP extra header
+2026-10-28T14:45:58.5393840Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:45:58.5430430Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:45:58.6335190Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:45:58.6337220Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:45:58.6401160Z includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:45:58.6410860Z includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:45:58.6474410Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:45:58.6475040Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:45:58.6489960Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:45:58.6490860Z /Users/runner/work/_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:58.6493800Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path \/Users\/runner\/work\/_temp\/git\-credentials\-0292ee9f\-50ba\-496a\-b2d2\-7d62e54b6fe8\.config
+2026-10-28T14:45:58.6550040Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:45:58.6603330Z /Users/runner/work/_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:58.6608460Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/Users\/runner\/work\/_temp\/git\-credentials\-0292ee9f\-50ba\-496a\-b2d2\-7d62e54b6fe8\.config
+2026-10-28T14:45:58.6668000Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:45:58.6724990Z /github/runner_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:58.6747850Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-0292ee9f\-50ba\-496a\-b2d2\-7d62e54b6fe8\.config
+2026-10-28T14:45:58.6794510Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:45:58.6861350Z /github/runner_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config
+2026-10-28T14:45:58.6868320Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-0292ee9f\-50ba\-496a\-b2d2\-7d62e54b6fe8\.config
+2026-10-28T14:45:58.6961800Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:45:58.7921880Z Removing credentials config '/Users/runner/work/_temp/git-credentials-0292ee9f-50ba-496a-b2d2-7d62e54b6fe8.config'
+2026-10-28T14:45:58.7933940Z ##[endgroup]
+2026-10-28T14:45:58.8171620Z ##[group]Run actions/setup-node@v7
+2026-10-28T14:45:58.8171870Z with:
+2026-10-28T14:45:58.8172020Z   node-version: 24.x
+2026-10-28T14:45:58.8172200Z   package-manager-cache: false
+2026-10-28T14:45:58.8172470Z   check-latest: false
+2026-10-28T14:45:58.8174300Z   token: ***
+2026-10-28T14:45:58.8174450Z env:
+2026-10-28T14:45:58.8174630Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:58.8174850Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:58.8175110Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:58.8175280Z ##[endgroup]
+2026-10-28T14:45:58.9797230Z Found in cache @ /Users/runner/hostedtoolcache/node/24.20.0/arm64
+2026-10-28T14:45:59.1513990Z ##[group]Environment details
+2026-10-28T14:45:59.5338990Z node: v24.20.0
+2026-10-28T14:45:59.5339680Z npm: 11.19.0
+2026-10-28T14:45:59.5339890Z yarn: 1.22.22
+2026-10-28T14:45:59.5340810Z ##[endgroup]
+2026-10-28T14:45:59.5448430Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T14:45:59.5448790Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T14:45:59.5594760Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:45:59.5595220Z env:
+2026-10-28T14:45:59.5595440Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:59.5595890Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:59.5596190Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:59.5596520Z   ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+2026-10-28T14:45:59.5599710Z ##[endgroup]
+2026-10-28T14:46:13.2553060Z 
+2026-10-28T14:46:13.2576680Z > meta-sovereign@0.54.1 prepare
+2026-10-28T14:46:13.2580530Z > husky || true
+2026-10-28T14:46:13.2583170Z 
+2026-10-28T14:46:13.5894980Z 
+2026-10-28T14:46:13.5896070Z added 488 packages in 14s
+2026-10-28T14:46:13.7459240Z ##[group]Run range=$(node -p "require('./package.json').peerDependencies.electron")
+2026-10-28T14:46:13.7460150Z [36;1mrange=$(node -p "require('./package.json').peerDependencies.electron")[0m
+2026-10-28T14:46:13.7460710Z [36;1mversion=$(npm view "electron@$range" version --json | node -e \[0m
+2026-10-28T14:46:13.7461270Z [36;1m  "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(Array.isArray(v)?v.at(-1):v)")[0m
+2026-10-28T14:46:13.7461840Z [36;1mif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then[0m
+2026-10-28T14:46:13.7462210Z [36;1m  echo "::error::Invalid Electron version from registry"[0m
+2026-10-28T14:46:13.7462600Z [36;1m  exit 1[0m
+2026-10-28T14:46:13.7463100Z [36;1mfi[0m
+2026-10-28T14:46:13.7463420Z [36;1mecho "Electron $version (peer range $range)"[0m
+2026-10-28T14:46:13.7463840Z [36;1mecho "version=$version" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T14:46:13.7511890Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:13.7512390Z env:
+2026-10-28T14:46:13.7512680Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:13.7512930Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:13.7513270Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:13.7513510Z ##[endgroup]
+2026-10-28T14:46:14.6341130Z Electron 44.10.0 (peer range ^44.9.0)
+2026-10-28T14:46:14.6399330Z ##[group]Run npm run build:web
+2026-10-28T14:46:14.6399700Z [36;1mnpm run build:web[0m
+2026-10-28T14:46:14.6438350Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:14.6438690Z env:
+2026-10-28T14:46:14.6439020Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:14.6439270Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:14.6439710Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:14.6446010Z ##[endgroup]
+2026-10-28T14:46:14.8269740Z 
+2026-10-28T14:46:14.8270910Z > meta-sovereign@0.54.1 build:web
+2026-10-28T14:46:14.8271560Z > node js/scripts/build-web.mjs
+2026-10-28T14:46:14.8271760Z 
+2026-10-28T14:46:15.2213530Z 
+2026-10-28T14:46:15.2297330Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T14:46:15.2297960Z 
+2026-10-28T14:46:15.2298320Z ⚡ Done in 321ms
+2026-10-28T14:46:15.2384390Z ##[group]Run set -euo pipefail
+2026-10-28T14:46:15.2384720Z [36;1mset -euo pipefail[0m
+2026-10-28T14:46:15.2385050Z [36;1m# Pull requests never get the Developer ID: they build the[0m
+2026-10-28T14:46:15.2385440Z [36;1m# ad-hoc variant, which needs no secrets.[0m
+2026-10-28T14:46:15.2385750Z [36;1mif [ "$GITHUB_EVENT_NAME" != pull_request ] && \[0m
+2026-10-28T14:46:15.2386140Z [36;1m   [ -n "$MAC_CSC_LINK" ] && [ -n "$MAC_CSC_KEY_PASSWORD" ] && \[0m
+2026-10-28T14:46:15.2386580Z [36;1m   [ -n "$APPLE_API_KEY_CONTENT" ] && [ -n "$APPLE_API_KEY_ID" ] && \[0m
+2026-10-28T14:46:15.2387060Z [36;1m   [ -n "$APPLE_API_ISSUER" ]; then[0m
+2026-10-28T14:46:15.2387420Z [36;1m  # notarytool wants a path to the .p8 key, not its contents.[0m
+2026-10-28T14:46:15.2387820Z [36;1m  key="$RUNNER_TEMP/AuthKey_$APPLE_API_KEY_ID.p8"[0m
+2026-10-28T14:46:15.2388200Z [36;1m  printf '%s' "$APPLE_API_KEY_CONTENT" > "$key"[0m
+2026-10-28T14:46:15.2388430Z [36;1m  {[0m
+2026-10-28T14:46:15.2388680Z [36;1m    echo "CSC_LINK=$MAC_CSC_LINK"[0m
+2026-10-28T14:46:15.2388950Z [36;1m    echo "CSC_KEY_PASSWORD=$MAC_CSC_KEY_PASSWORD"[0m
+2026-10-28T14:46:15.2389230Z [36;1m    echo "APPLE_API_KEY=$key"[0m
+2026-10-28T14:46:15.2389470Z [36;1m    echo "APPLE_API_KEY_ID=$APPLE_API_KEY_ID"[0m
+2026-10-28T14:46:15.2389760Z [36;1m    echo "APPLE_API_ISSUER=$APPLE_API_ISSUER"[0m
+2026-10-28T14:46:15.2389990Z [36;1m  } >> "$GITHUB_ENV"[0m
+2026-10-28T14:46:15.2390220Z [36;1m  echo "mode=signed" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T14:46:15.2390470Z [36;1m  echo "args=" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T14:46:15.2390700Z [36;1melse[0m
+2026-10-28T14:46:15.2391020Z [36;1m  echo "::notice::building an ad-hoc signed macOS app (pull request or no signing secrets)"[0m
+2026-10-28T14:46:15.2391450Z [36;1m  # electron-builder skips signing on pull requests unless[0m
+2026-10-28T14:46:15.2391840Z [36;1m  # CSC_FOR_PULL_REQUEST is set; ad-hoc signing uses no secret.[0m
+2026-10-28T14:46:15.2392270Z [36;1m  # With auto-discovery off it also needs `mac.sign.identity=-`:[0m
+2026-10-28T14:46:15.2392750Z [36;1m  # without an identity it returns before calling `mac.sign.sign`.[0m
+2026-10-28T14:46:15.2393060Z [36;1m  {[0m
+2026-10-28T14:46:15.2393350Z [36;1m    echo "MACOS_ADHOC_SIGN=1"[0m
+2026-10-28T14:46:15.2393680Z [36;1m    echo "CSC_IDENTITY_AUTO_DISCOVERY=false"[0m
+2026-10-28T14:46:15.2394080Z [36;1m    echo "CSC_FOR_PULL_REQUEST=true"[0m
+2026-10-28T14:46:15.2394340Z [36;1m  } >> "$GITHUB_ENV"[0m
+2026-10-28T14:46:15.2394830Z [36;1m  echo "mode=adhoc" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T14:46:15.2395500Z [36;1m  echo "args=-c.mac.sign.identity=- -c.mac.notarize=false -c.mac.sign.sign=$GITHUB_WORKSPACE/desktop/adhoc-sign-mac.cjs" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T14:46:15.2396120Z [36;1mfi[0m
+2026-10-28T14:46:15.2431500Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:15.2431780Z env:
+2026-10-28T14:46:15.2431930Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:15.2432150Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:15.2432360Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:15.2432540Z   MAC_CSC_LINK: 
+2026-10-28T14:46:15.2432700Z   MAC_CSC_KEY_PASSWORD: 
+2026-10-28T14:46:15.2432870Z   APPLE_API_KEY_CONTENT: 
+2026-10-28T14:46:15.2433090Z   APPLE_API_KEY_ID: 
+2026-10-28T14:46:15.2433290Z   APPLE_API_ISSUER: 
+2026-10-28T14:46:15.2433470Z ##[endgroup]
+2026-10-28T14:46:15.2996180Z ##[notice]building an ad-hoc signed macOS app (pull request or no signing secrets)
+2026-10-28T14:46:15.3106640Z ##[group]Run read -r -a build_args <<< "$BUILD_ARGS"
+2026-10-28T14:46:15.3107010Z [36;1mread -r -a build_args <<< "$BUILD_ARGS"[0m
+2026-10-28T14:46:15.3107670Z [36;1mread -r -a sign_args <<< "$SIGN_ARGS"[0m
+2026-10-28T14:46:15.3108040Z [36;1mnode js/scripts/build-desktop.mjs "${build_args[@]}" "${sign_args[@]}"[0m
+2026-10-28T14:46:15.3140900Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:15.3141300Z env:
+2026-10-28T14:46:15.3141470Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:15.3141740Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:15.3141990Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:15.3142180Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T14:46:15.3142510Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T14:46:15.3142730Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T14:46:15.3143050Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T14:46:15.3143280Z   BUILD_ARGS: --mac --x64 --arm64
+2026-10-28T14:46:15.3144440Z   SIGN_ARGS: -c.mac.sign.identity=- -c.mac.notarize=false -c.mac.sign.sign=/Users/runner/work/meta-sovereign/meta-sovereign/desktop/adhoc-sign-mac.cjs
+2026-10-28T14:46:15.3144970Z ##[endgroup]
+2026-10-28T14:46:16.9805500Z 
+2026-10-28T14:46:16.9806950Z added 16 packages in 916ms
+2026-10-28T14:46:17.0036460Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).
+2026-10-28T14:46:17.0036960Z electron 44.10.0
+2026-10-28T14:46:18.3229580Z   • electron-builder  version=27.0.0-alpha.13 os=24.6.0
+2026-10-28T14:46:18.3352470Z   • loaded configuration  file=/Users/runner/work/meta-sovereign/meta-sovereign/desktop/electron-builder.config.cjs
+2026-10-28T14:46:18.9480570Z   • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=npm detected=/Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:46:19.1321630Z   • skipped dependencies rebuild  reason=nativeModules.npmRebuild is set to false
+2026-10-28T14:46:19.1323040Z   • packaging       platform=darwin arch=x64 electron=44.10.0 appOutDir=dist/desktop/release/mac
+2026-10-28T14:46:23.4570120Z   • downloading     label=electron progress=1%
+2026-10-28T14:46:23.4707300Z   • downloading     label=electron progress=2%
+2026-10-28T14:46:23.4804790Z   • downloading     label=electron progress=3%
+2026-10-28T14:46:23.4863180Z   • downloading     label=electron progress=4%
+2026-10-28T14:46:23.4957600Z   • downloading     label=electron progress=5%
+2026-10-28T14:46:23.5023930Z   • downloading     label=electron progress=6%
+2026-10-28T14:46:23.5060090Z   • downloading     label=electron progress=7%
+2026-10-28T14:46:23.5315890Z   • downloading     label=electron progress=8%
+2026-10-28T14:46:23.5389500Z   • downloading     label=electron progress=9%
+2026-10-28T14:46:23.5432000Z   • downloading     label=electron progress=10%
+2026-10-28T14:46:23.5493120Z   • downloading     label=electron progress=11%
+2026-10-28T14:46:23.5582740Z   • downloading     label=electron progress=12%
+2026-10-28T14:46:23.5669650Z   • downloading     label=electron progress=13%
+2026-10-28T14:46:23.5718830Z   • downloading     label=electron progress=14%
+2026-10-28T14:46:23.5763630Z   • downloading     label=electron progress=15%
+2026-10-28T14:46:23.6046890Z   • downloading     label=electron progress=16%
+2026-10-28T14:46:23.6275980Z   • downloading     label=electron progress=17%
+2026-10-28T14:46:23.6417600Z   • downloading     label=electron progress=18%
+2026-10-28T14:46:23.6447290Z   • downloading     label=electron progress=19%
+2026-10-28T14:46:23.6724980Z   • downloading     label=electron progress=20%
+2026-10-28T14:46:23.6765760Z   • downloading     label=electron progress=21%
+2026-10-28T14:46:23.6823500Z   • downloading     label=electron progress=22%
+2026-10-28T14:46:23.6870140Z   • downloading     label=electron progress=23%
+2026-10-28T14:46:23.6961150Z   • downloading     label=electron progress=24%
+2026-10-28T14:46:23.7047540Z   • downloading     label=electron progress=25%
+2026-10-28T14:46:23.7129010Z   • downloading     label=electron progress=26%
+2026-10-28T14:46:23.7163140Z   • downloading     label=electron progress=27%
+2026-10-28T14:46:23.7210340Z   • downloading     label=electron progress=28%
+2026-10-28T14:46:23.7306870Z   • downloading     label=electron progress=29%
+2026-10-28T14:46:23.7363450Z   • downloading     label=electron progress=30%
+2026-10-28T14:46:23.7399410Z   • downloading     label=electron progress=31%
+2026-10-28T14:46:23.7460460Z   • downloading     label=electron progress=32%
+2026-10-28T14:46:23.7518900Z   • downloading     label=electron progress=33%
+2026-10-28T14:46:23.7569610Z   • downloading     label=electron progress=34%
+2026-10-28T14:46:23.7626110Z   • downloading     label=electron progress=35%
+2026-10-28T14:46:23.7701990Z   • downloading     label=electron progress=36%
+2026-10-28T14:46:23.7988900Z   • downloading     label=electron progress=37%
+2026-10-28T14:46:23.8017440Z   • downloading     label=electron progress=38%
+2026-10-28T14:46:23.8039170Z   • downloading     label=electron progress=39%
+2026-10-28T14:46:23.8132460Z   • downloading     label=electron progress=40%
+2026-10-28T14:46:23.8215280Z   • downloading     label=electron progress=41%
+2026-10-28T14:46:23.8280200Z   • downloading     label=electron progress=42%
+2026-10-28T14:46:23.8335410Z   • downloading     label=electron progress=43%
+2026-10-28T14:46:23.8408730Z   • downloading     label=electron progress=44%
+2026-10-28T14:46:23.8481820Z   • downloading     label=electron progress=45%
+2026-10-28T14:46:23.8512830Z   • downloading     label=electron progress=46%
+2026-10-28T14:46:23.8597070Z   • downloading     label=electron progress=47%
+2026-10-28T14:46:23.8656250Z   • downloading     label=electron progress=48%
+2026-10-28T14:46:23.8696480Z   • downloading     label=electron progress=49%
+2026-10-28T14:46:23.8898680Z   • downloading     label=electron progress=50%
+2026-10-28T14:46:23.8972230Z   • downloading     label=electron progress=51%
+2026-10-28T14:46:23.9020950Z   • downloading     label=electron progress=52%
+2026-10-28T14:46:23.9122510Z   • downloading     label=electron progress=53%
+2026-10-28T14:46:23.9512760Z   • downloading     label=electron progress=54%
+2026-10-28T14:46:23.9546120Z   • downloading     label=electron progress=55%
+2026-10-28T14:46:23.9604580Z   • downloading     label=electron progress=56%
+2026-10-28T14:46:23.9801430Z   • downloading     label=electron progress=57%
+2026-10-28T14:46:23.9844630Z   • downloading     label=electron progress=58%
+2026-10-28T14:46:23.9878600Z   • downloading     label=electron progress=59%
+2026-10-28T14:46:24.0058390Z   • downloading     label=electron progress=60%
+2026-10-28T14:46:24.0129500Z   • downloading     label=electron progress=61%
+2026-10-28T14:46:24.0187740Z   • downloading     label=electron progress=62%
+2026-10-28T14:46:24.0252430Z   • downloading     label=electron progress=63%
+2026-10-28T14:46:24.0351140Z   • downloading     label=electron progress=64%
+2026-10-28T14:46:24.0403370Z   • downloading     label=electron progress=65%
+2026-10-28T14:46:24.0482790Z   • downloading     label=electron progress=66%
+2026-10-28T14:46:24.0801290Z   • downloading     label=electron progress=67%
+2026-10-28T14:46:24.0822350Z   • downloading     label=electron progress=68%
+2026-10-28T14:46:24.0847380Z   • downloading     label=electron progress=69%
+2026-10-28T14:46:24.0968740Z   • downloading     label=electron progress=70%
+2026-10-28T14:46:24.1094970Z   • downloading     label=electron progress=71%
+2026-10-28T14:46:24.1313640Z   • downloading     label=electron progress=72%
+2026-10-28T14:46:24.1348420Z   • downloading     label=electron progress=73%
+2026-10-28T14:46:24.1408730Z   • downloading     label=electron progress=74%
+2026-10-28T14:46:24.1646690Z   • downloading     label=electron progress=75%
+2026-10-28T14:46:24.1755720Z   • downloading     label=electron progress=76%
+2026-10-28T14:46:24.1785900Z   • downloading     label=electron progress=77%
+2026-10-28T14:46:24.1856160Z   • downloading     label=electron progress=78%
+2026-10-28T14:46:24.2036240Z   • downloading     label=electron progress=79%
+2026-10-28T14:46:24.2101140Z   • downloading     label=electron progress=80%
+2026-10-28T14:46:24.2377680Z   • downloading     label=electron progress=81%
+2026-10-28T14:46:24.2401150Z   • downloading     label=electron progress=82%
+2026-10-28T14:46:24.2429940Z   • downloading     label=electron progress=83%
+2026-10-28T14:46:24.2591010Z   • downloading     label=electron progress=84%
+2026-10-28T14:46:24.2637240Z   • downloading     label=electron progress=85%
+2026-10-28T14:46:24.2665860Z   • downloading     label=electron progress=86%
+2026-10-28T14:46:24.2782810Z   • downloading     label=electron progress=87%
+2026-10-28T14:46:24.3011770Z   • downloading     label=electron progress=88%
+2026-10-28T14:46:24.3044740Z   • downloading     label=electron progress=89%
+2026-10-28T14:46:24.3081300Z   • downloading     label=electron progress=90%
+2026-10-28T14:46:24.3131540Z   • downloading     label=electron progress=91%
+2026-10-28T14:46:24.3261420Z   • downloading     label=electron progress=92%
+2026-10-28T14:46:24.3319540Z   • downloading     label=electron progress=93%
+2026-10-28T14:46:24.3362770Z   • downloading     label=electron progress=94%
+2026-10-28T14:46:24.3464610Z   • downloading     label=electron progress=95%
+2026-10-28T14:46:24.3523300Z   • downloading     label=electron progress=96%
+2026-10-28T14:46:24.3571110Z   • downloading     label=electron progress=97%
+2026-10-28T14:46:24.3625750Z   • downloading     label=electron progress=98%
+2026-10-28T14:46:24.3691500Z   • downloading     label=electron progress=99%
+2026-10-28T14:46:24.3900950Z   • downloaded      label=electron progress=100%
+2026-10-28T14:46:28.6329020Z   • downloaded electron zip extracted successfully  output=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac
+2026-10-28T14:46:28.7103390Z   • searching for node modules  pm=npm searchDir=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/app
+2026-10-28T14:46:31.7050580Z   • using toolset   toolset=icons@1.2.3 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:46:33.2014010Z   • downloading     label=icons-bundle.tar.gz progress=1%
+2026-10-28T14:46:33.2065320Z   • downloading     label=icons-bundle.tar.gz progress=2%
+2026-10-28T14:46:33.2091490Z   • downloading     label=icons-bundle.tar.gz progress=3%
+2026-10-28T14:46:33.2162760Z   • downloading     label=icons-bundle.tar.gz progress=4%
+2026-10-28T14:46:33.2165850Z   • downloading     label=icons-bundle.tar.gz progress=5%
+2026-10-28T14:46:33.2185630Z   • downloading     label=icons-bundle.tar.gz progress=6%
+2026-10-28T14:46:33.2194740Z   • downloading     label=icons-bundle.tar.gz progress=7%
+2026-10-28T14:46:33.2212860Z   • downloading     label=icons-bundle.tar.gz progress=8%
+2026-10-28T14:46:33.2219360Z   • downloading     label=icons-bundle.tar.gz progress=9%
+2026-10-28T14:46:33.2276620Z   • downloading     label=icons-bundle.tar.gz progress=10%
+2026-10-28T14:46:33.2278120Z   • downloading     label=icons-bundle.tar.gz progress=11%
+2026-10-28T14:46:33.2282790Z   • downloading     label=icons-bundle.tar.gz progress=12%
+2026-10-28T14:46:33.2293550Z   • downloading     label=icons-bundle.tar.gz progress=13%
+2026-10-28T14:46:33.2294360Z   • downloading     label=icons-bundle.tar.gz progress=14%
+2026-10-28T14:46:33.2304040Z   • downloading     label=icons-bundle.tar.gz progress=15%
+2026-10-28T14:46:33.2324770Z   • downloading     label=icons-bundle.tar.gz progress=16%
+2026-10-28T14:46:33.2325980Z   • downloading     label=icons-bundle.tar.gz progress=17%
+2026-10-28T14:46:33.2329940Z   • downloading     label=icons-bundle.tar.gz progress=18%
+2026-10-28T14:46:33.2330930Z   • downloading     label=icons-bundle.tar.gz progress=19%
+2026-10-28T14:46:33.2368460Z   • downloading     label=icons-bundle.tar.gz progress=20%
+2026-10-28T14:46:33.2377740Z   • downloading     label=icons-bundle.tar.gz progress=21%
+2026-10-28T14:46:33.2378940Z   • downloading     label=icons-bundle.tar.gz progress=22%
+2026-10-28T14:46:33.2391740Z   • downloading     label=icons-bundle.tar.gz progress=23%
+2026-10-28T14:46:33.2392420Z   • downloading     label=icons-bundle.tar.gz progress=24%
+2026-10-28T14:46:33.2393670Z   • downloading     label=icons-bundle.tar.gz progress=25%
+2026-10-28T14:46:33.2401030Z   • downloading     label=icons-bundle.tar.gz progress=26%
+2026-10-28T14:46:33.2401560Z   • downloading     label=icons-bundle.tar.gz progress=27%
+2026-10-28T14:46:33.2402090Z   • downloading     label=icons-bundle.tar.gz progress=28%
+2026-10-28T14:46:33.2405060Z   • downloading     label=icons-bundle.tar.gz progress=29%
+2026-10-28T14:46:33.2405680Z   • downloading     label=icons-bundle.tar.gz progress=30%
+2026-10-28T14:46:33.2409430Z   • downloading     label=icons-bundle.tar.gz progress=31%
+2026-10-28T14:46:33.2410040Z   • downloading     label=icons-bundle.tar.gz progress=32%
+2026-10-28T14:46:33.2413860Z   • downloading     label=icons-bundle.tar.gz progress=33%
+2026-10-28T14:46:33.2430310Z   • downloading     label=icons-bundle.tar.gz progress=34%
+2026-10-28T14:46:33.2431060Z   • downloading     label=icons-bundle.tar.gz progress=35%
+2026-10-28T14:46:33.2435380Z   • downloading     label=icons-bundle.tar.gz progress=37%
+2026-10-28T14:46:33.2438290Z   • downloading     label=icons-bundle.tar.gz progress=38%
+2026-10-28T14:46:33.2441950Z   • downloading     label=icons-bundle.tar.gz progress=39%
+2026-10-28T14:46:33.2442510Z   • downloading     label=icons-bundle.tar.gz progress=40%
+2026-10-28T14:46:33.2477820Z   • downloading     label=icons-bundle.tar.gz progress=41%
+2026-10-28T14:46:33.2481710Z   • downloading     label=icons-bundle.tar.gz progress=42%
+2026-10-28T14:46:33.2508200Z   • downloading     label=icons-bundle.tar.gz progress=43%
+2026-10-28T14:46:33.2509020Z   • downloading     label=icons-bundle.tar.gz progress=44%
+2026-10-28T14:46:33.2510400Z   • downloading     label=icons-bundle.tar.gz progress=45%
+2026-10-28T14:46:33.2511240Z   • downloading     label=icons-bundle.tar.gz progress=47%
+2026-10-28T14:46:33.2514250Z   • downloading     label=icons-bundle.tar.gz progress=49%
+2026-10-28T14:46:33.2515240Z   • downloading     label=icons-bundle.tar.gz progress=54%
+2026-10-28T14:46:33.2517450Z   • downloading     label=icons-bundle.tar.gz progress=56%
+2026-10-28T14:46:33.2518550Z   • downloading     label=icons-bundle.tar.gz progress=59%
+2026-10-28T14:46:33.2520060Z   • downloading     label=icons-bundle.tar.gz progress=61%
+2026-10-28T14:46:33.2521940Z   • downloading     label=icons-bundle.tar.gz progress=62%
+2026-10-28T14:46:33.2522800Z   • downloading     label=icons-bundle.tar.gz progress=63%
+2026-10-28T14:46:33.2531900Z   • downloading     label=icons-bundle.tar.gz progress=65%
+2026-10-28T14:46:33.2535850Z   • downloading     label=icons-bundle.tar.gz progress=68%
+2026-10-28T14:46:33.2550630Z   • downloading     label=icons-bundle.tar.gz progress=69%
+2026-10-28T14:46:33.2551440Z   • downloading     label=icons-bundle.tar.gz progress=70%
+2026-10-28T14:46:33.2557600Z   • downloading     label=icons-bundle.tar.gz progress=71%
+2026-10-28T14:46:33.2560970Z   • downloading     label=icons-bundle.tar.gz progress=72%
+2026-10-28T14:46:33.2571630Z   • downloading     label=icons-bundle.tar.gz progress=74%
+2026-10-28T14:46:33.2573630Z   • downloading     label=icons-bundle.tar.gz progress=78%
+2026-10-28T14:46:33.2579470Z   • downloading     label=icons-bundle.tar.gz progress=80%
+2026-10-28T14:46:33.2584890Z   • downloading     label=icons-bundle.tar.gz progress=83%
+2026-10-28T14:46:33.2594290Z   • downloading     label=icons-bundle.tar.gz progress=84%
+2026-10-28T14:46:33.2598060Z   • downloading     label=icons-bundle.tar.gz progress=85%
+2026-10-28T14:46:33.2602450Z   • downloading     label=icons-bundle.tar.gz progress=88%
+2026-10-28T14:46:33.2623340Z   • downloading     label=icons-bundle.tar.gz progress=89%
+2026-10-28T14:46:33.2631440Z   • downloading     label=icons-bundle.tar.gz progress=90%
+2026-10-28T14:46:33.2660130Z   • downloading     label=icons-bundle.tar.gz progress=92%
+2026-10-28T14:46:33.2672040Z   • downloading     label=icons-bundle.tar.gz progress=95%
+2026-10-28T14:46:33.2685400Z   • downloading     label=icons-bundle.tar.gz progress=97%
+2026-10-28T14:46:33.2793800Z   • downloaded      label=icons-bundle.tar.gz progress=100%
+2026-10-28T14:46:34.0675070Z   • auto-update manifests will be unsigned: anyone who can overwrite latest*.yml on your update server can point installs at an arbitrary payload. Remove `updateManifest: false` and provide a key with `electron-builder create-update-key` to enable signing. Note that installs which already embed a public key reject unsigned manifests (ERR_UPDATER_MANIFEST_NOT_SIGNED). See https://www.electron.build/features/signed-update-manifests  platform=mac reason=updateManifest is set to false
+2026-10-28T14:46:35.5930800Z   • embedded ASAR integrity digest  file=dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework
+2026-10-28T14:46:35.5948650Z   • There are serious security concerns with CSC_FOR_PULL_REQUEST=true (see the  CircleCI documentation (https://circleci.com/docs/guides/integration/oss/#pass-secrets-to-builds-from-forked-pull-requests) for details)
+2026-10-28T14:46:35.5952540Z If you have SSH keys, sensitive env vars or AWS credentials stored in your project settings and untrusted forks can make pull requests against your repo, then this option isn't for you.
+2026-10-28T14:46:35.6444790Z   • signing         file=dist/desktop/release/mac/Meta Sovereign.app platform=darwin type=distribution identityName=- identityHash=none provisioningProfile=none
+2026-10-28T14:46:43.0121070Z   • skipped macOS notarization  reason=`notarize` options were set explicitly `false`
+2026-10-28T14:46:43.0142100Z   • building        target=macOS zip arch=x64 file=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.1.zip
+2026-10-28T14:46:43.0160030Z   • skipped dependencies rebuild  reason=nativeModules.npmRebuild is set to false
+2026-10-28T14:46:43.0162240Z   • packaging       platform=darwin arch=arm64 electron=44.10.0 appOutDir=dist/desktop/release/mac-arm64
+2026-10-28T14:46:43.0164740Z   • building        target=DMG arch=x64 file=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.1.dmg
+2026-10-28T14:46:43.0270370Z   • using toolset   toolset=7zip@1.0.1 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:46:43.0605340Z   • using toolset   toolset=dmg-builder@1.2.5 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:46:43.4008200Z   • downloading     label=electron progress=1%
+2026-10-28T14:46:43.4081300Z   • downloading     label=electron progress=2%
+2026-10-28T14:46:43.4227150Z   • downloading     label=electron progress=3%
+2026-10-28T14:46:43.4728780Z   • downloading     label=electron progress=4%
+2026-10-28T14:46:43.4849100Z   • downloading     label=electron progress=5%
+2026-10-28T14:46:43.4981740Z   • downloading     label=electron progress=6%
+2026-10-28T14:46:43.5103590Z   • downloading     label=electron progress=7%
+2026-10-28T14:46:43.5322240Z   • downloading     label=electron progress=8%
+2026-10-28T14:46:43.5453190Z   • downloading     label=electron progress=9%
+2026-10-28T14:46:43.5487880Z   • downloading     label=electron progress=10%
+2026-10-28T14:46:43.5581040Z   • downloading     label=electron progress=11%
+2026-10-28T14:46:43.5778410Z   • downloading     label=electron progress=12%
+2026-10-28T14:46:43.5895150Z   • downloading     label=electron progress=13%
+2026-10-28T14:46:43.5983920Z   • downloading     label=electron progress=14%
+2026-10-28T14:46:43.6216390Z   • downloading     label=electron progress=15%
+2026-10-28T14:46:43.6607190Z   • downloading     label=electron progress=16%
+2026-10-28T14:46:43.6690600Z   • downloading     label=electron progress=17%
+2026-10-28T14:46:43.6753100Z   • downloading     label=electron progress=18%
+2026-10-28T14:46:43.6825940Z   • downloading     label=electron progress=19%
+2026-10-28T14:46:43.6990630Z   • downloading     label=electron progress=20%
+2026-10-28T14:46:43.7359790Z   • downloading     label=electron progress=21%
+2026-10-28T14:46:43.7449930Z   • downloading     label=electron progress=22%
+2026-10-28T14:46:43.7543450Z   • downloading     label=electron progress=23%
+2026-10-28T14:46:43.7916510Z   • downloading     label=electron progress=24%
+2026-10-28T14:46:43.7953210Z   • downloading     label=electron progress=25%
+2026-10-28T14:46:43.7985490Z   • downloading     label=electron progress=26%
+2026-10-28T14:46:43.8724510Z   • downloading     label=electron progress=27%
+2026-10-28T14:46:43.8820480Z   • downloading     label=electron progress=28%
+2026-10-28T14:46:43.8887550Z   • downloading     label=electron progress=29%
+2026-10-28T14:46:43.8981110Z   • downloading     label=electron progress=30%
+2026-10-28T14:46:43.9073490Z   • downloading     label=electron progress=31%
+2026-10-28T14:46:43.9477870Z   • downloading     label=electron progress=32%
+2026-10-28T14:46:43.9590730Z   • downloading     label=electron progress=33%
+2026-10-28T14:46:43.9743910Z   • downloading     label=electron progress=34%
+2026-10-28T14:46:44.0118790Z   • downloading     label=electron progress=35%
+2026-10-28T14:46:44.0201710Z   • downloading     label=electron progress=36%
+2026-10-28T14:46:44.0264830Z   • downloading     label=electron progress=37%
+2026-10-28T14:46:44.0373360Z   • downloading     label=electron progress=38%
+2026-10-28T14:46:44.0796590Z   • downloading     label=electron progress=39%
+2026-10-28T14:46:44.0867080Z   • downloading     label=electron progress=40%
+2026-10-28T14:46:44.0947660Z   • downloading     label=electron progress=41%
+2026-10-28T14:46:44.1032890Z   • downloading     label=electron progress=42%
+2026-10-28T14:46:44.1166420Z   • downloading     label=electron progress=43%
+2026-10-28T14:46:44.1269060Z   • downloading     label=electron progress=44%
+2026-10-28T14:46:44.1425580Z   • downloading     label=electron progress=45%
+2026-10-28T14:46:44.1494070Z   • downloading     label=electron progress=46%
+2026-10-28T14:46:44.1649640Z   • downloading     label=electron progress=47%
+2026-10-28T14:46:44.1733360Z   • downloading     label=electron progress=48%
+2026-10-28T14:46:44.1853940Z   • downloading     label=electron progress=49%
+2026-10-28T14:46:44.2007490Z   • downloading     label=electron progress=50%
+2026-10-28T14:46:44.2460150Z   • downloading     label=electron progress=51%
+2026-10-28T14:46:44.2794240Z   • downloading     label=electron progress=52%
+2026-10-28T14:46:44.2964730Z   • downloading     label=electron progress=53%
+2026-10-28T14:46:44.3025150Z   • downloading     label=electron progress=54%
+2026-10-28T14:46:44.3092670Z   • downloading     label=electron progress=55%
+2026-10-28T14:46:44.3455480Z   • downloading     label=electron progress=56%
+2026-10-28T14:46:44.3484350Z   • downloading     label=electron progress=57%
+2026-10-28T14:46:44.3524390Z   • downloading     label=electron progress=58%
+2026-10-28T14:46:44.3658600Z   • downloading     label=electron progress=59%
+2026-10-28T14:46:44.3811700Z   • downloading     label=electron progress=60%
+2026-10-28T14:46:44.3914650Z   • downloading     label=electron progress=61%
+2026-10-28T14:46:44.3918380Z   • downloading     label=electron progress=62%
+2026-10-28T14:46:44.4010080Z   • downloading     label=electron progress=63%
+2026-10-28T14:46:44.4086950Z   • downloading     label=electron progress=64%
+2026-10-28T14:46:44.4162210Z   • downloading     label=electron progress=65%
+2026-10-28T14:46:44.4265640Z   • downloading     label=electron progress=66%
+2026-10-28T14:46:44.4307110Z   • downloading     label=electron progress=67%
+2026-10-28T14:46:44.4382970Z   • downloading     label=electron progress=68%
+2026-10-28T14:46:44.4486550Z   • downloading     label=electron progress=69%
+2026-10-28T14:46:44.4566770Z   • downloading     label=electron progress=70%
+2026-10-28T14:46:44.4673960Z   • downloading     label=electron progress=71%
+2026-10-28T14:46:44.4774070Z   • downloading     label=electron progress=72%
+2026-10-28T14:46:44.4876990Z   • downloading     label=electron progress=73%
+2026-10-28T14:46:44.4879780Z   • downloading     label=electron progress=74%
+2026-10-28T14:46:44.4881340Z   • downloading     label=electron progress=75%
+2026-10-28T14:46:44.5020860Z   • downloading     label=electron progress=76%
+2026-10-28T14:46:44.5478140Z   • downloading     label=electron progress=77%
+2026-10-28T14:46:44.5550620Z   • downloading     label=electron progress=78%
+2026-10-28T14:46:44.5675430Z   • downloading     label=electron progress=79%
+2026-10-28T14:46:44.5826990Z   • downloading     label=electron progress=80%
+2026-10-28T14:46:44.5913900Z   • downloading     label=electron progress=81%
+2026-10-28T14:46:44.6011210Z   • downloading     label=electron progress=82%
+2026-10-28T14:46:44.6171890Z   • downloading     label=electron progress=83%
+2026-10-28T14:46:44.6256350Z   • downloading     label=electron progress=84%
+2026-10-28T14:46:44.6665860Z   • downloading     label=electron progress=85%
+2026-10-28T14:46:44.6768190Z   • downloading     label=electron progress=86%
+2026-10-28T14:46:44.6817780Z   • downloading     label=electron progress=87%
+2026-10-28T14:46:44.6894930Z   • downloading     label=electron progress=88%
+2026-10-28T14:46:44.7358530Z   • downloading     label=electron progress=89%
+2026-10-28T14:46:44.7467850Z   • downloading     label=electron progress=90%
+2026-10-28T14:46:44.7575680Z   • downloading     label=electron progress=91%
+2026-10-28T14:46:44.7709790Z   • downloading     label=electron progress=92%
+2026-10-28T14:46:44.7763500Z   • downloading     label=electron progress=93%
+2026-10-28T14:46:44.7858020Z   • downloading     label=electron progress=94%
+2026-10-28T14:46:44.7881700Z   • downloading     label=electron progress=95%
+2026-10-28T14:46:44.7882310Z   • downloading     label=electron progress=96%
+2026-10-28T14:46:44.8159520Z   • downloading     label=electron progress=97%
+2026-10-28T14:46:44.8284200Z   • downloading     label=electron progress=98%
+2026-10-28T14:46:44.8392250Z   • downloading     label=electron progress=99%
+2026-10-28T14:46:44.8538130Z   • downloaded      label=electron progress=100%
+2026-10-28T14:46:46.3344870Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=1%
+2026-10-28T14:46:46.3381290Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=2%
+2026-10-28T14:46:46.3383460Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=3%
+2026-10-28T14:46:46.3385090Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=4%
+2026-10-28T14:46:46.3387220Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=5%
+2026-10-28T14:46:46.3388030Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=6%
+2026-10-28T14:46:46.3408100Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=7%
+2026-10-28T14:46:46.3409650Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=8%
+2026-10-28T14:46:46.3411830Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=9%
+2026-10-28T14:46:46.3421040Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=10%
+2026-10-28T14:46:46.3427200Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=11%
+2026-10-28T14:46:46.3431800Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=12%
+2026-10-28T14:46:46.3473830Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=13%
+2026-10-28T14:46:46.3481100Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=14%
+2026-10-28T14:46:46.3488250Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=15%
+2026-10-28T14:46:46.3501400Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=16%
+2026-10-28T14:46:46.3511480Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=17%
+2026-10-28T14:46:46.3529430Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=18%
+2026-10-28T14:46:46.3549330Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=19%
+2026-10-28T14:46:46.3574130Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=20%
+2026-10-28T14:46:46.3577900Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=21%
+2026-10-28T14:46:46.3584920Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=22%
+2026-10-28T14:46:46.3601640Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=23%
+2026-10-28T14:46:46.3618460Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=24%
+2026-10-28T14:46:46.3627590Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=25%
+2026-10-28T14:46:46.3631120Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=26%
+2026-10-28T14:46:46.3782530Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=1%
+2026-10-28T14:46:46.3858370Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=2%
+2026-10-28T14:46:46.3863080Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=27%
+2026-10-28T14:46:46.3865240Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=3%
+2026-10-28T14:46:46.3867210Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=28%
+2026-10-28T14:46:46.3974430Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=4%
+2026-10-28T14:46:46.3994220Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=5%
+2026-10-28T14:46:46.3996910Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=6%
+2026-10-28T14:46:46.4000270Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=29%
+2026-10-28T14:46:46.4131720Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=7%
+2026-10-28T14:46:46.4151010Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=8%
+2026-10-28T14:46:46.4153140Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=30%
+2026-10-28T14:46:46.4153990Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=9%
+2026-10-28T14:46:46.4154690Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=10%
+2026-10-28T14:46:46.4155260Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=31%
+2026-10-28T14:46:46.4155900Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=32%
+2026-10-28T14:46:46.4156560Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=11%
+2026-10-28T14:46:46.4157060Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=33%
+2026-10-28T14:46:46.4157660Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=34%
+2026-10-28T14:46:46.4158200Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=35%
+2026-10-28T14:46:46.4158790Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=36%
+2026-10-28T14:46:46.4159370Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=37%
+2026-10-28T14:46:46.4159900Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=38%
+2026-10-28T14:46:46.4160480Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=39%
+2026-10-28T14:46:46.4161130Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=40%
+2026-10-28T14:46:46.4161760Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=41%
+2026-10-28T14:46:46.4162330Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=12%
+2026-10-28T14:46:46.4162790Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=13%
+2026-10-28T14:46:46.4163430Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=42%
+2026-10-28T14:46:46.4163940Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=16%
+2026-10-28T14:46:46.4241070Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=20%
+2026-10-28T14:46:46.4243470Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=23%
+2026-10-28T14:46:46.4245340Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=43%
+2026-10-28T14:46:46.4247940Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=24%
+2026-10-28T14:46:46.4254030Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=44%
+2026-10-28T14:46:46.4256240Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=45%
+2026-10-28T14:46:46.4258800Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=46%
+2026-10-28T14:46:46.4261930Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=25%
+2026-10-28T14:46:46.4276460Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=26%
+2026-10-28T14:46:46.4281450Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=47%
+2026-10-28T14:46:46.4301400Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=27%
+2026-10-28T14:46:46.4306600Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=28%
+2026-10-28T14:46:46.4316120Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=48%
+2026-10-28T14:46:46.4316870Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=49%
+2026-10-28T14:46:46.4320180Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=50%
+2026-10-28T14:46:46.4323160Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=29%
+2026-10-28T14:46:46.4426450Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=30%
+2026-10-28T14:46:46.4450270Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=31%
+2026-10-28T14:46:46.4451020Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=51%
+2026-10-28T14:46:46.4456030Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=33%
+2026-10-28T14:46:46.4457450Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=36%
+2026-10-28T14:46:46.4459110Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=52%
+2026-10-28T14:46:46.4459890Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=37%
+2026-10-28T14:46:46.4463260Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=53%
+2026-10-28T14:46:46.4466810Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=54%
+2026-10-28T14:46:46.4468510Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=55%
+2026-10-28T14:46:46.4472510Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=56%
+2026-10-28T14:46:46.4484330Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=57%
+2026-10-28T14:46:46.4490490Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=58%
+2026-10-28T14:46:46.4491120Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=59%
+2026-10-28T14:46:46.4491610Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=38%
+2026-10-28T14:46:46.4492130Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=39%
+2026-10-28T14:46:46.4506860Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=40%
+2026-10-28T14:46:46.4508430Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=60%
+2026-10-28T14:46:46.4509760Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=42%
+2026-10-28T14:46:46.4517510Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=61%
+2026-10-28T14:46:46.4518200Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=45%
+2026-10-28T14:46:46.4518930Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=47%
+2026-10-28T14:46:46.4524660Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=49%
+2026-10-28T14:46:46.4525260Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=62%
+2026-10-28T14:46:46.4525810Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=63%
+2026-10-28T14:46:46.4526450Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=64%
+2026-10-28T14:46:46.4526930Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=50%
+2026-10-28T14:46:46.4527490Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=51%
+2026-10-28T14:46:46.4528050Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=52%
+2026-10-28T14:46:46.4528500Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=53%
+2026-10-28T14:46:46.4529390Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=54%
+2026-10-28T14:46:46.4529980Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=65%
+2026-10-28T14:46:46.4530800Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=55%
+2026-10-28T14:46:46.4559440Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=56%
+2026-10-28T14:46:46.4560130Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=57%
+2026-10-28T14:46:46.4564750Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=58%
+2026-10-28T14:46:46.4571180Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=66%
+2026-10-28T14:46:46.4572370Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=61%
+2026-10-28T14:46:46.4574120Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=62%
+2026-10-28T14:46:46.4575900Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=67%
+2026-10-28T14:46:46.4577650Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=63%
+2026-10-28T14:46:46.4581480Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=64%
+2026-10-28T14:46:46.4587790Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=67%
+2026-10-28T14:46:46.4593010Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=69%
+2026-10-28T14:46:46.4594510Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=68%
+2026-10-28T14:46:46.4602360Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=74%
+2026-10-28T14:46:46.4606900Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=76%
+2026-10-28T14:46:46.4608340Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=69%
+2026-10-28T14:46:46.4621660Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=77%
+2026-10-28T14:46:46.4627950Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=78%
+2026-10-28T14:46:46.4762210Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=79%
+2026-10-28T14:46:46.4808760Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=70%
+2026-10-28T14:46:46.4874960Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=81%
+2026-10-28T14:46:46.4876100Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=84%
+2026-10-28T14:46:46.4876840Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=71%
+2026-10-28T14:46:46.4877540Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=88%
+2026-10-28T14:46:46.4878220Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=91%
+2026-10-28T14:46:46.4882010Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=95%
+2026-10-28T14:46:46.4882720Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=72%
+2026-10-28T14:46:46.4883410Z   • downloading     label=7zip-darwin-arm64.tar.gz progress=98%
+2026-10-28T14:46:46.4884050Z   • downloaded      label=7zip-darwin-arm64.tar.gz progress=100%
+2026-10-28T14:46:46.4884760Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=73%
+2026-10-28T14:46:46.4885530Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=74%
+2026-10-28T14:46:46.4907190Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=75%
+2026-10-28T14:46:46.4939880Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=76%
+2026-10-28T14:46:46.4949830Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=77%
+2026-10-28T14:46:46.4960080Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=78%
+2026-10-28T14:46:46.4976150Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=79%
+2026-10-28T14:46:46.4992240Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=80%
+2026-10-28T14:46:46.5013560Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=81%
+2026-10-28T14:46:46.5024500Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=82%
+2026-10-28T14:46:46.5057820Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=83%
+2026-10-28T14:46:46.5068260Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=84%
+2026-10-28T14:46:46.5088080Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=85%
+2026-10-28T14:46:46.5107280Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=86%
+2026-10-28T14:46:46.5302590Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=87%
+2026-10-28T14:46:46.5319490Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=88%
+2026-10-28T14:46:46.5334550Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=89%
+2026-10-28T14:46:46.5351380Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=90%
+2026-10-28T14:46:46.5362150Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=91%
+2026-10-28T14:46:46.5380790Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=92%
+2026-10-28T14:46:46.5391300Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=93%
+2026-10-28T14:46:46.5400040Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=94%
+2026-10-28T14:46:46.5415930Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=95%
+2026-10-28T14:46:46.5423390Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=96%
+2026-10-28T14:46:46.5443340Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=97%
+2026-10-28T14:46:46.5452140Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=98%
+2026-10-28T14:46:46.5611590Z   • downloading     label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=99%
+2026-10-28T14:46:46.5671810Z   • downloaded      label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=100%
+2026-10-28T14:46:50.9980000Z   • downloaded electron zip extracted successfully  output=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64
+2026-10-28T14:46:51.0868930Z   • searching for node modules  pm=npm searchDir=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/app
+2026-10-28T14:46:55.7140010Z   • embedded ASAR integrity digest  file=dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework
+2026-10-28T14:46:55.7236800Z   • There are serious security concerns with CSC_FOR_PULL_REQUEST=true (see the  CircleCI documentation (https://circleci.com/docs/guides/integration/oss/#pass-secrets-to-builds-from-forked-pull-requests) for details)
+2026-10-28T14:46:55.7339390Z If you have SSH keys, sensitive env vars or AWS credentials stored in your project settings and untrusted forks can make pull requests against your repo, then this option isn't for you.
+2026-10-28T14:46:55.7375350Z   • signing         file=dist/desktop/release/mac-arm64/Meta Sovereign.app platform=darwin type=distribution identityName=- identityHash=none provisioningProfile=none
+2026-10-28T14:47:22.5868150Z   • skipped macOS notarization  reason=`notarize` options were set explicitly `false`
+2026-10-28T14:47:22.5977250Z   • building        target=macOS zip arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.1.zip
+2026-10-28T14:47:22.6208110Z   • building        target=DMG arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.1.dmg
+2026-10-28T14:47:46.1381540Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.1.dmg.blockmap
+2026-10-28T14:48:26.1604310Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.1.dmg.blockmap
+2026-10-28T14:48:29.8348690Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.1.zip.blockmap
+2026-10-28T14:48:44.6181980Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.1.zip.blockmap
+2026-10-28T14:48:50.4017210Z ##[group]Run set -euo pipefail
+2026-10-28T14:48:50.4020520Z [36;1mset -euo pipefail[0m
+2026-10-28T14:48:50.4020770Z [36;1mcd dist/desktop/release[0m
+2026-10-28T14:48:50.4021070Z [36;1mls -la[0m
+2026-10-28T14:48:50.4021260Z [36;1mcheck_app() {[0m
+2026-10-28T14:48:50.4021540Z [36;1m  local app="$1" id[0m
+2026-10-28T14:48:50.4028750Z [36;1m  ls -la "$app/Contents"[0m
+2026-10-28T14:48:50.4029160Z [36;1m  test "$(basename "$app")" = 'Meta Sovereign.app'[0m
+2026-10-28T14:48:50.4029590Z [36;1m  id=$(plutil -extract CFBundleIdentifier raw -o - "$app/Contents/Info.plist")[0m
+2026-10-28T14:48:50.4030030Z [36;1m  echo "$app: $id"[0m
+2026-10-28T14:48:50.4030370Z [36;1m  test "$id" = foundation.link.meta.sovereign[0m
+2026-10-28T14:48:50.4030720Z [36;1m  codesign --verify --deep --strict --verbose=2 "$app"[0m
+2026-10-28T14:48:50.4031060Z [36;1m}[0m
+2026-10-28T14:48:50.4031250Z [36;1mfor dir in mac mac-arm64; do[0m
+2026-10-28T14:48:50.4031690Z [36;1m  ls -la "$dir"[0m
+2026-10-28T14:48:50.4032080Z [36;1m  check_app "$(find "$dir" -maxdepth 1 -name '*.app' | head -n 1)"[0m
+2026-10-28T14:48:50.4032420Z [36;1mdone[0m
+2026-10-28T14:48:50.4032730Z [36;1mfor dmg in meta-sovereign-desktop-macos-*.dmg; do[0m
+2026-10-28T14:48:50.4033050Z [36;1m  mount=$(mktemp -d)[0m
+2026-10-28T14:48:50.4033420Z [36;1m  hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mount"[0m
+2026-10-28T14:48:50.4033810Z [36;1m  ls -la "$mount"[0m
+2026-10-28T14:48:50.4034120Z [36;1m  check_app "$(find "$mount" -maxdepth 1 -name '*.app' | head -n 1)"[0m
+2026-10-28T14:48:50.4034500Z [36;1m  hdiutil detach "$mount" > /dev/null[0m
+2026-10-28T14:48:50.4034740Z [36;1mdone[0m
+2026-10-28T14:48:50.4034980Z [36;1mtest -f latest-mac.yml[0m
+2026-10-28T14:48:50.4252990Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:48:50.4253370Z env:
+2026-10-28T14:48:50.4253620Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:48:50.4253910Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:48:50.4254250Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:48:50.4254460Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T14:48:50.4254730Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T14:48:50.4254960Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T14:48:50.4255230Z ##[endgroup]
+2026-10-28T14:48:50.5620360Z total 1119976
+2026-10-28T14:48:50.5635300Z drwxr-xr-x  15 runner  staff        480 Oct 28 14:48 .
+2026-10-28T14:48:50.5638630Z drwxr-xr-x   4 runner  staff        128 Oct 28 14:46 ..
+2026-10-28T14:48:50.5640230Z drwxr-xr-x   3 runner  staff         96 Oct 28 14:46 .icon-icns
+2026-10-28T14:48:50.5641960Z -rw-r--r--   1 runner  staff       1720 Oct 28 14:48 builder-debug.yml
+2026-10-28T14:48:50.5642690Z -rw-r--r--   1 runner  staff        763 Oct 28 14:48 latest-mac.yml
+2026-10-28T14:48:50.5643280Z drwxr-xr-x   3 runner  staff         96 Oct 28 14:46 mac
+2026-10-28T14:48:50.5643980Z drwxr-xr-x   3 runner  staff         96 Oct 28 14:46 mac-arm64
+2026-10-28T14:48:50.5645030Z -rw-r--r--@  1 runner  staff  134532918 Oct 28 14:48 meta-sovereign-desktop-macos-arm64-0.54.1.dmg
+2026-10-28T14:48:50.5647570Z -rw-r--r--   1 runner  staff     141752 Oct 28 14:48 meta-sovereign-desktop-macos-arm64-0.54.1.dmg.blockmap
+2026-10-28T14:48:50.5649650Z -rw-r--r--   1 runner  staff  130073265 Oct 28 14:48 meta-sovereign-desktop-macos-arm64-0.54.1.zip
+2026-10-28T14:48:50.5651710Z -rw-r--r--   1 runner  staff     135700 Oct 28 14:48 meta-sovereign-desktop-macos-arm64-0.54.1.zip.blockmap
+2026-10-28T14:48:50.5652710Z -rw-r--r--@  1 runner  staff  139797190 Oct 28 14:47 meta-sovereign-desktop-macos-x64-0.54.1.dmg
+2026-10-28T14:48:50.5653610Z -rw-r--r--   1 runner  staff     147870 Oct 28 14:47 meta-sovereign-desktop-macos-x64-0.54.1.dmg.blockmap
+2026-10-28T14:48:50.5654600Z -rw-r--r--   1 runner  staff  135387808 Oct 28 14:48 meta-sovereign-desktop-macos-x64-0.54.1.zip
+2026-10-28T14:48:50.5656700Z -rw-r--r--   1 runner  staff     142973 Oct 28 14:48 meta-sovereign-desktop-macos-x64-0.54.1.zip.blockmap
+2026-10-28T14:48:50.5754450Z total 0
+2026-10-28T14:48:50.5757540Z drwxr-xr-x   3 runner  staff   96 Oct 28 14:46 .
+2026-10-28T14:48:50.5758740Z drwxr-xr-x  15 runner  staff  480 Oct 28 14:48 ..
+2026-10-28T14:48:50.5764190Z drwxr-xr-x   3 runner  staff   96 Oct 28 14:46 Meta Sovereign.app
+2026-10-28T14:48:50.6055300Z total 16
+2026-10-28T14:48:50.6062400Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 _CodeSignature
+2026-10-28T14:48:50.6073190Z drwxr-xr-x   8 runner  staff   256 Oct 28 14:46 .
+2026-10-28T14:48:50.6073780Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 ..
+2026-10-28T14:48:50.6074390Z drwxr-xr-x  10 runner  staff   320 Oct 28 14:46 Frameworks
+2026-10-28T14:48:50.6074910Z -rw-r--r--   1 runner  staff  4068 Oct 28 14:46 Info.plist
+2026-10-28T14:48:50.6075570Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 MacOS
+2026-10-28T14:48:50.6076150Z -rw-r--r--   1 runner  staff     8 Oct 28 14:46 PkgInfo
+2026-10-28T14:48:50.6076710Z drwxr-xr-x  62 runner  staff  1984 Oct 28 14:46 Resources
+2026-10-28T14:48:50.6326660Z mac/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T14:48:50.7431290Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:48:50.7472490Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:48:50.7489380Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:48:50.7493140Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:48:50.7576260Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:48:50.7610790Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:48:50.7667770Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:48:50.7681580Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:48:50.7685200Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:48:50.7691670Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:48:50.7784150Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:48:50.7787300Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:48:50.7788700Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:48:50.7806470Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:48:51.1673410Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:48:51.4287530Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:48:51.4289780Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:48:51.4618940Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:48:51.4625040Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:48:51.4628950Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:48:51.4630450Z mac/Meta Sovereign.app: valid on disk
+2026-10-28T14:48:51.4630980Z mac/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T14:48:51.4728920Z total 0
+2026-10-28T14:48:51.4729420Z drwxr-xr-x   3 runner  staff   96 Oct 28 14:46 .
+2026-10-28T14:48:51.4729860Z drwxr-xr-x  15 runner  staff  480 Oct 28 14:48 ..
+2026-10-28T14:48:51.4730330Z drwxr-xr-x   3 runner  staff   96 Oct 28 14:46 Meta Sovereign.app
+2026-10-28T14:48:51.4863370Z total 16
+2026-10-28T14:48:51.4863870Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:47 _CodeSignature
+2026-10-28T14:48:51.4864350Z drwxr-xr-x   8 runner  staff   256 Oct 28 14:47 .
+2026-10-28T14:48:51.4864700Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 ..
+2026-10-28T14:48:51.4865060Z drwxr-xr-x  10 runner  staff   320 Oct 28 14:46 Frameworks
+2026-10-28T14:48:51.4865520Z -rw-r--r--   1 runner  staff  4068 Oct 28 14:46 Info.plist
+2026-10-28T14:48:51.4865970Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:47 MacOS
+2026-10-28T14:48:51.4866350Z -rw-r--r--   1 runner  staff     8 Oct 28 14:46 PkgInfo
+2026-10-28T14:48:51.4866770Z drwxr-xr-x  62 runner  staff  1984 Oct 28 14:46 Resources
+2026-10-28T14:48:51.5039830Z mac-arm64/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T14:48:51.8818040Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:48:52.0096030Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:48:52.0097570Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:48:52.0221700Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:48:52.0226880Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:48:52.0318050Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:48:52.0344140Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:48:52.0347220Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:48:52.0350010Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:48:52.0351820Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:48:52.0362790Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:48:52.0378570Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:48:52.0401600Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:48:52.0403220Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:48:52.0405580Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:48:52.0407180Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:48:52.0409700Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:48:52.0411660Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:48:52.0414150Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:48:52.0424930Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:48:52.0426730Z mac-arm64/Meta Sovereign.app: valid on disk
+2026-10-28T14:48:52.0428130Z mac-arm64/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T14:48:52.2726840Z Checksumming Protective Master Boot Record (MBR : 0)…
+2026-10-28T14:48:52.2825230Z Protective Master Boot Record (MBR :: verified   CRC32 $C6EF2402
+2026-10-28T14:48:52.2925470Z Checksumming GPT Header (Primary GPT Header : 1)…
+2026-10-28T14:48:52.2926260Z  GPT Header (Primary GPT Header : 1): verified   CRC32 $7199AD8A
+2026-10-28T14:48:52.2926840Z Checksumming GPT Partition Data (Primary GPT Table : 2)…
+2026-10-28T14:48:52.2927390Z GPT Partition Data (Primary GPT Tabl: verified   CRC32 $B5E00E4C
+2026-10-28T14:48:52.2928750Z Checksumming  (Apple_Free : 3)…
+2026-10-28T14:48:52.2929150Z                     (Apple_Free : 3): verified   CRC32 $00000000
+2026-10-28T14:48:52.2930310Z Checksumming disk image (Apple_APFS : 4)…
+2026-10-28T14:48:52.9167860Z          disk image (Apple_APFS : 4): verified   CRC32 $48556395
+2026-10-28T14:48:52.9170440Z Checksumming  (Apple_Free : 5)…
+2026-10-28T14:48:53.0778080Z                     (Apple_Free : 5): verified   CRC32 $00000000
+2026-10-28T14:48:53.0780860Z Checksumming GPT Partition Data (Backup GPT Table : 6)…
+2026-10-28T14:48:54.0131540Z GPT Partition Data (Backup GPT Table: verified   CRC32 $B5E00E4C
+2026-10-28T14:48:54.0136110Z Checksumming GPT Header (Backup GPT Header : 7)…
+2026-10-28T14:48:55.0816650Z   GPT Header (Backup GPT Header : 7): verified   CRC32 $864F7F71
+2026-10-28T14:48:55.0832560Z verified   CRC32 $16A5CE2C
+2026-10-28T14:48:55.4802770Z /dev/disk5          	GUID_partition_scheme          	
+2026-10-28T14:48:55.4908640Z /dev/disk5s1        	Apple_APFS                     	
+2026-10-28T14:48:55.5015300Z /dev/disk6          	EF57347C-0000-11AA-AA11-0030654	
+2026-10-28T14:48:55.5120040Z /dev/disk6s1        	41504653-0000-11AA-AA11-0030654	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH
+2026-10-28T14:48:55.5223650Z total 560
+2026-10-28T14:48:55.5325950Z drwxr-xr-x@   7 runner  staff     224 Oct 28 14:48 .
+2026-10-28T14:48:55.5463980Z drwx------@ 109 runner  staff    3488 Oct 28 14:48 ..
+2026-10-28T14:48:55.5591190Z -rw-r--r--    1 runner  staff   37298 Oct 28 14:48 .background.tiff
+2026-10-28T14:48:55.5693920Z -rw-r--r--    1 runner  staff   16388 Oct 28 14:48 .DS_Store
+2026-10-28T14:48:55.5803910Z -rw-r--r--    1 runner  staff  222869 Oct 28 14:48 .VolumeIcon.icns
+2026-10-28T14:48:55.5969020Z lrwxr-xr-x    1 runner  staff      13 Oct 28 14:48 Applications -> /Applications
+2026-10-28T14:48:55.6096880Z drwxr-xr-x    3 runner  staff      96 Oct 28 14:46 Meta Sovereign.app
+2026-10-28T14:48:55.6218150Z total 16
+2026-10-28T14:48:55.6329750Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:47 _CodeSignature
+2026-10-28T14:48:55.6472510Z drwxr-xr-x   8 runner  staff   256 Oct 28 14:47 .
+2026-10-28T14:48:55.6593440Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 ..
+2026-10-28T14:48:55.6697070Z drwxr-xr-x  10 runner  staff   320 Oct 28 14:46 Frameworks
+2026-10-28T14:48:55.6698300Z -rw-r--r--   1 runner  staff  4068 Oct 28 14:46 Info.plist
+2026-10-28T14:48:55.6699530Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:47 MacOS
+2026-10-28T14:48:55.6700580Z -rw-r--r--   1 runner  staff     8 Oct 28 14:46 PkgInfo
+2026-10-28T14:48:55.6701750Z drwxr-xr-x  62 runner  staff  1984 Oct 28 14:46 Resources
+2026-10-28T14:48:55.6703720Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T14:48:58.6391040Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:48:59.0275640Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:48:59.0290400Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:48:59.0481190Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:48:59.0486080Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:48:59.0489730Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:48:59.0538770Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:48:59.0544010Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:48:59.0592260Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:48:59.0598180Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:48:59.0637880Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:48:59.0647390Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:48:59.0675370Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:48:59.0678850Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:48:59.0712610Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:48:59.0721920Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:48:59.0762050Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:48:59.0771900Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:48:59.0830270Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:48:59.0838120Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:48:59.0843790Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app: valid on disk
+2026-10-28T14:48:59.0846520Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.kslkkUOugH/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T14:48:59.3629980Z Checksumming Protective Master Boot Record (MBR : 0)…
+2026-10-28T14:49:00.0350830Z Protective Master Boot Record (MBR :: verified   CRC32 $9F40B31A
+2026-10-28T14:49:00.0454340Z Checksumming GPT Header (Primary GPT Header : 1)…
+2026-10-28T14:49:01.0772170Z  GPT Header (Primary GPT Header : 1): verified   CRC32 $631A21AA
+2026-10-28T14:49:01.0774690Z Checksumming GPT Partition Data (Primary GPT Table : 2)…
+2026-10-28T14:49:01.0775950Z GPT Partition Data (Primary GPT Tabl: verified   CRC32 $738F7522
+2026-10-28T14:49:01.0777390Z Checksumming  (Apple_Free : 3)…
+2026-10-28T14:49:01.0781970Z                     (Apple_Free : 3): verified   CRC32 $00000000
+2026-10-28T14:49:01.0783440Z Checksumming disk image (Apple_APFS : 4)…
+2026-10-28T14:49:01.7699120Z          disk image (Apple_APFS : 4): verified   CRC32 $2ECCF9A6
+2026-10-28T14:49:01.7701880Z Checksumming  (Apple_Free : 5)…
+2026-10-28T14:49:02.0462640Z                     (Apple_Free : 5): verified   CRC32 $00000000
+2026-10-28T14:49:02.0466930Z Checksumming GPT Partition Data (Backup GPT Table : 6)…
+2026-10-28T14:49:02.0471580Z GPT Partition Data (Backup GPT Table: verified   CRC32 $738F7522
+2026-10-28T14:49:02.0473650Z Checksumming GPT Header (Backup GPT Header : 7)…
+2026-10-28T14:49:03.0773400Z   GPT Header (Backup GPT Header : 7): verified   CRC32 $AEBBDCFA
+2026-10-28T14:49:03.0909160Z verified   CRC32 $1AAFFDC3
+2026-10-28T14:49:03.3019320Z /dev/disk5          	GUID_partition_scheme          	
+2026-10-28T14:49:03.3138990Z /dev/disk5s1        	Apple_APFS                     	
+2026-10-28T14:49:03.3241880Z /dev/disk6          	EF57347C-0000-11AA-AA11-0030654	
+2026-10-28T14:49:03.3317080Z /dev/disk6s1        	41504653-0000-11AA-AA11-0030654	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT
+2026-10-28T14:49:03.3347320Z total 560
+2026-10-28T14:49:03.3348100Z drwxr-xr-x@   7 runner  staff     224 Oct 28 14:47 .
+2026-10-28T14:49:03.3349080Z drwx------@ 110 runner  staff    3520 Oct 28 14:48 ..
+2026-10-28T14:49:03.3349740Z -rw-r--r--    1 runner  staff   37298 Oct 28 14:47 .background.tiff
+2026-10-28T14:49:03.3350360Z -rw-r--r--    1 runner  staff   16388 Oct 28 14:47 .DS_Store
+2026-10-28T14:49:03.3350970Z -rw-r--r--    1 runner  staff  222869 Oct 28 14:47 .VolumeIcon.icns
+2026-10-28T14:49:03.3351760Z lrwxr-xr-x    1 runner  staff      13 Oct 28 14:47 Applications -> /Applications
+2026-10-28T14:49:03.3354020Z drwxr-xr-x    3 runner  staff      96 Oct 28 14:46 Meta Sovereign.app
+2026-10-28T14:49:03.3387610Z total 16
+2026-10-28T14:49:03.3389790Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 _CodeSignature
+2026-10-28T14:49:03.3394120Z drwxr-xr-x   8 runner  staff   256 Oct 28 14:46 .
+2026-10-28T14:49:03.3395810Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 ..
+2026-10-28T14:49:03.3399670Z drwxr-xr-x  10 runner  staff   320 Oct 28 14:46 Frameworks
+2026-10-28T14:49:03.3401970Z -rw-r--r--   1 runner  staff  4068 Oct 28 14:46 Info.plist
+2026-10-28T14:49:03.3403940Z drwxr-xr-x   3 runner  staff    96 Oct 28 14:46 MacOS
+2026-10-28T14:49:03.3405110Z -rw-r--r--   1 runner  staff     8 Oct 28 14:46 PkgInfo
+2026-10-28T14:49:03.3406240Z drwxr-xr-x  62 runner  staff  1984 Oct 28 14:46 Resources
+2026-10-28T14:49:03.3535940Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T14:49:06.6090950Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:49:06.9298970Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:49:06.9303200Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T14:49:06.9489250Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:49:06.9493420Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T14:49:06.9497140Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T14:49:06.9566130Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:49:06.9581920Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T14:49:06.9626530Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:49:06.9637410Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T14:49:06.9668710Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:49:06.9677440Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T14:49:06.9712220Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:49:06.9717510Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T14:49:06.9744480Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:49:06.9754950Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T14:49:06.9783320Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:49:06.9787210Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T14:49:06.9821290Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:49:06.9825520Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T14:49:06.9832410Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app: valid on disk
+2026-10-28T14:49:06.9835110Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.2AIikq28vT/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T14:49:07.1101930Z ##[group]Run set -euo pipefail
+2026-10-28T14:49:07.1103950Z [36;1mset -euo pipefail[0m
+2026-10-28T14:49:07.1104410Z [36;1mbuilder_version=$(npx --no-install electron-builder --version)[0m
+2026-10-28T14:49:07.1105040Z [36;1mcd dist/desktop/release[0m
+2026-10-28T14:49:07.1105370Z [36;1mfiles=()[0m
+2026-10-28T14:49:07.1107110Z [36;1mfor f in meta-sovereign-desktop-* latest*.yml; do[0m
+2026-10-28T14:49:07.1108260Z [36;1m  if [[ -f "$f" && "$f" != *.blockmap ]]; then files+=("$f"); fi[0m
+2026-10-28T14:49:07.1109650Z [36;1mdone[0m
+2026-10-28T14:49:07.1110360Z [36;1mif command -v sha256sum > /dev/null; then sum='sha256sum'; else sum='shasum -a 256'; fi[0m
+2026-10-28T14:49:07.1111420Z [36;1m$sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-$BUILD_NAME.txt"[0m
+2026-10-28T14:49:07.1112580Z [36;1m{[0m
+2026-10-28T14:49:07.1113140Z [36;1m  echo "## $BUILD_NAME"[0m
+2026-10-28T14:49:07.1114410Z [36;1m  echo "runner: $BUILD_RUNNER ($RUNNER_OS $RUNNER_ARCH)"[0m
+2026-10-28T14:49:07.1116740Z [36;1m  echo "commit: $BUILD_REF"[0m
+2026-10-28T14:49:07.1117610Z [36;1m  echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"[0m
+2026-10-28T14:49:07.1118270Z [36;1m  echo "electron-builder: $builder_version"[0m
+2026-10-28T14:49:07.1118720Z [36;1m  echo "node: $(node --version)"[0m
+2026-10-28T14:49:07.1120520Z [36;1m  [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"[0m
+2026-10-28T14:49:07.1121740Z [36;1m  echo "files:"[0m
+2026-10-28T14:49:07.1122220Z [36;1m  for f in "${files[@]}"; do echo "  - $f"; done[0m
+2026-10-28T14:49:07.1123150Z [36;1m} > "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T14:49:07.1124050Z [36;1mcat "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T14:49:07.1253040Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:49:07.1253370Z env:
+2026-10-28T14:49:07.1253590Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:49:07.1253820Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:49:07.1254120Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:49:07.1254370Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T14:49:07.1254610Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T14:49:07.1254910Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T14:49:07.1255140Z   MAC_SIGNING: adhoc
+2026-10-28T14:49:07.1255430Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T14:49:07.1255710Z   BUILD_NAME: macos
+2026-10-28T14:49:07.1256000Z   BUILD_RUNNER: macos-15
+2026-10-28T14:49:07.1256290Z   BUILD_REF: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:49:07.1256520Z ##[endgroup]
+2026-10-28T14:49:09.9731990Z ## macos
+2026-10-28T14:49:09.9733720Z runner: macos-15 (macOS ARM64)
+2026-10-28T14:49:09.9735200Z commit: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:49:09.9736470Z electron: 44.10.0
+2026-10-28T14:49:09.9737370Z electron-builder: 27.0.0-alpha.13
+2026-10-28T14:49:09.9738410Z node: v24.20.0
+2026-10-28T14:49:09.9739500Z macos-signing: adhoc
+2026-10-28T14:49:09.9740480Z files:
+2026-10-28T14:49:09.9741380Z   - meta-sovereign-desktop-macos-arm64-0.54.1.dmg
+2026-10-28T14:49:09.9743270Z   - meta-sovereign-desktop-macos-arm64-0.54.1.zip
+2026-10-28T14:49:09.9744520Z   - meta-sovereign-desktop-macos-x64-0.54.1.dmg
+2026-10-28T14:49:09.9745490Z   - meta-sovereign-desktop-macos-x64-0.54.1.zip
+2026-10-28T14:49:09.9746480Z   - latest-mac.yml
+2026-10-28T14:49:09.9993810Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T14:49:09.9996470Z with:
+2026-10-28T14:49:09.9997100Z   name: desktop-macos
+2026-10-28T14:49:09.9998800Z   path: dist/desktop/release/meta-sovereign-desktop-*
+dist/desktop/release/latest*.yml
+dist/desktop/release/SHA256SUMS-*.txt
+dist/desktop/release/provenance-*.txt
+
+2026-10-28T14:49:10.0000580Z   if-no-files-found: error
+2026-10-28T14:49:10.0001150Z   retention-days: 14
+2026-10-28T14:49:10.0002010Z   compression-level: 6
+2026-10-28T14:49:10.0002580Z   overwrite: false
+2026-10-28T14:49:10.0003220Z   include-hidden-files: false
+2026-10-28T14:49:10.0003820Z   archive: true
+2026-10-28T14:49:10.0004470Z env:
+2026-10-28T14:49:10.0004960Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:49:10.0005890Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:49:10.0006230Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:49:10.0006640Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T14:49:10.0006920Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T14:49:10.0007450Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T14:49:10.0007810Z ##[endgroup]
+2026-10-28T14:49:10.5929580Z With the provided path, there will be 11 files uploaded
+2026-10-28T14:49:10.5931950Z Artifact name is valid!
+2026-10-28T14:49:10.5932380Z Root directory input is valid!
+2026-10-28T14:49:10.9454000Z Uploading artifact: desktop-macos.zip
+2026-10-28T14:49:10.9513330Z Beginning upload of artifact content to blob storage
+2026-10-28T14:49:11.7888280Z Uploaded bytes 8388608
+2026-10-28T14:49:12.1106190Z Uploaded bytes 16777216
+2026-10-28T14:49:12.3885500Z Uploaded bytes 25165824
+2026-10-28T14:49:12.7389910Z Uploaded bytes 33554432
+2026-10-28T14:49:12.9864360Z Uploaded bytes 41943040
+2026-10-28T14:49:13.2803250Z Uploaded bytes 50331648
+2026-10-28T14:49:13.5589310Z Uploaded bytes 58720256
+2026-10-28T14:49:13.7798680Z Uploaded bytes 67108864
+2026-10-28T14:49:14.0119720Z Uploaded bytes 75497472
+2026-10-28T14:49:14.3947200Z Uploaded bytes 83886080
+2026-10-28T14:49:14.4701700Z Uploaded bytes 92274688
+2026-10-28T14:49:14.6754840Z Uploaded bytes 100663296
+2026-10-28T14:49:14.9312570Z Uploaded bytes 109051904
+2026-10-28T14:49:15.1683500Z Uploaded bytes 117440512
+2026-10-28T14:49:15.4777140Z Uploaded bytes 125829120
+2026-10-28T14:49:15.8983840Z Uploaded bytes 134217728
+2026-10-28T14:49:16.1391890Z Uploaded bytes 142606336
+2026-10-28T14:49:16.4235870Z Uploaded bytes 150994944
+2026-10-28T14:49:16.6929880Z Uploaded bytes 159383552
+2026-10-28T14:49:16.9042400Z Uploaded bytes 167772160
+2026-10-28T14:49:17.2002970Z Uploaded bytes 176160768
+2026-10-28T14:49:17.6330780Z Uploaded bytes 184549376
+2026-10-28T14:49:17.8863000Z Uploaded bytes 192937984
+2026-10-28T14:49:18.1589670Z Uploaded bytes 201326592
+2026-10-28T14:49:18.4016740Z Uploaded bytes 209715200
+2026-10-28T14:49:18.7337430Z Uploaded bytes 218103808
+2026-10-28T14:49:19.0968930Z Uploaded bytes 226492416
+2026-10-28T14:49:19.4926670Z Uploaded bytes 234881024
+2026-10-28T14:49:20.0761600Z Uploaded bytes 243269632
+2026-10-28T14:49:20.1015350Z Uploaded bytes 251658240
+2026-10-28T14:49:20.3393800Z Uploaded bytes 260046848
+2026-10-28T14:49:20.3627830Z Uploaded bytes 268435456
+2026-10-28T14:49:20.6221640Z Uploaded bytes 276824064
+2026-10-28T14:49:21.0745830Z Uploaded bytes 285212672
+2026-10-28T14:49:21.3498730Z Uploaded bytes 293601280
+2026-10-28T14:49:21.6028060Z Uploaded bytes 301989888
+2026-10-28T14:49:21.9521770Z Uploaded bytes 310378496
+2026-10-28T14:49:22.2146610Z Uploaded bytes 318767104
+2026-10-28T14:49:22.5190600Z Uploaded bytes 327155712
+2026-10-28T14:49:22.8682040Z Uploaded bytes 335544320
+2026-10-28T14:49:23.0476160Z Uploaded bytes 343932928
+2026-10-28T14:49:23.3307920Z Uploaded bytes 352321536
+2026-10-28T14:49:23.6158200Z Uploaded bytes 360710144
+2026-10-28T14:49:23.9298480Z Uploaded bytes 369098752
+2026-10-28T14:49:24.2474930Z Uploaded bytes 377487360
+2026-10-28T14:49:24.5992450Z Uploaded bytes 385875968
+2026-10-28T14:49:24.9028080Z Uploaded bytes 394264576
+2026-10-28T14:49:25.2400560Z Uploaded bytes 402653184
+2026-10-28T14:49:25.5334450Z Uploaded bytes 411041792
+2026-10-28T14:49:25.7871960Z Uploaded bytes 419430400
+2026-10-28T14:49:26.1409020Z Uploaded bytes 427819008
+2026-10-28T14:49:26.4090210Z Uploaded bytes 436207616
+2026-10-28T14:49:26.7969680Z Uploaded bytes 444596224
+2026-10-28T14:49:26.9825790Z Uploaded bytes 452984832
+2026-10-28T14:49:27.3068620Z Uploaded bytes 461373440
+2026-10-28T14:49:27.7806610Z Uploaded bytes 469762048
+2026-10-28T14:49:28.1258920Z Uploaded bytes 478150656
+2026-10-28T14:49:28.3922780Z Uploaded bytes 486539264
+2026-10-28T14:49:28.6939410Z Uploaded bytes 494927872
+2026-10-28T14:49:29.0262250Z Uploaded bytes 503316480
+2026-10-28T14:49:29.2714670Z Uploaded bytes 511705088
+2026-10-28T14:49:29.6396940Z Uploaded bytes 520093696
+2026-10-28T14:49:30.0293220Z Uploaded bytes 528482304
+2026-10-28T14:49:30.2869370Z Uploaded bytes 536870912
+2026-10-28T14:49:30.4808230Z Uploaded bytes 539128369
+2026-10-28T14:49:30.5188070Z Finished uploading artifact content to blob storage!
+2026-10-28T14:49:30.5190360Z SHA256 digest of uploaded artifact is 080c317afb2e4cd99f156e6d9e228f6195a44c75251f2157b20bfb575dc231b2
+2026-10-28T14:49:30.5191810Z Finalizing artifact upload
+2026-10-28T14:49:31.0438780Z Artifact desktop-macos successfully finalized. Artifact ID 12825018134
+2026-10-28T14:49:31.0442260Z Artifact desktop-macos has been successfully uploaded! Final size is 539128369 bytes. Artifact ID is 12825018134
+2026-10-28T14:49:31.0449750Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40709046979/artifacts/12825018134
+2026-10-28T14:49:31.1039000Z Post job cleanup.
+2026-10-28T14:49:31.3697940Z Post job cleanup.
+2026-10-28T14:49:31.5165560Z [command]/opt/homebrew/bin/git version
+2026-10-28T14:49:31.5467670Z git version 2.55.0
+2026-10-28T14:49:31.5507460Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/b9f9c808-1c4d-4daa-b87c-0416ae183709/.gitconfig'
+2026-10-28T14:49:31.5978390Z Temporarily overriding HOME='/Users/runner/work/_temp/b9f9c808-1c4d-4daa-b87c-0416ae183709' before making global git config changes
+2026-10-28T14:49:31.6232290Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:49:31.6426960Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:49:31.6877520Z Removing SSH command configuration
+2026-10-28T14:49:31.6979150Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:49:31.7239220Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:49:31.8629190Z Removing HTTP extra header
+2026-10-28T14:49:31.8639430Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:49:31.8736900Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:49:32.0384340Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:49:32.0486380Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:49:32.0650130Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:49:32.1574710Z Cleaning up orphan processes

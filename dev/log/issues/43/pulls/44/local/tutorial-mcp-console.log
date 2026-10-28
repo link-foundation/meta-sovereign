@@ -1,0 +1,5 @@
+[     786ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://127.0.0.1:44497/favicon.ico:0
+[    1121ms] [WARNING] [meta-sovereign] POST /api/telegram/url-auth-domains failed (200): @ http://127.0.0.1:44497/app.min.js:440
+[    1195ms] [WARNING] [meta-sovereign] POST /api/telegram/notify-settings failed (200): @ http://127.0.0.1:44497/app.min.js:440
+[   55959ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:44497/#conn-email/manual:0
+[   55959ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ http://127.0.0.1:44497/#conn-email/manual:0

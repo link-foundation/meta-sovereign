@@ -1,0 +1,19 @@
+⋯ Backing up original state…
+✔ Done backing up original state (cbb8357)!
+⋯ Running tasks for staged files…
+    package.json — 1 file
+      *.{js,mjs,cjs} — 1 file
+        ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+        ⋯ prettier --write
+        ⋯ prettier --check
+
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 c317c10] Merge main to preserve recovery changes and reconcile backup isolation

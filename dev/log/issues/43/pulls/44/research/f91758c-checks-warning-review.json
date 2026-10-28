@@ -1,0 +1,467 @@
+[
+  {
+    "job": "Release credential preflight",
+    "file": "ci-logs/job-122921563069.log",
+    "matches": []
+  },
+  {
+    "job": "Check for Manual Version Changes",
+    "file": "ci-logs/job-122921605738.log",
+    "matches": []
+  },
+  {
+    "job": "Detect Changes",
+    "file": "ci-logs/job-122921606014.log",
+    "matches": []
+  },
+  {
+    "job": "Dependency security audit",
+    "file": "ci-logs/job-122921814587.log",
+    "matches": []
+  },
+  {
+    "job": "Workflow, shell and pipeline contracts",
+    "file": "ci-logs/job-122921814630.log",
+    "matches": [
+      {
+        "line": 271,
+        "text": "2026-10-28T15:40:49.3059426Z \u2714 committed dependency tree contains no deprecated registry packages (2.050431ms)",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      }
+    ]
+  },
+  {
+    "job": "Validate Documentation",
+    "file": "ci-logs/job-122921815333.log",
+    "matches": []
+  },
+  {
+    "job": "Lint and Format Check",
+    "file": "ci-logs/job-122921815340.log",
+    "matches": []
+  },
+  {
+    "job": "Check File Line Limits",
+    "file": "ci-logs/job-122921815569.log",
+    "matches": []
+  },
+  {
+    "job": "Test Compilation",
+    "file": "ci-logs/job-122921815698.log",
+    "matches": []
+  },
+  {
+    "job": "Check for Changesets",
+    "file": "ci-logs/job-122921815880.log",
+    "matches": []
+  },
+  {
+    "job": "Backup memory regression (200k links)",
+    "file": "ci-logs/job-122922800284.log",
+    "matches": []
+  },
+  {
+    "job": "CodeQL (javascript-typescript)",
+    "file": "ci-logs/job-122922800346.log",
+    "matches": [
+      {
+        "line": 352,
+        "text": "2026-10-28T15:41:56.6292949Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 353,
+        "text": "2026-10-28T15:41:56.6295072Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 730,
+        "text": "2026-10-28T15:41:57.5789952Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 731,
+        "text": "2026-10-28T15:41:57.5793241Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      }
+    ]
+  },
+  {
+    "job": "CodeQL (actions)",
+    "file": "ci-logs/job-122922800515.log",
+    "matches": [
+      {
+        "line": 189,
+        "text": "2026-10-28T15:41:58.4915192Z [command]tar -x --zstd --ignore-zeros --warning=no-unknown-keyword --overwrite -f - -C /opt/hostedtoolcache/CodeQL/2.27.3/x64",
+        "classification": "tar command option printed by tool-cache setup; not an emitted warning"
+      },
+      {
+        "line": 338,
+        "text": "2026-10-28T15:42:03.3124931Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 339,
+        "text": "2026-10-28T15:42:03.3126754Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 736,
+        "text": "2026-10-28T15:42:04.0369067Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 737,
+        "text": "2026-10-28T15:42:04.0370537Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 1121,
+        "text": "2026-10-28T15:42:05.3216138Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 1122,
+        "text": "2026-10-28T15:42:05.3218559Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      }
+    ]
+  },
+  {
+    "job": "CodeQL (rust)",
+    "file": "ci-logs/job-122922800557.log",
+    "matches": [
+      {
+        "line": 352,
+        "text": "2026-10-28T15:41:55.8523242Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 353,
+        "text": "2026-10-28T15:41:55.8524240Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 730,
+        "text": "2026-10-28T15:41:56.5352680Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 731,
+        "text": "2026-10-28T15:41:56.5353634Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 1135,
+        "text": "2026-10-28T15:41:58.2365944Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 1136,
+        "text": "2026-10-28T15:41:58.2367373Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      }
+    ]
+  },
+  {
+    "job": "CodeQL (python)",
+    "file": "ci-logs/job-122922800629.log",
+    "matches": [
+      {
+        "line": 352,
+        "text": "2026-10-28T15:42:01.5149291Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 353,
+        "text": "2026-10-28T15:42:01.5151221Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 730,
+        "text": "2026-10-28T15:42:02.5722577Z             \"title\" : \"DEPRECATED - Whether to use buildless (standalone) extraction.\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      },
+      {
+        "line": 731,
+        "text": "2026-10-28T15:42:02.5726379Z             \"description\" : \"DEPRECATED: Use `--build-mode none` instead.\\nA value indicating, which type of extraction the autobuilder should perform. If 'true', then the standalone extractor will be used, otherwise tracing extraction will be performed. The default is 'false'. Note that buildless extraction will generally yield less accurate analysis results, and should only be used in cases where it is not possible to build the code (for example if it uses inaccessible dependencies).\\n\",",
+        "classification": "CodeQL CLI schema text describing unused deprecated options; not an emitted warning or enabled option"
+      }
+    ]
+  },
+  {
+    "job": "Rust (fmt, clippy, test)",
+    "file": "ci-logs/job-122922801003.log",
+    "matches": []
+  },
+  {
+    "job": "Package (packed and run with npx)",
+    "file": "ci-logs/job-122922801062.log",
+    "matches": []
+  },
+  {
+    "job": "Browser e2e (chromium)",
+    "file": "ci-logs/job-122922801248.log",
+    "matches": []
+  },
+  {
+    "job": "Build API Docs",
+    "file": "ci-logs/job-122922801331.log",
+    "matches": [
+      {
+        "line": 440,
+        "text": "2026-10-28T15:42:47.1361415Z   \u001b[1m\u001b[94m= \u001b[0m\u001b[1mnote\u001b[0m: `#[warn(rustdoc::bare_urls)]` on by default",
+        "classification": "F17: real Rustdoc bare URL; fixed link and all-path warning denial"
+      },
+      {
+        "line": 446,
+        "text": "2026-10-28T15:42:47.1364695Z \u001b[1m\u001b[33mwarning\u001b[0m: `meta-sovereign-server` (bin \"meta-sovereign-rs\" doc) generated 1 warning (run `cargo fix --bin \"meta-sovereign-rs\" -p meta-sovereign-server` to apply 1 suggestion)",
+        "classification": "F17: Rustdoc warning summary; repaired with source link and all-path warning denial"
+      }
+    ]
+  },
+  {
+    "job": "Test (node on windows-2025)",
+    "file": "ci-logs/job-122922801516.log",
+    "matches": [
+      {
+        "line": 884,
+        "text": "2026-10-28T15:43:27.5745166Z \u2714 committed dependency tree contains no deprecated registry packages (2.5073ms)",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 902,
+        "text": "2026-10-28T15:43:29.9223328Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 903,
+        "text": "2026-10-28T15:43:29.9223811Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 904,
+        "text": "2026-10-28T15:43:29.9224232Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 905,
+        "text": "2026-10-28T15:43:29.9224636Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 906,
+        "text": "2026-10-28T15:43:29.9225068Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 907,
+        "text": "2026-10-28T15:43:29.9225523Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 1295,
+        "text": "2026-10-28T15:43:34.7392183Z   \u2714 replaces only the updater deprecated comparator with its compatible two-argument form (0.1731ms)",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      }
+    ]
+  },
+  {
+    "job": "Test (bun on ubuntu-24.04)",
+    "file": "ci-logs/job-122922801588.log",
+    "matches": [
+      {
+        "line": 3165,
+        "text": "2026-10-28T15:43:04.2750591Z (pass) committed dependency tree contains no deprecated registry packages [1.96ms]",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 3408,
+        "text": "2026-10-28T15:43:06.3307205Z (pass) desktop package.json > replaces only the updater deprecated comparator with its compatible two-argument form [0.04ms]",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      }
+    ]
+  },
+  {
+    "job": "Test (bun on windows-2025)",
+    "file": "ci-logs/job-122922801612.log",
+    "matches": [
+      {
+        "line": 1141,
+        "text": "2026-10-28T15:44:40.5295519Z (pass) committed dependency tree contains no deprecated registry packages [1.90ms]",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 1171,
+        "text": "2026-10-28T15:44:45.1516174Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 1172,
+        "text": "2026-10-28T15:44:45.1517026Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 1173,
+        "text": "2026-10-28T15:44:45.1518006Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 1174,
+        "text": "2026-10-28T15:44:45.1518664Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 1175,
+        "text": "2026-10-28T15:44:45.7516121Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 1176,
+        "text": "2026-10-28T15:44:45.7517350Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 1599,
+        "text": "2026-10-28T15:44:53.1850737Z (pass) desktop package.json > replaces only the updater deprecated comparator with its compatible two-argument form [0.03ms]",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      }
+    ]
+  },
+  {
+    "job": "Test (deno on macos-15)",
+    "file": "ci-logs/job-122922801643.log",
+    "matches": [
+      {
+        "line": 2362,
+        "text": "2026-10-28T15:42:48.3761410Z committed dependency tree contains no deprecated registry packages ... \u001b[0m\u001b[32mok\u001b[0m \u001b[0m\u001b[38;5;245m(4ms)\u001b[0m",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 2733,
+        "text": "2026-10-28T15:42:56.9816830Z replaces only the updater deprecated comparator with its compatible two-argument form ... \u001b[0m\u001b[32mok\u001b[0m \u001b[0m\u001b[38;5;245m(63\u00b5s)\u001b[0m",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      }
+    ]
+  },
+  {
+    "job": "Test (bun on macos-15)",
+    "file": "ci-logs/job-122922801718.log",
+    "matches": [
+      {
+        "line": 632,
+        "text": "2026-10-28T15:48:28.0063110Z (pass) committed dependency tree contains no deprecated registry packages [1.20ms]",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 2738,
+        "text": "2026-10-28T15:48:45.5807610Z (pass) desktop package.json > replaces only the updater deprecated comparator with its compatible two-argument form [0.04ms]",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      }
+    ]
+  },
+  {
+    "job": "Test (deno on windows-2025)",
+    "file": "ci-logs/job-122922801798.log",
+    "matches": [
+      {
+        "line": 2449,
+        "text": "2026-10-28T15:44:19.0004940Z committed dependency tree contains no deprecated registry packages ... \u001b[0m\u001b[32mok\u001b[0m \u001b[0m\u001b[38;5;245m(2ms)\u001b[0m",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 2475,
+        "text": "2026-10-28T15:44:23.8270140Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2476,
+        "text": "2026-10-28T15:44:23.8271835Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2477,
+        "text": "2026-10-28T15:44:23.8273390Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2478,
+        "text": "2026-10-28T15:44:23.8275163Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2479,
+        "text": "2026-10-28T15:44:24.0050713Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2480,
+        "text": "2026-10-28T15:44:24.0053068Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2481,
+        "text": "2026-10-28T15:44:24.0053942Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2482,
+        "text": "2026-10-28T15:44:24.0054724Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it",
+        "classification": "F18: real owned Git fixture line-conversion warning; fixed with repository-local LF policy"
+      },
+      {
+        "line": 2831,
+        "text": "2026-10-28T15:44:38.1911006Z replaces only the updater deprecated comparator with its compatible two-argument form ... \u001b[0m\u001b[32mok\u001b[0m \u001b[0m\u001b[38;5;245m(220\u00b5s)\u001b[0m",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      },
+      {
+        "line": 5789,
+        "text": "2026-10-28T15:52:56.1304635Z ##[error]The operation was canceled.",
+        "classification": "actual incomplete-gate/cancellation error; F15/F16 preserved and repaired/mitigated"
+      }
+    ]
+  },
+  {
+    "job": "Test (deno on ubuntu-24.04)",
+    "file": "ci-logs/job-122922801876.log",
+    "matches": [
+      {
+        "line": 2385,
+        "text": "2026-10-28T15:43:08.7176825Z committed dependency tree contains no deprecated registry packages ... \u001b[0m\u001b[32mok\u001b[0m \u001b[0m\u001b[38;5;245m(2ms)\u001b[0m",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 2756,
+        "text": "2026-10-28T15:43:17.1624504Z replaces only the updater deprecated comparator with its compatible two-argument form ... \u001b[0m\u001b[32mok\u001b[0m \u001b[0m\u001b[38;5;245m(117\u00b5s)\u001b[0m",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      }
+    ]
+  },
+  {
+    "job": "Test (node on ubuntu-24.04)",
+    "file": "ci-logs/job-122922801895.log",
+    "matches": [
+      {
+        "line": 884,
+        "text": "2026-10-28T15:43:10.8100310Z \u2714 committed dependency tree contains no deprecated registry packages (3.615354ms)",
+        "classification": "passing regression title or intentional finite deprecation reproduction; inspect source context if actual warning"
+      },
+      {
+        "line": 1289,
+        "text": "2026-10-28T15:43:16.2354984Z   \u2714 replaces only the updater deprecated comparator with its compatible two-argument form (0.290162ms)",
+        "classification": "passing comparator compatibility regression title; no warning emitted"
+      }
+    ]
+  },
+  {
+    "job": "Pipeline status",
+    "file": "ci-logs/job-122932201771.log",
+    "matches": [
+      {
+        "line": 263,
+        "text": "2026-10-28T15:57:47.6705299Z ##[error]Process completed with exit code 1.",
+        "classification": "actual incomplete-gate/cancellation error; F15/F16 preserved and repaired/mitigated"
+      }
+    ]
+  }
+]

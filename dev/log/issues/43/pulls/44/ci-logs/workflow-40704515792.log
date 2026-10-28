@@ -1,0 +1,619 @@
+Check Links	Set up job	﻿2026-10-28T14:18:41.7415615Z Current runner version: '2.338.0'
+Check Links	Set up job	2026-10-28T14:18:41.7443029Z ##[group]Runner Image Provisioner
+Check Links	Set up job	2026-10-28T14:18:41.7444257Z Hosted Compute Agent
+Check Links	Set up job	2026-10-28T14:18:41.7444948Z Version: 20261021.618
+Check Links	Set up job	2026-10-28T14:18:41.7445666Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+Check Links	Set up job	2026-10-28T14:18:41.7446477Z Build Date: 2026-10-21T00:45:21Z
+Check Links	Set up job	2026-10-28T14:18:41.7447198Z Worker ID: {76577369-e375-4270-b68d-e9a8b0da7d29}
+Check Links	Set up job	2026-10-28T14:18:41.7447970Z Region: eastus
+Check Links	Set up job	2026-10-28T14:18:41.7448590Z Cloud: Azure
+Check Links	Set up job	2026-10-28T14:18:41.7449187Z ##[endgroup]
+Check Links	Set up job	2026-10-28T14:18:41.7450797Z ##[group]Operating System
+Check Links	Set up job	2026-10-28T14:18:41.7451509Z Ubuntu
+Check Links	Set up job	2026-10-28T14:18:41.7452054Z 24.04.5
+Check Links	Set up job	2026-10-28T14:18:41.7452729Z LTS
+Check Links	Set up job	2026-10-28T14:18:41.7453356Z ##[endgroup]
+Check Links	Set up job	2026-10-28T14:18:41.7454352Z ##[group]Runner Image
+Check Links	Set up job	2026-10-28T14:18:41.7455028Z Image: ubuntu-24.04
+Check Links	Set up job	2026-10-28T14:18:41.7455588Z Version: 20261012.334.1
+Check Links	Set up job	2026-10-28T14:18:41.7456723Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+Check Links	Set up job	2026-10-28T14:18:41.7458534Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+Check Links	Set up job	2026-10-28T14:18:41.7459566Z ##[endgroup]
+Check Links	Set up job	2026-10-28T14:18:41.7460750Z ##[group]GITHUB_TOKEN Permissions
+Check Links	Set up job	2026-10-28T14:18:41.7462866Z Contents: read
+Check Links	Set up job	2026-10-28T14:18:41.7463554Z Metadata: read
+Check Links	Set up job	2026-10-28T14:18:41.7464412Z ##[endgroup]
+Check Links	Set up job	2026-10-28T14:18:41.7466619Z Secret source: Actions
+Check Links	Set up job	2026-10-28T14:18:41.7467705Z Cache mode: write
+Check Links	Set up job	2026-10-28T14:18:41.7468851Z Prepare workflow directory
+Check Links	Set up job	2026-10-28T14:18:41.7952666Z Prepare all required actions
+Check Links	Set up job	2026-10-28T14:18:41.8007234Z Getting action download info
+Check Links	Set up job	2026-10-28T14:18:42.0559589Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+Check Links	Set up job	2026-10-28T14:18:42.1664374Z Download action repository 'lycheeverse/lychee-action@v2' (SHA:e7477775783ea5526144ba13e8db5eec57747ce8)
+Check Links	Set up job	2026-10-28T14:18:42.2778716Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+Check Links	Set up job	2026-10-28T14:18:42.5763073Z Complete job name: Check Links
+Check Links	Run actions/checkout@v7	﻿2026-10-28T14:18:42.6660754Z ##[group]Run actions/checkout@v7
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6661713Z with:
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6662181Z   persist-credentials: false
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6662757Z   repository: link-foundation/meta-sovereign
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6666833Z   token: ***
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6667343Z   ssh-strict: true
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6667853Z   ssh-user: git
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6668340Z   clean: true
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6668824Z   sparse-checkout-cone-mode: true
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6669376Z   fetch-depth: 1
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6669813Z   fetch-tags: false
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6670281Z   show-progress: true
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6670739Z   lfs: false
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6671150Z   submodules: false
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6671637Z   set-safe-directory: true
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6672212Z   allow-unsafe-pr-checkout: false
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6673115Z env:
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6673603Z   GIT_CONFIG_COUNT: 1
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6674367Z   GIT_CONFIG_KEY_0: init.defaultBranch
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6674958Z   GIT_CONFIG_VALUE_0: main
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.6675467Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9605471Z Syncing repository: link-foundation/meta-sovereign
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9608345Z ##[group]Getting Git version info
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9609230Z Working directory is '/home/runner/work/meta-sovereign/meta-sovereign'
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9611040Z [command]/usr/bin/git version
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9688247Z git version 2.55.0
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9713988Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9726844Z Temporarily overriding HOME='/home/runner/work/_temp/18123ad7-d510-4ea6-8010-efb3718e917f' before making global git config changes
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9729505Z Adding repository directory to the temporary git global config as a safe directory
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9734568Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9788464Z Deleting the contents of '/home/runner/work/meta-sovereign/meta-sovereign'
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9793264Z ##[group]Determining repository object format
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9795740Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9797446Z ##[group]Initializing the repository
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9802258Z [command]/usr/bin/git init /home/runner/work/meta-sovereign/meta-sovereign
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9991503Z Initialized empty Git repository in /home/runner/work/meta-sovereign/meta-sovereign/.git/
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:42.9997020Z [command]/usr/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0053504Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0055275Z ##[group]Disabling automatic garbage collection
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0058482Z [command]/usr/bin/git config --local gc.auto 0
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0096420Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0098003Z ##[group]Setting up auth
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0099114Z Removing SSH command configuration
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0109030Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0148479Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0539522Z Removing HTTP extra header
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0546887Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0588256Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0811203Z Removing includeIf entries pointing to credentials config files
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0817805Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.0855961Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1083892Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1127005Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path /home/runner/work/_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1166977Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1210880Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1249111Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1283453Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1285120Z ##[group]Fetching the repository
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:43.1293491Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +2b0925eddf6cff5ea88d10dacc3e813a021ad2be:refs/remotes/pull/44/merge
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7640561Z From https://github.com/link-foundation/meta-sovereign
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7642086Z  * [new ref]         2b0925eddf6cff5ea88d10dacc3e813a021ad2be -> pull/44/merge
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7646177Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7647384Z ##[group]Determining the checkout info
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7648537Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7651519Z [command]/usr/bin/git sparse-checkout disable
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7706229Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7740557Z ##[group]Checking out the ref
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:44.7744553Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/44/merge
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0325952Z Note: switching to 'refs/remotes/pull/44/merge'.
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0327296Z 
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0328324Z You are in 'detached HEAD' state. You can look around, make experimental
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0330628Z changes and commit them, and you can discard any commits you make in this
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0332888Z state without impacting any branches by switching back to a branch.
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0334707Z 
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0335689Z If you want to create a new branch to retain commits you create, you may
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0338005Z do so (now or later) by using -c with the switch command. Example:
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0339377Z 
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0340010Z   git switch -c <new-branch-name>
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0340954Z 
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0341379Z Or undo this operation with:
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0341929Z 
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0342263Z   git switch -
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0342701Z 
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0343436Z Turn off this advice by setting config variable advice.detachedHead to false
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0345440Z 
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0346710Z HEAD is now at 2b0925e Merge 7810af53d1518fb4711585cdd4ec93aae3c6fd2a into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0351037Z ##[endgroup]
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0396333Z [command]/usr/bin/git log -1 --format=%H
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0426277Z 2b0925eddf6cff5ea88d10dacc3e813a021ad2be
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0436535Z ##[group]Removing auth
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0437564Z Removing SSH command configuration
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0440279Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0478920Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0710514Z Removing HTTP extra header
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0714353Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0751887Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0981289Z Removing includeIf entries pointing to credentials config files
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.0985587Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1014678Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1018107Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1020603Z includeif.gitdir:/github/workspace/.git.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1022877Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1027863Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1059754Z /home/runner/work/_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1073035Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-56fd7315\-ab10\-4990\-bc08\-a77cb15804f0\.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1119858Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1146256Z /home/runner/work/_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1157171Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-56fd7315\-ab10\-4990\-bc08\-a77cb15804f0\.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1195968Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1225895Z /github/runner_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1236089Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-56fd7315\-ab10\-4990\-bc08\-a77cb15804f0\.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1276144Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1304303Z /github/runner_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1315172Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-56fd7315\-ab10\-4990\-bc08\-a77cb15804f0\.config
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1358094Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1591769Z Removing credentials config '/home/runner/work/_temp/git-credentials-56fd7315-ab10-4990-bc08-a77cb15804f0.config'
+Check Links	Run actions/checkout@v7	2026-10-28T14:18:45.1600105Z ##[endgroup]
+Check Links	Check links with lychee	﻿2026-10-28T14:18:45.2148165Z ##[group]Run lycheeverse/lychee-action@v2
+Check Links	Check links with lychee	2026-10-28T14:18:45.2149469Z with:
+Check Links	Check links with lychee	2026-10-28T14:18:45.2151916Z   args: --verbose --no-progress --cache --max-cache-age 1d --max-retries 3 --timeout 30 --exclude-path docs/case-studies --exclude-path dev/log './**/*.md' './**/*.html'
+Check Links	Check links with lychee	2026-10-28T14:18:45.2154832Z   fail: false
+Check Links	Check links with lychee	2026-10-28T14:18:45.2155765Z   output: lychee/out.md
+Check Links	Check links with lychee	2026-10-28T14:18:45.2156761Z   jobSummary: true
+Check Links	Check links with lychee	2026-10-28T14:18:45.2157685Z   debug: false
+Check Links	Check links with lychee	2026-10-28T14:18:45.2158603Z   failIfEmpty: true
+Check Links	Check links with lychee	2026-10-28T14:18:45.2159551Z   format: markdown
+Check Links	Check links with lychee	2026-10-28T14:18:45.2160496Z   lycheeVersion: v0.24.2
+Check Links	Check links with lychee	2026-10-28T14:18:45.2161516Z   checkbox: true
+Check Links	Check links with lychee	2026-10-28T14:18:45.2169974Z   token: ***
+Check Links	Check links with lychee	2026-10-28T14:18:45.2170916Z   workingDirectory: .
+Check Links	Check links with lychee	2026-10-28T14:18:45.2171886Z env:
+Check Links	Check links with lychee	2026-10-28T14:18:45.2172748Z   GIT_CONFIG_COUNT: 1
+Check Links	Check links with lychee	2026-10-28T14:18:45.2173969Z   GIT_CONFIG_KEY_0: init.defaultBranch
+Check Links	Check links with lychee	2026-10-28T14:18:45.2175170Z   GIT_CONFIG_VALUE_0: main
+Check Links	Check links with lychee	2026-10-28T14:18:45.2183808Z   GITHUB_TOKEN: ***
+Check Links	Check links with lychee	2026-10-28T14:18:45.2184833Z ##[endgroup]
+Check Links	Check links with lychee	2026-10-28T14:18:45.2251777Z ##[start-action display=Set up environment;id=lychee.__run]
+Check Links	Check links with lychee	2026-10-28T14:18:45.2320692Z ##[group]Run # Install into $RUNNER_TEMP (not $HOME) so the install path is stable
+Check Links	Check links with lychee	2026-10-28T14:18:45.2322900Z ^[[36;1m# Install into $RUNNER_TEMP (not $HOME) so the install path is stable^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2325216Z ^[[36;1m# across composite steps. On some runners $HOME is overridden per step^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2327250Z ^[[36;1m# (e.g. actions/checkout temporarily sets it), which made the PATH^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2329195Z ^[[36;1m# entry from one step and the install in another step diverge.^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2330898Z ^[[36;1mecho "$RUNNER_TEMP/lychee/bin" >> "$GITHUB_PATH"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2332327Z ^[[36;1mmkdir -p "$RUNNER_TEMP/lychee/bin"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2605295Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Check Links	Check links with lychee	2026-10-28T14:18:45.2606958Z env:
+Check Links	Check links with lychee	2026-10-28T14:18:45.2607932Z   GIT_CONFIG_COUNT: 1
+Check Links	Check links with lychee	2026-10-28T14:18:45.2609060Z   GIT_CONFIG_KEY_0: init.defaultBranch
+Check Links	Check links with lychee	2026-10-28T14:18:45.2610292Z   GIT_CONFIG_VALUE_0: main
+Check Links	Check links with lychee	2026-10-28T14:18:45.2619793Z   GITHUB_TOKEN: ***
+Check Links	Check links with lychee	2026-10-28T14:18:45.2620793Z ##[endgroup]
+Check Links	Check links with lychee	2026-10-28T14:18:45.2775713Z ##[end-action id=lychee.__run;outcome=success;conclusion=success;duration_ms=52]
+Check Links	Check links with lychee	2026-10-28T14:18:45.2784524Z ##[start-action display=Download and extract lychee in temp directory;id=lychee.lychee-setup]
+Check Links	Check links with lychee	2026-10-28T14:18:45.2837072Z ##[group]Run # Create a temporary directory for downloads and extraction
+Check Links	Check links with lychee	2026-10-28T14:18:45.2839014Z ^[[36;1m# Create a temporary directory for downloads and extraction^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2840970Z ^[[36;1mTEMP_DIR="${RUNNER_TEMP}/lychee-download"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2842460Z ^[[36;1mrm -rf "${TEMP_DIR}" && mkdir -p "${TEMP_DIR}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2844040Z ^[[36;1mcd "${TEMP_DIR}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2845049Z ^[[36;1m^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2845914Z ^[[36;1mARCH=$(uname -m)^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2847200Z ^[[36;1m# Determine filename and download URL based on version^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2849073Z ^[[36;1mif [[ "${LYCHEE_VERSION}" =~ ^v0\.0|^v0\.1[0-5]\. ]]; then^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2850895Z ^[[36;1m  FILENAME="lychee-${LYCHEE_VERSION}-${ARCH}-unknown-linux-gnu.tar.gz"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2853395Z ^[[36;1m  DOWNLOAD_URL="https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_VERSION}/${FILENAME}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2855694Z ^[[36;1melse^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2856841Z ^[[36;1m  FILENAME="lychee-${ARCH}-unknown-linux-gnu.tar.gz"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2858370Z ^[[36;1m  if [[ "${LYCHEE_VERSION}" == 'nightly' ]]; then^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2860375Z ^[[36;1m    DOWNLOAD_URL="https://github.com/lycheeverse/lychee/releases/download/nightly/${FILENAME}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2862430Z ^[[36;1m  elif [[ "${LYCHEE_VERSION}" == 'latest' ]]; then^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2864713Z ^[[36;1m    DOWNLOAD_URL="https://github.com/lycheeverse/lychee/releases/latest/download/${FILENAME}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2866621Z ^[[36;1m  else^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2868737Z ^[[36;1m    DOWNLOAD_URL="https://github.com/lycheeverse/lychee/releases/download/lychee-${LYCHEE_VERSION}/${FILENAME}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2870863Z ^[[36;1m  fi^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2871740Z ^[[36;1mfi^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2872588Z ^[[36;1m^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2873560Z ^[[36;1mecho "Downloading from: ${DOWNLOAD_URL}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2875291Z ^[[36;1mcurl -sfLO "${DOWNLOAD_URL}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2876424Z ^[[36;1m^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2877345Z ^[[36;1mecho "Extracting ${FILENAME}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2878523Z ^[[36;1mtar -xvzf "${FILENAME}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2879618Z ^[[36;1mrm -rv "${FILENAME}"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2880640Z ^[[36;1m^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2881815Z ^[[36;1m# Detect if lychee binary is in a subfolder within the tar.gz^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2883388Z ^[[36;1mif ! [[ -f "${TEMP_DIR}/lychee" ]]; then^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2885319Z ^[[36;1m  TEMP_DIR="$(echo "${TEMP_DIR}"/lychee-*)"  # need `echo` to evaluate glob^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2886901Z ^[[36;1mfi^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2887873Z ^[[36;1mif ! [[ -f "${TEMP_DIR}/lychee" ]]; then^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2889683Z ^[[36;1m  echo "Cannot find lychee binary in $TEMP_DIR. Did the archive structure change?" >&2^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2891423Z ^[[36;1m  exit 1^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2892312Z ^[[36;1mfi^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2893155Z ^[[36;1m^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2894456Z ^[[36;1m# Output temp directory for use in later steps^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2895953Z ^[[36;1mecho "temp_dir=${TEMP_DIR}" >> $GITHUB_OUTPUT^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.2965254Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Check Links	Check links with lychee	2026-10-28T14:18:45.2966655Z env:
+Check Links	Check links with lychee	2026-10-28T14:18:45.2967501Z   GIT_CONFIG_COUNT: 1
+Check Links	Check links with lychee	2026-10-28T14:18:45.2968516Z   GIT_CONFIG_KEY_0: init.defaultBranch
+Check Links	Check links with lychee	2026-10-28T14:18:45.2969671Z   GIT_CONFIG_VALUE_0: main
+Check Links	Check links with lychee	2026-10-28T14:18:45.2978276Z   GITHUB_TOKEN: ***
+Check Links	Check links with lychee	2026-10-28T14:18:45.2979245Z   LYCHEE_VERSION: v0.24.2
+Check Links	Check links with lychee	2026-10-28T14:18:45.2980232Z ##[endgroup]
+Check Links	Check links with lychee	2026-10-28T14:18:45.3115534Z Downloading from: https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz
+Check Links	Check links with lychee	2026-10-28T14:18:45.4390356Z Extracting lychee-x86_64-unknown-linux-gnu.tar.gz
+Check Links	Check links with lychee	2026-10-28T14:18:45.4418325Z lychee-x86_64-unknown-linux-gnu/
+Check Links	Check links with lychee	2026-10-28T14:18:45.4421145Z lychee-x86_64-unknown-linux-gnu/README.md
+Check Links	Check links with lychee	2026-10-28T14:18:45.4423501Z lychee-x86_64-unknown-linux-gnu/docs/
+Check Links	Check links with lychee	2026-10-28T14:18:45.4425926Z lychee-x86_64-unknown-linux-gnu/docs/lychee.1
+Check Links	Check links with lychee	2026-10-28T14:18:45.4428616Z lychee-x86_64-unknown-linux-gnu/docs/TROUBLESHOOTING.md
+Check Links	Check links with lychee	2026-10-28T14:18:45.4431318Z lychee-x86_64-unknown-linux-gnu/docs/PRE_COMMIT.md
+Check Links	Check links with lychee	2026-10-28T14:18:45.4433596Z lychee-x86_64-unknown-linux-gnu/complete/
+Check Links	Check links with lychee	2026-10-28T14:18:45.4436023Z lychee-x86_64-unknown-linux-gnu/complete/_lychee.ps1
+Check Links	Check links with lychee	2026-10-28T14:18:45.4438399Z lychee-x86_64-unknown-linux-gnu/complete/lychee.elv
+Check Links	Check links with lychee	2026-10-28T14:18:45.4440685Z lychee-x86_64-unknown-linux-gnu/complete/lychee.fish
+Check Links	Check links with lychee	2026-10-28T14:18:45.4443036Z lychee-x86_64-unknown-linux-gnu/complete/lychee.bash
+Check Links	Check links with lychee	2026-10-28T14:18:45.4446083Z lychee-x86_64-unknown-linux-gnu/complete/_lychee
+Check Links	Check links with lychee	2026-10-28T14:18:45.4448160Z lychee-x86_64-unknown-linux-gnu/lychee
+Check Links	Check links with lychee	2026-10-28T14:18:45.5824308Z removed 'lychee-x86_64-unknown-linux-gnu.tar.gz'
+Check Links	Check links with lychee	2026-10-28T14:18:45.5855551Z ##[end-action id=lychee.lychee-setup;outcome=success;conclusion=success;duration_ms=306]
+Check Links	Check links with lychee	2026-10-28T14:18:45.5860786Z ##[start-action display=Install lychee;id=lychee.__run_2]
+Check Links	Check links with lychee	2026-10-28T14:18:45.5909676Z ##[group]Run # Install lychee from the temporary directory
+Check Links	Check links with lychee	2026-10-28T14:18:45.5910161Z ^[[36;1m# Install lychee from the temporary directory^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.5910870Z ^[[36;1minstall -t "$RUNNER_TEMP/lychee/bin" -D "/home/runner/work/_temp/lychee-download/lychee-x86_64-unknown-linux-gnu/lychee"^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.5974901Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Check Links	Check links with lychee	2026-10-28T14:18:45.5975309Z env:
+Check Links	Check links with lychee	2026-10-28T14:18:45.5975549Z   GIT_CONFIG_COUNT: 1
+Check Links	Check links with lychee	2026-10-28T14:18:45.5975834Z   GIT_CONFIG_KEY_0: init.defaultBranch
+Check Links	Check links with lychee	2026-10-28T14:18:45.5976370Z   GIT_CONFIG_VALUE_0: main
+Check Links	Check links with lychee	2026-10-28T14:18:45.5979156Z   GITHUB_TOKEN: ***
+Check Links	Check links with lychee	2026-10-28T14:18:45.5979432Z ##[endgroup]
+Check Links	Check links with lychee	2026-10-28T14:18:45.6153414Z ##[end-action id=lychee.__run_2;outcome=success;conclusion=success;duration_ms=29]
+Check Links	Check links with lychee	2026-10-28T14:18:45.6163238Z ##[start-action display=Run Lychee;id=lychee.run-lychee]
+Check Links	Check links with lychee	2026-10-28T14:18:45.6190942Z ##[group]Run /home/runner/work/_actions/lycheeverse/lychee-action/v2/entrypoint.sh
+Check Links	Check links with lychee	2026-10-28T14:18:45.6191612Z ^[[36;1m/home/runner/work/_actions/lycheeverse/lychee-action/v2/entrypoint.sh^[[0m
+Check Links	Check links with lychee	2026-10-28T14:18:45.6254833Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Check Links	Check links with lychee	2026-10-28T14:18:45.6255346Z env:
+Check Links	Check links with lychee	2026-10-28T14:18:45.6280262Z   GIT_CONFIG_COUNT: 1
+Check Links	Check links with lychee	2026-10-28T14:18:45.6280662Z   GIT_CONFIG_KEY_0: init.defaultBranch
+Check Links	Check links with lychee	2026-10-28T14:18:45.6281013Z   GIT_CONFIG_VALUE_0: main
+Check Links	Check links with lychee	2026-10-28T14:18:45.6283625Z   GITHUB_TOKEN: ***
+Check Links	Check links with lychee	2026-10-28T14:18:45.6286264Z   INPUT_TOKEN: ***
+Check Links	Check links with lychee	2026-10-28T14:18:45.6287027Z   INPUT_ARGS: --verbose --no-progress --cache --max-cache-age 1d --max-retries 3 --timeout 30 --exclude-path docs/case-studies --exclude-path dev/log './**/*.md' './**/*.html'
+Check Links	Check links with lychee	2026-10-28T14:18:45.6287858Z   INPUT_DEBUG: false
+Check Links	Check links with lychee	2026-10-28T14:18:45.6288133Z   INPUT_FAIL: false
+Check Links	Check links with lychee	2026-10-28T14:18:45.6288418Z   INPUT_FAILIFEMPTY: true
+Check Links	Check links with lychee	2026-10-28T14:18:45.6288704Z   INPUT_FORMAT: markdown
+Check Links	Check links with lychee	2026-10-28T14:18:45.6289011Z   INPUT_JOBSUMMARY: true
+Check Links	Check links with lychee	2026-10-28T14:18:45.6289334Z   INPUT_CHECKBOX: true
+Check Links	Check links with lychee	2026-10-28T14:18:45.6289611Z   INPUT_OUTPUT: lychee/out.md
+Check Links	Check links with lychee	2026-10-28T14:18:45.6290189Z   SUMMARY_URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40704515792#summary-122872894602
+Check Links	Check links with lychee	2026-10-28T14:18:45.6290779Z ##[endgroup]
+Check Links	Check links with lychee	2026-10-28T14:18:45.8266251Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 21:29) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8271678Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 29:27) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8284768Z [EXCLUDED] http://127.0.0.1:8787/ (at 60:31) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8295361Z [EXCLUDED] https://127.0.0.1:8787/trust (at 60:835) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8296840Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 62:55) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8298197Z [EXCLUDED] http://127.0.0.1:8787/ (at 62:570) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8299538Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 21:7) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8301283Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 29:46) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8302679Z [EXCLUDED] http://127.0.0.1:8787/ (at 60:28) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8304037Z [EXCLUDED] https://127.0.0.1:8787/trust (at 60:763) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8305417Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 62:64) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8307434Z [EXCLUDED] http://127.0.0.1:8787/ (at 62:584) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8308591Z [EXCLUDED] https://web.archive.org/ (at 297:83) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8310001Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 21:11) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8311630Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 29:42) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8313037Z [EXCLUDED] http://127.0.0.1:8787/ (at 60:35) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8314406Z [EXCLUDED] https://127.0.0.1:8787/trust (at 60:805) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8315771Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 62:79) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8317104Z [EXCLUDED] http://127.0.0.1:8787/ (at 62:609) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8318897Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 21:14) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8320572Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 29:4) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8321966Z [EXCLUDED] http://127.0.0.1:8787/ (at 60:11) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8324068Z [EXCLUDED] https://127.0.0.1:8787/trust (at 60:501) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8325491Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 62:28) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8326788Z [EXCLUDED] http://127.0.0.1:8787/ (at 62:321) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:45.8328050Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 3:20) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:46.3162010Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 601:516) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:46.3164555Z [EXCLUDED] http://127.0.0.1/ (at 607:46) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:48.8640678Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 3:18) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:48.8666776Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 3:117) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:48.8679499Z [IGNORED] tg://emoji?id=%E2%80%A6 (at 84:309) | Unsupported: Failed to create HTTP request client: builder error for url (tg://emoji?id=%E2%80%A6)
+Check Links	Check links with lychee	2026-10-28T14:18:48.9006076Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 3:21) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:48.9081126Z [EXCLUDED] http://127.0.0.1/ (at 336:41) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:48.9082406Z [EXCLUDED] https://127.0.0.1/ (at 340:254) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:48.9084263Z [IGNORED] tg://join (at 399:105) | Unsupported: Failed to create HTTP request client: builder error for url (tg://join)
+Check Links	Check links with lychee	2026-10-28T14:18:48.9086039Z [IGNORED] tg://resolve (at 444:180) | Unsupported: Failed to create HTTP request client: builder error for url (tg://resolve)
+Check Links	Check links with lychee	2026-10-28T14:18:48.9179036Z [IGNORED] tg://emoji?id=%E2%80%A6 (at 84:282) | Unsupported: Failed to create HTTP request client: builder error for url (tg://emoji?id=%E2%80%A6)
+Check Links	Check links with lychee	2026-10-28T14:18:48.9689226Z [IGNORED] tg://emoji?id=%E2%80%A6 (at 84:163) | Unsupported: Failed to create HTTP request client: builder error for url (tg://emoji?id=%E2%80%A6)
+Check Links	Check links with lychee	2026-10-28T14:18:49.0190148Z [IGNORED] tg://emoji?id=%E2%80%A6 (at 84:318) | Unsupported: Failed to create HTTP request client: builder error for url (tg://emoji?id=%E2%80%A6)
+Check Links	Check links with lychee	2026-10-28T14:18:49.0192988Z [EXCLUDED] http://127.0.0.1/ (at 668:63) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.0195820Z [EXCLUDED] https://127.0.0.1/ (at 672:256) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.0198540Z [IGNORED] tg://join (at 731:89) | Unsupported: Failed to create HTTP request client: builder error for url (tg://join)
+Check Links	Check links with lychee	2026-10-28T14:18:49.0200244Z [IGNORED] tg://resolve (at 776:201) | Unsupported: Failed to create HTTP request client: builder error for url (tg://resolve)
+Check Links	Check links with lychee	2026-10-28T14:18:49.0462488Z [EXCLUDED] http://127.0.0.1/ (at 316:28) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.0464900Z [EXCLUDED] https://127.0.0.1/ (at 320:152) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.0693374Z [IGNORED] tg://join (at 379:74) | Unsupported: Failed to create HTTP request client: builder error for url (tg://join)
+Check Links	Check links with lychee	2026-10-28T14:18:49.0695279Z [IGNORED] tg://resolve (at 424:133) | Unsupported: Failed to create HTTP request client: builder error for url (tg://resolve)
+Check Links	Check links with lychee	2026-10-28T14:18:49.0696371Z [EXCLUDED] http://127.0.0.1/ (at 335:59) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.0697178Z [EXCLUDED] https://127.0.0.1/ (at 339:272) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1194711Z [IGNORED] tg://join (at 398:100) | Unsupported: Failed to create HTTP request client: builder error for url (tg://join)
+Check Links	Check links with lychee	2026-10-28T14:18:49.1196859Z [IGNORED] tg://resolve (at 443:242) | Unsupported: Failed to create HTTP request client: builder error for url (tg://resolve)
+Check Links	Check links with lychee	2026-10-28T14:18:49.1405729Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 7:15) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1407705Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 11:41) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1409741Z [EXCLUDED] http://127.0.0.1:8787/ (at 33:24) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1411420Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 80:2) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1413485Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 137:2) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1415468Z [EXCLUDED] https://127.0.0.1:8787/trust (at 149:713) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1417070Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 203:129) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1419107Z [EXCLUDED] https://127.0.0.1:8787/trust (at 506:252) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1420366Z [EXCLUDED] http://127.0.0.1:8787/ (at 506:410) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1845554Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 7:18) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1847516Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 11:40) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1848904Z [EXCLUDED] http://127.0.0.1:8787/ (at 33:14) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1850265Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 80:5) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1851547Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 136:14) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1852516Z [EXCLUDED] https://127.0.0.1:8787/trust (at 148:397) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1853487Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 202:85) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1906712Z [EXCLUDED] https://127.0.0.1:8787/trust (at 456:154) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1908757Z [EXCLUDED] http://127.0.0.1:8787/ (at 456:262) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1910638Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 9:20) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1924028Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 15:10) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1925485Z [EXCLUDED] http://127.0.0.1:8787/ (at 43:24) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1934967Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 95:7) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1936649Z [EXCLUDED] https://127.0.0.1:8787/trust (at 204:5) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1938198Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 182:2) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1939905Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 270:167) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1941403Z [EXCLUDED] https://127.0.0.1:8787/trust (at 626:238) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1942586Z [EXCLUDED] http://127.0.0.1:8787/ (at 626:422) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1944214Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 7:24) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1945850Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 11:14) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1947691Z [EXCLUDED] http://127.0.0.1:8787/ (at 33:17) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1949144Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/download/ (at 80:11) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1950956Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 137:20) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1952468Z [EXCLUDED] https://127.0.0.1:8787/trust (at 149:638) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1954328Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 203:173) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1955885Z [EXCLUDED] https://127.0.0.1:8787/trust (at 515:249) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1957278Z [EXCLUDED] http://127.0.0.1:8787/ (at 515:416) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1958831Z [EXCLUDED] https://link-foundation.github.io/meta-sovereign/ (at 14:106) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1961106Z [EXCLUDED] https://support.upwork.com/hc/en-us/articles/360016252373-How-to-build-your-freelancer-profile-the-essentials (at 45:11) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1963590Z [EXCLUDED] https://help.fiverr.com/hc/en-us/articles/360010558598-Creating-editing-your-freelancer-profile (at 46:11) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.1966241Z [EXCLUDED] https://support.peopleperhour.com/hc/en-us/articles/115016023568-Create-a-buyer-account (at 47:18) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6295270Z [EXCLUDED] https://api.superjob.ru/ (at 14:44) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6515284Z [EXCLUDED] https://api.superjob.ru/ (at 14:44) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6517218Z [EXCLUDED] https://api.superjob.ru/ (at 14:44) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6559435Z [EXCLUDED] https://api.superjob.ru/ (at 14:42) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6893189Z [EXCLUDED] https://support.upwork.com/hc/en-us/articles/115015857647-How-to-request-an-API-key-from-Upwork (at 11:412) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6896447Z [EXCLUDED] https://www.upwork.com/developer/documentation/graphql/api/docs/index.html (at 11:532) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6897990Z [EXCLUDED] https://support.upwork.com/hc/en-us/articles/115015857647-How-to-request-an-API-key-from-Upwork (at 11:445) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6899486Z [EXCLUDED] https://www.upwork.com/developer/documentation/graphql/api/docs/index.html (at 11:564) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6900970Z [EXCLUDED] https://support.upwork.com/hc/en-us/articles/115015857647-How-to-request-an-API-key-from-Upwork (at 11:467) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6902006Z [EXCLUDED] https://www.upwork.com/developer/documentation/graphql/api/docs/index.html (at 11:584) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6903407Z [EXCLUDED] https://support.upwork.com/hc/en-us/articles/115015857647-How-to-request-an-API-key-from-Upwork (at 11:200) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6904600Z [EXCLUDED] https://www.upwork.com/developer/documentation/graphql/api/docs/index.html (at 11:309) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6905434Z [EXCLUDED] https://dev.vk.ru/ru/api/access-token/getting-started (at 13:18) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6906143Z [EXCLUDED] https://dev.vk.ru/ru/reference/access-rights (at 13:76) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6906786Z [EXCLUDED] https://dev.vk.ru/ru/reference/errors (at 13:125) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6907553Z [EXCLUDED] https://web.archive.org/web/20260316061716/https://dev.vk.com/en/method/messages (at 13:167) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6909201Z [EXCLUDED] https://dev.vk.ru/ru/reference/access-rights (at 15:71) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6910252Z [EXCLUDED] https://dev.vk.ru/ru/reference/errors (at 15:120) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6911520Z [EXCLUDED] https://web.archive.org/web/20260316061716/https://dev.vk.com/en/method/messages (at 15:162) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6914669Z [EXCLUDED] https://dev.vk.ru/ru/api/access-token/getting-started (at 15:13) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6916087Z [EXCLUDED] https://dev.vk.ru/ru/api/access-token/getting-started (at 15:21) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6917393Z [EXCLUDED] https://dev.vk.ru/ru/reference/access-rights (at 15:79) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6918591Z [EXCLUDED] https://dev.vk.ru/ru/reference/errors (at 15:128) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6920020Z [EXCLUDED] https://web.archive.org/web/20260316061716/https://dev.vk.com/en/method/messages (at 15:170) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6921582Z [EXCLUDED] https://dev.vk.ru/ru/api/access-token/getting-started (at 15:10) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6922928Z [EXCLUDED] https://dev.vk.ru/ru/reference/access-rights (at 15:67) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6924399Z [EXCLUDED] https://dev.vk.ru/ru/reference/errors (at 15:115) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.6925886Z [EXCLUDED] https://web.archive.org/web/20260316061716/https://dev.vk.com/en/method/messages (at 15:156) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:49.7450324Z [EXCLUDED] file:///home/runner/work/meta-sovereign/meta-sovereign/js/src/web/download/icon.svg (at 14:28) | This is due to your 'exclude' values
+Check Links	Check links with lychee	2026-10-28T14:18:54.4276334Z # Summary
+Check Links	Check links with lychee	2026-10-28T14:18:54.4276656Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4276876Z | Status         | Count |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4277406Z |----------------|-------|
+Check Links	Check links with lychee	2026-10-28T14:18:54.4278157Z | 🔍 Total       | 1623  |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4278706Z | 🔗 Unique      | 373   |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4279321Z | ✅ Successful  | 1503  |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4279910Z | ⏳ Timeouts    | 0     |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4280505Z | 🔀 Redirected  | 70    |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4281095Z | 👻 Excluded    | 108   |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4281674Z | ❓ Unknown     | 0     |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4282297Z | 🚫 Errors      | 0     |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4282875Z | ⛔ Unsupported | 12    |
+Check Links	Check links with lychee	2026-10-28T14:18:54.4283208Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4283407Z ## Redirects per input
+Check Links	Check links with lychee	2026-10-28T14:18:54.4284035Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4284308Z ### Redirects in docs/features/email.hi.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4284840Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4285968Z * https://developers.google.com/gmail/api/auth/scopes --[301]--> https://developers.google.com/workspace/gmail/api/auth/scopes
+Check Links	Check links with lychee	2026-10-28T14:18:54.4288310Z * https://developers.google.com/gmail/api/reference/rest --[301]--> https://developers.google.com/workspace/gmail/api/reference/rest
+Check Links	Check links with lychee	2026-10-28T14:18:54.4291064Z * https://developers.google.com/gmail/imap/xoauth2-protocol --[301]--> https://developers.google.com/workspace/gmail/imap/xoauth2-protocol
+Check Links	Check links with lychee	2026-10-28T14:18:54.4294896Z * https://learn.microsoft.com/graph/api/resources/mail-api-overview --[302]--> https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview --[301]--> https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview?view=graph-rest-1.0
+Check Links	Check links with lychee	2026-10-28T14:18:54.4297485Z * https://www.rfc-editor.org/rfc/rfc8621 --[301]--> https://www.rfc-editor.org/info/rfc8621/
+Check Links	Check links with lychee	2026-10-28T14:18:54.4298140Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4298255Z ### Redirects in docs/features/email.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4298438Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4298903Z * https://developers.google.com/gmail/api/auth/scopes --[301]--> https://developers.google.com/workspace/gmail/api/auth/scopes
+Check Links	Check links with lychee	2026-10-28T14:18:54.4300301Z * https://developers.google.com/gmail/api/reference/rest --[301]--> https://developers.google.com/workspace/gmail/api/reference/rest
+Check Links	Check links with lychee	2026-10-28T14:18:54.4301433Z * https://developers.google.com/gmail/imap/xoauth2-protocol --[301]--> https://developers.google.com/workspace/gmail/imap/xoauth2-protocol
+Check Links	Check links with lychee	2026-10-28T14:18:54.4302812Z * https://learn.microsoft.com/graph/api/resources/mail-api-overview --[302]--> https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview --[301]--> https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview?view=graph-rest-1.0
+Check Links	Check links with lychee	2026-10-28T14:18:54.4304305Z * https://www.rfc-editor.org/rfc/rfc8621 --[301]--> https://www.rfc-editor.org/info/rfc8621/
+Check Links	Check links with lychee	2026-10-28T14:18:54.4304659Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4305030Z ### Redirects in docs/features/email.ru.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4305327Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4305937Z * https://developers.google.com/gmail/api/auth/scopes --[301]--> https://developers.google.com/workspace/gmail/api/auth/scopes
+Check Links	Check links with lychee	2026-10-28T14:18:54.4307427Z * https://developers.google.com/gmail/api/reference/rest --[301]--> https://developers.google.com/workspace/gmail/api/reference/rest
+Check Links	Check links with lychee	2026-10-28T14:18:54.4309223Z * https://developers.google.com/gmail/imap/xoauth2-protocol --[301]--> https://developers.google.com/workspace/gmail/imap/xoauth2-protocol
+Check Links	Check links with lychee	2026-10-28T14:18:54.4311442Z * https://learn.microsoft.com/graph/api/resources/mail-api-overview --[302]--> https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview --[301]--> https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview?view=graph-rest-1.0
+Check Links	Check links with lychee	2026-10-28T14:18:54.4312674Z * https://www.rfc-editor.org/rfc/rfc8621 --[301]--> https://www.rfc-editor.org/info/rfc8621/
+Check Links	Check links with lychee	2026-10-28T14:18:54.4313041Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4313147Z ### Redirects in docs/features/email.zh.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4313346Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4314621Z * https://developers.google.com/gmail/api/auth/scopes --[301]--> https://developers.google.com/workspace/gmail/api/auth/scopes
+Check Links	Check links with lychee	2026-10-28T14:18:54.4315688Z * https://developers.google.com/gmail/api/reference/rest --[301]--> https://developers.google.com/workspace/gmail/api/reference/rest
+Check Links	Check links with lychee	2026-10-28T14:18:54.4316668Z * https://developers.google.com/gmail/imap/xoauth2-protocol --[301]--> https://developers.google.com/workspace/gmail/imap/xoauth2-protocol
+Check Links	Check links with lychee	2026-10-28T14:18:54.4317453Z * https://www.rfc-editor.org/rfc/rfc8621 --[301]--> https://www.rfc-editor.org/info/rfc8621/
+Check Links	Check links with lychee	2026-10-28T14:18:54.4317812Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4317927Z ### Redirects in docs/features/facebook.hi.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4318133Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4318947Z * https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api/ --[301]--> https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/messaging-api
+Check Links	Check links with lychee	2026-10-28T14:18:54.4320344Z * https://developers.facebook.com/docs/messenger-platform/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform
+Check Links	Check links with lychee	2026-10-28T14:18:54.4321507Z * https://developers.facebook.com/docs/messenger-platform/send-messages/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform/send-messages
+Check Links	Check links with lychee	2026-10-28T14:18:54.4322380Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4322486Z ### Redirects in docs/features/facebook.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4322682Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4323473Z * https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api/ --[301]--> https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/messaging-api
+Check Links	Check links with lychee	2026-10-28T14:18:54.4325138Z * https://developers.facebook.com/docs/messenger-platform/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform
+Check Links	Check links with lychee	2026-10-28T14:18:54.4326314Z * https://developers.facebook.com/docs/messenger-platform/send-messages/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform/send-messages
+Check Links	Check links with lychee	2026-10-28T14:18:54.4326995Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4327114Z ### Redirects in docs/features/facebook.ru.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4327450Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4328253Z * https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api/ --[301]--> https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/messaging-api
+Check Links	Check links with lychee	2026-10-28T14:18:54.4329618Z * https://developers.facebook.com/docs/messenger-platform/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform
+Check Links	Check links with lychee	2026-10-28T14:18:54.4330767Z * https://developers.facebook.com/docs/messenger-platform/send-messages/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform/send-messages
+Check Links	Check links with lychee	2026-10-28T14:18:54.4331448Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4331560Z ### Redirects in docs/features/facebook.zh.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4331753Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4332558Z * https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api/ --[301]--> https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/messaging-api
+Check Links	Check links with lychee	2026-10-28T14:18:54.4335484Z * https://developers.facebook.com/docs/messenger-platform/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform
+Check Links	Check links with lychee	2026-10-28T14:18:54.4337728Z * https://developers.facebook.com/docs/messenger-platform/send-messages/ --[301]--> https://developers.facebook.com/documentation/business-messaging/messenger-platform/send-messages
+Check Links	Check links with lychee	2026-10-28T14:18:54.4339057Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4339262Z ### Redirects in docs/features/github.hi.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4339620Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4341005Z * https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens --[302]--> https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+Check Links	Check links with lychee	2026-10-28T14:18:54.4342536Z * https://docs.github.com/graphql/guides/using-the-graphql-api-for-discussions --[302]--> https://docs.github.com/en/graphql/guides/using-the-graphql-api-for-discussions
+Check Links	Check links with lychee	2026-10-28T14:18:54.4343380Z * https://docs.github.com/rest --[302]--> https://docs.github.com/en/rest
+Check Links	Check links with lychee	2026-10-28T14:18:54.4344335Z * https://docs.github.com/rest/activity/notifications --[302]--> https://docs.github.com/en/rest/activity/notifications
+Check Links	Check links with lychee	2026-10-28T14:18:54.4345010Z * https://docs.github.com/rest/issues --[302]--> https://docs.github.com/en/rest/issues
+Check Links	Check links with lychee	2026-10-28T14:18:54.4345576Z * https://docs.github.com/rest/pulls --[302]--> https://docs.github.com/en/rest/pulls
+Check Links	Check links with lychee	2026-10-28T14:18:54.4345902Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4346008Z ### Redirects in docs/features/github.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4346190Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4347049Z * https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens --[302]--> https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+Check Links	Check links with lychee	2026-10-28T14:18:54.4348532Z * https://docs.github.com/graphql/guides/using-the-graphql-api-for-discussions --[302]--> https://docs.github.com/en/graphql/guides/using-the-graphql-api-for-discussions
+Check Links	Check links with lychee	2026-10-28T14:18:54.4349701Z * https://docs.github.com/rest/activity/notifications --[302]--> https://docs.github.com/en/rest/activity/notifications
+Check Links	Check links with lychee	2026-10-28T14:18:54.4350369Z * https://docs.github.com/rest/issues --[302]--> https://docs.github.com/en/rest/issues
+Check Links	Check links with lychee	2026-10-28T14:18:54.4350945Z * https://docs.github.com/rest/pulls --[302]--> https://docs.github.com/en/rest/pulls
+Check Links	Check links with lychee	2026-10-28T14:18:54.4351266Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4351376Z ### Redirects in docs/features/github.ru.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4351562Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4352411Z * https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens --[302]--> https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+Check Links	Check links with lychee	2026-10-28T14:18:54.4354165Z * https://docs.github.com/graphql/guides/using-the-graphql-api-for-discussions --[302]--> https://docs.github.com/en/graphql/guides/using-the-graphql-api-for-discussions
+Check Links	Check links with lychee	2026-10-28T14:18:54.4355153Z * https://docs.github.com/rest --[302]--> https://docs.github.com/en/rest
+Check Links	Check links with lychee	2026-10-28T14:18:54.4355779Z * https://docs.github.com/rest/activity/notifications --[302]--> https://docs.github.com/en/rest/activity/notifications
+Check Links	Check links with lychee	2026-10-28T14:18:54.4356444Z * https://docs.github.com/rest/issues --[302]--> https://docs.github.com/en/rest/issues
+Check Links	Check links with lychee	2026-10-28T14:18:54.4356983Z * https://docs.github.com/rest/pulls --[302]--> https://docs.github.com/en/rest/pulls
+Check Links	Check links with lychee	2026-10-28T14:18:54.4357302Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4357414Z ### Redirects in docs/features/github.zh.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4357602Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4358448Z * https://docs.github.com/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens --[302]--> https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+Check Links	Check links with lychee	2026-10-28T14:18:54.4359927Z * https://docs.github.com/graphql/guides/using-the-graphql-api-for-discussions --[302]--> https://docs.github.com/en/graphql/guides/using-the-graphql-api-for-discussions
+Check Links	Check links with lychee	2026-10-28T14:18:54.4360749Z * https://docs.github.com/rest --[302]--> https://docs.github.com/en/rest
+Check Links	Check links with lychee	2026-10-28T14:18:54.4361384Z * https://docs.github.com/rest/activity/notifications --[302]--> https://docs.github.com/en/rest/activity/notifications
+Check Links	Check links with lychee	2026-10-28T14:18:54.4362046Z * https://docs.github.com/rest/issues --[302]--> https://docs.github.com/en/rest/issues
+Check Links	Check links with lychee	2026-10-28T14:18:54.4362586Z * https://docs.github.com/rest/pulls --[302]--> https://docs.github.com/en/rest/pulls
+Check Links	Check links with lychee	2026-10-28T14:18:54.4362910Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4363020Z ### Redirects in docs/features/linkedin.hi.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4363229Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4364253Z * https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api --[301]--> https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api?view=li-lms-2026-10
+Check Links	Check links with lychee	2026-10-28T14:18:54.4365068Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4365172Z ### Redirects in docs/features/linkedin.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4365368Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4366055Z * https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api --[301]--> https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api?view=li-lms-2026-10
+Check Links	Check links with lychee	2026-10-28T14:18:54.4366837Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4366953Z ### Redirects in docs/features/linkedin.ru.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4367146Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4367834Z * https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api --[301]--> https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api?view=li-lms-2026-10
+Check Links	Check links with lychee	2026-10-28T14:18:54.4368619Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4368725Z ### Redirects in docs/features/linkedin.zh.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4368924Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4369605Z * https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api --[301]--> https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/posts-api?view=li-lms-2026-10
+Check Links	Check links with lychee	2026-10-28T14:18:54.4370522Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4370624Z ### Redirects in docs/features/vk.hi.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4370802Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4371167Z * https://vk.com/data_protection?section=rules --[302]--> https://m.vk.com/data_protection?section=rules&scroll_to_archive=1
+Check Links	Check links with lychee	2026-10-28T14:18:54.4371636Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4371735Z ### Redirects in docs/features/vk.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4371914Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4372258Z * https://vk.com/data_protection?section=rules --[302]--> https://m.vk.com/data_protection?section=rules&scroll_to_archive=1
+Check Links	Check links with lychee	2026-10-28T14:18:54.4372702Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4372796Z ### Redirects in docs/features/vk.ru.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4372977Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4373312Z * https://vk.com/data_protection?section=rules --[302]--> https://m.vk.com/data_protection?section=rules&scroll_to_archive=1
+Check Links	Check links with lychee	2026-10-28T14:18:54.4373953Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4374055Z ### Redirects in docs/features/vk.zh.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4374232Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4374691Z * https://vk.com/data_protection?section=rules --[302]--> https://m.vk.com/data_protection?section=rules&scroll_to_archive=1
+Check Links	Check links with lychee	2026-10-28T14:18:54.4375127Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4375240Z ### Redirects in docs/features/whatsapp.hi.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4375439Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4375968Z * https://developers.facebook.com/docs/whatsapp/cloud-api/get-started --[301]--> https://developers.facebook.com/documentation/business-messaging/whatsapp/get-started
+Check Links	Check links with lychee	2026-10-28T14:18:54.4376600Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4376700Z ### Redirects in docs/features/whatsapp.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4376890Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4377412Z * https://developers.facebook.com/docs/whatsapp/cloud-api/get-started --[301]--> https://developers.facebook.com/documentation/business-messaging/whatsapp/get-started
+Check Links	Check links with lychee	2026-10-28T14:18:54.4378027Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4378139Z ### Redirects in docs/features/whatsapp.ru.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4378327Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4378846Z * https://developers.facebook.com/docs/whatsapp/cloud-api/get-started --[301]--> https://developers.facebook.com/documentation/business-messaging/whatsapp/get-started
+Check Links	Check links with lychee	2026-10-28T14:18:54.4379473Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4379578Z ### Redirects in docs/features/whatsapp.zh.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4379770Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4380284Z * https://developers.facebook.com/docs/whatsapp/cloud-api/get-started --[301]--> https://developers.facebook.com/documentation/business-messaging/whatsapp/get-started
+Check Links	Check links with lychee	2026-10-28T14:18:54.4380901Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4381003Z ### Redirects in docs/features/x.hi.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4381176Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4381556Z * https://developer.x.com/en/docs/authentication/oauth-2-0 --[307]--> https://docs.x.com/ --[308]--> https://docs.x.com/overview
+Check Links	Check links with lychee	2026-10-28T14:18:54.4382018Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4382114Z ### Redirects in docs/features/x.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4382285Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4382642Z * https://developer.x.com/en/docs/authentication/oauth-2-0 --[307]--> https://docs.x.com/ --[308]--> https://docs.x.com/overview
+Check Links	Check links with lychee	2026-10-28T14:18:54.4383109Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4383201Z ### Redirects in docs/features/x.ru.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4383376Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4383960Z * https://developer.x.com/en/docs/authentication/oauth-2-0 --[307]--> https://docs.x.com/ --[308]--> https://docs.x.com/overview
+Check Links	Check links with lychee	2026-10-28T14:18:54.4384430Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4384532Z ### Redirects in docs/features/x.zh.md
+Check Links	Check links with lychee	2026-10-28T14:18:54.4384704Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4385061Z * https://developer.x.com/en/docs/authentication/oauth-2-0 --[307]--> https://docs.x.com/ --[308]--> https://docs.x.com/overview
+Check Links	Check links with lychee	2026-10-28T14:18:54.4385512Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4385516Z 
+Check Links	Check links with lychee	2026-10-28T14:18:54.4402377Z ##[notice]Summary report available at: https://github.com/link-foundation/meta-sovereign/actions/runs/40704515792#summary-122872894602
+Check Links	Check links with lychee	2026-10-28T14:18:54.4455718Z ##[end-action id=lychee.run-lychee;outcome=success;conclusion=success;duration_ms=8829]
+Check Links	Preserve link report	﻿2026-10-28T14:18:54.4610860Z ##[group]Run actions/upload-artifact@v7
+Check Links	Preserve link report	2026-10-28T14:18:54.4611312Z with:
+Check Links	Preserve link report	2026-10-28T14:18:54.4611508Z   name: link-report
+Check Links	Preserve link report	2026-10-28T14:18:54.4611718Z   path: lychee/out.md
+Check Links	Preserve link report	2026-10-28T14:18:54.4611936Z   if-no-files-found: error
+Check Links	Preserve link report	2026-10-28T14:18:54.4612164Z   compression-level: 6
+Check Links	Preserve link report	2026-10-28T14:18:54.4612387Z   overwrite: false
+Check Links	Preserve link report	2026-10-28T14:18:54.4612595Z   include-hidden-files: false
+Check Links	Preserve link report	2026-10-28T14:18:54.4612824Z   archive: true
+Check Links	Preserve link report	2026-10-28T14:18:54.4613009Z env:
+Check Links	Preserve link report	2026-10-28T14:18:54.4613186Z   GIT_CONFIG_COUNT: 1
+Check Links	Preserve link report	2026-10-28T14:18:54.4613404Z   GIT_CONFIG_KEY_0: init.defaultBranch
+Check Links	Preserve link report	2026-10-28T14:18:54.4613848Z   GIT_CONFIG_VALUE_0: main
+Check Links	Preserve link report	2026-10-28T14:18:54.4614168Z ##[endgroup]
+Check Links	Preserve link report	2026-10-28T14:18:54.6066524Z With the provided path, there will be 1 file uploaded
+Check Links	Preserve link report	2026-10-28T14:18:54.6070581Z Artifact name is valid!
+Check Links	Preserve link report	2026-10-28T14:18:54.6071868Z Root directory input is valid!
+Check Links	Preserve link report	2026-10-28T14:18:54.8247041Z Uploading artifact: link-report.zip
+Check Links	Preserve link report	2026-10-28T14:18:54.8315050Z Beginning upload of artifact content to blob storage
+Check Links	Preserve link report	2026-10-28T14:18:54.9133144Z Uploaded bytes 1252
+Check Links	Preserve link report	2026-10-28T14:18:54.9290239Z Finished uploading artifact content to blob storage!
+Check Links	Preserve link report	2026-10-28T14:18:54.9291587Z SHA256 digest of uploaded artifact is 5bed3d88ae1d699fd1d58286e862ab5d8b9d978d0d8ddf858e6ff5c7d7b84eaf
+Check Links	Preserve link report	2026-10-28T14:18:54.9292646Z Finalizing artifact upload
+Check Links	Preserve link report	2026-10-28T14:18:55.3988680Z Artifact link-report successfully finalized. Artifact ID 12823552117
+Check Links	Preserve link report	2026-10-28T14:18:55.3990265Z Artifact link-report has been successfully uploaded! Final size is 1252 bytes. Artifact ID is 12823552117
+Check Links	Preserve link report	2026-10-28T14:18:55.3995709Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40704515792/artifacts/12823552117
+Check Links	Post Run actions/checkout@v7	﻿2026-10-28T14:18:55.4243079Z Post job cleanup.
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5163060Z [command]/usr/bin/git version
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5201793Z git version 2.55.0
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5245180Z Temporarily overriding HOME='/home/runner/work/_temp/fd1e34f0-5730-4619-b79e-44f6f9abe97e' before making global git config changes
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5246989Z Adding repository directory to the temporary git global config as a safe directory
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5250767Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5283175Z Removing SSH command configuration
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5290186Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5325023Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5568051Z Removing HTTP extra header
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5577842Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5621447Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5866910Z Removing includeIf entries pointing to credentials config files
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5876583Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Check Links	Post Run actions/checkout@v7	2026-10-28T14:18:55.5915192Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Check Links	Complete job	﻿2026-10-28T14:18:55.6313580Z Cleaning up orphan processes

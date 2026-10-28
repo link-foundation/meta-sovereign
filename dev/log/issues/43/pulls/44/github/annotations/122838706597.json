@@ -1,0 +1,64 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/96eaf4812cea3f3d2f4188bf0840e95f28b79997/.github",
+      "start_line": 41,
+      "start_column": null,
+      "end_line": 41,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Process completed with exit code 1.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/96eaf4812cea3f3d2f4188bf0840e95f28b79997/.github",
+      "start_line": 25,
+      "start_column": null,
+      "end_line": 25,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Link validation failed; archived copies are repair suggestions and do not repair source links.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/96eaf4812cea3f3d2f4188bf0840e95f28b79997/.github",
+      "start_line": 36,
+      "start_column": null,
+      "end_line": 36,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Process completed with exit code 1.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/96eaf4812cea3f3d2f4188bf0840e95f28b79997/.github",
+      "start_line": 26,
+      "start_column": null,
+      "end_line": 26,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "Broken link - No Web Archive fallback",
+      "message": "Broken link detected: https://support.peopleperhour.com/hc/en-us/articles/115016023568-Create-a-buyer-account",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/96eaf4812cea3f3d2f4188bf0840e95f28b79997/.github",
+      "start_line": 428,
+      "start_column": null,
+      "end_line": 428,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Summary report available at: https://github.com/link-foundation/meta-sovereign/actions/runs/40694834761#summary-122838706597",
+      "raw_details": ""
+    }
+  ]
+]

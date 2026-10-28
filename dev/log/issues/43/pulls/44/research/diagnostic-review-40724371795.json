@@ -1,0 +1,10 @@
+{
+  "source": "ci-logs/workflow-40724371795.log",
+  "hits": [
+    {
+      "line": 594,
+      "category": "echoed command source; inspect whether executed separately",
+      "text": "Build SPA bundle\tVerify required artefacts exist\t2026-10-28T16:17:18.4025818Z ^[[36;1m    echo \"::error::missing required Pages artefact: $f\"^[[0m"
+    }
+  ]
+}

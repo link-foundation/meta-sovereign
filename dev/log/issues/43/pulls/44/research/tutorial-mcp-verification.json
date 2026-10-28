@@ -1,0 +1,26 @@
+{
+  "tool": "Playwright MCP",
+  "engine": "Chromium",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "fixture": "experiments/issue43-tutorial-server.mjs; ephemeral port and temporary empty store; sync disabled",
+  "sequence": [
+    "connect",
+    "Connections click -> pick",
+    "Back -> connect",
+    "Next -> pick",
+    "Email Enter manually -> setup",
+    "Import tab",
+    "Next -> contacts",
+    "Next and optional empty-contacts skip -> chat",
+    "Next -> automation",
+    "Next -> backup",
+    "Escape -> overlay detached"
+  ],
+  "result": "pass; historical native WebKit missing-card assertion not reproduced",
+  "screenshot": "local/tutorial-phone-chromium.png",
+  "cleanup": "browser closed; fixture SIGTERM handler closes listener and removes owned store",
+  "console_limits": "favicon 404 and optional Telegram API warnings retained in tutorial-mcp-console.log; this manual pass does not claim zero console warnings"
+}

@@ -1,0 +1,18 @@
+✖ fake GitHub closes owned connections without waiting for clients (525.295418ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 717.283002
+
+✖ failing tests:
+
+test at js/tests/fake-github.test.js:13:1
+✖ fake GitHub closes owned connections without waiting for clients (525.295418ms)
+  Error: Fixture shutdown waited for its client
+      at Timeout.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/fake-github.test.js:28:41)
+      at listOnTimeout (node:internal/timers:685:17)
+      at process.processTimers (node:internal/timers:618:7)

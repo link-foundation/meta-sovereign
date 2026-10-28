@@ -1,0 +1,15 @@
+✔ browser failures cannot become a green release (163.571496ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (119.021677ms)
+✔ syntax checking finds malformed nested JavaScript (240.54505ms)
+✔ missing lychee report fails instead of claiming all links archived (118.317926ms)
+✔ workflow policy detects mutable matrix runners and unbounded auxiliary jobs (9.304121ms)
+✔ committed dependency tree contains no deprecated registry packages (5.956729ms)
+✔ standalone shell lint selects maintained scripts without reference evidence (141.844469ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1177.119774

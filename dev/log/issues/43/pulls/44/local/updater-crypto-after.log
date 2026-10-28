@@ -1,0 +1,51 @@
+▶ desktop package.json
+  ✔ ships the root version with electron-updater as the only dependency (1.680787ms)
+  ✔ names the .desktop entry after the executable (0.249606ms)
+  ✔ replaces only the updater deprecated comparator with its compatible two-argument form (0.224599ms)
+✔ desktop package.json (4.040602ms)
+▶ electron-builder config
+  ✔ uses the v27 schema while preserving files, native and signing settings (0.366103ms)
+  ✔ keeps the reverse-DNS app id and GitHub publish target (0.212577ms)
+  ✔ names the macOS bundle after the product, not the executable (0.140703ms)
+  ✔ gives ad-hoc macOS builds an identity, so the sign hook runs (15.539212ms)
+  ✔ uses the pinned builder native FPM bundles without system overrides (1.782217ms)
+  ✔ produces the catalogue name for every download option (0.988766ms)
+✔ electron-builder config (20.357455ms)
+▶ normalize-desktop-artifacts
+  ✔ maps Linux arch spellings to x64/arm64 (0.469626ms)
+  ✔ rewrites update feeds (0.202849ms)
+  ✔ renames files and feeds in a release directory (35.781101ms)
+  ✔ ignores a missing directory (0.503719ms)
+✔ normalize-desktop-artifacts (37.472698ms)
+▶ validate-desktop-assets
+  ✔ parses sha256sum output, including binary-mode markers (0.70717ms)
+  ✔ accepts a complete, checksummed release (0.838855ms)
+  ✔ reports missing and unchecksummed installers (0.374137ms)
+  ✔ rejects tags without a version (0.265565ms)
+✔ validate-desktop-assets (2.972828ms)
+▶ build-desktop
+  ✔ picks the newest version from npm view output (0.359171ms)
+✔ build-desktop (0.511284ms)
+✔ constructor ids are the CRC32 of the secret schema lines (3.045454ms)
+✔ TL: bytes are padded to four, long ones use the 254 form (4.644959ms)
+✔ TL: a text message with entities, a reply and a bot round-trips (1.789901ms)
+✔ TL: every service action round-trips (2.510024ms)
+✔ TL: media is reported, an unknown entity costs the entities only (0.496127ms)
+✔ TL: the layer wrapper round-trips and refuses other bytes (0.570004ms)
+✔ AES-IGE agrees with the GramJS implementation, both ways (38.787311ms)
+✔ the key exchange: parameters, ranges and the fingerprint Telegram reports (569.036654ms)
+✔ packets: both directions, padding 12..1024 to a multiple of 16 (143.171812ms)
+✔ packets: x is 0 for the originator and 8 for the other side (1.9715ms)
+✔ packets: wrong fingerprint, wrong side, tampering and bad lengths are refused (79.958302ms)
+✔ sessions: messages both ways, sequence numbers, the send log (115.928536ms)
+✔ sessions: a duplicate is dropped, a gap asks for a resend and is healed by it (76.83392ms)
+✔ sessions: a packet from the wrong side or with the wrong parity is refused (62.926274ms)
+✔ the key picture: a derived 8x8 identicon and four lines of hex (66.070832ms)
+ℹ tests 33
+ℹ suites 5
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1530.401078

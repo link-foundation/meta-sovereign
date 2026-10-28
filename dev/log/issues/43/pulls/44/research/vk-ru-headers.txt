@@ -1,0 +1,12 @@
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0  0      0   0      0   0      0      0      0                              0
+HTTP/2 418 
+server: kittenx
+date: Wed, 28 Oct 2026 13:39:23 GMT
+content-length: 0
+x-frontend: front905405
+access-control-expose-headers: X-Frontend
+x-trace-id: C5BGuMWZLXwRC7qvWI2pbsuG6WZkEA
+server-timing: tid;desc="C5BGuMWZLXwRC7qvWI2pbsuG6WZkEA",front;dur=0.125
+

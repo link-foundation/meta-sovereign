@@ -1,0 +1,1181 @@
+﻿2026-10-28T13:54:57.9635164Z Current runner version: '2.338.0'
+2026-10-28T13:54:57.9672146Z ##[group]Runner Image Provisioner
+2026-10-28T13:54:57.9673840Z Hosted Compute Agent
+2026-10-28T13:54:57.9674838Z Version: 20261021.618
+2026-10-28T13:54:57.9676008Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T13:54:57.9677299Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T13:54:57.9678453Z Worker ID: {9c5c69ed-9ea2-4cd5-82b5-22eebdb6580d}
+2026-10-28T13:54:57.9679650Z Region: eastus
+2026-10-28T13:54:57.9680684Z Cloud: Azure
+2026-10-28T13:54:57.9681640Z ##[endgroup]
+2026-10-28T13:54:57.9684402Z ##[group]Operating System
+2026-10-28T13:54:57.9685492Z Ubuntu
+2026-10-28T13:54:57.9686441Z 24.04.5
+2026-10-28T13:54:57.9687282Z LTS
+2026-10-28T13:54:57.9688191Z ##[endgroup]
+2026-10-28T13:54:57.9689240Z ##[group]Runner Image
+2026-10-28T13:54:57.9690236Z Image: ubuntu-24.04
+2026-10-28T13:54:57.9691123Z Version: 20261025.353.1
+2026-10-28T13:54:57.9693755Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-28T13:54:57.9696630Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-10-28T13:54:57.9698341Z ##[endgroup]
+2026-10-28T13:54:57.9700290Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T13:54:57.9703730Z Contents: read
+2026-10-28T13:54:57.9704919Z Metadata: read
+2026-10-28T13:54:57.9705885Z ##[endgroup]
+2026-10-28T13:54:57.9709135Z Secret source: Actions
+2026-10-28T13:54:57.9710614Z Cache mode: write
+2026-10-28T13:54:57.9711895Z Prepare workflow directory
+2026-10-28T13:54:58.0307295Z Prepare all required actions
+2026-10-28T13:54:58.0381520Z Getting action download info
+2026-10-28T13:54:58.2393113Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T13:54:58.3513144Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T13:54:58.4424282Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T13:54:58.6198998Z Complete job name: Package (packed and run with npx)
+2026-10-28T13:54:58.7124649Z ##[group]Run actions/checkout@v7
+2026-10-28T13:54:58.7125558Z with:
+2026-10-28T13:54:58.7126018Z   persist-credentials: false
+2026-10-28T13:54:58.7126587Z   repository: link-foundation/meta-sovereign
+2026-10-28T13:54:58.7130686Z   token: ***
+2026-10-28T13:54:58.7131122Z   ssh-strict: true
+2026-10-28T13:54:58.7131578Z   ssh-user: git
+2026-10-28T13:54:58.7132004Z   clean: true
+2026-10-28T13:54:58.7132676Z   sparse-checkout-cone-mode: true
+2026-10-28T13:54:58.7133219Z   fetch-depth: 1
+2026-10-28T13:54:58.7133663Z   fetch-tags: false
+2026-10-28T13:54:58.7134112Z   show-progress: true
+2026-10-28T13:54:58.7134560Z   lfs: false
+2026-10-28T13:54:58.7134973Z   submodules: false
+2026-10-28T13:54:58.7135419Z   set-safe-directory: true
+2026-10-28T13:54:58.7135940Z   allow-unsafe-pr-checkout: false
+2026-10-28T13:54:58.7136872Z env:
+2026-10-28T13:54:58.7137295Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:54:58.7137819Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:54:58.7138424Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:54:58.7139128Z ##[endgroup]
+2026-10-28T13:54:59.0295751Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T13:54:59.0297976Z ##[group]Getting Git version info
+2026-10-28T13:54:59.0298856Z Working directory is '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T13:54:59.0300096Z [command]/usr/bin/git version
+2026-10-28T13:54:59.0415861Z git version 2.56.0
+2026-10-28T13:54:59.0442198Z ##[endgroup]
+2026-10-28T13:54:59.0462587Z Temporarily overriding HOME='/home/runner/work/_temp/223c75ab-5991-4883-b363-e01cbc4092f0' before making global git config changes
+2026-10-28T13:54:59.0466193Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T13:54:59.0474371Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:54:59.0568420Z Deleting the contents of '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T13:54:59.0571962Z ##[group]Determining repository object format
+2026-10-28T13:54:59.0574451Z ##[endgroup]
+2026-10-28T13:54:59.0580260Z ##[group]Initializing the repository
+2026-10-28T13:54:59.0585694Z [command]/usr/bin/git init /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:54:59.0741189Z Initialized empty Git repository in /home/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T13:54:59.0747873Z [command]/usr/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T13:54:59.0815688Z ##[endgroup]
+2026-10-28T13:54:59.0817409Z ##[group]Disabling automatic garbage collection
+2026-10-28T13:54:59.0819920Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-28T13:54:59.0885902Z ##[endgroup]
+2026-10-28T13:54:59.0886853Z ##[group]Setting up auth
+2026-10-28T13:54:59.0887843Z Removing SSH command configuration
+2026-10-28T13:54:59.0914227Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:54:59.0960358Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:54:59.1397729Z Removing HTTP extra header
+2026-10-28T13:54:59.1404634Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:54:59.1458338Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:54:59.1721371Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:54:59.1723968Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:54:59.1780173Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:54:59.2051582Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T13:54:59.2109222Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path /home/runner/work/_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:54:59.2160803Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:54:59.2214124Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:54:59.2265106Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:54:59.2313825Z ##[endgroup]
+2026-10-28T13:54:59.2314809Z ##[group]Fetching the repository
+2026-10-28T13:54:59.2321751Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +f300eecef7d573910457ad71256a0e0e28e8ab12:refs/remotes/pull/44/merge
+2026-10-28T13:55:00.7879791Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T13:55:00.7881927Z  * [new ref]         f300eecef7d573910457ad71256a0e0e28e8ab12 -> pull/44/merge
+2026-10-28T13:55:00.7886130Z ##[endgroup]
+2026-10-28T13:55:00.7886799Z ##[group]Determining the checkout info
+2026-10-28T13:55:00.7887775Z ##[endgroup]
+2026-10-28T13:55:00.7891841Z [command]/usr/bin/git sparse-checkout disable
+2026-10-28T13:55:00.7966610Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T13:55:00.8019085Z ##[group]Checking out the ref
+2026-10-28T13:55:00.8024110Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/44/merge
+2026-10-28T13:55:01.0639491Z Note: switching to 'refs/remotes/pull/44/merge'.
+2026-10-28T13:55:01.0640287Z 
+2026-10-28T13:55:01.0640729Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T13:55:01.0641742Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T13:55:01.0643038Z state without impacting any branches by switching back to a branch.
+2026-10-28T13:55:01.0643630Z 
+2026-10-28T13:55:01.0644053Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T13:55:01.0644903Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T13:55:01.0645596Z 
+2026-10-28T13:55:01.0738015Z   git switch -c <new-branch-name>
+2026-10-28T13:55:01.0738726Z 
+2026-10-28T13:55:01.0738992Z Or undo this operation with:
+2026-10-28T13:55:01.0739318Z 
+2026-10-28T13:55:01.0739503Z   git switch -
+2026-10-28T13:55:01.0739772Z 
+2026-10-28T13:55:01.0740284Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T13:55:01.0741161Z 
+2026-10-28T13:55:01.0741848Z HEAD is now at f300eec Merge 8f9dd3f6900d915df7dada36b641bc31c43322d6 into f94db3227ae893f10b83a4499a1f65eee2995421
+2026-10-28T13:55:01.0763692Z ##[endgroup]
+2026-10-28T13:55:01.0776731Z [command]/usr/bin/git log -1 --format=%H
+2026-10-28T13:55:01.0784313Z f300eecef7d573910457ad71256a0e0e28e8ab12
+2026-10-28T13:55:01.0827688Z ##[group]Removing auth
+2026-10-28T13:55:01.0828316Z Removing SSH command configuration
+2026-10-28T13:55:01.0829105Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:55:01.0853694Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:55:01.1119201Z Removing HTTP extra header
+2026-10-28T13:55:01.1119912Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:55:01.1168400Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:55:01.1426847Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:55:01.1430880Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:55:01.1499354Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T13:55:01.1500085Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T13:55:01.1500590Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T13:55:01.1500977Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T13:55:01.1509351Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T13:55:01.1548513Z /home/runner/work/_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:55:01.1561744Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-1d0a7646\-cb84\-45a3\-ab31\-eaca91467013\.config
+2026-10-28T13:55:01.1621213Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T13:55:01.1662233Z /home/runner/work/_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:55:01.1671729Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-1d0a7646\-cb84\-45a3\-ab31\-eaca91467013\.config
+2026-10-28T13:55:01.1722557Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T13:55:01.1767412Z /github/runner_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:55:01.1776358Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-1d0a7646\-cb84\-45a3\-ab31\-eaca91467013\.config
+2026-10-28T13:55:01.1828256Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T13:55:01.1866944Z /github/runner_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config
+2026-10-28T13:55:01.1876523Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-1d0a7646\-cb84\-45a3\-ab31\-eaca91467013\.config
+2026-10-28T13:55:01.1926313Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:55:01.2194404Z Removing credentials config '/home/runner/work/_temp/git-credentials-1d0a7646-cb84-45a3-ab31-eaca91467013.config'
+2026-10-28T13:55:01.2195763Z ##[endgroup]
+2026-10-28T13:55:01.2481199Z ##[group]Run actions/setup-node@v7
+2026-10-28T13:55:01.2481549Z with:
+2026-10-28T13:55:01.2481762Z   node-version: 24.x
+2026-10-28T13:55:01.2481992Z   check-latest: false
+2026-10-28T13:55:01.2485335Z   token: ***
+2026-10-28T13:55:01.2485579Z   package-manager-cache: true
+2026-10-28T13:55:01.2485839Z env:
+2026-10-28T13:55:01.2486031Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:55:01.2486270Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:55:01.2486549Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:55:01.2486780Z ##[endgroup]
+2026-10-28T13:55:01.3886943Z Found in cache @ /opt/hostedtoolcache/node/24.22.1/x64
+2026-10-28T13:55:02.3460806Z ##[group]Environment details
+2026-10-28T13:55:04.8946680Z node: v24.22.1
+2026-10-28T13:55:04.8947238Z npm: 11.19.1
+2026-10-28T13:55:04.8947597Z yarn: 1.22.22
+2026-10-28T13:55:04.8948340Z ##[endgroup]
+2026-10-28T13:55:04.9116133Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T13:55:04.9116582Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T13:55:04.9204162Z shell: /usr/bin/bash -e {0}
+2026-10-28T13:55:04.9204454Z env:
+2026-10-28T13:55:04.9204671Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:55:04.9204922Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:55:04.9205214Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:55:04.9205463Z ##[endgroup]
+2026-10-28T13:55:47.7795138Z 
+2026-10-28T13:55:47.7804728Z > meta-sovereign@0.54.0 prepare
+2026-10-28T13:55:47.7805140Z > husky || true
+2026-10-28T13:55:47.7805290Z 
+2026-10-28T13:55:48.1172407Z 
+2026-10-28T13:55:48.1173397Z added 488 packages in 43s
+2026-10-28T13:55:48.1891842Z ##[group]Run npm pack --dry-run --ignore-scripts
+2026-10-28T13:55:48.1892274Z [36;1mnpm pack --dry-run --ignore-scripts[0m
+2026-10-28T13:55:48.1915928Z shell: /usr/bin/bash -e {0}
+2026-10-28T13:55:48.1916182Z env:
+2026-10-28T13:55:48.1916376Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:55:48.1916617Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:55:48.1916893Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:55:48.1917119Z ##[endgroup]
+2026-10-28T13:55:50.1881569Z npm notice
+2026-10-28T13:55:50.1887183Z npm notice 📦  meta-sovereign@0.54.0
+2026-10-28T13:55:50.1887740Z npm notice Tarball Contents
+2026-10-28T13:55:50.2057596Z npm notice 1.2kB LICENSE
+2026-10-28T13:55:50.2058544Z npm notice 26.6kB README.hi.md
+2026-10-28T13:55:50.2059569Z npm notice 27.3kB README.md
+2026-10-28T13:55:50.2073365Z npm notice 25.0kB README.ru.md
+2026-10-28T13:55:50.2073746Z npm notice 17.2kB README.zh.md
+2026-10-28T13:55:50.2074103Z npm notice 137B js/bin/meta-sovereign.js
+2026-10-28T13:55:50.2074595Z npm notice 1.7kB js/bin/server-worker.js
+2026-10-28T13:55:50.2075096Z npm notice 22.8kB js/src/automation/automations.js
+2026-10-28T13:55:50.2075514Z npm notice 10.4kB js/src/automation/autopilot.js
+2026-10-28T13:55:50.2075929Z npm notice 5.2kB js/src/automation/drafts.js
+2026-10-28T13:55:50.2076297Z npm notice 2.3kB js/src/automation/index.js
+2026-10-28T13:55:50.2076671Z npm notice 2.6kB js/src/automation/next-chat.js
+2026-10-28T13:55:50.2077073Z npm notice 11.3kB js/src/automation/outbox.js
+2026-10-28T13:55:50.2077794Z npm notice 1.7kB js/src/automation/paced-send.js
+2026-10-28T13:55:50.2078209Z npm notice 1.7kB js/src/automation/record-outcome.js
+2026-10-28T13:55:50.2078598Z npm notice 11.3kB js/src/automation/runner.js
+2026-10-28T13:55:50.2078955Z npm notice 5.5kB js/src/automation/safety.js
+2026-10-28T13:55:50.2079313Z npm notice 7.1kB js/src/broadcast/index.js
+2026-10-28T13:55:50.2079686Z npm notice 13.1kB js/src/cli/automation-commands.js
+2026-10-28T13:55:50.2080073Z npm notice 837B js/src/cli/browser-open.js
+2026-10-28T13:55:50.2080435Z npm notice 903B js/src/cli/confirm.js
+2026-10-28T13:55:50.2080787Z npm notice 1.6kB js/src/cli/contact-commands.js
+2026-10-28T13:55:50.2081192Z npm notice 10.0kB js/src/cli/cv-commands.js
+2026-10-28T13:55:50.2081573Z npm notice 8.3kB js/src/cli/greetings-commands.js
+2026-10-28T13:55:50.2081924Z npm notice 29.1kB js/src/cli/index.js
+2026-10-28T13:55:50.2082300Z npm notice 918B js/src/cli/lino-args.js
+2026-10-28T13:55:50.2083026Z npm notice 3.7kB js/src/cli/migrate-commands.js
+2026-10-28T13:55:50.2083708Z npm notice 1.9kB js/src/cli/rolling-serve.js
+2026-10-28T13:55:50.2084093Z npm notice 5.9kB js/src/cli/trust-commands.js
+2026-10-28T13:55:50.2084458Z npm notice 9.2kB js/src/crm/address-form.js
+2026-10-28T13:55:50.2084905Z npm notice 3.5kB js/src/crm/audience.js
+2026-10-28T13:55:50.2085226Z npm notice 1.9kB js/src/crm/index.js
+2026-10-28T13:55:50.2085546Z npm notice 23.7kB js/src/crm/people.js
+2026-10-28T13:55:50.2085886Z npm notice 18.6kB js/src/crm/person-learn.js
+2026-10-28T13:55:50.2086245Z npm notice 20.8kB js/src/crm/reengage.js
+2026-10-28T13:55:50.2086563Z npm notice 3.4kB js/src/crm/words.js
+2026-10-28T13:55:50.2086871Z npm notice 6.8kB js/src/cv/browser.js
+2026-10-28T13:55:50.2087184Z npm notice 8.3kB js/src/cv/diff.js
+2026-10-28T13:55:50.2087487Z npm notice 14.1kB js/src/cv/index.js
+2026-10-28T13:55:50.2087791Z npm notice 9.3kB js/src/cv/model.js
+2026-10-28T13:55:50.2088137Z npm notice 4.8kB js/src/cv/platforms/define.js
+2026-10-28T13:55:50.2088536Z npm notice 7.6kB js/src/cv/platforms/habr-career.js
+2026-10-28T13:55:50.2088911Z npm notice 6.0kB js/src/cv/platforms/hh.js
+2026-10-28T13:55:50.2089260Z npm notice 3.0kB js/src/cv/platforms/index.js
+2026-10-28T13:55:50.2089654Z npm notice 5.0kB js/src/cv/platforms/linkedin.js
+2026-10-28T13:55:50.2090030Z npm notice 4.9kB js/src/cv/platforms/naukri.js
+2026-10-28T13:55:50.2090386Z npm notice 5.8kB js/src/cv/platforms/parse.js
+2026-10-28T13:55:50.2090741Z npm notice 6.5kB js/src/cv/platforms/steps.js
+2026-10-28T13:55:50.2091459Z npm notice 2.9kB js/src/cv/platforms/superjob.js
+2026-10-28T13:55:50.2092044Z npm notice 4.9kB js/src/cv/platforms/topcv.js
+2026-10-28T13:55:50.2092732Z npm notice 8.6kB js/src/cv/platforms/vietnamworks.js
+2026-10-28T13:55:50.2093124Z npm notice 21.3kB js/src/cv/runner.js
+2026-10-28T13:55:50.2093452Z npm notice 14.2kB js/src/cv/telemetry.js
+2026-10-28T13:55:50.2093776Z npm notice 1.3kB js/src/facts/index.js
+2026-10-28T13:55:50.2094108Z npm notice 7.9kB js/src/greetings/catalog.js
+2026-10-28T13:55:50.2094464Z npm notice 3.9kB js/src/greetings/detect.js
+2026-10-28T13:55:50.2094804Z npm notice 11.9kB js/src/greetings/index.js
+2026-10-28T13:55:50.2095137Z npm notice 12.8kB js/src/greetings/plan.js
+2026-10-28T13:55:50.2095467Z npm notice 9.3kB js/src/handlers/index.js
+2026-10-28T13:55:50.2095784Z npm notice 1.6kB js/src/index.d.ts
+2026-10-28T13:55:50.2096082Z npm notice 971B js/src/index.js
+2026-10-28T13:55:50.2096425Z npm notice 2.4kB js/src/marketplaces/catalogue.js
+2026-10-28T13:55:50.2096860Z npm notice 3.6kB js/src/marketplaces/profile-page.js
+2026-10-28T13:55:50.2097271Z npm notice 5.2kB js/src/marketplaces/sessions.js
+2026-10-28T13:55:50.2097628Z npm notice 6.1kB js/src/patterns/index.js
+2026-10-28T13:55:50.2097987Z npm notice 4.2kB js/src/patterns/safe-regex.js
+2026-10-28T13:55:50.2098333Z npm notice 1.4kB js/src/replies/index.js
+2026-10-28T13:55:50.2098679Z npm notice 9.2kB js/src/replies/reply-cache.js
+2026-10-28T13:55:50.2099042Z npm notice 26.5kB js/src/replies/reply-graph.js
+2026-10-28T13:55:50.2099631Z npm notice 9.0kB js/src/replies/reply-service.js
+2026-10-28T13:55:50.2100038Z npm notice 8.5kB js/src/replies/reply-store-clink.js
+2026-10-28T13:55:50.2100440Z npm notice 1.7kB js/src/server/account-scope.js
+2026-10-28T13:55:50.2100798Z npm notice 3.3kB js/src/server/aggregate.js
+2026-10-28T13:55:50.2101155Z npm notice 7.3kB js/src/server/audience-sync.js
+2026-10-28T13:55:50.2101544Z npm notice 3.1kB js/src/server/background-jobs.js
+2026-10-28T13:55:50.2101975Z npm notice 3.1kB js/src/server/backup-job.js
+2026-10-28T13:55:50.2102983Z npm notice 8.5kB js/src/server/chat-index.js
+2026-10-28T13:55:50.2103674Z npm notice 4.3kB js/src/server/confirmations.js
+2026-10-28T13:55:50.2104183Z npm notice 7.1kB js/src/server/cors.js
+2026-10-28T13:55:50.2104676Z npm notice 1.9kB js/src/server/email-attachments.js
+2026-10-28T13:55:50.2105124Z npm notice 12.6kB js/src/server/github-service.js
+2026-10-28T13:55:50.2105529Z npm notice 1.7kB js/src/server/handlers-bootstrap.js
+2026-10-28T13:55:50.2105927Z npm notice 5.7kB js/src/server/hosted-ui.js
+2026-10-28T13:55:50.2106273Z npm notice 34.9kB js/src/server/index.js
+2026-10-28T13:55:50.2106618Z npm notice 364B js/src/server/listen-error.js
+2026-10-28T13:55:50.2106985Z npm notice 1.2kB js/src/server/live-subset.js
+2026-10-28T13:55:50.2107396Z npm notice 2.4kB js/src/server/local-certificate-check.js
+2026-10-28T13:55:50.2107832Z npm notice 3.8kB js/src/server/local-key-enclave.swift
+2026-10-28T13:55:50.2108215Z npm notice 3.1kB js/src/server/local-key.js
+2026-10-28T13:55:50.2108568Z npm notice 11.2kB js/src/server/local-tls.js
+2026-10-28T13:55:50.2108899Z npm notice 6.8kB js/src/server/log.js
+2026-10-28T13:55:50.2109226Z npm notice 2.6kB js/src/server/metrics.js
+2026-10-28T13:55:50.2109586Z npm notice 2.8kB js/src/server/native-helper.js
+2026-10-28T13:55:50.2109946Z npm notice 7.1kB js/src/server/passcode.js
+2026-10-28T13:55:50.2110280Z npm notice 2.4kB js/src/server/redact.js
+2026-10-28T13:55:50.2110623Z npm notice 2.1kB js/src/server/request-gate.js
+2026-10-28T13:55:50.2111000Z npm notice 6.2kB js/src/server/rolling-control.js
+2026-10-28T13:55:50.2111366Z npm notice 2.0kB js/src/server/rolling-host.js
+2026-10-28T13:55:50.2111730Z npm notice 4.5kB js/src/server/rolling-release.js
+2026-10-28T13:55:50.2112263Z npm notice 8.6kB js/src/server/rolling-supervisor.js
+2026-10-28T13:55:50.2113264Z npm notice 5.0kB js/src/server/rolling-worker.js
+2026-10-28T13:55:50.2113716Z npm notice 7.3kB js/src/server/routes-archive-upload.js
+2026-10-28T13:55:50.2114365Z npm notice 16.9kB js/src/server/routes-auto-import.js
+2026-10-28T13:55:50.2114820Z npm notice 19.8kB js/src/server/routes-automations.js
+2026-10-28T13:55:50.2115225Z npm notice 4.4kB js/src/server/routes-backup.js
+2026-10-28T13:55:50.2115598Z npm notice 1.8kB js/src/server/routes-chat.js
+2026-10-28T13:55:50.2115998Z npm notice 3.7kB js/src/server/routes-client-log.js
+2026-10-28T13:55:50.2116436Z npm notice 3.3kB js/src/server/routes-contacts-import.js
+2026-10-28T13:55:50.2116836Z npm notice 6.6kB js/src/server/routes-cv.js
+2026-10-28T13:55:50.2117207Z npm notice 3.7kB js/src/server/routes-deleted.js
+2026-10-28T13:55:50.2117587Z npm notice 5.5kB js/src/server/routes-derived.js
+2026-10-28T13:55:50.2117966Z npm notice 9.8kB js/src/server/routes-email.js
+2026-10-28T13:55:50.2118344Z npm notice 4.5kB js/src/server/routes-events.js
+2026-10-28T13:55:50.2118712Z npm notice 3.0kB js/src/server/routes-github.js
+2026-10-28T13:55:50.2119092Z npm notice 6.5kB js/src/server/routes-greetings.js
+2026-10-28T13:55:50.2119695Z npm notice 5.7kB js/src/server/routes-learned.js
+2026-10-28T13:55:50.2120245Z npm notice 2.4kB js/src/server/routes-marketplaces.js
+2026-10-28T13:55:50.2120649Z npm notice 5.1kB js/src/server/routes-media.js
+2026-10-28T13:55:50.2121028Z npm notice 8.0kB js/src/server/routes-messages.js
+2026-10-28T13:55:50.2121417Z npm notice 25.0kB js/src/server/routes-mutating.js
+2026-10-28T13:55:50.2121803Z npm notice 4.4kB js/src/server/routes-passcode.js
+2026-10-28T13:55:50.2122184Z npm notice 4.1kB js/src/server/routes-people.js
+2026-10-28T13:55:50.2123331Z npm notice 6.7kB js/src/server/routes-pull.js
+2026-10-28T13:55:50.2124002Z npm notice 2.8kB js/src/server/routes-suggest.js
+2026-10-28T13:55:50.2124508Z npm notice 3.2kB js/src/server/routes-telegram-account-data.js
+2026-10-28T13:55:50.2125015Z npm notice 3.3kB js/src/server/routes-telegram-account-extras.js
+2026-10-28T13:55:50.2125502Z npm notice 9.3kB js/src/server/routes-telegram-accounts.js
+2026-10-28T13:55:50.2125982Z npm notice 2.8kB js/src/server/routes-telegram-admin-extras.js
+2026-10-28T13:55:50.2126447Z npm notice 2.7kB js/src/server/routes-telegram-admin.js
+2026-10-28T13:55:50.2126883Z npm notice 2.9kB js/src/server/routes-telegram-apps.js
+2026-10-28T13:55:50.2127318Z npm notice 1.6kB js/src/server/routes-telegram-boosts.js
+2026-10-28T13:55:50.2127772Z npm notice 3.9kB js/src/server/routes-telegram-bot-login.js
+2026-10-28T13:55:50.2128234Z npm notice 6.5kB js/src/server/routes-telegram-business.js
+2026-10-28T13:55:50.2128662Z npm notice 755B js/src/server/routes-telegram-calls.js
+2026-10-28T13:55:50.2129117Z npm notice 2.8kB js/src/server/routes-telegram-channel-dm.js
+2026-10-28T13:55:50.2129606Z npm notice 3.4kB js/src/server/routes-telegram-channel-manage.js
+2026-10-28T13:55:50.2130089Z npm notice 3.5kB js/src/server/routes-telegram-chat-admins.js
+2026-10-28T13:55:50.2130570Z npm notice 1.4kB js/src/server/routes-telegram-chat-reactions.js
+2026-10-28T13:55:50.2131062Z npm notice 1.8kB js/src/server/routes-telegram-chat-settings.js
+2026-10-28T13:55:50.2131542Z npm notice 2.6kB js/src/server/routes-telegram-chat-themes.js
+2026-10-28T13:55:50.2132009Z npm notice 3.5kB js/src/server/routes-telegram-chatlists.js
+2026-10-28T13:55:50.2133511Z npm notice 5.0kB js/src/server/routes-telegram-checklist-stats.js
+2026-10-28T13:55:50.2134410Z npm notice 2.4kB js/src/server/routes-telegram-cloud-themes.js
+2026-10-28T13:55:50.2135187Z npm notice 912B js/src/server/routes-telegram-common-chats.js
+2026-10-28T13:55:50.2135702Z npm notice 3.8kB js/src/server/routes-telegram-contact-extras.js
+2026-10-28T13:55:50.2136196Z npm notice 1.3kB js/src/server/routes-telegram-contacts.js
+2026-10-28T13:55:50.2136702Z npm notice 2.5kB js/src/server/routes-telegram-drafts-calendar.js
+2026-10-28T13:55:50.2137185Z npm notice 912B js/src/server/routes-telegram-effects.js
+2026-10-28T13:55:50.2137651Z npm notice 774B js/src/server/routes-telegram-emoji-groups.js
+2026-10-28T13:55:50.2138129Z npm notice 2.0kB js/src/server/routes-telegram-emoji-status.js
+2026-10-28T13:55:50.2138597Z npm notice 2.0kB js/src/server/routes-telegram-ephemeral.js
+2026-10-28T13:55:50.2140798Z npm notice 2.3kB js/src/server/routes-telegram-export.js
+2026-10-28T13:55:50.2141587Z npm notice 16.3kB js/src/server/routes-telegram-files.js
+2026-10-28T13:55:50.2142137Z npm notice 1.8kB js/src/server/routes-telegram-folder-edit.js
+2026-10-28T13:55:50.2143161Z npm notice 856B js/src/server/routes-telegram-forum-view.js
+2026-10-28T13:55:50.2143671Z npm notice 772B js/src/server/routes-telegram-games.js
+2026-10-28T13:55:50.2144131Z npm notice 2.1kB js/src/server/routes-telegram-gift-send.js
+2026-10-28T13:55:50.2144626Z npm notice 4.2kB js/src/server/routes-telegram-gifts-manage.js
+2026-10-28T13:55:50.2145115Z npm notice 2.9kB js/src/server/routes-telegram-group-extras.js
+2026-10-28T13:55:50.2145604Z npm notice 2.7kB js/src/server/routes-telegram-hashtags.js
+2026-10-28T13:55:50.2146064Z npm notice 4.0kB js/src/server/routes-telegram-inline.js
+2026-10-28T13:55:50.2146526Z npm notice 3.0kB js/src/server/routes-telegram-instant-view.js
+2026-10-28T13:55:50.2147018Z npm notice 4.6kB js/src/server/routes-telegram-invite-links.js
+2026-10-28T13:55:50.2147490Z npm notice 1.0kB js/src/server/routes-telegram-link-preview.js
+2026-10-28T13:55:50.2147975Z npm notice 1.7kB js/src/server/routes-telegram-message-links.js
+2026-10-28T13:55:50.2148490Z npm notice 2.6kB js/src/server/routes-telegram-notify-settings.js
+2026-10-28T13:55:50.2148967Z npm notice 3.5kB js/src/server/routes-telegram-paid.js
+2026-10-28T13:55:50.2149431Z npm notice 2.8kB js/src/server/routes-telegram-pinned-list.js
+2026-10-28T13:55:50.2150125Z npm notice 941B js/src/server/routes-telegram-pinned-order.js
+2026-10-28T13:55:50.2150596Z npm notice 3.7kB js/src/server/routes-telegram-privacy.js
+2026-10-28T13:55:50.2151070Z npm notice 1.9kB js/src/server/routes-telegram-private-call.js
+2026-10-28T13:55:50.2151573Z npm notice 2.9kB js/src/server/routes-telegram-profile-extras.js
+2026-10-28T13:55:50.2152081Z npm notice 4.5kB js/src/server/routes-telegram-profile-stories.js
+2026-10-28T13:55:50.2152807Z npm notice 2.7kB js/src/server/routes-telegram-proxy.js
+2026-10-28T13:55:50.2153286Z npm notice 3.5kB js/src/server/routes-telegram-quick-replies.js
+2026-10-28T13:55:50.2153771Z npm notice 2.0kB js/src/server/routes-telegram-request-peer.js
+2026-10-28T13:55:50.2154245Z npm notice 2.9kB js/src/server/routes-telegram-ringtones.js
+2026-10-28T13:55:50.2154681Z npm notice 2.1kB js/src/server/routes-telegram-round.js
+2026-10-28T13:55:50.2155113Z npm notice 993B js/src/server/routes-telegram-saved-gifs.js
+2026-10-28T13:55:50.2155581Z npm notice 2.1kB js/src/server/routes-telegram-saved-tags.js
+2026-10-28T13:55:50.2156061Z npm notice 2.8kB js/src/server/routes-telegram-security-extras.js
+2026-10-28T13:55:50.2156531Z npm notice 4.1kB js/src/server/routes-telegram-security.js
+2026-10-28T13:55:50.2156976Z npm notice 1.6kB js/src/server/routes-telegram-send-as.js
+2026-10-28T13:55:50.2157402Z npm notice 6.0kB js/src/server/routes-telegram-share.js
+2026-10-28T13:55:50.2157821Z npm notice 2.7kB js/src/server/routes-telegram-stars.js
+2026-10-28T13:55:50.2158233Z npm notice 1.6kB js/src/server/routes-telegram-stats.js
+2026-10-28T13:55:50.2158689Z npm notice 3.6kB js/src/server/routes-telegram-sticker-extras.js
+2026-10-28T13:55:50.2159395Z npm notice 4.2kB js/src/server/routes-telegram-sticker-settings.js
+2026-10-28T13:55:50.2159876Z npm notice 2.9kB js/src/server/routes-telegram-storage.js
+2026-10-28T13:55:50.2160310Z npm notice 1.9kB js/src/server/routes-telegram-stories.js
+2026-10-28T13:55:50.2160815Z npm notice 3.5kB js/src/server/routes-telegram-story-actions.js
+2026-10-28T13:55:50.2161312Z npm notice 3.3kB js/src/server/routes-telegram-story-extras.js
+2026-10-28T13:55:50.2161793Z npm notice 1.6kB js/src/server/routes-telegram-story-manage.js
+2026-10-28T13:55:50.2162266Z npm notice 3.1kB js/src/server/routes-telegram-story-post.js
+2026-10-28T13:55:50.2163030Z npm notice 2.8kB js/src/server/routes-telegram-topic-admin.js
+2026-10-28T13:55:50.2163502Z npm notice 1.7kB js/src/server/routes-telegram-transcribe.js
+2026-10-28T13:55:50.2164153Z npm notice 1.1kB js/src/server/routes-telegram-translate-chat.js
+2026-10-28T13:55:50.2164639Z npm notice 3.1kB js/src/server/routes-telegram-ttl.js
+2026-10-28T13:55:50.2165098Z npm notice 2.6kB js/src/server/routes-telegram-voice-chat.js
+2026-10-28T13:55:50.2165575Z npm notice 3.0kB js/src/server/routes-telegram-wallpapers.js
+2026-10-28T13:55:50.2166031Z npm notice 3.7kB js/src/server/routes-telegram-web-apps.js
+2026-10-28T13:55:50.2166475Z npm notice 738B js/src/server/routes-telegram-yextras.js
+2026-10-28T13:55:50.2166893Z npm notice 59.5kB js/src/server/routes-telegram.js
+2026-10-28T13:55:50.2167269Z npm notice 3.2kB js/src/server/routes-vk.js
+2026-10-28T13:55:50.2167672Z npm notice 4.0kB js/src/server/routes-whatsapp.js
+2026-10-28T13:55:50.2189303Z npm notice 1.8kB js/src/server/runtime-lifecycle.js
+2026-10-28T13:55:50.2189946Z npm notice 1.1kB js/src/server/secret-mask.js
+2026-10-28T13:55:50.2190363Z npm notice 12.7kB js/src/server/telegram-extras.js
+2026-10-28T13:55:50.2190810Z npm notice 879B js/src/server/telegram-route-error.js
+2026-10-28T13:55:50.2191203Z npm notice 4.6kB js/src/server/util.js
+2026-10-28T13:55:50.2191569Z npm notice 3.3kB js/src/server/worker-client.js
+2026-10-28T13:55:50.2191988Z npm notice 3.4kB js/src/server/worker-proxy.js
+2026-10-28T13:55:50.2192614Z npm notice 1.8kB js/src/server/worker-request.js
+2026-10-28T13:55:50.2193024Z npm notice 1.5kB js/src/server/worker-target.js
+2026-10-28T13:55:50.2193415Z npm notice 3.0kB js/src/sources/archive/context.js
+2026-10-28T13:55:50.2194068Z npm notice 2.1kB js/src/sources/archive/legacy.js
+2026-10-28T13:55:50.2194483Z npm notice 2.1kB js/src/sources/archive/media-store.js
+2026-10-28T13:55:50.2194903Z npm notice 8.4kB js/src/sources/archive/meta-thread.js
+2026-10-28T13:55:50.2195288Z npm notice 6.2kB js/src/sources/archive/text.js
+2026-10-28T13:55:50.2195664Z npm notice 5.5kB js/src/sources/archive/x-dms.js
+2026-10-28T13:55:50.2196062Z npm notice 6.8kB js/src/sources/archive/zip-file.js
+2026-10-28T13:55:50.2196482Z npm notice 5.7kB js/src/sources/auto-import/archive.js
+2026-10-28T13:55:50.2196937Z npm notice 8.6kB js/src/sources/auto-import/files.js
+2026-10-28T13:55:50.2197358Z npm notice 790B js/src/sources/auto-import/index.js
+2026-10-28T13:55:50.2197774Z npm notice 12.1kB js/src/sources/auto-import/manager.js
+2026-10-28T13:55:50.2198210Z npm notice 5.9kB js/src/sources/auto-import/recipes.js
+2026-10-28T13:55:50.2198642Z npm notice 11.1kB js/src/sources/auto-import/sign-ins.js
+2026-10-28T13:55:50.2199105Z npm notice 28.3kB js/src/sources/auto-import/telegram-creds.js
+2026-10-28T13:55:50.2199576Z npm notice 13.6kB js/src/sources/browser-actions.js
+2026-10-28T13:55:50.2199985Z npm notice 24.5kB js/src/sources/browser-sender.js
+2026-10-28T13:55:50.2200383Z npm notice 4.8kB js/src/sources/contacts-import.js
+2026-10-28T13:55:50.2200759Z npm notice 3.6kB js/src/sources/cv-bridge.js
+2026-10-28T13:55:50.2201131Z npm notice 6.5kB js/src/sources/email-compose.js
+2026-10-28T13:55:50.2201503Z npm notice 9.3kB js/src/sources/email-html.js
+2026-10-28T13:55:50.2201875Z npm notice 31.5kB js/src/sources/email-live.js
+2026-10-28T13:55:50.2202242Z npm notice 18.2kB js/src/sources/email-mime.js
+2026-10-28T13:55:50.2202978Z npm notice 7.0kB js/src/sources/email-node-socket.js
+2026-10-28T13:55:50.2203425Z npm notice 20.8kB js/src/sources/email-node-transport.js
+2026-10-28T13:55:50.2203831Z npm notice 17.9kB js/src/sources/email-records.js
+2026-10-28T13:55:50.2204215Z npm notice 4.1kB js/src/sources/email-store.js
+2026-10-28T13:55:50.2204583Z npm notice 1.1kB js/src/sources/email.js
+2026-10-28T13:55:50.2204938Z npm notice 9.6kB js/src/sources/facebook.js
+2026-10-28T13:55:50.2205316Z npm notice 5.6kB js/src/sources/github-actions.js
+2026-10-28T13:55:50.2205694Z npm notice 6.0kB js/src/sources/github-check.js
+2026-10-28T13:55:50.2206063Z npm notice 8.0kB js/src/sources/github-http.js
+2026-10-28T13:55:50.2206433Z npm notice 10.3kB js/src/sources/github-inbox.js
+2026-10-28T13:55:50.2206818Z npm notice 3.3kB js/src/sources/github-ref.js
+2026-10-28T13:55:50.2207341Z npm notice 4.0kB js/src/sources/github-sync.js
+2026-10-28T13:55:50.2207702Z npm notice 19.5kB js/src/sources/github.js
+2026-10-28T13:55:50.2208053Z npm notice 3.8kB js/src/sources/habr-career.js
+2026-10-28T13:55:50.2208396Z npm notice 4.3kB js/src/sources/hh.js
+2026-10-28T13:55:50.2208724Z npm notice 7.9kB js/src/sources/http.js
+2026-10-28T13:55:50.2209061Z npm notice 8.4kB js/src/sources/index.js
+2026-10-28T13:55:50.2209404Z npm notice 5.5kB js/src/sources/job-board.js
+2026-10-28T13:55:50.2209746Z npm notice 2.2kB js/src/sources/link.js
+2026-10-28T13:55:50.2210085Z npm notice 9.3kB js/src/sources/linkedin.js
+2026-10-28T13:55:50.2210441Z npm notice 5.4kB js/src/sources/live-links.js
+2026-10-28T13:55:50.2210819Z npm notice 4.7kB js/src/sources/message-actions.js
+2026-10-28T13:55:50.2211187Z npm notice 926B js/src/sources/naukri.js
+2026-10-28T13:55:50.2211544Z npm notice 24.4kB js/src/sources/peopleperhour.js
+2026-10-28T13:55:50.2211939Z npm notice 5.0kB js/src/sources/private-call-dh.js
+2026-10-28T13:55:50.2212812Z npm notice 4.0kB js/src/sources/private-call-emoji.js
+2026-10-28T13:55:50.2213470Z npm notice 13.5kB js/src/sources/private-call-machine.js
+2026-10-28T13:55:50.2213876Z npm notice 6.9kB js/src/sources/pull-runner.js
+2026-10-28T13:55:50.2214281Z npm notice 8.9kB js/src/sources/secret-chat-crypto.js
+2026-10-28T13:55:50.2214694Z npm notice 5.6kB js/src/sources/secret-chat-session.js
+2026-10-28T13:55:50.2215095Z npm notice 11.9kB js/src/sources/secret-chat-tl.js
+2026-10-28T13:55:50.2215467Z npm notice 929B js/src/sources/soft-cache.js
+2026-10-28T13:55:50.2215994Z npm notice 882B js/src/sources/sticker.js
+2026-10-28T13:55:50.2216340Z npm notice 3.7kB js/src/sources/superjob.js
+2026-10-28T13:55:50.2216719Z npm notice 1.8kB js/src/sources/system-contacts.js
+2026-10-28T13:55:50.2217122Z npm notice 601B js/src/sources/system-contacts.plist
+2026-10-28T13:55:50.2217532Z npm notice 3.2kB js/src/sources/system-contacts.swift
+2026-10-28T13:55:50.2217979Z npm notice 662B js/src/sources/telegram-account-data-paths.js
+2026-10-28T13:55:50.2218477Z npm notice 11.6kB js/src/sources/telegram-account-data-run.js
+2026-10-28T13:55:50.2218938Z npm notice 8.1kB js/src/sources/telegram-account-data.js
+2026-10-28T13:55:50.2219388Z npm notice 6.9kB js/src/sources/telegram-account-extras.js
+2026-10-28T13:55:50.2219841Z npm notice 19.1kB js/src/sources/telegram-account-live.js
+2026-10-28T13:55:50.2220267Z npm notice 48.5kB js/src/sources/telegram-account.js
+2026-10-28T13:55:50.2220671Z npm notice 9.4kB js/src/sources/telegram-accounts.js
+2026-10-28T13:55:50.2221077Z npm notice 30.3kB js/src/sources/telegram-actions.js
+2026-10-28T13:55:50.2221502Z npm notice 9.5kB js/src/sources/telegram-add-members.js
+2026-10-28T13:55:50.2221930Z npm notice 8.5kB js/src/sources/telegram-admin-manage.js
+2026-10-28T13:55:50.2222748Z npm notice 2.6kB js/src/sources/telegram-admin-rights.js
+2026-10-28T13:55:50.2223219Z npm notice 9.2kB js/src/sources/telegram-admin.js
+2026-10-28T13:55:50.2223664Z npm notice 267.4kB js/src/sources/telegram-api/layer-225.tl
+2026-10-28T13:55:50.2224130Z npm notice 293.4kB js/src/sources/telegram-api/layer-232.tl
+2026-10-28T13:55:50.2224553Z npm notice 8.7kB js/src/sources/telegram-apps.js
+2026-10-28T13:55:50.2224948Z npm notice 7.6kB js/src/sources/telegram-avatars.js
+2026-10-28T13:55:50.2225359Z npm notice 9.7kB js/src/sources/telegram-backfill.js
+2026-10-28T13:55:50.2225772Z npm notice 5.8kB js/src/sources/telegram-boosts.js
+2026-10-28T13:55:50.2226194Z npm notice 3.6kB js/src/sources/telegram-bot-commands.js
+2026-10-28T13:55:50.2226618Z npm notice 9.0kB js/src/sources/telegram-bot-login.js
+2026-10-28T13:55:50.2227007Z npm notice 2.6kB js/src/sources/telegram-bots.js
+2026-10-28T13:55:50.2227420Z npm notice 9.3kB js/src/sources/telegram-business-bots.js
+2026-10-28T13:55:50.2227871Z npm notice 5.1kB js/src/sources/telegram-business-links.js
+2026-10-28T13:55:50.2228335Z npm notice 7.5kB js/src/sources/telegram-business-messages.js
+2026-10-28T13:55:50.2228774Z npm notice 11.5kB js/src/sources/telegram-business.js
+2026-10-28T13:55:50.2229358Z npm notice 2.8kB js/src/sources/telegram-calendar.js
+2026-10-28T13:55:50.2229809Z npm notice 3.7kB js/src/sources/telegram-calls.js
+2026-10-28T13:55:50.2230208Z npm notice 14.2kB js/src/sources/telegram-catchup.js
+2026-10-28T13:55:50.2230643Z npm notice 5.3kB js/src/sources/telegram-channel-dm-shape.js
+2026-10-28T13:55:50.2231081Z npm notice 9.1kB js/src/sources/telegram-channel-dm.js
+2026-10-28T13:55:50.2231511Z npm notice 8.7kB js/src/sources/telegram-channel-manage.js
+2026-10-28T13:55:50.2231935Z npm notice 10.2kB js/src/sources/telegram-channels.js
+2026-10-28T13:55:50.2232529Z npm notice 670B js/src/sources/telegram-chat-admins.js
+2026-10-28T13:55:50.2232991Z npm notice 10.3kB js/src/sources/telegram-chat-edit.js
+2026-10-28T13:55:50.2233394Z npm notice 18.1kB js/src/sources/telegram-chat-info.js
+2026-10-28T13:55:50.2233817Z npm notice 4.9kB js/src/sources/telegram-chat-reactions.js
+2026-10-28T13:55:50.2234249Z npm notice 6.8kB js/src/sources/telegram-chat-removal.js
+2026-10-28T13:55:50.2234683Z npm notice 8.6kB js/src/sources/telegram-chat-settings.js
+2026-10-28T13:55:50.2235105Z npm notice 4.9kB js/src/sources/telegram-chat-themes.js
+2026-10-28T13:55:50.2235512Z npm notice 1.5kB js/src/sources/telegram-chat-url.js
+2026-10-28T13:55:50.2235921Z npm notice 15.9kB js/src/sources/telegram-chatlists.js
+2026-10-28T13:55:50.2236334Z npm notice 5.6kB js/src/sources/telegram-cloud-themes.js
+2026-10-28T13:55:50.2236737Z npm notice 6.6kB js/src/sources/telegram-comments.js
+2026-10-28T13:55:50.2237350Z npm notice 2.8kB js/src/sources/telegram-common-chats.js
+2026-10-28T13:55:50.2237809Z npm notice 10.0kB js/src/sources/telegram-contact-extras.js
+2026-10-28T13:55:50.2238264Z npm notice 5.0kB js/src/sources/telegram-contacts-edit.js
+2026-10-28T13:55:50.2238687Z npm notice 3.3kB js/src/sources/telegram-contacts.js
+2026-10-28T13:55:50.2239181Z npm notice 2.0kB js/src/sources/telegram-custom-emoji-search.js
+2026-10-28T13:55:50.2239640Z npm notice 6.3kB js/src/sources/telegram-custom-emoji.js
+2026-10-28T13:55:50.2240068Z npm notice 2.1kB js/src/sources/telegram-dialog-state.js
+2026-10-28T13:55:50.2240476Z npm notice 6.0kB js/src/sources/telegram-dialogs.js
+2026-10-28T13:55:50.2240871Z npm notice 2.7kB js/src/sources/telegram-drafts.js
+2026-10-28T13:55:50.2241260Z npm notice 2.0kB js/src/sources/telegram-effects.js
+2026-10-28T13:55:50.2241677Z npm notice 2.8kB js/src/sources/telegram-emoji-groups.js
+2026-10-28T13:55:50.2242117Z npm notice 4.9kB js/src/sources/telegram-emoji-keywords.js
+2026-10-28T13:55:50.2242876Z npm notice 4.3kB js/src/sources/telegram-emoji-status.js
+2026-10-28T13:55:50.2243309Z npm notice 4.9kB js/src/sources/telegram-ephemeral.js
+2026-10-28T13:55:50.2243725Z npm notice 9.7kB js/src/sources/telegram-export-html.js
+2026-10-28T13:55:50.2244144Z npm notice 7.7kB js/src/sources/telegram-export-media.js
+2026-10-28T13:55:50.2244572Z npm notice 3.0kB js/src/sources/telegram-export-output.js
+2026-10-28T13:55:50.2245009Z npm notice 5.2kB js/src/sources/telegram-export-paths.js
+2026-10-28T13:55:50.2245437Z npm notice 9.4kB js/src/sources/telegram-export-run.js
+2026-10-28T13:55:50.2245856Z npm notice 8.3kB js/src/sources/telegram-export-shape.js
+2026-10-28T13:55:50.2246259Z npm notice 7.6kB js/src/sources/telegram-export.js
+2026-10-28T13:55:50.2246676Z npm notice 2.9kB js/src/sources/telegram-fact-checks.js
+2026-10-28T13:55:50.2247100Z npm notice 8.3kB js/src/sources/telegram-folder-edit.js
+2026-10-28T13:55:50.2247505Z npm notice 4.5kB js/src/sources/telegram-folders.js
+2026-10-28T13:55:50.2247910Z npm notice 10.7kB js/src/sources/telegram-format.js
+2026-10-28T13:55:50.2248321Z npm notice 1.4kB js/src/sources/telegram-forum-view.js
+2026-10-28T13:55:50.2248720Z npm notice 7.6kB js/src/sources/telegram-forum.js
+2026-10-28T13:55:50.2249108Z npm notice 2.2kB js/src/sources/telegram-games.js
+2026-10-28T13:55:50.2249495Z npm notice 3.2kB js/src/sources/telegram-gif-save.js
+2026-10-28T13:55:50.2249896Z npm notice 5.8kB js/src/sources/telegram-gift-send.js
+2026-10-28T13:55:50.2250316Z npm notice 14.6kB js/src/sources/telegram-gifts-manage.js
+2026-10-28T13:55:50.2250878Z npm notice 4.7kB js/src/sources/telegram-giveaways.js
+2026-10-28T13:55:50.2251286Z npm notice 9.2kB js/src/sources/telegram-global.js
+2026-10-28T13:55:50.2251699Z npm notice 4.4kB js/src/sources/telegram-group-extras.js
+2026-10-28T13:55:50.2252110Z npm notice 21.0kB js/src/sources/telegram-history.js
+2026-10-28T13:55:50.2252810Z npm notice 12.6kB js/src/sources/telegram-inline-bots.js
+2026-10-28T13:55:50.2253280Z npm notice 18.8kB js/src/sources/telegram-instant-view-shape.js
+2026-10-28T13:55:50.2253978Z npm notice 2.2kB js/src/sources/telegram-instant-view-whole.js
+2026-10-28T13:55:50.2254612Z npm notice 6.4kB js/src/sources/telegram-instant-view.js
+2026-10-28T13:55:50.2255048Z npm notice 13.9kB js/src/sources/telegram-invite-links.js
+2026-10-28T13:55:50.2255454Z npm notice 4.7kB js/src/sources/telegram-invite.js
+2026-10-28T13:55:50.2255843Z npm notice 5.7kB js/src/sources/telegram-jump.js
+2026-10-28T13:55:50.2256352Z npm notice 6.7kB js/src/sources/telegram-layer.js
+2026-10-28T13:55:50.2257132Z npm notice 2.1kB js/src/sources/telegram-left-channels.js
+2026-10-28T13:55:50.2257964Z npm notice 6.6kB js/src/sources/telegram-link-preview.js
+2026-10-28T13:55:50.2258726Z npm notice 4.8kB js/src/sources/telegram-map.js
+2026-10-28T13:55:50.2259453Z npm notice 16.2kB js/src/sources/telegram-media.js
+2026-10-28T13:55:50.2260209Z npm notice 7.2kB js/src/sources/telegram-members.js
+2026-10-28T13:55:50.2261010Z npm notice 3.5kB js/src/sources/telegram-message-links.js
+2026-10-28T13:55:50.2261950Z npm notice 4.9kB js/src/sources/telegram-moderation.js
+2026-10-28T13:55:50.2262631Z npm notice 7.1kB js/src/sources/telegram-mtproto.js
+2026-10-28T13:55:50.2263097Z npm notice 5.3kB js/src/sources/telegram-notify-extras.js
+2026-10-28T13:55:50.2263573Z npm notice 11.8kB js/src/sources/telegram-notify-settings.js
+2026-10-28T13:55:50.2264051Z npm notice 5.0kB js/src/sources/telegram-ownership.js
+2026-10-28T13:55:50.2264478Z npm notice 10.2kB js/src/sources/telegram-pages.js
+2026-10-28T13:55:50.2265030Z npm notice 7.4kB js/src/sources/telegram-paid-messages.js
+2026-10-28T13:55:50.2265511Z npm notice 7.3kB js/src/sources/telegram-peer-actions.js
+2026-10-28T13:55:50.2265925Z npm notice 4.3kB js/src/sources/telegram-peers.js
+2026-10-28T13:55:50.2266338Z npm notice 2.9kB js/src/sources/telegram-phone-change.js
+2026-10-28T13:55:50.2266769Z npm notice 3.7kB js/src/sources/telegram-pinned-list.js
+2026-10-28T13:55:50.2267194Z npm notice 3.4kB js/src/sources/telegram-pinned-order.js
+2026-10-28T13:55:50.2267607Z npm notice 14.1kB js/src/sources/telegram-polls.js
+2026-10-28T13:55:50.2268001Z npm notice 13.6kB js/src/sources/telegram-privacy.js
+2026-10-28T13:55:50.2268414Z npm notice 8.6kB js/src/sources/telegram-private-call.js
+2026-10-28T13:55:50.2268856Z npm notice 14.0kB js/src/sources/telegram-profile-extras.js
+2026-10-28T13:55:50.2269307Z npm notice 8.7kB js/src/sources/telegram-profile-music.js
+2026-10-28T13:55:50.2269812Z npm notice 6.6kB js/src/sources/telegram-profile-stories.js
+2026-10-28T13:55:50.2270323Z npm notice 8.3kB js/src/sources/telegram-profile.js
+2026-10-28T13:55:50.2270717Z npm notice 8.4kB js/src/sources/telegram-proxy.js
+2026-10-28T13:55:50.2271112Z npm notice 6.8kB js/src/sources/telegram-qr-login.js
+2026-10-28T13:55:50.2271542Z npm notice 2.3kB js/src/sources/telegram-quick-reaction.js
+2026-10-28T13:55:50.2271982Z npm notice 9.0kB js/src/sources/telegram-quick-replies.js
+2026-10-28T13:55:50.2272582Z npm notice 6.4kB js/src/sources/telegram-readers.js
+2026-10-28T13:55:50.2273001Z npm notice 8.7kB js/src/sources/telegram-repair.js
+2026-10-28T13:55:50.2273411Z npm notice 7.9kB js/src/sources/telegram-request-peer.js
+2026-10-28T13:55:50.2273832Z npm notice 7.0kB js/src/sources/telegram-ringtones.js
+2026-10-28T13:55:50.2274226Z npm notice 2.1kB js/src/sources/telegram-round.js
+2026-10-28T13:55:50.2274624Z npm notice 4.9kB js/src/sources/telegram-saved-tags.js
+2026-10-28T13:55:50.2275061Z npm notice 5.3kB js/src/sources/telegram-scheduled.js
+2026-10-28T13:55:50.2275453Z npm notice 2.7kB js/src/sources/telegram-search.js
+2026-10-28T13:55:50.2276038Z npm notice 7.3kB js/src/sources/telegram-security-extras.js
+2026-10-28T13:55:50.2276471Z npm notice 11.0kB js/src/sources/telegram-security.js
+2026-10-28T13:55:50.2276905Z npm notice 3.4kB js/src/sources/telegram-send-as-client.js
+2026-10-28T13:55:50.2277319Z npm notice 5.9kB js/src/sources/telegram-send-as.js
+2026-10-28T13:55:50.2277698Z npm notice 13.9kB js/src/sources/telegram-send.js
+2026-10-28T13:55:50.2278103Z npm notice 2.3kB js/src/sources/telegram-service-names.js
+2026-10-28T13:55:50.2278538Z npm notice 10.6kB js/src/sources/telegram-share-media.js
+2026-10-28T13:55:50.2278941Z npm notice 3.8kB js/src/sources/telegram-shared.js
+2026-10-28T13:55:50.2279370Z npm notice 2.9kB js/src/sources/telegram-similar-channels.js
+2026-10-28T13:55:50.2279793Z npm notice 11.9kB js/src/sources/telegram-stars.js
+2026-10-28T13:55:50.2280187Z npm notice 7.3kB js/src/sources/telegram-stats-more.js
+2026-10-28T13:55:50.2280573Z npm notice 11.0kB js/src/sources/telegram-stats.js
+2026-10-28T13:55:50.2280989Z npm notice 6.0kB js/src/sources/telegram-sticker-search.js
+2026-10-28T13:55:50.2281426Z npm notice 5.9kB js/src/sources/telegram-sticker-sets.js
+2026-10-28T13:55:50.2281867Z npm notice 6.8kB js/src/sources/telegram-sticker-trending.js
+2026-10-28T13:55:50.2282292Z npm notice 24.9kB js/src/sources/telegram-stickers.js
+2026-10-28T13:55:50.2282936Z npm notice 11.6kB js/src/sources/telegram-storage.js
+2026-10-28T13:55:50.2283327Z npm notice 12.5kB js/src/sources/telegram-stories.js
+2026-10-28T13:55:50.2283917Z npm notice 7.8kB js/src/sources/telegram-story-actions.js
+2026-10-28T13:55:50.2284373Z npm notice 7.2kB js/src/sources/telegram-story-extras.js
+2026-10-28T13:55:50.2284798Z npm notice 4.4kB js/src/sources/telegram-story-manage.js
+2026-10-28T13:55:50.2285217Z npm notice 8.1kB js/src/sources/telegram-story-post.js
+2026-10-28T13:55:50.2285672Z npm notice 3.4kB js/src/sources/telegram-top-peers.js
+2026-10-28T13:55:50.2286091Z npm notice 9.0kB js/src/sources/telegram-topic-admin.js
+2026-10-28T13:55:50.2286519Z npm notice 5.1kB js/src/sources/telegram-transcribe.js
+2026-10-28T13:55:50.2286941Z npm notice 2.0kB js/src/sources/telegram-translate-chat.js
+2026-10-28T13:55:50.2287361Z npm notice 3.2kB js/src/sources/telegram-translate.js
+2026-10-28T13:55:50.2287743Z npm notice 8.1kB js/src/sources/telegram-ttl.js
+2026-10-28T13:55:50.2288126Z npm notice 5.2kB js/src/sources/telegram-unread.js
+2026-10-28T13:55:50.2288519Z npm notice 13.1kB js/src/sources/telegram-updates.js
+2026-10-28T13:55:50.2288927Z npm notice 14.2kB js/src/sources/telegram-upload.js
+2026-10-28T13:55:50.2289326Z npm notice 4.5kB js/src/sources/telegram-usernames.js
+2026-10-28T13:55:50.2289712Z npm notice 2.8kB js/src/sources/telegram-views.js
+2026-10-28T13:55:50.2290140Z npm notice 1.4kB js/src/sources/telegram-voice-chat-live.js
+2026-10-28T13:55:50.2290575Z npm notice 12.8kB js/src/sources/telegram-voice-chat.js
+2026-10-28T13:55:50.2290990Z npm notice 11.3kB js/src/sources/telegram-wallpapers.js
+2026-10-28T13:55:50.2291402Z npm notice 10.7kB js/src/sources/telegram-web-apps.js
+2026-10-28T13:55:50.2291814Z npm notice 1.4kB js/src/sources/telegram-write-outcome.js
+2026-10-28T13:55:50.2292206Z npm notice 20.1kB js/src/sources/telegram.js
+2026-10-28T13:55:50.2292814Z npm notice 967B js/src/sources/topcv.js
+2026-10-28T13:55:50.2293158Z npm notice 23.6kB js/src/sources/upwork.js
+2026-10-28T13:55:50.2293488Z npm notice 6.0kB js/src/sources/vcard.js
+2026-10-28T13:55:50.2293837Z npm notice 954B js/src/sources/vietnamworks.js
+2026-10-28T13:55:50.2294195Z npm notice 16.2kB js/src/sources/vk-auth.js
+2026-10-28T13:55:50.2294542Z npm notice 1.8kB js/src/sources/vk-hosts.js
+2026-10-28T13:55:50.2294903Z npm notice 7.5kB js/src/sources/vk-html-archive.js
+2026-10-28T13:55:50.2295272Z npm notice 3.6kB js/src/sources/vk-limits.js
+2026-10-28T13:55:50.2295636Z npm notice 11.4kB js/src/sources/vk-longpoll.js
+2026-10-28T13:55:50.2295997Z npm notice 2.3kB js/src/sources/vk-older.js
+2026-10-28T13:55:50.2296326Z npm notice 4.4kB js/src/sources/vk-sync.js
+2026-10-28T13:55:50.2296838Z npm notice 28.1kB js/src/sources/vk.js
+2026-10-28T13:55:50.2297183Z npm notice 19.1kB js/src/sources/web-uis.js
+2026-10-28T13:55:50.2297552Z npm notice 9.1kB js/src/sources/whatsapp-archive.js
+2026-10-28T13:55:50.2297944Z npm notice 4.5kB js/src/sources/whatsapp-file.js
+2026-10-28T13:55:50.2298314Z npm notice 3.2kB js/src/sources/whatsapp-ids.js
+2026-10-28T13:55:50.2298710Z npm notice 4.5kB js/src/sources/whatsapp-web-signin.js
+2026-10-28T13:55:50.2299103Z npm notice 11.3kB js/src/sources/whatsapp.js
+2026-10-28T13:55:50.2299445Z npm notice 10.4kB js/src/sources/x.js
+2026-10-28T13:55:50.2299792Z npm notice 2.6kB js/src/storage/app-directory.js
+2026-10-28T13:55:50.2300181Z npm notice 16.8kB js/src/storage/backup-archive.js
+2026-10-28T13:55:50.2300541Z npm notice 19.5kB js/src/storage/backup.js
+2026-10-28T13:55:50.2300895Z npm notice 5.7kB js/src/storage/binary-packet.js
+2026-10-28T13:55:50.2301267Z npm notice 11.4kB js/src/storage/browser-store.js
+2026-10-28T13:55:50.2301623Z npm notice 9.1kB js/src/storage/clink.js
+2026-10-28T13:55:50.2301965Z npm notice 2.3kB js/src/storage/disk-space.js
+2026-10-28T13:55:50.2302544Z npm notice 10.3kB js/src/storage/doublets-archive.js
+2026-10-28T13:55:50.2303003Z npm notice 8.6kB js/src/storage/doublets-mirror.js
+2026-10-28T13:55:50.2303435Z npm notice 2.4kB js/src/storage/doublets-snapshot-worker.js
+2026-10-28T13:55:50.2303856Z npm notice 3.7kB js/src/storage/doublets-store.js
+2026-10-28T13:55:50.2304227Z npm notice 3.4kB js/src/storage/dual-handoff.js
+2026-10-28T13:55:50.2304741Z npm notice 9.4kB js/src/storage/dual-store.js
+2026-10-28T13:55:50.2305089Z npm notice 6.4kB js/src/storage/durable.js
+2026-10-28T13:55:50.2305456Z npm notice 2.9kB js/src/storage/export-encrypted.js
+2026-10-28T13:55:50.2305830Z npm notice 1.0kB js/src/storage/file-writer.js
+2026-10-28T13:55:50.2306218Z npm notice 1.2kB js/src/storage/index.js
+2026-10-28T13:55:50.2306571Z npm notice 2.1kB js/src/storage/lino-handoff.js
+2026-10-28T13:55:50.2306931Z npm notice 25.2kB js/src/storage/lino-store.js
+2026-10-28T13:55:50.2307275Z npm notice 2.4kB js/src/storage/lino.js
+2026-10-28T13:55:50.2307681Z npm notice 4.6kB js/src/storage/migrations/0001-email-threads.js
+2026-10-28T13:55:50.2308187Z npm notice 5.1kB js/src/storage/migrations/0002-whatsapp-chat-ids.js
+2026-10-28T13:55:50.2308756Z npm notice 3.1kB js/src/storage/migrations/0003-vk-reactions-docs.js
+2026-10-28T13:55:50.2309314Z npm notice 3.9kB js/src/storage/migrations/0004-github-external-ids.js
+2026-10-28T13:55:50.2309831Z npm notice 5.3kB js/src/storage/migrations/0005-archive-ids.js
+2026-10-28T13:55:50.2310301Z npm notice 2.8kB js/src/storage/migrations/0006-tombstones.js
+2026-10-28T13:55:50.2310942Z npm notice 2.1kB js/src/storage/migrations/browser-runner.js
+2026-10-28T13:55:50.2311380Z npm notice 10.4kB js/src/storage/migrations/core.js
+2026-10-28T13:55:50.2311767Z npm notice 1.3kB js/src/storage/migrations/index.js
+2026-10-28T13:55:50.2312189Z npm notice 11.2kB js/src/storage/migrations/node-runner.js
+2026-10-28T13:55:50.2312955Z npm notice 3.8kB js/src/storage/secret-store.js
+2026-10-28T13:55:50.2313336Z npm notice 5.7kB js/src/storage/soft-delete.js
+2026-10-28T13:55:50.2313691Z npm notice 3.8kB js/src/storage/store-lock.js
+2026-10-28T13:55:50.2314043Z npm notice 3.7kB js/src/storage/universal.js
+2026-10-28T13:55:50.2314842Z npm notice 9.3kB js/src/storage/vault.js
+2026-10-28T13:55:50.2315450Z npm notice 5.6kB js/src/storage/write-queue.js
+2026-10-28T13:55:50.2316049Z npm notice 14.6kB js/src/sync/bun-server.js
+2026-10-28T13:55:50.2316635Z npm notice 1.1kB js/src/sync/index.js
+2026-10-28T13:55:50.2317008Z npm notice 6.4kB js/src/sync/peer.js
+2026-10-28T13:55:50.2317353Z npm notice 3.7kB js/src/sync/tcp-transport.js
+2026-10-28T13:55:50.2317732Z npm notice 3.3kB js/src/sync/webrtc-signaling.js
+2026-10-28T13:55:50.2318115Z npm notice 5.9kB js/src/sync/webrtc-transport.js
+2026-10-28T13:55:50.2318467Z npm notice 5.2kB js/src/sync/ws-frame.js
+2026-10-28T13:55:50.2318810Z npm notice 9.8kB js/src/sync/ws-transport.js
+2026-10-28T13:55:50.2319313Z npm notice 4.4kB js/src/web/api-errors.js
+2026-10-28T13:55:50.2319683Z npm notice 2.1kB js/src/web/app-navigation.js
+2026-10-28T13:55:50.2320027Z npm notice 1.2kB js/src/web/app-notify.js
+2026-10-28T13:55:50.2320353Z npm notice 6.2kB js/src/web/app-route.js
+2026-10-28T13:55:50.2320692Z npm notice 271.8kB js/src/web/app.css
+2026-10-28T13:55:50.2321001Z npm notice 8.6kB js/src/web/app.js
+2026-10-28T13:55:50.2321316Z npm notice 4.4MB js/src/web/app.min.js
+2026-10-28T13:55:50.2321641Z npm notice 4.2kB js/src/web/appearance.js
+2026-10-28T13:55:50.2321975Z npm notice 4.2kB js/src/web/apps-model.js
+2026-10-28T13:55:50.2322590Z npm notice 1.0kB js/src/web/archive-media-model.js
+2026-10-28T13:55:50.2323232Z npm notice 6.4kB js/src/web/auto-download.js
+2026-10-28T13:55:50.2323606Z npm notice 13.6kB js/src/web/automation-api.js
+2026-10-28T13:55:50.2323986Z npm notice 7.5kB js/src/web/automations-model.js
+2026-10-28T13:55:50.2324373Z npm notice 8.6kB js/src/web/automations-safety.js
+2026-10-28T13:55:50.2324775Z npm notice 8.6kB js/src/web/automations-state.js
+2026-10-28T13:55:50.2325144Z npm notice 28.3kB js/src/web/automations-view.js
+2026-10-28T13:55:50.2325506Z npm notice 3.7kB js/src/web/autopilot-hook.js
+2026-10-28T13:55:50.2325852Z npm notice 8.9kB js/src/web/bot-keyboard.js
+2026-10-28T13:55:50.2326227Z npm notice 6.2kB js/src/web/business-hours-model.js
+2026-10-28T13:55:50.2326608Z npm notice 3.8kB js/src/web/business-menu.js
+2026-10-28T13:55:50.2326972Z npm notice 11.2kB js/src/web/business-messages.js
+2026-10-28T13:55:50.2327492Z npm notice 2.4kB js/src/web/call-model.js
+2026-10-28T13:55:50.2327846Z npm notice 5.0kB js/src/web/channel-dm-model.js
+2026-10-28T13:55:50.2328216Z npm notice 16.3kB js/src/web/chat-account-data.js
+2026-10-28T13:55:50.2328574Z npm notice 3.6kB js/src/web/chat-account.js
+2026-10-28T13:55:50.2328941Z npm notice 3.0kB js/src/web/chat-accounts-live.js
+2026-10-28T13:55:50.2329305Z npm notice 14.5kB js/src/web/chat-accounts.js
+2026-10-28T13:55:50.2329648Z npm notice 21.8kB js/src/web/chat-actions.js
+2026-10-28T13:55:50.2330008Z npm notice 6.0kB js/src/web/chat-add-members.js
+2026-10-28T13:55:50.2330382Z npm notice 7.2kB js/src/web/chat-admin-rights.js
+2026-10-28T13:55:50.2330741Z npm notice 10.7kB js/src/web/chat-admin.js
+2026-10-28T13:55:50.2331079Z npm notice 8.9kB js/src/web/chat-admins.js
+2026-10-28T13:55:50.2331405Z npm notice 5.3kB js/src/web/chat-album.js
+2026-10-28T13:55:50.2331751Z npm notice 5.8kB js/src/web/chat-apps-search.js
+2026-10-28T13:55:50.2332131Z npm notice 4.2kB js/src/web/chat-archive-media.js
+2026-10-28T13:55:50.2332804Z npm notice 10.6kB js/src/web/chat-attach-bots.js
+2026-10-28T13:55:50.2333165Z npm notice 19.6kB js/src/web/chat-attach.js
+2026-10-28T13:55:50.2333542Z npm notice 2.1kB js/src/web/chat-attached-button.js
+2026-10-28T13:55:50.2333957Z npm notice 4.0kB js/src/web/chat-attached-stickers.js
+2026-10-28T13:55:50.2334346Z npm notice 8.5kB js/src/web/chat-automation.js
+2026-10-28T13:55:50.2334698Z npm notice 12.6kB js/src/web/chat-boosts.js
+2026-10-28T13:55:50.2335056Z npm notice 9.2kB js/src/web/chat-bot-commands.js
+2026-10-28T13:55:50.2335416Z npm notice 8.0kB js/src/web/chat-bot-login.js
+2026-10-28T13:55:50.2335762Z npm notice 14.3kB js/src/web/chat-bots.js
+2026-10-28T13:55:50.2336122Z npm notice 10.0kB js/src/web/chat-business-bots.js
+2026-10-28T13:55:50.2336517Z npm notice 2.1kB js/src/web/chat-business-common.js
+2026-10-28T13:55:50.2336911Z npm notice 7.4kB js/src/web/chat-business-hours.js
+2026-10-28T13:55:50.2337323Z npm notice 3.1kB js/src/web/chat-business-link-open.js
+2026-10-28T13:55:50.2337728Z npm notice 8.3kB js/src/web/chat-business-links.js
+2026-10-28T13:55:50.2338132Z npm notice 10.1kB js/src/web/chat-business-place.js
+2026-10-28T13:55:50.2338538Z npm notice 7.3kB js/src/web/chat-business-profile.js
+2026-10-28T13:55:50.2338916Z npm notice 4.4kB js/src/web/chat-calendar.js
+2026-10-28T13:55:50.2339257Z npm notice 8.2kB js/src/web/chat-calls.js
+2026-10-28T13:55:50.2339633Z npm notice 13.2kB js/src/web/chat-channel-dm-thread.js
+2026-10-28T13:55:50.2340164Z npm notice 5.0kB js/src/web/chat-channel-dm.js
+2026-10-28T13:55:50.2340555Z npm notice 4.3kB js/src/web/chat-channel-limit.js
+2026-10-28T13:55:50.2340930Z npm notice 4.3kB js/src/web/chat-collectible.js
+2026-10-28T13:55:50.2341297Z npm notice 2.3kB js/src/web/chat-comments-bar.js
+2026-10-28T13:55:50.2341653Z npm notice 10.4kB js/src/web/chat-comments.js
+2026-10-28T13:55:50.2342012Z npm notice 4.7kB js/src/web/chat-common-chats.js
+2026-10-28T13:55:50.2342699Z npm notice 10.8kB js/src/web/chat-contact-extras.js
+2026-10-28T13:55:50.2343110Z npm notice 3.1kB js/src/web/chat-contact-share.js
+2026-10-28T13:55:50.2343486Z npm notice 6.7kB js/src/web/chat-contacts-edit.js
+2026-10-28T13:55:50.2343866Z npm notice 1.9kB js/src/web/chat-contacts-synced.js
+2026-10-28T13:55:50.2344283Z npm notice 9.6kB js/src/web/chat-contacts-window.js
+2026-10-28T13:55:50.2344786Z npm notice 12.7kB js/src/web/chat-create.js
+2026-10-28T13:55:50.2345124Z npm notice 12.9kB js/src/web/chat-days.js
+2026-10-28T13:55:50.2345462Z npm notice 7.0kB js/src/web/chat-deleted.js
+2026-10-28T13:55:50.2345814Z npm notice 4.7kB js/src/web/chat-drafts-clear.js
+2026-10-28T13:55:50.2346163Z npm notice 8.5kB js/src/web/chat-drag.js
+2026-10-28T13:55:50.2346506Z npm notice 5.1kB js/src/web/chat-edit-mode.js
+2026-10-28T13:55:50.2346848Z npm notice 7.6kB js/src/web/chat-edit.js
+2026-10-28T13:55:50.2347187Z npm notice 8.0kB js/src/web/chat-effects.js
+2026-10-28T13:55:50.2347532Z npm notice 6.1kB js/src/web/chat-email-body.js
+2026-10-28T13:55:50.2348086Z npm notice 10.1kB js/src/web/chat-emoji-custom.js
+2026-10-28T13:55:50.2348512Z npm notice 2.9kB js/src/web/chat-emoji-status-search.js
+2026-10-28T13:55:50.2348915Z npm notice 6.9kB js/src/web/chat-emoji-status.js
+2026-10-28T13:55:50.2349294Z npm notice 4.2kB js/src/web/chat-emoji-suggest.js
+2026-10-28T13:55:50.2349675Z npm notice 1.9kB js/src/web/chat-emoji-tools.js
+2026-10-28T13:55:50.2350026Z npm notice 25.8kB js/src/web/chat-emoji.js
+2026-10-28T13:55:50.2350373Z npm notice 3.3kB js/src/web/chat-ephemeral.js
+2026-10-28T13:55:50.2350728Z npm notice 15.4kB js/src/web/chat-export.js
+2026-10-28T13:55:50.2351075Z npm notice 5.0kB js/src/web/chat-fact-check.js
+2026-10-28T13:55:50.2351419Z npm notice 2.7kB js/src/web/chat-failure.js
+2026-10-28T13:55:50.2351766Z npm notice 4.3kB js/src/web/chat-feed.js
+2026-10-28T13:55:50.2352125Z npm notice 19.4kB js/src/web/chat-folder-edit.js
+2026-10-28T13:55:50.2352813Z npm notice 2.2kB js/src/web/chat-folder-live.js
+2026-10-28T13:55:50.2353213Z npm notice 7.5kB js/src/web/chat-folder-model.js
+2026-10-28T13:55:50.2353615Z npm notice 16.6kB js/src/web/chat-folder-share.js
+2026-10-28T13:55:50.2353996Z npm notice 4.2kB js/src/web/chat-folder-tags.js
+2026-10-28T13:55:50.2354399Z npm notice 6.6kB js/src/web/chat-folder-updates.js
+2026-10-28T13:55:50.2354781Z npm notice 6.5kB js/src/web/chat-folders.js
+2026-10-28T13:55:50.2355135Z npm notice 9.0kB js/src/web/chat-follow.js
+2026-10-28T13:55:50.2355497Z npm notice 3.6kB js/src/web/chat-format-bar.js
+2026-10-28T13:55:50.2355862Z npm notice 3.4kB js/src/web/chat-forum-view.js
+2026-10-28T13:55:50.2356207Z npm notice 7.3kB js/src/web/chat-forward.js
+2026-10-28T13:55:50.2356544Z npm notice 5.9kB js/src/web/chat-games.js
+2026-10-28T13:55:50.2356882Z npm notice 3.6kB js/src/web/chat-gestures.js
+2026-10-28T13:55:50.2357260Z npm notice 1.3kB js/src/web/chat-gift-code-button.js
+2026-10-28T13:55:50.2357650Z npm notice 15.3kB js/src/web/chat-gift-manage.js
+2026-10-28T13:55:50.2358012Z npm notice 9.2kB js/src/web/chat-gift-unique.js
+2026-10-28T13:55:50.2358369Z npm notice 9.8kB js/src/web/chat-giveaway.js
+2026-10-28T13:55:50.2358710Z npm notice 9.8kB js/src/web/chat-global.js
+2026-10-28T13:55:50.2359072Z npm notice 8.8kB js/src/web/chat-group-stickers.js
+2026-10-28T13:55:50.2359453Z npm notice 2.1kB js/src/web/chat-history-load.js
+2026-10-28T13:55:50.2359798Z npm notice 2.2kB js/src/web/chat-info.js
+2026-10-28T13:55:50.2360143Z npm notice 13.7kB js/src/web/chat-inline-bots.js
+2026-10-28T13:55:50.2360544Z npm notice 2.7kB js/src/web/chat-instant-view-open.js
+2026-10-28T13:55:50.2361107Z npm notice 15.7kB js/src/web/chat-instant-view-render.js
+2026-10-28T13:55:50.2361517Z npm notice 5.2kB js/src/web/chat-instant-view.js
+2026-10-28T13:55:50.2361888Z npm notice 16.6kB js/src/web/chat-invite-links.js
+2026-10-28T13:55:50.2362243Z npm notice 11.1kB js/src/web/chat-invite.js
+2026-10-28T13:55:50.2362891Z npm notice 12.3kB js/src/web/chat-join-requests.js
+2026-10-28T13:55:50.2363313Z npm notice 13.6kB js/src/web/chat-jump.js
+2026-10-28T13:55:50.2363658Z npm notice 3.9kB js/src/web/chat-leaving.js
+2026-10-28T13:55:50.2364014Z npm notice 3.8kB js/src/web/chat-left-channels.js
+2026-10-28T13:55:50.2364380Z npm notice 3.2kB js/src/web/chat-link-open.js
+2026-10-28T13:55:50.2364747Z npm notice 8.6kB js/src/web/chat-link-preview.js
+2026-10-28T13:55:50.2365113Z npm notice 8.6kB js/src/web/chat-list-menu.js
+2026-10-28T13:55:50.2365455Z npm notice 10.4kB js/src/web/chat-list.js
+2026-10-28T13:55:50.2365812Z npm notice 9.5kB js/src/web/chat-live-locations.js
+2026-10-28T13:55:50.2366172Z npm notice 18.2kB js/src/web/chat-live.js
+2026-10-28T13:55:50.2366501Z npm notice 8.8kB js/src/web/chat-manage.js
+2026-10-28T13:55:50.2366824Z npm notice 3.1kB js/src/web/chat-marks.js
+2026-10-28T13:55:50.2367149Z npm notice 30.8kB js/src/web/chat-media.js
+2026-10-28T13:55:50.2367491Z npm notice 10.2kB js/src/web/chat-members.js
+2026-10-28T13:55:50.2367851Z npm notice 6.4kB js/src/web/chat-message-stats.js
+2026-10-28T13:55:50.2368213Z npm notice 44.2kB js/src/web/chat-message.js
+2026-10-28T13:55:50.2368698Z npm notice 18.4kB js/src/web/chat-model.js
+2026-10-28T13:55:50.2369043Z npm notice 13.7kB js/src/web/chat-moderation.js
+2026-10-28T13:55:50.2369408Z npm notice 1.8kB js/src/web/chat-music-save.js
+2026-10-28T13:55:50.2369798Z npm notice 8.5kB js/src/web/chat-notify-settings.js
+2026-10-28T13:55:50.2370181Z npm notice 2.7kB js/src/web/chat-notify-sound.js
+2026-10-28T13:55:50.2370531Z npm notice 8.3kB js/src/web/chat-notify.js
+2026-10-28T13:55:50.2370864Z npm notice 6.3kB js/src/web/chat-outbox.js
+2026-10-28T13:55:50.2371226Z npm notice 5.2kB js/src/web/chat-paid-earnings.js
+2026-10-28T13:55:50.2371591Z npm notice 5.0kB js/src/web/chat-paid-send.js
+2026-10-28T13:55:50.2371928Z npm notice 9.3kB js/src/web/chat-paid.js
+2026-10-28T13:55:50.2372262Z npm notice 7.3kB js/src/web/chat-passcode.js
+2026-10-28T13:55:50.2372892Z npm notice 14.4kB js/src/web/chat-peer-actions.js
+2026-10-28T13:55:50.2373273Z npm notice 7.5kB js/src/web/chat-person-extras.js
+2026-10-28T13:55:50.2373645Z npm notice 13.6kB js/src/web/chat-photo-editor.js
+2026-10-28T13:55:50.2373998Z npm notice 8.6kB js/src/web/chat-photo.js
+2026-10-28T13:55:50.2374339Z npm notice 6.5kB js/src/web/chat-pin-drag.js
+2026-10-28T13:55:50.2374685Z npm notice 4.9kB js/src/web/chat-pin-order.js
+2026-10-28T13:55:50.2375058Z npm notice 12.0kB js/src/web/chat-pinned.js
+2026-10-28T13:55:50.2375388Z npm notice 5.0kB js/src/web/chat-pip.js
+2026-10-28T13:55:50.2375733Z npm notice 10.5kB js/src/web/chat-poll-create.js
+2026-10-28T13:55:50.2376077Z npm notice 21.0kB js/src/web/chat-poll.js
+2026-10-28T13:55:50.2376444Z npm notice 6.3kB js/src/web/chat-prepared-share.js
+2026-10-28T13:55:50.2376827Z npm notice 4.2kB js/src/web/chat-privacy-paid.js
+2026-10-28T13:55:50.2377185Z npm notice 24.1kB js/src/web/chat-privacy.js
+2026-10-28T13:55:50.2377541Z npm notice 12.6kB js/src/web/chat-private-call.js
+2026-10-28T13:55:50.2377929Z npm notice 13.0kB js/src/web/chat-profile-extras.js
+2026-10-28T13:55:50.2378306Z npm notice 15.8kB js/src/web/chat-profile.js
+2026-10-28T13:55:50.2378668Z npm notice 9.5kB js/src/web/chat-public-link.js
+2026-10-28T13:55:50.2379044Z npm notice 4.8kB js/src/web/chat-quick-reaction.js
+2026-10-28T13:55:50.2379414Z npm notice 10.3kB js/src/web/chat-reactions.js
+2026-10-28T13:55:50.2379767Z npm notice 3.7kB js/src/web/chat-read-time.js
+2026-10-28T13:55:50.2380115Z npm notice 11.6kB js/src/web/chat-readers.js
+2026-10-28T13:55:50.2380478Z npm notice 5.1kB js/src/web/chat-remote-media.js
+2026-10-28T13:55:50.2380849Z npm notice 2.8kB js/src/web/chat-replies-block.js
+2026-10-28T13:55:50.2381394Z npm notice 4.2kB js/src/web/chat-replies.js
+2026-10-28T13:55:50.2381747Z npm notice 2.1kB js/src/web/chat-report.js
+2026-10-28T13:55:50.2382100Z npm notice 5.3kB js/src/web/chat-request-peer.js
+2026-10-28T13:55:50.2382825Z npm notice 3.8kB js/src/web/chat-rich-message.js
+2026-10-28T13:55:50.2383267Z npm notice 16.4kB js/src/web/chat-round-record.js
+2026-10-28T13:55:50.2383621Z npm notice 6.5kB js/src/web/chat-round.js
+2026-10-28T13:55:50.2383947Z npm notice 5.0kB js/src/web/chat-row.js
+2026-10-28T13:55:50.2384300Z npm notice 2.5kB js/src/web/chat-saved-gifs.js
+2026-10-28T13:55:50.2384659Z npm notice 10.3kB js/src/web/chat-saved-tags.js
+2026-10-28T13:55:50.2385009Z npm notice 17.8kB js/src/web/chat-saved.js
+2026-10-28T13:55:50.2385356Z npm notice 14.8kB js/src/web/chat-schedule.js
+2026-10-28T13:55:50.2385697Z npm notice 8.2kB js/src/web/chat-search.js
+2026-10-28T13:55:50.2386061Z npm notice 9.3kB js/src/web/chat-security-extras.js
+2026-10-28T13:55:50.2386461Z npm notice 7.1kB js/src/web/chat-security-forgot.js
+2026-10-28T13:55:50.2386828Z npm notice 18.9kB js/src/web/chat-security.js
+2026-10-28T13:55:50.2387179Z npm notice 21.4kB js/src/web/chat-selection.js
+2026-10-28T13:55:50.2387523Z npm notice 5.7kB js/src/web/chat-send-as.js
+2026-10-28T13:55:50.2387863Z npm notice 9.0kB js/src/web/chat-send-gift.js
+2026-10-28T13:55:50.2388223Z npm notice 4.4kB js/src/web/chat-service-line.js
+2026-10-28T13:55:50.2388583Z npm notice 11.2kB js/src/web/chat-settings.js
+2026-10-28T13:55:50.2389094Z npm notice 19.5kB js/src/web/chat-share.js
+2026-10-28T13:55:50.2389439Z npm notice 11.0kB js/src/web/chat-shared.js
+2026-10-28T13:55:50.2389786Z npm notice 17.4kB js/src/web/chat-sidebar.js
+2026-10-28T13:55:50.2390137Z npm notice 1.9kB js/src/web/chat-sign-in-code.js
+2026-10-28T13:55:50.2390501Z npm notice 2.5kB js/src/web/chat-similar-bots.js
+2026-10-28T13:55:50.2390848Z npm notice 5.9kB js/src/web/chat-similar.js
+2026-10-28T13:55:50.2391178Z npm notice 11.2kB js/src/web/chat-stars.js
+2026-10-28T13:55:50.2391512Z npm notice 33.9kB js/src/web/chat-state.js
+2026-10-28T13:55:50.2391839Z npm notice 22.7kB js/src/web/chat-stats.js
+2026-10-28T13:55:50.2392183Z npm notice 7.6kB js/src/web/chat-sticker-box.js
+2026-10-28T13:55:50.2392858Z npm notice 11.8kB js/src/web/chat-sticker-settings.js
+2026-10-28T13:55:50.2393269Z npm notice 5.5kB js/src/web/chat-sticker-trending.js
+2026-10-28T13:55:50.2393641Z npm notice 27.1kB js/src/web/chat-stickers.js
+2026-10-28T13:55:50.2393982Z npm notice 2.2kB js/src/web/chat-suggest.js
+2026-10-28T13:55:50.2394340Z npm notice 1.5kB js/src/web/chat-tab-scroll.js
+2026-10-28T13:55:50.2394681Z npm notice 8.0kB js/src/web/chat-tags.js
+2026-10-28T13:55:50.2395028Z npm notice 3.1kB js/src/web/chat-theme-model.js
+2026-10-28T13:55:50.2395371Z npm notice 7.6kB js/src/web/chat-theme.js
+2026-10-28T13:55:50.2395714Z npm notice 5.6kB js/src/web/chat-todo-create.js
+2026-10-28T13:55:50.2396078Z npm notice 6.6kB js/src/web/chat-top-peers.js
+2026-10-28T13:55:50.2396439Z npm notice 12.9kB js/src/web/chat-topic-admin.js
+2026-10-28T13:55:50.2396791Z npm notice 8.2kB js/src/web/chat-topics.js
+2026-10-28T13:55:50.2397134Z npm notice 9.3kB js/src/web/chat-transcribe.js
+2026-10-28T13:55:50.2397506Z npm notice 8.4kB js/src/web/chat-translate-bar.js
+2026-10-28T13:55:50.2397874Z npm notice 8.0kB js/src/web/chat-translate.js
+2026-10-28T13:55:50.2398267Z npm notice 3.0kB js/src/web/chat-translation-switch.js
+2026-10-28T13:55:50.2398638Z npm notice 7.8kB js/src/web/chat-ttl.js
+2026-10-28T13:55:50.2398978Z npm notice 7.1kB js/src/web/chat-usernames.js
+2026-10-28T13:55:50.2399314Z npm notice 47.8kB js/src/web/chat-view.js
+2026-10-28T13:55:50.2399638Z npm notice 9.0kB js/src/web/chat-views.js
+2026-10-28T13:55:50.2399976Z npm notice 4.0kB js/src/web/chat-voice-chat.js
+2026-10-28T13:55:50.2400344Z npm notice 5.8kB js/src/web/chat-voice-hooks.js
+2026-10-28T13:55:50.2400720Z npm notice 8.1kB js/src/web/chat-voice-panel.js
+2026-10-28T13:55:50.2401072Z npm notice 14.7kB js/src/web/chat-voice.js
+2026-10-28T13:55:50.2401566Z npm notice 12.1kB js/src/web/chat-wallpaper.js
+2026-10-28T13:55:50.2401943Z npm notice 17.8kB js/src/web/chat-web-apps.js
+2026-10-28T13:55:50.2402293Z npm notice 1.8kB js/src/web/chat-webpage.js
+2026-10-28T13:55:50.2402803Z npm notice 20.1kB js/src/web/chat-window.js
+2026-10-28T13:55:50.2403138Z npm notice 4.0kB js/src/web/client-log.js
+2026-10-28T13:55:50.2403466Z npm notice 13.4kB js/src/web/client.js
+2026-10-28T13:55:50.2403816Z npm notice 4.3kB js/src/web/cloud-theme-model.js
+2026-10-28T13:55:50.2404205Z npm notice 11.8kB js/src/web/cloud-themes.js
+2026-10-28T13:55:50.2404556Z npm notice 5.2kB js/src/web/connection-guide.js
+2026-10-28T13:55:50.2404933Z npm notice 50.8kB js/src/web/connection-guides.js
+2026-10-28T13:55:50.2405304Z npm notice 1.6kB js/src/web/connection-prefs.js
+2026-10-28T13:55:50.2405723Z npm notice 9.0kB js/src/web/connections/browser-sign-ins.js
+2026-10-28T13:55:50.2406164Z npm notice 1.9kB js/src/web/connections/email-pull.js
+2026-10-28T13:55:50.2406568Z npm notice 2.9kB js/src/web/connections/fetch-now.js
+2026-10-28T13:55:50.2406988Z npm notice 7.0kB js/src/web/connections/github-inbox.js
+2026-10-28T13:55:50.2407447Z npm notice 3.8kB js/src/web/connections/github-notifications.js
+2026-10-28T13:55:50.2407864Z npm notice 710B js/src/web/connections/hash.js
+2026-10-28T13:55:50.2408227Z npm notice 35.9kB js/src/web/connections/index.js
+2026-10-28T13:55:50.2408621Z npm notice 1.9kB js/src/web/connections/popularity.js
+2026-10-28T13:55:50.2409022Z npm notice 664B js/src/web/connections/recommended.js
+2026-10-28T13:55:50.2409624Z npm notice 1.3kB js/src/web/connections/setup-steps.js
+2026-10-28T13:55:50.2410067Z npm notice 3.0kB js/src/web/connections/telegram-qr-login.js
+2026-10-28T13:55:50.2410535Z npm notice 20.1kB js/src/web/connections/telegram-sessions.js
+2026-10-28T13:55:50.2410979Z npm notice 3.4kB js/src/web/connections/whatsapp-web.js
+2026-10-28T13:55:50.2411359Z npm notice 5.2kB js/src/web/contact-links.js
+2026-10-28T13:55:50.2411718Z npm notice 7.6kB js/src/web/contacts-import.js
+2026-10-28T13:55:50.2412084Z npm notice 1.8kB js/src/web/contacts-live.js
+2026-10-28T13:55:50.2412572Z npm notice 4.8kB js/src/web/custom-emoji.js
+2026-10-28T13:55:50.2412906Z npm notice 13.8kB js/src/web/cv-view.js
+2026-10-28T13:55:50.2413241Z npm notice 4.0kB js/src/web/dialog-focus.js
+2026-10-28T13:55:50.2413573Z npm notice 8.1kB js/src/web/discover.js
+2026-10-28T13:55:50.2413915Z npm notice 1.3kB js/src/web/discovery-shell.js
+2026-10-28T13:55:50.2414263Z npm notice 2.4kB js/src/web/disk-banner.js
+2026-10-28T13:55:50.2414636Z npm notice 28.9kB js/src/web/dom-telegram-calls.js
+2026-10-28T13:55:50.2414988Z npm notice 55.7kB js/src/web/dom.js
+2026-10-28T13:55:50.2415319Z npm notice 18.1kB js/src/web/download/copy.js
+2026-10-28T13:55:50.2415684Z npm notice 4.6kB js/src/web/download/download.css
+2026-10-28T13:55:50.2416063Z npm notice 7.0kB js/src/web/download/downloads.js
+2026-10-28T13:55:50.2416441Z npm notice 1.1kB js/src/web/download/index.html
+2026-10-28T13:55:50.2416798Z npm notice 5.9kB js/src/web/download/model.js
+2026-10-28T13:55:50.2417150Z npm notice 10.2kB js/src/web/download/page.js
+2026-10-28T13:55:50.2417499Z npm notice 1.4kB js/src/web/download/verify.js
+2026-10-28T13:55:50.2417835Z npm notice 7.5kB js/src/web/effects.js
+2026-10-28T13:55:50.2418160Z npm notice 42.6kB js/src/web/emoji-data.js
+2026-10-28T13:55:50.2418523Z npm notice 1.5kB js/src/web/emoji-status-model.js
+2026-10-28T13:55:50.2418875Z npm notice 770B js/src/web/emoji-status.js
+2026-10-28T13:55:50.2419212Z npm notice 2.7kB js/src/web/entity-extras.js
+2026-10-28T13:55:50.2419558Z npm notice 2.5kB js/src/web/forum-topics.js
+2026-10-28T13:55:50.2419882Z npm notice 687B js/src/web/gif-id.js
+2026-10-28T13:55:50.2420224Z npm notice 5.0kB js/src/web/gift-manage-model.js
+2026-10-28T13:55:50.2420591Z npm notice 4.9kB js/src/web/giveaway-model.js
+2026-10-28T13:55:50.2420943Z npm notice 18.3kB js/src/web/greetings-view.js
+2026-10-28T13:55:50.2421275Z npm notice 8.5kB js/src/web/i18n.js
+2026-10-28T13:55:50.2421578Z npm notice 17.9kB js/src/web/icons.js
+2026-10-28T13:55:50.2422020Z npm notice 2.1kB js/src/web/index.html
+2026-10-28T13:55:50.2422656Z npm notice 1.9kB js/src/web/language-switcher.js
+2026-10-28T13:55:50.2423127Z npm notice 609B js/src/web/live-clock.js
+2026-10-28T13:55:50.2423469Z npm notice 2.9kB js/src/web/live-follow.js
+2026-10-28T13:55:50.2423803Z npm notice 5.5kB js/src/web/live-place.js
+2026-10-28T13:55:50.2424134Z npm notice 3.2kB js/src/web/live-watch.js
+2026-10-28T13:55:50.2424515Z npm notice 37.7kB js/src/web/locales/en-chat-account.js
+2026-10-28T13:55:50.2424935Z npm notice 71.8kB js/src/web/locales/en-chat-more.js
+2026-10-28T13:55:50.2425328Z npm notice 71.0kB js/src/web/locales/en-chat.js
+2026-10-28T13:55:50.2425702Z npm notice 2.9kB js/src/web/locales/en-folders.js
+2026-10-28T13:55:50.2426074Z npm notice 2.1kB js/src/web/locales/en-github.js
+2026-10-28T13:55:50.2426457Z npm notice 1.2kB js/src/web/locales/en-transcribe.js
+2026-10-28T13:55:50.2426822Z npm notice 74.6kB js/src/web/locales/en.js
+2026-10-28T13:55:50.2427212Z npm notice 63.3kB js/src/web/locales/hi-chat-account.js
+2026-10-28T13:55:50.2427632Z npm notice 118.5kB js/src/web/locales/hi-chat-more.js
+2026-10-28T13:55:50.2428015Z npm notice 114.2kB js/src/web/locales/hi-chat.js
+2026-10-28T13:55:50.2428387Z npm notice 5.2kB js/src/web/locales/hi-folders.js
+2026-10-28T13:55:50.2428762Z npm notice 3.6kB js/src/web/locales/hi-github.js
+2026-10-28T13:55:50.2429146Z npm notice 1.9kB js/src/web/locales/hi-transcribe.js
+2026-10-28T13:55:50.2429519Z npm notice 128.0kB js/src/web/locales/hi.js
+2026-10-28T13:55:50.2430023Z npm notice 999B js/src/web/locales/index.js
+2026-10-28T13:55:50.2430400Z npm notice 53.3kB js/src/web/locales/ru-chat-account.js
+2026-10-28T13:55:50.2430811Z npm notice 100.4kB js/src/web/locales/ru-chat-more.js
+2026-10-28T13:55:50.2431192Z npm notice 99.0kB js/src/web/locales/ru-chat.js
+2026-10-28T13:55:50.2431563Z npm notice 4.5kB js/src/web/locales/ru-folders.js
+2026-10-28T13:55:50.2431938Z npm notice 3.1kB js/src/web/locales/ru-github.js
+2026-10-28T13:55:50.2432491Z npm notice 1.6kB js/src/web/locales/ru-transcribe.js
+2026-10-28T13:55:50.2432920Z npm notice 108.5kB js/src/web/locales/ru.js
+2026-10-28T13:55:50.2433296Z npm notice 36.7kB js/src/web/locales/zh-chat-account.js
+2026-10-28T13:55:50.2433697Z npm notice 70.8kB js/src/web/locales/zh-chat-more.js
+2026-10-28T13:55:50.2434070Z npm notice 68.9kB js/src/web/locales/zh-chat.js
+2026-10-28T13:55:50.2434444Z npm notice 2.9kB js/src/web/locales/zh-folders.js
+2026-10-28T13:55:50.2434812Z npm notice 2.1kB js/src/web/locales/zh-github.js
+2026-10-28T13:55:50.2435207Z npm notice 1.1kB js/src/web/locales/zh-transcribe.js
+2026-10-28T13:55:50.2435569Z npm notice 72.4kB js/src/web/locales/zh.js
+2026-10-28T13:55:50.2435923Z npm notice 4.7kB js/src/web/lottie-sticker.js
+2026-10-28T13:55:50.2436313Z npm notice 7.5kB js/src/web/marketplace-accounts.js
+2026-10-28T13:55:50.2436799Z npm notice 5.7kB js/src/web/media-loading.js
+2026-10-28T13:55:50.2437138Z npm notice 2.4kB js/src/web/media-src.js
+2026-10-28T13:55:50.2437478Z npm notice 4.6kB js/src/web/message-links.js
+2026-10-28T13:55:50.2437834Z npm notice 27.4kB js/src/web/message-parts.js
+2026-10-28T13:55:50.2438182Z npm notice 11.0kB js/src/web/message-text.js
+2026-10-28T13:55:50.2438509Z npm notice 1.1kB js/src/web/nav-items.js
+2026-10-28T13:55:50.2438866Z npm notice 4.9kB js/src/web/navigation-counts.js
+2026-10-28T13:55:50.2439210Z npm notice 1.5kB js/src/web/notice.js
+2026-10-28T13:55:50.2439534Z npm notice 4.2kB js/src/web/notify-rules.js
+2026-10-28T13:55:50.2439870Z npm notice 3.5kB js/src/web/notify-sound.js
+2026-10-28T13:55:50.2440221Z npm notice 2.0kB js/src/web/operator-model.js
+2026-10-28T13:55:50.2440575Z npm notice 1.4kB js/src/web/operator-order.js
+2026-10-28T13:55:50.2440933Z npm notice 1.7kB js/src/web/operator-prefs.js
+2026-10-28T13:55:50.2441283Z npm notice 3.5kB js/src/web/operator-unread.js
+2026-10-28T13:55:50.2441631Z npm notice 8.6kB js/src/web/operator-view.js
+2026-10-28T13:55:50.2441971Z npm notice 1.9kB js/src/web/operator-work.js
+2026-10-28T13:55:50.2442602Z npm notice 90B js/src/web/outbox-context.js
+2026-10-28T13:55:50.2442973Z npm notice 652B js/src/web/outbox-host.js
+2026-10-28T13:55:50.2443337Z npm notice 860B js/src/web/paid-portal.js
+2026-10-28T13:55:50.2443903Z npm notice 7.4kB js/src/web/paid-send.js
+2026-10-28T13:55:50.2444342Z npm notice 2.9kB js/src/web/panel-resize.js
+2026-10-28T13:55:50.2445030Z npm notice 910B js/src/web/passcode-request.js
+2026-10-28T13:55:50.2445491Z npm notice 6.9kB js/src/web/passcode.js
+2026-10-28T13:55:50.2445923Z npm notice 3.4kB js/src/web/passkey-codec.js
+2026-10-28T13:55:50.2446522Z npm notice 39.0kB js/src/web/pattern-matcher.wasm
+2026-10-28T13:55:50.2446997Z npm notice 1.5kB js/src/web/pattern-worker.js
+2026-10-28T13:55:50.2447537Z npm notice 2.4kB js/src/web/patterns-wasm.js
+2026-10-28T13:55:50.2447981Z npm notice 8.1kB js/src/web/peer-avatar.js
+2026-10-28T13:55:50.2448402Z npm notice 1.7kB js/src/web/peer-color.js
+2026-10-28T13:55:50.2448944Z npm notice 12.8kB js/src/web/person-panel.js
+2026-10-28T13:55:50.2449422Z npm notice 9.3kB js/src/web/photo-editor-model.js
+2026-10-28T13:55:50.2508376Z npm notice 4.4kB js/src/web/photo-editor-render.js
+2026-10-28T13:55:50.2509230Z npm notice 6.1kB js/src/web/poll-parts.js
+2026-10-28T13:55:50.2509830Z npm notice 1.9kB js/src/web/privacy-prefs.js
+2026-10-28T13:55:50.2510443Z npm notice 3.2kB js/src/web/private-call-model.js
+2026-10-28T13:55:50.2511130Z npm notice 3.9kB js/src/web/profile-extras-model.js
+2026-10-28T13:55:50.2511737Z npm notice 6.1kB js/src/web/profile-music.js
+2026-10-28T13:55:50.2513091Z npm notice 1.2kB js/src/web/profile-stories-model.js
+2026-10-28T13:55:50.2513742Z npm notice 13.4kB js/src/web/profile-stories.js
+2026-10-28T13:55:50.2514363Z npm notice 3.6kB js/src/web/proxy-model.js
+2026-10-28T13:55:50.2514950Z npm notice 13.8kB js/src/web/qr-code.js
+2026-10-28T13:55:50.2515606Z npm notice 6.9kB js/src/web/quick-replies-model.js
+2026-10-28T13:55:50.2516288Z npm notice 13.5kB js/src/web/quick-replies.js
+2026-10-28T13:55:50.2516918Z npm notice 1.7kB js/src/web/read-retry.js
+2026-10-28T13:55:50.2517577Z npm notice 2.0kB js/src/web/request-policy.js
+2026-10-28T13:55:50.2518258Z npm notice 4.7kB js/src/web/request-recovery.js
+2026-10-28T13:55:50.2518884Z npm notice 2.0kB js/src/web/rich-math.js
+2026-10-28T13:55:50.2519290Z npm notice 1.2kB js/src/web/rich-message-model.js
+2026-10-28T13:55:50.2519696Z npm notice 1.4kB js/src/web/rich-service-model.js
+2026-10-28T13:55:50.2520087Z npm notice 3.6kB js/src/web/rich-text-nodes.js
+2026-10-28T13:55:50.2520455Z npm notice 1.9kB js/src/web/schema-banner.js
+2026-10-28T13:55:50.2520843Z npm notice 1.7kB js/src/web/server-availability.js
+2026-10-28T13:55:50.2521223Z npm notice 1.8kB js/src/web/server-events.js
+2026-10-28T13:55:50.2521593Z npm notice 1.5kB js/src/web/server-transport.js
+2026-10-28T13:55:50.2521980Z npm notice 15.7kB js/src/web/service-texts.js
+2026-10-28T13:55:50.2522739Z npm notice 1.6kB js/src/web/settings-confirm.js
+2026-10-28T13:55:50.2523186Z npm notice 1.2kB js/src/web/settings-fields.js
+2026-10-28T13:55:50.2523552Z npm notice 4.6kB js/src/web/settings-media.js
+2026-10-28T13:55:50.2523953Z npm notice 4.7kB js/src/web/settings-notify-extras.js
+2026-10-28T13:55:50.2524336Z npm notice 8.7kB js/src/web/settings-notify.js
+2026-10-28T13:55:50.2524693Z npm notice 10.3kB js/src/web/settings-proxy.js
+2026-10-28T13:55:50.2525052Z npm notice 2.8kB js/src/web/settings-scale.js
+2026-10-28T13:55:50.2525411Z npm notice 7.6kB js/src/web/settings-sounds.js
+2026-10-28T13:55:50.2525772Z npm notice 6.8kB js/src/web/settings-storage.js
+2026-10-28T13:55:50.2526153Z npm notice 10.5kB js/src/web/settings-view.js
+2026-10-28T13:55:50.2526510Z npm notice 7.5kB js/src/web/shell/app-shell.js
+2026-10-28T13:55:50.2526854Z npm notice 7.3kB js/src/web/shortcuts.js
+2026-10-28T13:55:50.2527220Z npm notice 3.0kB js/src/web/sign-in-code-guard.js
+2026-10-28T13:55:50.2527576Z npm notice 2.8kB js/src/web/spinner.js
+2026-10-28T13:55:50.2527908Z npm notice 3.9kB js/src/web/stars-model.js
+2026-10-28T13:55:50.2528255Z npm notice 13.2kB js/src/web/stats-graph.js
+2026-10-28T13:55:50.2528931Z npm notice 900B js/src/web/sticker-settings-model.js
+2026-10-28T13:55:50.2529345Z npm notice 7.5kB js/src/web/stories-model.js
+2026-10-28T13:55:50.2529696Z npm notice 262B js/src/web/stories-pref.js
+2026-10-28T13:55:50.2530028Z npm notice 11.7kB js/src/web/stories.js
+2026-10-28T13:55:50.2530370Z npm notice 14.1kB js/src/web/story-actions.js
+2026-10-28T13:55:50.2530726Z npm notice 8.3kB js/src/web/story-extras.js
+2026-10-28T13:55:50.2531093Z npm notice 2.5kB js/src/web/story-manage-model.js
+2026-10-28T13:55:50.2531458Z npm notice 6.5kB js/src/web/story-manage.js
+2026-10-28T13:55:50.2531819Z npm notice 3.5kB js/src/web/story-post-model.js
+2026-10-28T13:55:50.2532168Z npm notice 11.3kB js/src/web/story-post.js
+2026-10-28T13:55:50.2532755Z npm notice 22.3kB js/src/web/story-viewer.js
+2026-10-28T13:55:50.2533151Z npm notice 3.2kB js/src/web/telegram-account-scope.js
+2026-10-28T13:55:50.2533537Z npm notice 4.5kB js/src/web/telegram-online.js
+2026-10-28T13:55:50.2533905Z npm notice 949B js/src/web/telegram-status.js
+2026-10-28T13:55:50.2534260Z npm notice 3.2kB js/src/web/text-shortcuts.js
+2026-10-28T13:55:50.2534618Z npm notice 3.5kB js/src/web/translate-detect.js
+2026-10-28T13:55:50.2534975Z npm notice 4.6kB js/src/web/translate-store.js
+2026-10-28T13:55:50.2535330Z npm notice 7.0kB js/src/web/tutorial-clear.js
+2026-10-28T13:55:50.2535678Z npm notice 8.3kB js/src/web/tutorial-follow.js
+2026-10-28T13:55:50.2536047Z npm notice 4.6kB js/src/web/tutorial-placement.js
+2026-10-28T13:55:50.2536666Z npm notice 2.0kB js/src/web/tutorial-start.js
+2026-10-28T13:55:50.2537009Z npm notice 46.0kB js/src/web/tutorial.js
+2026-10-28T13:55:50.2537330Z npm notice 5.5kB js/src/web/ui-scale.js
+2026-10-28T13:55:50.2537662Z npm notice 502B js/src/web/use-redraw.js
+2026-10-28T13:55:50.2538006Z npm notice 1.5kB js/src/web/usernames-model.js
+2026-10-28T13:55:50.2538344Z npm notice 37.7kB js/src/web/views.js
+2026-10-28T13:55:50.2538669Z npm notice 2.8kB js/src/web/vk-captcha.js
+2026-10-28T13:55:50.2539020Z npm notice 2.9kB js/src/web/voice-chat-model.js
+2026-10-28T13:55:50.2539385Z npm notice 6.5kB js/src/web/voice-chat-sdp.js
+2026-10-28T13:55:50.2539758Z npm notice 6.0kB js/src/web/voice-chat-session.js
+2026-10-28T13:55:50.2540112Z npm notice 12.6kB js/src/web/voice-ogg.js
+2026-10-28T13:55:50.2540451Z npm notice 5.2kB js/src/web/wallpaper-css.js
+2026-10-28T13:55:50.2540810Z npm notice 2.1kB js/src/web/web-app-loading.js
+2026-10-28T13:55:50.2541161Z npm notice 13.6kB js/src/web/web-apps-model.js
+2026-10-28T13:55:50.2541529Z npm notice 6.0kB js/src/web/web-mode-banner.js
+2026-10-28T13:55:50.2541864Z npm notice 3.2kB js/src/web/web-mode.js
+2026-10-28T13:55:50.2542188Z npm notice 1.0kB js/src/web/webpage-kind.js
+2026-10-28T13:55:50.2542805Z npm notice 4.0kB js/src/web/webrtc-sync.js
+2026-10-28T13:55:50.2543191Z npm notice 32.3kB package.json
+2026-10-28T13:55:50.2543460Z npm notice Tarball Details
+2026-10-28T13:55:50.2543755Z npm notice name: meta-sovereign
+2026-10-28T13:55:50.2544040Z npm notice version: 0.54.0
+2026-10-28T13:55:50.2544367Z npm notice filename: meta-sovereign-0.54.0.tgz
+2026-10-28T13:55:50.2544707Z npm notice package size: 3.4 MB
+2026-10-28T13:55:50.2545006Z npm notice unpacked size: 13.1 MB
+2026-10-28T13:55:50.2545417Z npm notice shasum: 7b25016f20f50a9d603d5efbd02e24f4b07d6890
+2026-10-28T13:55:50.2545895Z npm notice integrity: sha512-3KLFUfiGkkpqx[...]rOtQwk4FJ/tdQ==
+2026-10-28T13:55:50.2546261Z npm notice total files: 915
+2026-10-28T13:55:50.2546489Z npm notice
+2026-10-28T13:55:50.2546769Z meta-sovereign-0.54.0.tgz
+2026-10-28T13:55:50.2588542Z ##[group]Run npm run test:pack
+2026-10-28T13:55:50.2588875Z [36;1mnpm run test:pack[0m
+2026-10-28T13:55:50.2609372Z shell: /usr/bin/bash -e {0}
+2026-10-28T13:55:50.2609631Z env:
+2026-10-28T13:55:50.2609819Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:55:50.2610053Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:55:50.2610329Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:55:50.2610579Z   PACK_SMOKE_ARTIFACT_DIR: artifacts/pack
+2026-10-28T13:55:50.2610869Z   CI_SCRIPTS_DEBUG: 
+2026-10-28T13:55:50.2611086Z ##[endgroup]
+2026-10-28T13:55:50.4133200Z 
+2026-10-28T13:55:50.4133859Z > meta-sovereign@0.54.0 test:pack
+2026-10-28T13:55:50.4134310Z > node js/tests/pack-smoke.mjs
+2026-10-28T13:55:50.4134521Z 
+2026-10-28T13:55:52.5377269Z [pack-smoke] packed meta-sovereign-0.54.0.tgz: 915 files, 3415322 bytes
+2026-10-28T13:55:52.5381768Z [pack-smoke] installing the packed package into an isolated npm exec cache
+2026-10-28T13:56:03.0549641Z [pack-smoke] packed dependencies installed in 10516ms; starting the CLI
+2026-10-28T13:56:06.4503327Z [pack-smoke] npx started the packed server on http://127.0.0.1:37645
+2026-10-28T13:56:06.5257292Z [pack-smoke] PASS: the packed server defaults to GitHub Pages with a local HTTPS API
+2026-10-28T13:56:07.7267648Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T13:56:07.7267954Z with:
+2026-10-28T13:56:07.7268161Z   name: package-diagnostics
+2026-10-28T13:56:07.7268416Z   path: artifacts/pack/
+2026-10-28T13:56:07.7268648Z   if-no-files-found: error
+2026-10-28T13:56:07.7268879Z   compression-level: 6
+2026-10-28T13:56:07.7269088Z   overwrite: false
+2026-10-28T13:56:07.7269299Z   include-hidden-files: false
+2026-10-28T13:56:07.7269530Z   archive: true
+2026-10-28T13:56:07.7269717Z env:
+2026-10-28T13:56:07.7269902Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:56:07.7270126Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:56:07.7270387Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:56:07.7270604Z ##[endgroup]
+2026-10-28T13:56:07.8824120Z With the provided path, there will be 3 files uploaded
+2026-10-28T13:56:07.8825434Z Artifact name is valid!
+2026-10-28T13:56:07.8825903Z Root directory input is valid!
+2026-10-28T13:56:08.0891910Z Uploading artifact: package-diagnostics.zip
+2026-10-28T13:56:08.0956770Z Beginning upload of artifact content to blob storage
+2026-10-28T13:56:08.2164482Z Uploaded bytes 12526
+2026-10-28T13:56:08.2326525Z Finished uploading artifact content to blob storage!
+2026-10-28T13:56:08.2328471Z SHA256 digest of uploaded artifact is 840ad90854e605657706ce29c42e63c5009455ec37ecaaaa03c02395377c3b65
+2026-10-28T13:56:08.2329932Z Finalizing artifact upload
+2026-10-28T13:56:08.6608267Z Artifact package-diagnostics successfully finalized. Artifact ID 12821198383
+2026-10-28T13:56:08.6609878Z Artifact package-diagnostics has been successfully uploaded! Final size is 12526 bytes. Artifact ID is 12821198383
+2026-10-28T13:56:08.6613470Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40700465833/artifacts/12821198383
+2026-10-28T13:56:08.6806171Z Post job cleanup.
+2026-10-28T13:56:08.8176037Z Post job cleanup.
+2026-10-28T13:56:08.9169717Z [command]/usr/bin/git version
+2026-10-28T13:56:08.9209235Z git version 2.56.0
+2026-10-28T13:56:08.9250692Z Temporarily overriding HOME='/home/runner/work/_temp/904ea6f0-1ae8-4f49-8cd1-373544bd4ef2' before making global git config changes
+2026-10-28T13:56:08.9252207Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T13:56:08.9256624Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:56:08.9299637Z Removing SSH command configuration
+2026-10-28T13:56:08.9307845Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:56:08.9413100Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:56:08.9758382Z Removing HTTP extra header
+2026-10-28T13:56:08.9768282Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:56:08.9845371Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:56:09.0255855Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:56:09.0265939Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:56:09.0318309Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:56:09.0784981Z Cleaning up orphan processes

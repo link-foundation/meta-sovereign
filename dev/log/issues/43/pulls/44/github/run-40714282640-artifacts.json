@@ -1,0 +1,27 @@
+[
+  {
+    "total_count": 1,
+    "artifacts": [
+      {
+        "id": 12826688306,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgyNjY4ODMwNg==",
+        "name": "link-report",
+        "size_in_bytes": 1252,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12826688306",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12826688306/zip",
+        "expired": false,
+        "digest": "sha256:c7aa1f79f27ef175791919f081e0975026c03c08f7d7e349d9b559a8e81458f6",
+        "created_at": "2026-10-28T15:16:54Z",
+        "updated_at": "2026-10-28T15:16:54Z",
+        "expires_at": "2027-01-26T15:16:34Z",
+        "workflow_run": {
+          "id": 40714282640,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "issue-43-1924384484c0",
+          "head_sha": "a8ea6a88cba8fa7d22de6d4ba7bcfb7a62e71408"
+        }
+      }
+    ]
+  }
+]

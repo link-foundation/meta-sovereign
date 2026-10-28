@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "semver": "~7.7.3",
+    "js-yaml": "^4.1.0",
+    "fs-extra": "^11.3.4",
+    "lazy-val": "^1.0.5",
+    "lodash.isequal": "^4.5.0",
+    "tiny-typed-emitter": "^2.1.0",
+    "lodash.escaperegexp": "^4.1.2",
+    "builder-util-runtime": "10.0.0-alpha.12"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

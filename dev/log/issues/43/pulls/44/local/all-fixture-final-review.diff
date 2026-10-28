@@ -1,0 +1,502 @@
+diff --git a/js/tests/archive-upload.test.js b/js/tests/archive-upload.test.js
+index 83066cd..6dbaccf 100644
+--- a/js/tests/archive-upload.test.js
++++ b/js/tests/archive-upload.test.js
+@@ -6,6 +6,7 @@
+ import assert from 'node:assert/strict';
+ import { test } from 'node:test';
+ import http from 'node:http';
++import { fixtureServerClose } from './helpers/fixture-server.mjs';
+ import os from 'node:os';
+ import path from 'node:path';
+ import { mkdtemp, readdir, rm } from 'node:fs/promises';
+@@ -29,12 +30,13 @@ const withRoutes = async (extra, run) => {
+       res.end('{}');
+     }
+   });
++  const close = fixtureServerClose(server, 'archive-upload');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+   const base = `http://127.0.0.1:${server.address().port}`;
+   try {
+     await run({ base, store, storeDir });
+   } finally {
+-    await new Promise((resolve) => server.close(resolve));
++    await close();
+     await rm(storeDir, { recursive: true, force: true });
+   }
+ };
+diff --git a/js/tests/e2e-pages.mjs b/js/tests/e2e-pages.mjs
+index f4cb778..53752a9 100644
+--- a/js/tests/e2e-pages.mjs
++++ b/js/tests/e2e-pages.mjs
+@@ -31,6 +31,7 @@
+ 
+ import { promises as fs } from 'node:fs';
+ import http from 'node:http';
++import { fixtureServerClose } from './helpers/fixture-server.mjs';
+ import os from 'node:os';
+ import path from 'node:path';
+ import { spawnSync } from 'node:child_process';
+@@ -91,10 +92,11 @@ const servePages = async (dir) => {
+     });
+     res.end(body ?? (await fs.readFile(path.join(dir, '404.html'))));
+   });
++  const close = fixtureServerClose(server, 'pages');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+   return {
+     url: `http://127.0.0.1:${server.address().port}${prefix}`,
+-    close: () => new Promise((resolve) => server.close(resolve)),
++    close,
+   };
+ };
+ 
+diff --git a/js/tests/email-node-transport.test.js b/js/tests/email-node-transport.test.js
+index 8f5abe6..8d5e179 100644
+--- a/js/tests/email-node-transport.test.js
++++ b/js/tests/email-node-transport.test.js
+@@ -1,5 +1,6 @@
+ import { Buffer } from 'node:buffer';
+ import net from 'node:net';
++import { fixtureServerClose } from './helpers/fixture-server.mjs';
+ import { describe, it, expect } from 'test-anywhere';
+ 
+ import { createNodeEmailTransport } from '../src/sources/email-node-transport.js';
+@@ -14,11 +15,6 @@ const sampleMessage = [
+   'Hello from raw mail',
+ ].join('\r\n');
+ 
+-const closeServer = (server) =>
+-  new Promise((resolve, reject) => {
+-    server.close((err) => (err ? reject(err) : resolve()));
+-  });
+-
+ const startLineServer = async (onLine) => {
+   const server = net.createServer((socket) => {
+     socket.setEncoding('utf8');
+@@ -36,26 +32,29 @@ const startLineServer = async (onLine) => {
+       }
+     });
+   });
++  const close = fixtureServerClose(server, 'mail-lines');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+-  return { server, port: server.address().port };
++  return { server, close, port: server.address().port };
+ };
+ 
+ describe('Node email raw protocol transport', () => {
+   it('pulls POP3 messages through the local server transport', async () => {
+-    const { server, port } = await startLineServer(({ line, socket }) => {
+-      if (line === 'USER alice' || line === 'PASS secret') {
+-        socket.write('+OK\r\n');
+-      } else if (line === 'UIDL' || line === 'LIST') {
+-        socket.write('-ERR not supported\r\n');
+-      } else if (line === 'STAT') {
+-        socket.write('+OK 1 100\r\n');
+-      } else if (line === 'RETR 1') {
+-        socket.write(`+OK\r\n${sampleMessage}\r\n.\r\n`);
+-      } else if (line === 'QUIT') {
+-        socket.write('+OK bye\r\n');
+-        socket.end();
++    const { server, port, close } = await startLineServer(
++      ({ line, socket }) => {
++        if (line === 'USER alice' || line === 'PASS secret') {
++          socket.write('+OK\r\n');
++        } else if (line === 'UIDL' || line === 'LIST') {
++          socket.write('-ERR not supported\r\n');
++        } else if (line === 'STAT') {
++          socket.write('+OK 1 100\r\n');
++        } else if (line === 'RETR 1') {
++          socket.write(`+OK\r\n${sampleMessage}\r\n.\r\n`);
++        } else if (line === 'QUIT') {
++          socket.write('+OK bye\r\n');
++          socket.end();
++        }
+       }
+-    });
++    );
+     try {
+       server.on('connection', (socket) => socket.write('+OK POP3 ready\r\n'));
+       const transport = createNodeEmailTransport({
+@@ -73,29 +72,31 @@ describe('Node email raw protocol transport', () => {
+       expect(result.links[0].id).toBe('msg:email:raw-1@example.com');
+       expect(result.links[0].body).toBe('Hello from raw mail');
+     } finally {
+-      await closeServer(server);
++      await close();
+     }
+   });
+ 
+   it('pulls IMAP messages through the local server transport', async () => {
+     const literalSize = Buffer.byteLength(sampleMessage);
+-    const { server, port } = await startLineServer(({ line, socket }) => {
+-      const tag = line.split(' ')[0];
+-      if (line.includes(' LOGIN ')) {
+-        socket.write(`${tag} OK LOGIN done\r\n`);
+-      } else if (line.includes(' SELECT ')) {
+-        socket.write(`* 1 EXISTS\r\n${tag} OK SELECT done\r\n`);
+-      } else if (line.includes('UID SEARCH ALL')) {
+-        socket.write(`* SEARCH 42\r\n${tag} OK SEARCH done\r\n`);
+-      } else if (line.includes('UID FETCH 42')) {
+-        socket.write(
+-          `* 1 FETCH (UID 42 BODY[] {${literalSize}}\r\n${sampleMessage}\r\n)\r\n${tag} OK FETCH done\r\n`
+-        );
+-      } else if (line.includes('LOGOUT')) {
+-        socket.write(`* BYE\r\n${tag} OK LOGOUT done\r\n`);
+-        socket.end();
++    const { server, port, close } = await startLineServer(
++      ({ line, socket }) => {
++        const tag = line.split(' ')[0];
++        if (line.includes(' LOGIN ')) {
++          socket.write(`${tag} OK LOGIN done\r\n`);
++        } else if (line.includes(' SELECT ')) {
++          socket.write(`* 1 EXISTS\r\n${tag} OK SELECT done\r\n`);
++        } else if (line.includes('UID SEARCH ALL')) {
++          socket.write(`* SEARCH 42\r\n${tag} OK SEARCH done\r\n`);
++        } else if (line.includes('UID FETCH 42')) {
++          socket.write(
++            `* 1 FETCH (UID 42 BODY[] {${literalSize}}\r\n${sampleMessage}\r\n)\r\n${tag} OK FETCH done\r\n`
++          );
++        } else if (line.includes('LOGOUT')) {
++          socket.write(`* BYE\r\n${tag} OK LOGOUT done\r\n`);
++          socket.end();
++        }
+       }
+-    });
++    );
+     try {
+       server.on('connection', (socket) => socket.write('* OK IMAP ready\r\n'));
+       const transport = createNodeEmailTransport({
+@@ -113,7 +114,7 @@ describe('Node email raw protocol transport', () => {
+       expect(result.links[0].id).toBe('msg:email:raw-1@example.com');
+       expect(result.rawCount).toBe(1);
+     } finally {
+-      await closeServer(server);
++      await close();
+     }
+   });
+ 
+@@ -121,35 +122,37 @@ describe('Node email raw protocol transport', () => {
+     const commands = [];
+     let inData = false;
+     let data = '';
+-    const { server, port } = await startLineServer(({ line, socket }) => {
+-      if (inData) {
+-        if (line === '.') {
+-          inData = false;
+-          socket.write('250 queued\r\n');
+-        } else {
+-          data += `${line}\n`;
++    const { server, port, close } = await startLineServer(
++      ({ line, socket }) => {
++        if (inData) {
++          if (line === '.') {
++            inData = false;
++            socket.write('250 queued\r\n');
++          } else {
++            data += `${line}\n`;
++          }
++          return;
++        }
++        commands.push(line);
++        if (line.startsWith('EHLO')) {
++          socket.write('250-localhost\r\n250 AUTH LOGIN\r\n');
++        } else if (line === 'AUTH LOGIN') {
++          socket.write('334 VXNlcm5hbWU6\r\n');
++        } else if (line === Buffer.from('alice').toString('base64')) {
++          socket.write('334 UGFzc3dvcmQ6\r\n');
++        } else if (line === Buffer.from('secret').toString('base64')) {
++          socket.write('235 ok\r\n');
++        } else if (line.startsWith('MAIL FROM') || line.startsWith('RCPT TO')) {
++          socket.write('250 ok\r\n');
++        } else if (line === 'DATA') {
++          inData = true;
++          socket.write('354 go\r\n');
++        } else if (line === 'QUIT') {
++          socket.write('221 bye\r\n');
++          socket.end();
+         }
+-        return;
+-      }
+-      commands.push(line);
+-      if (line.startsWith('EHLO')) {
+-        socket.write('250-localhost\r\n250 AUTH LOGIN\r\n');
+-      } else if (line === 'AUTH LOGIN') {
+-        socket.write('334 VXNlcm5hbWU6\r\n');
+-      } else if (line === Buffer.from('alice').toString('base64')) {
+-        socket.write('334 UGFzc3dvcmQ6\r\n');
+-      } else if (line === Buffer.from('secret').toString('base64')) {
+-        socket.write('235 ok\r\n');
+-      } else if (line.startsWith('MAIL FROM') || line.startsWith('RCPT TO')) {
+-        socket.write('250 ok\r\n');
+-      } else if (line === 'DATA') {
+-        inData = true;
+-        socket.write('354 go\r\n');
+-      } else if (line === 'QUIT') {
+-        socket.write('221 bye\r\n');
+-        socket.end();
+       }
+-    });
++    );
+     try {
+       server.on('connection', (socket) => socket.write('220 SMTP ready\r\n'));
+       const transport = createNodeEmailTransport({
+@@ -175,7 +178,7 @@ describe('Node email raw protocol transport', () => {
+       expect(data).toContain('Subject: SMTP hello');
+       expect(data).toContain('Hello through SMTP');
+     } finally {
+-      await closeServer(server);
++      await close();
+     }
+   });
+ });
+diff --git a/js/tests/fixture-server.test.js b/js/tests/fixture-server.test.js
+new file mode 100644
+index 0000000..978aa8c
+--- /dev/null
++++ b/js/tests/fixture-server.test.js
+@@ -0,0 +1,58 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import http from 'node:http';
++import net from 'node:net';
++import { fixtureServerClose } from './helpers/fixture-server.mjs';
++import { waitFor } from './helpers/wait-for.js';
++
++for (const protocol of ['tcp', 'http']) {
++  test(
++    `${protocol} fixture closes while its client is unfinished`,
++    { timeout: 5000 },
++    async () => {
++      let requested = false;
++      const server =
++        protocol === 'http'
++          ? http.createServer(() => {
++              requested = true;
++            })
++          : net.createServer();
++      const close = fixtureServerClose(server, protocol);
++      await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
++      const socket = net.createConnection({
++        host: '127.0.0.1',
++        port: server.address().port,
++      });
++      let closing;
++      let timer;
++      try {
++        await new Promise((resolve, reject) => {
++          socket.once('connect', resolve);
++          socket.on('error', reject);
++        });
++        if (protocol === 'http') {
++          socket.write(
++            'POST / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 1\r\n\r\n'
++          );
++          await waitFor(() => requested, { timeoutMs: 1000 });
++        }
++        closing = close();
++        await Promise.race([
++          closing,
++          new Promise((_, reject) => {
++            timer = setTimeout(
++              () => reject(new Error('Fixture waited for its client')),
++              500
++            );
++          }),
++        ]);
++        await waitFor(() => socket.destroyed, { timeoutMs: 1000 });
++        assert.equal(socket.destroyed, true);
++      } finally {
++        clearTimeout(timer);
++        socket.destroy();
++        await (closing ?? close());
++      }
++    }
++  );
++}
+diff --git a/js/tests/helpers/fake-github.mjs b/js/tests/helpers/fake-github.mjs
+index 385fbcc..d4b4225 100644
+--- a/js/tests/helpers/fake-github.mjs
++++ b/js/tests/helpers/fake-github.mjs
+@@ -8,6 +8,7 @@
+ 
+ import http from 'node:http';
+ import crypto from 'node:crypto';
++import { fixtureServerClose } from './fixture-server.mjs';
+ 
+ const byUpdated = (a, b) => String(b.updated_at).localeCompare(a.updated_at);
+ const since = (list, value) =>
+@@ -190,10 +191,11 @@ export const startFakeGithub = async (initial = {}) => {
+       return rest(state, req, res, url);
+     });
+   });
++  const close = fixtureServerClose(server, 'github');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+   return {
+     state,
+     baseUrl: `http://127.0.0.1:${server.address().port}`,
+-    close: () => new Promise((resolve) => server.close(resolve)),
++    close,
+   };
+ };
+diff --git a/js/tests/helpers/fixture-server.mjs b/js/tests/helpers/fixture-server.mjs
+new file mode 100644
+index 0000000..27b5f35
+--- /dev/null
++++ b/js/tests/helpers/fixture-server.mjs
+@@ -0,0 +1,37 @@
++// Track before listen so fixture shutdown owns every accepted connection.
++// This never discovers or closes any application server or foreign socket.
++export const fixtureServerClose = (server, label = 'server') => {
++  const sockets = new Set();
++  server.on('connection', (socket) => {
++    sockets.add(socket);
++    socket.on('close', () => sockets.delete(socket));
++  });
++  let closing;
++  return () => {
++    closing ??= new Promise((resolve, reject) => {
++      const debug = process.env.CI_FIXTURE_DEBUG === '1';
++      const started = Date.now();
++      if (debug) {
++        console.error(
++          `[fixture:${label}] closing ${sockets.size} owned connections`
++        );
++      }
++      server.close((error) => {
++        if (debug) {
++          console.error(
++            `[fixture:${label}] closed in ${Date.now() - started} ms`
++          );
++        }
++        if (error) {
++          reject(error);
++        } else {
++          resolve();
++        }
++      });
++      for (const socket of sockets) {
++        socket.destroy();
++      }
++    });
++    return closing;
++  };
++};
+diff --git a/js/tests/helpers/mail-fakes.mjs b/js/tests/helpers/mail-fakes.mjs
+index 4db6530..02b342d 100644
+--- a/js/tests/helpers/mail-fakes.mjs
++++ b/js/tests/helpers/mail-fakes.mjs
+@@ -5,6 +5,7 @@
+ import { Buffer } from 'node:buffer';
+ import net from 'node:net';
+ import tls from 'node:tls';
++import { fixtureServerClose } from './fixture-server.mjs';
+ 
+ import { makeLocalCertificate } from '../../src/server/local-tls.js';
+ 
+@@ -84,15 +85,12 @@ export const startServer = async ({
+             socket.write(greeting);
+           }
+         });
++  const close = fixtureServerClose(server, 'mail');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+   return {
+     port: server.address().port,
+     seen,
+-    close: () =>
+-      new Promise((resolve) => {
+-        server.close(() => resolve());
+-        server.closeAllConnections?.();
+-      }),
++    close,
+   };
+ };
+ 
+diff --git a/js/tests/marketplace-sessions.test.js b/js/tests/marketplace-sessions.test.js
+index d3cf9b3..5ff9179 100644
+--- a/js/tests/marketplace-sessions.test.js
++++ b/js/tests/marketplace-sessions.test.js
+@@ -1,6 +1,7 @@
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+ import http from 'node:http';
++import { fixtureServerClose } from './helpers/fixture-server.mjs';
+ import os from 'node:os';
+ import path from 'node:path';
+ import { mkdtemp, rm } from 'node:fs/promises';
+@@ -243,6 +244,7 @@ test('marketplace routes reject foreign origins and browser options before launc
+       res.end();
+     }
+   });
++  const close = fixtureServerClose(server, 'marketplaces');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+   const base = `http://127.0.0.1:${server.address().port}`;
+   const post = (
+@@ -291,8 +293,7 @@ test('marketplace routes reject foreign origins and browser options before launc
+     assert.equal((await post('/api/marketplaces/fiverr/close')).status, 200);
+   } finally {
+     await ctx.marketplaceSessions?.stop();
+-    server.closeAllConnections();
+-    await new Promise((resolve) => server.close(resolve));
++    await close();
+     await rm(dir, { recursive: true, force: true });
+   }
+ });
+diff --git a/js/tests/web-server-fetch.test.js b/js/tests/web-server-fetch.test.js
+index 62b174d..e697839 100644
+--- a/js/tests/web-server-fetch.test.js
++++ b/js/tests/web-server-fetch.test.js
+@@ -20,6 +20,7 @@
+ 
+ import { describe, it, expect } from 'test-anywhere';
+ import http from 'node:http';
++import { fixtureServerClose } from './helpers/fixture-server.mjs';
+ 
+ const startStub = async () => {
+   const seen = [];
+@@ -46,8 +47,9 @@ const startStub = async () => {
+     // Everything else behaves like the Rust server's catch-all.
+     json(404, { error: 'unknown route' });
+   });
++  const close = fixtureServerClose(server, 'server-fetch');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+-  return { server, seen, origin: `http://127.0.0.1:${server.address().port}` };
++  return { close, seen, origin: `http://127.0.0.1:${server.address().port}` };
+ };
+ 
+ describe('serverFetch talks to the discovered server', () => {
+@@ -99,7 +101,7 @@ describe('serverFetch talks to the discovered server', () => {
+       // Leave nothing bound to a server that is about to close.
+       const { resetServerBinding } = await import('../src/web/dom.js');
+       resetServerBinding();
+-      await new Promise((resolve) => stub.server.close(resolve));
++      await stub.close();
+     }
+   });
+ });
+diff --git a/js/tests/whatsapp-routes.test.js b/js/tests/whatsapp-routes.test.js
+index d6131f7..1e2e39d 100644
+--- a/js/tests/whatsapp-routes.test.js
++++ b/js/tests/whatsapp-routes.test.js
+@@ -4,6 +4,7 @@
+ import assert from 'node:assert/strict';
+ import { test } from 'node:test';
+ import http from 'node:http';
++import { fixtureServerClose } from './helpers/fixture-server.mjs';
+ 
+ import { handleWhatsAppRoutes } from '../src/server/routes-whatsapp.js';
+ import { createMemoryStore } from '../src/storage/index.js';
+@@ -18,12 +19,13 @@ const withRoutes = async (ctx, run) => {
+       res.end('{}');
+     }
+   });
++  const close = fixtureServerClose(server, 'whatsapp-routes');
+   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+   const base = `http://127.0.0.1:${server.address().port}`;
+   try {
+     await run(base, store);
+   } finally {
+-    await new Promise((resolve) => server.close(resolve));
++    await close();
+   }
+ };
+ 

@@ -1,0 +1,52 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/cf365708c0eb0929ceb7b7330f21c7a4a37b7044/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Canceling since a higher priority waiting request for desktop-release-44 exists",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/cf365708c0eb0929ceb7b7330f21c7a4a37b7044/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/cf365708c0eb0929ceb7b7330f21c7a4a37b7044/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/cf365708c0eb0929ceb7b7330f21c7a4a37b7044/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    }
+  ]
+]

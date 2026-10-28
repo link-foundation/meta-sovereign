@@ -1,0 +1,31 @@
+[
+  {
+    "file": "ci-logs/workflow-40710572337.log",
+    "matches": []
+  },
+  {
+    "file": "ci-logs/workflow-40710572356.log",
+    "matches": [
+      {
+        "line": 314,
+        "text": "Resolve release\tResolve tag and decide what to do\t2026-10-28T14:55:16.6408958Z ^[[36;1m  echo \"::warning::npm publishing failed; building the desktop release for $tag anyway\"^[[0m"
+      },
+      {
+        "line": 2450,
+        "text": "Build (windows-x64)\tBuild desktop app\t2026-10-28T14:57:02.7125340Z (node:2248) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated."
+      },
+      {
+        "line": 3893,
+        "text": "Build (windows-arm64)\tBuild desktop app\t2026-10-28T15:00:23.5909072Z (node:6768) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated."
+      }
+    ]
+  },
+  {
+    "file": "ci-logs/workflow-40710572359.log",
+    "matches": []
+  },
+  {
+    "file": "ci-logs/workflow-40710572396.log",
+    "matches": []
+  }
+]

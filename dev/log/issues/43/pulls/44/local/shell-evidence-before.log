@@ -1,0 +1,44 @@
+✔ browser failures cannot become a green release (101.207249ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (91.995986ms)
+✔ syntax checking finds malformed nested JavaScript (112.496644ms)
+✔ missing lychee report fails instead of claiming all links archived (104.403687ms)
+✔ workflow policy detects mutable matrix runners and unbounded auxiliary jobs (6.625557ms)
+✔ committed dependency tree contains no deprecated registry packages (6.431214ms)
+✖ standalone shell lint selects maintained scripts without reference evidence (101.491812ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 6
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 711.82497
+
+✖ failing tests:
+
+test at js/tests/ci-contracts.test.js:120:1
+✖ standalone shell lint selects maintained scripts without reference evidence (101.491812ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      '.husky/pre-commit',
+  +   'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
+  +   'docs/case-studies/example/data/reference.sh',
+      'js/scripts/check.sh'
+    ]
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/ci-contracts.test.js:142:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ '.husky/pre-commit', 'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh', 'docs/case-studies/example/data/reference.sh', 'js/scripts/check.sh' ],
+    expected: [ '.husky/pre-commit', 'js/scripts/check.sh' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,27 @@
+✔ browser failures cannot become a green release (83.09013ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (86.263177ms)
+✔ syntax checking finds malformed nested JavaScript (106.562299ms)
+✔ missing lychee report fails instead of claiming all links archived (99.590155ms)
+✔ PR checks include earlier code after a docs-only follow-up (328.733093ms)
+✔ multi-commit push checks the whole event range (279.490848ms)
+✔ initial commit is checked instead of silently returning no changes (183.975221ms)
+✔ evidence snapshots never count as executable code changes (267.52093ms)
+✔ unavailable explicit PR revisions fail closed (186.276663ms)
+✔ release dependencies normalize ESM and nested CommonJS and reject unsupported shapes (3.525426ms)
+✔ pipeline gate rejects failed, cancelled and missing results (1.39369ms)
+✔ registry probe distinguishes unpublished versions from authentication and network failures (0.54708ms)
+✔ package startup fails promptly on child exit and hung health request (43.857924ms)
+✔ release metadata guard allows only version changes, never dependency edits (4.545709ms)
+✔ OIDC preflight verifies the actual package exchange and rejects unknown or refused responses (3.026014ms)
+::notice::Dependency comparison is unavailable (HTTP 403). A repository administrator must enable Dependency graph and grant workflow access at https://github.com/owner/repo/settings/security_analysis. The API does not distinguish disabled configuration from denied access. PR dependency review cannot run; lockfile audits remain required.
+✔ installed release shell rejects nonzero command exits (880.678894ms)
+✔ GitHub release probes distinguish absence from unknown failures (5.956439ms)
+✔ dependency graph preflight permits PR capability notices but fails main and unknown errors (1.908559ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2960.22067

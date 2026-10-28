@@ -1,0 +1,50 @@
+✔ release dependencies normalize ESM and nested CommonJS and reject unsupported shapes (3.668856ms)
+✔ pipeline gate rejects failed, cancelled and missing results (1.703995ms)
+✔ registry probe distinguishes unpublished versions from authentication and network failures (0.717703ms)
+✔ package startup fails promptly on child exit and hung health request (48.013101ms)
+✔ release metadata guard allows only version changes, never dependency edits (4.856432ms)
+✔ OIDC preflight verifies the actual package exchange and rejects unknown or refused responses (3.538323ms)
+::notice::Dependency comparison is unavailable (HTTP 403). A repository administrator must enable Dependency graph and grant workflow access at https://github.com/owner/repo/settings/security_analysis. The API does not distinguish disabled configuration from denied access. PR dependency review cannot run; lockfile audits remain required.
+✔ installed release shell rejects nonzero command exits (463.590901ms)
+✔ GitHub release probes distinguish absence from unknown failures (3.415334ms)
+✔ dependency graph preflight permits PR capability notices but fails main and unknown errors (3.914903ms)
+✔ publish retries classify actual npm output, refusing authentication and unknown failures (2.085584ms)
+✔ command arguments remain literal, including spaces and shell metacharacters (122.903433ms)
+✔ npm and npx shims run with deprecations fatal and preserve failure status (667.799176ms)
+✔ async command failures retain their nonzero exit (76.895867ms)
+▶ desktop package.json
+  ✔ ships the root version with electron-updater as the only dependency (2.097947ms)
+  ✔ names the .desktop entry after the executable (0.54401ms)
+  ✔ replaces only the updater deprecated comparator with its compatible two-argument form (0.31783ms)
+✔ desktop package.json (5.177738ms)
+▶ electron-builder config
+  ✔ uses the v27 schema while preserving files, native and signing settings (0.599563ms)
+  ✔ keeps the reverse-DNS app id and GitHub publish target (0.691755ms)
+  ✔ names the macOS bundle after the product, not the executable (0.792122ms)
+  ✔ gives ad-hoc macOS builds an identity, so the sign hook runs (123.8117ms)
+  ✔ uses the pinned builder native FPM bundles without system overrides (5.239183ms)
+  ✔ produces the catalogue name for every download option (3.652406ms)
+✔ electron-builder config (144.508729ms)
+▶ normalize-desktop-artifacts
+  ✔ maps Linux arch spellings to x64/arm64 (0.707324ms)
+  ✔ rewrites update feeds (2.463265ms)
+  ✔ renames files and feeds in a release directory (56.115304ms)
+  ✔ ignores a missing directory (0.662611ms)
+✔ normalize-desktop-artifacts (60.58716ms)
+▶ validate-desktop-assets
+  ✔ parses sha256sum output, including binary-mode markers (2.202121ms)
+  ✔ accepts a complete, checksummed release (1.004035ms)
+  ✔ reports missing and unchecksummed installers (0.749011ms)
+  ✔ rejects tags without a version (0.374004ms)
+✔ validate-desktop-assets (4.663143ms)
+▶ build-desktop
+  ✔ picks the newest version from npm view output (0.237561ms)
+✔ build-desktop (0.927163ms)
+ℹ tests 31
+ℹ suites 5
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2163.008604

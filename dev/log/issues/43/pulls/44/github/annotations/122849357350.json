@@ -1,0 +1,28 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/cf365708c0eb0929ceb7b7330f21c7a4a37b7044/.github",
+      "start_line": 28,
+      "start_column": null,
+      "end_line": 28,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Process completed with exit code 1.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/cf365708c0eb0929ceb7b7330f21c7a4a37b7044/.github",
+      "start_line": 26,
+      "start_column": null,
+      "end_line": 26,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Merge conflict detected! PR needs to be rebased/updated before it can be merged.",
+      "raw_details": ""
+    }
+  ]
+]

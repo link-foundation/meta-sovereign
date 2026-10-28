@@ -1,0 +1,94 @@
+[
+  {
+    "id": 122880040385,
+    "run_id": 40706524440,
+    "workflow_name": "Broken Link Checker",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40706524440",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcnDidwQ",
+    "head_sha": "736bf0e0272ecee8bf90868d2227ea7d6a3f753c",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122880040385",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40706524440/job/122880040385",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T14:30:01Z",
+    "started_at": "2026-10-28T14:30:03Z",
+    "completed_at": "2026-10-28T14:30:18Z",
+    "name": "Check Links",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T14:30:04Z",
+        "completed_at": "2026-10-28T14:30:05Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T14:30:05Z",
+        "completed_at": "2026-10-28T14:30:08Z"
+      },
+      {
+        "name": "Check links with lychee",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T14:30:08Z",
+        "completed_at": "2026-10-28T14:30:15Z"
+      },
+      {
+        "name": "Check broken links against Web Archive",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-28T14:30:15Z",
+        "completed_at": "2026-10-28T14:30:15Z"
+      },
+      {
+        "name": "Fail on every unresolved link or checker error",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T14:30:15Z",
+        "completed_at": "2026-10-28T14:30:15Z"
+      },
+      {
+        "name": "Preserve link report",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T14:30:15Z",
+        "completed_at": "2026-10-28T14:30:16Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12,
+        "started_at": "2026-10-28T14:30:16Z",
+        "completed_at": "2026-10-28T14:30:16Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-28T14:30:16Z",
+        "completed_at": "2026-10-28T14:30:17Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122880040385",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150802,
+    "runner_name": "GitHub Actions 1000150802",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  }
+]

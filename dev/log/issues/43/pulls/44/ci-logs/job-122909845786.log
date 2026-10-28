@@ -1,0 +1,1075 @@
+﻿2026-10-28T15:21:15.1519680Z Current runner version: '2.338.0'
+2026-10-28T15:21:15.1537380Z ##[group]Runner Image Provisioner
+2026-10-28T15:21:15.1537970Z Hosted Compute Agent
+2026-10-28T15:21:15.1538450Z Version: 20260828.587
+2026-10-28T15:21:15.1539120Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-10-28T15:21:15.1539620Z Build Date: 2026-08-28T16:44:25Z
+2026-10-28T15:21:15.1540160Z Worker ID: {220a8593-f98c-4b58-b3ab-f16e2cdfabf7}
+2026-10-28T15:21:15.1540720Z Azure Region: westus
+2026-10-28T15:21:15.1541170Z ##[endgroup]
+2026-10-28T15:21:15.1542450Z ##[group]Operating System
+2026-10-28T15:21:15.1542970Z macOS
+2026-10-28T15:21:15.1543470Z 15.7.9
+2026-10-28T15:21:15.1543840Z 24G830
+2026-10-28T15:21:15.1544220Z ##[endgroup]
+2026-10-28T15:21:15.1544610Z ##[group]Runner Image
+2026-10-28T15:21:15.1545240Z Image: macos-15-arm64
+2026-10-28T15:21:15.1545790Z Version: 20260907.0337.1
+2026-10-28T15:21:15.1546800Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260907.0337/images/macos/macos-15-arm64-Readme.md
+2026-10-28T15:21:15.1548000Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260907.0337
+2026-10-28T15:21:15.1548760Z ##[endgroup]
+2026-10-28T15:21:15.1549720Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T15:21:15.1551820Z Contents: read
+2026-10-28T15:21:15.1552210Z Metadata: read
+2026-10-28T15:21:15.1552630Z ##[endgroup]
+2026-10-28T15:21:15.1554630Z Secret source: Actions
+2026-10-28T15:21:15.1555390Z Cache mode: write
+2026-10-28T15:21:15.1555950Z Prepare workflow directory
+2026-10-28T15:21:15.2321440Z Prepare all required actions
+2026-10-28T15:21:15.2389560Z Getting action download info
+2026-10-28T15:21:15.4811170Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T15:21:15.8351680Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T15:21:16.8218780Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T15:21:17.8635570Z Complete job name: Browser e2e (webkit)
+2026-10-28T15:21:17.9314560Z ##[group]Run actions/checkout@v7
+2026-10-28T15:21:17.9315040Z with:
+2026-10-28T15:21:17.9315240Z   persist-credentials: false
+2026-10-28T15:21:17.9315500Z   fetch-depth: 0
+2026-10-28T15:21:17.9315760Z   repository: link-foundation/meta-sovereign
+2026-10-28T15:21:17.9317950Z   token: ***
+2026-10-28T15:21:17.9318120Z   ssh-strict: true
+2026-10-28T15:21:17.9318300Z   ssh-user: git
+2026-10-28T15:21:17.9318460Z   clean: true
+2026-10-28T15:21:17.9318660Z   sparse-checkout-cone-mode: true
+2026-10-28T15:21:17.9318890Z   fetch-tags: false
+2026-10-28T15:21:17.9319090Z   show-progress: true
+2026-10-28T15:21:17.9319290Z   lfs: false
+2026-10-28T15:21:17.9319460Z   submodules: false
+2026-10-28T15:21:17.9321140Z   set-safe-directory: true
+2026-10-28T15:21:17.9322030Z   allow-unsafe-pr-checkout: false
+2026-10-28T15:21:17.9324060Z env:
+2026-10-28T15:21:17.9324560Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:21:17.9325230Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:21:17.9326200Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:21:17.9326790Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:21:17.9327320Z   E2E_BROWSER: webkit
+2026-10-28T15:21:17.9327860Z   E2E_ENGINES: webkit
+2026-10-28T15:21:17.9328500Z   E2E_SAFARI: 0
+2026-10-28T15:21:17.9329040Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:21:17.9329670Z   DEBUG: 
+2026-10-28T15:21:17.9330170Z ##[endgroup]
+2026-10-28T15:21:18.4900180Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T15:21:18.4908590Z ##[group]Getting Git version info
+2026-10-28T15:21:18.4909240Z Working directory is '/Users/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T15:21:18.4910040Z [command]/opt/homebrew/bin/git version
+2026-10-28T15:21:18.5427630Z git version 2.55.0
+2026-10-28T15:21:18.5536900Z ##[endgroup]
+2026-10-28T15:21:18.5543500Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/dc325aa1-db1e-452d-b27b-6c09f55f7cf9/.gitconfig'
+2026-10-28T15:21:18.5544510Z Temporarily overriding HOME='/Users/runner/work/_temp/dc325aa1-db1e-452d-b27b-6c09f55f7cf9' before making global git config changes
+2026-10-28T15:21:18.5547590Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T15:21:18.5548610Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T15:21:18.5634670Z Deleting the contents of '/Users/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T15:21:18.5637440Z ##[group]Determining repository object format
+2026-10-28T15:21:18.5638100Z ##[endgroup]
+2026-10-28T15:21:18.5638530Z ##[group]Initializing the repository
+2026-10-28T15:21:18.5643270Z [command]/opt/homebrew/bin/git init /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T15:21:18.5968550Z Initialized empty Git repository in /Users/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T15:21:18.5984410Z [command]/opt/homebrew/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T15:21:18.6145570Z ##[endgroup]
+2026-10-28T15:21:18.6146180Z ##[group]Disabling automatic garbage collection
+2026-10-28T15:21:18.6146560Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-10-28T15:21:18.6194750Z ##[endgroup]
+2026-10-28T15:21:18.6195340Z ##[group]Setting up auth
+2026-10-28T15:21:18.6195670Z Removing SSH command configuration
+2026-10-28T15:21:18.6199510Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T15:21:18.6275430Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T15:21:18.7316920Z Removing HTTP extra header
+2026-10-28T15:21:18.7320770Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T15:21:18.7385720Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T15:21:18.8508980Z Removing includeIf entries pointing to credentials config files
+2026-10-28T15:21:18.8511340Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T15:21:18.8598130Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T15:21:18.9997500Z [command]/opt/homebrew/bin/git config --file /Users/runner/work/_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T15:21:19.0141250Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path /Users/runner/work/_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:19.0247820Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:19.0414880Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:19.0559820Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:19.0666720Z ##[endgroup]
+2026-10-28T15:21:19.0667370Z ##[group]Fetching the repository
+2026-10-28T15:21:19.0670490Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +684348aa134dc57f61b44f3342c62116ad7e9d97:refs/remotes/pull/44/merge
+2026-10-28T15:21:23.4834100Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T15:21:23.4844170Z  * [new branch]      cli-version-flag                         -> origin/cli-version-flag
+2026-10-28T15:21:23.4877340Z  * [new branch]      issue-1-fc41adad29ce                     -> origin/issue-1-fc41adad29ce
+2026-10-28T15:21:23.4882200Z  * [new branch]      issue-10-a884af8ade4e                    -> origin/issue-10-a884af8ade4e
+2026-10-28T15:21:23.4882830Z  * [new branch]      issue-12-1fbe3b7d05b4                    -> origin/issue-12-1fbe3b7d05b4
+2026-10-28T15:21:23.4883480Z  * [new branch]      issue-13-a1a0ad676c96                    -> origin/issue-13-a1a0ad676c96
+2026-10-28T15:21:23.4884250Z  * [new branch]      issue-16-d636f69ce59c                    -> origin/issue-16-d636f69ce59c
+2026-10-28T15:21:23.4884970Z  * [new branch]      issue-18-511583e63fad                    -> origin/issue-18-511583e63fad
+2026-10-28T15:21:23.4889260Z  * [new branch]      issue-20-2e1bcf090e36                    -> origin/issue-20-2e1bcf090e36
+2026-10-28T15:21:23.4890010Z  * [new branch]      issue-25-dac43a780b5c                    -> origin/issue-25-dac43a780b5c
+2026-10-28T15:21:23.4890650Z  * [new branch]      issue-27-05348a151c4d                    -> origin/issue-27-05348a151c4d
+2026-10-28T15:21:23.4893300Z  * [new branch]      issue-29-e17abd0f073c                    -> origin/issue-29-e17abd0f073c
+2026-10-28T15:21:23.4893980Z  * [new branch]      issue-3-98d902f006cb                     -> origin/issue-3-98d902f006cb
+2026-10-28T15:21:23.4894620Z  * [new branch]      issue-31-5ccfae6dabce                    -> origin/issue-31-5ccfae6dabce
+2026-10-28T15:21:23.4895200Z  * [new branch]      issue-32-af891cdcb951                    -> origin/issue-32-af891cdcb951
+2026-10-28T15:21:23.4896140Z  * [new branch]      issue-35-9b770690b2d5                    -> origin/issue-35-9b770690b2d5
+2026-10-28T15:21:23.4921170Z  * [new branch]      issue-37-3578e6d14474                    -> origin/issue-37-3578e6d14474
+2026-10-28T15:21:23.4922180Z  * [new branch]      issue-39-6f54edfad12b                    -> origin/issue-39-6f54edfad12b
+2026-10-28T15:21:23.4922830Z  * [new branch]      issue-4-30c7e8dd5217                     -> origin/issue-4-30c7e8dd5217
+2026-10-28T15:21:23.4923440Z  * [new branch]      issue-43-1924384484c0                    -> origin/issue-43-1924384484c0
+2026-10-28T15:21:23.4924160Z  * [new branch]      issue-5-bb4787c0c23a                     -> origin/issue-5-bb4787c0c23a
+2026-10-28T15:21:23.4925100Z  * [new branch]      issue-6-adb97494d4d6                     -> origin/issue-6-adb97494d4d6
+2026-10-28T15:21:23.4927470Z  * [new branch]      issue-8-c22927792fe8                     -> origin/issue-8-c22927792fe8
+2026-10-28T15:21:23.4938930Z  * [new branch]      main                                     -> origin/main
+2026-10-28T15:21:23.4939530Z  * [new branch]      tutorial-brands-auto-import              -> origin/tutorial-brands-auto-import
+2026-10-28T15:21:23.4940100Z  * [new tag]         v0.21.0                                  -> v0.21.0
+2026-10-28T15:21:23.4940700Z  * [new tag]         v0.22.0                                  -> v0.22.0
+2026-10-28T15:21:23.4941120Z  * [new tag]         v0.23.0                                  -> v0.23.0
+2026-10-28T15:21:23.4941570Z  * [new tag]         v0.24.0                                  -> v0.24.0
+2026-10-28T15:21:23.4942130Z  * [new tag]         v0.25.0                                  -> v0.25.0
+2026-10-28T15:21:23.4973830Z  * [new tag]         v0.26.0                                  -> v0.26.0
+2026-10-28T15:21:23.4997180Z  * [new tag]         v0.27.0                                  -> v0.27.0
+2026-10-28T15:21:23.5072040Z  * [new tag]         v0.28.0                                  -> v0.28.0
+2026-10-28T15:21:23.5074150Z  * [new tag]         v0.29.0                                  -> v0.29.0
+2026-10-28T15:21:23.5075420Z  * [new tag]         v0.30.0                                  -> v0.30.0
+2026-10-28T15:21:23.5076540Z  * [new tag]         v0.31.0                                  -> v0.31.0
+2026-10-28T15:21:23.5078550Z  * [new tag]         v0.32.0                                  -> v0.32.0
+2026-10-28T15:21:23.5080050Z  * [new tag]         v0.33.0                                  -> v0.33.0
+2026-10-28T15:21:23.5081160Z  * [new tag]         v0.34.0                                  -> v0.34.0
+2026-10-28T15:21:23.5082340Z  * [new tag]         v0.35.0                                  -> v0.35.0
+2026-10-28T15:21:23.5083340Z  * [new tag]         v0.36.0                                  -> v0.36.0
+2026-10-28T15:21:23.5084390Z  * [new tag]         v0.37.0                                  -> v0.37.0
+2026-10-28T15:21:23.5085490Z  * [new tag]         v0.38.0                                  -> v0.38.0
+2026-10-28T15:21:23.5086610Z  * [new tag]         v0.39.0                                  -> v0.39.0
+2026-10-28T15:21:23.5087650Z  * [new tag]         v0.40.0                                  -> v0.40.0
+2026-10-28T15:21:23.5090050Z  * [new tag]         v0.41.0                                  -> v0.41.0
+2026-10-28T15:21:23.5091600Z  * [new tag]         v0.42.0                                  -> v0.42.0
+2026-10-28T15:21:23.5113140Z  * [new tag]         v0.43.0                                  -> v0.43.0
+2026-10-28T15:21:23.5113780Z  * [new tag]         v0.44.0                                  -> v0.44.0
+2026-10-28T15:21:23.5114410Z  * [new tag]         v0.45.0                                  -> v0.45.0
+2026-10-28T15:21:23.5115010Z  * [new tag]         v0.46.0                                  -> v0.46.0
+2026-10-28T15:21:23.5115480Z  * [new tag]         v0.46.1                                  -> v0.46.1
+2026-10-28T15:21:23.5116070Z  * [new tag]         v0.46.2                                  -> v0.46.2
+2026-10-28T15:21:23.5116540Z  * [new tag]         v0.47.0                                  -> v0.47.0
+2026-10-28T15:21:23.5116990Z  * [new tag]         v0.47.1                                  -> v0.47.1
+2026-10-28T15:21:23.5117410Z  * [new tag]         v0.47.2                                  -> v0.47.2
+2026-10-28T15:21:23.5118180Z  * [new tag]         v0.48.0                                  -> v0.48.0
+2026-10-28T15:21:23.5118670Z  * [new tag]         v0.49.1                                  -> v0.49.1
+2026-10-28T15:21:23.5119170Z  * [new tag]         v0.49.10                                 -> v0.49.10
+2026-10-28T15:21:23.5119620Z  * [new tag]         v0.49.11                                 -> v0.49.11
+2026-10-28T15:21:23.5120220Z  * [new tag]         v0.49.12                                 -> v0.49.12
+2026-10-28T15:21:23.5120790Z  * [new tag]         v0.49.13                                 -> v0.49.13
+2026-10-28T15:21:23.5121450Z  * [new tag]         v0.49.14                                 -> v0.49.14
+2026-10-28T15:21:23.5122040Z  * [new tag]         v0.49.15                                 -> v0.49.15
+2026-10-28T15:21:23.5122500Z  * [new tag]         v0.49.16                                 -> v0.49.16
+2026-10-28T15:21:23.5122900Z  * [new tag]         v0.49.17                                 -> v0.49.17
+2026-10-28T15:21:23.5123490Z  * [new tag]         v0.49.18                                 -> v0.49.18
+2026-10-28T15:21:23.5123940Z  * [new tag]         v0.49.2                                  -> v0.49.2
+2026-10-28T15:21:23.5124390Z  * [new tag]         v0.49.3                                  -> v0.49.3
+2026-10-28T15:21:23.5124850Z  * [new tag]         v0.49.4                                  -> v0.49.4
+2026-10-28T15:21:23.5125410Z  * [new tag]         v0.49.5                                  -> v0.49.5
+2026-10-28T15:21:23.5125870Z  * [new tag]         v0.49.6                                  -> v0.49.6
+2026-10-28T15:21:23.5126290Z  * [new tag]         v0.49.7                                  -> v0.49.7
+2026-10-28T15:21:23.5126860Z  * [new tag]         v0.49.8                                  -> v0.49.8
+2026-10-28T15:21:23.5127280Z  * [new tag]         v0.49.9                                  -> v0.49.9
+2026-10-28T15:21:23.5127950Z  * [new tag]         v0.50.0                                  -> v0.50.0
+2026-10-28T15:21:23.5129400Z  * [new tag]         v0.51.0                                  -> v0.51.0
+2026-10-28T15:21:23.5129890Z  * [new tag]         v0.51.1                                  -> v0.51.1
+2026-10-28T15:21:23.5130510Z  * [new tag]         v0.51.2                                  -> v0.51.2
+2026-10-28T15:21:23.5131160Z  * [new tag]         v0.52.0                                  -> v0.52.0
+2026-10-28T15:21:23.5131640Z  * [new tag]         v0.53.0                                  -> v0.53.0
+2026-10-28T15:21:23.5132200Z  * [new tag]         v0.53.1                                  -> v0.53.1
+2026-10-28T15:21:23.5132710Z  * [new tag]         v0.53.2                                  -> v0.53.2
+2026-10-28T15:21:23.5133280Z  * [new tag]         v0.53.3                                  -> v0.53.3
+2026-10-28T15:21:23.5133940Z  * [new tag]         v0.53.4                                  -> v0.53.4
+2026-10-28T15:21:23.5134410Z  * [new tag]         v0.54.0                                  -> v0.54.0
+2026-10-28T15:21:23.5134980Z  * [new tag]         v0.54.1                                  -> v0.54.1
+2026-10-28T15:21:23.5135510Z  * [new ref]         684348aa134dc57f61b44f3342c62116ad7e9d97 -> pull/44/merge
+2026-10-28T15:21:23.5137280Z ##[endgroup]
+2026-10-28T15:21:23.5137880Z ##[group]Determining the checkout info
+2026-10-28T15:21:23.5140220Z ##[endgroup]
+2026-10-28T15:21:23.5140610Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-10-28T15:21:23.5141780Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T15:21:23.5143240Z ##[group]Checking out the ref
+2026-10-28T15:21:23.5143760Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/44/merge
+2026-10-28T15:21:23.8516980Z HEAD is now at 684348a Merge a8ea6a88cba8fa7d22de6d4ba7bcfb7a62e71408 into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T15:21:23.8532330Z ##[endgroup]
+2026-10-28T15:21:23.8636390Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-28T15:21:23.8711700Z 684348aa134dc57f61b44f3342c62116ad7e9d97
+2026-10-28T15:21:23.8721400Z ##[group]Removing auth
+2026-10-28T15:21:23.8722120Z Removing SSH command configuration
+2026-10-28T15:21:23.8724350Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T15:21:23.8798070Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T15:21:23.9700890Z Removing HTTP extra header
+2026-10-28T15:21:23.9703290Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T15:21:23.9759410Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T15:21:24.0541700Z Removing includeIf entries pointing to credentials config files
+2026-10-28T15:21:24.0549290Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T15:21:24.0613710Z includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T15:21:24.0615030Z includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T15:21:24.0616380Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T15:21:24.0617360Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T15:21:24.0623040Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T15:21:24.0681320Z /Users/runner/work/_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:24.0689640Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path \/Users\/runner\/work\/_temp\/git\-credentials\-7252538d\-d4f8\-47e0\-b8e3\-6a7cefdff9d9\.config
+2026-10-28T15:21:24.0816150Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T15:21:24.0894930Z /Users/runner/work/_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:24.0903310Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/Users\/runner\/work\/_temp\/git\-credentials\-7252538d\-d4f8\-47e0\-b8e3\-6a7cefdff9d9\.config
+2026-10-28T15:21:24.0989300Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T15:21:24.1111090Z /github/runner_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:24.1122710Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-7252538d\-d4f8\-47e0\-b8e3\-6a7cefdff9d9\.config
+2026-10-28T15:21:24.1238410Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T15:21:24.1312840Z /github/runner_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config
+2026-10-28T15:21:24.1316270Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-7252538d\-d4f8\-47e0\-b8e3\-6a7cefdff9d9\.config
+2026-10-28T15:21:24.1385370Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T15:21:24.2385120Z Removing credentials config '/Users/runner/work/_temp/git-credentials-7252538d-d4f8-47e0-b8e3-6a7cefdff9d9.config'
+2026-10-28T15:21:24.2397940Z ##[endgroup]
+2026-10-28T15:21:24.2709460Z ##[group]Run bash js/scripts/simulate-fresh-merge.sh
+2026-10-28T15:21:24.2709930Z [36;1mbash js/scripts/simulate-fresh-merge.sh[0m
+2026-10-28T15:21:24.2781830Z shell: /bin/bash -e {0}
+2026-10-28T15:21:24.2782090Z env:
+2026-10-28T15:21:24.2782240Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:21:24.2782420Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:21:24.2782630Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:21:24.2782800Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:21:24.2782960Z   E2E_BROWSER: webkit
+2026-10-28T15:21:24.2783110Z   E2E_ENGINES: webkit
+2026-10-28T15:21:24.2783260Z   E2E_SAFARI: 0
+2026-10-28T15:21:24.2783420Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:21:24.2783600Z   DEBUG: 
+2026-10-28T15:21:24.2783730Z   BASE_REF: main
+2026-10-28T15:21:24.2783870Z ##[endgroup]
+2026-10-28T15:21:24.3162800Z === Synchronizing PR with latest main ===
+2026-10-28T15:21:24.3163750Z This prevents stale merge preview issues (see docs/case-studies/issue-23)
+2026-10-28T15:21:24.3164020Z 
+2026-10-28T15:21:24.3267430Z Fetching latest main...
+2026-10-28T15:21:24.7319070Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T15:21:24.7323790Z  * branch            main       -> FETCH_HEAD
+2026-10-28T15:21:24.7531110Z Current checkout (merge preview): 684348aa134dc57f61b44f3342c62116ad7e9d97
+2026-10-28T15:21:24.7532720Z Latest base branch (main): 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T15:21:24.7533070Z 
+2026-10-28T15:21:24.7672720Z Merge preview is up-to-date with main. No simulation needed.
+2026-10-28T15:21:24.7673500Z 
+2026-10-28T15:21:24.8017580Z ##[group]Run actions/setup-node@v7
+2026-10-28T15:21:24.8017870Z with:
+2026-10-28T15:21:24.8018040Z   node-version: 24.x
+2026-10-28T15:21:24.8018200Z   cache: npm
+2026-10-28T15:21:24.8018370Z   check-latest: false
+2026-10-28T15:21:24.8020180Z   token: ***
+2026-10-28T15:21:24.8020360Z   package-manager-cache: true
+2026-10-28T15:21:24.8020590Z env:
+2026-10-28T15:21:24.8020780Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:21:24.8021000Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:21:24.8021320Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:21:24.8021570Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:21:24.8021760Z   E2E_BROWSER: webkit
+2026-10-28T15:21:24.8022130Z   E2E_ENGINES: webkit
+2026-10-28T15:21:24.8022410Z   E2E_SAFARI: 0
+2026-10-28T15:21:24.8022620Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:21:24.8022890Z   DEBUG: 
+2026-10-28T15:21:24.8023030Z ##[endgroup]
+2026-10-28T15:21:24.9607490Z Found in cache @ /Users/runner/hostedtoolcache/node/24.20.0/arm64
+2026-10-28T15:21:25.1139280Z ##[group]Environment details
+2026-10-28T15:21:25.5412620Z node: v24.20.0
+2026-10-28T15:21:25.5493480Z npm: 11.19.0
+2026-10-28T15:21:25.5503510Z yarn: 1.22.22
+2026-10-28T15:21:25.5504520Z ##[endgroup]
+2026-10-28T15:21:25.5505020Z [command]/Users/runner/hostedtoolcache/node/24.20.0/arm64/bin/npm config get cache
+2026-10-28T15:21:25.7835110Z /Users/runner/.npm
+2026-10-28T15:21:25.9317380Z npm cache is not found
+2026-10-28T15:21:25.9430990Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T15:21:25.9431420Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T15:21:25.9478710Z shell: /bin/bash -e {0}
+2026-10-28T15:21:25.9478920Z env:
+2026-10-28T15:21:25.9479360Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:21:25.9479550Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:21:25.9479800Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:21:25.9480010Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:21:25.9480190Z   E2E_BROWSER: webkit
+2026-10-28T15:21:25.9480400Z   E2E_ENGINES: webkit
+2026-10-28T15:21:25.9480600Z   E2E_SAFARI: 0
+2026-10-28T15:21:25.9480780Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:21:25.9481010Z   DEBUG: 
+2026-10-28T15:21:25.9481170Z ##[endgroup]
+2026-10-28T15:21:40.9780620Z 
+2026-10-28T15:21:40.9796220Z > meta-sovereign@0.54.1 prepare
+2026-10-28T15:21:40.9798330Z > husky || true
+2026-10-28T15:21:40.9799620Z 
+2026-10-28T15:21:41.2590300Z 
+2026-10-28T15:21:41.2591460Z added 488 packages in 15s
+2026-10-28T15:21:41.3589080Z ##[group]Run npx playwright install --with-deps "$BROWSER"
+2026-10-28T15:21:41.3589800Z [36;1mnpx playwright install --with-deps "$BROWSER"[0m
+2026-10-28T15:21:41.3629600Z shell: /bin/bash -e {0}
+2026-10-28T15:21:41.3629930Z env:
+2026-10-28T15:21:41.3630490Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:21:41.3630800Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:21:41.3631110Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:21:41.3631350Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:21:41.3631610Z   E2E_BROWSER: webkit
+2026-10-28T15:21:41.3632020Z   E2E_ENGINES: webkit
+2026-10-28T15:21:41.3632320Z   E2E_SAFARI: 0
+2026-10-28T15:21:41.3632570Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:21:41.3632960Z   DEBUG: 
+2026-10-28T15:21:41.3633180Z   BROWSER: webkit
+2026-10-28T15:21:41.3633500Z ##[endgroup]
+2026-10-28T15:21:42.2515230Z Downloading WebKit 27.2 (playwright webkit v2370) from https://cdn.playwright.dev/dbazure/download/playwright/builds/webkit/2370/webkit-mac-15-arm64.zip
+2026-10-28T15:21:42.7847250Z |                                                                                |   0% of 78.4 MiB
+2026-10-28T15:21:42.9331460Z |■■■■■■■■                                                                        |  10% of 78.4 MiB
+2026-10-28T15:21:42.9863030Z |■■■■■■■■■■■■■■■■                                                                |  20% of 78.4 MiB
+2026-10-28T15:21:43.0188480Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 78.4 MiB
+2026-10-28T15:21:43.0576200Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 78.4 MiB
+2026-10-28T15:21:43.1143280Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 78.4 MiB
+2026-10-28T15:21:43.1751620Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 78.4 MiB
+2026-10-28T15:21:43.2065550Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 78.4 MiB
+2026-10-28T15:21:43.2447360Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 78.4 MiB
+2026-10-28T15:21:43.2890790Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 78.4 MiB
+2026-10-28T15:21:43.3390210Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 78.4 MiB
+2026-10-28T15:21:49.2372170Z WebKit 27.2 (playwright webkit v2370) downloaded to /Users/runner/Library/Caches/ms-playwright/webkit-2370
+2026-10-28T15:21:49.2412310Z Downloading FFmpeg (playwright ffmpeg v1013) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1013/ffmpeg-mac-arm64.zip
+2026-10-28T15:21:49.7442040Z |                                                                                |   1% of 1.4 MiB
+2026-10-28T15:21:49.7466110Z |■■■■■■■■                                                                        |  10% of 1.4 MiB
+2026-10-28T15:21:49.7477230Z |■■■■■■■■■■■■■■■■                                                                |  20% of 1.4 MiB
+2026-10-28T15:21:49.7486770Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 1.4 MiB
+2026-10-28T15:21:49.7498730Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 1.4 MiB
+2026-10-28T15:21:49.7502620Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 1.4 MiB
+2026-10-28T15:21:49.7508900Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  61% of 1.4 MiB
+2026-10-28T15:21:49.7519020Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 1.4 MiB
+2026-10-28T15:21:49.7524260Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 1.4 MiB
+2026-10-28T15:21:49.7529000Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 1.4 MiB
+2026-10-28T15:21:49.7532290Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 1.4 MiB
+2026-10-28T15:21:49.7992880Z FFmpeg (playwright ffmpeg v1013) downloaded to /Users/runner/Library/Caches/ms-playwright/ffmpeg-1013
+2026-10-28T15:21:49.8423790Z ##[group]Run npm run build:web
+2026-10-28T15:21:49.8424430Z [36;1mnpm run build:web[0m
+2026-10-28T15:21:49.8491270Z shell: /bin/bash -e {0}
+2026-10-28T15:21:49.8491620Z env:
+2026-10-28T15:21:49.8491920Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:21:49.8492150Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:21:49.8492500Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:21:49.8492810Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:21:49.8493190Z   E2E_BROWSER: webkit
+2026-10-28T15:21:49.8493410Z   E2E_ENGINES: webkit
+2026-10-28T15:21:49.8493710Z   E2E_SAFARI: 0
+2026-10-28T15:21:49.8493970Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:21:49.8494310Z   DEBUG: 
+2026-10-28T15:21:49.8494510Z ##[endgroup]
+2026-10-28T15:21:50.0568700Z 
+2026-10-28T15:21:50.0569170Z > meta-sovereign@0.54.1 build:web
+2026-10-28T15:21:50.0570850Z > node js/scripts/build-web.mjs
+2026-10-28T15:21:50.0571100Z 
+2026-10-28T15:21:50.4207260Z 
+2026-10-28T15:21:50.4209590Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T15:21:50.4209970Z 
+2026-10-28T15:21:50.4210170Z ⚡ Done in 295ms
+2026-10-28T15:21:50.4322860Z ##[group]Run node js/scripts/run-browser-checks.mjs
+2026-10-28T15:21:50.4323790Z [36;1mnode js/scripts/run-browser-checks.mjs[0m
+2026-10-28T15:21:50.4356600Z shell: /bin/bash -e {0}
+2026-10-28T15:21:50.4356910Z env:
+2026-10-28T15:21:50.4357170Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:21:50.4357620Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:21:50.4358010Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:21:50.4358360Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:21:50.4358660Z   E2E_BROWSER: webkit
+2026-10-28T15:21:50.4358980Z   E2E_ENGINES: webkit
+2026-10-28T15:21:50.4359210Z   E2E_SAFARI: 0
+2026-10-28T15:21:50.4359510Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:21:50.4359830Z   DEBUG: 
+2026-10-28T15:21:50.4360100Z ##[endgroup]
+2026-10-28T15:21:50.5513580Z ##[group]Browser check: browser
+2026-10-28T15:22:54.6821420Z [e2e-browser-spa] JS server up at http://127.0.0.1:49197, store=/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/ms-e2e-js-zeKVUh
+2026-10-28T15:22:54.6822860Z 
+2026-10-28T15:22:54.6823950Z [e2e-browser-spa] === backend=js base=http://127.0.0.1:49197 ===
+2026-10-28T15:22:54.6824860Z [e2e-browser-spa:js] shell loads with all expected nav buttons ... ok
+2026-10-28T15:22:54.6825480Z [e2e-browser-spa:js] tutorial progress survives a page reload ... ok
+2026-10-28T15:22:54.6826220Z [e2e-browser-spa:js] seed two messages via REST so derived views have data ... ok
+2026-10-28T15:22:54.6827000Z [e2e-browser-spa:js] click every supported nav button and confirm view rendered ... ok
+2026-10-28T15:22:54.6827680Z [e2e-browser-spa:js] reload after writing a message and verify it survives ... ok
+2026-10-28T15:22:54.6828360Z [e2e-browser-spa:js] infer pattern from examples and save ... ok
+2026-10-28T15:22:54.6828960Z [e2e-browser-spa:js] persist a 2-node automation graph and read it back ... ok
+2026-10-28T15:22:54.6829590Z [e2e-browser-spa:js] broadcast emits per-network envelopes ... ok
+2026-10-28T15:22:54.6830440Z [e2e-browser-spa:js] outreach plan personalises envelopes per recipient ... ok
+2026-10-28T15:22:54.6833840Z [e2e-browser-spa:js] backup → restore round-trip preserves seeded link ... ok
+2026-10-28T15:22:54.6834570Z [e2e-browser-spa:js] profile saves locally; publishing asks first ... ok
+2026-10-28T15:22:54.6835180Z [e2e-browser-spa:js] dark-mode toggle persists across reload ... ok
+2026-10-28T15:22:54.6836020Z [e2e-browser-spa:js] connections credential roundtrip + connect-first CTA ... ok
+2026-10-28T15:22:54.6836670Z [e2e-browser-spa:js] axe-core finds no serious/critical WCAG violations ... ok
+2026-10-28T15:22:54.6837810Z [e2e-browser-spa:js] skip-link is the first focusable element on the page ... ok
+2026-10-28T15:22:54.6838610Z [e2e-browser-spa:js] two browsers converge writes over WebRTC ... ok
+2026-10-28T15:22:54.6839310Z [e2e-browser-spa] all steps passed
+2026-10-28T15:22:54.6839540Z 
+2026-10-28T15:22:54.6839770Z Completed browser in 64129ms; exit 0
+2026-10-28T15:22:54.6842400Z ##[endgroup]
+2026-10-28T15:22:54.6846970Z ##[group]Browser check: pages
+2026-10-28T15:23:18.8267980Z Wrote 379 files (12094.4 KiB) to /Users/runner/work/meta-sovereign/meta-sovereign/dist/pages
+2026-10-28T15:23:18.8270150Z   .nojekyll
+2026-10-28T15:23:18.8270880Z   404.html
+2026-10-28T15:23:18.8271820Z   api-errors.js
+2026-10-28T15:23:18.8273100Z   app-navigation.js
+2026-10-28T15:23:18.8273530Z   app-notify.js
+2026-10-28T15:23:18.8273810Z   app-route.js
+2026-10-28T15:23:18.8274250Z   app.0614143d668dd4d4.css
+2026-10-28T15:23:18.8274630Z   app.80e8a025fbf1de03.min.js
+2026-10-28T15:23:18.8275430Z   app.css
+2026-10-28T15:23:18.8275700Z   app.js
+2026-10-28T15:23:18.8275960Z   app.min.js
+2026-10-28T15:23:18.8276280Z   appearance.js
+2026-10-28T15:23:18.8276550Z   apps-model.js
+2026-10-28T15:23:18.8276830Z   archive-media-model.js
+2026-10-28T15:23:18.8277180Z   auto-download.js
+2026-10-28T15:23:18.8277450Z   automation-api.js
+2026-10-28T15:23:18.8277810Z   automations-model.js
+2026-10-28T15:23:18.8278060Z   automations-safety.js
+2026-10-28T15:23:18.8278430Z   automations-state.js
+2026-10-28T15:23:18.8279850Z   automations-view.js
+2026-10-28T15:23:18.8280720Z   autopilot-hook.js
+2026-10-28T15:23:18.8281070Z   bot-keyboard.js
+2026-10-28T15:23:18.8281390Z   business-hours-model.js
+2026-10-28T15:23:18.8281730Z   business-menu.js
+2026-10-28T15:23:18.8282010Z   business-messages.js
+2026-10-28T15:23:18.8282360Z   call-model.js
+2026-10-28T15:23:18.8282730Z   channel-dm-model.js
+2026-10-28T15:23:18.8283020Z   chat-account-data.js
+2026-10-28T15:23:18.8283330Z   chat-account.js
+2026-10-28T15:23:18.8283580Z   chat-accounts-live.js
+2026-10-28T15:23:18.8283900Z   chat-accounts.js
+2026-10-28T15:23:18.8284150Z   chat-actions.js
+2026-10-28T15:23:18.8284470Z   chat-add-members.js
+2026-10-28T15:23:18.8284770Z   chat-admin-rights.js
+2026-10-28T15:23:18.8285040Z   chat-admin.js
+2026-10-28T15:23:18.8285360Z   chat-admins.js
+2026-10-28T15:23:18.8285590Z   chat-album.js
+2026-10-28T15:23:18.8285940Z   chat-apps-search.js
+2026-10-28T15:23:18.8286240Z   chat-archive-media.js
+2026-10-28T15:23:18.8286600Z   chat-attach-bots.js
+2026-10-28T15:23:18.8287020Z   chat-attach.js
+2026-10-28T15:23:18.8287270Z   chat-attached-button.js
+2026-10-28T15:23:18.8287640Z   chat-attached-stickers.js
+2026-10-28T15:23:18.8287930Z   chat-automation.js
+2026-10-28T15:23:18.8288290Z   chat-boosts.js
+2026-10-28T15:23:18.8288650Z   chat-bot-commands.js
+2026-10-28T15:23:18.8288950Z   chat-bot-login.js
+2026-10-28T15:23:18.8289320Z   chat-bots.js
+2026-10-28T15:23:18.8289640Z   chat-business-bots.js
+2026-10-28T15:23:18.8290060Z   chat-business-common.js
+2026-10-28T15:23:18.8290340Z   chat-business-hours.js
+2026-10-28T15:23:18.8295530Z   chat-business-link-open.js
+2026-10-28T15:23:18.8295910Z   chat-business-links.js
+2026-10-28T15:23:18.8296140Z   chat-business-place.js
+2026-10-28T15:23:18.8298230Z   chat-business-profile.js
+2026-10-28T15:23:18.8306100Z   chat-calendar.js
+2026-10-28T15:23:18.8306510Z   chat-calls.js
+2026-10-28T15:23:18.8306770Z   chat-channel-dm-thread.js
+2026-10-28T15:23:18.8307090Z   chat-channel-dm.js
+2026-10-28T15:23:18.8307420Z   chat-channel-limit.js
+2026-10-28T15:23:18.8307690Z   chat-collectible.js
+2026-10-28T15:23:18.8308000Z   chat-comments-bar.js
+2026-10-28T15:23:18.8308230Z   chat-comments.js
+2026-10-28T15:23:18.8308550Z   chat-common-chats.js
+2026-10-28T15:23:18.8309370Z   chat-contact-extras.js
+2026-10-28T15:23:18.8312560Z   chat-contact-share.js
+2026-10-28T15:23:18.8315330Z   chat-contacts-edit.js
+2026-10-28T15:23:18.8315570Z   chat-contacts-synced.js
+2026-10-28T15:23:18.8316810Z   chat-contacts-window.js
+2026-10-28T15:23:18.8317180Z   chat-create.js
+2026-10-28T15:23:18.8317440Z   chat-days.js
+2026-10-28T15:23:18.8317880Z   chat-deleted.js
+2026-10-28T15:23:18.8318190Z   chat-drafts-clear.js
+2026-10-28T15:23:18.8318430Z   chat-drag.js
+2026-10-28T15:23:18.8318700Z   chat-edit-mode.js
+2026-10-28T15:23:18.8318960Z   chat-edit.js
+2026-10-28T15:23:18.8319160Z   chat-effects.js
+2026-10-28T15:23:18.8319440Z   chat-email-body.js
+2026-10-28T15:23:18.8319660Z   chat-emoji-custom.js
+2026-10-28T15:23:18.8319950Z   chat-emoji-status-search.js
+2026-10-28T15:23:18.8320250Z   chat-emoji-status.js
+2026-10-28T15:23:18.8320580Z   chat-emoji-suggest.js
+2026-10-28T15:23:18.8320910Z   chat-emoji-tools.js
+2026-10-28T15:23:18.8321130Z   chat-emoji.js
+2026-10-28T15:23:18.8321480Z   chat-ephemeral.js
+2026-10-28T15:23:18.8321700Z   chat-export.js
+2026-10-28T15:23:18.8321960Z   chat-fact-check.js
+2026-10-28T15:23:18.8322250Z   chat-failure.js
+2026-10-28T15:23:18.8322460Z   chat-feed.js
+2026-10-28T15:23:18.8322720Z   chat-folder-edit.js
+2026-10-28T15:23:18.8322960Z   chat-folder-live.js
+2026-10-28T15:23:18.8323260Z   chat-folder-model.js
+2026-10-28T15:23:18.8323490Z   chat-folder-share.js
+2026-10-28T15:23:18.8323770Z   chat-folder-tags.js
+2026-10-28T15:23:18.8324070Z   chat-folder-updates.js
+2026-10-28T15:23:18.8324290Z   chat-folders.js
+2026-10-28T15:23:18.8324560Z   chat-follow.js
+2026-10-28T15:23:18.8324780Z   chat-format-bar.js
+2026-10-28T15:23:18.8362600Z   chat-forum-view.js
+2026-10-28T15:23:18.8364610Z   chat-forward.js
+2026-10-28T15:23:18.8365120Z   chat-games.js
+2026-10-28T15:23:18.8366600Z   chat-gestures.js
+2026-10-28T15:23:18.8368440Z   chat-gift-code-button.js
+2026-10-28T15:23:18.8369200Z   chat-gift-manage.js
+2026-10-28T15:23:18.8369910Z   chat-gift-unique.js
+2026-10-28T15:23:18.8370950Z   chat-giveaway.js
+2026-10-28T15:23:18.8373500Z   chat-global.js
+2026-10-28T15:23:18.8376560Z   chat-group-stickers.js
+2026-10-28T15:23:18.8377980Z   chat-history-load.js
+2026-10-28T15:23:18.8379490Z   chat-info.js
+2026-10-28T15:23:18.8380310Z   chat-inline-bots.js
+2026-10-28T15:23:18.8381190Z   chat-instant-view-open.js
+2026-10-28T15:23:18.8382400Z   chat-instant-view-render.js
+2026-10-28T15:23:18.8383490Z   chat-instant-view.js
+2026-10-28T15:23:18.8384250Z   chat-invite-links.js
+2026-10-28T15:23:18.8384860Z   chat-invite.js
+2026-10-28T15:23:18.8385900Z   chat-join-requests.js
+2026-10-28T15:23:18.8386210Z   chat-jump.js
+2026-10-28T15:23:18.8386470Z   chat-leaving.js
+2026-10-28T15:23:18.8386760Z   chat-left-channels.js
+2026-10-28T15:23:18.8388100Z   chat-link-open.js
+2026-10-28T15:23:18.8389160Z   chat-link-preview.js
+2026-10-28T15:23:18.8389860Z   chat-list-menu.js
+2026-10-28T15:23:18.8390320Z   chat-list.js
+2026-10-28T15:23:18.8390690Z   chat-live-locations.js
+2026-10-28T15:23:18.8391810Z   chat-live.js
+2026-10-28T15:23:18.8392760Z   chat-manage.js
+2026-10-28T15:23:18.8393470Z   chat-marks.js
+2026-10-28T15:23:18.8394100Z   chat-media.js
+2026-10-28T15:23:18.8394540Z   chat-members.js
+2026-10-28T15:23:18.8395240Z   chat-message-stats.js
+2026-10-28T15:23:18.8395650Z   chat-message.js
+2026-10-28T15:23:18.8396570Z   chat-model.js
+2026-10-28T15:23:18.8397310Z   chat-moderation.js
+2026-10-28T15:23:18.8397890Z   chat-music-save.js
+2026-10-28T15:23:18.8398380Z   chat-notify-settings.js
+2026-10-28T15:23:18.8399090Z   chat-notify-sound.js
+2026-10-28T15:23:18.8399860Z   chat-notify.js
+2026-10-28T15:23:18.8400620Z   chat-outbox.js
+2026-10-28T15:23:18.8402050Z   chat-paid-earnings.js
+2026-10-28T15:23:18.8403520Z   chat-paid-send.js
+2026-10-28T15:23:18.8403800Z   chat-paid.js
+2026-10-28T15:23:18.8405280Z   chat-passcode.js
+2026-10-28T15:23:18.8406040Z   chat-peer-actions.js
+2026-10-28T15:23:18.8407080Z   chat-person-extras.js
+2026-10-28T15:23:18.8407770Z   chat-photo-editor.js
+2026-10-28T15:23:18.8408020Z   chat-photo.js
+2026-10-28T15:23:18.8408350Z   chat-pin-drag.js
+2026-10-28T15:23:18.8408520Z   chat-pin-order.js
+2026-10-28T15:23:18.8408740Z   chat-pinned.js
+2026-10-28T15:23:18.8408880Z   chat-pip.js
+2026-10-28T15:23:18.8409020Z   chat-poll-create.js
+2026-10-28T15:23:18.8409190Z   chat-poll.js
+2026-10-28T15:23:18.8409420Z   chat-prepared-share.js
+2026-10-28T15:23:18.8409680Z   chat-privacy-paid.js
+2026-10-28T15:23:18.8409970Z   chat-privacy.js
+2026-10-28T15:23:18.8410230Z   chat-private-call.js
+2026-10-28T15:23:18.8410570Z   chat-profile-extras.js
+2026-10-28T15:23:18.8410740Z   chat-profile.js
+2026-10-28T15:23:18.8410900Z   chat-public-link.js
+2026-10-28T15:23:18.8411070Z   chat-quick-reaction.js
+2026-10-28T15:23:18.8411230Z   chat-reactions.js
+2026-10-28T15:23:18.8411460Z   chat-read-time.js
+2026-10-28T15:23:18.8411670Z   chat-readers.js
+2026-10-28T15:23:18.8411900Z   chat-remote-media.js
+2026-10-28T15:23:18.8412190Z   chat-replies-block.js
+2026-10-28T15:23:18.8412420Z   chat-replies.js
+2026-10-28T15:23:18.8412620Z   chat-report.js
+2026-10-28T15:23:18.8412870Z   chat-request-peer.js
+2026-10-28T15:23:18.8413090Z   chat-rich-message.js
+2026-10-28T15:23:18.8413350Z   chat-round-record.js
+2026-10-28T15:23:18.8413500Z   chat-round.js
+2026-10-28T15:23:18.8413680Z   chat-row.js
+2026-10-28T15:23:18.8413880Z   chat-saved-gifs.js
+2026-10-28T15:23:18.8414130Z   chat-saved-tags.js
+2026-10-28T15:23:18.8414390Z   chat-saved.js
+2026-10-28T15:23:18.8414600Z   chat-schedule.js
+2026-10-28T15:23:18.8414750Z   chat-search.js
+2026-10-28T15:23:18.8414900Z   chat-security-extras.js
+2026-10-28T15:23:18.8415190Z   chat-security-forgot.js
+2026-10-28T15:23:18.8415410Z   chat-security.js
+2026-10-28T15:23:18.8415680Z   chat-selection.js
+2026-10-28T15:23:18.8415920Z   chat-send-as.js
+2026-10-28T15:23:18.8416070Z   chat-send-gift.js
+2026-10-28T15:23:18.8416750Z   chat-service-line.js
+2026-10-28T15:23:18.8417190Z   chat-settings.js
+2026-10-28T15:23:18.8417340Z   chat-share.js
+2026-10-28T15:23:18.8417570Z   chat-shared.js
+2026-10-28T15:23:18.8417810Z   chat-sidebar.js
+2026-10-28T15:23:18.8418000Z   chat-sign-in-code.js
+2026-10-28T15:23:18.8418270Z   chat-similar-bots.js
+2026-10-28T15:23:18.8418420Z   chat-similar.js
+2026-10-28T15:23:18.8418640Z   chat-stars.js
+2026-10-28T15:23:18.8418890Z   chat-state.js
+2026-10-28T15:23:18.8419080Z   chat-stats.js
+2026-10-28T15:23:18.8419270Z   chat-sticker-box.js
+2026-10-28T15:23:18.8419500Z   chat-sticker-settings.js
+2026-10-28T15:23:18.8419730Z   chat-sticker-trending.js
+2026-10-28T15:23:18.8419940Z   chat-stickers.js
+2026-10-28T15:23:18.8420090Z   chat-suggest.js
+2026-10-28T15:23:18.8420240Z   chat-tab-scroll.js
+2026-10-28T15:23:18.8420460Z   chat-tags.js
+2026-10-28T15:23:18.8420730Z   chat-theme-model.js
+2026-10-28T15:23:18.8420970Z   chat-theme.js
+2026-10-28T15:23:18.8421180Z   chat-todo-create.js
+2026-10-28T15:23:18.8421440Z   chat-top-peers.js
+2026-10-28T15:23:18.8421640Z   chat-topic-admin.js
+2026-10-28T15:23:18.8421890Z   chat-topics.js
+2026-10-28T15:23:18.8422120Z   chat-transcribe.js
+2026-10-28T15:23:18.8422410Z   chat-translate-bar.js
+2026-10-28T15:23:18.8422660Z   chat-translate.js
+2026-10-28T15:23:18.8422870Z   chat-translation-switch.js
+2026-10-28T15:23:18.8423130Z   chat-ttl.js
+2026-10-28T15:23:18.8423330Z   chat-usernames.js
+2026-10-28T15:23:18.8423630Z   chat-view.js
+2026-10-28T15:23:18.8423830Z   chat-views.js
+2026-10-28T15:23:18.8424120Z   chat-voice-chat.js
+2026-10-28T15:23:18.8424410Z   chat-voice-hooks.js
+2026-10-28T15:23:18.8424620Z   chat-voice-panel.js
+2026-10-28T15:23:18.8424870Z   chat-voice.js
+2026-10-28T15:23:18.8425030Z   chat-wallpaper.js
+2026-10-28T15:23:18.8425240Z   chat-web-apps.js
+2026-10-28T15:23:18.8425390Z   chat-webpage.js
+2026-10-28T15:23:18.8425580Z   chat-window.js
+2026-10-28T15:23:18.8425800Z   client-log.js
+2026-10-28T15:23:18.8425940Z   client.js
+2026-10-28T15:23:18.8426080Z   cloud-theme-model.js
+2026-10-28T15:23:18.8426300Z   cloud-themes.js
+2026-10-28T15:23:18.8426450Z   connection-guide.js
+2026-10-28T15:23:18.8426620Z   connection-guides.js
+2026-10-28T15:23:18.8426790Z   connection-prefs.js
+2026-10-28T15:23:18.8426960Z   contact-links.js
+2026-10-28T15:23:18.8427100Z   contacts-import.js
+2026-10-28T15:23:18.8427260Z   contacts-live.js
+2026-10-28T15:23:18.8427420Z   custom-emoji.js
+2026-10-28T15:23:18.8428290Z   cv-view.js
+2026-10-28T15:23:18.8428450Z   dialog-focus.js
+2026-10-28T15:23:18.8428590Z   discover.js
+2026-10-28T15:23:18.8428740Z   discovery-shell.js
+2026-10-28T15:23:18.8428890Z   disk-banner.js
+2026-10-28T15:23:18.8429040Z   dom-telegram-calls.js
+2026-10-28T15:23:18.8429200Z   dom.js
+2026-10-28T15:23:18.8429330Z   download/copy.js
+2026-10-28T15:23:18.8429480Z   download/download.css
+2026-10-28T15:23:18.8429650Z   download/downloads.js
+2026-10-28T15:23:18.8429810Z   download/icon.svg
+2026-10-28T15:23:18.8429960Z   download/index.html
+2026-10-28T15:23:18.8430120Z   download/model.js
+2026-10-28T15:23:18.8430300Z   download/page.js
+2026-10-28T15:23:18.8430450Z   download/verify.js
+2026-10-28T15:23:18.8430600Z   effects.js
+2026-10-28T15:23:18.8430740Z   emoji-data.js
+2026-10-28T15:23:18.8430890Z   emoji-status-model.js
+2026-10-28T15:23:18.8431060Z   emoji-status.js
+2026-10-28T15:23:18.8431210Z   entity-extras.js
+2026-10-28T15:23:18.8431350Z   forum-topics.js
+2026-10-28T15:23:18.8431500Z   gif-id.js
+2026-10-28T15:23:18.8431660Z   gift-manage-model.js
+2026-10-28T15:23:18.8431830Z   giveaway-model.js
+2026-10-28T15:23:18.8431980Z   greetings-view.js
+2026-10-28T15:23:18.8432130Z   i18n.js
+2026-10-28T15:23:18.8432260Z   icons.js
+2026-10-28T15:23:18.8432390Z   index.html
+2026-10-28T15:23:18.8432530Z   language-switcher.js
+2026-10-28T15:23:18.8432690Z   live-clock.js
+2026-10-28T15:23:18.8432840Z   live-follow.js
+2026-10-28T15:23:18.8432980Z   live-place.js
+2026-10-28T15:23:18.8433120Z   live-watch.js
+2026-10-28T15:23:18.8433270Z   lottie-sticker.js
+2026-10-28T15:23:18.8433690Z   manifest.webmanifest
+2026-10-28T15:23:18.8434010Z   marketplace-accounts.js
+2026-10-28T15:23:18.8434180Z   media-loading.js
+2026-10-28T15:23:18.8434330Z   media-src.js
+2026-10-28T15:23:18.8434470Z   message-links.js
+2026-10-28T15:23:18.8434630Z   message-parts.js
+2026-10-28T15:23:18.8434770Z   message-text.js
+2026-10-28T15:23:18.8434920Z   nav-items.js
+2026-10-28T15:23:18.8435060Z   navigation-counts.js
+2026-10-28T15:23:18.8435220Z   notice.js
+2026-10-28T15:23:18.8435350Z   notify-rules.js
+2026-10-28T15:23:18.8435510Z   notify-sound.js
+2026-10-28T15:23:18.8435660Z   operator-model.js
+2026-10-28T15:23:18.8435810Z   operator-order.js
+2026-10-28T15:23:18.8435960Z   operator-prefs.js
+2026-10-28T15:23:18.8436110Z   operator-unread.js
+2026-10-28T15:23:18.8436290Z   operator-view.js
+2026-10-28T15:23:18.8436450Z   operator-work.js
+2026-10-28T15:23:18.8436600Z   outbox-context.js
+2026-10-28T15:23:18.8436750Z   outbox-host.js
+2026-10-28T15:23:18.8436900Z   paid-portal.js
+2026-10-28T15:23:18.8437050Z   paid-send.js
+2026-10-28T15:23:18.8437200Z   panel-resize.js
+2026-10-28T15:23:18.8437380Z   passcode-request.js
+2026-10-28T15:23:18.8437550Z   passcode.js
+2026-10-28T15:23:18.8437690Z   passkey-codec.js
+2026-10-28T15:23:18.8437850Z   pattern-matcher.wasm
+2026-10-28T15:23:18.8438010Z   pattern-worker.js
+2026-10-28T15:23:18.8438160Z   patterns-wasm.js
+2026-10-28T15:23:18.8438320Z   peer-avatar.js
+2026-10-28T15:23:18.8438470Z   peer-color.js
+2026-10-28T15:23:18.8438630Z   person-panel.js
+2026-10-28T15:23:18.8438790Z   photo-editor-model.js
+2026-10-28T15:23:18.8438970Z   photo-editor-render.js
+2026-10-28T15:23:18.8439140Z   poll-parts.js
+2026-10-28T15:23:18.8439290Z   privacy-prefs.js
+2026-10-28T15:23:18.8439450Z   private-call-model.js
+2026-10-28T15:23:18.8439630Z   profile-extras-model.js
+2026-10-28T15:23:18.8439800Z   profile-music.js
+2026-10-28T15:23:18.8439960Z   profile-stories-model.js
+2026-10-28T15:23:18.8440140Z   profile-stories.js
+2026-10-28T15:23:18.8440290Z   proxy-model.js
+2026-10-28T15:23:18.8441250Z   qr-code.js
+2026-10-28T15:23:18.8441960Z   quick-replies-model.js
+2026-10-28T15:23:18.8442490Z   quick-replies.js
+2026-10-28T15:23:18.8442940Z   read-retry.js
+2026-10-28T15:23:18.8443370Z   request-policy.js
+2026-10-28T15:23:18.8443830Z   request-recovery.js
+2026-10-28T15:23:18.8444280Z   rich-math.js
+2026-10-28T15:23:18.8444720Z   rich-message-model.js
+2026-10-28T15:23:18.8445320Z   rich-service-model.js
+2026-10-28T15:23:18.8445790Z   rich-text-nodes.js
+2026-10-28T15:23:18.8446250Z   schema-banner.js
+2026-10-28T15:23:18.8446700Z   server-availability.js
+2026-10-28T15:23:18.8447190Z   server-events.js
+2026-10-28T15:23:18.8447640Z   server-transport.js
+2026-10-28T15:23:18.8448100Z   service-texts.js
+2026-10-28T15:23:18.8448550Z   settings-confirm.js
+2026-10-28T15:23:18.8449010Z   settings-fields.js
+2026-10-28T15:23:18.8449460Z   settings-media.js
+2026-10-28T15:23:18.8449960Z   settings-notify-extras.js
+2026-10-28T15:23:18.8450150Z   settings-notify.js
+2026-10-28T15:23:18.8450310Z   settings-proxy.js
+2026-10-28T15:23:18.8450480Z   settings-scale.js
+2026-10-28T15:23:18.8450830Z   settings-sounds.js
+2026-10-28T15:23:18.8451070Z   settings-storage.js
+2026-10-28T15:23:18.8451370Z   settings-view.js
+2026-10-28T15:23:18.8451580Z   shortcuts.js
+2026-10-28T15:23:18.8451870Z   sign-in-code-guard.js
+2026-10-28T15:23:18.8452160Z   spinner.js
+2026-10-28T15:23:18.8452360Z   stars-model.js
+2026-10-28T15:23:18.8458870Z   stats-graph.js
+2026-10-28T15:23:18.8459030Z   sticker-settings-model.js
+2026-10-28T15:23:18.8459210Z   stories-model.js
+2026-10-28T15:23:18.8459360Z   stories-pref.js
+2026-10-28T15:23:18.8459510Z   stories.js
+2026-10-28T15:23:18.8459650Z   story-actions.js
+2026-10-28T15:23:18.8459800Z   story-extras.js
+2026-10-28T15:23:18.8459950Z   story-manage-model.js
+2026-10-28T15:23:18.8460110Z   story-manage.js
+2026-10-28T15:23:18.8460270Z   story-post-model.js
+2026-10-28T15:23:18.8460420Z   story-post.js
+2026-10-28T15:23:18.8460570Z   story-viewer.js
+2026-10-28T15:23:18.8460730Z   telegram-account-scope.js
+2026-10-28T15:23:18.8462130Z   telegram-online.js
+2026-10-28T15:23:18.8462520Z   telegram-status.js
+2026-10-28T15:23:18.8462680Z   text-shortcuts.js
+2026-10-28T15:23:18.8462840Z   translate-detect.js
+2026-10-28T15:23:18.8463000Z   translate-store.js
+2026-10-28T15:23:18.8463160Z   tutorial-clear.js
+2026-10-28T15:23:18.8463320Z   tutorial-follow.js
+2026-10-28T15:23:18.8463480Z   tutorial-placement.js
+2026-10-28T15:23:18.8463640Z   tutorial-start.js
+2026-10-28T15:23:18.8463800Z   tutorial.js
+2026-10-28T15:23:18.8463930Z   ui-scale.js
+2026-10-28T15:23:18.8464070Z   use-redraw.js
+2026-10-28T15:23:18.8464220Z   usernames-model.js
+2026-10-28T15:23:18.8464370Z   views.js
+2026-10-28T15:23:18.8464500Z   vk-captcha.js
+2026-10-28T15:23:18.8464650Z   voice-chat-model.js
+2026-10-28T15:23:18.8464820Z   voice-chat-sdp.js
+2026-10-28T15:23:18.8464970Z   voice-chat-session.js
+2026-10-28T15:23:18.8465130Z   voice-ogg.js
+2026-10-28T15:23:18.8465280Z   wallpaper-css.js
+2026-10-28T15:23:18.8465430Z   web-app-loading.js
+2026-10-28T15:23:18.8465590Z   web-apps-model.js
+2026-10-28T15:23:18.8465750Z   web-mode-banner.js
+2026-10-28T15:23:18.8465910Z   web-mode.js
+2026-10-28T15:23:18.8466040Z   webpage-kind.js
+2026-10-28T15:23:18.8466190Z   webrtc-sync.js
+2026-10-28T15:23:18.8466480Z [e2e-pages] hosted startup recovered via automatic retry
+2026-10-28T15:23:18.8468540Z [e2e-pages] the hosted copy tried http://127.0.0.1:49256 → http://127.0.0.1:8787 → http://127.0.0.1:8788 → http://127.0.0.1:7001 → http://127.0.0.1:7002 → http://127.0.0.1:3000
+2026-10-28T15:23:18.8469540Z [e2e-pages] http://127.0.0.1:49256/meta-sovereign/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T15:23:18.8470140Z [e2e-pages] http://127.0.0.1:8787/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T15:23:18.8470750Z [e2e-pages] http://127.0.0.1:49256/meta-sovereign/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T15:23:18.8471420Z [e2e-pages] http://127.0.0.1:49256/meta-sovereign/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T15:23:18.8472070Z [e2e-pages] PASS: GitHub Pages works with the default API-only server and the optional local UI
+2026-10-28T15:23:18.8472470Z 
+2026-10-28T15:23:18.8472790Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T15:23:18.8472940Z 
+2026-10-28T15:23:18.8473020Z ⚡ Done in 311ms
+2026-10-28T15:23:18.8473110Z 
+2026-10-28T15:23:18.8473230Z Completed pages in 24143ms; exit 0
+2026-10-28T15:23:18.8474470Z ##[endgroup]
+2026-10-28T15:23:18.8474840Z ##[group]Browser check: chat-menu
+2026-10-28T15:23:24.2972560Z [e2e-chat-menu] marked unread: the empty badge
+2026-10-28T15:23:24.3077870Z [e2e-chat-menu] Pin asks Telegram
+2026-10-28T15:23:24.3184560Z [e2e-chat-menu] Mute → For 8 hours
+2026-10-28T15:23:24.3242280Z [e2e-chat-menu] Archive asks Telegram
+2026-10-28T15:23:24.3243010Z [e2e-chat-menu] opening a marked chat unmarks it
+2026-10-28T15:23:24.3243670Z [e2e-chat-menu] Delete chat: asked, for both, gone from the list
+2026-10-28T15:23:24.3245640Z [e2e-chat-menu] OK (webkit)
+2026-10-28T15:23:24.3246000Z 
+2026-10-28T15:23:24.3246570Z Completed chat-menu in 5459ms; exit 0
+2026-10-28T15:23:24.3248490Z ##[endgroup]
+2026-10-28T15:23:24.3249060Z ##[group]Browser check: chat-search
+2026-10-28T15:23:28.5907620Z [e2e-chat-search] no match: said so
+2026-10-28T15:23:28.6026600Z [e2e-chat-search] the newest match, lit up: 1 of 2
+2026-10-28T15:23:28.6057180Z [e2e-chat-search] Enter: an older match, loaded on the way
+2026-10-28T15:23:28.6158960Z [e2e-chat-search] Shift+Enter and the arrows move back and on
+2026-10-28T15:23:28.6261480Z [e2e-chat-search] Esc closes; the magnifier opens it
+2026-10-28T15:23:28.6362960Z [e2e-chat-search] OK (webkit)
+2026-10-28T15:23:28.6452300Z 
+2026-10-28T15:23:28.6452920Z Completed chat-search in 4293ms; exit 0
+2026-10-28T15:23:28.6454320Z ##[endgroup]
+2026-10-28T15:23:28.6455810Z ##[group]Browser check: selection
+2026-10-28T15:23:41.5128360Z [e2e-chat-selection] OK
+2026-10-28T15:23:41.5237120Z 
+2026-10-28T15:23:41.5333060Z Completed selection in 12926ms; exit 0
+2026-10-28T15:23:41.5335460Z ##[endgroup]
+2026-10-28T15:23:41.5345870Z ##[group]Browser check: attach
+2026-10-28T15:23:44.5310630Z [e2e-attach] the paperclip: two photos, the caption taken along
+2026-10-28T15:23:44.5415110Z [e2e-attach] Send: uploaded, sent as files, boxes cleared
+2026-10-28T15:23:44.5516620Z [e2e-attach] a pasted picture opens the box; Esc closes it
+2026-10-28T15:23:44.5616620Z [e2e-attach] a dropped picture: sent as a photo by Enter
+2026-10-28T15:23:44.5717900Z [e2e-attach] OK (webkit)
+2026-10-28T15:23:44.5818960Z 
+2026-10-28T15:23:44.5892860Z Completed attach in 3019ms; exit 0
+2026-10-28T15:23:44.5956390Z ##[endgroup]
+2026-10-28T15:23:44.6020310Z ##[group]Browser check: send-extras
+2026-10-28T15:23:49.9518300Z [e2e-send-extras] OK (webkit)
+2026-10-28T15:23:49.9618480Z 
+2026-10-28T15:23:49.9721410Z Completed send-extras in 5413ms; exit 0
+2026-10-28T15:23:49.9797640Z ##[endgroup]
+2026-10-28T15:23:49.9798990Z ##[group]Browser check: folders
+2026-10-28T15:23:58.1426270Z [e2e-folders] OK (webkit)
+2026-10-28T15:23:58.1530160Z 
+2026-10-28T15:23:58.1542420Z Completed folders in 8191ms; exit 0
+2026-10-28T15:23:58.1648970Z ##[endgroup]
+2026-10-28T15:23:58.1650560Z ##[group]Browser check: passcode
+2026-10-28T15:24:06.0715620Z [e2e-passcode] OK (webkit)
+2026-10-28T15:24:06.0817280Z 
+2026-10-28T15:24:06.0902530Z Completed passcode in 7925ms; exit 0
+2026-10-28T15:24:06.0904990Z ##[endgroup]
+2026-10-28T15:24:06.0907740Z ##[group]Browser check: service-messages
+2026-10-28T15:24:08.5320580Z [e2e-service-messages] OK (webkit)
+2026-10-28T15:24:08.5422070Z 
+2026-10-28T15:24:08.5523290Z Completed service-messages in 2468ms; exit 0
+2026-10-28T15:24:08.5553470Z ##[endgroup]
+2026-10-28T15:24:08.5554460Z ##[group]Browser check: ephemeral
+2026-10-28T15:24:10.9818930Z [e2e-ephemeral] OK (webkit)
+2026-10-28T15:24:10.9903560Z 
+2026-10-28T15:24:10.9905600Z Completed ephemeral in 2449ms; exit 0
+2026-10-28T15:24:10.9908100Z ##[endgroup]
+2026-10-28T15:24:10.9909610Z ##[group]Browser check: rich-messages
+2026-10-28T15:24:12.8417560Z [e2e-rich-messages] OK (webkit)
+2026-10-28T15:24:12.8520430Z 
+2026-10-28T15:24:12.8544480Z Completed rich-messages in 1859ms; exit 0
+2026-10-28T15:24:12.8545480Z ##[endgroup]
+2026-10-28T15:24:12.8546470Z ##[group]Browser check: rich-text
+2026-10-28T15:24:14.9154590Z [e2e-rich-text] OK (webkit)
+2026-10-28T15:24:14.9272140Z 
+2026-10-28T15:24:14.9373570Z Completed rich-text in 2073ms; exit 0
+2026-10-28T15:24:14.9475130Z ##[endgroup]
+2026-10-28T15:24:14.9497150Z ##[group]Browser check: instant-view
+2026-10-28T15:24:17.1198720Z [e2e-instant-view] OK (webkit)
+2026-10-28T15:24:17.1222150Z 
+2026-10-28T15:24:17.1322860Z Completed instant-view in 2202ms; exit 0
+2026-10-28T15:24:17.1328880Z ##[endgroup]
+2026-10-28T15:24:17.1329770Z ##[group]Browser check: account-data
+2026-10-28T15:24:24.2068290Z [e2e-account-data] OK (webkit)
+2026-10-28T15:24:24.2174070Z 
+2026-10-28T15:24:24.2196180Z Completed account-data in 7085ms; exit 0
+2026-10-28T15:24:24.2197230Z ##[endgroup]
+2026-10-28T15:24:24.2198100Z ##[group]Browser check: accounts
+2026-10-28T15:24:26.8090560Z [e2e-accounts] OK (webkit)
+2026-10-28T15:24:26.8091110Z 
+2026-10-28T15:24:26.8091370Z Completed accounts in 2600ms; exit 0
+2026-10-28T15:24:26.8093020Z ##[endgroup]
+2026-10-28T15:24:26.8093850Z ##[group]Browser check: offline
+2026-10-28T15:24:58.1087830Z [e2e-offline] asked to wait: Online, nothing shown
+2026-10-28T15:24:58.1130280Z [e2e-offline] disconnected: sign-in prompt, no history loop; reconnected: history resumes
+2026-10-28T15:24:58.1235620Z [e2e-offline] out of reach: Offline, leads to the connection
+2026-10-28T15:24:58.1236410Z [e2e-offline] back: Online
+2026-10-28T15:24:58.1339340Z [e2e-offline] OK (webkit)
+2026-10-28T15:24:58.1441190Z 
+2026-10-28T15:24:58.1493490Z Completed offline in 31299ms; exit 0
+2026-10-28T15:24:58.1495530Z ##[endgroup]
+2026-10-28T15:24:58.1496320Z ##[group]Browser check: email
+2026-10-28T15:25:00.8631420Z [e2e-email] OK (webkit)
+2026-10-28T15:25:00.8733060Z 
+2026-10-28T15:25:00.8762270Z Completed email in 2749ms; exit 0
+2026-10-28T15:25:00.8763910Z ##[endgroup]
+2026-10-28T15:25:00.8771590Z ##[group]Browser check: greetings
+2026-10-28T15:25:04.8917870Z [e2e-greetings-browser] vk.com preview loaded: true
+2026-10-28T15:25:04.8958670Z [e2e-greetings-browser] OK
+2026-10-28T15:25:04.8959450Z 
+2026-10-28T15:25:04.8960080Z Completed greetings in 4032ms; exit 0
+2026-10-28T15:25:04.8961920Z ##[endgroup]
+2026-10-28T15:25:04.8963030Z ##[group]Browser check: autopilot
+2026-10-28T15:25:11.0645260Z [e2e-autopilot] menu: started, then stopped
+2026-10-28T15:25:11.0740430Z [e2e-autopilot] page: sent 3, opened vk:202 vk:203
+2026-10-28T15:25:11.0741140Z [e2e-autopilot] send safety: log, unknown, opt-out
+2026-10-28T15:25:11.0741490Z [e2e-autopilot] OK (webkit)
+2026-10-28T15:25:11.0741650Z 
+2026-10-28T15:25:11.0741860Z Completed autopilot in 6172ms; exit 0
+2026-10-28T15:25:11.0742380Z ##[endgroup]
+2026-10-28T15:25:11.0742820Z ##[group]Browser check: peer-bar
+2026-10-28T15:25:13.9967590Z [e2e-peer-bar] OK (webkit)
+2026-10-28T15:25:14.0069440Z 
+2026-10-28T15:25:14.0170470Z Completed peer-bar in 2930ms; exit 0
+2026-10-28T15:25:14.0186660Z ##[endgroup]
+2026-10-28T15:25:14.0187410Z ##[group]Browser check: tutorial
+2026-10-28T15:26:19.9968740Z - webkit/desktop
+2026-10-28T15:26:19.9982980Z - webkit/desktop/tall-card
+2026-10-28T15:26:19.9990730Z - webkit/short-desktop
+2026-10-28T15:26:19.9995150Z   scroll drift {"scrolled":194,"anchors":true,"ring":0,"card":194}
+2026-10-28T15:26:20.0016430Z - webkit/short-desktop/tall-card
+2026-10-28T15:26:20.0019820Z   scroll drift {"scrolled":194,"anchors":true,"ring":0,"card":194}
+2026-10-28T15:26:20.0024590Z - webkit/tablet
+2026-10-28T15:26:20.0026780Z - webkit/tablet/tall-card
+2026-10-28T15:26:20.0028290Z - webkit/phone
+2026-10-28T15:26:20.0031180Z - webkit/phone/tall-card
+2026-10-28T15:26:20.0031480Z - webkit/desktop/pages
+2026-10-28T15:26:20.0038780Z - webkit/phone/pages
+2026-10-28T15:26:20.0044200Z [e2e-tutorial-browser] all checks passed
+2026-10-28T15:26:20.0044780Z 
+2026-10-28T15:26:20.0047150Z Completed tutorial in 65999ms; exit 0
+2026-10-28T15:26:20.0050180Z ##[endgroup]
+2026-10-28T15:26:20.0051160Z ##[group]Browser check: archive-media
+2026-10-28T15:26:22.7037090Z [e2e-archive-media] OK (webkit)
+2026-10-28T15:26:22.7148940Z 
+2026-10-28T15:26:22.7255870Z Completed archive-media in 2706ms; exit 0
+2026-10-28T15:26:22.7359200Z ##[endgroup]
+2026-10-28T15:26:22.7461870Z ##[group]Browser check: vk-followups
+2026-10-28T15:26:28.1426680Z [e2e-vk-followups] OK (webkit)
+2026-10-28T15:26:28.1531150Z 
+2026-10-28T15:26:28.1633740Z Completed vk-followups in 5428ms; exit 0
+2026-10-28T15:26:28.1736520Z ##[endgroup]
+2026-10-28T15:26:28.1839140Z ##[group]Browser check: github-inbox
+2026-10-28T15:26:31.8315660Z [e2e-github-inbox] OK (webkit)
+2026-10-28T15:26:31.8418080Z 
+2026-10-28T15:26:31.8519920Z Completed github-inbox in 3688ms; exit 0
+2026-10-28T15:26:31.8622580Z ##[endgroup]
+2026-10-28T15:26:31.8724100Z ##[group]Browser check: visual-effects
+2026-10-28T15:26:35.7074100Z [e2e-visual-effects] OK (webkit)
+2026-10-28T15:26:35.7176730Z 
+2026-10-28T15:26:35.7277640Z Completed visual-effects in 3882ms; exit 0
+2026-10-28T15:26:35.7380760Z ##[endgroup]
+2026-10-28T15:26:35.7416850Z ##[group]Browser check: contacts-directory
+2026-10-28T15:26:40.5814500Z [e2e-contacts-directory] OK (webkit)
+2026-10-28T15:26:40.5914840Z 
+2026-10-28T15:26:40.6016050Z Completed contacts-directory in 4863ms; exit 0
+2026-10-28T15:26:40.6079390Z ##[endgroup]
+2026-10-28T15:26:40.6081030Z ##[group]Browser check: chat-loading
+2026-10-28T15:26:50.8426650Z [e2e-chat-loading] OK (webkit)
+2026-10-28T15:26:50.8428000Z 
+2026-10-28T15:26:50.8534590Z Completed chat-loading in 10269ms; exit 0
+2026-10-28T15:26:50.8622320Z ##[endgroup]
+2026-10-28T15:26:50.8626430Z ##[group]Browser check: calls
+2026-10-28T15:26:53.4203810Z [e2e-calls] OK (webkit)
+2026-10-28T15:26:53.4306600Z 
+2026-10-28T15:26:53.4388180Z Completed calls in 2574ms; exit 0
+2026-10-28T15:26:53.4466690Z ##[endgroup]
+2026-10-28T15:26:53.4471400Z ##[group]Browser check: operator
+2026-10-28T15:27:07.3026420Z [e2e-operator] OK (webkit)
+2026-10-28T15:27:07.3127910Z 
+2026-10-28T15:27:07.3161060Z Completed operator in 13881ms; exit 0
+2026-10-28T15:27:07.3174900Z ##[endgroup]
+2026-10-28T15:27:07.3179920Z ##[group]Browser check: operator-replies
+2026-10-28T15:27:14.1418820Z [e2e-operator-replies] OK (webkit)
+2026-10-28T15:27:14.1455880Z 
+2026-10-28T15:27:14.1472230Z Completed operator-replies in 6831ms; exit 0
+2026-10-28T15:27:14.1476120Z ##[endgroup]
+2026-10-28T15:27:14.1476700Z ##[group]Browser check: recovery
+2026-10-28T15:27:23.1586780Z [e2e-recovery] OK (webkit)
+2026-10-28T15:27:23.1691920Z 
+2026-10-28T15:27:23.1797070Z Completed recovery in 9023ms; exit 0
+2026-10-28T15:27:23.1900670Z ##[endgroup]
+2026-10-28T15:27:23.1953230Z ##[group]Browser check: navigation
+2026-10-28T15:27:39.3066880Z [e2e-navigation] OK (webkit)
+2026-10-28T15:27:39.3067660Z 
+2026-10-28T15:27:39.3067900Z Completed navigation in 16145ms; exit 0
+2026-10-28T15:27:39.3071720Z ##[endgroup]
+2026-10-28T15:27:39.3078470Z ##[group]Browser check: loading
+2026-10-28T15:27:41.9152750Z [e2e-loading] OK (webkit)
+2026-10-28T15:27:41.9255120Z 
+2026-10-28T15:27:41.9356360Z Completed loading in 2607ms; exit 0
+2026-10-28T15:27:41.9376620Z ##[endgroup]
+2026-10-28T15:27:41.9377090Z ##[group]Browser check: media-loading
+2026-10-28T15:27:48.1998520Z [e2e-media-loading] OK (webkit)
+2026-10-28T15:27:48.2094750Z 
+2026-10-28T15:27:48.2198380Z Completed media-loading in 6274ms; exit 0
+2026-10-28T15:27:48.2301220Z ##[endgroup]
+2026-10-28T15:27:48.2411350Z ##[group]Browser check: web-apps
+2026-10-28T15:27:53.4096530Z [e2e-web-apps] OK (webkit)
+2026-10-28T15:27:53.4198390Z 
+2026-10-28T15:27:53.4221080Z Completed web-apps in 5217ms; exit 0
+2026-10-28T15:27:53.4221800Z ##[endgroup]
+2026-10-28T15:27:53.4223730Z ##[group]Browser check: marketplaces
+2026-10-28T15:27:58.9097340Z [e2e-marketplaces] OK (webkit)
+2026-10-28T15:27:58.9101020Z 
+2026-10-28T15:27:58.9203900Z Completed marketplaces in 5490ms; exit 0
+2026-10-28T15:27:58.9307340Z ##[endgroup]
+2026-10-28T15:27:58.9376520Z ##[group]Browser check: profile
+2026-10-28T15:28:03.5742760Z [e2e-profile] OK (webkit)
+2026-10-28T15:28:03.5848110Z 
+2026-10-28T15:28:03.5950190Z Completed profile in 4673ms; exit 0
+2026-10-28T15:28:03.6050980Z ##[endgroup]
+2026-10-28T15:28:03.6124530Z ##[group]Browser check: profile-extras
+2026-10-28T15:28:07.6571450Z [e2e-profile-extras] OK (webkit)
+2026-10-28T15:28:07.6674740Z 
+2026-10-28T15:28:07.6702830Z Completed profile-extras in 4081ms; exit 0
+2026-10-28T15:28:07.6703570Z ##[endgroup]
+2026-10-28T15:28:07.6704360Z ##[group]Browser check: consistency
+2026-10-28T15:28:10.7367960Z [e2e-consistency] OK (webkit)
+2026-10-28T15:28:10.7469620Z 
+2026-10-28T15:28:10.7557790Z Completed consistency in 3078ms; exit 0
+2026-10-28T15:28:10.7559540Z ##[endgroup]
+2026-10-28T15:28:10.7797830Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T15:28:10.7798250Z with:
+2026-10-28T15:28:10.7798450Z   name: browser-webkit
+2026-10-28T15:28:10.7798750Z   path: artifacts/browser/
+2026-10-28T15:28:10.7798990Z   if-no-files-found: error
+2026-10-28T15:28:10.7799280Z   retention-days: 14
+2026-10-28T15:28:10.7799500Z   compression-level: 6
+2026-10-28T15:28:10.7799830Z   overwrite: false
+2026-10-28T15:28:10.7800050Z   include-hidden-files: false
+2026-10-28T15:28:10.7819340Z   archive: true
+2026-10-28T15:28:10.7820090Z env:
+2026-10-28T15:28:10.7820280Z   GIT_CONFIG_COUNT: 1
+2026-10-28T15:28:10.7820590Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T15:28:10.7820840Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T15:28:10.7821120Z   RUN_BROWSER_E2E: 1
+2026-10-28T15:28:10.7821340Z   E2E_BROWSER: webkit
+2026-10-28T15:28:10.7821580Z   E2E_ENGINES: webkit
+2026-10-28T15:28:10.7821800Z   E2E_SAFARI: 0
+2026-10-28T15:28:10.7822070Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T15:28:10.7822410Z   DEBUG: 
+2026-10-28T15:28:10.7822640Z ##[endgroup]
+2026-10-28T15:28:11.2436030Z With the provided path, there will be 41 files uploaded
+2026-10-28T15:28:11.2436660Z Artifact name is valid!
+2026-10-28T15:28:11.2437040Z Root directory input is valid!
+2026-10-28T15:28:11.4673120Z Uploading artifact: browser-webkit.zip
+2026-10-28T15:28:11.4674220Z Beginning upload of artifact content to blob storage
+2026-10-28T15:28:11.5820810Z Uploaded bytes 10146
+2026-10-28T15:28:11.5968780Z Finished uploading artifact content to blob storage!
+2026-10-28T15:28:11.5970840Z SHA256 digest of uploaded artifact is 5046cd65e55c2002b504f28964eae1cb6acdd51178d18fead05497405a298f5c
+2026-10-28T15:28:11.5972280Z Finalizing artifact upload
+2026-10-28T15:28:12.0574360Z Artifact browser-webkit successfully finalized. Artifact ID 12829095615
+2026-10-28T15:28:12.0575160Z Artifact browser-webkit has been successfully uploaded! Final size is 10146 bytes. Artifact ID is 12829095615
+2026-10-28T15:28:12.0576180Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/artifacts/12829095615
+2026-10-28T15:28:12.0714530Z Post job cleanup.
+2026-10-28T15:28:12.2046600Z [command]/opt/homebrew/bin/gtar --posix -cf cache.tzst --exclude cache.tzst -P -C /Users/runner/work/meta-sovereign/meta-sovereign --files-from manifest.txt --delay-directory-restore --use-compress-program zstdmt
+2026-10-28T15:28:14.2110560Z Sent 50528256 of 82833467 (61.0%), 48.0 MBs/sec
+2026-10-28T15:28:15.1562920Z Sent 82833467 of 82833467 (100.0%), 40.3 MBs/sec
+2026-10-28T15:28:15.3260860Z Cache saved with the key: node-cache-macOS-arm64-npm-937de903299e0acab3339c7c2bd14491ce6d007d9802d5491f80121f279f9085
+2026-10-28T15:28:15.3372580Z Post job cleanup.
+2026-10-28T15:28:15.4461330Z [command]/opt/homebrew/bin/git version
+2026-10-28T15:28:15.4707630Z git version 2.55.0
+2026-10-28T15:28:15.4730700Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/20c0b830-98f4-49eb-93cb-1d0a1f403c31/.gitconfig'
+2026-10-28T15:28:15.4742260Z Temporarily overriding HOME='/Users/runner/work/_temp/20c0b830-98f4-49eb-93cb-1d0a1f403c31' before making global git config changes
+2026-10-28T15:28:15.4744400Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T15:28:15.4746140Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T15:28:15.4872900Z Removing SSH command configuration
+2026-10-28T15:28:15.4885750Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T15:28:15.4972810Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T15:28:15.6360020Z Removing HTTP extra header
+2026-10-28T15:28:15.6363990Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T15:28:15.6437380Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T15:28:15.7379770Z Removing includeIf entries pointing to credentials config files
+2026-10-28T15:28:15.7390160Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T15:28:15.7677680Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T15:28:15.9377560Z Cleaning up orphan processes

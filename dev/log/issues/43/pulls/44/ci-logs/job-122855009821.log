@@ -1,0 +1,756 @@
+﻿2026-10-28T13:46:13.7968990Z Current runner version: '2.338.0'
+2026-10-28T13:46:13.7988750Z ##[group]Runner Image Provisioner
+2026-10-28T13:46:13.7989490Z Hosted Compute Agent
+2026-10-28T13:46:13.7989960Z Version: 20260828.587
+2026-10-28T13:46:13.7990860Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-10-28T13:46:13.7991460Z Build Date: 2026-08-28T16:44:25Z
+2026-10-28T13:46:13.7991920Z Worker ID: {d498ad2e-f012-48e7-9a6f-94c4c7f348b2}
+2026-10-28T13:46:13.7992390Z Azure Region: westus
+2026-10-28T13:46:13.7992770Z ##[endgroup]
+2026-10-28T13:46:13.7994320Z ##[group]Operating System
+2026-10-28T13:46:13.7994820Z macOS
+2026-10-28T13:46:13.7995210Z 15.7.9
+2026-10-28T13:46:13.7995590Z 24G830
+2026-10-28T13:46:13.7995930Z ##[endgroup]
+2026-10-28T13:46:13.7996390Z ##[group]Runner Image
+2026-10-28T13:46:13.7996870Z Image: macos-15-arm64
+2026-10-28T13:46:13.7997610Z Version: 20260907.0337.1
+2026-10-28T13:46:13.7998640Z Included Software: https://github.com/actions/runner-images/blob/macos-15-arm64/20260907.0337/images/macos/macos-15-arm64-Readme.md
+2026-10-28T13:46:13.7999770Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-15-arm64%2F20260907.0337
+2026-10-28T13:46:13.8000470Z ##[endgroup]
+2026-10-28T13:46:13.8001250Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T13:46:13.8003450Z Contents: read
+2026-10-28T13:46:13.8003860Z Metadata: read
+2026-10-28T13:46:13.8004260Z ##[endgroup]
+2026-10-28T13:46:13.8005790Z Secret source: Actions
+2026-10-28T13:46:13.8006500Z Cache mode: write
+2026-10-28T13:46:13.8006960Z Prepare workflow directory
+2026-10-28T13:46:13.8410230Z Prepare all required actions
+2026-10-28T13:46:13.8453980Z Getting action download info
+2026-10-28T13:46:14.1072530Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T13:46:14.3468010Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T13:46:14.8448100Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T13:46:15.3627720Z Complete job name: Build (macos)
+2026-10-28T13:46:15.4302410Z ##[group]Run actions/checkout@v7
+2026-10-28T13:46:15.4303250Z with:
+2026-10-28T13:46:15.4303630Z   persist-credentials: false
+2026-10-28T13:46:15.4304070Z   ref: c7eba5155135137ec5e897d0fdc67b007cf9cb3a
+2026-10-28T13:46:15.4304560Z   repository: link-foundation/meta-sovereign
+2026-10-28T13:46:15.4309500Z   token: ***
+2026-10-28T13:46:15.4310020Z   ssh-strict: true
+2026-10-28T13:46:15.4310410Z   ssh-user: git
+2026-10-28T13:46:15.4311000Z   clean: true
+2026-10-28T13:46:15.4311410Z   sparse-checkout-cone-mode: true
+2026-10-28T13:46:15.4311960Z   fetch-depth: 1
+2026-10-28T13:46:15.4312410Z   fetch-tags: false
+2026-10-28T13:46:15.4312900Z   show-progress: true
+2026-10-28T13:46:15.4331420Z   lfs: false
+2026-10-28T13:46:15.4331800Z   submodules: false
+2026-10-28T13:46:15.4332260Z   set-safe-directory: true
+2026-10-28T13:46:15.4332690Z   allow-unsafe-pr-checkout: false
+2026-10-28T13:46:15.4334140Z env:
+2026-10-28T13:46:15.4334570Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:46:15.4334980Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:46:15.4335450Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:46:15.4335940Z ##[endgroup]
+2026-10-28T13:46:15.9573280Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T13:46:15.9575050Z ##[group]Getting Git version info
+2026-10-28T13:46:15.9575720Z Working directory is '/Users/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T13:46:15.9577190Z [command]/opt/homebrew/bin/git version
+2026-10-28T13:46:16.0063490Z git version 2.55.0
+2026-10-28T13:46:16.0098550Z ##[endgroup]
+2026-10-28T13:46:16.0110550Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/8a71d412-95ba-4329-bacb-87a14f59abe4/.gitconfig'
+2026-10-28T13:46:16.0122200Z Temporarily overriding HOME='/Users/runner/work/_temp/8a71d412-95ba-4329-bacb-87a14f59abe4' before making global git config changes
+2026-10-28T13:46:16.0225630Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T13:46:16.0298620Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:46:16.0489790Z Deleting the contents of '/Users/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T13:46:16.0492300Z ##[group]Determining repository object format
+2026-10-28T13:46:16.0494490Z ##[endgroup]
+2026-10-28T13:46:16.0495210Z ##[group]Initializing the repository
+2026-10-28T13:46:16.0495890Z [command]/opt/homebrew/bin/git init /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:46:16.0588240Z Initialized empty Git repository in /Users/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T13:46:16.0594120Z [command]/opt/homebrew/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T13:46:16.0667240Z ##[endgroup]
+2026-10-28T13:46:16.0668380Z ##[group]Disabling automatic garbage collection
+2026-10-28T13:46:16.0669300Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-10-28T13:46:16.0755180Z ##[endgroup]
+2026-10-28T13:46:16.0755950Z ##[group]Setting up auth
+2026-10-28T13:46:16.0756480Z Removing SSH command configuration
+2026-10-28T13:46:16.0757140Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:46:16.0821030Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:46:16.1877890Z Removing HTTP extra header
+2026-10-28T13:46:16.1878830Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:46:16.1931770Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:46:16.2719930Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:46:16.2721610Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:46:16.2785080Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:46:16.3716620Z [command]/opt/homebrew/bin/git config --file /Users/runner/work/_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T13:46:16.3871660Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path /Users/runner/work/_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:16.3995980Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /Users/runner/work/_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:16.4110930Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:16.4239980Z [command]/opt/homebrew/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:16.4282100Z ##[endgroup]
+2026-10-28T13:46:16.4284490Z ##[group]Fetching the repository
+2026-10-28T13:46:16.4285760Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin c7eba5155135137ec5e897d0fdc67b007cf9cb3a
+2026-10-28T13:46:22.5895800Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T13:46:22.5898360Z  * branch            c7eba5155135137ec5e897d0fdc67b007cf9cb3a -> FETCH_HEAD
+2026-10-28T13:46:22.5904930Z [command]/opt/homebrew/bin/git rev-parse --verify --quiet c7eba5155135137ec5e897d0fdc67b007cf9cb3a^{object}
+2026-10-28T13:46:22.6007910Z c7eba5155135137ec5e897d0fdc67b007cf9cb3a
+2026-10-28T13:46:22.6016540Z ##[endgroup]
+2026-10-28T13:46:22.6017080Z ##[group]Determining the checkout info
+2026-10-28T13:46:22.6017570Z ##[endgroup]
+2026-10-28T13:46:22.6017970Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-10-28T13:46:22.6105460Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T13:46:22.6169180Z ##[group]Checking out the ref
+2026-10-28T13:46:22.6171230Z [command]/opt/homebrew/bin/git checkout --progress --force c7eba5155135137ec5e897d0fdc67b007cf9cb3a
+2026-10-28T13:46:22.9136960Z HEAD is now at c7eba51 Merge c317c1073bec2d892f90b6404bef7fb77c5b5a04 into f94db3227ae893f10b83a4499a1f65eee2995421
+2026-10-28T13:46:22.9151080Z ##[endgroup]
+2026-10-28T13:46:22.9256240Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-28T13:46:22.9324630Z c7eba5155135137ec5e897d0fdc67b007cf9cb3a
+2026-10-28T13:46:22.9335790Z ##[group]Removing auth
+2026-10-28T13:46:22.9336430Z Removing SSH command configuration
+2026-10-28T13:46:22.9338830Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:46:22.9402460Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:46:23.0347470Z Removing HTTP extra header
+2026-10-28T13:46:23.0352740Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:46:23.0426100Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:46:23.1199820Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:46:23.1200480Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:46:23.1250060Z includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T13:46:23.1250810Z includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T13:46:23.1251780Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T13:46:23.1252220Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T13:46:23.1254430Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T13:46:23.1299400Z /Users/runner/work/_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:23.1313050Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git.path \/Users\/runner\/work\/_temp\/git\-credentials\-ae1658b9\-dcfb\-4b75\-8d49\-07736c467012\.config
+2026-10-28T13:46:23.1363630Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T13:46:23.1410010Z /Users/runner/work/_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:23.1415020Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/Users/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/Users\/runner\/work\/_temp\/git\-credentials\-ae1658b9\-dcfb\-4b75\-8d49\-07736c467012\.config
+2026-10-28T13:46:23.1478540Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T13:46:23.1537300Z /github/runner_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:23.1539040Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-ae1658b9\-dcfb\-4b75\-8d49\-07736c467012\.config
+2026-10-28T13:46:23.1657520Z [command]/opt/homebrew/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T13:46:23.1684410Z /github/runner_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config
+2026-10-28T13:46:23.1691970Z [command]/opt/homebrew/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-ae1658b9\-dcfb\-4b75\-8d49\-07736c467012\.config
+2026-10-28T13:46:23.1811520Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:46:23.2429250Z Removing credentials config '/Users/runner/work/_temp/git-credentials-ae1658b9-dcfb-4b75-8d49-07736c467012.config'
+2026-10-28T13:46:23.2439640Z ##[endgroup]
+2026-10-28T13:46:23.2723460Z ##[group]Run actions/setup-node@v7
+2026-10-28T13:46:23.2723720Z with:
+2026-10-28T13:46:23.2723900Z   node-version: 24.x
+2026-10-28T13:46:23.2724070Z   package-manager-cache: false
+2026-10-28T13:46:23.2724300Z   check-latest: false
+2026-10-28T13:46:23.2726220Z   token: ***
+2026-10-28T13:46:23.2726410Z env:
+2026-10-28T13:46:23.2726550Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:46:23.2726790Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:46:23.2727040Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:46:23.2727210Z ##[endgroup]
+2026-10-28T13:46:23.4172940Z Found in cache @ /Users/runner/hostedtoolcache/node/24.20.0/arm64
+2026-10-28T13:46:23.5542770Z ##[group]Environment details
+2026-10-28T13:46:23.9768820Z node: v24.20.0
+2026-10-28T13:46:23.9769240Z npm: 11.19.0
+2026-10-28T13:46:23.9769540Z yarn: 1.22.22
+2026-10-28T13:46:23.9770500Z ##[endgroup]
+2026-10-28T13:46:23.9869690Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T13:46:23.9870100Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T13:46:24.0116310Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:46:24.0116770Z env:
+2026-10-28T13:46:24.0117090Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:46:24.0117410Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:46:24.0117810Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:46:24.0118310Z   ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+2026-10-28T13:46:24.0118670Z ##[endgroup]
+2026-10-28T13:46:25.6582280Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+2026-10-28T13:46:26.1553340Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2026-10-28T13:46:26.2633570Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+2026-10-28T13:46:27.4573860Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+2026-10-28T13:46:35.4807350Z 
+2026-10-28T13:46:35.4808760Z > meta-sovereign@0.54.0 prepare
+2026-10-28T13:46:35.4809510Z > husky || true
+2026-10-28T13:46:35.4809740Z 
+2026-10-28T13:46:35.9224360Z 
+2026-10-28T13:46:35.9227290Z added 548 packages in 12s
+2026-10-28T13:46:36.2265770Z ##[group]Run range=$(node -p "require('./package.json').peerDependencies.electron")
+2026-10-28T13:46:36.2266550Z [36;1mrange=$(node -p "require('./package.json').peerDependencies.electron")[0m
+2026-10-28T13:46:36.2267110Z [36;1mversion=$(npm view "electron@$range" version --json | node -e \[0m
+2026-10-28T13:46:36.2267650Z [36;1m  "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(Array.isArray(v)?v.at(-1):v)")[0m
+2026-10-28T13:46:36.2268230Z [36;1mif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then[0m
+2026-10-28T13:46:36.2268720Z [36;1m  echo "::error::Invalid Electron version from registry"[0m
+2026-10-28T13:46:36.2269080Z [36;1m  exit 1[0m
+2026-10-28T13:46:36.2269380Z [36;1mfi[0m
+2026-10-28T13:46:36.2269610Z [36;1mecho "Electron $version (peer range $range)"[0m
+2026-10-28T13:46:36.2270130Z [36;1mecho "version=$version" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T13:46:36.2316570Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:46:36.2317040Z env:
+2026-10-28T13:46:36.2317370Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:46:36.2317610Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:46:36.2318040Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:46:36.2318310Z ##[endgroup]
+2026-10-28T13:46:36.9923380Z Electron 44.10.0 (peer range ^44.9.0)
+2026-10-28T13:46:36.9983860Z ##[group]Run npm run build:web
+2026-10-28T13:46:36.9984180Z [36;1mnpm run build:web[0m
+2026-10-28T13:46:37.0017380Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:46:37.0017840Z env:
+2026-10-28T13:46:37.0018150Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:46:37.0018400Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:46:37.0018800Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:46:37.0019100Z ##[endgroup]
+2026-10-28T13:46:37.1584500Z 
+2026-10-28T13:46:37.1585070Z > meta-sovereign@0.54.0 build:web
+2026-10-28T13:46:37.1585450Z > node js/scripts/build-web.mjs
+2026-10-28T13:46:37.1585660Z 
+2026-10-28T13:46:37.4264660Z 
+2026-10-28T13:46:37.4265920Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T13:46:37.4266190Z 
+2026-10-28T13:46:37.4266330Z ⚡ Done in 223ms
+2026-10-28T13:46:37.4385160Z ##[group]Run set -euo pipefail
+2026-10-28T13:46:37.4385550Z [36;1mset -euo pipefail[0m
+2026-10-28T13:46:37.4385910Z [36;1m# Pull requests never get the Developer ID: they build the[0m
+2026-10-28T13:46:37.4386300Z [36;1m# ad-hoc variant, which needs no secrets.[0m
+2026-10-28T13:46:37.4386670Z [36;1mif [ "$GITHUB_EVENT_NAME" != pull_request ] && \[0m
+2026-10-28T13:46:37.4387090Z [36;1m   [ -n "$MAC_CSC_LINK" ] && [ -n "$MAC_CSC_KEY_PASSWORD" ] && \[0m
+2026-10-28T13:46:37.4387590Z [36;1m   [ -n "$APPLE_API_KEY_CONTENT" ] && [ -n "$APPLE_API_KEY_ID" ] && \[0m
+2026-10-28T13:46:37.4388020Z [36;1m   [ -n "$APPLE_API_ISSUER" ]; then[0m
+2026-10-28T13:46:37.4388410Z [36;1m  # notarytool wants a path to the .p8 key, not its contents.[0m
+2026-10-28T13:46:37.4388870Z [36;1m  key="$RUNNER_TEMP/AuthKey_$APPLE_API_KEY_ID.p8"[0m
+2026-10-28T13:46:37.4389250Z [36;1m  printf '%s' "$APPLE_API_KEY_CONTENT" > "$key"[0m
+2026-10-28T13:46:37.4389580Z [36;1m  {[0m
+2026-10-28T13:46:37.4389900Z [36;1m    echo "CSC_LINK=$MAC_CSC_LINK"[0m
+2026-10-28T13:46:37.4390250Z [36;1m    echo "CSC_KEY_PASSWORD=$MAC_CSC_KEY_PASSWORD"[0m
+2026-10-28T13:46:37.4390640Z [36;1m    echo "APPLE_API_KEY=$key"[0m
+2026-10-28T13:46:37.4390960Z [36;1m    echo "APPLE_API_KEY_ID=$APPLE_API_KEY_ID"[0m
+2026-10-28T13:46:37.4391330Z [36;1m    echo "APPLE_API_ISSUER=$APPLE_API_ISSUER"[0m
+2026-10-28T13:46:37.4391660Z [36;1m  } >> "$GITHUB_ENV"[0m
+2026-10-28T13:46:37.4391980Z [36;1m  echo "mode=signed" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T13:46:37.4392310Z [36;1m  echo "args=" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T13:46:37.4392650Z [36;1melse[0m
+2026-10-28T13:46:37.4393070Z [36;1m  echo "::notice::building an ad-hoc signed macOS app (pull request or no signing secrets)"[0m
+2026-10-28T13:46:37.4393620Z [36;1m  # electron-builder skips signing on pull requests unless[0m
+2026-10-28T13:46:37.4394110Z [36;1m  # CSC_FOR_PULL_REQUEST is set; ad-hoc signing uses no secret.[0m
+2026-10-28T13:46:37.4394560Z [36;1m  # With auto-discovery off it also needs `mac.identity=-`:[0m
+2026-10-28T13:46:37.4395040Z [36;1m  # without an identity it returns before calling `mac.sign`.[0m
+2026-10-28T13:46:37.4395370Z [36;1m  {[0m
+2026-10-28T13:46:37.4395600Z [36;1m    echo "MACOS_ADHOC_SIGN=1"[0m
+2026-10-28T13:46:37.4395900Z [36;1m    echo "CSC_IDENTITY_AUTO_DISCOVERY=false"[0m
+2026-10-28T13:46:37.4396250Z [36;1m    echo "CSC_FOR_PULL_REQUEST=true"[0m
+2026-10-28T13:46:37.4396580Z [36;1m  } >> "$GITHUB_ENV"[0m
+2026-10-28T13:46:37.4398210Z [36;1m  echo "mode=adhoc" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T13:46:37.4398800Z [36;1m  echo "args=-c.mac.identity=- -c.mac.notarize=false -c.mac.sign=$GITHUB_WORKSPACE/desktop/adhoc-sign-mac.cjs" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T13:46:37.4399290Z [36;1mfi[0m
+2026-10-28T13:46:37.4435310Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:46:37.4435590Z env:
+2026-10-28T13:46:37.4435750Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:46:37.4436000Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:46:37.4436260Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:46:37.4436560Z   MAC_CSC_LINK: 
+2026-10-28T13:46:37.4436860Z   MAC_CSC_KEY_PASSWORD: 
+2026-10-28T13:46:37.4437210Z   APPLE_API_KEY_CONTENT: 
+2026-10-28T13:46:37.4437540Z   APPLE_API_KEY_ID: 
+2026-10-28T13:46:37.4437820Z   APPLE_API_ISSUER: 
+2026-10-28T13:46:37.4438100Z ##[endgroup]
+2026-10-28T13:46:37.4714600Z ##[notice]building an ad-hoc signed macOS app (pull request or no signing secrets)
+2026-10-28T13:46:37.4750930Z ##[group]Run read -r -a build_args <<< "$BUILD_ARGS"
+2026-10-28T13:46:37.4751220Z [36;1mread -r -a build_args <<< "$BUILD_ARGS"[0m
+2026-10-28T13:46:37.4751470Z [36;1mread -r -a sign_args <<< "$SIGN_ARGS"[0m
+2026-10-28T13:46:37.4751790Z [36;1mnode js/scripts/build-desktop.mjs "${build_args[@]}" "${sign_args[@]}"[0m
+2026-10-28T13:46:37.4779040Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:46:37.4779290Z env:
+2026-10-28T13:46:37.4779420Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:46:37.4779610Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:46:37.4779810Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:46:37.4779990Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T13:46:37.4780150Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T13:46:37.4780350Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T13:46:37.4780570Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T13:46:37.4780770Z   BUILD_ARGS: --mac --x64 --arm64
+2026-10-28T13:46:37.4781270Z   SIGN_ARGS: -c.mac.identity=- -c.mac.notarize=false -c.mac.sign=/Users/runner/work/meta-sovereign/meta-sovereign/desktop/adhoc-sign-mac.cjs
+2026-10-28T13:46:37.4781730Z ##[endgroup]
+2026-10-28T13:46:38.7860480Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
+2026-10-28T13:46:38.8723590Z 
+2026-10-28T13:46:38.8724240Z added 16 packages in 928ms
+2026-10-28T13:46:38.8777760Z electron 44.10.0
+2026-10-28T13:46:39.6006830Z   • electron-builder  version=26.18.0 os=24.6.0
+2026-10-28T13:46:39.6058930Z   • loaded configuration  file=/Users/runner/work/meta-sovereign/meta-sovereign/desktop/electron-builder.config.cjs
+2026-10-28T13:46:39.9554520Z   • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=npm detected=/Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:46:40.0705560Z   • skipped dependencies rebuild  reason=npmRebuild is set to false
+2026-10-28T13:46:40.0706190Z   • packaging       platform=darwin arch=x64 electron=44.10.0 appOutDir=dist/desktop/release/mac
+2026-10-28T13:46:40.3036470Z   • downloaded      label=electron progress=100%
+2026-10-28T13:46:44.2666560Z   • downloaded electron zip extracted successfully  output=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac
+2026-10-28T13:46:44.3104690Z   • searching for node modules  pm=npm searchDir=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/app
+2026-10-28T13:46:49.7528370Z   • downloaded      label=icons-bundle.tar.gz progress=100%
+2026-10-28T13:46:50.4221690Z   • There are serious security concerns with CSC_FOR_PULL_REQUEST=true (see the  CircleCI documentation (https://circleci.com/docs/1.0/fork-pr-builds/) for details)
+2026-10-28T13:46:50.4231510Z If you have SSH keys, sensitive env vars or AWS credentials stored in your project settings and untrusted forks can make pull requests against your repo, then this option isn't for you.
+2026-10-28T13:46:50.4643930Z   • ad-hoc signing with hardenedRuntime enabled requires the com.apple.security.cs.disable-library-validation entitlement to prevent app launch failures due to library validation. See https://electron.build/code-signing for details.
+2026-10-28T13:46:50.4916020Z   • executing custom sign  file=dist/desktop/release/mac/Meta Sovereign.app platform=darwin type=distribution identityName=- identityHash=none provisioningProfile=none
+2026-10-28T13:47:04.2179010Z [adhoc-sign-mac] --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:47:04.2181560Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:47:04.2183620Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:47:04.2186460Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:47:04.2188050Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:47:04.2189870Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:47:04.2191240Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:47:04.2192560Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:47:04.2193960Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:47:04.2195320Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:47:04.2196590Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:47:04.2197980Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:47:04.2199380Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:47:04.2200530Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:47:04.2201730Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:47:04.2202820Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:47:04.2204110Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:47:04.2205360Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:47:04.2206520Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:47:04.2207760Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:47:04.2208800Z /Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app: valid on disk
+2026-10-28T13:47:04.2218100Z /Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T13:47:04.2218570Z 
+2026-10-28T13:47:04.2220410Z   • skipped macOS notarization  reason=`notarize` options were set explicitly `false`
+2026-10-28T13:47:04.2221360Z   • building        target=macOS zip arch=x64 file=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.0.zip
+2026-10-28T13:47:04.2222200Z   • building        target=DMG arch=x64 file=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.0.dmg
+2026-10-28T13:47:04.2223170Z   • skipped dependencies rebuild  reason=npmRebuild is set to false
+2026-10-28T13:47:04.2223830Z   • packaging       platform=darwin arch=arm64 electron=44.10.0 appOutDir=dist/desktop/release/mac-arm64
+2026-10-28T13:47:05.0212210Z   • downloaded      label=7zip-darwin-arm64.tar.gz progress=100%
+2026-10-28T13:47:07.7566780Z   • downloaded      label=electron progress=100%
+2026-10-28T13:47:08.8149070Z   • downloaded      label=dmgbuild-bundle-arm64-75c8a6c.tar.gz progress=100%
+2026-10-28T13:47:14.0557830Z   • downloaded electron zip extracted successfully  output=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64
+2026-10-28T13:47:14.1233290Z   • searching for node modules  pm=npm searchDir=/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/app
+2026-10-28T13:47:16.2898740Z   • There are serious security concerns with CSC_FOR_PULL_REQUEST=true (see the  CircleCI documentation (https://circleci.com/docs/1.0/fork-pr-builds/) for details)
+2026-10-28T13:47:16.3000650Z If you have SSH keys, sensitive env vars or AWS credentials stored in your project settings and untrusted forks can make pull requests against your repo, then this option isn't for you.
+2026-10-28T13:47:16.3102890Z   • ad-hoc signing with hardenedRuntime enabled requires the com.apple.security.cs.disable-library-validation entitlement to prevent app launch failures due to library validation. See https://electron.build/code-signing for details.
+2026-10-28T13:47:16.3203470Z   • executing custom sign  file=dist/desktop/release/mac-arm64/Meta Sovereign.app platform=darwin type=distribution identityName=- identityHash=none provisioningProfile=none
+2026-10-28T13:47:49.8328180Z [adhoc-sign-mac] --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:47:49.8333270Z   • skipped macOS notarization  reason=`notarize` options were set explicitly `false`
+2026-10-28T13:47:49.8335340Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:47:49.8367680Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:47:49.8369290Z   • building        target=macOS zip arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.0.zip
+2026-10-28T13:47:49.8371060Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:47:49.8373500Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:47:49.8375390Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:47:49.8376920Z   • building        target=DMG arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.0.dmg
+2026-10-28T13:47:49.8387770Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:47:49.8389060Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:47:49.8390360Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:47:49.8398160Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:47:49.8401950Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:47:49.8406790Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:47:49.8409000Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:47:49.8411990Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:47:49.8414370Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:47:49.8415630Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:47:49.8416820Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:47:49.8418120Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:47:49.8419310Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:47:49.8420540Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:47:49.8422200Z /Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app: valid on disk
+2026-10-28T13:47:49.8423770Z /Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T13:47:49.8424540Z 
+2026-10-28T13:47:50.0794750Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.0.dmg.blockmap
+2026-10-28T13:48:18.2123550Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-x64-0.54.0.zip.blockmap
+2026-10-28T13:48:38.0657940Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.0.dmg.blockmap
+2026-10-28T13:48:48.2238290Z   • building block map  blockMapFile=dist/desktop/release/meta-sovereign-desktop-macos-arm64-0.54.0.zip.blockmap
+2026-10-28T13:48:53.1612080Z ##[group]Run set -euo pipefail
+2026-10-28T13:48:53.1612610Z [36;1mset -euo pipefail[0m
+2026-10-28T13:48:53.1612930Z [36;1mcd dist/desktop/release[0m
+2026-10-28T13:48:53.1613110Z [36;1mls -la[0m
+2026-10-28T13:48:53.1613360Z [36;1mcheck_app() {[0m
+2026-10-28T13:48:53.1613530Z [36;1m  local app="$1" id[0m
+2026-10-28T13:48:53.1613940Z [36;1m  ls -la "$app/Contents"[0m
+2026-10-28T13:48:53.1614300Z [36;1m  test "$(basename "$app")" = 'Meta Sovereign.app'[0m
+2026-10-28T13:48:53.1615850Z [36;1m  id=$(plutil -extract CFBundleIdentifier raw -o - "$app/Contents/Info.plist")[0m
+2026-10-28T13:48:53.1616230Z [36;1m  echo "$app: $id"[0m
+2026-10-28T13:48:53.1616550Z [36;1m  test "$id" = foundation.link.meta.sovereign[0m
+2026-10-28T13:48:53.1617050Z [36;1m  codesign --verify --deep --strict --verbose=2 "$app"[0m
+2026-10-28T13:48:53.1617300Z [36;1m}[0m
+2026-10-28T13:48:53.1617490Z [36;1mfor dir in mac mac-arm64; do[0m
+2026-10-28T13:48:53.1617830Z [36;1m  ls -la "$dir"[0m
+2026-10-28T13:48:53.1618090Z [36;1m  check_app "$(find "$dir" -maxdepth 1 -name '*.app' | head -n 1)"[0m
+2026-10-28T13:48:53.1618370Z [36;1mdone[0m
+2026-10-28T13:48:53.1618740Z [36;1mfor dmg in meta-sovereign-desktop-macos-*.dmg; do[0m
+2026-10-28T13:48:53.1619070Z [36;1m  mount=$(mktemp -d)[0m
+2026-10-28T13:48:53.1619540Z [36;1m  hdiutil attach "$dmg" -nobrowse -readonly -mountpoint "$mount"[0m
+2026-10-28T13:48:53.1619940Z [36;1m  ls -la "$mount"[0m
+2026-10-28T13:48:53.1620320Z [36;1m  check_app "$(find "$mount" -maxdepth 1 -name '*.app' | head -n 1)"[0m
+2026-10-28T13:48:53.1620760Z [36;1m  hdiutil detach "$mount" > /dev/null[0m
+2026-10-28T13:48:53.1621110Z [36;1mdone[0m
+2026-10-28T13:48:53.1621310Z [36;1mtest -f latest-mac.yml[0m
+2026-10-28T13:48:53.1818150Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:48:53.1818520Z env:
+2026-10-28T13:48:53.1818720Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:48:53.1818930Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:48:53.1819250Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:48:53.1819410Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T13:48:53.1819690Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T13:48:53.1819930Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T13:48:53.1820150Z ##[endgroup]
+2026-10-28T13:48:53.2938150Z total 1119808
+2026-10-28T13:48:53.2938760Z drwxr-xr-x  15 runner  staff        480 Oct 28 13:48 .
+2026-10-28T13:48:53.2939570Z drwxr-xr-x   4 runner  staff        128 Oct 28 13:46 ..
+2026-10-28T13:48:53.2940770Z drwxr-xr-x   3 runner  staff         96 Oct 28 13:46 .icon-icns
+2026-10-28T13:48:53.2941430Z -rw-r--r--   1 runner  staff       1710 Oct 28 13:48 builder-debug.yml
+2026-10-28T13:48:53.2942000Z -rw-r--r--   1 runner  staff        910 Oct 28 13:48 latest-mac.yml
+2026-10-28T13:48:53.2942550Z drwxr-xr-x   3 runner  staff         96 Oct 28 13:46 mac
+2026-10-28T13:48:53.2943030Z drwxr-xr-x   3 runner  staff         96 Oct 28 13:47 mac-arm64
+2026-10-28T13:48:53.2943780Z -rw-r--r--@  1 runner  staff  134443407 Oct 28 13:48 meta-sovereign-desktop-macos-arm64-0.54.0.dmg
+2026-10-28T13:48:53.2944670Z -rw-r--r--   1 runner  staff     141233 Oct 28 13:48 meta-sovereign-desktop-macos-arm64-0.54.0.dmg.blockmap
+2026-10-28T13:48:53.2945510Z -rw-r--r--   1 runner  staff  130073416 Oct 28 13:48 meta-sovereign-desktop-macos-arm64-0.54.0.zip
+2026-10-28T13:48:53.2946470Z -rw-r--r--   1 runner  staff     135853 Oct 28 13:48 meta-sovereign-desktop-macos-arm64-0.54.0.zip.blockmap
+2026-10-28T13:48:53.2947190Z -rw-r--r--@  1 runner  staff  139764735 Oct 28 13:47 meta-sovereign-desktop-macos-x64-0.54.0.dmg
+2026-10-28T13:48:53.2948000Z -rw-r--r--   1 runner  staff     147813 Oct 28 13:48 meta-sovereign-desktop-macos-x64-0.54.0.dmg.blockmap
+2026-10-28T13:48:53.2948810Z -rw-r--r--   1 runner  staff  135387963 Oct 28 13:48 meta-sovereign-desktop-macos-x64-0.54.0.zip
+2026-10-28T13:48:53.2949640Z -rw-r--r--   1 runner  staff     143109 Oct 28 13:48 meta-sovereign-desktop-macos-x64-0.54.0.zip.blockmap
+2026-10-28T13:48:53.2978610Z total 0
+2026-10-28T13:48:53.2979680Z drwxr-xr-x   3 runner  staff   96 Oct 28 13:46 .
+2026-10-28T13:48:53.2980430Z drwxr-xr-x  15 runner  staff  480 Oct 28 13:48 ..
+2026-10-28T13:48:53.2981340Z drwxr-xr-x   3 runner  staff   96 Oct 28 13:46 Meta Sovereign.app
+2026-10-28T13:48:53.3074520Z total 16
+2026-10-28T13:48:53.3075290Z drwxr-xr-x   3 runner  staff    96 Oct 28 13:47 _CodeSignature
+2026-10-28T13:48:53.3075780Z drwxr-xr-x   8 runner  staff   256 Oct 28 13:47 .
+2026-10-28T13:48:53.3076370Z drwxr-xr-x   3 runner  staff    96 Oct 28 13:46 ..
+2026-10-28T13:48:53.3077330Z drwxr-xr-x  10 runner  staff   320 Oct 28 13:46 Frameworks
+2026-10-28T13:48:53.3077790Z -rw-r--r--   1 runner  staff  4068 Oct 28 13:46 Info.plist
+2026-10-28T13:48:53.3078320Z drwxr-xr-x   3 runner  staff    96 Oct 28 13:47 MacOS
+2026-10-28T13:48:53.3078750Z -rw-r--r--   1 runner  staff     8 Oct 28 13:46 PkgInfo
+2026-10-28T13:48:53.3079230Z drwxr-xr-x  62 runner  staff  1984 Oct 28 13:46 Resources
+2026-10-28T13:48:53.3224760Z mac/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T13:48:53.3807460Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:48:53.3815530Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:48:53.3847770Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:48:53.3856100Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:48:53.3879480Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:48:53.3898460Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:48:53.3941490Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:48:53.3955710Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:48:53.3959270Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:48:53.3973250Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:48:53.4044400Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:48:53.4046030Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:48:53.4047460Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:48:53.4048770Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:48:53.7474160Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:48:54.0149040Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:48:54.0160570Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:48:54.0475290Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:48:54.0483430Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:48:54.0486030Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:48:54.0488080Z mac/Meta Sovereign.app: valid on disk
+2026-10-28T13:48:54.0494520Z mac/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T13:48:54.0562960Z total 0
+2026-10-28T13:48:54.0571230Z drwxr-xr-x   3 runner  staff   96 Oct 28 13:47 .
+2026-10-28T13:48:54.0574900Z drwxr-xr-x  15 runner  staff  480 Oct 28 13:48 ..
+2026-10-28T13:48:54.0651040Z drwxr-xr-x   3 runner  staff   96 Oct 28 13:47 Meta Sovereign.app
+2026-10-28T13:48:54.0764360Z total 16
+2026-10-28T13:48:54.0767050Z drwxr-xr-x   3 runner  staff    96 Oct 28 13:47 _CodeSignature
+2026-10-28T13:48:54.0781230Z drwxr-xr-x   8 runner  staff   256 Oct 28 13:47 .
+2026-10-28T13:48:54.0825540Z drwxr-xr-x   3 runner  staff    96 Oct 28 13:47 ..
+2026-10-28T13:48:54.0828210Z drwxr-xr-x  10 runner  staff   320 Oct 28 13:47 Frameworks
+2026-10-28T13:48:54.0829760Z -rw-r--r--   1 runner  staff  4068 Oct 28 13:47 Info.plist
+2026-10-28T13:48:54.0833610Z drwxr-xr-x   3 runner  staff    96 Oct 28 13:47 MacOS
+2026-10-28T13:48:54.0834980Z -rw-r--r--   1 runner  staff     8 Oct 28 13:47 PkgInfo
+2026-10-28T13:48:54.0836620Z drwxr-xr-x  62 runner  staff  1984 Oct 28 13:47 Resources
+2026-10-28T13:48:54.0919740Z mac-arm64/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T13:48:54.4360110Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:48:54.5502160Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:48:54.5506240Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:48:54.5550950Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:48:54.5552540Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:48:54.5553880Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:48:54.5567980Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:48:54.5569450Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:48:54.5571670Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:48:54.5574190Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:48:54.5575540Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:48:54.5576820Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:48:54.5592180Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:48:54.5593560Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:48:54.5595330Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:48:54.5596710Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:48:54.5597940Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:48:54.5599220Z --prepared:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:48:54.5600370Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:48:54.5601560Z --validated:/Users/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/mac-arm64/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:48:54.5602210Z mac-arm64/Meta Sovereign.app: valid on disk
+2026-10-28T13:48:54.5602800Z mac-arm64/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T13:48:54.7471200Z Checksumming Protective Master Boot Record (MBR : 0)…
+2026-10-28T13:48:54.7554030Z Protective Master Boot Record (MBR :: verified   CRC32 $C3214651
+2026-10-28T13:48:54.7557440Z Checksumming GPT Header (Primary GPT Header : 1)…
+2026-10-28T13:48:54.7560610Z  GPT Header (Primary GPT Header : 1): verified   CRC32 $A739AB25
+2026-10-28T13:48:54.7561260Z Checksumming GPT Partition Data (Primary GPT Table : 2)…
+2026-10-28T13:48:54.7561850Z GPT Partition Data (Primary GPT Tabl: verified   CRC32 $EEFE7E44
+2026-10-28T13:48:54.7562400Z Checksumming  (Apple_Free : 3)…
+2026-10-28T13:48:55.0425540Z                     (Apple_Free : 3): verified   CRC32 $00000000
+2026-10-28T13:48:55.0426810Z Checksumming disk image (Apple_HFS : 4)…
+2026-10-28T13:48:55.6660310Z           disk image (Apple_HFS : 4): verified   CRC32 $54D96A7F
+2026-10-28T13:48:55.6761840Z Checksumming  (Apple_Free : 5)…
+2026-10-28T13:48:55.6861660Z                     (Apple_Free : 5): verified   CRC32 $00000000
+2026-10-28T13:48:55.6957710Z Checksumming GPT Partition Data (Backup GPT Table : 6)…
+2026-10-28T13:48:55.6985020Z GPT Partition Data (Backup GPT Table: verified   CRC32 $EEFE7E44
+2026-10-28T13:48:55.6988720Z Checksumming GPT Header (Backup GPT Header : 7)…
+2026-10-28T13:48:55.6989250Z   GPT Header (Backup GPT Header : 7): verified   CRC32 $14ACCB5B
+2026-10-28T13:48:55.6989750Z verified   CRC32 $2BB1CD9D
+2026-10-28T13:48:55.8744240Z /dev/disk5          	GUID_partition_scheme          	
+2026-10-28T13:48:55.8848840Z /dev/disk5s1        	Apple_HFS                      	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO
+2026-10-28T13:48:55.8964430Z total 568
+2026-10-28T13:48:55.8975000Z drwxr-xr-x@   7 runner  staff     306 Oct 28 13:48 .
+2026-10-28T13:48:55.8979360Z drwx------@ 107 runner  staff    3424 Oct 28 13:48 ..
+2026-10-28T13:48:55.8983090Z -rw-r--r--    1 runner  staff   37298 Oct 28 13:48 .background.tiff
+2026-10-28T13:48:55.8983640Z -rw-r--r--    1 runner  staff   16388 Oct 28 13:48 .DS_Store
+2026-10-28T13:48:55.8984180Z -rw-r--r--    1 runner  staff  222869 Oct 28 13:48 .VolumeIcon.icns
+2026-10-28T13:48:55.8984850Z lrwxr-xr-x    1 runner  staff      13 Oct 28 13:48 Applications -> /Applications
+2026-10-28T13:48:55.8985730Z drwxr-xr-x    3 runner  staff     102 Oct 28 13:47 Meta Sovereign.app
+2026-10-28T13:48:55.9028130Z total 16
+2026-10-28T13:48:55.9028610Z drwxr-xr-x   3 runner  staff   102 Oct 28 13:47 _CodeSignature
+2026-10-28T13:48:55.9029670Z drwxr-xr-x   8 runner  staff   272 Oct 28 13:47 .
+2026-10-28T13:48:55.9030600Z drwxr-xr-x   3 runner  staff   102 Oct 28 13:47 ..
+2026-10-28T13:48:55.9031320Z drwxr-xr-x  10 runner  staff   340 Oct 28 13:47 Frameworks
+2026-10-28T13:48:55.9033570Z -rw-r--r--   1 runner  staff  4068 Oct 28 13:47 Info.plist
+2026-10-28T13:48:55.9034240Z drwxr-xr-x   3 runner  staff   102 Oct 28 13:47 MacOS
+2026-10-28T13:48:55.9035070Z -rw-r--r--   1 runner  staff     8 Oct 28 13:47 PkgInfo
+2026-10-28T13:48:55.9035890Z drwxr-xr-x  62 runner  staff  2108 Oct 28 13:47 Resources
+2026-10-28T13:48:55.9160460Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T13:48:58.3134870Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:48:58.3206600Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:48:58.3236360Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:48:58.3353650Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:48:58.3412530Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:48:58.9162540Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:48:58.9229690Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:48:58.9255530Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:48:58.9314150Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:48:58.9319340Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:48:58.9322350Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:48:58.9325950Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:48:58.9329550Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:48:58.9334780Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:48:58.9352460Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:48:58.9394680Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:48:58.9447430Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:48:58.9450300Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:48:58.9487610Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:48:58.9497650Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:48:59.0209360Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app: valid on disk
+2026-10-28T13:48:59.0234480Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.XESfykEtPO/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T13:48:59.2721150Z Checksumming Protective Master Boot Record (MBR : 0)…
+2026-10-28T13:48:59.2766610Z Protective Master Boot Record (MBR :: verified   CRC32 $FB35FBC3
+2026-10-28T13:48:59.2770180Z Checksumming GPT Header (Primary GPT Header : 1)…
+2026-10-28T13:48:59.2772860Z  GPT Header (Primary GPT Header : 1): verified   CRC32 $8B9EC9C6
+2026-10-28T13:48:59.2774490Z Checksumming GPT Partition Data (Primary GPT Table : 2)…
+2026-10-28T13:48:59.2776320Z GPT Partition Data (Primary GPT Tabl: verified   CRC32 $F6989EEF
+2026-10-28T13:48:59.2780500Z Checksumming  (Apple_Free : 3)…
+2026-10-28T13:49:00.0717880Z                     (Apple_Free : 3): verified   CRC32 $00000000
+2026-10-28T13:49:00.0720110Z Checksumming disk image (Apple_HFS : 4)…
+2026-10-28T13:49:00.6702530Z           disk image (Apple_HFS : 4): verified   CRC32 $1204497F
+2026-10-28T13:49:00.6704900Z Checksumming  (Apple_Free : 5)…
+2026-10-28T13:49:01.0548110Z                     (Apple_Free : 5): verified   CRC32 $00000000
+2026-10-28T13:49:01.0551620Z Checksumming GPT Partition Data (Backup GPT Table : 6)…
+2026-10-28T13:49:01.0556920Z GPT Partition Data (Backup GPT Table: verified   CRC32 $F6989EEF
+2026-10-28T13:49:01.0558170Z Checksumming GPT Header (Backup GPT Header : 7)…
+2026-10-28T13:49:02.0033050Z   GPT Header (Backup GPT Header : 7): verified   CRC32 $B1E6791E
+2026-10-28T13:49:02.0058910Z verified   CRC32 $02C0F317
+2026-10-28T13:49:02.1355910Z /dev/disk5          	GUID_partition_scheme          	
+2026-10-28T13:49:02.1454940Z /dev/disk5s1        	Apple_HFS                      	/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve
+2026-10-28T13:49:02.1465820Z total 568
+2026-10-28T13:49:02.1472500Z drwxr-xr-x@   7 runner  staff     306 Oct 28 13:47 .
+2026-10-28T13:49:02.1478780Z drwx------@ 108 runner  staff    3456 Oct 28 13:48 ..
+2026-10-28T13:49:02.1488640Z -rw-r--r--    1 runner  staff   37298 Oct 28 13:47 .background.tiff
+2026-10-28T13:49:02.1519400Z -rw-r--r--    1 runner  staff   16388 Oct 28 13:47 .DS_Store
+2026-10-28T13:49:02.1522090Z -rw-r--r--    1 runner  staff  222869 Oct 28 13:47 .VolumeIcon.icns
+2026-10-28T13:49:02.1522810Z lrwxr-xr-x    1 runner  staff      13 Oct 28 13:47 Applications -> /Applications
+2026-10-28T13:49:02.1523740Z drwxr-xr-x    3 runner  staff     102 Oct 28 13:46 Meta Sovereign.app
+2026-10-28T13:49:02.1582150Z total 16
+2026-10-28T13:49:02.1583450Z drwxr-xr-x   3 runner  staff   102 Oct 28 13:47 _CodeSignature
+2026-10-28T13:49:02.1584600Z drwxr-xr-x   8 runner  staff   272 Oct 28 13:47 .
+2026-10-28T13:49:02.1586920Z drwxr-xr-x   3 runner  staff   102 Oct 28 13:46 ..
+2026-10-28T13:49:02.1587990Z drwxr-xr-x  10 runner  staff   340 Oct 28 13:46 Frameworks
+2026-10-28T13:49:02.1589100Z -rw-r--r--   1 runner  staff  4068 Oct 28 13:46 Info.plist
+2026-10-28T13:49:02.1590140Z drwxr-xr-x   3 runner  staff   102 Oct 28 13:47 MacOS
+2026-10-28T13:49:02.1591290Z -rw-r--r--   1 runner  staff     8 Oct 28 13:46 PkgInfo
+2026-10-28T13:49:02.1592350Z drwxr-xr-x  62 runner  staff  2108 Oct 28 13:46 Resources
+2026-10-28T13:49:02.1709130Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app: foundation.link.meta.sovereign
+2026-10-28T13:49:04.6131410Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:49:04.6206880Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:49:04.6208430Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/app_shim_loader
+2026-10-28T13:49:04.6379910Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:49:04.6381640Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/Helpers/chrome_crashpad_handler
+2026-10-28T13:49:05.2406580Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Electron Framework.framework/Versions/Current/.
+2026-10-28T13:49:05.2468160Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:49:05.2469770Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Mantle.framework/Versions/Current/.
+2026-10-28T13:49:05.2484250Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:49:05.2488040Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (GPU).app
+2026-10-28T13:49:05.2524720Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:49:05.2528740Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Plugin).app
+2026-10-28T13:49:05.2550400Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:49:05.2554620Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper (Renderer).app
+2026-10-28T13:49:05.2572880Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:49:05.2576960Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Meta Sovereign Helper.app
+2026-10-28T13:49:05.2612300Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:49:05.2616420Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/ReactiveObjC.framework/Versions/Current/.
+2026-10-28T13:49:05.2642600Z --prepared:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:49:05.2650320Z --validated:/private/var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app/Contents/Frameworks/Squirrel.framework/Versions/Current/.
+2026-10-28T13:49:05.3217550Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app: valid on disk
+2026-10-28T13:49:05.3219860Z /var/folders/nj/vtw8zd2j31d1gdrtntc5y4600000gn/T/tmp.LtlolMyDve/Meta Sovereign.app: satisfies its Designated Requirement
+2026-10-28T13:49:05.3853550Z ##[group]Run set -euo pipefail
+2026-10-28T13:49:05.3854040Z [36;1mset -euo pipefail[0m
+2026-10-28T13:49:05.3854320Z [36;1mcd dist/desktop/release[0m
+2026-10-28T13:49:05.3854600Z [36;1mfiles=()[0m
+2026-10-28T13:49:05.3854850Z [36;1mfor f in meta-sovereign-desktop-* latest*.yml; do[0m
+2026-10-28T13:49:05.3855360Z [36;1m  if [[ -f "$f" && "$f" != *.blockmap ]]; then files+=("$f"); fi[0m
+2026-10-28T13:49:05.3855680Z [36;1mdone[0m
+2026-10-28T13:49:05.3856080Z [36;1mif command -v sha256sum > /dev/null; then sum='sha256sum'; else sum='shasum -a 256'; fi[0m
+2026-10-28T13:49:05.3856620Z [36;1m$sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-$BUILD_NAME.txt"[0m
+2026-10-28T13:49:05.3857090Z [36;1m{[0m
+2026-10-28T13:49:05.3857340Z [36;1m  echo "## $BUILD_NAME"[0m
+2026-10-28T13:49:05.3857630Z [36;1m  echo "runner: $BUILD_RUNNER ($RUNNER_OS $RUNNER_ARCH)"[0m
+2026-10-28T13:49:05.3858220Z [36;1m  echo "commit: $BUILD_REF"[0m
+2026-10-28T13:49:05.3858620Z [36;1m  echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"[0m
+2026-10-28T13:49:05.3859160Z [36;1m  echo "electron-builder: $(node -p "require('electron-builder/package.json').version")"[0m
+2026-10-28T13:49:05.3859670Z [36;1m  echo "node: $(node --version)"[0m
+2026-10-28T13:49:05.3860090Z [36;1m  [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"[0m
+2026-10-28T13:49:05.3860470Z [36;1m  echo "files:"[0m
+2026-10-28T13:49:05.3860800Z [36;1m  for f in "${files[@]}"; do echo "  - $f"; done[0m
+2026-10-28T13:49:05.3861130Z [36;1m} > "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T13:49:05.3861450Z [36;1mcat "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T13:49:05.3901160Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:49:05.3901480Z env:
+2026-10-28T13:49:05.3901770Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:49:05.3902000Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:49:05.3902350Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:49:05.3902550Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T13:49:05.3902840Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T13:49:05.3903140Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T13:49:05.3903340Z   MAC_SIGNING: adhoc
+2026-10-28T13:49:05.3903600Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T13:49:05.3903790Z   BUILD_NAME: macos
+2026-10-28T13:49:05.3904040Z   BUILD_RUNNER: macos-15
+2026-10-28T13:49:05.3904290Z   BUILD_REF: c7eba5155135137ec5e897d0fdc67b007cf9cb3a
+2026-10-28T13:49:05.3904590Z ##[endgroup]
+2026-10-28T13:49:06.0539950Z ## macos
+2026-10-28T13:49:06.0540570Z runner: macos-15 (macOS ARM64)
+2026-10-28T13:49:06.0541070Z commit: c7eba5155135137ec5e897d0fdc67b007cf9cb3a
+2026-10-28T13:49:06.0541510Z electron: 44.10.0
+2026-10-28T13:49:06.0541980Z electron-builder: 26.18.0
+2026-10-28T13:49:06.0542240Z node: v24.20.0
+2026-10-28T13:49:06.0542730Z macos-signing: adhoc
+2026-10-28T13:49:06.0543020Z files:
+2026-10-28T13:49:06.0543350Z   - meta-sovereign-desktop-macos-arm64-0.54.0.dmg
+2026-10-28T13:49:06.0543910Z   - meta-sovereign-desktop-macos-arm64-0.54.0.zip
+2026-10-28T13:49:06.0544490Z   - meta-sovereign-desktop-macos-x64-0.54.0.dmg
+2026-10-28T13:49:06.0545020Z   - meta-sovereign-desktop-macos-x64-0.54.0.zip
+2026-10-28T13:49:06.0545420Z   - latest-mac.yml
+2026-10-28T13:49:06.0646210Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T13:49:06.0646480Z with:
+2026-10-28T13:49:06.0646630Z   name: desktop-macos
+2026-10-28T13:49:06.0647270Z   path: dist/desktop/release/meta-sovereign-desktop-*
+dist/desktop/release/latest*.yml
+dist/desktop/release/SHA256SUMS-*.txt
+dist/desktop/release/provenance-*.txt
+
+2026-10-28T13:49:06.0647890Z   if-no-files-found: error
+2026-10-28T13:49:06.0648120Z   retention-days: 14
+2026-10-28T13:49:06.0648340Z   compression-level: 6
+2026-10-28T13:49:06.0648600Z   overwrite: false
+2026-10-28T13:49:06.0648760Z   include-hidden-files: false
+2026-10-28T13:49:06.0649700Z   archive: true
+2026-10-28T13:49:06.0649850Z env:
+2026-10-28T13:49:06.0650000Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:49:06.0650230Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:49:06.0650450Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:49:06.0650640Z   MACOS_ADHOC_SIGN: 1
+2026-10-28T13:49:06.0650820Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+2026-10-28T13:49:06.0651140Z   CSC_FOR_PULL_REQUEST: true
+2026-10-28T13:49:06.0651310Z ##[endgroup]
+2026-10-28T13:49:06.3861380Z With the provided path, there will be 11 files uploaded
+2026-10-28T13:49:06.3863110Z Artifact name is valid!
+2026-10-28T13:49:06.3863490Z Root directory input is valid!
+2026-10-28T13:49:06.6916090Z Uploading artifact: desktop-macos.zip
+2026-10-28T13:49:06.6945350Z Beginning upload of artifact content to blob storage
+2026-10-28T13:49:07.4328870Z Uploaded bytes 8388608
+2026-10-28T13:49:07.5551710Z Uploaded bytes 16777216
+2026-10-28T13:49:07.8237170Z Uploaded bytes 25165824
+2026-10-28T13:49:07.9134810Z Uploaded bytes 33554432
+2026-10-28T13:49:08.2315080Z Uploaded bytes 41943040
+2026-10-28T13:49:08.7531790Z Uploaded bytes 50331648
+2026-10-28T13:49:08.7722480Z Uploaded bytes 58720256
+2026-10-28T13:49:08.9553550Z Uploaded bytes 67108864
+2026-10-28T13:49:09.2436430Z Uploaded bytes 75497472
+2026-10-28T13:49:09.7392790Z Uploaded bytes 83886080
+2026-10-28T13:49:10.0784800Z Uploaded bytes 92274688
+2026-10-28T13:49:10.0911010Z Uploaded bytes 100663296
+2026-10-28T13:49:10.2107940Z Uploaded bytes 109051904
+2026-10-28T13:49:10.4638680Z Uploaded bytes 117440512
+2026-10-28T13:49:10.9748250Z Uploaded bytes 125829120
+2026-10-28T13:49:11.2056640Z Uploaded bytes 134217728
+2026-10-28T13:49:11.3677570Z Uploaded bytes 142606336
+2026-10-28T13:49:11.8073760Z Uploaded bytes 150994944
+2026-10-28T13:49:12.2183200Z Uploaded bytes 159383552
+2026-10-28T13:49:12.2816190Z Uploaded bytes 167772160
+2026-10-28T13:49:12.7417220Z Uploaded bytes 176160768
+2026-10-28T13:49:12.7634380Z Uploaded bytes 184549376
+2026-10-28T13:49:12.8318470Z Uploaded bytes 192937984
+2026-10-28T13:49:13.1559720Z Uploaded bytes 201326592
+2026-10-28T13:49:13.4824480Z Uploaded bytes 209715200
+2026-10-28T13:49:13.7435630Z Uploaded bytes 218103808
+2026-10-28T13:49:13.7570140Z Uploaded bytes 226492416
+2026-10-28T13:49:14.2310260Z Uploaded bytes 234881024
+2026-10-28T13:49:14.3720070Z Uploaded bytes 243269632
+2026-10-28T13:49:14.7071820Z Uploaded bytes 251658240
+2026-10-28T13:49:14.7691200Z Uploaded bytes 260046848
+2026-10-28T13:49:15.1183110Z Uploaded bytes 268435456
+2026-10-28T13:49:15.2738010Z Uploaded bytes 276824064
+2026-10-28T13:49:15.3668870Z Uploaded bytes 285212672
+2026-10-28T13:49:15.5780170Z Uploaded bytes 293601280
+2026-10-28T13:49:15.9313840Z Uploaded bytes 301989888
+2026-10-28T13:49:16.4039040Z Uploaded bytes 310378496
+2026-10-28T13:49:16.4369200Z Uploaded bytes 318767104
+2026-10-28T13:49:16.7354970Z Uploaded bytes 327155712
+2026-10-28T13:49:16.9111120Z Uploaded bytes 335544320
+2026-10-28T13:49:17.0825600Z Uploaded bytes 343932928
+2026-10-28T13:49:17.3486460Z Uploaded bytes 352321536
+2026-10-28T13:49:17.4096020Z Uploaded bytes 360710144
+2026-10-28T13:49:17.9690590Z Uploaded bytes 369098752
+2026-10-28T13:49:18.4001670Z Uploaded bytes 377487360
+2026-10-28T13:49:18.6106490Z Uploaded bytes 385875968
+2026-10-28T13:49:18.6807430Z Uploaded bytes 394264576
+2026-10-28T13:49:19.0305330Z Uploaded bytes 402653184
+2026-10-28T13:49:19.4488050Z Uploaded bytes 411041792
+2026-10-28T13:49:19.7376360Z Uploaded bytes 419430400
+2026-10-28T13:49:19.8093710Z Uploaded bytes 427819008
+2026-10-28T13:49:19.9065740Z Uploaded bytes 436207616
+2026-10-28T13:49:20.1383770Z Uploaded bytes 444596224
+2026-10-28T13:49:20.5257620Z Uploaded bytes 452984832
+2026-10-28T13:49:21.0644400Z Uploaded bytes 461373440
+2026-10-28T13:49:21.2421100Z Uploaded bytes 469762048
+2026-10-28T13:49:21.3636170Z Uploaded bytes 478150656
+2026-10-28T13:49:21.8873070Z Uploaded bytes 486539264
+2026-10-28T13:49:22.0081460Z Uploaded bytes 494927872
+2026-10-28T13:49:22.5267690Z Uploaded bytes 503316480
+2026-10-28T13:49:22.7333850Z Uploaded bytes 511705088
+2026-10-28T13:49:22.7844680Z Uploaded bytes 520093696
+2026-10-28T13:49:22.9530780Z Uploaded bytes 528482304
+2026-10-28T13:49:23.1610070Z Uploaded bytes 536870912
+2026-10-28T13:49:23.3457480Z Uploaded bytes 539045466
+2026-10-28T13:49:23.3883890Z Finished uploading artifact content to blob storage!
+2026-10-28T13:49:23.3886290Z SHA256 digest of uploaded artifact is 5d8a8eea0ec136538137897a5177ff3a5eca36d0036ba65e1b1214a8931703f5
+2026-10-28T13:49:23.3887450Z Finalizing artifact upload
+2026-10-28T13:49:23.9129240Z Artifact desktop-macos successfully finalized. Artifact ID 12820587549
+2026-10-28T13:49:23.9131470Z Artifact desktop-macos has been successfully uploaded! Final size is 539045466 bytes. Artifact ID is 12820587549
+2026-10-28T13:49:23.9133890Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40699388296/artifacts/12820587549
+2026-10-28T13:49:23.9383730Z Post job cleanup.
+2026-10-28T13:49:24.1353890Z Post job cleanup.
+2026-10-28T13:49:24.2475200Z [command]/opt/homebrew/bin/git version
+2026-10-28T13:49:24.2732050Z git version 2.55.0
+2026-10-28T13:49:24.2755140Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/8ac4c94a-7d5a-44a6-8ad6-09487e1bf17f/.gitconfig'
+2026-10-28T13:49:24.2762630Z Temporarily overriding HOME='/Users/runner/work/_temp/8ac4c94a-7d5a-44a6-8ad6-09487e1bf17f' before making global git config changes
+2026-10-28T13:49:24.2763460Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T13:49:24.2765480Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:49:24.2878100Z Removing SSH command configuration
+2026-10-28T13:49:24.2883680Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:49:24.2947100Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:49:24.3740480Z Removing HTTP extra header
+2026-10-28T13:49:24.3744670Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:49:24.3800440Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:49:24.4613830Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:49:24.4617680Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:49:24.4672720Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:49:24.5479000Z Cleaning up orphan processes

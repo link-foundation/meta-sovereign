@@ -1,0 +1,203 @@
+﻿2026-10-28T14:16:41.9859691Z Current runner version: '2.338.0'
+2026-10-28T14:16:42.0124980Z ##[group]Runner Image Provisioner
+2026-10-28T14:16:42.0125497Z Hosted Compute Agent
+2026-10-28T14:16:42.0125827Z Version: 20261021.618
+2026-10-28T14:16:42.0126192Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T14:16:42.0126599Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T14:16:42.0126996Z Worker ID: {b92e9f50-f6a5-4565-ba15-ede3ffd95fde}
+2026-10-28T14:16:42.0127390Z Region: centralus
+2026-10-28T14:16:42.0127689Z Cloud: Azure
+2026-10-28T14:16:42.0127994Z ##[endgroup]
+2026-10-28T14:16:42.0128722Z ##[group]Operating System
+2026-10-28T14:16:42.0129067Z Microsoft Windows Server 2025
+2026-10-28T14:16:42.0129406Z 10.0.26100
+2026-10-28T14:16:42.0129698Z Datacenter
+2026-10-28T14:16:42.0129993Z ##[endgroup]
+2026-10-28T14:16:42.0130305Z ##[group]Runner Image
+2026-10-28T14:16:42.0130663Z Image: windows-2025-vs2026
+2026-10-28T14:16:42.0131002Z Version: 20261021.278.1
+2026-10-28T14:16:42.0131921Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261021.278/images/windows/Windows2025-VS2026-Readme.md
+2026-10-28T14:16:42.0132811Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261021.278
+2026-10-28T14:16:42.0133354Z ##[endgroup]
+2026-10-28T14:16:42.0133957Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T14:16:42.0135069Z Contents: read
+2026-10-28T14:16:42.0135390Z Metadata: read
+2026-10-28T14:16:42.0135696Z ##[endgroup]
+2026-10-28T14:16:42.0136992Z Secret source: Actions
+2026-10-28T14:16:42.0137532Z Cache mode: write
+2026-10-28T14:16:42.0137956Z Prepare workflow directory
+2026-10-28T14:16:42.1103620Z Prepare all required actions
+2026-10-28T14:16:42.1135795Z Getting action download info
+2026-10-28T14:16:42.3756554Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T14:16:42.4902822Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T14:16:42.6520222Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T14:16:43.1128209Z Complete job name: Build (windows-x64)
+2026-10-28T14:16:43.6303844Z ##[group]Run actions/checkout@v7
+2026-10-28T14:16:43.6304816Z with:
+2026-10-28T14:16:43.6305253Z   persist-credentials: false
+2026-10-28T14:16:43.6305838Z   ref: 8cfeffd797488943618e2d41477a6818d55067f2
+2026-10-28T14:16:43.6306526Z   repository: link-foundation/meta-sovereign
+2026-10-28T14:16:43.6311180Z   token: ***
+2026-10-28T14:16:43.6311631Z   ssh-strict: true
+2026-10-28T14:16:43.6312076Z   ssh-user: git
+2026-10-28T14:16:43.6312501Z   clean: true
+2026-10-28T14:16:43.6312949Z   sparse-checkout-cone-mode: true
+2026-10-28T14:16:43.6313507Z   fetch-depth: 1
+2026-10-28T14:16:43.6313941Z   fetch-tags: false
+2026-10-28T14:16:43.6314385Z   show-progress: true
+2026-10-28T14:16:43.6314835Z   lfs: false
+2026-10-28T14:16:43.6315253Z   submodules: false
+2026-10-28T14:16:43.6315720Z   set-safe-directory: true
+2026-10-28T14:16:43.6316274Z   allow-unsafe-pr-checkout: false
+2026-10-28T14:16:43.6316928Z env:
+2026-10-28T14:16:43.6317323Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:16:43.6317861Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:16:43.6318450Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:16:43.6318933Z ##[endgroup]
+2026-10-28T14:16:43.7354322Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T14:16:43.7356040Z ##[group]Getting Git version info
+2026-10-28T14:16:43.7356741Z Working directory is 'D:\a\meta-sovereign\meta-sovereign'
+2026-10-28T14:16:43.7756665Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-28T14:16:44.0551192Z git version 2.56.0.windows.2
+2026-10-28T14:16:44.0591626Z ##[endgroup]
+2026-10-28T14:16:44.0603641Z Temporarily overriding HOME='D:\a\_temp\22eeca6c-d131-459e-9f9b-d6ca8409d8a1' before making global git config changes
+2026-10-28T14:16:44.0605143Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:16:44.0610652Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:16:44.1194966Z Deleting the contents of 'D:\a\meta-sovereign\meta-sovereign'
+2026-10-28T14:16:44.1198358Z ##[group]Determining repository object format
+2026-10-28T14:16:44.1256728Z ##[endgroup]
+2026-10-28T14:16:44.1257963Z ##[group]Initializing the repository
+2026-10-28T14:16:44.1259065Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:16:44.3969094Z Initialized empty Git repository in D:/a/meta-sovereign/meta-sovereign/.git/
+2026-10-28T14:16:44.4013412Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:16:44.4641655Z ##[endgroup]
+2026-10-28T14:16:44.4642562Z ##[group]Disabling automatic garbage collection
+2026-10-28T14:16:44.4647721Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-28T14:16:44.4926211Z ##[endgroup]
+2026-10-28T14:16:44.4927079Z ##[group]Setting up auth
+2026-10-28T14:16:44.4927670Z Removing SSH command configuration
+2026-10-28T14:16:44.4934055Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:16:44.5267407Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:16:46.4965694Z Removing HTTP extra header
+2026-10-28T14:16:46.4977854Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:16:46.5257899Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:16:46.9516865Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:16:46.9528718Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:16:46.9814803Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:16:47.3770739Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-28T14:16:47.4036450Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D:\a\_temp\git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:47.4295732Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D:\a\_temp\git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:47.4583743Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:47.4831494Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:47.5078891Z ##[endgroup]
+2026-10-28T14:16:47.5079273Z ##[group]Fetching the repository
+2026-10-28T14:16:47.5087821Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 8cfeffd797488943618e2d41477a6818d55067f2
+2026-10-28T14:16:50.1027089Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:16:50.1027690Z  * branch            8cfeffd797488943618e2d41477a6818d55067f2 -> FETCH_HEAD
+2026-10-28T14:16:50.1069858Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse --verify --quiet 8cfeffd797488943618e2d41477a6818d55067f2^{object}
+2026-10-28T14:16:50.1402163Z 8cfeffd797488943618e2d41477a6818d55067f2
+2026-10-28T14:16:50.1428896Z ##[endgroup]
+2026-10-28T14:16:50.1429316Z ##[group]Determining the checkout info
+2026-10-28T14:16:50.1429916Z ##[endgroup]
+2026-10-28T14:16:50.1435409Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-28T14:16:50.1806162Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-28T14:16:50.2050265Z ##[group]Checking out the ref
+2026-10-28T14:16:50.2055603Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force 8cfeffd797488943618e2d41477a6818d55067f2
+2026-10-28T14:16:50.6586874Z Note: switching to '8cfeffd797488943618e2d41477a6818d55067f2'.
+2026-10-28T14:16:50.6587216Z 
+2026-10-28T14:16:50.6587436Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T14:16:50.6587824Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T14:16:50.6588934Z state without impacting any branches by switching back to a branch.
+2026-10-28T14:16:50.6589230Z 
+2026-10-28T14:16:50.6589431Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T14:16:50.6589874Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T14:16:50.6590115Z 
+2026-10-28T14:16:50.6590222Z   git switch -c <new-branch-name>
+2026-10-28T14:16:50.6590469Z 
+2026-10-28T14:16:50.6590570Z Or undo this operation with:
+2026-10-28T14:16:50.6590703Z 
+2026-10-28T14:16:50.6590791Z   git switch -
+2026-10-28T14:16:50.6590897Z 
+2026-10-28T14:16:50.6591082Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T14:16:50.6591351Z 
+2026-10-28T14:16:50.6591551Z HEAD is now at 8cfeffd Merge fcd2046295373450a996639259bd0cb7a544b25f into 03b3c42dc98e31ad245149328882544f4ea6b381
+2026-10-28T14:16:50.6672463Z ##[endgroup]
+2026-10-28T14:16:50.7012271Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-28T14:16:50.7251558Z 8cfeffd797488943618e2d41477a6818d55067f2
+2026-10-28T14:16:50.7292943Z ##[group]Removing auth
+2026-10-28T14:16:50.7293333Z Removing SSH command configuration
+2026-10-28T14:16:50.7299801Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:16:50.7575770Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:16:51.1958445Z Removing HTTP extra header
+2026-10-28T14:16:51.1965847Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:16:51.2229507Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:16:51.6125513Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:16:51.6125887Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:16:51.6355376Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:16:51.6356294Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:16:51.6356656Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:16:51.6356960Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:16:51.6390208Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:16:51.6626045Z D:\a\_temp\git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:51.6658796Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D\:\\a\\_temp\\git\-credentials\-28d250ff\-cd46\-4756\-924b\-4c2593571b73\.config
+2026-10-28T14:16:51.6923524Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:16:51.7149068Z D:\a\_temp\git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:51.7183033Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-28d250ff\-cd46\-4756\-924b\-4c2593571b73\.config
+2026-10-28T14:16:51.7449693Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:16:51.7687413Z /github/runner_temp/git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:51.7720662Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-28d250ff\-cd46\-4756\-924b\-4c2593571b73\.config
+2026-10-28T14:16:51.7988178Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:16:51.8212938Z /github/runner_temp/git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config
+2026-10-28T14:16:51.8242335Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-28d250ff\-cd46\-4756\-924b\-4c2593571b73\.config
+2026-10-28T14:16:51.8512613Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:16:52.2291272Z Removing credentials config 'D:\a\_temp\git-credentials-28d250ff-cd46-4756-924b-4c2593571b73.config'
+2026-10-28T14:16:52.2299652Z ##[endgroup]
+2026-10-28T14:16:52.2605134Z ##[group]Run actions/setup-node@v7
+2026-10-28T14:16:52.2605351Z with:
+2026-10-28T14:16:52.2605471Z   node-version: 24.x
+2026-10-28T14:16:52.2605607Z   package-manager-cache: false
+2026-10-28T14:16:52.2605755Z   check-latest: false
+2026-10-28T14:16:52.2607067Z   token: ***
+2026-10-28T14:16:52.2607179Z env:
+2026-10-28T14:16:52.2607288Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:16:52.2607418Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:16:52.2607569Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:16:52.2607695Z ##[endgroup]
+2026-10-28T14:16:52.3763598Z Found in cache @ C:\hostedtoolcache\windows\node\24.22.1\x64
+2026-10-28T14:16:53.2837092Z ##[group]Environment details
+2026-10-28T14:16:56.8879032Z node: v24.22.1
+2026-10-28T14:16:56.8879311Z npm: 11.19.1
+2026-10-28T14:16:56.8879498Z yarn: 1.22.22
+2026-10-28T14:16:56.8879952Z ##[endgroup]
+2026-10-28T14:16:56.9140414Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T14:16:56.9140737Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T14:16:56.9154820Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:16:56.9155055Z env:
+2026-10-28T14:16:56.9155178Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:16:56.9155317Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:16:56.9155473Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:16:56.9155624Z   ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+2026-10-28T14:16:56.9155767Z ##[endgroup]
+2026-10-28T14:18:00.6191932Z 
+2026-10-28T14:18:00.6198194Z > meta-sovereign@0.54.0 prepare
+2026-10-28T14:18:00.6198555Z > husky || true
+2026-10-28T14:18:00.6198688Z 
+2026-10-28T14:18:00.9191299Z 
+2026-10-28T14:18:00.9192038Z added 488 packages in 1m
+2026-10-28T14:18:01.7715208Z ##[error]The operation was canceled.
+2026-10-28T14:18:01.9292610Z Post job cleanup.
+2026-10-28T14:18:02.2308606Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-28T14:18:02.2569837Z git version 2.56.0.windows.2
+2026-10-28T14:18:02.2617313Z Temporarily overriding HOME='D:\a\_temp\89e2fb48-33c6-431a-9c33-4769d39a5238' before making global git config changes
+2026-10-28T14:18:02.2618040Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:18:02.2624354Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:18:02.2881667Z Removing SSH command configuration
+2026-10-28T14:18:02.2889153Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:18:02.3148981Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:18:02.7732915Z Removing HTTP extra header
+2026-10-28T14:18:02.7740783Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:18:02.8012340Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:18:03.1930275Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:18:03.1939843Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:18:03.2207267Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:18:03.6350914Z Cleaning up orphan processes

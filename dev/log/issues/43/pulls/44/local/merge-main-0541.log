@@ -1,0 +1,11 @@
+Auto-merging package-lock.json
+Auto-merging package.json
+Merge made by the 'ort' strategy.
+ .changeset/download-idle-recovery.md | 5 -----
+ .changeset/durable-host-readiness.md | 5 -----
+ CHANGELOG.md                         | 8 ++++++++
+ package-lock.json                    | 4 ++--
+ package.json                         | 2 +-
+ 5 files changed, 11 insertions(+), 13 deletions(-)
+ delete mode 100644 .changeset/download-idle-recovery.md
+ delete mode 100644 .changeset/durable-host-readiness.md

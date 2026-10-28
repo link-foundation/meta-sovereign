@@ -1,0 +1,323 @@
+--- python@317c243a7cc832b0abfe4d30989c5095d17fcd78/scripts/bump_version.py
++++ js/scripts/instant-version-bump.mjs
+@@ -1,177 +1,169 @@
+-#!/usr/bin/env python3
+-"""
+-Bump version in pyproject.toml and update CHANGELOG.md
++#!/usr/bin/env bun
+ 
+-Usage:
+-    python scripts/bump_version.py <major|minor|patch> [--description "..."]
++/**
++ * Instant version bump script for manual releases
++ * Bypasses the changeset workflow and directly updates version and changelog
++ *
++ * Usage: node js/scripts/instant-version-bump.mjs --bump-type <major|minor|patch> [--description <description>] [--js-root <path>]
++ *
++ * Configuration:
++ * - CLI: --js-root <path> to explicitly set JavaScript root
++ * - Environment: JS_ROOT=<path>
++ *
++ * Uses link-foundation libraries:
++ * - Lockfile-installed release dependencies (npm ci)
++ * - command-stream: Modern shell command execution with streaming support
++ * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
++ *
++ * Addresses issues documented in:
++ * - Issue #21: Supporting both single and multi-language repository structures
++ * - Reference: link-assistant/agent PR #112 (--legacy-peer-deps fix)
++ * - Reference: link-assistant/agent PR #114 (configurable package root)
++ */
+ 
+-Examples:
+-    python scripts/bump_version.py patch
+-    python scripts/bump_version.py minor --description "Add new feature"
+-    python scripts/bump_version.py major --description "Breaking changes"
+-"""
++import { readFileSync, writeFileSync } from 'fs';
++import { join } from 'path';
+ 
+-import argparse
+-import re
+-import sys
+-from datetime import datetime
+-from pathlib import Path
++import {
++  getJsRoot,
++  getPackageJsonPath,
++  needsCd,
++  parseJsRootConfig,
++} from './js-paths.mjs';
+ 
++import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
+ 
+-def get_current_version(pyproject_path: Path) -> str:
+-    """Extract current version from pyproject.toml."""
+-    content = pyproject_path.read_text()
+-    match = re.search(r'^version\s*=\s*["\']([^"\']+)["\']', content, re.MULTILINE)
+-    if not match:
+-        raise ValueError("Could not find version in pyproject.toml")
+-    return match.group(1)
++// Import link-foundation libraries
++const { $ } = await loadCommandStream();
++const { makeConfig } = await loadLinoArguments();
+ 
++// Parse CLI arguments using lino-arguments
++const config = makeConfig({
++  yargs: ({ yargs, getenv }) =>
++    yargs
++      .option('bump-type', {
++        type: 'string',
++        default: getenv('BUMP_TYPE', ''),
++        describe: 'Version bump type: major, minor, or patch',
++        choices: ['major', 'minor', 'patch'],
++      })
++      .option('description', {
++        type: 'string',
++        default: getenv('DESCRIPTION', ''),
++        describe: 'Description for the version bump',
++      })
++      .option('js-root', {
++        type: 'string',
++        default: getenv('JS_ROOT', ''),
++        describe:
++          'JavaScript package root directory (auto-detected if not specified)',
++      }),
++});
+ 
+-def bump_version(current: str, bump_type: str) -> str:
+-    """Bump version according to semantic versioning."""
+-    parts = current.split(".")
+-    if len(parts) != 3:
+-        raise ValueError(f"Invalid version format: {current}")
++// Store the original working directory to restore after cd commands
++// IMPORTANT: command-stream's cd is a virtual command that calls process.chdir()
++const originalCwd = process.cwd();
+ 
+-    major, minor, patch = map(int, parts)
++try {
++  const { bumpType, description, jsRoot: jsRootArg } = config;
+ 
+-    if bump_type == "major":
+-        return f"{major + 1}.0.0"
+-    elif bump_type == "minor":
+-        return f"{major}.{minor + 1}.0"
+-    elif bump_type == "patch":
+-        return f"{major}.{minor}.{patch + 1}"
+-    else:
+-        raise ValueError(f"Invalid bump type: {bump_type}")
++  // Get JavaScript package root (auto-detect or use explicit config)
++  const jsRootConfig = jsRootArg || parseJsRootConfig();
++  const jsRoot = getJsRoot({ jsRoot: jsRootConfig, verbose: true });
+ 
++  const finalDescription = description || `Manual ${bumpType} release`;
+ 
+-def update_pyproject(pyproject_path: Path, old_version: str, new_version: str) -> None:
+-    """Update version in pyproject.toml."""
+-    content = pyproject_path.read_text()
+-    pattern = rf'^(version\s*=\s*["\']){re.escape(old_version)}(["\'])'
+-    new_content = re.sub(
+-        pattern, rf"\g<1>{new_version}\g<2>", content, flags=re.MULTILINE
+-    )
++  if (!bumpType || !['major', 'minor', 'patch'].includes(bumpType)) {
++    console.error(
++      'Usage: node js/scripts/instant-version-bump.mjs --bump-type <major|minor|patch> [--description <description>] [--js-root <path>]'
++    );
++    process.exit(1);
++  }
+ 
+-    if content == new_content:
+-        raise ValueError(
+-            f"Failed to update version from {old_version} to {new_version}"
+-        )
++  console.log(`\nBumping version (${bumpType})...`);
+ 
+-    pyproject_path.write_text(new_content)
+-    print(f"✓ Updated pyproject.toml: {old_version} → {new_version}")
++  // Get current version
++  const packageJsonPath = getPackageJsonPath({ jsRoot });
++  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
++  const oldVersion = packageJson.version;
++  console.log(`Current version: ${oldVersion}`);
+ 
++  // Bump version using npm version (doesn't create git tag)
++  // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
++  if (needsCd({ jsRoot })) {
++    await $`cd ${jsRoot} && npm version ${bumpType} --no-git-tag-version`;
++    process.chdir(originalCwd);
++  } else {
++    await $`npm version ${bumpType} --no-git-tag-version`;
++  }
+ 
+-def update_changelog(
+-    changelog_path: Path, version: str, bump_type: str, description: str
+-) -> None:
+-    """Update CHANGELOG.md with new version entry."""
+-    if not changelog_path.exists():
+-        print(f"Warning: {changelog_path} not found, skipping changelog update")
+-        return
++  // Get new version
++  const updatedPackageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
++  const newVersion = updatedPackageJson.version;
++  console.log(`New version: ${newVersion}`);
+ 
+-    content = changelog_path.read_text()
+-    today = datetime.now().strftime("%Y-%m-%d")
++  // Update CHANGELOG.md
++  console.log('\nUpdating CHANGELOG.md...');
++  const changelogPath =
++    jsRoot === '.' ? 'CHANGELOG.md' : join(jsRoot, 'CHANGELOG.md');
++  let changelog = readFileSync(changelogPath, 'utf-8');
+ 
+-    # Create new entry
+-    bump_type_title = bump_type.capitalize()
+-    new_entry = f"""## {version} - {today}
++  // Create new changelog entry
++  const newEntry = `## ${newVersion}
+ 
+-### {bump_type_title} Changes
++### ${bumpType.charAt(0).toUpperCase() + bumpType.slice(1)} Changes
+ 
+-- {description}
++- ${finalDescription}
+ 
+-"""
++`;
+ 
+-    # Find insertion point (after first heading, before first version section)
+-    match = re.search(r"^## ", content, re.MULTILINE)
++  // Insert new entry after the first heading (# Changelog or similar)
++  // Look for the first ## heading and insert before it
++  const firstVersionMatch = changelog.match(/^## /m);
+ 
+-    if match:
+-        # Insert before first version section
+-        insert_pos = match.start()
+-        new_content = content[:insert_pos] + new_entry + content[insert_pos:]
+-    else:
+-        # If no version sections, insert after main heading
+-        main_heading_match = re.search(r"^# .+$", content, re.MULTILINE)
+-        if main_heading_match:
+-            insert_pos = main_heading_match.end()
+-            new_content = (
+-                content[:insert_pos] + "\n\n" + new_entry + content[insert_pos:]
+-            )
+-        else:
+-            # Prepend if no headings at all
+-            new_content = new_entry + "\n" + content
++  if (firstVersionMatch) {
++    const insertPosition = firstVersionMatch.index;
++    changelog =
++      changelog.slice(0, insertPosition) +
++      newEntry +
++      changelog.slice(insertPosition);
++  } else {
++    // If no version headings exist, append after the main heading
++    const mainHeadingMatch = changelog.match(/^# .+$/m);
++    if (mainHeadingMatch) {
++      const insertPosition =
++        mainHeadingMatch.index + mainHeadingMatch[0].length;
++      changelog = `${changelog.slice(0, insertPosition)}\n\n${newEntry}${changelog.slice(insertPosition)}`;
++    } else {
++      // If no headings at all, prepend
++      changelog = `${newEntry}\n${changelog}`;
++    }
++  }
+ 
+-    changelog_path.write_text(new_content)
+-    print(f"✓ Updated {changelog_path.name}")
++  writeFileSync(changelogPath, changelog, 'utf-8');
++  console.log('✅ CHANGELOG.md updated');
+ 
++  // Synchronize package-lock.json
++  console.log('\nSynchronizing package-lock.json...');
+ 
+-def main() -> int:
+-    """Main entry point."""
+-    parser = argparse.ArgumentParser(
+-        description="Bump version and update changelog",
+-        formatter_class=argparse.RawDescriptionHelpFormatter,
+-    )
+-    parser.add_argument(
+-        "bump_type",
+-        choices=["major", "minor", "patch"],
+-        help="Type of version bump",
+-    )
+-    parser.add_argument(
+-        "--description",
+-        "-d",
+-        default="",
+-        help="Description of changes for changelog",
+-    )
+-    parser.add_argument(
+-        "--skip-changelog",
+-        action="store_true",
+-        help="Leave changelog collection to the calling release script",
+-    )
++  // Use --legacy-peer-deps to handle peer dependency conflicts
++  // This addresses npm ERESOLVE errors documented in issue #111 / PR #112
++  // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
++  if (needsCd({ jsRoot })) {
++    await $`cd ${jsRoot} && npm install --package-lock-only --legacy-peer-deps`;
++    process.chdir(originalCwd);
++  } else {
++    await $`npm install --package-lock-only --legacy-peer-deps`;
++  }
+ 
+-    args = parser.parse_args()
+-
+-    # Determine project root and files
+-    script_dir = Path(__file__).parent
+-    project_root = script_dir.parent
+-    pyproject_path = project_root / "pyproject.toml"
+-    changelog_path = project_root / "CHANGELOG.md"
+-
+-    if not pyproject_path.exists():
+-        print(f"Error: {pyproject_path} not found", file=sys.stderr)
+-        return 1
+-
+-    try:
+-        # Get current version
+-        old_version = get_current_version(pyproject_path)
+-        print(f"Current version: {old_version}")
+-
+-        # Calculate new version
+-        new_version = bump_version(old_version, args.bump_type)
+-        print(f"New version: {new_version}")
+-
+-        # Update files
+-        update_pyproject(pyproject_path, old_version, new_version)
+-
+-        if not args.skip_changelog:
+-            description = args.description or f"Manual {args.bump_type} release"
+-            update_changelog(changelog_path, new_version, args.bump_type, description)
+-
+-        print(f"\n✅ Version bump complete: {old_version} → {new_version}")
+-        print("\nNext steps:")
+-        print("  1. Review changes: git diff")
+-        print(
+-            "  2. Commit: git add . && git commit -m 'chore: bump version to {new_version}'"
+-        )
+-        print("  3. Tag: git tag v{new_version}")
+-        print("  4. Push: git push && git push --tags")
+-
+-        return 0
+-
+-    except Exception as e:
+-        print(f"Error: {e}", file=sys.stderr)
+-        return 1
+-
+-
+-if __name__ == "__main__":
+-    sys.exit(main())
++  console.log('\n✅ Instant version bump complete');
++  console.log(`Version: ${oldVersion} → ${newVersion}`);
++} catch (error) {
++  // Restore cwd on error
++  process.chdir(originalCwd);
++  console.error('Error during instant version bump:', error.message);
++  if (process.env.DEBUG) {
++    console.error('Stack trace:', error.stack);
++  }
++  process.exit(1);
++}

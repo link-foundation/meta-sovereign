@@ -1,0 +1,3382 @@
+[
+  {
+    "name": "glob",
+    "version": "7.2.3",
+    "location": "node_modules/glob",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "glob",
+        "spec": "^7.1.3",
+        "from": {
+          "name": "rimraf",
+          "version": "2.6.3",
+          "location": "node_modules/rimraf",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "rimraf",
+              "spec": "~2.6.2",
+              "from": {
+                "name": "temp",
+                "version": "0.9.4",
+                "location": "node_modules/temp",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "temp",
+                    "spec": "^0.9.0",
+                    "from": {
+                      "name": "electron-winstaller",
+                      "version": "5.4.0",
+                      "location": "node_modules/electron-winstaller",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "electron-winstaller",
+                          "spec": "5.4.0",
+                          "from": {
+                            "name": "electron-builder-squirrel-windows",
+                            "version": "26.18.0",
+                            "location": "node_modules/electron-builder-squirrel-windows",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "peer",
+                                "name": "electron-builder-squirrel-windows",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "app-builder-lib",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/app-builder-lib",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "app-builder-lib",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "dmg-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/dmg-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "peer",
+                                            "name": "dmg-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "name": "app-builder-lib",
+                                              "version": "26.18.0"
+                                            }
+                                          },
+                                          {
+                                            "type": "prod",
+                                            "name": "dmg-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "name": "electron-builder",
+                                              "version": "26.18.0",
+                                              "location": "node_modules/electron-builder",
+                                              "isWorkspace": false,
+                                              "dependents": [
+                                                {
+                                                  "type": "dev",
+                                                  "name": "electron-builder",
+                                                  "spec": "26.18.0",
+                                                  "from": {
+                                                    "location": "/tmp/gh-issue-solver-1793191206670"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "app-builder-lib",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/electron-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "electron-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "location": "/tmp/gh-issue-solver-1793191206670"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "app-builder-lib",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder-squirrel-windows",
+                                        "version": "26.18.0"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "dev": true,
+          "optional": false,
+          "devOptional": false,
+          "peer": true,
+          "bundled": false,
+          "overridden": false
+        }
+      },
+      {
+        "type": "prod",
+        "name": "glob",
+        "spec": "^7.1.6",
+        "from": {
+          "name": "@electron/asar",
+          "version": "3.4.1",
+          "location": "node_modules/@electron/asar",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "@electron/asar",
+              "spec": "3.4.1",
+              "from": {
+                "name": "app-builder-lib",
+                "version": "26.18.0",
+                "location": "node_modules/app-builder-lib",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "app-builder-lib",
+                    "spec": "26.18.0",
+                    "from": {
+                      "name": "dmg-builder",
+                      "version": "26.18.0",
+                      "location": "node_modules/dmg-builder",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "peer",
+                          "name": "dmg-builder",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "app-builder-lib",
+                            "version": "26.18.0"
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "dmg-builder",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "electron-builder",
+                            "version": "26.18.0",
+                            "location": "node_modules/electron-builder",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "electron-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "location": "/tmp/gh-issue-solver-1793191206670"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "app-builder-lib",
+                    "spec": "26.18.0",
+                    "from": {
+                      "name": "electron-builder",
+                      "version": "26.18.0",
+                      "location": "node_modules/electron-builder",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "dev",
+                          "name": "electron-builder",
+                          "spec": "26.18.0",
+                          "from": {
+                            "location": "/tmp/gh-issue-solver-1793191206670"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "app-builder-lib",
+                    "spec": "26.18.0",
+                    "from": {
+                      "name": "electron-builder-squirrel-windows",
+                      "version": "26.18.0"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "@electron/asar",
+              "spec": "^3.2.1",
+              "from": {
+                "name": "electron-winstaller",
+                "version": "5.4.0",
+                "location": "node_modules/electron-winstaller",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "electron-winstaller",
+                    "spec": "5.4.0",
+                    "from": {
+                      "name": "electron-builder-squirrel-windows",
+                      "version": "26.18.0",
+                      "location": "node_modules/electron-builder-squirrel-windows",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "peer",
+                          "name": "electron-builder-squirrel-windows",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "app-builder-lib",
+                            "version": "26.18.0",
+                            "location": "node_modules/app-builder-lib",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "dmg-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/dmg-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "peer",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "app-builder-lib",
+                                        "version": "26.18.0"
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/electron-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "electron-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "location": "/tmp/gh-issue-solver-1793191206670"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "electron-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder-squirrel-windows",
+                                  "version": "26.18.0"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "prod",
+              "name": "@electron/asar",
+              "spec": "^3.3.1",
+              "from": {
+                "name": "@electron/universal",
+                "version": "2.0.3",
+                "location": "node_modules/@electron/universal",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@electron/universal",
+                    "spec": "2.0.3",
+                    "from": {
+                      "name": "app-builder-lib",
+                      "version": "26.18.0",
+                      "location": "node_modules/app-builder-lib",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "dmg-builder",
+                            "version": "26.18.0",
+                            "location": "node_modules/dmg-builder",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "peer",
+                                "name": "dmg-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "app-builder-lib",
+                                  "version": "26.18.0"
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "dmg-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "electron-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "electron-builder",
+                            "version": "26.18.0",
+                            "location": "node_modules/electron-builder",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "electron-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "location": "/tmp/gh-issue-solver-1793191206670"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "electron-builder-squirrel-windows",
+                            "version": "26.18.0"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "glob",
+    "version": "7.2.3",
+    "location": "node_modules/.deno/node_modules/glob",
+    "isWorkspace": false,
+    "dependents": [],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "glob",
+    "version": "7.2.3",
+    "location": "node_modules/.deno/glob@7.2.3/node_modules/glob",
+    "isWorkspace": false,
+    "dependents": [],
+    "linksIn": [
+      {
+        "name": "glob",
+        "version": "7.2.3",
+        "location": "node_modules/.deno/node_modules/glob",
+        "isWorkspace": false,
+        "dependents": []
+      },
+      {
+        "name": "glob",
+        "version": "7.2.3",
+        "location": "node_modules/.deno/rimraf@2.6.3/node_modules/glob",
+        "isWorkspace": false,
+        "dependents": [
+          {
+            "type": "prod",
+            "name": "glob",
+            "spec": "^7.1.3",
+            "from": {
+              "name": "rimraf",
+              "version": "2.6.3",
+              "location": "node_modules/.deno/rimraf@2.6.3/node_modules/rimraf",
+              "isWorkspace": false,
+              "dependents": [],
+              "linksIn": [
+                {
+                  "name": "rimraf",
+                  "version": "2.6.3",
+                  "location": "node_modules/.deno/node_modules/rimraf",
+                  "isWorkspace": false,
+                  "dependents": [
+                    {
+                      "type": "dev",
+                      "name": "rimraf",
+                      "spec": "^2.5.4",
+                      "from": {
+                        "name": "write-file-atomic",
+                        "version": "1.3.4",
+                        "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "write-file-atomic",
+                            "version": "1.3.4",
+                            "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "write-file-atomic",
+                                "spec": "^1.1.4",
+                                "from": {
+                                  "name": "node-localstorage",
+                                  "version": "2.2.1",
+                                  "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "node-localstorage",
+                                      "version": "2.2.1",
+                                      "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "node-localstorage",
+                                          "spec": "^2.2.1",
+                                          "from": {
+                                            "name": "teleproto",
+                                            "version": "1.232.0",
+                                            "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "teleproto",
+                                                "version": "1.232.0",
+                                                "location": "node_modules/teleproto",
+                                                "isWorkspace": false,
+                                                "dependents": [
+                                                  {
+                                                    "type": "optional",
+                                                    "name": "teleproto",
+                                                    "spec": "1.232.0",
+                                                    "from": {
+                                                      "location": "/tmp/gh-issue-solver-1793191206670"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "dev",
+                      "name": "rimraf",
+                      "spec": "^2.2.8",
+                      "from": {
+                        "name": "graceful-fs",
+                        "version": "4.2.11",
+                        "location": "node_modules/.deno/graceful-fs@4.2.11/node_modules/graceful-fs",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "graceful-fs",
+                            "version": "4.2.11",
+                            "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/graceful-fs",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "graceful-fs",
+                                "spec": "^4.1.11",
+                                "from": {
+                                  "name": "write-file-atomic",
+                                  "version": "1.3.4",
+                                  "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "write-file-atomic",
+                                      "version": "1.3.4",
+                                      "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "write-file-atomic",
+                                          "spec": "^1.1.4",
+                                          "from": {
+                                            "name": "node-localstorage",
+                                            "version": "2.2.1",
+                                            "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "node-localstorage",
+                                                "version": "2.2.1",
+                                                "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                                "isWorkspace": false,
+                                                "dependents": [
+                                                  {
+                                                    "type": "prod",
+                                                    "name": "node-localstorage",
+                                                    "spec": "^2.2.1",
+                                                    "from": {
+                                                      "name": "teleproto",
+                                                      "version": "1.232.0",
+                                                      "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                                      "isWorkspace": false,
+                                                      "dependents": [],
+                                                      "linksIn": [
+                                                        {
+                                                          "name": "teleproto",
+                                                          "version": "1.232.0",
+                                                          "location": "node_modules/teleproto",
+                                                          "isWorkspace": false,
+                                                          "dependents": [
+                                                            {
+                                                              "type": "optional",
+                                                              "name": "teleproto",
+                                                              "spec": "1.232.0",
+                                                              "from": {
+                                                                "location": "/tmp/gh-issue-solver-1793191206670"
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "dev",
+                      "name": "rimraf",
+                      "spec": "^2.2.8",
+                      "from": {
+                        "name": "glob",
+                        "version": "7.2.3"
+                      }
+                    },
+                    {
+                      "type": "dev",
+                      "name": "rimraf",
+                      "spec": "^2.6.2",
+                      "from": {
+                        "name": "which",
+                        "version": "2.0.2",
+                        "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "which",
+                            "version": "2.0.2",
+                            "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "which",
+                                "spec": "^2.0.1",
+                                "from": {
+                                  "name": "cross-spawn",
+                                  "version": "7.0.6",
+                                  "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "cross-spawn",
+                                      "version": "7.0.6",
+                                      "location": "node_modules/.deno/node_modules/cross-spawn",
+                                      "isWorkspace": false,
+                                      "dependents": []
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "dev",
+                      "name": "rimraf",
+                      "spec": "^2.5.0",
+                      "from": {
+                        "name": "isexe",
+                        "version": "2.0.0",
+                        "location": "node_modules/.deno/isexe@2.0.0/node_modules/isexe",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "isexe",
+                            "version": "2.0.0",
+                            "location": "node_modules/.deno/which@2.0.2/node_modules/isexe",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "isexe",
+                                "spec": "^2.0.0",
+                                "from": {
+                                  "name": "which",
+                                  "version": "2.0.2",
+                                  "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "which",
+                                      "version": "2.0.2",
+                                      "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "which",
+                                          "spec": "^2.0.1",
+                                          "from": {
+                                            "name": "cross-spawn",
+                                            "version": "7.0.6",
+                                            "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "cross-spawn",
+                                                "version": "7.0.6",
+                                                "location": "node_modules/.deno/node_modules/cross-spawn",
+                                                "isWorkspace": false,
+                                                "dependents": []
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ],
+              "dev": true,
+              "optional": true,
+              "devOptional": false,
+              "peer": false,
+              "bundled": false,
+              "overridden": false
+            }
+          }
+        ]
+      }
+    ],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "glob",
+    "version": "7.2.3",
+    "location": "node_modules/.deno/rimraf@2.6.3/node_modules/glob",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "glob",
+        "spec": "^7.1.3",
+        "from": {
+          "name": "rimraf",
+          "version": "2.6.3",
+          "location": "node_modules/.deno/rimraf@2.6.3/node_modules/rimraf",
+          "isWorkspace": false,
+          "dependents": [],
+          "linksIn": [
+            {
+              "name": "rimraf",
+              "version": "2.6.3",
+              "location": "node_modules/.deno/node_modules/rimraf",
+              "isWorkspace": false,
+              "dependents": [
+                {
+                  "type": "dev",
+                  "name": "rimraf",
+                  "spec": "^2.5.4",
+                  "from": {
+                    "name": "write-file-atomic",
+                    "version": "1.3.4",
+                    "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "write-file-atomic",
+                        "version": "1.3.4",
+                        "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "prod",
+                            "name": "write-file-atomic",
+                            "spec": "^1.1.4",
+                            "from": {
+                              "name": "node-localstorage",
+                              "version": "2.2.1",
+                              "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "node-localstorage",
+                                  "version": "2.2.1",
+                                  "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "node-localstorage",
+                                      "spec": "^2.2.1",
+                                      "from": {
+                                        "name": "teleproto",
+                                        "version": "1.232.0",
+                                        "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "teleproto",
+                                            "version": "1.232.0",
+                                            "location": "node_modules/teleproto",
+                                            "isWorkspace": false,
+                                            "dependents": [
+                                              {
+                                                "type": "optional",
+                                                "name": "teleproto",
+                                                "spec": "1.232.0",
+                                                "from": {
+                                                  "location": "/tmp/gh-issue-solver-1793191206670"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "dev",
+                  "name": "rimraf",
+                  "spec": "^2.2.8",
+                  "from": {
+                    "name": "graceful-fs",
+                    "version": "4.2.11",
+                    "location": "node_modules/.deno/graceful-fs@4.2.11/node_modules/graceful-fs",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "graceful-fs",
+                        "version": "4.2.11",
+                        "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/graceful-fs",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "prod",
+                            "name": "graceful-fs",
+                            "spec": "^4.1.11",
+                            "from": {
+                              "name": "write-file-atomic",
+                              "version": "1.3.4",
+                              "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "write-file-atomic",
+                                  "version": "1.3.4",
+                                  "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "write-file-atomic",
+                                      "spec": "^1.1.4",
+                                      "from": {
+                                        "name": "node-localstorage",
+                                        "version": "2.2.1",
+                                        "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "node-localstorage",
+                                            "version": "2.2.1",
+                                            "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                            "isWorkspace": false,
+                                            "dependents": [
+                                              {
+                                                "type": "prod",
+                                                "name": "node-localstorage",
+                                                "spec": "^2.2.1",
+                                                "from": {
+                                                  "name": "teleproto",
+                                                  "version": "1.232.0",
+                                                  "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                                  "isWorkspace": false,
+                                                  "dependents": [],
+                                                  "linksIn": [
+                                                    {
+                                                      "name": "teleproto",
+                                                      "version": "1.232.0",
+                                                      "location": "node_modules/teleproto",
+                                                      "isWorkspace": false,
+                                                      "dependents": [
+                                                        {
+                                                          "type": "optional",
+                                                          "name": "teleproto",
+                                                          "spec": "1.232.0",
+                                                          "from": {
+                                                            "location": "/tmp/gh-issue-solver-1793191206670"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "dev",
+                  "name": "rimraf",
+                  "spec": "^2.2.8",
+                  "from": {
+                    "name": "glob",
+                    "version": "7.2.3"
+                  }
+                },
+                {
+                  "type": "dev",
+                  "name": "rimraf",
+                  "spec": "^2.6.2",
+                  "from": {
+                    "name": "which",
+                    "version": "2.0.2",
+                    "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "which",
+                        "version": "2.0.2",
+                        "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "prod",
+                            "name": "which",
+                            "spec": "^2.0.1",
+                            "from": {
+                              "name": "cross-spawn",
+                              "version": "7.0.6",
+                              "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "cross-spawn",
+                                  "version": "7.0.6",
+                                  "location": "node_modules/.deno/node_modules/cross-spawn",
+                                  "isWorkspace": false,
+                                  "dependents": []
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "dev",
+                  "name": "rimraf",
+                  "spec": "^2.5.0",
+                  "from": {
+                    "name": "isexe",
+                    "version": "2.0.0",
+                    "location": "node_modules/.deno/isexe@2.0.0/node_modules/isexe",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "isexe",
+                        "version": "2.0.0",
+                        "location": "node_modules/.deno/which@2.0.2/node_modules/isexe",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "prod",
+                            "name": "isexe",
+                            "spec": "^2.0.0",
+                            "from": {
+                              "name": "which",
+                              "version": "2.0.2",
+                              "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "which",
+                                  "version": "2.0.2",
+                                  "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "which",
+                                      "spec": "^2.0.1",
+                                      "from": {
+                                        "name": "cross-spawn",
+                                        "version": "7.0.6",
+                                        "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "cross-spawn",
+                                            "version": "7.0.6",
+                                            "location": "node_modules/.deno/node_modules/cross-spawn",
+                                            "isWorkspace": false,
+                                            "dependents": []
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "dev": true,
+          "optional": true,
+          "devOptional": false,
+          "peer": false,
+          "bundled": false,
+          "overridden": false
+        }
+      }
+    ],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "inflight",
+    "version": "1.0.6",
+    "location": "node_modules/inflight",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "inflight",
+        "spec": "^1.0.4",
+        "from": {
+          "name": "glob",
+          "version": "7.2.3",
+          "location": "node_modules/glob",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "glob",
+              "spec": "^7.1.3",
+              "from": {
+                "name": "rimraf",
+                "version": "2.6.3",
+                "location": "node_modules/rimraf",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "rimraf",
+                    "spec": "~2.6.2",
+                    "from": {
+                      "name": "temp",
+                      "version": "0.9.4",
+                      "location": "node_modules/temp",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "temp",
+                          "spec": "^0.9.0",
+                          "from": {
+                            "name": "electron-winstaller",
+                            "version": "5.4.0",
+                            "location": "node_modules/electron-winstaller",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "electron-winstaller",
+                                "spec": "5.4.0",
+                                "from": {
+                                  "name": "electron-builder-squirrel-windows",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder-squirrel-windows",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "peer",
+                                      "name": "electron-builder-squirrel-windows",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "app-builder-lib",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/app-builder-lib",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "prod",
+                                            "name": "app-builder-lib",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "name": "dmg-builder",
+                                              "version": "26.18.0",
+                                              "location": "node_modules/dmg-builder",
+                                              "isWorkspace": false,
+                                              "dependents": [
+                                                {
+                                                  "type": "peer",
+                                                  "name": "dmg-builder",
+                                                  "spec": "26.18.0",
+                                                  "from": {
+                                                    "name": "app-builder-lib",
+                                                    "version": "26.18.0"
+                                                  }
+                                                },
+                                                {
+                                                  "type": "prod",
+                                                  "name": "dmg-builder",
+                                                  "spec": "26.18.0",
+                                                  "from": {
+                                                    "name": "electron-builder",
+                                                    "version": "26.18.0",
+                                                    "location": "node_modules/electron-builder",
+                                                    "isWorkspace": false,
+                                                    "dependents": [
+                                                      {
+                                                        "type": "dev",
+                                                        "name": "electron-builder",
+                                                        "spec": "26.18.0",
+                                                        "from": {
+                                                          "location": "/tmp/gh-issue-solver-1793191206670"
+                                                        }
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "prod",
+                                            "name": "app-builder-lib",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "name": "electron-builder",
+                                              "version": "26.18.0",
+                                              "location": "node_modules/electron-builder",
+                                              "isWorkspace": false,
+                                              "dependents": [
+                                                {
+                                                  "type": "dev",
+                                                  "name": "electron-builder",
+                                                  "spec": "26.18.0",
+                                                  "from": {
+                                                    "location": "/tmp/gh-issue-solver-1793191206670"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          {
+                                            "type": "prod",
+                                            "name": "app-builder-lib",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "name": "electron-builder-squirrel-windows",
+                                              "version": "26.18.0"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "dev": true,
+                "optional": false,
+                "devOptional": false,
+                "peer": true,
+                "bundled": false,
+                "overridden": false
+              }
+            },
+            {
+              "type": "prod",
+              "name": "glob",
+              "spec": "^7.1.6",
+              "from": {
+                "name": "@electron/asar",
+                "version": "3.4.1",
+                "location": "node_modules/@electron/asar",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@electron/asar",
+                    "spec": "3.4.1",
+                    "from": {
+                      "name": "app-builder-lib",
+                      "version": "26.18.0",
+                      "location": "node_modules/app-builder-lib",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "dmg-builder",
+                            "version": "26.18.0",
+                            "location": "node_modules/dmg-builder",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "peer",
+                                "name": "dmg-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "app-builder-lib",
+                                  "version": "26.18.0"
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "dmg-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "electron-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "electron-builder",
+                            "version": "26.18.0",
+                            "location": "node_modules/electron-builder",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "electron-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "location": "/tmp/gh-issue-solver-1793191206670"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "electron-builder-squirrel-windows",
+                            "version": "26.18.0"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "@electron/asar",
+                    "spec": "^3.2.1",
+                    "from": {
+                      "name": "electron-winstaller",
+                      "version": "5.4.0",
+                      "location": "node_modules/electron-winstaller",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "electron-winstaller",
+                          "spec": "5.4.0",
+                          "from": {
+                            "name": "electron-builder-squirrel-windows",
+                            "version": "26.18.0",
+                            "location": "node_modules/electron-builder-squirrel-windows",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "peer",
+                                "name": "electron-builder-squirrel-windows",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "app-builder-lib",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/app-builder-lib",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "app-builder-lib",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "dmg-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/dmg-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "peer",
+                                            "name": "dmg-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "name": "app-builder-lib",
+                                              "version": "26.18.0"
+                                            }
+                                          },
+                                          {
+                                            "type": "prod",
+                                            "name": "dmg-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "name": "electron-builder",
+                                              "version": "26.18.0",
+                                              "location": "node_modules/electron-builder",
+                                              "isWorkspace": false,
+                                              "dependents": [
+                                                {
+                                                  "type": "dev",
+                                                  "name": "electron-builder",
+                                                  "spec": "26.18.0",
+                                                  "from": {
+                                                    "location": "/tmp/gh-issue-solver-1793191206670"
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "app-builder-lib",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/electron-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "electron-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "location": "/tmp/gh-issue-solver-1793191206670"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "app-builder-lib",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder-squirrel-windows",
+                                        "version": "26.18.0"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "prod",
+                    "name": "@electron/asar",
+                    "spec": "^3.3.1",
+                    "from": {
+                      "name": "@electron/universal",
+                      "version": "2.0.3",
+                      "location": "node_modules/@electron/universal",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@electron/universal",
+                          "spec": "2.0.3",
+                          "from": {
+                            "name": "app-builder-lib",
+                            "version": "26.18.0",
+                            "location": "node_modules/app-builder-lib",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "dmg-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/dmg-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "peer",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "app-builder-lib",
+                                        "version": "26.18.0"
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/electron-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "electron-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "location": "/tmp/gh-issue-solver-1793191206670"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "electron-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder-squirrel-windows",
+                                  "version": "26.18.0"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "dev": true,
+          "optional": false,
+          "devOptional": false,
+          "peer": false,
+          "bundled": false,
+          "overridden": false
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "inflight",
+    "version": "1.0.6",
+    "location": "node_modules/.deno/glob@7.2.3/node_modules/inflight",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "inflight",
+        "spec": "^1.0.4",
+        "from": {
+          "name": "glob",
+          "version": "7.2.3",
+          "location": "node_modules/.deno/glob@7.2.3/node_modules/glob",
+          "isWorkspace": false,
+          "dependents": [],
+          "linksIn": [
+            {
+              "name": "glob",
+              "version": "7.2.3",
+              "location": "node_modules/.deno/node_modules/glob",
+              "isWorkspace": false,
+              "dependents": []
+            },
+            {
+              "name": "glob",
+              "version": "7.2.3",
+              "location": "node_modules/.deno/rimraf@2.6.3/node_modules/glob",
+              "isWorkspace": false,
+              "dependents": [
+                {
+                  "type": "prod",
+                  "name": "glob",
+                  "spec": "^7.1.3",
+                  "from": {
+                    "name": "rimraf",
+                    "version": "2.6.3",
+                    "location": "node_modules/.deno/rimraf@2.6.3/node_modules/rimraf",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "rimraf",
+                        "version": "2.6.3",
+                        "location": "node_modules/.deno/node_modules/rimraf",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "dev",
+                            "name": "rimraf",
+                            "spec": "^2.5.4",
+                            "from": {
+                              "name": "write-file-atomic",
+                              "version": "1.3.4",
+                              "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "write-file-atomic",
+                                  "version": "1.3.4",
+                                  "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "write-file-atomic",
+                                      "spec": "^1.1.4",
+                                      "from": {
+                                        "name": "node-localstorage",
+                                        "version": "2.2.1",
+                                        "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "node-localstorage",
+                                            "version": "2.2.1",
+                                            "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                            "isWorkspace": false,
+                                            "dependents": [
+                                              {
+                                                "type": "prod",
+                                                "name": "node-localstorage",
+                                                "spec": "^2.2.1",
+                                                "from": {
+                                                  "name": "teleproto",
+                                                  "version": "1.232.0",
+                                                  "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                                  "isWorkspace": false,
+                                                  "dependents": [],
+                                                  "linksIn": [
+                                                    {
+                                                      "name": "teleproto",
+                                                      "version": "1.232.0",
+                                                      "location": "node_modules/teleproto",
+                                                      "isWorkspace": false,
+                                                      "dependents": [
+                                                        {
+                                                          "type": "optional",
+                                                          "name": "teleproto",
+                                                          "spec": "1.232.0",
+                                                          "from": {
+                                                            "location": "/tmp/gh-issue-solver-1793191206670"
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "dev",
+                            "name": "rimraf",
+                            "spec": "^2.2.8",
+                            "from": {
+                              "name": "graceful-fs",
+                              "version": "4.2.11",
+                              "location": "node_modules/.deno/graceful-fs@4.2.11/node_modules/graceful-fs",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "graceful-fs",
+                                  "version": "4.2.11",
+                                  "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/graceful-fs",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "graceful-fs",
+                                      "spec": "^4.1.11",
+                                      "from": {
+                                        "name": "write-file-atomic",
+                                        "version": "1.3.4",
+                                        "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "write-file-atomic",
+                                            "version": "1.3.4",
+                                            "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                                            "isWorkspace": false,
+                                            "dependents": [
+                                              {
+                                                "type": "prod",
+                                                "name": "write-file-atomic",
+                                                "spec": "^1.1.4",
+                                                "from": {
+                                                  "name": "node-localstorage",
+                                                  "version": "2.2.1",
+                                                  "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                                  "isWorkspace": false,
+                                                  "dependents": [],
+                                                  "linksIn": [
+                                                    {
+                                                      "name": "node-localstorage",
+                                                      "version": "2.2.1",
+                                                      "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                                      "isWorkspace": false,
+                                                      "dependents": [
+                                                        {
+                                                          "type": "prod",
+                                                          "name": "node-localstorage",
+                                                          "spec": "^2.2.1",
+                                                          "from": {
+                                                            "name": "teleproto",
+                                                            "version": "1.232.0",
+                                                            "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                                            "isWorkspace": false,
+                                                            "dependents": [],
+                                                            "linksIn": [
+                                                              {
+                                                                "name": "teleproto",
+                                                                "version": "1.232.0",
+                                                                "location": "node_modules/teleproto",
+                                                                "isWorkspace": false,
+                                                                "dependents": [
+                                                                  {
+                                                                    "type": "optional",
+                                                                    "name": "teleproto",
+                                                                    "spec": "1.232.0",
+                                                                    "from": {
+                                                                      "location": "/tmp/gh-issue-solver-1793191206670"
+                                                                    }
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "dev",
+                            "name": "rimraf",
+                            "spec": "^2.2.8",
+                            "from": {
+                              "name": "glob",
+                              "version": "7.2.3"
+                            }
+                          },
+                          {
+                            "type": "dev",
+                            "name": "rimraf",
+                            "spec": "^2.6.2",
+                            "from": {
+                              "name": "which",
+                              "version": "2.0.2",
+                              "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "which",
+                                  "version": "2.0.2",
+                                  "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "which",
+                                      "spec": "^2.0.1",
+                                      "from": {
+                                        "name": "cross-spawn",
+                                        "version": "7.0.6",
+                                        "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "cross-spawn",
+                                            "version": "7.0.6",
+                                            "location": "node_modules/.deno/node_modules/cross-spawn",
+                                            "isWorkspace": false,
+                                            "dependents": []
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "dev",
+                            "name": "rimraf",
+                            "spec": "^2.5.0",
+                            "from": {
+                              "name": "isexe",
+                              "version": "2.0.0",
+                              "location": "node_modules/.deno/isexe@2.0.0/node_modules/isexe",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "isexe",
+                                  "version": "2.0.0",
+                                  "location": "node_modules/.deno/which@2.0.2/node_modules/isexe",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "isexe",
+                                      "spec": "^2.0.0",
+                                      "from": {
+                                        "name": "which",
+                                        "version": "2.0.2",
+                                        "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "which",
+                                            "version": "2.0.2",
+                                            "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                                            "isWorkspace": false,
+                                            "dependents": [
+                                              {
+                                                "type": "prod",
+                                                "name": "which",
+                                                "spec": "^2.0.1",
+                                                "from": {
+                                                  "name": "cross-spawn",
+                                                  "version": "7.0.6",
+                                                  "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                                  "isWorkspace": false,
+                                                  "dependents": [],
+                                                  "linksIn": [
+                                                    {
+                                                      "name": "cross-spawn",
+                                                      "version": "7.0.6",
+                                                      "location": "node_modules/.deno/node_modules/cross-spawn",
+                                                      "isWorkspace": false,
+                                                      "dependents": []
+                                                    }
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "dev": true,
+                    "optional": true,
+                    "devOptional": false,
+                    "peer": false,
+                    "bundled": false,
+                    "overridden": false
+                  }
+                }
+              ]
+            }
+          ],
+          "dev": true,
+          "optional": true,
+          "devOptional": false,
+          "peer": false,
+          "bundled": false,
+          "overridden": false
+        }
+      }
+    ],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "inflight",
+    "version": "1.0.6",
+    "location": "node_modules/.deno/inflight@1.0.6/node_modules/inflight",
+    "isWorkspace": false,
+    "dependents": [],
+    "linksIn": [
+      {
+        "name": "inflight",
+        "version": "1.0.6",
+        "location": "node_modules/.deno/glob@7.2.3/node_modules/inflight",
+        "isWorkspace": false,
+        "dependents": [
+          {
+            "type": "prod",
+            "name": "inflight",
+            "spec": "^1.0.4",
+            "from": {
+              "name": "glob",
+              "version": "7.2.3",
+              "location": "node_modules/.deno/glob@7.2.3/node_modules/glob",
+              "isWorkspace": false,
+              "dependents": [],
+              "linksIn": [
+                {
+                  "name": "glob",
+                  "version": "7.2.3",
+                  "location": "node_modules/.deno/node_modules/glob",
+                  "isWorkspace": false,
+                  "dependents": []
+                },
+                {
+                  "name": "glob",
+                  "version": "7.2.3",
+                  "location": "node_modules/.deno/rimraf@2.6.3/node_modules/glob",
+                  "isWorkspace": false,
+                  "dependents": [
+                    {
+                      "type": "prod",
+                      "name": "glob",
+                      "spec": "^7.1.3",
+                      "from": {
+                        "name": "rimraf",
+                        "version": "2.6.3",
+                        "location": "node_modules/.deno/rimraf@2.6.3/node_modules/rimraf",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "rimraf",
+                            "version": "2.6.3",
+                            "location": "node_modules/.deno/node_modules/rimraf",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "rimraf",
+                                "spec": "^2.5.4",
+                                "from": {
+                                  "name": "write-file-atomic",
+                                  "version": "1.3.4",
+                                  "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "write-file-atomic",
+                                      "version": "1.3.4",
+                                      "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "write-file-atomic",
+                                          "spec": "^1.1.4",
+                                          "from": {
+                                            "name": "node-localstorage",
+                                            "version": "2.2.1",
+                                            "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "node-localstorage",
+                                                "version": "2.2.1",
+                                                "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                                "isWorkspace": false,
+                                                "dependents": [
+                                                  {
+                                                    "type": "prod",
+                                                    "name": "node-localstorage",
+                                                    "spec": "^2.2.1",
+                                                    "from": {
+                                                      "name": "teleproto",
+                                                      "version": "1.232.0",
+                                                      "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                                      "isWorkspace": false,
+                                                      "dependents": [],
+                                                      "linksIn": [
+                                                        {
+                                                          "name": "teleproto",
+                                                          "version": "1.232.0",
+                                                          "location": "node_modules/teleproto",
+                                                          "isWorkspace": false,
+                                                          "dependents": [
+                                                            {
+                                                              "type": "optional",
+                                                              "name": "teleproto",
+                                                              "spec": "1.232.0",
+                                                              "from": {
+                                                                "location": "/tmp/gh-issue-solver-1793191206670"
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "dev",
+                                "name": "rimraf",
+                                "spec": "^2.2.8",
+                                "from": {
+                                  "name": "graceful-fs",
+                                  "version": "4.2.11",
+                                  "location": "node_modules/.deno/graceful-fs@4.2.11/node_modules/graceful-fs",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "graceful-fs",
+                                      "version": "4.2.11",
+                                      "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/graceful-fs",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "graceful-fs",
+                                          "spec": "^4.1.11",
+                                          "from": {
+                                            "name": "write-file-atomic",
+                                            "version": "1.3.4",
+                                            "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "write-file-atomic",
+                                                "version": "1.3.4",
+                                                "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                                                "isWorkspace": false,
+                                                "dependents": [
+                                                  {
+                                                    "type": "prod",
+                                                    "name": "write-file-atomic",
+                                                    "spec": "^1.1.4",
+                                                    "from": {
+                                                      "name": "node-localstorage",
+                                                      "version": "2.2.1",
+                                                      "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                                      "isWorkspace": false,
+                                                      "dependents": [],
+                                                      "linksIn": [
+                                                        {
+                                                          "name": "node-localstorage",
+                                                          "version": "2.2.1",
+                                                          "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                                          "isWorkspace": false,
+                                                          "dependents": [
+                                                            {
+                                                              "type": "prod",
+                                                              "name": "node-localstorage",
+                                                              "spec": "^2.2.1",
+                                                              "from": {
+                                                                "name": "teleproto",
+                                                                "version": "1.232.0",
+                                                                "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                                                "isWorkspace": false,
+                                                                "dependents": [],
+                                                                "linksIn": [
+                                                                  {
+                                                                    "name": "teleproto",
+                                                                    "version": "1.232.0",
+                                                                    "location": "node_modules/teleproto",
+                                                                    "isWorkspace": false,
+                                                                    "dependents": [
+                                                                      {
+                                                                        "type": "optional",
+                                                                        "name": "teleproto",
+                                                                        "spec": "1.232.0",
+                                                                        "from": {
+                                                                          "location": "/tmp/gh-issue-solver-1793191206670"
+                                                                        }
+                                                                      }
+                                                                    ]
+                                                                  }
+                                                                ]
+                                                              }
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "dev",
+                                "name": "rimraf",
+                                "spec": "^2.2.8",
+                                "from": {
+                                  "name": "glob",
+                                  "version": "7.2.3"
+                                }
+                              },
+                              {
+                                "type": "dev",
+                                "name": "rimraf",
+                                "spec": "^2.6.2",
+                                "from": {
+                                  "name": "which",
+                                  "version": "2.0.2",
+                                  "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "which",
+                                      "version": "2.0.2",
+                                      "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "which",
+                                          "spec": "^2.0.1",
+                                          "from": {
+                                            "name": "cross-spawn",
+                                            "version": "7.0.6",
+                                            "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "cross-spawn",
+                                                "version": "7.0.6",
+                                                "location": "node_modules/.deno/node_modules/cross-spawn",
+                                                "isWorkspace": false,
+                                                "dependents": []
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "dev",
+                                "name": "rimraf",
+                                "spec": "^2.5.0",
+                                "from": {
+                                  "name": "isexe",
+                                  "version": "2.0.0",
+                                  "location": "node_modules/.deno/isexe@2.0.0/node_modules/isexe",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "isexe",
+                                      "version": "2.0.0",
+                                      "location": "node_modules/.deno/which@2.0.2/node_modules/isexe",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "isexe",
+                                          "spec": "^2.0.0",
+                                          "from": {
+                                            "name": "which",
+                                            "version": "2.0.2",
+                                            "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "which",
+                                                "version": "2.0.2",
+                                                "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                                                "isWorkspace": false,
+                                                "dependents": [
+                                                  {
+                                                    "type": "prod",
+                                                    "name": "which",
+                                                    "spec": "^2.0.1",
+                                                    "from": {
+                                                      "name": "cross-spawn",
+                                                      "version": "7.0.6",
+                                                      "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                                      "isWorkspace": false,
+                                                      "dependents": [],
+                                                      "linksIn": [
+                                                        {
+                                                          "name": "cross-spawn",
+                                                          "version": "7.0.6",
+                                                          "location": "node_modules/.deno/node_modules/cross-spawn",
+                                                          "isWorkspace": false,
+                                                          "dependents": []
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ],
+                        "dev": true,
+                        "optional": true,
+                        "devOptional": false,
+                        "peer": false,
+                        "bundled": false,
+                        "overridden": false
+                      }
+                    }
+                  ]
+                }
+              ],
+              "dev": true,
+              "optional": true,
+              "devOptional": false,
+              "peer": false,
+              "bundled": false,
+              "overridden": false
+            }
+          }
+        ]
+      }
+    ],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "rimraf",
+    "version": "2.6.3",
+    "location": "node_modules/rimraf",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "rimraf",
+        "spec": "~2.6.2",
+        "from": {
+          "name": "temp",
+          "version": "0.9.4",
+          "location": "node_modules/temp",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "temp",
+              "spec": "^0.9.0",
+              "from": {
+                "name": "electron-winstaller",
+                "version": "5.4.0",
+                "location": "node_modules/electron-winstaller",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "electron-winstaller",
+                    "spec": "5.4.0",
+                    "from": {
+                      "name": "electron-builder-squirrel-windows",
+                      "version": "26.18.0",
+                      "location": "node_modules/electron-builder-squirrel-windows",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "peer",
+                          "name": "electron-builder-squirrel-windows",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "app-builder-lib",
+                            "version": "26.18.0",
+                            "location": "node_modules/app-builder-lib",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "dmg-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/dmg-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "peer",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "app-builder-lib",
+                                        "version": "26.18.0"
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/electron-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "electron-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "location": "/tmp/gh-issue-solver-1793191206670"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "electron-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder-squirrel-windows",
+                                  "version": "26.18.0"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": false,
+    "devOptional": false,
+    "peer": true,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "rimraf",
+    "version": "2.6.3",
+    "location": "node_modules/.deno/node_modules/rimraf",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "dev",
+        "name": "rimraf",
+        "spec": "^2.5.4",
+        "from": {
+          "name": "write-file-atomic",
+          "version": "1.3.4",
+          "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+          "isWorkspace": false,
+          "dependents": [],
+          "linksIn": [
+            {
+              "name": "write-file-atomic",
+              "version": "1.3.4",
+              "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+              "isWorkspace": false,
+              "dependents": [
+                {
+                  "type": "prod",
+                  "name": "write-file-atomic",
+                  "spec": "^1.1.4",
+                  "from": {
+                    "name": "node-localstorage",
+                    "version": "2.2.1",
+                    "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "node-localstorage",
+                        "version": "2.2.1",
+                        "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "prod",
+                            "name": "node-localstorage",
+                            "spec": "^2.2.1",
+                            "from": {
+                              "name": "teleproto",
+                              "version": "1.232.0",
+                              "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "teleproto",
+                                  "version": "1.232.0",
+                                  "location": "node_modules/teleproto",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "optional",
+                                      "name": "teleproto",
+                                      "spec": "1.232.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "dev",
+        "name": "rimraf",
+        "spec": "^2.2.8",
+        "from": {
+          "name": "graceful-fs",
+          "version": "4.2.11",
+          "location": "node_modules/.deno/graceful-fs@4.2.11/node_modules/graceful-fs",
+          "isWorkspace": false,
+          "dependents": [],
+          "linksIn": [
+            {
+              "name": "graceful-fs",
+              "version": "4.2.11",
+              "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/graceful-fs",
+              "isWorkspace": false,
+              "dependents": [
+                {
+                  "type": "prod",
+                  "name": "graceful-fs",
+                  "spec": "^4.1.11",
+                  "from": {
+                    "name": "write-file-atomic",
+                    "version": "1.3.4",
+                    "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "write-file-atomic",
+                        "version": "1.3.4",
+                        "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "prod",
+                            "name": "write-file-atomic",
+                            "spec": "^1.1.4",
+                            "from": {
+                              "name": "node-localstorage",
+                              "version": "2.2.1",
+                              "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "node-localstorage",
+                                  "version": "2.2.1",
+                                  "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "prod",
+                                      "name": "node-localstorage",
+                                      "spec": "^2.2.1",
+                                      "from": {
+                                        "name": "teleproto",
+                                        "version": "1.232.0",
+                                        "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                        "isWorkspace": false,
+                                        "dependents": [],
+                                        "linksIn": [
+                                          {
+                                            "name": "teleproto",
+                                            "version": "1.232.0",
+                                            "location": "node_modules/teleproto",
+                                            "isWorkspace": false,
+                                            "dependents": [
+                                              {
+                                                "type": "optional",
+                                                "name": "teleproto",
+                                                "spec": "1.232.0",
+                                                "from": {
+                                                  "location": "/tmp/gh-issue-solver-1793191206670"
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "dev",
+        "name": "rimraf",
+        "spec": "^2.2.8",
+        "from": {
+          "name": "glob",
+          "version": "7.2.3"
+        }
+      },
+      {
+        "type": "dev",
+        "name": "rimraf",
+        "spec": "^2.6.2",
+        "from": {
+          "name": "which",
+          "version": "2.0.2",
+          "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+          "isWorkspace": false,
+          "dependents": [],
+          "linksIn": [
+            {
+              "name": "which",
+              "version": "2.0.2",
+              "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+              "isWorkspace": false,
+              "dependents": [
+                {
+                  "type": "prod",
+                  "name": "which",
+                  "spec": "^2.0.1",
+                  "from": {
+                    "name": "cross-spawn",
+                    "version": "7.0.6",
+                    "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "cross-spawn",
+                        "version": "7.0.6",
+                        "location": "node_modules/.deno/node_modules/cross-spawn",
+                        "isWorkspace": false,
+                        "dependents": []
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "dev",
+        "name": "rimraf",
+        "spec": "^2.5.0",
+        "from": {
+          "name": "isexe",
+          "version": "2.0.0",
+          "location": "node_modules/.deno/isexe@2.0.0/node_modules/isexe",
+          "isWorkspace": false,
+          "dependents": [],
+          "linksIn": [
+            {
+              "name": "isexe",
+              "version": "2.0.0",
+              "location": "node_modules/.deno/which@2.0.2/node_modules/isexe",
+              "isWorkspace": false,
+              "dependents": [
+                {
+                  "type": "prod",
+                  "name": "isexe",
+                  "spec": "^2.0.0",
+                  "from": {
+                    "name": "which",
+                    "version": "2.0.2",
+                    "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                    "isWorkspace": false,
+                    "dependents": [],
+                    "linksIn": [
+                      {
+                        "name": "which",
+                        "version": "2.0.2",
+                        "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                        "isWorkspace": false,
+                        "dependents": [
+                          {
+                            "type": "prod",
+                            "name": "which",
+                            "spec": "^2.0.1",
+                            "from": {
+                              "name": "cross-spawn",
+                              "version": "7.0.6",
+                              "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                              "isWorkspace": false,
+                              "dependents": [],
+                              "linksIn": [
+                                {
+                                  "name": "cross-spawn",
+                                  "version": "7.0.6",
+                                  "location": "node_modules/.deno/node_modules/cross-spawn",
+                                  "isWorkspace": false,
+                                  "dependents": []
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "rimraf",
+    "version": "2.6.3",
+    "location": "node_modules/.deno/rimraf@2.6.3/node_modules/rimraf",
+    "isWorkspace": false,
+    "dependents": [],
+    "linksIn": [
+      {
+        "name": "rimraf",
+        "version": "2.6.3",
+        "location": "node_modules/.deno/node_modules/rimraf",
+        "isWorkspace": false,
+        "dependents": [
+          {
+            "type": "dev",
+            "name": "rimraf",
+            "spec": "^2.5.4",
+            "from": {
+              "name": "write-file-atomic",
+              "version": "1.3.4",
+              "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+              "isWorkspace": false,
+              "dependents": [],
+              "linksIn": [
+                {
+                  "name": "write-file-atomic",
+                  "version": "1.3.4",
+                  "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                  "isWorkspace": false,
+                  "dependents": [
+                    {
+                      "type": "prod",
+                      "name": "write-file-atomic",
+                      "spec": "^1.1.4",
+                      "from": {
+                        "name": "node-localstorage",
+                        "version": "2.2.1",
+                        "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "node-localstorage",
+                            "version": "2.2.1",
+                            "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "node-localstorage",
+                                "spec": "^2.2.1",
+                                "from": {
+                                  "name": "teleproto",
+                                  "version": "1.232.0",
+                                  "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "teleproto",
+                                      "version": "1.232.0",
+                                      "location": "node_modules/teleproto",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "optional",
+                                          "name": "teleproto",
+                                          "spec": "1.232.0",
+                                          "from": {
+                                            "location": "/tmp/gh-issue-solver-1793191206670"
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "dev",
+            "name": "rimraf",
+            "spec": "^2.2.8",
+            "from": {
+              "name": "graceful-fs",
+              "version": "4.2.11",
+              "location": "node_modules/.deno/graceful-fs@4.2.11/node_modules/graceful-fs",
+              "isWorkspace": false,
+              "dependents": [],
+              "linksIn": [
+                {
+                  "name": "graceful-fs",
+                  "version": "4.2.11",
+                  "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/graceful-fs",
+                  "isWorkspace": false,
+                  "dependents": [
+                    {
+                      "type": "prod",
+                      "name": "graceful-fs",
+                      "spec": "^4.1.11",
+                      "from": {
+                        "name": "write-file-atomic",
+                        "version": "1.3.4",
+                        "location": "node_modules/.deno/write-file-atomic@1.3.4/node_modules/write-file-atomic",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "write-file-atomic",
+                            "version": "1.3.4",
+                            "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/write-file-atomic",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "write-file-atomic",
+                                "spec": "^1.1.4",
+                                "from": {
+                                  "name": "node-localstorage",
+                                  "version": "2.2.1",
+                                  "location": "node_modules/.deno/node-localstorage@2.2.1/node_modules/node-localstorage",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "node-localstorage",
+                                      "version": "2.2.1",
+                                      "location": "node_modules/.deno/teleproto@1.232.0/node_modules/node-localstorage",
+                                      "isWorkspace": false,
+                                      "dependents": [
+                                        {
+                                          "type": "prod",
+                                          "name": "node-localstorage",
+                                          "spec": "^2.2.1",
+                                          "from": {
+                                            "name": "teleproto",
+                                            "version": "1.232.0",
+                                            "location": "node_modules/.deno/teleproto@1.232.0/node_modules/teleproto",
+                                            "isWorkspace": false,
+                                            "dependents": [],
+                                            "linksIn": [
+                                              {
+                                                "name": "teleproto",
+                                                "version": "1.232.0",
+                                                "location": "node_modules/teleproto",
+                                                "isWorkspace": false,
+                                                "dependents": [
+                                                  {
+                                                    "type": "optional",
+                                                    "name": "teleproto",
+                                                    "spec": "1.232.0",
+                                                    "from": {
+                                                      "location": "/tmp/gh-issue-solver-1793191206670"
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "dev",
+            "name": "rimraf",
+            "spec": "^2.2.8",
+            "from": {
+              "name": "glob",
+              "version": "7.2.3"
+            }
+          },
+          {
+            "type": "dev",
+            "name": "rimraf",
+            "spec": "^2.6.2",
+            "from": {
+              "name": "which",
+              "version": "2.0.2",
+              "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+              "isWorkspace": false,
+              "dependents": [],
+              "linksIn": [
+                {
+                  "name": "which",
+                  "version": "2.0.2",
+                  "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                  "isWorkspace": false,
+                  "dependents": [
+                    {
+                      "type": "prod",
+                      "name": "which",
+                      "spec": "^2.0.1",
+                      "from": {
+                        "name": "cross-spawn",
+                        "version": "7.0.6",
+                        "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "cross-spawn",
+                            "version": "7.0.6",
+                            "location": "node_modules/.deno/node_modules/cross-spawn",
+                            "isWorkspace": false,
+                            "dependents": []
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "dev",
+            "name": "rimraf",
+            "spec": "^2.5.0",
+            "from": {
+              "name": "isexe",
+              "version": "2.0.0",
+              "location": "node_modules/.deno/isexe@2.0.0/node_modules/isexe",
+              "isWorkspace": false,
+              "dependents": [],
+              "linksIn": [
+                {
+                  "name": "isexe",
+                  "version": "2.0.0",
+                  "location": "node_modules/.deno/which@2.0.2/node_modules/isexe",
+                  "isWorkspace": false,
+                  "dependents": [
+                    {
+                      "type": "prod",
+                      "name": "isexe",
+                      "spec": "^2.0.0",
+                      "from": {
+                        "name": "which",
+                        "version": "2.0.2",
+                        "location": "node_modules/.deno/which@2.0.2/node_modules/which",
+                        "isWorkspace": false,
+                        "dependents": [],
+                        "linksIn": [
+                          {
+                            "name": "which",
+                            "version": "2.0.2",
+                            "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/which",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "which",
+                                "spec": "^2.0.1",
+                                "from": {
+                                  "name": "cross-spawn",
+                                  "version": "7.0.6",
+                                  "location": "node_modules/.deno/cross-spawn@7.0.6/node_modules/cross-spawn",
+                                  "isWorkspace": false,
+                                  "dependents": [],
+                                  "linksIn": [
+                                    {
+                                      "name": "cross-spawn",
+                                      "version": "7.0.6",
+                                      "location": "node_modules/.deno/node_modules/cross-spawn",
+                                      "isWorkspace": false,
+                                      "dependents": []
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  },
+  {
+    "name": "boolean",
+    "version": "3.2.0",
+    "location": "node_modules/boolean",
+    "isWorkspace": false,
+    "dependents": [
+      {
+        "type": "prod",
+        "name": "boolean",
+        "spec": "^3.0.1",
+        "from": {
+          "name": "global-agent",
+          "version": "3.0.0",
+          "location": "node_modules/global-agent",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "optional",
+              "name": "global-agent",
+              "spec": "^3.0.0",
+              "from": {
+                "name": "@electron/get",
+                "version": "3.1.0",
+                "location": "node_modules/@electron/get",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "prod",
+                    "name": "@electron/get",
+                    "spec": "^3.0.0",
+                    "from": {
+                      "name": "app-builder-lib",
+                      "version": "26.18.0",
+                      "location": "node_modules/app-builder-lib",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "dmg-builder",
+                            "version": "26.18.0",
+                            "location": "node_modules/dmg-builder",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "peer",
+                                "name": "dmg-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "app-builder-lib",
+                                  "version": "26.18.0"
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "dmg-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "electron-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "electron-builder",
+                            "version": "26.18.0",
+                            "location": "node_modules/electron-builder",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "dev",
+                                "name": "electron-builder",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "location": "/tmp/gh-issue-solver-1793191206670"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "type": "prod",
+                          "name": "app-builder-lib",
+                          "spec": "26.18.0",
+                          "from": {
+                            "name": "electron-builder-squirrel-windows",
+                            "version": "26.18.0"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "prod",
+        "name": "boolean",
+        "spec": "^3.0.1",
+        "from": {
+          "name": "roarr",
+          "version": "2.15.4",
+          "location": "node_modules/roarr",
+          "isWorkspace": false,
+          "dependents": [
+            {
+              "type": "prod",
+              "name": "roarr",
+              "spec": "^2.15.3",
+              "from": {
+                "name": "global-agent",
+                "version": "3.0.0",
+                "location": "node_modules/global-agent",
+                "isWorkspace": false,
+                "dependents": [
+                  {
+                    "type": "optional",
+                    "name": "global-agent",
+                    "spec": "^3.0.0",
+                    "from": {
+                      "name": "@electron/get",
+                      "version": "3.1.0",
+                      "location": "node_modules/@electron/get",
+                      "isWorkspace": false,
+                      "dependents": [
+                        {
+                          "type": "prod",
+                          "name": "@electron/get",
+                          "spec": "^3.0.0",
+                          "from": {
+                            "name": "app-builder-lib",
+                            "version": "26.18.0",
+                            "location": "node_modules/app-builder-lib",
+                            "isWorkspace": false,
+                            "dependents": [
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "dmg-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/dmg-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "peer",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "app-builder-lib",
+                                        "version": "26.18.0"
+                                      }
+                                    },
+                                    {
+                                      "type": "prod",
+                                      "name": "dmg-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "name": "electron-builder",
+                                        "version": "26.18.0",
+                                        "location": "node_modules/electron-builder",
+                                        "isWorkspace": false,
+                                        "dependents": [
+                                          {
+                                            "type": "dev",
+                                            "name": "electron-builder",
+                                            "spec": "26.18.0",
+                                            "from": {
+                                              "location": "/tmp/gh-issue-solver-1793191206670"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder",
+                                  "version": "26.18.0",
+                                  "location": "node_modules/electron-builder",
+                                  "isWorkspace": false,
+                                  "dependents": [
+                                    {
+                                      "type": "dev",
+                                      "name": "electron-builder",
+                                      "spec": "26.18.0",
+                                      "from": {
+                                        "location": "/tmp/gh-issue-solver-1793191206670"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "type": "prod",
+                                "name": "app-builder-lib",
+                                "spec": "26.18.0",
+                                "from": {
+                                  "name": "electron-builder-squirrel-windows",
+                                  "version": "26.18.0"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "dev": true,
+    "optional": true,
+    "devOptional": false,
+    "peer": false,
+    "bundled": false,
+    "overridden": false
+  }
+]

@@ -1,0 +1,39 @@
+(node:11924) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the schema is layer 232 and has the rich message (4.739289ms)
+✔ GramJS decodes a message#7600b9d3 with a rich message (266.417776ms)
+✔ a dialog list with a community reads, the community left out (3.321975ms)
+✔ GramJS helpers testing for the old button classes do not throw (1.248098ms)
+✔ peerDialogs keeps only dialogs that name a peer (0.26772ms)
+✔ the repair marker names the schema revision (1.786823ms)
+✔ the raw form keeps a deep rich message and drops picture bytes (0.948148ms)
+✔ a rich message with no text is stored, with its words as the body (2.099906ms)
+✔ rich blocks are shaped like an Instant View page, plus the new ones (1.557063ms)
+✔ a rich message becomes plain words for the list and search (0.899477ms)
+✔ a button of a rich message acts like an inline keyboard button (0.822634ms)
+✔ the parts of a rich message: blocks, no text, a rich quote (1.107715ms)
+✔ the new service actions have lines (0.720724ms)
+✔ a picture of a rich message is found by its kind and id (0.739549ms)
+✔ constructor ids are the CRC32 of the secret schema lines (1.790849ms)
+✔ TL: bytes are padded to four, long ones use the 254 form (3.058233ms)
+✔ TL: a text message with entities, a reply and a bot round-trips (1.194247ms)
+✔ TL: every service action round-trips (1.540342ms)
+✔ TL: media is reported, an unknown entity costs the entities only (0.422829ms)
+✔ TL: the layer wrapper round-trips and refuses other bytes (0.496816ms)
+✔ AES-IGE agrees with the GramJS implementation, both ways (22.750067ms)
+✔ the key exchange: parameters, ranges and the fingerprint Telegram reports (510.702004ms)
+✔ packets: both directions, padding 12..1024 to a multiple of 16 (113.402586ms)
+✔ packets: x is 0 for the originator and 8 for the other side (0.823135ms)
+✔ packets: wrong fingerprint, wrong side, tampering and bad lengths are refused (63.128479ms)
+✔ sessions: messages both ways, sequence numbers, the send log (96.641208ms)
+✔ sessions: a duplicate is dropped, a gap asks for a resend and is healed by it (70.55026ms)
+✔ sessions: a packet from the wrong side or with the wrong parity is refused (59.251749ms)
+✔ the key picture: a derived 8x8 identicon and four lines of hex (61.96536ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1795.384051

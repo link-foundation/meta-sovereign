@@ -1,0 +1,28 @@
+⋯ Backing up original state…
+✔ Done backing up original state (570a242)!
+⋯ Running tasks for staged files…
+    package.json — 16 files
+      *.{js,mjs,cjs} — 6 files
+        ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+        ⋯ prettier --write
+        ⋯ prettier --check
+      *.md — 8 files
+        ⋯ prettier --write
+        ⋯ prettier --check
+
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 504e07d] fix(desktop): replace deprecated updater comparator with verified compatible alias
+ 16 files changed, 308 insertions(+), 10 deletions(-)
+ create mode 100644 experiments/issue43-cifrante.mjs
+ create mode 100644 experiments/issue43-updater-alias.mjs
+ create mode 100644 js/scripts/validate-desktop-updater.mjs

@@ -1,0 +1,196 @@
+909:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:15.0905875Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+910:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:15.4754733Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+911:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:15.4972041Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+912:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:16.1290182Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+919:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:29.1910482Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+920:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:29.1911354Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+921:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:29.1912218Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+922:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:29.1913267Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+923:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:29.1914302Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+924:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:29.1915146Z npm warn install-scripts
+925:Workflow, shell and pipeline contracts	Run npm ci --no-audit --no-fund	2026-10-28T13:16:29.1915977Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+978:Workflow, shell and pipeline contracts	Workflow security audit (offline deterministic policy)	2026-10-28T13:16:35.0197883Z ^[[33m WARN^[[0m ^[[1maudit^[[0m^[[2m:^[[0m^[[1maudit^[[0m^[[1m{^[[0m^[[3minput^[[0m^[[2m=^[[0mWorkflow(file://.github/workflows/desktop-release.yml)^[[1m}^[[0m^[[2m:^[[0m ^[[2mzizmor::audit::github_env^[[0m^[[2m:^[[0m github-env: couldn't determine shell type for .github/workflows/desktop-release.yml step SymbolicLocation {
+1010:Workflow, shell and pipeline contracts	Workflow security audit (offline deterministic policy)	2026-10-28T13:16:35.0211241Z ^[[33m WARN^[[0m ^[[1maudit^[[0m^[[2m:^[[0m^[[1maudit^[[0m^[[1m{^[[0m^[[3minput^[[0m^[[2m=^[[0mWorkflow(file://.github/workflows/desktop-release.yml)^[[1m}^[[0m^[[2m:^[[0m ^[[2mzizmor::audit::github_env^[[0m^[[2m:^[[0m github-env: couldn't determine shell type for .github/workflows/desktop-release.yml step SymbolicLocation {
+1351:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:33.8121441Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+1352:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:34.3474494Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+1353:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:34.4797472Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+1354:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:35.3920481Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+1361:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:47.8427681Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+1362:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:47.8428862Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+1363:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:47.8430084Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+1364:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:47.8431128Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+1365:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:47.8432048Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+1366:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:47.8432991Z npm warn install-scripts
+1367:Dependency security audit	Run npm ci --no-audit --no-fund	2026-10-28T13:16:47.8433643Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+1439:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	﻿2026-10-28T13:16:48.8931841Z ##[group]Run cargo audit --file rust/Cargo.lock --deny warnings
+1440:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:48.8932315Z ^[[36;1mcargo audit --file rust/Cargo.lock --deny warnings^[[0m
+1441:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:48.8995386Z shell: /usr/bin/bash -e {0}
+1442:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:48.8995641Z env:
+1443:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:48.8995829Z   GIT_CONFIG_COUNT: 1
+1444:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:48.8996063Z   GIT_CONFIG_KEY_0: init.defaultBranch
+1445:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:48.8996340Z   GIT_CONFIG_VALUE_0: main
+1446:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:48.8996564Z ##[endgroup]
+1447:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:49.4774543Z     Fetching advisory database from `https://github.com/RustSec/advisory-db.git`
+1448:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:53.9050931Z       Loaded 1381 security advisories (from /home/runner/.cargo/advisory-db)
+1449:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:53.9051576Z     Updating crates.io index
+1450:Dependency security audit	Run cargo audit --file rust/Cargo.lock --deny warnings	2026-10-28T13:16:53.9287324Z     Scanning rust/Cargo.lock for vulnerabilities (3 crate dependencies)
+1818:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:31.0417523Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+1819:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:31.6657974Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+1820:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:31.7068321Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+1821:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:32.7641349Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+1828:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:43.7633117Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+1829:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:43.7635066Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+1830:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:43.7636901Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+1831:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:43.7638608Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+1832:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:43.7640740Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+1833:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:43.7643093Z npm warn install-scripts
+1834:Package (packed and run with npx)	Install dependencies	2026-10-28T13:16:43.7644605Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+3089:Check for Changesets	Install dependencies	2026-10-28T13:16:13.7965748Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+3090:Check for Changesets	Install dependencies	2026-10-28T13:16:14.2277120Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+3091:Check for Changesets	Install dependencies	2026-10-28T13:16:14.3150056Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+3092:Check for Changesets	Install dependencies	2026-10-28T13:16:15.0595053Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+3099:Check for Changesets	Install dependencies	2026-10-28T13:16:25.5977295Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+3100:Check for Changesets	Install dependencies	2026-10-28T13:16:25.5978534Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+3101:Check for Changesets	Install dependencies	2026-10-28T13:16:25.5980040Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+3102:Check for Changesets	Install dependencies	2026-10-28T13:16:25.5981295Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+3103:Check for Changesets	Install dependencies	2026-10-28T13:16:25.5982984Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+3104:Check for Changesets	Install dependencies	2026-10-28T13:16:25.5984278Z npm warn install-scripts
+3105:Check for Changesets	Install dependencies	2026-10-28T13:16:25.5995766Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+3332:Build API Docs	Install dependencies	2026-10-28T13:16:41.3910040Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+3333:Build API Docs	Install dependencies	2026-10-28T13:16:41.8432397Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+3334:Build API Docs	Install dependencies	2026-10-28T13:16:42.0000680Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+3335:Build API Docs	Install dependencies	2026-10-28T13:16:43.0257158Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+3342:Build API Docs	Install dependencies	2026-10-28T13:17:43.5500057Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+3343:Build API Docs	Install dependencies	2026-10-28T13:17:43.5501611Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+3344:Build API Docs	Install dependencies	2026-10-28T13:17:43.5503514Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+3345:Build API Docs	Install dependencies	2026-10-28T13:17:43.5504878Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+3346:Build API Docs	Install dependencies	2026-10-28T13:17:43.5506694Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+3347:Build API Docs	Install dependencies	2026-10-28T13:17:43.5508492Z npm warn install-scripts
+3348:Build API Docs	Install dependencies	2026-10-28T13:17:43.5509694Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+3598:Build API Docs	Build Rust crate docs	2026-10-28T13:17:48.3576341Z ^[[1m^[[33mwarning^[[0m^[[1m: this URL is not a hyperlink^[[0m
+3605:Build API Docs	Build Rust crate docs	2026-10-28T13:17:48.3584231Z   ^[[1m^[[94m= ^[[0m^[[1mnote^[[0m: `#[warn(rustdoc::bare_urls)]` on by default
+3611:Build API Docs	Build Rust crate docs	2026-10-28T13:17:48.3589151Z ^[[1m^[[33mwarning^[[0m: `meta-sovereign-server` (bin "meta-sovereign-rs" doc) generated 1 warning (run `cargo fix --bin "meta-sovereign-rs" -p meta-sovereign-server` to apply 1 suggestion)
+3970:Lint and Format Check	Install dependencies	2026-10-28T13:16:29.3512570Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+3971:Lint and Format Check	Install dependencies	2026-10-28T13:16:29.7501985Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+3972:Lint and Format Check	Install dependencies	2026-10-28T13:16:29.7656254Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+3973:Lint and Format Check	Install dependencies	2026-10-28T13:16:30.7307206Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+3980:Lint and Format Check	Install dependencies	2026-10-28T13:16:40.5875395Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+3981:Lint and Format Check	Install dependencies	2026-10-28T13:16:40.5876480Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+3982:Lint and Format Check	Install dependencies	2026-10-28T13:16:40.5877202Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+3983:Lint and Format Check	Install dependencies	2026-10-28T13:16:40.5877886Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+3984:Lint and Format Check	Install dependencies	2026-10-28T13:16:40.5878747Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+3985:Lint and Format Check	Install dependencies	2026-10-28T13:16:40.5879406Z npm warn install-scripts
+3986:Lint and Format Check	Install dependencies	2026-10-28T13:16:40.5880075Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+12807:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:22.0895257Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+12808:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:22.5881513Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+12809:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:22.6086440Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+12810:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:23.3651133Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+12817:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:36.2115932Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+12818:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:36.2117603Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+12819:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:36.2119344Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+12820:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:36.2121067Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+12821:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:36.2123153Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+12822:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:36.2126900Z npm warn install-scripts
+12823:Backup memory regression (200k links)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:36.2128507Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+13272:Rust (fmt, clippy, test)	cargo clippy	﻿2026-10-28T13:19:50.0534557Z ##[group]Run cargo clippy --manifest-path rust/Cargo.toml --workspace --all-targets -- -D warnings
+13273:Rust (fmt, clippy, test)	cargo clippy	2026-10-28T13:19:50.0535291Z ^[[36;1mcargo clippy --manifest-path rust/Cargo.toml --workspace --all-targets -- -D warnings^[[0m
+13726:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:10.1935150Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+13727:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:10.6071070Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+13728:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:10.7241020Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+13729:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:12.1130780Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+13736:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:28.6169550Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+13737:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:28.6171440Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+13738:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:28.6173330Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+13739:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:28.6175630Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+13740:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:28.6178000Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+13741:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:28.6181300Z npm warn install-scripts
+13742:Browser e2e (webkit)	Run npm ci --no-audit --no-fund	2026-10-28T13:18:28.6184150Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+14830:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:01.3641837Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+14831:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:01.4079519Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+14832:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:01.5011769Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+14833:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:01.8076447Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+14840:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:12.9759432Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+14841:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:12.9761062Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+14842:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:12.9762797Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+14843:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:12.9764419Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+14844:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:12.9766471Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+14845:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:12.9767841Z npm warn install-scripts
+14846:Browser e2e (chromium)	Run npm ci --no-audit --no-fund	2026-10-28T13:19:12.9769422Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+16526:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:04.0019360Z ^[[0m^[[32mDownload^[[0m https://registry.npmjs.org/util-deprecate
+17006:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:04.5931310Z ^[[0m^[[32mDownload^[[0m https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz
+17455:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:06.0415980Z ^[[0m^[[32mInitialize^[[0m util-deprecate@1.0.2
+17553:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:06.9321940Z ^[[0m^[[33m╭^[[0m ^[[0m^[[1m^[[33mWarning^[[0m
+17555:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:06.9324300Z ^[[0m^[[33m│^[[0m  The following packages are deprecated:
+17561:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:06.9338490Z ^[[0m^[[33m╭^[[0m ^[[0m^[[1m^[[33mWarning^[[0m
+18035:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:37.7317630Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+18446:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:49.7050580Z tolerates optional misses and lists them as warnings ... ^[[0m^[[32mok^[[0m ^[[0m^[[38;5;245m(3ms)^[[0m
+18454:Test (deno on macos-15)	Run tests (Deno)	2026-10-28T13:19:49.7129290Z warns when a field was written but could not be verified ... ^[[0m^[[32mok^[[0m ^[[0m^[[38;5;245m(788µs)^[[0m
+21972:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:18:51.4571090Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+21973:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:18:51.9353220Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+21974:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:18:52.0703210Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+21975:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:18:53.3825390Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+21982:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:19:09.1826330Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+21983:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:19:09.1828570Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+21984:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:19:09.1841530Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+21985:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:19:09.1844620Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+21986:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:19:09.1860550Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+21987:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:19:09.1862080Z npm warn install-scripts
+21988:Test (node on macos-15)	Install dependencies (Node.js)	2026-10-28T13:19:09.1863600Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+22423:Test (node on macos-15)	Run tests (Node.js)	2026-10-28T13:19:27.0952860Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+22839:Test (node on macos-15)	Run tests (Node.js)	2026-10-28T13:19:38.0855540Z   ✔ tolerates optional misses and lists them as warnings (6.9685ms)
+22849:Test (node on macos-15)	Run tests (Node.js)	2026-10-28T13:19:38.0864640Z   ✔ warns when a field was written but could not be verified (0.630834ms)
+26382:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:18:12.4343766Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+26383:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:18:13.9715368Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+26384:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:18:14.0642136Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+26385:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:18:16.7325706Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+26392:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:22:15.6285865Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+26393:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:22:15.6286852Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+26394:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:22:15.6287765Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+26395:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:22:15.6289252Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+26396:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:22:15.6291103Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+26397:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:22:15.6292571Z npm warn install-scripts
+26398:Test (node on windows-2025)	Install dependencies (Node.js)	2026-10-28T13:22:15.6296719Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+26833:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T13:22:43.8061844Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+27249:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T13:22:56.2789667Z   ✔ tolerates optional misses and lists them as warnings (3.7047ms)
+27259:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T13:22:56.2798836Z   ✔ warns when a field was written but could not be verified (1.5764ms)
+33986:Test (bun on macos-15)	Run tests (Bun)	2026-10-28T13:20:03.7895390Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+35736:Test (bun on macos-15)	Run tests (Bun)	2026-10-28T13:20:20.8945100Z (pass) runner read plans > tolerates optional misses and lists them as warnings [0.30ms]
+35744:Test (bun on macos-15)	Run tests (Bun)	2026-10-28T13:20:20.8960610Z (pass) runner update plans > warns when a field was written but could not be verified [0.13ms]
+36545:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:18:03.3271943Z ^[[0m^[[32mDownload^[[0m https://registry.npmjs.org/util-deprecate
+37011:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:18:03.7370795Z ^[[0m^[[32mDownload^[[0m https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz
+37490:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:18:21.6808392Z ^[[0m^[[32mInitialize^[[0m util-deprecate@1.0.2
+37572:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:18:26.3183658Z ^[[0m^[[33m╭^[[0m ^[[0m^[[1m^[[33mWarning^[[0m
+37574:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:18:26.3184492Z ^[[0m^[[33m│^[[0m  The following packages are deprecated:
+37580:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:18:26.3189606Z ^[[0m^[[33m╭^[[0m ^[[0m^[[1m^[[33mWarning^[[0m
+38054:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:19:02.8541435Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+38465:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:19:18.7194238Z tolerates optional misses and lists them as warnings ... ^[[0m^[[32mok^[[0m ^[[0m^[[38;5;245m(1ms)^[[0m
+38473:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T13:19:18.7261157Z warns when a field was written but could not be verified ... ^[[0m^[[32mok^[[0m ^[[0m^[[38;5;245m(468µs)^[[0m
+42007:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:22.1128768Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+42008:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:22.4992808Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+42009:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:22.6506663Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+42010:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:23.5758250Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+42017:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:36.6852615Z npm warn install-scripts 4 packages have install scripts not yet covered by allowScripts:
+42018:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:36.6853601Z npm warn install-scripts   better-sqlite3@13.0.3 (install: node-gyp rebuild)
+42019:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:36.6854380Z npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/select-7z-arch.js)
+42020:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:36.6855200Z npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+42021:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:36.6856117Z npm warn install-scripts   node-pty@1.1.0 (install: node scripts/prebuild.js || node-gyp rebuild; postinstall: node scripts/post-install.js)
+42022:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:36.6856799Z npm warn install-scripts
+42023:Test (node on ubuntu-24.04)	Install dependencies (Node.js)	2026-10-28T13:19:36.6857774Z npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+42458:Test (node on ubuntu-24.04)	Run tests (Node.js)	2026-10-28T13:19:54.6476394Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+42874:Test (node on ubuntu-24.04)	Run tests (Node.js)	2026-10-28T13:20:01.2245136Z   ✔ tolerates optional misses and lists them as warnings (2.261266ms)
+42884:Test (node on ubuntu-24.04)	Run tests (Node.js)	2026-10-28T13:20:01.2252220Z   ✔ warns when a field was written but could not be verified (1.327264ms)
+46515:Test (bun on ubuntu-24.04)	Run tests (Bun)	2026-10-28T13:20:21.3148649Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+47210:Test (bun on ubuntu-24.04)	Run tests (Bun)	2026-10-28T13:20:25.8691575Z (pass) runner read plans > tolerates optional misses and lists them as warnings [0.71ms]
+47218:Test (bun on ubuntu-24.04)	Run tests (Bun)	2026-10-28T13:20:25.8738838Z (pass) runner update plans > warns when a field was written but could not be verified [0.38ms]
+52376:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T13:18:48.1224589Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+53005:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T13:18:53.2341467Z (pass) runner read plans > tolerates optional misses and lists them as warnings [0.85ms]
+53013:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T13:18:53.2401589Z (pass) runner update plans > warns when a field was written but could not be verified [0.58ms]
+57492:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:14.5647414Z ^[[0m^[[32mDownload^[[0m https://registry.npmjs.org/util-deprecate
+57985:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:14.8116309Z ^[[0m^[[32mDownload^[[0m https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz
+58437:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:15.2788929Z ^[[0m^[[32mInitialize^[[0m util-deprecate@1.0.2
+58525:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:16.5277541Z ^[[0m^[[33m╭^[[0m ^[[0m^[[1m^[[33mWarning^[[0m
+58527:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:16.5278755Z ^[[0m^[[33m│^[[0m  The following packages are deprecated:
+58533:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:16.5288619Z ^[[0m^[[33m╭^[[0m ^[[0m^[[1m^[[33mWarning^[[0m
+59007:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:47.3233355Z Check the render method of `PlainSticker`. See https://react.dev/link/warning-keys for more information.
+59418:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:56.3719640Z tolerates optional misses and lists them as warnings ... ^[[0m^[[32mok^[[0m ^[[0m^[[38;5;245m(1ms)^[[0m
+59426:Test (deno on ubuntu-24.04)	Run tests (Deno)	2026-10-28T13:20:56.3791801Z warns when a field was written but could not be verified ... ^[[0m^[[32mok^[[0m ^[[0m^[[38;5;245m(484µs)^[[0m

@@ -1,0 +1,4 @@
+experiments/issue43-collect.py syntax OK
+experiments/issue43-compare.py syntax OK
+experiments/issue43-runs.py syntax OK
+experiments/issue43-verify-evidence.py syntax OK

@@ -1,0 +1,24 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/scripts/js-paths.mjs
++++ js/scripts/js-paths.mjs
+@@ -6,6 +6,10 @@
+  * Automatically detects the JavaScript package root for both:
+  * - Single-language repositories (package.json in root)
+  * - Multi-language repositories (package.json in js/ subfolder)
++ *
++ * This utility addresses the issues documented in:
++ * - Issue #21: Supporting both single and multi-language repository structures
++ * - Reference: link-assistant/agent PR #114
+  *
+  * Usage:
+  *   import { getJsRoot, getPackageJsonPath, getChangesetDir, needsCd } from './js-paths.mjs';
+@@ -19,8 +23,8 @@
+  *   - Environment: JS_ROOT=<path>
+  */
+ 
+-import { existsSync } from 'node:fs';
+-import { join } from 'node:path';
++import { existsSync } from 'fs';
++import { join } from 'path';
+ 
+ // Cache for detected paths (computed once per process)
+ let cachedJsRoot = null;

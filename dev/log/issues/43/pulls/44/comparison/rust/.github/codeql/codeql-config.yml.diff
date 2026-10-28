@@ -1,0 +1,10 @@
+--- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/.github/codeql/codeql-config.yml
++++ .github/codeql/codeql-config.yml
+@@ -1,3 +1,5 @@
+-name: Production source
++name: Maintained source and pipeline
+ paths-ignore:
+-  - experiments
++  - dev/log
++  - docs/case-studies
++  - examples

@@ -1,0 +1,407 @@
+--- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/tests/unit/ci-cd/issue_157.rs
++++ js/tests/ci-contracts.test.js
+@@ -1,249 +1,165 @@
+-//! Regression tests for issue #157.
+-//!
+-//! `simulate-fresh-merge.sh` runs under `set -euo pipefail`, so a single failed
+-//! `git fetch` aborted the whole job before any check ran. GitHub's fetch
+-//! endpoint does shed load, and CI address ranges see that more than a laptop
+-//! does, so the fetch now retries with linear backoff before giving up.
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import {
++  readFileSync,
++  readdirSync,
++  mkdtempSync,
++  mkdirSync,
++  writeFileSync,
++  rmSync,
++} from 'node:fs';
++import { spawnSync } from 'node:child_process';
++import os from 'node:os';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++import { parse } from 'yaml';
+ 
+-use std::fs;
+-#[cfg(not(windows))]
+-use std::path::{Path, PathBuf};
+-#[cfg(not(windows))]
+-use std::process::Command;
++const root = fileURLToPath(new URL('../../', import.meta.url));
++const workflow = (name) =>
++  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
+ 
+-fn script() -> String {
+-    fs::read_to_string(format!(
+-        "{}/scripts/simulate-fresh-merge.sh",
+-        env!("CARGO_MANIFEST_DIR")
+-    ))
+-    .expect("simulate-fresh-merge.sh should exist")
+-    .replace("\r\n", "\n")
+-}
++test('browser failures cannot become a green release', () => {
++  const jobs = workflow('release.yml').jobs;
++  assert.ok(
++    jobs['e2e-browser'].strategy.matrix.include.some(
++      ({ browser }) => browser === 'webkit'
++    )
++  );
++  for (const step of jobs['e2e-browser'].steps) {
++    assert.notEqual(step['continue-on-error'], true);
++  }
++  assert.ok(jobs.release.needs.includes('pipeline-status'));
++});
+ 
+-#[test]
+-fn the_bare_fetch_only_happens_inside_the_retry_wrapper() {
+-    let script = script();
+-    assert!(
+-        script.contains("fetch_with_retry()"),
+-        "the fetch should live in a retry wrapper"
+-    );
+-    assert!(
+-        script.matches("git fetch --no-tags").count() == 1,
+-        "the only `git fetch --no-tags` call should be the one inside fetch_with_retry"
+-    );
+-    assert!(
+-        script.contains("\nfetch_with_retry\n"),
+-        "the main path must call fetch_with_retry instead of fetching bare"
+-    );
+-}
++test('every Rust documentation path rejects warnings', () => {
++  const flow = workflow('release.yml');
++  let checked = 0;
++  for (const job of Object.values(flow.jobs)) {
++    for (const step of job.steps || []) {
++      if (!step.run?.includes('cargo doc ')) {
++        continue;
++      }
++      const flags =
++        step.env?.RUSTDOCFLAGS ??
++        job.env?.RUSTDOCFLAGS ??
++        flow.env?.RUSTDOCFLAGS;
++      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
++      checked++;
++    }
++  }
++  assert.equal(checked, 3, 'Check and both release documentation paths');
++});
+ 
+-#[test]
+-fn the_retry_policy_matches_the_documented_defaults() {
+-    let script = script();
+-    assert!(
+-        script.contains("FRESH_MERGE_FETCH_ATTEMPTS:-5"),
+-        "the fetch should be attempted up to five times by default"
+-    );
+-    assert!(
+-        script.contains("FRESH_MERGE_RETRY_DELAY_SECONDS:-5"),
+-        "the backoff should start at five seconds by default"
+-    );
+-    assert!(
+-        script.contains("sleep $(( FRESH_MERGE_RETRY_DELAY_SECONDS * attempt ))"),
+-        "retries should back off linearly, not hammer the remote"
+-    );
+-    assert!(
+-        script.contains("::error::Could not fetch origin/"),
+-        "an exhausted retry budget must annotate an error, not exit silently"
+-    );
+-}
++test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
++  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
++    if (!name.endsWith('.yml')) {
++      continue;
++    }
++    const flow = workflow(name);
++    for (const job of Object.values(flow.jobs)) {
++      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
++      for (const step of job.steps || []) {
++        if (step.uses?.startsWith('actions/checkout@')) {
++          assert.equal(step.with?.['persist-credentials'], false, name);
++        }
++      }
++    }
++    assert.equal(flow.permissions.contents, 'read', name);
++  }
++});
+ 
+-// --- behaviour: a stand-in `git` that fails the first N fetches -------------
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
+ 
+-#[cfg(not(windows))]
+-fn temp_root(tag: &str) -> PathBuf {
+-    // Tests in one binary share a process id, so the thread id is what keeps
+-    // concurrent runs out of each other's way.
+-    let thread = format!("{:?}", std::thread::current().id())
+-        .replace(|character: char| !character.is_ascii_alphanumeric(), "");
+-    let dir = std::env::temp_dir().join(format!("{tag}-{}-{thread}", std::process::id()));
+-    let _ = fs::remove_dir_all(&dir);
+-    fs::create_dir_all(&dir).expect("temp root should be creatable");
+-    dir
+-}
++test('syntax checking finds malformed nested JavaScript', (t) => {
++  const cwd = fixture(t);
++  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
++  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
++  spawnSync('git', ['add', '.'], { cwd });
++  const result = spawnSync(
++    'bash',
++    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
++    { cwd, encoding: 'utf8' }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
+ 
+-#[cfg(not(windows))]
+-fn git(dir: &Path, args: &[&str]) {
+-    let status = Command::new("git")
+-        .arg("-C")
+-        .arg(dir)
+-        .args(args)
+-        .env("GIT_AUTHOR_NAME", "test")
+-        .env("GIT_AUTHOR_EMAIL", "test@example.com")
+-        .env("GIT_COMMITTER_NAME", "test")
+-        .env("GIT_COMMITTER_EMAIL", "test@example.com")
+-        .status()
+-        .expect("git should run");
+-    assert!(
+-        status.success(),
+-        "git {args:?} should succeed in {}",
+-        dir.display()
+-    );
+-}
++test('missing lychee report fails instead of claiming all links archived', (t) => {
++  const cwd = fixture(t);
++  const result = spawnSync(
++    process.execPath,
++    [
++      ...(globalThis.Deno ? ['run', '-A'] : []),
++      path.join(root, 'js/scripts/check-web-archive.mjs'),
++    ],
++    {
++      cwd,
++      encoding: 'utf8',
++      env: {
++        ...process.env,
++        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
++        GITHUB_OUTPUT: '',
++      },
++    }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
+ 
+-/// A `git` shim that fails the first `fail_times` fetches and then delegates to
+-/// the real git, so the script's retry loop is exercised end to end.
+-#[cfg(not(windows))]
+-fn install_flaky_git_shim(bin_dir: &Path, real_git: &str, fail_times: u32) {
+-    let shim = format!(
+-        "#!/bin/sh\n\
+-         if [ \"$1\" = \"fetch\" ]; then\n\
+-         \x20 count_file=\"{count_file}\"\n\
+-         \x20 count=$(cat \"$count_file\" 2>/dev/null || echo 0)\n\
+-         \x20 count=$((count + 1))\n\
+-         \x20 echo \"$count\" > \"$count_file\"\n\
+-         \x20 if [ \"$count\" -le \"{fail_times}\" ]; then\n\
+-         \x20\x20\x20 echo \"shim: fetch attempt $count failed\" >&2\n\
+-         \x20\x20\x20 exit 1\n\
+-         \x20 fi\n\
+-         fi\n\
+-         exec \"{real_git}\" \"$@\"\n",
+-        count_file = bin_dir.join("fetch-count").display(),
+-        fail_times = fail_times,
+-        real_git = real_git,
+-    );
+-    let shim_path = bin_dir.join("git");
+-    fs::write(&shim_path, shim).expect("shim should be writable");
+-    #[cfg(unix)]
+-    {
+-        use std::os::unix::fs::PermissionsExt;
+-        fs::set_permissions(&shim_path, fs::Permissions::from_mode(0o755))
+-            .expect("shim should be chmod-able");
+-    }
+-}
++test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
++  const { workflowPolicyErrors } =
++    await import('../scripts/workflow-policy.mjs');
++  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
++  const errors = workflowPolicyErrors(text);
++  assert.ok(errors.some((error) => error.includes('runner')));
++  assert.ok(errors.some((error) => error.includes('timeout')));
++  assert.deepEqual(
++    workflowPolicyErrors(
++      text
++        .replace('ubuntu-latest', 'ubuntu-24.04')
++        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
++    ),
++    []
++  );
++});
+ 
+-#[cfg(not(windows))]
+-fn find_git() -> String {
+-    let output = Command::new("sh")
+-        .args(["-c", "command -v git"])
+-        .output()
+-        .expect("sh should run");
+-    String::from_utf8_lossy(&output.stdout).trim().to_owned()
+-}
++test('committed dependency tree contains no deprecated registry packages', () => {
++  const lock = JSON.parse(
++    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
++  );
++  const deprecated = Object.entries(lock.packages)
++    .filter(([, info]) => info.deprecated)
++    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
++  assert.deepEqual(deprecated, []);
++});
+ 
+-/// Build `origin` (a repo with a `main` commit) and a clone of it on a feature
+-/// branch, then run the script from the clone with the shim's bin dir first on
+-/// PATH. `FRESH_MERGE_CHECKS=true` keeps the merged-tree checks to a no-op.
+-#[cfg(not(windows))]
+-fn run_script_with_flaky_git(fail_times: u32) -> std::process::Output {
+-    let root = temp_root("issue-157");
+-    let origin = root.join("origin");
+-    let clone = root.join("clone");
+-    let bin = root.join("bin");
+-    fs::create_dir_all(&origin).expect("origin dir should be creatable");
+-    fs::create_dir_all(&bin).expect("bin dir should be creatable");
+-
+-    git(&origin, &["-c", "init.defaultBranch=main", "init"]);
+-    fs::write(origin.join("README.md"), "base\n").expect("README should be writable");
+-    git(&origin, &["add", "README.md"]);
+-    git(&origin, &["commit", "-m", "base"]);
+-    git(
+-        &origin,
+-        &[
+-            "clone",
+-            "--no-local",
+-            ".",
+-            clone.to_str().expect("clone path is utf8"),
+-        ],
+-    );
+-    fs::write(clone.join("feature.txt"), "feature\n").expect("feature file should be writable");
+-    git(&clone, &["add", "feature.txt"]);
+-    git(&clone, &["commit", "-m", "feature"]);
+-
+-    install_flaky_git_shim(&bin, &find_git(), fail_times);
+-
+-    let output = Command::new("bash")
+-        .arg(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("scripts/simulate-fresh-merge.sh"))
+-        .env("GITHUB_BASE_REF", "main")
+-        .env("FRESH_MERGE_CHECKS", "true")
+-        // Short backoff so the retry loop does not dominate the test run.
+-        .env("FRESH_MERGE_RETRY_DELAY_SECONDS", "1")
+-        .env("FRESH_MERGE_FETCH_ATTEMPTS", "5")
+-        .env(
+-            "PATH",
+-            format!(
+-                "{}:{}",
+-                bin.display(),
+-                std::env::var("PATH").unwrap_or_default()
+-            ),
+-        )
+-        .current_dir(&clone)
+-        .output()
+-        .expect("the fresh-merge script should run");
+-
+-    let _ = fs::remove_dir_all(&root);
+-    output
+-}
+-
+-#[test]
+-#[cfg(not(windows))]
+-fn a_transient_fetch_failure_is_retried_and_the_simulation_succeeds() {
+-    let output = run_script_with_flaky_git(2);
+-    let stdout = String::from_utf8_lossy(&output.stdout);
+-    let stderr = String::from_utf8_lossy(&output.stderr);
+-
+-    assert!(
+-        output.status.success(),
+-        "two failed fetches should be survived by the retry loop; stdout: {stdout} stderr: {stderr}"
+-    );
+-    assert!(
+-        stdout.contains("attempt 1 of 5") || stderr.contains("attempt 1 of 5"),
+-        "the retry should announce itself, got: {stdout}{stderr}"
+-    );
+-}
+-
+-#[test]
+-#[cfg(not(windows))]
+-fn a_permanently_failing_fetch_fails_loudly_after_the_maximum_attempts() {
+-    let output = run_script_with_flaky_git(999);
+-    let stdout = String::from_utf8_lossy(&output.stdout);
+-    let stderr = String::from_utf8_lossy(&output.stderr);
+-
+-    assert_eq!(
+-        output.status.code(),
+-        Some(1),
+-        "an unreachable base ref must fail the job; stdout: {stdout} stderr: {stderr}"
+-    );
+-    let combined = format!("{stdout}{stderr}");
+-    assert!(
+-        combined.contains("after 5 attempts"),
+-        "the error should name the exhausted attempt count, got: {combined}"
+-    );
+-    assert!(
+-        combined.contains("::error::"),
+-        "the failure should be annotated for the job summary, got: {combined}"
+-    );
+-    assert!(
+-        !combined.contains("Merge succeeded"),
+-        "no check should run when the base ref could not be fetched, got: {combined}"
+-    );
+-}
+-
+-#[test]
+-#[cfg(not(windows))]
+-fn a_malformed_retry_knob_is_a_usage_error() {
+-    let script_path =
+-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("scripts/simulate-fresh-merge.sh");
+-    let output = Command::new("bash")
+-        .arg(&script_path)
+-        .env("GITHUB_BASE_REF", "main")
+-        .env("FRESH_MERGE_FETCH_ATTEMPTS", "five")
+-        .output()
+-        .expect("the fresh-merge script should run");
+-    assert_eq!(output.status.code(), Some(2));
+-    let stderr = String::from_utf8_lossy(&output.stderr);
+-    assert!(
+-        stderr.contains("FRESH_MERGE_FETCH_ATTEMPTS"),
+-        "the usage error should name the rejected knob, got: {stderr}"
+-    );
+-}
++test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
++  const cwd = fixture(t);
++  const files = [
++    'js/scripts/check.sh',
++    '.husky/pre-commit',
++    'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
++    'docs/case-studies/example/data/reference.sh',
++  ];
++  for (const file of files) {
++    mkdirSync(path.dirname(path.join(cwd, file)), { recursive: true });
++    writeFileSync(path.join(cwd, file), '#!/bin/sh\n');
++  }
++  spawnSync('git', ['add', '.'], { cwd });
++  const step = workflow('release.yml').jobs['workflow-lint'].steps.find(
++    ({ name }) => name === 'ShellCheck standalone scripts and hooks'
++  );
++  const selection = step.run.split(' | xargs')[0];
++  const result = spawnSync('bash', ['-c', selection], {
++    cwd,
++    encoding: 'utf8',
++  });
++  assert.equal(result.status, 0, result.stderr);
++  assert.deepEqual(
++    result.stdout.split('\0').filter(Boolean).sort(),
++    files.slice(0, 2).sort()
++  );
++});

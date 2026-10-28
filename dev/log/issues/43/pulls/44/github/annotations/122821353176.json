@@ -1,0 +1,28 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/20ebcefd76c895ae060bbc6b9ce2ac5b97b1b7da/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "The job has exceeded the maximum execution time of 10m0s",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/20ebcefd76c895ae060bbc6b9ce2ac5b97b1b7da/.github",
+      "start_line": 21,
+      "start_column": null,
+      "end_line": 21,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "The operation was canceled.",
+      "raw_details": ""
+    }
+  ]
+]

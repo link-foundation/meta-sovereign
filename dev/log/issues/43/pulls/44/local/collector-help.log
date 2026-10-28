@@ -1,0 +1,10 @@
+usage: issue43-runs.py [-h] [--run-id RUN_ID]
+
+Preserve all related workflow logs, metadata and check annotations
+sequentially. Usage: python experiments/issue43-runs.py Unfinished runs retain
+metadata and are collected on the next invocation. Use repeatable --run-id to
+refresh only selected runs after the full collection.
+
+options:
+  -h, --help       show this help message and exit
+  --run-id RUN_ID

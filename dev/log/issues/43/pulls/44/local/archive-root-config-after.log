@@ -1,0 +1,22 @@
+⋯ Backing up original state…
+✔ Done backing up original state (d9abc93)!
+⋯ Running tasks for staged files…
+    *.{js,mjs,cjs} — 143 files
+      ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+      ⋯ prettier --write
+      ⋯ prettier --check
+    *.md — 41 files
+      ⋯ prettier --write
+      ⋯ prettier --check
+
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!

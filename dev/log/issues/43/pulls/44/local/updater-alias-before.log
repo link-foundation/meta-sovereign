@@ -1,0 +1,50 @@
+▶ desktop package.json
+  ✔ ships the root version with electron-updater as the only dependency (1.734577ms)
+  ✔ names the .desktop entry after the executable (0.423781ms)
+  ✖ replaces only the updater deprecated comparator with its compatible two-argument form (0.441695ms)
+✖ desktop package.json (4.625633ms)
+▶ electron-builder config
+  ✔ uses the v27 schema while preserving files, native and signing settings (0.493551ms)
+  ✔ keeps the reverse-DNS app id and GitHub publish target (1.565402ms)
+  ✔ names the macOS bundle after the product, not the executable (0.392483ms)
+  ✔ gives ad-hoc macOS builds an identity, so the sign hook runs (18.622597ms)
+  ✔ uses the pinned builder native FPM bundles without system overrides (2.450835ms)
+  ✔ produces the catalogue name for every download option (1.160766ms)
+✔ electron-builder config (26.25898ms)
+▶ normalize-desktop-artifacts
+  ✔ maps Linux arch spellings to x64/arm64 (0.944573ms)
+  ✔ rewrites update feeds (0.277127ms)
+  ✔ renames files and feeds in a release directory (19.051367ms)
+  ✔ ignores a missing directory (0.396639ms)
+✔ normalize-desktop-artifacts (21.169721ms)
+▶ validate-desktop-assets
+  ✔ parses sha256sum output, including binary-mode markers (0.491187ms)
+  ✔ accepts a complete, checksummed release (0.650594ms)
+  ✔ reports missing and unchecksummed installers (0.310459ms)
+  ✔ rejects tags without a version (0.214129ms)
+✔ validate-desktop-assets (1.927647ms)
+▶ build-desktop
+  ✔ picks the newest version from npm view output (0.18182ms)
+✔ build-desktop (0.328984ms)
+ℹ tests 18
+ℹ suites 5
+ℹ pass 17
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 191.396076
+
+✖ failing tests:
+
+test at node_modules/test-anywhere/src/index.js:174:12
+✖ replaces only the updater deprecated comparator with its compatible two-argument form (0.441695ms)
+  Error: Expected undefined to equal {"electron-updater":{"lodash.isequal":"npm:lodash.isequalwith@4.4.0"}}
+      at Object.toEqual (file:///tmp/gh-issue-solver-1793191206670/node_modules/test-anywhere/src/index.js:399:15)
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/desktop-packaging.test.js:89:51)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Suite.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7)

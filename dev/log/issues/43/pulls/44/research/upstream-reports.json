@@ -1,0 +1,17 @@
+[
+  {
+    "repository": "link-foundation/js-ai-driven-development-pipeline-template",
+    "url": "https://github.com/link-foundation/js-ai-driven-development-pipeline-template/issues/267",
+    "revision": "0a3957d8195271829aa3cd5adce58a98fe73be2b"
+  },
+  {
+    "repository": "link-foundation/rust-ai-driven-development-pipeline-template",
+    "url": "https://github.com/link-foundation/rust-ai-driven-development-pipeline-template/issues/220",
+    "revision": "0ece2cf2c2745c3574ffb65dbabdfcadd7163c14"
+  },
+  {
+    "repository": "link-foundation/python-ai-driven-development-pipeline-template",
+    "url": "https://github.com/link-foundation/python-ai-driven-development-pipeline-template/issues/123",
+    "revision": "317c243a7cc832b0abfe4d30989c5095d17fcd78"
+  }
+]

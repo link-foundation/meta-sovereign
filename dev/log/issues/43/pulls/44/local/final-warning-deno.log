@@ -1,0 +1,16 @@
+running 8 tests from ./js/tests/ci-contracts.test.js
+browser failures cannot become a green release ... ok (113ms)
+every Rust documentation path rejects warnings ... ok (51ms)
+read-only jobs use supported pinned runner labels and no stored checkout credentials ... ok (103ms)
+syntax checking finds malformed nested JavaScript ... ok (104ms)
+missing lychee report fails instead of claiming all links archived ... ok (170ms)
+workflow policy detects mutable matrix runners and unbounded auxiliary jobs ... ok (4ms)
+committed dependency tree contains no deprecated registry packages ... ok (5ms)
+standalone shell lint selects maintained scripts without reference evidence ... ok (92ms)
+running 1 test from ./js/tests/ci-precommit.test.js
+pre-commit uses root configuration even beside staged reference package configs ... ok (479ms)
+running 1 test from ./js/tests/fake-github.test.js
+fake GitHub closes owned connections without waiting for clients ... ok (30ms)
+
+ok | 10 passed | 0 failed (1s)
+

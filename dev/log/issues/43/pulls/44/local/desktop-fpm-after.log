@@ -1,0 +1,35 @@
+▶ desktop package.json
+  ✔ ships the root version with electron-updater as the only dependency (1.429199ms)
+  ✔ names the .desktop entry after the executable (0.380349ms)
+✔ desktop package.json (3.648904ms)
+▶ electron-builder config
+  ✔ uses the v27 schema while preserving files, native and signing settings (0.513229ms)
+  ✔ keeps the reverse-DNS app id and GitHub publish target (0.250728ms)
+  ✔ names the macOS bundle after the product, not the executable (0.880945ms)
+  ✔ gives ad-hoc macOS builds an identity, so the sign hook runs (13.65157ms)
+  ✔ does not pass removed builder environment overrides to arm64 builds (5.786596ms)
+  ✔ produces the catalogue name for every download option (1.386358ms)
+✔ electron-builder config (23.752401ms)
+▶ normalize-desktop-artifacts
+  ✔ maps Linux arch spellings to x64/arm64 (0.692895ms)
+  ✔ rewrites update feeds (0.389167ms)
+  ✔ renames files and feeds in a release directory (37.087448ms)
+  ✔ ignores a missing directory (1.818015ms)
+✔ normalize-desktop-artifacts (40.674858ms)
+▶ validate-desktop-assets
+  ✔ parses sha256sum output, including binary-mode markers (2.029259ms)
+  ✔ accepts a complete, checksummed release (2.098898ms)
+  ✔ reports missing and unchecksummed installers (0.623494ms)
+  ✔ rejects tags without a version (0.312414ms)
+✔ validate-desktop-assets (5.438295ms)
+▶ build-desktop
+  ✔ picks the newest version from npm view output (0.197097ms)
+✔ build-desktop (0.959742ms)
+ℹ tests 17
+ℹ suites 5
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 271.973787

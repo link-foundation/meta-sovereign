@@ -1,0 +1,40 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/504e07daa95f6100355926f2f371ed0d4ff72c07/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Canceling since a higher priority waiting request for check-Checks and release-refs/pull/44/merge-e2e-browser-1 exists",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/504e07daa95f6100355926f2f371ed0d4ff72c07/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/504e07daa95f6100355926f2f371ed0d4ff72c07/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    }
+  ]
+]

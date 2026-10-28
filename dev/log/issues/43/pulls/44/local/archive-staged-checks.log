@@ -1,0 +1,49 @@
+⋯ Backing up original state…
+✔ Done backing up original state (81969a2)!
+⋯ Hiding unstaged changes to partially staged files…
+✔ Done hiding unstaged changes to partially staged files!
+⋯ Running tasks for staged files…
+    dev/log/issues/43/pulls/44/templates/js/files/package.json — 182 files
+      *.{js,mjs,cjs} — 132 files
+        ⋯ eslint --fix --max-warnings 0 --no-warn-ignored
+        ⋯ prettier --write
+        ⋯ prettier --check
+      *.md — 12 files
+        ⋯ prettier --write
+        ⋯ prettier --check
+      *.sh — 10 files
+        ⋯ pipx run --spec shellcheck-py==0.11.0.1 shellcheck
+      .husky/* — 1 file
+        ⋯ pipx run --spec shellcheck-py==0.11.0.1 shellcheck
+    package.json — 1699 files
+      *.{js,mjs,cjs} — 10 files
+        ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+        ⋯ prettier --write
+        ⋯ prettier --check
+      *.md — 27 files
+        ⋯ prettier --write
+        ⋯ prettier --check
+
+✔ eslint --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+✔ prettier --write
+✔ prettier --check
+✖ pipx run --spec shellcheck-py==0.11.0.1 shellcheck
+↓ pipx run --spec shellcheck-py==0.11.0.1 shellcheck
+↓ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+↓ prettier --write
+↓ prettier --check
+↓ prettier --write
+↓ prettier --check
+
+✖ Failed to run tasks for staged files!
+↓ Skipped staging changes from tasks…
+↓ Skipped restoring unstaged changes…
+⋯ Reverting to original state because of errors…
+✔ Done reverting to original state!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+
+✖ Task failed to spawn: pipx run --spec shellcheck-py==0.11.0.1 shellcheck
+ENOENT

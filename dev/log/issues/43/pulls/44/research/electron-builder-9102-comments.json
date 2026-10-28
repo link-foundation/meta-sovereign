@@ -1,0 +1,2 @@
+{"body":"Can confirm the same outcome using npm v10.9.2 as the package manager","html_url":"https://github.com/electron-userland/electron-builder/issues/9102#issuecomment-2884438281"}
+{"body":"The main blockers are upstream dependencies electron-winstaller @electron/asar and @electron/rebuild\n\nClosing this as the dependencies are already tracked by RenovateBot automatically in https://github.com/electron-userland/electron-builder/issues/6183","html_url":"https://github.com/electron-userland/electron-builder/issues/9102#issuecomment-2886235211"}

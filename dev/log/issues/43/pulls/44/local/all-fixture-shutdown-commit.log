@@ -1,0 +1,26 @@
+⋯ Backing up original state…
+✔ Done backing up original state (723b44d)!
+⋯ Running tasks for staged files…
+    *.{js,mjs,cjs} — 10 files
+      ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+      ⋯ prettier --write
+      ⋯ prettier --check
+    *.md — 4 files
+      ⋯ prettier --write
+      ⋯ prettier --check
+
+✔ prettier --write
+✔ prettier --check
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 c086c8f] fix(test): close all owned network fixture connections during teardown
+ 14 files changed, 193 insertions(+), 103 deletions(-)
+ create mode 100644 js/tests/fixture-server.test.js
+ create mode 100644 js/tests/helpers/fixture-server.mjs

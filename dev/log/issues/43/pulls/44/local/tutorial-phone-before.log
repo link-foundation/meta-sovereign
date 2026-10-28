@@ -1,0 +1,9 @@
+- webkit/phone
+  ✗ page.click: Timeout 10000ms exceeded. (on step pick, side=dock)
+      - waiting for locator('[data-action="tutorial-back"]')
+      - locator resolved to <button type="button" data-action="tutorial-back">Back</button>
+      - attempting click action
+      - waiting for element to be visible, enabled and stable
+      
+      probe {"probeFailed":"page.evaluate: Target page, context or browser has been closed"}
+- webkit/phone/tall-card

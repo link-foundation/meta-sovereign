@@ -1,0 +1,23 @@
+✔ browser failures cannot become a green release (80.566831ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (69.7051ms)
+✔ syntax checking finds malformed nested JavaScript (103.089713ms)
+✔ missing lychee report fails instead of claiming all links archived (84.703174ms)
+✔ PR checks include earlier code after a docs-only follow-up (292.81297ms)
+✔ multi-commit push checks the whole event range (217.410406ms)
+✔ initial commit is checked instead of silently returning no changes (179.927483ms)
+✔ evidence snapshots never count as executable code changes (216.302011ms)
+✔ unavailable explicit PR revisions fail closed (139.78456ms)
+✔ release dependencies normalize ESM and nested CommonJS and reject unsupported shapes (3.922593ms)
+✔ pipeline gate rejects failed, cancelled and missing results (1.738842ms)
+✔ registry probe distinguishes unpublished versions from authentication and network failures (0.690458ms)
+✔ package startup fails promptly on child exit and hung health request (43.385471ms)
+✔ release metadata guard allows only version changes, never dependency edits (2.103883ms)
+✔ OIDC preflight verifies the actual package exchange and rejects unknown or refused responses (3.158919ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1830.986314

@@ -1,0 +1,676 @@
+--- python@317c243a7cc832b0abfe4d30989c5095d17fcd78/scripts/version_and_commit.py
++++ js/scripts/version-and-commit.mjs
+@@ -1,382 +1,291 @@
+-#!/usr/bin/env python3
+-"""
+-Version packages and commit to main branch.
+-
+-This script handles version bumping and committing for CI/CD workflows.
+-It supports idempotent re-runs and detects when work was already completed.
+-
+-Usage:
+-    python scripts/version_and_commit.py --bump-type <major|minor|patch> [--description "..."]
+-
+-Example:
+-    python scripts/version_and_commit.py --bump-type patch
+-    python scripts/version_and_commit.py --bump-type minor --description "New feature"
+-
+-Environment variables:
+-    GITHUB_OUTPUT: Path to GitHub Actions output file
+-"""
+-
+-import argparse
+-import os
+-import subprocess
+-import sys
+-import tomllib
+-from enum import Enum, auto
+-from pathlib import Path
+-
+-
+-def run_command(
+-    cmd: list[str], check: bool = True, capture: bool = False
+-) -> subprocess.CompletedProcess:
+-    """Run a command and handle errors."""
+-    cmd_str = " ".join(cmd)
+-    print(f"Running: {cmd_str}")
+-
+-    result = subprocess.run(
+-        cmd,
+-        capture_output=capture,
+-        text=True,
+-        check=False,
+-    )
+-
+-    if not capture:
+-        if result.stdout:
+-            print(result.stdout)
+-        if result.stderr:
+-            print(result.stderr, file=sys.stderr)
+-
+-    if check and result.returncode != 0:
+-        if capture:
+-            print(result.stdout)
+-            print(result.stderr, file=sys.stderr)
+-        print(
+-            f"Error: Command failed with exit code {result.returncode}",
+-            file=sys.stderr,
+-        )
+-        sys.exit(result.returncode)
+-
+-    return result
+-
+-
+-def set_github_output(key: str, value: str) -> None:
+-    """Set GitHub Actions output variable."""
+-    output_file = os.environ.get("GITHUB_OUTPUT")
+-    if output_file:
+-        with open(output_file, "a") as f:
+-            f.write(f"{key}={value}\n")
+-        print(f"Set output: {key}={value}")
+-
+-
+-def parse_version(content: str) -> str:
+-    """Read project.version from pyproject.toml content (issue #67).
+-
+-    A line-anchored regex cannot see TOML tables, so a ``version`` key in any
+-    other table -- scriv's documented ``[tool.scriv] version``, for example --
+-    matched first and released under the wrong number. Parse the document and
+-    read the field by its table path instead; a missing version fails loudly.
+-    """
+-    try:
+-        document = tomllib.loads(content)
+-    except tomllib.TOMLDecodeError as error:
+-        raise ValueError(f"pyproject.toml is not valid TOML: {error}") from error
+-    if "project" not in document or not isinstance(document["project"], dict):
+-        raise ValueError("pyproject.toml has no [project] table")
+-    version = document["project"].get("version")
+-    if not isinstance(version, str):
+-        raise ValueError("pyproject.toml has no project.version string")
+-    return version
+-
+-
+-def get_current_version(pyproject_path: Path) -> str:
+-    """Get version from pyproject.toml."""
+-    return parse_version(pyproject_path.read_text())
+-
+-
+-def get_repo_root() -> Path:
+-    """Return the current git repository root."""
+-    output = run_command(
+-        ["git", "rev-parse", "--show-toplevel"],
+-        capture=True,
+-    ).stdout.strip()
+-    return Path(output)
+-
+-
+-# Not every failed `git push` is a lost race (issue #73). A repository
+-# ruleset rejection arrives shaped like a non-fast-forward, and rebasing
+-# against a policy refusal three times burns the job's budget before dying
+-# with a misleading "conflict" error, so the failure is classified first.
+-REPOSITORY_RULE_PATTERNS = (
+-    "gh006",
+-    "gh013",
+-    "repository rule violations",
+-    "changes must be made through a pull request",
+-    "protected branch",
+-    "push declined",
+-)
+-
+-NON_FAST_FORWARD_PATTERNS = (
+-    "[rejected]",
+-    "non-fast-forward",
+-    "fetch first",
+-    "updates were rejected",
+-)
+-
+-
+-class PushFailure(Enum):
+-    """Classification of a failed `git push`."""
+-
+-    REPOSITORY_RULES = auto()
+-    LOST_RACE = auto()
+-    OTHER = auto()
+-
+-
+-def classify_push_failure(raw_output: str) -> PushFailure:
+-    """Classify a git push failure so only a genuine race is retried."""
+-    haystack = raw_output.lower()
+-    # Rules first: a ruleset rejection also contains the word "rejected".
+-    if any(pattern in haystack for pattern in REPOSITORY_RULE_PATTERNS):
+-        return PushFailure.REPOSITORY_RULES
+-    if any(pattern in haystack for pattern in NON_FAST_FORWARD_PATTERNS):
+-        return PushFailure.LOST_RACE
+-    return PushFailure.OTHER
+-
+-
+-def run_git_capturing(cmd: list[str]) -> subprocess.CompletedProcess:
+-    """Run a git command, returning its result without exiting on failure."""
+-    print(f"Running: {' '.join(cmd)}")
+-    return subprocess.run(cmd, capture_output=True, text=True, check=False)
+-
+-
+-def push_branch_with_rebase_retry(branch: str, *, max_attempts: int = 3) -> None:
+-    """Push to a branch, retrying a lost race with a rebase (issue #73).
+-
+-    A repository-ruleset refusal or any other failure is reported as what it
+-    is instead of being masked as a merge conflict; only a lost non-fast-
+-    forward race is fixed by rebasing onto the new remote tip.
+-    """
+-    for attempt in range(1, max_attempts + 1):
+-        completed = run_git_capturing(["git", "push", "origin", branch])
+-        if completed.returncode == 0:
+-            return
+-
+-        push_error = f"{completed.stdout}{completed.stderr}".strip()
+-        failure = classify_push_failure(push_error)
+-
+-        if failure is PushFailure.REPOSITORY_RULES:
+-            print(
+-                f"::error title=Push declined by repository rules::The push to "
+-                f"branch '{branch}' was declined by a repository rule (a "
+-                f"GH006/GH013-class rejection, e.g. 'changes must be made through "
+-                f"a pull request' or a protected-branch ruleset). Rebasing and "
+-                f"retrying cannot change repository policy: release this change "
+-                f"through a pull request, or adjust the ruleset so the release "
+-                f"bot may push.\n--- git output ---\n{push_error}",
+-                file=sys.stderr,
+-            )
+-            sys.exit(1)
+-
+-        if failure is PushFailure.OTHER:
+-            print(f"Error pushing: {push_error}", file=sys.stderr)
+-            sys.exit(1)
+-
+-        if attempt >= max_attempts:
+-            print(
+-                f"Error pushing after {max_attempts} attempts: {push_error}",
+-                file=sys.stderr,
+-            )
+-            sys.exit(1)
+-
+-        print(
+-            f"Push rejected as non-fast-forward (attempt {attempt}/"
+-            f"{max_attempts}); the remote branch moved. Rebasing and retrying...",
+-            file=sys.stderr,
+-        )
+-        rebase = run_git_capturing(["git", "pull", "--rebase", "origin", branch])
+-        if rebase.returncode != 0:
+-            rebase_error = f"{rebase.stdout}{rebase.stderr}".strip()
+-            print(f"Error during pull --rebase: {rebase_error}", file=sys.stderr)
+-            run_git_capturing(["git", "rebase", "--abort"])
+-            sys.exit(1)
+-
+-
+-def configure_git() -> None:
+-    """Configure git for automated commits."""
+-    print("Configuring git...")
+-    run_command(
+-        ["git", "config", "user.name", "github-actions[bot]"],
+-    )
+-    run_command(
+-        ["git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"],
+-    )
+-
+-
+-def check_remote_changes(
+-    pyproject_path: Path,
+-    pyproject_git_path: str,
+-) -> tuple[bool, str]:
+-    """
+-    Check if remote main has advanced (handles re-runs).
+-    Returns (already_released, remote_version).
+-    """
+-    print("\nChecking for remote changes...")
+-    run_command(["git", "fetch", "origin", "main"])
+-
+-    # Get commit SHAs
+-    local_head = run_command(
+-        ["git", "rev-parse", "HEAD"],
+-        capture=True,
+-    ).stdout.strip()
+-
+-    remote_head = run_command(
+-        ["git", "rev-parse", "origin/main"],
+-        capture=True,
+-    ).stdout.strip()
+-
+-    if local_head != remote_head:
+-        print(f"Remote main has advanced (local: {local_head}, remote: {remote_head})")
+-        print("This may indicate a previous attempt partially succeeded.")
+-
+-        # Get remote version
+-        remote_content = run_command(
+-            ["git", "show", f"origin/main:{pyproject_git_path}"],
+-            capture=True,
+-        ).stdout
+-
+-        try:
+-            remote_version = parse_version(remote_content)
+-        except ValueError as error:
+-            print(f"Could not parse remote pyproject.toml: {error}")
+-            return False, ""
+-
+-        print(f"Remote version: {remote_version}")
+-
+-        # Check if versions differ (indicating work was done)
+-        local_version = get_current_version(pyproject_path)
+-        if local_version != remote_version:
+-            print("Local and remote versions differ, rebasing...")
+-            run_command(["git", "rebase", "origin/main"])
+-            return False, remote_version
+-        else:
+-            print("Versions match, assuming previous run completed successfully")
+-            return True, remote_version
+-
+-    return False, ""
+-
+-
+-def main() -> int:
+-    """Main entry point."""
+-    parser = argparse.ArgumentParser(
+-        description="Version bump and commit for CI/CD",
+-    )
+-    parser.add_argument(
+-        "--bump-type",
+-        choices=["major", "minor", "patch"],
+-        required=True,
+-        help="Type of version bump",
+-    )
+-    parser.add_argument(
+-        "--description",
+-        default="",
+-        help="Description for changelog",
+-    )
+-
+-    args = parser.parse_args()
+-
+-    # Determine project root
+-    script_dir = Path(__file__).resolve().parent
+-    project_root = script_dir.parent
+-    pyproject_path = project_root / "pyproject.toml"
+-    repo_root = get_repo_root()
+-    pyproject_git_path = pyproject_path.relative_to(repo_root).as_posix()
+-
+-    if not pyproject_path.exists():
+-        print(f"Error: {pyproject_path} not found", file=sys.stderr)
+-        return 1
+-
+-    try:
+-        # Configure git
+-        configure_git()
+-
+-        # Check for remote changes
+-        already_released, remote_version = check_remote_changes(
+-            pyproject_path,
+-            pyproject_git_path,
+-        )
+-
+-        if already_released:
+-            print("Version bump already completed in previous run")
+-            set_github_output("version_committed", "false")
+-            set_github_output("already_released", "true")
+-            set_github_output("new_version", remote_version)
+-            return 0
+-
+-        # Get current version
+-        old_version = get_current_version(pyproject_path)
+-        print(f"\nCurrent version: {old_version}")
+-
+-        fragment_dir = project_root / "changelog.d"
+-        fragments = [
+-            path for path in fragment_dir.glob("*.md") if path.name != "README.md"
+-        ]
+-
+-        # Run version bump
+-        print(f"\nBumping version ({args.bump_type})...")
+-        bump_cmd = [
+-            sys.executable,
+-            str(project_root / "scripts" / "bump_version.py"),
+-            args.bump_type,
+-        ]
+-        if args.description:
+-            bump_cmd.extend(["--description", args.description])
+-        if fragments:
+-            # Scriv writes the detailed entry. Avoid a second generic heading.
+-            bump_cmd.append("--skip-changelog")
+-
+-        run_command(bump_cmd)
+-
+-        # Get new version
+-        new_version = get_current_version(pyproject_path)
+-        print(f"New version: {new_version}")
+-
+-        if fragments:
+-            print(f"Collecting {len(fragments)} changelog fragment(s)...")
+-            run_command(["scriv", "collect", "--version", new_version])
+-        else:
+-            print("No changelog fragments found; keeping the generic release entry")
+-        set_github_output("new_version", new_version)
+-
+-        # Check for changes
+-        status = run_command(
+-            ["git", "status", "--porcelain"],
+-            capture=True,
+-        ).stdout.strip()
+-
+-        if status:
+-            print("\nChanges detected, committing...")
+-
+-            # Stage all changes
+-            run_command(["git", "add", "-A"])
+-
+-            # Commit with version as message
+-            run_command(["git", "commit", "-m", new_version])
+-
+-            # Push to main; only a genuine lost race is retried (issue #73)
+-            push_branch_with_rebase_retry("main")
+-
+-            print(
+-                f"\n✅ Version bump committed and pushed: {old_version} → {new_version}"
+-            )
+-            set_github_output("version_committed", "true")
+-        else:
+-            print("\nNo changes to commit")
+-            set_github_output("version_committed", "false")
+-
+-        return 0
+-
+-    except Exception as e:
+-        print(f"Error: {e}", file=sys.stderr)
+-        return 1
+-
+-
+-if __name__ == "__main__":
+-    sys.exit(main())
++#!/usr/bin/env bun
++
++/**
++ * Version packages and commit to main
++ * Usage: node js/scripts/version-and-commit.mjs --mode <changeset|instant> [--bump-type <type>] [--description <desc>] [--js-root <path>]
++ *   changeset: Run changeset version
++ *   instant: Run instant version bump with bump_type (patch|minor|major) and optional description
++ *
++ * Configuration:
++ * - CLI: --js-root <path> to explicitly set JavaScript root
++ * - Environment: JS_ROOT=<path>
++ *
++ * Uses link-foundation libraries:
++ * - Lockfile-installed release dependencies (npm ci)
++ * - command-stream: Modern shell command execution with streaming support
++ * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
++ *
++ * Addresses issues documented in:
++ * - Issue #21: Supporting both single and multi-language repository structures
++ * - Reference: link-assistant/agent PR #112 (--legacy-peer-deps fix)
++ * - Reference: link-assistant/agent PR #114 (configurable package root)
++ */
++
++import { readFileSync, appendFileSync, readdirSync } from 'fs';
++import {
++  assertValidatedReleaseTree,
++  isReleaseSuperseded,
++} from './validated-release-tree.mjs';
++
++import {
++  getJsRoot,
++  getPackageJsonPath,
++  getChangesetDir,
++  needsCd,
++  parseJsRootConfig,
++} from './js-paths.mjs';
++
++import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
++
++// Import link-foundation libraries
++const { $ } = await loadCommandStream();
++const { makeConfig } = await loadLinoArguments();
++
++// Parse CLI arguments using lino-arguments
++const config = makeConfig({
++  yargs: ({ yargs, getenv }) =>
++    yargs
++      .option('mode', {
++        type: 'string',
++        default: getenv('MODE', 'changeset'),
++        describe: 'Version mode: changeset or instant',
++        choices: ['changeset', 'instant'],
++      })
++      .option('bump-type', {
++        type: 'string',
++        default: getenv('BUMP_TYPE', ''),
++        describe: 'Version bump type for instant mode: major, minor, or patch',
++      })
++      .option('description', {
++        type: 'string',
++        default: getenv('DESCRIPTION', ''),
++        describe: 'Description for instant version bump',
++      })
++      .option('js-root', {
++        type: 'string',
++        default: getenv('JS_ROOT', ''),
++        describe:
++          'JavaScript package root directory (auto-detected if not specified)',
++      }),
++});
++
++const { mode, bumpType, description, jsRoot: jsRootArg } = config;
++
++// Get JavaScript package root (auto-detect or use explicit config)
++const jsRootConfig = jsRootArg || parseJsRootConfig();
++const jsRoot = getJsRoot({ jsRoot: jsRootConfig, verbose: true });
++
++// Debug: Log parsed configuration
++console.log('Parsed configuration:', {
++  mode,
++  bumpType,
++  description: description || '(none)',
++  jsRoot,
++});
++
++// Detect if positional arguments were used (common mistake)
++const args = process.argv.slice(2);
++if (args.length > 0 && !args[0].startsWith('--')) {
++  console.error('Error: Positional arguments detected!');
++  console.error('Command line arguments:', args);
++  console.error('');
++  console.error(
++    'This script requires named arguments (--mode, --bump-type, --description, --js-root).'
++  );
++  console.error('Usage:');
++  console.error('  Changeset mode:');
++  console.error(
++    '    node js/scripts/version-and-commit.mjs --mode changeset [--js-root <path>]'
++  );
++  console.error('  Instant mode:');
++  console.error(
++    '    node js/scripts/version-and-commit.mjs --mode instant --bump-type <major|minor|patch> [--description <desc>] [--js-root <path>]'
++  );
++  console.error('');
++  console.error('Examples:');
++  console.error(
++    '  node js/scripts/version-and-commit.mjs --mode instant --bump-type patch --description "Fix bug"'
++  );
++  console.error('  node js/scripts/version-and-commit.mjs --mode changeset');
++  console.error(
++    '  node js/scripts/version-and-commit.mjs --mode changeset --js-root js'
++  );
++  process.exit(1);
++}
++
++// Validation: Ensure mode is set correctly
++if (mode !== 'changeset' && mode !== 'instant') {
++  console.error(`Invalid mode: "${mode}". Expected "changeset" or "instant".`);
++  console.error('Command line arguments:', process.argv.slice(2));
++  process.exit(1);
++}
++
++// Validation: Ensure bump type is provided for instant mode
++if (mode === 'instant' && !bumpType) {
++  console.error('Error: --bump-type is required for instant mode');
++  console.error(
++    'Usage: node js/scripts/version-and-commit.mjs --mode instant --bump-type <major|minor|patch> [--description <desc>] [--js-root <path>]'
++  );
++  process.exit(1);
++}
++
++// Store the original working directory to restore after cd commands
++// IMPORTANT: command-stream's cd is a virtual command that calls process.chdir()
++const originalCwd = process.cwd();
++
++/**
++ * Append to GitHub Actions output file
++ * @param {string} key
++ * @param {string} value
++ */
++function setOutput(key, value) {
++  const outputFile = process.env.GITHUB_OUTPUT;
++  if (outputFile) {
++    appendFileSync(outputFile, `${key}=${value}\n`);
++  }
++}
++
++/**
++ * Count changeset files (excluding README.md)
++ */
++function countChangesets() {
++  try {
++    const changesetDir = getChangesetDir({ jsRoot });
++    const files = readdirSync(changesetDir);
++    return files.filter((f) => f.endsWith('.md') && f !== 'README.md').length;
++  } catch {
++    return 0;
++  }
++}
++
++/**
++ * Get package version
++ * @param {string} source - 'local' or 'remote'
++ */
++async function getVersion(source = 'local') {
++  const packageJsonPath = getPackageJsonPath({ jsRoot });
++  if (source === 'remote') {
++    const result = await $`git show origin/main:${packageJsonPath}`.run({
++      capture: true,
++    });
++    return JSON.parse(result.stdout).version;
++  }
++  return JSON.parse(readFileSync(packageJsonPath, 'utf8')).version;
++}
++
++async function main() {
++  try {
++    // Configure git
++    await $`git config user.name "github-actions[bot]"`;
++    await $`git config user.email "github-actions[bot]@users.noreply.github.com"`;
++
++    // Check if remote main has advanced (handles re-runs after partial success)
++    console.log('Checking for remote changes...');
++    await $`git fetch origin main`;
++
++    const localHeadResult = await $`git rev-parse HEAD`.run({ capture: true });
++    const localHead = localHeadResult.stdout.trim();
++
++    const remoteHeadResult = await $`git rev-parse origin/main`.run({
++      capture: true,
++    });
++    const remoteHead = remoteHeadResult.stdout.trim();
++
++    if (localHead !== remoteHead) {
++      if (isReleaseSuperseded(localHead, remoteHead)) {
++        console.log(
++          `::notice::Release superseded by newer source on main: ${localHead} -> ${remoteHead}`
++        );
++        setOutput('version_committed', 'false');
++        return;
++      }
++      // Re-runs may resume a version-only commit, but must use its actual tree.
++      await $`git checkout -B main origin/main`;
++      const localVersion = JSON.parse(
++        readFileSync(getPackageJsonPath({ jsRoot }), 'utf8')
++      ).version;
++      if (countChangesets() === 0) {
++        setOutput('version_committed', 'false');
++        setOutput('already_released', 'true');
++        setOutput('new_version', localVersion);
++        return;
++      }
++    }
++
++    // Get current version before bump
++    const oldVersion = await getVersion();
++    console.log(`Current version: ${oldVersion}`);
++
++    if (mode === 'instant') {
++      console.log('Running instant version bump...');
++      // Run instant version bump script
++      // Pass --js-root to ensure consistent path handling
++      // Rely on command-stream's auto-quoting for proper argument handling
++      if (description) {
++        await $`node js/scripts/instant-version-bump.mjs --bump-type ${bumpType} --description ${description} --js-root ${jsRoot}`;
++      } else {
++        await $`node js/scripts/instant-version-bump.mjs --bump-type ${bumpType} --js-root ${jsRoot}`;
++      }
++    } else {
++      console.log('Running changeset version...');
++      // Run changeset version to bump versions and update CHANGELOG
++      // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
++      if (needsCd({ jsRoot })) {
++        await $`cd ${jsRoot} && npm run changeset:version`;
++        process.chdir(originalCwd);
++      } else {
++        await $`npm run changeset:version`;
++      }
++    }
++
++    // Get new version after bump
++    const newVersion = await getVersion();
++    console.log(`New version: ${newVersion}`);
++    setOutput('new_version', newVersion);
++
++    // Check if there are changes to commit
++    const statusResult = await $`git status --porcelain`.run({ capture: true });
++    const status = statusResult.stdout.trim();
++
++    if (status) {
++      console.log('Changes detected, committing...');
++
++      // Stage all changes (package.json, package-lock.json, CHANGELOG.md, deleted changesets)
++      await $`git add -- package.json package-lock.json CHANGELOG.md .changeset`;
++      // Reject accidental dependency/config edits before creating a release commit.
++      const staged = await $`git diff --cached --name-only`.run({
++        capture: true,
++      });
++      console.log(`Staged release metadata: ${staged.stdout}`);
++
++      // Commit with version number as message
++      const commitMessage = newVersion;
++      const escapedMessage = commitMessage.replace(/"/g, '\\"');
++      await $`git commit -m "${escapedMessage}"`;
++      assertValidatedReleaseTree(localHead, 'HEAD');
++
++      // Push directly to main
++      try {
++        await $`git push origin HEAD:refs/heads/main`;
++      } catch (error) {
++        throw new Error(
++          'Release push refused. Check branch rules/token write access; a concurrent main update must be validated by its own run. No policy refusal is retried.',
++          { cause: error }
++        );
++      }
++
++      console.log('\u2705 Version bump committed and pushed to main');
++      setOutput('version_committed', 'true');
++    } else {
++      console.log('No changes to commit');
++      setOutput('version_committed', 'false');
++    }
++  } catch (error) {
++    // Restore cwd on error
++    process.chdir(originalCwd);
++    console.error('Error:', error.message);
++    process.exit(1);
++  }
++}
++
++main();

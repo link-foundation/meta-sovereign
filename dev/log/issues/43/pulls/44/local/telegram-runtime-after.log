@@ -1,0 +1,34 @@
+✔ constructor ids are the CRC32 of the secret schema lines (3.147173ms)
+✔ TL: bytes are padded to four, long ones use the 254 form (5.316763ms)
+✔ TL: a text message with entities, a reply and a bot round-trips (2.098336ms)
+✔ TL: every service action round-trips (1.997668ms)
+✔ TL: media is reported, an unknown entity costs the entities only (0.512617ms)
+✔ TL: the layer wrapper round-trips and refuses other bytes (0.528216ms)
+✔ AES-IGE agrees with the GramJS implementation, both ways (25.05935ms)
+✔ the key exchange: parameters, ranges and the fingerprint Telegram reports (604.186763ms)
+✔ packets: both directions, padding 12..1024 to a multiple of 16 (142.6321ms)
+✔ packets: x is 0 for the originator and 8 for the other side (1.010745ms)
+✔ packets: wrong fingerprint, wrong side, tampering and bad lengths are refused (82.003357ms)
+✔ sessions: messages both ways, sequence numbers, the send log (114.890946ms)
+✔ sessions: a duplicate is dropped, a gap asks for a resend and is healed by it (96.705827ms)
+✔ sessions: a packet from the wrong side or with the wrong parity is refused (63.712801ms)
+✔ the key picture: a derived 8x8 identicon and four lines of hex (69.025676ms)
+(node:42379) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ the published schema becomes the TL lines GramJS reads (5.259647ms)
+✔ TDLib's schema becomes the same TL, without TDLib's own calls (1.442903ms)
+✔ the maintained client has the current polls, checklists and vote methods (574.858156ms)
+✔ GramJS loads at the current layer, before anything else loads it (397.11757ms)
+✔ every Api method and class our Telegram code names exists (157.067452ms)
+✔ what was stored as unsupported is read again once, a chat at a time (4.102116ms)
+✔ a chat Telegram cannot address does not keep the repair coming back (1.111474ms)
+✔ Windows Deno selects portable AES before a native addon can crash (2.184407ms)
+✔ other runtimes preserve native selection and explicit portable settings (2.36312ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2856.008217

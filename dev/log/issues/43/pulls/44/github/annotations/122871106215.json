@@ -1,0 +1,28 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/d26f7d5d1216d831b84e8dd0225c57f3a87d59d0/.github",
+      "start_line": 10,
+      "start_column": null,
+      "end_line": 10,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "PR validation: publication credentials are not requested. Main releases must pass an npm OIDC exchange before building.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/d26f7d5d1216d831b84e8dd0225c57f3a87d59d0/.github",
+      "start_line": 13,
+      "start_column": null,
+      "end_line": 13,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Dependency comparison is unavailable (HTTP 403). A repository administrator must enable Dependency graph and grant workflow access at https://github.com/link-foundation/meta-sovereign/settings/security_analysis. The API does not distinguish disabled configuration from denied access. PR dependency review cannot run; lockfile audits remain required.",
+      "raw_details": ""
+    }
+  ]
+]

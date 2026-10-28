@@ -1,0 +1,755 @@
+﻿2026-10-28T14:45:52.1044339Z Current runner version: '2.338.0'
+2026-10-28T14:45:52.1076517Z ##[group]Runner Image Provisioner
+2026-10-28T14:45:52.1077622Z Hosted Compute Agent
+2026-10-28T14:45:52.1078225Z Version: 20261021.618
+2026-10-28T14:45:52.1078998Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T14:45:52.1079776Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T14:45:52.1080939Z Worker ID: {9c6a974a-4f21-46fd-baf3-48c29f73c5d7}
+2026-10-28T14:45:52.1081826Z Region: eastus2
+2026-10-28T14:45:52.1082410Z Cloud: Azure
+2026-10-28T14:45:52.1082998Z ##[endgroup]
+2026-10-28T14:45:52.1085283Z ##[group]Operating System
+2026-10-28T14:45:52.1085999Z Ubuntu
+2026-10-28T14:45:52.1086652Z 24.04.5
+2026-10-28T14:45:52.1087171Z LTS
+2026-10-28T14:45:52.1087728Z ##[endgroup]
+2026-10-28T14:45:52.1088397Z ##[group]Runner Image
+2026-10-28T14:45:52.1089035Z Image: ubuntu-24.04-arm
+2026-10-28T14:45:52.1089680Z Version: 20261025.165.1
+2026-10-28T14:45:52.1091405Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24-arm64/20261025.165/images/ubuntu/Ubuntu2404-Arm64-Readme.md
+2026-10-28T14:45:52.1093135Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24-arm64%2F20261025.165
+2026-10-28T14:45:52.1094112Z ##[endgroup]
+2026-10-28T14:45:52.1095413Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T14:45:52.1099789Z Contents: read
+2026-10-28T14:45:52.1100810Z Metadata: read
+2026-10-28T14:45:52.1101415Z ##[endgroup]
+2026-10-28T14:45:52.1105082Z Secret source: Actions
+2026-10-28T14:45:52.1106278Z Cache mode: write
+2026-10-28T14:45:52.1107322Z Prepare workflow directory
+2026-10-28T14:45:52.1573657Z Prepare all required actions
+2026-10-28T14:45:52.1626382Z Getting action download info
+2026-10-28T14:45:52.3804234Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T14:45:52.4647108Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T14:45:52.5456922Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T14:45:52.7084762Z Complete job name: Build (linux-arm64)
+2026-10-28T14:45:52.8064852Z ##[group]Run actions/checkout@v7
+2026-10-28T14:45:52.8066178Z with:
+2026-10-28T14:45:52.8066764Z   persist-credentials: false
+2026-10-28T14:45:52.8067677Z   ref: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:52.8068459Z   repository: link-foundation/meta-sovereign
+2026-10-28T14:45:52.8072550Z   token: ***
+2026-10-28T14:45:52.8073156Z   ssh-strict: true
+2026-10-28T14:45:52.8073710Z   ssh-user: git
+2026-10-28T14:45:52.8074362Z   clean: true
+2026-10-28T14:45:52.8074961Z   sparse-checkout-cone-mode: true
+2026-10-28T14:45:52.8075934Z   fetch-depth: 1
+2026-10-28T14:45:52.8076552Z   fetch-tags: false
+2026-10-28T14:45:52.8077112Z   show-progress: true
+2026-10-28T14:45:52.8077752Z   lfs: false
+2026-10-28T14:45:52.8078304Z   submodules: false
+2026-10-28T14:45:52.8078928Z   set-safe-directory: true
+2026-10-28T14:45:52.8079631Z   allow-unsafe-pr-checkout: false
+2026-10-28T14:45:52.8081082Z env:
+2026-10-28T14:45:52.8081790Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:52.8082559Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:52.8083337Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:52.8083989Z ##[endgroup]
+2026-10-28T14:45:52.8985406Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T14:45:52.8987873Z ##[group]Getting Git version info
+2026-10-28T14:45:52.8988839Z Working directory is '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:45:52.8990747Z [command]/usr/bin/git version
+2026-10-28T14:45:52.9043546Z git version 2.56.0
+2026-10-28T14:45:52.9062188Z ##[endgroup]
+2026-10-28T14:45:52.9072259Z Temporarily overriding HOME='/home/runner/work/_temp/a7a2bf11-6014-4ae5-9d3c-ff229e09a5a0' before making global git config changes
+2026-10-28T14:45:52.9074403Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:45:52.9076273Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:45:52.9117674Z Deleting the contents of '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:45:52.9120838Z ##[group]Determining repository object format
+2026-10-28T14:45:52.9122257Z ##[endgroup]
+2026-10-28T14:45:52.9123314Z ##[group]Initializing the repository
+2026-10-28T14:45:52.9126879Z [command]/usr/bin/git init /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:45:52.9240194Z Initialized empty Git repository in /home/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T14:45:52.9245625Z [command]/usr/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:45:52.9289419Z ##[endgroup]
+2026-10-28T14:45:52.9290776Z ##[group]Disabling automatic garbage collection
+2026-10-28T14:45:52.9292093Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-28T14:45:52.9326689Z ##[endgroup]
+2026-10-28T14:45:52.9327681Z ##[group]Setting up auth
+2026-10-28T14:45:52.9328327Z Removing SSH command configuration
+2026-10-28T14:45:52.9331827Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:52.9365226Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:45:52.9699840Z Removing HTTP extra header
+2026-10-28T14:45:52.9705452Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:45:52.9738876Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:45:52.9954929Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:45:52.9960245Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:45:53.0001187Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:45:53.0232550Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T14:45:53.0273891Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path /home/runner/work/_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:53.0307561Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:53.0339770Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:53.0372940Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:53.0404991Z ##[endgroup]
+2026-10-28T14:45:53.0406001Z ##[group]Fetching the repository
+2026-10-28T14:45:53.0410694Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:54.7023009Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:45:54.7024582Z  * branch            8ef678716b8aff20b0e5fbba3af2bc860d86183a -> FETCH_HEAD
+2026-10-28T14:45:54.7033085Z [command]/usr/bin/git rev-parse --verify --quiet 8ef678716b8aff20b0e5fbba3af2bc860d86183a^{object}
+2026-10-28T14:45:54.7070242Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:54.7075141Z ##[endgroup]
+2026-10-28T14:45:54.7076811Z ##[group]Determining the checkout info
+2026-10-28T14:45:54.7078327Z ##[endgroup]
+2026-10-28T14:45:54.7079996Z [command]/usr/bin/git sparse-checkout disable
+2026-10-28T14:45:54.7126976Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T14:45:54.7162459Z ##[group]Checking out the ref
+2026-10-28T14:45:54.7164597Z [command]/usr/bin/git checkout --progress --force 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:54.9023122Z Note: switching to '8ef678716b8aff20b0e5fbba3af2bc860d86183a'.
+2026-10-28T14:45:54.9024286Z 
+2026-10-28T14:45:54.9025041Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T14:45:54.9026773Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T14:45:54.9028634Z state without impacting any branches by switching back to a branch.
+2026-10-28T14:45:54.9029631Z 
+2026-10-28T14:45:54.9030567Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T14:45:54.9032238Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T14:45:54.9033202Z 
+2026-10-28T14:45:54.9033681Z   git switch -c <new-branch-name>
+2026-10-28T14:45:54.9034498Z 
+2026-10-28T14:45:54.9034932Z Or undo this operation with:
+2026-10-28T14:45:54.9035668Z 
+2026-10-28T14:45:54.9036093Z   git switch -
+2026-10-28T14:45:54.9036598Z 
+2026-10-28T14:45:54.9037345Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T14:45:54.9038398Z 
+2026-10-28T14:45:54.9039668Z HEAD is now at 8ef6787 Merge 504e07daa95f6100355926f2f371ed0d4ff72c07 into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:45:54.9043921Z ##[endgroup]
+2026-10-28T14:45:54.9082966Z [command]/usr/bin/git log -1 --format=%H
+2026-10-28T14:45:54.9108865Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:54.9118023Z ##[group]Removing auth
+2026-10-28T14:45:54.9119083Z Removing SSH command configuration
+2026-10-28T14:45:54.9121099Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:54.9154813Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:45:54.9375305Z Removing HTTP extra header
+2026-10-28T14:45:54.9378021Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:45:54.9413753Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:45:54.9632692Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:45:54.9634832Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:45:54.9660923Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:45:54.9663059Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:45:54.9665082Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:45:54.9666571Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:45:54.9671107Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:45:54.9697162Z /home/runner/work/_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:54.9709409Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-c9d2125e\-92c5\-404f\-8e09\-587574e986cb\.config
+2026-10-28T14:45:54.9746436Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:45:54.9773477Z /home/runner/work/_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:54.9787909Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-c9d2125e\-92c5\-404f\-8e09\-587574e986cb\.config
+2026-10-28T14:45:54.9822965Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:45:54.9848694Z /github/runner_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:54.9855057Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-c9d2125e\-92c5\-404f\-8e09\-587574e986cb\.config
+2026-10-28T14:45:54.9896215Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:45:54.9920704Z /github/runner_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config
+2026-10-28T14:45:54.9927275Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-c9d2125e\-92c5\-404f\-8e09\-587574e986cb\.config
+2026-10-28T14:45:54.9962176Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:45:55.0177060Z Removing credentials config '/home/runner/work/_temp/git-credentials-c9d2125e-92c5-404f-8e09-587574e986cb.config'
+2026-10-28T14:45:55.0187761Z ##[endgroup]
+2026-10-28T14:45:55.0588487Z ##[group]Run actions/setup-node@v7
+2026-10-28T14:45:55.0589572Z with:
+2026-10-28T14:45:55.0590874Z   node-version: 24.x
+2026-10-28T14:45:55.0591716Z   package-manager-cache: false
+2026-10-28T14:45:55.0592677Z   check-latest: false
+2026-10-28T14:45:55.0598388Z   token: ***
+2026-10-28T14:45:55.0599160Z env:
+2026-10-28T14:45:55.0599989Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:55.0601017Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:55.0602055Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:55.0602901Z ##[endgroup]
+2026-10-28T14:45:55.1711754Z Found in cache @ /opt/hostedtoolcache/node/24.22.1/arm64
+2026-10-28T14:45:55.2333281Z ##[group]Environment details
+2026-10-28T14:45:55.4985388Z node: v24.22.1
+2026-10-28T14:45:55.4985921Z npm: 11.19.1
+2026-10-28T14:45:55.4986334Z yarn: 1.22.22
+2026-10-28T14:45:55.4987139Z ##[endgroup]
+2026-10-28T14:45:55.5139643Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T14:45:55.5140859Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T14:45:55.5328201Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:45:55.5328717Z env:
+2026-10-28T14:45:55.5328990Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:55.5329431Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:55.5329778Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:55.5330136Z   ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+2026-10-28T14:45:55.5330776Z ##[endgroup]
+2026-10-28T14:46:26.5146744Z 
+2026-10-28T14:46:26.5153658Z > meta-sovereign@0.54.1 prepare
+2026-10-28T14:46:26.5154447Z > husky || true
+2026-10-28T14:46:26.5154655Z 
+2026-10-28T14:46:26.8119559Z 
+2026-10-28T14:46:26.8120951Z added 488 packages in 31s
+2026-10-28T14:46:26.8599634Z ##[group]Run range=$(node -p "require('./package.json').peerDependencies.electron")
+2026-10-28T14:46:26.8600801Z [36;1mrange=$(node -p "require('./package.json').peerDependencies.electron")[0m
+2026-10-28T14:46:26.8601458Z [36;1mversion=$(npm view "electron@$range" version --json | node -e \[0m
+2026-10-28T14:46:26.8602186Z [36;1m  "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(Array.isArray(v)?v.at(-1):v)")[0m
+2026-10-28T14:46:26.8602740Z [36;1mif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then[0m
+2026-10-28T14:46:26.8603183Z [36;1m  echo "::error::Invalid Electron version from registry"[0m
+2026-10-28T14:46:26.8603553Z [36;1m  exit 1[0m
+2026-10-28T14:46:26.8603816Z [36;1mfi[0m
+2026-10-28T14:46:26.8604159Z [36;1mecho "Electron $version (peer range $range)"[0m
+2026-10-28T14:46:26.8604529Z [36;1mecho "version=$version" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T14:46:26.8656087Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:26.8656747Z env:
+2026-10-28T14:46:26.8656997Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:26.8657717Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:26.8658145Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:26.8658412Z ##[endgroup]
+2026-10-28T14:46:27.3853016Z Electron 44.10.0 (peer range ^44.9.0)
+2026-10-28T14:46:27.3925525Z ##[group]Run npm run build:web
+2026-10-28T14:46:27.3925965Z [36;1mnpm run build:web[0m
+2026-10-28T14:46:27.3970236Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:27.3971665Z env:
+2026-10-28T14:46:27.3971911Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:27.3972225Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:27.3972599Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:27.3972881Z ##[endgroup]
+2026-10-28T14:46:27.5104141Z 
+2026-10-28T14:46:27.5105045Z > meta-sovereign@0.54.1 build:web
+2026-10-28T14:46:27.5105837Z > node js/scripts/build-web.mjs
+2026-10-28T14:46:27.5106079Z 
+2026-10-28T14:46:27.7662681Z 
+2026-10-28T14:46:27.7663955Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T14:46:27.7664279Z 
+2026-10-28T14:46:27.7664537Z ⚡ Done in 212ms
+2026-10-28T14:46:27.7865296Z ##[group]Run read -r -a build_args <<< "$BUILD_ARGS"
+2026-10-28T14:46:27.7865822Z [36;1mread -r -a build_args <<< "$BUILD_ARGS"[0m
+2026-10-28T14:46:27.7866292Z [36;1mread -r -a sign_args <<< "$SIGN_ARGS"[0m
+2026-10-28T14:46:27.7866776Z [36;1mnode js/scripts/build-desktop.mjs "${build_args[@]}" "${sign_args[@]}"[0m
+2026-10-28T14:46:27.7913078Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:27.7913470Z env:
+2026-10-28T14:46:27.7913876Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:27.7914164Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:27.7914457Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:27.7914810Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T14:46:27.7915130Z   BUILD_ARGS: --linux --arm64
+2026-10-28T14:46:27.7915493Z   SIGN_ARGS: 
+2026-10-28T14:46:27.7915733Z ##[endgroup]
+2026-10-28T14:46:30.6131882Z 
+2026-10-28T14:46:30.6133265Z added 16 packages in 2s
+2026-10-28T14:46:30.6484610Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).
+2026-10-28T14:46:30.6485934Z electron 44.10.0
+2026-10-28T14:46:31.5041265Z   • electron-builder  version=27.0.0-alpha.13 os=7.0.0-1017-azure
+2026-10-28T14:46:31.5115688Z   • loaded configuration  file=/home/runner/work/meta-sovereign/meta-sovereign/desktop/electron-builder.config.cjs
+2026-10-28T14:46:32.1051830Z   • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=npm detected=/home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:46:32.2143599Z   • skipped dependencies rebuild  reason=nativeModules.npmRebuild is set to false
+2026-10-28T14:46:32.2145214Z   • packaging       platform=linux arch=arm64 electron=44.10.0 appOutDir=dist/desktop/release/linux-arm64-unpacked
+2026-10-28T14:46:32.4977224Z   • downloading     label=electron progress=1%
+2026-10-28T14:46:32.5109054Z   • downloading     label=electron progress=2%
+2026-10-28T14:46:32.5235842Z   • downloading     label=electron progress=3%
+2026-10-28T14:46:32.5343895Z   • downloading     label=electron progress=4%
+2026-10-28T14:46:32.5437168Z   • downloading     label=electron progress=5%
+2026-10-28T14:46:32.5519034Z   • downloading     label=electron progress=6%
+2026-10-28T14:46:32.5613286Z   • downloading     label=electron progress=7%
+2026-10-28T14:46:32.5692455Z   • downloading     label=electron progress=8%
+2026-10-28T14:46:32.5758850Z   • downloading     label=electron progress=9%
+2026-10-28T14:46:32.5858376Z   • downloading     label=electron progress=10%
+2026-10-28T14:46:32.5923554Z   • downloading     label=electron progress=11%
+2026-10-28T14:46:32.5995937Z   • downloading     label=electron progress=12%
+2026-10-28T14:46:32.6098160Z   • downloading     label=electron progress=13%
+2026-10-28T14:46:32.6169968Z   • downloading     label=electron progress=14%
+2026-10-28T14:46:32.6227561Z   • downloading     label=electron progress=15%
+2026-10-28T14:46:32.6291510Z   • downloading     label=electron progress=16%
+2026-10-28T14:46:32.6355059Z   • downloading     label=electron progress=17%
+2026-10-28T14:46:32.6424457Z   • downloading     label=electron progress=18%
+2026-10-28T14:46:32.6643202Z   • downloading     label=electron progress=19%
+2026-10-28T14:46:32.6684405Z   • downloading     label=electron progress=20%
+2026-10-28T14:46:32.6725349Z   • downloading     label=electron progress=21%
+2026-10-28T14:46:32.6769284Z   • downloading     label=electron progress=22%
+2026-10-28T14:46:32.6817886Z   • downloading     label=electron progress=23%
+2026-10-28T14:46:32.6918475Z   • downloading     label=electron progress=24%
+2026-10-28T14:46:32.7037046Z   • downloading     label=electron progress=25%
+2026-10-28T14:46:32.7072929Z   • downloading     label=electron progress=26%
+2026-10-28T14:46:32.7115390Z   • downloading     label=electron progress=27%
+2026-10-28T14:46:32.7156722Z   • downloading     label=electron progress=28%
+2026-10-28T14:46:32.7197801Z   • downloading     label=electron progress=29%
+2026-10-28T14:46:32.7240767Z   • downloading     label=electron progress=30%
+2026-10-28T14:46:32.7282625Z   • downloading     label=electron progress=31%
+2026-10-28T14:46:32.7332921Z   • downloading     label=electron progress=32%
+2026-10-28T14:46:32.7364289Z   • downloading     label=electron progress=33%
+2026-10-28T14:46:32.7401681Z   • downloading     label=electron progress=34%
+2026-10-28T14:46:32.7434953Z   • downloading     label=electron progress=35%
+2026-10-28T14:46:32.7467499Z   • downloading     label=electron progress=36%
+2026-10-28T14:46:32.7503969Z   • downloading     label=electron progress=37%
+2026-10-28T14:46:32.7538432Z   • downloading     label=electron progress=38%
+2026-10-28T14:46:32.7573034Z   • downloading     label=electron progress=39%
+2026-10-28T14:46:32.7609074Z   • downloading     label=electron progress=40%
+2026-10-28T14:46:32.7649703Z   • downloading     label=electron progress=41%
+2026-10-28T14:46:32.7684904Z   • downloading     label=electron progress=42%
+2026-10-28T14:46:32.7786579Z   • downloading     label=electron progress=43%
+2026-10-28T14:46:32.7928985Z   • downloading     label=electron progress=44%
+2026-10-28T14:46:32.7959440Z   • downloading     label=electron progress=45%
+2026-10-28T14:46:32.7999218Z   • downloading     label=electron progress=46%
+2026-10-28T14:46:32.8047427Z   • downloading     label=electron progress=47%
+2026-10-28T14:46:32.8087061Z   • downloading     label=electron progress=48%
+2026-10-28T14:46:32.8126256Z   • downloading     label=electron progress=49%
+2026-10-28T14:46:32.8164879Z   • downloading     label=electron progress=50%
+2026-10-28T14:46:32.8201186Z   • downloading     label=electron progress=51%
+2026-10-28T14:46:32.8238007Z   • downloading     label=electron progress=52%
+2026-10-28T14:46:32.8273818Z   • downloading     label=electron progress=53%
+2026-10-28T14:46:32.8309641Z   • downloading     label=electron progress=54%
+2026-10-28T14:46:32.8347732Z   • downloading     label=electron progress=55%
+2026-10-28T14:46:32.8384002Z   • downloading     label=electron progress=56%
+2026-10-28T14:46:32.8421475Z   • downloading     label=electron progress=57%
+2026-10-28T14:46:32.8468420Z   • downloading     label=electron progress=58%
+2026-10-28T14:46:32.8502914Z   • downloading     label=electron progress=59%
+2026-10-28T14:46:32.8539846Z   • downloading     label=electron progress=60%
+2026-10-28T14:46:32.8679726Z   • downloading     label=electron progress=61%
+2026-10-28T14:46:32.8753359Z   • downloading     label=electron progress=62%
+2026-10-28T14:46:32.8792766Z   • downloading     label=electron progress=63%
+2026-10-28T14:46:32.8834716Z   • downloading     label=electron progress=64%
+2026-10-28T14:46:32.8873073Z   • downloading     label=electron progress=65%
+2026-10-28T14:46:32.8919752Z   • downloading     label=electron progress=66%
+2026-10-28T14:46:32.8965383Z   • downloading     label=electron progress=67%
+2026-10-28T14:46:32.9007938Z   • downloading     label=electron progress=68%
+2026-10-28T14:46:32.9051979Z   • downloading     label=electron progress=69%
+2026-10-28T14:46:32.9097636Z   • downloading     label=electron progress=70%
+2026-10-28T14:46:32.9142550Z   • downloading     label=electron progress=71%
+2026-10-28T14:46:32.9185324Z   • downloading     label=electron progress=72%
+2026-10-28T14:46:32.9358053Z   • downloading     label=electron progress=73%
+2026-10-28T14:46:32.9391023Z   • downloading     label=electron progress=74%
+2026-10-28T14:46:32.9427673Z   • downloading     label=electron progress=75%
+2026-10-28T14:46:32.9471599Z   • downloading     label=electron progress=76%
+2026-10-28T14:46:32.9515349Z   • downloading     label=electron progress=77%
+2026-10-28T14:46:32.9559508Z   • downloading     label=electron progress=78%
+2026-10-28T14:46:32.9606430Z   • downloading     label=electron progress=79%
+2026-10-28T14:46:32.9647714Z   • downloading     label=electron progress=80%
+2026-10-28T14:46:32.9690070Z   • downloading     label=electron progress=81%
+2026-10-28T14:46:32.9733220Z   • downloading     label=electron progress=82%
+2026-10-28T14:46:32.9782281Z   • downloading     label=electron progress=83%
+2026-10-28T14:46:32.9825003Z   • downloading     label=electron progress=84%
+2026-10-28T14:46:32.9867684Z   • downloading     label=electron progress=85%
+2026-10-28T14:46:32.9906598Z   • downloading     label=electron progress=86%
+2026-10-28T14:46:32.9951174Z   • downloading     label=electron progress=87%
+2026-10-28T14:46:33.0050774Z   • downloading     label=electron progress=88%
+2026-10-28T14:46:33.0099478Z   • downloading     label=electron progress=89%
+2026-10-28T14:46:33.0188863Z   • downloading     label=electron progress=90%
+2026-10-28T14:46:33.0225730Z   • downloading     label=electron progress=91%
+2026-10-28T14:46:33.0396553Z   • downloading     label=electron progress=92%
+2026-10-28T14:46:33.0425840Z   • downloading     label=electron progress=93%
+2026-10-28T14:46:33.0453333Z   • downloading     label=electron progress=94%
+2026-10-28T14:46:33.0484742Z   • downloading     label=electron progress=95%
+2026-10-28T14:46:33.0585146Z   • downloading     label=electron progress=96%
+2026-10-28T14:46:33.0632506Z   • downloading     label=electron progress=97%
+2026-10-28T14:46:33.0681937Z   • downloading     label=electron progress=98%
+2026-10-28T14:46:33.0709113Z   • downloading     label=electron progress=99%
+2026-10-28T14:46:33.0815344Z   • downloaded      label=electron progress=100%
+2026-10-28T14:46:35.2610255Z   • downloaded electron zip extracted successfully  output=/home/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/linux-arm64-unpacked
+2026-10-28T14:46:35.3088042Z   • searching for node modules  pm=npm searchDir=/home/runner/work/meta-sovereign/meta-sovereign/dist/desktop/app
+2026-10-28T14:46:36.4471475Z   • auto-update manifests will be unsigned: anyone who can overwrite latest*.yml on your update server can point installs at an arbitrary payload. Remove `updateManifest: false` and provide a key with `electron-builder create-update-key` to enable signing. Note that installs which already embed a public key reject unsigned manifests (ERR_UPDATER_MANIFEST_NOT_SIGNED). See https://www.electron.build/features/signed-update-manifests  platform=linux reason=updateManifest is set to false
+2026-10-28T14:46:36.4575014Z   • building        target=AppImage arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-linux-arm64-0.54.1.AppImage
+2026-10-28T14:46:36.4576600Z   • building        target=tar.gz arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-linux-arm64-0.54.1.tar.gz
+2026-10-28T14:46:36.5003260Z   • using toolset   toolset=appimage@1.1.0 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:46:36.6493398Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=1%
+2026-10-28T14:46:36.6522123Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=2%
+2026-10-28T14:46:36.6525142Z   • using toolset   toolset=7zip@1.0.1 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:46:36.6526991Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=3%
+2026-10-28T14:46:36.6565257Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=4%
+2026-10-28T14:46:36.6591683Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=5%
+2026-10-28T14:46:36.6592476Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=6%
+2026-10-28T14:46:36.6593395Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=7%
+2026-10-28T14:46:36.6653957Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=8%
+2026-10-28T14:46:36.6656648Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=9%
+2026-10-28T14:46:36.6665981Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=10%
+2026-10-28T14:46:36.6672287Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=11%
+2026-10-28T14:46:36.6687241Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=12%
+2026-10-28T14:46:36.6688865Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=13%
+2026-10-28T14:46:36.6706641Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=14%
+2026-10-28T14:46:36.6708843Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=15%
+2026-10-28T14:46:36.6713235Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=16%
+2026-10-28T14:46:36.6715414Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=17%
+2026-10-28T14:46:36.6719569Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=18%
+2026-10-28T14:46:36.6724160Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=19%
+2026-10-28T14:46:36.6728100Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=20%
+2026-10-28T14:46:36.6738268Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=21%
+2026-10-28T14:46:36.6742099Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=22%
+2026-10-28T14:46:36.6749886Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=23%
+2026-10-28T14:46:36.6754095Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=24%
+2026-10-28T14:46:36.6761748Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=25%
+2026-10-28T14:46:36.6763811Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=26%
+2026-10-28T14:46:36.6766866Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=27%
+2026-10-28T14:46:36.6771116Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=28%
+2026-10-28T14:46:36.6777777Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=29%
+2026-10-28T14:46:36.6779085Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=30%
+2026-10-28T14:46:36.6783748Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=31%
+2026-10-28T14:46:36.6785846Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=32%
+2026-10-28T14:46:36.6790024Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=33%
+2026-10-28T14:46:36.6792612Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=34%
+2026-10-28T14:46:36.6798772Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=35%
+2026-10-28T14:46:36.6802496Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=36%
+2026-10-28T14:46:36.6808687Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=37%
+2026-10-28T14:46:36.6814937Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=38%
+2026-10-28T14:46:36.6819414Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=39%
+2026-10-28T14:46:36.6825590Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=40%
+2026-10-28T14:46:36.6830590Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=41%
+2026-10-28T14:46:36.6839195Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=42%
+2026-10-28T14:46:36.6842199Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=43%
+2026-10-28T14:46:36.6847412Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=44%
+2026-10-28T14:46:36.6849421Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=45%
+2026-10-28T14:46:36.6855595Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=46%
+2026-10-28T14:46:36.6857587Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=47%
+2026-10-28T14:46:36.6863463Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=48%
+2026-10-28T14:46:36.6866090Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=49%
+2026-10-28T14:46:36.6872760Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=50%
+2026-10-28T14:46:36.6875760Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=51%
+2026-10-28T14:46:36.6879913Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=52%
+2026-10-28T14:46:36.6889566Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=53%
+2026-10-28T14:46:36.6890811Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=54%
+2026-10-28T14:46:36.6895571Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=55%
+2026-10-28T14:46:36.6903107Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=56%
+2026-10-28T14:46:36.6904105Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=57%
+2026-10-28T14:46:36.6917653Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=58%
+2026-10-28T14:46:36.6919930Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=59%
+2026-10-28T14:46:36.6926569Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=60%
+2026-10-28T14:46:36.6930599Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=61%
+2026-10-28T14:46:36.6936641Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=62%
+2026-10-28T14:46:36.6968277Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=63%
+2026-10-28T14:46:36.6992272Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=64%
+2026-10-28T14:46:36.7022173Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=65%
+2026-10-28T14:46:36.7047404Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=66%
+2026-10-28T14:46:36.7107173Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=67%
+2026-10-28T14:46:36.7109851Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=68%
+2026-10-28T14:46:36.7116452Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=69%
+2026-10-28T14:46:36.7118721Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=70%
+2026-10-28T14:46:36.7125018Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=71%
+2026-10-28T14:46:36.7127401Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=72%
+2026-10-28T14:46:36.7134458Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=73%
+2026-10-28T14:46:36.7137073Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=74%
+2026-10-28T14:46:36.7139532Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=75%
+2026-10-28T14:46:36.7145082Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=76%
+2026-10-28T14:46:36.7146928Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=77%
+2026-10-28T14:46:36.7151649Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=78%
+2026-10-28T14:46:36.7153298Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=79%
+2026-10-28T14:46:36.7159122Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=80%
+2026-10-28T14:46:36.7160591Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=81%
+2026-10-28T14:46:36.7166410Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=82%
+2026-10-28T14:46:36.7171147Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=83%
+2026-10-28T14:46:36.7174242Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=84%
+2026-10-28T14:46:36.7177153Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=85%
+2026-10-28T14:46:36.7179802Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=86%
+2026-10-28T14:46:36.7186027Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=87%
+2026-10-28T14:46:36.7194138Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=88%
+2026-10-28T14:46:36.7201393Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=89%
+2026-10-28T14:46:36.7203342Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=90%
+2026-10-28T14:46:36.7208350Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=91%
+2026-10-28T14:46:36.7211123Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=92%
+2026-10-28T14:46:36.7215770Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=93%
+2026-10-28T14:46:36.7217872Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=94%
+2026-10-28T14:46:36.7223305Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=95%
+2026-10-28T14:46:36.7225193Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=96%
+2026-10-28T14:46:36.7229862Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=97%
+2026-10-28T14:46:36.7232081Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=98%
+2026-10-28T14:46:36.7238462Z   • downloading     label=appimage-tools-runtime-20251108.tar.gz progress=99%
+2026-10-28T14:46:36.7246730Z   • downloaded      label=appimage-tools-runtime-20251108.tar.gz progress=100%
+2026-10-28T14:46:36.8616023Z   • downloading     label=7zip-linux-arm64.tar.gz progress=1%
+2026-10-28T14:46:36.8617248Z   • downloading     label=7zip-linux-arm64.tar.gz progress=2%
+2026-10-28T14:46:36.8618082Z   • downloading     label=7zip-linux-arm64.tar.gz progress=4%
+2026-10-28T14:46:36.8618987Z   • downloading     label=7zip-linux-arm64.tar.gz progress=5%
+2026-10-28T14:46:36.8619937Z   • downloading     label=7zip-linux-arm64.tar.gz progress=6%
+2026-10-28T14:46:36.8626998Z   • downloading     label=7zip-linux-arm64.tar.gz progress=12%
+2026-10-28T14:46:36.8631406Z   • downloading     label=7zip-linux-arm64.tar.gz progress=18%
+2026-10-28T14:46:36.8638410Z   • downloading     label=7zip-linux-arm64.tar.gz progress=24%
+2026-10-28T14:46:36.8642150Z   • downloading     label=7zip-linux-arm64.tar.gz progress=32%
+2026-10-28T14:46:36.8647239Z   • downloading     label=7zip-linux-arm64.tar.gz progress=39%
+2026-10-28T14:46:36.8650876Z   • downloading     label=7zip-linux-arm64.tar.gz progress=46%
+2026-10-28T14:46:36.8656033Z   • downloading     label=7zip-linux-arm64.tar.gz progress=53%
+2026-10-28T14:46:36.8663629Z   • downloading     label=7zip-linux-arm64.tar.gz progress=59%
+2026-10-28T14:46:36.8667779Z   • downloading     label=7zip-linux-arm64.tar.gz progress=66%
+2026-10-28T14:46:36.8673486Z   • downloading     label=7zip-linux-arm64.tar.gz progress=73%
+2026-10-28T14:46:36.8678587Z   • downloading     label=7zip-linux-arm64.tar.gz progress=80%
+2026-10-28T14:46:36.8683762Z   • downloading     label=7zip-linux-arm64.tar.gz progress=87%
+2026-10-28T14:46:36.8689023Z   • downloading     label=7zip-linux-arm64.tar.gz progress=94%
+2026-10-28T14:46:36.8693429Z   • downloaded      label=7zip-linux-arm64.tar.gz progress=100%
+2026-10-28T14:46:45.3603188Z   • building embedded block map  file=dist/desktop/release/meta-sovereign-desktop-linux-arm64-0.54.1.AppImage
+2026-10-28T14:46:49.8349250Z   • building        target=deb arch=arm64 file=dist/desktop/release/meta-sovereign-desktop-linux-arm64-0.54.1.deb
+2026-10-28T14:48:57.9449303Z   • adding autoupdate files for: deb  resourceDir=dist/desktop/release/linux-arm64-unpacked/resources
+2026-10-28T14:48:57.9501489Z   • using toolset   toolset=fpm@2.2.1 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:48:58.1657075Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=1%
+2026-10-28T14:48:58.1700695Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=2%
+2026-10-28T14:48:58.1710030Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=3%
+2026-10-28T14:48:58.1748458Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=4%
+2026-10-28T14:48:58.1763115Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=5%
+2026-10-28T14:48:58.1766800Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=6%
+2026-10-28T14:48:58.1772780Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=7%
+2026-10-28T14:48:58.1797901Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=8%
+2026-10-28T14:48:58.1802963Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=9%
+2026-10-28T14:48:58.1808111Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=10%
+2026-10-28T14:48:58.1819838Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=11%
+2026-10-28T14:48:58.1833797Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=13%
+2026-10-28T14:48:58.1837222Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=14%
+2026-10-28T14:48:58.1843591Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=15%
+2026-10-28T14:48:58.1844438Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=16%
+2026-10-28T14:48:58.1856364Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=17%
+2026-10-28T14:48:58.1859777Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=19%
+2026-10-28T14:48:58.1862811Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=20%
+2026-10-28T14:48:58.1867030Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=21%
+2026-10-28T14:48:58.1868792Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=22%
+2026-10-28T14:48:58.1873547Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=23%
+2026-10-28T14:48:58.1876390Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=24%
+2026-10-28T14:48:58.1880195Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=25%
+2026-10-28T14:48:58.1884280Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=26%
+2026-10-28T14:48:58.1890838Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=27%
+2026-10-28T14:48:58.1894557Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=28%
+2026-10-28T14:48:58.1898335Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=29%
+2026-10-28T14:48:58.1901839Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=30%
+2026-10-28T14:48:58.1906722Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=31%
+2026-10-28T14:48:58.1909712Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=32%
+2026-10-28T14:48:58.1912914Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=33%
+2026-10-28T14:48:58.1918155Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=34%
+2026-10-28T14:48:58.1922183Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=35%
+2026-10-28T14:48:58.1926031Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=36%
+2026-10-28T14:48:58.1929847Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=37%
+2026-10-28T14:48:58.1933381Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=38%
+2026-10-28T14:48:58.1961520Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=39%
+2026-10-28T14:48:58.1991769Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=40%
+2026-10-28T14:48:58.2014524Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=41%
+2026-10-28T14:48:58.2056644Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=42%
+2026-10-28T14:48:58.2096146Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=43%
+2026-10-28T14:48:58.2097537Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=44%
+2026-10-28T14:48:58.2098475Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=45%
+2026-10-28T14:48:58.2099456Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=46%
+2026-10-28T14:48:58.2100878Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=47%
+2026-10-28T14:48:58.2121515Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=48%
+2026-10-28T14:48:58.2122347Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=49%
+2026-10-28T14:48:58.2123358Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=50%
+2026-10-28T14:48:58.2124142Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=51%
+2026-10-28T14:48:58.2125002Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=52%
+2026-10-28T14:48:58.2125726Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=53%
+2026-10-28T14:48:58.2129634Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=54%
+2026-10-28T14:48:58.2132309Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=55%
+2026-10-28T14:48:58.2134995Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=56%
+2026-10-28T14:48:58.2138343Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=57%
+2026-10-28T14:48:58.2142200Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=58%
+2026-10-28T14:48:58.2145763Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=59%
+2026-10-28T14:48:58.2149519Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=60%
+2026-10-28T14:48:58.2153196Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=61%
+2026-10-28T14:48:58.2156239Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=62%
+2026-10-28T14:48:58.2158930Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=63%
+2026-10-28T14:48:58.2162573Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=64%
+2026-10-28T14:48:58.2165154Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=65%
+2026-10-28T14:48:58.2167768Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=66%
+2026-10-28T14:48:58.2168811Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=67%
+2026-10-28T14:48:58.2173515Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=68%
+2026-10-28T14:48:58.2176174Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=69%
+2026-10-28T14:48:58.2178936Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=70%
+2026-10-28T14:48:58.2181561Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=71%
+2026-10-28T14:48:58.2184257Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=72%
+2026-10-28T14:48:58.2186706Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=73%
+2026-10-28T14:48:58.2189269Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=74%
+2026-10-28T14:48:58.2193016Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=75%
+2026-10-28T14:48:58.2198321Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=76%
+2026-10-28T14:48:58.2199273Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=77%
+2026-10-28T14:48:58.2200087Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=78%
+2026-10-28T14:48:58.2202162Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=79%
+2026-10-28T14:48:58.2204814Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=80%
+2026-10-28T14:48:58.2211791Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=81%
+2026-10-28T14:48:58.2221587Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=82%
+2026-10-28T14:48:58.2222308Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=83%
+2026-10-28T14:48:58.2223887Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=84%
+2026-10-28T14:48:58.2224787Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=85%
+2026-10-28T14:48:58.2225976Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=86%
+2026-10-28T14:48:58.2228444Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=87%
+2026-10-28T14:48:58.2232342Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=88%
+2026-10-28T14:48:58.2234388Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=89%
+2026-10-28T14:48:58.2237014Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=90%
+2026-10-28T14:48:58.2239660Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=91%
+2026-10-28T14:48:58.2291681Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=92%
+2026-10-28T14:48:58.2311686Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=93%
+2026-10-28T14:48:58.2349079Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=94%
+2026-10-28T14:48:58.2350038Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=95%
+2026-10-28T14:48:58.2389807Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=96%
+2026-10-28T14:48:58.2390852Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=97%
+2026-10-28T14:48:58.2391762Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=98%
+2026-10-28T14:48:58.2393861Z   • downloading     label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=99%
+2026-10-28T14:48:58.2401114Z   • downloaded      label=fpm-1.17.0-ruby-3.4.3-linux-arm64v8.7z progress=100%
+2026-10-28T14:49:18.2978473Z ##[group]Run set -euo pipefail
+2026-10-28T14:49:18.2978926Z [36;1mset -euo pipefail[0m
+2026-10-28T14:49:18.2979302Z [36;1mcd dist/desktop/release[0m
+2026-10-28T14:49:18.2979662Z [36;1mls -la[0m
+2026-10-28T14:49:18.2979947Z [36;1mdeb=$(ls meta-sovereign-desktop-linux-*.deb)[0m
+2026-10-28T14:49:18.2980717Z [36;1mdpkg-deb --info "$deb"[0m
+2026-10-28T14:49:18.2981116Z [36;1m# Listings go to files first: `cmd | grep -q` closes the pipe[0m
+2026-10-28T14:49:18.2981584Z [36;1m# early, the writer dies of SIGPIPE and pipefail fails the step.[0m
+2026-10-28T14:49:18.2982135Z [36;1mdpkg-deb --contents "$deb" > deb-contents.txt[0m
+2026-10-28T14:49:18.2982563Z [36;1mgrep -q 'opt/Meta Sovereign/meta-sovereign' deb-contents.txt[0m
+2026-10-28T14:49:18.2983096Z [36;1mappimage=$(ls meta-sovereign-desktop-linux-*.AppImage)[0m
+2026-10-28T14:49:18.2983484Z [36;1mchmod +x "$appimage"[0m
+2026-10-28T14:49:18.2983789Z [36;1m./"$appimage" --appimage-extract > /dev/null[0m
+2026-10-28T14:49:18.2984331Z [36;1mtest -x squashfs-root/meta-sovereign[0m
+2026-10-28T14:49:18.2984649Z [36;1mrm -rf squashfs-root[0m
+2026-10-28T14:49:18.2985085Z [36;1mtar -tzf meta-sovereign-desktop-linux-*.tar.gz > tar-contents.txt[0m
+2026-10-28T14:49:18.2985541Z [36;1mgrep -q '/meta-sovereign$' tar-contents.txt[0m
+2026-10-28T14:49:18.2986262Z [36;1mrm deb-contents.txt tar-contents.txt[0m
+2026-10-28T14:49:18.2986603Z [36;1mtest -f latest-linux*.yml[0m
+2026-10-28T14:49:18.3021051Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:49:18.3021532Z env:
+2026-10-28T14:49:18.3021864Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:49:18.3022148Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:49:18.3022439Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:49:18.3022774Z ##[endgroup]
+2026-10-28T14:49:18.3092405Z total 334692
+2026-10-28T14:49:18.3093051Z drwxr-xr-x 3 runner runner      4096 Oct 28 14:49 .
+2026-10-28T14:49:18.3096665Z drwxr-xr-x 4 runner runner      4096 Oct 28 14:46 ..
+2026-10-28T14:49:18.3097209Z -rw-r--r-- 1 runner runner       861 Oct 28 14:49 builder-debug.yml
+2026-10-28T14:49:18.3097894Z -rw-r--r-- 1 runner runner       444 Oct 28 14:49 latest-linux-arm64.yml
+2026-10-28T14:49:18.3098448Z drwxr-xr-x 4 runner runner      4096 Oct 28 14:46 linux-arm64-unpacked
+2026-10-28T14:49:18.3099203Z -rwxr-xr-x 1 runner runner 120999905 Oct 28 14:46 meta-sovereign-desktop-linux-arm64-0.54.1.AppImage
+2026-10-28T14:49:18.3100011Z -rw-r--r-- 1 runner runner  98075264 Oct 28 14:49 meta-sovereign-desktop-linux-arm64-0.54.1.deb
+2026-10-28T14:49:18.3101170Z -rw-r--r-- 1 runner runner 123624956 Oct 28 14:48 meta-sovereign-desktop-linux-arm64-0.54.1.tar.gz
+2026-10-28T14:49:18.3124722Z  new Debian package, version 2.0.
+2026-10-28T14:49:18.3125158Z  size 98075264 bytes: control archive=4404 bytes.
+2026-10-28T14:49:18.3144898Z      672 bytes,    14 lines      control
+2026-10-28T14:49:18.3145306Z     5481 bytes,    78 lines      md5sums
+2026-10-28T14:49:18.3145895Z     3026 bytes,    57 lines   *  postinst             #!/bin/bash
+2026-10-28T14:49:18.3146347Z     1137 bytes,    26 lines   *  postrm               #!/bin/bash
+2026-10-28T14:49:18.3146794Z  Package: meta-sovereign-desktop
+2026-10-28T14:49:18.3147134Z  Version: 0.54.1
+2026-10-28T14:49:18.3147367Z  License: Unlicense
+2026-10-28T14:49:18.3147809Z  Vendor: Link Foundation <link-foundation@users.noreply.github.com>
+2026-10-28T14:49:18.3148208Z  Architecture: arm64
+2026-10-28T14:49:18.3148671Z  Maintainer: Link Foundation <link-foundation@users.noreply.github.com>
+2026-10-28T14:49:18.3149140Z  Installed-Size: 309344
+2026-10-28T14:49:18.3149692Z  Depends: libgtk-3-0, libnotify4, libnss3, libxss1, libxtst6, xdg-utils, libatspi2.0-0, libuuid1, libsecret-1-0
+2026-10-28T14:49:18.3150656Z  Recommends: libappindicator3-1
+2026-10-28T14:49:18.3150963Z  Section: default
+2026-10-28T14:49:18.3151287Z  Priority: optional
+2026-10-28T14:49:18.3151722Z  Homepage: https://link-foundation.github.io/meta-sovereign/
+2026-10-28T14:49:18.3152541Z  Description: Local-first personal CRM and unified messenger
+2026-10-28T14:49:18.3153413Z    Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services
+2026-10-28T14:49:21.6608476Z ##[group]Run set -euo pipefail
+2026-10-28T14:49:21.6608804Z [36;1mset -euo pipefail[0m
+2026-10-28T14:49:21.6609134Z [36;1mbuilder_version=$(npx --no-install electron-builder --version)[0m
+2026-10-28T14:49:21.6609483Z [36;1mcd dist/desktop/release[0m
+2026-10-28T14:49:21.6609702Z [36;1mfiles=()[0m
+2026-10-28T14:49:21.6609950Z [36;1mfor f in meta-sovereign-desktop-* latest*.yml; do[0m
+2026-10-28T14:49:21.6610488Z [36;1m  if [[ -f "$f" && "$f" != *.blockmap ]]; then files+=("$f"); fi[0m
+2026-10-28T14:49:21.6610789Z [36;1mdone[0m
+2026-10-28T14:49:21.6611114Z [36;1mif command -v sha256sum > /dev/null; then sum='sha256sum'; else sum='shasum -a 256'; fi[0m
+2026-10-28T14:49:21.6611667Z [36;1m$sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-$BUILD_NAME.txt"[0m
+2026-10-28T14:49:21.6612057Z [36;1m{[0m
+2026-10-28T14:49:21.6612226Z [36;1m  echo "## $BUILD_NAME"[0m
+2026-10-28T14:49:21.6612553Z [36;1m  echo "runner: $BUILD_RUNNER ($RUNNER_OS $RUNNER_ARCH)"[0m
+2026-10-28T14:49:21.6612865Z [36;1m  echo "commit: $BUILD_REF"[0m
+2026-10-28T14:49:21.6613148Z [36;1m  echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"[0m
+2026-10-28T14:49:21.6613752Z [36;1m  echo "electron-builder: $builder_version"[0m
+2026-10-28T14:49:21.6614036Z [36;1m  echo "node: $(node --version)"[0m
+2026-10-28T14:49:21.6614353Z [36;1m  [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"[0m
+2026-10-28T14:49:21.6614666Z [36;1m  echo "files:"[0m
+2026-10-28T14:49:21.6614909Z [36;1m  for f in "${files[@]}"; do echo "  - $f"; done[0m
+2026-10-28T14:49:21.6615195Z [36;1m} > "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T14:49:21.6615459Z [36;1mcat "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T14:49:21.6647197Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:49:21.6647502Z env:
+2026-10-28T14:49:21.6647668Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:49:21.6647875Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:49:21.6648127Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:49:21.6648331Z   MAC_SIGNING: 
+2026-10-28T14:49:21.6648525Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T14:49:21.6648782Z   BUILD_NAME: linux-arm64
+2026-10-28T14:49:21.6648996Z   BUILD_RUNNER: ubuntu-24.04-arm
+2026-10-28T14:49:21.6649254Z   BUILD_REF: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:49:21.6649522Z ##[endgroup]
+2026-10-28T14:49:22.6728812Z ## linux-arm64
+2026-10-28T14:49:22.6729261Z runner: ubuntu-24.04-arm (Linux ARM64)
+2026-10-28T14:49:22.6729625Z commit: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:49:22.6729976Z electron: 44.10.0
+2026-10-28T14:49:22.6730221Z electron-builder: 27.0.0-alpha.13
+2026-10-28T14:49:22.6731454Z node: v24.22.1
+2026-10-28T14:49:22.6731647Z files:
+2026-10-28T14:49:22.6731919Z   - meta-sovereign-desktop-linux-arm64-0.54.1.AppImage
+2026-10-28T14:49:22.6732297Z   - meta-sovereign-desktop-linux-arm64-0.54.1.deb
+2026-10-28T14:49:22.6732670Z   - meta-sovereign-desktop-linux-arm64-0.54.1.tar.gz
+2026-10-28T14:49:22.6733013Z   - latest-linux-arm64.yml
+2026-10-28T14:49:22.6821830Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T14:49:22.6822175Z with:
+2026-10-28T14:49:22.6822353Z   name: desktop-linux-arm64
+2026-10-28T14:49:22.6822989Z   path: dist/desktop/release/meta-sovereign-desktop-*
+dist/desktop/release/latest*.yml
+dist/desktop/release/SHA256SUMS-*.txt
+dist/desktop/release/provenance-*.txt
+
+2026-10-28T14:49:22.6823662Z   if-no-files-found: error
+2026-10-28T14:49:22.6823871Z   retention-days: 14
+2026-10-28T14:49:22.6824067Z   compression-level: 6
+2026-10-28T14:49:22.6824260Z   overwrite: false
+2026-10-28T14:49:22.6824454Z   include-hidden-files: false
+2026-10-28T14:49:22.6824667Z   archive: true
+2026-10-28T14:49:22.6824834Z env:
+2026-10-28T14:49:22.6824993Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:49:22.6825197Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:49:22.6825438Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:49:22.6825642Z ##[endgroup]
+2026-10-28T14:49:22.8289340Z With the provided path, there will be 6 files uploaded
+2026-10-28T14:49:22.8289999Z Artifact name is valid!
+2026-10-28T14:49:22.8290263Z Root directory input is valid!
+2026-10-28T14:49:23.0049114Z Uploading artifact: desktop-linux-arm64.zip
+2026-10-28T14:49:23.0081564Z Beginning upload of artifact content to blob storage
+2026-10-28T14:49:23.4356354Z Uploaded bytes 8388608
+2026-10-28T14:49:23.6728938Z Uploaded bytes 16777216
+2026-10-28T14:49:23.8902115Z Uploaded bytes 25165824
+2026-10-28T14:49:24.0926526Z Uploaded bytes 33554432
+2026-10-28T14:49:24.2529037Z Uploaded bytes 41943040
+2026-10-28T14:49:24.4524940Z Uploaded bytes 50331648
+2026-10-28T14:49:24.6216034Z Uploaded bytes 58720256
+2026-10-28T14:49:24.8782050Z Uploaded bytes 67108864
+2026-10-28T14:49:25.1391337Z Uploaded bytes 75497472
+2026-10-28T14:49:25.3567932Z Uploaded bytes 83886080
+2026-10-28T14:49:25.5507461Z Uploaded bytes 92274688
+2026-10-28T14:49:25.7095496Z Uploaded bytes 100663296
+2026-10-28T14:49:25.8204290Z Uploaded bytes 109051904
+2026-10-28T14:49:26.0746938Z Uploaded bytes 117440512
+2026-10-28T14:49:26.1880616Z Uploaded bytes 125829120
+2026-10-28T14:49:26.4145948Z Uploaded bytes 134217728
+2026-10-28T14:49:26.6440980Z Uploaded bytes 142606336
+2026-10-28T14:49:26.8016996Z Uploaded bytes 150994944
+2026-10-28T14:49:27.0438385Z Uploaded bytes 159383552
+2026-10-28T14:49:27.2686264Z Uploaded bytes 167772160
+2026-10-28T14:49:27.3057944Z Uploaded bytes 176160768
+2026-10-28T14:49:27.5088505Z Uploaded bytes 184549376
+2026-10-28T14:49:27.7018191Z Uploaded bytes 192937984
+2026-10-28T14:49:27.9423439Z Uploaded bytes 201326592
+2026-10-28T14:49:28.1095488Z Uploaded bytes 209715200
+2026-10-28T14:49:28.3186291Z Uploaded bytes 218103808
+2026-10-28T14:49:28.4895411Z Uploaded bytes 226492416
+2026-10-28T14:49:28.6560185Z Uploaded bytes 234881024
+2026-10-28T14:49:28.8645603Z Uploaded bytes 243269632
+2026-10-28T14:49:29.0415063Z Uploaded bytes 251658240
+2026-10-28T14:49:29.2726292Z Uploaded bytes 260046848
+2026-10-28T14:49:29.4328123Z Uploaded bytes 268435456
+2026-10-28T14:49:29.6573963Z Uploaded bytes 276824064
+2026-10-28T14:49:29.8495584Z Uploaded bytes 285212672
+2026-10-28T14:49:29.9724858Z Uploaded bytes 293601280
+2026-10-28T14:49:30.2034159Z Uploaded bytes 301989888
+2026-10-28T14:49:30.4171648Z Uploaded bytes 310378496
+2026-10-28T14:49:30.5760545Z Uploaded bytes 318767104
+2026-10-28T14:49:30.7889840Z Uploaded bytes 327155712
+2026-10-28T14:49:30.9801689Z Uploaded bytes 335544320
+2026-10-28T14:49:31.0972695Z Uploaded bytes 341744066
+2026-10-28T14:49:31.1086117Z Finished uploading artifact content to blob storage!
+2026-10-28T14:49:31.1087957Z SHA256 digest of uploaded artifact is 4604dbdf14c546e97f31c85eb9474b4c531cf0773a83b32e0689a823aca999e5
+2026-10-28T14:49:31.1089778Z Finalizing artifact upload
+2026-10-28T14:49:31.5824723Z Artifact desktop-linux-arm64 successfully finalized. Artifact ID 12825925729
+2026-10-28T14:49:31.5825542Z Artifact desktop-linux-arm64 has been successfully uploaded! Final size is 341744066 bytes. Artifact ID is 12825925729
+2026-10-28T14:49:31.5830656Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40709046979/artifacts/12825925729
+2026-10-28T14:49:31.6043599Z Post job cleanup.
+2026-10-28T14:49:31.7202232Z Post job cleanup.
+2026-10-28T14:49:31.7923816Z [command]/usr/bin/git version
+2026-10-28T14:49:31.7961836Z git version 2.56.0
+2026-10-28T14:49:31.8011136Z Temporarily overriding HOME='/home/runner/work/_temp/2fbc65e7-e497-40f0-8229-64978e406f12' before making global git config changes
+2026-10-28T14:49:31.8012098Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:49:31.8016755Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:49:31.8051611Z Removing SSH command configuration
+2026-10-28T14:49:31.8058311Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:49:31.8092100Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:49:31.8316207Z Removing HTTP extra header
+2026-10-28T14:49:31.8321910Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:49:31.8356989Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:49:31.8585076Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:49:31.8592765Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:49:31.8628143Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:49:31.8998468Z Cleaning up orphan processes

@@ -1,0 +1,16 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/7810af53d1518fb4711585cdd4ec93aae3c6fd2a/.github",
+      "start_line": 95,
+      "start_column": null,
+      "end_line": 95,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Process completed with exit code 1.",
+      "raw_details": ""
+    }
+  ]
+]

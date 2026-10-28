@@ -1,0 +1,21 @@
+⋯ Backing up original state…
+✔ Done backing up original state (52732cd)!
+⋯ Running tasks for staged files…
+    package.json — 2 files
+      *.{js,mjs,cjs} — 2 files
+        ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+        ⋯ prettier --write
+        ⋯ prettier --check
+
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 5e9bc03] fix(ci): inspect complete pull request and push change ranges
+ 2 files changed, 177 insertions(+), 152 deletions(-)
+ create mode 100644 js/tests/ci-detection.test.js

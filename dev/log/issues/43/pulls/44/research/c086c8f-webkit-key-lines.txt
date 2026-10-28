@@ -1,0 +1,9 @@
+578:2026-10-28T16:23:07.9976790Z   chat-message-versions.js
+688:2026-10-28T16:23:10.3514710Z   dom-message-versions.js
+1024:2026-10-28T16:29:05.8439680Z ##[group]Browser check: message-versions
+1025:2026-10-28T16:29:14.8307870Z [e2e-message-versions] OK (webkit)
+1027:2026-10-28T16:29:14.8423140Z Completed message-versions in 8986ms; exit 0
+1069:2026-10-28T16:30:41.5567350Z ##[group]Browser check: consistency
+1070:2026-10-28T16:30:47.9221080Z [e2e-consistency] OK (webkit)
+1072:2026-10-28T16:30:47.9225400Z Completed consistency in 6484ms; exit 0
+1074:2026-10-28T16:30:47.9271840Z Browser checks failed: tutorial

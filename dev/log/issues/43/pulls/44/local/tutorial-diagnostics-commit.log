@@ -1,0 +1,20 @@
+⋯ Backing up original state…
+✔ Done backing up original state (2fe2765)!
+⋯ Running tasks for staged files…
+    *.{js,mjs,cjs} — 2 files
+      ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+      ⋯ prettier --write
+      ⋯ prettier --check
+
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 6526815] test: preserve tutorial step and input diagnostics on CI failure
+ 3 files changed, 110 insertions(+), 21 deletions(-)
+ create mode 100644 experiments/issue43-tutorial-server.mjs

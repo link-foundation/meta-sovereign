@@ -1,0 +1,10 @@
+✔ archive fallback excludes successful redirects and keeps actual HTTP/network failures (2.563051ms)
+✔ Wayback rate limits and malformed responses remain unknown, never proof of no archive (4.892226ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 222.8286

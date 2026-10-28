@@ -1,0 +1,316 @@
+--- python@317c243a7cc832b0abfe4d30989c5095d17fcd78/tests/test_issue_118_workflows.py
++++ js/tests/ci-contracts.test.js
+@@ -1,158 +1,165 @@
+-"""Regression coverage for the pipeline requirements in issues 104–117."""
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import {
++  readFileSync,
++  readdirSync,
++  mkdtempSync,
++  mkdirSync,
++  writeFileSync,
++  rmSync,
++} from 'node:fs';
++import { spawnSync } from 'node:child_process';
++import os from 'node:os';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++import { parse } from 'yaml';
+ 
+-from __future__ import annotations
++const root = fileURLToPath(new URL('../../', import.meta.url));
++const workflow = (name) =>
++  parse(readFileSync(path.join(root, '.github/workflows', name), 'utf8'));
+ 
+-import re
+-import subprocess
++test('browser failures cannot become a green release', () => {
++  const jobs = workflow('release.yml').jobs;
++  assert.ok(
++    jobs['e2e-browser'].strategy.matrix.include.some(
++      ({ browser }) => browser === 'webkit'
++    )
++  );
++  for (const step of jobs['e2e-browser'].steps) {
++    assert.notEqual(step['continue-on-error'], true);
++  }
++  assert.ok(jobs.release.needs.includes('pipeline-status'));
++});
+ 
+-import pytest
++test('every Rust documentation path rejects warnings', () => {
++  const flow = workflow('release.yml');
++  let checked = 0;
++  for (const job of Object.values(flow.jobs)) {
++    for (const step of job.steps || []) {
++      if (!step.run?.includes('cargo doc ')) {
++        continue;
++      }
++      const flags =
++        step.env?.RUSTDOCFLAGS ??
++        job.env?.RUSTDOCFLAGS ??
++        flow.env?.RUSTDOCFLAGS;
++      assert.match(flags ?? '', /(?:^|\s)-D\s*warnings(?:\s|$)/);
++      checked++;
++    }
++  }
++  assert.equal(checked, 3, 'Check and both release documentation paths');
++});
+ 
+-from tests.workflow_helpers import (
+-    ROOT,
+-    WORKFLOWS,
+-    job_condition,
+-    read_workflow,
+-    workflow_job_block,
+-    workflow_step_block,
+-)
++test('read-only jobs use supported pinned runner labels and no stored checkout credentials', () => {
++  for (const name of readdirSync(path.join(root, '.github/workflows'))) {
++    if (!name.endsWith('.yml')) {
++      continue;
++    }
++    const flow = workflow(name);
++    for (const job of Object.values(flow.jobs)) {
++      assert.doesNotMatch(String(job['runs-on']), /-latest/, name);
++      for (const step of job.steps || []) {
++        if (step.uses?.startsWith('actions/checkout@')) {
++          assert.equal(step.with?.['persist-credentials'], false, name);
++        }
++      }
++    }
++    assert.equal(flow.permissions.contents, 'read', name);
++  }
++});
+ 
++const fixture = (t) => {
++  const dir = mkdtempSync(path.join(os.tmpdir(), 'ms-ci-check-'));
++  t.after(() => rmSync(dir, { recursive: true, force: true }));
++  spawnSync('git', ['init', '-b', 'main'], { cwd: dir });
++  return dir;
++};
+ 
+-def test_dependabot_identity_reaches_fragment_validator() -> None:
+-    job = workflow_job_block(read_workflow("release.yml"), "changelog")
+-    step = workflow_step_block(job, "Check for changelog fragments")
+-    assert "PR_AUTHOR: ${{ github.event.pull_request.user.login }}" in step
++test('syntax checking finds malformed nested JavaScript', (t) => {
++  const cwd = fixture(t);
++  mkdirSync(path.join(cwd, 'js/src/nested'), { recursive: true });
++  writeFileSync(path.join(cwd, 'js/src/nested/broken.js'), 'const = ;');
++  spawnSync('git', ['add', '.'], { cwd });
++  const result = spawnSync(
++    'bash',
++    [path.join(root, 'js/scripts/check-mjs-syntax.sh').replaceAll('\\', '/')],
++    { cwd, encoding: 'utf8' }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
+ 
++test('missing lychee report fails instead of claiming all links archived', (t) => {
++  const cwd = fixture(t);
++  const result = spawnSync(
++    process.execPath,
++    [
++      ...(globalThis.Deno ? ['run', '-A'] : []),
++      path.join(root, 'js/scripts/check-web-archive.mjs'),
++    ],
++    {
++      cwd,
++      encoding: 'utf8',
++      env: {
++        ...process.env,
++        LYCHEE_OUTPUT: path.join(cwd, 'missing.md'),
++        GITHUB_OUTPUT: '',
++      },
++    }
++  );
++  assert.notEqual(result.status, 0, result.stdout);
++});
+ 
+-def test_writers_queue_without_cancelling_pending_releases() -> None:
+-    for name in ("auto-release", "manual-release"):
+-        job = workflow_job_block(read_workflow("release.yml"), name)
+-        assert "queue: max" in job
+-        assert "cancel-in-progress: false" in job
+-    config = (ROOT / ".github/actionlint.yaml").read_text()
+-    assert 'unexpected key "queue" for "concurrency" section' in config
+-    assert "queue-size" not in config
++test('workflow policy detects mutable matrix runners and unbounded auxiliary jobs', async () => {
++  const { workflowPolicyErrors } =
++    await import('../scripts/workflow-policy.mjs');
++  const text = `permissions:\n  contents: read\njobs:\n  test:\n    runs-on: \${{ matrix.os }}\n    strategy:\n      matrix:\n        os: [ubuntu-latest]\n    steps: []\n`;
++  const errors = workflowPolicyErrors(text);
++  assert.ok(errors.some((error) => error.includes('runner')));
++  assert.ok(errors.some((error) => error.includes('timeout')));
++  assert.deepEqual(
++    workflowPolicyErrors(
++      text
++        .replace('ubuntu-latest', 'ubuntu-24.04')
++        .replace('    steps: []', '    timeout-minutes: 5\n    steps: []')
++    ),
++    []
++  );
++});
+ 
++test('committed dependency tree contains no deprecated registry packages', () => {
++  const lock = JSON.parse(
++    readFileSync(path.join(root, 'package-lock.json'), 'utf8')
++  );
++  const deprecated = Object.entries(lock.packages)
++    .filter(([, info]) => info.deprecated)
++    .map(([name, info]) => `${name}@${info.version}: ${info.deprecated}`);
++  assert.deepEqual(deprecated, []);
++});
+ 
+-@pytest.mark.parametrize("path", sorted(WORKFLOWS.glob("*.yml")))
+-def test_first_party_checkout_and_python_actions_use_v7(path) -> None:
+-    workflow = path.read_text()
+-    for action in ("checkout", "setup-python"):
+-        pins = re.findall(rf"uses: actions/{action}@([^\s]+)", workflow)
+-        assert all(pin == "v7" for pin in pins)
+-
+-
+-def test_link_scan_uses_directory_extensions_and_persists_cache() -> None:
+-    job = workflow_job_block(read_workflow("links.yml"), "link-checker")
+-    scan = workflow_step_block(job, "Check links with lychee")
+-    assert "--extensions md,html" in scan
+-    assert "--hidden" in scan
+-    assert "--exclude-path scripts/fixtures" in scan
+-    assert "'./**/*.html'" not in scan
+-    assert re.search(r"^            \.$", scan, re.MULTILINE)
+-    assert "uses: actions/cache@v5" in job
+-    assert "path: .lycheecache" in job
+-    assert "key: cache-lychee-${{ github.sha }}" in job
+-    assert "restore-keys: cache-lychee-" in job
+-    report = workflow_step_block(job, "Upload lychee report")
+-    assert "if: failure()" in report
+-    assert "name: lychee-report" in report
+-    assert "path: lychee/out.md" in report
+-
+-
+-def test_pedantic_workflow_audit_is_online() -> None:
+-    job = workflow_job_block(read_workflow("workflows.yml"), "zizmor")
+-    step = workflow_step_block(job, "Audit for pedantic-only high-severity findings")
+-    assert "GH_TOKEN: ${{ github.token }}" in step
+-    assert "--offline" not in step
+-    assert "contents: read" in job
+-
+-
+-def test_every_artifact_upload_fails_when_it_finds_no_files() -> None:
+-    for path in WORKFLOWS.glob("*.yml"):
+-        for step in re.split(r"^      - ", path.read_text(), flags=re.MULTILINE):
+-            if "uses: actions/upload-artifact@" in step:
+-                assert "if-no-files-found: error" in step, (path.name, step)
+-
+-
+-def test_dependency_review_checks_graph_on_every_security_event() -> None:
+-    job = workflow_job_block(read_workflow("security.yml"), "dependency-review")
+-    assert "\n    if:" not in job
+-    assert "bash scripts/check-dependency-graph.sh" in job
+-    assert "GH_TOKEN: ${{ github.token }}" in job
+-    review = workflow_step_block(job, "Review dependency changes")
+-    assert "github.event_name == 'pull_request'" in review
+-    assert "steps.graph.outputs.enabled == 'true'" in review
+-    assert "continue-on-error" not in job
+-
+-
+-@pytest.mark.parametrize("name", ["auto-release", "manual-release"])
+-def test_release_waits_for_all_required_checks(name: str) -> None:
+-    workflow = read_workflow("release.yml")
+-    job = workflow_job_block(workflow, name)
+-    needs = re.search(r"needs: \[([^]]+)\]", job).group(1).split(",")
+-    assert set(map(str.strip, needs)) == {
+-        "lint",
+-        "test",
+-        "build",
+-        "release-preflight",
+-        "validate-docs",
+-        "changelog",
+-        "docker-build",
+-    }
+-    condition = job_condition(workflow, name)
+-    assert "!contains(needs.*.result, 'failure')" in condition
+-    assert "!contains(needs.*.result, 'cancelled')" in condition
+-    for required in ("lint", "test", "build", "release-preflight"):
+-        assert f"needs.{required}.result == 'success'" in condition
+-
+-
+-def test_required_dispatch_inputs_have_defaults() -> None:
+-    for path in WORKFLOWS.glob("*.yml"):
+-        header = path.read_text().split("\njobs:\n")[0]
+-        for block in re.split(r"^      \w+:\s*$", header, flags=re.MULTILINE)[1:]:
+-            if "required: true" in block:
+-                assert "default:" in block, path.name
+-
+-
+-def test_pages_suppresses_only_the_upstream_punycode_warning() -> None:
+-    workflow = read_workflow("docs.yml")
+-    job = workflow_job_block(workflow, "deploy")
+-    step = workflow_step_block(job, "Deploy Pages artifact")
+-    assert "NODE_OPTIONS: --disable-warning=DEP0040" in step
+-    assert "actions/deploy-pages#434" in step
+-    assert workflow.count("NODE_OPTIONS:") == 1
+-    result = subprocess.run(
+-        [
+-            "node",
+-            "--disable-warning=DEP0040",
+-            "-e",
+-            "require('punycode'); process.emitWarning('keep', {code:'DEP9999', type:'DeprecationWarning'})",
+-        ],
+-        capture_output=True,
+-        text=True,
+-        timeout=10,
+-        check=True,
+-    )
+-    assert "DEP0040" not in result.stderr
+-    assert "DEP9999" in result.stderr
+-
+-
+-def test_standalone_shellcheck_is_pinned_and_required() -> None:
+-    workflow = read_workflow("workflows.yml")
+-    assert workflow.count("- '**.sh'") == 2
+-    job = workflow_job_block(workflow, "shellcheck")
+-    assert "git ls-files -z '*.sh'" in job
+-    assert "shellcheck-py==0.11.0.1 shellcheck" in job
+-    assert "shellcheck" in workflow_job_block(workflow, "pipeline-status")
+-    hooks = (ROOT / ".pre-commit-config.yaml").read_text()
+-    assert "repo: https://github.com/shellcheck-py/shellcheck-py" in hooks
+-    assert "rev: v0.11.0.1" in hooks
+-
+-
+-@pytest.mark.parametrize("path", sorted(WORKFLOWS.glob("*.yml")))
+-def test_cancellation_gate_uses_the_base_repository_pr_head_ref(path) -> None:
+-    gate = workflow_job_block(path.read_text(), "pipeline-status")
+-    assert "RUN_SHA: ${{ github.event.pull_request.head.sha || github.sha }}" in gate
+-    assert "HEAD_REF:" in gate
+-    assert "format('refs/pull/{0}/head', github.event.pull_request.number)" in gate
+-    assert "|| github.ref" in gate
++test('standalone shell lint selects maintained scripts without reference evidence', (t) => {
++  const cwd = fixture(t);
++  const files = [
++    'js/scripts/check.sh',
++    '.husky/pre-commit',
++    'dev/log/issues/43/pulls/44/templates/js/files/scripts/reference.sh',
++    'docs/case-studies/example/data/reference.sh',
++  ];
++  for (const file of files) {
++    mkdirSync(path.dirname(path.join(cwd, file)), { recursive: true });
++    writeFileSync(path.join(cwd, file), '#!/bin/sh\n');
++  }
++  spawnSync('git', ['add', '.'], { cwd });
++  const step = workflow('release.yml').jobs['workflow-lint'].steps.find(
++    ({ name }) => name === 'ShellCheck standalone scripts and hooks'
++  );
++  const selection = step.run.split(' | xargs')[0];
++  const result = spawnSync('bash', ['-c', selection], {
++    cwd,
++    encoding: 'utf8',
++  });
++  assert.equal(result.status, 0, result.stderr);
++  assert.deepEqual(
++    result.stdout.split('\0').filter(Boolean).sort(),
++    files.slice(0, 2).sort()
++  );
++});

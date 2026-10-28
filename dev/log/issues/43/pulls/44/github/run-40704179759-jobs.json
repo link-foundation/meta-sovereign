@@ -1,0 +1,272 @@
+[
+  {
+    "id": 122871703050,
+    "run_id": 40704179759,
+    "workflow_name": "Deploy to GitHub Pages",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179759",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm7lmCg",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122871703050",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179759/job/122871703050",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T14:15:39Z",
+    "started_at": "2026-10-28T14:15:41Z",
+    "completed_at": "2026-10-28T14:17:43Z",
+    "name": "E2E against the built bundle",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T14:15:42Z",
+        "completed_at": "2026-10-28T14:15:43Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T14:15:43Z",
+        "completed_at": "2026-10-28T14:15:46Z"
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T14:15:46Z",
+        "completed_at": "2026-10-28T14:15:48Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T14:15:48Z",
+        "completed_at": "2026-10-28T14:16:00Z"
+      },
+      {
+        "name": "Install Chromium and WebKit",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T14:16:00Z",
+        "completed_at": "2026-10-28T14:16:50Z"
+      },
+      {
+        "name": "Let Chromium sandbox itself",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T14:16:50Z",
+        "completed_at": "2026-10-28T14:16:51Z"
+      },
+      {
+        "name": "Hosted app against a local server",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T14:16:51Z",
+        "completed_at": "2026-10-28T14:17:40Z"
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-28T14:17:40Z",
+        "completed_at": "2026-10-28T14:17:41Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-28T14:17:41Z",
+        "completed_at": "2026-10-28T14:17:41Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-28T14:17:41Z",
+        "completed_at": "2026-10-28T14:17:41Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122871703050",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150714,
+    "runner_name": "GitHub Actions 1000150714",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122871703347,
+    "run_id": 40704179759,
+    "workflow_name": "Deploy to GitHub Pages",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179759",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm7lnMw",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122871703347",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179759/job/122871703347",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T14:15:39Z",
+    "started_at": "2026-10-28T14:15:46Z",
+    "completed_at": "2026-10-28T14:16:16Z",
+    "name": "Build SPA bundle",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T14:15:47Z",
+        "completed_at": "2026-10-28T14:15:48Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T14:15:48Z",
+        "completed_at": "2026-10-28T14:15:51Z"
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T14:15:51Z",
+        "completed_at": "2026-10-28T14:15:53Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T14:15:53Z",
+        "completed_at": "2026-10-28T14:16:12Z"
+      },
+      {
+        "name": "Build static Pages bundle",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T14:16:12Z",
+        "completed_at": "2026-10-28T14:16:13Z"
+      },
+      {
+        "name": "Verify required artefacts exist",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T14:16:13Z",
+        "completed_at": "2026-10-28T14:16:13Z"
+      },
+      {
+        "name": "Upload Pages artifact",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T14:16:13Z",
+        "completed_at": "2026-10-28T14:16:13Z"
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-28T14:16:13Z",
+        "completed_at": "2026-10-28T14:16:13Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-28T14:16:13Z",
+        "completed_at": "2026-10-28T14:16:13Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-28T14:16:13Z",
+        "completed_at": "2026-10-28T14:16:13Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122871703347",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150716,
+    "runner_name": "GitHub Actions 1000150716",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122872059567,
+    "run_id": 40704179759,
+    "workflow_name": "Deploy to GitHub Pages",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179759",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm77Wrw",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122872059567",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179759/job/122872059567",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-28T14:16:16Z",
+    "started_at": "2026-10-28T14:16:16Z",
+    "completed_at": "2026-10-28T14:16:16Z",
+    "name": "Deploy to GitHub Pages",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122872059567",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  },
+  {
+    "id": 122872059961,
+    "run_id": 40704179759,
+    "workflow_name": "Deploy to GitHub Pages",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179759",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm77YOQ",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122872059961",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179759/job/122872059961",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-28T14:16:17Z",
+    "started_at": "2026-10-28T14:16:17Z",
+    "completed_at": "2026-10-28T14:16:16Z",
+    "name": "E2E against the deployed site",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122872059961",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  }
+]

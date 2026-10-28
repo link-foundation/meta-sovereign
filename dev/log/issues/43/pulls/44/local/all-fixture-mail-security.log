@@ -1,0 +1,42 @@
+▶ SMTP security
+  ✔ sends over implicit TLS with the certificate verified, Bcc as RCPT only (62.772629ms)
+  ✔ refuses a certificate it cannot verify (no silent insecure mode) (16.879229ms)
+  ✔ upgrades with STARTTLS before it logs in (19.121618ms)
+  ✔ fails when STARTTLS is required but not offered, sending nothing secret (7.890845ms)
+✔ SMTP security (110.402645ms)
+▶ SMTP downgrade and clear text
+  ✔ treats the old secure:false as "STARTTLS required", not as plain text (8.533324ms)
+  ✔ refuses to send a password in clear text to another host (1.382052ms)
+  ✔ allows the certificate check off for this computer only (0.57301ms)
+✔ SMTP downgrade and clear text (11.602769ms)
+▶ SMTP login and envelope
+  ✔ logs in with XOAUTH2 when there is a token and no password (9.45711ms)
+  ✔ rejects an envelope sender or recipient that would add an SMTP command (12.627474ms)
+  ✔ answers send-unknown, never a retry, when the line drops after DATA (5.837748ms)
+✔ SMTP login and envelope (29.296099ms)
+▶ IMAP pulls are incremental
+  ✔ remembers UIDVALIDITY and the last UID, and fetches only what is new (23.237689ms)
+  ✔ starts over when the mailbox was renumbered (UIDVALIDITY changed) (8.239014ms)
+  ✔ skips a message above the size cap instead of loading it (3.433455ms)
+  ✔ logs in with XOAUTH2 when it has a token and no password (5.032813ms)
+✔ IMAP pulls are incremental (40.699926ms)
+▶ IMAP security
+  ✔ upgrades IMAP with STARTTLS before LOGIN (9.43593ms)
+✔ IMAP security (10.053335ms)
+▶ IMAP mark read and delete
+  ✔ flags the message \Seen by UID (11.472296ms)
+  ✔ refuses UIDs of a renumbered mailbox (2.958437ms)
+  ✔ moves a message to the folder the server calls Trash (4.442932ms)
+  ✔ does nothing destructive without a Trash folder (11.079872ms)
+✔ IMAP mark read and delete (30.738624ms)
+▶ POP3 pulls are incremental by UIDL
+  ✔ reads only the messages it has not seen (4.693549ms)
+✔ POP3 pulls are incremental by UIDL (4.95045ms)
+ℹ tests 20
+ℹ suites 7
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 431.505949

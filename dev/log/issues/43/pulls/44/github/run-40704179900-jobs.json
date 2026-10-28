@@ -1,0 +1,691 @@
+[
+  {
+    "id": 122871788598,
+    "run_id": 40704179900,
+    "workflow_name": "Desktop release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179900",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm7q0Ng",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122871788598",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179900/job/122871788598",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T14:15:48Z",
+    "started_at": "2026-10-28T14:16:06Z",
+    "completed_at": "2026-10-28T14:16:37Z",
+    "name": "Resolve release",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T14:16:07Z",
+        "completed_at": "2026-10-28T14:16:07Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T14:16:07Z",
+        "completed_at": "2026-10-28T14:16:13Z"
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T14:16:13Z",
+        "completed_at": "2026-10-28T14:16:14Z"
+      },
+      {
+        "name": "Install release helper dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T14:16:14Z",
+        "completed_at": "2026-10-28T14:16:34Z"
+      },
+      {
+        "name": "Resolve tag and decide what to do",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T14:16:34Z",
+        "completed_at": "2026-10-28T14:16:34Z"
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T14:16:34Z",
+        "completed_at": "2026-10-28T14:16:34Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-28T14:16:34Z",
+        "completed_at": "2026-10-28T14:16:34Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-28T14:16:34Z",
+        "completed_at": "2026-10-28T14:16:34Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122871788598",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150725,
+    "runner_name": "GitHub Actions 1000150725",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122872254133,
+    "run_id": 40704179900,
+    "workflow_name": "Desktop release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179900",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm8HOtQ",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122872254133",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179900/job/122872254133",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-28T14:16:37Z",
+    "started_at": "2026-10-28T14:17:01Z",
+    "completed_at": "2026-10-28T14:18:32Z",
+    "name": "Build (linux-arm64)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T14:17:02Z",
+        "completed_at": "2026-10-28T14:17:03Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T14:17:03Z",
+        "completed_at": "2026-10-28T14:17:06Z"
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T14:17:06Z",
+        "completed_at": "2026-10-28T14:17:06Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T14:17:06Z",
+        "completed_at": "2026-10-28T14:17:19Z"
+      },
+      {
+        "name": "Resolve Electron version",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T14:17:19Z",
+        "completed_at": "2026-10-28T14:17:20Z"
+      },
+      {
+        "name": "Install fpm (Linux arm64)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T14:17:20Z",
+        "completed_at": "2026-10-28T14:17:35Z"
+      },
+      {
+        "name": "Build web bundle",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T14:17:35Z",
+        "completed_at": "2026-10-28T14:17:35Z"
+      },
+      {
+        "name": "Choose macOS signing mode",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T14:17:35Z",
+        "completed_at": "2026-10-28T14:17:35Z"
+      },
+      {
+        "name": "Build desktop app",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "number": 9,
+        "started_at": "2026-10-28T14:17:35Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Drop the Windows arm64 update feed",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Smoke test (Linux)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Smoke test (macOS)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 12,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Smoke test (Windows)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 13,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Checksums and provenance",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 14,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Upload build",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 29,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:29Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 30,
+        "started_at": "2026-10-28T14:18:29Z",
+        "completed_at": "2026-10-28T14:18:30Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 31,
+        "started_at": "2026-10-28T14:18:30Z",
+        "completed_at": "2026-10-28T14:18:30Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122872254133",
+    "labels": [
+      "ubuntu-24.04-arm"
+    ],
+    "runner_id": 1000150739,
+    "runner_name": "GitHub Actions 1000150739",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122872254157,
+    "run_id": 40704179900,
+    "workflow_name": "Desktop release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179900",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm8HOzQ",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122872254157",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179900/job/122872254157",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-28T14:16:37Z",
+    "started_at": "2026-10-28T14:16:39Z",
+    "completed_at": "2026-10-28T14:18:06Z",
+    "name": "Build (windows-x64)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T14:16:41Z",
+        "completed_at": "2026-10-28T14:16:43Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T14:16:43Z",
+        "completed_at": "2026-10-28T14:16:52Z"
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T14:16:52Z",
+        "completed_at": "2026-10-28T14:16:56Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "number": 4,
+        "started_at": "2026-10-28T14:16:56Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Resolve Electron version",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Install fpm (Linux arm64)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Build web bundle",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Choose macOS signing mode",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Build desktop app",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Drop the Windows arm64 update feed",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Smoke test (Linux)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Smoke test (macOS)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 12,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Smoke test (Windows)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 13,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Checksums and provenance",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 14,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Upload build",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 29,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:01Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 30,
+        "started_at": "2026-10-28T14:18:01Z",
+        "completed_at": "2026-10-28T14:18:03Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 31,
+        "started_at": "2026-10-28T14:18:03Z",
+        "completed_at": "2026-10-28T14:18:03Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122872254157",
+    "labels": [
+      "windows-2025"
+    ],
+    "runner_id": 1000150735,
+    "runner_name": "GitHub Actions 1000150735",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122872254278,
+    "run_id": 40704179900,
+    "workflow_name": "Desktop release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179900",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm8HPRg",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122872254278",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179900/job/122872254278",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-28T14:16:37Z",
+    "started_at": "2026-10-28T14:17:28Z",
+    "completed_at": "2026-10-28T14:18:58Z",
+    "name": "Build (windows-arm64)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T14:17:29Z",
+        "completed_at": "2026-10-28T14:17:31Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T14:17:31Z",
+        "completed_at": "2026-10-28T14:17:49Z"
+      },
+      {
+        "name": "Set up Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T14:17:49Z",
+        "completed_at": "2026-10-28T14:17:55Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "cancelled",
+        "number": 4,
+        "started_at": "2026-10-28T14:17:55Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Resolve Electron version",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Install fpm (Linux arm64)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Build web bundle",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Choose macOS signing mode",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Build desktop app",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Drop the Windows arm64 update feed",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Smoke test (Linux)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Smoke test (macOS)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 12,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Smoke test (Windows)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 13,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Checksums and provenance",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 14,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Upload build",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Post Set up Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 29,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:51Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 30,
+        "started_at": "2026-10-28T14:18:51Z",
+        "completed_at": "2026-10-28T14:18:56Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 31,
+        "started_at": "2026-10-28T14:18:56Z",
+        "completed_at": "2026-10-28T14:18:56Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122872254278",
+    "labels": [
+      "windows-11-arm"
+    ],
+    "runner_id": 1000150742,
+    "runner_name": "GitHub Actions 1000150742",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122872254393,
+    "run_id": 40704179900,
+    "workflow_name": "Desktop release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179900",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm8HPuQ",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122872254393",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179900/job/122872254393",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-28T14:16:37Z",
+    "started_at": "2026-10-28T14:16:37Z",
+    "completed_at": "2026-10-28T14:17:45Z",
+    "name": "Build (macos)",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122872254393",
+    "labels": [
+      "macos-15"
+    ],
+    "runner_id": 0,
+    "runner_name": "",
+    "runner_group_id": 0,
+    "runner_group_name": ""
+  },
+  {
+    "id": 122872254654,
+    "run_id": 40704179900,
+    "workflow_name": "Desktop release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179900",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm8HQvg",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122872254654",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179900/job/122872254654",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-28T14:16:37Z",
+    "started_at": "2026-10-28T14:16:37Z",
+    "completed_at": "2026-10-28T14:17:45Z",
+    "name": "Build (linux-x64)",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122872254654",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 0,
+    "runner_name": "",
+    "runner_group_id": 0,
+    "runner_group_name": ""
+  },
+  {
+    "id": 122873588148,
+    "run_id": 40704179900,
+    "workflow_name": "Desktop release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40704179900",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcm9YptA",
+    "head_sha": "fcd2046295373450a996639259bd0cb7a544b25f",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122873588148",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40704179900/job/122873588148",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "created_at": "2026-10-28T14:18:58Z",
+    "started_at": "2026-10-28T14:18:58Z",
+    "completed_at": "2026-10-28T14:18:58Z",
+    "name": "Publish to release",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122873588148",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  }
+]

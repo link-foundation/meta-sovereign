@@ -1,0 +1,9 @@
+
+/tmp/gh-issue-solver-1793191206670/js/scripts/check-web-archive.mjs
+  104:1  warning  Async function 'main' has a complexity of 18. Maximum allowed is 15  complexity
+
+/tmp/gh-issue-solver-1793191206670/js/scripts/workflow-policy.mjs
+  3:8  warning  Function 'workflowPolicyErrors' has a complexity of 18. Maximum allowed is 15  complexity
+
+✖ 2 problems (0 errors, 2 warnings)
+

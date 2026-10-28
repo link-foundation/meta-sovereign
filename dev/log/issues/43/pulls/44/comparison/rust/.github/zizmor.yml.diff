@@ -1,0 +1,26 @@
+--- rust@0ece2cf2c2745c3574ffb65dbabdfcadd7163c14/.github/zizmor.yml
++++ .github/zizmor.yml
+@@ -1,18 +1,16 @@
+-# zizmor configuration for the workflow security audit run by
+-# `.github/workflows/workflows.yml`.
+-#
+-# Blanket policy: third-party actions must be pinned to a commit hash, because
+-# a mutable tag or branch of a repository we do not control is arbitrary code
+-# execution in any job that holds credentials. Namespaces we do trust to keep
+-# their release tags immutable are allowed to stay on a readable ref.
++# zizmor configuration — https://docs.zizmor.sh/configuration/
+ rules:
+   unpinned-uses:
+     config:
+       policies:
++        # These publishers are trusted at tag granularity: their release tags
++        # are the reference this template is meant to read at a glance.
++        # Everything else must be pinned to a full commit hash.
+         actions/*: ref-pin
+         github/*: ref-pin
+         docker/*: ref-pin
+         astral-sh/*: ref-pin
+         lycheeverse/*: ref-pin
+         zizmorcore/*: ref-pin
++        changesets/*: ref-pin
+         '*': hash-pin

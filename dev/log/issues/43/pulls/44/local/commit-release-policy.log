@@ -1,0 +1,30 @@
+⋯ Backing up original state…
+✔ Done backing up original state (531b988)!
+⋯ Running tasks for staged files…
+    package.json — 16 files
+      *.{js,mjs,cjs} — 11 files
+        ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+        ⋯ prettier --write
+        ⋯ prettier --check
+      *.md — 4 files
+        ⋯ prettier --write
+        ⋯ prettier --check
+
+✔ prettier --write
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 f2380e8] fix(release): distinguish unknown state and permanent publication failures
+ 16 files changed, 356 insertions(+), 52 deletions(-)
+ create mode 100644 js/scripts/publish-policy.mjs
+ create mode 100644 js/scripts/wayback-state.mjs
+ create mode 100644 js/scripts/workflow-policy.mjs
+ create mode 100644 js/tests/ci-release-tree.test.js
+ create mode 100644 js/tests/wayback-state.test.js

@@ -1,0 +1,13 @@
+✔ PR checks include earlier code after a docs-only follow-up (411.456089ms)
+✔ multi-commit push checks the whole event range (246.633605ms)
+✔ initial commit is checked instead of silently returning no changes (271.166694ms)
+✔ evidence snapshots never count as executable code changes (249.347537ms)
+✔ unavailable explicit PR revisions fail closed (200.304703ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1531.967321

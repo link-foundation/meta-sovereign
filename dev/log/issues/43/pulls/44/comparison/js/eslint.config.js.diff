@@ -1,0 +1,231 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/eslint.config.js
++++ js/eslint.config.js
+@@ -1,21 +1,13 @@
+ import js from '@eslint/js';
+ import prettierConfig from 'eslint-config-prettier';
+ import prettierPlugin from 'eslint-plugin-prettier';
+-import noChangelogCommentsRule from './eslint-rules/no-changelog-comments.js';
+-
+-const localPlugin = {
+-  rules: {
+-    'no-changelog-comments': noChangelogCommentsRule,
+-  },
+-};
+ 
+ export default [
+   js.configs.recommended,
+   prettierConfig,
+   {
+-    files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
++    files: ['**/*.js', '**/*.mjs'],
+     plugins: {
+-      local: localPlugin,
+       prettier: prettierPlugin,
+     },
+     languageOptions: {
+@@ -28,14 +20,13 @@
+         Buffer: 'readonly',
+         __dirname: 'readonly',
+         __filename: 'readonly',
+-        require: 'readonly',
+-        module: 'readonly',
+         // Node.js 18+ globals
+         fetch: 'readonly',
+         AbortController: 'readonly',
+-        AbortSignal: 'readonly',
+-        setTimeout: 'readonly',
+-        clearTimeout: 'readonly',
++        URL: 'readonly',
++        URLSearchParams: 'readonly',
++        TextEncoder: 'readonly',
++        TextDecoder: 'readonly',
+         // Runtime-specific globals
+         Bun: 'readonly',
+         Deno: 'readonly',
+@@ -46,7 +37,10 @@
+       'prettier/prettier': 'error',
+ 
+       // Code quality rules
+-      'no-unused-vars': 'error',
++      'no-unused-vars': [
++        'error',
++        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
++      ],
+       'no-console': 'off', // Allow console in this project
+       'no-debugger': 'error',
+ 
+@@ -65,17 +59,12 @@
+ 
+       // Async/await
+       'no-async-promise-executor': 'error',
+-      'require-await': 'warn',
++      // Adapter interfaces are uniformly async even when a particular
++      // implementation has nothing to await — keeps consumers from caring
++      // which backend they got handed.
++      'require-await': 'off',
+ 
+       // Comments and documentation
+-      'local/no-changelog-comments': [
+-        'warn',
+-        {
+-          // GitHub's X-GitHub-Api-Version header value is a protocol
+-          // constant, not a reference to a changelog entry.
+-          allow: ['2022-11-28'],
+-        },
+-      ],
+       'spaced-comment': ['error', 'always', { markers: ['/'] }],
+ 
+       // Complexity rules - reasonable thresholds for maintainability
+@@ -95,46 +84,133 @@
+     },
+   },
+   {
+-    files: ['examples/universal-app/src/**/*.js'],
+-    languageOptions: {
+-      globals: {
+-        document: 'readonly',
+-        window: 'readonly',
++    // Electron preload runs as CommonJS even though the package uses ESM.
++    files: ['js/electron/**/*.cjs'],
++    languageOptions: {
++      ecmaVersion: 'latest',
++      sourceType: 'commonjs',
++      globals: {
++        process: 'readonly',
++        require: 'readonly',
++      },
++    },
++  },
++  {
++    // electron-builder loads its config and signing hooks as CommonJS.
++    files: ['desktop/**/*.cjs'],
++    languageOptions: {
++      ecmaVersion: 'latest',
++      sourceType: 'commonjs',
++      globals: {
++        __dirname: 'readonly',
++        module: 'writable',
++        process: 'readonly',
++        require: 'readonly',
+       },
+     },
+   },
+   {
+     // Test files have different requirements
+-    files: ['tests/**/*.js', '**/*.test.js'],
++    files: ['js/tests/**/*.js', '**/*.test.js'],
+     rules: {
+       'require-await': 'off', // Async functions without await are common in tests
+     },
+   },
+   {
+-    // Case studies preserve historical wording on purpose, and the rule's own
+-    // tests contain fixtures the rule is designed to flag.
+-    files: [
+-      'docs/case-studies/**/*.{js,mjs,cjs}',
+-      'tests/no-changelog-comments.test.js',
+-    ],
+-    rules: {
+-      'local/no-changelog-comments': 'off',
++    // Browser-side SPA — needs DOM globals.
++    files: ['js/src/web/**/*.js'],
++    languageOptions: {
++      globals: {
++        window: 'readonly',
++        document: 'readonly',
++        fetch: 'readonly',
++        location: 'readonly',
++        navigator: 'readonly',
++        confirm: 'readonly',
++        alert: 'readonly',
++        CustomEvent: 'readonly',
++      },
++    },
++  },
++  {
++    // Bun runtime adapter — uses globals shared with browsers.
++    files: ['js/src/sync/bun-server.js'],
++    languageOptions: {
++      globals: {
++        Response: 'readonly',
++        Request: 'readonly',
++        WebSocket: 'readonly',
++      },
++    },
++  },
++  {
++    // Test files: setTimeout/clearTimeout are part of standard timers.
++    files: ['js/tests/**/*.js'],
++    languageOptions: {
++      globals: {
++        setTimeout: 'readonly',
++        clearTimeout: 'readonly',
++        setInterval: 'readonly',
++        clearInterval: 'readonly',
++      },
++    },
++  },
++  {
++    // Real-browser e2e: Playwright callbacks (waitForFunction, $eval)
++    // execute in the page context so they need DOM globals.
++    files: ['js/tests/**/*.mjs'],
++    languageOptions: {
++      globals: {
++        setTimeout: 'readonly',
++        clearTimeout: 'readonly',
++        document: 'readonly',
++        window: 'readonly',
++      },
++    },
++  },
++  {
++    // CV plan runner: its extractor callbacks are serialised into the
++    // page by browser-commander, so they run with DOM globals.
++    files: ['js/src/cv/runner.js'],
++    languageOptions: {
++      globals: {
++        document: 'readonly',
++        window: 'readonly',
++      },
++    },
++  },
++  {
++    // Local debugging probes (js/experiments/*.mjs and the repository-root
++    // experiments/*.mjs) often spin up headless browsers and call into the
++    // page context, so they need the same globals the real-browser e2e uses.
++    files: ['js/experiments/**/*.mjs', 'experiments/**/*.mjs'],
++    languageOptions: {
++      globals: {
++        setTimeout: 'readonly',
++        clearTimeout: 'readonly',
++        document: 'readonly',
++        window: 'readonly',
++      },
+     },
+   },
+   {
+     ignores: [
++      'dev/log/**',
+       'node_modules/**',
+-      '**/node_modules/**',
+       'coverage/**',
+       'dist/**',
+-      '**/dist/**',
+-      '**/out/**',
+       '*.min.js',
++      '**/*.min.js',
+       '.eslintcache',
+-      // The jscpd HTML reporter writes a bundled prism.js here
+-      'reports/**',
++      // Claude Code's working copies (git worktrees) of this repository.
++      '.claude/**',
+       // Case study raw data files (downloaded from external sources)
+       'docs/case-studies/*/data/**',
++      // Build output: rustdoc HTML/JS bundle, generated by `cargo doc`.
++      'target/**',
++      'rust/target/**',
++      // Generated API docs from `npm run docs:api`.
++      'docs/api/**',
+     ],
+   },
+ ];

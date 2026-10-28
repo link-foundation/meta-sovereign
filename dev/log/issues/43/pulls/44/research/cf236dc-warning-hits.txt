@@ -1,0 +1,29 @@
+26824:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3214176Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it
+26825:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3216098Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it
+26826:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3217544Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it
+26827:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3218907Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it
+26828:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3220413Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it
+26829:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3222091Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it
+26830:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3223506Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it
+26831:Test (node on windows-2025)	Run tests (Node.js)	2026-10-28T16:04:42.3224511Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it
+32785:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.6683862Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it
+32786:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.6685279Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it
+32787:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.6686440Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it
+32788:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.6687604Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it
+32789:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.8592240Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it
+32790:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.8594028Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it
+32791:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.8595042Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it
+32792:Test (deno on windows-2025)	Run tests (Deno)	2026-10-28T16:04:08.8595795Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it
+47463:Test (bun on macos-15)	Simulate fresh merge with base branch (PR only)	2026-10-28T16:09:19.9968660Z ##[error]Merge conflict detected! PR needs to be rebased/updated before it can be merged.
+47465:Test (bun on macos-15)	Simulate fresh merge with base branch (PR only)	2026-10-28T16:09:19.9977570Z ##[error]Process completed with exit code 1.
+57465:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.6373057Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it
+57466:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.6373958Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it
+57467:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.6374938Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it
+57468:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.6375633Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it
+57469:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.8038538Z warning: in the working copy of 'dev/log/reference/nested-check.mjs', LF will be replaced by CRLF the next time Git touches it
+57470:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.8039709Z warning: in the working copy of 'dev/log/reference/sample.js', LF will be replaced by CRLF the next time Git touches it
+57471:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.8040431Z warning: in the working copy of 'root-check.mjs', LF will be replaced by CRLF the next time Git touches it
+57472:Test (bun on windows-2025)	Run tests (Bun)	2026-10-28T16:04:18.8041093Z warning: in the working copy of 'src/maintained.js', LF will be replaced by CRLF the next time Git touches it
+61818:Test (deno on macos-15)	Simulate fresh merge with base branch (PR only)	2026-10-28T16:11:48.2677460Z ##[error]Merge conflict detected! PR needs to be rebased/updated before it can be merged.
+61820:Test (deno on macos-15)	Simulate fresh merge with base branch (PR only)	2026-10-28T16:11:48.2703160Z ##[error]Process completed with exit code 1.
+62099:Pipeline status	Require every selected check to pass	2026-10-28T16:12:15.3521580Z ##[error]Process completed with exit code 1.

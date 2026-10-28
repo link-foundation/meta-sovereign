@@ -1,0 +1,42 @@
+✔ browser failures cannot become a green release (120.148829ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (82.574804ms)
+✔ syntax checking finds malformed nested JavaScript (114.1436ms)
+✔ missing lychee report fails instead of claiming all links archived (99.07909ms)
+✔ workflow policy detects mutable matrix runners and unbounded auxiliary jobs (6.930446ms)
+✔ committed dependency tree contains no deprecated registry packages (5.942352ms)
+✔ standalone shell lint selects maintained scripts without reference evidence (113.73587ms)
+▶ desktop package.json
+  ✔ ships the root version with electron-updater as the only dependency (2.468097ms)
+  ✔ names the .desktop entry after the executable (0.851881ms)
+✔ desktop package.json (5.972969ms)
+▶ electron-builder config
+  ✔ uses the v27 schema while preserving files, native and signing settings (0.87831ms)
+  ✔ keeps the reverse-DNS app id and GitHub publish target (0.430794ms)
+  ✔ names the macOS bundle after the product, not the executable (1.192366ms)
+  ✔ gives ad-hoc macOS builds an identity, so the sign hook runs (38.098123ms)
+  ✔ does not pass removed builder environment overrides to arm64 builds (1.956923ms)
+  ✔ produces the catalogue name for every download option (0.965062ms)
+✔ electron-builder config (45.438976ms)
+▶ normalize-desktop-artifacts
+  ✔ maps Linux arch spellings to x64/arm64 (0.438028ms)
+  ✔ rewrites update feeds (0.434712ms)
+  ✔ renames files and feeds in a release directory (36.849684ms)
+  ✔ ignores a missing directory (0.941728ms)
+✔ normalize-desktop-artifacts (39.517764ms)
+▶ validate-desktop-assets
+  ✔ parses sha256sum output, including binary-mode markers (0.885002ms)
+  ✔ accepts a complete, checksummed release (1.822732ms)
+  ✔ reports missing and unchecksummed installers (0.896834ms)
+  ✔ rejects tags without a version (0.40654ms)
+✔ validate-desktop-assets (4.548059ms)
+▶ build-desktop
+  ✔ picks the newest version from npm view output (0.205915ms)
+✔ build-desktop (0.357087ms)
+ℹ tests 24
+ℹ suites 5
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1022.003069

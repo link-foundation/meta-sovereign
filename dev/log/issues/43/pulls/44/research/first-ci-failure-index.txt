@@ -1,0 +1,156 @@
+Test (deno on macos-15) job-122839684387.log
+2392: 2026-10-28T13:19:42.6579760Z initial commit is checked instead of silently returning no changes ... [0m[31mFAILED[0m [0m[38;5;245m(110ms)[0m
+2393: 2026-10-28T13:19:42.8123830Z evidence snapshots never count as executable code changes ... [0m[31mFAILED[0m [0m[38;5;245m(154ms)[0m
+2760: 2026-10-28T13:19:51.5753450Z stops on failed tests, a failed version commit or a cancelled job ... [0m[32mok[0m [0m[38;5;245m(66µs)[0m
+2775: 2026-10-28T13:19:53.9550170Z a full disk: puts reject with STORE_WRITE_FAILED, nothing is unhandled, and the data lands once the disk recovers ... [0m[32mok[0m [0m[38;5;245m(134ms)[0m
+2934: 2026-10-28T13:19:57.2103890Z   the cursor is only written after the mail is stored: STORE_WRITE_FAILED (R-Z14) ... [0m[32mok[0m [0m[38;5;245m(5ms)[0m
+4128: 2026-10-28T13:20:29.8355840Z AES-IGE agrees with the GramJS implementation, both ways ... [0m[31mFAILED[0m [0m[38;5;245m(1ms)[0m
+4211: 2026-10-28T13:20:32.3201060Z resume sync is not ok for Upwork, PeoplePerHour and API job boards ... [0m[32mok[0m [0m[38;5;245m(213µs)[0m
+4212: 2026-10-28T13:20:32.3202460Z profile sync is not ok where there is no profile update ... [0m[32mok[0m [0m[38;5;245m(133µs)[0m
+4213: 2026-10-28T13:20:32.3204680Z broadcast reports a failure as not ok with its code ... [0m[32mok[0m [0m[38;5;245m(192µs)[0m
+4724: 2026-10-28T13:20:52.2951010Z a dialog list, a message page and a difference lose their communities ... [0m[31mFAILED[0m [0m[38;5;245m(304ms)[0m
+4944: 2026-10-28T13:20:58.1388070Z the maintained client has the current polls, checklists and vote methods ... [0m[31mFAILED[0m [0m[38;5;245m(1ms)[0m
+4945: 2026-10-28T13:20:58.3087890Z GramJS loads at the current layer, before anything else loads it ... [0m[31mFAILED[0m [0m[38;5;245m(169ms)[0m
+4946: 2026-10-28T13:20:58.3097950Z every Api method and class our Telegram code names exists ... [0m[31mFAILED[0m [0m[38;5;245m(1ms)[0m
+5719: 2026-10-28T13:21:14.2005770Z [0m[1m[31merror[0m: AssertionError: [0m[1m[31merror[0m: Uncaught (in promise) Error: PR base SHA is required for complete change detection
+5720: 2026-10-28T13:21:14.2016710Z       throw new Error('PR base SHA is required for complete change detection');
+5733: 2026-10-28T13:21:14.2049010Z [0m[1m[31merror[0m: AssertionError: [0m[1m[31merror[0m: Uncaught (in promise) Error: PR base SHA is required for complete change detection
+5734: 2026-10-28T13:21:14.2049860Z       throw new Error('PR base SHA is required for complete change detection');
+5888: 2026-10-28T13:21:14.2377980Z [0m[31mFAILED[0m | 3228 passed (224 steps) | 7 failed | 4 ignored [0m[38;5;245m(2m6s)[0m
+5891: 2026-10-28T13:21:14.2588860Z ##[error]Process completed with exit code 1.
+
+Test (node on macos-15) job-122839684390.log
+862: 2026-10-28T13:19:33.5628590Z ✖ initial commit is checked instead of silently returning no changes (492.609458ms)
+863: 2026-10-28T13:19:33.5639520Z ✖ evidence snapshots never count as executable code changes (489.122833ms)
+1280: 2026-10-28T13:19:39.6960010Z   ✔ stops on failed tests, a failed version commit or a cancelled job (0.150167ms)
+1297: 2026-10-28T13:19:41.5712960Z ✔ a full disk: puts reject with STORE_WRITE_FAILED, nothing is unhandled, and the data lands once the disk recovers (138.920875ms)
+1459: 2026-10-28T13:19:42.4665090Z   ✔ the cursor is only written after the mail is stored: STORE_WRITE_FAILED (R-Z14) (10.739333ms)
+2808: 2026-10-28T13:20:06.7999660Z   ✔ resume sync is not ok for Upwork, PeoplePerHour and API job boards (0.281833ms)
+2809: 2026-10-28T13:20:06.8000670Z   ✔ profile sync is not ok where there is no profile update (0.0985ms)
+2810: 2026-10-28T13:20:06.8001770Z   ✔ broadcast reports a failure as not ok with its code (0.147916ms)
+4309: 2026-10-28T13:20:38.9073300Z ✖ failing tests:
+4312: 2026-10-28T13:20:38.9076540Z ✖ initial commit is checked instead of silently returning no changes (492.609458ms)
+4313: 2026-10-28T13:20:38.9078540Z   AssertionError [ERR_ASSERTION]: file:///Users/runner/work/meta-sovereign/meta-sovereign/js/scripts/detect-code-changes.mjs:26
+4314: 2026-10-28T13:20:38.9080280Z         throw new Error('PR base SHA is required for complete change detection');
+4317: 2026-10-28T13:20:38.9082610Z   Error: PR base SHA is required for complete change detection
+4345: 2026-10-28T13:20:38.9110350Z ✖ evidence snapshots never count as executable code changes (489.122833ms)
+4346: 2026-10-28T13:20:38.9112240Z   AssertionError [ERR_ASSERTION]: file:///Users/runner/work/meta-sovereign/meta-sovereign/js/scripts/detect-code-changes.mjs:26
+4347: 2026-10-28T13:20:38.9114040Z         throw new Error('PR base SHA is required for complete change detection');
+4350: 2026-10-28T13:20:38.9116160Z   Error: PR base SHA is required for complete change detection
+4376: 2026-10-28T13:20:38.9198190Z ##[error]Process completed with exit code 1.
+
+Test (bun on macos-15) job-122839684479.log
+1282: 2026-10-28T13:19:48.8377950Z (pass) the saved Connections settings are used > the cursor is only written after the mail is stored: STORE_WRITE_FAILED (R-Z14) [1.02ms]
+1537: 2026-10-28T13:19:50.4201200Z (pass) desktopReleaseGate > stops on failed tests, a failed version commit or a cancelled job [0.04ms]
+3484: 2026-10-28T13:20:03.9169380Z (pass) a full disk: puts reject with STORE_WRITE_FAILED, nothing is unhandled, and the data lands once the disk recovers [124.62ms]
+3989: 2026-10-28T13:20:05.7190860Z (pass) sync reports what it did not do > resume sync is not ok for Upwork, PeoplePerHour and API job boards [0.20ms]
+3990: 2026-10-28T13:20:05.7192250Z (pass) sync reports what it did not do > profile sync is not ok where there is no profile update [0.12ms]
+3991: 2026-10-28T13:20:05.7193100Z (pass) sync reports what it did not do > broadcast reports a failure as not ok with its code [0.06ms]
+4923: 2026-10-28T13:20:12.5937840Z AssertionError: 21 |   if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+4928: 2026-10-28T13:20:12.5939280Z 26 |       throw new Error('PR base SHA is required for complete change detection');
+4930: 2026-10-28T13:20:12.5939980Z error: PR base SHA is required for complete change detection
+4934: 2026-10-28T13:20:12.5958610Z ##[error]
+4956: 2026-10-28T13:20:12.5971280Z ##[error]23 |     head =
+4959: 26 |       throw new Error('PR base SHA is required for complete change detection');
+4961: error: PR base SHA is required for complete change detection
+4965: ::error file=js/scripts/detect-code-changes.mjs,line=26,col=17,title=error: PR base SHA is required for complete change detection::
+4987: 2026-10-28T13:20:12.6758600Z AssertionError: 21 |   if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+4992: 2026-10-28T13:20:12.6760040Z 26 |       throw new Error('PR base SHA is required for complete change detection');
+4994: 2026-10-28T13:20:12.6760770Z error: PR base SHA is required for complete change detection
+4998: 2026-10-28T13:20:12.6763770Z ##[error]
+5020: 2026-10-28T13:20:12.6773370Z ##[error]23 |     head =
+5023: 26 |       throw new Error('PR base SHA is required for complete change detection');
+5025: error: PR base SHA is required for complete change detection
+5029: ::error file=js/scripts/detect-code-changes.mjs,line=26,col=17,title=error: PR base SHA is required for complete change detection::
+5273: 2026-10-28T13:20:20.9123700Z ##[error]Process completed with exit code 1.
+
+Test (deno on windows-2025) job-122839684501.log
+2409: 2026-10-28T13:19:12.6357092Z initial commit is checked instead of silently returning no changes ... [0m[31mFAILED[0m [0m[38;5;245m(610ms)[0m
+2410: 2026-10-28T13:19:13.2536391Z evidence snapshots never count as executable code changes ... [0m[31mFAILED[0m [0m[38;5;245m(617ms)[0m
+2777: 2026-10-28T13:19:20.2474294Z stops on failed tests, a failed version commit or a cancelled job ... [0m[32mok[0m [0m[38;5;245m(168µs)[0m
+2792: 2026-10-28T13:19:22.6168563Z a full disk: puts reject with STORE_WRITE_FAILED, nothing is unhandled, and the data lands once the disk recovers ... [0m[32mok[0m [0m[38;5;245m(137ms)[0m
+2951: 2026-10-28T13:19:27.2575781Z   the cursor is only written after the mail is stored: STORE_WRITE_FAILED (R-Z14) ... [0m[32mok[0m [0m[38;5;245m(5ms)[0m
+4145: 2026-10-28T13:20:13.2822593Z AES-IGE agrees with the GramJS implementation, both ways ... [0m[31mFAILED[0m [0m[38;5;245m(1ms)[0m
+4228: 2026-10-28T13:20:16.1865640Z resume sync is not ok for Upwork, PeoplePerHour and API job boards ... [0m[32mok[0m [0m[38;5;245m(461µs)[0m
+4229: 2026-10-28T13:20:16.1868912Z profile sync is not ok where there is no profile update ... [0m[32mok[0m [0m[38;5;245m(241µs)[0m
+4230: 2026-10-28T13:20:16.1873288Z broadcast reports a failure as not ok with its code ... [0m[32mok[0m [0m[38;5;245m(379µs)[0m
+4741: 2026-10-28T13:20:41.4058652Z a dialog list, a message page and a difference lose their communities ... [0m[31mFAILED[0m [0m[38;5;245m(629ms)[0m
+4961: 2026-10-28T13:20:49.2902806Z the maintained client has the current polls, checklists and vote methods ... [0m[31mFAILED[0m [0m[38;5;245m(2ms)[0m
+4962: 2026-10-28T13:20:49.6653773Z GramJS loads at the current layer, before anything else loads it ... [0m[31mFAILED[0m [0m[38;5;245m(374ms)[0m
+4963: 2026-10-28T13:20:49.6663746Z every Api method and class our Telegram code names exists ... [0m[31mFAILED[0m [0m[38;5;245m(978µs)[0m
+5736: 2026-10-28T13:21:08.6385994Z [0m[1m[31merror[0m: AssertionError: [0m[1m[31merror[0m: Uncaught (in promise) Error: PR base SHA is required for complete change detection
+5737: 2026-10-28T13:21:08.6386876Z       throw new Error('PR base SHA is required for complete change detection');
+5750: 2026-10-28T13:21:08.6392037Z [0m[1m[31merror[0m: AssertionError: [0m[1m[31merror[0m: Uncaught (in promise) Error: PR base SHA is required for complete change detection
+5751: 2026-10-28T13:21:08.6392567Z       throw new Error('PR base SHA is required for complete change detection');
+5906: 2026-10-28T13:21:08.6491981Z [0m[31mFAILED[0m | 3228 passed (224 steps) | 7 failed | 4 ignored [0m[38;5;245m(2m40s)[0m
+5908: 2026-10-28T13:21:08.7421966Z ##[error]Process completed with exit code 1.
+
+Test (node on ubuntu-24.04) job-122839684513.log
+879: 2026-10-28T13:19:58.0596783Z ✖ initial commit is checked instead of silently returning no changes (60.033079ms)
+880: 2026-10-28T13:19:58.0601687Z ✖ evidence snapshots never count as executable code changes (82.845298ms)
+1297: 2026-10-28T13:20:02.4782826Z   ✔ stops on failed tests, a failed version commit or a cancelled job (0.358938ms)
+1314: 2026-10-28T13:20:04.2935475Z ✔ a full disk: puts reject with STORE_WRITE_FAILED, nothing is unhandled, and the data lands once the disk recovers (119.585217ms)
+1476: 2026-10-28T13:20:05.4285778Z   ✔ the cursor is only written after the mail is stored: STORE_WRITE_FAILED (R-Z14) (3.207921ms)
+2825: 2026-10-28T13:20:30.7513446Z   ✔ resume sync is not ok for Upwork, PeoplePerHour and API job boards (0.521752ms)
+2826: 2026-10-28T13:20:30.7514761Z   ✔ profile sync is not ok where there is no profile update (0.266206ms)
+2827: 2026-10-28T13:20:30.7516323Z   ✔ broadcast reports a failure as not ok with its code (0.371552ms)
+4326: 2026-10-28T13:21:01.6728655Z ✖ failing tests:
+4329: 2026-10-28T13:21:01.6731555Z ✖ initial commit is checked instead of silently returning no changes (60.033079ms)
+4330: 2026-10-28T13:21:01.6742208Z   AssertionError [ERR_ASSERTION]: file:///home/runner/work/meta-sovereign/meta-sovereign/js/scripts/detect-code-changes.mjs:26
+4331: 2026-10-28T13:21:01.6743045Z         throw new Error('PR base SHA is required for complete change detection');
+4334: 2026-10-28T13:21:01.6744641Z   Error: PR base SHA is required for complete change detection
+4362: 2026-10-28T13:21:01.6757983Z ✖ evidence snapshots never count as executable code changes (82.845298ms)
+4363: 2026-10-28T13:21:01.6758815Z   AssertionError [ERR_ASSERTION]: file:///home/runner/work/meta-sovereign/meta-sovereign/js/scripts/detect-code-changes.mjs:26
+4364: 2026-10-28T13:21:01.6759615Z         throw new Error('PR base SHA is required for complete change detection');
+4367: 2026-10-28T13:21:01.6760552Z   Error: PR base SHA is required for complete change detection
+4393: 2026-10-28T13:21:01.6832013Z ##[error]Process completed with exit code 1.
+
+Test (bun on ubuntu-24.04) job-122839684539.log
+836: 2026-10-28T13:20:21.9934083Z (pass) the saved Connections settings are used > the cursor is only written after the mail is stored: STORE_WRITE_FAILED (R-Z14) [1.16ms]
+1577: 2026-10-28T13:20:29.7725423Z (pass) a full disk: puts reject with STORE_WRITE_FAILED, nothing is unhandled, and the data lands once the disk recovers [117.15ms]
+2348: 2026-10-28T13:20:35.6553689Z (pass) desktopReleaseGate > stops on failed tests, a failed version commit or a cancelled job [0.05ms]
+3501: 2026-10-28T13:20:47.1634484Z (pass) sync reports what it did not do > resume sync is not ok for Upwork, PeoplePerHour and API job boards [0.35ms]
+3502: 2026-10-28T13:20:47.1635738Z (pass) sync reports what it did not do > profile sync is not ok where there is no profile update [0.15ms]
+3503: 2026-10-28T13:20:47.1636359Z (pass) sync reports what it did not do > broadcast reports a failure as not ok with its code [0.07ms]
+4576: 2026-10-28T13:20:59.8717883Z AssertionError: 21 |   if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+4581: 2026-10-28T13:20:59.8719481Z 26 |       throw new Error('PR base SHA is required for complete change detection');
+4583: 2026-10-28T13:20:59.8720090Z error: PR base SHA is required for complete change detection
+4587: 2026-10-28T13:20:59.8740428Z ##[error]
+4609: 2026-10-28T13:20:59.8753577Z ##[error]23 |     head =
+4612: 26 |       throw new Error('PR base SHA is required for complete change detection');
+4614: error: PR base SHA is required for complete change detection
+4618: ::error file=js/scripts/detect-code-changes.mjs,line=26,col=17,title=error: PR base SHA is required for complete change detection::
+4640: 2026-10-28T13:20:59.9067702Z AssertionError: 21 |   if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+4645: 2026-10-28T13:20:59.9069579Z 26 |       throw new Error('PR base SHA is required for complete change detection');
+4647: 2026-10-28T13:20:59.9070155Z error: PR base SHA is required for complete change detection
+4651: 2026-10-28T13:20:59.9073650Z ##[error]
+4673: 2026-10-28T13:20:59.9084927Z ##[error]23 |     head =
+4676: 26 |       throw new Error('PR base SHA is required for complete change detection');
+4678: error: PR base SHA is required for complete change detection
+4682: ::error file=js/scripts/detect-code-changes.mjs,line=26,col=17,title=error: PR base SHA is required for complete change detection::
+5290: 2026-10-28T13:21:03.8527754Z ##[error]Process completed with exit code 1.
+
+Test (bun on windows-2025) job-122839684579.log
+1135: 2026-10-28T13:18:51.2471803Z AssertionError: 21 |   if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+1140: 2026-10-28T13:18:51.2475794Z 26 |       throw new Error('PR base SHA is required for complete change detection');
+1142: 2026-10-28T13:18:51.2476837Z error: PR base SHA is required for complete change detection
+1146: 2026-10-28T13:18:51.2509421Z ##[error]
+1168: 2026-10-28T13:18:51.2528495Z ##[error]23 |     head =
+1171: 26 |       throw new Error('PR base SHA is required for complete change detection');
+1173: error: PR base SHA is required for complete change detection
+1177: ::error file=js\scripts\detect-code-changes.mjs,line=26,col=17,title=error: PR base SHA is required for complete change detection::
+1199: 2026-10-28T13:18:51.7604185Z AssertionError: 21 |   if (process.env.GITHUB_EVENT_NAME === 'pull_request') {
+1204: 2026-10-28T13:18:51.7607235Z 26 |       throw new Error('PR base SHA is required for complete change detection');
+1206: 2026-10-28T13:18:51.7608805Z error: PR base SHA is required for complete change detection
+1210: 2026-10-28T13:18:51.7614256Z ##[error]
+1232: 2026-10-28T13:18:51.7634395Z ##[error]23 |     head =
+1235: 26 |       throw new Error('PR base SHA is required for complete change detection');
+1237: error: PR base SHA is required for complete change detection
+1241: ::error file=js\scripts\detect-code-changes.mjs,line=26,col=17,title=error: PR base SHA is required for complete change detection::
+1697: 2026-10-28T13:18:53.4449274Z (pass) desktopReleaseGate > stops on failed tests, a failed version commit or a cancelled job [0.09ms]
+1721: 2026-10-28T13:18:55.3883513Z (pass) a full disk: puts reject with STORE_WRITE_FAILED, nothing is unhandled, and the data lands once the disk recovers [114.68ms]
+1888: 2026-10-28T13:18:57.4298164Z (pass) the saved Connections settings are used > the cursor is only written after the mail is stored: STORE_WRITE_FAILED (R-Z14) [2.10ms]
+3385: 2026-10-28T13:19:17.7299320Z (pass) sync reports what it did not do > resume sync is not ok for Upwork, PeoplePerHour and API job boards [0.49ms]
+3386: 2026-10-28T13:19:17.7302005Z (pass) sync reports what it did not do > profile sync is not ok where there is no profile update [0.27ms]
+3387: 2026-10-28T13:19:17.7303387Z (pass) sync reports what it did not do > broadcast reports a failure as not ok with its code [0.12ms]
+5290: 2026-10-28T13:19:36.8307447Z ##[error]Process completed with exit code 1.

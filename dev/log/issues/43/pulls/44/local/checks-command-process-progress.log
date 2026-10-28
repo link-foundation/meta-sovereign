@@ -1,0 +1,44 @@
+Backup memory regression (200k links)	pass	37s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909844534	
+Browser e2e (chromium)	pass	6m48s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845375	
+Browser e2e (webkit)	pass	7m5s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845786	
+Build (linux-arm64)	pass	4m44s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282618/job/122907946096	
+Build (linux-x64)	pass	4m12s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282618/job/122907946347	
+Build (macos)	pass	3m10s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282618/job/122907946264	
+Build (windows-arm64)	pass	8m9s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282618/job/122907946051	
+Build (windows-x64)	pass	5m11s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282618/job/122907946019	
+Build API Docs	pass	51s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845512	
+Build SPA bundle	pass	26s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282544/job/122907592731	
+Check File Line Limits	pass	11s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907713134	
+Check Links	pass	18s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282640/job/122907621697	
+Check for Changesets	pass	28s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907713285	
+Check for Manual Version Changes	pass	14s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907594636	
+CodeQL	pass	3s	https://github.com/link-foundation/meta-sovereign/runs/122910247130	
+CodeQL (actions)	pass	48s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909844572	
+CodeQL (javascript-typescript)	pass	1m48s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909844643	
+CodeQL (python)	pass	49s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909844730	
+CodeQL (rust)	pass	1m54s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909844775	
+Dependency security audit	pass	47s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907712254	
+Detect Changes	pass	9s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907593370	
+E2E against the built bundle	pass	2m4s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282544/job/122907593220	
+Lint and Format Check	pass	1m31s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907713573	
+Package (packed and run with npx)	pass	51s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845516	
+Release credential preflight	pass	9s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907592746	
+Resolve release	pass	31s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282618/job/122907606293	
+Rust (fmt, clippy, test)	pass	29s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845395	
+Test (bun on macos-15)	pass	1m22s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845953	
+Test (bun on ubuntu-24.04)	pass	1m12s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845907	
+Test (bun on windows-2025)	pass	2m19s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909846159	
+Test (deno on macos-15)	pass	2m18s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845853	
+Test (deno on ubuntu-24.04)	pass	2m41s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909846320	
+Test (deno on windows-2025)	pass	3m10s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909846139	
+Test (node on ubuntu-24.04)	pass	2m13s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909845876	
+Validate Documentation	pass	8s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907713240	
+Create Changeset PR	skipping	0	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907647443	
+Review dependency changes	skipping	0	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907714236	
+Test Compilation	pass	33s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907712952	
+Workflow, shell and pipeline contracts	pass	3m30s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122907712799	
+Deploy to GitHub Pages	skipping	0	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282544/job/122907870573	
+E2E against the deployed site	skipping	0	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282544/job/122907871250	
+Test (node on macos-15)	pending	0	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909846368	
+Publish to release	skipping	0	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282618/job/122913087146	
+Test (node on windows-2025)	pass	4m7s	https://github.com/link-foundation/meta-sovereign/actions/runs/40714282555/job/122909846050	

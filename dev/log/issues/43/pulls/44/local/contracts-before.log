@@ -1,0 +1,86 @@
+✖ browser failures cannot become a green release (60.902735ms)
+✖ read-only jobs use supported pinned runner labels and no stored checkout credentials (17.082531ms)
+✖ syntax checking finds malformed nested JavaScript (64.069493ms)
+✖ missing lychee report fails instead of claiming all links archived (101.165993ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 435.050637
+
+✖ failing tests:
+
+test at js/tests/ci-contracts.test.js:13:1
+✖ browser failures cannot become a green release (60.902735ms)
+  TypeError [Error]: Cannot read properties of undefined (reading 'matrix')
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/ci-contracts.test.js:15:42)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at js/tests/ci-contracts.test.js:22:1
+✖ read-only jobs use supported pinned runner labels and no stored checkout credentials (17.082531ms)
+  AssertionError [ERR_ASSERTION]: desktop-release.yml
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/ci-contracts.test.js:27:14)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'ubuntu-latest',
+    expected: /-latest/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }
+
+test at js/tests/ci-contracts.test.js:45:1
+✖ syntax checking finds malformed nested JavaScript (64.069493ms)
+  AssertionError [ERR_ASSERTION]: Checking syntax for all .mjs files...
+  
+  Syntax check passed for 0 file(s).
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/ci-contracts.test.js:51:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 0,
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }
+
+test at js/tests/ci-contracts.test.js:54:1
+✖ missing lychee report fails instead of claiming all links archived (101.165993ms)
+  AssertionError [ERR_ASSERTION]: === Web Archive Fallback Check ===
+  
+  Reading lychee output from: /tmp/ms-ci-check-ezpQj8/missing.md
+  
+  No lychee output file found. Skipping web archive check.
+  all_archived=true
+  
+      at TestContext.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/ci-contracts.test.js:59:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 0,
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

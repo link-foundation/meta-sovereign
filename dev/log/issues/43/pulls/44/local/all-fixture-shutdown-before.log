@@ -1,0 +1,26 @@
+✖ tcp fixture closes while its client is unfinished (518.515819ms)
+✖ http fixture closes while its client is unfinished (516.582053ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1233.553424
+
+✖ failing tests:
+
+test at js/tests/fixture-server.test.js:9:3
+✖ tcp fixture closes while its client is unfinished (518.515819ms)
+  Error: Fixture waited for its client
+      at Timeout.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/fixture-server.test.js:32:43)
+      at listOnTimeout (node:internal/timers:685:17)
+      at process.processTimers (node:internal/timers:618:7)
+
+test at js/tests/fixture-server.test.js:9:3
+✖ http fixture closes while its client is unfinished (516.582053ms)
+  Error: Fixture waited for its client
+      at Timeout.<anonymous> (file:///tmp/gh-issue-solver-1793191206670/js/tests/fixture-server.test.js:32:43)
+      at listOnTimeout (node:internal/timers:685:17)
+      at process.processTimers (node:internal/timers:618:7)

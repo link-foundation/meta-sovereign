@@ -1,0 +1,70 @@
+{"mode":"application","status":0,"signal":null}
+running 1 test from ../issue43-cifrante-cmyjHW/probe0.test.js
+finite AES-IGE native-addon probe ...
+------- output -------
+before require
+before construction
+before encryption native
+before decryption
+after disposal
+----- output end -----
+finite AES-IGE native-addon probe ... ok (89ms)
+running 1 test from ../issue43-cifrante-cmyjHW/probe1.test.js
+finite AES-IGE native-addon probe ...
+------- post-test output -------
+before require
+before construction
+before encryption native
+before decryption
+after disposal
+----- post-test output end -----
+finite AES-IGE native-addon probe ... ok (59ms)
+running 1 test from ../issue43-cifrante-cmyjHW/probe2.test.js
+finite AES-IGE native-addon probe ...
+------- post-test output -------
+before require
+before construction
+before encryption native
+before decryption
+after disposal
+----- post-test output end -----
+finite AES-IGE native-addon probe ... ok (59ms)
+
+ok | 3 passed | 0 failed (617ms)
+
+ 
+{"mode":"portable","status":0,"signal":null}
+running 1 test from ../issue43-cifrante-cmyjHW/probe0.test.js
+finite AES-IGE native-addon probe ...
+------- output -------
+before require
+before construction
+before encryption wasm
+before decryption
+after disposal
+----- output end -----
+finite AES-IGE native-addon probe ... ok (68ms)
+running 1 test from ../issue43-cifrante-cmyjHW/probe1.test.js
+finite AES-IGE native-addon probe ...
+------- post-test output -------
+before require
+before construction
+before encryption wasm
+before decryption
+after disposal
+----- post-test output end -----
+finite AES-IGE native-addon probe ... ok (62ms)
+running 1 test from ../issue43-cifrante-cmyjHW/probe2.test.js
+finite AES-IGE native-addon probe ...
+------- post-test output -------
+before require
+before construction
+before encryption wasm
+before decryption
+after disposal
+----- post-test output end -----
+finite AES-IGE native-addon probe ... ok (67ms)
+
+ok | 3 passed | 0 failed (569ms)
+
+ 

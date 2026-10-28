@@ -1,0 +1,6 @@
+314:Resolve release	Resolve tag and decide what to do	2026-10-28T16:17:23.3199310Z ^[[36;1m  echo "::warning::npm publishing failed; building the desktop release for $tag anyway"^[[0m
+600:Build (linux-x64)	Build desktop app	2026-10-28T16:18:03.1861971Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).
+1366:Build (windows-x64)	Build desktop app	2026-10-28T16:18:52.0738311Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).
+2079:Build (macos)	Build desktop app	2026-10-28T16:18:04.3374150Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).
+3224:Build (windows-arm64)	Build desktop app	2026-10-28T16:24:08.4105426Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).
+3827:Build (linux-arm64)	Build desktop app	2026-10-28T16:17:57.9637574Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).

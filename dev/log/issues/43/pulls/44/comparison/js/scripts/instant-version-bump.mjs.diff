@@ -1,0 +1,74 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/scripts/instant-version-bump.mjs
++++ js/scripts/instant-version-bump.mjs
+@@ -1,23 +1,24 @@
+ #!/usr/bin/env bun
+ 
+ /**
+- * Instant version bump script for manual releases.
+- * Updates the version and the changelog directly, without the changeset
+- * workflow.
++ * Instant version bump script for manual releases
++ * Bypasses the changeset workflow and directly updates version and changelog
+  *
+- * Usage: node scripts/instant-version-bump.mjs --bump-type <major|minor|patch> [--description <description>] [--js-root <path>]
++ * Usage: node js/scripts/instant-version-bump.mjs --bump-type <major|minor|patch> [--description <description>] [--js-root <path>]
+  *
+  * Configuration:
+  * - CLI: --js-root <path> to explicitly set JavaScript root
+  * - Environment: JS_ROOT=<path>
+  *
+  * Uses link-foundation libraries:
+- * - Lockfile-installed command-stream and lino-arguments helpers
++ * - Lockfile-installed release dependencies (npm ci)
+  * - command-stream: Modern shell command execution with streaming support
+  * - lino-arguments: Unified configuration from CLI args, env vars, and .lenv files
+  *
+- * Repository layout: single-language and multi-language repositories are both
+- * supported through a configurable JavaScript package root.
++ * Addresses issues documented in:
++ * - Issue #21: Supporting both single and multi-language repository structures
++ * - Reference: link-assistant/agent PR #112 (--legacy-peer-deps fix)
++ * - Reference: link-assistant/agent PR #114 (configurable package root)
+  */
+ 
+ import { readFileSync, writeFileSync } from 'fs';
+@@ -29,17 +30,12 @@
+   needsCd,
+   parseJsRootConfig,
+ } from './js-paths.mjs';
+-import { bootstrapDependencies } from './bootstrap-dependencies.mjs';
++
+ import { loadCommandStream, loadLinoArguments } from './use-module.mjs';
+ 
+ // Import link-foundation libraries
+-// Loaded through bootstrapDependencies: when installed helpers are unavailable,
+-// this script reports the failure and writes its outputs, and the process
+-// does not die inside module initialisation.
+-const [{ $ }, { makeConfig }] = await bootstrapDependencies([
+-  loadCommandStream,
+-  loadLinoArguments,
+-]);
++const { $ } = await loadCommandStream();
++const { makeConfig } = await loadLinoArguments();
+ 
+ // Parse CLI arguments using lino-arguments
+ const config = makeConfig({
+@@ -79,7 +75,7 @@
+ 
+   if (!bumpType || !['major', 'minor', 'patch'].includes(bumpType)) {
+     console.error(
+-      'Usage: node scripts/instant-version-bump.mjs --bump-type <major|minor|patch> [--description <description>] [--js-root <path>]'
++      'Usage: node js/scripts/instant-version-bump.mjs --bump-type <major|minor|patch> [--description <description>] [--js-root <path>]'
+     );
+     process.exit(1);
+   }
+@@ -151,8 +147,7 @@
+   console.log('\nSynchronizing package-lock.json...');
+ 
+   // Use --legacy-peer-deps to handle peer dependency conflicts
+-  // --legacy-peer-deps keeps a peer-dependency conflict from failing the
+-  // lockfile refresh with npm ERESOLVE.
++  // This addresses npm ERESOLVE errors documented in issue #111 / PR #112
+   // IMPORTANT: cd is a virtual command that calls process.chdir(), so we restore after
+   if (needsCd({ jsRoot })) {
+     await $`cd ${jsRoot} && npm install --package-lock-only --legacy-peer-deps`;

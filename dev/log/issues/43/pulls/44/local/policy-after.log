@@ -1,0 +1,30 @@
+✔ browser failures cannot become a green release (92.594093ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (82.376422ms)
+✔ syntax checking finds malformed nested JavaScript (115.023755ms)
+✔ missing lychee report fails instead of claiming all links archived (87.621187ms)
+✔ workflow policy detects mutable matrix runners and unbounded auxiliary jobs (5.775724ms)
+✔ PR checks include earlier code after a docs-only follow-up (312.870986ms)
+✔ multi-commit push checks the whole event range (243.238828ms)
+✔ initial commit is checked instead of silently returning no changes (153.266075ms)
+✔ evidence snapshots never count as executable code changes (209.250053ms)
+✔ unavailable explicit PR revisions fail closed (142.648728ms)
+✔ release dependencies normalize ESM and nested CommonJS and reject unsupported shapes (2.924056ms)
+✔ pipeline gate rejects failed, cancelled and missing results (1.436741ms)
+✔ registry probe distinguishes unpublished versions from authentication and network failures (0.590281ms)
+✔ package startup fails promptly on child exit and hung health request (42.783181ms)
+✔ release metadata guard allows only version changes, never dependency edits (1.880107ms)
+✔ OIDC preflight verifies the actual package exchange and rejects unknown or refused responses (2.317755ms)
+::notice::Dependency comparison is unavailable (HTTP 403). A repository administrator must enable Dependency graph and grant workflow access at https://github.com/owner/repo/settings/security_analysis. The API does not distinguish disabled configuration from denied access. PR dependency review cannot run; lockfile audits remain required.
+✔ installed release shell rejects nonzero command exits (352.441304ms)
+✔ GitHub release probes distinguish absence from unknown failures (6.779708ms)
+✔ dependency graph preflight permits PR capability notices but fails main and unknown errors (2.198622ms)
+✔ publish retries classify actual npm output, refusing authentication and unknown failures (1.760765ms)
+✔ release guard compares committed Git trees and rejects source or dependency drift (456.833866ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2794.394779

@@ -1,0 +1,52 @@
+[
+  [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/8f9dd3f6900d915df7dada36b641bc31c43322d6/.github",
+      "start_line": 72,
+      "start_column": null,
+      "end_line": 72,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "Process completed with exit code 1.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/8f9dd3f6900d915df7dada36b641bc31c43322d6/.github",
+      "start_line": 46,
+      "start_column": null,
+      "end_line": 46,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "building an ad-hoc signed macOS app (pull request or no signing secrets)",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/8f9dd3f6900d915df7dada36b641bc31c43322d6/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/link-foundation/meta-sovereign/blob/8f9dd3f6900d915df7dada36b641bc31c43322d6/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "Due to capacity constraints, jobs targeting macOS arm64 runners may experience longer queue times.",
+      "raw_details": ""
+    }
+  ]
+]

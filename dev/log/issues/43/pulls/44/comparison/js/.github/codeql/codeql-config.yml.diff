@@ -1,0 +1,10 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/.github/codeql/codeql-config.yml
++++ .github/codeql/codeql-config.yml
+@@ -1,4 +1,5 @@
+-name: Shipped code and pipeline scripts
++name: Maintained source and pipeline
+ paths-ignore:
+-  - experiments
++  - dev/log
++  - docs/case-studies
+   - examples

@@ -1,0 +1,42 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/scripts/changeset-version.mjs
++++ js/scripts/changeset-version.mjs
+@@ -14,22 +14,21 @@
+  * - Environment: JS_ROOT=<path>
+  *
+  * Uses link-foundation libraries:
+- * - Lockfile-installed command-stream and lino-arguments helpers
++ * - Lockfile-installed release dependencies (npm ci)
+  * - command-stream: Modern shell command execution with streaming support
+  *
+- * Repository layout: single-language and multi-language repositories are both
+- * supported through a configurable JavaScript package root.
++ * Addresses issues documented in:
++ * - Issue #21: Supporting both single and multi-language repository structures
++ * - Reference: link-assistant/agent PR #112 (--legacy-peer-deps fix)
++ * - Reference: link-assistant/agent PR #114 (configurable package root)
+  */
+ 
+ import { getJsRoot, needsCd, parseJsRootConfig } from './js-paths.mjs';
+-import { bootstrapDependencies } from './bootstrap-dependencies.mjs';
++
+ import { loadCommandStream } from './use-module.mjs';
+ 
+ // Import command-stream for shell command execution
+-// Loaded through bootstrapDependencies: when installed helpers are unavailable,
+-// this script reports the failure and writes its outputs, and the process
+-// does not die inside module initialisation.
+-const [{ $ }] = await bootstrapDependencies([loadCommandStream]);
++const { $ } = await loadCommandStream();
+ 
+ // Store the original working directory to restore after cd commands
+ // IMPORTANT: command-stream's cd is a virtual command that calls process.chdir()
+@@ -53,8 +52,7 @@
+   console.log('\nSynchronizing package-lock.json...');
+ 
+   // Use --legacy-peer-deps to handle peer dependency conflicts
+-  // --legacy-peer-deps keeps a peer-dependency conflict from failing the
+-  // lockfile refresh with npm ERESOLVE.
++  // This addresses npm ERESOLVE errors documented in issue #111 / PR #112
+   if (needsCd({ jsRoot })) {
+     await $`cd ${jsRoot} && npm install --package-lock-only --legacy-peer-deps`;
+     process.chdir(originalCwd);

@@ -1,0 +1,27 @@
+⋯ Backing up original state…
+✔ Done backing up original state (833b191)!
+⋯ Running tasks for staged files…
+    package.json — 10 files
+      *.{js,mjs,cjs} — 5 files
+        ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+        ⋯ prettier --write
+        ⋯ prettier --check
+      *.md — 4 files
+        ⋯ prettier --write
+        ⋯ prettier --check
+
+✔ prettier --write
+✔ prettier --check
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 63177bc] fix(telegram): select portable AES on Windows Deno before native initialization
+ 10 files changed, 82 insertions(+), 8 deletions(-)
+ create mode 100644 js/src/sources/telegram-runtime.js
+ create mode 100644 js/tests/telegram-runtime.test.js

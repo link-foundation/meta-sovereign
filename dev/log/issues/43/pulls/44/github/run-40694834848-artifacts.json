@@ -1,0 +1,107 @@
+[
+  {
+    "total_count": 5,
+    "artifacts": [
+      {
+        "id": 12819561215,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgxOTU2MTIxNQ==",
+        "name": "desktop-windows-x64",
+        "size_in_bytes": 235149482,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819561215",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819561215/zip",
+        "expired": false,
+        "digest": "sha256:94db556563a2fefe8f7c77affa014027495930d621d2655929903cb1f8e251fd",
+        "created_at": "2026-10-28T13:21:15Z",
+        "updated_at": "2026-10-28T13:21:15Z",
+        "expires_at": "2026-11-11T13:21:08Z",
+        "workflow_run": {
+          "id": 40694834848,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "issue-43-1924384484c0",
+          "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997"
+        }
+      },
+      {
+        "id": 12819481411,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgxOTQ4MTQxMQ==",
+        "name": "desktop-linux-x64",
+        "size_in_bytes": 353067345,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819481411",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819481411/zip",
+        "expired": false,
+        "digest": "sha256:f66dd593d4e21b5f6febc624d6b720dbed3aa93b1d612ad5b35aee8802193b32",
+        "created_at": "2026-10-28T13:20:52Z",
+        "updated_at": "2026-10-28T13:20:52Z",
+        "expires_at": "2026-11-11T13:20:39Z",
+        "workflow_run": {
+          "id": 40694834848,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "issue-43-1924384484c0",
+          "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997"
+        }
+      },
+      {
+        "id": 12819087263,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgxOTA4NzI2Mw==",
+        "name": "desktop-macos",
+        "size_in_bytes": 539008314,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819087263",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819087263/zip",
+        "expired": false,
+        "digest": "sha256:37ba21b8fcd2d579d9fe7e0986f46571c8b14dc3bccca4337b6a96478be5ba6c",
+        "created_at": "2026-10-28T13:19:18Z",
+        "updated_at": "2026-10-28T13:19:18Z",
+        "expires_at": "2026-11-11T13:19:04Z",
+        "workflow_run": {
+          "id": 40694834848,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "issue-43-1924384484c0",
+          "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997"
+        }
+      },
+      {
+        "id": 12819003246,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgxOTAwMzI0Ng==",
+        "name": "desktop-windows-arm64",
+        "size_in_bytes": 225185493,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819003246",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12819003246/zip",
+        "expired": false,
+        "digest": "sha256:4ff1653603905c116260450c75755b5647fa844521160e0522c46295c91ce6fa",
+        "created_at": "2026-10-28T13:26:51Z",
+        "updated_at": "2026-10-28T13:26:51Z",
+        "expires_at": "2026-11-11T14:26:43Z",
+        "workflow_run": {
+          "id": 40694834848,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "issue-43-1924384484c0",
+          "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997"
+        }
+      },
+      {
+        "id": 12818717857,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgxODcxNzg1Nw==",
+        "name": "desktop-linux-arm64",
+        "size_in_bytes": 350547018,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12818717857",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12818717857/zip",
+        "expired": false,
+        "digest": "sha256:0f0d35d27c135c51466e9f2376eeec31f64f5a0b428feaaf8c0f2a6793e31395",
+        "created_at": "2026-10-28T13:20:03Z",
+        "updated_at": "2026-10-28T13:20:03Z",
+        "expires_at": "2026-11-11T13:19:54Z",
+        "workflow_run": {
+          "id": 40694834848,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "issue-43-1924384484c0",
+          "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997"
+        }
+      }
+    ]
+  }
+]

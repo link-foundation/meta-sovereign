@@ -1,0 +1,47 @@
+[
+  {
+    "total_count": 2,
+    "artifacts": [
+      {
+        "id": 12814811385,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgxNDgxMTM4NQ==",
+        "name": "docs-api-rust",
+        "size_in_bytes": 1935427,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12814811385",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12814811385/zip",
+        "expired": false,
+        "digest": "sha256:b597f6176cd122e010ce66751a58b63268083b4faff76616941daa0fa061c19b",
+        "created_at": "2026-10-28T12:08:13Z",
+        "updated_at": "2026-10-28T12:08:13Z",
+        "expires_at": "2026-11-27T12:08:12Z",
+        "workflow_run": {
+          "id": 40683241777,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "main",
+          "head_sha": "9678c5f002777101f0f431cd09660ac6d2c6a009"
+        }
+      },
+      {
+        "id": 12814044211,
+        "node_id": "MDg6QXJ0aWZhY3QxMjgxNDA0NDIxMQ==",
+        "name": "docs-api-js",
+        "size_in_bytes": 155205,
+        "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12814044211",
+        "archive_download_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/artifacts/12814044211/zip",
+        "expired": false,
+        "digest": "sha256:cee292a7a3023f88606b4c4c8fb34d54e013b9cff9c71036e1cd8ede997b04f5",
+        "created_at": "2026-10-28T12:08:11Z",
+        "updated_at": "2026-10-28T12:08:11Z",
+        "expires_at": "2026-11-27T12:08:10Z",
+        "workflow_run": {
+          "id": 40683241777,
+          "repository_id": 1226274967,
+          "head_repository_id": 1226274967,
+          "head_branch": "main",
+          "head_sha": "9678c5f002777101f0f431cd09660ac6d2c6a009"
+        }
+      }
+    ]
+  }
+]

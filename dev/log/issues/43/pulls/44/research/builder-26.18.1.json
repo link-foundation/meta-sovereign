@@ -1,0 +1,12 @@
+{
+  "chalk": "^4.1.2",
+  "yargs": "^17.6.2",
+  "ci-info": "^4.2.0",
+  "fs-extra": "^10.1.0",
+  "lazy-val": "^1.0.5",
+  "dmg-builder": "26.18.1",
+  "builder-util": "26.18.1",
+  "app-builder-lib": "26.18.1",
+  "builder-util-runtime": "9.7.1",
+  "simple-update-notifier": "2.0.0"
+}

@@ -1,0 +1,8 @@
+./docs/CHAT-REFERENCES.zh.md:29:| GramJS (`telegram` npm package) | The MTProto library our server uses            | [gram-js/gramjs](https://github.com/gram-js/gramjs) (we read `node_modules/telegram`) | MIT        | version 2.26.22                                                                                                     |
+./docs/CHAT-REFERENCES.zh.md:122:  （`node_modules/telegram/client/updates.js`），因此 GramJS 应用需要自行实现这一功能。
+./docs/CHAT-REFERENCES.hi.md:37:| GramJS (`telegram` npm package) | MTProto library जो हमारा server उपयोग करता है  | [gram-js/gramjs](https://github.com/gram-js/gramjs) (we read `node_modules/telegram`) | MIT        | version 2.26.22                                                                                                     |
+./docs/CHAT-REFERENCES.hi.md:139:  (`node_modules/telegram/client/updates.js`), इसलिए एक GramJS app को यह
+./docs/CHAT-REFERENCES.ru.md:37:| GramJS (`telegram` npm package) | Библиотека MTProto, используемая нашим сервером          | [gram-js/gramjs](https://github.com/gram-js/gramjs) (we read `node_modules/telegram`) | MIT        | version 2.26.22                                                                                                     |
+./docs/CHAT-REFERENCES.ru.md:137:  (`node_modules/telegram/client/updates.js`), поэтому приложение на GramJS должно
+./docs/CHAT-REFERENCES.md:36:| GramJS (`telegram` npm package) | The MTProto library our server uses            | [gram-js/gramjs](https://github.com/gram-js/gramjs) (we read `node_modules/telegram`) | MIT        | version 2.26.22                                                                                                     |
+./docs/CHAT-REFERENCES.md:139:  (`node_modules/telegram/client/updates.js`), so a GramJS app has to

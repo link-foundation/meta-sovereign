@@ -1,0 +1,605 @@
+﻿2026-10-28T14:45:51.7317905Z Current runner version: '2.338.0'
+2026-10-28T14:45:51.7673850Z ##[group]Runner Image Provisioner
+2026-10-28T14:45:51.7674801Z Hosted Compute Agent
+2026-10-28T14:45:51.7675416Z Version: 20261021.618
+2026-10-28T14:45:51.7676040Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T14:45:51.7676754Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T14:45:51.7677449Z Worker ID: {cec4a0f5-2bb0-4dd8-b92c-83c2ae54642d}
+2026-10-28T14:45:51.7678229Z Region: northcentralus
+2026-10-28T14:45:51.7678781Z Cloud: Azure
+2026-10-28T14:45:51.7679319Z ##[endgroup]
+2026-10-28T14:45:51.7680667Z ##[group]Operating System
+2026-10-28T14:45:51.7681351Z Microsoft Windows Server 2025
+2026-10-28T14:45:51.7681944Z 10.0.26100
+2026-10-28T14:45:51.7682483Z Datacenter
+2026-10-28T14:45:51.7683160Z ##[endgroup]
+2026-10-28T14:45:51.7683791Z ##[group]Runner Image
+2026-10-28T14:45:51.7684893Z Image: windows-2025-vs2026
+2026-10-28T14:45:51.7685497Z Version: 20261021.278.1
+2026-10-28T14:45:51.7687261Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261021.278/images/windows/Windows2025-VS2026-Readme.md
+2026-10-28T14:45:51.7689012Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261021.278
+2026-10-28T14:45:51.7690034Z ##[endgroup]
+2026-10-28T14:45:51.7691266Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T14:45:51.7693604Z Contents: read
+2026-10-28T14:45:51.7694226Z Metadata: read
+2026-10-28T14:45:51.7694842Z ##[endgroup]
+2026-10-28T14:45:51.7697254Z Secret source: Actions
+2026-10-28T14:45:51.7698143Z Cache mode: write
+2026-10-28T14:45:51.7698888Z Prepare workflow directory
+2026-10-28T14:45:51.9131494Z Prepare all required actions
+2026-10-28T14:45:51.9182706Z Getting action download info
+2026-10-28T14:45:52.1572110Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T14:45:52.3504751Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T14:45:52.5917015Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T14:45:53.3310405Z Complete job name: Build (windows-x64)
+2026-10-28T14:45:54.8366108Z ##[group]Run actions/checkout@v7
+2026-10-28T14:45:54.8367033Z with:
+2026-10-28T14:45:54.8367354Z   persist-credentials: false
+2026-10-28T14:45:54.8367748Z   ref: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:54.8368184Z   repository: link-foundation/meta-sovereign
+2026-10-28T14:45:54.8370919Z   token: ***
+2026-10-28T14:45:54.8371223Z   ssh-strict: true
+2026-10-28T14:45:54.8371519Z   ssh-user: git
+2026-10-28T14:45:54.8371807Z   clean: true
+2026-10-28T14:45:54.8372202Z   sparse-checkout-cone-mode: true
+2026-10-28T14:45:54.8372701Z   fetch-depth: 1
+2026-10-28T14:45:54.8372997Z   fetch-tags: false
+2026-10-28T14:45:54.8373295Z   show-progress: true
+2026-10-28T14:45:54.8373606Z   lfs: false
+2026-10-28T14:45:54.8373888Z   submodules: false
+2026-10-28T14:45:54.8374208Z   set-safe-directory: true
+2026-10-28T14:45:54.8374575Z   allow-unsafe-pr-checkout: false
+2026-10-28T14:45:54.8375144Z env:
+2026-10-28T14:45:54.8375426Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:54.8375791Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:54.8376148Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:54.8376454Z ##[endgroup]
+2026-10-28T14:45:54.9850361Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T14:45:54.9852252Z ##[group]Getting Git version info
+2026-10-28T14:45:54.9852797Z Working directory is 'D:\a\meta-sovereign\meta-sovereign'
+2026-10-28T14:45:55.0513205Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-28T14:45:55.6665329Z git version 2.56.0.windows.2
+2026-10-28T14:45:55.6735263Z ##[endgroup]
+2026-10-28T14:45:55.6752011Z Temporarily overriding HOME='D:\a\_temp\a6c4c1d6-3601-4f5a-b31e-4a62baa5ebe1' before making global git config changes
+2026-10-28T14:45:55.6753774Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:45:55.6764448Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:45:55.7593782Z Deleting the contents of 'D:\a\meta-sovereign\meta-sovereign'
+2026-10-28T14:45:55.7598510Z ##[group]Determining repository object format
+2026-10-28T14:45:55.7600349Z ##[endgroup]
+2026-10-28T14:45:55.7600987Z ##[group]Initializing the repository
+2026-10-28T14:45:55.7609674Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:45:55.9195746Z Initialized empty Git repository in D:/a/meta-sovereign/meta-sovereign/.git/
+2026-10-28T14:45:55.9249983Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:45:56.0872204Z ##[endgroup]
+2026-10-28T14:45:56.0872661Z ##[group]Disabling automatic garbage collection
+2026-10-28T14:45:56.0881784Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-28T14:45:56.1319517Z ##[endgroup]
+2026-10-28T14:45:56.1320509Z ##[group]Setting up auth
+2026-10-28T14:45:56.1321231Z Removing SSH command configuration
+2026-10-28T14:45:56.1331702Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:56.1759176Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:45:58.2509090Z Removing HTTP extra header
+2026-10-28T14:45:58.2520333Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:45:58.2906560Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:45:58.8663657Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:45:58.8676797Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:45:58.9043332Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:45:59.4510639Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-28T14:45:59.4895515Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D:\a\_temp\git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:45:59.5334521Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D:\a\_temp\git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:45:59.5800823Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:45:59.6190534Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:45:59.6559182Z ##[endgroup]
+2026-10-28T14:45:59.6559628Z ##[group]Fetching the repository
+2026-10-28T14:45:59.6569103Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:46:02.5199442Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:46:02.5200232Z  * branch            8ef678716b8aff20b0e5fbba3af2bc860d86183a -> FETCH_HEAD
+2026-10-28T14:46:02.5251153Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse --verify --quiet 8ef678716b8aff20b0e5fbba3af2bc860d86183a^{object}
+2026-10-28T14:46:02.5691869Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:46:02.5727275Z ##[endgroup]
+2026-10-28T14:46:02.5727653Z ##[group]Determining the checkout info
+2026-10-28T14:46:02.5728580Z ##[endgroup]
+2026-10-28T14:46:02.5738428Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-28T14:46:02.6407668Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-28T14:46:02.6780236Z ##[group]Checking out the ref
+2026-10-28T14:46:02.6790571Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:46:03.5482670Z Note: switching to '8ef678716b8aff20b0e5fbba3af2bc860d86183a'.
+2026-10-28T14:46:03.5483155Z 
+2026-10-28T14:46:03.5483473Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T14:46:03.5483980Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T14:46:03.5484499Z state without impacting any branches by switching back to a branch.
+2026-10-28T14:46:03.5484799Z 
+2026-10-28T14:46:03.5484980Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T14:46:03.5485459Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T14:46:03.5485716Z 
+2026-10-28T14:46:03.5485861Z   git switch -c <new-branch-name>
+2026-10-28T14:46:03.5486082Z 
+2026-10-28T14:46:03.5486187Z Or undo this operation with:
+2026-10-28T14:46:03.5486341Z 
+2026-10-28T14:46:03.5486440Z   git switch -
+2026-10-28T14:46:03.5486557Z 
+2026-10-28T14:46:03.5486771Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T14:46:03.5487062Z 
+2026-10-28T14:46:03.5615349Z HEAD is now at 8ef6787 Merge 504e07daa95f6100355926f2f371ed0d4ff72c07 into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:46:03.5707764Z ##[endgroup]
+2026-10-28T14:46:03.6181514Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-28T14:46:03.6521390Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:46:03.6565692Z ##[group]Removing auth
+2026-10-28T14:46:03.6566008Z Removing SSH command configuration
+2026-10-28T14:46:03.6573824Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:46:03.7007631Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:46:04.2387854Z Removing HTTP extra header
+2026-10-28T14:46:04.2398271Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:46:04.2773968Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:46:04.8096018Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:46:04.8105555Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:46:04.8439038Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:46:04.8439834Z includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:46:04.8441231Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:46:04.8441756Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:46:04.8482801Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:46:04.8816328Z D:\a\_temp\git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:46:04.8861597Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git.path D\:\\a\\_temp\\git\-credentials\-0ada2c6e\-293a\-41eb\-950f\-d050dac442f7\.config
+2026-10-28T14:46:04.9243151Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:46:04.9597741Z D:\a\_temp\git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:46:04.9655012Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/meta-sovereign/meta-sovereign/.git/worktrees/*.path D\:\\a\\_temp\\git\-credentials\-0ada2c6e\-293a\-41eb\-950f\-d050dac442f7\.config
+2026-10-28T14:46:05.0071643Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:46:05.0415386Z /github/runner_temp/git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:46:05.0457861Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-0ada2c6e\-293a\-41eb\-950f\-d050dac442f7\.config
+2026-10-28T14:46:05.0835204Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:46:05.1163311Z /github/runner_temp/git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config
+2026-10-28T14:46:05.1208505Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-0ada2c6e\-293a\-41eb\-950f\-d050dac442f7\.config
+2026-10-28T14:46:05.1583610Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:46:05.7242586Z Removing credentials config 'D:\a\_temp\git-credentials-0ada2c6e-293a-41eb-950f-d050dac442f7.config'
+2026-10-28T14:46:05.7253596Z ##[endgroup]
+2026-10-28T14:46:05.7651804Z ##[group]Run actions/setup-node@v7
+2026-10-28T14:46:05.7652131Z with:
+2026-10-28T14:46:05.7652337Z   node-version: 24.x
+2026-10-28T14:46:05.7652567Z   package-manager-cache: false
+2026-10-28T14:46:05.7652807Z   check-latest: false
+2026-10-28T14:46:05.7655165Z   token: ***
+2026-10-28T14:46:05.7655349Z env:
+2026-10-28T14:46:05.7655520Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:05.7655762Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:05.7656029Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:05.7656243Z ##[endgroup]
+2026-10-28T14:46:05.9291309Z Found in cache @ C:\hostedtoolcache\windows\node\24.22.1\x64
+2026-10-28T14:46:06.9869611Z ##[group]Environment details
+2026-10-28T14:46:11.3717112Z node: v24.22.1
+2026-10-28T14:46:11.3717388Z npm: 11.19.1
+2026-10-28T14:46:11.3717579Z yarn: 1.22.22
+2026-10-28T14:46:11.3718061Z ##[endgroup]
+2026-10-28T14:46:11.4006877Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T14:46:11.4007364Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T14:46:11.4026433Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:46:11.4026820Z env:
+2026-10-28T14:46:11.4027000Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:46:11.4027224Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:46:11.4027478Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:46:11.4027703Z   ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+2026-10-28T14:46:11.4027940Z ##[endgroup]
+2026-10-28T14:47:39.4673474Z 
+2026-10-28T14:47:39.4680980Z > meta-sovereign@0.54.1 prepare
+2026-10-28T14:47:39.4681377Z > husky || true
+2026-10-28T14:47:39.4681519Z 
+2026-10-28T14:47:39.9744548Z 
+2026-10-28T14:47:39.9745333Z added 488 packages in 1m
+2026-10-28T14:47:41.6417475Z ##[group]Run range=$(node -p "require('./package.json').peerDependencies.electron")
+2026-10-28T14:47:41.6418186Z [36;1mrange=$(node -p "require('./package.json').peerDependencies.electron")[0m
+2026-10-28T14:47:41.6418693Z [36;1mversion=$(npm view "electron@$range" version --json | node -e \[0m
+2026-10-28T14:47:41.6419479Z [36;1m  "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(Array.isArray(v)?v.at(-1):v)")[0m
+2026-10-28T14:47:41.6420005Z [36;1mif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then[0m
+2026-10-28T14:47:41.6420372Z [36;1m  echo "::error::Invalid Electron version from registry"[0m
+2026-10-28T14:47:41.6420687Z [36;1m  exit 1[0m
+2026-10-28T14:47:41.6420877Z [36;1mfi[0m
+2026-10-28T14:47:41.6421121Z [36;1mecho "Electron $version (peer range $range)"[0m
+2026-10-28T14:47:41.6421453Z [36;1mecho "version=$version" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T14:47:41.6435409Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:47:41.6435811Z env:
+2026-10-28T14:47:41.6436002Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:41.6436239Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:41.6436497Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:41.6436716Z ##[endgroup]
+2026-10-28T14:47:42.8414003Z Electron 44.10.0 (peer range ^44.9.0)
+2026-10-28T14:47:42.8642920Z ##[group]Run npm run build:web
+2026-10-28T14:47:42.8643273Z [36;1mnpm run build:web[0m
+2026-10-28T14:47:42.8656276Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:47:42.8656693Z env:
+2026-10-28T14:47:42.8656881Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:42.8657113Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:42.8657376Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:42.8657593Z ##[endgroup]
+2026-10-28T14:47:43.4012859Z 
+2026-10-28T14:47:43.4013520Z > meta-sovereign@0.54.1 build:web
+2026-10-28T14:47:43.4014100Z > node js/scripts/build-web.mjs
+2026-10-28T14:47:43.4014386Z 
+2026-10-28T14:47:43.8087619Z 
+2026-10-28T14:47:43.8088640Z   js\src\web\app.min.js  4.2mb
+2026-10-28T14:47:43.8089012Z 
+2026-10-28T14:47:43.8089201Z Done in 322ms
+2026-10-28T14:47:43.8571620Z ##[group]Run read -r -a build_args <<< "$BUILD_ARGS"
+2026-10-28T14:47:43.8572075Z [36;1mread -r -a build_args <<< "$BUILD_ARGS"[0m
+2026-10-28T14:47:43.8572415Z [36;1mread -r -a sign_args <<< "$SIGN_ARGS"[0m
+2026-10-28T14:47:43.8572811Z [36;1mnode js/scripts/build-desktop.mjs "${build_args[@]}" "${sign_args[@]}"[0m
+2026-10-28T14:47:43.8586211Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:47:43.8586597Z env:
+2026-10-28T14:47:43.8586787Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:43.8587021Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:43.8587284Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:43.8587532Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T14:47:43.8587801Z   BUILD_ARGS: --win --x64
+2026-10-28T14:47:43.8588027Z   SIGN_ARGS: 
+2026-10-28T14:47:43.8588215Z ##[endgroup]
+2026-10-28T14:47:45.8826405Z 
+2026-10-28T14:47:45.8827413Z added 16 packages in 1s
+2026-10-28T14:47:45.9355248Z (node:9156) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+2026-10-28T14:47:45.9380581Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-28T14:47:45.9381916Z Desktop updater cache validation passed (compatible comparator, equal/changed metadata and missing files).
+2026-10-28T14:47:45.9382712Z electron 44.10.0
+2026-10-28T14:47:47.3263440Z   • electron-builder  version=27.0.0-alpha.13 os=10.0.26100
+2026-10-28T14:47:47.3335677Z   • loaded configuration  file=D:\a\meta-sovereign\meta-sovereign\desktop\electron-builder.config.cjs
+2026-10-28T14:47:47.9611695Z   • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=npm detected=D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:47:48.2677573Z   • skipped dependencies rebuild  reason=nativeModules.npmRebuild is set to false
+2026-10-28T14:47:48.2678759Z   • packaging       platform=win32 arch=x64 electron=44.10.0 appOutDir=dist\desktop\release\win-unpacked
+2026-10-28T14:47:48.5723415Z   • downloading     label=electron progress=1%
+2026-10-28T14:47:48.5830425Z   • downloading     label=electron progress=2%
+2026-10-28T14:47:48.5934671Z   • downloading     label=electron progress=3%
+2026-10-28T14:47:48.6021986Z   • downloading     label=electron progress=4%
+2026-10-28T14:47:48.6106252Z   • downloading     label=electron progress=5%
+2026-10-28T14:47:48.6188552Z   • downloading     label=electron progress=6%
+2026-10-28T14:47:48.6267867Z   • downloading     label=electron progress=7%
+2026-10-28T14:47:48.6347325Z   • downloading     label=electron progress=8%
+2026-10-28T14:47:48.6424048Z   • downloading     label=electron progress=9%
+2026-10-28T14:47:48.6487129Z   • downloading     label=electron progress=10%
+2026-10-28T14:47:48.6549470Z   • downloading     label=electron progress=11%
+2026-10-28T14:47:48.6836971Z   • downloading     label=electron progress=12%
+2026-10-28T14:47:48.6904655Z   • downloading     label=electron progress=13%
+2026-10-28T14:47:48.6973664Z   • downloading     label=electron progress=14%
+2026-10-28T14:47:48.7196013Z   • downloading     label=electron progress=15%
+2026-10-28T14:47:48.7275881Z   • downloading     label=electron progress=16%
+2026-10-28T14:47:48.7355891Z   • downloading     label=electron progress=17%
+2026-10-28T14:47:48.7419771Z   • downloading     label=electron progress=18%
+2026-10-28T14:47:48.7494730Z   • downloading     label=electron progress=19%
+2026-10-28T14:47:48.7583782Z   • downloading     label=electron progress=20%
+2026-10-28T14:47:48.7649065Z   • downloading     label=electron progress=21%
+2026-10-28T14:47:48.7733190Z   • downloading     label=electron progress=22%
+2026-10-28T14:47:48.7817329Z   • downloading     label=electron progress=23%
+2026-10-28T14:47:48.7888887Z   • downloading     label=electron progress=24%
+2026-10-28T14:47:48.7965704Z   • downloading     label=electron progress=25%
+2026-10-28T14:47:48.8226023Z   • downloading     label=electron progress=26%
+2026-10-28T14:47:48.8282144Z   • downloading     label=electron progress=27%
+2026-10-28T14:47:48.8358741Z   • downloading     label=electron progress=28%
+2026-10-28T14:47:48.8448677Z   • downloading     label=electron progress=29%
+2026-10-28T14:47:48.8516565Z   • downloading     label=electron progress=30%
+2026-10-28T14:47:48.8600537Z   • downloading     label=electron progress=31%
+2026-10-28T14:47:48.8678452Z   • downloading     label=electron progress=32%
+2026-10-28T14:47:48.8746723Z   • downloading     label=electron progress=33%
+2026-10-28T14:47:48.8805690Z   • downloading     label=electron progress=34%
+2026-10-28T14:47:48.9065064Z   • downloading     label=electron progress=35%
+2026-10-28T14:47:48.9135968Z   • downloading     label=electron progress=36%
+2026-10-28T14:47:48.9207331Z   • downloading     label=electron progress=37%
+2026-10-28T14:47:48.9269597Z   • downloading     label=electron progress=38%
+2026-10-28T14:47:48.9343837Z   • downloading     label=electron progress=39%
+2026-10-28T14:47:48.9422911Z   • downloading     label=electron progress=40%
+2026-10-28T14:47:48.9497797Z   • downloading     label=electron progress=41%
+2026-10-28T14:47:48.9560369Z   • downloading     label=electron progress=42%
+2026-10-28T14:47:48.9618720Z   • downloading     label=electron progress=43%
+2026-10-28T14:47:48.9679807Z   • downloading     label=electron progress=44%
+2026-10-28T14:47:48.9738481Z   • downloading     label=electron progress=45%
+2026-10-28T14:47:48.9985839Z   • downloading     label=electron progress=46%
+2026-10-28T14:47:49.0035183Z   • downloading     label=electron progress=47%
+2026-10-28T14:47:49.0100345Z   • downloading     label=electron progress=48%
+2026-10-28T14:47:49.0153171Z   • downloading     label=electron progress=49%
+2026-10-28T14:47:49.0204015Z   • downloading     label=electron progress=50%
+2026-10-28T14:47:49.0259450Z   • downloading     label=electron progress=51%
+2026-10-28T14:47:49.0313045Z   • downloading     label=electron progress=52%
+2026-10-28T14:47:49.0365954Z   • downloading     label=electron progress=53%
+2026-10-28T14:47:49.0429523Z   • downloading     label=electron progress=54%
+2026-10-28T14:47:49.0482935Z   • downloading     label=electron progress=55%
+2026-10-28T14:47:49.0532425Z   • downloading     label=electron progress=56%
+2026-10-28T14:47:49.0586251Z   • downloading     label=electron progress=57%
+2026-10-28T14:47:49.0824821Z   • downloading     label=electron progress=58%
+2026-10-28T14:47:49.0875671Z   • downloading     label=electron progress=59%
+2026-10-28T14:47:49.0932404Z   • downloading     label=electron progress=60%
+2026-10-28T14:47:49.0986560Z   • downloading     label=electron progress=61%
+2026-10-28T14:47:49.1040274Z   • downloading     label=electron progress=62%
+2026-10-28T14:47:49.1093937Z   • downloading     label=electron progress=63%
+2026-10-28T14:47:49.1149357Z   • downloading     label=electron progress=64%
+2026-10-28T14:47:49.1210211Z   • downloading     label=electron progress=65%
+2026-10-28T14:47:49.1264624Z   • downloading     label=electron progress=66%
+2026-10-28T14:47:49.1320725Z   • downloading     label=electron progress=67%
+2026-10-28T14:47:49.1378702Z   • downloading     label=electron progress=68%
+2026-10-28T14:47:49.1615670Z   • downloading     label=electron progress=69%
+2026-10-28T14:47:49.1674982Z   • downloading     label=electron progress=70%
+2026-10-28T14:47:49.1732354Z   • downloading     label=electron progress=71%
+2026-10-28T14:47:49.1795463Z   • downloading     label=electron progress=72%
+2026-10-28T14:47:49.1859807Z   • downloading     label=electron progress=73%
+2026-10-28T14:47:49.1914206Z   • downloading     label=electron progress=74%
+2026-10-28T14:47:49.1965633Z   • downloading     label=electron progress=75%
+2026-10-28T14:47:49.2017531Z   • downloading     label=electron progress=76%
+2026-10-28T14:47:49.2081326Z   • downloading     label=electron progress=77%
+2026-10-28T14:47:49.2322573Z   • downloading     label=electron progress=78%
+2026-10-28T14:47:49.2371062Z   • downloading     label=electron progress=79%
+2026-10-28T14:47:49.2438723Z   • downloading     label=electron progress=80%
+2026-10-28T14:47:49.2500315Z   • downloading     label=electron progress=81%
+2026-10-28T14:47:49.2557054Z   • downloading     label=electron progress=82%
+2026-10-28T14:47:49.2617388Z   • downloading     label=electron progress=83%
+2026-10-28T14:47:49.2679076Z   • downloading     label=electron progress=84%
+2026-10-28T14:47:49.2743038Z   • downloading     label=electron progress=85%
+2026-10-28T14:47:49.2803029Z   • downloading     label=electron progress=86%
+2026-10-28T14:47:49.2855042Z   • downloading     label=electron progress=87%
+2026-10-28T14:47:49.2914882Z   • downloading     label=electron progress=88%
+2026-10-28T14:47:49.3147415Z   • downloading     label=electron progress=89%
+2026-10-28T14:47:49.3206789Z   • downloading     label=electron progress=90%
+2026-10-28T14:47:49.3266255Z   • downloading     label=electron progress=91%
+2026-10-28T14:47:49.3329217Z   • downloading     label=electron progress=92%
+2026-10-28T14:47:49.3393333Z   • downloading     label=electron progress=93%
+2026-10-28T14:47:49.3451348Z   • downloading     label=electron progress=94%
+2026-10-28T14:47:49.3504716Z   • downloading     label=electron progress=95%
+2026-10-28T14:47:49.3724218Z   • downloading     label=electron progress=96%
+2026-10-28T14:47:49.3775954Z   • downloading     label=electron progress=97%
+2026-10-28T14:47:49.3828345Z   • downloading     label=electron progress=98%
+2026-10-28T14:47:49.3884575Z   • downloading     label=electron progress=99%
+2026-10-28T14:47:49.4148021Z   • downloaded      label=electron progress=100%
+2026-10-28T14:47:54.0002405Z   • downloaded electron zip extracted successfully  output=D:\a\meta-sovereign\meta-sovereign\dist\desktop\release\win-unpacked
+2026-10-28T14:47:54.0673596Z   • searching for node modules  pm=npm searchDir=D:\a\meta-sovereign\meta-sovereign\dist\desktop\app
+2026-10-28T14:47:56.4764615Z   • updating asar integrity executable resource  executablePath=dist\desktop\release\win-unpacked\meta-sovereign.exe
+2026-10-28T14:47:56.4784842Z   • auto-update manifests will be unsigned: anyone who can overwrite latest*.yml on your update server can point installs at an arbitrary payload. Remove `updateManifest: false` and provide a key with `electron-builder create-update-key` to enable signing. Note that installs which already embed a public key reject unsigned manifests (ERR_UPDATER_MANIFEST_NOT_SIGNED). See https://www.electron.build/features/signed-update-manifests  platform=windows reason=updateManifest is set to false
+2026-10-28T14:47:56.4952123Z   • using toolset   toolset=icons@1.2.3 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:47:56.6845017Z   • downloading     label=icons-bundle.tar.gz progress=1%
+2026-10-28T14:47:56.6847583Z   • downloading     label=icons-bundle.tar.gz progress=2%
+2026-10-28T14:47:56.6850127Z   • downloading     label=icons-bundle.tar.gz progress=4%
+2026-10-28T14:47:56.6852717Z   • downloading     label=icons-bundle.tar.gz progress=7%
+2026-10-28T14:47:56.6855074Z   • downloading     label=icons-bundle.tar.gz progress=9%
+2026-10-28T14:47:56.6858534Z   • downloading     label=icons-bundle.tar.gz progress=12%
+2026-10-28T14:47:56.6862985Z   • downloading     label=icons-bundle.tar.gz progress=15%
+2026-10-28T14:47:56.6866282Z   • downloading     label=icons-bundle.tar.gz progress=17%
+2026-10-28T14:47:56.6870561Z   • downloading     label=icons-bundle.tar.gz progress=20%
+2026-10-28T14:47:56.6874129Z   • downloading     label=icons-bundle.tar.gz progress=22%
+2026-10-28T14:47:56.6878218Z   • downloading     label=icons-bundle.tar.gz progress=25%
+2026-10-28T14:47:56.6890206Z   • downloading     label=icons-bundle.tar.gz progress=28%
+2026-10-28T14:47:56.6896285Z   • downloading     label=icons-bundle.tar.gz progress=30%
+2026-10-28T14:47:56.6906281Z   • downloading     label=icons-bundle.tar.gz progress=33%
+2026-10-28T14:47:56.6909086Z   • downloading     label=icons-bundle.tar.gz progress=35%
+2026-10-28T14:47:56.6913078Z   • downloading     label=icons-bundle.tar.gz progress=38%
+2026-10-28T14:47:56.6916412Z   • downloading     label=icons-bundle.tar.gz progress=41%
+2026-10-28T14:47:56.6919853Z   • downloading     label=icons-bundle.tar.gz progress=43%
+2026-10-28T14:47:56.6923605Z   • downloading     label=icons-bundle.tar.gz progress=46%
+2026-10-28T14:47:56.6926874Z   • downloading     label=icons-bundle.tar.gz progress=48%
+2026-10-28T14:47:56.6930296Z   • downloading     label=icons-bundle.tar.gz progress=51%
+2026-10-28T14:47:56.6933691Z   • downloading     label=icons-bundle.tar.gz progress=54%
+2026-10-28T14:47:56.6937304Z   • downloading     label=icons-bundle.tar.gz progress=56%
+2026-10-28T14:47:56.6940718Z   • downloading     label=icons-bundle.tar.gz progress=59%
+2026-10-28T14:47:56.6945056Z   • downloading     label=icons-bundle.tar.gz progress=62%
+2026-10-28T14:47:56.6949071Z   • downloading     label=icons-bundle.tar.gz progress=64%
+2026-10-28T14:47:56.6952595Z   • downloading     label=icons-bundle.tar.gz progress=67%
+2026-10-28T14:47:56.6956159Z   • downloading     label=icons-bundle.tar.gz progress=69%
+2026-10-28T14:47:56.6960240Z   • downloading     label=icons-bundle.tar.gz progress=71%
+2026-10-28T14:47:56.6963821Z   • downloading     label=icons-bundle.tar.gz progress=74%
+2026-10-28T14:47:56.6967351Z   • downloading     label=icons-bundle.tar.gz progress=77%
+2026-10-28T14:47:56.6971279Z   • downloading     label=icons-bundle.tar.gz progress=79%
+2026-10-28T14:47:56.6975814Z   • downloading     label=icons-bundle.tar.gz progress=82%
+2026-10-28T14:47:56.6979490Z   • downloading     label=icons-bundle.tar.gz progress=84%
+2026-10-28T14:47:56.6983237Z   • downloading     label=icons-bundle.tar.gz progress=87%
+2026-10-28T14:47:56.6987369Z   • downloading     label=icons-bundle.tar.gz progress=90%
+2026-10-28T14:47:56.6991519Z   • downloading     label=icons-bundle.tar.gz progress=92%
+2026-10-28T14:47:56.7111291Z   • downloading     label=icons-bundle.tar.gz progress=95%
+2026-10-28T14:47:56.7112144Z   • downloading     label=icons-bundle.tar.gz progress=98%
+2026-10-28T14:47:56.7185104Z   • downloaded      label=icons-bundle.tar.gz progress=100%
+2026-10-28T14:47:57.8731990Z   • signing skipped  path=dist\desktop\release\win-unpacked\meta-sovereign.exe reason=no code signing certificate configured
+2026-10-28T14:47:57.8748236Z   • building        target=nsis file=dist\desktop\release\meta-sovereign-desktop-windows-installer-x64-0.54.1.exe archs=x64 oneClick=false perMachine=false
+2026-10-28T14:47:57.8788967Z   • using toolset   toolset=7zip@1.0.1 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:47:58.0965178Z   • using cached artifact  label=7zip-win-x64.tar.gz
+2026-10-28T14:48:40.9320535Z   • using toolset   toolset=nsis@1.2.1 docs=https://www.electron.build/docs/migration/v27-build-changes#toolset-defaults-resolve-to-latest-newest-bundle
+2026-10-28T14:48:41.1133630Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=1%
+2026-10-28T14:48:41.1134715Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=2%
+2026-10-28T14:48:41.1141965Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=3%
+2026-10-28T14:48:41.1146323Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=4%
+2026-10-28T14:48:41.1148247Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=5%
+2026-10-28T14:48:41.1158851Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=6%
+2026-10-28T14:48:41.1162593Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=7%
+2026-10-28T14:48:41.1166639Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=9%
+2026-10-28T14:48:41.1169135Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=10%
+2026-10-28T14:48:41.1170568Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=11%
+2026-10-28T14:48:41.1181227Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=13%
+2026-10-28T14:48:41.1185225Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=15%
+2026-10-28T14:48:41.1189324Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=17%
+2026-10-28T14:48:41.1195315Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=19%
+2026-10-28T14:48:41.1199623Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=20%
+2026-10-28T14:48:41.1204273Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=22%
+2026-10-28T14:48:41.1209715Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=24%
+2026-10-28T14:48:41.1215006Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=26%
+2026-10-28T14:48:41.1218889Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=28%
+2026-10-28T14:48:41.1223542Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=30%
+2026-10-28T14:48:41.1227644Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=32%
+2026-10-28T14:48:41.1233131Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=33%
+2026-10-28T14:48:41.1238851Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=35%
+2026-10-28T14:48:41.1243316Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=37%
+2026-10-28T14:48:41.1253100Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=39%
+2026-10-28T14:48:41.1256087Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=41%
+2026-10-28T14:48:41.1258941Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=43%
+2026-10-28T14:48:41.1262281Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=45%
+2026-10-28T14:48:41.1265342Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=47%
+2026-10-28T14:48:41.1269073Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=48%
+2026-10-28T14:48:41.1272111Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=50%
+2026-10-28T14:48:41.1275610Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=52%
+2026-10-28T14:48:41.1279250Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=54%
+2026-10-28T14:48:41.1281912Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=56%
+2026-10-28T14:48:41.1284940Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=58%
+2026-10-28T14:48:41.1288372Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=60%
+2026-10-28T14:48:41.1291857Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=62%
+2026-10-28T14:48:41.1294170Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=64%
+2026-10-28T14:48:41.1296761Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=66%
+2026-10-28T14:48:41.1299487Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=68%
+2026-10-28T14:48:41.1303182Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=70%
+2026-10-28T14:48:41.1306662Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=71%
+2026-10-28T14:48:41.1311407Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=73%
+2026-10-28T14:48:41.1316092Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=75%
+2026-10-28T14:48:41.1319581Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=77%
+2026-10-28T14:48:41.1323803Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=79%
+2026-10-28T14:48:41.1328490Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=81%
+2026-10-28T14:48:41.1333328Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=82%
+2026-10-28T14:48:41.1338536Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=85%
+2026-10-28T14:48:41.1344369Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=86%
+2026-10-28T14:48:41.1351472Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=88%
+2026-10-28T14:48:41.1359932Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=90%
+2026-10-28T14:48:41.1522977Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=92%
+2026-10-28T14:48:41.1526464Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=94%
+2026-10-28T14:48:41.1528875Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=96%
+2026-10-28T14:48:41.1591629Z   • downloading     label=nsis-bundle-3.12.tar.gz progress=98%
+2026-10-28T14:48:41.1592637Z   • downloaded      label=nsis-bundle-3.12.tar.gz progress=100%
+2026-10-28T14:48:46.2650263Z   • signing skipped  path=C:\Users\RUNNER~1\AppData\Local\Temp\t-RvbFGA\elevate-staging-1\resources\elevate.exe reason=no code signing certificate configured
+2026-10-28T14:48:47.7190737Z   • signing skipped  path=dist\desktop\release\meta-sovereign-desktop-windows-installer-x64-0.54.1.__uninstaller.exe reason=no code signing certificate configured
+2026-10-28T14:48:49.4890866Z   • signing skipped  path=dist\desktop\release\meta-sovereign-desktop-windows-installer-x64-0.54.1.exe reason=no code signing certificate configured
+2026-10-28T14:48:49.4894670Z   • building block map  blockMapFile=dist\desktop\release\meta-sovereign-desktop-windows-installer-x64-0.54.1.exe.blockmap
+2026-10-28T14:48:54.9211299Z   • building        target=portable file=dist\desktop\release\meta-sovereign-desktop-windows-portable-x64-0.54.1.exe archs=x64
+2026-10-28T14:50:37.6449083Z   • signing skipped  path=C:\Users\RUNNER~1\AppData\Local\Temp\t-RvbFGA\elevate-staging-4\resources\elevate.exe reason=no code signing certificate configured
+2026-10-28T14:50:38.7852326Z   • signing skipped  path=dist\desktop\release\meta-sovereign-desktop-windows-portable-x64-0.54.1.exe reason=no code signing certificate configured
+2026-10-28T14:50:38.9211659Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-10-28T14:50:38.9212227Z [36;1m$ErrorActionPreference = 'Stop'[0m
+2026-10-28T14:50:38.9212604Z [36;1mSet-Location dist/desktop/release[0m
+2026-10-28T14:50:38.9213013Z [36;1mGet-ChildItem[0m
+2026-10-28T14:50:38.9213518Z [36;1m$installers = Get-ChildItem 'meta-sovereign-desktop-windows-installer-*.exe'[0m
+2026-10-28T14:50:38.9214169Z [36;1m$portables = Get-ChildItem 'meta-sovereign-desktop-windows-portable-*.exe'[0m
+2026-10-28T14:50:38.9214902Z [36;1mif ($installers.Count -ne 1 -or $portables.Count -ne 1) { throw 'expected one installer and one portable exe' }[0m
+2026-10-28T14:50:38.9215766Z [36;1mforeach ($exe in @($installers) + @($portables)) {[0m
+2026-10-28T14:50:38.9216532Z [36;1m  if ($exe.Length -lt 10MB) { throw "$($exe.Name) is suspiciously small" }[0m
+2026-10-28T14:50:38.9216977Z [36;1m}[0m
+2026-10-28T14:50:38.9784375Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-28T14:50:38.9784770Z env:
+2026-10-28T14:50:38.9785030Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:50:38.9785265Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:50:38.9785525Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:50:38.9785742Z ##[endgroup]
+2026-10-28T14:50:39.4292916Z 
+2026-10-28T14:50:39.4301231Z     Directory: D:\a\meta-sovereign\meta-sovereign\dist\desktop\release
+2026-10-28T14:50:39.4301751Z 
+2026-10-28T14:50:39.4303315Z [32;1mMode   [0m[32;1m              LastWriteTime[0m [32;1;3m        Length[0m[32;1m Name[0m
+2026-10-28T14:50:39.4304465Z [32;1m----   [0m [32;1m             -------------[0m [32;1m        ------[0m [32;1m----[0m
+2026-10-28T14:50:39.4467506Z d----          10/28/2026  2:47 PM                [44;1m.icon-ico[0m
+2026-10-28T14:50:39.4474885Z d----          10/28/2026  2:47 PM                [44;1mwin-unpacked[0m
+2026-10-28T14:50:39.4518203Z -a---          10/28/2026  2:50 PM           6238 builder-debug.yml
+2026-10-28T14:50:39.4521355Z -a---          10/28/2026  2:50 PM            249 latest.yml
+2026-10-28T14:50:39.4536075Z -a---          10/28/2026  2:48 PM      123049853 [32;1mmeta-sovereign-desktop-windows-installer-x64-0.54.1.exe[0m
+2026-10-28T14:50:39.4538842Z -a---          10/28/2026  2:48 PM         130731 meta-sovereign-desktop-windows-installer-x64-0.54.1.exe.blockmap
+2026-10-28T14:50:39.4541841Z -a---          10/28/2026  2:50 PM      111880802 [32;1mmeta-sovereign-desktop-windows-portable-x64-0.54.1.exe[0m
+2026-10-28T14:50:39.4736339Z 
+2026-10-28T14:50:39.5409124Z ##[group]Run set -euo pipefail
+2026-10-28T14:50:39.5409539Z [36;1mset -euo pipefail[0m
+2026-10-28T14:50:39.5409900Z [36;1mbuilder_version=$(npx --no-install electron-builder --version)[0m
+2026-10-28T14:50:39.5410305Z [36;1mcd dist/desktop/release[0m
+2026-10-28T14:50:39.5410544Z [36;1mfiles=()[0m
+2026-10-28T14:50:39.5410830Z [36;1mfor f in meta-sovereign-desktop-* latest*.yml; do[0m
+2026-10-28T14:50:39.5411227Z [36;1m  if [[ -f "$f" && "$f" != *.blockmap ]]; then files+=("$f"); fi[0m
+2026-10-28T14:50:39.5411546Z [36;1mdone[0m
+2026-10-28T14:50:39.5411915Z [36;1mif command -v sha256sum > /dev/null; then sum='sha256sum'; else sum='shasum -a 256'; fi[0m
+2026-10-28T14:50:39.5412497Z [36;1m$sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-$BUILD_NAME.txt"[0m
+2026-10-28T14:50:39.5412893Z [36;1m{[0m
+2026-10-28T14:50:39.5413084Z [36;1m  echo "## $BUILD_NAME"[0m
+2026-10-28T14:50:39.5413438Z [36;1m  echo "runner: $BUILD_RUNNER ($RUNNER_OS $RUNNER_ARCH)"[0m
+2026-10-28T14:50:39.5413767Z [36;1m  echo "commit: $BUILD_REF"[0m
+2026-10-28T14:50:39.5414069Z [36;1m  echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"[0m
+2026-10-28T14:50:39.5414412Z [36;1m  echo "electron-builder: $builder_version"[0m
+2026-10-28T14:50:39.5414719Z [36;1m  echo "node: $(node --version)"[0m
+2026-10-28T14:50:39.5415055Z [36;1m  [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"[0m
+2026-10-28T14:50:39.5415390Z [36;1m  echo "files:"[0m
+2026-10-28T14:50:39.5415663Z [36;1m  for f in "${files[@]}"; do echo "  - $f"; done[0m
+2026-10-28T14:50:39.5415975Z [36;1m} > "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T14:50:39.5416254Z [36;1mcat "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T14:50:39.5429445Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-28T14:50:39.5429832Z env:
+2026-10-28T14:50:39.5430022Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:50:39.5430253Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:50:39.5430532Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:50:39.5430751Z   MAC_SIGNING: 
+2026-10-28T14:50:39.5431010Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T14:50:39.5431281Z   BUILD_NAME: windows-x64
+2026-10-28T14:50:39.5431679Z   BUILD_RUNNER: windows-2025
+2026-10-28T14:50:39.5431959Z   BUILD_REF: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:50:39.5432251Z ##[endgroup]
+2026-10-28T14:50:42.1616555Z ## windows-x64
+2026-10-28T14:50:42.1617079Z runner: windows-2025 (Windows X64)
+2026-10-28T14:50:42.1618055Z commit: 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:50:42.1618622Z electron: 44.10.0
+2026-10-28T14:50:42.1619046Z electron-builder: 27.0.0-alpha.13
+2026-10-28T14:50:42.1619459Z node: v24.22.1
+2026-10-28T14:50:42.1619782Z files:
+2026-10-28T14:50:42.1620289Z   - meta-sovereign-desktop-windows-installer-x64-0.54.1.exe
+2026-10-28T14:50:42.1621067Z   - meta-sovereign-desktop-windows-portable-x64-0.54.1.exe
+2026-10-28T14:50:42.1621833Z   - latest.yml
+2026-10-28T14:50:42.1869253Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T14:50:42.1869586Z with:
+2026-10-28T14:50:42.1869789Z   name: desktop-windows-x64
+2026-10-28T14:50:42.1870564Z   path: dist/desktop/release/meta-sovereign-desktop-*
+dist/desktop/release/latest*.yml
+dist/desktop/release/SHA256SUMS-*.txt
+dist/desktop/release/provenance-*.txt
+
+2026-10-28T14:50:42.1871277Z   if-no-files-found: error
+2026-10-28T14:50:42.1871499Z   retention-days: 14
+2026-10-28T14:50:42.1871757Z   compression-level: 6
+2026-10-28T14:50:42.1871960Z   overwrite: false
+2026-10-28T14:50:42.1872162Z   include-hidden-files: false
+2026-10-28T14:50:42.1872394Z   archive: true
+2026-10-28T14:50:42.1872573Z env:
+2026-10-28T14:50:42.1872743Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:50:42.1872961Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:50:42.1873213Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:50:42.1873422Z ##[endgroup]
+2026-10-28T14:50:42.3662370Z With the provided path, there will be 6 files uploaded
+2026-10-28T14:50:42.3667212Z Artifact name is valid!
+2026-10-28T14:50:42.3668344Z Root directory input is valid!
+2026-10-28T14:50:42.6113160Z Uploading artifact: desktop-windows-x64.zip
+2026-10-28T14:50:42.6151164Z Beginning upload of artifact content to blob storage
+2026-10-28T14:50:43.4992102Z Uploaded bytes 8388608
+2026-10-28T14:50:43.7468146Z Uploaded bytes 16777216
+2026-10-28T14:50:44.0659034Z Uploaded bytes 25165824
+2026-10-28T14:50:44.1413083Z Uploaded bytes 33554432
+2026-10-28T14:50:44.1859979Z Uploaded bytes 41943040
+2026-10-28T14:50:44.4469684Z Uploaded bytes 50331648
+2026-10-28T14:50:44.7484377Z Uploaded bytes 58720256
+2026-10-28T14:50:44.9769228Z Uploaded bytes 67108864
+2026-10-28T14:50:45.3225349Z Uploaded bytes 75497472
+2026-10-28T14:50:45.5178098Z Uploaded bytes 83886080
+2026-10-28T14:50:45.7702054Z Uploaded bytes 92274688
+2026-10-28T14:50:46.0548334Z Uploaded bytes 100663296
+2026-10-28T14:50:46.3234244Z Uploaded bytes 109051904
+2026-10-28T14:50:46.5611231Z Uploaded bytes 117440512
+2026-10-28T14:50:46.8412465Z Uploaded bytes 125829120
+2026-10-28T14:50:47.0965912Z Uploaded bytes 134217728
+2026-10-28T14:50:47.3209866Z Uploaded bytes 142606336
+2026-10-28T14:50:47.6601843Z Uploaded bytes 150994944
+2026-10-28T14:50:47.8958491Z Uploaded bytes 159383552
+2026-10-28T14:50:48.1639873Z Uploaded bytes 167772160
+2026-10-28T14:50:48.5253420Z Uploaded bytes 176160768
+2026-10-28T14:50:48.6442731Z Uploaded bytes 184549376
+2026-10-28T14:50:48.8798372Z Uploaded bytes 192937984
+2026-10-28T14:50:49.2138380Z Uploaded bytes 201326592
+2026-10-28T14:50:49.4837389Z Uploaded bytes 209715200
+2026-10-28T14:50:49.7276990Z Uploaded bytes 218103808
+2026-10-28T14:50:50.0587887Z Uploaded bytes 226492416
+2026-10-28T14:50:50.2625314Z Uploaded bytes 234881024
+2026-10-28T14:50:50.2957429Z Uploaded bytes 235076852
+2026-10-28T14:50:50.3321701Z Finished uploading artifact content to blob storage!
+2026-10-28T14:50:50.3326521Z SHA256 digest of uploaded artifact is 9bb3d6b661babaa4acb4bc5be6f32e859c0519dd4724498c8b7fa56c0e922743
+2026-10-28T14:50:50.3329146Z Finalizing artifact upload
+2026-10-28T14:50:50.8753531Z Artifact desktop-windows-x64 successfully finalized. Artifact ID 12825871490
+2026-10-28T14:50:50.8754918Z Artifact desktop-windows-x64 has been successfully uploaded! Final size is 235076852 bytes. Artifact ID is 12825871490
+2026-10-28T14:50:50.8764319Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40709046979/artifacts/12825871490
+2026-10-28T14:50:50.9160499Z Post job cleanup.
+2026-10-28T14:50:51.1086202Z Post job cleanup.
+2026-10-28T14:50:51.3475421Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-28T14:50:51.3839490Z git version 2.56.0.windows.2
+2026-10-28T14:50:51.3909582Z Temporarily overriding HOME='D:\a\_temp\cfd3b062-3dcf-4085-80a1-cb5b791d446e' before making global git config changes
+2026-10-28T14:50:51.3911018Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:50:51.3922329Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\meta-sovereign\meta-sovereign
+2026-10-28T14:50:51.4321384Z Removing SSH command configuration
+2026-10-28T14:50:51.4333454Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:50:51.4740793Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-28T14:50:52.0581826Z Removing HTTP extra header
+2026-10-28T14:50:52.0592707Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:50:52.0977815Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-28T14:50:52.6545566Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:50:52.6557514Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:50:52.6948164Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-28T14:50:53.2975116Z Cleaning up orphan processes

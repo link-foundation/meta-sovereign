@@ -1,0 +1,19 @@
+✔ release dependencies normalize ESM and nested CommonJS and reject unsupported shapes (3.0559ms)
+✔ pipeline gate rejects failed, cancelled and missing results (1.401163ms)
+✔ registry probe distinguishes unpublished versions from authentication and network failures (0.812575ms)
+✔ package startup fails promptly on child exit and hung health request (44.026872ms)
+✔ release metadata guard allows only version changes, never dependency edits (6.924087ms)
+✔ OIDC preflight verifies the actual package exchange and rejects unknown or refused responses (4.544388ms)
+::notice::Dependency comparison is unavailable (HTTP 403). A repository administrator must enable Dependency graph and grant workflow access at https://github.com/owner/repo/settings/security_analysis. The API does not distinguish disabled configuration from denied access. PR dependency review cannot run; lockfile audits remain required.
+✔ installed release shell rejects nonzero command exits (772.465081ms)
+✔ GitHub release probes distinguish absence from unknown failures (4.043914ms)
+✔ dependency graph preflight permits PR capability notices but fails main and unknown errors (2.324657ms)
+✔ publish retries classify actual npm output, refusing authentication and unknown failures (2.14453ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1065.480874

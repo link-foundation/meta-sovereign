@@ -1,0 +1,51 @@
+running 1 test from ./js/tests/fake-github.test.js
+fake GitHub closes owned connections without waiting for clients ... ok (42ms)
+running 6 tests from ./js/tests/github-inbox.test.js
+R-Z11 external ids ...
+  keeps the GitHub id, node id, owner, repo and number on every kind ... ok (103ms)
+  edits, deletes and reacts on the object the reference names ... ok (49ms)
+  edits an issue body with its title, through the issue endpoint ... ok (46ms)
+  refuses an old item without a reference, sending nothing ... ok (8ms)
+  replies to a review comment on the review-comment reply endpoint ... ok (20ms)
+  posts from a chat key owner/repo#N (the composer) ... ok (5ms)
+R-Z11 external ids ... ok (244ms)
+R-Z11 pagination and rate limits ...
+  follows Link headers past 50 pages (no page counting) ... ok (98ms)
+  does not loop on a Link that points to itself ... ok (2ms)
+  waits out a secondary limit (retry-after) and carries on ... ok (15ms)
+  reports a long wait as rate-limited with retryAfter, never crashes ... ok (17ms)
+  stops asking while the primary budget is spent ... ok (9ms)
+R-Z11 pagination and rate limits ... ok (153ms)
+R-Z11 incremental pull ...
+  asks only for what changed since the cursor, and 304s are free ... ok (24ms)
+  brings in a new comment and only the changed pull request reviews ... ok (14ms)
+  does not move the cursor when the store write fails (R-Z14) ... ok (13ms)
+  a failing repository does not stop the others; a rate limit does ... ok (18ms)
+R-Z11 incremental pull ... ok (70ms)
+R-Z11 the github job of the shared pull runner ...
+  the shared runner schedules GitHub only when chosen and due ... ok (15ms)
+  a rate limit is remembered: no new request until it passes ... ok (6ms)
+  validates the saved settings ... ok (1ms)
+R-Z11 the github job of the shared pull runner ... ok (28ms)
+R-Z11 notifications ...
+  fetches with since and If-Modified-Since and keeps the poll interval ... ok (6ms)
+  never polls faster than X-Poll-Interval, and fetching marks nothing read ... ok (6ms)
+  marks read only when asked, one thread or all ... ok (9ms)
+R-Z11 notifications ... ok (26ms)
+R-Z11 discussions (GraphQL) ...
+  reads a discussion with its comments and replies ... ok (7ms)
+  replies under the top comment, or finds the discussion by chat ... ok (10ms)
+  says so when the token cannot see discussions, and the pull goes on ... ok (13ms)
+R-Z11 discussions (GraphQL) ... ok (31ms)
+running 1 test from ./js/tests/github-routes.test.js
+R-Z11 /api/github routes ...
+  lists repositories with the chosen ones marked, and saves the choice ... ok (209ms)
+  refuses bad settings with the uniform error and a foreign-type POST ... ok (21ms)
+  fetches the chosen repositories and the notification inbox on demand ... ok (43ms)
+  says what to do when no token is saved ... ok (14ms)
+  answers 429 with retryAfter on a long rate limit, and never leaks the token ... ok (29ms)
+  refuses edit of an item pulled before ids were kept, with a clear code ... ok (14ms)
+R-Z11 /api/github routes ... ok (348ms)
+
+ok | 8 passed (30 steps) | 0 failed (1s)
+

@@ -1,0 +1,21 @@
+.github/workflows/release.yml 247ms (unchanged)
+.github/workflows/security.yml 20ms (unchanged)
+.github/workflows/desktop-release.yml 55ms (unchanged)
+.github/codeql/codeql-config.yml 3ms (unchanged)
+deno.json 63ms (unchanged)
+package.json 24ms (unchanged)
+js/scripts/dependency-graph.mjs 44ms (unchanged)
+js/tests/ci-detection.test.js 47ms (unchanged)
+js/tests/ci-helpers.test.js 61ms (unchanged)
+js/src/sources/telegram-layer.js 44ms (unchanged)
+js/tests/helpers/run-module-script.js 17ms (unchanged)
+js/tests/rich-messages.test.js 75ms
+js/tests/secret-chat-protocol.test.js 105ms (unchanged)
+js/tests/telegram-actions.test.js 102ms (unchanged)
+js/tests/telegram-community.test.js 12ms (unchanged)
+js/tests/telegram-layer.test.js 27ms (unchanged)
+docs/CHAT-REFERENCES.hi.md 247ms
+docs/CHAT-REFERENCES.md 191ms
+docs/CHAT-REFERENCES.ru.md 74ms
+docs/CHAT-REFERENCES.zh.md 81ms
+experiments/issue43-telegram-resolution.mjs 10ms

@@ -1,0 +1,24 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/.prettierignore
++++ .prettierignore
+@@ -1,10 +1,19 @@
+ node_modules
+ coverage
+ dist
++target
+ *.min.js
++**/*.min.js
+ package-lock.json
+ .eslintcache
+-.playwright-mcp/
+-CLAUDE.md
++# Generated API docs (built by scripts/build-api-docs.mjs).
++docs/api/
+ # Case study raw data files (downloaded from external sources)
+ docs/case-studies/*/data/
++# Playwright MCP traces and snapshots
++.playwright-mcp/
++# Claude Code's working copies (git worktrees) of this repository.
++.claude/
++
++# Immutable downloaded CI evidence and template snapshots.
++dev/log/

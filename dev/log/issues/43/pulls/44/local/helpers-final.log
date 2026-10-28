@@ -1,0 +1,15 @@
+✔ release dependencies normalize ESM and nested CommonJS and reject unsupported shapes (2.333361ms)
+✔ pipeline gate rejects failed, cancelled and missing results (1.483666ms)
+✔ registry probe distinguishes unpublished versions from authentication and network failures (0.475527ms)
+✔ package startup fails promptly on child exit and hung health request (44.68343ms)
+✔ release metadata guard allows only version changes, never dependency edits (5.417683ms)
+✔ OIDC preflight verifies the actual package exchange and rejects unknown or refused responses (3.813141ms)
+✔ installed release shell rejects nonzero command exits (427.161744ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 620.494951

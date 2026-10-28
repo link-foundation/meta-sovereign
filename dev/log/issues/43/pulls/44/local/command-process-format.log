@@ -1,0 +1,13 @@
+js/scripts/command-process.mjs 126ms
+js/scripts/prepare-desktop.mjs 86ms (unchanged)
+js/scripts/build-desktop.mjs 37ms (unchanged)
+js/scripts/mobile-platform.mjs 19ms (unchanged)
+js/scripts/registry-state.mjs 17ms (unchanged)
+js/scripts/setup-npm.mjs 9ms
+js/tests/command-process.test.js 69ms
+js/tests/pack-smoke.mjs 153ms
+experiments/issue43-desktop-config.mjs 8ms (unchanged)
+experiments/issue43-updater-alias.mjs 14ms
+experiments/issue43-shell-arguments.mjs 11ms
+.github/workflows/desktop-release.yml 127ms (unchanged)
+package.json 20ms (unchanged)

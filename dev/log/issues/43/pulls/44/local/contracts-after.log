@@ -1,0 +1,17 @@
+✔ browser failures cannot become a green release (79.750729ms)
+✔ read-only jobs use supported pinned runner labels and no stored checkout credentials (77.508961ms)
+✔ syntax checking finds malformed nested JavaScript (101.352181ms)
+✔ missing lychee report fails instead of claiming all links archived (103.96496ms)
+✔ PR checks include earlier code after a docs-only follow-up (430.548885ms)
+✔ multi-commit push checks the whole event range (446.973852ms)
+✔ initial commit is checked instead of silently returning no changes (192.123808ms)
+✔ evidence snapshots never count as executable code changes (217.826153ms)
+✔ unavailable explicit PR revisions fail closed (157.889504ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2170.120238

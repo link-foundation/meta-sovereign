@@ -1,0 +1,147 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/scripts/release-metadata.mjs
++++ js/scripts/validated-release-tree.mjs
+@@ -1,80 +1,73 @@
+-import { runCommand, runStrict } from './run-command.mjs';
++#!/usr/bin/env node
++// Release commits may change version metadata, never the source that passed CI.
++import { execFileSync } from 'node:child_process';
++import { resolve } from 'node:path';
++import { fileURLToPath } from 'node:url';
+ 
+-const DEFAULT_METADATA_PATHS = [
+-  'package.json',
+-  'package-lock.json',
+-  'CHANGELOG.md',
+-  'js/package.json',
+-  'js/package-lock.json',
+-  'js/CHANGELOG.md',
+-];
++export class ReleaseTreeChangedError extends Error {}
+ 
+-function allowedMetadataPaths(extraPaths) {
+-  const allowed = new Set(DEFAULT_METADATA_PATHS);
+-  for (const path of extraPaths.split(/[\n,]/).map((value) => value.trim())) {
+-    if (path) {
+-      allowed.add(path);
++export function releaseMetadataPath(file) {
++  return /^(?:js\/)?(?:package(?:-lock)?\.json|CHANGELOG\.md|\.changeset\/[^/]+\.md)$/.test(
++    file
++  );
++}
++export function withoutReleaseVersion(file, text) {
++  const data = JSON.parse(text);
++  delete data.version;
++  if (file.endsWith('package-lock.json') && data.packages?.['']) {
++    delete data.packages[''].version;
++  }
++  return JSON.stringify(data);
++}
++export function assertValidatedReleaseTree(base, head = 'HEAD') {
++  if (!base) {
++    throw new Error('The validated source SHA is required');
++  }
++  const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
++  const files = git('diff', '--name-only', '-z', base, head)
++    .split('\0')
++    .filter(Boolean);
++  for (const file of files) {
++    if (!releaseMetadataPath(file)) {
++      throw new ReleaseTreeChangedError(
++        `Source changed after validation: ${file} (${base} -> ${head})`
++      );
++    }
++    if (
++      file.endsWith('.json') &&
++      withoutReleaseVersion(file, git('show', `${base}:${file}`)) !==
++        withoutReleaseVersion(file, git('show', `${head}:${file}`))
++    ) {
++      throw new ReleaseTreeChangedError(
++        `Package configuration changed after validation: ${file}`
++      );
+     }
+   }
+-  return allowed;
++  return files;
+ }
+-
+-function isAllowedReleaseChange(status, path, allowed) {
+-  const consumedChangeset =
+-    status === 'D' &&
+-    /^(?:js\/)?\.changeset\/(?!README\.md$)[^/]+\.md$/.test(path);
+-  const metadata = ['A', 'M'].includes(status) && allowed.has(path);
+-  return consumedChangeset || metadata;
++export function isReleaseSuperseded(base, head) {
++  try {
++    assertValidatedReleaseTree(base, head);
++    return false;
++  } catch (error) {
++    if (error instanceof ReleaseTreeChangedError) {
++      return true;
++    }
++    throw error;
++  }
+ }
+-
+-/** Prove that the new commit only changes version metadata. */
+-export async function assertReleaseMetadataOnly({
+-  runner = runCommand,
+-  parentSha = process.env.GITHUB_SHA,
+-  extraPaths = process.env.RELEASE_METADATA_PATHS || '',
+-  logger = console,
+-} = {}) {
+-  if (!/^[0-9a-f]{40}$/i.test(parentSha || '')) {
+-    throw new Error(
+-      'A validated parent GITHUB_SHA is required for release attestation.'
++if (
++  process.argv[1] &&
++  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
++) {
++  try {
++    assertValidatedReleaseTree(process.argv[2], process.argv[3]);
++    console.log(
++      'Release source matches the validated tree (version metadata may differ)'
+     );
++  } catch (error) {
++    console.error(error);
++    // Only a proven tree difference can mean a superseded desktop run.
++    process.exitCode = error instanceof ReleaseTreeChangedError ? 2 : 1;
+   }
+-  const strict = (args) => runStrict('git', args, { runner, logger });
+-  const headSha = (await strict(['rev-parse', 'HEAD'])).stdout.trim();
+-  const actualParent = (await strict(['rev-parse', 'HEAD^'])).stdout.trim();
+-  if (actualParent !== parentSha) {
+-    throw new Error(
+-      `Release commit parent ${actualParent} differs from validated parent ${parentSha}.`
+-    );
+-  }
+-
+-  const allowed = allowedMetadataPaths(extraPaths);
+-  const diff = await strict([
+-    'diff-tree',
+-    '--no-commit-id',
+-    '--no-renames',
+-    '--name-status',
+-    '-r',
+-    '-z',
+-    'HEAD^',
+-    'HEAD',
+-  ]);
+-  const fields = diff.stdout.split('\0').filter(Boolean);
+-  if (fields.length === 0 || fields.length % 2 !== 0) {
+-    throw new Error('Release commit has no valid metadata diff to attest.');
+-  }
+-  const unexpected = [];
+-  for (let index = 0; index < fields.length; index += 2) {
+-    const status = fields[index];
+-    const path = fields[index + 1];
+-    if (!isAllowedReleaseChange(status, path, allowed)) {
+-      unexpected.push(`${status} ${path}`);
+-    }
+-  }
+-  if (unexpected.length > 0) {
+-    throw new Error(
+-      `Refusing to attest unvalidated release changes: ${unexpected.join(', ')}`
+-    );
+-  }
+-  return headSha;
+ }

@@ -1,0 +1,104 @@
+--- python@317c243a7cc832b0abfe4d30989c5095d17fcd78/scripts/check-dependency-graph.sh
++++ js/scripts/dependency-graph.mjs
+@@ -1,56 +1,47 @@
+-#!/usr/bin/env bash
+-# Probe the same API as dependency-review-action. A disabled repository setting
+-# is advisory on PRs, but main/scheduled runs require an administrator to fix it.
+-# Only a plain 403 proves disabled: retry rate limits, server/network errors,
+-# and missing comparison refs. Set DEPENDENCY_GRAPH_DEBUG=1 for response tracing.
+-set -euo pipefail
++import { appendFileSync } from 'node:fs';
++import { pathToFileURL } from 'node:url';
+ 
+-repo="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required}"
+-base="${GITHUB_BASE_SHA:-${GITHUB_SHA:?GITHUB_SHA is required}}"
+-head="${GITHUB_HEAD_SHA:-$GITHUB_SHA}"
+-retry_seconds="${DEPENDENCY_GRAPH_RETRY_SECONDS:-10}"
+-state=unknown
++export async function checkDependencyGraph(env = process.env, request = fetch) {
++  const repository = env.GITHUB_REPOSITORY;
++  const base = env.BASE_SHA || env.GITHUB_SHA;
++  const head = env.HEAD_SHA || env.GITHUB_SHA;
++  if (!repository || !base || !head) {
++    throw new Error('Repository and comparison SHAs are required');
++  }
++  const response = await request(
++    `https://api.github.com/repos/${repository}/dependency-graph/compare/${base}...${head}`,
++    {
++      headers: {
++        authorization: `Bearer ${env.GH_TOKEN}`,
++        accept: 'application/vnd.github+json',
++      },
++      signal: globalThis.AbortSignal.timeout(15_000),
++    }
++  );
++  if (response.ok) {
++    return true;
++  }
++  if (response.status !== 403) {
++    throw new Error(
++      `Dependency graph state is unknown: HTTP ${response.status}`
++    );
++  }
++  const message = `Dependency comparison is unavailable (HTTP 403). A repository administrator must enable Dependency graph and grant workflow access at https://github.com/${repository}/settings/security_analysis. The API does not distinguish disabled configuration from denied access.`;
++  if (env.REQUIRE_GRAPH === '1') {
++    throw new Error(message);
++  }
++  console.log(
++    `::notice::${message} PR dependency review cannot run; lockfile audits remain required.`
++  );
++  return false;
++}
+ 
+-for attempt in 1 2 3; do
+-  status=0
+-  response="$(gh api "repos/$repo/dependency-graph/compare/$base...$head" 2>&1)" || status=$?
+-  if [ "${DEPENDENCY_GRAPH_DEBUG:-0}" = 1 ]; then
+-    printf '[dependency-graph] attempt %s: exit %s, response: %.500s\n' "$attempt" "$status" "$response"
+-  fi
+-  if [ "$status" = 0 ]; then
+-    state=enabled
+-    break
+-  fi
+-  if ! printf '%s' "$response" | grep -qi 'rate.limit' &&
+-    printf '%s' "$response" | grep -q '(HTTP 403)'; then
+-    state=disabled
+-    break
+-  fi
+-  if [ "$attempt" -lt 3 ]; then
+-    echo "Dependency graph probe returned no definite answer (attempt $attempt/3); retrying."
+-    sleep "$retry_seconds"
+-  fi
+-done
+-
+-enabled=unknown
+-case "$state" in
+-  enabled) enabled=true ;;
+-  disabled) enabled=false ;;
+-esac
+-printf 'enabled=%s\nstate=%s\n' "$enabled" "$state" >> "${GITHUB_OUTPUT:-/dev/null}"
+-
+-if [ "$state" = enabled ]; then
+-  echo "Dependency graph is enabled."
+-  exit 0
+-fi
+-if [ "$state" = disabled ]; then
+-  message="Dependency graph is disabled for $repo, so dependency review cannot run. A repository admin must enable it: https://github.com/$repo/settings/security_analysis -> Dependency graph -> Enable."
+-else
+-  message="Dependency graph status is unknown for $repo after 3 attempts. Re-run the job; set DEPENDENCY_GRAPH_DEBUG=1 to inspect API responses."
+-fi
+-if [ "${GITHUB_EVENT_NAME:-}" = pull_request ]; then
+-  echo "::warning::$message Skipping dependency review for this pull request."
+-else
+-  echo "::error::$message"
+-  exit 1
+-fi
++if (
++  process.argv[1] &&
++  import.meta.url === pathToFileURL(process.argv[1]).href
++) {
++  const enabled = await checkDependencyGraph();
++  if (process.env.GITHUB_OUTPUT) {
++    appendFileSync(process.env.GITHUB_OUTPUT, `enabled=${enabled}\n`);
++  }
++}

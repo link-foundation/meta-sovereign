@@ -1,0 +1,119 @@
+running 2 tests from ./js/tests/fixture-server.test.js
+tcp fixture closes while its client is unfinished ... ok (20ms)
+http fixture closes while its client is unfinished ... ok (25ms)
+running 1 test from ./js/tests/fake-github.test.js
+fake GitHub closes owned connections without waiting for clients ... ok (29ms)
+running 6 tests from ./js/tests/github-inbox.test.js
+R-Z11 external ids ...
+  keeps the GitHub id, node id, owner, repo and number on every kind ... ok (68ms)
+  edits, deletes and reacts on the object the reference names ... ok (23ms)
+  edits an issue body with its title, through the issue endpoint ... ok (12ms)
+  refuses an old item without a reference, sending nothing ... ok (10ms)
+  replies to a review comment on the review-comment reply endpoint ... ok (15ms)
+  posts from a chat key owner/repo#N (the composer) ... ok (6ms)
+R-Z11 external ids ... ok (151ms)
+R-Z11 pagination and rate limits ...
+  follows Link headers past 50 pages (no page counting) ... ok (82ms)
+  does not loop on a Link that points to itself ... ok (1ms)
+  waits out a secondary limit (retry-after) and carries on ... ok (12ms)
+  reports a long wait as rate-limited with retryAfter, never crashes ... ok (6ms)
+  stops asking while the primary budget is spent ... ok (7ms)
+R-Z11 pagination and rate limits ... ok (117ms)
+R-Z11 incremental pull ...
+  asks only for what changed since the cursor, and 304s are free ... ok (19ms)
+  brings in a new comment and only the changed pull request reviews ... ok (17ms)
+  does not move the cursor when the store write fails (R-Z14) ... ok (16ms)
+  a failing repository does not stop the others; a rate limit does ... ok (25ms)
+R-Z11 incremental pull ... ok (81ms)
+R-Z11 the github job of the shared pull runner ...
+  the shared runner schedules GitHub only when chosen and due ... ok (12ms)
+  a rate limit is remembered: no new request until it passes ... ok (6ms)
+  validates the saved settings ... ok (2ms)
+R-Z11 the github job of the shared pull runner ... ok (28ms)
+R-Z11 notifications ...
+  fetches with since and If-Modified-Since and keeps the poll interval ... ok (8ms)
+  never polls faster than X-Poll-Interval, and fetching marks nothing read ... ok (6ms)
+  marks read only when asked, one thread or all ... ok (8ms)
+R-Z11 notifications ... ok (33ms)
+R-Z11 discussions (GraphQL) ...
+  reads a discussion with its comments and replies ... ok (11ms)
+  replies under the top comment, or finds the discussion by chat ... ok (10ms)
+  says so when the token cannot see discussions, and the pull goes on ... ok (15ms)
+R-Z11 discussions (GraphQL) ... ok (40ms)
+running 1 test from ./js/tests/github-routes.test.js
+R-Z11 /api/github routes ...
+  lists repositories with the chosen ones marked, and saves the choice ... ok (187ms)
+  refuses bad settings with the uniform error and a foreign-type POST ... ok (23ms)
+  fetches the chosen repositories and the notification inbox on demand ... ok (37ms)
+  says what to do when no token is saved ... ok (12ms)
+  answers 429 with retryAfter on a long rate limit, and never leaks the token ... ok (21ms)
+  refuses edit of an item pulled before ids were kept, with a clear code ... ok (16ms)
+R-Z11 /api/github routes ... ok (311ms)
+running 1 test from ./js/tests/web-server-fetch.test.js
+uses the discovered origin and falls back when a route is missing ...
+------- post-test output -------
+[meta-sovereign] GET /api/cv/platforms failed (404):  unknown route
+[meta-sovereign] GET /api/cv/telemetry?limit=200 failed (404):  unknown route
+[meta-sovereign] GET /api/backups failed (404):  unknown route
+[meta-sovereign] POST /api/cv/read failed (404):  unknown route
+[meta-sovereign] POST /api/automations/drafts/send failed (502):  blocked by privacy settings
+----- post-test output end -----
+uses the discovered origin and falls back when a route is missing ... ok (296ms)
+running 6 tests from ./js/tests/archive-upload.test.js
+a Facebook zip is imported as Facebook, and its temp file removed ... ok (92ms)
+a WhatsApp zip keeps its media in the store ... ok (42ms)
+a file with nothing to import is a 400 in the uniform shape ... ok (13ms)
+another site, a JSON post, an unknown network or a full disk are refused ... ok (18ms)
+an upload name is a plain file name ... ok (924µs)
+a big upload may take hours to arrive, not the default 5 minutes ... ok (236µs)
+running 4 tests from ./js/tests/whatsapp-routes.test.js
+sign-in routes start and stop the window, and say the terms ... ok (36ms)
+a foreign origin or a non-JSON post cannot open the window ... ok (6ms)
+a missing browser is a 503 in the uniform shape, not a crash ... ok (7ms)
+archive route imports a text export and refuses garbage ... ok (31ms)
+running 3 tests from ./js/tests/marketplace-sessions.test.js
+all issue #42 services have real login URLs and bounded profile paths ... ok (16ms)
+visible sessions reuse app-owned profiles and saved metadata survives controller restart ... ok (17ms)
+marketplace routes reject foreign origins and browser options before launching ... ok (58ms)
+running 3 tests from ./js/tests/email-node-transport.test.js
+pulls POP3 messages through the local server transport ... ok (44ms)
+pulls IMAP messages through the local server transport ... ok (10ms)
+sends SMTP messages through the local server transport ... ok (12ms)
+running 7 tests from ./js/tests/email-transport-security.test.js
+SMTP security ...
+  sends over implicit TLS with the certificate verified, Bcc as RCPT only ... ok (116ms)
+  refuses a certificate it cannot verify (no silent insecure mode) ... ok (11ms)
+  upgrades with STARTTLS before it logs in ... ok (15ms)
+  fails when STARTTLS is required but not offered, sending nothing secret ... ok (7ms)
+SMTP security ... ok (174ms)
+SMTP downgrade and clear text ...
+  treats the old secure:false as "STARTTLS required", not as plain text ... ok (3ms)
+  refuses to send a password in clear text to another host ... ok (1ms)
+  allows the certificate check off for this computer only ... ok (1ms)
+SMTP downgrade and clear text ... ok (6ms)
+SMTP login and envelope ...
+  logs in with XOAUTH2 when there is a token and no password ... ok (7ms)
+  rejects an envelope sender or recipient that would add an SMTP command ... ok (9ms)
+  answers send-unknown, never a retry, when the line drops after DATA ... ok (5ms)
+SMTP login and envelope ... ok (22ms)
+IMAP pulls are incremental ...
+  remembers UIDVALIDITY and the last UID, and fetches only what is new ... ok (23ms)
+  starts over when the mailbox was renumbered (UIDVALIDITY changed) ... ok (12ms)
+  skips a message above the size cap instead of loading it ... ok (8ms)
+  logs in with XOAUTH2 when it has a token and no password ... ok (8ms)
+IMAP pulls are incremental ... ok (65ms)
+IMAP security ...
+  upgrades IMAP with STARTTLS before LOGIN ... ok (14ms)
+IMAP security ... ok (16ms)
+IMAP mark read and delete ...
+  flags the message \Seen by UID ... ok (7ms)
+  refuses UIDs of a renumbered mailbox ... ok (6ms)
+  moves a message to the folder the server calls Trash ... ok (7ms)
+  does nothing destructive without a Trash folder ... ok (9ms)
+IMAP mark read and delete ... ok (35ms)
+POP3 pulls are incremental by UIDL ...
+  reads only the messages it has not seen ... ok (8ms)
+POP3 pulls are incremental by UIDL ... ok (11ms)
+
+ok | 34 passed (50 steps) | 0 failed (4s)
+

@@ -1,0 +1,1277 @@
+﻿2026-10-28T14:47:47.8786130Z Current runner version: '2.338.0'
+2026-10-28T14:47:47.8808625Z ##[group]Runner Image Provisioner
+2026-10-28T14:47:47.8809313Z Hosted Compute Agent
+2026-10-28T14:47:47.8809920Z Version: 20261021.618
+2026-10-28T14:47:47.8810432Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T14:47:47.8811068Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T14:47:47.8811682Z Worker ID: {3993b4ae-fe9b-4f7c-8cb9-af79478b018a}
+2026-10-28T14:47:47.8812272Z Region: centralus
+2026-10-28T14:47:47.8812836Z Cloud: Azure
+2026-10-28T14:47:47.8813531Z ##[endgroup]
+2026-10-28T14:47:47.8814781Z ##[group]Operating System
+2026-10-28T14:47:47.8815322Z Ubuntu
+2026-10-28T14:47:47.8815760Z 24.04.5
+2026-10-28T14:47:47.8816255Z LTS
+2026-10-28T14:47:47.8816696Z ##[endgroup]
+2026-10-28T14:47:47.8817166Z ##[group]Runner Image
+2026-10-28T14:47:47.8817753Z Image: ubuntu-24.04
+2026-10-28T14:47:47.8818228Z Version: 20261025.353.1
+2026-10-28T14:47:47.8819374Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-28T14:47:47.8820572Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-10-28T14:47:47.8821479Z ##[endgroup]
+2026-10-28T14:47:47.8822378Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T14:47:47.8824528Z Contents: read
+2026-10-28T14:47:47.8825040Z Metadata: read
+2026-10-28T14:47:47.8825582Z ##[endgroup]
+2026-10-28T14:47:47.8827277Z Secret source: Actions
+2026-10-28T14:47:47.8828186Z Cache mode: write
+2026-10-28T14:47:47.8829030Z Prepare workflow directory
+2026-10-28T14:47:48.0580849Z Prepare all required actions
+2026-10-28T14:47:48.0620384Z Getting action download info
+2026-10-28T14:47:48.3333464Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T14:47:48.5005401Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T14:47:48.6637801Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T14:47:49.1183379Z Complete job name: Browser e2e (chromium)
+2026-10-28T14:47:49.5385337Z ##[group]Run actions/checkout@v7
+2026-10-28T14:47:49.5386411Z with:
+2026-10-28T14:47:49.5387055Z   persist-credentials: false
+2026-10-28T14:47:49.5387788Z   fetch-depth: 0
+2026-10-28T14:47:49.5388490Z   repository: link-foundation/meta-sovereign
+2026-10-28T14:47:49.5395748Z   token: ***
+2026-10-28T14:47:49.5396379Z   ssh-strict: true
+2026-10-28T14:47:49.5397013Z   ssh-user: git
+2026-10-28T14:47:49.5397636Z   clean: true
+2026-10-28T14:47:49.5398279Z   sparse-checkout-cone-mode: true
+2026-10-28T14:47:49.5399033Z   fetch-tags: false
+2026-10-28T14:47:49.5399684Z   show-progress: true
+2026-10-28T14:47:49.5400331Z   lfs: false
+2026-10-28T14:47:49.5400937Z   submodules: false
+2026-10-28T14:47:49.5401611Z   set-safe-directory: true
+2026-10-28T14:47:49.5402359Z   allow-unsafe-pr-checkout: false
+2026-10-28T14:47:49.5403448Z env:
+2026-10-28T14:47:49.5404036Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:49.5404767Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:49.5405632Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:49.5406317Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:47:49.5406953Z   E2E_BROWSER: chromium
+2026-10-28T14:47:49.5407618Z   E2E_ENGINES: chromium
+2026-10-28T14:47:49.5408271Z   E2E_SAFARI: 0
+2026-10-28T14:47:49.5408927Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:47:49.5409679Z   DEBUG: 
+2026-10-28T14:47:49.5410253Z ##[endgroup]
+2026-10-28T14:47:50.0201212Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T14:47:50.0202699Z ##[group]Getting Git version info
+2026-10-28T14:47:50.0203475Z Working directory is '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:47:50.0204217Z [command]/usr/bin/git version
+2026-10-28T14:47:50.0235408Z git version 2.56.0
+2026-10-28T14:47:50.0258515Z ##[endgroup]
+2026-10-28T14:47:50.0274423Z Temporarily overriding HOME='/home/runner/work/_temp/d1c5fafa-1f47-4e66-9a05-f38053328024' before making global git config changes
+2026-10-28T14:47:50.0276114Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:47:50.0277091Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:47:50.0311158Z Deleting the contents of '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:47:50.0314218Z ##[group]Determining repository object format
+2026-10-28T14:47:50.0315438Z ##[endgroup]
+2026-10-28T14:47:50.0316018Z ##[group]Initializing the repository
+2026-10-28T14:47:50.0319600Z [command]/usr/bin/git init /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:47:50.0400569Z Initialized empty Git repository in /home/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T14:47:50.0410470Z [command]/usr/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:47:50.0457694Z ##[endgroup]
+2026-10-28T14:47:50.0458367Z ##[group]Disabling automatic garbage collection
+2026-10-28T14:47:50.0461616Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-28T14:47:50.0497409Z ##[endgroup]
+2026-10-28T14:47:50.0498377Z ##[group]Setting up auth
+2026-10-28T14:47:50.0499005Z Removing SSH command configuration
+2026-10-28T14:47:50.0503259Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:47:50.0540343Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:47:50.0943032Z Removing HTTP extra header
+2026-10-28T14:47:50.0948282Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:47:50.0986399Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:47:50.1188266Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:47:50.1193762Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:47:50.1238854Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:47:50.1460505Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T14:47:50.1503667Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path /home/runner/work/_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:50.1540915Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:50.1578203Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:50.1617217Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:50.1655231Z ##[endgroup]
+2026-10-28T14:47:50.1655824Z ##[group]Fetching the repository
+2026-10-28T14:47:50.1661322Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +8ef678716b8aff20b0e5fbba3af2bc860d86183a:refs/remotes/pull/44/merge
+2026-10-28T14:47:53.9866043Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:47:53.9867424Z  * [new branch]      cli-version-flag                         -> origin/cli-version-flag
+2026-10-28T14:47:53.9868124Z  * [new branch]      issue-1-fc41adad29ce                     -> origin/issue-1-fc41adad29ce
+2026-10-28T14:47:53.9869380Z  * [new branch]      issue-10-a884af8ade4e                    -> origin/issue-10-a884af8ade4e
+2026-10-28T14:47:53.9870547Z  * [new branch]      issue-12-1fbe3b7d05b4                    -> origin/issue-12-1fbe3b7d05b4
+2026-10-28T14:47:53.9871374Z  * [new branch]      issue-13-a1a0ad676c96                    -> origin/issue-13-a1a0ad676c96
+2026-10-28T14:47:53.9872168Z  * [new branch]      issue-16-d636f69ce59c                    -> origin/issue-16-d636f69ce59c
+2026-10-28T14:47:53.9872964Z  * [new branch]      issue-18-511583e63fad                    -> origin/issue-18-511583e63fad
+2026-10-28T14:47:53.9873895Z  * [new branch]      issue-20-2e1bcf090e36                    -> origin/issue-20-2e1bcf090e36
+2026-10-28T14:47:53.9874552Z  * [new branch]      issue-25-dac43a780b5c                    -> origin/issue-25-dac43a780b5c
+2026-10-28T14:47:53.9875268Z  * [new branch]      issue-27-05348a151c4d                    -> origin/issue-27-05348a151c4d
+2026-10-28T14:47:53.9875999Z  * [new branch]      issue-29-e17abd0f073c                    -> origin/issue-29-e17abd0f073c
+2026-10-28T14:47:53.9876769Z  * [new branch]      issue-3-98d902f006cb                     -> origin/issue-3-98d902f006cb
+2026-10-28T14:47:53.9877599Z  * [new branch]      issue-31-5ccfae6dabce                    -> origin/issue-31-5ccfae6dabce
+2026-10-28T14:47:53.9878422Z  * [new branch]      issue-32-af891cdcb951                    -> origin/issue-32-af891cdcb951
+2026-10-28T14:47:53.9879275Z  * [new branch]      issue-35-9b770690b2d5                    -> origin/issue-35-9b770690b2d5
+2026-10-28T14:47:53.9879926Z  * [new branch]      issue-37-3578e6d14474                    -> origin/issue-37-3578e6d14474
+2026-10-28T14:47:53.9880581Z  * [new branch]      issue-39-6f54edfad12b                    -> origin/issue-39-6f54edfad12b
+2026-10-28T14:47:53.9881247Z  * [new branch]      issue-4-30c7e8dd5217                     -> origin/issue-4-30c7e8dd5217
+2026-10-28T14:47:53.9881917Z  * [new branch]      issue-43-1924384484c0                    -> origin/issue-43-1924384484c0
+2026-10-28T14:47:53.9882825Z  * [new branch]      issue-5-bb4787c0c23a                     -> origin/issue-5-bb4787c0c23a
+2026-10-28T14:47:53.9883729Z  * [new branch]      issue-6-adb97494d4d6                     -> origin/issue-6-adb97494d4d6
+2026-10-28T14:47:53.9884446Z  * [new branch]      issue-8-c22927792fe8                     -> origin/issue-8-c22927792fe8
+2026-10-28T14:47:53.9885083Z  * [new branch]      main                                     -> origin/main
+2026-10-28T14:47:53.9885782Z  * [new branch]      tutorial-brands-auto-import              -> origin/tutorial-brands-auto-import
+2026-10-28T14:47:53.9886464Z  * [new tag]         v0.21.0                                  -> v0.21.0
+2026-10-28T14:47:53.9886977Z  * [new tag]         v0.22.0                                  -> v0.22.0
+2026-10-28T14:47:53.9887476Z  * [new tag]         v0.23.0                                  -> v0.23.0
+2026-10-28T14:47:53.9887971Z  * [new tag]         v0.24.0                                  -> v0.24.0
+2026-10-28T14:47:53.9888736Z  * [new tag]         v0.25.0                                  -> v0.25.0
+2026-10-28T14:47:53.9889354Z  * [new tag]         v0.26.0                                  -> v0.26.0
+2026-10-28T14:47:53.9889852Z  * [new tag]         v0.27.0                                  -> v0.27.0
+2026-10-28T14:47:53.9890318Z  * [new tag]         v0.28.0                                  -> v0.28.0
+2026-10-28T14:47:53.9890816Z  * [new tag]         v0.29.0                                  -> v0.29.0
+2026-10-28T14:47:53.9891362Z  * [new tag]         v0.30.0                                  -> v0.30.0
+2026-10-28T14:47:53.9891986Z  * [new tag]         v0.31.0                                  -> v0.31.0
+2026-10-28T14:47:53.9892532Z  * [new tag]         v0.32.0                                  -> v0.32.0
+2026-10-28T14:47:53.9892855Z  * [new tag]         v0.33.0                                  -> v0.33.0
+2026-10-28T14:47:53.9893529Z  * [new tag]         v0.34.0                                  -> v0.34.0
+2026-10-28T14:47:53.9894269Z  * [new tag]         v0.35.0                                  -> v0.35.0
+2026-10-28T14:47:53.9894606Z  * [new tag]         v0.36.0                                  -> v0.36.0
+2026-10-28T14:47:53.9894928Z  * [new tag]         v0.37.0                                  -> v0.37.0
+2026-10-28T14:47:53.9895243Z  * [new tag]         v0.38.0                                  -> v0.38.0
+2026-10-28T14:47:53.9895562Z  * [new tag]         v0.39.0                                  -> v0.39.0
+2026-10-28T14:47:53.9895872Z  * [new tag]         v0.40.0                                  -> v0.40.0
+2026-10-28T14:47:53.9896181Z  * [new tag]         v0.41.0                                  -> v0.41.0
+2026-10-28T14:47:53.9896496Z  * [new tag]         v0.42.0                                  -> v0.42.0
+2026-10-28T14:47:53.9897017Z  * [new tag]         v0.43.0                                  -> v0.43.0
+2026-10-28T14:47:53.9897513Z  * [new tag]         v0.44.0                                  -> v0.44.0
+2026-10-28T14:47:53.9897898Z  * [new tag]         v0.45.0                                  -> v0.45.0
+2026-10-28T14:47:53.9898217Z  * [new tag]         v0.46.0                                  -> v0.46.0
+2026-10-28T14:47:53.9898534Z  * [new tag]         v0.46.1                                  -> v0.46.1
+2026-10-28T14:47:53.9898842Z  * [new tag]         v0.46.2                                  -> v0.46.2
+2026-10-28T14:47:53.9899153Z  * [new tag]         v0.47.0                                  -> v0.47.0
+2026-10-28T14:47:53.9899461Z  * [new tag]         v0.47.1                                  -> v0.47.1
+2026-10-28T14:47:53.9899769Z  * [new tag]         v0.47.2                                  -> v0.47.2
+2026-10-28T14:47:53.9900080Z  * [new tag]         v0.48.0                                  -> v0.48.0
+2026-10-28T14:47:53.9900390Z  * [new tag]         v0.49.1                                  -> v0.49.1
+2026-10-28T14:47:53.9900711Z  * [new tag]         v0.49.10                                 -> v0.49.10
+2026-10-28T14:47:53.9901222Z  * [new tag]         v0.49.11                                 -> v0.49.11
+2026-10-28T14:47:53.9901546Z  * [new tag]         v0.49.12                                 -> v0.49.12
+2026-10-28T14:47:53.9901865Z  * [new tag]         v0.49.13                                 -> v0.49.13
+2026-10-28T14:47:53.9902179Z  * [new tag]         v0.49.14                                 -> v0.49.14
+2026-10-28T14:47:53.9902491Z  * [new tag]         v0.49.15                                 -> v0.49.15
+2026-10-28T14:47:53.9902801Z  * [new tag]         v0.49.16                                 -> v0.49.16
+2026-10-28T14:47:53.9903289Z  * [new tag]         v0.49.17                                 -> v0.49.17
+2026-10-28T14:47:53.9903654Z  * [new tag]         v0.49.18                                 -> v0.49.18
+2026-10-28T14:47:53.9903969Z  * [new tag]         v0.49.2                                  -> v0.49.2
+2026-10-28T14:47:53.9904285Z  * [new tag]         v0.49.3                                  -> v0.49.3
+2026-10-28T14:47:53.9904626Z  * [new tag]         v0.49.4                                  -> v0.49.4
+2026-10-28T14:47:53.9904942Z  * [new tag]         v0.49.5                                  -> v0.49.5
+2026-10-28T14:47:53.9905250Z  * [new tag]         v0.49.6                                  -> v0.49.6
+2026-10-28T14:47:53.9905574Z  * [new tag]         v0.49.7                                  -> v0.49.7
+2026-10-28T14:47:53.9905885Z  * [new tag]         v0.49.8                                  -> v0.49.8
+2026-10-28T14:47:53.9906203Z  * [new tag]         v0.49.9                                  -> v0.49.9
+2026-10-28T14:47:53.9906514Z  * [new tag]         v0.50.0                                  -> v0.50.0
+2026-10-28T14:47:53.9906821Z  * [new tag]         v0.51.0                                  -> v0.51.0
+2026-10-28T14:47:53.9907131Z  * [new tag]         v0.51.1                                  -> v0.51.1
+2026-10-28T14:47:53.9907442Z  * [new tag]         v0.51.2                                  -> v0.51.2
+2026-10-28T14:47:53.9907915Z  * [new tag]         v0.52.0                                  -> v0.52.0
+2026-10-28T14:47:53.9908226Z  * [new tag]         v0.53.0                                  -> v0.53.0
+2026-10-28T14:47:53.9908538Z  * [new tag]         v0.53.1                                  -> v0.53.1
+2026-10-28T14:47:53.9908851Z  * [new tag]         v0.53.2                                  -> v0.53.2
+2026-10-28T14:47:53.9909159Z  * [new tag]         v0.53.3                                  -> v0.53.3
+2026-10-28T14:47:53.9909466Z  * [new tag]         v0.53.4                                  -> v0.53.4
+2026-10-28T14:47:53.9909772Z  * [new tag]         v0.54.0                                  -> v0.54.0
+2026-10-28T14:47:53.9910084Z  * [new tag]         v0.54.1                                  -> v0.54.1
+2026-10-28T14:47:53.9910452Z  * [new ref]         8ef678716b8aff20b0e5fbba3af2bc860d86183a -> pull/44/merge
+2026-10-28T14:47:53.9911593Z ##[endgroup]
+2026-10-28T14:47:53.9911943Z ##[group]Determining the checkout info
+2026-10-28T14:47:53.9912325Z ##[endgroup]
+2026-10-28T14:47:53.9912559Z [command]/usr/bin/git sparse-checkout disable
+2026-10-28T14:47:53.9938707Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T14:47:53.9975812Z ##[group]Checking out the ref
+2026-10-28T14:47:53.9979151Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/44/merge
+2026-10-28T14:47:54.2303533Z Note: switching to 'refs/remotes/pull/44/merge'.
+2026-10-28T14:47:54.2303979Z 
+2026-10-28T14:47:54.2304248Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T14:47:54.2304878Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T14:47:54.2305455Z state without impacting any branches by switching back to a branch.
+2026-10-28T14:47:54.2306055Z 
+2026-10-28T14:47:54.2307847Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T14:47:54.2308497Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T14:47:54.2308917Z 
+2026-10-28T14:47:54.2309373Z   git switch -c <new-branch-name>
+2026-10-28T14:47:54.2309628Z 
+2026-10-28T14:47:54.2309791Z Or undo this operation with:
+2026-10-28T14:47:54.2310018Z 
+2026-10-28T14:47:54.2310162Z   git switch -
+2026-10-28T14:47:54.2310346Z 
+2026-10-28T14:47:54.2310637Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T14:47:54.2311051Z 
+2026-10-28T14:47:54.2311497Z HEAD is now at 8ef6787 Merge 504e07daa95f6100355926f2f371ed0d4ff72c07 into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:47:54.2339679Z ##[endgroup]
+2026-10-28T14:47:54.2388953Z [command]/usr/bin/git log -1 --format=%H
+2026-10-28T14:47:54.2420707Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:47:54.2428540Z ##[group]Removing auth
+2026-10-28T14:47:54.2428914Z Removing SSH command configuration
+2026-10-28T14:47:54.2431561Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:47:54.2467752Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:47:54.2680084Z Removing HTTP extra header
+2026-10-28T14:47:54.2680800Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:47:54.2720312Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:47:54.2932281Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:47:54.2935653Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:47:54.2971610Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:47:54.2972273Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:47:54.2973028Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:47:54.2973638Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:47:54.2981394Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:47:54.3014798Z /home/runner/work/_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:54.3028292Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-c85b0d09\-9da6\-498d\-8498\-41855012b53c\.config
+2026-10-28T14:47:54.3085024Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:47:54.3121179Z /home/runner/work/_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:54.3131425Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-c85b0d09\-9da6\-498d\-8498\-41855012b53c\.config
+2026-10-28T14:47:54.3184242Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:47:54.3218294Z /github/runner_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:54.3238494Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-c85b0d09\-9da6\-498d\-8498\-41855012b53c\.config
+2026-10-28T14:47:54.3269456Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:47:54.3304509Z /github/runner_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config
+2026-10-28T14:47:54.3310701Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-c85b0d09\-9da6\-498d\-8498\-41855012b53c\.config
+2026-10-28T14:47:54.3352578Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:47:54.3587455Z Removing credentials config '/home/runner/work/_temp/git-credentials-c85b0d09-9da6-498d-8498-41855012b53c.config'
+2026-10-28T14:47:54.3595733Z ##[endgroup]
+2026-10-28T14:47:54.4611093Z ##[group]Run bash js/scripts/simulate-fresh-merge.sh
+2026-10-28T14:47:54.4611521Z [36;1mbash js/scripts/simulate-fresh-merge.sh[0m
+2026-10-28T14:47:54.4633395Z shell: /usr/bin/bash -e {0}
+2026-10-28T14:47:54.4633618Z env:
+2026-10-28T14:47:54.4633785Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:54.4633986Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:54.4634217Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:54.4634405Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:47:54.4634598Z   E2E_BROWSER: chromium
+2026-10-28T14:47:54.4634774Z   E2E_ENGINES: chromium
+2026-10-28T14:47:54.4634964Z   E2E_SAFARI: 0
+2026-10-28T14:47:54.4635152Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:47:54.4635366Z   DEBUG: 
+2026-10-28T14:47:54.4635515Z   BASE_REF: main
+2026-10-28T14:47:54.4635679Z ##[endgroup]
+2026-10-28T14:47:54.4704742Z === Synchronizing PR with latest main ===
+2026-10-28T14:47:54.4705280Z This prevents stale merge preview issues (see docs/case-studies/issue-23)
+2026-10-28T14:47:54.4705645Z 
+2026-10-28T14:47:54.4737590Z Fetching latest main...
+2026-10-28T14:47:54.6853732Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:47:54.6854065Z  * branch            main       -> FETCH_HEAD
+2026-10-28T14:47:54.6908919Z Current checkout (merge preview): 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:47:54.6909559Z Latest base branch (main): 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:47:54.6909902Z 
+2026-10-28T14:47:54.6926349Z Merge preview is up-to-date with main. No simulation needed.
+2026-10-28T14:47:54.6926580Z 
+2026-10-28T14:47:54.9168496Z ##[group]Run actions/setup-node@v7
+2026-10-28T14:47:54.9168930Z with:
+2026-10-28T14:47:54.9169094Z   node-version: 24.x
+2026-10-28T14:47:54.9169263Z   cache: npm
+2026-10-28T14:47:54.9169427Z   check-latest: false
+2026-10-28T14:47:54.9171634Z   token: ***
+2026-10-28T14:47:54.9171822Z   package-manager-cache: true
+2026-10-28T14:47:54.9172022Z env:
+2026-10-28T14:47:54.9172177Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:54.9172395Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:54.9172615Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:54.9172803Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:47:54.9172976Z   E2E_BROWSER: chromium
+2026-10-28T14:47:54.9173281Z   E2E_ENGINES: chromium
+2026-10-28T14:47:54.9173449Z   E2E_SAFARI: 0
+2026-10-28T14:47:54.9173620Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:47:54.9173822Z   DEBUG: 
+2026-10-28T14:47:54.9173985Z ##[endgroup]
+2026-10-28T14:47:55.0269589Z Found in cache @ /opt/hostedtoolcache/node/24.22.1/x64
+2026-10-28T14:47:55.1019742Z ##[group]Environment details
+2026-10-28T14:47:55.3678292Z node: v24.22.1
+2026-10-28T14:47:55.3678593Z npm: 11.19.1
+2026-10-28T14:47:55.3678790Z yarn: 1.22.22
+2026-10-28T14:47:55.3679297Z ##[endgroup]
+2026-10-28T14:47:55.3692868Z [command]/opt/hostedtoolcache/node/24.22.1/x64/bin/npm config get cache
+2026-10-28T14:47:55.5187836Z /home/runner/.npm
+2026-10-28T14:47:55.6875240Z Cache hit for: node-cache-Linux-x64-npm-eed0d587947267354592995e253a88ed53d6de807853fd5fcfd1d4408f2bb0ad
+2026-10-28T14:47:56.8600632Z Received 80305420 of 84499724 (95.0%), 76.6 MBs/sec
+2026-10-28T14:47:56.9197405Z Received 84499724 of 84499724 (100.0%), 76.0 MBs/sec
+2026-10-28T14:47:56.9198158Z Cache Size: ~81 MB (84499724 B)
+2026-10-28T14:47:56.9294172Z [command]/usr/bin/tar -xf /home/runner/work/_temp/75ea695c-2f3f-4f43-8572-518b49458c18/cache.tzst -P -C /home/runner/work/meta-sovereign/meta-sovereign --use-compress-program unzstd
+2026-10-28T14:47:57.0863220Z Cache restored successfully
+2026-10-28T14:47:57.0906807Z Cache restored from key: node-cache-Linux-x64-npm-eed0d587947267354592995e253a88ed53d6de807853fd5fcfd1d4408f2bb0ad
+2026-10-28T14:47:57.1206723Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T14:47:57.1207034Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T14:47:57.1232728Z shell: /usr/bin/bash -e {0}
+2026-10-28T14:47:57.1232954Z env:
+2026-10-28T14:47:57.1233221Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:47:57.1233420Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:47:57.1233650Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:47:57.1233840Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:47:57.1234015Z   E2E_BROWSER: chromium
+2026-10-28T14:47:57.1234197Z   E2E_ENGINES: chromium
+2026-10-28T14:47:57.1234375Z   E2E_SAFARI: 0
+2026-10-28T14:47:57.1234552Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:47:57.1234756Z   DEBUG: 
+2026-10-28T14:47:57.1234913Z ##[endgroup]
+2026-10-28T14:48:12.0097238Z 
+2026-10-28T14:48:12.0104572Z > meta-sovereign@0.54.1 prepare
+2026-10-28T14:48:12.0104933Z > husky || true
+2026-10-28T14:48:12.0105059Z 
+2026-10-28T14:48:12.2793628Z 
+2026-10-28T14:48:12.2794546Z added 488 packages in 15s
+2026-10-28T14:48:12.3689213Z ##[group]Run npx playwright install --with-deps "$BROWSER"
+2026-10-28T14:48:12.3689590Z [36;1mnpx playwright install --with-deps "$BROWSER"[0m
+2026-10-28T14:48:12.3707281Z shell: /usr/bin/bash -e {0}
+2026-10-28T14:48:12.3707482Z env:
+2026-10-28T14:48:12.3707647Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:48:12.3707848Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:48:12.3708065Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:48:12.3708256Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:48:12.3708433Z   E2E_BROWSER: chromium
+2026-10-28T14:48:12.3708621Z   E2E_ENGINES: chromium
+2026-10-28T14:48:12.3708792Z   E2E_SAFARI: 0
+2026-10-28T14:48:12.3708971Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:48:12.3709177Z   DEBUG: 
+2026-10-28T14:48:12.3709333Z   BROWSER: chromium
+2026-10-28T14:48:12.3709506Z ##[endgroup]
+2026-10-28T14:48:12.9723637Z Installing dependencies...
+2026-10-28T14:48:12.9792053Z Switching to root user to install dependencies...
+2026-10-28T14:48:13.0891822Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-28T14:48:13.1334746Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-10-28T14:48:13.1350217Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-10-28T14:48:13.1395922Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-10-28T14:48:13.1459845Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-10-28T14:48:13.1522484Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-10-28T14:48:13.3023702Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [602 kB]
+2026-10-28T14:48:13.3156195Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [666 kB]
+2026-10-28T14:48:13.3459546Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1406 kB]
+2026-10-28T14:48:13.3528698Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [310 kB]
+2026-10-28T14:48:13.3545262Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1707 kB]
+2026-10-28T14:48:13.3616446Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [343 kB]
+2026-10-28T14:48:13.3636496Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1809 kB]
+2026-10-28T14:48:13.3714684Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [411 kB]
+2026-10-28T14:48:13.3735014Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+2026-10-28T14:48:13.4409140Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1146 kB]
+2026-10-28T14:48:13.4464556Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [231 kB]
+2026-10-28T14:48:13.4481937Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1223 kB]
+2026-10-28T14:48:13.4985052Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [246 kB]
+2026-10-28T14:48:20.8490506Z Fetched 10.5 MB in 1s (10.8 MB/s)
+2026-10-28T14:48:21.7431409Z Reading package lists...
+2026-10-28T14:48:21.7720795Z Reading package lists...
+2026-10-28T14:48:22.0175145Z Building dependency tree...
+2026-10-28T14:48:22.0181910Z Reading state information...
+2026-10-28T14:48:22.2207561Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+2026-10-28T14:48:22.2208091Z libasound2t64 set to manually installed.
+2026-10-28T14:48:22.2208668Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-28T14:48:22.2209149Z libatk-bridge2.0-0t64 set to manually installed.
+2026-10-28T14:48:22.2209605Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-28T14:48:22.2210010Z libatk1.0-0t64 set to manually installed.
+2026-10-28T14:48:22.2210487Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+2026-10-28T14:48:22.2211553Z libatspi2.0-0t64 set to manually installed.
+2026-10-28T14:48:22.2212087Z libcairo2 is already the newest version (1.18.0-3build1).
+2026-10-28T14:48:22.2212591Z libcairo2 set to manually installed.
+2026-10-28T14:48:22.2213280Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+2026-10-28T14:48:22.2213787Z libcups2t64 set to manually installed.
+2026-10-28T14:48:22.2214320Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+2026-10-28T14:48:22.2214895Z libdbus-1-3 set to manually installed.
+2026-10-28T14:48:22.2215428Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+2026-10-28T14:48:22.2215926Z libdrm2 set to manually installed.
+2026-10-28T14:48:22.2216452Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+2026-10-28T14:48:22.2216931Z libgbm1 set to manually installed.
+2026-10-28T14:48:22.2217383Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+2026-10-28T14:48:22.2217712Z libglib2.0-0t64 set to manually installed.
+2026-10-28T14:48:22.2218253Z libnspr4 is already the newest version (2:4.35-1.1build1).
+2026-10-28T14:48:22.2218565Z libnspr4 set to manually installed.
+2026-10-28T14:48:22.2218867Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+2026-10-28T14:48:22.2219154Z libnss3 set to manually installed.
+2026-10-28T14:48:22.2219693Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+2026-10-28T14:48:22.2220180Z libpango-1.0-0 set to manually installed.
+2026-10-28T14:48:22.2220667Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+2026-10-28T14:48:22.2221156Z libx11-6 set to manually installed.
+2026-10-28T14:48:22.2221580Z libxcb1 is already the newest version (1.15-1ubuntu2).
+2026-10-28T14:48:22.2222022Z libxcb1 set to manually installed.
+2026-10-28T14:48:22.2222526Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+2026-10-28T14:48:22.2223041Z libxcomposite1 set to manually installed.
+2026-10-28T14:48:22.2223724Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+2026-10-28T14:48:22.2224199Z libxdamage1 set to manually installed.
+2026-10-28T14:48:22.2224692Z libxext6 is already the newest version (2:1.3.4-1build2).
+2026-10-28T14:48:22.2225152Z libxext6 set to manually installed.
+2026-10-28T14:48:22.2225635Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+2026-10-28T14:48:22.2226152Z libxfixes3 set to manually installed.
+2026-10-28T14:48:22.2226659Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+2026-10-28T14:48:22.2227160Z libxkbcommon0 set to manually installed.
+2026-10-28T14:48:22.2227827Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+2026-10-28T14:48:22.2228456Z libxrandr2 set to manually installed.
+2026-10-28T14:48:22.2229455Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+2026-10-28T14:48:22.2230334Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+2026-10-28T14:48:22.2231236Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+2026-10-28T14:48:22.2231877Z libfontconfig1 set to manually installed.
+2026-10-28T14:48:22.2232700Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+2026-10-28T14:48:22.2233630Z libfreetype6 set to manually installed.
+2026-10-28T14:48:22.2234290Z fonts-liberation is already the newest version (1:2.1.5-3).
+2026-10-28T14:48:22.2235091Z fonts-liberation set to manually installed.
+2026-10-28T14:48:22.2235736Z The following additional packages will be installed:
+2026-10-28T14:48:22.2236394Z   xfonts-encodings xfonts-utils
+2026-10-28T14:48:22.2236936Z Recommended packages:
+2026-10-28T14:48:22.2237483Z   fonts-ipafont-mincho fonts-tlwg-loma
+2026-10-28T14:48:22.2504834Z The following NEW packages will be installed:
+2026-10-28T14:48:22.2505454Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+2026-10-28T14:48:22.2516288Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+2026-10-28T14:48:22.2516801Z   xfonts-utils
+2026-10-28T14:48:22.2731750Z 0 upgraded, 9 newly installed, 0 to remove and 5 not upgraded.
+2026-10-28T14:48:22.2732557Z Need to get 21.1 MB of archives.
+2026-10-28T14:48:22.2733026Z After this operation, 79.5 MB of additional disk space will be used.
+2026-10-28T14:48:22.2733817Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-10-28T14:48:22.3208052Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+2026-10-28T14:48:22.3908662Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+2026-10-28T14:48:22.4949525Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+2026-10-28T14:48:22.5296603Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+2026-10-28T14:48:22.5965716Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+2026-10-28T14:48:22.7028275Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+2026-10-28T14:48:22.7417874Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+2026-10-28T14:48:22.7769054Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+2026-10-28T14:48:22.9201956Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+2026-10-28T14:48:23.1801171Z Fetched 21.1 MB in 1s (31.3 MB/s)
+2026-10-28T14:48:23.2342537Z Selecting previously unselected package fonts-ipafont-gothic.
+2026-10-28T14:48:23.2879075Z (Reading database ... 
+2026-10-28T14:48:23.2879560Z (Reading database ... 5%
+2026-10-28T14:48:23.2880012Z (Reading database ... 10%
+2026-10-28T14:48:23.2880287Z (Reading database ... 15%
+2026-10-28T14:48:23.2880509Z (Reading database ... 20%
+2026-10-28T14:48:23.2880738Z (Reading database ... 25%
+2026-10-28T14:48:23.2880949Z (Reading database ... 30%
+2026-10-28T14:48:23.2881206Z (Reading database ... 35%
+2026-10-28T14:48:23.2881408Z (Reading database ... 40%
+2026-10-28T14:48:23.2881613Z (Reading database ... 45%
+2026-10-28T14:48:23.2881807Z (Reading database ... 50%
+2026-10-28T14:48:23.3489809Z (Reading database ... 55%
+2026-10-28T14:48:23.7328504Z (Reading database ... 60%
+2026-10-28T14:48:24.0870442Z (Reading database ... 65%
+2026-10-28T14:48:24.3826494Z (Reading database ... 70%
+2026-10-28T14:48:24.6621525Z (Reading database ... 75%
+2026-10-28T14:48:25.2594620Z (Reading database ... 80%
+2026-10-28T14:48:25.8809656Z (Reading database ... 85%
+2026-10-28T14:48:26.6237474Z (Reading database ... 90%
+2026-10-28T14:48:27.3339776Z (Reading database ... 95%
+2026-10-28T14:48:27.3340095Z (Reading database ... 100%
+2026-10-28T14:48:27.3340452Z (Reading database ... 215504 files and directories currently installed.)
+2026-10-28T14:48:27.3392178Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+2026-10-28T14:48:27.4356148Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-28T14:48:28.1979205Z Selecting previously unselected package fonts-freefont-ttf.
+2026-10-28T14:48:28.2119520Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+2026-10-28T14:48:28.2502714Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-28T14:48:28.7648998Z Selecting previously unselected package fonts-tlwg-loma-otf.
+2026-10-28T14:48:28.7781175Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+2026-10-28T14:48:28.7787872Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-28T14:48:28.8046206Z Selecting previously unselected package fonts-unifont.
+2026-10-28T14:48:28.8177290Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+2026-10-28T14:48:28.8184606Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+2026-10-28T14:48:29.0449109Z Selecting previously unselected package fonts-wqy-zenhei.
+2026-10-28T14:48:29.0576082Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+2026-10-28T14:48:29.0676019Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-28T14:48:29.5429629Z Selecting previously unselected package xfonts-encodings.
+2026-10-28T14:48:29.5557916Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+2026-10-28T14:48:29.5563629Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-28T14:48:29.5886252Z Selecting previously unselected package xfonts-utils.
+2026-10-28T14:48:29.6014491Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+2026-10-28T14:48:29.6020922Z Unpacking xfonts-utils (1:7.7+6build3) ...
+2026-10-28T14:48:29.6818306Z Selecting previously unselected package xfonts-cyrillic.
+2026-10-28T14:48:29.6945177Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+2026-10-28T14:48:29.6951342Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-28T14:48:29.7248907Z Selecting previously unselected package xfonts-scalable.
+2026-10-28T14:48:29.7373408Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+2026-10-28T14:48:29.7380174Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-28T14:48:29.7891540Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+2026-10-28T14:48:29.7991973Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+2026-10-28T14:48:29.8006343Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+2026-10-28T14:48:29.8019493Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+2026-10-28T14:48:29.8034096Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+2026-10-28T14:48:29.8090454Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+2026-10-28T14:48:29.8103019Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+2026-10-28T14:48:29.8116939Z Setting up xfonts-utils (1:7.7+6build3) ...
+2026-10-28T14:48:29.8150597Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+2026-10-28T14:48:29.8399329Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+2026-10-28T14:48:29.8755396Z Processing triggers for man-db (2.12.0-4build2) ...
+2026-10-28T14:48:29.8773402Z Not building database; man-db/auto-update is not 'true'.
+2026-10-28T14:48:29.8785127Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+2026-10-28T14:48:31.0039746Z 
+2026-10-28T14:48:31.0040689Z Running kernel seems to be up-to-date.
+2026-10-28T14:48:31.0041012Z 
+2026-10-28T14:48:31.0041202Z No services need to be restarted.
+2026-10-28T14:48:31.0041404Z 
+2026-10-28T14:48:31.0041589Z No containers need to be restarted.
+2026-10-28T14:48:31.0041813Z 
+2026-10-28T14:48:31.0042017Z No user sessions are running outdated binaries.
+2026-10-28T14:48:31.0042256Z 
+2026-10-28T14:48:31.0042588Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-10-28T14:48:32.1127961Z Downloading Chrome for Testing 156.0.8078.4 (playwright chromium v1248) from https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip
+2026-10-28T14:48:32.5077355Z |                                                                                |   0% of 191.1 MiB
+2026-10-28T14:48:32.8125176Z |■■■■■■■■                                                                        |  10% of 191.1 MiB
+2026-10-28T14:48:32.8753971Z |■■■■■■■■■■■■■■■■                                                                |  20% of 191.1 MiB
+2026-10-28T14:48:32.9417306Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 191.1 MiB
+2026-10-28T14:48:32.9839706Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 191.1 MiB
+2026-10-28T14:48:33.0412811Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 191.1 MiB
+2026-10-28T14:48:33.1072155Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 191.1 MiB
+2026-10-28T14:48:33.1600401Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 191.1 MiB
+2026-10-28T14:48:33.2345267Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 191.1 MiB
+2026-10-28T14:48:33.2923532Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 191.1 MiB
+2026-10-28T14:48:33.3612720Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 191.1 MiB
+2026-10-28T14:48:36.0040654Z Chrome for Testing 156.0.8078.4 (playwright chromium v1248) downloaded to /home/runner/.cache/ms-playwright/chromium-1248
+2026-10-28T14:48:36.0044924Z Downloading FFmpeg (playwright ffmpeg v1013) from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1013/ffmpeg-linux.zip
+2026-10-28T14:48:36.4159797Z |                                                                                |   0% of 2.2 MiB
+2026-10-28T14:48:36.4697839Z |■■■■■■■■                                                                        |  10% of 2.2 MiB
+2026-10-28T14:48:36.4948566Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.2 MiB
+2026-10-28T14:48:36.5090099Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.2 MiB
+2026-10-28T14:48:36.5183525Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.2 MiB
+2026-10-28T14:48:36.5259857Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.2 MiB
+2026-10-28T14:48:36.5355250Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.2 MiB
+2026-10-28T14:48:36.5392824Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.2 MiB
+2026-10-28T14:48:36.5441283Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.2 MiB
+2026-10-28T14:48:36.5487366Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.2 MiB
+2026-10-28T14:48:36.5518489Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.2 MiB
+2026-10-28T14:48:36.5989723Z FFmpeg (playwright ffmpeg v1013) downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1013
+2026-10-28T14:48:36.5991637Z Downloading Chrome Headless Shell 156.0.8078.4 (playwright chromium-headless-shell v1248) from https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-headless-shell-linux64.zip
+2026-10-28T14:48:36.9872939Z |                                                                                |   0% of 120 MiB
+2026-10-28T14:48:37.2324411Z |■■■■■■■■                                                                        |  10% of 120 MiB
+2026-10-28T14:48:37.2887815Z |■■■■■■■■■■■■■■■■                                                                |  20% of 120 MiB
+2026-10-28T14:48:37.3317019Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 120 MiB
+2026-10-28T14:48:37.3911548Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 120 MiB
+2026-10-28T14:48:37.4178381Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 120 MiB
+2026-10-28T14:48:37.4444418Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 120 MiB
+2026-10-28T14:48:37.4869999Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 120 MiB
+2026-10-28T14:48:37.5132985Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 120 MiB
+2026-10-28T14:48:37.5393987Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 120 MiB
+2026-10-28T14:48:37.5805518Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 120 MiB
+2026-10-28T14:48:39.4088815Z Chrome Headless Shell 156.0.8078.4 (playwright chromium-headless-shell v1248) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1248
+2026-10-28T14:48:39.4637224Z ##[group]Run npm run build:web
+2026-10-28T14:48:39.4637607Z [36;1mnpm run build:web[0m
+2026-10-28T14:48:39.4662279Z shell: /usr/bin/bash -e {0}
+2026-10-28T14:48:39.4662831Z env:
+2026-10-28T14:48:39.4663267Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:48:39.4663583Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:48:39.4663944Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:48:39.4664237Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:48:39.4664510Z   E2E_BROWSER: chromium
+2026-10-28T14:48:39.4664790Z   E2E_ENGINES: chromium
+2026-10-28T14:48:39.4665071Z   E2E_SAFARI: 0
+2026-10-28T14:48:39.4665340Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:48:39.4665670Z   DEBUG: 
+2026-10-28T14:48:39.4665904Z ##[endgroup]
+2026-10-28T14:48:39.5550409Z 
+2026-10-28T14:48:39.5551025Z > meta-sovereign@0.54.1 build:web
+2026-10-28T14:48:39.5551461Z > node js/scripts/build-web.mjs
+2026-10-28T14:48:39.5551655Z 
+2026-10-28T14:48:39.8692935Z 
+2026-10-28T14:48:39.8693768Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T14:48:39.8694158Z 
+2026-10-28T14:48:39.8694307Z ⚡ Done in 267ms
+2026-10-28T14:48:39.9047120Z ##[group]Run node js/scripts/run-browser-checks.mjs
+2026-10-28T14:48:39.9047478Z [36;1mnode js/scripts/run-browser-checks.mjs[0m
+2026-10-28T14:48:39.9065036Z shell: /usr/bin/bash -e {0}
+2026-10-28T14:48:39.9065239Z env:
+2026-10-28T14:48:39.9065410Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:48:39.9065610Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:48:39.9065840Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:48:39.9066026Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:48:39.9066205Z   E2E_BROWSER: chromium
+2026-10-28T14:48:39.9066391Z   E2E_ENGINES: chromium
+2026-10-28T14:48:39.9066559Z   E2E_SAFARI: 0
+2026-10-28T14:48:39.9066734Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:48:39.9066939Z   DEBUG: 
+2026-10-28T14:48:39.9067112Z ##[endgroup]
+2026-10-28T14:48:39.9359306Z ##[group]Browser check: browser
+2026-10-28T14:49:39.0103252Z [e2e-browser-spa] JS server up at http://127.0.0.1:36783, store=/tmp/ms-e2e-js-QBGy2i
+2026-10-28T14:49:39.0103732Z 
+2026-10-28T14:49:39.0104032Z [e2e-browser-spa] === backend=js base=http://127.0.0.1:36783 ===
+2026-10-28T14:49:39.0104462Z [e2e-browser-spa:js] shell loads with all expected nav buttons ... ok
+2026-10-28T14:49:39.0104896Z [e2e-browser-spa:js] tutorial progress survives a page reload ... ok
+2026-10-28T14:49:39.0105342Z [e2e-browser-spa:js] seed two messages via REST so derived views have data ... ok
+2026-10-28T14:49:39.0105824Z [e2e-browser-spa:js] click every supported nav button and confirm view rendered ... ok
+2026-10-28T14:49:39.0106298Z [e2e-browser-spa:js] reload after writing a message and verify it survives ... ok
+2026-10-28T14:49:39.0106721Z [e2e-browser-spa:js] infer pattern from examples and save ... ok
+2026-10-28T14:49:39.0107150Z [e2e-browser-spa:js] persist a 2-node automation graph and read it back ... ok
+2026-10-28T14:49:39.0107567Z [e2e-browser-spa:js] broadcast emits per-network envelopes ... ok
+2026-10-28T14:49:39.0108182Z [e2e-browser-spa:js] outreach plan personalises envelopes per recipient ... ok
+2026-10-28T14:49:39.0109094Z [e2e-browser-spa:js] backup → restore round-trip preserves seeded link ... ok
+2026-10-28T14:49:39.0109807Z [e2e-browser-spa:js] profile saves locally; publishing asks first ... ok
+2026-10-28T14:49:39.0110224Z [e2e-browser-spa:js] dark-mode toggle persists across reload ... ok
+2026-10-28T14:49:39.0110668Z [e2e-browser-spa:js] connections credential roundtrip + connect-first CTA ... ok
+2026-10-28T14:49:39.0111120Z [e2e-browser-spa:js] axe-core finds no serious/critical WCAG violations ... ok
+2026-10-28T14:49:39.0111568Z [e2e-browser-spa:js] skip-link is the first focusable element on the page ... ok
+2026-10-28T14:49:39.0111984Z [e2e-browser-spa:js] two browsers converge writes over WebRTC ... ok
+2026-10-28T14:49:39.0112312Z [e2e-browser-spa] all steps passed
+2026-10-28T14:49:39.0112459Z 
+2026-10-28T14:49:39.0112587Z Completed browser in 59075ms; exit 0
+2026-10-28T14:49:39.0113193Z ##[endgroup]
+2026-10-28T14:49:39.0113504Z ##[group]Browser check: pages
+2026-10-28T14:50:06.5743709Z Wrote 379 files (12094.4 KiB) to /home/runner/work/meta-sovereign/meta-sovereign/dist/pages
+2026-10-28T14:50:06.5744309Z   .nojekyll
+2026-10-28T14:50:06.5744555Z   404.html
+2026-10-28T14:50:06.5744784Z   api-errors.js
+2026-10-28T14:50:06.5745043Z   app-navigation.js
+2026-10-28T14:50:06.5745290Z   app-notify.js
+2026-10-28T14:50:06.5745536Z   app-route.js
+2026-10-28T14:50:06.5745839Z   app.0614143d668dd4d4.css
+2026-10-28T14:50:06.5746148Z   app.80e8a025fbf1de03.min.js
+2026-10-28T14:50:06.5746433Z   app.css
+2026-10-28T14:50:06.5746674Z   app.js
+2026-10-28T14:50:06.5746909Z   app.min.js
+2026-10-28T14:50:06.5747161Z   appearance.js
+2026-10-28T14:50:06.5747418Z   apps-model.js
+2026-10-28T14:50:06.5747685Z   archive-media-model.js
+2026-10-28T14:50:06.5747981Z   auto-download.js
+2026-10-28T14:50:06.5748331Z   automation-api.js
+2026-10-28T14:50:06.5748610Z   automations-model.js
+2026-10-28T14:50:06.5748898Z   automations-safety.js
+2026-10-28T14:50:06.5749182Z   automations-state.js
+2026-10-28T14:50:06.5749470Z   automations-view.js
+2026-10-28T14:50:06.5750078Z   autopilot-hook.js
+2026-10-28T14:50:06.5750348Z   bot-keyboard.js
+2026-10-28T14:50:06.5750626Z   business-hours-model.js
+2026-10-28T14:50:06.5750935Z   business-menu.js
+2026-10-28T14:50:06.5751203Z   business-messages.js
+2026-10-28T14:50:06.5751475Z   call-model.js
+2026-10-28T14:50:06.5751742Z   channel-dm-model.js
+2026-10-28T14:50:06.5752015Z   chat-account-data.js
+2026-10-28T14:50:06.5752283Z   chat-account.js
+2026-10-28T14:50:06.5752556Z   chat-accounts-live.js
+2026-10-28T14:50:06.5752834Z   chat-accounts.js
+2026-10-28T14:50:06.5753303Z   chat-actions.js
+2026-10-28T14:50:06.5753568Z   chat-add-members.js
+2026-10-28T14:50:06.5753842Z   chat-admin-rights.js
+2026-10-28T14:50:06.5754112Z   chat-admin.js
+2026-10-28T14:50:06.5754354Z   chat-admins.js
+2026-10-28T14:50:06.5754614Z   chat-album.js
+2026-10-28T14:50:06.5754869Z   chat-apps-search.js
+2026-10-28T14:50:06.5755141Z   chat-archive-media.js
+2026-10-28T14:50:06.5755427Z   chat-attach-bots.js
+2026-10-28T14:50:06.5755702Z   chat-attach.js
+2026-10-28T14:50:06.5755895Z   chat-attached-button.js
+2026-10-28T14:50:06.5756108Z   chat-attached-stickers.js
+2026-10-28T14:50:06.5756326Z   chat-automation.js
+2026-10-28T14:50:06.5756511Z   chat-boosts.js
+2026-10-28T14:50:06.5756685Z   chat-bot-commands.js
+2026-10-28T14:50:06.5756875Z   chat-bot-login.js
+2026-10-28T14:50:06.5757047Z   chat-bots.js
+2026-10-28T14:50:06.5757222Z   chat-business-bots.js
+2026-10-28T14:50:06.5757436Z   chat-business-common.js
+2026-10-28T14:50:06.5757631Z   chat-business-hours.js
+2026-10-28T14:50:06.5757850Z   chat-business-link-open.js
+2026-10-28T14:50:06.5758052Z   chat-business-links.js
+2026-10-28T14:50:06.5758248Z   chat-business-place.js
+2026-10-28T14:50:06.5758436Z   chat-business-profile.js
+2026-10-28T14:50:06.5758628Z   chat-calendar.js
+2026-10-28T14:50:06.5758805Z   chat-calls.js
+2026-10-28T14:50:06.5758982Z   chat-channel-dm-thread.js
+2026-10-28T14:50:06.5759176Z   chat-channel-dm.js
+2026-10-28T14:50:06.5759368Z   chat-channel-limit.js
+2026-10-28T14:50:06.5759553Z   chat-collectible.js
+2026-10-28T14:50:06.5759744Z   chat-comments-bar.js
+2026-10-28T14:50:06.5759928Z   chat-comments.js
+2026-10-28T14:50:06.5760277Z   chat-common-chats.js
+2026-10-28T14:50:06.5760612Z   chat-contact-extras.js
+2026-10-28T14:50:06.5760833Z   chat-contact-share.js
+2026-10-28T14:50:06.5761032Z   chat-contacts-edit.js
+2026-10-28T14:50:06.5761221Z   chat-contacts-synced.js
+2026-10-28T14:50:06.5761418Z   chat-contacts-window.js
+2026-10-28T14:50:06.5761607Z   chat-create.js
+2026-10-28T14:50:06.5761785Z   chat-days.js
+2026-10-28T14:50:06.5761951Z   chat-deleted.js
+2026-10-28T14:50:06.5762124Z   chat-drafts-clear.js
+2026-10-28T14:50:06.5762307Z   chat-drag.js
+2026-10-28T14:50:06.5762475Z   chat-edit-mode.js
+2026-10-28T14:50:06.5762645Z   chat-edit.js
+2026-10-28T14:50:06.5762812Z   chat-effects.js
+2026-10-28T14:50:06.5762982Z   chat-email-body.js
+2026-10-28T14:50:06.5763607Z   chat-emoji-custom.js
+2026-10-28T14:50:06.5763936Z   chat-emoji-status-search.js
+2026-10-28T14:50:06.5764160Z   chat-emoji-status.js
+2026-10-28T14:50:06.5764349Z   chat-emoji-suggest.js
+2026-10-28T14:50:06.5764531Z   chat-emoji-tools.js
+2026-10-28T14:50:06.5764717Z   chat-emoji.js
+2026-10-28T14:50:06.5764890Z   chat-ephemeral.js
+2026-10-28T14:50:06.5765063Z   chat-export.js
+2026-10-28T14:50:06.5765243Z   chat-fact-check.js
+2026-10-28T14:50:06.5765421Z   chat-failure.js
+2026-10-28T14:50:06.5765591Z   chat-feed.js
+2026-10-28T14:50:06.5765759Z   chat-folder-edit.js
+2026-10-28T14:50:06.5765948Z   chat-folder-live.js
+2026-10-28T14:50:06.5766129Z   chat-folder-model.js
+2026-10-28T14:50:06.5766305Z   chat-folder-share.js
+2026-10-28T14:50:06.5766491Z   chat-folder-tags.js
+2026-10-28T14:50:06.5766671Z   chat-folder-updates.js
+2026-10-28T14:50:06.5766861Z   chat-folders.js
+2026-10-28T14:50:06.5767039Z   chat-follow.js
+2026-10-28T14:50:06.5767208Z   chat-format-bar.js
+2026-10-28T14:50:06.5767390Z   chat-forum-view.js
+2026-10-28T14:50:06.5767651Z   chat-forward.js
+2026-10-28T14:50:06.5767906Z   chat-games.js
+2026-10-28T14:50:06.5768160Z   chat-gestures.js
+2026-10-28T14:50:06.5768668Z   chat-gift-code-button.js
+2026-10-28T14:50:06.5768987Z   chat-gift-manage.js
+2026-10-28T14:50:06.5769270Z   chat-gift-unique.js
+2026-10-28T14:50:06.5769548Z   chat-giveaway.js
+2026-10-28T14:50:06.5769727Z   chat-global.js
+2026-10-28T14:50:06.5769902Z   chat-group-stickers.js
+2026-10-28T14:50:06.5770095Z   chat-history-load.js
+2026-10-28T14:50:06.5770270Z   chat-info.js
+2026-10-28T14:50:06.5770444Z   chat-inline-bots.js
+2026-10-28T14:50:06.5770631Z   chat-instant-view-open.js
+2026-10-28T14:50:06.5770840Z   chat-instant-view-render.js
+2026-10-28T14:50:06.5771049Z   chat-instant-view.js
+2026-10-28T14:50:06.5771230Z   chat-invite-links.js
+2026-10-28T14:50:06.5771404Z   chat-invite.js
+2026-10-28T14:50:06.5771576Z   chat-join-requests.js
+2026-10-28T14:50:06.5771756Z   chat-jump.js
+2026-10-28T14:50:06.5771920Z   chat-leaving.js
+2026-10-28T14:50:06.5772089Z   chat-left-channels.js
+2026-10-28T14:50:06.5772277Z   chat-link-open.js
+2026-10-28T14:50:06.5772454Z   chat-link-preview.js
+2026-10-28T14:50:06.5772633Z   chat-list-menu.js
+2026-10-28T14:50:06.5772805Z   chat-list.js
+2026-10-28T14:50:06.5772977Z   chat-live-locations.js
+2026-10-28T14:50:06.5773364Z   chat-live.js
+2026-10-28T14:50:06.5773609Z   chat-manage.js
+2026-10-28T14:50:06.5773849Z   chat-marks.js
+2026-10-28T14:50:06.5774094Z   chat-media.js
+2026-10-28T14:50:06.5774338Z   chat-members.js
+2026-10-28T14:50:06.5774607Z   chat-message-stats.js
+2026-10-28T14:50:06.5774793Z   chat-message.js
+2026-10-28T14:50:06.5774957Z   chat-model.js
+2026-10-28T14:50:06.5775125Z   chat-moderation.js
+2026-10-28T14:50:06.5775305Z   chat-music-save.js
+2026-10-28T14:50:06.5775484Z   chat-notify-settings.js
+2026-10-28T14:50:06.5775682Z   chat-notify-sound.js
+2026-10-28T14:50:06.5775863Z   chat-notify.js
+2026-10-28T14:50:06.5776056Z   chat-outbox.js
+2026-10-28T14:50:06.5776239Z   chat-paid-earnings.js
+2026-10-28T14:50:06.5776479Z   chat-paid-send.js
+2026-10-28T14:50:06.5776692Z   chat-paid.js
+2026-10-28T14:50:06.5776884Z   chat-passcode.js
+2026-10-28T14:50:06.5777071Z   chat-peer-actions.js
+2026-10-28T14:50:06.5777249Z   chat-person-extras.js
+2026-10-28T14:50:06.5777594Z   chat-photo-editor.js
+2026-10-28T14:50:06.5777768Z   chat-photo.js
+2026-10-28T14:50:06.5777940Z   chat-pin-drag.js
+2026-10-28T14:50:06.5778110Z   chat-pin-order.js
+2026-10-28T14:50:06.5778276Z   chat-pinned.js
+2026-10-28T14:50:06.5778452Z   chat-pip.js
+2026-10-28T14:50:06.5778624Z   chat-poll-create.js
+2026-10-28T14:50:06.5778796Z   chat-poll.js
+2026-10-28T14:50:06.5778968Z   chat-prepared-share.js
+2026-10-28T14:50:06.5779153Z   chat-privacy-paid.js
+2026-10-28T14:50:06.5779332Z   chat-privacy.js
+2026-10-28T14:50:06.5779501Z   chat-private-call.js
+2026-10-28T14:50:06.5779687Z   chat-profile-extras.js
+2026-10-28T14:50:06.5779868Z   chat-profile.js
+2026-10-28T14:50:06.5780038Z   chat-public-link.js
+2026-10-28T14:50:06.5780223Z   chat-quick-reaction.js
+2026-10-28T14:50:06.5780405Z   chat-reactions.js
+2026-10-28T14:50:06.5780575Z   chat-read-time.js
+2026-10-28T14:50:06.5780750Z   chat-readers.js
+2026-10-28T14:50:06.5780922Z   chat-remote-media.js
+2026-10-28T14:50:06.5781105Z   chat-replies-block.js
+2026-10-28T14:50:06.5781285Z   chat-replies.js
+2026-10-28T14:50:06.5781456Z   chat-report.js
+2026-10-28T14:50:06.5781626Z   chat-request-peer.js
+2026-10-28T14:50:06.5781845Z   chat-rich-message.js
+2026-10-28T14:50:06.5782028Z   chat-round-record.js
+2026-10-28T14:50:06.5782202Z   chat-round.js
+2026-10-28T14:50:06.5782363Z   chat-row.js
+2026-10-28T14:50:06.5782532Z   chat-saved-gifs.js
+2026-10-28T14:50:06.5782706Z   chat-saved-tags.js
+2026-10-28T14:50:06.5782878Z   chat-saved.js
+2026-10-28T14:50:06.5783198Z   chat-schedule.js
+2026-10-28T14:50:06.5783410Z   chat-search.js
+2026-10-28T14:50:06.5783584Z   chat-security-extras.js
+2026-10-28T14:50:06.5783775Z   chat-security-forgot.js
+2026-10-28T14:50:06.5783962Z   chat-security.js
+2026-10-28T14:50:06.5784128Z   chat-selection.js
+2026-10-28T14:50:06.5784287Z   chat-send-as.js
+2026-10-28T14:50:06.5784456Z   chat-send-gift.js
+2026-10-28T14:50:06.5784737Z   chat-service-line.js
+2026-10-28T14:50:06.5784918Z   chat-settings.js
+2026-10-28T14:50:06.5785083Z   chat-share.js
+2026-10-28T14:50:06.5785253Z   chat-shared.js
+2026-10-28T14:50:06.5785421Z   chat-sidebar.js
+2026-10-28T14:50:06.5785592Z   chat-sign-in-code.js
+2026-10-28T14:50:06.5785773Z   chat-similar-bots.js
+2026-10-28T14:50:06.5785947Z   chat-similar.js
+2026-10-28T14:50:06.5786143Z   chat-stars.js
+2026-10-28T14:50:06.5786307Z   chat-state.js
+2026-10-28T14:50:06.5786466Z   chat-stats.js
+2026-10-28T14:50:06.5786638Z   chat-sticker-box.js
+2026-10-28T14:50:06.5786820Z   chat-sticker-settings.js
+2026-10-28T14:50:06.5787014Z   chat-sticker-trending.js
+2026-10-28T14:50:06.5787210Z   chat-stickers.js
+2026-10-28T14:50:06.5787377Z   chat-suggest.js
+2026-10-28T14:50:06.5787546Z   chat-tab-scroll.js
+2026-10-28T14:50:06.5787717Z   chat-tags.js
+2026-10-28T14:50:06.5787887Z   chat-theme-model.js
+2026-10-28T14:50:06.5788059Z   chat-theme.js
+2026-10-28T14:50:06.5788229Z   chat-todo-create.js
+2026-10-28T14:50:06.5788414Z   chat-top-peers.js
+2026-10-28T14:50:06.5788590Z   chat-topic-admin.js
+2026-10-28T14:50:06.5788765Z   chat-topics.js
+2026-10-28T14:50:06.5788937Z   chat-transcribe.js
+2026-10-28T14:50:06.5789123Z   chat-translate-bar.js
+2026-10-28T14:50:06.5789307Z   chat-translate.js
+2026-10-28T14:50:06.5789485Z   chat-translation-switch.js
+2026-10-28T14:50:06.5789693Z   chat-ttl.js
+2026-10-28T14:50:06.5789858Z   chat-usernames.js
+2026-10-28T14:50:06.5790024Z   chat-view.js
+2026-10-28T14:50:06.5790191Z   chat-views.js
+2026-10-28T14:50:06.5790356Z   chat-voice-chat.js
+2026-10-28T14:50:06.5790528Z   chat-voice-hooks.js
+2026-10-28T14:50:06.5790704Z   chat-voice-panel.js
+2026-10-28T14:50:06.5798775Z   chat-voice.js
+2026-10-28T14:50:06.5799028Z   chat-wallpaper.js
+2026-10-28T14:50:06.5799227Z   chat-web-apps.js
+2026-10-28T14:50:06.5799423Z   chat-webpage.js
+2026-10-28T14:50:06.5799596Z   chat-window.js
+2026-10-28T14:50:06.5799766Z   client-log.js
+2026-10-28T14:50:06.5799928Z   client.js
+2026-10-28T14:50:06.5800090Z   cloud-theme-model.js
+2026-10-28T14:50:06.5800286Z   cloud-themes.js
+2026-10-28T14:50:06.5800472Z   connection-guide.js
+2026-10-28T14:50:06.5800820Z   connection-guides.js
+2026-10-28T14:50:06.5801002Z   connection-prefs.js
+2026-10-28T14:50:06.5801184Z   contact-links.js
+2026-10-28T14:50:06.5801360Z   contacts-import.js
+2026-10-28T14:50:06.5801535Z   contacts-live.js
+2026-10-28T14:50:06.5801708Z   custom-emoji.js
+2026-10-28T14:50:06.5801898Z   cv-view.js
+2026-10-28T14:50:06.5802065Z   dialog-focus.js
+2026-10-28T14:50:06.5802233Z   discover.js
+2026-10-28T14:50:06.5802411Z   discovery-shell.js
+2026-10-28T14:50:06.5802590Z   disk-banner.js
+2026-10-28T14:50:06.5802766Z   dom-telegram-calls.js
+2026-10-28T14:50:06.5802954Z   dom.js
+2026-10-28T14:50:06.5803384Z   download/copy.js
+2026-10-28T14:50:06.5803659Z   download/download.css
+2026-10-28T14:50:06.5803933Z   download/downloads.js
+2026-10-28T14:50:06.5804147Z   download/icon.svg
+2026-10-28T14:50:06.5804320Z   download/index.html
+2026-10-28T14:50:06.5804497Z   download/model.js
+2026-10-28T14:50:06.5804678Z   download/page.js
+2026-10-28T14:50:06.5804847Z   download/verify.js
+2026-10-28T14:50:06.5805024Z   effects.js
+2026-10-28T14:50:06.5805195Z   emoji-data.js
+2026-10-28T14:50:06.5805369Z   emoji-status-model.js
+2026-10-28T14:50:06.5805548Z   emoji-status.js
+2026-10-28T14:50:06.5805720Z   entity-extras.js
+2026-10-28T14:50:06.5805902Z   forum-topics.js
+2026-10-28T14:50:06.5806067Z   gif-id.js
+2026-10-28T14:50:06.5806233Z   gift-manage-model.js
+2026-10-28T14:50:06.5806426Z   giveaway-model.js
+2026-10-28T14:50:06.5806596Z   greetings-view.js
+2026-10-28T14:50:06.5806772Z   i18n.js
+2026-10-28T14:50:06.5806932Z   icons.js
+2026-10-28T14:50:06.5807085Z   index.html
+2026-10-28T14:50:06.5807255Z   language-switcher.js
+2026-10-28T14:50:06.5807435Z   live-clock.js
+2026-10-28T14:50:06.5807611Z   live-follow.js
+2026-10-28T14:50:06.5807781Z   live-place.js
+2026-10-28T14:50:06.5807945Z   live-watch.js
+2026-10-28T14:50:06.5808114Z   lottie-sticker.js
+2026-10-28T14:50:06.5808290Z   manifest.webmanifest
+2026-10-28T14:50:06.5808596Z   marketplace-accounts.js
+2026-10-28T14:50:06.5808805Z   media-loading.js
+2026-10-28T14:50:06.5808982Z   media-src.js
+2026-10-28T14:50:06.5809147Z   message-links.js
+2026-10-28T14:50:06.5809312Z   message-parts.js
+2026-10-28T14:50:06.5809484Z   message-text.js
+2026-10-28T14:50:06.5809649Z   nav-items.js
+2026-10-28T14:50:06.5809813Z   navigation-counts.js
+2026-10-28T14:50:06.5809989Z   notice.js
+2026-10-28T14:50:06.5810143Z   notify-rules.js
+2026-10-28T14:50:06.5810308Z   notify-sound.js
+2026-10-28T14:50:06.5810476Z   operator-model.js
+2026-10-28T14:50:06.5810651Z   operator-order.js
+2026-10-28T14:50:06.5810822Z   operator-prefs.js
+2026-10-28T14:50:06.5810990Z   operator-unread.js
+2026-10-28T14:50:06.5811176Z   operator-view.js
+2026-10-28T14:50:06.5811344Z   operator-work.js
+2026-10-28T14:50:06.5811512Z   outbox-context.js
+2026-10-28T14:50:06.5811688Z   outbox-host.js
+2026-10-28T14:50:06.5811862Z   paid-portal.js
+2026-10-28T14:50:06.5812029Z   paid-send.js
+2026-10-28T14:50:06.5812198Z   panel-resize.js
+2026-10-28T14:50:06.5812375Z   passcode-request.js
+2026-10-28T14:50:06.5812553Z   passcode.js
+2026-10-28T14:50:06.5812725Z   passkey-codec.js
+2026-10-28T14:50:06.5812908Z   pattern-matcher.wasm
+2026-10-28T14:50:06.5813271Z   pattern-worker.js
+2026-10-28T14:50:06.5813473Z   patterns-wasm.js
+2026-10-28T14:50:06.5813651Z   peer-avatar.js
+2026-10-28T14:50:06.5813812Z   peer-color.js
+2026-10-28T14:50:06.5813981Z   person-panel.js
+2026-10-28T14:50:06.5814154Z   photo-editor-model.js
+2026-10-28T14:50:06.5814355Z   photo-editor-render.js
+2026-10-28T14:50:06.5814549Z   poll-parts.js
+2026-10-28T14:50:06.5814716Z   privacy-prefs.js
+2026-10-28T14:50:06.5814894Z   private-call-model.js
+2026-10-28T14:50:06.5815080Z   profile-extras-model.js
+2026-10-28T14:50:06.5815275Z   profile-music.js
+2026-10-28T14:50:06.5815459Z   profile-stories-model.js
+2026-10-28T14:50:06.5815659Z   profile-stories.js
+2026-10-28T14:50:06.5815829Z   proxy-model.js
+2026-10-28T14:50:06.5815994Z   qr-code.js
+2026-10-28T14:50:06.5816169Z   quick-replies-model.js
+2026-10-28T14:50:06.5816356Z   quick-replies.js
+2026-10-28T14:50:06.5816523Z   read-retry.js
+2026-10-28T14:50:06.5816815Z   request-policy.js
+2026-10-28T14:50:06.5816990Z   request-recovery.js
+2026-10-28T14:50:06.5817163Z   rich-math.js
+2026-10-28T14:50:06.5817331Z   rich-message-model.js
+2026-10-28T14:50:06.5817523Z   rich-service-model.js
+2026-10-28T14:50:06.5817701Z   rich-text-nodes.js
+2026-10-28T14:50:06.5817874Z   schema-banner.js
+2026-10-28T14:50:06.5818053Z   server-availability.js
+2026-10-28T14:50:06.5818244Z   server-events.js
+2026-10-28T14:50:06.5818427Z   server-transport.js
+2026-10-28T14:50:06.5818617Z   service-texts.js
+2026-10-28T14:50:06.5818788Z   settings-confirm.js
+2026-10-28T14:50:06.5818967Z   settings-fields.js
+2026-10-28T14:50:06.5819146Z   settings-media.js
+2026-10-28T14:50:06.5819342Z   settings-notify-extras.js
+2026-10-28T14:50:06.5819542Z   settings-notify.js
+2026-10-28T14:50:06.5819715Z   settings-proxy.js
+2026-10-28T14:50:06.5819886Z   settings-scale.js
+2026-10-28T14:50:06.5820063Z   settings-sounds.js
+2026-10-28T14:50:06.5820238Z   settings-storage.js
+2026-10-28T14:50:06.5820429Z   settings-view.js
+2026-10-28T14:50:06.5820604Z   shortcuts.js
+2026-10-28T14:50:06.5820780Z   sign-in-code-guard.js
+2026-10-28T14:50:06.5820961Z   spinner.js
+2026-10-28T14:50:06.5821134Z   stars-model.js
+2026-10-28T14:50:06.5821308Z   stats-graph.js
+2026-10-28T14:50:06.5821486Z   sticker-settings-model.js
+2026-10-28T14:50:06.5821681Z   stories-model.js
+2026-10-28T14:50:06.5821853Z   stories-pref.js
+2026-10-28T14:50:06.5822021Z   stories.js
+2026-10-28T14:50:06.5822186Z   story-actions.js
+2026-10-28T14:50:06.5822358Z   story-extras.js
+2026-10-28T14:50:06.5822530Z   story-manage-model.js
+2026-10-28T14:50:06.5822718Z   story-manage.js
+2026-10-28T14:50:06.5822895Z   story-post-model.js
+2026-10-28T14:50:06.5823253Z   story-post.js
+2026-10-28T14:50:06.5823460Z   story-viewer.js
+2026-10-28T14:50:06.5823640Z   telegram-account-scope.js
+2026-10-28T14:50:06.5823832Z   telegram-online.js
+2026-10-28T14:50:06.5824105Z   telegram-status.js
+2026-10-28T14:50:06.5824289Z   text-shortcuts.js
+2026-10-28T14:50:06.5824466Z   translate-detect.js
+2026-10-28T14:50:06.5824641Z   translate-store.js
+2026-10-28T14:50:06.5824812Z   tutorial-clear.js
+2026-10-28T14:50:06.5824991Z   tutorial-follow.js
+2026-10-28T14:50:06.5825171Z   tutorial-placement.js
+2026-10-28T14:50:06.5825349Z   tutorial-start.js
+2026-10-28T14:50:06.5825517Z   tutorial.js
+2026-10-28T14:50:06.5825684Z   ui-scale.js
+2026-10-28T14:50:06.5825841Z   use-redraw.js
+2026-10-28T14:50:06.5826007Z   usernames-model.js
+2026-10-28T14:50:06.5826180Z   views.js
+2026-10-28T14:50:06.5826341Z   vk-captcha.js
+2026-10-28T14:50:06.5826506Z   voice-chat-model.js
+2026-10-28T14:50:06.5826687Z   voice-chat-sdp.js
+2026-10-28T14:50:06.5826860Z   voice-chat-session.js
+2026-10-28T14:50:06.5827036Z   voice-ogg.js
+2026-10-28T14:50:06.5827213Z   wallpaper-css.js
+2026-10-28T14:50:06.5827385Z   web-app-loading.js
+2026-10-28T14:50:06.5827559Z   web-apps-model.js
+2026-10-28T14:50:06.5827735Z   web-mode-banner.js
+2026-10-28T14:50:06.5827905Z   web-mode.js
+2026-10-28T14:50:06.5828063Z   webpage-kind.js
+2026-10-28T14:50:06.5828238Z   webrtc-sync.js
+2026-10-28T14:50:06.5828519Z [e2e-pages] hosted startup recovered via automatic retry
+2026-10-28T14:50:06.5829573Z [e2e-pages] the hosted copy tried http://127.0.0.1:37597 → http://127.0.0.1:8787 → http://127.0.0.1:8788 → http://127.0.0.1:7001 → http://127.0.0.1:7002 → http://127.0.0.1:3000
+2026-10-28T14:50:06.5830498Z [e2e-pages] http://127.0.0.1:37597/meta-sovereign/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T14:50:06.5831044Z [e2e-pages] http://127.0.0.1:8787/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T14:50:06.5831587Z [e2e-pages] http://127.0.0.1:37597/meta-sovereign/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T14:50:06.5832168Z [e2e-pages] http://127.0.0.1:37597/meta-sovereign/: online=true menu=19 chats=1 bubbles=3 problems=0
+2026-10-28T14:50:06.5832942Z [e2e-pages] PASS: GitHub Pages works with the default API-only server and the optional local UI
+2026-10-28T14:50:06.5833465Z 
+2026-10-28T14:50:06.5833802Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T14:50:06.5833964Z 
+2026-10-28T14:50:06.5834158Z ⚡ Done in 294ms
+2026-10-28T14:50:06.5834298Z 
+2026-10-28T14:50:06.5834437Z Completed pages in 27564ms; exit 0
+2026-10-28T14:50:06.5835057Z ##[endgroup]
+2026-10-28T14:50:06.5835448Z ##[group]Browser check: chat-menu
+2026-10-28T14:50:08.9547062Z [e2e-chat-menu] marked unread: the empty badge
+2026-10-28T14:50:08.9547545Z [e2e-chat-menu] Pin asks Telegram
+2026-10-28T14:50:08.9548064Z [e2e-chat-menu] Mute → For 8 hours
+2026-10-28T14:50:08.9548328Z [e2e-chat-menu] Archive asks Telegram
+2026-10-28T14:50:08.9548634Z [e2e-chat-menu] opening a marked chat unmarks it
+2026-10-28T14:50:08.9549006Z [e2e-chat-menu] Delete chat: asked, for both, gone from the list
+2026-10-28T14:50:08.9549346Z [e2e-chat-menu] OK (chromium)
+2026-10-28T14:50:08.9549551Z 
+2026-10-28T14:50:08.9549739Z Completed chat-menu in 2378ms; exit 0
+2026-10-28T14:50:08.9550439Z ##[endgroup]
+2026-10-28T14:50:08.9550745Z ##[group]Browser check: chat-search
+2026-10-28T14:50:11.2556964Z [e2e-chat-search] no match: said so
+2026-10-28T14:50:11.2557527Z [e2e-chat-search] the newest match, lit up: 1 of 2
+2026-10-28T14:50:11.2558126Z [e2e-chat-search] Enter: an older match, loaded on the way
+2026-10-28T14:50:11.2558661Z [e2e-chat-search] Shift+Enter and the arrows move back and on
+2026-10-28T14:50:11.2559159Z [e2e-chat-search] Esc closes; the magnifier opens it
+2026-10-28T14:50:11.2559559Z [e2e-chat-search] OK (chromium)
+2026-10-28T14:50:11.2559748Z 
+2026-10-28T14:50:11.2559945Z Completed chat-search in 2301ms; exit 0
+2026-10-28T14:50:11.2560567Z ##[endgroup]
+2026-10-28T14:50:11.2561006Z ##[group]Browser check: selection
+2026-10-28T14:50:22.2192866Z [e2e-chat-selection] OK
+2026-10-28T14:50:22.2193692Z 
+2026-10-28T14:50:22.2193886Z Completed selection in 10964ms; exit 0
+2026-10-28T14:50:22.2194404Z ##[endgroup]
+2026-10-28T14:50:22.2195934Z ##[group]Browser check: attach
+2026-10-28T14:50:23.9090121Z [e2e-attach] the paperclip: two photos, the caption taken along
+2026-10-28T14:50:23.9090717Z [e2e-attach] Send: uploaded, sent as files, boxes cleared
+2026-10-28T14:50:23.9091101Z [e2e-attach] a pasted picture opens the box; Esc closes it
+2026-10-28T14:50:23.9091469Z [e2e-attach] a dropped picture: sent as a photo by Enter
+2026-10-28T14:50:23.9091793Z [e2e-attach] OK (chromium)
+2026-10-28T14:50:23.9091986Z 
+2026-10-28T14:50:23.9092162Z Completed attach in 1689ms; exit 0
+2026-10-28T14:50:23.9092639Z ##[endgroup]
+2026-10-28T14:50:23.9092949Z ##[group]Browser check: send-extras
+2026-10-28T14:50:27.6512375Z [e2e-send-extras] OK (chromium)
+2026-10-28T14:50:27.6512683Z 
+2026-10-28T14:50:27.6512894Z Completed send-extras in 3742ms; exit 0
+2026-10-28T14:50:27.6514253Z ##[endgroup]
+2026-10-28T14:50:27.6515364Z ##[group]Browser check: folders
+2026-10-28T14:50:32.2054255Z [e2e-folders] OK (chromium)
+2026-10-28T14:50:32.2054783Z 
+2026-10-28T14:50:32.2055221Z Completed folders in 4554ms; exit 0
+2026-10-28T14:50:32.2056101Z ##[endgroup]
+2026-10-28T14:50:32.2056690Z ##[group]Browser check: passcode
+2026-10-28T14:50:38.6456205Z [e2e-passcode] OK (chromium)
+2026-10-28T14:50:38.6456481Z 
+2026-10-28T14:50:38.6456621Z Completed passcode in 6440ms; exit 0
+2026-10-28T14:50:38.6457108Z ##[endgroup]
+2026-10-28T14:50:38.6458238Z ##[group]Browser check: service-messages
+2026-10-28T14:50:40.3959277Z [e2e-service-messages] OK (chromium)
+2026-10-28T14:50:40.3959747Z 
+2026-10-28T14:50:40.3960214Z Completed service-messages in 1750ms; exit 0
+2026-10-28T14:50:40.3961583Z ##[endgroup]
+2026-10-28T14:50:40.3962142Z ##[group]Browser check: ephemeral
+2026-10-28T14:50:42.5929404Z [e2e-ephemeral] OK (chromium)
+2026-10-28T14:50:42.5929657Z 
+2026-10-28T14:50:42.5929818Z Completed ephemeral in 2196ms; exit 0
+2026-10-28T14:50:42.5930354Z ##[endgroup]
+2026-10-28T14:50:42.5934720Z ##[group]Browser check: rich-messages
+2026-10-28T14:50:44.2280559Z [e2e-rich-messages] OK (chromium)
+2026-10-28T14:50:44.2280864Z 
+2026-10-28T14:50:44.2281103Z Completed rich-messages in 1634ms; exit 0
+2026-10-28T14:50:44.2281763Z ##[endgroup]
+2026-10-28T14:50:44.2282987Z ##[group]Browser check: rich-text
+2026-10-28T14:50:45.8126861Z [e2e-rich-text] OK (chromium)
+2026-10-28T14:50:45.8127145Z 
+2026-10-28T14:50:45.8127346Z Completed rich-text in 1584ms; exit 0
+2026-10-28T14:50:45.8129234Z ##[endgroup]
+2026-10-28T14:50:45.8129544Z ##[group]Browser check: instant-view
+2026-10-28T14:50:47.6855551Z [e2e-instant-view] OK (chromium)
+2026-10-28T14:50:47.6855850Z 
+2026-10-28T14:50:47.6856070Z Completed instant-view in 1873ms; exit 0
+2026-10-28T14:50:47.6856725Z ##[endgroup]
+2026-10-28T14:50:47.6857986Z ##[group]Browser check: account-data
+2026-10-28T14:50:53.8840803Z [e2e-account-data] OK (chromium)
+2026-10-28T14:50:53.8841097Z 
+2026-10-28T14:50:53.8841306Z Completed account-data in 6198ms; exit 0
+2026-10-28T14:50:53.8841969Z ##[endgroup]
+2026-10-28T14:50:53.8842707Z ##[group]Browser check: accounts
+2026-10-28T14:50:55.8267215Z [e2e-accounts] OK (chromium)
+2026-10-28T14:50:55.8267523Z 
+2026-10-28T14:50:55.8267658Z Completed accounts in 1942ms; exit 0
+2026-10-28T14:50:55.8268172Z ##[endgroup]
+2026-10-28T14:50:55.8269241Z ##[group]Browser check: offline
+2026-10-28T14:51:26.9386665Z [e2e-offline] asked to wait: Online, nothing shown
+2026-10-28T14:51:26.9387316Z [e2e-offline] disconnected: sign-in prompt, no history loop; reconnected: history resumes
+2026-10-28T14:51:26.9387782Z [e2e-offline] out of reach: Offline, leads to the connection
+2026-10-28T14:51:26.9388069Z [e2e-offline] back: Online
+2026-10-28T14:51:26.9388336Z [e2e-offline] OK (chromium)
+2026-10-28T14:51:26.9388521Z 
+2026-10-28T14:51:26.9388702Z Completed offline in 31112ms; exit 0
+2026-10-28T14:51:26.9389184Z ##[endgroup]
+2026-10-28T14:51:26.9389512Z ##[group]Browser check: email
+2026-10-28T14:51:28.8039709Z [e2e-email] OK (chromium)
+2026-10-28T14:51:28.8039925Z 
+2026-10-28T14:51:28.8040057Z Completed email in 1865ms; exit 0
+2026-10-28T14:51:28.8040549Z ##[endgroup]
+2026-10-28T14:51:28.8042811Z ##[group]Browser check: greetings
+2026-10-28T14:51:35.4950994Z [e2e-greetings-browser] vk.com preview loaded: false
+2026-10-28T14:51:35.4951511Z [e2e-greetings-browser] OK
+2026-10-28T14:51:35.4951689Z 
+2026-10-28T14:51:35.4951874Z Completed greetings in 6690ms; exit 0
+2026-10-28T14:51:35.4952496Z ##[endgroup]
+2026-10-28T14:51:35.4952958Z ##[group]Browser check: autopilot
+2026-10-28T14:51:41.0654656Z [e2e-autopilot] menu: started, then stopped
+2026-10-28T14:51:41.0655218Z [e2e-autopilot] page: sent 3, opened vk:202 vk:203
+2026-10-28T14:51:41.0655688Z [e2e-autopilot] send safety: log, unknown, opt-out
+2026-10-28T14:51:41.0656067Z [e2e-autopilot] OK (chromium)
+2026-10-28T14:51:41.0656263Z 
+2026-10-28T14:51:41.0659502Z Completed autopilot in 5570ms; exit 0
+2026-10-28T14:51:41.0660048Z ##[endgroup]
+2026-10-28T14:51:41.0660370Z ##[group]Browser check: peer-bar
+2026-10-28T14:51:42.9097434Z [e2e-peer-bar] OK (chromium)
+2026-10-28T14:51:42.9097718Z 
+2026-10-28T14:51:42.9097907Z Completed peer-bar in 1844ms; exit 0
+2026-10-28T14:51:42.9098558Z ##[endgroup]
+2026-10-28T14:51:42.9099768Z ##[group]Browser check: tutorial
+2026-10-28T14:52:39.8322730Z - chromium/desktop
+2026-10-28T14:52:39.8323352Z - chromium/desktop/tall-card
+2026-10-28T14:52:39.8323695Z - chromium/short-desktop
+2026-10-28T14:52:39.8324116Z   scroll drift {"scrolled":194,"anchors":true,"ring":194,"card":194}
+2026-10-28T14:52:39.8324640Z - chromium/short-desktop/tall-card
+2026-10-28T14:52:39.8325091Z   scroll drift {"scrolled":194,"anchors":true,"ring":194,"card":194}
+2026-10-28T14:52:39.8325510Z - chromium/tablet
+2026-10-28T14:52:39.8325789Z - chromium/tablet/tall-card
+2026-10-28T14:52:39.8326098Z - chromium/phone
+2026-10-28T14:52:39.8326396Z - chromium/phone/tall-card
+2026-10-28T14:52:39.8326720Z - chromium/desktop/pages
+2026-10-28T14:52:39.8327038Z - chromium/phone/pages
+2026-10-28T14:52:39.8327398Z [e2e-tutorial-browser] all checks passed
+2026-10-28T14:52:39.8327615Z 
+2026-10-28T14:52:39.8327777Z Completed tutorial in 56923ms; exit 0
+2026-10-28T14:52:39.8328430Z ##[endgroup]
+2026-10-28T14:52:39.8330491Z ##[group]Browser check: archive-media
+2026-10-28T14:52:41.5785733Z [e2e-archive-media] OK (chromium)
+2026-10-28T14:52:41.5786039Z 
+2026-10-28T14:52:41.5786219Z Completed archive-media in 1746ms; exit 0
+2026-10-28T14:52:41.5786722Z ##[endgroup]
+2026-10-28T14:52:41.5787653Z ##[group]Browser check: vk-followups
+2026-10-28T14:52:45.8571092Z [e2e-vk-followups] OK (chromium)
+2026-10-28T14:52:45.8571368Z 
+2026-10-28T14:52:45.8571568Z Completed vk-followups in 4278ms; exit 0
+2026-10-28T14:52:45.8572199Z ##[endgroup]
+2026-10-28T14:52:45.8573426Z ##[group]Browser check: github-inbox
+2026-10-28T14:52:48.1228902Z [e2e-github-inbox] OK (chromium)
+2026-10-28T14:52:48.1229215Z 
+2026-10-28T14:52:48.1229429Z Completed github-inbox in 2265ms; exit 0
+2026-10-28T14:52:48.1229939Z ##[endgroup]
+2026-10-28T14:52:48.1232690Z ##[group]Browser check: visual-effects
+2026-10-28T14:52:50.6323649Z [e2e-visual-effects] OK (chromium)
+2026-10-28T14:52:50.6323966Z 
+2026-10-28T14:52:50.6324158Z Completed visual-effects in 2509ms; exit 0
+2026-10-28T14:52:50.6325832Z ##[endgroup]
+2026-10-28T14:52:50.6326156Z ##[group]Browser check: contacts-directory
+2026-10-28T14:52:54.2438782Z [e2e-contacts-directory] OK (chromium)
+2026-10-28T14:52:54.2439074Z 
+2026-10-28T14:52:54.2439291Z Completed contacts-directory in 3611ms; exit 0
+2026-10-28T14:52:54.2439923Z ##[endgroup]
+2026-10-28T14:52:54.2440927Z ##[group]Browser check: chat-loading
+2026-10-28T14:53:01.5968870Z [e2e-chat-loading] OK (chromium)
+2026-10-28T14:53:01.5969154Z 
+2026-10-28T14:53:01.5969355Z Completed chat-loading in 7352ms; exit 0
+2026-10-28T14:53:01.5969955Z ##[endgroup]
+2026-10-28T14:53:01.5974716Z ##[group]Browser check: calls
+2026-10-28T14:53:03.3307864Z [e2e-calls] OK (chromium)
+2026-10-28T14:53:03.3308134Z 
+2026-10-28T14:53:03.3308307Z Completed calls in 1733ms; exit 0
+2026-10-28T14:53:03.3308898Z ##[endgroup]
+2026-10-28T14:53:03.3310258Z ##[group]Browser check: operator
+2026-10-28T14:53:14.9570328Z [e2e-operator] OK (chromium)
+2026-10-28T14:53:14.9570600Z 
+2026-10-28T14:53:14.9571018Z Completed operator in 11626ms; exit 0
+2026-10-28T14:53:14.9571620Z ##[endgroup]
+2026-10-28T14:53:14.9572550Z ##[group]Browser check: operator-replies
+2026-10-28T14:53:20.1117293Z [e2e-operator-replies] OK (chromium)
+2026-10-28T14:53:20.1117602Z 
+2026-10-28T14:53:20.1117818Z Completed operator-replies in 5154ms; exit 0
+2026-10-28T14:53:20.1118445Z ##[endgroup]
+2026-10-28T14:53:20.1127228Z ##[group]Browser check: recovery
+2026-10-28T14:53:28.4086592Z [e2e-recovery] OK (chromium)
+2026-10-28T14:53:28.4086885Z 
+2026-10-28T14:53:28.4087068Z Completed recovery in 8297ms; exit 0
+2026-10-28T14:53:28.4087693Z ##[endgroup]
+2026-10-28T14:53:28.4088876Z ##[group]Browser check: navigation
+2026-10-28T14:53:39.5806237Z [e2e-navigation] OK (chromium)
+2026-10-28T14:53:39.5806549Z 
+2026-10-28T14:53:39.5806766Z Completed navigation in 11172ms; exit 0
+2026-10-28T14:53:39.5807429Z ##[endgroup]
+2026-10-28T14:53:39.5808303Z ##[group]Browser check: loading
+2026-10-28T14:53:41.2421549Z [e2e-loading] OK (chromium)
+2026-10-28T14:53:41.2422918Z 
+2026-10-28T14:53:41.2423451Z Completed loading in 1661ms; exit 0
+2026-10-28T14:53:41.2424104Z ##[endgroup]
+2026-10-28T14:53:41.2426400Z ##[group]Browser check: media-loading
+2026-10-28T14:53:45.2567846Z [e2e-media-loading] OK (chromium)
+2026-10-28T14:53:45.2568152Z 
+2026-10-28T14:53:45.2568299Z Completed media-loading in 4014ms; exit 0
+2026-10-28T14:53:45.2568886Z ##[endgroup]
+2026-10-28T14:53:45.2569715Z ##[group]Browser check: web-apps
+2026-10-28T14:53:48.4543294Z [e2e-web-apps] OK (chromium)
+2026-10-28T14:53:48.4543591Z 
+2026-10-28T14:53:48.4543787Z Completed web-apps in 3198ms; exit 0
+2026-10-28T14:53:48.4544427Z ##[endgroup]
+2026-10-28T14:53:48.4545178Z ##[group]Browser check: marketplaces
+2026-10-28T14:53:51.4956852Z [e2e-marketplaces] OK (chromium)
+2026-10-28T14:53:51.4957212Z 
+2026-10-28T14:53:51.4957431Z Completed marketplaces in 3041ms; exit 0
+2026-10-28T14:53:51.4958114Z ##[endgroup]
+2026-10-28T14:53:51.4959033Z ##[group]Browser check: profile
+2026-10-28T14:53:54.8871460Z [e2e-profile] OK (chromium)
+2026-10-28T14:53:54.8871730Z 
+2026-10-28T14:53:54.8872240Z Completed profile in 3391ms; exit 0
+2026-10-28T14:53:54.8872973Z ##[endgroup]
+2026-10-28T14:53:54.8876637Z ##[group]Browser check: profile-extras
+2026-10-28T14:53:57.6721368Z [e2e-profile-extras] OK (chromium)
+2026-10-28T14:53:57.6721704Z 
+2026-10-28T14:53:57.6721905Z Completed profile-extras in 2785ms; exit 0
+2026-10-28T14:53:57.6722517Z ##[endgroup]
+2026-10-28T14:53:57.6727317Z ##[group]Browser check: consistency
+2026-10-28T14:53:59.5220719Z [e2e-consistency] OK (chromium)
+2026-10-28T14:53:59.5220937Z 
+2026-10-28T14:53:59.5221084Z Completed consistency in 1849ms; exit 0
+2026-10-28T14:53:59.5221558Z ##[endgroup]
+2026-10-28T14:53:59.5758305Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T14:53:59.5758558Z with:
+2026-10-28T14:53:59.5758731Z   name: browser-chromium
+2026-10-28T14:53:59.5758923Z   path: artifacts/browser/
+2026-10-28T14:53:59.5759128Z   if-no-files-found: error
+2026-10-28T14:53:59.5759314Z   retention-days: 14
+2026-10-28T14:53:59.5759494Z   compression-level: 6
+2026-10-28T14:53:59.5759686Z   overwrite: false
+2026-10-28T14:53:59.5759864Z   include-hidden-files: false
+2026-10-28T14:53:59.5760062Z   archive: true
+2026-10-28T14:53:59.5760220Z env:
+2026-10-28T14:53:59.5760375Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:53:59.5760565Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:53:59.5760801Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:53:59.5760987Z   RUN_BROWSER_E2E: 1
+2026-10-28T14:53:59.5761158Z   E2E_BROWSER: chromium
+2026-10-28T14:53:59.5761332Z   E2E_ENGINES: chromium
+2026-10-28T14:53:59.5761496Z   E2E_SAFARI: 0
+2026-10-28T14:53:59.5761662Z   E2E_ARTIFACT_DIR: artifacts/browser
+2026-10-28T14:53:59.5761889Z   DEBUG: 
+2026-10-28T14:53:59.5762036Z ##[endgroup]
+2026-10-28T14:53:59.7032428Z With the provided path, there will be 41 files uploaded
+2026-10-28T14:53:59.7037305Z Artifact name is valid!
+2026-10-28T14:53:59.7037673Z Root directory input is valid!
+2026-10-28T14:54:00.0296006Z Uploading artifact: browser-chromium.zip
+2026-10-28T14:54:00.0338577Z Beginning upload of artifact content to blob storage
+2026-10-28T14:54:00.2609143Z Uploaded bytes 10175
+2026-10-28T14:54:00.3036824Z Finished uploading artifact content to blob storage!
+2026-10-28T14:54:00.3037723Z SHA256 digest of uploaded artifact is bbdf6de48daa52f2a84404073a492953c620ae4705c18cac19df8a32e3e5a5be
+2026-10-28T14:54:00.3038280Z Finalizing artifact upload
+2026-10-28T14:54:00.8768777Z Artifact browser-chromium successfully finalized. Artifact ID 12826585207
+2026-10-28T14:54:00.8769880Z Artifact browser-chromium has been successfully uploaded! Final size is 10175 bytes. Artifact ID is 12826585207
+2026-10-28T14:54:00.8772711Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40709046923/artifacts/12826585207
+2026-10-28T14:54:00.9479000Z Post job cleanup.
+2026-10-28T14:54:01.0411962Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-eed0d587947267354592995e253a88ed53d6de807853fd5fcfd1d4408f2bb0ad, not saving cache.
+2026-10-28T14:54:01.1288374Z Post job cleanup.
+2026-10-28T14:54:01.2123634Z [command]/usr/bin/git version
+2026-10-28T14:54:01.2147058Z git version 2.56.0
+2026-10-28T14:54:01.2187642Z Temporarily overriding HOME='/home/runner/work/_temp/98bc2b90-c6e1-4c45-ad36-5e8adfde2a24' before making global git config changes
+2026-10-28T14:54:01.2190357Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:54:01.2193736Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:54:01.2239190Z Removing SSH command configuration
+2026-10-28T14:54:01.2247942Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:54:01.2300698Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:54:01.2644577Z Removing HTTP extra header
+2026-10-28T14:54:01.2651282Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:54:01.2711408Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:54:01.2982056Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:54:01.2990246Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:54:01.3028156Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:54:01.3372521Z Cleaning up orphan processes

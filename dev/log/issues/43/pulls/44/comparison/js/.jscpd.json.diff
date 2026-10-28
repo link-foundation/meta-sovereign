@@ -1,0 +1,36 @@
+--- js@0a3957d8195271829aa3cd5adce58a98fe73be2b/.jscpd.json
++++ .jscpd.json
+@@ -1,22 +1,28 @@
+ {
+-  "threshold": 10,
++  "threshold": 6.5,
+   "minTokens": 30,
+   "minLines": 5,
+   "mode": "weak",
+   "ignore": [
+     "**/node_modules/**",
++    "**/.claude/**",
+     "**/build/**",
+     "**/dist/**",
+     "**/*.min.js",
+     "**/coverage/**",
+     "**/.changeset/**",
+-    "**/docs/case-studies/**",
+-    "**/docs/case-studies/**/data/**",
++    "**/CHANGELOG.md",
+     "**/package-lock.json",
+     "**/pnpm-lock.yaml",
+-    "**/yarn.lock"
++    "**/yarn.lock",
++    "**/docs/case-studies/**",
++    "**/docs/features/**",
++    "**/reports/**",
++    "**/ci-logs/**",
++    "**/target/**",
++    "**/Cargo.lock",
++    "**/dev/log/**"
+   ],
+-  "format": ["javascript"],
+   "reporters": ["console", "html"],
+   "output": "./reports/jscpd"
+ }

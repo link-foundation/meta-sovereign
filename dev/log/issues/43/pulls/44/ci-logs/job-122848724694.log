@@ -1,0 +1,446 @@
+﻿2026-10-28T13:34:37.1726224Z Current runner version: '2.338.0'
+2026-10-28T13:34:37.1751971Z ##[group]Runner Image Provisioner
+2026-10-28T13:34:37.1752923Z Hosted Compute Agent
+2026-10-28T13:34:37.1753552Z Version: 20261021.618
+2026-10-28T13:34:37.1754766Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T13:34:37.1755542Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T13:34:37.1756247Z Worker ID: {feb73ef8-27c1-482f-9ad0-800b53c71771}
+2026-10-28T13:34:37.1757086Z Region: eastus
+2026-10-28T13:34:37.1757685Z Cloud: Azure
+2026-10-28T13:34:37.1758257Z ##[endgroup]
+2026-10-28T13:34:37.1759827Z ##[group]Operating System
+2026-10-28T13:34:37.1760476Z Ubuntu
+2026-10-28T13:34:37.1761085Z 24.04.5
+2026-10-28T13:34:37.1761651Z LTS
+2026-10-28T13:34:37.1762163Z ##[endgroup]
+2026-10-28T13:34:37.1762827Z ##[group]Runner Image
+2026-10-28T13:34:37.1763418Z Image: ubuntu-24.04
+2026-10-28T13:34:37.1764436Z Version: 20261025.353.1
+2026-10-28T13:34:37.1765807Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-28T13:34:37.1767481Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-10-28T13:34:37.1768450Z ##[endgroup]
+2026-10-28T13:34:37.1769615Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T13:34:37.1771571Z Contents: read
+2026-10-28T13:34:37.1772314Z Metadata: read
+2026-10-28T13:34:37.1772887Z ##[endgroup]
+2026-10-28T13:34:37.1775557Z Secret source: Actions
+2026-10-28T13:34:37.1776632Z Cache mode: write
+2026-10-28T13:34:37.1777389Z Prepare workflow directory
+2026-10-28T13:34:37.2196781Z Prepare all required actions
+2026-10-28T13:34:37.2244946Z Getting action download info
+2026-10-28T13:34:37.4719563Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T13:34:37.5914398Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T13:34:37.6869360Z Download action repository 'actions/upload-artifact@v7' (SHA:cf430e030ddbb5b0abf93d22962f4752f3646cd9)
+2026-10-28T13:34:37.8576416Z Complete job name: Build (linux-x64)
+2026-10-28T13:34:37.9645028Z ##[group]Run actions/checkout@v7
+2026-10-28T13:34:37.9645957Z with:
+2026-10-28T13:34:37.9646403Z   persist-credentials: false
+2026-10-28T13:34:37.9646972Z   ref: 3cd19c334cc081e5b678d4efc7443f32192f0ea0
+2026-10-28T13:34:37.9647615Z   repository: link-foundation/meta-sovereign
+2026-10-28T13:34:37.9651347Z   token: ***
+2026-10-28T13:34:37.9651777Z   ssh-strict: true
+2026-10-28T13:34:37.9652210Z   ssh-user: git
+2026-10-28T13:34:37.9652627Z   clean: true
+2026-10-28T13:34:37.9653080Z   sparse-checkout-cone-mode: true
+2026-10-28T13:34:37.9653602Z   fetch-depth: 1
+2026-10-28T13:34:37.9654235Z   fetch-tags: false
+2026-10-28T13:34:37.9654686Z   show-progress: true
+2026-10-28T13:34:37.9655132Z   lfs: false
+2026-10-28T13:34:37.9655543Z   submodules: false
+2026-10-28T13:34:37.9655988Z   set-safe-directory: true
+2026-10-28T13:34:37.9656489Z   allow-unsafe-pr-checkout: false
+2026-10-28T13:34:37.9657259Z env:
+2026-10-28T13:34:37.9657699Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:34:37.9658218Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:34:37.9658772Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:34:37.9659253Z ##[endgroup]
+2026-10-28T13:34:38.2866806Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T13:34:38.2869609Z ##[group]Getting Git version info
+2026-10-28T13:34:38.2870883Z Working directory is '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T13:34:38.2872656Z [command]/usr/bin/git version
+2026-10-28T13:34:38.2873503Z git version 2.56.0
+2026-10-28T13:34:38.2915767Z ##[endgroup]
+2026-10-28T13:34:38.2922775Z Temporarily overriding HOME='/home/runner/work/_temp/7b1b7e27-01c1-4eb6-bf4a-64710dee88d0' before making global git config changes
+2026-10-28T13:34:38.2925311Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T13:34:38.2927366Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:34:38.2966148Z Deleting the contents of '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T13:34:38.2968804Z ##[group]Determining repository object format
+2026-10-28T13:34:38.2970772Z ##[endgroup]
+2026-10-28T13:34:38.2972244Z ##[group]Initializing the repository
+2026-10-28T13:34:38.2975334Z [command]/usr/bin/git init /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:34:38.3123303Z Initialized empty Git repository in /home/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T13:34:38.3135070Z [command]/usr/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T13:34:38.3193176Z ##[endgroup]
+2026-10-28T13:34:38.3195026Z ##[group]Disabling automatic garbage collection
+2026-10-28T13:34:38.3196518Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-28T13:34:38.3235372Z ##[endgroup]
+2026-10-28T13:34:38.3236716Z ##[group]Setting up auth
+2026-10-28T13:34:38.3238042Z Removing SSH command configuration
+2026-10-28T13:34:38.3241719Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:34:38.3285548Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:34:38.3741237Z Removing HTTP extra header
+2026-10-28T13:34:38.3748326Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:34:38.3805541Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:34:38.4057014Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:34:38.4063433Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:34:38.4110246Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:34:38.4359728Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T13:34:38.4410589Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path /home/runner/work/_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:38.4454480Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:38.4500990Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:38.4545916Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:38.4589158Z ##[endgroup]
+2026-10-28T13:34:38.4590508Z ##[group]Fetching the repository
+2026-10-28T13:34:38.4596881Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin 3cd19c334cc081e5b678d4efc7443f32192f0ea0
+2026-10-28T13:34:40.0514499Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T13:34:40.0516514Z  * branch            3cd19c334cc081e5b678d4efc7443f32192f0ea0 -> FETCH_HEAD
+2026-10-28T13:34:40.0522644Z [command]/usr/bin/git rev-parse --verify --quiet 3cd19c334cc081e5b678d4efc7443f32192f0ea0^{object}
+2026-10-28T13:34:40.0563117Z 3cd19c334cc081e5b678d4efc7443f32192f0ea0
+2026-10-28T13:34:40.0569147Z ##[endgroup]
+2026-10-28T13:34:40.0570527Z ##[group]Determining the checkout info
+2026-10-28T13:34:40.0571880Z ##[endgroup]
+2026-10-28T13:34:40.0575284Z [command]/usr/bin/git sparse-checkout disable
+2026-10-28T13:34:40.0647173Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T13:34:40.0695417Z ##[group]Checking out the ref
+2026-10-28T13:34:40.0699984Z [command]/usr/bin/git checkout --progress --force 3cd19c334cc081e5b678d4efc7443f32192f0ea0
+2026-10-28T13:34:40.3339048Z Note: switching to '3cd19c334cc081e5b678d4efc7443f32192f0ea0'.
+2026-10-28T13:34:40.3339963Z 
+2026-10-28T13:34:40.3340545Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T13:34:40.3341746Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T13:34:40.3342974Z state without impacting any branches by switching back to a branch.
+2026-10-28T13:34:40.3343590Z 
+2026-10-28T13:34:40.3344312Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T13:34:40.3345384Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T13:34:40.3345918Z 
+2026-10-28T13:34:40.3346213Z   git switch -c <new-branch-name>
+2026-10-28T13:34:40.3346615Z 
+2026-10-28T13:34:40.3346970Z Or undo this operation with:
+2026-10-28T13:34:40.3347343Z 
+2026-10-28T13:34:40.3347581Z   git switch -
+2026-10-28T13:34:40.3347881Z 
+2026-10-28T13:34:40.3348356Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T13:34:40.3348968Z 
+2026-10-28T13:34:40.3349643Z HEAD is now at 3cd19c3 Merge cf365708c0eb0929ceb7b7330f21c7a4a37b7044 into 9678c5f002777101f0f431cd09660ac6d2c6a009
+2026-10-28T13:34:40.3363794Z ##[endgroup]
+2026-10-28T13:34:40.3424810Z [command]/usr/bin/git log -1 --format=%H
+2026-10-28T13:34:40.3464723Z 3cd19c334cc081e5b678d4efc7443f32192f0ea0
+2026-10-28T13:34:40.3474769Z ##[group]Removing auth
+2026-10-28T13:34:40.3475370Z Removing SSH command configuration
+2026-10-28T13:34:40.3479041Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:34:40.3524887Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:34:40.3776923Z Removing HTTP extra header
+2026-10-28T13:34:40.3779925Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:34:40.3829078Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:34:40.4078670Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:34:40.4082036Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:34:40.4122792Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T13:34:40.4124299Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T13:34:40.4125338Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T13:34:40.4126363Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T13:34:40.4136470Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T13:34:40.4175878Z /home/runner/work/_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:40.4193579Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-4fd67d8a\-e152\-4ac4\-a7dc\-68b1656cca01\.config
+2026-10-28T13:34:40.4242817Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T13:34:40.4279611Z /home/runner/work/_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:40.4289186Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-4fd67d8a\-e152\-4ac4\-a7dc\-68b1656cca01\.config
+2026-10-28T13:34:40.4342817Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T13:34:40.4381056Z /github/runner_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:40.4389207Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-4fd67d8a\-e152\-4ac4\-a7dc\-68b1656cca01\.config
+2026-10-28T13:34:40.4439798Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T13:34:40.4476802Z /github/runner_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config
+2026-10-28T13:34:40.4486125Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-4fd67d8a\-e152\-4ac4\-a7dc\-68b1656cca01\.config
+2026-10-28T13:34:40.4536231Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:34:40.4785842Z Removing credentials config '/home/runner/work/_temp/git-credentials-4fd67d8a-e152-4ac4-a7dc-68b1656cca01.config'
+2026-10-28T13:34:40.4795777Z ##[endgroup]
+2026-10-28T13:34:40.5096334Z ##[group]Run actions/setup-node@v7
+2026-10-28T13:34:40.5096861Z with:
+2026-10-28T13:34:40.5097238Z   node-version: 24.x
+2026-10-28T13:34:40.5097975Z   package-manager-cache: false
+2026-10-28T13:34:40.5098427Z   check-latest: false
+2026-10-28T13:34:40.5101746Z   token: ***
+2026-10-28T13:34:40.5102145Z env:
+2026-10-28T13:34:40.5102692Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:34:40.5103130Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:34:40.5103694Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:34:40.5104336Z ##[endgroup]
+2026-10-28T13:34:40.6602839Z Found in cache @ /opt/hostedtoolcache/node/24.22.1/x64
+2026-10-28T13:34:40.7431107Z ##[group]Environment details
+2026-10-28T13:34:41.1134949Z node: v24.22.1
+2026-10-28T13:34:41.1135565Z npm: 11.19.1
+2026-10-28T13:34:41.1135946Z yarn: 1.22.22
+2026-10-28T13:34:41.1137475Z ##[endgroup]
+2026-10-28T13:34:41.1297917Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T13:34:41.1298351Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T13:34:41.1331540Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:34:41.1331912Z env:
+2026-10-28T13:34:41.1332118Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:34:41.1332361Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:34:41.1332652Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:34:41.1332905Z   ELECTRON_SKIP_BINARY_DOWNLOAD: 1
+2026-10-28T13:34:41.1333166Z ##[endgroup]
+2026-10-28T13:34:44.4978228Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+2026-10-28T13:34:44.8057069Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+2026-10-28T13:34:44.8086266Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+2026-10-28T13:34:45.8916288Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+2026-10-28T13:35:52.1922064Z 
+2026-10-28T13:35:52.1923084Z > meta-sovereign@0.53.4 prepare
+2026-10-28T13:35:52.1923700Z > husky || true
+2026-10-28T13:35:52.1924171Z 
+2026-10-28T13:35:52.6445529Z 
+2026-10-28T13:35:52.6446165Z added 548 packages in 1m
+2026-10-28T13:35:52.7198997Z ##[group]Run range=$(node -p "require('./package.json').peerDependencies.electron")
+2026-10-28T13:35:52.7199671Z [36;1mrange=$(node -p "require('./package.json').peerDependencies.electron")[0m
+2026-10-28T13:35:52.7200213Z [36;1mversion=$(npm view "electron@$range" version --json | node -e \[0m
+2026-10-28T13:35:52.7201060Z [36;1m  "const v=JSON.parse(require('fs').readFileSync(0,'utf8'));console.log(Array.isArray(v)?v.at(-1):v)")[0m
+2026-10-28T13:35:52.7201596Z [36;1mif [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then[0m
+2026-10-28T13:35:52.7201979Z [36;1m  echo "::error::Invalid Electron version from registry"[0m
+2026-10-28T13:35:52.7202349Z [36;1m  exit 1[0m
+2026-10-28T13:35:52.7202550Z [36;1mfi[0m
+2026-10-28T13:35:52.7202786Z [36;1mecho "Electron $version (peer range $range)"[0m
+2026-10-28T13:35:52.7203129Z [36;1mecho "version=$version" >> "$GITHUB_OUTPUT"[0m
+2026-10-28T13:35:52.7226438Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:35:52.7226843Z env:
+2026-10-28T13:35:52.7227037Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:35:52.7227274Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:35:52.7227549Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:35:52.7227771Z ##[endgroup]
+2026-10-28T13:35:53.3312923Z Electron 44.10.0 (peer range ^44.9.0)
+2026-10-28T13:35:53.3376576Z ##[group]Run npm run build:web
+2026-10-28T13:35:53.3376902Z [36;1mnpm run build:web[0m
+2026-10-28T13:35:53.3397750Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:35:53.3398094Z env:
+2026-10-28T13:35:53.3398280Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:35:53.3398507Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:35:53.3398774Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:35:53.3398999Z ##[endgroup]
+2026-10-28T13:35:53.4568725Z 
+2026-10-28T13:35:53.4569469Z > meta-sovereign@0.53.4 build:web
+2026-10-28T13:35:53.4570126Z > node js/scripts/build-web.mjs
+2026-10-28T13:35:53.4570446Z 
+2026-10-28T13:35:53.8728264Z 
+2026-10-28T13:35:53.8729352Z   js/src/web/app.min.js  4.2mb ⚠️
+2026-10-28T13:35:53.8729738Z 
+2026-10-28T13:35:53.8729971Z ⚡ Done in 364ms
+2026-10-28T13:35:53.8977624Z ##[group]Run read -r -a build_args <<< "$BUILD_ARGS"
+2026-10-28T13:35:53.8978036Z [36;1mread -r -a build_args <<< "$BUILD_ARGS"[0m
+2026-10-28T13:35:53.8978353Z [36;1mread -r -a sign_args <<< "$SIGN_ARGS"[0m
+2026-10-28T13:35:53.8978782Z [36;1mnode js/scripts/build-desktop.mjs "${build_args[@]}" "${sign_args[@]}"[0m
+2026-10-28T13:35:53.8999992Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:35:53.9000336Z env:
+2026-10-28T13:35:53.9000528Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:35:53.9000760Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:35:53.9001026Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:35:53.9001270Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T13:35:53.9001549Z   BUILD_ARGS: --linux --x64
+2026-10-28T13:35:53.9001768Z   SIGN_ARGS: 
+2026-10-28T13:35:53.9001954Z ##[endgroup]
+2026-10-28T13:35:54.9245833Z npm warn deprecated lodash.isequal@4.5.0: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
+2026-10-28T13:35:55.0053448Z 
+2026-10-28T13:35:55.0054301Z added 16 packages in 664ms
+2026-10-28T13:35:55.0175816Z electron 44.10.0
+2026-10-28T13:35:55.6967422Z   • electron-builder  version=26.18.0 os=7.0.0-1017-azure
+2026-10-28T13:35:55.7032041Z   • loaded configuration  file=/home/runner/work/meta-sovereign/meta-sovereign/desktop/electron-builder.config.cjs
+2026-10-28T13:35:56.3468574Z   • packageManager not detected by file, falling back to environment detection  resolvedPackageManager=npm detected=/home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:35:56.4652441Z   • skipped dependencies rebuild  reason=npmRebuild is set to false
+2026-10-28T13:35:56.4654618Z   • packaging       platform=linux arch=x64 electron=44.10.0 appOutDir=dist/desktop/release/linux-unpacked
+2026-10-28T13:35:56.6030705Z   • downloaded      label=electron progress=100%
+2026-10-28T13:35:59.5710717Z   • downloaded electron zip extracted successfully  output=/home/runner/work/meta-sovereign/meta-sovereign/dist/desktop/release/linux-unpacked
+2026-10-28T13:35:59.6289081Z   • searching for node modules  pm=npm searchDir=/home/runner/work/meta-sovereign/meta-sovereign/dist/desktop/app
+2026-10-28T13:36:01.6403201Z   • building        target=AppImage arch=x64 file=dist/desktop/release/meta-sovereign-desktop-linux-x86_64-0.53.4.AppImage
+2026-10-28T13:36:01.6405900Z   • building        target=tar.gz arch=x64 file=dist/desktop/release/meta-sovereign-desktop-linux-x64-0.53.4.tar.gz
+2026-10-28T13:36:01.7133455Z   • downloaded      label=appimage-12.0.1.7z progress=100%
+2026-10-28T13:36:01.8039892Z   • downloaded      label=7zip-linux-x64.tar.gz progress=100%
+2026-10-28T13:36:11.3294720Z   • building embedded block map  file=dist/desktop/release/meta-sovereign-desktop-linux-x86_64-0.53.4.AppImage
+2026-10-28T13:36:16.4175596Z   • building        target=deb arch=x64 file=dist/desktop/release/meta-sovereign-desktop-linux-amd64-0.53.4.deb
+2026-10-28T13:36:16.4183720Z   • adding autoupdate files for: deb  resourceDir=dist/desktop/release/linux-unpacked/resources
+2026-10-28T13:36:16.4463702Z   • downloaded      label=fpm-1.17.0-ruby-3.4.3-linux-amd64.7z progress=100%
+2026-10-28T13:38:54.2940314Z renamed meta-sovereign-desktop-linux-amd64-0.53.4.deb -> meta-sovereign-desktop-linux-x64-0.53.4.deb
+2026-10-28T13:38:54.2942080Z renamed meta-sovereign-desktop-linux-x86_64-0.53.4.AppImage -> meta-sovereign-desktop-linux-x64-0.53.4.AppImage
+2026-10-28T13:38:54.2943075Z rewrote update feed latest-linux.yml
+2026-10-28T13:38:54.3055453Z ##[group]Run set -euo pipefail
+2026-10-28T13:38:54.3055821Z [36;1mset -euo pipefail[0m
+2026-10-28T13:38:54.3056068Z [36;1mcd dist/desktop/release[0m
+2026-10-28T13:38:54.3056316Z [36;1mls -la[0m
+2026-10-28T13:38:54.3056571Z [36;1mdeb=$(ls meta-sovereign-desktop-linux-*.deb)[0m
+2026-10-28T13:38:54.3056897Z [36;1mdpkg-deb --info "$deb"[0m
+2026-10-28T13:38:54.3057255Z [36;1m# Listings go to files first: `cmd | grep -q` closes the pipe[0m
+2026-10-28T13:38:54.3057734Z [36;1m# early, the writer dies of SIGPIPE and pipefail fails the step.[0m
+2026-10-28T13:38:54.3058152Z [36;1mdpkg-deb --contents "$deb" > deb-contents.txt[0m
+2026-10-28T13:38:54.3058557Z [36;1mgrep -q 'opt/Meta Sovereign/meta-sovereign' deb-contents.txt[0m
+2026-10-28T13:38:54.3059015Z [36;1mappimage=$(ls meta-sovereign-desktop-linux-*.AppImage)[0m
+2026-10-28T13:38:54.3059373Z [36;1mchmod +x "$appimage"[0m
+2026-10-28T13:38:54.3059650Z [36;1m./"$appimage" --appimage-extract > /dev/null[0m
+2026-10-28T13:38:54.3060016Z [36;1mtest -x squashfs-root/meta-sovereign[0m
+2026-10-28T13:38:54.3060308Z [36;1mrm -rf squashfs-root[0m
+2026-10-28T13:38:54.3060681Z [36;1mtar -tzf meta-sovereign-desktop-linux-*.tar.gz > tar-contents.txt[0m
+2026-10-28T13:38:54.3061101Z [36;1mgrep -q '/meta-sovereign$' tar-contents.txt[0m
+2026-10-28T13:38:54.3061424Z [36;1mrm deb-contents.txt tar-contents.txt[0m
+2026-10-28T13:38:54.3061709Z [36;1mtest -f latest-linux*.yml[0m
+2026-10-28T13:38:54.3081927Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:38:54.3082283Z env:
+2026-10-28T13:38:54.3082477Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:38:54.3082710Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:38:54.3082982Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:38:54.3083223Z ##[endgroup]
+2026-10-28T13:38:54.3147497Z total 345668
+2026-10-28T13:38:54.3148115Z drwxr-xr-x 3 runner runner      4096 Oct 28 13:38 .
+2026-10-28T13:38:54.3148829Z drwxr-xr-x 4 runner runner      4096 Oct 28 13:35 ..
+2026-10-28T13:38:54.3149707Z -rw-r--r-- 1 runner runner       854 Oct 28 13:38 builder-debug.yml
+2026-10-28T13:38:54.3150644Z -rw-r--r-- 1 runner runner       593 Oct 28 13:38 latest-linux.yml
+2026-10-28T13:38:54.3151690Z drwxr-xr-x 4 runner runner      4096 Oct 28 13:36 linux-unpacked
+2026-10-28T13:38:54.3152885Z -rwxr-xr-x 1 runner runner 129089427 Oct 28 13:36 meta-sovereign-desktop-linux-x64-0.53.4.AppImage
+2026-10-28T13:38:54.3154456Z -rw-r--r-- 1 runner runner 102113684 Oct 28 13:37 meta-sovereign-desktop-linux-x64-0.53.4.deb
+2026-10-28T13:38:54.3155304Z -rw-r--r-- 1 runner runner 122732658 Oct 28 13:38 meta-sovereign-desktop-linux-x64-0.53.4.tar.gz
+2026-10-28T13:38:54.3193475Z  new Debian package, version 2.0.
+2026-10-28T13:38:54.3194461Z  size 102113684 bytes: control archive=4384 bytes.
+2026-10-28T13:38:54.3216342Z      672 bytes,    14 lines      control
+2026-10-28T13:38:54.3216945Z     5404 bytes,    77 lines      md5sums
+2026-10-28T13:38:54.3217572Z     3026 bytes,    57 lines   *  postinst             #!/bin/bash
+2026-10-28T13:38:54.3218195Z     1137 bytes,    26 lines   *  postrm               #!/bin/bash
+2026-10-28T13:38:54.3218589Z  Package: meta-sovereign-desktop
+2026-10-28T13:38:54.3218866Z  Version: 0.53.4
+2026-10-28T13:38:54.3219087Z  License: Unlicense
+2026-10-28T13:38:54.3219463Z  Vendor: Link Foundation <link-foundation@users.noreply.github.com>
+2026-10-28T13:38:54.3219854Z  Architecture: amd64
+2026-10-28T13:38:54.3220254Z  Maintainer: Link Foundation <link-foundation@users.noreply.github.com>
+2026-10-28T13:38:54.3220644Z  Installed-Size: 304664
+2026-10-28T13:38:54.3221204Z  Depends: libgtk-3-0, libnotify4, libnss3, libxss1, libxtst6, xdg-utils, libatspi2.0-0, libuuid1, libsecret-1-0
+2026-10-28T13:38:54.3221748Z  Recommends: libappindicator3-1
+2026-10-28T13:38:54.3222019Z  Section: default
+2026-10-28T13:38:54.3222230Z  Priority: optional
+2026-10-28T13:38:54.3222661Z  Homepage: https://link-foundation.github.io/meta-sovereign/
+2026-10-28T13:38:54.3223466Z  Description: Local-first personal CRM and unified messenger
+2026-10-28T13:38:54.3224610Z    Personal meta profile sovereign system - fully local, privacy-respecting personal CRM and unified messenger across services
+2026-10-28T13:39:03.4031065Z ##[group]Run set -euo pipefail
+2026-10-28T13:39:03.4031704Z [36;1mset -euo pipefail[0m
+2026-10-28T13:39:03.4032153Z [36;1mcd dist/desktop/release[0m
+2026-10-28T13:39:03.4032595Z [36;1mfiles=()[0m
+2026-10-28T13:39:03.4033083Z [36;1mfor f in meta-sovereign-desktop-* latest*.yml; do[0m
+2026-10-28T13:39:03.4033811Z [36;1m  if [[ -f "$f" && "$f" != *.blockmap ]]; then files+=("$f"); fi[0m
+2026-10-28T13:39:03.4034630Z [36;1mdone[0m
+2026-10-28T13:39:03.4035265Z [36;1mif command -v sha256sum > /dev/null; then sum='sha256sum'; else sum='shasum -a 256'; fi[0m
+2026-10-28T13:39:03.4036333Z [36;1m$sum meta-sovereign-desktop-* | grep -v '\.blockmap$' > "SHA256SUMS-$BUILD_NAME.txt"[0m
+2026-10-28T13:39:03.4037103Z [36;1m{[0m
+2026-10-28T13:39:03.4037455Z [36;1m  echo "## $BUILD_NAME"[0m
+2026-10-28T13:39:03.4037981Z [36;1m  echo "runner: $BUILD_RUNNER ($RUNNER_OS $RUNNER_ARCH)"[0m
+2026-10-28T13:39:03.4038525Z [36;1m  echo "commit: $BUILD_REF"[0m
+2026-10-28T13:39:03.4039110Z [36;1m  echo "electron: $META_SOVEREIGN_ELECTRON_VERSION"[0m
+2026-10-28T13:39:03.4039991Z [36;1m  echo "electron-builder: $(node -p "require('electron-builder/package.json').version")"[0m
+2026-10-28T13:39:03.4040812Z [36;1m  echo "node: $(node --version)"[0m
+2026-10-28T13:39:03.4041436Z [36;1m  [ -n "${MAC_SIGNING:-}" ] && echo "macos-signing: $MAC_SIGNING"[0m
+2026-10-28T13:39:03.4042050Z [36;1m  echo "files:"[0m
+2026-10-28T13:39:03.4042511Z [36;1m  for f in "${files[@]}"; do echo "  - $f"; done[0m
+2026-10-28T13:39:03.4043071Z [36;1m} > "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T13:39:03.4043581Z [36;1mcat "provenance-$BUILD_NAME.txt"[0m
+2026-10-28T13:39:03.4074256Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-10-28T13:39:03.4074849Z env:
+2026-10-28T13:39:03.4075171Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:39:03.4075600Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:39:03.4076078Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:39:03.4076461Z   MAC_SIGNING: 
+2026-10-28T13:39:03.4076876Z   META_SOVEREIGN_ELECTRON_VERSION: 44.10.0
+2026-10-28T13:39:03.4077358Z   BUILD_NAME: linux-x64
+2026-10-28T13:39:03.4077743Z   BUILD_RUNNER: ubuntu-24.04
+2026-10-28T13:39:03.4078243Z   BUILD_REF: 3cd19c334cc081e5b678d4efc7443f32192f0ea0
+2026-10-28T13:39:03.4078753Z ##[endgroup]
+2026-10-28T13:39:03.7140822Z ## linux-x64
+2026-10-28T13:39:03.7141407Z runner: ubuntu-24.04 (Linux X64)
+2026-10-28T13:39:03.7142070Z commit: 3cd19c334cc081e5b678d4efc7443f32192f0ea0
+2026-10-28T13:39:03.7142640Z electron: 44.10.0
+2026-10-28T13:39:03.7143036Z electron-builder: 26.18.0
+2026-10-28T13:39:03.7143527Z node: v24.22.1
+2026-10-28T13:39:03.7144638Z files:
+2026-10-28T13:39:03.7145212Z   - meta-sovereign-desktop-linux-x64-0.53.4.AppImage
+2026-10-28T13:39:03.7146139Z   - meta-sovereign-desktop-linux-x64-0.53.4.deb
+2026-10-28T13:39:03.7146814Z   - meta-sovereign-desktop-linux-x64-0.53.4.tar.gz
+2026-10-28T13:39:03.7147367Z   - latest-linux.yml
+2026-10-28T13:39:03.7239551Z ##[group]Run actions/upload-artifact@v7
+2026-10-28T13:39:03.7239894Z with:
+2026-10-28T13:39:03.7240102Z   name: desktop-linux-x64
+2026-10-28T13:39:03.7240795Z   path: dist/desktop/release/meta-sovereign-desktop-*
+dist/desktop/release/latest*.yml
+dist/desktop/release/SHA256SUMS-*.txt
+dist/desktop/release/provenance-*.txt
+
+2026-10-28T13:39:03.7241513Z   if-no-files-found: error
+2026-10-28T13:39:03.7241749Z   retention-days: 14
+2026-10-28T13:39:03.7242071Z   compression-level: 6
+2026-10-28T13:39:03.7242398Z   overwrite: false
+2026-10-28T13:39:03.7242716Z   include-hidden-files: false
+2026-10-28T13:39:03.7243188Z   archive: true
+2026-10-28T13:39:03.7243530Z env:
+2026-10-28T13:39:03.7244200Z   GIT_CONFIG_COUNT: 1
+2026-10-28T13:39:03.7244647Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T13:39:03.7245031Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T13:39:03.7245419Z ##[endgroup]
+2026-10-28T13:39:03.8931628Z With the provided path, there will be 6 files uploaded
+2026-10-28T13:39:03.8938683Z Artifact name is valid!
+2026-10-28T13:39:03.8939288Z Root directory input is valid!
+2026-10-28T13:39:04.1061390Z Uploading artifact: desktop-linux-x64.zip
+2026-10-28T13:39:04.1106551Z Beginning upload of artifact content to blob storage
+2026-10-28T13:39:04.6898693Z Uploaded bytes 8388608
+2026-10-28T13:39:04.8943106Z Uploaded bytes 16777216
+2026-10-28T13:39:05.2119075Z Uploaded bytes 25165824
+2026-10-28T13:39:05.4303249Z Uploaded bytes 33554432
+2026-10-28T13:39:05.6818937Z Uploaded bytes 41943040
+2026-10-28T13:39:05.9461724Z Uploaded bytes 50331648
+2026-10-28T13:39:06.1201348Z Uploaded bytes 58720256
+2026-10-28T13:39:06.4461403Z Uploaded bytes 67108864
+2026-10-28T13:39:06.6165340Z Uploaded bytes 75497472
+2026-10-28T13:39:06.8577480Z Uploaded bytes 83886080
+2026-10-28T13:39:07.1680481Z Uploaded bytes 92274688
+2026-10-28T13:39:07.3951835Z Uploaded bytes 100663296
+2026-10-28T13:39:07.7171827Z Uploaded bytes 109051904
+2026-10-28T13:39:07.9284347Z Uploaded bytes 117440512
+2026-10-28T13:39:08.1734978Z Uploaded bytes 125829120
+2026-10-28T13:39:08.5070411Z Uploaded bytes 134217728
+2026-10-28T13:39:08.6855128Z Uploaded bytes 142606336
+2026-10-28T13:39:09.0221434Z Uploaded bytes 150994944
+2026-10-28T13:39:09.3040840Z Uploaded bytes 159383552
+2026-10-28T13:39:09.5533520Z Uploaded bytes 167772160
+2026-10-28T13:39:09.8357278Z Uploaded bytes 176160768
+2026-10-28T13:39:10.1481812Z Uploaded bytes 184549376
+2026-10-28T13:39:10.4043603Z Uploaded bytes 192937984
+2026-10-28T13:39:10.5973427Z Uploaded bytes 201326592
+2026-10-28T13:39:10.8863619Z Uploaded bytes 209715200
+2026-10-28T13:39:11.1657055Z Uploaded bytes 218103808
+2026-10-28T13:39:11.4014144Z Uploaded bytes 226492416
+2026-10-28T13:39:11.6697018Z Uploaded bytes 234881024
+2026-10-28T13:39:11.8727776Z Uploaded bytes 243269632
+2026-10-28T13:39:12.0874193Z Uploaded bytes 251658240
+2026-10-28T13:39:12.3758651Z Uploaded bytes 260046848
+2026-10-28T13:39:12.6188704Z Uploaded bytes 268435456
+2026-10-28T13:39:12.8095613Z Uploaded bytes 276824064
+2026-10-28T13:39:13.1618929Z Uploaded bytes 285212672
+2026-10-28T13:39:13.3835439Z Uploaded bytes 293601280
+2026-10-28T13:39:13.6020389Z Uploaded bytes 301989888
+2026-10-28T13:39:13.7644761Z Uploaded bytes 310378496
+2026-10-28T13:39:14.0814143Z Uploaded bytes 318767104
+2026-10-28T13:39:14.2818721Z Uploaded bytes 327155712
+2026-10-28T13:39:14.4688283Z Uploaded bytes 335544320
+2026-10-28T13:39:14.7207692Z Uploaded bytes 343932928
+2026-10-28T13:39:14.9531435Z Uploaded bytes 352321536
+2026-10-28T13:39:14.9815301Z Uploaded bytes 353068638
+2026-10-28T13:39:15.0001204Z Finished uploading artifact content to blob storage!
+2026-10-28T13:39:15.0005374Z SHA256 digest of uploaded artifact is df092de71adadd579a3d7a9f2fdaeaa2f7550ebc1cd87aaaf1b311c55c4de820
+2026-10-28T13:39:15.0007439Z Finalizing artifact upload
+2026-10-28T13:39:15.5006650Z Artifact desktop-linux-x64 successfully finalized. Artifact ID 12819957429
+2026-10-28T13:39:15.5007606Z Artifact desktop-linux-x64 has been successfully uploaded! Final size is 353068638 bytes. Artifact ID is 12819957429
+2026-10-28T13:39:15.5011842Z Artifact download URL: https://github.com/link-foundation/meta-sovereign/actions/runs/40697611295/artifacts/12819957429
+2026-10-28T13:39:15.5255417Z Post job cleanup.
+2026-10-28T13:39:15.6697121Z Post job cleanup.
+2026-10-28T13:39:15.7715146Z [command]/usr/bin/git version
+2026-10-28T13:39:15.7750785Z git version 2.56.0
+2026-10-28T13:39:15.7798618Z Temporarily overriding HOME='/home/runner/work/_temp/3059ee55-1787-4ffd-81da-ceee260fc6f1' before making global git config changes
+2026-10-28T13:39:15.7799751Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T13:39:15.7819503Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T13:39:15.7851464Z Removing SSH command configuration
+2026-10-28T13:39:15.7860574Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T13:39:15.7913579Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T13:39:15.8196005Z Removing HTTP extra header
+2026-10-28T13:39:15.8203522Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T13:39:15.8253507Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T13:39:15.8562506Z Removing includeIf entries pointing to credentials config files
+2026-10-28T13:39:15.8571609Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T13:39:15.8634161Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T13:39:15.9088426Z Cleaning up orphan processes

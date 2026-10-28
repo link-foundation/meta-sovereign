@@ -1,0 +1,16 @@
+✔ headless live updates preserve edits and deletions, exposed locally without reconnecting Telegram (213.527486ms)
+✔ history pages retain their order; old edited messages disclose uncaptured versions (50.407157ms)
+✔ edits retain both complete versions, deduplicate echoes and ignore counters and deletions (10.155155ms)
+✔ concurrent edits and repeated changes in one batch retain every observed state, including reverts (6.118388ms)
+✔ formatting and replacement attachments count as edits, refreshed access tokens do not (6.7234ms)
+✔ a failed history write leaves the current message intact and does not acknowledge its replacement (1.983849ms)
+✔ partial writes can be replayed without losing the first capture or duplicating versions (1.485138ms)
+✔ headless durable capture survives compaction, restart, provider deletion and cache removal (815.654045ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2433.204936

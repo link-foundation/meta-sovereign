@@ -1,0 +1,130 @@
+diff --git a/js/src/storage/message-versions.js b/js/src/storage/message-versions.js
+index 76257fa..c4315ff 100644
+--- a/js/src/storage/message-versions.js
++++ b/js/src/storage/message-versions.js
+@@ -71,8 +71,8 @@ const version = (link, parent, at) => {
+     tokens: ['message-version'],
+     kind: 'message-version',
+     messageId: link.id,
+-    source: link.source,
+-    chat: link.chat,
++    ...(link.source !== undefined ? { source: link.source } : {}),
++    ...(link.chat !== undefined ? { chat: link.chat } : {}),
+     capturedAt: at,
+     editedAt: editedAt(link),
+     previous: parent ?? null,
+@@ -148,7 +148,7 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
+       versionPartial: partial,
+     };
+   };
+-  return async (links) => {
++  return async (links, single = false) => {
+     const pending = new Map();
+     const writes = [];
+     const history = [];
+@@ -184,11 +184,13 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
+       writes.push(next);
+       output.push(next);
+     }
+-    const write = async (records) => {
++    const write = async (records, one = false) => {
+       if (!records.length) {
+         return;
+       }
+-      if (inner.putMany) {
++      if (one && records.length === 1) {
++        await inner.put(records[0]);
++      } else if (inner.putMany) {
+         await inner.putMany(records);
+       } else {
+         for (const record of records) {
+@@ -201,7 +203,7 @@ const versionWriter = (inner, { now, preserve, indexVersions }) => {
+     for (const finish of after) {
+       await finish();
+     }
+-    await write(writes);
++    await write(writes, single);
+     indexVersions(writes);
+     return output;
+   };
+@@ -258,7 +260,7 @@ export const withMessageVersions = (
+   );
+   result.put = (link) =>
+     isMessage(link) || String(link?.id).startsWith(VERSION_PREFIX)
+-      ? enqueue(async () => (await prepare([link]))[0])
++      ? enqueue(async () => (await prepare([link], true))[0])
+       : inner.put(link);
+   result.putMany = (links) =>
+     links.some(
+diff --git a/js/tests/message-versions.test.js b/js/tests/message-versions.test.js
+index 4d95553..c599dd8 100644
+--- a/js/tests/message-versions.test.js
++++ b/js/tests/message-versions.test.js
+@@ -140,11 +140,11 @@ test('partial writes can be replayed without losing the first capture or duplica
+   let fail = true;
+   const store = withMessageVersions({
+     ...inner,
+-    putMany: async (links) => {
+-      if (fail && links.some((link) => link.id.startsWith('msg:'))) {
++    put: async (link) => {
++      if (fail && link.id.startsWith('msg:')) {
+         throw new Error('fixture current write failed');
+       }
+-      return inner.putMany(links);
++      return inner.put(link);
+     },
+   });
+   await assert.rejects(store.put(msg('second')), /current write failed/);
+diff --git a/js/tests/store-append.test.js b/js/tests/store-append.test.js
+index 660d521..79ad1c8 100644
+--- a/js/tests/store-append.test.js
++++ b/js/tests/store-append.test.js
+@@ -20,13 +20,10 @@ import {
+   applyLinoRecords,
+   tombstoneRecord,
+ } from '../src/storage/lino-store.js';
+-import {
+-  CURRENT_SCHEMA,
+-  SCHEMA_ID,
+-  schemaLink,
+-} from '../src/storage/migrations/index.js';
++import { CURRENT_SCHEMA, schemaLink } from '../src/storage/migrations/index.js';
+ import { startServer } from '../src/server/index.js';
+ import { waitFor } from './helpers/wait-for.js';
++import { messageVersions } from '../src/storage/message-versions.js';
+ 
+ const tmpdir = () => fs.mkdtemp(path.join(os.tmpdir(), 'ms-append-'));
+ 
+@@ -269,9 +266,17 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
+   assert.equal((await store.get('msg:telegram:1:2')).body, 'edited');
+   await store.flush();
+   const bin = path.join(dir, 'data.bin');
++  const saved = await store.query();
++  const sorted = (links) => links.toSorted((a, b) => a.id.localeCompare(b.id));
++  assert.deepEqual(
++    sorted(decodeArchive(await fs.readFile(bin))),
++    sorted(saved)
++  );
+   assert.deepEqual(
+-    decodeArchive(await fs.readFile(bin)).filter((l) => l.id !== SCHEMA_ID),
+-    [message(2, { body: 'edited' })]
++    (await messageVersions(store, message(2).id)).versions.map(
++      (record) => record.snapshot.body
++    ),
++    ['edited', message(2).body]
+   );
+   // Up to date: opening again writes nothing.
+   const again = await openDualStore(dir);
+@@ -294,8 +299,10 @@ test('the opened store holds each link once; data.bin mirrors the log', async ()
+   assert.equal((await third.reconcile()).stale, true);
+   await third.flush();
+   assert.deepEqual(
+-    decodeArchive(await fs.readFile(bin)).map((l) => l.id),
+-    ['meta:schema', 'msg:telegram:1:2', 'msg:telegram:1:3']
++    decodeArchive(await fs.readFile(bin))
++      .map((l) => l.id)
++      .sort(),
++    [...saved.map((link) => link.id), 'msg:telegram:1:3'].sort()
+   );
+ });
+ 

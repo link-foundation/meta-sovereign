@@ -1,0 +1,23 @@
+⋯ Backing up original state…
+✔ Done backing up original state (b6cf3e0)!
+⋯ Running tasks for staged files…
+    package.json — 14 files
+      *.md — 14 files
+        ⋯ prettier --write
+        ⋯ prettier --check
+
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 df48538] docs(ci): document validation and release recovery requirements in four languages
+ 14 files changed, 172 insertions(+), 1 deletion(-)
+ create mode 100644 docs/CI-OPERATIONS.hi.md
+ create mode 100644 docs/CI-OPERATIONS.md
+ create mode 100644 docs/CI-OPERATIONS.ru.md
+ create mode 100644 docs/CI-OPERATIONS.zh.md
+ create mode 100644 docs/case-studies/issue-43/README.md

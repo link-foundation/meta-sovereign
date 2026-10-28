@@ -1,0 +1,316 @@
+﻿2026-10-28T14:45:33.9622322Z Current runner version: '2.338.0'
+2026-10-28T14:45:33.9647578Z ##[group]Runner Image Provisioner
+2026-10-28T14:45:33.9648443Z Hosted Compute Agent
+2026-10-28T14:45:33.9649104Z Version: 20261021.618
+2026-10-28T14:45:33.9649757Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T14:45:33.9650687Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T14:45:33.9651534Z Worker ID: {6e18dfea-f7c2-44e7-8346-b85cf6fde68c}
+2026-10-28T14:45:33.9652245Z Region: westus2
+2026-10-28T14:45:33.9652816Z Cloud: Azure
+2026-10-28T14:45:33.9653423Z ##[endgroup]
+2026-10-28T14:45:33.9654980Z ##[group]Operating System
+2026-10-28T14:45:33.9655737Z Ubuntu
+2026-10-28T14:45:33.9656263Z 24.04.5
+2026-10-28T14:45:33.9656757Z LTS
+2026-10-28T14:45:33.9657333Z ##[endgroup]
+2026-10-28T14:45:33.9657890Z ##[group]Runner Image
+2026-10-28T14:45:33.9658513Z Image: ubuntu-24.04
+2026-10-28T14:45:33.9659145Z Version: 20261012.334.1
+2026-10-28T14:45:33.9660705Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-28T14:45:33.9662315Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-28T14:45:33.9663357Z ##[endgroup]
+2026-10-28T14:45:33.9664505Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T14:45:33.9666482Z Contents: read
+2026-10-28T14:45:33.9667113Z Metadata: read
+2026-10-28T14:45:33.9667663Z ##[endgroup]
+2026-10-28T14:45:33.9670050Z Secret source: Actions
+2026-10-28T14:45:33.9671227Z Cache mode: write
+2026-10-28T14:45:33.9672090Z Prepare workflow directory
+2026-10-28T14:45:34.1437589Z Prepare all required actions
+2026-10-28T14:45:34.1488913Z Getting action download info
+2026-10-28T14:45:34.4938602Z Download action repository 'actions/checkout@v7' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-10-28T14:45:34.5884474Z Download action repository 'actions/setup-node@v7' (SHA:949feb2413d6458794dcd2491c4babbbce0c15c1)
+2026-10-28T14:45:35.1501569Z Complete job name: Check for Changesets
+2026-10-28T14:45:35.6463241Z ##[group]Run actions/checkout@v7
+2026-10-28T14:45:35.6464323Z with:
+2026-10-28T14:45:35.6464859Z   persist-credentials: false
+2026-10-28T14:45:35.6465424Z   fetch-depth: 0
+2026-10-28T14:45:35.6465986Z   repository: link-foundation/meta-sovereign
+2026-10-28T14:45:35.6470011Z   token: ***
+2026-10-28T14:45:35.6470815Z   ssh-strict: true
+2026-10-28T14:45:35.6471340Z   ssh-user: git
+2026-10-28T14:45:35.6471831Z   clean: true
+2026-10-28T14:45:35.6472342Z   sparse-checkout-cone-mode: true
+2026-10-28T14:45:35.6472929Z   fetch-tags: false
+2026-10-28T14:45:35.6473435Z   show-progress: true
+2026-10-28T14:45:35.6473954Z   lfs: false
+2026-10-28T14:45:35.6474421Z   submodules: false
+2026-10-28T14:45:35.6474933Z   set-safe-directory: true
+2026-10-28T14:45:35.6475511Z   allow-unsafe-pr-checkout: false
+2026-10-28T14:45:35.6483834Z env:
+2026-10-28T14:45:35.6484372Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:35.6484943Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:35.6485618Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:35.6486162Z ##[endgroup]
+2026-10-28T14:45:35.9293269Z Syncing repository: link-foundation/meta-sovereign
+2026-10-28T14:45:35.9296224Z ##[group]Getting Git version info
+2026-10-28T14:45:35.9297203Z Working directory is '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:45:35.9298993Z [command]/usr/bin/git version
+2026-10-28T14:45:35.9367124Z git version 2.55.0
+2026-10-28T14:45:35.9402315Z ##[endgroup]
+2026-10-28T14:45:35.9461805Z Temporarily overriding HOME='/home/runner/work/_temp/1d4aca09-251a-49da-b3bb-a434795d410e' before making global git config changes
+2026-10-28T14:45:35.9464841Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:45:35.9467511Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:45:35.9510035Z Deleting the contents of '/home/runner/work/meta-sovereign/meta-sovereign'
+2026-10-28T14:45:35.9514646Z ##[group]Determining repository object format
+2026-10-28T14:45:35.9516229Z ##[endgroup]
+2026-10-28T14:45:35.9517888Z ##[group]Initializing the repository
+2026-10-28T14:45:35.9522578Z [command]/usr/bin/git init /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:45:35.9637519Z Initialized empty Git repository in /home/runner/work/meta-sovereign/meta-sovereign/.git/
+2026-10-28T14:45:35.9649195Z [command]/usr/bin/git remote add origin https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:45:35.9706925Z ##[endgroup]
+2026-10-28T14:45:35.9708765Z ##[group]Disabling automatic garbage collection
+2026-10-28T14:45:35.9710817Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-28T14:45:35.9752564Z ##[endgroup]
+2026-10-28T14:45:35.9753814Z ##[group]Setting up auth
+2026-10-28T14:45:35.9754710Z Removing SSH command configuration
+2026-10-28T14:45:35.9757691Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:35.9796081Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:45:36.0181695Z Removing HTTP extra header
+2026-10-28T14:45:36.0188311Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:45:36.0227440Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:45:36.0488204Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:45:36.0496035Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:45:36.0552111Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:45:36.0827502Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T14:45:36.0861383Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path /home/runner/work/_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:36.0897087Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:36.0935180Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:36.0970193Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:36.1004093Z ##[endgroup]
+2026-10-28T14:45:36.1005007Z ##[group]Fetching the repository
+2026-10-28T14:45:36.1012263Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +8ef678716b8aff20b0e5fbba3af2bc860d86183a:refs/remotes/pull/44/merge
+2026-10-28T14:45:40.1966287Z From https://github.com/link-foundation/meta-sovereign
+2026-10-28T14:45:40.1968114Z  * [new branch]      cli-version-flag                         -> origin/cli-version-flag
+2026-10-28T14:45:40.1968881Z  * [new branch]      issue-1-fc41adad29ce                     -> origin/issue-1-fc41adad29ce
+2026-10-28T14:45:40.1969548Z  * [new branch]      issue-10-a884af8ade4e                    -> origin/issue-10-a884af8ade4e
+2026-10-28T14:45:40.1970821Z  * [new branch]      issue-12-1fbe3b7d05b4                    -> origin/issue-12-1fbe3b7d05b4
+2026-10-28T14:45:40.1971819Z  * [new branch]      issue-13-a1a0ad676c96                    -> origin/issue-13-a1a0ad676c96
+2026-10-28T14:45:40.1972567Z  * [new branch]      issue-16-d636f69ce59c                    -> origin/issue-16-d636f69ce59c
+2026-10-28T14:45:40.1973790Z  * [new branch]      issue-18-511583e63fad                    -> origin/issue-18-511583e63fad
+2026-10-28T14:45:40.1974423Z  * [new branch]      issue-20-2e1bcf090e36                    -> origin/issue-20-2e1bcf090e36
+2026-10-28T14:45:40.1975036Z  * [new branch]      issue-25-dac43a780b5c                    -> origin/issue-25-dac43a780b5c
+2026-10-28T14:45:40.1975641Z  * [new branch]      issue-27-05348a151c4d                    -> origin/issue-27-05348a151c4d
+2026-10-28T14:45:40.1976253Z  * [new branch]      issue-29-e17abd0f073c                    -> origin/issue-29-e17abd0f073c
+2026-10-28T14:45:40.1976855Z  * [new branch]      issue-3-98d902f006cb                     -> origin/issue-3-98d902f006cb
+2026-10-28T14:45:40.1977492Z  * [new branch]      issue-31-5ccfae6dabce                    -> origin/issue-31-5ccfae6dabce
+2026-10-28T14:45:40.1978508Z  * [new branch]      issue-32-af891cdcb951                    -> origin/issue-32-af891cdcb951
+2026-10-28T14:45:40.1979281Z  * [new branch]      issue-35-9b770690b2d5                    -> origin/issue-35-9b770690b2d5
+2026-10-28T14:45:40.1979889Z  * [new branch]      issue-37-3578e6d14474                    -> origin/issue-37-3578e6d14474
+2026-10-28T14:45:40.1980814Z  * [new branch]      issue-39-6f54edfad12b                    -> origin/issue-39-6f54edfad12b
+2026-10-28T14:45:40.1981560Z  * [new branch]      issue-4-30c7e8dd5217                     -> origin/issue-4-30c7e8dd5217
+2026-10-28T14:45:40.1982159Z  * [new branch]      issue-43-1924384484c0                    -> origin/issue-43-1924384484c0
+2026-10-28T14:45:40.1982751Z  * [new branch]      issue-5-bb4787c0c23a                     -> origin/issue-5-bb4787c0c23a
+2026-10-28T14:45:40.1983341Z  * [new branch]      issue-6-adb97494d4d6                     -> origin/issue-6-adb97494d4d6
+2026-10-28T14:45:40.1984147Z  * [new branch]      issue-8-c22927792fe8                     -> origin/issue-8-c22927792fe8
+2026-10-28T14:45:40.1984735Z  * [new branch]      main                                     -> origin/main
+2026-10-28T14:45:40.1985341Z  * [new branch]      tutorial-brands-auto-import              -> origin/tutorial-brands-auto-import
+2026-10-28T14:45:40.1985925Z  * [new tag]         v0.21.0                                  -> v0.21.0
+2026-10-28T14:45:40.1986376Z  * [new tag]         v0.22.0                                  -> v0.22.0
+2026-10-28T14:45:40.1986915Z  * [new tag]         v0.23.0                                  -> v0.23.0
+2026-10-28T14:45:40.1987454Z  * [new tag]         v0.24.0                                  -> v0.24.0
+2026-10-28T14:45:40.1988012Z  * [new tag]         v0.25.0                                  -> v0.25.0
+2026-10-28T14:45:40.1988586Z  * [new tag]         v0.26.0                                  -> v0.26.0
+2026-10-28T14:45:40.1989028Z  * [new tag]         v0.27.0                                  -> v0.27.0
+2026-10-28T14:45:40.1989467Z  * [new tag]         v0.28.0                                  -> v0.28.0
+2026-10-28T14:45:40.1989901Z  * [new tag]         v0.29.0                                  -> v0.29.0
+2026-10-28T14:45:40.1990327Z  * [new tag]         v0.30.0                                  -> v0.30.0
+2026-10-28T14:45:40.1991275Z  * [new tag]         v0.31.0                                  -> v0.31.0
+2026-10-28T14:45:40.1991722Z  * [new tag]         v0.32.0                                  -> v0.32.0
+2026-10-28T14:45:40.1992156Z  * [new tag]         v0.33.0                                  -> v0.33.0
+2026-10-28T14:45:40.1992585Z  * [new tag]         v0.34.0                                  -> v0.34.0
+2026-10-28T14:45:40.1993019Z  * [new tag]         v0.35.0                                  -> v0.35.0
+2026-10-28T14:45:40.1993445Z  * [new tag]         v0.36.0                                  -> v0.36.0
+2026-10-28T14:45:40.1993868Z  * [new tag]         v0.37.0                                  -> v0.37.0
+2026-10-28T14:45:40.1994304Z  * [new tag]         v0.38.0                                  -> v0.38.0
+2026-10-28T14:45:40.1994921Z  * [new tag]         v0.39.0                                  -> v0.39.0
+2026-10-28T14:45:40.1995349Z  * [new tag]         v0.40.0                                  -> v0.40.0
+2026-10-28T14:45:40.1995773Z  * [new tag]         v0.41.0                                  -> v0.41.0
+2026-10-28T14:45:40.1996195Z  * [new tag]         v0.42.0                                  -> v0.42.0
+2026-10-28T14:45:40.1996628Z  * [new tag]         v0.43.0                                  -> v0.43.0
+2026-10-28T14:45:40.1997055Z  * [new tag]         v0.44.0                                  -> v0.44.0
+2026-10-28T14:45:40.1997473Z  * [new tag]         v0.45.0                                  -> v0.45.0
+2026-10-28T14:45:40.1997890Z  * [new tag]         v0.46.0                                  -> v0.46.0
+2026-10-28T14:45:40.1998330Z  * [new tag]         v0.46.1                                  -> v0.46.1
+2026-10-28T14:45:40.1998803Z  * [new tag]         v0.46.2                                  -> v0.46.2
+2026-10-28T14:45:40.1999263Z  * [new tag]         v0.47.0                                  -> v0.47.0
+2026-10-28T14:45:40.1999707Z  * [new tag]         v0.47.1                                  -> v0.47.1
+2026-10-28T14:45:40.2000160Z  * [new tag]         v0.47.2                                  -> v0.47.2
+2026-10-28T14:45:40.2000856Z  * [new tag]         v0.48.0                                  -> v0.48.0
+2026-10-28T14:45:40.2001313Z  * [new tag]         v0.49.1                                  -> v0.49.1
+2026-10-28T14:45:40.2001765Z  * [new tag]         v0.49.10                                 -> v0.49.10
+2026-10-28T14:45:40.2002227Z  * [new tag]         v0.49.11                                 -> v0.49.11
+2026-10-28T14:45:40.2002680Z  * [new tag]         v0.49.12                                 -> v0.49.12
+2026-10-28T14:45:40.2003132Z  * [new tag]         v0.49.13                                 -> v0.49.13
+2026-10-28T14:45:40.2003773Z  * [new tag]         v0.49.14                                 -> v0.49.14
+2026-10-28T14:45:40.2004266Z  * [new tag]         v0.49.15                                 -> v0.49.15
+2026-10-28T14:45:40.2004717Z  * [new tag]         v0.49.16                                 -> v0.49.16
+2026-10-28T14:45:40.2005184Z  * [new tag]         v0.49.17                                 -> v0.49.17
+2026-10-28T14:45:40.2005699Z  * [new tag]         v0.49.18                                 -> v0.49.18
+2026-10-28T14:45:40.2006150Z  * [new tag]         v0.49.2                                  -> v0.49.2
+2026-10-28T14:45:40.2006603Z  * [new tag]         v0.49.3                                  -> v0.49.3
+2026-10-28T14:45:40.2007052Z  * [new tag]         v0.49.4                                  -> v0.49.4
+2026-10-28T14:45:40.2007497Z  * [new tag]         v0.49.5                                  -> v0.49.5
+2026-10-28T14:45:40.2007943Z  * [new tag]         v0.49.6                                  -> v0.49.6
+2026-10-28T14:45:40.2008449Z  * [new tag]         v0.49.7                                  -> v0.49.7
+2026-10-28T14:45:40.2008897Z  * [new tag]         v0.49.8                                  -> v0.49.8
+2026-10-28T14:45:40.2009343Z  * [new tag]         v0.49.9                                  -> v0.49.9
+2026-10-28T14:45:40.2009787Z  * [new tag]         v0.50.0                                  -> v0.50.0
+2026-10-28T14:45:40.2010236Z  * [new tag]         v0.51.0                                  -> v0.51.0
+2026-10-28T14:45:40.2011100Z  * [new tag]         v0.51.1                                  -> v0.51.1
+2026-10-28T14:45:40.2011819Z  * [new tag]         v0.51.2                                  -> v0.51.2
+2026-10-28T14:45:40.2012285Z  * [new tag]         v0.52.0                                  -> v0.52.0
+2026-10-28T14:45:40.2012744Z  * [new tag]         v0.53.0                                  -> v0.53.0
+2026-10-28T14:45:40.2013187Z  * [new tag]         v0.53.1                                  -> v0.53.1
+2026-10-28T14:45:40.2013647Z  * [new tag]         v0.53.2                                  -> v0.53.2
+2026-10-28T14:45:40.2014492Z  * [new tag]         v0.53.3                                  -> v0.53.3
+2026-10-28T14:45:40.2014954Z  * [new tag]         v0.53.4                                  -> v0.53.4
+2026-10-28T14:45:40.2015397Z  * [new tag]         v0.54.0                                  -> v0.54.0
+2026-10-28T14:45:40.2015847Z  * [new tag]         v0.54.1                                  -> v0.54.1
+2026-10-28T14:45:40.2016370Z  * [new ref]         8ef678716b8aff20b0e5fbba3af2bc860d86183a -> pull/44/merge
+2026-10-28T14:45:40.2017955Z ##[endgroup]
+2026-10-28T14:45:40.2018428Z ##[group]Determining the checkout info
+2026-10-28T14:45:40.2018926Z ##[endgroup]
+2026-10-28T14:45:40.2019243Z [command]/usr/bin/git sparse-checkout disable
+2026-10-28T14:45:40.2041464Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T14:45:40.2077569Z ##[group]Checking out the ref
+2026-10-28T14:45:40.2082275Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/44/merge
+2026-10-28T14:45:40.4922846Z Note: switching to 'refs/remotes/pull/44/merge'.
+2026-10-28T14:45:40.4923460Z 
+2026-10-28T14:45:40.4923919Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-28T14:45:40.4927458Z changes and commit them, and you can discard any commits you make in this
+2026-10-28T14:45:40.4928540Z state without impacting any branches by switching back to a branch.
+2026-10-28T14:45:40.4929097Z 
+2026-10-28T14:45:40.4929528Z If you want to create a new branch to retain commits you create, you may
+2026-10-28T14:45:40.4930467Z do so (now or later) by using -c with the switch command. Example:
+2026-10-28T14:45:40.4931200Z 
+2026-10-28T14:45:40.4931488Z   git switch -c <new-branch-name>
+2026-10-28T14:45:40.4931847Z 
+2026-10-28T14:45:40.4932080Z Or undo this operation with:
+2026-10-28T14:45:40.4932407Z 
+2026-10-28T14:45:40.4932598Z   git switch -
+2026-10-28T14:45:40.4932860Z 
+2026-10-28T14:45:40.4933610Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-28T14:45:40.4934200Z 
+2026-10-28T14:45:40.4934930Z HEAD is now at 8ef6787 Merge 504e07daa95f6100355926f2f371ed0d4ff72c07 into 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:45:40.4958652Z ##[endgroup]
+2026-10-28T14:45:40.5016326Z [command]/usr/bin/git log -1 --format=%H
+2026-10-28T14:45:40.5051807Z 8ef678716b8aff20b0e5fbba3af2bc860d86183a
+2026-10-28T14:45:40.5062197Z ##[group]Removing auth
+2026-10-28T14:45:40.5063029Z Removing SSH command configuration
+2026-10-28T14:45:40.5066139Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:40.5108831Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:45:40.5369718Z Removing HTTP extra header
+2026-10-28T14:45:40.5374811Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:45:40.5415735Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:45:40.5673776Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:45:40.5678108Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:45:40.5713428Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:45:40.5714353Z includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:45:40.5715269Z includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:45:40.5716134Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:45:40.5726540Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path
+2026-10-28T14:45:40.5759265Z /home/runner/work/_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:40.5782415Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-677a548f\-b723\-408b\-82c0\-fdbd7ab4e391\.config
+2026-10-28T14:45:40.5829135Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path
+2026-10-28T14:45:40.5875712Z /home/runner/work/_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:40.5888005Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/meta-sovereign/meta-sovereign/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-677a548f\-b723\-408b\-82c0\-fdbd7ab4e391\.config
+2026-10-28T14:45:40.5933654Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-10-28T14:45:40.5972591Z /github/runner_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:40.5984301Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-677a548f\-b723\-408b\-82c0\-fdbd7ab4e391\.config
+2026-10-28T14:45:40.6031190Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-10-28T14:45:40.6062381Z /github/runner_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config
+2026-10-28T14:45:40.6074293Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-677a548f\-b723\-408b\-82c0\-fdbd7ab4e391\.config
+2026-10-28T14:45:40.6116945Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:45:40.6349204Z Removing credentials config '/home/runner/work/_temp/git-credentials-677a548f-b723-408b-82c0-fdbd7ab4e391.config'
+2026-10-28T14:45:40.6360130Z ##[endgroup]
+2026-10-28T14:45:40.8159556Z ##[group]Run actions/setup-node@v7
+2026-10-28T14:45:40.8159892Z with:
+2026-10-28T14:45:40.8160103Z   node-version: 24.x
+2026-10-28T14:45:40.8160325Z   check-latest: false
+2026-10-28T14:45:40.8163007Z   token: ***
+2026-10-28T14:45:40.8163241Z   package-manager-cache: true
+2026-10-28T14:45:40.8163488Z env:
+2026-10-28T14:45:40.8163675Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:40.8163908Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:40.8164178Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:40.8164402Z ##[endgroup]
+2026-10-28T14:45:40.9520217Z Found in cache @ /opt/hostedtoolcache/node/24.21.0/x64
+2026-10-28T14:45:41.0370745Z ##[group]Environment details
+2026-10-28T14:45:41.3845325Z node: v24.21.0
+2026-10-28T14:45:41.3845738Z npm: 11.19.0
+2026-10-28T14:45:41.3846071Z yarn: 1.22.22
+2026-10-28T14:45:41.3847423Z ##[endgroup]
+2026-10-28T14:45:41.4214327Z ##[group]Run npm ci --no-audit --no-fund
+2026-10-28T14:45:41.4214750Z [36;1mnpm ci --no-audit --no-fund[0m
+2026-10-28T14:45:41.4501316Z shell: /usr/bin/bash -e {0}
+2026-10-28T14:45:41.4501730Z env:
+2026-10-28T14:45:41.4502009Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:41.4502346Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:41.4502750Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:41.4503074Z ##[endgroup]
+2026-10-28T14:45:59.0206825Z 
+2026-10-28T14:45:59.0213907Z > meta-sovereign@0.54.1 prepare
+2026-10-28T14:45:59.0214363Z > husky || true
+2026-10-28T14:45:59.0214535Z 
+2026-10-28T14:45:59.3571403Z 
+2026-10-28T14:45:59.3572104Z added 488 packages in 18s
+2026-10-28T14:45:59.4475516Z ##[group]Run # Skip changeset check for automated version PRs
+2026-10-28T14:45:59.4476061Z [36;1m# Skip changeset check for automated version PRs[0m
+2026-10-28T14:45:59.4476464Z [36;1mif [[ "$PR_HEAD_REF" == "changeset-release/"* ]]; then[0m
+2026-10-28T14:45:59.4476886Z [36;1m  echo "Skipping changeset check for automated release PR"[0m
+2026-10-28T14:45:59.4477233Z [36;1m  exit 0[0m
+2026-10-28T14:45:59.4477435Z [36;1mfi[0m
+2026-10-28T14:45:59.4477616Z [36;1m[0m
+2026-10-28T14:45:59.4478005Z [36;1m# Run changeset validation script[0m
+2026-10-28T14:45:59.4478377Z [36;1m# This validates that exactly ONE changeset was ADDED by this PR[0m
+2026-10-28T14:45:59.4478831Z [36;1m# Pre-existing changesets from other merged PRs are ignored[0m
+2026-10-28T14:45:59.4479219Z [36;1mnode js/scripts/validate-changeset.mjs[0m
+2026-10-28T14:45:59.4545946Z shell: /usr/bin/bash -e {0}
+2026-10-28T14:45:59.4546199Z env:
+2026-10-28T14:45:59.4546395Z   GIT_CONFIG_COUNT: 1
+2026-10-28T14:45:59.4546678Z   GIT_CONFIG_KEY_0: init.defaultBranch
+2026-10-28T14:45:59.4546961Z   GIT_CONFIG_VALUE_0: main
+2026-10-28T14:45:59.4547188Z   GITHUB_BASE_REF: main
+2026-10-28T14:45:59.4547416Z   PR_HEAD_REF: issue-43-1924384484c0
+2026-10-28T14:45:59.4547736Z   GITHUB_BASE_SHA: 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445
+2026-10-28T14:45:59.4548112Z   GITHUB_HEAD_SHA: 504e07daa95f6100355926f2f371ed0d4ff72c07
+2026-10-28T14:45:59.4548422Z ##[endgroup]
+2026-10-28T14:45:59.4926043Z Validating changesets added by this PR...
+2026-10-28T14:45:59.4929289Z Detected single-language repository (package.json in root)
+2026-10-28T14:45:59.4936751Z Package: meta-sovereign
+2026-10-28T14:45:59.4938384Z Comparing 0861cd80222c6243fe5cfdfc581ddfd5a7d3e445...504e07daa95f6100355926f2f371ed0d4ff72c07
+2026-10-28T14:45:59.5032276Z Found 1 changeset file(s) added by this PR
+2026-10-28T14:45:59.5033507Z Added changesets:
+2026-10-28T14:45:59.5034254Z   - verified-ci-release-gates.md
+2026-10-28T14:45:59.5034802Z Validating changeset: .changeset/verified-ci-release-gates.md
+2026-10-28T14:45:59.5037125Z Changeset validation passed
+2026-10-28T14:45:59.5037782Z    Type: patch
+2026-10-28T14:45:59.5039403Z    Description: R-Z32: Make CI failures block releases, check complete PR changes, isolate the large backup regression, preserve package/browser diagnostics and harden release tooling and dependencies.
+2026-10-28T14:45:59.5933792Z Post job cleanup.
+2026-10-28T14:45:59.8458181Z Post job cleanup.
+2026-10-28T14:45:59.9391526Z [command]/usr/bin/git version
+2026-10-28T14:45:59.9487167Z git version 2.55.0
+2026-10-28T14:45:59.9534915Z Temporarily overriding HOME='/home/runner/work/_temp/60f4aa82-2416-4764-b9ac-8d1cb3fe0c31' before making global git config changes
+2026-10-28T14:45:59.9552152Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T14:45:59.9558772Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/meta-sovereign/meta-sovereign
+2026-10-28T14:45:59.9598872Z Removing SSH command configuration
+2026-10-28T14:45:59.9613748Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T14:45:59.9669960Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T14:45:59.9975658Z Removing HTTP extra header
+2026-10-28T14:45:59.9984695Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T14:46:00.0031950Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T14:46:00.0336980Z Removing includeIf entries pointing to credentials config files
+2026-10-28T14:46:00.0346772Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T14:46:00.0395348Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T14:46:00.0828122Z Cleaning up orphan processes

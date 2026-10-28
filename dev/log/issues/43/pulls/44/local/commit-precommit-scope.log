@@ -1,0 +1,25 @@
+⋯ Backing up original state…
+✔ Done backing up original state (aa2aaee)!
+⋯ Running tasks for staged files…
+    *.{js,mjs,cjs} — 1 file
+      ⋯ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+      ⋯ prettier --write
+      ⋯ prettier --check
+    *.md — 4 files
+      ⋯ prettier --write
+      ⋯ prettier --check
+
+✔ prettier --write
+✔ eslint --config js/eslint.config.js --fix --max-warnings 0 --no-warn-ignored
+✔ prettier --check
+✔ prettier --write
+✔ prettier --check
+
+✔ Done running tasks for staged files!
+⋯ Staging changes from tasks…
+✔ Done staging changes from tasks!
+⋯ Cleaning up temporary files…
+✔ Done cleaning up temporary files!
+[issue-43-1924384484c0 f91758c] fix(ci): keep archived snapshots out of hook configuration discovery
+ 6 files changed, 99 insertions(+), 1 deletion(-)
+ create mode 100644 js/tests/ci-precommit.test.js

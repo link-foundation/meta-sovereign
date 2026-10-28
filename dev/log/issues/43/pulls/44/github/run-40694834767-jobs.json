@@ -1,0 +1,2946 @@
+[
+  {
+    "id": 122838706802,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcHqcg",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838706802",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838706802",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:15:50Z",
+    "started_at": "2026-10-28T13:15:52Z",
+    "completed_at": "2026-10-28T13:15:59Z",
+    "name": "Release credential preflight",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:15:53Z",
+        "completed_at": "2026-10-28T13:15:54Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:15:54Z",
+        "completed_at": "2026-10-28T13:15:57Z"
+      },
+      {
+        "name": "Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:15:57Z",
+        "completed_at": "2026-10-28T13:15:57Z"
+      },
+      {
+        "name": "Verify npm trusted publisher before building",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:15:57Z",
+        "completed_at": "2026-10-28T13:15:57Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:15:57Z",
+        "completed_at": "2026-10-28T13:15:58Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:15:58Z",
+        "completed_at": "2026-10-28T13:15:58Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:15:58Z",
+        "completed_at": "2026-10-28T13:15:58Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838706802",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150355,
+    "runner_name": "GitHub Actions 1000150355",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838707167,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcHr3w",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838707167",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838707167",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:15:50Z",
+    "started_at": "2026-10-28T13:15:53Z",
+    "completed_at": "2026-10-28T13:16:02Z",
+    "name": "Detect Changes",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:15:54Z",
+        "completed_at": "2026-10-28T13:15:54Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:15:54Z",
+        "completed_at": "2026-10-28T13:15:59Z"
+      },
+      {
+        "name": "Detect changes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:15:59Z",
+        "completed_at": "2026-10-28T13:15:59Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:15:59Z",
+        "completed_at": "2026-10-28T13:15:59Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:15:59Z",
+        "completed_at": "2026-10-28T13:15:59Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838707167",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150356,
+    "runner_name": "GitHub Actions 1000150356",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838707714,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcHuAg",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838707714",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838707714",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:15:50Z",
+    "started_at": "2026-10-28T13:15:53Z",
+    "completed_at": "2026-10-28T13:16:03Z",
+    "name": "Check for Manual Version Changes",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:15:54Z",
+        "completed_at": "2026-10-28T13:15:54Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:15:54Z",
+        "completed_at": "2026-10-28T13:15:59Z"
+      },
+      {
+        "name": "Check for version changes in package.json",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:15:59Z",
+        "completed_at": "2026-10-28T13:16:00Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:16:00Z",
+        "completed_at": "2026-10-28T13:16:00Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:16:00Z",
+        "completed_at": "2026-10-28T13:16:00Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838707714",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150358,
+    "runner_name": "GitHub Actions 1000150358",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838708661,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcHxtQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838708661",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838708661",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-28T13:15:51Z",
+    "started_at": "2026-10-28T13:15:51Z",
+    "completed_at": "2026-10-28T13:15:50Z",
+    "name": "Create Changeset PR",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838708661",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  },
+  {
+    "id": 122838817314,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOaIg",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838817314",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838817314",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:04Z",
+    "completed_at": "2026-10-28T13:16:37Z",
+    "name": "Workflow, shell and pipeline contracts",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:05Z",
+        "completed_at": "2026-10-28T13:16:06Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:06Z",
+        "completed_at": "2026-10-28T13:16:08Z"
+      },
+      {
+        "name": "Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:08Z",
+        "completed_at": "2026-10-28T13:16:10Z"
+      },
+      {
+        "name": "Run npm ci --no-audit --no-fund",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:16:10Z",
+        "completed_at": "2026-10-28T13:16:29Z"
+      },
+      {
+        "name": "actionlint, ShellCheck and pyflakes",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:16:29Z",
+        "completed_at": "2026-10-28T13:16:32Z"
+      },
+      {
+        "name": "Install pinned workflow security scanner",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:16:32Z",
+        "completed_at": "2026-10-28T13:16:34Z"
+      },
+      {
+        "name": "Workflow security audit (offline deterministic policy)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:16:34Z",
+        "completed_at": "2026-10-28T13:16:35Z"
+      },
+      {
+        "name": "Check pipeline gate and browser coverage",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:16:35Z",
+        "completed_at": "2026-10-28T13:16:35Z"
+      },
+      {
+        "name": "Run node --test --test-concurrency=1 js/tests/ci-*.test.js",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 9,
+        "started_at": "2026-10-28T13:16:35Z",
+        "completed_at": "2026-10-28T13:16:36Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 17,
+        "started_at": "2026-10-28T13:16:36Z",
+        "completed_at": "2026-10-28T13:16:36Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-28T13:16:36Z",
+        "completed_at": "2026-10-28T13:16:36Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-28T13:16:36Z",
+        "completed_at": "2026-10-28T13:16:36Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838817314",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150361,
+    "runner_name": "GitHub Actions 1000150361",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838817479,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOaxw",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838817479",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838817479",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:24Z",
+    "completed_at": "2026-10-28T13:16:56Z",
+    "name": "Dependency security audit",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:25Z",
+        "completed_at": "2026-10-28T13:16:27Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:27Z",
+        "completed_at": "2026-10-28T13:16:30Z"
+      },
+      {
+        "name": "Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:30Z",
+        "completed_at": "2026-10-28T13:16:30Z"
+      },
+      {
+        "name": "Run npm ci --no-audit --no-fund",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:16:30Z",
+        "completed_at": "2026-10-28T13:16:47Z"
+      },
+      {
+        "name": "Run npm audit --audit-level=low",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:16:47Z",
+        "completed_at": "2026-10-28T13:16:48Z"
+      },
+      {
+        "name": "Run taiki-e/install-action@e67fa11c4b9316fa714ddf0abed07a0c3143b95b",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:16:48Z",
+        "completed_at": "2026-10-28T13:16:48Z"
+      },
+      {
+        "name": "Run cargo audit --file rust/Cargo.lock --deny warnings",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:16:48Z",
+        "completed_at": "2026-10-28T13:16:53Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-28T13:16:53Z",
+        "completed_at": "2026-10-28T13:16:54Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-28T13:16:54Z",
+        "completed_at": "2026-10-28T13:16:54Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-28T13:16:54Z",
+        "completed_at": "2026-10-28T13:16:54Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838817479",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150366,
+    "runner_name": "GitHub Actions 1000150366",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838817869,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOcTQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838817869",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838817869",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:04Z",
+    "completed_at": "2026-10-28T13:16:52Z",
+    "name": "Test Compilation",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:05Z",
+        "completed_at": "2026-10-28T13:16:06Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:06Z",
+        "completed_at": "2026-10-28T13:16:08Z"
+      },
+      {
+        "name": "Check .mjs syntax",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:08Z",
+        "completed_at": "2026-10-28T13:16:50Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:16:50Z",
+        "completed_at": "2026-10-28T13:16:50Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:16:50Z",
+        "completed_at": "2026-10-28T13:16:50Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838817869",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150363,
+    "runner_name": "GitHub Actions 1000150363",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838817926,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOchg",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838817926",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838817926",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:23Z",
+    "completed_at": "2026-10-28T13:17:10Z",
+    "name": "Package (packed and run with npx)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:24Z",
+        "completed_at": "2026-10-28T13:16:25Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:25Z",
+        "completed_at": "2026-10-28T13:16:28Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:28Z",
+        "completed_at": "2026-10-28T13:16:28Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:16:28Z",
+        "completed_at": "2026-10-28T13:16:43Z"
+      },
+      {
+        "name": "What npm publish would upload",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:16:43Z",
+        "completed_at": "2026-10-28T13:16:45Z"
+      },
+      {
+        "name": "Run the packed package with npx",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:16:45Z",
+        "completed_at": "2026-10-28T13:17:08Z"
+      },
+      {
+        "name": "Preserve package diagnostics",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:17:08Z",
+        "completed_at": "2026-10-28T13:17:09Z"
+      },
+      {
+        "name": "Post Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-28T13:17:09Z",
+        "completed_at": "2026-10-28T13:17:09Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-28T13:17:09Z",
+        "completed_at": "2026-10-28T13:17:09Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-28T13:17:09Z",
+        "completed_at": "2026-10-28T13:17:09Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838817926",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150365,
+    "runner_name": "GitHub Actions 1000150365",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838817928,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOciA",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838817928",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838817928",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:04Z",
+    "completed_at": "2026-10-28T13:16:27Z",
+    "name": "Check for Changesets",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:05Z",
+        "completed_at": "2026-10-28T13:16:06Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:06Z",
+        "completed_at": "2026-10-28T13:16:11Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:11Z",
+        "completed_at": "2026-10-28T13:16:11Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:16:11Z",
+        "completed_at": "2026-10-28T13:16:25Z"
+      },
+      {
+        "name": "Check for changesets",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:16:25Z",
+        "completed_at": "2026-10-28T13:16:25Z"
+      },
+      {
+        "name": "Post Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:16:25Z",
+        "completed_at": "2026-10-28T13:16:25Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-28T13:16:25Z",
+        "completed_at": "2026-10-28T13:16:26Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-28T13:16:26Z",
+        "completed_at": "2026-10-28T13:16:26Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838817928",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150362,
+    "runner_name": "GitHub Actions 1000150362",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838817953,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOcoQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838817953",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838817953",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:34Z",
+    "completed_at": "2026-10-28T13:17:52Z",
+    "name": "Build API Docs",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:35Z",
+        "completed_at": "2026-10-28T13:16:35Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:35Z",
+        "completed_at": "2026-10-28T13:16:38Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:38Z",
+        "completed_at": "2026-10-28T13:16:39Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:16:39Z",
+        "completed_at": "2026-10-28T13:17:43Z"
+      },
+      {
+        "name": "Build JS API docs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:17:43Z",
+        "completed_at": "2026-10-28T13:17:44Z"
+      },
+      {
+        "name": "Setup Rust toolchain",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:17:44Z",
+        "completed_at": "2026-10-28T13:17:44Z"
+      },
+      {
+        "name": "Build Rust crate docs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:17:44Z",
+        "completed_at": "2026-10-28T13:17:48Z"
+      },
+      {
+        "name": "Upload JS API docs artifact",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:17:48Z",
+        "completed_at": "2026-10-28T13:17:49Z"
+      },
+      {
+        "name": "Upload Rust crate docs artifact",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:17:49Z",
+        "completed_at": "2026-10-28T13:17:50Z"
+      },
+      {
+        "name": "Post Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-28T13:17:50Z",
+        "completed_at": "2026-10-28T13:17:50Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-28T13:17:50Z",
+        "completed_at": "2026-10-28T13:17:50Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-28T13:17:50Z",
+        "completed_at": "2026-10-28T13:17:50Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838817953",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150367,
+    "runner_name": "GitHub Actions 1000150367",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838817971,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOcsw",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838817971",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838817971",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:17Z",
+    "completed_at": "2026-10-28T13:17:41Z",
+    "name": "Lint and Format Check",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:18Z",
+        "completed_at": "2026-10-28T13:16:19Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:19Z",
+        "completed_at": "2026-10-28T13:16:26Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:26Z",
+        "completed_at": "2026-10-28T13:16:26Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:16:26Z",
+        "completed_at": "2026-10-28T13:16:27Z"
+      },
+      {
+        "name": "Install dependencies",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:16:27Z",
+        "completed_at": "2026-10-28T13:16:40Z"
+      },
+      {
+        "name": "Run ESLint",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:16:40Z",
+        "completed_at": "2026-10-28T13:17:09Z"
+      },
+      {
+        "name": "Check formatting",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:17:09Z",
+        "completed_at": "2026-10-28T13:17:35Z"
+      },
+      {
+        "name": "Check code duplication",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:17:35Z",
+        "completed_at": "2026-10-28T13:17:36Z"
+      },
+      {
+        "name": "Check for secrets",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:17:36Z",
+        "completed_at": "2026-10-28T13:17:38Z"
+      },
+      {
+        "name": "Post Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-28T13:17:38Z",
+        "completed_at": "2026-10-28T13:17:38Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-28T13:17:38Z",
+        "completed_at": "2026-10-28T13:17:38Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-28T13:17:38Z",
+        "completed_at": "2026-10-28T13:17:38Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838817971",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150364,
+    "runner_name": "GitHub Actions 1000150364",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838818012,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOc3A",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838818012",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838818012",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:16:02Z",
+    "started_at": "2026-10-28T13:16:30Z",
+    "completed_at": "2026-10-28T13:16:42Z",
+    "name": "Check File Line Limits",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:16:31Z",
+        "completed_at": "2026-10-28T13:16:32Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:16:32Z",
+        "completed_at": "2026-10-28T13:16:37Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:16:37Z",
+        "completed_at": "2026-10-28T13:16:37Z"
+      },
+      {
+        "name": "Check file line limits",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:16:37Z",
+        "completed_at": "2026-10-28T13:16:40Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:16:40Z",
+        "completed_at": "2026-10-28T13:16:40Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:16:40Z",
+        "completed_at": "2026-10-28T13:16:40Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838818012",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150368,
+    "runner_name": "GitHub Actions 1000150368",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122838820589,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmcOm7Q",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122838820589",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122838820589",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-28T13:16:03Z",
+    "started_at": "2026-10-28T13:16:03Z",
+    "completed_at": "2026-10-28T13:16:02Z",
+    "name": "Validate Documentation",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122838820589",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  },
+  {
+    "id": 122839683605,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDSFQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839683605",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839683605",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:18:12Z",
+    "completed_at": "2026-10-28T13:18:47Z",
+    "name": "Backup memory regression (200k links)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:18:12Z",
+        "completed_at": "2026-10-28T13:18:13Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:18:13Z",
+        "completed_at": "2026-10-28T13:18:16Z"
+      },
+      {
+        "name": "Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:18:16Z",
+        "completed_at": "2026-10-28T13:18:18Z"
+      },
+      {
+        "name": "Run npm ci --no-audit --no-fund",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:18:18Z",
+        "completed_at": "2026-10-28T13:18:36Z"
+      },
+      {
+        "name": "Verify streaming memory bound and complete round trip",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:18:36Z",
+        "completed_at": "2026-10-28T13:18:45Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:18:45Z",
+        "completed_at": "2026-10-28T13:18:45Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-28T13:18:45Z",
+        "completed_at": "2026-10-28T13:18:45Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-28T13:18:45Z",
+        "completed_at": "2026-10-28T13:18:45Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839683605",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150379,
+    "runner_name": "GitHub Actions 1000150379",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684065,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDT4Q",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684065",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684065",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:19:41Z",
+    "completed_at": "2026-10-28T13:20:03Z",
+    "name": "Rust (fmt, clippy, test)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:19:42Z",
+        "completed_at": "2026-10-28T13:19:43Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:19:43Z",
+        "completed_at": "2026-10-28T13:19:46Z"
+      },
+      {
+        "name": "Setup Rust toolchain",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:19:46Z",
+        "completed_at": "2026-10-28T13:19:47Z"
+      },
+      {
+        "name": "Cache cargo",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:19:47Z",
+        "completed_at": "2026-10-28T13:19:47Z"
+      },
+      {
+        "name": "cargo fmt --check",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:19:47Z",
+        "completed_at": "2026-10-28T13:19:50Z"
+      },
+      {
+        "name": "cargo clippy",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:19:50Z",
+        "completed_at": "2026-10-28T13:19:56Z"
+      },
+      {
+        "name": "cargo test",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:19:56Z",
+        "completed_at": "2026-10-28T13:20:01Z"
+      },
+      {
+        "name": "Post Cache cargo",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-28T13:20:01Z",
+        "completed_at": "2026-10-28T13:20:01Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-28T13:20:01Z",
+        "completed_at": "2026-10-28T13:20:01Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-28T13:20:01Z",
+        "completed_at": "2026-10-28T13:20:02Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684065",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150385,
+    "runner_name": "GitHub Actions 1000150385",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684149,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDUNQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684149",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684149",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:17:55Z",
+    "completed_at": "2026-10-28T13:26:46Z",
+    "name": "Browser e2e (webkit)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:17:56Z",
+        "completed_at": "2026-10-28T13:17:58Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:17:58Z",
+        "completed_at": "2026-10-28T13:18:04Z"
+      },
+      {
+        "name": "Test the fresh merge",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:18:04Z",
+        "completed_at": "2026-10-28T13:18:04Z"
+      },
+      {
+        "name": "Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:18:04Z",
+        "completed_at": "2026-10-28T13:18:07Z"
+      },
+      {
+        "name": "Run npm ci --no-audit --no-fund",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:18:07Z",
+        "completed_at": "2026-10-28T13:18:28Z"
+      },
+      {
+        "name": "Install the browser",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:18:28Z",
+        "completed_at": "2026-10-28T13:18:41Z"
+      },
+      {
+        "name": "Run npm run build:web",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:18:41Z",
+        "completed_at": "2026-10-28T13:18:42Z"
+      },
+      {
+        "name": "Run browser checks",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:18:42Z",
+        "completed_at": "2026-10-28T13:26:32Z"
+      },
+      {
+        "name": "Preserve browser diagnostics",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:26:32Z",
+        "completed_at": "2026-10-28T13:26:35Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-28T13:26:35Z",
+        "completed_at": "2026-10-28T13:26:40Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-28T13:26:40Z",
+        "completed_at": "2026-10-28T13:26:41Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-28T13:26:41Z",
+        "completed_at": "2026-10-28T13:26:43Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684149",
+    "labels": [
+      "macos-15"
+    ],
+    "runner_id": 1000150378,
+    "runner_name": "GitHub Actions 1000150378",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684217,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDUeQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684217",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684217",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:18:48Z",
+    "completed_at": "2026-10-28T13:24:59Z",
+    "name": "Browser e2e (chromium)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:18:49Z",
+        "completed_at": "2026-10-28T13:18:50Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:18:50Z",
+        "completed_at": "2026-10-28T13:18:55Z"
+      },
+      {
+        "name": "Test the fresh merge",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:18:55Z",
+        "completed_at": "2026-10-28T13:18:55Z"
+      },
+      {
+        "name": "Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:18:55Z",
+        "completed_at": "2026-10-28T13:18:57Z"
+      },
+      {
+        "name": "Run npm ci --no-audit --no-fund",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:18:57Z",
+        "completed_at": "2026-10-28T13:19:13Z"
+      },
+      {
+        "name": "Install the browser",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-28T13:19:13Z",
+        "completed_at": "2026-10-28T13:19:34Z"
+      },
+      {
+        "name": "Run npm run build:web",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:19:34Z",
+        "completed_at": "2026-10-28T13:19:34Z"
+      },
+      {
+        "name": "Run browser checks",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:19:34Z",
+        "completed_at": "2026-10-28T13:24:55Z"
+      },
+      {
+        "name": "Preserve browser diagnostics",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:24:55Z",
+        "completed_at": "2026-10-28T13:24:57Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 17,
+        "started_at": "2026-10-28T13:24:57Z",
+        "completed_at": "2026-10-28T13:24:57Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 18,
+        "started_at": "2026-10-28T13:24:57Z",
+        "completed_at": "2026-10-28T13:24:57Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 19,
+        "started_at": "2026-10-28T13:24:57Z",
+        "completed_at": "2026-10-28T13:24:57Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684217",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150382,
+    "runner_name": "GitHub Actions 1000150382",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684387,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDVIw",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684387",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684387",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:18:46Z",
+    "completed_at": "2026-10-28T13:21:20Z",
+    "name": "Test (deno on macos-15)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:18:46Z",
+        "completed_at": "2026-10-28T13:18:50Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:18:50Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:56Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-28T13:18:56Z",
+        "completed_at": "2026-10-28T13:18:58Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 11,
+        "started_at": "2026-10-28T13:18:58Z",
+        "completed_at": "2026-10-28T13:21:14Z"
+      },
+      {
+        "name": "Post Setup Deno",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-28T13:21:14Z",
+        "completed_at": "2026-10-28T13:21:14Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:21:14Z",
+        "completed_at": "2026-10-28T13:21:15Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:21:15Z",
+        "completed_at": "2026-10-28T13:21:16Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684387",
+    "labels": [
+      "macos-15"
+    ],
+    "runner_id": 1000150381,
+    "runner_name": "GitHub Actions 1000150381",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684390,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDVJg",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684390",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684390",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:18:38Z",
+    "completed_at": "2026-10-28T13:20:43Z",
+    "name": "Test (node on macos-15)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:18:38Z",
+        "completed_at": "2026-10-28T13:18:40Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:18:40Z",
+        "completed_at": "2026-10-28T13:18:46Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:18:46Z",
+        "completed_at": "2026-10-28T13:18:47Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:18:47Z",
+        "completed_at": "2026-10-28T13:18:47Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:18:47Z",
+        "completed_at": "2026-10-28T13:19:09Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 6,
+        "started_at": "2026-10-28T13:19:09Z",
+        "completed_at": "2026-10-28T13:20:38Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T13:20:38Z",
+        "completed_at": "2026-10-28T13:20:38Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T13:20:38Z",
+        "completed_at": "2026-10-28T13:20:38Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T13:20:38Z",
+        "completed_at": "2026-10-28T13:20:38Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T13:20:38Z",
+        "completed_at": "2026-10-28T13:20:38Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T13:20:38Z",
+        "completed_at": "2026-10-28T13:20:38Z"
+      },
+      {
+        "name": "Post Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 21,
+        "started_at": "2026-10-28T13:20:38Z",
+        "completed_at": "2026-10-28T13:20:38Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:20:38Z",
+        "completed_at": "2026-10-28T13:20:39Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:20:39Z",
+        "completed_at": "2026-10-28T13:20:41Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684390",
+    "labels": [
+      "macos-15"
+    ],
+    "runner_id": 1000150380,
+    "runner_name": "GitHub Actions 1000150380",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684446,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDVXg",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684446",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684446",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:17:43Z",
+    "completed_at": "2026-10-28T13:24:30Z",
+    "name": "Test (node on windows-2025)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:17:44Z",
+        "completed_at": "2026-10-28T13:17:45Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:17:45Z",
+        "completed_at": "2026-10-28T13:18:00Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:18:00Z",
+        "completed_at": "2026-10-28T13:18:00Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:18:00Z",
+        "completed_at": "2026-10-28T13:18:06Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:18:06Z",
+        "completed_at": "2026-10-28T13:22:17Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 6,
+        "started_at": "2026-10-28T13:22:17Z",
+        "completed_at": "2026-10-28T13:24:27Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T13:24:27Z",
+        "completed_at": "2026-10-28T13:24:27Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T13:24:27Z",
+        "completed_at": "2026-10-28T13:24:27Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T13:24:27Z",
+        "completed_at": "2026-10-28T13:24:27Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T13:24:27Z",
+        "completed_at": "2026-10-28T13:24:27Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T13:24:27Z",
+        "completed_at": "2026-10-28T13:24:27Z"
+      },
+      {
+        "name": "Post Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 21,
+        "started_at": "2026-10-28T13:24:27Z",
+        "completed_at": "2026-10-28T13:24:27Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:24:27Z",
+        "completed_at": "2026-10-28T13:24:29Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:24:29Z",
+        "completed_at": "2026-10-28T13:24:29Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684446",
+    "labels": [
+      "windows-2025"
+    ],
+    "runner_id": 1000150375,
+    "runner_name": "GitHub Actions 1000150375",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684479,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDVfw",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684479",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684479",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:19:25Z",
+    "completed_at": "2026-10-28T13:20:25Z",
+    "name": "Test (bun on macos-15)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:19:25Z",
+        "completed_at": "2026-10-28T13:19:27Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:19:27Z",
+        "completed_at": "2026-10-28T13:19:32Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:19:32Z",
+        "completed_at": "2026-10-28T13:19:33Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-28T13:19:33Z",
+        "completed_at": "2026-10-28T13:19:33Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T13:19:33Z",
+        "completed_at": "2026-10-28T13:19:33Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T13:19:33Z",
+        "completed_at": "2026-10-28T13:19:33Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:19:33Z",
+        "completed_at": "2026-10-28T13:19:34Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:19:34Z",
+        "completed_at": "2026-10-28T13:19:37Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 9,
+        "started_at": "2026-10-28T13:19:37Z",
+        "completed_at": "2026-10-28T13:20:20Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T13:20:20Z",
+        "completed_at": "2026-10-28T13:20:20Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T13:20:20Z",
+        "completed_at": "2026-10-28T13:20:20Z"
+      },
+      {
+        "name": "Post Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 21,
+        "started_at": "2026-10-28T13:20:20Z",
+        "completed_at": "2026-10-28T13:20:20Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:20:20Z",
+        "completed_at": "2026-10-28T13:20:21Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:20:21Z",
+        "completed_at": "2026-10-28T13:20:21Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684479",
+    "labels": [
+      "macos-15"
+    ],
+    "runner_id": 1000150384,
+    "runner_name": "GitHub Actions 1000150384",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684501,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDVlQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684501",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684501",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:17:43Z",
+    "completed_at": "2026-10-28T13:21:12Z",
+    "name": "Test (deno on windows-2025)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:17:44Z",
+        "completed_at": "2026-10-28T13:17:46Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:17:46Z",
+        "completed_at": "2026-10-28T13:17:58Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:17:58Z",
+        "completed_at": "2026-10-28T13:17:59Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-28T13:17:59Z",
+        "completed_at": "2026-10-28T13:17:59Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T13:17:59Z",
+        "completed_at": "2026-10-28T13:17:59Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T13:17:59Z",
+        "completed_at": "2026-10-28T13:17:59Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T13:17:59Z",
+        "completed_at": "2026-10-28T13:17:59Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T13:17:59Z",
+        "completed_at": "2026-10-28T13:17:59Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T13:17:59Z",
+        "completed_at": "2026-10-28T13:17:59Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-28T13:17:59Z",
+        "completed_at": "2026-10-28T13:18:00Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 11,
+        "started_at": "2026-10-28T13:18:00Z",
+        "completed_at": "2026-10-28T13:21:08Z"
+      },
+      {
+        "name": "Post Setup Deno",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-28T13:21:08Z",
+        "completed_at": "2026-10-28T13:21:08Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:21:08Z",
+        "completed_at": "2026-10-28T13:21:10Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:21:10Z",
+        "completed_at": "2026-10-28T13:21:10Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684501",
+    "labels": [
+      "windows-2025"
+    ],
+    "runner_id": 1000150376,
+    "runner_name": "GitHub Actions 1000150376",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684513,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDVoQ",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684513",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684513",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:19:11Z",
+    "completed_at": "2026-10-28T13:21:04Z",
+    "name": "Test (node on ubuntu-24.04)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:19:12Z",
+        "completed_at": "2026-10-28T13:19:13Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:19:13Z",
+        "completed_at": "2026-10-28T13:19:18Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:19:18Z",
+        "completed_at": "2026-10-28T13:19:19Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-28T13:19:19Z",
+        "completed_at": "2026-10-28T13:19:19Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-28T13:19:19Z",
+        "completed_at": "2026-10-28T13:19:36Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 6,
+        "started_at": "2026-10-28T13:19:36Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Post Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 21,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:21:01Z",
+        "completed_at": "2026-10-28T13:21:01Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684513",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150383,
+    "runner_name": "GitHub Actions 1000150383",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684539,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDVuw",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684539",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684539",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:20:07Z",
+    "completed_at": "2026-10-28T13:21:06Z",
+    "name": "Test (bun on ubuntu-24.04)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:20:07Z",
+        "completed_at": "2026-10-28T13:20:09Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:20:09Z",
+        "completed_at": "2026-10-28T13:20:14Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:20:14Z",
+        "completed_at": "2026-10-28T13:20:14Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-28T13:20:14Z",
+        "completed_at": "2026-10-28T13:20:14Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T13:20:14Z",
+        "completed_at": "2026-10-28T13:20:14Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T13:20:14Z",
+        "completed_at": "2026-10-28T13:20:14Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:20:14Z",
+        "completed_at": "2026-10-28T13:20:16Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:20:16Z",
+        "completed_at": "2026-10-28T13:20:21Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 9,
+        "started_at": "2026-10-28T13:20:21Z",
+        "completed_at": "2026-10-28T13:21:03Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T13:21:03Z",
+        "completed_at": "2026-10-28T13:21:03Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T13:21:03Z",
+        "completed_at": "2026-10-28T13:21:03Z"
+      },
+      {
+        "name": "Post Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 21,
+        "started_at": "2026-10-28T13:21:03Z",
+        "completed_at": "2026-10-28T13:21:03Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:21:03Z",
+        "completed_at": "2026-10-28T13:21:04Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:21:04Z",
+        "completed_at": "2026-10-28T13:21:04Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684539",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150387,
+    "runner_name": "GitHub Actions 1000150387",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684579,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDV4w",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684579",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684579",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:17:43Z",
+    "completed_at": "2026-10-28T13:19:40Z",
+    "name": "Test (bun on windows-2025)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:17:44Z",
+        "completed_at": "2026-10-28T13:17:45Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:17:45Z",
+        "completed_at": "2026-10-28T13:17:56Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:17:56Z",
+        "completed_at": "2026-10-28T13:17:57Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-28T13:17:57Z",
+        "completed_at": "2026-10-28T13:17:57Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T13:17:57Z",
+        "completed_at": "2026-10-28T13:17:57Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T13:17:57Z",
+        "completed_at": "2026-10-28T13:17:57Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-28T13:17:57Z",
+        "completed_at": "2026-10-28T13:18:00Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:18:00Z",
+        "completed_at": "2026-10-28T13:18:24Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 9,
+        "started_at": "2026-10-28T13:18:24Z",
+        "completed_at": "2026-10-28T13:19:36Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-28T13:19:36Z",
+        "completed_at": "2026-10-28T13:19:36Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-28T13:19:36Z",
+        "completed_at": "2026-10-28T13:19:36Z"
+      },
+      {
+        "name": "Post Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 21,
+        "started_at": "2026-10-28T13:19:36Z",
+        "completed_at": "2026-10-28T13:19:36Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:19:36Z",
+        "completed_at": "2026-10-28T13:19:38Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:19:38Z",
+        "completed_at": "2026-10-28T13:19:38Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684579",
+    "labels": [
+      "windows-2025"
+    ],
+    "runner_id": 1000150377,
+    "runner_name": "GitHub Actions 1000150377",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122839684586,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmdDV6g",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122839684586",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122839684586",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:17:41Z",
+    "started_at": "2026-10-28T13:20:04Z",
+    "completed_at": "2026-10-28T13:28:25Z",
+    "name": "Test (deno on ubuntu-24.04)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:20:05Z",
+        "completed_at": "2026-10-28T13:20:07Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:20:07Z",
+        "completed_at": "2026-10-28T13:20:11Z"
+      },
+      {
+        "name": "Simulate fresh merge with base branch (PR only)",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:20:11Z",
+        "completed_at": "2026-10-28T13:20:11Z"
+      },
+      {
+        "name": "Setup Node.js",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-28T13:20:11Z",
+        "completed_at": "2026-10-28T13:20:11Z"
+      },
+      {
+        "name": "Install dependencies (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-28T13:20:11Z",
+        "completed_at": "2026-10-28T13:20:11Z"
+      },
+      {
+        "name": "Run tests (Node.js)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-28T13:20:11Z",
+        "completed_at": "2026-10-28T13:20:12Z"
+      },
+      {
+        "name": "Setup Bun",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T13:20:12Z",
+        "completed_at": "2026-10-28T13:20:12Z"
+      },
+      {
+        "name": "Install dependencies (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 8,
+        "started_at": "2026-10-28T13:20:12Z",
+        "completed_at": "2026-10-28T13:20:12Z"
+      },
+      {
+        "name": "Run tests (Bun)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-28T13:20:12Z",
+        "completed_at": "2026-10-28T13:20:12Z"
+      },
+      {
+        "name": "Setup Deno",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-28T13:20:12Z",
+        "completed_at": "2026-10-28T13:20:13Z"
+      },
+      {
+        "name": "Run tests (Deno)",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 11,
+        "started_at": "2026-10-28T13:20:13Z",
+        "completed_at": "2026-10-28T13:28:22Z"
+      },
+      {
+        "name": "Post Setup Deno",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 21,
+        "started_at": "2026-10-28T13:28:22Z",
+        "completed_at": "2026-10-28T13:28:22Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 22,
+        "started_at": "2026-10-28T13:28:22Z",
+        "completed_at": "2026-10-28T13:28:23Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 23,
+        "started_at": "2026-10-28T13:28:23Z",
+        "completed_at": "2026-10-28T13:28:23Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122839684586",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150386,
+    "runner_name": "GitHub Actions 1000150386",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122845373707,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmielCw",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122845373707",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122845373707",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-28T13:28:25Z",
+    "started_at": "2026-10-28T13:28:27Z",
+    "completed_at": "2026-10-28T13:28:35Z",
+    "name": "Pipeline status",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-28T13:28:28Z",
+        "completed_at": "2026-10-28T13:28:29Z"
+      },
+      {
+        "name": "Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-28T13:28:29Z",
+        "completed_at": "2026-10-28T13:28:32Z"
+      },
+      {
+        "name": "Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-28T13:28:32Z",
+        "completed_at": "2026-10-28T13:28:33Z"
+      },
+      {
+        "name": "Require every selected check to pass",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 4,
+        "started_at": "2026-10-28T13:28:33Z",
+        "completed_at": "2026-10-28T13:28:33Z"
+      },
+      {
+        "name": "Post Run actions/setup-node@v7",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-28T13:28:33Z",
+        "completed_at": "2026-10-28T13:28:33Z"
+      },
+      {
+        "name": "Post Run actions/checkout@v7",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-28T13:28:33Z",
+        "completed_at": "2026-10-28T13:28:33Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-28T13:28:33Z",
+        "completed_at": "2026-10-28T13:28:33Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122845373707",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000150391,
+    "runner_name": "GitHub Actions 1000150391",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  {
+    "id": 122845474797,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmikv7Q",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122845474797",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122845474797",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-28T13:28:36Z",
+    "started_at": "2026-10-28T13:28:36Z",
+    "completed_at": "2026-10-28T13:28:36Z",
+    "name": "Instant Release",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122845474797",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  },
+  {
+    "id": 122845475126,
+    "run_id": 40694834767,
+    "workflow_name": "Checks and release",
+    "head_branch": "issue-43-1924384484c0",
+    "run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/runs/40694834767",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOSRd4l88AAAAcmikxNg",
+    "head_sha": "96eaf4812cea3f3d2f4188bf0840e95f28b79997",
+    "url": "https://api.github.com/repos/link-foundation/meta-sovereign/actions/jobs/122845475126",
+    "html_url": "https://github.com/link-foundation/meta-sovereign/actions/runs/40694834767/job/122845475126",
+    "status": "completed",
+    "conclusion": "skipped",
+    "created_at": "2026-10-28T13:28:36Z",
+    "started_at": "2026-10-28T13:28:36Z",
+    "completed_at": "2026-10-28T13:28:36Z",
+    "name": "Release",
+    "steps": [],
+    "check_run_url": "https://api.github.com/repos/link-foundation/meta-sovereign/check-runs/122845475126",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": null,
+    "runner_name": null,
+    "runner_group_id": null,
+    "runner_group_name": null
+  }
+]

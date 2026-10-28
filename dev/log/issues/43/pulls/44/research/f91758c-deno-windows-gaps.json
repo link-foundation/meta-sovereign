@@ -1,0 +1,72 @@
+[
+  {
+    "gap_seconds": 60.01126,
+    "before_line": 3247,
+    "before": "2026-10-28T15:49:52.9110555Z 'R-Z11 incremental pull' has been running for over (2m0s)",
+    "after_line": 3248,
+    "after": "2026-10-28T15:50:52.9223152Z  ok (2m59s)"
+  },
+  {
+    "gap_seconds": 60.009538,
+    "before_line": 3228,
+    "before": "2026-10-28T15:46:52.7532866Z 'R-Z11 external ids' has been running for over (2m0s)",
+    "after_line": 3229,
+    "after": "2026-10-28T15:47:52.7628246Z  ok (2m59s)"
+  },
+  {
+    "gap_seconds": 60.008883,
+    "before_line": 3227,
+    "before": "2026-10-28T15:45:52.7444033Z   edits, deletes and reacts on the object the reference names ...'R-Z11 external ids' has been running for over (1m0s)",
+    "after_line": 3228,
+    "after": "2026-10-28T15:46:52.7532866Z 'R-Z11 external ids' has been running for over (2m0s)"
+  },
+  {
+    "gap_seconds": 60.002683,
+    "before_line": 3246,
+    "before": "2026-10-28T15:48:52.9083728Z   a failing repository does not stop the others; a rate limit does ...'R-Z11 incremental pull' has been running for over (1m0s)",
+    "after_line": 3247,
+    "after": "2026-10-28T15:49:52.9110555Z 'R-Z11 incremental pull' has been running for over (2m0s)"
+  },
+  {
+    "gap_seconds": 59.976688,
+    "before_line": 3226,
+    "before": "2026-10-28T15:44:52.7677159Z   keeps the GitHub id, node id, owner, repo and number on every kind ... ok (45ms)",
+    "after_line": 3227,
+    "after": "2026-10-28T15:45:52.7444033Z   edits, deletes and reacts on the object the reference names ...'R-Z11 external ids' has been running for over (1m0s)"
+  },
+  {
+    "gap_seconds": 59.962416,
+    "before_line": 3245,
+    "before": "2026-10-28T15:47:52.9459566Z   does not move the cursor when the store write fails (R-Z14) ... ok (15ms)",
+    "after_line": 3246,
+    "after": "2026-10-28T15:48:52.9083728Z   a failing repository does not stop the others; a rate limit does ...'R-Z11 incremental pull' has been running for over (1m0s)"
+  },
+  {
+    "gap_seconds": 8.381184,
+    "before_line": 4195,
+    "before": "2026-10-28T15:51:24.8317947Z running 2 tests from ./js/tests/rolling-cli.test.js",
+    "after_line": 4196,
+    "after": "2026-10-28T15:51:33.2129782Z default serve owns a stable host; repeated serve reuses it and applies UI changes through a prepared worker ... ok (8s)"
+  },
+  {
+    "gap_seconds": 8.051548,
+    "before_line": 1998,
+    "before": "2026-10-28T15:43:41.5382745Z presets are listed, saved, edited and deleted ... ok (126ms)",
+    "after_line": 1999,
+    "after": "2026-10-28T15:43:49.5898220Z a safe run drafts, and a draft is sent only with confirm ... ok (8s)"
+  },
+  {
+    "gap_seconds": 6.229092,
+    "before_line": 5788,
+    "before": "2026-10-28T15:52:49.9013719Z [meta-sovereign] POST /api/automations/drafts/send failed (502):  blocked by privacy settings",
+    "after_line": 5789,
+    "after": "2026-10-28T15:52:56.1304635Z ##[error]The operation was canceled."
+  },
+  {
+    "gap_seconds": 5.635346,
+    "before_line": 94,
+    "before": "2026-10-28T15:42:54.7180510Z [command]\"C:\\Program Files\\Git\\bin\\git.exe\" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +911c79388d2ccacaad60d7e6e9634101bc072620:refs/remotes/pull/44/merge",
+    "after_line": 95,
+    "after": "2026-10-28T15:43:00.3533976Z From https://github.com/link-foundation/meta-sovereign"
+  }
+]

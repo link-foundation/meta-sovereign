@@ -1,0 +1,20 @@
+[
+  {
+    "file": "ci-logs/workflow-40714282544.log",
+    "matches": []
+  },
+  {
+    "file": "ci-logs/workflow-40714282618.log",
+    "matches": [
+      {
+        "line": 314,
+        "text": "Resolve release\tResolve tag and decide what to do\t2026-10-28T15:17:06.2443922Z ^[[36;1m  echo \"::warning::npm publishing failed; building the desktop release for $tag anyway\"^[[0m",
+        "classification": "echoed dormant source command"
+      }
+    ]
+  },
+  {
+    "file": "ci-logs/workflow-40714282640.log",
+    "matches": []
+  }
+]

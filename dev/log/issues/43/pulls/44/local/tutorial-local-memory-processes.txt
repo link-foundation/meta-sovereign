@@ -1,0 +1,5 @@
+[Omitted long matching line]
+  67638   67612 160524 node js/tests/e2e-tutorial-browser.mjs
+  67675   67669 118560 /home/box/.cache/ms-playwright/webkit-2370/minibrowser-wpe/bin/MiniBrowser --inspector-pipe --headless --no-startup-window
+  67782    3204  3548 /bin/bash -c ps -eo pid,ppid,rss,args | rg --max-columns 300 'e2e-tutorial-browser|WebKit|MiniBrowser|playwright.*run-driver' > dev/log/issues/43/pulls/44/local/tutorial-local-memory-processes.txt cat dev/log/issues/43/pulls/44/local/tutorial-local-memory-processes.txt 
+  67784   67782  4840 rg --max-columns 300 e2e-tutorial-browser|WebKit|MiniBrowser|playwright.*run-driver

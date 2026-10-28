@@ -1,0 +1,691 @@
+Available tasks:
+- serve
+    deno run --allow-read --allow-write --allow-env --allow-net --allow-sys --allow-run js/bin/meta-sovereign.js serve
+- test (package.json)
+    node --test --test-concurrency=2 --test-timeout=30000 js/tests/*.test.js
+- test:e2e:browser (package.json)
+    node js/tests/e2e-browser-spa.mjs
+- test:e2e:browser:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-browser-spa.mjs
+- test:e2e:pages (package.json)
+    node js/tests/e2e-pages.mjs
+- test:pack (package.json)
+    node js/tests/pack-smoke.mjs
+- test:e2e:archive-media (package.json)
+    node js/tests/e2e-archive-media-browser.mjs
+- test:e2e:archive-media:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-archive-media-browser.mjs
+- test:e2e:email (package.json)
+    node js/tests/e2e-email-browser.mjs
+- test:e2e:email:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-email-browser.mjs
+- test:e2e:cv (package.json)
+    node js/tests/e2e-cv-browser.mjs
+- test:e2e:greetings (package.json)
+    node js/tests/e2e-greetings-browser.mjs
+- test:e2e:tutorial (package.json)
+    node js/tests/e2e-tutorial-browser.mjs
+- test:e2e:deleted (package.json)
+    node js/tests/e2e-deleted-browser.mjs
+- test:e2e:deleted:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-deleted-browser.mjs
+- test:e2e:audience-sync (package.json)
+    node js/tests/e2e-audience-sync-browser.mjs
+- test:e2e:audience-sync:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-audience-sync-browser.mjs
+- test:e2e:selection (package.json)
+    node js/tests/e2e-chat-selection-browser.mjs
+- test:e2e:albums (package.json)
+    node js/tests/e2e-albums-browser.mjs
+- test:e2e:autopilot (package.json)
+    node js/tests/e2e-autopilot-browser.mjs
+- test:e2e:draft (package.json)
+    node js/tests/e2e-draft-browser.mjs
+- test:e2e:offline (package.json)
+    node js/tests/e2e-offline-browser.mjs
+- test:e2e:chat-menu (package.json)
+    node js/tests/e2e-chat-menu-browser.mjs
+- test:e2e:chat-search (package.json)
+    node js/tests/e2e-chat-search-browser.mjs
+- test:e2e:attach (package.json)
+    node js/tests/e2e-attach-browser.mjs
+- test:e2e:photo-editor (package.json)
+    node js/tests/e2e-photo-editor-browser.mjs
+- test:e2e:format (package.json)
+    node js/tests/e2e-format-browser.mjs
+- test:e2e:schedule (package.json)
+    node js/tests/e2e-schedule-browser.mjs
+- test:e2e:send-extras (package.json)
+    node js/tests/e2e-send-extras-browser.mjs
+- test:e2e:send-extras:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-send-extras-browser.mjs
+- test:e2e:folders (package.json)
+    node js/tests/e2e-folders-browser.mjs
+- test:e2e:passcode (package.json)
+    node js/tests/e2e-passcode-browser.mjs
+- test:e2e:passcode:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-passcode-browser.mjs
+- test:e2e:shortcuts (package.json)
+    node js/tests/e2e-shortcuts-browser.mjs
+- test:e2e:shortcuts:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-shortcuts-browser.mjs
+- test:e2e:emoji (package.json)
+    node js/tests/e2e-emoji-browser.mjs
+- test:e2e:emoji-tones (package.json)
+    node js/tests/e2e-emoji-tones-browser.mjs
+- test:e2e:stickers (package.json)
+    node js/tests/e2e-stickers-browser.mjs
+- test:e2e:jump-date (package.json)
+    node js/tests/e2e-jump-date-browser.mjs
+- test:e2e:global-search (package.json)
+    node js/tests/e2e-global-search-browser.mjs
+- test:e2e:voice (package.json)
+    node js/tests/e2e-voice-browser.mjs
+- test:e2e:transcribe (package.json)
+    node js/tests/e2e-transcribe-browser.mjs
+- test:e2e:report-messages (package.json)
+    node js/tests/e2e-report-messages-browser.mjs
+- test:e2e:round-video (package.json)
+    node js/tests/e2e-round-video-browser.mjs
+- test:e2e:hashtags (package.json)
+    node js/tests/e2e-hashtags-browser.mjs
+- test:e2e:reply-return (package.json)
+    node js/tests/e2e-reply-return-browser.mjs
+- test:e2e:replies (package.json)
+    node js/tests/e2e-reply-cache-browser.mjs
+- lint (package.json)
+    eslint --config js/eslint.config.js .
+- lint:fix (package.json)
+    eslint --config js/eslint.config.js . --fix
+- format (package.json)
+    prettier --write .
+- format:check (package.json)
+    prettier --check .
+- check:duplication (package.json)
+    jscpd .
+- check (package.json)
+    npm run lint && npm run format:check && npm run check:duplication
+- build:web (package.json)
+    node js/scripts/build-web.mjs
+- build:pages (package.json)
+    node js/scripts/build-pages.mjs
+- build:mobile (package.json)
+    npm run build:web && node js/scripts/build-mobile.mjs
+- electron (package.json)
+    npm exec --yes --package electron@^44.9.0 -- electron js/electron/main.js
+- desktop:prepare (package.json)
+    npm run build:web && node js/scripts/prepare-desktop.mjs
+- desktop:build (package.json)
+    npm run build:web && node js/scripts/build-desktop.mjs
+- desktop:icon (package.json)
+    node js/scripts/render-desktop-icon.mjs
+- mobile:sync (package.json)
+    npm run build:mobile && node js/scripts/mobile-platform.mjs sync
+- mobile:ios (package.json)
+    npm run build:mobile && node js/scripts/mobile-platform.mjs ios open
+- mobile:android (package.json)
+    npm run build:mobile && node js/scripts/mobile-platform.mjs android open
+- docs:api (package.json)
+    node js/scripts/build-api-docs.mjs
+- prepare (package.json)
+    husky || true
+- changeset (package.json)
+    changeset
+- changeset:version (package.json)
+    node js/scripts/changeset-version.mjs
+- changeset:publish (package.json)
+    changeset publish
+- changeset:status (package.json)
+    changeset status --since=origin/main
+- test:e2e:selection:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-selection-browser.mjs
+- test:e2e:albums:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-albums-browser.mjs
+- test:e2e:autopilot:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-autopilot-browser.mjs
+- test:e2e:greetings:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-greetings-browser.mjs
+- test:e2e:draft:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-draft-browser.mjs
+- test:e2e:offline:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-offline-browser.mjs
+- test:e2e:chat-menu:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-menu-browser.mjs
+- test:e2e:chat-search:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-search-browser.mjs
+- test:e2e:attach:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-attach-browser.mjs
+- test:e2e:photo-editor:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-photo-editor-browser.mjs
+- test:e2e:format:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-format-browser.mjs
+- test:e2e:schedule:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-schedule-browser.mjs
+- test:e2e:folders:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-folders-browser.mjs
+- test:e2e:emoji:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-emoji-browser.mjs
+- test:e2e:emoji-tones:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-emoji-tones-browser.mjs
+- test:e2e:stickers:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-stickers-browser.mjs
+- test:e2e:jump-date:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-jump-date-browser.mjs
+- test:e2e:drafts-calendar (package.json)
+    node js/tests/e2e-drafts-calendar-browser.mjs
+- test:e2e:drafts-calendar:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-drafts-calendar-browser.mjs
+- test:e2e:global-search:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-global-search-browser.mjs
+- test:e2e:voice:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-voice-browser.mjs
+- test:e2e:transcribe:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-transcribe-browser.mjs
+- test:e2e:report-messages:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-report-messages-browser.mjs
+- test:e2e:round-video:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-round-video-browser.mjs
+- test:e2e:hashtags:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-hashtags-browser.mjs
+- test:e2e:reply-return:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-reply-return-browser.mjs
+- test:e2e:games (package.json)
+    node js/tests/e2e-games-browser.mjs
+- test:e2e:games:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-games-browser.mjs
+- test:e2e:service-messages (package.json)
+    node js/tests/e2e-service-messages-browser.mjs
+- test:e2e:service-messages:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-service-messages-browser.mjs
+- test:e2e:ephemeral (package.json)
+    node js/tests/e2e-ephemeral-browser.mjs
+- test:e2e:ephemeral:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-ephemeral-browser.mjs
+- test:e2e:request-peer (package.json)
+    node js/tests/e2e-request-peer-browser.mjs
+- test:e2e:request-peer:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-request-peer-browser.mjs
+- test:e2e:bots (package.json)
+    node js/tests/e2e-bots-browser.mjs
+- test:e2e:bots:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-bots-browser.mjs
+- test:e2e:shared (package.json)
+    node js/tests/e2e-shared-browser.mjs
+- test:e2e:shared:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-shared-browser.mjs
+- test:e2e:sticker-search (package.json)
+    node js/tests/e2e-sticker-search-browser.mjs
+- test:e2e:sticker-search:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-sticker-search-browser.mjs
+- test:e2e:lottie (package.json)
+    node js/tests/e2e-lottie-browser.mjs
+- test:e2e:lottie:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-lottie-browser.mjs
+- test:e2e:sticker-menu (package.json)
+    node js/tests/e2e-sticker-menu-browser.mjs
+- test:e2e:sticker-menu:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-sticker-menu-browser.mjs
+- test:e2e:sticker-box (package.json)
+    node js/tests/e2e-sticker-box-browser.mjs
+- test:e2e:sticker-box:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-sticker-box-browser.mjs
+- test:e2e:emoji-keywords (package.json)
+    node js/tests/e2e-emoji-keywords-browser.mjs
+- test:e2e:emoji-keywords:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-emoji-keywords-browser.mjs
+- test:e2e:custom-emoji (package.json)
+    node js/tests/e2e-custom-emoji-browser.mjs
+- test:e2e:custom-emoji:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-custom-emoji-browser.mjs
+- test:e2e:custom-emoji-composer (package.json)
+    node js/tests/e2e-custom-emoji-composer-browser.mjs
+- test:e2e:custom-emoji-composer:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-custom-emoji-composer-browser.mjs
+- test:e2e:poll-create (package.json)
+    node js/tests/e2e-poll-create-browser.mjs
+- test:e2e:poll-create:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-poll-create-browser.mjs
+- test:e2e:share-location (package.json)
+    node js/tests/e2e-share-location-browser.mjs
+- test:e2e:share-location:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-share-location-browser.mjs
+- test:e2e:forum-topics (package.json)
+    node js/tests/e2e-forum-topics-browser.mjs
+- test:e2e:forum-topics:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-forum-topics-browser.mjs
+- test:e2e:forum-view (package.json)
+    node js/tests/e2e-forum-view-browser.mjs
+- test:e2e:forum-view:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-forum-view-browser.mjs
+- test:e2e:saved-gifs (package.json)
+    node js/tests/e2e-saved-gifs-browser.mjs
+- test:e2e:saved-gifs:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-saved-gifs-browser.mjs
+- test:e2e:topic-admin (package.json)
+    node js/tests/e2e-topic-admin-browser.mjs
+- test:e2e:topic-admin:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-topic-admin-browser.mjs
+- test:e2e:group-stickers (package.json)
+    node js/tests/e2e-group-stickers-browser.mjs
+- test:e2e:group-stickers:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-group-stickers-browser.mjs
+- test:e2e:attach-schedule (package.json)
+    node js/tests/e2e-attach-schedule-browser.mjs
+- test:e2e:attach-schedule:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-attach-schedule-browser.mjs
+- test:e2e:invite-link (package.json)
+    node js/tests/e2e-invite-link-browser.mjs
+- test:e2e:invite-link:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-invite-link-browser.mjs
+- test:e2e:map (package.json)
+    node js/tests/e2e-map-browser.mjs
+- test:e2e:map:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-map-browser.mjs
+- test:e2e:chat-create (package.json)
+    node js/tests/e2e-chat-create-browser.mjs
+- test:e2e:chat-create:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-create-browser.mjs
+- test:e2e:emoji-status (package.json)
+    node js/tests/e2e-emoji-status-browser.mjs
+- test:e2e:emoji-status:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-emoji-status-browser.mjs
+- test:e2e:sticker-settings (package.json)
+    node js/tests/e2e-sticker-settings-browser.mjs
+- test:e2e:sticker-settings:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-sticker-settings-browser.mjs
+- test:e2e:sticker-extras (package.json)
+    node js/tests/e2e-sticker-extras-browser.mjs
+- test:e2e:sticker-extras:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-sticker-extras-browser.mjs
+- test:e2e:chat-theme (package.json)
+    node js/tests/e2e-chat-theme-browser.mjs
+- test:e2e:chat-theme:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-theme-browser.mjs
+- test:e2e:contacts-edit (package.json)
+    node js/tests/e2e-contacts-edit-browser.mjs
+- test:e2e:contacts-edit:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-contacts-edit-browser.mjs
+- test:e2e:profile (package.json)
+    node js/tests/e2e-profile-browser.mjs
+- test:e2e:profile:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-profile-browser.mjs
+- test:e2e:profile-extras (package.json)
+    node js/tests/e2e-profile-extras-browser.mjs
+- test:e2e:profile-extras:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-profile-extras-browser.mjs
+- test:e2e:profile-stories (package.json)
+    node js/tests/e2e-profile-stories-browser.mjs
+- test:e2e:profile-stories:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-profile-stories-browser.mjs
+- test:e2e:gifts-manage (package.json)
+    node js/tests/e2e-gifts-manage-browser.mjs
+- test:e2e:gifts-manage:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-gifts-manage-browser.mjs
+- test:e2e:send-gift (package.json)
+    node js/tests/e2e-send-gift-browser.mjs
+- test:e2e:send-gift:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-send-gift-browser.mjs
+- test:e2e:privacy (package.json)
+    node js/tests/e2e-privacy-browser.mjs
+- test:e2e:privacy:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-privacy-browser.mjs
+- test:e2e:boosts (package.json)
+    node js/tests/e2e-boosts-browser.mjs
+- test:e2e:boosts:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-boosts-browser.mjs
+- test:e2e:inbox-pull (package.json)
+    node js/tests/e2e-inbox-pull-browser.mjs
+- test:e2e:inbox-pull:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-inbox-pull-browser.mjs
+- test:e2e:vk-followups (package.json)
+    node js/tests/e2e-vk-followups-browser.mjs
+- test:e2e:vk-followups:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-vk-followups-browser.mjs
+- test:e2e:github-inbox (package.json)
+    node js/tests/e2e-github-inbox-browser.mjs
+- test:e2e:github-inbox:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-github-inbox-browser.mjs
+- test:e2e:archive-settings (package.json)
+    node js/tests/e2e-archive-settings-browser.mjs
+- test:e2e:archive-settings:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-archive-settings-browser.mjs
+- test:e2e:saved-pins (package.json)
+    node js/tests/e2e-saved-pins-browser.mjs
+- test:e2e:saved-pins:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-saved-pins-browser.mjs
+- test:e2e:strip-hide (package.json)
+    node js/tests/e2e-strip-hide-browser.mjs
+- test:e2e:strip-hide:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-strip-hide-browser.mjs
+- test:e2e:web-sessions (package.json)
+    node js/tests/e2e-web-sessions-browser.mjs
+- test:e2e:web-sessions:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-web-sessions-browser.mjs
+- test:e2e:business (package.json)
+    node js/tests/e2e-business-browser.mjs
+- test:e2e:business:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-business-browser.mjs
+- test:e2e:stars (package.json)
+    node js/tests/e2e-stars-browser.mjs
+- test:e2e:stars:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-stars-browser.mjs
+- test:e2e:saved-tags (package.json)
+    node js/tests/e2e-saved-tags-browser.mjs
+- test:e2e:saved-tags:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-saved-tags-browser.mjs
+- test:e2e:members (package.json)
+    node js/tests/e2e-members-browser.mjs
+- test:e2e:members:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-members-browser.mjs
+- test:e2e:peer-actions (package.json)
+    node js/tests/e2e-peer-actions-browser.mjs
+- test:e2e:peer-actions:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-peer-actions-browser.mjs
+- test:e2e:comments (package.json)
+    node js/tests/e2e-comments-browser.mjs
+- test:e2e:comments:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-comments-browser.mjs
+- test:e2e:dice (package.json)
+    node js/tests/e2e-dice-browser.mjs
+- test:e2e:dice:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-dice-browser.mjs
+- test:e2e:readers (package.json)
+    node js/tests/e2e-readers-browser.mjs
+- test:e2e:contacts (package.json)
+    node js/tests/e2e-contacts-browser.mjs
+- test:e2e:accounts (package.json)
+    node js/tests/e2e-accounts-browser.mjs
+- test:e2e:accounts:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-accounts-browser.mjs
+- test:e2e:qr-login (package.json)
+    node js/tests/e2e-qr-login-browser.mjs
+- test:e2e:qr-login:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-qr-login-browser.mjs
+- test:e2e:accounts-switch (package.json)
+    node js/tests/e2e-accounts-switch-browser.mjs
+- test:e2e:accounts-switch:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-accounts-switch-browser.mjs
+- test:e2e:contacts:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-contacts-browser.mjs
+- test:e2e:readers:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-readers-browser.mjs
+- test:e2e:bot-commands (package.json)
+    node js/tests/e2e-bot-commands-browser.mjs
+- test:e2e:instant-view (package.json)
+    node js/tests/e2e-instant-view-browser.mjs
+- test:e2e:instant-view:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-instant-view-browser.mjs
+- test:e2e:rich-messages (package.json)
+    node js/tests/e2e-rich-messages-browser.mjs
+- test:e2e:rich-messages:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-rich-messages-browser.mjs
+- test:e2e:rich-text (package.json)
+    node js/tests/e2e-rich-text-browser.mjs
+- test:e2e:rich-text:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-rich-text-browser.mjs
+- test:e2e:rich-files (package.json)
+    node js/tests/e2e-rich-files-browser.mjs
+- test:e2e:rich-files:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-rich-files-browser.mjs
+- test:e2e:inline-bots (package.json)
+    node js/tests/e2e-inline-bots-browser.mjs
+- test:e2e:inline-bots:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-inline-bots-browser.mjs
+- test:e2e:bot-commands:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-bot-commands-browser.mjs
+- test:e2e:quick-replies (package.json)
+    node js/tests/e2e-quick-replies-browser.mjs
+- test:e2e:quick-replies:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-quick-replies-browser.mjs
+- test:e2e:apps (package.json)
+    node js/tests/e2e-apps-browser.mjs
+- test:e2e:apps:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-apps-browser.mjs
+- test:e2e:web-apps (package.json)
+    node js/tests/e2e-web-apps-browser.mjs
+- test:e2e:web-apps:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-web-apps-browser.mjs
+- test:e2e:bot-login (package.json)
+    node js/tests/e2e-bot-login-browser.mjs
+- test:e2e:bot-login:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-bot-login-browser.mjs
+- test:e2e:edit (package.json)
+    node js/tests/e2e-edit-browser.mjs
+- test:e2e:edit:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-edit-browser.mjs
+- test:e2e:link-preview (package.json)
+    node js/tests/e2e-link-preview-browser.mjs
+- test:e2e:link-preview:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-link-preview-browser.mjs
+- test:e2e:notify (package.json)
+    node js/tests/e2e-notify-browser.mjs
+- test:e2e:notify:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-notify-browser.mjs
+- test:e2e:notify-settings (package.json)
+    node js/tests/e2e-notify-settings-browser.mjs
+- test:e2e:notify-settings:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-notify-settings-browser.mjs
+- test:e2e:pinned-reorder (package.json)
+    node js/tests/e2e-pinned-reorder-browser.mjs
+- test:e2e:pinned-reorder:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-pinned-reorder-browser.mjs
+- test:e2e:effects (package.json)
+    node js/tests/e2e-effects-browser.mjs
+- test:e2e:effects:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-effects-browser.mjs
+- test:e2e:scale-proxy (package.json)
+    node js/tests/e2e-scale-proxy-browser.mjs
+- test:e2e:scale-proxy:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-scale-proxy-browser.mjs
+- test:e2e:peer-bar (package.json)
+    node js/tests/e2e-peer-bar-browser.mjs
+- test:e2e:visual-effects (package.json)
+    node js/tests/e2e-visual-effects-browser.mjs
+- test:e2e:visual-effects:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-visual-effects-browser.mjs
+- test:e2e:voice-chat (package.json)
+    node js/tests/e2e-voice-chat-browser.mjs
+- test:e2e:voice-chat:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-voice-chat-browser.mjs
+- test:e2e:sounds (package.json)
+    node js/tests/e2e-sounds-browser.mjs
+- test:e2e:folder-edit (package.json)
+    node js/tests/e2e-folder-edit-browser.mjs
+- test:e2e:folder-edit:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-folder-edit-browser.mjs
+- test:e2e:shared-folders (package.json)
+    node js/tests/e2e-shared-folders-browser.mjs
+- test:e2e:shared-folders:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-shared-folders-browser.mjs
+- test:e2e:folder-live (package.json)
+    node js/tests/e2e-folder-live-browser.mjs
+- test:e2e:folder-live:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-folder-live-browser.mjs
+- test:e2e:peer-bar:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-peer-bar-browser.mjs
+- test:e2e:sounds:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-sounds-browser.mjs
+- test:e2e:forward-options (package.json)
+    node js/tests/e2e-forward-options-browser.mjs
+- test:e2e:forward-options:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-forward-options-browser.mjs
+- test:e2e:send-as (package.json)
+    node js/tests/e2e-send-as-browser.mjs
+- test:e2e:send-as:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-send-as-browser.mjs
+- test:e2e:paid-messages (package.json)
+    node js/tests/e2e-paid-messages-browser.mjs
+- test:e2e:paid-messages:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-paid-messages-browser.mjs
+- test:e2e:giveaways (package.json)
+    node js/tests/e2e-giveaways-browser.mjs
+- test:e2e:giveaways:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-giveaways-browser.mjs
+- test:e2e:stories (package.json)
+    node js/tests/e2e-stories-browser.mjs
+- test:e2e:stories:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-stories-browser.mjs
+- test:e2e:story-actions (package.json)
+    node js/tests/e2e-story-actions-browser.mjs
+- test:e2e:story-actions:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-story-actions-browser.mjs
+- test:e2e:story-extras (package.json)
+    node js/tests/e2e-story-extras-browser.mjs
+- test:e2e:story-manage (package.json)
+    node js/tests/e2e-story-manage-browser.mjs
+- test:e2e:story-manage:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-story-manage-browser.mjs
+- test:e2e:story-extras:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-story-extras-browser.mjs
+- test:e2e:story-post (package.json)
+    node js/tests/e2e-story-post-browser.mjs
+- test:e2e:story-post:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-story-post-browser.mjs
+- test:e2e:translate (package.json)
+    node js/tests/e2e-translate-browser.mjs
+- test:e2e:translate:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-translate-browser.mjs
+- test:e2e:admin (package.json)
+    node js/tests/e2e-admin-browser.mjs
+- test:e2e:admin-extras (package.json)
+    node js/tests/e2e-admin-extras-browser.mjs
+- test:e2e:admin-extras:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-admin-extras-browser.mjs
+- test:e2e:admins (package.json)
+    node js/tests/e2e-admins-browser.mjs
+- test:e2e:admins:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-admins-browser.mjs
+- test:e2e:export (package.json)
+    node js/tests/e2e-export-browser.mjs
+- test:e2e:account-data (package.json)
+    node js/tests/e2e-account-data-browser.mjs
+- test:e2e:security (package.json)
+    node js/tests/e2e-security-browser.mjs
+- test:e2e:security:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-security-browser.mjs
+- test:e2e:security-extras (package.json)
+    node js/tests/e2e-security-extras-browser.mjs
+- test:e2e:security-extras:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-security-extras-browser.mjs
+- test:e2e:contact-extras (package.json)
+    node js/tests/e2e-contact-extras-browser.mjs
+- test:e2e:contact-extras:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-contact-extras-browser.mjs
+- test:e2e:stats (package.json)
+    node js/tests/e2e-stats-browser.mjs
+- test:e2e:stats:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-stats-browser.mjs
+- test:e2e:checklist-stats (package.json)
+    node js/tests/e2e-checklist-stats-browser.mjs
+- test:e2e:checklist-stats:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-checklist-stats-browser.mjs
+- test:e2e:channel-dm (package.json)
+    node js/tests/e2e-channel-dm-browser.mjs
+- test:e2e:channel-dm:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-channel-dm-browser.mjs
+- test:e2e:common-chats (package.json)
+    node js/tests/e2e-common-chats-browser.mjs
+- test:e2e:common-chats:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-common-chats-browser.mjs
+- test:e2e:pinned-list (package.json)
+    node js/tests/e2e-pinned-list-browser.mjs
+- test:e2e:pinned-list:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-pinned-list-browser.mjs
+- test:e2e:admin:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-admin-browser.mjs
+- test:e2e:export:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-export-browser.mjs
+- test:e2e:account-data:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-account-data-browser.mjs
+- test:e2e:chat-reactions (package.json)
+    node js/tests/e2e-chat-reactions-browser.mjs
+- test:e2e:chat-reactions:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-reactions-browser.mjs
+- test:e2e:chat-settings (package.json)
+    node js/tests/e2e-chat-settings-browser.mjs
+- test:e2e:chat-settings:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-settings-browser.mjs
+- test:e2e:limits-fixes (package.json)
+    node js/tests/e2e-limits-fixes-browser.mjs
+- test:e2e:limits-fixes:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-limits-fixes-browser.mjs
+- test:e2e:invite-links (package.json)
+    node js/tests/e2e-invite-links-browser.mjs
+- test:e2e:invite-links:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-invite-links-browser.mjs
+- test:e2e:auto-delete (package.json)
+    node js/tests/e2e-auto-delete-browser.mjs
+- test:e2e:auto-delete:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-auto-delete-browser.mjs
+- test:e2e:cloud-themes (package.json)
+    node js/tests/e2e-cloud-themes-browser.mjs
+- test:e2e:cloud-themes:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-cloud-themes-browser.mjs
+- test:e2e:translate-bar (package.json)
+    node js/tests/e2e-translate-bar-browser.mjs
+- test:e2e:translate-bar:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-translate-bar-browser.mjs
+- test:e2e:wallpapers (package.json)
+    node js/tests/e2e-wallpapers-browser.mjs
+- test:e2e:wallpapers:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-wallpapers-browser.mjs
+- test:e2e:marketplaces (package.json)
+    node js/tests/e2e-marketplaces-browser.mjs
+- test:e2e:marketplaces:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-marketplaces-browser.mjs
+- test:e2e:operator (package.json)
+    node js/tests/e2e-operator-browser.mjs
+- test:e2e:operator:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-operator-browser.mjs
+- test:e2e:calls (package.json)
+    node js/tests/e2e-calls-browser.mjs
+- test:e2e:calls:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-calls-browser.mjs
+- test:e2e:private-call (package.json)
+    node js/tests/e2e-private-call-browser.mjs
+- test:e2e:private-call:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-private-call-browser.mjs
+- test:e2e:whatsapp-signin (package.json)
+    node js/tests/e2e-whatsapp-signin-browser.mjs
+- test:e2e:whatsapp-signin:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-whatsapp-signin-browser.mjs
+- test:e2e:consistency (package.json)
+    node js/tests/e2e-consistency-browser.mjs
+- test:e2e:consistency:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-consistency-browser.mjs
+- test:e2e:channel-manage (package.json)
+    node js/tests/e2e-channel-manage-browser.mjs
+- test:e2e:channel-manage:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-channel-manage-browser.mjs
+- test:e2e:storage (package.json)
+    node js/tests/e2e-storage-browser.mjs
+- test:e2e:storage:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-storage-browser.mjs
+- test:e2e:chat-loading (package.json)
+    node js/tests/e2e-chat-loading-browser.mjs
+- test:e2e:chat-loading:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-chat-loading-browser.mjs
+- test:e2e:contacts-directory (package.json)
+    node js/tests/e2e-contacts-directory-browser.mjs
+- test:e2e:contacts-directory:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-contacts-directory-browser.mjs
+- test:e2e:navigation (package.json)
+    node js/tests/e2e-navigation-browser.mjs
+- test:e2e:navigation:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-navigation-browser.mjs
+- test:e2e:loading (package.json)
+    node js/tests/e2e-loading-browser.mjs
+- test:e2e:loading:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-loading-browser.mjs
+- test:e2e:media-loading (package.json)
+    node js/tests/e2e-media-loading-browser.mjs
+- test:e2e:media-loading:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-media-loading-browser.mjs
+- test:e2e:operator-replies (package.json)
+    node js/tests/e2e-operator-replies-browser.mjs
+- test:e2e:operator-replies:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-operator-replies-browser.mjs
+- test:e2e:recovery (package.json)
+    node js/tests/e2e-recovery-browser.mjs
+- test:e2e:recovery:webkit (package.json)
+    E2E_BROWSER=webkit node js/tests/e2e-recovery-browser.mjs
