@@ -142,6 +142,16 @@ describe('electron-builder config', () => {
     expect(adhoc).toContain('-c.mac.notarize=false');
   });
 
+  it('does not pass removed builder environment overrides to arm64 builds', async () => {
+    const workflow = await readFile(
+      new URL('../../.github/workflows/desktop-release.yml', import.meta.url),
+      'utf8'
+    );
+    expect(workflow).not.toContain('USE_SYSTEM_FPM');
+    expect(workflow).toContain('META_SOVEREIGN_FPM_DIR');
+    expect(builderConfig.toolsets).toEqual({});
+  });
+
   it('produces the catalogue name for every download option', () => {
     for (const opt of DOWNLOAD_OPTIONS) {
       const arch =
